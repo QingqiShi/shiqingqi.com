@@ -59,7 +59,7 @@ const styles = stylex.create({
   heading: {
     fontSize: font.vpHeading1,
     fontWeight: font.weight_7,
-    color: color.textMuted,
+    color: color.fgMuted,
     marginBottom: space._3,
   },
   inputWrapper: {

@@ -58,7 +58,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     borderBlockStartWidth: { default: 0, ":not(:first-child)": border.size_1 },
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
     minInlineSize: 0,
   },
   term: {
@@ -66,7 +66,7 @@ const styles = stylex.create({
     fontSize: font.uiBody,
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_3,
-    color: color.textMain,
+    color: color.fg,
     textWrap: "balance",
   },
   definition: {
@@ -80,12 +80,12 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_3,
-    color: color.textMain,
+    color: color.fg,
   },
   note: {
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     maxInlineSize: measure.prose,
     textWrap: "pretty",
   },

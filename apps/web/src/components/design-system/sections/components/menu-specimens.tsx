@@ -230,14 +230,14 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
     overflowWrap: "anywhere",
   },
   keyEffect: {
     margin: 0,
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     minInlineSize: 0,
   },
   // A popup is out of flow, so each stage reserves the height of its own open
@@ -268,13 +268,13 @@ const styles = stylex.create({
     inlineSize: space._13,
   },
   item: {
-    color: { default: color.textMain, ":hover": color.textMuted },
+    color: { default: color.fg, ":hover": color.fgMuted },
     // Spelled out rather than left `null`: this declaration replaces
     // `buttonReset`'s, and a null default would let the UA's `buttonface` grey
     // paint the item at rest.
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     fontSize: controlSize._4,
     fontWeight: font.weight_6,
@@ -285,15 +285,15 @@ const styles = stylex.create({
   // Flat values, so they replace `item`'s hover variants too and the accent
   // treatment holds steady under the pointer.
   itemCurrent: {
-    color: color.accentOn,
-    backgroundColor: color.accent,
+    color: color.fgOnAccent,
+    backgroundColor: color.bgAccent,
   },
   stateValue: {
     fontFamily: font.familyMono,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
     paddingInline: space._1,
     paddingBlock: space._00,
-    backgroundColor: color.bgInteractiveRest,
+    backgroundColor: color.bgControl,
   },
 });

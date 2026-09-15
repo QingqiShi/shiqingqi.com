@@ -121,7 +121,7 @@ const styles = stylex.create({
     display: "block",
   },
   icon: {
-    color: color.accent,
+    color: color.fgAccent,
     fontSize: "1.25em",
   },
   meta: {
@@ -136,9 +136,9 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_3,
     color: {
-      default: color.textMuted,
-      ":hover": color.accent,
-      ":disabled": color.textMuted,
+      default: color.fgMuted,
+      ":hover": color.fgAccent,
+      ":disabled": color.fgMuted,
     },
     textDecorationLine: {
       default: "none",

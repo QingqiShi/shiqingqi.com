@@ -42,8 +42,8 @@ export default function GlobalError({
         {/* Values are hardcoded — this fallback renders even when the StyleX
             CSS bundle (and therefore the design-token CSS variables) hasn't
             loaded. They mirror the palette-derived light-theme defaults from
-            tokens.stylex.ts: textMuted (gray._40), accent (purple._30),
-            accentOn (gray._100), border.radius_round. */}
+            tokens.stylex.ts: fgMuted (gray._30), bgAccent (purple._30),
+            fgOnAccent (gray._100), border.radius_round. */}
         <p style={{ fontSize: "1rem", color: "#5E5E5C", margin: "0.75rem 0" }}>
           Something went wrong. Please try again.
         </p>

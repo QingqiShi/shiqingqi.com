@@ -135,15 +135,15 @@ const styles = stylex.create({
     paddingBlock: space._00,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: { default: color.textMuted, ":hover": color.textMain },
+    color: { default: color.fgMuted, ":hover": color.fg },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
   },
   caret: {
     display: "inline-flex",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   caretUp: {
     transform: "rotate(180deg)",
@@ -156,7 +156,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._2,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
 });

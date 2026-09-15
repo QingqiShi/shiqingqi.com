@@ -124,7 +124,7 @@ const styles = stylex.create({
     borderCollapse: "collapse",
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMain,
+    color: color.fg,
   },
   stickyHead: {
     [tableTokens.headInset]: "0px",
@@ -133,6 +133,6 @@ const styles = stylex.create({
   caption: {
     paddingBlockEnd: space._2,
     textAlign: "start",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

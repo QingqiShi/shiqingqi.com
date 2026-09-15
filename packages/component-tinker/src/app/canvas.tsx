@@ -274,7 +274,7 @@ function Cell({
         style={{
           colorScheme: scheme,
           backgroundColor: index.ref("color.bgCanvas"),
-          color: index.ref("color.textMain"),
+          color: index.ref("color.fg"),
           fontFamily: index.ref("font.family"),
         }}
       >

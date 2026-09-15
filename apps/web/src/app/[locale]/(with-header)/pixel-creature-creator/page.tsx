@@ -7,6 +7,7 @@ import { FeaturedRow } from "#src/components/pixel-creature-creator/landing/feat
 import { YourCreations } from "#src/components/pixel-creature-creator/landing/your-creations.tsx";
 import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
+import { brand } from "#src/logos/brand.stylex.ts";
 import type { PageProps } from "#src/types.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
 
@@ -109,12 +110,12 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.vpDisplay,
     fontWeight: font.weight_8,
-    color: color.textMain,
+    color: color.fg,
   },
   subtitle: {
     margin: 0,
     fontSize: font.vpSubDisplay,
-    color: color.textMuted,
+    color: color.fgMuted,
     maxInlineSize: "42rem",
   },
   cta: {
@@ -124,11 +125,11 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._6,
     backgroundColor: {
-      default: color.brandPixelCreatureCreator,
-      ":hover": color.accent,
-      ":focus-visible": color.accent,
+      default: brand.pixelCreatureCreator,
+      ":hover": color.bgAccent,
+      ":focus-visible": color.bgAccent,
     },
-    color: color.accentOn,
+    color: color.fgOnAccent,
     borderRadius: "999px",
     cornerShape: "round",
     fontSize: font.uiBody,

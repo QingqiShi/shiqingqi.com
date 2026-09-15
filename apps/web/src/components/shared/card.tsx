@@ -65,12 +65,12 @@ const styles = stylex.create({
     },
     cursor: "pointer",
     position: "relative",
-    color: color.textMain,
+    color: color.fg,
     boxShadow: { default: "none", ":hover": shadow._5 },
     zIndex: { ":hover": layer.content },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     transform: {
       default: null,
@@ -124,7 +124,7 @@ const styles = stylex.create({
   },
   detailsIndicator: {
     alignItems: "center",
-    color: color.textMain,
+    color: color.fg,
     display: "flex",
     fontSize: font.uiBodySmall,
     gap: space._0,

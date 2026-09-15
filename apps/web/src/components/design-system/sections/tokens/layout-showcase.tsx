@@ -340,7 +340,7 @@ const styles = stylex.create({
     gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
     gap: space._00,
     overflow: "hidden",
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     backgroundColor: color.bgCanvas,
   },
   band: {
@@ -354,22 +354,22 @@ const styles = stylex.create({
     boxShadow: `inset 0 -2px 0 0 transparent`,
   },
   bandActive: {
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 -2px 0 0 ${color.accent}`,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 -2px 0 0 ${color.bgAccent}`,
   },
   bandLabel: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   bandLabelActive: {
-    color: color.accentText,
+    color: color.fgAccent,
   },
   bandThreshold: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontVariantNumeric: "tabular-nums",
   },
   marker: {
@@ -383,16 +383,16 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     textTransform: "uppercase",
     letterSpacing: font.trackingWidest,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   markerValue: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
     fontVariantNumeric: "tabular-nums",
   },
   markerBand: {
-    color: color.accentText,
+    color: color.fgAccent,
     fontWeight: font.weight_6,
   },
   // Content-width schematic: a full-width "viewport" with a centred content band
@@ -403,7 +403,7 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._1,
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   gutterLabel: {
     display: "flex",
@@ -413,7 +413,7 @@ const styles = stylex.create({
     flexShrink: 0,
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
     textAlign: "center",
   },
   contentBand: {
@@ -425,18 +425,18 @@ const styles = stylex.create({
     flexGrow: 1,
     minInlineSize: 0,
     paddingBlock: space._5,
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   contentLabel: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.accentText,
+    color: color.fgAccent,
   },
   contentToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   measureRows: {
     display: "flex",
@@ -455,7 +455,7 @@ const styles = stylex.create({
     gap: space._1,
     padding: space._1,
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   measureLine: {
     gap: space._00,
@@ -463,17 +463,17 @@ const styles = stylex.create({
   measureNote: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   measureProse: {
     inlineSize: "57.5%",
     flexShrink: 0,
     paddingBlock: space._4,
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   measureProseLabel: {
-    color: color.accentText,
+    color: color.fgAccent,
   },
   measureRest: {
     flexGrow: 1,
@@ -483,12 +483,12 @@ const styles = stylex.create({
   measureSpecimen: {
     paddingBlock: space._2,
     backgroundColor: color.bgSurfaceSunken,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   measureCaption: {
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
@@ -524,7 +524,7 @@ const styles = stylex.create({
     boxShadow: shadow._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
   },
   layerOffset: (transform: string) => ({
     transform,
@@ -532,13 +532,13 @@ const styles = stylex.create({
   layerName: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
   },
   layerValue: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.accentText,
+    color: color.fgAccent,
     fontVariantNumeric: "tabular-nums",
   },
   lzBackground: { zIndex: layer.background, marginBlockStart: 0 },
@@ -560,8 +560,8 @@ const styles = stylex.create({
     inlineSize: "100%",
     maxInlineSize: "112px",
     maxBlockSize: "88px",
-    backgroundColor: color.surfaceAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.accentBorder}`,
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   arSquare: { aspectRatio: "1" },
   arGolden: { aspectRatio: "1.618/1" },
@@ -578,18 +578,18 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   codeMuted: {
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   codeLine: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMain,
+    color: color.fg,
     overflowWrap: "anywhere",
   },
 });

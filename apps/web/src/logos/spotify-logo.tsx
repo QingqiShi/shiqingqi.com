@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { brand } from "./brand.stylex.ts";
 import { svgTokens } from "./svg.stylex";
 
 export default function SpotifyLogo() {
@@ -15,7 +15,8 @@ export default function SpotifyLogo() {
 
 const styles = stylex.create({
   svg: {
-    color: stylex.firstThatWorks(svgTokens.fill, color.brandSpotify),
+    // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know stylex.firstThatWorks() and rejects the function call as a colour value
+    color: stylex.firstThatWorks(svgTokens.fill, brand.spotify),
     fill: "currentColor",
     objectFit: "contain",
     width: "100%",

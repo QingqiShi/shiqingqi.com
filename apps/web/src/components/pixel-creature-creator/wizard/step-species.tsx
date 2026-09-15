@@ -116,11 +116,11 @@ const styles = stylex.create({
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
   hint: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   grid: {
@@ -136,7 +136,7 @@ const styles = stylex.create({
     padding: space._2,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     borderRadius: "12px",
     cornerShape: "squircle",
@@ -144,10 +144,10 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "transparent",
     cursor: "pointer",
-    color: color.textMain,
+    color: color.fg,
   },
   optionSelected: {
-    borderColor: color.accent,
+    borderColor: color.borderAccent,
     backgroundColor: color.bgSurfaceRaised,
   },
   thumb: {

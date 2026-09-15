@@ -14,7 +14,7 @@ This project uses StyleX for all styling. The system has three layers: **design 
 | Flex layout, fills, truncation, resets, transitions    | Design primitives              | `css={flex.row}`                                |
 | Rounded corners                                        | Design primitives (`corner.*`) | `css={corner.radius_3}`                         |
 | Override a primitive's default                         | Layout modifier                | `css={[flex.row, align.end]}`                   |
-| Single-property styling (color, spacing, font, border) | `stylex.create` + tokens       | `color: color.textMain`                         |
+| Single-property styling (color, spacing, font, border) | `stylex.create` + tokens       | `color: color.fg`                               |
 | Responsive behavior                                    | `stylex.create` + breakpoints  | `{ default: "none", [breakpoints.md]: "flex" }` |
 | Pseudo-selectors (hover, focus)                        | `stylex.create`                | `{ default: val, ":hover": hoverVal }`          |
 
@@ -42,7 +42,7 @@ Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is Style
 
 Import from `#src/tokens.stylex.ts`. All tokens are theme-aware. For the full catalog of every token and its values, read `references/tokens.md`.
 
-Categories: `color`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `ratio`.
+Categories: `color`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`.
 
 ```tsx
 import { color, space, border, font } from "#src/tokens.stylex.ts";
@@ -51,7 +51,7 @@ const styles = stylex.create({
   card: {
     padding: space._4,
     borderWidth: border.size_1,
-    backgroundColor: color.backgroundRaised,
+    backgroundColor: color.bgSurfaceRaised,
     fontSize: font.uiBody,
   },
 });
@@ -133,7 +133,7 @@ const styles = stylex.create({ wide: { [textureTokens.pitch]: space._4 } });
 
 `texture.line` carries a wider default pitch of its own (`space._3`), so it needs no override at the everyday sizes.
 
-`textureTokens.pitch`/`.ink` default to `space._1`/`color.neutralBorder`; `washTokens.tone` defaults to `color.surfaceNeutralSubtle`.
+`textureTokens.pitch`/`.ink` default to `space._1`/`color.border`; `washTokens.tone` defaults to `color.bgNeutralSubtle`.
 
 Glass is the third Material but ships as a component style object, not a primitive: `glassSurface` from `@tuja/ui/components/glass-surface.stylex`, composed onto an element with `position: relative` plus a `corner.*` preset. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden the same way.
 

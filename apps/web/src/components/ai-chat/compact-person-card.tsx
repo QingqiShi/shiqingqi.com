@@ -133,7 +133,7 @@ const styles = stylex.create({
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     transform: {
       default: null,
@@ -163,9 +163,9 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
     borderWidth: 1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     fontSize: font.uiHeading1,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   name: {
     fontSize: font.uiBodySmall,
@@ -179,7 +179,7 @@ const styles = stylex.create({
   },
   department: {
     fontSize: "0.7rem",
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: 1.2,
   },
 });

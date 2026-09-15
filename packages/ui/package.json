@@ -45,7 +45,7 @@
     "./types": "./src/types.ts",
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
-    "./palette/*": "./src/_generated/palette/hues/*.stylex.ts",
+    "./palette/*.stylex": "./src/_generated/palette/hues/*.stylex.ts",
     "./palette-table": "./src/_generated/palette/palette-table.ts",
     "./test-support/install-jsdom-shims": "./src/test-support/install-jsdom-shims.ts",
     "./hooks/use-controlled": "./src/hooks/use-controlled.ts",

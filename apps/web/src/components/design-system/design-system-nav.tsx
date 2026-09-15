@@ -145,7 +145,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     letterSpacing: font.trackingWidest,
     textTransform: "uppercase",
-    color: color.textMain,
+    color: color.fg,
   },
   categoryLabel: {
     display: "block",
@@ -153,7 +153,7 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontSize: font.uiOverline,
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   link: {
     flexShrink: 0,
@@ -161,19 +161,19 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: { default: color.textMuted, ":hover": color.textMain },
+    color: { default: color.fgMuted, ":hover": color.fg },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     textDecoration: "none",
     whiteSpace: "nowrap",
   },
   linkActive: {
-    color: { default: color.accentText, ":hover": color.accentText },
+    color: { default: color.fgAccent, ":hover": color.fgAccent },
     backgroundColor: {
-      default: color.surfaceAccentSubtle,
-      ":hover": color.surfaceAccentSubtle,
+      default: color.bgAccentSubtle,
+      ":hover": color.bgAccentSubtle,
     },
     fontWeight: font.weight_6,
   },

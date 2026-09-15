@@ -167,13 +167,13 @@ function ScaleRow({ index, token, meta, size, sample }: ScaleRowProps) {
   );
 }
 
-const PANEL_BORDER = `inset 0 0 0 1px ${color.neutralBorder}`;
+const PANEL_BORDER = `inset 0 0 0 1px ${color.border}`;
 
 const styles = stylex.create({
   lead: {
     margin: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
     maxInlineSize: measure.prose,
   },
@@ -203,7 +203,7 @@ const styles = stylex.create({
     margin: 0,
     fontSize: font.uiBody,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
     letterSpacing: font.trackingSnug,
   },
   chip: {
@@ -215,12 +215,12 @@ const styles = stylex.create({
     boxShadow: PANEL_BORDER,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   movementDesc: {
     margin: 0,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     lineHeight: font.lineHeight_4,
     maxInlineSize: measure.prose,
   },
@@ -257,7 +257,7 @@ const styles = stylex.create({
     fontSize: font.uiCaption,
     fontWeight: font.weight_5,
     fontVariantNumeric: "tabular-nums",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   meta: {
     gridArea: "meta",
@@ -269,12 +269,12 @@ const styles = stylex.create({
   metaToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   metaSize: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontVariantNumeric: "tabular-nums",
   },
   specimen: {
@@ -282,7 +282,7 @@ const styles = stylex.create({
     minInlineSize: 0,
     maxInlineSize: measure.prose,
     overflowWrap: "break-word",
-    color: color.textMain,
+    color: color.fg,
     lineHeight: font.lineHeight_1,
   },
   display: { fontSize: font.uiDisplay, fontWeight: font.weight_8 },

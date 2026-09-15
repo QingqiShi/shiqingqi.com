@@ -150,21 +150,21 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   link: {
-    color: { default: color.textMuted, ":hover": color.textMain },
+    color: { default: color.fgMuted, ":hover": color.fg },
     textDecorationLine: { default: "none", ":hover": "underline" },
     fontWeight: font.weight_5,
   },
   current: {
-    color: color.textMain,
+    color: color.fg,
     fontWeight: font.weight_6,
   },
   inert: {
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   separator: {
     display: "inline-flex",
     alignItems: "center",
     flexShrink: 0,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

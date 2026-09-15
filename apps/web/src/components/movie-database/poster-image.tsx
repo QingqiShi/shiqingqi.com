@@ -73,6 +73,6 @@ const styles = stylex.create({
   },
   errorText: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

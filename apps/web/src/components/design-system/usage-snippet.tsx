@@ -48,7 +48,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   label: {

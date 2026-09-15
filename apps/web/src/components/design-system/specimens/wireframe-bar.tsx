@@ -37,11 +37,11 @@ export function WireframeBar({ width, strong, css }: WireframeBarProps) {
 
 const styles = stylex.create({
   bar: {
-    backgroundColor: color.neutralBorder,
+    backgroundColor: color.border,
     blockSize: space._0,
   },
   strong: {
-    backgroundColor: color.textMuted,
+    backgroundColor: color.bgNeutral,
   },
   width: (inlineSize: string) => ({ inlineSize }),
 });

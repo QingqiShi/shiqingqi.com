@@ -101,9 +101,9 @@ export function Progress({
 const styles = stylex.create({
   track: {
     inlineSize: "100%",
-    // Reuses `Divider`'s rule fill: `surfaceNeutralSubtle` would nearly
-    // vanish against a dark surface.
-    backgroundColor: color.neutralBorder,
+    // A mid-tone fill, not `bgNeutralSubtle`, which hits only 1.04:1 against
+    // a raised card in dark theme and hides the unfilled remainder.
+    backgroundColor: color.bgNeutral,
     overflow: "hidden",
     "::before": {
       content: "",

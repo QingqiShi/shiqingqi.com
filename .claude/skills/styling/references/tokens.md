@@ -23,80 +23,125 @@ stylesheets exist; forcing a theme just pins `color-scheme` on the root.
 Palette values are not listed here because they change with retuning. See
 `packages/ui/src/tokens.stylex.ts` for the current mapping.
 
-### Text
+### The grammar
 
-| Token                 | Use                                                                |
-| --------------------- | ------------------------------------------------------------------ |
-| `color.textMain`      | Body text; holds the APCA Lc 75 floor                              |
-| `color.textMuted`     | Secondary text; holds the APCA Lc 60 floor                         |
-| `color.accentOn`      | Text or icon on top of an `accent` fill                            |
-| `color.textOnBright`  | Text on a bright surface, e.g. `bgSurfaceBright`                   |
-| `color.textOnInverse` | Text on a `bgInverse` surface                                      |
-| `color.textOnScrim`   | Text on `bgScrim` or any fixed dark backdrop; white in both themes |
-| `color.accentText`    | Accent-toned text used on its own, not on a fill                   |
+Every name is `<property><subject>[<qualifier>][<state>]`:
 
-### Page
+- **property** — `fg`, `bg` or `border`. `fg` is anything drawn on a surface:
+  text, icons, logos.
+- **subject** — a Token Role (`canvas`, `surface`, `control`, or an Intent:
+  `accent`, `info`, `success`, `warning`, `danger`, `neutral`) or a Material
+  (`MaterialGlass`). `inverse` and `scrim` are treatments a surface takes, not
+  Token Roles.
+- **qualifier** — `subtle` is an Intent's tint; `sunken`, `raised` and `fade`
+  are a surface's elevation.
+- **state** — `hover`, `pressed`, `selected`, `disabled`. Bare is rest.
 
-| Token                  | Use                                     |
-| ---------------------- | --------------------------------------- |
-| `color.bgCanvas`       | App shell background, behind everything |
-| `color.bgCanvasSubtle` | A slightly stronger canvas background   |
-| `color.bgCanvasFade`   | Color translucent gradients fade toward |
+Five rules follow from it:
 
-### Surface
+1. **Property first.** Pick the token for the property you are painting. A
+   divider is a border drawn as a box.
+2. **The bare form is the default.** `fg` is body text, `border` the quiet
+   edge, `bgControl` a control at rest, `bgAccent` the solid accent fill.
+3. **`fgOn<X>` pairs with `bg<X>`.** Paint the background and the foreground
+   is already named.
+4. **On a solid Intent fill use `fgOn<Intent>`; on its tint use
+   `fg<Intent>`.**
+5. **Neutral is the default Intent**, so its foreground and border are the
+   bare `fg` and `border`.
 
-| Token                   | Use                                                  |
-| ----------------------- | ---------------------------------------------------- |
-| `color.bgSurface`       | Cards, panels, dialog bodies                         |
-| `color.bgSurfaceRaised` | A surface lifted above the page, e.g. on hover       |
-| `color.bgSurfaceSunken` | A recessed surface, e.g. an inset field              |
-| `color.bgSurfaceBright` | A bright surface, pairs with `textOnBright`          |
-| `color.bgSurfaceFade`   | Color translucent gradients fade toward on a surface |
+The `color` group holds every color token of the design system.
 
-### Interactive
+### Foreground
 
-| Token                         | Use                                                                   |
-| ----------------------------- | --------------------------------------------------------------------- |
-| `color.bgInteractiveRest`     | Default background for buttons, list rows, menu items                 |
-| `color.bgInteractiveHover`    | Background while hovered                                              |
-| `color.bgInteractivePressed`  | Background while pressed                                              |
-| `color.bgInteractiveSelected` | Background while selected                                             |
-| `color.bgInteractiveDisabled` | Background for a disabled control, composited with `opacity.disabled` |
+| Token                     | Use                                                         |
+| ------------------------- | ----------------------------------------------------------- |
+| `color.fg`                | Body text, headings, icons; holds the APCA Lc 75 floor      |
+| `color.fgMuted`           | Intros, supporting copy, captions, labels; APCA Lc 60 floor |
+| `color.fgOnControlBright` | Foreground on `bgControlBright`                             |
+| `color.fgOnInverse`       | Foreground on `bgInverse`                                   |
+| `color.fgOnScrim`         | Foreground on `bgScrim`; white in both themes               |
 
-### Intent surfaces, inverse & overlay
+Each Intent adds an `fg<Intent>` and an `fgOn<Intent>` — see Intents below.
 
-Tonal tints (`surface*Subtle`, `surfaceAccentMuted`) are `rgba(<hue>_rgb, α)`
-recipes, one per intent. `bgInverse` flips the theme, for tooltips and
-snackbars that need to stand out against the page. `bgOverlay` is the popover
-surface behind menus and modals. `bgScrim` is a fixed `rgba(0, 0, 0, α)` dim
-layer behind modals, the same in both themes; `textOnScrim` is its foreground.
+### Backgrounds
 
-### Roles
+#### Canvas — the app shell
 
-| Token                | Use                                               |
-| -------------------- | ------------------------------------------------- |
-| `color.accent`       | Accent fill for primary actions                   |
-| `color.accentHover`  | Accent fill while hovered                         |
-| `color.accentGlow`   | Ambient glow behind an accent element             |
-| `color.neutral`      | Neutral fill for secondary chrome                 |
-| `color.neutralHover` | Neutral fill while hovered                        |
-| `color.neutralText`  | Neutral-toned text used on its own, not on a fill |
-| `color.neutralOn`    | Text or icon on top of a `neutral` fill           |
+| Token                | Use                                        |
+| -------------------- | ------------------------------------------ |
+| `color.bgCanvas`     | The page ground, behind everything else    |
+| `color.bgCanvasFade` | What a gradient on the canvas fades toward |
 
-### Borders & semantic colors
+#### Surface — cards and panels
 
-Translucent borders (`accentBorder`, `infoBorder`, `successBorder`,
-`warningBorder`, `dangerBorder`) are `rgba(<hue>_rgb, α)` recipes;
-`neutralBorder` is opaque. Semantic sets (`info`, `success`, `warning`,
-`danger`, each with a `Hover`, `Text`, and `On` variant) map to one hue ramp
-per intent. See `tokens.stylex.ts` for the exact steps.
+| Token                   | Use                                                       |
+| ----------------------- | --------------------------------------------------------- |
+| `color.bgSurface`       | Cards, panels, dialog bodies                              |
+| `color.bgSurfaceSunken` | A recessed surface — an input well                        |
+| `color.bgSurfaceRaised` | A floating surface — a menu or popover, on `layer.raised` |
+| `color.bgSurfaceFade`   | What a gradient on a surface fades toward                 |
 
-### Brand Colors
+#### Bright · Inverse · Scrim — the grounds with their own foreground token
 
-`brandTmdb`, `brandCalculator`, `brandCitadel`, `brandWtcPlus`,
-`brandWtcLetter`, `brandBristol`, `brandNottingham`, `brandSpotify`,
-`brandStudentLoan`, `brandPixelCreatureCreator` — nearest system-palette
-swatch per brand, themed light/dark.
+| Token                   | Use                                                         |
+| ----------------------- | ----------------------------------------------------------- |
+| `color.bgControlBright` | Stays light in both themes — a switch or slider thumb       |
+| `color.bgInverse`       | Flips the theme — tooltips, snackbars                       |
+| `color.bgScrim`         | Dims the page behind a modal; the same black in both themes |
+
+#### Control — buttons, list rows, menu items
+
+| Token                     | Use                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| `color.bgControl`         | At rest                                                                       |
+| `color.bgControlHover`    | While hovered                                                                 |
+| `color.bgControlPressed`  | While pressed                                                                 |
+| `color.bgControlSelected` | While selected                                                                |
+| `color.bgControlDisabled` | Disabled; painted with `opacity.disabled`, so it never lands at full strength |
+
+### Borders
+
+| Token          | Use                                                     |
+| -------------- | ------------------------------------------------------- |
+| `color.border` | The quiet default edge, and the neutral Intent's border |
+
+Each Intent adds one solid `border<Intent>` in its fill's own tone. There is
+exactly one border level per Intent — no translucent variant.
+
+### Intents
+
+Six Intents, the same six tokens each, all in the `color` group
+(`color.bgAccent`, `color.borderAccent`, and so on).
+
+| Intent    | Fill        | Hover            | Tint              | Border          | Foreground  | On fill       |
+| --------- | ----------- | ---------------- | ----------------- | --------------- | ----------- | ------------- |
+| `neutral` | `bgNeutral` | `bgNeutralHover` | `bgNeutralSubtle` | `border`        | `fg`        | `fgOnNeutral` |
+| `accent`  | `bgAccent`  | `bgAccentHover`  | `bgAccentSubtle`  | `borderAccent`  | `fgAccent`  | `fgOnAccent`  |
+| `info`    | `bgInfo`    | `bgInfoHover`    | `bgInfoSubtle`    | `borderInfo`    | `fgInfo`    | `fgOnInfo`    |
+| `success` | `bgSuccess` | `bgSuccessHover` | `bgSuccessSubtle` | `borderSuccess` | `fgSuccess` | `fgOnSuccess` |
+| `warning` | `bgWarning` | `bgWarningHover` | `bgWarningSubtle` | `borderWarning` | `fgWarning` | `fgOnWarning` |
+| `danger`  | `bgDanger`  | `bgDangerHover`  | `bgDangerSubtle`  | `borderDanger`  | `fgDanger`  | `fgOnDanger`  |
+
+An Intent drawn as a mark at fill strength (an icon's `color`/`fill`/`stroke`)
+takes `bg<Intent>`; a ring or outline takes `border<Intent>`.
+
+### Glass — the Material's own colours
+
+| Token                                | Use                                 |
+| ------------------------------------ | ----------------------------------- |
+| `color.bgMaterialGlass`              | The translucent fill over the blur  |
+| `color.borderMaterialGlass`          | The hairline rim, all the way round |
+| `color.borderMaterialGlassHighlight` | The light on that rim               |
+
+`glassTokens` (`fill`, `border`, `highlight`, `blur`) in
+`packages/ui/src/components/surfaces/glass-surface.stylex.ts` is Glass's own
+dial and defaults to these three.
+
+### Component Colors
+
+A color only one component reads ships with that component, not in `color`:
+`syntax` in `packages/ui/src/components/content/syntax.stylex.ts`.
 
 ### Translucency
 

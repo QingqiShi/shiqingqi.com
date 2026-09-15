@@ -35,7 +35,7 @@ function splitTopLevel(value: string): string[] {
 
 /**
  * Reads the value a compiled StyleX token resolves to in each colour scheme.
- * `reference` is the run-time value of the token, such as `color.textMain`.
+ * `reference` is the run-time value of the token, such as `color.fg`.
  */
 export function readCustomProperty(
   css: string,

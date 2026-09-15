@@ -152,7 +152,7 @@ const styles = stylex.create({
   error: {
     margin: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontStyle: "italic",
     paddingBlock: space._1,
   },

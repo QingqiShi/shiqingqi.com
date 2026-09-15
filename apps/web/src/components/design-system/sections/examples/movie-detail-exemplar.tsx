@@ -83,7 +83,7 @@ const styles = stylex.create({
     gap: space._2,
   },
   toggleLabel: {
-    color: color.textMain,
+    color: color.fg,
     cursor: "pointer",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,

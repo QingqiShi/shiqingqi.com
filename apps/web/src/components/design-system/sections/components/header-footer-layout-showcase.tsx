@@ -126,7 +126,7 @@ const styles = stylex.create({
     position: "relative",
     inlineSize: "100%",
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     // Containing block for the shell's fixed control groups (see comment at
     // the callsite).
     transform: "translateZ(0)",
@@ -150,7 +150,7 @@ const styles = stylex.create({
     insetInlineEnd: 0,
     insetBlockStart: 0,
     blockSize: space._13,
-    backgroundImage: `linear-gradient(${color.surfaceAccentSubtle}, transparent)`,
+    backgroundImage: `linear-gradient(${color.bgAccentSubtle}, transparent)`,
   },
   article: {
     display: "flex",
@@ -164,7 +164,7 @@ const styles = stylex.create({
   code: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
     overflowWrap: "anywhere",
   },
 });

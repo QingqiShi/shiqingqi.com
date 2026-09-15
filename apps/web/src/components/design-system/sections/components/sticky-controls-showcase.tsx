@@ -100,7 +100,7 @@ const styles = stylex.create({
   code: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
     overflowWrap: "anywhere",
   },
 });

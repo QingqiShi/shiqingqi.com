@@ -119,7 +119,7 @@ export function GlassShowcase() {
           </BusyGround>
         </Specimen>
         <dl css={styles.parts}>
-          <Part name={t({ en: "Fill", zh: "填充" })} token="color.glassFill">
+          <Part name={t({ en: "Fill", zh: "填充" })} token="glassTokens.fill">
             {t({
               en: "The see-through body, over the element's own blurred background.",
               zh: "透明的主体，覆盖在元素自身被虚化的背景之上。",
@@ -131,7 +131,7 @@ export function GlassShowcase() {
               zh: "元素自身的背景。这正是玻璃与渐进虚化的区别所在，后者属于页面。",
             })}
           </Part>
-          <Part name={t({ en: "Rim", zh: "细边" })} token="color.glassBorder">
+          <Part name={t({ en: "Rim", zh: "细边" })} token="glassTokens.border">
             {t({
               en: "A hairline in the border colour, all the way round. A dark edge against a light page, clear against a dark one.",
               zh: "边框色的一圈发丝细边。在浅色页面上是一道暗边，在深色页面上则是透明的。",
@@ -139,7 +139,7 @@ export function GlassShowcase() {
           </Part>
           <Part
             name={t({ en: "Light", zh: "光" })}
-            token="color.glassHighlight"
+            token="glassTokens.highlight"
           >
             {t({
               en: "Full along the top edge, gone down the sides, back along the bottom where the light leaves — plus the one-pixel band inside that edge where it bounces back.",
@@ -196,7 +196,7 @@ export function GlassShowcase() {
       >
         <BusyGround>
           <div css={[glassSurface.base, corner.radius_4, styles.lens]}>
-            <span css={styles.lensLabel}>color.glassFill</span>
+            <span css={styles.lensLabel}>glassTokens.fill</span>
           </div>
           <div
             css={[
@@ -218,13 +218,16 @@ export function GlassShowcase() {
               styles.accentFill,
             ]}
           >
-            <span css={styles.lensLabel}>color.surfaceAccentMuted</span>
+            <span css={styles.lensLabel}>color.bgAccentSubtle</span>
           </div>
         </BusyGround>
       </Specimen>
 
       <div css={styles.dialGrid}>
-        <SpecCard token="glassTokens.fill" meta="default: color.glassFill">
+        <SpecCard
+          token="glassTokens.fill"
+          meta="default: color.bgMaterialGlass"
+        >
           <Text look="caption" tone="muted">
             {t({
               en: "The see-through body, over the element's own blur. Its alpha is how see-through the glass is; its hue is the colour the glass carries.",
@@ -232,7 +235,10 @@ export function GlassShowcase() {
             })}
           </Text>
         </SpecCard>
-        <SpecCard token="glassTokens.border" meta="default: color.glassBorder">
+        <SpecCard
+          token="glassTokens.border"
+          meta="default: color.borderMaterialGlass"
+        >
           <Text look="caption" tone="muted">
             {t({
               en: "The hairline rim's colour, all the way round.",
@@ -242,7 +248,7 @@ export function GlassShowcase() {
         </SpecCard>
         <SpecCard
           token="glassTokens.highlight"
-          meta="default: color.glassHighlight"
+          meta="default: color.borderMaterialGlassHighlight"
         >
           <Text look="caption" tone="muted">
             {t({
@@ -272,7 +278,7 @@ export function GlassShowcase() {
 const styles = stylex.create({
   lens: {
     position: "relative",
-    [glassTokens.fill]: color.surfaceAccentMuted,
+    [glassTokens.fill]: color.bgAccentSubtle,
     [glassTokens.blur]: "24px",
   },
 });`}
@@ -292,7 +298,7 @@ const styles = stylex.create({
 
 const styles = stylex.create({
   ground: {
-    [washTokens.tone]: color.surfaceAccentMuted,
+    [washTokens.tone]: color.bgAccentSubtle,
     position: "relative",
     display: "flex",
     alignItems: "center",
@@ -303,7 +309,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
   },
   // Centred on the plate rather than filling it, so the glass always lands on
   // the copy and the blur has something to work on.
@@ -316,7 +322,7 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   stack: {
     position: "relative",
@@ -346,7 +352,7 @@ const styles = stylex.create({
     paddingInline: space._4,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
   },
   anatomy: {
     display: "grid",
@@ -389,7 +395,7 @@ const styles = stylex.create({
   lensLabel: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMain,
+    color: color.fg,
   },
   blur_0: {
     [glassTokens.blur]: "0px",
@@ -398,10 +404,10 @@ const styles = stylex.create({
     [glassTokens.blur]: "24px",
   },
   halfFill: {
-    [glassTokens.fill]: `color-mix(in srgb, ${color.glassFill} 50%, transparent)`,
+    [glassTokens.fill]: `color-mix(in srgb, ${glassTokens.fill} 50%, transparent)`,
   },
   accentFill: {
-    [glassTokens.fill]: color.surfaceAccentMuted,
+    [glassTokens.fill]: color.bgAccentSubtle,
   },
   parts: {
     display: "flex",
@@ -417,7 +423,7 @@ const styles = stylex.create({
   partName: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
-    color: color.textMain,
+    color: color.fg,
   },
   partBody: {
     display: "flex",
@@ -429,6 +435,6 @@ const styles = stylex.create({
   partToken: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

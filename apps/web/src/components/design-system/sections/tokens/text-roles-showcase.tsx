@@ -8,16 +8,17 @@ import { ShowcaseHelper } from "../../showcase-helper.tsx";
 import { Showcase } from "../../showcase.tsx";
 
 /**
- * The two text roles, rendered as actual text on both grounds they are tuned
- * for — the canvas the page scaffolds with and the surface a card body uses.
+ * The two foreground roles, rendered as actual text on both grounds they are
+ * tuned for — the canvas the page scaffolds with and the surface a card body
+ * uses.
  */
 export function TextRolesShowcase() {
   return (
-    <Showcase label={t({ en: "Text", zh: "文字" })} frame="plain">
+    <Showcase label={t({ en: "Foreground", zh: "前景色" })} frame="plain">
       <ShowcaseHelper>
         {t({
-          en: "Two roles carry every word on a canvas or surface ground — Main for content, Muted for supporting copy, captions, and labels. Inverse and bright grounds use their own textOn* tokens instead.",
-          zh: "画布与表面之上的所有文字由两个角色承担——主要用于内容，次级用于辅助文案、说明与标签。反相与明亮的底面则改用各自的 textOn* 令牌。",
+          en: "Two roles carry every word on a canvas or surface ground — the default for content, muted for supporting copy, captions, and labels. A bright, inverse or scrim ground takes an fgOn* token of its own instead, and so does a solid Intent fill.",
+          zh: "画布与表面之上的所有文字由两个角色承担——默认用于内容，次级用于辅助文案、说明与标签。明亮、反相与遮罩的底面改用各自的 fgOn* 令牌，实心意图色填充也是如此。",
         })}
       </ShowcaseHelper>
       <div css={[gridlineGround.base, styles.grid]}>
@@ -40,15 +41,15 @@ function GroundCell({ name, fill }: { name: string; fill: StyleXStyles }) {
       <span css={styles.ground}>{name}</span>
       <div css={styles.roles}>
         <TextRole
-          token="color.textMain"
-          roleStyle={styles.roleMain}
+          token="color.fg"
+          roleStyle={styles.roleDefault}
           sample={t({
-            en: "Main — headings and body copy.",
-            zh: "主要——标题与正文。",
+            en: "Default — headings and body copy.",
+            zh: "默认——标题与正文。",
           })}
         />
         <TextRole
-          token="color.textMuted"
+          token="color.fgMuted"
           roleStyle={styles.roleMuted}
           sample={t({
             en: "Muted — intros, supporting copy, captions, and labels.",
@@ -101,7 +102,7 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     letterSpacing: font.trackingWider,
     textTransform: "uppercase",
-    color: color.textMain,
+    color: color.fg,
   },
   roles: {
     display: "flex",
@@ -125,6 +126,6 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_2,
     overflowWrap: "anywhere",
   },
-  roleMain: { color: color.textMain },
-  roleMuted: { color: color.textMuted },
+  roleDefault: { color: color.fg },
+  roleMuted: { color: color.fgMuted },
 });

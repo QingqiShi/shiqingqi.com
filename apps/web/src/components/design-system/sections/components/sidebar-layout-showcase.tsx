@@ -134,7 +134,7 @@ const styles = stylex.create({
     position: "relative",
     inlineSize: "100%",
     backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   // Fixed-height box; the shell fills it, so the rail bounds here and its footer
   // pins to the bottom without the specimen scrolling. It also holds the
@@ -168,12 +168,12 @@ const styles = stylex.create({
   placeholder: {
     aspectRatio: "4 / 3",
     backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   code: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,
-    color: color.textMain,
+    color: color.fg,
     overflowWrap: "anywhere",
   },
 });

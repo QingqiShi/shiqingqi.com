@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { gray } from "@tuja/ui/palette/gray";
+import { gray } from "@tuja/ui/palette/gray.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
@@ -197,7 +197,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     boxShadow: shadow._3,
     overflow: "hidden",
     inlineSize: "100%",
@@ -210,8 +210,8 @@ const styles = stylex.create({
     gap: space._2,
     paddingBlock: space._3,
     paddingInline: space._4,
-    backgroundColor: `var(--pcc-accent, ${color.neutral})`,
-    color: color.textOnScrim,
+    backgroundColor: `var(--pcc-accent, ${color.bgNeutral})`,
+    color: color.fgOnScrim,
     // A subtle sheen across the header makes the type colour read more
     // like a printed card and less like a flat block.
     backgroundImage:
@@ -239,7 +239,7 @@ const styles = stylex.create({
     margin: space._4,
     padding: space._3,
     minHeight: "260px",
-    backgroundColor: `color-mix(in srgb, var(--pcc-accent, ${color.neutral}) 14%, ${color.bgSurface})`,
+    backgroundColor: `color-mix(in srgb, var(--pcc-accent, ${color.bgNeutral}) 14%, ${color.bgSurface})`,
     boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.12)",
   },
   statsPanel: {
@@ -263,13 +263,13 @@ const styles = stylex.create({
   statLabel: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
     minWidth: "4em",
   },
   statBar: {
     position: "relative",
     height: "10px",
-    backgroundColor: color.surfaceNeutralSubtle,
+    backgroundColor: color.bgNeutralSubtle,
     overflow: "hidden",
   },
   statBarFill: {
@@ -277,7 +277,7 @@ const styles = stylex.create({
     insetBlock: 0,
     insetInlineStart: 0,
     inlineSize: "var(--pcc-fill, 0%)",
-    backgroundColor: `var(--pcc-accent, ${color.neutral})`,
+    backgroundColor: `var(--pcc-accent, ${color.bgNeutral})`,
     backgroundImage:
       "linear-gradient(90deg, color-mix(in srgb, var(--pcc-accent, #888888) 70%, white) 0%, var(--pcc-accent, #888888) 100%)",
     transitionProperty: "inline-size",
@@ -287,7 +287,7 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_7,
     fontVariantNumeric: "tabular-nums",
-    color: color.textMain,
+    color: color.fg,
     minWidth: "2.5em",
     textAlign: "end",
   },
@@ -297,7 +297,7 @@ const styles = stylex.create({
     padding: space._3,
     borderWidth: border.size_1,
     borderStyle: "dashed",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
     display: "flex",
     flexDirection: "column",
@@ -308,18 +308,18 @@ const styles = stylex.create({
     fontWeight: font.weight_7,
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   loreText: {
     fontSize: font.uiBody,
-    color: color.textMain,
+    color: color.fg,
     margin: 0,
     lineHeight: font.lineHeight_3,
   },
   lorePlaceholder: {
     fontSize: font.uiBody,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
     fontStyle: "italic",
   },

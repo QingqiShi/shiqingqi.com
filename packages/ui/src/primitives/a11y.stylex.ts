@@ -29,7 +29,10 @@ export const a11y = stylex.create({
   focusRing: {
     outlineWidth: border.size_2,
     outlineStyle: "solid",
-    outlineColor: { default: "transparent", ":focus-visible": color.accent },
+    outlineColor: {
+      default: "transparent",
+      ":focus-visible": color.borderAccent,
+    },
     outlineOffset: border.size_2,
   },
   // Same ring pulled inside the element's box, for use where an ancestor
@@ -37,7 +40,10 @@ export const a11y = stylex.create({
   focusRingInset: {
     outlineWidth: border.size_2,
     outlineStyle: "solid",
-    outlineColor: { default: "transparent", ":focus-visible": color.accent },
+    outlineColor: {
+      default: "transparent",
+      ":focus-visible": color.borderAccent,
+    },
     outlineOffset: `calc(-1 * ${border.size_2})`,
   },
 });

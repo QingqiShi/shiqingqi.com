@@ -87,7 +87,7 @@ const styles = stylex.create({
     aspectRatio: ratio.poster,
     overflow: "hidden",
     backgroundColor: color.bgSurfaceSunken,
-    boxShadow: `0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `0 0 0 1px ${color.border}`,
   },
   posterImage: {
     inlineSize: "100%",
@@ -105,7 +105,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   titleLink: {
-    color: color.textMain,
+    color: color.fg,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_2,
@@ -115,7 +115,7 @@ const styles = stylex.create({
     },
   },
   titleMeta: {
-    color: color.textMuted,
+    color: color.fgMuted,
     fontSize: font.uiOverline,
     lineHeight: font.lineHeight_2,
   },

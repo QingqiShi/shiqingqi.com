@@ -350,7 +350,7 @@ const styles = stylex.create({
   },
   voteCount: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   title: {
     fontSize: font.uiHeading1,
@@ -359,7 +359,7 @@ const styles = stylex.create({
   },
   meta: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   description: {
@@ -370,7 +370,7 @@ const styles = stylex.create({
   errorText: {
     margin: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontStyle: "italic",
   },
   actions: {
@@ -385,22 +385,22 @@ const styles = stylex.create({
     gap: space._1,
     fontSize: font.uiBodySmall,
     color: {
-      default: color.textMuted,
-      ":hover": color.accentOn,
-      ":focus-visible": color.accentOn,
+      default: color.fgMuted,
+      ":hover": color.fgOnAccent,
+      ":focus-visible": color.fgOnAccent,
     },
     textDecoration: "none",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: {
-      default: color.surfaceNeutralSubtle,
-      ":hover": color.accent,
-      ":focus-visible": color.accent,
+      default: color.border,
+      ":hover": color.borderAccent,
+      ":focus-visible": color.borderAccent,
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.accent,
-      ":focus-visible": color.accent,
+      ":hover": color.bgAccent,
+      ":focus-visible": color.bgAccent,
     },
     paddingBlock: space._1,
     paddingInline: space._3,
@@ -412,7 +412,7 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: color.bgSurface,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontSize: font.uiHeading1,
     fontWeight: font.weight_7,
   },

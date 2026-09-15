@@ -26,7 +26,7 @@ export function MediaReleaseDateCell({ api, row }: MediaCellParams) {
 
 const styles = stylex.create({
   date: {
-    color: color.textMuted,
+    color: color.fgMuted,
     fontSize: font.uiBodySmall,
     fontVariantNumeric: "tabular-nums",
   },

@@ -40,7 +40,7 @@ const styles = stylex.create({
     gridTemplateRows: "1fr auto",
     justifyContent: "flex-start",
     // Override svg css variables to be muted when not hovering
-    [svgTokens.fill]: { ":not(:hover)": color.textMuted },
+    [svgTokens.fill]: { ":not(:hover)": color.fgMuted },
   },
   logo: {
     aspectRatio: ratio.double,
@@ -51,6 +51,6 @@ const styles = stylex.create({
   dates: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

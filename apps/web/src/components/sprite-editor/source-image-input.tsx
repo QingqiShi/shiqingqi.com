@@ -227,7 +227,7 @@ const styles = stylex.create({
     paddingBlock: space._9,
     paddingInline: space._4,
     textAlign: "center",
-    border: `2px dashed ${color.neutralBorder}`,
+    border: `2px dashed ${color.border}`,
     backgroundColor: color.bgSurface,
     boxSizing: "border-box",
     transition: {
@@ -236,23 +236,23 @@ const styles = stylex.create({
     },
   },
   heroDragging: {
-    borderColor: color.accent,
-    backgroundColor: color.surfaceAccentSubtle,
+    borderColor: color.borderAccent,
+    backgroundColor: color.bgAccentSubtle,
   },
   heroIcon: {
     display: "grid",
     placeItems: "center",
     width: "60px",
     height: "60px",
-    color: color.accent,
-    backgroundColor: color.surfaceAccentSubtle,
+    color: color.fgAccent,
+    backgroundColor: color.bgAccentSubtle,
   },
   heroTitle: {
     margin: 0,
     fontSize: font.uiHeading2,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingSnug,
-    color: color.textMain,
+    color: color.fg,
     textWrap: "balance",
   },
   heroHint: {
@@ -260,14 +260,14 @@ const styles = stylex.create({
     maxInlineSize: "42ch",
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
     textWrap: "pretty",
   },
   heroError: {
     margin: 0,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.dangerText,
+    color: color.fgDanger,
   },
   capabilities: {
     display: "flex",
@@ -285,10 +285,10 @@ const styles = stylex.create({
     gap: space._1,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   capabilityIcon: {
-    color: color.accent,
+    color: color.fgAccent,
     flexShrink: 0,
   },
 
@@ -304,7 +304,7 @@ const styles = stylex.create({
     },
   },
   compactDragging: {
-    backgroundColor: color.surfaceAccentSubtle,
+    backgroundColor: color.bgAccentSubtle,
   },
   compactSwap: {
     display: "inline-flex",
@@ -316,12 +316,12 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     fontFamily: "inherit",
-    color: color.textMain,
+    color: color.fg,
     backgroundColor: {
-      default: color.bgInteractiveRest,
-      ":hover": color.bgInteractiveHover,
+      default: color.bgControl,
+      ":hover": color.bgControlHover,
     },
-    border: `${border.size_1} solid ${color.neutralBorder}`,
+    border: `${border.size_1} solid ${color.border}`,
     cursor: "pointer",
     transition: {
       default: `background-color ${duration._150} ${easing.easeOut}`,
@@ -340,19 +340,19 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
   },
   compactDims: {
     fontSize: font.uiCaption,
     fontFamily: font.familyMono,
     fontVariantNumeric: "tabular-nums",
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   compactError: {
     flexBasis: "100%",
     margin: 0,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
-    color: color.dangerText,
+    color: color.fgDanger,
   },
 });

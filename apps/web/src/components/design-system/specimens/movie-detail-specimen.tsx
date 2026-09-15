@@ -69,7 +69,7 @@ const styles = stylex.create({
     inlineSize: "22%",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
   identity: {
@@ -96,7 +96,7 @@ const styles = stylex.create({
     paddingBlockStart: space._1,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.neutralBorder,
+    borderBlockStartColor: color.border,
   },
   segment: {
     blockSize: space._1,

@@ -8,10 +8,10 @@ import { color, font } from "@tuja/ui/tokens.stylex";
  */
 export const cellShared = stylex.create({
   empty: {
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   numeric: {
-    color: color.textMuted,
+    color: color.fgMuted,
     fontSize: font.uiBodySmall,
     fontVariantNumeric: "tabular-nums",
   },

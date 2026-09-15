@@ -63,7 +63,7 @@ const styles = stylex.create({
   },
   errorText: {
     fontSize: font.uiBody,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   retryButton: {
@@ -74,8 +74,8 @@ const styles = stylex.create({
     fontFamily: font.family,
     borderWidth: 0,
     borderStyle: "none",
-    backgroundColor: color.accent,
-    color: color.accentOn,
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
     cursor: "pointer",
   },
 });

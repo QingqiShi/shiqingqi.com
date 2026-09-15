@@ -290,9 +290,9 @@ export function Slider({
   );
 }
 
-const ACCENT_FILL = `linear-gradient(to right, ${color.accent} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-const DANGER_FILL = `linear-gradient(to right, ${color.danger} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
-const DISABLED_FILL = `linear-gradient(to right, ${color.neutral} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
+const ACCENT_FILL = `linear-gradient(to right, ${color.bgAccent} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
+const DANGER_FILL = `linear-gradient(to right, ${color.bgDanger} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
+const DISABLED_FILL = `linear-gradient(to right, ${color.bgNeutral} ${sliderTokens.fill}, transparent ${sliderTokens.fill})`;
 
 // WebKit stacks the thumb from the track's top edge instead of centring it.
 const THUMB_OFFSET = `calc((${sliderTokens.trackHeight} - ${sliderTokens.thumbSize}) / 2)`;
@@ -325,18 +325,20 @@ const styles = stylex.create({
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
       cornerShape: "round",
-      // Matches Progress's track. `surfaceNeutralSubtle` hits only 1.04:1
-      // against a raised card in dark theme, hiding the unfilled remainder.
-      backgroundColor: color.neutralBorder,
+      // Matches Progress's track. A mid-tone fill, not `bgNeutralSubtle`,
+      // which hits only 1.04:1 against a raised card in dark theme and hides
+      // the unfilled remainder.
+      backgroundColor: color.bgNeutral,
       backgroundImage: ACCENT_FILL,
     },
     "::-moz-range-track": {
       blockSize: sliderTokens.trackHeight,
       borderRadius: border.radius_round,
       cornerShape: "round",
-      // Matches Progress's track. `surfaceNeutralSubtle` hits only 1.04:1
-      // against a raised card in dark theme, hiding the unfilled remainder.
-      backgroundColor: color.neutralBorder,
+      // Matches Progress's track. A mid-tone fill, not `bgNeutralSubtle`,
+      // which hits only 1.04:1 against a raised card in dark theme and hides
+      // the unfilled remainder.
+      backgroundColor: color.bgNeutral,
       backgroundImage: ACCENT_FILL,
     },
     "::-webkit-slider-thumb": {
@@ -348,8 +350,8 @@ const styles = stylex.create({
       cornerShape: "round",
       borderStyle: "solid",
       borderWidth: border.size_2,
-      borderColor: color.accent,
-      backgroundColor: color.bgSurfaceBright,
+      borderColor: color.borderAccent,
+      backgroundColor: color.bgControlBright,
       boxShadow: shadow._2,
       cursor: "inherit",
       marginBlockStart: THUMB_OFFSET,
@@ -367,8 +369,8 @@ const styles = stylex.create({
       cornerShape: "round",
       borderStyle: "solid",
       borderWidth: border.size_2,
-      borderColor: color.accent,
-      backgroundColor: color.bgSurfaceBright,
+      borderColor: color.borderAccent,
+      backgroundColor: color.bgControlBright,
       boxShadow: shadow._2,
       cursor: "inherit",
       transition: {
@@ -381,11 +383,14 @@ const styles = stylex.create({
   // Composed after `a11y.focusRing`, so the danger ring wins — matching the
   // invalid treatment on the other fields.
   inputInvalid: {
-    outlineColor: { default: "transparent", ":focus-visible": color.danger },
+    outlineColor: {
+      default: "transparent",
+      ":focus-visible": color.borderDanger,
+    },
     "::-webkit-slider-runnable-track": { backgroundImage: DANGER_FILL },
     "::-moz-range-track": { backgroundImage: DANGER_FILL },
-    "::-webkit-slider-thumb": { borderColor: color.danger },
-    "::-moz-range-thumb": { borderColor: color.danger },
+    "::-webkit-slider-thumb": { borderColor: color.borderDanger },
+    "::-moz-range-thumb": { borderColor: color.borderDanger },
   },
   // `:disabled` cannot be expressed from inside a pseudo-element block, so the
   // disabled track is selected by the prop instead.
@@ -393,11 +398,11 @@ const styles = stylex.create({
     "::-webkit-slider-runnable-track": { backgroundImage: DISABLED_FILL },
     "::-moz-range-track": { backgroundImage: DISABLED_FILL },
     "::-webkit-slider-thumb": {
-      borderColor: color.neutral,
+      borderColor: color.border,
       transform: { default: null, ":hover": "none" },
     },
     "::-moz-range-thumb": {
-      borderColor: color.neutral,
+      borderColor: color.border,
       transform: { default: null, ":hover": "none" },
     },
   },

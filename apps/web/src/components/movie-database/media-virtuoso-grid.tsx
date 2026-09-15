@@ -82,7 +82,7 @@ const styles = stylex.create({
     marginInline: "auto",
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    color: color.textMuted,
+    color: color.fgMuted,
     textAlign: "center",
   },
 });

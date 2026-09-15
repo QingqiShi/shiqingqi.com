@@ -97,13 +97,13 @@ const styles = stylex.create({
     padding: space._4,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
   // The one local type step, for the same reason the poster's title is local:
   // `weight_8` is a step past what `Text` exposes.
   cardTitle: {
-    color: color.textMain,
+    color: color.fg,
     fontSize: font.uiSubDisplay,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingTight,

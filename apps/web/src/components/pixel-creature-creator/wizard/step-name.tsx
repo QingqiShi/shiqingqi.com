@@ -103,11 +103,11 @@ const styles = stylex.create({
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
   hint: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   label: {
@@ -117,7 +117,7 @@ const styles = stylex.create({
   },
   labelText: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   input: {
     fontSize: font.uiBody,
@@ -128,11 +128,11 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: {
-      default: color.surfaceNeutralSubtle,
-      ":focus": color.accent,
+      default: color.border,
+      ":focus": color.borderAccent,
     },
     backgroundColor: color.bgSurfaceSunken,
-    color: color.textMain,
+    color: color.fg,
     outlineWidth: 0,
   },
   // Always reserve a line of vertical space so the input doesn't jump as
@@ -141,7 +141,7 @@ const styles = stylex.create({
     margin: 0,
     minHeight: "1.2em",
     fontSize: font.uiBodySmall,
-    color: color.dangerText,
+    color: color.fgDanger,
   },
   lorePanel: {
     marginTop: space._2,
@@ -150,19 +150,19 @@ const styles = stylex.create({
     cornerShape: "squircle",
     borderWidth: "1px",
     borderStyle: "dashed",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   loreTitle: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
   loreBody: {
     marginTop: space._1,
     marginBottom: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

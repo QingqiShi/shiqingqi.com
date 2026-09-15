@@ -65,7 +65,7 @@ const styles = stylex.create({
     justifyContent: "flex-start",
 
     // Override svg css variables to be muted when not hovering
-    [svgTokens.fill]: { ":not(:hover)": color.textMuted },
+    [svgTokens.fill]: { ":not(:hover)": color.fgMuted },
   },
   row: {
     display: "grid",
@@ -88,7 +88,7 @@ const styles = stylex.create({
   name: {
     fontSize: font.cqTitle,
     fontWeight: font.weight_7,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   subText: {
     fontSize: font.uiBodySmall,
@@ -105,6 +105,6 @@ const styles = stylex.create({
   dates: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_4,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

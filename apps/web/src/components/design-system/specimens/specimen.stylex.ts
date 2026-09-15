@@ -112,7 +112,7 @@ export const wireframe = stylex.create({
     minBlockSize: "4.75rem",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     borderRadius: border.radius_2,
     cornerShape: "squircle",
     // Lighter than the sunken plate it sits on, in both themes, so the miniature

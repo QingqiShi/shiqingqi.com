@@ -56,7 +56,7 @@ const styles = stylex.create({
     fontSize: font.uiSubDisplay,
     lineHeight: font.lineHeight_1,
     letterSpacing: font.trackingTight,
-    color: color.textMain,
+    color: color.fg,
     paddingBlock: space._1,
   },
   weight1: { fontWeight: font.weight_1 },

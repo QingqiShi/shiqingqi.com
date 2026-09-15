@@ -68,12 +68,12 @@ export function TextureShowcase() {
       </SpecimenGrid>
 
       <SpecimenGrid>
-        <Specimen caption="ink" token="color.neutralBorder">
+        <Specimen caption="ink" token="color.border">
           <div
             css={[texture.dot, cardSurface.base, corner.radius_3, styles.card]}
           />
         </Specimen>
-        <Specimen caption="ink" token="color.accentBorder">
+        <Specimen caption="ink" token="color.borderAccent">
           <div
             css={[
               texture.dot,
@@ -95,7 +95,7 @@ export function TextureShowcase() {
             })}
           </Text>
         </SpecCard>
-        <SpecCard token="textureTokens.ink" meta="default: color.neutralBorder">
+        <SpecCard token="textureTokens.ink" meta="default: color.border">
           <Text look="caption" tone="muted">
             {t({
               en: "The mark's colour. Keep it close to the surface it sits on.",
@@ -113,7 +113,7 @@ export function TextureShowcase() {
 const styles = stylex.create({
   card: {
     [textureTokens.pitch]: space._4,
-    [textureTokens.ink]: color.accentBorder,
+    [textureTokens.ink]: color.borderAccent,
   },
 });`}
       />
@@ -237,9 +237,9 @@ const styles = stylex.create({
     blockSize: "132px",
   },
   accentInk: {
-    [textureTokens.ink]: color.accentBorder,
-    backgroundColor: color.surfaceAccentSubtle,
-    borderColor: color.accentBorder,
+    [textureTokens.ink]: color.borderAccent,
+    backgroundColor: color.bgAccentSubtle,
+    borderColor: color.borderAccent,
   },
   dialGrid: {
     display: "grid",
@@ -252,13 +252,13 @@ const styles = stylex.create({
   plainGround: {
     inlineSize: "100%",
     padding: space._3,
-    backgroundColor: color.bgCanvasSubtle,
+    backgroundColor: color.bgSurfaceSunken,
   },
   texturedGround: {
     [textureTokens.pitch]: space._0,
     inlineSize: "100%",
     padding: space._3,
-    backgroundColor: color.bgCanvasSubtle,
+    backgroundColor: color.bgSurfaceSunken,
   },
   inner: {
     blockSize: "64px",

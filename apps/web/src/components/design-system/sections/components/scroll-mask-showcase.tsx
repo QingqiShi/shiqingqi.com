@@ -317,7 +317,7 @@ const styles = stylex.create({
     blockSize: "9rem",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   regionContent: {
@@ -330,7 +330,7 @@ const styles = stylex.create({
     inlineSize: "100%",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   rowContent: {
@@ -348,7 +348,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
   // The ScrollMask root is the frame here rather than sitting inside one: a
@@ -361,7 +361,7 @@ const styles = stylex.create({
     blockSize: "14rem",
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   // No border and no background: the bar sits directly on the blurred
@@ -379,7 +379,7 @@ const styles = stylex.create({
     blockSize: space._10,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   // The "don't" diagram's whole subject: rows cut at a line by overflow alone.

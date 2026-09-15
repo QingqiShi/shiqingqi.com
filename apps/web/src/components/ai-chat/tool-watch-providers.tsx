@@ -475,7 +475,7 @@ const styles = stylex.create({
   },
   sectionLabel: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     marginBottom: space._1,
   },
   logoRow: {
@@ -487,7 +487,7 @@ const styles = stylex.create({
   emptyText: {
     margin: 0,
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontStyle: "italic",
     paddingBlock: space._1,
   },
@@ -498,7 +498,7 @@ const styles = stylex.create({
   },
   typeLabel: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     fontWeight: font.weight_6,
     marginBottom: space._1,
   },
@@ -513,7 +513,7 @@ const styles = stylex.create({
     padding: 0,
     font: "inherit",
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     cursor: "pointer",
     textDecoration: {
       default: "none",
@@ -522,15 +522,15 @@ const styles = stylex.create({
   },
   attribution: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     marginTop: space._1,
     paddingTop: space._1,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
-    borderTopColor: color.neutralBorder,
+    borderTopColor: color.border,
   },
   attributionLink: {
-    color: color.textMuted,
+    color: color.fgMuted,
     textDecoration: {
       default: "none",
       ":hover": "underline",

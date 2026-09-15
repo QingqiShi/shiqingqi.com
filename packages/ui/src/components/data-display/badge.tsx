@@ -119,33 +119,33 @@ const sizeStyles = stylex.create({
 // tint; only `default` puts the border back.
 const intentStyles = stylex.create({
   default: {
-    borderColor: color.neutralBorder,
-    color: color.textMuted,
+    borderColor: color.border,
+    color: color.fgMuted,
   },
   // Neutral intent tint, not an opaque surface, so it stays visible on cards
   // and other raised surfaces instead of blending in.
   neutral: {
-    backgroundColor: color.surfaceNeutralSubtle,
-    color: color.textMuted,
+    backgroundColor: color.bgNeutralSubtle,
+    color: color.fgMuted,
   },
   info: {
-    backgroundColor: color.surfaceInfoSubtle,
-    color: color.infoText,
+    backgroundColor: color.bgInfoSubtle,
+    color: color.fgInfo,
   },
   success: {
-    backgroundColor: color.surfaceSuccessSubtle,
-    color: color.successText,
+    backgroundColor: color.bgSuccessSubtle,
+    color: color.fgSuccess,
   },
   warning: {
-    backgroundColor: color.surfaceWarningSubtle,
-    color: color.warningText,
+    backgroundColor: color.bgWarningSubtle,
+    color: color.fgWarning,
   },
   danger: {
-    backgroundColor: color.surfaceDangerSubtle,
-    color: color.dangerText,
+    backgroundColor: color.bgDangerSubtle,
+    color: color.fgDanger,
   },
   accent: {
-    backgroundColor: color.surfaceAccentSubtle,
-    color: color.accentText,
+    backgroundColor: color.bgAccentSubtle,
+    color: color.fgAccent,
   },
 });

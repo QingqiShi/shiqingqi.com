@@ -57,7 +57,7 @@ export default tinker({
         padding: "border.size_2",
         position: "relative",
         transition: "background-color {duration._200} {easing.ease}",
-        backgroundColor: "color.surfaceNeutralSubtle",
+        backgroundColor: "color.bgNeutralSubtle",
         boxShadow: "shadow._2",
         touchAction: "none",
       },
@@ -69,13 +69,13 @@ export default tinker({
         lg: { height: "controlSize._10" },
       },
       states: {
-        checked: { backgroundColor: "color.accent" },
+        checked: { backgroundColor: "color.bgAccent" },
         disabled: { cursor: "not-allowed", opacity: "opacity.disabled" },
       },
     },
     before: {
       base: {
-        backgroundColor: "color.bgSurfaceBright",
+        backgroundColor: "color.bgControlBright",
         borderRadius: "border.radius_round",
         boxShadow: "none",
         display: "block",

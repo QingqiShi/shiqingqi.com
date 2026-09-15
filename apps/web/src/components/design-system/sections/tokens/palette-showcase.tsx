@@ -95,7 +95,7 @@ const styles = stylex.create({
     inlineSize: "4.5rem",
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    color: color.textMain,
+    color: color.fg,
     letterSpacing: font.trackingTight,
   },
   ramp: {
@@ -109,7 +109,7 @@ const styles = stylex.create({
     backgroundColor: color.bgCanvas,
     borderWidth: space._00,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     overflow: "hidden",
   },
   rampColumns: (columns: string) => ({

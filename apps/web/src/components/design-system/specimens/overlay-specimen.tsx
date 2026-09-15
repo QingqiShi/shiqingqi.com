@@ -52,7 +52,7 @@ const styles = stylex.create({
     paddingInline: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceRaised,
   },
 });

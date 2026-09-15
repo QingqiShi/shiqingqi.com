@@ -146,11 +146,11 @@ const styles = stylex.create({
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
     margin: 0,
-    color: color.textMain,
+    color: color.fg,
   },
   hint: {
     fontSize: font.uiBodySmall,
-    color: color.textMuted,
+    color: color.fgMuted,
     margin: 0,
   },
   pill: {
@@ -158,7 +158,7 @@ const styles = stylex.create({
     paddingInline: space._4,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     borderRadius: "999px",
     cornerShape: "round",
@@ -166,14 +166,14 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "transparent",
     cursor: "pointer",
-    color: color.textMain,
+    color: color.fg,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     transitionProperty: "border-color, background-color",
     transitionDuration: "120ms",
   },
   pillSelected: {
-    borderColor: color.accent,
+    borderColor: color.borderAccent,
     backgroundColor: color.bgSurfaceRaised,
   },
   typeOption: {
@@ -184,7 +184,7 @@ const styles = stylex.create({
     padding: space._2,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgInteractiveHover,
+      ":hover": color.bgControlHover,
     },
     borderRadius: "12px",
     cornerShape: "squircle",
@@ -192,13 +192,13 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "transparent",
     cursor: "pointer",
-    color: color.textMain,
+    color: color.fg,
     transitionProperty: "border-color, background-color",
     transitionDuration: "120ms",
     minWidth: "120px",
   },
   typeOptionSelected: {
-    borderColor: color.accent,
+    borderColor: color.borderAccent,
     backgroundColor: color.bgSurfaceRaised,
   },
   typeAccent: {
@@ -208,7 +208,7 @@ const styles = stylex.create({
     cornerShape: "squircle",
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
   },
   typeAccentColor: (backgroundColor: string) => ({ backgroundColor }),
   optionLabel: {

@@ -32,7 +32,7 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.neutralBorder}`,
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
   header: {
@@ -45,11 +45,11 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_2,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
   meta: {
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
-    color: color.textMuted,
+    color: color.fgMuted,
   },
 });

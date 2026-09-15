@@ -105,7 +105,7 @@ const styles = stylex.create({
     padding: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.neutralBorder,
+    borderColor: color.border,
     backgroundColor: color.bgSurface,
   },
   // Stand-in for the artwork a real row carries, at the ratio a poster takes.
