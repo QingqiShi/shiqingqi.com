@@ -68,7 +68,7 @@
     "@babel/preset-env": "catalog:",
     "@babel/preset-react": "catalog:",
     "@babel/preset-typescript": "catalog:",
-    "@babel/runtime": "^8.0.0",
+    "@babel/runtime": "^8.0.5",
     "@babel/traverse": "catalog:",
     "@babel/types": "catalog:",
     "@playwright/test": "^1.63.0",
