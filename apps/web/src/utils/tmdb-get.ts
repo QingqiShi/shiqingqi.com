@@ -15,11 +15,19 @@ function getApiToken(): string {
   return token;
 }
 
-/** Extract path parameters from a path string */
+/**
+ * Extract path parameters from a path string.
+ *
+ * When the path has no more `{param}` placeholders the fallback is
+ * `Record<string, string>`, not an empty object type. An empty object
+ * type fails `@typescript-eslint/no-generated-empty-object-type`, and
+ * `Record<string, string>` keeps the values typed as `string` where
+ * `tmdbGet` iterates them with `Object.entries`.
+ */
 export type PathParams<T extends string> =
   T extends `${string}{${infer Param}}${infer Rest}`
     ? { [K in Param]: string } & PathParams<Rest>
-    : Record<never, never>;
+    : Record<string, string>;
 
 /** Value types that TMDB query parameters can carry */
 type SearchParamValue = string | number | boolean | undefined | null;
