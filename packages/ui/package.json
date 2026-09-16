@@ -146,8 +146,8 @@
   },
   "peerDependencies": {
     "@stylexjs/stylex": "^0.19.0",
-    "react": ">=19.2.0 <20",
-    "react-dom": ">=19.2.0 <20"
+    "react": ">=19.3.0 <20",
+    "react-dom": ">=19.3.0 <20"
   },
   "devDependencies": {
     "@babel/core": "catalog:",
