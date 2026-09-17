@@ -143,8 +143,8 @@ importers:
   .:
     devDependencies:
       '@eslint-community/eslint-plugin-eslint-comments':
-        specifier: ^4.8.0
-        version: 4.8.0(eslint@10.10.0(jiti@2.7.0)(supports-color@10.2.2))
+        specifier: ^4.8.1
+        version: 4.8.1(eslint@10.10.0(jiti@2.7.0)(supports-color@10.2.2))
       '@eslint-react/eslint-plugin':
         specifier: ^5.19.0
         version: 5.19.0(@typescript/typescript6@6.0.2)(eslint@10.10.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)
@@ -2135,8 +2135,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@eslint-community/eslint-plugin-eslint-comments@4.8.0':
-    resolution: {integrity: sha512-bzGg2H83F9p55TKzlNUS/LWb1WF2OqdVX67FK1OadDPLVOhabFRERC7TiDJzk//LedaVnRS5uqK/2f/AZ/+VyA==}
+  '@eslint-community/eslint-plugin-eslint-comments@4.8.1':
+    resolution: {integrity: sha512-vafrdi15JHBFh1qWOAucyJwlEEuhdoMof28jOdKdgnwZ7bXwd6v4wzHYSmAVLwnx0yc7bqAtfJ0EZQV1WAzV/Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -4899,10 +4899,6 @@ packages:
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
-    engines: {node: '>= 4'}
-
-  ignore@7.0.8:
-    resolution: {integrity: sha512-YYNsSlXBjMk92SKnkwvB5LOVSa6OznlFUGcsvrFgNJbJCd0M1XKeFVRc8ZByeCqz32FivYNHJVooLmdqrmvp/Q==}
     engines: {node: '>= 4'}
 
   ignore@7.0.9:
@@ -8575,7 +8571,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@eslint-community/eslint-plugin-eslint-comments@4.8.0(eslint@10.10.0(jiti@2.7.0)(supports-color@10.2.2))':
+  '@eslint-community/eslint-plugin-eslint-comments@4.8.1(eslint@10.10.0(jiti@2.7.0)(supports-color@10.2.2))':
     dependencies:
       escape-string-regexp: 4.0.0
       eslint: 10.10.0(jiti@2.7.0)(supports-color@10.2.2)
@@ -9158,7 +9154,7 @@ snapshots:
     dependencies:
       agent-install: 0.0.6
       commander: 14.0.3
-      ignore: 7.0.8
+      ignore: 7.0.9
       ora: 9.4.1
       package-manager-detector: 1.8.0
       picocolors: 1.1.1
@@ -11548,8 +11544,6 @@ snapshots:
       reserved-identifiers: 1.2.0
 
   ignore@5.3.2: {}
-
-  ignore@7.0.8: {}
 
   ignore@7.0.9: {}
 
