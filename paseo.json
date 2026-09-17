@@ -1,0 +1,7 @@
+{
+  "worktree": {
+    "setup": [
+      "git -C \"$PASEO_SOURCE_CHECKOUT_PATH\" ls-files --others --ignored --exclude-from=\"$PASEO_WORKTREE_PATH/.worktreeinclude\" | while IFS= read -r f; do [ -e \"$f\" ] || { mkdir -p \"$(dirname \"$f\")\" && cp -p \"$PASEO_SOURCE_CHECKOUT_PATH/$f\" \"$f\"; }; done"
+    ]
+  }
+}
