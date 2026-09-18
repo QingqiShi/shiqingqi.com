@@ -1,3 +1,5 @@
+import { isRendered } from "./is-rendered.ts";
+
 /** The roots `querySelectorAll` can run on, which `getRootNode` does not promise. */
 type QueryRoot = Document | DocumentFragment | Element;
 
@@ -42,6 +44,11 @@ function renderTargetOf(
   return images.get(`#${map.name}`) ?? null;
 }
 
+const CHECK_VISIBILITY_OPTIONS = {
+  visibilityProperty: true,
+  contentVisibilityAuto: true,
+} satisfies CheckVisibilityOptions;
+
 /**
  * Whether the platform lets `focus()` land on the element: it is not
  * `:disabled` (which covers a disabled `<fieldset>` and its legend carve-out),
@@ -65,11 +72,11 @@ export function isFocusable(
   if (element.matches(":disabled")) return false;
   if (element.closest("[inert]") !== null) return false;
   const renderTarget = renderTargetOf(element, usemapImages);
-  return (
-    renderTarget !== null &&
-    renderTarget.checkVisibility({
-      visibilityProperty: true,
-      contentVisibilityAuto: true,
-    })
-  );
+  if (renderTarget === null) return false;
+  // `checkVisibility` arrived in Chrome 105, Firefox 106 and Safari 17.4, all
+  // below the package floor the README sets. But a browser below the floor
+  // must degrade and not throw, so there the computed styles give the answer.
+  return typeof renderTarget.checkVisibility === "function"
+    ? renderTarget.checkVisibility(CHECK_VISIBILITY_OPTIONS)
+    : isRendered(renderTarget, CHECK_VISIBILITY_OPTIONS);
 }
