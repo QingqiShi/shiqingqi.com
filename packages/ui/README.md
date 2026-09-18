@@ -367,7 +367,7 @@ components.
 | `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                                   |
 | `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                              |
 | `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                          |
-| `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn mark (a dot or a line) repeated at a pitch, in an ink colour.                                                                               |
+| `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn dot of 1px or less, repeated at a pitch, in an ink colour.                                                                                  |
 | `@tuja/ui/primitives/wash.stylex`             | Wash: a broad directional gradient, one tone drifting toward transparent.                                                                                      |
 | `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                                      |
 | `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                               |

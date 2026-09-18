@@ -251,13 +251,12 @@ import { a11y } from "#src/primitives/a11y.stylex.ts";
 
 Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. Full vocabulary in `contexts/design-system/CONTEXT.md`.
 
-| Export                                           | Properties                                                                                  |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| `texture.dot`                                    | One drawn dot (≤1px), repeated at `textureTokens.pitch`, coloured `textureTokens.ink`       |
-| `texture.line`                                   | One drawn 1px line, repeated at `textureTokens.pitch`, at half `textureTokens.ink` strength |
-| `wash.toBottom` / `toTop` / `toRight` / `toLeft` | A linear gradient of `washTokens.tone` fading to transparent, in the named direction        |
+| Export                                           | Properties                                                                            |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `texture.dot`                                    | One drawn dot (≤1px), repeated at `textureTokens.pitch`, coloured `textureTokens.ink` |
+| `wash.toBottom` / `toTop` / `toRight` / `toLeft` | A linear gradient of `washTokens.tone` fading to transparent, in the named direction  |
 
-A Texture is one mark at one size — never nest a textured surface inside another, and never mix two marks or two sizes in one group. A Wash has no bright spot anywhere; a bright spot reads as a light source, and only Glass is lit.
+A Texture is one mark at one size — never nest a textured surface inside another, and never mix two sizes in one group. A Wash has no bright spot anywhere; a bright spot reads as a light source, and only Glass is lit.
 
 Each dials its default through a token, overridden in a local `stylex.create` the same way `cornerTokens.height` is:
 
@@ -272,8 +271,6 @@ const styles = stylex.create({
 <div css={[texture.dot, styles.wide]}>
 ```
 
-`texture.line` carries a wider default pitch of its own (`space._3`), so it needs no override at the everyday sizes.
-
-`textureTokens.pitch` (default `space._1`) sets the gap between marks, `textureTokens.ink` (default `color.border`) the mark's colour. `washTokens.tone` (default `color.bgNeutralSubtle`) sets the drifting tone.
+`textureTokens.pitch` (default `space._1`) sets the gap between marks, `textureTokens.ink` (default `color.fg` at 20%) the mark's colour. `washTokens.tone` (default `color.bgNeutralSubtle`) sets the drifting tone.
 
 Glass is `glassSurface` from `@tuja/ui/components/glass-surface.stylex` — a translucent, lit surface composed onto an element with `position: relative` plus a `corner.*` preset; the rim inherits that radius and shape. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden in a local `stylex.create` the same way `cornerTokens.height` is.

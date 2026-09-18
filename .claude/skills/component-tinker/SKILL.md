@@ -108,7 +108,7 @@ option[sm].paddingInline: controlSize._2 -> controlSize._3
 option[hover].backgroundColor: (unset) -> color.bgControlHover
 option[selected].boxShadow: shadow._1 -> (unset)
 before[checked sm].transform: translateX({controlSize._8}) -> translateX({controlSize._9})
-option.texture: none -> dot space._1 color.border
+option.texture: none -> space._1 color.border
 ```
 
 Read `layer[condition].property: before -> after` back into the source:
