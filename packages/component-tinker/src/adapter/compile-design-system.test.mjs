@@ -22,7 +22,6 @@ describe("buildAdapter", () => {
     const { presets, unlisted } = adapter.catalogue;
     for (const name of [
       "texture.dot",
-      "texture.line",
       "wash.toBottom",
       "wash.toTop",
       "wash.toRight",

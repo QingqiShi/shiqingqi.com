@@ -66,7 +66,7 @@ describe("serialiseExport", () => {
       "transform",
       "translateX({controlSize._9})",
     );
-    store.setToggle("option", "texture", "dot space._1 color.border");
+    store.setToggle("option", "texture", "space._1 color.border");
     store.setToggle(
       "track",
       "glass",
@@ -85,7 +85,7 @@ describe("serialiseExport", () => {
         "option[selected].boxShadow: shadow._1 -> (unset)",
         "before[checked sm].transform: translateX({controlSize._8}) -> translateX({controlSize._9})",
         "track.glass: none -> color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius 8px",
-        "option.texture: none -> dot space._1 color.border",
+        "option.texture: none -> space._1 color.border",
         "",
       ].join("\n"),
     );

@@ -39,10 +39,10 @@ Terms are defined in `contexts/design-system/CONTEXT.md`.
 ### Texture and Wash
 
 - **Never nest one texture inside another.** A textured card on a textured page puts two patterns in line, and neither one reads as the surface it belongs to.
-- **A texture is one mark at one size.** A line or a dot, never both, and never two sizes of the same mark.
+- **A texture is one mark at one size.** One dot, and never two sizes of it.
 - **The mark's size and spacing are set per surface.** A texture drawn for a full page reads as noise on a small card, so a smaller surface takes a finer mark.
 - **Keep it faint.** Its contrast against the surface is low enough that it never resolves into a pattern with a name. If it reads as graph paper, or as a ledger, it is too strong.
-- **The mark is drawn, never an image** — a 1px line, or a dot of 1px or less.
+- **The mark is drawn, never an image** — a dot of 1px or less.
 - **A Wash is a broad gradient that gives a surface some volume** — one tone drifting across it, with no bright spot anywhere. A bright spot reads as a light source. Only Glass is lit, and it takes a rim rather than a spot.
 
 ### Floating elements

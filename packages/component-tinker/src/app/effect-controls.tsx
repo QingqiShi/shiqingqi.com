@@ -4,7 +4,6 @@ import {
   GLASS_OPACITY_STEPS,
   NONE,
   SCROLL_ORIENTATIONS,
-  TEXTURE_MARKS,
   TOGGLE_DEFAULTS,
   TOGGLE_LABELS,
   TOGGLE_NAMES,
@@ -109,17 +108,6 @@ export function EffectControls({
 
           {name === "texture" && texture ? (
             <div className="tk-effect-body">
-              <div className="tk-field">
-                <span className="tk-field-label">mark</span>
-                <Segmented
-                  label="mark"
-                  options={stringOptions(TEXTURE_MARKS)}
-                  value={texture.mark}
-                  onPick={(mark) => {
-                    setToggle("texture", formatTexture({ ...texture, mark }));
-                  }}
-                />
-              </div>
               <div className="tk-field">
                 <span className="tk-field-label">spacing</span>
                 <TokenField

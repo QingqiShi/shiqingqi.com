@@ -649,14 +649,6 @@ function TextureSection() {
       }),
     },
     {
-      token: "texture.line",
-      meta: "repeating-linear-gradient · 1px line",
-      description: t({
-        en: "A 1px rule, repeated at the pitch.",
-        zh: "1px 的线，按间距重复。",
-      }),
-    },
-    {
       token: "textureTokens.pitch",
       meta: "default: space._1",
       description: t({
@@ -666,7 +658,7 @@ function TextureSection() {
     },
     {
       token: "textureTokens.ink",
-      meta: "default: color.border",
+      meta: "default: color.fg at 20%",
       description: t({
         en: "The mark's colour. Keep it close to the surface, so the texture never resolves into a pattern with a name.",
         zh: "标记的颜色。让它贴近表面，纹理才不会显出一个叫得出名字的图案。",
@@ -678,8 +670,8 @@ function TextureSection() {
     <Showcase label={t({ en: "Texture", zh: "纹理" })}>
       <ShowcaseHelper>
         {t({
-          en: "One drawn mark at one size across a surface — a line or a dot, never both. Set the pitch and the ink per surface by overriding the tokens in a local style block. Never nest one texture inside another.",
-          zh: "表面上只有一种绘制的标记、一种尺寸——线或点，绝不同时使用。在局部样式块中覆盖令牌，为每个表面设定间距与墨色。绝不把一种纹理嵌套在另一种里面。",
+          en: "One drawn dot of 1px or less, repeated across a surface at one size. Set the pitch and the ink per surface by overriding the tokens in a local style block. Never nest one texture inside another.",
+          zh: "表面上一个绘制的点，不超过 1px，只用一种尺寸重复。在局部样式块中覆盖令牌，为每个表面设定间距与墨色。绝不把一种纹理嵌套在另一种里面。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -687,16 +679,6 @@ function TextureSection() {
           <div
             css={[
               texture.dot,
-              cardSurface.base,
-              corner.radius_2,
-              styles.materialCard,
-            ]}
-          />
-        </Specimen>
-        <Specimen token="texture.line">
-          <div
-            css={[
-              texture.line,
               cardSurface.base,
               corner.radius_2,
               styles.materialCard,

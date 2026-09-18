@@ -118,7 +118,7 @@ If a radius genuinely can't go through the primitive — a vendor pseudo-element
 
 ### Material (`#src/primitives/texture.stylex.ts`, `#src/primitives/wash.stylex.ts`)
 
-Faint surface treatments — Texture, Wash, and Glass; full vocabulary in `contexts/design-system/CONTEXT.md`. `texture.dot` and `texture.line` draw one mark at one size, repeated across a surface — never nest a textured surface inside another, and never mix two marks or two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
+Faint surface treatments — Texture, Wash, and Glass; full vocabulary in `contexts/design-system/CONTEXT.md`. `texture.dot` draws one dot of 1px or less, repeated across a surface at one size — never nest a textured surface inside another, and never mix two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
 
 Each dials its default through a token, overridden in a local `stylex.create` the way `cornerTokens.height` is:
 
@@ -131,9 +131,7 @@ const styles = stylex.create({ wide: { [textureTokens.pitch]: space._4 } });
 <div css={[texture.dot, styles.wide]}>  {/* wider pitch for a wide surface */}
 ```
 
-`texture.line` carries a wider default pitch of its own (`space._3`), so it needs no override at the everyday sizes.
-
-`textureTokens.pitch`/`.ink` default to `space._1`/`color.border`; `washTokens.tone` defaults to `color.bgNeutralSubtle`.
+`textureTokens.pitch`/`.ink` default to `space._1`/`color.fg` at 20%; `washTokens.tone` defaults to `color.bgNeutralSubtle`.
 
 Glass is the third Material but ships as a component style object, not a primitive: `glassSurface` from `@tuja/ui/components/glass-surface.stylex`, composed onto an element with `position: relative` plus a `corner.*` preset. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden the same way.
 

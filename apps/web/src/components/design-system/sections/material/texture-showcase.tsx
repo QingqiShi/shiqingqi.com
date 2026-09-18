@@ -18,23 +18,16 @@ export function TextureShowcase() {
     <Showcase label={t({ en: "Texture", zh: "纹理" })} frame="plain" breakout>
       <ShowcaseHelper>
         {t({
-          en: "One drawn mark at one size — a 1px line, or a dot of 1px or less — kept faint enough that it never resolves into a pattern with a name. If it reads as graph paper, or as a ledger, it is too strong. The pitch and the ink are set per surface, so a smaller surface takes a finer mark.",
-          zh: "一种绘制的标记，只用一种尺寸——1px 的线，或不超过 1px 的点——淡到永远不会显出一个叫得出名字的图案。如果它读起来像方格纸或账簿，就太强了。间距与墨色按表面设定，因此较小的表面取更细的标记。",
+          en: "One drawn dot of 1px or less, repeated at one size and kept faint enough that it never resolves into a pattern with a name. If it reads as graph paper, or as a ledger, it is too strong. The pitch and the ink are set per surface, so a smaller surface takes a finer mark.",
+          zh: "一个绘制的点，不超过 1px，只用一种尺寸重复，淡到永远不会显出一个叫得出名字的图案。如果它读起来像方格纸或账簿，就太强了。间距与墨色按表面设定，因此较小的表面取更细的标记。",
         })}
       </ShowcaseHelper>
 
-      <SpecimenGrid>
-        <Specimen token="texture.dot">
-          <div
-            css={[texture.dot, cardSurface.base, corner.radius_3, styles.card]}
-          />
-        </Specimen>
-        <Specimen token="texture.line">
-          <div
-            css={[texture.line, cardSurface.base, corner.radius_3, styles.card]}
-          />
-        </Specimen>
-      </SpecimenGrid>
+      <Specimen token="texture.dot">
+        <div
+          css={[texture.dot, cardSurface.base, corner.radius_3, styles.card]}
+        />
+      </Specimen>
 
       <SpecimenGrid css={styles.pitchTracks}>
         <Specimen
@@ -68,12 +61,15 @@ export function TextureShowcase() {
       </SpecimenGrid>
 
       <SpecimenGrid>
-        <Specimen caption="ink" token="color.border">
+        <Specimen caption={t({ en: "ink — the default", zh: "墨色——默认" })}>
           <div
             css={[texture.dot, cardSurface.base, corner.radius_3, styles.card]}
           />
         </Specimen>
-        <Specimen caption="ink" token="color.borderAccent">
+        <Specimen
+          caption={t({ en: "ink", zh: "墨色" })}
+          token="color.borderAccent"
+        >
           <div
             css={[
               texture.dot,
@@ -95,7 +91,7 @@ export function TextureShowcase() {
             })}
           </Text>
         </SpecCard>
-        <SpecCard token="textureTokens.ink" meta="default: color.border">
+        <SpecCard token="textureTokens.ink" meta="default: color.fg at 20%">
           <Text look="caption" tone="muted">
             {t({
               en: "The mark's colour. Keep it close to the surface it sits on.",
@@ -161,57 +157,6 @@ const styles = stylex.create({
           zh: "纹理卡片放在有纹理的表面里。两个图案叠在一条视线上，哪一个都读不出自己所属的表面。",
         })}
       />
-
-      <DoDont
-        do={
-          <div css={styles.pair}>
-            <div
-              css={[
-                texture.dot,
-                cardSurface.base,
-                corner.radius_2,
-                styles.tile,
-              ]}
-            />
-            <div
-              css={[
-                texture.dot,
-                cardSurface.base,
-                corner.radius_2,
-                styles.tile,
-              ]}
-            />
-          </div>
-        }
-        doCaption={t({
-          en: "One mark at one size across the group.",
-          zh: "整组只用一种标记、一种尺寸。",
-        })}
-        dont={
-          <div css={styles.pair}>
-            <div
-              css={[
-                texture.dot,
-                cardSurface.base,
-                corner.radius_2,
-                styles.tile,
-              ]}
-            />
-            <div
-              css={[
-                texture.line,
-                cardSurface.base,
-                corner.radius_2,
-                styles.tile,
-              ]}
-            />
-          </div>
-        }
-        dontCaption={t({
-          en: "Dots beside lines. Two marks where the group needs one.",
-          zh: "点与线并排。一组里出现了两种标记，而它只需要一种。",
-        })}
-      />
     </Showcase>
   );
 }
@@ -262,14 +207,5 @@ const styles = stylex.create({
   },
   inner: {
     blockSize: "64px",
-  },
-  pair: {
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: space._2,
-    inlineSize: "100%",
-  },
-  tile: {
-    blockSize: "72px",
   },
 });

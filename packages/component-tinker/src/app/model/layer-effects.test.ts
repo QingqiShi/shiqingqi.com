@@ -16,25 +16,21 @@ import {
 
 /** The compiled classes the adapter reads out of `@tuja/ui`. */
 const PRESETS: Catalogue["presets"] = Object.fromEntries(
-  [
-    "texture.dot",
-    "texture.line",
-    "wash.toBottom",
-    "wash.toTop",
-    "glassSurface.base",
-  ].map((name) => [
-    name,
-    {
+  ["texture.dot", "wash.toBottom", "wash.toTop", "glassSurface.base"].map(
+    (name) => [
       name,
-      group: name.split(".")[0],
-      member: name.split(".")[1],
-      className: `c-${name.replace(".", "-")}`,
-      source: "primitives/test.stylex.ts",
-      properties: {},
-      states: {},
-      hint: "",
-    },
-  ]),
+      {
+        name,
+        group: name.split(".")[0],
+        member: name.split(".")[1],
+        className: `c-${name.replace(".", "-")}`,
+        source: "primitives/test.stylex.ts",
+        properties: {},
+        states: {},
+        hint: "",
+      },
+    ],
+  ),
 );
 
 const REFS: Record<string, string> = {
@@ -147,10 +143,19 @@ describe("parseWash", () => {
   });
 });
 
+describe("parseTexture", () => {
+  it("drops the mark word an older snapshot saved", () => {
+    const texture = { spacing: "space._1", color: "color.border" };
+    expect(parseTexture("space._1 color.border")).toEqual(texture);
+    expect(parseTexture("dot space._1 color.border")).toEqual(texture);
+    expect(parseTexture("line space._1 color.border")).toEqual(texture);
+  });
+});
+
 describe("effectStyle for texture and wash", () => {
   it("draws the mark on a box of its own with the picked dials", () => {
     const style = effectStyle(
-      { texture: parseTexture("dot space._3 color.border") },
+      { texture: parseTexture("space._3 color.border") },
       index,
     );
     expect(style?.texture).toEqual({
@@ -169,19 +174,10 @@ describe("effectStyle for texture and wash", () => {
     expect(style?.classNames).toEqual([]);
   });
 
-  it("overrides the wider pitch the line mark carries", () => {
-    const style = effectStyle(
-      { texture: parseTexture("line space._1 color.border") },
-      index,
-    );
-    expect(style?.texture?.className).toBe("c-texture-line");
-    expect(style?.texture?.style["--pitch"]).toBe("var(--space-1)");
-  });
-
   it("stacks the texture over the wash: one on the layer, one on its box", () => {
     const style = effectStyle(
       {
-        texture: parseTexture("dot space._1 color.border"),
+        texture: parseTexture("space._1 color.border"),
         wash: parseWash("color.bgAccentSubtle toBottom"),
       },
       index,

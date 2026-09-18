@@ -24,9 +24,6 @@ export const TOGGLE_LABELS: Record<ToggleName, string> = {
 
 export const NONE = "none";
 
-/** Named after the `texture` member each one switches on. */
-export const TEXTURE_MARKS = ["dot", "line"] as const;
-
 /** Named after the `wash` member each one switches on. */
 export const WASH_DIRECTIONS = [
   "toBottom",
@@ -43,11 +40,13 @@ export const BLUR_RADII = [4, 8, 16, 24, 32];
 /** The alpha steps a glass part's colour token can be scaled to. */
 export const GLASS_OPACITY_STEPS = [100, 80, 60, 40, 20];
 
+/** The `stylex.create` member the Texture toggle switches on. */
+const TEXTURE = "texture.dot";
+
 /** The `stylex.create` member the Glass toggle switches on. */
 const GLASS = "glassSurface.base";
 
 export interface Texture {
-  mark: string;
   spacing: string;
   color: string;
 }
@@ -82,7 +81,7 @@ export interface Glass {
   radius: GlassRadius;
 }
 
-export const TEXTURE_DEFAULT = "dot space._1 color.border";
+export const TEXTURE_DEFAULT = "space._1 color.border";
 export const WASH_DEFAULT = "color.bgAccentSubtle toBottom";
 export const FLOATING_DEFAULT = "radius 16px";
 export const SCROLL_MASK_DEFAULT = "vertical radius 8px";
@@ -103,9 +102,11 @@ function words(value: string): string[] {
 
 export function parseTexture(value: string): Texture | undefined {
   if (value === NONE) return undefined;
-  const [mark, spacing, color] = words(value);
-  if (!mark || !spacing || !color) return undefined;
-  return { mark, spacing, color };
+  // A snapshot saved before the mark word went away holds it first, and the
+  // grammar has no place for it now.
+  const [spacing, color] = words(value).slice(-2);
+  if (!spacing || !color) return undefined;
+  return { spacing, color };
 }
 
 export function parseWash(value: string): Wash | undefined {
@@ -172,7 +173,7 @@ export function parseGlass(value: string): Glass | undefined {
 }
 
 export function formatTexture(texture: Texture): string {
-  return `${texture.mark} ${texture.spacing} ${texture.color}`;
+  return `${texture.spacing} ${texture.color}`;
 }
 
 export function formatWash(wash: Wash): string {
@@ -300,7 +301,7 @@ export function effectStyle(
   let texture: EffectStyle["texture"];
 
   const mark = effects.texture;
-  const markClass = mark && memberClass(`texture.${mark.mark}`, index);
+  const markClass = mark && memberClass(TEXTURE, index);
   if (mark && markClass) {
     texture = {
       className: markClass,
