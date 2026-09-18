@@ -1,3 +1,5 @@
+import { isRendered } from "../utils/is-rendered.ts";
+
 /**
  * The `contenteditable` state of the element itself. It is an enumerated
  * attribute, so its keywords are ASCII case-insensitive, an empty value is the
@@ -37,30 +39,6 @@ function isEditingHostOrEditable(element: HTMLElement): boolean {
     if (state !== "inherit") return state !== "false";
   }
   return false;
-}
-
-// `contentVisibilityAuto` is not modelled, because jsdom has no
-// `content-visibility` and no layout to say which subtree it skips.
-function isRendered(element: Element, options: CheckVisibilityOptions) {
-  let node: Element | null = element;
-  while (node !== null) {
-    const style = getComputedStyle(node);
-    if (style.display === "none") return false;
-    if (options.visibilityProperty === true && style.visibility === "hidden") {
-      return false;
-    }
-    const parent: HTMLElement | null = node.parentElement;
-    // A closed `<details>` renders its first summary and hides the rest.
-    if (
-      parent instanceof HTMLDetailsElement &&
-      !parent.open &&
-      node !== parent.querySelector(":scope > summary")
-    ) {
-      return false;
-    }
-    node = parent;
-  }
-  return true;
 }
 
 // jsdom defines no `matchMedia` at all, so a component that reads a media
