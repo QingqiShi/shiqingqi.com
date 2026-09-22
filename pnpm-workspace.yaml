@@ -17,13 +17,13 @@ overrides:
 catalog:
   # Pin Babel exactly. For a ranged catalog entry with a Babel 7 copy also in
   # the lockfile, Dependabot reads 7.x as current and opens no-op 7→8 PRs.
-  "@babel/core": 8.0.5
-  "@babel/parser": 8.0.5
-  "@babel/preset-env": ^8.0.5
+  "@babel/core": 8.0.6
+  "@babel/parser": 8.0.6
+  "@babel/preset-env": ^8.0.6
   "@babel/preset-react": ^8.0.1
   "@babel/preset-typescript": ^8.0.1
-  "@babel/traverse": 8.0.5
-  "@babel/types": 8.0.5
+  "@babel/traverse": 8.0.6
+  "@babel/types": 8.0.6
   "@phosphor-icons/react": ^2.1.10
   "@rolldown/plugin-babel": ^0.2.4
   "@serwist/cli": ^9.5.12
