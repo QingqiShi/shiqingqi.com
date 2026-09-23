@@ -40,7 +40,7 @@ module.exports = async (phase) => {
       // hidden inputs.
       turbopackFileSystemCacheForBuild: false,
     },
-    transpilePackages: ["@tuja/ui"],
+    transpilePackages: ["@tuja/gpu-surface", "@tuja/ui"],
     serverExternalPackages: ["esbuild-wasm", "@babel/parser", "prettier"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
     turbopack: {

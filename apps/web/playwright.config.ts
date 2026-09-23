@@ -74,7 +74,19 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        // By default, headless Chromium composites in software and draws
+        // WebGL with SwiftShader. In that mode, when a second WebGL context
+        // (such as the home page's FlowGradient) draws, the GPU surface shows
+        // black where the other context's drawing buffer would be, although
+        // the surface's own buffer is correct. GPU compositing on SwiftShader
+        // does not have this fault, and SwiftShader is the only WebGL that a
+        // runner with no GPU has.
+        launchOptions: {
+          args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+        },
+      },
     },
 
     /* Test against mobile viewports. */
