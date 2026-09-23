@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 
 // Using well-known movie/TV IDs that consistently have full data
 const FIGHT_CLUB_ID = "550";
@@ -149,63 +150,6 @@ test("should prevent body scroll when trailer overlay is open", async ({
   await expect(iframe).not.toBeVisible();
   await expect(scrollLock).toHaveCount(0);
 });
-
-/**
- * The fixed or sticky boxes Safari on iOS would sample for the status-bar
- * colour: the ones under the top-centre of the viewport that WebKit does not
- * walk past. Runs in the page, so keep it standalone. See "Progressive blur"
- * in contexts/design-system/CONTEXT.md.
- */
-function findStatusBarCandidates() {
-  const pointX = window.innerWidth / 2;
-  const pointY = 4;
-
-  return [...document.querySelectorAll("body *")]
-    .filter((element) => {
-      const rect = element.getBoundingClientRect();
-      const coversPoint =
-        rect.left <= pointX &&
-        pointX <= rect.right &&
-        rect.top <= pointY &&
-        pointY <= rect.bottom;
-      if (!coversPoint) {
-        return false;
-      }
-
-      const style = getComputedStyle(element);
-      if (style.position !== "fixed" && style.position !== "sticky") {
-        return false;
-      }
-      if (style.visibility === "hidden") {
-        return false;
-      }
-
-      const isTransparent = style.backgroundColor === "rgba(0, 0, 0, 0)";
-      const isEmptyAndTransparent =
-        element.children.length === 0 &&
-        isTransparent &&
-        style.backdropFilter === "none";
-      if (isEmptyAndTransparent) {
-        return false;
-      }
-
-      const isWide = rect.width >= window.innerWidth * 0.9;
-      const isTall = rect.height >= window.innerHeight * 0.9;
-      if (!isWide && !isTall) {
-        return false;
-      }
-      // WebKit skips a box taller than the viewport with no background, and a
-      // viewport-sized box behind the page.
-      if (rect.height >= window.innerHeight * 1.05 && isTransparent) {
-        return false;
-      }
-      return !(isWide && isTall && Number(style.zIndex) < 0);
-    })
-    .map(
-      (element) =>
-        `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""}`,
-    );
-}
 
 test("should keep every fixed box under the top-centre of the viewport narrow", async ({
   page,
