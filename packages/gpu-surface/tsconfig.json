@@ -1,0 +1,7 @@
+{
+  "extends": "@tuja/tsconfig/library.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "include": ["**/*.ts", "**/*.mts"]
+}
