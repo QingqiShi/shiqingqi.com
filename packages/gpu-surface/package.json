@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
+    "jsdom": "catalog:",
     "vitest": "catalog:"
   }
 }

@@ -53,3 +53,8 @@ export const DIRECTION_MIN_SPEED = 40;
 export const VIEWPORT_SLOP_PX = 8;
 
 export const STRIP_MIN_PX = 0.5;
+
+// A real height change allocates the band again only when the height stops
+// changing. Thus one resize gesture costs one allocation, not one for each
+// event.
+export const RESIZE_SETTLE_MS = 120;
