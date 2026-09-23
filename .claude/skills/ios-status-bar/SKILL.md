@@ -15,30 +15,33 @@ The colour then latches. It survives scrolling and client-side navigation, and
 clears only on a page load. So the cost of one wrong box is that the top of the
 page loses its Progressive blur for the rest of the visit.
 
-Two facts trip people up:
+Three facts trip people up:
 
 - `pointer-events: none` does not hide a box from the first pass. The sampler
   passes `IgnoreCSSPointerEventsProperty`.
 - The box's own border box is measured. Children with `visibility: hidden` or
   zero opacity do not shrink it, and a closed overlay shell still counts as
   content.
+- A replaced element, such as `<canvas>`, `<img>` or `<video>`, is never
+  nearly transparent. A bare fixed `<canvas>` element that fills the viewport
+  is a candidate, even with no children and no background.
 
 ## Decision guide
 
 Measure the box's own border box against the viewport, per axis. Smaller means
 under nine tenths.
 
-| The box                                                          | WebKit                                 |
-| ---------------------------------------------------------------- | -------------------------------------- |
-| Smaller in both axes                                             | TooSmall, walked past. Safe.           |
-| Smaller in width only                                            | IsSidebar, candidate                   |
-| Full width, shorter than the viewport                            | Candidate. The classic header bar.     |
-| Viewport-sized, with a background, a backdrop-filter, or a child | Candidate                              |
-| Viewport-sized, no children, translucent background              | Dimming layer, candidate               |
-| Both axes near viewport, negative used `z-index`                 | Skipped                                |
-| Over 1.05 viewport tall, no background                           | TooLarge, walked past                  |
-| No background, no `backdrop-filter`, no first child              | Nearly transparent, skipped            |
-| Top-layer `<dialog>` or popover                                  | `::backdrop` taken at once. Candidate. |
+| The box                                                           | WebKit                                 |
+| ----------------------------------------------------------------- | -------------------------------------- |
+| Smaller in both axes                                              | TooSmall, walked past. Safe.           |
+| Smaller in width only                                             | IsSidebar, candidate                   |
+| Full width, shorter than the viewport                             | Candidate. The classic header bar.     |
+| Viewport-sized, with a background, a backdrop-filter, or a child  | Candidate                              |
+| Viewport-sized, no children, translucent background               | Dimming layer, candidate               |
+| Both axes near viewport, negative used `z-index`                  | Skipped                                |
+| Over 1.05 viewport tall, no background                            | TooLarge, walked past                  |
+| No background, no `backdrop-filter`, no first child, not replaced | Nearly transparent, skipped            |
+| Top-layer `<dialog>` or popover                                   | `::backdrop` taken at once. Candidate. |
 
 So for a new fixed or sticky box, the options are: make it a 0 x 0 anchor and
 give its children their own size; keep it Smaller in both axes; give it a
@@ -62,7 +65,7 @@ it again if the header height or the bar's inset changes.
   property, so the box on the Blur plane never grows.
 - `packages/ui/src/components/header-controls.tsx`. The header floats two narrow
   control groups instead of one bar across the top.
-- `findStatusBarCandidates` in `apps/web/e2e/media-detail-pages.spec.ts` is the
+- `findStatusBarCandidates` in `apps/web/e2e/helpers/status-bar.ts` is the
   executable guard. It walks every fixed and sticky box that covers the
   top-centre point, because `elementsFromPoint` honours `pointer-events: none`
   and would miss the culprit.
