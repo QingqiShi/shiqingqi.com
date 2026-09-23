@@ -2,6 +2,7 @@ import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { globalStyles } from "#src/app/global-styles.ts";
+import { GpuPageBackground } from "#src/components/gpu-page-background.tsx";
 import { ReactGrab } from "#src/components/react-grab.tsx";
 import { SerwistProvider } from "#src/components/serwist-provider.tsx";
 import { InlineScript } from "#src/components/shared/inline-script.tsx";
@@ -71,6 +72,7 @@ export default async function RootLayout({
             <PostHogInit />
           </SerwistProvider>
         </I18nProvider>
+        <GpuPageBackground />
       </body>
     </html>
   );
