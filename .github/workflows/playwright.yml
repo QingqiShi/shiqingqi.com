@@ -3,7 +3,6 @@ on:
   push:
     branches: [main, master]
   pull_request:
-    branches: [main, master]
 
 # Cancel superseded runs on the same ref (e.g. rapid pushes to a PR).
 concurrency:
