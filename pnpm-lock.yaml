@@ -85,8 +85,8 @@ catalogs:
       specifier: 19.0.0-beta-714736e-20250131
       version: 19.0.0-beta-714736e-20250131
     dotenv:
-      specifier: ^17.4.2
-      version: 17.4.2
+      specifier: ^18.0.1
+      version: 18.0.3
     eslint:
       specifier: ^10.11.0
       version: 10.11.0
@@ -458,7 +458,7 @@ importers:
         version: 19.0.0-beta-714736e-20250131
       dotenv:
         specifier: 'catalog:'
-        version: 17.4.2
+        version: 18.0.3
       esbuild-wasm:
         specifier: ^0.28.2
         version: 0.28.2
@@ -854,7 +854,7 @@ importers:
         version: 1.2.3
       dotenv:
         specifier: 'catalog:'
-        version: 17.4.2
+        version: 18.0.3
       zod:
         specifier: 'catalog:'
         version: 4.4.3
@@ -4263,9 +4263,10 @@ packages:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
 
-  dotenv@17.4.2:
-    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
+  dotenv@18.0.3:
+    resolution: {integrity: sha512-/8CJTyL817qPnfbQrJgOEcrU3fDrJkRIoXBE566wHuvIXKOCHUZhPqGPbCPi9SogjdGnreF0TlvnTgK6J/8zpA==}
     engines: {node: '>=12'}
+    hasBin: true
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -10645,7 +10646,7 @@ snapshots:
 
   dotenv@16.0.3: {}
 
-  dotenv@17.4.2: {}
+  dotenv@18.0.3: {}
 
   dunder-proto@1.0.1:
     dependencies:
