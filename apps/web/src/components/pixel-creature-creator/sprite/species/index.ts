@@ -24,8 +24,8 @@ import wormLikeIdle from "./worm-like.png";
  * (see motion-math), not by swapping eye tiles.
  *
  * Sprites are extracted from `apps/web/design-assets/pixel-creature-creator/
- * species/sheet-color.png`. The extraction tooling lives in the variants
- * follow-up PR; manual cleanup is expected for any individual sprite.
+ * species/sheet-color.png`. The extraction and cleanup are manual; see the
+ * README in that folder.
  */
 
 export type { SpeciesLabel } from "./species-ids";

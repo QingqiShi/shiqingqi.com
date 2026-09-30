@@ -21,7 +21,7 @@ export const alt =
  * would require either embedding rasterized PNG data URLs (a build-time
  * step this route can't do) or hand-drawing every tile via SVG `<rect>`
  * elements (verbose and brittle to keep in sync with the sprite
- * registry). For Phase 6 we ship a simpler card-grid: each featured
+ * registry). Thus this image is a simpler card grid: each featured
  * creature is represented by a coloured tile using its type's
  * `accentColor`, with the creature's name beneath. The site title plus
  * tagline anchor the composition. This stays self-contained and still

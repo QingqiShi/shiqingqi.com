@@ -13,10 +13,9 @@ import { STAT_KEYS, type CreatureStats } from "../state/compute-seed-stats";
 import type { CreatureDef, Emotion } from "../state/creature-def-schema";
 
 /**
- * Lore payload rendered in the card and persisted across the session. Phase
- * 5 hydrates this from the AI route; the user can also paste their own
- * lore via the manual fallback. Both EN + ZH are kept around so a card
- * exported in one locale still preserves the other for export.
+ * Lore payload rendered in the card. It comes from the AI route or from the
+ * lore that the user pastes in the manual fallback. Both EN + ZH are kept
+ * around so a card exported in one locale still preserves the other.
  */
 export interface LoreData {
   loreEn: string;
@@ -36,8 +35,7 @@ type StatKey = keyof CreatureStats;
 /**
  * Faux-Pokedex card. Renders a header band tinted with the creature's type
  * `accentColor`, a recessed sprite "screen", a stats panel with horizontal
- * bars, and a lore panel that falls back to a placeholder until Phase 5
- * wires in real text.
+ * bars, and a lore panel that shows a placeholder until lore is set.
  *
  * Stats are accepted as a prop rather than recomputed here so the parent
  * (review screen) can memoize the seed-stats result alongside its other

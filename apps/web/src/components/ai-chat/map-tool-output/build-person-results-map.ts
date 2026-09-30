@@ -27,47 +27,27 @@ function mapTmdbSearchPersonOutput(
   output: unknown,
 ): ReadonlyArray<PersonListItem> {
   if (!Array.isArray(output)) return [];
-
-  const items: PersonListItem[] = [];
-  for (const entry of output) {
-    if (!isRecord(entry)) continue;
-    if (typeof entry.id !== "number") continue;
-    if (entry.media_type !== "person") continue;
-
-    items.push({
-      id: entry.id,
-      name: typeof entry.name === "string" ? entry.name : null,
-      profilePath:
-        typeof entry.profile_path === "string" ? entry.profile_path : null,
-      knownForDepartment:
-        typeof entry.known_for_department === "string"
-          ? entry.known_for_department
-          : null,
-    });
-  }
-  return items;
+  return extractPersonEntries(
+    output.filter((entry) => isRecord(entry) && entry.media_type === "person"),
+  );
 }
 
 function mapMediaCreditsPersonOutput(
   output: unknown,
 ): ReadonlyArray<PersonListItem> {
-  // New format: { cast: [...], crew: [...] }
-  if (isRecord(output)) {
-    const castItems = extractPersonEntries(output.cast);
-    const crewItems = extractPersonEntries(output.crew);
-    const seen = new Set<number>();
-    const items: PersonListItem[] = [];
+  if (!isRecord(output)) return [];
 
-    for (const item of [...castItems, ...crewItems]) {
-      if (seen.has(item.id)) continue;
-      seen.add(item.id);
-      items.push(item);
-    }
-    return items;
+  const castItems = extractPersonEntries(output.cast);
+  const crewItems = extractPersonEntries(output.crew);
+  const seen = new Set<number>();
+  const items: PersonListItem[] = [];
+
+  for (const item of [...castItems, ...crewItems]) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    items.push(item);
   }
-
-  // Legacy format: flat array (backwards-compatible with cached data)
-  return extractPersonEntries(output);
+  return items;
 }
 
 export function buildPersonResultsMap(

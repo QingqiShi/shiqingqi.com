@@ -2,8 +2,6 @@ import type { UIMessage } from "ai";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("server-only", () => ({}));
-
 const mockStore = new Map<string, UIMessage[]>();
 
 vi.mock("#src/session-store/get-session-messages.ts", () => ({
