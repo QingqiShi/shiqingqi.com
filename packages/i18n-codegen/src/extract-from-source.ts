@@ -1,5 +1,5 @@
 import { parse } from "@babel/parser";
-import type { NodePath } from "@babel/traverse";
+import traverse, { type NodePath } from "@babel/traverse";
 import type { CallExpression, ImportDeclaration } from "@babel/types";
 import {
   isIdentifier,
@@ -10,12 +10,6 @@ import {
 } from "@babel/types";
 import { generateKey } from "@tuja/babel-plugins/i18n/generate-key";
 import { isI18nModuleSource } from "@tuja/babel-plugins/i18n/is-i18n-module-source";
-
-// @babel/traverse is a CJS module whose default export is the traverse function.
-// Dynamic import() resolves the CJS→ESM interop correctly in both tsx and vitest,
-// and unlike createRequire it preserves type information from @types/babel__traverse.
-const _traverseModule = await import("@babel/traverse");
-const traverse = _traverseModule.default;
 
 /** A single extracted translation entry. */
 export interface TranslationEntry {

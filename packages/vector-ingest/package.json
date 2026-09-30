@@ -18,7 +18,6 @@
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
-    "tsx": "catalog:",
     "vitest": "catalog:"
   }
 }

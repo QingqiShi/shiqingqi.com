@@ -13,7 +13,6 @@
     "@tuja/codegen-fs": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
-    "tsx": "catalog:",
     "vitest": "catalog:"
   }
 }

@@ -16,7 +16,6 @@
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }
