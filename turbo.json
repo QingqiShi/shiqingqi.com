@@ -6,21 +6,16 @@
     "GITHUB_STEP_SUMMARY",
     "CI",
     "BASE_URL",
-    "DESIGN_AUTHOR_TOKENS_PATH",
     "ANTHROPIC_API_KEY",
     "TMDB_API_TOKEN",
     "UPSTASH_VECTOR_REST_URL",
     "UPSTASH_VECTOR_REST_TOKEN",
-    "UPSTASH_VECTOR_REST_READONLY_TOKEN",
     "VERCEL_URL",
     "VERCEL_BRANCH_URL",
     "ALLOWED_DEV_ORIGINS",
     "INIT_CWD",
     "KV_REST_API_URL",
-    "KV_URL",
-    "REDIS_URL",
     "KV_REST_API_TOKEN",
-    "KV_REST_API_READ_ONLY_TOKEN",
     "SITE_PASSWORD_GB",
     "SITE_PASSWORD_TUSCANY"
   ],
@@ -55,7 +50,7 @@
     "test": {
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [],
-      "env": ["UPSTASH_REDIS_REST_URL"]
+      "env": ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"]
     },
     "test:e2e": {
       "dependsOn": ["^build"],
