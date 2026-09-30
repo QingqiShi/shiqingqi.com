@@ -39,7 +39,6 @@ updates:
           - "@types/react-dom"
       react-compiler:
         patterns:
-          - "eslint-plugin-react-compiler"
           - "babel-plugin-react-compiler"
       serwist:
         patterns:
@@ -60,7 +59,7 @@ updates:
           - "vitest"
           - "@vitest*"
           - "@vitejs/plugin-react"
-          - "vite-plugin-babel"
+          - "@rolldown/plugin-babel"
       ai-sdk:
         patterns:
           - "ai"

@@ -11,7 +11,7 @@ This project uses automatic code generation for TMDB API integration with select
 
 ## Critical Rule
 
-**NEVER manually edit** `src/_generated/tmdb-server-functions.ts` - it is auto-generated.
+**NEVER manually edit** `apps/web/src/_generated/tmdb-server-functions.ts` - it is auto-generated.
 
 Always use `pnpm codegen:tmdb` to regenerate after making changes to endpoint configurations.
 
@@ -87,10 +87,10 @@ pnpm codegen:zod
 
 ### Auto-Generated (DO NOT EDIT)
 
-- `src/_generated/tmdb-server-functions.ts` - Server functions with TypeScript types
-- `src/_generated/tmdb-zod-schemas.ts` - Selective Zod schemas (only for endpoints with `needsZodSchema: true`)
+- `apps/web/src/_generated/tmdb-server-functions.ts` - Server functions with TypeScript types
+- `apps/web/src/_generated/tmdb-zod.ts` - Selective Zod schemas (only for endpoints with `needsZodSchema: true`)
 
-These files are **git-ignored** and must be regenerated after cloning:
+These files are **committed to the repository**, so run codegen and commit the result whenever `endpoints.js` changes:
 
 ```bash
 pnpm codegen:tmdb
@@ -125,7 +125,10 @@ export const movieSchema = z.object({
 ### Importing Server Functions
 
 ```typescript
-import { searchMovies, getMovieDetails } from "@/utils/tmdb-server-functions";
+import {
+  searchMovies,
+  getMovieDetails,
+} from "#src/_generated/tmdb-server-functions.ts";
 
 // Use in server components
 const movies = await searchMovies({ query: "Inception" });
@@ -134,7 +137,7 @@ const movies = await searchMovies({ query: "Inception" });
 ### Importing Zod Schemas (for AI tools)
 
 ```typescript
-import { movieSearchSchema } from "@/utils/tmdb-zod-schemas";
+import { movieSearchSchema } from "#src/_generated/tmdb-zod.ts";
 
 // Use with OpenAI Structured Outputs
 const completion = await openai.chat.completions.create({
@@ -150,8 +153,7 @@ Regenerate TMDB code when:
 
 1. **Adding new endpoints** - Add to `endpoints.js`, then run `pnpm codegen:tmdb`
 2. **Changing endpoint configuration** - Modify `endpoints.js`, then regenerate
-3. **After cloning repository** - Generated files are git-ignored
-4. **Updating TMDB API version** - Update base URL, then regenerate
+3. **Updating TMDB API version** - Update base URL, then regenerate
 
 ## Best Practices
 
@@ -159,7 +161,7 @@ Regenerate TMDB code when:
 2. **Minimal Zod schemas** - Only set `needsZodSchema: true` when needed for AI tools
 3. **Check generation** - Verify generated files after running codegen
 4. **Commit config changes** - `endpoints.js` is version-controlled
-5. **Don't commit generated files** - They're git-ignored for a reason
+5. **Commit generated files too** - They're tracked in the repository, so commit the regenerated output alongside the config change
 
 ## Performance Impact
 
@@ -187,7 +189,7 @@ Regenerate TMDB code when:
 pnpm codegen:tmdb
 
 # 3. Use in code
-import { newFunction } from "@/utils/tmdb-server-functions";
+import { newFunction } from "#src/_generated/tmdb-server-functions.ts";
 ```
 
 ### Add Zod Schema to Existing Endpoint
@@ -200,21 +202,15 @@ import { newFunction } from "@/utils/tmdb-server-functions";
 pnpm codegen:zod
 
 # 3. Use schema
-import { newSchema } from "@/utils/tmdb-zod-schemas";
+import { newSchema } from "#src/_generated/tmdb-zod.ts";
 ```
 
 ## Troubleshooting
 
-### Generated files missing after clone
-
-```bash
-pnpm codegen:tmdb
-```
-
 ### TypeScript errors in generated files
 
 ```bash
-# Regenerate from scratch
+# Regenerate from scratch (run from apps/web)
 rm -rf src/_generated
 pnpm codegen:tmdb
 ```
