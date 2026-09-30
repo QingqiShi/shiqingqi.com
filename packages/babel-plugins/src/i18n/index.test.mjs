@@ -3,12 +3,10 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { transformSync, types } from "@babel/core";
 import { describe, expect, it } from "vitest";
 
 const require = createRequire(import.meta.url);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const pluginPath = require.resolve("./index");
 
@@ -468,54 +466,6 @@ const msg = t({ en: \`Hello \${name}\`, zh: \`你好\${name}\` });
 `;
       expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
       expect(() => transform(input)).toThrow(/Template literals/);
-    });
-  });
-
-  describe("key determinism", () => {
-    it("produces the same key for the same translation pair", () => {
-      const key1 = expectedKey("Hello", "你好");
-      const key2 = expectedKey("Hello", "你好");
-
-      expect(key1).toBe(key2);
-      expect(key1).toHaveLength(8);
-    });
-
-    it("produces different keys for different translation pairs", () => {
-      const key1 = expectedKey("Hello", "你好");
-      const key2 = expectedKey("World", "世界");
-
-      expect(key1).not.toBe(key2);
-    });
-  });
-
-  describe("key parity with generate-key.js", () => {
-    it("produces identical keys to packages/i18n-codegen/src/generate-key.js", async () => {
-      // Dynamically import the ESM key module
-      const keyModulePath = path.resolve(
-        __dirname,
-        "..",
-        "..",
-        "..",
-        "i18n-codegen",
-        "src",
-        "generate-key.js",
-      );
-      const { generateKey } = await import(keyModulePath);
-
-      const testPairs = [
-        ["Hello", "你好"],
-        ["Goodbye", "再见"],
-        ["Hello <strong>world</strong>", "你好 <strong>世界</strong>"],
-        ["", ""],
-        [
-          "A longer string with special characters: <em>test</em> & more!",
-          "一段较长的特殊字符文本",
-        ],
-      ];
-
-      for (const [en, zh] of testPairs) {
-        expect(expectedKey(en, zh)).toBe(generateKey(en, zh));
-      }
     });
   });
 

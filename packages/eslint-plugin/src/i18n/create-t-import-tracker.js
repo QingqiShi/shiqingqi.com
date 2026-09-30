@@ -8,14 +8,9 @@
 
 "use strict";
 
-/** @param {unknown} source */
-function isI18nModuleSource(source) {
-  return (
-    source === "#src/i18n" ||
-    source === "#src/i18n.ts" ||
-    (typeof source === "string" && /\/i18n(?:\.ts)?$/.test(source))
-  );
-}
+const {
+  isI18nModuleSource,
+} = require("@tuja/babel-plugins/i18n/is-i18n-module-source");
 
 /**
  * Creates a tracker for the `t` import. Feed it every `ImportDeclaration`

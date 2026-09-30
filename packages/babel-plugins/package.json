@@ -20,7 +20,9 @@
     "./specimen-source/token-kinds": "./src/specimen-source/token-kinds.js",
     "./stylex-breakpoints": "./src/stylex-breakpoints/index.js",
     "./stylex-options": "./src/stylex-options/index.js",
-    "./i18n": "./src/i18n/index.js"
+    "./i18n": "./src/i18n/index.js",
+    "./i18n/generate-key": "./src/i18n/generate-key.js",
+    "./i18n/is-i18n-module-source": "./src/i18n/is-i18n-module-source.js"
   },
   "files": [
     "src",

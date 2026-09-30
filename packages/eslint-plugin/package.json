@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@tuja/babel-plugins": "workspace:*",
     "@tuja/module-exports": "workspace:*",
     "eslint": "catalog:"
   },

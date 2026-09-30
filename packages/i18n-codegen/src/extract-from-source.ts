@@ -8,7 +8,8 @@ import {
   isObjectProperty,
   isStringLiteral,
 } from "@babel/types";
-import { generateKey } from "./generate-key.js";
+import { generateKey } from "@tuja/babel-plugins/i18n/generate-key";
+import { isI18nModuleSource } from "@tuja/babel-plugins/i18n/is-i18n-module-source";
 
 // @babel/traverse is a CJS module whose default export is the traverse function.
 // Dynamic import() resolves the CJS→ESM interop correctly in both tsx and vitest,
@@ -45,8 +46,6 @@ export interface ExtractionResult {
   warnings: ExtractionWarning[];
 }
 
-const I18N_IMPORT_SOURCES = new Set(["#src/i18n", "#src/i18n.ts"]);
-
 /**
  * Extract translations from a single source file's code string.
  */
@@ -73,8 +72,7 @@ export function extractFromSource(
 
   traverse(ast, {
     ImportDeclaration(path: NodePath<ImportDeclaration>) {
-      const source = path.node.source.value;
-      if (!I18N_IMPORT_SOURCES.has(source)) return;
+      if (!isI18nModuleSource(path.node.source.value)) return;
 
       for (const specifier of path.node.specifiers) {
         if (

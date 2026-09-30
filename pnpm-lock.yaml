@@ -608,6 +608,9 @@ importers:
 
   packages/eslint-plugin:
     dependencies:
+      '@tuja/babel-plugins':
+        specifier: workspace:*
+        version: link:../babel-plugins
       '@tuja/module-exports':
         specifier: workspace:*
         version: link:../module-exports
@@ -633,6 +636,9 @@ importers:
       '@babel/types':
         specifier: 'catalog:'
         version: 8.0.6
+      '@tuja/babel-plugins':
+        specifier: workspace:*
+        version: link:../babel-plugins
       '@tuja/codegen-fs':
         specifier: workspace:*
         version: link:../codegen-fs
