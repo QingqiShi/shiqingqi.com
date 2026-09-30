@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { transformSync } from "@babel/core";
 import type { Rule } from "@stylexjs/babel-plugin";
 import stylexBabelPlugin from "@stylexjs/babel-plugin";
+import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
 
 const require = createRequire(import.meta.url);
 const typescriptPreset = require.resolve("@babel/preset-typescript");
@@ -38,15 +39,9 @@ function compileRules(file: string): Rule[] {
     configFile: false,
     presets: [typescriptPreset],
     plugins: [
-      stylexBabelPlugin.withOptions({
-        dev: false,
-        runtimeInjection: false,
-        styleResolution: "property-specificity",
-        unstable_moduleResolution: {
-          type: "commonJS",
-          rootDir: workspaceRoot,
-        },
-      }),
+      stylexBabelPlugin.withOptions(
+        stylexPluginOptions({ rootDir: workspaceRoot, nodeEnv: undefined }),
+      ),
     ],
   });
   const rules: unknown = result?.metadata.stylex;

@@ -666,6 +666,9 @@ importers:
       '@stylexjs/babel-plugin':
         specifier: 'catalog:'
         version: 0.19.1
+      '@tuja/babel-plugins':
+        specifier: workspace:*
+        version: link:../babel-plugins
     devDependencies:
       '@tuja/tsconfig':
         specifier: workspace:*

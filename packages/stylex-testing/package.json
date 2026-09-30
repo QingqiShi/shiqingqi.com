@@ -14,7 +14,8 @@
   "dependencies": {
     "@babel/core": "catalog:",
     "@babel/preset-typescript": "catalog:",
-    "@stylexjs/babel-plugin": "catalog:"
+    "@stylexjs/babel-plugin": "catalog:",
+    "@tuja/babel-plugins": "workspace:*"
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
