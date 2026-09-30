@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { MediaDetailProvider } from "#src/components/ai-chat/media-detail-provider.tsx";
 import { render, screen } from "#src/test-utils.tsx";
 import type { MediaListItem } from "#src/utils/types.ts";
-import { MediaDetailProvider } from "./media-detail-provider";
-import { RecommendedMediaRow } from "./recommended-media-row";
+import { MediaRow } from "./media-row.tsx";
 
 const mockItems: ReadonlyArray<MediaListItem> = [
   {
@@ -21,22 +21,22 @@ const mockItems: ReadonlyArray<MediaListItem> = [
   },
 ];
 
-describe("RecommendedMediaRow", () => {
+describe("MediaRow", () => {
   it("renders section title", () => {
     render(
       <MediaDetailProvider>
-        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+        <MediaRow title="Trending movies" items={mockItems} />
       </MediaDetailProvider>,
     );
     expect(
-      screen.getByRole("heading", { name: "Trending Movies" }),
+      screen.getByRole("heading", { name: "Trending movies" }),
     ).toBeInTheDocument();
   });
 
   it("renders poster images for each item with empty alt (title is on the button label)", () => {
     render(
       <MediaDetailProvider>
-        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+        <MediaRow title="Trending movies" items={mockItems} />
       </MediaDetailProvider>,
     );
     const oneImg = screen
@@ -54,7 +54,7 @@ describe("RecommendedMediaRow", () => {
   it("renders rating badges", () => {
     render(
       <MediaDetailProvider>
-        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+        <MediaRow title="Trending movies" items={mockItems} />
       </MediaDetailProvider>,
     );
     expect(screen.getByText("8.5")).toBeInTheDocument();
@@ -64,7 +64,7 @@ describe("RecommendedMediaRow", () => {
   it("renders cards as buttons", () => {
     render(
       <MediaDetailProvider>
-        <RecommendedMediaRow title="Trending Movies" items={mockItems} />
+        <MediaRow title="Trending movies" items={mockItems} />
       </MediaDetailProvider>,
     );
     // One button per card, labelled with the media title.
@@ -79,8 +79,8 @@ describe("RecommendedMediaRow", () => {
   it("renders no-poster fallback when posterPath is null", () => {
     render(
       <MediaDetailProvider>
-        <RecommendedMediaRow
-          title="Trending Movies"
+        <MediaRow
+          title="Trending movies"
           items={[
             {
               id: 99,
@@ -101,7 +101,7 @@ describe("RecommendedMediaRow", () => {
   it("renders nothing when items array is empty", () => {
     const { container } = render(
       <MediaDetailProvider>
-        <RecommendedMediaRow title="Trending Movies" items={[]} />
+        <MediaRow title="Trending movies" items={[]} />
       </MediaDetailProvider>,
     );
     expect(container.querySelector("section")).toBeNull();
@@ -112,9 +112,7 @@ describe("RecommendedMediaRow", () => {
       ...item,
       href: `/movie-database/${String(item.mediaType)}/${item.id.toString()}`,
     }));
-    render(
-      <RecommendedMediaRow title="Trending Movies" items={itemsWithHref} />,
-    );
+    render(<MediaRow title="Trending movies" items={itemsWithHref} />);
     const linkOne = screen.getByRole("link", { name: "Movie One" });
     const linkTwo = screen.getByRole("link", { name: "Movie Two" });
     expect(linkOne).toHaveAttribute("href", "/movie-database/movie/1");
@@ -135,8 +133,8 @@ describe("RecommendedMediaRow", () => {
       href: "/movie-database/movie/1",
     }));
     render(
-      <RecommendedMediaRow
-        title="Trending Movies"
+      <MediaRow
+        title="Trending movies"
         items={itemsWithHref}
         inset="standalone"
       />,

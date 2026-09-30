@@ -3,16 +3,17 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { ratio, space } from "@tuja/ui/tokens.stylex";
+import type { MediaRowInset } from "./media-row.tsx";
 
 const SKELETON_COUNT = 14;
 
-interface RecommendedMediaRowSkeletonProps {
-  inset?: "chat" | "standalone";
+interface MediaRowSkeletonProps {
+  inset?: MediaRowInset;
 }
 
-export function RecommendedMediaRowSkeleton({
+export function MediaRowSkeleton({
   inset = "chat",
-}: RecommendedMediaRowSkeletonProps = {}) {
+}: MediaRowSkeletonProps = {}) {
   const rowStyle = inset === "standalone" ? styles.rowStandalone : styles.row;
   const cardStyle = inset === "standalone" ? styles.cardLarge : styles.card;
   return (

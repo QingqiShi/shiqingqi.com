@@ -12,9 +12,7 @@ import {
   getTvShowGenres,
 } from "#src/_generated/tmdb-server-functions.ts";
 import { DotGridBackground } from "#src/components/ai-chat/dot-grid-background.tsx";
-import { RecommendedMedia } from "#src/components/ai-chat/recommended-media.tsx";
 import { SuggestionChips } from "#src/components/ai-chat/suggestion-chips.tsx";
-import { CuratedMediaRows } from "#src/components/movie-database/curated-media-rows.tsx";
 import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
 import { Filters } from "#src/components/movie-database/filters.tsx";
 import { Grid } from "#src/components/movie-database/grid.tsx";
@@ -24,6 +22,7 @@ import { InlineChatSwitch } from "#src/components/movie-database/inline-chat-swi
 import { InlineChatView } from "#src/components/movie-database/inline-chat-view.tsx";
 import { MediaFiltersProvider } from "#src/components/movie-database/media-filters-provider.tsx";
 import { MediaList } from "#src/components/movie-database/media-list.tsx";
+import { TrendingRows } from "#src/components/movie-database/trending-rows.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { t } from "#src/i18n.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
@@ -141,7 +140,20 @@ export default async function Page(
             browseContent={
               <>
                 <HeroSection />
-                <CuratedMediaRows locale={validatedLocale} />
+                <TrendingRows
+                  locale={validatedLocale}
+                  limit={14}
+                  inset="standalone"
+                  linkToDetails
+                  movieTitle={t({
+                    en: "Trending movies this week",
+                    zh: "本周热门电影",
+                  })}
+                  tvShowTitle={t({
+                    en: "Trending TV shows this week",
+                    zh: "本周热门电视剧",
+                  })}
+                />
                 <Suspense
                   fallback={
                     <>
@@ -192,7 +204,16 @@ export default async function Page(
                       })}
                       suggestions={suggestions}
                     />
-                    <RecommendedMedia locale={validatedLocale} />
+                    <TrendingRows
+                      locale={validatedLocale}
+                      limit={10}
+                      inset="chat"
+                      movieTitle={t({ en: "Trending movies", zh: "热门电影" })}
+                      tvShowTitle={t({
+                        en: "Trending TV shows",
+                        zh: "热门电视剧",
+                      })}
+                    />
                   </div>
                 }
                 messagesLabel={t({
