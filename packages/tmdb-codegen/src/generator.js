@@ -5,7 +5,6 @@ import path from "path";
 import { apiRoutes } from "./api-routes.js";
 import { endpoints } from "./endpoints.js";
 import { generateApiRoutes } from "./generate-api-routes.js";
-import { generateEndpointTypes } from "./generate-endpoint-types.js";
 import { generateServerFunctions } from "./generate-server-functions.js";
 
 const { values } = parseArgs({
@@ -24,7 +23,6 @@ function main() {
   try {
     generateServerFunctions(projectRoot);
     generateApiRoutes(projectRoot);
-    generateEndpointTypes(projectRoot);
 
     console.log(
       `✨ Generated ${endpoints.length} functions and ${apiRoutes.length} API routes successfully!`,
