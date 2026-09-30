@@ -17,9 +17,7 @@
   },
   "devDependencies": {
     "@tuja/tsconfig": "workspace:*",
-    "@types/babel__traverse": "catalog:",
     "@types/node": "catalog:",
-    "tsx": "catalog:",
     "vitest": "catalog:"
   }
 }

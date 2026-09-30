@@ -41,7 +41,6 @@ module.exports = async (phase) => {
       turbopackFileSystemCacheForBuild: false,
     },
     transpilePackages: ["@tuja/ui"],
-    serverExternalPackages: ["esbuild-wasm", "@babel/parser", "prettier"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
     turbopack: {
       rules: {

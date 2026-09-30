@@ -1,14 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parse } from "@babel/parser";
+import traverse from "@babel/traverse";
 import type { File as BabelFile } from "@babel/types";
 import { isStringLiteral } from "@babel/types";
-
-// @babel/traverse is a CJS module whose default export is the traverse function.
-// Dynamic import() resolves the CJS→ESM interop correctly in both tsx and vitest,
-// and unlike createRequire it preserves type information from @types/babel__traverse.
-const _traverseModule = await import("@babel/traverse");
-const traverse = _traverseModule.default;
 
 const SRC_ALIAS = "#src/";
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx"];
