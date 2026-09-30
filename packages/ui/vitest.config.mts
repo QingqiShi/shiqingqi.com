@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import babel from "@rolldown/plugin-babel";
+import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
@@ -36,20 +37,7 @@ export default defineConfig({
         ],
         [
           "@stylexjs/babel-plugin",
-          {
-            sxPropName: "css",
-            dev: false,
-            test: true,
-            runtimeInjection: false,
-            genConditionalClasses: true,
-            treeshakeCompensation: true,
-            styleResolution: "property-specificity",
-            enableMediaQueryOrder: true,
-            unstable_moduleResolution: {
-              type: "commonJS",
-              rootDir: workspaceRoot,
-            },
-          },
+          stylexPluginOptions({ rootDir: workspaceRoot, nodeEnv: "test" }),
         ],
       ],
     }),
