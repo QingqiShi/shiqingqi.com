@@ -1,24 +1,9 @@
 import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import type { ReactNode } from "react";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { MediaFiltersProvider } from "./media-filters-provider";
 import { SortFilter } from "./sort-filter";
-
-// jsdom gap: the provider's scroll-to-top path reads reduced-motion via
-// matchMedia.
-beforeAll(() => {
-  window.matchMedia = vi.fn().mockReturnValue({
-    matches: false,
-    media: "",
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  });
-});
 
 function Harness({ children }: { children: ReactNode }) {
   return (

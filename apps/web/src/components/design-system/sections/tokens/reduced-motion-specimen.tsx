@@ -7,28 +7,10 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
+import { usePrefersReducedMotion } from "#src/hooks/use-prefers-reduced-motion.ts";
 import { t } from "#src/i18n.ts";
 import { measure } from "../../measure.stylex.ts";
-
-const QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribe(onStoreChange: () => void) {
-  const query = window.matchMedia(QUERY);
-  query.addEventListener("change", onStoreChange);
-  return () => {
-    query.removeEventListener("change", onStoreChange);
-  };
-}
-
-function getSnapshot() {
-  return window.matchMedia(QUERY).matches;
-}
-
-/** The server cannot know the preference; the store corrects it on hydration. */
-function getServerSnapshot() {
-  return false;
-}
 
 /**
  * Two presets running live, named against whichever branch the visitor's own
@@ -36,11 +18,7 @@ function getServerSnapshot() {
  * is the point: change it and this updates in place.
  */
 export function ReducedMotionSpecimen() {
-  const reduced = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot,
-  );
+  const reduced = usePrefersReducedMotion();
   const [moved, setMoved] = useState(false);
 
   const send = t({ en: "Send it across", zh: "让它移过去" });

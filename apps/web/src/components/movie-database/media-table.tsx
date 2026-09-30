@@ -31,8 +31,9 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
+import { usePrefersReducedMotion } from "#src/hooks/use-prefers-reduced-motion.ts";
 import { t } from "#src/i18n.ts";
 import { copyTextToClipboard } from "#src/utils/copy-text-to-clipboard.ts";
 import { downloadBlob } from "#src/utils/download-blob.ts";
@@ -280,38 +281,6 @@ function downloadCsv(rows: unknown[][], filename: string) {
     type: "text/csv;charset=utf-8;",
   });
   downloadBlob(blob, filename);
-}
-
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribeToReducedMotion(onChange: () => void) {
-  const query = window.matchMedia(REDUCED_MOTION_QUERY);
-  query.addEventListener("change", onChange);
-  return () => {
-    query.removeEventListener("change", onChange);
-  };
-}
-
-function getReducedMotion() {
-  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
-}
-
-/** No media queries on the server; hydration corrects this immediately. */
-function getServerReducedMotion() {
-  return false;
-}
-
-/**
- * Reactive `prefers-reduced-motion`. LyteNyte's row animations have no
- * reduced-motion branch of their own, so the preference has to be read here and
- * handed to the grid as a prop.
- */
-function usePrefersReducedMotion() {
-  return useSyncExternalStore(
-    subscribeToReducedMotion,
-    getReducedMotion,
-    getServerReducedMotion,
-  );
 }
 
 interface MediaTableProps {
@@ -706,6 +675,8 @@ export function MediaTable({
                 rowHeight={ROW_HEIGHT}
                 headerHeight={HEADER_HEIGHT}
                 rowAlternateAttr
+                // LyteNyte does not obey reduced motion for row animations, so
+                // the grid gets the setting as a prop.
                 rowAnimate={!prefersReducedMotion}
                 cellSelectionMode="range"
                 cellSelectionExcludeMarker

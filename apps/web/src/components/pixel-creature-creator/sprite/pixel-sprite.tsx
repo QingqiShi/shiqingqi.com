@@ -77,13 +77,9 @@ export function PixelSprite({
       return;
     }
 
-    // `matchMedia` may be absent in some test environments — fall back to a
-    // matches: false stub. We arm a `change` listener so toggling the OS
-    // setting rearms or stops the rAF without remounting.
-    const reducedQuery =
-      typeof window.matchMedia === "function"
-        ? window.matchMedia("(prefers-reduced-motion: reduce)")
-        : null;
+    // We arm a `change` listener so toggling the OS setting rearms or stops
+    // the rAF without remounting.
+    const reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     let rafId = 0;
     const startTime = performance.now();
@@ -105,7 +101,7 @@ export function PixelSprite({
       stopRaf();
       // Reduced motion: write the static t=0 pose once and skip the rAF
       // loop entirely (saves CPU / battery vs. ticking forever at 60Hz).
-      if (reducedQuery !== null && reducedQuery.matches) {
+      if (reducedQuery.matches) {
         writeMotion(getReducedMotionEmotion(activeEmotion, 0));
         return;
       }
@@ -117,11 +113,11 @@ export function PixelSprite({
     const onReducedChange = () => {
       startMotion();
     };
-    reducedQuery?.addEventListener("change", onReducedChange);
+    reducedQuery.addEventListener("change", onReducedChange);
 
     return () => {
       stopRaf();
-      reducedQuery?.removeEventListener("change", onReducedChange);
+      reducedQuery.removeEventListener("change", onReducedChange);
     };
   }, [activeEmotion, paused, scale]);
 
