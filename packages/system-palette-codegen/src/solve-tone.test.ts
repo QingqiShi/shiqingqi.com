@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
-import { argbFromHex } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
 import { hellwigLightness } from "./hellwig-lightness.ts";
 import { hexAt, solveTone } from "./solve-tone.ts";
 import { hueDistance, tintOf } from "./tint-of.ts";
+import { Hct } from "./vendor/material-color-utilities/hct.ts";
+import { argbFromHex } from "./vendor/material-color-utilities/string_utils.ts";
 
 describe("solveTone", () => {
   it("returns the extremes exactly", () => {

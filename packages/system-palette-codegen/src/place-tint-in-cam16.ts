@@ -1,11 +1,11 @@
-import { Cam16 } from "../../../apps/web/src/vendor/material-color-utilities/cam16.ts";
+import { tintOf } from "./tint-of.ts";
+import { Cam16 } from "./vendor/material-color-utilities/cam16.ts";
 import {
   argbFromLinrgb,
   yFromLstar,
-} from "../../../apps/web/src/vendor/material-color-utilities/color_utils.ts";
-import { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
-import { ViewingConditions } from "../../../apps/web/src/vendor/material-color-utilities/viewing_conditions.ts";
-import { tintOf } from "./tint-of.ts";
+} from "./vendor/material-color-utilities/color_utils.ts";
+import { Hct } from "./vendor/material-color-utilities/hct.ts";
+import { ViewingConditions } from "./vendor/material-color-utilities/viewing_conditions.ts";
 
 // The vendored colour utilities keep this matrix private.
 const XYZ_TO_LINRGB = [

@@ -12,7 +12,7 @@ public/sw.js
 public/sw.js.map
 
 # Vendored third-party code (preserve upstream formatting)
-apps/web/src/vendor/
+packages/system-palette-codegen/src/vendor/
 
 # Vendored agent skill installed via the `impeccable` CLI
 # (preserve upstream formatting)

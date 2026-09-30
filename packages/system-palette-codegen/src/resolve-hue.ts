@@ -1,10 +1,10 @@
-import { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
-import { argbFromHex } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
 import { SYSTEM_PALETTE_TONES } from "./constants.ts";
 import { evaluateCurve } from "./evaluate-curve.ts";
 import { hellwigLightness } from "./hellwig-lightness.ts";
 import { hexAt, solveTone } from "./solve-tone.ts";
 import { RAMP_CURVE, type SystemHueDefinition } from "./system-hues.ts";
+import { Hct } from "./vendor/material-color-utilities/hct.ts";
+import { argbFromHex } from "./vendor/material-color-utilities/string_utils.ts";
 
 /** The achromatic ramp: at each tone step, the curved L* and the Hellwig lightness of gray there. */
 const targets = SYSTEM_PALETTE_TONES.map((tone) => {

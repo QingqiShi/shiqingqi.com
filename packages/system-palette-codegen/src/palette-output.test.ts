@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
-import { argbFromHex } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
 import { SYSTEM_PALETTE_TONES } from "./constants.ts";
 import { contrastRatio } from "./contrast-ratio.ts";
 import { hellwigLightness } from "./hellwig-lightness.ts";
@@ -8,6 +6,8 @@ import { pickForeground } from "./pick-foreground.ts";
 import { resolveHue } from "./resolve-hue.ts";
 import { SYSTEM_HUES, type SystemHueDefinition } from "./system-hues.ts";
 import { hueDistance, tintOf } from "./tint-of.ts";
+import { Hct } from "./vendor/material-color-utilities/hct.ts";
+import { argbFromHex } from "./vendor/material-color-utilities/string_utils.ts";
 
 // Re-derive each swatch the same way the generator does. The generated
 // `*.stylex.ts` files can't be imported into this vitest harness (no StyleX
