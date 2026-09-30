@@ -393,6 +393,9 @@ importers:
       '@tuja/stylex-testing':
         specifier: workspace:*
         version: link:../../packages/stylex-testing
+      '@tuja/system-palette-codegen':
+        specifier: workspace:*
+        version: link:../../packages/system-palette-codegen
       '@tuja/tmdb-codegen':
         specifier: workspace:*
         version: link:../../packages/tmdb-codegen

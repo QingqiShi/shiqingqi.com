@@ -20,24 +20,27 @@
     "SITE_PASSWORD_TUSCANY"
   ],
   "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
     "codegen": {
+      "dependsOn": ["transit"],
       "outputs": [
         "src/_generated/**",
         "public/sw.js",
         "public/pwa-*.png",
         "src/app/manifest.json"
-      ],
-      "inputs": [
-        "src/**/*.{ts,tsx,js,mjs,json}",
-        "../../packages/ui/src/components/**/*.tsx",
-        "../../packages/ui/package.json",
-        "$TURBO_DEFAULT$"
       ]
     },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "public/sw.js"]
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "public/sw.js",
+        "public/pwa-*.png"
+      ]
     },
     "build:tsc": {
       "dependsOn": ["^build", "codegen"],
@@ -45,9 +48,12 @@
       "outputs": []
     },
     "lint": {
+      "dependsOn": ["transit", "@tuja/eslint-plugin#transit"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/eslint.config.mjs"],
       "outputs": []
     },
     "test": {
+      "dependsOn": ["transit"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [],
       "env": ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"]
