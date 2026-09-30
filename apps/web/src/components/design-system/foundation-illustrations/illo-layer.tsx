@@ -52,13 +52,10 @@ export function IlloLayer({ children }: { children: ReactNode }) {
     };
 
     // Bind to the query (not a one-time read) so a mid-session reduced-motion
-    // toggle takes effect. `matchMedia` is guarded for jsdom under test.
-    const reduced =
-      typeof window.matchMedia === "function"
-        ? window.matchMedia("(prefers-reduced-motion: reduce)")
-        : null;
+    // toggle takes effect.
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => {
-      if (reduced?.matches) {
+      if (reduced.matches) {
         tile.removeEventListener("pointermove", handleMove);
         tile.removeEventListener("pointerleave", recentre);
         recentre();
@@ -68,10 +65,10 @@ export function IlloLayer({ children }: { children: ReactNode }) {
       }
     };
     sync();
-    reduced?.addEventListener("change", sync);
+    reduced.addEventListener("change", sync);
 
     return () => {
-      reduced?.removeEventListener("change", sync);
+      reduced.removeEventListener("change", sync);
       tile.removeEventListener("pointermove", handleMove);
       tile.removeEventListener("pointerleave", recentre);
       if (frame) {

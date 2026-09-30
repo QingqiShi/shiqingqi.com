@@ -1,6 +1,6 @@
 import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { useState } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
@@ -11,22 +11,8 @@ const CLEARANCE_PX = "56px";
 const CLEARANCE = Number.parseFloat(CLEARANCE_PX);
 const originalGetComputedStyle = window.getComputedStyle.bind(window);
 
-// jsdom gaps: the provider reads reduced-motion via matchMedia at scroll
-// time, and lays out nothing, so scroll margin and element positions are
-// stubbed per test.
-beforeEach(() => {
-  window.matchMedia = vi.fn().mockReturnValue({
-    matches: false,
-    media: "",
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  });
-});
-
+// jsdom lays out nothing, so scroll margin and element positions are stubbed
+// per test.
 afterEach(() => {
   vi.restoreAllMocks();
 });

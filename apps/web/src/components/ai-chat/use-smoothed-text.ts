@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  useEffect,
-  useEffectEvent,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { usePrefersReducedMotion } from "#src/hooks/use-prefers-reduced-motion.ts";
 
 /** Target reveal rate scales with buffer size (chars per 16.67ms at 60fps baseline) */
 const RATE_FACTOR = 0.08;
@@ -20,38 +15,6 @@ const MIN_RATE = 0.033;
 const FRAME_MS = 16.67;
 /** Maximum delta to prevent jumps after tab switches or long pauses */
 const MAX_DELTA_MS = 100;
-
-// Reduced-motion detection via useSyncExternalStore. Module-level functions
-// ensure stable references so useSyncExternalStore doesn't re-subscribe.
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-
-function subscribeReducedMotion(onChange: () => void) {
-  if (
-    typeof window === "undefined" ||
-    typeof window.matchMedia !== "function"
-  ) {
-    return () => {};
-  }
-  const mql = window.matchMedia(REDUCED_MOTION_QUERY);
-  mql.addEventListener("change", onChange);
-  return () => {
-    mql.removeEventListener("change", onChange);
-  };
-}
-
-function getReducedMotionSnapshot() {
-  if (
-    typeof window === "undefined" ||
-    typeof window.matchMedia !== "function"
-  ) {
-    return false;
-  }
-  return window.matchMedia(REDUCED_MOTION_QUERY).matches;
-}
-
-function getReducedMotionServerSnapshot() {
-  return false;
-}
 
 const MARKER_CHARS = /[*`~]/;
 
@@ -393,11 +356,7 @@ export function useSmoothedText(
   // should not restart the animation loop when it changes.
   const getTrailingBufferHint = useEffectEvent(() => trailingBufferHint);
 
-  const prefersReducedMotion = useSyncExternalStore(
-    subscribeReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot,
-  );
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     // Reduced-motion: skip the animation loop entirely. The hook returns

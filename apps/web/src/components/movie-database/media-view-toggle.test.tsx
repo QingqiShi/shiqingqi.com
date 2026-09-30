@@ -6,20 +6,9 @@ import { MediaFiltersProvider } from "./media-filters-provider";
 import { MediaTypeToggle } from "./media-type-toggle";
 import { MediaViewToggle } from "./media-view-toggle";
 
-// jsdom gap: the provider's scroll-to-top path reads reduced-motion via
-// matchMedia.
+// jsdom gap: the provider's scroll-to-top path calls window.scrollTo.
 beforeAll(() => {
   window.scrollTo = vi.fn();
-  window.matchMedia = vi.fn().mockReturnValue({
-    matches: false,
-    media: "",
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  });
 });
 
 function Harness({ children }: { children: ReactNode }) {

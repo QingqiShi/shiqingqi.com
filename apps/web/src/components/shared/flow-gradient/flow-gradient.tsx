@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
-import { useMediaQuery } from "#src/hooks/use-media-query.ts";
+import { usePrefersReducedMotion } from "#src/hooks/use-prefers-reduced-motion.ts";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import {
   createFlowGradientRenderer,
@@ -45,10 +45,7 @@ function readCanvasBackground(
 
 export function FlowGradient() {
   const isDark = useResolvedTheme() === "dark";
-  const prefersReducedMotion = useMediaQuery(
-    "(prefers-reduced-motion: reduce)",
-    false,
-  );
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const colorsRef = useRef<ColorOptions>(isDark ? DARK_COLORS : LIGHT_COLORS);
   const rendererRef =

@@ -8,12 +8,10 @@ import { ThemeSwitch } from "./theme-switch";
 
 const LABELS: [string, string] = ["Switch to light", "Switch to dark"];
 
-// jsdom gaps used by the Button press-handlers hook and by useMediaQuery's
-// `window.matchMedia` call.
+// jsdom gaps used by the Button press-handlers hook.
 beforeAll(() => {
   HTMLElement.prototype.setPointerCapture = vi.fn();
   HTMLElement.prototype.releasePointerCapture = vi.fn();
-  setSystemPrefersDark(false);
 });
 
 beforeEach(() => {
@@ -183,7 +181,7 @@ describe("ThemeSwitch localStorage resilience", () => {
 // A fresh mock each call, rather than a captured-and-restored reference:
 // `window.matchMedia` here is a plain `vi.fn()`, not a spy on a real
 // browser method, and `vi.spyOn` on that returns the same mock rather than
-// a restorable wrapper. Hoisted, so `beforeAll` above can call it.
+// a restorable wrapper.
 function setSystemPrefersDark(prefersDark: boolean) {
   window.matchMedia = vi.fn().mockReturnValue({
     matches: prefersDark,

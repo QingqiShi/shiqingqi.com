@@ -105,8 +105,6 @@ export function PixelLayer({
     draw();
 
     // Re-draw when DPR changes (drag between displays of different DPR).
-    // `matchMedia` may be absent in some test environments — that path
-    // simply skips the listener (DPR is read fresh on each `draw()` call).
     //
     // The DPR-pinned `(resolution: Xdppx)` query only fires when leaving X.
     // After a transition (1 → 2) the old listener never fires again, so we
@@ -119,7 +117,6 @@ export function PixelLayer({
       arm();
     };
     const arm = () => {
-      if (typeof window.matchMedia !== "function") return;
       if (currentQuery !== null) {
         currentQuery.removeEventListener("change", onChange);
       }
