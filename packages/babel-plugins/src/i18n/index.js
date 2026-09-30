@@ -8,6 +8,7 @@ const { extractTranslations } = require("./extract-translations");
 const { generateKey } = require("./generate-key");
 const { hasParseOption } = require("./has-parse-option");
 const { injectSetLocale } = require("./inject-set-locale");
+const { isI18nModuleSource } = require("./is-i18n-module-source");
 const { readManifest } = require("./read-manifest");
 
 const defaultProjectRoot = process.cwd();
@@ -374,17 +375,7 @@ function trackSetLocaleImport(t, path, state) {
  * @param {PluginPass & I18nPluginState} state
  */
 function trackTImport(t, path, state) {
-  const source = path.node.source.value;
-  // Match both the original subpath import (#src/i18n) and resolved
-  // relative paths (e.g. ../../i18n.ts) that Turbopack may produce
-  // before Babel sees the AST.
-  if (
-    source !== "#src/i18n" &&
-    source !== "#src/i18n.ts" &&
-    !source.match(/\/i18n(?:\.ts)?$/)
-  ) {
-    return;
-  }
+  if (!isI18nModuleSource(path.node.source.value)) return;
 
   // Find the `t` specifier (may be aliased)
   for (const specifier of path.node.specifiers) {

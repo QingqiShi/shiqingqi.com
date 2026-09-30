@@ -1,32 +1,6 @@
+import { generateKey } from "@tuja/babel-plugins/i18n/generate-key";
 import { describe, it, expect } from "vitest";
 import { extractFromSource } from "./extract-from-source.ts";
-import { generateKey } from "./generate-key.js";
-
-describe("generateKey", () => {
-  it("returns a deterministic 8-character hex string", () => {
-    const key = generateKey("Hello", "你好");
-    expect(key).toHaveLength(8);
-    expect(key).toMatch(/^[0-9a-f]{8}$/);
-  });
-
-  it("produces the same key for the same input pair", () => {
-    const key1 = generateKey("Hello", "你好");
-    const key2 = generateKey("Hello", "你好");
-    expect(key1).toBe(key2);
-  });
-
-  it("produces different keys for different English strings", () => {
-    const key1 = generateKey("Hello", "你好");
-    const key2 = generateKey("World", "世界");
-    expect(key1).not.toBe(key2);
-  });
-
-  it("produces different keys for same English with different Chinese", () => {
-    const key1 = generateKey("Save", "保存");
-    const key2 = generateKey("Save", "存档");
-    expect(key1).not.toBe(key2);
-  });
-});
 
 describe("extractFromSource", () => {
   it("extracts t() calls imported from #src/i18n", () => {
@@ -50,6 +24,16 @@ describe("extractFromSource", () => {
     const result = extractFromSource(code, "test.tsx");
     expect(result.entries).toHaveLength(1);
     expect(result.entries[0].en).toBe("Hello");
+  });
+
+  it("extracts t() calls imported through a relative path", () => {
+    const code = `
+      import { t } from "../../i18n.ts";
+      const greeting = t({ en: "Hello", zh: "你好" });
+    `;
+    const result = extractFromSource(code, "test.tsx");
+    expect(result.entries).toHaveLength(1);
+    expect(result.entries[0].key).toBe(generateKey("Hello", "你好"));
   });
 
   it("ignores t() calls not imported from #src/i18n", () => {

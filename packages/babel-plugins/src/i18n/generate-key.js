@@ -8,11 +8,9 @@ const { createHash } = require("node:crypto");
  * translations produce distinct keys (no conflicts), while identical
  * pairs naturally deduplicate.
  * Uses first 8 characters of SHA-256 hex digest.
- * This is intentionally duplicated from packages/i18n-codegen/src/generate-key.js to avoid
- * ESM/CJS interop issues. A parity test ensures they stay in sync.
- * @param {string} en
- * @param {string} zh
- * @returns {string}
+ * @param {string} en - The English translation string
+ * @param {string} zh - The Chinese translation string
+ * @returns {string} 8-character hex hash key
  */
 function generateKey(en, zh) {
   return createHash("sha256")
