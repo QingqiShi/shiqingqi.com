@@ -164,6 +164,85 @@ describe.each(["light", "dark"] as const)("%s intent fills", (scheme) => {
   );
 });
 
+// `fg<Intent>` is text in its own right (accent Text, a field error), so it
+// takes the body floor on the page. On its tint it carries labels (a Callout
+// title, a Badge), so there it takes the label floor. A tint that composites
+// to a grey has lost the hue it is there to carry.
+const TINTED_INTENTS = [
+  "accent",
+  "info",
+  "success",
+  "warning",
+  "danger",
+] as const;
+const INTENT_GROUNDS = [
+  "bgCanvas",
+  "bgSurface",
+  "bgSurfaceRaised",
+  "bgSurfaceSunken",
+] as const;
+const MIN_TINT_CHANNEL_SPREAD = 8;
+
+type TintedIntent = (typeof TINTED_INTENTS)[number];
+
+describe.each(["light", "dark"] as const)("%s intent tints", (scheme) => {
+  const resolve = (token: Token) =>
+    readCustomProperty(css, color[token])[scheme];
+  const fgOf = (intent: TintedIntent) =>
+    resolve(token(`fg${capitalise(intent)}`));
+  const tintOver = (intent: TintedIntent, ground: Token) =>
+    overCanvas(
+      resolve(token(`bg${capitalise(intent)}Subtle`)),
+      resolve(ground),
+    );
+
+  function expectWorstAbove(
+    text: string,
+    backgroundOn: (ground: Token) => string,
+    floor: number,
+  ) {
+    const worst = INTENT_GROUNDS.map((ground) => ({
+      ground,
+      lc: apcaContrast(text, backgroundOn(ground)),
+    })).sort((a, b) => a.lc - b.lc)[0];
+    expect(
+      worst.lc,
+      `worst ground is ${worst.ground} at Lc ${worst.lc.toFixed(1)}`,
+    ).toBeGreaterThanOrEqual(floor);
+  }
+
+  it.each(TINTED_INTENTS)(
+    "the %s foreground clears the body floor on the page",
+    (intent: TintedIntent) => {
+      expectWorstAbove(fgOf(intent), resolve, APCA_FLOOR.fg);
+    },
+  );
+
+  it.each(TINTED_INTENTS)(
+    "the %s foreground clears the label floor on its tint",
+    (intent: TintedIntent) => {
+      expectWorstAbove(
+        fgOf(intent),
+        (ground) => tintOver(intent, ground),
+        APCA_LABEL_TEXT,
+      );
+    },
+  );
+
+  it.each(TINTED_INTENTS)(
+    "the %s tint keeps its hue on every ground",
+    (intent: TintedIntent) => {
+      for (const ground of INTENT_GROUNDS) {
+        const channels = hexChannels(tintOver(intent, ground));
+        const spread = Math.max(...channels) - Math.min(...channels);
+        expect(spread, `${ground} spread`).toBeGreaterThanOrEqual(
+          MIN_TINT_CHANNEL_SPREAD,
+        );
+      }
+    },
+  );
+});
+
 // The scrim is translucent and can dim media, so its text is measured over
 // white, the brightest ground it can sit on. Scrim text includes captions, so
 // it holds the body floor.
