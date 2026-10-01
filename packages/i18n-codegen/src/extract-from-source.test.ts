@@ -108,6 +108,19 @@ describe("extractFromSource", () => {
     expect(result.warnings[0].type).toBe("non-literal");
   });
 
+  it("warns when en and zh are computed keys", () => {
+    const code = `
+      import { t } from "#src/i18n";
+      const en = "en";
+      const zh = "zh";
+      const greeting = t({ [en]: "Hello", [zh]: "你好" });
+    `;
+    const result = extractFromSource(code, "test.tsx");
+    expect(result.entries).toHaveLength(0);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0].type).toBe("non-literal");
+  });
+
   it("returns empty results for files without t() calls", () => {
     const code = `
       const x = 1;

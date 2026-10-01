@@ -432,6 +432,20 @@ const msg = translate({ en: "Hello", zh: "你好" });
     });
   });
 
+  describe("quoted keys", () => {
+    it("transforms t() whose en and zh keys are quoted", () => {
+      const input = `
+import { t } from "#src/i18n";
+const msg = t({ "en": "Hello", "zh": "你好" });
+`;
+      const output = transform(input);
+
+      expect(output).toContain(
+        `__i18n_lookup("${expectedKey("Hello", "你好")}")`,
+      );
+    });
+  });
+
   describe("invalid t() calls", () => {
     it("throws on t() with a string argument", () => {
       const input = `

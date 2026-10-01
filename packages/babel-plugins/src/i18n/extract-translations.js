@@ -1,11 +1,33 @@
 // @ts-check
 
 /**
- * @typedef {import('@babel/core').types} BabelTypes
+ * @typedef {typeof import('@babel/types')} BabelTypes
  */
 
 /**
- * Validate that a node is an ObjectExpression with `en` and `zh` StringLiteral properties.
+ * Read the property name of an object property when it is static:
+ * `en`, `"en"` and `["en"]` all name `en`, but `[en]` names whatever the
+ * variable `en` holds.
+ * @param {BabelTypes} t - Babel types
+ * @param {import('@babel/types').ObjectProperty} prop
+ * @returns {string | null}
+ */
+function getStaticPropertyName(t, prop) {
+  if (t.isIdentifier(prop.key) && !prop.computed) {
+    return prop.key.name;
+  }
+  if (t.isStringLiteral(prop.key)) {
+    return prop.key.value;
+  }
+  return null;
+}
+
+/**
+ * Read the translation pair from the first argument of a `t()` call: an
+ * object literal whose `en` and `zh` properties are string literals.
+ * The i18n codegen and the Babel plugin both use this function. Thus each
+ * call that the codegen adds to a bundle is a call that the plugin can
+ * transform.
  * @param {BabelTypes} t - Babel types
  * @param {import('@babel/types').Node} node
  * @returns {{ en: string, zh: string } | null}
@@ -21,19 +43,13 @@ function extractTranslations(t, node) {
   let zh = null;
 
   for (const prop of node.properties) {
-    if (!t.isObjectProperty(prop)) {
+    if (!t.isObjectProperty(prop) || !t.isStringLiteral(prop.value)) {
       continue;
     }
-    if (
-      t.isIdentifier(prop.key, { name: "en" }) &&
-      t.isStringLiteral(prop.value)
-    ) {
+    const name = getStaticPropertyName(t, prop);
+    if (name === "en") {
       en = prop.value.value;
-    }
-    if (
-      t.isIdentifier(prop.key, { name: "zh" }) &&
-      t.isStringLiteral(prop.value)
-    ) {
+    } else if (name === "zh") {
       zh = prop.value.value;
     }
   }

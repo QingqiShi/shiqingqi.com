@@ -1,13 +1,8 @@
 import { parse } from "@babel/parser";
 import traverse, { type NodePath } from "@babel/traverse";
 import type { CallExpression, ImportDeclaration } from "@babel/types";
-import {
-  isIdentifier,
-  isImportSpecifier,
-  isObjectExpression,
-  isObjectProperty,
-  isStringLiteral,
-} from "@babel/types";
+import * as types from "@babel/types";
+import { extractTranslations } from "@tuja/babel-plugins/i18n/extract-translations";
 import { generateKey } from "@tuja/babel-plugins/i18n/generate-key";
 import { isI18nModuleSource } from "@tuja/babel-plugins/i18n/is-i18n-module-source";
 
@@ -70,8 +65,8 @@ export function extractFromSource(
 
       for (const specifier of path.node.specifiers) {
         if (
-          isImportSpecifier(specifier) &&
-          isIdentifier(specifier.imported) &&
+          types.isImportSpecifier(specifier) &&
+          types.isIdentifier(specifier.imported) &&
           specifier.imported.name === "t"
         ) {
           tBindings.add(specifier.local.name);
@@ -81,79 +76,28 @@ export function extractFromSource(
 
     CallExpression(path: NodePath<CallExpression>) {
       const callee = path.node.callee;
-      if (!isIdentifier(callee)) return;
+      if (!types.isIdentifier(callee)) return;
       if (!tBindings.has(callee.name)) return;
 
       const args = path.node.arguments;
       if (args.length === 0) return;
 
       const firstArg = args[0];
-
-      // Warn about non-literal arguments
-      if (!isObjectExpression(firstArg)) {
+      const translations = extractTranslations(types, firstArg);
+      if (!translations) {
         warnings.push({
           type: "non-literal",
-          message: `t() called with non-literal argument (${firstArg.type})`,
+          message: `t() first argument must be an object with "en" and "zh" string literal properties (got ${firstArg.type})`,
           file: filePath,
           line: firstArg.loc?.start.line ?? 0,
         });
         return;
       }
 
-      let enValue: string | undefined;
-      let zhValue: string | undefined;
-
-      for (const prop of firstArg.properties) {
-        if (!isObjectProperty(prop)) continue;
-
-        const key = prop.key;
-        let keyName: string | undefined;
-
-        if (isIdentifier(key)) {
-          keyName = key.name;
-        } else if (isStringLiteral(key)) {
-          keyName = key.value;
-        }
-
-        if (keyName === "en" && isStringLiteral(prop.value)) {
-          enValue = prop.value.value;
-        } else if (keyName === "zh" && isStringLiteral(prop.value)) {
-          zhValue = prop.value.value;
-        }
-      }
-
-      if (enValue === undefined || zhValue === undefined) {
-        // If we have an ObjectExpression but can't extract string literals for en/zh
-        if (enValue === undefined && zhValue === undefined) {
-          warnings.push({
-            type: "non-literal",
-            message: `t() called with object missing string literal 'en' and 'zh' properties`,
-            file: filePath,
-            line: firstArg.loc?.start.line ?? 0,
-          });
-        } else if (enValue === undefined) {
-          warnings.push({
-            type: "non-literal",
-            message: `t() called with object missing string literal 'en' property`,
-            file: filePath,
-            line: firstArg.loc?.start.line ?? 0,
-          });
-        } else {
-          warnings.push({
-            type: "non-literal",
-            message: `t() called with object missing string literal 'zh' property`,
-            file: filePath,
-            line: firstArg.loc?.start.line ?? 0,
-          });
-        }
-        return;
-      }
-
-      const hashKey = generateKey(enValue, zhValue);
       entries.push({
-        key: hashKey,
-        en: enValue,
-        zh: zhValue,
+        key: generateKey(translations.en, translations.zh),
+        en: translations.en,
+        zh: translations.zh,
         files: [filePath],
         line: firstArg.loc?.start.line ?? 0,
       });
