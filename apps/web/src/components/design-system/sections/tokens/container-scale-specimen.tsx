@@ -7,10 +7,7 @@ import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
-import {
-  centerInScrollX,
-  offsetFromScrollCenterX,
-} from "#src/utils/center-in-scroll-x.ts";
+import { centerInScrollX, offsetFromScrollCenterX } from "./center-in-scroll-x";
 
 // font.cqTitle's container formula, expanded into its parts so the ruler can
 // derive its own saturation points instead of restating magic numbers. Inside

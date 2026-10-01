@@ -6,7 +6,7 @@ import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
-import { centerInScrollX } from "#src/utils/center-in-scroll-x.ts";
+import { centerInScrollX } from "./center-in-scroll-x";
 
 // Breakpoint pixel thresholds. These mirror breakpoints.stylex.ts (sm/md/lg);
 // declaring them once here lets both the band cutoffs and the threshold labels

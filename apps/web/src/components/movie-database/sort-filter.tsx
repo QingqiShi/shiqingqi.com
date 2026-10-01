@@ -4,9 +4,9 @@ import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import type { Sort } from "#src/utils/types.ts";
+import { useMediaFilters } from "./use-media-filters";
 
 interface SortFilterProps {
   hideLabel?: boolean;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { observeViewport } from "../utils/observe-viewport.ts";
+import { observeViewport } from "../../utils/observe-viewport.ts";
 
 /**
  * Whether the element is holding at the offset it sticks at, so the chrome

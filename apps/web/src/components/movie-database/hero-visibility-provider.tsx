@@ -2,12 +2,12 @@
 
 import { easing } from "@tuja/ui/primitives/motion.stylex";
 import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react";
-import { useIsElementVisible } from "#src/hooks/use-is-element-visible.ts";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   DATA_HERO_REFINE_BUTTON,
   HeroVisibilityContext,
 } from "./hero-visibility-context";
+import { useIsElementVisible } from "./use-is-element-visible";
 
 const MORPH_DURATION = 400;
 

@@ -2,10 +2,10 @@ import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.share
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { render, screen, userEvent } from "#src/test-utils.tsx";
 import { MediaFiltersProvider } from "./media-filters-provider";
 import { MediaTypeToggle } from "./media-type-toggle";
+import { useMediaFilters } from "./use-media-filters";
 
 const CLEARANCE_PX = "56px";
 const CLEARANCE = Number.parseFloat(CLEARANCE_PX);

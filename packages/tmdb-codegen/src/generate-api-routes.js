@@ -40,7 +40,7 @@ export function generateApiRoutes(projectRoot) {
  */
 
 import { ${functionName} } from "#src/_generated/tmdb-server-functions.ts";
-import { apiRouteWrapper } from "#src/utils/api-route-wrapper.ts";
+import { apiRouteWrapper } from "#src/app/api/tmdb/api-route-wrapper.ts";
 
 export const GET = apiRouteWrapper(${functionName});
 `;

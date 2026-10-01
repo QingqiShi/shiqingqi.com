@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import type { MatchMode, MediaView, Sort } from "#src/utils/types.ts";
 import { readMediaFiltersSearchParams } from "./read-media-filters-search-params";
-import type { MatchMode, MediaView, Sort } from "./types";
 
 describe("readMediaFiltersSearchParams", () => {
   it("returns defaults for empty search params", () => {

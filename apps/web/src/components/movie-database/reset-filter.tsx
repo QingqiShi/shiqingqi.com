@@ -3,9 +3,9 @@
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import type { MouseEvent } from "react";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "../shared/anchor-button";
+import { useMediaFilters } from "./use-media-filters";
 
 interface ResetFilterProps {
   bright?: boolean;

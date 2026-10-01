@@ -6,10 +6,10 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import dynamic from "next/dynamic";
 import { Suspense, useDeferredValue, useState } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { mediaListQuery } from "#src/utils/tmdb-queries/media-list-query.ts";
 import { MediaVirtuosoGrid } from "./media-virtuoso-grid";
+import { useMediaFilters } from "./use-media-filters";
 
 // The grid is the default view, and LyteNyte plus its two stylesheets is a lot
 // of bytes to hand every visitor for a mode most of them never open. Loaded on

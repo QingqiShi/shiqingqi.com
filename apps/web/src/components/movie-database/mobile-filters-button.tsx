@@ -6,11 +6,11 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import type { PropsWithChildren, ReactNode } from "react";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import {
   DATA_HERO_REFINE_BUTTON,
   useHeroVisibility,
 } from "./hero-visibility-context";
+import { useMediaFilters } from "./use-media-filters";
 
 interface MobileFiltersButtonProps {
   menuContent?: ReactNode;

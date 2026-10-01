@@ -9,9 +9,9 @@ import {
 } from "#src/_generated/tmdb-server-functions.ts";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
-import { getConfigurationDehydratedState } from "#src/utils/get-configuration-dehydrated-state.ts";
 import { getLocalePath } from "#src/utils/get-locale-path.ts";
 import type { MediaType } from "#src/utils/types.ts";
+import { getConfigurationDehydratedState } from "./get-configuration-dehydrated-state";
 import { MediaRowSkeleton } from "./media-row-skeleton.tsx";
 import {
   MediaRow,

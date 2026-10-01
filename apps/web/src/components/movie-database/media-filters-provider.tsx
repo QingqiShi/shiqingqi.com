@@ -4,8 +4,6 @@ import * as stylex from "@stylexjs/stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { usePathname } from "next/navigation";
 import { useRef, useState, type PropsWithChildren } from "react";
-import { MediaFiltersContext } from "#src/utils/media-filters-context.ts";
-import { readMediaFiltersSearchParams } from "#src/utils/read-media-filters-search-params.ts";
 import type {
   MatchMode,
   MediaFilters,
@@ -13,6 +11,8 @@ import type {
   MediaView,
   Sort,
 } from "#src/utils/types.ts";
+import { MediaFiltersContext } from "./media-filters-context";
+import { readMediaFiltersSearchParams } from "./read-media-filters-search-params";
 
 const emptyFilters = {
   matchMode: "all",
