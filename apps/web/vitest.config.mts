@@ -1,13 +1,11 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import babel from "@rolldown/plugin-babel";
-import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+import { babelPlugins } from "./babel-plugins.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(__dirname, "../..");
-const uiPackageRoot = path.resolve(__dirname, "../../packages/ui");
 
 export default defineConfig({
   plugins: [
@@ -29,29 +27,7 @@ export default defineConfig({
         ],
         "@babel/preset-typescript",
       ],
-      plugins: [
-        // Reads the original source, so it must run before anything rewrites it.
-        "@tuja/babel-plugins/specimen-source",
-        "@tuja/babel-plugins/i18n",
-        [
-          "module-resolver",
-          {
-            alias: {
-              "#src": "./src",
-            },
-          },
-        ],
-        [
-          "@tuja/babel-plugins/stylex-breakpoints",
-          {
-            rootDir: uiPackageRoot,
-          },
-        ],
-        [
-          "@stylexjs/babel-plugin",
-          stylexPluginOptions({ rootDir: workspaceRoot, nodeEnv: "test" }),
-        ],
-      ],
+      plugins: babelPlugins({ nodeEnv: "test" }),
     }),
     react({
       jsxRuntime: "automatic",
