@@ -266,6 +266,7 @@ export function Button({
             sharedStyles.childrenContainer,
             hideLabelOnMobile && sharedStyles.hideLabelBelowMd,
             overlaysSpinner && styles.labelHidden,
+            swapsIconForSpinner && styles.labelBusy,
           ]}
           id={labelId}
         >
@@ -292,9 +293,13 @@ const styles = stylex.create({
   // A busy button stays enabled, so the `:disabled` rules above never fire.
   // `pointerEvents: none` blocks the pointer instead, and happens to match
   // its cursor; `handleClick`/`handleKeyDown` guard keyboard activation.
+  // The button is not dimmed: opacity on it would also fade the spinner into
+  // its own fill. The label dims instead (`labelBusy`).
   busy: {
-    opacity: opacity.disabled,
     pointerEvents: "none",
+  },
+  labelBusy: {
+    opacity: opacity.disabled,
   },
   // `visibility`, not `opacity`, so the label also leaves the accessibility
   // tree — `aria-busy` is what should be announced.
