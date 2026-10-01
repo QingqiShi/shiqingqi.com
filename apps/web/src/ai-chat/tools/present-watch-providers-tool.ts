@@ -15,10 +15,8 @@ const TOOL_DESCRIPTION =
   "Call this after watch_providers returns providers for a specific region. " +
   "The card shows streaming, rental, and purchase options with provider logos.";
 
-export function createPresentWatchProvidersTool() {
-  return tool({
-    description: TOOL_DESCRIPTION,
-    inputSchema: presentWatchProvidersInputSchema,
-    execute: (input) => Promise.resolve(input),
-  });
-}
+export const presentWatchProvidersTool = tool({
+  description: TOOL_DESCRIPTION,
+  inputSchema: presentWatchProvidersInputSchema,
+  execute: (input) => Promise.resolve(input),
+});

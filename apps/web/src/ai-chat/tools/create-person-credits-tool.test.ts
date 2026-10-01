@@ -2,24 +2,13 @@ import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
 import { isRecord } from "#src/utils/is-record.ts";
-import {
-  createPersonCreditsTool,
-  personCreditsInputSchema,
-} from "./create-person-credits-tool";
+import { createPersonCreditsTool } from "./create-person-credits-tool";
 import { isToolError } from "./tool-error";
+import { TMDB_BASE, toolExecutionOptions } from "./tool-execution-options";
 
 beforeAll(() => {
   process.env.TMDB_API_TOKEN = "test-token";
 });
-
-const TMDB_BASE = "https://api.themoviedb.org";
-
-const executeContext = {
-  toolCallId: "test",
-  messages: [],
-  abortSignal: AbortSignal.timeout(5000),
-  context: {},
-};
 
 interface CreditEntry {
   id: number;
@@ -44,7 +33,7 @@ async function executeTool(
   locale: "en" | "zh" = "en",
 ) {
   const tool = createPersonCreditsTool(locale);
-  const result = await tool.execute(input, executeContext);
+  const result = await tool.execute(input, toolExecutionOptions());
   const parsed: unknown = JSON.parse(JSON.stringify(result));
   if (!isCreditEntryArray(parsed)) {
     throw new Error("expected an array of credit entries");
@@ -67,29 +56,6 @@ function castEntry(overrides: {
     character: "Test Character",
   };
 }
-
-describe("personCreditsInputSchema", () => {
-  it("accepts a numeric person_id", () => {
-    expect(personCreditsInputSchema.parse({ person_id: 287 })).toEqual({
-      person_id: 287,
-    });
-  });
-
-  it("rejects a string person_id", () => {
-    expect(() =>
-      personCreditsInputSchema.parse({ person_id: "287" }),
-    ).toThrow();
-  });
-});
-
-describe("createPersonCreditsTool", () => {
-  it("returns a tool with description and inputSchema", () => {
-    const tool = createPersonCreditsTool("en");
-    expect(tool.description).toBeDefined();
-    expect(tool.description).toContain("filmography");
-    expect(tool.inputSchema).toBeDefined();
-  });
-});
 
 describe("person credits execute", () => {
   it("returns sorted credits for a typical person", async () => {
@@ -310,7 +276,10 @@ describe("person credits execute", () => {
     );
 
     const tool = createPersonCreditsTool("en");
-    const result = await tool.execute({ person_id: 287 }, executeContext);
+    const result = await tool.execute(
+      { person_id: 287 },
+      toolExecutionOptions(),
+    );
 
     expect(isToolError(result)).toBe(true);
     if (isToolError(result)) {

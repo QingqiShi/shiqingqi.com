@@ -16,10 +16,8 @@ const TOOL_DESCRIPTION =
   "Pass person IDs from search results to present them visually. " +
   "Each card shows the profile photo, name, and known-for department.";
 
-export function createPresentPersonTool() {
-  return tool({
-    description: TOOL_DESCRIPTION,
-    inputSchema: presentPersonInputSchema,
-    execute: (input) => Promise.resolve(input),
-  });
-}
+export const presentPersonTool = tool({
+  description: TOOL_DESCRIPTION,
+  inputSchema: presentPersonInputSchema,
+  execute: (input) => Promise.resolve(input),
+});

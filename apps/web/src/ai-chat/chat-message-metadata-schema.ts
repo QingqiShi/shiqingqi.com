@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MOOD_VALUES } from "./tools/create-classify-mood-tool";
+import { MOOD_VALUES } from "./tools/classify-mood-tool";
 
 export const chatMessageMetadataSchema = z.object({
   inputTokens: z.number().optional(),
