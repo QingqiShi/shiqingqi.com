@@ -1,5 +1,3 @@
-"use server";
-
 import "server-only";
 import type { paths } from "@tuja/tmdb-types/openapi";
 import { cacheSignal } from "react";
