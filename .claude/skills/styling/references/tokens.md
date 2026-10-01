@@ -104,9 +104,10 @@ Each Intent adds an `fg<Intent>` and an `fgOn<Intent>` — see Intents below.
 
 ### Borders
 
-| Token          | Use                                                     |
-| -------------- | ------------------------------------------------------- |
-| `color.border` | The quiet default edge, and the neutral Intent's border |
+| Token                 | Use                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| `color.border`        | The quiet default edge, and the neutral Intent's border                                   |
+| `color.borderControl` | The edge of an unselected control (empty checkbox or radio, off switch, text field); ≥3:1 |
 
 Each Intent adds one solid `border<Intent>` in its fill's own tone. There is
 exactly one border level per Intent — no translucent variant.

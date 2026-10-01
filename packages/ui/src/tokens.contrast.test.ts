@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
 import { describe, expect, it } from "vitest";
+import { contrastRatio } from "./contrast/contrast-ratio.ts";
 import { hexChannels } from "./contrast/hex-channels.ts";
 import { apcaContrast } from "./test-support/apca-contrast.ts";
 import { color } from "./tokens.stylex.ts";
@@ -241,6 +242,34 @@ describe.each(["light", "dark"] as const)("%s intent tints", (scheme) => {
       }
     },
   );
+});
+
+// `borderControl` is the only sign of an unselected control: an empty checkbox
+// or radio, the track and thumb of an off switch, a text field's edge. WCAG
+// 1.4.11 holds it to 3:1 against every surface a control sits on, and against
+// the fill it surrounds. `bgControlHover` is here because an option card
+// hovers under its selection mark.
+const NON_TEXT_RATIO = 3;
+
+const CONTROL_GROUNDS = [
+  "bgCanvas",
+  "bgSurface",
+  "bgSurfaceSunken",
+  "bgSurfaceRaised",
+  "bgControl",
+  "bgControlHover",
+] as const;
+
+describe.each(["light", "dark"] as const)("%s control boundary", (scheme) => {
+  const resolve = (token: Token) =>
+    readCustomProperty(css, color[token])[scheme];
+
+  it.each(CONTROL_GROUNDS)("borderControl clears 3:1 against %s", (ground) => {
+    const ratio = contrastRatio(resolve("borderControl"), resolve(ground));
+    expect(ratio, `ratio ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+      NON_TEXT_RATIO,
+    );
+  });
 });
 
 // The scrim is translucent and can dim media, so its text is measured over
