@@ -83,7 +83,7 @@ export const fieldStyles = stylex.create({
     borderStyle: "solid",
     borderWidth: border.size_1,
     // The keyboard-only ring layers on separately via `a11y.focusRing`.
-    borderColor: { default: color.border, ":focus": color.borderAccent },
+    borderColor: { default: color.borderControl, ":focus": color.borderAccent },
     borderRadius: border.radius_2,
     cornerShape: "squircle",
     paddingInline: fieldVars.paddingInline,

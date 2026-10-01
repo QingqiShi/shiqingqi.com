@@ -89,25 +89,27 @@ Each Intent adds an `fg<Intent>` and an `fgOn<Intent>` — see Intents below.
 
 | Token                   | Use                                                         |
 | ----------------------- | ----------------------------------------------------------- |
-| `color.bgControlBright` | Stays light in both themes — a switch or slider thumb       |
+| `color.bgControlBright` | Stays light in both themes — a slider thumb                 |
 | `color.bgInverse`       | Flips the theme — tooltips, snackbars                       |
 | `color.bgScrim`         | Dims the page behind a modal; the same black in both themes |
 
 #### Control — buttons, list rows, menu items
 
-| Token                     | Use                                                                           |
-| ------------------------- | ----------------------------------------------------------------------------- |
-| `color.bgControl`         | At rest                                                                       |
-| `color.bgControlHover`    | While hovered                                                                 |
-| `color.bgControlPressed`  | While pressed                                                                 |
-| `color.bgControlSelected` | While selected                                                                |
-| `color.bgControlDisabled` | Disabled; painted with `opacity.disabled`, so it never lands at full strength |
+| Token                     | Use                                                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `color.bgControl`         | At rest                                                                                                         |
+| `color.bgControlHover`    | While hovered                                                                                                   |
+| `color.bgControlPressed`  | While pressed                                                                                                   |
+| `color.bgControlSelected` | While selected                                                                                                  |
+| `color.bgControlDisabled` | Disabled; painted with `opacity.disabled`, so it never lands at full strength                                   |
+| `color.bgControlStrong`   | The fill of an unselected control when the fill is its only sign (an off switch); ≥3:1; foreground `fgOnAccent` |
 
 ### Borders
 
-| Token          | Use                                                     |
-| -------------- | ------------------------------------------------------- |
-| `color.border` | The quiet default edge, and the neutral Intent's border |
+| Token                 | Use                                                                           |
+| --------------------- | ----------------------------------------------------------------------------- |
+| `color.border`        | The quiet default edge, and the neutral Intent's border                       |
+| `color.borderControl` | The edge of an unselected control (empty checkbox or radio, text field); ≥3:1 |
 
 Each Intent adds one solid `border<Intent>` in its fill's own tone. There is
 exactly one border level per Intent — no translucent variant.

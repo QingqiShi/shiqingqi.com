@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
 import { describe, expect, it } from "vitest";
+import { contrastRatio } from "./contrast/contrast-ratio.ts";
 import { hexChannels } from "./contrast/hex-channels.ts";
 import { apcaContrast } from "./test-support/apca-contrast.ts";
 import { color } from "./tokens.stylex.ts";
@@ -239,6 +240,52 @@ describe.each(["light", "dark"] as const)("%s intent tints", (scheme) => {
           MIN_TINT_CHANNEL_SPREAD,
         );
       }
+    },
+  );
+});
+
+// `borderControl` and `bgControlStrong` are the only sign of an unselected
+// control: the edge of an empty checkbox or radio or a text field, the track of
+// an off switch. WCAG 1.4.11 holds them to 3:1 against every surface a control
+// sits on. `bgControlHover` is here because an option card hovers under its
+// selection mark.
+const NON_TEXT_RATIO = 3;
+
+const CONTROL_GROUNDS = [
+  "bgCanvas",
+  "bgSurface",
+  "bgSurfaceSunken",
+  "bgSurfaceRaised",
+  "bgControl",
+  "bgControlHover",
+] as const;
+
+describe.each(["light", "dark"] as const)("%s control boundary", (scheme) => {
+  const resolve = (token: Token) =>
+    readCustomProperty(css, color[token])[scheme];
+
+  it.each(
+    CONTROL_GROUNDS.flatMap((ground) =>
+      (["borderControl", "bgControlStrong"] as const).map(
+        (boundary) => [boundary, ground] as const,
+      ),
+    ),
+  )("%s clears 3:1 against %s", (boundary, ground) => {
+    const ratio = contrastRatio(resolve(boundary), resolve(ground));
+    expect(ratio, `ratio ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+      NON_TEXT_RATIO,
+    );
+  });
+
+  // The switch thumb is `fgOnAccent` both off and on, so it must hold 3:1 on
+  // both of its tracks.
+  it.each(["bgControlStrong", "bgAccent"] as const)(
+    "the switch thumb clears 3:1 against %s",
+    (track) => {
+      const ratio = contrastRatio(resolve("fgOnAccent"), resolve(track));
+      expect(ratio, `ratio ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+        NON_TEXT_RATIO,
+      );
     },
   );
 });
