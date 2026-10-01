@@ -21,7 +21,7 @@ Client: useI18nLookup("a8cfb50c")  — reads from React context (hook)
 - `en` — English
 - `zh` — Chinese
 
-Defined as `SupportedLocale` in `src/types.ts`. Routes use `[locale]` parameter: `/en/about`, `/zh/about`.
+Defined as `SupportedLocale` in `apps/web/src/types.ts`. Pages live under `apps/web/src/app/[locale]/`. `en` is the default and has no URL prefix (`/design-system`); `zh` has one (`/zh/design-system`).
 
 ## The `t()` Function
 
@@ -56,7 +56,7 @@ export default function Page() {
 }
 ```
 
-For **page files** (`page.tsx` under `[locale]`), the Babel plugin auto-injects `setLocale()` at the top of the default export function. You do not need to manually call `setLocale` or accept `params` — the plugin makes the function async, reads `params.locale`, and calls `setLocale(validateLocale(params.locale))` for you.
+For **page files** (`page.tsx` under `[locale]`), the Babel plugin auto-injects `setLocale()` at the top of the default export function. You do not need to manually call `setLocale` or accept `params` — the plugin makes the function async, reads `params.locale`, and calls `setLocale(validateLocale(params.locale))` for you. It does the same for an exported `generateMetadata` in page and layout files.
 
 Layout files that need the locale for other purposes (e.g. `generateMetadata`, routing logic) should still read `params` manually since they have non-i18n reasons to do so.
 
@@ -97,23 +97,23 @@ export function LocaleAwareComponent() {
 ```tsx
 import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
-getLocalePath("/about", locale); // → "/en/about" or "/zh/about"
+getLocalePath("/design-system", locale); // → "/design-system" (en) or "/zh/design-system" (zh)
 ```
 
 ## Build Pipeline
 
-### Codegen (`pnpm codegen:i18n`)
+### Codegen (`pnpm --filter web codegen:i18n`)
 
 The codegen script in `packages/i18n-codegen/` does:
 
 1. **Extracts** all `t()` calls from source files via AST parsing
-2. **Generates** global JSON bundles: `src/_generated/i18n/translations.{en,zh}.json`
+2. **Generates** global JSON bundles: `apps/web/src/_generated/i18n/translations.{en,zh}.json`
 3. **Traces** client component imports from each page/layout entry point
-4. **Generates** per-page client bundles: `src/_generated/i18n/client/{name}.{en,zh}.json`
-5. **Generates** loader modules: `src/_generated/i18n/client-loaders/{name}.ts`
-6. **Generates** manifest: `src/_generated/i18n/manifest.json`
+4. **Generates** per-page client bundles: `apps/web/src/_generated/i18n/client/{name}.{en,zh}.json`
+5. **Generates** loader modules: `apps/web/src/_generated/i18n/client-loaders/{name}.ts`
+6. **Generates** manifest: `apps/web/src/_generated/i18n/manifest.json`
 
-Run codegen after adding/changing any `t()` call, or the Babel plugin won't find the translation key at runtime.
+`pnpm dev` in `apps/web` watches and regenerates, and `build` and `test` run it first. Outside those, run codegen after adding/changing any `t()` call, or the Babel plugin won't find the translation key at runtime.
 
 ### Babel Plugin (`packages/babel-plugins/src/i18n/`)
 
@@ -129,7 +129,7 @@ Runs at compile time (both dev and build). Transforms:
 ### Adding Translations to a New Page
 
 ```tsx
-// src/app/[locale]/my-page/page.tsx
+// apps/web/src/app/[locale]/my-page/page.tsx
 import { t } from "#src/i18n.ts";
 
 export default function Page() {
@@ -142,12 +142,12 @@ export default function Page() {
 }
 ```
 
-Then run `pnpm codegen:i18n` to regenerate bundles.
+Then run `pnpm --filter web codegen:i18n` to regenerate bundles.
 
 ### Adding Translations to a Client Component
 
 ```tsx
-// src/components/my-component.tsx
+// apps/web/src/components/my-component.tsx
 "use client";
 
 import { t } from "#src/i18n.ts";
@@ -157,7 +157,7 @@ export function MyComponent() {
 }
 ```
 
-The parent page/layout must be in the manifest for client translations to work. Run `pnpm codegen:i18n` — the codegen traces imports and auto-generates the client bundle.
+The parent page/layout must be in the manifest for client translations to work. Run `pnpm --filter web codegen:i18n` — the codegen traces imports and auto-generates the client bundle.
 
 ### Rich Text with Markup
 
@@ -176,8 +176,7 @@ The parent page/layout must be in the manifest for client translations to work. 
 ## Common Mistakes
 
 - Using variables or template literals in `t()` — values must be string literals
-- Forgetting to run `pnpm codegen:i18n` after adding new `t()` calls
+- Forgetting to run `pnpm --filter web codegen:i18n` after adding new `t()` calls outside `pnpm dev`
 - Manually adding `setLocale` to page files — the Babel plugin does this automatically
 - Creating separate `translations.json` files — translations live inline in the component
-- Using `getTranslations()` or `useTranslations()` — these no longer exist; use `t()` everywhere
 - Calling `t()` outside render scope — `t()` must be called directly in a React component body, custom hook, or `generateMetadata()`. It cannot be used in `useEffect`, event handlers, callbacks (`.map()`, `.then()`), `setTimeout`, module scope, or exported non-component functions. The ESLint rule `@tuja/no-t-outside-render` enforces this. Non-exported helper functions are allowed only if every call site is in render scope.

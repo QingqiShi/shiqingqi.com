@@ -7,6 +7,8 @@ description: StyleX styling system with project-specific design tokens, composab
 
 This project uses StyleX for all styling. The system has three layers: **design tokens** for values, **design primitives** for multi-property patterns, and **`stylex.create`** for component-specific styles. All styles are applied via a custom `css` prop.
 
+The import paths below are the `@tuja/ui` package exports that `apps/web` uses. Inside `packages/ui`, import the same files by relative path, such as `../../tokens.stylex.ts` from a component.
+
 ## Quick Decision Guide
 
 | Need                                                   | Use                            | Example                                         |
@@ -32,7 +34,7 @@ Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is Style
 
 **The transform only compiles `css` on lowercase host elements** (`div`, `svg`, …). On a component, `css` is a real runtime prop carrying raw StyleX styles:
 
-- A component that should take styles declares `css?: StyleProp` (from `@tuja/ui/types`, or `../types.ts` inside the ui package) and composes it **last** into its root element's `css` array: `css={[styles.base, css]}`. Every `@tuja/ui` component works this way — `css` is the only styling entry; components do not accept `className` or `style`.
+- A component that should take styles declares `css?: StyleProp` (from `@tuja/ui/types`, or `src/types.ts` by relative path inside `packages/ui`) and composes it **last** into its root element's `css` array: `css={[styles.base, css]}`. Every `@tuja/ui` component works this way — `css` is the only styling entry; components do not accept `className` or `style`.
 - NEVER pass `css` to a third-party component (next/link, next/image, Phosphor icons) — it doesn't know the prop. Spread compiled props instead: `<Link {...stylex.props(styles.cta)}>`.
 - NEVER put an explicit `className=`/`style=` attribute on the same host element as `css=` — the compiled spread and the attributes clobber each other, and merging is never needed:
   - A runtime-computed value belongs in a **dynamic style function**, not a `style` attribute: `stylex.create({ swatch: (bg: string) => ({ backgroundColor: bg }) })`, applied as `css={[styles.tone, styles.swatch(hex)]}`. Custom properties work too: `(x: string) => ({ "--nudge-x": x })`.
@@ -40,12 +42,12 @@ Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is Style
 
 ## Design Tokens
 
-Import from `#src/tokens.stylex.ts`. All tokens are theme-aware. For the full catalog of every token and its values, read `references/tokens.md`.
+Import from `@tuja/ui/tokens.stylex`. All tokens are theme-aware. For the full catalog of every token and its values, read `references/tokens.md`.
 
-Categories: `color`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`.
+Categories: `color`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus the `constants` and `layout` consts.
 
 ```tsx
-import { color, space, border, font } from "#src/tokens.stylex.ts";
+import { color, space, border, font } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
   card: {
@@ -61,10 +63,10 @@ Rounded corners are the one exception: don't reach for a bare `border.radius_*` 
 
 ## Breakpoints
 
-Import from `#src/breakpoints.stylex.ts`. Values: `sm` (320px), `md` (768px), `lg` (1080px), `xl` (2000px).
+Import from `@tuja/ui/breakpoints.stylex`. Values: `sm` (320px), `md` (768px), `lg` (1080px), `xl` (2000px).
 
 ```tsx
-import { breakpoints } from "#src/breakpoints.stylex.ts";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 
 const styles = stylex.create({
   grid: {
@@ -76,9 +78,9 @@ const styles = stylex.create({
 
 ## Design Primitives
 
-Composable multi-property styles in `src/primitives/`. Each primitive bundles 2+ CSS properties that encode a common pattern. For full API tables, read `references/primitives.md`.
+Composable multi-property styles in `packages/ui/src/primitives/`. Each primitive bundles 2+ CSS properties that encode a common pattern. For full API tables, read `references/primitives.md`.
 
-### Flex (`#src/primitives/flex.stylex.ts`)
+### Flex (`@tuja/ui/primitives/flex.stylex`)
 
 The most commonly used primitives. Flex patterns set `display: flex` plus layout defaults:
 
@@ -92,7 +94,7 @@ The most commonly used primitives. Flex patterns set `display: flex` plus layout
 Override defaults with **modifiers**: `align.{start,center,end,baseline,stretch}`, `justify.{start,center,end,between}`, `grow.{_0,_1}`, `shrink.{_0,_1}`.
 
 ```tsx
-import { flex, align, justify } from "#src/primitives/flex.stylex.ts";
+import { flex, align, justify } from "@tuja/ui/primitives/flex.stylex";
 
 <div css={flex.row}>                        {/* basic row */}
 <div css={[flex.row, align.end]}>           {/* row, bottom-aligned */}
@@ -100,31 +102,31 @@ import { flex, align, justify } from "#src/primitives/flex.stylex.ts";
 <div css={[flex.col, justify.center]}>      {/* vertically centered column */}
 ```
 
-### Corner (`#src/primitives/corner.stylex.ts`)
+### Corner (`@tuja/ui/primitives/corner.stylex`)
 
 Pairs each `border.radius_*` step with its corner shape in one declaration — squircle on `corner.radius_1` … `corner.radius_5`, circular caps on `corner.radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). `corner.squircle_round` keeps the squircle shape at that same full-round radius, closing at half the `cornerTokens.height` dial — the shape `Button` and `SegmentedControl` use, each overriding the dial to their own control height. Rounded corners always go through this primitive; never write a bare `borderRadius`.
 
 ```tsx
-import { corner } from "#src/primitives/corner.stylex.ts";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 
 <div css={corner.radius_3}>           {/* card corner */}
 <span css={corner.radius_round}>      {/* pill / avatar */}
 <button css={corner.squircle_round}>  {/* squircle pill, dialed via cornerTokens.height */}
 ```
 
-If a radius genuinely can't go through the primitive — a vendor pseudo-element, a CSS-var-driven radius — pair `cornerShape` beside `borderRadius` in the same object literal instead (`"squircle"`, or `"round"` at the full-round radius). `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
+If a radius genuinely can't go through the primitive — a vendor pseudo-element, a CSS-var-driven radius — pair `cornerShape` beside `borderRadius` in the same object literal instead (`"squircle"`, or `"round"` at the full-round radius). The `@tuja/require-corner-shape` ESLint rule enforces this in `packages/ui` and `apps/web`.
 
-`apps/web` composes the same primitive via `@tuja/ui/primitives/corner.stylex`. There is no global `corner-shape` rule anywhere — every rounded corner carries its own shape through the primitive or a local `cornerShape` pairing.
+There is no global `corner-shape` rule anywhere — every rounded corner carries its own shape through the primitive or a local `cornerShape` pairing.
 
-### Material (`#src/primitives/texture.stylex.ts`, `#src/primitives/wash.stylex.ts`)
+### Material (`@tuja/ui/primitives/texture.stylex`, `@tuja/ui/primitives/wash.stylex`)
 
-Faint surface treatments — Texture, Wash, and Glass; full vocabulary in `contexts/design-system/CONTEXT.md`. `texture.dot` draws one dot of 1px or less, repeated across a surface at one size — never nest a textured surface inside another, and never mix two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
+Faint surface treatments — Texture, Wash, and Glass; the rules are under "Texture and Wash" in `DESIGN.md`. `texture.dot` draws one dot of 1px or less, repeated across a surface at one size — never nest a textured surface inside another, and never mix two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
 
 Each dials its default through a token, overridden in a local `stylex.create` the way `cornerTokens.height` is:
 
 ```tsx
-import { texture, textureTokens } from "#src/primitives/texture.stylex.ts";
-import { space } from "#src/tokens.stylex.ts";
+import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({ wide: { [textureTokens.pitch]: space._4 } });
 

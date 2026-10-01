@@ -1,6 +1,6 @@
 # Design Primitives — Full API Reference
 
-Multi-property composable styles in `src/primitives/`. Each primitive combines 2+ CSS properties that encode a common pattern. Import directly from individual files.
+Multi-property composable styles in `packages/ui/src/primitives/`. Each primitive combines 2+ CSS properties that encode a common pattern. Import directly from individual files: the paths below are the `@tuja/ui` package exports, and inside `packages/ui` the same files are imported by relative path.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Multi-property composable styles in `src/primitives/`. Each primitive combines 2
 
 ## Flex Layouts
 
-**Import**: `#src/primitives/flex.stylex.ts`
+**Import**: `@tuja/ui/primitives/flex.stylex`
 
 ### Flex Patterns
 
@@ -43,7 +43,7 @@ Override defaults from flex primitives:
 ### Examples
 
 ```tsx
-import { flex, align, justify, grow } from "#src/primitives/flex.stylex.ts";
+import { flex, align, justify, grow } from "@tuja/ui/primitives/flex.stylex";
 
 // Common row — vertically centered by default
 <div css={flex.row}>
@@ -68,9 +68,9 @@ import { flex, align, justify, grow } from "#src/primitives/flex.stylex.ts";
 
 ## Corner
 
-**Import**: `#src/primitives/corner.stylex.ts`
+**Import**: `@tuja/ui/primitives/corner.stylex`
 
-Pairs a `border.radius_*` step with its corner shape in one declaration — squircle on the fixed steps, circular caps on `radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Never write a bare `borderRadius` — use the matching member here instead. Where a radius genuinely can't go through the primitive (a vendor pseudo-element, a CSS-var-driven radius), pair `cornerShape` beside `borderRadius` in the same object literal (`"squircle"`, or `"round"` at the full-round radius); `packages/ui` enforces this with a Vitest test that scans for unpaired radius properties.
+Pairs a `border.radius_*` step with its corner shape in one declaration — squircle on the fixed steps, circular caps on `radius_round` (clamped into a pill or a circle, a superellipse cap reads as neither). Never write a bare `borderRadius` — use the matching member here instead. Where a radius genuinely can't go through the primitive (a vendor pseudo-element, a CSS-var-driven radius), pair `cornerShape` beside `borderRadius` in the same object literal (`"squircle"`, or `"round"` at the full-round radius); the `@tuja/require-corner-shape` ESLint rule enforces this in `packages/ui` and `apps/web`.
 
 | Export                  | Properties                                                                                         |
 | ----------------------- | -------------------------------------------------------------------------------------------------- |
@@ -87,7 +87,7 @@ Pairs a `border.radius_*` step with its corner shape in one declaration — squi
 ### Example
 
 ```tsx
-import { corner, cornerTokens } from "#src/primitives/corner.stylex.ts";
+import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
 
 // Card corner
 <div css={corner.radius_3}>
@@ -100,13 +100,13 @@ const styles = stylex.create({ track: { [cornerTokens.height]: controlSize._7 } 
 <div css={[corner.squircle_round, styles.track]}>
 ```
 
-`apps/web` composes the same primitive via `@tuja/ui/primitives/corner.stylex`; there is no global `corner-shape` rule.
+There is no global `corner-shape` rule.
 
 ---
 
 ## Layout Patterns
 
-**Import**: `#src/primitives/layout.stylex.ts`
+**Import**: `@tuja/ui/primitives/layout.stylex`
 
 | Export                  | Properties                                                                                                            |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -124,7 +124,7 @@ const styles = stylex.create({ track: { [cornerTokens.height]: controlSize._7 } 
 ### Examples
 
 ```tsx
-import { absoluteFill, scrollY, truncate, imageCover } from "#src/primitives/layout.stylex.ts";
+import { absoluteFill, scrollY, truncate, imageCover } from "@tuja/ui/primitives/layout.stylex";
 
 // Overlay covering parent
 <div css={absoluteFill.all}>
@@ -143,7 +143,7 @@ import { absoluteFill, scrollY, truncate, imageCover } from "#src/primitives/lay
 
 ## Resets
 
-**Import**: `#src/primitives/reset.stylex.ts`
+**Import**: `@tuja/ui/primitives/reset.stylex`
 
 | Export             | Properties                                                                                                          |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------- |
@@ -152,8 +152,8 @@ import { absoluteFill, scrollY, truncate, imageCover } from "#src/primitives/lay
 ### Example
 
 ```tsx
-import { buttonReset } from "#src/primitives/reset.stylex.ts";
-import { flex } from "#src/primitives/flex.stylex.ts";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 
 <button
   css={[buttonReset.base, flex.center, styles.iconButton]}
@@ -167,7 +167,7 @@ import { flex } from "#src/primitives/flex.stylex.ts";
 
 ## Motion
 
-**Import**: `#src/primitives/motion.stylex.ts`
+**Import**: `@tuja/ui/primitives/motion.stylex`
 
 ### Transition Presets
 
@@ -196,8 +196,8 @@ Each includes a reduced-motion override automatically.
 
 For building custom transitions:
 
-- `duration` — `{ _75, _100, _150, _200, _300, _500, _700, _1000 }` (ms strings)
-- `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, entrance }`
+- `duration` — `{ _75, _100, _150, _200, _300, _400, _500, _700, _800, _1000, _1400, _1600, _2000 }` (ms strings)
+- `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, entrance, spring, springFallback, pulse }`
 - `motionConstants.REDUCED_MOTION` — media query string (defined via `stylex.defineConsts`, works cross-module as computed keys in `stylex.create`)
 
 ### Custom Transition Example
@@ -207,7 +207,7 @@ import {
   duration,
   easing,
   motionConstants,
-} from "#src/primitives/motion.stylex.ts";
+} from "@tuja/ui/primitives/motion.stylex";
 
 const styles = stylex.create({
   animated: {
@@ -223,7 +223,7 @@ const styles = stylex.create({
 
 ## Accessibility
 
-**Import**: `#src/primitives/a11y.stylex.ts`
+**Import**: `@tuja/ui/primitives/a11y.stylex`
 
 | Export                | Properties                                                                                 |
 | --------------------- | ------------------------------------------------------------------------------------------ |
@@ -234,7 +234,7 @@ const styles = stylex.create({
 ### Example
 
 ```tsx
-import { a11y } from "#src/primitives/a11y.stylex.ts";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 
 // Visible to screen readers only
 <span css={a11y.srOnly}>Loading</span>
@@ -247,9 +247,9 @@ import { a11y } from "#src/primitives/a11y.stylex.ts";
 
 ## Material (Texture, Wash)
 
-**Import**: `#src/primitives/texture.stylex.ts`, `#src/primitives/wash.stylex.ts`
+**Import**: `@tuja/ui/primitives/texture.stylex`, `@tuja/ui/primitives/wash.stylex`
 
-Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. Full vocabulary in `contexts/design-system/CONTEXT.md`.
+Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. The rules are under "Texture and Wash" in `DESIGN.md`.
 
 | Export                                           | Properties                                                                            |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------- |
@@ -261,8 +261,8 @@ A Texture is one mark at one size — never nest a textured surface inside anoth
 Each dials its default through a token, overridden in a local `stylex.create` the same way `cornerTokens.height` is:
 
 ```tsx
-import { texture, textureTokens } from "#src/primitives/texture.stylex.ts";
-import { space } from "#src/tokens.stylex.ts";
+import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
   wide: { [textureTokens.pitch]: space._4 },
