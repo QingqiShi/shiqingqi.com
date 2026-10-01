@@ -9,6 +9,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/hooks/use-resolved-theme.ts";
 import { t } from "#src/i18n.ts";
 import type { GridConfig, SourceImage } from "./types";
+import { prepareCanvas } from "./utils/prepare-canvas";
 
 interface SourceCanvasProps {
   source: SourceImage;
@@ -118,21 +119,13 @@ export function SourceCanvas({
     const canvas = canvasRef.current;
     if (canvas === null || transform === null) return;
     if (viewport.width === 0 || viewport.height === 0) return;
-    const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio;
-    canvas.width = Math.floor(viewport.width * dpr);
-    canvas.height = Math.floor(viewport.height * dpr);
-    canvas.style.width = `${String(viewport.width)}px`;
-    canvas.style.height = `${String(viewport.height)}px`;
-    const ctx = canvas.getContext("2d");
+    const ctx = prepareCanvas(canvas, viewport.width, viewport.height);
     if (ctx === null) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, viewport.width, viewport.height);
 
     // Transparency checkerboard is painted by the container's CSS background
     // (theme-aware) so it shows through transparent regions of the source.
 
     // Source image.
-    ctx.imageSmoothingEnabled = false;
     const drawnW = source.width * transform.scale;
     const drawnH = source.height * transform.scale;
     ctx.drawImage(

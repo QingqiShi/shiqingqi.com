@@ -12,6 +12,8 @@ import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import type { CellPixels } from "./types";
+import { drawCellCentered } from "./utils/draw-cell-centered";
+import { prepareCanvas } from "./utils/prepare-canvas";
 
 interface CellStripProps {
   cells: readonly (CellPixels | null)[];
@@ -107,40 +109,9 @@ function CellThumbnail({ cell }: CellThumbnailProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas === null || size === 0) return;
-    const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio;
-    canvas.width = Math.floor(size * dpr);
-    canvas.height = Math.floor(size * dpr);
-    canvas.style.width = `${String(size)}px`;
-    canvas.style.height = `${String(size)}px`;
-    const ctx = canvas.getContext("2d");
-    if (ctx === null) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, size, size);
-    if (cell === null) return;
-    ctx.imageSmoothingEnabled = false;
-    // Integer-scale the cell pixels into the thumbnail and center — this
-    // avoids the fractional-pixel artifacts you get with CSS-stretching a
-    // small backing buffer up to the thumbnail size.
-    const fit = Math.min(size / cell.width, size / cell.height);
-    const scale = Math.max(1, Math.floor(fit));
-    const drawnW = cell.width * scale;
-    const drawnH = cell.height * scale;
-    const dx = Math.floor((size - drawnW) / 2);
-    const dy = Math.floor((size - drawnH) / 2);
-    const imageData = new ImageData(cell.data, cell.width, cell.height);
-    const off =
-      typeof OffscreenCanvas !== "undefined"
-        ? new OffscreenCanvas(cell.width, cell.height)
-        : null;
-    if (off !== null) {
-      const offCtx = off.getContext("2d");
-      if (offCtx !== null) {
-        offCtx.putImageData(imageData, 0, 0);
-        ctx.drawImage(off, dx, dy, drawnW, drawnH);
-      }
-    } else {
-      ctx.putImageData(imageData, dx, dy);
-    }
+    const ctx = prepareCanvas(canvas, size, size);
+    if (ctx === null || cell === null) return;
+    drawCellCentered(ctx, cell, size);
   }, [cell, size]);
 
   return (
