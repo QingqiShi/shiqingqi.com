@@ -4,12 +4,12 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { CompactMediaCard } from "#src/components/ai-chat/compact-media-card.tsx";
+import { HorizontalScrollRow } from "#src/components/ai-chat/horizontal-scroll-row.tsx";
+import { useMediaDetail } from "#src/components/ai-chat/media-detail-provider.tsx";
 import type { MediaListItem } from "#src/utils/types.ts";
-import { CompactMediaCard } from "./compact-media-card";
-import { HorizontalScrollRow } from "./horizontal-scroll-row";
-import { useMediaDetail } from "./media-detail-provider";
 
-export type RecommendedMediaRowItem = MediaListItem & {
+export type MediaRowItem = MediaListItem & {
   /**
    * When provided, the card renders as a Next.js link to this href. When
    * absent, the card opens the in-chat detail overlay via `useMediaDetail`
@@ -18,22 +18,20 @@ export type RecommendedMediaRowItem = MediaListItem & {
   href?: string;
 };
 
-interface RecommendedMediaRowProps {
+/**
+ * Selects which horizontal inset to use. `"chat"` matches the two-level
+ * padding inside `ChatMessageList`; `"standalone"` matches the single-level
+ * page padding used by the movie-database landing page.
+ */
+export type MediaRowInset = "chat" | "standalone";
+
+interface MediaRowProps {
   title: string;
-  items: ReadonlyArray<RecommendedMediaRowItem>;
-  /**
-   * Selects which horizontal inset to use. `"chat"` (default) matches the
-   * two-level padding inside `ChatMessageList`; `"standalone"` matches the
-   * single-level page padding used by the movie-database landing page.
-   */
-  inset?: "chat" | "standalone";
+  items: ReadonlyArray<MediaRowItem>;
+  inset?: MediaRowInset;
 }
 
-export function RecommendedMediaRow({
-  title,
-  items,
-  inset = "chat",
-}: RecommendedMediaRowProps) {
+export function MediaRow({ title, items, inset = "chat" }: MediaRowProps) {
   if (items.length === 0) return null;
 
   const rowStyles = inset === "standalone" ? standaloneStyles : chatStyles;
