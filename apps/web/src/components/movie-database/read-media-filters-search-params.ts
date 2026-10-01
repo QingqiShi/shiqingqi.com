@@ -1,4 +1,9 @@
-import type { MatchMode, MediaType, MediaView, Sort } from "./types";
+import type {
+  MatchMode,
+  MediaType,
+  MediaView,
+  Sort,
+} from "#src/utils/types.ts";
 
 const SORTS: readonly Sort[] = [
   "popularity.asc",

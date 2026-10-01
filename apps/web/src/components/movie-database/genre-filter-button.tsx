@@ -5,9 +5,9 @@ import * as stylex from "@stylexjs/stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { GenreFilter } from "./genre-filter";
+import { useMediaFilters } from "./use-media-filters";
 
 export function GenreFilterButton() {
   const { genres } = useMediaFilters();

@@ -11,8 +11,8 @@ import { BASE_URL } from "#src/constants.ts";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getLocalePath } from "#src/utils/get-locale-path.ts";
-import { truncateMetadataDescription } from "#src/utils/truncate-metadata-description.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
+import { truncateMetadataDescription } from "./truncate-metadata-description";
 import type { PageProps } from "./types";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/";

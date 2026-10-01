@@ -4,8 +4,8 @@ import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
+import { useMediaFilters } from "./use-media-filters";
 
 interface MediaViewToggleProps {
   /** Drop the "View" heading. */

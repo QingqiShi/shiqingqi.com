@@ -16,18 +16,18 @@ import { InlineChatSwitch } from "#src/components/movie-database/inline-chat-swi
 import { InlineChatView } from "#src/components/movie-database/inline-chat-view.tsx";
 import { MediaFiltersProvider } from "#src/components/movie-database/media-filters-provider.tsx";
 import { MediaList } from "#src/components/movie-database/media-list.tsx";
+import { noop } from "#src/components/movie-database/noop.ts";
+import { readMediaFiltersSearchParams } from "#src/components/movie-database/read-media-filters-search-params.ts";
 import { TrendingRows } from "#src/components/movie-database/trending-rows.tsx";
 import { RetryableErrorBoundary } from "#src/components/shared/retryable-error-boundary.tsx";
 import { t } from "#src/i18n.ts";
 import type { PageProps, SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { noop } from "#src/utils/noop.ts";
-import { readMediaFiltersSearchParams } from "#src/utils/read-media-filters-search-params.ts";
 import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 import { genresQuery } from "#src/utils/tmdb-queries/genres-query.ts";
 import { mediaListQuery } from "#src/utils/tmdb-queries/media-list-query.ts";
-import { toURLSearchParams } from "#src/utils/to-url-search-params.ts";
 import { validateLocale } from "#src/utils/validate-locale.ts";
+import { toURLSearchParams } from "./to-url-search-params";
 
 const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
   key: `skeleton-${String(i)}`,

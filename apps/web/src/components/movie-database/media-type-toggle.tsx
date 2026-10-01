@@ -4,8 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
+import { useMediaFilters } from "./use-media-filters";
 
 export function MediaTypeToggle() {
   // Read `mediaType` from the filters context rather than `useSearchParams()`.

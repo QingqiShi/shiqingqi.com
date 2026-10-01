@@ -1,8 +1,8 @@
 import { dehydrate } from "@tanstack/react-query";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { noop } from "#src/utils/noop.ts";
 import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
+import { noop } from "./noop";
 
 /**
  * Starts a server-side configuration prefetch and returns the dehydrated

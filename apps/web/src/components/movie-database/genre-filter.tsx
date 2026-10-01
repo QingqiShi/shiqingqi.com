@@ -8,10 +8,10 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { useLocale } from "#src/hooks/use-locale.ts";
-import { useMediaFilters } from "#src/hooks/use-media-filters.ts";
 import { t } from "#src/i18n.ts";
 import { genresQuery } from "#src/utils/tmdb-queries/genres-query.ts";
 import { AnchorButton } from "../shared/anchor-button";
+import { useMediaFilters } from "./use-media-filters";
 
 interface GenreFilterProps {
   hideTitle?: boolean;

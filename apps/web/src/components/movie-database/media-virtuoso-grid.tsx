@@ -5,9 +5,9 @@ import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
 import { color, layout, space } from "@tuja/ui/tokens.stylex";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "#src/components/movie-database/grid.tsx";
-import { useViewportHeight } from "#src/hooks/use-viewport-height.ts";
 import type { MediaListItem } from "#src/utils/types.ts";
 import { MediaCard } from "./media-card";
+import { useViewportHeight } from "./use-viewport-height";
 
 interface MediaVirtuosoGridProps {
   queryResult: UseSuspenseInfiniteQueryResult<MediaListItem[]>;

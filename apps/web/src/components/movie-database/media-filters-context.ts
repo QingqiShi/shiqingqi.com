@@ -5,7 +5,7 @@ import type {
   MediaType,
   MediaView,
   Sort,
-} from "./types";
+} from "#src/utils/types.ts";
 
 export const MediaFiltersContext = createContext<
   | (MediaFilters & {

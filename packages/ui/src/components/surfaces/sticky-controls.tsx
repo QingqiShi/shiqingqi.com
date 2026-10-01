@@ -2,10 +2,10 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { useStuck } from "../../hooks/use-stuck.ts";
 import { layer, space } from "../../tokens.stylex.ts";
 import type { StyleProp } from "../../types.ts";
 import { StuckContext } from "./sticky-control-group.tsx";
+import { useStuck } from "./use-stuck.ts";
 
 export { StickyControlGroup } from "./sticky-control-group.tsx";
 

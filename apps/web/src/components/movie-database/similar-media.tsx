@@ -7,10 +7,10 @@ import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
-import { noop } from "#src/utils/noop.ts";
 import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
 import { similarMediaQuery } from "#src/utils/tmdb-queries/similar-media-query.ts";
 import { Grid } from "./grid";
+import { noop } from "./noop";
 import { SimilarMediaList } from "./similar-media-list";
 
 const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({

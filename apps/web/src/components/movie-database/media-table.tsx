@@ -5,7 +5,7 @@
 // ship and the grid follows the site's light/dark scheme for free.
 import "@1771technologies/lytenyte-pro/design.css";
 import "@1771technologies/lytenyte-pro/grid.css";
-import "#src/utils/lytenyte-license.ts";
+import "./lytenyte-license";
 import { Grid, useClientDataSource } from "@1771technologies/lytenyte-pro";
 import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
