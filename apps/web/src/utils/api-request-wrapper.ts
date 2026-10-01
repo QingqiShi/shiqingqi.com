@@ -34,7 +34,10 @@ export async function apiRequestWrapper<
   // params have required fields: function parameters are contravariant, and
   // every param type is assignable to `never`'s position.
   T extends (params: never) => Promise<unknown>,
->(apiRoute: `/api/${string}`, params: Parameters<T>[0]) {
+>(
+  apiRoute: `/api/${string}`,
+  params: Parameters<T>[0],
+): Promise<Awaited<ReturnType<T>>> {
   if (typeof window === "undefined") {
     throw new Error("apiRequestWrapper called during SSR - missing prefetch");
   }
@@ -56,5 +59,5 @@ export async function apiRequestWrapper<
     throw new Error(errorMessage);
   }
   // Allowed by the JSON-parse carve-out in eslint.config.mjs — a trust boundary the type system can't check.
-  return response.json() as ReturnType<T>;
+  return response.json() as Awaited<ReturnType<T>>;
 }

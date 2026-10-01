@@ -1,5 +1,5 @@
 import { dehydrate } from "@tanstack/react-query";
-import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
+import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
 import { noop } from "#src/utils/noop.ts";
 import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.ts";
@@ -13,11 +13,6 @@ import { configurationQuery } from "#src/utils/tmdb-queries/configuration-query.
  */
 export function getConfigurationDehydratedState() {
   const queryClient = getQueryClient();
-  queryClient
-    .query({
-      ...configurationQuery,
-      queryFn: async () => getConfiguration(),
-    })
-    .catch(noop);
+  queryClient.query(configurationQuery(tmdbServerFunctions)).catch(noop);
   return dehydrate(queryClient);
 }

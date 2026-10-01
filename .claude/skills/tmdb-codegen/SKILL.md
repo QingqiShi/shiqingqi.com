@@ -88,6 +88,7 @@ pnpm codegen:zod
 ### Auto-Generated (DO NOT EDIT)
 
 - `apps/web/src/_generated/tmdb-server-functions.ts` - Server functions with TypeScript types
+- `apps/web/src/_generated/tmdb-client-functions.ts` - One client function per entry in `api-routes.js`, with its server function's signature, that calls the `/api/tmdb/*` route. The `tmdb-queries/*` factories call these by default; a server prefetch passes the server functions instead
 - `apps/web/src/_generated/tmdb-zod.ts` - Selective Zod schemas (only for endpoints with `needsZodSchema: true`)
 
 These files are **committed to the repository**, so run codegen and commit the result whenever `endpoints.js` changes:

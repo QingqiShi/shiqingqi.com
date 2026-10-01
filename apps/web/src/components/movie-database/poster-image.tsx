@@ -29,7 +29,7 @@ export function PosterImage({
   alt,
   fallbackLabel,
 }: PosterImageProps) {
-  const { data: config } = useSuspenseQuery(configurationQuery);
+  const { data: config } = useSuspenseQuery(configurationQuery());
   const visibleLabel = fallbackLabel ?? alt;
 
   if (!config.images?.base_url || !config.images.poster_sizes) {

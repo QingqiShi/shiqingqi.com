@@ -4,13 +4,7 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { ratio, space } from "@tuja/ui/tokens.stylex";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import {
-  discoverMovies,
-  discoverTvShows,
-  getConfiguration,
-  getMovieGenres,
-  getTvShowGenres,
-} from "#src/_generated/tmdb-server-functions.ts";
+import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import { DotGridBackground } from "#src/components/ai-chat/dot-grid-background.tsx";
 import { SuggestionChips } from "#src/components/ai-chat/suggestion-chips.tsx";
 import { FiltersSkeleton } from "#src/components/movie-database/filters-skeleton.tsx";
@@ -53,59 +47,31 @@ export default async function Page(
   const { genres, matchMode, sort, mediaType, view } =
     readMediaFiltersSearchParams(toURLSearchParams(searchParams));
 
-  // Fetch config, genres, and initial page
   const queryClient = getQueryClient();
+  queryClient.query(configurationQuery(tmdbServerFunctions)).catch(noop);
   queryClient
-    .query({
-      ...configurationQuery,
-      queryFn: () => getConfiguration(),
-    })
+    .query(
+      genresQuery(
+        { type: mediaType, language: validatedLocale },
+        tmdbServerFunctions,
+      ),
+    )
     .catch(noop);
   queryClient
-    .query({
-      ...genresQuery({ type: mediaType, language: validatedLocale }),
-      queryFn: () =>
-        mediaType === "tv"
-          ? getTvShowGenres({ language: validatedLocale })
-          : getMovieGenres({ language: validatedLocale }),
-    })
+    .infiniteQuery(
+      mediaListQuery(
+        {
+          type: mediaType,
+          page: 1,
+          language: validatedLocale,
+          genres,
+          matchMode,
+          sort,
+        },
+        tmdbServerFunctions,
+      ),
+    )
     .catch(noop);
-  const queryParams = {
-    language: validatedLocale,
-    page: 1,
-    with_genres: genres.join(matchMode === "any" ? "|" : ",") || undefined,
-    sort_by: sort !== "popularity.desc" ? sort : undefined,
-  };
-
-  if (mediaType === "tv") {
-    queryClient
-      .infiniteQuery({
-        ...mediaListQuery({ type: "tv", ...queryParams }),
-        queryFn: async ({ pageParam }) => {
-          return discoverTvShows({
-            "vote_count.gte": 300,
-            "vote_average.gte": 3,
-            ...queryParams,
-            page: pageParam,
-          });
-        },
-      })
-      .catch(noop);
-  } else {
-    queryClient
-      .infiniteQuery({
-        ...mediaListQuery({ type: "movie", ...queryParams }),
-        queryFn: async ({ pageParam }) => {
-          return discoverMovies({
-            "vote_count.gte": 300,
-            "vote_average.gte": 3,
-            ...queryParams,
-            page: pageParam,
-          });
-        },
-      })
-      .catch(noop);
-  }
 
   const suggestions = [
     t({

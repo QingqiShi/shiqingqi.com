@@ -35,7 +35,7 @@ export function PersonDetailContent({
     queries: [
       personDetailsQuery({ id: idString, language: locale }),
       personCombinedCreditsQuery({ id: idString, language: locale }),
-      configurationQuery,
+      configurationQuery(),
     ],
   });
 

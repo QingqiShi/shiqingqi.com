@@ -199,7 +199,7 @@ function ProviderLogo({
   name: string;
   size?: number;
 }) {
-  const { data: config } = useSuspenseQuery(configurationQuery);
+  const { data: config } = useSuspenseQuery(configurationQuery());
 
   const baseUrl =
     config.images?.secure_base_url ?? config.images?.base_url ?? "";

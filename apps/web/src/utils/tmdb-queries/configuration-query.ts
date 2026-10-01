@@ -1,15 +1,14 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { getConfiguration } from "../../_generated/tmdb-server-functions";
-import { apiRequestWrapper } from "../api-request-wrapper";
+import { getConfiguration } from "#src/_generated/tmdb-client-functions.ts";
 import { tmdbScope } from "./tmdb-scope";
+import type { TmdbFunctions } from "./types";
 
-export const configurationQuery = queryOptions({
-  queryKey: [{ query: "configuration", ...tmdbScope }],
-  queryFn: async () =>
-    apiRequestWrapper<typeof getConfiguration>(
-      "/api/tmdb/get-configuration",
-      undefined,
-    ),
-  staleTime: 24 * 60 * 60 * 1000,
-  gcTime: 24 * 60 * 60 * 1000,
-});
+export const configurationQuery = (
+  tmdb: Pick<TmdbFunctions, "getConfiguration"> = { getConfiguration },
+) =>
+  queryOptions({
+    queryKey: [{ query: "configuration", ...tmdbScope }],
+    queryFn: async () => tmdb.getConfiguration(),
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+  });

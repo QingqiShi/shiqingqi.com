@@ -1,17 +1,18 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { getPersonCombinedCredits } from "../../_generated/tmdb-server-functions";
-import { apiRequestWrapper } from "../api-request-wrapper";
+import { getPersonCombinedCredits } from "#src/_generated/tmdb-client-functions.ts";
 import { tmdbScope } from "./tmdb-scope";
-import type { PersonDetailsParams } from "./types";
+import type { PersonDetailsParams, TmdbFunctions } from "./types";
 
-export const personCombinedCreditsQuery = (params: PersonDetailsParams) =>
+export const personCombinedCreditsQuery = (
+  params: PersonDetailsParams,
+  tmdb: Pick<TmdbFunctions, "getPersonCombinedCredits"> = {
+    getPersonCombinedCredits,
+  },
+) =>
   queryOptions({
     queryKey: [{ query: "personCombinedCredits", ...tmdbScope, ...params }],
     queryFn: async () => {
       const { id, ...queryParams } = params;
-      return apiRequestWrapper<typeof getPersonCombinedCredits>(
-        "/api/tmdb/get-person-combined-credits",
-        { ...queryParams, person_id: id },
-      );
+      return tmdb.getPersonCombinedCredits({ ...queryParams, person_id: id });
     },
   });

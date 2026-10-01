@@ -32,7 +32,7 @@ function ProfilePhoto({
   alt: string;
   fallbackInitial: string;
 }) {
-  const { data: config } = useSuspenseQuery(configurationQuery);
+  const { data: config } = useSuspenseQuery(configurationQuery());
 
   if (!config.images?.base_url || !config.images.profile_sizes) {
     return (
