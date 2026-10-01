@@ -8,16 +8,6 @@
     "tmdb-codegen": "./src/generator.js"
   },
   "scripts": {
-    "build:tsc": "tsc --noEmit",
-    "lint": "eslint .",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "typescript": "catalog:"
-  },
-  "devDependencies": {
-    "@tuja/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "vitest": "catalog:"
+    "lint": "eslint ."
   }
 }
