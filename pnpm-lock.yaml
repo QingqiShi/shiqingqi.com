@@ -363,9 +363,6 @@ importers:
       '@serwist/cli':
         specifier: 'catalog:'
         version: 9.5.12(@types/node@26.6.2)(@typescript/typescript6@6.0.2)(browserslist@4.29.1)(esbuild@0.28.2)
-      '@stylexjs/babel-plugin':
-        specifier: 'catalog:'
-        version: 0.19.1
       '@stylexjs/postcss-plugin':
         specifier: ^0.19.1
         version: 0.19.1
@@ -489,6 +486,9 @@ importers:
       '@babel/traverse':
         specifier: 'catalog:'
         version: 8.0.6
+      '@stylexjs/babel-plugin':
+        specifier: 'catalog:'
+        version: 0.19.1
       '@tuja/module-exports':
         specifier: workspace:*
         version: link:../module-exports
@@ -742,9 +742,6 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@8.0.6)(@babel/runtime@8.0.5)(rolldown@1.2.8)(vite@8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
-      '@stylexjs/babel-plugin':
-        specifier: 'catalog:'
-        version: 0.19.1
       '@stylexjs/stylex':
         specifier: 'catalog:'
         version: 0.19.1

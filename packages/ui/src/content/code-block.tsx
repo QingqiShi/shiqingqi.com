@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Fragment, useLayoutEffect, useRef } from "react";
+import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
 import { easing, transition } from "../primitives/motion.stylex.ts";
 import { font } from "../tokens.stylex.ts";
@@ -81,7 +82,6 @@ const ARRIVE_MS = 320;
 const LEAVE_MS = 180;
 const REDUCED_ARRIVE_MS = 150;
 const RISE = "translateY(0.5rem)";
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
 function runs(tokens: readonly CodeToken[]) {
   return tokens.map(([kind, text], index) => (
@@ -219,7 +219,7 @@ function PartsCode({ parts }: PartsCodeProps) {
     drawnRef.current = parts;
     if (drawn.length === 0) return;
 
-    const isReduced = window.matchMedia(REDUCED_MOTION).matches;
+    const isReduced = prefersReducedMotion();
     for (const box of boxes) {
       const key = box.dataset.box;
       if (key === undefined) continue;

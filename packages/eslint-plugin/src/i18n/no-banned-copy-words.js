@@ -87,6 +87,20 @@ function getStaticStringValue(valueNode) {
   return null;
 }
 
+/**
+ * Read the property name of an object property when it is static, the way
+ * the i18n Babel plugin reads it: `en`, `"en"` and `["en"]` all name `en`,
+ * but `[en]` names whatever the variable `en` holds.
+ * @param {import("estree").Property} property
+ * @returns {string | null}
+ */
+function getStaticPropertyName(property) {
+  const { key } = property;
+  if (key.type === "Identifier" && !property.computed) return key.name;
+  if (key.type === "Literal" && typeof key.value === "string") return key.value;
+  return null;
+}
+
 /** @type {import("eslint").Rule.RuleModule} */
 const noBannedCopyWords = {
   meta: {
@@ -123,8 +137,7 @@ const noBannedCopyWords = {
         const enProperty = arg.properties.find(
           (property) =>
             property.type === "Property" &&
-            property.key.type === "Identifier" &&
-            property.key.name === "en",
+            getStaticPropertyName(property) === "en",
         );
         if (!enProperty) return;
 

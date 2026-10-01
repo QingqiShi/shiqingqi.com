@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+// eslint-disable-next-line restricted/stylex-babel-plugin -- Only for `processStylexRules`. The Babel plugins come from `stylexPlugins`.
 import stylexBabelPlugin from "@stylexjs/babel-plugin";
-import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
+import { stylexPlugins } from "@tuja/babel-plugins/stylex-plugins";
 import {
   designSystemSources,
   monorepoRoot,
@@ -21,10 +22,11 @@ const babel = nodeRequire("@babel/core");
 // the build runs from the monorepo root, so every name is resolved here first.
 const preset = (name) => nodeRequire.resolve(name);
 
-// The same options `apps/web/babel.config.js` gives the StyleX plugin, so the
+// The same StyleX plugins and options as `apps/web/babel.config.js`, so the
 // CSS and the class names here are the ones the app ships.
-const stylexOptions = stylexPluginOptions({
+const stylexBabelPlugins = stylexPlugins({
   rootDir: monorepoRoot,
+  breakpointsRootDir: uiRoot,
   nodeEnv: "production",
 });
 
@@ -99,9 +101,6 @@ const stylexShim = {
 };
 
 function transformWithStylex(filename) {
-  const breakpointsPlugin = nodeRequire.resolve(
-    "@tuja/babel-plugins/stylex-breakpoints",
-  );
   const source = fs.readFileSync(filename, "utf8");
   const result = babel.transformSync(source, {
     filename,
@@ -109,10 +108,7 @@ function transformWithStylex(filename) {
     configFile: false,
     sourceType: "module",
     presets: [preset("@babel/preset-typescript")],
-    plugins: [
-      [breakpointsPlugin, { rootDir: uiRoot }],
-      [stylexBabelPlugin, stylexOptions],
-    ],
+    plugins: stylexBabelPlugins,
   });
   return { code: result.code, rules: result.metadata.stylex ?? [] };
 }

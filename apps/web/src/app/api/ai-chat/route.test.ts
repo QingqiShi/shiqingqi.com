@@ -23,8 +23,6 @@ vi.mock("#src/movie-database/chat/chat.ts", () => ({
   chat: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
-
 const mockStore = new Map<string, UIMessage[]>();
 
 vi.mock("#src/movie-database/chat/session/generate-session-id.ts", () => ({

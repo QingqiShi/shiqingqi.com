@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
+import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 import type {
   CreatureDef,
   Emotion,
@@ -58,6 +59,7 @@ export function PixelSprite({
 }: PixelSpriteProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const activeEmotion = emotion ?? def.defaultEmotion;
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const speciesEntry = species[def.species];
   const elementEntry = elements[def.type];
@@ -83,9 +85,12 @@ export function PixelSprite({
       return;
     }
 
-    // We arm a `change` listener so toggling the OS setting rearms or stops
-    // the rAF without remounting.
-    const reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // Reduced motion: write the static t=0 pose once and skip the rAF
+    // loop entirely (saves CPU / battery vs. ticking forever at 60Hz).
+    if (prefersReducedMotion) {
+      writeMotion(getReducedMotionEmotion(activeEmotion, 0));
+      return;
+    }
 
     let rafId = 0;
     const startTime = performance.now();
@@ -95,37 +100,12 @@ export function PixelSprite({
       writeMotion(getEmotionMotion(activeEmotion, t));
       rafId = window.requestAnimationFrame(tick);
     };
-
-    const stopRaf = () => {
-      if (rafId !== 0) {
-        window.cancelAnimationFrame(rafId);
-        rafId = 0;
-      }
-    };
-
-    const startMotion = () => {
-      stopRaf();
-      // Reduced motion: write the static t=0 pose once and skip the rAF
-      // loop entirely (saves CPU / battery vs. ticking forever at 60Hz).
-      if (reducedQuery.matches) {
-        writeMotion(getReducedMotionEmotion(activeEmotion, 0));
-        return;
-      }
-      rafId = window.requestAnimationFrame(tick);
-    };
-
-    startMotion();
-
-    const onReducedChange = () => {
-      startMotion();
-    };
-    reducedQuery.addEventListener("change", onReducedChange);
+    rafId = window.requestAnimationFrame(tick);
 
     return () => {
-      stopRaf();
-      reducedQuery.removeEventListener("change", onReducedChange);
+      window.cancelAnimationFrame(rafId);
     };
-  }, [activeEmotion, paused, scale]);
+  }, [activeEmotion, paused, prefersReducedMotion, scale]);
 
   if (speciesEntry === undefined || elementEntry === undefined) {
     return null;

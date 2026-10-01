@@ -4,8 +4,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { transformSync } from "@babel/core";
 import type { Rule } from "@stylexjs/babel-plugin";
+// eslint-disable-next-line restricted/stylex-babel-plugin -- Only for `processStylexRules`. The Babel plugins come from `stylexPlugins`.
 import stylexBabelPlugin from "@stylexjs/babel-plugin";
-import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
+import { stylexPlugins } from "@tuja/babel-plugins/stylex-plugins";
 
 const require = createRequire(import.meta.url);
 const typescriptPreset = require.resolve("@babel/preset-typescript");
@@ -38,11 +39,11 @@ function compileRules(file: string): Rule[] {
     babelrc: false,
     configFile: false,
     presets: [typescriptPreset],
-    plugins: [
-      stylexBabelPlugin.withOptions(
-        stylexPluginOptions({ rootDir: workspaceRoot, nodeEnv: undefined }),
-      ),
-    ],
+    plugins: stylexPlugins({
+      rootDir: workspaceRoot,
+      breakpointsRootDir: path.join(workspaceRoot, "packages/ui"),
+      nodeEnv: undefined,
+    }),
   });
   const rules: unknown = result?.metadata.stylex;
   if (!isStylexRules(rules)) {

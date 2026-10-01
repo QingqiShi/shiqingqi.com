@@ -1,6 +1,7 @@
 "use client";
 
 import { easing } from "@tuja/ui/primitives/motion.stylex";
+import { prefersReducedMotion } from "@tuja/ui/utils/prefers-reduced-motion";
 import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
@@ -40,9 +41,7 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
   const refinePrevRectRef = useRef<DOMRect | null>(null);
 
   useLayoutEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const isReducedMotion = prefersReducedMotion();
 
     const refineFound = findVisibleElement(`[${DATA_HERO_REFINE_BUTTON}]`);
     if (refineFound) {
@@ -51,7 +50,7 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
       if (
         prev &&
         !isFirstRenderRef.current &&
-        !prefersReducedMotion &&
+        !isReducedMotion &&
         (Math.abs(prev.left - rect.left) > 0.5 ||
           Math.abs(prev.top - rect.top) > 0.5)
       ) {
@@ -89,7 +88,7 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
     }
     morphAnimationsRef.current = [];
 
-    if (prefersReducedMotion) return;
+    if (isReducedMotion) return;
 
     const heroRect = hero.getBoundingClientRect();
     if (!hasLayout(heroRect)) return;

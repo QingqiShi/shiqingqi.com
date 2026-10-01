@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { type ReactNode, useEffect, useRef } from "react";
+import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 
 /**
  * While the card is hovered, writes the pointer position to `--ds-illo-px/py`
@@ -11,6 +12,7 @@ import { type ReactNode, useEffect, useRef } from "react";
  */
 export function IlloLayer({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const layer = ref.current;
@@ -51,31 +53,21 @@ export function IlloLayer({ children }: { children: ReactNode }) {
       tile.style.setProperty("--ds-illo-py", "0.5");
     };
 
-    // Bind to the query (not a one-time read) so a mid-session reduced-motion
-    // toggle takes effect.
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => {
-      if (reduced.matches) {
-        tile.removeEventListener("pointermove", handleMove);
-        tile.removeEventListener("pointerleave", recentre);
-        recentre();
-      } else {
-        tile.addEventListener("pointermove", handleMove);
-        tile.addEventListener("pointerleave", recentre);
-      }
-    };
-    sync();
-    reduced.addEventListener("change", sync);
+    if (prefersReducedMotion) {
+      recentre();
+      return;
+    }
+    tile.addEventListener("pointermove", handleMove);
+    tile.addEventListener("pointerleave", recentre);
 
     return () => {
-      reduced.removeEventListener("change", sync);
       tile.removeEventListener("pointermove", handleMove);
       tile.removeEventListener("pointerleave", recentre);
       if (frame) {
         cancelAnimationFrame(frame);
       }
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <span ref={ref} css={styles.illoLayer}>
