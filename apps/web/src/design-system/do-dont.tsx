@@ -156,7 +156,11 @@ const styles = stylex.create({
   },
   // A specimen that cannot shrink — a segmented control with too many segments,
   // say — scrolls inside the panel rather than spilling past its border.
+  // A scroll container clips its overflow on both axes, so the padding gives the
+  // focus ring room to show. The negative margin keeps the layout unchanged.
   example: {
+    padding: space._1,
+    margin: `calc(-1 * ${space._1})`,
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
