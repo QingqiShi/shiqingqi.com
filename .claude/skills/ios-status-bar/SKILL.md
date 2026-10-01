@@ -57,17 +57,17 @@ it again if the header height or the bar's inset changes.
 - `apps/web/src/components/shared/portal-target-provider.tsx`. The page's portal
   target is that anchor. It used to be a fixed full-viewport box, and any
   portalled overlay, open or closed, flattened the status bar until reload.
-- `packages/ui/src/components/progressive-blur.tsx`. Every blur wrapper is a
-  0 x 0 fixed box (`reachLayers`) whose layers read their size from a custom
-  property, so the box on the Blur plane never grows.
-- `packages/ui/src/components/header-controls.tsx`. The header floats two narrow
-  control groups instead of one bar across the top.
+- `packages/ui/src/components/surfaces/progressive-blur.tsx`. Every blur
+  wrapper is a 0 x 0 fixed box (`reachLayers`) whose layers read their size
+  from a custom property, so the box on the Blur plane never grows.
+- `packages/ui/src/components/shells/header-controls.tsx`. The header floats
+  two narrow control groups instead of one bar across the top.
 - `findStatusBarCandidates` in `apps/web/e2e/media-detail-pages.spec.ts` is the
   executable guard. It walks every fixed and sticky box that covers the
   top-centre point, because `elementsFromPoint` honours `pointer-events: none`
   and would miss the culprit.
-- The rule in domain language is the "Progressive blur" entry in
-  `contexts/design-system/CONTEXT.md`.
+- The rule in domain language is the "Progressive blur" and "Floating
+  elements" language in `DESIGN.md`.
 
 ## Verifying
 
