@@ -20,7 +20,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { downloadBlob } from "#src/utils/download-blob.ts";
 import type { CellPixels } from "./types";
+import { drawCellCentered } from "./utils/draw-cell-centered";
 import { exportSpriteSheet } from "./utils/export-sprite-sheet";
+import { prepareCanvas } from "./utils/prepare-canvas";
 
 export interface AnimationFrame {
   cellIndex: number;
@@ -119,41 +121,12 @@ export function AnimationMode({
   useEffect(() => {
     const canvas = previewCanvasRef.current;
     if (canvas === null) return;
-    const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio;
-    const cssSize = PREVIEW_SIZE;
-    canvas.width = Math.floor(cssSize * dpr);
-    canvas.height = Math.floor(cssSize * dpr);
-    canvas.style.width = `${String(cssSize)}px`;
-    canvas.style.height = `${String(cssSize)}px`;
-    const ctx = canvas.getContext("2d");
-    if (ctx === null) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, cssSize, cssSize);
-    if (frames.length === 0) return;
+    const ctx = prepareCanvas(canvas, PREVIEW_SIZE, PREVIEW_SIZE);
+    if (ctx === null || frames.length === 0) return;
     const frame = frames[activeFrame];
     const cell = cells[frame.cellIndex];
     if (cell === null) return;
-    ctx.imageSmoothingEnabled = false;
-    const fit = Math.min(cssSize / cell.width, cssSize / cell.height);
-    const scale = Math.max(1, Math.floor(fit));
-    const drawnW = cell.width * scale;
-    const drawnH = cell.height * scale;
-    const dx = Math.floor((cssSize - drawnW) / 2);
-    const dy = Math.floor((cssSize - drawnH) / 2);
-    const imageData = new ImageData(cell.data, cell.width, cell.height);
-    const off =
-      typeof OffscreenCanvas !== "undefined"
-        ? new OffscreenCanvas(cell.width, cell.height)
-        : null;
-    if (off !== null) {
-      const offCtx = off.getContext("2d");
-      if (offCtx !== null) {
-        offCtx.putImageData(imageData, 0, 0);
-        ctx.drawImage(off, dx, dy, drawnW, drawnH);
-      }
-    } else {
-      ctx.putImageData(imageData, dx, dy);
-    }
+    drawCellCentered(ctx, cell, PREVIEW_SIZE);
   }, [frames, activeFrame, cells]);
 
   const addCurrentFrame = () => {
@@ -377,40 +350,9 @@ function FrameThumb({ cell }: FrameThumbProps) {
   useEffect(() => {
     const canvas = ref.current;
     if (canvas === null) return;
-    const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio;
-    canvas.width = Math.floor(FRAME_THUMB_SIZE * dpr);
-    canvas.height = Math.floor(FRAME_THUMB_SIZE * dpr);
-    canvas.style.width = `${String(FRAME_THUMB_SIZE)}px`;
-    canvas.style.height = `${String(FRAME_THUMB_SIZE)}px`;
-    const ctx = canvas.getContext("2d");
-    if (ctx === null) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, FRAME_THUMB_SIZE, FRAME_THUMB_SIZE);
-    if (cell === null) return;
-    ctx.imageSmoothingEnabled = false;
-    const fit = Math.min(
-      FRAME_THUMB_SIZE / cell.width,
-      FRAME_THUMB_SIZE / cell.height,
-    );
-    const scale = Math.max(1, Math.floor(fit));
-    const drawnW = cell.width * scale;
-    const drawnH = cell.height * scale;
-    const dx = Math.floor((FRAME_THUMB_SIZE - drawnW) / 2);
-    const dy = Math.floor((FRAME_THUMB_SIZE - drawnH) / 2);
-    const imageData = new ImageData(cell.data, cell.width, cell.height);
-    const off =
-      typeof OffscreenCanvas !== "undefined"
-        ? new OffscreenCanvas(cell.width, cell.height)
-        : null;
-    if (off !== null) {
-      const offCtx = off.getContext("2d");
-      if (offCtx !== null) {
-        offCtx.putImageData(imageData, 0, 0);
-        ctx.drawImage(off, dx, dy, drawnW, drawnH);
-      }
-    } else {
-      ctx.putImageData(imageData, dx, dy);
-    }
+    const ctx = prepareCanvas(canvas, FRAME_THUMB_SIZE, FRAME_THUMB_SIZE);
+    if (ctx === null || cell === null) return;
+    drawCellCentered(ctx, cell, FRAME_THUMB_SIZE);
   }, [cell]);
   return (
     <canvas

@@ -52,6 +52,7 @@ import { pasteCellScaled } from "./utils/pixel-ops/paste-cell-scaled";
 import { rgbaToHex } from "./utils/pixel-ops/rgba-to-hex";
 import { setPixel } from "./utils/pixel-ops/set-pixel";
 import type { Rect } from "./utils/pixel-ops/types";
+import { prepareCanvas } from "./utils/prepare-canvas";
 
 type Tool =
   "pencil" | "eraser" | "select" | "eyedropper" | "fill" | "bg-remove";
@@ -230,16 +231,12 @@ export function PixelEditor({
     const canvas = canvasRef.current;
     if (canvas === null || transform === null) return;
     if (containerSize.width === 0 || containerSize.height === 0) return;
-    const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio;
-    canvas.width = Math.floor(containerSize.width * dpr);
-    canvas.height = Math.floor(containerSize.height * dpr);
-    canvas.style.width = `${String(containerSize.width)}px`;
-    canvas.style.height = `${String(containerSize.height)}px`;
-    const ctx = canvas.getContext("2d");
+    const ctx = prepareCanvas(
+      canvas,
+      containerSize.width,
+      containerSize.height,
+    );
     if (ctx === null) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, containerSize.width, containerSize.height);
-    ctx.imageSmoothingEnabled = false;
 
     const { scale, panX, panY } = transform;
     const cellW = present.width;
