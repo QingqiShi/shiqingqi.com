@@ -2,8 +2,8 @@ import {
   whitePointD65,
   xyzFromArgb,
   yFromLstar,
-} from "../../../apps/web/src/vendor/material-color-utilities/color_utils.ts";
-import { argbFromHex } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
+} from "./vendor/material-color-utilities/color_utils.ts";
+import { argbFromHex } from "./vendor/material-color-utilities/string_utils.ts";
 
 // Hellwig & Fairchild (2022): CAM16 extended for the Helmholtz-Kohlrausch
 // effect, so a saturated colour rates brighter than a gray of the same

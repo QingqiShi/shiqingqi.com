@@ -1,4 +1,4 @@
-import type { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
+import type { Hct } from "./vendor/material-color-utilities/hct.ts";
 
 const radians = (degrees: number) => (degrees * Math.PI) / 180;
 

@@ -1,7 +1,7 @@
-import { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
-import { hexFromArgb } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
 import { placeTintInCam16 } from "./place-tint-in-cam16.ts";
 import { hueDistance, tintOf } from "./tint-of.ts";
+import { Hct } from "./vendor/material-color-utilities/hct.ts";
+import { hexFromArgb } from "./vendor/material-color-utilities/string_utils.ts";
 
 const ITERATIONS = 22;
 // Below this chroma HCT takes its exact achromatic path.

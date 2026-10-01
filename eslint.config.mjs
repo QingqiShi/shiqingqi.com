@@ -28,7 +28,7 @@ export default defineConfig([
       "apps/*/postcss.config.js",
       "apps/*/src/_generated/**/*",
       "packages/*/src/_generated/**/*",
-      "apps/web/src/vendor/**/*",
+      "packages/system-palette-codegen/src/vendor/**/*",
       "apps/*/.next/**/*",
       "apps/*/next-env.d.ts",
       "apps/*/public/sw.js",

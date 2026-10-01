@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Hct } from "../../../apps/web/src/vendor/material-color-utilities/hct.ts";
-import { hexFromArgb } from "../../../apps/web/src/vendor/material-color-utilities/string_utils.ts";
 import { hellwigLightness } from "./hellwig-lightness.ts";
+import { Hct } from "./vendor/material-color-utilities/hct.ts";
+import { hexFromArgb } from "./vendor/material-color-utilities/string_utils.ts";
 
 const hexAt = (hue: number, chroma: number, tone: number) =>
   hexFromArgb(Hct.from(hue, chroma, tone).toInt());
