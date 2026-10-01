@@ -109,7 +109,7 @@ function generateLoaderSource(name: string): string {
   return [
     `import "server-only";`,
     ``,
-    `import type { SupportedLocale } from "#src/types.ts";`,
+    `import type { SupportedLocale } from "#src/i18n/types.ts";`,
     ``,
     `import en from "#src/_generated/i18n/client/${name}.en.json";`,
     `import zh from "#src/_generated/i18n/client/${name}.zh.json";`,

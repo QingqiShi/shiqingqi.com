@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { i18nRouter } from "next-i18n-router";
+import { ALLOWED_REFERER } from "#src/constants.ts";
 import {
-  ALLOWED_REFERER,
   LOCALE_COOKIE_MAX_AGE_SECONDS,
   LOCALE_COOKIE_NAME,
-} from "#src/constants.ts";
-import { isValidLocale } from "#src/utils/validate-locale.ts";
-import { i18nConfig } from "./i18n-config";
+} from "#src/i18n/constants.ts";
+import { i18nConfig } from "#src/i18n/i18n-config.ts";
+import { isValidLocale } from "#src/i18n/validate-locale.ts";
 
 function isAllowedDevHost(request: NextRequest, refererUrl: URL): boolean {
   // Next inlines this from `env` in next.config.js; it is empty outside

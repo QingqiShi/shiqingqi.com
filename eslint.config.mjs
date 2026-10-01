@@ -226,7 +226,7 @@ export default defineConfig([
   },
   // shadcn/ui generates these files and keeps its own convention.
   {
-    files: ["apps/trip-planner/src/components/ui/**"],
+    files: ["apps/trip-planner/src/shadcn/**"],
     rules: {
       "@tuja/no-single-use-literal-alias": "off",
     },
@@ -263,12 +263,12 @@ export default defineConfig([
       "apps/*/src/app/**/{page,layout,route,loading,error,global-error,not-found,template,default}.{ts,tsx,js,jsx}",
       "apps/*/src/app/**/{sitemap,robots,manifest,opengraph-image,twitter-image,icon,apple-icon}.{ts,tsx,js,jsx}",
       "apps/*/src/{middleware,proxy,instrumentation,instrumentation-client}.ts",
-      "apps/*/src/sw.ts",
+      "apps/*/src/pwa/sw.ts",
       // A showcase's operable specimens sit beside it, named after the
       // showcase they serve: the file holds several, so none of them names it.
-      "apps/web/src/components/design-system/sections/**/*-specimens.tsx",
+      "apps/web/src/design-system/sections/**/*-specimens.tsx",
       // shadcn/ui generates these files and keeps its own convention.
-      "apps/trip-planner/src/components/ui/**",
+      "apps/trip-planner/src/shadcn/**",
       // A constant-only bag is named for its category.
       "**/constants.ts",
     ],

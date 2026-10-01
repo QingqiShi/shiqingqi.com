@@ -6,12 +6,12 @@ import {
   getMovieDetails,
   getTvShowDetails,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { Footer } from "#src/components/home/footer.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import type { SupportedLocale } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { SupportedLocale } from "#src/types.ts";
-import { getLocalePath } from "#src/utils/get-locale-path.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { Footer } from "#src/site-shell/footer.tsx";
 import { truncateMetadataDescription } from "./truncate-metadata-description";
 import type { PageProps } from "./types";
 

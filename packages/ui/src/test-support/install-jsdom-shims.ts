@@ -1,4 +1,4 @@
-import { isRendered } from "../utils/is-rendered.ts";
+import { isRendered } from "../focus/is-rendered.ts";
 
 /**
  * The `contenteditable` state of the element itself. It is an enumerated

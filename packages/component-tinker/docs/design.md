@@ -78,7 +78,7 @@ function Control({
 
 export default tinker({
   component: "SegmentedControl",
-  source: "packages/ui/src/components/forms/segmented-control.tsx",
+  source: "packages/ui/src/forms/segmented-control.tsx",
   layers: {
     track: {
       base: {
@@ -172,7 +172,7 @@ The inspector shows, for each property, the condition that supplies its current 
 
 ## Token catalogue and property types
 
-The adapter compiles `packages/ui/src/tokens.stylex.ts`, `breakpoints.stylex.ts`, `primitives/*.stylex.ts`, and `components/surfaces/glass-surface.stylex.ts` with `@stylexjs/babel-plugin` (including `@tuja/babel-plugins/stylex-breakpoints` with `rootDir` = `packages/ui`, and `unstable_moduleResolution` rooted at the monorepo root), and emits the same CSS the app ships for those files. The plugin options themselves come from `@tuja/babel-plugins/stylex-options`, the one place both `apps/web/babel.config.js` and the adapter read them from, so the two builds cannot drift apart. The adapter loads Babel from `@stylexjs/babel-plugin`'s own dependencies, because that is the Babel `@stylexjs/postcss-plugin` runs to produce the app's shipped CSS, and the adapter must run that same Babel to reproduce it. A token reference resolves to `var(--...)` from that build, so light/dark, responsive font sizes, and `corner-shape` fallbacks behave exactly as in the app. Light/dark on the canvas is `color-scheme` on the cell frame, as in `apps/web/src/components/design-system/theme-frame.tsx`.
+The adapter compiles `packages/ui/src/tokens.stylex.ts`, `breakpoints.stylex.ts`, `primitives/*.stylex.ts`, and `surfaces/glass-surface.stylex.ts` with `@stylexjs/babel-plugin` (including `@tuja/babel-plugins/stylex-breakpoints` with `rootDir` = `packages/ui`, and `unstable_moduleResolution` rooted at the monorepo root), and emits the same CSS the app ships for those files. The plugin options themselves come from `@tuja/babel-plugins/stylex-options`, the one place both `apps/web/babel.config.js` and the adapter read them from, so the two builds cannot drift apart. The adapter loads Babel from `@stylexjs/babel-plugin`'s own dependencies, because that is the Babel `@stylexjs/postcss-plugin` runs to produce the app's shipped CSS, and the adapter must run that same Babel to reproduce it. A token reference resolves to `var(--...)` from that build, so light/dark, responsive font sizes, and `corner-shape` fallbacks behave exactly as in the app. Light/dark on the canvas is `color-scheme` on the cell frame, as in `apps/web/src/design-system/theme-frame.tsx`.
 
 Pickers offer, per property type:
 
@@ -230,7 +230,7 @@ Top bar button. Copies text; shows "Copied". If the clipboard API fails, opens a
 ```
 component-tinker v1
 component: SegmentedControl
-source: packages/ui/src/components/forms/segmented-control.tsx
+source: packages/ui/src/forms/segmented-control.tsx
 option[selected].backgroundColor: color.bgSurface -> color.bgSurfaceRaised
 track.borderColor: color.border -> color.bgNeutral
 option[sm].paddingInline: controlSize._2 -> controlSize._3

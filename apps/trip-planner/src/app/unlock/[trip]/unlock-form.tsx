@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { type UnlockState, unlockTrip } from "./unlock-trip";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shadcn/button";
 
 const initialState: UnlockState = {};
 

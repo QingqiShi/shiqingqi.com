@@ -70,19 +70,19 @@ describe("traceClientFiles", () => {
     const relativePaths = [...clientFiles].map((f) => path.relative(srcDir, f));
 
     expect(relativePaths).toContain(
-      "components/movie-database/media-type-toggle.tsx",
+      "movie-database/browse/filters/media-type-toggle.tsx",
     );
     expect(relativePaths).toContain(
-      "components/movie-database/genre-filter.tsx",
+      "movie-database/browse/filters/genre-filter.tsx",
     );
     expect(relativePaths).toContain(
-      "components/movie-database/genre-filter-button.tsx",
+      "movie-database/browse/filters/genre-filter-button.tsx",
     );
     expect(relativePaths).toContain(
-      "components/movie-database/sort-filter.tsx",
+      "movie-database/browse/filters/sort-filter.tsx",
     );
     expect(relativePaths).toContain(
-      "components/movie-database/reset-filter.tsx",
+      "movie-database/browse/filters/reset-filter.tsx",
     );
   });
 
@@ -94,14 +94,15 @@ describe("traceClientFiles", () => {
     const clientFiles = traceClientFiles(entryFile, srcDir);
     const relativePaths = [...clientFiles].map((f) => path.relative(srcDir, f));
 
-    // `media-list.tsx` reaches the table only through
-    // `dynamic(() => import("./media-table"))`. Its translations still belong
-    // in the page's client bundle, so the tracer has to walk that expression.
+    // `media-list.tsx` reaches the table only through a
+    // `dynamic(() => import(".../media-table.tsx"))` call. Its translations
+    // still belong in the page's client bundle, so the tracer has to walk that
+    // expression.
     expect(relativePaths).toContain(
-      "components/movie-database/media-table.tsx",
+      "movie-database/browse/table/media-table.tsx",
     );
     expect(relativePaths).toContain(
-      "components/movie-database/media-table-cells/media-table-header.tsx",
+      "movie-database/browse/table/media-table-header.tsx",
     );
   });
 
@@ -114,7 +115,7 @@ describe("traceClientFiles", () => {
     const relativePaths = [...clientFiles].map((f) => path.relative(srcDir, f));
 
     // Footer is a server component — should not appear
-    expect(relativePaths).not.toContain("components/home/footer.tsx");
+    expect(relativePaths).not.toContain("site-shell/footer.tsx");
   });
 
   it("finds zero client files for root layout (Header children don't use t())", () => {

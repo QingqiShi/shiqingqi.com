@@ -16,7 +16,7 @@ const projectRoot =
     ? path.resolve(values.root)
     : path.join(repoRoot, "apps", "web");
 const uiPackageDir = path.join(repoRoot, "packages", "ui");
-const uiComponentsDir = path.join(uiPackageDir, "src", "components");
+const uiSourceDir = path.join(uiPackageDir, "src");
 const outputDir = path.join(projectRoot, "src", "_generated", "props");
 
 function main(): void {
@@ -41,9 +41,9 @@ main();
 if (values.watch === true) {
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-  console.log("\nWatching for changes in packages/ui/src/components...");
+  console.log("\nWatching for changes in packages/ui/src...");
 
-  fs.watch(uiComponentsDir, { recursive: true }, (_event, filename) => {
+  fs.watch(uiSourceDir, { recursive: true }, (_event, filename) => {
     if (filename === null || !/\.tsx?$/.test(filename)) return;
 
     if (debounceTimer) clearTimeout(debounceTimer);

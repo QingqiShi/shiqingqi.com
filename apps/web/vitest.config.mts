@@ -34,12 +34,12 @@ export default defineConfig({
     }),
   ],
   test: {
-    environment: "./src/test-environment.ts",
+    environment: "./src/testing/test-environment.ts",
     globals: true,
-    setupFiles: ["./src/test-setup.ts"],
+    setupFiles: ["./src/testing/test-setup.ts"],
     include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     exclude: [
-      "src/ai-chat/eval/**/*.eval.ts",
+      "src/**/*.eval.ts",
       "**/node_modules/**",
       "**/dist/**",
       "**/.next/**",
@@ -58,7 +58,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "#src": path.resolve(__dirname, "./src"),
-      "server-only": path.resolve(__dirname, "./src/test-stubs/server-only.ts"),
+      "server-only": path.resolve(__dirname, "./src/testing/test-stubs/server-only.ts"),
     },
   },
 });

@@ -2,7 +2,7 @@
 
 Working source files (sprite sheets, design references) for the Pixel Creature
 Creator feature. **Nothing here is bundled by Next.js or imported by the app.**
-The shipped sprite PNGs live under `apps/web/src/components/pixel-creature-creator/`
+The shipped sprite PNGs live under `apps/web/src/pixel-creature-creator/`
 and are committed alongside their imports.
 
 ## Layout
@@ -22,7 +22,7 @@ variants/
 ## Extraction → shipped sprites
 
 `species/sheet-color.png` is the source of truth for the 16 PNGs in
-`apps/web/src/components/pixel-creature-creator/sprite/species/*.png`
+`apps/web/src/pixel-creature-creator/sprite/species/*.png`
 (42×42 each, transparent background). Extraction is currently manual — slice
 each cell, downsample, and clean up cream sheet-background pixels at the
 silhouette boundary.

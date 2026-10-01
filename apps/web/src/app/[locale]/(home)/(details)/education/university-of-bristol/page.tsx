@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { DetailPageTitle } from "#src/components/home/detail-page-title.tsx";
-import { Anchor } from "#src/components/shared/anchor.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { Anchor } from "#src/links/anchor.tsx";
+import { DetailPageTitle } from "#src/portfolio/detail-page-title.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

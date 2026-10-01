@@ -77,7 +77,7 @@ ${functionBody}
   const fileContent = `"use server";
 
 import "server-only";
-import { tmdbGet, type QueryParams } from "../utils/tmdb-get";
+import { tmdbGet, type QueryParams } from "#src/movie-database/tmdb/tmdb-get.ts";
 
 /**
  * Server functions for TMDB APIs - can be called from server components directly

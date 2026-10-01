@@ -1,8 +1,8 @@
 import { ImageResponse } from "next/og";
-import { FEATURED_CREATURES } from "#src/components/pixel-creature-creator/featured-creatures.ts";
-import { elements } from "#src/components/pixel-creature-creator/sprite/sprites/index.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
+import { FEATURED_CREATURES } from "#src/pixel-creature-creator/featured-creatures.ts";
+import { elements } from "#src/pixel-creature-creator/sprite/sprites/index.ts";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

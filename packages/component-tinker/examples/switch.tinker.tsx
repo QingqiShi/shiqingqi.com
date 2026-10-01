@@ -43,7 +43,7 @@ function Control({ size, value, hover, focus, disabled }: ControlProps) {
 
 export default tinker({
   component: "Switch",
-  source: "packages/ui/src/components/forms/switch.tsx",
+  source: "packages/ui/src/forms/switch.tsx",
   layers: {
     switch: {
       presets: ["buttonReset.base", "a11y.focusRing", "corner.radius_round"],

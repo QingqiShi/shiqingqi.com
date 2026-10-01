@@ -1,0 +1,87 @@
+import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
+import type { ReactNode } from "react";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import { render, screen, userEvent } from "#src/testing/test-utils.tsx";
+import { MediaFiltersProvider } from "./media-filters-provider";
+import { MediaTypeToggle } from "./media-type-toggle";
+import { MediaViewToggle } from "./media-view-toggle";
+
+// jsdom gap: the provider's scroll-to-top path calls window.scrollTo.
+beforeAll(() => {
+  window.scrollTo = vi.fn();
+});
+
+function Harness({ children }: { children: ReactNode }) {
+  return (
+    <PathnameContext value="/movie-database">
+      <MediaFiltersProvider>{children}</MediaFiltersProvider>
+    </PathnameContext>
+  );
+}
+
+function getGridButton() {
+  return screen.getByRole("radio", { name: "Poster grid" });
+}
+
+function getTableButton() {
+  return screen.getByRole("radio", { name: "Table" });
+}
+
+describe("MediaViewToggle", () => {
+  it("marks the poster grid active by default", () => {
+    render(
+      <Harness>
+        <MediaViewToggle />
+      </Harness>,
+    );
+
+    expect(getGridButton()).toHaveAttribute("aria-checked", "true");
+    expect(getTableButton()).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("switches to the table view when the user picks it", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness>
+        <MediaViewToggle />
+      </Harness>,
+    );
+
+    await user.click(getTableButton());
+
+    expect(getTableButton()).toHaveAttribute("aria-checked", "true");
+    expect(getGridButton()).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("honors the URL's view param on first paint", () => {
+    window.history.replaceState({}, "", "?view=table");
+
+    render(
+      <Harness>
+        <MediaViewToggle />
+      </Harness>,
+    );
+
+    expect(getTableButton()).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("keeps the view in the URL as other filters change", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness>
+        <MediaViewToggle />
+        <MediaTypeToggle />
+      </Harness>,
+    );
+
+    await user.click(getTableButton());
+    // Switching media type clears every filter, but the layout choice is not
+    // one — losing it here would bounce the user back to the poster grid.
+    await user.click(screen.getByRole("radio", { name: /TV Shows/ }));
+
+    expect(getTableButton()).toHaveAttribute("aria-checked", "true");
+    // The provider commits via `window.history.replaceState`, which jsdom
+    // reflects on `window.location`.
+    expect(window.location.search).toBe("?type=tv&view=table");
+  });
+});

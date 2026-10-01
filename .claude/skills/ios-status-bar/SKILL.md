@@ -54,13 +54,13 @@ it again if the header height or the bar's inset changes.
 - `viewportAnchor.fixed` and `viewportFill.absolute` in
   `packages/ui/src/primitives/layout.stylex.ts`. The anchor is the 0 x 0 fixed
   box, the fill is the absolute `100vw` / `100dvh` child.
-- `apps/web/src/components/shared/portal-target-provider.tsx`. The page's portal
+- `apps/web/src/site-shell/portal-target-provider.tsx`. The page's portal
   target is that anchor. It used to be a fixed full-viewport box, and any
   portalled overlay, open or closed, flattened the status bar until reload.
-- `packages/ui/src/components/surfaces/progressive-blur.tsx`. Every blur
+- `packages/ui/src/surfaces/progressive-blur.tsx`. Every blur
   wrapper is a 0 x 0 fixed box (`reachLayers`) whose layers read their size
   from a custom property, so the box on the Blur plane never grows.
-- `packages/ui/src/components/shells/header-controls.tsx`. The header floats
+- `packages/ui/src/shells/header-controls.tsx`. The header floats
   two narrow control groups instead of one bar across the top.
 - `findStatusBarCandidates` in `apps/web/e2e/media-detail-pages.spec.ts` is the
   executable guard. It walks every fixed and sticky box that covers the

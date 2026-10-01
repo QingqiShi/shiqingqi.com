@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useRef, type RefObject } from "react";
-import { getTabbableElements } from "../utils/get-tabbable-elements.ts";
+import { getTabbableElements } from "../focus/get-tabbable-elements.ts";
 
 /**
  * Manages focus lifecycle for modal dialogs:

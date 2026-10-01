@@ -1,6 +1,6 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import "server-only";
-import { getRedisClient } from "#src/session-store/get-redis-client.ts";
+import { getRedisClient } from "#src/redis/get-redis-client.ts";
 
 let cached: Ratelimit | null = null;
 

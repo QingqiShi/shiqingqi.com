@@ -3,15 +3,15 @@ import { color, font, space } from "@tuja/ui/tokens.stylex";
 import {
   OverviewBrowser,
   type OverviewEntry,
-} from "#src/components/design-system/overview-browser.tsx";
-import { OverviewTile } from "#src/components/design-system/overview-tile.tsx";
-import { getDesignSystemGroupLabels } from "#src/components/design-system/route-copy/get-design-system-group-labels.ts";
-import { getDesignSystemRouteDescriptions } from "#src/components/design-system/route-copy/get-design-system-route-descriptions.ts";
-import { getDesignSystemRouteLabels } from "#src/components/design-system/route-copy/get-design-system-route-labels.ts";
-import { DESIGN_SYSTEM_ROUTES } from "#src/components/design-system/routes/design-system-routes.ts";
+} from "#src/design-system/overview-browser.tsx";
+import { OverviewTile } from "#src/design-system/overview-tile.tsx";
+import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteDescriptions } from "#src/design-system/route-copy/get-design-system-route-descriptions.ts";
+import { getDesignSystemRouteLabels } from "#src/design-system/route-copy/get-design-system-route-labels.ts";
+import { DESIGN_SYSTEM_ROUTES } from "#src/design-system/routes/design-system-routes.ts";
+import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
-import { getLocalePath } from "#src/utils/get-locale-path.ts";
 
 export default function DesignSystemOverview() {
   const locale = getLocale();

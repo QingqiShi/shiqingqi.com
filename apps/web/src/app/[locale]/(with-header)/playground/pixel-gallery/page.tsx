@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { PixelGallery } from "#src/components/pixel-creature-creator/pixel-gallery.tsx";
 import { t } from "#src/i18n.ts";
+import { PixelGallery } from "#src/pixel-creature-creator/pixel-gallery.tsx";
 
 // Unlinked playground route — keep crawlers and AI scrapers out.
 export function generateMetadata(): Metadata {

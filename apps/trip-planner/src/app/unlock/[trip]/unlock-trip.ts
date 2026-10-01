@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { GATE_COOKIE_MAX_AGE, gateToken, tripGate } from "@/lib/trip-gate";
+import { GATE_COOKIE_MAX_AGE, gateToken, tripGate } from "@/trip-gate";
 
 export interface UnlockState {
   error?: string;

@@ -1,4 +1,4 @@
-import { NotFoundScreen } from "#src/components/shared/not-found-screen.tsx";
+import { NotFoundScreen } from "#src/site-shell/not-found-screen.tsx";
 
 /**
  * The 404 for a `notFound()` thrown while rendering a page under `[locale]` —

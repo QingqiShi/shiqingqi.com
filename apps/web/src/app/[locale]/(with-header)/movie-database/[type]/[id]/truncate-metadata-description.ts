@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "#src/types.ts";
+import type { SupportedLocale } from "#src/i18n/types.ts";
 
 const ELLIPSIS = "…";
 

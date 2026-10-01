@@ -1,0 +1,42 @@
+import { getToolName, isToolUIPart, type UIMessage } from "ai";
+import { useEffect, useRef } from "react";
+import { savePreferenceInputSchema } from "#src/movie-database/chat/tools/save-preference-tool.ts";
+import { mergePreferences } from "./merge-preferences";
+
+/**
+ * Observes chat messages for `save_preference` tool calls and persists
+ * detected preferences to IndexedDB. Each tool call ID is processed at most
+ * once.
+ */
+export function usePreferencePersistence(
+  messages: ReadonlyArray<UIMessage>,
+): void {
+  const processedRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    const processed = processedRef.current;
+
+    for (const message of messages) {
+      if (message.role !== "assistant") continue;
+
+      for (const part of message.parts) {
+        if (!isToolUIPart(part)) continue;
+        if (getToolName(part) !== "save_preference") continue;
+        if (part.state !== "output-available") continue;
+        if (processed.has(part.toolCallId)) continue;
+
+        processed.add(part.toolCallId);
+
+        const parsed = savePreferenceInputSchema.safeParse(part.input);
+        if (!parsed.success) continue;
+
+        // `mergePreferences` refreshes the shared store cache and notifies
+        // `usePreferences` subscribers once the transaction completes, so
+        // `PreferenceTrigger` / `PreferencePanel` update in place.
+        mergePreferences(parsed.data.preferences).catch(() => {
+          // IndexedDB write failed — preference is lost but non-critical
+        });
+      }
+    }
+  }, [messages]);
+}

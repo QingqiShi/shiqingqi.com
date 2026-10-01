@@ -1,0 +1,93 @@
+import * as stylex from "@stylexjs/stylex";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Skeleton } from "@tuja/ui/components/skeleton";
+import { layout, ratio, space } from "@tuja/ui/tokens.stylex";
+import { Suspense } from "react";
+import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
+import type { SupportedLocale } from "#src/i18n/types.ts";
+import { t } from "#src/i18n.ts";
+import { Grid } from "#src/movie-database/grid.tsx";
+import { noop } from "#src/movie-database/noop.ts";
+import { getQueryClient } from "#src/movie-database/tmdb/get-query-client.ts";
+import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
+import { similarMediaQuery } from "#src/movie-database/tmdb/queries/similar-media-query.ts";
+import { SimilarMediaList } from "./similar-media-list";
+
+const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
+  key: `skeleton-${String(i)}`,
+  delay: i * 100,
+}));
+
+interface SimilarMediaProps {
+  mediaId: string;
+  mediaType: "movie" | "tv";
+  locale: SupportedLocale;
+}
+
+export function SimilarMedia({
+  mediaId,
+  mediaType,
+  locale,
+}: SimilarMediaProps) {
+  const queryClient = getQueryClient();
+
+  queryClient.query(configurationQuery(tmdbServerFunctions)).catch(noop);
+  queryClient
+    .infiniteQuery(
+      similarMediaQuery(
+        { type: mediaType, id: mediaId, page: 1, language: locale },
+        tmdbServerFunctions,
+      ),
+    )
+    .catch(noop);
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div css={styles.container}>
+        <h2 css={styles.heading}>{t({ en: "Similar", zh: "类似" })}</h2>
+      </div>
+      <Suspense
+        fallback={
+          <Grid>
+            {SKELETON_ITEMS.map((item) => (
+              <Skeleton
+                key={item.key}
+                css={styles.skeleton}
+                delay={item.delay}
+              />
+            ))}
+          </Grid>
+        }
+      >
+        <SimilarMediaList
+          mediaId={mediaId}
+          mediaType={mediaType}
+          locale={locale}
+          initialPage={1}
+          notFoundLabel={t({
+            en: "No similar content found",
+            zh: "没找到类似内容",
+          })}
+        />
+      </Suspense>
+    </HydrationBoundary>
+  );
+}
+
+const styles = stylex.create({
+  container: {
+    maxInlineSize: layout.maxInlineSize,
+    marginBlock: 0,
+    marginInline: "auto",
+    paddingBlock: 0,
+    paddingLeft: `env(safe-area-inset-left)`,
+    paddingRight: `env(safe-area-inset-right)`,
+  },
+  heading: {
+    paddingInline: space._3,
+  },
+  skeleton: {
+    aspectRatio: ratio.poster,
+    width: "100%",
+  },
+});

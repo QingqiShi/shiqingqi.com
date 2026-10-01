@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { use } from "react";
 import { I18nContext } from "#src/i18n/i18n-context.ts";
-import { parseMessage } from "#src/utils/parse-message.tsx";
+import { parseMessage } from "./parse-message.tsx";
 
 // The Babel plugin replaces t() calls with these hooks inline
 // within component render, so the rules-of-hooks are satisfied.

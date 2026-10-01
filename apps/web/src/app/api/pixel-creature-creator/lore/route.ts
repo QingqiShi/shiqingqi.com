@@ -1,13 +1,13 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { getAnthropicModel } from "#src/ai-chat/get-anthropic-model.ts";
-import { generateCreatureLore } from "#src/components/pixel-creature-creator/lore/generate-creature-lore.ts";
-import type { LoreOutput } from "#src/components/pixel-creature-creator/lore/lore-output-schema.ts";
+import { getAnthropicModel } from "#src/anthropic/get-anthropic-model.ts";
+import type { SupportedLocale } from "#src/i18n/types.ts";
 import {
   creatureDefSchema,
   type CreatureDef,
-} from "#src/components/pixel-creature-creator/state/creature-def-schema.ts";
-import type { SupportedLocale } from "#src/types.ts";
+} from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
+import { generateCreatureLore } from "#src/pixel-creature-creator/lore/generate-creature-lore.ts";
+import type { LoreOutput } from "#src/pixel-creature-creator/lore/lore-output-schema.ts";
 import {
   limitLoreRequest,
   type LoreRateLimitResult,

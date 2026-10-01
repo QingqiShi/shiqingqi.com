@@ -3,9 +3,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
 import { describe, expect, it } from "vitest";
+import { hexChannels } from "./contrast/hex-channels.ts";
 import { apcaContrast } from "./test-support/apca-contrast.ts";
 import { color } from "./tokens.stylex.ts";
-import { hexChannels } from "./utils/hex-channels.ts";
 
 // Guards the text ladder against the two ways it can rot: a level drifting
 // under its APCA floor on a surface it lands on, and the two levels drifting

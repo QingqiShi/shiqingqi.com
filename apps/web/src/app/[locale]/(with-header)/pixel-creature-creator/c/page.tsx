@@ -2,11 +2,11 @@
 // action row beneath it; the heavy lifting lives in the client component.
 
 import type { Metadata } from "next";
-import { ReviewScreen } from "#src/components/pixel-creature-creator/review/review-screen.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { ReviewScreen } from "#src/pixel-creature-creator/review/review-screen.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

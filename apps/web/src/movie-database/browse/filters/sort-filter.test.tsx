@@ -1,0 +1,110 @@
+import { PathnameContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
+import type { ReactNode } from "react";
+import { describe, expect, it } from "vitest";
+import { render, screen, userEvent } from "#src/testing/test-utils.tsx";
+import { MediaFiltersProvider } from "./media-filters-provider";
+import { SortFilter } from "./sort-filter";
+
+function Harness({ children }: { children: ReactNode }) {
+  return (
+    <PathnameContext value="/movie-database">
+      <MediaFiltersProvider>{children}</MediaFiltersProvider>
+    </PathnameContext>
+  );
+}
+
+function getPopularityButton() {
+  return screen.getByRole("radio", { name: /Popularity/ });
+}
+
+function getRatingButton() {
+  return screen.getByRole("radio", { name: /Rating/ });
+}
+
+describe("SortFilter accessible-name direction semantics", () => {
+  it("labels the default active Popularity segment as descending with a prompt to flip", () => {
+    render(
+      <Harness>
+        <SortFilter />
+      </Harness>,
+    );
+
+    expect(getPopularityButton()).toHaveAccessibleName(
+      "Popularity, descending. Activate to sort ascending.",
+    );
+  });
+
+  it("labels the inactive Rating segment without a direction clause", () => {
+    render(
+      <Harness>
+        <SortFilter />
+      </Harness>,
+    );
+
+    expect(getRatingButton()).toHaveAccessibleName("Rating");
+  });
+
+  it("flips to an ascending clause after clicking the active Popularity segment", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness>
+        <SortFilter />
+      </Harness>,
+    );
+
+    await user.click(getPopularityButton());
+
+    expect(getPopularityButton()).toHaveAccessibleName(
+      "Popularity, ascending. Activate to sort descending.",
+    );
+  });
+
+  it("activates Rating in descending mode when switching sort fields", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness>
+        <SortFilter />
+      </Harness>,
+    );
+
+    await user.click(getRatingButton());
+
+    expect(getRatingButton()).toHaveAccessibleName(
+      "Rating, descending. Activate to sort ascending.",
+    );
+    // Popularity reverts to its plain name once Rating takes over.
+    expect(getPopularityButton()).toHaveAccessibleName("Popularity");
+  });
+
+  it("shows the direction arrow in the selected segment's icon spot only, and swaps it on flip", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness>
+        <SortFilter />
+      </Harness>,
+    );
+
+    const popularity = getPopularityButton();
+    const rating = getRatingButton();
+
+    const descendingArrow = popularity.querySelector("svg");
+    expect(descendingArrow).toBeInTheDocument();
+    expect(descendingArrow?.closest("[aria-hidden]")?.className).toContain(
+      "selectedIconSpotShown",
+    );
+    // Rating carries the same icon markup, but its spot stays closed while
+    // Popularity is the selected segment.
+    expect(rating.querySelector("svg")).toBeInTheDocument();
+    expect(
+      rating.querySelector("svg")?.closest("[aria-hidden]")?.className,
+    ).not.toContain("selectedIconSpotShown");
+
+    await user.click(popularity);
+
+    const ascendingArrow = popularity.querySelector("svg");
+    expect(ascendingArrow?.outerHTML).not.toBe(descendingArrow?.outerHTML);
+    expect(ascendingArrow?.closest("[aria-hidden]")?.className).toContain(
+      "selectedIconSpotShown",
+    );
+  });
+});

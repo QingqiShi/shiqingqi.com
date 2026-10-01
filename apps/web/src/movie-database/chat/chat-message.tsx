@@ -1,0 +1,315 @@
+"use client";
+
+import * as stylex from "@stylexjs/stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import {
+  border,
+  color,
+  constants,
+  font,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
+import {
+  getToolName,
+  isReasoningUIPart,
+  isTextUIPart,
+  isToolUIPart,
+  type TextUIPart,
+  type UIMessage,
+} from "ai";
+import { useState } from "react";
+import type { ToolOutputMaps } from "#src/movie-database/chat/tool-output/accumulate-tool-outputs.ts";
+import { ToolActivityGroup } from "#src/movie-database/chat/tool-output/tool-activity-group.tsx";
+import { ToolVisualOutput } from "#src/movie-database/chat/tool-output/tool-visual-output.tsx";
+import { CompactionNotice } from "./compaction-notice";
+import { SmoothedMarkdownContent } from "./smoothed-markdown-content";
+
+interface ChatMessageProps {
+  message: UIMessage;
+  isStreaming?: boolean;
+  isLastAssistantMessage?: boolean;
+  toolOutputs: ToolOutputMaps;
+}
+
+export function ChatMessage({
+  message,
+  isStreaming = false,
+  isLastAssistantMessage = false,
+  toolOutputs,
+}: ChatMessageProps) {
+  const isUser = message.role === "user";
+  const [releasedTextParts, setReleasedTextParts] = useState(1);
+
+  const {
+    toolParts,
+    hasVisibleContent,
+    firstToolIndex,
+    partKeys,
+    textPartCount,
+    textPartTrailingBuffers,
+  } = deriveMessageData(message.parts, message.role);
+
+  if (!hasVisibleContent) return null;
+
+  let textPartIndex = 0;
+
+  return (
+    <div
+      css={[
+        styles.bubble,
+        corner.radius_3,
+        isUser ? styles.userBubble : styles.assistantBubble,
+      ]}
+    >
+      {message.parts.map((part, index) => {
+        const key = partKeys[index];
+        if (isTextUIPart(part)) {
+          const currentTextIndex = textPartIndex++;
+          if (isUser) {
+            const visibleText = stripUserScaffolding(part.text);
+            // The prefs context (`[User Preferences]…`) is sometimes
+            // pushed as a whole part on its own, so it can vanish entirely
+            // after stripping — don't render an empty bubble line.
+            if (visibleText.length === 0) return null;
+            return (
+              <p key={key} css={[styles.partBase, styles.text]}>
+                {visibleText}
+              </p>
+            );
+          }
+
+          // During streaming, queue text parts so each waits for the
+          // previous one's animation to finish before appearing.
+          if (isStreaming && currentTextIndex >= releasedTextParts) return null;
+
+          if (isCompactionPart(part)) {
+            return (
+              <div key={key} css={styles.partBase}>
+                <CompactionNotice />
+              </div>
+            );
+          }
+
+          const isActiveTextPart =
+            isStreaming && currentTextIndex === releasedTextParts - 1;
+          // Won't receive more content — safe to fire onCaughtUp
+          const isSealed = !isStreaming || currentTextIndex < textPartCount - 1;
+          return (
+            <div key={key} css={styles.partBase}>
+              <SmoothedMarkdownContent
+                content={part.text}
+                onCaughtUp={
+                  isActiveTextPart
+                    ? () => {
+                        setReleasedTextParts((prev) => prev + 1);
+                      }
+                    : undefined
+                }
+                sealed={isSealed}
+                startRevealed={!isStreaming}
+                trailingBufferHint={
+                  isStreaming
+                    ? textPartTrailingBuffers[currentTextIndex]
+                    : undefined
+                }
+              />
+            </div>
+          );
+        }
+
+        if (isReasoningUIPart(part)) {
+          return (
+            <p key={key} css={[styles.partBase, styles.reasoning]}>
+              {part.text}
+            </p>
+          );
+        }
+
+        if (isToolUIPart(part)) {
+          const toolName = getToolName(part);
+          const isFirstTool = index === firstToolIndex;
+          const hasVisualOutput =
+            toolName === "present_media" ||
+            toolName === "present_watch_providers" ||
+            toolName === "present_provider_regions" ||
+            toolName === "present_person" ||
+            toolName === "review_summary";
+
+          if (!isFirstTool && !hasVisualOutput) return null;
+
+          const toolInput = "input" in part ? part.input : undefined;
+          const toolOutput = "output" in part ? part.output : undefined;
+          return (
+            <div key={key}>
+              {isFirstTool && (
+                <ToolActivityGroup
+                  toolParts={toolParts}
+                  isStreaming={isStreaming}
+                />
+              )}
+              {hasVisualOutput && (
+                <ToolVisualOutput
+                  toolName={toolName}
+                  state={part.state}
+                  input={toolInput}
+                  output={toolOutput}
+                  searchResultsMap={toolOutputs.searchResultsMap}
+                  personResultsMap={toolOutputs.personResultsMap}
+                  watchProvidersMap={toolOutputs.watchProvidersMap}
+                  isLastAssistantMessage={isLastAssistantMessage}
+                />
+              )}
+            </div>
+          );
+        }
+
+        // step-start, source-url, source-document, file, data — intentionally invisible
+        return null;
+      })}
+    </div>
+  );
+}
+
+const ATTACHED_MEDIA_PREFIX = /^\[About: .+ \((?:movie|tv)(?:, id:\d+)?\)] /;
+// The transport prepends `[User Preferences]\nLikes: …\nDislikes: …` to the
+// first user message of a fresh session so the assistant can personalise
+// its first reply. The block is internal scaffolding; users never typed it.
+// The trailing `\n?` covers the (currently unused) shape where the prefs
+// would sit inline with the user's text in a single part.
+const USER_PREFERENCES_PREFIX =
+  /^\[User Preferences\](?:\n(?:Likes|Dislikes): [^\n]*)+\n?/;
+
+function stripUserScaffolding(text: string): string {
+  return text
+    .replace(USER_PREFERENCES_PREFIX, "")
+    .replace(ATTACHED_MEDIA_PREFIX, "");
+}
+
+function isCompactionPart(part: TextUIPart): boolean {
+  return part.providerMetadata?.anthropic.type === "compaction";
+}
+
+export function deriveMessageData(
+  parts: UIMessage["parts"],
+  role?: UIMessage["role"],
+) {
+  const toolParts: Array<{
+    toolCallId: string;
+    toolName: string;
+    state: string;
+    input: unknown;
+    output: unknown;
+  }> = [];
+  let hasVisibleContent = false;
+  let firstToolIndex = -1;
+  let textPartCount = 0;
+  const textPartLengths: number[] = [];
+  const partKeys: string[] = [];
+  const typeCounts = new Map<string, number>();
+
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+
+    // Generate a stable key for each part
+    if (isToolUIPart(part)) {
+      partKeys.push(`tool-${part.toolCallId}`);
+    } else {
+      const typeKey = part.type;
+      const count = typeCounts.get(typeKey) ?? 0;
+      typeCounts.set(typeKey, count + 1);
+      partKeys.push(`${typeKey}-${String(count)}`);
+    }
+
+    if (isToolUIPart(part)) {
+      const name = getToolName(part);
+      if (firstToolIndex === -1) firstToolIndex = i;
+      toolParts.push({
+        toolCallId: part.toolCallId,
+        toolName: name,
+        state: part.state,
+        input: "input" in part ? part.input : undefined,
+        output: "output" in part ? part.output : undefined,
+      });
+      hasVisibleContent = true;
+    } else {
+      if (isTextUIPart(part)) {
+        textPartCount++;
+        textPartLengths.push(part.text.length);
+        if (!hasVisibleContent) {
+          // For user messages, a part that is purely transport scaffolding
+          // contributes nothing visible after stripping — don't let it keep
+          // an otherwise-empty bubble alive.
+          const visibleLength =
+            role === "user"
+              ? stripUserScaffolding(part.text).length
+              : part.text.length;
+          if (visibleLength > 0) hasVisibleContent = true;
+        }
+      } else if (!hasVisibleContent && isReasoningUIPart(part)) {
+        hasVisibleContent = true;
+      }
+    }
+  }
+
+  const textPartTrailingBuffers: number[] = [];
+  let trailingSum = 0;
+  for (let i = textPartLengths.length - 1; i >= 0; i--) {
+    textPartTrailingBuffers[i] = trailingSum;
+    trailingSum += textPartLengths[i];
+  }
+
+  return {
+    toolParts,
+    hasVisibleContent,
+    firstToolIndex,
+    partKeys,
+    textPartCount,
+    textPartTrailingBuffers,
+  };
+}
+
+const styles = stylex.create({
+  bubble: {
+    maxWidth: "100%",
+    paddingBlock: space._2,
+    paddingInline: space._3,
+  },
+  userBubble: {
+    marginLeft: "auto",
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
+    borderBottomRightRadius: border.radius_1,
+    cornerBottomRightShape: "squircle",
+  },
+  assistantBubble: {
+    marginRight: "auto",
+    backgroundColor: {
+      default: color.bgSurface,
+      [constants.DARK]: `color-mix(in srgb, ${color.bgSurfaceFade} 60%, transparent)`,
+    },
+    backdropFilter: "blur(12px)",
+    boxShadow: {
+      default: shadow._1,
+      [constants.DARK]: "none",
+    },
+    color: color.fg,
+    borderBottomLeftRadius: border.radius_1,
+    cornerBottomLeftShape: "squircle",
+  },
+  partBase: {
+    margin: 0,
+    wordBreak: "break-word",
+    lineHeight: font.lineHeight_4,
+    fontSize: font.uiBody,
+  },
+  text: {
+    whiteSpace: "pre-wrap",
+  },
+  reasoning: {
+    whiteSpace: "pre-wrap",
+    fontSize: font.uiBodySmall,
+    color: color.fgMuted,
+    fontStyle: "italic",
+  },
+});

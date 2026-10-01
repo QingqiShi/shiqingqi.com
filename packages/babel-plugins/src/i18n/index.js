@@ -282,7 +282,7 @@ function injectSetLocaleForPages(t, path, state, projectRoot) {
             t.identifier("validateLocale"),
           ),
         ],
-        t.stringLiteral("#src/utils/validate-locale.ts"),
+        t.stringLiteral("#src/i18n/validate-locale.ts"),
       ),
     );
   }

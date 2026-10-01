@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { globalStyles } from "#src/app/global-styles.ts";
-import { InlineScript } from "#src/components/shared/inline-script.tsx";
-import { NotFoundScreen } from "#src/components/shared/not-found-screen.tsx";
+import { i18nConfig } from "#src/i18n/i18n-config.ts";
 import { setLocale } from "#src/i18n/server-locale.ts";
-import { i18nConfig } from "#src/i18n-config.ts";
-import { themeHack } from "#src/utils/theme-hack.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
+import { InlineScript } from "#src/site-shell/inline-script.tsx";
+import { NotFoundScreen } from "#src/site-shell/not-found-screen.tsx";
+import { globalStyles } from "#src/theme/global-styles.ts";
+import { themeHack } from "#src/theme/theme-hack.ts";
 
 /**
  * The Locale this screen commits to.

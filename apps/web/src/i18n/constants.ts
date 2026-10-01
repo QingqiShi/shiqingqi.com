@@ -1,0 +1,2 @@
+export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
+export const LOCALE_COOKIE_MAX_AGE_SECONDS = 31536000; // 1 year

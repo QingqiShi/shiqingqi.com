@@ -3,13 +3,13 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FeaturedRow } from "#src/components/pixel-creature-creator/landing/featured-row.tsx";
-import { YourCreations } from "#src/components/pixel-creature-creator/landing/your-creations.tsx";
+import { brand } from "#src/brand/brand.stylex.ts";
 import { BASE_URL } from "#src/constants.ts";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import { brand } from "#src/logos/brand.stylex.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { FeaturedRow } from "#src/pixel-creature-creator/landing/featured-row.tsx";
+import { YourCreations } from "#src/pixel-creature-creator/landing/your-creations.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

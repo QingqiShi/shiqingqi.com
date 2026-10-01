@@ -1,17 +1,17 @@
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { globalStyles } from "#src/app/global-styles.ts";
-import { ReactGrab } from "#src/components/react-grab.tsx";
-import { SerwistProvider } from "#src/components/serwist-provider.tsx";
-import { InlineScript } from "#src/components/shared/inline-script.tsx";
-import { PortalTargetProvider } from "#src/components/shared/portal-target-provider.tsx";
-import { PostHogInit } from "#src/components/shared/posthog-init.tsx";
-import { BackOverrideProvider } from "#src/contexts/back-override-provider.tsx";
+import { PostHogInit } from "#src/analytics/posthog-init.tsx";
 import { I18nProvider } from "#src/i18n/i18n-provider.tsx";
 import { setLocale } from "#src/i18n/server-locale.ts";
-import { themeHack } from "#src/utils/theme-hack.ts";
-import { isValidLocale } from "#src/utils/validate-locale.ts";
+import { isValidLocale } from "#src/i18n/validate-locale.ts";
+import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
+import { BackOverrideProvider } from "#src/site-shell/back-override-provider.tsx";
+import { InlineScript } from "#src/site-shell/inline-script.tsx";
+import { PortalTargetProvider } from "#src/site-shell/portal-target-provider.tsx";
+import { ReactGrab } from "#src/site-shell/react-grab.tsx";
+import { globalStyles } from "#src/theme/global-styles.ts";
+import { themeHack } from "#src/theme/theme-hack.ts";
 
 export const viewport: Viewport = {
   width: "device-width",

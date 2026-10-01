@@ -6,11 +6,11 @@ import {
 } from "ai";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import { chat } from "#src/ai-chat/chat.ts";
-import { sessionChatInputSchema } from "#src/ai-chat/session-chat-input-schema.ts";
-import { generateSessionId } from "#src/session-store/generate-session-id.ts";
-import { getSessionMessages } from "#src/session-store/get-session-messages.ts";
-import { saveSessionMessages } from "#src/session-store/save-session-messages.ts";
+import { chat } from "#src/movie-database/chat/chat.ts";
+import { generateSessionId } from "#src/movie-database/chat/session/generate-session-id.ts";
+import { getSessionMessages } from "#src/movie-database/chat/session/get-session-messages.ts";
+import { saveSessionMessages } from "#src/movie-database/chat/session/save-session-messages.ts";
+import { sessionChatInputSchema } from "#src/movie-database/chat/session-chat-input-schema.ts";
 import { buildChatMessageMetadata } from "./build-chat-message-metadata";
 
 export async function POST(request: NextRequest) {

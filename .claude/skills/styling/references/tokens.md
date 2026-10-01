@@ -137,13 +137,13 @@ takes `bg<Intent>`; a ring or outline takes `border<Intent>`.
 | `color.borderMaterialGlassHighlight` | The light on that rim               |
 
 `glassTokens` (`fill`, `border`, `highlight`, `blur`) in
-`packages/ui/src/components/surfaces/glass-surface.stylex.ts` is Glass's own
+`packages/ui/src/surfaces/glass-surface.stylex.ts` is Glass's own
 dial and defaults to these three.
 
 ### Component Colors
 
 A color only one component reads ships with that component, not in `color`:
-`syntax` in `packages/ui/src/components/content/syntax.stylex.ts`.
+`syntax` in `packages/ui/src/content/syntax.stylex.ts`.
 
 ### Translucency
 

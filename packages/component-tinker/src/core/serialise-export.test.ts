@@ -7,7 +7,7 @@ import type { TinkerConfig } from "./types.ts";
 function makeConfig(): TinkerConfig {
   return {
     component: "SegmentedControl",
-    source: "packages/ui/src/components/forms/segmented-control.tsx",
+    source: "packages/ui/src/forms/segmented-control.tsx",
     layers: {
       track: {
         base: { borderColor: "color.border" },
@@ -77,7 +77,7 @@ describe("serialiseExport", () => {
       [
         "component-tinker v1",
         "component: SegmentedControl",
-        "source: packages/ui/src/components/forms/segmented-control.tsx",
+        "source: packages/ui/src/forms/segmented-control.tsx",
         "track.borderColor: color.border -> color.bgNeutral",
         "option[sm].paddingInline: controlSize._2 -> controlSize._3",
         "option[hover].backgroundColor: (unset) -> color.bgControlHover",
@@ -105,7 +105,7 @@ describe("serialiseExport", () => {
       [
         "component-tinker v1",
         "component: SegmentedControl",
-        "source: packages/ui/src/components/forms/segmented-control.tsx",
+        "source: packages/ui/src/forms/segmented-control.tsx",
         "track.glass: none -> color.bgMaterialGlass 100% color.borderMaterialGlass 100% color.borderMaterialGlassHighlight 100% radius off",
         "",
       ].join("\n"),
@@ -120,7 +120,7 @@ describe("serialiseExport", () => {
       [
         "component-tinker v1",
         "component: SegmentedControl",
-        "source: packages/ui/src/components/forms/segmented-control.tsx",
+        "source: packages/ui/src/forms/segmented-control.tsx",
         "",
       ].join("\n"),
     );
@@ -137,7 +137,7 @@ describe("serialiseExport", () => {
       [
         "component-tinker v1",
         "component: SegmentedControl",
-        "source: packages/ui/src/components/forms/segmented-control.tsx",
+        "source: packages/ui/src/forms/segmented-control.tsx",
         "",
       ].join("\n"),
     );

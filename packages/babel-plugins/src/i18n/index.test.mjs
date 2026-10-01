@@ -656,7 +656,7 @@ export default function Page() {
       expect(output).toContain("__setLocale");
       expect(output).toContain("__validateLocale");
       expect(output).toContain("#src/i18n/server-locale.ts");
-      expect(output).toContain("#src/utils/validate-locale.ts");
+      expect(output).toContain("#src/i18n/validate-locale.ts");
       // Function should be made async
       expect(output).toMatch(/async function Page/);
       // Should have params extraction

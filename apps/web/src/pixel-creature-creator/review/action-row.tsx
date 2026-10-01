@@ -1,0 +1,622 @@
+"use client";
+
+import * as stylex from "@stylexjs/stylex";
+import { Textarea } from "@tuja/ui/components/textarea";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
+import {
+  border,
+  color,
+  font,
+  layer,
+  opacity,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
+import { downloadBlob } from "#src/browser/download-blob.ts";
+import { useLocale } from "#src/i18n/use-locale.ts";
+import { t } from "#src/i18n.ts";
+import type {
+  CreatureDef,
+  Emotion,
+} from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
+import { encodeCreature } from "#src/pixel-creature-creator/creature/encode-creature.ts";
+import { isCreatureSaved } from "#src/pixel-creature-creator/creature/is-creature-saved.ts";
+import { notifySavedCreaturesChanged } from "#src/pixel-creature-creator/creature/notify-saved-creatures-changed.ts";
+import { saveCreature } from "#src/pixel-creature-creator/creature/saved-creatures/save-creature.ts";
+import { subscribeSavedCreatures } from "#src/pixel-creature-creator/creature/subscribe-saved-creatures.ts";
+import { randomCreature } from "#src/pixel-creature-creator/wizard/random-creature.ts";
+import type { LoreData } from "./creature-card";
+import { exportCardPng } from "./export-card-png";
+import { exportSpritePng } from "./export-sprite-png";
+import { slugifyName } from "./slugify-name";
+
+interface ActionRowProps {
+  def: CreatureDef;
+  emotion: Emotion;
+  lore: LoreData | null;
+  onLoreChange: (lore: LoreData | null) => void;
+  encodedHash: string;
+}
+
+interface EphemeralState {
+  kind: "copied" | "error";
+  message: string;
+}
+
+const EPHEMERAL_TIMEOUT_MS = 2000;
+
+interface ActionLabels {
+  conjure: string;
+  reroll: string;
+  conjuring: string;
+  copy: string;
+  download: string;
+  downloadSprite: string;
+  downloadCard: string;
+  save: string;
+  saved: string;
+  shuffle: string;
+  edit: string;
+  copied: string;
+  copyFailed: string;
+  exportFailed: string;
+  loreError: string;
+  rateLimited: string;
+  manualLabel: string;
+  manualPlaceholder: string;
+  manualSubmit: string;
+}
+
+type LoreFetchState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "error"; reason: "rate_limited" | "generic" };
+
+interface LoreApiSuccess {
+  nameSuggestion: string;
+  loreEn: string;
+  loreZh: string;
+  type: string;
+}
+
+function isLoreApiSuccess(value: unknown): value is LoreApiSuccess {
+  if (typeof value !== "object" || value === null) return false;
+  const candidate: Record<string, unknown> = { ...value };
+  return (
+    typeof candidate.nameSuggestion === "string" &&
+    typeof candidate.loreEn === "string" &&
+    typeof candidate.loreZh === "string" &&
+    typeof candidate.type === "string"
+  );
+}
+
+/**
+ * Action row beneath the creature card. Hosts:
+ *
+ *   1. Conjure / Re-roll lore — POSTs to the AI route, populates lore on
+ *      success, surfaces friendly errors with a manual-write fallback. The
+ *      button label flips from "Conjure" to "Re-roll" once lore exists so
+ *      the user understands a click replaces what's already there.
+ *   2. Copy link — copies the current URL to the clipboard.
+ *   3. Download PNG — dropdown with "Sprite" and "Card" items.
+ *   4. Save — persists the creature; flips to a "Saved" indicator.
+ *   5. Shuffle — full-nav to /c with a fresh random creature.
+ *   6. Edit — full-nav to /create#<encoded> for editing.
+ *
+ * `saved` comes from `useSyncExternalStore` over the saved-Creatures cache,
+ * keyed by the encoded hash, so the displayed state stays in sync with
+ * localStorage without ever assigning React state from inside an effect
+ * (which would cascade renders).
+ */
+export function ActionRow({
+  def,
+  emotion,
+  lore,
+  onLoreChange,
+  encodedHash,
+}: ActionRowProps) {
+  const locale = useLocale();
+  const localePrefix = locale === "en" ? "/en" : "/zh";
+  const [ephemeral, setEphemeral] = useState<EphemeralState | null>(null);
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const [loreFetch, setLoreFetch] = useState<LoreFetchState>({ kind: "idle" });
+  const [manualLore, setManualLore] = useState("");
+  const downloadRef = useRef<HTMLDivElement>(null);
+  const downloadTriggerRef = useRef<HTMLButtonElement>(null);
+
+  // All translated strings live here so the i18n Babel plugin can extract
+  // them (it only transforms `t()` calls inside the render scope of a
+  // component or hook). Event handlers below close over this record rather
+  // than calling `t()` themselves.
+  const labels: ActionLabels = {
+    conjure: t({ en: "Conjure lore", zh: "召唤传说" }),
+    reroll: t({ en: "Re-roll lore", zh: "重抽传说" }),
+    conjuring: t({ en: "Conjuring…", zh: "召唤中…" }),
+    copy: t({ en: "Copy link", zh: "复制链接" }),
+    download: t({ en: "Download PNG", zh: "下载 PNG" }),
+    downloadSprite: t({ en: "Sprite", zh: "精灵" }),
+    downloadCard: t({ en: "Card", zh: "卡牌" }),
+    save: t({ en: "Save", zh: "保存" }),
+    saved: t({ en: "Saved", zh: "已保存" }),
+    shuffle: t({ en: "Shuffle", zh: "随机生成" }),
+    edit: t({ en: "Edit", zh: "编辑" }),
+    copied: t({ en: "Copied!", zh: "已复制!" }),
+    copyFailed: t({ en: "Copy failed", zh: "复制失败" }),
+    exportFailed: t({ en: "Export failed", zh: "导出失败" }),
+    loreError: t({
+      en: "Lore conjuring failed. You can write your own below.",
+      zh: "传说召唤失败,你可以在下方手写一段。",
+    }),
+    rateLimited: t({
+      en: "Slow down — try again in a minute.",
+      zh: "稍等片刻,请一分钟后再试。",
+    }),
+    manualLabel: t({ en: "Write your own lore", zh: "手写传说" }),
+    manualPlaceholder: t({
+      en: "Type a sentence about your creature…",
+      zh: "为你的生物写一句话…",
+    }),
+    manualSubmit: t({ en: "Save lore", zh: "保存传说" }),
+  };
+
+  const saved = useSyncExternalStore(
+    subscribeSavedCreatures,
+    () => isCreatureSaved(encodedHash),
+    () => false,
+  );
+
+  // Auto-dismiss the ephemeral status message. The effect itself does no
+  // setState until the timer fires — fine to live in an effect because the
+  // signal we're synchronising with is the wall clock.
+  useEffect(() => {
+    if (ephemeral === null) return;
+    const timer = window.setTimeout(() => {
+      setEphemeral(null);
+    }, EPHEMERAL_TIMEOUT_MS);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [ephemeral]);
+
+  // Close the download menu when clicking outside it. `pointerdown` (not
+  // `click`) so the dropdown closes before any newly-clicked button has a
+  // chance to mistakenly read it as still-open.
+  useEffect(() => {
+    if (!downloadOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const root = downloadRef.current;
+      if (root === null) return;
+      if (event.target instanceof Node && !root.contains(event.target)) {
+        setDownloadOpen(false);
+      }
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [downloadOpen]);
+
+  // Close the download menu on Escape and return focus to the trigger so
+  // keyboard users don't get stranded inside the closed menu's tab order.
+  useEffect(() => {
+    if (!downloadOpen) return;
+    const onKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDownloadOpen(false);
+        downloadTriggerRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKeydown);
+    return () => {
+      window.removeEventListener("keydown", onKeydown);
+    };
+  }, [downloadOpen]);
+
+  const handleConjureLore = async () => {
+    // Guard against rapid double-clicks: the disabled prop on the button
+    // catches up only after React commits the loading state, so a second
+    // activation in the same tick can still fire. Bail synchronously here
+    // to keep the request count to one per intent.
+    if (loreFetch.kind === "loading") return;
+    setLoreFetch({ kind: "loading" });
+    try {
+      const response = await fetch("/api/pixel-creature-creator/lore", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ def, locale }),
+      });
+      if (response.status === 429) {
+        setLoreFetch({ kind: "error", reason: "rate_limited" });
+        return;
+      }
+      if (!response.ok) {
+        setLoreFetch({ kind: "error", reason: "generic" });
+        return;
+      }
+      const json: unknown = await response.json();
+      if (!isLoreApiSuccess(json)) {
+        setLoreFetch({ kind: "error", reason: "generic" });
+        return;
+      }
+      onLoreChange({ loreEn: json.loreEn, loreZh: json.loreZh });
+      setLoreFetch({ kind: "idle" });
+    } catch {
+      setLoreFetch({ kind: "error", reason: "generic" });
+    }
+  };
+
+  const handleManualLoreSubmit = () => {
+    const trimmed = manualLore.trim();
+    if (trimmed.length === 0) return;
+    // Manual lore lives in whichever locale the user wrote it in; we mirror
+    // it into both halves so the card renders correctly regardless of the
+    // active locale and the PNG export still has something to show.
+    onLoreChange({ loreEn: trimmed, loreZh: trimmed });
+    setLoreFetch({ kind: "idle" });
+    setManualLore("");
+  };
+
+  const handleCopyLink = async () => {
+    if (typeof window === "undefined") return;
+    const href = window.location.href;
+    // `copyTextToClipboard` covers the modern + legacy paths, so we can
+    // branch on a simple boolean instead of inspecting per-API errors.
+    const ok = await copyTextToClipboard(href);
+    setEphemeral(
+      ok
+        ? { kind: "copied", message: labels.copied }
+        : { kind: "error", message: labels.copyFailed },
+    );
+  };
+
+  const buildFilename = (kind: "sprite" | "card") => {
+    const base = slugifyName(def.name);
+    return `creature-${base}-${kind}-${emotion}.png`;
+  };
+
+  const handleDownloadSprite = async () => {
+    setDownloadOpen(false);
+    try {
+      const blob = await exportSpritePng(def, emotion);
+      downloadBlob(blob, buildFilename("sprite"));
+    } catch {
+      setEphemeral({ kind: "error", message: labels.exportFailed });
+    }
+  };
+
+  const handleDownloadCard = async () => {
+    setDownloadOpen(false);
+    try {
+      const blob = await exportCardPng(def, emotion, lore, locale);
+      downloadBlob(blob, buildFilename("card"));
+    } catch {
+      setEphemeral({ kind: "error", message: labels.exportFailed });
+    }
+  };
+
+  const handleSave = () => {
+    if (saved) return;
+    saveCreature(def);
+    notifySavedCreaturesChanged();
+  };
+
+  const handleShuffle = () => {
+    const next = randomCreature();
+    const hash = encodeCreature(next);
+    window.location.assign(`${localePrefix}/pixel-creature-creator/c#${hash}`);
+  };
+
+  const handleEdit = () => {
+    window.location.assign(
+      `${localePrefix}/pixel-creature-creator/create#${encodedHash}`,
+    );
+  };
+
+  const conjureDisabled = loreFetch.kind === "loading";
+  const showManualFallback = loreFetch.kind === "error" && lore === null;
+  // Once lore exists, the same button becomes a re-roll affordance — clicking
+  // it discards the current lore and fetches fresh copy. The label change is
+  // the user-visible signal that they're replacing existing text.
+  const conjureLabel =
+    lore === null
+      ? conjureDisabled
+        ? labels.conjuring
+        : labels.conjure
+      : conjureDisabled
+        ? labels.conjuring
+        : labels.reroll;
+
+  return (
+    <div css={styles.root} data-testid="action-row">
+      <div css={styles.buttonRow}>
+        <button
+          type="button"
+          css={[
+            corner.radius_round,
+            styles.button,
+            styles.buttonPrimary,
+            transition.colors,
+          ]}
+          onClick={() => {
+            void handleConjureLore();
+          }}
+          disabled={conjureDisabled}
+          aria-busy={conjureDisabled}
+          data-testid="action-conjure-lore"
+          aria-label={conjureLabel}
+        >
+          {conjureLabel}
+        </button>
+
+        <button
+          type="button"
+          css={[corner.radius_round, styles.button, transition.colors]}
+          onClick={() => {
+            void handleCopyLink();
+          }}
+          data-testid="action-copy-link"
+          aria-label={labels.copy}
+        >
+          {labels.copy}
+        </button>
+
+        <div css={styles.downloadWrap} ref={downloadRef}>
+          <button
+            type="button"
+            ref={downloadTriggerRef}
+            css={[corner.radius_round, styles.button, transition.colors]}
+            aria-haspopup="menu"
+            aria-expanded={downloadOpen}
+            onClick={() => {
+              setDownloadOpen((open) => !open);
+            }}
+            data-testid="action-download"
+            aria-label={labels.download}
+          >
+            {labels.download}
+          </button>
+          {downloadOpen && (
+            <div role="menu" css={[corner.radius_2, styles.downloadMenu]}>
+              <button
+                type="button"
+                role="menuitem"
+                css={[corner.radius_2, styles.menuItem]}
+                onClick={() => {
+                  void handleDownloadSprite();
+                }}
+                data-testid="action-download-sprite"
+              >
+                {labels.downloadSprite}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                css={[corner.radius_2, styles.menuItem]}
+                onClick={() => {
+                  void handleDownloadCard();
+                }}
+                data-testid="action-download-card"
+              >
+                {labels.downloadCard}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          css={[
+            corner.radius_round,
+            styles.button,
+            saved && styles.buttonSaved,
+            transition.colors,
+          ]}
+          onClick={handleSave}
+          data-testid="action-save"
+          aria-pressed={saved}
+          aria-label={saved ? labels.saved : labels.save}
+        >
+          {saved ? labels.saved : labels.save}
+        </button>
+
+        <button
+          type="button"
+          css={[corner.radius_round, styles.button, transition.colors]}
+          onClick={handleShuffle}
+          data-testid="action-shuffle"
+          aria-label={labels.shuffle}
+        >
+          {labels.shuffle}
+        </button>
+
+        <button
+          type="button"
+          css={[corner.radius_round, styles.button, transition.colors]}
+          onClick={handleEdit}
+          data-testid="action-edit"
+          aria-label={labels.edit}
+        >
+          {labels.edit}
+        </button>
+      </div>
+
+      {loreFetch.kind === "error" && (
+        <p
+          role="status"
+          css={[corner.radius_2, styles.ephemeral, styles.ephemeralError]}
+          data-testid="lore-error"
+          data-reason={loreFetch.reason}
+        >
+          {loreFetch.reason === "rate_limited"
+            ? labels.rateLimited
+            : labels.loreError}
+        </p>
+      )}
+
+      {showManualFallback && (
+        <div
+          css={[corner.radius_2, styles.manualFallback]}
+          data-testid="lore-manual"
+        >
+          <Textarea
+            label={labels.manualLabel}
+            value={manualLore}
+            onChange={(event) => {
+              setManualLore(event.target.value);
+            }}
+            placeholder={labels.manualPlaceholder}
+            rows={3}
+            maxLength={200}
+            data-testid="lore-manual-input"
+          />
+          <button
+            type="button"
+            css={[
+              corner.radius_round,
+              styles.button,
+              styles.buttonPrimary,
+              transition.colors,
+            ]}
+            onClick={handleManualLoreSubmit}
+            disabled={manualLore.trim().length === 0}
+            data-testid="lore-manual-submit"
+          >
+            {labels.manualSubmit}
+          </button>
+        </div>
+      )}
+
+      {ephemeral !== null && (
+        <p
+          role="status"
+          css={[
+            corner.radius_2,
+            styles.ephemeral,
+            ephemeral.kind === "error" && styles.ephemeralError,
+          ]}
+          data-testid="action-ephemeral"
+          data-kind={ephemeral.kind}
+        >
+          {ephemeral.message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+const styles = stylex.create({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._1,
+    width: "100%",
+  },
+  buttonRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: space._1,
+    justifyContent: "center",
+  },
+  button: {
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    backgroundColor: {
+      default: color.bgSurface,
+      ":hover": color.bgControlHover,
+      ":focus-visible": color.bgControlHover,
+    },
+    color: color.fg,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: color.border,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
+    cursor: {
+      default: "pointer",
+      ":disabled": "not-allowed",
+    },
+    opacity: {
+      default: 1,
+      ":disabled": opacity.disabled,
+    },
+    outlineOffset: border.size_2,
+  },
+  buttonPrimary: {
+    backgroundColor: {
+      default: color.bgAccent,
+      ":hover": color.bgAccentHover,
+      ":focus-visible": color.bgAccentHover,
+    },
+    color: color.fgOnAccent,
+    borderColor: color.borderAccent,
+  },
+  buttonSaved: {
+    backgroundColor: color.bgAccent,
+    color: color.fgOnAccent,
+    borderColor: color.borderAccent,
+  },
+  downloadWrap: {
+    position: "relative",
+  },
+  downloadMenu: {
+    position: "absolute",
+    top: "calc(100% + 4px)",
+    insetInlineStart: 0,
+    minInlineSize: "10rem",
+    backgroundColor: color.bgSurfaceRaised,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: color.border,
+    padding: space._0,
+    display: "flex",
+    flexDirection: "column",
+    boxShadow: shadow._2,
+    // Anchored to its trigger, so it lifts over the page around it rather than
+    // claiming the viewport the way an overlay does.
+    zIndex: layer.raised,
+  },
+  menuItem: {
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    backgroundColor: {
+      default: "transparent",
+      ":hover": color.bgControlHover,
+      ":focus-visible": color.bgControlHover,
+    },
+    color: color.fg,
+    borderWidth: 0,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_5,
+    cursor: "pointer",
+    textAlign: "left",
+  },
+  ephemeral: {
+    margin: 0,
+    paddingBlock: space._1,
+    paddingInline: space._3,
+    backgroundColor: color.bgSurface,
+    fontSize: font.uiBodySmall,
+    color: color.fg,
+    alignSelf: "center",
+    textAlign: "center",
+    maxInlineSize: "32rem",
+  },
+  ephemeralError: {
+    color: color.fg,
+    backgroundColor: color.bgSurfaceRaised,
+  },
+  manualFallback: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._1,
+    paddingBlock: space._2,
+    paddingInline: space._3,
+    backgroundColor: color.bgSurface,
+    alignSelf: "center",
+    inlineSize: "100%",
+    maxInlineSize: "32rem",
+  },
+});

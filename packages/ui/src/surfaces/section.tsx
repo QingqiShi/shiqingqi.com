@@ -1,0 +1,136 @@
+import * as stylex from "@stylexjs/stylex";
+import type { ComponentProps, ReactNode } from "react";
+import { border, color, font, space } from "../tokens.stylex.ts";
+import type { StyleProp } from "../types.ts";
+import { SectionHeading } from "./section-heading.tsx";
+
+export type SectionLevel = 2 | 3 | 4 | 5 | 6;
+
+interface SectionProps extends Omit<
+  ComponentProps<"section">,
+  "title" | "children" | "className" | "style"
+> {
+  /**
+   * The block's label. Rendered as a real heading, so keep it to a phrase.
+   *
+   * @zh 区块的标签。以真实的标题元素渲染，因此应保持为一个短语。
+   */
+  title: ReactNode;
+  /**
+   * Section body.
+   *
+   * @zh 区块正文。
+   */
+  children: ReactNode;
+  /**
+   * Decorative icon before the label, rendered `aria-hidden`.
+   *
+   * @zh 标签前的装饰性图标，以 `aria-hidden` 渲染。
+   */
+  icon?: ReactNode;
+  /**
+   * Controls parked at the end of the heading row — a "see all" link, a filter.
+   * Unlike `icon` these are real content, so they stay in the accessibility
+   * tree and may be interactive.
+   *
+   * @zh 置于标题行末尾的控件——例如「查看全部」链接、筛选器。与 `icon` 不同，这些是真实内容，因此会保留在无障碍树中并可交互。
+   */
+  actions?: ReactNode;
+  /**
+   * Heading rank for the label. Defaults to `3`; set it to keep the document
+   * outline honest when the section nests deeper or shallower than usual.
+   *
+   * @zh 标签的标题层级；当区块的嵌套层级比通常更深或更浅时，设置它以保持文档大纲的正确性。
+   */
+  level?: SectionLevel;
+  /**
+   * Rules the section off from what precedes it. Use it when sections follow
+   * one another directly and the label alone isn't enough of a break.
+   *
+   * @zh 用分隔线将该区块与前面的内容分开。当多个区块紧密相连、仅凭标签不足以构成断点时使用。
+   */
+  divider?: boolean;
+  /**
+   * StyleX overrides merged over the root — composed last so a caller wins.
+   *
+   * @zh 合并在根元素之上的 StyleX 覆盖样式——最后合成，因此调用方总能获胜。
+   */
+  css?: StyleProp;
+}
+
+/**
+ * A labelled block of content: a quiet heading row — optional icon, the label,
+ * optional trailing controls — above whatever it holds.
+ * The label reads as muted small text on purpose (wayfinding, not hierarchy)
+ * while staying a real heading; reach for `Heading` directly for a prominent
+ * title.
+ */
+export function Section({
+  title,
+  children,
+  icon,
+  actions,
+  level = 3,
+  divider,
+  css,
+  ref,
+  ...restProps
+}: SectionProps) {
+  return (
+    <section
+      {...restProps}
+      ref={ref}
+      css={[styles.root, divider === true && styles.divided, css]}
+    >
+      <div css={styles.header}>
+        {/* Truthiness: `icon={cond && <X/>}` / `actions={cond && <Y/>}` then
+            render no slot. `!= null` would keep an empty box and the gap. */}
+        {icon ? (
+          <span css={styles.icon} aria-hidden>
+            {icon}
+          </span>
+        ) : null}
+        <SectionHeading level={level}>{title}</SectionHeading>
+        {actions ? <div css={styles.actions}>{actions}</div> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+const styles = stylex.create({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._3,
+  },
+  divided: {
+    borderBlockStartWidth: border.size_1,
+    borderBlockStartStyle: "solid",
+    borderBlockStartColor: color.border,
+    paddingBlockStart: space._5,
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    gap: space._1,
+  },
+  // `em` box against an explicit font-size, so the icon tracks the label
+  // rather than whatever the section's contents happen to set.
+  icon: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    fontSize: font.uiBodySmall,
+    inlineSize: "1em",
+    blockSize: "1em",
+    color: color.fgMuted,
+  },
+  actions: {
+    display: "flex",
+    alignItems: "center",
+    gap: space._1,
+    marginInlineStart: "auto",
+  },
+});
