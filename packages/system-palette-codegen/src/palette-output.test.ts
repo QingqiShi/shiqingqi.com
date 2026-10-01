@@ -1,6 +1,6 @@
+import { contrastRatio } from "@tuja/ui/utils/contrast-ratio";
 import { describe, expect, it } from "vitest";
 import { SYSTEM_PALETTE_TONES } from "./constants.ts";
-import { contrastRatio } from "./contrast-ratio.ts";
 import { hellwigLightness } from "./hellwig-lightness.ts";
 import { pickForeground } from "./pick-foreground.ts";
 import { resolveHue } from "./resolve-hue.ts";

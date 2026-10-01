@@ -12,6 +12,7 @@
   "devDependencies": {
     "@tuja/codegen-fs": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
+    "@tuja/ui": "workspace:*",
     "@types/node": "catalog:",
     "vitest": "catalog:"
   }

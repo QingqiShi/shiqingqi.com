@@ -1,4 +1,4 @@
-import { hexChannels } from "./hex-channels.ts";
+import { hexChannels } from "../utils/hex-channels.ts";
 
 // APCA 0.1.9 (the WCAG 3 draft method). Unlike the WCAG 2 ratio it is
 // polarity-aware, so light text on a mid-tone fill and dark text on the same

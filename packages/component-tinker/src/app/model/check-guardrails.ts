@@ -1,3 +1,5 @@
+import { contrastRatio, type RgbChannels } from "@tuja/ui/utils/contrast-ratio";
+
 export interface Guardrail {
   /** The property row the warning belongs beside, where there is one. */
   property?: string;
@@ -44,23 +46,8 @@ function over(top: Rgba, bottom: Rgba): Rgba {
   };
 }
 
-function channel(value: number): number {
-  const ratio = value / 255;
-  return ratio <= 0.03928 ? ratio / 12.92 : ((ratio + 0.055) / 1.055) ** 2.4;
-}
-
-function luminance(color: Rgba): number {
-  return (
-    0.2126 * channel(color.r) +
-    0.7152 * channel(color.g) +
-    0.0722 * channel(color.b)
-  );
-}
-
-function contrastRatio(text: Rgba, background: Rgba): number {
-  const lighter = Math.max(luminance(text), luminance(background));
-  const darker = Math.min(luminance(text), luminance(background));
-  return (lighter + 0.05) / (darker + 0.05);
+function channels(color: Rgba): RgbChannels {
+  return [color.r, color.g, color.b];
 }
 
 /** The colour the element's text actually sits on, in the theme now rendered. */
@@ -113,7 +100,10 @@ export function checkGuardrails(
     const text = parseColor(computed.color);
     const background = resolvedBackground(element, root);
     if (text && background) {
-      const ratio = contrastRatio(over(text, background), background);
+      const ratio = contrastRatio(
+        channels(over(text, background)),
+        channels(background),
+      );
       if (ratio < MIN_CONTRAST) {
         warnings.push({
           property: "color",

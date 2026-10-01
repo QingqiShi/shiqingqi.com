@@ -691,6 +691,9 @@ importers:
       '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@tuja/ui':
+        specifier: workspace:*
+        version: link:../ui
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.2

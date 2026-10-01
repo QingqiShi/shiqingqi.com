@@ -1,27 +1,10 @@
 import { gray } from "@tuja/ui/palette/gray.stylex";
+import { contrastRatio } from "@tuja/ui/utils/contrast-ratio";
 
 /**
  * The contrast figures the Accessibility page prints, derived from the palette.
  * The tone names mirror `tokens.stylex.ts` by hand.
  */
-
-// https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
-function relativeLuminance(hex: string): number {
-  const channels = [1, 3, 5].map((start) => {
-    const value = Number.parseInt(hex.slice(start, start + 2), 16) / 255;
-    return value <= 0.03928
-      ? value / 12.92
-      : Math.pow((value + 0.055) / 1.055, 2.4);
-  });
-  const [r = 0, g = 0, b = 0] = channels;
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-function contrastRatio(foreground: string, background: string): number {
-  const a = relativeLuminance(foreground);
-  const b = relativeLuminance(background);
-  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-}
 
 /** A tone step on the generated gray ramp, e.g. `"_20"`. */
 type GrayTone = keyof typeof gray;
