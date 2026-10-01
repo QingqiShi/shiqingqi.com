@@ -3,8 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
 import { describe, expect, it } from "vitest";
-import { contrastRatio } from "../../test-support/contrast-ratio.ts";
 import { color } from "../../tokens.stylex.ts";
+import { contrastRatio } from "../../utils/contrast-ratio.ts";
 import { syntax } from "./syntax.stylex.ts";
 import { TOKEN_KINDS } from "./token-kinds.ts";
 

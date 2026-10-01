@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 import { compileStylexCss, readCustomProperty } from "@tuja/stylex-testing";
 import { describe, expect, it } from "vitest";
 import { apcaContrast } from "./test-support/apca-contrast.ts";
-import { hexChannels } from "./test-support/hex-channels.ts";
 import { color } from "./tokens.stylex.ts";
+import { hexChannels } from "./utils/hex-channels.ts";
 
 // Guards the text ladder against the two ways it can rot: a level drifting
 // under its APCA floor on a surface it lands on, and the two levels drifting
@@ -102,7 +102,7 @@ const css = compileStylexCss([
 // Intent tints are `rgba()` over the canvas, so they are composited before
 // measuring; APCA only reads opaque colours.
 function overCanvas(value: string, canvas: string) {
-  const tint = value.match(/^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/);
+  const tint = value.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)$/);
   if (!tint) return value;
   const alpha = Number(tint[4]);
   const base = hexChannels(canvas);

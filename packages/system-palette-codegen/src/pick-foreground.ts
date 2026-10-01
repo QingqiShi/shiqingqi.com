@@ -1,5 +1,5 @@
+import { contrastRatio } from "@tuja/ui/utils/contrast-ratio";
 import { FOREGROUND_DARK, FOREGROUND_LIGHT } from "./constants.ts";
-import { contrastRatio } from "./contrast-ratio.ts";
 
 /** The foreground of a swatch: whichever of black or white contrasts more. */
 export function pickForeground(backgroundHex: string): string {
