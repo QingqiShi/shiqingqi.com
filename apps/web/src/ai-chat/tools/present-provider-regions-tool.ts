@@ -14,10 +14,8 @@ const TOOL_DESCRIPTION =
   "Call this after watch_providers returns a provider search result. " +
   "The card shows the provider logo, region count, and country list.";
 
-export function createPresentProviderRegionsTool() {
-  return tool({
-    description: TOOL_DESCRIPTION,
-    inputSchema: presentProviderRegionsInputSchema,
-    execute: (input) => Promise.resolve(input),
-  });
-}
+export const presentProviderRegionsTool = tool({
+  description: TOOL_DESCRIPTION,
+  inputSchema: presentProviderRegionsInputSchema,
+  execute: (input) => Promise.resolve(input),
+});

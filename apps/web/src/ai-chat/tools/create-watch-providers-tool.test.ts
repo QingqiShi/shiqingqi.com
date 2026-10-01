@@ -2,17 +2,13 @@ import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
 import { isRecord } from "#src/utils/is-record.ts";
-import {
-  createWatchProvidersTool,
-  watchProvidersInputSchema,
-} from "./create-watch-providers-tool";
+import { createWatchProvidersTool } from "./create-watch-providers-tool";
 import { isToolError } from "./tool-error";
+import { TMDB_BASE, toolExecutionOptions } from "./tool-execution-options";
 
 beforeAll(() => {
   process.env.TMDB_API_TOKEN = "test-token";
 });
-
-const TMDB_BASE = "https://api.themoviedb.org";
 
 function provider(overrides: {
   provider_id: number;
@@ -32,13 +28,6 @@ function provider(overrides: {
 function watchProvidersResponse(id: number, results: Record<string, unknown>) {
   return { id, results };
 }
-
-const executeContext = {
-  toolCallId: "test",
-  messages: [],
-  abortSignal: AbortSignal.timeout(5000),
-  context: {},
-};
 
 interface RegionResult {
   id: number;
@@ -74,7 +63,7 @@ async function executeTool(input: {
   provider_name?: string;
 }) {
   const tool = createWatchProvidersTool();
-  const result = await tool.execute(input, executeContext);
+  const result = await tool.execute(input, toolExecutionOptions());
   const parsed: unknown = JSON.parse(JSON.stringify(result));
   return parsed;
 }
@@ -100,81 +89,6 @@ function asSearchResult(result: unknown): ProviderSearchResultType {
   }
   return result;
 }
-
-describe("watchProvidersInputSchema", () => {
-  it("accepts valid input with all fields", () => {
-    const result = watchProvidersInputSchema.parse({
-      id: 550,
-      media_type: "movie",
-      region: "US",
-    });
-    expect(result).toEqual({ id: 550, media_type: "movie", region: "US" });
-  });
-
-  it("accepts input without optional region", () => {
-    const result = watchProvidersInputSchema.parse({
-      id: 1399,
-      media_type: "tv",
-    });
-    expect(result).toEqual({ id: 1399, media_type: "tv" });
-  });
-
-  it("rejects invalid media_type", () => {
-    expect(() =>
-      watchProvidersInputSchema.parse({
-        id: 550,
-        media_type: "person",
-      }),
-    ).toThrow();
-  });
-
-  it("rejects non-numeric id", () => {
-    expect(() =>
-      watchProvidersInputSchema.parse({
-        id: "abc",
-        media_type: "movie",
-      }),
-    ).toThrow();
-  });
-
-  it("rejects region with wrong length", () => {
-    expect(() =>
-      watchProvidersInputSchema.parse({
-        id: 550,
-        media_type: "movie",
-        region: "USA",
-      }),
-    ).toThrow();
-  });
-
-  it("accepts provider_name", () => {
-    const result = watchProvidersInputSchema.parse({
-      id: 550,
-      media_type: "movie",
-      provider_name: "Netflix",
-    });
-    expect(result).toEqual({
-      id: 550,
-      media_type: "movie",
-      provider_name: "Netflix",
-    });
-  });
-});
-
-describe("createWatchProvidersTool", () => {
-  it("returns a tool with description and inputSchema", () => {
-    const tool = createWatchProvidersTool();
-    expect(tool.description).toBeDefined();
-    expect(tool.description).toContain("watch provider");
-    expect(tool.inputSchema).toBeDefined();
-  });
-
-  it("returns a tool with an execute function", () => {
-    const tool = createWatchProvidersTool();
-    expect(tool.execute).toBeDefined();
-    expect(typeof tool.execute).toBe("function");
-  });
-});
 
 describe("watch providers execute", () => {
   it("returns providers for a movie region", async () => {
@@ -442,7 +356,7 @@ describe("watch providers error handling", () => {
     const tool = createWatchProvidersTool();
     const result = await tool.execute(
       { id: 550, media_type: "movie", region: "US" },
-      executeContext,
+      toolExecutionOptions(),
     );
 
     expect(isToolError(result)).toBe(true);

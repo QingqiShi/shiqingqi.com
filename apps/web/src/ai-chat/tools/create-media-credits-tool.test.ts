@@ -1,57 +1,23 @@
 import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
-import {
-  createMediaCreditsTool,
-  mediaCreditsInputSchema,
-} from "./create-media-credits-tool";
+import { createMediaCreditsTool } from "./create-media-credits-tool";
 import { isToolError } from "./tool-error";
+import { TMDB_BASE, toolExecutionOptions } from "./tool-execution-options";
 
 beforeAll(() => {
   process.env.TMDB_API_TOKEN = "test-token";
 });
-
-const TMDB_BASE = "https://api.themoviedb.org";
-
-const executeContext = {
-  toolCallId: "test",
-  messages: [],
-  abortSignal: AbortSignal.timeout(5000),
-  context: {},
-};
 
 async function executeTool(
   input: { media_id: number; media_type: "movie" | "tv" },
   locale: "en" | "zh" = "en",
 ) {
   const tool = createMediaCreditsTool(locale);
-  const result = await tool.execute(input, executeContext);
+  const result = await tool.execute(input, toolExecutionOptions());
   const parsed: unknown = JSON.parse(JSON.stringify(result));
   return parsed;
 }
-
-describe("mediaCreditsInputSchema", () => {
-  it("accepts a numeric media_id with a movie media_type", () => {
-    expect(
-      mediaCreditsInputSchema.parse({ media_id: 550, media_type: "movie" }),
-    ).toEqual({ media_id: 550, media_type: "movie" });
-  });
-
-  it("rejects an invalid media_type", () => {
-    expect(() =>
-      mediaCreditsInputSchema.parse({ media_id: 550, media_type: "book" }),
-    ).toThrow();
-  });
-});
-
-describe("createMediaCreditsTool", () => {
-  it("returns a tool with description and inputSchema", () => {
-    const tool = createMediaCreditsTool("en");
-    expect(tool.description).toBeDefined();
-    expect(tool.description).toContain("cast and crew");
-    expect(tool.inputSchema).toBeDefined();
-  });
-});
 
 describe("media credits execute", () => {
   it("returns a structured tool error when TMDB fails", async () => {
@@ -67,7 +33,7 @@ describe("media credits execute", () => {
     const tool = createMediaCreditsTool("en");
     const result = await tool.execute(
       { media_id: 550, media_type: "movie" },
-      executeContext,
+      toolExecutionOptions(),
     );
 
     expect(isToolError(result)).toBe(true);

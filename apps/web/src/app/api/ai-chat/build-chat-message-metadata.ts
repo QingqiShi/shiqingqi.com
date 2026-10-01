@@ -1,5 +1,5 @@
 import type { TextStreamPart, ToolSet } from "ai";
-import { classifyMoodInputSchema } from "#src/ai-chat/tools/create-classify-mood-tool.ts";
+import { classifyMoodInputSchema } from "#src/ai-chat/tools/classify-mood-tool.ts";
 import type { ChatMessageMetadata } from "#src/ai-chat/types.ts";
 
 export function buildChatMessageMetadata(

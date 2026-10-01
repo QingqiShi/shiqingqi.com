@@ -28,10 +28,8 @@ const TOOL_DESCRIPTION =
   "background palette. Call this at the start of every reply, and again " +
   "later in the same reply if tool results reveal the tone should shift.";
 
-export function createClassifyMoodTool() {
-  return tool({
-    description: TOOL_DESCRIPTION,
-    inputSchema: classifyMoodInputSchema,
-    execute: (input) => Promise.resolve(input),
-  });
-}
+export const classifyMoodTool = tool({
+  description: TOOL_DESCRIPTION,
+  inputSchema: classifyMoodInputSchema,
+  execute: (input) => Promise.resolve(input),
+});

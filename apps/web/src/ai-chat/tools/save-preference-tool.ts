@@ -36,10 +36,8 @@ const TOOL_DESCRIPTION =
   "directors, content ratings, languages, or themes/keywords. " +
   "Preferences are stored client-side for future personalisation.";
 
-export function createSavePreferenceTool() {
-  return tool({
-    description: TOOL_DESCRIPTION,
-    inputSchema: savePreferenceInputSchema,
-    execute: (input) => Promise.resolve(input),
-  });
-}
+export const savePreferenceTool = tool({
+  description: TOOL_DESCRIPTION,
+  inputSchema: savePreferenceInputSchema,
+  execute: (input) => Promise.resolve(input),
+});

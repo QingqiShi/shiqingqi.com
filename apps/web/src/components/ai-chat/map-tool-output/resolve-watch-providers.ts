@@ -1,4 +1,4 @@
-import { presentWatchProvidersInputSchema } from "#src/ai-chat/tools/create-present-watch-providers-tool.ts";
+import { presentWatchProvidersInputSchema } from "#src/ai-chat/tools/present-watch-providers-tool.ts";
 import type { WatchProviderOutput } from "../tool-watch-providers";
 
 export function resolveWatchProviders(

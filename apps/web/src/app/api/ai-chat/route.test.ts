@@ -4,18 +4,18 @@ import { isStepCount, simulateReadableStream, streamText } from "ai";
 import { MockLanguageModelV3 } from "ai/test";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createClassifyMoodTool } from "#src/ai-chat/tools/create-classify-mood-tool.ts";
+import { classifyMoodTool } from "#src/ai-chat/tools/classify-mood-tool.ts";
 import { createMediaCreditsTool } from "#src/ai-chat/tools/create-media-credits-tool.ts";
 import { createPersonCreditsTool } from "#src/ai-chat/tools/create-person-credits-tool.ts";
-import { createPresentMediaTool } from "#src/ai-chat/tools/create-present-media-tool.ts";
-import { createPresentPersonTool } from "#src/ai-chat/tools/create-present-person-tool.ts";
-import { createPresentProviderRegionsTool } from "#src/ai-chat/tools/create-present-provider-regions-tool.ts";
-import { createPresentWatchProvidersTool } from "#src/ai-chat/tools/create-present-watch-providers-tool.ts";
 import { createReviewSummaryTool } from "#src/ai-chat/tools/create-review-summary-tool.ts";
-import { createSavePreferenceTool } from "#src/ai-chat/tools/create-save-preference-tool.ts";
 import { createSemanticSearchTool } from "#src/ai-chat/tools/create-semantic-search-tool.ts";
 import { createTmdbSearchTool } from "#src/ai-chat/tools/create-tmdb-search-tool.ts";
 import { createWatchProvidersTool } from "#src/ai-chat/tools/create-watch-providers-tool.ts";
+import { presentMediaTool } from "#src/ai-chat/tools/present-media-tool.ts";
+import { presentPersonTool } from "#src/ai-chat/tools/present-person-tool.ts";
+import { presentProviderRegionsTool } from "#src/ai-chat/tools/present-provider-regions-tool.ts";
+import { presentWatchProvidersTool } from "#src/ai-chat/tools/present-watch-providers-tool.ts";
+import { savePreferenceTool } from "#src/ai-chat/tools/save-preference-tool.ts";
 
 const anthropic = createAnthropic({ apiKey: "test-key" });
 
@@ -79,18 +79,18 @@ function mockStreamResult() {
     }),
     messages: [{ role: "user", content: "test" }],
     tools: {
-      classify_mood: createClassifyMoodTool(),
+      classify_mood: classifyMoodTool,
       semantic_search: createSemanticSearchTool("en"),
       tmdb_search: createTmdbSearchTool("en"),
-      present_media: createPresentMediaTool(),
+      present_media: presentMediaTool,
       watch_providers: createWatchProvidersTool(),
-      present_watch_providers: createPresentWatchProvidersTool(),
-      present_provider_regions: createPresentProviderRegionsTool(),
+      present_watch_providers: presentWatchProvidersTool,
+      present_provider_regions: presentProviderRegionsTool,
       media_credits: createMediaCreditsTool("en"),
       person_credits: createPersonCreditsTool("en"),
-      present_person: createPresentPersonTool(),
+      present_person: presentPersonTool,
       review_summary: createReviewSummaryTool("en"),
-      save_preference: createSavePreferenceTool(),
+      save_preference: savePreferenceTool,
       web_search: anthropic.tools.webSearch_20250305({ maxUses: 3 }),
     },
     stopWhen: isStepCount(5),

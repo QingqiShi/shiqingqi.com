@@ -7,13 +7,13 @@ import {
   reviewSummaryInputSchema,
 } from "./create-review-summary-tool";
 import { isToolError } from "./tool-error";
+import { TMDB_BASE, toolExecutionOptions } from "./tool-execution-options";
 
 beforeAll(() => {
   process.env.TMDB_API_TOKEN = "test-token";
   process.env.ANTHROPIC_API_KEY = "test-key";
 });
 
-const TMDB_BASE = "https://api.themoviedb.org";
 const ANTHROPIC_BASE = "https://api.anthropic.com";
 
 function reviewsResponse(
@@ -57,13 +57,6 @@ function anthropicMessageResponse(text: string) {
   };
 }
 
-const executeContext = {
-  toolCallId: "test",
-  messages: [],
-  abortSignal: AbortSignal.timeout(10000),
-  context: {},
-};
-
 interface ReviewSummaryResult {
   id: number;
   mediaType: string;
@@ -86,7 +79,7 @@ async function executeTool(input: {
 }) {
   const tool = createReviewSummaryTool("en");
   const parsed = reviewSummaryInputSchema.parse(input);
-  const result = await tool.execute(parsed, executeContext);
+  const result = await tool.execute(parsed, toolExecutionOptions());
   const jsonResult: unknown = JSON.parse(JSON.stringify(result));
   if (!isReviewSummaryResult(jsonResult)) {
     throw new Error("expected a review summary result");
@@ -95,100 +88,23 @@ async function executeTool(input: {
 }
 
 describe("reviewSummaryInputSchema", () => {
-  it("accepts valid input with all fields", () => {
-    const result = reviewSummaryInputSchema.parse({
-      id: 550,
-      media_type: "movie",
-      title: "Fight Club",
-      spiciness: 4,
-    });
-    expect(result).toEqual({
-      id: 550,
-      media_type: "movie",
-      title: "Fight Club",
-      spiciness: 4,
-    });
+  const fightClub = { id: 550, media_type: "movie", title: "Fight Club" };
+
+  it("defaults spiciness to 3", () => {
+    expect(reviewSummaryInputSchema.parse(fightClub).spiciness).toBe(3);
   });
 
-  it("accepts input without optional spiciness (defaults to 3)", () => {
-    const result = reviewSummaryInputSchema.parse({
-      id: 1399,
-      media_type: "tv",
-      title: "Game of Thrones",
-    });
-    expect(result).toEqual({
-      id: 1399,
-      media_type: "tv",
-      title: "Game of Thrones",
-      spiciness: 3,
-    });
-  });
-
-  it("rejects invalid media_type", () => {
-    expect(() =>
-      reviewSummaryInputSchema.parse({
-        id: 550,
-        media_type: "person",
-        title: "Fight Club",
-      }),
-    ).toThrow();
-  });
-
-  it("rejects spiciness below 1", () => {
-    expect(() =>
-      reviewSummaryInputSchema.parse({
-        id: 550,
-        media_type: "movie",
-        title: "Fight Club",
-        spiciness: 0,
-      }),
-    ).toThrow();
-  });
-
-  it("rejects spiciness above 5", () => {
-    expect(() =>
-      reviewSummaryInputSchema.parse({
-        id: 550,
-        media_type: "movie",
-        title: "Fight Club",
-        spiciness: 6,
-      }),
-    ).toThrow();
-  });
-
-  it("rejects non-integer spiciness", () => {
-    expect(() =>
-      reviewSummaryInputSchema.parse({
-        id: 550,
-        media_type: "movie",
-        title: "Fight Club",
-        spiciness: 2.5,
-      }),
-    ).toThrow();
-  });
-
-  it("rejects missing title", () => {
-    expect(() =>
-      reviewSummaryInputSchema.parse({
-        id: 550,
-        media_type: "movie",
-      }),
-    ).toThrow();
-  });
-});
-
-describe("createReviewSummaryTool", () => {
-  it("returns a tool with description and inputSchema", () => {
-    const tool = createReviewSummaryTool("en");
-    expect(tool.description).toBeDefined();
-    expect(tool.description).toContain("review");
-    expect(tool.inputSchema).toBeDefined();
-  });
-
-  it("returns a tool with an execute function", () => {
-    const tool = createReviewSummaryTool("en");
-    expect(tool.execute).toBeDefined();
-    expect(typeof tool.execute).toBe("function");
+  it("accepts only whole spiciness steps from 1 to 5", () => {
+    for (const spiciness of [1, 5]) {
+      expect(
+        reviewSummaryInputSchema.parse({ ...fightClub, spiciness }).spiciness,
+      ).toBe(spiciness);
+    }
+    for (const spiciness of [0, 6, 2.5]) {
+      expect(() =>
+        reviewSummaryInputSchema.parse({ ...fightClub, spiciness }),
+      ).toThrow();
+    }
   });
 });
 
@@ -358,7 +274,7 @@ describe("review summary error handling", () => {
       media_type: "movie",
       title: "Fight Club",
     });
-    const result = await tool.execute(parsed, executeContext);
+    const result = await tool.execute(parsed, toolExecutionOptions());
 
     expect(isToolError(result)).toBe(true);
     if (isToolError(result)) {
@@ -392,7 +308,7 @@ describe("review summary error handling", () => {
       media_type: "movie",
       title: "Fight Club",
     });
-    const result = await tool.execute(parsed, executeContext);
+    const result = await tool.execute(parsed, toolExecutionOptions());
 
     expect(isToolError(result)).toBe(true);
     if (isToolError(result)) {

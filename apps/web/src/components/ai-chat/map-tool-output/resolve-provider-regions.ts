@@ -1,4 +1,4 @@
-import { presentProviderRegionsInputSchema } from "#src/ai-chat/tools/create-present-provider-regions-tool.ts";
+import { presentProviderRegionsInputSchema } from "#src/ai-chat/tools/present-provider-regions-tool.ts";
 import type { WatchProviderOutput } from "../tool-watch-providers";
 
 export function resolveProviderRegions(

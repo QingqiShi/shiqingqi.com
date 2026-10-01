@@ -1,6 +1,6 @@
 import type { UIMessage } from "ai";
 import type { SupportedLocale } from "#src/types.ts";
-import type { MOOD_VALUES } from "./tools/create-classify-mood-tool";
+import type { MOOD_VALUES } from "./tools/classify-mood-tool";
 
 export type ChatMood = (typeof MOOD_VALUES)[number];
 

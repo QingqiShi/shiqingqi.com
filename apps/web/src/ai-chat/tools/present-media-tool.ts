@@ -20,10 +20,8 @@ const TOOL_DESCRIPTION =
   "Pass items from search results you want to present, in your preferred order. " +
   "Each card shows the poster, rating, and links to the detail page.";
 
-export function createPresentMediaTool() {
-  return tool({
-    description: TOOL_DESCRIPTION,
-    inputSchema: presentMediaInputSchema,
-    execute: (input) => Promise.resolve(input),
-  });
-}
+export const presentMediaTool = tool({
+  description: TOOL_DESCRIPTION,
+  inputSchema: presentMediaInputSchema,
+  execute: (input) => Promise.resolve(input),
+});

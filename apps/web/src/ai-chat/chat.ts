@@ -6,18 +6,18 @@ import { contextManagementProviderOptions } from "./context-management-provider-
 import { getAnthropicModel } from "./get-anthropic-model";
 import { getAnthropicProvider } from "./get-anthropic-provider";
 import { getChatSystemInstructions } from "./get-chat-system-instructions";
-import { createClassifyMoodTool } from "./tools/create-classify-mood-tool";
+import { classifyMoodTool } from "./tools/classify-mood-tool";
 import { createMediaCreditsTool } from "./tools/create-media-credits-tool";
 import { createPersonCreditsTool } from "./tools/create-person-credits-tool";
-import { createPresentMediaTool } from "./tools/create-present-media-tool";
-import { createPresentPersonTool } from "./tools/create-present-person-tool";
-import { createPresentProviderRegionsTool } from "./tools/create-present-provider-regions-tool";
-import { createPresentWatchProvidersTool } from "./tools/create-present-watch-providers-tool";
 import { createReviewSummaryTool } from "./tools/create-review-summary-tool";
-import { createSavePreferenceTool } from "./tools/create-save-preference-tool";
 import { createSemanticSearchTool } from "./tools/create-semantic-search-tool";
 import { createTmdbSearchTool } from "./tools/create-tmdb-search-tool";
 import { createWatchProvidersTool } from "./tools/create-watch-providers-tool";
+import { presentMediaTool } from "./tools/present-media-tool";
+import { presentPersonTool } from "./tools/present-person-tool";
+import { presentProviderRegionsTool } from "./tools/present-provider-regions-tool";
+import { presentWatchProvidersTool } from "./tools/present-watch-providers-tool";
+import { savePreferenceTool } from "./tools/save-preference-tool";
 import type { ChatInput } from "./types";
 
 interface ChatOptions extends ChatInput {
@@ -39,18 +39,18 @@ export async function chat({
     instructions,
     messages: modelMessages,
     tools: {
-      classify_mood: createClassifyMoodTool(),
+      classify_mood: classifyMoodTool,
       semantic_search: createSemanticSearchTool(locale),
       tmdb_search: createTmdbSearchTool(locale),
-      present_media: createPresentMediaTool(),
+      present_media: presentMediaTool,
       watch_providers: createWatchProvidersTool(),
-      present_watch_providers: createPresentWatchProvidersTool(),
-      present_provider_regions: createPresentProviderRegionsTool(),
+      present_watch_providers: presentWatchProvidersTool,
+      present_provider_regions: presentProviderRegionsTool,
       media_credits: createMediaCreditsTool(locale),
       person_credits: createPersonCreditsTool(locale),
-      present_person: createPresentPersonTool(),
+      present_person: presentPersonTool,
       review_summary: createReviewSummaryTool(locale),
-      save_preference: createSavePreferenceTool(),
+      save_preference: savePreferenceTool,
       web_search: anthropic.tools.webSearch_20250305(
         countryCode && countryCode !== "unknown"
           ? {

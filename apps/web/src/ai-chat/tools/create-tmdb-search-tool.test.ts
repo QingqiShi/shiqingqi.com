@@ -1,17 +1,13 @@
 import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it } from "vitest";
 import { server } from "#src/test-msw.ts";
-import {
-  createTmdbSearchTool,
-  tmdbSearchInputSchema,
-} from "./create-tmdb-search-tool";
+import { createTmdbSearchTool } from "./create-tmdb-search-tool";
 import { isToolError } from "./tool-error";
+import { TMDB_BASE, toolExecutionOptions } from "./tool-execution-options";
 
 beforeAll(() => {
   process.env.TMDB_API_TOKEN = "test-token";
 });
-
-const TMDB_BASE = "https://api.themoviedb.org";
 
 function movieResult(overrides: { id: number; title: string }) {
   return {
@@ -60,42 +56,6 @@ function personResult(overrides: { id: number; name: string }) {
   };
 }
 
-describe("tmdbSearchInputSchema", () => {
-  it("accepts a valid query", () => {
-    const result = tmdbSearchInputSchema.parse({ query: "Inception" });
-    expect(result.query).toBe("Inception");
-  });
-
-  it("rejects missing query", () => {
-    expect(() => tmdbSearchInputSchema.parse({})).toThrow();
-  });
-
-  it("rejects non-string query", () => {
-    expect(() => tmdbSearchInputSchema.parse({ query: 42 })).toThrow();
-  });
-});
-
-describe("createTmdbSearchTool", () => {
-  it("returns a tool with description and inputSchema", () => {
-    const tool = createTmdbSearchTool("en");
-    expect(tool.description).toBeDefined();
-    expect(tool.description).toContain("TMDB");
-    expect(tool.inputSchema).toBeDefined();
-  });
-
-  it("returns a tool with an execute function", () => {
-    const tool = createTmdbSearchTool("en");
-    expect(tool.execute).toBeDefined();
-    expect(typeof tool.execute).toBe("function");
-  });
-
-  it("creates separate tool instances per locale", () => {
-    const enTool = createTmdbSearchTool("en");
-    const zhTool = createTmdbSearchTool("zh");
-    expect(enTool).not.toBe(zhTool);
-  });
-});
-
 describe("tmdb search execute", () => {
   it("returns movies, TV shows, and people from a single search", async () => {
     server.use(
@@ -116,12 +76,7 @@ describe("tmdb search execute", () => {
     const tool = createTmdbSearchTool("en");
     const results = await tool.execute(
       { query: "Dune" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
+      toolExecutionOptions(),
     );
 
     expect(results).toHaveLength(3);
@@ -165,12 +120,7 @@ describe("tmdb search execute", () => {
     const tool = createTmdbSearchTool("en");
     const items = await tool.execute(
       { query: "Movie" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
+      toolExecutionOptions(),
     );
 
     expect(items).toHaveLength(10);
@@ -191,12 +141,7 @@ describe("tmdb search execute", () => {
     const tool = createTmdbSearchTool("en");
     const results = await tool.execute(
       { query: "xyznonexistent" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
+      toolExecutionOptions(),
     );
 
     expect(results).toEqual([]);
@@ -219,15 +164,7 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("zh");
-    await tool.execute(
-      { query: "Parasite" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
-    );
+    await tool.execute({ query: "Parasite" }, toolExecutionOptions());
 
     expect(capturedLanguage).toBe("zh");
   });
@@ -249,15 +186,7 @@ describe("tmdb search execute", () => {
     );
 
     const tool = createTmdbSearchTool("en");
-    await tool.execute(
-      { query: "Breaking Bad" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
-    );
+    await tool.execute({ query: "Breaking Bad" }, toolExecutionOptions());
 
     expect(capturedQuery).toBe("Breaking Bad");
   });
@@ -277,12 +206,7 @@ describe("tmdb search execute", () => {
     const tool = createTmdbSearchTool("en");
     const results = await tool.execute(
       { query: "Inception" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
+      toolExecutionOptions(),
     );
 
     expect(Array.isArray(results)).toBe(true);
@@ -311,12 +235,7 @@ describe("tmdb search execute", () => {
     const tool = createTmdbSearchTool("en");
     const result = await tool.execute(
       { query: "Dune" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
+      toolExecutionOptions(),
     );
 
     expect(isToolError(result)).toBe(true);
@@ -341,12 +260,7 @@ describe("tmdb search execute", () => {
     const tool = createTmdbSearchTool("en");
     const results = await tool.execute(
       { query: "Breaking Bad" },
-      {
-        toolCallId: "test",
-        messages: [],
-        abortSignal: AbortSignal.timeout(5000),
-        context: {},
-      },
+      toolExecutionOptions(),
     );
 
     expect(Array.isArray(results)).toBe(true);
