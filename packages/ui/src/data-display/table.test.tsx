@@ -249,7 +249,7 @@ describe("Table prop forwarding", () => {
     );
 
     expect(screen.getByRole("table").className).toContain("overrides.table");
-    expect(screen.getByRole("region").className).toContain(
+    expect(screen.getByRole("region").parentElement?.className).toContain(
       "overrides.container",
     );
   });

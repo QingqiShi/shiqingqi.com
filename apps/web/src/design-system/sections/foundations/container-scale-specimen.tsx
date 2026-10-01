@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -56,7 +57,7 @@ function labelAnchor(percent: number) {
 }
 
 export function ContainerScaleSpecimen() {
-  const railRef = useRef<HTMLUListElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
   const cardElementsRef = useRef<Array<HTMLLIElement | null>>([]);
   const titleElementsRef = useRef<Array<HTMLParagraphElement | null>>([]);
   const [rems, setRems] = useState<Array<number | undefined>>([]);
@@ -159,52 +160,59 @@ export function ContainerScaleSpecimen() {
 
   return (
     <div css={styles.wrap}>
-      <ul
+      <ScrollMask
         ref={railRef}
-        css={[scrollX.base, styles.rail]}
-        aria-label={t({
-          en: "Container-width comparison cards",
-          zh: "容器宽度对比卡片",
-        })}
+        orientation="horizontal"
+        contentCss={[scrollX.base, styles.rail]}
       >
-        {CARD_WIDTHS.map((width, i) => {
-          const rem = rems[i];
-          const isActive = i === active;
-          return (
-            <li
-              key={width}
-              ref={(node) => {
-                cardElementsRef.current[i] = node;
-              }}
-              css={[
-                corner.radius_2,
-                styles.card,
-                isActive && styles.cardActive,
-                styles.cardWidth(`${width.toString()}px`),
-              ]}
-              aria-current={isActive ? "true" : undefined}
-            >
-              <div css={styles.cardInner}>
-                <span css={styles.eyebrow}>{width}px</span>
-                <p
-                  ref={(node) => {
-                    titleElementsRef.current[i] = node;
-                  }}
-                  css={[
-                    styles.specimen,
-                    styles.specimenFontSize(CQ_TITLE_CLAMP),
-                  ]}
-                >
-                  {specimen}
-                </p>
-                <span css={[styles.readout, isActive && styles.readoutActive]}>
-                  {rem === undefined ? "→ …" : `→ ${rem.toFixed(2)}rem`}
-                </span>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+        <ul
+          css={styles.cards}
+          aria-label={t({
+            en: "Container-width comparison cards",
+            zh: "容器宽度对比卡片",
+          })}
+        >
+          {CARD_WIDTHS.map((width, i) => {
+            const rem = rems[i];
+            const isActive = i === active;
+            return (
+              <li
+                key={width}
+                ref={(node) => {
+                  cardElementsRef.current[i] = node;
+                }}
+                css={[
+                  corner.radius_2,
+                  styles.card,
+                  isActive && styles.cardActive,
+                  styles.cardWidth(`${width.toString()}px`),
+                ]}
+                aria-current={isActive ? "true" : undefined}
+              >
+                <div css={styles.cardInner}>
+                  <span css={styles.eyebrow}>{width}px</span>
+                  <p
+                    ref={(node) => {
+                      titleElementsRef.current[i] = node;
+                    }}
+                    css={[
+                      styles.specimen,
+                      styles.specimenFontSize(CQ_TITLE_CLAMP),
+                    ]}
+                  >
+                    {specimen}
+                  </p>
+                  <span
+                    css={[styles.readout, isActive && styles.readoutActive]}
+                  >
+                    {rem === undefined ? "→ …" : `→ ${rem.toFixed(2)}rem`}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </ScrollMask>
 
       <div css={styles.controls}>
         <p css={styles.live} aria-live="polite">
@@ -310,12 +318,6 @@ const styles = stylex.create({
     gap: space._5,
   },
   rail: {
-    display: "flex",
-    alignItems: "stretch",
-    gap: space._3,
-    listStyle: "none",
-    margin: 0,
-    padding: space._1,
     // Let vertical swipes scroll the page; only claim horizontal panning.
     touchAction: "pan-x",
     // Snap is a swipe nicety, not essential motion — drop it under reduced-motion.
@@ -323,6 +325,15 @@ const styles = stylex.create({
       default: "x mandatory",
       "@media (prefers-reduced-motion: reduce)": "none",
     },
+  },
+  cards: {
+    display: "flex",
+    alignItems: "stretch",
+    gap: space._3,
+    listStyle: "none",
+    margin: 0,
+    padding: space._1,
+    inlineSize: "max-content",
   },
   card: {
     flexShrink: 0,
