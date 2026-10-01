@@ -50,7 +50,7 @@ export function MediaDetailContent({
         id: idString,
         language: "en",
       }),
-      configurationQuery,
+      configurationQuery(),
     ],
   });
 

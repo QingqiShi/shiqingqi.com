@@ -37,10 +37,9 @@ export function MediaList({ initialPage }: MediaListProps) {
     type: deferredMediaType,
     page: initialPage,
     language: locale,
-    with_genres:
-      [...deferredGenre].join(deferredMatchMode === "any" ? "|" : ",") ||
-      undefined,
-    sort_by: deferredSort !== "popularity.desc" ? deferredSort : undefined,
+    genres: deferredGenre,
+    matchMode: deferredMatchMode,
+    sort: deferredSort,
   });
 
   const queryResult = useSuspenseInfiniteQuery(tmdbQueryOptions);

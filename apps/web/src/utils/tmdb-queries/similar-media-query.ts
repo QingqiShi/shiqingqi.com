@@ -1,11 +1,11 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import type {
+import {
   getMovieRecommendations,
   getTvShowRecommendations,
-} from "../../_generated/tmdb-server-functions";
-import { apiRequestWrapper } from "../api-request-wrapper";
+} from "#src/_generated/tmdb-client-functions.ts";
 import { selectMediaListItems } from "./select-media-list-items";
 import { tmdbScope } from "./tmdb-scope";
+import type { TmdbFunctions } from "./types";
 
 type SimilarMediaParams = {
   type: "movie" | "tv";
@@ -14,32 +14,29 @@ type SimilarMediaParams = {
   language?: string;
 };
 
-export const similarMediaQuery = (params: SimilarMediaParams) => {
+export const similarMediaQuery = (
+  params: SimilarMediaParams,
+  tmdb: Pick<
+    TmdbFunctions,
+    "getMovieRecommendations" | "getTvShowRecommendations"
+  > = { getMovieRecommendations, getTvShowRecommendations },
+) => {
   return infiniteQueryOptions({
     queryKey: [{ query: "similarMedia", ...tmdbScope, ...params }],
     initialPageParam: params.page,
     queryFn: async ({ pageParam }) => {
-      if (params.type === "tv") {
-        const { page, type, id, ...queryParams } = params;
-        return apiRequestWrapper<typeof getTvShowRecommendations>(
-          "/api/tmdb/get-tv-show-recommendations",
-          {
+      const { page, type, id, ...queryParams } = params;
+      return type === "tv"
+        ? tmdb.getTvShowRecommendations({
             ...queryParams,
             series_id: id,
             page: pageParam,
-          },
-        );
-      } else {
-        const { page, type, id, ...queryParams } = params;
-        return apiRequestWrapper<typeof getMovieRecommendations>(
-          "/api/tmdb/get-movie-recommendations",
-          {
+          })
+        : tmdb.getMovieRecommendations({
             ...queryParams,
             movie_id: id,
             page: pageParam,
-          },
-        );
-      }
+          });
     },
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,

@@ -21,7 +21,7 @@ const createTestQueryClient = () => {
     },
   });
 
-  queryClient.setQueryData(configurationQuery.queryKey, {
+  queryClient.setQueryData(configurationQuery().queryKey, {
     images: {
       base_url: "http://image.tmdb.org/t/p/",
       secure_base_url: "https://image.tmdb.org/t/p/",

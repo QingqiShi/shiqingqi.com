@@ -3,11 +3,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { layout, ratio, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
-import {
-  getConfiguration,
-  getMovieRecommendations,
-  getTvShowRecommendations,
-} from "#src/_generated/tmdb-server-functions.ts";
+import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import { t } from "#src/i18n.ts";
 import type { SupportedLocale } from "#src/types.ts";
 import { getQueryClient } from "#src/utils/get-query-client.ts";
@@ -35,39 +31,14 @@ export function SimilarMedia({
 }: SimilarMediaProps) {
   const queryClient = getQueryClient();
 
-  // Prefetch configuration
+  queryClient.query(configurationQuery(tmdbServerFunctions)).catch(noop);
   queryClient
-    .query({
-      ...configurationQuery,
-      queryFn: async () => getConfiguration(),
-    })
-    .catch(noop);
-
-  // Prefetch similar media data to prevent SSR errors
-  queryClient
-    .infiniteQuery({
-      ...similarMediaQuery({
-        type: mediaType,
-        id: mediaId,
-        page: 1,
-        language: locale,
-      }),
-      queryFn: async ({ pageParam }) => {
-        if (mediaType === "tv") {
-          return getTvShowRecommendations({
-            series_id: mediaId,
-            page: pageParam,
-            language: locale,
-          });
-        } else {
-          return getMovieRecommendations({
-            movie_id: mediaId,
-            page: pageParam,
-            language: locale,
-          });
-        }
-      },
-    })
+    .infiniteQuery(
+      similarMediaQuery(
+        { type: mediaType, id: mediaId, page: 1, language: locale },
+        tmdbServerFunctions,
+      ),
+    )
     .catch(noop);
 
   return (

@@ -1,11 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import type {
+import {
   getMovieDetails,
   getTvShowDetails,
-} from "../../_generated/tmdb-server-functions";
-import { apiRequestWrapper } from "../api-request-wrapper";
+} from "#src/_generated/tmdb-client-functions.ts";
 import { tmdbScope } from "./tmdb-scope";
-import type { MediaDetailsParams } from "./types";
+import type { MediaDetailsParams, TmdbFunctions } from "./types";
 
 /** One Media's details, with Movie and TV show reconciled into one shape. */
 export interface NormalizedMediaDetails {
@@ -22,16 +21,22 @@ export interface NormalizedMediaDetails {
   voteCount: number;
 }
 
-export const mediaDetailsQuery = (params: MediaDetailsParams) =>
+export const mediaDetailsQuery = (
+  params: MediaDetailsParams,
+  tmdb: Pick<TmdbFunctions, "getMovieDetails" | "getTvShowDetails"> = {
+    getMovieDetails,
+    getTvShowDetails,
+  },
+) =>
   queryOptions({
     queryKey: [{ query: "mediaDetail", ...tmdbScope, ...params }],
     queryFn: async (): Promise<NormalizedMediaDetails> => {
       if (params.type === "tv") {
         const { type, id, ...queryParams } = params;
-        const data = await apiRequestWrapper<typeof getTvShowDetails>(
-          "/api/tmdb/get-tv-show-details",
-          { ...queryParams, series_id: id },
-        );
+        const data = await tmdb.getTvShowDetails({
+          ...queryParams,
+          series_id: id,
+        });
         return {
           title: data.name ?? data.original_name ?? "",
           posterPath: data.poster_path ?? null,
@@ -50,10 +55,10 @@ export const mediaDetailsQuery = (params: MediaDetailsParams) =>
         };
       }
       const { type, id, ...queryParams } = params;
-      const data = await apiRequestWrapper<typeof getMovieDetails>(
-        "/api/tmdb/get-movie-details",
-        { ...queryParams, movie_id: id },
-      );
+      const data = await tmdb.getMovieDetails({
+        ...queryParams,
+        movie_id: id,
+      });
       return {
         title: data.title ?? data.original_title ?? "",
         posterPath: data.poster_path ?? null,

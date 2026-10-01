@@ -1,36 +1,52 @@
 import { infiniteQueryOptions } from "@tanstack/react-query";
-import type {
+import {
   discoverMovies,
   discoverTvShows,
-} from "../../_generated/tmdb-server-functions";
-import { apiRequestWrapper } from "../api-request-wrapper";
-import type { QueryParams } from "../tmdb-get";
+} from "#src/_generated/tmdb-client-functions.ts";
+import type { MatchMode, MediaType, Sort } from "../types";
 import { selectMediaListItems } from "./select-media-list-items";
 import { tmdbScope } from "./tmdb-scope";
+import type { TmdbFunctions } from "./types";
 
-type MovieListParams = QueryParams<"/3/discover/movie", "get"> & {
-  type: "movie";
-};
-type TvShowListParams = QueryParams<"/3/discover/tv", "get"> & { type: "tv" };
+/** The Browse filters that select one Discover result set. */
+interface MediaListParams {
+  type: MediaType;
+  page: number;
+  language: string;
+  genres: Iterable<string>;
+  matchMode?: MatchMode;
+  sort?: Sort;
+}
 
-export const mediaListQuery = (params: MovieListParams | TvShowListParams) => {
+function toDiscoverParams({
+  genres,
+  matchMode,
+  sort,
+  ...params
+}: MediaListParams) {
+  return {
+    ...params,
+    with_genres: [...genres].join(matchMode === "any" ? "|" : ",") || undefined,
+    sort_by: sort !== "popularity.desc" ? sort : undefined,
+  };
+}
+
+export const mediaListQuery = (
+  params: MediaListParams,
+  tmdb: Pick<TmdbFunctions, "discoverMovies" | "discoverTvShows"> = {
+    discoverMovies,
+    discoverTvShows,
+  },
+) => {
+  const discoverParams = toDiscoverParams(params);
   return infiniteQueryOptions({
-    queryKey: [{ query: "mediaList", ...tmdbScope, ...params }],
-    initialPageParam: params.page,
+    queryKey: [{ query: "mediaList", ...tmdbScope, ...discoverParams }],
+    initialPageParam: discoverParams.page,
     queryFn: async ({ pageParam }) => {
-      if (params.type === "tv") {
-        const { page, type, ...queryParams } = params;
-        return apiRequestWrapper<typeof discoverTvShows>(
-          "/api/tmdb/discover-tv-shows",
-          { ...queryParams, page: pageParam },
-        );
-      } else {
-        const { page, type, ...queryParams } = params;
-        return apiRequestWrapper<typeof discoverMovies>(
-          "/api/tmdb/discover-movies",
-          { ...queryParams, page: pageParam },
-        );
-      }
+      const { type, ...queryParams } = discoverParams;
+      return type === "tv"
+        ? tmdb.discoverTvShows({ ...queryParams, page: pageParam })
+        : tmdb.discoverMovies({ ...queryParams, page: pageParam });
     },
     getPreviousPageParam: (firstPage) =>
       firstPage.page > 1 ? firstPage.page - 1 : undefined,

@@ -1,33 +1,30 @@
 import { queryOptions } from "@tanstack/react-query";
-import type {
+import {
   getMovieGenres,
   getTvShowGenres,
-} from "../../_generated/tmdb-server-functions";
-import { apiRequestWrapper } from "../api-request-wrapper";
+} from "#src/_generated/tmdb-client-functions.ts";
 import { tmdbScope } from "./tmdb-scope";
+import type { TmdbFunctions } from "./types";
 
 type GenresParams = {
   type: "movie" | "tv";
   language?: string;
 };
 
-export const genresQuery = (params: GenresParams) =>
+export const genresQuery = (
+  params: GenresParams,
+  tmdb: Pick<TmdbFunctions, "getMovieGenres" | "getTvShowGenres"> = {
+    getMovieGenres,
+    getTvShowGenres,
+  },
+) =>
   queryOptions({
     queryKey: [{ query: "genres", ...tmdbScope, ...params }],
     queryFn: async () => {
-      if (params.type === "tv") {
-        const { type, ...queryParams } = params;
-        return apiRequestWrapper<typeof getTvShowGenres>(
-          "/api/tmdb/get-tv-genres",
-          queryParams,
-        );
-      } else {
-        const { type, ...queryParams } = params;
-        return apiRequestWrapper<typeof getMovieGenres>(
-          "/api/tmdb/get-movie-genres",
-          queryParams,
-        );
-      }
+      const { type, ...queryParams } = params;
+      return type === "tv"
+        ? tmdb.getTvShowGenres(queryParams)
+        : tmdb.getMovieGenres(queryParams);
     },
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,

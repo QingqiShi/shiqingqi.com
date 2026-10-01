@@ -320,7 +320,7 @@ export function MediaTable({
   // Both queries are prefetched and hydrated by the page, so they resolve from
   // cache on the first render. `useQuery` rather than its suspense sibling: a
   // cache miss should degrade the chrome, not blank the table.
-  const { data: config } = useQuery(configurationQuery);
+  const { data: config } = useQuery(configurationQuery());
   const { data: genreData } = useQuery(
     genresQuery({ type: mediaType, language: locale }),
   );
