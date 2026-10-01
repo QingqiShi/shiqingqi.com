@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import babel from "@rolldown/plugin-babel";
-import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
+import { stylexPlugins } from "@tuja/babel-plugins/stylex-plugins";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
@@ -28,18 +28,11 @@ export default defineConfig({
         ],
         "@babel/preset-typescript",
       ],
-      plugins: [
-        [
-          "@tuja/babel-plugins/stylex-breakpoints",
-          {
-            rootDir: __dirname,
-          },
-        ],
-        [
-          "@stylexjs/babel-plugin",
-          stylexPluginOptions({ rootDir: workspaceRoot, nodeEnv: "test" }),
-        ],
-      ],
+      plugins: stylexPlugins({
+        rootDir: workspaceRoot,
+        breakpointsRootDir: __dirname,
+        nodeEnv: "test",
+      }),
     }),
     react({
       jsxRuntime: "automatic",

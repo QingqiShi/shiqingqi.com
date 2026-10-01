@@ -7,7 +7,9 @@ token array, `@tuja/babel-plugins/stylex-breakpoints` inlines StyleX
 breakpoint constants into media-query keys, and `@tuja/babel-plugins/i18n`
 compiles the site's `t()` calls. `@tuja/babel-plugins/stylex-options` is not a
 plugin: it is the one option set every StyleX build in the repo hands
-`@stylexjs/babel-plugin`.
+`@stylexjs/babel-plugin`. `@tuja/babel-plugins/stylex-plugins` puts the two
+together: the breakpoints plugin, then `@stylexjs/babel-plugin` with those
+options.
 
 ## @tuja/babel-plugins/specimen-source
 
@@ -292,6 +294,34 @@ module.exports = {
 
 `rootDir` is the directory `unstable_moduleResolution` resolves a `.stylex.ts`
 import against, and `nodeEnv` decides the plugin's `dev` and `test` modes.
+
+## @tuja/babel-plugins/stylex-plugins
+
+The StyleX part of a Babel plugin chain, as one call: `stylex-breakpoints`,
+then `@stylexjs/babel-plugin` with the options from `stylex-options`. Every
+build in the repo that compiles StyleX spreads it into its plugin list, so none
+can drop the breakpoints plugin, run the two in the wrong order, or pass other
+options. ESLint reports `@stylexjs/babel-plugin` named anywhere else.
+
+```js
+// babel.config.js
+const path = require("node:path");
+const { stylexPlugins } = require("@tuja/babel-plugins/stylex-plugins");
+
+module.exports = {
+  plugins: [
+    ...stylexPlugins({
+      rootDir: path.resolve(__dirname, "../.."),
+      breakpointsRootDir: path.resolve(__dirname, "../../packages/ui"),
+      nodeEnv: process.env.NODE_ENV,
+    }),
+  ],
+};
+```
+
+`breakpointsRootDir` is the package that owns `src/breakpoints.stylex.ts`. Each
+plugin comes back as a resolved path, so the chain works from any working
+directory.
 
 ## @tuja/babel-plugins/i18n
 

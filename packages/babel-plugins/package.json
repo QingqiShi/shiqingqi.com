@@ -2,7 +2,7 @@
   "name": "@tuja/babel-plugins",
   "version": "0.0.0",
   "private": true,
-  "description": "Babel plugins behind qingqi.dev: specimen source capture, StyleX breakpoint constants, the shared StyleX plugin options, and the site's i18n transform.",
+  "description": "Babel plugins behind qingqi.dev: specimen source capture, StyleX breakpoint constants, the shared StyleX plugin options and plugin pair, and the site's i18n transform.",
   "homepage": "https://github.com/QingqiShi/shiqingqi.com/tree/master/packages/babel-plugins#readme",
   "bugs": {
     "url": "https://github.com/QingqiShi/shiqingqi.com/issues"
@@ -20,6 +20,7 @@
     "./specimen-source/token-kinds": "./src/specimen-source/token-kinds.js",
     "./stylex-breakpoints": "./src/stylex-breakpoints/index.js",
     "./stylex-options": "./src/stylex-options/index.js",
+    "./stylex-plugins": "./src/stylex-plugins/index.js",
     "./i18n": "./src/i18n/index.js",
     "./i18n/extract-translations": "./src/i18n/extract-translations.js",
     "./i18n/generate-key": "./src/i18n/generate-key.js",
@@ -37,6 +38,7 @@
   "dependencies": {
     "@babel/parser": "catalog:",
     "@babel/traverse": "catalog:",
+    "@stylexjs/babel-plugin": "catalog:",
     "@tuja/module-exports": "workspace:*"
   },
   "peerDependencies": {

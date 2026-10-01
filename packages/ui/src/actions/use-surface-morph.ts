@@ -1,17 +1,6 @@
 import { useLayoutEffect, useRef, type RefObject } from "react";
-import {
-  duration,
-  easing,
-  motionConstants,
-} from "../primitives/motion.stylex.ts";
-
-// Derived from the StyleX const so the JS check cannot drift from the style
-// one. `matchMedia` needs the bare condition; the StyleX const carries the
-// `@media ` prefix.
-const REDUCED_MOTION_QUERY = motionConstants.REDUCED_MOTION.replace(
-  "@media ",
-  "",
-);
+import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
+import { duration, easing } from "../primitives/motion.stylex.ts";
 
 // An empty value drops the inline override, returning the surface to the
 // stylesheet's full container box. It then keeps that box if the popup
@@ -83,7 +72,7 @@ export function useSurfaceMorph({
     if (!surface || !frame || !trigger) return;
 
     // Reduced motion drops the geometry: the surface cross-fades in place.
-    if (window.matchMedia(REDUCED_MOTION_QUERY).matches) {
+    if (prefersReducedMotion()) {
       surface.style.transition = "none";
       setSurfaceBox(surface, FULL_BOX);
       forceReflow(surface);

@@ -8,6 +8,7 @@ import importPlugin from "eslint-plugin-import-x";
 import reactHooks from "eslint-plugin-react-hooks";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import { defineConfig } from "eslint/config";
+import { builtinRules } from "eslint/use-at-your-own-risk";
 import { createRequire } from "node:module";
 import tsEslint from "typescript-eslint";
 
@@ -19,11 +20,26 @@ const anchorNameLimit = {
   reason: "An anchor name is a dashed ident, e.g. `--name`.",
 };
 
+// A ban with a narrower scope than the base config is a copy of
+// `no-restricted-syntax` under its own name. Flat config does not merge the
+// options of one rule from two config objects, so one shared rule needs an
+// object for each mix of scopes.
+const noRestrictedSyntax = builtinRules.get("no-restricted-syntax");
+const restrictedPlugin = {
+  rules: {
+    "stylex-babel-plugin": noRestrictedSyntax,
+    "tmdb-query-fn": noRestrictedSyntax,
+    "reduced-motion": noRestrictedSyntax,
+  },
+};
+
+const stylexPluginsMessage =
+  "Take the StyleX Babel plugins from `stylexPlugins()` in `@tuja/babel-plugins/stylex-plugins`, so every build runs the breakpoints plugin first and the shared options.";
+
 export default defineConfig([
   {
     ignores: [
       "apps/*/babel.config.js",
-      "apps/*/babel-plugins.mjs",
       "eslint.config.mjs",
       "apps/*/next.config.js",
       "apps/*/postcss.config.js",
@@ -49,6 +65,7 @@ export default defineConfig([
       "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
       "@tuja": tujaPlugin,
+      restricted: restrictedPlugin,
       "@eslint-community/eslint-comments": comments,
     },
     languageOptions: {
@@ -66,6 +83,7 @@ export default defineConfig([
       "@stylexjs/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
+      "import-x/no-relative-packages": "error",
       "import-x/order": [
         "error",
         {
@@ -110,6 +128,25 @@ export default defineConfig([
           message:
             "Angle-bracket type assertions are banned for the same reason as `as`.",
         },
+        {
+          selector:
+            'CallExpression[callee.object.name="vi"][callee.property.name=/^(mock|doMock)$/][arguments.0.value="server-only"]',
+          message:
+            "Vitest aliases `server-only` to a stub, so a mock of it does nothing.",
+        },
+      ],
+      "restricted/stylex-babel-plugin": [
+        "error",
+        {
+          selector:
+            ':not(ImportDeclaration) > Literal[value="@stylexjs/babel-plugin"]',
+          message: stylexPluginsMessage,
+        },
+        {
+          selector:
+            'ImportDeclaration[source.value="@stylexjs/babel-plugin"]:not([importKind="type"])',
+          message: stylexPluginsMessage,
+        },
       ],
       // Inline disables are the sanctioned escape hatch for genuinely
       // unavoidable violations: name the rule and state a reason after `--`.
@@ -148,6 +185,59 @@ export default defineConfig([
           destructuredArrayIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           ignoreRestSiblings: true,
+        },
+      ],
+    },
+  },
+  {
+    files: ["packages/babel-plugins/**"],
+    rules: {
+      "restricted/stylex-babel-plugin": "off",
+    },
+  },
+  {
+    files: ["apps/web/src/**"],
+    ignores: ["apps/web/src/movie-database/tmdb/queries/**"],
+    rules: {
+      "restricted/tmdb-query-fn": [
+        "error",
+        {
+          selector:
+            'ObjectExpression > Property:matches([key.name="queryFn"], [key.value="queryFn"])',
+          message:
+            "Define a TMDB query's `queryFn` in `#src/movie-database/tmdb/queries/`, so each query has one params-to-call mapping for client and server.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["apps/web/src/**", "packages/ui/src/**"],
+    ignores: [
+      "**/*.{test,spec}.{ts,tsx}",
+      "apps/web/src/testing/**",
+      "packages/ui/src/test-setup.ts",
+      "packages/ui/src/test-support/**",
+    ],
+    rules: {
+      "restricted/reduced-motion": [
+        "error",
+        {
+          selector:
+            'CallExpression:matches([callee.name="matchMedia"], [callee.property.name="matchMedia"]) :matches(Literal[value=/prefers-reduced-motion/], TemplateElement[value.raw=/prefers-reduced-motion/])',
+          message:
+            "Read reduced motion through `usePrefersReducedMotion()`, or through `prefersReducedMotion()` from `@tuja/ui/utils/prefers-reduced-motion` inside an effect.",
+        },
+        {
+          selector:
+            ":not(CallExpression) > Literal[value=/^\\(prefers-reduced-motion\\s*[:)]/]",
+          message:
+            "Use `REDUCED_MOTION_QUERY` from `@tuja/ui/utils/prefers-reduced-motion`. It comes from the StyleX const, so the script side and the style side cannot drift.",
+        },
+        {
+          selector:
+            'UnaryExpression[operator="typeof"]:matches([argument.name="matchMedia"], [argument.property.name="matchMedia"])',
+          message:
+            "Every supported browser has `matchMedia`, and the jsdom test setup installs one. Do not guard it.",
         },
       ],
     },
@@ -306,6 +396,7 @@ export default defineConfig([
       "packages/**/*.mjs",
       "scripts/**/*.mjs",
       "apps/*/e2e/**/*.mjs",
+      "apps/*/babel-plugins.mjs",
       "packages/tmdb-codegen/src/generator.js",
     ],
     ...tsEslint.configs.disableTypeChecked,

@@ -1,7 +1,7 @@
 // @ts-check
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { stylexPluginOptions } from "@tuja/babel-plugins/stylex-options";
+import { stylexPlugins } from "@tuja/babel-plugins/stylex-plugins";
 
 const appRoot = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(appRoot, "../..");
@@ -30,15 +30,10 @@ export function babelPlugins({ nodeEnv }) {
         },
       },
     ],
-    [
-      "@tuja/babel-plugins/stylex-breakpoints",
-      {
-        rootDir: uiPackageRoot,
-      },
-    ],
-    [
-      "@stylexjs/babel-plugin",
-      stylexPluginOptions({ rootDir: workspaceRoot, nodeEnv }),
-    ],
+    ...stylexPlugins({
+      rootDir: workspaceRoot,
+      breakpointsRootDir: uiPackageRoot,
+      nodeEnv,
+    }),
   ];
 }

@@ -88,8 +88,15 @@ ruleTester.run("no-banned-copy-words", rule, {
             const label = t({ en: "ARIA-INVALID is set on error", zh: "出错时会设置 ARIA-INVALID" });
           `,
     },
+    // V11: A computed identifier key names whatever the variable holds
+    {
+      code: `
+            import { t } from "#src/i18n";
+            const en = "zh";
+            const label = t({ [en]: "Simply the best", zh: "最好的" });
+          `,
+    },
   ],
-
   invalid: [
     // I1: Banned word in en (string literal)
     {
@@ -156,6 +163,22 @@ ruleTester.run("no-banned-copy-words", rule, {
             const label = t({ en: "Unlike aria-invalid, data-invalid is not a real attribute", zh: "与 aria-invalid 不同，data-invalid 不是真实属性" });
           `,
       errors: [{ messageId: "bannedWord", data: { word: "invalid" } }],
+    },
+    // I9: A quoted "en" key names the same property, as the Babel plugin reads it
+    {
+      code: `
+            import { t } from "#src/i18n";
+            const label = t({ "en": "Simply the best", "zh": "最好的" });
+          `,
+      errors: [{ messageId: "bannedWord", data: { word: "simply" } }],
+    },
+    // I10: So does a computed string-literal key
+    {
+      code: `
+            import { t } from "#src/i18n";
+            const label = t({ ["en"]: "Simply the best", zh: "最好的" });
+          `,
+      errors: [{ messageId: "bannedWord", data: { word: "simply" } }],
     },
   ],
 });
