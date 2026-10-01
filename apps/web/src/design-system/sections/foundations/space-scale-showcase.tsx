@@ -1,5 +1,8 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import { ScrollMask } from "@tuja/ui/components/scroll-mask";
+import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -44,75 +47,90 @@ export function SpaceScaleShowcase() {
           zh: "以 rem 为基准的十八个步长，皆按真实尺寸从同一基线量起——低端细密，随阶梯上行而增大。",
         })}
       </ShowcaseHelper>
-      <div css={styles.scroller}>
-        <ol css={styles.ledger}>
+      <div css={styles.ruler}>
+        <ol css={styles.labels}>
           {steps.map((step) => (
-            <li key={step.member} css={styles.row}>
-              <div css={styles.meta}>
-                <span css={styles.token}>{`space.${step.member}`}</span>
-                <span css={styles.value}>
-                  <span css={styles.rem}>{step.rem}</span>
-                  <span css={styles.dot}>·</span>
-                  <span css={styles.px}>{step.px}</span>
-                </span>
-              </div>
-              <span css={[styles.bar, step.bar]} />
+            <li key={step.member} css={[styles.row, styles.label]}>
+              <span css={styles.token}>{`space.${step.member}`}</span>
+              <span css={styles.value}>
+                <span css={styles.rem}>{step.rem}</span>
+                <span css={styles.dot}>·</span>
+                <span css={styles.px}>{step.px}</span>
+              </span>
             </li>
           ))}
         </ol>
+        <ScrollMask
+          orientation="horizontal"
+          css={styles.barsRegion}
+          contentCss={[
+            scrollbar.autoHide,
+            transition.scrollbarColor,
+            styles.scroller,
+          ]}
+        >
+          <div aria-hidden="true" css={styles.bars}>
+            {steps.map((step) => (
+              <div key={step.member} css={[styles.row, styles.barRow]}>
+                <span css={[styles.bar, step.bar]} />
+              </div>
+            ))}
+          </div>
+        </ScrollMask>
       </div>
     </Showcase>
   );
 }
 
 const styles = stylex.create({
-  // The largest steps (up to 35rem) outrun the column on narrow viewports, so
-  // the scroll lives on this wrapper while the ledger sizes to its content.
-  scroller: {
-    overflowX: "auto",
-    overscrollBehaviorX: "contain",
-    minInlineSize: 0,
+  // The labels stay still and only the bars scroll, so the Scroll mask's
+  // start edge is the ruler's zero line.
+  ruler: {
+    display: "flex",
   },
-  ledger: {
+  // The largest steps (up to 35rem) outrun the column on narrow viewports.
+  barsRegion: {
+    flexGrow: 1,
+  },
+  scroller: {
+    overscrollBehaviorX: "contain",
+  },
+  // The labels and the bars are two columns, so each row takes a fixed height
+  // of two caption lines to keep a label beside its bar.
+  row: {
+    display: "flex",
+    fontSize: font.uiCaption,
+    lineHeight: font.lineHeight_2,
+    blockSize: `calc(2lh + ${space._00})`,
+  },
+  // The hairline is the ruler's zero line.
+  labels: {
     listStyle: "none",
     margin: 0,
     padding: 0,
     display: "flex",
     flexDirection: "column",
     gap: space._1,
-    // Width tracks the widest row so every row stretches to the full scroll
-    // width — that gives the sticky meta a containing block it can travel across.
-    // `min-inline-size: 100%` keeps the ledger filling the lane when it all fits.
-    inlineSize: "max-content",
-    minInlineSize: "100%",
-  },
-  // A flex row (not grid): the meta's containing block is the whole row, so its
-  // `position: sticky` can travel the full scroll distance. In a grid the meta
-  // is confined to its narrow cell and slides off with the row.
-  row: {
-    display: "flex",
-    alignItems: "center",
-  },
-  meta: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
-    // Fixed width, never shrinks — the token labels stay legible and the bars
-    // all start from the same baseline.
     inlineSize: "9rem",
     flexShrink: 0,
     boxSizing: "border-box",
-    // Pinned to the ledger's leading edge so the token label survives the
-    // horizontal scroll the widest bars force; the opaque surface masks bars
-    // sliding underneath and the hairline is the ruler's zero line.
-    position: "sticky",
-    insetInlineStart: 0,
-    zIndex: 1,
-    backgroundColor: color.bgSurface,
     paddingInlineEnd: space._4,
     borderInlineEndWidth: "1px",
     borderInlineEndStyle: "solid",
     borderInlineEndColor: color.border,
+  },
+  label: {
+    flexDirection: "column",
+    justifyContent: "center",
+    gap: space._00,
+  },
+  bars: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._1,
+  },
+  barRow: {
+    alignItems: "center",
   },
   token: {
     fontFamily: font.familyMono,

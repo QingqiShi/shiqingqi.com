@@ -101,7 +101,10 @@ describe("CodeBlock source", () => {
   it("lets a keyboard reach the scroll container", () => {
     const { container } = render(<CodeBlock source={SOURCE} />);
 
-    expect(container.firstElementChild).toHaveAttribute("tabindex", "0");
+    expect(container.querySelector("pre")?.parentElement).toHaveAttribute(
+      "tabindex",
+      "0",
+    );
   });
 
   it("draws nothing for an empty source", () => {
@@ -144,7 +147,7 @@ describe("CodeBlock parts", () => {
 
     rerender(<CodeBlock parts={[first[0]]} />);
 
-    const ghost = container.querySelector('[aria-hidden="true"]');
+    const ghost = container.querySelector('code [aria-hidden="true"]');
     expect(ghost?.textContent).toBe("gone");
     expect(
       stub.calls.some(

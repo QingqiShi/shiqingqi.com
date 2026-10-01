@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
@@ -242,7 +244,11 @@ export function LayoutShowcase() {
             zh: "一套具名的 z-index 阶梯，让层叠顺序成为令牌而非魔法数字。每个平面都压在下一个之上——页面的渐进虚化位于全部控件之下、菜单或吸顶栏抬升于滚动内容之上、页头再压过它们、打开的覆盖层盖过应用框架、提示条盖过一切。",
           })}
         </ShowcaseHelper>
-        <div css={[scrollX.base, styles.layerScroll]}>
+        <ScrollMask
+          orientation="horizontal"
+          css={styles.layerScroll}
+          contentCss={[scrollX.base, styles.layerScroller]}
+        >
           <div css={styles.layerStack}>
             {layers.map((plane, index) => (
               <div
@@ -251,9 +257,7 @@ export function LayoutShowcase() {
                   corner.radius_2,
                   styles.layerCard,
                   plane.z,
-                  styles.layerOffset(
-                    `translateX(${(index * 18).toString()}px)`,
-                  ),
+                  styles.layerOffset(index),
                 ]}
               >
                 <span css={styles.layerName}>layer.{plane.name}</span>
@@ -261,7 +265,7 @@ export function LayoutShowcase() {
               </div>
             ))}
           </div>
-        </div>
+        </ScrollMask>
       </Showcase>
 
       <Showcase label={t({ en: "Aspect ratios", zh: "宽高比" })}>
@@ -499,13 +503,15 @@ const styles = stylex.create({
   },
   layerScroll: {
     marginInline: `calc(-1 * ${space._1})`,
+  },
+  layerScroller: {
     paddingInline: space._1,
   },
   layerStack: {
     display: "flex",
     flexDirection: "column",
     paddingBlock: space._2,
-    paddingInlineEnd: space._9,
+    paddingInlineEnd: space._3,
     minInlineSize: "max-content",
     // Contain the z-index scale in its own stacking context so the negative
     // `background` layer paints above the section surface, not behind it.
@@ -526,8 +532,12 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.border,
   },
-  layerOffset: (transform: string) => ({
-    transform,
+  // A narrow step on a phone, so the whole stair fits beside the cards.
+  layerOffset: (index: number) => ({
+    transform: {
+      default: `translateX(calc(${String(index)} * ${space._2}))`,
+      [breakpoints.md]: `translateX(calc(${String(index)} * ${space._4}))`,
+    },
   }),
   layerName: {
     fontFamily: font.familyMono,

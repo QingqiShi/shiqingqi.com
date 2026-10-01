@@ -1,8 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { useId, type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 import { color, font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { tableTokens } from "./table.stylex.ts";
@@ -33,10 +35,10 @@ interface TableProps extends Omit<
    */
   stickyHeader?: boolean;
   /**
-   * StyleX overrides for the scroll container, composed last — where a
+   * StyleX overrides for the scroll region's root, composed last — where a
    * height or a width cap goes.
    *
-   * @zh 最后合成的滚动容器 StyleX 覆盖样式——高度或宽度上限写在这里。
+   * @zh 最后合成的滚动区域根元素 StyleX 覆盖样式——高度或宽度上限写在这里。
    */
   containerCss?: StyleProp;
   /**
@@ -73,17 +75,19 @@ export function Table({
   const captionId = useId();
 
   return (
-    <div
+    <ScrollMask
+      orientation="horizontal"
       role="region"
       aria-labelledby={captionId}
       tabIndex={0}
-      css={[
+      css={[corner.radius_2, styles.container, containerCss]}
+      contentCss={[
         scrollX.base,
         scrollX.focusRing,
         scrollbar.autoHide,
         transition.scrollbarColor,
-        styles.container,
-        containerCss,
+        styles.scroller,
+        stickyHeader && styles.scrollBlock,
       ]}
     >
       <table
@@ -99,7 +103,7 @@ export function Table({
         </caption>
         {children}
       </table>
-    </div>
+    </ScrollMask>
   );
 }
 
@@ -113,7 +117,15 @@ export { TableCell } from "./table-cell.tsx";
 const styles = stylex.create({
   container: {
     maxInlineSize: "100%",
-    minInlineSize: 0,
+  },
+  // The head is always positioned and raised over the rows. The scroller keeps
+  // that raise inside itself, so the Scroll mask blurs the head too.
+  scroller: {
+    isolation: "isolate",
+  },
+  // A sticky head sticks to the scroller, so the rows have to scroll there.
+  scrollBlock: {
+    overflowY: "auto",
   },
   // Re-stated here, not left to the token default: a nested plain table would
   // otherwise inherit the outer sticky table's head inset.

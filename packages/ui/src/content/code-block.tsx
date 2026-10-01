@@ -3,8 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { Fragment, useLayoutEffect, useRef } from "react";
 import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
+import { corner } from "../primitives/corner.stylex.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
 import { easing, transition } from "../primitives/motion.stylex.ts";
+import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { codeRun } from "./code-run.stylex.ts";
@@ -37,9 +39,10 @@ export interface CodePart {
 
 interface CodeBlockBaseProps {
   /**
-   * StyleX overrides merged last.
+   * StyleX overrides merged last, on the block's root — how it sits in the
+   * layout around it.
    *
-   * @zh 最后合并的 StyleX 覆盖样式。
+   * @zh 最后合并的 StyleX 覆盖样式，作用于代码块的根元素——控制它在周围布局中的位置。
    */
   css?: StyleProp;
 }
@@ -280,22 +283,23 @@ function PartsCode({ parts }: PartsCodeProps) {
  * Draws a snippet as coloured runs. `source` draws plain runs, for a snippet
  * that never changes; `parts` draws boxes that animate, so a change of parts
  * plays like a code-walkthrough slide. The block scrolls inside itself, so a
- * wide line never widens the page.
+ * wide line never widens the page, and a Scroll mask marks each edge it can
+ * still scroll to.
  *
  * The boxes animate on the page's own DOM rather than as view-transition
  * snapshots, because a snapshot escapes the scroller's clip.
  */
 export function CodeBlock({ source, parts, css }: CodeBlockProps) {
   return (
-    <div
+    <ScrollMask
+      orientation="horizontal"
       tabIndex={0}
-      css={[
+      css={[corner.radius_2, css]}
+      contentCss={[
         scrollX.base,
         scrollX.focusRing,
         scrollbar.autoHide,
         transition.scrollbarColor,
-        styles.scroller,
-        css,
       ]}
     >
       <pre css={styles.pre}>
@@ -305,14 +309,11 @@ export function CodeBlock({ source, parts, css }: CodeBlockProps) {
           <PartsCode parts={parts} />
         )}
       </pre>
-    </div>
+    </ScrollMask>
   );
 }
 
 const styles = stylex.create({
-  scroller: {
-    minInlineSize: 0,
-  },
   pre: {
     margin: 0,
   },

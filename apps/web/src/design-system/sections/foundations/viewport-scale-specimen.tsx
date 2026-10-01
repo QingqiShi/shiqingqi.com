@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
@@ -116,7 +117,12 @@ export function ViewportScaleSpecimen() {
 
   return (
     <div css={styles.wrap}>
-      <div ref={scrollRef} css={[scrollX.base, styles.scroll]}>
+      <ScrollMask
+        ref={scrollRef}
+        orientation="horizontal"
+        css={styles.scrollRoot}
+        contentCss={[scrollX.base, styles.scroll]}
+      >
         <div css={styles.matrix}>
           <span aria-hidden="true" />
           {STEPS.map((step, c) => {
@@ -165,7 +171,7 @@ export function ViewportScaleSpecimen() {
             </Fragment>
           ))}
         </div>
-      </div>
+      </ScrollMask>
 
       <p css={styles.marker} aria-live="polite">
         <span css={styles.markerLabel}>
@@ -192,9 +198,11 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: space._3,
   },
+  scrollRoot: {
+    marginInline: `calc(-1 * ${space._1})`,
+  },
   scroll: {
     touchAction: "pan-x",
-    marginInline: `calc(-1 * ${space._1})`,
     paddingInline: space._1,
   },
   matrix: {
