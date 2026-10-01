@@ -36,7 +36,7 @@ Labels indicate the **type of change**, not the project or area. Use exactly one
 | `ci`       | CI/CD pipeline changes                 | `ci`        |
 | `test`     | Testing infrastructure                 | `test`      |
 
-The "Commit type" column shows how the label maps to the prefix used in commit messages and PR titles (via the `raise-pr` skill). This keeps issue categorization and commit conventions aligned — a `feature` issue results in a `feat:` PR.
+The "Commit type" column shows how the label maps to the Conventional Commits prefix used in commit messages and PR titles. This keeps issue categorization and commit conventions aligned — a `feature` issue results in a `feat:` PR.
 
 Dependabot labels (`dependencies`, `javascript`, `github_actions`) are auto-applied and separate from this scheme.
 

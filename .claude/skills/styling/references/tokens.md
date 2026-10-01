@@ -1,6 +1,6 @@
 # Design Tokens — Full API Reference
 
-All tokens are theme-aware (light/dark) and imported from `#src/tokens.stylex.ts`.
+All tokens are theme-aware (light/dark) and imported from `@tuja/ui/tokens.stylex`.
 
 ## Table of Contents
 
@@ -11,7 +11,9 @@ All tokens are theme-aware (light/dark) and imported from `#src/tokens.stylex.ts
 - [Border](#border)
 - [Shadow](#shadow)
 - [Layer](#layer)
+- [Opacity](#opacity)
 - [Ratio](#ratio)
+- [Constants and Layout](#constants-and-layout)
 
 ---
 
@@ -185,15 +187,30 @@ Spacing scale from `0.1rem` to `35rem`.
 
 `font.family` — `Inter,Inter-fallback,sans-serif`
 
+`font.familyMono` — IBM Plex Mono, then the platform monospace fonts
+
 ### Sizes — Static UI
 
-| Token              | Value     |
-| ------------------ | --------- |
-| `font.uiHeading1`  | `1.5rem`  |
-| `font.uiHeading2`  | `1.25rem` |
-| `font.uiHeading3`  | `1.1rem`  |
-| `font.uiBody`      | `1rem`    |
-| `font.uiBodySmall` | `0.85rem` |
+| Token               | Value     |
+| ------------------- | --------- |
+| `font.uiDisplay`    | `3rem`    |
+| `font.uiSubDisplay` | `2rem`    |
+| `font.uiHeading1`   | `1.5rem`  |
+| `font.uiHeading2`   | `1.25rem` |
+| `font.uiHeading3`   | `1.1rem`  |
+| `font.uiBody`       | `1rem`    |
+| `font.uiBodySmall`  | `0.85rem` |
+| `font.uiCaption`    | `0.75rem` |
+| `font.uiOverline`   | `0.7rem`  |
+
+### Sizes — Controls
+
+Larger on mobile, smaller from the md breakpoint:
+
+| Token                   | Default  | md        |
+| ----------------------- | -------- | --------- |
+| `font.uiControl`        | `1.2rem` | `1rem`    |
+| `font.uiControlCaption` | `0.9rem` | `0.75rem` |
 
 ### Sizes — Viewport-Responsive
 
@@ -229,24 +246,36 @@ Scales across breakpoints (sm → md → lg):
 | `font.lineHeight_4`  | `1.5`  |
 | `font.lineHeight_5`  | `2`    |
 
+### Letter Spacing
+
+| Token                 | Value      |
+| --------------------- | ---------- |
+| `font.trackingTight`  | `-0.025em` |
+| `font.trackingSnug`   | `-0.01em`  |
+| `font.trackingNormal` | `0`        |
+| `font.trackingWide`   | `0.025em`  |
+| `font.trackingWider`  | `0.05em`   |
+| `font.trackingWidest` | `0.12em`   |
+
 ---
 
 ## Control Size
 
 Responsive sizing for interactive components. Larger on mobile (touch targets), smaller on desktop (md+ breakpoint).
 
-| Token            | Mobile (default) | Desktop (md+) |
-| ---------------- | ---------------- | ------------- |
-| `controlSize._0` | `2.4px`          | `2px`         |
-| `controlSize._1` | `4.8px`          | `4px`         |
-| `controlSize._2` | `9.6px`          | `8px`         |
-| `controlSize._3` | `14.4px`         | `12px`        |
-| `controlSize._4` | `19.2px`         | `16px`        |
-| `controlSize._5` | `24px`           | `20px`        |
-| `controlSize._6` | `28.8px`         | `24px`        |
-| `controlSize._7` | `33.6px`         | `28px`        |
-| `controlSize._8` | `38.4px`         | `32px`        |
-| `controlSize._9` | `48px`           | `40px`        |
+| Token             | Mobile (default) | Desktop (md+) |
+| ----------------- | ---------------- | ------------- |
+| `controlSize._0`  | `2.4px`          | `2px`         |
+| `controlSize._1`  | `4.8px`          | `4px`         |
+| `controlSize._2`  | `9.6px`          | `8px`         |
+| `controlSize._3`  | `14.4px`         | `12px`        |
+| `controlSize._4`  | `19.2px`         | `16px`        |
+| `controlSize._5`  | `24px`           | `20px`        |
+| `controlSize._6`  | `28.8px`         | `24px`        |
+| `controlSize._7`  | `33.6px`         | `28px`        |
+| `controlSize._8`  | `38.4px`         | `32px`        |
+| `controlSize._9`  | `48px`           | `40px`        |
+| `controlSize._10` | `57.6px`         | `48px`        |
 
 ---
 
@@ -290,10 +319,20 @@ Z-index scale for stacking context.
 | `layer.background` | `-100` |
 | `layer.base`       | `0`    |
 | `layer.content`    | `100`  |
-| `layer.overlay`    | `200`  |
+| `layer.blur`       | `150`  |
+| `layer.raised`     | `200`  |
 | `layer.header`     | `300`  |
-| `layer.tooltip`    | `400`  |
-| `layer.toaster`    | `500`  |
+| `layer.overlay`    | `400`  |
+| `layer.tooltip`    | `500`  |
+| `layer.toaster`    | `600`  |
+
+---
+
+## Opacity
+
+| Token              | Value |
+| ------------------ | ----- |
+| `opacity.disabled` | `0.6` |
 
 ---
 
@@ -310,3 +349,13 @@ Aspect ratio tokens for use with `aspectRatio` CSS property.
 | `ratio.wide`     | `16/9`    |
 | `ratio.poster`   | `2/3`     |
 | `ratio.portrait` | `3/4`     |
+
+---
+
+## Constants and Layout
+
+These are `stylex.defineConsts`, not theme-aware vars.
+
+- `constants.DARK` — the `prefers-color-scheme: dark` media query
+- `constants.NO_CORNER_SHAPE` — the `@supports` query for a browser without `corner-shape`; the `border.radius_*` steps shrink under it
+- `layout.maxInlineSize` — `1140px`, the widest a content column grows
