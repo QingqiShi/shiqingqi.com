@@ -23,6 +23,7 @@ export default defineConfig([
   {
     ignores: [
       "apps/*/babel.config.js",
+      "apps/*/babel-plugins.mjs",
       "eslint.config.mjs",
       "apps/*/next.config.js",
       "apps/*/postcss.config.js",

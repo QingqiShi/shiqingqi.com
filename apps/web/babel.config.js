@@ -1,8 +1,4 @@
-const path = require("node:path");
-const { stylexPluginOptions } = require("@tuja/babel-plugins/stylex-options");
-
-const workspaceRoot = path.resolve(__dirname, "../..");
-const uiPackageRoot = path.resolve(__dirname, "../../packages/ui");
+const { babelPlugins } = require("./babel-plugins.mjs");
 
 module.exports = {
   presets: [
@@ -22,30 +18,5 @@ module.exports = {
       },
     ],
   ],
-  plugins: [
-    // Reads the original source, so it must run before anything rewrites it.
-    "@tuja/babel-plugins/specimen-source",
-    "@tuja/babel-plugins/i18n",
-    [
-      "module-resolver",
-      {
-        alias: {
-          "#src": "./src",
-        },
-      },
-    ],
-    [
-      "@tuja/babel-plugins/stylex-breakpoints",
-      {
-        rootDir: uiPackageRoot,
-      },
-    ],
-    [
-      "@stylexjs/babel-plugin",
-      stylexPluginOptions({
-        rootDir: workspaceRoot,
-        nodeEnv: process.env.NODE_ENV,
-      }),
-    ],
-  ].filter(Boolean),
+  plugins: babelPlugins({ nodeEnv: process.env.NODE_ENV }),
 };
