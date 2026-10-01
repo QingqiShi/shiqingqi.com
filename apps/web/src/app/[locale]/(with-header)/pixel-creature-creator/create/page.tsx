@@ -1,10 +1,10 @@
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import type { Metadata } from "next";
-import { WizardShell } from "#src/components/pixel-creature-creator/wizard/wizard-shell.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { WizardShell } from "#src/pixel-creature-creator/wizard/wizard-shell.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

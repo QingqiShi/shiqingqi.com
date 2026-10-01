@@ -1,0 +1,164 @@
+"use client";
+
+import * as stylex from "@stylexjs/stylex";
+import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
+import Image from "next/image";
+import { useId, useMemo } from "react";
+import { t } from "#src/i18n.ts";
+import type { CreatureDef } from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
+import { species } from "#src/pixel-creature-creator/sprite/species/index.ts";
+
+interface StepSpeciesProps {
+  def: CreatureDef;
+  onChange: (next: CreatureDef) => void;
+}
+
+const THUMB_PX = 96;
+
+export function StepSpecies({ def, onChange }: StepSpeciesProps) {
+  // Resolve every label statically so the i18n Babel plugin sees literal
+  // `{ en, zh }` records — the registry's labels can't be passed through
+  // `t()` directly because the plugin needs compile-time keys.
+  const speciesLabels: Record<string, string> = {
+    feline: t({ en: "Feline", zh: "猫科" }),
+    canine: t({ en: "Canine", zh: "犬科" }),
+    avian: t({ en: "Avian", zh: "鸟类" }),
+    reptilian: t({ en: "Reptilian", zh: "爬虫" }),
+    dinosaurian: t({ en: "Dinosaurian", zh: "恐龙" }),
+    insectoid: t({ en: "Insectoid", zh: "昆虫" }),
+    "worm-like": t({ en: "Worm-like", zh: "蠕虫" }),
+    serpentine: t({ en: "Serpentine", zh: "蛇形" }),
+    piscine: t({ en: "Piscine", zh: "鱼类" }),
+    amphibian: t({ en: "Amphibian", zh: "两栖" }),
+    "plant-like": t({ en: "Plant-like", zh: "植物" }),
+    humanoid: t({ en: "Humanoid", zh: "人形" }),
+    "object-based": t({ en: "Object", zh: "器物" }),
+    robotic: t({ en: "Robotic", zh: "机械" }),
+    draconic: t({ en: "Draconic", zh: "龙形" }),
+    amorphous: t({ en: "Amorphous", zh: "不定形" }),
+  };
+
+  const entries = useMemo(
+    () => Object.values(species).filter((entry) => entry !== undefined),
+    [],
+  );
+  const speciesIds = useMemo(() => entries.map((entry) => entry.id), [entries]);
+  const { getOptionProps } = useRadioGroup({
+    values: speciesIds,
+    value: def.species,
+    onChange: (next) => {
+      onChange({ ...def, species: next });
+    },
+  });
+  const headingId = useId();
+
+  return (
+    <section css={styles.root} data-testid="wizard-step-species">
+      <h3 css={styles.heading} id={headingId}>
+        {t({ en: "Pick a species", zh: "选择物种" })}
+      </h3>
+      <p css={styles.hint}>
+        {t({
+          en: "16 hand-painted shapes. Each one has its own eyes and silhouette baked in.",
+          zh: "16 种手绘造型。每一种都自带独特的眼神与轮廓。",
+        })}
+      </p>
+      <div css={styles.grid} role="radiogroup" aria-labelledby={headingId}>
+        {entries.map((entry) => {
+          const selected = def.species === entry.id;
+          return (
+            <button
+              key={entry.id}
+              type="button"
+              {...getOptionProps(entry.id)}
+              data-testid={`species-option-${entry.id}`}
+              css={[
+                styles.option,
+                transition.colors,
+                selected && styles.optionSelected,
+              ]}
+            >
+              <div css={styles.thumb}>
+                <Image
+                  src={entry.idle}
+                  alt=""
+                  width={THUMB_PX}
+                  height={THUMB_PX}
+                  unoptimized
+                  style={{
+                    width: `${String(THUMB_PX)}px`,
+                    height: `${String(THUMB_PX)}px`,
+                    imageRendering: "pixelated",
+                    display: "block",
+                  }}
+                />
+              </div>
+              <span css={styles.optionLabel}>
+                {speciesLabels[entry.id] ?? entry.id}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+const styles = stylex.create({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+    gap: space._2,
+  },
+  heading: {
+    fontSize: font.uiHeading3,
+    fontWeight: font.weight_6,
+    margin: 0,
+    color: color.fg,
+  },
+  hint: {
+    fontSize: font.uiBodySmall,
+    color: color.fgMuted,
+    margin: 0,
+  },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+    gap: space._2,
+  },
+  option: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: space._1,
+    padding: space._2,
+    backgroundColor: {
+      default: color.bgSurface,
+      ":hover": color.bgControlHover,
+    },
+    borderRadius: "12px",
+    cornerShape: "squircle",
+    borderWidth: "2px",
+    borderStyle: "solid",
+    borderColor: "transparent",
+    cursor: "pointer",
+    color: color.fg,
+  },
+  optionSelected: {
+    borderColor: color.borderAccent,
+    backgroundColor: color.bgSurfaceRaised,
+  },
+  thumb: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: `${String(THUMB_PX)}px`,
+    minHeight: `${String(THUMB_PX)}px`,
+  },
+  optionLabel: {
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_5,
+  },
+});

@@ -6,11 +6,11 @@ import {
   getTvShowDetails,
   getTvShowVideos,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { MediaDetailHero } from "#src/components/movie-database/media-detail-hero.tsx";
-import { SimilarMedia } from "#src/components/movie-database/similar-media.tsx";
-import { Trailer } from "#src/components/movie-database/trailer.tsx";
 import { t } from "#src/i18n.ts";
-import { formatRuntime } from "#src/utils/format-runtime.ts";
+import { formatRuntime } from "#src/movie-database/details/format-runtime.ts";
+import { MediaDetailHero } from "#src/movie-database/details/media-detail-hero.tsx";
+import { SimilarMedia } from "#src/movie-database/details/similar-media.tsx";
+import { Trailer } from "#src/movie-database/details/trailer.tsx";
 import type { PageProps } from "./types";
 
 export default async function Page({ params }: PageProps) {

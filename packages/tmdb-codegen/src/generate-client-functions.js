@@ -17,7 +17,7 @@ export function generateClientFunctions(projectRoot) {
   apiRequestWrapper<typeof server.${functionName}>("/api/tmdb/${routePath}", params);`,
     );
 
-  const fileContent = `import { apiRequestWrapper } from "../utils/api-request-wrapper";
+  const fileContent = `import { apiRequestWrapper } from "#src/movie-database/tmdb/api-request-wrapper.ts";
 import type * as server from "./tmdb-server-functions";
 
 /**

@@ -21,7 +21,7 @@ Client: useI18nLookup("a8cfb50c")  — reads from React context (hook)
 - `en` — English
 - `zh` — Chinese
 
-Defined as `SupportedLocale` in `apps/web/src/types.ts`. Pages live under `apps/web/src/app/[locale]/`. `en` is the default and has no URL prefix (`/design-system`); `zh` has one (`/zh/design-system`).
+Defined as `SupportedLocale` in `apps/web/src/i18n/types.ts`. Pages live under `apps/web/src/app/[locale]/`. `en` is the default and has no URL prefix (`/design-system`); `zh` has one (`/zh/design-system`).
 
 ## The `t()` Function
 
@@ -83,7 +83,7 @@ Use the `useLocale()` hook when you need the locale value itself (not for transl
 ```tsx
 "use client";
 
-import { useLocale } from "#src/hooks/use-locale.ts";
+import { useLocale } from "#src/i18n/use-locale.ts";
 
 export function LocaleAwareComponent() {
   const locale = useLocale();
@@ -95,7 +95,7 @@ export function LocaleAwareComponent() {
 ## Generating Localized URLs
 
 ```tsx
-import { getLocalePath } from "#src/utils/get-locale-path.ts";
+import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 
 getLocalePath("/design-system", locale); // → "/design-system" (en) or "/zh/design-system" (zh)
 ```
@@ -147,7 +147,7 @@ Then run `pnpm --filter web codegen:i18n` to regenerate bundles.
 ### Adding Translations to a Client Component
 
 ```tsx
-// apps/web/src/components/my-component.tsx
+// apps/web/src/<area>/my-component.tsx
 "use client";
 
 import { t } from "#src/i18n.ts";

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { DocPage } from "#src/components/design-system/doc-page.tsx";
-import { BackgroundsShowcase } from "#src/components/design-system/sections/tokens/backgrounds-showcase.tsx";
-import { BalanceShowcase } from "#src/components/design-system/sections/tokens/balance-showcase.tsx";
-import { ContrastShowcase } from "#src/components/design-system/sections/tokens/contrast-showcase.tsx";
-import { PaletteShowcase } from "#src/components/design-system/sections/tokens/palette-showcase.tsx";
-import { RolesShowcase } from "#src/components/design-system/sections/tokens/roles-showcase.tsx";
-import { TextRolesShowcase } from "#src/components/design-system/sections/tokens/text-roles-showcase.tsx";
+import { DocPage } from "#src/design-system/doc-page.tsx";
+import { BackgroundsShowcase } from "#src/design-system/sections/foundations/backgrounds-showcase.tsx";
+import { BalanceShowcase } from "#src/design-system/sections/foundations/balance-showcase.tsx";
+import { ContrastShowcase } from "#src/design-system/sections/foundations/contrast-showcase.tsx";
+import { PaletteShowcase } from "#src/design-system/sections/foundations/palette-showcase.tsx";
+import { RolesShowcase } from "#src/design-system/sections/foundations/roles-showcase.tsx";
+import { TextRolesShowcase } from "#src/design-system/sections/foundations/text-roles-showcase.tsx";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

@@ -29,7 +29,7 @@ describe("collectComponentEntries", () => {
     expect(entries).toContainEqual({
       name: "menu-button",
       component: "MenuButton",
-      file: path.join(uiPackageDir, "src/components/actions/menu-button.tsx"),
+      file: path.join(uiPackageDir, "src/actions/menu-button.tsx"),
     });
     expect(entries.map((entry) => entry.name)).not.toContain("button.stylex");
   });
@@ -69,7 +69,7 @@ describe("generatePropsDocs over @tuja/ui", () => {
   it("reads Button's own props and not its button attributes", () => {
     const button = docFor("button");
     expect(button.component).toBe("Button");
-    expect(button.source).toBe("packages/ui/src/components/actions/button.tsx");
+    expect(button.source).toBe("packages/ui/src/actions/button.tsx");
     expect(button.extendsHtml).toBe("button");
     const names = button.props.map((prop) => prop.name);
     expect(names).toEqual(

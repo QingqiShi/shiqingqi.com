@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { DocPage } from "#src/components/design-system/doc-page.tsx";
-import { BlurShowcase } from "#src/components/design-system/sections/material/blur-showcase.tsx";
-import { GlassShowcase } from "#src/components/design-system/sections/material/glass-showcase.tsx";
-import { TextureShowcase } from "#src/components/design-system/sections/material/texture-showcase.tsx";
-import { WashShowcase } from "#src/components/design-system/sections/material/wash-showcase.tsx";
+import { DocPage } from "#src/design-system/doc-page.tsx";
+import { BlurShowcase } from "#src/design-system/sections/foundations/blur-showcase.tsx";
+import { GlassShowcase } from "#src/design-system/sections/foundations/glass-showcase.tsx";
+import { TextureShowcase } from "#src/design-system/sections/foundations/texture-showcase.tsx";
+import { WashShowcase } from "#src/design-system/sections/foundations/wash-showcase.tsx";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { getDesignSystemRouteLabel } from "#src/components/design-system/route-copy/get-design-system-route-label.ts";
+import { BASE_URL } from "#src/constants.ts";
+import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
 import type {
   DesignSystemPath,
   DesignSystemView,
-} from "#src/components/design-system/routes/types.ts";
-import { BASE_URL } from "#src/constants.ts";
-import type { SupportedLocale } from "#src/types.ts";
-import { getLocalePath } from "#src/utils/get-locale-path.ts";
+} from "#src/design-system/routes/types.ts";
+import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import type { SupportedLocale } from "#src/i18n/types.ts";
 
 /**
  * Metadata for a design-system sub-route: a self-canonical plus en/zh hreflang

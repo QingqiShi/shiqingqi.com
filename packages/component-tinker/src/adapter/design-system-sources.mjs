@@ -57,7 +57,7 @@ export const tokensFile = path.join(uiRoot, "src/tokens.stylex.ts");
 export const breakpointsFile = path.join(uiRoot, "src/breakpoints.stylex.ts");
 export const glassSurfaceFile = path.join(
   uiRoot,
-  "src/components/surfaces/glass-surface.stylex.ts",
+  "src/surfaces/glass-surface.stylex.ts",
 );
 export const primitiveSources = primitiveFiles;
 

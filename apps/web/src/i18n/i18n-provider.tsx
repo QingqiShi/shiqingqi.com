@@ -1,8 +1,8 @@
 "use client";
 
 import type { PropsWithChildren } from "react";
-import type { SupportedLocale } from "#src/types.ts";
 import { LocaleContext } from "./locale-context";
+import type { SupportedLocale } from "./types.ts";
 
 interface I18nProviderProps {
   locale: SupportedLocale;

@@ -2,7 +2,7 @@
    hardcodes this path as a compile target, so the file name is a contract. */
 import "server-only";
 import { cache } from "react";
-import type { SupportedLocale } from "#src/types.ts";
+import type { SupportedLocale } from "./types.ts";
 
 // React's cache() gives each server request its own store, preventing
 // concurrent pages from clobbering each other's locale during static

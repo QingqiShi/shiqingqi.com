@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { AvatarLab } from "#src/components/design-system/lab/configs/avatar-lab.tsx";
-import { LabPage } from "#src/components/design-system/lab/lab-page.tsx";
+import { AvatarLab } from "#src/design-system/lab/avatar-lab.tsx";
+import { LabPage } from "#src/design-system/lab/lab-page.tsx";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
 import { designSystemMetadata } from "../../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

@@ -1,4 +1,4 @@
-import { apiRequestWrapper } from "../utils/api-request-wrapper";
+import { apiRequestWrapper } from "#src/movie-database/tmdb/api-request-wrapper.ts";
 import type * as server from "./tmdb-server-functions";
 
 /**

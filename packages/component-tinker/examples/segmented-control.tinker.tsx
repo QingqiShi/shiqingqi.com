@@ -102,7 +102,7 @@ function Control({
 
 export default tinker({
   component: "SegmentedControl",
-  source: "packages/ui/src/components/forms/segmented-control.tsx",
+  source: "packages/ui/src/forms/segmented-control.tsx",
   layers: {
     track: {
       presets: ["corner.squircle_round"],

@@ -5,16 +5,16 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { BackgroundLines } from "#src/components/home/background-lines.tsx";
-import { Footer } from "#src/components/home/footer.tsx";
-import { FlowGradient } from "#src/components/shared/flow-gradient/flow-gradient.tsx";
-import { InlineScript } from "#src/components/shared/inline-script.tsx";
-import { SiteHeaderFooterLayout } from "#src/components/shared/site-header-footer-layout.tsx";
 import { BASE_URL } from "#src/constants.ts";
-import { i18nConfig } from "#src/i18n-config.ts";
+import { i18nConfig } from "#src/i18n/i18n-config.ts";
+import type { PageProps, SupportedLocale } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { BackgroundLines } from "#src/portfolio/background-lines.tsx";
+import { FlowGradient } from "#src/portfolio/flow-gradient/flow-gradient.tsx";
+import { Footer } from "#src/site-shell/footer.tsx";
+import { InlineScript } from "#src/site-shell/inline-script.tsx";
+import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layout.tsx";
 import { glowTokens } from "./layout.stylex";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

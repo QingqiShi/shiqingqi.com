@@ -2,9 +2,9 @@ import * as stylex from "@stylexjs/stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

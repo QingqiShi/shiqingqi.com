@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorScreen } from "#src/components/shared/error-screen.tsx";
+import { ErrorScreen } from "#src/site-shell/error-screen.tsx";
 
 /**
  * Error boundary for the design system. It renders inside the section's

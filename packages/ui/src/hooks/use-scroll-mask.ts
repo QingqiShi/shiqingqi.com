@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { observeChildren } from "../utils/observe-children.ts";
+import { observeChildren } from "../surfaces/observe-children.ts";
 
 export type ScrollMaskOrientation = "horizontal" | "vertical";
 

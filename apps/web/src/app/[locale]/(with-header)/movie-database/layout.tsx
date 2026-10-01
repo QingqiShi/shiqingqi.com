@@ -1,13 +1,13 @@
 import * as stylex from "@stylexjs/stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
-import { AIChatProvider } from "#src/ai-chat/ai-chat-provider.tsx";
-import { InlineChatProvider } from "#src/components/movie-database/inline-chat-context.tsx";
-import { Providers } from "#src/components/shared/providers.tsx";
 import { BASE_URL } from "#src/constants.ts";
+import type { PageProps, SupportedLocale } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import { AIChatProvider } from "#src/movie-database/chat/ai-chat-provider.tsx";
+import { InlineChatProvider } from "#src/movie-database/chat/inline-chat-context.tsx";
+import { Providers } from "#src/movie-database/tmdb/providers.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

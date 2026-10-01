@@ -8,12 +8,12 @@ import {
   type KeyboardEvent,
   type RefObject,
 } from "react";
+import { getTabbableElements } from "../focus/get-tabbable-elements.ts";
 import {
   computePopoverPosition,
   type PopoverPlacement,
-} from "../utils/compute-popover-position.ts";
-import { getTabbableElements } from "../utils/get-tabbable-elements.ts";
-import { observeViewport } from "../utils/observe-viewport.ts";
+} from "../surfaces/compute-popover-position.ts";
+import { observeViewport } from "../surfaces/observe-viewport.ts";
 import { useControlled } from "./use-controlled.ts";
 
 export type { PopoverPlacement };

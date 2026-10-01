@@ -41,7 +41,7 @@ function Control({
 
 export default tinker({
   component: "SegmentedControl",
-  source: "packages/ui/src/components/forms/segmented-control.tsx",
+  source: "packages/ui/src/forms/segmented-control.tsx",
   layers: {
     option: {
       presets: ["buttonReset.base", "corner.radius_1"],
@@ -101,7 +101,7 @@ The text is a header and one line per change:
 ```
 component-tinker v1
 component: SegmentedControl
-source: packages/ui/src/components/forms/segmented-control.tsx
+source: packages/ui/src/forms/segmented-control.tsx
 track.borderColor: color.border -> color.bgNeutral
 option[selected].backgroundColor: color.bgSurface -> color.bgSurfaceRaised
 option[sm].paddingInline: controlSize._2 -> controlSize._3

@@ -1,6 +1,6 @@
-import { SiteHeaderFooterLayout } from "#src/components/shared/site-header-footer-layout.tsx";
-import type { SupportedLocale } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import type { SupportedLocale } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
+import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layout.tsx";
 
 /**
  * Route group for the header-only surfaces — the movie database and the tool

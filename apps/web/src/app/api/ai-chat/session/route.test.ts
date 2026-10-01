@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockStore = new Map<string, UIMessage[]>();
 
-vi.mock("#src/session-store/get-session-messages.ts", () => ({
+vi.mock("#src/movie-database/chat/session/get-session-messages.ts", () => ({
   getSessionMessages: vi.fn((sessionId: string) => {
     return mockStore.get(sessionId) ?? null;
   }),
@@ -24,7 +24,7 @@ describe("POST /api/ai-chat/session", () => {
   beforeEach(async () => {
     mockStore.clear();
     const { getSessionMessages } =
-      await import("#src/session-store/get-session-messages.ts");
+      await import("#src/movie-database/chat/session/get-session-messages.ts");
     vi.mocked(getSessionMessages).mockImplementation((sessionId: string) => {
       return Promise.resolve(mockStore.get(sessionId) ?? null);
     });
@@ -85,7 +85,7 @@ describe("POST /api/ai-chat/session", () => {
 
   it("returns 500 when Redis read fails", async () => {
     const { getSessionMessages } =
-      await import("#src/session-store/get-session-messages.ts");
+      await import("#src/movie-database/chat/session/get-session-messages.ts");
     vi.mocked(getSessionMessages).mockRejectedValueOnce(
       new Error("Redis timeout"),
     );

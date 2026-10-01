@@ -304,7 +304,7 @@ export const globalStyles = stylex.create({
 ```
 
 Apply `globalStyles.root` to `<html>`/`<body>`. (This mirrors
-`apps/web/src/app/global-styles.ts` in the source repo.)
+`apps/web/src/theme/global-styles.ts` in the source repo.)
 
 Every fixed-radius corner in the system renders as a squircle rather than a
 circular arc; pills and circles keep circular caps, because a clamped

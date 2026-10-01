@@ -1,0 +1,69 @@
+"use client";
+
+import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { t } from "#src/i18n.ts";
+import { CompactMediaCard } from "#src/movie-database/compact-media-card.tsx";
+import { useMediaDetail } from "#src/movie-database/details/media-detail-provider.tsx";
+import { HorizontalScrollRow } from "#src/movie-database/horizontal-scroll-row.tsx";
+import type { MediaListItem } from "#src/movie-database/types.ts";
+
+interface ToolMediaCardsProps {
+  items: ReadonlyArray<MediaListItem>;
+}
+
+export function ToolMediaCards({ items }: ToolMediaCardsProps) {
+  const { setFocusedMedia } = useMediaDetail();
+
+  if (items.length === 0) return null;
+
+  return (
+    <HorizontalScrollRow
+      ariaLabel={t({ en: "Search results", zh: "搜索结果" })}
+    >
+      {items.map((item) => {
+        const { mediaType } = item;
+        return (
+          <div
+            key={`${item.mediaType ?? "unknown"}-${String(item.id)}`}
+            css={styles.cardWrapper}
+            role="listitem"
+          >
+            <CompactMediaCard
+              media={item}
+              onClick={
+                mediaType
+                  ? () => {
+                      setFocusedMedia({
+                        id: item.id,
+                        mediaType,
+                        title: item.title,
+                        posterPath: item.posterPath,
+                      });
+                    }
+                  : undefined
+              }
+            />
+          </div>
+        );
+      })}
+    </HorizontalScrollRow>
+  );
+}
+
+const styles = stylex.create({
+  cardWrapper: {
+    flexShrink: 0,
+    scrollSnapAlign: "start",
+    width: "130px",
+    [breakpoints.sm]: {
+      width: "140px",
+    },
+    [breakpoints.md]: {
+      width: "155px",
+    },
+    [breakpoints.lg]: {
+      width: "175px",
+    },
+  },
+});

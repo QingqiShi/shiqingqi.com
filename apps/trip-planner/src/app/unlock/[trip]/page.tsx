@@ -9,9 +9,9 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { tripBySlug } from "@/data/trips";
-import { gateToken, tripGate } from "@/lib/trip-gate";
+} from "@/shadcn/card";
+import { gateToken, tripGate } from "@/trip-gate";
+import { tripBySlug } from "@/trips";
 
 // The unlock prompt depends on the per-request cookie, so render per-request.
 export const dynamic = "force-dynamic";

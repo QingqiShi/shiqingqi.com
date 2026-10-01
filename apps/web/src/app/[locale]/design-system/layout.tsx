@@ -5,19 +5,19 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
-import { DesignSystemNav } from "#src/components/design-system/design-system-nav.tsx";
-import { DesignSystemSidebarControls } from "#src/components/design-system/design-system-sidebar-controls.tsx";
-import { DesignSystemSidebarHeader } from "#src/components/design-system/design-system-sidebar-header.tsx";
-import { getDesignSystemGroupLabels } from "#src/components/design-system/route-copy/get-design-system-group-labels.ts";
-import { getDesignSystemRouteLabels } from "#src/components/design-system/route-copy/get-design-system-route-labels.ts";
+import { BASE_URL } from "#src/constants.ts";
+import { DesignSystemNav } from "#src/design-system/design-system-nav.tsx";
+import { DesignSystemSidebarControls } from "#src/design-system/design-system-sidebar-controls.tsx";
+import { DesignSystemSidebarHeader } from "#src/design-system/design-system-sidebar-header.tsx";
+import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
+import { getDesignSystemRouteLabels } from "#src/design-system/route-copy/get-design-system-route-labels.ts";
 import {
   DESIGN_SYSTEM_CONTENT_ID,
   SkipToContent,
-} from "#src/components/design-system/skip-to-content.tsx";
-import { BASE_URL } from "#src/constants.ts";
+} from "#src/design-system/skip-to-content.tsx";
+import type { PageProps, SupportedLocale } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps, SupportedLocale } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

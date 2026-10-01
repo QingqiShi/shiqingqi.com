@@ -1,7 +1,7 @@
 import { serwist } from "@serwist/next/config";
 
 export default await serwist({
-  swSrc: "src/sw.ts",
+  swSrc: "src/pwa/sw.ts",
   swDest: "public/sw.js",
   // Trip pages are force-dynamic, so there is no prerendered HTML worth
   // precaching except the /~offline fallback document, which must be in the

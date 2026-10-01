@@ -1,0 +1,117 @@
+import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
+import { describe, expect, it } from "vitest";
+import { render, screen } from "#src/testing/test-utils.tsx";
+import { MediaVirtuosoGrid } from "./media-virtuoso-grid";
+import type { MediaListItem } from "./types.ts";
+
+function makeItems(count: number): MediaListItem[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i + 1,
+    title: `Movie ${(i + 1).toString()}`,
+    posterPath: null,
+    rating: 7,
+    mediaType: "movie" as const,
+  }));
+}
+
+/** None of these query-result functions are called by the component in these
+ * tests — they exist only so the fixture satisfies the query result type. */
+function neverCalled(name: string): () => never {
+  return () => {
+    throw new Error(`${name} should not be called in this test`);
+  };
+}
+
+function makeQueryResult(
+  items: MediaListItem[],
+): UseSuspenseInfiniteQueryResult<MediaListItem[]> {
+  return {
+    data: items,
+    fetchNextPage: neverCalled("fetchNextPage"),
+    hasNextPage: false,
+    isFetching: false,
+    isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
+    fetchPreviousPage: neverCalled("fetchPreviousPage"),
+    hasPreviousPage: false,
+    // remaining required fields from UseSuspenseInfiniteQueryResult
+    dataUpdatedAt: Date.now(),
+    error: null,
+    errorUpdateCount: 0,
+    errorUpdatedAt: 0,
+    failureCount: 0,
+    failureReason: null,
+    isEnabled: true,
+    isError: false as const,
+    isFetched: true,
+    isFetchedAfterMount: true,
+    isFetchNextPageError: false as const,
+    isFetchPreviousPageError: false as const,
+    isInitialLoading: false,
+    isLoading: false as const,
+    isLoadingError: false as const,
+    isPaused: false,
+    isPending: false as const,
+    isRefetchError: false as const,
+    isRefetching: false,
+    isStale: false,
+    isSuccess: true as const,
+    refetch: neverCalled("refetch"),
+    status: "success" as const,
+    fetchStatus: "idle" as const,
+  };
+}
+
+describe("MediaVirtuosoGrid", () => {
+  it("hides the decorative emoji in the empty state from assistive tech", () => {
+    const { container } = render(
+      <MediaVirtuosoGrid
+        queryResult={makeQueryResult([])}
+        virtuosoKey="test-key"
+        initialItemCount={0}
+        notFoundLabel="No movies found that match the criteria"
+      />,
+    );
+
+    // Sighted users still see the emoji.
+    expect(container.textContent).toContain("🙉");
+
+    // The emoji lives inside an aria-hidden span so screen readers skip it
+    // and announce only the localized label.
+    const decorative = container.querySelector("[aria-hidden='true']");
+    expect(decorative?.textContent).toBe("🙉 ");
+
+    // The localized message is rendered as a sibling text node so AT users
+    // hear it directly, with no emoji prefix bleeding through.
+    expect(
+      screen.getByText(/No movies found that match the criteria/),
+    ).toBeInTheDocument();
+  });
+
+  it("does not crash when data shrinks below the initial item count", () => {
+    const fiveItems = makeItems(5);
+    const twoItems = makeItems(2);
+
+    const { rerender } = render(
+      <MediaVirtuosoGrid
+        queryResult={makeQueryResult(fiveItems)}
+        virtuosoKey="test-key"
+        initialItemCount={fiveItems.length}
+        notFoundLabel="No items"
+      />,
+    );
+
+    // Simulate navigation back: component re-renders with fewer items while
+    // the caller's captured `initialItemCount` still describes the first one.
+    expect(() => {
+      rerender(
+        <MediaVirtuosoGrid
+          queryResult={makeQueryResult(twoItems)}
+          virtuosoKey="test-key"
+          initialItemCount={fiveItems.length}
+          notFoundLabel="No items"
+        />,
+      );
+    }).not.toThrow();
+  });
+});

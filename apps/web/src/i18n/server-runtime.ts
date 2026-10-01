@@ -7,8 +7,8 @@ import type { ReactNode } from "react";
 import translationsEn from "#src/_generated/i18n/translations.en.json";
 import translationsZh from "#src/_generated/i18n/translations.zh.json";
 import { getLocale } from "#src/i18n/server-locale.ts";
-import type { SupportedLocale } from "#src/types.ts";
-import { parseMessage } from "#src/utils/parse-message.tsx";
+import { parseMessage } from "./parse-message.tsx";
+import type { SupportedLocale } from "./types.ts";
 
 const bundles: Record<SupportedLocale, Record<string, string>> = {
   en: translationsEn,

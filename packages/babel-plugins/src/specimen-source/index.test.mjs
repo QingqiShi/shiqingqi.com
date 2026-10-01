@@ -354,7 +354,7 @@ import { Card, CardHeader } from "@tuja/ui/components/card";
 
     it("orders external before #src before a relative path", () => {
       const code = `import { Button } from "@tuja/ui/components/button";
-import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
+import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { Specimen } from "../../specimen.tsx";
 import { Plate } from "./plate.tsx";
 
@@ -372,7 +372,7 @@ export function Ordered() {
 
       expect(sourceOf(code))
         .toContain(`import { Button } from "@tuja/ui/components/button";
-import { AnchorButton } from "#src/components/shared/anchor-button.tsx";
+import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { Plate } from "./plate.tsx";`);
     });
 

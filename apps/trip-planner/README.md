@@ -11,14 +11,14 @@ A standalone Next.js app for planning trips, deployed as its **own Vercel projec
 
 ## UI components
 
-Components live in `src/components/ui` and are added via the shadcn CLI:
+Components live in `src/shadcn` and are added via the shadcn CLI:
 
 ```bash
 pnpm --filter trip-planner dlx shadcn@latest add <component>
 ```
 
 Config is in `components.json` (style `new-york`, base color `neutral`, `@/*`
-alias → `src/*`). The `cn()` helper is in `src/lib/utils.ts`.
+alias → `src/*`). The `cn()` helper is in `src/shadcn/utils.ts`.
 
 ## Develop
 

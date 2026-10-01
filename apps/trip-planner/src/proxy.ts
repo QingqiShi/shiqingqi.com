@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { gateToken, tripGate } from "@/lib/trip-gate";
+import { gateToken, tripGate } from "./trip-gate";
 
 // Gate each trip behind its own password so an itinerary is only readable by
 // the people on that trip. The home picker stays open — it reveals nothing

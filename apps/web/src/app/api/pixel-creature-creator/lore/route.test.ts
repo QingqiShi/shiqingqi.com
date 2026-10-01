@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import type { LoreOutput } from "#src/components/pixel-creature-creator/lore/lore-output-schema.ts";
+import type { SupportedLocale } from "#src/i18n/types.ts";
 import {
   DEFAULT_CREATURE,
   type CreatureDef,
-} from "#src/components/pixel-creature-creator/state/creature-def-schema.ts";
-import type { SupportedLocale } from "#src/types.ts";
+} from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
+import type { LoreOutput } from "#src/pixel-creature-creator/lore/lore-output-schema.ts";
 import { limitLoreRequest } from "./limit-lore-request";
 import { makeLoreHandler, type LoreHandlerDeps } from "./route";
 

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { DocPage } from "#src/components/design-system/doc-page.tsx";
-import { FamiliesShowcase } from "#src/components/design-system/sections/tokens/families-showcase.tsx";
-import { LetterSpacingShowcase } from "#src/components/design-system/sections/tokens/letter-spacing-showcase.tsx";
-import { LineHeightsShowcase } from "#src/components/design-system/sections/tokens/line-heights-showcase.tsx";
-import { TextStylesShowcase } from "#src/components/design-system/sections/tokens/text-styles-showcase.tsx";
-import { TypeScaleShowcase } from "#src/components/design-system/sections/tokens/type-scale-showcase.tsx";
-import { WeightsShowcase } from "#src/components/design-system/sections/tokens/weights-showcase.tsx";
+import { DocPage } from "#src/design-system/doc-page.tsx";
+import { FamiliesShowcase } from "#src/design-system/sections/foundations/families-showcase.tsx";
+import { LetterSpacingShowcase } from "#src/design-system/sections/foundations/letter-spacing-showcase.tsx";
+import { LineHeightsShowcase } from "#src/design-system/sections/foundations/line-heights-showcase.tsx";
+import { TextStylesShowcase } from "#src/design-system/sections/foundations/text-styles-showcase.tsx";
+import { TypeScaleShowcase } from "#src/design-system/sections/foundations/type-scale-showcase.tsx";
+import { WeightsShowcase } from "#src/design-system/sections/foundations/weights-showcase.tsx";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

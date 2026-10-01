@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { DocPage } from "#src/components/design-system/doc-page.tsx";
-import { LayoutShowcase } from "#src/components/design-system/sections/tokens/layout-showcase.tsx";
+import { DocPage } from "#src/design-system/doc-page.tsx";
+import { LayoutShowcase } from "#src/design-system/sections/foundations/layout-showcase.tsx";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

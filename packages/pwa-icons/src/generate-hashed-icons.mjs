@@ -15,7 +15,7 @@ const projectRoot = values.root
   : path.resolve(import.meta.dirname, "../../../apps/web");
 
 const ICON_SIZES = ["192x192", "512x512"];
-const ASSETS_DIR = path.join(projectRoot, "src", "assets");
+const ASSETS_DIR = path.join(projectRoot, "src", "pwa");
 const PUBLIC_DIR = path.join(projectRoot, "public");
 const MANIFEST_OUTPUT = path.join(projectRoot, "src", "app", "manifest.json");
 
