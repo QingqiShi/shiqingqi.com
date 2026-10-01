@@ -28,27 +28,21 @@ import {
   wizardReducer,
 } from "./wizard-reducer";
 
-interface WizardShellProps {
-  initialDef?: CreatureDef;
-}
-
 /**
  * Wizard host. Renders a persistent live preview alongside the active step
  * content, plus a top breadcrumb and a back/next bar at the bottom.
  *
  * State sources:
- *  - `initialDef` from the server component (DEFAULT_CREATURE for now —
- *    Phase 6 may seed it with a stored draft).
+ *  - `DEFAULT_CREATURE` seeds the reducer.
  *  - URL hash on mount: if the page was opened via an edit deep-link,
  *    swap the initial def for the decoded one and unlock all steps.
  *  - Otherwise, replace the initial def with a fresh random creature so
  *    the user lands on something that already looks alive.
  */
-export function WizardShell({ initialDef }: WizardShellProps) {
-  const seedDef = initialDef ?? DEFAULT_CREATURE;
+export function WizardShell() {
   const [state, dispatch] = useReducer(
     wizardReducer,
-    seedDef,
+    DEFAULT_CREATURE,
     createInitialWizardState,
   );
   // Plain refs (not state) — we only need to remember these flags across

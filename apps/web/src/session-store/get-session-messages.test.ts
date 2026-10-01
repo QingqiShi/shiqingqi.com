@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("server-only", () => ({}));
-
 const mockRedis = {
   get: vi.fn(() => null),
   set: vi.fn(),

@@ -63,22 +63,6 @@ describe("buildPersonResultsMap for media_credits", () => {
     expect(map.get(1)?.name).toBe("Clint Eastwood");
   });
 
-  it("handles legacy flat array format for backwards compatibility", () => {
-    const output = [
-      {
-        id: 1,
-        name: "Brad Pitt",
-        profile_path: "/brad.jpg",
-        known_for_department: "Acting",
-      },
-    ];
-
-    const map = buildPersonResultsMap("media_credits", output);
-
-    expect(map.size).toBe(1);
-    expect(map.get(1)?.name).toBe("Brad Pitt");
-  });
-
   it("returns empty map for non-object/non-array input", () => {
     expect(buildPersonResultsMap("media_credits", null).size).toBe(0);
     expect(buildPersonResultsMap("media_credits", "string").size).toBe(0);

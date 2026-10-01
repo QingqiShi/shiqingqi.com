@@ -22,9 +22,8 @@ interface PixelSpriteProps {
   "aria-label"?: string;
 }
 
-// Accessory tiles were authored at 32×32 in the v:1 multi-axis pipeline.
-// Species are 42×42, so accessories sit centered with a 5-px margin until
-// per-species accessory anchors land in the variants follow-up PR.
+// Accessory tiles are 32×32 and species are 42×42. Thus the accessories are
+// centered with a 5-px margin.
 const ACCESSORY_TILE_PX = 32;
 
 /**

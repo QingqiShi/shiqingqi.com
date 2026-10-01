@@ -35,7 +35,7 @@ function decodeStatus(rawHash: string): DecodeStatus {
 }
 
 /**
- * Phase 4 review host. Decodes the creature from the URL fragment, owns
+ * Review host. Decodes the creature from the URL fragment, owns
  * the local emotion override + lore state, and stitches the card and
  * action row together.
  */
@@ -105,10 +105,10 @@ interface ReviewBodyProps {
 
 function ReviewBody({ def, encodedHash, paused }: ReviewBodyProps) {
   const [emotion, setEmotion] = useState<Emotion>(def.defaultEmotion);
-  // Phase 5: lore is hydrated by the action row's "Conjure lore" fetch (or
-  // the manual fallback). State lives here so both the card and the action
-  // row see the same value, but it is intentionally in-memory only — a
-  // refresh re-rolls.
+  // The action row sets the lore from the "Conjure lore" fetch or from the
+  // manual fallback. The state is here so that the card and the action row
+  // show the same value. The state is in memory only, thus a refresh clears
+  // the lore.
   const [lore, setLore] = useState<LoreData | null>(null);
 
   // `seedStats` is deterministic and pure — derive once per def change so

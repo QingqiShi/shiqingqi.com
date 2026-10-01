@@ -17,59 +17,44 @@ function relativeLuminance(hex: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-export function contrastRatio(foreground: string, background: string): number {
+function contrastRatio(foreground: string, background: string): number {
   const a = relativeLuminance(foreground);
   const b = relativeLuminance(background);
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
 /** A tone step on the generated gray ramp, e.g. `"_20"`. */
-export type GrayTone = keyof typeof gray;
+type GrayTone = keyof typeof gray;
 
 /**
- * Per theme, each text tone paired with the tone of `BINDING_BACKGROUND` below
- * (`bgCanvas` in light, `bgSurfaceRaised` in dark). Named as tone strings so
+ * Per theme, each text tone paired with the tone of the background it is
+ * measured against (`bgCanvas` in light, `bgSurfaceRaised` in dark). Named as tone strings so
  * this file can look up the exact `gray` step for the ratio.
  */
-export const TEXT_ROLE_TONES = [
+const TEXT_ROLE_TONES = [
   {
     token: "color.fg",
-    role: "fg",
     tone: "default",
     light: { text: "_13", background: "_97" },
     dark: { text: "_92", background: "_7" },
   },
   {
     token: "color.fgMuted",
-    role: "fgMuted",
     tone: "muted",
     light: { text: "_30", background: "_97" },
     dark: { text: "_80", background: "_7" },
   },
 ] as const satisfies readonly {
   token: string;
-  role: string;
   tone: "default" | "muted";
   light: { text: GrayTone; background: GrayTone };
   dark: { text: GrayTone; background: GrayTone };
 }[];
 
-/** The background role each theme's quoted pairing measures against. */
-export const BINDING_BACKGROUND = {
-  light: "bgCanvas",
-  dark: "bgSurfaceRaised",
-} as const;
-
-/** WCAG AA floors: normal-size body text, and large text or UI components. */
-export const BODY_TEXT_FLOOR = 4.5;
-export const LARGE_TEXT_FLOOR = 3;
-
 export interface TextRoleContrast {
   token: string;
   /** The matching `Text` `tone`, so the specimen uses the component's own colour. */
   tone: "default" | "muted";
-  lightRatio: number;
-  darkRatio: number;
   /** Formatted for display, e.g. `"12.13:1"`. */
   light: string;
   dark: string;
@@ -81,20 +66,14 @@ function format(ratio: number): string {
 
 export const TEXT_ROLE_CONTRAST: readonly TextRoleContrast[] =
   TEXT_ROLE_TONES.map((role) => {
-    const lightRatio = contrastRatio(
-      gray[role.light.text],
-      gray[role.light.background],
-    );
-    const darkRatio = contrastRatio(
-      gray[role.dark.text],
-      gray[role.dark.background],
-    );
     return {
       token: role.token,
       tone: role.tone,
-      lightRatio,
-      darkRatio,
-      light: format(lightRatio),
-      dark: format(darkRatio),
+      light: format(
+        contrastRatio(gray[role.light.text], gray[role.light.background]),
+      ),
+      dark: format(
+        contrastRatio(gray[role.dark.text], gray[role.dark.background]),
+      ),
     };
   });

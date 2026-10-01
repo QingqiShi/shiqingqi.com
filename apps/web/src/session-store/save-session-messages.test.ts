@@ -1,8 +1,6 @@
 import type { UIMessage } from "ai";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("server-only", () => ({}));
-
 const mockRedisStore = new Map<string, { value: unknown; ex?: number }>();
 const mockRedis = {
   get: vi.fn((key: string) => {
