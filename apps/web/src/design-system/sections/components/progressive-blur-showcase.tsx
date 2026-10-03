@@ -7,6 +7,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { guidelineDiagram } from "#src/design-system/guideline-diagram.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -62,54 +63,56 @@ export function ProgressiveBlurShowcase() {
 /**
  * A popup hanging off a trigger at the end of a bar — the static box `reach`
  * exists for. The blur's box is the popup plus 96px on every side: a fixed box
- * that follows the popup, so no rounded ancestor cuts it and it stays out of
- * the page's scrollable area.
+ * that follows the popup. The stage stands in for the viewport, so it holds
+ * that box and cuts it at its edges.
  */
 function BlurredPopupMock() {
   return (
-    <div css={[corner.radius_3, styles.mockPage]}>
-      <div css={[flex.between, styles.mockBar]}>
-        <Text look="bodySmall" weight="semibold">
-          {t({ en: "Watchlist", zh: "待看清单" })}
-        </Text>
-        <div css={styles.mockAnchor}>
-          <Button size="sm">{t({ en: "Sort", zh: "排序" })}</Button>
-          <div css={styles.mockPopupHang}>
-            <ProgressiveBlur reach={96} radius={12}>
-              <div css={[popoverSurface.base, styles.mockPopup]}>
-                <Button size="sm" look="primary">
-                  {t({ en: "Newest first", zh: "最新在前" })}
-                </Button>
-                <Button size="sm">
-                  {t({ en: "Highest rated", zh: "评分最高" })}
-                </Button>
-                <Button size="sm">
-                  {t({ en: "Title A to Z", zh: "按标题排序" })}
-                </Button>
-              </div>
-            </ProgressiveBlur>
+    <div css={blurStage.base}>
+      <div css={[corner.radius_3, styles.mockPage]}>
+        <div css={[flex.between, styles.mockBar]}>
+          <Text look="bodySmall" weight="semibold">
+            {t({ en: "Watchlist", zh: "待看清单" })}
+          </Text>
+          <div css={styles.mockAnchor}>
+            <Button size="sm">{t({ en: "Sort", zh: "排序" })}</Button>
+            <div css={styles.mockPopupHang}>
+              <ProgressiveBlur reach={96} radius={12}>
+                <div css={[popoverSurface.base, styles.mockPopup]}>
+                  <Button size="sm" look="primary">
+                    {t({ en: "Newest first", zh: "最新在前" })}
+                  </Button>
+                  <Button size="sm">
+                    {t({ en: "Highest rated", zh: "评分最高" })}
+                  </Button>
+                  <Button size="sm">
+                    {t({ en: "Title A to Z", zh: "按标题排序" })}
+                  </Button>
+                </div>
+              </ProgressiveBlur>
+            </div>
           </div>
         </div>
-      </div>
-      <div css={[flex.col, styles.mockPopupContent]}>
-        <Text look="bodySmall">
-          {t({
-            en: "Forty-one titles are saved, and the six added this month sit at the top of the list until the sort changes.",
-            zh: "共保存了四十一部作品，本月新增的六部会排在最前，直到排序方式改变为止。",
-          })}
-        </Text>
-        <Text look="bodySmall">
-          {t({
-            en: "Two of them leave the service you watch them on at the end of next week.",
-            zh: "其中两部将在下周末从你观看它们的服务上下架。",
-          })}
-        </Text>
-        <Text look="bodySmall" tone="muted">
-          {t({
-            en: "Sorting changes this view only — the shared list keeps its own order.",
-            zh: "排序只影响当前视图——共享清单保留自己的顺序。",
-          })}
-        </Text>
+        <div css={[flex.col, styles.mockPopupContent]}>
+          <Text look="bodySmall">
+            {t({
+              en: "Forty-one titles are saved, and the six added this month sit at the top of the list until the sort changes.",
+              zh: "共保存了四十一部作品，本月新增的六部会排在最前，直到排序方式改变为止。",
+            })}
+          </Text>
+          <Text look="bodySmall">
+            {t({
+              en: "Two of them leave the service you watch them on at the end of next week.",
+              zh: "其中两部将在下周末从你观看它们的服务上下架。",
+            })}
+          </Text>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "Sorting changes this view only — the shared list keeps its own order.",
+              zh: "排序只影响当前视图——共享清单保留自己的顺序。",
+            })}
+          </Text>
+        </div>
       </div>
     </div>
   );
