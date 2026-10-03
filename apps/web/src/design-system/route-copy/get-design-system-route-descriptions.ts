@@ -51,6 +51,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "Texture, wash and glass: the looks a surface takes beyond its colour and border.",
       zh: "纹理、淡彩与玻璃：表面在颜色与边框之外的样子。",
     }),
+    "/design-system/foundations/effect-layer": t({
+      en: "Effects drawn with WebGPU behind the page, around the elements that register. Experimental.",
+      zh: "用 WebGPU 绘制在页面之后、环绕已登记元素的效果。仍在实验中。",
+    }),
     "/design-system/foundations/layout": t({
       en: "Breakpoints, container widths, control sizes, z-index layers, and aspect ratios.",
       zh: "断点、容器宽度、控件尺寸、层级与宽高比。",

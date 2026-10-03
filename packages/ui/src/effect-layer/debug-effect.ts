@@ -8,6 +8,17 @@ const SLOT_COLORS = [
   [0, 0.6, 0.86],
 ] as const;
 const MARKER_COLOR = [0.5, 0.5, 0.5] as const;
+const DOCUMENT_ELEMENT_COLOR = [0.1, 0.7, 0.2] as const;
+const FIXED_ELEMENT_COLOR = [1, 0.5, 0] as const;
+const POINTER_COLOR = [0.9, 0.1, 0.2] as const;
+
+/**
+ * The event the debug view dispatches on `window` each frame it draws, with
+ * the measured elements and the pointer, for tests and for the console.
+ */
+const FRAME_EVENT = "effectlayerframe";
+/** Below this pointer speed, in CSS px per second, the velocity line is gone. */
+const STILL_VELOCITY = 5;
 
 // Rows of a 3 x 5 glyph, top first.
 const DIGIT_GLYPHS = [
@@ -88,6 +99,74 @@ fn fragmentMain(input: BandVarying) -> @location(0) vec4f {
     alpha = 0.9;
   }
   return vec4f(color * alpha, alpha);
+}
+`;
+
+const ELEMENT_WGSL = /* wgsl */ `${TARGET_WGSL}
+// A line on the edge, then a band of the measured fill over a checkerboard,
+// so a translucent fill shows as translucent.
+const MARGIN = 12.0;
+const LINE_WIDTH = 2.0;
+const FILL_START = 4.0;
+const FILL_END = 10.0;
+const POINTER_RING = 10.0;
+const VELOCITY_SECONDS = 0.1;
+
+struct ElementVarying {
+  @builtin(position) position: vec4f,
+  @location(0) @interpolate(flat) index: u32,
+}
+
+@vertex
+fn elementVertex(
+  @builtin(vertex_index) vertex: u32,
+  @builtin(instance_index) index: u32,
+) -> ElementVarying {
+  let element = effectElements[index];
+  let corner = vec2f(f32(vertex & 1u), f32((vertex >> 1u) & 1u));
+  let page = element.rect.xy - MARGIN + corner * (element.rect.zw + 2.0 * MARGIN);
+  return ElementVarying(pageToClip(page), index);
+}
+
+@fragment
+fn elementFragment(input: ElementVarying) -> @location(0) vec4f {
+  let element = effectElements[input.index];
+  let page = fragmentToPage(input.position.xy);
+  let edge = effectElementDistance(element, page);
+  if (edge >= 0.0 && edge < LINE_WIDTH) {
+    let fixed = (element.flags & EFFECT_ELEMENT_FIXED) != 0u;
+    return vec4f(select(${vec3(DOCUMENT_ELEMENT_COLOR)}, ${vec3(FIXED_ELEMENT_COLOR)}, fixed), 1.0);
+  }
+  if (edge >= FILL_START && edge < FILL_END) {
+    let cell = vec2i(floor(page / 4.0));
+    let checker = select(0.55, 0.8, ((cell.x + cell.y) & 1) == 1);
+    return vec4f(mix(vec3f(checker), element.fill.rgb, element.fill.a), 1.0);
+  }
+  return vec4f(0.0);
+}
+
+@vertex
+fn pointerVertex(@builtin(vertex_index) vertex: u32) -> @builtin(position) vec4f {
+  let start = effectPage.pointerPosition;
+  let end = start + effectPage.pointerVelocity * VELOCITY_SECONDS;
+  let corner = vec2f(f32(vertex & 1u), f32((vertex >> 1u) & 1u));
+  return pageToClip(mix(min(start, end) - 16.0, max(start, end) + 16.0, corner));
+}
+
+@fragment
+fn pointerFragment(@builtin(position) position: vec4f) -> @location(0) vec4f {
+  let offset = fragmentToPage(position.xy) - effectPage.pointerPosition;
+  let radius = length(offset);
+  let velocity = effectPage.pointerVelocity * VELOCITY_SECONDS;
+  let along = clamp(dot(offset, velocity) / max(dot(velocity, velocity), 1e-6), 0.0, 1.0);
+  let fromLine = length(offset - velocity * along);
+  let pressed = (effectPage.pointerFlags & EFFECT_POINTER_PRESSED) != 0u;
+  if (abs(radius - POINTER_RING) < 1.0 ||
+      (pressed && radius < POINTER_RING - 4.0) ||
+      (radius > POINTER_RING && fromLine < 1.0)) {
+    return vec4f(${vec3(POINTER_COLOR)}, 1.0);
+  }
+  return vec4f(0.0);
 }
 `;
 
@@ -190,52 +269,69 @@ function writeMinimap(
  * The debug view, `?effects=debug`. Each band gets a fill in its slot's
  * colour (slot 0 magenta, slot 1 cyan) with its index at its top edge,
  * stripes in page space that must join across bands, and dashed lines where
- * the part drawn this frame ends. The fixed `<canvas>` element shows the
- * minimap.
+ * the part drawn this frame ends. Each registered element gets a line on its
+ * edge (green in the document, orange when fixed) and a band of its measured
+ * fill. The fixed `<canvas>` element shows the minimap and the pointer: a
+ * ring, filled while pressed, with a line for its velocity.
  *
  * @internal
  */
 export const debugEffect: Effect = {
-  async setup({ device, format, targetLayout }) {
+  async setup({ device, format, pageLayout, targetLayout }) {
     const layout = device.createPipelineLayout({
-      bindGroupLayouts: [targetLayout],
+      bindGroupLayouts: [pageLayout, targetLayout],
     });
     const bandModule = device.createShaderModule({ code: BAND_WGSL });
     const rectModule = device.createShaderModule({ code: RECT_WGSL });
-    const [bandPipeline, rectPipeline] = await Promise.all([
+    const elementModule = device.createShaderModule({ code: ELEMENT_WGSL });
+    const strip = (vertex: string, fragment: string) =>
       device.createRenderPipelineAsync({
         layout,
-        vertex: { module: bandModule, entryPoint: "vertexMain" },
+        vertex: { module: elementModule, entryPoint: vertex },
         fragment: {
-          module: bandModule,
-          entryPoint: "fragmentMain",
-          targets: [{ format, blend: BLEND }],
-        },
-      }),
-      device.createRenderPipelineAsync({
-        layout,
-        vertex: {
-          module: rectModule,
-          entryPoint: "vertexMain",
-          buffers: [
-            {
-              arrayStride: RECT_FLOATS * 4,
-              stepMode: "instance",
-              attributes: [
-                { shaderLocation: 0, offset: 0, format: "float32x4" },
-                { shaderLocation: 1, offset: 16, format: "float32x4" },
-              ],
-            },
-          ],
-        },
-        fragment: {
-          module: rectModule,
-          entryPoint: "fragmentMain",
+          module: elementModule,
+          entryPoint: fragment,
           targets: [{ format, blend: BLEND }],
         },
         primitive: { topology: "triangle-strip" },
-      }),
-    ]);
+      });
+    const [bandPipeline, rectPipeline, elementPipeline, pointerPipeline] =
+      await Promise.all([
+        device.createRenderPipelineAsync({
+          layout,
+          vertex: { module: bandModule, entryPoint: "vertexMain" },
+          fragment: {
+            module: bandModule,
+            entryPoint: "fragmentMain",
+            targets: [{ format, blend: BLEND }],
+          },
+        }),
+        device.createRenderPipelineAsync({
+          layout,
+          vertex: {
+            module: rectModule,
+            entryPoint: "vertexMain",
+            buffers: [
+              {
+                arrayStride: RECT_FLOATS * 4,
+                stepMode: "instance",
+                attributes: [
+                  { shaderLocation: 0, offset: 0, format: "float32x4" },
+                  { shaderLocation: 1, offset: 16, format: "float32x4" },
+                ],
+              },
+            ],
+          },
+          fragment: {
+            module: rectModule,
+            entryPoint: "fragmentMain",
+            targets: [{ format, blend: BLEND }],
+          },
+          primitive: { topology: "triangle-strip" },
+        }),
+        strip("elementVertex", "elementFragment"),
+        strip("pointerVertex", "pointerFragment"),
+      ]);
     const rects = new Float32Array(MAX_RECTS * RECT_FLOATS);
     const rectBuffer = device.createBuffer({
       size: rects.byteLength,
@@ -246,6 +342,7 @@ export const debugEffect: Effect = {
     let layerTop = 0;
 
     return {
+      followsPointer: true,
       update(_encoder, frame) {
         for (const { band, y } of frame.targets) {
           if (band !== null) {
@@ -253,20 +350,38 @@ export const debugEffect: Effect = {
             layerTop = y - band.top;
           }
         }
-        return false;
+        window.dispatchEvent(
+          new CustomEvent(FRAME_EVENT, {
+            detail: {
+              scrollX: frame.viewport.x,
+              scrollY: frame.viewport.y,
+              elements: frame.elements,
+              pointer: frame.pointer,
+            },
+          }),
+        );
+        const { velocityX, velocityY } = frame.pointer;
+        return Math.hypot(velocityX, velocityY) > STILL_VELOCITY;
       },
       draw(pass, target, frame) {
-        pass.setBindGroup(0, target.bindGroup);
         if (target.band !== null) {
           pass.setPipeline(bandPipeline);
           pass.draw(3, 1, 0, target.band.index);
-          return;
+        } else {
+          const count = writeMinimap(rects, frame, layerTop, placed);
+          device.queue.writeBuffer(rectBuffer, 0, rects);
+          pass.setPipeline(rectPipeline);
+          pass.setVertexBuffer(0, rectBuffer);
+          pass.draw(4, count);
         }
-        const count = writeMinimap(rects, frame, layerTop, placed);
-        device.queue.writeBuffer(rectBuffer, 0, rects);
-        pass.setPipeline(rectPipeline);
-        pass.setVertexBuffer(0, rectBuffer);
-        pass.draw(4, count);
+        if (target.elementCount > 0) {
+          pass.setPipeline(elementPipeline);
+          pass.draw(4, target.elementCount, 0, target.firstElement);
+        }
+        if (target.canvas === "fixed" && frame.pointer.present) {
+          pass.setPipeline(pointerPipeline);
+          pass.draw(4);
+        }
       },
       destroy() {
         rectBuffer.destroy();

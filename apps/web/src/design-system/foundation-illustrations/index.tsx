@@ -6,6 +6,7 @@ import type {
 import { AccessibilityIllustration } from "./accessibility-illustration.tsx";
 import { BordersIllustration } from "./borders-illustration.tsx";
 import { ColorIllustration } from "./color-illustration.tsx";
+import { EffectLayerIllustration } from "./effect-layer-illustration.tsx";
 import { IconographyIllustration } from "./iconography-illustration.tsx";
 import { LayoutIllustration } from "./layout-illustration.tsx";
 import { MaterialIllustration } from "./material-illustration.tsx";
@@ -29,6 +30,7 @@ const FOUNDATION_ILLUSTRATIONS: Record<
   "/design-system/foundations/motion": <MotionIllustration />,
   "/design-system/foundations/borders": <BordersIllustration />,
   "/design-system/foundations/material": <MaterialIllustration />,
+  "/design-system/foundations/effect-layer": <EffectLayerIllustration />,
   "/design-system/foundations/layout": <LayoutIllustration />,
   "/design-system/foundations/iconography": <IconographyIllustration />,
   "/design-system/foundations/accessibility": <AccessibilityIllustration />,

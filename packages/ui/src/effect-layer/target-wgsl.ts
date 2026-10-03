@@ -1,11 +1,14 @@
+import { PAGE_WGSL } from "./page-wgsl.ts";
+
 /**
- * The WGSL side of group 0 in every effect's render pipeline: the target being
- * drawn, and helpers that map page coordinates (CSS px from the top-left
- * corner of the document) to it. Put it at the start of an effect's shader.
+ * The WGSL side of a render pipeline's bind groups: `PAGE_WGSL` in group 0,
+ * and in group 1 the target being drawn, with helpers that map page
+ * coordinates (CSS px from the top-left corner of the document) to it. Put it
+ * at the start of an effect's render shader.
  *
  * @internal
  */
-export const TARGET_WGSL = /* wgsl */ `
+export const TARGET_WGSL = /* wgsl */ `${PAGE_WGSL}
 struct EffectTarget {
   pageOffset: vec2f,
   cssSize: vec2f,
@@ -14,7 +17,7 @@ struct EffectTarget {
   seconds: f32,
 }
 
-@group(0) @binding(0) var<uniform> effectTarget: EffectTarget;
+@group(1) @binding(0) var<uniform> effectTarget: EffectTarget;
 
 fn pageToClip(page: vec2f) -> vec4f {
   let unit = (page - effectTarget.pageOffset) / effectTarget.cssSize;
@@ -37,7 +40,7 @@ const targetUniform = new Float32Array(TARGET_UNIFORM_BYTES / 4);
 
 /**
  * Packs the values of `TARGET_WGSL`'s `EffectTarget` in field order, into
- * one array that every call reuses. `GPUQueue.writeBuffer` copies it at once.
+ * one buffer that every call reuses. `GPUQueue.writeBuffer` copies it at once.
  *
  * @internal
  */

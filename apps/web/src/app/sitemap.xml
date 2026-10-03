@@ -502,6 +502,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/material" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/foundations/effect-layer</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/effect-layer" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/effect-layer" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/effect-layer</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/effect-layer" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/effect-layer" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/foundations/layout</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/layout" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/layout" />

@@ -24,7 +24,7 @@ import type { DesignSystemRoute } from "./types.ts";
 const ROUTES = [
   { section: "overview", path: "/design-system" },
   // Foundations splits the same way Components does, and for the same reason:
-  // nine in a row is past what a visitor can scan. Six decide what a surface
+  // nine in a row is past what a visitor can scan. Eight decide what a surface
   // looks like; three decide how it treats the person in front of it.
   {
     section: "foundations",
@@ -65,6 +65,23 @@ const ROUTES = [
       "纹理",
       "淡彩",
       "玻璃",
+    ],
+  },
+  // This page is next to Material. Material is what CSS paints on a surface.
+  // The effect layer is what the GPU draws around a surface. Components ›
+  // Surfaces is also a correct group, but it has nine routes, the maximum.
+  {
+    section: "foundations",
+    category: "visual",
+    path: "/design-system/foundations/effect-layer",
+    keywords: [
+      "effects",
+      "webgpu",
+      "gpu",
+      "canvas",
+      "particles",
+      "shader",
+      "效果层",
     ],
   },
   {
