@@ -9,7 +9,7 @@ const pluginPath = require.resolve("./index");
  * Run the plugin and collect every `source` prop it injected.
  *
  * The capture plugin runs second, so it sees the props the first plugin added
- * during `Program: { enter }`.
+ * in `pre()`.
  * @param {string} code
  * @param {string} [filename]
  * @returns {{ element: string, tokens: [string, string][] }[]}
@@ -321,6 +321,37 @@ export function ButtonShowcase() {
 `;
 
       expect(sourceOf(code)).toContain("<Button>Save</Button>");
+    });
+
+    it("reads t() before React Compiler and the i18n plugin rewrite it", () => {
+      const code = `"use client";
+${IMPORTS}
+export function ButtonShowcase() {
+  return (
+    <Specimen caption="default">
+      <Button>{t({ en: "Save", zh: "保存" })}</Button>
+    </Specimen>
+  );
+}
+`;
+
+      const result = transformSync(code, {
+        filename: "showcase.tsx",
+        parserOpts: { plugins: ["typescript", "jsx"] },
+        plugins: [
+          require.resolve("babel-plugin-react-compiler"),
+          pluginPath,
+          require.resolve("../i18n/index"),
+        ],
+        configFile: false,
+        babelrc: false,
+      });
+
+      // React Compiler moves the token array into a cache slot, so read it
+      // from the output text.
+      expect(result?.code).toContain(
+        '["punct", ">"], ["plain", "Save"], ["punct", "</"]',
+      );
     });
   });
 

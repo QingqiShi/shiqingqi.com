@@ -18,16 +18,20 @@ const { valueExportNamesOf } = require("./value-export-names-of");
 const HOOK_NAME = /^use[A-Z0-9]/;
 
 /**
+ * @param {string} name
+ * @returns {boolean}
+ */
+function isHookName(name) {
+  return HOOK_NAME.test(name);
+}
+
+/**
  * @param {any} program
  * @returns {boolean}
  */
 function isHookModule(program) {
   const names = valueExportNamesOf(program);
-  return (
-    names !== null &&
-    names.length > 0 &&
-    names.every((name) => HOOK_NAME.test(name))
-  );
+  return names !== null && names.length > 0 && names.every(isHookName);
 }
 
-module.exports = { isHookModule };
+module.exports = { isHookModule, isHookName };

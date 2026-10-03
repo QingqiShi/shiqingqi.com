@@ -3,10 +3,12 @@
  *
  * Prevents t() calls (from #src/i18n) outside React render scope.
  *
- * The i18n Babel plugin transforms client-side t() into useI18nLookup(),
- * which is a React hook and must run during render. Even in server components,
- * t() at module scope can read the wrong locale. This rule enforces that t()
- * only appears where React keeps it reactive.
+ * The i18n Babel plugin transforms client-side t() into a lookup in the
+ * translations from a useI18nTranslations() hook call in the enclosing
+ * component or hook; a helper gets them from its caller. So t() must run
+ * during render. Even in server components, t() at module scope can read
+ * the wrong locale. This rule enforces that t() only appears where React
+ * keeps it reactive.
  *
  * Exception: modules marked `import "server-only"` transform t() into a
  * lookup that reads the locale fresh on every call (via a React `cache()`
@@ -16,16 +18,12 @@
 
 "use strict";
 
+const { isHookName } = require("@tuja/module-exports");
 const { createTImportTracker } = require("./create-t-import-tracker.js");
 
 /** @param {string} name */
 function isComponentName(name) {
   return /^[A-Z]/.test(name);
-}
-
-/** @param {string} name */
-function isHookName(name) {
-  return /^use[A-Z]/.test(name);
 }
 
 /**

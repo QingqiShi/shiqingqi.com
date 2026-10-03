@@ -12,8 +12,10 @@ Translations are written **inline** using the `t()` function. A Babel plugin tra
 ```
 Source: t({ en: "Hello", zh: "你好" })
   ↓ Babel plugin
-Server: __i18n_lookup("a8cfb50c")   — reads from server JSON bundle
-Client: useI18nLookup("a8cfb50c")  — reads from React context (hook)
+Server: __i18n_lookup("a8cfb50c")                — reads from server JSON bundle
+Client: i18nLookup(_translations, "a8cfb50c")   — reads the translations that
+        const _translations = useI18nTranslations() reads from React context
+        at the top of the enclosing component or hook
 ```
 
 ## Supported Locales
@@ -119,8 +121,9 @@ The codegen script in `packages/i18n-codegen/` does:
 
 Runs at compile time (both dev and build). Transforms:
 
-- `t({en, zh})` → `__i18n_lookup(key)` (server) or `useI18nLookup(key)` (client)
-- `t({en, zh}, { parse: true })` → `__i18n_lookupParse(key)` or `useI18nLookupParse(key)`
+- `t({en, zh})` → `__i18n_lookup(key)` (server) or `i18nLookup(_translations, key)` (client)
+- `t({en, zh}, { parse: true })` → `__i18n_lookupParse(key)` or `i18nLookupParse(_translations, key)`
+- Client: declares `const _translations = useI18nTranslations()` at the top of each component or hook that calls `t()`. A local helper that calls `t()` gets the translations as a new first parameter, which each caller passes. The rewrite runs in the plugin's `pre()`, before React Compiler, so the compiler caches each lookup by the translations.
 - Auto-injects `setLocale` for page files with `t()` calls
 - Auto-wraps returns with `<ClientTranslationsProvider>` for manifest entries
 

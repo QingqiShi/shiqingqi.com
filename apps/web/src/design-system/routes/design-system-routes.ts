@@ -9,7 +9,7 @@
  * sitemap-coverage test.
  *
  * Localized names live in `../route-copy/`, not here. The i18n `t()` transform
- * compiles to a React hook (`useI18nLookup`) inside client files and to a
+ * compiles to a React hook (`useI18nTranslations`) inside client files and to a
  * `server-only` lookup (`__i18n_lookup`) inside server files, so a module that
  * calls `t()` cannot be imported by both the client nav and the server overview
  * page — one side always gets the wrong (or a build-breaking) runtime. The copy
