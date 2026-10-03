@@ -39,6 +39,10 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Material",
       zh: "质感",
     }),
+    "/design-system/foundations/effect-layer": t({
+      en: "Effect layer",
+      zh: "效果层",
+    }),
     "/design-system/foundations/layout": t({ en: "Layout", zh: "布局" }),
     "/design-system/foundations/iconography": t({
       en: "Iconography",

@@ -1,29 +1,38 @@
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { absoluteFill, viewportAnchor } from "../primitives/layout.stylex.ts";
 import { layer } from "../tokens.stylex.ts";
-import { createEffectLayer } from "./create-effect-layer.ts";
+import {
+  createEffectLayer,
+  type EffectCanvasNeeds,
+} from "./create-effect-layer.ts";
+import type { EffectRegistry } from "./create-effect-registry.ts";
 import { debugEffect } from "./debug-effect.ts";
+import { effectsForRoles } from "./effects-for-roles.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
-import type { EffectUse } from "./types.ts";
 
 interface EffectLayerCanvasesProps {
   gpu: EffectDevice;
-  uses: readonly EffectUse[];
+  registry: EffectRegistry;
+  /** Every role that some registered element has. */
+  roles: number;
   debug: boolean;
 }
+
+const NO_CANVASES: EffectCanvasNeeds = { scroll: false, fixed: false };
 
 /**
  * The `<canvas>` elements of the effect layer, behind all content: two that
  * take turns to cover the document while it scrolls, and one fixed to the
- * viewport. Each group mounts only while a use needs it; the debug view needs
- * both.
+ * viewport. Each group mounts only while a registered element with a role
+ * needs it; the debug view needs both.
  *
  * @internal
  */
 export function EffectLayerCanvases({
   gpu,
-  uses,
+  registry,
+  roles,
   debug,
 }: EffectLayerCanvasesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,16 +41,12 @@ export function EffectLayerCanvases({
   const secondRef = useRef<HTMLCanvasElement>(null);
   const fixedRef = useRef<HTMLCanvasElement>(null);
   const layerRef = useRef<ReturnType<typeof createEffectLayer>>(null);
-  const hasScroll = debug || uses.some((use) => use.canvas === "scroll");
-  const hasFixed = debug || uses.some((use) => use.canvas === "fixed");
+  const [needs, setNeeds] = useState(NO_CANVASES);
+  const hasScroll = debug || needs.scroll;
+  const hasFixed = debug || needs.fixed;
   const effects = useMemo(
-    () => [
-      ...new Set([
-        ...(debug ? [debugEffect] : []),
-        ...uses.map((use) => use.effect),
-      ]),
-    ],
-    [debug, uses],
+    () => [...(debug ? [debugEffect] : []), ...effectsForRoles(roles)],
+    [debug, roles],
   );
 
   useEffect(() => {
@@ -50,13 +55,18 @@ export function EffectLayerCanvases({
     if (container === null || probe === null) {
       return;
     }
-    const effectLayer = createEffectLayer(gpu, container, probe);
+    const effectLayer = createEffectLayer(gpu, {
+      registry,
+      container,
+      probe,
+      onCanvasNeedsChange: setNeeds,
+    });
     layerRef.current = effectLayer;
     return () => {
       effectLayer.destroy();
       layerRef.current = null;
     };
-  }, [gpu]);
+  }, [gpu, registry]);
 
   useEffect(() => {
     const first = firstRef.current;
@@ -65,11 +75,11 @@ export function EffectLayerCanvases({
       scroll: first && second ? [first, second] : [],
       fixed: fixedRef.current,
     });
-  }, [gpu, hasScroll, hasFixed]);
+  }, [gpu, registry, hasScroll, hasFixed]);
 
   useEffect(() => {
     layerRef.current?.setEffects(effects);
-  }, [gpu, effects]);
+  }, [gpu, registry, effects]);
 
   return (
     <>

@@ -3,7 +3,6 @@
 import {
   lazy,
   Suspense,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -12,13 +11,13 @@ import {
   type ReactNode,
 } from "react";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
+import { createEffectRegistry } from "./create-effect-registry.ts";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { readEffectLayerMode } from "./read-effect-layer-mode.ts";
 import {
   requestEffectDevice,
   type EffectDevice,
 } from "./request-effect-device.ts";
-import type { Effect, EffectCanvas, EffectUse } from "./types.ts";
 
 const EffectLayerCanvases = lazy(() =>
   import("./effect-layer-canvases.tsx").then((module) => ({
@@ -102,24 +101,24 @@ interface EffectLayerProviderProps {
 }
 
 /**
- * Draws effects with WebGPU on `<canvas>` elements behind all content. It
- * mounts no `<canvas>` element and requests no GPU device until an effect is
- * added. Without WebGPU, under forced colours, with `?effects=off` or with the
- * `effect-layer` localStorage key set to `off`, it renders only its children.
- * `?effects=debug` shows the bands the scroll `<canvas>` elements cover.
+ * Draws effects with WebGPU on `<canvas>` elements behind all content, around
+ * the elements that `EffectBoundary` registers. It mounts no `<canvas>`
+ * element and requests no GPU device until an element registers with an
+ * effect. Without WebGPU, under forced colours, with `?effects=off` or with
+ * the `effect-layer` localStorage key set to `off`, it renders only its
+ * children. `?effects=debug` shows the bands the scroll `<canvas>` elements
+ * cover, every registered element as measured, and the pointer.
  *
  * Mount it once, high in the page, inside a positioned `<body>` so that the
  * scroll `<canvas>` elements cover the document and no more.
  */
 export function EffectLayerProvider({ children }: EffectLayerProviderProps) {
-  const [uses, setUses] = useState<readonly EffectUse[]>([]);
-  const register = useCallback((effect: Effect, canvas: EffectCanvas) => {
-    const use = { effect, canvas };
-    setUses((current) => [...current, use]);
-    return () => {
-      setUses((current) => current.filter((item) => item !== use));
-    };
-  }, []);
+  const [registry] = useState(createEffectRegistry);
+  const roles = useSyncExternalStore(
+    registry.subscribe,
+    registry.getRoles,
+    () => 0,
+  );
 
   const hydrated = useIsHydrated();
   const mode = useMemo(
@@ -132,15 +131,20 @@ export function EffectLayerProvider({ children }: EffectLayerProviderProps) {
     () => false,
   );
   const debug = mode === "debug";
-  const wanted = mode !== "off" && !forcedColors && (debug || uses.length > 0);
+  const wanted = mode !== "off" && !forcedColors && (debug || roles !== 0);
   const gpu = useEffectLayerDevice(wanted);
 
   return (
-    <EffectLayerContext value={register}>
+    <EffectLayerContext value={registry.register}>
       {children}
       {wanted && gpu !== null && (
         <Suspense fallback={null}>
-          <EffectLayerCanvases gpu={gpu} uses={uses} debug={debug} />
+          <EffectLayerCanvases
+            gpu={gpu}
+            registry={registry}
+            roles={roles}
+            debug={debug}
+          />
         </Suspense>
       )}
     </EffectLayerContext>

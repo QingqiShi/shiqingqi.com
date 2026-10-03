@@ -2,67 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
-
-// SVG has no `corner-shape`, so the lens is drawn as a path. Both cubic handles
-// of a corner sit at this share of the radius from the box corner, which puts
-// the curve's midpoint on the n=4 superellipse — the same squircle the `corner`
-// primitive draws.
-const SQUIRCLE_HANDLE = 0.0909;
-
-function squirclePath(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-) {
-  const right = x + width;
-  const bottom = y + height;
-  const handle = radius * SQUIRCLE_HANDLE;
-  // Segments are joined rather than interpolated, so the numbers stay numbers.
-  return [
-    "M",
-    x + radius,
-    y,
-    "H",
-    right - radius,
-    "C",
-    right - handle,
-    y,
-    right,
-    y + handle,
-    right,
-    y + radius,
-    "V",
-    bottom - radius,
-    "C",
-    right,
-    bottom - handle,
-    right - handle,
-    bottom,
-    right - radius,
-    bottom,
-    "H",
-    x + radius,
-    "C",
-    x + handle,
-    bottom,
-    x,
-    bottom - handle,
-    x,
-    bottom - radius,
-    "V",
-    y + radius,
-    "C",
-    x,
-    y + handle,
-    x + handle,
-    y,
-    x + radius,
-    y,
-    "Z",
-  ].join(" ");
-}
+import { squirclePath } from "./squircle-path.ts";
 
 const LENS = squirclePath(180, 76, 132, 84, 30);
 

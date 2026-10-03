@@ -1,23 +1,43 @@
 import type { Band } from "./compute-bands.ts";
+import type { ElementBox } from "./read-element-box.ts";
 
 /**
- * The `<canvas>` elements a use of an effect needs: the two scroll ones,
- * which take turns to cover the document, or the fixed one, which covers the
- * viewport for fixed elements.
+ * The `<canvas>` elements of the effect layer: the two scroll ones, which take
+ * turns to cover the document, or the fixed one, which covers the viewport
+ * for fixed elements.
  *
  * @internal
  */
 export type EffectCanvas = "scroll" | "fixed";
 
 /**
- * One registration of an effect. The same effect can have many uses; the
- * `<canvas>` elements mount for the uses that need them.
+ * One registered element as the effect layer measured it this frame. Its
+ * index in `EffectFrame.elements` is its index in WGSL's `effectElements`.
  *
  * @internal
  */
-export interface EffectUse {
-  readonly effect: Effect;
-  readonly canvas: EffectCanvas;
+export interface EffectElementRecord extends ElementBox {
+  /** Stays the same while the element stays registered. */
+  readonly id: number;
+  readonly element: Element;
+  /** One bit per role, as `EFFECT_ROLES` orders them; 0 for none. */
+  readonly roles: number;
+}
+
+/**
+ * The primary pointer, in page coordinates. A mouse is present while it is
+ * over the page; a finger or a pen while it touches or hovers.
+ *
+ * @internal
+ */
+export interface EffectPointer {
+  readonly x: number;
+  readonly y: number;
+  /** CSS px per second, falling to 0 when the pointer stops. */
+  readonly velocityX: number;
+  readonly velocityY: number;
+  readonly pressed: boolean;
+  readonly present: boolean;
 }
 
 /**
@@ -30,8 +50,13 @@ export interface EffectSetup {
   /** The colour format of every `<canvas>` element, for a render pipeline's target. */
   readonly format: GPUTextureFormat;
   /**
-   * Group 0 of every render pipeline: the uniforms of the target being drawn,
-   * declared in WGSL as `TARGET_WGSL`.
+   * Group 0 of every pipeline, render or compute: the page and every
+   * registered element, declared in WGSL as `PAGE_WGSL`.
+   */
+  readonly pageLayout: GPUBindGroupLayout;
+  /**
+   * Group 1 of every render pipeline: the target being drawn, declared in
+   * WGSL as `TARGET_WGSL`.
    */
   readonly targetLayout: GPUBindGroupLayout;
   /** Draws one more frame, for a change the effect layer cannot see. */
@@ -62,7 +87,15 @@ export interface EffectTarget {
   /** The CSS size of the `<canvas>` element. */
   readonly width: number;
   readonly height: number;
-  /** Group 0, laid out as `targetLayout`. */
+  /**
+   * The elements that draw on this `<canvas>` element, as a range of
+   * `EffectFrame.elements`: the ones in the document on a band, the fixed
+   * ones on the fixed `<canvas>` element. Pass it to an instanced draw as
+   * `pass.draw(vertices, elementCount, 0, firstElement)`.
+   */
+  readonly firstElement: number;
+  readonly elementCount: number;
+  /** Group 1, laid out as `targetLayout`. */
   readonly bindGroup: GPUBindGroup;
 }
 
@@ -86,6 +119,17 @@ export interface EffectFrame {
     readonly height: number;
   };
   readonly documentHeight: number;
+  /**
+   * Every registered element with a box, measured at the start of this
+   * frame: the ones in the document first, then the fixed ones.
+   */
+  readonly elements: readonly EffectElementRecord[];
+  readonly pointer: EffectPointer;
+  /**
+   * Group 0, laid out as `pageLayout`. Each render pass has it set already; a
+   * compute pass sets it itself. It changes when the element buffer grows.
+   */
+  readonly pageBindGroup: GPUBindGroup;
   /** Every pass of this frame, bands first. */
   readonly targets: readonly EffectTarget[];
 }
@@ -101,12 +145,17 @@ export interface EffectRenderer {
    * `true` to ask for the next frame; the loop stops when no effect asks.
    */
   update?: (encoder: GPUCommandEncoder, frame: EffectFrame) => boolean;
-  /** Draws into every target of the frame; the effect skips what it does not own. */
+  /**
+   * Draws into every target of the frame, with groups 0 and 1 set; the
+   * effect skips what it does not own.
+   */
   draw: (
     pass: GPURenderPassEncoder,
     target: EffectTarget,
     frame: EffectFrame,
   ) => void;
+  /** Draw a frame each time the pointer moves. */
+  followsPointer?: boolean;
   destroy: () => void;
 }
 
