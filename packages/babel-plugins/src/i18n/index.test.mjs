@@ -85,38 +85,176 @@ const msg = t({ en: "Hello <strong>world</strong>", zh: "你好 <strong>世界</
   });
 
   describe("client component transform ('use client')", () => {
-    it("transforms t() call to useI18nLookup with correct key", () => {
-      const input = `
+    it("reads the translations once per component and looks up each key in them", () => {
+      const output = transform(`
 "use client";
 import { t } from "#src/i18n";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-      const key = expectedKey("Hello", "你好");
+export function Card({ isExternal }) {
+  const title = t({ en: "Title", zh: "标题" });
+  return <a title={title}>{isExternal ? t({ en: "External", zh: "外部" }) : null}</a>;
+}
+`);
 
-      expect(output).toContain(`useI18nLookup("${key}")`);
-      expect(output).toContain(
-        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
-      );
-      expect(output).not.toContain(`from "#src/i18n"`);
+      expect(output).toMatchInlineSnapshot(`
+        ""use client";
+
+        import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts";
+        export function Card({
+          isExternal
+        }) {
+          const _translations = useI18nTranslations();
+          const title = i18nLookup(_translations, "4c18fa65");
+          return <a title={title}>{isExternal ? i18nLookup(_translations, "b2b5a43d") : null}</a>;
+        }"
+      `);
     });
 
-    it("transforms t() with parse option to useI18nLookupParse", () => {
-      const input = `
+    it("uses i18nLookupParse with { parse: true }", () => {
+      const output = transform(`
 "use client";
 import { t } from "#src/i18n";
-const msg = t({ en: "Click <strong>here</strong>", zh: "点击 <strong>这里</strong>" }, { parse: true });
-`;
-      const output = transform(input);
+export function Hint() {
+  return t({ en: "Click <strong>here</strong>", zh: "点击 <strong>这里</strong>" }, { parse: true });
+}
+`);
       const key = expectedKey(
         "Click <strong>here</strong>",
         "点击 <strong>这里</strong>",
       );
 
-      expect(output).toContain(`useI18nLookupParse("${key}")`);
+      expect(output).toContain(`i18nLookupParse(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nLookupParse } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookupParse } from "#src/i18n/client-runtime.ts"`,
       );
+      expect(output).not.toContain(`from "#src/i18n"`);
+    });
+
+    it("gives each component its own translations", () => {
+      const output = transform(`
+"use client";
+import { t } from "#src/i18n";
+export function A() { return t({ en: "A", zh: "甲" }); }
+export function B() { return t({ en: "B", zh: "乙" }); }
+`);
+
+      expect(output).toContain("const _translations = useI18nTranslations();");
+      expect(output).toContain("const _translations2 = useI18nTranslations();");
+      expect(output).toContain(
+        `i18nLookup(_translations2, "${expectedKey("B", "乙")}")`,
+      );
+    });
+
+    it("changes an arrow component's expression body into a block", () => {
+      const output = transform(`
+"use client";
+import { t } from "#src/i18n";
+export const Title = () => <h1>{t({ en: "Title", zh: "标题" })}</h1>;
+`);
+
+      expect(output).toContain(`export const Title = () => {
+  const _translations = useI18nTranslations();
+  return <h1>{i18nLookup(_translations, "4c18fa65")}</h1>;
+};`);
+    });
+
+    it("lets a function inside a component use the component's translations", () => {
+      const output = transform(`
+"use client";
+import { t } from "#src/i18n";
+export function List({ items }) {
+  return items.map((item) => <li key={item}>{t({ en: "Item", zh: "项" })}</li>);
+}
+`);
+
+      expect(output.match(/useI18nTranslations\(\)/g)).toHaveLength(1);
+      expect(output).toContain(`export function List({
+  items
+}) {
+  const _translations = useI18nTranslations();`);
+      expect(output).toContain(`i18nLookup(_translations, "`);
+    });
+
+    it("passes the caller's translations into a helper as its first argument", () => {
+      const output = transform(`
+"use client";
+import { t } from "#src/i18n";
+function getLabel(kind, ...rest) {
+  return kind === "movie" ? t({ en: "Movie", zh: "电影" }) : t({ en: "Show", zh: "剧集" });
+}
+export function Badge({ kind, open }) {
+  return <span aria-label={open ? getLabel(kind) : ""} />;
+}
+`);
+
+      expect(output).toContain(
+        "function getLabel(_translations, kind, ...rest)",
+      );
+      expect(output).toContain(
+        `i18nLookup(_translations, "${expectedKey("Movie", "电影")}")`,
+      );
+      expect(output).toContain("const _translations2 = useI18nTranslations();");
+      expect(output).toContain("getLabel(_translations2, kind)");
+    });
+
+    it("rejects t() at module scope", () => {
+      expect(() =>
+        transform(`
+"use client";
+import { t } from "#src/i18n";
+export const label = t({ en: "Hello", zh: "你好" });
+`),
+      ).toThrow(/t\(\) at module scope/);
+    });
+
+    it("rejects t() in an exported function that is not a component or hook", () => {
+      expect(() =>
+        transform(`
+"use client";
+import { t } from "#src/i18n";
+export function getLabel() { return t({ en: "Hello", zh: "你好" }); }
+export function Label() { return getLabel(); }
+`),
+      ).toThrow(/not a component, a hook, or a local helper/);
+    });
+
+    it("rejects a helper with t() that is called outside render", () => {
+      expect(() =>
+        transform(`
+"use client";
+import { t } from "#src/i18n";
+function getLabel() { return t({ en: "Hello", zh: "你好" }); }
+export function Label() {
+  return <button onClick={() => alert(getLabel())} />;
+}
+function format() { return getLabel(); }
+`),
+      ).toThrow(
+        /getLabel calls t\(\), so only a component or a hook can call it/,
+      );
+    });
+
+    it("rejects a helper with t() that reads arguments", () => {
+      expect(() =>
+        transform(`
+"use client";
+import { t } from "#src/i18n";
+function getLabel() {
+  return arguments[0] === "movie" ? t({ en: "Movie", zh: "电影" }) : t({ en: "Show", zh: "剧集" });
+}
+export function Badge({ kind }) { return getLabel(kind); }
+`),
+      ).toThrow(/getLabel reads `arguments`/);
+    });
+
+    it("rejects a helper with t() that is passed as a value", () => {
+      expect(() =>
+        transform(`
+"use client";
+import { t } from "#src/i18n";
+function getLabel() { return t({ en: "Hello", zh: "你好" }); }
+export function Labels({ kinds }) { return kinds.map(getLabel); }
+`),
+      ).toThrow(/getLabel calls t\(\)/);
     });
   });
 
@@ -256,9 +394,9 @@ export function useMovies() { return t({ en: "A", zh: "甲" }); }
       const output = transform(input);
       const key = expectedKey("A", "甲");
 
-      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
       );
     });
 
@@ -272,9 +410,9 @@ export function useMovies(): Movie[] { return [{ title: t({ en: "A", zh: "甲" }
       const output = transform(input);
       const key = expectedKey("A", "甲");
 
-      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
       );
     });
 
@@ -286,9 +424,9 @@ export const useFoo = () => t({ en: "A", zh: "甲" });
       const output = transform(input);
       const key = expectedKey("A", "甲");
 
-      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
       );
     });
 
@@ -300,9 +438,9 @@ export default function useFoo() { return t({ en: "A", zh: "甲" }); }
       const output = transform(input);
       const key = expectedKey("A", "甲");
 
-      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
       );
     });
 
@@ -315,9 +453,9 @@ export { useFoo };
       const output = transform(input);
       const key = expectedKey("A", "甲");
 
-      expect(output).toContain(`useI18nLookup("${key}")`);
+      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nLookup } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
       );
     });
 
@@ -366,7 +504,7 @@ run();
       );
     });
 
-    it("uses useI18nLookupParse inside a hook-only module with { parse: true }", () => {
+    it("uses i18nLookupParse inside a hook-only module with { parse: true }", () => {
       const input = `
 import { t } from "#src/i18n";
 export function useMovies() { return t({ en: "A <b>b</b>", zh: "甲 <b>乙</b>" }, { parse: true }); }
@@ -374,9 +512,9 @@ export function useMovies() { return t({ en: "A <b>b</b>", zh: "甲 <b>乙</b>" 
       const output = transform(input);
       const key = expectedKey("A <b>b</b>", "甲 <b>乙</b>");
 
-      expect(output).toContain(`useI18nLookupParse("${key}")`);
+      expect(output).toContain(`i18nLookupParse(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nLookupParse } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookupParse } from "#src/i18n/client-runtime.ts"`,
       );
     });
   });

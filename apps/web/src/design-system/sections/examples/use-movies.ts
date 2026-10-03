@@ -33,15 +33,11 @@ export interface Movie {
  * hard-coded: the screen makes no TMDB request, so it renders the same with no
  * API key, no network, and no vector index.
  *
- * Every `t()` call runs on every render, in a fixed order. The i18n transform
- * compiles `t()` to a `useI18nLookup` hook inside a client module, so a lookup
- * reached only for the selected Movie would change the hook order the moment
- * the viewer picked a different one.
- *
- * A hook, and named as one: those compiled lookups are the hook calls, which is
- * also why it can only be called from render scope.
+ * A hook, and named as one: inside a client module the i18n transform opens it
+ * with a `useI18nTranslations` hook call, which is also why it can only be
+ * called from render scope.
  */
-// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- the i18n transform compiles each t() into a useI18nLookup hook call, so the prefix is earned; the rule only sees the pre-transform source
+// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- the i18n transform adds a useI18nTranslations hook call to each function that calls t(), so the prefix is earned; the rule only sees the pre-transform source
 export function useMovies(): Movie[] {
   const northbound: Movie = {
     id: "northbound",

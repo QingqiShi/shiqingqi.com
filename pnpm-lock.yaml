@@ -499,6 +499,9 @@ importers:
       '@babel/types':
         specifier: 'catalog:'
         version: 8.0.6
+      babel-plugin-react-compiler:
+        specifier: 'catalog:'
+        version: 19.0.0-beta-714736e-20250131
       vitest:
         specifier: 'catalog:'
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@5.0.2)(@vitest/ui@5.0.2)(jsdom@30.1.1)(msw@2.15.0(@types/node@26.6.3)(typescript@7.0.2))(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))

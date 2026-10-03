@@ -47,6 +47,7 @@
   "devDependencies": {
     "@babel/core": "catalog:",
     "@babel/types": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
     "vitest": "catalog:"
   }
 }

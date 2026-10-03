@@ -5,20 +5,28 @@ import { use } from "react";
 import { I18nContext } from "#src/i18n/i18n-context.ts";
 import { parseMessage } from "./parse-message.tsx";
 
-// The Babel plugin replaces t() calls with these hooks inline
-// within component render, so the rules-of-hooks are satisfied.
-export function useI18nLookup(key: string): string {
-  const { translations } = use(I18nContext);
-  if (process.env.NODE_ENV !== "production" && !(key in translations)) {
-    throw new Error(`[i18n] Missing translation key: ${key}`);
-  }
-  return translations[key];
+type Translations = Record<string, string>;
+
+export function useI18nTranslations(): Translations {
+  return use(I18nContext).translations;
 }
 
-export function useI18nLookupParse(key: string): ReactNode {
-  const { translations } = use(I18nContext);
-  if (process.env.NODE_ENV !== "production" && !(key in translations)) {
-    throw new Error(`[i18n] Missing translation key: ${key}`);
+export function i18nLookup(
+  translations: Translations,
+  translationKey: string,
+): string {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    !(translationKey in translations)
+  ) {
+    throw new Error(`[i18n] Missing translation key: ${translationKey}`);
   }
-  return parseMessage(translations[key]);
+  return translations[translationKey];
+}
+
+export function i18nLookupParse(
+  translations: Translations,
+  translationKey: string,
+): ReactNode {
+  return parseMessage(i18nLookup(translations, translationKey));
 }

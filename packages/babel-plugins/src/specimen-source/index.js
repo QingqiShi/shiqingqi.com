@@ -88,46 +88,46 @@ const PRINT_WIDTH = 80;
  */
 module.exports = function specimenSourcePlugin({ types: t }) {
   return {
-    name: "specimen-source",
-    visitor: {
-      Program: {
-        enter(path, state) {
-          const code = state.file.code;
-          if (!code) return;
-          // Most of the app holds neither element. Both are matched by their
-          // literal JSX name below, so a file whose text lacks both cannot
-          // produce a match — skip the walk rather than collect facts nothing
-          // will read.
-          if (!code.includes("<Specimen") && !code.includes("<UsageSnippet")) {
+    // The i18n plugin and React Compiler both rewrite the AST before any
+    // visitor of this plugin runs. pre() runs before all visitors, and
+    // Babel runs each plugin's pre() in list order, so this plugin reads
+    // the module first.
+    pre(file) {
+      const code = file.code;
+      if (!code) return;
+      // Most of the app holds neither element. Both are matched by their
+      // literal JSX name below, so a file whose text lacks both cannot
+      // produce a match — skip the walk rather than collect facts nothing
+      // will read.
+      if (!code.includes("<Specimen") && !code.includes("<UsageSnippet")) {
+        return;
+      }
+      const path = file.path;
+      const facts = collectModuleFacts(t, path, code);
+
+      path.traverse({
+        JSXElement(elementPath) {
+          const opening = elementPath.node.openingElement;
+          if (!t.isJSXIdentifier(opening.name)) return;
+          if (findAttribute(t, opening, "source")) return;
+
+          const element = opening.name.name;
+
+          if (element === "Specimen") {
+            const tokens = buildSpecimenSource(t, elementPath, code, facts);
+            if (tokens) opening.attributes.push(sourceAttribute(t, tokens));
             return;
           }
-          const facts = collectModuleFacts(t, path, code);
 
-          path.traverse({
-            JSXElement(elementPath) {
-              const opening = elementPath.node.openingElement;
-              if (!t.isJSXIdentifier(opening.name)) return;
-              if (findAttribute(t, opening, "source")) return;
-
-              const element = opening.name.name;
-
-              if (element === "Specimen") {
-                const tokens = buildSpecimenSource(t, elementPath, code, facts);
-                if (tokens) opening.attributes.push(sourceAttribute(t, tokens));
-                return;
-              }
-
-              if (element === "UsageSnippet") {
-                const snippet = resolveSnippet(t, opening, facts);
-                if (snippet === null) return;
-                opening.attributes.push(
-                  sourceAttribute(t, tokeniseAt(snippet, elementPath)),
-                );
-              }
-            },
-          });
+          if (element === "UsageSnippet") {
+            const snippet = resolveSnippet(t, opening, facts);
+            if (snippet === null) return;
+            opening.attributes.push(
+              sourceAttribute(t, tokeniseAt(snippet, elementPath)),
+            );
+          }
         },
-      },
+      });
     },
   };
 };

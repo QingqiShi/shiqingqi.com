@@ -339,11 +339,6 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 which view is showing and an id the group can point at; announcing
                 the whole synopsis on every switch would read the page aloud three
                 times to someone who only wanted to compare the tabs.
-
-                One panel is mounted at a time, and each panel is its own
-                component: the i18n transform compiles every `t()` call to a
-                `useI18nLookup` hook, so a `t()` reached only when one view is
-                active would change the hook call order on every switch.
               */}
               <div
                 id={panelId}
