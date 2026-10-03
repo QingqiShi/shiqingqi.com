@@ -21,6 +21,11 @@ function findBoundaryElement(slot: Element) {
 
 interface EffectBoundarySlotProps {
   roles: readonly EffectRole[];
+  /**
+   * Data attributes for the wrapper, such as an effect's settings. An effect
+   * reads them from the element with `closest()`.
+   */
+  attributes?: Readonly<Record<`data-${string}`, string | number>>;
   children: ReactElement;
 }
 
@@ -33,6 +38,7 @@ interface EffectBoundarySlotProps {
  */
 export function EffectBoundarySlot({
   roles,
+  attributes,
   children,
 }: EffectBoundarySlotProps) {
   const slotRef = useRef<HTMLSpanElement>(null);
@@ -64,7 +70,12 @@ export function EffectBoundarySlot({
   }, [register]);
 
   return (
-    <span ref={slotRef} data-effect-boundary="" css={styles.slot}>
+    <span
+      ref={slotRef}
+      {...attributes}
+      data-effect-boundary=""
+      css={styles.slot}
+    >
       {children}
     </span>
   );
