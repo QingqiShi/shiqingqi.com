@@ -19,13 +19,34 @@ function findBoundaryElement(slot: Element) {
   return element;
 }
 
+/**
+ * A `data-*` attribute of the slots that register `element`, the nearest
+ * first, or `null` when none has it. Effects read their settings for the
+ * element with it.
+ *
+ * @internal
+ */
+export function readSlotAttribute(element: Element, name: `data-${string}`) {
+  for (
+    let slot = element.parentElement;
+    slot?.hasAttribute(BOUNDARY_ATTRIBUTE) === true;
+    slot = slot.parentElement
+  ) {
+    const value = slot.getAttribute(name);
+    if (value !== null) {
+      return value;
+    }
+  }
+  return null;
+}
+
 interface EffectBoundarySlotProps {
   roles: readonly EffectRole[];
   /**
-   * Data attributes for the wrapper, such as an effect's settings. An effect
-   * reads them from the element with `closest()`.
+   * Settings for the effects of these roles, as `data-*` attributes on the
+   * slot, where `readSlotAttribute` finds them.
    */
-  attributes?: Readonly<Record<`data-${string}`, string | number>>;
+  attributes?: Readonly<Record<`data-${string}`, string | number | undefined>>;
   children: ReactElement;
 }
 
