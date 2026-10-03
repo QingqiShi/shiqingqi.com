@@ -1,3 +1,4 @@
+import { EffectLayerProvider } from "@tuja/ui/components/effect-layer-provider";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -62,11 +63,13 @@ export default async function RootLayout({
         <I18nProvider locale={locale}>
           <SerwistProvider>
             <InlineScript html={themeHack} />
-            <PortalTargetProvider>
-              <BackOverrideProvider>
-                <Suspense fallback={null}>{children}</Suspense>
-              </BackOverrideProvider>
-            </PortalTargetProvider>
+            <EffectLayerProvider>
+              <PortalTargetProvider>
+                <BackOverrideProvider>
+                  <Suspense fallback={null}>{children}</Suspense>
+                </BackOverrideProvider>
+              </PortalTargetProvider>
+            </EffectLayerProvider>
             <ReactGrab />
             <PostHogInit />
           </SerwistProvider>

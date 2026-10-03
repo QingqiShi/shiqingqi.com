@@ -402,6 +402,7 @@ as the system gains components.
 | `@tuja/ui/components/code-run.stylex`         | Per-token-kind colour for a code run, shared by every code surface.                                                                                                    |
 | `@tuja/ui/components/disclosure`              | Expand/collapse section with a header trigger and a revealed panel.                                                                                                    |
 | `@tuja/ui/components/divider`                 | Horizontal/vertical divider.                                                                                                                                           |
+| `@tuja/ui/components/effect-layer-provider`   | Draws effects with WebGPU on `<canvas>` elements behind all content; mounts nothing until an effect is added.                                                          |
 | `@tuja/ui/components/field-shared.stylex`     | Shared form-control chrome (label, description, control box, error text).                                                                                              |
 | `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                                              |
 | `@tuja/ui/components/glass-surface.stylex`    | The Glass skin: a translucent fill over its own blur, with the lit rim and shadow that make Glass the one surface that floats and casts a shadow.                      |
