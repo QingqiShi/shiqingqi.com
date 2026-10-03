@@ -196,17 +196,36 @@ export function isFixedToViewport(
 }
 
 /**
+ * Whether the element, or an ancestor, has `position: sticky`, so that a
+ * scroll can move it in the page.
+ *
+ * @internal
+ */
+export function isInSticky(
+  element: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+) {
+  for (
+    let node: Element | null = element;
+    node !== null;
+    node = node.parentElement
+  ) {
+    if (styleOf(node).position === "sticky") {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Measures one element where the browser has laid it out now, or returns
- * `null` when it has no box. `scrollX` and `scrollY` turn its viewport
- * position into page coordinates. `styleOf` lets the elements of one frame
- * share the computed styles of their ancestors.
+ * `null` when it has no box, in viewport coordinates. `styleOf` lets the
+ * elements of one frame share the computed styles of their ancestors.
  *
  * @internal
  */
 export function readElementBox(
   element: Element,
-  scrollX: number,
-  scrollY: number,
   styleOf: (element: Element) => CSSStyleDeclaration,
 ): ElementBox | null {
   const rect = element.getBoundingClientRect();
@@ -215,8 +234,8 @@ export function readElementBox(
   }
   const style = styleOf(element);
   return {
-    x: rect.left + scrollX,
-    y: rect.top + scrollY,
+    x: rect.left,
+    y: rect.top,
     width: rect.width,
     height: rect.height,
     fixed: isFixedToViewport(element, styleOf),

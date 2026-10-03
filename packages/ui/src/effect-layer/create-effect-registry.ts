@@ -1,5 +1,6 @@
+import type { ElementTracker } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
-import type { EffectSettings } from "./types.ts";
+import type { EffectElementRecord, EffectSettings } from "./types.ts";
 
 /**
  * One registered element. An element registered more than once, by several
@@ -61,8 +62,9 @@ function settingsEqual(first: EffectSettings, second: EffectSettings) {
 
 /**
  * The elements registered on one effect layer. React reads `getRoles`
- * through `useSyncExternalStore`; the effect layer reads `elements` each
- * frame.
+ * through `useSyncExternalStore`. While the effect layer tracks them, each
+ * element keeps its own tracker on its entry, and the layer reads `records`
+ * each frame.
  *
  * @internal
  */
@@ -73,8 +75,13 @@ export function createEffectRegistry() {
   }
   const uses = new Map<
     Element,
-    { id: number; registrations: Set<Registration> }
+    {
+      id: number;
+      registrations: Set<Registration>;
+      tracker: ElementTracker | null;
+    }
   >();
+  let createTracker: ((element: Element) => ElementTracker) | null = null;
   const listeners = new Set<() => void>();
   let elements: ReadonlyMap<Element, RegisteredElement> = new Map();
   let roles = 0;
@@ -109,11 +116,12 @@ export function createEffectRegistry() {
       elementRoles: number,
       settings: EffectSettings,
     ): EffectRegistration => {
-      let use = uses.get(element);
-      if (use === undefined) {
-        use = { id: nextId++, registrations: new Set() };
-        uses.set(element, use);
-      }
+      const use = uses.get(element) ?? {
+        id: nextId++,
+        registrations: new Set(),
+        tracker: createTracker?.(element) ?? null,
+      };
+      uses.set(element, use);
       const { registrations } = use;
       const registration: Registration = { roles: elementRoles, settings };
       registrations.add(registration);
@@ -136,6 +144,7 @@ export function createEffectRegistry() {
             return;
           }
           if (registrations.size === 0) {
+            use.tracker?.destroy();
             uses.delete(element);
           }
           notify();
@@ -152,6 +161,55 @@ export function createEffectRegistry() {
     getRoles: () => roles,
     /** Every registered element, in the order they first registered. */
     elements: () => elements,
+    /**
+     * Gives each registered element a tracker from `create`, now and as
+     * elements register, and destroys it when its element leaves. Returns a
+     * function that destroys every tracker and stops.
+     */
+    track: (create: (element: Element) => ElementTracker) => {
+      createTracker = create;
+      for (const [element, use] of uses) {
+        use.tracker = create(element);
+      }
+      return () => {
+        createTracker = null;
+        for (const use of uses.values()) {
+          use.tracker?.destroy();
+          use.tracker = null;
+        }
+      };
+    },
+    /** The tracker of each registered element, in registration order. */
+    *trackers() {
+      for (const { tracker } of uses.values()) {
+        if (tracker !== null) {
+          yield tracker;
+        }
+      }
+    },
+    /**
+     * Every tracked element with a box, as it was last measured, in page
+     * coordinates at this scroll: those in the document first, then the
+     * fixed ones, each group in registration order.
+     */
+    records: (scrollX: number, scrollY: number): EffectElementRecord[] => {
+      const inDocument: EffectElementRecord[] = [];
+      const fixed: EffectElementRecord[] = [];
+      for (const [element, { id, roles, settings }] of elements) {
+        const box = uses.get(element)?.tracker?.boxAt(scrollX, scrollY);
+        if (box == null) {
+          continue;
+        }
+        (box.fixed ? fixed : inDocument).push({
+          ...box,
+          id,
+          element,
+          roles,
+          settings,
+        });
+      }
+      return [...inDocument, ...fixed];
+    },
   };
 }
 

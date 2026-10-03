@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   isFixedToViewport,
+  isInSticky,
   readCornerExponent,
   resolveCornerRadii,
 } from "./read-element-box.ts";
@@ -62,16 +63,16 @@ describe("readCornerExponent", () => {
   });
 });
 
-describe("isFixedToViewport", () => {
-  function mount(html: string) {
-    document.body.innerHTML = html;
-    const target = document.querySelector("[data-target]");
-    if (target === null) {
-      throw new Error("no target");
-    }
-    return target;
+function mount(html: string) {
+  document.body.innerHTML = html;
+  const target = document.querySelector("[data-target]");
+  if (target === null) {
+    throw new Error("no target");
   }
+  return target;
+}
 
+describe("isFixedToViewport", () => {
   it("is false in the document", () => {
     expect(isFixedToViewport(mount("<div><p data-target></p></div>"))).toBe(
       false,
@@ -102,6 +103,20 @@ describe("isFixedToViewport", () => {
         mount(
           '<div style="position: fixed; will-change: transform"><div style="position: fixed"><p data-target></p></div></div>',
         ),
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("isInSticky", () => {
+  it("is false without a sticky box", () => {
+    expect(isInSticky(mount("<div><p data-target></p></div>"))).toBe(false);
+  });
+
+  it("is true for a sticky box and everything inside it", () => {
+    expect(
+      isInSticky(
+        mount('<div style="position: sticky"><p data-target></p></div>'),
       ),
     ).toBe(true);
   });

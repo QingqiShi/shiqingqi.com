@@ -45,13 +45,12 @@ const POINTER_EVENTS = [
 ] as const;
 
 /**
- * Follows the primary pointer, mouse or touch or pen. `onChange` gets `true`
- * when the pointer only moved, and `false` when it can have entered or left
- * an element or changed whether it is pressed.
+ * Follows the primary pointer, mouse or touch or pen, and calls `onChange`
+ * after each change.
  *
  * @internal
  */
-export function trackPointer(onChange: (moved: boolean) => void) {
+export function trackPointer(onChange: () => void) {
   let clientX = 0;
   let clientY = 0;
   let velocityX = 0;
@@ -113,7 +112,7 @@ export function trackPointer(onChange: (moved: boolean) => void) {
         sample(event);
         pressed ||= event.type === "pointerdown";
     }
-    onChange(event.type === "pointermove");
+    onChange();
   }
 
   for (const type of POINTER_EVENTS) {

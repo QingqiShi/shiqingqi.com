@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   decayVelocity,
   smoothVelocity,
@@ -49,10 +49,8 @@ describe("trackPointer", () => {
   }
 
   it("reports the primary pointer in page coordinates", () => {
-    const changes: boolean[] = [];
-    tracker = trackPointer((moved) => {
-      changes.push(moved);
-    });
+    const onChange = vi.fn();
+    tracker = trackPointer(onChange);
     expect(tracker.read(0, 0, 0).present).toBe(false);
 
     dispatch("pointermove", { clientX: 40, clientY: 60 });
@@ -64,10 +62,10 @@ describe("trackPointer", () => {
       present: true,
       pressed: false,
     });
-    expect(changes).toEqual([true]);
+    expect(onChange).toHaveBeenCalledOnce();
 
     dispatch("pointerdown", { clientX: 40, clientY: 60 });
-    expect(changes).toEqual([true, false]);
+    expect(onChange).toHaveBeenCalledTimes(2);
   });
 
   it("is pressed between pointerdown and pointerup", () => {

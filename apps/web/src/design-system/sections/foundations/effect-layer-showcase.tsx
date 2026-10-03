@@ -55,8 +55,8 @@ export function EffectLayerShowcase() {
         <div css={[flex.col, styles.stack]}>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Attach the ref from useEffectBoundary to one element, and the layer measures it at the start of each frame: its border box, its corner radii and its background colour. Each measurement is new, so it follows the element when the page scrolls, when content above moves it, when the theme changes and when hover changes its fill.",
-              zh: "把 useEffectBoundary 返回的 ref 挂到一个元素上，效果层就会在每一帧开始时测量它：边框盒、圆角半径和背景色。每次测量都是新的，因此页面滚动、上方内容推动它、主题切换、悬停改变填充时，测量结果都会跟上。",
+              en: "Attach the ref from useEffectBoundary to one element, and the layer measures its border box, its corner radii and its background colour. The element signals when these can have changed, and the next frame measures that element again: when content above moves it, when it resizes, when the theme changes, when hover or focus changes its fill and while a transition runs. A frame with no signal measures nothing, and a window scroll needs no new measurement.",
+              zh: "把 useEffectBoundary 返回的 ref 挂到一个元素上，效果层就会测量它的边框盒、圆角半径和背景色。这些值可能变化时，元素会发出信号，下一帧只重新测量这个元素：上方内容推动它、它改变尺寸、主题切换、悬停或聚焦改变填充，以及过渡进行期间。没有信号的帧不测量任何元素，窗口滚动也不需要重新测量。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">
