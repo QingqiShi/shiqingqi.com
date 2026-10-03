@@ -8,6 +8,7 @@ import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
+import { EffectLayerRipple } from "./effect-layer-ripple.tsx";
 import { EffectLayerTestBench } from "./effect-layer-test-bench.tsx";
 
 const USAGE = `import { EffectBoundary } from "@tuja/ui/components/effect-boundary";
@@ -82,8 +83,8 @@ export function EffectLayerShowcase() {
       >
         <ShowcaseHelper>
           {t({
-            en: "Open the debug view to see what the layer measured. Each element below gets a line on its edge, green in the page and orange when fixed, and a band of the fill it read. Scroll, resize the window, switch the theme, hover the button and add the block above: the lines stay on the edges. Outside the debug view, nothing on this page draws yet.",
-            zh: "打开调试视图，查看效果层测量到的内容。下方每个元素的边缘都有一条线（页面中的为绿色，固定的为橙色），外加一条它读到的填充色带。滚动、调整窗口大小、切换主题、悬停按钮、在上方加入色块：这些线都应贴在边缘上。在调试视图之外，本页暂时什么都不会绘制。",
+            en: "Open the debug view to see what the layer measured. Each element below gets a line on its edge, green in the page and orange when fixed, and a band of the fill it read. Scroll, resize the window, switch the theme, hover the button and add the block above: the lines stay on the edges. These elements have no effect, so outside the debug view they draw nothing.",
+            zh: "打开调试视图，查看效果层测量到的内容。下方每个元素的边缘都有一条线（页面中的为绿色，固定的为橙色），外加一条它读到的填充色带。滚动、调整窗口大小、切换主题、悬停按钮、在上方加入色块：这些线都应贴在边缘上。这些元素没有效果，因此在调试视图之外不会绘制任何东西。",
           })}
         </ShowcaseHelper>
         <div css={styles.debugLink}>
@@ -93,6 +94,8 @@ export function EffectLayerShowcase() {
         </div>
         <EffectLayerTestBench />
       </Showcase>
+
+      <EffectLayerRipple />
     </>
   );
 }

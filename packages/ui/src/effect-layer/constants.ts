@@ -16,3 +16,14 @@ export const GPU_SHADER_STAGE = {
   FRAGMENT: 0x2,
   COMPUTE: 0x4,
 } as const;
+
+/**
+ * Draws a premultiplied colour over what the pass holds already, the way the
+ * `<canvas>` elements composite over the page.
+ *
+ * @internal
+ */
+export const PREMULTIPLIED_BLEND: GPUBlendState = {
+  color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
+  alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
+};

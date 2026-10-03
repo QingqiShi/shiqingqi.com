@@ -6,7 +6,10 @@
  *
  * @internal
  */
-export const EFFECT_ROLES = [] as const satisfies readonly string[];
+export const EFFECT_ROLES = [
+  "ripple",
+  "rippleAmbient",
+] as const satisfies readonly string[];
 
 /**
  * A job an element can have in an effect.

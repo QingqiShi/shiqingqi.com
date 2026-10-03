@@ -42,14 +42,24 @@ const multiply = (matrix: Matrix, [x, y, z]: Vector): Vector => [
   matrix[2][0] * x + matrix[2][1] * y + matrix[2][2] * z,
 ];
 
-function toLinear(channel: number) {
+/**
+ * One sRGB-encoded channel, decoded to linear light.
+ *
+ * @internal
+ */
+export function toLinear(channel: number) {
   const magnitude = Math.abs(channel);
   return magnitude <= 0.04045
     ? channel / 12.92
     : Math.sign(channel) * ((magnitude + 0.055) / 1.055) ** 2.4;
 }
 
-function toGamma(channel: number) {
+/**
+ * One linear-light channel, encoded as sRGB.
+ *
+ * @internal
+ */
+export function toGamma(channel: number) {
   const magnitude = Math.abs(channel);
   return magnitude > 0.0031308
     ? Math.sign(channel) * (1.055 * magnitude ** (1 / 2.4) - 0.055)
@@ -72,7 +82,12 @@ function labToXyzD50([lightness, a, b]: Vector): Vector {
 const xyzD50ToLinearSrgb = (xyz: Vector) =>
   multiply(XYZ_D65_TO_LINEAR_SRGB, multiply(XYZ_D50_TO_D65, xyz));
 
-function oklabToLinearSrgb([lightness, a, b]: Vector): Vector {
+/**
+ * An OKLab colour in linear sRGB, not clamped.
+ *
+ * @internal
+ */
+export function oklabToLinearSrgb([lightness, a, b]: Vector): Vector {
   const l = (lightness + 0.3963377774 * a + 0.2158037573 * b) ** 3;
   const m = (lightness - 0.1055613458 * a - 0.0638541728 * b) ** 3;
   const s = (lightness - 0.0894841775 * a - 1.291485548 * b) ** 3;
@@ -153,7 +168,12 @@ function toLinearSrgb(name: string, parts: readonly string[]): Vector | null {
   }
 }
 
-const clamp = (value: number) => Math.min(1, Math.max(0, value));
+/**
+ * A colour channel clamped into 0 to 1.
+ *
+ * @internal
+ */
+export const clamp = (value: number) => Math.min(1, Math.max(0, value));
 
 /**
  * Converts a computed CSS colour, the way `getComputedStyle` writes it, to

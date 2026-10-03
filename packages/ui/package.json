@@ -113,6 +113,7 @@
     "./components/progress": "./src/feedback/progress.tsx",
     "./components/progress.stylex": "./src/feedback/progress.stylex.ts",
     "./components/progressive-blur": "./src/surfaces/progressive-blur.tsx",
+    "./components/ripple": "./src/effect-layer/ripple.tsx",
     "./components/scroll-mask": "./src/surfaces/scroll-mask.tsx",
     "./components/section": "./src/surfaces/section.tsx",
     "./components/segmented-control": "./src/forms/segmented-control.tsx",

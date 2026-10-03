@@ -23,8 +23,8 @@ export default function EffectLayerPage() {
     <DocPage
       path="/design-system/foundations/effect-layer"
       description={t({
-        en: "Effects that CSS cannot draw well, such as particles and light, drawn with WebGPU on <canvas> elements behind the page and around the elements that register for them. This is experimental: no effect draws yet, and the names on this page may change.",
-        zh: "用 WebGPU 在页面之后的 <canvas> 元素上、围绕为效果登记的元素，绘制 CSS 难以画好的效果，例如粒子与光线。它仍在实验中：目前还没有任何效果会绘制，本页的名称也可能改变。",
+        en: "Effects that CSS cannot draw well, such as particles and light, drawn with WebGPU on <canvas> elements behind the page and around the elements that register for them. This is experimental: Ripple is the first effect, and the names on this page may change.",
+        zh: "用 WebGPU 在页面之后的 <canvas> 元素上、围绕为效果登记的元素，绘制 CSS 难以画好的效果，例如粒子与光线。它仍在实验中：涟漪是第一个效果，本页的名称也可能改变。",
       })}
     >
       <EffectLayerShowcase />
