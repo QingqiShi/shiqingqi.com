@@ -1,6 +1,7 @@
 {
   "env": {
-    "POSTHOG_CLI_PROJECT_ID": "243843"
+    "POSTHOG_CLI_PROJECT_ID": "243843",
+    "POSTHOG_CLI_ORGANIZATION_ID": "019fc258-d9d4-0000-86c6-d6c3d6b36108"
   },
   "permissions": {
     "deny": ["Read(./.env)", "Read(./.env.*)"]
