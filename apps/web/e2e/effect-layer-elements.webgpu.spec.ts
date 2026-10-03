@@ -116,8 +116,9 @@ test("mounts no canvas element for elements without an effect", async ({
   page,
 }) => {
   await page.goto(PAGE);
-  // The Ripple and Dust elements mount the scroll canvas elements; the fixed
-  // element, which has no effect, must not mount the fixed one.
+  // The Ripple, Dust and Black hole elements mount the scroll canvas
+  // elements; the fixed element, which has no effect, must not mount the
+  // fixed one.
   await expect(page.locator('[data-effect-layer="scroll"]')).toHaveCount(2, {
     timeout: MOUNT_TIMEOUT,
   });

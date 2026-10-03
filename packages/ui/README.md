@@ -381,6 +381,7 @@ as the system gains components.
 | `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                                              |
 | `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                                       |
 | `@tuja/ui/components/badge`                   | Status/label badge on the Chip pill skin (six Intents plus a default, `sm`/`md`).                                                                                      |
+| `@tuja/ui/components/black-hole`              | Makes its child element a Black hole on the effect layer, which bends the light of a `LightBeam` passing behind it.                                                    |
 | `@tuja/ui/components/blur-plane-provider`     | Marks a shell's Blur plane — the page-level node a Floating element paints its blur onto.                                                                              |
 | `@tuja/ui/components/breadcrumb`              | Navigation trail of crumbs, with the current page as the un-linked last one.                                                                                           |
 | `@tuja/ui/components/build-blur-layers`       | Computes a Floating element's stack of blurred layers from its measured geometry — the primitive behind `Popover` and `ProgressiveBlur`.                               |
@@ -412,6 +413,7 @@ as the system gains components.
 | `@tuja/ui/components/glass-surface.stylex`    | The Glass skin: a translucent fill over its own blur, with the lit rim and shadow that make Glass the one surface that floats and casts a shadow.                      |
 | `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: floating header controls, optional background and footer.                                                                                  |
 | `@tuja/ui/components/heading`                 | Semantic heading (visual size decoupled from level, optional `wrap`).                                                                                                  |
+| `@tuja/ui/components/light-beam`              | Makes its child element a Light beam on the effect layer: a ray of light in its fill colour, aimed by the pointer.                                                     |
 | `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                                      |
 | `@tuja/ui/components/menu-label`              | Label row inside a menu.                                                                                                                                               |
 | `@tuja/ui/components/option-card`             | Selectable card (`row` or `tile` look), radio or checkbox semantics set by its group.                                                                                  |

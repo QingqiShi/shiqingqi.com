@@ -15,6 +15,7 @@ import {
   DUST_RENDER_WGSL,
 } from "./dust-render-wgsl.ts";
 import { DUST_ELEMENT_BYTES, DUST_PARTICLE_BYTES } from "./dust-shared-wgsl.ts";
+import { readSlotAttribute } from "./effect-boundary-slot.tsx";
 import { roleBits } from "./effect-roles.ts";
 import { readFill } from "./read-element-box.ts";
 import {
@@ -45,11 +46,9 @@ const SCREEN: GPUBlendState = {
 /** The value a wrapper of the element put on it, or the fallback. */
 function readAttribute(
   element: Element,
-  { name, fallback }: { name: string; fallback: number },
+  { name, fallback }: { name: `data-${string}`; fallback: number },
 ) {
-  const value = Number(
-    element.parentElement?.closest(`[${name}]`)?.getAttribute(name),
-  );
+  const value = Number.parseFloat(readSlotAttribute(element, name) ?? "");
   return Number.isFinite(value) ? Math.max(0, value) : fallback;
 }
 
