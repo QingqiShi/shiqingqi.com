@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { BlackHole } from "@tuja/ui/components/black-hole";
-import { LightBeam } from "@tuja/ui/components/light-beam";
 import { Text } from "@tuja/ui/components/text";
+import { useBlackHole } from "@tuja/ui/hooks/use-black-hole";
+import { useLightBeam } from "@tuja/ui/hooks/use-light-beam";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -67,54 +67,58 @@ function useBandEdgeOffset() {
  */
 export function BlackHoleTestBench() {
   const { stageRef, offset } = useBandEdgeOffset();
+  const accentBeam = useLightBeam();
+  const warmBeam = useLightBeam();
+  const roundBlackHole = useBlackHole({ mass: 1.5 });
+  const edgeBlackHole = useBlackHole();
 
   return (
     <div ref={stageRef} data-black-hole-stage="" css={styles.stage}>
-      <LightBeam>
-        <div
-          data-light-beam-test=""
-          css={[flex.center, corner.radius_round, styles.beam, styles.accent]}
-        >
-          {t({ en: "Light beam", zh: "光束" })}
-        </div>
-      </LightBeam>
-      <BlackHole mass={1.5}>
-        <div
-          data-black-hole-test="round"
-          css={[flex.col, flex.center, corner.radius_round, styles.disc]}
-        >
-          <Text look="caption" tone="muted">
-            {t({ en: "Black hole", zh: "黑洞" })}
-          </Text>
-          <Text look="caption" tone="muted" css={styles.code}>
-            mass=&#123;1.5&#125;
-          </Text>
-        </div>
-      </BlackHole>
-      <BlackHole>
-        <div
-          data-black-hole-test="band-edge"
-          css={[flex.col, corner.radius_3, styles.card, styles.onEdge(offset)]}
-        >
-          <Text look="bodySmall" weight="semibold">
-            {t({ en: "Black hole", zh: "黑洞" })}
-          </Text>
-          <Text look="caption" tone="muted">
-            {t({
-              en: "On the edge between two scroll <canvas> elements",
-              zh: "位于两个滚动 <canvas> 元素的交界处",
-            })}
-          </Text>
-        </div>
-      </BlackHole>
-      <LightBeam>
-        <div
-          data-light-beam-test=""
-          css={[flex.center, corner.radius_round, styles.beam, styles.warm]}
-        >
-          {t({ en: "Light beam", zh: "光束" })}
-        </div>
-      </LightBeam>
+      <div
+        ref={accentBeam}
+        data-effect-registered=""
+        data-light-beam-test=""
+        css={[flex.center, corner.radius_round, styles.beam, styles.accent]}
+      >
+        {t({ en: "Light beam", zh: "光束" })}
+      </div>
+      <div
+        ref={roundBlackHole}
+        data-effect-registered=""
+        data-black-hole-test="round"
+        css={[flex.col, flex.center, corner.radius_round, styles.disc]}
+      >
+        <Text look="caption" tone="muted">
+          {t({ en: "Black hole", zh: "黑洞" })}
+        </Text>
+        <Text look="caption" tone="muted" css={styles.code}>
+          mass: 1.5
+        </Text>
+      </div>
+      <div
+        ref={edgeBlackHole}
+        data-effect-registered=""
+        data-black-hole-test="band-edge"
+        css={[flex.col, corner.radius_3, styles.card, styles.onEdge(offset)]}
+      >
+        <Text look="bodySmall" weight="semibold">
+          {t({ en: "Black hole", zh: "黑洞" })}
+        </Text>
+        <Text look="caption" tone="muted">
+          {t({
+            en: "On the edge between two scroll <canvas> elements",
+            zh: "位于两个滚动 <canvas> 元素的交界处",
+          })}
+        </Text>
+      </div>
+      <div
+        ref={warmBeam}
+        data-effect-registered=""
+        data-light-beam-test=""
+        css={[flex.center, corner.radius_round, styles.beam, styles.warm]}
+      >
+        {t({ en: "Light beam", zh: "光束" })}
+      </div>
     </div>
   );
 }

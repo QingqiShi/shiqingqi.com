@@ -82,12 +82,18 @@ export function trackElements(registry: EffectRegistry, onChange: () => void) {
       };
       const inDocument: EffectElementRecord[] = [];
       const fixed: EffectElementRecord[] = [];
-      for (const [element, { id, roles }] of registry.elements()) {
+      for (const [element, { id, roles, settings }] of registry.elements()) {
         const box = element.isConnected
           ? readElementBox(element, scrollX, scrollY, styleOf)
           : null;
         if (box !== null) {
-          (box.fixed ? fixed : inDocument).push({ ...box, id, element, roles });
+          (box.fixed ? fixed : inDocument).push({
+            ...box,
+            id,
+            element,
+            roles,
+            settings,
+          });
         }
       }
       return [...inDocument, ...fixed];

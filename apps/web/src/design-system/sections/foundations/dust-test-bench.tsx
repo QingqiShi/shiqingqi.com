@@ -1,9 +1,11 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { Dust } from "@tuja/ui/components/dust";
-import { EffectBoundary } from "@tuja/ui/components/effect-boundary";
-import { ExtractorFan } from "@tuja/ui/components/extractor-fan";
 import { Text } from "@tuja/ui/components/text";
+import { useDust } from "@tuja/ui/hooks/use-dust";
+import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
+import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
@@ -27,30 +29,67 @@ function Source({
   token,
   css,
 }: CaseElementProps & { token: string; css: StyleProp }) {
+  const ref = useDust();
   return (
-    <Dust>
-      <div
-        data-dust-test={testId}
-        css={[flex.col, corner.radius_3, styles.source, css]}
-      >
-        <span css={styles.name}>Dust</span>
-        <span css={styles.token}>{token}</span>
-      </div>
-    </Dust>
+    <div
+      ref={ref}
+      data-effect-registered=""
+      data-dust-test={testId}
+      css={[flex.col, corner.radius_3, styles.source, css]}
+    >
+      <span css={styles.name}>Dust</span>
+      <span css={styles.token}>{token}</span>
+    </div>
   );
 }
 
 function Fan({ testId, reach }: CaseElementProps & { reach: number }) {
+  const ref = useExtractorFan({ reach });
   return (
-    <ExtractorFan reach={reach}>
+    <div
+      ref={ref}
+      data-effect-registered=""
+      data-dust-test={testId}
+      css={[flex.center, corner.radius_round, styles.surface, styles.fan]}
+    >
+      <span css={styles.name}>Extractor fan</span>
+      <span css={styles.token}>reach={reach}</span>
+    </div>
+  );
+}
+
+function Pillars() {
+  const source = useDust();
+  const fan = useExtractorFan({ reach: PILLAR_REACH });
+  return (
+    <div css={[flex.row, styles.pillars]}>
       <div
-        data-dust-test={testId}
-        css={[flex.center, corner.radius_round, styles.surface, styles.fan]}
-      >
-        <span css={styles.name}>Extractor fan</span>
-        <span css={styles.token}>reach={reach}</span>
-      </div>
-    </ExtractorFan>
+        ref={source}
+        data-effect-registered=""
+        data-dust-test="pillar-source"
+        css={[corner.radius_round, styles.pillar, styles.success]}
+      />
+      <div
+        ref={fan}
+        data-effect-registered=""
+        data-dust-test="pillar-fan"
+        css={[corner.radius_round, styles.surface, styles.pillar]}
+      />
+    </div>
+  );
+}
+
+function Obstacle() {
+  const ref = useEffectBoundary();
+  return (
+    <div
+      ref={ref}
+      data-effect-registered=""
+      data-dust-test="obstacle"
+      css={[flex.center, corner.radius_round, styles.surface, styles.obstacle]}
+    >
+      <span css={styles.token}>useEffectBoundary</span>
+    </div>
   );
 }
 
@@ -100,20 +139,7 @@ export function DustTestBench() {
           zh: "两根比带更高的柱子，粒子流因此会跨过带的边缘",
         })}
       >
-        <div css={[flex.row, styles.pillars]}>
-          <Dust>
-            <div
-              data-dust-test="pillar-source"
-              css={[corner.radius_round, styles.pillar, styles.success]}
-            />
-          </Dust>
-          <ExtractorFan reach={PILLAR_REACH}>
-            <div
-              data-dust-test="pillar-fan"
-              css={[corner.radius_round, styles.surface, styles.pillar]}
-            />
-          </ExtractorFan>
-        </div>
+        <Pillars />
       </Case>
 
       <Case
@@ -124,19 +150,7 @@ export function DustTestBench() {
       >
         <div css={[styles.stage, styles.near, styles.far]}>
           <Source testId="far-source" token="color.bgInfo" css={styles.info} />
-          <EffectBoundary>
-            <div
-              data-dust-test="obstacle"
-              css={[
-                flex.center,
-                corner.radius_round,
-                styles.surface,
-                styles.obstacle,
-              ]}
-            >
-              <span css={styles.token}>EffectBoundary</span>
-            </div>
-          </EffectBoundary>
+          <Obstacle />
           <Fan testId="far-fan" reach={FAR_REACH} />
         </div>
       </Case>

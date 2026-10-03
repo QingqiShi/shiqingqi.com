@@ -8,6 +8,7 @@ function record(fill: EffectElementRecord["fill"]): EffectElementRecord {
     id: 1,
     element: document.createElement("div"),
     roles: 1,
+    settings: {},
     x: 0,
     y: 0,
     width: 200,

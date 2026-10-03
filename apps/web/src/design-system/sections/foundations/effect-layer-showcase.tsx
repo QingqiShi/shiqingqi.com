@@ -3,7 +3,6 @@ import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -11,12 +10,9 @@ import { t } from "#src/i18n.ts";
 import { EffectLayerRipple } from "./effect-layer-ripple.tsx";
 import { EffectLayerTestBench } from "./effect-layer-test-bench.tsx";
 
-const USAGE = `import { EffectBoundary } from "@tuja/ui/components/effect-boundary";
-import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
+const USAGE = `"use client";
 
-<EffectBoundary>
-  <Card>{children}</Card>
-</EffectBoundary>
+import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
 
 function Row({ children }) {
   const ref = useEffectBoundary();
@@ -59,22 +55,20 @@ export function EffectLayerShowcase() {
         <div css={[flex.col, styles.stack]}>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Wrap one element in EffectBoundary, and the layer measures it at the start of each frame: its border box, its corner radii and its background colour. Each measurement is new, so it follows the element when the page scrolls, when content above moves it, when the theme changes and when hover changes its fill.",
-              zh: "用 EffectBoundary 包住一个元素，效果层就会在每一帧开始时测量它：边框盒、圆角半径和背景色。每次测量都是新的，因此页面滚动、上方内容推动它、主题切换、悬停改变填充时，测量结果都会跟上。",
+              en: "Attach the ref from useEffectBoundary to one element, and the layer measures it at the start of each frame: its border box, its corner radii and its background colour. Each measurement is new, so it follows the element when the page scrolls, when content above moves it, when the theme changes and when hover changes its fill.",
+              zh: "把 useEffectBoundary 返回的 ref 挂到一个元素上，效果层就会在每一帧开始时测量它：边框盒、圆角半径和背景色。每次测量都是新的，因此页面滚动、上方内容推动它、主题切换、悬停改变填充时，测量结果都会跟上。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Every effect reads every registered element, so an effect can draw around its own elements and react to the others and to the pointer. Inside a list or a table, where a wrapper is not valid markup, attach the ref from useEffectBoundary to the element instead.",
-              zh: "每个效果都能读取所有已登记的元素，因此效果可以围绕自己的元素绘制，并对其他元素和指针作出反应。在列表或表格中，包裹元素会破坏标记的有效性，这时改为把 useEffectBoundary 返回的 ref 挂到元素上。",
+              en: "Every effect reads every registered element, so an effect can draw around its own elements and react to the others and to the pointer. Each effect has a hook of its own that registers its element the same way, so an element with an effect needs no useEffectBoundary as well. To give one element two effects, merge their refs with mergeRefs.",
+              zh: "每个效果都能读取所有已登记的元素，因此效果可以围绕自己的元素绘制，并对其他元素和指针作出反应。每个效果都有自己的 hook，以同样的方式登记元素，因此带有效果的元素不必再使用 useEffectBoundary。要让一个元素同时拥有两个效果，用 mergeRefs 合并它们的 ref。",
             })}
           </Text>
         </div>
       </Showcase>
 
       <UsageSnippet code={USAGE} />
-
-      <PropsTable component="effect-boundary" />
 
       <Showcase
         label={t({ en: "Test bench", zh: "测试台" })}

@@ -48,7 +48,7 @@ const isNode = (target: EventTarget | null): target is Node =>
   target instanceof Node;
 
 /**
- * The effect behind `Ripple`. It starts pulses from DOM events on the
+ * The effect behind `useRipple`. It starts pulses from DOM events on the
  * rippling elements, so a pointer that moves elsewhere costs no frame.
  *
  * @internal

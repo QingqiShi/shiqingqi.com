@@ -21,22 +21,30 @@ import { Identifier } from "./identifier.tsx";
 import { Showcase } from "./showcase.tsx";
 
 interface PropsTableProps {
-  /** The component's export subpath — `"button"`, `"card-header"`. */
+  /**
+   * The component's or hook's export subpath — `"button"`, `"card-header"`,
+   * `"use-ripple"`.
+   */
   component: string;
 }
 
 /**
- * One component's props, read from the generated documents rather than written
- * by hand: the summary of each prop's own JSDoc, localised by the page's
- * locale. A table from `md` up, where the columns let a reader scan one prop
- * against the next; a labelled block per prop below that, which reads better on
- * a phone than a table scrolling sideways.
+ * One component's props, or one hook's options, read from the generated
+ * documents rather than written by hand: the summary of each prop's own JSDoc,
+ * localised by the page's locale. A table from `md` up, where the columns let a
+ * reader scan one prop against the next; a labelled block per prop below that,
+ * which reads better on a phone than a table scrolling sideways.
  */
 export function PropsTable({ component }: PropsTableProps) {
   const doc = PROPS_DOCS[component];
   const locale = getLocale();
-  const title = `${doc.component} ${t({ en: "props", zh: "属性" })}`;
-  const propLabel = t({ en: "Prop", zh: "属性" });
+  const isHook = doc.kind === "hook";
+  const title = `${doc.component} ${
+    isHook ? t({ en: "options", zh: "选项" }) : t({ en: "props", zh: "属性" })
+  }`;
+  const propLabel = isHook
+    ? t({ en: "Option", zh: "选项" })
+    : t({ en: "Prop", zh: "属性" });
   const typeLabel = t({ en: "Type", zh: "类型" });
   const defaultLabel = t({ en: "Default", zh: "默认值" });
   const descriptionLabel = t({ en: "Description", zh: "说明" });

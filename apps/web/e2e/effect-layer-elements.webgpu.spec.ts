@@ -19,6 +19,7 @@ interface EffectFrameDetail {
   scrollX: number;
   scrollY: number;
   elements: {
+    id: number;
     element: Element;
     x: number;
     y: number;
@@ -71,13 +72,10 @@ function recordOffsets(page: Page) {
   });
 }
 
-/** How many elements the page registers: one per outermost boundary. */
+/** How many elements the page registers: each bench marks the ones it does. */
 function registeredCount(page: Page) {
   return page.evaluate(
-    () =>
-      document.querySelectorAll(
-        "[data-effect-boundary]:not([data-effect-boundary] > *)",
-      ).length,
+    () => document.querySelectorAll("[data-effect-registered]").length,
   );
 }
 
@@ -253,5 +251,33 @@ test.describe("in the debug view", () => {
     await expect.poll(pointer).toMatchObject({ pressed: true });
     await page.mouse.up();
     await expect.poll(pointer).toMatchObject({ pressed: false });
+  });
+
+  test("keeps the id of a Button with a ripple as it re-renders", async ({
+    page,
+  }) => {
+    const button = page.getByRole("button", { name: "Count presses" });
+    const count = button.locator("xpath=following-sibling::*[1]");
+    const buttonId = () =>
+      button.evaluate(
+        (element) =>
+          window.lastEffectLayerFrame?.elements.find(
+            (item) => item.element === element,
+          )?.id,
+      );
+    await button.scrollIntoViewIfNeeded();
+    await button.hover();
+    await expect.poll(buttonId).toBeGreaterThan(0);
+    const id = await buttonId();
+
+    for (const presses of [1, 2, 3]) {
+      await button.click();
+      await expect(count).toHaveText(String(presses));
+      await page.evaluate(() => {
+        window.lastEffectLayerFrame = undefined;
+      });
+      await button.hover({ position: { x: 4 + presses, y: 4 } });
+      await expect.poll(buttonId).toBe(id);
+    }
   });
 });

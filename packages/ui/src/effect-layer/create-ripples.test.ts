@@ -30,6 +30,7 @@ function record(
     id,
     element: document.createElement("div"),
     roles: RIPPLE,
+    settings: {},
     x: 0,
     y: 0,
     width: 200,

@@ -2,11 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 
 export interface ComponentEntry {
-  /** The `./components/<name>` export subpath name — `"menu-button"`. */
+  /** The export subpath name — `"menu-button"`, `"use-ripple"`. */
   name: string;
-  /** The exported function to document — `"MenuButton"`. */
+  /** The exported function to document — `"MenuButton"`, `"useRipple"`. */
   component: string;
-  /** Absolute path of the component source. */
+  /** A component documents its props; a hook, its options. */
+  kind: "component" | "hook";
+  /** Absolute path of the source. */
   file: string;
 }
 
@@ -17,9 +19,30 @@ function toPascalCase(name: string): string {
     .join("");
 }
 
+function toCamelCase(name: string): string {
+  const pascal = toPascalCase(name);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
+const SOURCES = [
+  {
+    prefix: "./components/",
+    extension: ".tsx",
+    kind: "component",
+    exportName: toPascalCase,
+  },
+  {
+    prefix: "./hooks/",
+    extension: ".ts",
+    kind: "hook",
+    exportName: toCamelCase,
+  },
+] as const;
+
 /**
  * Every `./components/<name>` export of `@tuja/ui` that points at a `.tsx`
- * source. The `.stylex.ts` and helper exports under the same prefix are not
+ * source, and every `./hooks/<name>` export that points at a `.ts` source.
+ * The `.stylex.ts` and helper exports under the components prefix are not
  * components, so they are left out.
  */
 export function collectComponentEntries(
@@ -31,12 +54,17 @@ export function collectComponentEntries(
 
   const entries: ComponentEntry[] = [];
   for (const [subpath, target] of Object.entries(manifest.exports ?? {})) {
-    if (!subpath.startsWith("./components/")) continue;
-    if (typeof target !== "string" || !target.endsWith(".tsx")) continue;
-    const name = subpath.slice("./components/".length);
+    if (typeof target !== "string") continue;
+    const source = SOURCES.find(
+      ({ prefix, extension }) =>
+        subpath.startsWith(prefix) && target.endsWith(extension),
+    );
+    if (!source) continue;
+    const name = subpath.slice(source.prefix.length);
     entries.push({
       name,
-      component: toPascalCase(name),
+      component: source.exportName(name),
+      kind: source.kind,
       file: path.resolve(uiPackageDir, target),
     });
   }
