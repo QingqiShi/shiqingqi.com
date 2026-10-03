@@ -1,13 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readScreenshotColumn } from "./helpers/read-screenshot-column.ts";
-import { scrollToAndSettle } from "./helpers/scroll.ts";
+import { scrollWithin } from "./helpers/scroll.ts";
 import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 
-// The effect layer page, whose test bench registers five elements in the
-// page and one fixed element.
+// The effect layer page. Its test bench registers elements without an effect,
+// one of them fixed, and each effect's bench registers more.
 const PAGE = "/en/design-system/foundations/effect-layer";
 const DEBUG_PAGE = `${PAGE}?effects=debug`;
-const REGISTERED = 6;
 
 // The layer mounts after hydration and an async device request.
 const MOUNT_TIMEOUT = 15_000;
@@ -72,15 +71,26 @@ function recordOffsets(page: Page) {
   });
 }
 
-/** Scrolls to `y`, or as far as the document goes. */
-async function scrollWithin(page: Page, y: number) {
-  const end = await page.evaluate(
-    () => document.documentElement.scrollHeight - window.innerHeight,
+/** How many elements the page registers: one per outermost boundary. */
+function registeredCount(page: Page) {
+  return page.evaluate(
+    () =>
+      document.querySelectorAll(
+        "[data-effect-boundary]:not([data-effect-boundary] > *)",
+      ).length,
   );
-  await scrollToAndSettle(page, Math.max(0, Math.min(Math.round(y), end)));
 }
 
-const aligned = Array.from({ length: REGISTERED }, () => [0, 0, 0, 0]);
+const frameElementCount = (page: Page) =>
+  page.evaluate(() => window.lastEffectLayerFrame?.elements.length);
+
+/** Whether every record of the last frame sits on its element. */
+async function expectAligned(page: Page) {
+  const aligned = Array.from({ length: await registeredCount(page) }, () => [
+    0, 0, 0, 0,
+  ]);
+  await expect.poll(() => recordOffsets(page)).toEqual(aligned);
+}
 
 const firstElement = (page: Page) =>
   page.locator("[data-effect-test-element]").first();
@@ -102,11 +112,19 @@ async function expectLineOnLeftEdge(page: Page) {
   expect(inside).not.toBe(outside.join(","));
 }
 
-test("mounts nothing for elements without an effect", async ({ page }) => {
+test("mounts no canvas element for elements without an effect", async ({
+  page,
+}) => {
   await page.goto(PAGE);
-  await expect(page.locator("[data-effect-test-element]")).toHaveCount(3);
+  // The Ripple elements mount the scroll canvas elements; the fixed element,
+  // which has no effect, must not mount the fixed one.
+  await expect(page.locator('[data-effect-layer="scroll"]')).toHaveCount(2, {
+    timeout: MOUNT_TIMEOUT,
+  });
+  await page.getByRole("switch", { name: "Show the fixed element" }).click();
+  await expect(page.locator("[data-effect-test-fixed]")).toBeVisible();
   await page.waitForLoadState("networkidle");
-  await expect(page.locator("[data-effect-layer]")).toHaveCount(0);
+  await expect(page.locator('[data-effect-layer="fixed"]')).toHaveCount(0);
 });
 
 test.describe("in the debug view", () => {
@@ -120,23 +138,20 @@ test.describe("in the debug view", () => {
     await expect(page.locator('[data-effect-layer="fixed"]')).toHaveCount(1, {
       timeout: MOUNT_TIMEOUT,
     });
-    await expect
-      .poll(() =>
-        page.evaluate(() => window.lastEffectLayerFrame?.elements.length),
-      )
-      .toBe(REGISTERED);
+    const registered = await registeredCount(page);
+    await expect.poll(() => frameElementCount(page)).toBe(registered);
   });
 
   test("measures each element where the browser lays it out", async ({
     page,
   }) => {
-    await expect.poll(() => recordOffsets(page)).toEqual(aligned);
+    await expectAligned(page);
 
     const top = await firstElement(page).evaluate(
       (element) => element.getBoundingClientRect().top + window.scrollY,
     );
     await scrollWithin(page, top - 300);
-    await expect.poll(() => recordOffsets(page)).toEqual(aligned);
+    await expectAligned(page);
     await expectLineOnLeftEdge(page);
 
     // Content above the elements moves them without a scroll or a resize.
@@ -145,7 +160,7 @@ test.describe("in the debug view", () => {
     await expect(page.locator("[data-effect-test-block]")).toBeVisible();
     const after = await firstElement(page).boundingBox();
     expect((after?.y ?? 0) - (before?.y ?? 0)).toBeGreaterThan(50);
-    await expect.poll(() => recordOffsets(page)).toEqual(aligned);
+    await expectAligned(page);
     await expectLineOnLeftEdge(page);
   });
 
@@ -181,12 +196,9 @@ test.describe("in the debug view", () => {
       expect(await page.evaluate(findStatusBarCandidates)).toEqual([]);
     }
 
+    const registered = await registeredCount(page);
     await page.getByRole("switch", { name: "Show the fixed element" }).click();
-    await expect
-      .poll(() =>
-        page.evaluate(() => window.lastEffectLayerFrame?.elements.length),
-      )
-      .toBe(REGISTERED - 1);
+    await expect.poll(() => frameElementCount(page)).toBe(registered - 1);
   });
 
   test("reads the fill and the corners, and follows a theme change", async ({

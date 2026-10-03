@@ -11,3 +11,11 @@ export async function scrollToAndSettle(page: Page, y: number) {
     return window.scrollY === target;
   }, y);
 }
+
+/** Scrolls to `y`, or as far as the document goes, and holds there. */
+export async function scrollWithin(page: Page, y: number) {
+  const end = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight,
+  );
+  await scrollToAndSettle(page, Math.max(0, Math.min(Math.round(y), end)));
+}

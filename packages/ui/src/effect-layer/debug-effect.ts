@@ -1,5 +1,5 @@
 import type { Band } from "./compute-bands.ts";
-import { GPU_BUFFER_USAGE } from "./constants.ts";
+import { GPU_BUFFER_USAGE, PREMULTIPLIED_BLEND } from "./constants.ts";
 import { TARGET_WGSL } from "./target-wgsl.ts";
 import type { Effect, EffectFrame } from "./types.ts";
 
@@ -31,11 +31,6 @@ const DIGIT_GLYPHS = [
 // The track, two placed bands, two drawn parts and the viewport.
 const MAX_RECTS = 6;
 const RECT_FLOATS = 8;
-
-const BLEND: GPUBlendState = {
-  color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
-  alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
-};
 
 const vec3 = (color: readonly number[]) => `vec3f(${color.join(", ")})`;
 
@@ -291,7 +286,7 @@ export const debugEffect: Effect = {
         fragment: {
           module: elementModule,
           entryPoint: fragment,
-          targets: [{ format, blend: BLEND }],
+          targets: [{ format, blend: PREMULTIPLIED_BLEND }],
         },
         primitive: { topology: "triangle-strip" },
       });
@@ -303,7 +298,7 @@ export const debugEffect: Effect = {
           fragment: {
             module: bandModule,
             entryPoint: "fragmentMain",
-            targets: [{ format, blend: BLEND }],
+            targets: [{ format, blend: PREMULTIPLIED_BLEND }],
           },
         }),
         device.createRenderPipelineAsync({
@@ -325,7 +320,7 @@ export const debugEffect: Effect = {
           fragment: {
             module: rectModule,
             entryPoint: "fragmentMain",
-            targets: [{ format, blend: BLEND }],
+            targets: [{ format, blend: PREMULTIPLIED_BLEND }],
           },
           primitive: { topology: "triangle-strip" },
         }),

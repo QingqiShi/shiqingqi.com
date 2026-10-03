@@ -421,6 +421,7 @@ as the system gains components.
 | `@tuja/ui/components/progress`                | Determinate progress bar.                                                                                                                                              |
 | `@tuja/ui/components/progress.stylex`         | Progress indicator tokens (fill size and colour).                                                                                                                      |
 | `@tuja/ui/components/progressive-blur`        | A Floating element's blur, painted onto the page's Blur plane instead of the element's own background.                                                                 |
+| `@tuja/ui/components/ripple`                  | Pulses its child's background colour out in rings on the effect layer, on hover, press and focus.                                                                      |
 | `@tuja/ui/components/scroll-mask`             | Scroll region with a progressive blur at each edge it can still scroll to.                                                                                             |
 | `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                                            |
 | `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`; `hideLabels` for an icon-only bar.                                                                                     |
