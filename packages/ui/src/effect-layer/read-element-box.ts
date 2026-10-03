@@ -121,7 +121,13 @@ export function readCornerExponent(shape: string): number {
 const colorCache = new Map<string, EffectColor>();
 const MAX_CACHED_COLORS = 256;
 
-function readFill(backgroundColor: string) {
+/**
+ * A computed `background-color` in the GPU's form, transparent when it cannot
+ * be read. It remembers the colours it has read.
+ *
+ * @internal
+ */
+export function readFill(backgroundColor: string) {
   let fill = colorCache.get(backgroundColor);
   if (fill === undefined) {
     fill = parseCssColor(backgroundColor) ?? TRANSPARENT;

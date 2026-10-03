@@ -1,3 +1,4 @@
+import { dustEffect } from "./dust-effect.ts";
 import { EFFECT_ROLES, type EffectRole } from "./effect-roles.ts";
 import { rippleEffect } from "./ripple-effect.ts";
 import type { Effect } from "./types.ts";
@@ -10,6 +11,8 @@ import type { Effect } from "./types.ts";
 const ROLE_EFFECTS = new Map<EffectRole, Effect>([
   ["ripple", rippleEffect],
   ["rippleAmbient", rippleEffect],
+  ["dust", dustEffect],
+  ["extractorFan", dustEffect],
 ]);
 
 /**

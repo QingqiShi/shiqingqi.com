@@ -9,6 +9,8 @@
 export const EFFECT_ROLES = [
   "ripple",
   "rippleAmbient",
+  "dust",
+  "extractorFan",
 ] as const satisfies readonly string[];
 
 /**
