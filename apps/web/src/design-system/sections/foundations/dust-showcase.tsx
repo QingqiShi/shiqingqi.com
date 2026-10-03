@@ -9,16 +9,28 @@ import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
 import { DustTestBench } from "./dust-test-bench.tsx";
 
-const USAGE = `import { Dust } from "@tuja/ui/components/dust";
-import { ExtractorFan } from "@tuja/ui/components/extractor-fan";
+const USAGE = `"use client";
 
-<Dust density={3}>
-  <Card>{children}</Card>
-</Dust>
+import { useDust } from "@tuja/ui/hooks/use-dust";
+import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
+import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 
-<ExtractorFan reach={400}>
-  <Button>Clear</Button>
-</ExtractorFan>`;
+function DustyCard({ children }) {
+  const ref = useDust({ density: 3 });
+  return <Card ref={ref}>{children}</Card>;
+}
+
+function ClearButton() {
+  const ref = useExtractorFan({ reach: 400 });
+  return <Button ref={ref}>Clear</Button>;
+}
+
+// One element can shed dust and pull it in: merge the two refs.
+function Vent() {
+  const dust = useDust();
+  const fan = useExtractorFan();
+  return <div ref={mergeRefs(dust, fan)} />;
+}`;
 
 export function DustShowcase() {
   return (
@@ -27,8 +39,8 @@ export function DustShowcase() {
         <div css={[flex.col, styles.stack]}>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Wrap an element in Dust and it sheds particles in its own fill colour. They float off its edge like dust in still air. After a moment, any element wrapped in ExtractorFan within reach pulls them in: they speed up as they near it and vanish at its edge. With no fan in reach, they drift and fade.",
-              zh: "用 Dust 包住一个元素，它就会散出与自身填充色相同的粒子。粒子像静止空气中的灰尘一样从边缘飘开。片刻之后，范围内任何用 ExtractorFan 包住的元素都会把它们吸过去：越靠近越快，到了边缘就消失。范围内没有抽风机时，它们会四处飘散，然后淡去。",
+              en: "Attach the ref from useDust to an element and it sheds particles in its own fill colour. They float off its edge like dust in still air. After a moment, any element with the ref from useExtractorFan within reach pulls them in: they speed up as they near it and vanish at its edge. With no fan in reach, they drift and fade.",
+              zh: "把 useDust 返回的 ref 挂到一个元素上，它就会散出与自身填充色相同的粒子。粒子像静止空气中的灰尘一样从边缘飘开。片刻之后，范围内任何挂着 useExtractorFan 返回的 ref 的元素都会把它们吸过去：越靠近越快，到了边缘就消失。范围内没有抽风机时，它们会四处飘散，然后淡去。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">
@@ -48,9 +60,9 @@ export function DustShowcase() {
 
       <UsageSnippet code={USAGE} />
 
-      <PropsTable component="dust" />
+      <PropsTable component="use-dust" />
 
-      <PropsTable component="extractor-fan" />
+      <PropsTable component="use-extractor-fan" />
 
       <Showcase
         label={t({ en: "Dust test bench", zh: "灰尘测试台" })}

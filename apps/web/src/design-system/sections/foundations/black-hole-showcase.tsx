@@ -9,16 +9,20 @@ import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
 import { BlackHoleTestBench } from "./black-hole-test-bench.tsx";
 
-const USAGE = `import { BlackHole } from "@tuja/ui/components/black-hole";
-import { LightBeam } from "@tuja/ui/components/light-beam";
+const USAGE = `"use client";
 
-<LightBeam>
-  <Badge intent="accent">Lamp</Badge>
-</LightBeam>
+import { useBlackHole } from "@tuja/ui/hooks/use-black-hole";
+import { useLightBeam } from "@tuja/ui/hooks/use-light-beam";
 
-<BlackHole mass={1.5}>
-  <Card>{children}</Card>
-</BlackHole>`;
+function Lamp() {
+  const ref = useLightBeam();
+  return <Badge ref={ref} intent="accent">Lamp</Badge>;
+}
+
+function HeavyCard({ children }) {
+  const ref = useBlackHole({ mass: 1.5 });
+  return <Card ref={ref}>{children}</Card>;
+}`;
 
 export function BlackHoleShowcase() {
   return (
@@ -50,9 +54,9 @@ export function BlackHoleShowcase() {
 
       <UsageSnippet code={USAGE} />
 
-      <PropsTable component="black-hole" />
+      <PropsTable component="use-black-hole" />
 
-      <PropsTable component="light-beam" />
+      <PropsTable component="use-light-beam" />
 
       <Showcase
         label={t({ en: "Black hole test bench", zh: "黑洞测试台" })}

@@ -9,15 +9,19 @@ import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
 import { EffectLayerRippleBench } from "./effect-layer-ripple-bench.tsx";
 
-const USAGE = `import { Ripple } from "@tuja/ui/components/ripple";
+const USAGE = `"use client";
 
-<Ripple>
-  <Card>{children}</Card>
-</Ripple>
+import { useRipple } from "@tuja/ui/hooks/use-ripple";
 
-<Ripple ambient>
-  <Button>{label}</Button>
-</Ripple>`;
+function Tile({ children }) {
+  const ref = useRipple();
+  return <Card ref={ref}>{children}</Card>;
+}
+
+function Cta({ label }) {
+  const ref = useRipple({ ambient: true });
+  return <Button ref={ref}>{label}</Button>;
+}`;
 
 /** The Ripple effect: what it draws, how it reacts, and a bench to try it on. */
 export function EffectLayerRipple() {
@@ -27,8 +31,8 @@ export function EffectLayerRipple() {
         <div css={[flex.col, styles.stack]}>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Ripple pulses an element's background colour out from its edge in rings that slow down and fade as they spread. Wrap one element in Ripple.",
-              zh: "涟漪让元素的背景色从边缘向外脉动，形成逐渐减速、边扩散边淡去的圆环。用 Ripple 包住一个元素即可。",
+              en: "Ripple pulses an element's background colour out from its edge in rings that slow down and fade as they spread. Attach the ref from useRipple to one element.",
+              zh: "涟漪让元素的背景色从边缘向外脉动，形成逐渐减速、边扩散边淡去的圆环。把 useRipple 返回的 ref 挂到一个元素上即可。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">
@@ -54,7 +58,7 @@ export function EffectLayerRipple() {
 
       <UsageSnippet code={USAGE} />
 
-      <PropsTable component="ripple" />
+      <PropsTable component="use-ripple" />
 
       <Showcase
         label={t({ en: "Ripple test bench", zh: "涟漪测试台" })}

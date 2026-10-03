@@ -3,7 +3,6 @@ import {
   GPU_SHADER_STAGE,
   PREMULTIPLIED_BLEND,
 } from "./constants.ts";
-import { DUST_ATTRIBUTES } from "./dust-attributes.ts";
 import { dustColor, isDarkBackground, packColor } from "./dust-color.ts";
 import {
   DUST_COMPUTE_WGSL,
@@ -15,8 +14,11 @@ import {
   DUST_RENDER_WGSL,
 } from "./dust-render-wgsl.ts";
 import { DUST_ELEMENT_BYTES, DUST_PARTICLE_BYTES } from "./dust-shared-wgsl.ts";
-import { readSlotAttribute } from "./effect-boundary-slot.tsx";
 import { roleBits } from "./effect-roles.ts";
+import {
+  EFFECT_SETTING_DEFAULTS,
+  finiteOr,
+} from "./effect-setting-defaults.ts";
 import { readFill } from "./read-element-box.ts";
 import {
   createLiveSlots,
@@ -42,15 +44,6 @@ const SCREEN: GPUBlendState = {
   color: { srcFactor: "one", dstFactor: "one-minus-src" },
   alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
 };
-
-/** The value a wrapper of the element put on it, or the fallback. */
-function readAttribute(
-  element: Element,
-  { name, fallback }: { name: `data-${string}`; fallback: number },
-) {
-  const value = Number.parseFloat(readSlotAttribute(element, name) ?? "");
-  return Number.isFinite(value) ? Math.max(0, value) : fallback;
-}
 
 /** Whether the page behind the effect layer is dark. */
 function isPageDark() {
@@ -217,16 +210,28 @@ export const dustEffect: Effect = {
       const emitters: DustEmitter[] = [];
       const fans: DustFan[] = [];
       for (const [index, record] of records.entries()) {
-        const { id, x, y, width, height, element } = record;
+        const { id, x, y, width, height, settings } = record;
         let color = 0;
         let reach = 0;
         if ((record.roles & DUST) !== 0) {
           color = packColor([...dustColor(record.fill, dark), opacity]);
-          const density = readAttribute(element, DUST_ATTRIBUTES.density);
+          const density = Math.max(
+            0,
+            finiteOr(
+              settings.dust?.density,
+              EFFECT_SETTING_DEFAULTS.dust.density,
+            ),
+          );
           emitters.push({ id, index, x, y, width, height, density });
         }
         if ((record.roles & EXTRACTOR_FAN) !== 0) {
-          reach = readAttribute(element, DUST_ATTRIBUTES.reach);
+          reach = Math.max(
+            0,
+            finiteOr(
+              settings.extractorFan?.reach,
+              EFFECT_SETTING_DEFAULTS.extractorFan.reach,
+            ),
+          );
           fans.push({ id, x, y, width, height, reach });
         }
         elementWords[index * 2] = color;

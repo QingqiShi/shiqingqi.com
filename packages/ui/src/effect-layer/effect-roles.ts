@@ -23,14 +23,6 @@ export const EFFECT_ROLES = [
 export type EffectRole = (typeof EFFECT_ROLES)[number];
 
 /**
- * An element with no role. Effects can still see it, and the debug view draws
- * it.
- *
- * @internal
- */
-export const NO_ROLES: readonly EffectRole[] = [];
-
-/**
  * The bits of a set of roles.
  *
  * @internal

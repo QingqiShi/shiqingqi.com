@@ -578,6 +578,7 @@ export function collectPropsDoc(
   const tag = context.htmlTags.at(0);
   return {
     component: entry.component,
+    kind: entry.kind,
     source: path.relative(repoRoot, entry.file),
     ...(tag === undefined ? {} : { extendsHtml: tag }),
     props: mergeRecords(
@@ -588,7 +589,35 @@ export function collectPropsDoc(
   };
 }
 
-/** One document per component, in export-subpath order. */
+/**
+ * Whether a hook's first parameter is typed as an exported interface —
+ * `useDust` takes `DustOptions`. An exported options interface marks the
+ * hooks whose options are public API, so only those get a document.
+ */
+function takesExportedOptions(
+  program: ts.Program,
+  entry: ComponentEntry,
+): boolean {
+  const sourceFile = program.getSourceFile(entry.file);
+  const fn = sourceFile && findComponentFunction(sourceFile, entry.component);
+  const typeNode = unwrapParens(fn?.parameters.at(0)?.type);
+  const reference = typeNode && namedTypeReferenceOf(typeNode);
+  if (!reference) return false;
+  const declaration = resolveTypeDeclaration(
+    reference,
+    program.getTypeChecker(),
+  );
+  return (
+    declaration !== undefined &&
+    ts.isInterfaceDeclaration(declaration) &&
+    (ts.getCombinedModifierFlags(declaration) & ts.ModifierFlags.Export) !== 0
+  );
+}
+
+/**
+ * One document per component, and one per hook that takes an exported
+ * options interface, in export-subpath order.
+ */
 export function collectPropsDocs(
   program: ts.Program,
   entries: readonly ComponentEntry[],
@@ -596,6 +625,9 @@ export function collectPropsDocs(
 ): Map<string, PropsDoc> {
   const docs = new Map<string, PropsDoc>();
   for (const entry of entries) {
+    if (entry.kind === "hook" && !takesExportedOptions(program, entry)) {
+      continue;
+    }
     docs.set(entry.name, collectPropsDoc(program, entry, repoRoot));
   }
   return docs;

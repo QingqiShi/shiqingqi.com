@@ -102,7 +102,8 @@ interface EffectLayerProviderProps {
 
 /**
  * Draws effects with WebGPU on `<canvas>` elements behind all content, around
- * the elements that `EffectBoundary` registers. It mounts no `<canvas>`
+ * the elements that `useEffectBoundary` and the effect hooks register. It
+ * mounts no `<canvas>`
  * element and requests no GPU device until an element registers with an
  * effect. Without WebGPU, under forced colours, with `?effects=off` or with
  * the `effect-layer` localStorage key set to `off`, it renders only its

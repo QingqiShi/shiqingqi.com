@@ -157,6 +157,8 @@ export function createEffectLayer(
   const reducedMotionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
   let pixelRatioQuery = watchPixelRatio();
   const elements = trackElements(registry, requestMeasure);
+  // A change of settings moves no element, so draw a frame for it.
+  const unsubscribeSettings = registry.subscribe(requestFrame);
   const pointer = trackPointer((moved) => {
     if (followsPointer) {
       requestFrame();
@@ -595,6 +597,7 @@ export function createEffectLayer(
     cancelAnimationFrame(frameRequest);
     resizeObserver.disconnect();
     elements.destroy();
+    unsubscribeSettings();
     pointer.destroy();
     window.removeEventListener("scroll", requestFrame);
     reducedMotionQuery.removeEventListener("change", requestFrame);

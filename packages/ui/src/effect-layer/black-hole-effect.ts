@@ -1,14 +1,16 @@
 import { beamColor, isDarkBackdrop } from "./beam-color.ts";
 import { beamMeetsRect, distanceToEdge, type Beam } from "./beam-meets-rect.ts";
-import { BLACK_HOLE_ATTRIBUTES } from "./black-hole-attributes.ts";
 import { BLACK_HOLE_WGSL, SCENE_LAYOUT } from "./black-hole-wgsl.ts";
 import {
   GPU_BUFFER_USAGE,
   GPU_SHADER_STAGE,
   PREMULTIPLIED_BLEND,
 } from "./constants.ts";
-import { readSlotAttribute } from "./effect-boundary-slot.tsx";
 import { roleBits } from "./effect-roles.ts";
+import {
+  EFFECT_SETTING_DEFAULTS,
+  finiteOr,
+} from "./effect-setting-defaults.ts";
 import {
   aimBehindLenses,
   largestBendIn,
@@ -40,11 +42,6 @@ const AIM_DEAD_ZONE = 8;
 interface ShaderLens {
   readonly lens: Lens;
   readonly element: number;
-}
-
-function readNumber(element: Element, name: `data-${string}`) {
-  const value = Number.parseFloat(readSlotAttribute(element, name) ?? "");
-  return Number.isFinite(value) ? value : null;
 }
 
 /** The part of the page a target draws this frame. */
@@ -119,13 +116,8 @@ export const blackHoleEffect: Effect = {
     let aims = new Map<number, Aim>();
     const drawn = new Set<EffectTarget>();
 
-    // The layer measures no change when a setting or the theme changes, so
-    // draw a frame for each.
-    const settingsObserver = new MutationObserver(requestFrame);
-    settingsObserver.observe(document.documentElement, {
-      subtree: true,
-      attributeFilter: Object.values(BLACK_HOLE_ATTRIBUTES),
-    });
+    // The layer measures no change when the theme changes, so draw a frame
+    // for it.
     const themeObserver = new MutationObserver(requestFrame);
     themeObserver.observe(document.documentElement, {
       attributeFilter: ["class", "style"],
@@ -140,7 +132,8 @@ export const blackHoleEffect: Effect = {
       frame: EffectFrame,
       nextAims: Map<number, Aim>,
     ) {
-      const { element } = record;
+      const { angle, followsPointer } =
+        record.settings.lightBeam ?? EFFECT_SETTING_DEFAULTS.lightBeam;
       const centre = {
         x: record.x + record.width / 2,
         y: record.y + record.height / 2,
@@ -150,8 +143,7 @@ export const blackHoleEffect: Effect = {
       const origin = sourceBehind(lenses, centre);
       const { pointer } = frame;
       const aimed =
-        readSlotAttribute(element, BLACK_HOLE_ATTRIBUTES.followsPointer) !==
-          "false" &&
+        followsPointer &&
         pointer.present &&
         (pointer.pressed || !frame.reducedMotion);
       const outside =
@@ -164,11 +156,11 @@ export const blackHoleEffect: Effect = {
       } else if (aimed && previous !== undefined) {
         target = previous.angle;
       } else {
-        const angle = readNumber(element, BLACK_HOLE_ATTRIBUTES.angle);
+        const restAngle = finiteOr(angle, null);
         const nearest =
-          angle === null ? nearestLens(lenses, centre.x, centre.y) : null;
-        if (angle !== null) {
-          target = cssAngleToRadians(angle);
+          restAngle === null ? nearestLens(lenses, centre.x, centre.y) : null;
+        if (restAngle !== null) {
+          target = cssAngleToRadians(restAngle);
         } else if (nearest !== null) {
           target = aimBehindLenses(lenses, origin, nearest);
         }
@@ -230,8 +222,10 @@ export const blackHoleEffect: Effect = {
         const shaderLenses: ShaderLens[] = [];
         for (const [element, record] of frame.elements.entries()) {
           if ((record.roles & BLACK_HOLE) !== 0) {
-            const mass =
-              readNumber(record.element, BLACK_HOLE_ATTRIBUTES.mass) ?? 1;
+            const mass = finiteOr(
+              record.settings.blackHole?.mass,
+              EFFECT_SETTING_DEFAULTS.blackHole.mass,
+            );
             shaderLenses.push({ lens: lensFromBox(record, mass), element });
           }
         }
@@ -315,7 +309,6 @@ export const blackHoleEffect: Effect = {
         pass.draw(3);
       },
       destroy() {
-        settingsObserver.disconnect();
         themeObserver.disconnect();
         darkQuery.removeEventListener("change", requestFrame);
         scenes.scroll.buffer.destroy();

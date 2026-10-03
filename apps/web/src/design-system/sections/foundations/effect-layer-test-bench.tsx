@@ -3,9 +3,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
-import { EffectBoundary } from "@tuja/ui/components/effect-boundary";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
+import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
 import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -24,13 +24,39 @@ function Swatch({
   shape: string;
   css: StyleProp;
 }) {
+  const ref = useEffectBoundary();
   return (
-    <EffectBoundary>
-      <div data-effect-test-element="" css={[flex.col, styles.swatch, css]}>
-        <span css={styles.token}>{token}</span>
-        <span css={styles.token}>{shape}</span>
-      </div>
-    </EffectBoundary>
+    <div
+      ref={ref}
+      data-effect-registered=""
+      data-effect-test-element=""
+      css={[flex.col, styles.swatch, css]}
+    >
+      <span css={styles.token}>{token}</span>
+      <span css={styles.token}>{shape}</span>
+    </div>
+  );
+}
+
+function FixedElement() {
+  const ref = useEffectBoundary();
+  return (
+    <div
+      ref={ref}
+      data-effect-registered=""
+      data-effect-test-fixed=""
+      css={[flex.col, corner.radius_3, styles.raised, styles.fixed]}
+    >
+      <Text look="bodySmall" weight="semibold">
+        {t({ en: "Fixed element", zh: "固定元素" })}
+      </Text>
+      <Text look="caption" tone="muted">
+        {t({
+          en: "Measured against the viewport",
+          zh: "相对视口测量",
+        })}
+      </Text>
+    </div>
   );
 }
 
@@ -43,6 +69,8 @@ export function EffectLayerTestBench() {
   const [hasBlock, setHasBlock] = useState(false);
   const [fixedChoice, setFixedChoice] = useState<boolean | null>(null);
   const isHydrated = useIsHydrated();
+  const buttonRef = useEffectBoundary();
+  const badgeRef = useEffectBoundary();
   // Show the fixed element at the start only in the debug view, where you
   // check it. Elsewhere it covers the page for no reason.
   const hasFixed =
@@ -94,42 +122,23 @@ export function EffectLayerTestBench() {
           shape="corner.radius_2"
           css={[corner.radius_2, styles.glass]}
         />
-        <EffectBoundary>
-          <Button
-            onClick={() => {
-              setHasBlock((current) => !current);
-            }}
-          >
-            {hasBlock
-              ? t({ en: "Remove block", zh: "移除色块" })
-              : t({ en: "Add block above", zh: "在上方加色块" })}
-          </Button>
-        </EffectBoundary>
-        <EffectBoundary>
-          <Badge intent="info">{t({ en: "Badge", zh: "徽标" })}</Badge>
-        </EffectBoundary>
+        <Button
+          ref={buttonRef}
+          data-effect-registered=""
+          onClick={() => {
+            setHasBlock((current) => !current);
+          }}
+        >
+          {hasBlock
+            ? t({ en: "Remove block", zh: "移除色块" })
+            : t({ en: "Add block above", zh: "在上方加色块" })}
+        </Button>
+        <Badge ref={badgeRef} data-effect-registered="" intent="info">
+          {t({ en: "Badge", zh: "徽标" })}
+        </Badge>
       </div>
 
-      {hasFixed &&
-        createPortal(
-          <EffectBoundary>
-            <div
-              data-effect-test-fixed=""
-              css={[flex.col, corner.radius_3, styles.raised, styles.fixed]}
-            >
-              <Text look="bodySmall" weight="semibold">
-                {t({ en: "Fixed element", zh: "固定元素" })}
-              </Text>
-              <Text look="caption" tone="muted">
-                {t({
-                  en: "Measured against the viewport",
-                  zh: "相对视口测量",
-                })}
-              </Text>
-            </div>
-          </EffectBoundary>,
-          document.body,
-        )}
+      {hasFixed && createPortal(<FixedElement />, document.body)}
     </div>
   );
 }

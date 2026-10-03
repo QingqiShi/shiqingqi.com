@@ -29,22 +29,64 @@ describe("collectComponentEntries", () => {
     expect(entries).toContainEqual({
       name: "menu-button",
       component: "MenuButton",
+      kind: "component",
       file: path.join(uiPackageDir, "src/actions/menu-button.tsx"),
     });
     expect(entries.map((entry) => entry.name)).not.toContain("button.stylex");
   });
+
+  it("finds every ./hooks/<name> export", () => {
+    expect(collectComponentEntries(uiPackageDir)).toContainEqual({
+      name: "use-black-hole",
+      component: "useBlackHole",
+      kind: "hook",
+      file: path.join(uiPackageDir, "src/effect-layer/use-black-hole.ts"),
+    });
+  });
 });
 
 describe("generatePropsDocs over @tuja/ui", () => {
-  it("writes one document per component plus the index", () => {
+  it("writes one document per component and per documented hook, plus the index", () => {
     const entries = collectComponentEntries(uiPackageDir);
-    expect(result.docs.size).toBe(entries.length);
-    for (const entry of entries) {
-      expect(fs.existsSync(path.join(outputDir, `${entry.name}.json`))).toBe(
-        true,
-      );
+    const components = entries.filter((entry) => entry.kind === "component");
+    expect([...result.docs.keys()]).toEqual(
+      expect.arrayContaining(components.map((entry) => entry.name)),
+    );
+    for (const name of result.docs.keys()) {
+      expect(fs.existsSync(path.join(outputDir, `${name}.json`))).toBe(true);
     }
     expect(fs.existsSync(path.join(outputDir, "index.ts"))).toBe(true);
+  });
+
+  it("documents only the hooks that take an exported options interface", () => {
+    const hooks = [...result.docs]
+      .filter(([, doc]) => doc.kind === "hook")
+      .map(([name]) => name);
+    expect(hooks).toEqual([
+      "use-black-hole",
+      "use-dust",
+      "use-extractor-fan",
+      "use-light-beam",
+      "use-ripple",
+    ]);
+  });
+
+  it("reads a hook's options, their defaults and their translations", () => {
+    const blackHole = docFor("use-black-hole");
+    expect(blackHole).toMatchObject({
+      component: "useBlackHole",
+      kind: "hook",
+    });
+    expect(blackHole.props).toEqual([
+      expect.objectContaining({
+        name: "mass",
+        type: "number",
+        kind: "number",
+        required: false,
+        defaultValue: "1",
+      }),
+    ]);
+    expect(blackHole.props[0]?.description.zh).not.toBe("");
   });
 
   it("documents at least one prop for every component", () => {

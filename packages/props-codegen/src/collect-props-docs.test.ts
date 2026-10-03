@@ -11,16 +11,19 @@ const entries: ComponentEntry[] = [
   {
     name: "fixture-control",
     component: "FixtureControl",
+    kind: "component",
     file: path.join(fixturesDir, "fixture-control.tsx"),
   },
   {
     name: "fixture-panel",
     component: "FixturePanel",
+    kind: "component",
     file: path.join(fixturesDir, "fixture-panel.tsx"),
   },
   {
     name: "fixture-passthrough",
     component: "FixturePassthrough",
+    kind: "component",
     file: path.join(fixturesDir, "fixture-panel.tsx"),
   },
 ];

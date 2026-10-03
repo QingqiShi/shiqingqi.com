@@ -11,6 +11,22 @@ import type { ElementBox } from "./read-element-box.ts";
 export type EffectCanvas = "scroll" | "fixed";
 
 /**
+ * The settings of one registration, one entry for each effect hook that has
+ * settings. Effects read them from `EffectElementRecord.settings`.
+ *
+ * @internal
+ */
+export interface EffectSettings {
+  readonly dust?: { readonly density: number };
+  readonly extractorFan?: { readonly reach: number };
+  readonly blackHole?: { readonly mass: number };
+  readonly lightBeam?: {
+    readonly angle: number | undefined;
+    readonly followsPointer: boolean;
+  };
+}
+
+/**
  * One registered element as the effect layer measured it this frame. Its
  * index in `EffectFrame.elements` is its index in WGSL's `effectElements`.
  *
@@ -22,6 +38,8 @@ export interface EffectElementRecord extends ElementBox {
   readonly element: Element;
   /** One bit per role, as `EFFECT_ROLES` orders them; 0 for none. */
   readonly roles: number;
+  /** The settings its effect hooks gave it. */
+  readonly settings: EffectSettings;
 }
 
 /**

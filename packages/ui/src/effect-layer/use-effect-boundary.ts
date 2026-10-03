@@ -1,29 +1,20 @@
-import { use, useCallback } from "react";
-import { EffectLayerContext } from "./effect-layer-context.ts";
-import { NO_ROLES, roleBits, type EffectRole } from "./effect-roles.ts";
-
-export interface EffectBoundaryOptions {
-  /** The jobs the element has in effects. Without one, effects only see it. */
-  roles?: readonly EffectRole[];
-}
+import { NO_SETTINGS } from "./effect-setting-defaults.ts";
+import { useEffectRegistration } from "./use-effect-registration.ts";
 
 /**
- * Registers one element on the effect layer, the hook under
- * `EffectBoundary`: attach the returned ref to the element. While it stays
- * attached, the layer measures the element each frame it draws — its border
- * box, its corner radii and its `background-color` — so effects can draw
- * around it. Outside an `EffectLayerProvider` the ref does nothing.
+ * Registers an element on the effect layer with no effect of its own, so
+ * that effects can see it and draw around it: attach the returned ref to the
+ * element. While it stays attached, the layer measures the element's border
+ * box, its corner radii and its `background-color` each frame it draws, so
+ * they follow scrolling, layout shifts, theme changes and hover.
+ * `?effects=debug` draws what it measured. The element needs a box of its
+ * own, so not `display: contents`. Outside an `EffectLayerProvider` the ref
+ * does nothing.
+ *
+ * The effect hooks — `useRipple`, `useDust`, `useExtractorFan`,
+ * `useBlackHole` and `useLightBeam` — register their element the same way, so
+ * an element with an effect needs no `useEffectBoundary` as well.
  */
-export function useEffectBoundary({
-  roles = NO_ROLES,
-}: EffectBoundaryOptions = {}) {
-  const register = use(EffectLayerContext);
-  const bits = roleBits(roles);
-  return useCallback(
-    (element: Element | null): (() => void) | undefined =>
-      element === null || register === null
-        ? undefined
-        : register(element, bits),
-    [register, bits],
-  );
+export function useEffectBoundary() {
+  return useEffectRegistration(0, NO_SETTINGS);
 }

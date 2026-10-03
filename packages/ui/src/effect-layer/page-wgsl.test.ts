@@ -15,6 +15,7 @@ function record(
     id: 7,
     element: document.createElement("div"),
     roles: 0b101,
+    settings: {},
     x: 10,
     y: 1200.5,
     width: 320,

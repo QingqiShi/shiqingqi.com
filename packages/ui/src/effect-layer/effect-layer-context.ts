@@ -1,12 +1,13 @@
 import { createContext } from "react";
+import type { EffectRegistry } from "./create-effect-registry.ts";
 
 /**
- * Registers an element on the nearest effect layer with a set of role bits,
- * and returns the function that removes it again, or is `null` outside an
+ * Registers an element on the nearest effect layer with a set of role bits
+ * and the settings of their effects, or is `null` outside an
  * `EffectLayerProvider`.
  *
  * @internal
  */
 export const EffectLayerContext = createContext<
-  ((element: Element, roles: number) => () => void) | null
+  EffectRegistry["register"] | null
 >(null);

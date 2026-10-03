@@ -23,10 +23,15 @@ export interface PropDoc {
   deprecated?: string;
 }
 
-/** Every prop of one `@tuja/ui` component, keyed in `PROPS_DOCS` by its export subpath. */
+/**
+ * Every prop of one `@tuja/ui` component, or every option of one hook, keyed
+ * in `PROPS_DOCS` by its export subpath name.
+ */
 export interface PropsDoc {
-  /** The exported function name — `"Button"`. */
+  /** The exported function name — `"Button"`, `"useRipple"`. */
   component: string;
+  /** A component takes props; a hook takes an options object, read the same way. */
+  kind: "component" | "hook";
   /** Repo-relative path of the component source. */
   source: string;
   /** The HTML element whose attributes the props extend — `"button"`. */
