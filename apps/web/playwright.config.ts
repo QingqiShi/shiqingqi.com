@@ -21,6 +21,9 @@ const port = execFileSync("node", ["../../scripts/get-worktree-port.mjs"], {
 }).trim();
 const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
+/* Specs that need a WebGPU adapter. */
+const webgpuSpecs = /\.webgpu\.spec\.ts$/;
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -75,6 +78,41 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: webgpuSpecs,
+    },
+    /* Chromium has no WebGPU adapter without a GPU. These flags give it the
+     * SwiftShader adapter, for the WebGPU specs only. On Linux, only the
+     * headless shell with SwiftShader Vulkan shows a WebGPU <canvas> element
+     * in a screenshot. On macOS, that setup loses the device after a few
+     * frames, so the specs use the full Chromium build there. */
+    {
+      name: "chromium-webgpu",
+      use: {
+        ...devices["Desktop Chrome"],
+        ...(process.platform === "linux"
+          ? {
+              launchOptions: {
+                args: [
+                  "--enable-unsafe-webgpu",
+                  "--use-webgpu-adapter=swiftshader",
+                  "--enable-features=Vulkan",
+                  "--use-vulkan=swiftshader",
+                  "--use-angle=swiftshader",
+                  "--disable-vulkan-surface",
+                ],
+              },
+            }
+          : {
+              channel: "chromium",
+              launchOptions: {
+                args: [
+                  "--enable-unsafe-webgpu",
+                  "--use-webgpu-adapter=swiftshader",
+                ],
+              },
+            }),
+      },
+      testMatch: webgpuSpecs,
     },
 
     /* Test against mobile viewports. */

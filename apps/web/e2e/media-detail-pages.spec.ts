@@ -1,21 +1,10 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { scrollToAndSettle } from "./helpers/scroll.ts";
 import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 
 // Using well-known movie/TV IDs that consistently have full data
 const FIGHT_CLUB_ID = "550";
 const BREAKING_BAD_ID = "1396";
-
-/**
- * Scroll to `y` and hold there. Until the content is tall enough, `scrollTo`
- * clamps on a still-hydrating page and never sticks (source of a shard-5
- * flake), so poll until the scroll actually holds.
- */
-async function scrollToAndSettle(page: Page, y: number) {
-  await page.waitForFunction((target) => {
-    window.scrollTo(0, target);
-    return window.scrollY === target;
-  }, y);
-}
 
 test.describe("Movie Detail Pages", () => {
   test("should display movie title, rating, metadata, and overview", async ({
