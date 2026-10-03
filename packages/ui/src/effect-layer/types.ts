@@ -27,7 +27,7 @@ export interface EffectSettings {
 }
 
 /**
- * One registered element as the effect layer measured it this frame. Its
+ * One registered element as it was last measured. Its
  * index in `EffectFrame.elements` is its index in WGSL's `effectElements`.
  *
  * @internal
@@ -138,8 +138,9 @@ export interface EffectFrame {
   };
   readonly documentHeight: number;
   /**
-   * Every registered element with a box, measured at the start of this
-   * frame: the ones in the document first, then the fixed ones.
+   * Every registered element with a box, as it is at the start of this
+   * frame: the ones in the document first, then the fixed ones. An element
+   * is measured again only after it can have changed.
    */
   readonly elements: readonly EffectElementRecord[];
   readonly pointer: EffectPointer;

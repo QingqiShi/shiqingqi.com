@@ -7,6 +7,7 @@ import {
 } from "./compute-bands.ts";
 import { GPU_BUFFER_USAGE, GPU_SHADER_STAGE } from "./constants.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
+import { createFrameScheduler } from "./create-frame-scheduler.ts";
 import {
   ELEMENT_BYTES,
   packElements,
@@ -87,10 +88,11 @@ interface EffectLayerOptions {
 /**
  * Starts the effect layer on one device.
  *
- * Each frame measures every registered element first. A frame draws only
- * when something changed: a scroll, a resize, a change of effects, an
- * element that moved or changed fill, or an effect that asks for the next
- * frame. The rest of the time no frame runs.
+ * Each registered element measures itself again when it can have changed,
+ * as `trackElements` describes, and a frame reads the last measurement of
+ * each. A frame draws only when something changed: a scroll, a resize, a
+ * change of effects, an element that moved or changed fill, or an effect
+ * that asks for the next frame. The rest of the time no frame runs.
  *
  * @internal
  */
@@ -149,21 +151,19 @@ export function createEffectLayer(
   let viewportHeight = 0;
   let sizesChanged = true;
   let drawRequested = true;
-  let frameRequest = 0;
   let destroyed = false;
   const startTime = performance.now();
   let lastFrameTime: number | null = null;
 
   const reducedMotionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
   let pixelRatioQuery = watchPixelRatio();
-  const elements = trackElements(registry, requestMeasure);
+  const frames = createFrameScheduler();
+  const tracking = trackElements(registry, frames, requestElementsFrame);
   // A change of settings moves no element, so draw a frame for it.
   const unsubscribeSettings = registry.subscribe(requestFrame);
-  const pointer = trackPointer((moved) => {
+  const pointer = trackPointer(() => {
     if (followsPointer) {
       requestFrame();
-    } else if (!moved) {
-      requestMeasure();
     }
   });
 
@@ -188,17 +188,17 @@ export function createEffectLayer(
   window.addEventListener("scroll", requestFrame, { passive: true });
   reducedMotionQuery.addEventListener("change", requestFrame);
 
-  /** Measures the elements next frame, and draws if something changed. */
-  function requestMeasure() {
+  /** Runs a frame next, which draws if the elements changed. */
+  function requestElementsFrame() {
     if (!destroyed) {
-      frameRequest ||= requestAnimationFrame(renderFrame);
+      frames.draw(renderFrame);
     }
   }
 
   /** Draws next frame. */
   function requestFrame() {
     drawRequested = true;
-    requestMeasure();
+    requestElementsFrame();
   }
 
   function watchPixelRatio() {
@@ -515,12 +515,8 @@ export function createEffectLayer(
   }
 
   function renderFrame(now: number) {
-    frameRequest = 0;
     const { scrollX, scrollY } = window;
-    const records = elements.measure(scrollX, scrollY);
-    if (elements.isAnimating()) {
-      requestMeasure();
-    }
+    const records = registry.records(scrollX, scrollY);
     const elementsChanged = writeElements(records);
     reportCanvasNeeds(records);
     if (!drawRequested && !elementsChanged) {
@@ -594,9 +590,9 @@ export function createEffectLayer(
 
   function destroy() {
     destroyed = true;
-    cancelAnimationFrame(frameRequest);
+    frames.destroy();
     resizeObserver.disconnect();
-    elements.destroy();
+    tracking.destroy();
     unsubscribeSettings();
     pointer.destroy();
     window.removeEventListener("scroll", requestFrame);
