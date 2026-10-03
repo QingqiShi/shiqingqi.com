@@ -108,6 +108,10 @@ const light = {
 
   // The quiet default edge, and the neutral Intent's border.
   border: gray._90,
+  // The edge that is the only sign of an unselected control, such as an empty
+  // checkbox or a text field. It is not quiet, because WCAG 1.4.11 sets a 3:1
+  // floor on it against every surface a control sits on.
+  borderControl: gray._40,
 
   // Intents — a solid fill and its hover, a tint (alpha is fixed, colour comes
   // from the palette), a solid border for rings and selected edges, a
@@ -188,6 +192,7 @@ const dark: { [key in keyof typeof light]: string } = {
   bgControlDisabled: gray._5,
 
   border: gray._13,
+  borderControl: gray._40,
 
   bgAccent: darkIntentTone.accent,
   bgAccentHover: purple._80,
@@ -271,6 +276,7 @@ export const color = stylex.defineVars({
   bgControlDisabled: `light-dark(${light.bgControlDisabled}, ${dark.bgControlDisabled})`,
 
   border: `light-dark(${light.border}, ${dark.border})`,
+  borderControl: `light-dark(${light.borderControl}, ${dark.borderControl})`,
 
   bgAccent: `light-dark(${light.bgAccent}, ${dark.bgAccent})`,
   bgAccentHover: `light-dark(${light.bgAccentHover}, ${dark.bgAccentHover})`,

@@ -47,7 +47,7 @@ const markStyles = stylex.create({
     blockSize: controlSize._5,
     borderWidth: border.size_2,
     borderStyle: "solid",
-    borderColor: color.border,
+    borderColor: color.borderControl,
     color: color.fgOnAccent,
   },
   selected: {

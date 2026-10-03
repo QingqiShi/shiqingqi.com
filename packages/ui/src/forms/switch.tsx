@@ -302,11 +302,12 @@ const styles = stylex.create({
     position: "relative",
     transition: `background-color ${duration._200} ${easing.ease}`,
     backgroundColor: {
-      default: color.bgNeutralSubtle,
+      default: color.bgControl,
       ":checked": color.bgAccent,
     },
     boxShadow: {
-      default: shadow._2,
+      default: `inset 0 0 0 ${border.size_2} ${color.borderControl}, ${shadow._2}`,
+      ":checked": shadow._2,
       ":hover": { "::before": shadow._3 },
     },
     touchAction: "none",
@@ -316,13 +317,21 @@ const styles = stylex.create({
       ":checked": switchTokens.trackHeight,
       ":indeterminate": `calc(${switchTokens.trackHeight} / 2)`,
     },
+    [switchTokens.thumbColor]: {
+      default: color.borderControl,
+      ":checked": color.bgControlBright,
+    },
+    [switchTokens.thumbScale]: {
+      default: 0.6,
+      ":checked": 1,
+    },
     [switchTokens.thumbShadow]: {
       default: null,
       ":hover": shadow._3,
     },
 
     "::before": {
-      backgroundColor: color.bgControlBright,
+      backgroundColor: switchTokens.thumbColor,
       borderRadius: border.radius_round,
       cornerShape: "round",
       boxShadow: switchTokens.thumbShadow,
@@ -330,7 +339,7 @@ const styles = stylex.create({
       display: "block",
       width: `calc(${switchTokens.trackHeight} - ${border.size_2} * 2)`,
       aspectRatio: ratio.square,
-      transform: `translateX(${switchTokens.thumbPosition})`,
+      transform: `translateX(${switchTokens.thumbPosition}) scale(${switchTokens.thumbScale})`,
       transition: null,
       zIndex: layer.content,
     },
@@ -338,8 +347,8 @@ const styles = stylex.create({
   animate: {
     "::before": {
       transition: {
-        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}`,
-        [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._400} ${easing.ease}`,
+        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.ease}, background-color ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}`,
+        [motionConstants.REDUCED_MOTION]: `background-color ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}`,
       },
     },
   },
