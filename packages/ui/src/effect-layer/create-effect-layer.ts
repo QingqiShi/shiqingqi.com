@@ -12,15 +12,23 @@ import {
   ELEMENT_BYTES,
   packElements,
   packPageUniform,
+  packScopes,
   PAGE_UNIFORM_BYTES,
+  SCOPE_BYTES,
 } from "./page-wgsl.ts";
+import type { EffectColor } from "./parse-css-color.ts";
+import {
+  PAGE_SCOPE,
+  planScopes,
+  readPageBackdrop,
+  type ScopePlan,
+} from "./plan-scopes.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
 import { packTargetUniform, TARGET_UNIFORM_BYTES } from "./target-wgsl.ts";
 import { trackElements } from "./track-elements.ts";
 import { trackPointer } from "./track-pointer.ts";
 import type {
   Effect,
-  EffectElementRecord,
   EffectFrame,
   EffectRenderer,
   EffectSetup,
@@ -29,7 +37,7 @@ import type {
 
 const MAX_PIXEL_RATIO = 2;
 const MAX_DELTA_SECONDS = 0.1;
-const MIN_ELEMENT_CAPACITY = 16;
+const MIN_CAPACITY = 16;
 const ALL_STAGES =
   GPU_SHADER_STAGE.VERTEX |
   GPU_SHADER_STAGE.FRAGMENT |
@@ -52,6 +60,67 @@ interface Pass {
   readonly target: EffectTarget;
   readonly scissor: ScissorRect;
   readonly drawnPageRange: readonly [number, number];
+}
+
+/**
+ * A storage buffer that holds packed items, grows as they need, and uploads
+ * only when they change.
+ */
+function createPackedBuffer<Item>(
+  device: GPUDevice,
+  itemBytes: number,
+  pack: (items: readonly Item[], buffer: ArrayBuffer) => void,
+) {
+  const create = (capacity: number) => ({
+    capacity,
+    buffer: device.createBuffer({
+      size: capacity * itemBytes,
+      usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST,
+    }),
+    packed: new ArrayBuffer(capacity * itemBytes),
+    previous: new ArrayBuffer(capacity * itemBytes),
+    previousCount: -1,
+  });
+  let state = create(MIN_CAPACITY);
+  return {
+    get buffer() {
+      return state.buffer;
+    },
+    /**
+     * Packs the items, and uploads them when they differ from the last
+     * upload. Returns whether they did.
+     */
+    write(items: readonly Item[]) {
+      const capacity = Math.max(
+        MIN_CAPACITY,
+        2 ** Math.ceil(Math.log2(items.length)),
+      );
+      if (capacity !== state.capacity) {
+        state.buffer.destroy();
+        state = create(capacity);
+      }
+      [state.packed, state.previous] = [state.previous, state.packed];
+      pack(items, state.packed);
+      const words = new Uint32Array(
+        state.packed,
+        0,
+        (items.length * itemBytes) / 4,
+      );
+      const previous = new Uint32Array(state.previous, 0, words.length);
+      if (
+        items.length === state.previousCount &&
+        words.every((word, index) => word === previous[index])
+      ) {
+        return false;
+      }
+      state.previousCount = items.length;
+      device.queue.writeBuffer(state.buffer, 0, words);
+      return true;
+    },
+    destroy() {
+      state.buffer.destroy();
+    },
+  };
 }
 
 /**
@@ -91,8 +160,8 @@ interface EffectLayerOptions {
  * Each registered element measures itself again when it can have changed,
  * as `trackElements` describes, and a frame reads the last measurement of
  * each. A frame draws only when something changed: a scroll, a resize, a
- * change of effects, an element that moved or changed fill, or an effect
- * that asks for the next frame. The rest of the time no frame runs.
+ * change of effects, an element that moved or changed fill, a change of the
+ * page's backdrop, or an effect that asks for the next frame. The rest of the time no frame runs.
  *
  * @internal
  */
@@ -103,11 +172,11 @@ export function createEffectLayer(
   const pageLayout = device.createBindGroupLayout({
     entries: [
       { binding: 0, visibility: ALL_STAGES, buffer: { type: "uniform" } },
-      {
-        binding: 1,
+      ...[1, 2].map((binding) => ({
+        binding,
         visibility: ALL_STAGES,
-        buffer: { type: "read-only-storage" },
-      },
+        buffer: { type: "read-only-storage" as const },
+      })),
     ],
   });
   const targetLayout = device.createBindGroupLayout({
@@ -136,12 +205,11 @@ export function createEffectLayer(
     size: PAGE_UNIFORM_BYTES,
     usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST,
   });
-  let elementCapacity = 0;
-  let elementBuffer = growElements(MIN_ELEMENT_CAPACITY);
+  const elementBuffer = createPackedBuffer(device, ELEMENT_BYTES, packElements);
+  const scopeBuffer = createPackedBuffer(device, SCOPE_BYTES, packScopes);
+  let pageBuffers = [elementBuffer.buffer, scopeBuffer.buffer];
   let pageBindGroup = createPageBindGroup();
-  let packed = new ArrayBuffer(elementCapacity * ELEMENT_BYTES);
-  let previousPacked = new ArrayBuffer(elementCapacity * ELEMENT_BYTES);
-  let previousCount = -1;
+  let pageBackdrop: EffectColor | null = null;
   let canvasNeeds: EffectCanvasNeeds | null = null;
 
   let pageLeft = 0;
@@ -295,64 +363,40 @@ export function createEffectLayer(
     collectReady();
   }
 
-  function growElements(capacity: number) {
-    elementCapacity = capacity;
-    return device.createBuffer({
-      size: capacity * ELEMENT_BYTES,
-      usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST,
-    });
-  }
-
   function createPageBindGroup() {
     return device.createBindGroup({
       layout: pageLayout,
-      entries: [
-        { binding: 0, resource: { buffer: pageUniform } },
-        { binding: 1, resource: { buffer: elementBuffer } },
-      ],
+      entries: [pageUniform, ...pageBuffers].map((buffer, binding) => ({
+        binding,
+        resource: { buffer },
+      })),
     });
   }
 
   /**
-   * Packs the elements, and uploads them when they differ from the last
-   * upload. Returns whether they did.
+   * Uploads the elements and the scopes, and returns whether they, or the
+   * page's backdrop, changed since the last frame.
    */
-  function writeElements(records: readonly EffectElementRecord[]) {
-    const capacity = Math.max(
-      MIN_ELEMENT_CAPACITY,
-      2 ** Math.ceil(Math.log2(records.length)),
-    );
-    if (capacity !== elementCapacity) {
-      elementBuffer.destroy();
-      elementBuffer = growElements(capacity);
+  function writePage(plan: ScopePlan) {
+    const elementsChanged = elementBuffer.write(plan.elements);
+    const scopesChanged = scopeBuffer.write(plan.scopes);
+    const buffers = [elementBuffer.buffer, scopeBuffer.buffer];
+    if (buffers.some((buffer, index) => buffer !== pageBuffers[index])) {
+      pageBuffers = buffers;
       pageBindGroup = createPageBindGroup();
-      packed = new ArrayBuffer(capacity * ELEMENT_BYTES);
-      previousPacked = new ArrayBuffer(capacity * ELEMENT_BYTES);
-      previousCount = -1;
     }
-    [packed, previousPacked] = [previousPacked, packed];
-    packElements(records, packed);
-    const words = new Uint32Array(
-      packed,
-      0,
-      (records.length * ELEMENT_BYTES) / 4,
-    );
-    const previous = new Uint32Array(previousPacked, 0, words.length);
-    if (
-      records.length === previousCount &&
-      words.every((word, index) => word === previous[index])
-    ) {
-      return false;
-    }
-    previousCount = records.length;
-    device.queue.writeBuffer(elementBuffer, 0, words);
-    return true;
+    const backdrop = plan.scopes[PAGE_SCOPE].backdrop;
+    const backdropChanged =
+      pageBackdrop === null ||
+      backdrop.some((channel, index) => channel !== pageBackdrop?.[index]);
+    pageBackdrop = backdrop;
+    return elementsChanged || scopesChanged || backdropChanged;
   }
 
-  function reportCanvasNeeds(records: readonly EffectElementRecord[]) {
+  function reportCanvasNeeds(plan: ScopePlan) {
     const needs = {
-      scroll: records.some((record) => record.roles !== 0 && !record.fixed),
-      fixed: records.some((record) => record.roles !== 0 && record.fixed),
+      scroll: plan.document.hasRole,
+      fixed: plan.fixed.hasRole,
     };
     if (
       needs.scroll !== canvasNeeds?.scroll ||
@@ -398,16 +442,11 @@ export function createEffectLayer(
     }
   }
 
-  /**
-   * Places the scroll `<canvas>` elements and lists this frame's passes.
-   * `documentElements` is how many records, at the start, are in the
-   * document rather than fixed.
-   */
+  /** Places the scroll `<canvas>` elements and lists this frame's passes. */
   function planPasses(
     scrollX: number,
     scrollY: number,
-    documentElements: number,
-    totalElements: number,
+    plan: ScopePlan,
   ): Pass[] {
     const { viewport, bandHeight } = bandGeometry(viewportHeight);
     const passes: Pass[] = [];
@@ -442,8 +481,8 @@ export function createEffectLayer(
             y,
             width: documentWidth,
             height: bandHeight,
-            firstElement: 0,
-            elementCount: documentElements,
+            firstElement: plan.document.firstElement,
+            elementCount: plan.document.elementCount,
             bindGroup: slot.bindGroup,
           },
         });
@@ -466,8 +505,8 @@ export function createEffectLayer(
           y: scrollY,
           width: documentWidth,
           height: viewport,
-          firstElement: documentElements,
-          elementCount: totalElements - documentElements,
+          firstElement: plan.fixed.firstElement,
+          elementCount: plan.fixed.elementCount,
           bindGroup: fixed.bindGroup,
         },
       });
@@ -516,10 +555,14 @@ export function createEffectLayer(
 
   function renderFrame(now: number) {
     const { scrollX, scrollY } = window;
-    const records = registry.records(scrollX, scrollY);
-    const elementsChanged = writeElements(records);
-    reportCanvasNeeds(records);
-    if (!drawRequested && !elementsChanged) {
+    const plan = planScopes(
+      registry.records(scrollX, scrollY),
+      readPageBackdrop(),
+    );
+    const records = plan.elements;
+    const pageChanged = writePage(plan);
+    reportCanvasNeeds(plan);
+    if (!drawRequested && !pageChanged) {
       return;
     }
     drawRequested = false;
@@ -532,12 +575,7 @@ export function createEffectLayer(
       return;
     }
 
-    const passes = planPasses(
-      scrollX,
-      scrollY,
-      records.filter((record) => !record.fixed).length,
-      records.length,
-    );
+    const passes = planPasses(scrollX, scrollY, plan);
     const viewport = bandGeometry(viewportHeight).viewport;
     const frame: EffectFrame = {
       time: (now - startTime) / 1000,
@@ -554,6 +592,7 @@ export function createEffectLayer(
       },
       documentHeight,
       elements: records,
+      scopes: plan.scopes,
       pointer: pointer.read(scrollX, scrollY, now),
       pageBindGroup,
       targets: passes.map(({ target }) => target),
@@ -569,6 +608,7 @@ export function createEffectLayer(
         seconds: frame.time,
         delta: frame.delta,
         elementCount: records.length,
+        scopeCount: plan.scopes.length,
       }),
     );
 
@@ -613,6 +653,7 @@ export function createEffectLayer(
     fixed = null;
     pageUniform.destroy();
     elementBuffer.destroy();
+    scopeBuffer.destroy();
   }
 
   return { setCanvases, setEffects, destroy };

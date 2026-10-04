@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { beamColor, isDarkBackdrop } from "./beam-color.ts";
+import { beamColor } from "./beam-color.ts";
 
 describe("beamColor", () => {
   const accent = [0.55, 0.2, 0.85, 1] as const;
@@ -27,17 +27,5 @@ describe("beamColor", () => {
   it("casts neutral light from a transparent fill", () => {
     expect(beamColor([0, 0, 0, 0], true)).toEqual([1, 0.97, 0.92]);
     expect(beamColor([0, 0, 0, 0], false)).toEqual([0.32, 0.33, 0.36]);
-  });
-});
-
-describe("isDarkBackdrop", () => {
-  it("reads the page background", () => {
-    expect(isDarkBackdrop([0.04, 0.04, 0.05, 1], false)).toBe(true);
-    expect(isDarkBackdrop([0.98, 0.97, 0.96, 1], true)).toBe(false);
-  });
-
-  it("falls back without an opaque background", () => {
-    expect(isDarkBackdrop([0, 0, 0, 0], true)).toBe(true);
-    expect(isDarkBackdrop(null, false)).toBe(false);
   });
 });

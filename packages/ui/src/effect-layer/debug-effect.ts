@@ -10,6 +10,7 @@ const SLOT_COLORS = [
 const MARKER_COLOR = [0.5, 0.5, 0.5] as const;
 const DOCUMENT_ELEMENT_COLOR = [0.1, 0.7, 0.2] as const;
 const FIXED_ELEMENT_COLOR = [1, 0.5, 0] as const;
+const CONTAINER_COLOR = [0.55, 0.25, 0.95] as const;
 const POINTER_COLOR = [0.9, 0.1, 0.2] as const;
 
 /**
@@ -34,24 +35,8 @@ const RECT_FLOATS = 8;
 
 const vec3 = (color: readonly number[]) => `vec3f(${color.join(", ")})`;
 
-const BAND_WGSL = /* wgsl */ `${TARGET_WGSL}
-const EDGE_STRIP = 8.0;
-
-struct BandVarying {
-  @builtin(position) position: vec4f,
-  @location(0) @interpolate(flat) index: u32,
-}
-
+const DIGITS_WGSL = /* wgsl */ `
 var<private> digitGlyphs: array<u32, 10> = array<u32, 10>(${DIGIT_GLYPHS.map((glyph) => `${String(glyph)}u`).join(", ")});
-
-@vertex
-fn vertexMain(
-  @builtin(vertex_index) vertex: u32,
-  @builtin(instance_index) index: u32,
-) -> BandVarying {
-  let corner = vec2f(f32((vertex << 1u) & 2u), f32(vertex & 2u));
-  return BandVarying(vec4f(corner * 2.0 - 1.0, 0.0, 1.0), index);
-}
 
 fn isDigitCell(cell: vec2u, value: u32) -> bool {
   var digitCount = 1u;
@@ -72,6 +57,25 @@ fn isDigitCell(cell: vec2u, value: u32) -> bool {
   let digit = (value / place) % 10u;
   let bit = 14u - (cell.y * 3u + column);
   return ((digitGlyphs[digit] >> bit) & 1u) == 1u;
+}
+`;
+
+const BAND_WGSL = /* wgsl */ `${TARGET_WGSL}
+const EDGE_STRIP = 8.0;
+
+struct BandVarying {
+  @builtin(position) position: vec4f,
+  @location(0) @interpolate(flat) index: u32,
+}
+${DIGITS_WGSL}
+
+@vertex
+fn vertexMain(
+  @builtin(vertex_index) vertex: u32,
+  @builtin(instance_index) index: u32,
+) -> BandVarying {
+  let corner = vec2f(f32((vertex << 1u) & 2u), f32(vertex & 2u));
+  return BandVarying(vec4f(corner * 2.0 - 1.0, 0.0, 1.0), index);
 }
 
 @fragment
@@ -103,13 +107,17 @@ fn fragmentMain(input: BandVarying) -> @location(0) vec4f {
 
 const ELEMENT_WGSL = /* wgsl */ `${TARGET_WGSL}
 // A line on the edge, then a band of the measured fill over a checkerboard,
-// so a translucent fill shows as translucent.
+// so a translucent fill shows as translucent. An Effect container also gets
+// a dashed line inside its edge and the id of its scope under the top-left
+// corner.
 const MARGIN = 12.0;
 const LINE_WIDTH = 2.0;
 const FILL_START = 4.0;
 const FILL_END = 10.0;
 const POINTER_RING = 10.0;
 const VELOCITY_SECONDS = 0.1;
+const LABEL_INSET = 12.0;
+${DIGITS_WGSL}
 
 struct ElementVarying {
   @builtin(position) position: vec4f,
@@ -132,14 +140,33 @@ fn elementFragment(input: ElementVarying) -> @location(0) vec4f {
   let element = effectElements[input.index];
   let page = fragmentToPage(input.position.xy);
   let edge = effectElementDistance(element, page);
+  let clip = effectClip(element.scope, page);
+  var held = EFFECT_PAGE_SCOPE;
+  for (var scope = 1u; scope < effectPage.scopeCount; scope += 1u) {
+    if (effectScopes[scope].container == input.index) {
+      held = scope;
+    }
+  }
+  let isContainer = held != EFFECT_PAGE_SCOPE;
+  if (isContainer) {
+    let label = (page - element.rect.xy - LABEL_INSET) / 2.0;
+    let dashed = edge < -LINE_WIDTH && edge >= -2.0 * LINE_WIDTH && fract((page.x + page.y) / 12.0) < 0.5;
+    if (dashed || (label.x >= 0.0 && label.y >= 0.0 && isDigitCell(vec2u(label), effectScopes[held].id))) {
+      return vec4f(${vec3(CONTAINER_COLOR)}, 1.0) * clip;
+    }
+  }
   if (edge >= 0.0 && edge < LINE_WIDTH) {
     let fixed = (element.flags & EFFECT_ELEMENT_FIXED) != 0u;
-    return vec4f(select(${vec3(DOCUMENT_ELEMENT_COLOR)}, ${vec3(FIXED_ELEMENT_COLOR)}, fixed), 1.0);
+    var line = select(${vec3(DOCUMENT_ELEMENT_COLOR)}, ${vec3(FIXED_ELEMENT_COLOR)}, fixed);
+    if (isContainer) {
+      line = ${vec3(CONTAINER_COLOR)};
+    }
+    return vec4f(line, 1.0) * clip;
   }
   if (edge >= FILL_START && edge < FILL_END) {
     let cell = vec2i(floor(page / 4.0));
     let checker = select(0.55, 0.8, ((cell.x + cell.y) & 1) == 1);
-    return vec4f(mix(vec3f(checker), element.fill.rgb, element.fill.a), 1.0);
+    return vec4f(mix(vec3f(checker), element.fill.rgb, element.fill.a), 1.0) * clip;
   }
   return vec4f(0.0);
 }
@@ -271,9 +298,12 @@ function writeMinimap(
  * bands, and dashed lines where the part drawn this frame ends. The page
  * between the strips stays clear, so that the content under it stays
  * readable. Each registered element gets a line on its
- * edge (green in the document, orange when fixed) and a band of its measured
- * fill. The fixed `<canvas>` element shows the minimap and the pointer: a
- * ring, filled while pressed, with a line for its velocity.
+ * edge (green in the document, orange when fixed, violet for an Effect
+ * container) and a band of its measured fill, clipped to its Effect
+ * container. Inside each Effect container, a dashed violet line runs round
+ * its edge, with the id of its scope under the top-left corner. The fixed
+ * `<canvas>` element shows the minimap and the pointer: a ring, filled while
+ * pressed, with a line for its velocity.
  *
  * @internal
  */

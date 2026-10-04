@@ -1,5 +1,6 @@
-import { expect, test, type Locator, type Page } from "@playwright/test";
-import { scrollToAndSettle, scrollWithin } from "./helpers/scroll.ts";
+import { expect, test, type Page } from "@playwright/test";
+import { countDustPixels } from "./helpers/count-dust-pixels.ts";
+import { boxOf, scrollElementTo, scrollToAndSettle } from "./helpers/scroll.ts";
 
 // The effect layer page, whose dust test bench has dust with no fan in
 // reach, a fan close by, two pillars taller than a band, and a far fan.
@@ -13,13 +14,6 @@ const FLOW_TIMEOUT = 30_000;
 // The longest a particle lives, and some time to spare.
 const LAST_PARTICLE_TIMEOUT = 15_000;
 
-interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 declare global {
   interface Window {
     /** How many animation frames the page asked for. */
@@ -31,61 +25,6 @@ test.use({ viewport: { width: 1280, height: 800 } });
 
 const benchElement = (page: Page, name: string) =>
   page.locator(`[data-dust-test="${name}"]`);
-
-async function boxOf(locator: Locator) {
-  const box = await locator.boundingBox();
-  if (box === null) {
-    throw new Error("the element has no box");
-  }
-  return box;
-}
-
-/** Scrolls so the element's top sits `offset` px below the viewport top. */
-async function scrollElementTo(page: Page, locator: Locator, offset: number) {
-  const top = await locator.evaluate(
-    (element) => element.getBoundingClientRect().top + window.scrollY,
-  );
-  await scrollWithin(page, top - offset);
-}
-
-/**
- * How many pixels of a part of the viewport differ from its most common
- * colour, the page background where the test reads it.
- */
-async function countDustPixels(page: Page, rect: Rect) {
-  const png = await page.screenshot({ clip: rect });
-  return page.evaluate(async (base64) => {
-    const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
-    const bitmap = await createImageBitmap(
-      new Blob([bytes], { type: "image/png" }),
-    );
-    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-    const context = canvas.getContext("2d");
-    context?.drawImage(bitmap, 0, 0);
-    const data =
-      context?.getImageData(0, 0, bitmap.width, bitmap.height).data ?? [];
-    const counts = new Map<number, number>();
-    for (let at = 0; at < data.length; at += 4) {
-      const key = (data[at] << 16) | (data[at + 1] << 8) | data[at + 2];
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
-    const [background] = [...counts].reduce((most, entry) =>
-      entry[1] > most[1] ? entry : most,
-    );
-    let count = 0;
-    for (let at = 0; at < data.length; at += 4) {
-      const difference = Math.max(
-        Math.abs(data[at] - ((background >> 16) & 255)),
-        Math.abs(data[at + 1] - ((background >> 8) & 255)),
-        Math.abs(data[at + 2] - (background & 255)),
-      );
-      if (difference > 24) {
-        count += 1;
-      }
-    }
-    return count;
-  }, png.toString("base64"));
-}
 
 async function waitForLayer(page: Page) {
   await expect(page.locator('[data-effect-layer="scroll"]')).toHaveCount(2, {
@@ -193,11 +132,12 @@ test("holds still under reduced motion", async ({ page }) => {
   const source = benchElement(page, "near-source");
   await scrollElementTo(page, source, 300);
 
-  // Only the motes and the page show below the element.
+  // Only the motes and the page show below the element. Each side gets
+  // motes, and most sit close to the edge.
   const box = await boxOf(source);
   const below = {
     x: box.x - 40,
-    y: box.y + box.height + 4,
+    y: box.y + box.height + 1,
     width: box.width + 80,
     height: 36,
   };

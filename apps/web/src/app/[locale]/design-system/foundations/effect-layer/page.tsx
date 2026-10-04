@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
 import { BlackHoleShowcase } from "#src/design-system/sections/foundations/black-hole-showcase.tsx";
 import { DustShowcase } from "#src/design-system/sections/foundations/dust-showcase.tsx";
+import { EffectContainerShowcase } from "#src/design-system/sections/foundations/effect-container-showcase.tsx";
 import { EffectLayerShowcase } from "#src/design-system/sections/foundations/effect-layer-showcase.tsx";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
@@ -32,6 +33,7 @@ export default function EffectLayerPage() {
       <EffectLayerShowcase />
       <DustShowcase />
       <BlackHoleShowcase />
+      <EffectContainerShowcase />
     </DocPage>
   );
 }

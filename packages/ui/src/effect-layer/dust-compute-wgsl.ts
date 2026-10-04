@@ -24,6 +24,10 @@ export const DUST_WORKGROUP_SIZE = 64;
  *   in. It dies at the edge.
  * - Every other registered element is an obstacle that it slides around.
  * - A moving pointer drags the air near it.
+ * - Only the elements of the particle's own scope act on it. In an Effect
+ *   container's scope it dies once it leaves the container's border box,
+ *   and when the container is gone. Each frame it takes the index of its
+ *   scope in `effectScopes`, for the drawing to clip to.
  *
  * @internal
  */
@@ -82,6 +86,7 @@ const POINTER_FULL_SPEED = 150.0;
 const DOCUMENT_MARGIN = 64.0;
 // A particle that a fan pulls faster than this lives until it gets there.
 const PULLED_SPEED = 20.0;
+const NO_SCOPE = 0xffffffffu;
 
 fn gradientAt(cell: vec2i) -> vec2f {
   let hash = pcg(bitcast<u32>(cell.x) ^ pcg(bitcast<u32>(cell.y)));
@@ -109,28 +114,43 @@ fn curlNoise(point: vec2f) -> vec2f {
   return vec2f(dy, -dx);
 }
 
-// How near an extractor fan pulls at a page point: 0 at a fan's edge, 1 at
-// its reach and beyond. A fan does not pull at its own dust.
-fn fanGap(page: vec2f, emitter: u32) -> f32 {
+// How near an extractor fan of the scope at this index of effectScopes
+// pulls at a page point: 0 at a fan's edge, 1 at its reach and beyond. A fan
+// does not pull at its own dust.
+fn fanGap(page: vec2f, emitter: u32, scope: u32) -> f32 {
   var gap = 1.0;
-  for (var k = 0u; k < effectPage.elementCount; k += 1u) {
-    let element = effectElements[k];
-    let reach = dustElements[k].reach;
-    if ((element.roles & EFFECT_ROLE_EXTRACTOR_FAN) != 0u && element.id != emitter && reach > 0.0) {
-      gap = min(gap, max(effectElementDistance(element, page), 0.0) / reach);
+  for (var group = 0u; group < 2u; group += 1u) {
+    let span = effectScopes[scope].ranges[group];
+    for (var k = span.x; k < span.x + span.y; k += 1u) {
+      let element = effectElements[k];
+      let reach = dustElements[k].reach;
+      if ((element.roles & EFFECT_ROLE_EXTRACTOR_FAN) != 0u && element.id != emitter && reach > 0.0) {
+        gap = min(gap, max(effectElementDistance(element, page), 0.0) / reach);
+      }
     }
   }
   return gap;
 }
 
+// The index in effectScopes of the scope with this id, or NO_SCOPE.
+fn scopeIndexOf(id: u32) -> u32 {
+  for (var index = 0u; index < effectPage.scopeCount; index += 1u) {
+    if (effectScopes[index].id == id) {
+      return index;
+    }
+  }
+  return NO_SCOPE;
+}
+
 fn spawn(elementIndex: u32, particleIndex: u32) -> DustParticle {
   var state = pcg(particleIndex ^ pcg(simulation.frame));
   let element = effectElements[elementIndex];
+  let scope = element.scope;
   // Of two points on the edge, shed from the one a fan pulls harder, so the
   // side that faces a fan sheds the most.
   var edge = randomEdgePoint(element, &state);
   let other = randomEdgePoint(element, &state);
-  if (fanGap(other.position, element.id) < fanGap(edge.position, element.id)) {
+  if (fanGap(other.position, element.id, scope) < fanGap(edge.position, element.id, scope)) {
     edge = other;
   }
   let tangent = vec2f(-edge.normal.y, edge.normal.x);
@@ -148,6 +168,9 @@ fn spawn(elementIndex: u32, particleIndex: u32) -> DustParticle {
     element.id,
     mix(DRIFT_MIN, DRIFT_MAX, random(&state)),
     1.0,
+    effectScopes[scope].id,
+    scope,
+    dustElements[elementIndex].dark,
   );
 }
 
@@ -177,33 +200,45 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
   var contactCenter = vec2f(0.0);
   var contactPush = 0.0;
   var contactDistance = OBSTACLE_RANGE;
-  for (var k = 0u; k < effectPage.elementCount; k += 1u) {
-    let element = effectElements[k];
-    let isFan = (element.roles & EFFECT_ROLE_EXTRACTOR_FAN) != 0u && element.id != particle.emitter;
-    let reach = dustElements[k].reach;
-    let range = select(OBSTACLE_RANGE, max(reach, OBSTACLE_RANGE), isFan);
-    let outside = max(abs(position - element.rect.xy - element.rect.zw * 0.5) - element.rect.zw * 0.5, vec2f(0.0));
-    if (dot(outside, outside) > range * range) {
-      continue;
-    }
-    let distance = effectElementDistance(element, position);
-    if (distance > range) {
-      continue;
-    }
-    let normal = elementNormal(element, position);
-    if (isFan) {
-      let falloff = 1.0 - smoothstep(reach * 0.55, reach, distance);
-      let radius = reach * INTAKE_RADIUS;
-      let speed = falloff * INTAKE_SPEED * radius / (max(distance, 0.0) + radius);
-      pull -= (normal + vec2f(-normal.y, normal.x) * SWIRL) * speed;
-      intake = min(intake, smoothstep(ABSORB_DISTANCE, INTAKE_FADE, distance));
-    } else if (distance < contactDistance) {
-      contactDistance = distance;
-      contactNormal = normal;
-      contactCenter = element.rect.xy + element.rect.zw * 0.5;
-      // The element that shed a particle does not push it away, or its dust
-      // would gather in a ring where the push ends.
-      contactPush = select(OBSTACLE_PUSH, 0.0, element.id == particle.emitter);
+  let scope = scopeIndexOf(particle.scope);
+  if (scope == NO_SCOPE) {
+    particle.life = particle.age;
+    particles[index] = particle;
+    return;
+  }
+  let container = effectScopes[scope].container;
+  let inScope = container == EFFECT_NO_CONTAINER
+    || effectElementDistance(effectElements[container], position) < 0.0;
+  for (var group = 0u; group < 2u; group += 1u) {
+    let span = effectScopes[scope].ranges[group];
+    for (var k = span.x; k < span.x + span.y; k += 1u) {
+      let element = effectElements[k];
+      let isFan = (element.roles & EFFECT_ROLE_EXTRACTOR_FAN) != 0u && element.id != particle.emitter;
+      let reach = dustElements[k].reach;
+      let range = select(OBSTACLE_RANGE, max(reach, OBSTACLE_RANGE), isFan);
+      let outside = max(abs(position - element.rect.xy - element.rect.zw * 0.5) - element.rect.zw * 0.5, vec2f(0.0));
+      if (dot(outside, outside) > range * range) {
+        continue;
+      }
+      let distance = effectElementDistance(element, position);
+      if (distance > range) {
+        continue;
+      }
+      let normal = elementNormal(element, position);
+      if (isFan) {
+        let falloff = 1.0 - smoothstep(reach * 0.55, reach, distance);
+        let radius = reach * INTAKE_RADIUS;
+        let speed = falloff * INTAKE_SPEED * radius / (max(distance, 0.0) + radius);
+        pull -= (normal + vec2f(-normal.y, normal.x) * SWIRL) * speed;
+        intake = min(intake, smoothstep(ABSORB_DISTANCE, INTAKE_FADE, distance));
+      } else if (distance < contactDistance) {
+        contactDistance = distance;
+        contactNormal = normal;
+        contactCenter = element.rect.xy + element.rect.zw * 0.5;
+        // The element that shed a particle does not push it away, or its dust
+        // would gather in a ring where the push ends.
+        contactPush = select(OBSTACLE_PUSH, 0.0, element.id == particle.emitter);
+      }
     }
   }
 
@@ -238,10 +273,11 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
   particle.position = position + velocity * dt;
   particle.age += dt;
   particle.intake = intake;
+  particle.scopeIndex = scope;
   let documentSize = effectPage.documentSize;
   let inDocument = all(particle.position > vec2f(-DOCUMENT_MARGIN))
     && all(particle.position < documentSize + DOCUMENT_MARGIN);
-  if (intake <= 0.0 || !inDocument) {
+  if (intake <= 0.0 || !inDocument || !inScope) {
     particle.life = particle.age;
   }
   particles[index] = particle;

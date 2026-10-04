@@ -1,4 +1,4 @@
-import { beamColor, isDarkBackdrop } from "./beam-color.ts";
+import { beamColor } from "./beam-color.ts";
 import { beamMeetsRect, distanceToEdge, type Beam } from "./beam-meets-rect.ts";
 import { BLACK_HOLE_WGSL, SCENE_LAYOUT } from "./black-hole-wgsl.ts";
 import {
@@ -14,13 +14,13 @@ import {
 import {
   aimBehindLenses,
   largestBendIn,
-  lensFromBox,
   nearestLens,
   sourceBehind,
   type Lens,
   type PageRect,
 } from "./lens-from-box.ts";
-import { parseCssColor } from "./parse-css-color.ts";
+import { lensesOfScope, type ShaderLens } from "./lenses-of-scope.ts";
+import { indicesIn } from "./plan-scopes.ts";
 import { cssAngleToRadians, stepAim, type Aim } from "./step-aim.ts";
 import type {
   Effect,
@@ -30,19 +30,14 @@ import type {
   EffectTarget,
 } from "./types.ts";
 
-const BLACK_HOLE = roleBits(["blackHole"]);
+const CANVASES: readonly EffectCanvas[] = ["scroll", "fixed"];
+
 const LIGHT_BEAM = roleBits(["lightBeam"]);
 
 /** How far a beam reaches, as a multiple of the viewport's diagonal. */
 const REACH_SCALE = 1.1;
 /** Inside its element and this far out, the pointer does not turn a beam. */
 const AIM_DEAD_ZONE = 8;
-
-/** A lens with the index of its element in `effectElements`. */
-interface ShaderLens {
-  readonly lens: Lens;
-  readonly element: number;
-}
 
 /** A beam with the index of its element in `effectElements`. */
 interface ShaderBeam {
@@ -68,8 +63,10 @@ function drawnRect(target: EffectTarget): PageRect {
  * fill colour over the page, from the edge of its element, and each Black
  * hole bends the light that passes behind it. A beam turns towards the
  * pointer on a spring and comes back to rest pointing at the nearest Black
- * hole. A beam draws on the `<canvas>` element of its own element: a fixed
- * Light beam on the fixed one.
+ * hole. A beam draws on the `<canvas>` element of its own element, the fixed
+ * one for a fixed Light beam, and only inside its Effect container. Only the
+ * Black holes of a beam's scope bend it, so each scope on each `<canvas>`
+ * element draws a scene of its own.
  * It draws only on the targets its light can reach, and asks for frames only
  * while a beam turns. Under reduced motion a beam turns only while the
  * pointer is pressed, and with no spring.
@@ -77,7 +74,7 @@ function drawnRect(target: EffectTarget): PageRect {
  * @internal
  */
 export const blackHoleEffect: Effect = {
-  async setup({ device, format, pageLayout, targetLayout, requestFrame }) {
+  async setup({ device, format, pageLayout, targetLayout }) {
     const sceneLayout = device.createBindGroupLayout({
       entries: [
         {
@@ -117,21 +114,22 @@ export const blackHoleEffect: Effect = {
         words: new Uint32Array(data),
       };
     }
-    // One scene per kind of target, each with the beams that draw there.
-    const scenes = { scroll: createScene(), fixed: createScene() };
+    type Scene = ReturnType<typeof createScene>;
+    // One scene for each scope with Light beams on each kind of target, by
+    // the scope's id and the kind of target.
+    const scenes = new Map<string, Scene>();
+    function sceneFor(key: string) {
+      let scene = scenes.get(key);
+      if (scene === undefined) {
+        scene = createScene();
+        scenes.set(key, scene);
+      }
+      return scene;
+    }
 
     let aims = new Map<number, Aim>();
-    const drawn = new Set<EffectTarget>();
-
-    // The layer measures no change when the theme changes, so draw a frame
-    // for it.
-    const themeObserver = new MutationObserver(requestFrame);
-    themeObserver.observe(document.documentElement, {
-      attributeFilter: ["class", "style"],
-    });
-    const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    darkQuery.addEventListener("change", requestFrame);
-    const rootStyle = getComputedStyle(document.documentElement);
+    /** The scenes each target draws this frame. */
+    const drawn = new Map<EffectTarget, Scene[]>();
 
     function aimBeam(
       record: EffectElementRecord,
@@ -181,14 +179,16 @@ export const blackHoleEffect: Effect = {
     }
 
     function writeScene(
-      scene: ReturnType<typeof createScene>,
+      scene: Scene,
       lenses: readonly ShaderLens[],
       beams: readonly ShaderBeam[],
       dark: boolean,
+      scopeIndex: number,
     ) {
       scene.words[0] = lenses.length;
       scene.words[1] = beams.length;
       scene.floats[2] = dark ? 1 : 0;
+      scene.words[3] = scopeIndex;
       for (const [index, { lens, element }] of lenses.entries()) {
         const at = SCENE_LAYOUT.lensOffset + index * SCENE_LAYOUT.lensFloats;
         scene.floats.set(
@@ -228,106 +228,107 @@ export const blackHoleEffect: Effect = {
       followsPointer: true,
       update(_encoder, frame) {
         drawn.clear();
-        const shaderLenses: ShaderLens[] = [];
-        for (const [element, record] of frame.elements.entries()) {
-          if ((record.roles & BLACK_HOLE) !== 0) {
-            const mass = finiteOr(
-              record.settings.blackHole?.mass,
-              EFFECT_SETTING_DEFAULTS.blackHole.mass,
-            );
-            shaderLenses.push({ lens: lensFromBox(record, mass), element });
-          }
-        }
-        shaderLenses.sort(
-          (first, second) =>
-            largestBendIn(second.lens, frame.viewport) -
-            largestBendIn(first.lens, frame.viewport),
-        );
-        shaderLenses.length = Math.min(
-          shaderLenses.length,
-          SCENE_LAYOUT.maxLenses,
-        );
-        const lenses = shaderLenses.map(({ lens }) => lens);
-
-        const dark = isDarkBackdrop(
-          parseCssColor(rootStyle.backgroundColor),
-          darkQuery.matches,
-        );
         const reach =
           Math.hypot(frame.viewport.width, frame.viewport.height) * REACH_SCALE;
-        const beams: Record<EffectCanvas, ShaderBeam[]> = {
-          scroll: [],
-          fixed: [],
-        };
         const nextAims = new Map<number, Aim>();
+        const kept = new Set<string>();
         let turning = false;
-        for (const [element, record] of frame.elements.entries()) {
-          if ((record.roles & LIGHT_BEAM) === 0) {
-            continue;
-          }
-          const { x, y, angle, settled } = aimBeam(
-            record,
-            lenses,
-            frame,
-            nextAims,
+        for (const [scopeIndex, scope] of frame.scopes.entries()) {
+          const shaderLenses = lensesOfScope(
+            frame.elements,
+            scope,
+            frame.viewport,
           );
-          turning ||= !settled;
-          beams[record.fixed ? "fixed" : "scroll"].push({
-            beam: {
-              x,
-              y,
-              angle,
-              start: distanceToEdge(record.width / 2, record.height / 2, angle),
-              reach,
-              color: beamColor(record.fill, dark),
-            },
-            element,
-          });
-        }
-        aims = nextAims;
-
-        for (const canvas of ["scroll", "fixed"] as const) {
-          const shown = new Set<ShaderBeam>();
-          for (const target of frame.targets) {
-            if (target.canvas !== canvas) {
+          const lenses = shaderLenses.map(({ lens }) => lens);
+          for (const canvas of CANVASES) {
+            const beams: ShaderBeam[] = [];
+            for (const element of indicesIn(scope[canvas])) {
+              const record = frame.elements[element];
+              if ((record.roles & LIGHT_BEAM) === 0) {
+                continue;
+              }
+              const { x, y, angle, settled } = aimBeam(
+                record,
+                lenses,
+                frame,
+                nextAims,
+              );
+              turning ||= !settled;
+              beams.push({
+                beam: {
+                  x,
+                  y,
+                  angle,
+                  start: distanceToEdge(
+                    record.width / 2,
+                    record.height / 2,
+                    angle,
+                  ),
+                  reach,
+                  color: beamColor(record.fill, scope.dark),
+                },
+                element,
+              });
+            }
+            if (beams.length === 0) {
               continue;
             }
-            const rect = drawnRect(target);
-            const bend = lenses.reduce(
-              (sum, lens) => sum + largestBendIn(lens, rect),
-              0,
-            );
-            for (const shaderBeam of beams[canvas]) {
-              if (beamMeetsRect(shaderBeam.beam, rect, bend)) {
-                drawn.add(target);
+            const key = `${canvas} ${String(scope.id)}`;
+            kept.add(key);
+            const shown = new Set<ShaderBeam>();
+            for (const target of frame.targets) {
+              if (target.canvas !== canvas) {
+                continue;
+              }
+              const rect = drawnRect(target);
+              const bend = lenses.reduce(
+                (sum, lens) => sum + largestBendIn(lens, rect),
+                0,
+              );
+              const meeting = beams.filter(({ beam }) =>
+                beamMeetsRect(beam, rect, bend),
+              );
+              if (meeting.length === 0) {
+                continue;
+              }
+              const scene = sceneFor(key);
+              drawn.set(target, [...(drawn.get(target) ?? []), scene]);
+              for (const shaderBeam of meeting) {
                 shown.add(shaderBeam);
               }
             }
+            if (shown.size > 0) {
+              writeScene(
+                sceneFor(key),
+                shaderLenses,
+                [...shown].slice(0, SCENE_LAYOUT.maxBeams),
+                scope.dark,
+                scopeIndex,
+              );
+            }
           }
-          if (shown.size > 0) {
-            writeScene(
-              scenes[canvas],
-              shaderLenses,
-              [...shown].slice(0, SCENE_LAYOUT.maxBeams),
-              dark,
-            );
+        }
+        aims = nextAims;
+        for (const [key, scene] of scenes) {
+          if (!kept.has(key)) {
+            scene.buffer.destroy();
+            scenes.delete(key);
           }
         }
         return turning && drawn.size > 0;
       },
       draw(pass, target) {
-        if (!drawn.has(target)) {
-          return;
+        for (const scene of drawn.get(target) ?? []) {
+          pass.setPipeline(pipeline);
+          pass.setBindGroup(2, scene.bindGroup);
+          pass.draw(3);
         }
-        pass.setPipeline(pipeline);
-        pass.setBindGroup(2, scenes[target.canvas].bindGroup);
-        pass.draw(3);
       },
       destroy() {
-        themeObserver.disconnect();
-        darkQuery.removeEventListener("change", requestFrame);
-        scenes.scroll.buffer.destroy();
-        scenes.fixed.buffer.destroy();
+        for (const scene of scenes.values()) {
+          scene.buffer.destroy();
+        }
+        scenes.clear();
       },
     };
   },

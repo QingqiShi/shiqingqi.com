@@ -1,4 +1,9 @@
-import type { EffectElementRecord } from "./types.ts";
+import { indicesIn, peersOf } from "./plan-scopes.ts";
+import type {
+  EffectElementRecord,
+  EffectScope,
+  ElementRange,
+} from "./types.ts";
 
 /**
  * The pulses one element draws at once; a new pulse ends the oldest.
@@ -123,6 +128,9 @@ interface Box {
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
+
+const isIn = ({ firstElement, elementCount }: ElementRange, index: number) =>
+  index >= firstElement && index < firstElement + elementCount;
 
 /**
  * How far an element's rings travel, in CSS px: further from a larger
@@ -259,25 +267,26 @@ export function hoverStrength(pointerSpeed: number) {
 
 /**
  * The elements that the rings of `records[index]` fade out against, nearest
- * first: those on the same `<canvas>` element that a ring can get to. A box
- * that touches or overlaps the element, such as a container around it or a
- * child inside it, is not one.
+ * first: those of `peers`, its scope on its `<canvas>` element, that a ring
+ * can get to. A box that touches or overlaps the element, such as a
+ * container around it or a child inside it, is not one.
  *
  * @internal
  */
 export function findNeighbours(
   records: readonly EffectElementRecord[],
+  peers: ElementRange,
   index: number,
   reach: number,
 ) {
   const self = records[index];
   const limit = reach + ABSORB_DISTANCE;
   const near: { index: number; gap: number }[] = [];
-  for (const [other, record] of records.entries()) {
-    if (other === index || record.fixed !== self.fixed) {
+  for (const other of indicesIn(peers)) {
+    if (other === index) {
       continue;
     }
-    const gap = boxGap(self, record);
+    const gap = boxGap(self, records[other]);
     if (gap > 0 && gap < limit) {
       near.push({ index: other, gap });
     }
@@ -301,6 +310,27 @@ export function isInView(box: Box, reach: number, viewport: Box) {
 }
 
 /**
+ * The range of `instances` whose elements are in a target's range of
+ * `EffectFrame.elements`, as `[first, count]`.
+ *
+ * @internal
+ */
+export function instanceRange(
+  instances: readonly RippleInstance[],
+  firstElement: number,
+  elementCount: number,
+): readonly [number, number] {
+  const indexFrom = (element: number) => {
+    const index = instances.findIndex(
+      ({ elementIndex }) => elementIndex >= element,
+    );
+    return index === -1 ? instances.length : index;
+  };
+  const first = indexFrom(firstElement);
+  return [first, indexFrom(firstElement + elementCount) - first];
+}
+
+/**
  * The input of one step of the ripples.
  *
  * @internal
@@ -309,6 +339,7 @@ export interface RippleStepInput {
   /** Seconds on the effect layer's clock. */
   readonly time: number;
   readonly elements: readonly EffectElementRecord[];
+  readonly scopes: readonly EffectScope[];
   /** The role bit of an element that ripples. */
   readonly rippleBit: number;
   /** The role bit of a rippling element that also pulses on its own. */
@@ -330,10 +361,11 @@ export interface RippleStepInput {
  * @internal
  */
 export interface RippleStep {
-  /** In the order of `EffectFrame.elements`: the ones in the document first. */
+  /**
+   * In the order of `EffectFrame.elements`, so the instances of each target
+   * are one range.
+   */
   readonly instances: readonly RippleInstance[];
-  /** How many instances, at the start, are in the document rather than fixed. */
-  readonly documentInstances: number;
   /** Whether a ring still travels, so the next frame must draw. */
   readonly animating: boolean;
   /**
@@ -430,8 +462,10 @@ export function createRipples() {
   }
 
   /** Sets off each rippling neighbour once, as a strong ring reaches it. */
-  function echo(rippling: readonly Rippling[], time: number) {
+  function echo(rippling: readonly Rippling[], input: RippleStepInput) {
+    const { time } = input;
     for (const { record, reach } of rippling) {
+      const peers = peersOf(input.scopes, record);
       for (const pulse of pulsesById.get(record.id) ?? []) {
         const ring =
           pulse.strength < ECHO_THRESHOLD
@@ -440,10 +474,10 @@ export function createRipples() {
         if (ring === null) {
           continue;
         }
-        for (const { record: neighbour } of rippling) {
+        for (const { index, record: neighbour } of rippling) {
           if (
             neighbour === record ||
-            neighbour.fixed !== record.fixed ||
+            !isIn(peers, index) ||
             pulse.answered.has(neighbour.id)
           ) {
             continue;
@@ -500,11 +534,10 @@ export function createRipples() {
         }
       }
       const nextBeat = reducedMotion ? null : beat(rippling, input);
-      echo(rippling, time);
+      echo(rippling, input);
 
       const live = new Map<number, RipplePulse[]>();
       const instances: RippleInstance[] = [];
-      let documentInstances = 0;
       for (const { index, record, reach } of rippling) {
         const pulses = (pulsesById.get(record.id) ?? []).filter(
           (pulse) => time - pulse.start < pulseDuration(reach),
@@ -519,16 +552,18 @@ export function createRipples() {
         if (pulses.length === 0 && held <= 0) {
           continue;
         }
-        if (!record.fixed) {
-          documentInstances += 1;
-        }
         instances.push({
           elementIndex: index,
           rings:
             held > 0
               ? [heldRing(held, reach)]
               : pulses.flatMap((pulse) => pulseRing(pulse, time, reach) ?? []),
-          neighbours: findNeighbours(elements, index, reach),
+          neighbours: findNeighbours(
+            elements,
+            peersOf(input.scopes, record),
+            index,
+            reach,
+          ),
         });
       }
       pulsesById.clear();
@@ -542,7 +577,6 @@ export function createRipples() {
       }
       return {
         instances,
-        documentInstances,
         animating: live.size > 0,
         nextBeat,
       };

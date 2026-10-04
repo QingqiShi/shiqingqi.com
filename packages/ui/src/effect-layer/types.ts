@@ -1,4 +1,5 @@
 import type { Band } from "./compute-bands.ts";
+import type { EffectColor } from "./parse-css-color.ts";
 import type { ElementBox } from "./read-element-box.ts";
 
 /**
@@ -27,12 +28,12 @@ export interface EffectSettings {
 }
 
 /**
- * One registered element as it was last measured. Its
- * index in `EffectFrame.elements` is its index in WGSL's `effectElements`.
+ * One registered element as it was last measured, before the frame places
+ * it in `EffectFrame.elements`.
  *
  * @internal
  */
-export interface EffectElementRecord extends ElementBox {
+export interface MeasuredElement extends ElementBox {
   /** Stays the same while the element stays registered. */
   readonly id: number;
   readonly element: Element;
@@ -40,6 +41,63 @@ export interface EffectElementRecord extends ElementBox {
   readonly roles: number;
   /** The settings its effect hooks gave it. */
   readonly settings: EffectSettings;
+  /**
+   * The scope it is in: the scope of the nearest `EffectContainer` above its
+   * effect hooks in the React tree, or `PAGE_SCOPE`. Effects act only between
+   * elements of one scope.
+   */
+  readonly scope: number;
+  /** The scope it holds as an Effect container, or `null`. */
+  readonly holds: number | null;
+}
+
+/**
+ * One registered element as it was last measured. Its
+ * index in `EffectFrame.elements` is its index in WGSL's `effectElements`.
+ *
+ * @internal
+ */
+export interface EffectElementRecord extends MeasuredElement {
+  /** The index in `EffectFrame.scopes` of its scope. */
+  readonly scopeIndex: number;
+}
+
+/**
+ * A range of `EffectFrame.elements`.
+ *
+ * @internal
+ */
+export interface ElementRange {
+  readonly firstElement: number;
+  readonly elementCount: number;
+}
+
+/**
+ * The elements that effects let act on each other: the page, or the
+ * elements inside one `EffectContainer`.
+ *
+ * @internal
+ */
+export interface EffectScope {
+  /** `PAGE_SCOPE` for the page, or the scope the Effect container holds. */
+  readonly id: number;
+  /**
+   * The index in `EffectFrame.elements` of the Effect container, or -1 for
+   * the page. Its effects draw only inside that container's border box.
+   */
+  readonly container: number;
+  /**
+   * What the scope's effects draw over: the fill of the nearest container,
+   * from this one out, whose fill is at least half opaque, or else the
+   * page's backdrop.
+   */
+  readonly backdrop: EffectColor;
+  /** Whether the backdrop is dark, so light effects add to it. */
+  readonly dark: boolean;
+  /** Its elements in the document, which draw on the bands. */
+  readonly scroll: ElementRange;
+  /** Its fixed elements, which draw on the fixed `<canvas>` element. */
+  readonly fixed: ElementRange;
 }
 
 /**
@@ -108,7 +166,8 @@ export interface EffectTarget {
   /**
    * The elements that draw on this `<canvas>` element, as a range of
    * `EffectFrame.elements`: the ones in the document on a band, the fixed
-   * ones on the fixed `<canvas>` element. Pass it to an instanced draw as
+   * ones on the fixed `<canvas>` element, of every scope. Pass it to an
+   * instanced draw as
    * `pass.draw(vertices, elementCount, 0, firstElement)`.
    */
   readonly firstElement: number;
@@ -139,10 +198,17 @@ export interface EffectFrame {
   readonly documentHeight: number;
   /**
    * Every registered element with a box, as it is at the start of this
-   * frame: the ones in the document first, then the fixed ones. An element
-   * is measured again only after it can have changed.
+   * frame: the ones in the document first, then the fixed ones, each group
+   * by scope in the order of `scopes`, so each scope is one range of each
+   * group. An element whose Effect container has no box is not here. An
+   * element is measured again only after it can have changed.
    */
   readonly elements: readonly EffectElementRecord[];
+  /**
+   * The page first, at `PAGE_SCOPE`, then the scope of each Effect container
+   * with a box. In WGSL, `effectScopes` has them in the same order.
+   */
+  readonly scopes: readonly EffectScope[];
   readonly pointer: EffectPointer;
   /**
    * Group 0, laid out as `pageLayout`. Each render pass has it set already; a

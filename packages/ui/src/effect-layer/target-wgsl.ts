@@ -3,8 +3,9 @@ import { PAGE_WGSL } from "./page-wgsl.ts";
 /**
  * The WGSL side of a render pipeline's bind groups: `PAGE_WGSL` in group 0,
  * and in group 1 the target being drawn, with helpers that map page
- * coordinates (CSS px from the top-left corner of the document) to it. Put it
- * at the start of an effect's render shader.
+ * coordinates (CSS px from the top-left corner of the document) to it, and
+ * `effectClip`, which clips an effect to the Effect container of its scope. Put
+ * it at the start of an effect's render shader.
  *
  * @internal
  */
@@ -26,6 +27,20 @@ fn pageToClip(page: vec2f) -> vec4f {
 
 fn fragmentToPage(fragment: vec2f) -> vec2f {
   return effectTarget.pageOffset + fragment / effectTarget.pixelScale;
+}
+
+// How much of a page point shows for an effect in the scope at this index
+// of effectScopes: 1 inside its Effect container and each one around it, 0
+// outside, with an anti-aliased edge one pixel wide. 1 on the page.
+fn effectClip(scope: u32, page: vec2f) -> f32 {
+  var coverage = 1.0;
+  var index = scope;
+  for (var depth = 0u; index != EFFECT_PAGE_SCOPE && depth < effectPage.scopeCount; depth += 1u) {
+    let container = effectElements[effectScopes[index].container];
+    coverage *= saturate(0.5 - effectElementDistance(container, page) * effectTarget.pixelScale.x);
+    index = container.scope;
+  }
+  return coverage;
 }
 `;
 

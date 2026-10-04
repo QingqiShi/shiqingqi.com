@@ -364,6 +364,7 @@ as the system gains components.
 | `@tuja/ui/hooks/use-disclosure`               | Headless expand/collapse state with the `aria-expanded` / `aria-controls` wiring.                                                                                      |
 | `@tuja/ui/hooks/use-dust`                     | Ref that sheds dust in its element's fill colour, which floats off, then speeds into any Extractor fan in reach.                                                       |
 | `@tuja/ui/hooks/use-effect-boundary`          | Ref that registers its element on the effect layer with no effect, so effects see it; the layer measures its box, corners and fill whenever they can change.           |
+| `@tuja/ui/hooks/use-effect-container`         | Ref that makes its element an Effect container; pass the same ref to `EffectContainer`. Effects inside act only on each other and draw only inside it.                 |
 | `@tuja/ui/hooks/use-extractor-fan`            | Ref that makes its element an Extractor fan, which pulls in the dust of `useDust` elements in reach.                                                                   |
 | `@tuja/ui/hooks/use-is-hydrated`              | `false` for the server render and the hydration pass, `true` from the first client render after — lets a component defer client-only rendering until then.             |
 | `@tuja/ui/hooks/use-light-beam`               | Ref that makes its element a Light beam on the effect layer: a ray of light in its fill colour, aimed by the pointer.                                                  |
@@ -409,6 +410,7 @@ as the system gains components.
 | `@tuja/ui/components/code-run.stylex`         | Per-token-kind colour for a code run, shared by every code surface.                                                                                                    |
 | `@tuja/ui/components/disclosure`              | Expand/collapse section with a header trigger and a revealed panel.                                                                                                    |
 | `@tuja/ui/components/divider`                 | Horizontal/vertical divider.                                                                                                                                           |
+| `@tuja/ui/components/effect-container`        | Puts the effect hooks inside it in the scope of the Effect container from `useEffectContainer`.                                                                        |
 | `@tuja/ui/components/effect-layer-provider`   | Draws effects with WebGPU on inert `<canvas>` elements over the content; mounts nothing until an element registers with an effect.                                     |
 | `@tuja/ui/components/field-shared.stylex`     | Shared form-control chrome (label, description, control box, error text).                                                                                              |
 | `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                                              |

@@ -3,14 +3,14 @@
  *
  * @internal
  */
-export const DUST_PARTICLE_BYTES = 48;
+export const DUST_PARTICLE_BYTES = 56;
 
 /**
  * The byte size of one `DustElement`.
  *
  * @internal
  */
-export const DUST_ELEMENT_BYTES = 8;
+export const DUST_ELEMENT_BYTES = 12;
 
 /**
  * What the dust simulation and its drawing share: a particle, the values the
@@ -35,6 +35,12 @@ struct DustParticle {
   drift: f32,
   // 1 far from an extractor fan, falling to 0 at its edge.
   intake: f32,
+  // The id of the scope of the element that shed it.
+  scope: u32,
+  // The index of that scope in effectScopes this frame.
+  scopeIndex: u32,
+  // 1 when it draws over a dark backdrop, fixed at birth like its colour.
+  dark: u32,
 }
 
 // One per entry of effectElements, at the same index.
@@ -43,6 +49,8 @@ struct DustElement {
   color: u32,
   // How far from its edge an extractor fan pulls, in CSS px.
   reach: f32,
+  // 1 when what its scope draws over is dark.
+  dark: u32,
 }
 
 fn pcg(value: u32) -> u32 {
@@ -72,12 +80,12 @@ struct EdgePoint {
   normal: vec2f,
 }
 
-// A random point on an element's edge, each length of edge as likely as
-// any other, and the edge's outward normal there.
-fn randomEdgePoint(element: EffectElement, state: ptr<function, u32>) -> EdgePoint {
+// The point "portion" of the way round an element's edge, clockwise
+// from the top-left corner, and the edge's outward normal there.
+fn edgePoint(element: EffectElement, portion: f32) -> EdgePoint {
   let size = element.rect.zw;
   let perimeter = 2.0 * (size.x + size.y);
-  let along = random(state) * perimeter;
+  let along = portion * perimeter;
   var offset: vec2f;
   if (along < size.x) {
     offset = vec2f(along, 0.0);
@@ -91,5 +99,11 @@ fn randomEdgePoint(element: EffectElement, state: ptr<function, u32>) -> EdgePoi
   let corner = element.rect.xy + offset;
   let normal = elementNormal(element, corner);
   return EdgePoint(corner - normal * effectElementDistance(element, corner), normal);
+}
+
+// A random point on an element's edge, each length of edge as likely as
+// any other, and the edge's outward normal there.
+fn randomEdgePoint(element: EffectElement, state: ptr<function, u32>) -> EdgePoint {
+  return edgePoint(element, random(state));
 }
 `;

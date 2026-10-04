@@ -46,3 +46,11 @@ _Avoid_: playground, sandbox, workbench, studio, 游乐场, 沙盒
 **Specimen**:
 A real instance of a component, placed to illustrate it rather than to be used. In an overview tile it is `inert` and out of the tab order; inside a showcase section it may be fully operable.
 _Avoid_: preview, demo — except where a mock labels _itself_ for the visitor ("Demo menu", "Demo toggle"); those strings stay.
+
+**Effect boundary**:
+An element registered on the effect layer with no effect of its own, through `useEffectBoundary`, so that the effects of its scope see it and flow around it. An Effect container is an Effect boundary to the scope around it. ZH: 效果边界.
+_Avoid_: obstacle (in copy), container (for this sense)
+
+**Effect container**:
+An element, made one with `useEffectContainer`, that holds a scope of effects apart from the page: each effect hook belongs to the nearest `EffectContainer` above it in the React tree, or else to the page, and effects act only between elements of one scope. Its effects draw on the effect layer, clipped to its border box. ZH: 效果容器.
+_Avoid_: effect boundary (that is an obstacle), effect scope, sandbox, 效果作用域

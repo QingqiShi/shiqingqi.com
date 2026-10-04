@@ -34,7 +34,8 @@ const float = (value: number) => value.toFixed(4);
 
 /**
  * Draws each Light beam as the page would see it behind every Black hole,
- * from the edge of its element and never inside it.
+ * from the edge of its element and never inside it, and only inside its
+ * Effect container.
  * Each pixel finds where its light comes from, `sourceOf` in
  * `lens-from-box.ts`, and lights it from the beams there: a thin core, a
  * soft edge that widens as the beam travels, and dust that the beam lights
@@ -77,7 +78,8 @@ struct Scene {
   lensCount: u32,
   beamCount: u32,
   dark: f32,
-  padding: f32,
+  // The index in effectScopes of the scope of every beam and lens.
+  scope: u32,
   lenses: array<Lens, MAX_LENSES>,
   beams: array<Beam, MAX_BEAMS>,
 }
@@ -172,6 +174,10 @@ fn beamNear(beam: Beam, page: vec2f, bend: f32) -> bool {
 @fragment
 fn fragmentMain(@builtin(position) position: vec4f) -> @location(0) vec4f {
   let page = fragmentToPage(position.xy);
+  let clip = effectClip(scene.scope, page);
+  if (clip <= 0.0) {
+    return vec4f(0.0);
+  }
   // A mass bends light by at most its mass over its distance.
   var bend = 0.0;
   for (var index = 0u; index < scene.lensCount; index += 1u) {
@@ -223,6 +229,7 @@ fn fragmentMain(@builtin(position) position: vec4f) -> @location(0) vec4f {
     light += mix(beam.color, vec3f(1.0), hot) * intensity;
     alpha += intensity;
   }
+  alpha *= clip;
   if (alpha <= 0.0) {
     return vec4f(0.0);
   }

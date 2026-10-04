@@ -3,14 +3,19 @@ import { useMemo, useState, type ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import { mergeRefs } from "../merge-refs.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
+import { EffectContainer } from "./effect-container.tsx";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { roleBits } from "./effect-roles.ts";
+import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { useBlackHole } from "./use-black-hole.ts";
 import { useDust } from "./use-dust.ts";
 import { useEffectBoundary } from "./use-effect-boundary.ts";
+import { useEffectContainer } from "./use-effect-container.ts";
 import { useExtractorFan } from "./use-extractor-fan.ts";
 import { useLightBeam } from "./use-light-beam.ts";
 import { useRipple } from "./use-ripple.ts";
+
+const ON_PAGE = { scope: PAGE_SCOPE, holds: null };
 
 function renderWithRegistry(children: ReactNode) {
   const registry = createEffectRegistry();
@@ -165,8 +170,120 @@ describe("effect hooks", () => {
       id,
       roles: roleBits(["blackHole", "ripple", "rippleAmbient"]),
       settings: { blackHole: { mass: 3 } },
+      scope: 0,
+      holds: null,
     });
     expect(notified).toBeGreaterThan(0);
+  });
+});
+
+describe("useEffectContainer", () => {
+  function Fan({ testId = "fan" }: { testId?: string }) {
+    const ref = useExtractorFan();
+    return <div ref={ref} data-testid={testId} />;
+  }
+
+  it("puts the effect hooks inside its EffectContainer in its scope, also when they register first", () => {
+    function Card() {
+      const container = useEffectContainer();
+      const dust = useDust();
+      const ref = useMemo(() => mergeRefs(container, dust), [container, dust]);
+      return (
+        <section ref={ref} data-testid="card">
+          <EffectContainer value={container}>
+            <Fan />
+          </EffectContainer>
+          <Fan testId="outside" />
+        </section>
+      );
+    }
+    const { registered, entry } = renderWithRegistry(<Card />);
+    expect(registered()).toEqual([
+      screen.getByTestId("fan"),
+      screen.getByTestId("outside"),
+      screen.getByTestId("card"),
+    ]);
+    const holds = entry("card")?.holds;
+    expect(holds).toBeGreaterThan(0);
+    expect(entry("card")).toMatchObject({
+      roles: roleBits(["dust"]),
+      scope: 0,
+    });
+    expect(entry("fan")).toMatchObject({ scope: holds, holds: null });
+    expect(entry("outside")).toMatchObject({ scope: 0 });
+  });
+
+  it("puts a container inside another in the outer one's scope", () => {
+    function Card({ children }: { children: ReactNode }) {
+      const container = useEffectContainer();
+      return (
+        <section ref={container} data-testid={children ? "outer" : "inner"}>
+          <EffectContainer value={container}>{children}</EffectContainer>
+        </section>
+      );
+    }
+    const { entry } = renderWithRegistry(
+      <Card>
+        <Card>{null}</Card>
+      </Card>,
+    );
+    expect(entry("inner")?.scope).toBe(entry("outer")?.holds);
+    expect(entry("inner")?.holds).not.toBe(entry("outer")?.holds);
+  });
+
+  it("moves an element to the scope of the new context value, and keeps its id", () => {
+    function Cards({ inSecond }: { inSecond: boolean }) {
+      const first = useEffectContainer();
+      const second = useEffectContainer();
+      return (
+        <>
+          <section ref={first} data-testid="first" />
+          <section ref={second} data-testid="second" />
+          <EffectContainer value={inSecond ? second : first}>
+            <Fan />
+          </EffectContainer>
+        </>
+      );
+    }
+    const { entry, rerender, registry } = renderWithRegistry(
+      <Cards inSecond={false} />,
+    );
+    const { id } = entry("fan") ?? { id: 0 };
+    expect(entry("fan")?.scope).toBe(entry("first")?.holds);
+
+    rerender(
+      <EffectLayerContext value={registry.register}>
+        <Cards inSecond />
+      </EffectLayerContext>,
+    );
+    expect(entry("fan")).toMatchObject({ id, scope: entry("second")?.holds });
+  });
+
+  it("leaves the scope with its registration", () => {
+    function Card({ open }: { open: boolean }) {
+      const container = useEffectContainer();
+      return (
+        <section ref={container} data-testid="card">
+          {open && (
+            <EffectContainer value={container}>
+              <Fan />
+            </EffectContainer>
+          )}
+        </section>
+      );
+    }
+    const { registered, rerender, registry, unmount } = renderWithRegistry(
+      <Card open />,
+    );
+    expect(registered()).toHaveLength(2);
+    rerender(
+      <EffectLayerContext value={registry.register}>
+        <Card open={false} />
+      </EffectLayerContext>,
+    );
+    expect(registered()).toEqual([screen.getByTestId("card")]);
+    unmount();
+    expect(registered()).toEqual([]);
   });
 });
 
@@ -178,13 +295,15 @@ describe("createEffectRegistry", () => {
     registry.subscribe(() => {
       notified += 1;
     });
-    const first = registry.register(element, 0b01, {});
-    const second = registry.register(element, 0b10, {});
+    const first = registry.register(element, 0b01, {}, ON_PAGE);
+    const second = registry.register(element, 0b10, {}, ON_PAGE);
     const { id } = registry.elements().get(element) ?? { id: 0 };
     expect(registry.elements().get(element)).toEqual({
       id,
       roles: 0b11,
       settings: {},
+      scope: 0,
+      holds: null,
     });
     expect(registry.getRoles()).toBe(0b11);
 
@@ -194,6 +313,8 @@ describe("createEffectRegistry", () => {
       id,
       roles: 0b10,
       settings: {},
+      scope: 0,
+      holds: null,
     });
     second.remove();
     expect(registry.elements().size).toBe(0);
@@ -204,9 +325,19 @@ describe("createEffectRegistry", () => {
   it("takes each effect's settings from the latest registration with them", () => {
     const registry = createEffectRegistry();
     const element = document.createElement("div");
-    const first = registry.register(element, 0, { blackHole: { mass: 1 } });
-    registry.register(element, 0, { dust: { density: 2 } });
-    const third = registry.register(element, 0, { blackHole: { mass: 3 } });
+    const first = registry.register(
+      element,
+      0,
+      { blackHole: { mass: 1 } },
+      ON_PAGE,
+    );
+    registry.register(element, 0, { dust: { density: 2 } }, ON_PAGE);
+    const third = registry.register(
+      element,
+      0,
+      { blackHole: { mass: 3 } },
+      ON_PAGE,
+    );
     expect(registry.elements().get(element)?.settings).toEqual({
       blackHole: { mass: 3 },
       dust: { density: 2 },
@@ -217,7 +348,7 @@ describe("createEffectRegistry", () => {
       blackHole: { mass: 1 },
       dust: { density: 2 },
     });
-    first.update(0, { blackHole: { mass: 4 } });
+    first.update(0, { blackHole: { mass: 4 } }, 0);
     expect(registry.elements().get(element)?.settings.blackHole).toEqual({
       mass: 4,
     });
@@ -226,23 +357,28 @@ describe("createEffectRegistry", () => {
   it("does not notify when settings change to equal values", () => {
     const registry = createEffectRegistry();
     const element = document.createElement("div");
-    const registration = registry.register(element, 0, {
-      blackHole: { mass: 1 },
-    });
+    const registration = registry.register(
+      element,
+      0,
+      {
+        blackHole: { mass: 1 },
+      },
+      ON_PAGE,
+    );
     let notified = 0;
     registry.subscribe(() => {
       notified += 1;
     });
-    registration.update(0, { blackHole: { mass: 1 } });
+    registration.update(0, { blackHole: { mass: 1 } }, 0);
     expect(notified).toBe(0);
-    registration.update(0, { blackHole: { mass: 2 } });
+    registration.update(0, { blackHole: { mass: 2 } }, 0);
     expect(notified).toBe(1);
   });
 
   it("forgets an element as soon as its last registration goes", () => {
     const registry = createEffectRegistry();
     const element = document.createElement("div");
-    const first = registry.register(element, 0, {});
+    const first = registry.register(element, 0, {}, ON_PAGE);
     const id = registry.elements().get(element)?.id;
     let notified = 0;
     registry.subscribe(() => {
@@ -250,7 +386,7 @@ describe("createEffectRegistry", () => {
     });
     first.remove();
     expect(registry.elements().size).toBe(0);
-    registry.register(element, 0, {});
+    registry.register(element, 0, {}, ON_PAGE);
     expect(registry.elements().get(element)?.id).not.toBe(id);
     expect(notified).toBe(2);
   });
