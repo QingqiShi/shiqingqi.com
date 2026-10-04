@@ -20,7 +20,7 @@ export interface RippleOptions {
 
 /**
  * Pulses an element's background colour out from its edge in rings that
- * slow down and fade as they spread, drawn on the effect layer behind the
+ * slow down and fade as they spread, drawn on the effect layer over the
  * page: attach the returned ref to the element. The pointer coming over the
  * element starts a pulse that leans towards it, a press starts a full one
  * that also sets off rippling neighbours, and keyboard focus starts an even

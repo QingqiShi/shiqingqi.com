@@ -93,17 +93,23 @@ function useEffectLayerDevice(wanted: boolean) {
 
 interface EffectLayerProviderProps {
   /**
-   * The page, rendered in front of the effect layer's `<canvas>` elements.
+   * The page, rendered under the effect layer's `<canvas>` elements.
    *
-   * @zh 页面内容，渲染在效果层的 `<canvas>` 元素之前。
+   * @zh 页面内容，渲染在效果层的 `<canvas>` 元素之下。
    */
   children: ReactNode;
 }
 
 /**
- * Draws effects with WebGPU on `<canvas>` elements behind all content, around
- * the elements that `useEffectBoundary` and the effect hooks register. It
- * mounts no `<canvas>`
+ * Draws effects with WebGPU on `<canvas>` elements over the page's content,
+ * around the elements that `useEffectBoundary` and the effect hooks register.
+ * The `<canvas>` elements sit on `layer.effect`, under the Blur plane, sticky
+ * chrome, the header and overlays, and they are inert: pointers, focus, hit
+ * tests and text selection go through to the content under them. Content on
+ * `layer.raised` or higher stays above every effect; content with no plane,
+ * or on `layer.content` or lower, is under them. Chrome must not be inside a
+ * stacking context that sits below `layer.effect`, or the effects draw over
+ * it. It mounts no `<canvas>`
  * element and requests no GPU device until an element registers with an
  * effect. Without WebGPU, under forced colours, with `?effects=off` or with
  * the `effect-layer` localStorage key set to `off`, it renders only its

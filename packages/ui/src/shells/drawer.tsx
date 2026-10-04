@@ -160,9 +160,10 @@ const styles = stylex.create({
       [breakpoints.md]: "auto",
     },
     // Mobile: the drawer is an overlay, so it takes that plane and covers the
-    // pill bar (`layer.header`). md+: the rail is page chrome that only has to
-    // clear scrolling content, which leaves an open overlay above it.
-    zIndex: { default: layer.overlay, [breakpoints.md]: layer.content },
+    // pill bar (`layer.header`). md+: the rail is sticky page chrome, so it
+    // takes the header plane over content and the effect layer, which leaves
+    // an open overlay above it.
+    zIndex: { default: layer.overlay, [breakpoints.md]: layer.header },
     // No padding: the nav spans the card's whole box, so the corners it
     // inherits line up with these. The chrome slots carry the block insets
     // the rail used to, and the scroller the inline ones.

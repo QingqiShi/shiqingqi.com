@@ -44,6 +44,12 @@ interface ShaderLens {
   readonly element: number;
 }
 
+/** A beam with the index of its element in `effectElements`. */
+interface ShaderBeam {
+  readonly beam: Beam;
+  readonly element: number;
+}
+
 /** The part of the page a target draws this frame. */
 function drawnRect(target: EffectTarget): PageRect {
   const { band } = target;
@@ -59,10 +65,11 @@ function drawnRect(target: EffectTarget): PageRect {
 
 /**
  * Black hole and Light beam: each Light beam casts a ray of light in its
- * fill colour, behind the page, and each Black hole bends the light that
- * passes behind it. A beam turns towards the pointer on a spring and comes
- * back to rest pointing at the nearest Black hole. A beam draws on the
- * `<canvas>` element of its own element: a fixed Light beam on the fixed one.
+ * fill colour over the page, from the edge of its element, and each Black
+ * hole bends the light that passes behind it. A beam turns towards the
+ * pointer on a spring and comes back to rest pointing at the nearest Black
+ * hole. A beam draws on the `<canvas>` element of its own element: a fixed
+ * Light beam on the fixed one.
  * It draws only on the targets its light can reach, and asks for frames only
  * while a beam turns. Under reduced motion a beam turns only while the
  * pointer is pressed, and with no spring.
@@ -176,7 +183,7 @@ export const blackHoleEffect: Effect = {
     function writeScene(
       scene: ReturnType<typeof createScene>,
       lenses: readonly ShaderLens[],
-      beams: readonly Beam[],
+      beams: readonly ShaderBeam[],
       dark: boolean,
     ) {
       scene.words[0] = lenses.length;
@@ -198,7 +205,8 @@ export const blackHoleEffect: Effect = {
         );
         scene.words[at + 7] = element;
       }
-      for (const [index, beam] of beams.entries()) {
+      for (const [index, { beam, element }] of beams.entries()) {
+        const at = SCENE_LAYOUT.beamOffset + index * SCENE_LAYOUT.beamFloats;
         scene.floats.set(
           [
             beam.x,
@@ -209,8 +217,9 @@ export const blackHoleEffect: Effect = {
             beam.reach,
             beam.start,
           ],
-          SCENE_LAYOUT.beamOffset + index * SCENE_LAYOUT.beamFloats,
+          at,
         );
+        scene.words[at + 9] = element;
       }
       device.queue.writeBuffer(scene.buffer, 0, scene.data);
     }
@@ -246,10 +255,13 @@ export const blackHoleEffect: Effect = {
         );
         const reach =
           Math.hypot(frame.viewport.width, frame.viewport.height) * REACH_SCALE;
-        const beams: Record<EffectCanvas, Beam[]> = { scroll: [], fixed: [] };
+        const beams: Record<EffectCanvas, ShaderBeam[]> = {
+          scroll: [],
+          fixed: [],
+        };
         const nextAims = new Map<number, Aim>();
         let turning = false;
-        for (const record of frame.elements) {
+        for (const [element, record] of frame.elements.entries()) {
           if ((record.roles & LIGHT_BEAM) === 0) {
             continue;
           }
@@ -261,18 +273,21 @@ export const blackHoleEffect: Effect = {
           );
           turning ||= !settled;
           beams[record.fixed ? "fixed" : "scroll"].push({
-            x,
-            y,
-            angle,
-            start: distanceToEdge(record.width / 2, record.height / 2, angle),
-            reach,
-            color: beamColor(record.fill, dark),
+            beam: {
+              x,
+              y,
+              angle,
+              start: distanceToEdge(record.width / 2, record.height / 2, angle),
+              reach,
+              color: beamColor(record.fill, dark),
+            },
+            element,
           });
         }
         aims = nextAims;
 
         for (const canvas of ["scroll", "fixed"] as const) {
-          const shown = new Set<Beam>();
+          const shown = new Set<ShaderBeam>();
           for (const target of frame.targets) {
             if (target.canvas !== canvas) {
               continue;
@@ -282,10 +297,10 @@ export const blackHoleEffect: Effect = {
               (sum, lens) => sum + largestBendIn(lens, rect),
               0,
             );
-            for (const beam of beams[canvas]) {
-              if (beamMeetsRect(beam, rect, bend)) {
+            for (const shaderBeam of beams[canvas]) {
+              if (beamMeetsRect(shaderBeam.beam, rect, bend)) {
                 drawn.add(target);
-                shown.add(beam);
+                shown.add(shaderBeam);
               }
             }
           }

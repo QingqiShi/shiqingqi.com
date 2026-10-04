@@ -28,8 +28,8 @@ const tracePaths = CARDS.map(({ x, y, width, height, radius }) =>
 );
 
 /**
- * Effect layer foundation-card illustration: a faint dot field behind two
- * cards, standing for the `<canvas>` elements behind the page, with a line
+ * Effect layer foundation-card illustration: a faint dot field around two
+ * cards, standing for what the effect layer draws, with a line
  * traced around each card the way the layer measures it — grey at rest, warm
  * gold on hover, when the field also drifts the other way from the cards.
  */

@@ -26,12 +26,13 @@ export interface LightBeamOptions {
 
 /**
  * Makes an element a Light beam on the effect layer: a ray of light in its
- * fill colour, cast behind the page from its centre, that each Black hole
- * bends. Attach the returned ref to the element. On a dark page the light
- * brightens what it crosses; on a light page it tints it. The element needs
- * a box of its own, so not `display: contents`; its `background-color` gives
- * the light its colour. Outside an `EffectLayerProvider`, or where the
- * effect layer is off, the ref does nothing.
+ * fill colour, cast over the page from its edge, away from its centre, that
+ * each Black hole bends. Attach the returned ref to the element. On a dark
+ * page the light brightens what it crosses; on a light page it tints it. The
+ * element needs a box of its own, so not `display: contents`; its
+ * `background-color` gives the light its colour. Outside an
+ * `EffectLayerProvider`, or where the effect layer is off, the ref does
+ * nothing.
  */
 export function useLightBeam({
   angle,

@@ -1,11 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readScreenshotColumn } from "./helpers/read-screenshot-column.ts";
-import { scrollToAndSettle } from "./helpers/scroll.ts";
+import { scrollToAndSettle, scrollWithin } from "./helpers/scroll.ts";
 import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 
 // The design-system overview is more than four bands tall at this viewport.
 const LONG_PAGE = "/en/design-system";
 const DEBUG_PAGE = `${LONG_PAGE}?effects=debug`;
+const EFFECT_PAGE = "/en/design-system/foundations/effect-layer?effects=debug";
 
 declare global {
   interface Window {
@@ -166,8 +167,9 @@ test("draws only the part of each band in the drawn range", async ({
   }, scrollY);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollY);
 
-  // A column of page background between the sidebar and the content.
-  const column = await readScreenshotColumn(page, 264);
+  // A column inside the strip the debug view draws down the band's left edge,
+  // over page background and outside the sidebar.
+  const column = await readScreenshotColumn(page, 4);
   const edge = drawnTop - scrollY;
   const background = column[8];
   expect(column.slice(8, edge - 4).every((pixel) => pixel === background)).toBe(
@@ -176,4 +178,61 @@ test("draws only the part of each band in the drawn range", async ({
   expect(
     column.slice(edge + 4, edge + 200).every((pixel) => pixel !== background),
   ).toBe(true);
+});
+
+test("lets pointers, hit tests and text selection through the canvas elements", async ({
+  page,
+}) => {
+  await page.goto(EFFECT_PAGE);
+  const pageCanvases = page.locator(
+    '[data-effect-layer="scroll"], [data-effect-layer="fixed"]',
+  );
+  await expect(pageCanvases).toHaveCount(3, {
+    timeout: MOUNT_TIMEOUT,
+  });
+  for (const wrapper of await pageCanvases.evaluateAll((canvases) =>
+    canvases.map((canvas) => canvas.parentElement?.inert),
+  )) {
+    expect(wrapper).toBe(true);
+  }
+
+  const button = page.getByRole("button", { name: "Count presses" });
+  const top = await button.evaluate(
+    (element) => element.getBoundingClientRect().top + window.scrollY,
+  );
+  await scrollWithin(page, top - 400);
+  const box = await button.boundingBox();
+  if (box === null) {
+    throw new Error("The button has no box.");
+  }
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+
+  expect(
+    await page.evaluate(
+      ([pointX, pointY]) =>
+        document.elementFromPoint(pointX, pointY)?.closest("button")
+          ?.textContent,
+      [x, y],
+    ),
+  ).toBe("Count presses");
+
+  // The first press starts a ring, so the second one lands under an active
+  // effect.
+  await page.mouse.click(x, y);
+  await page.mouse.click(x, y);
+  await expect(button.locator("xpath=following-sibling::*[1]")).toHaveText("2");
+
+  const helper = page.getByText("Pulse the accent tile on a beat");
+  const helperBox = await helper.boundingBox();
+  if (helperBox === null) {
+    throw new Error("The label has no box.");
+  }
+  await page.mouse.dblclick(
+    helperBox.x + 12,
+    helperBox.y + helperBox.height / 2,
+  );
+  expect(
+    await page.evaluate(() => window.getSelection()?.toString().trim()),
+  ).toBe("Pulse");
 });

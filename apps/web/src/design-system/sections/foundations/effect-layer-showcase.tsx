@@ -26,8 +26,8 @@ export function EffectLayerShowcase() {
         <div css={[flex.col, styles.stack]}>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "The browser still paints the page. The effect layer adds <canvas> elements behind all content, and only on a page where an element uses an effect.",
-              zh: "页面仍由浏览器绘制。效果层在全部内容之后加入 <canvas> 元素，而且只在有元素使用效果的页面上加入。",
+              en: "The browser still paints the page. The effect layer adds <canvas> elements over the content, and only on a page where an element uses an effect. They sit under the header, sticky chrome and every overlay.",
+              zh: "页面仍由浏览器绘制。效果层在内容之上加入 <canvas> 元素，而且只在有元素使用效果的页面上加入。它们位于页头、吸顶栏和所有覆盖层之下。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">
@@ -38,8 +38,8 @@ export function EffectLayerShowcase() {
           </Text>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Content with a background of its own covers what the layer draws, so an effect shows around an element, not on top of it.",
-              zh: "带有自身背景的内容会盖住效果层绘制的东西，因此效果出现在元素周围，而不是元素之上。",
+              en: "What the layer draws shows over the content, so an effect can show on an element with a background of its own. The <canvas> elements are inert: clicks, hover, text selection and focus reach the content under them.",
+              zh: "效果层绘制的东西显示在内容之上，因此效果也能出现在带有自身背景的元素上。这些 <canvas> 元素是惰性的：点击、悬停、选择文字和焦点都会到达它们下方的内容。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">

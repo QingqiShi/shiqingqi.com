@@ -19,12 +19,12 @@ export interface BlackHoleOptions {
 /**
  * Makes an element a Black hole on the effect layer: attach the returned ref
  * to the element. Light that a `useLightBeam` element casts behind it bends
- * around its edges, and light from straight behind its centre shows as a
- * ring around it. A larger element bends light more, and the bends of
- * several Black holes add up. The element needs a box of its own, so not
- * `display: contents`; give it a background, so that it covers the light
- * behind it. Outside an `EffectLayerProvider`, or where the effect layer is
- * off, the ref does nothing.
+ * around its edges, and light from straight behind its centre shows as a ring
+ * around it. A larger element bends light more, and the bends of several
+ * Black holes add up. The element needs a box of its own, so not
+ * `display: contents`. No light draws inside the element itself. Outside an
+ * `EffectLayerProvider`, or where the effect layer is off, the ref does
+ * nothing.
  */
 export function useBlackHole({
   mass = EFFECT_SETTING_DEFAULTS.blackHole.mass,
