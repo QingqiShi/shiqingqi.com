@@ -22,10 +22,12 @@ interface EffectLayerCanvasesProps {
 const NO_CANVASES: EffectCanvasNeeds = { scroll: false, fixed: false };
 
 /**
- * The `<canvas>` elements of the effect layer, behind all content: two that
- * take turns to cover the document while it scrolls, and one fixed to the
- * viewport. Each group mounts only while a registered element with a role
- * needs it; the debug view needs both.
+ * The `<canvas>` elements of the effect layer, on the effect plane over the
+ * page's content: two that take turns to cover the document while it
+ * scrolls, and one fixed to the viewport. They are inert, so every pointer,
+ * hit test and text selection goes through to the content under them. Each
+ * group mounts only while a registered element with a role needs it; the
+ * debug view needs both.
  *
  * @internal
  */
@@ -86,6 +88,7 @@ export function EffectLayerCanvases({
       <div
         ref={containerRef}
         aria-hidden
+        inert
         css={[absoluteFill.all, styles.document]}
       >
         <div ref={probeRef} css={styles.probe} />
@@ -105,7 +108,7 @@ export function EffectLayerCanvases({
         )}
       </div>
       {hasFixed && (
-        <div aria-hidden css={[viewportAnchor.fixed, styles.behindContent]}>
+        <div aria-hidden inert css={[viewportAnchor.fixed, styles.plane]}>
           <canvas
             ref={fixedRef}
             data-effect-layer="fixed"
@@ -122,11 +125,11 @@ const styles = stylex.create({
     overflow: "clip",
     contain: "strict",
     pointerEvents: "none",
-    zIndex: layer.background,
+    zIndex: layer.effect,
   },
-  behindContent: {
+  plane: {
     pointerEvents: "none",
-    zIndex: layer.background,
+    zIndex: layer.effect,
   },
   probe: {
     position: "absolute",

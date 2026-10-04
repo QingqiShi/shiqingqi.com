@@ -471,9 +471,17 @@ export const border = stylex.defineVars({
 
 // Named planes for stacking order, listed bottom to top — the numbers are
 // spaced by 100 so a plane can take local steps without colliding with the next
-// one, and `blur` alone sits halfway between two rungs. The order encodes the
+// one, and `effect` and `blur` sit between two rungs. The order encodes the
 // invariants, so read it as a ladder:
 //
+// - `effect` is the effect layer's `<canvas>` elements. They draw over
+//   everything the page scrolls, a card lifted to `content` too, so an effect
+//   can show on an opaque surface. They stay under the Blur plane, sticky
+//   chrome at `raised`, the header and every overlay, so the page's chrome
+//   stays clear of effects. They never take a pointer, focus or a hit test.
+//   Chrome must not be inside a stacking context that sits below `effect`,
+//   because there its plane cannot lift it over the effects. For this reason
+//   a shell that holds chrome does not isolate itself.
 // - `blur` is the Blur plane — the page's progressive blurs, above everything
 //   the page scrolls and under every control that floats. Sticky chrome at
 //   `raised` and the header at `header` keep their controls crisp over it, a
@@ -498,6 +506,7 @@ export const layer = stylex.defineVars({
   background: stylex.types.integer(-100),
   base: stylex.types.integer(0),
   content: stylex.types.integer(100),
+  effect: stylex.types.integer(125),
   blur: stylex.types.integer(150),
   raised: stylex.types.integer(200),
   header: stylex.types.integer(300),

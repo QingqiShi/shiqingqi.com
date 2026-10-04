@@ -311,3 +311,33 @@ test("draws nothing while its light is off screen or the beams rest", async ({
     )
     .toBe(0);
 });
+
+test("draws no light on the Light beam's own element", async ({ page }) => {
+  await openTestBench(page);
+  const { rest } = await besideFirstBeam(page);
+  await expect
+    .poll(() => isLit(page, rest), { timeout: SETTLE_TIMEOUT })
+    .toBe(true);
+
+  const source = page.locator("[data-light-beam-test]").first();
+  const box = await source.boundingBox();
+  if (box === null) {
+    throw new Error("the first Light beam has no box");
+  }
+  // The part of the pill between its round ends, 2px inside its edges.
+  const clip = {
+    x: Math.ceil(box.x + box.height / 2),
+    y: Math.ceil(box.y + 2),
+    width: Math.floor(box.width - box.height),
+    height: Math.floor(box.height - 4),
+  };
+  const withLayer = await page.screenshot({ clip });
+  await scrollCanvases(page)
+    .first()
+    .evaluate((canvas) => {
+      if (canvas.parentElement !== null) {
+        canvas.parentElement.style.visibility = "hidden";
+      }
+    });
+  expect((await page.screenshot({ clip })).equals(withLayer)).toBe(true);
+});

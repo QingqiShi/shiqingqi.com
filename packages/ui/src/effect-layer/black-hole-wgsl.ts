@@ -33,7 +33,8 @@ export const SCENE_LAYOUT = {
 const float = (value: number) => value.toFixed(4);
 
 /**
- * Draws each Light beam as the page would see it behind every Black hole.
+ * Draws each Light beam as the page would see it behind every Black hole,
+ * from the edge of its element and never inside it.
  * Each pixel finds where its light comes from, `sourceOf` in
  * `lens-from-box.ts`, and lights it from the beams there: a thin core, a
  * soft edge that widens as the beam travels, and dust that the beam lights
@@ -69,6 +70,7 @@ struct Beam {
   color: vec3f,
   reach: f32,
   start: f32,
+  element: u32,
 }
 
 struct Scene {
@@ -215,6 +217,8 @@ fn fragmentMain(@builtin(position) position: vec4f) -> @location(0) vec4f {
     if (mote > 1.0 / 255.0) {
       intensity += mote * beamLight(beam, moteCenter).y * select(0.4, 0.75, dark);
     }
+    // No light shows on the beam's own element.
+    intensity *= saturate(effectElementDistance(effectElements[beam.element], page) + 0.5);
     let hot = select(0.0, smoothstep(0.35, 0.9, beamAt.x) * 0.55, dark);
     light += mix(beam.color, vec3f(1.0), hot) * intensity;
     alpha += intensity;

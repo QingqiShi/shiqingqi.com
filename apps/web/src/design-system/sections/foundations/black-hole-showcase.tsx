@@ -33,8 +33,8 @@ export function BlackHoleShowcase() {
         <div css={[flex.col, styles.stack]}>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "A Light beam casts a ray of light in its own fill colour, behind the page, from the centre of its element. It turns towards the pointer on a spring, and when the pointer leaves it comes back to point at the nearest Black hole.",
-              zh: "光束从其元素的中心，在页面之后投出一道与自身填充色相同的光。它以弹簧动效转向指针；指针离开后，它回到指向最近的黑洞。",
+              en: "A Light beam casts a ray of light in its own fill colour over the page, out from the edge of its element. It turns towards the pointer on a spring, and when the pointer leaves it comes back to point at the nearest Black hole.",
+              zh: "光束从其元素的边缘向外，在页面之上投出一道与自身填充色相同的光。它以弹簧动效转向指针；指针离开后，它回到指向最近的黑洞。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">

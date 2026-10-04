@@ -35,6 +35,8 @@ const RECT_FLOATS = 8;
 const vec3 = (color: readonly number[]) => `vec3f(${color.join(", ")})`;
 
 const BAND_WGSL = /* wgsl */ `${TARGET_WGSL}
+const EDGE_STRIP = 8.0;
+
 struct BandVarying {
   @builtin(position) position: vec4f,
   @location(0) @interpolate(flat) index: u32,
@@ -77,12 +79,14 @@ fn fragmentMain(input: BandVarying) -> @location(0) vec4f {
   let page = fragmentToPage(input.position.xy);
   let top = effectTarget.pageOffset.y;
   let drawn = effectTarget.drawnPageRange;
-  let label = (page - effectTarget.pageOffset - vec2f(16.0)) / 6.0;
+  let label = (page - effectTarget.pageOffset - vec2f(EDGE_STRIP + 4.0, 8.0)) / 3.0;
   let color = select(${vec3(SLOT_COLORS[0])}, ${vec3(SLOT_COLORS[1])}, input.index % 2u == 1u);
 
-  var alpha = 0.1;
-  if (fract((page.x + page.y) / 32.0) < 0.5) {
-    alpha = 0.18;
+  let left = page.x - effectTarget.pageOffset.x;
+  let right = effectTarget.cssSize.x - left;
+  var alpha = 0.0;
+  if (min(left, right) < EDGE_STRIP) {
+    alpha = select(0.35, 0.6, fract((page.x + page.y) / 32.0) < 0.5);
   }
   if (page.y - top < 4.0) {
     alpha = 0.9;
@@ -261,10 +265,12 @@ function writeMinimap(
 }
 
 /**
- * The debug view, `?effects=debug`. Each band gets a fill in its slot's
- * colour (slot 0 magenta, slot 1 cyan) with its index at its top edge,
- * stripes in page space that must join across bands, and dashed lines where
- * the part drawn this frame ends. Each registered element gets a line on its
+ * The debug view, `?effects=debug`. Each band gets a strip down each side in
+ * its slot's colour (slot 0 magenta, slot 1 cyan), a line on its top edge
+ * with its index under it, stripes in page space that must join across
+ * bands, and dashed lines where the part drawn this frame ends. The page
+ * between the strips stays clear, so that the content under it stays
+ * readable. Each registered element gets a line on its
  * edge (green in the document, orange when fixed) and a band of its measured
  * fill. The fixed `<canvas>` element shows the minimap and the pointer: a
  * ring, filled while pressed, with a line for its velocity.

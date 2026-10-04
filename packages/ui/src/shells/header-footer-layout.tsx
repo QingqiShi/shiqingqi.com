@@ -143,8 +143,9 @@ const styles = stylex.create({
     // Published so sticky page chrome (e.g. a filter bar) can sit below the
     // header without restating its size.
     "--header-controls-clearance": `calc(${space._10} + env(safe-area-inset-top))`,
+    // Do not isolate this box. The header controls must stack with the effect
+    // layer, which is outside the shell, so that effects stay under them.
     position: "relative",
-    isolation: "isolate",
     display: "flex",
     flexDirection: "column",
     minBlockSize: "100dvh",

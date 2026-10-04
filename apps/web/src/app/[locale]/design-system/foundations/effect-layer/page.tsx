@@ -14,8 +14,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/foundations/effect-layer",
     description: t({
-      en: "Effects that CSS cannot draw well, drawn with WebGPU on canvas elements behind the page, around the elements that register for them. Experimental.",
-      zh: "用 WebGPU 在页面之后的画布元素上，围绕为效果登记的元素，绘制 CSS 难以画好的效果。仍在实验中。",
+      en: "Effects that CSS cannot draw well, drawn with WebGPU on canvas elements over the page, around the elements that register for them. Experimental.",
+      zh: "用 WebGPU 在页面之上的画布元素上，围绕为效果登记的元素，绘制 CSS 难以画好的效果。仍在实验中。",
     }),
   });
 }
@@ -25,8 +25,8 @@ export default function EffectLayerPage() {
     <DocPage
       path="/design-system/foundations/effect-layer"
       description={t({
-        en: "Effects that CSS cannot draw well, such as particles and light, drawn with WebGPU on <canvas> elements behind the page and around the elements that register for them. This is experimental: Ripple, Dust and Black hole are the first effects, and the names on this page may change.",
-        zh: "用 WebGPU 在页面之后的 <canvas> 元素上、围绕为效果登记的元素，绘制 CSS 难以画好的效果，例如粒子与光线。它仍在实验中：涟漪、尘埃和黑洞是最先的几个效果，本页的名称也可能改变。",
+        en: "Effects that CSS cannot draw well, such as particles and light, drawn with WebGPU on <canvas> elements over the page and around the elements that register for them. This is experimental: Ripple, Dust and Black hole are the first effects, and the names on this page may change.",
+        zh: "用 WebGPU 在页面之上的 <canvas> 元素上、围绕为效果登记的元素，绘制 CSS 难以画好的效果，例如粒子与光线。它仍在实验中：涟漪、尘埃和黑洞是最先的几个效果，本页的名称也可能改变。",
       })}
     >
       <EffectLayerShowcase />

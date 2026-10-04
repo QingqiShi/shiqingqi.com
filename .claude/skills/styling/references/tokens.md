@@ -319,6 +319,7 @@ Z-index scale for stacking context.
 | `layer.background` | `-100` |
 | `layer.base`       | `0`    |
 | `layer.content`    | `100`  |
+| `layer.effect`     | `125`  |
 | `layer.blur`       | `150`  |
 | `layer.raised`     | `200`  |
 | `layer.header`     | `300`  |
