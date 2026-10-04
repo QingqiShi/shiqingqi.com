@@ -161,8 +161,8 @@ export function DividerShowcase() {
             </div>
           }
           dontCaption={t({
-            en: "Don't run a vertical decorative divider down a card's leading edge as a category accent — see DESIGN.md.",
-            zh: "不要在卡片前缘用垂直装饰分隔线作为分类色条——见 DESIGN.md。",
+            en: "Don't run a vertical decorative divider down a card's leading edge as a category accent.",
+            zh: "不要在卡片前缘用垂直装饰分隔线作为分类色条。",
           })}
         />
       </Showcase>

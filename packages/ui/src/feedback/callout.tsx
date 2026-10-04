@@ -100,7 +100,7 @@ type CalloutProps = CalloutBaseProps & CalloutDismissProps;
 /**
  * Inline message / alert box: a token-themed subtle background, matching
  * border, tinted icon, and type hierarchy carry the intent's meaning, with
- * deliberately no leading accent bar (DESIGN.md ban).
+ * deliberately no leading accent bar.
  *
  * The box itself is the live region (`role="status"`/`"alert"`), so its text
  * is announced.

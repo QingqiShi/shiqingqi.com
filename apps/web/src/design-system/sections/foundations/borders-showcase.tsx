@@ -155,8 +155,8 @@ const styles = stylex.create({
           </div>
         }
         dontCaption={t({
-          en: "Never add a vertical coloured accent bar on a card's leading edge — it reads as AI slop (DESIGN.md).",
-          zh: "切勿在卡片首端加竖向的彩色强调条——它显得粗劣（见 DESIGN.md）。",
+          en: "Never add a vertical coloured accent bar on a card's leading edge. Its colour is decoration competing with colour that means something, and the eye reaches the edge before the content.",
+          zh: "切勿在卡片首端加竖向的彩色强调条。它的颜色只是装饰，会与有含义的颜色争夺注意力，而且视线会先落在边缘，而不是内容上。",
         })}
       />
     </>

@@ -25,7 +25,7 @@ interface LayerCardProps {
   entries: string[];
 }
 
-/** One of the three abstraction layers `DESIGN.md` describes, and what the screen took from it. */
+/** One of the three abstraction layers (props, slots, the pieces underneath), and what the screen took from it. */
 function LayerCard({ title, description, entries }: LayerCardProps) {
   return (
     <Card css={styles.layerCard}>

@@ -21,7 +21,7 @@ interface DoDontProps {
 /**
  * A side-by-side "do / don't" pair. Each panel carries its meaning through a
  * full token-themed background (success vs danger) and a top label row with an
- * icon — never a leading-edge accent bar (see DESIGN.md). Collapses to a single
+ * icon — never a leading-edge accent bar. Collapses to a single
  * column on narrow viewports.
  */
 export function DoDont({

@@ -120,7 +120,7 @@ There is no global `corner-shape` rule anywhere — every rounded corner carries
 
 ### Material (`@tuja/ui/primitives/texture.stylex`, `@tuja/ui/primitives/wash.stylex`)
 
-Faint surface treatments — Texture, Wash, and Glass; the rules are under "Texture and Wash" in `DESIGN.md`. `texture.dot` draws one dot of 1px or less, repeated across a surface at one size — never nest a textured surface inside another, and never mix two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
+Faint surface treatments — Texture, Wash, and Glass; the rules are on the texture and wash showcases (`apps/web/src/design-system/sections/foundations/texture-showcase.tsx`, `wash-showcase.tsx`). `texture.dot` draws one dot of 1px or less, repeated across a surface at one size — never nest a textured surface inside another, and never mix two sizes in one group. `wash.toBottom`/`toTop`/`toRight`/`toLeft` are a gradient of one tone fading to transparent — a Wash has no bright spot; a bright spot reads as a light source, and only Glass is lit.
 
 Each dials its default through a token, overridden in a local `stylex.create` the way `cornerTokens.height` is:
 
