@@ -35,7 +35,7 @@
     "@tuja/eslint-plugin": "workspace:*",
     "@typescript/native": "catalog:",
     "eslint": "catalog:",
-    "eslint-config-turbo": "^2.11.4",
+    "eslint-config-turbo": "^2.11.5",
     "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-unicorn": "^76.0.0",
