@@ -137,11 +137,16 @@ export function EffectContainerTestBench() {
 const styles = stylex.create({
   bench: {
     gap: space._14,
+    containerType: "inline-size",
   },
   case: {
     gap: space._5,
   },
   stage: {
+    flexDirection: {
+      default: "column",
+      "@container (min-width: 42.5rem)": "row",
+    },
     alignItems: "center",
     gap: space._10,
   },
@@ -164,6 +169,7 @@ const styles = stylex.create({
   },
   wide: {
     inlineSize: space._15,
+    maxInlineSize: "100%",
   },
   // Nearer the rings' reach on the right than on the left, so the rings get
   // past the right edge only if the container does not clip them.
