@@ -1,8 +1,8 @@
 /**
  * ESLint rule: no-banned-copy-words
  *
- * Flags t() calls whose `en` copy uses a word DESIGN.md's "Words that don't
- * ship" list excludes from shipped copy. Only `en` is checked — `zh` carries
+ * Flags t() calls whose `en` copy uses a word the voice showcase's "Words that
+ * don't ship" list excludes from shipped copy. Only `en` is checked — `zh` carries
  * its own voice and is out of scope for this list.
  */
 
@@ -107,11 +107,11 @@ const noBannedCopyWords = {
     type: "problem",
     docs: {
       description:
-        "Disallow words DESIGN.md's \"Words that don't ship\" list excludes from t() en copy",
+        "Disallow words the voice showcase's \"Words that don't ship\" list excludes from t() en copy",
     },
     messages: {
       bannedWord:
-        '"{{word}}" is on DESIGN.md\'s "Words that don\'t ship" list. Rewrite the en copy without it.',
+        '"{{word}}" is on the voice showcase\'s "Words that don\'t ship" list. Rewrite the en copy without it.',
     },
     schema: [],
   },

@@ -48,9 +48,7 @@ interface MovieDetailScreenProps {
  * surface, control, rule, and type step below comes from a component, a
  * composable style object, or a token — there is no local colour, no local font
  * stack, and no bespoke focus ring anywhere in this file. What is local is
- * arrangement: the hero grid, the rating dial's dimensions, and the fact grid,
- * which is exactly the split `DESIGN.md` argues for (the system owns behaviour
- * and appearance, the consumer owns layout).
+ * arrangement: the hero grid, the rating dial's dimensions, and the fact grid.
  *
  * The data is invented and hard-coded. The screen makes no TMDB request, so it
  * renders identically with no API key, no network, and no vector index.
@@ -488,8 +486,8 @@ const styles = stylex.create({
   // The poster sits beside the title lockup at every width, and the wide blocks
   // — Genres, the Rating, the actions — drop below both on a phone. A poster
   // stacked above them instead held a 200px column of a 324px row and left the
-  // rest of that row empty, which is the one shape `DESIGN.md` rules out: too
-  // wide to read as a margin, too narrow to hold anything.
+  // rest of that row empty: too wide to read as a margin, too narrow to hold
+  // anything.
   hero: {
     display: "grid",
     gridTemplateColumns: {

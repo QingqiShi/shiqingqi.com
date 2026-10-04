@@ -12,12 +12,8 @@ _Avoid_: 色调 (that is Tone)
 One lightness step within a hue. The series runs `_0` (darkest) to `_100`, denser at the extremes than the Material 3 grid. ZH: 色调.
 _Avoid_: step, shade, 明度阶梯
 
-**Token**:
-A named design value exposed as a StyleX var. Tokens reference tones; consumers reference tokens and never a tone directly.
-_Avoid_: var (as in `fieldVars`), CSS variable
-
 **Token Role**:
-What a colour Token is for, as a general semantic concept: the part of the interface it paints — canvas, surface, control — or the Intent it carries. A Token Role is never a component and never one component's own colour; it names a job any component may need, not a look (that is a Tone) nor an owner (that is a brand). ZH: 令牌角色.
+What a colour token is for, as a general semantic concept: the part of the interface it paints — canvas, surface, control — or the Intent it carries. A Token Role is never a component and never one component's own colour; it names a job any component may need, not a look (that is a Tone) nor an owner (that is a brand). ZH: 令牌角色.
 _Avoid_: role (bare, in code and copy), semantic colour, purpose, category, structure (for this sense), 语义色
 
 **Intent**:
@@ -35,9 +31,6 @@ _Avoid_: preset, example, story, look (for this sense), 外观 (that is a look),
 **Primitive**:
 A composable multi-property StyleX style object — `flex`, `layout`, `motion`, `reset`, `a11y`, `corner`, `texture`, `wash` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
 _Avoid_: recipe, pattern (for this sense), 配方
-
-**Modifier**:
-A single-property override that tunes a primitive — `align`, `justify`, `grow`, `shrink`.
 
 **Lab**:
 A component page's interactive view — a live, operable Specimen on the canvas, with the Variants, one control per prop, and the snippet for what is on the canvas beside it. ZH: 实验室.

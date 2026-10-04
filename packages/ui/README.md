@@ -312,7 +312,10 @@ superellipse reads as neither. Components compose the `corner` primitive
 (`@tuja/ui/primitives/corner.stylex`), which pairs the corner shape with the
 radius, so the shape ships inside the styles the component already carries.
 There is no global CSS to add, and none of your own components are affected.
-A browser without `corner-shape` support keeps circular corners.
+A browser without `corner-shape` support draws a circular arc instead, and the
+`border.radius_*` tokens drop to 0.6 of their value there so the corner reads
+the same size; an element of your own that uses those tokens takes the same
+reduced value.
 
 ## Usage
 

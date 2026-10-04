@@ -249,7 +249,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 
 **Import**: `@tuja/ui/primitives/texture.stylex`, `@tuja/ui/primitives/wash.stylex`
 
-Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. The rules are under "Texture and Wash" in `DESIGN.md`.
+Texture and Wash are the two Material primitives; Glass is the third but ships as a component style object (`glassSurface`), not a primitive — see below. The rules are on the texture and wash showcases (`apps/web/src/design-system/sections/foundations/texture-showcase.tsx`, `wash-showcase.tsx`).
 
 | Export                                           | Properties                                                                            |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------- |

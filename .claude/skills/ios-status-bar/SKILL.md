@@ -69,8 +69,8 @@ it again if the header height or the bar's inset changes.
   executable guard. It walks every fixed and sticky box that covers the
   top-centre point, because `elementsFromPoint` honours `pointer-events: none`
   and would miss the culprit.
-- The rule in domain language is the "Progressive blur" and "Floating
-  elements" language in `DESIGN.md`.
+- The Progressive blur showcase states the rule in domain language:
+  `apps/web/src/design-system/sections/components/progressive-blur-showcase.tsx`.
 
 ## Verifying
 

@@ -60,7 +60,7 @@ const requireCornerShape = {
     },
     messages: {
       missingCornerShape:
-        "`{{property}}` sets a radius with no `cornerShape`, or its per-corner longhand, in the same object literal. Every fixed-radius corner is a squircle (DESIGN.md), so pair the radius here, or compose `corner.radius_*` from `primitives/corner.stylex.ts` instead.",
+        "`{{property}}` sets a radius with no `cornerShape`, or its per-corner longhand, in the same object literal. Every fixed-radius corner is a squircle, so pair the radius here, or compose `corner.radius_*` from `primitives/corner.stylex.ts` instead.",
     },
     schema: [],
   },

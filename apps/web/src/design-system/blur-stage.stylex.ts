@@ -12,7 +12,8 @@ export const blurStage = stylex.create({
     overflow: "clip",
     // A squircle clip above the blur layers makes Chrome remove their masks.
     // A round clip does not. A round arc at 0.6 of the radius cuts the same
-    // corner as the frame's squircle (see "Surfaces" in DESIGN.md).
+    // corner as the frame's squircle (see
+    // `packages/ui/src/primitives/corner.stylex.ts`).
     borderRadius: "calc(1rem * .6)",
     cornerShape: "round",
   },

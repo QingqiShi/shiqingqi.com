@@ -203,7 +203,7 @@ Every `defineVars` member in the design system resolves, not only the dials the 
 
 System toggles, shown on a layer as switches rather than properties:
 
-- Texture: the drawn `dot` at one spacing from `space.*` in one colour from `color.*`. Follows DESIGN.md: one mark, one size, never nested.
+- Texture: the drawn `dot` at one spacing from `space.*` in one colour from `color.*`. Follows the texture showcase: one mark, one size, never nested.
 - Wash: one colour token drifting to transparent across the element, direction named after the `wash` member it switches on. No bright spot.
 - Floating: progressive blur of the page around the element, radius capped at 32px, five layers doubling in radius, drawn behind the element as the design system does. Needs page content behind the cell, so the cell renders sample text under a floating element and grows to a minimum height to hold it. One blur plane per layer per cell: every instance of the layer in that cell shares one plane, drawn around the union of their boxes.
 - Scroll mask: progressive blur at the edge of a scrolling layer.
