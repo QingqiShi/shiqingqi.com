@@ -7,6 +7,7 @@ import {
   frontRadius,
   heldRing,
   hoverStrength,
+  instanceRange,
   isInView,
   MAX_NEIGHBOURS,
   MAX_PULSES,
@@ -17,7 +18,7 @@ import {
   type RippleStep,
   type RippleStepInput,
 } from "./create-ripples.ts";
-import type { EffectElementRecord } from "./types.ts";
+import type { EffectElementRecord, EffectScope } from "./types.ts";
 
 const RIPPLE = 0b01;
 const AMBIENT = 0b10;
@@ -39,8 +40,34 @@ function record(
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
     fill: [0.6, 0.3, 0.8, 1],
+    scope: 0,
+    holds: null,
+    scopeIndex: 0,
     ...overrides,
   };
+}
+
+/** The scopes of records that are in the order of a frame. */
+function scopesOf(elements: readonly EffectElementRecord[]): EffectScope[] {
+  const count = Math.max(0, ...elements.map(({ scopeIndex }) => scopeIndex));
+  return Array.from({ length: count + 1 }, (_, scopeIndex) => {
+    const rangeOf = (fixed: boolean) => {
+      const indices = [...elements.keys()].filter(
+        (index) =>
+          elements[index].scopeIndex === scopeIndex &&
+          elements[index].fixed === fixed,
+      );
+      return { firstElement: indices[0] ?? 0, elementCount: indices.length };
+    };
+    return {
+      id: scopeIndex,
+      container: -1,
+      backdrop: [1, 1, 1, 1],
+      dark: false,
+      scroll: rangeOf(false),
+      fixed: rangeOf(true),
+    };
+  });
 }
 
 function input(
@@ -50,6 +77,7 @@ function input(
   return {
     time: 10,
     elements,
+    scopes: scopesOf(elements),
     rippleBit: RIPPLE,
     ambientBit: AMBIENT,
     pointerSpeed: 0,
@@ -174,17 +202,29 @@ describe("hoverStrength", () => {
 });
 
 describe("findNeighbours", () => {
-  it("lists the nearby boxes on the same canvas element, nearest first", () => {
+  it("lists the nearby boxes, nearest first", () => {
     const records = [
       record(1),
       record(2, { x: 260 }),
       record(3, { x: 230, y: 130 }),
       record(4, { x: 2000 }),
-      record(5, { x: 230, fixed: true }),
-      record(6, { x: -20, y: -20, width: 400, height: 300 }),
-      record(7, { x: 20, y: 20, width: 40, height: 40 }),
+      record(5, { x: -20, y: -20, width: 400, height: 300 }),
+      record(6, { x: 20, y: 20, width: 40, height: 40 }),
     ];
-    expect(findNeighbours(records, 0, 62)).toEqual([2, 1]);
+    expect(
+      findNeighbours(records, { firstElement: 0, elementCount: 6 }, 0, 62),
+    ).toEqual([2, 1]);
+  });
+
+  it("lists only the boxes of its peers", () => {
+    const records = [
+      record(1),
+      record(2, { x: 230 }),
+      record(3, { x: 230, y: 130 }),
+    ];
+    expect(
+      findNeighbours(records, { firstElement: 0, elementCount: 2 }, 0, 62),
+    ).toEqual([1]);
   });
 
   it(`keeps at most ${String(MAX_NEIGHBOURS)}`, () => {
@@ -194,7 +234,9 @@ describe("findNeighbours", () => {
         record(index + 2, { x: 210 + index, y: 0 }),
       ),
     ];
-    expect(findNeighbours(records, 0, 62)).toHaveLength(MAX_NEIGHBOURS);
+    expect(
+      findNeighbours(records, { firstElement: 0, elementCount: 13 }, 0, 62),
+    ).toHaveLength(MAX_NEIGHBOURS);
   });
 });
 
@@ -396,20 +438,44 @@ describe("createRipples", () => {
     expect(asked).toEqual([hovered.element]);
   });
 
-  it("orders the instances in the document before the fixed ones", () => {
+  it("orders the instances as the elements, so each target's are one range", () => {
     const ripples = createRipples();
     const elements = [
       record(1),
       record(2, { x: 400 }),
-      record(3, { fixed: true }),
+      record(3, { x: 800, scopeIndex: 1 }),
+      record(4, { fixed: true }),
     ];
     for (const { element } of elements) {
       ripples.start(element, "focus", 0, 0);
     }
     const step = ripples.step(input(elements));
     expect(step.instances.map((instance) => instance.elementIndex)).toEqual([
-      0, 1, 2,
+      0, 1, 2, 3,
     ]);
-    expect(step.documentInstances).toBe(2);
+    expect(instanceRange(step.instances, 0, 2)).toEqual([0, 2]);
+    expect(instanceRange(step.instances, 2, 1)).toEqual([2, 1]);
+    expect(instanceRange(step.instances, 3, 1)).toEqual([3, 1]);
+    expect(instanceRange(step.instances, 4, 3)).toEqual([4, 0]);
+  });
+
+  it("sets off no neighbour in another scope", () => {
+    const ripples = createRipples();
+    const pressed = record(1);
+    const elements = [
+      pressed,
+      record(2, { x: -230 }),
+      record(3, { x: 230, scopeIndex: 1 }),
+    ];
+    ripples.start(pressed.element, "press", 100, 60);
+    const answered = new Set<number>();
+    for (let time = 10; time < 12; time += 0.01) {
+      for (const index of ringsByIndex(
+        ripples.step(input(elements, { time })),
+      ).keys()) {
+        answered.add(index);
+      }
+    }
+    expect([...answered].toSorted()).toEqual([0, 1]);
   });
 });

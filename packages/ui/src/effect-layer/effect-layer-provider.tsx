@@ -114,7 +114,8 @@ interface EffectLayerProviderProps {
  * effect. Without WebGPU, under forced colours, with `?effects=off` or with
  * the `effect-layer` localStorage key set to `off`, it renders only its
  * children. `?effects=debug` shows the bands the scroll `<canvas>` elements
- * cover, every registered element as measured, and the pointer.
+ * cover, every registered element as measured, each Effect container with
+ * its scope, and the pointer.
  *
  * Mount it once, high in the page, inside a positioned `<body>` so that the
  * scroll `<canvas>` elements cover the document and no more.

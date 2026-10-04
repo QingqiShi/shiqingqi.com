@@ -12,7 +12,8 @@ export const DUST_MOTES_PER_ELEMENT = 28;
 /**
  * Draws each live particle as a soft dot, stretched along its velocity as it
  * speeds up, and under reduced motion still motes around each element that
- * sheds dust.
+ * sheds dust, each clipped to its Effect container. The first instance of a
+ * draw picks the dust that draws over a light backdrop, 0, or a dark one, 1.
  *
  * @internal
  */
@@ -44,21 +45,22 @@ struct DustVarying {
   @location(1) @interpolate(flat) shape: vec2f,
   // Premultiplied.
   @location(2) @interpolate(flat) color: vec4f,
+  @location(3) @interpolate(flat) scope: u32,
 }
 
-const HIDDEN = DustVarying(vec4f(2.0, 2.0, 2.0, 1.0), vec2f(0.0), vec2f(0.0), vec4f(0.0));
+const HIDDEN = DustVarying(vec4f(2.0, 2.0, 2.0, 1.0), vec2f(0.0), vec2f(0.0), vec4f(0.0), EFFECT_PAGE_SCOPE);
 
 // Each quad is two triangles of a triangle list, six vertices in a row: one
 // draw of many small quads is cheaper than as many instances.
 var<private> QUAD_CORNERS: array<u32, 6> = array<u32, 6>(0u, 1u, 2u, 2u, 1u, 3u);
 
-fn quad(vertex: u32, head: vec2f, direction: vec2f, radius: f32, streak: f32, color: vec4f) -> DustVarying {
+fn quad(vertex: u32, head: vec2f, direction: vec2f, radius: f32, streak: f32, color: vec4f, scope: u32) -> DustVarying {
   let index = QUAD_CORNERS[vertex % 6u];
   let corner = vec2f(f32(index & 1u), f32((index >> 1u) & 1u));
   let pad = radius + 1.0;
   let local = vec2f(mix(-streak - pad, pad, corner.x), mix(-pad, pad, corner.y));
   let page = head + direction * local.x + vec2f(-direction.y, direction.x) * local.y;
-  return DustVarying(pageToClip(page), local, vec2f(radius, streak), color);
+  return DustVarying(pageToClip(page), local, vec2f(radius, streak), color, scope);
 }
 
 fn shade(color: vec4f, opacity: f32) -> vec4f {
@@ -66,11 +68,15 @@ fn shade(color: vec4f, opacity: f32) -> vec4f {
 }
 
 @vertex
-fn particleVertex(@builtin(vertex_index) vertex: u32) -> DustVarying {
+fn particleVertex(
+  @builtin(vertex_index) vertex: u32,
+  @builtin(instance_index) dark: u32,
+) -> DustVarying {
   let particle = particles[vertex / 6u];
   let drawn = effectTarget.drawnPageRange;
   let y = particle.position.y;
-  if (particle.age >= particle.life || y < drawn.x - DRAWN_MARGIN || y > drawn.y + DRAWN_MARGIN) {
+  if (particle.age >= particle.life || particle.dark != dark
+      || y < drawn.x - DRAWN_MARGIN || y > drawn.y + DRAWN_MARGIN) {
     return HIDDEN;
   }
   let speed = length(particle.velocity);
@@ -84,25 +90,30 @@ fn particleVertex(@builtin(vertex_index) vertex: u32) -> DustVarying {
     * flicker
     * mix(0.55, 1.0, fract(particle.seed * 7.31))
     * (radius + 1.0) / (radius + 1.0 + streak * 0.08);
-  return quad(vertex, particle.position, direction, radius, streak, shade(unpack4x8unorm(particle.color), opacity));
+  return quad(vertex, particle.position, direction, radius, streak, shade(unpack4x8unorm(particle.color), opacity), particle.scopeIndex);
 }
 
 @vertex
-fn moteVertex(@builtin(vertex_index) vertex: u32) -> DustVarying {
+fn moteVertex(
+  @builtin(vertex_index) vertex: u32,
+  @builtin(instance_index) dark: u32,
+) -> DustVarying {
   let index = vertex / 6u;
   let elementIndex = index / MOTES_PER_ELEMENT;
   let element = effectElements[elementIndex];
-  if ((element.roles & EFFECT_ROLE_DUST) == 0u) {
+  if ((element.roles & EFFECT_ROLE_DUST) == 0u || dustElements[elementIndex].dark != dark) {
     return HIDDEN;
   }
-  var state = pcg(element.id * 7919u + index % MOTES_PER_ELEMENT);
-  let edge = randomEdgePoint(element, &state);
+  let mote = index % MOTES_PER_ELEMENT;
+  var state = pcg(element.id * 7919u + mote);
+  // Each mote has its own share of the edge, so each side gets motes.
+  let edge = edgePoint(element, (f32(mote) + random(&state)) / f32(MOTES_PER_ELEMENT));
   let spread = random(&state);
   let head = edge.position + edge.normal * (2.0 + spread * spread * MOTE_SPREAD);
   let seed = random(&state);
   let radius = mix(RADIUS_MIN, RADIUS_MAX, seed * seed);
   let opacity = (1.0 - spread) * 0.8;
-  return quad(vertex, head, vec2f(1.0, 0.0), radius, 0.0, shade(unpack4x8unorm(dustElements[elementIndex].color), opacity));
+  return quad(vertex, head, vec2f(1.0, 0.0), radius, 0.0, shade(unpack4x8unorm(dustElements[elementIndex].color), opacity), element.scope);
 }
 
 @fragment
@@ -115,6 +126,9 @@ fn fragmentMain(input: DustVarying) -> @location(0) vec4f {
   let distance = length(input.local - vec2f(along, 0.0)) - radius;
   let pixel = 1.0 / effectTarget.pixelScale.x;
   let coverage = 1.0 - smoothstep(-pixel * 0.5, pixel * 0.5, distance);
-  return input.color * coverage * (1.0 - tail);
+  if (coverage <= 0.0) {
+    return vec4f(0.0);
+  }
+  return input.color * coverage * (1.0 - tail) * effectClip(input.scope, fragmentToPage(input.position.xy));
 }
 `;

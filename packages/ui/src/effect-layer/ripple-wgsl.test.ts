@@ -17,6 +17,9 @@ function record(fill: EffectElementRecord["fill"]): EffectElementRecord {
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
     fill,
+    scope: 0,
+    holds: null,
+    scopeIndex: 0,
   };
 }
 
@@ -41,8 +44,19 @@ describe("packRippleInstances", () => {
         instance({ elementIndex: 1, rings: [ring(4, 0.5), ring(30, 0.25)] }),
         instance({ neighbours: [0, 1, 4, 5, 6] }),
       ],
-      [record([1, 1, 1, 0.25]), record([0.5, 0.25, 0.75, 1])],
-      [1, 1, 1, 1],
+      {
+        elements: [record([1, 1, 1, 0.25]), record([0.5, 0.25, 0.75, 1])],
+        scopes: [
+          {
+            id: 0,
+            container: -1,
+            backdrop: [1, 1, 1, 1],
+            dark: false,
+            scroll: { firstElement: 0, elementCount: 2 },
+            fixed: { firstElement: 2, elementCount: 0 },
+          },
+        ],
+      },
       buffer,
     );
     const floats = new Float32Array(buffer);

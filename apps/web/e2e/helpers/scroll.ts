@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 /**
  * Scroll to `y` and hold there. Until the content is tall enough, `scrollTo`
@@ -18,4 +18,25 @@ export async function scrollWithin(page: Page, y: number) {
     () => document.documentElement.scrollHeight - window.innerHeight,
   );
   await scrollToAndSettle(page, Math.max(0, Math.min(Math.round(y), end)));
+}
+
+/** The element's box in the viewport. */
+export async function boxOf(locator: Locator) {
+  const box = await locator.boundingBox();
+  if (box === null) {
+    throw new Error("the element has no box");
+  }
+  return box;
+}
+
+/** Scrolls so the element's top sits `offset` px below the viewport top. */
+export async function scrollElementTo(
+  page: Page,
+  locator: Locator,
+  offset: number,
+) {
+  const top = await locator.evaluate(
+    (element) => element.getBoundingClientRect().top + window.scrollY,
+  );
+  await scrollWithin(page, top - offset);
 }

@@ -13,22 +13,6 @@ function luminance([red, green, blue]: readonly number[]) {
   return relativeLuminance([red * 255, green * 255, blue * 255]);
 }
 
-/**
- * Whether a page background is dark, so that light adds to it rather than
- * tints it. A transparent one gives `fallback`.
- *
- * @internal
- */
-export function isDarkBackdrop(
-  backdrop: EffectColor | null,
-  fallback: boolean,
-) {
-  if (backdrop === null || backdrop[3] < 0.5) {
-    return fallback;
-  }
-  return luminance(backdrop) < 0.18;
-}
-
 const NEUTRAL_LIGHT: Rgb = [1, 0.97, 0.92];
 const NEUTRAL_INK: Rgb = [0.32, 0.33, 0.36];
 /** How far a dark fill moves towards white on a dark page. */

@@ -4,10 +4,9 @@ import {
   MAX_PULSES,
   type RippleInstance,
 } from "./create-ripples.ts";
-import type { EffectColor } from "./parse-css-color.ts";
 import { isLightBackdrop, rippleColor } from "./ripple-color.ts";
 import { TARGET_WGSL } from "./target-wgsl.ts";
-import type { EffectElementRecord } from "./types.ts";
+import type { EffectFrame } from "./types.ts";
 
 /** The most a ring covers the page, on a light page and on a dark one. */
 const PEAK_ALPHA = { light: 0.55, dark: 0.95 } as const;
@@ -15,7 +14,8 @@ const PEAK_ALPHA = { light: 0.55, dark: 0.95 } as const;
 /**
  * The render shader of the Ripple effect, with each element that draws rings
  * this frame in group 2. Each instance is one element: a quad around it out
- * to its furthest crest, which sums its rings at each pixel.
+ * to its furthest crest, which sums its rings at each pixel, inside its
+ * Effect container.
  *
  * @internal
  */
@@ -80,8 +80,8 @@ fn rippleFragment(input: RippleVarying) -> @location(0) vec4f {
   let element = effectElements[ripple.element];
   let page = fragmentToPage(input.position.xy);
   let edge = effectElementDistance(element, page);
-  // The rings start just inside the edge, so that the element's own
-  // anti-aliased edge blends into their colour and not into the page.
+  // The rings start just inside the edge and cover the element's own
+  // anti-aliased edge, so that no line of page shows between them.
   if (edge <= -EDGE_OVERLAP) {
     return vec4f(0.0);
   }
@@ -99,6 +99,7 @@ fn rippleFragment(input: RippleVarying) -> @location(0) vec4f {
   if (alpha < 1.0 / 512.0) {
     return vec4f(0.0);
   }
+  alpha *= effectClip(element.scope, page);
   for (var n = 0u; n < ripple.neighbourCount; n += 1u) {
     let other = effectElements[ripple.neighbours[n / 4u][n % 4u]];
     alpha *= smoothstep(0.0, ABSORB_DISTANCE, effectElementDistance(other, page));
@@ -119,25 +120,26 @@ const INSTANCE_WORDS = RIPPLE_INSTANCE_BYTES / 4;
 /**
  * Packs the instances in order as `RippleInstance` structs at the start of
  * `buffer`, which must hold at least that many. Each ring takes its
- * element's fill, set against `backdrop`, the page's background colour.
+ * element's fill, set against the backdrop of its scope.
  *
  * @internal
  */
 export function packRippleInstances(
   instances: readonly RippleInstance[],
-  elements: readonly EffectElementRecord[],
-  backdrop: EffectColor,
+  { elements, scopes }: Pick<EffectFrame, "elements" | "scopes">,
   buffer: ArrayBuffer,
 ) {
   const floats = new Float32Array(buffer);
   const words = new Uint32Array(buffer);
-  const peak = isLightBackdrop(backdrop) ? PEAK_ALPHA.light : PEAK_ALPHA.dark;
   for (const [
     index,
     { elementIndex, rings, neighbours },
   ] of instances.entries()) {
     const at = index * INSTANCE_WORDS;
-    const { fill } = elements[elementIndex];
+    const record = elements[elementIndex];
+    const { fill } = record;
+    const { backdrop } = scopes[record.scopeIndex];
+    const peak = isLightBackdrop(backdrop) ? PEAK_ALPHA.light : PEAK_ALPHA.dark;
     words.fill(0, at, at + INSTANCE_WORDS);
     words[at] = elementIndex;
     words[at + 1] = rings.length;

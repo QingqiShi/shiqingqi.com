@@ -5,7 +5,10 @@ import { stubObservers } from "../test-support/stub-observers.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
 import { createFrameScheduler } from "./create-frame-scheduler.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
+import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { changedScope, trackElements } from "./track-elements.ts";
+
+const ON_PAGE = { scope: PAGE_SCOPE, holds: null };
 
 function mount() {
   document.body.innerHTML = `
@@ -80,8 +83,8 @@ describe("trackElements", () => {
     layOut(elements.button, { x: 0, y: 0, width: 100, height: 40 }, reads);
     layOut(elements.other, { x: 0, y: 100, width: 100, height: 40 }, reads);
     const registry = createEffectRegistry();
-    registry.register(elements.button, 0, NO_SETTINGS);
-    registry.register(elements.other, 0, NO_SETTINGS);
+    registry.register(elements.button, 0, NO_SETTINGS, ON_PAGE);
+    registry.register(elements.other, 0, NO_SETTINGS, ON_PAGE);
     const onChange = vi.fn();
     const tracking = trackElements(registry, createFrameScheduler(), onChange);
     frames.run();
@@ -98,10 +101,10 @@ describe("trackElements", () => {
     layOut(button, { x: 0, y: 0, width: 100, height: 40 }, reads);
     layOut(other, { x: 0, y: 100, width: 100, height: 40 }, reads);
     const registry = createEffectRegistry();
-    registry.register(button, 0, NO_SETTINGS);
+    registry.register(button, 0, NO_SETTINGS, ON_PAGE);
     const onChange = vi.fn();
     trackElements(registry, createFrameScheduler(), onChange);
-    registry.register(other, 0, NO_SETTINGS);
+    registry.register(other, 0, NO_SETTINGS, ON_PAGE);
     expect(reads).toEqual([]);
 
     frames.run();

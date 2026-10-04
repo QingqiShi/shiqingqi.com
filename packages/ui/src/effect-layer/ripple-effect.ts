@@ -5,11 +5,11 @@ import {
 } from "./constants.ts";
 import {
   createRipples,
+  instanceRange,
   type RippleCause,
   type RippleStep,
 } from "./create-ripples.ts";
 import { roleBits } from "./effect-roles.ts";
-import { parseCssColor, type EffectColor } from "./parse-css-color.ts";
 import {
   packRippleInstances,
   RIPPLE_INSTANCE_BYTES,
@@ -20,20 +20,8 @@ import type { Effect } from "./types.ts";
 const RIPPLE_BIT = roleBits(["ripple"]);
 const AMBIENT_BIT = roleBits(["rippleAmbient"]);
 const MIN_CAPACITY = 8;
-const WHITE: EffectColor = [1, 1, 1, 1];
 /** The still ring under reduced motion: while pressed, and while hovered or focused. */
 const HELD_STRENGTH = { press: 0.8, hover: 0.45 } as const;
-
-/** The page's background colour, which the `<canvas>` elements draw over. */
-function readBackdrop(): EffectColor {
-  for (const element of [document.documentElement, document.body]) {
-    const color = parseCssColor(getComputedStyle(element).backgroundColor);
-    if (color !== null && color[3] > 0) {
-      return color;
-    }
-  }
-  return WHITE;
-}
 
 function heldStrength(element: Element) {
   if (element.matches(":active")) {
@@ -197,6 +185,7 @@ export const rippleEffect: Effect = {
         step = ripples.step({
           time: frame.time,
           elements: frame.elements,
+          scopes: frame.scopes,
           rippleBit: RIPPLE_BIT,
           ambientBit: AMBIENT_BIT,
           pointerSpeed: Math.hypot(velocityX, velocityY),
@@ -209,12 +198,7 @@ export const rippleEffect: Effect = {
         const { instances } = step;
         if (instances.length > 0) {
           ensureCapacity(instances.length);
-          packRippleInstances(
-            instances,
-            frame.elements,
-            readBackdrop(),
-            packed,
-          );
+          packRippleInstances(instances, frame, packed);
           if (buffer !== null) {
             device.queue.writeBuffer(
               buffer,
@@ -231,11 +215,11 @@ export const rippleEffect: Effect = {
         if (step === null || bindGroup === null) {
           return;
         }
-        const { instances, documentInstances } = step;
-        const [first, count] =
-          target.canvas === "scroll"
-            ? [0, documentInstances]
-            : [documentInstances, instances.length - documentInstances];
+        const [first, count] = instanceRange(
+          step.instances,
+          target.firstElement,
+          target.elementCount,
+        );
         if (count === 0) {
           return;
         }

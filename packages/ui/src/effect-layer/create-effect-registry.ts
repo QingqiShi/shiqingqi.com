@@ -1,16 +1,29 @@
 import type { ElementTracker } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
-import type { EffectElementRecord, EffectSettings } from "./types.ts";
+import { PAGE_SCOPE } from "./plan-scopes.ts";
+import type { EffectSettings, MeasuredElement } from "./types.ts";
+
+/**
+ * Where a registration puts its element: the scope it is in, and the scope
+ * it holds as an Effect container, or `null`.
+ *
+ * @internal
+ */
+export interface EffectPlacement {
+  readonly scope: number;
+  readonly holds: number | null;
+}
 
 /**
  * One registered element. An element registered more than once, by several
  * effect hooks for example, is one entry: its roles are every role the
- * registrations add, and each effect's settings come from the latest
- * registration that has them.
+ * registrations add, each effect's settings come from the latest
+ * registration that has them, its scope from the latest registration, and
+ * the scope it holds from the latest registration that holds one.
  *
  * @internal
  */
-export interface RegisteredElement {
+export interface RegisteredElement extends EffectPlacement {
   /** Stays the same while the element stays registered. */
   readonly id: number;
   /** One bit per role, as `EFFECT_ROLES` orders them. */
@@ -25,8 +38,8 @@ export interface RegisteredElement {
  * @internal
  */
 export interface EffectRegistration {
-  /** Changes the roles and settings, and keeps the element's id. */
-  update: (roles: number, settings: EffectSettings) => void;
+  /** Changes the roles, the settings and the scope, and keeps the element's id. */
+  update: (roles: number, settings: EffectSettings, scope: number) => void;
   remove: () => void;
 }
 
@@ -69,9 +82,10 @@ function settingsEqual(first: EffectSettings, second: EffectSettings) {
  * @internal
  */
 export function createEffectRegistry() {
-  interface Registration {
+  interface Registration extends EffectPlacement {
     roles: number;
     settings: EffectSettings;
+    scope: number;
   }
   const uses = new Map<
     Element,
@@ -93,14 +107,18 @@ export function createEffectRegistry() {
     for (const [element, { id, registrations }] of uses) {
       let elementRoles = 0;
       let settings = NO_SETTINGS;
+      let scope = PAGE_SCOPE;
+      let holds: number | null = null;
       for (const registration of registrations) {
         elementRoles |= registration.roles;
+        scope = registration.scope;
+        holds = registration.holds ?? holds;
         settings =
           registrations.size === 1
             ? registration.settings
             : { ...settings, ...registration.settings };
       }
-      next.set(element, { id, roles: elementRoles, settings });
+      next.set(element, { id, roles: elementRoles, settings, scope, holds });
       roles |= elementRoles;
     }
     elements = next;
@@ -110,11 +128,16 @@ export function createEffectRegistry() {
   }
 
   return {
-    /** Adds an element and returns the registration that changes or removes it. */
+    /**
+     * Adds an element and returns the registration that changes or removes
+     * it. `placement` gives the scope the element is in, and the scope it
+     * holds when it is an Effect container.
+     */
     register: (
       element: Element,
       elementRoles: number,
       settings: EffectSettings,
+      placement: EffectPlacement,
     ): EffectRegistration => {
       const use = uses.get(element) ?? {
         id: nextId++,
@@ -123,20 +146,26 @@ export function createEffectRegistry() {
       };
       uses.set(element, use);
       const { registrations } = use;
-      const registration: Registration = { roles: elementRoles, settings };
+      const registration: Registration = {
+        ...placement,
+        roles: elementRoles,
+        settings,
+      };
       registrations.add(registration);
       notify();
       return {
-        update: (nextRoles, nextSettings) => {
+        update: (nextRoles, nextSettings, nextScope) => {
           if (
             !registrations.has(registration) ||
             (registration.roles === nextRoles &&
+              registration.scope === nextScope &&
               settingsEqual(registration.settings, nextSettings))
           ) {
             return;
           }
           registration.roles = nextRoles;
           registration.settings = nextSettings;
+          registration.scope = nextScope;
           notify();
         },
         remove: () => {
@@ -192,10 +221,10 @@ export function createEffectRegistry() {
      * coordinates at this scroll: those in the document first, then the
      * fixed ones, each group in registration order.
      */
-    records: (scrollX: number, scrollY: number): EffectElementRecord[] => {
-      const inDocument: EffectElementRecord[] = [];
-      const fixed: EffectElementRecord[] = [];
-      for (const [element, { id, roles, settings }] of elements) {
+    records: (scrollX: number, scrollY: number): MeasuredElement[] => {
+      const inDocument: MeasuredElement[] = [];
+      const fixed: MeasuredElement[] = [];
+      for (const [element, { id, roles, settings, scope, holds }] of elements) {
         const box = uses.get(element)?.tracker?.boxAt(scrollX, scrollY);
         if (box == null) {
           continue;
@@ -206,6 +235,8 @@ export function createEffectRegistry() {
           element,
           roles,
           settings,
+          scope,
+          holds,
         });
       }
       return [...inDocument, ...fixed];
