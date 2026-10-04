@@ -1,7 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { EffectContainer } from "@tuja/ui/components/effect-container";
 import { Text } from "@tuja/ui/components/text";
 import { useEffectContainer } from "@tuja/ui/hooks/use-effect-container";
@@ -44,23 +43,28 @@ function Card({ title, dust }: { title: string; dust?: StyleProp }) {
  */
 export function EffectContainerSpecimen() {
   return (
-    <div css={styles.specimen}>
-      <Card title={t({ en: "Card A", zh: "卡片 A" })} />
-      <div css={[flex.col, styles.page]}>
-        <DustTile density={5} css={[styles.tile, styles.info]} />
-        <Fan reach={PAGE_REACH} />
+    <div css={styles.frame}>
+      <div css={styles.specimen}>
+        <Card title={t({ en: "Card A", zh: "卡片 A" })} />
+        <div css={[flex.col, styles.page]}>
+          <DustTile density={5} css={[styles.tile, styles.info]} />
+          <Fan reach={PAGE_REACH} />
+        </div>
+        <Card title={t({ en: "Card B", zh: "卡片 B" })} dust={styles.success} />
       </div>
-      <Card title={t({ en: "Card B", zh: "卡片 B" })} dust={styles.success} />
     </div>
   );
 }
 
 const styles = stylex.create({
+  frame: {
+    containerType: "inline-size",
+  },
   specimen: {
     display: "grid",
     gridTemplateColumns: {
       default: "1fr",
-      [breakpoints.md]: "1fr auto 1fr",
+      "@container (min-width: 41rem)": "1fr auto 1fr",
     },
     alignItems: "center",
     gap: space._8,

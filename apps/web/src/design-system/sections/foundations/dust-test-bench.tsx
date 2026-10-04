@@ -1,7 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { useDust } from "@tuja/ui/hooks/use-dust";
 import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
@@ -161,6 +160,7 @@ export function DustTestBench() {
 const styles = stylex.create({
   bench: {
     gap: space._14,
+    containerType: "inline-size",
   },
   case: {
     gap: space._5,
@@ -170,10 +170,17 @@ const styles = stylex.create({
     alignItems: "center",
   },
   near: {
-    flexDirection: { default: "column", [breakpoints.md]: "row" },
+    flexDirection: {
+      default: "column",
+      "@container (min-width: 35rem)": "row",
+    },
     gap: space._12,
   },
   far: {
+    flexDirection: {
+      default: "column",
+      "@container (min-width: 56rem)": "row",
+    },
     justifyContent: "space-between",
   },
   pillars: {
