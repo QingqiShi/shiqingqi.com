@@ -29,7 +29,7 @@ export default async function TripPage({ params }: TripPageProps) {
   const trip = tripBySlug(slug);
   if (!trip) notFound();
 
-  // eslint-disable-next-line @eslint-react/purity -- force-dynamic page: request time IS the content, and render is its only per-request phase
+  // force-dynamic page: request time IS the content, and render is its only per-request phase.
   const { index, phase, daysUntil } = resolveDay(new Date(), trip.days);
   // Live forecast for the days within Open-Meteo's horizon; cached server-side.
   const weatherByDay = await getTripWeather(trip.slug);
