@@ -4,6 +4,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -28,68 +29,74 @@ export function HeaderFooterLayoutShowcase() {
             zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。两组悬浮控件分别是返回按钮，以及主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至控件之下（文字页自行留出间距）；页脚固定在同一版心的底部。页面一旦离开顶部，就会在每组控件周围渐进虚化：紧贴控件处最强，稍往外即恢复清晰。页面静止在顶部时，虚化逐渐消退。页脚没有虚化，因为其上方没有悬浮元素。一切均可交互——可直接在其中切换主题。",
           })}
         </ShowcaseHelper>
-        {/* The frame's transform creates a containing block, so the shell's
-            fixed control groups anchor to the specimen frame — and stay
-            outside the inner viewport's clip, which owns the scrolling that
-            shows them staying pinned. */}
         <Specimen caption={t({ en: "every slot filled", zh: "填满全部插槽" })}>
-          <div css={[corner.radius_3, styles.frame]}>
-            <div css={styles.viewport}>
-              <HeaderFooterLayout
-                as="div"
-                readingColumn
-                headerStart={
-                  <BackButton
-                    locale={locale}
-                    label={t({ en: "Back", zh: "返回" })}
-                  />
-                }
-                headerEnd={
-                  <>
-                    <ThemeSwitch
-                      labels={[
-                        t({
-                          en: "Switch to light theme",
-                          zh: "切换至浅色模式",
-                        }),
-                        t({ en: "Switch to dark theme", zh: "切换至深色模式" }),
-                      ]}
-                    />
-                    <LocaleSelector
-                      ariaLabel={t({ en: "Select a language", zh: "选择语言" })}
+          {/* The shell's fixed control groups are fixed to the stage, so they
+              stay pinned while the viewport scrolls. */}
+          <div css={blurStage.base}>
+            <div css={[corner.radius_3, styles.frame]}>
+              <div css={styles.viewport}>
+                <HeaderFooterLayout
+                  as="div"
+                  readingColumn
+                  headerStart={
+                    <BackButton
                       locale={locale}
+                      label={t({ en: "Back", zh: "返回" })}
                     />
-                  </>
-                }
-                background={
-                  <div css={styles.specimenBackground} aria-hidden="true" />
-                }
-                footer={<Footer locale={locale} />}
-              >
-                <article css={styles.article}>
-                  <Heading level={2}>
-                    {t({ en: "The quiet harbour", zh: "静谧的港湾" })}
-                  </Heading>
-                  <Text tone="muted">
-                    {t({
-                      en: "Reading surfaces get one centred measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
-                      zh: "阅读型页面拥有单一居中的版心与充裕的留白。界面装饰退居其次：左侧是返回入口，右侧是实用控件，没有其他元素与正文争夺注意力。",
-                    })}
-                  </Text>
-                  <Text tone="muted">
-                    {t({
-                      en: "The background layer bleeds edge to edge beneath the content, and each floating group is pointer-transparent outside its own controls — text remains selectable right up to the top edge.",
-                      zh: "背景层在内容下方满幅延展，每组悬浮控件在控件本身之外不拦截指针事件——文字直到顶部边缘都可以选中。",
-                    })}
-                  </Text>
-                  <Text tone="muted">
-                    {t({
-                      en: "The footer shares the column's width and gutters, so the page reads as one continuous measure from headline to colophon.",
-                      zh: "页脚与内容列共享宽度和边距，从标题到版权信息整页保持同一版心。",
-                    })}
-                  </Text>
-                </article>
-              </HeaderFooterLayout>
+                  }
+                  headerEnd={
+                    <>
+                      <ThemeSwitch
+                        labels={[
+                          t({
+                            en: "Switch to light theme",
+                            zh: "切换至浅色模式",
+                          }),
+                          t({
+                            en: "Switch to dark theme",
+                            zh: "切换至深色模式",
+                          }),
+                        ]}
+                      />
+                      <LocaleSelector
+                        ariaLabel={t({
+                          en: "Select a language",
+                          zh: "选择语言",
+                        })}
+                        locale={locale}
+                      />
+                    </>
+                  }
+                  background={
+                    <div css={styles.specimenBackground} aria-hidden="true" />
+                  }
+                  footer={<Footer locale={locale} />}
+                >
+                  <article css={styles.article}>
+                    <Heading level={2}>
+                      {t({ en: "The quiet harbour", zh: "静谧的港湾" })}
+                    </Heading>
+                    <Text tone="muted">
+                      {t({
+                        en: "Reading surfaces get one centred measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
+                        zh: "阅读型页面拥有单一居中的版心与充裕的留白。界面装饰退居其次：左侧是返回入口，右侧是实用控件，没有其他元素与正文争夺注意力。",
+                      })}
+                    </Text>
+                    <Text tone="muted">
+                      {t({
+                        en: "The background layer bleeds edge to edge beneath the content, and each floating group is pointer-transparent outside its own controls — text remains selectable right up to the top edge.",
+                        zh: "背景层在内容下方满幅延展，每组悬浮控件在控件本身之外不拦截指针事件——文字直到顶部边缘都可以选中。",
+                      })}
+                    </Text>
+                    <Text tone="muted">
+                      {t({
+                        en: "The footer shares the column's width and gutters, so the page reads as one continuous measure from headline to colophon.",
+                        zh: "页脚与内容列共享宽度和边距，从标题到版权信息整页保持同一版心。",
+                      })}
+                    </Text>
+                  </article>
+                </HeaderFooterLayout>
+              </div>
             </div>
           </div>
         </Specimen>
@@ -118,24 +125,17 @@ export function HeaderFooterLayoutShowcase() {
 }
 
 const styles = stylex.create({
-  // Rounded, and clipping nothing: the control groups it anchors carry their
-  // own Progressive blur, and a squircle-cornered clip above those layers would
-  // strip their masks. A background and a border round by border-radius alone,
-  // which is the whole of the frame's look.
   frame: {
     position: "relative",
     inlineSize: "100%",
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
-    // Containing block for the shell's fixed control groups (see comment at
-    // the callsite).
-    transform: "translateZ(0)",
   },
   // The scroller, so the groups can be watched staying pinned while the content
   // moves under them. It rounds its own clip to the frame's corners, which the
   // shell's full-bleed background layer would otherwise square off. Safe above
   // the blur layers, which are not clipped here: the groups are fixed to the
-  // frame, so this element is nowhere in their containing-block chain.
+  // stage, so this element is nowhere in their containing-block chain.
   viewport: {
     maxBlockSize: space._15,
     overflowY: "auto",
