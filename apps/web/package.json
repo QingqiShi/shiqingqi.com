@@ -40,7 +40,7 @@
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@stylexjs/stylex": "catalog:",
-    "@tanstack/react-query": "5.104.0",
+    "@tanstack/react-query": "5.104.1",
     "@tuja/tmdb-types": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@upstash/ratelimit": "^2.2.0",
