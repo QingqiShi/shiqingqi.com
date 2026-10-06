@@ -94,7 +94,7 @@
     "dotenv": "catalog:",
     "jsdom": "catalog:",
     "modern-normalize": "^3.0.1",
-    "msw": "^2.15.0",
+    "msw": "^3.0.0",
     "next-i18n-router": "^5.5.8",
     "npm-run-all2": "^9.0.3",
     "openapi-typescript": "^7.13.0",
