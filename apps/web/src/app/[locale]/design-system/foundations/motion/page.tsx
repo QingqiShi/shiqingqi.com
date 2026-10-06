@@ -12,8 +12,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/foundations/motion",
     description: t({
-      en: "Duration and easing tokens, live transition and keyframe presets, and the reduced-motion fallbacks that ship in the base.",
-      zh: "时长与缓动令牌、可实时预览的过渡与关键帧预设，以及底层内置的减少动态效果回退。",
+      en: "Animate your own elements to match the components: the motion presets, the duration and easing constants, reduced motion, and pausing loops.",
+      zh: "让你自己的元素与组件动得一致：动效预设、时长与缓动常量、减弱动效，以及暂停循环。",
     }),
   });
 }
@@ -23,8 +23,8 @@ export default function MotionPage() {
     <DocPage
       path="/design-system/foundations/motion"
       description={t({
-        en: "The timing language of the system: a duration scale, a set of easing curves, and ready-made transition and keyframe presets — each with a prefers-reduced-motion fallback baked in.",
-        zh: "系统的时间语言：一套时长阶梯、一组缓动曲线，以及现成的过渡与关键帧预设——每一项都内置了 prefers-reduced-motion 回退。",
+        en: "The components animate themselves and handle reduced motion. This page is for the motion you write yourself, with the presets and constants from @tuja/ui/primitives/motion.stylex.",
+        zh: "组件会自行处理动效与减弱动效。本页讲的是你自己编写的动效，使用 @tuja/ui/primitives/motion.stylex 中的预设与常量。",
       })}
     >
       <MotionShowcase />

@@ -42,6 +42,7 @@ const GROUP_LABELS: DesignSystemGroupLabels = {
     composition: "Composition",
   },
   categories: {
+    basics: "Basics",
     visual: "Visual",
     behaviour: "Behaviour",
     content: "Content",

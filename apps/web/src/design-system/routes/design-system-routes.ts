@@ -24,8 +24,38 @@ import type { DesignSystemRoute } from "./types.ts";
 const ROUTES = [
   { section: "overview", path: "/design-system" },
   // Foundations splits the same way Components does, and for the same reason:
-  // nine in a row is past what a visitor can scan. Eight decide what a surface
-  // looks like; three decide how it treats the person in front of it.
+  // eleven in a row is past what a visitor can scan. Basics is where a reader
+  // starts; Visual decides what a surface looks like; Behaviour decides how it
+  // treats the person in front of it.
+  {
+    section: "foundations",
+    category: "basics",
+    path: "/design-system/foundations/get-started",
+    keywords: [
+      "install",
+      "setup",
+      "stylex",
+      "babel",
+      "postcss",
+      "import",
+      "dark mode",
+      "安装",
+    ],
+  },
+  {
+    section: "foundations",
+    category: "basics",
+    path: "/design-system/foundations/customization",
+    keywords: [
+      "customisation",
+      "custom",
+      "configuration",
+      "slot",
+      "escape hatch",
+      "override",
+      "extend",
+    ],
+  },
   {
     section: "foundations",
     category: "visual",
@@ -41,14 +71,35 @@ const ROUTES = [
   {
     section: "foundations",
     category: "visual",
-    path: "/design-system/foundations/spacing",
-    keywords: ["space", "gap", "padding", "margin", "rhythm"],
+    path: "/design-system/foundations/layout",
+    keywords: [
+      "space",
+      "spacing",
+      "gap",
+      "padding",
+      "margin",
+      "breakpoint",
+      "container",
+      "responsive",
+      "z-index",
+      "ratio",
+    ],
   },
   {
     section: "foundations",
     category: "visual",
-    path: "/design-system/foundations/borders",
-    keywords: ["radius", "corner", "stroke", "outline", "hairline"],
+    path: "/design-system/foundations/surfaces",
+    keywords: [
+      "border",
+      "radius",
+      "corner",
+      "squircle",
+      "stroke",
+      "outline",
+      "hairline",
+      "shadow",
+      "floating",
+    ],
   },
   {
     section: "foundations",
@@ -67,29 +118,6 @@ const ROUTES = [
       "玻璃",
     ],
   },
-  // This page is next to Material. Material is what CSS paints on a surface.
-  // The effect layer is what the GPU draws around a surface. Components ›
-  // Surfaces is also a correct group, but it has nine routes, the maximum.
-  {
-    section: "foundations",
-    category: "visual",
-    path: "/design-system/foundations/effect-layer",
-    keywords: [
-      "effects",
-      "webgpu",
-      "gpu",
-      "canvas",
-      "particles",
-      "shader",
-      "效果层",
-    ],
-  },
-  {
-    section: "foundations",
-    category: "visual",
-    path: "/design-system/foundations/layout",
-    keywords: ["breakpoint", "container", "responsive", "z-index", "ratio"],
-  },
   {
     section: "foundations",
     category: "visual",
@@ -106,21 +134,19 @@ const ROUTES = [
     section: "foundations",
     category: "behaviour",
     path: "/design-system/foundations/accessibility",
-    keywords: ["a11y", "aria", "screen reader", "focus", "keyboard", "wcag"],
-  },
-  {
-    section: "foundations",
-    category: "behaviour",
-    path: "/design-system/foundations/voice",
     keywords: [
+      "a11y",
+      "aria",
+      "screen reader",
+      "focus",
+      "keyboard",
+      "wcag",
       "copy",
-      "wording",
-      "microcopy",
-      "writing",
-      "content",
       "label",
-      "spelling",
-      "dialect",
+      "microcopy",
+      "voice",
+      "i18n",
+      "truncate",
     ],
   },
   // "Content", not "Typography": Foundations already carries a Typography page,
@@ -398,6 +424,24 @@ const ROUTES = [
     section: "composition",
     path: "/design-system/hooks",
     keywords: ["headless", "react", "state", "controlled", "focus"],
+  },
+  // An API rather than a foundation: the provider, the hooks that register an
+  // element, and the effects they draw. It sits with the other raw parts.
+  {
+    section: "composition",
+    path: "/design-system/effect-layer",
+    keywords: [
+      "effects",
+      "webgpu",
+      "gpu",
+      "canvas",
+      "particles",
+      "shader",
+      "ripple",
+      "dust",
+      "black hole",
+      "效果层",
+    ],
   },
 ] as const satisfies readonly DesignSystemRoute[];
 

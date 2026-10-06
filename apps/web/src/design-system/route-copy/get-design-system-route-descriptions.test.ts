@@ -26,8 +26,8 @@ describe("getDesignSystemRouteDescriptions", () => {
     setLocale("zh");
     const descriptions = getDesignSystemRouteDescriptions();
 
-    expect(descriptions["/design-system/foundations/borders"]).toBe(
-      "描边宽度与圆角阶梯。",
+    expect(descriptions["/design-system/foundations/surfaces"]).toBe(
+      "卡片与弹出层外观、边框、圆角、嵌套圆角、阴影与悬浮表面。",
     );
   });
 });

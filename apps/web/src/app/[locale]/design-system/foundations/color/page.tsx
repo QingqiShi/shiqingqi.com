@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
 import { BackgroundsShowcase } from "#src/design-system/sections/foundations/backgrounds-showcase.tsx";
-import { BalanceShowcase } from "#src/design-system/sections/foundations/balance-showcase.tsx";
+import { ColorBordersShowcase } from "#src/design-system/sections/foundations/color-borders-showcase.tsx";
+import { ColorJobsShowcase } from "#src/design-system/sections/foundations/color-jobs-showcase.tsx";
+import { ColorStartShowcase } from "#src/design-system/sections/foundations/color-start-showcase.tsx";
 import { ContrastShowcase } from "#src/design-system/sections/foundations/contrast-showcase.tsx";
 import { PaletteShowcase } from "#src/design-system/sections/foundations/palette-showcase.tsx";
 import { RolesShowcase } from "#src/design-system/sections/foundations/roles-showcase.tsx";
@@ -24,16 +26,18 @@ export default function ColorPage() {
     <DocPage
       path="/design-system/foundations/color"
       description={t({
-        en: "Thirteen hues at twenty-one tones make the system palette. Tokens reference those tones by purpose, and nothing references a tone directly. A token is named for the property it paints, so every token is shown below under that property — backgrounds, then foregrounds, then the six Intents, each with a fill, a border and a foreground of its own — followed by the models and standards the palette is built on.",
-        zh: "十三种色相乘以二十一级色调，构成系统调色板。令牌按用途引用这些色调，任何地方都不会直接引用色调。令牌以它所绘制的属性命名，下面便按属性展示全部令牌——先是背景，再是前景色，然后是六种意图色，每一种都有自己的填充、边框与前景色——最后是调色板所依据的模型与标准。",
+        en: "Which colour token to use when you build your own element, which Intent fits a job, which pairings keep their contrast, and where to get a colour no token covers.",
+        zh: "自行构建元素时该用哪个颜色令牌、哪种意图色适合哪种用途、哪些搭配能保持对比度，以及令牌未涵盖的颜色从哪里取。",
       })}
     >
-      <PaletteShowcase />
+      <ColorStartShowcase />
+      <ColorJobsShowcase />
       <BackgroundsShowcase />
       <TextRolesShowcase />
+      <ColorBordersShowcase />
       <RolesShowcase />
-      <BalanceShowcase />
       <ContrastShowcase />
+      <PaletteShowcase />
     </DocPage>
   );
 }

@@ -431,8 +431,8 @@ function MotionSection() {
     <Showcase label={t({ en: "Motion", zh: "动效" })}>
       <ShowcaseHelper>
         {t({
-          en: "Transition and animation presets, each with its reduced-motion story built in. Compose them onto a custom element instead of hand-writing keyframes. The Motion foundation documents the full duration and easing scales.",
-          zh: "过渡与动画预设，每一个都内建了减少动态偏好的处理。将它们组合到自定义元素上，而不必手写关键帧。动效基础页记录了完整的时长与缓动阶梯。",
+          en: "Transition and animation presets. Compose them onto your own element instead of writing keyframes by hand. The Motion page says what each one does under reduced motion, and lists the duration and easing constants.",
+          zh: "过渡与动画预设。将它们组合到你自己的元素上，而不必手写关键帧。动效页说明了每个预设在减弱动效下的表现，并列出时长与缓动常量。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -652,16 +652,16 @@ function TextureSection() {
       token: "textureTokens.pitch",
       meta: "default: space._1",
       description: t({
-        en: "The gap between marks — the per-surface dial. A smaller surface takes a finer mark.",
-        zh: "标记之间的间隔——按表面设定的旋钮。较小的表面取更细的标记。",
+        en: "The distance between dots. Take it from space._0 or a larger step.",
+        zh: "点与点之间的距离。取 space._0 或更大的一级。",
       }),
     },
     {
       token: "textureTokens.ink",
       meta: "default: color.fg at 20%",
       description: t({
-        en: "The mark's colour. Keep it close to the surface, so the texture never resolves into a pattern with a name.",
-        zh: "标记的颜色。让它贴近表面，纹理才不会显出一个叫得出名字的图案。",
+        en: "The dot's colour. The default mixes color.fg into transparent, so it follows the colour scheme.",
+        zh: "点的颜色。默认值把 color.fg 混入透明色，因此会随配色方案变化。",
       }),
     },
   ];
@@ -670,8 +670,8 @@ function TextureSection() {
     <Showcase label={t({ en: "Texture", zh: "纹理" })}>
       <ShowcaseHelper>
         {t({
-          en: "One drawn dot of 1px or less, repeated across a surface at one size. Set the pitch and the ink per surface by overriding the tokens in a local style block. Never nest one texture inside another.",
-          zh: "表面上一个绘制的点，不超过 1px，只用一种尺寸重复。在局部样式块中覆盖令牌，为每个表面设定间距与墨色。绝不把一种纹理嵌套在另一种里面。",
+          en: "A dot 1px across, repeated on a square grid over the element's background colour. Set the pitch and the ink per surface through the Tokens in a local style. When to use it is on the Material page.",
+          zh: "一个 1px 的点，在元素背景色之上按方格重复。通过局部样式中的令牌，为每个表面设定间距与墨色。何时使用见质感页。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -736,8 +736,8 @@ function WashSection() {
       token: "washTokens.tone",
       meta: "default: color.bgNeutralSubtle",
       description: t({
-        en: "The tone that drifts — the per-surface dial. An accent tone belongs only on a surface that already carries the accent.",
-        zh: "铺开的色调——按表面设定的旋钮。意图色的色调只属于本身已经带有该意图色的表面。",
+        en: "The tone the gradient starts from. It is the only dial, so it sets both the colour and how strong the wash is.",
+        zh: "渐变起始的颜色。它是唯一的调节项，因此同时决定颜色与淡彩的强弱。",
       }),
     },
   ];
@@ -746,8 +746,8 @@ function WashSection() {
     <Showcase label={t({ en: "Wash", zh: "淡彩" })}>
       <ShowcaseHelper>
         {t({
-          en: "A broad gradient that gives a surface some volume — one tone drifting across it, with no bright spot anywhere. A bright spot reads as a light source, and only Glass is lit.",
-          zh: "一种色调在整个表面上缓缓铺开，给它一点体量，任何地方都没有亮斑。亮斑读起来是光源，而只有玻璃是被照亮的。",
+          en: "A linear gradient from one tone to transparent, across the whole element, so the element's background colour shows through as the tone fades. When to use it is on the Material page.",
+          zh: "从一种颜色渐变到透明的线性渐变，铺满整个元素，因此颜色淡去时元素的背景色会透出来。何时使用见质感页。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>

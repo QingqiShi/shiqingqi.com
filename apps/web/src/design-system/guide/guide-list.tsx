@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { Fragment } from "react";
 import { measure } from "#src/design-system/measure.stylex.ts";
 
 interface GuideListItem {
@@ -23,7 +24,7 @@ export function GuideList({ items }: GuideListProps) {
     <dl css={styles.list}>
       {items.map((item) => (
         <div key={item.term} css={styles.row}>
-          <dt css={styles.term}>{item.term}</dt>
+          <dt css={styles.term}>{breakAfterSlashes(item.term)}</dt>
           <dd css={styles.definition}>
             {item.value ? <span css={styles.value}>{item.value}</span> : null}
             <span css={styles.note}>{item.note}</span>
@@ -32,6 +33,20 @@ export function GuideList({ items }: GuideListProps) {
       ))}
     </dl>
   );
+}
+
+function breakAfterSlashes(term: string) {
+  const parts = term.split("/");
+  return parts.map((part, index) => (
+    <Fragment key={index}>
+      {part}
+      {index < parts.length - 1 ? (
+        <>
+          /<wbr />
+        </>
+      ) : null}
+    </Fragment>
+  ));
 }
 
 const styles = stylex.create({
@@ -68,6 +83,7 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_3,
     color: color.fg,
     textWrap: "balance",
+    overflowWrap: "anywhere",
   },
   definition: {
     display: "flex",

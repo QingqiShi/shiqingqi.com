@@ -76,10 +76,10 @@ export function MovieDetailShowcase() {
       <Showcase label={t({ en: "What it composes", zh: "组成结构" })}>
         <div css={styles.layerGrid}>
           <LayerCard
-            title={t({ en: "Config layer", zh: "配置层" })}
+            title={t({ en: "Chosen with props", zh: "用属性选择" })}
             description={t({
-              en: "The default, and where nearly everything landed: a component, its props, done.",
-              zh: "默认层级，也是绝大多数内容的归属：一个组件、若干属性，就此完成。",
+              en: "Nearly everything on the screen: a component and its props.",
+              zh: "页面上的绝大多数内容：一个组件加上它的属性。",
             })}
             entries={[
               'Badge intent="accent" | "neutral" size="sm"',
@@ -95,10 +95,10 @@ export function MovieDetailShowcase() {
             ]}
           />
           <LayerCard
-            title={t({ en: "Slot layer", zh: "插槽层" })}
+            title={t({ en: "Your own content", zh: "你自己的内容" })}
             description={t({
-              en: "One internal piece swapped out, with layout, state, and accessibility left where they were.",
-              zh: "只替换内部的某一处，布局、状态与无障碍仍由组件持有。",
+              en: "Props that take a node. The screen supplies the content; the component still places it and keeps its layout, state and accessibility.",
+              zh: "接收节点的属性。页面提供内容，组件仍负责摆放它，并保留自己的布局、状态与无障碍。",
             })}
             entries={[
               "Button icon",
@@ -111,10 +111,10 @@ export function MovieDetailShowcase() {
             ]}
           />
           <LayerCard
-            title={t({ en: "Custom layer", zh: "自定义层" })}
+            title={t({ en: "Built by hand", zh: "自行构建" })}
             description={t({
-              en: "Five things on this page have no component. They are built from tokens and composable styles, and still inherit the system's surfaces, focus rings, and easing.",
-              zh: "这里有五处没有对应组件。它们由令牌与可组合样式搭建，同时仍继承系统的表面、焦点环与缓动。",
+              en: "Five things on this page have no component. They are built from Tokens, Primitives and a component's exported look, and still get the system's surfaces, focus rings and easing.",
+              zh: "这里有五处没有对应组件。它们由令牌、原语与组件导出的外观搭建，同时仍沿用系统的表面、焦点环与缓动。",
             })}
             entries={[
               "cardSurface.base + .interactive on <button>",

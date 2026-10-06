@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
-import { BlurShowcase } from "#src/design-system/sections/foundations/blur-showcase.tsx";
 import { GlassShowcase } from "#src/design-system/sections/foundations/glass-showcase.tsx";
+import { MaterialGuide } from "#src/design-system/sections/foundations/material-guide.tsx";
 import { TextureShowcase } from "#src/design-system/sections/foundations/texture-showcase.tsx";
 import { WashShowcase } from "#src/design-system/sections/foundations/wash-showcase.tsx";
 import type { PageProps } from "#src/i18n/types.ts";
@@ -22,14 +22,14 @@ export default function MaterialPage() {
     <DocPage
       path="/design-system/foundations/material"
       description={t({
-        en: "How a surface takes on a look beyond its colour and border: a texture drawn across it, a wash that gives it volume, and glass that catches light. Nothing else on the page is lit, and nothing else casts a shadow.",
-        zh: "表面在颜色与边框之外的质感：绘制其上的纹理、赋予体量的淡彩，以及捕捉光线的玻璃。页面上没有别的东西被照亮，也没有别的东西投下阴影。",
+        en: "Three treatments you can add to a surface on top of its colour and border: a texture of faint dots, a wash that fades one tone across it, and glass that blurs what is behind it. Each is a style object with Tokens you set per surface.",
+        zh: "三种可以在颜色与边框之上加给表面的处理：淡点组成的纹理、让一种色调在表面上渐隐的淡彩，以及虚化背后内容的玻璃。每一种都是一个样式对象，带有可按表面设定的令牌。",
       })}
     >
+      <MaterialGuide />
       <TextureShowcase />
       <WashShowcase />
       <GlassShowcase />
-      <BlurShowcase />
     </DocPage>
   );
 }

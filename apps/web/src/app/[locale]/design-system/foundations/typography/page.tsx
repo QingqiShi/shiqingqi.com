@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
 import { FamiliesShowcase } from "#src/design-system/sections/foundations/families-showcase.tsx";
-import { LetterSpacingShowcase } from "#src/design-system/sections/foundations/letter-spacing-showcase.tsx";
-import { LineHeightsShowcase } from "#src/design-system/sections/foundations/line-heights-showcase.tsx";
-import { TextStylesShowcase } from "#src/design-system/sections/foundations/text-styles-showcase.tsx";
 import { TypeScaleShowcase } from "#src/design-system/sections/foundations/type-scale-showcase.tsx";
-import { WeightsShowcase } from "#src/design-system/sections/foundations/weights-showcase.tsx";
+import {
+  TypographyPairingShowcase,
+  TypographyReferenceShowcase,
+} from "#src/design-system/sections/foundations/typography-reference-showcase.tsx";
+import { TypographyStartShowcase } from "#src/design-system/sections/foundations/typography-start-showcase.tsx";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -24,16 +25,15 @@ export default function TypographyPage() {
     <DocPage
       path="/design-system/foundations/typography"
       description={t({
-        en: "One family in Inter, shaped by a fluid type scale, weight scale, line-heights, and tracking — then applied through the heading and body text styles.",
-        zh: "以 Inter 为单一字体，通过流式字号阶梯、字重阶梯、行高与字距塑形，并应用于标题与正文样式。",
+        en: "Most text needs only Text and Heading. When you style text yourself, this page says which font family and size scale to use, and which line height, weight and tracking go with each size.",
+        zh: "大多数文字只需要 Text 与 Heading。当你自己为文字设置样式时，本页说明该用哪种字体族与哪套字阶，以及每种字号搭配哪种行高、字重与字距。",
       })}
     >
+      <TypographyStartShowcase />
       <FamiliesShowcase />
       <TypeScaleShowcase />
-      <WeightsShowcase />
-      <LineHeightsShowcase />
-      <LetterSpacingShowcase />
-      <TextStylesShowcase />
+      <TypographyPairingShowcase />
+      <TypographyReferenceShowcase />
     </DocPage>
   );
 }

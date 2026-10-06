@@ -4,7 +4,7 @@ import { boxOf, scrollElementTo, scrollToAndSettle } from "./helpers/scroll.ts";
 
 // The effect layer page, whose dust test bench has dust with no fan in
 // reach, a fan close by, two pillars taller than a band, and a far fan.
-const PAGE = "/en/design-system/foundations/effect-layer";
+const PAGE = "/en/design-system/effect-layer";
 
 // The layer mounts after hydration and an async device request.
 const MOUNT_TIMEOUT = 15_000;

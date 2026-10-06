@@ -5,7 +5,7 @@ import { boxOf, scrollElementTo } from "./helpers/scroll.ts";
 // The effect layer page, whose Effect container test bench has dust in a
 // container beside a fan on the page, dust on the page beside a container
 // that holds a fan, and rings close to a container's edge.
-const PAGE = "/en/design-system/foundations/effect-layer";
+const PAGE = "/en/design-system/effect-layer";
 
 // The layer mounts after hydration and an async device request.
 const MOUNT_TIMEOUT = 15_000;

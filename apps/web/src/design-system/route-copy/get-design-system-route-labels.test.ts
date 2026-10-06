@@ -24,7 +24,7 @@ describe("getDesignSystemRouteLabels", () => {
     setLocale("zh");
     const labels = getDesignSystemRouteLabels();
 
-    expect(labels["/design-system/foundations/borders"]).toBe("描边");
+    expect(labels["/design-system/foundations/surfaces"]).toBe("表面");
     expect(labels["/design-system/components/chip"]).toBe("标签按钮");
   });
 });

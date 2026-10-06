@@ -1,10 +1,17 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { DoDont } from "#src/design-system/do-dont.tsx";
+import { GuideList } from "#src/design-system/guide/guide-list.tsx";
+import {
+  GuideNote,
+  GuideSection,
+} from "#src/design-system/guide/guide-section.tsx";
 import { RoleColumn } from "#src/design-system/role-column.tsx";
-import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
+import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
 
 type Intent = "neutral" | "accent" | "info" | "success" | "warning" | "danger";
@@ -223,73 +230,220 @@ export function RolesShowcase() {
   };
 
   return (
-    <Showcase label={t({ en: "Intents", zh: "意图色" })} frame="plain" breakout>
-      <ShowcaseHelper>
+    <GuideSection
+      title={t({ en: "Intents", zh: "意图色" })}
+      lead={t({
+        en: "Six Intents carry meaning: accent, info, success, warning, danger and neutral. Pick the one whose job matches yours. The components use them for these jobs and no others, so a custom element that does the same keeps the same meaning.",
+        zh: "六种意图色承载含义：accent、info、success、warning、danger 与 neutral。选择用途与你的用途相符的那一种。组件只把它们用于下面这些用途，因此做同样事情的自建元素也保持同样的含义。",
+      })}
+    >
+      <GuideList
+        items={[
+          {
+            term: "accent",
+            value: t({
+              en: "On, selected, focused, in progress",
+              zh: "开启、选中、聚焦、进行中",
+            }),
+            note: t({
+              en: "A checked Checkbox or Switch, the primary Button, an active Chip, a selected OptionCard, the current TableRow, the focus ring, and the fill of Progress and Slider.",
+              zh: "已勾选的 Checkbox 或开启的 Switch、主按钮、激活的 Chip、选中的 OptionCard、当前的 TableRow、焦点环，以及 Progress 与 Slider 的填充。",
+            }),
+          },
+          {
+            term: "danger",
+            value: t({
+              en: "Destroys something, or is wrong",
+              zh: "会销毁内容，或有错误",
+            }),
+            note: t({
+              en: 'Button look="danger", the edge of a field, Checkbox or Slider with an error, and a field\'s error message.',
+              zh: 'Button look="danger"，出错的输入框、Checkbox 或 Slider 的边缘，以及输入框的错误信息。',
+            }),
+          },
+          {
+            term: "info · success · warning",
+            value: t({ en: "Status only", zh: "仅用于状态" }),
+            note: t({
+              en: "A Badge or a Callout, together with danger. No control takes these, so a control painted in success or warning means something no component means.",
+              zh: "与 danger 一起用于 Badge 或 Callout。没有任何控件使用它们，因此涂成 success 或 warning 的控件，表达的是组件中不存在的含义。",
+            }),
+          },
+          {
+            term: "neutral",
+            value: t({
+              en: "Chrome with no meaning",
+              zh: "不带含义的界面元素",
+            }),
+            note: t({
+              en: "The tracks of Progress and Slider, Skeleton, the scrollbar thumb, an unchecked Switch, the subtle Avatar and the neutral Badge.",
+              zh: "Progress 与 Slider 的轨道、Skeleton、滚动条滑块、关闭状态的 Switch、subtle 样式的 Avatar，以及中性的 Badge。",
+            }),
+          },
+        ]}
+      />
+
+      <GuideList
+        items={[
+          {
+            term: t({ en: "On a solid fill", zh: "实心填充上" }),
+            value: "bg<Intent> + fgOn<Intent>",
+            note: t({
+              en: "A primary button, a checked box, a danger action. The fill is loud, so the text on it takes the token tuned for that fill.",
+              zh: "主按钮、已勾选的复选框、危险操作。填充醒目，因此其上的文字使用为该填充调校的令牌。",
+            }),
+          },
+          {
+            term: t({ en: "On a tint", zh: "淡色底上" }),
+            value: "bg<Intent>Subtle + fg<Intent>",
+            note: t({
+              en: "A Callout, a tinted Badge, the selected OptionCard. Text that carries the Intent, such as a Badge's label or a Callout's title, takes fg<Intent>. Longer copy on the tint, such as a Callout's body, stays color.fg.",
+              zh: "提示框、淡色徽章、选中的 OptionCard。承载意图的文字，例如徽章的标签或提示框的标题，使用 fg<Intent>。淡色上较长的文字，例如提示框的正文，仍用 color.fg。",
+            }),
+          },
+          {
+            term: t({ en: "Neutral", zh: "中性" }),
+            value: t({ en: "The default Intent", zh: "默认的意图色" }),
+            note: t({
+              en: "It has a fill, a hover and a tint like the rest, but its text and edge are the plain color.fg and color.border.",
+              zh: "它和其他意图色一样有填充、悬停与淡色，但它的文字与边缘就是普通的 color.fg 与 color.border。",
+            }),
+          },
+        ]}
+      />
+      <DoDont
+        do={
+          <div css={styles.pairRow}>
+            <span css={[corner.radius_2, styles.pill, styles.pairFill]}>
+              {t({ en: "Fill", zh: "填充" })}
+            </span>
+            <span css={[corner.radius_2, styles.pill, styles.pairTint]}>
+              {t({ en: "Tint", zh: "淡色" })}
+            </span>
+          </div>
+        }
+        doCaption={t({
+          en: "fgOnAccent on the fill, fgAccent on the tint.",
+          zh: "填充上用 fgOnAccent，淡色上用 fgAccent。",
+        })}
+        dont={
+          <div css={styles.pairRow}>
+            <span css={[corner.radius_2, styles.pill, styles.crossedFill]}>
+              {t({ en: "Fill", zh: "填充" })}
+            </span>
+            <span css={[corner.radius_2, styles.pill, styles.crossedTint]}>
+              {t({ en: "Tint", zh: "淡色" })}
+            </span>
+          </div>
+        }
+        dontCaption={t({
+          en: "The two swapped. Neither pairing has a contrast floor, and both are hard to read.",
+          zh: "两者对调。这两种搭配都没有对比度下限的保障，而且都难以辨读。",
+        })}
+      />
+      <UsageSnippet
+        code={`import { color } from "@tuja/ui/tokens.stylex";
+
+const styles = stylex.create({
+  danger: {
+    backgroundColor: color.bgDanger,
+    color: color.fgOnDanger,
+  },
+  dangerTint: {
+    backgroundColor: color.bgDangerSubtle,
+    color: color.fgDanger,
+  },
+});`}
+      />
+      <GuideNote>
         {t({
-          en: "Six Intents, each with the same six tokens: a solid fill and its hover, a tint, a border in the fill's own tone, a foreground on its own, and a foreground on the fill. On a solid fill use fgOn<Intent>; on a tint use fg<Intent>. Neutral is the default Intent, so its border and foreground are the bare color.border and color.fg everything else falls back to.",
-          zh: "六种意图色，每一种都有同样的六个令牌：实心填充与其悬停态、淡色、与填充同色调的边框、单独使用的前景色，以及填充之上的前景色。实心填充上用 fgOn<Intent>，淡色上用 fg<Intent>。中性是默认的意图色，因此它的边框与前景色就是其余一切所回落到的 color.border 与 color.fg。",
+          en: "Badge and Callout take an intent prop and pair these for you. Write the tokens yourself only when you build your own element.",
+          zh: "Badge 与 Callout 接受 intent 属性，会替你完成搭配。只有自行构建元素时才需要自己写这些令牌。",
         })}
-      </ShowcaseHelper>
-      <div css={styles.grid}>
-        {INTENT_ORDER.map((intent) => {
-          const { name, labels, tokens, fills } = intents[intent];
-          return (
-            <RoleColumn
-              key={intent}
-              name={name}
-              cells={[
-                {
-                  size: "large",
-                  bg: fills.bg,
-                  fg: fills.fgOn,
-                  label: name,
-                  token: tokens.bg,
-                },
-                {
-                  size: "thin",
-                  bg: fills.bgHover,
-                  fg: fills.fgOn,
-                  label: labels.hover,
-                  token: tokens.bgHover,
-                },
-                {
-                  size: "medium",
-                  bg: fills.bgSubtle,
-                  fg: fills.fg,
-                  label: labels.tint,
-                  token: tokens.bgSubtle,
-                },
-                {
-                  size: "thin",
-                  bg: fills.border,
-                  fg: fills.fgOnBorder,
-                  label: labels.border,
-                  token: tokens.border,
-                },
-                {
-                  size: "thin",
-                  bg: styles.fillCanvas,
-                  fg: fills.fg,
-                  label: labels.text,
-                  token: tokens.fg,
-                },
-                {
-                  size: "thin",
-                  bg: fills.bg,
-                  fg: fills.fgOn,
-                  label: labels.textOnFill,
-                  token: tokens.fgOn,
-                },
-              ]}
-            />
-          );
-        })}
-      </div>
-    </Showcase>
+      </GuideNote>
+
+      <Showcase frame="plain" breakout>
+        <div css={styles.grid}>
+          {INTENT_ORDER.map((intent) => {
+            const { name, labels, tokens, fills } = intents[intent];
+            return (
+              <RoleColumn
+                key={intent}
+                name={name}
+                cells={[
+                  {
+                    size: "large",
+                    bg: fills.bg,
+                    fg: fills.fgOn,
+                    label: name,
+                    token: tokens.bg,
+                  },
+                  {
+                    size: "thin",
+                    bg: fills.bgHover,
+                    fg: fills.fgOn,
+                    label: labels.hover,
+                    token: tokens.bgHover,
+                  },
+                  {
+                    size: "medium",
+                    bg: fills.bgSubtle,
+                    fg: fills.fg,
+                    label: labels.tint,
+                    token: tokens.bgSubtle,
+                  },
+                  {
+                    size: "thin",
+                    bg: fills.border,
+                    fg: fills.fgOnBorder,
+                    label: labels.border,
+                    token: tokens.border,
+                  },
+                  {
+                    size: "thin",
+                    bg: styles.fillCanvas,
+                    fg: fills.fg,
+                    label: labels.text,
+                    token: tokens.fg,
+                  },
+                  {
+                    size: "thin",
+                    bg: fills.bg,
+                    fg: fills.fgOn,
+                    label: labels.textOnFill,
+                    token: tokens.fgOn,
+                  },
+                ]}
+              />
+            );
+          })}
+        </div>
+      </Showcase>
+    </GuideSection>
   );
 }
 
 const styles = stylex.create({
+  pairRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: space._2,
+  },
+  pill: {
+    display: "inline-flex",
+    alignItems: "center",
+    paddingBlock: space._1,
+    paddingInline: space._3,
+    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_6,
+  },
+  pairFill: { backgroundColor: color.bgAccent, color: color.fgOnAccent },
+  pairTint: { backgroundColor: color.bgAccentSubtle, color: color.fgAccent },
+  crossedFill: { backgroundColor: color.bgAccent, color: color.fgAccent },
+  crossedTint: {
+    backgroundColor: color.bgAccentSubtle,
+    color: color.fgOnAccent,
+  },
   grid: {
     display: "grid",
     // 6 Intents divide cleanly as 1×6, 2×3, or 6×1 — those breakpoints avoid orphans.

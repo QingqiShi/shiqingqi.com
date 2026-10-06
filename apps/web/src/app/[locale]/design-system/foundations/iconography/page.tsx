@@ -12,8 +12,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/foundations/iconography",
     description: t({
-      en: "The Phosphor icon convention: per-icon SSR imports, regular and bold weights, sizing with font-size, pairing with controls, and the aria-hidden rule for decorative icons.",
-      zh: "Phosphor 图标约定：按图标的 SSR 引入、常规与加粗字重、随 font-size 缩放、与控件搭配，以及装饰性图标的 aria-hidden 规则。",
+      en: "Adding Phosphor beside @tuja/ui, the icon slots components take, sizing and colouring from the parent, and which weight matches the package.",
+      zh: "在 @tuja/ui 旁加入 Phosphor、组件提供的图标插槽、由父元素决定尺寸与颜色，以及与本包一致的字重。",
     }),
   });
 }
@@ -23,8 +23,8 @@ export default function IconographyPage() {
     <DocPage
       path="/design-system/foundations/iconography"
       description={t({
-        en: "Icons come from Phosphor, imported one icon at a time from the SSR entry so the client only ships what it uses. Two weights, sizing that follows font-size, and colour that follows currentColor — with accessible names handled by the control the icon sits in.",
-        zh: "图标取自 Phosphor，从 SSR 入口按图标逐个引入，因此客户端只发送用到的部分。两种字重、随 font-size 变化的尺寸、随 currentColor 变化的颜色——可访问名称由图标所在的控件负责。",
+        en: "The components draw their icons with Phosphor and take yours through icon slots. This page covers installing it, what a slot does with your icon, and the weight that matches the package's own.",
+        zh: "组件用 Phosphor 绘制自带图标，并通过图标插槽接收你的图标。本页介绍如何安装、插槽会如何处理你的图标，以及与本包自带图标一致的字重。",
       })}
     >
       <IconographyShowcase />

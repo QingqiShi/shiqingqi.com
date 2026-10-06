@@ -4,16 +4,15 @@ import type {
   DesignSystemPath,
 } from "#src/design-system/routes/types.ts";
 import { AccessibilityIllustration } from "./accessibility-illustration.tsx";
-import { BordersIllustration } from "./borders-illustration.tsx";
 import { ColorIllustration } from "./color-illustration.tsx";
-import { EffectLayerIllustration } from "./effect-layer-illustration.tsx";
+import { CustomizationIllustration } from "./customization-illustration.tsx";
+import { GetStartedIllustration } from "./get-started-illustration.tsx";
 import { IconographyIllustration } from "./iconography-illustration.tsx";
 import { LayoutIllustration } from "./layout-illustration.tsx";
 import { MaterialIllustration } from "./material-illustration.tsx";
 import { MotionIllustration } from "./motion-illustration.tsx";
-import { SpacingIllustration } from "./spacing-illustration.tsx";
+import { SurfacesIllustration } from "./surfaces-illustration.tsx";
 import { TypographyIllustration } from "./typography-illustration.tsx";
-import { VoiceIllustration } from "./voice-illustration.tsx";
 
 /**
  * Each foundations route's card illustration; other overview cards render without
@@ -24,17 +23,16 @@ const FOUNDATION_ILLUSTRATIONS: Record<
   DesignSystemFoundationPath,
   ReactElement
 > = {
+  "/design-system/foundations/get-started": <GetStartedIllustration />,
+  "/design-system/foundations/customization": <CustomizationIllustration />,
   "/design-system/foundations/color": <ColorIllustration />,
   "/design-system/foundations/typography": <TypographyIllustration />,
-  "/design-system/foundations/spacing": <SpacingIllustration />,
-  "/design-system/foundations/motion": <MotionIllustration />,
-  "/design-system/foundations/borders": <BordersIllustration />,
-  "/design-system/foundations/material": <MaterialIllustration />,
-  "/design-system/foundations/effect-layer": <EffectLayerIllustration />,
   "/design-system/foundations/layout": <LayoutIllustration />,
+  "/design-system/foundations/surfaces": <SurfacesIllustration />,
+  "/design-system/foundations/material": <MaterialIllustration />,
   "/design-system/foundations/iconography": <IconographyIllustration />,
+  "/design-system/foundations/motion": <MotionIllustration />,
   "/design-system/foundations/accessibility": <AccessibilityIllustration />,
-  "/design-system/foundations/voice": <VoiceIllustration />,
 };
 
 /**
