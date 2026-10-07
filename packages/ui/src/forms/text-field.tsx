@@ -2,6 +2,7 @@ import { type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   fieldSizeBox,
@@ -110,6 +111,7 @@ export function TextField({
       <label
         htmlFor={fieldId}
         css={[
+          typeRole.control,
           fieldStyles.label,
           required && fieldStyles.labelRequired,
           labelHidden && a11y.srOnly,
@@ -118,13 +120,19 @@ export function TextField({
         {label}
       </label>
       {hasDescription ? (
-        <span id={descriptionId} css={fieldStyles.description}>
+        <span
+          id={descriptionId}
+          css={[typeRole.caption, fieldStyles.description]}
+        >
           {description}
         </span>
       ) : null}
       <div css={[fieldStyles.controlAffixRow, fieldSizeInline[size]]}>
         {leading ? (
-          <span css={[fieldStyles.affix, fieldStyles.affixStart]} aria-hidden>
+          <span
+            css={[typeRole.control, fieldStyles.affix, fieldStyles.affixStart]}
+            aria-hidden
+          >
             {leading}
           </span>
         ) : null}
@@ -137,6 +145,7 @@ export function TextField({
           aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
           css={[
+            typeRole.control,
             fieldStyles.control,
             fieldSizeBox[size],
             transition.colors,
@@ -148,13 +157,20 @@ export function TextField({
           ]}
         />
         {trailing ? (
-          <span css={[fieldStyles.affix, fieldStyles.affixEnd]} aria-hidden>
+          <span
+            css={[typeRole.control, fieldStyles.affix, fieldStyles.affixEnd]}
+            aria-hidden
+          >
             {trailing}
           </span>
         ) : null}
       </div>
       {hasError ? (
-        <span id={errorId} role="alert" css={fieldStyles.errorText}>
+        <span
+          id={errorId}
+          role="alert"
+          css={[typeRole.caption, fieldStyles.errorText]}
+        >
           {error}
         </span>
       ) : null}

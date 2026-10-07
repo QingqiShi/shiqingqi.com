@@ -5,6 +5,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { cluster, row } from "../primitives/stack.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { color, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { BreadcrumbAnchor } from "./breadcrumb-anchor.tsx";
@@ -94,7 +95,7 @@ export function Breadcrumb({
     <nav aria-label={label} css={[styles.nav, css]}>
       {/* `role="list"` survives the marker reset, which otherwise drops list
           semantics in Safari/VoiceOver. */}
-      <ol role="list" css={[cluster.tight, styles.list]}>
+      <ol role="list" css={[typeRole.label, cluster.tight, styles.list]}>
         {items.map((item, index) => {
           const isCurrent = index === lastIndex;
           return (
@@ -141,8 +142,6 @@ const styles = stylex.create({
     listStyle: "none",
     margin: 0,
     padding: 0,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_2,
   },
   item: {
     minInlineSize: 0,
@@ -150,7 +149,6 @@ const styles = stylex.create({
   link: {
     color: { default: color.fgMuted, ":hover": color.fg },
     textDecorationLine: { default: "none", ":hover": "underline" },
-    fontWeight: font.weight_5,
   },
   current: {
     color: color.fg,
@@ -158,6 +156,7 @@ const styles = stylex.create({
   },
   inert: {
     color: color.fgMuted,
+    fontWeight: font.weight_4,
   },
   separator: {
     display: "inline-flex",

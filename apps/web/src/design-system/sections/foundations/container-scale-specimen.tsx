@@ -5,6 +5,7 @@ import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { useEffect, useRef, useState } from "react";
@@ -158,12 +159,17 @@ export function ContainerScaleSpecimen() {
                 aria-current={isActive ? "true" : undefined}
               >
                 <div css={styles.cardInner}>
-                  <span css={styles.eyebrow}>{width}px</span>
+                  <span
+                    css={[typeRole.caption, typeModifier.numeric, styles.mono]}
+                  >
+                    {width}px
+                  </span>
                   <p
                     ref={(node) => {
                       titleElementsRef.current[i] = node;
                     }}
                     css={[
+                      typeRole.cardTitle,
                       styles.specimen,
                       styles.specimenFontSize(CQ_TITLE_CLAMP),
                     ]}
@@ -171,7 +177,13 @@ export function ContainerScaleSpecimen() {
                     {specimen}
                   </p>
                   <span
-                    css={[styles.readout, isActive && styles.readoutActive]}
+                    css={[
+                      typeRole.caption,
+                      typeModifier.numeric,
+                      styles.mono,
+                      styles.readout,
+                      isActive && styles.readoutActive,
+                    ]}
                   >
                     {rem === undefined ? "→ …" : `→ ${rem.toFixed(2)}rem`}
                   </span>
@@ -184,8 +196,17 @@ export function ContainerScaleSpecimen() {
 
       <div css={[cluster.item, styles.controls]}>
         <p css={styles.live} aria-live="polite">
-          <span css={styles.liveLabel}>{measuredWord}</span>
-          <span css={styles.liveValue}>{liveValue}</span>
+          <span css={[typeRole.overline, styles.mono]}>{measuredWord}</span>
+          <span
+            css={[
+              typeRole.bodySmall,
+              typeModifier.numeric,
+              styles.mono,
+              styles.liveValue,
+            ]}
+          >
+            {liveValue}
+          </span>
         </p>
         <input
           type="range"
@@ -254,17 +275,12 @@ const styles = stylex.create({
     paddingBlock: space._3,
     paddingInline: space._3,
   },
-  eyebrow: {
+  mono: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
-    fontVariantNumeric: "tabular-nums",
   },
   specimen: {
     margin: 0,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_2,
-    letterSpacing: font.trackingSnug,
     color: color.fg,
     overflowWrap: "break-word",
   },
@@ -273,10 +289,6 @@ const styles = stylex.create({
   }),
   readout: {
     marginBlockStart: "auto",
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.fgMuted,
-    fontVariantNumeric: "tabular-nums",
   },
   readoutActive: {
     color: color.fgAccent,
@@ -292,18 +304,8 @@ const styles = stylex.create({
     gap: rhythm.tight,
     flexShrink: 0,
   },
-  liveLabel: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWidest,
-    color: color.fgMuted,
-  },
   liveValue: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     color: color.fg,
-    fontVariantNumeric: "tabular-nums",
   },
   slider: {
     flexGrow: 1,

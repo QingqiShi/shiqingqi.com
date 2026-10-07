@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { row, stack } from "../primitives/stack.stylex.ts";
-import { border, color, font, space } from "../tokens.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
+import { border, color, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { SectionHeading } from "./section-heading.tsx";
 
@@ -87,7 +88,7 @@ export function Section({
         {/* Truthiness: `icon={cond && <X/>}` / `actions={cond && <Y/>}` then
             render no slot. `!= null` would keep an empty box and the gap. */}
         {icon ? (
-          <span css={styles.icon} aria-hidden>
+          <span css={[typeRole.label, styles.icon]} aria-hidden>
             {icon}
           </span>
         ) : null}
@@ -108,14 +109,13 @@ const styles = stylex.create({
     borderBlockStartColor: color.border,
     paddingBlockStart: space._5,
   },
-  // `em` box against an explicit font-size, so the icon tracks the label
+  // `em` box against the title's type role, so the icon tracks the label
   // rather than whatever the section's contents happen to set.
   icon: {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    fontSize: font.uiBodySmall,
     inlineSize: "1em",
     blockSize: "1em",
     color: color.fgMuted,

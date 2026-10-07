@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
 import { t } from "#src/i18n.ts";
@@ -138,14 +139,14 @@ export function ChatMessageList({
             />
           )}
           {showError && (
-            <p css={styles.errorMessage} role="alert">
+            <p css={[typeRole.bodySmall, styles.errorMessage]} role="alert">
               {errorLabel}
             </p>
           )}
         </div>
       )}
       {showUsageWarning && (
-        <p css={styles.usageWarning} role="status">
+        <p css={[typeRole.bodySmall, styles.usageWarning]} role="status">
           {t({
             en: "The conversation is getting lengthy",
             zh: "对话越来越长",
@@ -171,14 +172,12 @@ const styles = stylex.create({
   usageWarning: {
     margin: 0,
     textAlign: "center",
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     paddingBlock: space._1,
   },
   errorMessage: {
     margin: 0,
     textAlign: "center",
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontStyle: "italic",
     paddingBlock: space._2,

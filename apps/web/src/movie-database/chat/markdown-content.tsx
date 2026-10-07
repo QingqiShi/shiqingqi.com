@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
@@ -18,21 +19,6 @@ const styles = stylex.create({
       ":first-child": 0,
     },
     marginBlockEnd: `calc(${rhythm.tight} - ${rhythm.item})`,
-  },
-  h1: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_3,
-  },
-  h2: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_3,
-  },
-  h3: {
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_3,
   },
   p: {
     marginBlock: 0,
@@ -79,12 +65,10 @@ const styles = stylex.create({
     overscrollBehaviorX: "contain",
   },
   codeBlock: {
-    fontFamily: "monospace",
-    fontSize: font.uiBodySmall,
+    fontFamily: font.familyMono,
   },
   codeInline: {
-    fontFamily: "monospace",
-    fontSize: font.uiBodySmall,
+    fontFamily: font.familyMono,
     backgroundColor: color.bgSurfaceSunken,
     paddingInline: space._00,
     paddingBlock: space._00,
@@ -97,7 +81,6 @@ const styles = stylex.create({
   table: {
     borderCollapse: "collapse",
     width: "100%",
-    fontSize: font.uiBodySmall,
   },
   th: {
     textAlign: "left",
@@ -120,13 +103,13 @@ const styles = stylex.create({
 
 const components: Components = {
   h1: ({ node, ...props }) => (
-    <h1 css={[styles.heading, styles.h1]} {...props} />
+    <h1 css={[typeRole.h1, styles.heading]} {...props} />
   ),
   h2: ({ node, ...props }) => (
-    <h2 css={[styles.heading, styles.h2]} {...props} />
+    <h2 css={[typeRole.h2, styles.heading]} {...props} />
   ),
   h3: ({ node, ...props }) => (
-    <h3 css={[styles.heading, styles.h3]} {...props} />
+    <h3 css={[typeRole.h3, styles.heading]} {...props} />
   ),
   p: ({ node, ...props }) => <p css={styles.p} {...props} />,
   a: ({ node, children, ...props }) => (
@@ -149,13 +132,18 @@ const components: Components = {
     const isBlock =
       typeof className === "string" && className.startsWith("language-");
     if (isBlock) {
-      return <code {...props} css={styles.codeBlock} />;
+      return <code {...props} css={[typeRole.bodySmall, styles.codeBlock]} />;
     }
-    return <code css={[corner.radius_1, styles.codeInline]} {...props} />;
+    return (
+      <code
+        css={[typeRole.bodySmall, corner.radius_1, styles.codeInline]}
+        {...props}
+      />
+    );
   },
   table: ({ node, ...props }) => (
     <div css={styles.tableWrapper}>
-      <table css={styles.table} {...props} />
+      <table css={[typeRole.bodySmall, styles.table]} {...props} />
     </div>
   ),
   th: ({ node, ...props }) => <th css={styles.th} {...props} />,

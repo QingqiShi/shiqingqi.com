@@ -5,6 +5,7 @@ import { useDust } from "@tuja/ui/hooks/use-dust";
 import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
@@ -16,7 +17,7 @@ interface BenchElementProps {
 }
 
 export function Token({ children }: { children: ReactNode }) {
-  return <span css={styles.token}>{children}</span>;
+  return <span css={[typeRole.caption, styles.token]}>{children}</span>;
 }
 
 export function DustTile({
@@ -75,6 +76,5 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
   },
 });

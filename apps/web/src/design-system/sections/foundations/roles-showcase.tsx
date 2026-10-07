@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
@@ -315,10 +316,24 @@ export function RolesShowcase() {
       <DoDont
         do={
           <div css={cluster.tight}>
-            <span css={[corner.radius_2, styles.pill, styles.pairFill]}>
+            <span
+              css={[
+                typeRole.label,
+                corner.radius_2,
+                styles.pill,
+                styles.pairFill,
+              ]}
+            >
               {t({ en: "Fill", zh: "填充" })}
             </span>
-            <span css={[corner.radius_2, styles.pill, styles.pairTint]}>
+            <span
+              css={[
+                typeRole.label,
+                corner.radius_2,
+                styles.pill,
+                styles.pairTint,
+              ]}
+            >
               {t({ en: "Tint", zh: "淡色" })}
             </span>
           </div>
@@ -329,10 +344,24 @@ export function RolesShowcase() {
         })}
         dont={
           <div css={cluster.tight}>
-            <span css={[corner.radius_2, styles.pill, styles.crossedFill]}>
+            <span
+              css={[
+                typeRole.label,
+                corner.radius_2,
+                styles.pill,
+                styles.crossedFill,
+              ]}
+            >
               {t({ en: "Fill", zh: "填充" })}
             </span>
-            <span css={[corner.radius_2, styles.pill, styles.crossedTint]}>
+            <span
+              css={[
+                typeRole.label,
+                corner.radius_2,
+                styles.pill,
+                styles.crossedTint,
+              ]}
+            >
               {t({ en: "Tint", zh: "淡色" })}
             </span>
           </div>
@@ -430,7 +459,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
   },
   pairFill: { backgroundColor: color.bgAccent, color: color.fgOnAccent },

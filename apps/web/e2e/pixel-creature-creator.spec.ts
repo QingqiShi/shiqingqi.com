@@ -26,19 +26,38 @@ test.describe("Sprite render smoke", () => {
     test(`canonical feline-leaf idle (${colorScheme})`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
       await page.goto("/en/playground/pixel-gallery?paused=1");
-      const locator = page.getByTestId("canonical-feline-leaf-idle");
-      await expect(locator).toBeVisible();
+      // The sprite stage alone: the card's caption is text, so including it
+      // would re-bake the baseline on every typography change.
+      const sprite = page
+        .getByTestId("canonical-feline-leaf-idle")
+        .getByRole("img", { name: "feline-leaf Idle" });
+      await expect(sprite).toBeVisible();
+      await sprite.scrollIntoViewIfNeeded();
+      const box = await sprite.boundingBox();
+      if (box === null) throw new Error("Sprite has no bounding box");
       // Tolerance absorbs sub-pixel rendering drift between the macOS dev
       // baseline and the Linux Playwright container — even with
       // `image-rendering: pixelated` the type-tinted hue-rotate filter
-      // and container edges round differently per OS. 200 / (252×279 ≈
-      // 70k) is ~0.3 %, generous enough to swallow that noise but tiny
+      // and container edges round differently per OS. 200 / (252×252 ≈
+      // 63k) is ~0.3 %, generous enough to swallow that noise but tiny
       // compared to any catastrophic pipeline regression (wrong sprite,
       // wrong scale, broken composition) which would diff orders of
       // magnitude more pixels.
-      await expect(locator).toHaveScreenshot(
+      await expect(page).toHaveScreenshot(
         `canonical-feline-leaf-idle-${colorScheme}.png`,
-        { animations: "disabled", maxDiffPixels: 200 },
+        {
+          animations: "disabled",
+          maxDiffPixels: 200,
+          // The clip is rounded because the text above the sprite can leave
+          // the stage at a fractional y. An element screenshot then rounds the
+          // edges outward, which makes the image one pixel taller.
+          clip: {
+            x: Math.round(box.x),
+            y: Math.round(box.y),
+            width: Math.round(box.width),
+            height: Math.round(box.height),
+          },
+        },
       );
     });
   }

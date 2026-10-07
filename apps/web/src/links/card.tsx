@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
   font,
@@ -26,11 +27,17 @@ export function Card({ children, css, ...rest }: CardProps) {
     <Anchor
       {...rest}
       indicateExternal={false}
-      css={[corner.radius_2, styles.card, a11y.focusRingInset, css]}
+      css={[
+        typeRole.body,
+        corner.radius_2,
+        styles.card,
+        a11y.focusRingInset,
+        css,
+      ]}
     >
       {children}
       <div css={styles.detailsBackdrop} />
-      <div css={styles.detailsIndicator}>
+      <div css={[typeRole.label, styles.detailsIndicator]}>
         <span css={styles.detailsText}>
           {isExternal
             ? t({ en: "Visit", zh: "访问" })
@@ -60,7 +67,6 @@ const styles = stylex.create({
     width: "100%",
     borderStyle: "none",
     textDecoration: "none",
-    fontSize: font.uiBody,
     textAlign: "left",
     padding: space._3,
     overflow: "hidden",
@@ -133,7 +139,6 @@ const styles = stylex.create({
     alignItems: "center",
     color: color.fg,
     display: "flex",
-    fontSize: font.uiBodySmall,
     gap: rhythm.inline,
     opacity: cardTokens.detailsIndicatorOpacity,
     pointerEvents: "none",

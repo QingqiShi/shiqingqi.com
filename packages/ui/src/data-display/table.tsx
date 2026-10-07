@@ -4,8 +4,9 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
-import { color, font, space } from "../tokens.stylex.ts";
+import { color, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { tableTokens } from "./table.stylex.ts";
 
@@ -93,7 +94,12 @@ export function Table({
       <table
         {...restProps}
         ref={ref}
-        css={[styles.table, stickyHeader && styles.stickyHead, css]}
+        css={[
+          typeRole.bodySmall,
+          styles.table,
+          stickyHeader && styles.stickyHead,
+          css,
+        ]}
       >
         <caption
           id={captionId}
@@ -134,8 +140,6 @@ const styles = stylex.create({
     [tableTokens.headBackground]: "transparent",
     inlineSize: "100%",
     borderCollapse: "collapse",
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fg,
   },
   stickyHead: {

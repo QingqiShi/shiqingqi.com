@@ -9,6 +9,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
@@ -67,6 +68,7 @@ export function SpecimenReveal({
                 a11y.focusRing,
                 transition.colors,
                 corner.radius_1,
+                typeRole.caption,
                 styles.control,
               ]}
             >
@@ -134,7 +136,6 @@ const styles = stylex.create({
     flexShrink: 0,
     paddingInline: space._1,
     paddingBlock: space._00,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: { default: color.fgMuted, ":hover": color.fg },
     backgroundColor: {

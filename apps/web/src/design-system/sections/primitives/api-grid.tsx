@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { t } from "#src/i18n.ts";
@@ -32,16 +33,16 @@ export function ApiGrid({ entries }: { entries: ApiEntry[] }) {
 export function GenreChips({ css }: { css: StyleProp }) {
   return (
     <div css={css}>
-      <span css={[corner.radius_round, styles.chip]}>
+      <span css={[typeRole.caption, corner.radius_round, styles.chip]}>
         {t({ en: "Drama", zh: "剧情" })}
       </span>
-      <span css={[corner.radius_round, styles.chip]}>
+      <span css={[typeRole.caption, corner.radius_round, styles.chip]}>
         {t({ en: "Sci-fi", zh: "科幻" })}
       </span>
-      <span css={[corner.radius_round, styles.chip]}>
+      <span css={[typeRole.caption, corner.radius_round, styles.chip]}>
         {t({ en: "Thriller", zh: "惊悚" })}
       </span>
-      <span css={[corner.radius_round, styles.chip]}>
+      <span css={[typeRole.caption, corner.radius_round, styles.chip]}>
         {t({ en: "Comedy", zh: "喜剧" })}
       </span>
     </div>
@@ -60,7 +61,6 @@ const styles = stylex.create({
   chip: {
     paddingBlock: space._00,
     paddingInline: space._2,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     backgroundColor: color.bgControl,
     whiteSpace: "nowrap",

@@ -11,6 +11,7 @@ import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   lookStyles,
@@ -204,6 +205,9 @@ export function AnchorButton({
       // The Slot is a component, so the styles travel as a compiled
       // `className`/`style` pair rather than through the `css` prop.
       {...stylex.props(
+        typeRole.control,
+        size === "sm" && typeRole.label,
+        size === "lg" && typeRole.h2,
         sharedStyles.base,
         corner.squircle_round,
         a11y.focusRing,

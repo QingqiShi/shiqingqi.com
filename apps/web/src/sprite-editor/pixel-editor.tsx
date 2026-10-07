@@ -24,6 +24,7 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -1035,7 +1036,7 @@ export function PixelEditor({
       </div>
 
       <div css={[corner.radius_2, styles.colorRow]}>
-        <label css={styles.colorLabel}>
+        <label css={[typeRole.label, styles.colorLabel]}>
           <span>{t({ en: "Color", zh: "颜色" })}</span>
           <input
             type="color"
@@ -1088,7 +1089,7 @@ export function PixelEditor({
           </div>
         ) : null}
         {tool === "bg-remove" ? (
-          <label css={styles.colorLabel}>
+          <label css={[typeRole.label, styles.colorLabel]}>
             <span>{t({ en: "Tolerance", zh: "容差" })}</span>
             <input
               type="range"
@@ -1101,7 +1102,15 @@ export function PixelEditor({
               css={styles.range}
               data-testid="tolerance"
             />
-            <span css={styles.toleranceValue}>{tolerance}</span>
+            <span
+              css={[
+                typeRole.bodySmall,
+                typeModifier.numeric,
+                styles.toleranceValue,
+              ]}
+            >
+              {tolerance}
+            </span>
           </label>
         ) : null}
       </div>
@@ -1227,6 +1236,7 @@ function SelectionButton({
     <button
       type="button"
       css={[
+        typeRole.label,
         corner.radius_1,
         styles.selectionButton,
         variant === "primary" && styles.selectionButtonPrimary,
@@ -1299,7 +1309,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.tight,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   colorInput: {
@@ -1337,10 +1346,8 @@ const styles = stylex.create({
   toleranceValue: {
     minWidth: "2.5em",
     textAlign: "right",
-    fontSize: font.uiBodySmall,
     fontFamily: font.familyMono,
     color: color.fg,
-    fontVariantNumeric: "tabular-nums",
   },
   canvasArea: {
     position: "relative",
@@ -1396,10 +1403,9 @@ const styles = stylex.create({
     },
     color: color.fg,
     border: "none",
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     cursor: "pointer",
     fontFamily: "inherit",
+    fontWeight: font.weight_6,
   },
   selectionButtonPrimary: {
     backgroundColor: {

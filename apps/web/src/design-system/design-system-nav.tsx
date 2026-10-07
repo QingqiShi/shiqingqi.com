@@ -5,6 +5,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -61,7 +62,10 @@ export function DesignSystemNav({
             aria-labelledby={heading === null ? undefined : sectionLabelId}
           >
             {heading !== null && (
-              <span id={sectionLabelId} css={styles.sectionLabel}>
+              <span
+                id={sectionLabelId}
+                css={[typeRole.overline, styles.sectionLabel]}
+              >
                 {heading}
               </span>
             )}
@@ -78,7 +82,10 @@ export function DesignSystemNav({
                     aria-labelledby={categoryLabelId}
                   >
                     {category !== undefined && (
-                      <span id={categoryLabelId} css={styles.categoryLabel}>
+                      <span
+                        id={categoryLabelId}
+                        css={[typeRole.caption, styles.categoryLabel]}
+                      >
                         {categoryLabels[category]}
                       </span>
                     )}
@@ -92,6 +99,7 @@ export function DesignSystemNav({
                           // Inset ring: the rail scrolls the nav through a container
                           // that clips inline overflow, which would crop an outward one.
                           {...stylex.props(
+                            typeRole.label,
                             transition.colors,
                             corner.radius_round,
                             styles.link,
@@ -130,16 +138,11 @@ const styles = stylex.create({
   sectionLabel: {
     display: "block",
     paddingInline: space._3,
-    fontSize: font.uiOverline,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingWidest,
-    textTransform: "uppercase",
     color: color.fg,
   },
   categoryLabel: {
     display: "block",
     paddingInline: space._3,
-    fontSize: font.uiOverline,
     fontWeight: font.weight_6,
     color: color.fgMuted,
   },
@@ -147,8 +150,6 @@ const styles = stylex.create({
     flexShrink: 0,
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: { default: color.fgMuted, ":hover": color.fg },
     backgroundColor: {
       default: "transparent",

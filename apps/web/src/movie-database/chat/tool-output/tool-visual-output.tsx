@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { isToolError } from "#src/movie-database/chat/tools/tool-error.ts";
 import type {
@@ -49,7 +50,7 @@ export function ToolVisualOutput({
   if (toolName === "present_media") {
     if (state === "output-error") {
       return (
-        <p css={styles.error} role="alert">
+        <p css={[typeRole.bodySmall, styles.error]} role="alert">
           {t({ en: "Failed to load results", zh: "加载结果失败" })}
         </p>
       );
@@ -71,7 +72,7 @@ export function ToolVisualOutput({
   if (toolName === "present_person") {
     if (state === "output-error") {
       return (
-        <p css={styles.error} role="alert">
+        <p css={[typeRole.bodySmall, styles.error]} role="alert">
           {t({ en: "Failed to load results", zh: "加载结果失败" })}
         </p>
       );
@@ -96,7 +97,7 @@ export function ToolVisualOutput({
   ) {
     if (state === "output-error") {
       return (
-        <p css={styles.error} role="alert">
+        <p css={[typeRole.bodySmall, styles.error]} role="alert">
           {t({
             en: "Failed to load watch providers",
             zh: "加载观看渠道失败",
@@ -124,7 +125,7 @@ export function ToolVisualOutput({
   if (toolName === "review_summary") {
     if (state === "output-error" || isToolError(output)) {
       return (
-        <p css={styles.error} role="alert">
+        <p css={[typeRole.bodySmall, styles.error]} role="alert">
           {t({
             en: "Failed to load review summary",
             zh: "加载评论摘要失败",
@@ -154,7 +155,6 @@ export function ToolVisualOutput({
 const styles = stylex.create({
   error: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontStyle: "italic",
     paddingBlock: space._1,

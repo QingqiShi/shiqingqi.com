@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSyncExternalStore } from "react";
 import type { SupportedLocale } from "#src/i18n/types.ts";
@@ -64,11 +65,11 @@ export function YourCreations({ locale }: YourCreationsProps) {
 
   return (
     <section css={[stack.item, styles.root]} data-testid="your-creations">
-      <h2 css={styles.heading}>{heading}</h2>
+      <h2 css={[typeRole.fluidH2, styles.heading]}>{heading}</h2>
       {saved.length === 0 ? (
         <div css={styles.empty} data-testid="your-creations-empty">
-          <p css={styles.emptyMessage}>{emptyMessage}</p>
-          <p css={styles.emptyHint}>{emptyHint}</p>
+          <p css={[typeRole.body, styles.emptyMessage]}>{emptyMessage}</p>
+          <p css={[typeRole.bodySmall, styles.emptyHint]}>{emptyHint}</p>
         </div>
       ) : (
         <ul css={styles.list}>
@@ -87,11 +88,13 @@ export function YourCreations({ locale }: YourCreationsProps) {
                   <span css={styles.thumb} aria-hidden="true">
                     <PixelSprite def={entry.def} scale={3} paused />
                   </span>
-                  <span css={styles.itemName}>{displayName}</span>
+                  <span css={[typeRole.label, styles.itemName]}>
+                    {displayName}
+                  </span>
                 </a>
                 <button
                   type="button"
-                  css={styles.deleteButton}
+                  css={[typeRole.label, styles.deleteButton]}
                   onClick={() => {
                     handleDelete(entry);
                   }}
@@ -115,8 +118,6 @@ const styles = stylex.create({
   },
   heading: {
     margin: 0,
-    fontSize: font.vpHeading2,
-    fontWeight: font.weight_7,
     color: color.fg,
   },
   empty: {
@@ -133,13 +134,11 @@ const styles = stylex.create({
   },
   emptyMessage: {
     margin: 0,
-    fontSize: font.uiBody,
-    fontWeight: font.weight_6,
     color: color.fg,
+    fontWeight: font.weight_6,
   },
   emptyHint: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   list: {
@@ -183,14 +182,13 @@ const styles = stylex.create({
     minBlockSize: "5rem",
   },
   itemName: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     color: color.fg,
     textAlign: "center",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     maxInlineSize: "100%",
+    fontWeight: font.weight_6,
   },
   deleteButton: {
     paddingBlock: space._0,
@@ -206,8 +204,6 @@ const styles = stylex.create({
     borderColor: color.border,
     borderRadius: "999px",
     cornerShape: "round",
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     cursor: "pointer",
     alignSelf: "center",
   },

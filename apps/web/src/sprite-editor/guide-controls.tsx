@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
   controlSize,
@@ -22,7 +23,9 @@ interface GuideControlsProps {
 export function GuideControls({ guides, onGuidesChange }: GuideControlsProps) {
   return (
     <section css={styles.group}>
-      <h3 css={styles.sectionLabel}>{t({ en: "Guides", zh: "辅助线" })}</h3>
+      <h3 css={[typeRole.label, styles.sectionLabel]}>
+        {t({ en: "Guides", zh: "辅助线" })}
+      </h3>
       <div css={cluster.tight}>
         <Toggle
           label={t({ en: "Halves", zh: "对半" })}
@@ -66,6 +69,7 @@ function Toggle({ label, checked, onChange, testId }: ToggleProps) {
     <label
       htmlFor={id}
       css={[
+        typeRole.label,
         corner.radius_round,
         styles.toggle,
         checked && styles.toggleChecked,
@@ -98,10 +102,8 @@ const styles = stylex.create({
   },
   sectionLabel: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingSnug,
     color: color.fg,
+    fontWeight: font.weight_6,
   },
   toggle: {
     display: "inline-flex",
@@ -109,8 +111,6 @@ const styles = stylex.create({
     gap: controlSize._2,
     paddingBlock: space._0,
     paddingInline: space._2,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fgMuted,
     backgroundColor: color.bgSurfaceSunken,
     cursor: "pointer",

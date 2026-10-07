@@ -281,6 +281,27 @@ export default defineConfig([
       ],
     },
   },
+  // Text takes its size from a type role. The primitives and the tokens define
+  // the roles, so they are not in scope.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.test.{ts,tsx}",
+      "packages/ui/src/primitives/**",
+      "packages/ui/src/tokens.stylex.ts",
+      // These drawings and specimens set type at a drawn size: a page at
+      // thumbnail scale, a poster title as artwork, one glyph of a family, or
+      // each step of a fluid scale side by side.
+      "apps/web/src/design-system/foundation-illustrations/**",
+      "apps/web/src/design-system/sections/examples/typeset-poster.tsx",
+      "apps/web/src/design-system/sections/foundations/{families-showcase,viewport-scale-specimen,container-scale-specimen}.tsx",
+      // The calculator sizes its keys and its readout to its container.
+      "apps/web/src/calculator/calculator-{button,display}.tsx",
+    ],
+    rules: {
+      "@tuja/require-type-role": "error",
+    },
+  },
   // StyleX 0.19 types these properties but its eslint allowlist does not
   // carry them yet. `propLimits` puts them back for the one package that uses
   // them, so a stray one elsewhere still errors.

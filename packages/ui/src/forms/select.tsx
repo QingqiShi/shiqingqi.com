@@ -6,6 +6,7 @@ import { type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   fieldSizeBox,
@@ -142,12 +143,15 @@ export function Select({
     <div css={[stack.tight, fieldStyles.root, css]}>
       <label
         htmlFor={fieldId}
-        css={[fieldStyles.label, labelHidden && a11y.srOnly]}
+        css={[typeRole.control, fieldStyles.label, labelHidden && a11y.srOnly]}
       >
         {label}
       </label>
       {hasDescription ? (
-        <span id={descriptionId} css={fieldStyles.description}>
+        <span
+          id={descriptionId}
+          css={[typeRole.caption, fieldStyles.description]}
+        >
           {description}
         </span>
       ) : null}
@@ -162,6 +166,7 @@ export function Select({
           aria-invalid={resolvedAriaInvalid}
           aria-describedby={describedBy}
           css={[
+            typeRole.control,
             fieldStyles.control,
             fieldSizeBox[size],
             fieldStyles.hasTrailingAffix,
@@ -188,12 +193,19 @@ export function Select({
               ))
             : children}
         </select>
-        <span css={[fieldStyles.affix, fieldStyles.affixEnd]} aria-hidden>
+        <span
+          css={[typeRole.control, fieldStyles.affix, fieldStyles.affixEnd]}
+          aria-hidden
+        >
           <CaretDownIcon weight="bold" />
         </span>
       </div>
       {hasError ? (
-        <span id={errorId} role="alert" css={fieldStyles.errorText}>
+        <span
+          id={errorId}
+          role="alert"
+          css={[typeRole.caption, fieldStyles.errorText]}
+        >
           {error}
         </span>
       ) : null}

@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import {
   OverviewBrowser,
   type OverviewEntry,
@@ -48,8 +49,8 @@ export default function DesignSystemOverview() {
   return (
     <div css={stack.section}>
       <header css={stack.tight}>
-        <h1 css={styles.heading}>{heading}</h1>
-        <p css={styles.intro}>
+        <h1 css={[typeRole.fluidDisplay, styles.heading]}>{heading}</h1>
+        <p css={[typeRole.fluidLead, styles.intro]}>
           {t({
             en: "Tokens, primitives, and components that compose a refined visual language. Browse them by the job they do or by name — or search for the one you already have in mind.",
             zh: "构成精致视觉语言的设计令牌、原语与组件。可按用途或名称浏览，也可直接搜索你想找的内容。",
@@ -69,17 +70,11 @@ export default function DesignSystemOverview() {
 const styles = stylex.create({
   heading: {
     margin: 0,
-    fontSize: font.vpDisplay,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
-    lineHeight: font.lineHeight_1,
     textWrap: "balance",
   },
   intro: {
     margin: 0,
-    fontSize: font.vpHeading3,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_4,
     maxInlineSize: "60ch",
     textWrap: "pretty",
   },

@@ -11,6 +11,7 @@ import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
   controlSize,
@@ -54,6 +55,7 @@ function DemoMenuItem({ isCurrent, label, onSelect }: DemoMenuItemProps) {
         a11y.focusRing,
         transition.colors,
         corner.radius_1,
+        typeRole.control,
         styles.item,
         isCurrent && styles.itemCurrent,
       ]}
@@ -110,8 +112,14 @@ function KeyTable() {
     <dl css={[stack.item, definitionRows.list, styles.keyTable]}>
       {rows.map((row) => (
         <div key={row.keys} css={[definitionRows.row, styles.keyRow]}>
-          <dt css={styles.keyName}>{row.keys}</dt>
-          <dd css={[definitionRows.definition, styles.keyEffect]}>
+          <dt css={[typeRole.caption, styles.keyName]}>{row.keys}</dt>
+          <dd
+            css={[
+              typeRole.caption,
+              definitionRows.definition,
+              styles.keyEffect,
+            ]}
+          >
             {row.effect}
           </dd>
         </div>
@@ -234,14 +242,11 @@ const styles = stylex.create({
   },
   keyName: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fg,
     overflowWrap: "anywhere",
   },
   keyEffect: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     minInlineSize: 0,
   },
@@ -281,7 +286,6 @@ const styles = stylex.create({
       default: "transparent",
       ":hover": color.bgControlHover,
     },
-    fontSize: controlSize._4,
     fontWeight: font.weight_6,
     blockSize: controlSize._9,
     paddingInline: controlSize._3,

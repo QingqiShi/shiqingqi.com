@@ -7,6 +7,7 @@ const onlyStylexExports = require("./design-system/only-stylex-exports");
 const requireCornerShape = require("./design-system/require-corner-shape");
 const requirePackageExport = require("./design-system/require-package-export");
 const requireRhythmSpacing = require("./design-system/require-rhythm-spacing");
+const requireTypeRole = require("./design-system/require-type-role");
 const noBannedCopyWords = require("./i18n/no-banned-copy-words");
 const noTOutsideRender = require("./i18n/no-t-outside-render");
 
@@ -20,6 +21,7 @@ module.exports = {
     "require-corner-shape": requireCornerShape,
     "require-package-export": requirePackageExport,
     "require-rhythm-spacing": requireRhythmSpacing,
+    "require-type-role": requireTypeRole,
     "no-banned-copy-words": noBannedCopyWords,
     "no-t-outside-render": noTOutsideRender,
   },

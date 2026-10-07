@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { border, color, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { brand } from "#src/brand/brand.stylex.ts";
@@ -61,10 +62,10 @@ export default async function Page(props: PageProps) {
     <div css={[stack.section, styles.root]}>
       <section css={[stack.item, styles.hero]}>
         <div css={stack.tight}>
-          <h1 css={styles.title}>
+          <h1 css={[typeRole.fluidDisplay, styles.title]}>
             {t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
           </h1>
-          <p css={styles.subtitle}>
+          <p css={[typeRole.fluidLead, styles.subtitle]}>
             {t({
               en: "Build a tiny pixel creature, name it, and conjure its lore.",
               zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
@@ -74,7 +75,7 @@ export default async function Page(props: PageProps) {
         <Link
           href={createHref}
           data-testid="landing-cta"
-          {...stylex.props(styles.cta)}
+          {...stylex.props(typeRole.h4, styles.cta)}
         >
           {t({ en: "Start creating", zh: "开始创造" })}
         </Link>
@@ -105,13 +106,10 @@ const styles = stylex.create({
   },
   title: {
     margin: 0,
-    fontSize: font.vpDisplay,
-    fontWeight: font.weight_8,
     color: color.fg,
   },
   subtitle: {
     margin: 0,
-    fontSize: font.vpSubDisplay,
     color: color.fgMuted,
     maxInlineSize: "42rem",
   },
@@ -129,9 +127,6 @@ const styles = stylex.create({
     color: color.fgOnAccent,
     borderRadius: "999px",
     cornerShape: "round",
-    fontSize: font.uiBody,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_2,
     textDecoration: "none",
     transitionProperty: "background-color, transform",
     transitionDuration: "120ms",

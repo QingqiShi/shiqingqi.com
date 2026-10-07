@@ -4,8 +4,9 @@ import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
 /**
  * The pill skin shared by every chip and, at rest, by `Badge` — exposed as
  * composable StyleX for an element `Chip` can't be, most often a `<Link>`.
- * Compose `base` plus a `chipSize` step, then `interactive`, then `active`
- * for the selected one.
+ * Compose a type role first (`typeRole.label` for the `md` step,
+ * `typeRole.caption` for `sm`), then `base` plus a `chipSize` step, then
+ * `interactive`, then `active` for the selected one.
  *
  * `interactive` inlines its focus ring instead of composing `a11y.focusRing`,
  * since a primitive can't compose another at definition time.
@@ -27,7 +28,6 @@ export const chipSurface = stylex.create({
     backgroundColor: color.bgSurface,
     color: color.fg,
     fontWeight: font.weight_5,
-    lineHeight: font.lineHeight_2,
     textDecoration: "none",
   },
   interactive: {
@@ -59,7 +59,7 @@ export const chipSurface = stylex.create({
 });
 
 /**
- * Height and type steps for a chip, split from `chipSurface` so a
+ * Height steps for a chip, split from `chipSurface` so a
  * hand-composed chip sizes itself the same way the `size` prop does. Heights
  * use `controlSize`, so every step grows on touch viewports.
  */
@@ -68,12 +68,10 @@ export const chipSize = stylex.create({
     minBlockSize: controlSize._6,
     paddingBlock: controlSize._0,
     paddingInline: controlSize._2,
-    fontSize: font.uiCaption,
   },
   md: {
     minBlockSize: controlSize._8,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
-    fontSize: font.uiBodySmall,
   },
 });

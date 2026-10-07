@@ -13,6 +13,7 @@ import { usePressHandlers } from "../hooks/use-press-handlers.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { opacity } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
@@ -224,6 +225,9 @@ export function Button({
       aria-disabled={isLoading ? true : ariaDisabled}
       aria-busy={isLoading ? true : ariaBusy}
       css={[
+        typeRole.control,
+        size === "sm" && typeRole.label,
+        size === "lg" && typeRole.h2,
         sharedStyles.base,
         corner.squircle_round,
         a11y.focusRing,

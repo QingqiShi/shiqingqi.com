@@ -12,6 +12,7 @@ import {
   motionConstants,
 } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
+import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import {
   border,
   color,
@@ -223,16 +224,27 @@ export function Slider({
       <div css={[flex.between, styles.labelRow]}>
         <label
           htmlFor={fieldId}
-          css={[fieldStyles.label, labelHidden && a11y.srOnly]}
+          css={[
+            typeRole.control,
+            fieldStyles.label,
+            labelHidden && a11y.srOnly,
+          ]}
         >
           {label}
         </label>
         {readout === undefined ? null : (
-          <span css={[fieldStyles.label, styles.readout]}>{readout}</span>
+          <span
+            css={[typeRole.control, fieldStyles.label, typeModifier.numeric]}
+          >
+            {readout}
+          </span>
         )}
       </div>
       {hasDescription ? (
-        <span id={descriptionId} css={fieldStyles.description}>
+        <span
+          id={descriptionId}
+          css={[typeRole.caption, fieldStyles.description]}
+        >
           {description}
         </span>
       ) : null}
@@ -283,7 +295,11 @@ export function Slider({
         }}
       />
       {hasError ? (
-        <span id={errorId} role="alert" css={fieldStyles.errorText}>
+        <span
+          id={errorId}
+          role="alert"
+          css={[typeRole.caption, fieldStyles.errorText]}
+        >
           {error}
         </span>
       ) : null}
@@ -302,11 +318,6 @@ const THUMB_LIFT = `transform ${duration._150} ${easing.easeOut}`;
 const styles = stylex.create({
   labelRow: {
     gap: rhythm.tight,
-  },
-  // Composed over `fieldStyles.label`, which it sits opposite in the same row.
-  readout: {
-    // A live figure that changes on every move must not shift its neighbours.
-    fontVariantNumeric: "tabular-nums",
   },
   input: {
     appearance: "none",

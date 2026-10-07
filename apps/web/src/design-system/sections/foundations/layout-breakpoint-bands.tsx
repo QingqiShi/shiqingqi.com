@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import { LayoutWindowWidthReadout } from "./layout-window-width-readout.tsx";
@@ -24,10 +25,20 @@ export function LayoutBreakpointBands() {
       <div css={[corner.radius_2, styles.bandRow]}>
         {BANDS.map((band) => (
           <div key={band.label} css={[styles.band, bandLit[band.label]]}>
-            <span css={[styles.bandLabel, labelLit[band.label]]}>
+            <span
+              css={[typeRole.caption, styles.bandLabel, labelLit[band.label]]}
+            >
               {band.label}
             </span>
-            <span css={styles.bandThreshold}>{band.threshold}</span>
+            <span
+              css={[
+                typeRole.caption,
+                typeModifier.numeric,
+                styles.bandThreshold,
+              ]}
+            >
+              {band.threshold}
+            </span>
           </div>
         ))}
       </div>
@@ -57,14 +68,11 @@ const styles = stylex.create({
   },
   bandLabel: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
   },
   bandThreshold: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
     color: color.fgMuted,
-    fontVariantNumeric: "tabular-nums",
   },
 });
 

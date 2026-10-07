@@ -5,6 +5,7 @@ import { Textarea } from "@tuja/ui/components/textarea";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -337,6 +338,7 @@ export function ActionRow({
         <button
           type="button"
           css={[
+            typeRole.label,
             corner.radius_round,
             styles.button,
             styles.buttonPrimary,
@@ -355,7 +357,12 @@ export function ActionRow({
 
         <button
           type="button"
-          css={[corner.radius_round, styles.button, transition.colors]}
+          css={[
+            typeRole.label,
+            corner.radius_round,
+            styles.button,
+            transition.colors,
+          ]}
           onClick={() => {
             void handleCopyLink();
           }}
@@ -369,7 +376,12 @@ export function ActionRow({
           <button
             type="button"
             ref={downloadTriggerRef}
-            css={[corner.radius_round, styles.button, transition.colors]}
+            css={[
+              typeRole.label,
+              corner.radius_round,
+              styles.button,
+              transition.colors,
+            ]}
             aria-haspopup="menu"
             aria-expanded={downloadOpen}
             onClick={() => {
@@ -385,7 +397,7 @@ export function ActionRow({
               <button
                 type="button"
                 role="menuitem"
-                css={[corner.radius_2, styles.menuItem]}
+                css={[typeRole.label, corner.radius_2, styles.menuItem]}
                 onClick={() => {
                   void handleDownloadSprite();
                 }}
@@ -396,7 +408,7 @@ export function ActionRow({
               <button
                 type="button"
                 role="menuitem"
-                css={[corner.radius_2, styles.menuItem]}
+                css={[typeRole.label, corner.radius_2, styles.menuItem]}
                 onClick={() => {
                   void handleDownloadCard();
                 }}
@@ -411,6 +423,7 @@ export function ActionRow({
         <button
           type="button"
           css={[
+            typeRole.label,
             corner.radius_round,
             styles.button,
             saved && styles.buttonSaved,
@@ -426,7 +439,12 @@ export function ActionRow({
 
         <button
           type="button"
-          css={[corner.radius_round, styles.button, transition.colors]}
+          css={[
+            typeRole.label,
+            corner.radius_round,
+            styles.button,
+            transition.colors,
+          ]}
           onClick={handleShuffle}
           data-testid="action-shuffle"
           aria-label={labels.shuffle}
@@ -436,7 +454,12 @@ export function ActionRow({
 
         <button
           type="button"
-          css={[corner.radius_round, styles.button, transition.colors]}
+          css={[
+            typeRole.label,
+            corner.radius_round,
+            styles.button,
+            transition.colors,
+          ]}
           onClick={handleEdit}
           data-testid="action-edit"
           aria-label={labels.edit}
@@ -448,7 +471,12 @@ export function ActionRow({
       {loreFetch.kind === "error" && (
         <p
           role="status"
-          css={[corner.radius_2, styles.ephemeral, styles.ephemeralError]}
+          css={[
+            typeRole.bodySmall,
+            corner.radius_2,
+            styles.ephemeral,
+            styles.ephemeralError,
+          ]}
           data-testid="lore-error"
           data-reason={loreFetch.reason}
         >
@@ -477,6 +505,7 @@ export function ActionRow({
           <button
             type="button"
             css={[
+              typeRole.label,
               corner.radius_round,
               styles.button,
               styles.buttonPrimary,
@@ -495,6 +524,7 @@ export function ActionRow({
         <p
           role="status"
           css={[
+            typeRole.bodySmall,
             corner.radius_2,
             styles.ephemeral,
             ephemeral.kind === "error" && styles.ephemeralError,
@@ -528,8 +558,6 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.border,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     cursor: {
       default: "pointer",
       ":disabled": "not-allowed",
@@ -539,6 +567,7 @@ const styles = stylex.create({
       ":disabled": opacity.disabled,
     },
     outlineOffset: border.size_2,
+    fontWeight: font.weight_6,
   },
   buttonPrimary: {
     backgroundColor: {
@@ -584,8 +613,6 @@ const styles = stylex.create({
     },
     color: color.fg,
     borderWidth: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     cursor: "pointer",
     textAlign: "left",
   },
@@ -594,7 +621,6 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,
-    fontSize: font.uiBodySmall,
     color: color.fg,
     alignSelf: "center",
     textAlign: "center",

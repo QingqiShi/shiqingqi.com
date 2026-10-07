@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { captureException } from "#src/analytics/capture-exception.ts";
@@ -16,10 +17,10 @@ function ErrorFallback({
 }) {
   return (
     <div css={styles.errorContainer} role="alert">
-      <p css={styles.errorText}>{message}</p>
+      <p css={[typeRole.body, styles.errorText]}>{message}</p>
       <button
         type="button"
-        css={[corner.radius_round, styles.retryButton]}
+        css={[typeRole.body, corner.radius_round, styles.retryButton]}
         onClick={resetErrorBoundary}
       >
         {t({ en: "Try again", zh: "重试" })}
@@ -62,14 +63,12 @@ const styles = stylex.create({
     textAlign: "center",
   },
   errorText: {
-    fontSize: font.uiBody,
     color: color.fgMuted,
     margin: 0,
   },
   retryButton: {
     paddingBlock: space._2,
     paddingInline: space._5,
-    fontSize: font.uiBody,
     fontWeight: font.weight_5,
     fontFamily: font.family,
     borderWidth: 0,

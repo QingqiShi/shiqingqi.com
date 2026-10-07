@@ -7,6 +7,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -89,14 +90,22 @@ interface MeterProps {
 function Meter({ name, callsLabel, calls, valueLabel, value }: MeterProps) {
   return (
     <div css={[corner.radius_2, styles.meter]}>
-      <span css={styles.meterName}>{name}</span>
+      <span css={[typeRole.label, styles.meterName]}>{name}</span>
       <span css={styles.meterStat}>
-        <span css={styles.meterLabel}>{callsLabel}</span>
-        <span css={styles.meterFigure}>{calls}</span>
+        <span css={[typeRole.caption, styles.meterLabel]}>{callsLabel}</span>
+        <span
+          css={[typeRole.caption, typeModifier.numeric, styles.meterFigure]}
+        >
+          {calls}
+        </span>
       </span>
       <span css={styles.meterStat}>
-        <span css={styles.meterLabel}>{valueLabel}</span>
-        <span css={styles.meterFigure}>{value}</span>
+        <span css={[typeRole.caption, styles.meterLabel]}>{valueLabel}</span>
+        <span
+          css={[typeRole.caption, typeModifier.numeric, styles.meterFigure]}
+        >
+          {value}
+        </span>
       </span>
     </div>
   );
@@ -288,7 +297,6 @@ const styles = stylex.create({
   },
   meterName: {
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.fg,
   },
@@ -300,14 +308,11 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   meterLabel: {
-    fontSize: font.uiCaption,
     color: color.fgMuted,
   },
   // A tally that climbs on every move must not shift the row it sits in.
   meterFigure: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    fontVariantNumeric: "tabular-nums",
     color: color.fg,
   },
 });

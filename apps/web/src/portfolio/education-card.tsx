@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
@@ -42,12 +43,14 @@ export function EducationCard({
             <Suspense fallback={<Skeleton fill />}>{logo}</Suspense>
           )}
         </div>
-        <div css={styles.name}>
+        <div css={[typeRole.cardTitle, styles.name]}>
           <span>{name}</span>
-          {nameSubText && <span css={styles.subText}> {nameSubText}</span>}
+          {nameSubText && (
+            <span css={[typeRole.label, styles.subText]}> {nameSubText}</span>
+          )}
         </div>
       </div>
-      <time dateTime={dateTime} css={styles.dates}>
+      <time dateTime={dateTime} css={[typeRole.bodySmall, styles.dates]}>
         {dates}
       </time>
     </Card>
@@ -85,13 +88,9 @@ const styles = stylex.create({
     },
   },
   name: {
-    fontSize: font.cqTitle,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_2,
     color: color.fgMuted,
   },
   subText: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     display: "block",
   },
@@ -103,8 +102,6 @@ const styles = stylex.create({
     transition: "filter .2s",
   },
   dates: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_4,
     color: color.fgMuted,
   },
 });

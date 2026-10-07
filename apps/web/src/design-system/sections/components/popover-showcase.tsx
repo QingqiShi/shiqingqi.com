@@ -5,7 +5,8 @@ import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { guidelineDiagram } from "#src/design-system/guideline-diagram.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -138,7 +139,7 @@ export function PopoverShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Dismissal and focus", zh: "关闭与焦点" })}>
-        <ul css={styles.rules}>
+        <ul css={[typeRole.bodySmall, styles.rules]}>
           <li>
             {t({
               en: "Opening moves focus to the first focusable element inside, or to the panel itself when it holds none.",
@@ -263,8 +264,6 @@ const styles = stylex.create({
     margin: 0,
     maxInlineSize: "65ch",
     paddingInlineStart: space._4,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
   },
   diagramTrigger: {

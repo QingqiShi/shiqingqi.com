@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { cellShared } from "./cell-shared.stylex";
 import { useMediaTable } from "./media-table-context";
@@ -26,12 +27,19 @@ export function MediaGenresCell({ api, row }: MediaCellParams) {
       {shown.map((name) => (
         <span
           key={name}
-          css={[corner.radius_round, styles.chip, truncate.base]}
+          css={[
+            typeRole.caption,
+            corner.radius_round,
+            styles.chip,
+            truncate.base,
+          ]}
         >
           {name}
         </span>
       ))}
-      {overflow > 0 && <span css={styles.chipMore}>+{overflow}</span>}
+      {overflow > 0 && (
+        <span css={[typeRole.caption, styles.chipMore]}>+{overflow}</span>
+      )}
     </div>
   );
 }
@@ -49,13 +57,11 @@ const styles = stylex.create({
     paddingInline: space._1,
     backgroundColor: color.bgAccentSubtle,
     color: color.fgAccent,
-    fontSize: font.uiOverline,
-    fontWeight: font.weight_5,
+    fontWeight: font.weight_6,
     whiteSpace: "nowrap",
   },
   chipMore: {
     color: color.fgMuted,
-    fontSize: font.uiOverline,
-    fontWeight: font.weight_5,
+    fontWeight: font.weight_6,
   },
 });

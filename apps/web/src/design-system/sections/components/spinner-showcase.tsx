@@ -3,6 +3,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -61,7 +62,9 @@ export function SpinnerShowcase() {
                 zh: "current · 强调色上",
               })}
             >
-              <span css={[corner.radius_round, styles.accentPill]}>
+              <span
+                css={[typeRole.label, corner.radius_round, styles.accentPill]}
+              >
                 <Spinner tone="current" aria-hidden />
                 <span>{t({ en: "Loading", zh: "加载中" })}</span>
               </span>
@@ -137,7 +140,6 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: color.bgAccent,
     color: color.fgOnAccent,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
   },
 });

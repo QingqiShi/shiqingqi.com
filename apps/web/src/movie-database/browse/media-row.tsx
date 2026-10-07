@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { CompactMediaCard } from "#src/movie-database/compact-media-card.tsx";
 import { useMediaDetail } from "#src/movie-database/details/media-detail-provider.tsx";
 import { HorizontalScrollRow } from "#src/movie-database/horizontal-scroll-row.tsx";
@@ -38,7 +39,7 @@ export function MediaRow({ title, items, inset = "chat" }: MediaRowProps) {
 
   return (
     <section css={stack.tight}>
-      <h2 css={styles.title}>{title}</h2>
+      <h2 css={[typeRole.overline, styles.title]}>{title}</h2>
       <HorizontalScrollRow
         ariaLabel={title}
         css={rowStyles.root}
@@ -134,11 +135,7 @@ const standaloneStyles = stylex.create({
 
 const styles = stylex.create({
   title: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     color: color.fgMuted,
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
     margin: 0,
   },
   cardWrapper: {

@@ -8,7 +8,8 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { IlloLayer } from "#src/design-system/foundation-illustrations/illo-layer.tsx";
 import { getFoundationIllustration } from "#src/design-system/foundation-illustrations/index.tsx";
@@ -66,10 +67,12 @@ export function OverviewTile({
     >
       {illustration ? <IlloLayer>{illustration}</IlloLayer> : null}
       <div css={stack.tight}>
-        <Link href={href} {...stylex.props(styles.link)}>
+        <Link href={href} {...stylex.props(typeRole.h3, styles.link)}>
           {label}
         </Link>
-        <span css={styles.description}>{description}</span>
+        <span css={[typeRole.bodySmall, styles.description]}>
+          {description}
+        </span>
       </div>
       {specimen ? (
         // `inert` keeps the specimens out of the tab order and the
@@ -133,8 +136,6 @@ const styles = stylex.create({
   // positioned or z-indexed sibling would otherwise paint over the rest.
   link: {
     zIndex: 3,
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_7,
     color: color.fg,
     textDecoration: "none",
     // The element's own outline is declared solid-and-transparent purely to
@@ -164,9 +165,7 @@ const styles = stylex.create({
   },
   description: {
     zIndex: 1,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_4,
   },
   // A sunken plate, inset within the card's padding: a fill and a radius, no
   // border. That is the difference between this and a card inside a card —

@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import type { CreatureDef } from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
 import { PixelLayer } from "#src/pixel-creature-creator/sprite/pixel-layer.tsx";
@@ -40,13 +41,13 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
   return (
     <section css={stack.item} data-testid="wizard-step-features">
       <div css={stack.tight}>
-        <h3 css={styles.heading}>
+        <h3 css={[typeRole.h3, styles.heading]}>
           {t({
             en: "Pick up to 2 features",
             zh: "选择最多 2 件特征",
           })}
         </h3>
-        <p css={styles.hint}>
+        <p css={[typeRole.bodySmall, styles.hint]}>
           {t({
             en: "Accessories layer on top of the species. They share the elemental tint you pick next.",
             zh: "饰品叠加在物种之上,会随后续选择的元素染上同一色调。",
@@ -88,14 +89,14 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
                   scale={3}
                 />
               </div>
-              <span css={styles.optionLabel}>
+              <span css={typeRole.label}>
                 {accessoryLabels[accessory.id] ?? accessory.id}
               </span>
             </button>
           );
         })}
       </OptionGrid>
-      <p css={styles.counter} aria-live="polite">
+      <p css={[typeRole.bodySmall, styles.counter]} aria-live="polite">
         {t({ en: "Selected:", zh: "已选:" })} {String(selected.size)}/
         {String(MAX_ACCESSORIES)}
       </p>
@@ -105,13 +106,10 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
 
 const styles = stylex.create({
   heading: {
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_6,
     margin: 0,
     color: color.fg,
   },
   hint: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
@@ -149,12 +147,7 @@ const styles = stylex.create({
     minWidth: "96px",
     minHeight: "96px",
   },
-  optionLabel: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
-  },
   counter: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },

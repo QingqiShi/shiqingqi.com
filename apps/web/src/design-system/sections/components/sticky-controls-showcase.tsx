@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -67,7 +68,7 @@ export function StickyControlsShowcase() {
 
       <DoDont
         do={
-          <code css={styles.code}>
+          <code css={[typeRole.bodySmall, styles.code]}>
             {
               "<StickyControls><StickyControlGroup>{filters}</StickyControlGroup></StickyControls>"
             }
@@ -78,7 +79,7 @@ export function StickyControlsShowcase() {
           zh: "用 StickyControls 停放筛选栏，每簇控件一个组——与页头自身的控件组共用同一段间距和同一套虚化。",
         })}
         dont={
-          <code css={styles.code}>
+          <code css={[typeRole.bodySmall, styles.code]}>
             {"<div css={styles.stickyBar}>{filters}</div>"}
           </code>
         }
@@ -94,7 +95,6 @@ export function StickyControlsShowcase() {
 const styles = stylex.create({
   code: {
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     color: color.fg,
     overflowWrap: "anywhere",
   },

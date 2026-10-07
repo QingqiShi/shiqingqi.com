@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { color, controlSize, font } from "../tokens.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
+import { color, controlSize } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface MenuLabelProps extends Omit<
@@ -23,7 +24,7 @@ interface MenuLabelProps extends Omit<
  */
 export function MenuLabel({ children, css, ...props }: MenuLabelProps) {
   return (
-    <div {...props} css={[styles.label, css]}>
+    <div {...props} css={[typeRole.controlCaption, styles.label, css]}>
       {children}
     </div>
   );
@@ -31,7 +32,6 @@ export function MenuLabel({ children, css, ...props }: MenuLabelProps) {
 
 const styles = stylex.create({
   label: {
-    fontSize: font.uiControlCaption,
     paddingBlockEnd: controlSize._2,
     color: color.fgMuted,
   },

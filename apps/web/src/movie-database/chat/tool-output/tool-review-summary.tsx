@@ -11,6 +11,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ComponentType } from "react";
 import { useState } from "react";
@@ -127,20 +128,20 @@ export function ToolReviewSummary({
   return (
     <div css={[corner.radius_2, styles.card]}>
       <div css={[flex.between, styles.header]}>
-        <span css={styles.title}>
+        <span css={[typeRole.label, styles.title]}>
           {t({ en: "Review Summary", zh: "评论摘要" })}
         </span>
         <div css={row.tight}>
           {formattedRating !== null && (
             <span
-              css={styles.ratingBadge}
+              css={[typeRole.label, styles.ratingBadge]}
               role="img"
               aria-label={`${t({ en: "Average rating", zh: "平均评分" })}: ${formattedRating}${t({ en: " out of 10", zh: "/10" })}`}
             >
               <span aria-hidden="true">{`★ ${formattedRating}`}</span>
             </span>
           )}
-          <span css={[corner.radius_1, styles.countBadge]}>
+          <span css={[typeRole.label, corner.radius_1, styles.countBadge]}>
             {data.reviewCount === 1
               ? t({ en: "1 review", zh: "1 条评论" })
               : `${String(data.reviewCount)} ${t({ en: "reviews", zh: "条评论" })}`}
@@ -148,7 +149,7 @@ export function ToolReviewSummary({
         </div>
       </div>
 
-      <p css={styles.summary}>{data.summary}</p>
+      <p css={[typeRole.body, styles.summary]}>{data.summary}</p>
 
       {isInteractive && (
         <div css={styles.controlSection}>
@@ -161,6 +162,7 @@ export function ToolReviewSummary({
                   key={level}
                   type="button"
                   css={[
+                    typeRole.bodySmall,
                     buttonReset.base,
                     corner.radius_2,
                     styles.levelButton,
@@ -193,7 +195,7 @@ export function ToolReviewSummary({
             })}
           </div>
           {selectedLevel !== null && (
-            <p css={styles.selectedLabel} role="status">
+            <p css={[typeRole.bodySmall, styles.selectedLabel]} role="status">
               {spicinessLabels[selectedLevel]}
             </p>
           )}
@@ -213,17 +215,12 @@ const styles = stylex.create({
     marginBottom: rhythm.tight,
   },
   title: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
   },
   ratingBadge: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fgMuted,
   },
   countBadge: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fgMuted,
     backgroundColor: color.bgSurface,
     paddingInline: space._1,
@@ -231,8 +228,6 @@ const styles = stylex.create({
   },
   summary: {
     margin: 0,
-    fontSize: font.uiBody,
-    lineHeight: font.lineHeight_4,
     whiteSpace: "pre-wrap",
   },
   controlSection: {
@@ -257,7 +252,6 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "transparent",
     color: color.fgMuted,
-    fontSize: font.uiBodySmall,
     transition:
       "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
   },
@@ -274,7 +268,6 @@ const styles = stylex.create({
   selectedLabel: {
     margin: 0,
     marginTop: rhythm.tight,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     textAlign: "center",
   },

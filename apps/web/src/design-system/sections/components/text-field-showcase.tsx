@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -132,7 +133,7 @@ export function TextFieldShowcase() {
         dont={
           <div css={fill.inline}>
             <input
-              css={[corner.radius_2, styles.rawInput]}
+              css={[typeRole.control, corner.radius_2, styles.rawInput]}
               placeholder={t({ en: "Email", zh: "电子邮箱" })}
               aria-label={t({ en: "Email", zh: "电子邮箱" })}
             />
@@ -155,7 +156,6 @@ const styles = stylex.create({
   rawInput: {
     inlineSize: "100%",
     fontFamily: font.family,
-    fontSize: font.uiControl,
     color: color.fg,
     backgroundColor: color.bgControl,
     borderStyle: "solid",

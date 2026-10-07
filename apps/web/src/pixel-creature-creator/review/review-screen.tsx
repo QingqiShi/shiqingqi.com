@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -59,7 +60,9 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
   if (status.kind === "loading") {
     return (
       <div css={[stack.item, styles.root]} data-testid="review-loading">
-        <p css={styles.muted}>{t({ en: "Loading…", zh: "加载中…" })}</p>
+        <p css={[typeRole.bodySmall, styles.muted]}>
+          {t({ en: "Loading…", zh: "加载中…" })}
+        </p>
       </div>
     );
   }
@@ -68,10 +71,10 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
     return (
       <div css={[stack.item, styles.root]} data-testid="review-invalid">
         <div css={stack.tight}>
-          <h1 css={styles.heading}>
+          <h1 css={[typeRole.h2, styles.heading]}>
             {t({ en: "Broken creature link", zh: "无效的生物链接" })}
           </h1>
-          <p css={styles.muted}>
+          <p css={[typeRole.bodySmall, styles.muted]}>
             {t({
               en: "We couldn't decode this creature. Try designing a new one.",
               zh: "我们无法解析这个生物。试着重新设计一个吧。",
@@ -81,7 +84,7 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
         <Link
           href={createHref}
           data-testid="review-cta"
-          {...stylex.props(styles.cta)}
+          {...stylex.props(typeRole.body, styles.cta)}
         >
           {t({ en: "Open the creator", zh: "打开创造器" })}
         </Link>
@@ -160,13 +163,10 @@ const styles = stylex.create({
     width: "100%",
   },
   heading: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
     margin: 0,
     color: color.fg,
   },
   muted: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
@@ -181,10 +181,9 @@ const styles = stylex.create({
       ":hover": color.bgAccentHover,
     },
     color: color.fgOnAccent,
-    fontSize: font.uiBody,
-    fontWeight: font.weight_6,
     textDecoration: "none",
     transitionProperty: "background-color",
     transitionDuration: "120ms",
+    fontWeight: font.weight_6,
   },
 });

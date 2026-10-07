@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { color, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
@@ -13,10 +14,10 @@ interface HeadingProps {
    */
   level?: HeadingLevel;
   /**
-   * Type-scale step, decoupled from `level` so rank and size can differ.
-   * Defaults to the step matching `level`.
+   * Type role, decoupled from `level` so rank and size can differ.
+   * Defaults to the role matching `level`.
    *
-   * @zh 视觉字号档位，与 `level` 解耦，使层级与字号可以不同；默认使用与 `level` 匹配的字号。
+   * @zh 字体角色，与 `level` 解耦，使层级与字号可以不同；默认使用与 `level` 匹配的角色。
    */
   look?: HeadingLook;
   /**
@@ -81,7 +82,7 @@ function defaultLookForLevel(level: HeadingLevel): HeadingLook {
 
 /**
  * Heading typography primitive: `level` sets the semantic rank while
- * `look` sets the visual step, so an `<h2>` can look like a display
+ * `look` sets the type role, so an `<h2>` can look like a display
  * heading without breaking the document outline. Forwards `ref`.
  */
 export function Heading({
@@ -97,8 +98,8 @@ export function Heading({
 }: HeadingProps) {
   const resolvedLook = look ?? defaultLookForLevel(level);
   const headingCss = [
+    typeRole[resolvedLook],
     styles.base,
-    lookStyles[resolvedLook],
     weight ? weightStyles[weight] : null,
     align ? alignStyles[align] : null,
     wrapStyles[wrap],
@@ -149,36 +150,6 @@ const styles = stylex.create({
   base: {
     margin: 0,
     color: color.fg,
-  },
-});
-
-const lookStyles = stylex.create({
-  display: {
-    fontSize: font.uiDisplay,
-    fontWeight: font.weight_8,
-    lineHeight: font.lineHeight_1,
-    letterSpacing: font.trackingTight,
-  },
-  h1: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_8,
-    lineHeight: font.lineHeight_2,
-    letterSpacing: font.trackingSnug,
-  },
-  h2: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_2,
-  },
-  h3: {
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_2,
-  },
-  h4: {
-    fontSize: font.uiBody,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_3,
   },
 });
 

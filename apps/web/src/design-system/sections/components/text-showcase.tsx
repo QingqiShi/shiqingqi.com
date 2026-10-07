@@ -14,11 +14,11 @@ export function TextShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Type scale", zh: "字号" })}>
+      <Showcase label={t({ en: "Looks", zh: "Look" })}>
         <ShowcaseHelper>
           {t({
-            en: "One scale of four steps. Pick the step by role, not by eyeballing a pixel size.",
-            zh: "四档字号构成的一套字阶。按用途选择档位，而不是靠肉眼估算像素大小。",
+            en: "Five looks, each a type role that sets the size, line height, weight and tracking together. Pick the look by the job of the text, not by eyeballing a pixel size.",
+            zh: "五种 look，每种都是一个字体角色，同时设定字号、行高、字重与字距。按文字的用途选择 look，而不是靠肉眼估算像素大小。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -36,6 +36,11 @@ export function TextShowcase() {
                 en: "2h 08m · Crime, Drama · Directed by Ana Reyes",
                 zh: "2小时08分 · 犯罪、剧情 · 导演 Ana Reyes",
               })}
+            </Text>
+          </Specimen>
+          <Specimen caption="label · .85rem · 500">
+            <Text look="label">
+              {t({ en: "Original language", zh: "原始语言" })}
             </Text>
           </Specimen>
           <Specimen caption="caption · .75rem">
@@ -57,8 +62,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Tones", zh: "色调" })}>
         <ShowcaseHelper>
           {t({
-            en: "Three foreground roles that resolve per theme — never a hand-picked colour.",
-            zh: "三种前景色角色会随主题自动解析——无需手动挑选颜色。",
+            en: "Three tones that resolve per theme — never a hand-picked colour.",
+            zh: "三种色调会随主题自动解析——无需手动挑选颜色。",
           })}
         </ShowcaseHelper>
         <ThemeFramePair>
@@ -249,8 +254,8 @@ export function TextShowcase() {
           </Text>
         }
         doCaption={t({
-          en: "Pick a look and tone so the type scale and theme own the size and colour.",
-          zh: "选择 look 与 tone，让字阶与主题掌控字号和颜色。",
+          en: "Pick a look and tone so the type role and theme own the size and colour.",
+          zh: "选择 look 与 tone，让字体角色与主题掌控字号和颜色。",
         })}
         dont={
           <Text css={styles.hardCodedType}>
@@ -258,8 +263,8 @@ export function TextShowcase() {
           </Text>
         }
         dontCaption={t({
-          en: "Hard-coded pixels and opacity ignore the scale and break dark-mode contrast.",
-          zh: "硬编码像素与透明度会脱离字阶，并破坏深色模式的对比度。",
+          en: "Hard-coded pixels and opacity skip the type roles and break dark-mode contrast.",
+          zh: "硬编码像素与透明度会绕开字体角色，并破坏深色模式的对比度。",
         })}
       />
     </>
@@ -269,6 +274,7 @@ export function TextShowcase() {
 const styles = stylex.create({
   // The don't specimen: hard-coded pixels and opacity in place of the scale.
   hardCodedType: {
+    // eslint-disable-next-line @tuja/require-type-role -- The "don't" specimen must show a raw size.
     fontSize: "11px",
     opacity: 0.5,
   },

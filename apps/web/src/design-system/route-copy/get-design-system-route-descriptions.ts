@@ -40,8 +40,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "每种用途的颜色令牌、意图色、对比度与调色板。",
     }),
     "/design-system/foundations/typography": t({
-      en: "Text and Heading, font families, and which size scale to use.",
-      zh: "Text 与 Heading、字体族，以及该用哪套字阶。",
+      en: "Text and Heading, font families, and the type roles for text you style yourself.",
+      zh: "Text 与 Heading、字体族，以及你自己设置样式的文字所用的字体角色。",
     }),
     "/design-system/foundations/layout": t({
       en: "The space scale, control sizes, breakpoints, content width, layers and aspect ratios.",
@@ -68,8 +68,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "组件的保障，以及你需要提供的名称与文案。",
     }),
     "/design-system/components/text": t({
-      en: "The body-copy type primitive: a four-step type scale, three text colours, and four weights.",
-      zh: "正文文字排版基础组件：四档字阶、三种文字颜色与四种字重。",
+      en: "The body-copy component: five type roles, three text colours, and four weights.",
+      zh: "正文文字组件：五种字体角色、三种文字颜色与四种字重。",
     }),
     "/design-system/components/heading": t({
       en: "The heading primitive, with semantic level decoupled from visual size.",

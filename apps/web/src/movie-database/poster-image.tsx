@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, layer } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, layer } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";
@@ -36,7 +37,9 @@ export function PosterImage({
     return (
       <div css={[imageCover.base, flex.center, styles.errored]}>
         <div>{visibleLabel}</div>
-        <div css={styles.errorText}>{t({ en: "No Poster", zh: "无海报" })}</div>
+        <div css={[typeRole.bodySmall, styles.errorText]}>
+          {t({ en: "No Poster", zh: "无海报" })}
+        </div>
       </div>
     );
   }
@@ -54,7 +57,7 @@ export function PosterImage({
       errorFallback={
         <div css={[imageCover.base, flex.center, styles.errored]}>
           <div>{visibleLabel}</div>
-          <div css={styles.errorText}>
+          <div css={[typeRole.bodySmall, styles.errorText]}>
             {t({ en: "No Poster", zh: "无海报" })}
           </div>
         </div>
@@ -72,7 +75,6 @@ const styles = stylex.create({
     zIndex: layer.background,
   },
   errorText: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
 });

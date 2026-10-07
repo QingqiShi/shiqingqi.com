@@ -5,6 +5,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -153,14 +154,19 @@ export function WizardShell() {
   return (
     <div css={[stack.item, styles.root]} data-testid="wizard-shell">
       <header css={[row.item, styles.topBar]}>
-        <h2 css={styles.title}>
+        <h2 css={[typeRole.h2, styles.title]}>
           {t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
         </h2>
         <button
           type="button"
           onClick={handleShuffle}
           data-testid="wizard-shuffle"
-          css={[corner.radius_round, styles.shuffleBtn, transition.colors]}
+          css={[
+            typeRole.label,
+            corner.radius_round,
+            styles.shuffleBtn,
+            transition.colors,
+          ]}
         >
           {shuffleLabel}
         </button>
@@ -184,6 +190,7 @@ export function WizardShell() {
               }}
               data-testid={`wizard-pill-${String(stepNumber)}`}
               css={[
+                typeRole.label,
                 corner.radius_round,
                 styles.pill,
                 transition.colors,
@@ -191,7 +198,9 @@ export function WizardShell() {
                 !isVisited && styles.pillLocked,
               ]}
             >
-              <span css={styles.pillNumber}>{String(stepNumber)}</span>
+              <span css={[typeModifier.numeric, styles.pillNumber]}>
+                {String(stepNumber)}
+              </span>
               <span css={styles.pillLabel}>{stepLabels[stepNumber]}</span>
             </button>
           );
@@ -203,7 +212,9 @@ export function WizardShell() {
           css={[corner.radius_3, styles.preview]}
           data-testid="wizard-preview"
         >
-          <span css={styles.previewLabel}>{previewLabel}</span>
+          <span css={[typeRole.overline, styles.previewLabel]}>
+            {previewLabel}
+          </span>
           <div css={styles.previewStage}>
             <PixelSprite def={state.def} scale={8} aria-label={previewLabel} />
           </div>
@@ -220,7 +231,12 @@ export function WizardShell() {
           }}
           disabled={state.step === 1}
           data-testid="wizard-back"
-          css={[styles.footerBtn, transition.colors, styles.footerBtnSecondary]}
+          css={[
+            typeRole.body,
+            styles.footerBtn,
+            transition.colors,
+            styles.footerBtnSecondary,
+          ]}
         >
           {backLabel}
         </button>
@@ -235,7 +251,12 @@ export function WizardShell() {
           }}
           disabled={nameTooShort}
           data-testid={isLastStep ? "wizard-finish" : "wizard-next"}
-          css={[styles.footerBtn, transition.colors, styles.footerBtnPrimary]}
+          css={[
+            typeRole.body,
+            styles.footerBtn,
+            transition.colors,
+            styles.footerBtnPrimary,
+          ]}
         >
           {isLastStep ? finishLabel : nextLabel}
         </button>
@@ -258,8 +279,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
   },
   title: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
     margin: 0,
     color: color.fg,
   },
@@ -274,8 +293,6 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.border,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     cursor: "pointer",
   },
   pill: {
@@ -289,8 +306,6 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
   },
@@ -305,8 +320,7 @@ const styles = stylex.create({
     // (e.g. an aria attribute) without bleeding into the active state.
   },
   pillNumber: {
-    fontVariantNumeric: "tabular-nums",
-    fontWeight: font.weight_7,
+    fontWeight: font.weight_6,
   },
   pillLabel: {
     display: { default: "none", [breakpoints.md]: "inline" },
@@ -330,10 +344,7 @@ const styles = stylex.create({
     width: { default: "auto", [breakpoints.md]: "320px" },
   },
   previewLabel: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
   },
   previewStage: {
     display: "flex",
@@ -361,12 +372,11 @@ const styles = stylex.create({
     paddingInline: space._4,
     borderRadius: "10px",
     cornerShape: "squircle",
-    fontSize: font.uiBody,
-    fontWeight: font.weight_6,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
     borderWidth: "1px",
     borderStyle: "solid",
+    fontWeight: font.weight_6,
   },
   footerBtnSecondary: {
     backgroundColor: {

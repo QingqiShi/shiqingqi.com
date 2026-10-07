@@ -2,9 +2,9 @@
 
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 
 import { t } from "#src/i18n.ts";
-import { labEyebrow } from "./lab-eyebrow.stylex.ts";
 import { LabVariantChips } from "./lab-variant-chips.tsx";
 import type { LabVariantChoice } from "./types.ts";
 
@@ -23,7 +23,7 @@ export function LabVariantSection({
 }: LabVariantSectionProps) {
   return (
     <section css={stack.tight}>
-      <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
+      <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
         {t({ en: "Variants", zh: "变体" })}
       </Text>
       <LabVariantChips

@@ -6,6 +6,7 @@ import { useBlackHole } from "@tuja/ui/hooks/use-black-hole";
 import { useLightBeam } from "@tuja/ui/hooks/use-light-beam";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -78,7 +79,13 @@ export function BlackHoleTestBench() {
         ref={accentBeam}
         data-effect-registered=""
         data-light-beam-test=""
-        css={[flex.center, corner.radius_round, styles.beam, styles.accent]}
+        css={[
+          typeRole.label,
+          flex.center,
+          corner.radius_round,
+          styles.beam,
+          styles.accent,
+        ]}
       >
         {t({ en: "Light beam", zh: "光束" })}
       </div>
@@ -115,7 +122,13 @@ export function BlackHoleTestBench() {
         ref={warmBeam}
         data-effect-registered=""
         data-light-beam-test=""
-        css={[flex.center, corner.radius_round, styles.beam, styles.warm]}
+        css={[
+          typeRole.label,
+          flex.center,
+          corner.radius_round,
+          styles.beam,
+          styles.warm,
+        ]}
       >
         {t({ en: "Light beam", zh: "光束" })}
       </div>
@@ -132,7 +145,6 @@ const styles = stylex.create({
     position: "absolute",
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
   },
   accent: {

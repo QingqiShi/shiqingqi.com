@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -115,8 +116,8 @@ export function CreatureCard({
       data-type={def.type}
     >
       <header css={styles.header}>
-        <h1 css={styles.name}>{displayName}</h1>
-        <span css={styles.typeLabel}>{typeLabel}</span>
+        <h1 css={[typeRole.h2, styles.name]}>{displayName}</h1>
+        <span css={[typeRole.overline, styles.typeLabel]}>{typeLabel}</span>
       </header>
 
       <div css={[stack.item, styles.body]}>
@@ -139,9 +140,19 @@ export function CreatureCard({
               const pct = Math.max(0, Math.min(100, value));
               return (
                 <li key={key} css={styles.statRow}>
-                  <span css={styles.statLabel}>{statLabels[key]}</span>
+                  <span css={[typeRole.label, styles.statLabel]}>
+                    {statLabels[key]}
+                  </span>
                   <StatBar percent={pct} />
-                  <span css={styles.statValue}>{String(value)}</span>
+                  <span
+                    css={[
+                      typeRole.label,
+                      typeModifier.numeric,
+                      styles.statValue,
+                    ]}
+                  >
+                    {String(value)}
+                  </span>
                 </li>
               );
             })}
@@ -167,11 +178,13 @@ function CardLorePanel({ lore }: CardLorePanelProps) {
 
   return (
     <section css={[corner.radius_2, stack.tight, styles.lorePanel]}>
-      <h2 css={styles.loreHeading}>{t({ en: "Lore", zh: "传说" })}</h2>
+      <h2 css={[typeRole.overline, styles.loreHeading]}>
+        {t({ en: "Lore", zh: "传说" })}
+      </h2>
       {activeLore !== null && activeLore.length > 0 ? (
-        <p css={styles.loreText}>{activeLore}</p>
+        <p css={[typeRole.body, styles.loreText]}>{activeLore}</p>
       ) : (
-        <p css={styles.lorePlaceholder}>
+        <p css={[typeRole.body, styles.lorePlaceholder]}>
           {t({ en: "Lore coming soon", zh: "传说即将到来" })}
         </p>
       )}
@@ -229,17 +242,11 @@ const styles = stylex.create({
       "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%)",
   },
   name: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
     margin: 0,
     color: "inherit",
     textShadow: "0 1px 0 rgba(0, 0, 0, 0.18)",
   },
   typeLabel: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
     color: "inherit",
     opacity: 0.9,
   },
@@ -267,10 +274,9 @@ const styles = stylex.create({
     gap: rhythm.tight,
   },
   statLabel: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     color: color.fgMuted,
     minWidth: "4em",
+    fontWeight: font.weight_6,
   },
   statBar: {
     position: "relative",
@@ -290,12 +296,10 @@ const styles = stylex.create({
     transitionDuration: "240ms",
   },
   statValue: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    fontVariantNumeric: "tabular-nums",
     color: color.fg,
     minWidth: "2.5em",
     textAlign: "end",
+    fontWeight: font.weight_6,
   },
   lorePanel: {
     padding: space._3,
@@ -305,21 +309,14 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
   },
   loreHeading: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
     color: color.fgMuted,
     margin: 0,
   },
   loreText: {
-    fontSize: font.uiBody,
     color: color.fg,
     margin: 0,
-    lineHeight: font.lineHeight_3,
   },
   lorePlaceholder: {
-    fontSize: font.uiBody,
     color: color.fgMuted,
     margin: 0,
     fontStyle: "italic",

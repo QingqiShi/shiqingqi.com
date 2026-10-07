@@ -12,11 +12,11 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
   controlSize,
-  font,
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -193,7 +193,7 @@ export function PreferencePanel({
       initialFocusRef={closeButtonRef}
     >
       <div css={[flex.between, styles.header]}>
-        <h2 css={styles.title}>
+        <h2 css={[typeRole.h2, styles.title]}>
           {t({ en: "Your Preferences", zh: "你的偏好" })}
         </h2>
         <button
@@ -218,7 +218,7 @@ export function PreferencePanel({
           role="presentation"
           {...stylex.props(styles.infoIcon)}
         />
-        <p css={styles.infoText}>
+        <p css={[typeRole.bodySmall, styles.infoText]}>
           {t({
             en: "Preferences are stored locally in your browser. When you chat with the AI, they're included as context to personalise its replies.",
             zh: "偏好仅存储在你的浏览器中。当你与 AI 对话时，它们会作为上下文一起发送，以便个性化回复。",
@@ -229,7 +229,7 @@ export function PreferencePanel({
       <div css={[stack.group, styles.body]}>
         {preferences.length === 0 ? (
           <div css={[flex.center, styles.emptyState]}>
-            <p css={styles.emptyText}>
+            <p css={[typeRole.body, styles.emptyText]}>
               {t({
                 en: "No preferences yet. Chat with the AI and it will learn what you like.",
                 zh: "还没有偏好记录。和 AI 聊天，它会了解你的喜好。",
@@ -252,7 +252,7 @@ export function PreferencePanel({
         <div css={styles.footer}>
           {confirmingClear ? (
             <div css={[row.tight, styles.confirmRow]}>
-              <p css={styles.confirmText}>
+              <p css={[typeRole.bodySmall, styles.confirmText]}>
                 {t({
                   en: "Clear all preferences?",
                   zh: "清除所有偏好？",
@@ -261,6 +261,7 @@ export function PreferencePanel({
               <button
                 type="button"
                 css={[
+                  typeRole.label,
                   buttonReset.base,
                   corner.radius_round,
                   styles.confirmButton,
@@ -273,6 +274,7 @@ export function PreferencePanel({
                 ref={cancelButtonRef}
                 type="button"
                 css={[
+                  typeRole.label,
                   buttonReset.base,
                   corner.radius_round,
                   styles.cancelButton,
@@ -288,7 +290,12 @@ export function PreferencePanel({
             <button
               ref={clearTriggerRef}
               type="button"
-              css={[buttonReset.base, flex.row, styles.clearButton]}
+              css={[
+                typeRole.label,
+                buttonReset.base,
+                flex.row,
+                styles.clearButton,
+              ]}
               onClick={() => {
                 setConfirmingClear(true);
               }}
@@ -337,7 +344,7 @@ function CategorySection({
 
   return (
     <div css={stack.tight}>
-      <h3 css={styles.categoryLabel}>{label}</h3>
+      <h3 css={[typeRole.overline, styles.categoryLabel]}>{label}</h3>
       <div css={cluster.tight}>
         {prefs.map((pref) => (
           <PreferenceChip
@@ -364,6 +371,7 @@ function PreferenceChip({
   return (
     <span
       css={[
+        typeRole.label,
         corner.radius_round,
         styles.chip,
         isLike ? styles.chipLike : styles.chipDislike,
@@ -405,10 +413,7 @@ const styles = stylex.create({
   },
   title: {
     margin: 0,
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_6,
     color: color.fg,
-    letterSpacing: "-0.01em",
   },
   closeButton: {
     width: "2rem",
@@ -438,8 +443,6 @@ const styles = stylex.create({
   },
   infoText: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
   },
   body: {
@@ -453,19 +456,13 @@ const styles = stylex.create({
   },
   emptyText: {
     margin: 0,
-    fontSize: font.uiBody,
     color: color.fgMuted,
     textAlign: "center",
-    lineHeight: font.lineHeight_4,
     maxWidth: "24ch",
   },
   categoryLabel: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fgMuted,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
   },
   chip: {
     display: "inline-flex",
@@ -476,8 +473,6 @@ const styles = stylex.create({
     paddingRight: space._1,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
     transition: "background-color 0.15s ease, border-color 0.15s ease",
   },
   chipLike: {
@@ -524,7 +519,6 @@ const styles = stylex.create({
   },
   clearButton: {
     gap: controlSize._2,
-    fontSize: font.uiBodySmall,
     color: {
       default: color.fgMuted,
       ":hover": color.fg,
@@ -537,12 +531,9 @@ const styles = stylex.create({
   },
   confirmText: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fg,
   },
   confirmButton: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
     paddingBlock: space._0,
     paddingInline: space._3,
     backgroundColor: {
@@ -554,8 +545,6 @@ const styles = stylex.create({
     transition: "background-color 0.15s ease",
   },
   cancelButton: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
     paddingBlock: space._0,
     paddingInline: space._3,
     backgroundColor: {

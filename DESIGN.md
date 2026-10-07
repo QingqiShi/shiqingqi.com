@@ -31,6 +31,7 @@ Terms are defined in `contexts/design-system/CONTEXT.md`. This file holds only t
 Showcase sources are under `apps/web/src/design-system/sections/`.
 
 - Spacing, where each step is about twice the one below and a heading sits at least twice as far from the block above it as from its own content: the `rhythm` tokens in `packages/ui/src/tokens.stylex.ts` and the Stack primitives in `packages/ui/src/primitives/stack.stylex.ts`, enforced by the `require-rhythm-spacing` lint rule and `apps/web/e2e/design-system-spacing.spec.ts`.
+- Type, where each piece of text takes a type role that sets its size, line height, weight and tracking together, and a callsite changes only the weight: `packages/ui/src/primitives/type.stylex.ts` and `foundations/type-roles-showcase.tsx`, enforced by the `require-type-role` lint rule.
 - Squircle corners and their fallback: `packages/ui/src/primitives/corner.stylex.ts`, enforced by the `require-corner-shape` lint rule.
 - Material: `foundations/glass-showcase.tsx`, `foundations/texture-showcase.tsx` and `foundations/wash-showcase.tsx`; glass is drawn in `packages/ui/src/surfaces/glass-surface.stylex.ts`.
 - Progressive blur and Scroll mask: `components/progressive-blur-showcase.tsx` and `components/scroll-mask-showcase.tsx`; the blur cap is in `packages/ui/src/surfaces/progressive-blur.tsx`.

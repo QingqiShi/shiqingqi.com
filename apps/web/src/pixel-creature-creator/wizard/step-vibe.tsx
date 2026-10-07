@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
 import {
@@ -68,10 +69,10 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
     <section css={stack.group} data-testid="wizard-step-vibe">
       <div css={stack.item}>
         <div css={stack.tight}>
-          <h3 css={styles.heading} id={moodHeadingId}>
+          <h3 css={[typeRole.h3, styles.heading]} id={moodHeadingId}>
             {t({ en: "Pick a default mood", zh: "选择默认情绪" })}
           </h3>
-          <p css={styles.hint}>
+          <p css={[typeRole.bodySmall, styles.hint]}>
             {t({
               en: "The preview reflects your choice immediately.",
               zh: "预览会立即反映你的选择。",
@@ -86,6 +87,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
               {...moodGroup.getOptionProps(emotion)}
               data-testid={`vibe-option-${emotion}`}
               css={[
+                typeRole.label,
                 styles.pill,
                 def.defaultEmotion === emotion && styles.pillSelected,
               ]}
@@ -98,10 +100,10 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
 
       <div css={stack.item}>
         <div css={stack.tight}>
-          <h3 css={styles.heading} id={elementHeadingId}>
+          <h3 css={[typeRole.h3, styles.heading]} id={elementHeadingId}>
             {t({ en: "Pick an element", zh: "选择元素" })}
           </h3>
-          <p css={styles.hint}>
+          <p css={[typeRole.bodySmall, styles.hint]}>
             {t({
               en: "Tints the sprite and seeds the creature's stats.",
               zh: "为精灵染色并影响生物的属性。",
@@ -127,7 +129,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
                   styles.typeAccentColor(tp.accentColor),
                 ]}
               />
-              <span css={styles.optionLabel}>{typeLabels[tp.id] ?? tp.id}</span>
+              <span css={typeRole.label}>{typeLabels[tp.id] ?? tp.id}</span>
             </button>
           ))}
         </OptionGrid>
@@ -138,13 +140,10 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
 
 const styles = stylex.create({
   heading: {
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_6,
     margin: 0,
     color: color.fg,
   },
   hint: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
@@ -162,8 +161,6 @@ const styles = stylex.create({
     borderColor: "transparent",
     cursor: "pointer",
     color: color.fg,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     transitionProperty: "border-color, background-color",
     transitionDuration: "120ms",
   },
@@ -206,8 +203,4 @@ const styles = stylex.create({
     borderColor: color.border,
   },
   typeAccentColor: (backgroundColor: string) => ({ backgroundColor }),
-  optionLabel: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
-  },
 });

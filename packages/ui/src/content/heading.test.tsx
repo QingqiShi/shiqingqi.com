@@ -31,7 +31,7 @@ describe("Heading look decoupling", () => {
     );
     const el = screen.getByRole("heading", { level: 2 });
     expect(el.tagName).toBe("H2");
-    expect(el.className).toContain("lookStyles.display");
+    expect(el.className).toContain("typeRole.display");
   });
 });
 
@@ -43,7 +43,7 @@ describe("Heading weight override", () => {
       </Heading>,
     );
     const el = screen.getByRole("heading", { level: 1 });
-    expect(el.className).toContain("lookStyles.h1");
+    expect(el.className).toContain("typeRole.h1");
     expect(el.className).toContain("weightStyles.regular");
   });
 

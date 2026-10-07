@@ -5,6 +5,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Overlay } from "@tuja/ui/components/overlay";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -65,7 +66,7 @@ export function TrailerOverlay({
           <Text as="span" look="overline" tone="muted" transform="uppercase">
             {studio}
           </Text>
-          <span css={styles.cardTitle}>{title}</span>
+          <span css={[typeRole.subDisplay, styles.cardTitle]}>{title}</span>
           <Text look="bodySmall" tone="muted" align="center">
             {t({
               en: "No video ships with the exemplar. The player holds the title card instead.",
@@ -107,13 +108,8 @@ const styles = stylex.create({
     borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
-  // The one local type step, for the same reason the poster's title is local:
-  // `weight_8` is a step past what `Text` exposes.
   cardTitle: {
     color: color.fg,
-    fontSize: font.uiSubDisplay,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
     lineHeight: font.lineHeight_00,
     textAlign: "center",
     textWrap: "balance",

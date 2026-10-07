@@ -23,6 +23,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -210,8 +211,12 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 score twice.
               */}
               <div css={[corner.radius_round, styles.dial]} aria-hidden="true">
-                <span css={styles.dialScore}>{movie.rating}</span>
-                <span css={styles.dialScale}>/10</span>
+                <span
+                  css={[typeRole.h2, typeModifier.numeric, styles.dialScore]}
+                >
+                  {movie.rating}
+                </span>
+                <span css={[typeRole.caption, styles.dialScale]}>/10</span>
               </div>
               <div css={[stack.tight, styles.ratingText]}>
                 <Text as="span" look="bodySmall" weight="medium">
@@ -565,16 +570,12 @@ const styles = stylex.create({
   },
   dialScore: {
     color: color.fg,
-    fontSize: font.uiHeading2,
     fontWeight: font.weight_8,
     lineHeight: font.lineHeight_0,
-    fontVariantNumeric: "tabular-nums",
   },
   dialScale: {
     color: color.fgMuted,
-    fontSize: font.uiOverline,
     fontWeight: font.weight_6,
-    letterSpacing: font.trackingWide,
   },
   ratingText: {
     minInlineSize: 0,

@@ -46,7 +46,6 @@ export const sharedStyles = stylex.create({
     // A `<button>` takes neither the page's font nor its colour by
     // inheritance, so both are declared here for the `<a>` form to match.
     fontFamily: font.family,
-    fontSize: font.uiControl,
     fontWeight: font.weight_5,
     color: buttonTokens.color,
     backgroundColor: {
@@ -174,14 +173,14 @@ export const lookStyles = stylex.create({
   },
 });
 
-// Each size drives `buttonTokens.height` and scales label size and padding to
-// match. `md` reproduces the historic default, so callers that omit `size`
-// are unaffected.
+// Each size drives `buttonTokens.height` and scales padding to match. The
+// label size comes from a type role composed before `sharedStyles.base`:
+// `label` for `sm`, `control` for `md`, `h2` for `lg`. `md` reproduces the
+// historic default, so callers that omit `size` are unaffected.
 export const sizeStyles = stylex.create({
   sm: {
     [buttonTokens.height]: controlSize._8,
     [buttonTokens.paddingInline]: controlSize._2,
-    fontSize: font.uiBodySmall,
     gap: controlSize._1,
     paddingBlock: controlSize._0,
   },
@@ -191,7 +190,6 @@ export const sizeStyles = stylex.create({
   lg: {
     [buttonTokens.height]: controlSize._10,
     [buttonTokens.paddingInline]: controlSize._4,
-    fontSize: font.uiHeading2,
     paddingBlock: controlSize._2,
   },
 });

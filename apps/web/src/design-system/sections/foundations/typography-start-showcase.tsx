@@ -15,7 +15,7 @@ const COMPONENT_LINKS: readonly { path: DesignSystemPath }[] = [
 
 /**
  * The opening section of the Typography page: copy goes through Text and
- * Heading, and the font tokens are for text you style yourself.
+ * Heading, and text you style yourself composes a type role.
  */
 export function TypographyStartShowcase() {
   return (
@@ -25,8 +25,8 @@ export function TypographyStartShowcase() {
         zh: "用 Text 与 Heading 写文字",
       })}
       lead={t({
-        en: "Text and Heading set the size, line height, weight and colour from the tokens. You choose a look for the size, and the callsite never names a font token.",
-        zh: "Text 与 Heading 从令牌中设定字号、行高、字重与颜色。你只需为字号选一个 look，调用处无需写出任何字体令牌。",
+        en: "Each look of Text and Heading is a type role: it sets the size, line height, weight and tracking together, and the component sets the colour from the tokens. You choose a look, and the callsite never names a font token.",
+        zh: "Text 与 Heading 的每个 look 都是一个字体角色：它同时设定字号、行高、字重与字距，组件再从令牌中设定颜色。你只需选一个 look，调用处无需写出任何字体令牌。",
       })}
     >
       <GuideList
@@ -35,24 +35,24 @@ export function TypographyStartShowcase() {
             term: "Heading level · look",
             value: t({ en: "Rank and size, apart", zh: "层级与字号分开" }),
             note: t({
-              en: 'level renders h1 to h6 for the document outline; look sets the size: display, h1, h2, h3 or h4. look follows level when you leave it out, and levels 4 to 6 all look like h4. A section title can be level={2} look="display".',
-              zh: 'level 按文档大纲渲染 h1 到 h6；look 设定字号：display、h1、h2、h3 或 h4。省略 look 时它跟随 level，4 到 6 级都显示为 h4。区块标题可以写成 level={2} look="display"。',
+              en: 'level renders h1 to h6 for the document outline; look picks the type role: display, h1, h2, h3 or h4. look follows level when you leave it out, and levels 4 to 6 all look like h4. A section title can be level={2} look="display".',
+              zh: 'level 按文档大纲渲染 h1 到 h6；look 选择字体角色：display、h1、h2、h3 或 h4。省略 look 时它跟随 level，4 到 6 级都显示为 h4。区块标题可以写成 level={2} look="display"。',
             }),
           },
           {
             term: "Text look · as",
-            value: '"body" · "bodySmall" · "caption" · "overline"',
+            value: '"body" · "bodySmall" · "label" · "caption" · "overline"',
             note: t({
-              en: 'as picks p, span or div and leaves the size alone. overline is small uppercase with wide tracking and a semibold weight; transform="uppercase" gives the same case at any other look.',
-              zh: 'as 选择 p、span 或 div，不影响字号。overline 是小号大写、字距宽、半粗；transform="uppercase" 可在其他任何 look 下得到同样的大写。',
+              en: 'as picks p, span or div and leaves the size alone. label is a short line that names something: a field, a group, a meta row. overline is small uppercase with wide tracking and a semibold weight; transform="uppercase" gives the same case at any other look.',
+              zh: 'as 选择 p、span 或 div，不影响字号。label 是为某样东西命名的一行短文字：一个字段、一个分组、一行元信息。overline 是小号大写、字距宽、半粗；transform="uppercase" 可在其他任何 look 下得到同样的大写。',
             }),
           },
           {
             term: "weight · tone",
             value: t({ en: "Weight and colour", zh: "字重与颜色" }),
             note: t({
-              en: "weight overrides the look's weight: regular, medium, semibold or bold, and on Heading also extrabold and black. tone is Text only: default, muted or accent.",
-              zh: "weight 覆盖 look 自带的字重：regular、medium、semibold 或 bold，Heading 另有 extrabold 与 black。tone 只有 Text 有：default、muted 或 accent。",
+              en: "weight overrides the weight the type role sets: regular, medium, semibold or bold, and on Heading also extrabold and black. tone is Text only: default, muted or accent.",
+              zh: "weight 覆盖字体角色设定的字重：regular、medium、semibold 或 bold，Heading 另有 extrabold 与 black。tone 只有 Text 有：default、muted 或 accent。",
             }),
           },
           {
@@ -75,25 +75,24 @@ import { Text } from "@tuja/ui/components/text";
       />
       <GuideNote>
         {t({
-          en: "Reach for the font tokens only when you build a piece Text and Heading cannot express: a stat, a hero title, a label inside a control of your own. Then write each property from a token, as below, and pair them as the next sections show.",
-          zh: "只有在构建 Text 与 Heading 无法表达的部分时，例如一个统计数字、一个主视觉标题或你自己控件里的标签，才需要字体令牌。届时每个属性都取自令牌，如下所示，并按后面几节的方式搭配。",
+          en: "When you build a piece Text and Heading cannot express, such as a nav item, a stat or a label inside a control of your own, compose a type role from typeRole and never pick a size token. Put the type role first in the css array. The weight is the one property your own style changes, with a font.weight_* token. For figures that line up, add typeModifier.numeric.",
+          zh: "当你构建 Text 与 Heading 无法表达的部分时，例如一个导航项、一个统计数字或你自己控件里的标签，请从 typeRole 中组合一个字体角色，不要挑选字号令牌。把字体角色放在 css 数组的第一位。字重是你自己的样式唯一要改的属性，用 font.weight_* 令牌来改。需要对齐的数字，再加上 typeModifier.numeric。",
         })}
       </GuideNote>
       <UsageSnippet
         code={`import * as stylex from "@stylexjs/stylex";
-import { font } from "@tuja/ui/tokens.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
-  stat: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_7,
-    lineHeight: font.lineHeight_1,
-    letterSpacing: font.trackingTight,
-    fontVariantNumeric: "tabular-nums",
-  },
+  navItem: { color: color.fgMuted },
+  navItemActive: { color: color.fg, fontWeight: font.weight_6 },
 });
 
-<span css={styles.stat}>4.8</span>`}
+<a css={[typeRole.label, styles.navItem, isActive && styles.navItemActive]}>
+  Watchlist
+</a>
+<span css={[typeRole.h1, typeModifier.numeric]}>4.8</span>`}
       />
     </GuideSection>
   );

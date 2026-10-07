@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { use } from "react";
 import { ChatActionsContext } from "./chat-actions-context";
@@ -40,7 +41,7 @@ export function SuggestionChips({
         <button
           key={text}
           type="button"
-          css={[corner.radius_round, styles.chip]}
+          css={[typeRole.label, corner.radius_round, styles.chip]}
           onClick={() => handleSelect?.(text)}
           disabled={disabled}
         >
@@ -72,8 +73,6 @@ const styles = stylex.create({
       ":disabled": color.fgMuted,
     },
     fontFamily: font.family,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
     paddingBlock: space._1,
     paddingInline: space._3,
     cursor: {

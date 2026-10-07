@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
@@ -31,10 +32,10 @@ export function StepName({ def, onChange }: StepNameProps) {
   return (
     <section css={stack.item} data-testid="wizard-step-name">
       <div css={stack.tight}>
-        <h3 css={styles.heading}>
+        <h3 css={[typeRole.h3, styles.heading]}>
           {t({ en: "Name your creature", zh: "为生物命名" })}
         </h3>
-        <p id={hintId} css={styles.hint}>
+        <p id={hintId} css={[typeRole.bodySmall, styles.hint]}>
           {t({
             en: "1–20 characters. We will auto-trim leading and trailing spaces when you finish.",
             zh: "1–20 个字符。完成时会自动去除首尾空格。",
@@ -43,7 +44,7 @@ export function StepName({ def, onChange }: StepNameProps) {
       </div>
       <div css={stack.tight}>
         <label css={stack.tight}>
-          <span css={styles.labelText}>
+          <span css={[typeRole.label, styles.labelText]}>
             {t({ en: "Creature name", zh: "生物名字" })}
           </span>
           <input
@@ -59,7 +60,7 @@ export function StepName({ def, onChange }: StepNameProps) {
             aria-describedby={describedBy}
             placeholder={t({ en: "e.g. Mochi", zh: "例如:团子" })}
             data-testid="creature-name-input"
-            css={[styles.input, transition.colors]}
+            css={[typeRole.body, styles.input, transition.colors]}
           />
         </label>
         {/*
@@ -72,7 +73,7 @@ export function StepName({ def, onChange }: StepNameProps) {
         <p
           id={errorId}
           aria-live="polite"
-          css={styles.error}
+          css={[typeRole.bodySmall, styles.error]}
           data-testid="creature-name-error"
         >
           {isEmpty
@@ -84,10 +85,10 @@ export function StepName({ def, onChange }: StepNameProps) {
         </p>
       </div>
       <div css={[stack.tight, styles.lorePanel]} data-testid="lore-placeholder">
-        <h4 css={styles.loreTitle}>
+        <h4 css={[typeRole.label, styles.loreTitle]}>
           {t({ en: "Lore coming next", zh: "下一步:背景故事" })}
         </h4>
-        <p css={styles.loreBody}>
+        <p css={[typeRole.bodySmall, styles.loreBody]}>
           {t({
             en: "Once you finish, we will spin up a short bilingual backstory based on the choices you made.",
             zh: "完成后,我们将根据你的选择生成一段简短的双语背景故事。",
@@ -100,22 +101,17 @@ export function StepName({ def, onChange }: StepNameProps) {
 
 const styles = stylex.create({
   heading: {
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_6,
     margin: 0,
     color: color.fg,
   },
   hint: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
   labelText: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   input: {
-    fontSize: font.uiBody,
     paddingBlock: space._2,
     paddingInline: space._3,
     borderRadius: "10px",
@@ -135,7 +131,6 @@ const styles = stylex.create({
   error: {
     margin: 0,
     minHeight: "1.2em",
-    fontSize: font.uiBodySmall,
     color: color.fgDanger,
   },
   lorePanel: {
@@ -148,14 +143,12 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
   },
   loreTitle: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     margin: 0,
     color: color.fg,
+    fontWeight: font.weight_6,
   },
   loreBody: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
 });

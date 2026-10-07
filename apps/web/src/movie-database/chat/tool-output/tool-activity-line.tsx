@@ -8,6 +8,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { isToolError } from "#src/movie-database/chat/tools/tool-error.ts";
@@ -179,7 +180,7 @@ export function ToolActivityLine({
       : t({ en: "In progress", zh: "进行中" });
 
   return (
-    <div css={[flex.row, styles.line]}>
+    <div css={[typeRole.bodySmall, flex.row, styles.line]}>
       <span css={[flex.center, styles.icon]} role="status">
         {isInProgress && (
           <span css={[corner.radius_round, styles.pulsingDot]} />
@@ -222,9 +223,7 @@ const pulseReduced = stylex.keyframes({
 const styles = stylex.create({
   line: {
     gap: rhythm.tight,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    lineHeight: 1.4,
     minHeight: "1.5rem",
   },
   icon: {

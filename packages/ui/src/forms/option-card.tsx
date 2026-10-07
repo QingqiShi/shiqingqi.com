@@ -6,8 +6,9 @@ import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { cardSurface } from "../surfaces/card.stylex.ts";
-import { color, font, rhythm, space } from "../tokens.stylex.ts";
+import { color, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { optionCardSurface } from "./option-card.stylex.ts";
 import { SelectionMark } from "./selection-mark.tsx";
@@ -151,6 +152,7 @@ export function OptionCard({
       }
       aria-describedby={describedBy === "" ? undefined : describedBy}
       css={[
+        typeRole.body,
         buttonReset.base,
         cardSurface.base,
         cardSurface.interactive,
@@ -176,11 +178,14 @@ export function OptionCard({
         </span>
       ) : null}
       <span css={[stack.tight, grow._1, styles.text]}>
-        <span id={labelId} css={styles.label}>
+        <span id={labelId} css={typeRole.h4}>
           {label}
         </span>
         {hasDescription ? (
-          <span id={descriptionId} css={styles.description}>
+          <span
+            id={descriptionId}
+            css={[typeRole.bodySmall, styles.description]}
+          >
             {description}
           </span>
         ) : null}
@@ -206,7 +211,6 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
     padding: space._3,
-    fontSize: font.uiBody,
   },
   tile: {
     display: "flex",
@@ -214,7 +218,6 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
     padding: space._3,
-    fontSize: font.uiBody,
     textAlign: "center",
   },
   icon: {
@@ -228,14 +231,8 @@ const styles = stylex.create({
   text: {
     minInlineSize: 0,
   },
-  label: {
-    fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_2,
-  },
   description: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_3,
   },
   indicator: {
     display: "inline-flex",

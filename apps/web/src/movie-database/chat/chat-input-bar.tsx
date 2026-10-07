@@ -8,7 +8,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import type { AttachedMedia } from "./chat-actions-context";
 import {
   ChatTextarea,
@@ -56,7 +57,12 @@ export function ChatInputBar({
         attachedMedia && (
           <div css={styles.attachmentRow}>
             <span
-              css={[truncate.base, corner.radius_round, styles.attachmentTag]}
+              css={[
+                typeRole.label,
+                truncate.base,
+                corner.radius_round,
+                styles.attachmentTag,
+              ]}
             >
               {attachedMedia.title}
               <button
@@ -152,7 +158,6 @@ const styles = stylex.create({
     paddingBlock: space._0,
     paddingLeft: space._2,
     paddingRight: space._1,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     maxWidth: "100%",
   },

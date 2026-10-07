@@ -6,7 +6,8 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
@@ -63,6 +64,7 @@ export function ToolActivityGroup({
       <button
         type="button"
         css={[
+          typeRole.bodySmall,
           buttonReset.base,
           flex.row,
           a11y.focusRingInset,
@@ -104,9 +106,7 @@ const styles = stylex.create({
   disclosureButton: {
     gap: controlSize._2,
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    lineHeight: 1.4,
     minHeight: "1.5rem",
   },
   caret: {

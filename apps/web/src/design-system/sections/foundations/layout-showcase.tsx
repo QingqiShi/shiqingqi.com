@@ -3,6 +3,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -131,16 +132,18 @@ const styles = stylex.create({
         })}
       >
         <div css={[corner.radius_2, styles.viewport]} aria-hidden="true">
-          <span css={styles.gutterLabel}>
+          <span css={[typeRole.caption, styles.gutterLabel]}>
             {t({ en: "gutter", zh: "留白" })}
           </span>
           <div css={[corner.radius_1, styles.contentBand]}>
-            <span css={styles.contentLabel}>
+            <span css={[typeRole.label, styles.contentLabel]}>
               {t({ en: "content", zh: "内容" })}
             </span>
-            <span css={styles.contentToken}>max 1140px</span>
+            <span css={[typeRole.caption, styles.contentToken]}>
+              max 1140px
+            </span>
           </div>
-          <span css={styles.gutterLabel}>
+          <span css={[typeRole.caption, styles.gutterLabel]}>
             {t({ en: "gutter", zh: "留白" })}
           </span>
         </div>
@@ -183,8 +186,18 @@ const styles = stylex.create({
                   styles.layerOffset(index),
                 ]}
               >
-                <span css={styles.layerName}>layer.{plane.name}</span>
-                <span css={styles.layerValue}>{plane.value}</span>
+                <span css={[typeRole.bodySmall, styles.layerName]}>
+                  layer.{plane.name}
+                </span>
+                <span
+                  css={[
+                    typeRole.caption,
+                    typeModifier.numeric,
+                    styles.layerValue,
+                  ]}
+                >
+                  {plane.value}
+                </span>
               </div>
             ))}
           </div>
@@ -260,7 +273,6 @@ const styles = stylex.create({
     inlineSize: space._8,
     flexShrink: 0,
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
     color: color.fgMuted,
     textAlign: "center",
   },
@@ -277,13 +289,11 @@ const styles = stylex.create({
     boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
   contentLabel: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.fgAccent,
   },
   contentToken: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
     color: color.fgMuted,
   },
   grid: {
@@ -330,15 +340,12 @@ const styles = stylex.create({
   }),
   layerName: {
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     color: color.fg,
   },
   layerValue: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fgAccent,
-    fontVariantNumeric: "tabular-nums",
   },
   lzBackground: { zIndex: layer.background, marginBlockStart: 0 },
   lzBase: { zIndex: layer.base },

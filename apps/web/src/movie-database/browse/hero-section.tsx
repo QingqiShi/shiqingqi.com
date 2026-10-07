@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, layout, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, layout, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { HeroChatInput } from "#src/movie-database/chat/hero-chat-input.tsx";
 
@@ -23,7 +24,7 @@ export function HeroSection() {
 
   return (
     <section css={[stack.item, styles.section]}>
-      <h1 css={styles.heading}>
+      <h1 css={[typeRole.fluidH1, styles.heading]}>
         {t({
           en: "What do you want to watch?",
           zh: "你想看什么？",
@@ -58,8 +59,6 @@ const styles = stylex.create({
     textAlign: "center",
   },
   heading: {
-    fontSize: font.vpHeading1,
-    fontWeight: font.weight_7,
     color: color.fgMuted,
     margin: 0,
   },

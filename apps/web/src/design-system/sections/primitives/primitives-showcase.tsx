@@ -20,6 +20,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
 import {
   color,
@@ -35,6 +36,7 @@ import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
 import { ApiGrid, type ApiEntry, GenreChips } from "./api-grid.tsx";
 import { StackSection } from "./stack-section.tsx";
+import { TypeRoleSection } from "./type-role-section.tsx";
 
 /** Four-point star used by the reset and a11y specimens. */
 function SparkleIcon() {
@@ -139,10 +141,17 @@ function FlexSection() {
               {t({ en: "Library", zh: "媒体库" })}
             </Text>
             <div css={[flex.row, styles.barActions]}>
-              <span css={[corner.radius_round, styles.pill]}>
+              <span css={[typeRole.caption, corner.radius_round, styles.pill]}>
                 {t({ en: "Filter", zh: "筛选" })}
               </span>
-              <span css={[corner.radius_round, styles.pill, styles.pillAccent]}>
+              <span
+                css={[
+                  typeRole.caption,
+                  corner.radius_round,
+                  styles.pill,
+                  styles.pillAccent,
+                ]}
+              >
                 {t({ en: "Sort", zh: "排序" })}
               </span>
             </div>
@@ -155,10 +164,24 @@ function FlexSection() {
         </Specimen>
         <Specimen caption="flex.row + grow._1">
           <div css={[flex.row, styles.growRow]}>
-            <span css={[grow._1, corner.radius_2, styles.growField]}>
+            <span
+              css={[
+                typeRole.caption,
+                grow._1,
+                corner.radius_2,
+                styles.growField,
+              ]}
+            >
               {t({ en: "Search titles", zh: "搜索标题" })}
             </span>
-            <span css={[corner.radius_round, styles.pill, styles.pillAccent]}>
+            <span
+              css={[
+                typeRole.caption,
+                corner.radius_round,
+                styles.pill,
+                styles.pillAccent,
+              ]}
+            >
               {t({ en: "Go", zh: "搜索" })}
             </span>
           </div>
@@ -267,7 +290,14 @@ function LayoutSection() {
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
         <Specimen caption="truncate.base">
-          <div css={[corner.radius_2, styles.truncateBox, truncate.base]}>
+          <div
+            css={[
+              typeRole.bodySmall,
+              corner.radius_2,
+              styles.truncateBox,
+              truncate.base,
+            ]}
+          >
             {t({
               en: "The Shawshank Redemption — Extended Director's Cut, Remastered",
               zh: "肖申克的救赎——加长导演剪辑版，重制修复",
@@ -282,7 +312,7 @@ function LayoutSection() {
         >
           <div css={[corner.radius_2, styles.fillTile]}>
             <div css={[absoluteFill.all, styles.fillScrim]}>
-              <span css={styles.fillLabel}>
+              <span css={[typeRole.caption, styles.fillLabel]}>
                 {t({ en: "Now playing", zh: "正在播放" })}
               </span>
             </div>
@@ -296,7 +326,10 @@ function LayoutSection() {
           >
             <div css={[flex.row, styles.scrollTrack]}>
               {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                <div key={n} css={[corner.radius_2, styles.scrollTile]}>
+                <div
+                  key={n}
+                  css={[typeRole.caption, corner.radius_2, styles.scrollTile]}
+                >
                   {n}
                 </div>
               ))}
@@ -416,7 +449,14 @@ function MotionSection() {
             zh: "transition.colors —— 悬停",
           })}
         >
-          <div css={[transition.colors, corner.radius_2, styles.hoverTile]}>
+          <div
+            css={[
+              typeRole.label,
+              transition.colors,
+              corner.radius_2,
+              styles.hoverTile,
+            ]}
+          >
             {t({ en: "Hover me", zh: "悬停试试" })}
           </div>
         </Specimen>
@@ -524,6 +564,7 @@ function ResetSection() {
           <button
             type="button"
             css={[
+              typeRole.label,
               buttonReset.base,
               flex.inlineCenter,
               a11y.focusRing,
@@ -632,7 +673,9 @@ function CornerSection() {
           <div css={[corner.radius_3, styles.cornerCard]} />
         </Specimen>
         <Specimen caption="corner.radius_round — pill">
-          <span css={[corner.radius_round, styles.cornerPill]}>
+          <span
+            css={[typeRole.caption, corner.radius_round, styles.cornerPill]}
+          >
             {t({ en: "Popular", zh: "热门" })}
           </span>
         </Specimen>
@@ -881,6 +924,7 @@ function A11ySection() {
           <button
             type="button"
             css={[
+              typeRole.label,
               buttonReset.base,
               flex.center,
               a11y.focusRing,
@@ -901,6 +945,7 @@ function A11ySection() {
             <button
               type="button"
               css={[
+                typeRole.label,
                 buttonReset.base,
                 flex.center,
                 a11y.focusRingInset,
@@ -939,6 +984,7 @@ export function PrimitivesShowcase() {
       <WashSection />
       <A11ySection />
       <StackSection />
+      <TypeRoleSection />
     </>
   );
 }
@@ -966,8 +1012,7 @@ const styles = stylex.create({
   pill: {
     paddingBlock: space._00,
     paddingInline: space._2,
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_5,
+    fontWeight: font.weight_6,
     color: color.fgMuted,
     backgroundColor: color.bgControl,
     whiteSpace: "nowrap",
@@ -986,7 +1031,6 @@ const styles = stylex.create({
   growField: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
@@ -1000,7 +1044,6 @@ const styles = stylex.create({
     maxInlineSize: "220px",
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
     color: color.fg,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
@@ -1021,7 +1064,6 @@ const styles = stylex.create({
     backgroundImage: `linear-gradient(to top, ${color.bgScrim}, transparent)`,
   },
   fillLabel: {
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fgOnScrim,
   },
@@ -1041,7 +1083,6 @@ const styles = stylex.create({
     inlineSize: "72px",
     blockSize: "48px",
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
@@ -1065,8 +1106,6 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: "100%",
     paddingBlock: space._3,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: { default: color.fgMuted, ":hover": color.fgOnAccent },
     backgroundColor: {
       default: color.bgControl,
@@ -1124,7 +1163,6 @@ const styles = stylex.create({
     alignItems: "center",
     paddingBlock: space._1,
     paddingInline: space._4,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fgAccent,
     backgroundColor: color.bgAccentSubtle,
@@ -1162,28 +1200,24 @@ const styles = stylex.create({
     gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.fgOnAccent,
     backgroundColor: color.bgAccent,
   },
   icon: {
     display: "inline-flex",
-    fontSize: font.uiBody,
+    fontSize: controlSize._4,
     lineHeight: font.lineHeight_0,
   },
   iconButton: {
     inlineSize: "40px",
     blockSize: "40px",
-    fontSize: font.uiHeading3,
     color: color.fgMuted,
     backgroundColor: color.bgControl,
   },
   focusTile: {
     paddingBlock: space._2,
     paddingInline: space._4,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fg,
     backgroundColor: color.bgSurface,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
@@ -1198,8 +1232,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     paddingBlock: space._2,
     paddingInline: space._4,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fg,
     backgroundColor: color.bgSurface,
   },

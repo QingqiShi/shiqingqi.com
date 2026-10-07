@@ -11,6 +11,7 @@ import {
 } from "@tuja/ui/components/glass-surface.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
@@ -143,7 +144,7 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
             {/* The control carries the prop name as its accessible name, so
                 the visible copy is hidden from assistive technology and the
                 name is announced once. */}
-            <span aria-hidden css={styles.propName}>
+            <span aria-hidden css={[typeRole.caption, styles.propName]}>
               <Identifier>{activeControl.name}</Identifier>
             </span>
             <div ref={controlRef} css={styles.control}>
@@ -206,7 +207,6 @@ const styles = stylex.create({
   },
   propName: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
   },
   control: {

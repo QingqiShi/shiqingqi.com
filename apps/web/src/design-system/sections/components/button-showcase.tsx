@@ -9,7 +9,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { color, controlSize, font } from "@tuja/ui/tokens.stylex";
+import { color, controlSize } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -434,7 +434,7 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
-    fontSize: font.uiHeading3,
+    fontSize: controlSize._4,
     color: color.fgMuted,
     backgroundColor: color.bgControl,
   },

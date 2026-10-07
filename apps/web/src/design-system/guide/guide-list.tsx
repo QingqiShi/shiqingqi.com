@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment } from "react";
 import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
@@ -26,10 +27,14 @@ export function GuideList({ items }: GuideListProps) {
     <dl css={[definitionRows.list, styles.list]}>
       {items.map((item) => (
         <div key={item.term} css={[definitionRows.row, styles.row]}>
-          <dt css={styles.term}>{breakAfterSlashes(item.term)}</dt>
+          <dt css={[typeRole.h4, styles.term]}>
+            {breakAfterSlashes(item.term)}
+          </dt>
           <dd css={[stack.tight, definitionRows.definition]}>
-            {item.value ? <span css={styles.value}>{item.value}</span> : null}
-            <span css={styles.note}>{item.note}</span>
+            {item.value ? (
+              <span css={[typeRole.label, styles.value]}>{item.value}</span>
+            ) : null}
+            <span css={[typeRole.bodySmall, styles.note]}>{item.note}</span>
           </dd>
         </div>
       ))}
@@ -66,22 +71,15 @@ const styles = stylex.create({
   },
   term: {
     margin: 0,
-    fontSize: font.uiBody,
-    fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_3,
     color: color.fg,
     textWrap: "balance",
     overflowWrap: "anywhere",
   },
   value: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_3,
     color: color.fg,
   },
   note: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     maxInlineSize: measure.prose,
     textWrap: "pretty",

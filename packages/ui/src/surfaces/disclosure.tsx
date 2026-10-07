@@ -8,6 +8,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { cardSurface } from "./card.stylex.ts";
@@ -146,7 +147,7 @@ export function Disclosure({
     <div
       {...restProps}
       ref={ref}
-      css={[styles.root, look === "card" && cardSurface.base, css]}
+      css={[typeRole.bodySmall, look === "card" && cardSurface.base, css]}
     >
       <button
         {...triggerProps}
@@ -189,15 +190,12 @@ export function Disclosure({
 }
 
 const styles = stylex.create({
-  root: {
-    fontSize: font.uiBodySmall,
-  },
   trigger: {
     display: "flex",
     alignItems: "center",
     gap: controlSize._2,
     inlineSize: "100%",
-    // Inherited so the root's `fontSize` (and any `css` override of it) drives
+    // Inherited so the root's type role (and any `css` override of it) drives
     // the header, the slots, and the caret together.
     fontSize: "inherit",
     fontWeight: font.weight_5,

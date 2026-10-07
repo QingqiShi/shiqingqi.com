@@ -1,5 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { gridlineGround, gridlineTokens } from "./gridline-ground.stylex.ts";
 import { Identifier } from "./identifier.tsx";
@@ -32,8 +33,10 @@ export function RoleColumn({ name, cells }: RoleColumnProps) {
               : styles.cellThin;
         return (
           <div key={cell.token} css={[styles.cell, sizeStyle, cell.bg]}>
-            <span css={[styles.label, cell.fg]}>{cell.label}</span>
-            <span css={[styles.token, cell.fg]}>
+            <span css={[typeRole.label, styles.label, cell.fg]}>
+              {cell.label}
+            </span>
+            <span css={[typeRole.caption, styles.token, cell.fg]}>
               <Identifier>{cell.token}</Identifier>
             </span>
           </div>
@@ -76,17 +79,11 @@ const styles = stylex.create({
     paddingBlock: space._1,
   },
   label: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    letterSpacing: font.trackingSnug,
-    lineHeight: font.lineHeight_2,
   },
   // Matches the surface cells' token label: caption size at full strength, so
   // the name stays readable on the tinted and solid role fills alike.
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    letterSpacing: font.trackingTight,
-    lineHeight: font.lineHeight_2,
   },
 });

@@ -13,7 +13,8 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { measure } from "#src/design-system/measure.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -33,8 +34,8 @@ export function CardShowcase() {
       <Showcase label={t({ en: "Surface", zh: "表面" })}>
         <Specimen caption={t({ en: "static", zh: "静态" })}>
           <Card css={[stack.tight, styles.fill]}>
-            <span css={styles.title}>{sampleTitle}</span>
-            <span css={styles.body}>{sampleBody}</span>
+            <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
+            <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
           </Card>
         </Specimen>
       </Showcase>
@@ -42,8 +43,8 @@ export function CardShowcase() {
       <Showcase label={t({ en: "Interactive", zh: "可交互" })}>
         <Specimen caption="interactive">
           <Card interactive css={[stack.tight, styles.fill]}>
-            <span css={styles.title}>{sampleTitle}</span>
-            <span css={styles.body}>{sampleBody}</span>
+            <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
+            <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
           </Card>
         </Specimen>
       </Showcase>
@@ -62,8 +63,8 @@ export function CardShowcase() {
               styles.link,
             ]}
           >
-            <span css={styles.title}>{sampleTitle}</span>
-            <span css={styles.body}>{sampleBody}</span>
+            <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
+            <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
           </a>
         </Specimen>
       </Showcase>
@@ -124,8 +125,8 @@ export function CardShowcase() {
                 styles.link,
               ]}
             >
-              <span css={styles.title}>{sampleTitle}</span>
-              <span css={styles.body}>{sampleBody}</span>
+              <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
+              <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
             </a>
           }
           doCaption={t({
@@ -134,8 +135,8 @@ export function CardShowcase() {
           })}
           dont={
             <Card interactive css={[stack.tight, styles.fill]}>
-              <span css={styles.title}>{sampleTitle}</span>
-              <span css={styles.body}>{sampleBody}</span>
+              <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
+              <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
             </Card>
           }
           dontCaption={t({
@@ -166,13 +167,9 @@ const styles = stylex.create({
     maxInlineSize: measure.prose,
   },
   title: {
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_7,
     color: color.fg,
   },
   body: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_4,
   },
 });

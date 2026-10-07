@@ -8,6 +8,7 @@ import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
@@ -37,8 +38,8 @@ function Source({
       data-dust-test={testId}
       css={[flex.col, corner.radius_3, styles.source, css]}
     >
-      <span css={styles.name}>Dust</span>
-      <span css={styles.token}>{token}</span>
+      <span css={[typeRole.label, styles.name]}>Dust</span>
+      <span css={[typeRole.caption, styles.token]}>{token}</span>
     </div>
   );
 }
@@ -52,8 +53,8 @@ function Fan({ testId, reach }: CaseElementProps & { reach: number }) {
       data-dust-test={testId}
       css={[flex.center, corner.radius_round, styles.surface, styles.fan]}
     >
-      <span css={styles.name}>Extractor fan</span>
-      <span css={styles.token}>reach={reach}</span>
+      <span css={[typeRole.label, styles.name]}>Extractor fan</span>
+      <span css={[typeRole.caption, styles.token]}>reach={reach}</span>
     </div>
   );
 }
@@ -88,7 +89,7 @@ function Obstacle() {
       data-dust-test="obstacle"
       css={[flex.center, corner.radius_round, styles.surface, styles.obstacle]}
     >
-      <span css={styles.token}>useEffectBoundary</span>
+      <span css={[typeRole.caption, styles.token]}>useEffectBoundary</span>
     </div>
   );
 }
@@ -220,12 +221,10 @@ const styles = stylex.create({
     color: color.fgMuted,
   },
   name: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
   },
   accent: {
     color: color.fgOnAccent,

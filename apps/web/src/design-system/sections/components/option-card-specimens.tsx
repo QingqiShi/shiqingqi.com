@@ -12,6 +12,7 @@ import { OptionCard, OptionCardGroup } from "@tuja/ui/components/option-card";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
@@ -282,7 +283,7 @@ export function BespokeDemo() {
           label={card.label}
           description={card.description}
         >
-          <span css={styles.price}>{card.price}</span>
+          <span css={[typeRole.label, styles.price]}>{card.price}</span>
         </OptionCard>
       ))}
     </div>
@@ -354,7 +355,6 @@ const styles = stylex.create({
     inlineSize: "100%",
   },
   price: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.fgAccent,
   },

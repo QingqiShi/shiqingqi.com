@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
 import { mergeRefs } from "../merge-refs.ts";
+import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
 import { color, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
@@ -12,12 +13,12 @@ interface TextProps {
    */
   as?: "p" | "span" | "div";
   /**
-   * Type-scale step that sets font size, line height, and (for `overline`)
-   * tracking.
+   * Type role that sets the font size, line height, weight and tracking
+   * together.
    *
-   * @zh 字阶档位，决定字号、行高，并为 `overline` 设置字距。
+   * @zh 字体角色，同时设定字号、行高、字重与字距。
    */
-  look?: "body" | "bodySmall" | "caption" | "overline";
+  look?: "body" | "bodySmall" | "label" | "caption" | "overline";
   /**
    * Foreground colour role, resolved per theme.
    *
@@ -25,16 +26,15 @@ interface TextProps {
    */
   tone?: "default" | "muted" | "accent";
   /**
-   * Font weight. Unset `overline` defaults to semibold; other looks inherit
-   * the base weight.
+   * Overrides the weight that `look` sets.
    *
-   * @zh 字重。未设置时 `overline` 默认半粗，其余字号沿用基础字重。
+   * @zh 覆盖 `look` 设定的字重。
    */
   weight?: "regular" | "medium" | "semibold" | "bold";
   /**
    * Case transform, decoupled from `look` — so an uppercase "eyebrow" label
    * can sit at any size (`caption`, `bodySmall`, …) rather than only through the
-   * `overline` step.
+   * `overline` role.
    *
    * @zh 大小写转换，与 `look` 解耦——因此大写的小标题标签可以在任意字号（`caption`、`bodySmall` 等）下使用，而不必局限于 `overline` 档位。
    */
@@ -90,7 +90,7 @@ interface TextProps {
 
 /**
  * Body-copy typography primitive. Picks the semantic element via `as` and the
- * type step via `look`, so a `<span>` can still read at body size.
+ * type role via `look`, so a `<span>` can still read at body size.
  */
 export function Text({
   as = "p",
@@ -107,15 +107,14 @@ export function Text({
   children,
 }: TextProps) {
   const textCss = [
+    typeRole[look],
     styles.base,
-    lookStyles[look],
     toneStyles[tone],
-    look === "overline" && weight === undefined ? weightStyles.semibold : null,
     weight ? weightStyles[weight] : null,
     transform ? transformStyles[transform] : null,
     align ? alignStyles[align] : null,
     wrap ? wrapStyles[wrap] : null,
-    numeric === true ? styles.numeric : null,
+    numeric === true ? typeModifier.numeric : null,
     css,
   ];
 
@@ -150,32 +149,6 @@ export function Text({
 const styles = stylex.create({
   base: {
     margin: 0,
-  },
-  // `tabular-nums` alone: Inter already lines figures by default, so pinning
-  // that too would be redundant.
-  numeric: {
-    fontVariantNumeric: "tabular-nums",
-  },
-});
-
-const lookStyles = stylex.create({
-  body: {
-    fontSize: font.uiBody,
-    lineHeight: font.lineHeight_4,
-  },
-  bodySmall: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
-  },
-  caption: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
-  },
-  overline: {
-    fontSize: font.uiOverline,
-    lineHeight: font.lineHeight_3,
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWidest,
   },
 });
 

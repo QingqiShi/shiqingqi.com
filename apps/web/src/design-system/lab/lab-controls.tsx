@@ -9,11 +9,11 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollbar, scrollY } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { t } from "#src/i18n.ts";
 import { LabControl } from "./lab-control.tsx";
-import { labEyebrow } from "./lab-eyebrow.stylex.ts";
 import type { LabAction, LabState } from "./lab-reducer.ts";
 import { LabVariantSection } from "./lab-variant-section.tsx";
 import type { LabControlModel, LabVariantChoice } from "./types.ts";
@@ -57,7 +57,7 @@ export function LabControls({
       />
 
       <section css={stack.tight}>
-        <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
+        <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
           {t({ en: "Props", zh: "属性" })}
         </Text>
         <div css={stack.item}>
@@ -69,7 +69,7 @@ export function LabControls({
               {/* The control carries the prop name as its accessible name, so
                   the visible copy is hidden from assistive technology and the
                   name is announced once. */}
-              <span aria-hidden css={styles.propName}>
+              <span aria-hidden css={[typeRole.caption, styles.propName]}>
                 <Identifier>{control.name}</Identifier>
               </span>
               <LabControl
@@ -129,7 +129,6 @@ const styles = stylex.create({
   },
   propName: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
   },
 });

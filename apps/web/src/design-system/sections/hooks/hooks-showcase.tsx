@@ -22,6 +22,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
   controlSize,
@@ -76,7 +77,7 @@ function StepperControl({
       >
         −
       </button>
-      <span css={styles.stepValue}>{value}</span>
+      <span css={[typeRole.body, styles.stepValue]}>{value}</span>
       <button
         type="button"
         aria-label={incLabel}
@@ -283,6 +284,7 @@ function IntentPickerSpecimen() {
         {...triggerProps}
         aria-label={`${fieldLabel}: ${labels[selected]}`}
         css={[
+          typeRole.label,
           buttonReset.base,
           flex.row,
           a11y.focusRing,
@@ -345,7 +347,12 @@ function PlacementSpecimen() {
     <div css={[stack.item, styles.alignStart]}>
       <button
         {...triggerProps}
-        css={[buttonReset.base, a11y.focusRing, styles.hintTrigger]}
+        css={[
+          typeRole.label,
+          buttonReset.base,
+          a11y.focusRing,
+          styles.hintTrigger,
+        ]}
       >
         {triggerLabel}
       </button>
@@ -370,6 +377,7 @@ function PlacementSpecimen() {
           <button
             type="button"
             css={[
+              typeRole.caption,
               buttonReset.base,
               a11y.focusRing,
               corner.radius_1,
@@ -447,6 +455,7 @@ function PressSpecimen() {
       type="button"
       {...handlers}
       css={[
+        typeRole.label,
         buttonReset.base,
         flex.center,
         a11y.focusRing,
@@ -529,6 +538,7 @@ function DensityRadioGroup() {
               type="button"
               {...getOptionProps(option)}
               css={[
+                typeRole.label,
                 buttonReset.base,
                 flex.center,
                 transition.colors,
@@ -617,7 +627,7 @@ const styles = stylex.create({
   stepBtn: {
     inlineSize: "32px",
     blockSize: "32px",
-    fontSize: font.uiHeading3,
+    fontSize: controlSize._4,
     fontWeight: font.weight_5,
     color: {
       default: color.fg,
@@ -632,7 +642,6 @@ const styles = stylex.create({
     minInlineSize: "2ch",
     textAlign: "center",
     fontFamily: font.familyMono,
-    fontSize: font.uiBody,
     fontWeight: font.weight_6,
     color: color.fg,
   },
@@ -667,8 +676,6 @@ const styles = stylex.create({
     gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fg,
     backgroundColor: {
       default: color.bgControl,
@@ -708,8 +715,6 @@ const styles = stylex.create({
   },
   hintTrigger: {
     paddingBlock: space._1,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: {
       default: color.fgMuted,
       ":hover": color.fg,
@@ -735,7 +740,6 @@ const styles = stylex.create({
     paddingInline: space._1,
 
     marginInlineStart: `calc(-1 * ${space._1})`,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fgAccent,
     cursor: "pointer",
@@ -744,7 +748,6 @@ const styles = stylex.create({
   pressTile: {
     paddingBlock: space._3,
     paddingInline: space._5,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.fgOnAccent,
     backgroundColor: color.bgAccent,
@@ -777,8 +780,6 @@ const styles = stylex.create({
   segment: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: {
       default: color.fgMuted,
       ":hover": color.fg,

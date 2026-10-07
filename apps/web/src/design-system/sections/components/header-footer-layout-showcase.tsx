@@ -3,6 +3,7 @@ import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
 import { DoDont } from "#src/design-system/do-dont.tsx";
@@ -105,13 +106,17 @@ export function HeaderFooterLayoutShowcase() {
       <PropsTable component="header-footer-layout" />
 
       <DoDont
-        do={<code css={styles.code}>{"background={<FlowGradient />}"}</code>}
+        do={
+          <code css={[typeRole.bodySmall, styles.code]}>
+            {"background={<FlowGradient />}"}
+          </code>
+        }
         doCaption={t({
           en: "Put page decoration in the background slot — it bleeds full-bleed beneath the header controls and content, exactly where a hero gradient belongs.",
           zh: "把页面装饰放进 background 插槽——它会在页头控件与内容下方满幅铺开，正是主视觉渐变该在的位置。",
         })}
         dont={
-          <code css={styles.code}>
+          <code css={[typeRole.bodySmall, styles.code]}>
             {"<HeaderFooterLayout> <DenseAppGrid />"}
           </code>
         }
@@ -163,7 +168,6 @@ const styles = stylex.create({
   },
   code: {
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     color: color.fg,
     overflowWrap: "anywhere",
   },

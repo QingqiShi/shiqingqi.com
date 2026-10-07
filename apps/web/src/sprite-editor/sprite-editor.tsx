@@ -10,7 +10,8 @@ import { Button } from "@tuja/ui/components/button";
 import { Divider } from "@tuja/ui/components/divider";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useMemo, useState } from "react";
 import { downloadBlob } from "#src/browser/download-blob.ts";
 import { t } from "#src/i18n.ts";
@@ -377,7 +378,7 @@ export function SpriteEditor() {
               >
                 {t({ en: "Back", zh: "返回" })}
               </Button>
-              <span css={styles.editorTitle}>
+              <span css={[typeRole.h4, styles.editorTitle]}>
                 {t({ en: "Editing cell", zh: "编辑单元格" })} {selectedCell + 1}
               </span>
             </div>
@@ -474,8 +475,6 @@ const styles = stylex.create({
     gap: rhythm.item,
   },
   editorTitle: {
-    fontSize: font.uiBody,
-    fontWeight: font.weight_6,
     color: color.fg,
   },
 });

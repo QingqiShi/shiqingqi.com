@@ -17,17 +17,11 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { FixedContainerContent } from "../surfaces/fixed-container-content.tsx";
 import { popoverSurface } from "../surfaces/popover-surface.stylex.ts";
 import { ProgressiveBlur } from "../surfaces/progressive-blur.tsx";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  layer,
-  space,
-} from "../tokens.stylex.ts";
+import { border, color, controlSize, layer, space } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
 import { useRovingFocus } from "./use-roving-focus.ts";
 import { useSheetCap } from "./use-sheet-cap.ts";
@@ -310,7 +304,11 @@ export function MenuButton({
                       bare node here would be invalid inside role="menu". */}
                 {children && (
                   <div
-                    css={[styles.menuTitle, isSheet && styles.stickyMenuTitle]}
+                    css={[
+                      typeRole.controlCaption,
+                      styles.menuTitle,
+                      isSheet && styles.stickyMenuTitle,
+                    ]}
                     aria-hidden
                   >
                     {children}
@@ -398,7 +396,6 @@ const styles = stylex.create({
     },
   },
   menuTitle: {
-    fontSize: font.uiControlCaption,
     paddingBlockStart: controlSize._2,
     paddingBlockEnd: controlSize._1,
     paddingInline: controlSize._3,

@@ -7,7 +7,8 @@ import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { t } from "#src/i18n.ts";
 import { useMediaTable } from "./media-table-context";
@@ -64,7 +65,7 @@ export function MediaTableHeader({ column }: MediaHeaderParams) {
   );
 
   if (column.unsortable) {
-    return <span css={[styles.headerLabel, truncate.base]}>{label}</span>;
+    return <span css={[typeRole.overline, truncate.base]}>{label}</span>;
   }
 
   const isNumeric = column.type === "number";
@@ -83,7 +84,7 @@ export function MediaTableHeader({ column }: MediaHeaderParams) {
         toggleSort(column.id);
       }}
     >
-      <span css={[styles.headerLabel, truncate.base]}>{label}</span>
+      <span css={[typeRole.overline, truncate.base]}>{label}</span>
       <span css={[styles.headerIcon, !!column.sort && styles.headerIconActive]}>
         {column.sort === "asc" ? (
           <ArrowUpIcon weight="bold" />
@@ -121,12 +122,6 @@ const styles = stylex.create({
   },
   headerButtonActive: {
     color: color.fgAccent,
-  },
-  headerLabel: {
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_6,
-    letterSpacing: font.trackingWide,
-    textTransform: "uppercase",
   },
   headerIcon: {
     display: "flex",

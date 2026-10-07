@@ -7,7 +7,8 @@ import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import AGSB from "#src/brand/AGSB.webp";
 import { brand } from "#src/brand/brand.stylex.ts";
 import BristolLogo from "#src/brand/bristol-logo.tsx";
@@ -28,7 +29,7 @@ export default async function Home(props: PageProps) {
   return (
     <>
       <section css={[stack.tight, styles.heroContainer]}>
-        <h1 css={styles.display}>
+        <h1 css={[typeRole.fluidDisplay, styles.display]}>
           {t({ en: "Hi, I'm Qingqi.", zh: "嗨，我叫石清琪。" })}
           <br />
           {t({
@@ -36,7 +37,7 @@ export default async function Home(props: PageProps) {
             zh: "我是一名软件工程师。",
           })}
         </h1>
-        <p css={styles.brief}>
+        <p css={[typeRole.fluidLead, styles.brief]}>
           {t(
             {
               en: "Embracing the <strong>craftsman's spirit</strong>, I pursue <strong>perfection</strong>, <strong>precision</strong> and <strong>patience</strong> in software engineering and all aspects of life.",
@@ -49,7 +50,9 @@ export default async function Home(props: PageProps) {
 
       <div css={stack.section}>
         <section css={stack.tight}>
-          <h2 css={styles.sectionTitle}>{t({ en: "Projects", zh: "项目" })}</h2>
+          <h2 css={[typeRole.fluidH2, styles.sectionTitle]}>
+            {t({ en: "Projects", zh: "项目" })}
+          </h2>
           <div css={styles.cardList}>
             <ProjectCard
               icon={
@@ -127,7 +130,7 @@ export default async function Home(props: PageProps) {
         </section>
 
         <section css={stack.tight}>
-          <h2 css={styles.sectionTitle}>
+          <h2 css={[typeRole.fluidH2, styles.sectionTitle]}>
             {t({ en: "Professional Experiences", zh: "职业经历" })}
           </h2>
           <div css={styles.cardList}>
@@ -177,7 +180,7 @@ export default async function Home(props: PageProps) {
           </div>
         </section>
         <section css={stack.tight}>
-          <h2 css={styles.sectionTitle}>
+          <h2 css={[typeRole.fluidH2, styles.sectionTitle]}>
             {t({ en: "Education", zh: "教育" })}
           </h2>
           <div css={styles.cardList}>
@@ -255,17 +258,12 @@ const styles = stylex.create({
   },
   display: {
     margin: 0,
-    fontSize: font.vpDisplay,
-    fontWeight: font.weight_8,
   },
   brief: {
     margin: 0,
-    fontSize: font.vpSubDisplay,
   },
   sectionTitle: {
     margin: 0,
-    fontSize: font.vpHeading2,
-    fontWeight: font.weight_7,
   },
   cardList: {
     display: "flex",

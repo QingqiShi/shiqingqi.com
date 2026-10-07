@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 
 interface TypingIndicatorProps {
   label: string;
@@ -17,7 +18,7 @@ export function TypingIndicator({ label, isExiting }: TypingIndicatorProps) {
       aria-label={label}
       css={[styles.container, isExiting && styles.containerExiting]}
     >
-      <span aria-hidden="true" css={styles.shimmerText}>
+      <span aria-hidden="true" css={[typeRole.bodySmall, styles.shimmerText]}>
         {label}
       </span>
       <span css={a11y.srOnly}>{label}</span>
@@ -53,7 +54,6 @@ const styles = stylex.create({
     animationFillMode: "forwards",
   },
   shimmerText: {
-    fontSize: font.uiBodySmall,
     backgroundImage: `linear-gradient(135deg, ${color.fgMuted}, ${color.fgAccent}, ${color.fgMuted})`,
     backgroundSize: "200% 100%",
     backgroundClip: "text",

@@ -22,6 +22,7 @@ import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -695,18 +696,30 @@ export function MediaTable({
             <p css={styles.counts}>
               {query && (
                 <>
-                  <span css={styles.countLabel}>{shownLabel}</span>
-                  <span css={styles.countValue}>
+                  <span css={[typeRole.overline, styles.countLabel]}>
+                    {shownLabel}
+                  </span>
+                  <span
+                    css={[
+                      typeRole.label,
+                      typeModifier.numeric,
+                      styles.countValue,
+                    ]}
+                  >
                     {numberFormat.format(visibleItems.length)}
                   </span>
                 </>
               )}
-              <span css={styles.countLabel}>{loadedLabel}</span>
-              <span css={styles.countValue}>
+              <span css={[typeRole.overline, styles.countLabel]}>
+                {loadedLabel}
+              </span>
+              <span
+                css={[typeRole.label, typeModifier.numeric, styles.countValue]}
+              >
                 {numberFormat.format(items.length)}
               </span>
             </p>
-            <p css={styles.hint}>{hintLabel}</p>
+            <p css={[typeRole.caption, styles.hint]}>{hintLabel}</p>
             <div css={styles.footerActions}>
               {isFetchingNextPage && <Spinner size="sm" label={loadingLabel} />}
               {hasNextPage ? (
@@ -718,7 +731,7 @@ export function MediaTable({
                   {loadMoreLabel}
                 </Button>
               ) : (
-                <span css={styles.endNote}>{endLabel}</span>
+                <span css={[typeRole.caption, styles.endNote]}>{endLabel}</span>
               )}
             </div>
           </div>
@@ -844,21 +857,15 @@ const styles = stylex.create({
   },
   countLabel: {
     color: color.fgMuted,
-    fontSize: font.uiOverline,
-    letterSpacing: font.trackingWide,
-    textTransform: "uppercase",
   },
   countValue: {
     color: color.fg,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    fontVariantNumeric: "tabular-nums",
   },
   hint: {
     display: { default: "none", [breakpoints.lg]: "block" },
     margin: 0,
     color: color.fgMuted,
-    fontSize: font.uiOverline,
   },
   footerActions: {
     display: "flex",
@@ -868,6 +875,5 @@ const styles = stylex.create({
   },
   endNote: {
     color: color.fgMuted,
-    fontSize: font.uiOverline,
   },
 });

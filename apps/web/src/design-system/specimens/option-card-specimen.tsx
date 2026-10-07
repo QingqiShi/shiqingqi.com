@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { OptionCard } from "@tuja/ui/components/option-card";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
@@ -27,12 +28,12 @@ export function OptionCardSpecimen() {
         role="radio"
         selected
         label={t({ en: "Pro", zh: "专业版" })}
-        css={styles.card}
+        css={[typeRole.bodySmall, styles.card]}
       />
       <OptionCard
         role="radio"
         label={t({ en: "Free", zh: "免费" })}
-        css={styles.card}
+        css={[typeRole.bodySmall, styles.card]}
       />
     </div>
   );
@@ -42,6 +43,5 @@ const styles = stylex.create({
   card: {
     paddingBlock: space._1,
     paddingInline: space._2,
-    fontSize: font.uiBodySmall,
   },
 });

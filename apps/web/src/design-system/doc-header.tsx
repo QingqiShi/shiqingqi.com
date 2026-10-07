@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { LabViewSwitch } from "#src/design-system/lab/lab-view-switch.tsx";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
@@ -34,12 +35,14 @@ export function DocHeader({ path, description }: DocHeaderProps) {
       <DocBreadcrumb path={path} />
       <div css={stack.tight}>
         <div css={[cluster.item, justify.between]}>
-          <h1 css={styles.title}>{getDesignSystemRouteLabel(path)}</h1>
+          <h1 css={[typeRole.subDisplay, styles.title]}>
+            {getDesignSystemRouteLabel(path)}
+          </h1>
           {hasDesignSystemLab(path) ? <LabViewSwitch docsPath={path} /> : null}
         </div>
         {description == null ? null : (
           <DocsViewOnly docsPath={path}>
-            <p css={styles.description}>{description}</p>
+            <p css={[typeRole.body, styles.description]}>{description}</p>
           </DocsViewOnly>
         )}
       </div>
@@ -50,18 +53,12 @@ export function DocHeader({ path, description }: DocHeaderProps) {
 const styles = stylex.create({
   title: {
     margin: 0,
-    fontSize: font.uiSubDisplay,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
-    lineHeight: font.lineHeight_1,
     color: color.fg,
     textWrap: "balance",
   },
   description: {
     margin: 0,
-    fontSize: font.uiBody,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_4,
     maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
