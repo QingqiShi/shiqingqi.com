@@ -3,12 +3,14 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
   font,
   layer,
+  measure,
   ratio,
   rhythm,
   space,
@@ -71,6 +73,24 @@ export function LayoutShowcase() {
       note: t({
         en: "The top plane. No component uses it, so it is free for your toasts.",
         zh: "最高的一层。没有组件使用它，留给你的提示条。",
+      }),
+    },
+  ];
+  const measures = [
+    {
+      term: "measure.prose",
+      value: "41em",
+      note: t({
+        en: "Running prose: a paragraph, a lead, a note. 41 Chinese characters at any size, around 88 Latin.",
+        zh: "连续的正文：段落、导语、说明。任何字号下都是 41 个汉字，约 88 个拉丁字符。",
+      }),
+    },
+    {
+      term: "measure.short",
+      value: "24em",
+      note: t({
+        en: "A short block that stands alone: a lede under a title, an empty state, a hint, the text in a popover. It stays compact, so it reads as one unit.",
+        zh: "独立的短文本块：标题下的引言、空状态、提示、弹出层里的文字。它保持紧凑，读起来是一个整体。",
       }),
     },
   ];
@@ -159,6 +179,57 @@ const styles = stylex.create({
           {t({
             en: "layout is a constant, not a Token you can override. It caps the page, not the length of a line of text.",
             zh: "layout 是常量，不是可以覆盖的令牌。它约束的是页面宽度，而不是一行文字的长度。",
+          })}
+        </GuideNote>
+      </GuideSection>
+
+      <GuideSection
+        title={t({ en: "Measure", zh: "行长" })}
+        lead={t({
+          en: "The Measure caps the length of a line of prose, so the eye finds the next line. It is in em, so a larger text size gets a wider cap and keeps the same number of characters.",
+          zh: "行长限制一行正文的长度，让视线能找到下一行。它以 em 为单位，所以字号越大上限越宽，每行的字数不变。",
+        })}
+      >
+        <div css={[typeRole.body, stack.item]} aria-hidden="true">
+          {measures.map((step) => (
+            <div key={step.term} css={stack.tight}>
+              <span css={[typeRole.caption, styles.contentToken]}>
+                {step.term}
+              </span>
+              <span
+                css={[
+                  corner.radius_1,
+                  styles.measureBar,
+                  step.term === "measure.prose"
+                    ? styles.measureProse
+                    : styles.measureShort,
+                ]}
+              />
+            </div>
+          ))}
+        </div>
+        <GuideList items={measures} />
+        <UsageSnippet
+          code={`import { Text } from "@tuja/ui/components/text";
+import { measure } from "@tuja/ui/tokens.stylex";
+
+// A paragraph already stops at measure.prose.
+<Text>{overview}</Text>
+
+const styles = stylex.create({
+  emptyState: { maxInlineSize: measure.short, marginInline: "auto" },
+});`}
+        />
+        <GuideNote>
+          {t({
+            en: 'Text caps itself at measure.prose when it renders a paragraph: as="p" at body or bodySmall. A span, a div, a caption and an overline are not capped, so a label in a row or a table cell keeps its width. To let a paragraph run the full width, pass css with maxInlineSize: "none".',
+            zh: 'Text 渲染段落时（body 或 bodySmall 字号的 as="p"）会把自己限制在 measure.prose。span、div、caption 与 overline 不受限制，所以行内或表格单元格里的标签保持原有宽度。要让段落占满整个宽度，传入带 maxInlineSize: "none" 的 css。',
+          })}
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "The Measure caps a line; layout.maxInlineSize caps the page. A cap in ch is a line length picked by hand, so the require-measure lint rule refuses one.",
+            zh: "行长限制的是一行，layout.maxInlineSize 限制的是页面。以 ch 写的上限是手选的行长，所以 require-measure 检查规则会拒绝它。",
           })}
         </GuideNote>
       </GuideSection>
@@ -296,6 +367,14 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     color: color.fgMuted,
   },
+  measureBar: {
+    blockSize: space._2,
+    maxInlineSize: "100%",
+    backgroundColor: color.bgAccentSubtle,
+    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
+  },
+  measureProse: { inlineSize: measure.prose },
+  measureShort: { inlineSize: measure.short },
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",

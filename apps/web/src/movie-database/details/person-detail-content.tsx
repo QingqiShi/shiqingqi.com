@@ -8,7 +8,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, layer, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -358,6 +358,7 @@ const styles = stylex.create({
   },
   biography: {
     margin: 0,
+    maxInlineSize: measure.prose,
   },
   biographyClamped: {
     display: "-webkit-box",

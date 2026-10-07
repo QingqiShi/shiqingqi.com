@@ -101,7 +101,7 @@ export function SliderShowcase() {
 
       <Showcase label={t({ en: "Readout", zh: "数值显示" })}>
         <div css={stack.item}>
-          <Text look="bodySmall" tone="muted" css={styles.note}>
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "readout is a slot, not a formatter: the Slider places whatever you pass opposite the label, and leaves the currency, the units, and the decimal places to you. Build the string with Intl.NumberFormat so it follows the reader's locale.",
               zh: "readout 是一个插槽，而不是格式化器：滑块只把你传入的内容放到标签对面，货币、单位和小数位都由你决定。请用 Intl.NumberFormat 生成字符串，让它跟随读者的地区设置。",
@@ -117,7 +117,7 @@ export function SliderShowcase() {
 
       <Showcase label={t({ en: "Range and step", zh: "范围与步长" })}>
         <div css={stack.item}>
-          <Text look="bodySmall" tone="muted" css={styles.note}>
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "min, max, and step default to 0, 100, and 1. An uncontrolled Slider with no defaultValue starts at min, so a range that does not begin at zero still opens on a real value.",
               zh: "min、max 与 step 的默认值分别是 0、100 和 1。未设置 defaultValue 的非受控滑块从 min 开始，因此起点不为零的范围也能以一个真实数值打开。",
@@ -133,18 +133,13 @@ export function SliderShowcase() {
 
       <Showcase label="onChange / onCommit" labelLook="code">
         <div css={stack.item}>
-          <Text
-            look="bodySmall"
-            weight="semibold"
-
-            css={styles.note}
-          >
+          <Text look="bodySmall" weight="semibold">
             {t({
               en: "Drive expensive recomputation from onCommit, not from onChange.",
               zh: "把开销大的重算交给 onCommit，而不是 onChange。",
             })}
           </Text>
-          <Text look="bodySmall" tone="muted" css={styles.note}>
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "onChange streams every move of a drag, which is what the visible value should track. onCommit fires once, when the interaction ends — a pointer release, a key release, or focus leaving mid-gesture — and never fires at all if nothing moved. Drag the thumb across the track and watch the two tallies diverge.",
               zh: "onChange 会在拖动的每一次移动时触发，可见数值应当跟随它。onCommit 只在交互结束时触发一次——松开指针、松开按键，或在手势中途失去焦点——而且如果数值没有变化就完全不会触发。把滑块拖过整条轨道，看看两边的计数如何拉开。",
@@ -162,7 +157,7 @@ export function SliderShowcase() {
         label={t({ en: "Label, description, error", zh: "标签、说明与错误" })}
       >
         <div css={stack.item}>
-          <Text look="bodySmall" tone="muted" css={styles.note}>
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "Slider carries the same field contract as TextField and Checkbox. label is required and lands on the input itself; labelHidden keeps it in the accessibility tree when a nearby cue already names the control; description is wired through aria-describedby; error turns the track danger-coloured, sets aria-invalid, and announces itself. Drag the deposit to 5% or above to clear its error.",
               zh: "滑块与文本框、复选框共用同一套字段契约。label 必填，直接落在 input 上；当附近已有提示为控件命名时，labelHidden 会把它保留在无障碍树中；description 通过 aria-describedby 关联；error 会把轨道变为危险色、设置 aria-invalid 并主动播报。把首付比例拖到 5% 或以上即可清除错误。",
@@ -191,7 +186,7 @@ export function SliderShowcase() {
 
       <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })}>
         <div css={stack.item}>
-          <Text look="bodySmall" tone="muted" css={styles.note}>
+          <Text look="bodySmall" tone="muted">
             {t({
               en: "Stepping comes from the platform, not from this component: the Slider is a native range input with its chrome restyled, and it never calls preventDefault on a key. That buys the full set of shortcuts, plus focus and value announcement, for free.",
               zh: "步进来自平台，而不是这个组件：滑块本身就是一个重新绘制外观的原生 range 输入，并且从不对按键调用 preventDefault。因此整套快捷键，连同焦点与数值播报，都是白得的。",
@@ -251,9 +246,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     maxInlineSize: "32rem",
-  },
-  note: {
-    maxInlineSize: "65ch",
   },
   keyList: {
     display: "flex",

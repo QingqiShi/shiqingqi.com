@@ -1,9 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color, measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { DocSection } from "#src/design-system/doc-section.tsx";
-import { measure } from "#src/design-system/measure.stylex.ts";
 
 interface GuideSectionProps {
   title: string;

@@ -14,7 +14,7 @@ All tokens are theme-aware (light/dark) and imported from `@tuja/ui/tokens.style
 - [Layer](#layer)
 - [Opacity](#opacity)
 - [Ratio](#ratio)
-- [Constants and Layout](#constants-and-layout)
+- [Constants, Layout and Measure](#constants-layout-and-measure)
 
 ---
 
@@ -374,10 +374,14 @@ Aspect ratio tokens for use with `aspectRatio` CSS property.
 
 ---
 
-## Constants and Layout
+## Constants, Layout and Measure
 
 These are `stylex.defineConsts`, not theme-aware vars.
 
 - `constants.DARK` — the `prefers-color-scheme: dark` media query
 - `constants.NO_CORNER_SHAPE` — the `@supports` query for a browser without `corner-shape`; the `border.radius_*` steps shrink under it
 - `layout.maxInlineSize` — `1140px`, the widest a content column grows
+- `measure.prose` — `41em`, the Measure for running prose: 41 Chinese characters at any size, around 88 Latin. A `<Text>` paragraph (`as="p"` at `body` or `bodySmall`) already takes it, and moves its box with `align`; a span, a div, a caption and an overline stay uncapped
+- `measure.short` — `24em`, the Measure for a short block that stands alone: a lede, an empty state, a hint, a popover's text
+
+The Measure caps a line; `layout.maxInlineSize` caps the page. A raw `ch` value on `maxInlineSize` or `maxWidth` is refused by the `@tuja/require-measure` lint rule.

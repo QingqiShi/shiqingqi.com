@@ -6,7 +6,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Overlay } from "@tuja/ui/components/overlay";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { measure, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -51,6 +51,6 @@ export function OverlayDemo() {
 const styles = stylex.create({
   overlayBody: {
     padding: space._8,
-    maxInlineSize: "60ch",
+    maxInlineSize: measure.prose,
   },
 });

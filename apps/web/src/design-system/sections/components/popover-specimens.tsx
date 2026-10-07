@@ -8,7 +8,7 @@ import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, measure, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 import { t } from "#src/i18n.ts";
@@ -230,7 +230,7 @@ const styles = stylex.create({
   // The cap a popover's prose takes, so the panel reads as a paragraph rather
   // than as a line running the width of the page.
   narrowPanel: {
-    maxInlineSize: "34ch",
+    maxInlineSize: measure.short,
   },
   portalStack: {
     inlineSize: "100%",

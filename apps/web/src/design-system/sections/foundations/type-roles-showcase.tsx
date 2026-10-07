@@ -4,14 +4,13 @@ import { Heading } from "@tuja/ui/components/heading";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import {
   GuideNote,
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
 import { Identifier } from "#src/design-system/identifier.tsx";
-import { measure } from "#src/design-system/measure.stylex.ts";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
 import { ContainerScaleSpecimen } from "./container-scale-specimen.tsx";

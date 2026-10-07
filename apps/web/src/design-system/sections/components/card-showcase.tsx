@@ -16,7 +16,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
-import { measure } from "#src/design-system/measure.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -98,7 +97,7 @@ export function CardShowcase() {
             </CardFooter>
           </Card>
         </Specimen>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "CardTitle renders a real heading — its visual size is fixed while level moves the rank, so a card stays reachable by heading navigation without distorting the outline.",
             zh: "CardTitle 渲染为真实的标题元素——视觉字号固定，由 level 调整层级，因此卡片既可通过标题导航访问，又不会破坏文档大纲。",
@@ -162,9 +161,6 @@ const styles = stylex.create({
     padding: space._5,
     textDecoration: "none",
     inlineSize: "100%",
-  },
-  note: {
-    maxInlineSize: measure.prose,
   },
   title: {
     color: color.fg,

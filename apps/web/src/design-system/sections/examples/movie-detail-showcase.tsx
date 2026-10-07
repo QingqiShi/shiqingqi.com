@@ -11,7 +11,6 @@ import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
-import { measure } from "#src/design-system/measure.stylex.ts";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
@@ -127,7 +126,7 @@ export function MovieDetailShowcase() {
             ]}
           />
         </div>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "Three absences are worth as much as the list. No close button appears anywhere in the source — Callout supplies its own dismiss and Overlay its own close, so both arrive carrying the system's focus ring and hover easing without this file naming either. No Chip appears either: a Chip is a control, and the system's own rule is that a label which can't be clicked is a Badge, so on a screen with nothing to navigate to the Genres and the providers are Badges. And the movie database has no accounts, so the screen has no review form and therefore no TextField, Textarea, or Checkbox. A composed screen shows what a surface needs, not everything the system owns.",
             zh: "有三处「缺席」与上面的清单同样重要。源码中没有出现任何关闭按钮——Callout 自带关闭，Overlay 也自带关闭，两者都自然携带系统的焦点环与悬停缓动，而本文件从未提及它们。也没有出现 Chip：Chip 是控件，而系统自己的规则是「不能点击的标签就该用 Badge」，因此在这个无处可跳转的页面上，类型与观看渠道一律是徽章。此外，影视数据库没有账号体系，因此页面没有评论表单，也就没有 TextField、Textarea 或 Checkbox。一个组合页面呈现的是该界面所需要的东西，而非系统所拥有的全部。",
@@ -221,8 +220,5 @@ const styles = stylex.create({
     // Not `anywhere`, which would break a name mid-word while the line still
     // had room at the preceding space. The name is what a reader came to copy.
     overflowWrap: "break-word",
-  },
-  note: {
-    maxInlineSize: measure.prose,
   },
 });

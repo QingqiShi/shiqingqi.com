@@ -8,10 +8,9 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
-import { measure } from "#src/design-system/measure.stylex.ts";
 import { t } from "#src/i18n.ts";
 
 /**

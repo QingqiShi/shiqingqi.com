@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color, measure } from "@tuja/ui/tokens.stylex";
 import {
   OverviewBrowser,
   type OverviewEntry,
@@ -75,7 +75,7 @@ const styles = stylex.create({
   intro: {
     margin: 0,
     color: color.fgMuted,
-    maxInlineSize: "60ch",
+    maxInlineSize: measure.prose,
     textWrap: "pretty",
   },
 });

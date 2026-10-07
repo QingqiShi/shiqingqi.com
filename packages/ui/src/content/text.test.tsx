@@ -62,6 +62,39 @@ describe("Text look and modifier classes", () => {
   });
 });
 
+describe("Text Measure", () => {
+  it("caps a body paragraph at the prose Measure", () => {
+    render(<Text>Paragraph</Text>);
+    expect(screen.getByText("Paragraph").className).toContain(
+      "measureStyles.start",
+    );
+  });
+
+  it("caps a bodySmall paragraph at the prose Measure", () => {
+    render(<Text look="bodySmall">Paragraph</Text>);
+    expect(screen.getByText("Paragraph").className).toContain(
+      "measureStyles.start",
+    );
+  });
+
+  it("keeps a centred paragraph's capped box centred", () => {
+    render(<Text align="center">Centred</Text>);
+    expect(screen.getByText("Centred").className).toContain(
+      "measureStyles.center",
+    );
+  });
+
+  it.each([
+    { label: "span", props: { as: "span" } as const },
+    { label: "div", props: { as: "div" } as const },
+    { label: "caption", props: { look: "caption" } as const },
+    { label: "overline", props: { look: "overline" } as const },
+  ])("leaves a $label uncapped", ({ props }) => {
+    render(<Text {...props}>Label</Text>);
+    expect(screen.getByText("Label").className).not.toContain("measureStyles");
+  });
+});
+
 describe("Text prop forwarding", () => {
   it("composes a caller css override last", () => {
     const overrides = stylex.create({ box: { opacity: 0.9 } });

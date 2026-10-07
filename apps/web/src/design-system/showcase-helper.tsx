@@ -1,8 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color, measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { measure } from "./measure.stylex.ts";
 import { onReadingColumn } from "./reading-column.stylex.ts";
 
 interface ShowcaseHelperProps {

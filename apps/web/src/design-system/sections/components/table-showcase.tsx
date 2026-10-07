@@ -324,7 +324,7 @@ export function TableShowcase() {
         <Specimen caption={t({ en: "repayment plans", zh: "还款计划" })}>
           <PlanTable caption={planCaption} />
         </Specimen>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "Every part at once: a head of column headers, a body whose rows open with a row header, three numeric columns, the row the visitor is on, and a foot summarising the spread of each column above it.",
             zh: "所有部分一次呈现：由列标题组成的表头、每行以行标题开头的主体、三个数字列、访客所在的当前行，以及汇总上方各列取值范围的表尾。",
@@ -332,7 +332,7 @@ export function TableShowcase() {
         </Text>
         {/* Real figures need a real source, and `TableFoot` is for summarising
             the columns above it — so the provenance sits beside the table. */}
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "Figures are the 2025/26 UK repayment thresholds and rates published by the Student Loans Company.",
             zh: "数据为英国学生贷款公司发布的 2025/26 年度还款起征点与利率。",
@@ -341,7 +341,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Caption", zh: "表格标题" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "caption is required. It names both the table and the scroll region around it, so a screen reader announces what the figures are instead of the word “table”. It is sr-only by default — set captionVisible when the table needs a heading on the page as well.",
             zh: "caption 是必填项。它同时为表格及其外层滚动区域命名，读屏软件因此会宣读这些数字代表什么，而不只是“表格”。它默认仅供读屏使用；当表格在页面上也需要一个标题时，请设置 captionVisible。",
@@ -358,7 +358,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Numeric columns", zh: "数字列" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "numeric renders figures at a fixed width and aligns the cell to the end, so a four-figure balance and a five-figure one line up digit for digit. Set it on the column's header as well as its cells, or the header drifts away from the numbers it labels.",
             zh: "numeric 让数字以等宽呈现并使单元格靠末端对齐，因此四位数与五位数的余额也能逐位对齐。请同时为该列的标题和单元格设置它，否则标题会与其所标注的数字错位。",
@@ -395,7 +395,7 @@ export function TableShowcase() {
             markCurrent
           />
         </Specimen>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: 'current puts aria-current="true" on the row and joins the tint with heavier type, so the state survives a colour-blind reading and forced-colours mode. Pass aria-current yourself to announce it as something other than "true" — "page", say, when the row is the page being read.',
             zh: 'current 会为该行加上 aria-current="true"，并在着色之外同时加粗字重，因此该状态在色盲阅读和强制颜色模式下依然可辨。若要宣读为 "true" 以外的值，请自行传入 aria-current——例如当该行正是当前阅读的页面时使用 "page"。',
@@ -404,7 +404,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Sticky header", zh: "固定表头" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "The head sticks to the scroll container, not to the page, so the container needs a height before anything can scroll under it. This one is capped through containerCss — scroll the rows and the column headers hold.",
             zh: "表头固定的对象是滚动容器而非页面，因此必须先给容器设定高度，才会有内容从表头下方滚过。这里的高度通过 containerCss 限制——滚动各行时，列标题会保持不动。",
@@ -416,7 +416,7 @@ export function TableShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Scroll region", zh: "滚动区域" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "The table always sits in its own horizontally scrolling region, so a wide table scrolls inside its box and the page never scrolls sideways. The region is focusable, which is what makes the overflow reachable from the keyboard (WCAG 2.1.1), and it takes its accessible name from the same caption. Tab to it, then scroll with the arrow keys. The region below is capped narrow so it overflows on any screen.",
             zh: "表格始终位于自己的横向滚动区域内，因此宽表格只在自身的盒子里滚动，页面永远不会横向滚动。该区域可获得焦点，这正是溢出内容能通过键盘访问的原因（WCAG 2.1.1），其可访问名称同样来自 caption。用 Tab 聚焦后，即可用方向键滚动。下方的区域被特意收窄，因此在任何屏幕上都会溢出。",
@@ -506,9 +506,6 @@ export function TableShowcase() {
 }
 
 const styles = stylex.create({
-  note: {
-    maxInlineSize: "65ch",
-  },
   stickyRegion: {
     blockSize: space._13,
   },

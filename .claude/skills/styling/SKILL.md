@@ -16,6 +16,7 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 | Flex layout, fills, truncation, resets, transitions | Design primitives               | `css={flex.row}`                                |
 | Space between siblings (a stack, a row)             | Stack primitives / `rhythm`     | `css={stack.item}`, `gap: rhythm.tight`         |
 | Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole` | `css={[typeRole.label, styles.navItem]}`        |
+| Cap a line of prose                                 | `measure` tokens                | `maxInlineSize: measure.prose`                  |
 | Rounded corners                                     | Design primitives (`corner.*`)  | `css={corner.radius_3}`                         |
 | Override a primitive's default                      | Layout modifier                 | `css={[flex.row, align.end]}`                   |
 | Single-property styling (color, padding, border)    | `stylex.create` + tokens        | `color: color.fg`                               |
@@ -46,7 +47,7 @@ Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is Style
 
 Import from `@tuja/ui/tokens.stylex`. All tokens are theme-aware. For the full catalog of every token and its values, read `references/tokens.md`.
 
-Categories: `color`, `rhythm`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus the `constants` and `layout` consts.
+Categories: `color`, `rhythm`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus the `constants`, `layout` and `measure` consts.
 
 ```tsx
 import { color, space, border, font } from "@tuja/ui/tokens.stylex";
@@ -169,9 +170,10 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 3. **Text takes a type role** — `Text`/`Heading`, or `typeRole.*` composed first; never a bare `fontSize`, and figures through `typeModifier.numeric`
 4. **Gaps name the relationship** — `rhythm.inline` / `tight` / `item` / `group` / `section`, or `stack.*` / `cluster.*` / `row.*`; never a `space.*` step or a raw length for a gap or a margin between siblings
 5. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
-6. **Always use the `css` prop** — never `{...stylex.props()}`
-7. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
-8. **Mobile-first** — use breakpoint overrides for larger screens
-9. **Theme-aware colors** — use `color` tokens that adapt to light/dark
-10. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
-11. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`
+6. **Line length from the Measure** — a `<Text>` paragraph (`as="p"` at `body`/`bodySmall`) already stops at `measure.prose`; any other prose takes `measure.prose` or `measure.short`, never a raw `ch` cap (the `@tuja/require-measure` rule refuses one). Opt a paragraph out with `css` carrying `maxInlineSize: "none"`
+7. **Always use the `css` prop** — never `{...stylex.props()}`
+8. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
+9. **Mobile-first** — use breakpoint overrides for larger screens
+10. **Theme-aware colors** — use `color` tokens that adapt to light/dark
+11. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
+12. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`

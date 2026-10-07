@@ -252,6 +252,14 @@ export default defineConfig([
       "@tuja/require-corner-shape": "error",
     },
   },
+  // A line of prose takes its length from the Measure. The tokens define it.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}", "packages/ui/src/tokens.stylex.ts"],
+    rules: {
+      "@tuja/require-measure": "error",
+    },
+  },
   {
     files: ["packages/ui/src/**/*.{ts,tsx}"],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],

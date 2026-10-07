@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
 import { mergeRefs } from "../merge-refs.ts";
 import { typeModifier, typeRole } from "../primitives/type.stylex.ts";
-import { color, font } from "../tokens.stylex.ts";
+import { color, font, measure } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface TextProps {
@@ -90,7 +90,10 @@ interface TextProps {
 
 /**
  * Body-copy typography primitive. Picks the semantic element via `as` and the
- * type role via `look`, so a `<span>` can still read at body size.
+ * type role via `look`, so a `<span>` can still read at body size. A paragraph
+ * — `as="p"` at `body` or `bodySmall` — caps its line length at
+ * `measure.prose`; pass `css` with `maxInlineSize: "none"` to let it run the
+ * full width.
  */
 export function Text({
   as = "p",
@@ -106,9 +109,11 @@ export function Text({
   ref,
   children,
 }: TextProps) {
+  const isProse = as === "p" && (look === "body" || look === "bodySmall");
   const textCss = [
     typeRole[look],
     styles.base,
+    isProse ? measureStyles[align ?? "start"] : null,
     toneStyles[tone],
     weight ? weightStyles[weight] : null,
     transform ? transformStyles[transform] : null,
@@ -150,6 +155,14 @@ const styles = stylex.create({
   base: {
     margin: 0,
   },
+});
+
+// A centred or end-aligned paragraph also moves its capped box. Thus the text
+// stays at the aligned position in a container wider than the Measure.
+const measureStyles = stylex.create({
+  start: { maxInlineSize: measure.prose },
+  center: { maxInlineSize: measure.prose, marginInline: "auto" },
+  end: { maxInlineSize: measure.prose, marginInlineStart: "auto" },
 });
 
 const toneStyles = stylex.create({

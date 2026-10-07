@@ -9,6 +9,7 @@ import {
   color,
   controlSize,
   layout,
+  measure,
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -107,6 +108,7 @@ const styles = stylex.create({
   },
   description: {
     margin: 0,
+    maxInlineSize: measure.prose,
   },
   ratingContainer: {
     width: space._10,
