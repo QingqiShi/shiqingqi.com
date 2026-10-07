@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { HTMLAttributes, PropsWithChildren, Ref } from "react";
 
 export function Grid({
@@ -19,9 +19,10 @@ export function Grid({
 
 const styles = stylex.create({
   skeletonGrid: {
-    padding: space._1,
+    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
+    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
     display: "grid",
-    gap: space._1,
+    gap: rhythm.item,
     gridTemplateColumns: {
       default: "1fr",
       [breakpoints.sm]: "repeat(auto-fill, minmax(150px, 1fr))",

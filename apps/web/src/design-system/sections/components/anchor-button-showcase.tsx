@@ -1,10 +1,9 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
-import * as stylex from "@stylexjs/stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
-import { space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -74,7 +73,7 @@ export function AnchorButtonShowcase() {
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
           <Specimen caption="sm">
-            <div css={styles.pair}>
+            <div css={cluster.tight}>
               <AnchorButton href={HREF} size="sm">
                 {t({ en: "Link", zh: "链接" })}
               </AnchorButton>
@@ -82,7 +81,7 @@ export function AnchorButtonShowcase() {
             </div>
           </Specimen>
           <Specimen caption="md">
-            <div css={styles.pair}>
+            <div css={cluster.tight}>
               <AnchorButton href={HREF} size="md">
                 {t({ en: "Link", zh: "链接" })}
               </AnchorButton>
@@ -90,7 +89,7 @@ export function AnchorButtonShowcase() {
             </div>
           </Specimen>
           <Specimen caption="lg">
-            <div css={styles.pair}>
+            <div css={cluster.tight}>
               <AnchorButton href={HREF} size="lg">
                 {t({ en: "Link", zh: "链接" })}
               </AnchorButton>
@@ -228,11 +227,3 @@ export function AnchorButtonShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  pair: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._2,
-  },
-});

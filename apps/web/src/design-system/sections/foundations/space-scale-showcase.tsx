@@ -3,7 +3,8 @@ import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { t } from "#src/i18n.ts";
 
@@ -42,8 +43,8 @@ export function SpaceScaleShowcase() {
     <GuideSection
       title={t({ en: "Space scale", zh: "间距阶梯" })}
       lead={t({
-        en: "Eighteen steps in rem. The px values are at the default 16px root. The low steps sit a quarter rem apart for gaps and padding; from space._8 the steps widen, and the top ones size things such as SidebarLayout's 15rem rail (space._13). Each bar is drawn at its true size.",
-        zh: "十八级，以 rem 为单位。px 值按默认的 16px 根字号计算。低端各级相差四分之一 rem，用于间隙与内边距；从 space._8 起步长变大，最上面几级用来定尺寸，比如 SidebarLayout 15rem 宽的侧栏（space._13）。每根条都按真实尺寸绘制。",
+        en: "Eighteen steps in rem. The px values are at the default 16px root. The low steps sit a quarter rem apart for padding and offsets; from space._8 the steps widen, and the top ones size things such as SidebarLayout's 15rem rail (space._13). Each bar is drawn at its true size.",
+        zh: "十八级，以 rem 为单位。px 值按默认的 16px 根字号计算。低端各级相差四分之一 rem，用于内边距与偏移量；从 space._8 起步长变大，最上面几级用来定尺寸，比如 SidebarLayout 15rem 宽的侧栏（space._13）。每根条都按真实尺寸绘制。",
       })}
     >
       <div css={styles.ruler}>
@@ -68,7 +69,7 @@ export function SpaceScaleShowcase() {
             styles.scroller,
           ]}
         >
-          <div aria-hidden="true" css={styles.bars}>
+          <div aria-hidden="true" css={stack.tight}>
             {steps.map((step) => (
               <div key={step.member} css={[styles.row, styles.barRow]}>
                 <span css={[styles.bar, step.bar]} />
@@ -100,7 +101,7 @@ const styles = stylex.create({
     display: "flex",
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_2,
-    blockSize: `calc(2lh + ${space._00})`,
+    blockSize: `calc(2lh + ${rhythm.tight})`,
   },
   // The hairline is the ruler's zero line.
   labels: {
@@ -109,7 +110,7 @@ const styles = stylex.create({
     padding: 0,
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     inlineSize: "9rem",
     flexShrink: 0,
     boxSizing: "border-box",
@@ -121,12 +122,7 @@ const styles = stylex.create({
   label: {
     flexDirection: "column",
     justifyContent: "center",
-    gap: space._00,
-  },
-  bars: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
   },
   barRow: {
     alignItems: "center",
@@ -140,7 +136,7 @@ const styles = stylex.create({
   value: {
     display: "flex",
     alignItems: "baseline",
-    gap: space._1,
+    gap: rhythm.tight,
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     fontVariantNumeric: "tabular-nums",

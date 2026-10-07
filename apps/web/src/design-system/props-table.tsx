@@ -11,12 +11,14 @@ import {
   TableRow,
 } from "@tuja/ui/components/table";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, type ReactNode } from "react";
 import { PROPS_DOCS } from "#src/_generated/props/index.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
+import { definitionRows } from "./definition-rows.stylex.ts";
 import { Identifier } from "./identifier.tsx";
 import { Showcase } from "./showcase.tsx";
 
@@ -98,19 +100,21 @@ export function PropsTable({ component }: PropsTableProps) {
         </Table>
       </div>
 
-      <dl css={styles.stackView}>
+      <dl css={[definitionRows.list, styles.stackView]}>
         {doc.props.map((prop) => (
-          <div key={prop.name} css={styles.stackRow}>
+          <div key={prop.name} css={definitionRows.row}>
             <dt css={styles.stackName}>
               <PropName prop={prop} />
             </dt>
-            <dd css={styles.stackFields}>
-              <div css={styles.stackField}>
+            <dd
+              css={[stack.tight, definitionRows.definition, styles.stackFields]}
+            >
+              <div css={[cluster.tight, styles.stackField]}>
                 <span css={styles.stackLabel}>{typeLabel}</span>
                 <PropType prop={prop} />
               </div>
               {prop.defaultValue === undefined ? null : (
-                <div css={styles.stackField}>
+                <div css={[cluster.tight, styles.stackField]}>
                   <span css={styles.stackLabel}>{defaultLabel}</span>
                   <code css={styles.code}>{prop.defaultValue}</code>
                 </div>
@@ -142,7 +146,7 @@ function describe(prop: PropDoc, locale: SupportedLocale) {
 
 function PropName({ prop }: { prop: PropDoc }) {
   return (
-    <span css={styles.nameLine}>
+    <span css={[cluster.tight, styles.nameLine]}>
       <span css={styles.name}>
         <Identifier>{prop.name}</Identifier>
       </span>
@@ -164,7 +168,7 @@ function PropName({ prop }: { prop: PropDoc }) {
 function PropType({ prop }: { prop: PropDoc }) {
   if (prop.kind === "enum" && prop.members !== undefined) {
     return (
-      <span css={styles.typeList}>
+      <span css={[cluster.tight, styles.typeList]}>
         {prop.members.map((member) => (
           <code key={member} css={[corner.radius_1, styles.typeToken]}>
             {JSON.stringify(member)}
@@ -256,10 +260,6 @@ const styles = stylex.create({
     color: color.fgMuted,
   },
   nameLine: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: space._1,
     minInlineSize: 0,
   },
   name: {
@@ -274,9 +274,6 @@ const styles = stylex.create({
     overflowWrap: "break-word",
   },
   typeList: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._0,
     minInlineSize: 0,
   },
   typeToken: {
@@ -296,42 +293,21 @@ const styles = stylex.create({
     textWrap: "pretty",
   },
   nextParagraph: {
-    marginBlockStart: space._2,
+    marginBlockStart: rhythm.tight,
   },
   stackView: {
     display: { default: "flex", [breakpoints.md]: "none" },
-    flexDirection: "column",
-    margin: 0,
-  },
-  // The same seam the table draws between two rows, so the stack still reads
-  // as one list of props.
-  stackRow: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-    paddingBlock: space._3,
-    borderBlockStartWidth: { default: 0, ":not(:first-child)": border.size_1 },
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-    minInlineSize: 0,
   },
   stackName: {
     fontSize: font.uiBody,
   },
   stackFields: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-    margin: 0,
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_4,
     color: color.fgMuted,
   },
   stackField: {
-    display: "flex",
-    flexWrap: "wrap",
     alignItems: "baseline",
-    gap: space._1,
     minInlineSize: 0,
   },
   stackLabel: {

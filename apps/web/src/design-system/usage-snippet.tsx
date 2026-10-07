@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 interface UsageSnippetProps {
@@ -44,7 +44,7 @@ const styles = stylex.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,

@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
@@ -55,16 +56,18 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
   const headingId = useId();
 
   return (
-    <section css={styles.root} data-testid="wizard-step-species">
-      <h3 css={styles.heading} id={headingId}>
-        {t({ en: "Pick a species", zh: "选择物种" })}
-      </h3>
-      <p css={styles.hint}>
-        {t({
-          en: "16 hand-painted shapes. Each one has its own eyes and silhouette baked in.",
-          zh: "16 种手绘造型。每一种都自带独特的眼神与轮廓。",
-        })}
-      </p>
+    <section css={stack.item} data-testid="wizard-step-species">
+      <div css={stack.tight}>
+        <h3 css={styles.heading} id={headingId}>
+          {t({ en: "Pick a species", zh: "选择物种" })}
+        </h3>
+        <p css={styles.hint}>
+          {t({
+            en: "16 hand-painted shapes. Each one has its own eyes and silhouette baked in.",
+            zh: "16 种手绘造型。每一种都自带独特的眼神与轮廓。",
+          })}
+        </p>
+      </div>
       <div css={styles.grid} role="radiogroup" aria-labelledby={headingId}>
         {entries.map((entry) => {
           const selected = def.species === entry.id;
@@ -107,11 +110,6 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
 }
 
 const styles = stylex.create({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   heading: {
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
@@ -126,13 +124,13 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-    gap: space._2,
+    gap: rhythm.item,
   },
   option: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
     backgroundColor: {
       default: color.bgSurface,

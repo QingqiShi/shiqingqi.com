@@ -8,7 +8,8 @@ import {
   CardTitle,
 } from "@tuja/ui/components/card";
 import { Text } from "@tuja/ui/components/text";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { measure } from "#src/design-system/measure.stylex.ts";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -34,7 +35,7 @@ function LayerCard({ title, description, entries }: LayerCardProps) {
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ul css={styles.entries}>
+        <ul css={[stack.tight, styles.entries]}>
           {entries.map((entry) => (
             <li key={entry} css={styles.entry}>
               {entry}
@@ -141,7 +142,7 @@ export function MovieDetailShowcase() {
 // What it shows: local styles carry the grid and the plate width; the surface
 // comes from the system's shared skin; everything inside is a component and
 // its props.
-<div css={[cardSurface.base, styles.screen]}>
+<div css={[cardSurface.base, stack.item, styles.screen]}>
   <div css={styles.hero}>
     <TypesetPoster
       title={movie.title}
@@ -151,21 +152,23 @@ export function MovieDetailShowcase() {
       lead
       css={styles.heroPoster}
     />
-    <div css={styles.identity}>
-      <div css={styles.controlRow}>
+    <div css={[stack.item, styles.identity]}>
+      <div css={cluster.tight}>
         <Badge intent="accent">Movie</Badge>
         <Text as="span" look="caption" tone="muted" numeric>
           {[movie.year, movie.runtime, movie.language].join(" · ")}
         </Text>
       </div>
-      <Heading level={3} look="h1" wrap="balance">{movie.title}</Heading>
-      <Text tone="muted" wrap="pretty" css={styles.tagline}>{movie.tagline}</Text>
+      <div css={stack.tight}>
+        <Heading level={3} look="h1" wrap="balance">{movie.title}</Heading>
+        <Text tone="muted" wrap="pretty" css={styles.tagline}>{movie.tagline}</Text>
+      </div>
     </div>
-    <div css={styles.heroRest}>
-      <div css={styles.badgeRow}>
+    <div css={[stack.item, styles.heroRest]}>
+      <div css={cluster.tight}>
         {movie.genres.map((genre) => <Badge key={genre} size="sm">{genre}</Badge>)}
       </div>
-      <div css={styles.controlRow}>
+      <div css={cluster.tight}>
         <Button look="primary" icon={<PlayIcon weight="fill" />} onClick={openTrailer}>
           Watch trailer
         </Button>
@@ -196,7 +199,7 @@ const styles = stylex.create({
   layerGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   // Stretched, so the three layer cards in a row end level with each other
   // however unevenly their lists run.
@@ -204,9 +207,6 @@ const styles = stylex.create({
     blockSize: "100%",
   },
   entries: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
     margin: 0,
     padding: 0,
     listStyle: "none",

@@ -1,8 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
-import { space } from "../tokens.stylex.ts";
+import { row, stack } from "../primitives/stack.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { slotStyles } from "./card-slot.stylex.ts";
 
 interface CardHeaderProps extends Omit<
   ComponentProps<"div">,
@@ -42,8 +41,8 @@ export function CardHeader({
   ...restProps
 }: CardHeaderProps) {
   return (
-    <div {...restProps} ref={ref} css={[slotStyles.block, styles.header, css]}>
-      <div css={styles.headerText}>{children}</div>
+    <div {...restProps} ref={ref} css={[row.tight, styles.header, css]}>
+      <div css={[stack.tight, styles.headerText]}>{children}</div>
       {/* Truthiness: `action={cond && <Button/>}` then renders no slot.
           `!= null` would keep an empty flex item and its gap. */}
       {action ? <div css={styles.headerAction}>{action}</div> : null}
@@ -53,14 +52,9 @@ export function CardHeader({
 
 const styles = stylex.create({
   header: {
-    display: "flex",
     alignItems: "flex-start",
-    gap: space._2,
   },
   headerText: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
     flexGrow: 1,
     // Let a long title wrap instead of forcing the header row wider.
     minInlineSize: 0,

@@ -5,7 +5,7 @@ import {
   StickyControls,
 } from "@tuja/ui/components/sticky-controls";
 import { shrink } from "@tuja/ui/primitives/flex.stylex";
-import { layout, space } from "@tuja/ui/tokens.stylex";
+import { layout, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface FiltersContainerProps {
@@ -51,7 +51,7 @@ const styles = stylex.create({
   bar: {
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    marginBottom: space._3,
+    marginBottom: rhythm.item,
   },
 
   // The site measure, so the bar lines up with the content it filters.

@@ -2,9 +2,13 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { gridlineGround } from "#src/design-system/gridline-ground.stylex.ts";
+import {
+  gridlineGround,
+  gridlineTokens,
+} from "#src/design-system/gridline-ground.stylex.ts";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { measure } from "#src/design-system/measure.stylex.ts";
@@ -52,8 +56,8 @@ function Band({
   children,
 }: BandProps) {
   return (
-    <section css={styles.band}>
-      <header css={styles.bandHeader}>
+    <section css={stack.item}>
+      <header css={[stack.tight, styles.bandHeader]}>
         <Heading level={3}>{name}</Heading>
         <p css={styles.bandUse}>{use}</p>
       </header>
@@ -82,16 +86,17 @@ export function BackgroundsShowcase() {
         zh: "bg 令牌以盒子是什么命名，而不是以它有多亮命名。先按用途选组，再在组内按层级或状态选令牌。",
       })}
     >
-      <Band
-        name={t({ en: "Canvas", zh: "画布" })}
-        use={t({
-          en: "The page itself, behind everything. The root already paints it, so you set it again only on a full-bleed region that has to match the page. Fade is the colour a gradient on the canvas runs toward.",
-          zh: "页面本身，位于一切之后。根元素已经绘制了它，只有需要与页面一致的通栏区域才要再设一次。Fade 是画布上的渐变所淡向的颜色。",
-        })}
-        columns={2}
-        snippet={
-          <UsageSnippet
-            code={`import { color } from "@tuja/ui/tokens.stylex";
+      <div css={stack.group}>
+        <Band
+          name={t({ en: "Canvas", zh: "画布" })}
+          use={t({
+            en: "The page itself, behind everything. The root already paints it, so you set it again only on a full-bleed region that has to match the page. Fade is the colour a gradient on the canvas runs toward.",
+            zh: "页面本身，位于一切之后。根元素已经绘制了它，只有需要与页面一致的通栏区域才要再设一次。Fade 是画布上的渐变所淡向的颜色。",
+          })}
+          columns={2}
+          snippet={
+            <UsageSnippet
+              code={`import { color } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
   band: { backgroundColor: color.bgCanvas },
@@ -99,71 +104,71 @@ const styles = stylex.create({
     backgroundImage: \`linear-gradient(transparent, \${color.bgCanvasFade})\`,
   },
 });`}
+            />
+          }
+        >
+          <BandCell
+            label={t({ en: "Canvas", zh: "画布" })}
+            token="color.bgCanvas"
+            bg={styles.fillCanvas}
           />
-        }
-      >
-        <BandCell
-          label={t({ en: "Canvas", zh: "画布" })}
-          token="color.bgCanvas"
-          bg={styles.fillCanvas}
-        />
-        <BandCell
-          label={t({ en: "Fade", zh: "渐隐" })}
-          token="color.bgCanvasFade"
-          bg={styles.fillFade(color.bgCanvasFade, color.bgCanvas)}
-        />
-      </Band>
+          <BandCell
+            label={t({ en: "Fade", zh: "渐隐" })}
+            token="color.bgCanvasFade"
+            bg={styles.fillFade(color.bgCanvasFade, color.bgCanvas)}
+          />
+        </Band>
 
-      <Band
-        name={t({ en: "Surface", zh: "表面" })}
-        use={t({
-          en: "Anything that holds content of its own: a card, a panel, a dialog body. Sunken sits below its surface, like the track behind SegmentedControl's options. Raised floats above it, like Popover and the MenuButton menu. In light, Raised and the default are the same white, so a floating surface also needs its edge: popoverSurface from @tuja/ui/components/popover-surface.stylex carries both.",
-          zh: "任何承载自身内容的东西：卡片、面板、对话框主体。Sunken 位于所在表面之下，例如 SegmentedControl 选项背后的轨道。Raised 悬浮在表面之上，例如 Popover 与 MenuButton 的菜单。浅色下 Raised 与默认表面是同一种白色，因此悬浮表面还需要边缘：@tuja/ui/components/popover-surface.stylex 中的 popoverSurface 两者兼备。",
-        })}
-        columns={4}
-        mdColumns={2}
-        snippet={
-          <UsageSnippet
-            code={`const styles = stylex.create({
+        <Band
+          name={t({ en: "Surface", zh: "表面" })}
+          use={t({
+            en: "Anything that holds content of its own: a card, a panel, a dialog body. Sunken sits below its surface, like the track behind SegmentedControl's options. Raised floats above it, like Popover and the MenuButton menu. In light, Raised and the default are the same white, so a floating surface also needs its edge: popoverSurface from @tuja/ui/components/popover-surface.stylex carries both.",
+            zh: "任何承载自身内容的东西：卡片、面板、对话框主体。Sunken 位于所在表面之下，例如 SegmentedControl 选项背后的轨道。Raised 悬浮在表面之上，例如 Popover 与 MenuButton 的菜单。浅色下 Raised 与默认表面是同一种白色，因此悬浮表面还需要边缘：@tuja/ui/components/popover-surface.stylex 中的 popoverSurface 两者兼备。",
+          })}
+          columns={4}
+          mdColumns={2}
+          snippet={
+            <UsageSnippet
+              code={`const styles = stylex.create({
   card: { backgroundColor: color.bgSurface },
   well: { backgroundColor: color.bgSurfaceSunken },
   popover: { backgroundColor: color.bgSurfaceRaised },
 });`}
+            />
+          }
+        >
+          <BandCell
+            label={t({ en: "Sunken", zh: "下沉" })}
+            token="color.bgSurfaceSunken"
+            bg={styles.fillSurfaceSunken}
           />
-        }
-      >
-        <BandCell
-          label={t({ en: "Sunken", zh: "下沉" })}
-          token="color.bgSurfaceSunken"
-          bg={styles.fillSurfaceSunken}
-        />
-        <BandCell
-          label={t({ en: "Default", zh: "默认" })}
-          token="color.bgSurface"
-          bg={styles.fillSurface}
-        />
-        <BandCell
-          label={t({ en: "Raised", zh: "抬起" })}
-          token="color.bgSurfaceRaised"
-          bg={styles.fillSurfaceRaised}
-        />
-        <BandCell
-          label={t({ en: "Fade", zh: "渐隐" })}
-          token="color.bgSurfaceFade"
-          bg={styles.fillFade(color.bgSurfaceFade, color.bgSurface)}
-        />
-      </Band>
+          <BandCell
+            label={t({ en: "Default", zh: "默认" })}
+            token="color.bgSurface"
+            bg={styles.fillSurface}
+          />
+          <BandCell
+            label={t({ en: "Raised", zh: "抬起" })}
+            token="color.bgSurfaceRaised"
+            bg={styles.fillSurfaceRaised}
+          />
+          <BandCell
+            label={t({ en: "Fade", zh: "渐隐" })}
+            token="color.bgSurfaceFade"
+            bg={styles.fillFade(color.bgSurfaceFade, color.bgSurface)}
+          />
+        </Band>
 
-      <Band
-        name={t({ en: "Control", zh: "控件" })}
-        use={t({
-          en: "Anything a person presses or types into: a button, a field, a row that opens something. Hover lifts it to bgControlHover. Disabled, it keeps its rest fill on hover and fades as a whole with opacity.disabled; fields and Checkbox also switch to bgControlDisabled. Components mark a selected item with the accent, as the Intents section shows, and no component uses bgControlPressed or bgControlSelected.",
-          zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到 bgControlHover。禁用时，悬停也保持静止填充，并通过 opacity.disabled 整体变淡；输入框与 Checkbox 还会换成 bgControlDisabled。组件用强调色标示选中项，见“意图色”一节；没有任何组件使用 bgControlPressed 或 bgControlSelected。",
-        })}
-        columns={5}
-        snippet={
-          <UsageSnippet
-            code={`import { color, opacity } from "@tuja/ui/tokens.stylex";
+        <Band
+          name={t({ en: "Control", zh: "控件" })}
+          use={t({
+            en: "Anything a person presses or types into: a button, a field, a row that opens something. Hover lifts it to bgControlHover. Disabled, it keeps its rest fill on hover and fades as a whole with opacity.disabled; fields and Checkbox also switch to bgControlDisabled. Components mark a selected item with the accent, as the Intents section shows, and no component uses bgControlPressed or bgControlSelected.",
+            zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到 bgControlHover。禁用时，悬停也保持静止填充，并通过 opacity.disabled 整体变淡；输入框与 Checkbox 还会换成 bgControlDisabled。组件用强调色标示选中项，见“意图色”一节；没有任何组件使用 bgControlPressed 或 bgControlSelected。",
+          })}
+          columns={5}
+          snippet={
+            <UsageSnippet
+              code={`import { color, opacity } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
   row: {
@@ -178,87 +183,80 @@ const styles = stylex.create({
 });
 
 <button css={[styles.row, isCurrent && styles.current]} />`}
+            />
+          }
+        >
+          <BandCell
+            label={t({ en: "Rest", zh: "静态" })}
+            token="color.bgControl"
+            bg={styles.fillControl}
           />
-        }
-      >
-        <BandCell
-          label={t({ en: "Rest", zh: "静态" })}
-          token="color.bgControl"
-          bg={styles.fillControl}
-        />
-        <BandCell
-          label={t({ en: "Hover", zh: "悬停" })}
-          token="color.bgControlHover"
-          bg={styles.fillControlHover}
-        />
-        <BandCell
-          label={t({ en: "Pressed", zh: "按下" })}
-          token="color.bgControlPressed"
-          bg={styles.fillControlPressed}
-        />
-        <BandCell
-          label={t({ en: "Selected", zh: "选中" })}
-          token="color.bgControlSelected"
-          bg={styles.fillControlSelected}
-        />
-        <BandCell
-          label={t({ en: "Disabled", zh: "禁用" })}
-          token="color.bgControlDisabled"
-          bg={styles.fillControlDisabled}
-        />
-      </Band>
+          <BandCell
+            label={t({ en: "Hover", zh: "悬停" })}
+            token="color.bgControlHover"
+            bg={styles.fillControlHover}
+          />
+          <BandCell
+            label={t({ en: "Pressed", zh: "按下" })}
+            token="color.bgControlPressed"
+            bg={styles.fillControlPressed}
+          />
+          <BandCell
+            label={t({ en: "Selected", zh: "选中" })}
+            token="color.bgControlSelected"
+            bg={styles.fillControlSelected}
+          />
+          <BandCell
+            label={t({ en: "Disabled", zh: "禁用" })}
+            token="color.bgControlDisabled"
+            bg={styles.fillControlDisabled}
+          />
+        </Band>
 
-      <Band
-        name={t({ en: "Bright, inverse and scrim", zh: "明亮、反相与遮罩" })}
-        use={t({
-          en: 'Grounds that take a foreground of their own, so each pairs with its fgOn token. Bright stays light in both schemes: the Switch and Slider thumbs, and Button with bright. Inverse is dark in light and light in dark: Avatar with look="solid". Scrim is the same translucent black in both, and dims the page behind a modal surface.',
-          zh: '需要专属前景色的底面，因此每一种都搭配自己的 fgOn 令牌。Bright 在两种配色方案下都保持浅色：Switch 与 Slider 的手柄，以及设置了 bright 的 Button。Inverse 在浅色下是深色、在深色下是浅色：look="solid" 的 Avatar。Scrim 在两种方案下是同一种半透明黑色，用于压暗模态表面背后的页面。',
-        })}
-        columns={3}
-        snippet={
-          <UsageSnippet
-            code={`const styles = stylex.create({
+        <Band
+          name={t({ en: "Bright, inverse and scrim", zh: "明亮、反相与遮罩" })}
+          use={t({
+            en: 'Grounds that take a foreground of their own, so each pairs with its fgOn token. Bright stays light in both schemes: the Switch and Slider thumbs, and Button with bright. Inverse is dark in light and light in dark: Avatar with look="solid". Scrim is the same translucent black in both, and dims the page behind a modal surface.',
+            zh: '需要专属前景色的底面，因此每一种都搭配自己的 fgOn 令牌。Bright 在两种配色方案下都保持浅色：Switch 与 Slider 的手柄，以及设置了 bright 的 Button。Inverse 在浅色下是深色、在深色下是浅色：look="solid" 的 Avatar。Scrim 在两种方案下是同一种半透明黑色，用于压暗模态表面背后的页面。',
+          })}
+          columns={3}
+          snippet={
+            <UsageSnippet
+              code={`const styles = stylex.create({
   tooltip: {
     backgroundColor: color.bgInverse,
     color: color.fgOnInverse,
   },
 });`}
+            />
+          }
+        >
+          <BandCell
+            label={t({ en: "Bright", zh: "明亮" })}
+            token="color.bgControlBright"
+            bg={styles.fillBright}
+            fg={styles.fgOnControlBright}
           />
-        }
-      >
-        <BandCell
-          label={t({ en: "Bright", zh: "明亮" })}
-          token="color.bgControlBright"
-          bg={styles.fillBright}
-          fg={styles.fgOnControlBright}
-        />
-        <BandCell
-          label={t({ en: "Inverse", zh: "反相" })}
-          token="color.bgInverse"
-          bg={styles.fillInverse}
-          fg={styles.fgOnInverse}
-        />
-        <BandCell
-          label={t({ en: "Scrim", zh: "遮罩" })}
-          token="color.bgScrim"
-          bg={styles.fillScrim}
-          fg={styles.fgOnScrim}
-        />
-      </Band>
+          <BandCell
+            label={t({ en: "Inverse", zh: "反相" })}
+            token="color.bgInverse"
+            bg={styles.fillInverse}
+            fg={styles.fgOnInverse}
+          />
+          <BandCell
+            label={t({ en: "Scrim", zh: "遮罩" })}
+            token="color.bgScrim"
+            bg={styles.fillScrim}
+            fg={styles.fgOnScrim}
+          />
+        </Band>
+      </div>
     </GuideSection>
   );
 }
 
 const styles = stylex.create({
-  band: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   bandHeader: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
     maxInlineSize: measure.prose,
   },
   bandUse: {
@@ -270,7 +268,7 @@ const styles = stylex.create({
   },
   grid: {
     display: "grid",
-    gap: space._00,
+    gap: gridlineTokens.width,
   },
   gridColumns: (columns: number, mdColumns: number) => ({
     gridTemplateColumns: {
@@ -283,7 +281,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._3,
     minBlockSize: "88px",

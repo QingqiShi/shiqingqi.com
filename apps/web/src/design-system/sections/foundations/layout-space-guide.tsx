@@ -2,8 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Card } from "@tuja/ui/components/card";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -13,14 +12,19 @@ import { t } from "#src/i18n.ts";
 export function LayoutSpaceGuide() {
   const scales = [
     {
-      term: "space",
-      value: t({
-        en: "Around and between things",
-        zh: "事物的周围与之间",
-      }),
+      term: "rhythm",
+      value: t({ en: "Between things", zh: "事物之间" }),
       note: t({
-        en: "The padding of a surface, the gap in a stack, the margin between sections. Card, Popover, Callout, Section and the page shells all take these from space. It is in rem, so it grows when the reader sets a larger text size, and it does not change with the screen.",
-        zh: "表面的内边距、堆叠里的间隙、区块之间的外边距。Card、Popover、Callout、Section 与页面骨架都从 space 取这些值。它以 rem 为单位，读者调大文字时它随之变大，但它不随屏幕变化。",
+        en: "The gap in a stack, the space between groups, the space between sections. Its five steps are named for how two things relate. It is in rem, and its section step grows at md.",
+        zh: "堆叠里的间隙、组与组之间、区块与区块之间的间距。它的五级以两件事物之间的关系命名。它以 rem 为单位，其中 section 一级在 md 处变大。",
+      }),
+    },
+    {
+      term: "space",
+      value: t({ en: "Around things", zh: "事物的周围" }),
+      note: t({
+        en: "The padding of a surface, an offset, a fixed size. Card, Popover, Callout, Section and the page shells all take their padding from space. It is in rem, so it grows when the reader sets a larger text size, and it does not change with the screen.",
+        zh: "表面的内边距、偏移量、固定尺寸。Card、Popover、Callout、Section 与页面骨架都从 space 取内边距。它以 rem 为单位，读者调大文字时它随之变大，但它不随屏幕变化。",
       }),
     },
     {
@@ -36,10 +40,7 @@ export function LayoutSpaceGuide() {
   const matches = [
     {
       term: "Card",
-      value: t({
-        en: "space._3 block · space._4 inline",
-        zh: "块向 space._3 · 行向 space._4",
-      }),
+      value: "space._5",
       note: t({
         en: "cardSurface carries no padding. Add this when you put it on your own element, so it matches a Card.",
         zh: "cardSurface 不带内边距。把它用在自己的元素上时加上这一组，就与 Card 一致。",
@@ -52,8 +53,19 @@ export function LayoutSpaceGuide() {
         zh: "块向 space._2 · 行向 space._3",
       }),
       note: t({
-        en: "Popover content, a Callout, a table cell, and the trigger and panel of a Disclosure with the card look.",
-        zh: "Popover 的内容、Callout、表格单元格，以及卡片外观的 Disclosure 的触发区与面板。",
+        en: "Popover content, a table cell, and the trigger and panel of a Disclosure with the card look.",
+        zh: "Popover 的内容、表格单元格，以及卡片外观的 Disclosure 的触发区与面板。",
+      }),
+    },
+    {
+      term: "Callout",
+      value: t({
+        en: "space._3 block · space._4 inline",
+        zh: "块向 space._3 · 行向 space._4",
+      }),
+      note: t({
+        en: "A Callout holds a title and its text, so it takes more padding than a compact surface.",
+        zh: "Callout 包含标题及其正文，因此它的内边距比紧凑的表面更大。",
       }),
     },
     {
@@ -70,12 +82,12 @@ export function LayoutSpaceGuide() {
     {
       term: "Section",
       value: t({
-        en: "gap space._3 · space._5 above a divider",
-        zh: "间隙 space._3 · 分隔线上方 space._5",
+        en: "rhythm.tight · rhythm.item · space._5 under a divider",
+        zh: "rhythm.tight · rhythm.item · 分隔线下方 space._5",
       }),
       note: t({
-        en: "A Section puts space._3 between its heading and its content. With divided, it draws a border.size_1 rule above and pads space._5 below it.",
-        zh: "Section 在标题与内容之间留 space._3。启用 divided 时，它在上方画一条 border.size_1 的分隔线，并在线下留 space._5。",
+        en: "A Section binds its heading to its content at rhythm.tight, and stacks the blocks of its content rhythm.item apart. With divider, it draws a border.size_1 rule above and pads space._5 below it.",
+        zh: "Section 以 rhythm.tight 将标题与内容相连，内容中的各块之间相隔 rhythm.item。启用 divider 时，它在上方画一条 border.size_1 的分隔线，并在线下留 space._5。",
       }),
     },
   ];
@@ -83,10 +95,13 @@ export function LayoutSpaceGuide() {
   return (
     <>
       <GuideSection
-        title={t({ en: "Space or controlSize", zh: "space 还是 controlSize" })}
+        title={t({
+          en: "rhythm, space or controlSize",
+          zh: "rhythm、space 还是 controlSize",
+        })}
         lead={t({
-          en: "There are two scales of length. Use controlSize inside a control and space everywhere else. The components split them the same way, so a control you build lines up with theirs.",
-          zh: "长度有两套阶梯。控件内部用 controlSize，其余地方都用 space。组件也是这样划分的，所以你自己搭建的控件能与它们对齐。",
+          en: "There are three scales of length. Use rhythm between things, controlSize inside a control, and space for the rest: padding, offsets and sizes. The components split them the same way, so what you build lines up with theirs.",
+          zh: "长度有三套阶梯。事物之间用 rhythm，控件内部用 controlSize，其余的内边距、偏移量与尺寸用 space。组件也是这样划分的，所以你搭建的东西能与它们对齐。",
         })}
       >
         <GuideList items={scales} />
@@ -96,27 +111,29 @@ export function LayoutSpaceGuide() {
             zh: "Card 用 space 留内边距；里面的 Button 用 controlSize 定尺寸",
           })}
         >
-          <Card css={[flex.col, styles.card]}>
-            <Text look="bodySmall" weight="semibold">
-              {t({ en: "Watchlist", zh: "待看清单" })}
-            </Text>
-            <Text look="caption" tone="muted">
-              {t({ en: "12 titles", zh: "12 部" })}
-            </Text>
+          <Card css={styles.card}>
+            <div css={stack.tight}>
+              <Text look="bodySmall" weight="semibold">
+                {t({ en: "Watchlist", zh: "待看清单" })}
+              </Text>
+              <Text look="caption" tone="muted">
+                {t({ en: "12 titles", zh: "12 部" })}
+              </Text>
+            </div>
             <Button size="sm" css={styles.action}>
               {t({ en: "Open", zh: "打开" })}
             </Button>
           </Card>
         </Specimen>
         <UsageSnippet
-          code={`import { controlSize, space } from "@tuja/ui/tokens.stylex";
+          code={`import { controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
-  // Around and between things: space.
+  // Between things: rhythm. Around things: space.
   panel: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.item,
     paddingBlock: space._3,
     paddingInline: space._4,
   },
@@ -148,12 +165,10 @@ const styles = stylex.create({
 
 const styles = stylex.create({
   card: {
-    gap: space._0,
     inlineSize: "100%",
     maxInlineSize: "16rem",
   },
   action: {
     alignSelf: "flex-start",
-    marginBlockStart: space._2,
   },
 });

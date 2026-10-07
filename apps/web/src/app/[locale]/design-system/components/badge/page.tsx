@@ -3,7 +3,6 @@ import { DocPage } from "#src/design-system/doc-page.tsx";
 import { BadgeShowcase } from "#src/design-system/sections/components/badge-showcase.tsx";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -16,13 +15,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function BadgePage() {
   return (
-    <DocPage
-      path="/design-system/components/badge"
-      description={t({
-        en: "Compact status and label indicators. The six Intents plus a bordered default, at two sizes.",
-        zh: "紧凑的状态和标签指示器。六种意图色，加一个带边框的默认样式，并支持两种尺寸。",
-      })}
-    >
+    <DocPage path="/design-system/components/badge">
       <BadgeShowcase />
     </DocPage>
   );

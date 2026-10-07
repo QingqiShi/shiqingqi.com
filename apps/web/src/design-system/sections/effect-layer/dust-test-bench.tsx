@@ -7,7 +7,8 @@ import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
 import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
@@ -94,7 +95,7 @@ function Obstacle() {
 
 function Case({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div css={[flex.col, styles.case]}>
+    <div css={stack.tight}>
       <Text look="bodySmall" tone="muted">
         {label}
       </Text>
@@ -159,11 +160,9 @@ export function DustTestBench() {
 
 const styles = stylex.create({
   bench: {
+    // This distance keeps each case out of the reach of the fan in the next case.
     gap: space._14,
     containerType: "inline-size",
-  },
-  case: {
-    gap: space._5,
   },
   stage: {
     display: "flex",
@@ -174,6 +173,7 @@ const styles = stylex.create({
       default: "column",
       "@container (min-width: 35rem)": "row",
     },
+    // The fan must be in reach of its dust. This distance is part of the test.
     gap: space._12,
   },
   far: {
@@ -185,6 +185,7 @@ const styles = stylex.create({
   },
   pillars: {
     alignItems: "stretch",
+    // The fan must be in reach of its dust. This distance is part of the test.
     gap: space._12,
   },
   pillar: {
@@ -195,7 +196,7 @@ const styles = stylex.create({
   },
   source: {
     justifyContent: "flex-end",
-    gap: space._00,
+    gap: rhythm.tight,
     inlineSize: space._13,
     blockSize: space._11,
     padding: space._3,
@@ -209,7 +210,7 @@ const styles = stylex.create({
   },
   fan: {
     flexDirection: "column",
-    gap: space._00,
+    gap: rhythm.tight,
     inlineSize: space._12,
     blockSize: space._12,
   },

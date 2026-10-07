@@ -1,8 +1,6 @@
-import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
-import { space } from "../tokens.stylex.ts";
+import { row } from "../primitives/stack.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { slotStyles } from "./card-slot.stylex.ts";
 
 interface CardFooterProps extends Omit<
   ComponentProps<"div">,
@@ -25,16 +23,8 @@ export function CardFooter({
   ...restProps
 }: CardFooterProps) {
   return (
-    <div {...restProps} ref={ref} css={[slotStyles.block, styles.footer, css]}>
+    <div {...restProps} ref={ref} css={[row.tight, css]}>
       {children}
     </div>
   );
 }
-
-const styles = stylex.create({
-  footer: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._2,
-  },
-});

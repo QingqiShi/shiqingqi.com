@@ -8,7 +8,7 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { drawCellCentered } from "./draw-cell-centered";
@@ -125,7 +125,7 @@ const styles = stylex.create({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: space._3,
+    gap: rhythm.tight,
     padding: space._4,
     border: `${border.size_1} solid ${color.border}`,
     backgroundColor: color.bgSurface,
@@ -146,7 +146,7 @@ const styles = stylex.create({
   list: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))",
-    gap: space._2,
+    gap: rhythm.tight,
     margin: 0,
     padding: 0,
     listStyle: "none",

@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { layer } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { layer, rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import { createPathtracerLoop } from "./create-pathtracer-loop";
@@ -98,7 +99,7 @@ function StatsOverlay({
 
       <div css={styles.separator} />
 
-      <div css={styles.section}>
+      <div css={stack.tight}>
         <div css={styles.sectionLabel}>Features</div>
         <div css={styles.toggleRow}>
           {FEATURE_TOGGLES.map(({ key, label }) => (
@@ -116,7 +117,7 @@ function StatsOverlay({
 
       <div css={styles.separator} />
 
-      <div css={styles.section}>
+      <div css={stack.tight}>
         <div css={styles.sectionLabel}>View</div>
         <div css={styles.toggleRow}>
           {DEBUG_MODES.map(({ value, label }) => (
@@ -302,13 +303,7 @@ const styles = stylex.create({
   separator: {
     height: "1px",
     backgroundColor: "rgba(255, 255, 255, 0.15)",
-    marginTop: "8px",
-    marginBottom: "8px",
-  },
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
+    marginBlock: rhythm.tight,
   },
   sectionLabel: {
     color: "rgba(255, 255, 255, 0.4)",
@@ -318,7 +313,7 @@ const styles = stylex.create({
   },
   toggleRow: {
     display: "flex",
-    gap: "4px",
+    gap: rhythm.tight,
     flexWrap: "wrap",
   },
   toggleButton: {
@@ -358,7 +353,7 @@ const styles = stylex.create({
     borderColor: "rgba(100, 140, 255, 0.6)",
   },
   copyButton: {
-    marginTop: "8px",
+    marginTop: rhythm.tight,
     width: "100%",
     padding: "4px 0",
     borderWidth: "1px",

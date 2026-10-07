@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { captureException } from "#src/analytics/capture-exception.ts";
 import { t } from "#src/i18n.ts";
@@ -56,7 +56,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: space._4,
+    gap: rhythm.item,
     minHeight: "60vh",
     padding: space._6,
     textAlign: "center",

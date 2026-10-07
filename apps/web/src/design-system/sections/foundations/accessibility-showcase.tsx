@@ -10,7 +10,8 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -417,7 +418,7 @@ export function AccessibilityShowcase() {
           zh: "@tuja/ui 不包含任何文案，也不做翻译。组件显示或播报的每个词都来自你传入的属性，并且要已是读者的语言。组件需要名称时，不提供就会报类型错误。",
         })}
       >
-        <div css={[flex.wrap, styles.row]}>
+        <div css={cluster.item}>
           <Button
             icon={<TrashIcon weight="bold" />}
             aria-label={t({ en: "Delete", zh: "删除" })}
@@ -504,14 +505,14 @@ export function AccessibilityShowcase() {
           zh: "有些文字一出现就会被播报，有些会作为控件名称的一部分被朗读，而图标永远不会被朗读。请按每段文字到达读者的方式来写。",
         })}
       >
-        <div css={[flex.col, styles.stack]}>
+        <div css={[stack.item, styles.shrink]}>
           <Callout intent="success">
             {t({
               en: "Saved. Your list now has 12 films.",
               zh: "已保存。你的片单现在有 12 部电影。",
             })}
           </Callout>
-          <div css={[flex.wrap, styles.row]}>
+          <div css={cluster.item}>
             <Spinner label={t({ en: "Loading results", zh: "正在加载结果" })} />
             <Button look="primary" loading>
               {t({ en: "Save", zh: "保存" })}
@@ -545,7 +546,7 @@ export function AccessibilityShowcase() {
           zh: "用原语自建的控件，在你补上之前不具备上述任何保障。a11y.focusRing 绘制与组件相同的焦点环：2px 强调色描边、2px 外偏移，只在 :focus-visible 时出现。a11y.srOnly 在视觉上隐藏名称，但将其保留在无障碍树中。按 Tab 进入下面这一行。",
         })}
       >
-        <div css={[flex.wrap, styles.row]}>
+        <div css={cluster.item}>
           <Button look="outline">{t({ en: "A Button", zh: "Button" })}</Button>
           <button
             type="button"
@@ -601,7 +602,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
           zh: "组件背后的钩子都已导出，因此自建控件也能有相同的键盘模型。聚焦下面的控件并按方向键：SegmentedControl 就是基于 useRadioGroup 构建的。",
         })}
       >
-        <div css={[flex.wrap, styles.row]}>
+        <div css={cluster.item}>
           <KeyboardModelSpecimen />
         </div>
         <GuideList items={hooks} />
@@ -638,9 +639,9 @@ interface ChecklistProps {
 function Checklist({ title, items, marker }: ChecklistProps) {
   const check = marker === "check";
   return (
-    <div css={[flex.col, corner.radius_2, styles.checklist]}>
+    <div css={[stack.tight, corner.radius_2, styles.checklist]}>
       <h3 css={styles.checklistTitle}>{title}</h3>
-      <ul css={styles.checklistItems}>
+      <ul css={[stack.item, styles.checklistItems]}>
         {items.map((item) => (
           <li key={item} css={styles.checklistItem}>
             <span
@@ -661,22 +662,16 @@ function Checklist({ title, items, marker }: ChecklistProps) {
 }
 
 const styles = stylex.create({
-  row: {
-    gap: space._3,
-    alignItems: "center",
-  },
-  stack: {
-    gap: space._3,
+  shrink: {
     minInlineSize: 0,
   },
   splitGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 19rem), 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
     alignItems: "start",
   },
   checklist: {
-    gap: space._2,
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
@@ -692,9 +687,6 @@ const styles = stylex.create({
     color: color.fgMuted,
   },
   checklistItems: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
     margin: 0,
     padding: 0,
     listStyle: "none",
@@ -703,7 +695,7 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: "auto minmax(0, 1fr)",
     alignItems: "start",
-    gap: space._2,
+    gap: rhythm.tight,
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_4,
     color: color.fg,
@@ -712,7 +704,8 @@ const styles = stylex.create({
   // Nudged down so the glyph sits on the first line, not at the top of its box.
   marker: {
     display: "inline-flex",
-    marginBlockStart: "0.3em",
+    position: "relative",
+    insetBlockStart: "0.3em",
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_0,
   },
@@ -725,7 +718,7 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 17rem), 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   // Labels above and errors below, so rows must not stretch to the tallest cell.
   gridAlignStart: {

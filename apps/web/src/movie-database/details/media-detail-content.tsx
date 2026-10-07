@@ -8,12 +8,14 @@ import { Button } from "@tuja/ui/components/button";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
 import {
   border,
   color,
   font,
   layer,
   ratio,
+  rhythm,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -126,7 +128,7 @@ export function MediaDetailContent({
         detailQuery.isPending && <Skeleton css={skeletonStyles.backdrop} />
       )}
       <div css={[styles.body, hasBackdrop && styles.bodyWithBackdrop]}>
-        <div css={styles.header}>
+        <div css={[row.item, styles.header]}>
           {posterPath && imageBaseUrl ? (
             <div css={[corner.radius_2, styles.posterWrapper]}>
               <PosterImage
@@ -149,7 +151,7 @@ export function MediaDetailContent({
               // precedent) rather than render a misleading "0 (0)".
               detail.voteCount > 0 && (
                 <div
-                  css={styles.ratingRow}
+                  css={[row.tight, styles.ratingRow]}
                   role="img"
                   aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(detail.voteAverage)}${t({ en: " out of 10", zh: "/10" })}, ${formatter.format(detail.voteCount)} ${t({ en: "votes", zh: "票" })}`}
                 >
@@ -312,15 +314,13 @@ const styles = stylex.create({
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: space._3,
+    gap: rhythm.item,
     padding: space._4,
   },
   bodyWithBackdrop: {
     marginTop: `calc(-1 * ${space._10})`,
   },
   header: {
-    display: "flex",
-    gap: space._3,
     alignItems: "flex-end",
   },
   posterWrapper: {
@@ -335,14 +335,12 @@ const styles = stylex.create({
   headerInfo: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     minWidth: 0,
     paddingBottom: space._1,
   },
   ratingRow: {
-    display: "flex",
     alignItems: "baseline",
-    gap: space._1,
   },
   rating: {
     fontSize: font.uiHeading2,
@@ -376,13 +374,13 @@ const styles = stylex.create({
   actions: {
     display: "flex",
     flexWrap: "wrap",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingTop: space._2,
   },
   trailerLink: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.inline,
     fontSize: font.uiBodySmall,
     color: {
       default: color.fgMuted,

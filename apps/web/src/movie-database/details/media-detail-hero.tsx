@@ -3,11 +3,13 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   color,
   controlSize,
   font,
   layout,
+  rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -41,7 +43,7 @@ export function MediaDetailHero({
   return (
     <div css={styles.container}>
       {backdropPath && <BackdropImage backdropPath={backdropPath} />}
-      <div css={styles.hero}>
+      <div css={[stack.item, styles.hero]}>
         {voteCount > 0 && (
           // TMDB returns voteAverage=0 + voteCount=0 for titles nobody has
           // rated yet — that's "not yet rated", not an actual zero score.
@@ -60,8 +62,10 @@ export function MediaDetailHero({
             </div>
           </div>
         )}
-        <h1 css={styles.h1}>{title}</h1>
-        <div css={styles.meta}>{meta}</div>
+        <div css={stack.tight}>
+          <h1 css={styles.h1}>{title}</h1>
+          <div css={styles.meta}>{meta}</div>
+        </div>
         {description && <p css={styles.description}>{description}</p>}
         <Suspense
           fallback={<Skeleton css={styles.trailerButtonSkeleton} width={120} />}
@@ -78,7 +82,7 @@ const styles = stylex.create({
     maxInlineSize: layout.maxInlineSize,
     marginBlock: 0,
     marginInline: "auto",
-    marginBottom: space._10,
+    marginBottom: rhythm.section,
     paddingBlock: 0,
     paddingLeft: `env(safe-area-inset-left)`,
     paddingRight: `env(safe-area-inset-right)`,
@@ -90,10 +94,7 @@ const styles = stylex.create({
       [breakpoints.xl]: `min(${space._13}, 30dvh)`,
     },
     paddingInline: space._3,
-    display: "flex",
-    flexDirection: "column",
     justifyContent: "flex-end",
-    gap: space._3,
   },
   h1: {
     fontSize: font.vpHeading1,

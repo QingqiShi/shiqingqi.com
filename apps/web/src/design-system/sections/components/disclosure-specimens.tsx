@@ -1,5 +1,4 @@
 "use client";
-
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
@@ -8,7 +7,7 @@ import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 /**
@@ -61,7 +60,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.item,
     paddingBlock: space._2,
     paddingInline: space._3,
   },

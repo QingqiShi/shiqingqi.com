@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   startTransition,
   useCallback,
@@ -170,7 +170,7 @@ const styles = stylex.create({
       default: "minmax(0, 1fr)",
       [breakpoints.md]: `minmax(0, 1fr) ${PANEL_INLINE_SIZE}`,
     },
-    gap: space._5,
+    gap: rhythm.group,
     paddingBlockStart: space._4,
     // Room under the snippet for the bar the Lab fixes to the foot of the
     // viewport. The shell's own padding below the page (`space._8` and the
@@ -192,7 +192,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: space._6,
+    gap: rhythm.group,
     minInlineSize: 0,
     // Below `md` the stage takes the first screen, to a step above the bar, so
     // the snippet shows without a scroll and the Specimen centres in the room

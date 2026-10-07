@@ -5,7 +5,14 @@ import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  opacity,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import {
   createContext,
   use,
@@ -248,7 +255,7 @@ export const chatTextareaStyles = stylex.create({
 const styles = stylex.create({
   container: {
     width: "100%",
-    gap: space._1,
+    gap: controlSize._2,
     backgroundColor: color.bgSurface,
     paddingBlock: space._2,
     paddingLeft: space._3,

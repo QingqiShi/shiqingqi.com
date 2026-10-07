@@ -12,6 +12,7 @@ import {
   color,
   controlSize,
   font,
+  rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
@@ -303,14 +304,14 @@ const styles = stylex.create({
     flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "center",
-    gap: space._3,
+    gap: rhythm.item,
     maxInlineSize: "100%",
   },
   heroCard: {
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: space._00,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._4,
     inlineSize: "15rem",
@@ -333,7 +334,7 @@ const styles = stylex.create({
       default: "1fr",
       [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
     },
-    gap: space._2,
+    gap: rhythm.item,
   },
   // Wide enough for the longest label: a token name is the content, and must not
   // be truncated or broken mid-word.

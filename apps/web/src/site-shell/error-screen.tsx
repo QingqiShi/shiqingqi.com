@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
-import { align, flex, justify } from "@tuja/ui/primitives/flex.stylex";
+import { align, justify } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
@@ -42,12 +43,14 @@ export function ErrorScreen({ error, onRetry }: ErrorScreenProps) {
 
   return (
     <div
-      css={[flex.col, align.center, justify.center, styles.container]}
+      css={[stack.item, align.center, justify.center, styles.container]}
       role="alert"
     >
-      <h1 css={styles.heading}>{strings.heading}</h1>
-      <p css={styles.description}>{strings.description}</p>
-      <Button look="primary" onClick={onRetry} css={styles.button}>
+      <div css={stack.tight}>
+        <h1 css={styles.heading}>{strings.heading}</h1>
+        <p css={styles.description}>{strings.description}</p>
+      </div>
+      <Button look="primary" onClick={onRetry}>
         {strings.retry}
       </Button>
     </div>
@@ -68,9 +71,6 @@ const styles = stylex.create({
   description: {
     fontSize: font.uiBody,
     color: color.fgMuted,
-    margin: `${space._2} 0 0`,
-  },
-  button: {
-    marginTop: space._4,
+    margin: 0,
   },
 });

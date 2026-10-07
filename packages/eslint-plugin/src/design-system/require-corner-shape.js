@@ -1,6 +1,7 @@
 "use strict";
 
-const { isStylexCall } = require("./is-stylex-call");
+const { getStaticKey } = require("./get-static-key");
+const { isAppliedStyle } = require("./is-applied-style");
 
 /** Each radius property with the shape properties that pair with it. */
 const RADIUS_PAIRINGS = new Map([
@@ -14,41 +15,6 @@ const RADIUS_PAIRINGS = new Map([
   ["borderEndStartRadius", ["cornerShape", "cornerEndStartShape"]],
   ["borderEndEndRadius", ["cornerShape", "cornerEndEndShape"]],
 ]);
-
-/** The node types a style value nests through inside a StyleX call. */
-const STYLE_NESTING = new Set([
-  "ObjectExpression",
-  "Property",
-  "ArrayExpression",
-  "SpreadElement",
-]);
-
-/**
- * @param {import("eslint").Rule.Node} property
- * @returns {string | null}
- */
-function getStaticKey(property) {
-  if (property.computed) return null;
-  const key = property.key;
-  if (key.type === "Identifier") return key.name;
-  if (key.type === "Literal" && typeof key.value === "string") return key.value;
-  return null;
-}
-
-/**
- * Whether a property declares an applied style: one nested in a
- * `stylex.create` or `stylex.keyframes` argument. Tokens and plain JavaScript
- * objects are not applied styles, so they pair no shape.
- * @param {import("eslint").Rule.Node} property
- * @returns {boolean}
- */
-function isAppliedStyle(property) {
-  let node = property.parent;
-  while (node != null && STYLE_NESTING.has(node.type)) {
-    node = node.parent;
-  }
-  return isStylexCall(node, "create") || isStylexCall(node, "keyframes");
-}
 
 /** @type {import("eslint").Rule.RuleModule} */
 const requireCornerShape = {

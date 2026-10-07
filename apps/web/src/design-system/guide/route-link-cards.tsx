@@ -4,7 +4,7 @@ import { CardDescription, CardTitle } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { getDesignSystemRouteDescriptions } from "#src/design-system/route-copy/get-design-system-route-descriptions.ts";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
@@ -55,7 +55,7 @@ export function RouteLinkCards({ links, columns }: RouteLinkCardsProps) {
 const styles = stylex.create({
   grid: {
     display: "grid",
-    gap: space._2,
+    gap: rhythm.item,
   },
   two: {
     gridTemplateColumns: {
@@ -71,7 +71,7 @@ const styles = stylex.create({
   },
   // Matches the padding of `Card`, which `cardSurface` does not carry.
   card: {
-    gap: space._0,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._4,
     textDecoration: "none",

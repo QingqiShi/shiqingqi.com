@@ -1,7 +1,6 @@
-import * as stylex from "@stylexjs/stylex";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { Text } from "@tuja/ui/components/text";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -39,7 +38,7 @@ export function CheckboxShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Label and description", zh: "标签与说明" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Specimen caption={t({ en: "with description", zh: "带说明文字" })}>
             <Checkbox
               label={t({
@@ -66,7 +65,7 @@ export function CheckboxShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Specimen caption="sm">
             <Checkbox
               size="sm"
@@ -85,7 +84,7 @@ export function CheckboxShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Controlled select-all", zh: "受控的全选" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "A parent checkbox reflects its children: checked when all are on, indeterminate when only some are.",
@@ -104,7 +103,7 @@ export function CheckboxShowcase() {
 
       <DoDont
         do={
-          <div css={styles.stack}>
+          <div css={stack.item}>
             <Checkbox
               label={t({ en: "Extra cheese", zh: "加芝士" })}
               defaultChecked
@@ -118,7 +117,7 @@ export function CheckboxShowcase() {
           zh: "当可以同时选择任意数量的独立选项时，使用复选框。",
         })}
         dont={
-          <div css={styles.stack}>
+          <div css={stack.item}>
             <Checkbox label={t({ en: "Light theme", zh: "浅色主题" })} />
             <Checkbox
               label={t({ en: "Dark theme", zh: "深色主题" })}
@@ -134,11 +133,3 @@ export function CheckboxShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
-});

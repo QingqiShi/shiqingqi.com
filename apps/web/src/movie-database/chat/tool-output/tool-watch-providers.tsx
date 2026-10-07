@@ -5,7 +5,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Badge } from "@tuja/ui/components/badge";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -249,11 +250,11 @@ function ProviderSection({
 }) {
   if (providers.length === 0) return null;
   return (
-    <div css={styles.section}>
+    <div css={stack.tight}>
       <div css={styles.sectionLabel}>
         <TypeLabel type={type} />
       </div>
-      <div css={[flex.wrap, styles.logoRow]}>
+      <div css={cluster.tight}>
         {providers.map((p) => (
           <ProviderLogo key={p.id} logoPath={p.logoPath} name={p.name} />
         ))}
@@ -284,11 +285,11 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
           {t({ en: "", zh: "不可用" })}
         </p>
       ) : (
-        <>
+        <div css={stack.item}>
           {CATEGORY_KEYS.map((key) => (
             <ProviderSection key={key} type={key} providers={providers[key]} />
           ))}
-        </>
+        </div>
       )}
 
       <div css={styles.attribution}>
@@ -389,7 +390,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
   return (
     <div css={[corner.radius_2, styles.card]}>
       <div css={[flex.between, styles.header]}>
-        <div css={[flex.row, styles.headerTitle]}>
+        <div css={row.tight}>
           {providerLogoPath && (
             <ProviderLogo
               logoPath={providerLogoPath}
@@ -419,7 +420,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
           })}
         </p>
       ) : (
-        <div css={styles.typeGroups}>
+        <div css={stack.item}>
           {CATEGORY_KEYS.map((key) => {
             const countries = groups.get(key);
             if (!countries) return null;
@@ -458,28 +459,18 @@ const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
     padding: space._3,
-    marginTop: space._2,
+    marginTop: rhythm.item,
   },
   header: {
-    marginBottom: space._2,
-  },
-  headerTitle: {
-    gap: space._1,
+    marginBottom: rhythm.tight,
   },
   title: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
   },
-  section: {
-    marginBottom: space._2,
-  },
   sectionLabel: {
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    marginBottom: space._1,
-  },
-  logoRow: {
-    gap: space._1,
   },
   logo: {
     objectFit: "cover",
@@ -491,16 +482,11 @@ const styles = stylex.create({
     fontStyle: "italic",
     paddingBlock: space._1,
   },
-  typeGroups: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   typeLabel: {
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontWeight: font.weight_6,
-    marginBottom: space._1,
+    marginBottom: rhythm.tight,
   },
   countryList: {
     margin: 0,
@@ -523,7 +509,7 @@ const styles = stylex.create({
   attribution: {
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    marginTop: space._1,
+    marginTop: rhythm.item,
     paddingTop: space._1,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",

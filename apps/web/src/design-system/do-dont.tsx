@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -35,7 +36,7 @@ export function DoDont({
   return (
     <div css={styles.grid}>
       <div css={[corner.radius_2, styles.panel, styles.doPanel]}>
-        <div css={styles.header}>
+        <div css={row.tight}>
           <span css={[styles.icon, styles.doText]}>
             <CheckIcon />
           </span>
@@ -43,13 +44,15 @@ export function DoDont({
             {doLabel}
           </Text>
         </div>
-        <div css={styles.example}>{doExample}</div>
-        <Text look="caption" tone="muted">
-          {doCaption}
-        </Text>
+        <div css={stack.tight}>
+          <div css={styles.example}>{doExample}</div>
+          <Text look="caption" tone="muted">
+            {doCaption}
+          </Text>
+        </div>
       </div>
       <div css={[corner.radius_2, styles.panel, styles.dontPanel]}>
-        <div css={styles.header}>
+        <div css={row.tight}>
           <span css={[styles.icon, styles.dontText]}>
             <CrossIcon />
           </span>
@@ -62,10 +65,12 @@ export function DoDont({
             {dontLabel}
           </Text>
         </div>
-        <div css={styles.example}>{dont}</div>
-        <Text look="caption" tone="muted">
-          {dontCaption}
-        </Text>
+        <div css={stack.tight}>
+          <div css={styles.example}>{dont}</div>
+          <Text look="caption" tone="muted">
+            {dontCaption}
+          </Text>
+        </div>
       </div>
     </div>
   );
@@ -118,14 +123,13 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   panel: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
-    paddingBlock: space._3,
-    paddingInline: space._3,
+    gap: rhythm.item,
+    padding: space._5,
     borderWidth: border.size_1,
     borderStyle: "solid",
     minInlineSize: 0,
@@ -137,11 +141,6 @@ const styles = stylex.create({
   dontPanel: {
     backgroundColor: color.bgDangerSubtle,
     borderColor: color.borderDanger,
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
   },
   icon: {
     display: "inline-flex",
@@ -164,7 +163,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.item,
     minInlineSize: 0,
     overflowX: "auto",
   },

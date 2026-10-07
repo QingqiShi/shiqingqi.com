@@ -2,7 +2,15 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  border,
+  color,
+  font,
+  ratio,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 
 interface TypesetPosterProps {
@@ -84,7 +92,7 @@ export function TypesetPoster({
       {/* The billing block. Dropped whole when there is nothing to bill: a rule
           with no line under it is a dash floating in an empty plate. */}
       {hasFooter ? (
-        <span css={styles.footer}>
+        <span css={[stack.tight, styles.footer]}>
           <span css={[corner.radius_round, styles.rule]} />
           {credit ? (
             <Text as="span" look="caption" tone="muted" weight="medium">
@@ -119,7 +127,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
   },
   lead: {
-    gap: space._2,
+    gap: rhythm.tight,
     // The padding steps with the plate. At the wide padding a 120px plate has
     // 88px of measure left inside it, which is narrower than the title set at
     // any step the plate is worth setting it at.
@@ -130,7 +138,7 @@ const styles = stylex.create({
   // inside the plate was narrower than the word "Harbour", so the guard on
   // `title` broke it mid-word.
   thumb: {
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
   },
   // Grows into whatever the eyebrow and the billing block leave, and centres the
@@ -186,15 +194,11 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_00,
   },
   footer: {
-    display: "flex",
-    flexDirection: "column",
     alignItems: "flex-start",
-    gap: space._0,
   },
   rule: {
     blockSize: border.size_2,
     inlineSize: space._5,
     backgroundColor: color.bgAccentSubtle,
-    marginBlockEnd: space._00,
   },
 });

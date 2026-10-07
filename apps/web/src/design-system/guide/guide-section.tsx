@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { DocSection } from "#src/design-system/doc-section.tsx";
 import { measure } from "#src/design-system/measure.stylex.ts";
 
 interface GuideSectionProps {
@@ -17,13 +18,10 @@ interface GuideSectionProps {
  */
 export function GuideSection({ title, lead, children }: GuideSectionProps) {
   return (
-    <section css={styles.section}>
-      <div css={styles.head}>
-        <h2 css={styles.title}>{title}</h2>
-        <p css={styles.lead}>{lead}</p>
-      </div>
-      <div css={styles.body}>{children}</div>
-    </section>
+    <DocSection title={title} titleCss={styles.title}>
+      <p css={styles.lead}>{lead}</p>
+      {children}
+    </DocSection>
   );
 }
 
@@ -37,22 +35,8 @@ export function GuideNote({ children }: GuideNoteProps) {
 }
 
 const styles = stylex.create({
-  // No rule between sections: the heading step and this much space already say
-  // where one rule ends and the next begins.
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-    paddingBlockStart: space._8,
-  },
-  head: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-    maxInlineSize: measure.prose,
-  },
   title: {
-    margin: 0,
+    maxInlineSize: measure.prose,
     fontSize: font.uiHeading1,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingTight,
@@ -62,15 +46,11 @@ const styles = stylex.create({
   },
   lead: {
     margin: 0,
+    maxInlineSize: measure.prose,
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     textWrap: "pretty",
-  },
-  body: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
   },
   note: {
     margin: 0,

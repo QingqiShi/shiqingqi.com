@@ -1,13 +1,11 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
-import * as stylex from "@stylexjs/stylex";
 import { Chip } from "@tuja/ui/components/chip";
 import { Heading } from "@tuja/ui/components/heading";
 import { Section } from "@tuja/ui/components/section";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -62,7 +60,7 @@ export function SectionShowcase() {
         <Specimen
           caption={t({ en: "rule between sections", zh: "区块之间的分隔线" })}
         >
-          <div css={[flex.col, fill.inline, styles.stack]}>
+          <div css={[stack.group, fill.inline]}>
             <Section title={t({ en: "Overview", zh: "概览" })}>
               <Text look="bodySmall" tone="muted">
                 {t({
@@ -103,7 +101,7 @@ export function SectionShowcase() {
             zh: "用区块为页面内的一段内容加标签——轻量的标题用于导航，读者的注意力仍在内容上。",
           })}
           dont={
-            <div css={[flex.col, fill.inline, styles.dontStack]}>
+            <div css={[stack.tight, fill.inline]}>
               <Heading level={1} look="h1">
                 {t({ en: "Cast & crew", zh: "演职人员" })}
               </Heading>
@@ -121,12 +119,3 @@ export function SectionShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    gap: space._5,
-  },
-  dontStack: {
-    gap: space._3,
-  },
-});

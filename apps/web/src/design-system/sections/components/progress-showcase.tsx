@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Progress } from "@tuja/ui/components/progress";
 import { progressTokens } from "@tuja/ui/components/progress.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -101,7 +101,7 @@ export function ProgressShowcase() {
       <Showcase
         label={t({ en: "Counting, not percent", zh: "计数而非百分比" })}
       >
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: 'Set max when you are counting things: the bar then reports aria-valuenow="3" against aria-valuemax="5". A screen reader still computes "60%" from that pair, so pass aria-valuetext whenever the count is what the reader is following.',
@@ -123,7 +123,7 @@ export function ProgressShowcase() {
       <Showcase
         label={t({ en: "What a screen reader gets", zh: "屏幕阅读器读到什么" })}
       >
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: "label is required and becomes the accessible name. The component writes role, the name and every aria-value* attribute after the caller's props, so a stray aria-label or aria-valuenow at the callsite cannot replace what the bar actually reports.",
@@ -138,7 +138,7 @@ export function ProgressShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Interactive", zh: "交互" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: "Step the value and watch aria-valuenow follow it. The indicator eases between widths; under prefers-reduced-motion it jumps straight to the new width instead.",
@@ -188,7 +188,7 @@ export function ProgressShowcase() {
       <PropsTable component="progress" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: "Progress has no indeterminate state, by design: a bar that cannot finish is a Spinner in the wrong clothes. Pick between the two by what you know, not by which one looks better.",
@@ -197,7 +197,7 @@ export function ProgressShowcase() {
           </Text>
           <DoDont
             do={
-              <div css={[flex.col, styles.guideStack]}>
+              <div css={[stack.tight, styles.fill]}>
                 <Text look="bodySmall">{uploadingLabel}</Text>
                 <Progress value={62} label={uploadingLabel} />
               </div>
@@ -207,7 +207,7 @@ export function ProgressShowcase() {
               zh: "当总量已知时使用进度条——数值告诉用户还剩多少，它也会把这个数字播报出来。",
             })}
             dont={
-              <div css={[flex.col, styles.guideStack]}>
+              <div css={[stack.tight, styles.fill]}>
                 <Text look="bodySmall">{connectingLabel}</Text>
                 <Progress value={80} label={connectingLabel} />
               </div>
@@ -224,15 +224,11 @@ export function ProgressShowcase() {
 }
 
 const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
   note: {
     maxInlineSize: "65ch",
   },
-  guideStack: {
+  fill: {
     inlineSize: "100%",
-    gap: space._2,
   },
   warningIndicator: {
     [progressTokens.indicatorColor]: color.bgWarning,

@@ -4,12 +4,14 @@ import * as stylex from "@stylexjs/stylex";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   border,
   color,
   font,
   layer,
   opacity,
+  rhythm,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -330,8 +332,8 @@ export function ActionRow({
         : labels.reroll;
 
   return (
-    <div css={styles.root} data-testid="action-row">
-      <div css={styles.buttonRow}>
+    <div css={[stack.tight, styles.root]} data-testid="action-row">
+      <div css={[cluster.tight, styles.buttonRow]}>
         <button
           type="button"
           css={[
@@ -509,15 +511,9 @@ export function ActionRow({
 
 const styles = stylex.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
     width: "100%",
   },
   buttonRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._1,
     justifyContent: "center",
   },
   button: {
@@ -611,7 +607,7 @@ const styles = stylex.create({
   manualFallback: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurface,

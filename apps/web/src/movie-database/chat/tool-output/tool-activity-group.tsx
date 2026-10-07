@@ -6,7 +6,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { TERMINAL_STATES, ToolActivityLine } from "./tool-activity-line";
@@ -102,7 +102,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
   },
   disclosureButton: {
-    gap: space._1,
+    gap: controlSize._2,
     margin: 0,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,

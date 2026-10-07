@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { t } from "#src/i18n.ts";
 
@@ -57,7 +57,7 @@ const styles = stylex.create({
   },
   scrollContainer: {
     display: "flex",
-    gap: space._2,
+    gap: rhythm.item,
     scrollSnapType: "x mandatory",
     paddingInline: space._3,
     scrollPaddingLeft: space._3,

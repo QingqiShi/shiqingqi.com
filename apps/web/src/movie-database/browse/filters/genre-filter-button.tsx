@@ -35,7 +35,6 @@ export function GenreFilterButton() {
 
 const styles = stylex.create({
   desktopMenuContent: {
-    gap: space._4,
     padding: controlSize._3,
     maxHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1em - ${controlSize._2} - ${controlSize._1} - ${space._3})`,
     overflow: "auto",

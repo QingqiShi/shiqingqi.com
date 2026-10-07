@@ -1,5 +1,7 @@
+import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -20,18 +22,20 @@ export function GetStartedFirstComponent() {
           zh: "两个组件，页面内无需任何设置",
         })}
       >
-        <Callout
-          intent="success"
-          title={t({ en: "Trip saved", zh: "行程已保存" })}
-        >
-          {t({
-            en: "Kyoto, 5 days, opens without a connection.",
-            zh: "京都 5 日行程可离线打开。",
-          })}
-        </Callout>
-        <Button look="primary">
-          {t({ en: "Share trip", zh: "分享行程" })}
-        </Button>
+        <div css={stack.item}>
+          <Callout
+            intent="success"
+            title={t({ en: "Trip saved", zh: "行程已保存" })}
+          >
+            {t({
+              en: "Kyoto, 5 days, opens without a connection.",
+              zh: "京都 5 日行程可离线打开。",
+            })}
+          </Callout>
+          <Button look="primary" css={styles.action}>
+            {t({ en: "Share trip", zh: "分享行程" })}
+          </Button>
+        </div>
       </Specimen>
       <GuideList
         items={[
@@ -62,3 +66,9 @@ export function GetStartedFirstComponent() {
     </GuideSection>
   );
 }
+
+const styles = stylex.create({
+  action: {
+    alignSelf: "start",
+  },
+});

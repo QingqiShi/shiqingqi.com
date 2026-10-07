@@ -6,7 +6,7 @@ import { useBlackHole } from "@tuja/ui/hooks/use-black-hole";
 import { useLightBeam } from "@tuja/ui/hooks/use-light-beam";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -153,6 +153,7 @@ const styles = stylex.create({
     insetInlineEnd: "12%",
     inlineSize: space._11,
     blockSize: space._11,
+    gap: rhythm.tight,
     backgroundColor: color.bgCanvas,
     borderWidth: border.size_1,
     borderStyle: "solid",
@@ -162,7 +163,7 @@ const styles = stylex.create({
     position: "absolute",
     insetInlineStart: "6%",
     justifyContent: "flex-end",
-    gap: space._00,
+    gap: rhythm.tight,
     inlineSize: space._13,
     blockSize: space._11,
     padding: space._3,

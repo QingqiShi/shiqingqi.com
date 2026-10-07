@@ -5,7 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { font, space } from "@tuja/ui/tokens.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
 import { t } from "#src/i18n.ts";
@@ -69,13 +69,13 @@ export function TmdbCreditInline() {
 const styles = stylex.create({
   container: {
     padding: space._2,
-    gap: space._2,
+    gap: rhythm.tight,
     width: "50dvw",
     maxInlineSize: 500,
     fontSize: font.uiBodySmall,
   },
   inlineContainer: {
-    gap: space._2,
+    gap: rhythm.tight,
     fontSize: font.uiBodySmall,
     width: "100%",
     alignItems: "center",

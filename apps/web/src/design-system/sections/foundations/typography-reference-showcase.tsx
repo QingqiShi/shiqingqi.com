@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
@@ -89,7 +90,7 @@ function TokenTable({
   rows: readonly TokenRow[];
 }) {
   return (
-    <section css={styles.group}>
+    <section css={stack.tight}>
       <Heading level={3}>{title}</Heading>
       <ReferenceTable
         identifierNames
@@ -254,12 +255,14 @@ export function TypographyReferenceShowcase() {
         zh: "font 组中的所有值，供你自己设置文字样式时查阅。凡是 Text 或 Heading 的属性已经设置的值，表中都注明了；在这两个组件上，请用属性而不是令牌。组件只在大写文字上加宽字距，只在最大的两档字号上收紧字距。",
       })}
     >
-      <TokenTable title={t({ en: "Weights", zh: "字重" })} rows={weights} />
-      <TokenTable
-        title={t({ en: "Line heights", zh: "行高" })}
-        rows={lineHeights}
-      />
-      <TokenTable title={t({ en: "Tracking", zh: "字距" })} rows={tracking} />
+      <div css={stack.group}>
+        <TokenTable title={t({ en: "Weights", zh: "字重" })} rows={weights} />
+        <TokenTable
+          title={t({ en: "Line heights", zh: "行高" })}
+          rows={lineHeights}
+        />
+        <TokenTable title={t({ en: "Tracking", zh: "字距" })} rows={tracking} />
+      </div>
     </GuideSection>
   );
 }
@@ -425,11 +428,6 @@ function Track({ s }: { s: StyleXStyles }) {
 }
 
 const styles = stylex.create({
-  group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   // A table wider than the column scrolls inside its own surface.
   scroll: {
     overflowX: "auto",

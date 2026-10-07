@@ -7,6 +7,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { t } from "#src/i18n.ts";
@@ -58,18 +59,18 @@ export function LabSheet({
   const defaultLabel = t({ en: "Default", zh: "默认" });
 
   return (
-    <div css={styles.sheet}>
+    <div css={[stack.group, styles.sheet]}>
       <LabVariantSection
         variants={variants}
         variantId={variantId}
         onSelect={onSelectVariant}
       />
 
-      <section css={styles.section}>
+      <section css={stack.tight}>
         <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
           {t({ en: "Props", zh: "属性" })}
         </Text>
-        <div css={styles.rows}>
+        <div css={stack.tight}>
           {controls.map((control) => (
             <button
               key={control.name}
@@ -104,27 +105,14 @@ export function LabSheet({
 
 const styles = stylex.create({
   sheet: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-    padding: space._2,
-  },
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
-  rows: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
+    padding: space._5,
   },
   // No surface at rest: the caret says the row opens something, and a fill
   // behind every row would put nine cards on the Sheet.
   row: {
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: controlSize._2,
     paddingBlock: controlSize._2,
     paddingInline: controlSize._3,
     backgroundColor: {

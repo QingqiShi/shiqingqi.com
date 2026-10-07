@@ -2,9 +2,9 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
+import { color, controlSize, font } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
@@ -23,7 +23,7 @@ export function DesignSystemSidebarHeader({
   locale: SupportedLocale;
 }) {
   return (
-    <div css={[flex.row, styles.header]}>
+    <div css={[row.tight, styles.header]}>
       <Link
         href={getLocalePath("/", locale)}
         aria-label={t({ en: "Home", zh: "首页" })}
@@ -48,7 +48,6 @@ export function DesignSystemSidebarHeader({
 
 const styles = stylex.create({
   header: {
-    gap: space._1,
     minInlineSize: 0,
   },
   homeLink: {

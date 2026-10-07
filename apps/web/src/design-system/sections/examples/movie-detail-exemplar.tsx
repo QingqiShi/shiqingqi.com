@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { measure } from "#src/design-system/measure.stylex.ts";
 import { t } from "#src/i18n.ts";
@@ -24,8 +25,8 @@ export function MovieDetailExemplar() {
   const helperId = useId();
 
   return (
-    <div css={styles.exemplar}>
-      <div css={styles.toggle}>
+    <div css={stack.item}>
+      <div css={[stack.tight, styles.toggle]}>
         <div css={styles.toggleControl}>
           {/*
             A real `<label>` bound by `htmlFor`, so the caption is a hit target as
@@ -62,16 +63,8 @@ export function MovieDetailExemplar() {
 }
 
 const styles = stylex.create({
-  exemplar: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   toggle: {
-    display: "flex",
-    flexDirection: "column",
     alignItems: "flex-start",
-    gap: space._0,
   },
   // The switch sits next to its label rather than at the far end of the column.
   // A settings row pushes the control to the trailing edge because every row in
@@ -80,7 +73,7 @@ const styles = stylex.create({
   toggleControl: {
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
   },
   toggleLabel: {
     color: color.fg,

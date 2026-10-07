@@ -27,6 +27,7 @@ import {
   color,
   font,
   layout,
+  rhythm,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -738,7 +739,7 @@ const styles = stylex.create({
   panelContainer: {
     maxInlineSize: layout.maxInlineSize,
     marginInline: "auto",
-    marginBlockEnd: space._5,
+    marginBlockEnd: rhythm.group,
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
@@ -757,7 +758,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
     borderBlockEndWidth: border.size_1,
@@ -771,13 +772,13 @@ const styles = stylex.create({
   toolbarActions: {
     display: "flex",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     marginInlineStart: "auto",
   },
   columnMenu: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._1,
     minInlineSize: space._13,
   },
@@ -827,7 +828,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._3,
     borderBlockStartWidth: border.size_1,
@@ -838,7 +839,7 @@ const styles = stylex.create({
   counts: {
     display: "flex",
     alignItems: "baseline",
-    gap: space._1,
+    gap: rhythm.tight,
     margin: 0,
   },
   countLabel: {
@@ -862,7 +863,7 @@ const styles = stylex.create({
   footerActions: {
     display: "flex",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     marginInlineStart: "auto",
   },
   endNote: {

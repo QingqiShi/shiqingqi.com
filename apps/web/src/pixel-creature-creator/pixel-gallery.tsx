@@ -1,4 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { buildQaSamples } from "#src/pixel-creature-creator/creature/build-qa-samples.ts";
 import {
@@ -23,9 +25,9 @@ interface SectionProps {
 
 function Section({ title, children }: SectionProps) {
   return (
-    <section css={styles.section}>
+    <section css={stack.tight}>
       <h2 css={styles.sectionTitle}>{title}</h2>
-      <div css={styles.sectionBody}>{children}</div>
+      <div css={[cluster.item, styles.sectionBody]}>{children}</div>
     </section>
   );
 }
@@ -37,7 +39,7 @@ interface PartCardProps {
 
 function PartCard({ label, children }: PartCardProps) {
   return (
-    <div css={styles.card}>
+    <div css={[stack.tight, styles.card]}>
       <div css={styles.cardArt}>{children}</div>
       <div css={styles.cardLabel}>{label}</div>
     </div>
@@ -223,16 +225,16 @@ export function PixelGallery({
       </Section>
 
       <Section title={t({ en: "Parts coverage", zh: "部件覆盖" })}>
-        <div css={styles.canonicalGrid}>
-          <div data-testid="parts-species" css={styles.canonicalRow}>
+        <div css={[stack.group, styles.canonicalGrid]}>
+          <div data-testid="parts-species" css={stack.tight}>
             <div css={styles.canonicalRowTitle}>species</div>
-            <div css={styles.canonicalRowBody}>
+            <div css={[cluster.item, styles.canonicalRowBody]}>
               {Object.values(species).map((entry) =>
                 entry === undefined ? null : (
                   <div
                     key={`parts-species-${entry.id}`}
                     data-testid={`parts-species-${entry.id}`}
-                    css={styles.canonicalCard}
+                    css={[stack.tight, styles.canonicalCard]}
                   >
                     <PixelSprite
                       def={{ ...DEFAULT_CREATURE, species: entry.id }}
@@ -248,15 +250,15 @@ export function PixelGallery({
             </div>
           </div>
 
-          <div data-testid="parts-accessories" css={styles.canonicalRow}>
+          <div data-testid="parts-accessories" css={stack.tight}>
             <div css={styles.canonicalRowTitle}>accessories</div>
-            <div css={styles.canonicalRowBody}>
+            <div css={[cluster.item, styles.canonicalRowBody]}>
               {Object.values(accessories).map((part) =>
                 part === undefined ? null : (
                   <div
                     key={`parts-accessory-${part.id}`}
                     data-testid={`parts-accessory-${part.id}`}
-                    css={styles.canonicalCard}
+                    css={[stack.tight, styles.canonicalCard]}
                   >
                     <PixelSprite
                       def={{ ...DEFAULT_CREATURE, accessories: [part.id] }}
@@ -272,15 +274,15 @@ export function PixelGallery({
             </div>
           </div>
 
-          <div data-testid="parts-types" css={styles.canonicalRow}>
+          <div data-testid="parts-types" css={stack.tight}>
             <div css={styles.canonicalRowTitle}>types</div>
-            <div css={styles.canonicalRowBody}>
+            <div css={[cluster.item, styles.canonicalRowBody]}>
               {Object.values(elements).map((tp) =>
                 tp === undefined ? null : (
                   <div
                     key={`parts-type-${tp.id}`}
                     data-testid={`parts-type-${tp.id}`}
-                    css={styles.canonicalCard}
+                    css={[stack.tight, styles.canonicalCard]}
                   >
                     <PixelSprite
                       def={{ ...DEFAULT_CREATURE, type: tp.id }}
@@ -314,7 +316,7 @@ export function PixelGallery({
             <div
               key={`qa-${String(idx)}`}
               data-testid={`qa-sample-${String(idx)}`}
-              css={styles.canonicalCard}
+              css={[stack.tight, styles.canonicalCard]}
             >
               <PixelSprite def={sample.def} scale={4} paused />
               <div css={styles.cardLabel}>{summary}</div>
@@ -329,16 +331,16 @@ export function PixelGallery({
           zh: "标准生物 · 全情绪",
         })}
       >
-        <div css={styles.canonicalGrid}>
+        <div css={[stack.group, styles.canonicalGrid]}>
           {CANONICAL_CREATURES.map((creature) => (
-            <div key={creature.slot} css={styles.canonicalRow}>
+            <div key={creature.slot} css={stack.tight}>
               <div css={styles.canonicalRowTitle}>{creature.slot}</div>
-              <div css={styles.canonicalRowBody}>
+              <div css={[cluster.item, styles.canonicalRowBody]}>
                 {EMOTIONS.map((emotion) => (
                   <div
                     key={`${creature.slot}-${emotion}`}
                     data-testid={`canonical-${creature.slot}-${emotion}`}
-                    css={styles.canonicalCard}
+                    css={[stack.tight, styles.canonicalCard]}
                   >
                     <PixelSprite
                       def={creature.def}
@@ -358,7 +360,7 @@ export function PixelGallery({
 
       <Section title={t({ en: "Zoom levels", zh: "缩放级别" })}>
         {[4, 6, 8, 12].map((scale) => (
-          <div key={scale} css={styles.canonicalCard}>
+          <div key={scale} css={[stack.tight, styles.canonicalCard]}>
             <PixelSprite def={def} scale={scale} />
             <div css={styles.cardLabel}>{`×${String(scale)}`}</div>
           </div>
@@ -366,7 +368,7 @@ export function PixelGallery({
       </Section>
 
       <Section title={t({ en: "Reduced motion preview", zh: "弱化动画预览" })}>
-        <div css={styles.canonicalCard}>
+        <div css={[stack.tight, styles.canonicalCard]}>
           <PixelSprite def={def} emotion="idle" scale={6} />
           <div css={styles.cardLabel}>
             {t({
@@ -384,14 +386,9 @@ const styles = stylex.create({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: "32px",
+    gap: rhythm.group,
     padding: "24px",
     paddingTop: "calc(24px + env(safe-area-inset-top))",
-  },
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
   },
   sectionTitle: {
     fontSize: "16px",
@@ -399,16 +396,10 @@ const styles = stylex.create({
     margin: 0,
   },
   sectionBody: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "16px",
     alignItems: "flex-end",
   },
   card: {
-    display: "flex",
-    flexDirection: "column",
     alignItems: "center",
-    gap: "8px",
   },
   cardArt: {
     display: "flex",
@@ -429,21 +420,10 @@ const styles = stylex.create({
   },
   typeAccentColor: (backgroundColor: string) => ({ backgroundColor }),
   canonicalCard: {
-    display: "flex",
-    flexDirection: "column",
     alignItems: "center",
-    gap: "8px",
   },
   canonicalGrid: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
     width: "100%",
-  },
-  canonicalRow: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
   },
   canonicalRowTitle: {
     fontSize: "13px",
@@ -451,9 +431,6 @@ const styles = stylex.create({
     color: "rgba(0, 0, 0, 0.7)",
   },
   canonicalRowBody: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "16px",
     alignItems: "flex-end",
   },
 });

@@ -5,7 +5,7 @@ import {
 } from "@tuja/ui/components/breadcrumb";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { DoDont } from "#src/design-system/do-dont.tsx";
@@ -66,7 +66,7 @@ export function BreadcrumbShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Crumbs", zh: "层级项" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Specimen caption={t({ en: "current page", zh: "当前页面" })}>
             <Breadcrumb
               items={[
@@ -98,7 +98,7 @@ export function BreadcrumbShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Separator", zh: "分隔符" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Specimen caption="default">
             <Breadcrumb
               items={trail}
@@ -229,9 +229,6 @@ export function BreadcrumbShowcase() {
 }
 
 const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
   note: {
     maxInlineSize: "65ch",
   },

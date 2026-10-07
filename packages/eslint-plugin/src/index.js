@@ -6,6 +6,7 @@ const noUseClientInHooks = require("./conventions/no-use-client-in-hooks");
 const onlyStylexExports = require("./design-system/only-stylex-exports");
 const requireCornerShape = require("./design-system/require-corner-shape");
 const requirePackageExport = require("./design-system/require-package-export");
+const requireRhythmSpacing = require("./design-system/require-rhythm-spacing");
 const noBannedCopyWords = require("./i18n/no-banned-copy-words");
 const noTOutsideRender = require("./i18n/no-t-outside-render");
 
@@ -18,6 +19,7 @@ module.exports = {
     "only-stylex-exports": onlyStylexExports,
     "require-corner-shape": requireCornerShape,
     "require-package-export": requirePackageExport,
+    "require-rhythm-spacing": requireRhythmSpacing,
     "no-banned-copy-words": noBannedCopyWords,
     "no-t-outside-render": noTOutsideRender,
   },

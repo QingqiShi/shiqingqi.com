@@ -5,7 +5,7 @@ import {
   controlSize,
   font,
   opacity,
-  space,
+  rhythm,
 } from "../tokens.stylex.ts";
 
 /**
@@ -34,9 +34,6 @@ const AFFIX_SLOT = "1.75em";
 
 export const fieldStyles = stylex.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
     minInlineSize: 0,
   },
   label: {
@@ -53,7 +50,7 @@ export const fieldStyles = stylex.create({
   labelRequired: {
     "::after": {
       content: '"*"',
-      marginInlineStart: space._00,
+      marginInlineStart: rhythm.inline,
       color: color.fgDanger,
     },
   },

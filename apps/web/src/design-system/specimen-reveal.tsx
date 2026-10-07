@@ -6,10 +6,10 @@ import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
@@ -45,8 +45,10 @@ export function SpecimenReveal({
 
   return (
     <>
-      <div css={[flex.col, styles.cell, css]}>
-        <div css={styles.stage}>{children}</div>
+      <div css={[stack.tight, styles.cell, css]}>
+        <div data-spacing-scope="" css={styles.stage}>
+          {children}
+        </div>
         <div css={styles.row}>
           <Text as="span" look="caption" tone="muted" css={styles.caption}>
             {caption}
@@ -97,7 +99,6 @@ export function SpecimenReveal({
 
 const styles = stylex.create({
   cell: {
-    gap: space._2,
     minInlineSize: 0,
   },
   // A block, not a flex row. A flex row makes every child shrink to its own
@@ -113,7 +114,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.item,
     minInlineSize: 0,
   },
   // Size and tone come from `Text`; this only lets a long caption shrink
@@ -129,7 +130,7 @@ const styles = stylex.create({
   control: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.inline,
     flexShrink: 0,
     paddingInline: space._1,
     paddingBlock: space._00,

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import {
   OverviewBrowser,
   type OverviewEntry,
@@ -45,8 +46,8 @@ export default function DesignSystemOverview() {
     .toSorted((a, b) => collator.compare(routeLabels[a], routeLabels[b]));
 
   return (
-    <div css={styles.page}>
-      <header css={styles.hero}>
+    <div css={stack.section}>
+      <header css={stack.tight}>
         <h1 css={styles.heading}>{heading}</h1>
         <p css={styles.intro}>
           {t({
@@ -66,17 +67,6 @@ export default function DesignSystemOverview() {
 }
 
 const styles = stylex.create({
-  page: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._8,
-  },
-  hero: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-    paddingBlockEnd: space._2,
-  },
   heading: {
     margin: 0,
     fontSize: font.vpDisplay,

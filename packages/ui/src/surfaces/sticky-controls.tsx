@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { layer, space } from "../tokens.stylex.ts";
+import { layer, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { StuckContext } from "./sticky-control-group.tsx";
 import { useStuck } from "./use-stuck.ts";
@@ -61,6 +61,6 @@ const styles = stylex.create({
     insetBlockStart: "var(--header-controls-clearance, 0px)",
     zIndex: layer.raised,
     display: "flex",
-    gap: space._1,
+    gap: rhythm.item,
   },
 });

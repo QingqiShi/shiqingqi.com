@@ -9,6 +9,7 @@ import {
   font,
   layer,
   ratio,
+  rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
@@ -247,7 +248,7 @@ const styles = stylex.create({
   viewport: {
     display: "flex",
     alignItems: "stretch",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._1,
     backgroundColor: color.bgCanvas,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
@@ -268,7 +269,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: space._00,
+    gap: rhythm.tight,
     flexGrow: 1,
     minInlineSize: 0,
     paddingBlock: space._5,
@@ -288,7 +289,7 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   layerScroll: {
     marginInline: `calc(-1 * ${space._1})`,
@@ -310,7 +311,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: space._4,
+    gap: rhythm.tight,
     inlineSize: "180px",
     paddingBlock: space._2,
     paddingInline: space._3,

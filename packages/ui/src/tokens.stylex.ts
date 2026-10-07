@@ -437,6 +437,26 @@ export const space = stylex.defineVars({
   _16: "35rem",
 });
 
+/**
+ * The space between two things, named by how they relate. Each step is about
+ * twice the one below. Use `rhythm` for a gap or a margin between siblings, and
+ * `space` for geometry that is not a relationship, such as padding and offsets.
+ *
+ * - `inline` — the parts of one unit on one line, such as an icon and its
+ *   label, or a value and its unit.
+ * - `tight` — inside one item: a heading and its own text.
+ * - `item` — siblings in a group.
+ * - `group` — between groups, such as h3 sub-sections.
+ * - `section` — between h2 sections. It grows at `md`.
+ */
+export const rhythm = stylex.defineVars({
+  inline: ".25rem",
+  tight: ".5rem",
+  item: "1rem",
+  group: "2rem",
+  section: { default: "3rem", [breakpoints.md]: "4rem" },
+});
+
 export const controlSize = stylex.defineVars({
   _0: { default: "2.4px", [breakpoints.md]: "2px" },
   _1: { default: "4.8px", [breakpoints.md]: "4px" },

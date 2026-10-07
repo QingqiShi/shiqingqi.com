@@ -18,7 +18,7 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -412,7 +412,7 @@ const styles = stylex.create({
   propGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 16rem), 1fr))",
-    gap: space._2,
+    gap: rhythm.item,
   },
   propNote: {
     margin: 0,
@@ -424,13 +424,13 @@ const styles = stylex.create({
   gallery: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-    gap: space._2,
+    gap: rhythm.item,
   },
   galleryItem: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._2,
     backgroundColor: color.bgSurfaceRaised,
@@ -454,9 +454,9 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "flex-end",
-    gap: space._5,
-    paddingBlock: space._3,
-    paddingInline: space._3,
+    gap: rhythm.item,
+    paddingBlock: space._5,
+    paddingInline: space._5,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
@@ -464,7 +464,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     minInlineSize: 0,
   },
   sizeIcon: {

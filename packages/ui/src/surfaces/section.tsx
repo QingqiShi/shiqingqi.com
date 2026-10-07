@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import { row, stack } from "../primitives/stack.stylex.ts";
 import { border, color, font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { SectionHeading } from "./section-heading.tsx";
@@ -80,9 +81,9 @@ export function Section({
     <section
       {...restProps}
       ref={ref}
-      css={[styles.root, divider === true && styles.divided, css]}
+      css={[stack.tight, divider === true && styles.divided, css]}
     >
-      <div css={styles.header}>
+      <div css={row.tight}>
         {/* Truthiness: `icon={cond && <X/>}` / `actions={cond && <Y/>}` then
             render no slot. `!= null` would keep an empty box and the gap. */}
         {icon ? (
@@ -91,29 +92,21 @@ export function Section({
           </span>
         ) : null}
         <SectionHeading level={level}>{title}</SectionHeading>
-        {actions ? <div css={styles.actions}>{actions}</div> : null}
+        {actions ? (
+          <div css={[row.tight, styles.actions]}>{actions}</div>
+        ) : null}
       </div>
-      {children}
+      <div css={stack.item}>{children}</div>
     </section>
   );
 }
 
 const styles = stylex.create({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   divided: {
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",
     borderBlockStartColor: color.border,
     paddingBlockStart: space._5,
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
   },
   // `em` box against an explicit font-size, so the icon tracks the label
   // rather than whatever the section's contents happen to set.
@@ -128,9 +121,6 @@ const styles = stylex.create({
     color: color.fgMuted,
   },
   actions: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._1,
     marginInlineStart: "auto",
   },
 });

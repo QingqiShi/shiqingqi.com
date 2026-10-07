@@ -259,6 +259,28 @@ export default defineConfig([
       "@tuja/require-package-export": "error",
     },
   },
+  // A gap between siblings names its relationship. The primitives and the
+  // tokens define the steps, so they are not in scope.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.test.{ts,tsx}",
+      "packages/ui/src/primitives/**",
+      "packages/ui/src/tokens.stylex.ts",
+      // These specimens draw a page at thumbnail scale. Their gaps are drawn
+      // sizes, not relationships.
+      "apps/web/src/design-system/specimens/{header-footer-layout,sidebar-layout,progressive-blur,sticky-controls,movie-detail,scroll-mask}-specimen.tsx",
+      // The effect test benches set physics distances: the reach of a fan, or
+      // the strip of page that a test reads for dust.
+      "apps/web/src/design-system/sections/effect-layer/*-test-bench.tsx",
+    ],
+    rules: {
+      "@tuja/require-rhythm-spacing": [
+        "error",
+        { gapTokenGroups: ["gridlineTokens"] },
+      ],
+    },
+  },
   // StyleX 0.19 types these properties but its eslint allowlist does not
   // carry them yet. `propLimits` puts them back for the one package that uses
   // them, so a stray one elsewhere still errors.

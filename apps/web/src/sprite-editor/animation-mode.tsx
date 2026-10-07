@@ -15,7 +15,15 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  border,
+  color,
+  font,
+  rhythm,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { downloadBlob } from "#src/browser/download-blob.ts";
 import { t } from "#src/i18n.ts";
@@ -190,7 +198,7 @@ export function AnimationMode({
           css={[corner.radius_2, styles.previewCanvas]}
           data-testid="animation-preview"
         />
-        <div css={styles.previewControls}>
+        <div css={cluster.tight}>
           <Button
             icon={
               isPlaying ? (
@@ -241,7 +249,7 @@ export function AnimationMode({
       </div>
 
       <div css={[corner.radius_3, styles.timelineArea]}>
-        <div css={styles.timelineHeader}>
+        <div css={[row.tight, styles.timelineHeader]}>
           <h2 css={styles.timelineTitle}>
             {t({ en: "Frames", zh: "帧" })}{" "}
             <span css={styles.timelineCount}>({frames.length})</span>
@@ -275,7 +283,7 @@ export function AnimationMode({
                 ]}
               >
                 <FrameThumb cell={cells[frame.cellIndex] ?? null} />
-                <div css={styles.frameMeta}>
+                <div css={[stack.tight, styles.frameMeta]}>
                   <span css={styles.frameLabel}>
                     {cellLabel} {frame.cellIndex + 1}
                   </span>
@@ -367,7 +375,7 @@ const styles = stylex.create({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: space._3,
+    gap: rhythm.item,
     width: "100%",
     height: "100%",
     minHeight: 0,
@@ -375,7 +383,7 @@ const styles = stylex.create({
   previewArea: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     padding: space._3,
     border: `${border.size_1} solid ${color.border}`,
     backgroundColor: color.bgSurface,
@@ -391,16 +399,10 @@ const styles = stylex.create({
     imageRendering: "pixelated",
     alignSelf: "center",
   },
-  previewControls: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: space._2,
-  },
   speedLabel: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
@@ -419,7 +421,7 @@ const styles = stylex.create({
   timelineArea: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     padding: space._3,
     border: `${border.size_1} solid ${color.border}`,
     backgroundColor: color.bgSurface,
@@ -428,10 +430,7 @@ const styles = stylex.create({
     overflowY: "auto",
   },
   timelineHeader: {
-    display: "flex",
-    alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
   },
   timelineTitle: {
     margin: 0,
@@ -453,7 +452,7 @@ const styles = stylex.create({
   frameList: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     margin: 0,
     padding: 0,
     listStyle: "none",
@@ -461,7 +460,7 @@ const styles = stylex.create({
   frameItem: {
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     padding: space._2,
     border: `${border.size_1} solid ${color.border}`,
     backgroundColor: color.bgSurfaceSunken,
@@ -483,9 +482,6 @@ const styles = stylex.create({
   },
   frameMeta: {
     flex: "1",
-    display: "flex",
-    flexDirection: "column",
-    gap: "2px",
   },
   frameLabel: {
     fontSize: font.uiBodySmall,
@@ -495,7 +491,7 @@ const styles = stylex.create({
   frameDurationLabel: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
@@ -512,6 +508,6 @@ const styles = stylex.create({
   },
   frameActions: {
     display: "flex",
-    gap: "2px",
+    gap: rhythm.inline,
   },
 });

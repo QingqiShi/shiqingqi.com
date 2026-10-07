@@ -9,6 +9,7 @@ import {
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   fieldSizeBox,
@@ -136,7 +137,7 @@ export function Textarea({
   }, [resize, value]);
 
   return (
-    <div css={fieldStyles.root}>
+    <div css={[stack.tight, fieldStyles.root]}>
       <label
         htmlFor={fieldId}
         css={[

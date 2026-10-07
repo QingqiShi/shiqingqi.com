@@ -5,7 +5,14 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { t } from "#src/i18n.ts";
 import { useHeroVisibility } from "#src/movie-database/browse/hero-visibility-context.ts";
@@ -126,11 +133,11 @@ const styles = stylex.create({
   },
   meta: {
     alignItems: "center",
-    gap: space._2,
-    marginTop: space._1,
+    gap: rhythm.item,
+    marginTop: rhythm.tight,
   },
   restoreLink: {
-    gap: space._1,
+    gap: controlSize._2,
     paddingBlock: space._0,
     paddingInline: space._2,
     fontSize: font.uiBodySmall,
@@ -161,6 +168,6 @@ const styles = stylex.create({
     paddingBottom: "1px",
   },
   suggestions: {
-    marginTop: space._3,
+    marginTop: rhythm.item,
   },
 });

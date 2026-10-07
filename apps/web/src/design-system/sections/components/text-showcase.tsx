@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -21,7 +21,7 @@ export function TextShowcase() {
             zh: "四档字号构成的一套字阶。按用途选择档位，而不是靠肉眼估算像素大小。",
           })}
         </ShowcaseHelper>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption="body · 1rem">
             <Text look="body">
               {t({
@@ -62,7 +62,7 @@ export function TextShowcase() {
           })}
         </ShowcaseHelper>
         <ThemeFramePair>
-          <div css={styles.ladder}>
+          <div css={stack.item}>
             <Specimen caption="default">
               <Text tone="default">
                 {t({ en: "Primary reading content", zh: "主要阅读内容" })}
@@ -89,7 +89,7 @@ export function TextShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Weights", zh: "字重" })}>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption="regular">
             <Text weight="regular">
               {t({
@@ -143,7 +143,7 @@ export function TextShowcase() {
             zh: "transform 独立于 look 设定字母大小写——例如以 caption 字号呈现的大写眉标。",
           })}
         </ShowcaseHelper>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption='transform="uppercase"'>
             <Text look="caption" transform="uppercase">
               {t({ en: "Now streaming", zh: "正在热播" })}
@@ -163,7 +163,7 @@ export function TextShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Alignment", zh: "对齐" })}>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption='align="start"'>
             <Text align="start">
               {t({ en: "Aligned to start", zh: "起始对齐" })}
@@ -183,7 +183,7 @@ export function TextShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption='wrap="balance"'>
             <div css={styles.wrapSpecimen}>
               <Text wrap="balance">
@@ -218,9 +218,9 @@ export function TextShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Figures", zh: "数字" })}>
-        <div css={styles.figureRow}>
+        <div css={cluster.item}>
           <Specimen caption="default">
-            <div css={styles.figureColumn}>
+            <div css={stack.tight}>
               {runtimes.map((runtime) => (
                 <Text key={runtime} align="end">
                   {runtime}
@@ -229,7 +229,7 @@ export function TextShowcase() {
             </div>
           </Specimen>
           <Specimen caption="numeric">
-            <div css={styles.figureColumn}>
+            <div css={stack.tight}>
               {runtimes.map((runtime) => (
                 <Text key={runtime} numeric align="end">
                   {runtime}
@@ -272,26 +272,11 @@ const styles = stylex.create({
     fontSize: "11px",
     opacity: 0.5,
   },
-  ladder: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
   // Narrow enough that the line breaks land differently per mode, and clipped
   // so the nowrap specimen overflows its box instead of the page.
   wrapSpecimen: {
     inlineSize: "100%",
     maxInlineSize: "22rem",
     overflow: "hidden",
-  },
-  figureRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._7,
-  },
-  figureColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
   },
 });

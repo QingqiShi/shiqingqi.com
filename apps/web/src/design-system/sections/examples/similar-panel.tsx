@@ -1,11 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { TypesetPoster } from "./typeset-poster.tsx";
 import type { Movie } from "./use-movies.ts";
@@ -67,7 +66,7 @@ const styles = stylex.create({
   similarList: {
     display: "grid",
     gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: { default: space._2, [breakpoints.md]: space._3 },
+    gap: rhythm.item,
     margin: 0,
     padding: 0,
     // The same cap the cast list carries, so the two panels that hold a grid
@@ -81,7 +80,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    gap: space._1,
+    gap: rhythm.tight,
     inlineSize: "100%",
     blockSize: "100%",
     padding: space._2,

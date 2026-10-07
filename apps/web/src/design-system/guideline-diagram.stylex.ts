@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 /**
  * Chrome for a "do" / "don't" guideline diagram — the miniature page a
@@ -19,7 +19,7 @@ export const guidelineDiagram = stylex.create({
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     inlineSize: "100%",
     minBlockSize: space._10,
     padding: space._2,

@@ -1,7 +1,7 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
-import { font, space } from "@tuja/ui/tokens.stylex";
-import { gridlineGround } from "./gridline-ground.stylex.ts";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { gridlineGround, gridlineTokens } from "./gridline-ground.stylex.ts";
 import { Identifier } from "./identifier.tsx";
 
 interface RoleCell {
@@ -52,7 +52,7 @@ const styles = stylex.create({
     gridTemplateRows: "subgrid",
     // Rows only: the ground, frame, and clip come from `gridlineGround`, and a
     // column has no cells beside each other to divide.
-    rowGap: space._00,
+    rowGap: gridlineTokens.width,
   },
   // The column claims one parent row track per cell, so the subgrid has a track
   // to give each of them.
@@ -63,7 +63,7 @@ const styles = stylex.create({
     justifyContent: "space-between",
     paddingBlock: space._2,
     paddingInline: space._3,
-    gap: space._0,
+    gap: rhythm.tight,
   },
   cellLarge: {
     minBlockSize: "108px",

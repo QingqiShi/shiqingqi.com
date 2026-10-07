@@ -9,7 +9,15 @@ import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
 import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, layer, space } from "@tuja/ui/tokens.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  border,
+  color,
+  font,
+  layer,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -79,8 +87,8 @@ export function EffectLayerTestBench() {
       new URLSearchParams(window.location.search).get("effects") === "debug");
 
   return (
-    <div css={[flex.col, styles.bench]}>
-      <label css={[flex.row, styles.control]}>
+    <div css={stack.item}>
+      <label css={[row.tight, styles.control]}>
         <Switch
           value={hasFixed ? "on" : "off"}
           onChange={(state) => {
@@ -106,7 +114,7 @@ export function EffectLayerTestBench() {
         </div>
       )}
 
-      <div css={[flex.wrap, styles.elements]}>
+      <div css={cluster.item}>
         <Swatch
           token="color.bgSurfaceRaised"
           shape="corner.radius_3"
@@ -144,11 +152,7 @@ export function EffectLayerTestBench() {
 }
 
 const styles = stylex.create({
-  bench: {
-    gap: space._5,
-  },
   control: {
-    gap: space._2,
     alignSelf: "flex-start",
   },
   block: {
@@ -158,13 +162,9 @@ const styles = stylex.create({
     borderStyle: "dashed",
     borderColor: color.border,
   },
-  elements: {
-    alignItems: "center",
-    gap: space._7,
-  },
   swatch: {
     justifyContent: "flex-end",
-    gap: space._00,
+    gap: rhythm.tight,
     inlineSize: space._13,
     blockSize: space._11,
     padding: space._3,
@@ -193,7 +193,7 @@ const styles = stylex.create({
     insetBlockEnd: space._4,
     insetInlineEnd: space._4,
     zIndex: layer.raised,
-    gap: space._00,
+    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
   },

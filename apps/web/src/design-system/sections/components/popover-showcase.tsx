@@ -5,7 +5,7 @@ import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { guidelineDiagram } from "#src/design-system/guideline-diagram.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -236,7 +236,7 @@ const styles = stylex.create({
       default: "repeat(2, 1fr)",
       [breakpoints.md]: "repeat(3, 1fr)",
     },
-    gap: space._2,
+    gap: rhythm.item,
   },
   // Wider than the doc column on purpose: the rail has to scroll before a
   // trigger can be pushed out to a window edge.
@@ -253,13 +253,13 @@ const styles = stylex.create({
   railTrack: {
     display: "flex",
     justifyContent: "space-between",
-    gap: space._3,
+    gap: rhythm.item,
     inlineSize: "180%",
   },
   rules: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.item,
     margin: 0,
     maxInlineSize: "65ch",
     paddingInlineStart: space._4,
@@ -278,9 +278,9 @@ const styles = stylex.create({
     insetInlineStart: space._2,
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     inlineSize: "68%",
-    paddingBlock: space._1,
+    paddingBlock: space._2,
     paddingInline: space._2,
   },
   diagramModal: {
@@ -290,9 +290,9 @@ const styles = stylex.create({
     transform: "translate(-50%, -50%)",
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     inlineSize: "72%",
-    paddingBlock: space._1,
+    paddingBlock: space._2,
     paddingInline: space._2,
   },
 });

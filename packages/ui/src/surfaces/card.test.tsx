@@ -174,24 +174,17 @@ describe("Card slots", () => {
     expect(screen.getByRole("button", { name: "Open" })).toBeInTheDocument();
   });
 
-  it("spaces the blocks off each other without a parent gap", () => {
+  it("spaces the blocks with its own gap", () => {
     render(
-      <Card>
-        <CardHeader data-testid="header">
+      <Card data-testid="card">
+        <CardHeader>
           <CardTitle>Tuscany</CardTitle>
         </CardHeader>
-        <CardContent data-testid="content">Body</CardContent>
+        <CardContent>Body</CardContent>
       </Card>,
     );
 
-    // Every block carries the same self-spacing rule; the `:not(:first-child)`
-    // condition is what keeps it off the first one.
-    expect(screen.getByTestId("header").className).toContain(
-      "slotStyles.block",
-    );
-    expect(screen.getByTestId("content").className).toContain(
-      "slotStyles.block",
-    );
+    expect(screen.getByTestId("card").className).toContain("stack.item");
   });
 
   it("forwards native attributes and css overrides on each slot", () => {

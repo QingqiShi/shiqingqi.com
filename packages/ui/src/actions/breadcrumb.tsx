@@ -3,9 +3,9 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentType, CSSProperties, ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
-import { color, font, space } from "../tokens.stylex.ts";
+import { cluster, row } from "../primitives/stack.stylex.ts";
+import { color, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { BreadcrumbAnchor } from "./breadcrumb-anchor.tsx";
 
@@ -94,11 +94,11 @@ export function Breadcrumb({
     <nav aria-label={label} css={[styles.nav, css]}>
       {/* `role="list"` survives the marker reset, which otherwise drops list
           semantics in Safari/VoiceOver. */}
-      <ol role="list" css={[flex.wrap, styles.list]}>
+      <ol role="list" css={[cluster.tight, styles.list]}>
         {items.map((item, index) => {
           const isCurrent = index === lastIndex;
           return (
-            <li key={item.href ?? item.label} css={[flex.row, styles.item]}>
+            <li key={item.href ?? item.label} css={[row.tight, styles.item]}>
               {isCurrent || item.href === undefined ? (
                 <span
                   aria-current={isCurrent ? "page" : undefined}
@@ -138,7 +138,6 @@ const styles = stylex.create({
   },
   // Wraps rather than scrolls, so a long trail still reflows at 400% zoom.
   list: {
-    gap: space._1,
     listStyle: "none",
     margin: 0,
     padding: 0,
@@ -146,7 +145,6 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_2,
   },
   item: {
-    gap: space._1,
     minInlineSize: 0,
   },
   link: {

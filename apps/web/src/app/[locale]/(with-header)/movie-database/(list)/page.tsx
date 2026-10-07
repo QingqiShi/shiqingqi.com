@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { ratio, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { ratio } from "@tuja/ui/tokens.stylex";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
@@ -162,7 +163,7 @@ export default async function Page(
             chatContent={
               <InlineChatView
                 emptyState={
-                  <div css={styles.welcomeContainer}>
+                  <div css={[stack.group, styles.welcomeContainer]}>
                     <SuggestionChips
                       groupLabel={t({
                         en: "Suggested prompts",
@@ -223,9 +224,6 @@ const styles = stylex.create({
     width: "100%",
   },
   welcomeContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._5,
     width: "100%",
   },
 });

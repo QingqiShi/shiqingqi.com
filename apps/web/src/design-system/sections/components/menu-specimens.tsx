@@ -10,8 +10,16 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
+import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
@@ -99,11 +107,13 @@ function KeyTable() {
     },
   ];
   return (
-    <dl css={[flex.col, styles.keyTable]}>
+    <dl css={[stack.item, definitionRows.list, styles.keyTable]}>
       {rows.map((row) => (
-        <div key={row.keys} css={styles.keyRow}>
+        <div key={row.keys} css={[definitionRows.row, styles.keyRow]}>
           <dt css={styles.keyName}>{row.keys}</dt>
-          <dd css={styles.keyEffect}>{row.effect}</dd>
+          <dd css={[definitionRows.definition, styles.keyEffect]}>
+            {row.effect}
+          </dd>
         </div>
       ))}
     </dl>
@@ -156,7 +166,7 @@ function MenuDemo() {
           </MenuButton>
         </div>
       </Specimen>
-      <div css={[flex.col, styles.notes]}>
+      <div css={[stack.item, styles.notes]}>
         <Text look="bodySmall" tone="muted">
           {t({ en: "Opened →", zh: "已打开 →" })}{" "}
           <span css={[corner.radius_1, styles.stateValue]}>
@@ -201,30 +211,26 @@ const styles = stylex.create({
       default: "1fr",
       [breakpoints.md]: `${space._13} 1fr`,
     },
-    gap: { default: space._3, [breakpoints.md]: space._5 },
+    gap: rhythm.group,
     alignItems: "start",
   },
   // The copy gets an explicit cell. A `Specimen` adds its open code panel to the
   // grid as a second item that spans both tracks, which would push the copy down
   // a row.
   notes: {
-    gap: space._2,
     minInlineSize: 0,
     gridColumn: { default: "auto", [breakpoints.md]: "2" },
     gridRow: { default: "auto", [breakpoints.md]: "1" },
   },
-  // Rows sit tighter from `md` up, where each is a single line; stacked below it
-  // the key and its effect need the extra breathing room between pairs.
   keyTable: {
-    gap: { default: space._1, [breakpoints.md]: space._0 },
-    margin: 0,
     minInlineSize: 0,
   },
   keyRow: {
-    display: "grid",
-    gridTemplateColumns: { default: "1fr", [breakpoints.md]: "11rem 1fr" },
-    gap: { default: 0, [breakpoints.md]: space._3 },
-    minInlineSize: 0,
+    gridTemplateColumns: {
+      default: "minmax(0, 1fr)",
+      [breakpoints.md]: "11rem minmax(0, 1fr)",
+    },
+    columnGap: rhythm.item,
   },
   keyName: {
     fontFamily: font.familyMono,
@@ -234,7 +240,6 @@ const styles = stylex.create({
     overflowWrap: "anywhere",
   },
   keyEffect: {
-    margin: 0,
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_4,
     color: color.fgMuted,

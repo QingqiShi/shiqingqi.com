@@ -8,7 +8,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { isToolError } from "#src/movie-database/chat/tools/tool-error.ts";
 import { isRecord } from "#src/movie-database/is-record.ts";
@@ -221,7 +221,7 @@ const pulseReduced = stylex.keyframes({
 
 const styles = stylex.create({
   line: {
-    gap: space._1,
+    gap: rhythm.tight,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
     lineHeight: 1.4,

@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   fieldSizeBox,
@@ -138,7 +139,7 @@ export function Select({
     : (defaultValue ?? (placeholder !== undefined ? "" : undefined));
 
   return (
-    <div css={[fieldStyles.root, css]}>
+    <div css={[stack.tight, fieldStyles.root, css]}>
       <label
         htmlFor={fieldId}
         css={[fieldStyles.label, labelHidden && a11y.srOnly]}

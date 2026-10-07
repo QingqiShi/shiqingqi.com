@@ -6,6 +6,7 @@ import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import AGSB from "#src/brand/AGSB.webp";
 import { brand } from "#src/brand/brand.stylex.ts";
@@ -26,7 +27,7 @@ export default async function Home(props: PageProps) {
   const { locale } = await props.params;
   return (
     <>
-      <section css={styles.heroContainer}>
+      <section css={[stack.tight, styles.heroContainer]}>
         <h1 css={styles.display}>
           {t({ en: "Hi, I'm Qingqi.", zh: "嗨，我叫石清琪。" })}
           <br />
@@ -46,189 +47,200 @@ export default async function Home(props: PageProps) {
         </p>
       </section>
 
-      <section>
-        <h2 css={styles.sectionTitle}>{t({ en: "Projects", zh: "项目" })}</h2>
-        <div css={styles.cardList}>
-          <ProjectCard
-            icon={
-              <GraduationCapIcon size={64} weight="fill" aria-hidden="true" />
-            }
-            href="https://studentloanstudy.uk/"
-            target="_blank"
-            css={[styles.card, styles.studentLoan]}
-            name={t({ en: "Student Loan Calculator", zh: "学生贷款计算器" })}
-            description={t({
-              en: "Calculate and understand your student loan.",
-              zh: "计算和了解您的学生贷款。",
-            })}
-          />
-          <ProjectCard
-            icon={<FilmSlateIcon size={64} weight="fill" aria-hidden="true" />}
-            href={getLocalePath("/movie-database", locale)}
-            css={[styles.card, styles.movieDatabase]}
-            name={t({ en: "Movie Database", zh: "电影数据库" })}
-            description={t({
-              en: "Chat with AI to find your next watch, or browse what's trending.",
-              zh: "让 AI 帮你找下一部佳片，或浏览当下热门。",
-            })}
-            scroll
-          />
-          <ProjectCard
-            icon={<GhostIcon size={64} weight="fill" aria-hidden="true" />}
-            href={getLocalePath("/pixel-creature-creator", locale)}
-            css={[styles.card, styles.pixelCreatureCreator]}
-            name={t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
-            description={t({
-              en: "Build a tiny pixel creature, name it, and conjure its lore.",
-              zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
-            })}
-            scroll
-          />
-          <ProjectCard
-            icon={<GridFourIcon size={64} weight="fill" aria-hidden="true" />}
-            href={getLocalePath("/sprite-editor", locale)}
-            css={[styles.card, styles.spriteEditor]}
-            name={t({ en: "Sprite Editor", zh: "像素编辑器" })}
-            description={t({
-              en: "Slice sprite sheets, clean up pixels, and assemble animation frames.",
-              zh: "切分精灵表、清理像素并组装动画帧。",
-            })}
-            scroll
-          />
-          <ProjectCard
-            icon={<CalculatorIcon size={64} weight="fill" aria-hidden="true" />}
-            href={getLocalePath("/calculator", locale)}
-            css={[styles.card, styles.calculator]}
-            name={t({ en: "Calculator", zh: "计算器" })}
-            description={t({
-              en: "A simple calculator demo.",
-              zh: "一个简单的计算器演示",
-            })}
-            scroll
-          />
-          <ProjectCard
-            icon={<PackageIcon size={64} weight="fill" aria-hidden="true" />}
-            href={getLocalePath("/design-system", locale)}
-            css={[styles.card, styles.designSystem]}
-            name={t({ en: "Design System", zh: "设计系统" })}
-            description={t({
-              en: "A refined visual language, crafted with care.",
-              zh: "精心打造的精致视觉语言。",
-            })}
-            scroll
-          />
-        </div>
-      </section>
+      <div css={stack.section}>
+        <section css={stack.tight}>
+          <h2 css={styles.sectionTitle}>{t({ en: "Projects", zh: "项目" })}</h2>
+          <div css={styles.cardList}>
+            <ProjectCard
+              icon={
+                <GraduationCapIcon size={64} weight="fill" aria-hidden="true" />
+              }
+              href="https://studentloanstudy.uk/"
+              target="_blank"
+              css={[styles.card, styles.studentLoan]}
+              name={t({ en: "Student Loan Calculator", zh: "学生贷款计算器" })}
+              description={t({
+                en: "Calculate and understand your student loan.",
+                zh: "计算和了解您的学生贷款。",
+              })}
+            />
+            <ProjectCard
+              icon={
+                <FilmSlateIcon size={64} weight="fill" aria-hidden="true" />
+              }
+              href={getLocalePath("/movie-database", locale)}
+              css={[styles.card, styles.movieDatabase]}
+              name={t({ en: "Movie Database", zh: "电影数据库" })}
+              description={t({
+                en: "Chat with AI to find your next watch, or browse what's trending.",
+                zh: "让 AI 帮你找下一部佳片，或浏览当下热门。",
+              })}
+              scroll
+            />
+            <ProjectCard
+              icon={<GhostIcon size={64} weight="fill" aria-hidden="true" />}
+              href={getLocalePath("/pixel-creature-creator", locale)}
+              css={[styles.card, styles.pixelCreatureCreator]}
+              name={t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
+              description={t({
+                en: "Build a tiny pixel creature, name it, and conjure its lore.",
+                zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
+              })}
+              scroll
+            />
+            <ProjectCard
+              icon={<GridFourIcon size={64} weight="fill" aria-hidden="true" />}
+              href={getLocalePath("/sprite-editor", locale)}
+              css={[styles.card, styles.spriteEditor]}
+              name={t({ en: "Sprite Editor", zh: "像素编辑器" })}
+              description={t({
+                en: "Slice sprite sheets, clean up pixels, and assemble animation frames.",
+                zh: "切分精灵表、清理像素并组装动画帧。",
+              })}
+              scroll
+            />
+            <ProjectCard
+              icon={
+                <CalculatorIcon size={64} weight="fill" aria-hidden="true" />
+              }
+              href={getLocalePath("/calculator", locale)}
+              css={[styles.card, styles.calculator]}
+              name={t({ en: "Calculator", zh: "计算器" })}
+              description={t({
+                en: "A simple calculator demo.",
+                zh: "一个简单的计算器演示",
+              })}
+              scroll
+            />
+            <ProjectCard
+              icon={<PackageIcon size={64} weight="fill" aria-hidden="true" />}
+              href={getLocalePath("/design-system", locale)}
+              css={[styles.card, styles.designSystem]}
+              name={t({ en: "Design System", zh: "设计系统" })}
+              description={t({
+                en: "A refined visual language, crafted with care.",
+                zh: "精心打造的精致视觉语言。",
+              })}
+              scroll
+            />
+          </div>
+        </section>
 
-      <section>
-        <h2 css={styles.sectionTitle}>
-          {t({ en: "Professional Experiences", zh: "职业经历" })}
-        </h2>
-        <div css={styles.cardList}>
-          <ExperienceCard
-            logo={<CitadelLogo />}
-            dates={t({ en: "Aug 2021 - Now", zh: "2021年8月 至今" })}
-            dateTime="2021-08"
-            href={getLocalePath("/experiences/citadel", locale)}
-            css={styles.card}
-            aria-label={t({
-              en: "Citadel August 2021 to now, click to view details",
-              zh: "Citadel (城堡投资) 2021年8月至今，点击查看详情",
-            })}
-            scroll
-          />
-          <ExperienceCard
-            logo={<SpotifyLogo />}
-            dates={t({
-              en: "Jul 2019 - Aug 2021",
-              zh: "2019年7月 - 2021年8月",
-            })}
-            dateTime="2019-07"
-            href={getLocalePath("/experiences/spotify", locale)}
-            css={styles.card}
-            aria-label={t({
-              en: "Spotify July 2019 to August 2021, click to view details",
-              zh: "Spotify 2019年7月至2021年8月，点击查看详情",
-            })}
-          />
-          <ExperienceCard
-            logo={<WtcLogo />}
-            dates={t({
-              en: "Sep 2017 - Jul 2019",
-              zh: "2017年9月 - 2019年7月",
-            })}
-            dateTime="2017-09"
-            href={getLocalePath(
-              "/experiences/wunderman-thompson-commerce",
-              locale,
-            )}
-            css={styles.card}
-            aria-label={t({
-              en: "Wunderman Thompson Commerce September 2017 to July 2019, click to view details",
-              zh: "Wunderman Thompson Commerce 2017年9月至2019年7月，点击查看详情",
-            })}
-          />
-        </div>
-      </section>
-      <section>
-        <h2 css={styles.sectionTitle}>{t({ en: "Education", zh: "教育" })}</h2>
-        <div css={styles.cardList}>
-          <EducationCard
-            logo={
-              <BristolLogo
-                title={t({ en: "University of Bristol", zh: "布里斯托大学" })}
-              />
-            }
-            name={t({ en: "University of Bristol", zh: "布里斯托大学" })}
-            dates={t({
-              en: "Sep 2016 - Jan 2018",
-              zh: "2016年9月 - 2018年1月",
-            })}
-            dateTime="2016-09"
-            href={getLocalePath("/education/university-of-bristol", locale)}
-            css={styles.card}
-          />
-          <EducationCard
-            logo={
-              <NottinghamLogo
-                title={t({
-                  en: "University of Nottingham",
-                  zh: "诺丁汉大学",
-                })}
-              />
-            }
-            name={t({ en: "University of Nottingham", zh: "诺丁汉大学" })}
-            dates={t({
-              en: "Sep 2013 - Jul 2016",
-              zh: "2013年9月 - 2016年7月",
-            })}
-            dateTime="2013-09"
-            href={getLocalePath("/education/university-of-nottingham", locale)}
-            css={styles.card}
-          />
-          <EducationCard
-            logo={{
-              src: AGSB,
-              alt: t({ en: "Altrincham", zh: "奥尔特灵厄姆" }),
-            }}
-            name={t({ en: "Altrincham", zh: "奥尔特灵厄姆" })}
-            nameSubText={t({
-              en: "Grammar School for Boys",
-              zh: "文法男校",
-            })}
-            dates={t({
-              en: "Sep 2011 - Jul 2013",
-              zh: "2011年9月 - 2013年7月",
-            })}
-            dateTime="2011-09"
-            href={getLocalePath(
-              "/education/altrincham-grammar-school-for-boys",
-              locale,
-            )}
-            css={styles.card}
-          />
-        </div>
-      </section>
+        <section css={stack.tight}>
+          <h2 css={styles.sectionTitle}>
+            {t({ en: "Professional Experiences", zh: "职业经历" })}
+          </h2>
+          <div css={styles.cardList}>
+            <ExperienceCard
+              logo={<CitadelLogo />}
+              dates={t({ en: "Aug 2021 - Now", zh: "2021年8月 至今" })}
+              dateTime="2021-08"
+              href={getLocalePath("/experiences/citadel", locale)}
+              css={styles.card}
+              aria-label={t({
+                en: "Citadel August 2021 to now, click to view details",
+                zh: "Citadel (城堡投资) 2021年8月至今，点击查看详情",
+              })}
+              scroll
+            />
+            <ExperienceCard
+              logo={<SpotifyLogo />}
+              dates={t({
+                en: "Jul 2019 - Aug 2021",
+                zh: "2019年7月 - 2021年8月",
+              })}
+              dateTime="2019-07"
+              href={getLocalePath("/experiences/spotify", locale)}
+              css={styles.card}
+              aria-label={t({
+                en: "Spotify July 2019 to August 2021, click to view details",
+                zh: "Spotify 2019年7月至2021年8月，点击查看详情",
+              })}
+            />
+            <ExperienceCard
+              logo={<WtcLogo />}
+              dates={t({
+                en: "Sep 2017 - Jul 2019",
+                zh: "2017年9月 - 2019年7月",
+              })}
+              dateTime="2017-09"
+              href={getLocalePath(
+                "/experiences/wunderman-thompson-commerce",
+                locale,
+              )}
+              css={styles.card}
+              aria-label={t({
+                en: "Wunderman Thompson Commerce September 2017 to July 2019, click to view details",
+                zh: "Wunderman Thompson Commerce 2017年9月至2019年7月，点击查看详情",
+              })}
+            />
+          </div>
+        </section>
+        <section css={stack.tight}>
+          <h2 css={styles.sectionTitle}>
+            {t({ en: "Education", zh: "教育" })}
+          </h2>
+          <div css={styles.cardList}>
+            <EducationCard
+              logo={
+                <BristolLogo
+                  title={t({ en: "University of Bristol", zh: "布里斯托大学" })}
+                />
+              }
+              name={t({ en: "University of Bristol", zh: "布里斯托大学" })}
+              dates={t({
+                en: "Sep 2016 - Jan 2018",
+                zh: "2016年9月 - 2018年1月",
+              })}
+              dateTime="2016-09"
+              href={getLocalePath("/education/university-of-bristol", locale)}
+              css={styles.card}
+            />
+            <EducationCard
+              logo={
+                <NottinghamLogo
+                  title={t({
+                    en: "University of Nottingham",
+                    zh: "诺丁汉大学",
+                  })}
+                />
+              }
+              name={t({ en: "University of Nottingham", zh: "诺丁汉大学" })}
+              dates={t({
+                en: "Sep 2013 - Jul 2016",
+                zh: "2013年9月 - 2016年7月",
+              })}
+              dateTime="2013-09"
+              href={getLocalePath(
+                "/education/university-of-nottingham",
+                locale,
+              )}
+              css={styles.card}
+            />
+            <EducationCard
+              logo={{
+                src: AGSB,
+                alt: t({ en: "Altrincham", zh: "奥尔特灵厄姆" }),
+              }}
+              name={t({ en: "Altrincham", zh: "奥尔特灵厄姆" })}
+              nameSubText={t({
+                en: "Grammar School for Boys",
+                zh: "文法男校",
+              })}
+              dates={t({
+                en: "Sep 2011 - Jul 2013",
+                zh: "2011年9月 - 2013年7月",
+              })}
+              dateTime="2011-09"
+              href={getLocalePath(
+                "/education/altrincham-grammar-school-for-boys",
+                locale,
+              )}
+              css={styles.card}
+            />
+          </div>
+        </section>
+      </div>
     </>
   );
 }
@@ -242,7 +254,7 @@ const styles = stylex.create({
     },
   },
   display: {
-    margin: `0 0 ${space._3} 0`,
+    margin: 0,
     fontSize: font.vpDisplay,
     fontWeight: font.weight_8,
   },
@@ -251,8 +263,7 @@ const styles = stylex.create({
     fontSize: font.vpSubDisplay,
   },
   sectionTitle: {
-    marginTop: space._7,
-    marginBottom: space._3,
+    margin: 0,
     fontSize: font.vpHeading2,
     fontWeight: font.weight_7,
   },

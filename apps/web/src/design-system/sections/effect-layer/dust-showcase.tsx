@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -34,7 +32,7 @@ export function DustShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Dust and Extractor fan", zh: "灰尘与抽风机" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "Attach the ref from useDust to an element and it sheds particles in its own fill colour. They float off its edge like dust in still air. After a moment, any element with the ref from useExtractorFan within reach pulls them in: they speed up as they near it and vanish at its edge. With no fan in reach, they drift and fade.",
@@ -64,9 +62,3 @@ export function DustShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
-});

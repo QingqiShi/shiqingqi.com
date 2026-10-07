@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Switch } from "@tuja/ui/components/switch";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
@@ -23,6 +23,6 @@ export function SwitchSpecimen() {
 
 const styles = stylex.create({
   row: {
-    gap: space._2,
+    gap: rhythm.tight,
   },
 });

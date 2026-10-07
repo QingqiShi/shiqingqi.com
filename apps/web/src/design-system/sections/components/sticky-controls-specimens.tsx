@@ -10,8 +10,8 @@ import {
 } from "@tuja/ui/components/sticky-controls";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, ratio, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -65,11 +65,11 @@ export function FilterBar() {
           />
         </StickyControlGroup>
       </StickyControls>
-      <div css={[flex.col, styles.list]}>
+      <div css={stack.item}>
         {films.map((film) => (
           <div key={film.title} css={[corner.radius_2, styles.row]}>
             <div css={[corner.radius_1, styles.poster]} />
-            <div css={flex.col}>
+            <div css={stack.tight}>
               <Text look="bodySmall" weight="semibold">
                 {film.title}
               </Text>
@@ -90,18 +90,15 @@ const styles = stylex.create({
   // are masked, and a squircle-cornered clip over them makes Chrome drop the
   // masks and render one flat blur.
   bar: {
-    marginBlockEnd: space._3,
+    marginBlockEnd: rhythm.item,
   },
   trailing: {
     marginInlineStart: "auto",
   },
-  list: {
-    gap: space._1,
-  },
   row: {
     display: "flex",
     alignItems: "center",
-    gap: space._3,
+    gap: rhythm.tight,
     padding: space._2,
     borderWidth: border.size_1,
     borderStyle: "solid",

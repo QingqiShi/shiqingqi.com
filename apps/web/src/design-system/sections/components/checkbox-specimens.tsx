@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { Text } from "@tuja/ui/components/text";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -18,7 +19,7 @@ export function SelectAllGroup() {
   const allChecked = selectedCount === checked.length;
   const noneChecked = selectedCount === 0;
   return (
-    <div css={styles.group}>
+    <div css={stack.item}>
       <Checkbox
         label={t({ en: "All notifications", zh: "全部通知" })}
         checked={allChecked}
@@ -28,7 +29,7 @@ export function SelectAllGroup() {
           setChecked(checked.map(() => next));
         }}
       />
-      <div css={styles.children}>
+      <div css={[stack.item, styles.children]}>
         {options.map((label, index) => (
           <Checkbox
             key={label}
@@ -51,15 +52,7 @@ export function SelectAllGroup() {
 }
 
 const styles = stylex.create({
-  group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   children: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
     paddingInlineStart: space._5,
   },
 });

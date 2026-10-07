@@ -1,12 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  opacity,
-  space,
-} from "../tokens.stylex.ts";
+import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
 
 /**
  * The pill skin shared by every chip and, at rest, by `Badge` — exposed as
@@ -23,7 +16,7 @@ export const chipSurface = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    gap: space._0,
+    gap: controlSize._1,
     boxSizing: "border-box",
     whiteSpace: "nowrap",
     borderWidth: border.size_1,

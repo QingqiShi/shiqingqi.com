@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -40,14 +41,14 @@ export function SpinnerShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Tone", zh: "色调" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <ShowcaseHelper>
             {t({
               en: 'tone="current" inherits the surrounding text colour; tone="accent" pins the brand accent regardless of context.',
               zh: 'tone="current" 继承周围文本颜色；tone="accent" 无论上下文如何都固定使用品牌强调色。',
             })}
           </ShowcaseHelper>
-          <div css={styles.toneRow}>
+          <div css={[cluster.item, styles.toneRow]}>
             <Specimen caption="accent">
               <Spinner tone="accent" label={loadingLabel} />
             </Specimen>
@@ -70,7 +71,7 @@ export function SpinnerShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "In a busy control", zh: "用于繁忙控件" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <ShowcaseHelper>
             {t({
               en: "Inside a control that already announces its busy state (aria-busy), mark the spinner aria-hidden so it isn't announced twice.",
@@ -125,21 +126,13 @@ export function SpinnerShowcase() {
 }
 
 const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   toneRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._5,
     alignItems: "flex-start",
   },
   accentPill: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: color.bgAccent,

@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { hasDesignSystemLab } from "#src/design-system/routes/has-design-system-lab.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { DocArticle } from "./doc-article.tsx";
-import { measure } from "./measure.stylex.ts";
 import { readingColumn } from "./reading-column.stylex.ts";
 
 interface DocPageProps {
@@ -14,8 +14,11 @@ interface DocPageProps {
    * rail disagrees with.
    */
   path: DesignSystemPath;
-  /** The opening paragraph. The Lab view omits it. */
-  description: ReactNode;
+  /**
+   * The opening paragraph. A route with a Lab sets it on the `DocArticle` in
+   * its `layout.tsx` instead, because the header lives there.
+   */
+  description?: ReactNode;
   children: ReactNode;
 }
 
@@ -28,10 +31,7 @@ interface DocPageProps {
 export function DocPage({ path, description, children }: DocPageProps) {
   const view = (
     <div css={styles.page}>
-      <div css={styles.readingColumn}>
-        <p css={styles.description}>{description}</p>
-        <div css={styles.body}>{children}</div>
-      </div>
+      <div css={[stack.section, styles.readingColumn]}>{children}</div>
     </div>
   );
 
@@ -40,7 +40,9 @@ export function DocPage({ path, description, children }: DocPageProps) {
   return hasDesignSystemLab(path) ? (
     view
   ) : (
-    <DocArticle path={path}>{view}</DocArticle>
+    <DocArticle path={path} description={description}>
+      {view}
+    </DocArticle>
   );
 }
 
@@ -49,27 +51,10 @@ const styles = stylex.create({
   // itself against this element's inline size.
   page: {
     containerType: "inline-size",
+    marginBlockStart: rhythm.section,
   },
-  // The description sits a step below the title, as the header's last line.
   readingColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._6,
-    paddingBlockStart: space._2,
     maxInlineSize: readingColumn.inlineSize,
     marginInline: "auto",
-  },
-  description: {
-    margin: 0,
-    fontSize: font.uiBody,
-    color: color.fgMuted,
-    lineHeight: font.lineHeight_4,
-    maxInlineSize: measure.prose,
-    textWrap: "pretty",
-  },
-  body: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._5,
   },
 });

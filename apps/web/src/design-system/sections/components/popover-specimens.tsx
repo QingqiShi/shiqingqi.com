@@ -6,7 +6,7 @@ import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
@@ -24,7 +24,7 @@ export function AnchoredPanelDemo() {
         </Button>
       )}
     >
-      <div css={[flex.col, styles.narrowPanel, styles.panel]}>
+      <div css={[stack.tight, styles.narrowPanel]}>
         <Text as="span" look="bodySmall" weight="semibold">
           {t({ en: "Arbitrary content", zh: "任意内容" })}
         </Text>
@@ -103,7 +103,7 @@ export function DismissalDemo() {
   // Hoisted out of the render prop: `t()` has to be called in render scope.
   const triggerLabel = t({ en: "Open the panel", zh: "打开面板" });
   return (
-    <div css={[flex.row, styles.demoRow]}>
+    <div css={[cluster.item, styles.fill]}>
       <Popover
         open={open}
         onOpenChange={setOpen}
@@ -113,14 +113,14 @@ export function DismissalDemo() {
           </Button>
         )}
       >
-        <div css={[flex.col, styles.narrowPanel, styles.panel]}>
+        <div css={[stack.item, styles.narrowPanel]}>
           <Text look="bodySmall">
             {t({
               en: "Tab through these two controls, then once more — focus leaves the panel instead of cycling back to the first.",
               zh: "用 Tab 走过这两个控件，再按一次——焦点会离开面板，而不会绕回第一个。",
             })}
           </Text>
-          <div css={[flex.row, styles.panelActions]}>
+          <div css={cluster.tight}>
             <Button
               size="sm"
               look="outline"
@@ -155,7 +155,7 @@ export function PortalTargetDemo() {
     zh: "渲染到下方方框中",
   });
   return (
-    <div css={[flex.col, styles.stack]}>
+    <div css={[stack.item, styles.portalStack]}>
       <Popover
         portalTarget={host}
         trigger={(triggerProps) => (
@@ -188,7 +188,7 @@ export function RepaymentSourcesDemo() {
         </Button>
       )}
     >
-      <div css={[flex.col, styles.narrowPanel, styles.panel]}>
+      <div css={[stack.tight, styles.narrowPanel]}>
         <Text as="span" look="bodySmall" weight="semibold">
           {t({ en: "Two sources", zh: "两个来源" })}
         </Text>
@@ -223,25 +223,16 @@ export function HintDemo() {
 }
 
 const styles = stylex.create({
-  demoRow: {
+  fill: {
     inlineSize: "100%",
-    flexWrap: "wrap",
-    gap: space._3,
   },
   // The cap a popover's prose takes, so the panel reads as a paragraph rather
   // than as a line running the width of the page.
   narrowPanel: {
     maxInlineSize: "34ch",
   },
-  panel: {
-    gap: space._1,
-  },
-  panelActions: {
-    gap: space._1,
-  },
-  stack: {
+  portalStack: {
     inlineSize: "100%",
-    gap: space._3,
     alignItems: "flex-start",
   },
   placementPanel: {

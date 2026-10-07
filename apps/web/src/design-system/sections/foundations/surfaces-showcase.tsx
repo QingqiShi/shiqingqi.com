@@ -4,7 +4,15 @@ import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  border,
+  color,
+  font,
+  rhythm,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -206,7 +214,7 @@ export function SurfacesShowcase() {
               zh: "cardSurface，经由 Card",
             })}
           >
-            <Card css={[flex.col, styles.card]}>
+            <Card css={[stack.tight, styles.card]}>
               <Text look="bodySmall" weight="semibold">
                 {t({ en: "Watchlist", zh: "待看清单" })}
               </Text>
@@ -442,10 +450,9 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   card: {
-    gap: space._1,
     inlineSize: "100%",
     maxInlineSize: "16rem",
   },
@@ -454,7 +461,7 @@ const styles = stylex.create({
     margin: 0,
     display: "flex",
     flexDirection: "column",
-    gap: space._00,
+    gap: rhythm.inline,
     padding: space._0,
     inlineSize: "100%",
     maxInlineSize: "16rem",

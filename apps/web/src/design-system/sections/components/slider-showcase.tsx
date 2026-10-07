@@ -4,7 +4,8 @@ import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -30,7 +31,7 @@ interface KeyHintProps {
 function KeyHint({ keys, effect }: KeyHintProps) {
   return (
     <div css={styles.keyRow}>
-      <dt css={styles.keyCluster}>
+      <dt css={cluster.tight}>
         {keys.map((key) => (
           <kbd key={key} css={[corner.radius_1, styles.key]}>
             {key}
@@ -98,7 +99,7 @@ export function SliderShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Readout", zh: "数值显示" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: "readout is a slot, not a formatter: the Slider places whatever you pass opposite the label, and leaves the currency, the units, and the decimal places to you. Build the string with Intl.NumberFormat so it follows the reader's locale.",
@@ -114,7 +115,7 @@ export function SliderShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Range and step", zh: "范围与步长" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: "min, max, and step default to 0, 100, and 1. An uncontrolled Slider with no defaultValue starts at min, so a range that does not begin at zero still opens on a real value.",
@@ -130,7 +131,7 @@ export function SliderShowcase() {
       </Showcase>
 
       <Showcase label="onChange / onCommit" labelLook="code">
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Text
             look="bodySmall"
             weight="semibold"
@@ -159,7 +160,7 @@ export function SliderShowcase() {
       <Showcase
         label={t({ en: "Label, description, error", zh: "标签、说明与错误" })}
       >
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: "Slider carries the same field contract as TextField and Checkbox. label is required and lands on the input itself; labelHidden keeps it in the accessibility tree when a nearby cue already names the control; description is wired through aria-describedby; error turns the track danger-coloured, sets aria-invalid, and announces itself. Drag the deposit to 5% or above to clear its error.",
@@ -188,7 +189,7 @@ export function SliderShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
             {t({
               en: "Stepping comes from the platform, not from this component: the Slider is a native range input with its chrome restyled, and it never calls preventDefault on a key. That buys the full set of shortcuts, plus focus and value announcement, for free.",
@@ -243,11 +244,6 @@ export function SliderShowcase() {
 }
 
 const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
   // Sliders read better long than wide: enough travel for a fine step, capped
   // so the track never runs the full width of the doc column.
   column: {
@@ -261,7 +257,7 @@ const styles = stylex.create({
   keyList: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: { default: rhythm.item, [breakpoints.md]: rhythm.tight },
     margin: 0,
   },
   keyRow: {
@@ -270,13 +266,8 @@ const styles = stylex.create({
       default: "1fr",
       [breakpoints.md]: "minmax(9rem, auto) 1fr",
     },
-    gap: { default: space._0, [breakpoints.md]: space._3 },
+    gap: { default: rhythm.tight, [breakpoints.md]: rhythm.item },
     alignItems: "baseline",
-  },
-  keyCluster: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._0,
   },
   key: {
     fontFamily: font.familyMono,

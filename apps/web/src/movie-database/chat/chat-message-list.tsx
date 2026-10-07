@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
@@ -113,7 +114,7 @@ export function ChatMessageList({
           role="log"
           aria-live={status === "streaming" ? "off" : "polite"}
           aria-label={messagesLabel}
-          css={[flex.col, styles.messagesList]}
+          css={stack.item}
         >
           {messages.map((message, index) => (
             <ChatMessage
@@ -166,9 +167,6 @@ const styles = stylex.create({
     justifyContent: "flex-start",
     flexGrow: 1,
     paddingTop: space._8,
-  },
-  messagesList: {
-    gap: space._2,
   },
   usageWarning: {
     margin: 0,

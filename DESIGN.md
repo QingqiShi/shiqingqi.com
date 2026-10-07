@@ -7,7 +7,6 @@ Terms are defined in `contexts/design-system/CONTEXT.md`. This file holds only t
 - **A surface separates itself with a border, a background colour, or both — the least that does the job.** A card holding content of its own takes both; the selected row in a menu only has to stand out from its siblings, so a background alone does it, and a border there would be noise. A border stays quiet: enough to find the edge, never enough to draw the eye.
 - **A radius inside a radius is reduced by the inset between them:** `inner = outer − inset`, for a surface nested at another surface's corner. A button or a badge keeps its own full radius.
 - **An Intent colour appears only where it changes what the visitor does next.** Most of an interface is neutral, because colour used as decoration competes with colour that means something.
-- **The padding around a group is larger than the gaps inside it — twice, by default** — so the group reads as one thing.
 - **Content may sit directly on the Progressive blur, with no surface of its own** — a popover can put its title and its main action there, and keep a container only for the part that scrolls. Blur takes away detail but not brightness, so check it: where the content is not clearly legible, give it a surface instead.
 - **No vertical coloured accent bar, stripe, or rail on the leading edge of a card** to mark a category, hue, or status. Its colour is decoration competing with colour that means something, and it is an edge noticed before the content. Use type, a background colour, or a Badge.
 - **No confetti and no particle celebration.** It puts colour at a moment with no consequence. If a moment deserves marking, mark it once, with motion the system already has.
@@ -31,6 +30,7 @@ Terms are defined in `contexts/design-system/CONTEXT.md`. This file holds only t
 
 Showcase sources are under `apps/web/src/design-system/sections/`.
 
+- Spacing, where each step is about twice the one below and a heading sits at least twice as far from the block above it as from its own content: the `rhythm` tokens in `packages/ui/src/tokens.stylex.ts` and the Stack primitives in `packages/ui/src/primitives/stack.stylex.ts`, enforced by the `require-rhythm-spacing` lint rule and `apps/web/e2e/design-system-spacing.spec.ts`.
 - Squircle corners and their fallback: `packages/ui/src/primitives/corner.stylex.ts`, enforced by the `require-corner-shape` lint rule.
 - Material: `foundations/glass-showcase.tsx`, `foundations/texture-showcase.tsx` and `foundations/wash-showcase.tsx`; glass is drawn in `packages/ui/src/surfaces/glass-surface.stylex.ts`.
 - Progressive blur and Scroll mask: `components/progressive-blur-showcase.tsx` and `components/scroll-mask-showcase.tsx`; the blur cap is in `packages/ui/src/surfaces/progressive-blur.tsx`.

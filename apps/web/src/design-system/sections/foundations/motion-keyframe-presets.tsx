@@ -6,7 +6,8 @@ import { Button } from "@tuja/ui/components/button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { animate, motionTokens } from "@tuja/ui/primitives/motion.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -127,7 +128,7 @@ export function MotionKeyframePresets() {
         <Specimen caption="animate.bounce">
           <HeldLoop>
             <div css={[corner.radius_2, styles.animTile]}>
-              <div css={[flex.row, styles.dots]}>
+              <div css={[row.tight, styles.dots]}>
                 <span
                   css={[
                     corner.radius_round,
@@ -167,7 +168,7 @@ const styles = stylex.create({
   replayBar: {
     alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.item,
   },
   animTile: {
     display: "flex",
@@ -206,7 +207,6 @@ const styles = stylex.create({
     animationPlayState: motionTokens.playState,
   },
   dots: {
-    gap: space._1,
     blockSize: space._7,
   },
   dot: {

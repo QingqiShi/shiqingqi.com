@@ -10,7 +10,8 @@ import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ComponentType } from "react";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -129,7 +130,7 @@ export function ToolReviewSummary({
         <span css={styles.title}>
           {t({ en: "Review Summary", zh: "评论摘要" })}
         </span>
-        <div css={[flex.row, styles.badges]}>
+        <div css={row.tight}>
           {formattedRating !== null && (
             <span
               css={styles.ratingBadge}
@@ -206,17 +207,14 @@ const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
     padding: space._3,
-    marginTop: space._2,
+    marginTop: rhythm.item,
   },
   header: {
-    marginBottom: space._2,
+    marginBottom: rhythm.tight,
   },
   title: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-  },
-  badges: {
-    gap: space._1,
   },
   ratingBadge: {
     fontSize: font.uiBodySmall,
@@ -238,14 +236,14 @@ const styles = stylex.create({
     whiteSpace: "pre-wrap",
   },
   controlSection: {
-    marginTop: space._3,
-    paddingTop: space._2,
+    marginTop: rhythm.item,
+    paddingTop: space._3,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.border,
   },
   levelButtons: {
-    gap: space._1,
+    gap: rhythm.tight,
     justifyContent: "center",
     flexWrap: "wrap",
   },
@@ -253,7 +251,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._00,
     paddingBlock: space._1,
     paddingInline: space._2,
     borderWidth: border.size_1,
@@ -276,7 +273,7 @@ const styles = stylex.create({
   },
   selectedLabel: {
     margin: 0,
-    marginTop: space._1,
+    marginTop: rhythm.tight,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
     textAlign: "center",

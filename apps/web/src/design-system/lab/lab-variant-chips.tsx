@@ -1,9 +1,9 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { Chip } from "@tuja/ui/components/chip";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
-import { space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+
 import { t } from "#src/i18n.ts";
 import type { LabVariantChoice } from "./types.ts";
 
@@ -34,7 +34,7 @@ export function LabVariantChips({
     <div
       role="radiogroup"
       aria-label={t({ en: "Variants", zh: "变体" })}
-      css={styles.chips}
+      css={cluster.tight}
     >
       {variants.map((variant) => (
         <Chip
@@ -52,11 +52,3 @@ export function LabVariantChips({
     </div>
   );
 }
-
-const styles = stylex.create({
-  chips: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._1,
-  },
-});

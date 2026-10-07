@@ -6,7 +6,8 @@ import { Button } from "@tuja/ui/components/button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 import { measure } from "#src/design-system/measure.stylex.ts";
@@ -36,7 +37,7 @@ export function ReducedMotionSpecimen() {
 
   return (
     <div css={[corner.radius_2, styles.panel]}>
-      <div css={[flex.wrap, styles.demos]}>
+      <div css={[cluster.item, styles.demos]}>
         <div css={[flex.col, styles.demo]}>
           <span css={styles.preset}>transition.transform</span>
           <span css={[corner.radius_2, styles.track]} aria-hidden>
@@ -88,19 +89,18 @@ const styles = stylex.create({
   panel: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 22rem), 1fr))",
-    gap: space._5,
+    gap: rhythm.item,
     alignItems: "start",
-    paddingBlock: space._4,
-    paddingInline: space._4,
+    paddingBlock: space._5,
+    paddingInline: space._5,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   demos: {
-    gap: space._5,
     alignItems: "flex-start",
   },
   demo: {
-    gap: space._2,
+    gap: rhythm.tight,
     alignItems: "flex-start",
     minInlineSize: 0,
   },
@@ -140,7 +140,7 @@ const styles = stylex.create({
     backgroundColor: color.bgAccent,
   },
   readout: {
-    gap: space._2,
+    gap: rhythm.tight,
     alignItems: "flex-start",
     minInlineSize: 0,
   },

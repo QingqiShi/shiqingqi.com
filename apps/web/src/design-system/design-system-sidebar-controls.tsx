@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
 import { LocaleSelector } from "#src/site-shell/locale-selector.tsx";
@@ -38,7 +38,7 @@ export function DesignSystemSidebarControls({
 
 const styles = stylex.create({
   controls: {
-    gap: space._2,
+    gap: rhythm.item,
     alignItems: "center",
     justifyContent: "space-between",
   },

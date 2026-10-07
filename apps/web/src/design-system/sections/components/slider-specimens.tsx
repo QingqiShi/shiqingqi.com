@@ -6,7 +6,8 @@ import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -52,7 +53,7 @@ export function BoundedSliders() {
     minimumFractionDigits: 2,
   });
   return (
-    <div css={styles.stack}>
+    <div css={stack.item}>
       <Slider
         label={t({ en: "Term", zh: "贷款期限" })}
         min={5}
@@ -110,7 +111,7 @@ export function ChangeVersusCommit() {
   const [commits, setCommits] = useState(0);
   const count = new Intl.NumberFormat(locale);
   return (
-    <div css={styles.stack}>
+    <div css={stack.item}>
       <Slider
         label={t({
           en: "Drag me, or step me with the arrows",
@@ -166,7 +167,7 @@ export function FieldContractSliders() {
     zh: "首付低于 5% 超出了这家放贷方的范围。",
   });
   return (
-    <div css={styles.stack}>
+    <div css={stack.item}>
       <Slider
         label={t({ en: "Monthly overpayment", zh: "每月额外还款" })}
         description={t({
@@ -180,7 +181,7 @@ export function FieldContractSliders() {
         onChange={setOverpayment}
         readout={money.format(overpayment)}
       />
-      <div css={styles.namedGroup}>
+      <div css={stack.tight}>
         <Text as="span" look="bodySmall" weight="semibold">
           {riskLabel}
         </Text>
@@ -270,26 +271,15 @@ export function DisabledSlider() {
 }
 
 const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
-  // A visible cue naming the slider whose own label is hidden.
-  namedGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-  },
   meters: {
     display: "grid",
     gridTemplateColumns: { default: "1fr", [breakpoints.md]: "1fr 1fr" },
-    gap: space._3,
+    gap: rhythm.item,
   },
   meter: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,
@@ -306,7 +296,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "baseline",
-    gap: space._1,
+    gap: rhythm.tight,
     minInlineSize: 0,
   },
   meterLabel: {

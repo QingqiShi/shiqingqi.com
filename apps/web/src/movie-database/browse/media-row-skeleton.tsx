@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { ratio, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { MediaRowInset } from "./media-row.tsx";
 
 const SKELETON_COUNT = 14;
@@ -17,7 +18,7 @@ export function MediaRowSkeleton({
   const rowStyle = inset === "standalone" ? styles.rowStandalone : styles.row;
   const cardStyle = inset === "standalone" ? styles.cardLarge : styles.card;
   return (
-    <div css={styles.section}>
+    <div css={stack.tight}>
       <Skeleton width={220} height={16} />
       <div css={rowStyle}>
         {Array.from({ length: SKELETON_COUNT }, (_, i) => (
@@ -37,14 +38,9 @@ const standaloneInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`
 const standaloneInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
 
 const styles = stylex.create({
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   row: {
     display: "flex",
-    gap: space._2,
+    gap: rhythm.item,
     overflow: "hidden",
     marginLeft: `calc(-1 * ${chatInsetLeft})`,
     marginRight: `calc(-1 * ${chatInsetRight})`,
@@ -54,7 +50,7 @@ const styles = stylex.create({
   },
   rowStandalone: {
     display: "flex",
-    gap: space._2,
+    gap: rhythm.item,
     overflow: "hidden",
     marginLeft: `calc(-1 * ${standaloneInsetLeft})`,
     marginRight: `calc(-1 * ${standaloneInsetRight})`,

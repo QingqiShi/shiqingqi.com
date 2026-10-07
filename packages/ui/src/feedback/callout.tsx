@@ -11,7 +11,8 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import { border, color, font, space } from "../tokens.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
+import { border, color, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 type CalloutIntent =
@@ -133,7 +134,7 @@ export function Callout({
           {resolvedIcon}
         </span>
       ) : null}
-      <div css={styles.content}>
+      <div css={[stack.tight, styles.content]}>
         {title != null ? (
           <div css={[styles.title, accentStyles[intent]]}>{title}</div>
         ) : null}
@@ -167,9 +168,9 @@ const styles = stylex.create({
   base: {
     display: "flex",
     alignItems: "flex-start",
-    gap: space._2,
-    paddingBlock: space._2,
-    paddingInline: space._3,
+    gap: rhythm.tight,
+    paddingBlock: space._3,
+    paddingInline: space._4,
     borderWidth: border.size_1,
     borderStyle: "solid",
     color: color.fg,
@@ -183,9 +184,6 @@ const styles = stylex.create({
     blockSize: controlLineBox,
   },
   content: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
     flexGrow: 1,
     // Let long words wrap instead of forcing the flex row wider.
     minInlineSize: 0,

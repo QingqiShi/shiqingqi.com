@@ -13,7 +13,8 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import type { SourceImage } from "./types";
@@ -152,35 +153,39 @@ export function SourceImageInput({
       css={[corner.radius_3, styles.hero, isDragging && styles.heroDragging]}
       {...dragHandlers}
     >
-      <span css={[corner.radius_round, styles.heroIcon]} aria-hidden="true">
-        <UploadSimpleIcon size={28} weight="bold" />
-      </span>
-      <h2 css={styles.heroTitle}>
-        {t({ en: "Drop a sprite sheet to begin", zh: "拖入精灵表开始" })}
-      </h2>
-      <p css={styles.heroHint}>
-        {t({
-          en: "Drag and drop a file, or pick one. PNG, JPG and WebP are supported.",
-          zh: "将文件拖到此处，或选择一个。支持 PNG、JPG 和 WebP。",
-        })}
-      </p>
-      <Button
-        look="primary"
-        icon={<UploadSimpleIcon size={18} weight="bold" aria-hidden="true" />}
-        onClick={() => {
-          inputRef.current?.click();
-        }}
-        data-testid="source-pick"
-      >
-        {t({ en: "Choose source image", zh: "选择源图" })}
-      </Button>
-      {fileInput}
-      {error !== null ? (
-        <p role="alert" css={styles.heroError}>
-          {error}
-        </p>
-      ) : null}
-      <ul css={styles.capabilities}>
+      <div css={[stack.item, styles.heroIntro]}>
+        <span css={[corner.radius_round, styles.heroIcon]} aria-hidden="true">
+          <UploadSimpleIcon size={28} weight="bold" />
+        </span>
+        <div css={[stack.tight, styles.heroIntro]}>
+          <h2 css={styles.heroTitle}>
+            {t({ en: "Drop a sprite sheet to begin", zh: "拖入精灵表开始" })}
+          </h2>
+          <p css={styles.heroHint}>
+            {t({
+              en: "Drag and drop a file, or pick one. PNG, JPG and WebP are supported.",
+              zh: "将文件拖到此处，或选择一个。支持 PNG、JPG 和 WebP。",
+            })}
+          </p>
+        </div>
+        <Button
+          look="primary"
+          icon={<UploadSimpleIcon size={18} weight="bold" aria-hidden="true" />}
+          onClick={() => {
+            inputRef.current?.click();
+          }}
+          data-testid="source-pick"
+        >
+          {t({ en: "Choose source image", zh: "选择源图" })}
+        </Button>
+        {fileInput}
+        {error !== null ? (
+          <p role="alert" css={styles.heroError}>
+            {error}
+          </p>
+        ) : null}
+      </div>
+      <ul css={[cluster.item, styles.capabilities]}>
         <li css={styles.capability}>
           <ScissorsIcon
             size={18}
@@ -220,7 +225,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: space._3,
+    gap: rhythm.group,
     width: "100%",
     height: "100%",
     minHeight: "320px",
@@ -238,6 +243,9 @@ const styles = stylex.create({
   heroDragging: {
     borderColor: color.borderAccent,
     backgroundColor: color.bgAccentSubtle,
+  },
+  heroIntro: {
+    alignItems: "center",
   },
   heroIcon: {
     display: "grid",
@@ -270,19 +278,15 @@ const styles = stylex.create({
     color: color.fgDanger,
   },
   capabilities: {
-    display: "flex",
-    flexWrap: "wrap",
     justifyContent: "center",
-    gap: space._5,
     margin: 0,
-    marginBlockStart: space._2,
     padding: 0,
     listStyle: "none",
   },
   capability: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.fgMuted,
@@ -296,7 +300,7 @@ const styles = stylex.create({
   compact: {
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._1,
     transition: {
       default: `background-color ${duration._150} ${easing.easeOut}`,
@@ -309,7 +313,7 @@ const styles = stylex.create({
   compactSwap: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.inline,
     flexShrink: 0,
     paddingBlock: space._1,
     paddingInline: space._2,

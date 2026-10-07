@@ -8,7 +8,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { color, controlSize, font } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -183,7 +184,7 @@ export function ButtonShowcase() {
             zh: "为纯图标按钮提供 aria-label——类型层面强制要求，因此它不可能在无名状态下发布。",
           })}
           dont={
-            <div css={styles.dontGroup}>
+            <div css={cluster.tight}>
               {/* A drawing of the mistake, not the mistake itself: a real
                   icon-only Button here would refuse to compile without an
                   aria-label. */}
@@ -426,11 +427,6 @@ export function ButtonShowcase() {
 }
 
 const styles = stylex.create({
-  dontGroup: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._2,
-  },
   // Sized and coloured like the real icon-only Button it stands in for.
   fauxIconOnly: {
     display: "inline-flex",

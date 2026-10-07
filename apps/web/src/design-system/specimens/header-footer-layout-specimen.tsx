@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
@@ -37,7 +37,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     flexShrink: 0,
-    gap: space._1,
+    gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._2,
   },
@@ -62,7 +62,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._2,
   },

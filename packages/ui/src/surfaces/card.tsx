@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { transition } from "../primitives/motion.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
 import { space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { cardSurface } from "./card.stylex.ts";
@@ -47,6 +48,7 @@ export function Card({
       {...restProps}
       ref={ref}
       css={[
+        stack.item,
         styles.base,
         cardSurface.base,
         interactive && transition.colors,
@@ -68,7 +70,6 @@ export { CardFooter } from "./card-footer.tsx";
 const styles = stylex.create({
   base: {
     boxSizing: "border-box",
-    paddingBlock: space._3,
-    paddingInline: space._4,
+    padding: space._5,
   },
 });

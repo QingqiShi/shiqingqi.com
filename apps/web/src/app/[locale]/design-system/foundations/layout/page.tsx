@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
 import { ControlSizeShowcase } from "#src/design-system/sections/foundations/control-size-showcase.tsx";
+import { LayoutRhythmGuide } from "#src/design-system/sections/foundations/layout-rhythm-guide.tsx";
 import { LayoutShowcase } from "#src/design-system/sections/foundations/layout-showcase.tsx";
 import { LayoutSpaceGuide } from "#src/design-system/sections/foundations/layout-space-guide.tsx";
 import { SpaceScaleShowcase } from "#src/design-system/sections/foundations/space-scale-showcase.tsx";
@@ -15,8 +16,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/foundations/layout",
     description: t({
-      en: "Which length token to use where: space around things, controlSize inside a control, the min-width breakpoints, the 1140px content width, the layer planes for z-index, and the ratio tokens.",
-      zh: "哪种长度令牌用在哪里：事物周围用 space，控件内部用 controlSize，以及最小宽度断点、1140px 内容宽度、用于 z-index 的 layer 各层与 ratio 令牌。",
+      en: "Which length token to use where: rhythm between things, space around them, controlSize inside a control, the min-width breakpoints, the 1140px content width, the layer planes for z-index, and the ratio tokens.",
+      zh: "哪种长度令牌用在哪里：事物之间用 rhythm，事物周围用 space，控件内部用 controlSize，以及最小宽度断点、1140px 内容宽度、用于 z-index 的 layer 各层与 ratio 令牌。",
     }),
   });
 }
@@ -31,6 +32,7 @@ export default function LayoutPage() {
       })}
     >
       <LayoutSpaceGuide />
+      <LayoutRhythmGuide />
       <SpaceScaleShowcase />
       <ControlSizeShowcase />
       <LayoutShowcase />

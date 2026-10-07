@@ -1,6 +1,5 @@
 import type { ComponentProps } from "react";
 import type { StyleProp } from "../types.ts";
-import { slotStyles } from "./card-slot.stylex.ts";
 
 interface CardContentProps extends Omit<
   ComponentProps<"div">,
@@ -23,7 +22,7 @@ export function CardContent({
   ...restProps
 }: CardContentProps) {
   return (
-    <div {...restProps} ref={ref} css={[slotStyles.block, css]}>
+    <div {...restProps} ref={ref} css={css}>
       {children}
     </div>
   );

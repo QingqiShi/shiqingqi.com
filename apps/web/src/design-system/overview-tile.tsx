@@ -7,7 +7,8 @@ import {
   motionTokens,
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { IlloLayer } from "#src/design-system/foundation-illustrations/illo-layer.tsx";
 import { getFoundationIllustration } from "#src/design-system/foundation-illustrations/index.tsx";
@@ -64,10 +65,12 @@ export function OverviewTile({
       ]}
     >
       {illustration ? <IlloLayer>{illustration}</IlloLayer> : null}
-      <Link href={href} {...stylex.props(styles.link)}>
-        {label}
-      </Link>
-      <span css={styles.description}>{description}</span>
+      <div css={stack.tight}>
+        <Link href={href} {...stylex.props(styles.link)}>
+          {label}
+        </Link>
+        <span css={styles.description}>{description}</span>
+      </div>
       {specimen ? (
         // `inert` keeps the specimens out of the tab order and the
         // accessibility tree: they are an illustration of the component, not a
@@ -108,9 +111,8 @@ const styles = stylex.create({
     isolation: "isolate",
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
-    paddingBlock: space._3,
-    paddingInline: space._4,
+    gap: rhythm.item,
+    padding: space._4,
   },
   // Taller than the plain tiles (~3:2) so the bottom-anchored illustration has room.
   tileIllustrated: {
@@ -182,7 +184,6 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     flexGrow: 1,
-    marginBlockStart: space._3,
     padding: space._3,
     backgroundColor: color.bgSurfaceSunken,
   },

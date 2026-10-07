@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
+import { color, font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -60,7 +60,7 @@ const styles = stylex.create({
     alignItems: "center",
     containerType: "inline-size",
     display: "grid",
-    gap: space._1,
+    gap: rhythm.tight,
     gridTemplateRows: "1fr auto",
     justifyContent: "flex-start",
 
@@ -74,8 +74,7 @@ const styles = stylex.create({
       "@container (min-width: 180px)": "64px 1fr",
     },
     alignItems: "center",
-    gap: space._2,
-    marginBottom: space._1,
+    gap: rhythm.tight,
   },
   logo: {
     maxInlineSize: "64px",

@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -39,7 +40,7 @@ export function ThemeFrame({ scheme, label, children }: ThemeFrameProps) {
       <Text as="span" look="caption" tone="muted" css={styles.label}>
         {resolvedLabel}
       </Text>
-      <div css={styles.canvas}>{children}</div>
+      <div css={[stack.item, styles.canvas]}>{children}</div>
     </div>
   );
 }
@@ -81,7 +82,7 @@ const styles = stylex.create({
   frame: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgCanvas,
@@ -102,14 +103,11 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   canvas: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     minInlineSize: 0,
   },
   pair: {
     display: "grid",
     gridTemplateColumns: { default: "1fr", [breakpoints.md]: "1fr 1fr" },
-    gap: space._3,
+    gap: rhythm.item,
   },
 });

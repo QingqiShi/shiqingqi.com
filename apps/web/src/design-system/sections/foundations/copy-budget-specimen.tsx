@@ -8,7 +8,8 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -29,7 +30,7 @@ export function CopyBudgetSpecimen() {
 
   return (
     <div css={styles.wrap}>
-      <div css={[flex.col, styles.controls]}>
+      <div css={[stack.item, styles.controls]}>
         <TextField
           label={t({ en: "Label", zh: "标签文案" })}
           description={t({
@@ -41,7 +42,7 @@ export function CopyBudgetSpecimen() {
             setLabel(event.target.value);
           }}
         />
-        <div css={[flex.wrap, styles.presets]}>
+        <div css={cluster.tight}>
           <Chip
             size="sm"
             isActive={label === short}
@@ -63,7 +64,7 @@ export function CopyBudgetSpecimen() {
         </div>
       </div>
 
-      <div css={[flex.col, corner.radius_2, styles.card]}>
+      <div css={[stack.item, corner.radius_2, styles.card]}>
         <div css={[flex.between, styles.cardHead]}>
           <span css={[styles.cardTitle, truncate.base]}>
             {t({ en: "Recently watched", zh: "最近观看" })}
@@ -72,13 +73,13 @@ export function CopyBudgetSpecimen() {
             {shown}
           </Badge>
         </div>
-        <div css={[flex.wrap, styles.cardRow]}>
+        <div css={cluster.tight}>
           <Chip size="sm" isActive>
             {shown}
           </Chip>
           <Chip size="sm">{t({ en: "Watchlist", zh: "待看清单" })}</Chip>
         </div>
-        <div css={[flex.wrap, styles.cardRow]}>
+        <div css={cluster.tight}>
           <Button look="primary" size="sm">
             {shown}
           </Button>
@@ -97,34 +98,29 @@ const styles = stylex.create({
   wrap: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))",
-    gap: space._4,
+    gap: rhythm.group,
     alignItems: "start",
   },
   controls: {
-    gap: space._2,
     alignItems: "stretch",
     inlineSize: "100%",
     maxInlineSize: "28rem",
-  },
-  presets: {
-    gap: space._1,
   },
   // Narrow on purpose, so a long label reaches the edge.
   // Clipped because Badge and Chip are both nowrap by contract, so a label with
   // no spaces in it would otherwise push the whole page sideways. The card's own
   // padding leaves the focus rings inside more room than they need.
   card: {
-    gap: space._3,
     inlineSize: "100%",
     maxInlineSize: "20rem",
     overflow: "clip",
-    paddingBlock: space._3,
-    paddingInline: space._3,
+    paddingBlock: space._5,
+    paddingInline: space._5,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   cardHead: {
-    gap: space._2,
+    gap: rhythm.tight,
   },
   cardTitle: {
     fontSize: font.uiBody,
@@ -135,8 +131,5 @@ const styles = stylex.create({
   // The badge never wraps, so it takes its space from the title.
   badge: {
     flexShrink: 0,
-  },
-  cardRow: {
-    gap: space._1,
   },
 });

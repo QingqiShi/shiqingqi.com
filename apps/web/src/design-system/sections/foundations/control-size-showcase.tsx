@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
+import { color, controlSize, rhythm } from "@tuja/ui/tokens.stylex";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
@@ -102,7 +102,7 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   csFloor: {
     display: "flex",

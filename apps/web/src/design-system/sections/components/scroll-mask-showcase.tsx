@@ -3,10 +3,10 @@ import { Button } from "@tuja/ui/components/button";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { scrollX, scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -18,7 +18,7 @@ export function ScrollMaskShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Scroll mask", zh: "滚动虚化" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "A band against each edge of the region, holding still while the content moves under it. Each band is a stack of layers blurring whatever passes beneath — strongest against the edge, back to sharp one depth in — so content leaves the region by blurring out rather than by being cut at a line. An edge carries a band only while there is scrolled-away content past it, and the band melts its radius in and out rather than its opacity. The bands are aria-hidden and ignore pointer events, so scrolling, selecting and clicking pass straight through them.",
@@ -89,6 +89,7 @@ function VerticalRegion() {
     <ScrollMask
       css={[corner.radius_3, styles.region]}
       contentCss={[
+        stack.item,
         styles.regionContent,
         scrollbar.autoHide,
         transition.scrollbarColor,
@@ -194,7 +195,7 @@ function PinnedBarRegion() {
         </div>
       }
     >
-      <div css={styles.regionContent}>
+      <div css={[stack.item, styles.regionContent]}>
         <Text look="bodySmall">
           {t({
             en: "Notification settings control which alerts reach this device, and how urgently they arrive.",
@@ -241,7 +242,7 @@ function FittingRegion() {
   return (
     <ScrollMask
       css={[corner.radius_3, styles.region]}
-      contentCss={styles.regionContent}
+      contentCss={[stack.item, styles.regionContent]}
     >
       <Text look="bodySmall">
         {t({
@@ -301,11 +302,6 @@ function ClippedGuidelineDiagram() {
 }
 
 const styles = stylex.create({
-  // No `alignItems`: each specimen takes the full width so its code panel does
-  // too, matching the Progressive blur page's own stack.
-  stack: {
-    gap: space._3,
-  },
   // The bands are positioned against the root, so the root is what carries the
   // region's chrome — its corners included, which the bands and the scroller
   // take from it. The root must never clip: Chrome drops a mask under a
@@ -321,10 +317,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
   },
   regionContent: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-    padding: space._3,
+    padding: space._5,
   },
   rowRegion: {
     inlineSize: "100%",
@@ -335,13 +328,13 @@ const styles = stylex.create({
   },
   rowContent: {
     display: "flex",
-    gap: space._2,
-    padding: space._3,
+    gap: rhythm.item,
+    padding: space._5,
   },
   rowItem: {
     display: "flex",
     flexDirection: "column",
-    gap: space._00,
+    gap: rhythm.tight,
     flexShrink: 0,
     inlineSize: "9.5rem",
     paddingBlock: space._2,
@@ -393,7 +386,7 @@ const styles = stylex.create({
   diagramContent: {
     display: "grid",
     alignContent: "start",
-    gap: space._0,
+    gap: rhythm.inline,
     padding: space._2,
   },
 });

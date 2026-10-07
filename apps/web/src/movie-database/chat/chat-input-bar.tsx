@@ -8,7 +8,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import type { AttachedMedia } from "./chat-actions-context";
 import {
   ChatTextarea,
@@ -147,7 +147,7 @@ const styles = stylex.create({
   attachmentTag: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: controlSize._2,
     backgroundColor: color.bgSurfaceRaised,
     paddingBlock: space._0,
     paddingLeft: space._2,

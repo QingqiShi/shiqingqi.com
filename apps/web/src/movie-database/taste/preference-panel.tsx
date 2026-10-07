@@ -11,7 +11,15 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -106,7 +114,6 @@ const triggerStyles = stylex.create({
     },
     cursor: "pointer",
     transition: "background-color 0.15s ease, color 0.15s ease",
-    marginBottom: space._1,
   },
   dot: {
     position: "absolute",
@@ -219,7 +226,7 @@ export function PreferencePanel({
         </p>
       </div>
 
-      <div css={styles.body}>
+      <div css={[stack.group, styles.body]}>
         {preferences.length === 0 ? (
           <div css={[flex.center, styles.emptyState]}>
             <p css={styles.emptyText}>
@@ -244,7 +251,7 @@ export function PreferencePanel({
       {preferences.length > 0 && (
         <div css={styles.footer}>
           {confirmingClear ? (
-            <div css={[flex.row, styles.confirmRow]}>
+            <div css={[row.tight, styles.confirmRow]}>
               <p css={styles.confirmText}>
                 {t({
                   en: "Clear all preferences?",
@@ -329,9 +336,9 @@ function CategorySection({
   }[category];
 
   return (
-    <div css={styles.categorySection}>
+    <div css={stack.tight}>
       <h3 css={styles.categoryLabel}>{label}</h3>
-      <div css={[flex.wrap, styles.chipContainer]}>
+      <div css={cluster.tight}>
         {prefs.map((pref) => (
           <PreferenceChip
             key={pref.id}
@@ -387,6 +394,8 @@ function PreferenceChip({
   );
 }
 
+const BODY_INLINE_INSET = space._4;
+
 const styles = stylex.create({
   header: {
     paddingTop: space._4,
@@ -413,9 +422,9 @@ const styles = stylex.create({
     cursor: "pointer",
   },
   infoBanner: {
-    gap: space._2,
-    marginInline: space._4,
-    marginBottom: space._3,
+    gap: rhythm.tight,
+    marginInline: BODY_INLINE_INSET,
+    marginBottom: rhythm.item,
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceSunken,
@@ -424,7 +433,8 @@ const styles = stylex.create({
   infoIcon: {
     flexShrink: 0,
     color: color.fgMuted,
-    marginTop: "0.15rem",
+    position: "relative",
+    top: "0.15rem",
   },
   infoText: {
     margin: 0,
@@ -435,7 +445,7 @@ const styles = stylex.create({
   body: {
     flex: 1,
     overflowY: "auto",
-    paddingInline: space._4,
+    paddingInline: BODY_INLINE_INSET,
     paddingBottom: space._3,
   },
   emptyState: {
@@ -449,25 +459,18 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_4,
     maxWidth: "24ch",
   },
-  categorySection: {
-    marginBottom: space._4,
-  },
   categoryLabel: {
     margin: 0,
-    marginBottom: space._2,
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_5,
     color: color.fgMuted,
     textTransform: "uppercase",
     letterSpacing: "0.06em",
   },
-  chipContainer: {
-    gap: space._1,
-  },
   chip: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: controlSize._2,
     paddingBlock: space._0,
     paddingLeft: space._2,
     paddingRight: space._1,
@@ -520,7 +523,7 @@ const styles = stylex.create({
     borderTopColor: color.border,
   },
   clearButton: {
-    gap: space._1,
+    gap: controlSize._2,
     fontSize: font.uiBodySmall,
     color: {
       default: color.fgMuted,
@@ -530,7 +533,6 @@ const styles = stylex.create({
     transition: "color 0.15s ease",
   },
   confirmRow: {
-    gap: space._2,
     alignItems: "center",
   },
   confirmText: {
