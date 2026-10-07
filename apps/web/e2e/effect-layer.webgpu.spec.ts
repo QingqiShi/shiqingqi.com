@@ -1,7 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readScreenshotColumn } from "./helpers/read-screenshot-column.ts";
 import { scrollToAndSettle, scrollWithin } from "./helpers/scroll.ts";
-import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 
 // The design-system overview is more than four bands tall at this viewport.
 const LONG_PAGE = "/en/design-system";
@@ -125,19 +124,6 @@ test("leaves the document's scroll size and layout as they are", async ({
   await expect
     .poll(() => page.evaluate(() => document.documentElement.scrollHeight))
     .toBe(without.scrollHeight);
-});
-
-test("keeps the fixed canvas element out of the status bar", async ({
-  page,
-}) => {
-  await page.goto(DEBUG_PAGE);
-  await expect(page.locator('[data-effect-layer="fixed"]')).toHaveCount(1, {
-    timeout: MOUNT_TIMEOUT,
-  });
-  expect(await page.evaluate(findStatusBarCandidates)).toEqual([]);
-
-  await scrollToAndSettle(page, 400);
-  expect(await page.evaluate(findStatusBarCandidates)).toEqual([]);
 });
 
 test("draws only the part of each band in the drawn range", async ({

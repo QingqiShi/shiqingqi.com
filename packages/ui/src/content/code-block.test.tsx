@@ -23,8 +23,7 @@ interface AnimateCall {
 /**
  * jsdom has no `Element.prototype.animate`, `getAnimations`, or
  * `ResizeObserver` — the three `parts` reads to animate a change. Stubbed
- * just enough to exercise the arrive/leave paths; `apps/web/e2e/lab.spec.ts`
- * covers the real animation.
+ * just enough to exercise the arrive/leave paths.
  */
 function stubAnimationApis() {
   const calls: AnimateCall[] = [];

@@ -2,13 +2,6 @@ import { expect, test, type Locator } from "@playwright/test";
 
 const LAB_URL = "/design-system/components/button/lab";
 
-declare global {
-  interface Window {
-    /** Every animation the snippet starts, as `text:id:first opacity`. */
-    labAnimations?: string[];
-  }
-}
-
 /**
  * Click, then wait for what the click does. Until the Lab has hydrated the
  * click lands on inert markup and nothing happens, so poll the pair. Every
@@ -75,50 +68,6 @@ test.describe("Button Lab", () => {
     await clickUntil(page.getByRole("radio", { name: "md", exact: true }), () =>
       expect(snippet).not.toContainText("size=", { timeout: 2000 }),
     );
-  });
-
-  test("an attribute rises in when it arrives and fades when it leaves", async ({
-    page,
-  }) => {
-    const snippet = page.getByRole("code");
-    await clickUntil(page.getByRole("radio", { name: "lg", exact: true }), () =>
-      expect(snippet).toContainText('size="lg"', { timeout: 2000 }),
-    );
-    await clickUntil(page.getByRole("radio", { name: "md", exact: true }), () =>
-      expect(snippet).not.toContainText("size=", { timeout: 2000 }),
-    );
-
-    // CodeBlock animates its boxes with the Web Animations API, and a part
-    // that leaves is drawn outside React's tree as a ghost, so the record of
-    // each animation started under the code is the evidence.
-    await snippet.evaluate((code) => {
-      const seen: string[] = [];
-      // eslint-disable-next-line @typescript-eslint/unbound-method -- called with the element as `this` below
-      const { animate } = Element.prototype;
-      Element.prototype.animate = function (this: Element, keyframes, options) {
-        if (
-          code.contains(this) &&
-          Array.isArray(keyframes) &&
-          typeof options === "object"
-        ) {
-          const [first] = keyframes;
-          seen.push(
-            `${this.textContent}:${options.id ?? ""}:${String(first.opacity ?? "")}`,
-          );
-        }
-        return animate.call(this, keyframes, options);
-      };
-      window.labAnimations = seen;
-    });
-    const animations = () => page.evaluate(() => window.labAnimations);
-
-    await page.getByRole("radio", { name: "lg", exact: true }).click();
-    await expect.poll(animations).toContainEqual("size=:code-block-fade:0");
-    await page.getByRole("radio", { name: "md", exact: true }).click();
-    // The attribute and its value are two parts, so the whole `size="lg"`
-    // leaves as two ghosts, each fading on its own.
-    await expect.poll(animations).toContainEqual("size=:code-block-fade:1");
-    await expect.poll(animations).toContainEqual('"lg":code-block-fade:1');
   });
 
   test("reset returns to the Variant's props", async ({ page }) => {

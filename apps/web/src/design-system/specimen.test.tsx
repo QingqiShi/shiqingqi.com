@@ -61,6 +61,25 @@ describe("Specimen", () => {
     expect(screen.getByText("New")).not.toBeVisible();
   });
 
+  it("opens and closes the source from the keyboard", async () => {
+    render(
+      <Specimen caption="Primary" source={SOURCE}>
+        <span>instance</span>
+      </Specimen>,
+    );
+    const control = screen.getByRole("button", { name: "Code" });
+    control.focus();
+
+    await userEvent.keyboard("{Enter}");
+
+    expect(control).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("New")).toBeVisible();
+
+    await userEvent.keyboard("{Enter}");
+
+    expect(control).toHaveAttribute("aria-expanded", "false");
+  });
+
   it("points the control at the panel it opens", () => {
     const { container } = render(
       <Specimen caption="Primary" source={SOURCE}>
