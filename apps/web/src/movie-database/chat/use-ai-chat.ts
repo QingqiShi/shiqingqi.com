@@ -1,4 +1,4 @@
-import { useChat } from "@ai-sdk/react";
+import { type UseChatHelpers, useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -158,8 +158,10 @@ export function useAIChat({ locale }: { locale: SupportedLocale }) {
   // mount-time IDB load resolves would silently lose saved preferences for
   // the entire session — the transport only injects preferences on the
   // first message, so a missed first send can never be recovered.
+  // Do not use `typeof chatResult` in this type. React Compiler 1.0.0 then
+  // compiles this function incorrectly, and `sendMessage` becomes undefined.
   async function sendMessage(
-    ...args: Parameters<typeof chatResult.sendMessage>
+    ...args: Parameters<UseChatHelpers<ChatUIMessage>["sendMessage"]>
   ) {
     // Capture before the await so the events mark the moment the visitor acted.
     captureMessageSend({ messageCount: chatResult.messages.length, locale });
