@@ -14,6 +14,7 @@ import {
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -118,7 +119,7 @@ export function SourceImageInput({
       >
         <button
           type="button"
-          css={[corner.radius_2, styles.compactSwap]}
+          css={[typeRole.label, corner.radius_2, styles.compactSwap]}
           onClick={() => {
             inputRef.current?.click();
           }}
@@ -128,10 +129,12 @@ export function SourceImageInput({
           {t({ en: "Replace", zh: "替换" })}
         </button>
         <div css={styles.compactMeta}>
-          <span css={styles.compactName} title={source?.name}>
+          <span css={[typeRole.label, styles.compactName]} title={source?.name}>
             {source?.name ?? ""}
           </span>
-          <span css={styles.compactDims}>
+          <span
+            css={[typeRole.caption, typeModifier.numeric, styles.compactDims]}
+          >
             {source !== null
               ? `${String(source.width)} × ${String(source.height)} px`
               : ""}
@@ -139,7 +142,7 @@ export function SourceImageInput({
         </div>
         {fileInput}
         {error !== null ? (
-          <p role="alert" css={styles.compactError}>
+          <p role="alert" css={[typeRole.caption, styles.compactError]}>
             {error}
           </p>
         ) : null}
@@ -158,10 +161,10 @@ export function SourceImageInput({
           <UploadSimpleIcon size={28} weight="bold" />
         </span>
         <div css={[stack.tight, styles.heroIntro]}>
-          <h2 css={styles.heroTitle}>
+          <h2 css={[typeRole.h2, styles.heroTitle]}>
             {t({ en: "Drop a sprite sheet to begin", zh: "拖入精灵表开始" })}
           </h2>
-          <p css={styles.heroHint}>
+          <p css={[typeRole.body, styles.heroHint]}>
             {t({
               en: "Drag and drop a file, or pick one. PNG, JPG and WebP are supported.",
               zh: "将文件拖到此处，或选择一个。支持 PNG、JPG 和 WebP。",
@@ -180,13 +183,13 @@ export function SourceImageInput({
         </Button>
         {fileInput}
         {error !== null ? (
-          <p role="alert" css={styles.heroError}>
+          <p role="alert" css={[typeRole.label, styles.heroError]}>
             {error}
           </p>
         ) : null}
       </div>
       <ul css={[cluster.item, styles.capabilities]}>
-        <li css={styles.capability}>
+        <li css={[typeRole.label, styles.capability]}>
           <ScissorsIcon
             size={18}
             weight="bold"
@@ -195,7 +198,7 @@ export function SourceImageInput({
           />
           <span>{t({ en: "Slice into cells", zh: "切分为单元格" })}</span>
         </li>
-        <li css={styles.capability}>
+        <li css={[typeRole.label, styles.capability]}>
           <PencilSimpleIcon
             size={18}
             weight="bold"
@@ -204,7 +207,7 @@ export function SourceImageInput({
           />
           <span>{t({ en: "Clean up pixels", zh: "清理像素" })}</span>
         </li>
-        <li css={styles.capability}>
+        <li css={[typeRole.label, styles.capability]}>
           <FilmStripIcon
             size={18}
             weight="bold"
@@ -257,25 +260,19 @@ const styles = stylex.create({
   },
   heroTitle: {
     margin: 0,
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingSnug,
     color: color.fg,
     textWrap: "balance",
   },
   heroHint: {
     margin: 0,
     maxInlineSize: "42ch",
-    fontSize: font.uiBody,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     textWrap: "pretty",
   },
   heroError: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     color: color.fgDanger,
+    fontWeight: font.weight_6,
   },
   capabilities: {
     justifyContent: "center",
@@ -287,8 +284,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.tight,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fgMuted,
   },
   capabilityIcon: {
@@ -317,8 +312,6 @@ const styles = stylex.create({
     flexShrink: 0,
     paddingBlock: space._1,
     paddingInline: space._2,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     fontFamily: "inherit",
     color: color.fg,
     backgroundColor: {
@@ -331,32 +324,28 @@ const styles = stylex.create({
       default: `background-color ${duration._150} ${easing.easeOut}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
+    fontWeight: font.weight_6,
   },
   compactMeta: {
     display: "flex",
     flexDirection: "column",
     minWidth: 0,
-    lineHeight: font.lineHeight_2,
   },
   compactName: {
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
     color: color.fg,
+    fontWeight: font.weight_6,
   },
   compactDims: {
-    fontSize: font.uiCaption,
     fontFamily: font.familyMono,
-    fontVariantNumeric: "tabular-nums",
     color: color.fgMuted,
   },
   compactError: {
     flexBasis: "100%",
     margin: 0,
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_6,
     color: color.fgDanger,
+    fontWeight: font.weight_6,
   },
 });

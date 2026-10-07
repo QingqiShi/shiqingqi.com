@@ -4,7 +4,14 @@ import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -144,7 +151,7 @@ const styles = stylex.create({
   },
   icon: {
     display: "inline-flex",
-    fontSize: font.uiBody,
+    fontSize: controlSize._4,
     lineHeight: font.lineHeight_0,
   },
   doText: {

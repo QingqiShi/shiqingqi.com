@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { chipSurface } from "../actions/chip.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { color, font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
@@ -25,9 +26,9 @@ interface BadgeProps extends Omit<
     | "danger"
     | "accent";
   /**
-   * Padding and type scale.
+   * Padding scale. Both sizes set the text in the `caption` type role.
    *
-   * @zh 内边距与字号。
+   * @zh 内边距阶梯。两种尺寸的文字都使用 `caption` 字体角色。
    */
   size?: "sm" | "md";
   /**
@@ -71,6 +72,7 @@ export function Badge({
       {...restProps}
       ref={ref}
       css={[
+        typeRole.caption,
         chipSurface.base,
         styles.base,
         sizeStyles[size],
@@ -106,12 +108,10 @@ const sizeStyles = stylex.create({
   sm: {
     paddingBlock: space._00,
     paddingInline: space._1,
-    fontSize: font.uiOverline,
   },
   md: {
     paddingBlock: space._0,
     paddingInline: space._2,
-    fontSize: font.uiCaption,
   },
 });
 

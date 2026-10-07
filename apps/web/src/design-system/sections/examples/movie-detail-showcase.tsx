@@ -9,6 +9,7 @@ import {
 } from "@tuja/ui/components/card";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { measure } from "#src/design-system/measure.stylex.ts";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -37,7 +38,7 @@ function LayerCard({ title, description, entries }: LayerCardProps) {
       <CardContent>
         <ul css={[stack.tight, styles.entries]}>
           {entries.map((entry) => (
-            <li key={entry} css={styles.entry}>
+            <li key={entry} css={[typeRole.caption, styles.entry]}>
               {entry}
             </li>
           ))}
@@ -217,8 +218,6 @@ const styles = stylex.create({
   entry: {
     color: color.fgMuted,
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
     // Not `anywhere`, which would break a name mid-word while the line still
     // had room at the preceding space. The name is what a reader came to copy.
     overflowWrap: "break-word",

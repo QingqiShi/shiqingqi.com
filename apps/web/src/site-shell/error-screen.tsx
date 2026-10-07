@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { align, justify } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { captureException } from "#src/analytics/capture-exception.ts";
@@ -47,8 +48,8 @@ export function ErrorScreen({ error, onRetry }: ErrorScreenProps) {
       role="alert"
     >
       <div css={stack.tight}>
-        <h1 css={styles.heading}>{strings.heading}</h1>
-        <p css={styles.description}>{strings.description}</p>
+        <h1 css={[typeRole.fluidH1, styles.heading]}>{strings.heading}</h1>
+        <p css={[typeRole.body, styles.description]}>{strings.description}</p>
       </div>
       <Button look="primary" onClick={onRetry}>
         {strings.retry}
@@ -64,12 +65,9 @@ const styles = stylex.create({
     padding: space._4,
   },
   heading: {
-    fontSize: font.vpHeading1,
-    fontWeight: font.weight_7,
     margin: 0,
   },
   description: {
-    fontSize: font.uiBody,
     color: color.fgMuted,
     margin: 0,
   },

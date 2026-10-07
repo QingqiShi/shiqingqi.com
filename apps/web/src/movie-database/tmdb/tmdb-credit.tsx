@@ -5,7 +5,8 @@ import * as stylex from "@stylexjs/stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
 import { t } from "#src/i18n.ts";
@@ -24,7 +25,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
       }}
       popupRole="group"
       menuContent={
-        <div css={[flex.row, styles.container]}>
+        <div css={[typeRole.bodySmall, flex.row, styles.container]}>
           <div css={[corner.radius_2, styles.imageContainer]}>
             <Image
               src="/tmdb.svg"
@@ -47,7 +48,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
 
 export function TmdbCreditInline() {
   return (
-    <div css={[flex.row, styles.inlineContainer]}>
+    <div css={[typeRole.bodySmall, flex.row, styles.inlineContainer]}>
       <div css={styles.imageContainer}>
         <Image
           src="/tmdb.svg"
@@ -72,11 +73,9 @@ const styles = stylex.create({
     gap: rhythm.tight,
     width: "50dvw",
     maxInlineSize: 500,
-    fontSize: font.uiBodySmall,
   },
   inlineContainer: {
     gap: rhythm.tight,
-    fontSize: font.uiBodySmall,
     width: "100%",
     alignItems: "center",
   },

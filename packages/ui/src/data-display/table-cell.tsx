@@ -1,4 +1,5 @@
 import type { ComponentProps } from "react";
+import { typeModifier } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { alignStyles, styles } from "./table-cell.stylex.ts";
 
@@ -55,6 +56,7 @@ export function TableCell({
       css={[
         styles.cell,
         numeric && styles.numeric,
+        numeric && typeModifier.numeric,
         resolvedAlign ? alignStyles[resolvedAlign] : null,
         css,
       ]}

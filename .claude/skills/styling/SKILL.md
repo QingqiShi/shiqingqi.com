@@ -11,15 +11,16 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 
 ## Quick Decision Guide
 
-| Need                                                   | Use                            | Example                                         |
-| ------------------------------------------------------ | ------------------------------ | ----------------------------------------------- |
-| Flex layout, fills, truncation, resets, transitions    | Design primitives              | `css={flex.row}`                                |
-| Space between siblings (a stack, a row)                | Stack primitives / `rhythm`    | `css={stack.item}`, `gap: rhythm.tight`         |
-| Rounded corners                                        | Design primitives (`corner.*`) | `css={corner.radius_3}`                         |
-| Override a primitive's default                         | Layout modifier                | `css={[flex.row, align.end]}`                   |
-| Single-property styling (color, spacing, font, border) | `stylex.create` + tokens       | `color: color.fg`                               |
-| Responsive behavior                                    | `stylex.create` + breakpoints  | `{ default: "none", [breakpoints.md]: "flex" }` |
-| Pseudo-selectors (hover, focus)                        | `stylex.create`                | `{ default: val, ":hover": hoverVal }`          |
+| Need                                                | Use                             | Example                                         |
+| --------------------------------------------------- | ------------------------------- | ----------------------------------------------- |
+| Flex layout, fills, truncation, resets, transitions | Design primitives               | `css={flex.row}`                                |
+| Space between siblings (a stack, a row)             | Stack primitives / `rhythm`     | `css={stack.item}`, `gap: rhythm.tight`         |
+| Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole` | `css={[typeRole.label, styles.navItem]}`        |
+| Rounded corners                                     | Design primitives (`corner.*`)  | `css={corner.radius_3}`                         |
+| Override a primitive's default                      | Layout modifier                 | `css={[flex.row, align.end]}`                   |
+| Single-property styling (color, padding, border)    | `stylex.create` + tokens        | `color: color.fg`                               |
+| Responsive behavior                                 | `stylex.create` + breakpoints   | `{ default: "none", [breakpoints.md]: "flex" }` |
+| Pseudo-selectors (hover, focus)                     | `stylex.create`                 | `{ default: val, ":hover": hoverVal }`          |
 
 ## The `css` Prop
 
@@ -55,7 +56,7 @@ const styles = stylex.create({
     padding: space._4,
     borderWidth: border.size_1,
     backgroundColor: color.bgSurfaceRaised,
-    fontSize: font.uiBody,
+    fontFamily: font.familyMono,
   },
 });
 ```
@@ -138,6 +139,21 @@ const styles = stylex.create({ wide: { [textureTokens.pitch]: space._4 } });
 
 Glass is the third Material but ships as a component style object, not a primitive: `glassSurface` from `@tuja/ui/components/glass-surface.stylex`, composed onto an element with `position: relative` plus a `corner.*` preset. `glassTokens` (`fill`, `border`, `highlight`, `blur`) is its dial, overridden the same way.
 
+### Type role (`@tuja/ui/primitives/type.stylex`)
+
+Text takes its size from a type role, which sets the size, line height, weight and tracking together. Copy goes through `Text` (`look`: body, bodySmall, label, caption, overline) and `Heading` (`look`: display, h1–h4) first; when you style text yourself, compose a role **first** in the `css` array, so a later style can still change the weight:
+
+```tsx
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+
+<span css={[typeRole.label, styles.navItem]}>Overview</span>
+<span css={[typeRole.h1, typeModifier.numeric]}>4.8</span>
+```
+
+Roles: `display`, `subDisplay`, `h1`–`h4`, `body`, `bodySmall`, `label`, `caption`, `overline` (uppercase), `control`, `controlCaption` (text inside a control; they step down at `md` with `controlSize`), `fluidDisplay`, `fluidH1`–`fluidH3`, `fluidLead` (a landing page, growing with the viewport), `cardTitle` (grows with its `inline-size` container). `typeModifier.numeric` sets tabular figures.
+
+Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. The one exceptions are `"inherit"`, and a `controlSize.*` token for a glyph sized to a control. The weight is the property a callsite may change, with a `font.weight_*` token; leading and tracking take `font.*` tokens, never raw values. The `@tuja/require-type-role` ESLint rule enforces this in `packages/ui` and the apps.
+
 ### Other Primitives (see `references/primitives.md`)
 
 - **Layout** — position fills, scroll containers, truncation, image fit
@@ -149,12 +165,13 @@ Glass is the third Material but ships as a component style object, not a primiti
 ## Best Practices
 
 1. **Primitives for multi-property patterns** — flex, fills, truncation, resets, transitions
-2. **Tokens for single properties** — `fontSize: font.uiBody`, `padding: space._3`
-3. **Gaps name the relationship** — `rhythm.inline` / `tight` / `item` / `group` / `section`, or `stack.*` / `cluster.*` / `row.*`; never a `space.*` step or a raw length for a gap or a margin between siblings
-4. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
-5. **Always use the `css` prop** — never `{...stylex.props()}`
-6. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
-7. **Mobile-first** — use breakpoint overrides for larger screens
-8. **Theme-aware colors** — use `color` tokens that adapt to light/dark
-9. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
-10. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`
+2. **Tokens for single properties** — `padding: space._3`, `color: color.fgMuted`
+3. **Text takes a type role** — `Text`/`Heading`, or `typeRole.*` composed first; never a bare `fontSize`, and figures through `typeModifier.numeric`
+4. **Gaps name the relationship** — `rhythm.inline` / `tight` / `item` / `group` / `section`, or `stack.*` / `cluster.*` / `row.*`; never a `space.*` step or a raw length for a gap or a margin between siblings
+5. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
+6. **Always use the `css` prop** — never `{...stylex.props()}`
+7. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
+8. **Mobile-first** — use breakpoint overrides for larger screens
+9. **Theme-aware colors** — use `color` tokens that adapt to light/dark
+10. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
+11. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`

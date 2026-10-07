@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
@@ -66,7 +67,7 @@ export function ColorBordersShowcase() {
       <ul css={styles.list}>
         {edges.map(({ token, edge }) => (
           <li key={token} css={[corner.radius_2, styles.edge, edge]}>
-            <span css={styles.token}>
+            <span css={[typeRole.caption, styles.token]}>
               <Identifier>{token}</Identifier>
             </span>
           </li>
@@ -120,8 +121,6 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_2,
     color: color.fgMuted,
     overflowWrap: "anywhere",
   },

@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { easing, transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
   GuideNote,
@@ -471,6 +472,7 @@ const styles = stylex.create({
           <Specimen caption="transition.colors">
             <div
               css={[
+                typeRole.caption,
                 corner.radius_2,
                 styles.tokenTile,
                 transition.colors,
@@ -483,6 +485,7 @@ const styles = stylex.create({
           <Specimen caption="transition.opacity">
             <div
               css={[
+                typeRole.caption,
                 corner.radius_2,
                 styles.tokenTile,
                 transition.opacity,
@@ -495,6 +498,7 @@ const styles = stylex.create({
           <Specimen caption="transition.transform">
             <div
               css={[
+                typeRole.caption,
                 corner.radius_2,
                 styles.tokenTile,
                 transition.transform,
@@ -507,6 +511,7 @@ const styles = stylex.create({
           <Specimen caption="transition.all">
             <div
               css={[
+                typeRole.caption,
                 corner.radius_2,
                 styles.tokenTile,
                 transition.all,
@@ -623,7 +628,6 @@ const styles = stylex.create({
     minBlockSize: "72px",
     paddingBlock: space._2,
     paddingInline: space._2,
-    fontSize: font.uiCaption,
     textAlign: "center",
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.border}`,

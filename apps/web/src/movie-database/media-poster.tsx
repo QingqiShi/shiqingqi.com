@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -45,14 +46,14 @@ export function MediaPoster({ media, compact, decorative }: MediaPosterProps) {
       ) : (
         <div
           css={[
+            typeRole.bodySmall,
             flex.center,
             corner.radius_2,
             styles.noPoster,
-            compact && styles.noPosterCompact,
           ]}
         >
           <div>{media.title}</div>
-          <div css={styles.noPosterLabel}>
+          <div css={[typeRole.caption, styles.noPosterLabel]}>
             {t({ en: "No Poster", zh: "无海报" })}
           </div>
         </div>
@@ -60,6 +61,7 @@ export function MediaPoster({ media, compact, decorative }: MediaPosterProps) {
       {media.rating ? (
         <div
           css={[
+            compact ? typeRole.caption : typeRole.label,
             flex.center,
             corner.radius_round,
             styles.rating,
@@ -85,14 +87,9 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
-  noPosterCompact: {
-    fontSize: font.uiBodySmall,
-  },
   noPosterLabel: {
-    fontSize: "0.7rem",
     color: color.fgMuted,
   },
   rating: {
@@ -105,7 +102,6 @@ const styles = stylex.create({
     borderWidth: ".2em",
     borderColor: color.border,
     borderStyle: "solid",
-    fontSize: font.uiBodySmall,
   },
   ratingCompact: {
     top: space._0,
@@ -113,7 +109,6 @@ const styles = stylex.create({
     width: "1.4rem",
     height: "1.4rem",
     borderWidth: "1.5px",
-    fontSize: "0.6rem",
     fontWeight: font.weight_6,
   },
 });

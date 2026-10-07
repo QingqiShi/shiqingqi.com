@@ -2,11 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
   constants,
-  font,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -73,7 +73,7 @@ export function ChatMessage({
             // after stripping — don't render an empty bubble line.
             if (visibleText.length === 0) return null;
             return (
-              <p key={key} css={[styles.partBase, styles.text]}>
+              <p key={key} css={[typeRole.body, styles.partBase, styles.text]}>
                 {visibleText}
               </p>
             );
@@ -85,7 +85,7 @@ export function ChatMessage({
 
           if (isCompactionPart(part)) {
             return (
-              <div key={key} css={styles.partBase}>
+              <div key={key} css={[typeRole.body, styles.partBase]}>
                 <CompactionNotice />
               </div>
             );
@@ -96,7 +96,7 @@ export function ChatMessage({
           // Won't receive more content — safe to fire onCaughtUp
           const isSealed = !isStreaming || currentTextIndex < textPartCount - 1;
           return (
-            <div key={key} css={styles.partBase}>
+            <div key={key} css={[typeRole.body, styles.partBase]}>
               <SmoothedMarkdownContent
                 content={part.text}
                 onCaughtUp={
@@ -120,7 +120,10 @@ export function ChatMessage({
 
         if (isReasoningUIPart(part)) {
           return (
-            <p key={key} css={[styles.partBase, styles.reasoning]}>
+            <p
+              key={key}
+              css={[typeRole.bodySmall, styles.partBase, styles.reasoning]}
+            >
               {part.text}
             </p>
           );
@@ -300,15 +303,12 @@ const styles = stylex.create({
   partBase: {
     margin: 0,
     wordBreak: "break-word",
-    lineHeight: font.lineHeight_4,
-    fontSize: font.uiBody,
   },
   text: {
     whiteSpace: "pre-wrap",
   },
   reasoning: {
     whiteSpace: "pre-wrap",
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontStyle: "italic",
   },

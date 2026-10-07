@@ -9,10 +9,10 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
-  font,
   layer,
   ratio,
   rhythm,
@@ -102,8 +102,8 @@ export function MediaDetailContent({
   if (detailQuery.isError) {
     return (
       <div css={styles.body}>
-        <h2 css={styles.title}>{displayTitle}</h2>
-        <p css={styles.errorText} role="alert">
+        <h2 css={[typeRole.h1, styles.title]}>{displayTitle}</h2>
+        <p css={[typeRole.bodySmall, styles.errorText]} role="alert">
           {t({
             en: "Failed to load details",
             zh: "加载详情失败",
@@ -155,10 +155,13 @@ export function MediaDetailContent({
                   role="img"
                   aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(detail.voteAverage)}${t({ en: " out of 10", zh: "/10" })}, ${formatter.format(detail.voteCount)} ${t({ en: "votes", zh: "票" })}`}
                 >
-                  <span css={styles.rating} aria-hidden="true">
+                  <span css={typeRole.h2} aria-hidden="true">
                     {formatter.format(detail.voteAverage)}
                   </span>
-                  <span css={styles.voteCount} aria-hidden="true">
+                  <span
+                    css={[typeRole.bodySmall, styles.voteCount]}
+                    aria-hidden="true"
+                  >
                     ({formatter.format(detail.voteCount)})
                   </span>
                 </div>
@@ -166,16 +169,16 @@ export function MediaDetailContent({
             ) : (
               <Skeleton width={60} height={20} />
             )}
-            <h2 css={styles.title}>{displayTitle}</h2>
+            <h2 css={[typeRole.h1, styles.title]}>{displayTitle}</h2>
             {metaParts ? (
-              <div css={styles.meta}>{metaParts}</div>
+              <div css={[typeRole.bodySmall, styles.meta]}>{metaParts}</div>
             ) : (
               detailQuery.isPending && <Skeleton width={180} height={14} />
             )}
           </div>
         </div>
         {overview ? (
-          <p css={styles.description}>{overview}</p>
+          <p css={[typeRole.body, styles.description]}>{overview}</p>
         ) : (
           detailQuery.isPending && <Skeleton height={48} />
         )}
@@ -183,7 +186,7 @@ export function MediaDetailContent({
           {trailer?.key && (
             <a
               href={`https://www.youtube.com/watch?v=${trailer.key}`}
-              css={[corner.radius_round, styles.trailerLink]}
+              css={[typeRole.label, corner.radius_round, styles.trailerLink]}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={
@@ -253,7 +256,7 @@ function PosterImage({
       imgCss={imageCover.base}
       skeletonCss={skeletonStyles.poster}
       errorFallback={
-        <div css={[imageCover.base, styles.imageFallback]}>
+        <div css={[typeRole.h1, imageCover.base, styles.imageFallback]}>
           {fallbackInitial}
         </div>
       }
@@ -342,32 +345,21 @@ const styles = stylex.create({
   ratingRow: {
     alignItems: "baseline",
   },
-  rating: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_8,
-  },
   voteCount: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   title: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_7,
     margin: 0,
   },
   meta: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
   description: {
-    fontSize: font.uiBody,
     margin: 0,
-    lineHeight: font.lineHeight_4,
   },
   errorText: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontStyle: "italic",
   },
@@ -381,7 +373,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.inline,
-    fontSize: font.uiBodySmall,
     color: {
       default: color.fgMuted,
       ":hover": color.fgOnAccent,
@@ -411,8 +402,6 @@ const styles = stylex.create({
     justifyContent: "center",
     backgroundColor: color.bgSurface,
     color: color.fgMuted,
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_7,
   },
 });
 

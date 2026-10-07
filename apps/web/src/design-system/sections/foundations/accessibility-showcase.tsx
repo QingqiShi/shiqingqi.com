@@ -11,7 +11,15 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -484,7 +492,10 @@ export function AccessibilityShowcase() {
           dont={
             // A drawing of the mistake, not the mistake itself: a real unnamed
             // `<input>` here would be the WCAG failure the caption warns about.
-            <span css={[corner.radius_2, styles.fauxInput]} aria-hidden>
+            <span
+              css={[typeRole.bodySmall, corner.radius_2, styles.fauxInput]}
+              aria-hidden
+            >
               {t({ en: "Search films", zh: "搜索电影" })}
             </span>
           }
@@ -565,6 +576,7 @@ export function AccessibilityShowcase() {
             <button
               type="button"
               css={[
+                typeRole.label,
                 buttonReset.base,
                 a11y.focusRingInset,
                 corner.radius_round,
@@ -640,10 +652,10 @@ function Checklist({ title, items, marker }: ChecklistProps) {
   const check = marker === "check";
   return (
     <div css={[stack.tight, corner.radius_2, styles.checklist]}>
-      <h3 css={styles.checklistTitle}>{title}</h3>
+      <h3 css={[typeRole.overline, styles.checklistTitle]}>{title}</h3>
       <ul css={[stack.item, styles.checklistItems]}>
         {items.map((item) => (
-          <li key={item} css={styles.checklistItem}>
+          <li key={item} css={[typeRole.body, styles.checklistItem]}>
             <span
               css={[styles.marker, check ? styles.doneMark : styles.todoMark]}
             >
@@ -680,10 +692,6 @@ const styles = stylex.create({
   },
   checklistTitle: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_6,
-    letterSpacing: font.trackingWide,
-    textTransform: "uppercase",
     color: color.fgMuted,
   },
   checklistItems: {
@@ -696,8 +704,6 @@ const styles = stylex.create({
     gridTemplateColumns: "auto minmax(0, 1fr)",
     alignItems: "start",
     gap: rhythm.tight,
-    fontSize: font.uiBody,
-    lineHeight: font.lineHeight_4,
     color: color.fg,
     minInlineSize: 0,
   },
@@ -706,7 +712,7 @@ const styles = stylex.create({
     display: "inline-flex",
     position: "relative",
     insetBlockStart: "0.3em",
-    fontSize: font.uiBodySmall,
+    fontSize: controlSize._3,
     lineHeight: font.lineHeight_0,
   },
   doneMark: {
@@ -730,7 +736,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    fontSize: font.uiHeading3,
+    fontSize: controlSize._4,
     color: { default: color.fgMuted, ":hover": color.fg },
     backgroundColor: {
       default: color.bgSurface,
@@ -745,8 +751,6 @@ const styles = stylex.create({
   insetChip: {
     paddingBlock: space._1,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
     color: color.fg,
     backgroundColor: {
       default: color.bgControlSelected,
@@ -762,7 +766,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    fontSize: font.uiBodySmall,
     fontFamily: font.family,
     color: color.fgMuted,
     backgroundColor: color.bgSurface,

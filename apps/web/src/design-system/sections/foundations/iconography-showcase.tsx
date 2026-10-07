@@ -18,7 +18,14 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -55,12 +62,12 @@ const GALLERY = [
 export function IconographyShowcase() {
   const locale = getLocale();
   const sizes = [
-    { token: "font.uiBodySmall", slot: styles.szBodySmall },
-    { token: "font.uiBody", slot: styles.szBody },
-    { token: "font.uiHeading3", slot: styles.szHeading3 },
-    { token: "font.uiHeading2", slot: styles.szHeading2 },
-    { token: "font.uiHeading1", slot: styles.szHeading1 },
-    { token: "font.uiSubDisplay", slot: styles.szSubDisplay },
+    { token: "controlSize._3", slot: styles.sz3 },
+    { token: "controlSize._4", slot: styles.sz4 },
+    { token: "controlSize._5", slot: styles.sz5 },
+    { token: "controlSize._6", slot: styles.sz6 },
+    { token: "controlSize._7", slot: styles.sz7 },
+    { token: "controlSize._8", slot: styles.sz8 },
   ];
 
   const slots = [
@@ -229,7 +236,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
               <span css={[styles.sizeIcon, size.slot]}>
                 <StarIcon weight="fill" aria-hidden />
               </span>
-              <span css={styles.sizeToken}>
+              <span css={[typeRole.caption, styles.sizeToken]}>
                 <Identifier>{size.token}</Identifier>
               </span>
             </div>
@@ -239,7 +246,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
           code={`const styles = stylex.create({
   slot: {
     display: "inline-flex",
-    fontSize: font.uiHeading2,
+    fontSize: controlSize._5,
     color: color.fgAccent,
   },
 });
@@ -343,7 +350,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
               <span css={styles.galleryIcon}>
                 <Icon weight="bold" aria-hidden />
               </span>
-              <span css={styles.galleryName}>
+              <span css={[typeRole.caption, styles.galleryName]}>
                 <Identifier>{name}</Identifier>
               </span>
             </div>
@@ -363,7 +370,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             token="weight"
             meta='"thin" | "light" | "regular" | "bold" | "fill" | "duotone" = "regular"'
           >
-            <p css={styles.propNote}>
+            <p css={[typeRole.bodySmall, styles.propNote]}>
               {t({
                 en: "Stroke weight, or a solid or two-tone fill.",
                 zh: "笔画粗细，或实心、双色填充。",
@@ -371,7 +378,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             </p>
           </SpecCard>
           <SpecCard token="size" meta='number | string = "1em"'>
-            <p css={styles.propNote}>
+            <p css={[typeRole.bodySmall, styles.propNote]}>
               {t({
                 en: "Leave it at 1em and set the font size on the parent.",
                 zh: "保持 1em，在父元素上设置字号。",
@@ -379,7 +386,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             </p>
           </SpecCard>
           <SpecCard token="color" meta='string = "currentColor"'>
-            <p css={styles.propNote}>
+            <p css={[typeRole.bodySmall, styles.propNote]}>
               {t({
                 en: "Leave it at currentColor and set the colour on the parent.",
                 zh: "保持 currentColor，在父元素上设置颜色。",
@@ -387,7 +394,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             </p>
           </SpecCard>
           <SpecCard token="mirrored" meta="boolean = false">
-            <p css={styles.propNote}>
+            <p css={[typeRole.bodySmall, styles.propNote]}>
               {t({
                 en: "Flips the icon horizontally, for right-to-left layouts.",
                 zh: "水平翻转图标，用于从右到左的布局。",
@@ -395,7 +402,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             </p>
           </SpecCard>
           <SpecCard token="aria-hidden" meta="boolean">
-            <p css={styles.propNote}>
+            <p css={[typeRole.bodySmall, styles.propNote]}>
               {t({
                 en: "Hides the icon from assistive technology. Set it on any icon outside a slot.",
                 zh: "对辅助技术隐藏图标。凡是不在插槽中的图标都要设置。",
@@ -416,8 +423,6 @@ const styles = stylex.create({
   },
   propNote: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     textWrap: "pretty",
   },
@@ -439,14 +444,12 @@ const styles = stylex.create({
   },
   galleryIcon: {
     display: "inline-flex",
-    fontSize: font.uiHeading1,
+    fontSize: controlSize._5,
     color: color.fg,
   },
   galleryName: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_2,
     textAlign: "center",
     maxInlineSize: "100%",
   },
@@ -471,15 +474,14 @@ const styles = stylex.create({
     display: "inline-flex",
     color: color.fgAccent,
   },
-  szBodySmall: { fontSize: font.uiBodySmall },
-  szBody: { fontSize: font.uiBody },
-  szHeading3: { fontSize: font.uiHeading3 },
-  szHeading2: { fontSize: font.uiHeading2 },
-  szHeading1: { fontSize: font.uiHeading1 },
-  szSubDisplay: { fontSize: font.uiSubDisplay },
+  sz3: { fontSize: controlSize._3 },
+  sz4: { fontSize: controlSize._4 },
+  sz5: { fontSize: controlSize._5 },
+  sz6: { fontSize: controlSize._6 },
+  sz7: { fontSize: controlSize._7 },
+  sz8: { fontSize: controlSize._8 },
   sizeToken: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
     color: color.fgMuted,
   },
 });

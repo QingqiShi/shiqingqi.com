@@ -23,11 +23,9 @@ describe("Text element selection", () => {
 });
 
 describe("Text look and modifier classes", () => {
-  it("applies the overline step", () => {
+  it("applies the overline type role", () => {
     render(<Text look="overline">Label</Text>);
-    expect(screen.getByText("Label").className).toContain(
-      "lookStyles.overline",
-    );
+    expect(screen.getByText("Label").className).toContain("typeRole.overline");
   });
 
   it("applies the requested tone", () => {
@@ -42,7 +40,7 @@ describe("Text look and modifier classes", () => {
       </Text>,
     );
     const el = screen.getByText("Eyebrow");
-    expect(el.className).toContain("lookStyles.caption");
+    expect(el.className).toContain("typeRole.caption");
     expect(el.className).toContain("transformStyles.uppercase");
   });
 
@@ -53,11 +51,14 @@ describe("Text look and modifier classes", () => {
     );
   });
 
-  it("defaults overline to a semibold weight", () => {
+  it("takes the weight from the type role when weight is unset", () => {
     render(<Text look="overline">Label</Text>);
-    expect(screen.getByText("Label").className).toContain(
-      "weightStyles.semibold",
-    );
+    expect(screen.getByText("Label").className).not.toContain("weightStyles.");
+  });
+
+  it("applies the label type role", () => {
+    render(<Text look="label">Label</Text>);
+    expect(screen.getByText("Label").className).toContain("typeRole.label");
   });
 });
 
@@ -108,12 +109,16 @@ describe("Text wrapping and figures", () => {
   it("switches to tabular figures when numeric", () => {
     render(<Text numeric>09:45</Text>);
 
-    expect(screen.getByText("09:45").className).toContain("styles.numeric");
+    expect(screen.getByText("09:45").className).toContain(
+      "typeModifier.numeric",
+    );
   });
 
   it("keeps proportional figures by default", () => {
     render(<Text>09:45</Text>);
 
-    expect(screen.getByText("09:45").className).not.toContain("styles.numeric");
+    expect(screen.getByText("09:45").className).not.toContain(
+      "typeModifier.numeric",
+    );
   });
 });

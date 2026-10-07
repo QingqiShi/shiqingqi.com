@@ -2,6 +2,7 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   gridlineGround,
@@ -107,7 +108,7 @@ const styles = stylex.create({
 function GroundCell({ name, fill }: { name: string; fill: StyleXStyles }) {
   return (
     <div css={[styles.cell, fill]}>
-      <span css={styles.ground}>{name}</span>
+      <span css={[typeRole.overline, styles.ground]}>{name}</span>
       <div css={stack.item}>
         <TextLevel
           token="color.fg"
@@ -139,8 +140,8 @@ interface TextLevelProps {
 function TextLevel({ token, sample, levelStyle }: TextLevelProps) {
   return (
     <div css={[stack.tight, styles.level]}>
-      <span css={[styles.sample, levelStyle]}>{sample}</span>
-      <span css={[styles.token, levelStyle]}>{token}</span>
+      <span css={[typeRole.body, styles.sample, levelStyle]}>{sample}</span>
+      <span css={[typeRole.caption, styles.token, levelStyle]}>{token}</span>
     </div>
   );
 }
@@ -165,24 +166,16 @@ const styles = stylex.create({
   fillCanvas: { backgroundColor: color.bgCanvas },
   fillSurface: { backgroundColor: color.bgSurface },
   ground: {
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingWider,
-    textTransform: "uppercase",
     color: color.fg,
   },
   level: {
     minInlineSize: 0,
   },
   sample: {
-    fontSize: font.uiBody,
-    lineHeight: font.lineHeight_3,
     textWrap: "pretty",
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_2,
     overflowWrap: "anywhere",
   },
   levelDefault: { color: color.fg },

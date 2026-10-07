@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { buildQaSamples } from "#src/pixel-creature-creator/creature/build-qa-samples.ts";
 import {
@@ -26,7 +27,7 @@ interface SectionProps {
 function Section({ title, children }: SectionProps) {
   return (
     <section css={stack.tight}>
-      <h2 css={styles.sectionTitle}>{title}</h2>
+      <h2 css={[typeRole.h4, styles.sectionTitle]}>{title}</h2>
       <div css={[cluster.item, styles.sectionBody]}>{children}</div>
     </section>
   );
@@ -41,7 +42,7 @@ function PartCard({ label, children }: PartCardProps) {
   return (
     <div css={[stack.tight, styles.card]}>
       <div css={styles.cardArt}>{children}</div>
-      <div css={styles.cardLabel}>{label}</div>
+      <div css={[typeRole.caption, styles.cardLabel]}>{label}</div>
     </div>
   );
 }
@@ -227,7 +228,7 @@ export function PixelGallery({
       <Section title={t({ en: "Parts coverage", zh: "部件覆盖" })}>
         <div css={[stack.group, styles.canonicalGrid]}>
           <div data-testid="parts-species" css={stack.tight}>
-            <div css={styles.canonicalRowTitle}>species</div>
+            <div css={[typeRole.label, styles.canonicalRowTitle]}>species</div>
             <div css={[cluster.item, styles.canonicalRowBody]}>
               {Object.values(species).map((entry) =>
                 entry === undefined ? null : (
@@ -241,7 +242,7 @@ export function PixelGallery({
                       scale={4}
                       paused
                     />
-                    <div css={styles.cardLabel}>
+                    <div css={[typeRole.caption, styles.cardLabel]}>
                       {labelFor(speciesLabels, entry.id)}
                     </div>
                   </div>
@@ -251,7 +252,9 @@ export function PixelGallery({
           </div>
 
           <div data-testid="parts-accessories" css={stack.tight}>
-            <div css={styles.canonicalRowTitle}>accessories</div>
+            <div css={[typeRole.label, styles.canonicalRowTitle]}>
+              accessories
+            </div>
             <div css={[cluster.item, styles.canonicalRowBody]}>
               {Object.values(accessories).map((part) =>
                 part === undefined ? null : (
@@ -265,7 +268,7 @@ export function PixelGallery({
                       scale={4}
                       paused
                     />
-                    <div css={styles.cardLabel}>
+                    <div css={[typeRole.caption, styles.cardLabel]}>
                       {labelFor(accessoryLabels, part.id)}
                     </div>
                   </div>
@@ -275,7 +278,7 @@ export function PixelGallery({
           </div>
 
           <div data-testid="parts-types" css={stack.tight}>
-            <div css={styles.canonicalRowTitle}>types</div>
+            <div css={[typeRole.label, styles.canonicalRowTitle]}>types</div>
             <div css={[cluster.item, styles.canonicalRowBody]}>
               {Object.values(elements).map((tp) =>
                 tp === undefined ? null : (
@@ -289,7 +292,7 @@ export function PixelGallery({
                       scale={4}
                       paused
                     />
-                    <div css={styles.cardLabel}>
+                    <div css={[typeRole.caption, styles.cardLabel]}>
                       {labelFor(typeLabels, tp.id)}
                     </div>
                   </div>
@@ -319,7 +322,7 @@ export function PixelGallery({
               css={[stack.tight, styles.canonicalCard]}
             >
               <PixelSprite def={sample.def} scale={4} paused />
-              <div css={styles.cardLabel}>{summary}</div>
+              <div css={[typeRole.caption, styles.cardLabel]}>{summary}</div>
             </div>
           );
         })}
@@ -334,7 +337,9 @@ export function PixelGallery({
         <div css={[stack.group, styles.canonicalGrid]}>
           {CANONICAL_CREATURES.map((creature) => (
             <div key={creature.slot} css={stack.tight}>
-              <div css={styles.canonicalRowTitle}>{creature.slot}</div>
+              <div css={[typeRole.label, styles.canonicalRowTitle]}>
+                {creature.slot}
+              </div>
               <div css={[cluster.item, styles.canonicalRowBody]}>
                 {EMOTIONS.map((emotion) => (
                   <div
@@ -349,7 +354,9 @@ export function PixelGallery({
                       paused={pausedCanonicalRow}
                       aria-label={`${creature.slot} ${emotionLabel[emotion]}`}
                     />
-                    <div css={styles.cardLabel}>{emotionLabel[emotion]}</div>
+                    <div css={[typeRole.caption, styles.cardLabel]}>
+                      {emotionLabel[emotion]}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -362,7 +369,9 @@ export function PixelGallery({
         {[4, 6, 8, 12].map((scale) => (
           <div key={scale} css={[stack.tight, styles.canonicalCard]}>
             <PixelSprite def={def} scale={scale} />
-            <div css={styles.cardLabel}>{`×${String(scale)}`}</div>
+            <div
+              css={[typeRole.caption, styles.cardLabel]}
+            >{`×${String(scale)}`}</div>
           </div>
         ))}
       </Section>
@@ -370,7 +379,7 @@ export function PixelGallery({
       <Section title={t({ en: "Reduced motion preview", zh: "弱化动画预览" })}>
         <div css={[stack.tight, styles.canonicalCard]}>
           <PixelSprite def={def} emotion="idle" scale={6} />
-          <div css={styles.cardLabel}>
+          <div css={[typeRole.caption, styles.cardLabel]}>
             {t({
               en: "(behaviour with prefers-reduced-motion)",
               zh: "(prefers-reduced-motion 表现)",
@@ -391,8 +400,6 @@ const styles = stylex.create({
     paddingTop: "calc(24px + env(safe-area-inset-top))",
   },
   sectionTitle: {
-    fontSize: "16px",
-    fontWeight: 600,
     margin: 0,
   },
   sectionBody: {
@@ -407,7 +414,6 @@ const styles = stylex.create({
     justifyContent: "center",
   },
   cardLabel: {
-    fontSize: "12px",
     color: "rgba(0, 0, 0, 0.7)",
     textAlign: "center",
   },
@@ -426,9 +432,8 @@ const styles = stylex.create({
     width: "100%",
   },
   canonicalRowTitle: {
-    fontSize: "13px",
-    fontWeight: 600,
     color: "rgba(0, 0, 0, 0.7)",
+    fontWeight: font.weight_6,
   },
   canonicalRowBody: {
     alignItems: "flex-end",

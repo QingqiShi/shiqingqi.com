@@ -4,7 +4,13 @@ import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { GuideNote } from "#src/design-system/guide/guide-section.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -24,7 +30,7 @@ const CUSTOM_STYLES = `const styles = stylex.create({
   icon: {
     display: "inline-flex",
     flexShrink: 0,
-    fontSize: font.uiBody,
+    fontSize: controlSize._4,
     color: color.fgSuccess,
   },
   message: {
@@ -91,7 +97,7 @@ const styles = stylex.create({
   icon: {
     display: "inline-flex",
     flexShrink: 0,
-    fontSize: font.uiBody,
+    fontSize: controlSize._4,
     color: color.fgSuccess,
   },
   message: {

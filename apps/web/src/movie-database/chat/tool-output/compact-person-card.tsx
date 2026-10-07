@@ -7,6 +7,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DepartmentLabel } from "#src/movie-database/department-label.ts";
@@ -36,7 +37,14 @@ function ProfilePhoto({
 
   if (!config.images?.base_url || !config.images.profile_sizes) {
     return (
-      <div css={[flex.center, corner.radius_round, styles.photoFallback]}>
+      <div
+        css={[
+          typeRole.h1,
+          flex.center,
+          corner.radius_round,
+          styles.photoFallback,
+        ]}
+      >
         {fallbackInitial}
       </div>
     );
@@ -52,7 +60,14 @@ function ProfilePhoto({
       imgCss={styles.photo}
       skeletonCss={[corner.radius_round, styles.photoSkeleton]}
       errorFallback={
-        <div css={[flex.center, corner.radius_round, styles.photoFallback]}>
+        <div
+          css={[
+            typeRole.h1,
+            flex.center,
+            corner.radius_round,
+            styles.photoFallback,
+          ]}
+        >
           {fallbackInitial}
         </div>
       }
@@ -79,14 +94,21 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
             fallbackInitial={label.charAt(0)}
           />
         ) : (
-          <div css={[flex.center, corner.radius_round, styles.photoFallback]}>
+          <div
+            css={[
+              typeRole.h1,
+              flex.center,
+              corner.radius_round,
+              styles.photoFallback,
+            ]}
+          >
             {label.charAt(0)}
           </div>
         )}
       </div>
-      <span css={styles.name}>{label}</span>
+      <span css={[typeRole.label, styles.name]}>{label}</span>
       {person.knownForDepartment && (
-        <span css={styles.department}>
+        <span css={[typeRole.caption, styles.department]}>
           <DepartmentLabel department={person.knownForDepartment} />
         </span>
       )}
@@ -164,13 +186,10 @@ const styles = stylex.create({
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: color.border,
-    fontSize: font.uiHeading1,
     color: color.fgMuted,
   },
   name: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    lineHeight: 1.2,
     overflow: "hidden",
     textOverflow: "ellipsis",
     display: "-webkit-box",
@@ -178,8 +197,6 @@ const styles = stylex.create({
     WebkitBoxOrient: "vertical",
   },
   department: {
-    fontSize: "0.7rem",
     color: color.fgMuted,
-    lineHeight: 1.2,
   },
 });

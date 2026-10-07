@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/links/anchor.tsx";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";
@@ -13,7 +14,7 @@ import type { MediaCellParams } from "./types";
 /** Stands in for a poster that is missing or failed to load. */
 function PosterFallback() {
   return (
-    <span css={styles.posterEmpty} aria-hidden="true">
+    <span css={[typeRole.bodySmall, styles.posterEmpty]} aria-hidden="true">
       🎬
     </span>
   );
@@ -59,11 +60,15 @@ export function MediaTitleCell({ api, row }: MediaCellParams) {
           href={hrefFor(media)}
           prefetch={false}
           rel="nofollow"
-          css={[styles.titleLink, truncate.base]}
+          css={[typeRole.label, styles.titleLink, truncate.base]}
         >
           {media.title}
         </Anchor>
-        {meta && <span css={[styles.titleMeta, truncate.base]}>{meta}</span>}
+        {meta && (
+          <span css={[typeRole.caption, styles.titleMeta, truncate.base]}>
+            {meta}
+          </span>
+        )}
       </span>
     </div>
   );
@@ -96,7 +101,6 @@ const styles = stylex.create({
     objectFit: "cover",
   },
   posterEmpty: {
-    fontSize: font.uiBodySmall,
     opacity: 0.5,
   },
   titleText: {
@@ -104,9 +108,7 @@ const styles = stylex.create({
   },
   titleLink: {
     color: color.fg,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_2,
     textDecoration: {
       default: "none",
       ":hover": "underline",
@@ -114,7 +116,5 @@ const styles = stylex.create({
   },
   titleMeta: {
     color: color.fgMuted,
-    fontSize: font.uiOverline,
-    lineHeight: font.lineHeight_2,
   },
 });

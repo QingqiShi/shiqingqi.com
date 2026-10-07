@@ -5,14 +5,8 @@ import { Text } from "@tuja/ui/components/text";
 import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import {
-  border,
-  color,
-  font,
-  rhythm,
-  shadow,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { border, color, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -230,16 +224,21 @@ export function SurfacesShowcase() {
             })}
           >
             <ul css={[popoverSurface.base, styles.menu]}>
-              <li css={[corner.radius_1, styles.row]}>
+              <li css={[typeRole.label, corner.radius_1, styles.row]}>
                 {t({ en: "Newest first", zh: "最新的在前" })}
               </li>
               <li
                 aria-current="true"
-                css={[corner.radius_1, styles.row, styles.rowSelected]}
+                css={[
+                  typeRole.label,
+                  corner.radius_1,
+                  styles.row,
+                  styles.rowSelected,
+                ]}
               >
                 {t({ en: "Highest rated", zh: "评分最高" })}
               </li>
-              <li css={[corner.radius_1, styles.row]}>
+              <li css={[typeRole.label, corner.radius_1, styles.row]}>
                 {t({ en: "A to Z", zh: "按名称" })}
               </li>
             </ul>
@@ -469,7 +468,6 @@ const styles = stylex.create({
   row: {
     paddingBlock: space._1,
     paddingInline: space._2,
-    fontSize: font.uiBodySmall,
     color: color.fg,
   },
   rowSelected: {

@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { color, font } from "../tokens.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
+import { color } from "../tokens.stylex.ts";
 import type { SectionLevel } from "./section.tsx";
 
 /**
@@ -20,24 +21,21 @@ export function SectionHeading({
 }) {
   switch (level) {
     case 2:
-      return <h2 css={styles.title}>{children}</h2>;
+      return <h2 css={[typeRole.label, styles.title]}>{children}</h2>;
     case 3:
-      return <h3 css={styles.title}>{children}</h3>;
+      return <h3 css={[typeRole.label, styles.title]}>{children}</h3>;
     case 4:
-      return <h4 css={styles.title}>{children}</h4>;
+      return <h4 css={[typeRole.label, styles.title]}>{children}</h4>;
     case 5:
-      return <h5 css={styles.title}>{children}</h5>;
+      return <h5 css={[typeRole.label, styles.title]}>{children}</h5>;
     case 6:
-      return <h6 css={styles.title}>{children}</h6>;
+      return <h6 css={[typeRole.label, styles.title]}>{children}</h6>;
   }
 }
 
 const styles = stylex.create({
   title: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
-    lineHeight: font.lineHeight_3,
     color: color.fgMuted,
   },
 });

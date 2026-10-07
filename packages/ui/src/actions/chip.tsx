@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { transition } from "../primitives/motion.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { color } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { chipSize, chipSurface } from "./chip.stylex.ts";
@@ -78,6 +79,7 @@ export function Chip(props: ChipProps) {
   const { children, icon, trailing, size = "md", isActive, css } = props;
 
   const chipCss = [
+    sizeRoles[size],
     chipSurface.base,
     chipSize[size],
     chipSurface.interactive,
@@ -141,6 +143,11 @@ export function Chip(props: ChipProps) {
     </button>
   );
 }
+
+const sizeRoles = {
+  sm: typeRole.caption,
+  md: typeRole.label,
+};
 
 const styles = stylex.create({
   // `em` boxes so the icon tracks the chip's font-size across sizes.

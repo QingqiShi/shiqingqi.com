@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { layer, rhythm } from "@tuja/ui/tokens.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
+import { font, layer, rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import { createPathtracerLoop } from "./create-pathtracer-loop";
@@ -82,7 +83,7 @@ function StatsOverlay({
   };
 
   return (
-    <div css={styles.overlay}>
+    <div css={[typeRole.caption, styles.overlay]}>
       <table css={styles.table}>
         <tbody>
           <Row label="FPS" value={String(stats.fps)} />
@@ -100,7 +101,7 @@ function StatsOverlay({
       <div css={styles.separator} />
 
       <div css={stack.tight}>
-        <div css={styles.sectionLabel}>Features</div>
+        <div css={[typeRole.overline, styles.sectionLabel]}>Features</div>
         <div css={styles.toggleRow}>
           {FEATURE_TOGGLES.map(({ key, label }) => (
             <Toggle
@@ -118,7 +119,7 @@ function StatsOverlay({
       <div css={styles.separator} />
 
       <div css={stack.tight}>
-        <div css={styles.sectionLabel}>View</div>
+        <div css={[typeRole.overline, styles.sectionLabel]}>View</div>
         <div css={styles.toggleRow}>
           {DEBUG_MODES.map(({ value, label }) => (
             <button
@@ -128,6 +129,7 @@ function StatsOverlay({
                 onDebugChange({ ...debug, mode: value });
               }}
               css={[
+                typeRole.caption,
                 styles.modeButton,
                 debug.mode === value && styles.modeButtonActive,
               ]}
@@ -138,7 +140,11 @@ function StatsOverlay({
         </div>
       </div>
 
-      <button type="button" onClick={handleCopy} css={styles.copyButton}>
+      <button
+        type="button"
+        onClick={handleCopy}
+        css={[typeRole.caption, styles.copyButton]}
+      >
         {copied ? "Copied!" : "Copy stats"}
       </button>
     </div>
@@ -158,7 +164,11 @@ function Toggle({
     <button
       type="button"
       onClick={onToggle}
-      css={[styles.toggleButton, active && styles.toggleButtonActive]}
+      css={[
+        typeRole.caption,
+        styles.toggleButton,
+        active && styles.toggleButtonActive,
+      ]}
     >
       {label}
     </button>
@@ -169,7 +179,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <tr>
       <td css={styles.label}>{label}</td>
-      <td css={styles.value}>{value}</td>
+      <td css={[typeModifier.numeric, styles.value]}>{value}</td>
     </tr>
   );
 }
@@ -283,10 +293,9 @@ const styles = stylex.create({
     backgroundColor: "rgba(0, 0, 0, 0.75)",
     backdropFilter: "blur(8px)",
     color: "rgba(255, 255, 255, 0.9)",
-    fontFamily: "monospace",
-    fontSize: "12px",
-    lineHeight: 1.6,
+    fontFamily: font.familyMono,
     zIndex: layer.tooltip,
+    lineHeight: font.lineHeight_4,
   },
   table: {
     borderSpacing: 0,
@@ -298,7 +307,6 @@ const styles = stylex.create({
   },
   value: {
     textAlign: "right",
-    fontVariantNumeric: "tabular-nums",
   },
   separator: {
     height: "1px",
@@ -307,9 +315,6 @@ const styles = stylex.create({
   },
   sectionLabel: {
     color: "rgba(255, 255, 255, 0.4)",
-    fontSize: "10px",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
   },
   toggleRow: {
     display: "flex",
@@ -325,8 +330,7 @@ const styles = stylex.create({
     cornerShape: "squircle",
     backgroundColor: "transparent",
     color: "rgba(255, 255, 255, 0.4)",
-    fontFamily: "monospace",
-    fontSize: "11px",
+    fontFamily: font.familyMono,
     cursor: "pointer",
   },
   toggleButtonActive: {
@@ -343,8 +347,7 @@ const styles = stylex.create({
     cornerShape: "squircle",
     backgroundColor: "transparent",
     color: "rgba(255, 255, 255, 0.4)",
-    fontFamily: "monospace",
-    fontSize: "11px",
+    fontFamily: font.familyMono,
     cursor: "pointer",
   },
   modeButtonActive: {
@@ -363,8 +366,7 @@ const styles = stylex.create({
     cornerShape: "squircle",
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     color: "rgba(255, 255, 255, 0.7)",
-    fontFamily: "monospace",
-    fontSize: "11px",
+    fontFamily: font.familyMono,
     cursor: "pointer",
   },
 });

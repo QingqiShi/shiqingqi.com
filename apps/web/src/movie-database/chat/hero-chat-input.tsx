@@ -5,11 +5,11 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
   controlSize,
-  font,
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -92,7 +92,12 @@ export function HeroChatInput({
             type="button"
             onClick={openChatWithSession}
             disabled={continueSessionStatus === "pending"}
-            css={[buttonReset.base, flex.inlineCenter, styles.restoreLink]}
+            css={[
+              typeRole.label,
+              buttonReset.base,
+              flex.inlineCenter,
+              styles.restoreLink,
+            ]}
             aria-busy={continueSessionStatus === "pending" ? true : undefined}
           >
             <ClockCounterClockwiseIcon size={14} role="presentation" />
@@ -129,7 +134,7 @@ const styles = stylex.create({
   },
   icon: {
     color: color.fgAccent,
-    fontSize: "1.25em",
+    fontSize: controlSize._5,
   },
   meta: {
     alignItems: "center",
@@ -140,8 +145,6 @@ const styles = stylex.create({
     gap: controlSize._2,
     paddingBlock: space._0,
     paddingInline: space._2,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
     color: {
       default: color.fgMuted,
       ":hover": color.fgAccent,

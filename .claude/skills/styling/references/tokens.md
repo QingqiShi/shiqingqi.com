@@ -200,6 +200,8 @@ Geometry scale from `0.1rem` to `35rem`: padding, offsets and sizes that are not
 
 ## Font
 
+The sizes below are the steps the type roles in `primitives/type.stylex.ts` are built from. Never set `fontSize` from them directly: compose a type role (see `primitives.md`), which pairs each size with its line height, weight and tracking. The weight, line-height and tracking tokens are for an override after a role.
+
 ### Family
 
 `font.family` — `Inter,Inter-fallback,sans-serif`

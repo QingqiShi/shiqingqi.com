@@ -8,6 +8,7 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -43,9 +44,9 @@ export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
 
   return (
     <div css={[corner.radius_3, styles.root]}>
-      <h2 css={styles.heading} id={headingId}>
+      <h2 css={[typeRole.label, styles.heading]} id={headingId}>
         {t({ en: "Cells", zh: "单元格" })}{" "}
-        <span css={styles.count}>({cells.length})</span>
+        <span css={[typeModifier.numeric, styles.count]}>({cells.length})</span>
       </h2>
       <ol css={styles.list} role="radiogroup" aria-labelledby={headingId}>
         {cells.map((cell, index) => {
@@ -73,7 +74,9 @@ export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
                 aria-label={`${cellLabel} ${String(index + 1)}`}
               >
                 <CellThumbnail cell={cell} />
-                <span css={styles.thumbIndex}>{index + 1}</span>
+                <span css={[typeRole.bodySmall, styles.thumbIndex]}>
+                  {index + 1}
+                </span>
               </button>
             </li>
           );
@@ -133,15 +136,12 @@ const styles = stylex.create({
   },
   heading: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingSnug,
     color: color.fg,
+    fontWeight: font.weight_6,
   },
   count: {
-    fontWeight: font.weight_4,
-    fontVariantNumeric: "tabular-nums",
     color: color.fgMuted,
+    fontWeight: font.weight_4,
   },
   list: {
     display: "grid",
@@ -197,7 +197,6 @@ const styles = stylex.create({
     position: "absolute",
     insetBlockEnd: "2px",
     insetInlineEnd: "4px",
-    fontSize: font.uiBodySmall,
     color: color.fgOnScrim,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     paddingInline: "4px",

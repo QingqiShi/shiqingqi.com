@@ -5,6 +5,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -33,12 +34,12 @@ function KeyHint({ keys, effect }: KeyHintProps) {
     <div css={styles.keyRow}>
       <dt css={cluster.tight}>
         {keys.map((key) => (
-          <kbd key={key} css={[corner.radius_1, styles.key]}>
+          <kbd key={key} css={[typeRole.caption, corner.radius_1, styles.key]}>
             {key}
           </kbd>
         ))}
       </dt>
-      <dd css={styles.keyEffect}>{effect}</dd>
+      <dd css={[typeRole.bodySmall, styles.keyEffect]}>{effect}</dd>
     </div>
   );
 }
@@ -271,7 +272,6 @@ const styles = stylex.create({
   },
   key: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fg,
     paddingInline: space._1,
@@ -283,7 +283,6 @@ const styles = stylex.create({
   },
   keyEffect: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
 });

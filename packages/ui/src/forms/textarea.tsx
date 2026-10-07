@@ -10,6 +10,7 @@ import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   fieldSizeBox,
@@ -141,6 +142,7 @@ export function Textarea({
       <label
         htmlFor={fieldId}
         css={[
+          typeRole.control,
           fieldStyles.label,
           required && fieldStyles.labelRequired,
           labelHidden && a11y.srOnly,
@@ -149,7 +151,10 @@ export function Textarea({
         {label}
       </label>
       {hasDescription ? (
-        <span id={descriptionId} css={fieldStyles.description}>
+        <span
+          id={descriptionId}
+          css={[typeRole.caption, fieldStyles.description]}
+        >
           {description}
         </span>
       ) : null}
@@ -169,6 +174,7 @@ export function Textarea({
           onInput?.(event);
         }}
         css={[
+          typeRole.control,
           fieldStyles.control,
           fieldStyles.multiline,
           fieldSizeInline[size],
@@ -181,7 +187,11 @@ export function Textarea({
         ]}
       />
       {hasError ? (
-        <span id={errorId} role="alert" css={fieldStyles.errorText}>
+        <span
+          id={errorId}
+          role="alert"
+          css={[typeRole.caption, fieldStyles.errorText]}
+        >
           {error}
         </span>
       ) : null}

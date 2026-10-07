@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import {
@@ -23,13 +24,15 @@ export function FamiliesShowcase() {
       <div css={styles.grid}>
         <div css={[stack.item, corner.radius_2, styles.card]}>
           <header css={stack.tight}>
-            <span css={styles.token}>
+            <span css={[typeRole.caption, styles.token]}>
               <Identifier>font.family</Identifier>
             </span>
-            <code css={styles.value}>Inter, Inter-fallback, sans-serif</code>
+            <code css={[typeRole.caption, styles.value]}>
+              Inter, Inter-fallback, sans-serif
+            </code>
           </header>
           <div css={[styles.specimen, styles.sans]}>Aa</div>
-          <div css={[styles.charset, styles.sans]}>
+          <div css={[typeRole.bodySmall, styles.charset, styles.sans]}>
             <p css={styles.charsetLine}>ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
             <p css={styles.charsetLine}>abcdefghijklmnopqrstuvwxyz</p>
             <p css={styles.charsetLine}>0123456789 — &amp; ?!“”</p>
@@ -37,16 +40,16 @@ export function FamiliesShowcase() {
         </div>
         <div css={[stack.item, corner.radius_2, styles.card]}>
           <header css={stack.tight}>
-            <span css={styles.token}>
+            <span css={[typeRole.caption, styles.token]}>
               <Identifier>font.familyMono</Identifier>
             </span>
-            <code css={styles.value}>
+            <code css={[typeRole.caption, styles.value]}>
               &quot;IBM Plex Mono&quot;, &quot;IBM Plex Mono-fallback&quot;,
               ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
             </code>
           </header>
           <div css={[styles.specimen, styles.mono]}>Aa</div>
-          <div css={[styles.charset, styles.mono]}>
+          <div css={[typeRole.bodySmall, styles.charset, styles.mono]}>
             <p css={styles.charsetLine}>ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
             <p css={styles.charsetLine}>abcdefghijklmnopqrstuvwxyz</p>
             <p css={styles.charsetLine}>{"0123456789 — & ?! {}"}</p>
@@ -83,13 +86,10 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fg,
   },
   value: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     overflowWrap: "anywhere",
   },
@@ -104,9 +104,7 @@ const styles = stylex.create({
     color: color.fg,
   },
   charset: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_3,
     overflowWrap: "anywhere",
   },
   charsetLine: {

@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -92,8 +93,10 @@ const styles = stylex.create({
       <ThemeFramePair>
         <section css={[corner.radius_3, stack.item, styles.panel]}>
           <div css={stack.tight}>
-            <p css={[styles.line, styles.title]}>Arrival</p>
-            <p css={[styles.line, styles.meta]}>2016 · 116 min</p>
+            <p css={[typeRole.h4, styles.line, styles.title]}>Arrival</p>
+            <p css={[typeRole.bodySmall, styles.line, styles.meta]}>
+              2016 · 116 min
+            </p>
           </div>
           <div css={styles.action}>
             <Button look="primary">
@@ -124,16 +127,12 @@ const styles = stylex.create({
   },
   line: {
     margin: 0,
-    fontSize: font.uiBody,
-    lineHeight: font.lineHeight_3,
   },
   title: {
     color: color.fg,
-    fontWeight: font.weight_7,
   },
   meta: {
     color: color.fgMuted,
-    fontSize: font.uiBodySmall,
   },
   action: {
     display: "flex",

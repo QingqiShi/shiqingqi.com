@@ -8,7 +8,8 @@ import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
-import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
+import { border, color, controlSize, opacity } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { checkboxTokens } from "./checkbox.stylex.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
@@ -132,21 +133,26 @@ export function Checkbox({
         />
         <span
           css={
-            labelHidden
-              ? a11y.srOnly
-              : [styles.labelText, labelSizeStyles[size]]
+            labelHidden ? a11y.srOnly : [labelSizeRoles[size], styles.labelText]
           }
         >
           {label}
         </span>
       </label>
       {hasDescription ? (
-        <span id={descriptionId} css={fieldStyles.description}>
+        <span
+          id={descriptionId}
+          css={[typeRole.caption, fieldStyles.description]}
+        >
           {description}
         </span>
       ) : null}
       {hasError ? (
-        <span id={errorId} role="alert" css={fieldStyles.errorText}>
+        <span
+          id={errorId}
+          role="alert"
+          css={[typeRole.caption, fieldStyles.errorText]}
+        >
           {error}
         </span>
       ) : null}
@@ -222,8 +228,6 @@ const styles = stylex.create({
   },
   labelText: {
     color: color.fg,
-    fontWeight: font.weight_5,
-    lineHeight: font.lineHeight_2,
   },
 });
 
@@ -238,11 +242,7 @@ const sizeStyles = stylex.create({
   },
 });
 
-const labelSizeStyles = stylex.create({
-  sm: {
-    fontSize: font.uiBodySmall,
-  },
-  md: {
-    fontSize: font.uiControl,
-  },
-});
+const labelSizeRoles = {
+  sm: typeRole.label,
+  md: typeRole.control,
+};

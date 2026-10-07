@@ -13,6 +13,7 @@ import {
   transition,
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { glassSurface } from "../surfaces/glass-surface.stylex.ts";
 import { border, color, controlSize, font, shadow } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -205,6 +206,7 @@ export function SegmentedControl<TValue extends string>({
           aria-label={option["aria-label"]}
           {...getOptionProps(option.value)}
           css={[
+            sizeRoles[size],
             buttonReset.base,
             a11y.focusRingInset,
             transition.colors,
@@ -412,15 +414,18 @@ const segmentSizeStyles = stylex.create({
   md: { [cornerTokens.height]: controlSize._8 },
 });
 
+const sizeRoles = {
+  sm: typeRole.caption,
+  md: typeRole.label,
+};
+
 const sizeStyles = stylex.create({
   sm: {
     minBlockSize: cornerTokens.height,
     paddingInline: controlSize._2,
-    fontSize: font.uiCaption,
   },
   md: {
     minBlockSize: cornerTokens.height,
     paddingInline: controlSize._3,
-    fontSize: font.uiBodySmall,
   },
 });

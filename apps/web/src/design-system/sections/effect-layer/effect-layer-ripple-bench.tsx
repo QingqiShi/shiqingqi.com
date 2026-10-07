@@ -11,6 +11,7 @@ import { useRipple } from "@tuja/ui/hooks/use-ripple";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { useState, type ReactNode, type Ref } from "react";
@@ -38,7 +39,7 @@ function Tile({
       css={[flex.col, styles.tile, css]}
     >
       {children}
-      <span css={styles.token}>{token}</span>
+      <span css={[typeRole.caption, styles.token]}>{token}</span>
     </div>
   );
 }
@@ -161,7 +162,6 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     overflowWrap: "anywhere",
   },
   raised: {

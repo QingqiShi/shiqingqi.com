@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { measure } from "#src/design-system/measure.stylex.ts";
 import { t } from "#src/i18n.ts";
@@ -33,7 +34,7 @@ export function MovieDetailExemplar() {
             well as a name — `Switch` renders the input and takes native
             attributes, but it ships no label of its own.
           */}
-          <label css={styles.toggleLabel} htmlFor={switchId}>
+          <label css={[typeRole.label, styles.toggleLabel]} htmlFor={switchId}>
             {t({ en: "Annotate the composition", zh: "标注组成结构" })}
           </label>
           <Switch
@@ -78,8 +79,6 @@ const styles = stylex.create({
   toggleLabel: {
     color: color.fg,
     cursor: "pointer",
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
   },
   toggleHelper: {
     maxInlineSize: measure.prose,

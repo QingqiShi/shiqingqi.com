@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
@@ -58,10 +59,10 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
   return (
     <section css={stack.item} data-testid="wizard-step-species">
       <div css={stack.tight}>
-        <h3 css={styles.heading} id={headingId}>
+        <h3 css={[typeRole.h3, styles.heading]} id={headingId}>
           {t({ en: "Pick a species", zh: "选择物种" })}
         </h3>
-        <p css={styles.hint}>
+        <p css={[typeRole.bodySmall, styles.hint]}>
           {t({
             en: "16 hand-painted shapes. Each one has its own eyes and silhouette baked in.",
             zh: "16 种手绘造型。每一种都自带独特的眼神与轮廓。",
@@ -98,7 +99,7 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
                   }}
                 />
               </div>
-              <span css={styles.optionLabel}>
+              <span css={typeRole.label}>
                 {speciesLabels[entry.id] ?? entry.id}
               </span>
             </button>
@@ -111,13 +112,10 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
 
 const styles = stylex.create({
   heading: {
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_6,
     margin: 0,
     color: color.fg,
   },
   hint: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
@@ -154,9 +152,5 @@ const styles = stylex.create({
     justifyContent: "center",
     minWidth: `${String(THUMB_PX)}px`,
     minHeight: `${String(THUMB_PX)}px`,
-  },
-  optionLabel: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_5,
   },
 });

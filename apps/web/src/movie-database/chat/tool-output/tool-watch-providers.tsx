@@ -6,6 +6,7 @@ import { Badge } from "@tuja/ui/components/badge";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -251,7 +252,7 @@ function ProviderSection({
   if (providers.length === 0) return null;
   return (
     <div css={stack.tight}>
-      <div css={styles.sectionLabel}>
+      <div css={[typeRole.label, styles.sectionLabel]}>
         <TypeLabel type={type} />
       </div>
       <div css={cluster.tight}>
@@ -272,14 +273,14 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
   return (
     <div css={[corner.radius_2, styles.card]}>
       <div css={[flex.between, styles.header]}>
-        <span css={styles.title}>
+        <span css={[typeRole.label, styles.title]}>
           {t({ en: "Where to Watch", zh: "在哪里看" })}
         </span>
         <Badge intent="neutral">{regionDisplay}</Badge>
       </div>
 
       {providers === null ? (
-        <p css={styles.emptyText}>
+        <p css={[typeRole.bodySmall, styles.emptyText]}>
           {t({ en: "Not available in ", zh: "在" })}
           {regionDisplay}
           {t({ en: "", zh: "不可用" })}
@@ -292,7 +293,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
         </div>
       )}
 
-      <div css={styles.attribution}>
+      <div css={[typeRole.bodySmall, styles.attribution]}>
         {providers?.link ? (
           <a
             href={providers.link}
@@ -357,7 +358,7 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
   const remaining = countries.length - INITIAL_VISIBLE_COUNT;
 
   return (
-    <p css={styles.countryList}>
+    <p css={[typeRole.bodySmall, styles.countryList]}>
       {visible.map((code, i) => (
         <Fragment key={code}>
           {i > 0 && " · "}
@@ -372,7 +373,7 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
             onClick={() => {
               setExpanded(true);
             }}
-            css={styles.showMoreButton}
+            css={[typeRole.bodySmall, styles.showMoreButton]}
           >
             {`+${String(remaining)} `}
             {t({ en: "more", zh: "更多" })}
@@ -398,7 +399,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
               size={HEADER_LOGO_SIZE}
             />
           )}
-          <span css={styles.title}>{providerName}</span>
+          <span css={[typeRole.label, styles.title]}>{providerName}</span>
         </div>
         <Badge intent="neutral">
           {regions.length === 1
@@ -408,7 +409,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
       </div>
 
       {regions.length === 0 ? (
-        <p css={styles.emptyText}>
+        <p css={[typeRole.bodySmall, styles.emptyText]}>
           {t({
             en: "Not available on ",
             zh: "在 ",
@@ -426,7 +427,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
             if (!countries) return null;
             return (
               <div key={key}>
-                <div css={styles.typeLabel}>
+                <div css={[typeRole.label, styles.typeLabel]}>
                   <TypeLabel type={key} />
                 </div>
                 <CountryList countries={countries} />
@@ -436,7 +437,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
         </div>
       )}
 
-      <div css={styles.attribution}>
+      <div css={[typeRole.bodySmall, styles.attribution]}>
         <span>
           {t({
             en: "Data provided by JustWatch",
@@ -465,11 +466,9 @@ const styles = stylex.create({
     marginBottom: rhythm.tight,
   },
   title: {
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
   },
   sectionLabel: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   logo: {
@@ -477,28 +476,23 @@ const styles = stylex.create({
   },
   emptyText: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontStyle: "italic",
     paddingBlock: space._1,
   },
   typeLabel: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontWeight: font.weight_6,
     marginBottom: rhythm.tight,
   },
   countryList: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
   },
   showMoreButton: {
     background: "none",
     border: "none",
     padding: 0,
-    font: "inherit",
-    fontSize: font.uiBodySmall,
+    fontFamily: font.family,
     color: color.fgMuted,
     cursor: "pointer",
     textDecoration: {
@@ -507,7 +501,6 @@ const styles = stylex.create({
     },
   },
   attribution: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     marginTop: rhythm.item,
     paddingTop: space._1,

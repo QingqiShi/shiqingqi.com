@@ -4,7 +4,8 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
-import { color, controlSize, font } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, controlSize } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
@@ -38,7 +39,7 @@ export function DesignSystemSidebarHeader({
       </Link>
       <Link
         href={getLocalePath("/design-system", locale)}
-        {...stylex.props(styles.title, a11y.focusRing)}
+        {...stylex.props(typeRole.h4, styles.title, a11y.focusRing)}
       >
         {t({ en: "Design system", zh: "设计系统" })}
       </Link>
@@ -65,8 +66,6 @@ const styles = stylex.create({
     },
   },
   title: {
-    fontSize: font.uiBody,
-    fontWeight: font.weight_7,
     color: color.fg,
     textDecoration: "none",
     whiteSpace: "nowrap",

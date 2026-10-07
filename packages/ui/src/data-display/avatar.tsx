@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { corner } from "../primitives/corner.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { border, color, font, shadow, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
@@ -134,7 +135,12 @@ export function Avatar({
       css={[styles.root, sizeStyles[size], css]}
     >
       <span
-        css={[corner.radius_round, styles.medallion, lookStyles[look]]}
+        css={[
+          initialsRoles[size],
+          corner.radius_round,
+          styles.medallion,
+          lookStyles[look],
+        ]}
         aria-hidden
       >
         {monogram}
@@ -146,7 +152,12 @@ export function Avatar({
       </span>
       {hasBadge ? (
         <span
-          css={[corner.radius_round, styles.badge, badgeSizeStyles[size]]}
+          css={[
+            typeRole.caption,
+            corner.radius_round,
+            styles.badge,
+            badgeSizeStyles[size],
+          ]}
           aria-hidden
         >
           {badge}
@@ -211,19 +222,22 @@ const sizeStyles = stylex.create({
   sm: {
     inlineSize: space._5,
     blockSize: space._5,
-    fontSize: font.uiOverline,
   },
   md: {
     inlineSize: space._7,
     blockSize: space._7,
-    fontSize: font.uiCaption,
   },
   lg: {
     inlineSize: space._8,
     blockSize: space._8,
-    fontSize: font.uiBody,
   },
 });
+
+const initialsRoles = {
+  sm: typeRole.caption,
+  md: typeRole.caption,
+  lg: typeRole.body,
+};
 
 // The badge stays legible below a certain size, so `sm` and `md` share one
 // diameter and only `lg` steps up.
@@ -231,17 +245,14 @@ const badgeSizeStyles = stylex.create({
   sm: {
     inlineSize: space._3,
     blockSize: space._3,
-    fontSize: font.uiOverline,
   },
   md: {
     inlineSize: space._3,
     blockSize: space._3,
-    fontSize: font.uiOverline,
   },
   lg: {
     inlineSize: space._4,
     blockSize: space._4,
-    fontSize: font.uiCaption,
   },
 });
 

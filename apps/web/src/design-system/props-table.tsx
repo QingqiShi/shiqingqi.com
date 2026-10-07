@@ -12,6 +12,7 @@ import {
 } from "@tuja/ui/components/table";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, type ReactNode } from "react";
 import { PROPS_DOCS } from "#src/_generated/props/index.ts";
@@ -88,7 +89,9 @@ export function PropsTable({ component }: PropsTableProps) {
                       –
                     </span>
                   ) : (
-                    <code css={styles.code}>{prop.defaultValue}</code>
+                    <code css={[typeRole.caption, styles.code]}>
+                      {prop.defaultValue}
+                    </code>
                   )}
                 </TableCell>
                 <TableCell css={styles.descriptionCell}>
@@ -103,20 +106,31 @@ export function PropsTable({ component }: PropsTableProps) {
       <dl css={[definitionRows.list, styles.stackView]}>
         {doc.props.map((prop) => (
           <div key={prop.name} css={definitionRows.row}>
-            <dt css={styles.stackName}>
+            <dt css={typeRole.body}>
               <PropName prop={prop} />
             </dt>
             <dd
-              css={[stack.tight, definitionRows.definition, styles.stackFields]}
+              css={[
+                typeRole.bodySmall,
+                stack.tight,
+                definitionRows.definition,
+                styles.stackFields,
+              ]}
             >
               <div css={[cluster.tight, styles.stackField]}>
-                <span css={styles.stackLabel}>{typeLabel}</span>
+                <span css={[typeRole.caption, styles.stackLabel]}>
+                  {typeLabel}
+                </span>
                 <PropType prop={prop} />
               </div>
               {prop.defaultValue === undefined ? null : (
                 <div css={[cluster.tight, styles.stackField]}>
-                  <span css={styles.stackLabel}>{defaultLabel}</span>
-                  <code css={styles.code}>{prop.defaultValue}</code>
+                  <span css={[typeRole.caption, styles.stackLabel]}>
+                    {defaultLabel}
+                  </span>
+                  <code css={[typeRole.caption, styles.code]}>
+                    {prop.defaultValue}
+                  </code>
                 </div>
               )}
               <Prose text={describe(prop, locale)} />
@@ -128,9 +142,11 @@ export function PropsTable({ component }: PropsTableProps) {
       {doc.extendsHtml === undefined ? null : (
         // Two fragments around the element name: the name is the one part of
         // the sentence that is not translated.
-        <p css={styles.inherited}>
+        <p css={[typeRole.bodySmall, styles.inherited]}>
           {t({ en: "Also accepts every ", zh: "同时接受 " })}
-          <code css={styles.code}>{`<${doc.extendsHtml}>`}</code>
+          <code
+            css={[typeRole.caption, styles.code]}
+          >{`<${doc.extendsHtml}>`}</code>
           {t({ en: " attribute.", zh: " 元素的原生属性。" })}
         </p>
       )}
@@ -170,14 +186,21 @@ function PropType({ prop }: { prop: PropDoc }) {
     return (
       <span css={[cluster.tight, styles.typeList]}>
         {prop.members.map((member) => (
-          <code key={member} css={[corner.radius_1, styles.typeToken]}>
+          <code
+            key={member}
+            css={[typeRole.caption, corner.radius_1, styles.typeToken]}
+          >
             {JSON.stringify(member)}
           </code>
         ))}
       </span>
     );
   }
-  return <code css={styles.code}>{breakAtUnions(prop.type)}</code>;
+  return (
+    <code css={[typeRole.caption, styles.code]}>
+      {breakAtUnions(prop.type)}
+    </code>
+  );
 }
 
 /** A JSDoc summary: paragraphs split on a blank line, backticks set as code. */
@@ -222,7 +245,7 @@ function setInlineCode(paragraph: string): ReactNode {
     const key = at;
     at += part.length + 1;
     return index % 2 === 1 ? (
-      <code key={key} css={styles.code}>
+      <code key={key} css={[typeRole.caption, styles.code]}>
         {part}
       </code>
     ) : (
@@ -269,7 +292,6 @@ const styles = stylex.create({
   },
   code: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     overflowWrap: "break-word",
   },
@@ -278,7 +300,6 @@ const styles = stylex.create({
   },
   typeToken: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fg,
     backgroundColor: color.bgControl,
     paddingInline: space._1,
@@ -298,12 +319,7 @@ const styles = stylex.create({
   stackView: {
     display: { default: "flex", [breakpoints.md]: "none" },
   },
-  stackName: {
-    fontSize: font.uiBody,
-  },
   stackFields: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
   },
   stackField: {
@@ -311,13 +327,10 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   stackLabel: {
-    fontSize: font.uiCaption,
     color: color.fgMuted,
   },
   inherited: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
   },
 });

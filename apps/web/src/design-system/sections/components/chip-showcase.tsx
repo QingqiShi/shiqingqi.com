@@ -91,11 +91,18 @@ export function ChipShowcase() {
           code={`import * as stylex from "@stylexjs/stylex";
 import { chipSize, chipSurface } from "@tuja/ui/components/chip.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 
 // For a framework <Link>, compose the surface directly.
 <Link
   href={href}
-  {...stylex.props(chipSurface.base, chipSize.md, chipSurface.interactive, transition.colors)}
+  {...stylex.props(
+    typeRole.label,
+    chipSurface.base,
+    chipSize.md,
+    chipSurface.interactive,
+    transition.colors,
+  )}
 >
   …
 </Link>`}

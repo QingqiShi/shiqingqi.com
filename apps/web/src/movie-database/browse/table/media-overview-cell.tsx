@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import { cellShared } from "./cell-shared.stylex";
 import type { MediaCellParams } from "./types";
 
@@ -12,7 +13,10 @@ export function MediaOverviewCell({ api, row }: MediaCellParams) {
   if (!overview) return <span css={cellShared.empty}>—</span>;
 
   return (
-    <span css={[styles.overview, truncate.base]} title={overview}>
+    <span
+      css={[typeRole.bodySmall, styles.overview, truncate.base]}
+      title={overview}
+    >
       {overview}
     </span>
   );
@@ -21,7 +25,5 @@ export function MediaOverviewCell({ api, row }: MediaCellParams) {
 const styles = stylex.create({
   overview: {
     color: color.fgMuted,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
   },
 });

@@ -11,11 +11,11 @@ import { t } from "#src/i18n.ts";
 export function HeadingShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Visual scale", zh: "视觉字阶" })}>
+      <Showcase label={t({ en: "Looks", zh: "Look" })}>
         <ShowcaseHelper>
           {t({
-            en: "Five visual looks, from the hero display down to a body-size section label.",
-            zh: "五种视觉字号，从主视觉 display 一直到正文大小的分区标签。",
+            en: "Five looks, each a type role, from the hero display down to a body-size section label.",
+            zh: "五种 look，每种都是一个字体角色，从主视觉 display 一直到正文大小的分区标签。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -96,8 +96,8 @@ export function HeadingShowcase() {
           </Specimen>
           <Specimen
             caption={t({
-              en: 'look="display" · bold (default)',
-              zh: 'look="display" · bold（默认）',
+              en: 'look="display" · extrabold (default)',
+              zh: 'look="display" · extrabold（默认）',
             })}
           >
             <Heading level={2} look="display">

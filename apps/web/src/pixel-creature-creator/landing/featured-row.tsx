@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
 import { encodeCreature } from "#src/pixel-creature-creator/creature/encode-creature.ts";
@@ -33,8 +34,8 @@ export function FeaturedRow({ locale }: FeaturedRowProps) {
   return (
     <section css={[stack.item, styles.root]} data-testid="featured-row">
       <header css={stack.tight}>
-        <h2 css={styles.heading}>{heading}</h2>
-        <p css={styles.description}>{description}</p>
+        <h2 css={[typeRole.fluidH2, styles.heading]}>{heading}</h2>
+        <p css={[typeRole.body, styles.description]}>{description}</p>
       </header>
       <ul css={styles.list}>
         {FEATURED_CREATURES.map((featured) => {
@@ -51,7 +52,9 @@ export function FeaturedRow({ locale }: FeaturedRowProps) {
                 <span css={styles.spriteSlot} aria-hidden="true">
                   <PixelSprite def={featured.def} scale={4} />
                 </span>
-                <span css={styles.name}>{featured.def.name}</span>
+                <span css={[typeRole.h4, styles.name]}>
+                  {featured.def.name}
+                </span>
               </a>
             </li>
           );
@@ -67,13 +70,10 @@ const styles = stylex.create({
   },
   heading: {
     margin: 0,
-    fontSize: font.vpHeading2,
-    fontWeight: font.weight_7,
     color: color.fg,
   },
   description: {
     margin: 0,
-    fontSize: font.uiBody,
     color: color.fgMuted,
   },
   list: {
@@ -119,8 +119,6 @@ const styles = stylex.create({
     minBlockSize: "8rem",
   },
   name: {
-    fontSize: font.uiBody,
-    fontWeight: font.weight_7,
     color: color.fg,
   },
 });

@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import { cellShared } from "./cell-shared.stylex";
 import { useMediaTable } from "./media-table-context";
 import type { MediaCellParams } from "./types";
@@ -21,13 +22,15 @@ export function MediaReleaseDateCell({ api, row }: MediaCellParams) {
     return <span css={cellShared.empty}>—</span>;
   }
 
-  return <span css={styles.date}>{date.format(parsed)}</span>;
+  return (
+    <span css={[typeRole.bodySmall, typeModifier.numeric, styles.date]}>
+      {date.format(parsed)}
+    </span>
+  );
 }
 
 const styles = stylex.create({
   date: {
     color: color.fgMuted,
-    fontSize: font.uiBodySmall,
-    fontVariantNumeric: "tabular-nums",
   },
 });

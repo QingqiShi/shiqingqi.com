@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
 import { Anchor } from "#src/links/anchor.tsx";
@@ -22,7 +23,7 @@ export function Footer({ locale }: FooterProps) {
           href="https://github.com/QingqiShi"
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          css={styles.link}
+          css={[typeRole.label, styles.link]}
         >
           GitHub
         </Anchor>
@@ -34,15 +35,17 @@ export function Footer({ locale }: FooterProps) {
           }
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          css={styles.link}
+          css={[typeRole.label, styles.link]}
         >
           LinkedIn
         </Anchor>
       </div>
       <div css={[styles.section, styles.copyrightSection]}>
         <small>
-          <span css={styles.name}>{t({ en: "Qingqi Shi", zh: "石清琪" })}</span>
-          <span css={styles.copyright}>
+          <span css={[typeRole.fluidH2, styles.name]}>
+            {t({ en: "Qingqi Shi", zh: "石清琪" })}
+          </span>
+          <span css={[typeRole.fluidH3, styles.copyright]}>
             © <CurrentYear initialYear={BUILD_YEAR} />
           </span>
         </small>
@@ -71,17 +74,12 @@ const styles = stylex.create({
   },
   name: {
     display: "block",
-    fontWeight: font.weight_8,
-    fontSize: font.vpHeading2,
   },
   copyright: {
     display: "block",
-    fontWeight: font.weight_8,
-    fontSize: font.vpHeading3,
   },
   link: {
     display: "block",
-    fontSize: font.uiBodySmall,
     paddingBlock: { default: space._1, [breakpoints.md]: 0 },
   },
 });

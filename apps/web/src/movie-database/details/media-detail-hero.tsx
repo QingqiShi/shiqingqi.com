@@ -4,10 +4,10 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
   controlSize,
-  font,
   layout,
   rhythm,
   space,
@@ -54,19 +54,21 @@ export function MediaDetailHero({
             role="img"
             aria-label={`${t({ en: "User rating", zh: "用户评分" })}: ${formatter.format(voteAverage)}${t({ en: " out of 10", zh: "/10" })}, ${t({ en: "based on", zh: "基于" })} ${voteCount.toLocaleString(locale)} ${t({ en: "votes", zh: "票" })}`}
           >
-            <div css={styles.rating} aria-hidden="true">
+            <div css={typeRole.h1} aria-hidden="true">
               {formatter.format(voteAverage)}
             </div>
-            <div css={styles.count} aria-hidden="true">
+            <div css={[typeRole.bodySmall, styles.count]} aria-hidden="true">
               {formatter.format(voteCount)}
             </div>
           </div>
         )}
         <div css={stack.tight}>
-          <h1 css={styles.h1}>{title}</h1>
-          <div css={styles.meta}>{meta}</div>
+          <h1 css={[typeRole.fluidH1, styles.h1]}>{title}</h1>
+          <div css={[typeRole.bodySmall, styles.meta]}>{meta}</div>
         </div>
-        {description && <p css={styles.description}>{description}</p>}
+        {description && (
+          <p css={[typeRole.body, styles.description]}>{description}</p>
+        )}
         <Suspense
           fallback={<Skeleton css={styles.trailerButtonSkeleton} width={120} />}
         >
@@ -97,16 +99,13 @@ const styles = stylex.create({
     justifyContent: "flex-end",
   },
   h1: {
-    fontSize: font.vpHeading1,
     margin: 0,
   },
   meta: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
   description: {
-    fontSize: font.uiBody,
     margin: 0,
   },
   ratingContainer: {
@@ -121,12 +120,7 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  rating: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_8,
-  },
   count: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   trailerButtonSkeleton: {

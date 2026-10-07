@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -193,7 +194,7 @@ export function ChatTextarea({
             aria-label={placeholder}
             rows={1}
             disabled={disabled}
-            css={[styles.field, styles.fieldMultiline]}
+            css={[typeRole.body, styles.field, styles.fieldMultiline]}
             autoComplete="off"
             enterKeyHint="send"
           />
@@ -207,7 +208,7 @@ export function ChatTextarea({
             placeholder={placeholder}
             aria-label={placeholder}
             disabled={disabled}
-            css={[styles.field, styles.fieldSingleLine]}
+            css={[typeRole.body, styles.field, styles.fieldSingleLine]}
             autoComplete="off"
             enterKeyHint="send"
           />
@@ -280,8 +281,6 @@ const styles = stylex.create({
     backgroundColor: "transparent",
     color: color.fg,
     fontFamily: font.family,
-    fontSize: font.uiBody,
-    lineHeight: font.lineHeight_4,
     padding: 0,
     "::placeholder": {
       color: color.fgMuted,

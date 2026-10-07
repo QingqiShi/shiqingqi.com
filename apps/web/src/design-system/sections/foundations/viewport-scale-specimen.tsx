@@ -5,6 +5,7 @@ import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -24,16 +25,16 @@ const STEPS = [
   { label: "lg", min: LG, threshold: `≥ ${LG.toString()}px`, device: "laptop" },
 ];
 
-// The rem values at each band, transcribed from the vp* tokens. They can't be
-// derived at runtime — getComputedStyle only exposes the ONE band matching the
-// live viewport, while the grid shows all four at once. Keep in sync with the
-// font.vp* tokens in tokens.stylex.ts if one is retuned.
+// The rem values and weights of the fluid type roles at each band. They can't
+// be derived at runtime — getComputedStyle only exposes the ONE band matching
+// the live viewport, while the grid shows all four at once. Keep in sync with
+// typeRole.fluid* and the font.vp* tokens if one is retuned.
 const ROWS = [
-  { token: "font.vpDisplay", sizes: [2, 2.8, 3.75, 5.25], weight: 800 },
-  { token: "font.vpSubDisplay", sizes: [1, 1.1, 1.3, 1.6], weight: 500 },
-  { token: "font.vpHeading1", sizes: [1.3, 1.4, 1.6, 2], weight: 700 },
-  { token: "font.vpHeading2", sizes: [1.2, 1.3, 1.5, 1.8], weight: 700 },
-  { token: "font.vpHeading3", sizes: [1, 1.1, 1.2, 1.3], weight: 600 },
+  { role: "fluidDisplay", sizes: [2, 2.8, 3.75, 5.25], weight: 800 },
+  { role: "fluidH1", sizes: [1.3, 1.4, 1.6, 2], weight: 700 },
+  { role: "fluidH2", sizes: [1.2, 1.3, 1.5, 1.8], weight: 700 },
+  { role: "fluidH3", sizes: [1, 1.1, 1.2, 1.3], weight: 700 },
+  { role: "fluidLead", sizes: [1, 1.1, 1.3, 1.6], weight: 400 },
 ];
 
 function bandOf(width: number) {
@@ -139,17 +140,31 @@ export function ViewportScaleSpecimen() {
                 <span css={[styles.iconWrap, active && styles.iconWrapActive]}>
                   <DeviceIcon device={step.device} />
                 </span>
-                <span css={[styles.colBand, active && styles.colBandActive]}>
+                <span
+                  css={[
+                    typeRole.caption,
+                    styles.colBand,
+                    active && styles.colBandActive,
+                  ]}
+                >
                   {step.label}
                 </span>
-                <span css={styles.colThreshold}>{step.threshold}</span>
+                <span
+                  css={[
+                    typeRole.caption,
+                    typeModifier.numeric,
+                    styles.colThreshold,
+                  ]}
+                >
+                  {step.threshold}
+                </span>
               </div>
             );
           })}
 
           {ROWS.map((row) => (
-            <Fragment key={row.token}>
-              <span css={styles.rowToken}>{row.token}</span>
+            <Fragment key={row.role}>
+              <span css={[typeRole.caption, styles.rowToken]}>{row.role}</span>
               {row.sizes.map((size, c) => (
                 <div
                   key={STEPS[c].label}
@@ -175,10 +190,12 @@ export function ViewportScaleSpecimen() {
       </ScrollMask>
 
       <p css={[stack.tight, styles.marker]} aria-live="polite">
-        <span css={styles.markerLabel}>
+        <span css={[typeRole.overline, styles.markerLabel]}>
           {t({ en: "your window", zh: "你的窗口" })}
         </span>
-        <span css={styles.markerValue}>
+        <span
+          css={[typeRole.bodySmall, typeModifier.numeric, styles.markerValue]}
+        >
           {viewport === undefined ? (
             " "
           ) : (
@@ -237,7 +254,6 @@ const styles = stylex.create({
   },
   colBand: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fgMuted,
   },
@@ -246,15 +262,12 @@ const styles = stylex.create({
   },
   colThreshold: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
     color: color.fgMuted,
-    fontVariantNumeric: "tabular-nums",
   },
   rowToken: {
     alignSelf: "center",
     paddingInlineEnd: space._2,
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     whiteSpace: "nowrap",
   },
@@ -280,16 +293,11 @@ const styles = stylex.create({
   },
   markerLabel: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWidest,
     color: color.fgMuted,
   },
   markerValue: {
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     color: color.fg,
-    fontVariantNumeric: "tabular-nums",
   },
   markerBand: {
     color: color.fgAccent,

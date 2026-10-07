@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import {
@@ -26,8 +27,8 @@ interface BandCellProps {
 function BandCell({ label, token, bg, fg }: BandCellProps) {
   return (
     <div css={[styles.cell, bg]}>
-      <span css={[styles.label, fg]}>{label}</span>
-      <span css={[styles.token, fg]}>
+      <span css={[typeRole.label, styles.label, fg]}>{label}</span>
+      <span css={[typeRole.caption, styles.token, fg]}>
         <Identifier>{token}</Identifier>
       </span>
     </div>
@@ -59,7 +60,7 @@ function Band({
     <section css={stack.item}>
       <header css={[stack.tight, styles.bandHeader]}>
         <Heading level={3}>{name}</Heading>
-        <p css={styles.bandUse}>{use}</p>
+        <p css={[typeRole.bodySmall, styles.bandUse]}>{use}</p>
       </header>
       <Showcase frame="plain" breakout>
         <div
@@ -261,8 +262,6 @@ const styles = stylex.create({
   },
   bandUse: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     textWrap: "pretty",
   },
@@ -288,20 +287,14 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   label: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingSnug,
-    lineHeight: font.lineHeight_2,
+    fontWeight: font.weight_6,
     color: color.fg,
   },
   // Caption size at full fgMuted strength: dimmer than this falls under AA on
   // the lighter cells.
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    letterSpacing: font.trackingTight,
     color: color.fgMuted,
-    lineHeight: font.lineHeight_2,
   },
 
   // The fade token over the ground it fades from, so the cell face stays

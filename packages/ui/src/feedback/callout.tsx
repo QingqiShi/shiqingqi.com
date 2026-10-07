@@ -12,7 +12,15 @@ import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
-import { border, color, font, rhythm, space } from "../tokens.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 type CalloutIntent =
@@ -130,15 +138,20 @@ export function Callout({
       css={[corner.radius_3, styles.base, surfaceStyles[intent], css]}
     >
       {resolvedIcon != null ? (
-        <span css={[styles.icon, accentStyles[intent]]} aria-hidden>
+        <span
+          css={[typeRole.body, styles.icon, accentStyles[intent]]}
+          aria-hidden
+        >
           {resolvedIcon}
         </span>
       ) : null}
       <div css={[stack.tight, styles.content]}>
         {title != null ? (
-          <div css={[styles.title, accentStyles[intent]]}>{title}</div>
+          <div css={[typeRole.h4, styles.title, accentStyles[intent]]}>
+            {title}
+          </div>
         ) : null}
-        <div css={styles.body}>{children}</div>
+        <div css={[typeRole.bodySmall, styles.body]}>{children}</div>
       </div>
       {onDismiss ? (
         <button
@@ -180,7 +193,6 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    fontSize: font.uiBody,
     blockSize: controlLineBox,
   },
   content: {
@@ -189,13 +201,9 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   title: {
-    fontSize: font.uiBody,
-    fontWeight: font.weight_7,
     lineHeight: font.lineHeight_4,
   },
   body: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fg,
   },
   dismiss: {
@@ -203,7 +211,7 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    fontSize: font.uiBody,
+    fontSize: controlSize._4,
     blockSize: controlLineBox,
     inlineSize: controlLineBox,
     color: { default: color.fgMuted, ":hover": color.fg },

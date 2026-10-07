@@ -4,6 +4,7 @@ import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DesignSystemNav } from "#src/design-system/design-system-nav.tsx";
 import { DesignSystemSidebarControls } from "#src/design-system/design-system-sidebar-controls.tsx";
@@ -110,13 +111,19 @@ export function SidebarLayoutShowcase() {
 
       <DoDont
         do={
-          <code css={styles.code}>{"sidebarFooter={<UtilityControls />}"}</code>
+          <code css={[typeRole.bodySmall, styles.code]}>
+            {"sidebarFooter={<UtilityControls />}"}
+          </code>
         }
         doCaption={t({
           en: "Put app-level utilities (theme, language) in sidebarFooter — they stay reachable on every viewport, pinned in the rail and inside the drawer.",
           zh: "将应用级实用控件（主题、语言）放在 sidebarFooter 中——它们固定在侧栏和抽屉内，任何视口都可触达。",
         })}
-        dont={<code css={styles.code}>{'menuLabel="Menu"'}</code>}
+        dont={
+          <code css={[typeRole.bodySmall, styles.code]}>
+            {'menuLabel="Menu"'}
+          </code>
+        }
         dontCaption={t({
           en: "Don't hard-code untranslated labels. menuLabel and closeLabel name the drawer dialog for assistive tech — supply localised strings.",
           zh: "不要硬编码未翻译的标签。menuLabel 与 closeLabel 是抽屉对话框的无障碍名称——请提供本地化文案。",
@@ -163,7 +170,6 @@ const styles = stylex.create({
   },
   code: {
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     color: color.fg,
     overflowWrap: "anywhere",
   },

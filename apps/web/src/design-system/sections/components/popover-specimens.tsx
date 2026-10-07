@@ -7,6 +7,7 @@ import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
@@ -50,7 +51,7 @@ export function PlacementDemo({ placement }: { placement: PopoverPlacement }) {
         </Button>
       )}
     >
-      <span css={styles.placementPanel}>{placement}</span>
+      <span css={[typeRole.caption, styles.placementPanel]}>{placement}</span>
     </Popover>
   );
 }
@@ -170,7 +171,7 @@ export function PortalTargetDemo() {
         </Text>
       </Popover>
       <div ref={setHost} css={[corner.radius_2, styles.portalHost]}>
-        <span css={styles.code}>portalTarget</span>
+        <span css={[typeRole.caption, styles.code]}>portalTarget</span>
       </div>
     </div>
   );
@@ -240,12 +241,10 @@ const styles = stylex.create({
     minInlineSize: space._12,
     textAlign: "center",
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
   },
   code: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
   },
   // Dashed, because the box is a destination rather than a surface — nothing

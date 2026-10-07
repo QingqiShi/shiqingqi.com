@@ -8,6 +8,7 @@ import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -112,7 +113,7 @@ export function MenuShowcase() {
           do={
             <div css={[stack.tight, styles.guideExample]}>
               <SortPopup />
-              <code css={[corner.radius_1, styles.roleTag]}>
+              <code css={[typeRole.caption, corner.radius_1, styles.roleTag]}>
                 {'popupRole="group"'}
               </code>
             </div>
@@ -124,7 +125,7 @@ export function MenuShowcase() {
           dont={
             <div css={[stack.tight, styles.guideExample]}>
               <SortPopup />
-              <code css={[corner.radius_1, styles.roleTag]}>
+              <code css={[typeRole.caption, corner.radius_1, styles.roleTag]}>
                 {'popupRole="menu"'}
               </code>
             </div>
@@ -184,7 +185,6 @@ const styles = stylex.create({
   },
   roleTag: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     backgroundColor: color.bgNeutralSubtle,
     paddingInline: space._1,

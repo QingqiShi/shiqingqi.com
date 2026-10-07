@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -33,7 +34,7 @@ export function OverlayShowcase() {
         <DoDont
           do={
             <div css={[corner.radius_3, styles.dialogSample]}>
-              <span css={styles.dialogClose} aria-hidden>
+              <span css={[typeRole.body, styles.dialogClose]} aria-hidden>
                 {"×"}
               </span>
               <Text as="span" look="bodySmall" weight="semibold">
@@ -49,7 +50,7 @@ export function OverlayShowcase() {
           })}
           dont={
             <div css={[corner.radius_3, styles.dialogSample]}>
-              <span css={styles.dialogClose} aria-hidden>
+              <span css={[typeRole.body, styles.dialogClose]} aria-hidden>
                 {"×"}
               </span>
               <div css={[corner.radius_1, styles.dialogBar]} />
@@ -87,7 +88,6 @@ const styles = stylex.create({
     insetBlockStart: space._2,
     insetInlineEnd: space._2,
     color: color.fgMuted,
-    fontSize: font.uiBody,
     lineHeight: font.lineHeight_0,
   },
   dialogBar: {

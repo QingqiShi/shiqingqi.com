@@ -12,8 +12,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/components/text",
     description: t({
-      en: "The body-copy typography primitive. A four-step type scale, four foreground roles, and four weights — with the semantic element decoupled from the visual size.",
-      zh: "正文文字排版基础组件。四档字阶、四种前景色角色与四种字重——语义元素与视觉字号相互独立。",
+      en: "The body-copy typography primitive. Five type roles, three tones, and four weights — with the semantic element decoupled from the visual size.",
+      zh: "正文文字排版基础组件。五种字体角色、三种色调与四种字重——语义元素与视觉字号相互独立。",
     }),
   });
 }
@@ -23,8 +23,8 @@ export default function TextPage() {
     <DocPage
       path="/design-system/components/text"
       description={t({
-        en: "The body-copy typography primitive. Choose the type step with look and the colour with tone, then pick the element with as — the semantic tag and the visual size stay decoupled.",
-        zh: "正文文字排版基础组件。用 look 选择字阶、用 tone 选择颜色，再用 as 选择元素——语义标签与视觉字号保持解耦。",
+        en: "The body-copy typography primitive. Choose the type role with look and the colour with tone, then pick the element with as — the semantic tag and the visual size stay decoupled.",
+        zh: "正文文字排版基础组件。用 look 选择字体角色、用 tone 选择颜色，再用 as 选择元素——语义标签与视觉字号保持解耦。",
       })}
     >
       <TextShowcase />

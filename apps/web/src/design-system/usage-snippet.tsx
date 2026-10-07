@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 interface UsageSnippetProps {
@@ -32,7 +33,7 @@ export function UsageSnippet({ code, label, source }: UsageSnippetProps) {
   const runs: readonly CodeToken[] = source ?? [["plain", code]];
   return (
     <div css={[corner.radius_2, styles.card]}>
-      <Text as="span" look="caption" tone="muted" css={styles.label}>
+      <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
         {resolvedLabel}
       </Text>
       <CodeBlock source={runs} />
@@ -50,10 +51,5 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
-  },
-  label: {
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWider,
-    fontWeight: font.weight_6,
   },
 });

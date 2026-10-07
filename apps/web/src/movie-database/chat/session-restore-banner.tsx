@@ -6,7 +6,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 interface SessionRestoreBannerProps {
@@ -40,11 +41,18 @@ export function SessionRestoreBanner({
 
   return (
     <Card css={row.item} role={hasError ? "alert" : undefined}>
-      <p css={[styles.text, hasError && styles.errorText]}>{message}</p>
+      <p css={[typeRole.body, styles.text, hasError && styles.errorText]}>
+        {message}
+      </p>
       <div css={[flex.row, styles.actions]}>
         <button
           type="button"
-          css={[buttonReset.base, corner.radius_round, styles.dismissButton]}
+          css={[
+            typeRole.label,
+            buttonReset.base,
+            corner.radius_round,
+            styles.dismissButton,
+          ]}
           onClick={onDismiss}
           disabled={isPending}
         >
@@ -52,7 +60,12 @@ export function SessionRestoreBanner({
         </button>
         <button
           type="button"
-          css={[buttonReset.base, corner.radius_round, styles.continueButton]}
+          css={[
+            typeRole.label,
+            buttonReset.base,
+            corner.radius_round,
+            styles.continueButton,
+          ]}
           onClick={onContinue}
           disabled={isPending}
           aria-busy={isPending || undefined}
@@ -67,7 +80,6 @@ export function SessionRestoreBanner({
 const styles = stylex.create({
   text: {
     margin: 0,
-    fontSize: font.uiBody,
     color: color.fgMuted,
     flex: 1,
   },
@@ -80,8 +92,6 @@ const styles = stylex.create({
     flexShrink: 0,
   },
   dismissButton: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: "transparent",
@@ -97,8 +107,6 @@ const styles = stylex.create({
     transition: "color 0.15s ease",
   },
   continueButton: {
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_3,
     paddingBlock: space._1,
     paddingInline: space._3,
     backgroundColor: {

@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { cellShared } from "./cell-shared.stylex";
 import { MediaMeter } from "./media-meter";
@@ -21,7 +22,11 @@ export function MediaPopularityCell({ api, row }: MediaCellParams) {
       percent={toPercent(popularity, maxPopularity)}
       fillCss={styles.meterFillAccent}
     >
-      <span css={cellShared.numeric}>{compact.format(popularity)}</span>
+      <span
+        css={[typeRole.bodySmall, typeModifier.numeric, cellShared.numeric]}
+      >
+        {compact.format(popularity)}
+      </span>
     </MediaMeter>
   );
 }

@@ -15,6 +15,10 @@ import {
  *
  * Exported, like `button-shared.stylex`, so a consumer can tune the chrome
  * centrally — but `TextField` / `Textarea` stay the public entry point.
+ *
+ * The type comes from a `typeRole`, composed first beside each style:
+ * `control` for the label, the control box and the affixes, `caption` for
+ * the description and the error text.
  */
 
 /**
@@ -39,9 +43,7 @@ export const fieldStyles = stylex.create({
   label: {
     display: "inline-flex",
     alignItems: "baseline",
-    fontSize: font.uiControl,
     fontWeight: font.weight_6,
-    lineHeight: font.lineHeight_3,
     color: color.fg,
   },
   // Decorative asterisk via `::after`, so it never enters the label's text or
@@ -55,8 +57,6 @@ export const fieldStyles = stylex.create({
     },
   },
   description: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
     color: color.fgMuted,
   },
   // Positioning context for the absolutely-placed affix slots. Also carries the
@@ -73,7 +73,7 @@ export const fieldStyles = stylex.create({
     inlineSize: "100%",
     minInlineSize: 0,
     fontFamily: font.family,
-    fontSize: font.uiControl,
+    fontWeight: font.weight_4,
     lineHeight: font.lineHeight_4,
     color: color.fg,
     backgroundColor: {
@@ -131,7 +131,6 @@ export const fieldStyles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     inlineSize: AFFIX_SLOT,
-    fontSize: font.uiControl,
     color: color.fgMuted,
     pointerEvents: "none",
   },
@@ -142,8 +141,6 @@ export const fieldStyles = stylex.create({
     insetInlineEnd: fieldVars.paddingInline,
   },
   errorText: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_3,
     color: color.fgDanger,
   },
 });

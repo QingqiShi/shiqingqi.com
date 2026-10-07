@@ -6,6 +6,7 @@ import {
 } from "@tuja/ui/components/glass-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
 import {
   border,
@@ -40,7 +41,7 @@ function BusyGround({
 }) {
   return (
     <div css={[wash.toRight, corner.radius_3, styles.ground, css]}>
-      <p css={styles.groundCopy} aria-hidden="true">
+      <p css={[typeRole.bodySmall, styles.groundCopy]} aria-hidden="true">
         {t({
           en: "A lens floating above the page. What lies beneath it stays visible and loses its detail. Read these words through the glass: they are still there, and the detail has gone.",
           zh: "一枚悬浮在页面上方的透镜。下方的一切仍然可见，只是失去细节。透过玻璃读这些字：它们还在，细节没了。",
@@ -128,7 +129,12 @@ export function GlassShowcase() {
             </Text>
           </div>
           <span
-            css={[glassSurface.base, corner.squircle_round, styles.heroPill]}
+            css={[
+              typeRole.label,
+              glassSurface.base,
+              corner.squircle_round,
+              styles.heroPill,
+            ]}
           >
             {t({ en: "Change", zh: "更改" })}
           </span>
@@ -214,10 +220,10 @@ const styles = stylex.create({
               styles.blur_0,
             ]}
           >
-            <span css={styles.lensLabel}>blur 0px</span>
+            <span css={[typeRole.caption, styles.lensLabel]}>blur 0px</span>
           </div>
           <div css={[glassSurface.base, corner.radius_4, styles.lens]}>
-            <span css={styles.lensLabel}>blur 8px</span>
+            <span css={[typeRole.caption, styles.lensLabel]}>blur 8px</span>
           </div>
           <div
             css={[
@@ -227,7 +233,7 @@ const styles = stylex.create({
               styles.blur_24,
             ]}
           >
-            <span css={styles.lensLabel}>blur 24px</span>
+            <span css={[typeRole.caption, styles.lensLabel]}>blur 24px</span>
           </div>
         </BusyGround>
       </Specimen>
@@ -240,7 +246,9 @@ const styles = stylex.create({
       >
         <BusyGround>
           <div css={[glassSurface.base, corner.radius_4, styles.lens]}>
-            <span css={styles.lensLabel}>glassTokens.fill</span>
+            <span css={[typeRole.caption, styles.lensLabel]}>
+              glassTokens.fill
+            </span>
           </div>
           <div
             css={[
@@ -250,7 +258,7 @@ const styles = stylex.create({
               styles.halfFill,
             ]}
           >
-            <span css={styles.lensLabel}>
+            <span css={[typeRole.caption, styles.lensLabel]}>
               {t({ en: "half the fill", zh: "填充的一半" })}
             </span>
           </div>
@@ -262,7 +270,9 @@ const styles = stylex.create({
               styles.accentFill,
             ]}
           >
-            <span css={styles.lensLabel}>bgAccentSubtle 70%</span>
+            <span css={[typeRole.caption, styles.lensLabel]}>
+              bgAccentSubtle 70%
+            </span>
           </div>
         </BusyGround>
       </Specimen>
@@ -294,8 +304,6 @@ const styles = stylex.create({
     transform: "translateY(-50%)",
     margin: 0,
     paddingInline: space._3,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
   },
   stack: {
@@ -324,7 +332,6 @@ const styles = stylex.create({
     alignItems: "center",
     blockSize: cornerTokens.height,
     paddingInline: space._4,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.fg,
   },
@@ -350,7 +357,6 @@ const styles = stylex.create({
   },
   lensLabel: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fg,
   },
   blur_0: {

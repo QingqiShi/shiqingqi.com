@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { DocSection } from "./doc-section.tsx";
@@ -49,7 +50,9 @@ export function Showcase({
     <DocSection
       title={label}
       titleCss={[
-        plain ? styles.headingPlain : styles.label,
+        plain
+          ? [typeRole.h2, styles.headingPlain]
+          : [typeRole.overline, styles.label],
         labelLook === "code" && styles.labelCode,
         breakout && onReadingColumn.base,
       ]}
@@ -86,7 +89,11 @@ export function StateReadout({
     <Text look="bodySmall" tone="muted">
       {label}{" "}
       <span
-        css={[corner.radius_1, styles.stateValue, tabular && styles.tabular]}
+        css={[
+          corner.radius_1,
+          styles.stateValue,
+          tabular && typeModifier.numeric,
+        ]}
       >
         {children}
       </span>
@@ -110,11 +117,7 @@ const styles = stylex.create({
     marginInlineStart: "calc(50% - 50cqi)",
   },
   label: {
-    fontSize: font.uiCaption,
     color: color.fgMuted,
-    letterSpacing: font.trackingWider,
-    textTransform: "uppercase",
-    fontWeight: font.weight_6,
   },
   // Overlays whichever label style is in play, so a code label keeps that
   // style's size, colour and weight and changes only what the uppercase eyebrow
@@ -126,11 +129,7 @@ const styles = stylex.create({
     letterSpacing: font.trackingNormal,
   },
   headingPlain: {
-    fontSize: font.uiHeading2,
-    fontWeight: font.weight_7,
     color: color.fg,
-    letterSpacing: font.trackingTight,
-    lineHeight: font.lineHeight_1,
   },
   stateValue: {
     fontFamily: font.familyMono,
@@ -139,8 +138,5 @@ const styles = stylex.create({
     paddingInline: space._1,
     paddingBlock: space._00,
     backgroundColor: color.bgControl,
-  },
-  tabular: {
-    fontVariantNumeric: "tabular-nums",
   },
 });

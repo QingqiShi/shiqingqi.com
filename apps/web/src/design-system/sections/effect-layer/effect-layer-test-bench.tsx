@@ -10,6 +10,7 @@ import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -40,8 +41,8 @@ function Swatch({
       data-effect-test-element=""
       css={[flex.col, styles.swatch, css]}
     >
-      <span css={styles.token}>{token}</span>
-      <span css={styles.token}>{shape}</span>
+      <span css={[typeRole.caption, styles.token]}>{token}</span>
+      <span css={[typeRole.caption, styles.token]}>{shape}</span>
     </div>
   );
 }
@@ -171,7 +172,6 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
   },
   raised: {
     color: color.fg,

@@ -4,6 +4,7 @@ import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { t } from "#src/i18n.ts";
@@ -50,9 +51,12 @@ export function SpaceScaleShowcase() {
       <div css={styles.ruler}>
         <ol css={styles.labels}>
           {steps.map((step) => (
-            <li key={step.member} css={[styles.row, styles.label]}>
+            <li
+              key={step.member}
+              css={[typeRole.caption, styles.row, styles.label]}
+            >
               <span css={styles.token}>{`space.${step.member}`}</span>
-              <span css={styles.value}>
+              <span css={[typeModifier.numeric, styles.value]}>
                 <span css={styles.rem}>{step.rem}</span>
                 <span css={styles.dot}>·</span>
                 <span css={styles.px}>{step.px}</span>
@@ -71,7 +75,10 @@ export function SpaceScaleShowcase() {
         >
           <div aria-hidden="true" css={stack.tight}>
             {steps.map((step) => (
-              <div key={step.member} css={[styles.row, styles.barRow]}>
+              <div
+                key={step.member}
+                css={[typeRole.caption, styles.row, styles.barRow]}
+              >
                 <span css={[styles.bar, step.bar]} />
               </div>
             ))}
@@ -99,8 +106,6 @@ const styles = stylex.create({
   // of two caption lines to keep a label beside its bar.
   row: {
     display: "flex",
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_2,
     blockSize: `calc(2lh + ${rhythm.tight})`,
   },
   // The hairline is the ruler's zero line.
@@ -129,7 +134,6 @@ const styles = stylex.create({
   },
   token: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     whiteSpace: "nowrap",
   },
@@ -138,8 +142,6 @@ const styles = stylex.create({
     alignItems: "baseline",
     gap: rhythm.tight,
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    fontVariantNumeric: "tabular-nums",
     whiteSpace: "nowrap",
   },
   rem: { color: color.fg },

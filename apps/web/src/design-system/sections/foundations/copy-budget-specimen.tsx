@@ -9,7 +9,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -66,7 +67,7 @@ export function CopyBudgetSpecimen() {
 
       <div css={[stack.item, corner.radius_2, styles.card]}>
         <div css={[flex.between, styles.cardHead]}>
-          <span css={[styles.cardTitle, truncate.base]}>
+          <span css={[typeRole.h4, styles.cardTitle, truncate.base]}>
             {t({ en: "Recently watched", zh: "最近观看" })}
           </span>
           <Badge intent="success" css={styles.badge}>
@@ -123,8 +124,6 @@ const styles = stylex.create({
     gap: rhythm.tight,
   },
   cardTitle: {
-    fontSize: font.uiBody,
-    fontWeight: font.weight_6,
     color: color.fg,
     minInlineSize: 0,
   },

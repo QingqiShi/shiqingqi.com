@@ -9,6 +9,7 @@ import {
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
@@ -46,7 +47,13 @@ function NumberField({
   const id = useId();
   return (
     <label htmlFor={id} css={[stack.tight, styles.field]}>
-      <span css={[styles.fieldLabel, emphasis && styles.fieldLabelEmphasis]}>
+      <span
+        css={[
+          emphasis ? typeRole.label : typeRole.caption,
+          styles.fieldLabel,
+          emphasis && styles.fieldLabelEmphasis,
+        ]}
+      >
         {label}
       </span>
       <input
@@ -56,7 +63,13 @@ function NumberField({
         min={min}
         max={max}
         step={step}
-        css={[corner.radius_2, styles.input, emphasis && styles.inputEmphasis]}
+        css={[
+          emphasis ? typeRole.h3 : typeRole.bodySmall,
+          typeModifier.numeric,
+          corner.radius_2,
+          styles.input,
+          emphasis && styles.inputEmphasis,
+        ]}
         onChange={(event) => {
           // Skip mid-edit blank state — `Number("")` is 0, which would
           // commit a destructive 0 (or 1, after the callsite's clamp) and
@@ -104,7 +117,9 @@ export function GridControls({
   return (
     <div css={stack.item}>
       <section css={[stack.tight, styles.group]}>
-        <h3 css={styles.sectionLabel}>{t({ en: "Grid", zh: "网格" })}</h3>
+        <h3 css={[typeRole.label, styles.sectionLabel]}>
+          {t({ en: "Grid", zh: "网格" })}
+        </h3>
         <div css={stack.item}>
           <div css={styles.primaryRow}>
             <NumberField
@@ -118,7 +133,10 @@ export function GridControls({
               testId="grid-cols"
               emphasis
             />
-            <span css={styles.times} aria-hidden="true">
+            <span
+              css={[typeRole.h3, typeModifier.numeric, styles.times]}
+              aria-hidden="true"
+            >
               ×
             </span>
             <NumberField
@@ -135,7 +153,7 @@ export function GridControls({
           </div>
 
           <div css={stack.tight}>
-            <p css={styles.subLabel}>
+            <p css={[typeRole.caption, styles.subLabel]}>
               {t({ en: "Alignment & gaps", zh: "对齐与间距" })}
             </p>
             <div css={styles.fieldGrid}>
@@ -208,7 +226,7 @@ export function GridControls({
       <Divider look="subtle" />
 
       <section css={[stack.tight, styles.group]}>
-        <h3 css={styles.sectionLabel}>
+        <h3 css={[typeRole.label, styles.sectionLabel]}>
           {t({ en: "Output size", zh: "输出尺寸" })}
         </h3>
         <div css={styles.fieldGrid}>
@@ -246,10 +264,8 @@ const styles = stylex.create({
   },
   sectionLabel: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingSnug,
     color: color.fg,
+    fontWeight: font.weight_6,
   },
   primaryRow: {
     display: "grid",
@@ -259,16 +275,13 @@ const styles = stylex.create({
   },
   times: {
     paddingBlockEnd: space._2,
-    fontSize: font.uiHeading3,
-    fontWeight: font.weight_4,
     color: color.fgMuted,
-    fontVariantNumeric: "tabular-nums",
+    fontWeight: font.weight_4,
   },
   subLabel: {
     margin: 0,
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_6,
     color: color.fgMuted,
+    fontWeight: font.weight_6,
   },
   fieldGrid: {
     display: "grid",
@@ -279,12 +292,11 @@ const styles = stylex.create({
     minWidth: 0,
   },
   fieldLabel: {
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_5,
+    fontWeight: font.weight_6,
     color: color.fgMuted,
   },
   fieldLabelEmphasis: {
-    fontSize: font.uiBodySmall,
+    fontWeight: font.weight_5,
     color: color.fg,
   },
   input: {
@@ -294,9 +306,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
     color: color.fg,
     border: `${border.size_1} solid ${color.border}`,
-    fontSize: font.uiBodySmall,
     fontFamily: font.familyMono,
-    fontVariantNumeric: "tabular-nums",
     boxSizing: "border-box",
     outlineWidth: 0,
     transition: {
@@ -314,7 +324,6 @@ const styles = stylex.create({
   },
   inputEmphasis: {
     paddingBlock: space._2,
-    fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
     textAlign: "center",
   },

@@ -8,7 +8,8 @@ import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, controlSize, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, controlSize, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState, type ReactNode } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";
@@ -212,20 +213,20 @@ export function OverviewBrowser({
         {/* Always mounted and holding its line, empty until there is a query: a
             live region that only appears once results change has nothing to
             announce from, and one that appears at all shifts the page. */}
-        <p role="status" css={styles.resultCount}>
+        <p role="status" css={[typeRole.bodySmall, styles.resultCount]}>
           {resultCount}
         </p>
       </div>
 
       {visible.length === 0 ? (
-        <p css={styles.emptyHint}>{emptyHint}</p>
+        <p css={[typeRole.body, styles.emptyHint]}>{emptyHint}</p>
       ) : (
         visible.map((block) => (
           // The h2 stands an item above its content, not tight: an h3 can
           // follow it, and that h3 must bind to its grid, not to the h2.
           <section key={block.key} css={stack.item}>
             {block.heading !== null && (
-              <h2 css={styles.sectionTitle}>{block.heading}</h2>
+              <h2 css={[typeRole.h1, styles.sectionTitle]}>{block.heading}</h2>
             )}
             <div css={stack.group}>
               {block.entries.length > 0 && <Grid entries={block.entries} />}
@@ -233,7 +234,9 @@ export function OverviewBrowser({
                 .filter((child) => child.entries.length > 0)
                 .map((child) => (
                   <div key={child.key} css={stack.tight}>
-                    <h3 css={styles.categoryTitle}>{child.heading}</h3>
+                    <h3 css={[typeRole.overline, styles.categoryTitle]}>
+                      {child.heading}
+                    </h3>
                     <Grid entries={child.entries} />
                   </div>
                 ))}
@@ -287,24 +290,16 @@ const styles = stylex.create({
   resultCount: {
     margin: 0,
     minBlockSize: "1lh",
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   sectionTitle: {
     margin: 0,
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingSnug,
     color: color.fg,
   },
   // A rank below the section title and read as one: uppercase and tracked out,
   // the same move the rail makes to separate its two levels.
   categoryTitle: {
     margin: 0,
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingWidest,
-    textTransform: "uppercase",
     color: color.fgMuted,
   },
   // `auto-fill`, not `auto-fit`: the groups run from two tiles to eight, and
@@ -319,8 +314,6 @@ const styles = stylex.create({
   },
   emptyHint: {
     margin: 0,
-    fontSize: font.uiHeading3,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     maxInlineSize: "52ch",
     textWrap: "pretty",

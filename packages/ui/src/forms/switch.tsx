@@ -16,7 +16,6 @@ import {
   border,
   color,
   controlSize,
-  font,
   layer,
   opacity,
   ratio,
@@ -291,7 +290,6 @@ function useSwitchDrag({
 
 const styles = stylex.create({
   switch: {
-    fontSize: font.uiControl,
     margin: 0,
     aspectRatio: ratio.double,
     cursor: { default: "pointer", ":disabled": "not-allowed" },

@@ -16,6 +16,7 @@ import {
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
@@ -217,7 +218,7 @@ export function AnimationMode({
               ? t({ en: "Pause", zh: "暂停" })
               : t({ en: "Play", zh: "播放" })}
           </Button>
-          <label css={styles.speedLabel}>
+          <label css={[typeRole.label, styles.speedLabel]}>
             <span>{t({ en: "Speed", zh: "速度" })}</span>
             <input
               type="range"
@@ -231,7 +232,15 @@ export function AnimationMode({
               css={styles.range}
               data-testid="speed"
             />
-            <span css={styles.speedValue}>{speed.toFixed(2)}×</span>
+            <span
+              css={[
+                typeRole.bodySmall,
+                typeModifier.numeric,
+                styles.speedValue,
+              ]}
+            >
+              {speed.toFixed(2)}×
+            </span>
           </label>
           <Button
             icon={
@@ -250,9 +259,11 @@ export function AnimationMode({
 
       <div css={[corner.radius_3, styles.timelineArea]}>
         <div css={[row.tight, styles.timelineHeader]}>
-          <h2 css={styles.timelineTitle}>
+          <h2 css={[typeRole.label, styles.timelineTitle]}>
             {t({ en: "Frames", zh: "帧" })}{" "}
-            <span css={styles.timelineCount}>({frames.length})</span>
+            <span css={[typeModifier.numeric, styles.timelineCount]}>
+              ({frames.length})
+            </span>
           </h2>
           <Button
             icon={<PlusIcon size={16} weight="bold" aria-hidden="true" />}
@@ -264,7 +275,7 @@ export function AnimationMode({
           </Button>
         </div>
         {frames.length === 0 ? (
-          <p css={styles.empty}>
+          <p css={[typeRole.bodySmall, styles.empty]}>
             {t({
               en: "Select a cell in the strip and click Add to build an animation.",
               zh: "在单元格列表中选一个，点添加来构建动画。",
@@ -284,10 +295,10 @@ export function AnimationMode({
               >
                 <FrameThumb cell={cells[frame.cellIndex] ?? null} />
                 <div css={[stack.tight, styles.frameMeta]}>
-                  <span css={styles.frameLabel}>
+                  <span css={[typeRole.label, styles.frameLabel]}>
                     {cellLabel} {frame.cellIndex + 1}
                   </span>
-                  <label css={styles.frameDurationLabel}>
+                  <label css={[typeRole.label, styles.frameDurationLabel]}>
                     <span>{msLabel}</span>
                     <input
                       type="number"
@@ -303,7 +314,12 @@ export function AnimationMode({
                         if (event.target.value === "") return;
                         setFrameDuration(index, Number(event.target.value));
                       }}
-                      css={[corner.radius_2, styles.frameDuration]}
+                      css={[
+                        typeRole.bodySmall,
+                        typeModifier.numeric,
+                        corner.radius_2,
+                        styles.frameDuration,
+                      ]}
                       data-testid={`frame-duration-${String(index)}`}
                     />
                   </label>
@@ -403,16 +419,13 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.tight,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   speedValue: {
     minWidth: "3em",
     textAlign: "right",
-    fontSize: font.uiBodySmall,
     fontFamily: font.familyMono,
     color: color.fg,
-    fontVariantNumeric: "tabular-nums",
   },
   range: {
     accentColor: color.bgAccent,
@@ -434,19 +447,15 @@ const styles = stylex.create({
   },
   timelineTitle: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingSnug,
     color: color.fg,
+    fontWeight: font.weight_6,
   },
   timelineCount: {
-    fontWeight: font.weight_4,
-    fontVariantNumeric: "tabular-nums",
     color: color.fgMuted,
+    fontWeight: font.weight_4,
   },
   empty: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   frameList: {
@@ -484,7 +493,6 @@ const styles = stylex.create({
     flex: "1",
   },
   frameLabel: {
-    fontSize: font.uiBodySmall,
     color: color.fg,
     fontWeight: font.weight_6,
   },
@@ -492,7 +500,6 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     gap: rhythm.tight,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
   frameDuration: {
@@ -503,8 +510,6 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceRaised,
     color: color.fg,
     fontFamily: font.familyMono,
-    fontVariantNumeric: "tabular-nums",
-    fontSize: font.uiBodySmall,
   },
   frameActions: {
     display: "flex",

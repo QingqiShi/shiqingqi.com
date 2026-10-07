@@ -6,6 +6,7 @@ Multi-property composable styles in `packages/ui/src/primitives/`. Each primitiv
 
 - [Flex Layouts](#flex-layouts)
 - [Stack](#stack)
+- [Type Role](#type-role)
 - [Corner](#corner)
 - [Layout Patterns](#layout-patterns)
 - [Resets](#resets)
@@ -102,6 +103,50 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
     <ClockIcon /> 2h 44m
   </span>
 </section>;
+```
+
+---
+
+## Type Role
+
+**Import**: `@tuja/ui/primitives/type.stylex`
+
+The job a piece of text does. Each role sets `fontSize`, `lineHeight`, `fontWeight` and `letterSpacing` together. Compose it first, so a later style can change the weight with a `font.weight_*` token. `Text` and `Heading` take the same roles as their `look`.
+
+| Export                    | Size                    | Leading | Weight | Tracking               |
+| ------------------------- | ----------------------- | ------- | ------ | ---------------------- |
+| `typeRole.display`        | `font.uiDisplay`        | 1.1     | 800    | tight                  |
+| `typeRole.subDisplay`     | `font.uiSubDisplay`     | 1.1     | 800    | tight                  |
+| `typeRole.h1`             | `font.uiHeading1`       | 1.2     | 800    | snug                   |
+| `typeRole.h2`             | `font.uiHeading2`       | 1.2     | 700    | normal                 |
+| `typeRole.h3`             | `font.uiHeading3`       | 1.2     | 700    | normal                 |
+| `typeRole.h4`             | `font.uiBody`           | 1.3     | 700    | normal                 |
+| `typeRole.body`           | `font.uiBody`           | 1.5     | 400    | normal                 |
+| `typeRole.bodySmall`      | `font.uiBodySmall`      | 1.5     | 400    | normal                 |
+| `typeRole.label`          | `font.uiBodySmall`      | 1.3     | 500    | normal                 |
+| `typeRole.caption`        | `font.uiCaption`        | 1.3     | 400    | normal                 |
+| `typeRole.overline`       | `font.uiOverline`       | 1.3     | 600    | widest + uppercase     |
+| `typeRole.control`        | `font.uiControl`        | 1.3     | 500    | normal                 |
+| `typeRole.controlCaption` | `font.uiControlCaption` | 1.3     | 400    | normal                 |
+| `typeRole.fluidDisplay`   | `font.vpDisplay`        | 1.1     | 800    | tight                  |
+| `typeRole.fluidH1`        | `font.vpHeading1`       | 1.2     | 700    | normal                 |
+| `typeRole.fluidH2`        | `font.vpHeading2`       | 1.2     | 700    | normal                 |
+| `typeRole.fluidH3`        | `font.vpHeading3`       | 1.3     | 700    | normal                 |
+| `typeRole.fluidLead`      | `font.vpSubDisplay`     | 1.5     | 400    | normal                 |
+| `typeRole.cardTitle`      | `font.cqTitle`          | 1.2     | 700    | normal                 |
+| `typeModifier.numeric`    | —                       | —       | —      | `tabular-nums` figures |
+
+`control` and `controlCaption` step down at `md` together with `controlSize`. The `fluid*` roles are for a landing page and grow with the viewport. `cardTitle` grows with the nearest `inline-size` container, so put it inside one.
+
+```tsx
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+
+<header css={stack.tight}>
+  <h3 css={typeRole.h3}>Tonight</h3>
+  <span css={[typeRole.caption, typeModifier.numeric, styles.meta]}>
+    2h 44m
+  </span>
+</header>;
 ```
 
 ---

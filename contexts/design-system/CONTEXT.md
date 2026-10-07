@@ -29,7 +29,7 @@ One curated configuration of a component that its Lab offers ready-made — Butt
 _Avoid_: preset, example, story, look (for this sense), 外观 (that is a look), 预设
 
 **Primitive**:
-A composable multi-property StyleX style object — `flex`, `stack`, `layout`, `motion`, `reset`, `root`, `a11y`, `corner`, `texture`, `wash` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
+A composable multi-property StyleX style object — `flex`, `stack`, `layout`, `motion`, `reset`, `root`, `a11y`, `corner`, `texture`, `wash`, `typeRole` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
 _Avoid_: recipe, pattern (for this sense), 配方
 
 **Rhythm**:
@@ -39,6 +39,10 @@ _Avoid_: spacing scale, gap size, 间距阶梯 (each of these is `space`)
 **Stack**:
 A container that owns the space between its children, at one Rhythm step: `stack.*` for a column, `cluster.*` for a row that wraps, `row.*` for a row that does not. Its children set no margin to push their neighbours away. ZH: 堆叠.
 _Avoid_: spacer, list (for this sense), 间隔器
+
+**Type role**:
+The job a piece of text does, named by what it is rather than by its size — `display`, `subDisplay`, `h1`–`h4`, `body`, `bodySmall`, `label`, `caption`, `overline`, `control`, `controlCaption`, and the fluid roles that grow with the viewport or a container. A type role sets the size, line height, weight and tracking together; a callsite may change only the weight. The `typeRole` Primitive holds them, and `Text` and `Heading` take one as their `look`. ZH: 字体角色.
+_Avoid_: type scale, font size, text style, 字阶 (each of these is a `font` token)
 
 **Lab**:
 A component page's interactive view — a live, operable Specimen on the canvas, with the Variants, one control per prop, and the snippet for what is on the canvas beside it. ZH: 实验室.

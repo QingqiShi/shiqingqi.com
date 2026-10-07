@@ -5,7 +5,8 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -37,7 +38,7 @@ export function ThemeFrame({ scheme, label, children }: ThemeFrameProps) {
         scheme === "dark" ? styles.dark : styles.light,
       ]}
     >
-      <Text as="span" look="caption" tone="muted" css={styles.label}>
+      <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
         {resolvedLabel}
       </Text>
       <div css={[stack.item, styles.canvas]}>{children}</div>
@@ -96,11 +97,6 @@ const styles = stylex.create({
   },
   dark: {
     colorScheme: "dark",
-  },
-  label: {
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWider,
-    fontWeight: font.weight_6,
   },
   canvas: {
     minInlineSize: 0,

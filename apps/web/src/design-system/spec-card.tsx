@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Identifier } from "./identifier.tsx";
@@ -14,10 +15,10 @@ export function SpecCard({ token, meta, children }: SpecCardProps) {
   return (
     <div css={[corner.radius_2, styles.card]}>
       <div css={styles.label}>
-        <span css={styles.token}>
+        <span css={[typeRole.caption, styles.token]}>
           <Identifier>{token}</Identifier>
         </span>
-        <span css={styles.meta}>{meta}</span>
+        <span css={[typeRole.caption, styles.meta]}>{meta}</span>
       </div>
       {children}
     </div>
@@ -42,14 +43,11 @@ const styles = stylex.create({
   token: {
     display: "block",
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_2,
     color: color.fgMuted,
   },
   meta: {
     display: "block",
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
   },
 });

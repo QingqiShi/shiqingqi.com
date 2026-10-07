@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useEffect, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -41,10 +42,12 @@ export function LayoutWindowWidthReadout({
 
   return (
     <p css={[stack.tight, styles.marker]} aria-live="polite">
-      <span css={styles.markerLabel}>
+      <span css={[typeRole.overline, styles.markerLabel]}>
         {t({ en: "your window", zh: "你的窗口" })}
       </span>
-      <span css={styles.markerValue}>
+      <span
+        css={[typeRole.bodySmall, typeModifier.numeric, styles.markerValue]}
+      >
         {viewport === undefined ? (
           " "
         ) : (
@@ -64,16 +67,11 @@ const styles = stylex.create({
   },
   markerLabel: {
     fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWidest,
     color: color.fgMuted,
   },
   markerValue: {
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
     color: color.fg,
-    fontVariantNumeric: "tabular-nums",
   },
   markerBand: {
     color: color.fgAccent,

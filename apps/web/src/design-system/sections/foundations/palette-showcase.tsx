@@ -6,6 +6,7 @@ import {
 } from "@tuja/ui/palette-table";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
@@ -108,7 +109,7 @@ function PaletteRow({ palette }: { palette: SystemHuePalette }) {
     // The label wraps above the ramp when space runs out, so the ramp keeps a
     // usable width.
     <li css={cluster.tight}>
-      <span css={styles.name}>{palette.name}</span>
+      <span css={[typeRole.label, styles.name]}>{palette.name}</span>
       <div
         css={[corner.radius_2, styles.ramp, styles.rampColumns(RAMP_COLUMNS)]}
         role="img"
@@ -138,10 +139,8 @@ const styles = stylex.create({
   name: {
     flexShrink: 0,
     inlineSize: "4.5rem",
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
     color: color.fg,
-    letterSpacing: font.trackingTight,
   },
   ramp: {
     flex: "1",

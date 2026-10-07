@@ -6,6 +6,7 @@ import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
 import { easing, transition } from "../primitives/motion.stylex.ts";
+import { typeRole } from "../primitives/type.stylex.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -265,7 +266,7 @@ function PartsCode({ parts }: PartsCodeProps) {
   }, []);
 
   return (
-    <code ref={codeRef} css={styles.code}>
+    <code ref={codeRef} css={[typeRole.bodySmall, styles.code]}>
       {parts.map((part) => (
         <Fragment key={part.id}>
           {part.lead}
@@ -304,7 +305,7 @@ export function CodeBlock({ source, parts, css }: CodeBlockProps) {
     >
       <pre css={styles.pre}>
         {source !== undefined ? (
-          <code css={styles.code}>{runs(source)}</code>
+          <code css={[typeRole.bodySmall, styles.code]}>{runs(source)}</code>
         ) : (
           <PartsCode parts={parts} />
         )}
@@ -321,8 +322,6 @@ const styles = stylex.create({
     display: "block",
     position: "relative",
     fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: syntax.plain,
     whiteSpace: "pre",
   },

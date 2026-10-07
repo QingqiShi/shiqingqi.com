@@ -7,6 +7,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
@@ -39,7 +40,9 @@ export function ReducedMotionSpecimen() {
     <div css={[corner.radius_2, styles.panel]}>
       <div css={[cluster.item, styles.demos]}>
         <div css={[flex.col, styles.demo]}>
-          <span css={styles.preset}>transition.transform</span>
+          <span css={[typeRole.caption, styles.preset]}>
+            transition.transform
+          </span>
           <span css={[corner.radius_2, styles.track]} aria-hidden>
             <span
               css={[
@@ -63,7 +66,7 @@ export function ReducedMotionSpecimen() {
           </span>
         </div>
         <div css={[flex.col, styles.demo]}>
-          <span css={styles.preset}>animate.pulse</span>
+          <span css={[typeRole.caption, styles.preset]}>animate.pulse</span>
           <span css={[corner.radius_2, styles.track]} aria-hidden>
             <span css={[corner.radius_1, styles.bar, animate.pulse]} />
           </span>
@@ -77,7 +80,9 @@ export function ReducedMotionSpecimen() {
             {reduced ? reducedLabel : fullLabel}
           </Badge>
         </span>
-        <p css={styles.readoutText}>{reduced ? reducedNote : fullNote}</p>
+        <p css={[typeRole.bodySmall, styles.readoutText]}>
+          {reduced ? reducedNote : fullNote}
+        </p>
       </div>
     </div>
   );
@@ -106,7 +111,6 @@ const styles = stylex.create({
   },
   preset: {
     fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
     color: color.fgMuted,
     overflowWrap: "anywhere",
   },
@@ -146,8 +150,6 @@ const styles = stylex.create({
   },
   readoutText: {
     margin: 0,
-    fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
     color: color.fgMuted,
     maxInlineSize: measure.prose,
     textWrap: "pretty",

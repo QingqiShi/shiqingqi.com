@@ -7,11 +7,11 @@ import { CodeBlock } from "@tuja/ui/components/code-block";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { t } from "#src/i18n.ts";
 import type { LabSnippet as LabSnippetModel } from "./build-lab-snippet.ts";
-import { labEyebrow } from "./lab-eyebrow.stylex.ts";
 
 interface LabSnippetProps {
   snippet: LabSnippetModel;
@@ -33,7 +33,7 @@ export function LabSnippet({ snippet }: LabSnippetProps) {
     <ViewTransition name="lab-snippet" default="lab-live">
       <div css={[corner.radius_2, styles.card]}>
         <div css={[row.item, styles.head]}>
-          <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
+          <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
             {t({ en: "Usage", zh: "用法" })}
           </Text>
           <Button

@@ -7,7 +7,8 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -60,8 +61,8 @@ export function PersonDetailContent({
   if (detailQuery.isError) {
     return (
       <div css={styles.body}>
-        <h2 css={styles.name}>{displayName}</h2>
-        <p css={styles.errorText} role="alert">
+        <h2 css={[typeRole.h1, styles.name]}>{displayName}</h2>
+        <p css={[typeRole.bodySmall, styles.errorText]} role="alert">
           {t({ en: "Failed to load details", zh: "加载详情失败" })}
         </p>
       </div>
@@ -86,9 +87,9 @@ export function PersonDetailContent({
           </div>
         ) : null}
         <div css={styles.headerInfo}>
-          <h2 css={styles.name}>{displayName}</h2>
+          <h2 css={[typeRole.h1, styles.name]}>{displayName}</h2>
           {hasMeta ? (
-            <div css={styles.meta}>
+            <div css={[typeRole.bodySmall, styles.meta]}>
               {detail.knownForDepartment && (
                 <DepartmentLabel department={detail.knownForDepartment} />
               )}
@@ -107,7 +108,7 @@ export function PersonDetailContent({
       )}
       {filmography.length > 0 && (
         <div css={stack.tight}>
-          <h3 css={styles.filmographyTitle}>
+          <h3 css={[typeRole.h4, styles.filmographyTitle]}>
             {t({ en: "Filmography", zh: "作品" })}
           </h3>
           <FilmographyScroller items={filmography} />
@@ -137,7 +138,9 @@ function ProfileImage({
       sizes="90px"
       imgCss={styles.photo}
       skeletonCss={skeletonStyles.photo}
-      errorFallback={<div css={styles.profileFallback}>{alt.charAt(0)}</div>}
+      errorFallback={
+        <div css={[typeRole.h1, styles.profileFallback]}>{alt.charAt(0)}</div>
+      }
     />
   );
 }
@@ -177,14 +180,18 @@ export function ExpandableBiography({ text }: { text: string }) {
       <p
         id={biographyId}
         ref={paragraphRef}
-        css={[styles.biography, !expanded && styles.biographyClamped]}
+        css={[
+          typeRole.body,
+          styles.biography,
+          !expanded && styles.biographyClamped,
+        ]}
       >
         {text}
       </p>
       {(isClamped || expanded) && (
         <button
           type="button"
-          css={[buttonReset.base, styles.readMoreButton]}
+          css={[typeRole.bodySmall, buttonReset.base, styles.readMoreButton]}
           aria-expanded={expanded}
           aria-controls={biographyId}
           onClick={() => {
@@ -343,19 +350,14 @@ const styles = stylex.create({
     paddingTop: space._1,
   },
   name: {
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_7,
     margin: 0,
   },
   meta: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
   },
   biography: {
-    fontSize: font.uiBody,
     margin: 0,
-    lineHeight: font.lineHeight_4,
   },
   biographyClamped: {
     display: "-webkit-box",
@@ -364,7 +366,6 @@ const styles = stylex.create({
     overflow: "hidden",
   },
   readMoreButton: {
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     cursor: "pointer",
     paddingTop: space._1,
@@ -381,18 +382,13 @@ const styles = stylex.create({
     justifyContent: "center",
     backgroundColor: color.bgSurfaceRaised,
     color: color.fgMuted,
-    fontSize: font.uiHeading1,
-    fontWeight: font.weight_7,
   },
   errorText: {
     margin: 0,
-    fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontStyle: "italic",
   },
   filmographyTitle: {
-    fontSize: font.uiBody,
-    fontWeight: font.weight_6,
     margin: 0,
   },
 });

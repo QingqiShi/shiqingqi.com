@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { cellShared } from "./cell-shared.stylex";
 import { MediaMeter } from "./media-meter";
@@ -30,7 +31,9 @@ export function MediaScoreCell({ api, row }: MediaCellParams) {
         score < SCORE_POOR && styles.meterFillPoor,
       ]}
     >
-      <span css={styles.scoreValue}>{rating.format(score)}</span>
+      <span css={[typeRole.label, typeModifier.numeric, styles.scoreValue]}>
+        {rating.format(score)}
+      </span>
     </MediaMeter>
   );
 }
@@ -44,8 +47,6 @@ const styles = stylex.create({
   },
   scoreValue: {
     color: color.fg,
-    fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,
-    fontVariantNumeric: "tabular-nums",
   },
 });

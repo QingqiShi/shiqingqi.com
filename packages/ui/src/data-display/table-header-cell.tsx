@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
+import { typeModifier } from "../primitives/type.stylex.ts";
 import { border, color, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { alignStyles, styles as cellStyles } from "./table-cell.stylex.ts";
@@ -50,6 +51,7 @@ export function TableHeaderCell({
         cellStyles.cell,
         isRowHeader ? styles.rowHeaderCell : styles.columnHeaderCell,
         numeric && cellStyles.numeric,
+        numeric && typeModifier.numeric,
         resolvedAlign ? alignStyles[resolvedAlign] : null,
         css,
       ]}
