@@ -290,10 +290,10 @@ export function AccessibilityShowcase() {
     },
     {
       term: "Text · Heading",
-      value: 'wrap="pretty" · "balance" · "nowrap"',
+      value: t({ en: "Wraps", zh: "换行" }),
       note: t({
-        en: "You choose how lines break.",
-        zh: "由你选择换行方式。",
+        en: 'Text wraps pretty and a Heading balances its lines. wrap="nowrap" keeps a run on one line.',
+        zh: 'Text 以 pretty 方式换行，Heading 让各行长度均衡。wrap="nowrap" 让一段文字保持单行。',
       }),
     },
   ];

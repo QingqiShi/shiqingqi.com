@@ -142,6 +142,7 @@ Glass is the third Material but ships as a component style object, not a primiti
 
 - **Layout** — position fills, scroll containers, truncation, image fit
 - **Reset** — `buttonReset.base` strips browser button chrome
+- **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeight_4`, `text-wrap: pretty`). Text needs no `lineHeight` or `textWrap: "pretty"` unless it differs, and nothing sets a `fontSize` on the root
 - **Motion** — transition/animation presets with reduced-motion handling
 - **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset` paint the keyboard focus ring
 

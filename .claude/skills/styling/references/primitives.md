@@ -9,6 +9,7 @@ Multi-property composable styles in `packages/ui/src/primitives/`. Each primitiv
 - [Corner](#corner)
 - [Layout Patterns](#layout-patterns)
 - [Resets](#resets)
+- [Root](#root)
 - [Motion](#motion)
 - [Accessibility](#accessibility)
 - [Material (Texture, Wash)](#material-texture-wash)
@@ -201,6 +202,19 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
   {icon}
 </button>;
 ```
+
+---
+
+## Root
+
+**Import**: `@tuja/ui/primitives/root.stylex`
+
+| Export      | Properties                                                                                         |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| `root.html` | colorScheme: light dark + backgroundColor: `color.bgCanvas` + textSizeAdjust: 100%                 |
+| `root.body` | color: `color.fg` + fontFamily: `font.family` + lineHeight: `font.lineHeight_4` + textWrap: pretty |
+
+Goes once on the document: `root.html` on `<html>` (in apps/web, through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class) and `root.body` on `<body>`. Everything inherits the body's leading and `text-wrap: pretty`, so text needs no `lineHeight` or `textWrap` of its own unless it differs. Never set a `fontSize` on the root: it overrides the visitor's browser font size, which every `rem` token follows. StyleX cannot select by tag, so `apps/web/src/app/global.css` balances raw `<h1>`–`<h6>` in the `normalize` layer; `Heading` balances by default. `apps/web/e2e/design-system-root-defaults.spec.ts` guards all of this.
 
 ---
 

@@ -87,7 +87,7 @@ export function MovieDetailShowcase() {
               'Button look="primary" | "outline" isActive',
               'SegmentedControl size="sm"',
               "Select options labelHidden",
-              'Text look tone weight numeric transform wrap="pretty"',
+              "Text look tone weight numeric transform",
               "Heading level look",
               "Section level divider",
               'Disclosure look="card"',
@@ -160,8 +160,8 @@ export function MovieDetailShowcase() {
         </Text>
       </div>
       <div css={stack.tight}>
-        <Heading level={3} look="h1" wrap="balance">{movie.title}</Heading>
-        <Text tone="muted" wrap="pretty" css={styles.tagline}>{movie.tagline}</Text>
+        <Heading level={3} look="h1">{movie.title}</Heading>
+        <Text tone="muted" css={styles.tagline}>{movie.tagline}</Text>
       </div>
     </div>
     <div css={[stack.item, styles.heroRest]}>

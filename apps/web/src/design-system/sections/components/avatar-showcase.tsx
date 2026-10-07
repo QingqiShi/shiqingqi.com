@@ -61,7 +61,7 @@ export function AvatarShowcase() {
             />
           </Specimen>
         </SpecimenGrid>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Subtle is the resting state for anyone present. Reserve solid for the few people a view is actually about, so they stand out of a row of their peers.",
             zh: "柔和样式用于仅仅在场的人。将实心样式留给该视图真正关注的少数人，使他们从同伴中脱颖而出。",
@@ -84,7 +84,7 @@ export function AvatarShowcase() {
             <Avatar size="lg" name="Ada Lovelace" initials="A" />
           </Specimen>
         </SpecimenGrid>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Without a portrait the monogram comes from the first and last words of the name. A single word — including an unspaced CJK name — yields one character rather than two unrelated ones; initials overrides the derivation entirely.",
             zh: "没有头像时，字母缩写取自姓名的首词与末词。单个词——包括没有空格的中日韩姓名——只取一个字符，而非两个不相关的字符；initials 可完全覆盖该推导。",
@@ -122,7 +122,7 @@ export function AvatarShowcase() {
             />
           </Specimen>
         </SpecimenGrid>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "The badge is drawn, so it says nothing on its own — badgeLabel carries its meaning and is required whenever a badge is set. Keeping it out of name is also what stops the label from corrupting the monogram.",
             zh: "角标只是图形，本身不表达任何信息——badgeLabel 承载其含义，且在设置角标时必填。把它与 name 分开，也避免了标签污染字母缩写。",

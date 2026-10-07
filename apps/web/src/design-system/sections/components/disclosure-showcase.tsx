@@ -47,7 +47,7 @@ export function DisclosureShowcase() {
             </Disclosure>
           </Specimen>
         </div>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Plain is chrome-free, for a disclosure inside a surface something else already owns. Card wraps both parts in the shared bordered surface and rules the panel off from the header.",
             zh: "简洁样式不带外框，适用于外层已有表面的场景。卡片样式将标题与面板一同包进共享的描边表面，并用分隔线将面板与标题分开。",
@@ -73,7 +73,7 @@ export function DisclosureShowcase() {
             </Text>
           </Disclosure>
         </Specimen>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Both slots render inside the trigger, so neither may be interactive — a count or a status badge, never a button. The icon is hidden from assistive tech but trailing is not: a count is content, and the trigger announces as “Packing list 2/5”. defaultOpen starts this one expanded.",
             zh: "两个插槽都渲染在触发器内部，因此都不能是可交互元素——只能是计数或状态标记，绝不能是按钮。图标对辅助技术隐藏，但 trailing 不隐藏：计数属于内容，触发器会被朗读为「Packing list 2/5」。defaultOpen 让该示例默认展开。",
@@ -85,7 +85,7 @@ export function DisclosureShowcase() {
         <Specimen caption="useDisclosure">
           <DisclosureHeadlessSpecimen />
         </Specimen>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "When the header holds its own link, the whole row can't be a button. useDisclosure hands the same aria-expanded and aria-controls wiring to a separate toggle beside it.",
             zh: "当标题行自身包含链接时，整行不能是按钮。useDisclosure 会把同样的 aria-expanded 与 aria-controls 关联交给旁边独立的开关按钮。",

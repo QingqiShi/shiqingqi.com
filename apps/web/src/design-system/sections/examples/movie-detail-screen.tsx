@@ -176,10 +176,10 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               </Text>
             </div>
             <div css={stack.tight}>
-              <Heading level={3} look="h1" wrap="balance">
+              <Heading level={3} look="h1">
                 {movie.title}
               </Heading>
-              <Text tone="muted" wrap="pretty" css={styles.tagline}>
+              <Text tone="muted" css={styles.tagline}>
                 {movie.tagline}
               </Text>
             </div>
@@ -378,7 +378,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               }
             >
               <div css={stack.tight}>
-                <Text wrap="pretty">{movie.reviewSummary}</Text>
+                <Text>{movie.reviewSummary}</Text>
                 <Text look="caption" tone="muted">
                   {t({
                     en: "Generated from viewer reviews. Spiciness sets how opinionated the summary is, from 1 to 5.",

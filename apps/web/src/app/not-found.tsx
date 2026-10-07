@@ -1,3 +1,4 @@
+import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Metadata, Viewport } from "next";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
 import { setLocale } from "#src/i18n/server-locale.ts";
@@ -61,7 +62,7 @@ export default function RootNotFound() {
 
   return (
     <html lang={fallbackLocale} suppressHydrationWarning>
-      <body css={globalStyles.body}>
+      <body css={[root.body, globalStyles.body]}>
         {/* Theme initialization before hydration */}
         <InlineScript html={themeHack} />
         <NotFoundScreen />
