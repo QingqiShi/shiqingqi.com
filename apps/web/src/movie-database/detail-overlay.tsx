@@ -2,7 +2,7 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -211,7 +211,7 @@ const styles = stylex.create({
     // the composed `transition.colors`).
     backgroundColor: {
       default: "rgba(0, 0, 0, 0.5)",
-      ":hover": color.bgScrim,
+      ":hover": { default: null, [pointer.canHover]: color.bgScrim },
     },
     color: color.fgOnScrim,
   },

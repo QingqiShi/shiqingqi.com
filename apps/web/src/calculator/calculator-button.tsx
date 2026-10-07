@@ -1,5 +1,6 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -77,7 +78,12 @@ const styles = stylex.create({
     textTransform: "uppercase",
     [buttonTokens.backgroundColor]: color.bgControl,
     [buttonTokens.backgroundColorHover]: color.bgControlHover,
-    filter: { ":hover": "brightness(1.1)" },
+    filter: {
+      ":hover": {
+        default: null,
+        [pointer.canHover]: "brightness(1.1)",
+      },
+    },
     outline: {
       ":focus-visible": `${border.size_2} solid ${brand.calculator}`,
     },

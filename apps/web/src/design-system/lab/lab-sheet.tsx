@@ -2,6 +2,7 @@
 
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -117,7 +118,10 @@ const styles = stylex.create({
     paddingInline: controlSize._3,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgSurfaceSunken,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgSurfaceSunken,
+      },
     },
     textAlign: "start",
     minInlineSize: 0,

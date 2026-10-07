@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
@@ -121,7 +121,7 @@ const styles = stylex.create({
     paddingInline: space._6,
     backgroundColor: {
       default: brand.pixelCreatureCreator,
-      ":hover": color.bgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
       ":focus-visible": color.bgAccent,
     },
     color: color.fgOnAccent,

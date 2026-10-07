@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
@@ -176,10 +177,14 @@ const styles = stylex.create({
     transformBox: "fill-box",
     transformOrigin: "100% 100%",
     transform: {
-      default: "scale(0.96)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "scale(1)",
+      default: "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default: "scale(0.96)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "scale(1)",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
     transition: {
       default: "transform 550ms cubic-bezier(0.32, 0.72, 0, 1)",
@@ -214,29 +219,41 @@ const styles = stylex.create({
   },
   ink: {
     opacity: {
-      default: 0.9,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
+      [pointer.canHover]: {
+        default: 0.9,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      },
     },
     transition: "opacity 500ms ease",
   },
   chroma: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      default: 1,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      },
     },
     transition: "opacity 560ms ease",
   },
   bloomChroma: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
+      default: 0.95,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
+      },
     },
     transition: "opacity 560ms ease",
   },
   sheenWrap: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
+      default: 0.9,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
+      },
     },
     transition: "opacity 500ms ease",
   },

@@ -41,10 +41,12 @@ const traverse = require("@babel/traverse").default;
  * @returns {import('@babel/core').PluginObj<PluginPass>} The plugin object.
  */
 /**
- * Parse breakpoints from src/breakpoints.stylex.ts using Babel AST parsing
- * This function is called once at plugin initialization, not per-file.
+ * Parse every `stylex.defineConsts` const from src/breakpoints.stylex.ts using
+ * Babel AST parsing, keyed by the name it is bound to: `breakpoints`, and
+ * `pointer` for the hover condition. This function is called once at plugin
+ * initialization, not per-file.
  * @param {string} rootDir - The root directory of the project
- * @returns {{ [key: string]: string }}
+ * @returns {{ [constName: string]: { [key: string]: string } }}
  */
 function parseBreakpointsFromFile(rootDir) {
   const breakpointsPath = path.join(rootDir, "src", "breakpoints.stylex.ts");
@@ -63,8 +65,8 @@ function parseBreakpointsFromFile(rootDir) {
     plugins: ["typescript"],
   });
 
-  /** @type {{ [key: string]: string }} */
-  const breakpointsObj = {};
+  /** @type {{ [constName: string]: { [key: string]: string } }} */
+  const constsByName = {};
 
   // Traverse the AST to find the defineConsts call
   traverse(ast, {
@@ -80,6 +82,16 @@ function parseBreakpointsFromFile(rootDir) {
         node.callee.property.type === "Identifier" &&
         node.callee.property.name === "defineConsts"
       ) {
+        const declarator = path.parentPath.node;
+        if (
+          declarator.type !== "VariableDeclarator" ||
+          declarator.id.type !== "Identifier"
+        ) {
+          return;
+        }
+        /** @type {{ [key: string]: string }} */
+        const breakpointsObj = {};
+        constsByName[declarator.id.name] = breakpointsObj;
         // Get the first argument (the object)
         const arg = node.arguments[0];
         if (arg && arg.type === "ObjectExpression") {
@@ -100,13 +112,17 @@ function parseBreakpointsFromFile(rootDir) {
     },
   });
 
-  if (Object.keys(breakpointsObj).length === 0) {
+  if (
+    Object.values(constsByName).every(
+      (consts) => Object.keys(consts).length === 0,
+    )
+  ) {
     throw new Error(
       `Could not parse breakpoints from ${breakpointsPath}. Expected stylex.defineConsts({ ... }) format.`,
     );
   }
 
-  return breakpointsObj;
+  return constsByName;
 }
 
 /**
@@ -134,8 +150,6 @@ module.exports = function (babel, options) {
           if (!breakpoints || typeof breakpoints !== "object") {
             return;
           }
-
-          const breakpointsConfig = breakpoints;
 
           // Check if this is a stylex.create/defineVars/defineConsts call
           if (
@@ -169,9 +183,10 @@ module.exports = function (babel, options) {
               if (
                 t.isMemberExpression(prop.key) &&
                 t.isIdentifier(prop.key.object) &&
-                prop.key.object.name === "breakpoints" &&
+                Object.hasOwn(breakpoints, prop.key.object.name) &&
                 t.isIdentifier(prop.key.property)
               ) {
+                const breakpointsConfig = breakpoints[prop.key.object.name];
                 const breakpointKey = prop.key.property.name;
                 if (!(breakpointKey in breakpointsConfig)) {
                   throw new Error(

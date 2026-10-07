@@ -4,6 +4,7 @@ import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { StopIcon } from "@phosphor-icons/react/dist/ssr/Stop";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
@@ -167,7 +168,10 @@ const styles = stylex.create({
     height: "1rem",
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgNeutralSubtle,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgNeutralSubtle,
+      },
     },
     color: color.fgMuted,
     transition: "background-color 0.15s ease",

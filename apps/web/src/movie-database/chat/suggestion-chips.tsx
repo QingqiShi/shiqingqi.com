@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
@@ -59,17 +60,23 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: {
       default: color.border,
-      ":hover": color.borderAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.borderAccent,
+      },
       ":disabled": color.border,
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
       ":disabled": "transparent",
     },
     color: {
       default: color.fgMuted,
-      ":hover": color.fgOnAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.fgOnAccent,
+      },
       ":disabled": color.fgMuted,
     },
     fontFamily: font.family,

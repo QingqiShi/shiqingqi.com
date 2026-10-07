@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "../breakpoints.stylex.ts";
 import { border, color } from "../tokens.stylex.ts";
 
 /**
@@ -23,11 +24,17 @@ export const cardSurface = stylex.create({
     cursor: "pointer",
     borderColor: {
       default: color.border,
-      ":hover": color.borderAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.borderAccent,
+      },
     },
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     outlineWidth: border.size_2,
     outlineStyle: "solid",

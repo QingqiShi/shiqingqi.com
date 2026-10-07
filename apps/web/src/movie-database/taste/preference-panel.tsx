@@ -7,6 +7,7 @@ import { ThumbsUpIcon } from "@phosphor-icons/react/dist/ssr/ThumbsUp";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -111,7 +112,10 @@ const triggerStyles = stylex.create({
     color: color.fgMuted,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     cursor: "pointer",
     transition: "background-color 0.15s ease, color 0.15s ease",
@@ -422,7 +426,10 @@ const styles = stylex.create({
     color: color.fgMuted,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     transition: "background-color 0.15s ease",
     cursor: "pointer",
@@ -480,7 +487,10 @@ const styles = stylex.create({
     borderColor: `color-mix(in srgb, ${color.borderAccent} 30%, transparent)`,
     backgroundColor: {
       default: `color-mix(in srgb, ${color.bgAccent} 8%, transparent)`,
-      ":hover": `color-mix(in srgb, ${color.bgAccent} 14%, transparent)`,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: `color-mix(in srgb, ${color.bgAccent} 14%, transparent)`,
+      },
     },
     color: color.fg,
   },
@@ -488,7 +498,10 @@ const styles = stylex.create({
     borderColor: `color-mix(in srgb, ${color.borderDanger} 25%, transparent)`,
     backgroundColor: {
       default: `color-mix(in srgb, ${color.bgDanger} 6%, transparent)`,
-      ":hover": `color-mix(in srgb, ${color.bgDanger} 12%, transparent)`,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: `color-mix(in srgb, ${color.bgDanger} 12%, transparent)`,
+      },
     },
     color: color.fg,
   },
@@ -505,7 +518,10 @@ const styles = stylex.create({
     color: color.fgMuted,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgNeutralSubtle,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgNeutralSubtle,
+      },
     },
     opacity: 0.5,
     transition: "opacity 0.15s ease, background-color 0.15s ease",
@@ -522,7 +538,7 @@ const styles = stylex.create({
     gap: controlSize._2,
     color: {
       default: color.fgMuted,
-      ":hover": color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
     },
     cursor: "pointer",
     transition: "color 0.15s ease",
@@ -539,7 +555,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": color.bgAccentHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentHover,
+      },
     },
     color: color.fgOnAccent,
     cursor: "pointer",
@@ -550,7 +569,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     color: color.fgMuted,
     cursor: "pointer",

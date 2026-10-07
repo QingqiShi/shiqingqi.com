@@ -1,6 +1,7 @@
 "use client";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Chip } from "@tuja/ui/components/chip";
 import { Text } from "@tuja/ui/components/text";
@@ -65,7 +66,10 @@ const styles = stylex.create({
     paddingInline: space._3,
   },
   link: {
-    color: { default: color.fg, ":hover": color.fgMuted },
+    color: {
+      default: color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fgMuted },
+    },
     textUnderlineOffset: "0.25em",
   },
   caret: {

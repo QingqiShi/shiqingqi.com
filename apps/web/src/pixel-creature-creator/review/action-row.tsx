@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -551,7 +552,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
       ":focus-visible": color.bgControlHover,
     },
     color: color.fg,
@@ -572,7 +576,10 @@ const styles = stylex.create({
   buttonPrimary: {
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": color.bgAccentHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentHover,
+      },
       ":focus-visible": color.bgAccentHover,
     },
     color: color.fgOnAccent,
@@ -608,7 +615,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
       ":focus-visible": color.bgControlHover,
     },
     color: color.fg,

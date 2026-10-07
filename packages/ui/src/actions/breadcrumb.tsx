@@ -1,6 +1,7 @@
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentType, CSSProperties, ReactNode } from "react";
+import { pointer } from "../breakpoints.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -147,8 +148,14 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   link: {
-    color: { default: color.fgMuted, ":hover": color.fg },
-    textDecorationLine: { default: "none", ":hover": "underline" },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
+    textDecorationLine: {
+      default: "none",
+      ":hover": { default: null, [pointer.canHover]: "underline" },
+    },
   },
   current: {
     color: color.fg,

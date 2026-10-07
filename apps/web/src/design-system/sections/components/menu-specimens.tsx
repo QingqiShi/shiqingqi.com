@@ -2,7 +2,7 @@
 
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -278,13 +278,19 @@ const styles = stylex.create({
     inlineSize: space._13,
   },
   item: {
-    color: { default: color.fg, ":hover": color.fgMuted },
+    color: {
+      default: color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fgMuted },
+    },
     // Spelled out rather than left `null`: this declaration replaces
     // `buttonReset`'s, and a null default would let the UA's `buttonface` grey
     // paint the item at rest.
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     fontWeight: font.weight_6,
     blockSize: controlSize._9,

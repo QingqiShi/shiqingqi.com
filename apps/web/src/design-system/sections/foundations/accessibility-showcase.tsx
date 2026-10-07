@@ -2,6 +2,7 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Spinner } from "@tuja/ui/components/spinner";
@@ -737,10 +738,16 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.border,
     fontSize: controlSize._4,
-    color: { default: color.fgMuted, ":hover": color.fg },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
   },
   // Clips its child, which is the case `focusRingInset` exists for.
@@ -754,7 +761,10 @@ const styles = stylex.create({
     color: color.fg,
     backgroundColor: {
       default: color.bgControlSelected,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
   },
   // A field's chrome without a field inside it. `fgMuted` is correct here

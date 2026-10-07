@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -168,7 +169,10 @@ const styles = stylex.create({
     display: "block",
     borderColor: {
       default: color.border,
-      ":hover": color.borderAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.borderAccent,
+      },
     },
     transition: {
       default: `border-color ${duration._150} ${easing.easeOut}, box-shadow ${duration._150} ${easing.easeOut}`,

@@ -7,6 +7,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import { pointer } from "../breakpoints.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -214,7 +215,10 @@ const styles = stylex.create({
     fontSize: controlSize._4,
     blockSize: controlLineBox,
     inlineSize: controlLineBox,
-    color: { default: color.fgMuted, ":hover": color.fg },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
   },
 });
 

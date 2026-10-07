@@ -1,5 +1,6 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -59,10 +60,16 @@ const styles = stylex.create({
     inlineSize: controlSize._9,
     blockSize: controlSize._9,
     fontSize: controlSize._4,
-    color: { default: color.fgMuted, ":hover": color.fg },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
   },
   title: {

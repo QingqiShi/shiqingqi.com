@@ -3,6 +3,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
@@ -79,29 +80,49 @@ const styles = stylex.create({
     cursor: "pointer",
     position: "relative",
     color: color.fg,
-    boxShadow: { default: "none", ":hover": shadow._5 },
-    zIndex: { ":hover": layer.content },
+    boxShadow: {
+      default: "none",
+      ":hover": { default: null, [pointer.canHover]: shadow._5 },
+    },
+    zIndex: {
+      ":hover": { default: null, [pointer.canHover]: layer.content },
+    },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     transform: {
       default: null,
-      ":hover": "scale(1.05) translate3d(0, -0.2rem, 0)",
+      ":hover": {
+        default: null,
+        [pointer.canHover]: "scale(1.05) translate3d(0, -0.2rem, 0)",
+      },
     },
-    backdropFilter: { default: null, ":hover": "blur(2rem)" },
+    backdropFilter: {
+      default: null,
+      ":hover": { default: null, [pointer.canHover]: "blur(2rem)" },
+    },
 
     [cardTokens.detailsIndicatorOpacity]: {
-      default: 0,
-      ":hover": 1,
+      default: 1,
+      [pointer.canHover]: { default: 0, ":hover": 1 },
     },
     [cardTokens.detailsIndicatorTransform]: {
-      default: "translate3d(0, 0.5rem, 0)",
-      ":hover": "translate3d(0, 0, 0)",
+      default: "translate3d(0, 0, 0)",
+      [pointer.canHover]: {
+        default: "translate3d(0, 0.5rem, 0)",
+        ":hover": "translate3d(0, 0, 0)",
+      },
     },
     [cardTokens.imageFilter]: {
-      default: "grayscale(100%)",
-      ":hover": "grayscale(0%)",
+      default: "grayscale(0%)",
+      [pointer.canHover]: {
+        default: "grayscale(100%)",
+        ":hover": "grayscale(0%)",
+      },
     },
   },
   detailsBackdrop: {

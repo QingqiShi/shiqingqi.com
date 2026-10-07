@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -94,7 +95,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
       ":focus-visible": color.bgControlHover,
     },
     color: color.fg,
@@ -107,7 +111,10 @@ const styles = stylex.create({
   buttonActive: {
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": color.bgAccentHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentHover,
+      },
       ":focus-visible": color.bgAccentHover,
     },
     color: color.fgOnAccent,

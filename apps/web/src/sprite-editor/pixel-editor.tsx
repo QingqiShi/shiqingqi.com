@@ -17,6 +17,7 @@ import { SelectionIcon } from "@phosphor-icons/react/dist/ssr/Selection";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { purple } from "@tuja/ui/palette/purple.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -1281,7 +1282,10 @@ const styles = stylex.create({
     border: `${border.size_1} solid ${color.border}`,
     backgroundColor: {
       default: color.bgControl,
-      ":hover:not(:disabled)": color.bgControlHover,
+      [pointer.canHover]: {
+        default: null,
+        ":hover:not(:disabled)": color.bgControlHover,
+      },
     },
     color: color.fg,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
@@ -1399,7 +1403,10 @@ const styles = stylex.create({
     paddingInline: space._1,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     color: color.fg,
     border: "none",
@@ -1410,7 +1417,10 @@ const styles = stylex.create({
   selectionButtonPrimary: {
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": color.bgAccentHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentHover,
+      },
     },
     color: color.fgOnAccent,
   },

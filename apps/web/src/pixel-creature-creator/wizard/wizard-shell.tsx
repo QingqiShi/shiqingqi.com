@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -287,7 +287,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     color: color.fg,
     borderWidth: "1px",
@@ -381,7 +384,10 @@ const styles = stylex.create({
   footerBtnSecondary: {
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     color: color.fg,
     borderColor: color.border,
@@ -389,7 +395,10 @@ const styles = stylex.create({
   footerBtnPrimary: {
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": color.bgAccentHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentHover,
+      },
     },
     color: color.fgOnAccent,
     borderColor: color.borderAccent,

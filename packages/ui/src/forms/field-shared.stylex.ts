@@ -108,7 +108,6 @@ export const fieldStyles = stylex.create({
   controlInvalid: {
     borderColor: {
       default: color.borderDanger,
-      ":hover": color.borderDanger,
       ":focus": color.borderDanger,
     },
     outlineColor: {

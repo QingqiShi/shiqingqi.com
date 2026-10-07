@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -150,20 +151,23 @@ const styles = stylex.create({
     flexShrink: 0,
     paddingBlock: space._1,
     paddingInline: space._3,
-    color: { default: color.fgMuted, ":hover": color.fg },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     textDecoration: "none",
     whiteSpace: "nowrap",
   },
   linkActive: {
-    color: { default: color.fgAccent, ":hover": color.fgAccent },
-    backgroundColor: {
-      default: color.bgAccentSubtle,
-      ":hover": color.bgAccentSubtle,
-    },
+    color: color.fgAccent,
+    backgroundColor: color.bgAccentSubtle,
     fontWeight: font.weight_6,
   },
 });

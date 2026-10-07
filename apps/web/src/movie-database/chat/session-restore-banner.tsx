@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -97,7 +98,7 @@ const styles = stylex.create({
     backgroundColor: "transparent",
     color: {
       default: color.fgMuted,
-      ":hover": color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
       ":disabled": color.fgMuted,
     },
     cursor: {
@@ -111,7 +112,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": color.bgAccentHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentHover,
+      },
       ":disabled": color.bgAccent,
     },
     color: color.fgOnAccent,

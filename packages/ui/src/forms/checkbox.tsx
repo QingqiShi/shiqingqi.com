@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, type ComponentProps } from "react";
+import { pointer } from "../breakpoints.stylex.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -180,7 +181,10 @@ const styles = stylex.create({
     borderWidth: border.size_2,
     borderColor: {
       default: color.border,
-      ":hover": color.borderAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.borderAccent,
+      },
       ":checked": color.borderAccent,
       ":indeterminate": color.borderAccent,
       ":disabled": color.border,
@@ -215,7 +219,6 @@ const styles = stylex.create({
   boxError: {
     borderColor: {
       default: color.borderDanger,
-      ":hover": color.borderDanger,
       ":checked": color.borderDanger,
       ":indeterminate": color.borderDanger,
     },

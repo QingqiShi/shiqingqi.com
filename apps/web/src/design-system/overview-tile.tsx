@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -217,7 +218,7 @@ const styles = stylex.create({
   // `specimens/specimen.stylex.ts`: once a box is plate-wide there is
   // nothing here left to move, and those styles place the contents inside it.
   //
-  // The whole resting treatment is gated behind `(hover: hover)`. Its only exit
+  // The whole resting treatment is gated behind `pointer.canHover`. Its only exit
   // is engaging the tile, and a touch device cannot hover — the plate is `inert`
   // so it never takes focus, and tapping the link navigates away. Ungated, a
   // phone would show nineteen permanently grey specimens with the Spinner and
@@ -240,7 +241,7 @@ const styles = stylex.create({
     transformOrigin: "center",
     filter: {
       default: "none",
-      "@media (hover: hover)": {
+      [pointer.canHover]: {
         default: "grayscale(1)",
         [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
           "grayscale(0)",
@@ -254,7 +255,7 @@ const styles = stylex.create({
     // `bgSurfaceSunken`, which is the binding case.
     opacity: {
       default: 1,
-      "@media (hover: hover)": {
+      [pointer.canHover]: {
         default: 0.9,
         [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
       },
@@ -275,7 +276,7 @@ const styles = stylex.create({
     // movement.
     [motionTokens.playState]: {
       default: "running",
-      "@media (hover: hover)": {
+      [pointer.canHover]: {
         default: "paused",
         [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
           "running",

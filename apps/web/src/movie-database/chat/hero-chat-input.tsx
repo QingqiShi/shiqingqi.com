@@ -3,6 +3,7 @@
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -147,12 +148,12 @@ const styles = stylex.create({
     paddingInline: space._2,
     color: {
       default: color.fgMuted,
-      ":hover": color.fgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.fgAccent },
       ":disabled": color.fgMuted,
     },
     textDecorationLine: {
       default: "none",
-      ":hover": "underline",
+      ":hover": { default: null, [pointer.canHover]: "underline" },
     },
     textDecorationStyle: "dotted",
     textUnderlineOffset: "3px",

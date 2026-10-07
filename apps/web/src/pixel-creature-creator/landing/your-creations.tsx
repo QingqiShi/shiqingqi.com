@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -170,7 +171,10 @@ const styles = stylex.create({
     transitionDuration: "120ms",
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
       ":focus-visible": color.bgControlHover,
     },
     outlineOffset: border.size_2,
@@ -195,7 +199,10 @@ const styles = stylex.create({
     paddingInline: space._2,
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
       ":focus-visible": color.bgControlHover,
     },
     color: color.fgMuted,

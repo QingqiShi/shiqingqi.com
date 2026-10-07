@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { border } from "@tuja/ui/tokens.stylex";
@@ -78,6 +79,9 @@ const styles = stylex.create({
   a: {
     color: anchorTokens.color,
     fontWeight: anchorTokens.fontWeight,
-    textDecorationThickness: { default: null, ":hover": border.size_2 },
+    textDecorationThickness: {
+      default: null,
+      ":hover": { default: null, [pointer.canHover]: border.size_2 },
+    },
   },
 });

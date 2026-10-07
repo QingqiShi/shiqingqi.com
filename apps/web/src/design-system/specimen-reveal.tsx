@@ -2,6 +2,7 @@
 
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -137,10 +138,16 @@ const styles = stylex.create({
     paddingInline: space._1,
     paddingBlock: space._00,
     fontWeight: font.weight_6,
-    color: { default: color.fgMuted, ":hover": color.fg },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
   },
   caret: {

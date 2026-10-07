@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
+import { pointer } from "../breakpoints.stylex.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
@@ -305,7 +306,10 @@ const styles = stylex.create({
     },
     boxShadow: {
       default: shadow._2,
-      ":hover": { "::before": shadow._3 },
+      ":hover": {
+        default: null,
+        [pointer.canHover]: { "::before": shadow._3 },
+      },
     },
     touchAction: "none",
 
@@ -316,7 +320,7 @@ const styles = stylex.create({
     },
     [switchTokens.thumbShadow]: {
       default: null,
-      ":hover": shadow._3,
+      ":hover": { default: null, [pointer.canHover]: shadow._3 },
     },
 
     "::before": {

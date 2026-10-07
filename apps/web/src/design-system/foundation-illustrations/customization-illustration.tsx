@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
@@ -121,8 +122,11 @@ export function CustomizationIllustration() {
 const styles = stylex.create({
   orb: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
+      default: 0.5,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
+      },
     },
     transformBox: "view-box",
     transformOrigin: "262px 146px",
@@ -149,10 +153,15 @@ const styles = stylex.create({
   config: {
     transform: {
       default:
-        "translate(calc(var(--ds-illo-mx) * 9px), calc(var(--ds-illo-my) * 7px))",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "translate(calc(var(--ds-illo-mx) * 9px), calc(var(--ds-illo-my) * 7px - 9px))",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default:
+          "translate(calc(var(--ds-illo-mx) * 9px), calc(var(--ds-illo-my) * 7px))",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "translate(calc(var(--ds-illo-mx) * 9px), calc(var(--ds-illo-my) * 7px - 9px))",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
   },
   slot: {
@@ -165,10 +174,15 @@ const styles = stylex.create({
   custom: {
     transform: {
       default:
-        "translate(calc(var(--ds-illo-mx) * 2.5px), calc(var(--ds-illo-my) * 2px))",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
         "translate(calc(var(--ds-illo-mx) * 2.5px), calc(var(--ds-illo-my) * 2px + 8px))",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default:
+          "translate(calc(var(--ds-illo-mx) * 2.5px), calc(var(--ds-illo-my) * 2px))",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "translate(calc(var(--ds-illo-mx) * 2.5px), calc(var(--ds-illo-my) * 2px + 8px))",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
   },
   plate: {
@@ -180,81 +194,117 @@ const styles = stylex.create({
     fill: "var(--ds-illo-ink)",
     fillOpacity: 0.1,
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     opacity: {
-      default: 0.6,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.55,
+      default: 0.55,
+      [pointer.canHover]: {
+        default: 0.6,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.55,
+      },
     },
   },
   slotPlate: {
     fill: "var(--ds-illo-ink)",
     fillOpacity: 0.07,
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     opacity: {
-      default: 0.5,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.7,
+      default: 0.7,
+      [pointer.canHover]: {
+        default: 0.5,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.7,
+      },
     },
   },
   customPlate: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue)",
+      default: "var(--ds-illo-hue)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue)",
+      },
     },
     opacity: {
-      default: 0.4,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      default: 1,
+      [pointer.canHover]: {
+        default: 0.4,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      },
     },
   },
   dial: {
     fill: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     opacity: {
-      default: 0.55,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.8,
+      default: 0.8,
+      [pointer.canHover]: {
+        default: 0.55,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.8,
+      },
     },
     transition: "fill 500ms ease, opacity 500ms ease",
   },
   socket: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     strokeWidth: 1.2,
     strokeDasharray: "4 4",
     strokeLinejoin: "round",
     opacity: {
-      default: 0.5,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
+      default: 0.9,
+      [pointer.canHover]: {
+        default: 0.5,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
+      },
     },
     transition: "stroke 500ms ease, opacity 500ms ease",
   },
   partsRest: {
     fill: "url(#dsi-customization-parts-ink)",
     opacity: {
-      default: 0.6,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
+      [pointer.canHover]: {
+        default: 0.6,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      },
     },
     transition: "opacity 450ms ease",
   },
   partsAlive: {
     fill: "url(#dsi-customization-parts-hue)",
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      default: 1,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      },
     },
     transition: "opacity 450ms ease",
   },
