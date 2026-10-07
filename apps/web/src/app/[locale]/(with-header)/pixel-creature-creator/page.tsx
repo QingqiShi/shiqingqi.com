@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -57,17 +58,19 @@ export default async function Page(props: PageProps) {
   const localePrefix = locale === "en" ? "/en" : "/zh";
   const createHref = `${localePrefix}/pixel-creature-creator/create`;
   return (
-    <div css={styles.root}>
-      <section css={styles.hero}>
-        <h1 css={styles.title}>
-          {t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
-        </h1>
-        <p css={styles.subtitle}>
-          {t({
-            en: "Build a tiny pixel creature, name it, and conjure its lore.",
-            zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
-          })}
-        </p>
+    <div css={[stack.section, styles.root]}>
+      <section css={[stack.item, styles.hero]}>
+        <div css={stack.tight}>
+          <h1 css={styles.title}>
+            {t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
+          </h1>
+          <p css={styles.subtitle}>
+            {t({
+              en: "Build a tiny pixel creature, name it, and conjure its lore.",
+              zh: "搭建一个小像素生物，给它取名，并召唤它的传说。",
+            })}
+          </p>
+        </div>
         <Link
           href={createHref}
           data-testid="landing-cta"
@@ -86,9 +89,6 @@ export default async function Page(props: PageProps) {
 
 const styles = stylex.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._9,
     paddingBlock: {
       default: space._7,
       [breakpoints.md]: space._9,
@@ -100,9 +100,6 @@ const styles = stylex.create({
     boxSizing: "border-box",
   },
   hero: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     alignItems: "flex-start",
     paddingBlockStart: `clamp(${space._7}, 12dvh, ${space._12})`,
   },
@@ -138,6 +135,5 @@ const styles = stylex.create({
     transitionProperty: "background-color, transform",
     transitionDuration: "120ms",
     outlineOffset: border.size_2,
-    marginBlockStart: space._2,
   },
 });

@@ -8,7 +8,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import { border, color, font, space } from "../tokens.stylex.ts";
+import { border, color, controlSize, font, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { cardSurface } from "./card.stylex.ts";
 
@@ -195,7 +195,7 @@ const styles = stylex.create({
   trigger: {
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: controlSize._2,
     inlineSize: "100%",
     // Inherited so the root's `fontSize` (and any `css` override of it) drives
     // the header, the slots, and the caret together.

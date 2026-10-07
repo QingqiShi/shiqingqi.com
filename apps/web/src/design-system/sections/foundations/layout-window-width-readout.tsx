@@ -1,7 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import { useEffect, useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -39,7 +40,7 @@ export function LayoutWindowWidthReadout({
       : bands.findLast((band) => viewport >= band.min);
 
   return (
-    <p css={styles.marker} aria-live="polite">
+    <p css={[stack.tight, styles.marker]} aria-live="polite">
       <span css={styles.markerLabel}>
         {t({ en: "your window", zh: "你的窗口" })}
       </span>
@@ -60,9 +61,6 @@ export function LayoutWindowWidthReadout({
 const styles = stylex.create({
   marker: {
     margin: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
   },
   markerLabel: {
     fontFamily: font.familyMono,

@@ -3,7 +3,6 @@ import { DocPage } from "#src/design-system/doc-page.tsx";
 import { SwitchShowcase } from "#src/design-system/sections/components/switch-showcase.tsx";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -16,13 +15,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 export default function SwitchPage() {
   return (
-    <DocPage
-      path="/design-system/components/switch"
-      description={t({
-        en: "A draggable, three-state toggle. Click, drag the thumb, or use the keyboard — on, off, and an indeterminate middle state, controlled or uncontrolled.",
-        zh: "可拖动的三态开关。支持点击、拖动滑块或键盘操作——开启、关闭以及居中的未定状态，可受控或非受控使用。",
-      })}
-    >
+    <DocPage path="/design-system/components/switch">
       <SwitchShowcase />
     </DocPage>
   );

@@ -1,9 +1,7 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { Switch, type SwitchState } from "@tuja/ui/components/switch";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 import { t } from "#src/i18n.ts";
@@ -36,7 +34,7 @@ export function LiveSwitch() {
     indeterminate: t({ en: "Indeterminate", zh: "未定" }),
   }[state];
   return (
-    <div css={[flex.row, styles.liveRow]}>
+    <div css={cluster.item}>
       <Switch
         value={state}
         onChange={setState}
@@ -48,10 +46,3 @@ export function LiveSwitch() {
     </div>
   );
 }
-
-const styles = stylex.create({
-  liveRow: {
-    gap: space._3,
-    alignItems: "center",
-  },
-});

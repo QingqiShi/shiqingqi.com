@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -126,7 +127,7 @@ export function ContainerScaleSpecimen() {
     activeRemText === undefined ? " " : `${activeWidthText} → ${activeRemText}`;
 
   return (
-    <div css={styles.wrap}>
+    <div css={stack.item}>
       <ScrollMask
         ref={railRef}
         orientation="horizontal"
@@ -181,7 +182,7 @@ export function ContainerScaleSpecimen() {
         </ul>
       </ScrollMask>
 
-      <div css={styles.controls}>
+      <div css={[cluster.item, styles.controls]}>
         <p css={styles.live} aria-live="polite">
           <span css={styles.liveLabel}>{measuredWord}</span>
           <span css={styles.liveValue}>{liveValue}</span>
@@ -212,11 +213,6 @@ export function ContainerScaleSpecimen() {
 const HAIRLINE = `inset 0 0 0 1px ${color.border}`;
 
 const styles = stylex.create({
-  wrap: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
   rail: {
     // Let vertical swipes scroll the page; only claim horizontal panning.
     touchAction: "pan-x",
@@ -228,7 +224,7 @@ const styles = stylex.create({
   cards: {
     display: "flex",
     alignItems: "stretch",
-    gap: space._3,
+    gap: rhythm.item,
     listStyle: "none",
     margin: 0,
     padding: space._1,
@@ -254,7 +250,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     blockSize: "100%",
-    gap: space._1,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._3,
   },
@@ -287,18 +283,13 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
   },
   controls: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
     justifyContent: "space-between",
-    columnGap: space._4,
-    rowGap: space._2,
   },
   live: {
     margin: 0,
     display: "flex",
     flexDirection: "column",
-    gap: space._00,
+    gap: rhythm.tight,
     flexShrink: 0,
   },
   liveLabel: {

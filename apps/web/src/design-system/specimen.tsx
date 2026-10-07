@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { SpecimenReveal } from "./specimen-reveal.tsx";
 
 /** What this instance shows, and the token it shows it with — at least one of the two. */
@@ -14,7 +14,8 @@ type SpecimenProps = SpecimenIdentity & {
   source?: readonly CodeToken[];
   /** StyleX overrides merged last, on the specimen cell. */
   css?: StyleProp;
-  children: ReactNode;
+  /** One instance. Put several in a layout element of their own. */
+  children: ReactElement;
 };
 
 /**
@@ -63,6 +64,6 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gridAutoFlow: "dense",
-    gap: space._3,
+    gap: rhythm.item,
   },
 });

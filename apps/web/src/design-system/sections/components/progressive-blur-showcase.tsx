@@ -5,7 +5,8 @@ import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
 import { DoDont } from "#src/design-system/do-dont.tsx";
@@ -21,7 +22,7 @@ export function ProgressiveBlurShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Progressive blur", zh: "渐进虚化" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "A stack of blurred layers radiating from the floating element on every side, strongest against it and easing to sharp further out. The floating element is passed in, so the ramp runs out of its rect — measured, or reach in from the box's edges — and no callsite states a direction. Each layer is masked by a rounded rect around that element, so the field stays round the whole way out. Each also carries a share of a faint Wash of the page colour, so anything glaring behind the element is washed out rather than left at full contrast, and the Wash eases away with the blur. The layers are aria-hidden and ignore pointer events, so a dismissal click outside the element passes straight through to whatever sits behind it.",
@@ -185,16 +186,11 @@ function ScrimGuidelineDiagram() {
 }
 
 const styles = stylex.create({
-  // No `alignItems`: the specimen takes the full width so its code panel does
-  // too, matching the Overlay page's own stack.
-  stack: {
-    gap: space._3,
-  },
   mockPage: {
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     // Tall enough for the ramp to read as a ramp — the blur runs from the
     // dialog out to the box's edge, so a short box spends the whole reach at
     // full strength and the demo looks like one flat blur — and no taller,
@@ -209,7 +205,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
   },
   mockBar: {
-    gap: space._3,
+    gap: rhythm.item,
   },
   // The popup hangs from this cell, so it anchors to the trigger rather than
   // to the mock page.
@@ -225,6 +221,7 @@ const styles = stylex.create({
   mockPopup: {
     display: "flex",
     flexDirection: "column",
+    gap: rhythm.inline,
     minInlineSize: "9rem",
     padding: space._1,
   },
@@ -233,7 +230,7 @@ const styles = stylex.create({
   mockPopupContent: {
     flexGrow: 1,
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.item,
   },
   diagramPanel: {
     position: "absolute",
@@ -242,8 +239,8 @@ const styles = stylex.create({
     insetInlineEnd: space._2,
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
-    paddingBlock: space._1,
+    gap: rhythm.tight,
+    paddingBlock: space._2,
     paddingInline: space._2,
   },
 });

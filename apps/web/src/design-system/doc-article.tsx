@@ -9,6 +9,8 @@ interface DocArticleProps {
    * rail disagrees with.
    */
   path: DesignSystemPath;
+  /** The opening paragraph of the documentation view. */
+  description?: ReactNode;
   /** The view: the documentation, or the Lab. */
   children: ReactNode;
 }
@@ -19,10 +21,10 @@ interface DocArticleProps {
  * stays mounted while the view switches, and the switch's indicator slides
  * between the two. A route with one view renders it from `DocPage`.
  */
-export function DocArticle({ path, children }: DocArticleProps) {
+export function DocArticle({ path, description, children }: DocArticleProps) {
   return (
     <article>
-      <DocHeader path={path} />
+      <DocHeader path={path} description={description} />
       {children}
     </article>
   );

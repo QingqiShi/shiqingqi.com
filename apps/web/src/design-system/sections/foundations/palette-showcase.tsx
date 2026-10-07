@@ -5,7 +5,9 @@ import {
   systemPalette,
 } from "@tuja/ui/palette-table";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -103,7 +105,9 @@ export const brand = stylex.defineVars({
 
 function PaletteRow({ palette }: { palette: SystemHuePalette }) {
   return (
-    <li css={styles.row}>
+    // The label wraps above the ramp when space runs out, so the ramp keeps a
+    // usable width.
+    <li css={cluster.tight}>
       <span css={styles.name}>{palette.name}</span>
       <div
         css={[corner.radius_2, styles.ramp, styles.rampColumns(RAMP_COLUMNS)]}
@@ -128,16 +132,7 @@ const styles = stylex.create({
     padding: 0,
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
-  },
-  // Label sits beside the ramp on wide rows and wraps above it when space runs
-  // out, so the ramp always keeps a usable width.
-  row: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    columnGap: space._4,
-    rowGap: space._1,
+    gap: rhythm.item,
   },
   // Fixed width so every ramp starts at the same edge, whatever the name.
   name: {
@@ -153,11 +148,11 @@ const styles = stylex.create({
     minInlineSize: "220px",
     display: "grid",
     // Columns are supplied inline (RAMP_COLUMNS) to taper the cell widths.
-    gap: border.size_1,
+    gap: gridlineTokens.width,
     blockSize: "26px",
     boxSizing: "border-box",
     backgroundColor: color.bgCanvas,
-    borderWidth: space._00,
+    borderWidth: gridlineTokens.width,
     borderStyle: "solid",
     borderColor: color.border,
     overflow: "hidden",

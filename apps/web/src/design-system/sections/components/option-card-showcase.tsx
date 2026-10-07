@@ -2,7 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -29,7 +30,7 @@ interface KeyHintProps {
 function KeyHint({ keys, effect }: KeyHintProps) {
   return (
     <div css={styles.keyRow}>
-      <dt css={styles.keyCluster}>
+      <dt css={cluster.tight}>
         {keys.map((key) => (
           <kbd key={key} css={[corner.radius_1, styles.key]}>
             {key}
@@ -214,7 +215,7 @@ const styles = stylex.create({
   keyList: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: { default: rhythm.item, [breakpoints.md]: rhythm.tight },
     margin: 0,
   },
   keyRow: {
@@ -223,13 +224,8 @@ const styles = stylex.create({
       default: "1fr",
       [breakpoints.md]: "minmax(9rem, auto) 1fr",
     },
-    gap: { default: space._0, [breakpoints.md]: space._3 },
+    gap: { default: rhythm.tight, [breakpoints.md]: rhythm.item },
     alignItems: "baseline",
-  },
-  keyCluster: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._0,
   },
   key: {
     fontFamily: font.familyMono,

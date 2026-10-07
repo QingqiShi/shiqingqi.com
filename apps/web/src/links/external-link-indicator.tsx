@@ -25,7 +25,7 @@ const styles = stylex.create({
     verticalAlign: "baseline",
     position: "relative",
     top: "0.1em",
-    marginInlineStart: "0.1em",
+    left: "0.1em",
     opacity: 0.7,
   },
 });

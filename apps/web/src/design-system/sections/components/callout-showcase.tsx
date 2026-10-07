@@ -2,7 +2,8 @@ import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
 import { Callout } from "@tuja/ui/components/callout";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -94,7 +95,7 @@ export function CalloutShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Icon", zh: "图标" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <ShowcaseHelper>
             {t({
               en: "Override the built-in icon with any node, or pass icon={null} to drop it entirely.",
@@ -121,7 +122,7 @@ export function CalloutShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Dismissible", zh: "可关闭" })}>
-        <div css={styles.stack}>
+        <div css={stack.item}>
           <ShowcaseHelper>
             {t({
               en: "Pair onDismiss with a required dismissLabel to add an accessible inline close button.",
@@ -177,16 +178,11 @@ const styles = stylex.create({
   calloutGrid: {
     gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 20rem), 1fr))",
   },
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   // Deliberate anti-pattern for the DoDont "don't" — a leading accent stripe.
   dontBar: {
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
   },

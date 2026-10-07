@@ -5,7 +5,8 @@ import { Card } from "@tuja/ui/components/card";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, opacity, space } from "@tuja/ui/tokens.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 interface SessionRestoreBannerProps {
@@ -38,7 +39,7 @@ export function SessionRestoreBanner({
       : t({ en: "Continue", zh: "继续" });
 
   return (
-    <Card css={[flex.row, styles.banner]} role={hasError ? "alert" : undefined}>
+    <Card css={row.item} role={hasError ? "alert" : undefined}>
       <p css={[styles.text, hasError && styles.errorText]}>{message}</p>
       <div css={[flex.row, styles.actions]}>
         <button
@@ -64,10 +65,6 @@ export function SessionRestoreBanner({
 }
 
 const styles = stylex.create({
-  banner: {
-    alignItems: "center",
-    gap: space._2,
-  },
   text: {
     margin: 0,
     fontSize: font.uiBody,
@@ -78,7 +75,7 @@ const styles = stylex.create({
     color: color.fg,
   },
   actions: {
-    gap: space._2,
+    gap: rhythm.tight,
     alignItems: "center",
     flexShrink: 0,
   },

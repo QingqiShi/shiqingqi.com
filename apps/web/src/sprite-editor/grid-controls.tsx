@@ -8,7 +8,8 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
 import type { GridConfig, OutputConfig, SourceImage } from "./types";
@@ -44,7 +45,7 @@ function NumberField({
 }: NumberFieldProps) {
   const id = useId();
   return (
-    <label htmlFor={id} css={styles.field}>
+    <label htmlFor={id} css={[stack.tight, styles.field]}>
       <span css={[styles.fieldLabel, emphasis && styles.fieldLabelEmphasis]}>
         {label}
       </span>
@@ -101,105 +102,112 @@ export function GridControls({
   };
 
   return (
-    <div css={styles.root}>
-      <section css={styles.group}>
+    <div css={stack.item}>
+      <section css={[stack.tight, styles.group]}>
         <h3 css={styles.sectionLabel}>{t({ en: "Grid", zh: "网格" })}</h3>
-        <div css={styles.primaryRow}>
-          <NumberField
-            label={t({ en: "Columns", zh: "列数" })}
-            value={grid.cols}
-            min={1}
-            max={64}
-            onChange={(cols) => {
-              updateColsRows(Math.max(1, cols), grid.rows);
-            }}
-            testId="grid-cols"
-            emphasis
-          />
-          <span css={styles.times} aria-hidden="true">
-            ×
-          </span>
-          <NumberField
-            label={t({ en: "Rows", zh: "行数" })}
-            value={grid.rows}
-            min={1}
-            max={64}
-            onChange={(rows) => {
-              updateColsRows(grid.cols, Math.max(1, rows));
-            }}
-            testId="grid-rows"
-            emphasis
-          />
-        </div>
+        <div css={stack.item}>
+          <div css={styles.primaryRow}>
+            <NumberField
+              label={t({ en: "Columns", zh: "列数" })}
+              value={grid.cols}
+              min={1}
+              max={64}
+              onChange={(cols) => {
+                updateColsRows(Math.max(1, cols), grid.rows);
+              }}
+              testId="grid-cols"
+              emphasis
+            />
+            <span css={styles.times} aria-hidden="true">
+              ×
+            </span>
+            <NumberField
+              label={t({ en: "Rows", zh: "行数" })}
+              value={grid.rows}
+              min={1}
+              max={64}
+              onChange={(rows) => {
+                updateColsRows(grid.cols, Math.max(1, rows));
+              }}
+              testId="grid-rows"
+              emphasis
+            />
+          </div>
 
-        <p css={styles.subLabel}>
-          {t({ en: "Alignment & gaps", zh: "对齐与间距" })}
-        </p>
-        <div css={styles.fieldGrid}>
-          <NumberField
-            label={t({ en: "Offset X", zh: "X 偏移" })}
-            value={grid.offsetX}
-            min={0}
-            max={source.width}
-            onChange={(offsetX) => {
-              onGridChange({ ...grid, offsetX });
-            }}
-            testId="grid-offset-x"
-          />
-          <NumberField
-            label={t({ en: "Offset Y", zh: "Y 偏移" })}
-            value={grid.offsetY}
-            min={0}
-            max={source.height}
-            onChange={(offsetY) => {
-              onGridChange({ ...grid, offsetY });
-            }}
-            testId="grid-offset-y"
-          />
-          <NumberField
-            label={t({ en: "Cell W", zh: "格宽" })}
-            value={grid.cellWidth}
-            min={1}
-            onChange={(cellWidth) => {
-              onGridChange({ ...grid, cellWidth: Math.max(1, cellWidth) });
-            }}
-            testId="grid-cell-w"
-          />
-          <NumberField
-            label={t({ en: "Cell H", zh: "格高" })}
-            value={grid.cellHeight}
-            min={1}
-            onChange={(cellHeight) => {
-              onGridChange({ ...grid, cellHeight: Math.max(1, cellHeight) });
-            }}
-            testId="grid-cell-h"
-          />
-          <NumberField
-            label={t({ en: "Gap X", zh: "X 间距" })}
-            value={grid.gapX}
-            min={0}
-            max={source.width}
-            onChange={(gapX) => {
-              onGridChange({ ...grid, gapX: Math.max(0, gapX) });
-            }}
-            testId="grid-gap-x"
-          />
-          <NumberField
-            label={t({ en: "Gap Y", zh: "Y 间距" })}
-            value={grid.gapY}
-            min={0}
-            max={source.height}
-            onChange={(gapY) => {
-              onGridChange({ ...grid, gapY: Math.max(0, gapY) });
-            }}
-            testId="grid-gap-y"
-          />
+          <div css={stack.tight}>
+            <p css={styles.subLabel}>
+              {t({ en: "Alignment & gaps", zh: "对齐与间距" })}
+            </p>
+            <div css={styles.fieldGrid}>
+              <NumberField
+                label={t({ en: "Offset X", zh: "X 偏移" })}
+                value={grid.offsetX}
+                min={0}
+                max={source.width}
+                onChange={(offsetX) => {
+                  onGridChange({ ...grid, offsetX });
+                }}
+                testId="grid-offset-x"
+              />
+              <NumberField
+                label={t({ en: "Offset Y", zh: "Y 偏移" })}
+                value={grid.offsetY}
+                min={0}
+                max={source.height}
+                onChange={(offsetY) => {
+                  onGridChange({ ...grid, offsetY });
+                }}
+                testId="grid-offset-y"
+              />
+              <NumberField
+                label={t({ en: "Cell W", zh: "格宽" })}
+                value={grid.cellWidth}
+                min={1}
+                onChange={(cellWidth) => {
+                  onGridChange({ ...grid, cellWidth: Math.max(1, cellWidth) });
+                }}
+                testId="grid-cell-w"
+              />
+              <NumberField
+                label={t({ en: "Cell H", zh: "格高" })}
+                value={grid.cellHeight}
+                min={1}
+                onChange={(cellHeight) => {
+                  onGridChange({
+                    ...grid,
+                    cellHeight: Math.max(1, cellHeight),
+                  });
+                }}
+                testId="grid-cell-h"
+              />
+              <NumberField
+                label={t({ en: "Gap X", zh: "X 间距" })}
+                value={grid.gapX}
+                min={0}
+                max={source.width}
+                onChange={(gapX) => {
+                  onGridChange({ ...grid, gapX: Math.max(0, gapX) });
+                }}
+                testId="grid-gap-x"
+              />
+              <NumberField
+                label={t({ en: "Gap Y", zh: "Y 间距" })}
+                value={grid.gapY}
+                min={0}
+                max={source.height}
+                onChange={(gapY) => {
+                  onGridChange({ ...grid, gapY: Math.max(0, gapY) });
+                }}
+                testId="grid-gap-y"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
       <Divider look="subtle" />
 
-      <section css={styles.group}>
+      <section css={[stack.tight, styles.group]}>
         <h3 css={styles.sectionLabel}>
           {t({ en: "Output size", zh: "输出尺寸" })}
         </h3>
@@ -231,15 +239,7 @@ export function GridControls({
 }
 
 const styles = stylex.create({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
     margin: 0,
     padding: 0,
     border: "none",
@@ -255,7 +255,7 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: "1fr auto 1fr",
     alignItems: "end",
-    gap: space._2,
+    gap: rhythm.tight,
   },
   times: {
     paddingBlockEnd: space._2,
@@ -266,7 +266,6 @@ const styles = stylex.create({
   },
   subLabel: {
     margin: 0,
-    marginBlockStart: space._1,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
     color: color.fgMuted,
@@ -274,12 +273,9 @@ const styles = stylex.create({
   fieldGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: space._2,
+    gap: rhythm.item,
   },
   field: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
     minWidth: 0,
   },
   fieldLabel: {

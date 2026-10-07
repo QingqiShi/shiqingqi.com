@@ -7,14 +7,8 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { flex } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  opacity,
-  space,
-} from "../tokens.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
+import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { checkboxTokens } from "./checkbox.stylex.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
@@ -118,7 +112,7 @@ export function Checkbox({
   } = useFieldAria({ ariaDescribedBy, ariaInvalid, description, error });
 
   return (
-    <span css={[flex.col, styles.root, css]}>
+    <span css={[stack.tight, styles.root, css]}>
       <label css={[flex.row, styles.row, disabled && styles.rowDisabled]}>
         <input
           {...rest}
@@ -162,11 +156,10 @@ export function Checkbox({
 
 const styles = stylex.create({
   root: {
-    gap: space._1,
     alignItems: "flex-start",
   },
   row: {
-    gap: space._2,
+    gap: controlSize._2,
     cursor: "pointer",
   },
   rowDisabled: {

@@ -64,9 +64,7 @@ describe("StickyControls", () => {
 
     expect(box.className).toContain("sticky-controls__styles.sticky");
     expect(groupsOf(box)).toHaveLength(1);
-    expect(groupsOf(box)[0]?.className).toContain(
-      "control-group-blur__styles.group",
-    );
+    expect(groupsOf(box)[0]?.className).toContain("stack__row.tight");
     expect(groupsOf(box)[0]).toContainElement(
       screen.getByRole("button", { name: "Sort" }),
     );

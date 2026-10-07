@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
-import { font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
 import { Anchor } from "#src/links/anchor.tsx";
@@ -16,7 +17,7 @@ const BUILD_YEAR = new Date().getFullYear();
 export function Footer({ locale }: FooterProps) {
   return (
     <footer css={[flex.wrap, justify.between, styles.footer]}>
-      <div css={[flex.col, styles.section, styles.linksSection]}>
+      <div css={[stack.tight, styles.section, styles.linksSection]}>
         <Anchor
           href="https://github.com/QingqiShi"
           target="_blank"
@@ -53,14 +54,14 @@ export function Footer({ locale }: FooterProps) {
 const styles = stylex.create({
   footer: {
     paddingBottom: space._8,
-    marginTop: { default: space._9, [breakpoints.sm]: space._11 },
+    marginTop: rhythm.section,
+    rowGap: rhythm.group,
   },
   section: {
     alignItems: { default: null, [breakpoints.md]: "center" },
   },
   linksSection: {
     alignItems: { default: "center", [breakpoints.md]: "flex-start" },
-    marginBottom: { default: space._7, [breakpoints.md]: 0 },
     width: { default: "100%", [breakpoints.md]: "50%" },
   },
   copyrightSection: {
@@ -81,7 +82,6 @@ const styles = stylex.create({
   link: {
     display: "block",
     fontSize: font.uiBodySmall,
-    marginBottom: { default: null, ":not(:last-of-type)": space._0 },
     paddingBlock: { default: space._1, [breakpoints.md]: 0 },
   },
 });

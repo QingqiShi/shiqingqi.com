@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { easing, transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
   GuideNote,
@@ -582,7 +582,7 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   track: {
     blockSize: space._1,

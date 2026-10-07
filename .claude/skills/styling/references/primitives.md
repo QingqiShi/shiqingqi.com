@@ -5,6 +5,7 @@ Multi-property composable styles in `packages/ui/src/primitives/`. Each primitiv
 ## Table of Contents
 
 - [Flex Layouts](#flex-layouts)
+- [Stack](#stack)
 - [Corner](#corner)
 - [Layout Patterns](#layout-patterns)
 - [Resets](#resets)
@@ -62,6 +63,44 @@ import { flex, align, justify, grow } from "@tuja/ui/primitives/flex.stylex";
 
 // Fill remaining space
 <div css={[flex.row, grow._1]}>
+```
+
+---
+
+## Stack
+
+**Import**: `@tuja/ui/primitives/stack.stylex`
+
+A container that owns the space between its children at one `rhythm` step. Prefer it to `flex.col` / `flex.wrap` / `flex.row` plus a local gap; compose a modifier after it (`[stack.tight, align.center]`) for the one property that differs.
+
+| Export           | Properties                                                  |
+| ---------------- | ----------------------------------------------------------- |
+| `stack.tight`    | flex column + gap: `rhythm.tight`                           |
+| `stack.item`     | flex column + gap: `rhythm.item`                            |
+| `stack.group`    | flex column + gap: `rhythm.group`                           |
+| `stack.section`  | flex column + gap: `rhythm.section`                         |
+| `cluster.inline` | flex row + wrap + alignItems: center + gap: `rhythm.inline` |
+| `cluster.tight`  | flex row + wrap + alignItems: center + gap: `rhythm.tight`  |
+| `cluster.item`   | flex row + wrap + alignItems: center + gap: `rhythm.item`   |
+| `row.inline`     | flex row + alignItems: center + gap: `rhythm.inline`        |
+| `row.tight`      | flex row + alignItems: center + gap: `rhythm.tight`         |
+| `row.item`       | flex row + alignItems: center + gap: `rhythm.item`          |
+
+`cluster.*` and `row.*` set `flexDirection: row`, so they win over a stack they are composed after. `Card` is a `stack.item`.
+
+```tsx
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+
+<section css={stack.group}>
+  <header css={stack.tight}>
+    <h3>Tonight</h3>
+    <p>Two films.</p>
+  </header>
+  <div css={cluster.tight}>{actions}</div>
+  <span css={row.inline}>
+    <ClockIcon /> 2h 44m
+  </span>
+</section>;
 ```
 
 ---

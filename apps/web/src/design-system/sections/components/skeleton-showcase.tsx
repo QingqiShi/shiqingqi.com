@@ -2,8 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -28,7 +28,7 @@ export function SkeletonShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Fill", zh: "填充" })}>
-        <div css={[flex.col, styles.fillStack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "With `fill`, the skeleton stretches to its container — hand it the shape of whatever it stands in for.",
@@ -44,7 +44,7 @@ export function SkeletonShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Staggered", zh: "错峰" })}>
-        <div css={[flex.col, styles.staggerStack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "A rising `delay` offsets each pulse, so a group shimmers in sequence rather than in unison.",
@@ -65,9 +65,12 @@ export function SkeletonShowcase() {
         <Specimen caption={t({ en: "card", zh: "卡片" })}>
           <div css={styles.cardRow}>
             {[0, 1, 2].map((index) => (
-              <div key={index} css={[flex.col, corner.radius_3, styles.card]}>
+              <div
+                key={index}
+                css={[stack.tight, corner.radius_3, styles.card]}
+              >
                 <Skeleton height={160} delay={index * 120} />
-                <div css={[flex.col, styles.cardLines]}>
+                <div css={stack.tight}>
                   <Skeleton width={132} height={14} delay={index * 120} />
                   <Skeleton width={84} height={12} delay={index * 120} />
                 </div>
@@ -82,9 +85,9 @@ export function SkeletonShowcase() {
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
           do={
-            <div css={[flex.col, styles.guideCard]}>
+            <div css={[stack.tight, styles.guideCard]}>
               <Skeleton height={80} />
-              <div css={[flex.col, styles.guideLines]}>
+              <div css={stack.tight}>
                 <Skeleton width={120} height={12} />
                 <Skeleton width={80} height={10} />
               </div>
@@ -106,42 +109,28 @@ export function SkeletonShowcase() {
 }
 
 const styles = stylex.create({
-  fillStack: {
-    gap: space._3,
-  },
   fillBox: {
     inlineSize: "100%",
     blockSize: space._13,
     overflow: "hidden",
   },
-  staggerStack: {
-    gap: space._3,
-  },
   staggerRow: {
     display: "grid",
     gridTemplateColumns: "repeat(5, 1fr)",
-    gap: space._2,
+    gap: rhythm.item,
   },
   cardRow: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   card: {
-    gap: space._2,
-    padding: space._2,
+    padding: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
   },
-  cardLines: {
-    gap: space._1,
-  },
   guideCard: {
-    gap: space._2,
     inlineSize: space._11,
-  },
-  guideLines: {
-    gap: space._1,
   },
 });

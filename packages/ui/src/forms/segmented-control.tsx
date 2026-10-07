@@ -14,14 +14,7 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { glassSurface } from "../surfaces/glass-surface.stylex.ts";
-import {
-  border,
-  color,
-  controlSize,
-  font,
-  shadow,
-  space,
-} from "../tokens.stylex.ts";
+import { border, color, controlSize, font, shadow } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 interface SegmentedControlOption<TValue extends string> {
@@ -263,7 +256,7 @@ const styles = stylex.create({
   track: {
     display: "inline-flex",
     alignItems: "stretch",
-    gap: space._00,
+    gap: controlSize._0,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
@@ -306,7 +299,7 @@ const styles = stylex.create({
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: space._0,
+    gap: controlSize._1,
     // Every option carries the border, not only the selected one: the box then
     // keeps its size, and `transition.colors` has no border colour to fade in
     // from `currentColor` when the option becomes the selected one.
@@ -370,7 +363,7 @@ const styles = stylex.create({
     overflow: "hidden",
     flexShrink: 0,
     inlineSize: 0,
-    marginInlineStart: `calc(-1 * ${space._0})`,
+    marginInlineStart: `calc(-1 * ${controlSize._1})`,
     transition: {
       default: `inline-size ${duration._300} ${easing.spring}, margin-inline-start ${duration._300} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",

@@ -11,13 +11,14 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
 import {
   border,
   color,
   controlSize,
   opacity,
+  rhythm,
   shadow,
-  space,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { fieldStyles } from "./field-shared.stylex.ts";
@@ -218,7 +219,7 @@ export function Slider({
     span > 0 ? Math.min(100, Math.max(0, ((value - min) / span) * 100)) : 0;
 
   return (
-    <div css={[fieldStyles.root, css]}>
+    <div css={[stack.tight, fieldStyles.root, css]}>
       <div css={[flex.between, styles.labelRow]}>
         <label
           htmlFor={fieldId}
@@ -300,7 +301,7 @@ const THUMB_LIFT = `transform ${duration._150} ${easing.easeOut}`;
 
 const styles = stylex.create({
   labelRow: {
-    gap: space._2,
+    gap: rhythm.tight,
   },
   // Composed over `fieldStyles.label`, which it sits opposite in the same row.
   readout: {

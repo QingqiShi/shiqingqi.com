@@ -3,7 +3,7 @@ import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { blurStage } from "#src/design-system/blur-stage.stylex.ts";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -155,7 +155,7 @@ const styles = stylex.create({
   article: {
     display: "flex",
     flexDirection: "column",
-    gap: space._3,
+    gap: rhythm.item,
     maxInlineSize: "60ch",
     // Text-first content clears the header controls itself; heroes bleed under
     // them.

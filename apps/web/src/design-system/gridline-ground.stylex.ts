@@ -26,10 +26,15 @@ import { border, color, space } from "@tuja/ui/tokens.stylex";
  * softer next to them. A consumer whose cells are carved *into* a panel rather
  * than laid *on* the canvas overrides `backgroundColor` and keeps the rest.
  */
+/** The width of a gridline: the frame border, and each gap that draws a divider. */
+export const gridlineTokens = stylex.defineVars({
+  width: space._00,
+});
+
 export const gridlineGround = stylex.create({
   base: {
     backgroundColor: color.bgCanvas,
-    borderWidth: space._00,
+    borderWidth: gridlineTokens.width,
     borderStyle: "solid",
     borderColor: color.border,
     borderRadius: border.radius_2,

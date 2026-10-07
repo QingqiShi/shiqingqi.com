@@ -1,7 +1,6 @@
-import * as stylex from "@stylexjs/stylex";
 import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
@@ -12,7 +11,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function DividerSpecimen() {
   return (
-    <div css={[specimenLayout.fill, styles.stack]}>
+    <div css={[specimenLayout.fill, stack.tight]}>
       <Text look="bodySmall" tone="muted">
         {t({ en: "Details", zh: "详情" })}
       </Text>
@@ -23,11 +22,3 @@ export function DividerSpecimen() {
     </div>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
-});

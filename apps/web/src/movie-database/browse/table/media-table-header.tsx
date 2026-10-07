@@ -7,7 +7,7 @@ import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { t } from "#src/i18n.ts";
 import { useMediaTable } from "./media-table-context";
@@ -106,7 +106,7 @@ const styles = stylex.create({
   headerButton: {
     display: "flex",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.inline,
     inlineSize: "100%",
     blockSize: "100%",
     minInlineSize: 0,

@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -26,7 +24,7 @@ export function EffectContainerShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Effect container", zh: "效果容器" })} breakout>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "Attach the ref from useEffectContainer to an element and wrap its content in EffectContainer, and the effects inside act only on each other. Each effect hook belongs to the nearest EffectContainer above it in the React tree, or else to the page. Dust in a card goes only to the Extractor fans in that card, and a fan on the page cannot reach in. Nothing crosses the edge in either direction.",
@@ -48,7 +46,7 @@ export function EffectContainerShowcase() {
       <PropsTable component="effect-container" />
 
       <Showcase label={t({ en: "Limits", zh: "限制" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "The scope follows the React tree, not the DOM: content portalled out of the container stays in its scope, and is still clipped to the container's box. Until the container element is attached and measured, the effects of its scope do not draw.",
@@ -66,9 +64,3 @@ export function EffectContainerShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
-});

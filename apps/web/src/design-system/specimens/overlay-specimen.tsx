@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
@@ -15,7 +16,7 @@ import { WireframeBar } from "./wireframe-bar.tsx";
 export function OverlaySpecimen() {
   return (
     <div css={[wireframe.page, styles.page]}>
-      <div css={styles.content}>
+      <div css={[stack.tight, styles.content]}>
         <WireframeBar width="45%" strong />
         <WireframeBar width="80%" />
       </div>
@@ -34,9 +35,6 @@ const styles = stylex.create({
     justifyContent: "center",
   },
   content: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
     padding: space._2,
   },
   panel: {
@@ -46,7 +44,7 @@ const styles = stylex.create({
     transform: "translate(-50%, -50%)",
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     inlineSize: "62%",
     paddingBlock: space._2,
     paddingInline: space._2,

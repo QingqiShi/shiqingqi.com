@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useMemo } from "react";
 import { t } from "#src/i18n.ts";
 import {
@@ -64,17 +65,19 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
   });
 
   return (
-    <section css={styles.root} data-testid="wizard-step-vibe">
-      <div css={styles.subsection}>
-        <h3 css={styles.heading} id={moodHeadingId}>
-          {t({ en: "Pick a default mood", zh: "选择默认情绪" })}
-        </h3>
-        <p css={styles.hint}>
-          {t({
-            en: "The preview reflects your choice immediately.",
-            zh: "预览会立即反映你的选择。",
-          })}
-        </p>
+    <section css={stack.group} data-testid="wizard-step-vibe">
+      <div css={stack.item}>
+        <div css={stack.tight}>
+          <h3 css={styles.heading} id={moodHeadingId}>
+            {t({ en: "Pick a default mood", zh: "选择默认情绪" })}
+          </h3>
+          <p css={styles.hint}>
+            {t({
+              en: "The preview reflects your choice immediately.",
+              zh: "预览会立即反映你的选择。",
+            })}
+          </p>
+        </div>
         <OptionGrid role="radiogroup" aria-labelledby={moodHeadingId}>
           {EMOTIONS.map((emotion) => (
             <button
@@ -93,16 +96,18 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
         </OptionGrid>
       </div>
 
-      <div css={styles.subsection}>
-        <h3 css={styles.heading} id={elementHeadingId}>
-          {t({ en: "Pick an element", zh: "选择元素" })}
-        </h3>
-        <p css={styles.hint}>
-          {t({
-            en: "Tints the sprite and seeds the creature's stats.",
-            zh: "为精灵染色并影响生物的属性。",
-          })}
-        </p>
+      <div css={stack.item}>
+        <div css={stack.tight}>
+          <h3 css={styles.heading} id={elementHeadingId}>
+            {t({ en: "Pick an element", zh: "选择元素" })}
+          </h3>
+          <p css={styles.hint}>
+            {t({
+              en: "Tints the sprite and seeds the creature's stats.",
+              zh: "为精灵染色并影响生物的属性。",
+            })}
+          </p>
+        </div>
         <OptionGrid role="radiogroup" aria-labelledby={elementHeadingId}>
           {typeEntries.map((tp) => (
             <button
@@ -132,16 +137,6 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
 }
 
 const styles = stylex.create({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
-  subsection: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   heading: {
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
@@ -180,7 +175,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
     backgroundColor: {
       default: color.bgSurface,

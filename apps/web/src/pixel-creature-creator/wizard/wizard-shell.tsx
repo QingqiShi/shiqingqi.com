@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, opacity, space } from "@tuja/ui/tokens.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -150,8 +151,8 @@ export function WizardShell() {
   const previewLabel = t({ en: "Live preview", zh: "实时预览" });
 
   return (
-    <div css={styles.root} data-testid="wizard-shell">
-      <header css={styles.topBar}>
+    <div css={[stack.item, styles.root]} data-testid="wizard-shell">
+      <header css={[row.item, styles.topBar]}>
         <h2 css={styles.title}>
           {t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
         </h2>
@@ -166,7 +167,7 @@ export function WizardShell() {
       </header>
 
       <nav
-        css={styles.breadcrumb}
+        css={cluster.tight}
         aria-label={t({ en: "Wizard steps", zh: "向导步骤" })}
       >
         {WIZARD_STEPS.map((stepNumber) => {
@@ -245,9 +246,6 @@ export function WizardShell() {
 
 const styles = stylex.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     padding: space._3,
     paddingTop: `calc(${space._10} + env(safe-area-inset-top))`,
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
@@ -257,10 +255,7 @@ const styles = stylex.create({
     boxSizing: "border-box",
   },
   topBar: {
-    display: "flex",
-    alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
   },
   title: {
     fontSize: font.uiHeading2,
@@ -283,15 +278,10 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     cursor: "pointer",
   },
-  breadcrumb: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._1,
-  },
   pill: {
     display: "flex",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.inline,
     paddingBlock: space._1,
     paddingInline: space._2,
     backgroundColor: color.bgSurface,
@@ -325,13 +315,13 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: { default: "column", [breakpoints.md]: "row" },
     alignItems: { default: "stretch", [breakpoints.md]: "flex-start" },
-    gap: space._3,
+    gap: rhythm.item,
   },
   preview: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._3,
     backgroundColor: color.bgSurface,
     position: { default: "static", [breakpoints.md]: "sticky" },
@@ -360,7 +350,7 @@ const styles = stylex.create({
   footer: {
     display: "flex",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingTop: space._2,
     borderTopWidth: "1px",
     borderTopStyle: "solid",

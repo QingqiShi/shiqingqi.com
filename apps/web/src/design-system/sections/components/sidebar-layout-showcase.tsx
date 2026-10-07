@@ -3,7 +3,8 @@ import { Heading } from "@tuja/ui/components/heading";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DesignSystemNav } from "#src/design-system/design-system-nav.tsx";
 import { DesignSystemSidebarControls } from "#src/design-system/design-system-sidebar-controls.tsx";
 import { DesignSystemSidebarHeader } from "#src/design-system/design-system-sidebar-header.tsx";
@@ -66,8 +67,8 @@ export function SidebarLayoutShowcase() {
                   />
                 }
               >
-                <div css={styles.contentInner}>
-                  <div css={styles.contentHead}>
+                <div css={stack.group}>
+                  <div css={stack.tight}>
                     <Heading level={2}>
                       {t({ en: "Content column", zh: "内容列" })}
                     </Heading>
@@ -150,20 +151,10 @@ const styles = stylex.create({
     // the callsite).
     transform: "translateZ(0)",
   },
-  contentInner: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
-  contentHead: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
-  },
   cardGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   placeholder: {
     aspectRatio: "4 / 3",

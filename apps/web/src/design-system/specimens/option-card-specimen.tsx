@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { OptionCard } from "@tuja/ui/components/option-card";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
@@ -20,7 +21,7 @@ export function OptionCardSpecimen() {
     <div
       role="radiogroup"
       aria-label={t({ en: "Plan", zh: "套餐" })}
-      css={[specimenLayout.fill, styles.group]}
+      css={[specimenLayout.fill, stack.tight]}
     >
       <OptionCard
         role="radio"
@@ -38,11 +39,6 @@ export function OptionCardSpecimen() {
 }
 
 const styles = stylex.create({
-  group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-  },
   card: {
     paddingBlock: space._1,
     paddingInline: space._2,

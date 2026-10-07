@@ -6,7 +6,8 @@ import { Text } from "@tuja/ui/components/text";
 import { useEffectContainer } from "@tuja/ui/hooks/use-effect-container";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { t } from "#src/i18n.ts";
 import { DustTile, Fan } from "./dust-tile.tsx";
@@ -46,7 +47,7 @@ export function EffectContainerSpecimen() {
     <div css={styles.frame}>
       <div css={styles.specimen}>
         <Card title={t({ en: "Card A", zh: "卡片 A" })} />
-        <div css={[flex.col, styles.page]}>
+        <div css={[stack.item, styles.page]}>
           <DustTile density={5} css={[styles.tile, styles.info]} />
           <Fan reach={PAGE_REACH} />
         </div>
@@ -67,11 +68,11 @@ const styles = stylex.create({
       "@container (min-width: 41rem)": "1fr auto 1fr",
     },
     alignItems: "center",
-    gap: space._8,
+    gap: rhythm.group,
     paddingBlock: space._5,
   },
   card: {
-    gap: space._3,
+    gap: rhythm.tight,
     padding: space._5,
     color: color.fg,
     backgroundColor: color.bgSurfaceRaised,
@@ -80,12 +81,11 @@ const styles = stylex.create({
     borderColor: color.border,
   },
   cardStage: {
-    gap: space._5,
+    gap: rhythm.item,
     minBlockSize: space._12,
   },
   page: {
     alignItems: "center",
-    gap: space._7,
   },
   tile: {
     blockSize: space._9,

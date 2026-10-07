@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
 
 interface OptionGridProps {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ export function OptionGrid({
 }: OptionGridProps) {
   return (
     <div
-      css={styles.grid}
+      css={[cluster.item, styles.grid]}
       role={role}
       aria-labelledby={ariaLabelledBy}
       aria-label={ariaLabel}
@@ -34,9 +34,6 @@ export function OptionGrid({
 
 const styles = stylex.create({
   grid: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._2,
     alignItems: "stretch",
   },
 });

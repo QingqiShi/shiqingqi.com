@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { border, color, rhythm } from "@tuja/ui/tokens.stylex";
 
 /**
  * Shared layout styles for the component specimens rendered under each overview
@@ -46,7 +46,7 @@ export const specimenLayout = stylex.create({
     // available width, not to its longest line — so without this every line,
     // the first included, would sit at the inline start of a plate-wide box.
     justifyContent: "center",
-    gap: space._1,
+    gap: rhythm.tight,
   },
   // Both axes, because a stack hits the same wall the row does: the moment one
   // of its rows is wider than the plate the box stretches to the plate, and
@@ -69,7 +69,7 @@ export const specimenLayout = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    gap: space._0,
+    gap: rhythm.tight,
   },
   fill: {
     inlineSize: "100%",

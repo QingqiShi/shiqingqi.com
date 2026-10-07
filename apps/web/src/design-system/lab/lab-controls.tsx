@@ -8,7 +8,8 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollbar, scrollY } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { t } from "#src/i18n.ts";
 import { LabControl } from "./lab-control.tsx";
@@ -55,11 +56,11 @@ export function LabControls({
         }}
       />
 
-      <section css={styles.section}>
+      <section css={stack.tight}>
         <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
           {t({ en: "Props", zh: "属性" })}
         </Text>
-        <div css={styles.rows}>
+        <div css={stack.item}>
           {controls.map((control) => (
             <div
               key={control.name}
@@ -102,8 +103,8 @@ const styles = stylex.create({
     // instead, so the Specimen keeps the whole screen.
     display: { default: "none", [breakpoints.md]: "flex" },
     flexDirection: "column",
-    gap: space._4,
-    padding: space._3,
+    gap: rhythm.group,
+    padding: space._5,
     // Sticky below the header, so the controls stay in view while the Canvas
     // runs on. It also positions the Glass rim.
     position: "sticky",
@@ -113,28 +114,18 @@ const styles = stylex.create({
     // stops at the viewport and scrolls inside instead.
     maxBlockSize: { [breakpoints.md]: `calc(100dvh - ${space._7})` },
   },
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
-  rows: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   row: {
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    gap: space._1,
+    gap: rhythm.tight,
     minInlineSize: 0,
   },
   rowInline: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.item,
   },
   propName: {
     fontFamily: font.familyMono,

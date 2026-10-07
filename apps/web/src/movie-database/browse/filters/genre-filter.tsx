@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -38,7 +38,7 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
   const matchingLabelId = useId();
 
   return (
-    <div css={[flex.col, styles.container]}>
+    <div css={[stack.group, styles.container]}>
       <div>
         {!hideTitle && <MenuLabel>{t({ en: "Genre", zh: "类型" })}</MenuLabel>}
         <div css={styles.genreList}>
@@ -95,7 +95,6 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
 
 const styles = stylex.create({
   container: {
-    gap: space._4,
     overflow: "auto",
     width: "100dvw",
     maxInlineSize: `min(${space._15}, calc(100dvw - ${space._3} - env(safe-area-inset-left) - ${space._3} - env(safe-area-inset-right)))`,

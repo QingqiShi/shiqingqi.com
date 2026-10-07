@@ -1,8 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { ReactNode } from "react";
 import { useDesignSystemView } from "#src/design-system/lab/use-design-system-view.ts";
 import { readingColumn } from "./reading-column.stylex.ts";
@@ -21,20 +20,25 @@ export function DocHeaderColumn({ docsPath, children }: DocHeaderColumnProps) {
   const view = useDesignSystemView(docsPath);
 
   return (
-    <header
-      css={[flex.col, styles.header, view === "docs" && styles.readingColumn]}
-    >
+    <header css={[stack.item, view === "docs" && styles.readingColumn]}>
       {children}
     </header>
   );
 }
 
 const styles = stylex.create({
-  header: {
-    gap: space._4,
-  },
   readingColumn: {
     maxInlineSize: readingColumn.inlineSize,
     marginInline: "auto",
   },
 });
+
+interface DocsViewOnlyProps {
+  docsPath: string;
+  children: ReactNode;
+}
+
+/** Shows its children over the documentation, and hides them over the Lab. */
+export function DocsViewOnly({ docsPath, children }: DocsViewOnlyProps) {
+  return useDesignSystemView(docsPath) === "docs" ? children : null;
+}

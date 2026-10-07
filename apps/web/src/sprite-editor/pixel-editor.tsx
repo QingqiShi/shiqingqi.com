@@ -27,8 +27,10 @@ import {
 import {
   border,
   color,
+  controlSize,
   font,
   opacity,
+  rhythm,
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -1244,7 +1246,7 @@ const styles = stylex.create({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.item,
     height: "100%",
     minHeight: 0,
   },
@@ -1252,7 +1254,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
     backgroundColor: color.bgSurface,
     border: `${border.size_1} solid ${color.border}`,
@@ -1288,7 +1290,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     padding: space._2,
     backgroundColor: color.bgSurface,
     border: `${border.size_1} solid ${color.border}`,
@@ -1296,7 +1298,7 @@ const styles = stylex.create({
   colorLabel: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
@@ -1310,7 +1312,7 @@ const styles = stylex.create({
   },
   swatches: {
     display: "flex",
-    gap: "2px",
+    gap: rhythm.inline,
   },
   swatch: {
     width: "24px",
@@ -1373,7 +1375,7 @@ const styles = stylex.create({
     transform: "translateX(-50%)",
     display: "flex",
     alignItems: "center",
-    gap: "2px",
+    gap: controlSize._0,
     padding: "4px",
     backgroundColor: color.bgSurfaceRaised,
     border: `${border.size_1} solid ${color.border}`,
@@ -1385,7 +1387,7 @@ const styles = stylex.create({
   selectionButton: {
     display: "inline-flex",
     alignItems: "center",
-    gap: "4px",
+    gap: controlSize._1,
     paddingBlock: "4px",
     paddingInline: space._1,
     backgroundColor: {
@@ -1413,6 +1415,6 @@ const styles = stylex.create({
     width: "1px",
     height: "18px",
     backgroundColor: color.border,
-    marginInline: "2px",
+    marginInline: controlSize._0,
   },
 });

@@ -6,7 +6,9 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { justify } from "@tuja/ui/primitives/flex.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, controlSize, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState, type ReactNode } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";
@@ -168,9 +170,9 @@ export function OverviewBrowser({
         : `${String(matches.length)} ${manyResultsLabel}`;
 
   return (
-    <div css={styles.browser}>
-      <div css={styles.controls}>
-        <div css={styles.toolbar}>
+    <div css={stack.section}>
+      <div css={stack.tight}>
+        <div css={[cluster.item, justify.between]}>
           <div css={styles.search}>
             <TextField
               type="search"
@@ -219,19 +221,23 @@ export function OverviewBrowser({
         <p css={styles.emptyHint}>{emptyHint}</p>
       ) : (
         visible.map((block) => (
-          <section key={block.key} css={styles.section}>
+          // The h2 stands an item above its content, not tight: an h3 can
+          // follow it, and that h3 must bind to its grid, not to the h2.
+          <section key={block.key} css={stack.item}>
             {block.heading !== null && (
               <h2 css={styles.sectionTitle}>{block.heading}</h2>
             )}
-            {block.entries.length > 0 && <Grid entries={block.entries} />}
-            {block.children
-              .filter((child) => child.entries.length > 0)
-              .map((child) => (
-                <div key={child.key} css={styles.category}>
-                  <h3 css={styles.categoryTitle}>{child.heading}</h3>
-                  <Grid entries={child.entries} />
-                </div>
-              ))}
+            <div css={stack.group}>
+              {block.entries.length > 0 && <Grid entries={block.entries} />}
+              {block.children
+                .filter((child) => child.entries.length > 0)
+                .map((child) => (
+                  <div key={child.key} css={stack.tight}>
+                    <h3 css={styles.categoryTitle}>{child.heading}</h3>
+                    <Grid entries={child.entries} />
+                  </div>
+                ))}
+            </div>
           </section>
         ))
       )}
@@ -250,23 +256,6 @@ function Grid({ entries }: { entries: OverviewEntry[] }) {
 }
 
 const styles = stylex.create({
-  browser: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._8,
-  },
-  controls: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
-  toolbar: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: space._3,
-  },
   // Takes the row's slack up to a comfortable reading width, then stops: a
   // search field as wide as the page reads as a form, not as a filter.
   search: {
@@ -301,22 +290,12 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
   sectionTitle: {
     margin: 0,
     fontSize: font.uiHeading1,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingSnug,
     color: color.fg,
-  },
-  category: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
   },
   // A rank below the section title and read as one: uppercase and tracked out,
   // the same move the rail makes to separate its two levels.
@@ -336,7 +315,7 @@ const styles = stylex.create({
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
   },
   emptyHint: {
     margin: 0,

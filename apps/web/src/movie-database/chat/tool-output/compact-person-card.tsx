@@ -7,7 +7,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { DepartmentLabel } from "#src/movie-database/department-label.ts";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
@@ -120,7 +120,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     width: "100%",
     color: "inherit",
     textAlign: "center",

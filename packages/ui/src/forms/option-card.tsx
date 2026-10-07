@@ -5,8 +5,9 @@ import { useId, type ComponentProps, type ReactNode } from "react";
 import { flex, grow, shrink } from "../primitives/flex.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
 import { cardSurface } from "../surfaces/card.stylex.ts";
-import { color, font, space } from "../tokens.stylex.ts";
+import { color, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { optionCardSurface } from "./option-card.stylex.ts";
 import { SelectionMark } from "./selection-mark.tsx";
@@ -174,7 +175,7 @@ export function OptionCard({
           {icon}
         </span>
       ) : null}
-      <span css={[flex.col, grow._1, styles.text]}>
+      <span css={[stack.tight, grow._1, styles.text]}>
         <span id={labelId} css={styles.label}>
           {label}
         </span>
@@ -203,18 +204,16 @@ const styles = stylex.create({
   row: {
     display: "flex",
     alignItems: "center",
-    gap: space._3,
-    paddingBlock: space._2,
-    paddingInline: space._3,
+    gap: rhythm.tight,
+    padding: space._3,
     fontSize: font.uiBody,
   },
   tile: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
-    paddingBlock: space._3,
-    paddingInline: space._2,
+    gap: rhythm.tight,
+    padding: space._3,
     fontSize: font.uiBody,
     textAlign: "center",
   },
@@ -227,7 +226,6 @@ const styles = stylex.create({
     color: color.fgAccent,
   },
   text: {
-    gap: space._0,
     minInlineSize: 0,
   },
   label: {

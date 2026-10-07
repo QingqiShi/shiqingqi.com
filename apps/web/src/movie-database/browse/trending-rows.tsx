@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import {
@@ -45,7 +46,7 @@ export function TrendingRows({
     <HydrationBoundary state={getConfigurationDehydratedState()}>
       <section
         aria-label={t({ en: "Trending this week", zh: "本周热门" })}
-        css={[styles.container, options.inset === "standalone" && styles.page]}
+        css={[stack.group, options.inset === "standalone" && styles.page]}
       >
         <Suspense fallback={<MediaRowSkeleton inset={options.inset} />}>
           <TrendingRow mediaType="movie" title={movieTitle} {...options} />
@@ -129,13 +130,7 @@ async function fetchTrending(
 }
 
 const styles = stylex.create({
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._5,
-  },
   page: {
-    gap: { default: space._5, [breakpoints.md]: space._6 },
     paddingLeft: `calc(${space._3} + env(safe-area-inset-left, 0px))`,
     paddingRight: `calc(${space._3} + env(safe-area-inset-right, 0px))`,
     paddingBlockEnd: { default: space._5, [breakpoints.md]: space._6 },

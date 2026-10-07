@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSyncExternalStore } from "react";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
@@ -62,7 +63,7 @@ export function YourCreations({ locale }: YourCreationsProps) {
   };
 
   return (
-    <section css={styles.root} data-testid="your-creations">
+    <section css={[stack.item, styles.root]} data-testid="your-creations">
       <h2 css={styles.heading}>{heading}</h2>
       {saved.length === 0 ? (
         <div css={styles.empty} data-testid="your-creations-empty">
@@ -110,9 +111,6 @@ export function YourCreations({ locale }: YourCreationsProps) {
 
 const styles = stylex.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     width: "100%",
   },
   heading: {
@@ -124,7 +122,7 @@ const styles = stylex.create({
   empty: {
     display: "flex",
     flexDirection: "column",
-    gap: space._0,
+    gap: rhythm.tight,
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurface,
@@ -150,20 +148,20 @@ const styles = stylex.create({
     margin: 0,
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-    gap: space._2,
+    gap: rhythm.item,
   },
   item: {
     display: "flex",
     flexDirection: "column",
     alignItems: "stretch",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
   },
   thumbLink: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.tight,
     color: color.fg,
     textDecoration: "none",
     borderRadius: "8px",

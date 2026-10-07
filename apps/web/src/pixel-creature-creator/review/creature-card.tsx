@@ -3,7 +3,15 @@
 import * as stylex from "@stylexjs/stylex";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, shadow, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  border,
+  color,
+  font,
+  rhythm,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -111,38 +119,37 @@ export function CreatureCard({
         <span css={styles.typeLabel}>{typeLabel}</span>
       </header>
 
-      <div css={[corner.radius_3, styles.spriteScreen]}>
-        <PixelSprite
-          def={def}
-          emotion={emotion}
-          scale={8}
-          paused={paused}
-          aria-label={displayName}
-        />
+      <div css={[stack.item, styles.body]}>
+        <div css={[corner.radius_3, styles.spriteScreen]}>
+          <PixelSprite
+            def={def}
+            emotion={emotion}
+            scale={8}
+            paused={paused}
+            aria-label={displayName}
+          />
+        </div>
+
+        <section aria-label={t({ en: "Stats", zh: "属性" })}>
+          <ul css={[stack.tight, styles.statsList]}>
+            {STAT_KEYS.map((key) => {
+              const value = stats[key];
+              // Stats are integers in [1, 100]; clamp defensively in case a
+              // future seed function widens the range.
+              const pct = Math.max(0, Math.min(100, value));
+              return (
+                <li key={key} css={styles.statRow}>
+                  <span css={styles.statLabel}>{statLabels[key]}</span>
+                  <StatBar percent={pct} />
+                  <span css={styles.statValue}>{String(value)}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <CardLorePanel lore={lore ?? null} />
       </div>
-
-      <section
-        css={styles.statsPanel}
-        aria-label={t({ en: "Stats", zh: "属性" })}
-      >
-        <ul css={styles.statsList}>
-          {STAT_KEYS.map((key) => {
-            const value = stats[key];
-            // Stats are integers in [1, 100]; clamp defensively in case a
-            // future seed function widens the range.
-            const pct = Math.max(0, Math.min(100, value));
-            return (
-              <li key={key} css={styles.statRow}>
-                <span css={styles.statLabel}>{statLabels[key]}</span>
-                <StatBar percent={pct} />
-                <span css={styles.statValue}>{String(value)}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-
-      <CardLorePanel lore={lore ?? null} />
     </article>
   );
 }
@@ -159,7 +166,7 @@ function CardLorePanel({ lore }: CardLorePanelProps) {
     lore === null ? null : locale === "zh" ? lore.loreZh : lore.loreEn;
 
   return (
-    <section css={[corner.radius_2, styles.lorePanel]}>
+    <section css={[corner.radius_2, stack.tight, styles.lorePanel]}>
       <h2 css={styles.loreHeading}>{t({ en: "Lore", zh: "传说" })}</h2>
       {activeLore !== null && activeLore.length > 0 ? (
         <p css={styles.loreText}>{activeLore}</p>
@@ -211,7 +218,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._4,
     backgroundColor: `var(--pcc-accent, ${color.bgNeutral})`,
@@ -240,29 +247,24 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    margin: space._4,
     padding: space._3,
     minHeight: "260px",
     backgroundColor: `color-mix(in srgb, var(--pcc-accent, ${color.bgNeutral}) 14%, ${color.bgSurface})`,
     boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.12)",
   },
-  statsPanel: {
-    paddingInline: space._4,
-    paddingBlock: space._2,
+  body: {
+    padding: space._4,
   },
   statsList: {
     listStyle: "none",
     margin: 0,
     padding: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
   },
   statRow: {
     display: "grid",
     gridTemplateColumns: "auto 1fr auto",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
   },
   statLabel: {
     fontSize: font.uiBodySmall,
@@ -296,16 +298,11 @@ const styles = stylex.create({
     textAlign: "end",
   },
   lorePanel: {
-    margin: space._4,
-    marginTop: space._3,
     padding: space._3,
     borderWidth: border.size_1,
     borderStyle: "dashed",
     borderColor: color.border,
     backgroundColor: color.bgSurface,
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
   },
   loreHeading: {
     fontSize: font.uiBodySmall,

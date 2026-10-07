@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Select } from "@tuja/ui/components/select";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 import { t } from "#src/i18n.ts";
@@ -17,7 +17,7 @@ export function LiveSelect() {
   const [value, setValue] = useState("");
   const selected = genres.find((genre) => genre.value === value);
   return (
-    <div css={styles.liveStack}>
+    <div css={[stack.item, fill.inline]}>
       <div css={[fill.inline, styles.constrained]}>
         <Select
           label={t({ en: "Genre", zh: "类型" })}
@@ -37,12 +37,6 @@ export function LiveSelect() {
 }
 
 const styles = stylex.create({
-  liveStack: {
-    display: "flex",
-    flexDirection: "column",
-    inlineSize: "100%",
-    gap: space._3,
-  },
   constrained: {
     maxInlineSize: "20rem",
   },

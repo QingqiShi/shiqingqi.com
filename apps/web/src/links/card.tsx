@@ -6,7 +6,14 @@ import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, layer, shadow, space } from "@tuja/ui/tokens.stylex";
+import {
+  color,
+  font,
+  layer,
+  rhythm,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
@@ -127,7 +134,7 @@ const styles = stylex.create({
     color: color.fg,
     display: "flex",
     fontSize: font.uiBodySmall,
-    gap: space._0,
+    gap: rhythm.inline,
     opacity: cardTokens.detailsIndicatorOpacity,
     pointerEvents: "none",
     position: "absolute",

@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
@@ -29,7 +29,7 @@ export function DetailPageTitle({
     // on the page's primary heading first (WCAG 1.3.1 / 2.4.6). Flexbox
     // `order` restores the visual layout: kicker on top, role in the middle,
     // date at the bottom.
-    <header css={[flex.col, styles.container]}>
+    <header css={[stack.tight, styles.container]}>
       <h1 css={styles.title}>{role}</h1>
       <h2 css={styles.subtitle}>
         {typeLabel} - {title}
@@ -43,7 +43,6 @@ export function DetailPageTitle({
 
 const styles = stylex.create({
   container: {
-    gap: space._1,
     paddingBottom: space._8,
   },
   subtitle: {

@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -57,7 +58,7 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
 
   if (status.kind === "loading") {
     return (
-      <div css={styles.root} data-testid="review-loading">
+      <div css={[stack.item, styles.root]} data-testid="review-loading">
         <p css={styles.muted}>{t({ en: "Loading…", zh: "加载中…" })}</p>
       </div>
     );
@@ -65,16 +66,18 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
 
   if (status.kind === "invalid") {
     return (
-      <div css={styles.root} data-testid="review-invalid">
-        <h1 css={styles.heading}>
-          {t({ en: "Broken creature link", zh: "无效的生物链接" })}
-        </h1>
-        <p css={styles.muted}>
-          {t({
-            en: "We couldn't decode this creature. Try designing a new one.",
-            zh: "我们无法解析这个生物。试着重新设计一个吧。",
-          })}
-        </p>
+      <div css={[stack.item, styles.root]} data-testid="review-invalid">
+        <div css={stack.tight}>
+          <h1 css={styles.heading}>
+            {t({ en: "Broken creature link", zh: "无效的生物链接" })}
+          </h1>
+          <p css={styles.muted}>
+            {t({
+              en: "We couldn't decode this creature. Try designing a new one.",
+              zh: "我们无法解析这个生物。试着重新设计一个吧。",
+            })}
+          </p>
+        </div>
         <Link
           href={createHref}
           data-testid="review-cta"
@@ -119,8 +122,8 @@ function ReviewBody({ def, encodedHash, paused }: ReviewBodyProps) {
   const stats = useMemo(() => computeSeedStats(def), [def]);
 
   return (
-    <div css={styles.root} data-testid="review-screen">
-      <main css={styles.main}>
+    <div css={[stack.item, styles.root]} data-testid="review-screen">
+      <main css={[stack.item, styles.main]}>
         <CreatureCard
           def={def}
           stats={stats}
@@ -143,9 +146,6 @@ function ReviewBody({ def, encodedHash, paused }: ReviewBodyProps) {
 
 const styles = stylex.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     padding: space._4,
     paddingTop: `calc(${space._10} + env(safe-area-inset-top))`,
     paddingBottom: `calc(${space._4} + env(safe-area-inset-bottom))`,
@@ -156,9 +156,6 @@ const styles = stylex.create({
     alignItems: "stretch",
   },
   main: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     alignItems: "center",
     width: "100%",
   },

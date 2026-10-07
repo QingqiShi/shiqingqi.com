@@ -11,7 +11,7 @@ import {
 } from "@tuja/ui/components/glass-surface.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, layer, space } from "@tuja/ui/tokens.stylex";
+import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { t } from "#src/i18n.ts";
@@ -198,7 +198,7 @@ const styles = stylex.create({
     position: "relative",
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     minInlineSize: 0,
   },
   trailing: {

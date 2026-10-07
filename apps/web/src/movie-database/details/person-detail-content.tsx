@@ -6,7 +6,8 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, layer, space } from "@tuja/ui/tokens.stylex";
+import { row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -69,7 +70,7 @@ export function PersonDetailContent({
 
   return (
     <div css={styles.body}>
-      <div css={styles.header}>
+      <div css={[row.item, styles.header]}>
         {profilePath && imageBaseUrl ? (
           <div css={[corner.radius_round, styles.photoWrapper]}>
             <ProfileImage
@@ -105,7 +106,7 @@ export function PersonDetailContent({
         detailQuery.isPending && <Skeleton height={48} />
       )}
       {filmography.length > 0 && (
-        <div css={styles.filmographySection}>
+        <div css={stack.tight}>
           <h3 css={styles.filmographyTitle}>
             {t({ en: "Filmography", zh: "作品" })}
           </h3>
@@ -314,12 +315,10 @@ const styles = stylex.create({
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: space._3,
+    gap: rhythm.item,
     padding: space._4,
   },
   header: {
-    display: "flex",
-    gap: space._3,
     alignItems: "flex-start",
   },
   photoWrapper: {
@@ -339,7 +338,7 @@ const styles = stylex.create({
   headerInfo: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     minWidth: 0,
     paddingTop: space._1,
   },
@@ -390,11 +389,6 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
     fontStyle: "italic",
-  },
-  filmographySection: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
   },
   filmographyTitle: {
     fontSize: font.uiBody,

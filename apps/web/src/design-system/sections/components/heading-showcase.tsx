@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -18,7 +18,7 @@ export function HeadingShowcase() {
             zh: "五种视觉字号，从主视觉 display 一直到正文大小的分区标签。",
           })}
         </ShowcaseHelper>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption="display · 3rem">
             <Heading level={1} look="display">
               {t({
@@ -57,7 +57,7 @@ export function HeadingShowcase() {
             zh: "level 决定文档大纲中的语义层级，look 决定外观。二者解耦，让 <h2> 能以 display 大小呈现而不破坏大纲。",
           })}
         </ShowcaseHelper>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption="<h2> · display">
             <Heading level={2} look="display">
               {t({ en: "Featured this week", zh: "本周精选" })}
@@ -88,7 +88,7 @@ export function HeadingShowcase() {
             zh: "weight 会覆盖 look 设定的字重，因此 display 标题可以变轻或加重，而无需改动字号。",
           })}
         </ShowcaseHelper>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption='look="display" · regular'>
             <Heading level={2} look="display" weight="regular">
               {t({ en: "Featured this week", zh: "本周精选" })}
@@ -113,7 +113,7 @@ export function HeadingShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Alignment", zh: "对齐" })}>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption='align="start"'>
             <Heading level={3} align="start">
               {t({ en: "Aligned to start", zh: "起始对齐" })}
@@ -139,7 +139,7 @@ export function HeadingShowcase() {
             zh: "balance 会让各行长度均衡，使两行的标题不会在第二行只剩一个词。在标题长度下浏览器的行数上限不构成限制，因此这正是标题需要的模式。",
           })}
         </ShowcaseHelper>
-        <div css={styles.ladder}>
+        <div css={stack.item}>
           <Specimen caption="(default)">
             <div css={styles.wrapStage}>
               <Heading level={3} look="h2">
@@ -190,11 +190,6 @@ export function HeadingShowcase() {
 }
 
 const styles = stylex.create({
-  ladder: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
   // Narrow enough that the sample wraps to two lines, where balancing shows.
   wrapStage: {
     inlineSize: "100%",

@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 const ROWS = [
   { key: "stream", logoCount: 3 },
@@ -24,25 +25,27 @@ export function ToolWatchProvidersSkeleton() {
         />
         <Skeleton width={24} height={18} delay={delayIndex++ * STAGGER_DELAY} />
       </div>
-      {ROWS.map((row) => (
-        <div key={row.key} css={styles.section}>
-          <Skeleton
-            width={50}
-            height={12}
-            delay={delayIndex++ * STAGGER_DELAY}
-          />
-          <div css={styles.logoRow}>
-            {Array.from({ length: row.logoCount }, (_, i) => (
-              <Skeleton
-                key={`${row.key}-${String(i)}`}
-                width={36}
-                height={36}
-                delay={delayIndex++ * STAGGER_DELAY}
-              />
-            ))}
+      <div css={stack.item}>
+        {ROWS.map((row) => (
+          <div key={row.key} css={stack.tight}>
+            <Skeleton
+              width={50}
+              height={12}
+              delay={delayIndex++ * STAGGER_DELAY}
+            />
+            <div css={styles.logoRow}>
+              {Array.from({ length: row.logoCount }, (_, i) => (
+                <Skeleton
+                  key={`${row.key}-${String(i)}`}
+                  width={36}
+                  height={36}
+                  delay={delayIndex++ * STAGGER_DELAY}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -51,20 +54,16 @@ const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
     padding: space._3,
-    marginTop: space._2,
+    marginTop: rhythm.item,
   },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: space._2,
-  },
-  section: {
-    marginBottom: space._2,
+    marginBottom: rhythm.tight,
   },
   logoRow: {
     display: "flex",
-    gap: space._1,
-    marginTop: space._1,
+    gap: rhythm.tight,
   },
 });

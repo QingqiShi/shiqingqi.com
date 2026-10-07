@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, ratio, space } from "@tuja/ui/tokens.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { wireframe } from "./specimen.stylex.ts";
 import { WireframeBar } from "./wireframe-bar.tsx";
 
@@ -18,7 +19,7 @@ import { WireframeBar } from "./wireframe-bar.tsx";
 export function MovieDetailSpecimen() {
   return (
     <div css={[wireframe.page, wireframe.clip, styles.page]}>
-      <div css={styles.hero}>
+      <div css={[row.tight, styles.hero]}>
         <div css={[corner.radius_1, styles.poster]} />
         <div css={styles.identity}>
           <WireframeBar width="35%" />
@@ -55,13 +56,11 @@ export function MovieDetailSpecimen() {
 
 const styles = stylex.create({
   page: {
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
   },
   hero: {
-    display: "flex",
     alignItems: "flex-start",
-    gap: space._1,
   },
   poster: {
     flexShrink: 0,

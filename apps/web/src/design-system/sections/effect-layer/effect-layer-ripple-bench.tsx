@@ -10,7 +10,8 @@ import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
 import { useRipple } from "@tuja/ui/hooks/use-ripple";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { useState, type ReactNode, type Ref } from "react";
 import { t } from "#src/i18n.ts";
@@ -68,8 +69,8 @@ export function EffectLayerRippleBench() {
   const badgeRipple = useRipple();
 
   return (
-    <div css={[flex.col, styles.bench]}>
-      <label css={[flex.row, styles.control]}>
+    <div css={stack.item}>
+      <label css={[row.tight, styles.control]}>
         <Switch
           value={ambient ? "on" : "off"}
           onChange={(state) => {
@@ -122,7 +123,7 @@ export function EffectLayerRippleBench() {
         />
       </div>
 
-      <div css={[flex.wrap, styles.controls]}>
+      <div css={cluster.item}>
         <Button
           ref={buttonRipple}
           data-effect-registered=""
@@ -141,11 +142,7 @@ export function EffectLayerRippleBench() {
 }
 
 const styles = stylex.create({
-  bench: {
-    gap: space._5,
-  },
   control: {
-    gap: space._2,
     alignSelf: "flex-start",
   },
   grid: {
@@ -154,16 +151,11 @@ const styles = stylex.create({
       default: "repeat(2, minmax(0, 1fr))",
       [breakpoints.md]: "repeat(3, minmax(0, 1fr))",
     },
-    gap: space._7,
-    paddingBlock: space._5,
-  },
-  controls: {
-    alignItems: "center",
-    gap: space._7,
+    gap: rhythm.item,
   },
   tile: {
     justifyContent: "flex-end",
-    gap: space._00,
+    gap: rhythm.tight,
     blockSize: space._11,
     padding: space._3,
   },

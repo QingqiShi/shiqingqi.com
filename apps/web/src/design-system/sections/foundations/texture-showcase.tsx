@@ -4,7 +4,7 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
@@ -100,7 +100,7 @@ export function TextureShowcase() {
       <UsageSnippet
         code={`import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 <div css={[cardSurface.base, texture.dot, styles.card]} />
 
@@ -146,6 +146,6 @@ const styles = stylex.create({
       default: "1fr",
       [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
     },
-    gap: space._2,
+    gap: rhythm.item,
   },
 });

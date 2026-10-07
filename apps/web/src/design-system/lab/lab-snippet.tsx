@@ -6,7 +6,8 @@ import { Button } from "@tuja/ui/components/button";
 import { CodeBlock } from "@tuja/ui/components/code-block";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { row } from "@tuja/ui/primitives/stack.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { t } from "#src/i18n.ts";
 import type { LabSnippet as LabSnippetModel } from "./build-lab-snippet.ts";
@@ -31,7 +32,7 @@ export function LabSnippet({ snippet }: LabSnippetProps) {
   return (
     <ViewTransition name="lab-snippet" default="lab-live">
       <div css={[corner.radius_2, styles.card]}>
-        <div css={styles.head}>
+        <div css={[row.item, styles.head]}>
           <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
             {t({ en: "Usage", zh: "用法" })}
           </Text>
@@ -55,7 +56,7 @@ const styles = stylex.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,
@@ -64,10 +65,7 @@ const styles = stylex.create({
     inlineSize: "100%",
   },
   head: {
-    display: "flex",
-    alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
   },
   scroller: {
     paddingBlockEnd: space._1,

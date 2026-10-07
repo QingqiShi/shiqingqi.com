@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 
@@ -42,7 +42,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-end",
-    gap: "0.35rem",
+    gap: rhythm.tight,
     inlineSize: "100%",
   },
   track: {

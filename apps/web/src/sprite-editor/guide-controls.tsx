@@ -2,7 +2,14 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
 import type { GuideOptions } from "./types";
@@ -16,7 +23,7 @@ export function GuideControls({ guides, onGuidesChange }: GuideControlsProps) {
   return (
     <section css={styles.group}>
       <h3 css={styles.sectionLabel}>{t({ en: "Guides", zh: "辅助线" })}</h3>
-      <div css={styles.toggles}>
+      <div css={cluster.tight}>
         <Toggle
           label={t({ en: "Halves", zh: "对半" })}
           checked={guides.halves}
@@ -83,7 +90,7 @@ const styles = stylex.create({
   group: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     margin: 0,
     padding: 0,
     borderWidth: 0,
@@ -96,15 +103,10 @@ const styles = stylex.create({
     letterSpacing: font.trackingSnug,
     color: color.fg,
   },
-  toggles: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._1,
-  },
   toggle: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._1,
+    gap: controlSize._2,
     paddingBlock: space._0,
     paddingInline: space._2,
     fontSize: font.uiBodySmall,

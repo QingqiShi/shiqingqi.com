@@ -4,6 +4,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { DocSection } from "./doc-section.tsx";
 import { onReadingColumn } from "./reading-column.stylex.ts";
 
 interface ShowcaseProps {
@@ -45,26 +46,20 @@ export function Showcase({
 }: ShowcaseProps) {
   const plain = frame === "plain";
   return (
-    <section
+    <DocSection
+      title={label}
+      titleCss={[
+        plain ? styles.headingPlain : styles.label,
+        labelLook === "code" && styles.labelCode,
+        breakout && onReadingColumn.base,
+      ]}
       css={[
-        styles.showcase,
-        plain ? styles.plainFrame : [cardSurface.base, styles.card],
+        !plain && [cardSurface.base, styles.card],
         breakout && styles.breakout,
       ]}
     >
-      {label ? (
-        <h2
-          css={[
-            plain ? styles.headingPlain : styles.label,
-            labelLook === "code" && styles.labelCode,
-            breakout && onReadingColumn.base,
-          ]}
-        >
-          {label}
-        </h2>
-      ) : null}
-      <div css={styles.body}>{children}</div>
-    </section>
+      {children}
+    </DocSection>
   );
 }
 
@@ -100,21 +95,10 @@ export function StateReadout({
 }
 
 const styles = stylex.create({
-  showcase: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   // Default doc-page framing: the shared card surface (cardSurface.base) plus
   // the doc-page padding.
   card: {
-    padding: space._5,
-  },
-  // Plain framing: no card chrome. The section is delineated by its heading and
-  // the generous gap the doc-page body puts between siblings, so the page canvas
-  // stays the ground and inner surfaces do the highlighting.
-  plainFrame: {
-    gap: space._4,
+    padding: space._7,
   },
   // The article is the container. 50% is half the reading column; 50cqi is
   // half the article. So the section overhangs the column by the same amount
@@ -126,7 +110,6 @@ const styles = stylex.create({
     marginInlineStart: "calc(50% - 50cqi)",
   },
   label: {
-    margin: 0,
     fontSize: font.uiCaption,
     color: color.fgMuted,
     letterSpacing: font.trackingWider,
@@ -143,17 +126,11 @@ const styles = stylex.create({
     letterSpacing: font.trackingNormal,
   },
   headingPlain: {
-    margin: 0,
     fontSize: font.uiHeading2,
     fontWeight: font.weight_7,
     color: color.fg,
     letterSpacing: font.trackingTight,
     lineHeight: font.lineHeight_1,
-  },
-  body: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
   },
   stateValue: {
     fontFamily: font.familyMono,

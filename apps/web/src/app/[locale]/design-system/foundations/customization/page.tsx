@@ -27,7 +27,7 @@ import { Callout } from "@tuja/ui/components/callout";
 import { space } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
-  roomy: { paddingBlock: space._3, paddingInline: space._4 },
+  roomy: { padding: space._5 },
 });
 
 <Callout intent="info" css={styles.roomy}>
@@ -55,8 +55,7 @@ import Link from "next/link";
 const styles = stylex.create({
   card: {
     display: "block",
-    paddingBlock: space._3,
-    paddingInline: space._4,
+    padding: space._5,
   },
 });
 

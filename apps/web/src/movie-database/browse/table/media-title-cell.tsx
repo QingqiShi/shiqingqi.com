@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import { Anchor } from "#src/links/anchor.tsx";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";
 import { useMediaTable } from "./media-table-context";
@@ -53,7 +54,7 @@ export function MediaTitleCell({ api, row }: MediaCellParams) {
           <PosterFallback />
         )}
       </span>
-      <span css={styles.titleText}>
+      <span css={[stack.tight, styles.titleText]}>
         <Anchor
           href={hrefFor(media)}
           prefetch={false}
@@ -72,7 +73,7 @@ const styles = stylex.create({
   titleCell: {
     display: "flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     inlineSize: "100%",
     minInlineSize: 0,
     blockSize: "100%",
@@ -99,9 +100,6 @@ const styles = stylex.create({
     opacity: 0.5,
   },
   titleText: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
     minInlineSize: 0,
   },
   titleLink: {

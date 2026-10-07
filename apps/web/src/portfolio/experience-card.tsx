@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, font, ratio, space } from "@tuja/ui/tokens.stylex";
+import { color, font, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Card } from "#src/links/card.tsx";
@@ -36,7 +36,7 @@ const styles = stylex.create({
   card: {
     alignItems: "center",
     display: "grid",
-    gap: space._1,
+    gap: rhythm.tight,
     gridTemplateRows: "1fr auto",
     justifyContent: "flex-start",
     // Override svg css variables to be muted when not hovering

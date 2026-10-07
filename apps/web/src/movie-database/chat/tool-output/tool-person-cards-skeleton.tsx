@@ -4,7 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 
 const SKELETON_COUNT = 5;
 const STAGGER_DELAY = 100;
@@ -35,7 +35,7 @@ const styles = stylex.create({
   },
   scrollContainer: {
     display: "flex",
-    gap: space._2,
+    gap: rhythm.item,
     overflowX: "hidden",
     paddingBottom: space._1,
     paddingLeft: space._3,

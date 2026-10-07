@@ -7,7 +7,8 @@ import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -63,7 +64,7 @@ export function MenuShowcase() {
                 position="topLeft"
                 popupRole="group"
                 menuContent={
-                  <div css={[flex.col, styles.groupMenu]}>
+                  <div css={[stack.tight, styles.groupMenu]}>
                     <MenuLabel>
                       {t({ en: "Sort by", zh: "排序方式" })}
                     </MenuLabel>
@@ -78,7 +79,7 @@ export function MenuShowcase() {
               </MenuButton>
             </div>
           </Specimen>
-          <div css={[flex.col, styles.notes]}>
+          <div css={[stack.item, styles.notes]}>
             <ShowcaseHelper>
               {t({
                 en: 'The same component with popupRole="group". This popup holds controls, not commands, so it is announced as a group, focus stays on the trigger when it opens, and the arrow keys are left to the browser — Tab moves between the controls and Escape still closes. That is the group contract, not a menu that stopped working.',
@@ -109,7 +110,7 @@ export function MenuShowcase() {
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
           do={
-            <div css={[flex.col, styles.guideExample]}>
+            <div css={[stack.tight, styles.guideExample]}>
               <SortPopup />
               <code css={[corner.radius_1, styles.roleTag]}>
                 {'popupRole="group"'}
@@ -121,7 +122,7 @@ export function MenuShowcase() {
             zh: '一组切换按钮属于 group——设置 popupRole="group"，避免被宣读为菜单项列表。',
           })}
           dont={
-            <div css={[flex.col, styles.guideExample]}>
+            <div css={[stack.tight, styles.guideExample]}>
               <SortPopup />
               <code css={[corner.radius_1, styles.roleTag]}>
                 {'popupRole="menu"'}
@@ -150,14 +151,13 @@ const styles = stylex.create({
       default: "1fr",
       [breakpoints.md]: `${space._13} 1fr`,
     },
-    gap: { default: space._3, [breakpoints.md]: space._5 },
+    gap: rhythm.group,
     alignItems: "start",
   },
   // The copy gets an explicit cell. A `Specimen` adds its open code panel to the
   // grid as a second item that spans both tracks, which would push the copy down
   // a row.
   notes: {
-    gap: space._2,
     minInlineSize: 0,
     gridColumn: { default: "auto", [breakpoints.md]: "2" },
     gridRow: { default: "auto", [breakpoints.md]: "1" },
@@ -167,20 +167,18 @@ const styles = stylex.create({
     minBlockSize: { default: "12.5rem", [breakpoints.md]: "10.75rem" },
   },
   groupMenu: {
-    gap: space._1,
     padding: space._2,
     inlineSize: space._13,
   },
   popupSample: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
     inlineSize: "100%",
     maxInlineSize: space._13,
   },
   guideExample: {
-    gap: space._2,
     alignItems: "flex-start",
     inlineSize: "100%",
   },

@@ -12,7 +12,8 @@ import {
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { measure } from "#src/design-system/measure.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -31,7 +32,7 @@ export function CardShowcase() {
     <>
       <Showcase label={t({ en: "Surface", zh: "表面" })}>
         <Specimen caption={t({ en: "static", zh: "静态" })}>
-          <Card css={styles.stack}>
+          <Card css={[stack.tight, styles.fill]}>
             <span css={styles.title}>{sampleTitle}</span>
             <span css={styles.body}>{sampleBody}</span>
           </Card>
@@ -40,7 +41,7 @@ export function CardShowcase() {
 
       <Showcase label={t({ en: "Interactive", zh: "可交互" })}>
         <Specimen caption="interactive">
-          <Card interactive css={styles.stack}>
+          <Card interactive css={[stack.tight, styles.fill]}>
             <span css={styles.title}>{sampleTitle}</span>
             <span css={styles.body}>{sampleBody}</span>
           </Card>
@@ -83,8 +84,8 @@ export function CardShowcase() {
             <CardContent>
               <Text look="bodySmall" tone="muted">
                 {t({
-                  en: "Each block spaces itself off the one before it rather than relying on a gap from the parent, so the slots keep their rhythm inside a plain Card or a bare element composing cardSurface. The spacing is vertical: lay the slots out in a row and you set the gap yourself.",
-                  zh: "每个区块都会与前一个区块自行拉开间距，而不依赖父元素的 gap，因此这些插槽在普通卡片或仅组合 cardSurface 的裸元素中都能保持节奏。该间距为纵向：若要横向排列插槽，需自行设置 gap。",
+                  en: "Card is a stack, so it puts an item gap between its blocks. The blocks set no margin of their own: a bare element that composes cardSurface sets its own gap, with a stack.",
+                  zh: "Card 本身是一个堆叠，会在各区块之间留出 item 间距。区块自身不设外边距：仅组合 cardSurface 的裸元素需用 stack 自行设置间距。",
                 })}
               </Text>
             </CardContent>
@@ -132,7 +133,7 @@ export function CardShowcase() {
             zh: "可点击的卡片应渲染真实的链接或按钮并组合 cardSurface——它可获得焦点并被读屏识别为链接。",
           })}
           dont={
-            <Card interactive css={styles.stack}>
+            <Card interactive css={[stack.tight, styles.fill]}>
               <span css={styles.title}>{sampleTitle}</span>
               <span css={styles.body}>{sampleBody}</span>
             </Card>
@@ -150,18 +151,14 @@ export function CardShowcase() {
 const styles = stylex.create({
   // The specimen stage sizes its child to its content, so a card that has to
   // span its container asks for the width.
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
+  fill: {
     inlineSize: "100%",
   },
   link: {
     display: "flex",
     flexDirection: "column",
-    gap: space._1,
-    paddingBlock: space._3,
-    paddingInline: space._4,
+    gap: rhythm.tight,
+    padding: space._5,
     textDecoration: "none",
     inlineSize: "100%",
   },

@@ -1,9 +1,7 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
-import { flex } from "../primitives/flex.stylex.ts";
-import { space } from "../tokens.stylex.ts";
+import { row } from "../primitives/stack.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
@@ -41,15 +39,9 @@ export function ControlGroupBlur({
       reach={CONTROL_BLUR_REACH_PX}
       radius={CONTROL_BLUR_RADIUS_PX}
       isShown={isShown}
-      css={[flex.row, styles.group, css]}
+      css={[row.tight, css]}
     >
       {children}
     </ProgressiveBlur>
   );
 }
-
-const styles = stylex.create({
-  group: {
-    gap: space._1,
-  },
-});

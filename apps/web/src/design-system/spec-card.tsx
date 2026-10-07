@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Identifier } from "./identifier.tsx";
 
@@ -13,7 +13,7 @@ interface SpecCardProps {
 export function SpecCard({ token, meta, children }: SpecCardProps) {
   return (
     <div css={[corner.radius_2, styles.card]}>
-      <div css={styles.header}>
+      <div css={styles.label}>
         <span css={styles.token}>
           <Identifier>{token}</Identifier>
         </span>
@@ -28,26 +28,26 @@ const styles = stylex.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
-  header: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
+  // Two lines of one label, so they sit at their line height and not a gap.
+  label: {
     minInlineSize: 0,
   },
   token: {
+    display: "block",
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_2,
     color: color.fgMuted,
   },
   meta: {
+    display: "block",
     fontFamily: font.familyMono,
     fontSize: font.uiCaption,
     color: color.fgMuted,

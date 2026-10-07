@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { cellShared } from "./cell-shared.stylex";
 import { useMediaTable } from "./media-table-context";
 import type { MediaCellParams } from "./types";
@@ -40,7 +40,7 @@ const styles = stylex.create({
   chipRow: {
     display: "flex",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.inline,
     minInlineSize: 0,
   },
   chip: {

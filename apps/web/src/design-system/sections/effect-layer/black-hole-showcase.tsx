@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -28,7 +26,7 @@ export function BlackHoleShowcase() {
       <Showcase
         label={t({ en: "Black hole and Light beam", zh: "黑洞与光束" })}
       >
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "A Light beam casts a ray of light in its own fill colour over the page, out from the edge of its element. It turns towards the pointer on a spring, and when the pointer leaves it comes back to point at the nearest Black hole.",
@@ -58,9 +56,3 @@ export function BlackHoleShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
-});

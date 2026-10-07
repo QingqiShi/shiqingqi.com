@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -14,7 +14,7 @@ export function OverlayShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Overlay", zh: "覆盖层" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "A full-screen overlay that traps focus, locks scroll, closes on Escape or backdrop click, and restores focus on exit. Open it, then press Escape or use the close button.",
@@ -69,14 +69,11 @@ export function OverlayShowcase() {
 const styles = stylex.create({
   // No `alignItems`: the specimen takes the full width so its code panel does
   // too.
-  stack: {
-    gap: space._3,
-  },
   dialogSample: {
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.tight,
     inlineSize: "100%",
     padding: space._3,
     paddingInlineEnd: space._6,

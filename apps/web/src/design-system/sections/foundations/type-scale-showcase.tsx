@@ -3,7 +3,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import {
   GuideNote,
@@ -110,16 +111,17 @@ export function TypeScaleShowcase() {
         zh: "前缀说明字号跟随什么：ui* 不跟随任何东西，vp* 跟随视口，cq* 跟随容器。所有组件都使用 ui*。vp* 与 cq* 用于你自建的、应随可用空间变大的文字。",
       })}
     >
-      <Movement
-        label={t({ en: "Static", zh: "固定" })}
-        namespace="font.ui*"
-        description={t({
-          en: "Fixed sizes for everything inside an interface: headings, body, captions and labels. Text and Heading use these. uiControl and uiControlCaption are the two that change: they step down at md together with controlSize, so a label in uiControl fits a control sized with controlSize. Button, the fields, Checkbox and Switch set their labels in uiControl, and menu section titles use uiControlCaption.",
-          zh: "固定的字号，用于界面内的一切：标题、正文、说明与标签。Text 与 Heading 用的就是这些。uiControl 与 uiControlCaption 是其中会变化的两个：它们与 controlSize 一起在 md 处变小，因此用 uiControl 的标签能与用 controlSize 设定尺寸的控件吻合。Button、各类输入框、Checkbox 与 Switch 的标签都用 uiControl，菜单分组标题用 uiControlCaption。",
-        })}
-        snippet={
-          <UsageSnippet
-            code={`import * as stylex from "@stylexjs/stylex";
+      <div css={stack.group}>
+        <Movement
+          label={t({ en: "Static", zh: "固定" })}
+          namespace="font.ui*"
+          description={t({
+            en: "Fixed sizes for everything inside an interface: headings, body, captions and labels. Text and Heading use these. uiControl and uiControlCaption are the two that change: they step down at md together with controlSize, so a label in uiControl fits a control sized with controlSize. Button, the fields, Checkbox and Switch set their labels in uiControl, and menu section titles use uiControlCaption.",
+            zh: "固定的字号，用于界面内的一切：标题、正文、说明与标签。Text 与 Heading 用的就是这些。uiControl 与 uiControlCaption 是其中会变化的两个：它们与 controlSize 一起在 md 处变小，因此用 uiControl 的标签能与用 controlSize 设定尺寸的控件吻合。Button、各类输入框、Checkbox 与 Switch 的标签都用 uiControl，菜单分组标题用 uiControlCaption。",
+          })}
+          snippet={
+            <UsageSnippet
+              code={`import * as stylex from "@stylexjs/stylex";
 import { controlSize, font } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
@@ -130,51 +132,51 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
   },
 });`}
-          />
-        }
-      >
-        <ol css={styles.ledger}>
-          {staticSteps.map((step) => (
-            <ScaleRow
-              key={step.token}
-              token={step.token}
-              meta={step.meta}
-              use={step.use}
-              size={step.size}
-              sample={step.sample}
             />
-          ))}
-        </ol>
-      </Movement>
+          }
+        >
+          <ol css={[stack.item, styles.ledger]}>
+            {staticSteps.map((step) => (
+              <ScaleRow
+                key={step.token}
+                token={step.token}
+                meta={step.meta}
+                use={step.use}
+                size={step.size}
+                sample={step.sample}
+              />
+            ))}
+          </ol>
+        </Movement>
 
-      <Movement
-        label={t({ en: "Fluid to the viewport", zh: "随视口变化" })}
-        namespace="font.vp*"
-        description={t({
-          en: "Steps up at sm, md and lg. For a title at the top of a landing page that should grow on a wide screen. No component uses these. The lit column below is the step your window is on, and it moves as you resize.",
-          zh: "在 sm、md 与 lg 处逐级增大。用于落地页顶部、应在宽屏上变大的标题。没有任何组件使用它们。下方高亮的一列是你的窗口当前所在的档位，会随缩放移动。",
-        })}
-        snippet={
-          <UsageSnippet
-            code={`const styles = stylex.create({
+        <Movement
+          label={t({ en: "Fluid to the viewport", zh: "随视口变化" })}
+          namespace="font.vp*"
+          description={t({
+            en: "Steps up at sm, md and lg. For a title at the top of a landing page that should grow on a wide screen. No component uses these. The lit column below is the step your window is on, and it moves as you resize.",
+            zh: "在 sm、md 与 lg 处逐级增大。用于落地页顶部、应在宽屏上变大的标题。没有任何组件使用它们。下方高亮的一列是你的窗口当前所在的档位，会随缩放移动。",
+          })}
+          snippet={
+            <UsageSnippet
+              code={`const styles = stylex.create({
   hero: { fontSize: font.vpDisplay },
 });`}
-          />
-        }
-      >
-        <ViewportScaleSpecimen />
-      </Movement>
+            />
+          }
+        >
+          <ViewportScaleSpecimen />
+        </Movement>
 
-      <Movement
-        label={t({ en: "Fluid to a container", zh: "随容器变化" })}
-        namespace="font.cq*"
-        description={t({
-          en: 'font.cqTitle follows the width of the container it sits in, for a title in a card that appears at many widths. Make the card a container with containerType "inline-size"; the title has to be inside it, because a container sizes what it holds, not itself. From lg up the token stops following and sets at 1.5rem. It measures with cqmin, and an inline-size container has no height to give, so on a short, wide screen the viewport\'s height can cap it.',
-          zh: 'font.cqTitle 跟随其所在容器的宽度，用于会以多种宽度出现的卡片里的标题。用 containerType "inline-size" 把卡片设为容器；标题必须在容器内部，因为容器决定的是它所包含内容的尺寸，而不是它自己的。从 lg 起，这个令牌不再跟随容器，固定为 1.5rem。它以 cqmin 计算，而 inline-size 容器不提供高度，因此在又矮又宽的屏幕上，视口高度可能会限制它。',
-        })}
-        snippet={
-          <UsageSnippet
-            code={`const styles = stylex.create({
+        <Movement
+          label={t({ en: "Fluid to a container", zh: "随容器变化" })}
+          namespace="font.cq*"
+          description={t({
+            en: 'font.cqTitle follows the width of the container it sits in, for a title in a card that appears at many widths. Make the card a container with containerType "inline-size"; the title has to be inside it, because a container sizes what it holds, not itself. From lg up the token stops following and sets at 1.5rem. It measures with cqmin, and an inline-size container has no height to give, so on a short, wide screen the viewport\'s height can cap it.',
+            zh: 'font.cqTitle 跟随其所在容器的宽度，用于会以多种宽度出现的卡片里的标题。用 containerType "inline-size" 把卡片设为容器；标题必须在容器内部，因为容器决定的是它所包含内容的尺寸，而不是它自己的。从 lg 起，这个令牌不再跟随容器，固定为 1.5rem。它以 cqmin 计算，而 inline-size 容器不提供高度，因此在又矮又宽的屏幕上，视口高度可能会限制它。',
+          })}
+          snippet={
+            <UsageSnippet
+              code={`const styles = stylex.create({
   card: { containerType: "inline-size" },
   title: { fontSize: font.cqTitle },
 });
@@ -182,11 +184,12 @@ const styles = stylex.create({
 <article css={styles.card}>
   <h3 css={styles.title}>Kyoto in four days</h3>
 </article>`}
-          />
-        }
-      >
-        <ContainerScaleSpecimen />
-      </Movement>
+            />
+          }
+        >
+          <ContainerScaleSpecimen />
+        </Movement>
+      </div>
       <GuideNote>
         {t({
           en: "Every size is in rem, so it grows with the font size the reader sets in the browser. A px font-size on the root element fixes all of them; leave it unset, or give it in %.",
@@ -213,10 +216,10 @@ function Movement({
   children,
 }: MovementProps) {
   return (
-    <section css={styles.movementWrap}>
-      <div css={[corner.radius_3, styles.movement]}>
-        <header css={styles.movementHeader}>
-          <div css={styles.titleRow}>
+    <section css={stack.item}>
+      <div css={[corner.radius_3, stack.item, styles.movement]}>
+        <header css={stack.tight}>
+          <div css={[cluster.tight, styles.titleRow]}>
             <Heading level={3}>{label}</Heading>
             <span css={[corner.radius_round, styles.chip]}>{namespace}</span>
           </div>
@@ -241,7 +244,7 @@ interface ScaleRowProps {
 function ScaleRow({ token, meta, use, size, sample }: ScaleRowProps) {
   return (
     <li css={styles.row}>
-      <div css={styles.meta}>
+      <div css={[stack.tight, styles.meta]}>
         <span css={styles.metaToken}>
           <Identifier>{token}</Identifier>
         </span>
@@ -256,32 +259,14 @@ function ScaleRow({ token, meta, use, size, sample }: ScaleRowProps) {
 const PANEL_BORDER = `inset 0 0 0 1px ${color.border}`;
 
 const styles = stylex.create({
-  movementWrap: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   movement: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
     paddingBlock: space._5,
     paddingInline: space._5,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: PANEL_BORDER,
   },
-  movementHeader: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-  },
   titleRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
     justifyContent: "space-between",
-    columnGap: space._3,
-    rowGap: space._1,
   },
   chip: {
     display: "inline-flex",
@@ -306,26 +291,19 @@ const styles = stylex.create({
     listStyle: "none",
     margin: 0,
     padding: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
   },
   // Narrow: meta over specimen. Wide (md+): the meta moves into a fixed
   // column, so the specimens align down the ledger.
   row: {
     display: "grid",
     alignItems: "start",
-    columnGap: space._4,
-    rowGap: space._1,
+    gap: rhythm.tight,
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
       [breakpoints.md]: "minmax(10rem, 12rem) minmax(0, 1fr)",
     },
   },
   meta: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
     minInlineSize: 0,
   },
   metaToken: {

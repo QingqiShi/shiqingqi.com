@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { layout, ratio, space } from "@tuja/ui/tokens.stylex";
+import { layout, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
@@ -84,6 +84,8 @@ const styles = stylex.create({
     paddingRight: `env(safe-area-inset-right)`,
   },
   heading: {
+    marginBlock: 0,
+    marginBlockEnd: rhythm.tight,
     paddingInline: space._3,
   },
   skeleton: {

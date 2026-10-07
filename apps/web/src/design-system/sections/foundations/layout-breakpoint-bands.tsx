@@ -1,7 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import { LayoutWindowWidthReadout } from "./layout-window-width-readout.tsx";
 
 // Breakpoint thresholds, transcribed once from breakpoints.stylex.ts so the band
@@ -18,7 +20,7 @@ const BANDS = [
 /** The breakpoint ladder, with the band that matches the window lit. */
 export function LayoutBreakpointBands() {
   return (
-    <div css={styles.bandWrap}>
+    <div css={stack.item}>
       <div css={[corner.radius_2, styles.bandRow]}>
         {BANDS.map((band) => (
           <div key={band.label} css={[styles.band, bandLit[band.label]]}>
@@ -37,15 +39,10 @@ export function LayoutBreakpointBands() {
 }
 
 const styles = stylex.create({
-  bandWrap: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   bandRow: {
     display: "grid",
     gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-    gap: space._00,
+    gap: gridlineTokens.width,
     overflow: "hidden",
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     backgroundColor: color.bgCanvas,
@@ -54,7 +51,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._1,
   },

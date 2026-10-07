@@ -5,6 +5,7 @@ All tokens are theme-aware (light/dark) and imported from `@tuja/ui/tokens.style
 ## Table of Contents
 
 - [Color](#color)
+- [Rhythm](#rhythm)
 - [Space](#space)
 - [Font](#font)
 - [Control Size](#control-size)
@@ -154,9 +155,25 @@ tokens are the colors translucent gradients blend toward.
 
 ---
 
+## Rhythm
+
+The space between two things, named by how they relate. Use it for every `gap`, `rowGap`, `columnGap` and margin between siblings. The `@tuja/require-rhythm-spacing` ESLint rule allows a gap only from `rhythm`, `controlSize`, `0` or the gridline width, and flags a margin of a `space.*` step or a raw length (`0`, `auto` and negative offsets pass). Compose `stack.*` / `cluster.*` / `row.*` from `@tuja/ui/primitives/stack.stylex` when a container only needs flex and the gap.
+
+| Token            | Default   | `md` and up | Relationship                                    |
+| ---------------- | --------- | ----------- | ----------------------------------------------- |
+| `rhythm.inline`  | `0.25rem` | —           | The parts of one unit on one line: icon → label |
+| `rhythm.tight`   | `0.5rem`  | —           | Inside one item: a heading and its text         |
+| `rhythm.item`    | `1rem`    | —           | Siblings in a group                             |
+| `rhythm.group`   | `2rem`    | —           | Between groups, h3 sub-sections                 |
+| `rhythm.section` | `3rem`    | `4rem`      | Between h2 sections                             |
+
+A gap inside a control (the icon and label of a Button, sized with `controlSize`) takes `controlSize`, not `rhythm`.
+
+---
+
 ## Space
 
-Spacing scale from `0.1rem` to `35rem`.
+Geometry scale from `0.1rem` to `35rem`: padding, offsets and sizes that are not a relationship between siblings.
 
 | Token       | Value     |
 | ----------- | --------- |

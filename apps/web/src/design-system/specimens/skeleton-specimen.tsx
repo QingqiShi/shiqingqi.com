@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**
@@ -14,13 +14,13 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function SkeletonSpecimen() {
   return (
-    <div css={[specimenLayout.fill, styles.row]}>
+    <div css={[specimenLayout.fill, row.tight]}>
       <Skeleton
         width={36}
         height={36}
         css={[corner.radius_round, styles.avatar]}
       />
-      <div css={styles.lines}>
+      <div css={[stack.tight, styles.lines]}>
         <Skeleton width="65%" height={10} />
         <Skeleton width="100%" height={10} delay={200} />
       </div>
@@ -29,18 +29,10 @@ export function SkeletonSpecimen() {
 }
 
 const styles = stylex.create({
-  row: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._2,
-  },
   avatar: {
     flexShrink: 0,
   },
   lines: {
-    display: "flex",
-    flexDirection: "column",
     flexGrow: 1,
-    gap: space._1,
   },
 });

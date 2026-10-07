@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { type ReactNode } from "react";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Card } from "#src/links/card.tsx";
@@ -20,7 +21,7 @@ export function ProjectCard({
   ...rest
 }: ProjectCardProps) {
   return (
-    <Card {...rest} css={[styles.card, css]}>
+    <Card {...rest} css={[stack.tight, styles.card, css]}>
       <div css={styles.row}>
         <div css={[flex.row, styles.logo]}>{icon}</div>
         <div css={styles.name}>{name}</div>
@@ -46,8 +47,7 @@ const styles = stylex.create({
       "@container (min-width: 180px)": "64px 1fr",
     },
     alignItems: "center",
-    gap: space._2,
-    marginBottom: space._1,
+    gap: rhythm.tight,
   },
   logo: {
     minBlockSize: 0,

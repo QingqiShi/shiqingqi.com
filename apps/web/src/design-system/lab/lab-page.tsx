@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface LabPageProps {
@@ -20,6 +20,6 @@ export function LabPage({ children }: LabPageProps) {
 
 const styles = stylex.create({
   page: {
-    marginBlockStart: space._4,
+    marginBlockStart: rhythm.item,
   },
 });

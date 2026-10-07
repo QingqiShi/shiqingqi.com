@@ -22,7 +22,8 @@ import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { AnnotatedRegion } from "./annotated-region.tsx";
@@ -152,7 +153,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
   };
 
   return (
-    <div css={[cardSurface.base, styles.screen]}>
+    <div css={[cardSurface.base, stack.item, styles.screen]}>
       <AnnotatedRegion
         annotated={annotated}
         label={t({ en: "Hero", zh: "头部" })}
@@ -167,22 +168,24 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
             lead
             css={styles.heroPoster}
           />
-          <div css={styles.identity}>
-            <div css={styles.controlRow}>
+          <div css={[stack.item, styles.identity]}>
+            <div css={cluster.tight}>
               <Badge intent="accent">{t({ en: "Movie", zh: "电影" })}</Badge>
               <Text as="span" look="caption" tone="muted" numeric>
                 {meta}
               </Text>
             </div>
-            <Heading level={3} look="h1" wrap="balance">
-              {movie.title}
-            </Heading>
-            <Text tone="muted" wrap="pretty" css={styles.tagline}>
-              {movie.tagline}
-            </Text>
+            <div css={stack.tight}>
+              <Heading level={3} look="h1" wrap="balance">
+                {movie.title}
+              </Heading>
+              <Text tone="muted" wrap="pretty" css={styles.tagline}>
+                {movie.tagline}
+              </Text>
+            </div>
           </div>
 
-          <div css={styles.heroRest}>
+          <div css={[stack.item, styles.heroRest]}>
             {/*
               Badges, not Chips. The system's own rule is that a Chip renders a
               control and a Badge renders a label — "if it can't be clicked, it's
@@ -191,7 +194,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               the wrong half of that rule on the page whose subject is composing
               correctly.
             */}
-            <div css={styles.badgeRow}>
+            <div css={cluster.tight}>
               {movie.genres.map((genre) => (
                 <Badge key={genre} size="sm">
                   {genre}
@@ -199,7 +202,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               ))}
             </div>
 
-            <div css={styles.rating}>
+            <div css={row.tight}>
               {/*
                 The dial is the one figure on the screen a reader takes in
                 without reading, so it is drawn as decoration and the Rating is
@@ -210,7 +213,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 <span css={styles.dialScore}>{movie.rating}</span>
                 <span css={styles.dialScale}>/10</span>
               </div>
-              <div css={styles.ratingText}>
+              <div css={[stack.tight, styles.ratingText]}>
                 <Text as="span" look="bodySmall" weight="medium">
                   {t({ en: "Rating", zh: "评分" })}
                 </Text>
@@ -220,7 +223,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
               </div>
             </div>
 
-            <div css={styles.controlRow}>
+            <div css={cluster.tight}>
               <Button
                 look="primary"
                 icon={<PlayIcon weight="fill" />}
@@ -315,14 +318,14 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
         another half-metre. DOM order matches visual order at both widths, so
         nothing is reordered out from under the keyboard or a screen reader.
       */}
-      <div css={styles.body}>
-        <div css={styles.bodyColumn}>
+      <div css={stack.item}>
+        <div css={[stack.item, styles.bodyColumn]}>
           <AnnotatedRegion
             annotated={annotated}
             label={t({ en: "Views", zh: "视图" })}
             composes="SegmentedControl · Text · Avatar · cardSurface · transition"
           >
-            <div css={styles.views}>
+            <div css={[stack.item, styles.views]}>
               <SegmentedControl
                 aria-label={t({ en: "Detail view", zh: "详情视图" })}
                 aria-controls={panelId}
@@ -374,7 +377,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 </Badge>
               }
             >
-              <div css={styles.review}>
+              <div css={stack.tight}>
                 <Text wrap="pretty">{movie.reviewSummary}</Text>
                 <Text look="caption" tone="muted">
                   {t({
@@ -387,7 +390,14 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
           </AnnotatedRegion>
         </div>
 
-        <div css={styles.reference}>
+        {/*
+          Stacked and full width, not a two-up row. Both blocks reflow to
+          whatever they are given, and the availability list is always the
+          shorter of the two, so pairing them left a column of nothing under
+          the Badges. Full width, the fact list below runs as a single strip
+          instead.
+        */}
+        <div css={stack.item}>
           <AnnotatedRegion
             annotated={annotated}
             label={whereToWatchLabel}
@@ -410,7 +420,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 />
               }
             >
-              <div css={styles.badgeRow}>
+              <div css={cluster.tight}>
                 {providers.map((provider) => (
                   <Badge
                     key={provider}
@@ -478,9 +488,6 @@ const styles = stylex.create({
   // only private copy of the card surface, silently stranded the next time the
   // skin changes.
   screen: {
-    display: "flex",
-    flexDirection: "column",
-    gap: { default: space._5, [breakpoints.md]: space._6 },
     padding: { default: space._3, [breakpoints.md]: space._5 },
   },
   // The poster sits beside the title lockup at every width, and the wide blocks
@@ -509,8 +516,8 @@ const styles = stylex.create({
     // The column gap separates the plate from the type; the row gap is the
     // hero's own rhythm, so the Genres sit under the tagline at the same step
     // the blocks below them use.
-    columnGap: { default: space._3, [breakpoints.md]: space._5 },
-    rowGap: space._4,
+    columnGap: rhythm.item,
+    rowGap: rhythm.item,
     alignItems: "start",
   },
   // Capped rather than fluid from `md` up: a full-bleed 2:3 poster is 585px tall
@@ -529,46 +536,16 @@ const styles = stylex.create({
       [breakpoints.lg]: "15rem",
     },
   },
-  // Tighter than the blocks below it: the eyebrow, the title, and the tagline
-  // are one unit of information and read as one only while they sit closer to
-  // each other than to the Genres underneath.
   identity: {
     gridArea: "identity",
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
     minInlineSize: 0,
   },
   heroRest: {
     gridArea: "rest",
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
     minInlineSize: 0,
-  },
-  // Shared by the eyebrow (Badge plus the meta line) and the actions row: both
-  // are a wrapping row of controls at the same rhythm, and two byte-identical
-  // declarations drift the moment one of them is nudged.
-  controlRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: space._2,
   },
   tagline: {
     maxInlineSize: "30rem",
-  },
-  // Shared by the Genres and the watch providers — a tighter gap than
-  // `controlRow`, because these are labels rather than controls.
-  badgeRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._1,
-  },
-  rating: {
-    display: "flex",
-    alignItems: "center",
-    gap: space._3,
   },
   // Local geometry, system values: the diameter and the ring width are this
   // screen's own decisions, while the surface, the border colour, the radius,
@@ -600,14 +577,12 @@ const styles = stylex.create({
     letterSpacing: font.trackingWide,
   },
   ratingText: {
-    display: "flex",
-    flexDirection: "column",
     minInlineSize: 0,
   },
   menu: {
     display: "flex",
     flexDirection: "column",
-    gap: space._0,
+    gap: rhythm.inline,
     padding: space._2,
     inlineSize: space._13,
   },
@@ -616,31 +591,11 @@ const styles = stylex.create({
   menuItem: {
     justifyContent: "flex-start",
   },
-  body: {
-    display: "flex",
-    flexDirection: "column",
-    gap: { default: space._5, [breakpoints.md]: space._6 },
-  },
   bodyColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._5,
     minInlineSize: 0,
   },
-  // Stacked and full width, not a two-up row. Both blocks reflow to whatever
-  // they are given, and the availability list is always the shorter of the two,
-  // so pairing them left a column of nothing under the Badges. Full width, the
-  // fact list below runs as a single strip instead.
-  reference: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._5,
-  },
   views: {
-    display: "flex",
-    flexDirection: "column",
     alignItems: "flex-start",
-    gap: space._4,
     inlineSize: "100%",
   },
   // `auto-fill` at the width the longest term needs, so the five facts settle
@@ -649,7 +604,7 @@ const styles = stylex.create({
   facts: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(8rem, 1fr))",
-    gap: space._3,
+    gap: rhythm.item,
     margin: 0,
   },
   // A subgrid, so every term shares one row and every value shares the next.
@@ -659,7 +614,7 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateRows: "subgrid",
     gridRow: "span 2",
-    gap: space._00,
+    gap: rhythm.tight,
     minInlineSize: 0,
   },
   // Both the `dt` and the `dd`. The UA's 40px inline indent on `dd` is the one
@@ -668,10 +623,5 @@ const styles = stylex.create({
   factLine: {
     margin: 0,
     marginInlineStart: 0,
-  },
-  review: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
   },
 });

@@ -1,8 +1,12 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
-import { gridlineGround } from "#src/design-system/gridline-ground.stylex.ts";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  gridlineGround,
+  gridlineTokens,
+} from "#src/design-system/gridline-ground.stylex.ts";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
   GuideNote,
@@ -104,7 +108,7 @@ function GroundCell({ name, fill }: { name: string; fill: StyleXStyles }) {
   return (
     <div css={[styles.cell, fill]}>
       <span css={styles.ground}>{name}</span>
-      <div css={styles.roles}>
+      <div css={stack.item}>
         <TextLevel
           token="color.fg"
           levelStyle={styles.levelDefault}
@@ -134,7 +138,7 @@ interface TextLevelProps {
 
 function TextLevel({ token, sample, levelStyle }: TextLevelProps) {
   return (
-    <div css={styles.level}>
+    <div css={[stack.tight, styles.level]}>
       <span css={[styles.sample, levelStyle]}>{sample}</span>
       <span css={[styles.token, levelStyle]}>{token}</span>
     </div>
@@ -148,12 +152,12 @@ const styles = stylex.create({
       default: "minmax(0, 1fr)",
       [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
     },
-    gap: space._00,
+    gap: gridlineTokens.width,
   },
   cell: {
     display: "flex",
     flexDirection: "column",
-    gap: space._3,
+    gap: rhythm.tight,
     paddingBlock: space._4,
     paddingInline: space._4,
     minInlineSize: 0,
@@ -167,15 +171,7 @@ const styles = stylex.create({
     textTransform: "uppercase",
     color: color.fg,
   },
-  roles: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   level: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
     minInlineSize: 0,
   },
   sample: {

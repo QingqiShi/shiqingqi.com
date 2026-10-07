@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface AnnotatedRegionProps {
@@ -49,7 +50,7 @@ export function AnnotatedRegion({
   return (
     <div
       css={[
-        styles.region,
+        stack.tight,
         annotated ? corner.radius_2 : null,
         annotated ? styles.outlined : null,
       ]}
@@ -70,11 +71,6 @@ export function AnnotatedRegion({
 }
 
 const styles = stylex.create({
-  region: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   outlined: {
     outlineWidth: border.size_1,
     outlineStyle: "dashed",
@@ -85,7 +81,7 @@ const styles = stylex.create({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "baseline",
-    gap: space._1,
+    gap: rhythm.tight,
     margin: 0,
   },
   // Monospace, because the caption lists import names rather than prose: it is

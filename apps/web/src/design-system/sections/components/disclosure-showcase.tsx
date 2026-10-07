@@ -3,9 +3,8 @@ import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { measure } from "#src/design-system/measure.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -19,7 +18,7 @@ export function DisclosureShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Looks", zh: "外观" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Specimen caption="plain">
             <Disclosure
               summary={t({ en: "Packing list", zh: "行李清单" })}
@@ -141,9 +140,6 @@ const { open, triggerProps, panelProps } = useDisclosure();
 }
 
 const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
   note: {
     maxInlineSize: measure.prose,
   },

@@ -74,6 +74,7 @@
     "./primitives/layout.stylex": "./src/primitives/layout.stylex.ts",
     "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",
     "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
+    "./primitives/stack.stylex": "./src/primitives/stack.stylex.ts",
     "./primitives/texture.stylex": "./src/primitives/texture.stylex.ts",
     "./primitives/wash.stylex": "./src/primitives/wash.stylex.ts",
     "./components/anchor-button": "./src/actions/anchor-button.tsx",

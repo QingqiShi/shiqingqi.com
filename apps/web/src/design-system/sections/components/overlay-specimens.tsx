@@ -5,7 +5,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Overlay } from "@tuja/ui/components/overlay";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -32,7 +32,7 @@ export function OverlayDemo() {
         closeLabel={t({ en: "Close", zh: "关闭" })}
         aria-label={t({ en: "Example overlay", zh: "示例覆盖层" })}
       >
-        <div css={[flex.col, styles.overlayBody]}>
+        <div css={[stack.tight, styles.overlayBody]}>
           <Heading level={2}>
             {t({ en: "Overlay content", zh: "覆盖层内容" })}
           </Heading>
@@ -50,7 +50,6 @@ export function OverlayDemo() {
 
 const styles = stylex.create({
   overlayBody: {
-    gap: space._3,
     padding: space._8,
     maxInlineSize: "60ch",
   },

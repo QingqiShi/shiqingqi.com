@@ -7,7 +7,7 @@ import {
   type CodeToken,
 } from "@tuja/ui/components/code-block";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import {
   importLine,
@@ -103,7 +103,7 @@ export function CodeBlockPartsControl() {
   const [stateId, setStateId] = useState<StateId>("default");
 
   return (
-    <div css={styles.stack}>
+    <div css={[stack.item, styles.shrink]}>
       <SegmentedControl
         aria-label={t({ en: "Button snippet", zh: "按钮代码片段" })}
         value={stateId}
@@ -123,10 +123,7 @@ export function CodeBlockPartsControl() {
 }
 
 const styles = stylex.create({
-  stack: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
+  shrink: {
     minInlineSize: 0,
   },
 });

@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import {
   GuideNote,
@@ -20,8 +21,8 @@ export function FamiliesShowcase() {
       })}
     >
       <div css={styles.grid}>
-        <div css={[corner.radius_2, styles.card]}>
-          <header css={styles.header}>
+        <div css={[stack.item, corner.radius_2, styles.card]}>
+          <header css={stack.tight}>
             <span css={styles.token}>
               <Identifier>font.family</Identifier>
             </span>
@@ -34,8 +35,8 @@ export function FamiliesShowcase() {
             <p css={styles.charsetLine}>0123456789 — &amp; ?!“”</p>
           </div>
         </div>
-        <div css={[corner.radius_2, styles.card]}>
-          <header css={styles.header}>
+        <div css={[stack.item, corner.radius_2, styles.card]}>
+          <header css={stack.tight}>
             <span css={styles.token}>
               <Identifier>font.familyMono</Identifier>
             </span>
@@ -71,22 +72,14 @@ const styles = stylex.create({
       default: "minmax(0, 1fr)",
       [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
     },
-    gap: space._3,
+    gap: rhythm.item,
   },
   card: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
-  },
-  header: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
   },
   token: {
     fontFamily: font.familyMono,
@@ -109,12 +102,8 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
     letterSpacing: font.trackingTight,
     color: color.fg,
-    marginBlock: space._1,
   },
   charset: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
     lineHeight: font.lineHeight_3,

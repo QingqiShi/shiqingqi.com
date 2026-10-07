@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -26,7 +24,7 @@ export function EffectLayerRipple() {
   return (
     <>
       <Showcase label={t({ en: "Ripple", zh: "涟漪" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "Ripple pulses an element's background colour out from its edge in rings that slow down and fade as they spread. Attach the ref from useRipple to one element.",
@@ -60,9 +58,3 @@ export function EffectLayerRipple() {
     </>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
-});

@@ -4,7 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { centerInScrollX } from "./center-in-scroll-x";
@@ -116,7 +117,7 @@ export function ViewportScaleSpecimen() {
   }, [band, viewport]);
 
   return (
-    <div css={styles.wrap}>
+    <div css={stack.item}>
       <ScrollMask
         ref={scrollRef}
         orientation="horizontal"
@@ -173,7 +174,7 @@ export function ViewportScaleSpecimen() {
         </div>
       </ScrollMask>
 
-      <p css={styles.marker} aria-live="polite">
+      <p css={[stack.tight, styles.marker]} aria-live="polite">
         <span css={styles.markerLabel}>
           {t({ en: "your window", zh: "你的窗口" })}
         </span>
@@ -193,11 +194,6 @@ export function ViewportScaleSpecimen() {
 }
 
 const styles = stylex.create({
-  wrap: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
   scrollRoot: {
     marginInline: `calc(-1 * ${space._1})`,
   },
@@ -208,8 +204,7 @@ const styles = stylex.create({
   matrix: {
     display: "grid",
     gridTemplateColumns: "auto repeat(4, minmax(72px, 1fr))",
-    columnGap: space._2,
-    rowGap: space._3,
+    gap: rhythm.item,
     alignItems: "end",
     minInlineSize: "max-content",
   },
@@ -217,7 +212,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._0,
+    gap: rhythm.tight,
     paddingBlockEnd: space._1,
     boxShadow: `inset 0 -1px 0 0 ${color.border}`,
   },
@@ -227,7 +222,6 @@ const styles = stylex.create({
   iconWrap: {
     display: "flex",
     color: color.fgMuted,
-    marginBlockEnd: space._0,
   },
   iconWrapActive: {
     color: color.bgAccent,
@@ -283,9 +277,6 @@ const styles = stylex.create({
   }),
   marker: {
     margin: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
   },
   markerLabel: {
     fontFamily: font.familyMono,

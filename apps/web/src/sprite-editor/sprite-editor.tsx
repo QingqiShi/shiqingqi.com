@@ -9,7 +9,8 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Divider } from "@tuja/ui/components/divider";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useCallback, useMemo, useState } from "react";
 import { downloadBlob } from "#src/browser/download-blob.ts";
 import { t } from "#src/i18n.ts";
@@ -277,7 +278,7 @@ export function SpriteEditor() {
           <Divider look="subtle" css={styles.divider} />
           <GuideControls guides={guides} onGuidesChange={setGuides} />
           <Divider look="subtle" css={styles.divider} />
-          <div css={styles.actions}>
+          <div css={cluster.tight}>
             <Button
               icon={
                 <PencilSimpleIcon size={16} weight="bold" aria-hidden="true" />
@@ -413,7 +414,7 @@ export function SpriteEditor() {
 const styles = stylex.create({
   root: {
     display: "grid",
-    gap: space._3,
+    gap: rhythm.item,
     gridTemplateColumns: { default: "1fr", [breakpoints.md]: "340px 1fr" },
     gridTemplateRows: { default: "auto 1fr", [breakpoints.md]: "1fr" },
     height: { default: "auto", [breakpoints.md]: "calc(100dvh - 96px)" },
@@ -432,7 +433,7 @@ const styles = stylex.create({
   sidebar: {
     display: "flex",
     flexDirection: "column",
-    gap: space._3,
+    gap: rhythm.item,
     minHeight: 0,
     overflowY: { default: "visible", [breakpoints.md]: "auto" },
     paddingInlineEnd: { default: 0, [breakpoints.md]: space._1 },
@@ -440,7 +441,7 @@ const styles = stylex.create({
   panel: {
     display: "flex",
     flexDirection: "column",
-    gap: space._4,
+    gap: rhythm.item,
     padding: space._4,
     border: `${border.size_1} solid ${color.border}`,
     backgroundColor: color.bgSurface,
@@ -459,15 +460,10 @@ const styles = stylex.create({
     minHeight: "320px",
     height: { default: "60dvh", [breakpoints.md]: "100%" },
   },
-  actions: {
-    display: "flex",
-    gap: space._2,
-    flexWrap: "wrap",
-  },
   editorWrap: {
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.item,
     width: "100%",
     height: "100%",
     minHeight: 0,
@@ -475,7 +471,7 @@ const styles = stylex.create({
   editorHeader: {
     display: "flex",
     alignItems: "center",
-    gap: space._3,
+    gap: rhythm.item,
   },
   editorTitle: {
     fontSize: font.uiBody,

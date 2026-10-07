@@ -1,6 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment } from "react";
+import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
 import { measure } from "#src/design-system/measure.stylex.ts";
 
 interface GuideListItem {
@@ -21,11 +23,11 @@ interface GuideListProps {
  */
 export function GuideList({ items }: GuideListProps) {
   return (
-    <dl css={styles.list}>
+    <dl css={[definitionRows.list, styles.list]}>
       {items.map((item) => (
-        <div key={item.term} css={styles.row}>
+        <div key={item.term} css={[definitionRows.row, styles.row]}>
           <dt css={styles.term}>{breakAfterSlashes(item.term)}</dt>
-          <dd css={styles.definition}>
+          <dd css={[stack.tight, definitionRows.definition]}>
             {item.value ? <span css={styles.value}>{item.value}</span> : null}
             <span css={styles.note}>{item.note}</span>
           </dd>
@@ -53,28 +55,14 @@ const styles = stylex.create({
   // Queries itself rather than the viewport: this sits in a column beside a
   // sidebar, so the space a row actually gets does not track the screen width.
   list: {
-    margin: 0,
-    display: "flex",
-    flexDirection: "column",
     containerType: "inline-size",
   },
-  // The only rule left on these pages, and it separates rows rather than
-  // topping them, so the run reads as one list.
   row: {
-    display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
       "@container (min-width: 38rem)": "13rem minmax(0, 1fr)",
     },
-    gap: {
-      default: space._0,
-      "@container (min-width: 38rem)": space._4,
-    },
-    paddingBlock: space._3,
-    borderBlockStartWidth: { default: 0, ":not(:first-child)": border.size_1 },
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-    minInlineSize: 0,
+    columnGap: rhythm.item,
   },
   term: {
     margin: 0,
@@ -84,13 +72,6 @@ const styles = stylex.create({
     color: color.fg,
     textWrap: "balance",
     overflowWrap: "anywhere",
-  },
-  definition: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
-    margin: 0,
-    minInlineSize: 0,
   },
   value: {
     fontSize: font.uiBodySmall,

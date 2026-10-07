@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -105,7 +105,7 @@ const styles = stylex.create({
     padding: 0,
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 11rem), 1fr))",
-    gap: space._2,
+    gap: rhythm.item,
   },
   edge: {
     display: "flex",

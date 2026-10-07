@@ -3,7 +3,14 @@ import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, controlSize, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -14,9 +21,9 @@ export function DividerShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Horizontal", zh: "水平" })}>
-        <div css={[flex.col, styles.horizontalStack]}>
+        <div css={stack.group}>
           <Specimen caption="subtle">
-            <div css={[flex.col, styles.horizontalRow]}>
+            <div css={[stack.item, styles.fullWidth]}>
               <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Subtle dividers separate related content within a flow.",
@@ -33,7 +40,7 @@ export function DividerShowcase() {
             </div>
           </Specimen>
           <Specimen caption="bold">
-            <div css={[flex.col, styles.horizontalRow]}>
+            <div css={[stack.item, styles.fullWidth]}>
               <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Bold dividers signal stronger separation between groups.",
@@ -50,7 +57,7 @@ export function DividerShowcase() {
             </div>
           </Specimen>
           <Specimen caption="decorative">
-            <div css={[flex.col, styles.horizontalRow]}>
+            <div css={[stack.item, styles.fullWidth]}>
               <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Decorative dividers add accent for special moments.",
@@ -70,7 +77,7 @@ export function DividerShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Vertical", zh: "垂直" })}>
-        <div css={[flex.col, styles.verticalStack]}>
+        <div css={stack.group}>
           <Specimen caption="subtle">
             <div css={[flex.row, styles.verticalRow]}>
               <Text look="bodySmall" tone="muted">
@@ -109,7 +116,7 @@ export function DividerShowcase() {
 
       <Showcase label={t({ en: "Decorative", zh: "装饰" })}>
         <Specimen caption="css">
-          <div css={[flex.col, styles.decorativeStack]}>
+          <div css={[stack.item, styles.fullWidth]}>
             <Text look="bodySmall" tone="muted">
               {t({
                 en: "An accent stroke for marquee moments — wider and bolder for emphasis.",
@@ -132,7 +139,7 @@ export function DividerShowcase() {
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
         <DoDont
           do={
-            <div css={[flex.col, styles.doStack]}>
+            <div css={[stack.item, styles.fullWidth]}>
               <Text look="bodySmall" tone="muted">
                 {t({ en: "Overview", zh: "概览" })}
               </Text>
@@ -171,41 +178,26 @@ export function DividerShowcase() {
 }
 
 const styles = stylex.create({
-  horizontalStack: {
-    gap: space._5,
-  },
   // The specimen stage sizes its child to its content, so a rule that has to
   // span its container asks for the width.
-  horizontalRow: {
-    gap: space._3,
+  fullWidth: {
     inlineSize: "100%",
-  },
-  verticalStack: {
-    gap: space._4,
   },
   verticalRow: {
-    gap: space._4,
+    gap: rhythm.item,
     alignItems: "center",
     blockSize: controlSize._9,
-  },
-  decorativeStack: {
-    gap: space._3,
-    inlineSize: "100%",
   },
   decorativeAccent: {
     blockSize: "3px",
     borderRadius: "2px",
     cornerShape: "squircle",
   },
-  doStack: {
-    gap: space._2,
-    inlineSize: "100%",
-  },
   dontCard: {
     display: "flex",
     flexDirection: "row",
     alignItems: "stretch",
-    gap: space._3,
+    gap: rhythm.tight,
     padding: space._3,
     borderWidth: border.size_1,
     borderStyle: "solid",
@@ -214,7 +206,6 @@ const styles = stylex.create({
     minBlockSize: space._9,
   },
   dontCardBody: {
-    gap: space._1,
     justifyContent: "center",
   },
   dontBar: {

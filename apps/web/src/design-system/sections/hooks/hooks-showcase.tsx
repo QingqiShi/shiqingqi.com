@@ -21,8 +21,18 @@ import {
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, font, layer, shadow, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  layer,
+  rhythm,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
+import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -92,7 +102,7 @@ function ControlledStepperSpecimen() {
   const [value, setValue] = useState(2);
   const stateLabel = t({ en: "Parent state", zh: "父组件状态" });
   return (
-    <div css={[flex.col, styles.controlledStack]}>
+    <div css={[stack.tight, styles.alignStart]}>
       <StepperControl value={value} onChange={setValue} />
       <Text look="caption" tone="muted">
         {stateLabel}:{" "}
@@ -164,7 +174,7 @@ function DialogSpecimen() {
   const cancel = t({ en: "Cancel", zh: "取消" });
   const confirm = t({ en: "Delete", zh: "删除" });
   return (
-    <div css={[flex.col, styles.dialogHost]}>
+    <div css={[stack.item, styles.dialogHost]}>
       <Button
         onClick={() => {
           setOpen(true);
@@ -178,13 +188,15 @@ function DialogSpecimen() {
           role="dialog"
           aria-modal="true"
           aria-label={dialogLabel}
-          css={[flex.col, corner.radius_3, styles.dialogCard]}
+          css={[stack.item, corner.radius_3, styles.dialogCard]}
         >
-          <Heading level={3}>{title}</Heading>
-          <Text look="bodySmall" tone="muted">
-            {body}
-          </Text>
-          <div css={[flex.row, styles.dialogActions]}>
+          <div css={stack.tight}>
+            <Heading level={3}>{title}</Heading>
+            <Text look="bodySmall" tone="muted">
+              {body}
+            </Text>
+          </div>
+          <div css={[cluster.tight, styles.dialogActions]}>
             <Button
               onClick={() => {
                 setOpen(false);
@@ -266,7 +278,7 @@ function IntentPickerSpecimen() {
   };
   const fieldLabel = t({ en: "Label colour", zh: "标签颜色" });
   return (
-    <div css={[flex.col, styles.popoverHost]}>
+    <div css={[stack.item, styles.alignStart]}>
       <button
         {...triggerProps}
         aria-label={`${fieldLabel}: ${labels[selected]}`}
@@ -330,7 +342,7 @@ function PlacementSpecimen() {
     zh: "向下滚动，触发元素接近顶边时它会翻到下方。展开或收起这块面板，定位也会重新计算——钩子既观察触发元素的尺寸，也观察弹出层自身的尺寸。",
   });
   return (
-    <div css={[flex.col, styles.popoverHost]}>
+    <div css={[stack.item, styles.alignStart]}>
       <button
         {...triggerProps}
         css={[buttonReset.base, a11y.focusRing, styles.hintTrigger]}
@@ -503,7 +515,7 @@ function DensityRadioGroup() {
     onChange: setValue,
   });
   return (
-    <div css={[flex.col, styles.radioStack]}>
+    <div css={[stack.tight, styles.alignStart]}>
       <div
         role="radiogroup"
         aria-label={groupLabel}
@@ -596,7 +608,7 @@ const styles = stylex.create({
   },
   // useControlled
   stepper: {
-    gap: space._2,
+    gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._2,
     backgroundColor: color.bgSurface,
@@ -624,8 +636,7 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     color: color.fg,
   },
-  controlledStack: {
-    gap: space._2,
+  alignStart: {
     alignItems: "flex-start",
   },
   readout: {
@@ -638,31 +649,22 @@ const styles = stylex.create({
   },
   // useDialogFocus
   dialogHost: {
-    gap: space._3,
     alignItems: "flex-start",
     inlineSize: "100%",
   },
   dialogCard: {
-    gap: space._2,
     inlineSize: "100%",
     maxInlineSize: "320px",
-    paddingBlock: space._4,
-    paddingInline: space._4,
+    padding: space._5,
     backgroundColor: color.bgSurfaceRaised,
     boxShadow: shadow._4,
   },
   dialogActions: {
-    gap: space._2,
     justifyContent: "flex-end",
-    marginBlockStart: space._2,
   },
   // usePopover
-  popoverHost: {
-    gap: space._2,
-    alignItems: "flex-start",
-  },
   intentTrigger: {
-    gap: space._2,
+    gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._3,
     fontSize: font.uiBodySmall,
@@ -689,7 +691,7 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
     // The hairline grid is the border colour showing through the gaps.
-    gap: "1px",
+    gap: gridlineTokens.width,
     overflow: "hidden",
     backgroundColor: color.border,
     boxShadow: shadow._5,
@@ -721,7 +723,7 @@ const styles = stylex.create({
   hintPopup: {
     position: "fixed",
     zIndex: layer.tooltip,
-    gap: space._2,
+    gap: rhythm.tight,
     alignItems: "flex-start",
     boxSizing: "border-box",
     maxInlineSize: "260px",
@@ -731,6 +733,7 @@ const styles = stylex.create({
   hintToggle: {
     paddingBlock: space._00,
     paddingInline: space._1,
+
     marginInlineStart: `calc(-1 * ${space._1})`,
     fontSize: font.uiCaption,
     fontWeight: font.weight_6,
@@ -765,12 +768,8 @@ const styles = stylex.create({
     },
   },
   // useRadioGroup
-  radioStack: {
-    gap: space._2,
-    alignItems: "flex-start",
-  },
   segmented: {
-    gap: space._00,
+    gap: controlSize._0,
     padding: space._00,
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: `inset 0 0 0 1px ${color.border}`,

@@ -7,6 +7,7 @@ import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
 import { flex, grow } from "@tuja/ui/primitives/flex.stylex";
 import {
   absoluteFill,
+  fill,
   imageContain,
   imageCover,
   scrollX,
@@ -20,34 +21,20 @@ import {
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
-import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
-import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
-
-interface ApiEntry {
-  token: string;
-  meta: string;
-  description: string;
-}
-
-/** Renders a responsive grid of {@link SpecCard} rows for a primitive's members. */
-function ApiGrid({ entries }: { entries: ApiEntry[] }) {
-  return (
-    <div css={styles.apiGrid}>
-      {entries.map((entry) => (
-        <SpecCard key={entry.token} token={entry.token} meta={entry.meta}>
-          <Text look="caption" tone="muted">
-            {entry.description}
-          </Text>
-        </SpecCard>
-      ))}
-    </div>
-  );
-}
+import { ApiGrid, type ApiEntry, GenreChips } from "./api-grid.tsx";
+import { StackSection } from "./stack-section.tsx";
 
 /** Four-point star used by the reset and a11y specimens. */
 function SparkleIcon() {
@@ -164,20 +151,7 @@ function FlexSection() {
         <Specimen
           caption={t({ en: "flex.wrap — chips", zh: "flex.wrap —— 标签按钮" })}
         >
-          <div css={[flex.wrap, styles.chipRow]}>
-            <span css={[corner.radius_round, styles.chip]}>
-              {t({ en: "Drama", zh: "剧情" })}
-            </span>
-            <span css={[corner.radius_round, styles.chip]}>
-              {t({ en: "Sci-fi", zh: "科幻" })}
-            </span>
-            <span css={[corner.radius_round, styles.chip]}>
-              {t({ en: "Thriller", zh: "惊悚" })}
-            </span>
-            <span css={[corner.radius_round, styles.chip]}>
-              {t({ en: "Comedy", zh: "喜剧" })}
-            </span>
-          </div>
+          <GenreChips css={[flex.wrap, fill.inline, styles.chipRow]} />
         </Specimen>
         <Specimen caption="flex.row + grow._1">
           <div css={[flex.row, styles.growRow]}>
@@ -923,6 +897,7 @@ export function PrimitivesShowcase() {
       <TextureSection />
       <WashSection />
       <A11ySection />
+      <StackSection />
     </>
   );
 }
@@ -936,14 +911,6 @@ const styles = stylex.create({
       [breakpoints.md]: "repeat(auto-fit, minmax(240px, 1fr))",
     },
   },
-  apiGrid: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "1fr",
-      [breakpoints.md]: "repeat(auto-fit, minmax(220px, 1fr))",
-    },
-    gap: space._2,
-  },
   // Flex specimens
   bar: {
     inlineSize: "100%",
@@ -953,7 +920,7 @@ const styles = stylex.create({
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   barActions: {
-    gap: space._1,
+    gap: rhythm.tight,
   },
   pill: {
     paddingBlock: space._00,
@@ -969,19 +936,10 @@ const styles = stylex.create({
     backgroundColor: color.bgAccentSubtle,
   },
   chipRow: {
-    gap: space._1,
-    inlineSize: "100%",
-  },
-  chip: {
-    paddingBlock: space._00,
-    paddingInline: space._2,
-    fontSize: font.uiCaption,
-    color: color.fgMuted,
-    backgroundColor: color.bgControl,
-    whiteSpace: "nowrap",
+    gap: rhythm.tight,
   },
   growRow: {
-    gap: space._2,
+    gap: rhythm.tight,
     inlineSize: "100%",
   },
   growField: {
@@ -1031,7 +989,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
   },
   scrollTrack: {
-    gap: space._2,
+    gap: rhythm.item,
     inlineSize: "max-content",
   },
   scrollTile: {
@@ -1048,7 +1006,7 @@ const styles = stylex.create({
     boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
   imagePair: {
-    gap: space._2,
+    gap: rhythm.item,
     inlineSize: "100%",
   },
   imageFrame: {
@@ -1075,7 +1033,7 @@ const styles = stylex.create({
     },
   },
   dotRow: {
-    gap: space._2,
+    gap: rhythm.tight,
   },
   dot: {
     inlineSize: "12px",
@@ -1092,7 +1050,7 @@ const styles = stylex.create({
     animationDelay: "320ms",
   },
   skeletonStack: {
-    gap: space._2,
+    gap: rhythm.tight,
     inlineSize: "100%",
   },
   skeletonBar: {
@@ -1160,7 +1118,7 @@ const styles = stylex.create({
   },
   // Reset + a11y specimens
   customControl: {
-    gap: space._2,
+    gap: controlSize._2,
     paddingBlock: space._1,
     paddingInline: space._3,
     fontSize: font.uiBodySmall,

@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
 import { encodeCreature } from "#src/pixel-creature-creator/creature/encode-creature.ts";
@@ -30,8 +31,8 @@ export function FeaturedRow({ locale }: FeaturedRowProps) {
   });
 
   return (
-    <section css={styles.root} data-testid="featured-row">
-      <header css={styles.header}>
+    <section css={[stack.item, styles.root]} data-testid="featured-row">
+      <header css={stack.tight}>
         <h2 css={styles.heading}>{heading}</h2>
         <p css={styles.description}>{description}</p>
       </header>
@@ -62,15 +63,7 @@ export function FeaturedRow({ locale }: FeaturedRowProps) {
 
 const styles = stylex.create({
   root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
     width: "100%",
-  },
-  header: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
   },
   heading: {
     margin: 0,
@@ -92,7 +85,7 @@ const styles = stylex.create({
       default: "repeat(2, minmax(0, 1fr))",
       [breakpoints.md]: "repeat(4, minmax(0, 1fr))",
     },
-    gap: space._3,
+    gap: rhythm.item,
   },
   item: {
     display: "flex",
@@ -101,7 +94,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._3,
     width: "100%",
     color: color.fg,

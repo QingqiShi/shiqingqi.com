@@ -7,7 +7,14 @@ import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { color, layer, layout, shadow, space } from "../tokens.stylex.ts";
+import {
+  color,
+  layer,
+  layout,
+  rhythm,
+  shadow,
+  space,
+} from "../tokens.stylex.ts";
 import { Drawer } from "./drawer.tsx";
 
 // Default width of the navigation rail on wider viewports — wide enough for
@@ -213,10 +220,11 @@ const styles = stylex.create({
     },
     display: "grid",
     alignItems: { default: "start", [breakpoints.md]: "stretch" },
-    gap: { default: space._4, [breakpoints.md]: 0 },
-    // Mobile top padding clears the fixed pill bar.
+    gap: { default: rhythm.group, [breakpoints.md]: 0 },
+    // Mobile top padding clears the fixed pill bar, and then sets the content
+    // `rhythm.item` below it.
     paddingBlockStart: {
-      default: `calc(${space._10} + env(safe-area-inset-top))`,
+      default: `calc(${space._10} + ${rhythm.item} + env(safe-area-inset-top))`,
       [breakpoints.md]: 0,
     },
     paddingBlockEnd: {
@@ -244,7 +252,7 @@ const styles = stylex.create({
     display: { default: "flex", [breakpoints.md]: "none" },
     alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.tight,
     position: "fixed",
     insetBlockStart: `calc(${space._2} + env(safe-area-inset-top))`,
     insetInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,

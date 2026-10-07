@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -68,7 +68,7 @@ export function SwitchShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Interactive", zh: "交互" })}>
-        <div css={[flex.col, styles.interactiveStack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "Click, drag the thumb, or focus and press Space or Enter. The switch reports each change through `onChange`.",
@@ -109,14 +109,11 @@ export function SwitchShowcase() {
 }
 
 const styles = stylex.create({
-  interactiveStack: {
-    gap: space._3,
-  },
   switchField: {
     display: "inline-flex",
     flexDirection: "row",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     cursor: "pointer",
   },
 });

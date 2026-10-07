@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -42,7 +43,7 @@ export function DesignSystemNav({
 
   return (
     <nav
-      css={styles.nav}
+      css={[stack.section, styles.nav]}
       aria-label={ariaLabel ?? t({ en: "Design system", zh: "设计系统" })}
     >
       {/* Two levels: what kind of thing a link is, then what job it does. Each
@@ -55,7 +56,7 @@ export function DesignSystemNav({
         return (
           <div
             key={section.section}
-            css={styles.section}
+            css={stack.item}
             role={heading === null ? undefined : "group"}
             aria-labelledby={heading === null ? undefined : sectionLabelId}
           >
@@ -64,46 +65,48 @@ export function DesignSystemNav({
                 {heading}
               </span>
             )}
-            {section.groups.map((group) => {
-              const category = group.category;
-              const categoryLabelId =
-                category === undefined ? undefined : `${labelId}-${category}`;
-              return (
-                <div
-                  key={category ?? section.section}
-                  css={styles.group}
-                  role={category === undefined ? undefined : "group"}
-                  aria-labelledby={categoryLabelId}
-                >
-                  {category !== undefined && (
-                    <span id={categoryLabelId} css={styles.categoryLabel}>
-                      {categoryLabels[category]}
-                    </span>
-                  )}
-                  {group.paths.map((path) => {
-                    const active = current === path;
-                    return (
-                      <Link
-                        key={path}
-                        href={getLocalePath(path, locale)}
-                        aria-current={active ? "page" : undefined}
-                        // Inset ring: the rail scrolls the nav through a container
-                        // that clips inline overflow, which would crop an outward one.
-                        {...stylex.props(
-                          transition.colors,
-                          corner.radius_round,
-                          styles.link,
-                          active && styles.linkActive,
-                          a11y.focusRingInset,
-                        )}
-                      >
-                        {routeLabels[path]}
-                      </Link>
-                    );
-                  })}
-                </div>
-              );
-            })}
+            <div css={stack.group}>
+              {section.groups.map((group) => {
+                const category = group.category;
+                const categoryLabelId =
+                  category === undefined ? undefined : `${labelId}-${category}`;
+                return (
+                  <div
+                    key={category ?? section.section}
+                    css={stack.tight}
+                    role={category === undefined ? undefined : "group"}
+                    aria-labelledby={categoryLabelId}
+                  >
+                    {category !== undefined && (
+                      <span id={categoryLabelId} css={styles.categoryLabel}>
+                        {categoryLabels[category]}
+                      </span>
+                    )}
+                    {group.paths.map((path) => {
+                      const active = current === path;
+                      return (
+                        <Link
+                          key={path}
+                          href={getLocalePath(path, locale)}
+                          aria-current={active ? "page" : undefined}
+                          // Inset ring: the rail scrolls the nav through a container
+                          // that clips inline overflow, which would crop an outward one.
+                          {...stylex.props(
+                            transition.colors,
+                            corner.radius_round,
+                            styles.link,
+                            active && styles.linkActive,
+                            a11y.focusRingInset,
+                          )}
+                        >
+                          {routeLabels[path]}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
       })}
@@ -115,21 +118,8 @@ const styles = stylex.create({
   // A plain vertical list on every viewport — the shell's rail and drawer own
   // the surface chrome and the scrolling.
   nav: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
     minInlineSize: 0,
     maxInlineSize: "100%",
-  },
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-  },
-  group: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
   },
   // The two labels carry the whole hierarchy, so they differ on every axis a
   // small label has: the section is uppercase, tracked out and full-strength;
@@ -139,7 +129,6 @@ const styles = stylex.create({
   // same rank.
   sectionLabel: {
     display: "block",
-    marginBlockStart: space._5,
     paddingInline: space._3,
     fontSize: font.uiOverline,
     fontWeight: font.weight_7,
@@ -149,7 +138,6 @@ const styles = stylex.create({
   },
   categoryLabel: {
     display: "block",
-    marginBlockStart: space._3,
     paddingInline: space._3,
     fontSize: font.uiOverline,
     fontWeight: font.weight_6,

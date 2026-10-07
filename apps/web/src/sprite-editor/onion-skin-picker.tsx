@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
 import type { CellPixels } from "./types";
@@ -66,7 +66,7 @@ const styles = stylex.create({
   root: {
     display: "inline-flex",
     alignItems: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._2,
     border: `${border.size_1} solid ${color.border}`,

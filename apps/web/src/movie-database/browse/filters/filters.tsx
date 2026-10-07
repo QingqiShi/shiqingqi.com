@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { CollapsedChatButton } from "#src/movie-database/chat/collapsed-chat-button.tsx";
 import { CollapsedChatInput } from "#src/movie-database/chat/collapsed-chat-input.tsx";
@@ -66,7 +66,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
           <MediaTypeToggle />
           <MobileFiltersButton
             menuContent={
-              <div css={[flex.wrap, styles.mobileMenuContent]}>
+              <div css={[cluster.item, styles.mobileMenuContent]}>
                 <MediaViewToggle />
                 <SortFilter />
                 <GenreFilter />
@@ -85,7 +85,6 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
 
 const styles = stylex.create({
   mobileMenuContent: {
-    gap: space._4,
     padding: space._2,
     // No width, height cap, or scrolling of its own: the `sheet` popup sizes
     // itself to the filters bar and caps its own block size against wherever
@@ -95,6 +94,6 @@ const styles = stylex.create({
   },
   content: {
     display: "flex",
-    gap: space._1,
+    gap: rhythm.tight,
   },
 });

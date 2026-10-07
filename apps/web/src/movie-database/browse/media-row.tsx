@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { CompactMediaCard } from "#src/movie-database/compact-media-card.tsx";
 import { useMediaDetail } from "#src/movie-database/details/media-detail-provider.tsx";
@@ -37,7 +37,7 @@ export function MediaRow({ title, items, inset = "chat" }: MediaRowProps) {
   const rowStyles = inset === "standalone" ? standaloneStyles : chatStyles;
 
   return (
-    <section css={[flex.col, styles.section]}>
+    <section css={stack.tight}>
       <h2 css={styles.title}>{title}</h2>
       <HorizontalScrollRow
         ariaLabel={title}
@@ -133,9 +133,6 @@ const standaloneStyles = stylex.create({
 });
 
 const styles = stylex.create({
-  section: {
-    gap: space._2,
-  },
   title: {
     fontSize: font.uiBodySmall,
     fontWeight: font.weight_6,

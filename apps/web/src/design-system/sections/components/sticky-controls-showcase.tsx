@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -36,7 +36,7 @@ export function StickyControlsShowcase() {
             zh: "滚动本页：下方这一行会停在视口顶部附近，卡片从其两个控件组下方经过时被虚化，两组之间的页面则保持清晰。其中的控件均可操作。",
           })}
         </ShowcaseHelper>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "One row of page chrome — a filter bar — parked under the header strip while the page scrolls past it, with the page blurred around each group of its controls the whole time it holds there. It melts away as soon as the row scrolls back into the flow of the page. The clearance it parks at is the one the header's own control groups occupy, so the two never sit on top of each other.",
@@ -92,11 +92,6 @@ export function StickyControlsShowcase() {
 }
 
 const styles = stylex.create({
-  // No `alignItems`: the specimen takes the full width so its code panel does
-  // too, matching the Progressive blur and Scroll mask pages.
-  stack: {
-    gap: space._3,
-  },
   code: {
     fontFamily: font.familyMono,
     fontSize: font.uiBodySmall,

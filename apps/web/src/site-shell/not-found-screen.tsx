@@ -8,9 +8,10 @@ import { CardDescription, CardTitle } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { align, flex, justify } from "@tuja/ui/primitives/flex.stylex";
+import { align, justify } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
@@ -73,20 +74,22 @@ export function NotFoundScreen() {
 
   return (
     <SiteHeaderFooterLayout locale={locale} readingColumn>
-      <div css={[flex.col, justify.center, styles.screen]}>
-        <div css={[flex.col, align.center, styles.intro]}>
-          <Text as="div" look="overline" tone="muted">
-            404
-          </Text>
-          <Heading level={1} look="h1" align="center" wrap="balance">
-            {t({ en: "This page doesn't exist", zh: "该页面不存在" })}
-          </Heading>
-          <Text tone="muted" align="center" wrap="pretty" css={styles.lede}>
-            {t({
-              en: "The link may be out of date, or the page may have moved. Everything else still works.",
-              zh: "链接可能已失效，或页面已移动。其余内容都还在。",
-            })}
-          </Text>
+      <div css={[stack.group, justify.center, styles.screen]}>
+        <div css={[stack.item, align.center]}>
+          <div css={[stack.tight, align.center]}>
+            <Text as="div" look="overline" tone="muted">
+              404
+            </Text>
+            <Heading level={1} look="h1" align="center" wrap="balance">
+              {t({ en: "This page doesn't exist", zh: "该页面不存在" })}
+            </Heading>
+            <Text tone="muted" align="center" wrap="pretty" css={styles.lede}>
+              {t({
+                en: "The link may be out of date, or the page may have moved. Everything else still works.",
+                zh: "链接可能已失效，或页面已移动。其余内容都还在。",
+              })}
+            </Text>
+          </div>
           <AnchorButton
             href={getLocalePath("/", locale)}
             bright
@@ -105,7 +108,7 @@ export function NotFoundScreen() {
               key={destination.href}
               href={destination.href}
               {...stylex.props(
-                flex.col,
+                stack.tight,
                 cardSurface.base,
                 cardSurface.interactive,
                 transition.colors,
@@ -126,7 +129,6 @@ export function NotFoundScreen() {
 
 const styles = stylex.create({
   screen: {
-    gap: space._8,
     // Fills the viewport and centres the block in it, so a screen this short
     // doesn't sit in a column of dead space. The block start padding clears the
     // Shell's floating header controls, which content otherwise flows past —
@@ -134,9 +136,6 @@ const styles = stylex.create({
     minBlockSize: "100dvh",
     paddingBlockStart: `calc(${space._10} + env(safe-area-inset-top) + ${space._5})`,
     paddingBlockEnd: space._9,
-  },
-  intro: {
-    gap: space._3,
   },
   lede: {
     maxInlineSize: "34ch",
@@ -147,11 +146,10 @@ const styles = stylex.create({
       default: "1fr",
       [breakpoints.md]: "repeat(3, 1fr)",
     },
-    gap: space._3,
+    gap: rhythm.item,
   },
   // Matches `Card`'s own padding, which `cardSurface` doesn't carry.
   destination: {
-    gap: space._1,
     paddingBlock: space._3,
     paddingInline: space._4,
     textDecoration: "none",

@@ -2,31 +2,37 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ExternalLinkIndicator } from "#src/links/external-link-indicator.tsx";
 
 const styles = stylex.create({
+  // The stack puts rhythm.item between blocks. These margins change that to
+  // rhythm.group above a heading and to rhythm.tight below it.
+  heading: {
+    marginBlockStart: {
+      default: `calc(${rhythm.group} - ${rhythm.item})`,
+      ":first-child": 0,
+    },
+    marginBlockEnd: `calc(${rhythm.tight} - ${rhythm.item})`,
+  },
   h1: {
     fontSize: font.uiHeading1,
     fontWeight: font.weight_7,
     lineHeight: font.lineHeight_3,
-    marginBlock: 0,
   },
   h2: {
     fontSize: font.uiHeading2,
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_3,
-    marginBlock: 0,
   },
   h3: {
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
     lineHeight: font.lineHeight_3,
-    marginBlock: 0,
   },
   p: {
     marginBlock: 0,
@@ -46,7 +52,7 @@ const styles = stylex.create({
     listStyleType: "decimal",
   },
   li: {
-    marginBlock: space._00,
+    marginBlock: rhythm.inline,
   },
   hr: {
     width: "100%",
@@ -110,15 +116,18 @@ const styles = stylex.create({
     borderBottomStyle: "solid",
     borderBottomColor: color.border,
   },
-  wrapper: {
-    gap: space._2,
-  },
 });
 
 const components: Components = {
-  h1: ({ node, ...props }) => <h1 css={styles.h1} {...props} />,
-  h2: ({ node, ...props }) => <h2 css={styles.h2} {...props} />,
-  h3: ({ node, ...props }) => <h3 css={styles.h3} {...props} />,
+  h1: ({ node, ...props }) => (
+    <h1 css={[styles.heading, styles.h1]} {...props} />
+  ),
+  h2: ({ node, ...props }) => (
+    <h2 css={[styles.heading, styles.h2]} {...props} />
+  ),
+  h3: ({ node, ...props }) => (
+    <h3 css={[styles.heading, styles.h3]} {...props} />
+  ),
   p: ({ node, ...props }) => <p css={styles.p} {...props} />,
   a: ({ node, children, ...props }) => (
     <a target="_blank" rel="noopener noreferrer" css={styles.a} {...props}>
@@ -161,7 +170,7 @@ interface MarkdownContentProps {
 
 export function MarkdownContent({ content }: MarkdownContentProps) {
   return (
-    <div css={[flex.col, styles.wrapper]}>
+    <div css={stack.item}>
       <ReactMarkdown components={components} remarkPlugins={remarkPlugins}>
         {content}
       </ReactMarkdown>

@@ -13,7 +13,14 @@ import {
   transition,
 } from "../primitives/motion.stylex.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
-import { border, color, layer, shadow, space } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  layer,
+  rhythm,
+  shadow,
+  space,
+} from "../tokens.stylex.ts";
 
 interface DrawerProps {
   isOpen: boolean;
@@ -108,6 +115,8 @@ export function Drawer({
   );
 }
 
+const RAIL_INSET = space._2;
+
 const styles = stylex.create({
   // Visibility transitions alongside opacity/transform, so CSS keeps the
   // element visible until the transition ends, then drops it from focus and
@@ -143,18 +152,18 @@ const styles = stylex.create({
     // nav's scroller inherits these corners, and a clip here would strip the
     // bands' masks (see `MaskBand`).
     position: { default: "fixed", [breakpoints.md]: "sticky" },
-    insetBlockStart: { default: 0, [breakpoints.md]: space._2 },
+    insetBlockStart: { default: 0, [breakpoints.md]: RAIL_INSET },
     insetBlockEnd: { default: 0, [breakpoints.md]: "auto" },
     insetInlineEnd: { default: 0, [breakpoints.md]: "auto" },
     alignSelf: { default: "auto", [breakpoints.md]: "stretch" },
-    // Cap = viewport minus the top+bottom margins (keep the factor and
-    // marginBlock in sync) so the full-height card never reaches an edge.
+    // Cap = viewport minus the top+bottom margins, so the full-height card
+    // never reaches an edge.
     maxBlockSize: {
       default: "none",
-      [breakpoints.md]: `calc(100dvh - 2 * ${space._2})`,
+      [breakpoints.md]: `calc(100dvh - 2 * ${RAIL_INSET})`,
     },
-    marginBlock: { default: 0, [breakpoints.md]: space._2 },
-    marginInlineStart: { default: 0, [breakpoints.md]: space._2 },
+    marginBlock: { default: 0, [breakpoints.md]: RAIL_INSET },
+    marginInlineStart: { default: 0, [breakpoints.md]: RAIL_INSET },
     inlineSize: {
       default: `min(${space._14}, 85vw)`,
       [breakpoints.md]: "auto",
@@ -207,7 +216,7 @@ const styles = stylex.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.tight,
     minInlineSize: 0,
     paddingBlockStart: {
       default: `calc(${space._3} + env(safe-area-inset-top))`,

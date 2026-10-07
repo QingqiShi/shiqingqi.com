@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { color, font, opacity, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import type { CreatureDef } from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
 import { PixelLayer } from "#src/pixel-creature-creator/sprite/pixel-layer.tsx";
@@ -37,19 +38,21 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
   });
 
   return (
-    <section css={styles.root} data-testid="wizard-step-features">
-      <h3 css={styles.heading}>
-        {t({
-          en: "Pick up to 2 features",
-          zh: "选择最多 2 件特征",
-        })}
-      </h3>
-      <p css={styles.hint}>
-        {t({
-          en: "Accessories layer on top of the species. They share the elemental tint you pick next.",
-          zh: "饰品叠加在物种之上,会随后续选择的元素染上同一色调。",
-        })}
-      </p>
+    <section css={stack.item} data-testid="wizard-step-features">
+      <div css={stack.tight}>
+        <h3 css={styles.heading}>
+          {t({
+            en: "Pick up to 2 features",
+            zh: "选择最多 2 件特征",
+          })}
+        </h3>
+        <p css={styles.hint}>
+          {t({
+            en: "Accessories layer on top of the species. They share the elemental tint you pick next.",
+            zh: "饰品叠加在物种之上,会随后续选择的元素染上同一色调。",
+          })}
+        </p>
+      </div>
       <OptionGrid>
         {Object.values(accessories).map((accessory) => {
           if (accessory === undefined) return null;
@@ -101,11 +104,6 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
 }
 
 const styles = stylex.create({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   heading: {
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
@@ -121,7 +119,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: space._1,
+    gap: rhythm.tight,
     padding: space._2,
     backgroundColor: {
       default: color.bgSurface,

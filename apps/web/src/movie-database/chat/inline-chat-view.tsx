@@ -1,7 +1,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { border, color, layer, layout, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  layer,
+  layout,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { ViewTransition, useEffect, useState, type ReactNode } from "react";
 import { MediaDetailOverlay } from "#src/movie-database/details/media-detail-overlay.tsx";
@@ -174,7 +181,7 @@ const styles = stylex.create({
   inputMeta: {
     display: "flex",
     justifyContent: "flex-end",
-    paddingBottom: space._1,
+    marginBottom: rhythm.tight,
   },
   inputShell: {
     display: "block",

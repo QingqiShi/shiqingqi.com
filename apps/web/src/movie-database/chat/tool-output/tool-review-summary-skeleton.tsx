@@ -3,7 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 
 const STAGGER_DELAY = 80;
 
@@ -14,7 +15,7 @@ export function ToolReviewSummarySkeleton() {
         <Skeleton width={110} height={14} delay={0 * STAGGER_DELAY} />
         <Skeleton width={70} height={18} delay={1 * STAGGER_DELAY} />
       </div>
-      <div css={styles.summaryLines}>
+      <div css={stack.tight}>
         <Skeleton fill height={14} delay={2 * STAGGER_DELAY} />
         <Skeleton fill height={14} delay={3 * STAGGER_DELAY} />
         <Skeleton width={200} height={14} delay={4 * STAGGER_DELAY} />
@@ -37,25 +38,20 @@ const styles = stylex.create({
   card: {
     backgroundColor: color.bgSurfaceRaised,
     padding: space._3,
-    marginTop: space._2,
+    marginTop: rhythm.item,
   },
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: space._2,
-  },
-  summaryLines: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
+    marginBottom: rhythm.tight,
   },
   buttonsArea: {
     display: "flex",
     justifyContent: "center",
-    gap: space._1,
-    marginTop: space._3,
-    paddingTop: space._2,
+    gap: rhythm.tight,
+    marginTop: rhythm.item,
+    paddingTop: space._3,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.border,

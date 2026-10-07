@@ -7,7 +7,8 @@ import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -42,16 +43,18 @@ export function BlurredDialogMock({ isShown }: { isShown?: boolean }) {
       </div>
       <ProgressiveBlur isShown={isShown}>
         <div css={[popoverSurface.base, styles.mockDialog]}>
-          <Text look="bodySmall" weight="semibold">
-            {t({ en: "Discard three edits?", zh: "放弃三处修改？" })}
-          </Text>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "The shared copy keeps Tuesday's version. This cannot be undone.",
-              zh: "共享副本将保留周二的版本。此操作无法撤销。",
-            })}
-          </Text>
-          <div css={[flex.row, styles.mockDialogActions]}>
+          <div css={stack.tight}>
+            <Text look="bodySmall" weight="semibold">
+              {t({ en: "Discard three edits?", zh: "放弃三处修改？" })}
+            </Text>
+            <Text look="bodySmall" tone="muted">
+              {t({
+                en: "The shared copy keeps Tuesday's version. This cannot be undone.",
+                zh: "共享副本将保留周二的版本。此操作无法撤销。",
+              })}
+            </Text>
+          </div>
+          <div css={[cluster.tight, styles.mockDialogActions]}>
             <Button size="sm">
               {t({ en: "Keep editing", zh: "继续编辑" })}
             </Button>
@@ -70,7 +73,7 @@ export function MeltDemo() {
   const [isShown, setIsShown] = useState(true);
 
   return (
-    <div css={[flex.col, styles.meltStack]}>
+    <div css={stack.item}>
       <BlurredDialogMock isShown={isShown} />
       <Button
         size="sm"
@@ -92,7 +95,7 @@ const styles = stylex.create({
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.item,
     // Tall enough for the ramp to read as a ramp — the blur runs from the
     // dialog out to the box's edge, so a short box spends the whole reach at
     // full strength and the demo looks like one flat blur — and no taller,
@@ -112,7 +115,7 @@ const styles = stylex.create({
   mockContent: {
     flexGrow: 1,
     justifyContent: "space-between",
-    gap: space._2,
+    gap: rhythm.item,
     maxInlineSize: "17rem",
   },
   mockDialog: {
@@ -122,17 +125,12 @@ const styles = stylex.create({
     transform: "translate(-50%, -50%)",
     display: "flex",
     flexDirection: "column",
-    gap: space._2,
+    gap: rhythm.item,
     inlineSize: "min(22rem, 70%)",
-    paddingBlock: space._3,
-    paddingInline: space._3,
+    padding: space._5,
   },
   mockDialogActions: {
     justifyContent: "flex-end",
-    gap: space._2,
-  },
-  meltStack: {
-    gap: space._3,
   },
   meltToggle: {
     alignSelf: "flex-start",

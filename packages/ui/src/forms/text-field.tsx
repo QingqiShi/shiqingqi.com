@@ -1,6 +1,7 @@
 import { type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
+import { stack } from "../primitives/stack.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   fieldSizeBox,
@@ -105,7 +106,7 @@ export function TextField({
   } = useFieldAria({ id, ariaDescribedBy, ariaInvalid, description, error });
 
   return (
-    <div css={fieldStyles.root}>
+    <div css={[stack.tight, fieldStyles.root]}>
       <label
         htmlFor={fieldId}
         css={[

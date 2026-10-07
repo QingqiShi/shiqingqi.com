@@ -14,6 +14,7 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 | Need                                                   | Use                            | Example                                         |
 | ------------------------------------------------------ | ------------------------------ | ----------------------------------------------- |
 | Flex layout, fills, truncation, resets, transitions    | Design primitives              | `css={flex.row}`                                |
+| Space between siblings (a stack, a row)                | Stack primitives / `rhythm`    | `css={stack.item}`, `gap: rhythm.tight`         |
 | Rounded corners                                        | Design primitives (`corner.*`) | `css={corner.radius_3}`                         |
 | Override a primitive's default                         | Layout modifier                | `css={[flex.row, align.end]}`                   |
 | Single-property styling (color, spacing, font, border) | `stylex.create` + tokens       | `color: color.fg`                               |
@@ -44,7 +45,7 @@ Use `css={styles.foo}` instead of `{...stylex.props(styles.foo)}`. This is Style
 
 Import from `@tuja/ui/tokens.stylex`. All tokens are theme-aware. For the full catalog of every token and its values, read `references/tokens.md`.
 
-Categories: `color`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus the `constants` and `layout` consts.
+Categories: `color`, `rhythm`, `space`, `controlSize`, `font`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus the `constants` and `layout` consts.
 
 ```tsx
 import { color, space, border, font } from "@tuja/ui/tokens.stylex";
@@ -147,11 +148,12 @@ Glass is the third Material but ships as a component style object, not a primiti
 ## Best Practices
 
 1. **Primitives for multi-property patterns** — flex, fills, truncation, resets, transitions
-2. **Tokens for single properties** — `fontSize: font.uiBody`, `gap: space._3`
-3. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
-4. **Always use the `css` prop** — never `{...stylex.props()}`
-5. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
-6. **Mobile-first** — use breakpoint overrides for larger screens
-7. **Theme-aware colors** — use `color` tokens that adapt to light/dark
-8. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
-9. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`
+2. **Tokens for single properties** — `fontSize: font.uiBody`, `padding: space._3`
+3. **Gaps name the relationship** — `rhythm.inline` / `tight` / `item` / `group` / `section`, or `stack.*` / `cluster.*` / `row.*`; never a `space.*` step or a raw length for a gap or a margin between siblings
+4. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
+5. **Always use the `css` prop** — never `{...stylex.props()}`
+6. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
+7. **Mobile-first** — use breakpoint overrides for larger screens
+8. **Theme-aware colors** — use `color` tokens that adapt to light/dark
+9. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
+10. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`

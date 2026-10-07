@@ -5,7 +5,14 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Overlay } from "@tuja/ui/components/overlay";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, color, font, ratio, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  font,
+  ratio,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -79,7 +86,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    gap: space._4,
+    gap: rhythm.tight,
     inlineSize: "100%",
     maxInlineSize: "48rem",
     minBlockSize: "100%",
@@ -92,7 +99,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: space._2,
+    gap: rhythm.tight,
     aspectRatio: ratio.wide,
     padding: space._4,
     borderWidth: border.size_1,

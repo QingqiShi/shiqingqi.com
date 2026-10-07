@@ -10,9 +10,9 @@ import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { OptionCard, OptionCardGroup } from "@tuja/ui/components/option-card";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 import { t } from "#src/i18n.ts";
@@ -59,7 +59,7 @@ export function SingleSelectDemo() {
     },
   ];
   return (
-    <div css={[flex.col, styles.stack]}>
+    <div css={[stack.item, styles.fill]}>
       <OptionCardGroup
         aria-label={t({ en: "Plan", zh: "套餐" })}
         options={options}
@@ -105,7 +105,7 @@ export function MultipleSelectDemo() {
     },
   ];
   return (
-    <div css={[flex.col, styles.stack]}>
+    <div css={[stack.item, styles.fill]}>
       <OptionCardGroup
         selection="multiple"
         aria-label={t({ en: "Add-ons", zh: "附加服务" })}
@@ -162,7 +162,7 @@ export function KeyboardDemo() {
     { value: "enterprise", label: t({ en: "Enterprise", zh: "企业版" }) },
   ];
   return (
-    <div css={[flex.col, styles.stack]}>
+    <div css={[stack.item, styles.fill]}>
       <OptionCardGroup
         aria-label={t({ en: "Plan", zh: "套餐" })}
         options={options}
@@ -215,7 +215,7 @@ export function SlotsDemo() {
     </Badge>
   );
   return (
-    <div css={[flex.col, styles.group]}>
+    <div css={[stack.item, styles.fill]}>
       <SlotCard label={t({ en: "Label only", zh: "仅标签" })} />
       <SlotCard
         label={t({ en: "Label and description", zh: "标签与说明" })}
@@ -271,7 +271,7 @@ export function BespokeDemo() {
     <div
       role="radiogroup"
       aria-label={t({ en: "Plan", zh: "套餐" })}
-      css={[flex.col, styles.group]}
+      css={[stack.item, styles.fill]}
     >
       {cards.map((card) => (
         <OptionCard
@@ -350,12 +350,7 @@ export function GuidelineCard({ withIndicator }: { withIndicator: boolean }) {
 const styles = stylex.create({
   // A `Specimen` lays its stage out with flex, so every demo root states its own
   // width: without it a group of short labels shrinks to the widest card.
-  stack: {
-    gap: space._3,
-    inlineSize: "100%",
-  },
-  group: {
-    gap: space._2,
+  fill: {
     inlineSize: "100%",
   },
   price: {

@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
@@ -28,57 +29,61 @@ export function StepName({ def, onChange }: StepNameProps) {
   const describedBy = isEmpty ? `${hintId} ${errorId}` : hintId;
 
   return (
-    <section css={styles.root} data-testid="wizard-step-name">
-      <h3 css={styles.heading}>
-        {t({ en: "Name your creature", zh: "为生物命名" })}
-      </h3>
-      <p id={hintId} css={styles.hint}>
-        {t({
-          en: "1–20 characters. We will auto-trim leading and trailing spaces when you finish.",
-          zh: "1–20 个字符。完成时会自动去除首尾空格。",
-        })}
-      </p>
-      <label css={styles.label}>
-        <span css={styles.labelText}>
-          {t({ en: "Creature name", zh: "生物名字" })}
-        </span>
-        <input
-          type="text"
-          value={def.name}
-          onChange={(event) => {
-            const next = event.target.value.slice(0, NAME_MAX_LENGTH);
-            onChange({ ...def, name: next });
-          }}
-          maxLength={NAME_MAX_LENGTH}
-          aria-required="true"
-          aria-invalid={isEmpty}
-          aria-describedby={describedBy}
-          placeholder={t({ en: "e.g. Mochi", zh: "例如:团子" })}
-          data-testid="creature-name-input"
-          css={[styles.input, transition.colors]}
-        />
-      </label>
-      {/*
+    <section css={stack.item} data-testid="wizard-step-name">
+      <div css={stack.tight}>
+        <h3 css={styles.heading}>
+          {t({ en: "Name your creature", zh: "为生物命名" })}
+        </h3>
+        <p id={hintId} css={styles.hint}>
+          {t({
+            en: "1–20 characters. We will auto-trim leading and trailing spaces when you finish.",
+            zh: "1–20 个字符。完成时会自动去除首尾空格。",
+          })}
+        </p>
+      </div>
+      <div css={stack.tight}>
+        <label css={stack.tight}>
+          <span css={styles.labelText}>
+            {t({ en: "Creature name", zh: "生物名字" })}
+          </span>
+          <input
+            type="text"
+            value={def.name}
+            onChange={(event) => {
+              const next = event.target.value.slice(0, NAME_MAX_LENGTH);
+              onChange({ ...def, name: next });
+            }}
+            maxLength={NAME_MAX_LENGTH}
+            aria-required="true"
+            aria-invalid={isEmpty}
+            aria-describedby={describedBy}
+            placeholder={t({ en: "e.g. Mochi", zh: "例如:团子" })}
+            data-testid="creature-name-input"
+            css={[styles.input, transition.colors]}
+          />
+        </label>
+        {/*
         Empty-name error is the *reason* the Finish button is disabled, so
         announce it alongside the input via aria-describedby + an
         aria-live="polite" region. `aria-live` makes the message also
         announce the moment the user backspaces the last character without
         having to re-focus the field.
       */}
-      <p
-        id={errorId}
-        aria-live="polite"
-        css={styles.error}
-        data-testid="creature-name-error"
-      >
-        {isEmpty
-          ? t({
-              en: "Name is required to finish.",
-              zh: "需要填写名字才能完成。",
-            })
-          : ""}
-      </p>
-      <div css={styles.lorePanel} data-testid="lore-placeholder">
+        <p
+          id={errorId}
+          aria-live="polite"
+          css={styles.error}
+          data-testid="creature-name-error"
+        >
+          {isEmpty
+            ? t({
+                en: "Name is required to finish.",
+                zh: "需要填写名字才能完成。",
+              })
+            : ""}
+        </p>
+      </div>
+      <div css={[stack.tight, styles.lorePanel]} data-testid="lore-placeholder">
         <h4 css={styles.loreTitle}>
           {t({ en: "Lore coming next", zh: "下一步:背景故事" })}
         </h4>
@@ -94,11 +99,6 @@ export function StepName({ def, onChange }: StepNameProps) {
 }
 
 const styles = stylex.create({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
   heading: {
     fontSize: font.uiHeading3,
     fontWeight: font.weight_6,
@@ -109,11 +109,6 @@ const styles = stylex.create({
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
     margin: 0,
-  },
-  label: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
   },
   labelText: {
     fontSize: font.uiBodySmall,
@@ -144,7 +139,6 @@ const styles = stylex.create({
     color: color.fgDanger,
   },
   lorePanel: {
-    marginTop: space._2,
     padding: space._3,
     borderRadius: "12px",
     cornerShape: "squircle",
@@ -160,8 +154,7 @@ const styles = stylex.create({
     color: color.fg,
   },
   loreBody: {
-    marginTop: space._1,
-    marginBottom: 0,
+    margin: 0,
     fontSize: font.uiBodySmall,
     color: color.fgMuted,
   },

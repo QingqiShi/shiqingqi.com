@@ -1,7 +1,5 @@
-import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
@@ -38,14 +36,12 @@ export function EffectLayerShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Set up", zh: "设置" })}>
-        <div css={[flex.col, styles.stack]}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "Mount EffectLayerProvider once, high in the tree, inside a <body> with position: relative, so that its <canvas> elements cover the document and no more. Until an element registers with an effect, it mounts no <canvas> and requests no GPU device, so a page with no effects pays nothing for it.",
-              zh: "在树的高处挂载一次 EffectLayerProvider，放在设置了 position: relative 的 <body> 内，使它的 <canvas> 元素恰好覆盖整个文档。在有元素为效果登记之前，它不挂载任何 <canvas>，也不请求 GPU 设备，因此没有效果的页面不必为它付出任何代价。",
-            })}
-          </Text>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "Mount EffectLayerProvider once, high in the tree, inside a <body> with position: relative, so that its <canvas> elements cover the document and no more. Until an element registers with an effect, it mounts no <canvas> and requests no GPU device, so a page with no effects pays nothing for it.",
+            zh: "在树的高处挂载一次 EffectLayerProvider，放在设置了 position: relative 的 <body> 内，使它的 <canvas> 元素恰好覆盖整个文档。在有元素为效果登记之前，它不挂载任何 <canvas>，也不请求 GPU 设备，因此没有效果的页面不必为它付出任何代价。",
+          })}
+        </Text>
       </Showcase>
 
       <UsageSnippet code={SETUP} />
@@ -53,7 +49,7 @@ export function EffectLayerShowcase() {
       <PropsTable component="effect-layer-provider" />
 
       <Showcase label={t({ en: "Where effects draw", zh: "效果绘制的位置" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "The browser still paints the page. The layer draws on <canvas> elements over the content, on layer.effect: over everything on layer.content or lower, and under everything on layer.raised or higher, such as sticky chrome, the header and overlays. Chrome inside a stacking context below layer.effect gets drawn over, so keep it out of one.",
@@ -70,7 +66,7 @@ export function EffectLayerShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "When nothing draws", zh: "何时不绘制" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "Nothing draws without WebGPU, under forced colours, with ?effects=off in the address, or with the effect-layer key in local storage set to off. The page under the effects stays the same in every case, so never put meaning in an effect alone.",
@@ -87,7 +83,7 @@ export function EffectLayerShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Registering an element", zh: "登记元素" })}>
-        <div css={[flex.col, styles.stack]}>
+        <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
               en: "Every effect reads every registered element, so an effect can draw around its own elements and react to the others. To make an element one the effects see and flow around, without an effect of its own, attach the ref from useEffectBoundary to it. The layer measures its border box, its corner radii and its background colour, and measures it again when any of them changes.",
@@ -107,9 +103,3 @@ export function EffectLayerShowcase() {
     </>
   );
 }
-
-const styles = stylex.create({
-  stack: {
-    gap: space._3,
-  },
-});

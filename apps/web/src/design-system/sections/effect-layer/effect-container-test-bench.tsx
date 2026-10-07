@@ -136,10 +136,12 @@ export function EffectContainerTestBench() {
 
 const styles = stylex.create({
   bench: {
+    // This distance keeps each case out of the reach of the fan in the next case.
     gap: space._14,
     containerType: "inline-size",
   },
   case: {
+    // The test reads a strip of page above each container for dust. This distance keeps the label out of that strip.
     gap: space._5,
   },
   stage: {
@@ -148,6 +150,7 @@ const styles = stylex.create({
       "@container (min-width: 42.5rem)": "row",
     },
     alignItems: "center",
+    // The fan must reach past the edge of the container. This distance is part of the test.
     gap: space._10,
   },
   // Far enough that the dust does not drift to the container, and near
@@ -159,7 +162,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    gap: space._7,
     padding: space._7,
     color: color.fg,
     backgroundColor: color.bgSurfaceRaised,

@@ -1,8 +1,8 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { space } from "@tuja/ui/tokens.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+
 import { t } from "#src/i18n.ts";
 import { labEyebrow } from "./lab-eyebrow.stylex.ts";
 import { LabVariantChips } from "./lab-variant-chips.tsx";
@@ -22,7 +22,7 @@ export function LabVariantSection({
   onSelect,
 }: LabVariantSectionProps) {
   return (
-    <section css={styles.section}>
+    <section css={stack.tight}>
       <Text as="span" look="caption" tone="muted" css={labEyebrow.base}>
         {t({ en: "Variants", zh: "变体" })}
       </Text>
@@ -34,11 +34,3 @@ export function LabVariantSection({
     </section>
   );
 }
-
-const styles = stylex.create({
-  section: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-  },
-});

@@ -2,7 +2,8 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -313,7 +314,7 @@ export function RolesShowcase() {
       />
       <DoDont
         do={
-          <div css={styles.pairRow}>
+          <div css={cluster.tight}>
             <span css={[corner.radius_2, styles.pill, styles.pairFill]}>
               {t({ en: "Fill", zh: "填充" })}
             </span>
@@ -327,7 +328,7 @@ export function RolesShowcase() {
           zh: "填充上用 fgOnAccent，淡色上用 fgAccent。",
         })}
         dont={
-          <div css={styles.pairRow}>
+          <div css={cluster.tight}>
             <span css={[corner.radius_2, styles.pill, styles.crossedFill]}>
               {t({ en: "Fill", zh: "填充" })}
             </span>
@@ -424,11 +425,6 @@ const styles = stylex.create({
 }
 
 const styles = stylex.create({
-  pairRow: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: space._2,
-  },
   pill: {
     display: "inline-flex",
     alignItems: "center",
@@ -454,7 +450,7 @@ const styles = stylex.create({
     },
     // Auto-sized rows so the subgrid children share a row track per cell index.
     gridAutoRows: "auto",
-    gap: space._2,
+    gap: rhythm.item,
   },
 
   // Fill helpers. The text row shows each Intent's text token as text on the

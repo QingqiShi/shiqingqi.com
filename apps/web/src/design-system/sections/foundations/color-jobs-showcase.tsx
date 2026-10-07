@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
@@ -89,9 +90,11 @@ const styles = stylex.create({
 </section>`}
       />
       <ThemeFramePair>
-        <section css={[corner.radius_3, styles.panel]}>
-          <p css={[styles.line, styles.title]}>Arrival</p>
-          <p css={[styles.line, styles.meta]}>2016 · 116 min</p>
+        <section css={[corner.radius_3, stack.item, styles.panel]}>
+          <div css={stack.tight}>
+            <p css={[styles.line, styles.title]}>Arrival</p>
+            <p css={[styles.line, styles.meta]}>2016 · 116 min</p>
+          </div>
           <div css={styles.action}>
             <Button look="primary">
               {t({ en: "Add to watchlist", zh: "加入片单" })}
@@ -113,9 +116,6 @@ const styles = stylex.create({
 
 const styles = stylex.create({
   panel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
     padding: space._4,
     backgroundColor: color.bgSurface,
     borderWidth: border.size_1,
@@ -137,6 +137,5 @@ const styles = stylex.create({
   },
   action: {
     display: "flex",
-    paddingBlockStart: space._2,
   },
 });

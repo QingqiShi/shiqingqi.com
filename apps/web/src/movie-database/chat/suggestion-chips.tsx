@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
+import { justify } from "@tuja/ui/primitives/flex.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
 import { use } from "react";
 import { ChatActionsContext } from "./chat-actions-context";
@@ -33,7 +34,7 @@ export function SuggestionChips({
     <div
       role="group"
       aria-label={groupLabel}
-      css={[flex.wrap, justify.center, styles.container]}
+      css={[cluster.tight, justify.center]}
     >
       {suggestions.map((text) => (
         <button
@@ -51,9 +52,6 @@ export function SuggestionChips({
 }
 
 const styles = stylex.create({
-  container: {
-    gap: space._1,
-  },
   chip: {
     appearance: "none",
     borderWidth: border.size_1,
