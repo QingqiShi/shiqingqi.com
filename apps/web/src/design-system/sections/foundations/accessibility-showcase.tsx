@@ -554,8 +554,8 @@ export function AccessibilityShowcase() {
           zh: "自建控件的焦点与名称",
         })}
         lead={t({
-          en: "A control you build from primitives gets none of the guarantees above until you add them. a11y.focusRing paints the ring the components use: a 2px accent outline at a 2px offset, on :focus-visible only. a11y.srOnly hides a name from view and keeps it in the accessibility tree. Tab into the row below.",
-          zh: "用原语自建的控件，在你补上之前不具备上述任何保障。a11y.focusRing 绘制与组件相同的焦点环：2px 强调色描边、2px 外偏移，只在 :focus-visible 时出现。a11y.srOnly 在视觉上隐藏名称，但将其保留在无障碍树中。按 Tab 进入下面这一行。",
+          en: "A control you build from primitives starts with the focus ring and nothing else; the other guarantees above are yours to add. The ring is the one the components use: a 2px accent outline at a 2px offset, on :focus-visible only. buttonReset.base already carries it, and a11y.focusRing gives it to any other element that takes focus, such as a link. a11y.srOnly hides a name from view and keeps it in the accessibility tree. Tab into the row below.",
+          zh: "用原语自建的控件，一开始只带有焦点环；上述其他保障需要你自己补上。这个焦点环与组件所用的相同：2px 强调色描边、2px 外偏移，只在 :focus-visible 时出现。buttonReset.base 已经带有它，a11y.focusRing 则把它加到其他可获得焦点的元素上，例如链接。a11y.srOnly 在视觉上隐藏名称，但将其保留在无障碍树中。按 Tab 进入下面这一行。",
         })}
       >
         <div css={cluster.item}>
@@ -565,7 +565,6 @@ export function AccessibilityShowcase() {
             css={[
               buttonReset.base,
               flex.inlineCenter,
-              a11y.focusRing,
               corner.radius_round,
               styles.bareControl,
             ]}
@@ -592,7 +591,7 @@ export function AccessibilityShowcase() {
           code={`import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 
-<button css={[buttonReset.base, a11y.focusRing, styles.control]}>
+<button css={[buttonReset.base, styles.control]}>
   <TrashIcon weight="bold" aria-hidden />
   <span css={a11y.srOnly}>{t("Delete")}</span>
 </button>`}

@@ -233,9 +233,11 @@ import { absoluteFill, scrollY, truncate, imageCover } from "@tuja/ui/primitives
 
 **Import**: `@tuja/ui/primitives/reset.stylex`
 
-| Export             | Properties                                                                                                          |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `buttonReset.base` | appearance: none + borderWidth: 0 + borderStyle: none + backgroundColor: transparent + padding: 0 + cursor: pointer |
+| Export             | Properties                                                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `buttonReset.base` | appearance: none + borderWidth: 0 + borderStyle: none + backgroundColor: transparent + padding: 0 + cursor: pointer + the `a11y.focusRing` ring |
+
+Every hand-built `<button>` starts from `buttonReset.base`, so it has the system focus ring without a second primitive. Compose `a11y.focusRingInset` after it where an ancestor clips overflow.
 
 ### Example
 
@@ -340,9 +342,11 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 // Visible to screen readers only
 <span css={a11y.srOnly}>Loading</span>
 
-// Keyboard focus ring
-<button css={[buttonReset.base, a11y.focusRing]}>
+// Keyboard focus ring on a focusable element that is not a reset button
+<Link {...stylex.props(a11y.focusRing, styles.cta)} href={href}>
 ```
+
+Every element that takes focus draws the system ring: a component, `buttonReset.base`, `chipSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does. `apps/web/e2e/design-system-focus-ring.spec.ts` tabs through each page and fails on a tab stop with no ring or a clipped one.
 
 ---
 

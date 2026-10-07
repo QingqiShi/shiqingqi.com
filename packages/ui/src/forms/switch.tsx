@@ -5,7 +5,6 @@ import React, { useLayoutEffect, useRef, useState } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
-import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import {
   duration,
@@ -139,7 +138,6 @@ export function Switch({
       {...rest}
       css={[
         buttonReset.base,
-        a11y.focusRing,
         corner.radius_round,
         styles.switch,
         sizeStyles[size],

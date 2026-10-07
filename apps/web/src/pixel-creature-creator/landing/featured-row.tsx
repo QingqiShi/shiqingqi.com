@@ -1,9 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
 import { encodeCreature } from "#src/pixel-creature-creator/creature/encode-creature.ts";
@@ -45,7 +46,7 @@ export function FeaturedRow({ locale }: FeaturedRowProps) {
             <li key={featured.labelKey} css={styles.item}>
               <a
                 href={href}
-                css={[cardSurface.base, styles.link]}
+                css={[cardSurface.base, a11y.focusRing, styles.link]}
                 aria-label={featured.def.name}
                 data-testid={`featured-${featured.labelKey}`}
               >
@@ -116,7 +117,6 @@ const styles = stylex.create({
         [pointer.canHover]: "translate3d(0, -2px, 0)",
       },
     },
-    outlineOffset: border.size_2,
   },
   spriteSlot: {
     display: "inline-flex",

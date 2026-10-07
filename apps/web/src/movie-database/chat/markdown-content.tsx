@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -113,7 +114,12 @@ const components: Components = {
   ),
   p: ({ node, ...props }) => <p css={styles.p} {...props} />,
   a: ({ node, children, ...props }) => (
-    <a target="_blank" rel="noopener noreferrer" css={styles.a} {...props}>
+    <a
+      target="_blank"
+      rel="noopener noreferrer"
+      css={[a11y.focusRing, styles.a]}
+      {...props}
+    >
       {children}
       <ExternalLinkIndicator />
     </a>

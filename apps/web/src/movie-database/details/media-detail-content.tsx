@@ -7,6 +7,7 @@ import { useQueries } from "@tanstack/react-query";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Skeleton } from "@tuja/ui/components/skeleton";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
@@ -188,7 +189,12 @@ export function MediaDetailContent({
           {trailer?.key && (
             <a
               href={`https://www.youtube.com/watch?v=${trailer.key}`}
-              css={[typeRole.label, corner.radius_round, styles.trailerLink]}
+              css={[
+                typeRole.label,
+                corner.radius_round,
+                a11y.focusRing,
+                styles.trailerLink,
+              ]}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={

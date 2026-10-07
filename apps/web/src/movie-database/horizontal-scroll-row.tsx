@@ -37,12 +37,7 @@ export function HorizontalScrollRow({
       }}
       clipMargin={space._3}
       css={[styles.root, css]}
-      contentCss={[
-        scrollX.base,
-        scrollX.focusRing,
-        styles.scrollContainer,
-        contentCss,
-      ]}
+      contentCss={[scrollX.base, styles.scrollContainer, contentCss]}
     >
       {children}
     </ScrollMask>

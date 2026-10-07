@@ -9,7 +9,8 @@ import { border, color } from "../tokens.stylex.ts";
  *
  * Its focus ring is inlined inset, not `a11y.focusRingInset`: an outward ring
  * would crop against the card's clipped overflow, and a primitive can't
- * compose another at definition time.
+ * compose another at definition time. `primitives/focus-ring.test.ts` keeps
+ * the copy the same as the original.
  */
 export const cardSurface = stylex.create({
   base: {

@@ -5,7 +5,6 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Text } from "@tuja/ui/components/text";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -52,7 +51,6 @@ function DemoMenuItem({ isCurrent, label, onSelect }: DemoMenuItemProps) {
       data-menu-autofocus={isCurrent ? "true" : undefined}
       css={[
         buttonReset.base,
-        a11y.focusRing,
         transition.colors,
         corner.radius_1,
         typeRole.control,

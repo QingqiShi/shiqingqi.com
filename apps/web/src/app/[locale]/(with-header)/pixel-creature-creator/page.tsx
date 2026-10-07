@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, space } from "@tuja/ui/tokens.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { brand } from "#src/brand/brand.stylex.ts";
@@ -75,7 +76,7 @@ export default async function Page(props: PageProps) {
         <Link
           href={createHref}
           data-testid="landing-cta"
-          {...stylex.props(typeRole.h4, styles.cta)}
+          {...stylex.props(typeRole.h4, a11y.focusRing, styles.cta)}
         >
           {t({ en: "Start creating", zh: "开始创造" })}
         </Link>
@@ -130,6 +131,5 @@ const styles = stylex.create({
     textDecoration: "none",
     transitionProperty: "background-color, transform",
     transitionDuration: "120ms",
-    outlineOffset: border.size_2,
   },
 });

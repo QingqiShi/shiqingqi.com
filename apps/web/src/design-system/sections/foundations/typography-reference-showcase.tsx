@@ -1,6 +1,7 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -37,7 +38,7 @@ function TokenTable({ title, usedByColumn, rows }: TokenTableProps) {
   return (
     <section css={stack.tight}>
       <Heading level={3}>{title}</Heading>
-      <div css={[corner.radius_2, styles.scroll]}>
+      <div css={[corner.radius_2, a11y.focusRing, styles.scroll]}>
         <table css={styles.table}>
           <thead>
             <tr>

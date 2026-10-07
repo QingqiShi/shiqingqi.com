@@ -9,6 +9,7 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
@@ -67,6 +68,7 @@ export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
                 // as unchecked until the user actually picks a cell.
                 aria-checked={isSelected}
                 css={[
+                  buttonReset.base,
                   corner.radius_2,
                   styles.thumbButton,
                   isSelected && styles.thumbButtonActive,
@@ -161,10 +163,9 @@ const styles = stylex.create({
     position: "relative",
     width: "100%",
     aspectRatio: "1 / 1",
-    padding: 0,
     backgroundColor: color.bgCanvas,
-    border: `${border.size_2} solid ${color.border}`,
-    cursor: "pointer",
+    borderWidth: border.size_2,
+    borderStyle: "solid",
     overflow: "hidden",
     display: "block",
     borderColor: {

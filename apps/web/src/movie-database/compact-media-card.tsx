@@ -58,7 +58,6 @@ export function CompactMediaCard({
           corner.radius_2,
           styles.compactCard,
           styles.interactive,
-          a11y.focusRing,
         ]}
         onClick={onClick}
         aria-label={getMediaLabel(media)}

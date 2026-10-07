@@ -3,7 +3,7 @@ import { Button } from "@tuja/ui/components/button";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { scrollX, scrollbar } from "@tuja/ui/primitives/layout.stylex";
+import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -160,7 +160,7 @@ function HorizontalRegion() {
         endLabel: t({ en: "Scroll right", zh: "向右滚动" }),
       }}
       css={[corner.radius_3, styles.rowRegion]}
-      contentCss={[scrollX.focusRing, styles.rowContent]}
+      contentCss={styles.rowContent}
     >
       {films.map((film) => (
         <div key={film.title} css={[corner.radius_2, styles.rowItem]}>

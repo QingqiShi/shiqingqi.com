@@ -3,7 +3,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
@@ -125,7 +124,6 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
           corner.radius_2,
           styles.card,
           styles.interactive,
-          a11y.focusRing,
         ]}
         onClick={onClick}
         aria-label={label}

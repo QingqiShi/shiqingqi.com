@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -32,7 +33,12 @@ export function OnionSkinPicker({
       </label>
       <select
         id={id}
-        css={[typeRole.bodySmall, corner.radius_2, styles.select]}
+        css={[
+          typeRole.bodySmall,
+          corner.radius_2,
+          a11y.focusRing,
+          styles.select,
+        ]}
         value={onionSourceCell ?? ""}
         onChange={(event) => {
           const value = event.target.value;

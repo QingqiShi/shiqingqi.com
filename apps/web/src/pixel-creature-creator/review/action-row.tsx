@@ -5,10 +5,10 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
-  border,
   color,
   font,
   layer,
@@ -339,6 +339,7 @@ export function ActionRow({
         <button
           type="button"
           css={[
+            buttonReset.base,
             typeRole.label,
             corner.radius_round,
             styles.button,
@@ -359,6 +360,7 @@ export function ActionRow({
         <button
           type="button"
           css={[
+            buttonReset.base,
             typeRole.label,
             corner.radius_round,
             styles.button,
@@ -378,6 +380,7 @@ export function ActionRow({
             type="button"
             ref={downloadTriggerRef}
             css={[
+              buttonReset.base,
               typeRole.label,
               corner.radius_round,
               styles.button,
@@ -398,7 +401,12 @@ export function ActionRow({
               <button
                 type="button"
                 role="menuitem"
-                css={[typeRole.label, corner.radius_2, styles.menuItem]}
+                css={[
+                  buttonReset.base,
+                  typeRole.label,
+                  corner.radius_2,
+                  styles.menuItem,
+                ]}
                 onClick={() => {
                   void handleDownloadSprite();
                 }}
@@ -409,7 +417,12 @@ export function ActionRow({
               <button
                 type="button"
                 role="menuitem"
-                css={[typeRole.label, corner.radius_2, styles.menuItem]}
+                css={[
+                  buttonReset.base,
+                  typeRole.label,
+                  corner.radius_2,
+                  styles.menuItem,
+                ]}
                 onClick={() => {
                   void handleDownloadCard();
                 }}
@@ -424,6 +437,7 @@ export function ActionRow({
         <button
           type="button"
           css={[
+            buttonReset.base,
             typeRole.label,
             corner.radius_round,
             styles.button,
@@ -441,6 +455,7 @@ export function ActionRow({
         <button
           type="button"
           css={[
+            buttonReset.base,
             typeRole.label,
             corner.radius_round,
             styles.button,
@@ -456,6 +471,7 @@ export function ActionRow({
         <button
           type="button"
           css={[
+            buttonReset.base,
             typeRole.label,
             corner.radius_round,
             styles.button,
@@ -506,6 +522,7 @@ export function ActionRow({
           <button
             type="button"
             css={[
+              buttonReset.base,
               typeRole.label,
               corner.radius_round,
               styles.button,
@@ -570,7 +587,6 @@ const styles = stylex.create({
       default: 1,
       ":disabled": opacity.disabled,
     },
-    outlineOffset: border.size_2,
     fontWeight: font.weight_6,
   },
   buttonPrimary: {
@@ -622,8 +638,6 @@ const styles = stylex.create({
       ":focus-visible": color.bgControlHover,
     },
     color: color.fg,
-    borderWidth: 0,
-    cursor: "pointer",
     textAlign: "left",
   },
   ephemeral: {

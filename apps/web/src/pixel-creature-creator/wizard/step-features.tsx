@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -77,6 +78,7 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
               title={disabledByCap ? capLabel : undefined}
               data-testid={`accessory-option-${accessory.id}`}
               css={[
+                buttonReset.base,
                 styles.option,
                 transition.colors,
                 isSelected && styles.optionSelected,

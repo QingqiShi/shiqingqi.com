@@ -5,7 +5,6 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -66,7 +65,6 @@ export function SpecimenReveal({
               {...triggerProps}
               css={[
                 buttonReset.base,
-                a11y.focusRing,
                 transition.colors,
                 corner.radius_1,
                 typeRole.caption,

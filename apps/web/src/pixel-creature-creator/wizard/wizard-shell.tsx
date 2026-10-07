@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -162,6 +163,7 @@ export function WizardShell() {
           onClick={handleShuffle}
           data-testid="wizard-shuffle"
           css={[
+            buttonReset.base,
             typeRole.label,
             corner.radius_round,
             styles.shuffleBtn,
@@ -190,6 +192,7 @@ export function WizardShell() {
               }}
               data-testid={`wizard-pill-${String(stepNumber)}`}
               css={[
+                buttonReset.base,
                 typeRole.label,
                 corner.radius_round,
                 styles.pill,
@@ -232,6 +235,7 @@ export function WizardShell() {
           disabled={state.step === 1}
           data-testid="wizard-back"
           css={[
+            buttonReset.base,
             typeRole.body,
             styles.footerBtn,
             transition.colors,
@@ -252,6 +256,7 @@ export function WizardShell() {
           disabled={nameTooShort}
           data-testid={isLastStep ? "wizard-finish" : "wizard-next"}
           css={[
+            buttonReset.base,
             typeRole.body,
             styles.footerBtn,
             transition.colors,
@@ -296,7 +301,6 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: color.border,
-    cursor: "pointer",
   },
   pill: {
     display: "flex",

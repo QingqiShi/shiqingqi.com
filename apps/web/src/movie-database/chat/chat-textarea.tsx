@@ -2,6 +2,7 @@
 
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -179,6 +180,7 @@ export function ChatTextarea({
         css={[
           flex.wrap,
           corner.radius_3,
+          a11y.focusRingWithin,
           styles.container,
           compact && styles.containerCompact,
         ]}
@@ -194,7 +196,12 @@ export function ChatTextarea({
             aria-label={placeholder}
             rows={1}
             disabled={disabled}
-            css={[typeRole.body, styles.field, styles.fieldMultiline]}
+            css={[
+              stylex.defaultMarker(),
+              typeRole.body,
+              styles.field,
+              styles.fieldMultiline,
+            ]}
             autoComplete="off"
             enterKeyHint="send"
           />
@@ -208,7 +215,12 @@ export function ChatTextarea({
             placeholder={placeholder}
             aria-label={placeholder}
             disabled={disabled}
-            css={[typeRole.body, styles.field, styles.fieldSingleLine]}
+            css={[
+              stylex.defaultMarker(),
+              typeRole.body,
+              styles.field,
+              styles.fieldSingleLine,
+            ]}
             autoComplete="off"
             enterKeyHint="send"
           />

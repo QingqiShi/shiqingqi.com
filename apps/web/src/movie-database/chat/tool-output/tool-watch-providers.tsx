@@ -4,8 +4,10 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -300,7 +302,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
             href={providers.link}
             target="_blank"
             rel="noopener noreferrer"
-            css={styles.attributionLink}
+            css={[a11y.focusRing, styles.attributionLink]}
           >
             {t({
               en: "Data provided by JustWatch",
@@ -374,7 +376,7 @@ function CountryList({ countries }: { countries: ReadonlyArray<string> }) {
             onClick={() => {
               setExpanded(true);
             }}
-            css={[typeRole.bodySmall, styles.showMoreButton]}
+            css={[buttonReset.base, typeRole.bodySmall, styles.showMoreButton]}
           >
             {`+${String(remaining)} `}
             {t({ en: "more", zh: "更多" })}
@@ -490,12 +492,8 @@ const styles = stylex.create({
     margin: 0,
   },
   showMoreButton: {
-    background: "none",
-    border: "none",
-    padding: 0,
     fontFamily: font.family,
     color: color.fgMuted,
-    cursor: "pointer",
     textDecoration: {
       default: "none",
       ":hover": { default: null, [pointer.canHover]: "underline" },

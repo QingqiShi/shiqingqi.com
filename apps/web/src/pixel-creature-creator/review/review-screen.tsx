@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
@@ -85,7 +86,7 @@ export function ReviewScreen({ paused = false }: ReviewScreenProps) {
         <Link
           href={createHref}
           data-testid="review-cta"
-          {...stylex.props(typeRole.body, styles.cta)}
+          {...stylex.props(typeRole.body, a11y.focusRing, styles.cta)}
         >
           {t({ en: "Open the creator", zh: "打开创造器" })}
         </Link>

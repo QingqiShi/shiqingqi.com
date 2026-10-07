@@ -91,12 +91,19 @@ function identity(value) {
 // straight through.
 const typeShim = new Proxy({}, { get: () => identity });
 
+// `stylex.when.*` only builds a condition key, so any unique string serves.
+const whenShim = new Proxy(
+  {},
+  { get: (_, relation) => (pseudo) => `${String(relation)}(${pseudo})` },
+);
+
 const stylexShim = {
   defineVars: identity,
   defineConsts: identity,
   create: identity,
   keyframes: () => "keyframes",
   types: typeShim,
+  when: whenShim,
   firstThatWorks: (...values) => values,
 };
 

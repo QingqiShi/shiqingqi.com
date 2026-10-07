@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -80,6 +81,7 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
               {...getOptionProps(entry.id)}
               data-testid={`species-option-${entry.id}`}
               css={[
+                buttonReset.base,
                 styles.option,
                 transition.colors,
                 selected && styles.optionSelected,
@@ -143,7 +145,6 @@ const styles = stylex.create({
     borderWidth: "2px",
     borderStyle: "solid",
     borderColor: "transparent",
-    cursor: "pointer",
     color: color.fg,
   },
   optionSelected: {

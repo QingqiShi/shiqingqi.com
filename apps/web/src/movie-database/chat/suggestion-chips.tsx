@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, opacity, space } from "@tuja/ui/tokens.stylex";
@@ -42,7 +43,12 @@ export function SuggestionChips({
         <button
           key={text}
           type="button"
-          css={[typeRole.label, corner.radius_round, styles.chip]}
+          css={[
+            buttonReset.base,
+            typeRole.label,
+            corner.radius_round,
+            styles.chip,
+          ]}
           onClick={() => handleSelect?.(text)}
           disabled={disabled}
         >
@@ -55,7 +61,6 @@ export function SuggestionChips({
 
 const styles = stylex.create({
   chip: {
-    appearance: "none",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: {

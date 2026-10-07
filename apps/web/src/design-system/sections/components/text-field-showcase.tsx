@@ -1,6 +1,7 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import * as stylex from "@stylexjs/stylex";
 import { TextField } from "@tuja/ui/components/text-field";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -133,7 +134,12 @@ export function TextFieldShowcase() {
         dont={
           <div css={fill.inline}>
             <input
-              css={[typeRole.control, corner.radius_2, styles.rawInput]}
+              css={[
+                typeRole.control,
+                corner.radius_2,
+                a11y.focusRing,
+                styles.rawInput,
+              ]}
               placeholder={t({ en: "Email", zh: "电子邮箱" })}
               aria-label={t({ en: "Email", zh: "电子邮箱" })}
             />

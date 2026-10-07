@@ -176,6 +176,7 @@ export function TypeRolesShowcase() {
           snippet={
             <UsageSnippet
               code={`import * as stylex from "@stylexjs/stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { controlSize, font } from "@tuja/ui/tokens.stylex";
 
@@ -186,7 +187,9 @@ const styles = stylex.create({
   },
 });
 
-<button css={[typeRole.control, styles.segment]}>Week</button>`}
+<button css={[buttonReset.base, typeRole.control, styles.segment]}>
+  Week
+</button>`}
             />
           }
         >
