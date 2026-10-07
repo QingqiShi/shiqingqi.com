@@ -262,7 +262,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                       `role="menuitem"` is all MenuButton needs to adopt these as
                       its roving-focus targets — it finds them in the popup and
                       moves focus to the first one on open. The items are ordinary
-                      Buttons at the config layer; only their alignment is local.
+                      Buttons set only through props; only their alignment is local.
                     */}
                     {shareItems.map((item) => (
                       <Button

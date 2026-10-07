@@ -12,8 +12,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/foundations/accessibility",
     description: t({
-      en: "What the components guarantee — names, focus, keyboard models, contrast, reduced motion and live regions — and the four things left to the person using them.",
-      zh: "组件所保障的内容——名称、焦点、键盘模型、对比度、减弱动效与实时播报区域——以及留给使用者的四件事。",
+      en: "What the components guarantee for focus, keyboard and announcements, the names and copy you supply, how that copy is read and wrapped, and what you take on in a control of your own.",
+      zh: "组件在焦点、键盘与状态播报方面的保障，你需要提供的名称与文案、这些文案如何被朗读与换行，以及自建控件时要承担的部分。",
     }),
   });
 }
@@ -23,8 +23,8 @@ export default function AccessibilityPage() {
     <DocPage
       path="/design-system/foundations/accessibility"
       description={t({
-        en: "Not a checklist run at the end. Most of the work is already done by the components — this page says which parts, and what is left to you.",
-        zh: "这不是收尾时才跑一遍的检查清单。大部分工作已由组件完成——本页说明是哪些部分，以及什么留给了你。",
+        en: "The components do most of the work, but every word they show or announce comes from you. This page says what they handle, which names and copy you supply, and what you take on when you build a control yourself.",
+        zh: "大部分工作由组件完成，但它们显示或播报的每个词都来自你。本页说明组件负责什么、你需要提供哪些名称与文案，以及自己搭建控件时要承担什么。",
       })}
     >
       <AccessibilityShowcase />

@@ -5,7 +5,6 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
@@ -18,8 +17,8 @@ export function TextureShowcase() {
     <Showcase label={t({ en: "Texture", zh: "纹理" })} frame="plain" breakout>
       <ShowcaseHelper>
         {t({
-          en: "One drawn dot of 1px or less, repeated at one size and kept faint enough that it never resolves into a pattern with a name. If it reads as graph paper, or as a ledger, it is too strong. The pitch and the ink are set per surface, so a smaller surface takes a finer mark.",
-          zh: "一个绘制的点，不超过 1px，只用一种尺寸重复，淡到永远不会显出一个叫得出名字的图案。如果它读起来像方格纸或账簿，就太强了。间距与墨色按表面设定，因此较小的表面取更细的标记。",
+          en: "A dot 1px across, drawn with a gradient and repeated on a square grid. The dot keeps one size; you set how far apart the dots are and what colour they take, through two Tokens in a local stylex.create.",
+          zh: "一个 1px 宽的点，用渐变绘制，在方形网格上重复。点只有一种尺寸；点与点相距多远、取什么颜色，由你在本地 stylex.create 中通过两个令牌设定。",
         })}
       </ShowcaseHelper>
 
@@ -30,10 +29,7 @@ export function TextureShowcase() {
       </Specimen>
 
       <SpecimenGrid css={styles.pitchTracks}>
-        <Specimen
-          caption={t({ en: "a wide surface — pitch", zh: "宽表面——间距" })}
-          token="space._4"
-        >
+        <Specimen caption={t({ en: "pitch", zh: "间距" })} token="space._4">
           <div
             css={[
               texture.dot,
@@ -45,7 +41,7 @@ export function TextureShowcase() {
           />
         </Specimen>
         <Specimen
-          caption={t({ en: "a small card — pitch", zh: "小卡片——间距" })}
+          caption={t({ en: "pitch — the default", zh: "间距——默认" })}
           token="space._1"
         >
           <div
@@ -86,25 +82,27 @@ export function TextureShowcase() {
         <SpecCard token="textureTokens.pitch" meta="default: space._1">
           <Text look="caption" tone="muted">
             {t({
-              en: "The gap between marks. Raise it on a wide surface, lower it on a small card. The mark itself keeps one size; the pitch is the only dimension that moves.",
-              zh: "标记之间的间隔。宽表面调大，小卡片调小。标记本身只有一种尺寸；间距是唯一会变的尺寸。",
+              en: "The distance between dots. Take it from space._0 or a larger step. The grid is offset by half a pitch, and half of those steps is a whole pixel at a 16px root, which keeps each dot on the centre of a pixel. With space._00 it is not, and the dots blur.",
+              zh: "点与点之间的距离。取 space._0 或更大的一级。网格偏移半个间距，在 16px 根字号下，这些步长的一半都是整像素，每个点因此落在像素中心。space._00 做不到，点就会糊。",
             })}
           </Text>
         </SpecCard>
         <SpecCard token="textureTokens.ink" meta="default: color.fg at 20%">
           <Text look="caption" tone="muted">
             {t({
-              en: "The mark's colour. Keep it close to the surface it sits on.",
-              zh: "标记的颜色。让它贴近所处的表面。",
+              en: "The dot's colour. The default mixes color.fg into transparent, so it follows the colour scheme like every colour Token.",
+              zh: "点的颜色。默认值把 color.fg 与透明混合，因此像所有颜色令牌一样随配色方案变化。",
             })}
           </Text>
         </SpecCard>
       </div>
 
       <UsageSnippet
-        code={`import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
+        code={`import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 
-<div css={[texture.dot, cardSurface.base, corner.radius_3, styles.card]} />
+<div css={[cardSurface.base, texture.dot, styles.card]} />
 
 const styles = stylex.create({
   card: {
@@ -112,50 +110,6 @@ const styles = stylex.create({
     [textureTokens.ink]: color.borderAccent,
   },
 });`}
-      />
-
-      <DoDont
-        do={
-          <div css={[cardSurface.base, corner.radius_3, styles.plainGround]}>
-            <div
-              css={[
-                texture.dot,
-                cardSurface.base,
-                corner.radius_2,
-                styles.inner,
-              ]}
-            />
-          </div>
-        }
-        doCaption={t({
-          en: "A textured card on a plain page.",
-          zh: "纹理卡片放在没有纹理的页面上。",
-        })}
-        dont={
-          // The only nested texture on the site. It is the mistake itself, so
-          // the specimen must draw it.
-          <div
-            css={[
-              texture.dot,
-              cardSurface.base,
-              corner.radius_3,
-              styles.texturedGround,
-            ]}
-          >
-            <div
-              css={[
-                texture.dot,
-                cardSurface.base,
-                corner.radius_2,
-                styles.inner,
-              ]}
-            />
-          </div>
-        }
-        dontCaption={t({
-          en: "A textured card inside a textured surface. Two patterns sit in line, and neither reads as the surface it belongs to.",
-          zh: "纹理卡片放在有纹理的表面里。两个图案叠在一条视线上，哪一个都读不出自己所属的表面。",
-        })}
       />
     </Showcase>
   );
@@ -193,19 +147,5 @@ const styles = stylex.create({
       [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
     },
     gap: space._2,
-  },
-  plainGround: {
-    inlineSize: "100%",
-    padding: space._3,
-    backgroundColor: color.bgSurfaceSunken,
-  },
-  texturedGround: {
-    [textureTokens.pitch]: space._0,
-    inlineSize: "100%",
-    padding: space._3,
-    backgroundColor: color.bgSurfaceSunken,
-  },
-  inner: {
-    blockSize: "64px",
   },
 });

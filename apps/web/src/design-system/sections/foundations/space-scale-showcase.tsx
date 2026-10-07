@@ -4,8 +4,7 @@ import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
-import { Showcase } from "#src/design-system/showcase.tsx";
+import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { t } from "#src/i18n.ts";
 
 interface SpaceStep {
@@ -40,13 +39,13 @@ export function SpaceScaleShowcase() {
   ];
 
   return (
-    <Showcase label={t({ en: "Scale", zh: "阶梯" })} breakout>
-      <ShowcaseHelper>
-        {t({
-          en: "Eighteen steps on a rem base, each drawn to true size from a common baseline — fine near the low end, widening as the scale climbs.",
-          zh: "以 rem 为基准的十八个步长，皆按真实尺寸从同一基线量起——低端细密，随阶梯上行而增大。",
-        })}
-      </ShowcaseHelper>
+    <GuideSection
+      title={t({ en: "Space scale", zh: "间距阶梯" })}
+      lead={t({
+        en: "Eighteen steps in rem. The px values are at the default 16px root. The low steps sit a quarter rem apart for gaps and padding; from space._8 the steps widen, and the top ones size things such as SidebarLayout's 15rem rail (space._13). Each bar is drawn at its true size.",
+        zh: "十八级，以 rem 为单位。px 值按默认的 16px 根字号计算。低端各级相差四分之一 rem，用于间隙与内边距；从 space._8 起步长变大，最上面几级用来定尺寸，比如 SidebarLayout 15rem 宽的侧栏（space._13）。每根条都按真实尺寸绘制。",
+      })}
+    >
       <div css={styles.ruler}>
         <ol css={styles.labels}>
           {steps.map((step) => (
@@ -78,7 +77,7 @@ export function SpaceScaleShowcase() {
           </div>
         </ScrollMask>
       </div>
-    </Showcase>
+    </GuideSection>
   );
 }
 

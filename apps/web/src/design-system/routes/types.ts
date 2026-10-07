@@ -13,6 +13,7 @@ export type DesignSystemSectionId =
  * foundation decides. `"composition"` is short enough to read as one list.
  */
 export type DesignSystemCategoryId =
+  | "basics"
   | "visual"
   | "behaviour"
   | "content"

@@ -27,22 +27,30 @@ configuration — the sections below walk through it.
 ## Install
 
 ```sh
-npm install @tuja/ui @stylexjs/stylex
+npm install @tuja/ui @stylexjs/stylex modern-normalize
 npm install --save-dev \
   @stylexjs/babel-plugin \
-  @tuja/babel-plugins
+  @stylexjs/postcss-plugin \
+  @babel/parser \
+  @babel/traverse \
+  postcss-import \
+  postcss-preset-env
 ```
 
-`react` (`>=19.2 <20`), `react-dom`, and `@stylexjs/stylex` (`^0.19`) are peer
-dependencies.
+`react` and `react-dom` (`>=19.3 <20`) and `@stylexjs/stylex` (`^0.19`) are
+peer dependencies. The icon slots take Phosphor icons; `@tuja/ui` uses
+`@phosphor-icons/react` but does not re-export it, so add it yourself to import
+one.
 
 ## Next.js setup
 
-> **Turbopack is not yet supported.** The `css` prop rewrite (a
-> `@stylexjs/babel-plugin` option) and the responsive tokens (a custom Babel
-> plugin) both need the **webpack / Next Babel** pipeline. Adding a
-> `babel.config.js` opts Next out of SWC/Turbopack automatically. Run
-> `next dev` / `next build` without `--turbopack`.
+> **Build with webpack.** The `css` prop rewrite (a `@stylexjs/babel-plugin`
+> option) and the responsive tokens (a custom Babel plugin) both need Babel to
+> run over the `@tuja/ui` source. Turbopack, the default bundler since Next.js
+> 16, runs a `babel.config.js` only on files outside `node_modules`, so it
+> leaves the installed package uncompiled. Run `next dev --webpack` and
+> `next build --webpack`; webpack runs Babel over every package in
+> `transpilePackages`.
 
 ### 1. Transpile the package
 
@@ -57,11 +65,17 @@ module.exports = {
 
 ### 2. Babel
 
-`@tuja/babel-plugins/stylex-breakpoints` runs **before** `@stylexjs/babel-plugin`:
+The `stylex-breakpoints` plugin runs **before** `@stylexjs/babel-plugin`:
 it inlines the design system's breakpoint constants into media-query keys.
-**It is required** — without it the responsive `font` and `controlSize` tokens
-emit no media queries. Point its `rootDir` at the installed `@tuja/ui` package
-so it can read the shipped `src/breakpoints.stylex.ts`.
+**It is required** — without it the breakpoint keys compile into CSS no
+browser applies. Point its `rootDir` at the installed `@tuja/ui` package so it
+can read the shipped `src/breakpoints.stylex.ts`.
+
+The plugin lives in `@tuja/babel-plugins`, which is private and not published.
+Copy
+[`packages/babel-plugins/src/stylex-breakpoints/index.js`](https://github.com/QingqiShi/shiqingqi.com/blob/master/packages/babel-plugins/src/stylex-breakpoints/index.js)
+into your project as `stylex-breakpoints.js`; it needs `@babel/parser` and
+`@babel/traverse`.
 
 The `css` prop rewrite needs no separate plugin: `@stylexjs/babel-plugin`
 (0.18+) ships a JSX shorthand for it, `sxPropName` — it defaults to `sx`, and
@@ -79,7 +93,7 @@ const uiRoot = path.dirname(require.resolve("@tuja/ui/package.json"));
 module.exports = {
   presets: ["next/babel"],
   plugins: [
-    ["@tuja/babel-plugins/stylex-breakpoints", { rootDir: uiRoot }],
+    ["./stylex-breakpoints.js", { rootDir: uiRoot }],
     [
       "@stylexjs/babel-plugin",
       {
@@ -140,14 +154,16 @@ replaces it with the generated CSS:
 
 ## TypeScript
 
-`@tuja/ui`'s source imports use explicit `.ts` extensions (e.g.
-`@tuja/ui/tokens.stylex`), so your `tsconfig.json` needs bundler resolution:
+`@tuja/ui`'s source imports its own files with explicit `.ts` extensions (e.g.
+`./tokens.stylex.ts`), so your `tsconfig.json` needs bundler resolution.
+`allowImportingTsExtensions` is only allowed with `noEmit`, which Next.js sets:
 
 ```jsonc
 {
   "compilerOptions": {
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "noEmit": true,
   },
 }
 ```
@@ -168,7 +184,9 @@ composes it into `css` itself (a dynamic style function for a runtime value,
 per the pattern below) rather than accepting it from the consumer.
 
 For the host-element case, add a global augmentation so `<div css={styles.x} />`
-type-checks. Reference the declaration `@tuja/ui` ships from a `.d.ts` your
+type-checks. It is required even if your own code never writes `css` on a host
+element: `@tuja/ui`'s components do, and without it the type check fails inside
+the package. Reference the declaration `@tuja/ui` ships from a `.d.ts` your
 `tsconfig.json` includes:
 
 ```ts
@@ -239,16 +257,21 @@ Every color token is a single-source `light-dark()` pair, so there is no second
 set of theme variables — the browser resolves the correct value from
 `color-scheme`. Set the scheme once on the root element:
 
-```ts
-// Follows the OS preference by default:
+```css
+/* Follows the OS preference by default: */
 color-scheme: light dark;
 ```
 
 To pin a theme, override the scheme on `:root` (or any subtree):
 
-```ts
+```css
 color-scheme: dark; /* or: light */
 ```
+
+Set a pinned scheme in the server-rendered markup, or in an inline script that
+runs before the first paint, so the page never flashes the other scheme.
+`constants.DARK` in `@tuja/ui/tokens.stylex` is a media query on the OS setting,
+so it ignores a pinned scheme; a color token does not.
 
 Because theming leans on `light-dark()`, the browser floor is **Chrome 123**,
 **Safari 17.5**, and **Firefox 120**.
@@ -282,29 +305,49 @@ a metric-matched fallback:
 }
 ```
 
+`font.familyMono`, which `CodeBlock` uses, asks for `"IBM Plex Mono"` first,
+then `"IBM Plex Mono-fallback"`, then the platform monospace. Register those two
+faces the same way if you want code in Plex Mono.
+
 ## Global contract
 
 The system assumes a modern box model and reset. Include something like
 [`modern-normalize`](https://github.com/sindresorhus/modern-normalize) (or your
-own `box-sizing: border-box` + margin reset), then paint the canvas and default
-text color from tokens on the document root:
+own `box-sizing: border-box` + margin reset). Import it into a cascade layer:
+the PostCSS config above sets `useCSSLayers: true`, so StyleX writes its rules
+into layers, and a rule outside any layer would beat all of them.
+
+```css
+/* global.css */
+@import "modern-normalize/modern-normalize.css" layer(normalize);
+
+@stylex;
+```
+
+Then paint the canvas, the default text color and the typeface from tokens on
+the document root:
 
 ```ts
 import * as stylex from "@stylexjs/stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 
 export const globalStyles = stylex.create({
-  root: {
+  html: {
     backgroundColor: color.bgCanvas,
-    color: color.fg,
     colorScheme: "light dark",
+  },
+  body: {
+    color: color.fg,
     fontFamily: font.family,
+    position: "relative",
   },
 });
 ```
 
-Apply `globalStyles.root` to `<html>`/`<body>`. (This mirrors
-`apps/web/src/theme/global-styles.ts` in the source repo.)
+Apply `globalStyles.html` to `<html>` and `globalStyles.body` to `<body>`.
+`EffectLayerProvider` needs the positioned `<body>`, so that its canvases cover
+the document and no more. (This mirrors `apps/web/src/theme/global-styles.ts`
+in the source repo.)
 
 Every fixed-radius corner in the system renders as a squircle rather than a
 circular arc; pills and circles keep circular caps, because a clamped
@@ -312,10 +355,13 @@ superellipse reads as neither. Components compose the `corner` primitive
 (`@tuja/ui/primitives/corner.stylex`), which pairs the corner shape with the
 radius, so the shape ships inside the styles the component already carries.
 There is no global CSS to add, and none of your own components are affected.
-A browser without `corner-shape` support draws a circular arc instead, and the
-`border.radius_*` tokens drop to 0.6 of their value there so the corner reads
-the same size; an element of your own that uses those tokens takes the same
-reduced value.
+A browser without `corner-shape` support draws a circular arc instead, which
+cuts about three times the corner area of a squircle at the same radius. The
+`border.radius_*` tokens carry the fallback themselves: under
+`@supports not (corner-shape: squircle)` each one is 0.6 of its value, so a
+corner reads the same in either browser. `corner.squircle_round` falls back to
+0.3 of the control height, so a Button stays a rounded rectangle rather than
+turning into a pill.
 
 ## Usage
 
@@ -324,6 +370,7 @@ components directly:
 
 ```tsx
 import { color, space } from "@tuja/ui/tokens.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { Button } from "@tuja/ui/components/button";
 import * as stylex from "@stylexjs/stylex";
@@ -332,13 +379,12 @@ const styles = stylex.create({
   card: {
     padding: space._4,
     backgroundColor: color.bgSurface,
-    borderRadius: space._2,
   },
 });
 
 export function Example() {
   return (
-    <div css={[flex.column, styles.card]}>
+    <div css={[flex.col, corner.radius_2, styles.card]}>
       <Button look="primary">Save</Button>
     </div>
   );
@@ -352,112 +398,114 @@ hooks, plain utility functions, or type-only contracts that back the `css`
 prop. Import the exact subpath you need — there is no barrel. The set grows
 as the system gains components.
 
-| Subpath                                       | What it is                                                                                                                                                             |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@tuja/ui/css-prop`                           | Global JSX augmentation that types the `css` prop on host elements; add an equivalent declaration to your own project (see Usage) to type-check `css={...}` there too. |
-| `@tuja/ui/types`                              | `StyleProp`, the `css` prop's type — type a component's own `css` prop with it too.                                                                                    |
-| `@tuja/ui/tokens.stylex`                      | Role-based tokens: `color`, `font`, `space`, `controlSize`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus layout consts.                                       |
-| `@tuja/ui/breakpoints.stylex`                 | Responsive breakpoint constants (media-query strings) for use as computed keys.                                                                                        |
-| `@tuja/ui/palette/*.stylex`                   | Per-hue HCT ramp var files (e.g. `@tuja/ui/palette/blue.stylex`). Hues: blue, brown, cyan, gray, green, indigo, mint, orange, pink, purple, red, teal, yellow.         |
-| `@tuja/ui/palette-table`                      | Flat palette lookup table (all hues and tones) for tooling and color matching.                                                                                         |
-| `@tuja/ui/test-support/install-jsdom-shims`   | `installJsdomShims()` — backs `isContentEditable` and related behaviour jsdom does not implement, for a test suite's setup file.                                       |
-| `@tuja/ui/hooks/use-black-hole`               | Ref that makes its element a Black hole on the effect layer, which bends the light of a Light beam passing behind it.                                                  |
-| `@tuja/ui/hooks/use-controlled`               | Controlled/uncontrolled state hook.                                                                                                                                    |
-| `@tuja/ui/hooks/use-dialog-focus`             | Focus trap + restore for dialogs and overlays.                                                                                                                         |
-| `@tuja/ui/hooks/use-disclosure`               | Headless expand/collapse state with the `aria-expanded` / `aria-controls` wiring.                                                                                      |
-| `@tuja/ui/hooks/use-dust`                     | Ref that sheds dust in its element's fill colour, which floats off, then speeds into any Extractor fan in reach.                                                       |
-| `@tuja/ui/hooks/use-effect-boundary`          | Ref that registers its element on the effect layer with no effect, so effects see it; the layer measures its box, corners and fill whenever they can change.           |
-| `@tuja/ui/hooks/use-effect-container`         | Ref that makes its element an Effect container; pass the same ref to `EffectContainer`. Effects inside act only on each other and draw only inside it.                 |
-| `@tuja/ui/hooks/use-extractor-fan`            | Ref that makes its element an Extractor fan, which pulls in the dust of `useDust` elements in reach.                                                                   |
-| `@tuja/ui/hooks/use-is-hydrated`              | `false` for the server render and the hydration pass, `true` from the first client render after — lets a component defer client-only rendering until then.             |
-| `@tuja/ui/hooks/use-light-beam`               | Ref that makes its element a Light beam on the effect layer: a ray of light in its fill colour, aimed by the pointer.                                                  |
-| `@tuja/ui/hooks/use-popover`                  | Headless positioning, focus, and dismiss logic behind `Popover` — placement, open state, and trigger wiring.                                                           |
-| `@tuja/ui/hooks/use-press-animation`          | Press/active animation state.                                                                                                                                          |
-| `@tuja/ui/hooks/use-press-handlers`           | Pointer + keyboard press handler bundle.                                                                                                                               |
-| `@tuja/ui/hooks/use-radio-group`              | Headless roving-tabindex radio group (arrow/Home/End keyboard, `getOptionProps`).                                                                                      |
-| `@tuja/ui/hooks/use-ripple`                   | Ref that pulses its element's background colour out in rings on the effect layer, on hover, press and focus.                                                           |
-| `@tuja/ui/hooks/use-scroll-mask`              | Whether each edge of a scroll region has scrolled-away content past it.                                                                                                |
-| `@tuja/ui/utils/get-scroll-behavior`          | `"smooth"`, or `"instant"` under reduced motion — read at scroll time so it always reports the current setting.                                                        |
-| `@tuja/ui/utils/merge-refs`                   | `mergeRefs(...refs)` — one callback ref for several refs, with each ref's cleanup; gives one element two effect hooks.                                                 |
-| `@tuja/ui/primitives/a11y.stylex`             | Accessibility primitives: `srOnly`, `focusRing`, `focusRingInset`.                                                                                                     |
-| `@tuja/ui/primitives/corner.stylex`           | Corner radii paired with shape: squircle on `radius_1`–`radius_5`, circular caps on `radius_round`.                                                                    |
-| `@tuja/ui/primitives/flex.stylex`             | Flex row/column layout primitives.                                                                                                                                     |
-| `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                                           |
-| `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                                      |
-| `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                                  |
-| `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn dot of 1px or less, repeated at a pitch, in an ink colour.                                                                                          |
-| `@tuja/ui/primitives/wash.stylex`             | Wash: a broad directional gradient, one tone drifting toward transparent.                                                                                              |
-| `@tuja/ui/components/anchor-button`           | Button's look rendered as a real anchor (`href` required); pass `linkComponent` for a framework `<Link>`.                                                              |
-| `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                                              |
-| `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                                       |
-| `@tuja/ui/components/badge`                   | Status/label badge on the Chip pill skin (six Intents plus a default, `sm`/`md`).                                                                                      |
-| `@tuja/ui/components/blur-plane-provider`     | Marks a shell's Blur plane — the page-level node a Floating element paints its blur onto.                                                                              |
-| `@tuja/ui/components/breadcrumb`              | Navigation trail of crumbs, with the current page as the un-linked last one.                                                                                           |
-| `@tuja/ui/components/build-blur-layers`       | Computes a Floating element's stack of blurred layers from its measured geometry — the primitive behind `Popover` and `ProgressiveBlur`.                               |
-| `@tuja/ui/components/build-edge-blur-layers`  | Computes the blurred-layer stack for one edge of a scrolling region — the primitive behind `ScrollMask`.                                                               |
-| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger looks, three sizes, loading state); icon-only with `icon` and no children.                                                        |
-| `@tuja/ui/components/button.stylex`           | Button style tokens.                                                                                                                                                   |
-| `@tuja/ui/components/button-shared.stylex`    | Shared button styles (base, icon, active, pressed).                                                                                                                    |
-| `@tuja/ui/components/callout`                 | Inline message/alert box (six Intents, built-in icon, optional dismiss).                                                                                               |
-| `@tuja/ui/components/card`                    | Bordered surface container, plus header/title/description/content/footer slots.                                                                                        |
-| `@tuja/ui/components/card-content`            | Card's padded content slot.                                                                                                                                            |
-| `@tuja/ui/components/card-description`        | Card's supporting-copy slot, rendered as `Text`.                                                                                                                       |
-| `@tuja/ui/components/card-footer`             | Card's trailing-actions slot.                                                                                                                                          |
-| `@tuja/ui/components/card-header`             | Card's heading row, with a trailing slot for a menu button, dismiss, or badge.                                                                                         |
-| `@tuja/ui/components/card-title`              | Card's heading slot, rendered as `Heading` (defaults to level 3).                                                                                                      |
-| `@tuja/ui/components/card.stylex`             | Card surface styles (`cardSurface`) for composing onto a link or list item.                                                                                            |
-| `@tuja/ui/components/checkbox`                | Checkbox with label, description, error, and indeterminate states.                                                                                                     |
-| `@tuja/ui/components/chip`                    | Interactive pill — renders an anchor with `href`, a button without.                                                                                                    |
-| `@tuja/ui/components/chip.stylex`             | Chip surface and size styles for composing onto a framework `<Link>`.                                                                                                  |
-| `@tuja/ui/components/code-block`              | Syntax-highlighted code, with an optional animated run-by-run reveal.                                                                                                  |
-| `@tuja/ui/components/code-run.stylex`         | Per-token-kind colour for a code run, shared by every code surface.                                                                                                    |
-| `@tuja/ui/components/disclosure`              | Expand/collapse section with a header trigger and a revealed panel.                                                                                                    |
-| `@tuja/ui/components/divider`                 | Horizontal/vertical divider.                                                                                                                                           |
-| `@tuja/ui/components/effect-container`        | Puts the effect hooks inside it in the scope of the Effect container from `useEffectContainer`.                                                                        |
-| `@tuja/ui/components/effect-layer-provider`   | Draws effects with WebGPU on inert `<canvas>` elements over the content; mounts nothing until an element registers with an effect.                                     |
-| `@tuja/ui/components/field-shared.stylex`     | Shared form-control chrome (label, description, control box, error text).                                                                                              |
-| `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                                              |
-| `@tuja/ui/components/glass-surface.stylex`    | The Glass skin: a translucent fill over its own blur, with the lit rim and shadow that make Glass the one surface that floats and casts a shadow.                      |
-| `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: floating header controls, optional background and footer.                                                                                  |
-| `@tuja/ui/components/heading`                 | Semantic heading (visual size decoupled from level, optional `wrap`).                                                                                                  |
-| `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                                      |
-| `@tuja/ui/components/menu-label`              | Label row inside a menu.                                                                                                                                               |
-| `@tuja/ui/components/option-card`             | Selectable card (`row` or `tile` look), radio or checkbox semantics set by its group.                                                                                  |
-| `@tuja/ui/components/option-card-group`       | Single- or multiple-select group of `OptionCard`s.                                                                                                                     |
-| `@tuja/ui/components/option-card.stylex`      | The selectable-card skin, composed over `cardSurface`.                                                                                                                 |
-| `@tuja/ui/components/overlay`                 | Accessible dialog/popover overlay (requires `aria-label` **xor** `aria-labelledby`).                                                                                   |
-| `@tuja/ui/components/popover`                 | Anchored floating surface (menu, tooltip, dropdown), positioned off a trigger and dismissed on outside click or Escape.                                                |
-| `@tuja/ui/components/popover-surface.stylex`  | The floating-surface skin shared by every popup that hangs off an anchor.                                                                                              |
-| `@tuja/ui/components/progress`                | Determinate progress bar.                                                                                                                                              |
-| `@tuja/ui/components/progress.stylex`         | Progress indicator tokens (fill size and colour).                                                                                                                      |
-| `@tuja/ui/components/progressive-blur`        | A Floating element's blur, painted onto the page's Blur plane instead of the element's own background.                                                                 |
-| `@tuja/ui/components/scroll-mask`             | Scroll region with a progressive blur at each edge it can still scroll to.                                                                                             |
-| `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                                            |
-| `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`; `hideLabels` for an icon-only bar.                                                                                     |
-| `@tuja/ui/components/select`                  | Styled native select (options prop or `<option>` children).                                                                                                            |
-| `@tuja/ui/components/sidebar-layout`          | Sidebar + content layout.                                                                                                                                              |
-| `@tuja/ui/components/skeleton`                | Loading skeleton.                                                                                                                                                      |
-| `@tuja/ui/components/skeleton.stylex`         | Skeleton style tokens.                                                                                                                                                 |
-| `@tuja/ui/components/slider`                  | Range input with a filled track and a draggable thumb.                                                                                                                 |
-| `@tuja/ui/components/slider.stylex`           | Slider fill, track, and thumb size tokens.                                                                                                                             |
-| `@tuja/ui/components/spinner`                 | Indeterminate loading spinner (reduced-motion aware).                                                                                                                  |
-| `@tuja/ui/components/sticky-control-group`    | One group of controls in a `StickyControls` row, painted directly onto the shared blur with no surface of its own.                                                     |
-| `@tuja/ui/components/sticky-controls`         | Sticky row of page chrome, with the page blurred around each group of its controls while it holds.                                                                     |
-| `@tuja/ui/components/switch`                  | Toggle switch.                                                                                                                                                         |
-| `@tuja/ui/components/switch.stylex`           | Switch style tokens.                                                                                                                                                   |
-| `@tuja/ui/components/syntax.stylex`           | Per-token-kind syntax colour, WCAG AA against `bgSurfaceRaised`.                                                                                                       |
-| `@tuja/ui/components/table`                   | Scrollable data table shell.                                                                                                                                           |
-| `@tuja/ui/components/table-body`              | Table row group (`<tbody>`).                                                                                                                                           |
-| `@tuja/ui/components/table-cell`              | Table data cell (`<td>`), with start/center/end/numeric alignment.                                                                                                     |
-| `@tuja/ui/components/table-foot`              | Table foot row group (`<tfoot>`).                                                                                                                                      |
-| `@tuja/ui/components/table-head`              | Table head row group (`<thead>`), optionally sticky.                                                                                                                   |
-| `@tuja/ui/components/table-header-cell`       | Table header cell (`<th>`), with the same alignment as `TableCell`.                                                                                                    |
-| `@tuja/ui/components/table-row`               | Table row (`<tr>`), with a current-row state.                                                                                                                          |
-| `@tuja/ui/components/table.stylex`            | Table layout tokens (sticky head inset and background).                                                                                                                |
-| `@tuja/ui/components/text`                    | Text/paragraph component (four type-scale steps, four foreground roles, four weights, `wrap`, `numeric`).                                                              |
-| `@tuja/ui/components/text-field`              | Single-line text input with label, description, error, and adornments.                                                                                                 |
-| `@tuja/ui/components/textarea`                | Multi-line text input with optional auto-grow.                                                                                                                         |
-| `@tuja/ui/package.json`                       | Package manifest (for tooling).                                                                                                                                        |
+| Subpath                                       | What it is                                                                                                                                                                  |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@tuja/ui/css-prop`                           | Global JSX augmentation that types the `css` prop on host elements; add an equivalent declaration to your own project (see TypeScript) to type-check `css={...}` there too. |
+| `@tuja/ui/types`                              | `StyleProp`, the `css` prop's type — type a component's own `css` prop with it too.                                                                                         |
+| `@tuja/ui/tokens.stylex`                      | Role-based tokens: `color`, `font`, `space`, `controlSize`, `border`, `shadow`, `layer`, `opacity`, `ratio`, plus layout consts.                                            |
+| `@tuja/ui/breakpoints.stylex`                 | Responsive breakpoint constants (media-query strings) for use as computed keys.                                                                                             |
+| `@tuja/ui/palette/*.stylex`                   | Per-hue HCT ramp var files (e.g. `@tuja/ui/palette/blue.stylex`). Hues: blue, brown, cyan, gray, green, indigo, mint, orange, pink, purple, red, teal, yellow.              |
+| `@tuja/ui/palette-table`                      | Flat palette lookup table (all hues and tones) for tooling and color matching.                                                                                              |
+| `@tuja/ui/test-support/install-jsdom-shims`   | `installJsdomShims()` — backs `isContentEditable` and related behaviour jsdom does not implement, for a test suite's setup file.                                            |
+| `@tuja/ui/hooks/use-black-hole`               | Ref that makes its element a Black hole on the effect layer, which bends the light of a Light beam passing behind it.                                                       |
+| `@tuja/ui/hooks/use-controlled`               | Controlled/uncontrolled state hook.                                                                                                                                         |
+| `@tuja/ui/hooks/use-dialog-focus`             | Focus trap + restore for dialogs and overlays.                                                                                                                              |
+| `@tuja/ui/hooks/use-disclosure`               | Headless expand/collapse state with the `aria-expanded` / `aria-controls` wiring.                                                                                           |
+| `@tuja/ui/hooks/use-dust`                     | Ref that sheds dust in its element's fill colour, which floats off, then speeds into any Extractor fan in reach.                                                            |
+| `@tuja/ui/hooks/use-effect-boundary`          | Ref that registers its element on the effect layer with no effect, so effects see it; the layer measures its box, corners and fill whenever they can change.                |
+| `@tuja/ui/hooks/use-effect-container`         | Ref that makes its element an Effect container; pass the same ref to `EffectContainer`. Effects inside act only on each other and draw only inside it.                      |
+| `@tuja/ui/hooks/use-extractor-fan`            | Ref that makes its element an Extractor fan, which pulls in the dust of `useDust` elements in reach.                                                                        |
+| `@tuja/ui/hooks/use-is-hydrated`              | `false` for the server render and the hydration pass, `true` from the first client render after — lets a component defer client-only rendering until then.                  |
+| `@tuja/ui/hooks/use-light-beam`               | Ref that makes its element a Light beam on the effect layer: a ray of light in its fill colour, aimed by the pointer.                                                       |
+| `@tuja/ui/hooks/use-popover`                  | Headless positioning, focus, and dismiss logic behind `Popover` — placement, open state, and trigger wiring.                                                                |
+| `@tuja/ui/hooks/use-press-animation`          | Press/active animation state.                                                                                                                                               |
+| `@tuja/ui/hooks/use-press-handlers`           | Pointer + keyboard press handler bundle.                                                                                                                                    |
+| `@tuja/ui/hooks/use-radio-group`              | Headless roving-tabindex radio group (arrow/Home/End keyboard, `getOptionProps`).                                                                                           |
+| `@tuja/ui/hooks/use-ripple`                   | Ref that pulses its element's background colour out in rings on the effect layer, on hover, press and focus.                                                                |
+| `@tuja/ui/hooks/use-scroll-mask`              | Whether each edge of a scroll region has scrolled-away content past it.                                                                                                     |
+| `@tuja/ui/utils/contrast-ratio`               | `contrastRatio` and `relativeLuminance` — the WCAG 2 contrast ratio of two opaque colours.                                                                                  |
+| `@tuja/ui/utils/get-scroll-behavior`          | `"smooth"`, or `"instant"` under reduced motion — read at scroll time so it always reports the current setting.                                                             |
+| `@tuja/ui/utils/merge-refs`                   | `mergeRefs(...refs)` — one callback ref for several refs, with each ref's cleanup; gives one element two effect hooks.                                                      |
+| `@tuja/ui/utils/prefers-reduced-motion`       | `prefersReducedMotion()` and `REDUCED_MOTION_QUERY` — read the reduced-motion setting from script.                                                                          |
+| `@tuja/ui/primitives/a11y.stylex`             | Accessibility primitives: `srOnly`, `focusRing`, `focusRingInset`.                                                                                                          |
+| `@tuja/ui/primitives/corner.stylex`           | Corner radii paired with shape: squircle on `radius_1`–`radius_5` and `squircle_round`, circular caps on `radius_round`.                                                    |
+| `@tuja/ui/primitives/flex.stylex`             | Flex row/column layout primitives.                                                                                                                                          |
+| `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                                                |
+| `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                                           |
+| `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                                       |
+| `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn dot of 1px or less, repeated at a pitch, in an ink colour.                                                                                               |
+| `@tuja/ui/primitives/wash.stylex`             | Wash: a broad directional gradient, one tone drifting toward transparent.                                                                                                   |
+| `@tuja/ui/components/anchor-button`           | Button's look rendered as a real anchor (`href` required); pass `linkComponent` for a framework `<Link>`.                                                                   |
+| `@tuja/ui/components/anchor.stylex`           | Anchor/link style tokens.                                                                                                                                                   |
+| `@tuja/ui/components/avatar`                  | Portrait/monogram medallion with a decorative corner badge slot.                                                                                                            |
+| `@tuja/ui/components/badge`                   | Status/label badge on the Chip pill skin (six Intents plus a default, `sm`/`md`).                                                                                           |
+| `@tuja/ui/components/blur-plane-provider`     | Marks a shell's Blur plane — the page-level node a Floating element paints its blur onto.                                                                                   |
+| `@tuja/ui/components/breadcrumb`              | Navigation trail of crumbs, with the current page as the un-linked last one.                                                                                                |
+| `@tuja/ui/components/build-blur-layers`       | Computes a Floating element's stack of blurred layers from its measured geometry — the primitive behind `Popover` and `ProgressiveBlur`.                                    |
+| `@tuja/ui/components/build-edge-blur-layers`  | Computes the blurred-layer stack for one edge of a scrolling region — the primitive behind `ScrollMask`.                                                                    |
+| `@tuja/ui/components/button`                  | Button (primary/outline/ghost/danger looks, three sizes, loading state); icon-only with `icon` and no children.                                                             |
+| `@tuja/ui/components/button.stylex`           | Button style tokens.                                                                                                                                                        |
+| `@tuja/ui/components/button-shared.stylex`    | Shared button styles (base, icon, active, pressed).                                                                                                                         |
+| `@tuja/ui/components/callout`                 | Inline message/alert box (six Intents, built-in icon, optional dismiss).                                                                                                    |
+| `@tuja/ui/components/card`                    | Bordered surface container, plus header/title/description/content/footer slots.                                                                                             |
+| `@tuja/ui/components/card-content`            | Card's padded content slot.                                                                                                                                                 |
+| `@tuja/ui/components/card-description`        | Card's supporting-copy slot, rendered as `Text`.                                                                                                                            |
+| `@tuja/ui/components/card-footer`             | Card's trailing-actions slot.                                                                                                                                               |
+| `@tuja/ui/components/card-header`             | Card's heading row, with a trailing slot for a menu button, dismiss, or badge.                                                                                              |
+| `@tuja/ui/components/card-title`              | Card's heading slot, rendered as `Heading` (defaults to level 3).                                                                                                           |
+| `@tuja/ui/components/card.stylex`             | Card surface styles (`cardSurface`) for composing onto a link or list item.                                                                                                 |
+| `@tuja/ui/components/checkbox`                | Checkbox with label, description, error, and indeterminate states.                                                                                                          |
+| `@tuja/ui/components/chip`                    | Interactive pill — renders an anchor with `href`, a button without.                                                                                                         |
+| `@tuja/ui/components/chip.stylex`             | Chip surface and size styles for composing onto a framework `<Link>`.                                                                                                       |
+| `@tuja/ui/components/code-block`              | Syntax-highlighted code, with an optional animated run-by-run reveal.                                                                                                       |
+| `@tuja/ui/components/code-run.stylex`         | Per-token-kind colour for a code run, shared by every code surface.                                                                                                         |
+| `@tuja/ui/components/disclosure`              | Expand/collapse section with a header trigger and a revealed panel.                                                                                                         |
+| `@tuja/ui/components/divider`                 | Horizontal/vertical divider.                                                                                                                                                |
+| `@tuja/ui/components/effect-container`        | Puts the effect hooks inside it in the scope of the Effect container from `useEffectContainer`.                                                                             |
+| `@tuja/ui/components/effect-layer-provider`   | Draws effects with WebGPU on inert `<canvas>` elements over the content; mounts nothing until an element registers with an effect.                                          |
+| `@tuja/ui/components/field-shared.stylex`     | Shared form-control chrome (label, description, control box, error text).                                                                                                   |
+| `@tuja/ui/components/fixed-container-content` | Fixed-position container content wrapper.                                                                                                                                   |
+| `@tuja/ui/components/glass-surface.stylex`    | The Glass skin: a translucent fill over its own blur, with the lit rim and shadow that make Glass the one surface that floats and casts a shadow.                           |
+| `@tuja/ui/components/header-footer-layout`    | Reading-density page shell: floating header controls, optional background and footer.                                                                                       |
+| `@tuja/ui/components/heading`                 | Semantic heading (visual size decoupled from level, optional `wrap`).                                                                                                       |
+| `@tuja/ui/components/menu-button`             | Button that opens a menu/overlay.                                                                                                                                           |
+| `@tuja/ui/components/menu-label`              | Label row inside a menu.                                                                                                                                                    |
+| `@tuja/ui/components/option-card`             | Selectable card (`row` or `tile` look), radio or checkbox semantics set by its group.                                                                                       |
+| `@tuja/ui/components/option-card-group`       | Single- or multiple-select group of `OptionCard`s.                                                                                                                          |
+| `@tuja/ui/components/option-card.stylex`      | The selectable-card skin, composed over `cardSurface`.                                                                                                                      |
+| `@tuja/ui/components/overlay`                 | Accessible dialog/popover overlay (requires `aria-label` **xor** `aria-labelledby`).                                                                                        |
+| `@tuja/ui/components/popover`                 | Anchored floating surface (menu, tooltip, dropdown), positioned off a trigger and dismissed on outside click or Escape.                                                     |
+| `@tuja/ui/components/popover-surface.stylex`  | The floating-surface skin shared by every popup that hangs off an anchor.                                                                                                   |
+| `@tuja/ui/components/progress`                | Determinate progress bar.                                                                                                                                                   |
+| `@tuja/ui/components/progress.stylex`         | Progress indicator tokens (fill size and colour).                                                                                                                           |
+| `@tuja/ui/components/progressive-blur`        | A Floating element's blur, painted onto the page's Blur plane instead of the element's own background.                                                                      |
+| `@tuja/ui/components/scroll-mask`             | Scroll region with a progressive blur at each edge it can still scroll to.                                                                                                  |
+| `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                                                 |
+| `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`; `hideLabels` for an icon-only bar.                                                                                          |
+| `@tuja/ui/components/select`                  | Styled native select (options prop or `<option>` children).                                                                                                                 |
+| `@tuja/ui/components/sidebar-layout`          | Sidebar + content layout.                                                                                                                                                   |
+| `@tuja/ui/components/skeleton`                | Loading skeleton.                                                                                                                                                           |
+| `@tuja/ui/components/skeleton.stylex`         | Skeleton style tokens.                                                                                                                                                      |
+| `@tuja/ui/components/slider`                  | Range input with a filled track and a draggable thumb.                                                                                                                      |
+| `@tuja/ui/components/slider.stylex`           | Slider fill, track, and thumb size tokens.                                                                                                                                  |
+| `@tuja/ui/components/spinner`                 | Indeterminate loading spinner (reduced-motion aware).                                                                                                                       |
+| `@tuja/ui/components/sticky-control-group`    | One group of controls in a `StickyControls` row, painted directly onto the shared blur with no surface of its own.                                                          |
+| `@tuja/ui/components/sticky-controls`         | Sticky row of page chrome, with the page blurred around each group of its controls while it holds.                                                                          |
+| `@tuja/ui/components/switch`                  | Toggle switch.                                                                                                                                                              |
+| `@tuja/ui/components/switch.stylex`           | Switch style tokens.                                                                                                                                                        |
+| `@tuja/ui/components/syntax.stylex`           | Per-token-kind syntax colour, WCAG AA against `bgSurfaceRaised`.                                                                                                            |
+| `@tuja/ui/components/table`                   | Scrollable data table shell.                                                                                                                                                |
+| `@tuja/ui/components/table-body`              | Table row group (`<tbody>`).                                                                                                                                                |
+| `@tuja/ui/components/table-cell`              | Table data cell (`<td>`), with start/center/end/numeric alignment.                                                                                                          |
+| `@tuja/ui/components/table-foot`              | Table foot row group (`<tfoot>`).                                                                                                                                           |
+| `@tuja/ui/components/table-head`              | Table head row group (`<thead>`), optionally sticky.                                                                                                                        |
+| `@tuja/ui/components/table-header-cell`       | Table header cell (`<th>`), with the same alignment as `TableCell`.                                                                                                         |
+| `@tuja/ui/components/table-row`               | Table row (`<tr>`), with a current-row state.                                                                                                                               |
+| `@tuja/ui/components/table.stylex`            | Table layout tokens (sticky head inset and background).                                                                                                                     |
+| `@tuja/ui/components/text`                    | Text/paragraph component (four type-scale steps, four foreground roles, four weights, `wrap`, `numeric`).                                                                   |
+| `@tuja/ui/components/text-field`              | Single-line text input with label, description, error, and adornments.                                                                                                      |
+| `@tuja/ui/components/textarea`                | Multi-line text input with optional auto-grow.                                                                                                                              |
+| `@tuja/ui/package.json`                       | Package manifest (for tooling).                                                                                                                                             |
 
 ## SSR & RSC
 

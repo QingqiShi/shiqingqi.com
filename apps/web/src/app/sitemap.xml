@@ -180,14 +180,24 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/typography" />
   </url>
   <url>
-    <loc>https://qingqi.dev/design-system/foundations/spacing</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/spacing" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/spacing" />
+    <loc>https://qingqi.dev/design-system/foundations/get-started</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/get-started" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/get-started" />
   </url>
   <url>
-    <loc>https://qingqi.dev/zh/design-system/foundations/spacing</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/spacing" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/spacing" />
+    <loc>https://qingqi.dev/zh/design-system/foundations/get-started</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/get-started" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/get-started" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/foundations/customization</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/customization" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/customization" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/customization</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/customization" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/customization" />
   </url>
 
   <url>
@@ -482,14 +492,14 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/motion" />
   </url>
   <url>
-    <loc>https://qingqi.dev/design-system/foundations/borders</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/borders" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/borders" />
+    <loc>https://qingqi.dev/design-system/foundations/surfaces</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/surfaces" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/surfaces" />
   </url>
   <url>
-    <loc>https://qingqi.dev/zh/design-system/foundations/borders</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/borders" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/borders" />
+    <loc>https://qingqi.dev/zh/design-system/foundations/surfaces</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/surfaces" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/surfaces" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/foundations/material</loc>
@@ -502,14 +512,14 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/material" />
   </url>
   <url>
-    <loc>https://qingqi.dev/design-system/foundations/effect-layer</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/effect-layer" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/effect-layer" />
+    <loc>https://qingqi.dev/design-system/effect-layer</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/effect-layer" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/effect-layer" />
   </url>
   <url>
-    <loc>https://qingqi.dev/zh/design-system/foundations/effect-layer</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/effect-layer" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/effect-layer" />
+    <loc>https://qingqi.dev/zh/design-system/effect-layer</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/effect-layer" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/effect-layer" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/foundations/layout</loc>
@@ -540,16 +550,6 @@
     <loc>https://qingqi.dev/zh/design-system/foundations/accessibility</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/accessibility" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/accessibility" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/design-system/foundations/voice</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/voice" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/voice" />
-  </url>
-  <url>
-    <loc>https://qingqi.dev/zh/design-system/foundations/voice</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/voice" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/voice" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/text</loc>

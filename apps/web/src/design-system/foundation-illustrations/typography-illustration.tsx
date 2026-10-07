@@ -4,7 +4,7 @@ import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
 /**
- * Typography foundation-card illustration: a metallic serif "Aa" over a
+ * Typography foundation-card illustration: a metallic "Aa" in Inter over a
  * type-scale ruler (72 / 48 / 24 / 16), dim silver at rest and warming towards
  * the cursor on hover.
  */
@@ -161,10 +161,10 @@ const blink = stylex.keyframes({
 
 const styles = stylex.create({
   glyph: {
-    fontFamily: 'Georgia, "Times New Roman", "Songti SC", serif',
-    fontSize: "120px",
-    fontWeight: 500,
-    letterSpacing: "-1px",
+    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+    fontSize: "100px",
+    fontWeight: 600,
+    letterSpacing: "-5px",
   },
   // Pointer lean; mx/my are 0 at rest, so this (and every --ds-illo-mx/my
   // transform below) sits home until IlloLayer feeds a pointer position.

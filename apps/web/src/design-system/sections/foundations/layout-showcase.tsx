@@ -1,168 +1,26 @@
-"use client";
-
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import {
   border,
   color,
   font,
   layer,
-  shadow,
+  ratio,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { useEffect, useState } from "react";
-import { DoDont } from "#src/design-system/do-dont.tsx";
-import { measure } from "#src/design-system/measure.stylex.ts";
-import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
-import { Showcase } from "#src/design-system/showcase.tsx";
+import { DocLink } from "#src/design-system/guide/doc-link.tsx";
+import { GuideList } from "#src/design-system/guide/guide-list.tsx";
+import {
+  GuideNote,
+  GuideSection,
+} from "#src/design-system/guide/guide-section.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
-
-// Breakpoint thresholds, transcribed once from breakpoints.stylex.ts so the band
-// cutoffs and the labels can't drift within this file. `xl` gates the widest
-// desktops; below `sm` is the shared mobile base.
-const BANDS = [
-  { label: "base", min: 0, threshold: "< 320" },
-  { label: "sm", min: 320, threshold: "≥ 320" },
-  { label: "md", min: 768, threshold: "≥ 768" },
-  { label: "lg", min: 1080, threshold: "≥ 1080" },
-  { label: "xl", min: 2000, threshold: "≥ 2000" },
-];
-
-function bandOf(width: number) {
-  return BANDS.findLastIndex((band) => width >= band.min);
-}
-
-function BreakpointBands() {
-  // clientWidth is the layout-viewport width (scrollbar excluded), matching the
-  // media-query width on overlay-scrollbar platforms.
-  const [viewport, setViewport] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    let frame = 0;
-    const measure = () => {
-      setViewport(document.documentElement.clientWidth);
-    };
-    const onResize = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(measure);
-    };
-    measure();
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => {
-      window.removeEventListener("resize", onResize);
-      cancelAnimationFrame(frame);
-    };
-  }, []);
-
-  const active = viewport === undefined ? -1 : bandOf(viewport);
-
-  return (
-    <div css={styles.bandWrap}>
-      <div css={[corner.radius_2, styles.bandRow]}>
-        {BANDS.map((band, index) => {
-          const isActive = index === active;
-          return (
-            <div
-              key={band.label}
-              css={[styles.band, isActive && styles.bandActive]}
-            >
-              <span
-                css={[styles.bandLabel, isActive && styles.bandLabelActive]}
-              >
-                {band.label}
-              </span>
-              <span css={styles.bandThreshold}>{band.threshold}</span>
-            </div>
-          );
-        })}
-      </div>
-      <p css={styles.marker} aria-live="polite">
-        <span css={styles.markerLabel}>
-          {t({ en: "your window", zh: "你的窗口" })}
-        </span>
-        <span css={styles.markerValue}>
-          {viewport === undefined ? (
-            " "
-          ) : (
-            <>
-              {`${viewport.toString()}px → `}
-              <span css={styles.markerBand}>{BANDS[active].label}</span>
-            </>
-          )}
-        </span>
-      </p>
-    </div>
-  );
-}
-
-/**
- * Two pages drawn to the same scale, each holding the same 41em paragraph:
- * one capped so the leftover reads as a margin, one wide enough that it reads
- * as a column with nothing in it.
- */
-function MeasureBands() {
-  return (
-    <div css={styles.measureRows}>
-      <div css={styles.measureRow}>
-        <div css={[corner.radius_2, styles.measurePage]}>
-          <MeasureLine />
-        </div>
-        <span css={styles.measureCaption}>
-          {t({
-            en: "The reading column, centred in the page. What is beside the paragraph is a margin on each side.",
-            zh: "阅读栏居中于页面。段落两侧剩下的都是页边。",
-          })}
-        </span>
-      </div>
-      <div css={styles.measureRow}>
-        <div css={[corner.radius_2, styles.measurePage]}>
-          <MeasureLine />
-          <div
-            css={[
-              corner.radius_1,
-              flex.center,
-              styles.measureNote,
-              styles.measureSpecimen,
-            ]}
-          >
-            {t({ en: "specimen", zh: "示例" })}
-          </div>
-        </div>
-        <span css={styles.measureCaption}>
-          {t({
-            en: "A breakout. A specimen that needs more width spans the page on both sides of the column, and the paragraph above it keeps its measure and its place.",
-            zh: "突破阅读栏的示例。需要更多宽度的示例向栏的两侧延伸至整个页面，其上方的段落保持行长与位置不变。",
-          })}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function MeasureLine() {
-  const margin = t({ en: "margin", zh: "页边" });
-  return (
-    <div css={[flex.row, align.stretch, styles.measureLine]}>
-      <span css={[flex.center, styles.measureNote, styles.measureRest]}>
-        {margin}
-      </span>
-      <div css={[corner.radius_1, flex.center, styles.measureProse]}>
-        <span css={[styles.measureNote, styles.measureProseLabel]}>
-          prose 41em
-        </span>
-      </div>
-      <span css={[flex.center, styles.measureNote, styles.measureRest]}>
-        {margin}
-      </span>
-    </div>
-  );
-}
+import { LayoutBreakpointBands } from "./layout-breakpoint-bands.tsx";
 
 export function LayoutShowcase() {
   const layers = [
@@ -177,8 +35,45 @@ export function LayoutShowcase() {
     { name: "tooltip", value: "500", z: styles.lzTooltip },
     { name: "toaster", value: "600", z: styles.lzToaster },
   ];
+  const layerGuide = [
+    {
+      term: "layer.raised",
+      note: t({
+        en: "Above the content, under the header, so it scrolls away beneath the header. MenuButton's menu and StickyControls use it. Use it for your own sticky bar, or a menu that opens in the page.",
+        zh: "高于内容、低于页头，因此会从页头下方滚走。MenuButton 的菜单与 StickyControls 位于这一层。你自己的吸顶栏，或在页面中展开的菜单，用这一层。",
+      }),
+    },
+    {
+      term: "layer.header",
+      note: t({
+        en: "Page chrome: HeaderFooterLayout's floating header controls, and SidebarLayout's rail and mobile bar.",
+        zh: "页面框架：HeaderFooterLayout 的悬浮页头控件，以及 SidebarLayout 的侧栏与移动端底栏。",
+      }),
+    },
+    {
+      term: "layer.overlay",
+      note: t({
+        en: "A surface that owns the viewport while it is open, above the chrome: Overlay, and SidebarLayout's drawer below md.",
+        zh: "打开期间占据整个视口、压在框架之上的表面：Overlay，以及 SidebarLayout 在 md 以下的抽屉。",
+      }),
+    },
+    {
+      term: "layer.tooltip",
+      note: t({
+        en: "Above an open overlay. Popover renders into document.body at this plane, so it shows over an Overlay that holds its trigger.",
+        zh: "高于打开的覆盖层。Popover 渲染到 document.body，位于这一层，所以当它的触发元素在 Overlay 里时，它也显示在 Overlay 之上。",
+      }),
+    },
+    {
+      term: "layer.toaster",
+      note: t({
+        en: "The top plane. No component uses it, so it is free for your toasts.",
+        zh: "最高的一层。没有组件使用它，留给你的提示条。",
+      }),
+    },
+  ];
   const ratios = [
-    { token: "ratio.square", meta: "1/1", swatch: styles.arSquare },
+    { token: "ratio.square", meta: "1", swatch: styles.arSquare },
     { token: "ratio.golden", meta: "1.618/1", swatch: styles.arGolden },
     { token: "ratio.tv", meta: "4/3", swatch: styles.arTv },
     { token: "ratio.double", meta: "2/1", swatch: styles.arDouble },
@@ -189,24 +84,52 @@ export function LayoutShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Breakpoints", zh: "断点" })}>
-        <ShowcaseHelper>
-          {t({
-            en: "Four min-width thresholds over a shared mobile base. The band matching your window lights up — resize to walk the ladder.",
-            zh: "在共享的移动端基线之上设有四个最小宽度阈值。与当前窗口匹配的区间会点亮——调整窗口大小即可逐级查看。",
-          })}
-        </ShowcaseHelper>
-        <BreakpointBands />
-      </Showcase>
+      <GuideSection
+        title={t({ en: "Breakpoints", zh: "断点" })}
+        lead={t({
+          en: "Each breakpoint is a min-width media query that you use as a key inside a style. Write the value for the narrowest screen as the default, then override it as the screen widens.",
+          zh: "每个断点都是一个最小宽度媒体查询，在样式里用作键。把最窄屏幕的值写成默认值，再随屏幕变宽逐级覆盖。",
+        })}
+      >
+        <LayoutBreakpointBands />
+        <UsageSnippet
+          code={`import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 
-      <Showcase label={t({ en: "Content width", zh: "内容宽度" })} breakout>
-        <ShowcaseHelper>
+const styles = stylex.create({
+  grid: {
+    display: "grid",
+    gridTemplateColumns: {
+      default: "1fr",
+      [breakpoints.md]: "1fr 1fr",
+      [breakpoints.lg]: "repeat(3, 1fr)",
+    },
+  },
+});`}
+        />
+        <GuideNote>
           {t({
-            en: "layout.maxInlineSize caps the page at 1140px and centres it, so gutters open up on wide screens. It bounds the page; the measure below bounds the text inside it.",
-            zh: "layout.maxInlineSize 将页面上限设为 1140px 并居中，使宽屏上留出留白。它约束的是页面，下面的行长约束的是页面里的文字。",
+            en: "The components change at md and at no other breakpoint: controlSize and font.uiControl step down, SidebarLayout moves its rail beside the content, Overlay moves its close button, and a Button with hideLabelOnMobile shows its label. Make your own main layout change at md too, so the page changes in one step.",
+            zh: "组件只在 md 处变化，不在其他断点变化：controlSize 与 font.uiControl 缩小一级，SidebarLayout 把侧栏移到内容旁边，Overlay 移动它的关闭按钮，启用 hideLabelOnMobile 的 Button 显示出标签。你自己的主要布局变化也放在 md，页面就在同一步里一起变化。",
           })}
-        </ShowcaseHelper>
-        <div css={[corner.radius_2, styles.viewport]}>
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "A breakpoint key compiles to a media query only through the stylex-breakpoints Babel plugin, which ",
+            zh: "断点键只有经过 stylex-breakpoints Babel 插件才会编译成媒体查询，配置方法见",
+          })}
+          <DocLink path="/design-system/foundations/get-started" />
+          {t({ en: " sets up.", zh: "。" })}
+        </GuideNote>
+      </GuideSection>
+
+      <GuideSection
+        title={t({ en: "Content width", zh: "内容宽度" })}
+        lead={t({
+          en: "layout.maxInlineSize is 1140px. HeaderFooterLayout with readingColumn, and SidebarLayout, centre their content and cap it there, so a page inside a shell already has it. Either shell takes contentMaxInlineSize for a narrower page.",
+          zh: "layout.maxInlineSize 是 1140px。启用 readingColumn 的 HeaderFooterLayout 与 SidebarLayout 会把内容居中并限制在这个宽度，所以放在骨架里的页面已经有了它。要让页面更窄，两种骨架都接受 contentMaxInlineSize。",
+        })}
+      >
+        <div css={[corner.radius_2, styles.viewport]} aria-hidden="true">
           <span css={styles.gutterLabel}>
             {t({ en: "gutter", zh: "留白" })}
           </span>
@@ -220,31 +143,29 @@ export function LayoutShowcase() {
             {t({ en: "gutter", zh: "留白" })}
           </span>
         </div>
-      </Showcase>
+        <UsageSnippet
+          code={`import { layout } from "@tuja/ui/tokens.stylex";
 
-      <Showcase label={t({ en: "Measure", zh: "行长" })}>
-        <ShowcaseHelper>
+const styles = stylex.create({
+  // Outside a shell only.
+  page: { maxInlineSize: layout.maxInlineSize, marginInline: "auto" },
+});`}
+        />
+        <GuideNote>
           {t({
-            en: "Prose caps at 41em: 41 Chinese characters at any type size, around 88 Latin. The unit is em so the cap tracks its own text — a rem cap holds the width still instead, and small print then runs longer than body copy.",
-            zh: "正文行长上限为 41em：在任何字号下都是 41 个汉字，约 88 个拉丁字符。单位用 em，上限才会随文字大小变化——rem 上限固定的是宽度，小字于是会比正文排得更长。",
+            en: "layout is a constant, not a Token you can override. It caps the page, not the length of a line of text.",
+            zh: "layout 是常量，不是可以覆盖的令牌。它约束的是页面宽度，而不是一行文字的长度。",
           })}
-        </ShowcaseHelper>
-        <MeasureBands />
-        <ShowcaseHelper>
-          {t({
-            en: "The cap exists because the eye has to jump back to the start of the next line, and the longer that jump, the more often it lands on the wrong one. A wide screen is not a reason to set text wider, or bigger. Every design-system page sets its title, its headings and its paragraphs on a reading column, 48rem wide and centred in the 1140px page, so a paragraph ends near the column's edge rather than in the middle of the page. A specimen that needs more width breaks out of the column on both sides, and one wider than the page scrolls inside its own card.",
-            zh: "设这个上限，是因为读到行尾时眼睛要跳回下一行的开头；这一跳越长，落错行的次数就越多。屏幕宽，不是把文字排得更宽或更大的理由。设计系统的每个页面都把标题、小标题和段落放在一条阅读栏上——宽 48rem，居中于 1140px 的页面——段落于是收在栏边附近，而不是停在页面中间。需要更多宽度的示例向阅读栏两侧突破出去；比页面还宽的示例则在自己的卡片内横向滚动。",
-          })}
-        </ShowcaseHelper>
-      </Showcase>
+        </GuideNote>
+      </GuideSection>
 
-      <Showcase label={t({ en: "Layers", zh: "层级" })}>
-        <ShowcaseHelper>
-          {t({
-            en: "A named z-index scale, so stacking order is a token, not a magic number. Each plane sits above the one below — effects drawn over the content, the page's progressive blurs over the effects and under every control, a menu or sticky bar raised over scrolling content, headers over that, an open overlay over the app chrome, toasts over everything.",
-            zh: "一套具名的 z-index 阶梯，让层叠顺序成为令牌而非魔法数字。每个平面都压在下一个之上——效果画在内容之上、页面的渐进虚化压过效果并位于全部控件之下、菜单或吸顶栏抬升于滚动内容之上、页头再压过它们、打开的覆盖层盖过应用框架、提示条盖过一切。",
-          })}
-        </ShowcaseHelper>
+      <GuideSection
+        title={t({ en: "Layers", zh: "层级" })}
+        lead={t({
+          en: "Take a z-index from layer, never a number. The planes are a hundred apart, so the order between your surfaces and the components' is set by the name you pick.",
+          zh: "z-index 从 layer 取，绝不写数字。各层相隔一百，你的表面与组件之间的先后顺序，由你选的名字决定。",
+        })}
+      >
         <ScrollMask
           orientation="horizontal"
           css={styles.layerScroll}
@@ -267,15 +188,43 @@ export function LayoutShowcase() {
             ))}
           </div>
         </ScrollMask>
-      </Showcase>
+        <GuideList items={layerGuide} />
+        <UsageSnippet
+          code={`import { layer } from "@tuja/ui/tokens.stylex";
 
-      <Showcase label={t({ en: "Aspect ratios", zh: "宽高比" })}>
-        <ShowcaseHelper>
+const styles = stylex.create({
+  // On the bar's outermost element.
+  filterBar: { position: "sticky", insetBlockStart: 0, zIndex: layer.raised },
+});`}
+        />
+        <GuideNote>
           {t({
-            en: "Named ratios for media frames — posters, thumbnails, hero bands — drawn as real aspect-ratio boxes so a placeholder holds its shape before the image loads.",
-            zh: "用于媒体框的具名比例——海报、缩略图、主视觉条——以真实的 aspect-ratio 方框绘制，使占位符在图片加载前就保持其形状。",
+            en: "A z-index only orders siblings inside one stacking context. position: fixed, position: sticky and isolation: isolate each open one, and a child's z-index never gets out of it. Put the plane on the outermost element of the surface, or it cannot rise above the components' planes.",
+            zh: "z-index 只在同一个层叠上下文里为兄弟元素排序。position: fixed、position: sticky 与 isolation: isolate 都会开启一个层叠上下文，子元素的 z-index 永远出不去。把层级放在表面最外层的元素上，否则它无法压过组件所在的层。",
           })}
-        </ShowcaseHelper>
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "The planes below raised belong to the system: content holds the page in HeaderFooterLayout, effect holds the effect layer's canvases, and blur holds the page's Progressive blurs.",
+            zh: "raised 以下的各层属于系统：content 承载 HeaderFooterLayout 里的页面，effect 承载效果层的画布，blur 承载页面的渐进虚化。",
+          })}
+        </GuideNote>
+      </GuideSection>
+
+      <GuideSection
+        title={t({ en: "Aspect ratios", zh: "宽高比" })}
+        lead={t({
+          en: "Give a media frame an aspectRatio from ratio, so the frame holds its shape while the image loads.",
+          zh: "给媒体框一个取自 ratio 的 aspectRatio，图片加载时框也能保持形状。",
+        })}
+      >
+        <UsageSnippet
+          code={`import { ratio } from "@tuja/ui/tokens.stylex";
+
+const styles = stylex.create({
+  poster: { aspectRatio: ratio.poster, inlineSize: "100%" },
+});`}
+        />
         <div css={styles.grid}>
           {ratios.map((step) => (
             <SpecCard key={step.token} token={step.token} meta={step.meta}>
@@ -287,119 +236,12 @@ export function LayoutShowcase() {
             </SpecCard>
           ))}
         </div>
-      </Showcase>
-
-      <UsageSnippet
-        code={`import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { layout, layer, ratio } from "@tuja/ui/tokens.stylex";
-
-const styles = stylex.create({
-  page: { maxInlineSize: layout.maxInlineSize, marginInline: "auto" },
-  // Mobile-first: base value, then override up at each breakpoint.
-  grid: {
-    gridTemplateColumns: { default: "1fr", [breakpoints.md]: "1fr 1fr" },
-  },
-  poster: { aspectRatio: ratio.poster },
-  toast: { zIndex: layer.toaster },
-});`}
-      />
-
-      <DoDont
-        do={
-          <div css={[corner.radius_2, styles.codeTile]}>
-            <span css={styles.codeMuted}>gridTemplateColumns:</span>
-            <span css={styles.codeLine}>
-              {'{ default: "1fr", [breakpoints.md]: "1fr 1fr" }'}
-            </span>
-          </div>
-        }
-        doCaption={t({
-          en: "Write mobile-first: a base value, then min-width overrides that add columns as space appears.",
-          zh: "以移动端优先：先写基础值，再用最小宽度覆盖，随着空间出现增加列数。",
-        })}
-        dont={
-          <div css={[corner.radius_2, styles.codeTile]}>
-            <span css={styles.codeMuted}>@media (max-width: 767px)</span>
-            <span css={styles.codeLine}>
-              {t({ en: "override desktop back down", zh: "把桌面端往回覆盖" })}
-            </span>
-          </div>
-        }
-        dontCaption={t({
-          en: "Don't design desktop-first with max-width queries — it fights the token system's min-width breakpoints.",
-          zh: "不要以桌面端优先、用 max-width 查询——这会与令牌系统的最小宽度断点相冲突。",
-        })}
-      />
+      </GuideSection>
     </>
   );
 }
 
 const styles = stylex.create({
-  bandWrap: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._3,
-  },
-  bandRow: {
-    display: "grid",
-    gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-    gap: space._00,
-    overflow: "hidden",
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
-    backgroundColor: color.bgCanvas,
-  },
-  band: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: space._0,
-    paddingBlock: space._2,
-    paddingInline: space._1,
-    backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 -2px 0 0 transparent`,
-  },
-  bandActive: {
-    backgroundColor: color.bgAccentSubtle,
-    boxShadow: `inset 0 -2px 0 0 ${color.bgAccent}`,
-  },
-  bandLabel: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    fontWeight: font.weight_6,
-    color: color.fgMuted,
-  },
-  bandLabelActive: {
-    color: color.fgAccent,
-  },
-  bandThreshold: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    color: color.fgMuted,
-    fontVariantNumeric: "tabular-nums",
-  },
-  marker: {
-    margin: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
-  },
-  markerLabel: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    textTransform: "uppercase",
-    letterSpacing: font.trackingWidest,
-    color: color.fgMuted,
-  },
-  markerValue: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiBodySmall,
-    color: color.fg,
-    fontVariantNumeric: "tabular-nums",
-  },
-  markerBand: {
-    color: color.fgAccent,
-    fontWeight: font.weight_6,
-  },
   // Content-width schematic: a full-width "viewport" with a centred content band
   // and labelled gutters. Illustrative — the true cap is 1140px.
   viewport: {
@@ -443,60 +285,6 @@ const styles = stylex.create({
     fontSize: font.uiOverline,
     color: color.fgMuted,
   },
-  measureRows: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._4,
-  },
-  measureRow: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-  },
-  // Both pages are drawn at the 1140px page's scale: the prose band is 656/1140.
-  measurePage: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._1,
-    padding: space._1,
-    backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
-  },
-  measureLine: {
-    gap: space._00,
-  },
-  measureNote: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    color: color.fgMuted,
-  },
-  measureProse: {
-    inlineSize: "57.5%",
-    flexShrink: 0,
-    paddingBlock: space._4,
-    backgroundColor: color.bgAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
-  },
-  measureProseLabel: {
-    color: color.fgAccent,
-  },
-  measureRest: {
-    flexGrow: 1,
-    minInlineSize: 0,
-    textAlign: "center",
-  },
-  measureSpecimen: {
-    paddingBlock: space._2,
-    backgroundColor: color.bgSurfaceSunken,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
-  },
-  measureCaption: {
-    fontSize: font.uiCaption,
-    lineHeight: font.lineHeight_4,
-    color: color.fgMuted,
-    maxInlineSize: measure.prose,
-    textWrap: "pretty",
-  },
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
@@ -528,7 +316,6 @@ const styles = stylex.create({
     paddingInline: space._3,
     marginBlockStart: `calc(-1 * ${space._1})`,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: shadow._2,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
@@ -575,33 +362,11 @@ const styles = stylex.create({
     backgroundColor: color.bgAccentSubtle,
     boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
   },
-  arSquare: { aspectRatio: "1" },
-  arGolden: { aspectRatio: "1.618/1" },
-  arTv: { aspectRatio: "4/3" },
-  arDouble: { aspectRatio: "2/1" },
-  arWide: { aspectRatio: "16/9" },
-  arPoster: { aspectRatio: "2/3" },
-  arPortrait: { aspectRatio: "3/4" },
-  codeTile: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._0,
-    inlineSize: "100%",
-    paddingBlock: space._2,
-    paddingInline: space._3,
-    backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
-    minInlineSize: 0,
-  },
-  codeMuted: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiOverline,
-    color: color.fgMuted,
-  },
-  codeLine: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.fg,
-    overflowWrap: "anywhere",
-  },
+  arSquare: { aspectRatio: ratio.square },
+  arGolden: { aspectRatio: ratio.golden },
+  arTv: { aspectRatio: ratio.tv },
+  arDouble: { aspectRatio: ratio.double },
+  arWide: { aspectRatio: ratio.wide },
+  arPoster: { aspectRatio: ratio.poster },
+  arPortrait: { aspectRatio: ratio.portrait },
 });

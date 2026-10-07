@@ -1,9 +1,9 @@
 /**
  * The counterpart to `get-design-system-route-labels.ts`: that module names
  * each route, this one describes it in a sentence. The overview grid renders
- * every description as a tile blurb, and `BlurShowcase` reads two of them
- * again for its own link cards, so Progressive blur and Scroll mask read the
- * same way wherever they're described.
+ * every description as a tile blurb, and some foundation sections read a few
+ * of them again for their own link cards, so a route reads the same way
+ * wherever it is described.
  *
  * Server-only, and that is the whole design — see
  * `get-design-system-route-labels.ts` for why.
@@ -27,53 +27,49 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "The design system overview and index.",
       zh: "设计系统概览与索引。",
     }),
+    "/design-system/foundations/get-started": t({
+      en: "Install @tuja/ui, set up the build, and render a component.",
+      zh: "安装 @tuja/ui、配置构建，并渲染一个组件。",
+    }),
+    "/design-system/foundations/customization": t({
+      en: "Every way to change a component, and what each leaves to you.",
+      zh: "改变组件的每一种方式，以及每种方式留给你的部分。",
+    }),
     "/design-system/foundations/color": t({
-      en: "Hues and tones, and the tokens for backgrounds, text and Intents.",
-      zh: "色相与色调，以及背景、文字与意图色的令牌。",
+      en: "The colour token for each job, Intents, contrast and the palette.",
+      zh: "每种用途的颜色令牌、意图色、对比度与调色板。",
     }),
     "/design-system/foundations/typography": t({
-      en: "Families, the type scale, weights, and heading and body styles.",
-      zh: "字体、字号阶梯、字重，以及标题与正文样式。",
-    }),
-    "/design-system/foundations/spacing": t({
-      en: "The rem-based spacing scale.",
-      zh: "以 rem 为基准的间距阶梯。",
-    }),
-    "/design-system/foundations/motion": t({
-      en: "Duration and easing tokens, transition and animation presets, and reduced-motion behaviour.",
-      zh: "时长与缓动令牌、过渡与动画预设，以及减弱动效行为。",
-    }),
-    "/design-system/foundations/borders": t({
-      en: "Border widths and the corner-radius scale.",
-      zh: "描边宽度与圆角阶梯。",
-    }),
-    "/design-system/foundations/material": t({
-      en: "Texture, wash and glass: the looks a surface takes beyond its colour and border.",
-      zh: "纹理、淡彩与玻璃：表面在颜色与边框之外的样子。",
-    }),
-    "/design-system/foundations/effect-layer": t({
-      en: "Effects drawn with WebGPU over the page, around the elements that register. Experimental.",
-      zh: "用 WebGPU 绘制在页面之上、环绕已登记元素的效果。仍在实验中。",
+      en: "Text and Heading, font families, and which size scale to use.",
+      zh: "Text 与 Heading、字体族，以及该用哪套字阶。",
     }),
     "/design-system/foundations/layout": t({
-      en: "Breakpoints, container widths, control sizes, z-index layers, and aspect ratios.",
-      zh: "断点、容器宽度、控件尺寸、层级与宽高比。",
+      en: "The space scale, control sizes, breakpoints, content width, layers and aspect ratios.",
+      zh: "间距阶梯、控件尺寸、断点、内容宽度、层级与宽高比。",
+    }),
+    "/design-system/foundations/surfaces": t({
+      en: "Card and popover skins, borders, corner radius, nested corners, shadows and floating surfaces.",
+      zh: "卡片与弹出层外观、边框、圆角、嵌套圆角、阴影与悬浮表面。",
+    }),
+    "/design-system/foundations/material": t({
+      en: "Texture, wash and glass, on top of colour and border.",
+      zh: "在颜色与边框之上的纹理、淡彩与玻璃。",
     }),
     "/design-system/foundations/iconography": t({
-      en: "Phosphor icon conventions: sizing, weight, and pairing with controls.",
-      zh: "Phosphor 图标约定：尺寸、字重与控件搭配。",
+      en: "Adding Phosphor, icon slots, sizing, colour and weight.",
+      zh: "加入 Phosphor、图标插槽、尺寸、颜色与字重。",
+    }),
+    "/design-system/foundations/motion": t({
+      en: "Motion presets, duration and easing constants, reduced motion, and pausing loops.",
+      zh: "动效预设、时长与缓动常量、减弱动效，以及暂停循环。",
     }),
     "/design-system/foundations/accessibility": t({
-      en: "Naming, focus, keyboard models, contrast, and announcements.",
-      zh: "无障碍名称、焦点、键盘模型、对比度与状态播报。",
-    }),
-    "/design-system/foundations/voice": t({
-      en: "How the copy should read, and how much of it each component holds.",
-      zh: "文案该怎么读起来，以及每个组件能装下多少。",
+      en: "What the components guarantee, and the names and copy you supply.",
+      zh: "组件的保障，以及你需要提供的名称与文案。",
     }),
     "/design-system/components/text": t({
-      en: "The body-copy type primitive: a four-step type scale, four foreground roles, and four weights.",
-      zh: "正文文字排版基础组件：四档字阶、四种前景色角色与四种字重。",
+      en: "The body-copy type primitive: a four-step type scale, three text colours, and four weights.",
+      zh: "正文文字排版基础组件：四档字阶、三种文字颜色与四种字重。",
     }),
     "/design-system/components/heading": t({
       en: "The heading primitive, with semantic level decoupled from visual size.",
@@ -218,6 +214,10 @@ export function getDesignSystemRouteDescriptions(): Record<
     "/design-system/hooks": t({
       en: "Headless React hooks — controlled state, dialog focus, tactile press, and radiogroups.",
       zh: "无头 React 钩子——受控状态、对话框焦点、触感按压与单选组。",
+    }),
+    "/design-system/effect-layer": t({
+      en: "Effects drawn with WebGPU over the page, around the elements that register for them. Experimental.",
+      zh: "用 WebGPU 绘制在页面之上、环绕为效果登记的元素的效果。仍在实验中。",
     }),
   };
 }

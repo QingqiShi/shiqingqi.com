@@ -16,7 +16,7 @@ import {
 } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
-import { Identifier } from "#src/design-system/identifier.tsx";
+import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
@@ -41,8 +41,8 @@ function BusyGround({
     <div css={[wash.toRight, corner.radius_3, styles.ground, css]}>
       <p css={styles.groundCopy} aria-hidden="true">
         {t({
-          en: "A lens floating above the page. What lies beneath it stays visible and loses its detail. The face is flat, the light falls from straight above, and the rim carries it along the top and again along the bottom. Read these words through the glass: they are still there, and the detail has gone.",
-          zh: "一枚悬浮在页面上方的透镜。下方的一切仍然可见，只是失去细节。正面是平的，光线自正上方落下，边缘在顶部承接它，又在底部再次承接。透过玻璃读这些字：它们还在，细节没了。",
+          en: "A lens floating above the page. What lies beneath it stays visible and loses its detail. Read these words through the glass: they are still there, and the detail has gone.",
+          zh: "一枚悬浮在页面上方的透镜。下方的一切仍然可见，只是失去细节。透过玻璃读这些字：它们还在，细节没了。",
         })}
       </p>
       <div css={styles.stack}>{children}</div>
@@ -50,39 +50,66 @@ function BusyGround({
   );
 }
 
-function Part({
-  name,
-  token,
-  children,
-}: {
-  name: string;
-  token: string;
-  children: ReactNode;
-}) {
-  return (
-    <div css={styles.part}>
-      <dt css={styles.partName}>{name}</dt>
-      <dd css={styles.partBody}>
-        <span css={styles.partToken}>
-          <Identifier>{token}</Identifier>
-        </span>
-        <Text look="caption" tone="muted">
-          {children}
-        </Text>
-      </dd>
-    </div>
-  );
-}
-
 export function GlassShowcase() {
+  const requirements = [
+    {
+      term: t({ en: "Position the element", zh: "给元素定位" }),
+      value: 'position: "relative"',
+      note: t({
+        en: "The rim is an absolute ::before with inset 0. On an element that is not positioned, it covers the nearest positioned ancestor instead.",
+        zh: "边缘是一个 inset 为 0 的绝对定位 ::before。元素若没有定位，它就会盖住最近的已定位祖先元素。",
+      }),
+    },
+    {
+      term: t({ en: "Round it with corner", zh: "用 corner 做圆角" }),
+      value: "corner.*",
+      note: t({
+        en: "glassSurface sets no radius. The rim inherits the element's borderRadius and cornerShape, so a corner.* member shapes both.",
+        zh: "glassSurface 不设圆角。边缘继承元素的 borderRadius 与 cornerShape，所以一个 corner.* 成员就能同时决定两者的形状。",
+      }),
+    },
+    {
+      term: t({
+        en: "Tune it through glassTokens",
+        zh: "通过 glassTokens 调节",
+      }),
+      value: "glassTokens.*",
+      note: t({
+        en: "A backgroundColor, backdropFilter or boxShadow later in css replaces the glass's own, and a ::before of yours collides with the rim. Change the fill, rim and blur through the Tokens below instead.",
+        zh: "css 中靠后的 backgroundColor、backdropFilter 或 boxShadow 会取代玻璃自己的值，你自己的 ::before 会与边缘冲突。改为通过下面的令牌调节填充、边缘与模糊。",
+      }),
+    },
+    {
+      term: t({
+        en: "Turn the blur off over a plain ground",
+        zh: "纯色底面上关掉模糊",
+      }),
+      value: 'backdropFilter: "none"',
+      note: t({
+        en: "A backdrop blur repaints whenever the element or what is behind it moves. Over an opaque, plain ground it blurs nothing, so SegmentedControl turns it off for its sliding segment. Do the same.",
+        zh: "背景模糊在元素或其背后的内容移动时都要重绘。在不透明的纯色底面上它什么也虚化不了，所以 SegmentedControl 为滑动的分段关掉了它。你也这样做。",
+      }),
+    },
+  ];
+
   return (
     <Showcase label={t({ en: "Glass", zh: "玻璃" })} frame="plain" breakout>
       <ShowcaseHelper>
         {t({
-          en: "The one surface that catches light, and the one that casts a shadow — a lens floating above what it sits on, lit from straight above. A see-through fill blurs what lies beneath it, the face stays flat, and a hairline rim in the border colour runs all the way round: lit along the top and again along the bottom where the light leaves, gone down the sides. A one-pixel band inside the bottom edge is that light bounced back, and the Button's shadow sits under the whole thing.",
-          zh: "唯一捕捉光线的表面，也是唯一投下阴影的表面——一枚悬浮在所处之物上方的透镜，光线自正上方落下。透明的填充把下方的一切虚化，正面保持平坦，边框色的发丝细边环绕一周：顶边被照亮，底边在光线离开处再次被照亮，两侧的光则消失。底边内侧一像素的亮带是那道光反射回来的结果，整体下方是 Button 的阴影。",
+          en: "A translucent fill over a blur of whatever is behind the element, a hairline rim that is brighter along the top and bottom edges, and shadow._2. In light mode the fill is white at 80%, so little shows through; in dark mode it is white at 12%.",
+          zh: "一层半透明的填充，叠在元素背后内容的虚化之上；一圈发丝细的边缘，顶边与底边更亮；再加上 shadow._2。浅色模式下填充是 80% 的白色，透出的不多；深色模式下是 12% 的白色。",
         })}
       </ShowcaseHelper>
+      <GuideList items={requirements} />
+
+      <Specimen
+        caption={t({
+          en: "The selected segment is glass sliding over the track",
+          zh: "选中的分段是在轨道上滑动的玻璃",
+        })}
+      >
+        <GlassSegmentsSpecimen />
+      </Specimen>
 
       <Specimen
         caption={t({
@@ -107,58 +134,74 @@ export function GlassShowcase() {
         </BusyGround>
       </Specimen>
 
-      <div css={styles.anatomy}>
-        <Specimen
-          caption={t({
-            en: "The parts of a glass surface",
-            zh: "玻璃表面的组成部分",
-          })}
+      <UsageSnippet
+        code={`import {
+  glassSurface,
+  glassTokens,
+} from "@tuja/ui/components/glass-surface.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
+
+<div css={[glassSurface.base, corner.radius_4, styles.lens]}>…</div>
+
+const styles = stylex.create({
+  lens: {
+    // The rim is an absolute pseudo-element, so the element is positioned.
+    position: "relative",
+    [glassTokens.fill]: \`color-mix(in srgb, \${color.bgAccentSubtle} 70%, transparent)\`,
+    [glassTokens.blur]: "24px",
+  },
+});`}
+      />
+
+      <div css={styles.dialGrid}>
+        <SpecCard
+          token="glassTokens.fill"
+          meta="default: color.bgMaterialGlass"
         >
-          <BusyGround css={styles.anatomyGround}>
-            <div css={[glassSurface.base, corner.radius_4, styles.floating]} />
-          </BusyGround>
-        </Specimen>
-        <dl css={styles.parts}>
-          <Part name={t({ en: "Fill", zh: "填充" })} token="glassTokens.fill">
+          <Text look="caption" tone="muted">
             {t({
-              en: "The see-through body, over the element's own blurred background.",
-              zh: "透明的主体，覆盖在元素自身被虚化的背景之上。",
+              en: "The translucent fill. Its alpha sets how much shows through; its colour tints the glass.",
+              zh: "半透明的填充。它的透明度决定透出多少，它的颜色给玻璃染色。",
             })}
-          </Part>
-          <Part name={t({ en: "Blur", zh: "虚化" })} token="blur(8px)">
+          </Text>
+        </SpecCard>
+        <SpecCard token="glassTokens.blur" meta="default: 8px">
+          <Text look="caption" tone="muted">
             {t({
-              en: "The element's own background. That is what keeps Glass apart from a Progressive blur, which belongs to the page.",
-              zh: "元素自身的背景。这正是玻璃与渐进虚化的区别所在，后者属于页面。",
+              en: "The blur radius of the backdrop filter.",
+              zh: "背景滤镜的模糊半径。",
             })}
-          </Part>
-          <Part name={t({ en: "Rim", zh: "细边" })} token="glassTokens.border">
+          </Text>
+        </SpecCard>
+        <SpecCard
+          token="glassTokens.border"
+          meta="default: color.borderMaterialGlass"
+        >
+          <Text look="caption" tone="muted">
             {t({
-              en: "A hairline in the border colour, all the way round. A dark edge against a light page, clear against a dark one.",
-              zh: "边框色的一圈发丝细边。在浅色页面上是一道暗边，在深色页面上则是透明的。",
+              en: "The rim's colour all the way round. Transparent in dark mode.",
+              zh: "边缘一整圈的颜色。深色模式下是透明的。",
             })}
-          </Part>
-          <Part
-            name={t({ en: "Light", zh: "光" })}
-            token="glassTokens.highlight"
-          >
+          </Text>
+        </SpecCard>
+        <SpecCard
+          token="glassTokens.highlight"
+          meta="default: color.borderMaterialGlassHighlight"
+        >
+          <Text look="caption" tone="muted">
             {t({
-              en: "Full along the top edge, gone down the sides, back along the bottom where the light leaves — plus the one-pixel band inside that edge where it bounces back.",
-              zh: "顶边最强，两侧消失，在光线离开的底边再次出现——还有底边内侧一像素的亮带，那是它反射回来的部分。",
+              en: "The brighter colour along the top and bottom of the rim, and in a thin band inside the bottom edge.",
+              zh: "边缘顶部与底部更亮的颜色，以及底边内侧的一道细带。",
             })}
-          </Part>
-          <Part name={t({ en: "Shadow", zh: "阴影" })} token="shadow._2">
-            {t({
-              en: "The Button's shadow, beneath the glass. The one shadow the system casts.",
-              zh: "玻璃下方的 Button 阴影。系统投下的唯一阴影。",
-            })}
-          </Part>
-        </dl>
+          </Text>
+        </SpecCard>
       </div>
 
       <Specimen
         caption={t({
-          en: "The blur, turned — the same fill over the same ground",
-          zh: "调节虚化——同样的填充落在同样的底面上",
+          en: "glassTokens.blur, turned — the same fill over the same ground",
+          zh: "调节 glassTokens.blur——同样的填充落在同样的底面上",
         })}
       >
         <BusyGround>
@@ -190,8 +233,8 @@ export function GlassShowcase() {
 
       <Specimen
         caption={t({
-          en: "The fill, turned — how see-through the glass is, and what colour it carries",
-          zh: "调节填充——玻璃有多透，以及它带着什么颜色",
+          en: "glassTokens.fill, turned — how see-through the glass is, and what colour it carries",
+          zh: "调节 glassTokens.fill——玻璃有多透，以及它带着什么颜色",
         })}
       >
         <BusyGround>
@@ -218,79 +261,9 @@ export function GlassShowcase() {
               styles.accentFill,
             ]}
           >
-            <span css={styles.lensLabel}>color.bgAccentSubtle</span>
+            <span css={styles.lensLabel}>bgAccentSubtle 70%</span>
           </div>
         </BusyGround>
-      </Specimen>
-
-      <div css={styles.dialGrid}>
-        <SpecCard
-          token="glassTokens.fill"
-          meta="default: color.bgMaterialGlass"
-        >
-          <Text look="caption" tone="muted">
-            {t({
-              en: "The see-through body, over the element's own blur. Its alpha is how see-through the glass is; its hue is the colour the glass carries.",
-              zh: "透明的主体，覆盖在元素自身的虚化之上。它的透明度决定玻璃有多透，它的色相决定玻璃带着什么颜色。",
-            })}
-          </Text>
-        </SpecCard>
-        <SpecCard
-          token="glassTokens.border"
-          meta="default: color.borderMaterialGlass"
-        >
-          <Text look="caption" tone="muted">
-            {t({
-              en: "The hairline rim's colour, all the way round.",
-              zh: "细边的颜色，环绕一周。",
-            })}
-          </Text>
-        </SpecCard>
-        <SpecCard
-          token="glassTokens.highlight"
-          meta="default: color.borderMaterialGlassHighlight"
-        >
-          <Text look="caption" tone="muted">
-            {t({
-              en: "The light on the rim, and the band where it bounces back near the bottom edge.",
-              zh: "细边上的光，以及在底边附近反弹回来的那道亮带。",
-            })}
-          </Text>
-        </SpecCard>
-        <SpecCard token="glassTokens.blur" meta="default: 8px">
-          <Text look="caption" tone="muted">
-            {t({
-              en: "The element's own blur — 0px where the ground beneath it is already opaque.",
-              zh: "元素自身的虚化——若下方的底面已经不透明，则为 0px。",
-            })}
-          </Text>
-        </SpecCard>
-      </div>
-
-      <UsageSnippet
-        code={`import {
-  glassSurface,
-  glassTokens,
-} from "@tuja/ui/components/glass-surface.stylex";
-
-<div css={[glassSurface.base, corner.radius_4, styles.lens]}>…</div>
-
-const styles = stylex.create({
-  lens: {
-    position: "relative",
-    [glassTokens.fill]: color.bgAccentSubtle,
-    [glassTokens.blur]: "24px",
-  },
-});`}
-      />
-
-      <Specimen
-        caption={t({
-          en: "The selected segment is glass sliding over the track",
-          zh: "选中的分段是在轨道上滑动的玻璃",
-        })}
-      >
-        <GlassSegmentsSpecimen />
       </Specimen>
     </Showcase>
   );
@@ -354,18 +327,6 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     color: color.fg,
   },
-  anatomy: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "1fr",
-      [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
-    },
-    alignItems: "start",
-    gap: space._3,
-  },
-  anatomyGround: {
-    minBlockSize: "220px",
-  },
   dialGrid: {
     display: "grid",
     gridTemplateColumns: {
@@ -373,12 +334,6 @@ const styles = stylex.create({
       [breakpoints.md]: "repeat(2, minmax(0, 1fr))",
     },
     gap: space._2,
-  },
-  floating: {
-    position: "relative",
-    inlineSize: "13rem",
-    maxInlineSize: "100%",
-    blockSize: "116px",
   },
   // Wide enough for the longest label: a token name is the content, and must not
   // be truncated or broken mid-word.
@@ -403,38 +358,11 @@ const styles = stylex.create({
   blur_24: {
     [glassTokens.blur]: "24px",
   },
+  // A Token cannot refer to itself. Thus, mix the colour that it has by default.
   halfFill: {
-    [glassTokens.fill]: `color-mix(in srgb, ${glassTokens.fill} 50%, transparent)`,
+    [glassTokens.fill]: `color-mix(in srgb, ${color.bgMaterialGlass} 50%, transparent)`,
   },
   accentFill: {
-    [glassTokens.fill]: color.bgAccentSubtle,
-  },
-  parts: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._2,
-    margin: 0,
-  },
-  part: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
-  },
-  partName: {
-    fontSize: font.uiBodySmall,
-    fontWeight: font.weight_7,
-    color: color.fg,
-  },
-  partBody: {
-    display: "flex",
-    flexDirection: "column",
-    gap: space._00,
-    margin: 0,
-    minInlineSize: 0,
-  },
-  partToken: {
-    fontFamily: font.familyMono,
-    fontSize: font.uiCaption,
-    color: color.fgMuted,
+    [glassTokens.fill]: `color-mix(in srgb, ${color.bgAccentSubtle} 70%, transparent)`,
   },
 });

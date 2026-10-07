@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { readScreenshotRegion } from "./helpers/read-screenshot-region.ts";
 import { scrollToAndSettle } from "./helpers/scroll.ts";
 
-const PAGE = "/en/design-system/foundations/effect-layer";
+const PAGE = "/en/design-system/effect-layer";
 
 // The layer mounts after hydration and an async device request.
 const MOUNT_TIMEOUT = 15_000;

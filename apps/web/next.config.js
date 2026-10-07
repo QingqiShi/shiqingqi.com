@@ -54,19 +54,35 @@ module.exports = async (phase) => {
       // https://nextjs.org/docs/app/api-reference/config/next-config-js/redirects
       // The /component-library route was renamed to /design-system. Keep
       // permanent redirects so existing bookmarks and shared links continue
-      // to work for both the default (en, no prefix) and zh locales.
-      return [
-        {
-          source: "/component-library",
-          destination: "/design-system",
-          permanent: true,
-        },
-        {
-          source: "/zh/component-library",
-          destination: "/zh/design-system",
-          permanent: true,
-        },
+      // to work for both the default (en, no prefix) and zh locales. The same
+      // holds for the design-system pages that were merged, renamed or moved.
+      const moved = [
+        ["/component-library", "/design-system"],
+        [
+          "/design-system/foundations/spacing",
+          "/design-system/foundations/layout",
+        ],
+        [
+          "/design-system/foundations/borders",
+          "/design-system/foundations/surfaces",
+        ],
+        [
+          "/design-system/foundations/effect-layer",
+          "/design-system/effect-layer",
+        ],
+        [
+          "/design-system/foundations/voice",
+          "/design-system/foundations/accessibility",
+        ],
       ];
+      return moved.flatMap(([source, destination]) => [
+        { source, destination, permanent: true },
+        {
+          source: `/zh${source}`,
+          destination: `/zh${destination}`,
+          permanent: true,
+        },
+      ]);
     },
     async headers() {
       // https://nextjs.org/docs/app/api-reference/config/next-config-js/headers#options

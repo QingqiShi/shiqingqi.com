@@ -6,7 +6,7 @@ import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 // The design-system overview is more than four bands tall at this viewport.
 const LONG_PAGE = "/en/design-system";
 const DEBUG_PAGE = `${LONG_PAGE}?effects=debug`;
-const EFFECT_PAGE = "/en/design-system/foundations/effect-layer?effects=debug";
+const EFFECT_PAGE = "/en/design-system/effect-layer?effects=debug";
 
 declare global {
   interface Window {

@@ -6,6 +6,7 @@ import { HeartIcon } from "@phosphor-icons/react/dist/ssr/Heart";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import { MagicWandIcon } from "@phosphor-icons/react/dist/ssr/MagicWand";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { PaletteIcon } from "@phosphor-icons/react/dist/ssr/Palette";
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
@@ -15,19 +16,27 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
+import { GuideList } from "#src/design-system/guide/guide-list.tsx";
+import {
+  GuideNote,
+  GuideSection,
+} from "#src/design-system/guide/guide-section.tsx";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
+import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Anchor } from "#src/links/anchor.tsx";
 
-// A representative slice of the Phosphor set. Names are the library's own Pascal
-// identifiers (used verbatim in the import path), so they carry no locale.
+// Phosphor's own Pascal names, used verbatim in the import path.
 const GALLERY = [
   { name: "House", Icon: HouseIcon },
   { name: "MagicWand", Icon: MagicWandIcon },
@@ -44,92 +53,137 @@ const GALLERY = [
 ];
 
 export function IconographyShowcase() {
-  // Same icon at each type-scale token — the icon inherits font-size via its
-  // default 1em box, so no per-size prop is needed. Built in render scope so it
-  // can reference the `styles` created below.
+  const locale = getLocale();
   const sizes = [
-    { token: "uiBodySmall", slot: styles.szBodySmall },
-    { token: "uiBody", slot: styles.szBody },
-    { token: "uiHeading3", slot: styles.szHeading3 },
-    { token: "uiHeading2", slot: styles.szHeading2 },
-    { token: "uiHeading1", slot: styles.szHeading1 },
-    { token: "uiSubDisplay", slot: styles.szSubDisplay },
+    { token: "font.uiBodySmall", slot: styles.szBodySmall },
+    { token: "font.uiBody", slot: styles.szBody },
+    { token: "font.uiHeading3", slot: styles.szHeading3 },
+    { token: "font.uiHeading2", slot: styles.szHeading2 },
+    { token: "font.uiHeading1", slot: styles.szHeading1 },
+    { token: "font.uiSubDisplay", slot: styles.szSubDisplay },
+  ];
+
+  const slots = [
+    {
+      term: "Button · AnchorButton · Chip · Badge",
+      value: "icon",
+      note: t({
+        en: "Before the label, at the label's font size and colour. A Button with an icon and no children is icon-only.",
+        zh: "位于标签之前，与标签同字号、同颜色。只有 icon 而没有 children 的 Button 即为纯图标按钮。",
+      }),
+    },
+    {
+      term: "TextField",
+      value: "leading · trailing",
+      note: t({
+        en: "Inside the field, at the control's font size in the muted text colour. The field pads its text to make room.",
+        zh: "位于输入框内，与控件同字号，使用次要文字颜色。输入框会为其留出内边距。",
+      }),
+    },
+    {
+      term: "Callout",
+      value: "icon",
+      note: t({
+        en: "Each intent has a default. Pass another icon to replace it, or null to remove it.",
+        zh: "每种意图色都有默认图标。传入其他图标即可替换，传入 null 则移除。",
+      }),
+    },
+    {
+      term: "SegmentedControl",
+      value: "icon · selectedIcon",
+      note: t({
+        en: "Per option. selectedIcon shows only on the selected option. With hideLabels, every option needs an icon.",
+        zh: "按选项设置。selectedIcon 只在选中项上显示。设置 hideLabels 时，每个选项都需要 icon。",
+      }),
+    },
+    {
+      term: "Disclosure",
+      value: "icon · indicator",
+      note: t({
+        en: "icon leads the summary. indicator replaces the turning caret, or null removes it.",
+        zh: "icon 位于摘要之前。indicator 替换会旋转的箭头，传入 null 则移除。",
+      }),
+    },
+    {
+      term: "Section · OptionCard",
+      value: "icon",
+      note: t({
+        en: "Beside the title, in the muted text colour. OptionCard turns it to the accent colour when the card is selected.",
+        zh: "位于标题旁，使用次要文字颜色。OptionCard 在卡片被选中时将其变为强调色。",
+      }),
+    },
+    {
+      term: "Overlay · Breadcrumb",
+      value: "closeIcon · separator",
+      note: t({
+        en: "Replace the close icon and the separator between crumbs.",
+        zh: "替换关闭图标，以及路径项之间的分隔符。",
+      }),
+    },
+  ];
+
+  const ownWeights = [
+    {
+      term: "bold",
+      value: t({
+        en: "Select, Disclosure, Breadcrumb, Overlay, SidebarLayout, ScrollMask, OptionCard",
+        zh: "Select、Disclosure、Breadcrumb、Overlay、SidebarLayout、ScrollMask、OptionCard",
+      }),
+      note: t({
+        en: "Every glyph inside a control: carets, close, menu, check and scroll arrows.",
+        zh: "控件内的所有图形：箭头、关闭、菜单、勾选与滚动箭头。",
+      }),
+    },
+    {
+      term: "regular",
+      value: "Callout",
+      note: t({
+        en: "The default icons for info, success, warning and danger.",
+        zh: "info、success、warning 与 danger 的默认图标。",
+      }),
+    },
+    {
+      term: "fill",
+      value: "Callout",
+      note: t({
+        en: "The default icons for accent and neutral.",
+        zh: "accent 与 neutral 的默认图标。",
+      }),
+    },
   ];
 
   return (
     <>
-      <Showcase label={t({ en: "The set", zh: "图标集" })} breakout>
-        <ShowcaseHelper>
-          {t({
-            en: "The app draws from Phosphor. Each icon imports from its own SSR entry so only the icons you use ship to the client — no barrel import, no full-set bundle.",
-            zh: "应用采用 Phosphor 图标。每个图标从各自的 SSR 入口单独引入，因此只有用到的图标会发送到客户端——不走桶文件、不打包整套图标。",
-          })}
-        </ShowcaseHelper>
-        <div css={styles.gallery}>
-          {GALLERY.map(({ name, Icon }) => (
-            <div key={name} css={[corner.radius_2, styles.galleryItem]}>
-              <span css={styles.galleryIcon}>
-                <Icon aria-hidden />
-              </span>
-              <span css={styles.galleryName}>
-                <Identifier>{name}</Identifier>
-              </span>
-            </div>
-          ))}
-        </div>
-      </Showcase>
+      <GuideSection
+        title={t({
+          en: "Add Phosphor to your app",
+          zh: "把 Phosphor 加入你的应用",
+        })}
+        lead={t({
+          en: "The components draw their own icons with @phosphor-icons/react, which installs with @tuja/ui. The package does not re-export it, so to use an icon in your own code, add Phosphor to your app.",
+          zh: "组件用 @phosphor-icons/react 绘制自带的图标，它会随 @tuja/ui 一起安装。本包不会转出它，因此要在自己的代码中使用图标，请把 Phosphor 加入你的应用。",
+        })}
+      >
+        <UsageSnippet
+          code={`// pnpm add @phosphor-icons/react@^2.1.10
 
-      <Showcase label={t({ en: "Weight", zh: "字重" })}>
-        <ShowcaseHelper>
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
+        />
+        <GuideNote>
           {t({
-            en: "Two weights carry the app: regular for the default, bold for icons paired with text or standing in as an action. Match the icon weight to the surrounding type.",
-            zh: "应用主要使用两种字重：常规用于默认状态，加粗用于与文字搭配或充当操作的图标。让图标字重与周围文字相称。",
+            en: "Import each icon from dist/ssr/<Name>, the entry the package uses. It renders in a Server Component, ships only the icons you import, and shares one copy of Phosphor with the package when your version is in the same range. This entry does not read Phosphor's IconContext, so a context provider changes neither your icons nor the package's.",
+            zh: "从 dist/ssr/<Name> 逐个导入图标，这也是本包使用的入口。它能在服务端组件中渲染，只打包你导入的图标；只要你的版本在相同范围内，就会与本包共用同一份 Phosphor。这个入口不读取 Phosphor 的 IconContext，因此上下文提供者既不会改变你的图标，也不会改变本包的图标。",
           })}
-        </ShowcaseHelper>
-        <SpecimenGrid>
-          <Specimen caption='weight="regular"'>
-            <span css={styles.weightIcon}>
-              <SparkleIcon weight="regular" aria-hidden />
-              <LightningIcon weight="regular" aria-hidden />
-              <HeartIcon weight="regular" aria-hidden />
-            </span>
-          </Specimen>
-          <Specimen caption='weight="bold"'>
-            <span css={styles.weightIcon}>
-              <SparkleIcon weight="bold" aria-hidden />
-              <LightningIcon weight="bold" aria-hidden />
-              <HeartIcon weight="bold" aria-hidden />
-            </span>
-          </Specimen>
-        </SpecimenGrid>
-      </Showcase>
+        </GuideNote>
+      </GuideSection>
 
-      <Showcase label={t({ en: "Size", zh: "尺寸" })}>
-        <ShowcaseHelper>
-          {t({
-            en: "Icons size with font-size, not a width prop. Set the type token on the slot and the icon follows — so an icon beside text always matches the line.",
-            zh: "图标随 font-size 缩放，而非通过宽度属性。在插槽上设置文字排版令牌，图标便随之变化——因此文字旁的图标始终与行高相称。",
-          })}
-        </ShowcaseHelper>
-        <div css={[corner.radius_2, styles.sizeRow]}>
-          {sizes.map((size) => (
-            <div key={size.token} css={styles.sizeItem}>
-              <span css={[styles.sizeIcon, size.slot]}>
-                <StarIcon weight="fill" aria-hidden />
-              </span>
-              <span css={styles.sizeToken}>{size.token}</span>
-            </div>
-          ))}
-        </div>
-      </Showcase>
-
-      <Showcase label={t({ en: "Pairing", zh: "搭配组件" })}>
-        <ShowcaseHelper>
-          {t({
-            en: "Drop a Phosphor icon straight into a Button — including its icon-only form — or a Badge. Each wraps the icon in an aria-hidden slot, so the visible label — or the button's aria-label — carries the name.",
-            zh: "可将 Phosphor 图标直接放入 Button——包括其纯图标形态——或 Badge。它们都会把图标包在 aria-hidden 插槽里，因此由可见标签——或按钮的 aria-label——承载名称。",
-          })}
-        </ShowcaseHelper>
+      <GuideSection
+        title={t({ en: "Pass icons to a slot", zh: "把图标传给插槽" })}
+        lead={t({
+          en: "Components take icons through props. The slot sets the icon's size, colour and spacing, and hides it from assistive technology, so you pass the bare icon with nothing but its weight.",
+          zh: "组件通过属性接收图标。插槽会设定图标的尺寸、颜色与间距，并对辅助技术隐藏它，因此你只需传入图标本身，最多加上 weight。",
+        })}
+      >
         <SpecimenGrid>
           <Specimen caption="Button">
             <Button look="primary" icon={<PlusIcon weight="bold" />}>
@@ -141,8 +195,110 @@ export function IconographyShowcase() {
               {t({ en: "Featured", zh: "精选" })}
             </Badge>
           </Specimen>
+          <Specimen caption="TextField">
+            <TextField
+              label={t({ en: "Search films", zh: "搜索电影" })}
+              labelHidden
+              leading={<MagnifyingGlassIcon weight="bold" />}
+              placeholder={t({ en: "Search films", zh: "搜索电影" })}
+            />
+          </Specimen>
+        </SpecimenGrid>
+        <GuideList items={slots} />
+        <GuideNote>
+          {t({
+            en: "A slot takes any React node. Another icon set works if its icons are 1em square and fill with currentColor.",
+            zh: "插槽接受任意 React 节点。只要图标为 1em 见方并以 currentColor 填充，其他图标库同样适用。",
+          })}
+        </GuideNote>
+      </GuideSection>
+
+      <GuideSection
+        title={t({
+          en: "Size and colour come from the parent",
+          zh: "尺寸与颜色取自父元素",
+        })}
+        lead={t({
+          en: "A Phosphor icon is 1em square and fills with currentColor. The slots rely on this: they set a font size and a colour, and the icon follows. Outside a slot, do the same: set fontSize and color on the parent and leave the size and color props alone.",
+          zh: "Phosphor 图标为 1em 见方，并以 currentColor 填充。插槽正依赖这一点：它们设定字号与颜色，图标随之变化。在插槽之外也这样做：在父元素上设置 fontSize 与 color，不要使用 size 与 color 属性。",
+        })}
+      >
+        <div css={[corner.radius_2, styles.sizeRow]}>
+          {sizes.map((size) => (
+            <div key={size.token} css={styles.sizeItem}>
+              <span css={[styles.sizeIcon, size.slot]}>
+                <StarIcon weight="fill" aria-hidden />
+              </span>
+              <span css={styles.sizeToken}>
+                <Identifier>{size.token}</Identifier>
+              </span>
+            </div>
+          ))}
+        </div>
+        <UsageSnippet
+          code={`const styles = stylex.create({
+  slot: {
+    display: "inline-flex",
+    fontSize: font.uiHeading2,
+    color: color.fgAccent,
+  },
+});
+
+<span css={styles.slot}>
+  <StarIcon weight="fill" aria-hidden />
+</span>`}
+        />
+        <GuideNote>
+          {t({
+            en: "A Phosphor icon has no css prop. Style the element around it.",
+            zh: "Phosphor 图标不接受 css 属性。请为包裹它的元素设置样式。",
+          })}
+        </GuideNote>
+      </GuideSection>
+
+      <GuideSection
+        title={t({ en: "Weight", zh: "字重" })}
+        lead={t({
+          en: "Phosphor's default weight is regular. The package draws the glyphs inside its controls in bold, so an icon you put in a Button, Chip or field matches them at bold.",
+          zh: "Phosphor 的默认字重是 regular。本包把控件内的图形都画成 bold，因此你放进 Button、Chip 或输入框的图标用 bold 才能与之一致。",
+        })}
+      >
+        <DoDont
+          do={
+            <Button look="outline" icon={<PlusIcon weight="bold" />}>
+              {t({ en: "Add to list", zh: "加入列表" })}
+            </Button>
+          }
+          doCaption={t({
+            en: 'weight="bold", the weight of the package\'s own control glyphs.',
+            zh: 'weight="bold"，与本包控件自带图形的字重相同。',
+          })}
+          dont={
+            <Button look="outline" icon={<PlusIcon />}>
+              {t({ en: "Add to list", zh: "加入列表" })}
+            </Button>
+          }
+          dontCaption={t({
+            en: "No weight, so Phosphor's regular: lighter than every caret and close icon the package draws.",
+            zh: "未传 weight，即 Phosphor 的 regular：比本包绘制的所有箭头与关闭图标都细。",
+          })}
+        />
+        <GuideList items={ownWeights} />
+      </GuideSection>
+
+      <GuideSection
+        title={t({
+          en: "Name the control, not the icon",
+          zh: "为控件命名，而不是为图标命名",
+        })}
+        lead={t({
+          en: "Every slot renders its icon with aria-hidden, so an icon never names anything. The words beside it do, or an aria-label on an icon-only control. An icon you place in your own markup takes aria-hidden too.",
+          zh: "每个插槽都以 aria-hidden 渲染图标，因此图标从不为任何东西命名。命名的是旁边的文字，或纯图标控件上的 aria-label。你在自己的标记中放置的图标同样要加上 aria-hidden。",
+        })}
+      >
+        <SpecimenGrid>
           <Specimen
-            caption={t({ en: "Button · icon-only", zh: "Button · 纯图标" })}
+            caption={t({ en: "Button, icon only", zh: "Button，纯图标" })}
           >
             <Button
               icon={<TrashIcon weight="bold" />}
@@ -150,26 +306,56 @@ export function IconographyShowcase() {
             />
           </Specimen>
         </SpecimenGrid>
+        <GuideNote>
+          <Anchor
+            href={getLocalePath(
+              "/design-system/foundations/accessibility",
+              locale,
+            )}
+          >
+            {t({
+              en: "Which components need a name, and which prop takes it",
+              zh: "哪些组件需要名称，由哪个属性提供",
+            })}
+          </Anchor>
+        </GuideNote>
+      </GuideSection>
+
+      <Showcase
+        label={t({ en: "A sample of the set", zh: "图标示例" })}
+        breakout
+      >
+        <ShowcaseHelper>
+          {t({
+            en: "Each name is the one in the import path.",
+            zh: "每个名称即导入路径中的名称。",
+          })}{" "}
+          <Anchor href="https://phosphoricons.com" target="_blank">
+            {t({
+              en: "Browse every icon at phosphoricons.com",
+              zh: "在 phosphoricons.com 浏览全部图标",
+            })}
+          </Anchor>
+        </ShowcaseHelper>
+        <div css={styles.gallery}>
+          {GALLERY.map(({ name, Icon }) => (
+            <div key={name} css={[corner.radius_2, styles.galleryItem]}>
+              <span css={styles.galleryIcon}>
+                <Icon weight="bold" aria-hidden />
+              </span>
+              <span css={styles.galleryName}>
+                <Identifier>{name}</Identifier>
+              </span>
+            </div>
+          ))}
+        </div>
       </Showcase>
-
-      <UsageSnippet
-        code={`// Import from the SSR entry so only this icon ships to the client.
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
-
-// Decorative beside text — hide it from assistive tech.
-<Button icon={<PlusIcon weight="bold" aria-hidden />}>Add</Button>
-
-// Sizes with font-size; colour follows currentColor.
-<span css={styles.iconSlot}>
-  <PlusIcon />
-</span>`}
-      />
 
       <Showcase label={t({ en: "Icon props", zh: "图标属性" })}>
         <ShowcaseHelper>
           {t({
-            en: "Phosphor's own props, not the design system's — an icon is a third-party component the system places rather than one it owns.",
-            zh: "这些是 Phosphor 自己的属性，而非本设计系统的——图标是系统所摆放的第三方组件，而不是系统自有的组件。",
+            en: "These are Phosphor's props, not @tuja/ui's.",
+            zh: "这些是 Phosphor 的属性，而非 @tuja/ui 的。",
           })}
         </ShowcaseHelper>
         <div css={styles.propGrid}>
@@ -179,66 +365,45 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
           >
             <p css={styles.propNote}>
               {t({
-                en: "Stroke weight of the icon. The app uses regular and bold.",
-                zh: "图标的笔画粗细。应用使用常规与加粗两种。",
+                en: "Stroke weight, or a solid or two-tone fill.",
+                zh: "笔画粗细，或实心、双色填充。",
               })}
             </p>
           </SpecCard>
           <SpecCard token="size" meta='number | string = "1em"'>
             <p css={styles.propNote}>
               {t({
-                en: "Rendered size. At 1em it scales with font-size — size it through the type token on the slot instead.",
-                zh: "渲染尺寸。为 1em 时随 font-size 缩放——改为通过插槽上的文字排版令牌来设定尺寸。",
+                en: "Leave it at 1em and set the font size on the parent.",
+                zh: "保持 1em，在父元素上设置字号。",
               })}
             </p>
           </SpecCard>
           <SpecCard token="color" meta='string = "currentColor"'>
             <p css={styles.propNote}>
               {t({
-                en: "Fill and stroke colour. Inherits the surrounding text colour by default.",
-                zh: "填充与描边颜色。默认继承周围文字的颜色。",
+                en: "Leave it at currentColor and set the colour on the parent.",
+                zh: "保持 currentColor，在父元素上设置颜色。",
               })}
             </p>
           </SpecCard>
           <SpecCard token="mirrored" meta="boolean = false">
             <p css={styles.propNote}>
               {t({
-                en: "Flips the icon horizontally for right-to-left layouts.",
-                zh: "为从右到左的布局水平翻转图标。",
+                en: "Flips the icon horizontally, for right-to-left layouts.",
+                zh: "水平翻转图标，用于从右到左的布局。",
               })}
             </p>
           </SpecCard>
           <SpecCard token="aria-hidden" meta="boolean">
             <p css={styles.propNote}>
               {t({
-                en: "Hides a decorative icon from assistive tech — the default to reach for when an icon sits beside text.",
-                zh: "将装饰性图标对辅助技术隐藏——图标与文字并列时应优先采用的做法。",
+                en: "Hides the icon from assistive technology. Set it on any icon outside a slot.",
+                zh: "对辅助技术隐藏图标。凡是不在插槽中的图标都要设置。",
               })}
             </p>
           </SpecCard>
         </div>
       </Showcase>
-
-      <DoDont
-        do={
-          <Button icon={<SparkleIcon weight="bold" />}>
-            {t({ en: "Surprise me", zh: "随便看看" })}
-          </Button>
-        }
-        doCaption={t({
-          en: "Let a visible label name the action and keep the icon decorative — or give an icon-only control an aria-label.",
-          zh: "用可见标签命名操作并让图标保持装饰性——纯图标控件则需提供 aria-label。",
-        })}
-        dont={
-          <span css={[corner.radius_round, styles.dontIcon]}>
-            <MagicWandIcon weight="bold" />
-          </span>
-        }
-        dontCaption={t({
-          en: "Don't ship an icon-only control with no accessible name — a screen reader announces nothing to act on.",
-          zh: "不要发布没有可访问名称的纯图标控件——屏幕阅读器无法读出可操作的内容。",
-        })}
-      />
     </>
   );
 }
@@ -285,13 +450,6 @@ const styles = stylex.create({
     textAlign: "center",
     maxInlineSize: "100%",
   },
-  weightIcon: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: space._3,
-    fontSize: font.uiHeading1,
-    color: color.fg,
-  },
   sizeRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -307,10 +465,11 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     gap: space._2,
+    minInlineSize: 0,
   },
   sizeIcon: {
     display: "inline-flex",
-    color: color.bgAccent,
+    color: color.fgAccent,
   },
   szBodySmall: { fontSize: font.uiBodySmall },
   szBody: { fontSize: font.uiBody },
@@ -322,16 +481,5 @@ const styles = stylex.create({
     fontFamily: font.familyMono,
     fontSize: font.uiOverline,
     color: color.fgMuted,
-  },
-  dontIcon: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    inlineSize: space._8,
-    blockSize: space._8,
-    fontSize: font.uiHeading2,
-    color: color.fgMuted,
-    backgroundColor: color.bgSurface,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
   },
 });

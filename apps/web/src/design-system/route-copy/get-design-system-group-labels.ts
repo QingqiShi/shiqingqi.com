@@ -27,6 +27,7 @@ export function getDesignSystemGroupLabels(): DesignSystemGroupLabels {
       composition: t({ en: "Composition", zh: "组合" }),
     },
     categories: {
+      basics: t({ en: "Basics", zh: "入门" }),
       visual: t({ en: "Visual", zh: "视觉" }),
       behaviour: t({ en: "Behaviour", zh: "行为" }),
       content: t({ en: "Content", zh: "内容" }),

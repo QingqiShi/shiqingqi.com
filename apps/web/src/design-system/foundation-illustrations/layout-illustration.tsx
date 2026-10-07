@@ -4,8 +4,8 @@ import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
 /**
- * Layout foundation-card illustration: a tilted breakpoint ruler (360 / 768 /
- * 1024 / 1440) with a scrubbing handle over a perspective block of eight columns
+ * Layout foundation-card illustration: a tilted breakpoint ruler (320 / 768 /
+ * 1080 / 2000) with a scrubbing handle over a perspective block of eight columns
  * and a dashed 16:9 box, dim metallic grey at rest and warming to gold on hover.
  */
 export function LayoutIllustration() {
@@ -71,16 +71,16 @@ export function LayoutIllustration() {
           <line css={styles.tick} x1="312" y1="94" x2="312" y2="105" />
 
           <text css={styles.rlabel} x="178" y="93">
-            360
+            320
           </text>
           <text css={styles.rlabel} x="228" y="90">
             768
           </text>
           <text css={styles.rlabel} x="272" y="88">
-            1024
+            1080
           </text>
           <text css={styles.rlabel} x="305" y="86">
-            1440
+            2000
           </text>
 
           <circle css={styles.handle} cx="162" cy="105" r="2.6" />

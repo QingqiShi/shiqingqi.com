@@ -13,8 +13,8 @@ import { useState } from "react";
 import { t } from "#src/i18n.ts";
 
 /**
- * The budgets, demonstrated rather than quoted: one label drives a badge, a
- * chip and a button inside a card narrow enough to show what going long costs.
+ * One label drives a badge, a chip and a button inside a narrow card, so a
+ * visitor sees which of them wraps and which of them pushes the row wider.
  */
 export function CopyBudgetSpecimen() {
   const short = t({ en: "Synced", zh: "已同步" });
@@ -24,8 +24,7 @@ export function CopyBudgetSpecimen() {
   });
   const [label, setLabel] = useState(short);
 
-  // An empty control would have no accessible name, which this page argues
-  // against three sections earlier.
+  // An empty control would have no accessible name.
   const shown = label.trim() || short;
 
   return (
@@ -110,7 +109,7 @@ const styles = stylex.create({
   presets: {
     gap: space._1,
   },
-  // Narrow on purpose: the budgets are about what a real column can hold.
+  // Narrow on purpose, so a long label reaches the edge.
   // Clipped because Badge and Chip are both nowrap by contract, so a label with
   // no spaces in it would otherwise push the whole page sideways. The card's own
   // padding leaves the focus rings inside more room than they need.
@@ -133,8 +132,7 @@ const styles = stylex.create({
     color: color.fg,
     minInlineSize: 0,
   },
-  // The badge never wraps, so it takes its space from the title rather than
-  // from itself — which is the whole of the budget argument.
+  // The badge never wraps, so it takes its space from the title.
   badge: {
     flexShrink: 0,
   },

@@ -5,7 +5,6 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
-import { DoDont } from "#src/design-system/do-dont.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
@@ -18,8 +17,8 @@ export function WashShowcase() {
     <Showcase label={t({ en: "Wash", zh: "淡彩" })} frame="plain" breakout>
       <ShowcaseHelper>
         {t({
-          en: "A broad gradient that gives a surface some volume — one tone drifting across it, with no bright spot anywhere. A bright spot reads as a light source, and only Glass is lit.",
-          zh: "一种色调在整个表面上缓缓铺开，给它一点体量，任何地方都没有亮斑。亮斑读起来是光源，而只有玻璃是被照亮的。",
+          en: "A linear gradient from one tone to transparent, across the whole element, in one of four directions. The element's background colour shows through as the tone fades, so the wash only shifts the surface's colour toward one edge.",
+          zh: "一道从某种色调渐变到透明的线性渐变，铺满整个元素，有四个方向可选。色调变淡时元素的背景色透出来，所以淡彩只是让表面的颜色朝一侧偏移。",
         })}
       </ShowcaseHelper>
 
@@ -78,44 +77,23 @@ export function WashShowcase() {
       <SpecCard token="washTokens.tone" meta="default: color.bgNeutralSubtle">
         <Text look="caption" tone="muted">
           {t({
-            en: "The tone is the one dial, and it sets both the colour and the strength. An Intent tint belongs only on a surface that already carries that Intent; anywhere else it turns a wash into decoration.",
-            zh: "色调是唯一的旋钮，它同时决定颜色与强度。意图色的淡色只属于本身已经带有该意图色的表面；用在别处，淡彩就变成了装饰。",
+            en: "The tone the gradient starts from. It is the only dial, so it sets both the colour and how strong the wash is: a tone close to the background colour gives a faint wash.",
+            zh: "渐变起始的色调。它是唯一的旋钮，所以同时决定颜色与淡彩的强度：色调越接近背景色，淡彩越淡。",
           })}
         </Text>
       </SpecCard>
 
       <UsageSnippet
-        code={`import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
+        code={`import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 
-<div css={[wash.toBottom, cardSurface.base, corner.radius_3, styles.card]} />
+<div css={[cardSurface.base, wash.toBottom, styles.card]} />
 
 const styles = stylex.create({
+  // The gradient fades into cardSurface's color.bgSurface.
   card: { [washTokens.tone]: color.bgAccentSubtle },
 });`}
-      />
-
-      <DoDont
-        do={
-          <div
-            css={[
-              wash.toBottom,
-              cardSurface.base,
-              corner.radius_3,
-              styles.doCard,
-            ]}
-          />
-        }
-        doCaption={t({
-          en: "One tone drifting across the surface.",
-          zh: "一种色调在表面上缓缓铺开。",
-        })}
-        dont={
-          <div css={[cardSurface.base, corner.radius_3, styles.dontCard]} />
-        }
-        dontCaption={t({
-          en: "A bright spot in the middle. The eye reads it as a light source, and only Glass is lit.",
-          zh: "中间一块亮斑。眼睛把它读成光源，而只有玻璃是被照亮的。",
-        })}
       />
     </Showcase>
   );
@@ -140,20 +118,5 @@ const styles = stylex.create({
   },
   accentCard: {
     [washTokens.tone]: color.bgAccentSubtle,
-    backgroundColor: color.bgAccentSubtle,
-    borderColor: color.borderAccent,
-  },
-  doCard: {
-    inlineSize: "100%",
-    blockSize: "104px",
-    backgroundColor: color.bgSurfaceSunken,
-  },
-  // The mistake, drawn: the same wash with the glass highlight punched into the
-  // middle of it. `wash` cannot make this shape, so the layers are written out.
-  dontCard: {
-    inlineSize: "100%",
-    blockSize: "104px",
-    backgroundColor: color.bgSurfaceSunken,
-    backgroundImage: `radial-gradient(circle at 50% 50%, ${color.borderMaterialGlassHighlight}, transparent 62%), linear-gradient(to bottom, ${color.bgNeutralSubtle}, transparent)`,
   },
 });

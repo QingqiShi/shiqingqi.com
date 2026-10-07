@@ -5,7 +5,7 @@ import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 
 // The effect layer page. Its test bench registers elements without an effect,
 // one of them fixed, and each effect's bench registers more.
-const PAGE = "/en/design-system/foundations/effect-layer";
+const PAGE = "/en/design-system/effect-layer";
 const DEBUG_PAGE = `${PAGE}?effects=debug`;
 
 // The layer mounts after hydration and an async device request.

@@ -28,22 +28,25 @@ import { t } from "#src/i18n.ts";
 export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
   return {
     "/design-system": t({ en: "Overview", zh: "概览" }),
+    "/design-system/foundations/get-started": t({
+      en: "Get started",
+      zh: "快速开始",
+    }),
+    "/design-system/foundations/customization": t({
+      en: "Customisation",
+      zh: "定制",
+    }),
     "/design-system/foundations/color": t({ en: "Colour", zh: "颜色" }),
     "/design-system/foundations/typography": t({
       en: "Typography",
       zh: "文字设计",
     }),
-    "/design-system/foundations/spacing": t({ en: "Spacing", zh: "间距" }),
-    "/design-system/foundations/borders": t({ en: "Borders", zh: "描边" }),
+    "/design-system/foundations/layout": t({ en: "Layout", zh: "布局" }),
+    "/design-system/foundations/surfaces": t({ en: "Surfaces", zh: "表面" }),
     "/design-system/foundations/material": t({
       en: "Material",
       zh: "质感",
     }),
-    "/design-system/foundations/effect-layer": t({
-      en: "Effect layer",
-      zh: "效果层",
-    }),
-    "/design-system/foundations/layout": t({ en: "Layout", zh: "布局" }),
     "/design-system/foundations/iconography": t({
       en: "Iconography",
       zh: "图标",
@@ -53,7 +56,6 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Accessibility",
       zh: "无障碍",
     }),
-    "/design-system/foundations/voice": t({ en: "Voice", zh: "语气" }),
     "/design-system/components/text": t({ en: "Text", zh: "文本" }),
     "/design-system/components/heading": t({ en: "Heading", zh: "标题" }),
     "/design-system/components/code-block": t({
@@ -136,5 +138,6 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
     }),
     "/design-system/primitives": t({ en: "Primitives", zh: "原语" }),
     "/design-system/hooks": t({ en: "Hooks", zh: "钩子" }),
+    "/design-system/effect-layer": t({ en: "Effect layer", zh: "效果层" }),
   };
 }
