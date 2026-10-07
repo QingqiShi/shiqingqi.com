@@ -94,29 +94,28 @@ const GLOBAL_CSS = `/* src/app/global.css */
     local("Arial");
 }
 
+@layer normalize {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+}
+
 @stylex;`;
 
 const ROOT_LAYOUT = `// src/app/layout.tsx
-import * as stylex from "@stylexjs/stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { root } from "@tuja/ui/primitives/root.stylex";
 import type { ReactNode } from "react";
 import "./global.css";
 
-const styles = stylex.create({
-  html: {
-    colorScheme: "light dark",
-    backgroundColor: color.bgCanvas,
-  },
-  body: {
-    color: color.fg,
-    fontFamily: font.family,
-  },
-});
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" css={styles.html}>
-      <body css={styles.body}>{children}</body>
+    <html lang="en" css={root.html}>
+      <body css={root.body}>{children}</body>
     </html>
   );
 }`;
@@ -291,8 +290,8 @@ export default function GetStartedPage() {
       <GuideSection
         title={t({ en: "Prepare the root", zh: "准备根元素" })}
         lead={t({
-          en: "The components paint themselves, but they leave the page to you: the canvas, the text colour, the typeface and the colour scheme come from the root.",
-          zh: "组件会绘制自身，但页面本身交给你：画布、文字颜色、字体与配色方案都来自根元素。",
+          en: "The components paint themselves. The page around them comes from the root primitive: the colour scheme, the canvas, and the text that every element inherits.",
+          zh: "组件会绘制自身。它们周围的页面来自 root 原语：配色方案、画布，以及每个元素继承的文字样式。",
         })}
       >
         <UsageSnippet
@@ -315,6 +314,22 @@ export default function GetStartedPage() {
               note: t({
                 en: "Put it in a cascade layer, such as a reset imported with layer(normalize). StyleX writes into layers, and a rule outside every layer beats all of them, whatever its specificity.",
                 zh: "把它放进一个级联层，例如用 layer(normalize) 导入的重置样式。StyleX 把规则写进各个层，而不在任何层中的规则会压过它们全部，与选择器优先级无关。",
+              }),
+            },
+            {
+              term: "root",
+              value: "root.html · root.body",
+              note: t({
+                en: "root.html turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token; never set one on the root. root.body sets the text colour, the typeface, a line height of 1.5 and text-wrap: pretty, and every element inherits them.",
+                zh: "root.html 开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌；不要在根元素上设置字号。root.body 设置文字颜色、字体、1.5 的行高与 text-wrap: pretty，每个元素都会继承它们。",
+              }),
+            },
+            {
+              term: t({ en: "Headings", zh: "标题" }),
+              value: "text-wrap: balance",
+              note: t({
+                en: "A StyleX rule cannot select an element by its tag, so the rule in global.css balances the lines of the headings you write yourself. Heading balances its lines without it.",
+                zh: "StyleX 规则无法按标签选择元素，因此由 global.css 中的规则让你自己编写的标题各行长度均衡。Heading 不需要这条规则也会均衡各行。",
               }),
             },
             {

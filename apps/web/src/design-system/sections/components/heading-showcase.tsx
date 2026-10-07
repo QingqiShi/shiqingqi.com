@@ -135,8 +135,8 @@ export function HeadingShowcase() {
       <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
         <ShowcaseHelper>
           {t({
-            en: "balance evens the lines so a two-line title doesn't leave one word stranded. The browser's line cap is no constraint at heading length, which is why this is the mode headings want.",
-            zh: "balance 会让各行长度均衡，使两行的标题不会在第二行只剩一个词。在标题长度下浏览器的行数上限不构成限制，因此这正是标题需要的模式。",
+            en: 'A heading balances by default: the lines are evened, so a two-line title doesn\'t leave one word stranded. The browser\'s line cap is no constraint at heading length. Pass wrap="pretty" or wrap="nowrap" only where a heading must break differently.',
+            zh: '标题默认使用 balance：各行长度均衡，使两行的标题不会在第二行只剩一个词。在标题长度下浏览器的行数上限不构成限制。只有在标题必须以其他方式换行时，才传入 wrap="pretty" 或 wrap="nowrap"。',
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -150,9 +150,9 @@ export function HeadingShowcase() {
               </Heading>
             </div>
           </Specimen>
-          <Specimen caption='wrap="balance"'>
+          <Specimen caption='wrap="pretty"'>
             <div css={styles.wrapStage}>
-              <Heading level={3} look="h2" wrap="balance">
+              <Heading level={3} look="h2" wrap="pretty">
                 {t({
                   en: "The quiet triumph of a very patient thriller",
                   zh: "一部极有耐心的惊悚片的静默胜利",

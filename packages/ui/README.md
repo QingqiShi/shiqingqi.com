@@ -324,30 +324,48 @@ into layers, and a rule outside any layer would beat all of them.
 @stylex;
 ```
 
-Then paint the canvas, the default text color and the typeface from tokens on
-the document root:
+A StyleX rule cannot select an element by its tag, so the one tag-wide default,
+balanced lines for headings you write by hand, goes in the same layer.
+`Heading` balances its lines on its own:
 
-```ts
-import * as stylex from "@stylexjs/stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
-
-export const globalStyles = stylex.create({
-  html: {
-    backgroundColor: color.bgCanvas,
-    colorScheme: "light dark",
-  },
-  body: {
-    color: color.fg,
-    fontFamily: font.family,
-    position: "relative",
-  },
-});
+```css
+/* global.css */
+@layer normalize {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+}
 ```
 
-Apply `globalStyles.html` to `<html>` and `globalStyles.body` to `<body>`.
+Then put the `root` primitive on the document root. `root.html` turns on both
+colour schemes, paints the canvas and stops mobile browsers from inflating text.
+It sets no font size, so the visitor's browser font size reaches every `rem`
+token. `root.body` sets the text that everything inherits: the default text
+colour, the typeface, a reading line height (`font.lineHeight_4`) and
+`text-wrap: pretty`.
+
+```tsx
+import * as stylex from "@stylexjs/stylex";
+import { root } from "@tuja/ui/primitives/root.stylex";
+
+const styles = stylex.create({
+  body: { position: "relative" },
+});
+
+<html lang="en" css={root.html}>
+  <body css={[root.body, styles.body]}>{children}</body>
+</html>;
+```
+
 `EffectLayerProvider` needs the positioned `<body>`, so that its canvases cover
-the document and no more. (This mirrors `apps/web/src/theme/global-styles.ts`
-in the source repo.)
+the document and no more. Never set a font size on the root: it overrides the
+visitor's own setting. (This mirrors `apps/web/src/theme/global-styles.ts` in
+the source repo.)
 
 Every fixed-radius corner in the system renders as a squircle rather than a
 circular arc; pills and circles keep circular caps, because a clamped
@@ -433,6 +451,7 @@ as the system gains components.
 | `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                                                |
 | `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                                           |
 | `@tuja/ui/primitives/reset.stylex`            | Element reset styles.                                                                                                                                                       |
+| `@tuja/ui/primitives/root.stylex`             | Document defaults: `root.html` (colour schemes, canvas, no text inflation) and `root.body` (text colour, typeface, line height, `text-wrap: pretty`).                       |
 | `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn dot of 1px or less, repeated at a pitch, in an ink colour.                                                                                               |
 | `@tuja/ui/primitives/wash.stylex`             | Wash: a broad directional gradient, one tone drifting toward transparent.                                                                                                   |
 | `@tuja/ui/components/anchor-button`           | Button's look rendered as a real anchor (`href` required); pass `linkComponent` for a framework `<Link>`.                                                                   |

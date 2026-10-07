@@ -263,6 +263,8 @@ Scales across breakpoints (sm → md → lg):
 | `font.lineHeight_4`  | `1.5`  |
 | `font.lineHeight_5`  | `2`    |
 
+`root.body` sets `font.lineHeight_4` on `<body>`, so text inherits it.
+
 ### Letter Spacing
 
 | Token                 | Value      |

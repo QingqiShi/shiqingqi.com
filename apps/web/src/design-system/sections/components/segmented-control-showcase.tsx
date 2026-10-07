@@ -64,7 +64,7 @@ export function SegmentedControlShowcase() {
             ]}
           />
         </Specimen>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Each icon is decorative and sits beside its label. Keep the label visible wherever there is room: an icon alone leaves a reader guessing at what the view is.",
             zh: "每个图标都是装饰性的，位于标签旁边。只要有空间就保留可见标签：只有图标会让读者猜测该视图究竟是什么。",
@@ -76,7 +76,7 @@ export function SegmentedControlShowcase() {
         <Specimen caption="selectedIcon">
           <SortControl />
         </Specimen>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "selectedIcon rides on the selected segment alone — in this control the sort direction, which a second activation flips. Its spot grows in and shrinks away, so the segments beside it never jump. The selected segment's aria-label carries the direction too, because an arrow says nothing to a screen reader.",
             zh: "selectedIcon 只出现在选中的分段上——在这个控件里是排序方向，再次点击即可翻转。它的位置会展开、也会收起，因此旁边的分段不会跳动。选中分段的 aria-label 同样带上方向，因为箭头对屏幕阅读器什么也没说。",
@@ -88,7 +88,7 @@ export function SegmentedControlShowcase() {
         <Specimen caption="hideLabels">
           <IconOnlyViewControl />
         </Specimen>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "hideLabels collapses every segment to its icon for a tight bar — each label still names its segment in the accessibility tree, so every option needs an icon too. This is the movie database's own poster grid / table switch.",
             zh: "hideLabels 会将每个分段收起为图标，用于紧凑的控件条——每个 label 仍在无障碍树中为其分段命名，因此每个选项也都需要提供 icon。这正是影视数据库自身的海报网格／表格切换控件。",
@@ -107,7 +107,7 @@ export function SegmentedControlShowcase() {
             ]}
           />
         </Specimen>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "Segments share the track evenly rather than in proportion to their labels, so the widths stay stable as the copy is translated.",
             zh: "各分段均分轨道宽度，而非按标签长短分配，因此文案翻译后宽度保持稳定。",
@@ -126,7 +126,7 @@ export function SegmentedControlShowcase() {
             ]}
           />
         </Specimen>
-        <Text look="bodySmall" tone="muted" wrap="pretty" css={styles.note}>
+        <Text look="bodySmall" tone="muted" css={styles.note}>
           {t({
             en: "A full WAI-ARIA radiogroup: Tab reaches the selected segment only, arrow keys move and select, Home and End jump to the ends, and focus follows selection so each choice announces as you land on it.",
             zh: "完整的 WAI-ARIA 单选组：Tab 只会进入已选中的分段，方向键移动并选择，Home 与 End 跳到两端，焦点跟随选择，因此每次落点都会被朗读。",

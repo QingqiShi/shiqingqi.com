@@ -551,6 +551,46 @@ function ResetSection() {
   );
 }
 
+function RootSection() {
+  const api: ApiEntry[] = [
+    {
+      token: "root.html",
+      meta: "color-scheme · bg · text-size-adjust",
+      description: t({
+        en: "Turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token.",
+        zh: "开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌。",
+      }),
+    },
+    {
+      token: "root.body",
+      meta: "color · font-family · line-height · text-wrap",
+      description: t({
+        en: "The text every element inherits: the default colour, the typeface, a line height of 1.5 and text-wrap: pretty.",
+        zh: "每个元素继承的文字样式：默认颜色、字体、1.5 的行高与 text-wrap: pretty。",
+      }),
+    },
+  ];
+
+  return (
+    <Showcase label={t({ en: "Root", zh: "根元素" })}>
+      <ShowcaseHelper>
+        {t({
+          en: "The defaults for the whole document, set once. Text you style yourself then needs no line height or wrap of its own unless it differs.",
+          zh: "整个文档的默认样式，只需设置一次。之后你自己设置样式的文字，除非需要不同的效果，否则无需再设行高或换行方式。",
+        })}
+      </ShowcaseHelper>
+      <ApiGrid entries={api} />
+      <UsageSnippet
+        code={`import { root } from "@tuja/ui/primitives/root.stylex";
+
+<html lang="en" css={root.html}>
+  <body css={root.body}>{children}</body>
+</html>`}
+      />
+    </Showcase>
+  );
+}
+
 function CornerSection() {
   const api: ApiEntry[] = [
     {
@@ -893,6 +933,7 @@ export function PrimitivesShowcase() {
       <LayoutSection />
       <MotionSection />
       <ResetSection />
+      <RootSection />
       <CornerSection />
       <TextureSection />
       <WashSection />

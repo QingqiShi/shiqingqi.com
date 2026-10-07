@@ -87,6 +87,7 @@ const styles = stylex.create({
   name: {
     fontSize: font.cqTitle,
     fontWeight: font.weight_7,
+    lineHeight: font.lineHeight_2,
     color: color.fgMuted,
   },
   subText: {

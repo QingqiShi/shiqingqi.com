@@ -131,6 +131,7 @@ const styles = stylex.create({
     cornerShape: "round",
     fontSize: font.uiBody,
     fontWeight: font.weight_7,
+    lineHeight: font.lineHeight_2,
     textDecoration: "none",
     transitionProperty: "background-color, transform",
     transitionDuration: "120ms",

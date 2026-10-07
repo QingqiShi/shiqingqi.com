@@ -33,10 +33,10 @@ interface HeadingProps {
    */
   align?: "start" | "center" | "end";
   /**
-   * How lines break, via CSS `text-wrap`. `"balance"` is the one headings
-   * want — it evens the lines so a two-line title doesn't strand a word.
+   * How lines break, via CSS `text-wrap`. Defaults to `"balance"`, which
+   * evens the lines so a two-line title doesn't strand a word.
    *
-   * @zh 换行方式，基于 CSS `text-wrap`。`"balance"` 正是标题需要的模式——它让各行长度均衡，使两行标题不会孤零零地留下一个词。
+   * @zh 换行方式，基于 CSS `text-wrap`。默认为 `"balance"`，它让各行长度均衡，使两行标题不会孤零零地留下一个词。
    */
   wrap?: "balance" | "pretty" | "nowrap";
   /**
@@ -89,7 +89,7 @@ export function Heading({
   look,
   weight,
   align,
-  wrap,
+  wrap = "balance",
   id,
   css,
   ref,
@@ -101,7 +101,7 @@ export function Heading({
     lookStyles[resolvedLook],
     weight ? weightStyles[weight] : null,
     align ? alignStyles[align] : null,
-    wrap ? wrapStyles[wrap] : null,
+    wrapStyles[wrap],
     css,
   ];
 

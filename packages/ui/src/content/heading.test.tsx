@@ -87,9 +87,11 @@ describe("Heading wrapping", () => {
     },
   );
 
-  it("leaves wrapping to the browser by default", () => {
+  it("balances its lines by default", () => {
     render(<Heading>Tuscany by car</Heading>);
 
-    expect(screen.getByRole("heading").className).not.toContain("wrapStyles.");
+    expect(screen.getByRole("heading").className).toContain(
+      "wrapStyles.balance",
+    );
   });
 });

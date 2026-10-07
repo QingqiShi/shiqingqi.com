@@ -29,7 +29,7 @@ One curated configuration of a component that its Lab offers ready-made — Butt
 _Avoid_: preset, example, story, look (for this sense), 外观 (that is a look), 预设
 
 **Primitive**:
-A composable multi-property StyleX style object — `flex`, `stack`, `layout`, `motion`, `reset`, `a11y`, `corner`, `texture`, `wash` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
+A composable multi-property StyleX style object — `flex`, `stack`, `layout`, `motion`, `reset`, `root`, `a11y`, `corner`, `texture`, `wash` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
 _Avoid_: recipe, pattern (for this sense), 配方
 
 **Rhythm**:

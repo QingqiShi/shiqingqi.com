@@ -1,4 +1,5 @@
 import { EffectLayerProvider } from "@tuja/ui/components/effect-layer-provider";
+import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -44,7 +45,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body css={globalStyles.body}>
+      <body css={[root.body, globalStyles.body]}>
         {/*
           Both locales render Latin text in Inter (names, dates, brand
           wordmarks, numbers), so both locales benefit from preloading it.

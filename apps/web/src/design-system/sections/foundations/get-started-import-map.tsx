@@ -33,7 +33,7 @@ export function GetStartedImportMap() {
           {
             term: "@tuja/ui/primitives/<name>.stylex",
             value:
-              "flex · layout · corner · motion · a11y · reset · texture · wash",
+              "flex · stack · layout · corner · motion · a11y · reset · root · texture · wash",
             note: t({
               en: "Style objects that set several properties at once, such as flex.row or a11y.focusRing.",
               zh: "一次设置多个属性的样式对象，例如 flex.row 或 a11y.focusRing。",

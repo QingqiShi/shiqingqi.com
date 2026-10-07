@@ -80,10 +80,10 @@ export function NotFoundScreen() {
             <Text as="div" look="overline" tone="muted">
               404
             </Text>
-            <Heading level={1} look="h1" align="center" wrap="balance">
+            <Heading level={1} look="h1" align="center">
               {t({ en: "This page doesn't exist", zh: "该页面不存在" })}
             </Heading>
-            <Text tone="muted" align="center" wrap="pretty" css={styles.lede}>
+            <Text tone="muted" align="center" css={styles.lede}>
               {t({
                 en: "The link may be out of date, or the page may have moved. Everything else still works.",
                 zh: "链接可能已失效，或页面已移动。其余内容都还在。",
