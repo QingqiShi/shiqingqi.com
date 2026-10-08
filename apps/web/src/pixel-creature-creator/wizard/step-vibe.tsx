@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -92,7 +92,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
                 buttonReset.base,
                 typeRole.label,
                 styles.pill,
-                def.defaultEmotion === emotion && styles.pillSelected,
+                selected.marked,
               ]}
             >
               {emotionLabels[emotion]}
@@ -120,11 +120,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
               type="button"
               {...typeGroup.getOptionProps(tp.id)}
               data-testid={`type-option-${tp.id}`}
-              css={[
-                buttonReset.base,
-                styles.typeOption,
-                def.type === tp.id && styles.typeOptionSelected,
-              ]}
+              css={[buttonReset.base, styles.typeOption, selected.marked]}
             >
               <span
                 title={tp.accentColor}
@@ -154,53 +150,33 @@ const styles = stylex.create({
   pill: {
     paddingBlock: space._2,
     paddingInline: space._4,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
+    [selectedTokens.rest]: color.bgSurface,
     borderRadius: "999px",
     cornerShape: "round",
     borderWidth: "2px",
     borderStyle: "solid",
-    borderColor: "transparent",
     color: color.fg,
     transitionProperty: "border-color, background-color",
     transitionDuration: "120ms",
   },
-  pillSelected: {
-    borderColor: color.borderAccent,
-    backgroundColor: color.bgSurfaceRaised,
-  },
+
   typeOption: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     gap: rhythm.tight,
     padding: space._2,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
+    [selectedTokens.rest]: color.bgSurface,
     borderRadius: "12px",
     cornerShape: "squircle",
     borderWidth: "2px",
     borderStyle: "solid",
-    borderColor: "transparent",
     color: color.fg,
     transitionProperty: "border-color, background-color",
     transitionDuration: "120ms",
     minWidth: "120px",
   },
-  typeOptionSelected: {
-    borderColor: color.borderAccent,
-    backgroundColor: color.bgSurfaceRaised,
-  },
+
   typeAccent: {
     width: "112px",
     height: "32px",

@@ -9,6 +9,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -26,7 +27,7 @@ import { Specimen } from "#src/design-system/specimen.tsx";
 import { t } from "#src/i18n.ts";
 
 interface DemoMenuItemProps {
-  /** Renders the accent treatment and `aria-current` for the chosen item. */
+  /** Sets `aria-current` on the chosen item, which `selected.quiet` paints. */
   isCurrent: boolean;
   label: string;
   onSelect: () => void;
@@ -55,7 +56,7 @@ function DemoMenuItem({ isCurrent, label, onSelect }: DemoMenuItemProps) {
         corner.radius_1,
         typeRole.control,
         styles.item,
-        isCurrent && styles.itemCurrent,
+        selected.quiet,
       ]}
       onClick={onSelect}
     >
@@ -280,26 +281,10 @@ const styles = stylex.create({
       default: color.fg,
       ":hover": { default: null, [pointer.canHover]: color.fgMuted },
     },
-    // Spelled out rather than left `null`: this declaration replaces
-    // `buttonReset`'s, and a null default would let the UA's `buttonface` grey
-    // paint the item at rest.
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
     fontWeight: font.weight_6,
     blockSize: controlSize._9,
     paddingInline: controlSize._3,
     textAlign: "start",
-  },
-  // Flat values, so they replace `item`'s hover variants too and the accent
-  // treatment holds steady under the pointer.
-  itemCurrent: {
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
   },
   stateValue: {
     fontFamily: font.familyMono,

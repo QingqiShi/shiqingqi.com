@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -33,8 +33,8 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
     bow: t({ en: "Bow", zh: "蝴蝶结" }),
   };
 
-  const selected = new Set(def.accessories);
-  const atCap = selected.size >= MAX_ACCESSORIES;
+  const chosen = new Set(def.accessories);
+  const atCap = chosen.size >= MAX_ACCESSORIES;
   const capLabel = t({
     en: "Up to 2 accessories — deselect one to swap.",
     zh: "最多 2 件饰品 —— 取消选择以替换。",
@@ -59,7 +59,7 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
       <OptionGrid>
         {Object.values(accessories).map((accessory) => {
           if (accessory === undefined) return null;
-          const isSelected = selected.has(accessory.id);
+          const isSelected = chosen.has(accessory.id);
           const disabledByCap = !isSelected && atCap;
           const handleClick = () => {
             const nextAccessories = isSelected
@@ -80,8 +80,8 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
               css={[
                 buttonReset.base,
                 styles.option,
+                selected.marked,
                 transition.colors,
-                isSelected && styles.optionSelected,
                 disabledByCap && styles.optionDisabled,
               ]}
             >
@@ -100,7 +100,7 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
         })}
       </OptionGrid>
       <p css={[typeRole.bodySmall, styles.counter]} aria-live="polite">
-        {t({ en: "Selected:", zh: "已选:" })} {String(selected.size)}/
+        {t({ en: "Selected:", zh: "已选:" })} {String(chosen.size)}/
         {String(MAX_ACCESSORIES)}
       </p>
     </section>
@@ -122,26 +122,16 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
     padding: space._2,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
+    [selectedTokens.rest]: color.bgSurface,
     borderRadius: "12px",
     cornerShape: "squircle",
     borderWidth: "2px",
     borderStyle: "solid",
-    borderColor: "transparent",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
     color: color.fg,
   },
-  optionSelected: {
-    borderColor: color.borderAccent,
-    backgroundColor: color.bgSurfaceRaised,
-  },
+
   optionDisabled: {
     // Locked accessory tile — visuals come from the option's `:disabled`
     // pseudo-class; this class is reserved for future locked-only flair.

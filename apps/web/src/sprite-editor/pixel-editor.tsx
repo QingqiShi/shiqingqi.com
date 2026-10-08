@@ -27,6 +27,7 @@ import {
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
@@ -1209,7 +1210,7 @@ function ToolButton({
         buttonReset.base,
         corner.radius_2,
         styles.toolButton,
-        active && styles.toolButtonActive,
+        selected.quiet,
       ]}
       title={label}
       aria-label={label}
@@ -1288,13 +1289,7 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    backgroundColor: {
-      default: color.bgControl,
-      [pointer.canHover]: {
-        default: null,
-        ":hover:not(:disabled)": color.bgControlHover,
-      },
-    },
+    [selectedTokens.rest]: color.bgControl,
     color: color.fg,
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
@@ -1303,11 +1298,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
-  toolButtonActive: {
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
-    borderColor: color.borderAccent,
-  },
+
   colorRow: {
     display: "flex",
     flexWrap: "wrap",

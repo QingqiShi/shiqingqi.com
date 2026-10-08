@@ -75,6 +75,7 @@
     "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",
     "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
     "./primitives/root.stylex": "./src/primitives/root.stylex.ts",
+    "./primitives/selected.stylex": "./src/primitives/selected.stylex.ts",
     "./primitives/stack.stylex": "./src/primitives/stack.stylex.ts",
     "./primitives/texture.stylex": "./src/primitives/texture.stylex.ts",
     "./primitives/type.stylex": "./src/primitives/type.stylex.ts",

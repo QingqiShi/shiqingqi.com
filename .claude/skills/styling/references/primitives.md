@@ -13,6 +13,7 @@ Multi-property composable styles in `packages/ui/src/primitives/`. Each primitiv
 - [Root](#root)
 - [Motion](#motion)
 - [Accessibility](#accessibility)
+- [Selected](#selected)
 - [Material (Texture, Wash)](#material-texture-wash)
 
 ---
@@ -347,6 +348,33 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 ```
 
 Every element that takes focus draws the system ring: a component, `buttonReset.base`, `chipSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does. `apps/web/e2e/design-system-focus-ring.spec.ts` tabs through each page and fails on a tab stop with no ring or a clipped one.
+
+---
+
+## Selected
+
+**Import**: `@tuja/ui/primitives/selected.stylex`
+
+| Export                | Properties                                                                                               |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| `selected.quiet`      | `bgControlSelected` while selected, `bgControlHover` on hover — the default strength                     |
+| `selected.marked`     | `borderAccent` border and `bgAccentSubtle` tint while selected — for a choice that decides the next step |
+| `selectedTokens.rest` | The background while not selected; defaults to `transparent`                                             |
+
+Both strengths read the ARIA state already on the element: `aria-pressed`, `aria-checked` or `aria-selected` set to `true`, or any `aria-current` but `false`. Never write a `selected && styles.selected` style of your own — set the attribute and compose the strength. Each strength owns `backgroundColor` (and `marked` owns `borderColor`), so set a rest background through `selectedTokens.rest`, and give a `marked` element a border width. `quiet` is for an item that only has to stand out from its siblings (a menu row, a nav link, a tab, a segmented choice); `marked` is for a choice the visitor submits, such as a picked option card. Where the item's content covers its background (a colour swatch, an image thumbnail), neither strength shows; keep a ring there.
+
+```tsx
+import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
+
+<a aria-current={isCurrent ? "page" : undefined} css={[styles.link, selected.quiet]}>
+
+const styles = stylex.create({
+  option: { borderWidth: border.size_2, borderStyle: "solid", [selectedTokens.rest]: color.bgSurface },
+});
+<button {...getOptionProps(value)} css={[styles.option, selected.marked]}>
+```
+
+`apps/web/e2e/design-system-selected.spec.ts` checks that each ARIA state, and only those, paints the look.
 
 ---
 

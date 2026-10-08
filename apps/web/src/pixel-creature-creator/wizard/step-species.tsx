@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -72,42 +72,39 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
         </p>
       </div>
       <div css={styles.grid} role="radiogroup" aria-labelledby={headingId}>
-        {entries.map((entry) => {
-          const selected = def.species === entry.id;
-          return (
-            <button
-              key={entry.id}
-              type="button"
-              {...getOptionProps(entry.id)}
-              data-testid={`species-option-${entry.id}`}
-              css={[
-                buttonReset.base,
-                styles.option,
-                transition.colors,
-                selected && styles.optionSelected,
-              ]}
-            >
-              <div css={styles.thumb}>
-                <Image
-                  src={entry.idle}
-                  alt=""
-                  width={THUMB_PX}
-                  height={THUMB_PX}
-                  unoptimized
-                  style={{
-                    width: `${String(THUMB_PX)}px`,
-                    height: `${String(THUMB_PX)}px`,
-                    imageRendering: "pixelated",
-                    display: "block",
-                  }}
-                />
-              </div>
-              <span css={typeRole.label}>
-                {speciesLabels[entry.id] ?? entry.id}
-              </span>
-            </button>
-          );
-        })}
+        {entries.map((entry) => (
+          <button
+            key={entry.id}
+            type="button"
+            {...getOptionProps(entry.id)}
+            data-testid={`species-option-${entry.id}`}
+            css={[
+              buttonReset.base,
+              styles.option,
+              selected.marked,
+              transition.colors,
+            ]}
+          >
+            <div css={styles.thumb}>
+              <Image
+                src={entry.idle}
+                alt=""
+                width={THUMB_PX}
+                height={THUMB_PX}
+                unoptimized
+                style={{
+                  width: `${String(THUMB_PX)}px`,
+                  height: `${String(THUMB_PX)}px`,
+                  imageRendering: "pixelated",
+                  display: "block",
+                }}
+              />
+            </div>
+            <span css={typeRole.label}>
+              {speciesLabels[entry.id] ?? entry.id}
+            </span>
+          </button>
+        ))}
       </div>
     </section>
   );
@@ -133,24 +130,14 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
     padding: space._2,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
+    [selectedTokens.rest]: color.bgSurface,
     borderRadius: "12px",
     cornerShape: "squircle",
     borderWidth: "2px",
     borderStyle: "solid",
-    borderColor: "transparent",
     color: color.fg,
   },
-  optionSelected: {
-    borderColor: color.borderAccent,
-    backgroundColor: color.bgSurfaceRaised,
-  },
+
   thumb: {
     display: "flex",
     alignItems: "center",
