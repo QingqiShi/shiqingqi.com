@@ -112,6 +112,5 @@ const styles = stylex.create({
     color: color.fg,
     lineHeight: font.lineHeight_00,
     textAlign: "center",
-    textWrap: "balance",
   },
 });

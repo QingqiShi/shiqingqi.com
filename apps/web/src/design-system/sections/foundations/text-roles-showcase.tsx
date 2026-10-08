@@ -140,7 +140,7 @@ interface TextLevelProps {
 function TextLevel({ token, sample, levelStyle }: TextLevelProps) {
   return (
     <div css={[stack.tight, styles.level]}>
-      <span css={[typeRole.body, styles.sample, levelStyle]}>{sample}</span>
+      <span css={[typeRole.body, levelStyle]}>{sample}</span>
       <span css={[typeRole.caption, styles.token, levelStyle]}>{token}</span>
     </div>
   );
@@ -170,9 +170,6 @@ const styles = stylex.create({
   },
   level: {
     minInlineSize: 0,
-  },
-  sample: {
-    textWrap: "pretty",
   },
   token: {
     fontFamily: font.familyMono,

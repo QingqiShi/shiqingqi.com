@@ -323,7 +323,6 @@ const styles = stylex.create({
     margin: 0,
     color: color.fgMuted,
     maxInlineSize: measure.prose,
-    textWrap: "pretty",
   },
   legend: {
     margin: 0,
@@ -360,7 +359,6 @@ const styles = stylex.create({
   specimen: {
     minInlineSize: 0,
     maxInlineSize: measure.prose,
-    overflowWrap: "break-word",
     color: color.fg,
   },
   container: {

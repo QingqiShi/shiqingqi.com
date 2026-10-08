@@ -159,11 +159,10 @@ const styles = stylex.create({
     // exemplar's titles, but a localized title long enough to beat both should break
     // and stay readable rather than run under `overflow: hidden`.
     //
-    // The floor is what makes the guard work: the title is a flex item, and at
-    // `auto` it takes its longest word as a minimum and overflows the plate
-    // instead of breaking inside it.
+    // The root breaks a long word, but the floor is what makes the guard work:
+    // the title is a flex item, and at `auto` it takes its longest word as a
+    // minimum and overflows the plate instead of breaking inside it.
     minInlineSize: 0,
-    overflowWrap: "break-word",
   },
   // A step up from the hero's own title, because on a 2:3 plate the title is the
   // artwork: at the heading step it read as a caption stranded at the top of an

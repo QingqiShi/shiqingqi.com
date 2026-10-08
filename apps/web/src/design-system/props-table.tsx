@@ -293,7 +293,6 @@ const styles = stylex.create({
   code: {
     fontFamily: font.familyMono,
     color: color.fgMuted,
-    overflowWrap: "break-word",
   },
   typeList: {
     minInlineSize: 0,
@@ -304,14 +303,12 @@ const styles = stylex.create({
     backgroundColor: color.bgControl,
     paddingInline: space._1,
     paddingBlock: space._00,
-    overflowWrap: "break-word",
   },
   noDefault: {
     color: color.fgMuted,
   },
   paragraph: {
     margin: 0,
-    textWrap: "pretty",
   },
   nextParagraph: {
     marginBlockStart: rhythm.tight,

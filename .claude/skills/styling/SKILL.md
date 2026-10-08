@@ -197,7 +197,7 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 <span css={[typeRole.h1, typeModifier.numeric]}>4.8</span>
 ```
 
-Roles: `display`, `subDisplay`, `h1`–`h4`, `body`, `bodySmall`, `label`, `caption`, `overline` (uppercase), `control`, `controlCaption` (text inside a control; they step down at `md` with `controlSize`), `fluidDisplay`, `fluidH1`–`fluidH3`, `fluidLead` (a landing page, growing with the viewport), `cardTitle` (grows with its `inline-size` container). `typeModifier.numeric` sets tabular figures.
+Roles: `display`, `subDisplay`, `h1`–`h4`, `body`, `bodySmall`, `label`, `caption`, `overline` (uppercase), `control`, `controlCaption` (text inside a control; they step down at `md` with `controlSize`), `fluidDisplay`, `fluidH1`–`fluidH3`, `fluidLead` (a landing page, growing with the viewport), `cardTitle` (grows with its `inline-size` container). Every heading role (`display`, `subDisplay`, `h1`–`h4`, `fluidDisplay`, `fluidH1`–`fluidH3`, `cardTitle`) also sets `text-wrap: balance`, on any element, so a title needs no `textWrap` of its own. `typeModifier.numeric` sets tabular figures.
 
 Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. The one exceptions are `"inherit"`, and a `controlSize.*` token for a glyph sized to a control. The weight is the property a callsite may change, with a `font.weight_*` token; leading and tracking take `font.*` tokens, never raw values. The `@tuja/require-type-role` ESLint rule enforces this in `packages/ui` and the apps.
 
@@ -205,7 +205,7 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 
 - **Layout** — position fills, scroll containers, truncation, image fit
 - **Reset** — `buttonReset.base` strips browser button chrome and carries the focus ring
-- **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeight_4`, `text-wrap: pretty`). Text needs no `lineHeight` or `textWrap: "pretty"` unless it differs, and nothing sets a `fontSize` on the root
+- **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeight_4`, `text-wrap: pretty`, `overflow-wrap: break-word`). Text needs no `lineHeight`, `textWrap: "pretty"` or `overflowWrap: "break-word"` unless it differs, and nothing sets a `fontSize` on the root
 - **Motion** — transition/animation presets with reduced-motion handling
 - **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline
 

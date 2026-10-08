@@ -31,6 +31,7 @@ function readRootDefaults() {
     htmlFontSize: parseFloat(html.fontSize),
     bodyLeading: parseFloat(body.lineHeight) / parseFloat(body.fontSize),
     bodyWrap: body.getPropertyValue("text-wrap-style"),
+    bodyOverflowWrap: body.overflowWrap,
     unbalanced: unbalanced.map(
       (heading) =>
         `<${heading.tagName.toLowerCase()}> "${heading.textContent.trim().slice(0, 60)}"`,
@@ -47,6 +48,9 @@ async function expectRootDefaults(page: Page) {
     .soft(defaults.bodyLeading, "Body text has a reading leading")
     .toBeGreaterThanOrEqual(MIN_BODY_LEADING);
   expect.soft(defaults.bodyWrap, "Body text wraps pretty").toBe("pretty");
+  expect
+    .soft(defaults.bodyOverflowWrap, "A word too long for its line breaks")
+    .toBe("break-word");
   expect.soft(defaults.unbalanced, "Every heading balances").toEqual([]);
 }
 

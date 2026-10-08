@@ -283,7 +283,6 @@ const styles = stylex.create({
   specimen: {
     margin: 0,
     color: color.fg,
-    overflowWrap: "break-word",
   },
   specimenFontSize: (fontSize: string) => ({
     fontSize,

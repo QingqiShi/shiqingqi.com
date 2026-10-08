@@ -320,16 +320,16 @@ export default function GetStartedPage() {
               term: "root",
               value: "root.html · root.body",
               note: t({
-                en: "root.html turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token; never set one on the root. root.body sets the text colour, the typeface, a line height of 1.5 and text-wrap: pretty, and every element inherits them.",
-                zh: "root.html 开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌；不要在根元素上设置字号。root.body 设置文字颜色、字体、1.5 的行高与 text-wrap: pretty，每个元素都会继承它们。",
+                en: "root.html turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token; never set one on the root. root.body sets the text colour, the typeface, a line height of 1.5, text-wrap: pretty and overflow-wrap: break-word, and every element inherits them.",
+                zh: "root.html 开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌；不要在根元素上设置字号。root.body 设置文字颜色、字体、1.5 的行高、text-wrap: pretty 与 overflow-wrap: break-word，每个元素都会继承它们。",
               }),
             },
             {
               term: t({ en: "Headings", zh: "标题" }),
               value: "text-wrap: balance",
               note: t({
-                en: "A StyleX rule cannot select an element by its tag, so the rule in global.css balances the lines of the headings you write yourself. Heading balances its lines without it.",
-                zh: "StyleX 规则无法按标签选择元素，因此由 global.css 中的规则让你自己编写的标题各行长度均衡。Heading 不需要这条规则也会均衡各行。",
+                en: "A StyleX rule cannot select an element by its tag, so the rule in global.css balances the lines of a heading you write yourself without a type role. Heading and every heading type role balance their lines without it.",
+                zh: "StyleX 规则无法按标签选择元素，因此由 global.css 中的规则让你自己编写、且没有字体角色的标题各行长度均衡。Heading 与每个标题字体角色不需要这条规则也会均衡各行。",
               }),
             },
             {

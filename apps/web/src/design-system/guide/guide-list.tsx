@@ -71,7 +71,6 @@ const styles = stylex.create({
   term: {
     margin: 0,
     color: color.fg,
-    textWrap: "balance",
     overflowWrap: "anywhere",
   },
   value: {
@@ -81,6 +80,5 @@ const styles = stylex.create({
   note: {
     color: color.fgMuted,
     maxInlineSize: measure.prose,
-    textWrap: "pretty",
   },
 });

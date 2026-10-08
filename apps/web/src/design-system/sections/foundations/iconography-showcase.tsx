@@ -424,7 +424,6 @@ const styles = stylex.create({
   propNote: {
     margin: 0,
     color: color.fgMuted,
-    textWrap: "pretty",
   },
   gallery: {
     display: "grid",

@@ -259,12 +259,12 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 
 **Import**: `@tuja/ui/primitives/root.stylex`
 
-| Export      | Properties                                                                                         |
-| ----------- | -------------------------------------------------------------------------------------------------- |
-| `root.html` | colorScheme: light dark + backgroundColor: `color.bgCanvas` + textSizeAdjust: 100%                 |
-| `root.body` | color: `color.fg` + fontFamily: `font.family` + lineHeight: `font.lineHeight_4` + textWrap: pretty |
+| Export      | Properties                                                                                                                    |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `root.html` | colorScheme: light dark + backgroundColor: `color.bgCanvas` + textSizeAdjust: 100%                                            |
+| `root.body` | color: `color.fg` + fontFamily: `font.family` + lineHeight: `font.lineHeight_4` + textWrap: pretty + overflowWrap: break-word |
 
-Goes once on the document: `root.html` on `<html>` (in apps/web, through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class) and `root.body` on `<body>`. Everything inherits the body's leading and `text-wrap: pretty`, so text needs no `lineHeight` or `textWrap` of its own unless it differs. Never set a `fontSize` on the root: it overrides the visitor's browser font size, which every `rem` token follows. StyleX cannot select by tag, so `apps/web/src/app/global.css` balances raw `<h1>`–`<h6>` in the `normalize` layer; `Heading` balances by default. `apps/web/e2e/design-system-root-defaults.spec.ts` guards all of this.
+Goes once on the document: `root.html` on `<html>` (in apps/web, through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class) and `root.body` on `<body>`. Everything inherits the body's leading, `text-wrap: pretty` and `overflow-wrap: break-word`, so text needs no `lineHeight`, `textWrap` or `overflowWrap` of its own unless it differs. `break-word` leaves the min-content size alone, so a flex or grid item that must shrink below its longest word still needs `overflowWrap: "anywhere"` or a zero minimum size. Never set a `fontSize` on the root: it overrides the visitor's browser font size, which every `rem` token follows. Every heading type role balances its lines, so `Heading` and any element that takes a heading role balance by default. StyleX cannot select by tag, so `apps/web/src/app/global.css` also balances raw `<h1>`–`<h6>` in the `normalize` layer, for a heading without a role. `apps/web/e2e/design-system-root-defaults.spec.ts` guards all of this.
 
 ---
 

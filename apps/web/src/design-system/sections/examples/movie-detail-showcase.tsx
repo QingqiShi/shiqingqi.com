@@ -217,8 +217,5 @@ const styles = stylex.create({
   entry: {
     color: color.fgMuted,
     fontFamily: font.familyMono,
-    // Not `anywhere`, which would break a name mid-word while the line still
-    // had room at the preceding space. The name is what a reader came to copy.
-    overflowWrap: "break-word",
   },
 });

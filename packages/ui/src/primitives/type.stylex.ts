@@ -7,6 +7,9 @@ import { font } from "../tokens.stylex.ts";
  * tracking. Compose one through the `css` prop, first, so a later style can
  * still change the weight: `css={[typeRole.label, styles.navItem]}`.
  *
+ * Every heading role also balances its lines, on any element, so a two-line
+ * title does not leave one word on its last line.
+ *
  * - `display` … `h4` — headings, from the largest to an item's title.
  * - `body`, `bodySmall` — running text; `bodySmall` for secondary text.
  * - `label` — a short line that names something: a field, a group, a meta row.
@@ -24,36 +27,42 @@ export const typeRole = stylex.create({
     lineHeight: font.lineHeight_1,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingTight,
+    textWrap: "balance",
   },
   subDisplay: {
     fontSize: font.uiSubDisplay,
     lineHeight: font.lineHeight_1,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingTight,
+    textWrap: "balance",
   },
   h1: {
     fontSize: font.uiHeading1,
     lineHeight: font.lineHeight_2,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingSnug,
+    textWrap: "balance",
   },
   h2: {
     fontSize: font.uiHeading2,
     lineHeight: font.lineHeight_2,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingNormal,
+    textWrap: "balance",
   },
   h3: {
     fontSize: font.uiHeading3,
     lineHeight: font.lineHeight_2,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingNormal,
+    textWrap: "balance",
   },
   h4: {
     fontSize: font.uiBody,
     lineHeight: font.lineHeight_3,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingNormal,
+    textWrap: "balance",
   },
   body: {
     fontSize: font.uiBody,
@@ -103,24 +112,28 @@ export const typeRole = stylex.create({
     lineHeight: font.lineHeight_1,
     fontWeight: font.weight_8,
     letterSpacing: font.trackingTight,
+    textWrap: "balance",
   },
   fluidH1: {
     fontSize: font.vpHeading1,
     lineHeight: font.lineHeight_2,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingNormal,
+    textWrap: "balance",
   },
   fluidH2: {
     fontSize: font.vpHeading2,
     lineHeight: font.lineHeight_2,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingNormal,
+    textWrap: "balance",
   },
   fluidH3: {
     fontSize: font.vpHeading3,
     lineHeight: font.lineHeight_3,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingNormal,
+    textWrap: "balance",
   },
   fluidLead: {
     fontSize: font.vpSubDisplay,
@@ -133,6 +146,7 @@ export const typeRole = stylex.create({
     lineHeight: font.lineHeight_2,
     fontWeight: font.weight_7,
     letterSpacing: font.trackingNormal,
+    textWrap: "balance",
   },
 });
 

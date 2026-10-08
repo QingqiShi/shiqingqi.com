@@ -276,13 +276,11 @@ const styles = stylex.create({
   heroTitle: {
     margin: 0,
     color: color.fg,
-    textWrap: "balance",
   },
   heroHint: {
     margin: 0,
     maxInlineSize: measure.short,
     color: color.fgMuted,
-    textWrap: "pretty",
   },
   heroError: {
     margin: 0,

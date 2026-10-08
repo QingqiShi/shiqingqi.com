@@ -70,12 +70,10 @@ export default function DesignSystemOverview() {
 const styles = stylex.create({
   heading: {
     margin: 0,
-    textWrap: "balance",
   },
   intro: {
     margin: 0,
     color: color.fgMuted,
     maxInlineSize: measure.prose,
-    textWrap: "pretty",
   },
 });

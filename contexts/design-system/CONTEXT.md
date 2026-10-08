@@ -45,7 +45,7 @@ A container that owns the space between its children, at one Rhythm step: `stack
 _Avoid_: spacer, list (for this sense), 间隔器
 
 **Type role**:
-The job a piece of text does, named by what it is rather than by its size — `display`, `subDisplay`, `h1`–`h4`, `body`, `bodySmall`, `label`, `caption`, `overline`, `control`, `controlCaption`, and the fluid roles that grow with the viewport or a container. A type role sets the size, line height, weight and tracking together; a callsite may change only the weight. The `typeRole` Primitive holds them, and `Text` and `Heading` take one as their `look`. ZH: 字体角色.
+The job a piece of text does, named by what it is rather than by its size — `display`, `subDisplay`, `h1`–`h4`, `body`, `bodySmall`, `label`, `caption`, `overline`, `control`, `controlCaption`, and the fluid roles that grow with the viewport or a container. A type role sets the size, line height, weight and tracking together, and a heading role also balances its lines; a callsite may change only the weight. The `typeRole` Primitive holds them, and `Text` and `Heading` take one as their `look`. ZH: 字体角色.
 _Avoid_: type scale, font size, text style, 字阶 (each of these is a `font` token)
 
 **Lab**:
