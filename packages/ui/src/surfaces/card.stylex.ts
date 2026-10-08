@@ -11,6 +11,12 @@ import { border, color } from "../tokens.stylex.ts";
  * would crop against the card's clipped overflow, and a primitive can't
  * compose another at definition time. `primitives/focus-ring.test.ts` keeps
  * the copy the same as the original.
+ *
+ * Of `a11y.touchTarget`, it takes only the tap highlight and `touch-action`.
+ * A card is larger than 44px, so a hit area would add nothing, and the
+ * `position` and `isolation` the hit area needs would change how a card's
+ * content stacks on a touch screen. `primitives/touch-target.test.ts` keeps
+ * the two declarations the same as the original.
  */
 export const cardSurface = stylex.create({
   base: {
@@ -44,5 +50,7 @@ export const cardSurface = stylex.create({
       ":focus-visible": color.borderAccent,
     },
     outlineOffset: `calc(-1 * ${border.size_2})`,
+    WebkitTapHighlightColor: "transparent",
+    touchAction: "manipulation",
   },
 });

@@ -44,6 +44,10 @@ export function AccessibilityShowcase() {
       zh: "每个可交互组件都有焦点环，在 :focus-visible 时显示",
     }),
     t({
+      en: "On a touch screen, every interactive component takes a tap across at least 44px and shows no tap flash",
+      zh: "在触摸屏上，每个可交互组件都能在至少 44px 的范围内响应点按，且没有点按闪烁",
+    }),
+    t({
       en: "Arrow keys, Home and End in SegmentedControl, single-choice OptionCardGroup and MenuButton menus",
       zh: "SegmentedControl、单选 OptionCardGroup 与 MenuButton 菜单支持方向键、Home 与 End",
     }),
@@ -550,12 +554,12 @@ export function AccessibilityShowcase() {
 
       <GuideSection
         title={t({
-          en: "Focus and names on your own control",
-          zh: "自建控件的焦点与名称",
+          en: "Focus, touch and names on your own control",
+          zh: "自建控件的焦点、触摸与名称",
         })}
         lead={t({
-          en: "A control you build from primitives starts with the focus ring and nothing else; the other guarantees above are yours to add. The ring is the one the components use: a 2px accent outline at a 2px offset, on :focus-visible only. buttonReset.base already carries it, and a11y.focusRing gives it to any other element that takes focus, such as a link. a11y.srOnly hides a name from view and keeps it in the accessibility tree. Tab into the row below.",
-          zh: "用原语自建的控件，一开始只带有焦点环；上述其他保障需要你自己补上。这个焦点环与组件所用的相同：2px 强调色描边、2px 外偏移，只在 :focus-visible 时出现。buttonReset.base 已经带有它，a11y.focusRing 则把它加到其他可获得焦点的元素上，例如链接。a11y.srOnly 在视觉上隐藏名称，但将其保留在无障碍树中。按 Tab 进入下面这一行。",
+          en: "A control you build from primitives starts with the focus ring and the touch target, and nothing else; the other guarantees above are yours to add. The ring is the one the components use: a 2px accent outline at a 2px offset, on :focus-visible only. The touch target takes a tap across at least 44px on a touch screen without changing how the control looks, and drops the tap flash. buttonReset.base already carries both; a11y.focusRing and a11y.touchTarget give them to any other element, such as a link. a11y.srOnly hides a name from view and keeps it in the accessibility tree. Tab into the row below.",
+          zh: "用原语自建的控件，一开始只带有焦点环和触摸目标；上述其他保障需要你自己补上。这个焦点环与组件所用的相同：2px 强调色描边、2px 外偏移，只在 :focus-visible 时出现。触摸目标让控件在触摸屏上能在至少 44px 的范围内响应点按，却不改变它的外观，并去掉点按闪烁。buttonReset.base 已经带有这两者；a11y.focusRing 与 a11y.touchTarget 则把它们加到其他元素上，例如链接。a11y.srOnly 在视觉上隐藏名称，但将其保留在无障碍树中。按 Tab 进入下面这一行。",
         })}
       >
         <div css={cluster.item}>
@@ -598,8 +602,8 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
         />
         <GuideNote>
           {t({
-            en: "Where an ancestor clips overflow, the outer ring is cut off. a11y.focusRingInset draws the same ring inside the box; Disclosure, SegmentedControl and an interactive Card use it.",
-            zh: "祖先元素裁切溢出内容时，外侧的焦点环会被截掉。a11y.focusRingInset 把同一个环画在盒内；Disclosure、SegmentedControl 与可交互的 Card 都使用它。",
+            en: "Where an ancestor clips overflow, the outer ring is cut off. a11y.focusRingInset draws the same ring inside the box; Disclosure, SegmentedControl and an interactive Card use it. The ancestor clips the touch target too, so on a touch screen a control inside it needs 44px of its own, as the Inset ring chip has.",
+            zh: "祖先元素裁切溢出内容时，外侧的焦点环会被截掉。a11y.focusRingInset 把同一个环画在盒内；Disclosure、SegmentedControl 与可交互的 Card 都使用它。这个祖先元素也会裁切触摸目标，因此在触摸屏上，它里面的控件自身需要 44px，就像「内嵌焦点环」这个标签一样。",
           })}
         </GuideNote>
       </GuideSection>
@@ -757,6 +761,7 @@ const styles = stylex.create({
   insetChip: {
     paddingBlock: space._1,
     paddingInline: space._3,
+    minBlockSize: { default: null, [pointer.coarse]: "44px" },
     color: color.fg,
     backgroundColor: {
       default: color.bgControlSelected,

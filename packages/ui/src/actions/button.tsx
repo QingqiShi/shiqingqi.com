@@ -53,12 +53,12 @@ interface ButtonBaseProps extends Omit<
   /**
    * Height scale via `controlSize`. Defaults to `"md"`.
    *
-   * `"sm"` still falls short of the 44px WCAG 2.5.8 touch target, even though
-   * every size grows on touch viewports.
+   * Under a coarse pointer every size takes a tap across at least 44px (WCAG
+   * 2.5.8), even where it draws smaller, as `"sm"` does.
    *
    * @zh 通过 `controlSize` 设定的高度阶梯。
    *
-   * 即使每个尺寸在触摸视口下都会增大，`"sm"` 仍未达到 WCAG 2.5.8 要求的 44px 触摸目标。
+   * 在粗指针设备上，每个尺寸都能在至少 44px 的范围内响应点按（WCAG 2.5.8），即使它绘制得更小，例如 `"sm"`。
    */
   size?: "sm" | "md" | "lg";
   /**
@@ -228,6 +228,7 @@ export function Button({
         typeRole.control,
         size === "sm" && typeRole.label,
         size === "lg" && typeRole.h2,
+        a11y.touchTarget,
         sharedStyles.base,
         corner.squircle_round,
         a11y.focusRing,

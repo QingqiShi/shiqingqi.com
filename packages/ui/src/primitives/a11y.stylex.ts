@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "../breakpoints.stylex.ts";
 import { border, color } from "../tokens.stylex.ts";
 
 const ringShape = {
@@ -17,6 +18,12 @@ const ringShape = {
  * outward ring would be cropped, and `focusRingWithin` on the frame of a
  * control that has no frame of its own. Every element that takes focus draws one;
  * `buttonReset.base` already carries `focusRing`.
+ *
+ * `touchTarget` gives a control the touch feel of the system: no tap flash, no
+ * double-tap zoom delay, and, under a coarse pointer, a hit area of at least
+ * 44px (WCAG 2.5.8) that does not change how the control looks.
+ * `buttonReset.base` and `chipSurface.interactive` already carry it.
+ * `cardSurface.interactive` carries all of it except the hit area.
  */
 export const a11y = stylex.create({
   // Visually hidden, still announced. The `inset(50%)` clip + 1px box is the
@@ -50,6 +57,23 @@ export const a11y = stylex.create({
       ":focus-visible": color.borderAccent,
     },
     outlineOffset: `calc(-1 * ${border.size_2})`,
+  },
+  // The hit area is an `::after` that extends past the box to 44px in each
+  // axis and stays below the content. The control becomes its containing
+  // block and a stacking context only under a coarse pointer, so a mouse sees
+  // no change. Compose it before a style that sets `position`, or that style
+  // loses its value.
+  touchTarget: {
+    WebkitTapHighlightColor: "transparent",
+    touchAction: "manipulation",
+    position: { default: null, [pointer.coarse]: "relative" },
+    isolation: { default: null, [pointer.coarse]: "isolate" },
+    "::after": {
+      content: { default: null, [pointer.coarse]: '""' },
+      position: "absolute",
+      inset: "min(0px, calc(50% - 22px))",
+      zIndex: -1,
+    },
   },
   // The ring on a frame around a control that has no frame of its own, such
   // as a bare text field. Put `stylex.defaultMarker()` on that control.

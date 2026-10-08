@@ -220,12 +220,12 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 ### Other Primitives (see `references/primitives.md`)
 
 - **Layout** — position fills, scroll containers, truncation, image fit
-- **Reset** — `buttonReset.base` strips browser button chrome and carries the focus ring
+- **Reset** — `buttonReset.base` strips browser button chrome and carries the focus ring and the touch target
 - **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeight_4`, `text-wrap: pretty`, `overflow-wrap: break-word`). Text needs no `lineHeight`, `textWrap: "pretty"` or `overflowWrap: "break-word"` unless it differs, and nothing sets a `fontSize` on the root
 - **Motion** — transition/animation presets with reduced-motion handling
 - **Selected** — `selected.quiet` / `selected.marked` paint the selected state from the element's own `aria-pressed`, `aria-checked`, `aria-selected` or `aria-current`. Set the attribute and compose a strength; never a hand-built `isActive && styles.active`. `quiet` (a background) is the default; `marked` (accent border and tint) is only for a choice the visitor submits
 - **Page column** — `pageColumn.base` / `pageColumn.scroller` set a page's content in the centred column with the page gutter; `pageGutter` is one gutter
-- **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline
+- **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline. `touchTarget` gives a control a hit area of at least 44px under a coarse pointer, no tap flash and `touch-action: manipulation`; `buttonReset.base`, `chipSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need
 
 ## Best Practices
 
@@ -245,3 +245,4 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 14. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; a reveal gives touch the full state
 15. **Every focusable element draws the focus ring** — `buttonReset.base` for a hand-built button, `a11y.focusRing` for anything else; never `outline: none`
 16. **Icons take their size from the parent** — the text beside them, or a type role or `controlSize` font size on the parent; never the `size` or `color` prop, and every icon names its `weight`
+17. **Every control takes a 44px tap on touch** — `buttonReset.base` for a hand-built button, `a11y.touchTarget` for anything else; keep a small control far enough from a neighbouring control or field that its hit area does not cover them, and out of an ancestor that clips overflow

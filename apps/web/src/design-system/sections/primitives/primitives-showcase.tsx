@@ -547,10 +547,10 @@ function ResetSection() {
   const api: ApiEntry[] = [
     {
       token: "buttonReset.base",
-      meta: "appearance · border · bg · padding · cursor · focus ring",
+      meta: "appearance · border · bg · padding · cursor · focus ring · touch target",
       description: t({
-        en: "Strips native button chrome and puts the system focus ring back, so you can build a custom control on top of real, accessible <button> semantics.",
-        zh: "移除原生按钮外观并补回系统焦点环，让你在真正可访问的 <button> 语义之上构建自定义控件。",
+        en: "Strips native button chrome and puts the system focus ring and touch target back, so you can build a custom control on top of real, accessible <button> semantics.",
+        zh: "移除原生按钮外观并补回系统焦点环与触摸目标，让你在真正可访问的 <button> 语义之上构建自定义控件。",
       }),
     },
   ];
@@ -894,6 +894,14 @@ function A11ySection() {
       description: t({
         en: "Same ring on the frame of a control that has no frame of its own, such as a bare text field.",
         zh: "同样的焦点环，画在自身没有外框的控件（例如无边框的文本输入框）的外框上。",
+      }),
+    },
+    {
+      token: "a11y.touchTarget",
+      meta: "≥44px hit area · (pointer: coarse) · no tap flash",
+      description: t({
+        en: "On a touch screen, a tap across at least 44px without a change in how the control looks (WCAG 2.5.8). buttonReset.base and chipSurface.interactive already carry it. An ancestor that clips overflow clips the hit area too.",
+        zh: "在触摸屏上，控件能在至少 44px 的范围内响应点按，且外观不变（WCAG 2.5.8）。buttonReset.base 与 chipSurface.interactive 已经带有它。裁切溢出内容的祖先元素也会裁切点按区域。",
       }),
     },
   ];

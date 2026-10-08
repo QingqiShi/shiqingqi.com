@@ -58,14 +58,9 @@ export function ChatInputBar({
         attachedMedia && (
           <div css={styles.attachmentRow}>
             <span
-              css={[
-                typeRole.label,
-                truncate.base,
-                corner.radius_round,
-                styles.attachmentTag,
-              ]}
+              css={[typeRole.label, corner.radius_round, styles.attachmentTag]}
             >
-              {attachedMedia.title}
+              <span css={truncate.base}>{attachedMedia.title}</span>
               <button
                 type="button"
                 aria-label={removeAttachmentLabel}
