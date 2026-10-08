@@ -325,8 +325,9 @@ into layers, and a rule outside any layer would beat all of them.
 ```
 
 A StyleX rule cannot select an element by its tag, so the one tag-wide default,
-balanced lines for headings you write by hand, goes in the same layer.
-`Heading` balances its lines on its own:
+balanced lines for a heading you write by hand without a type role, goes in the
+same layer. `Heading` and every heading type role balance their lines on their
+own:
 
 ```css
 /* global.css */
@@ -346,8 +347,9 @@ Then put the `root` primitive on the document root. `root.html` turns on both
 colour schemes, paints the canvas and stops mobile browsers from inflating text.
 It sets no font size, so the visitor's browser font size reaches every `rem`
 token. `root.body` sets the text that everything inherits: the default text
-colour, the typeface, a reading line height (`font.lineHeight_4`) and
-`text-wrap: pretty`.
+colour, the typeface, a reading line height (`font.lineHeight_4`),
+`text-wrap: pretty` and `overflow-wrap: break-word`, which breaks a word too
+long for its line, such as a URL.
 
 ```tsx
 import * as stylex from "@stylexjs/stylex";
@@ -451,7 +453,7 @@ as the system gains components.
 | `@tuja/ui/primitives/layout.stylex`           | Layout/container primitives.                                                                                                                                                |
 | `@tuja/ui/primitives/motion.stylex`           | Motion/transition presets (reduced-motion aware).                                                                                                                           |
 | `@tuja/ui/primitives/reset.stylex`            | Element reset styles. `buttonReset.base` keeps the `focusRing`.                                                                                                             |
-| `@tuja/ui/primitives/root.stylex`             | Document defaults: `root.html` (colour schemes, canvas, no text inflation) and `root.body` (text colour, typeface, line height, `text-wrap: pretty`).                       |
+| `@tuja/ui/primitives/root.stylex`             | Document defaults: `root.html` (colour schemes, canvas, no text inflation) and `root.body` (text colour, typeface, line height, `text-wrap: pretty`, `overflow-wrap`).      |
 | `@tuja/ui/primitives/texture.stylex`          | Texture: one drawn dot of 1px or less, repeated at a pitch, in an ink colour.                                                                                               |
 | `@tuja/ui/primitives/wash.stylex`             | Wash: a broad directional gradient, one tone drifting toward transparent.                                                                                                   |
 | `@tuja/ui/components/anchor-button`           | Button's look rendered as a real anchor (`href` required); pass `linkComponent` for a framework `<Link>`.                                                                   |

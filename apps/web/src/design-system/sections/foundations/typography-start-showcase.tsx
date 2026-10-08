@@ -59,8 +59,8 @@ export function TypographyStartShowcase() {
             term: "wrap · numeric",
             value: t({ en: "Line breaks and figures", zh: "换行与数字" }),
             note: t({
-              en: "Text inherits text-wrap: pretty from the root, which keeps a lone word off the last line, and a Heading balances its lines. Pass wrap only to break differently. numeric on Text sets tabular figures, so numbers line up in a column and a changing value does not shift.",
-              zh: "Text 从根元素继承 text-wrap: pretty，避免末行只剩一个词；Heading 默认让各行长度均衡。只有需要不同的换行方式时才传入 wrap。Text 上的 numeric 启用等宽数字，使数字在列中对齐，变化的数值也不会移位。",
+              en: "Text inherits text-wrap: pretty from the root, which keeps a lone word off the last line, and a Heading, like every heading type role, balances its lines. Pass wrap only to break differently. numeric on Text sets tabular figures, so numbers line up in a column and a changing value does not shift.",
+              zh: "Text 从根元素继承 text-wrap: pretty，避免末行只剩一个词；Heading 与每个标题字体角色一样，默认让各行长度均衡。只有需要不同的换行方式时才传入 wrap。Text 上的 numeric 启用等宽数字，使数字在列中对齐，变化的数值也不会移位。",
             }),
           },
         ]}

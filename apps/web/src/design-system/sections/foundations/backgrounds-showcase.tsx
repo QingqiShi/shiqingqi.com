@@ -262,7 +262,6 @@ const styles = stylex.create({
   bandUse: {
     margin: 0,
     color: color.fgMuted,
-    textWrap: "pretty",
   },
   grid: {
     display: "grid",

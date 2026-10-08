@@ -38,18 +38,15 @@ const styles = stylex.create({
   title: {
     maxInlineSize: measure.prose,
     color: color.fg,
-    textWrap: "balance",
   },
   lead: {
     margin: 0,
     maxInlineSize: measure.prose,
     color: color.fgMuted,
-    textWrap: "pretty",
   },
   note: {
     margin: 0,
     color: color.fgMuted,
     maxInlineSize: measure.prose,
-    textWrap: "pretty",
   },
 });

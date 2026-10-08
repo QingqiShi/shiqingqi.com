@@ -87,11 +87,11 @@ describe("Heading wrapping", () => {
     },
   );
 
-  it("balances its lines by default", () => {
+  it("takes its wrap from the type role by default", () => {
     render(<Heading>Tuscany by car</Heading>);
 
-    expect(screen.getByRole("heading").className).toContain(
-      "wrapStyles.balance",
-    );
+    const { className } = screen.getByRole("heading");
+    expect(className).toContain("typeRole.h2");
+    expect(className).not.toContain("wrapStyles.");
   });
 });

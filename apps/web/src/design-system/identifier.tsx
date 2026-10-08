@@ -1,4 +1,3 @@
-import * as stylex from "@stylexjs/stylex";
 import { Fragment } from "react";
 
 function isUpper(character: string) {
@@ -50,7 +49,7 @@ interface IdentifierProps {
  */
 export function Identifier({ children }: IdentifierProps) {
   return (
-    <span css={styles.identifier}>
+    <span>
       {splitAtSeams(children).map(({ text, at }) => (
         <Fragment key={at}>
           {at > 0 ? <wbr /> : null}
@@ -60,11 +59,3 @@ export function Identifier({ children }: IdentifierProps) {
     </span>
   );
 }
-
-const styles = stylex.create({
-  // `break-word` fires only once a chunk cannot fit a line by itself, so it
-  // never pre-empts a seam the way `anywhere` would.
-  identifier: {
-    overflowWrap: "break-word",
-  },
-});

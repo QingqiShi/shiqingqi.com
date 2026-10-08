@@ -53,12 +53,10 @@ const styles = stylex.create({
   title: {
     margin: 0,
     color: color.fg,
-    textWrap: "balance",
   },
   description: {
     margin: 0,
     color: color.fgMuted,
     maxInlineSize: measure.prose,
-    textWrap: "pretty",
   },
 });

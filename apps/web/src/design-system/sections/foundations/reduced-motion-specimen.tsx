@@ -151,7 +151,6 @@ const styles = stylex.create({
     margin: 0,
     color: color.fgMuted,
     maxInlineSize: measure.prose,
-    textWrap: "pretty",
     minInlineSize: 0,
   },
 });

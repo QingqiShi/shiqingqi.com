@@ -608,10 +608,10 @@ function RootSection() {
     },
     {
       token: "root.body",
-      meta: "color · font-family · line-height · text-wrap",
+      meta: "color · font-family · line-height · text-wrap · overflow-wrap",
       description: t({
-        en: "The text every element inherits: the default colour, the typeface, a line height of 1.5 and text-wrap: pretty.",
-        zh: "每个元素继承的文字样式：默认颜色、字体、1.5 的行高与 text-wrap: pretty。",
+        en: "The text every element inherits: the default colour, the typeface, a line height of 1.5, text-wrap: pretty, and overflow-wrap: break-word, which breaks a word too long for its line.",
+        zh: "每个元素继承的文字样式：默认颜色、字体、1.5 的行高、text-wrap: pretty，以及 overflow-wrap: break-word，它会断开一行放不下的长词。",
       }),
     },
   ];
