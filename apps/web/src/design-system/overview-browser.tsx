@@ -9,7 +9,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize, rhythm } from "@tuja/ui/tokens.stylex";
+import { color, controlSize, measure, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState, type ReactNode } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";
@@ -315,7 +315,7 @@ const styles = stylex.create({
   emptyHint: {
     margin: 0,
     color: color.fgMuted,
-    maxInlineSize: "52ch",
+    maxInlineSize: measure.short,
     textWrap: "pretty",
   },
 });

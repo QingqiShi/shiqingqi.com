@@ -17,6 +17,7 @@ import {
   border,
   color,
   controlSize,
+  measure,
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -458,7 +459,7 @@ const styles = stylex.create({
     margin: 0,
     color: color.fgMuted,
     textAlign: "center",
-    maxWidth: "24ch",
+    maxInlineSize: measure.short,
   },
   categoryLabel: {
     margin: 0,

@@ -6,7 +6,7 @@ import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, color, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { guidelineDiagram } from "#src/design-system/guideline-diagram.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -84,7 +84,7 @@ export function PopoverShowcase() {
   return (
     <>
       <Showcase label={t({ en: "Trigger and panel", zh: "触发元素与面板" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "A surface hung off a trigger. Click to open it; Escape, a pointer outside, or focus leaving all close it. It holds no focus trap and no scroll lock, so the page behind stays readable and usable the whole time.",
             zh: "挂在触发元素上的浮层。点击即可打开；按 Escape、在外部点击或让焦点离开都会关闭它。它不捕获焦点、不锁定滚动，因此后面的页面始终可读可用。",
@@ -96,7 +96,7 @@ export function PopoverShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Placement", zh: "位置" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "Four sides, each on its own or aligned to one of the anchor's edges — twelve values, defaulting to bottom-start. Alignment mirrors under RTL, so start follows the reading direction rather than the left edge.",
             zh: "四条边，每条可单独使用或对齐到锚点的某一侧边缘——共十二个取值，默认 bottom-start。在 RTL 下对齐会镜像，因此 start 跟随阅读方向，而不是固定在左边。",
@@ -112,7 +112,7 @@ export function PopoverShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Viewport collisions", zh: "视口碰撞" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "Placement is computed against the window, not the trigger's corner. Scroll this rail until a trigger sits near a window edge, then open it — the panel shifts back inside the 8px gutter it keeps from every edge. Leave it open and keep scrolling: it re-reads the anchor on every scroll and resize.",
             zh: "位置是相对窗口计算的，而不是相对触发元素的角落。把这条轨道滚动到某个触发元素靠近窗口边缘，然后打开它——面板会平移回它与每条边缘保持的 8px 间距之内。保持打开继续滚动：每次滚动和尺寸变化它都会重新读取锚点。",
@@ -127,7 +127,7 @@ export function PopoverShowcase() {
             </div>
           </div>
         </Specimen>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: 'Flipping is the other half. This trigger asks for placement="top". Scroll the page until it sits near the top of the window and open it — with no room above, the side flips to the bottom instead.',
             zh: '翻转是另一半。这个触发元素请求 placement="top"。把页面滚动到它靠近窗口顶部时再打开——上方没有空间，那条边就会翻转到下方。',
@@ -177,7 +177,7 @@ export function PopoverShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Portal target", zh: "渲染目标" })}>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "The panel is portalled so a clipping or transformed ancestor cannot cut it off, and document.body is the default because it is almost always the right answer. Pass an element to render it somewhere else — inside a native dialog, say — or null to hold rendering until a target exists.",
             zh: "面板通过 portal 渲染，这样带裁剪或变换的祖先元素就无法把它切掉；默认是 document.body，因为绝大多数情况下这就是正确答案。传入一个元素可以渲染到别处——例如原生 dialog 内部——或传入 null 以等待目标出现再渲染。",
@@ -227,9 +227,6 @@ export function PopoverShowcase() {
 }
 
 const styles = stylex.create({
-  note: {
-    maxInlineSize: "65ch",
-  },
   placementGrid: {
     display: "grid",
     inlineSize: "100%",
@@ -262,7 +259,7 @@ const styles = stylex.create({
     flexDirection: "column",
     gap: rhythm.item,
     margin: 0,
-    maxInlineSize: "65ch",
+    maxInlineSize: measure.prose,
     paddingInlineStart: space._4,
     color: color.fgMuted,
   },

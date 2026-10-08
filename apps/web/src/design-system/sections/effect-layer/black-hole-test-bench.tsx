@@ -140,6 +140,11 @@ const styles = stylex.create({
   stage: {
     position: "relative",
     blockSize: `calc(120lvh + ${String(EDGE_SEARCH_START + 120)}px)`,
+    // Keep the next bench out of the reach of the first beam. The beam can
+    // point down at the Black hole on the band edge. While its light can
+    // reach the screen, the effect draws each frame. In software rendering
+    // that is slow, and the dust specs below then time out.
+    marginBlockEnd: space._14,
   },
   beam: {
     position: "absolute",
@@ -147,8 +152,10 @@ const styles = stylex.create({
     paddingInline: space._3,
     fontWeight: font.weight_6,
   },
+  // Keep the beam clear of the helper text above it. The specs read light in
+  // a box beside the beam, and text in that box also reads as light.
   accent: {
-    insetBlockStart: space._5,
+    insetBlockStart: space._8,
     insetInlineStart: "6%",
     color: color.fgOnAccent,
     backgroundColor: color.bgAccent,

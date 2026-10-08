@@ -5,6 +5,7 @@ const noSingleUseLiteralAlias = require("./conventions/no-single-use-literal-ali
 const noUseClientInHooks = require("./conventions/no-use-client-in-hooks");
 const onlyStylexExports = require("./design-system/only-stylex-exports");
 const requireCornerShape = require("./design-system/require-corner-shape");
+const requireMeasure = require("./design-system/require-measure");
 const requirePackageExport = require("./design-system/require-package-export");
 const requireRhythmSpacing = require("./design-system/require-rhythm-spacing");
 const requireTypeRole = require("./design-system/require-type-role");
@@ -19,6 +20,7 @@ module.exports = {
     "no-use-client-in-hooks": noUseClientInHooks,
     "only-stylex-exports": onlyStylexExports,
     "require-corner-shape": requireCornerShape,
+    "require-measure": requireMeasure,
     "require-package-export": requirePackageExport,
     "require-rhythm-spacing": requireRhythmSpacing,
     "require-type-role": requireTypeRole,

@@ -1,12 +1,10 @@
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import { BookmarkIcon } from "@phosphor-icons/react/dist/ssr/Bookmark";
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
-import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Chip } from "@tuja/ui/components/chip";
 import { Text } from "@tuja/ui/components/text";
 import { DoDont } from "#src/design-system/do-dont.tsx";
-import { measure } from "#src/design-system/measure.stylex.ts";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
@@ -59,7 +57,7 @@ export function ChipShowcase() {
             </Chip>
           </Specimen>
         </SpecimenGrid>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "The icon is decorative and hidden from assistive tech; the trailing slot stays announced, so the second chip reads as “Watchlist12”. Trailing content is set back a step with the muted token — but on the selected fill it takes the label's colour, since dimming an already-tight pairing would drop it below the contrast floor.",
             zh: "图标为装饰性内容，对辅助技术隐藏；尾部插槽仍会被朗读，因此第二个标签按钮读作 “Watchlist12”。尾部内容以弱化色标记退后一层——但在选中态的填充上会改用标签本身的颜色，因为在本已紧凑的对比配对上再做减淡会跌破对比度下限。",
@@ -78,7 +76,7 @@ export function ChipShowcase() {
             {t({ en: "Open on TMDB", zh: "在 TMDB 打开" })}
           </Chip>
         </Specimen>
-        <Text look="bodySmall" tone="muted" css={styles.note}>
+        <Text look="bodySmall" tone="muted">
           {t({
             en: "Passing href renders a real anchor, so the chip is announced as a link and forwards target and rel. A link is not a toggle — mark the current one with aria-current rather than isActive.",
             zh: "传入 href 会渲染真实的锚点元素，因此该标签按钮会被识别为链接，并可转发 target 与 rel。链接不是开关——请用 aria-current 标记当前项，而非 isActive。",
@@ -141,9 +139,3 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
     </>
   );
 }
-
-const styles = stylex.create({
-  note: {
-    maxInlineSize: measure.prose,
-  },
-});

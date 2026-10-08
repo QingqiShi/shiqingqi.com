@@ -14,6 +14,7 @@ import {
   border,
   color,
   layer,
+  measure,
   ratio,
   rhythm,
   shadow,
@@ -357,6 +358,7 @@ const styles = stylex.create({
   },
   description: {
     margin: 0,
+    maxInlineSize: measure.prose,
   },
   errorText: {
     margin: 0,

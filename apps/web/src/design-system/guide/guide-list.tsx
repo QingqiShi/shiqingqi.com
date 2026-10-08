@@ -1,10 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { color, font, measure, rhythm } from "@tuja/ui/tokens.stylex";
 import { Fragment } from "react";
 import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
-import { measure } from "#src/design-system/measure.stylex.ts";
 
 interface GuideListItem {
   term: string;

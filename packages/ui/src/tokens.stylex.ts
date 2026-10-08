@@ -245,6 +245,20 @@ export const layout = stylex.defineConsts({
   maxInlineSize: "1140px",
 });
 
+/**
+ * The Measure: the width cap for a block of prose, in `em` so the cap tracks
+ * its text's size. `Text` already takes `prose` when it renders a paragraph.
+ */
+export const measure = stylex.defineConsts({
+  /** Running prose. 41 Chinese characters at any size, around 88 Latin. */
+  prose: "41em",
+  /**
+   * A short standalone block: a lede, an empty state, a hint. 24 Chinese
+   * characters, around 50 Latin, so it reads as one compact unit.
+   */
+  short: "24em",
+});
+
 export const color = stylex.defineVars({
   fg: `light-dark(${light.fg}, ${dark.fg})`,
   fgMuted: `light-dark(${light.fgMuted}, ${dark.fgMuted})`,

@@ -11,7 +11,7 @@ import { Text } from "@tuja/ui/components/text";
 import { align, justify } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
@@ -138,7 +138,7 @@ const styles = stylex.create({
     paddingBlockEnd: space._9,
   },
   lede: {
-    maxInlineSize: "34ch",
+    maxInlineSize: measure.short,
   },
   destinations: {
     display: "grid",

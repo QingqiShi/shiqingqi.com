@@ -15,7 +15,14 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  font,
+  measure,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import type { SourceImage } from "./types";
@@ -265,7 +272,7 @@ const styles = stylex.create({
   },
   heroHint: {
     margin: 0,
-    maxInlineSize: "42ch",
+    maxInlineSize: measure.short,
     color: color.fgMuted,
     textWrap: "pretty",
   },

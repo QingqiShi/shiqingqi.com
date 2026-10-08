@@ -1,16 +1,8 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
-import { measure } from "#src/design-system/measure.stylex.ts";
 
 /** The Overview — TMDB's word for the plot synopsis, not a summary of the page. */
 export function OverviewPanel({ overview }: { overview: string }) {
-  return <Text css={styles.prose}>{overview}</Text>;
+  return <Text>{overview}</Text>;
 }
-
-const styles = stylex.create({
-  prose: {
-    maxInlineSize: measure.prose,
-  },
-});

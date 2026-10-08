@@ -124,8 +124,8 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Element", zh: "元素" })}>
         <ShowcaseHelper>
           {t({
-            en: "as picks the semantic element; look picks the size. They stay decoupled, so a span can still read at body size inline.",
-            zh: "as 决定语义元素，look 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。",
+            en: "as picks the semantic element; look picks the size. They stay decoupled, so a span can still read at body size inline. A p at body or bodySmall is a paragraph, so its lines stop at the Measure.",
+            zh: "as 决定语义元素，look 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。body 或 bodySmall 字号的 p 是段落，所以每行到行长上限为止。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>

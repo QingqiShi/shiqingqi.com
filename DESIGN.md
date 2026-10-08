@@ -35,6 +35,6 @@ Showcase sources are under `apps/web/src/design-system/sections/`.
 - Squircle corners and their fallback: `packages/ui/src/primitives/corner.stylex.ts`, enforced by the `require-corner-shape` lint rule.
 - Material: `foundations/glass-showcase.tsx`, `foundations/texture-showcase.tsx` and `foundations/wash-showcase.tsx`; glass is drawn in `packages/ui/src/surfaces/glass-surface.stylex.ts`.
 - Progressive blur and Scroll mask: `components/progressive-blur-showcase.tsx` and `components/scroll-mask-showcase.tsx`; the blur cap is in `packages/ui/src/surfaces/progressive-blur.tsx`.
-- Measure and the reading column: `foundations/layout-showcase.tsx` and `apps/web/src/design-system/measure.stylex.ts`.
+- The Measure, which caps a line of prose by its text size: the `measure` constants in `packages/ui/src/tokens.stylex.ts`, which `Text` takes for a paragraph by default, enforced by the `require-measure` lint rule, and shown in `foundations/layout-showcase.tsx`. The reading column of the doc pages is `apps/web/src/design-system/reading-column.stylex.ts`.
 - Reduced motion: `packages/ui/src/primitives/motion.stylex.ts` and `foundations/motion-showcase.tsx`.
 - Voice, copy rules and copy budgets: `foundations/voice-showcase.tsx`; banned words are enforced by the `no-banned-copy-words` lint rule.

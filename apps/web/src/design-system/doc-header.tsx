@@ -2,7 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color, measure } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { LabViewSwitch } from "#src/design-system/lab/lab-view-switch.tsx";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
@@ -10,7 +10,6 @@ import { hasDesignSystemLab } from "#src/design-system/routes/has-design-system-
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { DocBreadcrumb } from "./doc-breadcrumb.tsx";
 import { DocHeaderColumn, DocsViewOnly } from "./doc-header-column.tsx";
-import { measure } from "./measure.stylex.ts";
 
 interface DocHeaderProps {
   /**

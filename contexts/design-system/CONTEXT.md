@@ -36,6 +36,10 @@ _Avoid_: recipe, pattern (for this sense), 配方
 The space between two things, named by how they relate rather than by its size: `inline` between the parts of one unit on one line, `tight` inside one item, `item` between siblings in a group, `group` between groups, `section` between h2 sections. Each step is about twice the one below. The `rhythm` tokens hold it; `space` stays the scale for geometry that is not a relationship, such as padding and offsets. ZH: 节奏.
 _Avoid_: spacing scale, gap size, 间距阶梯 (each of these is `space`)
 
+**Measure**:
+The cap on the length of a line of prose, in `em` so that it keeps the same number of characters at any text size: `measure.prose` for running text, `measure.short` for a short block that stands alone. It caps a line, not the page — that is `layout.maxInlineSize` — and it does not place the text, which is the reading column's job. ZH: 行长.
+_Avoid_: max width, line width, reading width, column width, 阅读宽度
+
 **Stack**:
 A container that owns the space between its children, at one Rhythm step: `stack.*` for a column, `cluster.*` for a row that wraps, `row.*` for a row that does not. Its children set no margin to push their neighbours away. ZH: 堆叠.
 _Avoid_: spacer, list (for this sense), 间隔器
