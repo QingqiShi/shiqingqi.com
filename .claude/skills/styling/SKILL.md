@@ -207,6 +207,7 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 - **Reset** — `buttonReset.base` strips browser button chrome and carries the focus ring
 - **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeight_4`, `text-wrap: pretty`, `overflow-wrap: break-word`). Text needs no `lineHeight`, `textWrap: "pretty"` or `overflowWrap: "break-word"` unless it differs, and nothing sets a `fontSize` on the root
 - **Motion** — transition/animation presets with reduced-motion handling
+- **Selected** — `selected.quiet` / `selected.marked` paint the selected state from the element's own `aria-pressed`, `aria-checked`, `aria-selected` or `aria-current`. Set the attribute and compose a strength; never a hand-built `isActive && styles.active`. `quiet` (a background) is the default; `marked` (accent border and tint) is only for a choice the visitor submits
 - **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline
 
 ## Best Practices

@@ -35,6 +35,10 @@ import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
 import { ApiGrid, type ApiEntry, GenreChips } from "./api-grid.tsx";
+import {
+  MarkedSelectedSpecimen,
+  QuietSelectedSpecimen,
+} from "./selected-specimens.tsx";
 import { StackSection } from "./stack-section.tsx";
 import { TypeRoleSection } from "./type-role-section.tsx";
 
@@ -982,6 +986,78 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
   );
 }
 
+function SelectedSection() {
+  const api: ApiEntry[] = [
+    {
+      token: "selected.quiet",
+      meta: "bgControlSelected · hover",
+      description: t({
+        en: "A background only, for an item that only has to stand out from its siblings: a menu row, a nav link, a tab, a segmented choice. Use it by default.",
+        zh: "只有背景，用于只需在同级中突出的条目：菜单行、导航链接、标签页、分段选项。默认使用它。",
+      }),
+    },
+    {
+      token: "selected.marked",
+      meta: "borderAccent · bgAccentSubtle · hover",
+      description: t({
+        en: "Adds the accent border and tint, for a choice that decides what the visitor does next, such as a picked option card. Give the element a border width.",
+        zh: "加上强调色边框与浅色底，用于决定访客下一步的选择，例如选中的选项卡片。请为元素设置边框宽度。",
+      }),
+    },
+    {
+      token: "selectedTokens.rest",
+      meta: "default: transparent",
+      description: t({
+        en: "The background while the item is not selected. Each strength sets backgroundColor, so set the rest colour through this token, not on the element.",
+        zh: "条目未选中时的背景。每种强度都会设置 backgroundColor，因此请通过这个令牌设置静态颜色，而不是在元素上设置。",
+      }),
+    },
+  ];
+
+  return (
+    <Showcase label={t({ en: "Selected", zh: "选中态" })}>
+      <ShowcaseHelper>
+        {t({
+          en: "One selected state, read from the ARIA state the item already carries: aria-pressed, aria-checked or aria-selected set to true, or any aria-current. Set the attribute and the look follows, so what a screen reader announces is what everyone sees.",
+          zh: "统一的选中态，读取条目本身已有的 ARIA 状态：值为 true 的 aria-pressed、aria-checked 或 aria-selected，或任何 aria-current。设置属性，外观随之改变，因此屏幕阅读器读出的状态，就是所有人看到的状态。",
+        })}
+      </ShowcaseHelper>
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
+          caption={t({
+            en: "quiet — a segmented choice",
+            zh: "quiet —— 分段选项",
+          })}
+          token="aria-checked"
+        >
+          <QuietSelectedSpecimen />
+        </Specimen>
+        <Specimen
+          caption={t({
+            en: "marked — a picked plan",
+            zh: "marked —— 选中的方案",
+          })}
+          token="aria-checked"
+        >
+          <MarkedSelectedSpecimen />
+        </Specimen>
+      </SpecimenGrid>
+      <ApiGrid entries={api} />
+      <UsageSnippet
+        code={`import { selected } from "@tuja/ui/primitives/selected.stylex";
+
+<a
+  href={href}
+  aria-current={isCurrent ? "page" : undefined}
+  css={[styles.link, selected.quiet]}
+>
+  {label}
+</a>`}
+      />
+    </Showcase>
+  );
+}
+
 export function PrimitivesShowcase() {
   return (
     <>
@@ -994,6 +1070,7 @@ export function PrimitivesShowcase() {
       <TextureSection />
       <WashSection />
       <A11ySection />
+      <SelectedSection />
       <StackSection />
       <TypeRoleSection />
     </>

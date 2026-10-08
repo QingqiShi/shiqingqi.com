@@ -10,6 +10,7 @@ import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -166,8 +167,7 @@ export function ToolReviewSummary({
                     buttonReset.base,
                     corner.radius_2,
                     styles.levelButton,
-                    isCurrent && styles.levelButtonCurrent,
-                    isSelected && styles.levelButtonSelected,
+                    isSelected ? selected.marked : selected.quiet,
                   ]}
                   onClick={() => {
                     handleTap(level);
@@ -175,7 +175,8 @@ export function ToolReviewSummary({
                   aria-label={
                     isSelected ? confirmLabels[level] : spicinessLabels[level]
                   }
-                  aria-pressed={isCurrent}
+                  aria-current={isCurrent ? "true" : undefined}
+                  aria-pressed={isSelected}
                 >
                   {isSelected ? (
                     <ArrowUpIcon
@@ -255,16 +256,7 @@ const styles = stylex.create({
     transition:
       "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
   },
-  levelButtonCurrent: {
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
-    borderColor: color.borderAccent,
-  },
-  levelButtonSelected: {
-    borderColor: color.borderAccent,
-    color: color.fgAccent,
-    backgroundColor: color.bgControlSelected,
-  },
+
   selectedLabel: {
     margin: 0,
     marginTop: rhythm.tight,

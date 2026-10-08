@@ -162,27 +162,23 @@ const styles = stylex.create({
         <Band
           name={t({ en: "Control", zh: "控件" })}
           use={t({
-            en: "Anything a person presses or types into: a button, a field, a row that opens something. Hover lifts it to bgControlHover. Disabled, it keeps its rest fill on hover and fades as a whole with opacity.disabled; fields and Checkbox also switch to bgControlDisabled. Components mark a selected item with the accent, as the Intents section shows, and no component uses bgControlPressed or bgControlSelected.",
-            zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到 bgControlHover。禁用时，悬停也保持静止填充，并通过 opacity.disabled 整体变淡；输入框与 Checkbox 还会换成 bgControlDisabled。组件用强调色标示选中项，见“意图色”一节；没有任何组件使用 bgControlPressed 或 bgControlSelected。",
+            en: "Anything a person presses or types into: a button, a field, a row that opens something. Hover lifts it to bgControlHover. Disabled, it keeps its rest fill on hover and fades as a whole with opacity.disabled; fields and Checkbox also switch to bgControlDisabled. A selected item takes bgControlSelected from the selected primitive, which reads the item's ARIA state. No component uses bgControlPressed.",
+            zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到 bgControlHover。禁用时，悬停也保持静止填充，并通过 opacity.disabled 整体变淡；输入框与 Checkbox 还会换成 bgControlDisabled。选中项从 selected 原语取得 bgControlSelected，该原语读取元素的 ARIA 状态。没有任何组件使用 bgControlPressed。",
           })}
           columns={5}
           snippet={
             <UsageSnippet
-              code={`import { color, opacity } from "@tuja/ui/tokens.stylex";
+              code={`import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
+import { color, opacity } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
   row: {
-    backgroundColor: {
-      default: color.bgControl,
-      ":hover": color.bgControlHover,
-      ":disabled:hover": color.bgControl,
-    },
+    [selectedTokens.rest]: color.bgControl,
     opacity: { default: null, ":disabled": opacity.disabled },
   },
-  current: { backgroundColor: color.bgAccentSubtle },
 });
 
-<button css={[styles.row, isCurrent && styles.current]} />`}
+<button aria-current={isCurrent} css={[styles.row, selected.quiet]} />`}
             />
           }
         >

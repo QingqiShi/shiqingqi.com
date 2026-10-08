@@ -5,6 +5,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
@@ -104,7 +105,7 @@ export function DesignSystemNav({
                             transition.colors,
                             corner.radius_round,
                             styles.link,
-                            active && styles.linkActive,
+                            selected.quiet,
                             a11y.focusRingInset,
                           )}
                         >
@@ -155,19 +156,7 @@ const styles = stylex.create({
       default: color.fgMuted,
       ":hover": { default: null, [pointer.canHover]: color.fg },
     },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
     textDecoration: "none",
     whiteSpace: "nowrap",
-  },
-  linkActive: {
-    color: color.fgAccent,
-    backgroundColor: color.bgAccentSubtle,
-    fontWeight: font.weight_6,
   },
 });

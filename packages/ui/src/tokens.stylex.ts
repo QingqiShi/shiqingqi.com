@@ -66,8 +66,8 @@ const light = {
   // `fgMuted` the Lc 60 non-body floor. Worst case in light is
   // `bgControlSelected` (gray._90): fg 86, muted 65.
   //
-  // In dark the worst case is `bgControlHover` (gray._13): fg 90, muted 70.
-  // The ramp has no tone between _70 and _80, and gray._70 measures only 54
+  // In dark the worst case is `bgControlSelected` (gray._20): fg 88, muted 76.
+  // The ramp has no tone between _70 and _80, and gray._70 is under the floor
   // there, so the dark `fgMuted` is one tone louder than the light one.
   fg: gray._13,
   fgMuted: gray._30,
@@ -184,7 +184,7 @@ const dark: { [key in keyof typeof light]: string } = {
   bgControl: gray._7,
   bgControlHover: gray._13,
   bgControlPressed: gray._11,
-  bgControlSelected: gray._9,
+  bgControlSelected: gray._20,
   bgControlDisabled: gray._5,
 
   border: gray._13,

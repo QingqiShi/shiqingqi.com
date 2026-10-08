@@ -3,6 +3,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { color, font, controlSize } from "@tuja/ui/tokens.stylex";
 import type { MouseEventHandler, PropsWithChildren } from "react";
 
@@ -46,8 +47,9 @@ export function MenuItem({
         flex.between,
         corner.radius_1,
         styles.item,
+        selected.quiet,
         a11y.focusRing,
-        isActive && styles.itemActive,
+        isActive && styles.itemCurrent,
       ]}
       data-menu-autofocus={autoFocus ? "true" : undefined}
       tabIndex={isActive ? -1 : 0}
@@ -65,13 +67,6 @@ const styles = stylex.create({
       ":hover": { default: null, [pointer.canHover]: color.fgMuted },
     },
     fontWeight: font.weight_6,
-    backgroundColor: {
-      default: null,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
     fontSize: controlSize._4,
     gap: controlSize._5,
     height: controlSize._9,
@@ -79,9 +74,7 @@ const styles = stylex.create({
     textDecoration: "none",
     transition: "background-color 0.2s",
   },
-  itemActive: {
-    color: color.fgOnAccent,
-    backgroundColor: color.bgAccent,
+  itemCurrent: {
     pointerEvents: "none",
   },
 });

@@ -5,6 +5,7 @@ import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -196,8 +197,8 @@ export function WizardShell() {
                 typeRole.label,
                 corner.radius_round,
                 styles.pill,
+                selected.quiet,
                 transition.colors,
-                isActive && styles.pillActive,
                 !isVisited && styles.pillLocked,
               ]}
             >
@@ -308,18 +309,13 @@ const styles = stylex.create({
     gap: rhythm.inline,
     paddingBlock: space._1,
     paddingInline: space._2,
-    backgroundColor: color.bgSurface,
+    [selectedTokens.rest]: color.bgSurface,
     color: color.fgMuted,
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     opacity: { default: 1, ":disabled": opacity.disabled },
-  },
-  pillActive: {
-    backgroundColor: color.bgAccent,
-    color: color.fgOnAccent,
-    borderColor: color.borderAccent,
   },
   pillLocked: {
     // The disabled visuals come from the pseudo on `pill`; this class

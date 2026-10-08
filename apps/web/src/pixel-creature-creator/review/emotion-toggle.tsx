@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -20,8 +20,8 @@ interface EmotionToggleProps {
 }
 
 /**
- * Horizontal row of 7 emotion buttons. The active button is highlighted with
- * `accent`. The row scrolls horizontally on narrow viewports
+ * Horizontal row of 7 emotion buttons. The checked button takes the quiet
+ * selected background. The row scrolls horizontally on narrow viewports
  * (<375px) so all 7 emotions stay reachable without truncation.
  *
  * The toggle owns no state of its own — the parent threads `active` and
@@ -54,27 +54,24 @@ export function EmotionToggle({ active, onChange }: EmotionToggleProps) {
       css={styles.root}
       data-testid="emotion-toggle"
     >
-      {EMOTIONS.map((emotion) => {
-        const isActive = emotion === active;
-        return (
-          <button
-            key={emotion}
-            type="button"
-            {...getOptionProps(emotion)}
-            data-testid={`emotion-button-${emotion}`}
-            css={[
-              buttonReset.base,
-              typeRole.label,
-              corner.radius_round,
-              styles.button,
-              transition.colors,
-              isActive && styles.buttonActive,
-            ]}
-          >
-            {emotionLabels[emotion]}
-          </button>
-        );
-      })}
+      {EMOTIONS.map((emotion) => (
+        <button
+          key={emotion}
+          type="button"
+          {...getOptionProps(emotion)}
+          data-testid={`emotion-button-${emotion}`}
+          css={[
+            buttonReset.base,
+            typeRole.label,
+            corner.radius_round,
+            styles.button,
+            selected.quiet,
+            transition.colors,
+          ]}
+        >
+          {emotionLabels[emotion]}
+        </button>
+      ))}
     </div>
   );
 }
@@ -95,29 +92,10 @@ const styles = stylex.create({
     scrollSnapAlign: "start",
     paddingBlock: space._1,
     paddingInline: space._3,
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-      ":focus-visible": color.bgControlHover,
-    },
+    [selectedTokens.rest]: color.bgSurface,
     color: color.fg,
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
-  },
-  buttonActive: {
-    backgroundColor: {
-      default: color.bgAccent,
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgAccentHover,
-      },
-      ":focus-visible": color.bgAccentHover,
-    },
-    color: color.fgOnAccent,
-    borderColor: color.borderAccent,
   },
 });
