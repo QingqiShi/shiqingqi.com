@@ -4,7 +4,6 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -79,7 +78,6 @@ export function LabSheet({
               css={[
                 buttonReset.base,
                 corner.radius_2,
-                a11y.focusRing,
                 transition.colors,
                 styles.row,
               ]}

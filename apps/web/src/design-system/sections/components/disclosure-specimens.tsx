@@ -6,6 +6,7 @@ import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Chip } from "@tuja/ui/components/chip";
 import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -22,7 +23,7 @@ export function DisclosureHeadlessSpecimen() {
   return (
     <div css={[cardSurface.base, fill.inline]}>
       <div css={styles.header}>
-        <a href="#disclosure" css={styles.link}>
+        <a href="#disclosure" css={[a11y.focusRing, styles.link]}>
           {t({ en: "Florence → Siena", zh: "佛罗伦萨 → 锡耶纳" })}
         </a>
         <Chip

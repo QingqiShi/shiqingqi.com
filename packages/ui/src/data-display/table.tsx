@@ -84,7 +84,6 @@ export function Table({
       css={[corner.radius_2, styles.container, containerCss]}
       contentCss={[
         scrollX.base,
-        scrollX.focusRing,
         scrollbar.autoHide,
         transition.scrollbarColor,
         styles.scroller,

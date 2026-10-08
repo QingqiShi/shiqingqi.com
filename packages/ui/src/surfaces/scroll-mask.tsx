@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ComponentProps,
@@ -14,6 +15,7 @@ import {
   type ScrollMaskOrientation,
 } from "../hooks/use-scroll-mask.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import { a11y } from "../primitives/a11y.stylex.ts";
 import { space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { MaskBand } from "./mask-band.tsx";
@@ -191,8 +193,16 @@ export function ScrollMask({
   // event has not fired yet, so the last event-reported position is still the
   // pre-focus one, and restoring it before paint shows no jump. Sticky chrome
   // is always in view, so the restore never hides the focused control.
+  //
+  // Outside the chrome, Chromium does not scroll to an element that gets
+  // focus while it is partly in view, so a control at the scroll edge stays
+  // half hidden and its focus ring is cut. On keyboard focus, this scrolls
+  // the control fully into view. Mandatory snap then pulls the region back to
+  // the nearest snap point and hides part of the control again, so the region
+  // does not snap until focus leaves it.
+  const [keyboardFocusTarget, setKeyboardFocusTarget] =
+    useState<Element | null>(null);
   useEffect(() => {
-    if (!hasChrome) return;
     const scroller = scrollRef.current;
     if (!scroller) return;
     const readScroll = () =>
@@ -201,24 +211,43 @@ export function ScrollMask({
     const onScroll = () => {
       restingScroll = readScroll();
     };
-    const onChromeFocusIn = () => {
-      if (isHorizontal) scroller.scrollLeft = restingScroll;
-      else scroller.scrollTop = restingScroll;
+    const onFocusIn = (event: FocusEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element) || target === scroller) return;
+      const inChrome = [startChromeRef.current, endChromeRef.current].some(
+        (slot) => slot?.contains(target),
+      );
+      if (inChrome) {
+        if (isHorizontal) scroller.scrollLeft = restingScroll;
+        else scroller.scrollTop = restingScroll;
+        return;
+      }
+      if (target.matches(":focus-visible")) setKeyboardFocusTarget(target);
     };
-    const chromeSlots = [startChromeRef.current, endChromeRef.current].filter(
-      (slot) => slot !== null,
-    );
-    scroller.addEventListener("scroll", onScroll, { passive: true });
-    for (const slot of chromeSlots) {
-      slot.addEventListener("focusin", onChromeFocusIn);
+    const onFocusOut = (event: FocusEvent) => {
+      const next = event.relatedTarget;
+      if (next instanceof Node && scroller.contains(next)) return;
+      setKeyboardFocusTarget(null);
+    };
+    if (hasChrome) {
+      scroller.addEventListener("scroll", onScroll, { passive: true });
     }
+    scroller.addEventListener("focusin", onFocusIn);
+    scroller.addEventListener("focusout", onFocusOut);
     return () => {
       scroller.removeEventListener("scroll", onScroll);
-      for (const slot of chromeSlots) {
-        slot.removeEventListener("focusin", onChromeFocusIn);
-      }
+      scroller.removeEventListener("focusin", onFocusIn);
+      scroller.removeEventListener("focusout", onFocusOut);
     };
   }, [hasChrome, hasStartChrome, hasEndChrome, isHorizontal]);
+  // A layout effect, so the snap is already off when the reveal starts.
+  useLayoutEffect(() => {
+    keyboardFocusTarget?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+      behavior: getScrollBehavior(),
+    });
+  }, [keyboardFocusTarget]);
 
   const scrollOnePage = (direction: -1 | 1) => {
     const el = scrollRef.current;
@@ -260,7 +289,9 @@ export function ScrollMask({
             (isHorizontal
               ? styles.scrollerChromeRow
               : styles.scrollerChromeColumn),
+          a11y.focusRing,
           contentCss,
+          keyboardFocusTarget !== null && styles.snapSuspended,
           // After `contentCss`: the corners are structural and belong to the
           // root, whatever radius a consumer style sets for its own outline.
           styles.scrollerCorners,
@@ -378,6 +409,9 @@ const styles = stylex.create({
     overflowX: "auto",
     overflowY: "hidden",
     minInlineSize: 0,
+  },
+  snapSuspended: {
+    scrollSnapType: "none",
   },
   // The scroller clips to the root's corners, so content clips like the
   // region while the sibling bands do not.

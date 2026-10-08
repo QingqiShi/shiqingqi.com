@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Divider } from "@tuja/ui/components/divider";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
@@ -67,6 +68,7 @@ function NumberField({
           emphasis ? typeRole.h3 : typeRole.bodySmall,
           typeModifier.numeric,
           corner.radius_2,
+          a11y.focusRing,
           styles.input,
           emphasis && styles.inputEmphasis,
         ]}
@@ -308,18 +310,13 @@ const styles = stylex.create({
     border: `${border.size_1} solid ${color.border}`,
     fontFamily: font.familyMono,
     boxSizing: "border-box",
-    outlineWidth: 0,
     transition: {
-      default: `border-color ${duration._150} ${easing.easeOut}, box-shadow ${duration._150} ${easing.easeOut}`,
+      default: `border-color ${duration._150} ${easing.easeOut}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     borderColor: {
       default: color.border,
       ":focus": color.borderAccent,
-    },
-    boxShadow: {
-      default: "none",
-      ":focus": `0 0 0 1px ${color.borderAccent}`,
     },
   },
   inputEmphasis: {

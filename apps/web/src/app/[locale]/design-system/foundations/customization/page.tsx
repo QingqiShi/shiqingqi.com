@@ -415,10 +415,10 @@ export default function CustomizationPage() {
         <GuideList
           items={[
             {
-              term: "a11y.focusRing · buttonReset.base",
+              term: "buttonReset.base · a11y.focusRing",
               note: t({
-                en: "For a control you build: the same focus ring as every component, and a native button with its browser styles removed.",
-                zh: "用于你自己搭建的控件：与所有组件相同的焦点环，以及去除了浏览器默认样式的原生按钮。",
+                en: "For a control you build: a native button with its browser styles removed and the focus ring of every component already on it. Give any other element that takes focus, such as a link, the same ring with a11y.focusRing.",
+                zh: "用于你自己搭建的控件：去除了浏览器默认样式的原生按钮，并已带有与所有组件相同的焦点环。其他可获得焦点的元素（例如链接）用 a11y.focusRing 获得同样的焦点环。",
               }),
             },
             {

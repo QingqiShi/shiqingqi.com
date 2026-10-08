@@ -8,7 +8,6 @@ import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
-import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
@@ -161,7 +160,6 @@ export function Callout({
           aria-label={dismissLabel}
           css={[
             buttonReset.base,
-            a11y.focusRing,
             transition.colors,
             corner.radius_1,
             styles.dismiss,

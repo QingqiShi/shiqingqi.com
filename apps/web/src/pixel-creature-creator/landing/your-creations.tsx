@@ -3,9 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSyncExternalStore } from "react";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
@@ -85,7 +87,11 @@ export function YourCreations({ locale }: YourCreationsProps) {
                 css={[cardSurface.base, styles.item]}
                 data-testid="your-creations-item"
               >
-                <a href={href} css={styles.thumbLink} aria-label={displayName}>
+                <a
+                  href={href}
+                  css={[a11y.focusRing, styles.thumbLink]}
+                  aria-label={displayName}
+                >
                   <span css={styles.thumb} aria-hidden="true">
                     <PixelSprite def={entry.def} scale={3} paused />
                   </span>
@@ -95,7 +101,7 @@ export function YourCreations({ locale }: YourCreationsProps) {
                 </a>
                 <button
                   type="button"
-                  css={[typeRole.label, styles.deleteButton]}
+                  css={[buttonReset.base, typeRole.label, styles.deleteButton]}
                   onClick={() => {
                     handleDelete(entry);
                   }}
@@ -177,7 +183,6 @@ const styles = stylex.create({
       },
       ":focus-visible": color.bgControlHover,
     },
-    outlineOffset: border.size_2,
   },
   thumb: {
     display: "inline-flex",
@@ -211,7 +216,6 @@ const styles = stylex.create({
     borderColor: color.border,
     borderRadius: "999px",
     cornerShape: "round",
-    cursor: "pointer",
     alignSelf: "center",
   },
 });

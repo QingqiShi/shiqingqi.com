@@ -11,6 +11,7 @@ import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
  *
  * `interactive` inlines its focus ring instead of composing `a11y.focusRing`,
  * since a primitive can't compose another at definition time.
+ * `primitives/focus-ring.test.ts` keeps the copy the same as the original.
  */
 export const chipSurface = stylex.create({
   base: {

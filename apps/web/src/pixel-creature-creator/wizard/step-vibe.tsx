@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -88,6 +89,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
               {...moodGroup.getOptionProps(emotion)}
               data-testid={`vibe-option-${emotion}`}
               css={[
+                buttonReset.base,
                 typeRole.label,
                 styles.pill,
                 def.defaultEmotion === emotion && styles.pillSelected,
@@ -119,6 +121,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
               {...typeGroup.getOptionProps(tp.id)}
               data-testid={`type-option-${tp.id}`}
               css={[
+                buttonReset.base,
                 styles.typeOption,
                 def.type === tp.id && styles.typeOptionSelected,
               ]}
@@ -163,7 +166,6 @@ const styles = stylex.create({
     borderWidth: "2px",
     borderStyle: "solid",
     borderColor: "transparent",
-    cursor: "pointer",
     color: color.fg,
     transitionProperty: "border-color, background-color",
     transitionDuration: "120ms",
@@ -190,7 +192,6 @@ const styles = stylex.create({
     borderWidth: "2px",
     borderStyle: "solid",
     borderColor: "transparent",
-    cursor: "pointer",
     color: color.fg,
     transitionProperty: "border-color, background-color",
     transitionDuration: "120ms",

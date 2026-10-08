@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { font, layer, rhythm } from "@tuja/ui/tokens.stylex";
@@ -129,6 +130,7 @@ function StatsOverlay({
                 onDebugChange({ ...debug, mode: value });
               }}
               css={[
+                buttonReset.base,
                 typeRole.caption,
                 styles.modeButton,
                 debug.mode === value && styles.modeButtonActive,
@@ -143,7 +145,7 @@ function StatsOverlay({
       <button
         type="button"
         onClick={handleCopy}
-        css={[typeRole.caption, styles.copyButton]}
+        css={[buttonReset.base, typeRole.caption, styles.copyButton]}
       >
         {copied ? "Copied!" : "Copy stats"}
       </button>
@@ -165,6 +167,7 @@ function Toggle({
       type="button"
       onClick={onToggle}
       css={[
+        buttonReset.base,
         typeRole.caption,
         styles.toggleButton,
         active && styles.toggleButtonActive,
@@ -328,10 +331,8 @@ const styles = stylex.create({
     borderColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: "4px",
     cornerShape: "squircle",
-    backgroundColor: "transparent",
     color: "rgba(255, 255, 255, 0.4)",
     fontFamily: font.familyMono,
-    cursor: "pointer",
   },
   toggleButtonActive: {
     backgroundColor: "rgba(255, 255, 255, 0.15)",
@@ -345,10 +346,8 @@ const styles = stylex.create({
     borderColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: "4px",
     cornerShape: "squircle",
-    backgroundColor: "transparent",
     color: "rgba(255, 255, 255, 0.4)",
     fontFamily: font.familyMono,
-    cursor: "pointer",
   },
   modeButtonActive: {
     backgroundColor: "rgba(100, 140, 255, 0.3)",
@@ -367,6 +366,5 @@ const styles = stylex.create({
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     color: "rgba(255, 255, 255, 0.7)",
     fontFamily: font.familyMono,
-    cursor: "pointer",
   },
 });

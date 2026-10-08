@@ -14,6 +14,7 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -109,6 +110,7 @@ export function SourceImageInput({
       type="file"
       accept="image/*"
       onChange={handleFile}
+      tabIndex={-1}
       css={a11y.srOnly}
       data-testid="source-input"
     />
@@ -127,7 +129,12 @@ export function SourceImageInput({
       >
         <button
           type="button"
-          css={[typeRole.label, corner.radius_2, styles.compactSwap]}
+          css={[
+            buttonReset.base,
+            typeRole.label,
+            corner.radius_2,
+            styles.compactSwap,
+          ]}
           onClick={() => {
             inputRef.current?.click();
           }}
@@ -329,8 +336,9 @@ const styles = stylex.create({
         [pointer.canHover]: color.bgControlHover,
       },
     },
-    border: `${border.size_1} solid ${color.border}`,
-    cursor: "pointer",
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
     transition: {
       default: `background-color ${duration._150} ${easing.easeOut}`,
       [motionConstants.REDUCED_MOTION]: "none",

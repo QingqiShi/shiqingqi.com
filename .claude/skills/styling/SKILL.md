@@ -204,10 +204,10 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 ### Other Primitives (see `references/primitives.md`)
 
 - **Layout** — position fills, scroll containers, truncation, image fit
-- **Reset** — `buttonReset.base` strips browser button chrome
+- **Reset** — `buttonReset.base` strips browser button chrome and carries the focus ring
 - **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeight_4`, `text-wrap: pretty`). Text needs no `lineHeight` or `textWrap: "pretty"` unless it differs, and nothing sets a `fontSize` on the root
 - **Motion** — transition/animation presets with reduced-motion handling
-- **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset` paint the keyboard focus ring
+- **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline
 
 ## Best Practices
 
@@ -224,3 +224,4 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 11. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
 12. **Pseudo-selectors as object keys** — `{ default: val, ":focus-visible": focusVal }`
 13. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; a reveal gives touch the full state
+14. **Every focusable element draws the focus ring** — `buttonReset.base` for a hand-built button, `a11y.focusRing` for anything else; never `outline: none`

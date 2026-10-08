@@ -5,8 +5,9 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import {
   EMOTIONS,
@@ -62,6 +63,7 @@ export function EmotionToggle({ active, onChange }: EmotionToggleProps) {
             {...getOptionProps(emotion)}
             data-testid={`emotion-button-${emotion}`}
             css={[
+              buttonReset.base,
               typeRole.label,
               corner.radius_round,
               styles.button,
@@ -105,8 +107,6 @@ const styles = stylex.create({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "transparent",
-    cursor: "pointer",
-    outlineOffset: border.size_2,
   },
   buttonActive: {
     backgroundColor: {

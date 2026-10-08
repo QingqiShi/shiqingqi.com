@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -60,7 +61,12 @@ export function StepName({ def, onChange }: StepNameProps) {
             aria-describedby={describedBy}
             placeholder={t({ en: "e.g. Mochi", zh: "例如:团子" })}
             data-testid="creature-name-input"
-            css={[typeRole.body, styles.input, transition.colors]}
+            css={[
+              typeRole.body,
+              a11y.focusRing,
+              styles.input,
+              transition.colors,
+            ]}
           />
         </label>
         {/*
@@ -124,7 +130,6 @@ const styles = stylex.create({
     },
     backgroundColor: color.bgSurfaceSunken,
     color: color.fg,
-    outlineWidth: 0,
   },
   // Always reserve a line of vertical space so the input doesn't jump as
   // the message appears/disappears.

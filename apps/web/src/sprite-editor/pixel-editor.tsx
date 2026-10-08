@@ -19,12 +19,14 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { purple } from "@tuja/ui/palette/purple.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
@@ -1045,7 +1047,7 @@ export function PixelEditor({
             onChange={(event) => {
               setActiveColor(event.target.value);
             }}
-            css={[corner.radius_2, styles.colorInput]}
+            css={[corner.radius_2, a11y.focusRing, styles.colorInput]}
             data-testid="color-input"
           />
         </label>
@@ -1060,6 +1062,7 @@ export function PixelEditor({
                 remember(hex);
               }}
               css={[
+                buttonReset.base,
                 styles.swatch,
                 activeColor === hex && styles.swatchActive,
                 styles.swatchColor(hex),
@@ -1081,6 +1084,7 @@ export function PixelEditor({
                   setActiveColor(hex);
                 }}
                 css={[
+                  buttonReset.base,
                   styles.swatch,
                   activeColor === hex && styles.swatchActive,
                   styles.swatchColor(hex),
@@ -1100,7 +1104,7 @@ export function PixelEditor({
               onChange={(event) => {
                 setTolerance(Number(event.target.value));
               }}
-              css={styles.range}
+              css={[a11y.focusRing, styles.range]}
               data-testid="tolerance"
             />
             <span
@@ -1202,6 +1206,7 @@ function ToolButton({
     <button
       type="button"
       css={[
+        buttonReset.base,
         corner.radius_2,
         styles.toolButton,
         active && styles.toolButtonActive,
@@ -1237,6 +1242,7 @@ function SelectionButton({
     <button
       type="button"
       css={[
+        buttonReset.base,
         typeRole.label,
         corner.radius_1,
         styles.selectionButton,
@@ -1279,7 +1285,9 @@ const styles = stylex.create({
     justifyContent: "center",
     width: "34px",
     height: "34px",
-    border: `${border.size_1} solid ${color.border}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
     backgroundColor: {
       default: color.bgControl,
       [pointer.canHover]: {
@@ -1330,14 +1338,14 @@ const styles = stylex.create({
   swatch: {
     width: "24px",
     height: "24px",
-    border: `${border.size_1} solid ${color.border}`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
     borderRadius: "4px",
     cornerShape: "squircle",
-    cursor: "pointer",
-    padding: 0,
   },
   swatchActive: {
-    outline: `${border.size_2} solid ${color.borderAccent}`,
+    outlineColor: color.borderAccent,
     outlineOffset: border.size_1,
   },
   swatchColor: (backgroundColor: string) => ({
@@ -1409,8 +1417,6 @@ const styles = stylex.create({
       },
     },
     color: color.fg,
-    border: "none",
-    cursor: "pointer",
     fontFamily: "inherit",
     fontWeight: font.weight_6,
   },

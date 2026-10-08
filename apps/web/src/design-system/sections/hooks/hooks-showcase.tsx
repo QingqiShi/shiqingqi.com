@@ -67,7 +67,6 @@ function StepperControl({
         css={[
           buttonReset.base,
           flex.center,
-          a11y.focusRing,
           corner.radius_round,
           styles.stepBtn,
         ]}
@@ -84,7 +83,6 @@ function StepperControl({
         css={[
           buttonReset.base,
           flex.center,
-          a11y.focusRing,
           corner.radius_round,
           styles.stepBtn,
         ]}
@@ -287,7 +285,6 @@ function IntentPickerSpecimen() {
           typeRole.label,
           buttonReset.base,
           flex.row,
-          a11y.focusRing,
           corner.radius_round,
           styles.intentTrigger,
         ]}
@@ -347,12 +344,7 @@ function PlacementSpecimen() {
     <div css={[stack.item, styles.alignStart]}>
       <button
         {...triggerProps}
-        css={[
-          typeRole.label,
-          buttonReset.base,
-          a11y.focusRing,
-          styles.hintTrigger,
-        ]}
+        css={[typeRole.label, buttonReset.base, styles.hintTrigger]}
       >
         {triggerLabel}
       </button>
@@ -379,7 +371,6 @@ function PlacementSpecimen() {
             css={[
               typeRole.caption,
               buttonReset.base,
-              a11y.focusRing,
               corner.radius_1,
               styles.hintToggle,
             ]}
@@ -458,7 +449,6 @@ function PressSpecimen() {
         typeRole.label,
         buttonReset.base,
         flex.center,
-        a11y.focusRing,
         corner.radius_2,
         styles.pressTile,
         isPressed && styles.pressTilePressed,
@@ -542,7 +532,6 @@ function DensityRadioGroup() {
                 buttonReset.base,
                 flex.center,
                 transition.colors,
-                a11y.focusRing,
                 corner.radius_round,
                 styles.segment,
                 selected && styles.segmentSelected,

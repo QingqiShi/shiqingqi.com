@@ -239,11 +239,11 @@ function LayoutSection() {
       }),
     },
     {
-      token: "scrollX.base / focusRing",
+      token: "scrollX.base",
       meta: "overflow-x:auto · scrollbar:none",
       description: t({
-        en: "Horizontal scroller; add focusRing for a keyboard-navigable strip.",
-        zh: "水平滚动容器；加上 focusRing 即可用键盘导航。",
+        en: "Horizontal scroller; add a11y.focusRing for a keyboard-navigable strip.",
+        zh: "水平滚动容器；加上 a11y.focusRing 即可用键盘导航。",
       }),
     },
     {
@@ -318,10 +318,15 @@ function LayoutSection() {
             </div>
           </div>
         </Specimen>
-        <Specimen caption="scrollX.base + focusRing">
+        <Specimen caption="scrollX.base + a11y.focusRing">
           <div
             tabIndex={0}
-            css={[scrollX.base, scrollX.focusRing, styles.scrollStrip]}
+            css={[
+              scrollX.base,
+              a11y.focusRing,
+              corner.radius_2,
+              styles.scrollStrip,
+            ]}
             aria-label={t({ en: "Scrollable strip", zh: "可滚动条带" })}
           >
             <div css={[flex.row, styles.scrollTrack]}>
@@ -538,10 +543,10 @@ function ResetSection() {
   const api: ApiEntry[] = [
     {
       token: "buttonReset.base",
-      meta: "appearance · border · bg · padding · cursor",
+      meta: "appearance · border · bg · padding · cursor · focus ring",
       description: t({
-        en: "Strips native button chrome so you can build a custom control on top of real, accessible <button> semantics.",
-        zh: "移除原生按钮外观，让你在真正可访问的 <button> 语义之上构建自定义控件。",
+        en: "Strips native button chrome and puts the system focus ring back, so you can build a custom control on top of real, accessible <button> semantics.",
+        zh: "移除原生按钮外观并补回系统焦点环，让你在真正可访问的 <button> 语义之上构建自定义控件。",
       }),
     },
   ];
@@ -567,7 +572,6 @@ function ResetSection() {
               typeRole.label,
               buttonReset.base,
               flex.inlineCenter,
-              a11y.focusRing,
               corner.radius_round,
               styles.customControl,
             ]}
@@ -868,8 +872,8 @@ function A11ySection() {
       token: "a11y.focusRing",
       meta: "2px accent · offset 2px · :focus-visible",
       description: t({
-        en: "The shared keyboard focus indicator (WCAG 2.4.7). Use by default.",
-        zh: "共享的键盘焦点指示器（WCAG 2.4.7）。默认使用。",
+        en: "The shared keyboard focus indicator (WCAG 2.4.7), for any element that takes focus. buttonReset.base already carries it.",
+        zh: "共享的键盘焦点指示器（WCAG 2.4.7），用于任何可获得焦点的元素。buttonReset.base 已经带有它。",
       }),
     },
     {
@@ -878,6 +882,14 @@ function A11ySection() {
       description: t({
         en: "Same ring pulled inside, for elements a clipped ancestor would crop.",
         zh: "同样的焦点环但向内偏移，用于会被裁切祖先元素裁掉外环的情况。",
+      }),
+    },
+    {
+      token: "a11y.focusRingWithin",
+      meta: "on the frame · stylex.defaultMarker() on the field",
+      description: t({
+        en: "Same ring on the frame of a control that has no frame of its own, such as a bare text field.",
+        zh: "同样的焦点环，画在自身没有外框的控件（例如无边框的文本输入框）的外框上。",
       }),
     },
   ];
@@ -902,7 +914,6 @@ function A11ySection() {
             css={[
               buttonReset.base,
               flex.center,
-              a11y.focusRing,
               corner.radius_round,
               styles.iconButton,
             ]}
@@ -927,7 +938,6 @@ function A11ySection() {
               typeRole.label,
               buttonReset.base,
               flex.center,
-              a11y.focusRing,
               corner.radius_2,
               styles.focusTile,
             ]}
@@ -961,8 +971,9 @@ function A11ySection() {
       <ApiGrid entries={api} />
       <UsageSnippet
         code={`import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 
-<button css={a11y.focusRing}>
+<button css={buttonReset.base}>
   {icon}
   <span css={a11y.srOnly}>{accessibleName}</span>
 </button>`}

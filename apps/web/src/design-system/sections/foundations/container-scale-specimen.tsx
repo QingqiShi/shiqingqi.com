@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -215,7 +216,7 @@ export function ContainerScaleSpecimen() {
           step={1}
           value={active}
           onChange={handleSlider}
-          css={styles.slider}
+          css={[a11y.focusRing, styles.slider]}
           aria-label={t({
             en: "Step through container widths",
             zh: "逐级切换容器宽度",

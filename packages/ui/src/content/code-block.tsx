@@ -296,12 +296,7 @@ export function CodeBlock({ source, parts, css }: CodeBlockProps) {
       orientation="horizontal"
       tabIndex={0}
       css={[corner.radius_2, css]}
-      contentCss={[
-        scrollX.base,
-        scrollX.focusRing,
-        scrollbar.autoHide,
-        transition.scrollbarColor,
-      ]}
+      contentCss={[scrollX.base, scrollbar.autoHide, transition.scrollbarColor]}
     >
       <pre css={styles.pre}>
         {source !== undefined ? (

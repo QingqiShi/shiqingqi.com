@@ -9,6 +9,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration as motionDuration,
@@ -229,7 +230,7 @@ export function AnimationMode({
               onChange={(event) => {
                 setSpeed(Number(event.target.value));
               }}
-              css={styles.range}
+              css={[a11y.focusRing, styles.range]}
               data-testid="speed"
             />
             <span
@@ -318,6 +319,7 @@ export function AnimationMode({
                         typeRole.bodySmall,
                         typeModifier.numeric,
                         corner.radius_2,
+                        a11y.focusRing,
                         styles.frameDuration,
                       ]}
                       data-testid={`frame-duration-${String(index)}`}

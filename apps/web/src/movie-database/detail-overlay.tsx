@@ -4,7 +4,6 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { viewportFill } from "@tuja/ui/primitives/layout.stylex";
@@ -112,7 +111,6 @@ export function DetailOverlay({
                 css={[
                   buttonReset.base,
                   flex.inlineCenter,
-                  a11y.focusRing,
                   transition.colors,
                   corner.radius_round,
                   styles.closeButton,
