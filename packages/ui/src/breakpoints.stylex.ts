@@ -12,4 +12,5 @@ export const pointer = stylex.defineConsts({
   // `(hover: hover)`. A touchscreen laptop keeps its hover styles, because
   // its primary pointer is a mouse or a trackpad.
   canHover: "@media (hover: hover) and (pointer: fine)",
+  coarse: "@media (pointer: coarse)",
 });

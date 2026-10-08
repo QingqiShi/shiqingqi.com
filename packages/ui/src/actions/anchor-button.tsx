@@ -208,6 +208,7 @@ export function AnchorButton({
         typeRole.control,
         size === "sm" && typeRole.label,
         size === "lg" && typeRole.h2,
+        a11y.touchTarget,
         sharedStyles.base,
         corner.squircle_round,
         a11y.focusRing,

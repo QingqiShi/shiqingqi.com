@@ -58,7 +58,6 @@ export const sharedStyles = stylex.create({
     },
     transform: "scale(1) translate(0, 0)",
     filter: "brightness(1)",
-    touchAction: "manipulation",
     // The corner (`corner.squircle_round`, closing at half the height set
     // above) and the focus ring (WCAG 2.4.7, `a11y.focusRing`) are composed at
     // the call site, so every button look shares one shape and one

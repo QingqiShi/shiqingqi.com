@@ -256,11 +256,11 @@ import { absoluteFill, scrollY, truncate, imageCover } from "@tuja/ui/primitives
 
 **Import**: `@tuja/ui/primitives/reset.stylex`
 
-| Export             | Properties                                                                                                                                      |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `buttonReset.base` | appearance: none + borderWidth: 0 + borderStyle: none + backgroundColor: transparent + padding: 0 + cursor: pointer + the `a11y.focusRing` ring |
+| Export             | Properties                                                                                                                                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `buttonReset.base` | appearance: none + borderWidth: 0 + borderStyle: none + backgroundColor: transparent + padding: 0 + cursor: pointer + the `a11y.focusRing` ring + the `a11y.touchTarget` hit area |
 
-Every hand-built `<button>` starts from `buttonReset.base`, so it has the system focus ring without a second primitive. Compose `a11y.focusRingInset` after it where an ancestor clips overflow.
+Every hand-built `<button>` starts from `buttonReset.base`, so it has the system focus ring and the touch target without a second primitive. Compose `a11y.focusRingInset` after it where an ancestor clips overflow.
 
 ### Example
 
@@ -370,6 +370,12 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 ```
 
 Every element that takes focus draws the system ring: a component, `buttonReset.base`, `chipSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does. `apps/web/e2e/design-system-focus-ring.spec.ts` tabs through each page and fails on a tab stop with no ring or a clipped one.
+
+Every control takes a tap across at least 44px under a coarse pointer, without changing how it looks: `a11y.touchTarget` adds an `::after` hit area that extends past a smaller box, and drops the tap flash and the double-tap zoom. `buttonReset.base`, `chipSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; compose `a11y.touchTarget` on any other control, before any style that sets `position`. Under a coarse pointer the control becomes `position: relative` and `isolation: isolate`. Three things take the hit area away, and `apps/web/e2e/design-system-touch-target.spec.ts` fails on each at a phone viewport:
+
+- An ancestor that clips overflow also clips the hit area. Give a control inside one 44px of its own under `pointer.coarse`, or move the clip to an inner element.
+- A small control closer to a field or another control than its hit area extends covers it and takes its taps. Make the gap larger under `pointer.coarse`.
+- Controls that touch, such as the options of `SegmentedControl`, cannot share the gap. Each one needs 44px of its own under `pointer.coarse`.
 
 ---
 

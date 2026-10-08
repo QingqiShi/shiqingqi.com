@@ -9,9 +9,10 @@ import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
  * `typeRole.caption` for `sm`), then `base` plus a `chipSize` step, then
  * `interactive`, then `active` for the selected one.
  *
- * `interactive` inlines its focus ring instead of composing `a11y.focusRing`,
- * since a primitive can't compose another at definition time.
- * `primitives/focus-ring.test.ts` keeps the copy the same as the original.
+ * `interactive` inlines its focus ring and its touch target instead of
+ * composing `a11y.focusRing` and `a11y.touchTarget`, since a primitive can't
+ * compose another at definition time. `primitives/focus-ring.test.ts` and
+ * `primitives/touch-target.test.ts` keep the copies the same as the originals.
  */
 export const chipSurface = stylex.create({
   base: {
@@ -58,6 +59,16 @@ export const chipSurface = stylex.create({
       ":focus-visible": color.borderAccent,
     },
     outlineOffset: border.size_2,
+    WebkitTapHighlightColor: "transparent",
+    touchAction: "manipulation",
+    position: { default: null, [pointer.coarse]: "relative" },
+    isolation: { default: null, [pointer.coarse]: "isolate" },
+    "::after": {
+      content: { default: null, [pointer.coarse]: '""' },
+      position: "absolute",
+      inset: "min(0px, calc(50% - 22px))",
+      zIndex: -1,
+    },
   },
   active: {
     borderColor: color.borderAccent,

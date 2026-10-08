@@ -1,51 +1,12 @@
 import { expect, type Page, test } from "@playwright/test";
-import { DESIGN_SYSTEM_PATHS } from "../src/design-system/routes/design-system-paths.ts";
+import { AUDIT_ROUTES } from "./helpers/audit-routes.ts";
 import { inspectFocusRing } from "./helpers/inspect-focus-ring.ts";
-import { PRODUCT_ROUTES } from "./helpers/product-routes.ts";
 
 const WIDTHS = [390, 1440];
 
 // More stops than the longest page has. A list that loads more as focus
 // reaches its end never wraps, so the walk stops here.
 const MAX_TAB_STOPS = 400;
-
-interface Route {
-  name: string;
-  path: string;
-  /** An element that shows the route has rendered. */
-  ready: string;
-  /** Opens a state that a tab walk from the route does not reach. */
-  open?: (page: Page) => Promise<unknown>;
-}
-
-const ROUTES: Route[] = [
-  ...DESIGN_SYSTEM_PATHS.map((path) => ({
-    name: path,
-    path,
-    ready: "main h1",
-  })),
-  ...PRODUCT_ROUTES.map(({ path, ready }) => ({ name: path, path, ready })),
-  {
-    name: "creature wizard",
-    path: "/pixel-creature-creator/create",
-    ready: '[data-testid="wizard-next"]',
-  },
-  {
-    name: "creature review",
-    path: "/pixel-creature-creator",
-    ready: "h1",
-    open: async (page) => {
-      await page.locator('a[data-testid^="featured-"]').first().click();
-      await page.getByTestId("review-screen").waitFor();
-    },
-  },
-  {
-    name: "taste preferences",
-    path: "/movie-database",
-    ready: "main",
-    open: (page) => page.getByRole("button", { name: "Preferences" }).click(),
-  },
-];
 
 async function tabThrough(page: Page) {
   const failures: string[] = [];
@@ -109,7 +70,7 @@ for (const width of WIDTHS) {
       await page.emulateMedia({ reducedMotion: "reduce" });
     });
 
-    for (const route of ROUTES) {
+    for (const route of AUDIT_ROUTES) {
       test(route.name, async ({ page }) => {
         await page.goto(route.path);
         // A dev server compiles a route on the first hit, which outruns the

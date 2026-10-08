@@ -303,6 +303,10 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "center",
     gap: controlSize._1,
+    // The options touch, so a narrow option cannot extend its hit area into
+    // its neighbour. Under a coarse pointer, each option is 44px wide at
+    // minimum.
+    minInlineSize: { default: null, [pointer.coarse]: "44px" },
     // Every option carries the border, not only the selected one: the box then
     // keeps its size, and `transition.colors` has no border colour to fade in
     // from `currentColor` when the option becomes the selected one.

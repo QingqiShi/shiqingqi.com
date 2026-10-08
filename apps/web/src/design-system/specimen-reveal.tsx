@@ -99,8 +99,11 @@ export function SpecimenReveal({
 }
 
 const styles = stylex.create({
+  // Under a coarse pointer, the hit area of the Code control extends 12px
+  // above it. The larger gap keeps that hit area off the specimen.
   cell: {
     minInlineSize: 0,
+    gap: { default: rhythm.tight, [pointer.coarse]: rhythm.item },
   },
   // A block, not a flex row. A flex row makes every child shrink to its own
   // content, which is right for a button and wrong for a card, a divider or a
