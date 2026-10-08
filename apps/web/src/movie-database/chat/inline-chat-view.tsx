@@ -1,14 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import {
-  border,
-  color,
-  layer,
-  layout,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { pageColumn, pageGutter } from "@tuja/ui/primitives/page-column.stylex";
+import { border, color, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { ViewTransition, useEffect, useState, type ReactNode } from "react";
 import { MediaDetailOverlay } from "#src/movie-database/details/media-detail-overlay.tsx";
@@ -103,7 +97,7 @@ export function InlineChatView({
           setAttachedMedia,
         }}
       >
-        <div css={styles.container}>
+        <div css={[pageColumn.base, styles.container]}>
           {previousSessionId && messages.length === 0 && (
             <SessionRestoreBanner
               onContinue={continueSession}
@@ -163,20 +157,11 @@ export function InlineChatView({
   );
 }
 
-const contentInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
-const contentInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
-
 const styles = stylex.create({
   container: {
     display: "flex",
     flexDirection: "column",
     minHeight: `calc(100dvh - ${space._10} - env(safe-area-inset-top))`,
-    maxInlineSize: layout.maxInlineSize,
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    paddingLeft: contentInsetLeft,
-    paddingRight: contentInsetRight,
   },
   inputMeta: {
     display: "flex",
@@ -193,10 +178,10 @@ const styles = stylex.create({
     zIndex: layer.content,
     paddingTop: space._3,
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
-    paddingLeft: contentInsetLeft,
-    paddingRight: contentInsetRight,
-    marginLeft: `calc(-1 * ${contentInsetLeft})`,
-    marginRight: `calc(-1 * ${contentInsetRight})`,
+    paddingInlineStart: pageGutter.inlineStart,
+    paddingInlineEnd: pageGutter.inlineEnd,
+    marginInlineStart: `calc(-1 * ${pageGutter.inlineStart})`,
+    marginInlineEnd: `calc(-1 * ${pageGutter.inlineEnd})`,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.border,

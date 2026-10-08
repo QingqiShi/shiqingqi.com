@@ -260,6 +260,15 @@ export default defineConfig([
       "@tuja/require-measure": "error",
     },
   },
+  // Content sits in the page column, with the page gutter. Only @tuja/ui
+  // builds them from the cap and the safe area.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "@tuja/require-page-column": "error",
+    },
+  },
   {
     files: ["packages/ui/src/**/*.{ts,tsx}"],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],

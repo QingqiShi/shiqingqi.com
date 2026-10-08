@@ -1,5 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
+import {
+  pageColumn as pageColumnStyles,
+  pageColumnTokens,
+  pageGutter,
+} from "../primitives/page-column.stylex.ts";
 import { BlurPlane, BlurPlaneProvider } from "../surfaces/blur-plane.tsx";
 import { layer, layout, space } from "../tokens.stylex.ts";
 import { HeaderControls } from "./header-controls.tsx";
@@ -29,12 +34,12 @@ interface HeaderFooterLayoutProps {
    */
   background?: ReactNode;
   /**
-   * Footer element, rendered at the bottom of the page in the same centered
-   * measure as a reading column. Pass a `<footer>` (e.g. the site footer);
+   * Footer element, rendered at the bottom of the page in the page column.
+   * Pass a `<footer>` (e.g. the site footer);
    * the shell doesn't add its own landmark, so the element you pass owns the
    * `contentinfo` role.
    *
-   * @zh 页脚元素，渲染在页面底部，与阅读栏共享同一版心。传入一个 `<footer>`（例如站点页脚）；骨架不添加自己的地标，因此你传入的元素拥有 `contentinfo` 角色。
+   * @zh 页脚元素，渲染在页面底部的页面栏内。传入一个 `<footer>`（例如站点页脚）；骨架不添加自己的地标，因此你传入的元素拥有 `contentinfo` 角色。
    */
   footer?: ReactNode;
   /**
@@ -46,18 +51,18 @@ interface HeaderFooterLayoutProps {
    */
   children: ReactNode;
   /**
-   * Caps the content into the site's default reading column — centred, with
-   * reading gutters. Left off, the content is full-bleed and manages its own
-   * width (e.g. a media hero or an app canvas).
+   * Sets the content in the page column, on the same edges as the header
+   * controls and the footer. Left off, the content is full-bleed and manages
+   * its own width (e.g. a media hero or an app canvas).
    *
-   * @zh 将内容限制在本站默认的阅读栏内——居中并带阅读边距。不启用时内容为满幅并自行管理宽度（例如媒体主视觉或应用画布）。
+   * @zh 将内容放入页面栏，与页头控件和页脚对齐同一边缘。不启用时内容为满幅并自行管理宽度（例如媒体主视觉或应用画布）。
    */
-  readingColumn?: boolean;
+  pageColumn?: boolean;
   /**
-   * Narrows the reading column below the site default (prose-heavy pages).
-   * Implies `readingColumn`.
+   * Narrows the page column below the site default (prose-heavy pages). The
+   * width includes the page gutters. Implies `pageColumn`.
    *
-   * @zh 将阅读栏收窄至低于站点默认值（适用于文字密集的页面）。隐含启用 `readingColumn`。
+   * @zh 将页面栏收窄至低于站点默认值（适用于文字密集的页面）。该宽度包含页面边距。隐含启用 `pageColumn`。
    */
   contentMaxInlineSize?: string;
   /**
@@ -85,16 +90,16 @@ export function HeaderFooterLayout({
   background,
   footer,
   children,
-  readingColumn,
+  pageColumn,
   contentMaxInlineSize,
   as = "main",
 }: HeaderFooterLayoutProps) {
-  const isColumn = readingColumn === true || contentMaxInlineSize != null;
+  const isColumn = pageColumn === true || contentMaxInlineSize != null;
   const contentCss = [
     styles.content,
-    isColumn && styles.column,
+    isColumn && pageColumnStyles.base,
     contentMaxInlineSize
-      ? dynamicStyles.maxInlineSize(contentMaxInlineSize)
+      ? dynamicStyles.columnInlineSize(contentMaxInlineSize)
       : null,
   ];
   const content = (
@@ -129,17 +134,19 @@ export function HeaderFooterLayout({
           )}
         </header>
         {contentBody}
-        {footer != null && <div css={styles.footer}>{footer}</div>}
+        {footer != null && (
+          <div css={[styles.footer, pageColumnStyles.base]}>{footer}</div>
+        )}
       </div>
     </BlurPlaneProvider>
   );
 }
 
+// The scroll lock reports here the width of the scrollbar it removes.
+const SCROLLBAR = "var(--removed-body-scroll-bar-size, 0px)";
+
 const styles = stylex.create({
-  // The scroll lock reports its removed scrollbar width here, so the floating
-  // groups hold still instead of shifting when the scrollbar disappears.
   root: {
-    "--header-controls-gutter": `calc(max(0px, (100% - var(--removed-body-scroll-bar-size, 0px) - ${layout.maxInlineSize}) / 2) + ${space._3})`,
     // Published so sticky page chrome (e.g. a filter bar) can sit below the
     // header without restating its size.
     "--header-controls-clearance": `calc(${space._10} + env(safe-area-inset-top))`,
@@ -166,15 +173,15 @@ const styles = stylex.create({
   header: {
     display: "contents",
   },
-  // Only headerEnd also clears the removed scrollbar width; the gutter above
-  // already accounts for it on the measure, not this edge.
+  // The controls sit on the edges of the page column. They are fixed, so
+  // `100%` is the viewport, which grows by the scrollbar that the scroll lock
+  // removes. Only headerEnd also moves in by that width, because the body
+  // takes it as padding on that side.
   headerStart: {
-    insetInlineStart:
-      "calc(var(--header-controls-gutter) + env(safe-area-inset-left))",
+    insetInlineStart: `max(${pageGutter.inlineStart}, calc((100% - ${SCROLLBAR} - ${layout.maxInlineSize}) / 2 + ${space._3}))`,
   },
   headerEnd: {
-    insetInlineEnd:
-      "calc(var(--header-controls-gutter) + env(safe-area-inset-right) + var(--removed-body-scroll-bar-size, 0px))",
+    insetInlineEnd: `calc(max(${pageGutter.inlineEnd}, calc((100% - ${SCROLLBAR} - ${layout.maxInlineSize}) / 2 + ${space._3})) + ${SCROLLBAR})`,
   },
   // No top offset: heroes and backdrops bleed under the controls; pages that
   // want clearance add their own.
@@ -184,24 +191,14 @@ const styles = stylex.create({
     flexGrow: 1,
     minInlineSize: 0,
   },
-  column: {
-    inlineSize: "100%",
-    maxInlineSize: layout.maxInlineSize,
-    marginInline: "auto",
-    paddingInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
-  },
   footer: {
     position: "relative",
     zIndex: layer.content,
-    inlineSize: "100%",
-    maxInlineSize: layout.maxInlineSize,
-    marginInline: "auto",
-    paddingInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
   },
 });
 
 const dynamicStyles = stylex.create({
-  maxInlineSize: (maxInlineSize: string) => ({ maxInlineSize }),
+  columnInlineSize: (inlineSize: string) => ({
+    [pageColumnTokens.inlineSize]: inlineSize,
+  }),
 });

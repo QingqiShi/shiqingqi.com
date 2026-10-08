@@ -55,7 +55,6 @@ const styles = stylex.create({
     gap: rhythm.item,
     scrollSnapType: "x mandatory",
     paddingInline: space._3,
-    scrollPaddingLeft: space._3,
-    scrollPaddingRight: space._3,
+    scrollPaddingInline: space._3,
   },
 });

@@ -22,12 +22,12 @@ import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
   font,
-  layout,
   rhythm,
   shadow,
   space,
@@ -583,7 +583,7 @@ export function MediaTable({
         toggleSort,
       }}
     >
-      <div css={styles.panelContainer}>
+      <div css={[pageColumn.base, styles.panelContainer]}>
         <section css={[corner.radius_3, styles.panel]} aria-label={tableLabel}>
           <div css={styles.toolbar}>
             <TextField
@@ -747,14 +747,8 @@ const gridPartStyles: Grid.Style = {
 };
 
 const styles = stylex.create({
-  // Matches the gutters `FiltersContainer` uses, so the panel's edges line up
-  // with the filter bar above it.
   panelContainer: {
-    maxInlineSize: layout.maxInlineSize,
-    marginInline: "auto",
     marginBlockEnd: rhythm.group,
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
   },
   panel: {
     display: "flex",

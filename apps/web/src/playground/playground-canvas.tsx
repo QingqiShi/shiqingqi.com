@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
@@ -274,8 +275,10 @@ const styles = stylex.create({
     // overlays those extended regions.
     position: "fixed",
     top: "calc(-1 * env(safe-area-inset-top))",
+    // eslint-disable-next-line @tuja/require-page-column -- covers the screen, not a column
     left: "calc(-1 * env(safe-area-inset-left))",
     width:
+      // eslint-disable-next-line @tuja/require-page-column -- covers the screen, not a column
       "calc(100vw + env(safe-area-inset-left) + env(safe-area-inset-right))",
     height:
       "calc(100lvh + env(safe-area-inset-top) + env(safe-area-inset-bottom))",
@@ -289,7 +292,7 @@ const styles = stylex.create({
   overlay: {
     position: "fixed",
     bottom: "calc(12px + env(safe-area-inset-bottom))",
-    left: "calc(12px + env(safe-area-inset-left))",
+    insetInlineStart: pageGutter.inlineStart,
     padding: "10px 14px",
     borderRadius: "8px",
     cornerShape: "squircle",

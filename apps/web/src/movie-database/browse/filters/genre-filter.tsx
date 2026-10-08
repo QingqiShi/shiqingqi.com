@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
+import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlSize, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
@@ -97,7 +98,7 @@ const styles = stylex.create({
   container: {
     overflow: "auto",
     width: "100dvw",
-    maxInlineSize: `min(${space._15}, calc(100dvw - ${space._3} - env(safe-area-inset-left) - ${space._3} - env(safe-area-inset-right)))`,
+    maxInlineSize: `min(${space._15}, calc(100dvw - ${pageGutter.inlineStart} - ${pageGutter.inlineEnd}))`,
   },
   genreList: {
     display: "flex",

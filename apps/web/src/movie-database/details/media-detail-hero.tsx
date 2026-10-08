@@ -3,12 +3,12 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
   controlSize,
-  layout,
   measure,
   rhythm,
   space,
@@ -42,7 +42,7 @@ export function MediaDetailHero({
   const formatter = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
   return (
-    <div css={styles.container}>
+    <div css={[pageColumn.base, styles.container]}>
       {backdropPath && <BackdropImage backdropPath={backdropPath} />}
       <div css={[stack.item, styles.hero]}>
         {voteCount > 0 && (
@@ -82,13 +82,7 @@ export function MediaDetailHero({
 
 const styles = stylex.create({
   container: {
-    maxInlineSize: layout.maxInlineSize,
-    marginBlock: 0,
-    marginInline: "auto",
-    marginBottom: rhythm.section,
-    paddingBlock: 0,
-    paddingLeft: `env(safe-area-inset-left)`,
-    paddingRight: `env(safe-area-inset-right)`,
+    marginBlockEnd: rhythm.section,
   },
   hero: {
     paddingTop: {
@@ -96,7 +90,6 @@ const styles = stylex.create({
       [breakpoints.md]: `clamp(${space._10}, 20dvw, 30dvh)`,
       [breakpoints.xl]: `min(${space._13}, 30dvh)`,
     },
-    paddingInline: space._3,
     justifyContent: "flex-end",
   },
   h1: {

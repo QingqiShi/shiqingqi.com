@@ -131,8 +131,6 @@ async function fetchTrending(
 
 const styles = stylex.create({
   page: {
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left, 0px))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right, 0px))`,
     paddingBlockEnd: { default: space._5, [breakpoints.md]: space._6 },
   },
 });

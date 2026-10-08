@@ -1,7 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { layout, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
+import { ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
@@ -43,7 +44,7 @@ export function SimilarMedia({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div css={styles.container}>
+      <div css={pageColumn.base}>
         <h2 css={styles.heading}>{t({ en: "Similar", zh: "类似" })}</h2>
       </div>
       <Suspense
@@ -75,18 +76,9 @@ export function SimilarMedia({
 }
 
 const styles = stylex.create({
-  container: {
-    maxInlineSize: layout.maxInlineSize,
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    paddingLeft: `env(safe-area-inset-left)`,
-    paddingRight: `env(safe-area-inset-right)`,
-  },
   heading: {
     marginBlock: 0,
     marginBlockEnd: rhythm.tight,
-    paddingInline: space._3,
   },
   skeleton: {
     aspectRatio: ratio.poster,

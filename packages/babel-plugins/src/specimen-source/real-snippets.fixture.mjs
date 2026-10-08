@@ -164,7 +164,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
   headerEnd={<ThemeSwitch />}
   background={<FlowGradient />}
   footer={<SiteFooter />}
-  readingColumn
+  pageColumn
 >
   <Article />
 </HeaderFooterLayout>`,

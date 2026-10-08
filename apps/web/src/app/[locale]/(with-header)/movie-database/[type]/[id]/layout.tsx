@@ -1,5 +1,4 @@
-import * as stylex from "@stylexjs/stylex";
-import { layout, space } from "@tuja/ui/tokens.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -135,25 +134,9 @@ export default async function Layout({
   return (
     <>
       <main>{children}</main>
-      <div css={styles.container}>
-        <div css={styles.wrapperInner}>
-          <Footer locale={validatedLocale} />
-        </div>
+      <div css={pageColumn.base}>
+        <Footer locale={validatedLocale} />
       </div>
     </>
   );
 }
-
-const styles = stylex.create({
-  container: {
-    maxInlineSize: layout.maxInlineSize,
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingBlock: 0,
-    paddingLeft: `env(safe-area-inset-left)`,
-    paddingRight: `env(safe-area-inset-right)`,
-  },
-  wrapperInner: {
-    paddingInline: space._3,
-  },
-});

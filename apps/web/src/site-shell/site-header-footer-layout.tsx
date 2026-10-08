@@ -11,11 +11,11 @@ interface SiteHeaderFooterLayoutProps {
   locale: SupportedLocale;
   /** Full-bleed decoration behind the content (gradients, glows). */
   background?: ReactNode;
-  /** Footer element pinned to the bottom of the centered measure. */
+  /** Footer element at the bottom of the page, in the page column. */
   footer?: ReactNode;
-  /** Caps the content into the site's reading column. */
-  readingColumn?: boolean;
-  /** Narrows the reading column below the site default. */
+  /** Sets the content in the page column. */
+  pageColumn?: boolean;
+  /** Narrows the page column below the site default. */
   contentMaxInlineSize?: string;
   as?: "main" | "div";
   children: ReactNode;
@@ -33,7 +33,7 @@ export function SiteHeaderFooterLayout({
   locale,
   background,
   footer,
-  readingColumn,
+  pageColumn,
   contentMaxInlineSize,
   as,
   children,
@@ -43,7 +43,7 @@ export function SiteHeaderFooterLayout({
       as={as}
       background={background}
       footer={footer}
-      readingColumn={readingColumn}
+      pageColumn={pageColumn}
       contentMaxInlineSize={contentMaxInlineSize}
       headerStart={
         <FixedContainerContent>
