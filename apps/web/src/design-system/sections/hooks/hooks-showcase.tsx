@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
@@ -631,11 +631,14 @@ const styles = stylex.create({
     fontWeight: font.weight_5,
     color: {
       default: color.fg,
-      ":hover": color.fgOnAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.fgOnAccent,
+      },
     },
     backgroundColor: {
       default: color.bgControl,
-      ":hover": color.bgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
     },
   },
   stepValue: {
@@ -679,7 +682,10 @@ const styles = stylex.create({
     color: color.fg,
     backgroundColor: {
       default: color.bgControl,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     whiteSpace: "nowrap",
@@ -717,7 +723,7 @@ const styles = stylex.create({
     paddingBlock: space._1,
     color: {
       default: color.fgMuted,
-      ":hover": color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
     },
     textDecorationLine: "underline",
     textDecorationStyle: "dotted",
@@ -782,7 +788,7 @@ const styles = stylex.create({
     paddingInline: space._3,
     color: {
       default: color.fgMuted,
-      ":hover": color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
     },
     backgroundColor: "transparent",
     whiteSpace: "nowrap",

@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -111,7 +112,7 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     textDecoration: {
       default: "none",
-      ":hover": "underline",
+      ":hover": { default: null, [pointer.canHover]: "underline" },
     },
   },
   titleMeta: {

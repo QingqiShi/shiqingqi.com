@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { motionTokens } from "@tuja/ui/primitives/motion.stylex";
 import type { ReactNode } from "react";
 
@@ -14,7 +15,7 @@ const styles = stylex.create({
   held: {
     [motionTokens.playState]: {
       default: "running",
-      "@media (hover: hover)": {
+      [pointer.canHover]: {
         default: "paused",
         ":hover": "running",
         ":focus-within": "running",

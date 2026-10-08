@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "../breakpoints.stylex.ts";
 import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
 
 /**
@@ -34,13 +35,19 @@ export const chipSurface = stylex.create({
     cursor: { default: "pointer", ":disabled": "not-allowed" },
     borderColor: {
       default: color.border,
-      ":hover": color.borderAccent,
-      ":disabled:hover": color.border,
+      [pointer.canHover]: {
+        default: null,
+        ":hover": color.borderAccent,
+        ":disabled:hover": color.border,
+      },
     },
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
-      ":disabled:hover": color.bgSurface,
+      [pointer.canHover]: {
+        default: null,
+        ":hover": color.bgControlHover,
+        ":disabled:hover": color.bgSurface,
+      },
     },
     opacity: { default: null, ":disabled": opacity.disabled },
     outlineWidth: border.size_2,
@@ -53,8 +60,14 @@ export const chipSurface = stylex.create({
   },
   active: {
     borderColor: color.borderAccent,
-    backgroundColor: { default: color.bgAccent, ":hover": color.bgAccentHover },
-    color: { default: color.fgOnAccent, ":hover": color.fgOnAccent },
+    backgroundColor: {
+      default: color.bgAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentHover,
+      },
+    },
+    color: color.fgOnAccent,
   },
 });
 

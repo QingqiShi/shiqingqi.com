@@ -4,6 +4,7 @@ import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -113,7 +114,7 @@ const styles = stylex.create({
     minInlineSize: 0,
     color: {
       default: "inherit",
-      ":hover": color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
     },
     cursor: "pointer",
   },

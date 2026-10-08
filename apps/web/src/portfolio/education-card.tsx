@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -68,7 +69,12 @@ const styles = stylex.create({
     justifyContent: "flex-start",
 
     // Override svg css variables to be muted when not hovering
-    [svgTokens.fill]: { ":not(:hover)": color.fgMuted },
+    [svgTokens.fill]: {
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
+    },
   },
   row: {
     display: "grid",

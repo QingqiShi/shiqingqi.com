@@ -205,6 +205,9 @@ There is no global `corner-shape` rule.
 | `truncate.base`         | overflow: hidden + textOverflow: ellipsis + whiteSpace: nowrap                                                        |
 | `imageCover.base`       | objectFit: cover + width: 100% + height: 100%                                                                         |
 | `imageContain.base`     | objectFit: contain + width: 100% + height: 100%                                                                       |
+| `scrollbar.autoHide`    | thin scrollbar, transparent at rest and shown on hover or focus, on `NON_TOUCH_DEVICE` only                           |
+
+`pointerConstants.NON_TOUCH_DEVICE` (`@media (hover: hover) and (not (any-pointer: coarse))`) gates an affordance that a touch device replaces. A hover style takes `pointer.canHover` from `@tuja/ui/breakpoints.stylex` instead; see the Hover section of `SKILL.md`.
 
 ### Examples
 

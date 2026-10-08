@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import { pointer } from "../breakpoints.stylex.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner, cornerTokens } from "../primitives/corner.stylex.ts";
@@ -311,10 +312,16 @@ const styles = stylex.create({
     // The ring is inset here, matching `cardSurface.interactive`, so it is not
     // cropped by the neighbouring segments.
     fontWeight: font.weight_5,
-    color: { default: color.fgMuted, ":hover": color.fg },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fg },
+    },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
   },
   // A non-wrapping label's min-content width blocks an even flex split, even
@@ -334,13 +341,9 @@ const styles = stylex.create({
     anchorName: SELECTED_ANCHOR,
     backgroundColor: {
       default: "transparent",
-      ":hover": "transparent",
-      [NO_ANCHOR_POSITIONING]: {
-        default: color.bgControl,
-        ":hover": color.bgControl,
-      },
+      [NO_ANCHOR_POSITIONING]: color.bgControl,
     },
-    color: { default: color.fg, ":hover": color.fg },
+    color: color.fg,
     fontWeight: font.weight_6,
     borderColor: {
       default: "transparent",

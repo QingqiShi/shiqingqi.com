@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "../breakpoints.stylex.ts";
+import { breakpoints, pointer } from "../breakpoints.stylex.ts";
 import { cornerTokens } from "../primitives/corner.stylex.ts";
 import {
   duration,
@@ -50,8 +50,11 @@ export const sharedStyles = stylex.create({
     color: buttonTokens.color,
     backgroundColor: {
       default: buttonTokens.backgroundColor,
-      ":hover": buttonTokens.backgroundColorHover,
-      ":disabled:hover": buttonTokens.backgroundColorDisabledHover,
+      [pointer.canHover]: {
+        default: null,
+        ":hover": buttonTokens.backgroundColorHover,
+        ":disabled:hover": buttonTokens.backgroundColorDisabledHover,
+      },
     },
     transform: "scale(1) translate(0, 0)",
     filter: "brightness(1)",
@@ -95,14 +98,14 @@ export const sharedStyles = stylex.create({
     display: { default: "none", [breakpoints.md]: "inline-flex" },
   },
   active: {
-    [buttonTokens.color]: {
-      default: color.fgOnAccent,
-      ":hover": color.fgOnAccent,
-    },
+    [buttonTokens.color]: color.fgOnAccent,
     backgroundColor: {
       default: color.bgAccent,
-      ":hover": color.bgAccentHover,
-      ":disabled:hover": color.bgAccent,
+      [pointer.canHover]: {
+        default: null,
+        ":hover": color.bgAccentHover,
+        ":disabled:hover": color.bgAccent,
+      },
     },
   },
   bright: {
@@ -110,7 +113,10 @@ export const sharedStyles = stylex.create({
     [buttonTokens.color]: color.fgOnControlBright,
     filter: {
       default: "brightness(1)",
-      ":hover": "brightness(1.1)",
+      ":hover": {
+        default: null,
+        [pointer.canHover]: "brightness(1.1)",
+      },
     },
   },
   pressed: {
@@ -160,9 +166,12 @@ export const lookStyles = stylex.create({
     [buttonTokens.backgroundColorDisabledHover]: "transparent",
     [buttonTokens.boxShadow]: "none",
     [buttonTokens.color]: {
-      default: color.fgMuted,
-      ":hover": color.fg,
-      ":disabled:hover": color.fgMuted,
+      default: color.fg,
+      [pointer.canHover]: {
+        default: color.fgMuted,
+        ":hover": color.fg,
+        ":disabled:hover": color.fgMuted,
+      },
     },
   },
   danger: {

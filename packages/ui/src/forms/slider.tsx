@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRef, type ComponentProps, type ReactNode } from "react";
+import { pointer } from "../breakpoints.stylex.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -371,7 +372,13 @@ const styles = stylex.create({
         default: THUMB_LIFT,
         [motionConstants.REDUCED_MOTION]: "none",
       },
-      transform: { default: null, ":hover": "scale(1.12)" },
+      transform: {
+        default: null,
+        ":hover": {
+          default: null,
+          [pointer.canHover]: "scale(1.12)",
+        },
+      },
     },
     "::-moz-range-thumb": {
       boxSizing: "border-box",
@@ -389,7 +396,13 @@ const styles = stylex.create({
         default: THUMB_LIFT,
         [motionConstants.REDUCED_MOTION]: "none",
       },
-      transform: { default: null, ":hover": "scale(1.12)" },
+      transform: {
+        default: null,
+        ":hover": {
+          default: null,
+          [pointer.canHover]: "scale(1.12)",
+        },
+      },
     },
   },
   // Composed after `a11y.focusRing`, so the danger ring wins — matching the
@@ -411,11 +424,17 @@ const styles = stylex.create({
     "::-moz-range-track": { backgroundImage: DISABLED_FILL },
     "::-webkit-slider-thumb": {
       borderColor: color.border,
-      transform: { default: null, ":hover": "none" },
+      transform: {
+        default: null,
+        ":hover": { default: null, [pointer.canHover]: "none" },
+      },
     },
     "::-moz-range-thumb": {
       borderColor: color.border,
-      transform: { default: null, ":hover": "none" },
+      transform: {
+        default: null,
+        ":hover": { default: null, [pointer.canHover]: "none" },
+      },
     },
   },
 });

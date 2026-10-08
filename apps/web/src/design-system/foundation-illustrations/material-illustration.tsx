@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
@@ -116,15 +117,21 @@ const styles = stylex.create({
   },
   washRest: {
     opacity: {
-      default: 1,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
+      [pointer.canHover]: {
+        default: 1,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      },
     },
     transition: "opacity 500ms ease",
   },
   washAlive: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      default: 1,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      },
     },
     transition: "opacity 560ms ease",
   },

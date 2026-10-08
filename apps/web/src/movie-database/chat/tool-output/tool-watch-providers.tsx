@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -497,7 +498,7 @@ const styles = stylex.create({
     cursor: "pointer",
     textDecoration: {
       default: "none",
-      ":hover": "underline",
+      ":hover": { default: null, [pointer.canHover]: "underline" },
     },
   },
   attribution: {
@@ -512,7 +513,7 @@ const styles = stylex.create({
     color: color.fgMuted,
     textDecoration: {
       default: "none",
-      ":hover": "underline",
+      ":hover": { default: null, [pointer.canHover]: "underline" },
     },
   },
 });

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { easing, transition } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -440,13 +441,14 @@ window.matchMedia(REDUCED_MOTION_QUERY).addEventListener("change", update);`}
           <MotionHoldBackSpecimen />
         </Specimen>
         <UsageSnippet
-          code={`import { motionTokens } from "@tuja/ui/primitives/motion.stylex";
+          code={`import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { motionTokens } from "@tuja/ui/primitives/motion.stylex";
 
 const styles = stylex.create({
   held: {
     [motionTokens.playState]: {
       default: "running",
-      "@media (hover: hover)": { default: "paused", ":hover": "running" },
+      [pointer.canHover]: { default: "paused", ":hover": "running" },
     },
   },
   // animate.pulse and animate.bounce do not read the token.
@@ -636,22 +638,46 @@ const styles = stylex.create({
   hoverColors: {
     backgroundColor: {
       default: color.bgSurfaceRaised,
-      ":hover": color.bgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
     },
-    color: { default: color.fgMuted, ":hover": color.fgOnAccent },
+    color: {
+      default: color.fgMuted,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.fgOnAccent,
+      },
+    },
   },
   hoverOpacity: {
-    opacity: { default: 1, ":hover": 0.35 },
+    opacity: {
+      default: 1,
+      ":hover": { default: null, [pointer.canHover]: 0.35 },
+    },
   },
   hoverTransform: {
-    transform: { default: "scale(1)", ":hover": "scale(1.08)" },
+    transform: {
+      default: "scale(1)",
+      ":hover": { default: null, [pointer.canHover]: "scale(1.08)" },
+    },
   },
   hoverAll: {
     backgroundColor: {
       default: color.bgSurfaceRaised,
-      ":hover": color.bgAccentSubtle,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgAccentSubtle,
+      },
     },
-    transform: { default: "translateY(0)", ":hover": "translateY(-4px)" },
-    color: { default: color.fgMuted, ":hover": color.fgAccent },
+    transform: {
+      default: "translateY(0)",
+      ":hover": {
+        default: null,
+        [pointer.canHover]: "translateY(-4px)",
+      },
+    },
+    color: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: color.fgAccent },
+    },
   },
 });

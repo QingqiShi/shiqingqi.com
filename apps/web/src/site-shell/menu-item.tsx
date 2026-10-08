@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -59,9 +60,18 @@ export function MenuItem({
 
 const styles = stylex.create({
   item: {
-    color: { default: color.fg, ":hover": color.fgMuted },
+    color: {
+      default: color.fg,
+      ":hover": { default: null, [pointer.canHover]: color.fgMuted },
+    },
     fontWeight: font.weight_6,
-    backgroundColor: { default: null, ":hover": color.bgControlHover },
+    backgroundColor: {
+      default: null,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
+    },
     fontSize: controlSize._4,
     gap: controlSize._5,
     height: controlSize._9,

@@ -124,6 +124,10 @@ const NON_TOUCH_DEVICE =
 // a touch device replaces with a swipe.
 export const pointerConstants = stylex.defineConsts({
   NON_TOUCH_DEVICE,
+  // `(pointer: fine)` is necessary because some Android phones also report
+  // `(hover: hover)`. A touchscreen laptop keeps its hover styles, because
+  // its primary pointer is a mouse or a trackpad.
+  CAN_HOVER: "@media (hover: hover) and (pointer: fine)",
 });
 
 export const scrollbar = stylex.create({

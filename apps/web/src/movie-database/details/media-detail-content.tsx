@@ -4,6 +4,7 @@ import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -377,7 +378,10 @@ const styles = stylex.create({
     gap: rhythm.inline,
     color: {
       default: color.fgMuted,
-      ":hover": color.fgOnAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.fgOnAccent,
+      },
       ":focus-visible": color.fgOnAccent,
     },
     textDecoration: "none",
@@ -385,12 +389,15 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: {
       default: color.border,
-      ":hover": color.borderAccent,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.borderAccent,
+      },
       ":focus-visible": color.borderAccent,
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
       ":focus-visible": color.bgAccent,
     },
     paddingBlock: space._1,

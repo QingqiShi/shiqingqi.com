@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -155,12 +156,20 @@ const styles = stylex.create({
     },
     backgroundColor: {
       default: "transparent",
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
     },
     transform: {
       default: null,
-      ":hover": "scale(1.03)",
-      ":active": "scale(0.98)",
+      ":hover": { default: null, [pointer.canHover]: "scale(1.03)" },
+      // The gated hover ranks above a bare `:active`, so the press repeats
+      // inside the same media query.
+      ":active": {
+        default: "scale(0.98)",
+        [pointer.canHover]: "scale(0.98)",
+      },
     },
   },
   photoWrapper: {

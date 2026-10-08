@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -1106,10 +1106,16 @@ const styles = stylex.create({
     justifyContent: "center",
     inlineSize: "100%",
     paddingBlock: space._3,
-    color: { default: color.fgMuted, ":hover": color.fgOnAccent },
+    color: {
+      default: color.fgMuted,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.fgOnAccent,
+      },
+    },
     backgroundColor: {
       default: color.bgControl,
-      ":hover": color.bgAccent,
+      ":hover": { default: null, [pointer.canHover]: color.bgAccent },
     },
   },
   dotRow: {

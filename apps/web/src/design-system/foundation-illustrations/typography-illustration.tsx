@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
@@ -183,16 +184,23 @@ const styles = stylex.create({
   },
   glow: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
+      default: 0.5,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
+      },
     },
     transformBox: "view-box",
     transformOrigin: "250px 120px",
     transform: {
-      default: "scale(0.92)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "scale(1.02)",
+      default: "scale(1.02)",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default: "scale(0.92)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "scale(1.02)",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
     transition: {
       default:
@@ -202,22 +210,31 @@ const styles = stylex.create({
   },
   ink: {
     opacity: {
-      default: 0.62,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
+      [pointer.canHover]: {
+        default: 0.62,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      },
     },
     transition: "opacity 480ms ease",
   },
   metal: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      default: 1,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      },
     },
     transition: "opacity 480ms cubic-bezier(0.32, 0.72, 0, 1)",
   },
   orb: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
+      default: 0.5,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.5,
+      },
     },
     transformBox: "view-box",
     transformOrigin: "256px 118px",
@@ -234,16 +251,22 @@ const styles = stylex.create({
   },
   rule: {
     opacity: {
-      default: 0.26,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      default: 0.6,
+      [pointer.canHover]: {
+        default: 0.26,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      },
     },
     transition: "opacity 520ms ease",
   },
   ruleLine: {
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     strokeWidth: 1.2,
     strokeLinecap: "round",
@@ -251,8 +274,11 @@ const styles = stylex.create({
   },
   nums: {
     opacity: {
-      default: 0.4,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.8,
+      default: 0.8,
+      [pointer.canHover]: {
+        default: 0.4,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.8,
+      },
     },
     transition: "opacity 520ms ease",
   },
@@ -263,16 +289,22 @@ const styles = stylex.create({
     textAnchor: "end",
     dominantBaseline: "middle",
     fill: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     transition: "fill 520ms ease",
   },
   shimmerWrap: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
+      default: 0.9,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
+      },
     },
     transition: "opacity 520ms ease",
   },
@@ -288,8 +320,11 @@ const styles = stylex.create({
   },
   caret: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      default: 1,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      },
     },
     transition: "opacity 420ms ease",
   },

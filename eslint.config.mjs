@@ -267,6 +267,15 @@ export default defineConfig([
       "@tuja/require-package-export": "error",
     },
   },
+  // A tap on a touch screen leaves `:hover` matching until the next tap
+  // elsewhere, so a hover style applies only where a pointer can hover.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
+    rules: {
+      "@tuja/require-hover-media": "error",
+    },
+  },
   // A gap between siblings names its relationship. The primitives and the
   // tokens define the steps, so they are not in scope.
   {

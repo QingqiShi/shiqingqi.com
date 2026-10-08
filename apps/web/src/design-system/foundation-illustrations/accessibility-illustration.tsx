@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
@@ -145,16 +146,23 @@ export function AccessibilityIllustration() {
 const styles = stylex.create({
   bloom: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      default: 0.6,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      },
     },
     transformBox: "fill-box",
     transformOrigin: "center",
     transform: {
-      default: "scale(0.84)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "scale(1)",
+      default: "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default: "scale(0.84)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "scale(1)",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
     transition: {
       default:
@@ -178,8 +186,11 @@ const styles = stylex.create({
   plate: {
     fill: "var(--ds-illo-ink)",
     opacity: {
-      default: 0.14,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.2,
+      default: 0.2,
+      [pointer.canHover]: {
+        default: 0.14,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.2,
+      },
     },
     transition: "opacity 480ms ease",
   },
@@ -187,23 +198,32 @@ const styles = stylex.create({
     stroke: "var(--ds-illo-ink)",
     strokeWidth: 1.2,
     opacity: {
-      default: 0.42,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      default: 0.6,
+      [pointer.canHover]: {
+        default: 0.42,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      },
     },
     transition: "opacity 480ms ease",
   },
   // Present at rest: an unfocused control still has a name.
   label: {
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     strokeWidth: 4,
     strokeLinecap: "round",
     opacity: {
-      default: 0.34,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.7,
+      default: 0.7,
+      [pointer.canHover]: {
+        default: 0.34,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.7,
+      },
     },
     transition: "stroke 480ms ease, opacity 480ms ease",
   },
@@ -213,8 +233,11 @@ const styles = stylex.create({
     strokeWidth: 1,
     strokeDasharray: "2 6",
     opacity: {
-      default: 0.28,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
+      [pointer.canHover]: {
+        default: 0.28,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      },
     },
     transition: "opacity 200ms ease",
   },
@@ -225,13 +248,20 @@ const styles = stylex.create({
     strokeWidth: 2.5,
     strokeDasharray: RING_PATH_LENGTH,
     strokeDashoffset: {
-      default: RING_PATH_LENGTH,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
       [motionConstants.REDUCED_MOTION]: 0,
+      [pointer.canHover]: {
+        default: RING_PATH_LENGTH,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+        [motionConstants.REDUCED_MOTION]: 0,
+      },
     },
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
+      default: 0.95,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
+      },
     },
     transition: {
       default: "stroke-dashoffset 520ms linear, opacity 180ms ease",
@@ -248,16 +278,23 @@ const styles = stylex.create({
   // own bounding box whatever the radius — one declaration covers all three.
   wave: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.75,
+      default: 0.75,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.75,
+      },
     },
     transformBox: "fill-box",
     transformOrigin: "-241.42% 50%",
     transform: {
-      default: "scale(0.62)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "scale(1)",
+      default: "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default: "scale(0.62)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "scale(1)",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
     transition: {
       default: "opacity 260ms ease, transform 420ms var(--ds-illo-ease)",
@@ -268,20 +305,32 @@ const styles = stylex.create({
   // the ring's 520ms draw: focus lands, then the announcement.
   waveStagger1: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "520ms",
+      default: "520ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "520ms",
+      },
     },
   },
   waveStagger2: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "640ms",
+      default: "640ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "640ms",
+      },
     },
   },
   waveStagger3: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "760ms",
+      default: "760ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "760ms",
+      },
     },
   },
 });

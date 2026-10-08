@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
@@ -187,16 +188,23 @@ export function IconographyIllustration() {
 const styles = stylex.create({
   bloom: {
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.72,
+      default: 0.72,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.72,
+      },
     },
     transformBox: "fill-box",
     transformOrigin: "center",
     transform: {
-      default: "scale(0.82)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "scale(1)",
+      default: "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default: "scale(0.82)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "scale(1)",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
     transition: {
       default:
@@ -227,9 +235,12 @@ const styles = stylex.create({
   keyline: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue)",
+      default: "var(--ds-illo-hue)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue)",
+      },
     },
     strokeLinecap: "round",
     strokeLinejoin: "round",
@@ -242,8 +253,11 @@ const styles = stylex.create({
   box: {
     strokeWidth: 1.1,
     opacity: {
-      default: 0.24,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
+      [pointer.canHover]: {
+        default: 0.24,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      },
     },
     transition: "stroke 520ms ease, opacity 180ms ease",
   },
@@ -258,13 +272,20 @@ const styles = stylex.create({
     strokeWidth: 1.3,
     strokeDasharray: PERIMETER,
     strokeDashoffset: {
-      default: PERIMETER,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+      default: 0,
       [motionConstants.REDUCED_MOTION]: 0,
+      [pointer.canHover]: {
+        default: PERIMETER,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+        [motionConstants.REDUCED_MOTION]: 0,
+      },
     },
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      default: 0.6,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      },
     },
     transition: {
       default: "stroke-dashoffset 560ms linear, opacity 200ms ease",
@@ -274,16 +295,22 @@ const styles = stylex.create({
   brackets: {
     strokeWidth: 1.5,
     opacity: {
-      default: 0.5,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.85,
+      default: 0.85,
+      [pointer.canHover]: {
+        default: 0.5,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.85,
+      },
     },
   },
   ticks: {
     strokeWidth: 1,
     strokeLinecap: "butt",
     opacity: {
-      default: 0.3,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.58,
+      default: 0.58,
+      [pointer.canHover]: {
+        default: 0.3,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.58,
+      },
     },
   },
   axes: {
@@ -291,15 +318,21 @@ const styles = stylex.create({
     strokeDasharray: "3 5",
     strokeLinecap: "butt",
     opacity: {
-      default: 0.2,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.42,
+      default: 0.42,
+      [pointer.canHover]: {
+        default: 0.2,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.42,
+      },
     },
   },
   rail: {
     strokeWidth: 1.1,
     opacity: {
-      default: 0.3,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      default: 0.6,
+      [pointer.canHover]: {
+        default: 0.3,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.6,
+      },
     },
   },
   railLabel: {
@@ -309,13 +342,19 @@ const styles = stylex.create({
     textAnchor: "end",
     dominantBaseline: "middle",
     fill: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+      default: "var(--ds-illo-hue-soft)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue-soft)",
+      },
     },
     opacity: {
-      default: 0.4,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.8,
+      default: 0.8,
+      [pointer.canHover]: {
+        default: 0.4,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.8,
+      },
     },
     transition: "fill 520ms ease, opacity 520ms ease",
   },
@@ -334,8 +373,11 @@ const styles = stylex.create({
   iconGlow: {
     stroke: "var(--ds-illo-hue-soft)",
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.38,
+      default: 0.38,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.38,
+      },
     },
     transition: "opacity 520ms ease",
   },
@@ -345,17 +387,26 @@ const styles = stylex.create({
   // at this size.
   iconStroke: {
     stroke: {
-      default: "var(--ds-illo-ink)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "var(--ds-illo-hue)",
+      default: "var(--ds-illo-hue)",
+      [pointer.canHover]: {
+        default: "var(--ds-illo-ink)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "var(--ds-illo-hue)",
+      },
     },
     strokeWidth: {
-      default: 5.25,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 7.875,
+      default: 7.875,
+      [pointer.canHover]: {
+        default: 5.25,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 7.875,
+      },
     },
     opacity: {
-      default: 0.62,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      default: 1,
+      [pointer.canHover]: {
+        default: 0.62,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+      },
     },
     // `stroke-width` is geometry, not colour: reduced motion drops it from the
     // transition so the weight change lands as an instant swap, the way the
@@ -381,16 +432,23 @@ const styles = stylex.create({
   anchor: {
     fill: color.bgSurface,
     opacity: {
-      default: 0,
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
+      default: 0.95,
+      [pointer.canHover]: {
+        default: 0,
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
+      },
     },
     transformBox: "fill-box",
     transformOrigin: "center",
     transform: {
-      default: "scale(0.3)",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-        "scale(1)",
+      default: "scale(1)",
       [motionConstants.REDUCED_MOTION]: "none",
+      [pointer.canHover]: {
+        default: "scale(0.3)",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "scale(1)",
+        [motionConstants.REDUCED_MOTION]: "none",
+      },
     },
     transition: {
       default: "opacity 220ms ease, transform 300ms var(--ds-illo-ease)",
@@ -406,38 +464,62 @@ const styles = stylex.create({
   // arriving after the lens, not two more points around it.
   anchorStagger1: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "110ms",
+      default: "110ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "110ms",
+      },
     },
   },
   anchorStagger2: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "220ms",
+      default: "220ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "220ms",
+      },
     },
   },
   anchorStagger3: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "330ms",
+      default: "330ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "330ms",
+      },
     },
   },
   anchorStagger4: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "440ms",
+      default: "440ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "440ms",
+      },
     },
   },
   anchorStagger5: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "520ms",
+      default: "520ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "520ms",
+      },
     },
   },
   anchorStagger6: {
     transitionDelay: {
-      default: "0ms",
-      [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: "580ms",
+      default: "580ms",
+      [pointer.canHover]: {
+        default: "0ms",
+        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
+          "580ms",
+      },
     },
   },
 });

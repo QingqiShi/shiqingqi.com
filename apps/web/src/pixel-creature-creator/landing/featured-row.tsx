@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -101,14 +101,20 @@ const styles = stylex.create({
     textDecoration: "none",
     backgroundColor: {
       default: color.bgSurface,
-      ":hover": color.bgControlHover,
+      ":hover": {
+        default: null,
+        [pointer.canHover]: color.bgControlHover,
+      },
       ":focus-visible": color.bgControlHover,
     },
     transitionProperty: "background-color, transform",
     transitionDuration: "160ms",
     transform: {
       default: null,
-      ":hover": "translate3d(0, -2px, 0)",
+      ":hover": {
+        default: null,
+        [pointer.canHover]: "translate3d(0, -2px, 0)",
+      },
     },
     outlineOffset: border.size_2,
   },

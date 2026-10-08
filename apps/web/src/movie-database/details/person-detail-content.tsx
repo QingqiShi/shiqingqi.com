@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -372,7 +372,7 @@ const styles = stylex.create({
     paddingTop: space._1,
     textDecoration: {
       default: "none",
-      ":hover": "underline",
+      ":hover": { default: null, [pointer.canHover]: "underline" },
     },
   },
   profileFallback: {

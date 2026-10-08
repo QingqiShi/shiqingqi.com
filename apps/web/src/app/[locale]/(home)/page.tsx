@@ -5,7 +5,7 @@ import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap"
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
@@ -283,37 +283,55 @@ const styles = stylex.create({
   movieDatabase: {
     [svgTokens.fill]: {
       default: brand.tmdb,
-      ":not(:hover)": color.fgMuted,
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
     },
   },
   designSystem: {
     [svgTokens.fill]: {
       default: color.bgAccent,
-      ":not(:hover)": color.fgMuted,
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
     },
   },
   calculator: {
     [svgTokens.fill]: {
       default: brand.calculator,
-      ":not(:hover)": color.fgMuted,
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
     },
   },
   studentLoan: {
     [svgTokens.fill]: {
       default: brand.studentLoan,
-      ":not(:hover)": color.fgMuted,
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
     },
   },
   pixelCreatureCreator: {
     [svgTokens.fill]: {
       default: brand.pixelCreatureCreator,
-      ":not(:hover)": color.fgMuted,
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
     },
   },
   spriteEditor: {
     [svgTokens.fill]: {
       default: brand.pixelCreatureCreator,
-      ":not(:hover)": color.fgMuted,
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
     },
   },
 });

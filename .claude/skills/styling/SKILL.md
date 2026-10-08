@@ -21,7 +21,8 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 | Override a primitive's default                      | Layout modifier                 | `css={[flex.row, align.end]}`                   |
 | Single-property styling (color, padding, border)    | `stylex.create` + tokens        | `color: color.fg`                               |
 | Responsive behavior                                 | `stylex.create` + breakpoints   | `{ default: "none", [breakpoints.md]: "flex" }` |
-| Pseudo-selectors (hover, focus)                     | `stylex.create`                 | `{ default: val, ":hover": hoverVal }`          |
+| Pseudo-selectors (focus, active)                    | `stylex.create`                 | `{ default: val, ":focus-visible": focusVal }`  |
+| Hover                                               | `stylex.create` + `pointer`     | see [Hover](#hover)                             |
 
 ## The `css` Prop
 
@@ -78,6 +79,51 @@ const styles = stylex.create({
   },
 });
 ```
+
+## Hover
+
+A tap on a touch screen leaves `:hover` matching until the next tap elsewhere, so a Button or a Chip keeps its hover fill. Every hover style goes behind `pointer.canHover` (`@media (hover: hover) and (pointer: fine)`) from `@tuja/ui/breakpoints.stylex`. It lives beside `breakpoints` because the breakpoints Babel plugin inlines both, and an inlined media query is what StyleX ranks as one. The `@tuja/require-hover-media` ESLint rule enforces this for every key that contains `:hover`, including `:not(:hover)` and `stylex.when.*(":hover")`.
+
+```tsx
+import { pointer } from "@tuja/ui/breakpoints.stylex";
+
+const styles = stylex.create({
+  // Feedback: wrap the hover value. Touch keeps the rest state.
+  row: {
+    backgroundColor: {
+      default: "transparent",
+      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+    },
+  },
+  // Several hover keys on one property, or a chained key such as
+  // `:disabled:hover` (which takes no nested value): one branch for all.
+  chip: {
+    backgroundColor: {
+      default: color.bgSurface,
+      [pointer.canHover]: {
+        default: null,
+        ":hover": color.bgControlHover,
+        ":disabled:hover": color.bgSurface,
+      },
+    },
+  },
+  // A reveal: touch cannot hover, so it gets the full state as the default,
+  // and only a device that can hover holds it back.
+  indicator: {
+    opacity: {
+      default: 1,
+      [pointer.canHover]: { default: 0, ":hover": 1 },
+    },
+  },
+});
+```
+
+Two StyleX details:
+
+- **A gated hover outranks `:active` and `:focus`.** StyleX ranks a media query above every pseudo-class, so a bare `:active` in the same property loses to the gated hover. Gate the press too: `":active": { default: pressed, [pointer.canHover]: pressed }`. The rule reports this. (`:focus-visible` and `:focus-within` already rank below `:hover` in StyleX.)
+- **Do not put the branch beside another `@media` key.** StyleX makes sibling media queries exclude each other, so a `[breakpoints.md]` value beside a `[pointer.canHover]` branch stops applying on a device that can hover. Wrap the hover value instead, or repeat the sibling keys inside the branch.
+
+`pointerConstants.NON_TOUCH_DEVICE` from `@tuja/ui/primitives/layout.stylex` is stricter: it also excludes every device that has a touch pointer at all. Use it only for an affordance that a touch device replaces, such as the scroll buttons of `ScrollMask`.
 
 ## Design Primitives
 
@@ -176,4 +222,5 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 9. **Mobile-first** — use breakpoint overrides for larger screens
 10. **Theme-aware colors** — use `color` tokens that adapt to light/dark
 11. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
-12. **Pseudo-selectors as object keys** — `{ default: val, ":hover": hoverVal }`
+12. **Pseudo-selectors as object keys** — `{ default: val, ":focus-visible": focusVal }`
+13. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; a reveal gives touch the full state

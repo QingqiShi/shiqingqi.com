@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -39,7 +40,12 @@ const styles = stylex.create({
     position: "relative",
     color: color.fgMuted,
     containerType: "inline-size",
-    [svgTokens.fill]: { ":not(:hover)": color.fgMuted },
+    [svgTokens.fill]: {
+      ":not(:hover)": {
+        default: null,
+        [pointer.canHover]: color.fgMuted,
+      },
+    },
   },
   row: {
     display: "grid",

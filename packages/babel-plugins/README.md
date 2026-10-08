@@ -210,7 +210,9 @@ export const font = stylex.defineVars({
 
 The plugin rewrites each `breakpoints.md` key into its media-query string
 **before** `@stylexjs/babel-plugin` runs, so StyleX emits the responsive rules
-in a stable, mobile-first order.
+in a stable, mobile-first order. It does the same for every other
+`stylex.defineConsts` const in that file, such as `@tuja/ui`'s
+`pointer.canHover`, so that StyleX ranks each one as a media query.
 
 ### Why it's required
 
