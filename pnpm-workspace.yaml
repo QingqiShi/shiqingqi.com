@@ -26,8 +26,8 @@ catalog:
   "@babel/types": 8.0.6
   "@phosphor-icons/react": ^2.1.10
   "@rolldown/plugin-babel": ^0.2.4
-  "@serwist/cli": ^9.5.12
-  "@serwist/next": ^9.5.12
+  "@serwist/cli": ^9.5.13
+  "@serwist/next": ^9.5.13
   "@stylexjs/babel-plugin": ^0.19.1
   "@stylexjs/stylex": ^0.19.1
   "@testing-library/jest-dom": ^7.0.1
@@ -50,7 +50,7 @@ catalog:
   react: 19.3.0
   react-dom: 19.3.0
   react-remove-scroll: ^2.7.2
-  serwist: ^9.5.12
+  serwist: ^9.5.13
   tsx: ^4.23.15
   # Per the TypeScript 7.0 announcement: the bare `typescript` name resolves to
   # the 6.0-compatible API package so every tool that imports `typescript` via a
