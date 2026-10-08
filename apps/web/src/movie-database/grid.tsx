@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { rhythm, space } from "@tuja/ui/tokens.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { HTMLAttributes, PropsWithChildren, Ref } from "react";
 
 export function Grid({
@@ -11,16 +12,14 @@ export function Grid({
   HTMLAttributes<HTMLDivElement> & { ref?: Ref<HTMLDivElement> }
 >) {
   return (
-    <div {...props} ref={ref} css={styles.skeletonGrid}>
+    <div {...props} ref={ref} css={[pageColumn.base, styles.grid]}>
       {children}
     </div>
   );
 }
 
 const styles = stylex.create({
-  skeletonGrid: {
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
+  grid: {
     display: "grid",
     gap: rhythm.item,
     gridTemplateColumns: {

@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, layout, space } from "@tuja/ui/tokens.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { HeroChatInput } from "#src/movie-database/chat/hero-chat-input.tsx";
 
@@ -23,7 +24,7 @@ export function HeroSection() {
   ];
 
   return (
-    <section css={[stack.item, styles.section]}>
+    <section css={[stack.item, pageColumn.base, styles.section]}>
       <h1 css={[typeRole.fluidH1, styles.heading]}>
         {t({
           en: "What do you want to watch?",
@@ -50,12 +51,8 @@ export function HeroSection() {
 
 const styles = stylex.create({
   section: {
-    maxInlineSize: layout.maxInlineSize,
-    marginInline: "auto",
     paddingBlockStart: { default: space._9, [breakpoints.md]: space._10 },
     paddingBlockEnd: { default: space._5, [breakpoints.md]: space._8 },
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
     textAlign: "center",
   },
   heading: {

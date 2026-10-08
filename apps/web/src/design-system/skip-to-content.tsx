@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Chip } from "@tuja/ui/components/chip";
+import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { layer, shadow, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
@@ -44,7 +45,7 @@ const styles = stylex.create({
       default: "auto",
       ":focus": `calc(${space._2} + env(safe-area-inset-top))`,
     },
-    insetInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
+    insetInlineStart: pageGutter.inlineStart,
     // Which is why it sits over both that bar (`layer.header`) and the drawer
     // (`layer.tooltip`): a revealed skip link must never be painted underneath
     // the chrome it covers.

@@ -17,6 +17,7 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 | Space between siblings (a stack, a row)             | Stack primitives / `rhythm`     | `css={stack.item}`, `gap: rhythm.tight`         |
 | Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole` | `css={[typeRole.label, styles.navItem]}`        |
 | Cap a line of prose                                 | `measure` tokens                | `maxInlineSize: measure.prose`                  |
+| Set a page's content in the centred column          | `pageColumn` primitive          | `css={[pageColumn.base, styles.hero]}`          |
 | Rounded corners                                     | Design primitives (`corner.*`)  | `css={corner.radius_3}`                         |
 | Override a primitive's default                      | Layout modifier                 | `css={[flex.row, align.end]}`                   |
 | Single-property styling (color, padding, border)    | `stylex.create` + tokens        | `color: color.fg`                               |
@@ -208,6 +209,7 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 - **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeight_4`, `text-wrap: pretty`, `overflow-wrap: break-word`). Text needs no `lineHeight`, `textWrap: "pretty"` or `overflowWrap: "break-word"` unless it differs, and nothing sets a `fontSize` on the root
 - **Motion** — transition/animation presets with reduced-motion handling
 - **Selected** — `selected.quiet` / `selected.marked` paint the selected state from the element's own `aria-pressed`, `aria-checked`, `aria-selected` or `aria-current`. Set the attribute and compose a strength; never a hand-built `isActive && styles.active`. `quiet` (a background) is the default; `marked` (accent border and tint) is only for a choice the visitor submits
+- **Page column** — `pageColumn.base` / `pageColumn.scroller` set a page's content in the centred column with the page gutter; `pageGutter` is one gutter
 - **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline
 
 ## Best Practices
@@ -218,11 +220,12 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 4. **Gaps name the relationship** — `rhythm.inline` / `tight` / `item` / `group` / `section`, or `stack.*` / `cluster.*` / `row.*`; never a `space.*` step or a raw length for a gap or a margin between siblings
 5. **Rounded corners via `corner.*`, never a bare `borderRadius`** — pair `cornerShape` locally only where the primitive can't reach
 6. **Line length from the Measure** — a `<Text>` paragraph (`as="p"` at `body`/`bodySmall`) already stops at `measure.prose`; any other prose takes `measure.prose` or `measure.short`, never a raw `ch` cap (the `@tuja/require-measure` rule refuses one). Opt a paragraph out with `css` carrying `maxInlineSize: "none"`
-7. **Always use the `css` prop** — never `{...stylex.props()}`
-8. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
-9. **Mobile-first** — use breakpoint overrides for larger screens
-10. **Theme-aware colors** — use `color` tokens that adapt to light/dark
-11. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
-12. **Pseudo-selectors as object keys** — `{ default: val, ":focus-visible": focusVal }`
-13. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; a reveal gives touch the full state
-14. **Every focusable element draws the focus ring** — `buttonReset.base` for a hand-built button, `a11y.focusRing` for anything else; never `outline: none`
+7. **Page content sits in the page column** — compose `pageColumn.base` (or `pageColumn.scroller` for a row that scrolls sideways) from `@tuja/ui/primitives/page-column.stylex`; it spans its parent, so a background bleeds while the content lines up with the header controls. Take `pageGutter` for one gutter. Never write `layout.maxInlineSize` or `env(safe-area-inset-left/right)` in an app (the `@tuja/require-page-column` rule refuses both)
+8. **Always use the `css` prop** — never `{...stylex.props()}`
+9. **Conditional styles via arrays** — `css={[base, condition && conditional]}`
+10. **Mobile-first** — use breakpoint overrides for larger screens
+11. **Theme-aware colors** — use `color` tokens that adapt to light/dark
+12. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
+13. **Pseudo-selectors as object keys** — `{ default: val, ":focus-visible": focusVal }`
+14. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; a reveal gives touch the full state
+15. **Every focusable element draws the focus ring** — `buttonReset.base` for a hand-built button, `a11y.focusRing` for anything else; never `outline: none`

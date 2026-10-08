@@ -111,7 +111,7 @@ describe("HeaderFooterLayout content landmark", () => {
 });
 
 describe("HeaderFooterLayout tuning props", () => {
-  it("caps the content into a reading column when contentMaxInlineSize is passed", () => {
+  it("narrows the page column when contentMaxInlineSize is passed", () => {
     render(
       <HeaderFooterLayout contentMaxInlineSize="480px">
         Body

@@ -5,7 +5,8 @@ import {
   StickyControls,
 } from "@tuja/ui/components/sticky-controls";
 import { shrink } from "@tuja/ui/primitives/flex.stylex";
-import { layout, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 
 interface FiltersContainerProps {
@@ -29,7 +30,7 @@ export function FiltersContainer({
 
   return (
     <>
-      <StickyControls css={[styles.bar, styles.desktop]}>
+      <StickyControls css={[pageColumn.base, styles.bar, styles.desktop]}>
         {/* Never narrower than its controls, or their labels wrap onto a
             second line. The trailing group gives way instead. */}
         <StickyControlGroup css={shrink._0}>
@@ -37,7 +38,7 @@ export function FiltersContainer({
         </StickyControlGroup>
         {trailingGroup}
       </StickyControls>
-      <StickyControls css={[styles.bar, styles.mobile]}>
+      <StickyControls css={[pageColumn.base, styles.bar, styles.mobile]}>
         <StickyControlGroup>{mobileChildren}</StickyControlGroup>
         {trailingGroup}
       </StickyControls>
@@ -46,20 +47,12 @@ export function FiltersContainer({
 }
 
 const styles = stylex.create({
-  // Whichever bar is shown, it keeps the reading gutters clear of the safe area
-  // and the same gap to the content under it.
   bar: {
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
-    marginBottom: rhythm.item,
+    marginBlockEnd: rhythm.item,
   },
 
-  // The site measure, so the bar lines up with the content it filters.
   desktop: {
     display: { default: "none", [breakpoints.md]: "flex" },
-    inlineSize: "100%",
-    maxInlineSize: layout.maxInlineSize,
-    marginInline: "auto",
   },
 
   mobile: {

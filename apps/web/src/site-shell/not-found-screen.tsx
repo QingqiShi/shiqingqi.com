@@ -73,7 +73,7 @@ export function NotFoundScreen() {
   ];
 
   return (
-    <SiteHeaderFooterLayout locale={locale} readingColumn>
+    <SiteHeaderFooterLayout locale={locale} pageColumn>
       <div css={[stack.group, justify.center, styles.screen]}>
         <div css={[stack.item, align.center]}>
           <div css={[stack.tight, align.center]}>

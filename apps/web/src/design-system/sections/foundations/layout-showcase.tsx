@@ -145,10 +145,10 @@ const styles = stylex.create({
       </GuideSection>
 
       <GuideSection
-        title={t({ en: "Content width", zh: "内容宽度" })}
+        title={t({ en: "Page column", zh: "页面栏" })}
         lead={t({
-          en: "layout.maxInlineSize is 1140px. HeaderFooterLayout with readingColumn, and SidebarLayout, centre their content and cap it there, so a page inside a shell already has it. Either shell takes contentMaxInlineSize for a narrower page.",
-          zh: "layout.maxInlineSize 是 1140px。启用 readingColumn 的 HeaderFooterLayout 与 SidebarLayout 会把内容居中并限制在这个宽度，所以放在骨架里的页面已经有了它。要让页面更窄，两种骨架都接受 contentMaxInlineSize。",
+          en: "The page column is where a page's content sits: centred, at most 1140px wide with its gutters, and never closer to the screen edge than the page gutter, which includes the safe area. HeaderFooterLayout with pageColumn sets its content there, and its header controls and footer are on the same edges.",
+          zh: "页面栏是页面内容所在的位置：居中，连同边距最宽 1140px，离屏幕边缘至少一个页面边距，页面边距包含安全区域。启用 pageColumn 的 HeaderFooterLayout 把内容放在这里，它的页头控件和页脚也在同样的边缘上。",
         })}
       >
         <div css={[corner.radius_2, styles.viewport]} aria-hidden="true">
@@ -160,7 +160,7 @@ const styles = stylex.create({
               {t({ en: "content", zh: "内容" })}
             </span>
             <span css={[typeRole.caption, styles.contentToken]}>
-              max 1140px
+              pageColumn.base
             </span>
           </div>
           <span css={[typeRole.caption, styles.gutterLabel]}>
@@ -168,17 +168,26 @@ const styles = stylex.create({
           </span>
         </div>
         <UsageSnippet
-          code={`import { layout } from "@tuja/ui/tokens.stylex";
+          code={`import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 
-const styles = stylex.create({
-  // Outside a shell only.
-  page: { maxInlineSize: layout.maxInlineSize, marginInline: "auto" },
-});`}
+// The band spans the page, so its background bleeds.
+// Its content sits in the page column.
+<section css={[pageColumn.base, styles.band]}>{children}</section>
+
+// Cards that scroll sideways rest on the column
+// and scroll out to the screen edges.
+<div css={[pageColumn.scroller, scrollX.base]}>{cards}</div>`}
         />
         <GuideNote>
           {t({
-            en: "layout is a constant, not a Token you can override. It caps the page, not the length of a line of text.",
-            zh: "layout 是常量，不是可以覆盖的令牌。它约束的是页面宽度，而不是一行文字的长度。",
+            en: "The page column is padding, not a capped box, so put it on a box that spans the page. For one gutter, take pageGutter.inlineStart or pageGutter.inlineEnd: a control fixed at the screen edge, or a bar that steps out of the column by one gutter.",
+            zh: "页面栏是内边距，不是限宽的盒子，所以把它放在横跨整个页面的盒子上。只需要一个边距时，取 pageGutter.inlineStart 或 pageGutter.inlineEnd：固定在屏幕边缘的控件，或比页面栏多伸出一个边距的栏。",
+          })}
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "layout.maxInlineSize is only the width of the column. Outside @tuja/ui, the require-page-column lint rule refuses it, and refuses a left or right safe-area inset, so every page lines up on the same edge. For a narrower page, HeaderFooterLayout and SidebarLayout take contentMaxInlineSize.",
+            zh: "layout.maxInlineSize 只是页面栏的宽度。在 @tuja/ui 之外，require-page-column 检查规则会拒绝它，也会拒绝左右两侧的安全区域，所以每个页面都对齐同一条边。要让页面更窄，HeaderFooterLayout 与 SidebarLayout 都接受 contentMaxInlineSize。",
           })}
         </GuideNote>
       </GuideSection>
@@ -228,8 +237,8 @@ const styles = stylex.create({
         </GuideNote>
         <GuideNote>
           {t({
-            en: "The Measure caps a line; layout.maxInlineSize caps the page. A cap in ch is a line length picked by hand, so the require-measure lint rule refuses one.",
-            zh: "行长限制的是一行，layout.maxInlineSize 限制的是页面。以 ch 写的上限是手选的行长，所以 require-measure 检查规则会拒绝它。",
+            en: "The Measure caps a line; the page column places the page. A cap in ch is a line length picked by hand, so the require-measure lint rule refuses one.",
+            zh: "行长限制的是一行，页面栏安放的是页面。以 ch 写的上限是手选的行长，所以 require-measure 检查规则会拒绝它。",
           })}
         </GuideNote>
       </GuideSection>
@@ -327,7 +336,7 @@ const styles = stylex.create({
 }
 
 const styles = stylex.create({
-  // Content-width schematic: a full-width "viewport" with a centred content band
+  // Page column schematic: a full-width "viewport" with a centred content band
   // and labelled gutters. Illustrative — the true cap is 1140px.
   viewport: {
     display: "flex",

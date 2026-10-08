@@ -29,7 +29,7 @@ One curated configuration of a component that its Lab offers ready-made — Butt
 _Avoid_: preset, example, story, look (for this sense), 外观 (that is a look), 预设
 
 **Primitive**:
-A composable multi-property StyleX style object — `flex`, `stack`, `layout`, `motion`, `reset`, `root`, `a11y`, `selected`, `corner`, `texture`, `wash`, `typeRole` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
+A composable multi-property StyleX style object — `flex`, `stack`, `layout`, `motion`, `reset`, `root`, `a11y`, `selected`, `corner`, `texture`, `wash`, `typeRole`, `pageColumn` — spread through the `css` prop. Not a component, and not a generated hue file. ZH: 原语.
 _Avoid_: recipe, pattern (for this sense), 配方
 
 **Rhythm**:
@@ -37,8 +37,12 @@ The space between two things, named by how they relate rather than by its size: 
 _Avoid_: spacing scale, gap size, 间距阶梯 (each of these is `space`)
 
 **Measure**:
-The cap on the length of a line of prose, in `em` so that it keeps the same number of characters at any text size: `measure.prose` for running text, `measure.short` for a short block that stands alone. It caps a line, not the page — that is `layout.maxInlineSize` — and it does not place the text, which is the reading column's job. ZH: 行长.
+The cap on the length of a line of prose, in `em` so that it keeps the same number of characters at any text size: `measure.prose` for running text, `measure.short` for a short block that stands alone. It caps a line, not the page — that is the Page column — and it does not place the text, which is the reading column's job. ZH: 行长.
 _Avoid_: max width, line width, reading width, column width, 阅读宽度
+
+**Page column**:
+The centred column a page's content sits in, `layout.maxInlineSize` wide with its gutters, and never closer to the screen edge than the page gutter: `space._3` past the safe area. The `pageColumn` Primitive sets it as padding, so the box spans the page and its background bleeds while its content sits in the column. The content, `HeaderFooterLayout`'s header controls and its footer share its edges. It places a page, not a line of prose (that is the Measure), and it is wider than the reading column of the doc pages. `layout.maxInlineSize` is only its width. ZH: 页面栏.
+_Avoid_: content width, container, wrapper, site measure, reading column (for this sense), 版心, 内容宽度
 
 **Stack**:
 A container that owns the space between its children, at one Rhythm step: `stack.*` for a column, `cluster.*` for a row that wraps, `row.*` for a row that does not. Its children set no margin to push their neighbours away. ZH: 堆叠.

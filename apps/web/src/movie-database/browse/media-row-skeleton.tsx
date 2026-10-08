@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { pageColumn, pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { MediaRowInset } from "./media-row.tsx";
@@ -15,14 +16,21 @@ interface MediaRowSkeletonProps {
 export function MediaRowSkeleton({
   inset = "chat",
 }: MediaRowSkeletonProps = {}) {
-  const rowStyle = inset === "standalone" ? styles.rowStandalone : styles.row;
-  const cardStyle = inset === "standalone" ? styles.cardLarge : styles.card;
+  const isStandalone = inset === "standalone";
   return (
     <div css={stack.tight}>
-      <Skeleton width={220} height={16} />
-      <div css={rowStyle}>
+      <div css={isStandalone && pageColumn.base}>
+        <Skeleton width={220} height={16} />
+      </div>
+      <div css={[styles.row, isStandalone ? pageColumn.base : styles.rowChat]}>
         {Array.from({ length: SKELETON_COUNT }, (_, i) => (
-          <div key={i} css={[corner.radius_2, cardStyle]}>
+          <div
+            key={i}
+            css={[
+              corner.radius_2,
+              isStandalone ? styles.cardLarge : styles.card,
+            ]}
+          >
             <Skeleton fill delay={i * 100} />
           </div>
         ))}
@@ -31,32 +39,21 @@ export function MediaRowSkeleton({
   );
 }
 
-const chatInsetLeft = `calc(${space._3} + ${space._3} + env(safe-area-inset-left, 0px))`;
-const chatInsetRight = `calc(${space._3} + ${space._3} + env(safe-area-inset-right, 0px))`;
-
-const standaloneInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
-const standaloneInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
+const chatInsetStart = `calc(${space._3} + ${pageGutter.inlineStart})`;
+const chatInsetEnd = `calc(${space._3} + ${pageGutter.inlineEnd})`;
 
 const styles = stylex.create({
   row: {
     display: "flex",
     gap: rhythm.item,
     overflow: "hidden",
-    marginLeft: `calc(-1 * ${chatInsetLeft})`,
-    marginRight: `calc(-1 * ${chatInsetRight})`,
-    paddingLeft: chatInsetLeft,
-    paddingRight: chatInsetRight,
-    paddingBottom: space._1,
+    paddingBlockEnd: space._1,
   },
-  rowStandalone: {
-    display: "flex",
-    gap: rhythm.item,
-    overflow: "hidden",
-    marginLeft: `calc(-1 * ${standaloneInsetLeft})`,
-    marginRight: `calc(-1 * ${standaloneInsetRight})`,
-    paddingLeft: standaloneInsetLeft,
-    paddingRight: standaloneInsetRight,
-    paddingBottom: space._1,
+  rowChat: {
+    marginInlineStart: `calc(-1 * ${chatInsetStart})`,
+    marginInlineEnd: `calc(-1 * ${chatInsetEnd})`,
+    paddingInlineStart: chatInsetStart,
+    paddingInlineEnd: chatInsetEnd,
   },
   card: {
     flexShrink: 0,

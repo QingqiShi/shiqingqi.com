@@ -2,7 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
-import { color, layout, space } from "@tuja/ui/tokens.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "./grid.tsx";
 import { MediaCard } from "./media-card";
@@ -37,7 +38,7 @@ export function MediaVirtuosoGrid({
 
   if (!items.length) {
     return (
-      <div css={styles.notFound}>
+      <div css={[pageColumn.base, styles.notFound]}>
         <span aria-hidden="true">🙉 </span>
         {notFoundLabel}
       </div>
@@ -77,11 +78,6 @@ const gridComponents = {
 
 const styles = stylex.create({
   notFound: {
-    maxInlineSize: layout.maxInlineSize,
-    marginBlock: 0,
-    marginInline: "auto",
-    paddingLeft: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingRight: `calc(${space._3} + env(safe-area-inset-right))`,
     color: color.fgMuted,
     textAlign: "center",
   },

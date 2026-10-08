@@ -73,6 +73,7 @@
     "./primitives/flex.stylex": "./src/primitives/flex.stylex.ts",
     "./primitives/layout.stylex": "./src/primitives/layout.stylex.ts",
     "./primitives/motion.stylex": "./src/primitives/motion.stylex.ts",
+    "./primitives/page-column.stylex": "./src/primitives/page-column.stylex.ts",
     "./primitives/reset.stylex": "./src/primitives/reset.stylex.ts",
     "./primitives/root.stylex": "./src/primitives/root.stylex.ts",
     "./primitives/selected.stylex": "./src/primitives/selected.stylex.ts",

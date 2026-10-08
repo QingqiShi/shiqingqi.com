@@ -26,8 +26,8 @@ export function HeaderFooterLayoutShowcase() {
       <Showcase label={t({ en: "Page shell", zh: "页面骨架" })}>
         <ShowcaseHelper>
           {t({
-            en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. Two floating groups hold the back button and the theme toggle with the language picker; a full-bleed background layer sits beneath the content; the content flows up past the groups (text pages add their own clearance); and the footer pins to the bottom of the same measure. Once the page is scrolled away from the top, the page blurs around each group — strongest against the controls, sharp again a little way out. At rest the blur melts away. The footer carries none, because nothing floats over it. Everything is live — flip the theme from inside it.",
-            zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。两组悬浮控件分别是返回按钮，以及主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至控件之下（文字页自行留出间距）；页脚固定在同一版心的底部。页面一旦离开顶部，就会在每组控件周围渐进虚化：紧贴控件处最强，稍往外即恢复清晰。页面静止在顶部时，虚化逐渐消退。页脚没有虚化，因为其上方没有悬浮元素。一切均可交互——可直接在其中切换主题。",
+            en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. Two floating groups hold the back button and the theme toggle with the language picker; a full-bleed background layer sits beneath the content; the content flows up past the groups (text pages add their own clearance); and the footer sits at the bottom, in the same page column. Once the page is scrolled away from the top, the page blurs around each group — strongest against the controls, sharp again a little way out. At rest the blur melts away. The footer carries none, because nothing floats over it. Everything is live — flip the theme from inside it.",
+            zh: "本站页头页脚页面所基于的骨架，此处用本站真实组件组装。两组悬浮控件分别是返回按钮，以及主题切换与语言选择；内容下方是一层满幅背景；内容向上延伸至控件之下（文字页自行留出间距）；页脚位于底部，在同一页面栏内。页面一旦离开顶部，就会在每组控件周围渐进虚化：紧贴控件处最强，稍往外即恢复清晰。页面静止在顶部时，虚化逐渐消退。页脚没有虚化，因为其上方没有悬浮元素。一切均可交互——可直接在其中切换主题。",
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "every slot filled", zh: "填满全部插槽" })}>
@@ -38,7 +38,7 @@ export function HeaderFooterLayoutShowcase() {
               <div css={styles.viewport}>
                 <HeaderFooterLayout
                   as="div"
-                  readingColumn
+                  pageColumn
                   headerStart={
                     <BackButton
                       locale={locale}

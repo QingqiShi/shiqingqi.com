@@ -8,6 +8,7 @@ const requireCornerShape = require("./design-system/require-corner-shape");
 const requireHoverMedia = require("./design-system/require-hover-media");
 const requireMeasure = require("./design-system/require-measure");
 const requirePackageExport = require("./design-system/require-package-export");
+const requirePageColumn = require("./design-system/require-page-column");
 const requireRhythmSpacing = require("./design-system/require-rhythm-spacing");
 const requireTypeRole = require("./design-system/require-type-role");
 const noBannedCopyWords = require("./i18n/no-banned-copy-words");
@@ -23,6 +24,7 @@ module.exports = {
     "require-corner-shape": requireCornerShape,
     "require-hover-media": requireHoverMedia,
     "require-measure": requireMeasure,
+    "require-page-column": requirePageColumn,
     "require-package-export": requirePackageExport,
     "require-rhythm-spacing": requireRhythmSpacing,
     "require-type-role": requireTypeRole,

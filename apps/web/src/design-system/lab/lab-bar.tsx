@@ -11,6 +11,7 @@ import {
 } from "@tuja/ui/components/glass-surface.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
@@ -183,8 +184,8 @@ const styles = stylex.create({
     minBlockSize: labBar.clearance,
     paddingBlockStart: space._1,
     paddingBlockEnd: `calc(${space._1} + env(safe-area-inset-bottom))`,
-    paddingInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
-    paddingInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
+    paddingInlineStart: pageGutter.inlineStart,
+    paddingInlineEnd: pageGutter.inlineEnd,
   },
   pane: {
     // The page runs under the whole width of the bar, so the lens takes a

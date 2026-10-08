@@ -108,6 +108,28 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 
 ---
 
+## Page column
+
+**Import**: `@tuja/ui/primitives/page-column.stylex`
+
+The page column is where a page's content sits: centred, `layout.maxInlineSize` wide with its gutters, and never closer to the screen edge than the page gutter (`space._3` past the safe area). It is padding, not a capped box, so the box spans its parent and its background bleeds to the edges. `HeaderFooterLayout` with `pageColumn` sets its content and its footer on it, so everything lines up with the header controls. Never write `layout.maxInlineSize` or `env(safe-area-inset-left/right)` outside `packages/ui`: the `@tuja/require-page-column` lint rule refuses both.
+
+| Export                         | Use                                                                                     |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| `pageColumn.base`              | A box that spans its parent and sets its content in the page column                     |
+| `pageColumn.scroller`          | A horizontal scroller: its end items rest on the column, the rest scroll to the edges   |
+| `pageGutter.inlineStart`/`End` | One gutter: for a box that steps out of the column by a gutter, or a fixed edge control |
+| `pageColumnTokens.inlineSize`  | The dial for a narrower column, its gutters included                                    |
+
+```tsx
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
+
+<section css={[pageColumn.base, styles.hero]}>{/* bleeds; content in the column */}</section>
+<div css={[pageColumn.scroller, scrollX.base]}>{cards}</div>
+```
+
+---
+
 ## Type Role
 
 **Import**: `@tuja/ui/primitives/type.stylex`

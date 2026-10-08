@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { pageColumn, pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
@@ -35,24 +36,29 @@ interface MediaRowProps {
 export function MediaRow({ title, items, inset = "chat" }: MediaRowProps) {
   if (items.length === 0) return null;
 
-  const rowStyles = inset === "standalone" ? standaloneStyles : chatStyles;
+  const isStandalone = inset === "standalone";
 
   return (
     <section css={stack.tight}>
-      <h2 css={[typeRole.overline, styles.title]}>{title}</h2>
+      <h2
+        css={[typeRole.overline, styles.title, isStandalone && pageColumn.base]}
+      >
+        {title}
+      </h2>
       <HorizontalScrollRow
         ariaLabel={title}
-        css={rowStyles.root}
-        contentCss={rowStyles.scrollContainer}
+        css={isStandalone ? standaloneStyles.root : chatStyles.root}
+        contentCss={
+          isStandalone
+            ? [pageColumn.scroller, standaloneStyles.scrollContainer]
+            : chatStyles.scrollContainer
+        }
       >
         {items.map((item) => (
           <div
             key={item.id}
             role="listitem"
-            css={[
-              styles.cardWrapper,
-              inset === "standalone" && styles.cardWrapperLarge,
-            ]}
+            css={[styles.cardWrapper, isStandalone && styles.cardWrapperLarge]}
           >
             {item.href ? (
               <CompactMediaCard media={item} href={item.href} />
@@ -89,47 +95,35 @@ function FocusCard({ item }: { item: MediaListItem }) {
 }
 
 /**
- * Horizontal inset from viewport edge to content inside ChatMessageList.
- * Padding chain: layout (space._3 + safe-area) + ChatMessageList (space._3).
- * See also: ai-chat-view.tsx inputArea which uses the same offsets.
+ * Horizontal inset from viewport edge to content inside ChatMessageList: the
+ * page gutter of the chat's page column, then ChatMessageList's own `space._3`.
  */
-const chatInsetLeft = `calc(${space._3} + ${space._3} + env(safe-area-inset-left, 0px))`;
-const chatInsetRight = `calc(${space._3} + ${space._3} + env(safe-area-inset-right, 0px))`;
-
-/**
- * Single-level page padding used on the movie-database landing page, matching
- * `HeroSection` so cards visually align with the hero heading and chat input.
- */
-const standaloneInsetLeft = `calc(${space._3} + env(safe-area-inset-left, 0px))`;
-const standaloneInsetRight = `calc(${space._3} + env(safe-area-inset-right, 0px))`;
+const chatInsetStart = `calc(${space._3} + ${pageGutter.inlineStart})`;
+const chatInsetEnd = `calc(${space._3} + ${pageGutter.inlineEnd})`;
 
 // Both insets zero the block padding: the room a card needs to grow on hover
 // comes from the row's clip margin, which the layout does not pay for.
 const chatStyles = stylex.create({
   root: {
-    marginLeft: `calc(-1 * ${chatInsetLeft})`,
-    marginRight: `calc(-1 * ${chatInsetRight})`,
+    marginInlineStart: `calc(-1 * ${chatInsetStart})`,
+    marginInlineEnd: `calc(-1 * ${chatInsetEnd})`,
   },
   scrollContainer: {
     paddingBlock: 0,
-    paddingLeft: chatInsetLeft,
-    paddingRight: chatInsetRight,
-    scrollPaddingLeft: chatInsetLeft,
-    scrollPaddingRight: chatInsetRight,
+    paddingInlineStart: chatInsetStart,
+    paddingInlineEnd: chatInsetEnd,
+    scrollPaddingInlineStart: chatInsetStart,
+    scrollPaddingInlineEnd: chatInsetEnd,
   },
 });
 
+// A standalone row spans the page and its cards rest on the page column.
 const standaloneStyles = stylex.create({
   root: {
-    marginLeft: `calc(-1 * ${standaloneInsetLeft})`,
-    marginRight: `calc(-1 * ${standaloneInsetRight})`,
+    marginInline: 0,
   },
   scrollContainer: {
     paddingBlock: 0,
-    paddingLeft: standaloneInsetLeft,
-    paddingRight: standaloneInsetRight,
-    scrollPaddingLeft: standaloneInsetLeft,
-    scrollPaddingRight: standaloneInsetRight,
   },
 });
 

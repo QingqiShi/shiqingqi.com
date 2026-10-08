@@ -5,7 +5,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   useHeroVisibility,
@@ -55,7 +56,7 @@ const styles = stylex.create({
     position: { default: "absolute", [breakpoints.md]: "static" },
     insetBlockStart: 0,
     insetBlockEnd: 0,
-    insetInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
+    insetInlineEnd: pageGutter.inlineEnd,
     alignItems: "center",
   },
   visible: {

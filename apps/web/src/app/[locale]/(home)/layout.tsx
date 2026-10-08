@@ -85,7 +85,7 @@ export default async function Layout({
     <SiteHeaderFooterLayout
       locale={validatedLocale}
       as="div"
-      readingColumn
+      pageColumn
       footer={<Footer locale={validatedLocale} />}
       background={
         <>

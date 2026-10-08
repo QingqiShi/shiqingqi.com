@@ -380,7 +380,7 @@ These are `stylex.defineConsts`, not theme-aware vars.
 
 - `constants.DARK` — the `prefers-color-scheme: dark` media query
 - `constants.NO_CORNER_SHAPE` — the `@supports` query for a browser without `corner-shape`; the `border.radius_*` steps shrink under it
-- `layout.maxInlineSize` — `1140px`, the widest a content column grows
+- `layout.maxInlineSize` — `1140px`, the widest the page column grows, its gutters included. Only `@tuja/ui` reads it: a page takes the `pageColumn` Primitive, and the `@tuja/require-page-column` lint rule refuses it elsewhere
 - `measure.prose` — `41em`, the Measure for running prose: 41 Chinese characters at any size, around 88 Latin. A `<Text>` paragraph (`as="p"` at `body` or `bodySmall`) already takes it, and moves its box with `align`; a span, a div, a caption and an overline stay uncapped
 - `measure.short` — `24em`, the Measure for a short block that stands alone: a lede, an empty state, a hint, a popover's text
 
