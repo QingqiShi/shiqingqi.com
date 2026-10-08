@@ -20,7 +20,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
     <MenuButton
       position={position}
       buttonProps={{
-        icon: <InfoIcon aria-hidden="true" />,
+        icon: <InfoIcon weight="bold" aria-hidden="true" />,
         "aria-label": t({ en: "TMDB attribution info", zh: "TMDB 版权信息" }),
       }}
       popupRole="group"

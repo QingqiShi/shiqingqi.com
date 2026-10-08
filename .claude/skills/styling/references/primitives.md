@@ -101,7 +101,7 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
   </header>
   <div css={cluster.tight}>{actions}</div>
   <span css={row.inline}>
-    <ClockIcon /> 2h 44m
+    <ClockIcon weight="bold" /> 2h 44m
   </span>
 </section>;
 ```

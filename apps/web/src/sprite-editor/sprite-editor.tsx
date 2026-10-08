@@ -281,9 +281,7 @@ export function SpriteEditor() {
           <Divider look="subtle" css={styles.divider} />
           <div css={cluster.tight}>
             <Button
-              icon={
-                <PencilSimpleIcon size={16} weight="bold" aria-hidden="true" />
-              }
+              icon={<PencilSimpleIcon weight="bold" aria-hidden="true" />}
               isActive={mode === "edit"}
               onClick={() => {
                 setMode((current) => (current === "edit" ? "slice" : "edit"));
@@ -296,9 +294,7 @@ export function SpriteEditor() {
                 : t({ en: "Edit selected cell", zh: "编辑选中" })}
             </Button>
             <Button
-              icon={
-                <FilmStripIcon size={16} weight="bold" aria-hidden="true" />
-              }
+              icon={<FilmStripIcon weight="bold" aria-hidden="true" />}
               isActive={mode === "animation"}
               onClick={() => {
                 setMode((current) =>
@@ -312,13 +308,7 @@ export function SpriteEditor() {
                 : t({ en: "Animation", zh: "动画" })}
             </Button>
             <Button
-              icon={
-                <DownloadSimpleIcon
-                  size={16}
-                  weight="bold"
-                  aria-hidden="true"
-                />
-              }
+              icon={<DownloadSimpleIcon weight="bold" aria-hidden="true" />}
               onClick={() => {
                 if (selectedCell === null) return;
                 void handleDownloadCell(selectedCell);
@@ -329,13 +319,7 @@ export function SpriteEditor() {
               {t({ en: "Download selected", zh: "下载选中" })}
             </Button>
             <Button
-              icon={
-                <DownloadSimpleIcon
-                  size={16}
-                  weight="bold"
-                  aria-hidden="true"
-                />
-              }
+              icon={<DownloadSimpleIcon weight="bold" aria-hidden="true" />}
               onClick={() => {
                 void handleDownloadAll();
               }}
@@ -368,9 +352,7 @@ export function SpriteEditor() {
           <div css={styles.editorWrap}>
             <div css={styles.editorHeader}>
               <Button
-                icon={
-                  <ArrowLeftIcon size={16} weight="bold" aria-hidden="true" />
-                }
+                icon={<ArrowLeftIcon weight="bold" aria-hidden="true" />}
                 onClick={() => {
                   setMode("slice");
                 }}

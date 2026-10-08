@@ -6,6 +6,7 @@ const noUseClientInHooks = require("./conventions/no-use-client-in-hooks");
 const onlyStylexExports = require("./design-system/only-stylex-exports");
 const requireCornerShape = require("./design-system/require-corner-shape");
 const requireHoverMedia = require("./design-system/require-hover-media");
+const requireIconSizing = require("./design-system/require-icon-sizing");
 const requireMeasure = require("./design-system/require-measure");
 const requirePackageExport = require("./design-system/require-package-export");
 const requirePageColumn = require("./design-system/require-page-column");
@@ -23,6 +24,7 @@ module.exports = {
     "only-stylex-exports": onlyStylexExports,
     "require-corner-shape": requireCornerShape,
     "require-hover-media": requireHoverMedia,
+    "require-icon-sizing": requireIconSizing,
     "require-measure": requireMeasure,
     "require-page-column": requirePageColumn,
     "require-package-export": requirePackageExport,

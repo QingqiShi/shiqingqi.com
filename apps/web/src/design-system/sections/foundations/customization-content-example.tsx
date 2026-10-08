@@ -15,7 +15,7 @@ export function CustomizationContentExample() {
       >
         <Callout
           intent="success"
-          icon={<CloudCheckIcon />}
+          icon={<CloudCheckIcon weight="regular" />}
           title={t({ en: "Saved for offline", zh: "已离线保存" })}
         >
           {t({

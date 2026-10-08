@@ -226,8 +226,8 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
           zh: "尺寸与颜色取自父元素",
         })}
         lead={t({
-          en: "A Phosphor icon is 1em square and fills with currentColor. The slots rely on this: they set a font size and a colour, and the icon follows. Outside a slot, do the same: set fontSize and color on the parent and leave the size and color props alone.",
-          zh: "Phosphor 图标为 1em 见方，并以 currentColor 填充。插槽正依赖这一点：它们设定字号与颜色，图标随之变化。在插槽之外也这样做：在父元素上设置 fontSize 与 color，不要使用 size 与 color 属性。",
+          en: "A Phosphor icon is 1em square and fills with currentColor. The slots rely on this: they set a font size and a colour, and the icon follows. Outside a slot, do the same: give the parent a type role or a controlSize font size, and a colour. Beside text, it needs neither: it takes the size and colour of the text.",
+          zh: "Phosphor 图标为 1em 见方，并以 currentColor 填充。插槽正依赖这一点：它们设定字号与颜色，图标随之变化。在插槽之外也这样做：给父元素一个字体角色或 controlSize 字号，再设定颜色。图标紧挨文字时两者都不需要：它会沿用文字的字号与颜色。",
         })}
       >
         <div css={[corner.radius_2, styles.sizeRow]}>
@@ -281,7 +281,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             zh: 'weight="bold"，与本包控件自带图形的字重相同。',
           })}
           dont={
-            <Button look="outline" icon={<PlusIcon />}>
+            <Button look="outline" icon={<PlusIcon weight="regular" />}>
               {t({ en: "Add to list", zh: "加入列表" })}
             </Button>
           }
@@ -291,6 +291,12 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
           })}
         />
         <GuideList items={ownWeights} />
+        <GuideNote>
+          {t({
+            en: "The require-icon-sizing lint rule holds both rules: it refuses the size and color props on a Phosphor icon, and it asks every icon for a weight.",
+            zh: "require-icon-sizing 检查规则负责落实这两条：它拒绝 Phosphor 图标上的 size 与 color 属性，并要求每个图标都写明 weight。",
+          })}
+        </GuideNote>
       </GuideSection>
 
       <GuideSection

@@ -43,7 +43,7 @@ function OfflineNotice() {
   return (
     <div role="status" css={[flex.row, corner.radius_3, styles.notice]}>
       <span aria-hidden css={styles.icon}>
-        <CloudCheckIcon />
+        <CloudCheckIcon weight="regular" />
       </span>
       <Text as="span" look="bodySmall" css={styles.message}>
         {t({

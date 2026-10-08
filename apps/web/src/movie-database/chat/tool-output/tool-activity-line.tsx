@@ -20,7 +20,6 @@ export const TERMINAL_STATES = new Set([
   "output-denied",
 ]);
 
-const ICON_SIZE = 14;
 const MAX_SUMMARY_LENGTH = 60;
 
 function getQuerySummary(input: unknown): string | null {
@@ -185,16 +184,8 @@ export function ToolActivityLine({
         {isInProgress && (
           <span css={[corner.radius_round, styles.pulsingDot]} />
         )}
-        {isComplete && (
-          <CheckIcon size={ICON_SIZE} weight="bold" aria-hidden="true" />
-        )}
-        {isError && (
-          <WarningCircleIcon
-            size={ICON_SIZE}
-            weight="bold"
-            aria-hidden="true"
-          />
-        )}
+        {isComplete && <CheckIcon weight="bold" aria-hidden="true" />}
+        {isError && <WarningCircleIcon weight="bold" aria-hidden="true" />}
         <span css={a11y.srOnly}>{statusText}</span>
       </span>
       <span css={styles.label}>{label}</span>

@@ -93,7 +93,7 @@ export function PreferenceTrigger({
       onClick={onOpen}
       aria-label={label}
     >
-      <SlidersHorizontalIcon size={16} role="presentation" />
+      <SlidersHorizontalIcon weight="bold" role="presentation" />
       {count > 0 && (
         <span
           css={[corner.radius_round, triggerStyles.dot]}
@@ -109,6 +109,7 @@ const triggerStyles = stylex.create({
     position: "relative",
     width: "1.75rem",
     height: "1.75rem",
+    fontSize: controlSize._4,
     color: color.fgMuted,
     backgroundColor: {
       default: "transparent",
@@ -213,13 +214,13 @@ export function PreferencePanel({
           onClick={onClose}
           aria-label={t({ en: "Close", zh: "关闭" })}
         >
-          <XIcon size={18} />
+          <XIcon weight="bold" />
         </button>
       </div>
 
       <div css={[flex.row, corner.radius_2, styles.infoBanner]}>
         <InfoIcon
-          size={16}
+          weight="regular"
           role="presentation"
           {...stylex.props(styles.infoIcon)}
         />
@@ -305,7 +306,7 @@ export function PreferencePanel({
                 setConfirmingClear(true);
               }}
             >
-              <TrashIcon size={14} role="presentation" />
+              <TrashIcon weight="bold" role="presentation" />
               {t({
                 en: "Clear all preferences",
                 zh: "清除所有偏好",
@@ -384,9 +385,9 @@ function PreferenceChip({
     >
       <span css={[flex.inlineCenter, styles.sentimentIcon]}>
         {isLike ? (
-          <ThumbsUpIcon size={12} weight="fill" role="presentation" />
+          <ThumbsUpIcon weight="fill" role="presentation" />
         ) : (
-          <ThumbsDownIcon size={12} weight="fill" role="presentation" />
+          <ThumbsDownIcon weight="fill" role="presentation" />
         )}
       </span>
       <span css={styles.chipLabel}>{preference.value}</span>
@@ -401,7 +402,7 @@ function PreferenceChip({
         onClick={onRemove}
         aria-label={`${t({ en: "Remove", zh: "移除" })} ${preference.value}`}
       >
-        <XIcon size={10} />
+        <XIcon weight="bold" />
       </button>
     </span>
   );
@@ -423,6 +424,7 @@ const styles = stylex.create({
   closeButton: {
     width: "2rem",
     height: "2rem",
+    fontSize: controlSize._4,
     color: color.fgMuted,
     backgroundColor: {
       default: "transparent",
@@ -436,6 +438,7 @@ const styles = stylex.create({
   },
   infoBanner: {
     gap: rhythm.tight,
+    fontSize: controlSize._4,
     marginInline: BODY_INLINE_INSET,
     marginBottom: rhythm.item,
     paddingBlock: space._2,
@@ -507,6 +510,7 @@ const styles = stylex.create({
   },
   sentimentIcon: {
     flexShrink: 0,
+    fontSize: controlSize._3,
   },
   chipLabel: {
     whiteSpace: "nowrap",
@@ -515,6 +519,7 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "1.1rem",
     height: "1.1rem",
+    fontSize: controlSize._3,
     color: color.fgMuted,
     backgroundColor: {
       default: "transparent",

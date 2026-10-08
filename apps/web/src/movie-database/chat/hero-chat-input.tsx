@@ -101,7 +101,7 @@ export function HeroChatInput({
             ]}
             aria-busy={continueSessionStatus === "pending" ? true : undefined}
           >
-            <ClockCounterClockwiseIcon size={14} role="presentation" />
+            <ClockCounterClockwiseIcon weight="bold" role="presentation" />
             <span css={styles.restoreLabel}>{continueLabel}</span>
           </button>
         ) : (

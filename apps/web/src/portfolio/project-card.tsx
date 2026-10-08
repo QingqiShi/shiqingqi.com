@@ -1,22 +1,21 @@
+import type { Icon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
-import { type ReactNode } from "react";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Card } from "#src/links/card.tsx";
 
 interface ProjectCardProps extends React.ComponentProps<typeof Card> {
-  icon: ReactNode;
+  icon: Icon;
   name: string;
   description: string;
 }
 
 export function ProjectCard({
-  icon,
+  icon: ProjectIcon,
   name,
   description,
   css,
@@ -25,7 +24,11 @@ export function ProjectCard({
   return (
     <Card {...rest} css={[stack.tight, styles.card, css]}>
       <div css={styles.row}>
-        <div css={[flex.row, styles.logo]}>{icon}</div>
+        <ProjectIcon
+          weight="fill"
+          aria-hidden="true"
+          {...stylex.props(styles.logo)}
+        />
         <div css={[typeRole.cardTitle, styles.name]}>{name}</div>
       </div>
       <Text as="div" look="bodySmall" tone="muted">
@@ -56,8 +59,12 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
   },
+  // This box has the same size as the brand logos on the other cards. That
+  // size is not a step of a type role or of controlSize, thus the icon fills
+  // the box.
   logo: {
-    minBlockSize: 0,
+    inlineSize: "64px",
+    blockSize: "64px",
     color: svgTokens.fill,
   },
   name: {

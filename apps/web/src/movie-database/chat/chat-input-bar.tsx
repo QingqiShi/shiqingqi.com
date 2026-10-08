@@ -77,7 +77,7 @@ export function ChatInputBar({
                   styles.attachmentDismiss,
                 ]}
               >
-                <XIcon size={12} aria-hidden="true" />
+                <XIcon weight="bold" aria-hidden="true" />
               </button>
             </span>
           </div>
@@ -166,6 +166,7 @@ const styles = stylex.create({
     flexShrink: 0,
     width: "1rem",
     height: "1rem",
+    fontSize: controlSize._3,
     backgroundColor: {
       default: "transparent",
       ":hover": {

@@ -953,7 +953,7 @@ export function PixelEditor({
         aria-label={t({ en: "Tools", zh: "工具" })}
       >
         <ToolButton
-          icon={<PencilSimpleIcon size={18} weight="bold" />}
+          icon={<PencilSimpleIcon weight="bold" />}
           label={t({ en: "Pencil", zh: "铅笔" })}
           active={tool === "pencil"}
           onClick={() => {
@@ -962,7 +962,7 @@ export function PixelEditor({
           testId="tool-pencil"
         />
         <ToolButton
-          icon={<EraserIcon size={18} weight="bold" />}
+          icon={<EraserIcon weight="bold" />}
           label={t({ en: "Eraser", zh: "橡皮" })}
           active={tool === "eraser"}
           onClick={() => {
@@ -971,7 +971,7 @@ export function PixelEditor({
           testId="tool-eraser"
         />
         <ToolButton
-          icon={<SelectionIcon size={18} weight="bold" />}
+          icon={<SelectionIcon weight="bold" />}
           label={t({ en: "Range select", zh: "区域选择" })}
           active={tool === "select"}
           onClick={() => {
@@ -980,7 +980,7 @@ export function PixelEditor({
           testId="tool-select"
         />
         <ToolButton
-          icon={<EyedropperIcon size={18} weight="bold" />}
+          icon={<EyedropperIcon weight="bold" />}
           label={t({ en: "Eyedropper", zh: "取色" })}
           active={tool === "eyedropper"}
           onClick={() => {
@@ -989,7 +989,7 @@ export function PixelEditor({
           testId="tool-eyedropper"
         />
         <ToolButton
-          icon={<PaintBucketIcon size={18} weight="bold" />}
+          icon={<PaintBucketIcon weight="bold" />}
           label={t({ en: "Fill", zh: "填充" })}
           active={tool === "fill"}
           onClick={() => {
@@ -998,7 +998,7 @@ export function PixelEditor({
           testId="tool-fill"
         />
         <ToolButton
-          icon={<MagicWandIcon size={18} weight="bold" />}
+          icon={<MagicWandIcon weight="bold" />}
           label={t({ en: "Remove background", zh: "去背景" })}
           active={tool === "bg-remove"}
           onClick={() => {
@@ -1008,27 +1008,27 @@ export function PixelEditor({
         />
         <span css={styles.spacer} />
         <ToolButton
-          icon={<FrameCornersIcon size={18} weight="bold" />}
+          icon={<FrameCornersIcon weight="bold" />}
           label={t({ en: "Fit view", zh: "适应视图" })}
           onClick={fitToView}
           testId="tool-fit"
         />
         <ToolButton
-          icon={<ArrowUUpLeftIcon size={18} weight="bold" />}
+          icon={<ArrowUUpLeftIcon weight="bold" />}
           label={t({ en: "Undo", zh: "撤销" })}
           onClick={undo}
           disabled={!canUndo}
           testId="tool-undo"
         />
         <ToolButton
-          icon={<ArrowUUpRightIcon size={18} weight="bold" />}
+          icon={<ArrowUUpRightIcon weight="bold" />}
           label={t({ en: "Redo", zh: "重做" })}
           onClick={redo}
           disabled={!canRedo}
           testId="tool-redo"
         />
         <ToolButton
-          icon={<ArrowCounterClockwiseIcon size={18} weight="bold" />}
+          icon={<ArrowCounterClockwiseIcon weight="bold" />}
           label={t({ en: "Revert", zh: "还原" })}
           onClick={() => {
             skipNextSyncRef.current = true;
@@ -1138,19 +1138,19 @@ export function PixelEditor({
             aria-label={t({ en: "Selection actions", zh: "选区操作" })}
           >
             <SelectionButton
-              icon={<TrashIcon size={16} weight="bold" />}
+              icon={<TrashIcon weight="bold" />}
               label={eraseLabel}
               onClick={eraseSelection}
               testId="selection-erase"
             />
             <SelectionButton
-              icon={<CopyIcon size={16} weight="bold" />}
+              icon={<CopyIcon weight="bold" />}
               label={copyLabel}
               onClick={copySelection}
               testId="selection-copy"
             />
             <SelectionButton
-              icon={<FlipHorizontalIcon size={16} weight="bold" />}
+              icon={<FlipHorizontalIcon weight="bold" />}
               label={flipHLabel}
               onClick={() => {
                 flipSelection("h");
@@ -1158,7 +1158,7 @@ export function PixelEditor({
               testId="selection-flip-h"
             />
             <SelectionButton
-              icon={<FlipVerticalIcon size={16} weight="bold" />}
+              icon={<FlipVerticalIcon weight="bold" />}
               label={flipVLabel}
               onClick={() => {
                 flipSelection("v");
@@ -1167,14 +1167,14 @@ export function PixelEditor({
             />
             <span css={styles.selectionDivider} aria-hidden="true" />
             <SelectionButton
-              icon={<CheckIcon size={16} weight="bold" />}
+              icon={<CheckIcon weight="bold" />}
               label={applyLabel}
               onClick={commitSelection}
               testId="selection-apply"
               variant="primary"
             />
             <SelectionButton
-              icon={<XIcon size={16} weight="bold" />}
+              icon={<XIcon weight="bold" />}
               label={cancelLabel}
               onClick={cancelSelection}
               testId="selection-cancel"
@@ -1286,6 +1286,7 @@ const styles = stylex.create({
     justifyContent: "center",
     width: "34px",
     height: "34px",
+    fontSize: controlSize._4,
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
@@ -1423,6 +1424,7 @@ const styles = stylex.create({
   },
   selectionIcon: {
     display: "inline-flex",
+    fontSize: controlSize._4,
   },
   selectionDivider: {
     width: "1px",

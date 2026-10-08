@@ -24,14 +24,14 @@ const BADGE_SAMPLES: LabSample[] = [
     { en: "Departing", zh: "出发" },
     "AirplaneTakeoffIcon",
     "AirplaneTakeoff",
-    <AirplaneTakeoffIcon />,
+    AirplaneTakeoffIcon,
   ),
   iconSample(
     "confirmed",
     { en: "Confirmed", zh: "已确认" },
     "CheckIcon",
     "Check",
-    <CheckIcon />,
+    CheckIcon,
   ),
 ];
 

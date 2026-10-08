@@ -77,7 +77,6 @@ export function ToolActivityGroup({
         }}
       >
         <CaretRightIcon
-          size={14}
           weight="bold"
           aria-hidden="true"
           {...stylex.props(styles.caret, isOpen && styles.caretOpen)}

@@ -204,9 +204,9 @@ export function AnimationMode({
           <Button
             icon={
               isPlaying ? (
-                <PauseIcon size={16} weight="bold" aria-hidden="true" />
+                <PauseIcon weight="bold" aria-hidden="true" />
               ) : (
-                <PlayIcon size={16} weight="bold" aria-hidden="true" />
+                <PlayIcon weight="bold" aria-hidden="true" />
               )
             }
             onClick={() => {
@@ -244,9 +244,7 @@ export function AnimationMode({
             </span>
           </label>
           <Button
-            icon={
-              <DownloadSimpleIcon size={16} weight="bold" aria-hidden="true" />
-            }
+            icon={<DownloadSimpleIcon weight="bold" aria-hidden="true" />}
             onClick={() => {
               void handleExport();
             }}
@@ -267,7 +265,7 @@ export function AnimationMode({
             </span>
           </h2>
           <Button
-            icon={<PlusIcon size={16} weight="bold" aria-hidden="true" />}
+            icon={<PlusIcon weight="bold" aria-hidden="true" />}
             onClick={addCurrentFrame}
             disabled={selectedCell === null}
             data-testid="add-frame"
@@ -330,7 +328,7 @@ export function AnimationMode({
                   <Button
                     size="sm"
                     look="ghost"
-                    icon={<ArrowUpIcon size={14} weight="bold" />}
+                    icon={<ArrowUpIcon weight="bold" />}
                     onClick={() => {
                       moveFrame(index, -1);
                     }}
@@ -340,7 +338,7 @@ export function AnimationMode({
                   <Button
                     size="sm"
                     look="ghost"
-                    icon={<ArrowDownIcon size={14} weight="bold" />}
+                    icon={<ArrowDownIcon weight="bold" />}
                     onClick={() => {
                       moveFrame(index, 1);
                     }}
@@ -350,7 +348,7 @@ export function AnimationMode({
                   <Button
                     size="sm"
                     look="ghost"
-                    icon={<TrashIcon size={14} weight="bold" />}
+                    icon={<TrashIcon weight="bold" />}
                     onClick={() => {
                       removeFrame(index);
                     }}

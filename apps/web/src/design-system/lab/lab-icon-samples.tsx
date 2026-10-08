@@ -1,3 +1,4 @@
+import type { Icon } from "@phosphor-icons/react";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { FloppyDiskIcon } from "@phosphor-icons/react/dist/ssr/FloppyDisk";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
@@ -15,52 +16,49 @@ const NONE: LabSample = {
   value: undefined,
 };
 
-/** One Phosphor Icon as a sample, with the import its snippet has to print. */
+/**
+ * One Phosphor Icon as a sample, at the weight of the package's own control
+ * glyphs, with the import its snippet has to print.
+ */
 export function iconSample(
   id: string,
   label: { en: string; zh: string },
   name: string,
   module: string,
-  value: LabSample["value"],
+  SampleIcon: Icon,
 ): LabSample {
   return {
     id,
     label,
-    code: `<${name} />`,
+    code: `<${name} weight="bold" />`,
     imports: [{ name, from: `${ICON_MODULE}/${module}` }],
-    value,
+    value: <SampleIcon weight="bold" />,
   };
 }
 
 /** The Icons a component's `icon` prop offers in its Lab. */
 export const labIconSamples: LabSample[] = [
   NONE,
-  iconSample(
-    "plus",
-    { en: "Plus", zh: "加号" },
-    "PlusIcon",
-    "Plus",
-    <PlusIcon />,
-  ),
+  iconSample("plus", { en: "Plus", zh: "加号" }, "PlusIcon", "Plus", PlusIcon),
   iconSample(
     "arrowRight",
     { en: "Arrow right", zh: "右箭头" },
     "ArrowRightIcon",
     "ArrowRight",
-    <ArrowRightIcon />,
+    ArrowRightIcon,
   ),
   iconSample(
     "floppyDisk",
     { en: "Floppy disk", zh: "磁盘" },
     "FloppyDiskIcon",
     "FloppyDisk",
-    <FloppyDiskIcon />,
+    FloppyDiskIcon,
   ),
   iconSample(
     "trash",
     { en: "Trash", zh: "垃圾桶" },
     "TrashIcon",
     "Trash",
-    <TrashIcon />,
+    TrashIcon,
   ),
 ];

@@ -61,7 +61,7 @@ export function FilterBar() {
             size="sm"
             look="ghost"
             aria-label={t({ en: "Reset filters", zh: "重置筛选" })}
-            icon={<FunnelXIcon />}
+            icon={<FunnelXIcon weight="bold" />}
           />
         </StickyControlGroup>
       </StickyControls>

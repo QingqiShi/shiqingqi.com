@@ -11,7 +11,14 @@ import { Text } from "@tuja/ui/components/text";
 import { align, justify } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, font, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  measure,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
@@ -45,7 +52,7 @@ export function NotFoundScreen() {
   const destinations = [
     {
       href: getLocalePath("/movie-database", locale),
-      icon: <FilmSlateIcon size={28} weight="fill" aria-hidden="true" />,
+      icon: <FilmSlateIcon weight="fill" aria-hidden="true" />,
       name: t({ en: "Movie Database", zh: "电影数据库" }),
       description: t({
         en: "Chat with AI to find your next watch, or browse what's trending.",
@@ -54,7 +61,7 @@ export function NotFoundScreen() {
     },
     {
       href: getLocalePath("/pixel-creature-creator", locale),
-      icon: <GhostIcon size={28} weight="fill" aria-hidden="true" />,
+      icon: <GhostIcon weight="fill" aria-hidden="true" />,
       name: t({ en: "Pixel Creature Creator", zh: "像素生物创造器" }),
       description: t({
         en: "Build a tiny pixel creature, name it, and conjure its lore.",
@@ -63,7 +70,7 @@ export function NotFoundScreen() {
     },
     {
       href: getLocalePath("/design-system", locale),
-      icon: <PackageIcon size={28} weight="fill" aria-hidden="true" />,
+      icon: <PackageIcon weight="fill" aria-hidden="true" />,
       name: t({ en: "Design System", zh: "设计系统" }),
       description: t({
         en: "A refined visual language, crafted with care.",
@@ -155,6 +162,7 @@ const styles = stylex.create({
     textDecoration: "none",
   },
   destinationIcon: {
+    fontSize: controlSize._7,
     color: color.fgAccent,
     lineHeight: font.lineHeight_0,
   },
