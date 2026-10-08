@@ -92,7 +92,7 @@ export function LabSheet({
                 {currentValue(control, props, defaultLabel)}
               </span>
               <span css={styles.caret}>
-                <CaretRightIcon aria-hidden />
+                <CaretRightIcon weight="bold" aria-hidden />
               </span>
             </button>
           ))}

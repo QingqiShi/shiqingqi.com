@@ -29,7 +29,7 @@ export function ResetFilter({ bright, hideLabel, iconOnly }: ResetFilterProps) {
       event.preventDefault();
       reset();
     },
-    icon: <FunnelXIcon aria-hidden="true" />,
+    icon: <FunnelXIcon weight="bold" aria-hidden="true" />,
     bright,
   };
 

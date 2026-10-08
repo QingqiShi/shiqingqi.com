@@ -27,10 +27,10 @@ type CalloutIntent =
   "info" | "success" | "warning" | "danger" | "accent" | "neutral";
 
 const defaultIcons: { [key in CalloutIntent]: ReactNode } = {
-  info: <InfoIcon />,
-  success: <CheckCircleIcon />,
-  warning: <WarningIcon />,
-  danger: <XCircleIcon />,
+  info: <InfoIcon weight="regular" />,
+  success: <CheckCircleIcon weight="regular" />,
+  warning: <WarningIcon weight="regular" />,
+  danger: <XCircleIcon weight="regular" />,
   accent: <SparkleIcon weight="fill" />,
   neutral: <DotOutlineIcon weight="fill" />,
 };

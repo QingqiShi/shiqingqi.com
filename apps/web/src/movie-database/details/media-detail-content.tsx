@@ -203,7 +203,7 @@ export function MediaDetailContent({
                   : `Watch trailer for ${displayTitle} (opens in new tab)`
               }
             >
-              <PlayIcon weight="fill" size={14} aria-hidden="true" />
+              <PlayIcon weight="fill" aria-hidden="true" />
               {t({ en: "Trailer", zh: "预告" })}
               <ExternalLinkIndicator />
             </a>

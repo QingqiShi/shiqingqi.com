@@ -96,7 +96,7 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
                 buttonProps={{
                   type: "button",
                   size: "sm",
-                  icon: <SlidersHorizontalIcon />,
+                  icon: <SlidersHorizontalIcon weight="bold" />,
                 }}
                 menuContent={
                   <LabSheet
@@ -136,7 +136,7 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
             <Button
               size="sm"
               look="ghost"
-              icon={<XIcon />}
+              icon={<XIcon weight="bold" />}
               aria-label={t({ en: "Close control", zh: "关闭控件" })}
               onClick={() => {
                 setActiveControlName(null);

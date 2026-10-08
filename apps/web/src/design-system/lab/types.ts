@@ -33,7 +33,7 @@ export interface LabImport {
 export interface LabSample {
   id: string;
   label: Record<SupportedLocale, string>;
-  /** The source the snippet prints for this node — `<PlusIcon />`. */
+  /** The source the snippet prints for this node — `<PlusIcon weight="bold" />`. */
   code: string;
   imports: readonly LabImport[];
   value: ReactNode;

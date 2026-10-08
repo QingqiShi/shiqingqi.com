@@ -24,6 +24,7 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 | Responsive behavior                                 | `stylex.create` + breakpoints   | `{ default: "none", [breakpoints.md]: "flex" }` |
 | Pseudo-selectors (focus, active)                    | `stylex.create`                 | `{ default: val, ":focus-visible": focusVal }`  |
 | Hover                                               | `stylex.create` + `pointer`     | see [Hover](#hover)                             |
+| Icon size and colour                                | The parent's font size, `color` | see [Icons](#icons)                             |
 
 ## The `css` Prop
 
@@ -125,6 +126,20 @@ Two StyleX details:
 - **Do not put the branch beside another `@media` key.** StyleX makes sibling media queries exclude each other, so a `[breakpoints.md]` value beside a `[pointer.canHover]` branch stops applying on a device that can hover. Wrap the hover value instead, or repeat the sibling keys inside the branch.
 
 `pointerConstants.NON_TOUCH_DEVICE` from `@tuja/ui/primitives/layout.stylex` is stricter: it also excludes every device that has a touch pointer at all. Use it only for an affordance that a touch device replaces, such as the scroll buttons of `ScrollMask`.
+
+## Icons
+
+A Phosphor icon is 1em square and fills with `currentColor`, so it takes its size and colour from its parent. Beside text it needs nothing: it takes the text's size. Anywhere else, give the parent a type role or a `controlSize` font size. A component slot (`icon`, `leading`, `indicator`) already does this. Every icon names its `weight`: `bold` inside a control, to match the package's own glyphs. The `@tuja/require-icon-sizing` ESLint rule refuses the `size` and `color` props on a Phosphor icon and asks for a `weight`.
+
+```tsx
+const styles = stylex.create({
+  close: { fontSize: controlSize._5 },
+});
+
+<button css={[buttonReset.base, styles.close]} aria-label="Close">
+  <XIcon weight="bold" aria-hidden />
+</button>;
+```
 
 ## Design Primitives
 
@@ -229,3 +244,4 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 13. **Pseudo-selectors as object keys** — `{ default: val, ":focus-visible": focusVal }`
 14. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; a reveal gives touch the full state
 15. **Every focusable element draws the focus ring** — `buttonReset.base` for a hand-built button, `a11y.focusRing` for anything else; never `outline: none`
+16. **Icons take their size from the parent** — the text beside them, or a type role or `controlSize` font size on the parent; never the `size` or `color` prop, and every icon names its `weight`

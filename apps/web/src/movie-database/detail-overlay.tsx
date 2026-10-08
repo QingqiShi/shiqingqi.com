@@ -9,7 +9,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { viewportFill } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants, transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { color, layer, space } from "@tuja/ui/tokens.stylex";
+import { color, controlSize, layer, space } from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren, RefObject } from "react";
 import { useRef } from "react";
 import { createPortal } from "react-dom";
@@ -118,7 +118,7 @@ export function DetailOverlay({
                 onClick={onClose}
                 aria-label={t({ en: "Close", zh: "关闭" })}
               >
-                <XIcon size={20} aria-hidden="true" />
+                <XIcon weight="bold" aria-hidden="true" />
               </button>
             )}
             {children}
@@ -204,6 +204,7 @@ const styles = stylex.create({
     zIndex: layer.content,
     width: "2rem",
     height: "2rem",
+    fontSize: controlSize._5,
     // Fixed dark circle so the icon stays legible over arbitrary media in both
     // themes; darkens to the scrim token on hover for feedback (animated via
     // the composed `transition.colors`).

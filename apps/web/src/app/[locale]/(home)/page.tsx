@@ -55,9 +55,7 @@ export default async function Home(props: PageProps) {
           </h2>
           <div css={styles.cardList}>
             <ProjectCard
-              icon={
-                <GraduationCapIcon size={64} weight="fill" aria-hidden="true" />
-              }
+              icon={GraduationCapIcon}
               href="https://studentloanstudy.uk/"
               target="_blank"
               css={[styles.card, styles.studentLoan]}
@@ -68,9 +66,7 @@ export default async function Home(props: PageProps) {
               })}
             />
             <ProjectCard
-              icon={
-                <FilmSlateIcon size={64} weight="fill" aria-hidden="true" />
-              }
+              icon={FilmSlateIcon}
               href={getLocalePath("/movie-database", locale)}
               css={[styles.card, styles.movieDatabase]}
               name={t({ en: "Movie Database", zh: "电影数据库" })}
@@ -81,7 +77,7 @@ export default async function Home(props: PageProps) {
               scroll
             />
             <ProjectCard
-              icon={<GhostIcon size={64} weight="fill" aria-hidden="true" />}
+              icon={GhostIcon}
               href={getLocalePath("/pixel-creature-creator", locale)}
               css={[styles.card, styles.pixelCreatureCreator]}
               name={t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
@@ -92,7 +88,7 @@ export default async function Home(props: PageProps) {
               scroll
             />
             <ProjectCard
-              icon={<GridFourIcon size={64} weight="fill" aria-hidden="true" />}
+              icon={GridFourIcon}
               href={getLocalePath("/sprite-editor", locale)}
               css={[styles.card, styles.spriteEditor]}
               name={t({ en: "Sprite Editor", zh: "像素编辑器" })}
@@ -103,9 +99,7 @@ export default async function Home(props: PageProps) {
               scroll
             />
             <ProjectCard
-              icon={
-                <CalculatorIcon size={64} weight="fill" aria-hidden="true" />
-              }
+              icon={CalculatorIcon}
               href={getLocalePath("/calculator", locale)}
               css={[styles.card, styles.calculator]}
               name={t({ en: "Calculator", zh: "计算器" })}
@@ -116,7 +110,7 @@ export default async function Home(props: PageProps) {
               scroll
             />
             <ProjectCard
-              icon={<PackageIcon size={64} weight="fill" aria-hidden="true" />}
+              icon={PackageIcon}
               href={getLocalePath("/design-system", locale)}
               css={[styles.card, styles.designSystem]}
               name={t({ en: "Design System", zh: "设计系统" })}

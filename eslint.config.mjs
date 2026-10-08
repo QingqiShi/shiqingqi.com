@@ -269,6 +269,14 @@ export default defineConfig([
       "@tuja/require-page-column": "error",
     },
   },
+  // An icon takes its size and colour from its parent, and names its weight.
+  {
+    files: ["apps/*/src/**/*.tsx", "packages/ui/src/**/*.tsx"],
+    ignores: ["**/*.test.tsx"],
+    rules: {
+      "@tuja/require-icon-sizing": "error",
+    },
+  },
   {
     files: ["packages/ui/src/**/*.{ts,tsx}"],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],

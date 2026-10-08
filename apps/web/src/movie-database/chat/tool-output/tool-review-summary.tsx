@@ -13,7 +13,14 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  border,
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import type { ComponentType } from "react";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -57,12 +64,9 @@ export function parseReviewSummaryOutput(
 }
 
 interface IconProps {
-  size: number;
   weight: "regular" | "fill" | "bold";
   "aria-hidden": boolean;
 }
-
-const ICON_SIZE = 18;
 
 const LEVEL_ICONS: ReadonlyArray<{
   level: number;
@@ -163,7 +167,6 @@ export function ToolReviewSummary({
                   key={level}
                   type="button"
                   css={[
-                    typeRole.bodySmall,
                     buttonReset.base,
                     corner.radius_2,
                     styles.levelButton,
@@ -179,14 +182,9 @@ export function ToolReviewSummary({
                   aria-pressed={isSelected}
                 >
                   {isSelected ? (
-                    <ArrowUpIcon
-                      size={ICON_SIZE}
-                      weight="bold"
-                      aria-hidden={true}
-                    />
+                    <ArrowUpIcon weight="bold" aria-hidden={true} />
                   ) : (
                     <Icon
-                      size={ICON_SIZE}
                       weight={isCurrent ? "fill" : "regular"}
                       aria-hidden={true}
                     />
@@ -245,6 +243,7 @@ const styles = stylex.create({
   },
   levelButton: {
     display: "flex",
+    fontSize: controlSize._4,
     flexDirection: "column",
     alignItems: "center",
     paddingBlock: space._1,

@@ -20,6 +20,7 @@ import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
   color,
+  controlSize,
   font,
   measure,
   rhythm,
@@ -140,7 +141,7 @@ export function SourceImageInput({
           }}
           data-testid="source-pick"
         >
-          <UploadSimpleIcon size={16} weight="bold" aria-hidden="true" />
+          <UploadSimpleIcon weight="bold" aria-hidden="true" />
           {t({ en: "Replace", zh: "替换" })}
         </button>
         <div css={styles.compactMeta}>
@@ -173,7 +174,7 @@ export function SourceImageInput({
     >
       <div css={[stack.item, styles.heroIntro]}>
         <span css={[corner.radius_round, styles.heroIcon]} aria-hidden="true">
-          <UploadSimpleIcon size={28} weight="bold" />
+          <UploadSimpleIcon weight="bold" />
         </span>
         <div css={[stack.tight, styles.heroIntro]}>
           <h2 css={[typeRole.h2, styles.heroTitle]}>
@@ -188,7 +189,7 @@ export function SourceImageInput({
         </div>
         <Button
           look="primary"
-          icon={<UploadSimpleIcon size={18} weight="bold" aria-hidden="true" />}
+          icon={<UploadSimpleIcon weight="bold" aria-hidden="true" />}
           onClick={() => {
             inputRef.current?.click();
           }}
@@ -205,30 +206,21 @@ export function SourceImageInput({
       </div>
       <ul css={[cluster.item, styles.capabilities]}>
         <li css={[typeRole.label, styles.capability]}>
-          <ScissorsIcon
-            size={18}
-            weight="bold"
-            aria-hidden="true"
-            {...stylex.props(styles.capabilityIcon)}
-          />
+          <span css={styles.capabilityIcon} aria-hidden="true">
+            <ScissorsIcon weight="bold" />
+          </span>
           <span>{t({ en: "Slice into cells", zh: "切分为单元格" })}</span>
         </li>
         <li css={[typeRole.label, styles.capability]}>
-          <PencilSimpleIcon
-            size={18}
-            weight="bold"
-            aria-hidden="true"
-            {...stylex.props(styles.capabilityIcon)}
-          />
+          <span css={styles.capabilityIcon} aria-hidden="true">
+            <PencilSimpleIcon weight="bold" />
+          </span>
           <span>{t({ en: "Clean up pixels", zh: "清理像素" })}</span>
         </li>
         <li css={[typeRole.label, styles.capability]}>
-          <FilmStripIcon
-            size={18}
-            weight="bold"
-            aria-hidden="true"
-            {...stylex.props(styles.capabilityIcon)}
-          />
+          <span css={styles.capabilityIcon} aria-hidden="true">
+            <FilmStripIcon weight="bold" />
+          </span>
           <span>{t({ en: "Assemble frames", zh: "组装动画帧" })}</span>
         </li>
       </ul>
@@ -270,6 +262,7 @@ const styles = stylex.create({
     placeItems: "center",
     width: "60px",
     height: "60px",
+    fontSize: controlSize._7,
     color: color.fgAccent,
     backgroundColor: color.bgAccentSubtle,
   },
@@ -300,8 +293,10 @@ const styles = stylex.create({
     color: color.fgMuted,
   },
   capabilityIcon: {
-    color: color.fgAccent,
+    display: "inline-flex",
     flexShrink: 0,
+    fontSize: controlSize._4,
+    color: color.fgAccent,
   },
 
   // Compact ---------------------------------------------------------------

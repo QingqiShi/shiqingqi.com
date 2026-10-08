@@ -9,7 +9,7 @@ export function ExternalLinkIndicator() {
   return (
     <>
       <ArrowSquareOutIcon
-        size="0.85em"
+        weight="regular"
         aria-hidden="true"
         {...stylex.props(styles.icon)}
       />
@@ -21,7 +21,10 @@ export function ExternalLinkIndicator() {
 }
 
 const styles = stylex.create({
+  // The indicator is smaller than the link text, so that it stays quiet.
   icon: {
+    inlineSize: "0.85em",
+    blockSize: "0.85em",
     verticalAlign: "baseline",
     position: "relative",
     top: "0.1em",

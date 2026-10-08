@@ -45,9 +45,9 @@ export function Card({ children, css, ...rest }: CardProps) {
             : t({ en: "Details", zh: "详情" })}
         </span>
         {isExternal ? (
-          <ArrowSquareOutIcon aria-hidden="true" />
+          <ArrowSquareOutIcon weight="bold" aria-hidden="true" />
         ) : (
-          <ArrowRightIcon aria-hidden="true" />
+          <ArrowRightIcon weight="bold" aria-hidden="true" />
         )}
         {isExternal && (
           <span css={a11y.srOnly}>

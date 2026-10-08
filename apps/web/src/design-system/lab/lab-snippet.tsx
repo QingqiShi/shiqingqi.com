@@ -39,7 +39,7 @@ export function LabSnippet({ snippet }: LabSnippetProps) {
           <Button
             size="sm"
             look="ghost"
-            icon={<CopyIcon />}
+            icon={<CopyIcon weight="bold" />}
             aria-label={t({ en: "Copy code", zh: "复制代码" })}
             onClick={() => {
               void navigator.clipboard.writeText(snippet.text);
