@@ -1,4 +1,19 @@
-import { test, expect, type Locator } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
+
+/** The infinite animations are skeleton shimmers, which never finish. */
+async function settleAnimations(page: Page) {
+  await page.evaluate(() =>
+    Promise.allSettled(
+      document
+        .getAnimations()
+        .filter(
+          (animation) =>
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        )
+        .map((animation) => animation.finished),
+    ),
+  );
+}
 
 /**
  * A MenuButton popup's box once its entrance has settled.
@@ -13,18 +28,9 @@ import { test, expect, type Locator } from "@playwright/test";
  */
 async function settledPopupBox(popup: Locator) {
   await expect(popup).toBeVisible();
+  await settleAnimations(popup.page());
 
-  return popup.evaluate(async (element) => {
-    await Promise.allSettled(
-      document
-        .getAnimations()
-        .filter(
-          (animation) =>
-            animation.effect?.getComputedTiming().iterations !== Infinity,
-        )
-        .map((animation) => animation.finished),
-    );
-
+  return popup.evaluate((element) => {
     const { x, y, width, height } = element.getBoundingClientRect();
     return { x, y, width, height };
   });
@@ -357,6 +363,17 @@ test.describe("Mobile filters sheet", () => {
     await refine.evaluate((el, top) => {
       window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top - top);
     }, barTop);
+
+    // The scroll moves the hero input out of view. Then the trigger morphs to
+    // its new position. Wait until the morph stops. If you do not wait, the
+    // click finds the trigger unstable. Each Playwright retry then scrolls the
+    // trigger to a different edge of the viewport. This changes the state that
+    // the test examines.
+    const page = refine.page();
+    await expect(
+      page.locator("[data-hero-collapsed-button]:not([inert])").first(),
+    ).toBeAttached();
+    await settleAnimations(page);
     await expect(refine).toBeInViewport();
   }
 
