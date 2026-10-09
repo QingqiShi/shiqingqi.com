@@ -14,8 +14,13 @@ type Vector = readonly [number, number, number];
  */
 const MIN_DIFFERENCE = 0.18;
 
-// The matrices come from Björn Ottosson's definition of OKLab.
-function srgbToOklab([red, green, blue]: Vector): Vector {
+/**
+ * An sRGB-encoded colour in OKLab. The matrices come from Björn Ottosson's
+ * definition of OKLab.
+ *
+ * @internal
+ */
+export function srgbToOklab([red, green, blue]: Vector): Vector {
   const [r, g, b] = [toLinear(red), toLinear(green), toLinear(blue)];
   const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
   const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
@@ -27,10 +32,15 @@ function srgbToOklab([red, green, blue]: Vector): Vector {
   ];
 }
 
-const oklabToSrgb = (lab: Vector): Vector => {
+/**
+ * An OKLab colour sRGB-encoded, clamped into the gamut.
+ *
+ * @internal
+ */
+export function oklabToSrgb(lab: Vector): Vector {
   const [r, g, b] = oklabToLinearSrgb(lab);
   return [clamp(toGamma(r)), clamp(toGamma(g)), clamp(toGamma(b))];
-};
+}
 
 /**
  * Whether the page behind the effect layer is light, so that a ring must be

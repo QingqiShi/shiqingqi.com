@@ -90,7 +90,9 @@ export function EffectLayerTestBench() {
   return (
     <div css={stack.item}>
       <label css={[row.tight, styles.control]}>
+        {/* The control draws no effect, so that the effect layer holds only the elements that the bench tests. */}
         <Switch
+          effect="none"
           value={hasFixed ? "on" : "off"}
           onChange={(state) => {
             setFixedChoice(state === "on");
