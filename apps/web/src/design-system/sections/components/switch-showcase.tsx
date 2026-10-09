@@ -81,6 +81,24 @@ export function SwitchShowcase() {
         </div>
       </Showcase>
 
+      <Showcase label={t({ en: "Sweep", zh: "扫光" })}>
+        <div css={stack.item}>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: 'With effect="sweep", turning the switch on floods the accent out from where the pointer released, or from the thumb, and as the flood reaches the track\'s edge a ring light runs once around it on the effect layer. Without an EffectLayerProvider or WebGPU only the flood runs; under reduced motion the switch keeps its crossfade.',
+              zh: '设置 effect="sweep" 后，打开开关时强调色会从指针松开处或滑块处涌出填满轨道，涌到轨道边缘时一道环形光在效果层上沿轨道跑一圈。没有 EffectLayerProvider 或 WebGPU 时只有涌出的填充；减少动态效果时开关保持原有的淡入淡出。',
+            })}
+          </Text>
+          <Specimen caption="sweep">
+            <SpecimenSwitch
+              initial="off"
+              effect="sweep"
+              label={t({ en: "Sweep", zh: "扫光" })}
+            />
+          </Specimen>
+        </div>
+      </Showcase>
+
       <PropsTable component="switch" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>

@@ -2,6 +2,7 @@ import { blackHoleEffect } from "./black-hole-effect.ts";
 import { dustEffect } from "./dust-effect.ts";
 import { EFFECT_ROLES, type EffectRole } from "./effect-roles.ts";
 import { rippleEffect } from "./ripple-effect.ts";
+import { sweepEffect } from "./sweep-effect.ts";
 import type { Effect } from "./types.ts";
 
 /**
@@ -16,6 +17,7 @@ const ROLE_EFFECTS = new Map<EffectRole, Effect>([
   ["extractorFan", dustEffect],
   ["blackHole", blackHoleEffect],
   ["lightBeam", blackHoleEffect],
+  ["sweep", sweepEffect],
 ]);
 
 /**

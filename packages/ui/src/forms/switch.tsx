@@ -1,8 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { floodReach } from "../effect-layer/outline-param.ts";
+import { dispatchSweep } from "../effect-layer/sweep-event.ts";
+import { sweepConsts } from "../effect-layer/sweep.stylex.ts";
+import { useSweep } from "../effect-layer/use-sweep.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -58,6 +62,16 @@ interface SwitchProps extends Omit<
    */
   size?: "sm" | "md" | "lg";
   /**
+   * Motion on the track when the switch turns on. `"sweep"` floods the
+   * accent fill out from the point the pointer released, or from the thumb,
+   * and as the flood reaches the track's edge a ring light runs once around
+   * it on the effect layer. Without an `EffectLayerProvider` or WebGPU, only
+   * the flood runs; under reduced motion, neither does.
+   *
+   * @zh 开关打开时轨道上的动效。`"sweep"` 让强调色从指针松开处或滑块处涌出填满轨道，涌到边缘时一道环形光在效果层上沿轨道跑一圈。没有 `EffectLayerProvider` 或 WebGPU 时只有涌出的填充；减少动态效果时两者都不播放。
+   */
+  effect?: "sweep";
+  /**
    * StyleX styles merged over the switch's own — the config-layer escape
    * hatch.
    *
@@ -78,6 +92,7 @@ export function Switch({
   defaultValue,
   onChange,
   size = "md",
+  effect,
   css,
   ref: forwardedRef,
   ...rest
@@ -94,7 +109,31 @@ export function Switch({
     defaultValue: defaultValue ?? "off",
   });
 
-  function setControlledValue(newValue: SwitchState) {
+  const sweepRef = useSweep();
+  // The Sweep flood in flight: where it starts, or `"pending"` while a drag
+  // holds it back until the thumb is released.
+  const [sweep, setSweep] = useState<SweepOrigin | "pending" | null>(null);
+  const dispatchedSweepRef = useRef<SweepOrigin | null>(null);
+
+  function thumbCentre(rect: DOMRect): SweepPoint {
+    const x = value === "indeterminate" ? rect.height : rect.height / 2;
+    return { x, y: rect.height / 2 };
+  }
+
+  function setControlledValue(
+    newValue: SwitchState,
+    from?: SweepPoint | "pending",
+  ) {
+    if (effect === "sweep" && elRef.current) {
+      if (newValue !== "on") {
+        setSweep(null);
+      } else if (from === "pending") {
+        setSweep("pending");
+      } else if (value !== "on" || sweep === "pending") {
+        const rect = elRef.current.getBoundingClientRect();
+        setSweep(sweepOrigin(rect, from ?? thumbCentre(rect)));
+      }
+    }
     setValue(newValue);
     onChange?.(newValue);
   }
@@ -106,6 +145,26 @@ export function Switch({
     elRef.current.indeterminate = value === "indeterminate";
     elRef.current.checked = value === "on";
   }, [value]);
+
+  useEffect(() => {
+    const element = elRef.current;
+    if (
+      effect !== "sweep" ||
+      value !== "on" ||
+      sweep === null ||
+      sweep === "pending" ||
+      dispatchedSweepRef.current === sweep ||
+      !element
+    ) {
+      return;
+    }
+    dispatchedSweepRef.current = sweep;
+    const rect = element.getBoundingClientRect();
+    dispatchSweep(element, {
+      clientX: rect.left + sweep.x,
+      clientY: rect.top + sweep.y,
+    });
+  }, [effect, value, sweep]);
 
   const {
     isDragging,
@@ -125,12 +184,17 @@ export function Switch({
   // animate the switch.
   const [initialRendered, setInitialRendered] = useState(false);
 
-  const setInputRef = mergeRefs(elRef, forwardedRef, (node) => {
-    if (node && !hasSetInitialRenderedRef.current) {
-      hasSetInitialRenderedRef.current = true;
-      setInitialRendered(true);
-    }
-  });
+  const setInputRef = mergeRefs(
+    elRef,
+    forwardedRef,
+    effect === "sweep" ? sweepRef : undefined,
+    (node) => {
+      if (node && !hasSetInitialRenderedRef.current) {
+        hasSetInitialRenderedRef.current = true;
+        setInitialRendered(true);
+      }
+    },
+  );
 
   return (
     <input
@@ -143,6 +207,12 @@ export function Switch({
         sizeStyles[size],
         initialRendered && styles.animate,
         isDragging && styles.dragging(position),
+        effect === "sweep" && styles.sweep,
+        effect === "sweep" && sweep !== null && styles.sweepCover,
+        effect === "sweep" &&
+          sweep !== null &&
+          sweep !== "pending" &&
+          styles.sweepFlood(sweep.x, sweep.y, sweep.reach),
         css,
       ]}
       role="switch"
@@ -202,7 +272,10 @@ function useSwitchDrag({
   toggleHandledRef: React.RefObject<boolean>;
   value: SwitchState;
   disabled: boolean | undefined;
-  setControlledValue: (next: SwitchState) => void;
+  setControlledValue: (
+    next: SwitchState,
+    from?: SweepPoint | "pending",
+  ) => void;
 }) {
   const initialRectRef = useRef<DOMRect | null>(null);
   const initialClientXRef = useRef(0);
@@ -244,7 +317,9 @@ function useSwitchDrag({
     const midPoint = rect.left + rect.width / 2;
     const newState = lastClientXRef.current > midPoint ? "on" : "off";
     if (newState !== value) {
-      setControlledValue(newState);
+      // A Sweep starts from where the thumb is released, so a drag holds
+      // it back until then.
+      setControlledValue(newState, "pending");
     }
   }
 
@@ -257,8 +332,8 @@ function useSwitchDrag({
     // `onClick`) must not repeat it.
     toggleHandledRef.current = true;
 
+    const rect = initialRectRef.current;
     if (isDragging) {
-      const rect = initialRectRef.current;
       if (elRef.current && rect) {
         if (elRef.current.indeterminate) {
           elRef.current.indeterminate = false;
@@ -266,10 +341,22 @@ function useSwitchDrag({
 
         const midPoint = rect.left + rect.width / 2;
         const newState = lastClientXRef.current > midPoint ? "on" : "off";
-        setControlledValue(newState);
+        const halfHeight = rect.height / 2;
+        setControlledValue(newState, {
+          x: Math.max(
+            halfHeight,
+            Math.min(rect.width - halfHeight, e.clientX - rect.left),
+          ),
+          y: halfHeight,
+        });
       }
     } else {
-      setControlledValue(value === "on" ? "off" : "on");
+      setControlledValue(
+        value === "on" ? "off" : "on",
+        rect
+          ? { x: e.clientX - rect.left, y: e.clientY - rect.top }
+          : undefined,
+      );
     }
 
     elRef.current?.releasePointerCapture(e.pointerId);
@@ -349,7 +436,66 @@ const styles = stylex.create({
       transition: null,
     },
   }),
+  // With Sweep, the track takes the accent at once and a cover of the off
+  // colour over it opens out from the origin, so the fill floods instead of
+  // crossfading. Turning off keeps the crossfade. Under reduced motion the
+  // switch keeps its crossfade both ways: a media query outranks a
+  // pseudo-class in StyleX, so it needs no nesting.
+  sweep: {
+    transition: {
+      default: `background-color ${duration._200} ${easing.ease}`,
+      ":checked": "none",
+      [motionConstants.REDUCED_MOTION]: `background-color ${duration._200} ${easing.ease}`,
+    },
+  },
+  sweepCover: {
+    backgroundImage: {
+      default: null,
+      ":checked": `radial-gradient(circle at ${switchTokens.sweepX} ${switchTokens.sweepY}, transparent calc(${switchTokens.sweepReach} * ${switchTokens.sweepProgress} - 0.5px), ${color.bgControlStrong} calc(${switchTokens.sweepReach} * ${switchTokens.sweepProgress} + 0.5px))`,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
+  },
+  sweepFlood: (x: number, y: number, reach: number) => ({
+    [switchTokens.sweepX]: `${String(x)}px`,
+    [switchTokens.sweepY]: `${String(y)}px`,
+    [switchTokens.sweepReach]: `${String(reach)}px`,
+    animationName: {
+      default: null,
+      ":checked": floodKeyframes,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
+    animationDuration: sweepConsts.floodDuration,
+    animationTimingFunction: sweepConsts.floodEasing,
+    animationFillMode: "forwards",
+  }),
 });
+
+const floodKeyframes = stylex.keyframes({
+  from: { [switchTokens.sweepProgress]: 0 },
+  to: { [switchTokens.sweepProgress]: 1 },
+});
+
+/** A point in the track's own space, in CSS px from its top-left corner. */
+interface SweepPoint {
+  readonly x: number;
+  readonly y: number;
+}
+
+/** Where a Sweep flood starts, and how far it travels to cover the track. */
+interface SweepOrigin extends SweepPoint {
+  readonly reach: number;
+}
+
+function sweepOrigin(rect: DOMRect, point: SweepPoint): SweepOrigin {
+  const x = Math.max(0, Math.min(rect.width, point.x));
+  const y = Math.max(0, Math.min(rect.height, point.y));
+  const box = {
+    width: rect.width,
+    height: rect.height,
+    radius: rect.height / 2,
+  };
+  return { x, y, reach: floodReach(box, x, y) };
+}
 
 // Each size sets the `switchTokens.trackHeight` knob; `styles.switch` derives
 // height, width, thumb size, and travel from it. `md` reproduces the historic

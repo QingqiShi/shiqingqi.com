@@ -64,6 +64,7 @@
     "./hooks/use-radio-group": "./src/hooks/use-radio-group.ts",
     "./hooks/use-ripple": "./src/effect-layer/use-ripple.ts",
     "./hooks/use-scroll-mask": "./src/hooks/use-scroll-mask.ts",
+    "./hooks/use-sweep": "./src/effect-layer/use-sweep.ts",
     "./utils/contrast-ratio": "./src/contrast/contrast-ratio.ts",
     "./utils/get-scroll-behavior": "./src/get-scroll-behavior.ts",
     "./utils/merge-refs": "./src/merge-refs.ts",
