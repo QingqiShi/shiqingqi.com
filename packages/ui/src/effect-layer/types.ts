@@ -25,6 +25,10 @@ export interface EffectSettings {
     readonly angle: number | undefined;
     readonly followsPointer: boolean;
   };
+  readonly liquidThumb?: {
+    readonly position: number;
+    readonly drag: number | null;
+  };
 }
 
 /**

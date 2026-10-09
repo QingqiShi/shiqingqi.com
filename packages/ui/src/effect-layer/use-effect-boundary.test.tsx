@@ -13,6 +13,7 @@ import { useEffectBoundary } from "./use-effect-boundary.ts";
 import { useEffectContainer } from "./use-effect-container.ts";
 import { useExtractorFan } from "./use-extractor-fan.ts";
 import { useLightBeam } from "./use-light-beam.ts";
+import { useLiquidThumb } from "./use-liquid-thumb.ts";
 import { useRipple } from "./use-ripple.ts";
 
 const ON_PAGE = { scope: PAGE_SCOPE, holds: null };
@@ -93,12 +94,14 @@ describe("effect hooks", () => {
       const dust = useDust({ density: 5 });
       const fan = useExtractorFan();
       const lightBeam = useLightBeam();
+      const liquid = useLiquidThumb({ position: 1 });
       return (
         <>
           <div ref={ripple} data-testid="ripple" />
           <div ref={dust} data-testid="dust" />
           <div ref={fan} data-testid="fan" />
           <div ref={lightBeam} data-testid="beam" />
+          <div ref={liquid.ref} data-testid="liquid" />
         </>
       );
     }
@@ -118,6 +121,10 @@ describe("effect hooks", () => {
     expect(entry("beam")).toMatchObject({
       roles: roleBits(["lightBeam"]),
       settings: { lightBeam: { angle: undefined, followsPointer: true } },
+    });
+    expect(entry("liquid")).toMatchObject({
+      roles: roleBits(["liquidThumb"]),
+      settings: { liquidThumb: { position: 1, drag: null } },
     });
   });
 

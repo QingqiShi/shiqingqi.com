@@ -58,6 +58,7 @@
     "./hooks/use-extractor-fan": "./src/effect-layer/use-extractor-fan.ts",
     "./hooks/use-is-hydrated": "./src/hooks/use-is-hydrated.ts",
     "./hooks/use-light-beam": "./src/effect-layer/use-light-beam.ts",
+    "./hooks/use-liquid-thumb": "./src/effect-layer/use-liquid-thumb.ts",
     "./hooks/use-popover": "./src/hooks/use-popover.ts",
     "./hooks/use-press-animation": "./src/hooks/use-press-animation.ts",
     "./hooks/use-press-handlers": "./src/hooks/use-press-handlers.ts",

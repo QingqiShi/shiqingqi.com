@@ -1,8 +1,15 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { useLiquidThumb } from "../effect-layer/use-liquid-thumb.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -25,6 +32,13 @@ import type { StyleProp } from "../types.ts";
 import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
+
+/** Where the thumb rests for each state, as a share of the track's travel. */
+const THUMB_POSITION: Record<SwitchState, number> = {
+  off: 0,
+  indeterminate: 0.5,
+  on: 1,
+};
 
 interface SwitchProps extends Omit<
   React.ComponentProps<"input">,
@@ -58,6 +72,17 @@ interface SwitchProps extends Omit<
    */
   size?: "sm" | "md" | "lg";
   /**
+   * An effect the effect layer draws in place of the thumb. `"liquid"` makes
+   * the thumb a drop of liquid: it springs across on a toggle and wobbles to
+   * rest, stretches after a drag, and a fast flick throws a droplet off it
+   * that merges back. It draws only inside an `EffectLayerProvider` with
+   * WebGPU; elsewhere, and under forced colours, the switch looks and works
+   * as it does without it.
+   *
+   * @zh 由效果层代替滑块绘制的效果。`"liquid"` 让滑块成为一滴液体：切换时弹跳着滑过并晃动至静止，拖动时随指针拉伸，快速甩动会甩出一颗小液滴再融回。只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，开关的外观与行为与不设置时相同。
+   */
+  effect?: "liquid";
+  /**
    * StyleX styles merged over the switch's own — the config-layer escape
    * hatch.
    *
@@ -78,6 +103,7 @@ export function Switch({
   defaultValue,
   onChange,
   size = "md",
+  effect,
   css,
   ref: forwardedRef,
   ...rest
@@ -110,6 +136,7 @@ export function Switch({
   const {
     isDragging,
     position,
+    travel,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
@@ -121,16 +148,29 @@ export function Switch({
     setControlledValue,
   });
 
+  const liquid = useLiquidThumb({
+    position: THUMB_POSITION[value],
+    drag:
+      isDragging && position !== null && travel > 0 ? position / travel : null,
+  });
+
   // Enables animation only after mount, so a route or locale change does not
   // animate the switch.
   const [initialRendered, setInitialRendered] = useState(false);
 
-  const setInputRef = mergeRefs(elRef, forwardedRef, (node) => {
+  const markInitialRendered = useCallback((node: HTMLInputElement | null) => {
     if (node && !hasSetInitialRenderedRef.current) {
       hasSetInitialRenderedRef.current = true;
       setInitialRendered(true);
     }
-  });
+  }, []);
+  // A new ref callback detaches and attaches again, which registers the
+  // element on the effect layer afresh, so the merged ref holds still.
+  const liquidRef = effect === "liquid" ? liquid.ref : undefined;
+  const setInputRef = useMemo(
+    () => mergeRefs(elRef, forwardedRef, liquidRef, markInitialRendered),
+    [forwardedRef, liquidRef, markInitialRendered],
+  );
 
   return (
     <input
@@ -143,6 +183,7 @@ export function Switch({
         sizeStyles[size],
         initialRendered && styles.animate,
         isDragging && styles.dragging(position),
+        liquid.drawn && styles.thumbDrawnByEffect,
         css,
       ]}
       role="switch"
@@ -209,6 +250,7 @@ function useSwitchDrag({
   const lastClientXRef = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<number | null>(null);
+  const [travel, setTravel] = useState(0);
 
   function handleDragStart(e: React.PointerEvent<HTMLInputElement>) {
     if (
@@ -240,6 +282,7 @@ function useSwitchDrag({
     const x = e.clientX - rect.left - rect.height / 2;
     const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
     setPosition(clampedX);
+    setTravel(rect.width - rect.height);
 
     const midPoint = rect.left + rect.width / 2;
     const newState = lastClientXRef.current > midPoint ? "on" : "off";
@@ -281,6 +324,7 @@ function useSwitchDrag({
   return {
     isDragging,
     position,
+    travel,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
@@ -349,6 +393,13 @@ const styles = stylex.create({
       transition: null,
     },
   }),
+  // The thumb keeps its box, its colour and its position, so the effect that
+  // draws in its place can read them from it.
+  thumbDrawnByEffect: {
+    "::before": {
+      visibility: "hidden",
+    },
+  },
 });
 
 // Each size sets the `switchTokens.trackHeight` knob; `styles.switch` derives

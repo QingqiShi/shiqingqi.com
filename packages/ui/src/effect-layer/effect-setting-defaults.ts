@@ -12,6 +12,7 @@ export const EFFECT_SETTING_DEFAULTS = {
   extractorFan: { reach: 400 },
   blackHole: { mass: 1 },
   lightBeam: { angle: undefined, followsPointer: true },
+  liquidThumb: { position: 0, drag: null },
 } as const satisfies Required<EffectSettings>;
 
 /**

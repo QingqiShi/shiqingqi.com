@@ -81,6 +81,41 @@ export function SwitchShowcase() {
         </div>
       </Showcase>
 
+      <Showcase label={t({ en: "Liquid thumb", zh: "液态滑块" })}>
+        <div css={stack.item}>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: 'With `effect="liquid"`, the effect layer draws the thumb as a drop of liquid. It springs across on a toggle and wobbles to rest, stretches after a drag, and a fast flick throws a droplet off its back that arcs and merges again. It needs an EffectLayerProvider and WebGPU; without them, under forced colours and under reduced motion the switch keeps its plain thumb or moves it straight.',
+              zh: '设置 `effect="liquid"` 后，效果层会把滑块画成一滴液体。切换时它弹跳着滑过并晃动至静止，拖动时随指针拉伸，快速甩动会从尾部甩出一颗小液滴，划出弧线后再融回。它需要 EffectLayerProvider 与 WebGPU；没有它们、在强制颜色模式下或减少动态效果模式下，开关保留普通滑块或直接移动它。',
+            })}
+          </Text>
+          <SpecimenGrid>
+            <Specimen caption="off">
+              <SpecimenSwitch
+                initial="off"
+                effect="liquid"
+                label={t({ en: "Liquid, off", zh: "液态，关闭" })}
+              />
+            </Specimen>
+            <Specimen caption="on">
+              <SpecimenSwitch
+                initial="on"
+                effect="liquid"
+                label={t({ en: "Liquid, on", zh: "液态，开启" })}
+              />
+            </Specimen>
+            <Specimen caption="lg">
+              <Switch
+                size="lg"
+                defaultValue="off"
+                effect="liquid"
+                aria-label={t({ en: "Liquid, large", zh: "液态，大" })}
+              />
+            </Specimen>
+          </SpecimenGrid>
+        </div>
+      </Showcase>
+
       <PropsTable component="switch" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
