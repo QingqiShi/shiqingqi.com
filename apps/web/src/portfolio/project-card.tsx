@@ -1,12 +1,12 @@
 import type { Icon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Card } from "#src/links/card.tsx";
+import { projectCardTokens } from "./project-card.stylex.ts";
 
 interface ProjectCardProps extends React.ComponentProps<typeof Card> {
   icon: Icon;
@@ -43,12 +43,6 @@ const styles = stylex.create({
     position: "relative",
     color: color.fgMuted,
     containerType: "inline-size",
-    [svgTokens.fill]: {
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
   },
   row: {
     display: "grid",
@@ -65,7 +59,7 @@ const styles = stylex.create({
   logo: {
     inlineSize: "64px",
     blockSize: "64px",
-    color: svgTokens.fill,
+    color: stylex.firstThatWorks(svgTokens.fill, projectCardTokens.brand),
   },
   name: {
     color: color.fgMuted,

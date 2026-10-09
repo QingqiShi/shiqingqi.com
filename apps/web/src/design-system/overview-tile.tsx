@@ -196,7 +196,7 @@ const styles = stylex.create({
   //
   // Greyscale is what keeps this from reading as "disabled". A disabled control
   // is faded but still coloured; fully desaturated reads as a specimen at rest,
-  // and the true colour is one hover away.
+  // and the true colour is one hover or press away.
   //
   // Held below life size, the way a gallery thumbnail is. It costs the one thing
   // live specimens were for — you can no longer read a control's true size off
@@ -218,13 +218,9 @@ const styles = stylex.create({
   // `specimens/specimen.stylex.ts`: once a box is plate-wide there is
   // nothing here left to move, and those styles place the contents inside it.
   //
-  // The whole resting treatment is gated behind `pointer.canHover`. Its only exit
-  // is engaging the tile, and a touch device cannot hover — the plate is `inert`
-  // so it never takes focus, and tapping the link navigates away. Ungated, a
-  // phone would show nineteen permanently grey specimens with the Spinner and
-  // Skeleton frozen, which is the exact opposite of what they document. Where
-  // there is no way in, there is no resting state: touch gets the specimens
-  // live.
+  // On touch the specimen stays at rest and shows live only while a finger
+  // presses the tile. The plate is `inert`, so focus comes from the link in the
+  // tile.
   specimen: {
     display: "flex",
     alignItems: "center",
@@ -240,11 +236,12 @@ const styles = stylex.create({
     transform: "scale(0.85)",
     transformOrigin: "center",
     filter: {
-      default: "none",
+      default: "grayscale(1)",
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
+        "grayscale(0)",
       [pointer.canHover]: {
-        default: "grayscale(1)",
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-          "grayscale(0)",
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: "grayscale(0)",
       },
     },
     // 0.9, not the deeper fade this started at: the specimens render real text,
@@ -254,10 +251,11 @@ const styles = stylex.create({
     // Anything lower here has to be checked against light-theme muted text on
     // `bgSurfaceSunken`, which is the binding case.
     opacity: {
-      default: 1,
+      default: 0.9,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 1,
       [pointer.canHover]: {
-        default: 0.9,
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
     // A crossfade, which is the reduced-motion-safe form already, so it needs no
@@ -275,11 +273,12 @@ const styles = stylex.create({
     // states, which is the right outcome for someone who asked not to see
     // movement.
     [motionTokens.playState]: {
-      default: "running",
+      default: "paused",
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
+        "running",
       [pointer.canHover]: {
-        default: "paused",
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-          "running",
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: "running",
       },
     },
   },

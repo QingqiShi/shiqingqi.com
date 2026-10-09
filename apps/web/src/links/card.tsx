@@ -16,6 +16,7 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
+import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { t } from "#src/i18n.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
@@ -107,22 +108,25 @@ const styles = stylex.create({
     },
 
     [cardTokens.detailsIndicatorOpacity]: {
-      default: 1,
-      [pointer.canHover]: { default: 0, ":hover": 1 },
+      default: 0,
+      ":hover": { default: null, [pointer.canHover]: 1 },
     },
     [cardTokens.detailsIndicatorTransform]: {
-      default: "translate3d(0, 0, 0)",
-      [pointer.canHover]: {
-        default: "translate3d(0, 0.5rem, 0)",
-        ":hover": "translate3d(0, 0, 0)",
-      },
+      default: "translate3d(0, 0.5rem, 0)",
+      ":hover": { default: null, [pointer.canHover]: "translate3d(0, 0, 0)" },
     },
     [cardTokens.imageFilter]: {
-      default: "grayscale(0%)",
-      [pointer.canHover]: {
-        default: "grayscale(100%)",
-        ":hover": "grayscale(0%)",
+      default: "grayscale(100%)",
+      ":hover": { default: null, [pointer.canHover]: "grayscale(0%)" },
+      ":active": {
+        default: "grayscale(0%)",
+        [pointer.canHover]: "grayscale(0%)",
       },
+    },
+    [svgTokens.fill]: {
+      default: color.fgMuted,
+      ":hover": { default: null, [pointer.canHover]: "initial" },
+      ":active": { default: "initial", [pointer.canHover]: "initial" },
     },
   },
   detailsBackdrop: {

@@ -117,20 +117,22 @@ const styles = stylex.create({
   },
   washRest: {
     opacity: {
-      default: 0,
+      default: 1,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0,
       [pointer.canHover]: {
-        default: 1,
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
     transition: "opacity 500ms ease",
   },
   washAlive: {
     opacity: {
-      default: 1,
+      default: 0,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 1,
       [pointer.canHover]: {
-        default: 0,
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
     transition: "opacity 560ms ease",

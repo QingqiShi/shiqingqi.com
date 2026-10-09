@@ -177,12 +177,13 @@ const styles = stylex.create({
     transformBox: "fill-box",
     transformOrigin: "100% 100%",
     transform: {
-      default: "scale(1)",
+      default: "scale(0.96)",
       [motionConstants.REDUCED_MOTION]: "none",
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
+        "scale(1)",
       [pointer.canHover]: {
-        default: "scale(0.96)",
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]:
-          "scale(1)",
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: "scale(1)",
         [motionConstants.REDUCED_MOTION]: "none",
       },
     },
@@ -219,40 +220,44 @@ const styles = stylex.create({
   },
   ink: {
     opacity: {
-      default: 0,
+      default: 0.9,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0,
       [pointer.canHover]: {
-        default: 0.9,
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0,
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
     transition: "opacity 500ms ease",
   },
   chroma: {
     opacity: {
-      default: 1,
+      default: 0,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 1,
       [pointer.canHover]: {
-        default: 0,
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 1,
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
     transition: "opacity 560ms ease",
   },
   bloomChroma: {
     opacity: {
-      default: 0.95,
+      default: 0,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0.95,
       [pointer.canHover]: {
-        default: 0,
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.95,
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: 0.95,
       },
     },
     transition: "opacity 560ms ease",
   },
   sheenWrap: {
     opacity: {
-      default: 0.9,
+      default: 0,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0.9,
       [pointer.canHover]: {
-        default: 0,
-        [stylex.when.ancestor(":is(:hover, :focus-within)", tileMarker)]: 0.9,
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: 0.9,
       },
     },
     transition: "opacity 500ms ease",

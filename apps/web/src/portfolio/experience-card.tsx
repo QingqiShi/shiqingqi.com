@@ -1,11 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
-import { svgTokens } from "#src/brand/svg.stylex.ts";
 import { Card } from "#src/links/card.tsx";
 
 interface ExperienceCardProps extends React.ComponentProps<typeof Card> {
@@ -41,13 +39,6 @@ const styles = stylex.create({
     gap: rhythm.tight,
     gridTemplateRows: "1fr auto",
     justifyContent: "flex-start",
-    // Override svg css variables to be muted when not hovering
-    [svgTokens.fill]: {
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
   },
   logo: {
     aspectRatio: ratio.double,

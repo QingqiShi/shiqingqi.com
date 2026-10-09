@@ -125,7 +125,7 @@ const requireHoverMedia = {
     },
     messages: {
       ungated:
-        "`{{key}}` also matches on touch, where a tap leaves it stuck until the next tap elsewhere. Wrap its value as `{ default: null, [pointer.canHover]: value }`, with `pointer` from `breakpoints.stylex.ts`, or move it with the other hover keys of this property into one `[pointer.canHover]: { default: null, … }` branch. Where the hover reveals something, make the revealed state the default and hold it back inside `[pointer.canHover]` instead, so that touch gets the full state.",
+        "`{{key}}` also matches on touch, where a tap leaves it stuck until the next tap elsewhere. Wrap its value as `{ default: null, [pointer.canHover]: value }`, with `pointer` from `breakpoints.stylex.ts`, or move it with the other hover keys of this property into one `[pointer.canHover]: { default: null, … }` branch. Where the hover reveals content or a control the visitor needs, make the revealed state the default and hold it back inside `[pointer.canHover]` instead, so that touch gets it in full. Where it adds only emphasis, such as a colour, keep touch at rest, and show a colour on `:active` too.",
       literalQuery:
         "Name this query `[pointer.canHover]` from `breakpoints.stylex.ts`, so that every hover style tests the same device.",
       outranked:
