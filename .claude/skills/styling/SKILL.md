@@ -86,6 +86,11 @@ const styles = stylex.create({
 
 A tap on a touch screen leaves `:hover` matching until the next tap elsewhere, so a Button or a Chip keeps its hover fill. Every hover style goes behind `pointer.canHover` (`@media (hover: hover) and (pointer: fine)`) from `@tuja/ui/breakpoints.stylex`. It lives beside `breakpoints` because the breakpoints Babel plugin inlines both, and an inlined media query is what StyleX ranks as one. The `@tuja/require-hover-media` ESLint rule enforces this for every key that contains `:hover`, including `:not(:hover)` and `stylex.when.*(":hover")`.
 
+A hover that reveals something is one of two kinds, and the kind decides what touch sees:
+
+- **It adds content or a control the visitor needs** (a label they must read, a button they must reach): touch gets the revealed state in full.
+- **It adds only emphasis** (a colour, a motion, an open cue such as "Details"): touch stays at rest, the same as a desktop at rest. A colour reveal also takes `:active`, so the surface lights up under the finger while it presses.
+
 ```tsx
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 
@@ -109,12 +114,25 @@ const styles = stylex.create({
       },
     },
   },
-  // A reveal: touch cannot hover, so it gets the full state as the default,
-  // and only a device that can hover holds it back.
-  indicator: {
+  // A reveal of something the visitor needs, such as an action button that
+  // shows on hover: the revealed state is the default, and only a device that
+  // can hover holds it back.
+  rowAction: {
     opacity: {
       default: 1,
       [pointer.canHover]: { default: 0, ":hover": 1 },
+    },
+  },
+  // A reveal of emphasis alone: touch stays at rest. The colour also shows on
+  // press, gated as well (see below).
+  logo: {
+    filter: {
+      default: "grayscale(1)",
+      ":hover": { default: null, [pointer.canHover]: "grayscale(0)" },
+      ":active": {
+        default: "grayscale(0)",
+        [pointer.canHover]: "grayscale(0)",
+      },
     },
   },
 });
@@ -242,7 +260,7 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 11. **Theme-aware colors** — use `color` tokens that adapt to light/dark
 12. **Logical properties** — prefer `paddingBlock`/`paddingInline` over directional
 13. **Pseudo-selectors as object keys** — `{ default: val, ":focus-visible": focusVal }`
-14. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; a reveal gives touch the full state
+14. **Hover only where a pointer can hover** — every `:hover` behind `pointer.canHover`; touch gets a reveal of something the visitor needs in full, and stays at rest for a reveal of emphasis alone, with a colour shown on `:active`
 15. **Every focusable element draws the focus ring** — `buttonReset.base` for a hand-built button, `a11y.focusRing` for anything else; never `outline: none`
 16. **Icons take their size from the parent** — the text beside them, or a type role or `controlSize` font size on the parent; never the `size` or `color` prop, and every icon names its `weight`
 17. **Every control takes a 44px tap on touch** — `buttonReset.base` for a hand-built button, `a11y.touchTarget` for anything else; keep a small control far enough from a neighbouring control or field that its hit area does not cover them, and out of an ancestor that clips overflow

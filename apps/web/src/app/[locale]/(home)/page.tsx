@@ -5,7 +5,7 @@ import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap"
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
@@ -15,13 +15,13 @@ import BristolLogo from "#src/brand/bristol-logo.tsx";
 import CitadelLogo from "#src/brand/citadel-logo.tsx";
 import NottinghamLogo from "#src/brand/nottingham-logo.tsx";
 import SpotifyLogo from "#src/brand/spotify-logo.tsx";
-import { svgTokens } from "#src/brand/svg.stylex.ts";
 import WtcLogo from "#src/brand/wtc-logo.tsx";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import type { PageProps } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
 import { EducationCard } from "#src/portfolio/education-card.tsx";
 import { ExperienceCard } from "#src/portfolio/experience-card.tsx";
+import { projectCardTokens } from "#src/portfolio/project-card.stylex.ts";
 import { ProjectCard } from "#src/portfolio/project-card.tsx";
 
 export default async function Home(props: PageProps) {
@@ -271,61 +271,22 @@ const styles = stylex.create({
       [breakpoints.lg]: "25%",
     },
   },
-  // Each brand fill carries its own muted state: this style and the card's
-  // default `:not(:hover)` rule set the same property, and runtime css
-  // composition replaces the whole declaration rather than merging conditions.
   movieDatabase: {
-    [svgTokens.fill]: {
-      default: brand.tmdb,
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
+    [projectCardTokens.brand]: brand.tmdb,
   },
   designSystem: {
-    [svgTokens.fill]: {
-      default: color.bgAccent,
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
+    [projectCardTokens.brand]: color.bgAccent,
   },
   calculator: {
-    [svgTokens.fill]: {
-      default: brand.calculator,
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
+    [projectCardTokens.brand]: brand.calculator,
   },
   studentLoan: {
-    [svgTokens.fill]: {
-      default: brand.studentLoan,
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
+    [projectCardTokens.brand]: brand.studentLoan,
   },
   pixelCreatureCreator: {
-    [svgTokens.fill]: {
-      default: brand.pixelCreatureCreator,
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
+    [projectCardTokens.brand]: brand.pixelCreatureCreator,
   },
   spriteEditor: {
-    [svgTokens.fill]: {
-      default: brand.pixelCreatureCreator,
-      ":not(:hover)": {
-        default: null,
-        [pointer.canHover]: color.fgMuted,
-      },
-    },
+    [projectCardTokens.brand]: brand.pixelCreatureCreator,
   },
 });
