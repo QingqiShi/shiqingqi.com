@@ -316,7 +316,7 @@ export function isInView(box: Box, reach: number, viewport: Box) {
  * @internal
  */
 export function instanceRange(
-  instances: readonly RippleInstance[],
+  instances: readonly Pick<RippleInstance, "elementIndex">[],
   firstElement: number,
   elementCount: number,
 ): readonly [number, number] {

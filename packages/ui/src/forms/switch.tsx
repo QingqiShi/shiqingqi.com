@@ -1,8 +1,15 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { useLamp } from "../effect-layer/use-lamp.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -58,6 +65,17 @@ interface SwitchProps extends Omit<
    */
   size?: "sm" | "md" | "lg";
   /**
+   * An effect the switch draws on the effect layer, inside an
+   * `EffectLayerProvider`; without one, or where the effect layer is off,
+   * the switch looks and works as it does with none. `"lamp"` makes the
+   * thumb a light: turning the switch on swells a pool of accent light out
+   * over the page around it, the registered elements nearby cast soft
+   * shadows away from it, and the light rides the thumb through a drag.
+   *
+   * @zh 开关在效果层上绘制的效果，需在 `EffectLayerProvider` 之内；没有它或效果层关闭时，开关的外观与行为与无效果时相同。`"lamp"` 让滑块成为一盏灯：开启时一片强调色的光从滑块向四周页面扩散，附近已登记的元素投下背向它的柔和阴影，拖动时光随滑块移动。
+   */
+  effect?: "lamp";
+  /**
    * StyleX styles merged over the switch's own — the config-layer escape
    * hatch.
    *
@@ -78,6 +96,7 @@ export function Switch({
   defaultValue,
   onChange,
   size = "md",
+  effect,
   css,
   ref: forwardedRef,
   ...rest
@@ -125,12 +144,25 @@ export function Switch({
   // animate the switch.
   const [initialRendered, setInitialRendered] = useState(false);
 
-  const setInputRef = mergeRefs(elRef, forwardedRef, (node) => {
+  const markRendered = useCallback((node: HTMLInputElement | null) => {
     if (node && !hasSetInitialRenderedRef.current) {
       hasSetInitialRenderedRef.current = true;
       setInitialRendered(true);
     }
-  });
+  }, []);
+  const lampRef = useLamp();
+  // One ref for the input's whole life: a new one each render would attach
+  // again, and the lamp would register again on every drag step.
+  const setInputRef = useMemo(
+    () =>
+      mergeRefs(
+        elRef,
+        forwardedRef,
+        effect === "lamp" ? lampRef : undefined,
+        markRendered,
+      ),
+    [forwardedRef, effect, lampRef, markRendered],
+  );
 
   return (
     <input

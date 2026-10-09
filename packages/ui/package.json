@@ -56,6 +56,7 @@
     "./hooks/use-effect-boundary": "./src/effect-layer/use-effect-boundary.ts",
     "./hooks/use-effect-container": "./src/effect-layer/use-effect-container.ts",
     "./hooks/use-extractor-fan": "./src/effect-layer/use-extractor-fan.ts",
+    "./hooks/use-lamp": "./src/effect-layer/use-lamp.ts",
     "./hooks/use-is-hydrated": "./src/hooks/use-is-hydrated.ts",
     "./hooks/use-light-beam": "./src/effect-layer/use-light-beam.ts",
     "./hooks/use-popover": "./src/hooks/use-popover.ts",
