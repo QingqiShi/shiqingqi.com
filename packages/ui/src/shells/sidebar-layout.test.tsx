@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ComponentProps } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { SidebarLayout } from "./sidebar-layout.tsx";
 
@@ -25,7 +26,11 @@ beforeAll(() => {
   });
 });
 
-function renderShell(props?: Partial<Parameters<typeof SidebarLayout>[0]>) {
+function renderShell(
+  props?: Partial<
+    Extract<ComponentProps<typeof SidebarLayout>, { mobileSidebar?: "drawer" }>
+  >,
+) {
   return render(
     <SidebarLayout
       sidebar={<a href="/somewhere">Rail</a>}
@@ -46,8 +51,11 @@ describe("SidebarLayout structure", () => {
   });
 
   it("renders the sidebarHeader slot in both the mobile bar and the rail", () => {
-    renderShell({ sidebarHeader: <span>Title</span> });
+    const { container } = renderShell({ sidebarHeader: <span>Title</span> });
     expect(screen.getAllByText("Title")).toHaveLength(2);
+    expect(container.firstElementChild?.className).not.toContain(
+      "styles.rootWithoutMobileBar",
+    );
   });
 
   it("renders the sidebarFooter slot", () => {
@@ -109,6 +117,49 @@ describe("SidebarLayout drawer", () => {
 
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});
+
+describe("SidebarLayout without a mobile drawer", () => {
+  function renderWithoutDrawer() {
+    return render(
+      <SidebarLayout
+        sidebar={<a href="/somewhere">Rail</a>}
+        sidebarHeader={<span>Title</span>}
+        sidebarFooter={<span>Utilities</span>}
+        mobileSidebar="hidden"
+      >
+        Body
+      </SidebarLayout>,
+    );
+  }
+
+  it("renders no mobile bar, so the title shows once, in the rail", () => {
+    const { container } = renderWithoutDrawer();
+    expect(screen.getAllByText("Title")).toHaveLength(1);
+    expect(
+      screen.getByText("Title").closest('[class*="styles.railHeader"]'),
+    ).not.toBeNull();
+    expect(container.querySelector('[class*="styles.mobileBar"]')).toBeNull();
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("stops reserving the mobile bar's strip at the top", () => {
+    const { container } = renderWithoutDrawer();
+    expect(container.firstElementChild?.className).toContain(
+      "styles.rootWithoutMobileBar",
+    );
+  });
+
+  it("keeps the rail and its footer, hidden below md, with no backdrop", () => {
+    const { container } = renderWithoutDrawer();
+    const rail = screen
+      .getByText("Rail")
+      .closest('[class*="styles.railWithoutDrawer"]');
+    expect(rail).not.toBeNull();
+    expect(rail).toContainElement(screen.getByText("Utilities"));
+    expect(rail).not.toHaveAttribute("role");
+    expect(container.querySelector('[class*="styles.backdrop"]')).toBeNull();
   });
 });
 

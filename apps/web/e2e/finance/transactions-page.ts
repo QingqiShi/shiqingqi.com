@@ -23,7 +23,7 @@ export function toast(page: Page, text: string | RegExp): Locator {
   return page.getByRole("status").filter({ hasText: text });
 }
 
-/** The sync status in the rail. It is in the drawer below `md`. */
+/** The sync status in the rail. Below `md` it is on the Settings menu page. */
 export function syncStatus(page: Page, text: string | RegExp): Locator {
   return page.getByRole("status").filter({ hasText: text }).first();
 }

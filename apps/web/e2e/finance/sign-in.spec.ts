@@ -79,7 +79,7 @@ test.describe("Finance sign-in", () => {
         expect(claimed.role).toBe("owner");
 
         if (viewport.width < 768) {
-          await page.getByRole("button", { name: "Finance menu" }).click();
+          await page.getByRole("link", { name: "Settings" }).click();
         }
         await page.getByRole("button", { name: "Sign out" }).click();
         await expect(page).toHaveURL("/finance/sign-in");

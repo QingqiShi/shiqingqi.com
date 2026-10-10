@@ -22,16 +22,18 @@ import {
   space,
 } from "../tokens.stylex.ts";
 
-interface DrawerProps {
+type DrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   drawerRef: RefObject<HTMLDivElement | null>;
-  menuLabel: string;
-  closeLabel: string;
   sidebarHeader?: ReactNode;
   sidebarFooter?: ReactNode;
   children: ReactNode;
-}
+} & (
+  | { hasDrawer: true; menuLabel: string; closeLabel: string }
+  /** Hides the rail below `md`, where no drawer opens it. */
+  | { hasDrawer: false; menuLabel?: undefined; closeLabel?: undefined }
+);
 
 /**
  * `SidebarLayout`'s Drawer: its navigation rail below `md`, and the sticky
@@ -40,6 +42,7 @@ interface DrawerProps {
  * @internal
  */
 export function Drawer({
+  hasDrawer,
   isOpen,
   onClose,
   drawerRef,
@@ -54,14 +57,20 @@ export function Drawer({
       {/* Backdrop and drawer stay mounted, so the slide/fade transitions in
           both directions; visibility drops the closed state from focus and
           a11y. */}
-      <div
-        css={[styles.backdrop, isOpen && styles.backdropOpen]}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      {hasDrawer ? (
+        <div
+          css={[styles.backdrop, isOpen && styles.backdropOpen]}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      ) : null}
       <div
         ref={drawerRef}
-        css={[styles.rail, isOpen && styles.railOpen]}
+        css={[
+          styles.rail,
+          isOpen && styles.railOpen,
+          !hasDrawer && styles.railWithoutDrawer,
+        ]}
         role={isOpen ? "dialog" : undefined}
         aria-modal={isOpen || undefined}
         aria-label={isOpen ? menuLabel : undefined}
@@ -92,14 +101,16 @@ export function Drawer({
           startChrome={
             <div css={styles.railHeader}>
               <div css={styles.railTitle}>{sidebarHeader}</div>
-              <Button
-                size="sm"
-                look="ghost"
-                css={styles.railClose}
-                icon={<XIcon weight="bold" />}
-                aria-label={closeLabel}
-                onClick={onClose}
-              />
+              {hasDrawer ? (
+                <Button
+                  size="sm"
+                  look="ghost"
+                  css={styles.railClose}
+                  icon={<XIcon weight="bold" />}
+                  aria-label={closeLabel}
+                  onClick={onClose}
+                />
+              ) : null}
             </div>
           }
           endChrome={
@@ -214,6 +225,9 @@ const styles = stylex.create({
     transform: "none",
     opacity: 1,
     visibility: "visible",
+  },
+  railWithoutDrawer: {
+    display: { default: "none", [breakpoints.md]: "flex" },
   },
   // These slots reproduce the rail's old block padding and gap, so the chrome
   // and nav still sit where the flex column used to place them.

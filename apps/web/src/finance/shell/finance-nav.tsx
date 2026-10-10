@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -19,11 +19,7 @@ import { isCurrentDestination } from "./finance-destination-paths.ts";
 import { useFinanceDestinations } from "./use-finance-destinations.ts";
 import { useFreshPrefetch } from "./use-fresh-prefetch.ts";
 
-/**
- * The five Finance destinations in the rail at `md` and wider. Below `md`
- * the tab bar holds them, so the drawer keeps only the Member and sync
- * status.
- */
+/** The five Finance destinations in the rail at `md` and wider; below `md` the tab bar holds them. */
 export function FinanceNav() {
   const locale = useLocale();
   const current = normalizePath(usePathname());
@@ -31,7 +27,7 @@ export function FinanceNav() {
   const prefetch = useFreshPrefetch();
 
   return (
-    <nav aria-label={t({ en: "Finance", zh: "家庭账本" })} css={styles.nav}>
+    <nav aria-label={t({ en: "Finance", zh: "家庭账本" })}>
       <ul css={[stack.tight, styles.list]}>
         {destinations.map((destination) => (
           <li key={destination.path}>
@@ -65,9 +61,6 @@ export function FinanceNav() {
 }
 
 const styles = stylex.create({
-  nav: {
-    display: { default: "none", [breakpoints.md]: "block" },
-  },
   list: {
     margin: 0,
     padding: 0,
