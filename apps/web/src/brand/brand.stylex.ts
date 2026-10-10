@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { cyan } from "@tuja/ui/palette/cyan.stylex";
 import { green } from "@tuja/ui/palette/green.stylex";
 import { indigo } from "@tuja/ui/palette/indigo.stylex";
+import { mint } from "@tuja/ui/palette/mint.stylex";
 import { orange } from "@tuja/ui/palette/orange.stylex";
 import { pink } from "@tuja/ui/palette/pink.stylex";
 import { purple } from "@tuja/ui/palette/purple.stylex";
@@ -22,4 +23,5 @@ export const brand = stylex.defineVars({
   spotify: green._60,
   studentLoan: `light-dark(${green._50}, ${green._60})`,
   pixelCreatureCreator: `light-dark(${purple._50}, ${purple._70})`,
+  finance: `light-dark(${mint._50}, ${mint._60})`,
 });

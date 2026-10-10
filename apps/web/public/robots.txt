@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /finance
+Disallow: /zh/finance
 Sitemap: https://qingqi.dev/sitemap.xml

@@ -1,0 +1,34 @@
+name: Finance Reset Preview DB
+
+on:
+  schedule:
+    - cron: '30 3 * * *'   # Daily at 03:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: finance-preview-db
+
+jobs:
+  reset:
+    if: ${{ vars.NEON_PROJECT_ID != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: neondatabase/reset-branch-action@v1.3.2
+        id: reset
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: preview
+          parent: true
+          api_key: ${{ secrets.NEON_API_KEY }}
+          cs_role_name: neondb_owner
+          cs_database: neondb
+      - name: Delete production sign-in sessions
+        env:
+          DATABASE_URL: ${{ steps.reset.outputs.db_url }}
+        run: |
+          echo "::add-mask::$DATABASE_URL"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'delete from sessions;'

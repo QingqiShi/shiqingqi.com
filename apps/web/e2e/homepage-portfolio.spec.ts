@@ -66,6 +66,17 @@ test.describe("Homepage Portfolio", () => {
         .filter({ has: page.getByRole("img") });
       await expect(cards.first()).toBeVisible({ timeout: 30000 });
     });
+
+    test("should display the Finance project card that links to Finance", async ({
+      page,
+    }) => {
+      const projectCard = page.getByRole("link", {
+        name: /finance.*money tracker/i,
+      });
+      await expect(projectCard).toBeVisible();
+      await expect(projectCard).toHaveAttribute("href", "/finance");
+      await expect(projectCard.getByText("Finance")).toBeVisible();
+    });
   });
 
   test.describe("Experience Section", () => {
@@ -233,6 +244,9 @@ test.describe("Homepage Portfolio", () => {
         page.getByRole("heading", { level: 2, name: "教育" }),
       ).toBeVisible();
       await expect(page.getByText(/AI 帮你找下一部佳片/)).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: /家庭账本.*私人账本/ }),
+      ).toHaveAttribute("href", "/zh/finance");
     });
 
     test("should maintain language when navigating from cards", async ({
