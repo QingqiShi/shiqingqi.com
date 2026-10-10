@@ -53,9 +53,10 @@ describe("finance proxy gate", () => {
     );
   });
 
-  it("leaves sign-in, invites, email verification, and other pages alone", () => {
+  it("leaves sign-in, sign-up, invites, email verification, and other pages alone", () => {
     for (const path of [
       "/finance/sign-in",
+      "/zh/finance/sign-up/abc",
       "/finance/invite/abc",
       "/finance/verify-email/abc",
       "/",

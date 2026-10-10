@@ -7,7 +7,6 @@ describe("getLocalFinanceDefaults", () => {
       FINANCE_DATABASE_URL:
         "postgres://postgres:postgres@127.0.0.1:5433/postgres",
       FINANCE_AUTH_SECRET: "local-finance-auth-secret",
-      FINANCE_SETUP_SECRET: "local-finance-setup-secret",
       FINANCE_CREDENTIAL_KEY: "bG9jYWwtZmluYW5jZS1jcmVkZW50aWFsLWtleS0zMmI=",
       FINANCE_LUNCHFLOW_MODE: "fake",
       FINANCE_RATE_LIMIT: "off",
@@ -16,12 +15,12 @@ describe("getLocalFinanceDefaults", () => {
 
   it("keeps a setting that the developer set", () => {
     const defaults = getLocalFinanceDefaults(
-      { FINANCE_SETUP_SECRET: "mine", FINANCE_RATE_LIMIT: "" },
+      { FINANCE_AUTH_SECRET: "mine", FINANCE_RATE_LIMIT: "" },
       5433,
     );
-    expect(defaults).not.toHaveProperty("FINANCE_SETUP_SECRET");
+    expect(defaults).not.toHaveProperty("FINANCE_AUTH_SECRET");
     expect(defaults).not.toHaveProperty("FINANCE_RATE_LIMIT");
-    expect(defaults?.FINANCE_AUTH_SECRET).toBe("local-finance-auth-secret");
+    expect(defaults?.FINANCE_LUNCHFLOW_MODE).toBe("fake");
   });
 
   it("adds nothing when the developer set the database, also to an empty value", () => {

@@ -29,6 +29,13 @@
       "when": 1791672863141,
       "tag": "0003_recovery_email",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791675736243,
+      "tag": "0004_public_sign_up",
+      "breakpoints": true
     }
   ]
 }

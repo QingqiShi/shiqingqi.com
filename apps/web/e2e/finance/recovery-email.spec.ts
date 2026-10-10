@@ -1,11 +1,16 @@
-import { randomUUID } from "node:crypto";
 import type { CDPSession, Page } from "@playwright/test";
 import { createInvite } from "../../src/finance/auth/create-invite.ts";
 import { withHousehold } from "../../src/finance/db/with-household.ts";
-import { readOutbox } from "../../src/finance/email/make-outbox-email-sender.ts";
-import type { FinanceEmail } from "../../src/finance/email/types.ts";
-import { FINANCE_E2E_EMAIL_OUTBOX } from "./finance-e2e-env.ts";
-import { expect, readSession, test } from "./finance-test.ts";
+import {
+  clickUntil,
+  emailTo,
+  expect,
+  linkIn,
+  readSession,
+  signInWithPasskey,
+  test,
+  uniqueEmail,
+} from "./finance-test.ts";
 import { DESKTOP, SYNC_TIMEOUT } from "./transactions-page.ts";
 
 test.use({ viewport: DESKTOP });
@@ -27,36 +32,6 @@ async function addAuthenticator(cdp: CDPSession): Promise<string> {
   return authenticatorId;
 }
 
-async function emailTo(
-  to: string,
-  subject: string | RegExp,
-): Promise<FinanceEmail> {
-  let found: FinanceEmail | undefined;
-  await expect
-    .poll(
-      async () => {
-        found = (await readOutbox(FINANCE_E2E_EMAIL_OUTBOX)).find(
-          (email) =>
-            email.to === to &&
-            (typeof subject === "string"
-              ? email.subject === subject
-              : subject.test(email.subject)),
-        );
-        return found !== undefined;
-      },
-      { timeout: SYNC_TIMEOUT },
-    )
-    .toBe(true);
-  if (!found) throw new Error(`No email "${String(subject)}" to ${to}`);
-  return found;
-}
-
-function linkIn(email: FinanceEmail, path: string): string {
-  const match = new RegExp(`https?://\\S+${path}[\\w-]+`).exec(email.text);
-  if (!match) throw new Error(`No ${path} link in: ${email.text}`);
-  return match[0];
-}
-
 async function signOut(page: Page) {
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL("/finance/sign-in");
@@ -67,7 +42,6 @@ test.describe("Recovery email", () => {
     page,
     household,
     financeDb,
-    inviterId,
   }) => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("WebAuthn.enable");
@@ -78,7 +52,7 @@ test.describe("Recovery email", () => {
       (scope) =>
         createInvite(scope, {
           memberId: household.memberIds.alex,
-          createdBy: inviterId,
+          createdBy: null,
           allowRecovery: true,
           now: new Date(),
         }),
@@ -87,7 +61,7 @@ test.describe("Recovery email", () => {
     await page.goto(`/finance/invite/${invite.token}`);
     await page.getByRole("button", { name: "Save a new passkey" }).click();
     await page.waitForURL((url) => url.pathname === "/finance");
-    const address = `alex-${randomUUID()}@example.com`;
+    const address = uniqueEmail("alex");
 
     await page.goto("/finance/settings/members");
     await expect(
@@ -126,10 +100,18 @@ test.describe("Recovery email", () => {
       authenticatorId: lostAuthenticator,
     });
 
-    await page.getByRole("button", { name: "Lost your passkey?" }).click();
-    await page
-      .getByRole("textbox", { name: "Recovery email" })
-      .fill(address.toUpperCase());
+    const recoveryField = page.getByRole("textbox", {
+      name: "Recovery email",
+    });
+    await expect(async () => {
+      if (!(await recoveryField.isVisible())) {
+        await page
+          .getByRole("button", { name: "Lost your passkey?" })
+          .click({ timeout: 2000 });
+      }
+      await expect(recoveryField).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: SYNC_TIMEOUT });
+    await recoveryField.fill(address.toUpperCase());
     await page.getByRole("button", { name: "Email me a code" }).click();
     await expect(
       page.getByRole("status").filter({ hasText: "we sent a code to it" }),
@@ -152,8 +134,7 @@ test.describe("Recovery email", () => {
     expect((await readSession(page)).householdId).toBe(household.householdId);
 
     await signOut(page);
-    await page.getByRole("button", { name: "Sign in with a passkey" }).click();
-    await page.waitForURL((url) => url.pathname === "/finance");
+    await signInWithPasskey(page);
     expect((await readSession(page)).householdId).toBe(household.householdId);
 
     await signOut(page);
@@ -164,12 +145,15 @@ test.describe("Recovery email", () => {
       authenticatorId: await addAuthenticator(cdp),
       credential: lostCredential,
     });
-    await page.getByRole("button", { name: "Sign in with a passkey" }).click();
-    await expect(
-      page.getByRole("alert").filter({
-        hasText: "This passkey is not registered for Finance",
-      }),
-    ).toBeVisible();
+    await clickUntil(
+      page.getByRole("button", { name: "Sign in with a passkey" }),
+      () =>
+        expect(
+          page.getByRole("alert").filter({
+            hasText: "This passkey is not registered for Finance",
+          }),
+        ).toBeVisible({ timeout: 5000 }),
+    );
     await expect(page).toHaveURL("/finance/sign-in");
   });
 });

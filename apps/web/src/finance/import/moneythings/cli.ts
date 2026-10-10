@@ -220,6 +220,11 @@ async function main() {
     console.log(
       `\nWrote household ${result.householdId}${result.createdHousehold ? " (new)" : ""} at version ${String(result.version)}; ${String(result.staleRows)} stale rows soft-deleted; ${(written - writeStarted).toFixed(0)} ms`,
     );
+    if (result.createdHousehold) {
+      console.log(
+        `Nobody can sign in to it yet. Run \`pnpm finance:invite-link ${result.householdId} ${options.memberIds.husband}\` for the owner's invite link.`,
+      );
+    }
     console.log("\nVerification of the stored balances:");
     printChecks(stored.checks);
     for (const line of stored.lines) console.log(line);

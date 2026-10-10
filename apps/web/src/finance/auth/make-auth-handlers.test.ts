@@ -9,12 +9,14 @@ import type {
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  accountGroups,
   categories,
   households,
   invites,
   members,
   passkeys,
   sessions,
+  signUps,
   users,
 } from "#src/finance/db/schema.ts";
 import {
@@ -22,6 +24,7 @@ import {
   type TestDb,
 } from "#src/finance/db/testing/create-test-db.ts";
 import { createTestHousehold } from "#src/finance/db/testing/create-test-household.ts";
+import { withHousehold } from "#src/finance/db/with-household.ts";
 import {
   makeOutboxEmailSender,
   readOutbox,
@@ -32,6 +35,7 @@ import type {
   LimitFinanceRequest,
   RefundFinanceRequest,
 } from "../http/types.ts";
+import { createInvite } from "./create-invite.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { makeGetFinanceSession } from "./get-finance-session.ts";
 import { hashToken } from "./hash-token.ts";
@@ -46,14 +50,13 @@ import {
 } from "./testing/create-auth-test-client.ts";
 import { createSoftwareAuthenticator } from "./testing/create-software-authenticator.ts";
 
-const SETUP_SECRET = "correct horse battery staple";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 type Authenticator = ReturnType<typeof createSoftwareAuthenticator>;
 type Client = ReturnType<typeof createAuthTestClient>;
 interface RegistrationOptionsBody {
   options: PublicKeyCredentialCreationOptionsJSON;
-  mode?: string;
+  email?: string;
   memberName?: string;
   householdName?: string;
 }
@@ -72,7 +75,6 @@ function makeHandlers(overrides: Partial<AuthHandlerDeps> = {}) {
     getDb: () => db,
     now: () => now,
     authSecret: () => "test-auth-secret",
-    setupSecret: () => SETUP_SECRET,
     limitRequest: () => Promise.resolve({ success: true, reset: 0 }),
     refundRequest: () => Promise.resolve(),
     isAllowedOrigin: isAllowedFinanceOrigin,
@@ -141,6 +143,12 @@ function cookieShapes(setCookies: string[]): string[] {
   return setCookies.map((cookie) => cookie.replace(/=[^;]*;/, "=;"));
 }
 
+function signUpTokenIn(text = ""): string {
+  const match = /\/finance\/sign-up\/([\w-]+)/.exec(text);
+  if (!match?.[1]) throw new Error(`No sign-up link in: ${text}`);
+  return match[1];
+}
+
 function recoveryTokensIn(text = ""): string[] {
   return [...text.matchAll(/\/finance\/invite\/([\w-]+)/g)].map(
     (match) => match[1],
@@ -160,26 +168,48 @@ function advance(ms: number) {
   now = new Date(now.getTime() + ms);
 }
 
-async function setUp(
+/** Asks for a sign-up link for `email` and returns its token. The outbox is empty again after it. */
+async function requestSignUpToken(email = "owner@example.com") {
+  const requested = await createAuthTestClient(makeHandlers()).post(
+    "requestSignUp",
+    { email, locale: "en" },
+  );
+  expect(requested.status).toBe(202);
+  const sent = await readOutbox(outboxDir);
+  await rm(outboxDir, { recursive: true, force: true });
+  return signUpTokenIn(sent.at(-1)?.text);
+}
+
+async function finishSignUp(
   client: Client,
   authenticator: Authenticator,
-  setupSecret = SETUP_SECRET,
+  token: string,
+  details: object = {},
 ) {
-  const options = await client.post<RegistrationOptionsBody>("setupOptions", {
-    setupSecret,
-    memberName: "Qingqi",
+  const options = await client.post<RegistrationOptionsBody>("signUpOptions", {
+    token,
   });
   expect(options.status).toBe(200);
   const response = await authenticator.register(
     options.body.options,
     TEST_ORIGIN,
   );
-  return client.post<SignedInBody>("setupVerify", {
-    setupSecret,
-    householdName: "Home",
-    memberName: "Qingqi",
+  return client.post<SignedInBody>("signUpVerify", {
+    token,
     response,
+    memberName: "Qingqi",
+    baseCurrency: "GBP",
+    ...details,
   });
+}
+
+/** Signs up with a new Household, as its Owner, on `client`. */
+async function signUp(
+  client: Client,
+  authenticator: Authenticator,
+  email = "owner@example.com",
+) {
+  return finishSignUp(client, authenticator, await requestSignUpToken(email));
 }
 
 async function signIn(client: Client, authenticator: Authenticator) {
@@ -198,16 +228,23 @@ async function acceptInvite(
   client: Client,
   authenticator: Authenticator,
   token: string,
+  /** Null sends no email. */
+  email: string | null = "member@example.com",
 ) {
   const options = await client.post<RegistrationOptionsBody>("inviteOptions", {
     token,
+    email: email ?? undefined,
   });
   if (options.status !== 200) return options;
   const response = await authenticator.register(
     options.body.options,
     TEST_ORIGIN,
   );
-  return client.post<SignedInBody>("inviteVerify", { token, response });
+  return client.post<SignedInBody>("inviteVerify", {
+    token,
+    response,
+    email: email ?? undefined,
+  });
 }
 
 /** A household from the importer: two members, neither signed in. */
@@ -221,6 +258,37 @@ async function importedHousehold() {
   });
 }
 
+/** An invite for the owner of `household`, as `finance:invite-link` makes it. */
+function operatorInvite(household: {
+  householdId: string;
+  memberIds: string[];
+}) {
+  return withHousehold(db, household.householdId, (scope) =>
+    createInvite(scope, {
+      memberId: household.memberIds[0] ?? "",
+      createdBy: null,
+      allowRecovery: true,
+      now,
+    }),
+  );
+}
+
+/** The importer's household with its owner signed in on `owner`, through an invite that the operator made. */
+async function claimedHousehold() {
+  const imported = await importedHousehold();
+  const invite = await operatorInvite(imported);
+  if (!invite.ok) throw new Error(invite.reason);
+  const owner = createAuthTestClient(makeHandlers());
+  await acceptInvite(
+    owner,
+    createSoftwareAuthenticator(),
+    invite.token,
+    "owner@example.com",
+  );
+  await rm(outboxDir, { recursive: true, force: true });
+  return { imported, owner };
+}
+
 beforeEach(async () => {
   db = await createTestDb();
   now = new Date("2026-10-10T12:00:00Z");
@@ -229,24 +297,39 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  await Promise.all(afterTasks);
   await db.close();
   await rm(outboxDir, { recursive: true, force: true });
 });
 
-describe("setup", () => {
-  it("creates the household, owner, system categories, passkey and session", async () => {
+describe("sign-up", () => {
+  it("creates the household, owner with a confirmed email, system categories, default groups, passkey and session", async () => {
+    const requested = await createAuthTestClient(makeHandlers()).post(
+      "requestSignUp",
+      { email: " New@Example.com ", locale: "zh" },
+    );
+    expect(requested).toMatchObject({ status: 202, body: { ok: true } });
+    const [sent] = await readOutbox(outboxDir);
+    expect(sent.to).toBe("new@example.com");
+    expect(sent.subject).toMatch(/^家庭账本注册验证码：\d{6}$/);
+    expect(sent.text).toContain(`${TEST_ORIGIN}/zh/finance/sign-up/`);
     const client = createAuthTestClient(makeHandlers());
     const authenticator = createSoftwareAuthenticator();
 
-    const result = await setUp(client, authenticator);
+    const result = await finishSignUp(
+      client,
+      authenticator,
+      signUpTokenIn(sent.text),
+      { baseCurrency: "EUR", timezone: "Europe/Paris", locale: "zh" },
+    );
 
     expect(result.status).toBe(200);
     const household = (await db.select().from(households)).at(0);
     expect(household).toMatchObject({
       id: result.body.householdId,
-      name: "Home",
-      baseCurrency: "GBP",
-      timezone: "Europe/London",
+      name: "Qingqi",
+      baseCurrency: "EUR",
+      timezone: "Europe/Paris",
     });
     const owner = (await db.select().from(members)).at(0);
     expect(owner).toMatchObject({
@@ -254,7 +337,13 @@ describe("setup", () => {
       name: "Qingqi",
       role: "owner",
     });
-    expect(owner?.userId).toEqual(expect.any(String));
+    const user = (await db.select().from(users)).at(0);
+    expect(user).toMatchObject({
+      id: owner?.userId,
+      displayName: "Qingqi",
+      email: "new@example.com",
+      emailVerifiedAt: now,
+    });
     const systemCategories = await db
       .select({ kind: categories.kind, name: categories.name })
       .from(categories)
@@ -264,6 +353,24 @@ describe("setup", () => {
         { kind: "expense", name: "Uncategorised" },
         { kind: "income", name: "Uncategorised" },
       ]),
+    );
+    const groups = await db
+      .select({
+        householdId: accountGroups.householdId,
+        name: accountGroups.name,
+        side: accountGroups.side,
+      })
+      .from(accountGroups)
+      .orderBy(accountGroups.position);
+    expect(groups).toEqual(
+      [
+        ["流动资产", "asset"],
+        ["投资", "asset"],
+        ["退休资产", "asset"],
+        ["不动产", "asset"],
+        ["信用", "liability"],
+        ["贷款", "liability"],
+      ].map(([name, side]) => ({ householdId: household?.id, name, side })),
     );
     const passkey = (await db.select().from(passkeys)).at(0);
     expect(passkey).toMatchObject({
@@ -285,139 +392,387 @@ describe("setup", () => {
     });
   });
 
-  it("closes when the household has no owner member", async () => {
-    await createTestHousehold(db, {
-      name: "Home",
-      members: [{ name: "Partner", role: "member" }],
-    });
-
-    const result = await createAuthTestClient(makeHandlers()).post(
-      "setupOptions",
-      { setupSecret: SETUP_SECRET },
+  it("answers the same for an address that has users, and makes a new user and household each time", async () => {
+    const first = await signUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      "shared@example.com",
     );
-
-    expect(result).toMatchObject({
-      status: 403,
-      body: { error: "setup_closed" },
-    });
-  });
-
-  it("claims the unclaimed owner member of an imported household", async () => {
-    const imported = await importedHousehold();
-    const client = createAuthTestClient(makeHandlers());
-
-    const options = await client.post<RegistrationOptionsBody>("setupOptions", {
-      setupSecret: SETUP_SECRET,
-    });
-    expect(options.body).toMatchObject({
-      mode: "claim",
-      householdName: "Home",
-      memberName: "Qingqi",
-    });
-    const response = await createSoftwareAuthenticator().register(
-      options.body.options,
-      TEST_ORIGIN,
+    const known = await createAuthTestClient(makeHandlers()).post(
+      "requestSignUp",
+      { email: "shared@example.com" },
     );
-    const result = await client.post<SignedInBody>("setupVerify", {
-      setupSecret: SETUP_SECRET,
-      response,
-    });
+    const unknown = await createAuthTestClient(makeHandlers()).post(
+      "requestSignUp",
+      { email: "nobody@example.com" },
+    );
+    expect(unknown.status).toBe(known.status);
+    expect(unknown.body).toEqual(known.body);
+    expect(cookieShapes(unknown.setCookies)).toEqual(
+      cookieShapes(known.setCookies),
+    );
+    const sent = await readOutbox(outboxDir);
+    expect(
+      sent.map((email) =>
+        /^\d{6} is your Finance sign-up code$/.test(email.subject),
+      ),
+    ).toEqual([true, true]);
+
+    const second = createAuthTestClient(makeHandlers());
+    const result = await finishSignUp(
+      second,
+      createSoftwareAuthenticator(),
+      signUpTokenIn(sent[0]?.text),
+    );
 
     expect(result.status).toBe(200);
-    expect(result.body).toEqual({
-      householdId: imported.householdId,
-      memberId: imported.memberIds[0],
+    expect(result.body.householdId).not.toBe(first.body.householdId);
+    expect(await db.select().from(households)).toHaveLength(2);
+    const sharing = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, "shared@example.com"));
+    expect(sharing).toHaveLength(2);
+    expect((await second.get("session")).body).toMatchObject({
+      householdId: result.body.householdId,
+      role: "owner",
     });
-    expect(await db.select().from(households)).toHaveLength(1);
-    const owner = (
-      await db
-        .select()
-        .from(members)
-        .where(eq(members.id, imported.memberIds[0] ?? ""))
-    ).at(0);
-    expect(owner?.userId).toEqual(expect.any(String));
-    expect(owner?.version).toBe(2);
-    const household = (await db.select().from(households)).at(0);
-    expect(household?.clock).toBe(2);
   });
 
-  it("rejects a wrong or missing setup secret", async () => {
-    const client = createAuthTestClient(makeHandlers());
-    const wrong = await client.post("setupOptions", {
-      setupSecret: "wrong",
-    });
-    expect(wrong).toMatchObject({
-      status: 403,
-      body: { error: "setup_forbidden" },
-    });
-
-    const unset = await createAuthTestClient(
-      makeHandlers({ setupSecret: () => undefined }),
-    ).post("setupOptions", { setupSecret: "" });
-    expect(unset.status).toBe(403);
-
-    const authenticator = createSoftwareAuthenticator();
-    const options = await client.post<RegistrationOptionsBody>("setupOptions", {
-      setupSecret: SETUP_SECRET,
-    });
-    const response = await authenticator.register(
-      options.body.options,
-      TEST_ORIGIN,
+  it("refuses a used link and a link older than 30 minutes", async () => {
+    const used = await requestSignUpToken();
+    await finishSignUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      used,
     );
-    const verify = await client.post("setupVerify", {
-      setupSecret: "wrong",
-      response,
-    });
-    expect(verify.status).toBe(403);
-    expect(await db.select().from(households)).toHaveLength(0);
-  });
-});
+    const expired = await requestSignUpToken();
+    advance(31 * 60 * 1000);
 
-describe("setup once the owner is claimed", () => {
-  it("is closed, also to a visitor with the setup secret", async () => {
-    const lostPhone = createSoftwareAuthenticator();
-    const lostDevice = createAuthTestClient(makeHandlers());
-    await setUp(lostDevice, lostPhone);
-    const client = createAuthTestClient(makeHandlers());
-
-    const options = await client.post("setupOptions", {
-      setupSecret: SETUP_SECRET,
-    });
-
-    expect(options).toMatchObject({
-      status: 403,
-      body: { error: "setup_closed" },
-    });
-    expect(await db.select().from(passkeys)).toHaveLength(1);
-    expect((await lostDevice.get("session")).status).toBe(200);
+    for (const token of [used, expired, "unknown"]) {
+      expect(
+        await createAuthTestClient(makeHandlers()).post("signUpOptions", {
+          token,
+        }),
+      ).toMatchObject({ status: 410, body: { error: "sign_up_invalid" } });
+    }
+    expect(await db.select().from(households)).toHaveLength(1);
   });
 
-  it("refuses a create ceremony that finishes after the owner is claimed", async () => {
+  it("ends the earlier link of an address when it asks again, and deletes expired links", async () => {
+    const earlier = await requestSignUpToken();
+    const later = await requestSignUpToken();
+    const options = (token: string) =>
+      createAuthTestClient(makeHandlers()).post("signUpOptions", { token });
+
+    expect(await options(earlier)).toMatchObject({
+      status: 410,
+      body: { error: "sign_up_invalid" },
+    });
+    expect((await options(later)).status).toBe(200);
+
+    advance(31 * 60 * 1000);
+    await requestSignUpToken("other@example.com");
+    expect(await db.select({ email: signUps.email }).from(signUps)).toEqual([
+      { email: "other@example.com" },
+    ]);
+  });
+
+  it("refuses a ceremony that finishes after another browser used the link", async () => {
+    const token = await requestSignUpToken();
     const late = createAuthTestClient(makeHandlers());
-    const options = await late.post<RegistrationOptionsBody>("setupOptions", {
-      setupSecret: SETUP_SECRET,
-      memberName: "Late",
+    const options = await late.post<RegistrationOptionsBody>("signUpOptions", {
+      token,
     });
-    expect(options.body.mode).toBe("create");
-    const lostPhone = createSoftwareAuthenticator();
-    await setUp(createAuthTestClient(makeHandlers()), lostPhone);
+    expect(options.body.email).toBe("owner@example.com");
+    await finishSignUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      token,
+    );
 
-    const result = await late.post("setupVerify", {
-      setupSecret: SETUP_SECRET,
+    const result = await late.post("signUpVerify", {
+      token,
       response: await createSoftwareAuthenticator().register(
         options.body.options,
         TEST_ORIGIN,
       ),
+      memberName: "Late",
+      baseCurrency: "GBP",
     });
 
     expect(result).toMatchObject({
-      status: 403,
-      body: { error: "setup_closed" },
+      status: 410,
+      body: { error: "sign_up_invalid" },
     });
     expect(await db.select().from(households)).toHaveLength(1);
+  });
+
+  it("refuses a challenge of another ceremony, a missing name and an unknown currency", async () => {
+    const token = await requestSignUpToken();
+    const client = createAuthTestClient(makeHandlers());
+    await client.post("signInOptions");
+    const crossed = await client.post("signUpVerify", {
+      token,
+      response: { id: "x" },
+      memberName: "Qingqi",
+      baseCurrency: "GBP",
+    });
+    const noName = await finishSignUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      token,
+      { memberName: " " },
+    );
+    const badCurrency = await finishSignUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      token,
+      { baseCurrency: "ZZZ" },
+    );
+
+    expect(crossed).toMatchObject({
+      status: 400,
+      body: { error: "challenge_invalid" },
+    });
+    expect(noName.status).toBe(400);
+    expect(badCurrency.status).toBe(400);
+    expect(await db.select().from(households)).toHaveLength(0);
+  });
+
+  it("uses the default time zone when the browser sends one that Node does not know", async () => {
+    await finishSignUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      await requestSignUpToken(),
+      { timezone: "Mars/Olympus_Mons" },
+    );
+
+    expect((await db.select().from(households)).at(0)?.timezone).toBe(
+      "Europe/London",
+    );
+  });
+
+  it("names the default groups in English when the browser sends no locale", async () => {
+    await signUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+    );
+
+    const groups = await db
+      .select({ name: accountGroups.name, side: accountGroups.side })
+      .from(accountGroups)
+      .orderBy(accountGroups.position);
+    expect(groups).toEqual([
+      { name: "Cash", side: "asset" },
+      { name: "Investments", side: "asset" },
+      { name: "Retirement", side: "asset" },
+      { name: "Property", side: "asset" },
+      { name: "Credit cards", side: "liability" },
+      { name: "Loans", side: "liability" },
+    ]);
+  });
+
+  it("refuses an address that is not an email and a server with no email", async () => {
+    const notEmail = await createAuthTestClient(makeHandlers()).post(
+      "requestSignUp",
+      { email: "qingqi" },
+    );
+    const noEmail = await createAuthTestClient(
+      makeHandlers({ emailSender: () => null }),
+    ).post("requestSignUp", { email: "qingqi@example.com" });
+
+    expect(notEmail).toMatchObject({
+      status: 400,
+      body: { error: "email_invalid" },
+    });
+    expect(noEmail).toMatchObject({
+      status: 503,
+      body: { error: "email_not_configured" },
+    });
+    expect(await readOutbox(outboxDir)).toEqual([]);
+  });
+
+  it("limits requests by address and by IP", async () => {
+    const counted: string[] = [];
+    const handlers = makeHandlers({
+      limitRequest: (bucket, identifier) => {
+        counted.push(`${bucket} ${identifier}`);
+        return Promise.resolve({
+          success: bucket !== "sign-up-address",
+          reset: now.getTime() + 1000,
+        });
+      },
+    });
+
+    const result = await createAuthTestClient(handlers).post("requestSignUp", {
+      email: "qingqi@example.com",
+    });
+
+    expect(result).toMatchObject({
+      status: 429,
+      body: { error: "rate_limited" },
+    });
+    expect(counted).toEqual([
+      expect.stringMatching(/^auth /),
+      expect.stringMatching(/^sign-up-ip /),
+      expect.stringMatching(/^sign-up-address [0-9a-f]{64}$/),
+    ]);
+    expect(await readOutbox(outboxDir)).toEqual([]);
+  });
+  it("does not count a sign-up email that did not go out against the address or the IP", async () => {
+    const email = brokenEmailSender();
+    const client = createAuthTestClient(
+      makeHandlers({
+        ...countingLimiter({ "sign-up-ip": 1, "sign-up-address": 1 }),
+        emailSender: () => email.sender,
+      }),
+    );
+    const request = () =>
+      client.post("requestSignUp", { email: "qingqi@example.com" });
+
+    const failed = await request();
+    const failedAgain = await request();
+    email.state.works = true;
+    const sent = await request();
+    const limited = await request();
+
+    for (const refused of [failed, failedAgain]) {
+      expect(refused).toMatchObject({
+        status: 502,
+        body: { error: "email_failed" },
+      });
+    }
+    expect(sent.status).toBe(202);
+    expect(limited).toMatchObject({
+      status: 429,
+      body: { error: "rate_limited" },
+    });
+    expect(limited.headers.get("Retry-After")).toBe(String(40 * 60));
+    expect(await readOutbox(outboxDir)).toHaveLength(1);
+  });
+});
+
+describe("sign-up by code", () => {
+  /** Asks for sign-up in a new browser and returns it with the code and the link token that the email gave. */
+  async function browserWithCode(email = "owner@example.com") {
+    const browser = createAuthTestClient(makeHandlers());
+    const requested = await browser.post("requestSignUp", {
+      email,
+      locale: "en",
+    });
+    expect(requested.status).toBe(202);
+    const sent = (await readOutbox(outboxDir)).at(-1);
+    return {
+      browser,
+      code: codeIn(sent?.text),
+      linkToken: signUpTokenIn(sent?.text),
+    };
+  }
+
+  function enterCode(browser: Client, code: string) {
+    return browser.post<{ path?: string }>("signUpCode", { code });
+  }
+
+  it("continues the sign-up in the browser that asked, names the household after the person, and ends the emailed link", async () => {
+    const { browser, code, linkToken } = await browserWithCode();
+
+    const entered = await enterCode(browser, code);
+
+    expect(entered.status).toBe(200);
+    const token = signUpTokenIn(entered.body.path);
+    const result = await finishSignUp(
+      browser,
+      createSoftwareAuthenticator(),
+      token,
+      { memberName: " Alex " },
+    );
+    expect(result.status).toBe(200);
     expect(
-      (await signIn(createAuthTestClient(makeHandlers()), lostPhone)).status,
-    ).toBe(200);
+      await db
+        .select({ name: households.name })
+        .from(households)
+        .where(eq(households.id, result.body.householdId)),
+    ).toEqual([{ name: "Alex" }]);
+    expect((await browser.get("session")).body).toMatchObject({
+      role: "owner",
+    });
+    expect(await enterCode(browser, code)).toMatchObject({
+      status: 410,
+      body: { error: "code_expired" },
+    });
+    expect(
+      (
+        await createAuthTestClient(makeHandlers()).post("signUpOptions", {
+          token: linkToken,
+        })
+      ).status,
+    ).toBe(410);
+  });
+
+  it("leaves the emailed link working until the code is used", async () => {
+    const { linkToken } = await browserWithCode();
+
+    const result = await finishSignUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      linkToken,
+    );
+
+    expect(result.status).toBe(200);
+  });
+
+  it("checks a code only against the request of the browser that holds it", async () => {
+    const first = await browserWithCode("first@example.com");
+    const second = await browserWithCode("second@example.com");
+
+    expect(await enterCode(second.browser, first.code)).toMatchObject({
+      status: 400,
+      body: { error: "code_invalid" },
+    });
+    expect(
+      await enterCode(createAuthTestClient(makeHandlers()), first.code),
+    ).toMatchObject({ status: 410, body: { error: "code_expired" } });
+    expect((await enterCode(first.browser, first.code)).status).toBe(200);
+  });
+
+  it("ends a code after five tries, and after 30 minutes", async () => {
+    const guessed = await browserWithCode();
+    const statuses: number[] = [];
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      statuses.push(
+        (await enterCode(guessed.browser, otherCode(guessed.code))).status,
+      );
+    }
+    expect(statuses).toEqual([400, 400, 400, 400, 410]);
+    expect((await enterCode(guessed.browser, guessed.code)).status).toBe(410);
+
+    const late = await browserWithCode();
+    advance(31 * 60 * 1000);
+    expect((await enterCode(late.browser, late.code)).status).toBe(410);
+  });
+});
+
+describe("an imported household", () => {
+  it("lets its owner in through an invite that the operator made", async () => {
+    const imported = await importedHousehold();
+    const invite = await operatorInvite(imported);
+    if (!invite.ok) throw new Error(invite.reason);
+    const owner = createAuthTestClient(makeHandlers());
+
+    const result = await acceptInvite(
+      owner,
+      createSoftwareAuthenticator(),
+      invite.token,
+    );
+
+    expect(result.status).toBe(200);
+    expect((await owner.get("session")).body).toMatchObject({
+      householdId: imported.householdId,
+      memberId: imported.memberIds[0],
+      role: "owner",
+    });
+    expect(await db.select().from(households)).toHaveLength(1);
   });
 });
 
@@ -425,7 +780,7 @@ describe("recovery email", () => {
   async function signedInOwner(overrides: Partial<AuthHandlerDeps> = {}) {
     const client = createAuthTestClient(makeHandlers(overrides));
     const phone = createSoftwareAuthenticator();
-    const result = await setUp(client, phone);
+    const result = await signUp(client, phone);
     const session = await client.get<{ userId: string }>("session");
     return { client, phone, result, userId: session.body.userId };
   }
@@ -562,7 +917,7 @@ describe("recovery by email", () => {
   async function ownerWithEmail(email: string, { verified = true } = {}) {
     const lostDevice = createAuthTestClient(makeHandlers());
     const lostPhone = createSoftwareAuthenticator();
-    const result = await setUp(lostDevice, lostPhone);
+    const result = await signUp(lostDevice, lostPhone);
     const session = await lostDevice.get<{ userId: string }>("session");
     await db
       .update(users)
@@ -657,7 +1012,9 @@ describe("recovery by email", () => {
     await requestRecovery("qingqi@example.com");
     const [sent] = await readOutbox(outboxDir);
     const links = recoveryTokensIn(sent.text);
-    expect(sent.text).toContain("Home\nhttp://localhost:3000/finance/invite/");
+    expect(sent.text).toContain(
+      "Qingqi\nhttp://localhost:3000/finance/invite/",
+    );
     expect(links).toHaveLength(1);
 
     const newPhone = createSoftwareAuthenticator();
@@ -709,7 +1066,7 @@ describe("recovery by email", () => {
     const sent = await readOutbox(outboxDir);
     expect(sent).toHaveLength(1);
     expect(sent[0]?.text).toMatch(/^Cottage\nhttp/m);
-    expect(sent[0]?.text).toMatch(/^Home\nhttp/m);
+    expect(sent[0]?.text).toMatch(/^Qingqi\nhttp/m);
     expect(sent[0]?.text).not.toContain("Flat");
     expect(recoveryTokensIn(sent[0]?.text)).toHaveLength(2);
   });
@@ -728,7 +1085,7 @@ describe("recovery by email", () => {
     expect(entered.status).toBe(200);
     expect(
       entered.body.households?.map(({ householdName }) => householdName),
-    ).toEqual(["Home"]);
+    ).toEqual(["Qingqi"]);
     const [token = ""] = recoveryTokensIn(entered.body.households?.[0]?.path);
     const newPhone = createSoftwareAuthenticator();
     const recovered = await acceptInvite(browser, newPhone, token);
@@ -806,7 +1163,7 @@ describe("recovery by email", () => {
 
     expect(
       entered.body.households?.map(({ householdName }) => householdName),
-    ).toEqual(["Cottage", "Home"]);
+    ).toEqual(["Cottage", "Qingqi"]);
     const [, home = ""] = recoveryTokensIn(
       entered.body.households?.map(({ path }) => path).join(" "),
     );
@@ -846,7 +1203,7 @@ describe("recovery by email", () => {
 describe("sign-in and sessions", () => {
   async function signedUpAuthenticator() {
     const authenticator = createSoftwareAuthenticator();
-    await setUp(createAuthTestClient(makeHandlers()), authenticator);
+    await signUp(createAuthTestClient(makeHandlers()), authenticator);
     return authenticator;
   }
 
@@ -1027,18 +1384,7 @@ describe("sign-in and sessions", () => {
 
 describe("invites", () => {
   async function ownerAndInvite() {
-    const imported = await importedHousehold();
-    const owner = createAuthTestClient(makeHandlers());
-    const options = await owner.post<RegistrationOptionsBody>("setupOptions", {
-      setupSecret: SETUP_SECRET,
-    });
-    await owner.post("setupVerify", {
-      setupSecret: SETUP_SECRET,
-      response: await createSoftwareAuthenticator().register(
-        options.body.options,
-        TEST_ORIGIN,
-      ),
-    });
+    const { imported, owner } = await claimedHousehold();
     const invite = await owner.post<{ token: string; path: string }>(
       "createInvite",
       { memberId: imported.memberIds[1] },
@@ -1046,7 +1392,7 @@ describe("invites", () => {
     return { imported, owner, invite };
   }
 
-  it("binds a new user to the invited member and starts a session", async () => {
+  it("binds a new user to the invited member, starts a session, and sends a confirmation to the user's email", async () => {
     const { imported, invite } = await ownerAndInvite();
     expect(invite.status).toBe(201);
     expect(invite.body.path).toBe(`/finance/invite/${invite.body.token}`);
@@ -1054,7 +1400,7 @@ describe("invites", () => {
     const partner = createAuthTestClient(makeHandlers());
     const options = await partner.post<RegistrationOptionsBody>(
       "inviteOptions",
-      { token: invite.body.token },
+      { token: invite.body.token, email: "Partner@Example.com" },
     );
     expect(options.body).toMatchObject({
       householdName: "Home",
@@ -1067,17 +1413,61 @@ describe("invites", () => {
     const result = await partner.post("inviteVerify", {
       token: invite.body.token,
       response,
+      email: "Partner@Example.com",
+      locale: "zh",
     });
+    await Promise.all(afterTasks.splice(0));
 
     expect(result.status).toBe(200);
-    const session = await partner.get("session");
+    const session = await partner.get<{ userId: string }>("session");
     expect(session.body).toMatchObject({
       householdId: imported.householdId,
       memberId: imported.memberIds[1],
       role: "member",
     });
-    const used = (await db.select().from(invites)).at(0);
+    const used = (
+      await db
+        .select()
+        .from(invites)
+        .where(eq(invites.memberId, imported.memberIds[1] ?? ""))
+    ).at(0);
     expect(used?.usedAt).toEqual(now);
+    expect((await partner.get("recoveryEmail")).body).toEqual({
+      email: "partner@example.com",
+      verified: false,
+    });
+    const [sent] = await readOutbox(outboxDir);
+    expect(sent).toMatchObject({
+      to: "partner@example.com",
+      subject: "确认家庭账本恢复邮箱",
+    });
+    expect(
+      await confirmRecoveryEmail(verificationTokenIn(sent.text, "/zh")),
+    ).toBe(true);
+  });
+
+  it("needs an email from a new member", async () => {
+    const { invite } = await ownerAndInvite();
+
+    const missing = await acceptInvite(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      invite.body.token,
+      null,
+    );
+    const invalid = await acceptInvite(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      invite.body.token,
+      "partner",
+    );
+
+    expect(missing).toMatchObject({
+      status: 400,
+      body: { error: "email_invalid" },
+    });
+    expect(invalid.status).toBe(400);
+    expect(await db.select().from(users)).toHaveLength(1);
   });
 
   it("rejects a used invite", async () => {
@@ -1152,18 +1542,7 @@ describe("invites", () => {
 
 describe("recovery invites", () => {
   async function ownerAndPartner() {
-    const imported = await importedHousehold();
-    const owner = createAuthTestClient(makeHandlers());
-    const setup = await owner.post<RegistrationOptionsBody>("setupOptions", {
-      setupSecret: SETUP_SECRET,
-    });
-    await owner.post("setupVerify", {
-      setupSecret: SETUP_SECRET,
-      response: await createSoftwareAuthenticator().register(
-        setup.body.options,
-        TEST_ORIGIN,
-      ),
-    });
+    const { imported, owner } = await claimedHousehold();
     const invite = await owner.post<{ token: string }>("createInvite", {
       memberId: imported.memberIds[1],
     });
@@ -1268,7 +1647,7 @@ describe("expired sessions", () => {
   it("are deleted when the user starts a new session", async () => {
     const client = createAuthTestClient(makeHandlers());
     const authenticator = createSoftwareAuthenticator();
-    await setUp(client, authenticator);
+    await signUp(client, authenticator);
     advance(401 * DAY_MS);
 
     await signIn(createAuthTestClient(makeHandlers()), authenticator);
@@ -1283,7 +1662,7 @@ describe("add a passkey", () => {
   it("registers a second passkey that can sign in", async () => {
     const first = createSoftwareAuthenticator();
     const client = createAuthTestClient(makeHandlers());
-    await setUp(client, first);
+    await signUp(client, first);
 
     const options =
       await client.post<RegistrationOptionsBody>("passkeyOptions");

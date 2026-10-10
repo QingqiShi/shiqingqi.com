@@ -5,13 +5,11 @@ import type {
 } from "@simplewebauthn/server";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { createInvite } from "../auth/create-invite.ts";
 import { financeSessionCookie } from "../auth/finance-session-cookie.ts";
 import { makeGetFinanceSession } from "../auth/get-finance-session.ts";
 import { isAllowedFinanceOrigin } from "../auth/is-allowed-finance-origin.ts";
-import {
-  makeAuthHandlers,
-  type AuthHandlers,
-} from "../auth/make-auth-handlers.ts";
+import { makeAuthHandlers } from "../auth/make-auth-handlers.ts";
 import {
   createAuthTestClient,
   TEST_ORIGIN,
@@ -27,7 +25,6 @@ import { withHousehold } from "../db/with-household.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
 import { makeMembersHandler } from "./make-members-handler.ts";
 
-const SETUP_SECRET = "correct horse battery staple";
 const DB_HOOK_TIMEOUT = 60_000;
 
 type Client = ReturnType<typeof createAuthTestClient>;
@@ -50,7 +47,6 @@ function authHandlers() {
     getDb: () => db,
     now: () => now,
     authSecret: () => "test-auth-secret",
-    setupSecret: () => SETUP_SECRET,
     limitRequest: () => Promise.resolve({ success: true, reset: 0 }),
     refundRequest: () => Promise.resolve(),
     isAllowedOrigin: isAllowedFinanceOrigin,
@@ -96,29 +92,17 @@ function patchMember(
   );
 }
 
-const ceremonies = {
-  setup: { options: "setupOptions", verify: "setupVerify" },
-  invite: { options: "inviteOptions", verify: "inviteVerify" },
-} satisfies Record<
-  string,
-  { options: keyof AuthHandlers; verify: keyof AuthHandlers }
->;
-
-async function register(
-  client: Client,
-  ceremony: keyof typeof ceremonies,
-  body: object,
-) {
-  const { options: optionsHandler, verify } = ceremonies[ceremony];
+async function acceptInvite(client: Client, token: string, email: string) {
+  const body = { token, email };
   const options = await client.post<{
     options: PublicKeyCredentialCreationOptionsJSON;
-  }>(optionsHandler, body);
+  }>("inviteOptions", body);
   const authenticator = createSoftwareAuthenticator();
   const response = await authenticator.register(
     options.body.options,
     TEST_ORIGIN,
   );
-  const result = await client.post(verify, {
+  const result = await client.post("inviteVerify", {
     ...body,
     response,
   });
@@ -147,16 +131,27 @@ async function signedInHousehold() {
       { name: "Jo", role: "member" },
     ],
   });
-  const [, samId = "", joId = ""] = household.memberIds;
+  const [alexId = "", samId = "", joId = ""] = household.memberIds;
   const owner = createAuthTestClient(authHandlers());
-  await register(owner, "setup", { setupSecret: SETUP_SECRET });
+  const ownerInvite = await withHousehold(db, household.householdId, (scope) =>
+    createInvite(scope, {
+      memberId: alexId,
+      createdBy: null,
+      allowRecovery: true,
+      now,
+    }),
+  );
+  if (!ownerInvite.ok) throw new Error(ownerInvite.reason);
+  await acceptInvite(owner, ownerInvite.token, "alex@example.com");
   const samInvite = await owner.post<{ token: string }>("createInvite", {
     memberId: samId,
   });
   const sam = createAuthTestClient(authHandlers());
-  const samPhone = await register(sam, "invite", {
-    token: samInvite.body.token,
-  });
+  const samPhone = await acceptInvite(
+    sam,
+    samInvite.body.token,
+    "sam@example.com",
+  );
   expect(samPhone.status).toBe(200);
   const joInvite = await owner.post<{ token: string }>("createInvite", {
     memberId: joId,

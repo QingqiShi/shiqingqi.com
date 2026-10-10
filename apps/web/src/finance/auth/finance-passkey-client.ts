@@ -12,7 +12,7 @@ const BASE = "/api/finance/auth";
 
 /**
  * Throws `FinanceApiError` with the server's error code (e.g. `invite_invalid`,
- * `setup_forbidden`, `rate_limited`), or `request_failed`.
+ * `sign_up_invalid`, `rate_limited`), or `request_failed`.
  */
 async function post<T>(path: string, body: unknown = {}): Promise<T> {
   const response = await financeFetch(
@@ -54,9 +54,13 @@ interface SignedIn {
   memberId: string;
 }
 
-type SetupMode =
-  | { mode: "create" }
-  | { mode: "claim"; householdName: string; memberName: string };
+interface SignUpDetails {
+  /** The new Member's name, which also names the Household. */
+  memberName: string;
+  baseCurrency: string;
+  /** Names the household's first Groups. */
+  locale: SupportedLocale;
+}
 
 /** Browser calls for every passkey flow. Each throws `FinanceApiError`; its code is `cancelled` when the visitor closed the passkey sheet. */
 export const financePasskeyClient = {
@@ -70,35 +74,41 @@ export const financePasskeyClient = {
     await post("/sign-in/verify", { response });
   },
 
-  /** Creates the first household or claims its unclaimed owner member. `onMode` runs before the passkey sheet opens. */
-  async setUp(input: {
-    setupSecret: string;
-    householdName?: string;
-    memberName?: string;
-    onMode?: (mode: SetupMode) => void;
-  }): Promise<SignedIn> {
-    const { options, ...mode } = await post<
-      { options: PublicKeyCredentialCreationOptionsJSON } & SetupMode
-    >("/setup/options", {
-      setupSecret: input.setupSecret,
-      memberName: input.memberName,
-    });
-    input.onMode?.(mode);
+  /** Emails a sign-up code and link to `email`, in `locale`. The answer is the same for every address. */
+  async requestSignUp(email: string, locale: SupportedLocale): Promise<void> {
+    await post("/sign-up", { email, locale });
+  },
+
+  /** Checks the code from the sign-up email that this browser asked for, and returns the sign-up page's path, without a locale. */
+  async checkSignUpCode(code: string): Promise<string> {
+    const { path } = await post<{ path: string }>("/sign-up/code", { code });
+    return path;
+  },
+
+  /** Creates a household with the visitor as its owner, and a passkey on this device. */
+  async signUp(token: string, details: SignUpDetails): Promise<SignedIn> {
+    const { options } = await post<{
+      options: PublicKeyCredentialCreationOptionsJSON;
+    }>("/sign-up/options", { token });
     const response = await register(options);
-    return post<SignedIn>("/setup/verify", {
-      setupSecret: input.setupSecret,
-      householdName: input.householdName,
-      memberName: input.memberName,
+    return post<SignedIn>("/sign-up/verify", {
+      token,
       response,
+      ...details,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
   },
 
-  async acceptInvite(token: string): Promise<SignedIn> {
+  /** `email` is the new user's Recovery email; a recovery invite takes none. */
+  async acceptInvite(
+    token: string,
+    { email, locale }: { email?: string; locale: SupportedLocale },
+  ): Promise<SignedIn> {
     const { options } = await post<{
       options: PublicKeyCredentialCreationOptionsJSON;
-    }>("/invite/options", { token });
+    }>("/invite/options", { token, email });
     const response = await register(options);
-    return post<SignedIn>("/invite/verify", { token, response });
+    return post<SignedIn>("/invite/verify", { token, response, email, locale });
   },
 
   /** Adds a passkey for the signed-in user, e.g. on a new device. */

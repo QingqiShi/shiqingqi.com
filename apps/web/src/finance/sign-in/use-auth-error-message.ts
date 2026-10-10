@@ -7,13 +7,9 @@ import { formatRetryWait } from "./format-retry-wait.ts";
 export function useAuthErrorMessage() {
   const locale = useLocale();
   const messages: Record<string, string> = {
-    setup_forbidden: t({
-      en: "That setup secret does not match.",
-      zh: "设置口令不正确。",
-    }),
-    setup_closed: t({
-      en: "Finance is set up already. Sign in, or ask for an invite.",
-      zh: "家庭账本已设置完成。请登录，或请家人发送邀请。",
+    sign_up_invalid: t({
+      en: "This sign-up has expired or was used already. Ask for a new code on the sign-in page.",
+      zh: "此注册已过期或已被使用。请在登录页重新获取验证码。",
     }),
     passkey_unknown: t({
       en: "This passkey is not registered for Finance. Use another passkey, or ask for an invite.",

@@ -14,6 +14,7 @@ import {
   expect,
   getFinanceApi,
   test,
+  uniqueEmail,
 } from "./finance-test.ts";
 import { DESKTOP, SYNC_TIMEOUT, toast } from "./transactions-page.ts";
 
@@ -103,6 +104,9 @@ test.describe("Settings", () => {
     const otherPage = await other.newPage();
     await addVirtualAuthenticator(otherPage);
     await otherPage.goto(url);
+    await otherPage
+      .getByRole("textbox", { name: "Recovery email" })
+      .fill(uniqueEmail("jo"));
     await otherPage.getByRole("button", { name: "Create a passkey" }).click();
     await otherPage.waitForURL((next) => next.pathname === "/finance");
     await other.close();
@@ -144,6 +148,9 @@ test.describe("Settings", () => {
     const otherPage = await other.newPage();
     await addVirtualAuthenticator(otherPage);
     await otherPage.goto(await link.inputValue());
+    await otherPage
+      .getByRole("textbox", { name: "Recovery email" })
+      .fill(uniqueEmail("jo"));
     await otherPage.getByRole("button", { name: "Create a passkey" }).click();
     await otherPage.waitForURL((next) => next.pathname === "/finance");
     const joSession = () =>

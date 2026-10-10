@@ -7,7 +7,7 @@ import {
   type AuthenticationResponseJSON,
   type RegistrationResponseJSON,
 } from "@simplewebauthn/server";
-import { and, asc, eq, gt, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { resolveClientIp } from "#src/app/api/pixel-creature-creator/lore/resolve-client-ip.ts";
 import { lookups } from "#src/finance/db/lookups.ts";
@@ -21,9 +21,10 @@ import {
 } from "#src/finance/db/with-household.ts";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { buildRecoveryEmail } from "../email/build-recovery-email.ts";
+import { buildSignUpEmail } from "../email/build-sign-up-email.ts";
 import { buildVerificationEmail } from "../email/build-verification-email.ts";
 import { normaliseEmail } from "../email/normalise-email.ts";
-import type { FinanceEmailSender } from "../email/types.ts";
+import type { FinanceEmail, FinanceEmailSender } from "../email/types.ts";
 import { retryAfterSeconds } from "../http/check-rate-limit.ts";
 import { isSameOrigin } from "../http/is-same-origin.ts";
 import type {
@@ -34,11 +35,11 @@ import type {
 } from "../http/types.ts";
 import { uuidToBytes } from "../ids/uuid-to-bytes.ts";
 import { bindUserToMember } from "./bind-user-to-member.ts";
-import { constantTimeEqual } from "./constant-time-equal.ts";
 import { createEmailRecoveryInvites } from "./create-email-recovery-invites.ts";
 import { createHousehold } from "./create-household.ts";
 import { createInvite } from "./create-invite.ts";
 import { createSession } from "./create-session.ts";
+import { defaultAccountGroups } from "./default-account-groups.ts";
 import { deleteSession } from "./delete-session.ts";
 import {
   financeChallengeCookie,
@@ -50,7 +51,6 @@ import {
 } from "./finance-email-code-cookie.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { getRequestOrigin } from "./get-request-origin.ts";
-import { getSetupState } from "./get-setup-state.ts";
 import { hashToken } from "./hash-token.ts";
 import { lookupInvite } from "./lookup-invite.ts";
 import { needsSecureCookie } from "./needs-secure-cookie.ts";
@@ -65,6 +65,7 @@ import {
   startEmailVerification,
   verifyRecoveryEmail,
 } from "./start-email-verification.ts";
+import { consumeSignUp, lookupSignUp, startSignUp } from "./start-sign-up.ts";
 import type { FinanceSession } from "./types.ts";
 
 export interface AuthHandlerDeps {
@@ -72,7 +73,6 @@ export interface AuthHandlerDeps {
   getDb: () => FinanceDb | null;
   now: () => Date;
   authSecret: () => string | undefined;
-  setupSecret: () => string | undefined;
   limitRequest: LimitFinanceRequest;
   refundRequest: RefundFinanceRequest;
   isAllowedOrigin: (origin: string) => boolean;
@@ -87,8 +87,10 @@ type Handler = (request: Request) => Promise<Response>;
 export interface AuthHandlers {
   signInOptions: Handler;
   signInVerify: Handler;
-  setupOptions: Handler;
-  setupVerify: Handler;
+  requestSignUp: Handler;
+  signUpCode: Handler;
+  signUpOptions: Handler;
+  signUpVerify: Handler;
   inviteOptions: Handler;
   inviteVerify: Handler;
   createInvite: Handler;
@@ -104,7 +106,6 @@ export interface AuthHandlers {
 }
 
 const RP_NAME = "Finance";
-const SETUP_LOCK_KEY = 7_316_045_221;
 
 interface Context {
   db: FinanceDb;
@@ -148,20 +149,39 @@ const authenticationResponseSchema =
   z.custom<AuthenticationResponseJSON>(isObjectWithId);
 const nameSchema = z.string().trim().min(1).max(100);
 
-const setupOptionsBody = z.object({
-  setupSecret: z.string(),
-  memberName: nameSchema.optional(),
-});
-const setupVerifyBody = z.object({
-  setupSecret: z.string(),
+const localeSchema = z.enum(["en", "zh"]).default("en");
+const currencySchema = z
+  .string()
+  .refine((code) => Intl.supportedValuesOf("currency").includes(code));
+
+function isTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const signUpVerifyBody = z.object({
+  token: z.string().min(1),
   response: registrationResponseSchema,
-  householdName: nameSchema.optional(),
-  memberName: nameSchema.optional(),
+  memberName: nameSchema,
+  baseCurrency: currencySchema,
+  /** The browser's time zone. The household takes the default zone when it is not one Node knows. */
+  timezone: z.string().max(100).optional(),
+  locale: localeSchema,
+});
+const inviteOptionsBody = z.object({
+  token: z.string().min(1),
+  email: z.string().max(320).optional(),
 });
 const tokenBody = z.object({ token: z.string().min(1) });
 const inviteVerifyBody = z.object({
   token: z.string().min(1),
   response: registrationResponseSchema,
+  email: z.string().max(320).optional(),
+  locale: localeSchema,
 });
 const createInviteBody = z.object({ memberId: z.uuid() });
 const registrationVerifyBody = z.object({
@@ -173,7 +193,7 @@ const authenticationVerifyBody = z.object({
 const codeBody = z.object({ code: z.string().max(20) });
 const emailBody = z.object({
   email: z.string().max(320),
-  locale: z.enum(["en", "zh"]).default("en"),
+  locale: localeSchema,
 });
 
 function json(
@@ -485,6 +505,15 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     return sender;
   }
 
+  async function sendOrFail(sender: FinanceEmailSender, email: FinanceEmail) {
+    try {
+      await sender.send(email);
+    } catch (error) {
+      console.error(`Finance email "${email.subject}" failed:`, error);
+      throw new HttpError(502, "email_failed");
+    }
+  }
+
   async function readEmail(request: Request) {
     const body = await readBody(request, emailBody);
     const email = normaliseEmail(body.email);
@@ -506,11 +535,16 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     };
   }
 
-  function checkSetupSecret(given: string) {
-    const expected = deps.setupSecret();
-    if (!expected || !constantTimeEqual(given, expected)) {
-      throw new HttpError(403, "setup_forbidden");
-    }
+  /** The email that a new-member invite needs. Null for a recovery invite, whose user keeps the email it has. */
+  function inviteEmail(recovery: boolean, given: string | undefined) {
+    if (recovery) return null;
+    const email = normaliseEmail(given ?? "");
+    if (!email) throw new HttpError(400, "email_invalid");
+    return email;
+  }
+
+  function hashedAddress(email: string) {
+    return Buffer.from(hashToken(email)).toString("hex");
   }
 
   return {
@@ -592,84 +626,111 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       return json(context, { ok: true });
     }),
 
-    setupOptions: handle(async (request, context) => {
-      const body = await readBody(request, setupOptionsBody);
-      checkSetupSecret(body.setupSecret);
-      const state = await asFinanceApp(context.db, getSetupState);
-      if (state.mode === "closed") throw new HttpError(403, "setup_closed");
+    requestSignUp: handle(async (request, context) => {
+      const { email, locale } = await readEmail(request);
+      const sender = requireEmailSender();
+      await withLimits(
+        [
+          ["sign-up-ip", resolveClientIp(request.headers)],
+          ["sign-up-address", hashedAddress(email)],
+        ],
+        async () => {
+          const { token, codeId, code } = await asFinanceApp(
+            context.db,
+            async (db) => ({
+              token: await startSignUp(db, { email, now: context.now }),
+              ...(await startEmailCode(db, {
+                purpose: "sign-up",
+                email,
+                now: context.now,
+              })),
+            }),
+          );
+          await sendOrFail(
+            sender,
+            buildSignUpEmail({
+              to: email,
+              locale,
+              code,
+              url: `${context.origin}${getLocalePath(`/finance/sign-up/${token}`, locale)}`,
+            }),
+          );
+          issueEmailCode(context, { purpose: "sign-up", codeId });
+        },
+      );
+      return json(context, { ok: true }, 202);
+    }),
+
+    signUpCode: handle(async (request, context) => {
+      const { code } = await readBody(request, codeBody);
+      const email = await takeEmailCode(request, context, "sign-up", code);
+      // A new link for the address ends the emailed one, so that one
+      // request makes at most one User.
+      const token = await asFinanceApp(context.db, (db) =>
+        startSignUp(db, { email, now: context.now }),
+      );
+      return json(context, { path: `/finance/sign-up/${token}` });
+    }),
+
+    signUpOptions: handle(async (request, context) => {
+      const { token } = await readBody(request, tokenBody);
+      const signUp = await lookupSignUp(context.db, token, context.now);
+      if (!signUp) throw new HttpError(410, "sign_up_invalid");
 
       const userId = randomUUID();
       const options = await registrationOptions(context, {
         userId,
-        userName:
-          state.mode === "create"
-            ? (body.memberName ?? "Owner")
-            : state.memberName,
+        userName: signUp.email,
       });
       issueChallenge(context, {
-        purpose: "setup",
+        purpose: "sign-up",
         challenge: options.challenge,
         userId,
-        mode: state.mode,
+        signUpId: signUp.signUpId,
       });
-      return json(context, {
-        options,
-        mode: state.mode,
-        ...(state.mode === "create"
-          ? {}
-          : {
-              householdName: state.householdName,
-              memberName: state.memberName,
-            }),
-      });
+      return json(context, { options, email: signUp.email });
     }),
 
-    setupVerify: handle(async (request, context) => {
-      const body = await readBody(request, setupVerifyBody);
-      checkSetupSecret(body.setupSecret);
-      const { challenge, userId, mode } = takeChallenge(
+    signUpVerify: handle(async (request, context) => {
+      const body = await readBody(request, signUpVerifyBody);
+      const { challenge, userId, signUpId } = takeChallenge(
         request,
         context,
-        "setup",
+        "sign-up",
       );
+      const { db, now } = context;
+      const signUp = await lookupSignUp(db, body.token, now);
+      if (signUp?.signUpId !== signUpId) {
+        throw new HttpError(410, "sign_up_invalid");
+      }
       const info = await verifyRegistration(context, body.response, challenge);
-      const { now } = context;
 
-      const result = await asFinanceApp(context.db, async (tx) => {
-        await tx.execute(sql`select pg_advisory_xact_lock(${SETUP_LOCK_KEY})`);
-        const state = await getSetupState(tx);
-        if (state.mode === "closed" || state.mode !== mode) {
-          throw new HttpError(403, "setup_closed");
+      const result = await asFinanceApp(db, async (tx) => {
+        if (!(await consumeSignUp(tx, { signUpId, now }))) {
+          throw new HttpError(410, "sign_up_invalid");
         }
-
-        let householdId: string;
-        let memberId: string;
-        if (state.mode === "create") {
-          const memberName = body.memberName ?? "Owner";
-          memberId = randomUUID();
-          householdId = randomUUID();
-          await tx
-            .insert(users)
-            .values({ id: userId, displayName: memberName });
-          await withHousehold(tx, householdId, (scope) =>
-            createHousehold(scope, {
-              name: body.householdName ?? "Household",
-              members: [
-                { id: memberId, name: memberName, role: "owner", userId },
-              ],
-            }),
-          );
-        } else {
-          await tx
-            .insert(users)
-            .values({ id: userId, displayName: state.memberName });
-          const bound = await withHousehold(tx, state.householdId, (scope) =>
-            bindUserToMember(scope, { memberId: state.memberId, userId }),
-          );
-          if (!bound) throw new HttpError(409, "member_claimed");
-          householdId = state.householdId;
-          memberId = state.memberId;
-        }
+        await tx.insert(users).values({
+          id: userId,
+          displayName: body.memberName,
+          email: signUp.email,
+          emailVerifiedAt: now,
+        });
+        const householdId = randomUUID();
+        const memberId = randomUUID();
+        await withHousehold(tx, householdId, (scope) =>
+          createHousehold(scope, {
+            name: body.memberName,
+            baseCurrency: body.baseCurrency,
+            timezone:
+              body.timezone !== undefined && isTimeZone(body.timezone)
+                ? body.timezone
+                : undefined,
+            members: [
+              { id: memberId, name: body.memberName, role: "owner", userId },
+            ],
+            groups: defaultAccountGroups(body.locale),
+          }),
+        );
         await insertPasskey(tx, userId, info, now);
         const token = await createSession(tx, {
           userId,
@@ -687,9 +748,10 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     }),
 
     inviteOptions: handle(async (request, context) => {
-      const { token } = await readBody(request, tokenBody);
-      const invite = await lookupInvite(context.db, token, context.now);
+      const body = await readBody(request, inviteOptionsBody);
+      const invite = await lookupInvite(context.db, body.token, context.now);
       if (!invite) throw new HttpError(410, "invite_invalid");
+      inviteEmail(invite.recoveryUserId !== null, body.email);
 
       const userId = invite.recoveryUserId ?? randomUUID();
       const options = await registrationOptions(context, {
@@ -726,9 +788,10 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       ) {
         throw new HttpError(410, "invite_invalid");
       }
+      const email = inviteEmail(invite.recoveryUserId !== null, body.email);
       const info = await verifyRegistration(context, body.response, challenge);
 
-      const token = await withHousehold(
+      const { token, verification } = await withHousehold(
         context.db,
         invite.householdId,
         async (scope) => {
@@ -752,11 +815,14 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
             // access, so its passkeys and sessions stop here.
             await revokeUserAccess(db, userId);
             await insertPasskey(db, userId, info, now);
-            return createSession(db, {
-              userId,
-              userAgent: request.headers.get("User-Agent") ?? "",
-              now,
-            });
+            return {
+              token: await createSession(db, {
+                userId,
+                userAgent: request.headers.get("User-Agent") ?? "",
+                now,
+              }),
+              verification: null,
+            };
           }
 
           await db
@@ -768,15 +834,45 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
           });
           if (!bound) throw new HttpError(409, "member_claimed");
           await insertPasskey(db, userId, info, now);
-          return createSession(db, {
-            userId,
-            userAgent: request.headers.get("User-Agent") ?? "",
-            now,
-          });
+          return {
+            token: await createSession(db, {
+              userId,
+              userAgent: request.headers.get("User-Agent") ?? "",
+              now,
+            }),
+            verification:
+              email === null
+                ? null
+                : {
+                    email,
+                    token: await startEmailVerification(db, {
+                      userId,
+                      email,
+                      now,
+                    }),
+                  },
+          };
         },
       );
 
       startSession(context, token);
+      const sender = deps.emailSender();
+      if (verification && sender) {
+        const url = `${context.origin}${getLocalePath(`/finance/verify-email/${verification.token}`, body.locale)}`;
+        deps.afterResponse(async () => {
+          try {
+            await sender.send(
+              buildVerificationEmail({
+                to: verification.email,
+                locale: body.locale,
+                url,
+              }),
+            );
+          } catch (error) {
+            console.error("Finance verification email failed:", error);
+          }
+        });
+      }
       return json(context, {
         householdId: invite.householdId,
         memberId: invite.memberId,
@@ -893,18 +989,14 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
             now: context.now,
           }),
         );
-        try {
-          await sender.send(
-            buildVerificationEmail({
-              to: email,
-              locale,
-              url: `${context.origin}${getLocalePath(`/finance/verify-email/${token}`, locale)}`,
-            }),
-          );
-        } catch (error) {
-          console.error("Finance verification email failed:", error);
-          throw new HttpError(502, "email_failed");
-        }
+        await sendOrFail(
+          sender,
+          buildVerificationEmail({
+            to: email,
+            locale,
+            url: `${context.origin}${getLocalePath(`/finance/verify-email/${token}`, locale)}`,
+          }),
+        );
       });
       return json(context, { email, verified: false });
     }),
@@ -921,10 +1013,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       const { email, locale } = await readEmail(request);
       const sender = requireEmailSender();
       await limit("recovery-email-ip", resolveClientIp(request.headers));
-      await limit(
-        "recovery-email-address",
-        Buffer.from(hashToken(email)).toString("hex"),
-      );
+      await limit("recovery-email-address", hashedAddress(email));
       const { db, now, origin } = context;
       const { codeId, code } = await asFinanceApp(db, (tx) =>
         startEmailCode(tx, { purpose: "recovery", email, now }),

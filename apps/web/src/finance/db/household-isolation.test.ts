@@ -34,6 +34,7 @@ import {
   rules,
   schema,
   sessions,
+  signUps,
   transactions,
   transactionTags,
   users,
@@ -63,6 +64,7 @@ const globalTables = new Set<PgTable>([
   sessions,
   emailVerifications,
   emailCodes,
+  signUps,
 ]);
 /** The column that names the Household of a row. */
 function householdKey(table: PgTable): PgColumn {

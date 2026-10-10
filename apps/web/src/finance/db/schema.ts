@@ -96,11 +96,21 @@ export const emailVerifications = pgTable(
  */
 export const emailCodes = pgTable("email_codes", {
   id: uuid("id").primaryKey(),
-  purpose: text("purpose", { enum: ["recovery"] }).notNull(),
+  purpose: text("purpose", { enum: ["recovery", "sign-up"] }).notNull(),
   email: text("email").notNull(),
   codeHash: bytea("code_hash").notNull(),
   /** Each check counts, right or wrong; the code ends at the limit. */
   attempts: smallint("attempts").notNull().default(0),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: createdAt(),
+});
+
+/** One-use links that let a person who confirmed `email` create a Household and its Owner. Only the token's hash is stored. */
+export const signUps = pgTable("sign_ups", {
+  id: uuid("id").primaryKey(),
+  email: text("email").notNull(),
+  tokenHash: bytea("token_hash").notNull().unique(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   usedAt: timestamp("used_at", { withTimezone: true }),
   createdAt: createdAt(),
@@ -207,7 +217,7 @@ export const members = pgTable(
   },
   (t) => [
     index("members_household_idx").on(t.householdId),
-    unique("members_household_user_key").on(t.householdId, t.userId),
+    unique("members_user_key").on(t.userId),
     householdKey("members", t),
   ],
 );
@@ -219,9 +229,8 @@ export const invites = pgTable(
     householdId: householdId(),
     memberId: uuid("member_id").notNull(),
     tokenHash: bytea("token_hash").notNull().unique(),
-    createdBy: uuid("created_by")
-      .notNull()
-      .references(() => users.id),
+    /** Null when the operator made the invite with `finance:invite-link`. */
+    createdBy: uuid("created_by").references(() => users.id),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     usedAt: timestamp("used_at", { withTimezone: true }),
     /** Set when the invite lets a Member who lost every passkey back in: the user it adds a passkey to. */
@@ -821,6 +830,7 @@ export const schema = {
   users,
   emailVerifications,
   emailCodes,
+  signUps,
   passkeys,
   sessions,
   households,

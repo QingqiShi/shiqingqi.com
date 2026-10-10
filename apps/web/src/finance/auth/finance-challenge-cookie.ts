@@ -4,10 +4,10 @@ import { makeSealedCookie } from "./make-sealed-cookie.ts";
 const challengePayloadSchema = z.discriminatedUnion("purpose", [
   z.object({ purpose: z.literal("sign-in"), challenge: z.string() }),
   z.object({
-    purpose: z.literal("setup"),
+    purpose: z.literal("sign-up"),
     challenge: z.string(),
     userId: z.uuid(),
-    mode: z.enum(["create", "claim"]),
+    signUpId: z.uuid(),
   }),
   z.object({
     purpose: z.literal("invite"),

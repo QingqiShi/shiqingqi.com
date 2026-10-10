@@ -3,7 +3,7 @@ import { makeSealedCookie } from "./make-sealed-cookie.ts";
 import { EMAIL_CODE_LIFETIME_MS } from "./start-email-code.ts";
 
 const emailCodePayloadSchema = z.object({
-  purpose: z.enum(["recovery"]),
+  purpose: z.enum(["recovery", "sign-up"]),
   codeId: z.uuid(),
 });
 

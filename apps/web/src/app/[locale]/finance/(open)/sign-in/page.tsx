@@ -3,16 +3,10 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { safeFinanceNextPath } from "#src/finance/auth/finance-sign-in-path.ts";
 import { getFinancePageSession } from "#src/finance/auth/get-finance-page-session.ts";
-import { getSetupState } from "#src/finance/auth/get-setup-state.ts";
-import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
-import { asFinanceApp } from "#src/finance/db/with-household.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
-import {
-  SignInPanel,
-  type SignInSetup,
-} from "#src/finance/sign-in/sign-in-panel.tsx";
+import { SignInPanel } from "#src/finance/sign-in/sign-in-panel.tsx";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
@@ -38,19 +32,9 @@ export default async function Page({
   );
   if (await getFinancePageSession()) redirect(getLocalePath(next, locale));
 
-  const state = await asFinanceApp(getFinanceDb(), getSetupState);
-  const setup: SignInSetup =
-    state.mode === "claim"
-      ? {
-          mode: "claim",
-          householdName: state.householdName,
-          memberName: state.memberName,
-        }
-      : { mode: state.mode };
-
   return (
     <FinanceAuthFrame>
-      <SignInPanel next={next} setup={setup} />
+      <SignInPanel next={next} />
     </FinanceAuthFrame>
   );
 }
