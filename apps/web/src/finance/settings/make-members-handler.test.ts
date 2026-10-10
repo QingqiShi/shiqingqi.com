@@ -52,7 +52,12 @@ function authHandlers() {
     authSecret: () => "test-auth-secret",
     setupSecret: () => SETUP_SECRET,
     limitRequest: () => Promise.resolve({ success: true, reset: 0 }),
+    refundRequest: () => Promise.resolve(),
     isAllowedOrigin: isAllowedFinanceOrigin,
+    emailSender: () => null,
+    afterResponse: (task) => {
+      void task();
+    },
   });
 }
 

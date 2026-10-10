@@ -1,4 +1,7 @@
 import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { buildLocalFinanceEnv } from "../../src/finance/dev/build-local-finance-env.ts";
 
 function findFreePort(): string {
@@ -14,17 +17,27 @@ function findFreePort(): string {
 
 /* Playwright loads the config in the runner and again in each worker.
  * Workers inherit the runner's environment, so all of them use the port
- * that the runner chose. */
+ * and the outbox that the runner chose. */
 process.env.FINANCE_E2E_DB_PORT ??= findFreePort();
 
 export const FINANCE_E2E_DB_PORT = Number(process.env.FINANCE_E2E_DB_PORT);
 
+/** The folder where the web server writes the emails it would send. */
+export const FINANCE_E2E_EMAIL_OUTBOX: string =
+  (process.env.FINANCE_E2E_EMAIL_OUTBOX ??= path.join(
+    tmpdir(),
+    `finance-e2e-outbox-${randomUUID()}`,
+  ));
+
 export const FINANCE_E2E_SETUP_SECRET = "e2e-finance-setup-secret";
 
 /** The Finance settings of the web server that Playwright starts. */
-export const financeE2eEnv = buildLocalFinanceEnv({
-  databasePort: FINANCE_E2E_DB_PORT,
-  authSecret: "e2e-finance-auth-secret-for-tests-only",
-  setupSecret: FINANCE_E2E_SETUP_SECRET,
-  credentialKey: "ZTJlLWZpbmFuY2UtY3JlZGVudGlhbC1rZXktMzJieXQ=",
-});
+export const financeE2eEnv = {
+  ...buildLocalFinanceEnv({
+    databasePort: FINANCE_E2E_DB_PORT,
+    authSecret: "e2e-finance-auth-secret-for-tests-only",
+    setupSecret: FINANCE_E2E_SETUP_SECRET,
+    credentialKey: "ZTJlLWZpbmFuY2UtY3JlZGVudGlhbC1rZXktMzJieXQ=",
+  }),
+  FINANCE_EMAIL_OUTBOX: FINANCE_E2E_EMAIL_OUTBOX,
+};

@@ -11,6 +11,9 @@ const LIMITS: Record<
   { tokens: number; window: `${number} ${"s" | "m" | "h"}` }
 > = {
   auth: { tokens: 10, window: "60 s" },
+  "verify-email": { tokens: 5, window: "1 h" },
+  "recovery-email-ip": { tokens: 10, window: "1 h" },
+  "recovery-email-address": { tokens: 3, window: "1 h" },
   "bank-sync": { tokens: 6, window: "1 h" },
   "ai-suggest": { tokens: 30, window: "60 s" },
   "report-regenerate": { tokens: 10, window: "60 s" },
@@ -53,4 +56,17 @@ export async function limitFinanceRequest(
   if (!isLimitOn()) return { success: true, reset: 0 };
   const result = await getLimiter(bucket).limit(identifier);
   return { success: result.success, reset: result.reset };
+}
+
+/**
+ * Gives back one request that `limitFinanceRequest` counted, for a request
+ * that failed on the server. Near the end of a window, the token can go to
+ * the next window instead.
+ */
+export async function refundFinanceRequest(
+  bucket: FinanceRateLimitBucket,
+  identifier: string,
+): Promise<void> {
+  if (!isLimitOn()) return;
+  await getLimiter(bucket).limit(identifier, { rate: -1 });
 }

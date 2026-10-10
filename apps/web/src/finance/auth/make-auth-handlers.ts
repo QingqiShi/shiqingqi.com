@@ -19,14 +19,23 @@ import {
   withHousehold,
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
+import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import { buildRecoveryEmail } from "../email/build-recovery-email.ts";
+import { buildVerificationEmail } from "../email/build-verification-email.ts";
+import { normaliseEmail } from "../email/normalise-email.ts";
+import type { FinanceEmailSender } from "../email/types.ts";
+import { retryAfterSeconds } from "../http/check-rate-limit.ts";
 import { isSameOrigin } from "../http/is-same-origin.ts";
 import type {
+  FinanceRateLimitBucket,
   FinanceRateLimitResult,
   LimitFinanceRequest,
+  RefundFinanceRequest,
 } from "../http/types.ts";
 import { uuidToBytes } from "../ids/uuid-to-bytes.ts";
 import { bindUserToMember } from "./bind-user-to-member.ts";
 import { constantTimeEqual } from "./constant-time-equal.ts";
+import { createEmailRecoveryInvites } from "./create-email-recovery-invites.ts";
 import { createHousehold } from "./create-household.ts";
 import { createInvite } from "./create-invite.ts";
 import { createSession } from "./create-session.ts";
@@ -35,13 +44,27 @@ import {
   financeChallengeCookie,
   type ChallengePayload,
 } from "./finance-challenge-cookie.ts";
+import {
+  financeEmailCodeCookie,
+  type EmailCodePayload,
+} from "./finance-email-code-cookie.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { getRequestOrigin } from "./get-request-origin.ts";
 import { getSetupState } from "./get-setup-state.ts";
+import { hashToken } from "./hash-token.ts";
 import { lookupInvite } from "./lookup-invite.ts";
 import { needsSecureCookie } from "./needs-secure-cookie.ts";
 import { readRequestCookie } from "./read-request-cookie.ts";
 import { resolveSession } from "./resolve-session.ts";
+import {
+  checkEmailCode,
+  normaliseEmailCode,
+  startEmailCode,
+} from "./start-email-code.ts";
+import {
+  startEmailVerification,
+  verifyRecoveryEmail,
+} from "./start-email-verification.ts";
 import type { FinanceSession } from "./types.ts";
 
 export interface AuthHandlerDeps {
@@ -51,7 +74,12 @@ export interface AuthHandlerDeps {
   authSecret: () => string | undefined;
   setupSecret: () => string | undefined;
   limitRequest: LimitFinanceRequest;
+  refundRequest: RefundFinanceRequest;
   isAllowedOrigin: (origin: string) => boolean;
+  /** Null when Finance sends no email. */
+  emailSender: () => FinanceEmailSender | null;
+  /** Runs `task` after the response is sent, so that its time does not show in the response. */
+  afterResponse: (task: () => Promise<void>) => void;
 }
 
 type Handler = (request: Request) => Promise<Response>;
@@ -66,6 +94,11 @@ export interface AuthHandlers {
   createInvite: Handler;
   passkeyOptions: Handler;
   passkeyVerify: Handler;
+  recoveryEmail: Handler;
+  setRecoveryEmail: Handler;
+  verifyEmail: Handler;
+  requestRecovery: Handler;
+  recoveryCode: Handler;
   signOut: Handler;
   session: Handler;
 }
@@ -86,11 +119,17 @@ interface Context {
 class HttpError extends Error {
   readonly status: number;
   readonly code: string;
+  readonly headers: Record<string, string>;
 
-  constructor(status: number, code: string) {
+  constructor(
+    status: number,
+    code: string,
+    headers: Record<string, string> = {},
+  ) {
     super(code);
     this.status = status;
     this.code = code;
+    this.headers = headers;
   }
 }
 
@@ -119,7 +158,7 @@ const setupVerifyBody = z.object({
   householdName: nameSchema.optional(),
   memberName: nameSchema.optional(),
 });
-const inviteOptionsBody = z.object({ token: z.string().min(1) });
+const tokenBody = z.object({ token: z.string().min(1) });
 const inviteVerifyBody = z.object({
   token: z.string().min(1),
   response: registrationResponseSchema,
@@ -131,13 +170,22 @@ const registrationVerifyBody = z.object({
 const authenticationVerifyBody = z.object({
   response: authenticationResponseSchema,
 });
+const codeBody = z.object({ code: z.string().max(20) });
+const emailBody = z.object({
+  email: z.string().max(320),
+  locale: z.enum(["en", "zh"]).default("en"),
+});
 
 function json(
   context: Pick<Context, "setCookies">,
   body: unknown,
   status = 200,
+  extraHeaders: Record<string, string> = {},
 ) {
-  const headers = new Headers({ "Cache-Control": "no-store" });
+  const headers = new Headers({
+    ...extraHeaders,
+    "Cache-Control": "no-store",
+  });
   for (const cookie of context.setCookies) headers.append("Set-Cookie", cookie);
   return Response.json(body, { status, headers });
 }
@@ -181,16 +229,54 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     };
   }
 
-  async function guardPost(request: Request): Promise<Context> {
-    if (!isSameOrigin(request)) throw new HttpError(403, "forbidden_origin");
-    let limit: FinanceRateLimitResult;
+  async function limit(bucket: FinanceRateLimitBucket, identifier: string) {
+    let result: FinanceRateLimitResult;
     try {
-      limit = await deps.limitRequest("auth", resolveClientIp(request.headers));
+      result = await deps.limitRequest(bucket, identifier);
     } catch (error) {
       console.error("Finance auth rate-limit error:", error);
       throw new HttpError(503, "rate_limit_unavailable");
     }
-    if (!limit.success) throw new HttpError(429, "rate_limited");
+    if (!result.success) {
+      throw new HttpError(429, "rate_limited", {
+        "Retry-After": String(retryAfterSeconds(result.reset, deps.now())),
+      });
+    }
+  }
+
+  /**
+   * Runs `task` under each limit in `limits`. When a limit refuses, or
+   * `task` fails, the limits give back what they counted, so a fault on the
+   * server does not use up the visitor's tries.
+   */
+  async function withLimits<T>(
+    limits: readonly (readonly [FinanceRateLimitBucket, string])[],
+    task: () => Promise<T>,
+  ): Promise<T> {
+    const counted: (readonly [FinanceRateLimitBucket, string])[] = [];
+    try {
+      for (const [bucket, identifier] of limits) {
+        await limit(bucket, identifier);
+        counted.push([bucket, identifier]);
+      }
+      return await task();
+    } catch (error) {
+      await Promise.all(
+        counted.map(async ([bucket, identifier]) => {
+          try {
+            await deps.refundRequest(bucket, identifier);
+          } catch (refundError) {
+            console.error("Finance auth rate-limit refund error:", refundError);
+          }
+        }),
+      );
+      throw error;
+    }
+  }
+
+  async function guardPost(request: Request): Promise<Context> {
+    if (!isSameOrigin(request)) throw new HttpError(403, "forbidden_origin");
+    await limit("auth", resolveClientIp(request.headers));
     return prepareContext(request);
   }
 
@@ -212,6 +298,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
             { setCookies: context?.setCookies ?? [] },
             { error: error.code },
             error.status,
+            error.headers,
           );
         }
         throw error;
@@ -262,6 +349,50 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       throw new HttpError(400, "challenge_invalid");
     }
     return payload;
+  }
+
+  function issueEmailCode(context: Context, payload: EmailCodePayload) {
+    context.setCookies.push(
+      financeEmailCodeCookie.serialize(
+        financeEmailCodeCookie.seal(payload, context.secret, context.now),
+        context.secure,
+      ),
+    );
+  }
+
+  /**
+   * Checks a typed code against the emailed code that this browser asked
+   * for, and returns the address it went to. A code that has ended clears
+   * the cookie, so that the browser asks for a new one.
+   */
+  async function takeEmailCode(
+    request: Request,
+    context: Context,
+    purpose: EmailCodePayload["purpose"],
+    typed: string,
+  ): Promise<string> {
+    const value = readRequestCookie(request, financeEmailCodeCookie.name);
+    const payload = value
+      ? financeEmailCodeCookie.open(value, context.secret, context.now)
+      : null;
+    if (payload?.purpose !== purpose) {
+      context.setCookies.push(financeEmailCodeCookie.clear(context.secure));
+      throw new HttpError(410, "code_expired");
+    }
+    const code = normaliseEmailCode(typed);
+    if (!code) throw new HttpError(400, "code_invalid");
+    const result = await asFinanceApp(context.db, (db) =>
+      checkEmailCode(db, {
+        purpose,
+        codeId: payload.codeId,
+        code,
+        now: context.now,
+      }),
+    );
+    if (!result.ok && !result.ended) throw new HttpError(400, "code_invalid");
+    context.setCookies.push(financeEmailCodeCookie.clear(context.secure));
+    if (!result.ok) throw new HttpError(410, "code_expired");
+    return result.email;
   }
 
   function startSession(context: Context, token: string) {
@@ -346,6 +477,33 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       .onConflictDoNothing()
       .returning({ id: passkeys.id });
     if (inserted.length === 0) throw new HttpError(409, "passkey_exists");
+  }
+
+  function requireEmailSender(): FinanceEmailSender {
+    const sender = deps.emailSender();
+    if (!sender) throw new HttpError(503, "email_not_configured");
+    return sender;
+  }
+
+  async function readEmail(request: Request) {
+    const body = await readBody(request, emailBody);
+    const email = normaliseEmail(body.email);
+    if (!email) throw new HttpError(400, "email_invalid");
+    return { email, locale: body.locale };
+  }
+
+  async function readRecoveryEmail(db: FinanceAppDb, userId: string) {
+    const user = (
+      await db
+        .select({ email: users.email, verifiedAt: users.emailVerifiedAt })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1)
+    ).at(0);
+    return {
+      email: user?.email ?? null,
+      verified: user?.verifiedAt != null,
+    };
   }
 
   function checkSetupSecret(given: string) {
@@ -440,7 +598,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       const state = await asFinanceApp(context.db, getSetupState);
       if (state.mode === "closed") throw new HttpError(403, "setup_closed");
 
-      const userId = state.mode === "recover" ? state.userId : randomUUID();
+      const userId = randomUUID();
       const options = await registrationOptions(context, {
         userId,
         userName:
@@ -480,23 +638,13 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       const result = await asFinanceApp(context.db, async (tx) => {
         await tx.execute(sql`select pg_advisory_xact_lock(${SETUP_LOCK_KEY})`);
         const state = await getSetupState(tx);
-        if (
-          state.mode === "closed" ||
-          state.mode !== mode ||
-          (state.mode === "recover" && state.userId !== userId)
-        ) {
+        if (state.mode === "closed" || state.mode !== mode) {
           throw new HttpError(403, "setup_closed");
         }
 
         let householdId: string;
         let memberId: string;
-        if (state.mode === "recover") {
-          // The owner lost every passkey. A lost device must not keep
-          // access, so its passkeys and sessions stop here.
-          await revokeUserAccess(tx, userId);
-          householdId = state.householdId;
-          memberId = state.memberId;
-        } else if (state.mode === "create") {
+        if (state.mode === "create") {
           const memberName = body.memberName ?? "Owner";
           memberId = randomUUID();
           householdId = randomUUID();
@@ -539,7 +687,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     }),
 
     inviteOptions: handle(async (request, context) => {
-      const { token } = await readBody(request, inviteOptionsBody);
+      const { token } = await readBody(request, tokenBody);
       const invite = await lookupInvite(context.db, token, context.now);
       if (!invite) throw new HttpError(410, "invite_invalid");
 
@@ -712,6 +860,119 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
         insertPasskey(db, session.userId, info, context.now),
       );
       return json(context, { ok: true });
+    }),
+
+    recoveryEmail: handle(
+      async (request, context) => {
+        const session = await requireSession(request, context);
+        return json(
+          context,
+          await asFinanceApp(context.db, (db) =>
+            readRecoveryEmail(db, session.userId),
+          ),
+        );
+      },
+      { method: "GET" },
+    ),
+
+    setRecoveryEmail: handle(async (request, context) => {
+      const session = await requireSession(request, context);
+      const { email, locale } = await readEmail(request);
+      const current = await asFinanceApp(context.db, (db) =>
+        readRecoveryEmail(db, session.userId),
+      );
+      if (current.email === email && current.verified) {
+        return json(context, current);
+      }
+      const sender = requireEmailSender();
+      await withLimits([["verify-email", session.userId]], async () => {
+        const token = await asFinanceApp(context.db, (db) =>
+          startEmailVerification(db, {
+            userId: session.userId,
+            email,
+            now: context.now,
+          }),
+        );
+        try {
+          await sender.send(
+            buildVerificationEmail({
+              to: email,
+              locale,
+              url: `${context.origin}${getLocalePath(`/finance/verify-email/${token}`, locale)}`,
+            }),
+          );
+        } catch (error) {
+          console.error("Finance verification email failed:", error);
+          throw new HttpError(502, "email_failed");
+        }
+      });
+      return json(context, { email, verified: false });
+    }),
+
+    verifyEmail: handle(async (request, context) => {
+      const { token } = await readBody(request, tokenBody);
+      const verified = await asFinanceApp(context.db, (db) =>
+        verifyRecoveryEmail(db, token, context.now),
+      );
+      return json(context, { verified });
+    }),
+
+    requestRecovery: handle(async (request, context) => {
+      const { email, locale } = await readEmail(request);
+      const sender = requireEmailSender();
+      await limit("recovery-email-ip", resolveClientIp(request.headers));
+      await limit(
+        "recovery-email-address",
+        Buffer.from(hashToken(email)).toString("hex"),
+      );
+      const { db, now, origin } = context;
+      const { codeId, code } = await asFinanceApp(db, (tx) =>
+        startEmailCode(tx, { purpose: "recovery", email, now }),
+      );
+      issueEmailCode(context, { purpose: "recovery", codeId });
+      // The response must be the same when no user has this email. Thus the
+      // search and the email occur after the response.
+      deps.afterResponse(async () => {
+        try {
+          const created = await createEmailRecoveryInvites(db, {
+            email,
+            now,
+            replaceEmailed: true,
+          });
+          if (created.length === 0) return;
+          await sender.send(
+            buildRecoveryEmail({
+              to: email,
+              locale,
+              code,
+              links: created.map(({ householdName, token }) => ({
+                householdName,
+                url: `${origin}${getLocalePath(`/finance/invite/${token}`, locale)}`,
+              })),
+            }),
+          );
+        } catch (error) {
+          console.error("Finance recovery email failed:", error);
+        }
+      });
+      return json(context, { ok: true }, 202);
+    }),
+
+    recoveryCode: handle(async (request, context) => {
+      const { code } = await readBody(request, codeBody);
+      const email = await takeEmailCode(request, context, "recovery", code);
+      const created = await createEmailRecoveryInvites(context.db, {
+        email,
+        now: context.now,
+        replaceEmailed: false,
+      });
+      if (created.length === 0) throw new HttpError(410, "code_expired");
+      return json(context, {
+        households: created.map(({ householdName, token }) => ({
+          householdName,
+          path: `/finance/invite/${token}`,
+        })),
+      });
     }),
 
     signOut: handle(async (request, context) => {

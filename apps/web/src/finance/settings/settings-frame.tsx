@@ -25,16 +25,27 @@ import {
   type SettingsSection,
 } from "./settings-sections.ts";
 import { SettingsSignedInMember } from "./settings-signed-in-member.tsx";
+import { useIsOwner } from "./use-is-owner.ts";
+import { useRecoveryEmail } from "./use-recovery-email.ts";
 
 /**
  * Settings: the section menu beside the open section at `lg` and wider.
  * Below `lg` the menu is its own page and each section opens on its own
  * with a way back. Below `md` the menu page also shows the signed-in Member.
+ * A dot on Members says the signed-in user has no confirmed Recovery email;
+ * it is stronger for the owner, whom nobody else can let back in.
  */
 export function SettingsFrame({ children }: { children: ReactNode }) {
   const locale = useLocale();
   const prefetch = useFreshPrefetch();
   const segment = useSelectedLayoutSegment();
+  const isOwner = useIsOwner();
+  const recoveryEmail = useRecoveryEmail();
+  const needsRecoveryEmail = recoveryEmail?.verified === false;
+  const noRecoveryEmail = t({
+    en: "No confirmed recovery email",
+    zh: "没有已确认的恢复邮箱",
+  });
   const current: SettingsSection | null = isSettingsSection(segment)
     ? segment
     : null;
@@ -80,6 +91,18 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
                 )}
               >
                 {labels[section]}
+                {section === "members" && needsRecoveryEmail ? (
+                  <>
+                    <span
+                      css={[
+                        corner.radius_round,
+                        styles.dot,
+                        isOwner && styles.dotOwner,
+                      ]}
+                    />
+                    <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
+                  </>
+                ) : null}
               </Link>
             </li>
           ))}
@@ -143,6 +166,17 @@ const styles = stylex.create({
     paddingInline: space._2,
     color: color.fg,
     textDecoration: "none",
+  },
+  dot: {
+    display: "inline-block",
+    inlineSize: space._1,
+    blockSize: space._1,
+    marginInlineStart: rhythm.inline,
+    verticalAlign: "middle",
+    backgroundColor: color.fgMuted,
+  },
+  dotOwner: {
+    backgroundColor: color.fgWarning,
   },
   linkOnIndex: {
     paddingBlock: { default: space._2, [breakpoints.lg]: space._1 },

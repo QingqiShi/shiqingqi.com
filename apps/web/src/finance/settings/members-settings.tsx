@@ -24,6 +24,7 @@ import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import type { MemberRow } from "../sync/row-schemas.ts";
 import { EditSheet } from "./edit-sheet.tsx";
 import { householdApiClient } from "./household-api-client.ts";
+import { RecoveryEmailSettings } from "./recovery-email-settings.tsx";
 import { RemoveMemberSheet } from "./remove-member-sheet.tsx";
 import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
@@ -43,7 +44,7 @@ interface Editing {
   member: MemberRow | null;
 }
 
-/** The Household's Members: add, rename, invite one to sign in, remove one, and add a passkey for yourself. */
+/** The Household's Members: add, rename, invite one to sign in, remove one, and add a passkey or a Recovery email for yourself. */
 export function MembersSettings() {
   const locale = useLocale();
   const { memberId, runtime } = useFinanceRuntime();
@@ -291,6 +292,7 @@ export function MembersSettings() {
             ) : null}
           </div>
         ))}
+      <RecoveryEmailSettings />
       <EditSheet
         isOpen={editing !== null}
         onClose={() => {

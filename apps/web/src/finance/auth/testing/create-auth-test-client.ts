@@ -6,6 +6,7 @@ export interface TestResponse<T> {
   status: number;
   body: T;
   setCookies: string[];
+  headers: Headers;
 }
 
 /**
@@ -57,7 +58,12 @@ export function createAuthTestClient(handlers: AuthHandlers) {
     const response = await handlers[handler](request);
     const setCookies = storeCookies(response);
     const responseBody = (await response.json()) as T;
-    return { status: response.status, body: responseBody, setCookies };
+    return {
+      status: response.status,
+      body: responseBody,
+      setCookies,
+      headers: response.headers,
+    };
   }
 
   function post<T = Record<string, unknown>>(

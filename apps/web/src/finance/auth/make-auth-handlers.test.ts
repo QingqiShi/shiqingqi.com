@@ -1,3 +1,7 @@
+import { randomUUID } from "node:crypto";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import type {
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
@@ -11,12 +15,23 @@ import {
   members,
   passkeys,
   sessions,
+  users,
 } from "#src/finance/db/schema.ts";
 import {
   createTestDb,
   type TestDb,
 } from "#src/finance/db/testing/create-test-db.ts";
 import { createTestHousehold } from "#src/finance/db/testing/create-test-household.ts";
+import {
+  makeOutboxEmailSender,
+  readOutbox,
+} from "../email/make-outbox-email-sender.ts";
+import type { FinanceEmailSender } from "../email/types.ts";
+import type {
+  FinanceRateLimitBucket,
+  LimitFinanceRequest,
+  RefundFinanceRequest,
+} from "../http/types.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { makeGetFinanceSession } from "./get-finance-session.ts";
 import { hashToken } from "./hash-token.ts";
@@ -49,6 +64,8 @@ interface SignedInBody {
 
 let db: TestDb;
 let now: Date;
+let outboxDir: string;
+let afterTasks: Promise<void>[];
 
 function makeHandlers(overrides: Partial<AuthHandlerDeps> = {}) {
   return makeAuthHandlers({
@@ -57,9 +74,86 @@ function makeHandlers(overrides: Partial<AuthHandlerDeps> = {}) {
     authSecret: () => "test-auth-secret",
     setupSecret: () => SETUP_SECRET,
     limitRequest: () => Promise.resolve({ success: true, reset: 0 }),
+    refundRequest: () => Promise.resolve(),
     isAllowedOrigin: isAllowedFinanceOrigin,
+    emailSender: () => makeOutboxEmailSender(outboxDir),
+    afterResponse: (task) => {
+      afterTasks.push(task());
+    },
     ...overrides,
   });
+}
+
+/** Allows `tokens[bucket]` requests per identifier in a 40-minute window, and takes refunds. */
+function countingLimiter(
+  tokens: Partial<Record<FinanceRateLimitBucket, number>>,
+): { limitRequest: LimitFinanceRequest; refundRequest: RefundFinanceRequest } {
+  const used = new Map<string, number>();
+  return {
+    limitRequest: (bucket, identifier) => {
+      const key = `${bucket} ${identifier}`;
+      const count = used.get(key) ?? 0;
+      const success = count < (tokens[bucket] ?? Number.POSITIVE_INFINITY);
+      if (success) used.set(key, count + 1);
+      return Promise.resolve({ success, reset: now.getTime() + 40 * 60_000 });
+    },
+    refundRequest: (bucket, identifier) => {
+      const key = `${bucket} ${identifier}`;
+      used.set(key, (used.get(key) ?? 0) - 1);
+      return Promise.resolve();
+    },
+  };
+}
+
+/** An email sender that refuses every email until `works` is set, as Resend does with a bad API key. */
+function brokenEmailSender() {
+  const outbox = makeOutboxEmailSender(outboxDir);
+  const state = { works: false };
+  const sender: FinanceEmailSender = {
+    send: (email) =>
+      state.works
+        ? outbox.send(email)
+        : Promise.reject(new Error("API key is invalid")),
+  };
+  return { state, sender };
+}
+
+function verificationTokenIn(text = "", localePrefix = ""): string {
+  const match = new RegExp(
+    `${TEST_ORIGIN}${localePrefix}/finance/verify-email/([\\w-]+)`,
+  ).exec(text);
+  if (!match?.[1]) throw new Error(`No confirmation link in: ${text}`);
+  return match[1];
+}
+
+function codeIn(text = ""): string {
+  const match = /^(\d{6})$/m.exec(text);
+  if (!match?.[1]) throw new Error(`No code in: ${text}`);
+  return match[1];
+}
+
+function otherCode(code: string): string {
+  return String((Number(code) + 1) % 1_000_000).padStart(6, "0");
+}
+
+/** The Set-Cookie headers without their values, which are random. */
+function cookieShapes(setCookies: string[]): string[] {
+  return setCookies.map((cookie) => cookie.replace(/=[^;]*;/, "=;"));
+}
+
+function recoveryTokensIn(text = ""): string[] {
+  return [...text.matchAll(/\/finance\/invite\/([\w-]+)/g)].map(
+    (match) => match[1],
+  );
+}
+
+/** Opens the confirmation link with no session, as on another device. */
+async function confirmRecoveryEmail(token: string) {
+  const confirmed = await createAuthTestClient(makeHandlers()).post<{
+    verified: boolean;
+  }>("verifyEmail", { token });
+  expect(confirmed.status).toBe(200);
+  return confirmed.body.verified;
 }
 
 function advance(ms: number) {
@@ -130,10 +224,13 @@ async function importedHousehold() {
 beforeEach(async () => {
   db = await createTestDb();
   now = new Date("2026-10-10T12:00:00Z");
+  outboxDir = await mkdtemp(path.join(tmpdir(), "finance-outbox-"));
+  afterTasks = [];
 });
 
 afterEach(async () => {
   await db.close();
+  await rm(outboxDir, { recursive: true, force: true });
 });
 
 describe("setup", () => {
@@ -276,117 +373,23 @@ describe("setup", () => {
   });
 });
 
-describe("owner recovery with the setup secret", () => {
-  async function claimedOwner() {
+describe("setup once the owner is claimed", () => {
+  it("is closed, also to a visitor with the setup secret", async () => {
     const lostPhone = createSoftwareAuthenticator();
     const lostDevice = createAuthTestClient(makeHandlers());
-    const result = await setUp(lostDevice, lostPhone);
-    const owner = (
-      await db
-        .select()
-        .from(members)
-        .where(eq(members.id, result.body.memberId))
-    ).at(0);
-    return { result, owner, lostPhone, lostDevice };
-  }
-
-  async function recover(
-    client: Client,
-    authenticator: Authenticator,
-    setupSecret = SETUP_SECRET,
-  ) {
-    const options = await client.post<RegistrationOptionsBody>("setupOptions", {
-      setupSecret,
-    });
-    if (options.status !== 200) return options;
-    const response = await authenticator.register(
-      options.body.options,
-      TEST_ORIGIN,
-    );
-    return client.post<SignedInBody>("setupVerify", { setupSecret, response });
-  }
-
-  it("names the owner only to a visitor with the setup secret", async () => {
-    await claimedOwner();
+    await setUp(lostDevice, lostPhone);
     const client = createAuthTestClient(makeHandlers());
 
-    const wrong = await client.post("setupOptions", { setupSecret: "wrong" });
-    const right = await client.post<RegistrationOptionsBody>("setupOptions", {
+    const options = await client.post("setupOptions", {
       setupSecret: SETUP_SECRET,
     });
 
-    expect(wrong).toMatchObject({
+    expect(options).toMatchObject({
       status: 403,
-      body: { error: "setup_forbidden" },
+      body: { error: "setup_closed" },
     });
-    expect(right).toMatchObject({
-      status: 200,
-      body: { mode: "recover", householdName: "Home", memberName: "Qingqi" },
-    });
-  });
-
-  it("gives the owner's user a new passkey and ends the lost device", async () => {
-    const { result, owner, lostPhone, lostDevice } = await claimedOwner();
-    const newPhone = createSoftwareAuthenticator();
-    const newDevice = createAuthTestClient(makeHandlers());
-
-    const recovered = await recover(newDevice, newPhone);
-
-    expect(recovered).toMatchObject({ status: 200, body: result.body });
-    const session = await newDevice.get("session");
-    expect(session.body).toEqual({
-      userId: owner?.userId,
-      householdId: result.body.householdId,
-      memberId: result.body.memberId,
-      role: "owner",
-    });
-    const stored = await db
-      .select({ id: passkeys.id })
-      .from(passkeys)
-      .where(eq(passkeys.userId, owner?.userId ?? ""));
-    expect(stored).toEqual([{ id: newPhone.credentials[0]?.id }]);
-    expect((await lostDevice.get("session")).status).toBe(401);
-    expect(
-      await db
-        .select({ userId: sessions.userId })
-        .from(sessions)
-        .where(eq(sessions.userId, owner?.userId ?? "")),
-    ).toHaveLength(1);
-    expect(
-      (await signIn(createAuthTestClient(makeHandlers()), lostPhone)).status,
-    ).toBe(401);
-    expect(
-      (await signIn(createAuthTestClient(makeHandlers()), newPhone)).status,
-    ).toBe(200);
-  });
-
-  it("changes nothing with a wrong setup secret", async () => {
-    const { lostPhone, lostDevice } = await claimedOwner();
-    const client = createAuthTestClient(makeHandlers());
-
-    const wrongOptions = await recover(
-      client,
-      createSoftwareAuthenticator(),
-      "wrong",
-    );
-    const options = await client.post<RegistrationOptionsBody>("setupOptions", {
-      setupSecret: SETUP_SECRET,
-    });
-    const wrongVerify = await client.post("setupVerify", {
-      setupSecret: "wrong",
-      response: await createSoftwareAuthenticator().register(
-        options.body.options,
-        TEST_ORIGIN,
-      ),
-    });
-
-    expect(wrongOptions.status).toBe(403);
-    expect(wrongVerify.status).toBe(403);
     expect(await db.select().from(passkeys)).toHaveLength(1);
     expect((await lostDevice.get("session")).status).toBe(200);
-    expect(
-      (await signIn(createAuthTestClient(makeHandlers()), lostPhone)).status,
-    ).toBe(200);
   });
 
   it("refuses a create ceremony that finishes after the owner is claimed", async () => {
@@ -396,7 +399,8 @@ describe("owner recovery with the setup secret", () => {
       memberName: "Late",
     });
     expect(options.body.mode).toBe("create");
-    const { lostPhone } = await claimedOwner();
+    const lostPhone = createSoftwareAuthenticator();
+    await setUp(createAuthTestClient(makeHandlers()), lostPhone);
 
     const result = await late.post("setupVerify", {
       setupSecret: SETUP_SECRET,
@@ -414,6 +418,428 @@ describe("owner recovery with the setup secret", () => {
     expect(
       (await signIn(createAuthTestClient(makeHandlers()), lostPhone)).status,
     ).toBe(200);
+  });
+});
+
+describe("recovery email", () => {
+  async function signedInOwner(overrides: Partial<AuthHandlerDeps> = {}) {
+    const client = createAuthTestClient(makeHandlers(overrides));
+    const phone = createSoftwareAuthenticator();
+    const result = await setUp(client, phone);
+    const session = await client.get<{ userId: string }>("session");
+    return { client, phone, result, userId: session.body.userId };
+  }
+
+  it("counts only after its confirmation link is opened, and the link works once", async () => {
+    const { client } = await signedInOwner();
+
+    const saved = await client.post("setRecoveryEmail", {
+      email: "  Qingqi@Example.COM ",
+      locale: "zh",
+    });
+
+    expect(saved).toMatchObject({
+      status: 200,
+      body: { email: "qingqi@example.com", verified: false },
+    });
+    const [sent] = await readOutbox(outboxDir);
+    expect(sent).toMatchObject({
+      to: "qingqi@example.com",
+      subject: "确认家庭账本恢复邮箱",
+    });
+    const token = verificationTokenIn(sent.text, "/zh");
+    expect((await client.get("recoveryEmail")).body).toEqual({
+      email: "qingqi@example.com",
+      verified: false,
+    });
+
+    expect(await confirmRecoveryEmail(token)).toBe(true);
+    expect(await confirmRecoveryEmail(token)).toBe(false);
+    expect((await client.get("recoveryEmail")).body).toEqual({
+      email: "qingqi@example.com",
+      verified: true,
+    });
+  });
+
+  it("needs a new confirmation when the email changes", async () => {
+    const { client } = await signedInOwner();
+    await client.post("setRecoveryEmail", { email: "old@example.com" });
+    const oldLink = verificationTokenIn((await readOutbox(outboxDir))[0]?.text);
+    await confirmRecoveryEmail(oldLink);
+    await client.post("setRecoveryEmail", { email: "first@example.com" });
+    const firstLink = verificationTokenIn(
+      (await readOutbox(outboxDir))[1]?.text,
+    );
+
+    const changed = await client.post("setRecoveryEmail", {
+      email: "second@example.com",
+    });
+
+    expect(changed.body).toEqual({
+      email: "second@example.com",
+      verified: false,
+    });
+    expect(await confirmRecoveryEmail(firstLink)).toBe(false);
+    expect((await client.get("recoveryEmail")).body).toMatchObject({
+      verified: false,
+    });
+  });
+
+  it("refuses a confirmation link after 1 hour", async () => {
+    const { client } = await signedInOwner();
+    await client.post("setRecoveryEmail", { email: "qingqi@example.com" });
+    const token = verificationTokenIn((await readOutbox(outboxDir))[0]?.text);
+    advance(61 * 60 * 1000);
+
+    expect(await confirmRecoveryEmail(token)).toBe(false);
+  });
+
+  it("refuses an address that is not an email, a visitor with no session, and a server with no email", async () => {
+    const { client } = await signedInOwner();
+
+    const notEmail = await client.post("setRecoveryEmail", {
+      email: "qingqi",
+    });
+    const signedOut = await createAuthTestClient(makeHandlers()).post(
+      "setRecoveryEmail",
+      { email: "qingqi@example.com" },
+    );
+    const noEmail = await createAuthTestClient(
+      makeHandlers({ emailSender: () => null }),
+    ).post("requestRecovery", { email: "qingqi@example.com" });
+
+    expect(notEmail).toMatchObject({
+      status: 400,
+      body: { error: "email_invalid" },
+    });
+    expect(signedOut.status).toBe(401);
+    expect(noEmail).toMatchObject({
+      status: 503,
+      body: { error: "email_not_configured" },
+    });
+  });
+
+  it("does not count a confirmation email that did not go out, and says how long to wait at the limit", async () => {
+    const email = brokenEmailSender();
+    const { client } = await signedInOwner({
+      ...countingLimiter({ "verify-email": 1 }),
+      emailSender: () => email.sender,
+    });
+
+    const failed = await client.post("setRecoveryEmail", {
+      email: "qingqi@example.com",
+    });
+    const failedAgain = await client.post("setRecoveryEmail", {
+      email: "qingqi@example.com",
+    });
+    email.state.works = true;
+    const sent = await client.post("setRecoveryEmail", {
+      email: "qingqi@example.com",
+    });
+    const limited = await client.post("setRecoveryEmail", {
+      email: "other@example.com",
+    });
+
+    for (const refused of [failed, failedAgain]) {
+      expect(refused).toMatchObject({
+        status: 502,
+        body: { error: "email_failed" },
+      });
+    }
+    expect(sent.status).toBe(200);
+    expect(limited).toMatchObject({
+      status: 429,
+      body: { error: "rate_limited" },
+    });
+    expect(limited.headers.get("Retry-After")).toBe(String(40 * 60));
+    expect((await readOutbox(outboxDir)).map(({ to }) => to)).toEqual([
+      "qingqi@example.com",
+    ]);
+  });
+});
+
+describe("recovery by email", () => {
+  async function ownerWithEmail(email: string, { verified = true } = {}) {
+    const lostDevice = createAuthTestClient(makeHandlers());
+    const lostPhone = createSoftwareAuthenticator();
+    const result = await setUp(lostDevice, lostPhone);
+    const session = await lostDevice.get<{ userId: string }>("session");
+    await db
+      .update(users)
+      .set({ email, emailVerifiedAt: verified ? now : null })
+      .where(eq(users.id, session.body.userId));
+    return { lostDevice, lostPhone, result, userId: session.body.userId };
+  }
+
+  async function requestRecovery(
+    email: string,
+    handlers = makeHandlers(),
+    client = createAuthTestClient(handlers),
+  ) {
+    const response = await client.post("requestRecovery", {
+      email,
+      locale: "en",
+    });
+    await Promise.all(afterTasks.splice(0));
+    return response;
+  }
+
+  /** Asks for recovery in a new browser and returns it with the code that the email gave. */
+  async function browserWithCode(email: string) {
+    const browser = createAuthTestClient(makeHandlers());
+    const before = (await readOutbox(outboxDir)).length;
+    await requestRecovery(email, undefined, browser);
+    const sent = (await readOutbox(outboxDir)).at(before);
+    return { browser, code: sent ? codeIn(sent.text) : "000000", sent };
+  }
+
+  function enterCode(browser: Client, code: string) {
+    return browser.post<{
+      households?: { householdName: string; path: string }[];
+    }>("recoveryCode", { code });
+  }
+
+  async function sharedAddressInTwoHouseholds() {
+    await ownerWithEmail("shared@example.com");
+    const cottage = await createTestHousehold(db, {
+      name: "Cottage",
+      members: [{ name: "Qingqi", role: "member" }],
+    });
+    const flat = await createTestHousehold(db, {
+      name: "Flat",
+      members: [{ name: "Qingqi", role: "member" }],
+    });
+    for (const [household, removed] of [
+      [cottage, false],
+      [flat, true],
+    ] as const) {
+      const userId = randomUUID();
+      await db.insert(users).values({
+        id: userId,
+        displayName: "Qingqi",
+        email: "shared@example.com",
+        emailVerifiedAt: now,
+      });
+      await db
+        .update(members)
+        .set({ userId, deletedAt: removed ? now : null })
+        .where(eq(members.id, household.memberIds[0] ?? ""));
+    }
+  }
+
+  it("answers the same for an address that no user has, and sends to no one", async () => {
+    await ownerWithEmail("qingqi@example.com");
+
+    const known = await requestRecovery("Qingqi@example.com");
+    const unknown = await requestRecovery("nobody@example.com");
+
+    expect(unknown.status).toBe(known.status);
+    expect(unknown.body).toEqual(known.body);
+    expect(cookieShapes(unknown.setCookies)).toEqual(
+      cookieShapes(known.setCookies),
+    );
+    const sent = await readOutbox(outboxDir);
+    expect(sent.map((email) => email.to)).toEqual(["qingqi@example.com"]);
+  });
+
+  it("sends nothing to an email that is not confirmed", async () => {
+    await ownerWithEmail("qingqi@example.com", { verified: false });
+
+    expect((await requestRecovery("qingqi@example.com")).status).toBe(202);
+
+    expect(await readOutbox(outboxDir)).toEqual([]);
+  });
+
+  it("replaces the lost passkeys and signs out every other device", async () => {
+    const { lostDevice, lostPhone, result, userId } =
+      await ownerWithEmail("qingqi@example.com");
+
+    await requestRecovery("qingqi@example.com");
+    const [sent] = await readOutbox(outboxDir);
+    const links = recoveryTokensIn(sent.text);
+    expect(sent.text).toContain("Home\nhttp://localhost:3000/finance/invite/");
+    expect(links).toHaveLength(1);
+
+    const newPhone = createSoftwareAuthenticator();
+    const newDevice = createAuthTestClient(makeHandlers());
+    const recovered = await acceptInvite(newDevice, newPhone, links[0] ?? "");
+
+    expect(recovered).toMatchObject({ status: 200, body: result.body });
+    expect((await newDevice.get("session")).body).toMatchObject({ userId });
+    expect((await lostDevice.get("session")).status).toBe(401);
+    expect(
+      (await signIn(createAuthTestClient(makeHandlers()), lostPhone)).status,
+    ).toBe(401);
+    expect(
+      (await signIn(createAuthTestClient(makeHandlers()), newPhone)).status,
+    ).toBe(200);
+    expect(
+      (
+        await acceptInvite(
+          createAuthTestClient(makeHandlers()),
+          createSoftwareAuthenticator(),
+          links[0] ?? "",
+        )
+      ).status,
+    ).toBe(410);
+  });
+
+  it("refuses a recovery link after 30 minutes", async () => {
+    await ownerWithEmail("qingqi@example.com");
+    await requestRecovery("qingqi@example.com");
+    const [token = ""] = recoveryTokensIn(
+      (await readOutbox(outboxDir))[0]?.text,
+    );
+    advance(31 * 60 * 1000);
+
+    const result = await acceptInvite(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      token,
+    );
+
+    expect(result.status).toBe(410);
+  });
+
+  it("sends one email with a link for each household of each user with the address, but none for a removed member", async () => {
+    await sharedAddressInTwoHouseholds();
+
+    await requestRecovery("shared@example.com");
+
+    const sent = await readOutbox(outboxDir);
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.text).toMatch(/^Cottage\nhttp/m);
+    expect(sent[0]?.text).toMatch(/^Home\nhttp/m);
+    expect(sent[0]?.text).not.toContain("Flat");
+    expect(recoveryTokensIn(sent[0]?.text)).toHaveLength(2);
+  });
+
+  it("gets back in with the emailed code in the browser that asked, and the emailed link still works", async () => {
+    const { lostDevice, result, userId } =
+      await ownerWithEmail("qingqi@example.com");
+    const { browser, code, sent } = await browserWithCode("qingqi@example.com");
+    expect(sent?.subject).toBe(`${code} is your Finance recovery code`);
+
+    const entered = await enterCode(
+      browser,
+      ` ${code.slice(0, 3)} ${code.slice(3)} `,
+    );
+
+    expect(entered.status).toBe(200);
+    expect(
+      entered.body.households?.map(({ householdName }) => householdName),
+    ).toEqual(["Home"]);
+    const [token = ""] = recoveryTokensIn(entered.body.households?.[0]?.path);
+    const newPhone = createSoftwareAuthenticator();
+    const recovered = await acceptInvite(browser, newPhone, token);
+    expect(recovered).toMatchObject({ status: 200, body: result.body });
+    expect((await browser.get("session")).body).toMatchObject({ userId });
+    expect((await lostDevice.get("session")).status).toBe(401);
+    expect((await enterCode(browser, code)).status).toBe(410);
+
+    const [emailed = ""] = recoveryTokensIn(sent?.text);
+    const emailedLink = await createAuthTestClient(makeHandlers()).post(
+      "inviteOptions",
+      { token: emailed },
+    );
+    expect(emailedLink.status).toBe(200);
+  });
+
+  it("checks a code only against the request of the browser that holds it", async () => {
+    await ownerWithEmail("qingqi@example.com");
+    const first = await browserWithCode("qingqi@example.com");
+    const second = await browserWithCode("qingqi@example.com");
+
+    expect((await enterCode(second.browser, first.code)).body).toEqual({
+      error: "code_invalid",
+    });
+    expect(
+      await enterCode(createAuthTestClient(makeHandlers()), first.code),
+    ).toMatchObject({ status: 410, body: { error: "code_expired" } });
+    expect((await enterCode(first.browser, first.code)).status).toBe(200);
+  });
+
+  it("ends a code after five tries, and after 30 minutes", async () => {
+    await ownerWithEmail("qingqi@example.com");
+    const guessed = await browserWithCode("qingqi@example.com");
+    const statuses: number[] = [];
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      statuses.push(
+        (await enterCode(guessed.browser, otherCode(guessed.code))).status,
+      );
+    }
+    expect(statuses).toEqual([400, 400, 400, 400, 410]);
+    expect(await enterCode(guessed.browser, guessed.code)).toMatchObject({
+      status: 410,
+      body: { error: "code_expired" },
+    });
+
+    const late = await browserWithCode("qingqi@example.com");
+    advance(31 * 60 * 1000);
+    expect((await enterCode(late.browser, late.code)).status).toBe(410);
+  });
+
+  it("answers a code for an address that no user has as it answers a wrong code", async () => {
+    await ownerWithEmail("qingqi@example.com");
+    const known = await browserWithCode("qingqi@example.com");
+    const unknown = await browserWithCode("nobody@example.com");
+    expect(unknown.sent).toBeUndefined();
+
+    const answers = [];
+    for (const { browser, code } of [known, unknown]) {
+      const response = await enterCode(browser, otherCode(code));
+      answers.push({
+        status: response.status,
+        body: response.body,
+        cookies: cookieShapes(response.setCookies),
+      });
+    }
+
+    expect(answers[1]).toEqual(answers[0]);
+  });
+
+  it("offers each household when the address has several", async () => {
+    await sharedAddressInTwoHouseholds();
+    const { browser, code } = await browserWithCode("shared@example.com");
+
+    const entered = await enterCode(browser, code);
+
+    expect(
+      entered.body.households?.map(({ householdName }) => householdName),
+    ).toEqual(["Cottage", "Home"]);
+    const [, home = ""] = recoveryTokensIn(
+      entered.body.households?.map(({ path }) => path).join(" "),
+    );
+    expect(
+      (await acceptInvite(browser, createSoftwareAuthenticator(), home)).status,
+    ).toBe(200);
+  });
+
+  it("limits requests by address and by IP", async () => {
+    const counted: string[] = [];
+    const handlers = makeHandlers({
+      limitRequest: (bucket, identifier) => {
+        counted.push(`${bucket} ${identifier}`);
+        return Promise.resolve({
+          success: bucket !== "recovery-email-address",
+          reset: now.getTime() + 1000,
+        });
+      },
+    });
+    await ownerWithEmail("qingqi@example.com");
+
+    const result = await requestRecovery("qingqi@example.com", handlers);
+
+    expect(result).toMatchObject({
+      status: 429,
+      body: { error: "rate_limited" },
+    });
+    expect(counted).toEqual([
+      expect.stringMatching(/^auth /),
+      expect.stringMatching(/^recovery-email-ip /),
+      expect.stringMatching(/^recovery-email-address [0-9a-f]{64}$/),
+    ]);
+    expect(await readOutbox(outboxDir)).toEqual([]);
   });
 });
 
@@ -904,5 +1330,6 @@ describe("request guards", () => {
     const result = await client.post("signInOptions");
 
     expect(result.status).toBe(429);
+    expect(result.headers.get("Retry-After")).toBe("1");
   });
 });

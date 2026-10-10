@@ -4,8 +4,9 @@ import type { FinanceAppDb } from "./with-household.ts";
 /**
  * The functions of the `finance_auth` schema: the lookups that run before a
  * Household is known. They run as `finance_auth`, the one role that may read
- * `households`, `members` and `invites` across Households, and they return
- * only what the caller needs to pick a Household.
+ * `households`, `members` and `invites` across Households, and the Recovery
+ * emails of users. They return only what the caller needs to pick a
+ * Household.
  */
 export const lookups = {
   /** Every Household id, in id order. */
@@ -38,6 +39,21 @@ export const lookups = {
         userId: sql<string | null>`owners.user_id`,
       })
       .from(sql`finance_auth.owner_members() as owners`);
+  },
+
+  /**
+   * The live Members whose user has `email` as a verified Recovery email,
+   * with their Households, in Household name order.
+   */
+  recoveryMembers(db: FinanceAppDb, email: string) {
+    return db
+      .select({
+        householdId: sql<string>`recovery.household_id`,
+        householdName: sql<string>`recovery.household_name`,
+        memberId: sql<string>`recovery.member_id`,
+        userId: sql<string>`recovery.user_id`,
+      })
+      .from(sql`finance_auth.recovery_members(${email}) as recovery`);
   },
 
   /**

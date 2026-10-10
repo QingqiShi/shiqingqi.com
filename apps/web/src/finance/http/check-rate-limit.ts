@@ -21,9 +21,16 @@ export async function checkRateLimit(
     return null;
   }
   if (result.success) return null;
-  const seconds = Math.max(1, Math.ceil((result.reset - now.getTime()) / 1000));
   return financeJson(
     { error: "too-many-requests" },
-    { status: 429, headers: { "Retry-After": String(seconds) } },
+    {
+      status: 429,
+      headers: { "Retry-After": String(retryAfterSeconds(result.reset, now)) },
+    },
   );
+}
+
+/** The `Retry-After` seconds until a limit that resets at `reset` (Unix ms) allows a request again. */
+export function retryAfterSeconds(reset: number, now: Date): number {
+  return Math.max(1, Math.ceil((reset - now.getTime()) / 1000));
 }

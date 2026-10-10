@@ -57,9 +57,52 @@ function version() {
 
 // identity and tenancy
 
-export const users = pgTable("users", {
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").primaryKey(),
+    displayName: text("display_name").notNull(),
+    /** The Recovery email, lower-case. Several users may share one. */
+    email: text("email"),
+    /** Set when the user opened the verification link for `email`. Recovery mail goes only to a verified email. */
+    emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("users_email_idx").on(t.email)],
+);
+
+/** One-use links that confirm a user's Recovery email. Only the token's hash is stored. */
+export const emailVerifications = pgTable(
+  "email_verifications",
+  {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** The address the link went to. It verifies only while the user's email is still this one. */
+    email: text("email").notNull(),
+    tokenHash: bytea("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("email_verifications_user_idx").on(t.userId)],
+);
+
+/**
+ * A six-digit code emailed with a link, that continues the flow in the
+ * browser that asked for it. Only the code's hash is stored, and the
+ * browser holds the row's id in a sealed cookie.
+ */
+export const emailCodes = pgTable("email_codes", {
   id: uuid("id").primaryKey(),
-  displayName: text("display_name").notNull(),
+  purpose: text("purpose", { enum: ["recovery"] }).notNull(),
+  email: text("email").notNull(),
+  codeHash: bytea("code_hash").notNull(),
+  /** Each check counts, right or wrong; the code ends at the limit. */
+  attempts: smallint("attempts").notNull().default(0),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
   createdAt: createdAt(),
 });
 
@@ -776,6 +819,8 @@ export const schema = {
   transactionStatus,
   bankTxState,
   users,
+  emailVerifications,
+  emailCodes,
   passkeys,
   sessions,
   households,
