@@ -2,18 +2,23 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import {
+  glassSurface,
+  glassTokens,
+} from "@tuja/ui/components/glass-surface.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
+import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
-  border,
   color,
   controlSize,
   font,
   layer,
   rhythm,
+  shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
@@ -29,10 +34,10 @@ import { useFreshPrefetch } from "./use-fresh-prefetch.ts";
 import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
 
 /**
- * The five Finance destinations as a bar at the bottom of the screen, below
- * `md`, where one tap switches screens. A dot on Transactions says that
- * changes wait to sync. A dot on Settings, where the full sync status is,
- * says that sync has a problem, and the link's name says which.
+ * The five Finance destinations in a pill that floats above the bottom of the
+ * screen, below `md`, where one tap switches screens. A dot on Transactions
+ * says that changes wait to sync. A dot on Settings, where the full sync
+ * status is, says that sync has a problem, and the link's name says which.
  */
 export function FinanceTabBar() {
   const locale = useLocale();
@@ -43,8 +48,11 @@ export function FinanceTabBar() {
   const waiting = status.pendingCount > 0;
 
   return (
-    <nav aria-label={t({ en: "Finance", zh: "家庭账本" })} css={styles.bar}>
-      <ul css={styles.list}>
+    <nav
+      aria-label={t({ en: "Finance", zh: "家庭账本" })}
+      css={[corner.radius_round, styles.bar]}
+    >
+      <ul css={[glassSurface.base, corner.radius_round, styles.list]}>
         {destinations.map((destination) => {
           const isCurrent = isCurrentDestination(current, destination.path);
           const isSettings = destination.path === "/finance/settings";
@@ -56,8 +64,10 @@ export function FinanceTabBar() {
                 aria-current={isCurrent ? "page" : undefined}
                 {...stylex.props(
                   typeRole.caption,
+                  a11y.touchTarget,
                   transition.colors,
-                  corner.radius_3,
+                  corner.radius_round,
+                  selected.quiet,
                   styles.link,
                   a11y.focusRingInset,
                 )}
@@ -96,32 +106,36 @@ export function FinanceTabBar() {
 }
 
 const styles = stylex.create({
-  // A bar at the bottom never covers the top-centre point that iOS Safari
-  // samples for the status bar colour, so its full width is safe.
+  // The pill is nearly as wide as the screen, but it is at the bottom, so it
+  // never covers the top-centre point that iOS Safari samples for the status
+  // bar colour.
   bar: {
     display: { default: "block", [breakpoints.md]: "none" },
     position: "fixed",
-    insetInline: 0,
-    insetBlockEnd: 0,
+    insetInlineStart: pageGutter.inlineStart,
+    insetInlineEnd: pageGutter.inlineEnd,
+    insetBlockEnd: tabBarTokens.insetBlockEnd,
     zIndex: layer.header,
-    paddingBlockEnd: "env(safe-area-inset-bottom)",
-    paddingInlineStart: `calc(${pageGutter.inlineStart} - ${space._3})`,
-    paddingInlineEnd: `calc(${pageGutter.inlineEnd} - ${space._3})`,
-    backgroundColor: color.bgSurface,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
+    // The glass casts only a small shadow. A bar that floats over the content
+    // needs a deeper one, so the frame casts it.
+    boxShadow: shadow._4,
   },
+  // Text and large amounts scroll behind the labels. A deeper blur and a fill
+  // tinted with the surface colour keep the content from competing with them.
   list: {
+    [glassTokens.blur]: "24px",
+    [glassTokens.fill]: `color-mix(in srgb, ${color.bgSurface} 30%, ${color.bgMaterialGlass})`,
+    position: "relative",
     display: "flex",
     blockSize: tabBarTokens.blockSize,
     margin: 0,
-    padding: 0,
+    padding: space._0,
     listStyle: "none",
   },
+  // Each item starts at the width of its label and takes an equal share of
+  // the remaining space, so that "Transactions" fits on a 375px screen.
   item: {
     display: "flex",
-    flexBasis: 0,
     flexGrow: 1,
     minInlineSize: 0,
   },
@@ -133,11 +147,13 @@ const styles = stylex.create({
     gap: rhythm.inline,
     flexGrow: 1,
     minInlineSize: 0,
+    paddingInline: space._0,
     color: {
       default: color.fgMuted,
       ":hover": { default: null, [pointer.canHover]: color.fg },
       ":is([aria-current=page])": color.fg,
     },
+    fontWeight: font.weight_5,
     textDecoration: "none",
   },
   icon: {

@@ -10,9 +10,9 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -31,7 +31,11 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { fillTemplate } from "../reports/fill-template.ts";
-import { tabBarTokens } from "../shell/tab-bar.stylex.ts";
+import {
+  floatingAction,
+  floatingActionTokens,
+} from "../shell/floating-action.stylex.ts";
+import { FloatingActions } from "../shell/floating-actions.tsx";
 import { useToast } from "../shell/toast-provider.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
@@ -488,18 +492,27 @@ export function UpdateValuesForm() {
             })}`}
           </Callout>
         ) : null}
-        <div css={cluster.tight}>
-          <Button ref={saveRef} type="submit" look="primary">
+        <FloatingActions>
+          <AnchorButton
+            href={backHref}
+            linkComponent={Link}
+            css={floatingAction.lift}
+          >
+            {t({ en: "Cancel", zh: "取消" })}
+          </AnchorButton>
+          <Button
+            ref={saveRef}
+            type="submit"
+            look="primary"
+            css={floatingAction.lift}
+          >
             {reviewing
               ? t({ en: "Save anyway", zh: "仍然保存" })
               : changed === 0
                 ? t({ en: "Save all", zh: "全部保存" })
                 : `${t({ en: "Save all", zh: "全部保存" })} (${new Intl.NumberFormat(locale).format(changed)})`}
           </Button>
-          <AnchorButton href={backHref} linkComponent={Link} look="ghost">
-            {t({ en: "Cancel", zh: "取消" })}
-          </AnchorButton>
-        </div>
+        </FloatingActions>
       </div>
     </form>
   );
@@ -573,11 +586,6 @@ const styles = stylex.create({
   },
   actions: {
     position: "sticky",
-    insetBlockEnd: tabBarTokens.clearance,
-    paddingBlock: space._3,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-    backgroundColor: color.bgCanvas,
+    insetBlockEnd: floatingActionTokens.insetBlockEnd,
   },
 });
