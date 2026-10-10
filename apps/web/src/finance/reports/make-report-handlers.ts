@@ -61,8 +61,14 @@ function toReportListItem(row: {
   id: string;
   periodStart: string;
   periodEnd: string;
+  generatedAt: Date;
 }): ReportListItem {
-  return { id: row.id, periodStart: row.periodStart, periodEnd: row.periodEnd };
+  return {
+    id: row.id,
+    periodStart: row.periodStart,
+    periodEnd: row.periodEnd,
+    generatedAt: row.generatedAt.toISOString(),
+  };
 }
 
 /** The Report id of a `[id]` route, or null when it is not a UUID. */
@@ -115,7 +121,6 @@ export function makeReportHandlers(dependencies: ReportHandlerDependencies) {
       if (!report.data) return outdated(report.row.periodEnd);
       return financeJson({
         ...toReportListItem(report.row),
-        generatedAt: report.row.generatedAt.toISOString(),
         data: report.data,
       } satisfies WeeklyReportResponse);
     },

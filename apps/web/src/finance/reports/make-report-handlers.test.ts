@@ -243,6 +243,15 @@ describe("makeReportHandlers", () => {
     ]);
     expect(listed[0].periodStart).toBe("2026-09-28");
     expect(listed.map((report) => report.id)).not.toContain(otherReport.id);
+    const newest = reportApiSchemas.report.parse(
+      await (
+        await handlers.getReport(
+          request(listed[0].id),
+          routeContext(listed[0].id),
+        )
+      ).json(),
+    );
+    expect(listed[0].generatedAt).toBe(newest.generatedAt);
 
     session = null;
     expect((await handlers.listReports(request(""))).status).toBe(401);

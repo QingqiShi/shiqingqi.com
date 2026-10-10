@@ -17,6 +17,8 @@ const reportListItemSchema = z.object({
   id: z.string(),
   periodStart: z.iso.date(),
   periodEnd: z.iso.date(),
+  /** Changes each time the server writes the Report again. */
+  generatedAt: z.string(),
 });
 
 const reportListResponseSchema = z.object({
@@ -25,7 +27,6 @@ const reportListResponseSchema = z.object({
 });
 
 const weeklyReportResponseSchema = reportListItemSchema.extend({
-  generatedAt: z.string(),
   data: weeklyReportDataSchema,
 });
 

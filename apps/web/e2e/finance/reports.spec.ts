@@ -1,4 +1,6 @@
 import type { Page } from "@playwright/test";
+import { inArray, sql } from "drizzle-orm";
+import { reports } from "../../src/finance/db/schema.ts";
 import { addDays } from "../../src/finance/domain/dates/add-days.ts";
 import { lastCompleteWeekEnd } from "../../src/finance/reports/last-complete-week-end.ts";
 import { expect, test } from "./finance-test.ts";
@@ -119,6 +121,48 @@ test.describe("Weekly reports at 1440 px", () => {
     const lines = summary.split("\n");
     expect(lines[0]).toMatch(/^Weekly report, /);
     expect(lines[1]).toBe(`Net worth ${(await headline.textContent()) ?? ""}`);
+  });
+});
+
+test.describe("Weekly reports written again on the server", () => {
+  test.use({ viewport: DESKTOP });
+
+  test("shows the new content after a reload, for the open report and the week before", async ({
+    page,
+    household,
+    financeDb,
+    session: _session,
+  }) => {
+    const lastWeek = lastCompleteWeekEnd(household.today);
+    const newest = await makeReport(page, lastWeek);
+    const older = await makeReport(page, addDays(lastWeek, -7));
+    const headline = page
+      .getByRole("region", { name: "Net worth" })
+      .getByText(MONEY)
+      .first();
+
+    await page.goto(`/finance/reports/${newest}`);
+    await expect(headline).toBeVisible({ timeout: SYNC_TIMEOUT });
+    await expect(headline).not.toHaveText("£123,456.78");
+    await expect
+      .poll(async () => (await storedReports(page)).join(""))
+      .toContain(`"report","${older}"`);
+
+    await financeDb
+      .update(reports)
+      .set({
+        data: sql`jsonb_set(${reports.data}, '{balanceSheet,netWorthMinor}', '12345678')`,
+        generatedAt: sql`now()`,
+      })
+      .where(inArray(reports.id, [newest, older]));
+    await page.reload();
+
+    await expect(headline).toHaveText("£123,456.78", {
+      timeout: SYNC_TIMEOUT,
+    });
+    await page.getByRole("link", { name: /^Week before: / }).click();
+    await expect(page).toHaveURL(`/finance/reports/${older}`);
+    await expect(headline).toHaveText("£123,456.78");
   });
 });
 

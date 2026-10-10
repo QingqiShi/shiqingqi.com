@@ -14,7 +14,12 @@ import {
 } from "./reports-persister.ts";
 
 function listItem(periodEnd: string): ReportListItem {
-  return { id: randomUUID(), periodStart: periodEnd, periodEnd };
+  return {
+    id: randomUUID(),
+    periodStart: periodEnd,
+    periodEnd,
+    generatedAt: new Date().toISOString(),
+  };
 }
 
 function save(queryClient: QueryClient, householdId: string) {
