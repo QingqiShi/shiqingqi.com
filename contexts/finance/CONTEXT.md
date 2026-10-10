@@ -110,7 +110,7 @@ The household's data held in the browser (IndexedDB and memory) and kept in step
 _Avoid_: cache (for the replica), queue
 
 **Report**:
-A stored weekly snapshot of the balance sheet and the week's spending. ZH: 周报.
+A stored weekly snapshot of the balance sheet and the week's spending. The server holds Reports, not the Replica: the Monday cron makes last week's, Regenerate makes one week again, and the backfill makes every week again and deletes the weeks before the first. A device keeps the last Reports list it read and each Report in that list it read, so they show offline; sign-out deletes them with the Replica. ZH: 周报.
 
 **Property net**:
 A report figure: each `property` account's value less the loans in the liability groups named after it. ZH: 房产净值.

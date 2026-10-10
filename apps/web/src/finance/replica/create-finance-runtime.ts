@@ -44,6 +44,7 @@ function fallbackPersistence(primary: ReplicaPersistence): ReplicaPersistence {
  */
 export function createFinanceRuntime(options: FinanceRuntimeOptions) {
   const { householdId } = options;
+  const deletedListeners = new Set<() => void>();
   const store = createReplicaStore({
     householdId,
     persistence:
@@ -51,7 +52,9 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
       fallbackPersistence(
         typeof indexedDB === "undefined"
           ? createMemoryPersistence()
-          : openReplicaDb(householdId),
+          : openReplicaDb(householdId, () => {
+              for (const listener of deletedListeners) listener();
+            }),
       ),
   });
   const loop = createSyncLoop({
@@ -137,6 +140,20 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
     },
 
     stop,
+
+    /** Stops, then closes the Replica database for good, such as before sign-out deletes it. */
+    close() {
+      stop();
+      store.close();
+    },
+
+    /** Calls `listener` when another tab deletes the Replica database, such as at sign-out. Returns the unsubscribe. */
+    onReplicaDeleted(listener: () => void) {
+      deletedListeners.add(listener);
+      return () => {
+        deletedListeners.delete(listener);
+      };
+    },
 
     /** Syncs now, such as after Retry; a tab that does not sync asks the one that does. */
     retry() {

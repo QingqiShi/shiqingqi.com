@@ -218,6 +218,66 @@ describe("makeReportHandlers", () => {
     expect(buckets).toEqual(["report-regenerate", "report-image"]);
   });
 
+  it("lists the household's reports, newest week first", async () => {
+    const homeSession = session;
+    if (!homeSession) throw new Error("No session");
+    session = { ...homeSession, householdId: other.householdId };
+    const otherReport = reportApiSchemas.regenerate.parse(
+      await (await regenerate()).json(),
+    );
+    session = homeSession;
+    await regenerate({ periodEnd: "2026-09-20" });
+    await regenerate();
+    await regenerate({ periodEnd: "2026-09-27" });
+
+    const response = await handlers.listReports(request(""));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+    const { reports: listed } = reportApiSchemas.list.parse(
+      await response.json(),
+    );
+    expect(listed.map((report) => report.periodEnd)).toEqual([
+      "2026-10-04",
+      "2026-09-27",
+      "2026-09-20",
+    ]);
+    expect(listed[0].periodStart).toBe("2026-09-28");
+    expect(listed.map((report) => report.id)).not.toContain(otherReport.id);
+
+    session = null;
+    expect((await handlers.listReports(request(""))).status).toBe(401);
+  });
+
+  it("deletes a report of the household, and only with a same-origin request", async () => {
+    const homeSession = session;
+    if (!homeSession) throw new Error("No session");
+    session = { ...homeSession, householdId: other.householdId };
+    const otherReport = reportApiSchemas.regenerate.parse(
+      await (await regenerate()).json(),
+    );
+    session = { ...homeSession, role: "member" };
+    const { id } = reportApiSchemas.regenerate.parse(
+      await (await regenerate()).json(),
+    );
+    const remove = (reportId: string, origin?: string) =>
+      handlers.remove(
+        request(reportId, { method: "DELETE", origin }),
+        routeContext(reportId),
+      );
+
+    expect((await remove(id, "https://example.com")).status).toBe(403);
+    expect((await remove(otherReport.id)).status).toBe(404);
+    expect((await remove("not-a-uuid")).status).toBe(404);
+
+    const removed = await remove(id);
+    expect(removed.status).toBe(204);
+    expect(removed.headers.get("Cache-Control")).toBe("private, no-store");
+    expect((await remove(id)).status).toBe(404);
+    expect((await db.select().from(reports)).map((row) => row.id)).toEqual([
+      otherReport.id,
+    ]);
+  });
+
   it("says a report with an old shape is outdated", async () => {
     const { id } = reportApiSchemas.regenerate.parse(
       await (await regenerate()).json(),
@@ -225,7 +285,10 @@ describe("makeReportHandlers", () => {
     await db.update(reports).set({ data: { schemaVersion: 0 } });
     const response = await handlers.getReport(request(id), routeContext(id));
     expect(response.status).toBe(409);
-    expect(await response.json()).toEqual({ error: "outdated" });
+    expect(await response.json()).toEqual({
+      error: "outdated",
+      periodEnd: "2026-10-04",
+    });
   });
 
   describe("share image", () => {

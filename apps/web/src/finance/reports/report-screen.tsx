@@ -12,12 +12,11 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { reportQuery } from "../queries/report-query.ts";
-import { useReplica } from "../replica/use-replica.ts";
 import { adjacentReports } from "./adjacent-reports.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { ReportBackLink } from "./report-back-link.tsx";
 import { ReportView } from "./report-view.tsx";
-import { selectReportRows } from "./select-report-rows.ts";
+import { useReportList } from "./use-report-list.ts";
 
 interface ReportScreenProps {
   id: string;
@@ -28,27 +27,22 @@ interface ReportScreenProps {
 export function ReportScreen({ id, headingLevel }: ReportScreenProps) {
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const reports = useReplica(selectReportRows);
-  const loaded = useReplica((snapshot) => snapshot.loaded);
+  const reports = useReportList().data ?? [];
   const row = reports.find((report) => report.id === id) ?? null;
   const { older, newer } = adjacentReports(reports, id);
-  const query = useQuery({
-    ...reportQuery(id, row?.periodEnd ?? null),
-    enabled: loaded,
-  });
+  const query = useQuery(reportQuery(id));
+  const hasData = query.data !== undefined;
 
   useEffect(() => {
-    if (query.status !== "success") return;
+    if (!hasData) return;
     for (const report of [older, newer]) {
       if (report !== null) {
-        queryClient
-          .query(reportQuery(report.id, report.periodEnd))
-          .catch(() => undefined);
+        queryClient.query(reportQuery(report.id)).catch(() => undefined);
       }
     }
-  }, [query.status, older, newer, queryClient]);
+  }, [hasData, older, newer, queryClient]);
 
-  if (query.status === "success") {
+  if (query.data !== undefined) {
     return (
       <ReportView
         report={query.data}
@@ -64,7 +58,7 @@ export function ReportScreen({ id, headingLevel }: ReportScreenProps) {
       ? t({ en: "Weekly report", zh: "周报" })
       : formatReportWeek(row.periodStart, row.periodEnd, locale);
 
-  if (query.status === "error") {
+  if (query.status === "error" || query.fetchStatus === "paused") {
     const notFound =
       query.error instanceof FinanceApiError && query.error.status === 404;
     return (

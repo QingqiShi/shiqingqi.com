@@ -67,6 +67,7 @@ export interface ReplicaPersistence {
   loadOutbox: () => Promise<OutboxEntry[]>;
   /** Starts the write before it returns when it can, so that an unload right after the call does not lose it. */
   write: (batch: ReplicaWrite) => Promise<void>;
+  /** Closes the database connection for good. */
   close: () => void;
 }
 

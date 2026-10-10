@@ -256,16 +256,6 @@ const bankLinkRowSchema = z.object({
   deletedAt,
 });
 
-/** The list fields of a Report; its data is fetched when the Report opens. */
-const reportRowSchema = z.object({
-  id,
-  householdId: id,
-  periodStart: day,
-  periodEnd: day,
-  generatedAt: timestamp,
-  version,
-});
-
 /**
  * Every table the Replica holds, keyed by its name on the wire. A row in the
  * Replica has the same shape as on the wire.
@@ -287,7 +277,6 @@ export const rowSchemas = {
   monthTotals: monthTotalRowSchema,
   fxRates: fxRateRowSchema,
   bankLinks: bankLinkRowSchema,
-  reports: reportRowSchema,
 };
 
 export type SyncTableName = keyof typeof rowSchemas;
@@ -310,4 +299,3 @@ export type TransactionTagRow = z.infer<typeof transactionTagRowSchema>;
 export type AccountBalanceDayRow = z.infer<typeof accountBalanceDayRowSchema>;
 export type FxRateRow = z.infer<typeof fxRateRowSchema>;
 export type BankLinkRow = z.infer<typeof bankLinkRowSchema>;
-export type ReportRow = z.infer<typeof reportRowSchema>;

@@ -1,17 +1,15 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
-import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useToast } from "../shell/toast-provider.tsx";
 import { reportApiClient } from "./report-api-client.ts";
 
 /**
  * Builds a Report again on the server (last week when `periodEnd` is left
- * out), then pulls so the list shows it and drops the cached data.
+ * out), then reads the list and the Report again and drops its share image.
  * Resolves to the Report's id, or null when it failed.
  */
 export function useRegenerateReport() {
-  const runtime = useFinanceRuntime().runtime;
   const queryClient = useQueryClient();
   const showToast = useToast();
   const [pending, setPending] = useState(false);
@@ -30,7 +28,7 @@ export function useRegenerateReport() {
       queryClient.removeQueries({
         queryKey: ["finance", "report-image", result.id],
       });
-      await runtime.loop.sync();
+      await queryClient.invalidateQueries({ queryKey: ["finance", "reports"] });
       return result.id;
     } catch {
       showToast({ message: failed });

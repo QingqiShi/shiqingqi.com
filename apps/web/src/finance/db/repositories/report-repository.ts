@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, lt, sql } from "drizzle-orm";
 import { reports } from "../schema.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
@@ -18,6 +18,45 @@ export const reportRepository = {
         and(eq(reports.householdId, scope.householdId), eq(reports.id, id)),
       );
     return rows.at(0);
+  },
+
+  /** Every Report without its data, newest week first. */
+  async list(scope: RepositoryScope) {
+    return scope.db
+      .select({
+        id: reports.id,
+        periodStart: reports.periodStart,
+        periodEnd: reports.periodEnd,
+        generatedAt: reports.generatedAt,
+      })
+      .from(reports)
+      .where(eq(reports.householdId, scope.householdId))
+      .orderBy(desc(reports.periodEnd));
+  },
+
+  /** Deletes one Report. False when the Household has no Report with this id. */
+  async remove(scope: RepositoryScope, id: string) {
+    const removed = await scope.db
+      .delete(reports)
+      .where(
+        and(eq(reports.householdId, scope.householdId), eq(reports.id, id)),
+      )
+      .returning({ id: reports.id });
+    return removed.length > 0;
+  },
+
+  /** Deletes the Reports of the weeks that end before `periodEnd`, and says how many. */
+  async removeBefore(scope: RepositoryScope, periodEnd: string) {
+    const removed = await scope.db
+      .delete(reports)
+      .where(
+        and(
+          eq(reports.householdId, scope.householdId),
+          lt(reports.periodEnd, periodEnd),
+        ),
+      )
+      .returning({ id: reports.id });
+    return removed.length;
   },
 
   /** The stored data of the Reports that end on `periodEnds`, by period end. */

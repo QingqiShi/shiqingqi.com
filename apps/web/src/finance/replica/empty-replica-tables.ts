@@ -21,6 +21,5 @@ export function emptyReplicaTables(): ReplicaTables {
     monthTotals: EMPTY,
     fxRates: EMPTY,
     bankLinks: EMPTY,
-    reports: EMPTY,
   };
 }
