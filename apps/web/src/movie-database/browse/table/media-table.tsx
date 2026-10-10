@@ -22,7 +22,6 @@ import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { TextField } from "@tuja/ui/components/text-field";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
@@ -583,160 +582,158 @@ export function MediaTable({
         toggleSort,
       }}
     >
-      <div css={[pageColumn.base, styles.panelContainer]}>
-        <section css={[corner.radius_3, styles.panel]} aria-label={tableLabel}>
-          <div css={styles.toolbar}>
-            <TextField
-              label={searchLabel}
-              labelHidden
-              size="sm"
-              type="search"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
+      <section css={[corner.radius_3, styles.panel]} aria-label={tableLabel}>
+        <div css={styles.toolbar}>
+          <TextField
+            label={searchLabel}
+            labelHidden
+            size="sm"
+            type="search"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+            placeholder={searchLabel}
+            leading={<MagnifyingGlassIcon weight="bold" />}
+            css={styles.search}
+          />
+          <div css={styles.toolbarActions}>
+            <MenuButton
+              popupRole="group"
+              position="topRight"
+              buttonProps={{
+                size: "sm",
+                icon: <SlidersHorizontalIcon weight="bold" />,
+                hideLabelOnMobile: true,
               }}
-              placeholder={searchLabel}
-              leading={<MagnifyingGlassIcon weight="bold" />}
-              css={styles.search}
+              menuContent={
+                <div css={styles.columnMenu}>
+                  {columns.map((column) => (
+                    <Checkbox
+                      key={column.id}
+                      size="sm"
+                      label={column.name ?? column.id}
+                      checked={!column.hide}
+                      onChange={(e) => {
+                        const visible = e.target.checked;
+                        setColumns(
+                          columns.map((candidate) =>
+                            candidate.id === column.id
+                              ? { ...candidate, hide: !visible }
+                              : candidate,
+                          ),
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+              }
+            >
+              {columnsLabel}
+            </MenuButton>
+            <Button
+              size="sm"
+              icon={<DownloadSimpleIcon weight="bold" />}
+              hideLabelOnMobile
+              // Export reads the grid API, and the grid is unmounted while
+              // the empty state is showing — there is nothing to export and
+              // an enabled button would just swallow the click.
+              disabled={visibleItems.length === 0}
+              onClick={exportCsv}
+            >
+              {exportLabel}
+            </Button>
+          </div>
+        </div>
+
+        {visibleItems.length === 0 ? (
+          <p css={styles.empty}>
+            <span aria-hidden="true">🙉 </span>
+            {query ? noMatchesLabel : notFoundLabel}
+          </p>
+        ) : (
+          <div {...sx} className={`${sx.className ?? ""} ln-grid`}>
+            <Grid<MediaTableSpec>
+              // Remounting on a new result set is what returns the viewport
+              // to the first row and clears stale cell selections.
+              key={resultsKey}
+              ref={apiRef}
+              rowSource={rowSource}
+              columns={columns}
+              onColumnsChange={setColumns}
+              columnBase={{
+                resizable: true,
+                movable: true,
+                headerRenderer: MediaTableHeader,
+              }}
+              columnMarker={{
+                on: true,
+                width: 52,
+                cellRenderer: MediaRowNumberCell,
+                headerRenderer: MediaRowNumberHeader,
+              }}
+              rowHeight={ROW_HEIGHT}
+              headerHeight={HEADER_HEIGHT}
+              rowAlternateAttr
+              // LyteNyte does not obey reduced motion for row animations, so
+              // the grid gets the setting as a prop.
+              rowAnimate={!prefersReducedMotion}
+              cellSelectionMode="range"
+              cellSelectionExcludeMarker
+              columnDoubleClickToAutosize
+              suppressScrollFlash
+              viewportInitialHeight={520}
+              viewportInitialWidth={1140}
+              events={events}
+              styles={gridPartStyles}
             />
-            <div css={styles.toolbarActions}>
-              <MenuButton
-                popupRole="group"
-                position="topRight"
-                buttonProps={{
-                  size: "sm",
-                  icon: <SlidersHorizontalIcon weight="bold" />,
-                  hideLabelOnMobile: true,
-                }}
-                menuContent={
-                  <div css={styles.columnMenu}>
-                    {columns.map((column) => (
-                      <Checkbox
-                        key={column.id}
-                        size="sm"
-                        label={column.name ?? column.id}
-                        checked={!column.hide}
-                        onChange={(e) => {
-                          const visible = e.target.checked;
-                          setColumns(
-                            columns.map((candidate) =>
-                              candidate.id === column.id
-                                ? { ...candidate, hide: !visible }
-                                : candidate,
-                            ),
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                }
-              >
-                {columnsLabel}
-              </MenuButton>
+          </div>
+        )}
+
+        <div css={styles.footer}>
+          <p css={styles.counts}>
+            {query && (
+              <>
+                <span css={[typeRole.overline, styles.countLabel]}>
+                  {shownLabel}
+                </span>
+                <span
+                  css={[
+                    typeRole.label,
+                    typeModifier.numeric,
+                    styles.countValue,
+                  ]}
+                >
+                  {numberFormat.format(visibleItems.length)}
+                </span>
+              </>
+            )}
+            <span css={[typeRole.overline, styles.countLabel]}>
+              {loadedLabel}
+            </span>
+            <span
+              css={[typeRole.label, typeModifier.numeric, styles.countValue]}
+            >
+              {numberFormat.format(items.length)}
+            </span>
+          </p>
+          <p css={[typeRole.caption, styles.hint]}>{hintLabel}</p>
+          <div css={styles.footerActions}>
+            {isFetchingNextPage && <Spinner size="sm" label={loadingLabel} />}
+            {hasNextPage ? (
               <Button
                 size="sm"
-                icon={<DownloadSimpleIcon weight="bold" />}
-                hideLabelOnMobile
-                // Export reads the grid API, and the grid is unmounted while
-                // the empty state is showing — there is nothing to export and
-                // an enabled button would just swallow the click.
-                disabled={visibleItems.length === 0}
-                onClick={exportCsv}
+                onClick={loadMore}
+                disabled={isFetchingNextPage}
               >
-                {exportLabel}
+                {loadMoreLabel}
               </Button>
-            </div>
+            ) : (
+              <span css={[typeRole.caption, styles.endNote]}>{endLabel}</span>
+            )}
           </div>
-
-          {visibleItems.length === 0 ? (
-            <p css={styles.empty}>
-              <span aria-hidden="true">🙉 </span>
-              {query ? noMatchesLabel : notFoundLabel}
-            </p>
-          ) : (
-            <div {...sx} className={`${sx.className ?? ""} ln-grid`}>
-              <Grid<MediaTableSpec>
-                // Remounting on a new result set is what returns the viewport
-                // to the first row and clears stale cell selections.
-                key={resultsKey}
-                ref={apiRef}
-                rowSource={rowSource}
-                columns={columns}
-                onColumnsChange={setColumns}
-                columnBase={{
-                  resizable: true,
-                  movable: true,
-                  headerRenderer: MediaTableHeader,
-                }}
-                columnMarker={{
-                  on: true,
-                  width: 52,
-                  cellRenderer: MediaRowNumberCell,
-                  headerRenderer: MediaRowNumberHeader,
-                }}
-                rowHeight={ROW_HEIGHT}
-                headerHeight={HEADER_HEIGHT}
-                rowAlternateAttr
-                // LyteNyte does not obey reduced motion for row animations, so
-                // the grid gets the setting as a prop.
-                rowAnimate={!prefersReducedMotion}
-                cellSelectionMode="range"
-                cellSelectionExcludeMarker
-                columnDoubleClickToAutosize
-                suppressScrollFlash
-                viewportInitialHeight={520}
-                viewportInitialWidth={1140}
-                events={events}
-                styles={gridPartStyles}
-              />
-            </div>
-          )}
-
-          <div css={styles.footer}>
-            <p css={styles.counts}>
-              {query && (
-                <>
-                  <span css={[typeRole.overline, styles.countLabel]}>
-                    {shownLabel}
-                  </span>
-                  <span
-                    css={[
-                      typeRole.label,
-                      typeModifier.numeric,
-                      styles.countValue,
-                    ]}
-                  >
-                    {numberFormat.format(visibleItems.length)}
-                  </span>
-                </>
-              )}
-              <span css={[typeRole.overline, styles.countLabel]}>
-                {loadedLabel}
-              </span>
-              <span
-                css={[typeRole.label, typeModifier.numeric, styles.countValue]}
-              >
-                {numberFormat.format(items.length)}
-              </span>
-            </p>
-            <p css={[typeRole.caption, styles.hint]}>{hintLabel}</p>
-            <div css={styles.footerActions}>
-              {isFetchingNextPage && <Spinner size="sm" label={loadingLabel} />}
-              {hasNextPage ? (
-                <Button
-                  size="sm"
-                  onClick={loadMore}
-                  disabled={isFetchingNextPage}
-                >
-                  {loadMoreLabel}
-                </Button>
-              ) : (
-                <span css={[typeRole.caption, styles.endNote]}>{endLabel}</span>
-              )}
-            </div>
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </MediaTableContext>
   );
 }
@@ -747,10 +744,8 @@ const gridPartStyles: Grid.Style = {
 };
 
 const styles = stylex.create({
-  panelContainer: {
-    marginBlockEnd: rhythm.group,
-  },
   panel: {
+    marginBlockEnd: rhythm.group,
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",

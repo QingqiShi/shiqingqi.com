@@ -6,7 +6,7 @@ import {
   pageGutter,
 } from "../primitives/page-column.stylex.ts";
 import { BlurPlane, BlurPlaneProvider } from "../surfaces/blur-plane.tsx";
-import { layer, layout, space } from "../tokens.stylex.ts";
+import { layer, space } from "../tokens.stylex.ts";
 import { HeaderControls } from "./header-controls.tsx";
 
 interface HeaderFooterLayoutProps {
@@ -66,6 +66,14 @@ interface HeaderFooterLayoutProps {
    */
   contentMaxInlineSize?: string;
   /**
+   * Sets the header controls on the wide page column, one page gutter from
+   * the screen edges, so they line up with a gallery that runs wide
+   * (`pageColumn.wide`). The content and the footer keep their own column.
+   *
+   * @zh 将页头控件放在宽页面栏上，离屏幕边缘一个页面边距，与铺满宽屏的画廊（`pageColumn.wide`）对齐。内容与页脚保留各自的页面栏。
+   */
+  wideHeader?: boolean;
+  /**
    * Landmark element for the content region. Use `"main"` (the default) for the
    * page's primary content, or `"div"` when the shell is nested inside a surface
    * that already owns the `<main>` landmark.
@@ -92,6 +100,7 @@ export function HeaderFooterLayout({
   children,
   pageColumn,
   contentMaxInlineSize,
+  wideHeader,
   as = "main",
 }: HeaderFooterLayoutProps) {
   const isColumn = pageColumn === true || contentMaxInlineSize != null;
@@ -123,7 +132,7 @@ export function HeaderFooterLayout({
             {background}
           </div>
         )}
-        <header css={styles.header}>
+        <header css={[styles.header, wideHeader && pageColumnStyles.wide]}>
           {headerStart != null && (
             <HeaderControls css={styles.headerStart}>
               {headerStart}
@@ -178,10 +187,10 @@ const styles = stylex.create({
   // removes. Only headerEnd also moves in by that width, because the body
   // takes it as padding on that side.
   headerStart: {
-    insetInlineStart: `max(${pageGutter.inlineStart}, calc((100% - ${SCROLLBAR} - ${layout.maxInlineSize}) / 2 + ${space._3}))`,
+    insetInlineStart: `max(${pageGutter.inlineStart}, calc((100% - ${SCROLLBAR} - ${pageColumnTokens.inlineSize}) / 2 + ${space._3}))`,
   },
   headerEnd: {
-    insetInlineEnd: `calc(max(${pageGutter.inlineEnd}, calc((100% - ${SCROLLBAR} - ${layout.maxInlineSize}) / 2 + ${space._3})) + ${SCROLLBAR})`,
+    insetInlineEnd: `calc(max(${pageGutter.inlineEnd}, calc((100% - ${SCROLLBAR} - ${pageColumnTokens.inlineSize}) / 2 + ${space._3})) + ${SCROLLBAR})`,
   },
   // No top offset: heroes and backdrops bleed under the controls; pages that
   // want clearance add their own.

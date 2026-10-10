@@ -118,6 +118,7 @@ The page column is where a page's content sits: centred, `layout.maxInlineSize` 
 | ------------------------------ | --------------------------------------------------------------------------------------- |
 | `pageColumn.base`              | A box that spans its parent and sets its content in the page column                     |
 | `pageColumn.scroller`          | A horizontal scroller: its end items rest on the column, the rest scroll to the edges   |
+| `pageColumn.wide`              | With `base` or `scroller`: the wide page column, only the page gutter from the edges    |
 | `pageGutter.inlineStart`/`End` | One gutter: for a box that steps out of the column by a gutter, or a fixed edge control |
 | `pageColumnTokens.inlineSize`  | The dial for a narrower column, its gutters included                                    |
 
@@ -126,7 +127,10 @@ import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 
 <section css={[pageColumn.base, styles.hero]}>{/* bleeds; content in the column */}</section>
 <div css={[pageColumn.scroller, scrollX.base]}>{cards}</div>
+<section css={[pageColumn.base, pageColumn.wide]}>{posterGrid}</section>
 ```
+
+A gallery of cards, such as a poster grid, takes the wide page column so that a wide screen fits more columns; prose stays in the page column. Pass `wideHeader` to `HeaderFooterLayout` on such a page, so the header controls share the gallery's edges.
 
 ---
 

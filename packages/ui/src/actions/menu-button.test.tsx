@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState, type ReactNode } from "react";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
@@ -470,6 +470,128 @@ describe("MenuButton sheet direction", () => {
 
     expect(popup.closest('[class*="sheetAbove"]')).toBeNull();
     expect(popup.style.maxBlockSize).toContain("100dvh");
+  });
+});
+
+describe("MenuButton corner menu on screen", () => {
+  const SCREEN_WIDTH = 800;
+  let menuLeft = 0;
+  let menuWidth = 0;
+
+  // jsdom lays nothing out, so one stubbed rect stands in for every box: the
+  // menu, anchored at its trigger, runs from `left` to `left + width`.
+  function stubMenu(left: number, width: number) {
+    menuLeft = left;
+    menuWidth = width;
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
+      () => ({
+        top: 0,
+        bottom: 40,
+        height: 40,
+        left: menuLeft,
+        right: menuLeft + menuWidth,
+        width: menuWidth,
+        x: menuLeft,
+        y: 0,
+        toJSON: () => ({}),
+      }),
+    );
+    vi.spyOn(document.documentElement, "clientWidth", "get").mockReturnValue(
+      SCREEN_WIDTH,
+    );
+  }
+
+  // jsdom resolves no StyleX class, so the page gutter, which the menu reads
+  // from its resolved scroll margins, is stubbed per side.
+  function stubGutters(left: string, right: string) {
+    const getComputedStyle = window.getComputedStyle.bind(window);
+    vi.spyOn(window, "getComputedStyle").mockImplementation((element) => {
+      const style = getComputedStyle(element);
+      return new Proxy(style, {
+        get(target, property) {
+          if (property === "scrollMarginLeft") return left;
+          if (property === "scrollMarginRight") return right;
+          const value: unknown = Reflect.get(target, property, target);
+          if (typeof value !== "function") return value;
+          return (...args: unknown[]): unknown =>
+            Reflect.apply(value, target, args);
+        },
+      });
+    });
+  }
+
+  function openMenu() {
+    render(
+      <MenuButton
+        buttonProps={{ type: "button", "aria-label": "Open genres" }}
+        popupRole="group"
+        menuContent={<button type="button">Inside</button>}
+      />,
+    );
+    const trigger = screen.getByRole("button", { name: "Open genres" });
+    fireEvent.click(trigger);
+    const popup = document.getElementById(
+      trigger.getAttribute("aria-controls") ?? "",
+    );
+    const menu = popup?.closest('[class*="menuContainer"]');
+    if (!(menu instanceof HTMLElement)) throw new Error("expected menu");
+    return menu;
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.useRealTimers();
+  });
+
+  it("moves a menu that opens past the left edge back in, one gutter and the left inset from it", () => {
+    stubMenu(-200, 500);
+    stubGutters("60px", "16px");
+
+    const menu = openMenu();
+
+    expect(menu.getAttribute("style")).toContain("260px");
+  });
+
+  it("moves a menu that opens past the right edge back in, one gutter and the right inset from it", () => {
+    stubMenu(400, 500);
+    stubGutters("16px", "60px");
+
+    const menu = openMenu();
+
+    expect(menu.getAttribute("style")).toContain("-160px");
+  });
+
+  it("keeps the left edge of a menu wider than the screen in view", () => {
+    stubMenu(-50, 900);
+    stubGutters("16px", "16px");
+
+    const menu = openMenu();
+
+    expect(menu.getAttribute("style")).toContain("66px");
+  });
+
+  it("leaves a menu that fits the screen where it is", () => {
+    stubMenu(100, 500);
+    stubGutters("16px", "16px");
+
+    const menu = openMenu();
+
+    expect(menu.getAttribute("style")).toBeNull();
+  });
+
+  it("moves an open menu back in when the screen resizes under it", () => {
+    vi.useFakeTimers({ toFake: ["requestAnimationFrame"] });
+    stubMenu(100, 500);
+    stubGutters("16px", "16px");
+    const menu = openMenu();
+
+    menuLeft = 400;
+    act(() => {
+      window.dispatchEvent(new Event("resize"));
+      vi.advanceTimersToNextFrame();
+    });
+
+    expect(menu.getAttribute("style")).toContain("-116px");
   });
 });
 

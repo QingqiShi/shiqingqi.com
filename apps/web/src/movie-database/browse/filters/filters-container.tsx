@@ -5,9 +5,8 @@ import {
   StickyControls,
 } from "@tuja/ui/components/sticky-controls";
 import { shrink } from "@tuja/ui/primitives/flex.stylex";
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
+import { gutterBleed } from "#src/movie-database/gutter-bleed.stylex.ts";
 
 interface FiltersContainerProps {
   desktopChildren?: ReactNode;
@@ -20,8 +19,6 @@ export function FiltersContainer({
   mobileChildren,
   trailingContent,
 }: FiltersContainerProps) {
-  // A group of its own at the inline end, so the page between the filters and
-  // it stays sharp.
   const trailingGroup = trailingContent && (
     <StickyControlGroup css={styles.trailingGroup}>
       {trailingContent}
@@ -30,7 +27,7 @@ export function FiltersContainer({
 
   return (
     <>
-      <StickyControls css={[pageColumn.base, styles.bar, styles.desktop]}>
+      <StickyControls css={styles.desktop}>
         {/* Never narrower than its controls, or their labels wrap onto a
             second line. The trailing group gives way instead. */}
         <StickyControlGroup css={shrink._0}>
@@ -38,7 +35,7 @@ export function FiltersContainer({
         </StickyControlGroup>
         {trailingGroup}
       </StickyControls>
-      <StickyControls css={[pageColumn.base, styles.bar, styles.mobile]}>
+      <StickyControls css={[gutterBleed.base, styles.mobile]}>
         <StickyControlGroup>{mobileChildren}</StickyControlGroup>
         {trailingGroup}
       </StickyControls>
@@ -47,20 +44,21 @@ export function FiltersContainer({
 }
 
 const styles = stylex.create({
-  bar: {
-    marginBlockEnd: rhythm.item,
-  },
-
   desktop: {
     display: { default: "none", [breakpoints.md]: "flex" },
+    minInlineSize: 0,
   },
 
+  // A line of its own, because the AI button sits out of flow at its end. It
+  // steps out to the screen edges, so that the Refine sheet, which spans the
+  // bar, keeps one gutter from them.
   mobile: {
     display: { default: "flex", [breakpoints.md]: "none" },
+    flexGrow: 1,
+    flexBasis: "100%",
   },
 
   trailingGroup: {
-    marginInlineStart: "auto",
     // Shrinkable so a crowded toolbar narrows the trailing content instead of
     // pushing the row wider than the container.
     minInlineSize: 0,

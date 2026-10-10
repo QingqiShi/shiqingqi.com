@@ -30,7 +30,7 @@ const requirePageColumn = {
       maxInlineSize:
         "`layout.maxInlineSize` builds a page column by hand. Compose `pageColumn.base` from `@tuja/ui/primitives/page-column.stylex`: the box spans its parent and sets its content in the page column, with the page gutter and the safe area. `HeaderFooterLayout` with `pageColumn` already does this.",
       safeArea:
-        "`env(safe-area-inset-{{side}})` builds a page gutter by hand. Compose `pageColumn.base` or `pageColumn.scroller` from `@tuja/ui/primitives/page-column.stylex` to set content in the page column, or take `pageGutter.inlineStart` or `pageGutter.inlineEnd` for one gutter.",
+        "`env(safe-area-inset-{{side}})` builds a page gutter by hand. Compose `pageColumn.base` or `pageColumn.scroller` from `@tuja/ui/primitives/page-column.stylex` to set content in the page column, add `pageColumn.wide` for a gallery of cards that keeps only the page gutter, or take `pageGutter.inlineStart` or `pageGutter.inlineEnd` for one gutter.",
     },
     schema: [],
   },

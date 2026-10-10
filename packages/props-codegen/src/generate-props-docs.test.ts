@@ -67,6 +67,7 @@ describe("generatePropsDocs over @tuja/ui", () => {
       "use-dust",
       "use-extractor-fan",
       "use-light-beam",
+      "use-liquid",
       "use-ripple",
     ]);
   });

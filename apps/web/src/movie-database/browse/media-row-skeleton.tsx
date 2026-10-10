@@ -17,12 +17,13 @@ export function MediaRowSkeleton({
   inset = "chat",
 }: MediaRowSkeletonProps = {}) {
   const isStandalone = inset === "standalone";
+  const wideColumn = [pageColumn.base, pageColumn.wide];
   return (
     <div css={stack.tight}>
-      <div css={isStandalone && pageColumn.base}>
+      <div css={isStandalone && wideColumn}>
         <Skeleton width={220} height={16} />
       </div>
-      <div css={[styles.row, isStandalone ? pageColumn.base : styles.rowChat]}>
+      <div css={[styles.row, isStandalone ? wideColumn : styles.rowChat]}>
         {Array.from({ length: SKELETON_COUNT }, (_, i) => (
           <div
             key={i}

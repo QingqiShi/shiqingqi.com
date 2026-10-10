@@ -24,9 +24,11 @@ export interface SpacingReport {
  * Distances are measured between what a reader sees, not between boxes. A
  * surface (a background, a border, a shadow, a replaced element) is seen at its
  * border box. Text on no surface is seen at its content box, so the padding of
- * a ghost button or a nav link counts as space. A wrapper that paints nothing
- * is seen as the union of what it holds. A heading's distance stops at an
- * element marked `data-spacing-scope`, such as a Specimen's stage.
+ * a ghost button or a nav link counts as space. A wrapper that paints nothing,
+ * or has no box (`display: contents`), is seen as the union of what it holds.
+ * A fixed element, such as a header control, floats over the page, so it is
+ * not a block. A heading's distance stops at an element marked
+ * `data-spacing-scope`, such as a Specimen's stage.
  */
 export function measureSpacing(rootSelectors: string[]): SpacingReport {
   const TOLERANCE = 1;
@@ -159,12 +161,19 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
   }
 
   function measureVisualBox(el: Element): Box | null {
+    const style = styleOf(el);
+    if (style.display === "contents") return unionOfChildren(el);
+    if (style.position === "fixed") return null;
     if (!isShown(el)) return null;
     if (isPainted(el)) {
       const { top, bottom, left, right } = el.getBoundingClientRect();
       return { top, bottom, left, right };
     }
     if (hasOwnText(el)) return contentBox(el);
+    return unionOfChildren(el);
+  }
+
+  function unionOfChildren(el: Element): Box | null {
     let union: Box | null = null;
     for (const child of el.children) {
       const box = visualBox(child);

@@ -1,7 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Skeleton } from "@tuja/ui/components/skeleton";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { justify } from "@tuja/ui/primitives/flex.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { ratio } from "@tuja/ui/tokens.stylex";
 import { connection } from "next/server";
 import { Suspense } from "react";
@@ -16,6 +18,7 @@ import { readMediaFiltersSearchParams } from "#src/movie-database/browse/filters
 import { HeroSection } from "#src/movie-database/browse/hero-section.tsx";
 import { HeroVisibilityProvider } from "#src/movie-database/browse/hero-visibility-provider.tsx";
 import { MediaList } from "#src/movie-database/browse/media-list.tsx";
+import { ResultsTitle } from "#src/movie-database/browse/results-title.tsx";
 import { TrendingRows } from "#src/movie-database/browse/trending-rows.tsx";
 import { DotGridBackground } from "#src/movie-database/chat/dot-grid-background.tsx";
 import { InlineChatSwitch } from "#src/movie-database/chat/inline-chat-switch.tsx";
@@ -29,6 +32,8 @@ import { configurationQuery } from "#src/movie-database/tmdb/queries/configurati
 import { genresQuery } from "#src/movie-database/tmdb/queries/genres-query.ts";
 import { mediaListQuery } from "#src/movie-database/tmdb/queries/media-list-query.ts";
 import { toURLSearchParams } from "./to-url-search-params";
+
+const RESULTS_TITLE_ID = "browse-results-title";
 
 const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
   key: `skeleton-${String(i)}`,
@@ -121,32 +126,26 @@ export default async function Page(
                     zh: "本周热门电视剧",
                   })}
                 />
-                <Suspense
-                  fallback={
-                    <>
-                      <FiltersSkeleton locale={validatedLocale} />
-                      <Grid>
-                        {SKELETON_ITEMS.map((item) => (
-                          <Skeleton
-                            key={item.key}
-                            css={styles.skeleton}
-                            delay={item.delay}
-                          />
-                        ))}
-                      </Grid>
-                    </>
-                  }
-                >
-                  <HydrationBoundary state={dehydrate(queryClient)}>
-                    <MediaFiltersProvider
-                      defaultFilters={{
-                        genres,
-                        matchMode,
-                        sort,
-                        mediaType,
-                        view,
-                      }}
+                <HydrationBoundary state={dehydrate(queryClient)}>
+                  <MediaFiltersProvider
+                    defaultFilters={{
+                      genres,
+                      matchMode,
+                      sort,
+                      mediaType,
+                      view,
+                    }}
+                  >
+                    <section
+                      aria-labelledby={RESULTS_TITLE_ID}
+                      css={[
+                        pageColumn.base,
+                        pageColumn.wide,
+                        cluster.item,
+                        justify.between,
+                      ]}
                     >
+                      <ResultsTitle id={RESULTS_TITLE_ID} />
                       <Suspense
                         fallback={<FiltersSkeleton locale={validatedLocale} />}
                       >
@@ -154,10 +153,26 @@ export default async function Page(
                           mobileButtonLabel={t({ en: "Refine", zh: "筛选" })}
                         />
                       </Suspense>
-                      <MediaList initialPage={1} />
-                    </MediaFiltersProvider>
-                  </HydrationBoundary>
-                </Suspense>
+                      <div css={styles.resultsBody}>
+                        <Suspense
+                          fallback={
+                            <Grid>
+                              {SKELETON_ITEMS.map((item) => (
+                                <Skeleton
+                                  key={item.key}
+                                  css={styles.skeleton}
+                                  delay={item.delay}
+                                />
+                              ))}
+                            </Grid>
+                          }
+                        >
+                          <MediaList initialPage={1} />
+                        </Suspense>
+                      </div>
+                    </section>
+                  </MediaFiltersProvider>
+                </HydrationBoundary>
               </>
             }
             chatContent={
@@ -219,6 +234,9 @@ export default async function Page(
 }
 
 const styles = stylex.create({
+  resultsBody: {
+    flexBasis: "100%",
+  },
   skeleton: {
     aspectRatio: ratio.poster,
     width: "100%",

@@ -176,12 +176,22 @@ const styles = stylex.create({
 
 // Cards that scroll sideways rest on the column
 // and scroll out to the screen edges.
-<div css={[pageColumn.scroller, scrollX.base]}>{cards}</div>`}
+<div css={[pageColumn.scroller, scrollX.base]}>{cards}</div>
+
+// A gallery of cards takes the wide page column,
+// one page gutter from the screen edges.
+<section css={[pageColumn.base, pageColumn.wide]}>{posters}</section>`}
         />
         <GuideNote>
           {t({
             en: "The page column is padding, not a capped box, so put it on a box that spans the page. For one gutter, take pageGutter.inlineStart or pageGutter.inlineEnd: a control fixed at the screen edge, or a bar that steps out of the column by one gutter.",
             zh: "页面栏是内边距，不是限宽的盒子，所以把它放在横跨整个页面的盒子上。只需要一个边距时，取 pageGutter.inlineStart 或 pageGutter.inlineEnd：固定在屏幕边缘的控件，或比页面栏多伸出一个边距的栏。",
+          })}
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "A gallery of cards, such as a poster grid, takes the wide page column: add pageColumn.wide to pageColumn.base or pageColumn.scroller, and the content keeps only the page gutter, so a wide screen fits more columns. Prose stays in the page column. On such a page, HeaderFooterLayout takes wideHeader, so its header controls share the gallery's edges.",
+            zh: "卡片画廊（例如海报网格）使用宽页面栏：给 pageColumn.base 或 pageColumn.scroller 加上 pageColumn.wide，内容只保留页面边距，宽屏就能放下更多列。正文仍留在页面栏内。这样的页面给 HeaderFooterLayout 传入 wideHeader，让页头控件与画廊对齐同一边缘。",
           })}
         </GuideNote>
         <GuideNote>

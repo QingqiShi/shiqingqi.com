@@ -44,4 +44,12 @@ export const pageColumn = stylex.create({
     scrollPaddingInlineStart: INSET_START,
     scrollPaddingInlineEnd: INSET_END,
   },
+  /**
+   * The wide page column: it spans the screen, so the content keeps only the
+   * page gutter. Compose it with `base` or `scroller`, for a gallery of cards
+   * that takes every column a wide screen has room for.
+   */
+  wide: {
+    [pageColumnTokens.inlineSize]: "100%",
+  },
 });

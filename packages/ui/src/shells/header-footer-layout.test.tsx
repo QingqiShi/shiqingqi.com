@@ -125,6 +125,34 @@ describe("HeaderFooterLayout tuning props", () => {
     render(<HeaderFooterLayout>Body</HeaderFooterLayout>);
     expect(screen.getByRole("main").getAttribute("style")).toBeNull();
   });
+
+  it("sets the header controls on the wide page column when wideHeader is passed", () => {
+    render(
+      <HeaderFooterLayout
+        headerStart={<span>Back</span>}
+        headerEnd={<span>Utilities</span>}
+        wideHeader
+      >
+        Body
+      </HeaderFooterLayout>,
+    );
+    expect(screen.getByRole("banner").className).toContain("pageColumn.wide");
+    expect(screen.getByRole("main").className).not.toContain("pageColumn");
+  });
+
+  it("sets the header controls on the page column by default", () => {
+    render(
+      <HeaderFooterLayout
+        headerStart={<span>Back</span>}
+        headerEnd={<span>Utilities</span>}
+      >
+        Body
+      </HeaderFooterLayout>,
+    );
+    expect(screen.getByRole("banner").className).not.toContain(
+      "pageColumn.wide",
+    );
+  });
 });
 
 describe("HeaderFooterLayout floating controls", () => {
