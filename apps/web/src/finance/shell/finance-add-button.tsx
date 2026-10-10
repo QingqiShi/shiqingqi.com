@@ -4,14 +4,17 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
-import { layer, shadow, space } from "@tuja/ui/tokens.stylex";
+import { layer } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { normalizePath } from "#src/i18n/normalize-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
-import { tabBarTokens } from "./tab-bar.stylex.ts";
+import {
+  floatingAction,
+  floatingActionTokens,
+} from "./floating-action.stylex.ts";
 
 /**
  * The floating Add action below `lg`, above the tab bar below `md`. It opens a blank expense in the
@@ -30,7 +33,7 @@ export function FinanceAddButton() {
         look="primary"
         size="lg"
         icon={<PlusIcon weight="bold" />}
-        css={styles.button}
+        css={floatingAction.lift}
       >
         {t({ en: "Add", zh: "记一笔" })}
       </AnchorButton>
@@ -42,14 +45,8 @@ const styles = stylex.create({
   anchor: {
     display: { default: "block", [breakpoints.lg]: "none" },
     position: "fixed",
-    insetBlockEnd: {
-      default: `calc(${tabBarTokens.clearance} + ${space._3})`,
-      [breakpoints.md]: `calc(${space._5} + env(safe-area-inset-bottom))`,
-    },
+    insetBlockEnd: floatingActionTokens.insetBlockEnd,
     insetInlineEnd: pageGutter.inlineEnd,
     zIndex: layer.header,
-  },
-  button: {
-    boxShadow: shadow._4,
   },
 });

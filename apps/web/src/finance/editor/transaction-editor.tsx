@@ -21,7 +21,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useEffect,
   useRef,
@@ -43,6 +43,8 @@ import { parseMoney } from "../domain/money/parse-money.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
+import { floatingAction } from "../shell/floating-action.stylex.ts";
+import { FloatingActions } from "../shell/floating-actions.tsx";
 import { useToast } from "../shell/toast-provider.tsx";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
@@ -99,11 +101,11 @@ interface TransactionEditorProps {
 
 const NO_ENTRIES: readonly EntryRow[] = [];
 /**
- * The end padding of the pane and the sheet that hold the editor. The
- * sticky footer moves down into it, because a sticky box stops at the
- * scroller's padding edge.
+ * The end padding of the pane and the sheet that hold the editor, without the
+ * safe area. The floating actions move down into it, because a sticky box
+ * stops at the scroller's padding edge.
  */
-const PANE_END_PADDING = `${space._7} + env(safe-area-inset-bottom)`;
+const PANE_END_GAP = space._7;
 const PAYS_DOWN_KINDS: ReadonlySet<string> = new Set([
   "loan",
   "credit",
@@ -831,6 +833,21 @@ function EditorForm({
         ? t({ en: "Amount refunded", zh: "退款金额" })
         : t({ en: "Amount", zh: "金额" });
 
+  const secondaryAction = isNew ? (
+    <Button
+      css={floatingAction.lift}
+      onClick={() => {
+        save(true);
+      }}
+    >
+      {t({ en: "Save and add another", zh: "保存并再记一笔" })}
+    </Button>
+  ) : isExpected ? (
+    <Button css={floatingAction.lift} onClick={remove}>
+      {t({ en: "Skip", zh: "跳过" })}
+    </Button>
+  ) : null;
+
   return (
     <form
       noValidate
@@ -1492,31 +1509,22 @@ function EditorForm({
         })}
       </p>
 
-      <div
+      <FloatingActions
         css={[
-          cluster.tight,
           styles.footer,
           keyboardInset > 0 && styles.lift(`${String(keyboardInset)}px`),
         ]}
       >
-        <Button type="submit" look="primary">
+        {secondaryAction}
+        <Button
+          type="submit"
+          look="primary"
+          size={secondaryAction ? "md" : "lg"}
+          css={floatingAction.lift}
+        >
           {saveLabel}
         </Button>
-        {isNew ? (
-          <Button
-            onClick={() => {
-              save(true);
-            }}
-          >
-            {t({ en: "Save and add another", zh: "保存并再记一笔" })}
-          </Button>
-        ) : null}
-        {isExpected ? (
-          <Button look="ghost" onClick={remove}>
-            {t({ en: "Skip", zh: "跳过" })}
-          </Button>
-        ) : null}
-      </div>
+      </FloatingActions>
     </form>
   );
 }
@@ -1566,14 +1574,8 @@ const styles = stylex.create({
   },
   footer: {
     position: "sticky",
-    insetBlockEnd: `calc(-1 * (${PANE_END_PADDING}))`,
+    insetBlockEnd: `calc(${space._3} - ${PANE_END_GAP})`,
     zIndex: 1,
-    paddingBlockStart: space._3,
-    paddingBlockEnd: `calc(${space._3} + env(safe-area-inset-bottom))`,
-    borderBlockStartWidth: border.size_1,
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: color.border,
-    backgroundColor: color.bgSurface,
   },
   lift: (inset: string) => ({
     transform: `translateY(calc(-1 * ${inset}))`,
