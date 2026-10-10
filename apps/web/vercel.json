@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ]; then pnpm finance:migrate; fi && turbo run build",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] || [ \"$VERCEL_ENV\" = production ]; then pnpm finance:migrate; fi && turbo run build",
   "crons": [
     { "path": "/api/finance/cron/bank-sync", "schedule": "0 */6 * * *" },
     { "path": "/api/finance/cron/materialise", "schedule": "0 2 * * *" },

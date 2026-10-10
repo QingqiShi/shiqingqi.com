@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
   screen,
@@ -77,6 +78,7 @@ async function openSheet(trigger: HTMLElement) {
 const providerAccounts: ProviderAccountsResponse = {
   status: "connected",
   mode: "fake",
+  credential: { lastFour: "wxyz", savedAt: "2026-10-01T09:00:00Z" },
   accounts: [
     {
       providerAccountId: "fake-visa",
@@ -386,6 +388,108 @@ describe("Settings", () => {
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "View" }));
     expect(pushed).toEqual(["/finance/transactions?review=1"]);
+  });
+
+  it("asks the owner for a Lunch Flow API key, then shows the accounts it reads", async () => {
+    const runtime = await createSettingsReplica();
+    let connected = false;
+    const calls = stubFinanceApi({
+      "GET /api/finance/bank/accounts": () => ({
+        json: connected ? providerAccounts : { status: "not_connected" },
+      }),
+      "PUT /api/finance/bank/credential": (body) => {
+        if (!isDeepStrictEqual(body, { apiKey: "lf-good-key-wxyz" })) {
+          return { status: 422, json: { error: "auth" } };
+        }
+        connected = true;
+        return {
+          json: { lastFour: "wxyz", savedAt: "2026-10-01T09:00:00Z" },
+        };
+      },
+    });
+    renderWithSettingsReplica(runtime, <ConnectionsSettings />);
+
+    const field = await screen.findByLabelText("Lunch Flow API key");
+    await userEvent.type(field, "lf-bad-key-0000");
+    await userEvent.click(screen.getByRole("button", { name: "Connect" }));
+    expect(
+      await screen.findByText(
+        "Lunch Flow did not accept this key. Copy it again from Lunch Flow.",
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.clear(field);
+    await userEvent.type(field, "lf-good-key-wxyz");
+    await userEvent.click(screen.getByRole("button", { name: "Connect" }));
+    expect(await screen.findByText("Lunch Flow connected")).toBeInTheDocument();
+    expect(
+      await screen.findByText(/^API key ending in wxyz · saved 1 Oct/),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("Alex Visa", { selector: "span" }),
+    ).toBeInTheDocument();
+    expect(
+      calls.filter((call) => call.route === "PUT /api/finance/bank/credential"),
+    ).toEqual([
+      {
+        route: "PUT /api/finance/bank/credential",
+        body: { apiKey: "lf-bad-key-0000" },
+      },
+      {
+        route: "PUT /api/finance/bank/credential",
+        body: { apiKey: "lf-good-key-wxyz" },
+      },
+    ]);
+  });
+
+  it("tells a member that the owner connects Lunch Flow", async () => {
+    const runtime = await createSettingsReplica();
+    stubFinanceApi({
+      "GET /api/finance/bank/accounts": () => ({
+        json: { status: "not_connected" },
+      }),
+    });
+    renderWithSettingsReplica(runtime, <ConnectionsSettings />, {
+      memberId: ids.sam,
+    });
+    expect(
+      await screen.findByText("The owner connects Lunch Flow with an API key."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Lunch Flow API key"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("removes the API key only after the owner confirms", async () => {
+    const runtime = await createSettingsReplica();
+    let connected = true;
+    const calls = stubFinanceApi({
+      "GET /api/finance/bank/accounts": () => ({
+        json: connected ? providerAccounts : { status: "not_connected" },
+      }),
+      "DELETE /api/finance/bank/credential": () => {
+        connected = false;
+        return { status: 204 };
+      },
+    });
+    renderWithSettingsReplica(runtime, <ConnectionsSettings />);
+
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Remove key" }),
+    );
+    expect(calls.map((call) => call.route)).not.toContain(
+      "DELETE /api/finance/bank/credential",
+    );
+    expect(
+      screen.getByText(
+        "Bank links stay, but nothing syncs until you add a key again.",
+      ),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Remove key" }));
+    expect(await screen.findByText("API key removed")).toBeInTheDocument();
+    expect(
+      await screen.findByLabelText("Lunch Flow API key"),
+    ).toBeInTheDocument();
   });
 
   it("shows the sign switch only under More on a linked card", async () => {

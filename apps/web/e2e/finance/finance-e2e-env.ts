@@ -26,4 +26,5 @@ export const financeE2eEnv = buildLocalFinanceEnv({
   databasePort: FINANCE_E2E_DB_PORT,
   authSecret: "e2e-finance-auth-secret-for-tests-only",
   setupSecret: FINANCE_E2E_SETUP_SECRET,
+  credentialKey: "ZTJlLWZpbmFuY2UtY3JlZGVudGlhbC1rZXktMzJieXQ=",
 });
