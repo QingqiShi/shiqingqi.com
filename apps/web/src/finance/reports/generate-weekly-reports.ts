@@ -34,11 +34,10 @@ function reportId(householdId: string, periodEnd: string) {
 
 /**
  * Builds and stores the weekly Reports of the weeks that hold `weekDays`,
- * of every complete week since the first balance ("all"), or of the last
- * complete week in the Household's time zone ("last"). Weeks that have not
- * ended yet are skipped. A Report whose data did
- * not change is not written again, so running twice writes nothing and the
- * clock stays.
+ * of every complete week since the first balance other than zero ("all"),
+ * or of the last complete week in the Household's time zone ("last"). Weeks
+ * that have not ended yet are skipped. A Report whose data did not change
+ * is not written again, so running twice writes nothing and the clock stays.
  */
 export async function generateWeeklyReports(
   db: FinanceDb,

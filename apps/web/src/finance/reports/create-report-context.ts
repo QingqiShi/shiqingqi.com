@@ -1,3 +1,4 @@
+import { firstActiveDay } from "../charts/first-active-day.ts";
 import {
   balanceSeriesFromRows,
   type BalanceDayRow,
@@ -34,7 +35,10 @@ export interface ReportContext {
   families: readonly GroupFamily[];
   /** The Accounts of the families that hold property; empty when there is none. */
   propertyAccounts: readonly ReportSourceAccount[];
-  /** The first day any counted Account has a balance; null when none has. */
+  /**
+   * The first day any counted Account has a balance other than zero; null
+   * when none has. A zero "from the start" Valuation does not move it.
+   */
   firstDay: string | null;
   /** The top-level Category of each Category. */
   rootCategoryOf: ReadonlyMap<
@@ -150,8 +154,9 @@ export function createReportContext(source: ReportSource): ReportContext {
     if (!rows) continue;
     const series = balanceSeriesFromRows(rows);
     seriesByAccount.set(account.id, series);
-    if (!account.excludedFromNetWorth && series.days.length > 0) {
-      firstEpochDay = Math.min(firstEpochDay, series.days[0]);
+    const activeDay = firstActiveDay(series);
+    if (!account.excludedFromNetWorth && activeDay !== null) {
+      firstEpochDay = Math.min(firstEpochDay, activeDay);
     }
   }
 

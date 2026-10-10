@@ -8,9 +8,10 @@ import {
 } from "./weekly-report-data-schema.ts";
 
 /**
- * Net worth at every week end from the first balance to `lastWeekEnd`, with
- * its moving average and the property net. A point depends only on the weeks
- * up to it, so the trend of an earlier week is a prefix of this one.
+ * Net worth at every week end from the first balance other than zero to
+ * `lastWeekEnd`, with its moving average and the property net. A point
+ * depends only on the weeks up to it, so the trend of an earlier week is a
+ * prefix of this one.
  */
 export function computeNetWorthTrend(
   context: ReportContext,
