@@ -223,10 +223,11 @@ fn fragmentMain(@builtin(position) position: vec4f) -> @location(0) vec4f {
     if (mote > 1.0 / 255.0) {
       intensity += mote * beamLight(beam, moteCenter).y * select(0.4, 0.75, dark);
     }
+    let emitter = effectElements[beam.element];
     // No light shows on the beam's own element.
-    intensity *= saturate(effectElementDistance(effectElements[beam.element], page) + 0.5);
+    intensity *= saturate(effectElementDistance(emitter, page) + 0.5);
     let hot = select(0.0, smoothstep(0.35, 0.9, beamAt.x) * 0.55, dark);
-    light += mix(beam.color, vec3f(1.0), hot) * intensity;
+    light += effectGrayscale(mix(beam.color, vec3f(1.0), hot), emitter.grayscale) * intensity;
     alpha += intensity;
   }
   alpha *= clip;

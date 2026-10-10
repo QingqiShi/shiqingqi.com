@@ -203,7 +203,7 @@ fn ringLightFragment(input: RingLightVarying) -> @location(0) vec4f {
   let bloomAlpha = saturate(bloom * ring.bloom.a);
   let alpha = (coreAlpha + bloomAlpha * (1.0 - coreAlpha)) * clip;
   let rgb = (glint * coreAlpha + ring.bloom.rgb * bloomAlpha * (1.0 - coreAlpha)) * clip;
-  return vec4f(rgb, alpha);
+  return vec4f(effectGrayscale(rgb, element.grayscale), alpha);
 }
 `;
 

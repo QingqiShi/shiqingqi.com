@@ -29,6 +29,10 @@ const POINTER_PRESSED = 2;
  *   pass can keep state per element across frames.
  * - `scope` is the index in `effectScopes` of the scope the element is in,
  *   `EFFECT_PAGE_SCOPE` on the page.
+ * - `grayscale` is how far CSS `filter: grayscale()` on the element and its
+ *   ancestors takes the colour out of what it paints. Each effect passes
+ *   what it draws for the element through `effectGrayscale`, so the effect
+ *   is as grey as the element.
  * - `effectScopes` has the scopes as `EffectFrame.scopes` orders them. Each
  *   has its `id`, which stays the same across frames, so a compute pass can
  *   keep it; the index in `effectElements` of its Effect container, or
@@ -61,6 +65,7 @@ struct EffectElement {
   cornerExponent: f32,
   id: u32,
   scope: u32,
+  grayscale: f32,
 }
 
 struct EffectScope {
@@ -97,6 +102,13 @@ fn effectElementDistance(element: EffectElement, page: vec2f) -> f32 {
     corner = pow(pow(unit.x, n) + pow(unit.y, n), 1.0 / n) * radius;
   }
   return min(max(inner.x, inner.y), 0.0) + corner - radius;
+}
+
+// The sRGB-encoded colour, premultiplied or not, as CSS filter: grayscale(amount)
+// draws it.
+fn effectGrayscale(rgb: vec3f, amount: f32) -> vec3f {
+  let luminance = dot(rgb, vec3f(0.2126, 0.7152, 0.0722));
+  return mix(rgb, vec3f(luminance), amount);
 }
 `;
 
@@ -138,6 +150,7 @@ export function packElements(
     floats[at + 14] = element.cornerExponent;
     words[at + 15] = element.id;
     words[at + 16] = element.scopeIndex;
+    floats[at + 17] = element.grayscale;
   }
 }
 

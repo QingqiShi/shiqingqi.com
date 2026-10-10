@@ -104,7 +104,7 @@ fn rippleFragment(input: RippleVarying) -> @location(0) vec4f {
     let other = effectElements[ripple.neighbours[n / 4u][n % 4u]];
     alpha *= smoothstep(0.0, ABSORB_DISTANCE, effectElementDistance(other, page));
   }
-  return vec4f(ripple.color.rgb * alpha, alpha);
+  return vec4f(effectGrayscale(ripple.color.rgb, element.grayscale) * alpha, alpha);
 }
 `;
 

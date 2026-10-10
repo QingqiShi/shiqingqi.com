@@ -20,6 +20,7 @@ function record(
     radii: [0, 0, 0, 0],
     cornerExponent: 2,
     fill: [0, 0, 0, 0],
+    grayscale: 0,
     scope: PAGE_SCOPE,
     holds: null,
     ...overrides,

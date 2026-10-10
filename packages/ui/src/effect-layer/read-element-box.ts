@@ -1,4 +1,4 @@
-import { parseCssColor, type EffectColor } from "./parse-css-color.ts";
+import { clamp, parseCssColor, type EffectColor } from "./parse-css-color.ts";
 
 /**
  * Corner radii in CSS px, top-left first and then clockwise.
@@ -33,6 +33,12 @@ export interface ElementBox {
   readonly cornerExponent: number;
   /** The computed `background-color`. */
   readonly fill: EffectColor;
+  /**
+   * How far CSS `filter: grayscale()` on the element and its ancestors takes
+   * the colour out of what it paints: 0 for full colour, 1 for grey. Effects
+   * pass it to WGSL's `effectGrayscale`.
+   */
+  readonly grayscale: number;
 }
 
 const TRANSPARENT: EffectColor = [0, 0, 0, 0];
@@ -137,6 +143,57 @@ export function readFill(backgroundColor: string) {
     colorCache.set(backgroundColor, fill);
   }
   return fill;
+}
+
+const GRAYSCALE_FUNCTION = /grayscale\(([^)]*)\)/g;
+
+/** The amount of one `grayscale()`, which is 1 when it has no argument. */
+function readGrayscaleAmount(argument: string) {
+  const text = argument.trim();
+  if (text === "") {
+    return 1;
+  }
+  const value = Number.parseFloat(text) / (text.endsWith("%") ? 100 : 1);
+  return Number.isFinite(value) ? clamp(value) : 0;
+}
+
+/**
+ * How far a computed `filter` takes the colour out, from 0 to 1: each of its
+ * `grayscale()` functions keeps a share of the colour that the one before it
+ * kept.
+ *
+ * @internal
+ */
+export function readGrayscale(filter: string) {
+  if (filter === "none") {
+    return 0;
+  }
+  let kept = 1;
+  for (const [, argument = ""] of filter.matchAll(GRAYSCALE_FUNCTION)) {
+    kept *= 1 - readGrayscaleAmount(argument);
+  }
+  return 1 - kept;
+}
+
+/**
+ * How far the `filter` of the element and of each ancestor together take
+ * the colour out of what the element paints, from 0 to 1.
+ *
+ * @internal
+ */
+export function effectiveGrayscale(
+  element: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+) {
+  let kept = 1;
+  for (
+    let node: Element | null = element;
+    node !== null && kept > 0;
+    node = node.parentElement
+  ) {
+    kept *= 1 - readGrayscale(styleOf(node).filter);
+  }
+  return 1 - kept;
 }
 
 const isSet = (value: string) => value !== "" && value !== "none";
@@ -249,5 +306,6 @@ export function readElementBox(
       style.getPropertyValue("corner-top-left-shape"),
     ),
     fill: readFill(style.backgroundColor),
+    grayscale: effectiveGrayscale(element, styleOf),
   };
 }
