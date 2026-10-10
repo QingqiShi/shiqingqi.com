@@ -39,7 +39,7 @@ catalog:
   "@upstash/vector": ^1.2.3
   "@vercel/analytics": ^2.0.1
   "@vercel/speed-insights": 2.0.0
-  "@vitejs/plugin-react": ^6.1.1
+  "@vitejs/plugin-react": ^6.1.2
   babel-plugin-react-compiler: 1.0.0
   dotenv: ^18.0.6
   eslint: ^10.12.0
