@@ -57,7 +57,7 @@ export default tinker({
         padding: "border.size_2",
         position: "relative",
         transition: "background-color {duration._200} {easing.ease}",
-        backgroundColor: "color.bgNeutralSubtle",
+        backgroundColor: "color.bgControlStrong",
         boxShadow: "shadow._2",
         touchAction: "none",
       },
@@ -75,7 +75,7 @@ export default tinker({
     },
     before: {
       base: {
-        backgroundColor: "color.bgControlBright",
+        backgroundColor: "color.fgOnAccent",
         borderRadius: "border.radius_round",
         boxShadow: "none",
         display: "block",

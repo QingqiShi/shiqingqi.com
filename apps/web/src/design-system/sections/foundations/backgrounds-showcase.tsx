@@ -212,8 +212,8 @@ const styles = stylex.create({
         <Band
           name={t({ en: "Bright, inverse and scrim", zh: "明亮、反相与遮罩" })}
           use={t({
-            en: 'Grounds that take a foreground of their own, so each pairs with its fgOn token. Bright stays light in both schemes: the Switch and Slider thumbs, and Button with bright. Inverse is dark in light and light in dark: Avatar with look="solid". Scrim is the same translucent black in both, and dims the page behind a modal surface.',
-            zh: '需要专属前景色的底面，因此每一种都搭配自己的 fgOn 令牌。Bright 在两种配色方案下都保持浅色：Switch 与 Slider 的手柄，以及设置了 bright 的 Button。Inverse 在浅色下是深色、在深色下是浅色：look="solid" 的 Avatar。Scrim 在两种方案下是同一种半透明黑色，用于压暗模态表面背后的页面。',
+            en: 'Grounds that take a foreground of their own, so each pairs with its fgOn token. Bright stays light in both schemes: the Slider thumb, and Button with bright. Inverse is dark in light and light in dark: Avatar with look="solid". Scrim is the same translucent black in both, and dims the page behind a modal surface.',
+            zh: '需要专属前景色的底面，因此每一种都搭配自己的 fgOn 令牌。Bright 在两种配色方案下都保持浅色：Slider 的手柄，以及设置了 bright 的 Button。Inverse 在浅色下是深色、在深色下是浅色：look="solid" 的 Avatar。Scrim 在两种方案下是同一种半透明黑色，用于压暗模态表面背后的页面。',
           })}
           columns={3}
           snippet={

@@ -5,6 +5,7 @@ Terms are defined in `contexts/design-system/CONTEXT.md`. This file holds only t
 ## Visual language
 
 - **A surface separates itself with a border, a background colour, or both — the least that does the job.** A card holding content of its own takes both; the selected row in a menu only has to stand out from its siblings, so a background alone does it, and a border there would be noise. A border stays quiet: enough to find the edge, never enough to draw the eye.
+- **A control's edge is not a surface's border.** Where the edge or the fill is the only sign of an unselected control — the edge of an empty checkbox, radio or text field, the track of an off switch — it holds WCAG's 3:1 against whatever the control sits on, in both themes. Quiet there means thin, not faint. A switch keeps its shape and its thumb when it turns on; only the track's colour changes.
 - **A radius inside a radius is reduced by the inset between them:** `inner = outer − inset`, for a surface nested at another surface's corner. A button or a badge keeps its own full radius.
 - **An Intent colour appears only where it changes what the visitor does next.** Most of an interface is neutral, because colour used as decoration competes with colour that means something.
 - **Content may sit directly on the Progressive blur, with no surface of its own** — a popover can put its title and its main action there, and keep a container only for the part that scrolls. Blur takes away detail but not brightness, so check it: where the content is not clearly legible, give it a surface instead.

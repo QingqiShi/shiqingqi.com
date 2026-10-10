@@ -89,7 +89,7 @@ const light = {
   bgSurfaceRaised: gray._100,
   bgSurfaceFade: gray._95,
 
-  // A bright control stays light in both themes (a switch or slider thumb).
+  // A bright control stays light in both themes (a slider thumb).
   // Inverse flips the theme (tooltips, snackbars). Scrim dims the page behind
   // a modal.
   bgControlBright: gray._100,
@@ -105,9 +105,18 @@ const light = {
   bgControlPressed: gray._92,
   bgControlSelected: gray._90,
   bgControlDisabled: gray._95,
+  // A neutral fill for an unselected control when the fill is its only sign,
+  // such as an off switch. WCAG 1.4.11 sets a 3:1 floor on it against every
+  // surface a control sits on. Its foreground is `fgOnAccent`, so that the
+  // control keeps the same foreground when it becomes selected.
+  bgControlStrong: gray._40,
 
   // The quiet default edge, and the neutral Intent's border.
   border: gray._90,
+  // The edge that is the only sign of an unselected control, such as an empty
+  // checkbox or a text field. It is not quiet, because WCAG 1.4.11 sets a 3:1
+  // floor on it against every surface a control sits on.
+  borderControl: gray._40,
 
   // Intents — a solid fill and its hover, a tint (alpha is fixed, colour comes
   // from the palette), a solid border for rings and selected edges, a
@@ -186,8 +195,10 @@ const dark: { [key in keyof typeof light]: string } = {
   bgControlPressed: gray._11,
   bgControlSelected: gray._20,
   bgControlDisabled: gray._5,
+  bgControlStrong: gray._40,
 
   border: gray._13,
+  borderControl: gray._40,
 
   bgAccent: darkIntentTone.accent,
   bgAccentHover: purple._80,
@@ -283,8 +294,10 @@ export const color = stylex.defineVars({
   bgControlPressed: `light-dark(${light.bgControlPressed}, ${dark.bgControlPressed})`,
   bgControlSelected: `light-dark(${light.bgControlSelected}, ${dark.bgControlSelected})`,
   bgControlDisabled: `light-dark(${light.bgControlDisabled}, ${dark.bgControlDisabled})`,
+  bgControlStrong: `light-dark(${light.bgControlStrong}, ${dark.bgControlStrong})`,
 
   border: `light-dark(${light.border}, ${dark.border})`,
+  borderControl: `light-dark(${light.borderControl}, ${dark.borderControl})`,
 
   bgAccent: `light-dark(${light.bgAccent}, ${dark.bgAccent})`,
   bgAccentHover: `light-dark(${light.bgAccentHover}, ${dark.bgAccentHover})`,

@@ -299,7 +299,7 @@ const styles = stylex.create({
     position: "relative",
     transition: `background-color ${duration._200} ${easing.ease}`,
     backgroundColor: {
-      default: color.bgNeutralSubtle,
+      default: color.bgControlStrong,
       ":checked": color.bgAccent,
     },
     boxShadow: {
@@ -322,7 +322,7 @@ const styles = stylex.create({
     },
 
     "::before": {
-      backgroundColor: color.bgControlBright,
+      backgroundColor: color.fgOnAccent,
       borderRadius: border.radius_round,
       cornerShape: "round",
       boxShadow: switchTokens.thumbShadow,

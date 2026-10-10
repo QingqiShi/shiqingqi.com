@@ -180,14 +180,14 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderWidth: border.size_2,
     borderColor: {
-      default: color.border,
+      default: color.borderControl,
       ":hover": {
         default: null,
         [pointer.canHover]: color.borderAccent,
       },
       ":checked": color.borderAccent,
       ":indeterminate": color.borderAccent,
-      ":disabled": color.border,
+      ":disabled": color.borderControl,
     },
     backgroundColor: {
       default: color.bgSurface,
