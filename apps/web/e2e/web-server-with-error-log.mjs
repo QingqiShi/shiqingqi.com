@@ -18,10 +18,14 @@ const logPath = join(
 // Next.js prints its own errors with a red "⨯"; unhandled rejections and
 // uncaught exceptions carry those literal marker strings.
 const ERROR_MARKERS = [/⨯/, /unhandledRejection/i, /uncaughtException/i];
-// Next.js logs this error when a test closes its page while the server
+// Next.js logs these errors when a test closes its page while the server
 // still streams the response. It is a client disconnect, not an app
-// failure, so it must not fail the run.
-const IGNORED_ERRORS = [/The destination stream closed early/];
+// failure, so it must not fail the run. Next 16.4.0 aborts the render with
+// `ResponseAborted`; earlier versions let React report its generic message.
+const IGNORED_ERRORS = [
+  /The destination stream closed early/,
+  /ResponseAborted/,
+];
 const isErrorLine = (line) =>
   ERROR_MARKERS.some((marker) => marker.test(line)) &&
   !IGNORED_ERRORS.some((ignored) => ignored.test(line));
