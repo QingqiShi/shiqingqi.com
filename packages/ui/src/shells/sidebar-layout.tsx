@@ -100,7 +100,9 @@ interface SidebarLayoutProps {
  * dismissed by Escape, backdrop, or following a link).
  *
  * The rail fills its container's height (capped at the viewport), so the shell
- * works in any bounded box, not just the page root.
+ * works in any bounded box, not just the page root. Inside a box that contains
+ * fixed descendants (a transform, filter, or `contain: paint`), the drawer
+ * covers only that box and leaves the page free to scroll.
  */
 export function SidebarLayout({
   sidebar,
@@ -145,7 +147,11 @@ export function SidebarLayout({
   // `<ViewTransition>` undisturbed, and the drawer's own nav still scrolls
   // since only the body is clamped.
   useEffect(() => {
-    if (!isOpen) return;
+    // A fixed box has an `offsetParent` only when an ancestor, such as a
+    // transformed demo frame, contains it. Then the drawer covers only that
+    // frame. A body lock would keep the parts of the drawer below the
+    // viewport out of reach.
+    if (!isOpen || drawerRef.current?.offsetParent !== null) return;
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
     return () => {

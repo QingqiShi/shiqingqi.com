@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, onTestFinished, vi } from "vitest";
 import { SidebarLayout } from "./sidebar-layout.tsx";
 
 // jsdom doesn't implement these APIs used by Button's press feedback or
@@ -98,6 +98,34 @@ describe("SidebarLayout drawer", () => {
 
     await user.click(screen.getByText("Rail"));
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("locks page scroll while a viewport-anchored drawer is open", async () => {
+    const user = userEvent.setup();
+    renderShell();
+
+    await user.click(screen.getByRole("button", { name: "Menu" }));
+    expect(document.body.style.overflow).toBe("hidden");
+
+    await user.click(screen.getByRole("button", { name: "Close menu" }));
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("leaves page scroll alone when an ancestor contains the drawer", async () => {
+    // jsdom has no layout, so `offsetParent` is always null there. Report
+    // the containing ancestor that a real browser would.
+    const offsetParent = vi
+      .spyOn(HTMLElement.prototype, "offsetParent", "get")
+      .mockReturnValue(document.createElement("div"));
+    onTestFinished(() => {
+      offsetParent.mockRestore();
+    });
+    const user = userEvent.setup();
+    renderShell();
+
+    await user.click(screen.getByRole("button", { name: "Menu" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(document.body.style.overflow).toBe("");
   });
 
   it("closes on Escape", async () => {
