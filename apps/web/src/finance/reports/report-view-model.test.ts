@@ -27,7 +27,12 @@ function plain(text: string) {
 }
 
 function reportRow(periodEnd: string, periodStart = periodEnd): ReportListItem {
-  return { id: `report-${periodEnd}`, periodStart, periodEnd };
+  return {
+    id: `report-${periodEnd}`,
+    periodStart,
+    periodEnd,
+    generatedAt: `${periodEnd}T06:00:00.000Z`,
+  };
 }
 
 const comparison = (changeMinor: number) => ({
