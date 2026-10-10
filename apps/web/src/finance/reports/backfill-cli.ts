@@ -30,7 +30,7 @@ async function main() {
         "all",
       );
       console.log(
-        `Household ${householdId}: ${String(result.reports.length)} weeks, ${String(result.written)} written, ${String(result.unchanged)} unchanged in ${((performance.now() - started) / 1000).toFixed(1)} s`,
+        `Household ${householdId}: ${String(result.reports.length)} weeks, ${String(result.written)} written, ${String(result.unchanged)} unchanged, ${String(result.deleted)} deleted in ${((performance.now() - started) / 1000).toFixed(1)} s`,
       );
     }
   } finally {

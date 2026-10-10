@@ -23,8 +23,8 @@ interface GeneratedReports {
   reports: { id: string; periodEnd: string }[];
   written: number;
   unchanged: number;
-  /** The Household clock after the write. */
-  clock: number;
+  /** Reports of the weeks before the first week an "all" run makes. */
+  deleted: number;
 }
 
 /** The id of a Household's Report for the week that ends on `periodEnd`. */
@@ -37,7 +37,8 @@ function reportId(householdId: string, periodEnd: string) {
  * of every complete week since the first balance other than zero ("all"),
  * or of the last complete week in the Household's time zone ("last"). Weeks
  * that have not ended yet are skipped. A Report whose data did not change
- * is not written again, so running twice writes nothing and the clock stays.
+ * is not written again, so running twice writes nothing. An "all" run also
+ * deletes the Reports of the weeks before its first week.
  */
 export async function generateWeeklyReports(
   db: FinanceDb,
@@ -45,7 +46,7 @@ export async function generateWeeklyReports(
   now: Date,
   weekDays: readonly string[] | "all" | "last",
 ): Promise<GeneratedReports> {
-  const { result, clock } = await runServerWrite(
+  const { result } = await runServerWrite(
     db,
     householdId,
     now,
@@ -59,7 +60,7 @@ export async function generateWeeklyReports(
               .filter((day) => day <= lastWeekEnd)
               .sort();
       if (requested?.length === 0) {
-        return { reports: [], written: 0, unchanged: 0 };
+        return { reports: [], written: 0, unchanged: 0, deleted: 0 };
       }
       const source = await loadReportSource(context.scope, {
         transactionsFrom: requested
@@ -73,9 +74,10 @@ export async function generateWeeklyReports(
         (reportContext.firstDay === null
           ? []
           : weekEndsBetween(reportContext.firstDay, lastWeekEnd));
+      const firstReportEnd = weekEnds.at(0);
       const lastReportEnd = weekEnds.at(-1);
-      if (lastReportEnd === undefined) {
-        return { reports: [], written: 0, unchanged: 0 };
+      if (firstReportEnd === undefined || lastReportEnd === undefined) {
+        return { reports: [], written: 0, unchanged: 0, deleted: 0 };
       }
 
       const trend = computeNetWorthTrend(reportContext, lastReportEnd);
@@ -102,7 +104,10 @@ export async function generateWeeklyReports(
           changed.slice(i, i + UPSERT_CHUNK),
         );
       }
-      if (changed.length > 0) context.markWritten();
+      const deleted =
+        weekDays === "all"
+          ? await reportRepository.removeBefore(context.scope, firstReportEnd)
+          : 0;
       return {
         reports: weekEnds.map((periodEnd) => ({
           id: reportId(householdId, periodEnd),
@@ -110,8 +115,9 @@ export async function generateWeeklyReports(
         })),
         written: changed.length,
         unchanged: weekEnds.length - changed.length,
+        deleted,
       };
     },
   );
-  return { ...result, clock };
+  return result;
 }

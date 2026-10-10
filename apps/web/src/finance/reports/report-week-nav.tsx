@@ -9,12 +9,12 @@ import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { ReportRow } from "../sync/row-schemas.ts";
 import { formatReportWeek } from "./format-report-week.ts";
+import type { ReportListItem } from "./report-api-schemas.ts";
 
 interface ReportWeekNavProps {
-  older: ReportRow | null;
-  newer: ReportRow | null;
+  older: ReportListItem | null;
+  newer: ReportListItem | null;
 }
 
 /** Steps to the Report of the week before or after. */
@@ -26,7 +26,7 @@ export function ReportWeekNav({ older, newer }: ReportWeekNavProps) {
   };
   const colon = t({ en: ": ", zh: "：" });
   const link = (
-    report: ReportRow | null,
+    report: ReportListItem | null,
     label: string,
     icon: React.ReactNode,
   ) =>

@@ -3,7 +3,7 @@ import { FinanceApiError } from "./finance-api-error.ts";
 /**
  * Sends a same-origin JSON request to a Finance route. On a refusal it throws
  * `FinanceApiError` with the body's `error` code, or `fallbackCode` when the
- * body has none.
+ * body has none, and the body itself.
  */
 export async function financeFetch(
   path: string,
@@ -26,7 +26,7 @@ export async function financeFetch(
       typeof data.error === "string"
         ? data.error
         : fallbackCode;
-    throw new FinanceApiError(code, response.status);
+    throw new FinanceApiError(code, response.status, data);
   }
   return response;
 }

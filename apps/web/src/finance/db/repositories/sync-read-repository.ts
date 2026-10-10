@@ -13,7 +13,6 @@ import {
   monthTotals,
   payeeAliases,
   payees,
-  reports,
   rules,
   tags,
   transactions,
@@ -313,23 +312,6 @@ export const syncReadRepository = {
           and(
             eq(bankLinks.householdId, scope.householdId),
             changedSince(bankLinks.version, options),
-          ),
-        ),
-    reports: (scope, options) =>
-      scope.db
-        .select({
-          id: reports.id,
-          householdId: reports.householdId,
-          periodStart: reports.periodStart,
-          periodEnd: reports.periodEnd,
-          generatedAt: reports.generatedAt,
-          version: reports.version,
-        })
-        .from(reports)
-        .where(
-          and(
-            eq(reports.householdId, scope.householdId),
-            changedSince(reports.version, options),
           ),
         ),
   } satisfies Record<

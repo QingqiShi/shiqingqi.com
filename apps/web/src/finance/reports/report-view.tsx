@@ -7,9 +7,11 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { ReportRow } from "../sync/row-schemas.ts";
 import { formatReportWeek } from "./format-report-week.ts";
-import type { WeeklyReportResponse } from "./report-api-schemas.ts";
+import type {
+  ReportListItem,
+  WeeklyReportResponse,
+} from "./report-api-schemas.ts";
 import { ReportBackLink } from "./report-back-link.tsx";
 import { ReportBalanceSheet } from "./report-balance-sheet.tsx";
 import { ReportFooter } from "./report-footer.tsx";
@@ -24,8 +26,8 @@ import { ReportWeekNav } from "./report-week-nav.tsx";
 interface ReportViewProps {
   report: WeeklyReportResponse;
   headingLevel: 1 | 2;
-  older: ReportRow | null;
-  newer: ReportRow | null;
+  older: ReportListItem | null;
+  newer: ReportListItem | null;
 }
 
 /** A weekly Report: net worth and its trend, the week's spending, the Groups, and the balance sheet. */

@@ -3,6 +3,7 @@ import { financeFetch } from "../http/finance-fetch.ts";
 import {
   reportApiSchemas,
   type RegenerateReportResponse,
+  type ReportListItem,
   type WeeklyReportResponse,
 } from "./report-api-schemas.ts";
 
@@ -18,12 +19,18 @@ function reportPath(id: string) {
 
 /** Fetch wrappers for the Reports screens. */
 export const reportApiClient = {
-  /** One Report with its data. Code `outdated` means it needs `regenerate`. */
+  /** Every Report without its data, newest week first. */
+  async list(): Promise<ReportListItem[]> {
+    return reportApiSchemas.list.parse(await send("/api/finance/reports"))
+      .reports;
+  },
+
+  /** One Report with its data. Code `outdated` means it needs `regenerate` of the `periodEnd` in the error body. */
   async getReport(id: string): Promise<WeeklyReportResponse> {
     return reportApiSchemas.report.parse(await send(reportPath(id)));
   },
 
-  /** Builds the Report of the week that holds `periodEnd` (default: last week) again. Pull afterwards. */
+  /** Builds the Report of the week that holds `periodEnd` (default: last week) again. */
   async regenerate(periodEnd?: string): Promise<RegenerateReportResponse> {
     return reportApiSchemas.regenerate.parse(
       await send("/api/finance/reports/regenerate", {

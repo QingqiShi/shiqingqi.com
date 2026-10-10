@@ -44,5 +44,4 @@ export const liveRowSelectors = {
   tags: liveRowsOf("tags"),
   rules: liveRowsOf("rules"),
   bankLinks: liveRowsOf("bankLinks"),
-  reports: liveRowsOf("reports"),
 };

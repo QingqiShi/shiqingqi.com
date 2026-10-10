@@ -3,7 +3,9 @@
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
+import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
+import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -19,12 +21,14 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
-import { useReplica } from "../replica/use-replica.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { groupReportsByYear } from "./group-reports-by-year.ts";
 import { lastCompleteWeekEnd } from "./last-complete-week-end.ts";
-import { selectReportRows } from "./select-report-rows.ts";
 import { useRegenerateReport } from "./use-regenerate-report.ts";
+import { useReportList } from "./use-report-list.ts";
+
+const LOADING_ROWS = 5;
+const WEEK_LINK_BLOCK_SIZE = "2.625rem";
 
 interface ReportListProps {
   /** The Report on screen, marked in the list. */
@@ -36,8 +40,8 @@ interface ReportListProps {
 export function ReportList({ currentId, headingLevel }: ReportListProps) {
   const locale = useLocale();
   const router = useRouter();
-  const reports = useReplica(selectReportRows);
-  const loaded = useReplica((snapshot) => snapshot.loaded);
+  const list = useReportList();
+  const reports = list.data ?? [];
   const today = useHouseholdToday();
   const lastWeekEnd = lastCompleteWeekEnd(today);
   const hasLastWeek = reports.some(
@@ -77,7 +81,49 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
       <Heading level={headingLevel} look="h3">
         {t({ en: "Reports", zh: "周报" })}
       </Heading>
-      {loaded && reports.length === 0 ? (
+      {list.data === undefined &&
+      list.status === "pending" &&
+      list.fetchStatus !== "paused" ? (
+        <div css={styles.list} aria-busy>
+          {Array.from({ length: LOADING_ROWS }, (_, index) => (
+            <Skeleton
+              key={index}
+              width="100%"
+              height={WEEK_LINK_BLOCK_SIZE}
+              delay={index * 100}
+            />
+          ))}
+        </div>
+      ) : list.data === undefined ? (
+        <Callout
+          intent="warning"
+          title={t({
+            en: "The reports did not load",
+            zh: "周报列表未能加载",
+          })}
+        >
+          <div css={stack.tight}>
+            <Text look="bodySmall">
+              {t({
+                en: "Reports come from the server, so this needs you to be online.",
+                zh: "周报需从服务器读取，这里需要联网。",
+              })}
+            </Text>
+            <div>
+              <Button
+                size="sm"
+                look="outline"
+                loading={list.isFetching}
+                onClick={() => {
+                  void list.refetch();
+                }}
+              >
+                {t({ en: "Try again", zh: "重试" })}
+              </Button>
+            </div>
+          </div>
+        </Callout>
+      ) : reports.length === 0 ? (
         <div css={stack.item}>
           <div css={stack.tight}>
             <Text as="p" look="body">
@@ -103,7 +149,7 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
         </div>
       ) : (
         <>
-          {loaded && !hasLastWeek ? <div>{generateButton}</div> : null}
+          {hasLastWeek ? null : <div>{generateButton}</div>}
           {groupReportsByYear(reports).map(({ year, reports: inYear }) => (
             <section
               key={year}

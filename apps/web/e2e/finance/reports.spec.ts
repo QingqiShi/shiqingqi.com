@@ -11,13 +11,55 @@ function minorOf(text: string | null) {
   return Math.round(Number(value) * 100);
 }
 
-/** Makes the Report of the week that ends on `periodEnd` through the API, as the page's Member. */
+const REPORT_API = /\/api\/finance\/reports(?:[/?]|$)/;
+const SYNC_API = "**/api/finance/sync**";
+const PERSIST_THROTTLE_MS = 1000;
+
+function sameOrigin(page: Page) {
+  return { Origin: new URL(page.url()).origin, Referer: page.url() };
+}
+
+/** Makes the Report of the week that ends on `periodEnd` through the API, as the page's Member, and returns its id. */
 async function makeReport(page: Page, periodEnd: string) {
   const response = await page.request.post("/api/finance/reports/regenerate", {
-    headers: { Origin: new URL(page.url()).origin, Referer: page.url() },
+    headers: sameOrigin(page),
     data: { periodEnd },
   });
   expect(response.status()).toBe(200);
+  const body: unknown = await response.json();
+  if (typeof body !== "object" || body === null || !("id" in body)) {
+    throw new Error("The regenerate response has no id");
+  }
+  return String(body.id);
+}
+
+/** The Reports this device stored for offline, one value for each Household. */
+function storedReports(page: Page) {
+  return page.evaluate(
+    () =>
+      new Promise<string[]>((resolve, reject) => {
+        const open = indexedDB.open("finance-reports");
+        open.onupgradeneeded = () => {
+          open.result.createObjectStore("queries");
+        };
+        open.onerror = () => {
+          reject(new Error("The Reports store did not open"));
+        };
+        open.onsuccess = () => {
+          const read = open.result
+            .transaction("queries", "readonly")
+            .objectStore("queries")
+            .getAll();
+          read.onerror = () => {
+            reject(new Error("The Reports store did not read"));
+          };
+          read.onsuccess = () => {
+            open.result.close();
+            resolve(read.result.map(String));
+          };
+        };
+      }),
+  );
 }
 
 function balanceSheetRow(page: Page, name: string) {
@@ -77,6 +119,76 @@ test.describe("Weekly reports at 1440 px", () => {
     const lines = summary.split("\n");
     expect(lines[0]).toMatch(/^Weekly report, /);
     expect(lines[1]).toBe(`Net worth ${(await headline.textContent()) ?? ""}`);
+  });
+});
+
+test.describe("Weekly reports without the server", () => {
+  test.use({ viewport: DESKTOP, serviceWorkers: "block" });
+
+  test("shows the stored list and reports offline, drops a deleted report at the next load, and keeps nothing after sign-out, not even from another tab", async ({
+    page,
+    household,
+    session: _session,
+  }) => {
+    const lastWeek = lastCompleteWeekEnd(household.today);
+    await makeReport(page, lastWeek);
+    const older = await makeReport(page, addDays(lastWeek, -7));
+    const weeks = page
+      .getByRole("navigation", { name: "Reports" })
+      .getByRole("link");
+    const headline = page
+      .getByRole("region", { name: "Net worth" })
+      .getByText(MONEY)
+      .first();
+
+    await page.goto("/finance/reports");
+    await expect(weeks).toHaveCount(2, { timeout: SYNC_TIMEOUT });
+    await expect(headline).toBeVisible({ timeout: SYNC_TIMEOUT });
+    await weeks.nth(1).click();
+    await expect(page).toHaveURL(`/finance/reports/${older}`);
+    await expect(headline).toBeVisible({ timeout: SYNC_TIMEOUT });
+    await expect
+      .poll(async () => (await storedReports(page)).join(""))
+      .toContain(`"report","${older}"`);
+
+    await page.route(REPORT_API, (route) =>
+      route.abort("internetdisconnected"),
+    );
+    await page.reload();
+    await expect(weeks).toHaveCount(2);
+    await expect(headline).toBeVisible();
+    await expect(page.getByText("The reports did not load")).toBeHidden();
+
+    await page.unroute(REPORT_API);
+    const deleted = await page.request.delete(`/api/finance/reports/${older}`, {
+      headers: sameOrigin(page),
+    });
+    expect(deleted.status()).toBe(204);
+    await page.goto("/finance/reports");
+    await expect(weeks).toHaveCount(1, { timeout: SYNC_TIMEOUT });
+    await expect
+      .poll(async () => (await storedReports(page)).join(""))
+      .not.toContain(older);
+
+    const other = await page.context().newPage();
+    await other.route(SYNC_API, (route) => route.abort("internetdisconnected"));
+    await other.goto("/finance/reports");
+    const saveImage = other.getByRole("button", { name: "Save image" });
+    await expect(saveImage).toBeVisible({ timeout: SYNC_TIMEOUT });
+
+    await page.getByRole("button", { name: "Sign out" }).click();
+    await expect(page).toHaveURL("/finance/sign-in");
+    expect(await storedReports(page)).toEqual([]);
+
+    await saveImage.click();
+    await expect(
+      toast(
+        other,
+        "The image could not be made. Try again when you are online.",
+      ),
+    ).toBeVisible();
+    await other.waitForTimeout(PERSIST_THROTTLE_MS * 2);
+    expect(await storedReports(other)).toEqual([]);
   });
 });
 

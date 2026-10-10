@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { and, eq, gte, isNull, lte } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
@@ -10,6 +11,7 @@ import {
   valuations,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { seedTestHousehold } from "../db/testing/seed-test-household.ts";
 import { seedSyntheticHousehold } from "../dev/seed/seed-synthetic-household.ts";
 import {
   computeBalanceDays,
@@ -51,6 +53,28 @@ async function spentBetween(from: string, to: string) {
       ),
     );
   return rows.reduce((sum, row) => sum - row.amountMinor, 0);
+}
+
+/** Stores a Report of a week before any balance, as an older backfill could have left. */
+async function storeStaleReport(household: string, periodEnd: string) {
+  const id = randomUUID();
+  await db.insert(reports).values({
+    id,
+    householdId: household,
+    periodStart: addDays(periodEnd, -6),
+    periodEnd,
+    data: {},
+    version: 1,
+  });
+  return id;
+}
+
+async function storedReportIds(household: string) {
+  const rows = await db
+    .select({ id: reports.id })
+    .from(reports)
+    .where(eq(reports.householdId, household));
+  return rows.map((row) => row.id);
 }
 
 function sum(values: number[]) {
@@ -244,7 +268,6 @@ describe("generateWeeklyReports", () => {
       const first = await generateWeeklyReports(db, householdId, NOW, "all");
       expect(first.written).toBe(first.reports.length);
       expect(first.reports.at(-1)?.periodEnd).toBe(PERIOD_END);
-      expect(first.clock).toBe(before.clock + 1);
 
       const stored = await db
         .select()
@@ -253,15 +276,48 @@ describe("generateWeeklyReports", () => {
       expect(stored).toHaveLength(first.reports.length);
       const last = stored.find((row) => row.periodEnd === PERIOD_END);
       expect(last?.data).toEqual(report);
-      expect(last?.version).toBe(first.clock);
 
       const second = await generateWeeklyReports(db, householdId, NOW, "all");
       expect(second.written).toBe(0);
       expect(second.unchanged).toBe(first.reports.length);
-      expect(second.clock).toBe(first.clock);
+      const [after] = await db.select().from(households);
+      expect(after.clock).toBe(before.clock);
     },
     DB_HOOK_TIMEOUT,
   );
+
+  it(
+    "deletes the reports before the first week on an all run only",
+    async () => {
+      const stale = await storeStaleReport(householdId, "2001-01-07");
+      const last = await generateWeeklyReports(db, householdId, NOW, "last");
+      const explicit = await generateWeeklyReports(db, householdId, NOW, [
+        PERIOD_END,
+      ]);
+      expect([last.deleted, explicit.deleted]).toEqual([0, 0]);
+      expect(await storedReportIds(householdId)).toContain(stale);
+
+      const all = await generateWeeklyReports(db, householdId, NOW, "all");
+      expect(all.deleted).toBe(1);
+      const ids = await storedReportIds(householdId);
+      expect(ids).not.toContain(stale);
+      expect(ids).toHaveLength(all.reports.length);
+    },
+    DB_HOOK_TIMEOUT,
+  );
+
+  it("deletes nothing when no account has a balance yet", async () => {
+    const empty = await seedTestHousehold(db, "empty");
+    const stale = await storeStaleReport(empty.householdId, "2001-01-07");
+    const result = await generateWeeklyReports(
+      db,
+      empty.householdId,
+      NOW,
+      "all",
+    );
+    expect(result).toMatchObject({ reports: [], deleted: 0 });
+    expect(await storedReportIds(empty.householdId)).toEqual([stale]);
+  });
 
   it("skips a week that has not ended", async () => {
     const result = await generateWeeklyReports(db, householdId, NOW, [TODAY]);

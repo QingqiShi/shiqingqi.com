@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { randomUUID } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { openReplicaDb, replicaDbName } from "./open-replica-db.ts";
 import type { OutboxEntry, ReplicaMeta } from "./types.ts";
 
@@ -82,9 +82,10 @@ describe("openReplicaDb", () => {
     reopened.close();
   });
 
-  it("never opens a database again that something else deleted", async () => {
+  it("never opens a database again that something else deleted, and says it was deleted", async () => {
     const id = randomUUID();
-    const db = openReplicaDb(id);
+    const onDeleted = vi.fn();
+    const db = openReplicaDb(id, onDeleted);
     await db.write({ meta: { ...meta, householdId: id } });
 
     await new Promise<void>((resolve, reject) => {
@@ -101,8 +102,30 @@ describe("openReplicaDb", () => {
       db.write({ meta: { ...meta, householdId: id } }),
     ).rejects.toThrow();
     await expect(db.load()).rejects.toThrow();
+    expect(onDeleted).toHaveBeenCalledOnce();
     const fresh = openReplicaDb(id);
     expect((await fresh.load()).meta).toBeNull();
     fresh.close();
+  });
+
+  it("does not say it was deleted when a newer version upgrades it", async () => {
+    const id = randomUUID();
+    const onDeleted = vi.fn();
+    const db = openReplicaDb(id, onDeleted);
+    await db.write({ meta: { ...meta, householdId: id } });
+
+    const upgraded = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(replicaDbName(id), 2);
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      request.onerror = () => {
+        reject(request.error ?? new Error("upgrade failed"));
+      };
+    });
+
+    await expect(db.load()).rejects.toThrow();
+    expect(onDeleted).not.toHaveBeenCalled();
+    upgraded.close();
   });
 });

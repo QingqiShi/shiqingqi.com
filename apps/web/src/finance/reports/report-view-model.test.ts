@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { categoryLineName } from "../store/category-display-name.ts";
-import type { ReportRow } from "../sync/row-schemas.ts";
 import { adjacentReports } from "./adjacent-reports.ts";
 import { assetLiabilitySplit } from "./asset-liability-split.ts";
 import { buildReportImage } from "./build-report-image.tsx";
@@ -13,6 +12,7 @@ import { fillTemplate } from "./fill-template.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { groupReportsByYear } from "./group-reports-by-year.ts";
 import { layoutBars } from "./layout-bars.ts";
+import type { ReportListItem } from "./report-api-schemas.ts";
 import { reportChartSeries } from "./report-chart-series.ts";
 import { reportGroupBars } from "./report-group-bars.ts";
 import {
@@ -26,15 +26,8 @@ function plain(text: string) {
   return text.replace(/[\u2009\u202f]/g, " ");
 }
 
-function reportRow(periodEnd: string, periodStart = periodEnd): ReportRow {
-  return {
-    id: `report-${periodEnd}`,
-    householdId: "household",
-    periodStart,
-    periodEnd,
-    generatedAt: "2026-01-05T07:00:00.000Z",
-    version: 1,
-  };
+function reportRow(periodEnd: string, periodStart = periodEnd): ReportListItem {
+  return { id: `report-${periodEnd}`, periodStart, periodEnd };
 }
 
 const comparison = (changeMinor: number) => ({

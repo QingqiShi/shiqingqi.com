@@ -6,10 +6,9 @@ import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
 import { FinanceQueryProvider } from "../queries/finance-query-provider.tsx";
-import { useReplica } from "../replica/use-replica.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { ReportList } from "./report-list.tsx";
-import { selectReportRows } from "./select-report-rows.ts";
+import { useReportList } from "./use-report-list.ts";
 
 /**
  * Reports: the list of weeks beside the open Report at `lg` and wider.
@@ -17,25 +16,29 @@ import { selectReportRows } from "./select-report-rows.ts";
  * way back.
  */
 export function ReportsFrame({ children }: { children: ReactNode }) {
+  return (
+    <FinanceQueryProvider>
+      <ReportsColumns>{children}</ReportsColumns>
+    </FinanceQueryProvider>
+  );
+}
+
+function ReportsColumns({ children }: { children: ReactNode }) {
   const segment = useSelectedLayoutSegment();
   const isWide = useIsWideLayout();
-  const newestId = useReplica(
-    (snapshot) => selectReportRows(snapshot).at(0)?.id ?? null,
-  );
+  const newestId = useReportList().data?.at(0)?.id ?? null;
   const isOnReport = segment !== null;
   const currentId = segment ?? (isWide ? newestId : null);
 
   return (
-    <FinanceQueryProvider>
-      <div css={styles.root}>
-        <div css={[styles.list, isOnReport && styles.listOnReport]}>
-          <ReportList currentId={currentId} headingLevel={isOnReport ? 2 : 1} />
-        </div>
-        <div css={[styles.content, !isOnReport && styles.contentOnIndex]}>
-          {children}
-        </div>
+    <div css={styles.root}>
+      <div css={[styles.list, isOnReport && styles.listOnReport]}>
+        <ReportList currentId={currentId} headingLevel={isOnReport ? 2 : 1} />
       </div>
-    </FinanceQueryProvider>
+      <div css={[styles.content, !isOnReport && styles.contentOnIndex]}>
+        {children}
+      </div>
+    </div>
   );
 }
 

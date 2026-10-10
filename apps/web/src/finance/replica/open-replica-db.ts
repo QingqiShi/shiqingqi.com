@@ -11,6 +11,8 @@ import type {
 } from "./types.ts";
 
 /** Raise it when a row shape changes: an upgrade drops every store, and the next sync bootstraps. */
+// Older devices keep an unused `reports` store. Do not raise the version to
+// remove it: the upgrade also deletes the Outbox.
 const DB_VERSION = 1;
 const META_STORE = "meta";
 const OUTBOX_STORE = "outbox";
@@ -18,6 +20,39 @@ const META_KEY = "meta";
 
 export function replicaDbName(householdId: string) {
   return `finance-replica-${householdId}`;
+}
+
+const DELETE_BLOCKED_TIMEOUT_MS = 5000;
+
+/**
+ * Deletes the Household's Replica database. Close this tab's connection
+ * first: a connection in another tab closes on `versionchange`. Rejects when
+ * IndexedDB fails, or when a connection still blocks the delete after the
+ * timeout.
+ */
+export function deleteReplicaDb(
+  householdId: string,
+  blockedTimeoutMs = DELETE_BLOCKED_TIMEOUT_MS,
+) {
+  return new Promise<void>((resolve, reject) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const request = indexedDB.deleteDatabase(replicaDbName(householdId));
+    request.onsuccess = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    request.onerror = () => {
+      clearTimeout(timer);
+      reject(
+        request.error ?? new Error("The Replica database was not deleted"),
+      );
+    };
+    request.onblocked = () => {
+      timer ??= setTimeout(() => {
+        reject(new Error("Another connection blocks the Replica delete"));
+      }, blockedTimeoutMs);
+    };
+  });
 }
 
 function promisify<T>(request: IDBRequest<T>) {
@@ -45,7 +80,7 @@ function completion(transaction: IDBTransaction) {
   });
 }
 
-function openDb(name: string, onClose: () => void) {
+function openDb(name: string, onClose: () => void, onDeleted: () => void) {
   return new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(name, DB_VERSION);
     request.onupgradeneeded = () => {
@@ -59,9 +94,10 @@ function openDb(name: string, onClose: () => void) {
     };
     request.onsuccess = () => {
       const db = request.result;
-      db.onversionchange = () => {
+      db.onversionchange = (event) => {
         db.close();
         onClose();
+        if (event.newVersion === null) onDeleted();
       };
       db.onclose = onClose;
       resolve(db);
@@ -124,12 +160,16 @@ async function readTable(
  * store per synced table keyed by row key, plus `meta` and the `outbox`.
  * Once the database is open, `write` starts its transaction before it
  * returns, so a write begun just before the page unloads still commits.
- * When something else deletes or upgrades the database (sign-out or a new
- * version in another tab, cleared site data), every later call fails: the
- * database is never opened again, so a write can not claim rows that are
- * gone.
+ * After `close`, or when something else deletes or upgrades the database
+ * (sign-out or a new version in another tab, cleared site data), every later
+ * call fails: the database is never opened again, so a write can not claim
+ * rows that are gone. `onDeleted` runs when something else deletes the
+ * database, such as sign-out in another tab.
  */
-export function openReplicaDb(householdId: string): ReplicaPersistence {
+export function openReplicaDb(
+  householdId: string,
+  onDeleted: () => void = () => undefined,
+): ReplicaPersistence {
   let dbPromise: Promise<IDBDatabase> | null = null;
   let opened: IDBDatabase | null = null;
   let lost: Error | null = null;
@@ -144,7 +184,7 @@ export function openReplicaDb(householdId: string): ReplicaPersistence {
   const db = () => {
     if (lost) return Promise.reject(lost);
     if (dbPromise) return dbPromise;
-    const opening = openDb(replicaDbName(householdId), onLost).then(
+    const opening = openDb(replicaDbName(householdId), onLost, onDeleted).then(
       (handle) => {
         if (dbPromise === opening) opened = handle;
         return handle;
@@ -225,6 +265,7 @@ export function openReplicaDb(householdId: string): ReplicaPersistence {
     },
 
     close() {
+      lost ??= new Error("The Replica database is closed");
       if (opened) opened.close();
       else
         void dbPromise?.then((handle) => {

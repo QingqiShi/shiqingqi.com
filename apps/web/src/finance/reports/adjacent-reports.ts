@@ -1,10 +1,10 @@
-import type { ReportRow } from "../sync/row-schemas.ts";
+import type { ReportListItem } from "./report-api-schemas.ts";
 
 /** The Reports of the week before and the week after `id`, from a newest-first list. */
 export function adjacentReports(
-  reports: readonly ReportRow[],
+  reports: readonly ReportListItem[],
   id: string,
-): { older: ReportRow | null; newer: ReportRow | null } {
+): { older: ReportListItem | null; newer: ReportListItem | null } {
   const index = reports.findIndex((report) => report.id === id);
   if (index === -1) return { older: null, newer: null };
   return {
