@@ -33,6 +33,8 @@ import { useToast } from "../shell/toast-provider.tsx";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
+import { CredentialForm } from "./credential-form.tsx";
+import { CredentialSummary } from "./credential-summary.tsx";
 import {
   choiceOf,
   isSameChoice,
@@ -48,6 +50,7 @@ import { useIsOwner } from "./use-is-owner.ts";
 type Load =
   | { state: "loading" }
   | { state: "failed" }
+  | { state: "refused" }
   | { state: "ready"; response: ProviderAccountsResponse; version: number };
 
 type ConnectedResponse = Extract<
@@ -59,9 +62,11 @@ type ConnectedResponse = Extract<
  * Lunch Flow: each provider account beside the finance account it feeds,
  * with the best match picked in advance, and the last sync. The owner saves
  * every changed link at once; "Sync now" runs every link and says what came
- * in. Without `LUNCH_FLOW_API_KEY` it says how to connect.
+ * in. Until the owner stores the Household's Lunch Flow API key, it asks
+ * the owner for one.
  */
 export function ConnectionsSettings() {
+  const isOwner = useIsOwner();
   const [load, setLoad] = useState<Load>({ state: "loading" });
   const [attempt, setAttempt] = useState(0);
 
@@ -71,8 +76,14 @@ export function ConnectionsSettings() {
       (response) => {
         if (live) setLoad({ state: "ready", response, version: attempt });
       },
-      () => {
-        if (live) setLoad({ state: "failed" });
+      (error: unknown) => {
+        if (!live) return;
+        setLoad({
+          state:
+            error instanceof FinanceApiError && error.code === "auth"
+              ? "refused"
+              : "failed",
+        });
       },
     );
     return () => {
@@ -137,6 +148,39 @@ export function ConnectionsSettings() {
             </div>
           </div>
         </Callout>
+      ) : load.state === "refused" ? (
+        <div css={stack.item}>
+          <Callout
+            intent="warning"
+            title={t({
+              en: "Lunch Flow refused the API key",
+              zh: "Lunch Flow 拒绝了 API 密钥",
+            })}
+          >
+            <Text look="bodySmall">
+              {isOwner
+                ? t({
+                    en: "The key may be revoked, or the Lunch Flow subscription may have ended. Paste a new key to sync again.",
+                    zh: "密钥可能已被撤销，或 Lunch Flow 订阅已到期。粘贴新密钥即可恢复同步。",
+                  })
+                : t({
+                    en: "Nothing syncs until the owner pastes a new key.",
+                    zh: "在所有者粘贴新密钥之前不会同步。",
+                  })}
+            </Text>
+          </Callout>
+          {isOwner ? <CredentialForm replacing onSaved={reload} /> : null}
+        </div>
+      ) : isOwner ? (
+        <div css={stack.item}>
+          <Text look="bodySmall">
+            {t({
+              en: "Connect Lunch Flow with an API key. The bank accounts you connected in Lunch Flow then appear in this list to link.",
+              zh: "用 API 密钥连接 Lunch Flow。之后你在 Lunch Flow 连接的银行账户会显示在这里以供关联。",
+            })}
+          </Text>
+          <CredentialForm onSaved={reload} />
+        </div>
       ) : (
         <Callout
           intent="info"
@@ -144,8 +188,8 @@ export function ConnectionsSettings() {
         >
           <Text look="bodySmall">
             {t({
-              en: "Add your Lunch Flow API key as LUNCH_FLOW_API_KEY in the Vercel project's environment variables, then redeploy. The bank accounts you connected in Lunch Flow then appear in this list to link.",
-              zh: "在 Vercel 项目的环境变量中添加 Lunch Flow API 密钥 LUNCH_FLOW_API_KEY，然后重新部署。之后你在 Lunch Flow 连接的银行账户会显示在这里以供关联。",
+              en: "The owner connects Lunch Flow with an API key.",
+              zh: "由所有者用 API 密钥连接 Lunch Flow。",
             })}
           </Text>
         </Callout>
@@ -394,6 +438,11 @@ function ConnectedSettings({
       }
     >
       <div css={stack.item}>
+        <CredentialSummary
+          credential={response.credential}
+          editable={isOwner}
+          onChanged={onReload}
+        />
         {response.mode === "fake" ? (
           <Text look="bodySmall" tone="muted">
             {t({

@@ -307,12 +307,24 @@ test.describe("Settings", () => {
       .toHaveLength(1);
   });
 
-  test("bank links connect fake Lunch Flow accounts; “Sync now” sums up and leads to Review", async ({
+  test("the owner pastes a Lunch Flow key; bank links connect fake accounts; “Sync now” sums up and leads to Review", async ({
     page,
     session,
     financeDb,
   }) => {
     await openSettings(page, "connections", "Connections");
+    await page
+      .getByLabel("Lunch Flow API key")
+      .fill("lf-e2e-key-0000-abcd", { timeout: SYNC_TIMEOUT });
+    await page.getByRole("button", { name: "Connect" }).click();
+    await expect(toast(page, "Lunch Flow connected")).toBeVisible({
+      timeout: SYNC_TIMEOUT,
+    });
+    await expect(page.getByText(/^API key ending in abcd/)).toBeVisible({
+      timeout: SYNC_TIMEOUT,
+    });
+    expect(await page.content()).not.toContain("lf-e2e-key-0000-abcd");
+
     const link = page.getByRole("button", { name: /^Link suggested \(\d+\)$/ });
     await expect(link).toBeVisible({ timeout: SYNC_TIMEOUT });
     await link.click();

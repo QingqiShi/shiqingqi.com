@@ -25,6 +25,7 @@ export const financeE2eEnv = {
   FINANCE_DATABASE_URL: `postgres://postgres:postgres@127.0.0.1:${String(FINANCE_E2E_DB_PORT)}/postgres`,
   FINANCE_AUTH_SECRET: "e2e-finance-auth-secret-for-tests-only",
   FINANCE_SETUP_SECRET: FINANCE_E2E_SETUP_SECRET,
+  FINANCE_CREDENTIAL_KEY: "ZTJlLWZpbmFuY2UtY3JlZGVudGlhbC1rZXktMzJieXQ=",
   FINANCE_LUNCHFLOW_MODE: "fake",
   FINANCE_RATE_LIMIT: "off",
 };

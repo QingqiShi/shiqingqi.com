@@ -1,25 +1,33 @@
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
-import { accounts, bankLinks, valuations } from "../db/schema.ts";
+import { accounts, bankLinks, connections, valuations } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { pullChanges } from "../sync/pull-changes.ts";
 import {
   createFakeBankClient,
   type FakeBankFixture,
 } from "./lunchflow/create-fake-bank-client.ts";
+import { createLunchFlowClient } from "./lunchflow/create-lunch-flow-client.ts";
+import {
+  serveFakeLunchFlow,
+  type FakeLunchFlowServer,
+} from "./lunchflow/testing/serve-fake-lunch-flow.ts";
 import {
   makeBankHandlers,
   type BankHandlerDependencies,
 } from "./make-bank-handlers.ts";
+import { makeBankProvider } from "./make-bank-provider.ts";
 import { seedUncategorised } from "./testing/seed-bank-link.ts";
 import type {
   BankConnection,
   BankLinkView,
+  CredentialView,
   ProviderAccountsResponse,
   SyncNowResponse,
 } from "./types.ts";
@@ -27,6 +35,7 @@ import type {
 const ORIGIN = "https://qingqi.dev";
 const NOW = new Date("2026-10-10T12:00:00Z");
 const DB_HOOK_TIMEOUT = 60_000;
+const CREDENTIAL_KEY = new Uint8Array(randomBytes(32));
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -100,10 +109,13 @@ function handlers(overrides: Partial<BankHandlerDependencies> = {}) {
           ? {
               status: "connected",
               mode: "fake",
+              credential: { lastFour: "abcd", savedAt: NOW.toISOString() },
               client: createFakeBankClient(fixture),
             }
           : { status: "not_connected" },
       ),
+    verifyApiKey: () => Promise.resolve(),
+    credentialKey: () => CREDENTIAL_KEY,
     getModel: () => null,
     now: () => NOW,
     ...overrides,
@@ -305,7 +317,7 @@ describe("makeBankHandlers", () => {
     expect(after.balanceDifferenceMinor).toBeNull();
   });
 
-  it("lets only the owner link or unlink accounts", async () => {
+  it("lets only the owner link, unlink or sync accounts", async () => {
     await putLink({ accountId: home.currentId, providerAccountId: "p1" });
     const [link] = await db.select().from(bankLinks);
     session = session && { ...session, role: "member" };
@@ -324,7 +336,7 @@ describe("makeBankHandlers", () => {
     expect(put.status).toBe(403);
     expect(await put.json()).toEqual({ error: "owner-only" });
     expect(removed.status).toBe(403);
-    expect(synced.status).toBe(200);
+    expect(synced.status).toBe(403);
   });
 
   it("limits how often a Household syncs now", async () => {
@@ -353,5 +365,162 @@ describe("makeBankHandlers", () => {
     expect(await response.json()).toEqual({ error: "rate_limited" });
     const [link] = await db.select().from(bankLinks);
     expect(link).toMatchObject({ status: "active", lastError: "rate_limited" });
+  });
+});
+
+describe("the Lunch Flow API key", () => {
+  const API_KEY = "lf-live-key-0123456789-wxyz";
+  let lunchFlow: FakeLunchFlowServer;
+
+  beforeEach(async () => {
+    lunchFlow = await serveFakeLunchFlow({
+      apiKey: API_KEY,
+      accounts: [
+        {
+          id: 101,
+          connection_id: 7,
+          name: "Everyday",
+          institution_name: "Example Bank",
+          institution_logo: null,
+          provider: "gocardless",
+          currency: "GBP",
+          status: "ACTIVE",
+          transactions: [],
+          balance: { amount: 10, currency: "GBP" },
+        },
+      ],
+    });
+  });
+
+  afterEach(async () => {
+    await lunchFlow.close();
+  });
+
+  /** The handlers as production wires them, with Lunch Flow on a local server. */
+  function realHandlers() {
+    const provider = makeBankProvider({
+      fake: () => false,
+      credentialKey: () => CREDENTIAL_KEY,
+      createClient: (apiKey) =>
+        createLunchFlowClient({
+          apiKey,
+          baseUrl: lunchFlow.baseUrl,
+          retries: 0,
+        }),
+    });
+    return handlers({
+      getBankClient: provider.getBankClient,
+      verifyApiKey: provider.verifyApiKey,
+    });
+  }
+
+  function putCredential(apiKey: string) {
+    return realHandlers().putCredential(
+      request("credential", { method: "PUT", body: { apiKey } }),
+    );
+  }
+
+  function removeCredential() {
+    return realHandlers().removeCredential(
+      request("credential", { method: "DELETE" }),
+    );
+  }
+
+  async function listedAccounts() {
+    const response = await realHandlers().listAccounts(request("accounts"));
+    return { text: await response.text(), status: response.status };
+  }
+
+  it("connects the Household with a key Lunch Flow takes, and never sends the key back", async () => {
+    expect(JSON.parse((await listedAccounts()).text)).toEqual({
+      status: "not_connected",
+    });
+
+    const response = await putCredential(API_KEY);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      lastFour: "wxyz",
+      savedAt: NOW.toISOString(),
+    } satisfies CredentialView);
+    const listed = await listedAccounts();
+    expect(JSON.parse(listed.text)).toMatchObject({
+      status: "connected",
+      mode: "real",
+      credential: { lastFour: "wxyz", savedAt: NOW.toISOString() },
+      accounts: [{ providerAccountId: "101", name: "Everyday" }],
+    });
+    expect(listed.text).not.toContain(API_KEY);
+    const [row] = await db.select().from(connections);
+    expect(row.credential).not.toBeNull();
+    expect(Buffer.from(row.credential ?? []).toString("latin1")).not.toContain(
+      API_KEY,
+    );
+    const pulled = await pullChanges(db, home.householdId, -1);
+    expect(JSON.stringify(pulled)).not.toContain(API_KEY);
+    expect(JSON.stringify(pulled)).not.toContain("wxyz");
+  });
+
+  it("refuses a key Lunch Flow refuses, and keeps nothing", async () => {
+    const response = await putCredential("lf-wrong-key-000000");
+
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({ error: "auth" });
+    expect(await db.select().from(connections)).toEqual([]);
+  });
+
+  it("refuses to store a key when the server has no credential key", async () => {
+    const response = await handlers({
+      credentialKey: () => null,
+    }).putCredential(
+      request("credential", { method: "PUT", body: { apiKey: API_KEY } }),
+    );
+
+    expect(response.status).toBe(503);
+    expect(await db.select().from(connections)).toEqual([]);
+  });
+
+  it("lets only the owner set or remove the key", async () => {
+    session = session && { ...session, role: "member" };
+
+    const put = await putCredential(API_KEY);
+    const removed = await removeCredential();
+
+    expect(put.status).toBe(403);
+    expect(await put.json()).toEqual({ error: "owner-only" });
+    expect(removed.status).toBe(403);
+    expect(await db.select().from(connections)).toEqual([]);
+  });
+
+  it("keeps the Bank links when the key goes, and stops syncing", async () => {
+    await putCredential(API_KEY);
+    const linked = await realHandlers().putLink(
+      request("links", {
+        method: "PUT",
+        body: { accountId: home.currentId, providerAccountId: "101" },
+      }),
+    );
+    expect(linked.status).toBe(200);
+
+    const removed = await removeCredential();
+    const synced = await realHandlers().syncNow(
+      request("sync-now", { method: "POST", body: {} }),
+    );
+
+    expect(removed.status).toBe(204);
+    expect(JSON.parse((await listedAccounts()).text)).toEqual({
+      status: "not_connected",
+    });
+    expect(synced.status).toBe(409);
+    expect(await synced.json()).toEqual({ error: "not-connected" });
+    expect(await db.select().from(bankLinks)).toMatchObject([
+      { accountId: home.currentId, providerAccountId: "101", deletedAt: null },
+    ]);
+
+    await putCredential(API_KEY);
+    const listed = JSON.parse((await listedAccounts()).text) as {
+      accounts: { link: BankLinkView | null }[];
+    };
+    expect(listed.accounts[0].link?.accountId).toBe(home.currentId);
   });
 });
