@@ -490,7 +490,7 @@ fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
     color = color * (1.0 - coverage) + body * coverage;
     alpha = alpha * (1.0 - coverage) + coverage;
   }
-  return vec4f(color, alpha) * clip;
+  return vec4f(effectGrayscale(color, track.grayscale), alpha) * clip;
 }
 `;
 

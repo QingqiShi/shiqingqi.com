@@ -62,6 +62,12 @@ export function EffectLayerShowcase() {
               zh: "由于效果绘制在内容之上，效果也能出现在带有自身背景的元素上。这些 <canvas> 元素是惰性的：点击、悬停、选择文字和焦点都会到达它们下方的内容。",
             })}
           </Text>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "CSS filters on the content do not reach the <canvas> elements, except grayscale(): the layer reads it from the filter of each registered element and its ancestors, and draws that element's effects as grey.",
+              zh: "内容上的 CSS 滤镜不会作用到这些 <canvas> 元素上，grayscale() 除外：效果层会从每个已登记元素及其祖先元素的 filter 中读取它，并以同样的灰度绘制该元素的效果。",
+            })}
+          </Text>
         </div>
       </Showcase>
 

@@ -17,6 +17,7 @@ function record(fill: EffectElementRecord["fill"]): EffectElementRecord {
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
     fill,
+    grayscale: 0,
     scope: 0,
     holds: null,
     scopeIndex: 0,

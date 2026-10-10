@@ -26,6 +26,7 @@ function record(
     radii: [16, 16, 8, 0],
     cornerExponent: 4,
     fill: [0.25, 0.5, 0.75, 1],
+    grayscale: 0,
     scope: 0,
     holds: null,
     scopeIndex: 0,
@@ -57,6 +58,12 @@ describe("packElements", () => {
       words[second + 13],
       words[second + 15],
     ]).toEqual([0, 1, 8]);
+  });
+
+  it("packs how grey it is", () => {
+    const buffer = new ArrayBuffer(ELEMENT_BYTES);
+    packElements([record({ grayscale: 0.75 })], buffer);
+    expect(new Float32Array(buffer)[17]).toBe(0.75);
   });
 
   it("packs the index of its scope", () => {

@@ -3,7 +3,7 @@
  *
  * @internal
  */
-export const DUST_PARTICLE_BYTES = 56;
+export const DUST_PARTICLE_BYTES = 64;
 
 /**
  * The byte size of one `DustElement`.
@@ -41,6 +41,8 @@ struct DustParticle {
   scopeIndex: u32,
   // 1 when it draws over a dark backdrop, fixed at birth like its colour.
   dark: u32,
+  // The grayscale of the element that shed it, which each frame reads again.
+  grayscale: f32,
 }
 
 // One per entry of effectElements, at the same index.

@@ -171,6 +171,7 @@ fn spawn(elementIndex: u32, particleIndex: u32) -> DustParticle {
     effectScopes[scope].id,
     scope,
     dustElements[elementIndex].dark,
+    element.grayscale,
   );
 }
 
@@ -213,6 +214,9 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
     let span = effectScopes[scope].ranges[group];
     for (var k = span.x; k < span.x + span.y; k += 1u) {
       let element = effectElements[k];
+      if (element.id == particle.emitter) {
+        particle.grayscale = element.grayscale;
+      }
       let isFan = (element.roles & EFFECT_ROLE_EXTRACTOR_FAN) != 0u && element.id != particle.emitter;
       let reach = dustElements[k].reach;
       let range = select(OBSTACLE_RANGE, max(reach, OBSTACLE_RANGE), isFan);

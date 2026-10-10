@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  effectiveGrayscale,
   isFixedToViewport,
   isInSticky,
   readCornerExponent,
+  readGrayscale,
   resolveCornerRadii,
 } from "./read-element-box.ts";
 
@@ -119,5 +121,41 @@ describe("isInSticky", () => {
         mount('<div style="position: sticky"><p data-target></p></div>'),
       ),
     ).toBe(true);
+  });
+});
+
+describe("readGrayscale", () => {
+  it.each([
+    ["none", 0],
+    ["", 0],
+    ["grayscale(1)", 1],
+    ["grayscale(0.25)", 0.25],
+    ["grayscale(40%)", 0.4],
+    ["grayscale()", 1],
+    ["grayscale(3)", 1],
+    ["blur(2px)", 0],
+    ["blur(2px) grayscale(0.5) opacity(0.9)", 0.5],
+  ])("reads %j as %d", (filter, grayscale) => {
+    expect(readGrayscale(filter)).toBeCloseTo(grayscale);
+  });
+
+  it("applies each grayscale() to the colour the one before it kept", () => {
+    expect(readGrayscale("grayscale(0.5) grayscale(0.5)")).toBeCloseTo(0.75);
+  });
+});
+
+describe("effectiveGrayscale", () => {
+  it("is 0 without a filter", () => {
+    expect(effectiveGrayscale(mount("<div><p data-target></p></div>"))).toBe(0);
+  });
+
+  it("takes the filter of the element and of each ancestor together", () => {
+    expect(
+      effectiveGrayscale(
+        mount(
+          '<div style="filter: grayscale(0.5)"><div><p data-target style="filter: grayscale(0.5)"></p></div></div>',
+        ),
+      ),
+    ).toBeCloseTo(0.75);
   });
 });

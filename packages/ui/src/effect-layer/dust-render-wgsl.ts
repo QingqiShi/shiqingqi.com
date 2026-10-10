@@ -63,8 +63,9 @@ fn quad(vertex: u32, head: vec2f, direction: vec2f, radius: f32, streak: f32, co
   return DustVarying(pageToClip(page), local, vec2f(radius, streak), color, scope);
 }
 
-fn shade(color: vec4f, opacity: f32) -> vec4f {
-  return vec4f(color.rgb, 1.0) * color.a * opacity;
+fn shade(packed: u32, grayscale: f32, opacity: f32) -> vec4f {
+  let color = unpack4x8unorm(packed);
+  return vec4f(effectGrayscale(color.rgb, grayscale), 1.0) * color.a * opacity;
 }
 
 @vertex
@@ -90,7 +91,7 @@ fn particleVertex(
     * flicker
     * mix(0.55, 1.0, fract(particle.seed * 7.31))
     * (radius + 1.0) / (radius + 1.0 + streak * 0.08);
-  return quad(vertex, particle.position, direction, radius, streak, shade(unpack4x8unorm(particle.color), opacity), particle.scopeIndex);
+  return quad(vertex, particle.position, direction, radius, streak, shade(particle.color, particle.grayscale, opacity), particle.scopeIndex);
 }
 
 @vertex
@@ -113,7 +114,7 @@ fn moteVertex(
   let seed = random(&state);
   let radius = mix(RADIUS_MIN, RADIUS_MAX, seed * seed);
   let opacity = (1.0 - spread) * 0.8;
-  return quad(vertex, head, vec2f(1.0, 0.0), radius, 0.0, shade(unpack4x8unorm(dustElements[elementIndex].color), opacity), element.scope);
+  return quad(vertex, head, vec2f(1.0, 0.0), radius, 0.0, shade(dustElements[elementIndex].color, element.grayscale, opacity), element.scope);
 }
 
 @fragment
