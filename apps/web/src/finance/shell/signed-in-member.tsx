@@ -3,21 +3,27 @@ import { Avatar } from "@tuja/ui/components/avatar";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
+import type { StyleProp } from "@tuja/ui/types";
 import { SignOutButton } from "./sign-out-button.tsx";
 import { SyncStatusIndicator } from "./sync-status-indicator.tsx";
 
-interface FinanceSidebarFooterProps {
+interface SignedInMemberProps {
   memberName: string;
   householdName: string;
+  css?: StyleProp;
 }
 
-/** Who is signed in, to which Household, the sync status, and sign out. */
-export function FinanceSidebarFooter({
+/**
+ * Who is signed in, to which Household, the sync status, and sign out. The
+ * rail shows it at `md` and wider, and the Settings menu below `md`.
+ */
+export function SignedInMember({
   memberName,
   householdName,
-}: FinanceSidebarFooterProps) {
+  css,
+}: SignedInMemberProps) {
   return (
-    <div css={[stack.tight, styles.footer]}>
+    <div css={[stack.tight, styles.root, css]}>
       <SyncStatusIndicator />
       <div css={[row.tight, styles.member]}>
         <Avatar name={memberName} size="sm" />
@@ -34,7 +40,7 @@ export function FinanceSidebarFooter({
 }
 
 const styles = stylex.create({
-  footer: {
+  root: {
     paddingBlockStart: space._3,
     borderBlockStartWidth: border.size_1,
     borderBlockStartStyle: "solid",

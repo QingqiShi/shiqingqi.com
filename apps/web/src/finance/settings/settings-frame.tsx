@@ -24,11 +24,12 @@ import {
   SETTINGS_SECTIONS,
   type SettingsSection,
 } from "./settings-sections.ts";
+import { SettingsSignedInMember } from "./settings-signed-in-member.tsx";
 
 /**
  * Settings: the section menu beside the open section at `lg` and wider.
  * Below `lg` the menu is its own page and each section opens on its own
- * with a way back.
+ * with a way back. Below `md` the menu page also shows the signed-in Member.
  */
 export function SettingsFrame({ children }: { children: ReactNode }) {
   const locale = useLocale();
@@ -84,6 +85,7 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
           ))}
         </ul>
       </nav>
+      {current === null ? <SettingsSignedInMember /> : null}
       <div
         css={[
           stack.item,

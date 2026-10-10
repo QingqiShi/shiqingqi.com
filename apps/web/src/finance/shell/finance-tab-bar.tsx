@@ -22,23 +22,24 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { normalizePath } from "#src/i18n/normalize-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { useSyncStatus } from "../replica/use-sync-status.ts";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
 import { tabBarTokens } from "./tab-bar.stylex.ts";
 import { useFinanceDestinations } from "./use-finance-destinations.ts";
 import { useFreshPrefetch } from "./use-fresh-prefetch.ts";
+import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
 
 /**
  * The five Finance destinations as a bar at the bottom of the screen, below
  * `md`, where one tap switches screens. A dot on Transactions says that
- * changes wait to sync.
+ * changes wait to sync. A dot on Settings, where the full sync status is,
+ * says that sync has a problem, and the link's name says which.
  */
 export function FinanceTabBar() {
   const locale = useLocale();
   const current = normalizePath(usePathname());
   const destinations = useFinanceDestinations();
   const prefetch = useFreshPrefetch();
-  const status = useSyncStatus();
+  const { status, label, attention } = useSyncStatusSummary();
   const waiting = status.pendingCount > 0;
 
   return (
@@ -46,6 +47,7 @@ export function FinanceTabBar() {
       <ul css={styles.list}>
         {destinations.map((destination) => {
           const isCurrent = isCurrentDestination(current, destination.path);
+          const isSettings = destination.path === "/finance/settings";
           return (
             <li key={destination.path} css={styles.item}>
               <Link
@@ -68,8 +70,22 @@ export function FinanceTabBar() {
                   {waiting && destination.path === "/finance/transactions" ? (
                     <span css={[corner.radius_round, styles.dot]} />
                   ) : null}
+                  {isSettings && attention ? (
+                    <span
+                      css={[
+                        corner.radius_round,
+                        styles.dot,
+                        attentionStyles[attention],
+                      ]}
+                    />
+                  ) : null}
                 </span>
-                <span css={styles.label}>{destination.label}</span>
+                <span css={styles.label}>{destination.label}</span>{" "}
+                {isSettings ? (
+                  <span css={a11y.srOnly} role="status">
+                    {attention ? label : null}
+                  </span>
+                ) : null}
               </Link>
             </li>
           );
@@ -144,4 +160,9 @@ const styles = stylex.create({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
   },
+});
+
+const attentionStyles = stylex.create({
+  waiting: { backgroundColor: color.fgWarning },
+  problem: { backgroundColor: color.fgDanger },
 });

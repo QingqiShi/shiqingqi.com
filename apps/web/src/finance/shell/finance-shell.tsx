@@ -2,10 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import type { ReactNode } from "react";
 import type { SupportedLocale } from "#src/i18n/types.ts";
-import { t } from "#src/i18n.ts";
 import { FinanceAddButton } from "./finance-add-button.tsx";
 import { FinanceNav } from "./finance-nav.tsx";
-import { FinanceSidebarFooter } from "./finance-sidebar-footer.tsx";
 import { FinanceSidebarHeader } from "./finance-sidebar-header.tsx";
 import { FinanceTabBar } from "./finance-tab-bar.tsx";
 import { OfflineNavigationGuard } from "./offline-navigation-guard.tsx";
@@ -13,6 +11,7 @@ import { PrecacheFinanceShells } from "./precache-finance-shells.tsx";
 import { PrewarmScreens } from "./prewarm-screens.tsx";
 import { RejectionToasts } from "./rejection-toasts.tsx";
 import { ReplicaGate } from "./replica-gate.tsx";
+import { SignedInMember } from "./signed-in-member.tsx";
 import { tabBarTokens } from "./tab-bar.stylex.ts";
 import { ToastProvider } from "./toast-provider.tsx";
 
@@ -24,9 +23,10 @@ interface FinanceShellProps {
 }
 
 /**
- * The Finance app frame: the rail with the five destinations at `md` and
- * wider, the tab bar below `md` (the drawer then holds the signed-in Member
- * and the sync status); the floating Add action below `lg`; and the toast.
+ * The Finance app frame. At `md` and wider, the rail holds the five
+ * destinations and the signed-in Member. Below `md`, the tab bar holds the
+ * destinations and marks a sync problem on Settings, and the Settings menu
+ * shows the signed-in Member and the full sync status. Also the floating Add action below `lg`, and the toast.
  * Render it inside `FinanceProvider`.
  */
 export function FinanceShell({
@@ -41,13 +41,12 @@ export function FinanceShell({
         sidebar={<FinanceNav />}
         sidebarHeader={<FinanceSidebarHeader locale={locale} />}
         sidebarFooter={
-          <FinanceSidebarFooter
+          <SignedInMember
             memberName={memberName}
             householdName={householdName}
           />
         }
-        menuLabel={t({ en: "Finance menu", zh: "家庭账本菜单" })}
-        closeLabel={t({ en: "Close menu", zh: "关闭菜单" })}
+        mobileSidebar="hidden"
       >
         <div css={styles.content}>
           <ReplicaGate>{children}</ReplicaGate>

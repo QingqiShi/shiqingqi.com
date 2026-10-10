@@ -16,6 +16,7 @@ import { HouseholdSettings } from "./household-settings.tsx";
 import { MembersSettings } from "./members-settings.tsx";
 import { PayeesSettings } from "./payees-settings.tsx";
 import { RulesSettings } from "./rules-settings.tsx";
+import { SettingsSignedInMember } from "./settings-signed-in-member.tsx";
 import { TagsSettings } from "./tags-settings.tsx";
 import {
   createSettingsReplica,
@@ -107,6 +108,20 @@ const providerAccounts: ProviderAccountsResponse = {
 };
 
 describe("Settings", () => {
+  it("shows the signed-in Member, the Household, the sync status and sign out", async () => {
+    const runtime = await createSettingsReplica();
+    renderWithSettingsReplica(runtime, <SettingsSignedInMember />, {
+      memberId: ids.sam,
+    });
+
+    expect(screen.getByText("Sam")).toBeInTheDocument();
+    expect(screen.getByText("Home")).toBeInTheDocument();
+    expect(screen.getByText("Not synced yet")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Sign out" }),
+    ).toBeInTheDocument();
+  });
+
   it("adds a tag", async () => {
     const runtime = await createSettingsReplica();
     renderWithSettingsReplica(runtime, <TagsSettings />);

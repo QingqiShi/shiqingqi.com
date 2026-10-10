@@ -45,7 +45,7 @@ for (const viewport of [DESKTOP, MOBILE]) {
       ).toBeVisible();
 
       if (viewport.width < 768) {
-        await page.getByRole("button", { name: "Finance menu" }).click();
+        await page.getByRole("link", { name: "Settings" }).click();
       }
       await expect(syncStatus(page, /^Synced/)).toBeVisible({
         timeout: SYNC_TIMEOUT,

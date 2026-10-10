@@ -28,7 +28,7 @@ const DEFAULT_SIDEBAR_INLINE_SIZE = space._13;
 // `@media ` prefix.
 const MD_MEDIA_QUERY = breakpoints.md.replace("@media ", "");
 
-interface SidebarLayoutProps {
+interface SidebarLayoutOwnProps {
   /**
    * Navigation content, rendered in the sticky rail on wider viewports and in
    * the drawer on mobile. Scrolls independently when it outgrows the viewport.
@@ -38,9 +38,10 @@ interface SidebarLayoutProps {
   sidebar: ReactNode;
   /**
    * Title region — rendered at the top of the rail, in the collapsed mobile
-   * bar, and at the top of the drawer.
+   * bar, and at the top of the drawer. With `mobileSidebar="hidden"` there is
+   * no mobile bar or drawer, so it shows only in the rail.
    *
-   * @zh 标题区域——显示在侧栏顶部、收起的移动端悬浮条中，以及抽屉顶部。
+   * @zh 标题区域——显示在侧栏顶部、收起的移动端悬浮条中，以及抽屉顶部。当 `mobileSidebar` 为 `"hidden"` 时没有移动端悬浮条和抽屉，因此只显示在侧栏中。
    */
   sidebarHeader?: ReactNode;
   /**
@@ -50,20 +51,6 @@ interface SidebarLayoutProps {
    * @zh 固定在侧栏与抽屉底部边缘的实用区域——主题切换、语言选择等应用级控件。
    */
   sidebarFooter?: ReactNode;
-  /**
-   * Accessible name for the mobile menu button and the open drawer dialog.
-   * The package ships no i18n, so the consumer supplies the localised
-   * string.
-   *
-   * @zh 移动端菜单按钮与打开的抽屉对话框的无障碍名称。本包不内置 i18n，请由调用方提供本地化字符串。
-   */
-  menuLabel: string;
-  /**
-   * Accessible label for the drawer's close button.
-   *
-   * @zh 抽屉关闭按钮的无障碍标签。
-   */
-  closeLabel: string;
   /**
    * Content column, capped to a readable width and centred beside the rail.
    *
@@ -93,11 +80,49 @@ interface SidebarLayoutProps {
   as?: "main" | "div";
 }
 
+type SidebarLayoutMobileProps =
+  | {
+      /**
+       * Where the rail goes below `md`. `"drawer"` puts it behind a menu
+       * button in a floating bar at the top. `"hidden"` removes the bar and
+       * the drawer, so the content starts at the top of the screen, below the
+       * safe area. Use it for an app whose own mobile navigation, such as a
+       * tab bar, already holds the rail's content.
+       *
+       * @zh `md` 以下侧栏的去向。`"drawer"` 将其收进顶部悬浮条的菜单按钮之后；`"hidden"` 去掉悬浮条与抽屉，内容从屏幕顶部（安全区域之下）开始。适用于已有自己移动端导航（例如标签栏）承载侧栏内容的应用。 @default "drawer"
+       */
+      mobileSidebar?: "drawer";
+      /**
+       * Accessible name for the mobile menu button and the open drawer dialog.
+       * The package ships no i18n, so the consumer supplies the localised
+       * string. Required unless `mobileSidebar` is `"hidden"`.
+       *
+       * @zh 移动端菜单按钮与打开的抽屉对话框的无障碍名称。本包不内置 i18n，请由调用方提供本地化字符串。除非 `mobileSidebar` 为 `"hidden"`，否则必填。
+       */
+      menuLabel: string;
+      /**
+       * Accessible label for the drawer's close button. Required unless
+       * `mobileSidebar` is `"hidden"`.
+       *
+       * @zh 抽屉关闭按钮的无障碍标签。除非 `mobileSidebar` 为 `"hidden"`，否则必填。
+       */
+      closeLabel: string;
+    }
+  | {
+      mobileSidebar: "hidden";
+      menuLabel?: undefined;
+      closeLabel?: undefined;
+    };
+
+type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
+
 /**
  * App-density page shell: a persistent navigation rail beside a centered
  * content column on wider viewports, collapsing on mobile into a top bar whose
  * menu button opens the rail as a drawer (focus-trapped, scroll-locked,
- * dismissed by Escape, backdrop, or following a link).
+ * dismissed by Escape, backdrop, or following a link). With
+ * `mobileSidebar="hidden"` there is no mobile bar or drawer, and the rail
+ * shows from `md` up.
  *
  * The rail fills the viewport's height (capped at its container's), so the
  * shell works in any bounded box, not just the page root.
@@ -106,13 +131,20 @@ export function SidebarLayout({
   sidebar,
   sidebarHeader,
   sidebarFooter,
-  menuLabel,
-  closeLabel,
   children,
   contentMaxInlineSize,
   sidebarInlineSize,
   as = "main",
+  ...mobile
 }: SidebarLayoutProps) {
+  const drawer =
+    mobile.mobileSidebar === "hidden"
+      ? ({ hasDrawer: false } as const)
+      : ({
+          hasDrawer: true,
+          menuLabel: mobile.menuLabel,
+          closeLabel: mobile.closeLabel,
+        } as const);
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -170,31 +202,33 @@ export function SidebarLayout({
     <div
       css={[
         styles.root,
+        !drawer.hasDrawer && styles.rootWithoutMobileBar,
         dynamicStyles.columns(sidebarInlineSize ?? DEFAULT_SIDEBAR_INLINE_SIZE),
       ]}
     >
-      <div css={[corner.radius_round, styles.mobileBar]}>
-        <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
-        <Button
-          size="sm"
-          look="ghost"
-          icon={<ListIcon weight="bold" />}
-          aria-label={menuLabel}
-          aria-haspopup="dialog"
-          aria-expanded={isOpen}
-          onClick={() => {
-            setIsOpen(true);
-          }}
-        />
-      </div>
+      {drawer.hasDrawer ? (
+        <div css={[corner.radius_round, styles.mobileBar]}>
+          <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
+          <Button
+            size="sm"
+            look="ghost"
+            icon={<ListIcon weight="bold" />}
+            aria-label={drawer.menuLabel}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            onClick={() => {
+              setIsOpen(true);
+            }}
+          />
+        </div>
+      ) : null}
       <Drawer
+        {...drawer}
         isOpen={isOpen}
         onClose={() => {
           setIsOpen(false);
         }}
         drawerRef={drawerRef}
-        menuLabel={menuLabel}
-        closeLabel={closeLabel}
         sidebarHeader={sidebarHeader}
         sidebarFooter={sidebarFooter}
       >
@@ -246,6 +280,18 @@ const styles = stylex.create({
     blockSize: { [breakpoints.md]: "100%" },
     minBlockSize: { [breakpoints.md]: 0 },
     gridTemplateRows: { [breakpoints.md]: "minmax(0, 1fr)" },
+  },
+  // No bar floats over the page, so sticky chrome parks under the status
+  // bar, and the content starts the md+ content gap below it.
+  rootWithoutMobileBar: {
+    "--header-controls-clearance": {
+      default: "env(safe-area-inset-top)",
+      [breakpoints.md]: "0px",
+    },
+    paddingBlockStart: {
+      default: `calc(${space._4} + env(safe-area-inset-top))`,
+      [breakpoints.md]: 0,
+    },
   },
   // Fixed, not sticky, since a sticky grid item cannot escape its own-height
   // row. The shell's mobile block-start padding is sized to clear this bar.
