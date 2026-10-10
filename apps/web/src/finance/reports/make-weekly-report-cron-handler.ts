@@ -10,7 +10,7 @@ export function makeWeeklyReportCronHandler(
 ) {
   return makeHouseholdCronHandler(dependencies, {
     start: () => ({ households: 0, written: 0, failed: 0 }),
-    runHousehold: async ({ db, householdId }, now, totals) => {
+    runHousehold: async (db, householdId, now, totals) => {
       const result = await generateWeeklyReports(db, householdId, now, "last");
       totals.households++;
       totals.written += result.written;

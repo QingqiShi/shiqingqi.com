@@ -6,6 +6,7 @@ import {
 import type { RepositoryScope } from "../db/repositories/types.ts";
 import { setStatementTimeout } from "../db/set-statement-timeout.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { addMonths } from "../domain/dates/add-months.ts";
 import { rowSchemas, type SyncTableName } from "./row-schemas.ts";
 
@@ -33,15 +34,14 @@ export function readSnapshot<T>(
   householdId: string,
   read: (scope: RepositoryScope) => Promise<T>,
 ) {
-  return db.transaction(
-    async (tx) => {
-      await setStatementTimeout(tx);
-      return read({ db: tx, householdId });
+  return withHousehold(
+    db,
+    householdId,
+    async (scope) => {
+      await setStatementTimeout(scope.db);
+      return read(scope);
     },
-    {
-      isolationLevel: "repeatable read",
-      accessMode: "read only",
-    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
 

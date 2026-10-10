@@ -4,6 +4,7 @@ import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { seedTestHousehold } from "../db/testing/seed-test-household.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { makeHouseholdHandler } from "./make-household-handler.ts";
 
 const ORIGIN = "http://localhost:3000";
@@ -48,14 +49,17 @@ function patch(body: unknown, origin: string | null = ORIGIN) {
 
 describe("makeHouseholdHandler", () => {
   it("renames the Household, changes its timezone and moves the clock", async () => {
-    const scope = { db, householdId: session.householdId };
-    const before = await householdRepository.find(scope);
+    const find = () =>
+      withHousehold(db, session.householdId, (scope) =>
+        householdRepository.find(scope),
+      );
+    const before = await find();
     const response = await patch({
       name: "Our home",
       timezone: "Asia/Shanghai",
     });
     expect(response.status).toBe(200);
-    const after = await householdRepository.find(scope);
+    const after = await find();
     expect(after).toMatchObject({
       name: "Our home",
       timezone: "Asia/Shanghai",

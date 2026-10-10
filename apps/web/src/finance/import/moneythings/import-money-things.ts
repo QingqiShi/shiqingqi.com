@@ -29,6 +29,7 @@ import {
   valuations,
 } from "../../db/schema.ts";
 import type { FinanceDb } from "../../db/types.ts";
+import { withHousehold, type HouseholdDb } from "../../db/with-household.ts";
 import type { ImportRows, MapOptions } from "./types.ts";
 
 const CHUNK_ROWS = 500;
@@ -49,7 +50,7 @@ export class ImportRefusedError extends Error {
 }
 
 /** True when anything but an import wrote rows a re-import would overwrite: a pushed edit, or a manual or bank Transaction or Valuation. */
-async function hasAppWrites(db: FinanceDb, householdId: string) {
+async function hasAppWrites(db: HouseholdDb, householdId: string) {
   const pushed = await db
     .select({ id: appliedMutations.mutationId })
     .from(appliedMutations)
@@ -125,7 +126,7 @@ function upsertSet(
 }
 
 async function upsert(
-  db: FinanceDb,
+  db: HouseholdDb,
   table: PgTable,
   target: PgColumn[],
   rows: readonly object[],
@@ -157,7 +158,7 @@ function referencedFirst<T>(
 }
 
 async function softDeleteStale(
-  db: FinanceDb,
+  db: HouseholdDb,
   householdId: string,
   rows: ImportRows,
   version: number,
@@ -270,11 +271,9 @@ export async function importMoneyThings(
   { options, householdName, force = false }: ImportOptions,
 ): Promise<ImportResult> {
   const { householdId } = options;
-  return db.transaction(async (tx) => {
-    let household = await householdRepository.lockForWrite({
-      db: tx,
-      householdId,
-    });
+  return withHousehold(db, householdId, async (scope) => {
+    const { db: tx } = scope;
+    let household = await householdRepository.lockForWrite(scope);
     if (household && !force && (await hasAppWrites(tx, householdId))) {
       throw new ImportRefusedError(
         `Household ${householdId} has changes made in the app. Importing again would undo the app's changes to imported rows. Pass --force to import anyway.`,
@@ -282,8 +281,7 @@ export async function importMoneyThings(
     }
     let createdHousehold = false;
     if (!household) {
-      await createHousehold(tx, {
-        id: householdId,
+      await createHousehold(scope, {
         name: householdName,
         baseCurrency: options.baseCurrency,
         timezone: options.timeZone,
@@ -301,14 +299,11 @@ export async function importMoneyThings(
         ],
       });
       createdHousehold = true;
-      household = await householdRepository.lockForWrite({
-        db: tx,
-        householdId,
-      });
+      household = await householdRepository.lockForWrite(scope);
     }
     if (!household) throw new Error(`Household ${householdId} is missing`);
     const version = household.clock + 1;
-    await householdRepository.setClock({ db: tx, householdId }, version);
+    await householdRepository.setClock(scope, version);
 
     if (rows.members.length > 0) {
       await tx
@@ -386,14 +381,9 @@ export async function importMoneyThings(
     );
 
     const staleRows = await softDeleteStale(tx, householdId, rows, version);
-    const scope = { db: tx, householdId, version };
-    await transactionRepository.refreshSearchText(scope, undefined);
-    await recomputeDerived(
-      tx,
-      householdId,
-      { accounts: "all", months: "all" },
-      version,
-    );
+    const write = { ...scope, version };
+    await transactionRepository.refreshSearchText(write, undefined);
+    await recomputeDerived(write, { accounts: "all", months: "all" });
     return { householdId, version, createdHousehold, staleRows };
   });
 }

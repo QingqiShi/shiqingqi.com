@@ -7,6 +7,7 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { buildFakeBankFixture } from "./build-fake-bank-fixture.ts";
 import { createFakeBankClient } from "./lunchflow/create-fake-bank-client.ts";
@@ -55,9 +56,14 @@ afterEach(async () => {
   await db.close();
 });
 
+function fakeFixture(today: string) {
+  return withHousehold(db, home.householdId, (scope) =>
+    buildFakeBankFixture(scope, today),
+  );
+}
+
 async function fakeSync(now = NOW) {
-  const scope = { db, householdId: home.householdId };
-  const fixture = await buildFakeBankFixture(scope, "2026-10-10");
+  const fixture = await fakeFixture("2026-10-10");
   return {
     fixture,
     results: await syncBankLinks({
@@ -72,10 +78,7 @@ async function fakeSync(now = NOW) {
 
 describe("buildFakeBankFixture", () => {
   it("shows the Household's cash and credit accounts with bank-style rows", async () => {
-    const fixture = await buildFakeBankFixture(
-      { db, householdId: home.householdId },
-      "2026-10-10",
-    );
+    const fixture = await fakeFixture("2026-10-10");
     expect(fixture.accounts.map((account) => account.id)).toEqual([
       `fake-${home.cardId}`,
       `fake-${home.currentId}`,

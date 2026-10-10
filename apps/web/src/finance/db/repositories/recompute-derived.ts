@@ -24,7 +24,6 @@ import {
   transactions,
   valuations,
 } from "../schema.ts";
-import type { FinanceDb } from "../types.ts";
 import { accountRepository } from "./account-repository.ts";
 import type { WriteScope } from "./types.ts";
 
@@ -403,12 +402,9 @@ async function recomputeMonthTotals(
  * build every row in one pass.
  */
 export async function recomputeDerived(
-  db: FinanceDb,
-  householdId: string,
+  scope: WriteScope,
   changes: DerivedChanges,
-  version: number,
 ) {
-  const scope: WriteScope = { db, householdId, version };
   const balanceDays = await recomputeBalanceDays(scope, changes.accounts);
   const totals = await recomputeMonthTotals(scope, changes.months);
   return { balanceDays, monthTotals: totals };

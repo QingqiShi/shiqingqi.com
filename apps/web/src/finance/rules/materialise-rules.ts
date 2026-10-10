@@ -4,9 +4,10 @@ import { memberRepository } from "../db/repositories/member-repository.ts";
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
 import { ruleRepository } from "../db/repositories/rule-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
-import type { RepositoryScope } from "../db/repositories/types.ts";
 import { transactions } from "../db/schema.ts";
 import { setStatementTimeout } from "../db/set-statement-timeout.ts";
+import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
@@ -140,25 +141,23 @@ export async function materialiseRulesInTransaction(context: WriteContext) {
  * daily cron does. "Today" is the Household's day at `now`.
  */
 export async function materialiseRules(
-  scope: RepositoryScope,
+  db: FinanceDb,
+  householdId: string,
   now = new Date(),
 ) {
-  return scope.db.transaction(async (db) => {
-    await setStatementTimeout(db);
-    const household = await householdRepository.lockForWrite({
-      db,
-      householdId: scope.householdId,
-    });
+  return withHousehold(db, householdId, async (scope) => {
+    await setStatementTimeout(scope.db);
+    const household = await householdRepository.lockForWrite(scope);
     if (!household) throw new Error("Household not found");
     const version = household.clock + 1;
     const context: WriteContext = {
-      scope: { db, householdId: scope.householdId, version },
+      scope: { ...scope, version },
       today: todayInTimeZone(household.timezone, now),
       touches: new DerivedTouches(),
     };
     const written = await materialiseRulesInTransaction(context);
     if (written === 0) return { written, clock: household.clock };
-    await recomputeDerived(db, scope.householdId, context.touches, version);
+    await recomputeDerived(context.scope, context.touches);
     await householdRepository.setClock(context.scope, version);
     return { written, clock: version };
   });

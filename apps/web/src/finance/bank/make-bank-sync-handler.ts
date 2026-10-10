@@ -1,5 +1,5 @@
 import type { LanguageModel } from "ai";
-import type { RepositoryScope } from "../db/repositories/types.ts";
+import type { FinanceDb } from "../db/types.ts";
 import {
   makeHouseholdCronHandler,
   type HouseholdCronDependencies,
@@ -8,7 +8,11 @@ import { syncBankLinks } from "./sync-bank-links.ts";
 import type { BankConnection } from "./types.ts";
 
 interface BankSyncCronDependencies extends HouseholdCronDependencies {
-  getBankClient: (scope: RepositoryScope, now: Date) => Promise<BankConnection>;
+  getBankClient: (
+    db: FinanceDb,
+    householdId: string,
+    now: Date,
+  ) => Promise<BankConnection>;
   getModel: () => LanguageModel | null;
 }
 
@@ -23,12 +27,12 @@ const CRON_MIN_GAP_MS = 5 * 60 * 60 * 1000;
 export function makeBankSyncHandler(dependencies: BankSyncCronDependencies) {
   return makeHouseholdCronHandler(dependencies, {
     start: () => ({ households: 0, links: 0, failed: 0, created: 0 }),
-    runHousehold: async (scope, now, totals) => {
-      const connection = await dependencies.getBankClient(scope, now);
+    runHousehold: async (db, householdId, now, totals) => {
+      const connection = await dependencies.getBankClient(db, householdId, now);
       if (connection.status !== "connected") return;
       const results = await syncBankLinks({
-        db: scope.db,
-        householdId: scope.householdId,
+        db,
+        householdId,
         client: connection.client,
         model: dependencies.getModel(),
         now,

@@ -1,6 +1,11 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
-import { members, sessions } from "#src/finance/db/schema.ts";
+import { eq } from "drizzle-orm";
+import { lookups } from "#src/finance/db/lookups.ts";
+import { sessions } from "#src/finance/db/schema.ts";
 import type { FinanceDb } from "#src/finance/db/types.ts";
+import {
+  asFinanceApp,
+  type FinanceAppDb,
+} from "#src/finance/db/with-household.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { hashToken } from "./hash-token.ts";
 import type { FinanceSession } from "./types.ts";
@@ -20,8 +25,17 @@ interface ResolveSessionOptions {
   allowRefresh: boolean;
 }
 
-export async function resolveSession(
+/** The session of a token and the user's oldest live membership, or null. */
+export function resolveSession(
   db: FinanceDb,
+  token: string,
+  options: ResolveSessionOptions,
+): Promise<ResolvedSession | null> {
+  return asFinanceApp(db, (tx) => resolveSessionIn(tx, token, options));
+}
+
+async function resolveSessionIn(
+  db: FinanceAppDb,
   token: string,
   { now, allowRefresh }: ResolveSessionOptions,
 ): Promise<ResolvedSession | null> {
@@ -33,17 +47,9 @@ export async function resolveSession(
         refreshedAt: sessions.refreshedAt,
         lastSeenAt: sessions.lastSeenAt,
         expiresAt: sessions.expiresAt,
-        householdId: members.householdId,
-        memberId: members.id,
-        role: members.role,
       })
       .from(sessions)
-      .innerJoin(
-        members,
-        and(eq(members.userId, sessions.userId), isNull(members.deletedAt)),
-      )
       .where(eq(sessions.tokenHash, hashToken(token)))
-      .orderBy(asc(members.createdAt))
       .limit(1)
   ).at(0);
   if (!row) return null;
@@ -52,6 +58,8 @@ export async function resolveSession(
     await db.delete(sessions).where(eq(sessions.id, row.sessionId));
     return null;
   }
+  const membership = (await lookups.membershipsOfUser(db, row.userId)).at(0);
+  if (!membership) return null;
 
   const refreshed =
     allowRefresh &&
@@ -81,9 +89,9 @@ export async function resolveSession(
     session: {
       sessionId: row.sessionId,
       userId: row.userId,
-      householdId: row.householdId,
-      memberId: row.memberId,
-      role: row.role,
+      householdId: membership.householdId,
+      memberId: membership.memberId,
+      role: membership.role,
     },
     refreshed,
   };

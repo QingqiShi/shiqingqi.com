@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, lte } from "drizzle-orm";
 import { sessions } from "#src/finance/db/schema.ts";
-import type { FinanceDb } from "#src/finance/db/types.ts";
+import type { FinanceAppDb } from "#src/finance/db/with-household.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { generateToken } from "./generate-token.ts";
 import { hashToken } from "./hash-token.ts";
@@ -14,7 +14,7 @@ interface CreateSessionInput {
 
 /** Returns the raw token. Only its hash is stored. Also deletes the user's expired sessions. */
 export async function createSession(
-  db: FinanceDb,
+  db: FinanceAppDb,
   { userId, userAgent, now }: CreateSessionInput,
 ): Promise<string> {
   const token = generateToken();

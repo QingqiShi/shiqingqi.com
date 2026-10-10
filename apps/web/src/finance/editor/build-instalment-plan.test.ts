@@ -158,7 +158,8 @@ describe("buildInstalmentPlan", () => {
     });
     await push(result.mutations);
     await materialiseRules(
-      { db, householdId: home.householdId },
+      db,
+      home.householdId,
       new Date("2027-12-01T12:00:00Z"),
     );
 

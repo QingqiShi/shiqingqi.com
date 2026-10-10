@@ -1,14 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { users } from "#src/finance/db/schema.ts";
-import type { FinanceDb } from "#src/finance/db/types.ts";
+import {
+  withHousehold,
+  type FinanceAppDb,
+} from "#src/finance/db/with-household.ts";
 import { bindUserToMember } from "./bind-user-to-member.ts";
 
 /**
  * Creates a user and binds it to a member that has no user yet, as a claim
- * without a passkey. Returns the user's id. Call it inside a transaction.
+ * without a passkey. Returns the user's id.
  */
 export async function bindNewUserToMember(
-  tx: FinanceDb,
+  db: FinanceAppDb,
   {
     householdId,
     memberId,
@@ -16,9 +19,10 @@ export async function bindNewUserToMember(
   }: { householdId: string; memberId: string; displayName: string },
 ): Promise<string> {
   const userId = randomUUID();
-  await tx.insert(users).values({ id: userId, displayName });
-  if (!(await bindUserToMember(tx, { householdId, memberId, userId }))) {
-    throw new Error(`Member ${memberId} has a user already.`);
-  }
+  await db.insert(users).values({ id: userId, displayName });
+  const bound = await withHousehold(db, householdId, (scope) =>
+    bindUserToMember(scope, { memberId, userId }),
+  );
+  if (!bound) throw new Error(`Member ${memberId} has a user already.`);
   return userId;
 }

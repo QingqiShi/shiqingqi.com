@@ -17,6 +17,7 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { makeReportHandlers } from "./make-report-handlers.ts";
 import { makeWeeklyReportCronHandler } from "./make-weekly-report-cron-handler.ts";
 import { reportApiSchemas } from "./report-api-schemas.ts";
@@ -51,11 +52,11 @@ async function seedBalances(household: SeededHousehold) {
       version: 1,
     },
   ]);
-  await recomputeDerived(
-    db,
-    household.householdId,
-    { accounts: "all", months: "all" },
-    1,
+  await withHousehold(db, household.householdId, (scope) =>
+    recomputeDerived(
+      { ...scope, version: 1 },
+      { accounts: "all", months: "all" },
+    ),
   );
 }
 

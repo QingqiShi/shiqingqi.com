@@ -1,5 +1,4 @@
 import { listHouseholdIds } from "../db/list-household-ids.ts";
-import type { RepositoryScope } from "../db/repositories/types.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { financeJson } from "./finance-json.ts";
 import { isCronAuthorised } from "./is-cron-authorised.ts";
@@ -16,7 +15,8 @@ interface HouseholdCronJob<Totals> {
   /** The totals before the first Household. */
   start: (householdIds: readonly string[]) => Totals;
   runHousehold: (
-    scope: RepositoryScope,
+    db: FinanceDb,
+    householdId: string,
     now: Date,
     totals: Totals,
   ) => Promise<void>;
@@ -47,7 +47,7 @@ export function makeHouseholdCronHandler<Totals>(
     const totals = job.start(householdIds);
     for (const householdId of householdIds) {
       try {
-        await job.runHousehold({ db, householdId }, now, totals);
+        await job.runHousehold(db, householdId, now, totals);
       } catch (error) {
         if (!job.onHouseholdError) throw error;
         job.onHouseholdError(error, totals);

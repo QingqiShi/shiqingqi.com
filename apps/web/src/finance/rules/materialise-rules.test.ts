@@ -91,10 +91,9 @@ describe("materialiseRules", () => {
       },
     ]);
 
-    const scope = { db, householdId: home.householdId };
     const late = new Date("2026-02-22T12:00:00Z");
-    const first = await materialiseRules(scope, late);
-    const second = await materialiseRules(scope, late);
+    const first = await materialiseRules(db, home.householdId, late);
+    const second = await materialiseRules(db, home.householdId, late);
 
     expect(first.written).toBeGreaterThan(0);
     expect(second).toEqual({ written: 0, clock: first.clock });
@@ -133,7 +132,8 @@ describe("materialiseRules", () => {
       .where(eq(members.id, home.partnerId));
 
     await materialiseRules(
-      { db, householdId: home.householdId },
+      db,
+      home.householdId,
       new Date("2026-02-22T12:00:00Z"),
     );
 
@@ -165,7 +165,8 @@ describe("materialiseRules", () => {
     await db.update(rules).set({ nextOn: "2026-01-31" });
 
     await materialiseRules(
-      { db, householdId: home.householdId },
+      db,
+      home.householdId,
       new Date("2026-01-25T12:00:00Z"),
     );
 
@@ -182,7 +183,8 @@ describe("materialiseRules", () => {
     ]);
 
     await materialiseRules(
-      { db, householdId: home.householdId },
+      db,
+      home.householdId,
       new Date("2026-02-01T08:00:00Z"),
     );
 

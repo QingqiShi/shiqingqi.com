@@ -4,7 +4,9 @@ import { parseArgs } from "node:util";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { DEV_DB_DIR, startDevDb, type DevDb } from "../db/dev/start-dev-db.ts";
-import { households, schema } from "../db/schema.ts";
+import { lookups } from "../db/lookups.ts";
+import { schema } from "../db/schema.ts";
+import { asFinanceApp } from "../db/with-household.ts";
 import { readPortOption } from "./read-cli-options.ts";
 import { readDevFinanceEnv } from "./read-dev-finance-env.ts";
 import { seedDevDatabase } from "./seed/seed-dev-database.ts";
@@ -35,11 +37,11 @@ function waitForExit(child: ChildProcess): Promise<number> {
 async function seedWhenEmpty(connectionString: string) {
   const pool = new Pool({ connectionString, max: 1 });
   try {
-    const rows = await drizzle({ client: pool, schema })
-      .select({ id: households.id })
-      .from(households)
-      .limit(1);
-    if (rows.length > 0) return;
+    const householdIds = await asFinanceApp(
+      drizzle({ client: pool, schema }),
+      (db) => lookups.householdIds(db),
+    );
+    if (householdIds.length > 0) return;
     console.log("Finance: seeding a synthetic Household…");
     await seedDevDatabase(pool);
   } finally {

@@ -17,9 +17,9 @@ import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { labelMemoryRepository } from "../db/repositories/label-memory-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
-import type { RepositoryScope } from "../db/repositories/types.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
@@ -150,30 +150,37 @@ function willBeOpen(stored: BankTransactionRecord | undefined) {
 /** Reads the rows that will need new Transactions and labels them, before any lock is taken. */
 async function labelRows(
   dependencies: SyncBankLinksDependencies,
-  scope: RepositoryScope,
   link: Link,
   fetched: Fetched,
   loadMemory: () => Promise<LabelMemory>,
 ): Promise<Map<string, Suggestion>> {
-  const known = new Map(
-    (await bankTransactionRepository.listForLink(scope, link.id)).map((row) => [
-      row.providerTxId,
-      row,
-    ]),
-  );
-  const open = byDate(
-    fetched.rows
-      .map((row) => ({ ...row, providerTxId: row.id }))
-      .filter((row) => isUsable(row, link) && willBeOpen(known.get(row.id))),
-  );
-  if (open.length === 0) return new Map();
-  const candidates = toCandidates(
-    await bankTransactionRepository.findMatchCandidates(
-      scope,
-      link.id,
-      link.accountId,
-      candidateRange(open),
-    ),
+  const { open, candidates } = await withHousehold(
+    dependencies.db,
+    dependencies.householdId,
+    async (scope) => {
+      const known = new Map(
+        (await bankTransactionRepository.listForLink(scope, link.id)).map(
+          (row) => [row.providerTxId, row],
+        ),
+      );
+      const open = byDate(
+        fetched.rows
+          .map((row) => ({ ...row, providerTxId: row.id }))
+          .filter(
+            (row) => isUsable(row, link) && willBeOpen(known.get(row.id)),
+          ),
+      );
+      if (open.length === 0) return { open, candidates: [] };
+      const candidates = toCandidates(
+        await bankTransactionRepository.findMatchCandidates(
+          scope,
+          link.id,
+          link.accountId,
+          candidateRange(open),
+        ),
+      );
+      return { open, candidates };
+    },
   );
   const plan = planMatches(open, candidates, link);
   const inputs: ModelLabelInput[] = open
@@ -441,7 +448,6 @@ async function syncLink(
   today: string,
   loadMemory: () => Promise<LabelMemory>,
 ): Promise<BankLinkSyncSummary> {
-  const scope = { db: dependencies.db, householdId: dependencies.householdId };
   const from = link.lastSyncedOn
     ? addDays(link.lastSyncedOn, -SYNC_OVERLAP_DAYS)
     : addDays(today, -FIRST_SYNC_DAYS);
@@ -452,13 +458,7 @@ async function syncLink(
   if (rows.status === "rejected") throw rows.reason;
   if (balance.status === "rejected") throw balance.reason;
   const fetched: Fetched = { from, rows: rows.value, balance: balance.value };
-  const suggestions = await labelRows(
-    dependencies,
-    scope,
-    link,
-    fetched,
-    loadMemory,
-  );
+  const suggestions = await labelRows(dependencies, link, fetched, loadMemory);
   const { result } = await runServerWrite(
     dependencies.db,
     dependencies.householdId,
@@ -480,13 +480,22 @@ async function syncLink(
 export async function syncBankLinks(
   dependencies: SyncBankLinksDependencies,
 ): Promise<BankLinkSyncSummary[]> {
-  const scope = { db: dependencies.db, householdId: dependencies.householdId };
-  const household = await householdRepository.find(scope);
+  const { db, householdId } = dependencies;
+  const { household, links } = await withHousehold(
+    db,
+    householdId,
+    async (scope) => ({
+      household: await householdRepository.find(scope),
+      links: await bankLinkRepository.listLive(scope),
+    }),
+  );
   if (!household) throw new Error("Household not found");
   const today = todayInTimeZone(household.timezone, dependencies.now);
   let memory: Promise<LabelMemory> | undefined;
   const loadMemory = () => {
-    memory ??= labelMemoryRepository.load(scope).catch((error: unknown) => {
+    memory ??= withHousehold(db, householdId, (scope) =>
+      labelMemoryRepository.load(scope),
+    ).catch((error: unknown) => {
       memory = undefined;
       throw error;
     });
@@ -494,7 +503,7 @@ export async function syncBankLinks(
   };
   const results: BankLinkSyncSummary[] = [];
   const skipAfter = dependencies.skipSyncedAfter?.getTime();
-  for (const link of await bankLinkRepository.listLive(scope)) {
+  for (const link of links) {
     if (
       skipAfter !== undefined &&
       link.lastSyncAt !== null &&

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
+import type { RepositoryScope } from "#src/finance/db/repositories/types.ts";
 import { categories, households, members } from "#src/finance/db/schema.ts";
-import type { FinanceDb } from "#src/finance/db/types.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "#src/finance/domain/dates/default-household-time-zone.ts";
 
 interface CreateHouseholdMember {
@@ -11,7 +11,6 @@ interface CreateHouseholdMember {
 }
 
 interface CreateHouseholdInput {
-  id?: string;
   name: string;
   baseCurrency?: string;
   timezone?: string;
@@ -19,7 +18,6 @@ interface CreateHouseholdInput {
 }
 
 interface CreatedHousehold {
-  householdId: string;
   /** In the order of `input.members`. */
   memberIds: string[];
   uncategorised: { expense: string; income: string };
@@ -28,14 +26,14 @@ interface CreatedHousehold {
 const INITIAL_CLOCK = 1;
 
 /**
- * Creates a household, its members, and the system "Uncategorised" expense
- * and income categories. Sign-in setup and the importer both use it.
+ * Creates the Household of `scope`, its members, and the system
+ * "Uncategorised" expense and income categories. Sign-in setup and the
+ * importer both use it, inside `withHousehold` of the new Household's id.
  */
 export async function createHousehold(
-  db: FinanceDb,
+  { db, householdId }: RepositoryScope,
   input: CreateHouseholdInput,
 ): Promise<CreatedHousehold> {
-  const householdId = input.id ?? randomUUID();
   const memberRows = input.members.map((member) => ({
     id: member.id ?? randomUUID(),
     householdId,
@@ -46,32 +44,26 @@ export async function createHousehold(
   }));
   const uncategorised = { expense: randomUUID(), income: randomUUID() };
 
-  await db.transaction(async (tx) => {
-    await tx.insert(households).values({
-      id: householdId,
-      name: input.name,
-      baseCurrency: input.baseCurrency ?? "GBP",
-      timezone: input.timezone ?? DEFAULT_HOUSEHOLD_TIME_ZONE,
-      clock: INITIAL_CLOCK,
-    });
-    if (memberRows.length > 0) {
-      await tx.insert(members).values(memberRows);
-    }
-    await tx.insert(categories).values(
-      (["expense", "income"] as const).map((kind) => ({
-        id: uncategorised[kind],
-        householdId,
-        kind,
-        name: "Uncategorised",
-        isSystem: true,
-        version: INITIAL_CLOCK,
-      })),
-    );
+  await db.insert(households).values({
+    id: householdId,
+    name: input.name,
+    baseCurrency: input.baseCurrency ?? "GBP",
+    timezone: input.timezone ?? DEFAULT_HOUSEHOLD_TIME_ZONE,
+    clock: INITIAL_CLOCK,
   });
+  if (memberRows.length > 0) {
+    await db.insert(members).values(memberRows);
+  }
+  await db.insert(categories).values(
+    (["expense", "income"] as const).map((kind) => ({
+      id: uncategorised[kind],
+      householdId,
+      kind,
+      name: "Uncategorised",
+      isSystem: true,
+      version: INITIAL_CLOCK,
+    })),
+  );
 
-  return {
-    householdId,
-    memberIds: memberRows.map((row) => row.id),
-    uncategorised,
-  };
+  return { memberIds: memberRows.map((row) => row.id), uncategorised };
 }

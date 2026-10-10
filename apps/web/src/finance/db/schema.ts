@@ -6,6 +6,7 @@ import {
   check,
   customType,
   date,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -118,6 +119,34 @@ function householdId() {
     .references(() => households.id);
 }
 
+type HouseholdTable = {
+  householdId: AnyPgColumn;
+  id: AnyPgColumn;
+};
+
+/**
+ * A reference that stays inside the Household: `(household_id, column)`
+ * points at the parent's `(household_id, id)`, so the database refuses a row
+ * that points at another Household's row.
+ */
+function householdReference(
+  name: string,
+  table: { householdId: AnyPgColumn },
+  column: AnyPgColumn,
+  parent: HouseholdTable,
+) {
+  return foreignKey({
+    name,
+    columns: [table.householdId, column],
+    foreignColumns: [parent.householdId, parent.id],
+  });
+}
+
+/** The key that `householdReference` points at. */
+function householdKey(table: string, t: HouseholdTable) {
+  return unique(`${table}_household_id_id_key`).on(t.householdId, t.id);
+}
+
 export const memberRole = pgEnum("member_role", ["owner", "member"]);
 
 export const members = pgTable(
@@ -136,24 +165,27 @@ export const members = pgTable(
   (t) => [
     index("members_household_idx").on(t.householdId),
     unique("members_household_user_key").on(t.householdId, t.userId),
+    householdKey("members", t),
   ],
 );
 
-export const invites = pgTable("invites", {
-  id: uuid("id").primaryKey(),
-  householdId: householdId(),
-  memberId: uuid("member_id")
-    .notNull()
-    .references(() => members.id),
-  tokenHash: bytea("token_hash").notNull().unique(),
-  createdBy: uuid("created_by")
-    .notNull()
-    .references(() => users.id),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  usedAt: timestamp("used_at", { withTimezone: true }),
-  /** Set when the invite lets a Member who lost every passkey back in: the user it adds a passkey to. */
-  recoveryUserId: uuid("recovery_user_id").references(() => users.id),
-});
+export const invites = pgTable(
+  "invites",
+  {
+    id: uuid("id").primaryKey(),
+    householdId: householdId(),
+    memberId: uuid("member_id").notNull(),
+    tokenHash: bytea("token_hash").notNull().unique(),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    usedAt: timestamp("used_at", { withTimezone: true }),
+    /** Set when the invite lets a Member who lost every passkey back in: the user it adds a passkey to. */
+    recoveryUserId: uuid("recovery_user_id").references(() => users.id),
+  },
+  (t) => [householdReference("invites_member_fk", t, t.memberId, members)],
+);
 
 // accounts
 
@@ -178,6 +210,7 @@ export const accountGroups = pgTable(
     uniqueIndex("account_groups_name_idx")
       .on(t.householdId, t.name)
       .where(sql`${t.deletedAt} is null`),
+    householdKey("account_groups", t),
   ],
 );
 
@@ -195,10 +228,8 @@ export const accounts = pgTable(
   {
     id: uuid("id").primaryKey(),
     householdId: householdId(),
-    groupId: uuid("group_id")
-      .notNull()
-      .references(() => accountGroups.id),
-    ownerMemberId: uuid("owner_member_id").references(() => members.id),
+    groupId: uuid("group_id").notNull(),
+    ownerMemberId: uuid("owner_member_id"),
     name: text("name").notNull(),
     institution: text("institution").notNull().default(""),
     kind: accountKind("kind").notNull(),
@@ -211,9 +242,7 @@ export const accounts = pgTable(
     creditLimitMinor: minor("credit_limit_minor"),
     statementDay: smallint("statement_day"),
     paymentDueDay: smallint("payment_due_day"),
-    defaultPaymentAccountId: uuid("default_payment_account_id").references(
-      (): AnyPgColumn => accounts.id,
-    ),
+    defaultPaymentAccountId: uuid("default_payment_account_id"),
     version: version(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -221,6 +250,15 @@ export const accounts = pgTable(
   },
   (t) => [
     index("accounts_household_idx").on(t.householdId, t.groupId, t.position),
+    householdKey("accounts", t),
+    householdReference("accounts_group_fk", t, t.groupId, accountGroups),
+    householdReference("accounts_owner_member_fk", t, t.ownerMemberId, members),
+    householdReference(
+      "accounts_default_payment_account_fk",
+      t,
+      t.defaultPaymentAccountId,
+      t,
+    ),
   ],
 );
 
@@ -229,9 +267,7 @@ export const valuations = pgTable(
   {
     id: uuid("id").primaryKey(),
     householdId: householdId(),
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => accounts.id),
+    accountId: uuid("account_id").notNull(),
     on: date("on", { mode: "string" }).notNull(),
     amountMinor: minor("amount_minor").notNull(),
     source: text("source", { enum: ["manual", "import", "bank"] })
@@ -251,6 +287,7 @@ export const valuations = pgTable(
     unique("valuations_account_on_key").on(t.accountId, t.on),
     index("valuations_account_on_idx").on(t.householdId, t.accountId, t.on),
     index("valuations_version_idx").on(t.householdId, t.version),
+    householdReference("valuations_account_fk", t, t.accountId, accounts),
   ],
 );
 
@@ -263,7 +300,7 @@ export const categories = pgTable(
   {
     id: uuid("id").primaryKey(),
     householdId: householdId(),
-    parentId: uuid("parent_id").references((): AnyPgColumn => categories.id),
+    parentId: uuid("parent_id"),
     kind: categoryKind("kind").notNull(),
     name: text("name").notNull(),
     emoji: text("emoji").notNull().default(""),
@@ -285,6 +322,8 @@ export const categories = pgTable(
         t.name,
       )
       .where(sql`${t.deletedAt} is null`),
+    householdKey("categories", t),
+    householdReference("categories_parent_fk", t, t.parentId, t),
   ],
 );
 
@@ -295,13 +334,9 @@ export const payees = pgTable(
     householdId: householdId(),
     name: text("name").notNull(),
     note: text("note").notNull().default(""),
-    defaultCategoryId: uuid("default_category_id").references(
-      () => categories.id,
-    ),
-    defaultAccountId: uuid("default_account_id").references(() => accounts.id),
-    mergedIntoId: uuid("merged_into_id").references(
-      (): AnyPgColumn => payees.id,
-    ),
+    defaultCategoryId: uuid("default_category_id"),
+    defaultAccountId: uuid("default_account_id"),
+    mergedIntoId: uuid("merged_into_id"),
     version: version(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -311,6 +346,20 @@ export const payees = pgTable(
     uniqueIndex("payees_name_idx")
       .on(t.householdId, sql`lower(${t.name})`)
       .where(sql`${t.deletedAt} is null`),
+    householdKey("payees", t),
+    householdReference(
+      "payees_default_category_fk",
+      t,
+      t.defaultCategoryId,
+      categories,
+    ),
+    householdReference(
+      "payees_default_account_fk",
+      t,
+      t.defaultAccountId,
+      accounts,
+    ),
+    householdReference("payees_merged_into_fk", t, t.mergedIntoId, t),
   ],
 );
 
@@ -319,13 +368,14 @@ export const payeeAliases = pgTable(
   {
     householdId: householdId(),
     alias: text("alias").notNull(),
-    payeeId: uuid("payee_id")
-      .notNull()
-      .references(() => payees.id),
+    payeeId: uuid("payee_id").notNull(),
     version: version(),
     updatedAt: updatedAt(),
   },
-  (t) => [primaryKey({ columns: [t.householdId, t.alias] })],
+  (t) => [
+    primaryKey({ columns: [t.householdId, t.alias] }),
+    householdReference("payee_aliases_payee_fk", t, t.payeeId, payees),
+  ],
 );
 
 export const tags = pgTable(
@@ -344,6 +394,7 @@ export const tags = pgTable(
     uniqueIndex("tags_name_idx")
       .on(t.householdId, sql`lower(${t.name})`)
       .where(sql`${t.deletedAt} is null`),
+    householdKey("tags", t),
   ],
 );
 
@@ -351,26 +402,30 @@ export const tags = pgTable(
 
 export const ruleUnit = pgEnum("rule_unit", ["week", "month", "year"]);
 
-export const rules = pgTable("rules", {
-  id: uuid("id").primaryKey(),
-  householdId: householdId(),
-  name: text("name").notNull(),
-  unit: ruleUnit("unit").notNull(),
-  interval: smallint("interval").notNull().default(1),
-  dayOfMonth: smallint("day_of_month"),
-  weekday: smallint("weekday"),
-  monthOfYear: smallint("month_of_year"),
-  startsOn: date("starts_on", { mode: "string" }).notNull(),
-  endsOn: date("ends_on", { mode: "string" }),
-  nextOn: date("next_on", { mode: "string" }).notNull(),
-  autoPost: boolean("auto_post").notNull().default(false),
-  template: jsonb("template").notNull(),
-  pausedAt: timestamp("paused_at", { withTimezone: true }),
-  version: version(),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-  deletedAt: deletedAt(),
-});
+export const rules = pgTable(
+  "rules",
+  {
+    id: uuid("id").primaryKey(),
+    householdId: householdId(),
+    name: text("name").notNull(),
+    unit: ruleUnit("unit").notNull(),
+    interval: smallint("interval").notNull().default(1),
+    dayOfMonth: smallint("day_of_month"),
+    weekday: smallint("weekday"),
+    monthOfYear: smallint("month_of_year"),
+    startsOn: date("starts_on", { mode: "string" }).notNull(),
+    endsOn: date("ends_on", { mode: "string" }),
+    nextOn: date("next_on", { mode: "string" }).notNull(),
+    autoPost: boolean("auto_post").notNull().default(false),
+    template: jsonb("template").notNull(),
+    pausedAt: timestamp("paused_at", { withTimezone: true }),
+    version: version(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: deletedAt(),
+  },
+  (t) => [householdKey("rules", t)],
+);
 
 // transactions
 
@@ -394,13 +449,11 @@ export const transactions = pgTable(
     status: transactionStatus("status").notNull().default("posted"),
     date: date("date", { mode: "string" }).notNull(),
     amountMinor: minor("amount_minor").notNull(),
-    categoryId: uuid("category_id").references(() => categories.id),
-    payeeId: uuid("payee_id").references(() => payees.id),
-    memberId: uuid("member_id").references(() => members.id),
-    ruleId: uuid("rule_id").references(() => rules.id),
-    refundOfId: uuid("refund_of_id").references(
-      (): AnyPgColumn => transactions.id,
-    ),
+    categoryId: uuid("category_id"),
+    payeeId: uuid("payee_id"),
+    memberId: uuid("member_id"),
+    ruleId: uuid("rule_id"),
+    refundOfId: uuid("refund_of_id"),
     note: text("note").notNull().default(""),
     source: text("source", { enum: ["manual", "rule", "bank", "import"] })
       .notNull()
@@ -431,6 +484,12 @@ export const transactions = pgTable(
     index("transactions_review_idx")
       .on(t.householdId)
       .where(sql`${t.needsReview} and ${t.deletedAt} is null`),
+    householdKey("transactions", t),
+    householdReference("transactions_category_fk", t, t.categoryId, categories),
+    householdReference("transactions_payee_fk", t, t.payeeId, payees),
+    householdReference("transactions_member_fk", t, t.memberId, members),
+    householdReference("transactions_rule_fk", t, t.ruleId, rules),
+    householdReference("transactions_refund_of_fk", t, t.refundOfId, t),
   ],
 );
 
@@ -439,12 +498,8 @@ export const entries = pgTable(
   {
     id: uuid("id").primaryKey(),
     householdId: householdId(),
-    transactionId: uuid("transaction_id")
-      .notNull()
-      .references(() => transactions.id, { onDelete: "cascade" }),
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => accounts.id),
+    transactionId: uuid("transaction_id").notNull(),
+    accountId: uuid("account_id").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     amountMinor: minor("amount_minor").notNull(),
     fxRate: numeric("fx_rate", { precision: 18, scale: 8, mode: "number" }),
@@ -458,18 +513,21 @@ export const entries = pgTable(
     index("entries_account_date_idx").on(t.householdId, t.accountId, t.date),
     index("entries_transaction_idx").on(t.transactionId),
     index("entries_version_idx").on(t.householdId, t.version),
+    householdReference(
+      "entries_transaction_fk",
+      t,
+      t.transactionId,
+      transactions,
+    ).onDelete("cascade"),
+    householdReference("entries_account_fk", t, t.accountId, accounts),
   ],
 );
 
 export const transactionTags = pgTable(
   "transaction_tags",
   {
-    transactionId: uuid("transaction_id")
-      .notNull()
-      .references(() => transactions.id, { onDelete: "cascade" }),
-    tagId: uuid("tag_id")
-      .notNull()
-      .references(() => tags.id),
+    transactionId: uuid("transaction_id").notNull(),
+    tagId: uuid("tag_id").notNull(),
     householdId: householdId(),
     version: version(),
     deletedAt: deletedAt(),
@@ -477,6 +535,13 @@ export const transactionTags = pgTable(
   (t) => [
     primaryKey({ columns: [t.transactionId, t.tagId] }),
     index("transaction_tags_version_idx").on(t.householdId, t.version),
+    householdReference(
+      "transaction_tags_transaction_fk",
+      t,
+      t.transactionId,
+      transactions,
+    ).onDelete("cascade"),
+    householdReference("transaction_tags_tag_fk", t, t.tagId, tags),
   ],
 );
 
@@ -486,9 +551,7 @@ export const accountBalanceDays = pgTable(
   "account_balance_days",
   {
     householdId: householdId(),
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => accounts.id),
+    accountId: uuid("account_id").notNull(),
     day: date("day", { mode: "string" }).notNull(),
     balanceMinor: minor("balance_minor").notNull(),
     version: version(),
@@ -497,6 +560,12 @@ export const accountBalanceDays = pgTable(
   (t) => [
     primaryKey({ columns: [t.accountId, t.day] }),
     index("abd_household_version_idx").on(t.householdId, t.version),
+    householdReference(
+      "account_balance_days_account_fk",
+      t,
+      t.accountId,
+      accounts,
+    ),
   ],
 );
 
@@ -506,9 +575,7 @@ export const monthTotals = pgTable(
     householdId: householdId(),
     month: date("month", { mode: "string" }).notNull(),
     kind: transactionKind("kind").notNull(),
-    categoryId: uuid("category_id")
-      .notNull()
-      .references(() => categories.id),
+    categoryId: uuid("category_id").notNull(),
     memberId: uuid("member_id"),
     amountMinor: minor("amount_minor").notNull(),
     count: integer("count").notNull(),
@@ -524,6 +591,7 @@ export const monthTotals = pgTable(
       sql`coalesce(${t.memberId}, ${NIL_UUID})`,
     ),
     index("month_totals_version_idx").on(t.householdId, t.version),
+    householdReference("month_totals_category_fk", t, t.categoryId, categories),
   ],
 );
 
@@ -564,34 +632,33 @@ export const appliedMutations = pgTable(
 
 // bank
 
-export const connections = pgTable("connections", {
-  id: uuid("id").primaryKey(),
-  householdId: householdId(),
-  provider: text("provider").notNull().default("lunchflow"),
-  label: text("label").notNull(),
-  /** The provider API key, sealed with `FINANCE_CREDENTIAL_KEY`; null when the owner has not set one. */
-  credential: bytea("credential"),
-  credentialLastFour: text("credential_last_four"),
-  credentialSavedAt: timestamp("credential_saved_at", { withTimezone: true }),
-  status: text("status").notNull().default("active"),
-  version: version(),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-  deletedAt: deletedAt(),
-});
+export const connections = pgTable(
+  "connections",
+  {
+    id: uuid("id").primaryKey(),
+    householdId: householdId(),
+    provider: text("provider").notNull().default("lunchflow"),
+    label: text("label").notNull(),
+    /** The provider API key, sealed with `FINANCE_CREDENTIAL_KEY`; null when the owner has not set one. */
+    credential: bytea("credential"),
+    credentialLastFour: text("credential_last_four"),
+    credentialSavedAt: timestamp("credential_saved_at", { withTimezone: true }),
+    status: text("status").notNull().default("active"),
+    version: version(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+    deletedAt: deletedAt(),
+  },
+  (t) => [householdKey("connections", t)],
+);
 
 export const bankLinks = pgTable(
   "bank_links",
   {
     id: uuid("id").primaryKey(),
     householdId: householdId(),
-    connectionId: uuid("connection_id")
-      .notNull()
-      .references(() => connections.id),
-    accountId: uuid("account_id")
-      .notNull()
-      .unique()
-      .references(() => accounts.id),
+    connectionId: uuid("connection_id").notNull(),
+    accountId: uuid("account_id").notNull().unique(),
     providerAccountId: text("provider_account_id").notNull(),
     providerName: text("provider_name").notNull().default(""),
     providerInstitution: text("provider_institution").notNull().default(""),
@@ -614,6 +681,14 @@ export const bankLinks = pgTable(
       t.connectionId,
       t.providerAccountId,
     ),
+    householdKey("bank_links", t),
+    householdReference(
+      "bank_links_connection_fk",
+      t,
+      t.connectionId,
+      connections,
+    ),
+    householdReference("bank_links_account_fk", t, t.accountId, accounts),
   ],
 );
 
@@ -629,9 +704,7 @@ export const bankTransactions = pgTable(
   {
     id: uuid("id").primaryKey(),
     householdId: householdId(),
-    linkId: uuid("link_id")
-      .notNull()
-      .references(() => bankLinks.id),
+    linkId: uuid("link_id").notNull(),
     providerTxId: text("provider_tx_id").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     amountMinor: minor("amount_minor").notNull(),
@@ -640,7 +713,7 @@ export const bankTransactions = pgTable(
     description: text("description").notNull().default(""),
     raw: jsonb("raw").notNull(),
     state: bankTxState("state").notNull().default("new"),
-    transactionId: uuid("transaction_id").references(() => transactions.id),
+    transactionId: uuid("transaction_id"),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -651,6 +724,13 @@ export const bankTransactions = pgTable(
   },
   (t) => [
     unique("bank_transactions_provider_tx_key").on(t.linkId, t.providerTxId),
+    householdReference("bank_transactions_link_fk", t, t.linkId, bankLinks),
+    householdReference(
+      "bank_transactions_transaction_fk",
+      t,
+      t.transactionId,
+      transactions,
+    ),
   ],
 );
 
@@ -658,14 +738,15 @@ export const bankBalances = pgTable(
   "bank_balances",
   {
     householdId: householdId(),
-    linkId: uuid("link_id")
-      .notNull()
-      .references(() => bankLinks.id),
+    linkId: uuid("link_id").notNull(),
     fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull(),
     amountMinor: minor("amount_minor").notNull(),
     currency: currency("currency").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.linkId, t.fetchedAt] })],
+  (t) => [
+    primaryKey({ columns: [t.linkId, t.fetchedAt] }),
+    householdReference("bank_balances_link_fk", t, t.linkId, bankLinks),
+  ],
 );
 
 // reports

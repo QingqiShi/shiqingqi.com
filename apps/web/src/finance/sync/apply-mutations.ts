@@ -2,8 +2,10 @@ import { z } from "zod";
 import { appliedMutationRepository } from "../db/repositories/applied-mutation-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
+import type { WriteScope } from "../db/repositories/types.ts";
 import { setStatementTimeout } from "../db/set-statement-timeout.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold, withSavepoint } from "../db/with-household.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { materialiseRulesInTransaction } from "../rules/materialise-rules.ts";
 import { applyMutation } from "./apply-mutation.ts";
@@ -27,21 +29,19 @@ export async function applyMutations(
   request: PushRequest,
   now: Date,
 ): Promise<PushResponse> {
-  return db.transaction(async (tx) => {
-    await setStatementTimeout(tx);
-    const household = await householdRepository.lockForWrite({
-      db: tx,
-      householdId,
-    });
+  return withHousehold(db, householdId, async (scope) => {
+    await setStatementTimeout(scope.db);
+    const household = await householdRepository.lockForWrite(scope);
     if (!household) throw new Error("Household not found");
     const version = household.clock + 1;
+    const write: WriteScope = { ...scope, version };
     const touches = new DerivedTouches();
     const today = todayInTimeZone(household.timezone, now);
     const applied: string[] = [];
     const rejected: Rejection[] = [];
     let written = false;
     const alreadyApplied = await appliedMutationRepository.findApplied(
-      { db: tx, householdId },
+      scope,
       request.clientId,
       request.mutations.map((raw) => raw.id),
     );
@@ -61,12 +61,8 @@ export async function applyMutations(
         continue;
       }
       try {
-        await tx.transaction(async (savepoint) => {
-          const context: WriteContext = {
-            scope: { db: savepoint, householdId, version },
-            today,
-            touches,
-          };
+        await withSavepoint(write, async (savepoint) => {
+          const context: WriteContext = { scope: savepoint, today, touches };
           await applyMutation(context, parsed.data);
           await appliedMutationRepository.record(
             context.scope,
@@ -84,16 +80,12 @@ export async function applyMutations(
       }
     }
 
-    const context: WriteContext = {
-      scope: { db: tx, householdId, version },
-      today,
-      touches,
-    };
+    const context: WriteContext = { scope: write, today, touches };
     if ((await materialiseRulesInTransaction(context)) > 0) written = true;
     if (!written) return { applied, rejected, clock: household.clock };
 
-    await recomputeDerived(tx, householdId, touches, version);
-    await householdRepository.setClock(context.scope, version);
+    await recomputeDerived(write, touches);
+    await householdRepository.setClock(write, version);
     return { applied, rejected, clock: version };
   });
 }

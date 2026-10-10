@@ -10,8 +10,8 @@ export function makeMaterialiseCronHandler(
 ) {
   return makeHouseholdCronHandler(dependencies, {
     start: (householdIds) => ({ households: householdIds.length, written: 0 }),
-    runHousehold: async (scope, now, totals) => {
-      totals.written += (await materialiseRules(scope, now)).written;
+    runHousehold: async (db, householdId, now, totals) => {
+      totals.written += (await materialiseRules(db, householdId, now)).written;
     },
   });
 }

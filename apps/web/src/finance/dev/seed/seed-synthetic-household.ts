@@ -17,9 +17,11 @@ import {
   tags,
   transactions,
   transactionTags,
+  users,
   valuations,
 } from "../../db/schema.ts";
 import type { FinanceDb } from "../../db/types.ts";
+import { withHousehold, type HouseholdDb } from "../../db/with-household.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "../../domain/dates/default-household-time-zone.ts";
 import { todayInTimeZone } from "../../domain/dates/today-in-time-zone.ts";
 import { buildSyntheticRows } from "./build-synthetic-rows.ts";
@@ -42,6 +44,8 @@ export interface SyntheticHouseholdOptions {
   seed?: number;
   /** The household's day; history ends here. Defaults to today in London. */
   today?: string;
+  /** Gives the owner, Alex, a user with this id, so that sign-in setup cannot claim the Household. */
+  ownerUserId?: string;
 }
 
 export interface SyntheticHousehold {
@@ -58,7 +62,7 @@ export interface SyntheticHousehold {
 }
 
 async function insertRows<T extends PgTable>(
-  db: FinanceDb,
+  db: HouseholdDb,
   table: T,
   rows: readonly T["$inferInsert"][],
 ) {
@@ -82,18 +86,20 @@ export async function seedSyntheticHousehold(
     transactionsPerYear = SYNTHETIC_HOUSEHOLD_DEFAULTS.transactionsPerYear,
     seed = SYNTHETIC_HOUSEHOLD_DEFAULTS.seed,
     today = todayInTimeZone(DEFAULT_HOUSEHOLD_TIME_ZONE),
+    ownerUserId,
   }: SyntheticHouseholdOptions = {},
 ): Promise<SyntheticHousehold> {
-  return db.transaction(async (tx) => {
-    const rows = buildSyntheticRows({
-      years,
-      transactionsPerYear,
-      seed,
-      today,
-      version: SEED_VERSION,
-    });
-    const { householdId, memberIds, uncategorised } = rows;
+  const rows = buildSyntheticRows({
+    years,
+    transactionsPerYear,
+    seed,
+    today,
+    version: SEED_VERSION,
+  });
+  const { householdId, memberIds, uncategorised } = rows;
 
+  return withHousehold(db, householdId, async (scope) => {
+    const { db: tx } = scope;
     const existing = await tx
       .select({ id: households.id })
       .from(households)
@@ -104,11 +110,18 @@ export async function seedSyntheticHousehold(
       );
     }
 
-    const created = await createHousehold(tx, {
-      id: householdId,
+    if (ownerUserId) {
+      await tx.insert(users).values({ id: ownerUserId, displayName: "Alex" });
+    }
+    const created = await createHousehold(scope, {
       name: "Home",
       members: [
-        { id: memberIds.alex, name: "Alex", role: "owner" },
+        {
+          id: memberIds.alex,
+          name: "Alex",
+          role: "owner",
+          userId: ownerUserId,
+        },
         { id: memberIds.sam, name: "Sam", role: "member" },
       ],
     });
@@ -122,15 +135,13 @@ export async function seedSyntheticHousehold(
       .set({ id: uncategorised.income })
       .where(eq(categories.id, created.uncategorised.income));
 
-    const household = await householdRepository.lockForWrite({
-      db: tx,
-      householdId,
-    });
+    const household = await householdRepository.lockForWrite(scope);
     if (!household) throw new Error("The household was not created");
     if (household.clock + 1 !== SEED_VERSION) {
       throw new Error("A new household must start at clock 1");
     }
     const version = SEED_VERSION;
+    const write = { ...scope, version };
 
     await insertRows(tx, accountGroups, rows.accountGroups);
     await insertRows(tx, accounts, rows.accounts);
@@ -154,17 +165,9 @@ export async function seedSyntheticHousehold(
     await insertRows(tx, transactionTags, rows.transactionTags);
     await insertRows(tx, fxRates, rows.fxRates);
 
-    await householdRepository.setClock({ db: tx, householdId }, version);
-    await transactionRepository.refreshSearchText(
-      { db: tx, householdId, version },
-      undefined,
-    );
-    await recomputeDerived(
-      tx,
-      householdId,
-      { accounts: "all", months: "all" },
-      version,
-    );
+    await householdRepository.setClock(scope, version);
+    await transactionRepository.refreshSearchText(write, undefined);
+    await recomputeDerived(write, { accounts: "all", months: "all" });
 
     return {
       householdId,

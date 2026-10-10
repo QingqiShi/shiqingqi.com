@@ -2,6 +2,7 @@ import { householdRepository } from "../db/repositories/household-repository.ts"
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
 import { setStatementTimeout } from "../db/set-statement-timeout.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { DerivedTouches } from "./derived-touches.ts";
 import type { WriteContext } from "./types.ts";
@@ -25,17 +26,14 @@ export async function runServerWrite<Result>(
   now: Date,
   write: (context: ServerWriteContext) => Promise<Result>,
 ): Promise<{ result: Result; clock: number }> {
-  return db.transaction(async (tx) => {
-    await setStatementTimeout(tx);
-    const household = await householdRepository.lockForWrite({
-      db: tx,
-      householdId,
-    });
+  return withHousehold(db, householdId, async (scope) => {
+    await setStatementTimeout(scope.db);
+    const household = await householdRepository.lockForWrite(scope);
     if (!household) throw new Error("Household not found");
     const version = household.clock + 1;
     const state = { written: false };
     const context: ServerWriteContext = {
-      scope: { db: tx, householdId, version },
+      scope: { ...scope, version },
       today: todayInTimeZone(household.timezone, now),
       touches: new DerivedTouches(),
       household: {
@@ -50,7 +48,7 @@ export async function runServerWrite<Result>(
     if (!state.written && context.touches.isEmpty) {
       return { result, clock: household.clock };
     }
-    await recomputeDerived(tx, householdId, context.touches, version);
+    await recomputeDerived(context.scope, context.touches);
     await householdRepository.setClock(context.scope, version);
     return { result, clock: version };
   });

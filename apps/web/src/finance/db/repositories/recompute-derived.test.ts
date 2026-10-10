@@ -20,6 +20,7 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../testing/seed-test-household.ts";
+import { withHousehold } from "../with-household.ts";
 import { recomputeDerived } from "./recompute-derived.ts";
 
 const ACCOUNTS = 400;
@@ -176,11 +177,11 @@ async function storedRows(accountId: string) {
 describe("recomputeDerived", () => {
   it("builds every derived row for an imported ledger in one pass", async () => {
     const started = performance.now();
-    const written = await recomputeDerived(
-      db,
-      home.householdId,
-      { accounts: "all", months: "all" },
-      1,
+    const written = await withHousehold(db, home.householdId, (scope) =>
+      recomputeDerived(
+        { ...scope, version: 1 },
+        { accounts: "all", months: "all" },
+      ),
     );
     const elapsed = performance.now() - started;
 
@@ -194,11 +195,11 @@ describe("recomputeDerived", () => {
 
   it("writes nothing when run again", async () => {
     expect(
-      await recomputeDerived(
-        db,
-        home.householdId,
-        { accounts: "all", months: "all" },
-        2,
+      await withHousehold(db, home.householdId, (scope) =>
+        recomputeDerived(
+          { ...scope, version: 2 },
+          { accounts: "all", months: "all" },
+        ),
       ),
     ).toEqual({ balanceDays: 0, monthTotals: 0 });
   });
@@ -215,11 +216,11 @@ describe("recomputeDerived", () => {
         and(eq(entries.accountId, accountId), eq(entries.date, middle.day)),
       );
 
-    const written = await recomputeDerived(
-      db,
-      home.householdId,
-      { accounts: new Map([[accountId, middle.day]]), months: new Set() },
-      3,
+    const written = await withHousehold(db, home.householdId, (scope) =>
+      recomputeDerived(
+        { ...scope, version: 3 },
+        { accounts: new Map([[accountId, middle.day]]), months: new Set() },
+      ),
     );
 
     expect(await storedRows(accountId)).toEqual(await engineRows(accountId));

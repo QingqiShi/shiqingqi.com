@@ -1,6 +1,8 @@
 import { and, eq, isNull } from "drizzle-orm";
+import type { RepositoryScope } from "../../db/repositories/types.ts";
 import { accountBalanceDays, accounts, fxRates } from "../../db/schema.ts";
 import type { FinanceDb } from "../../db/types.ts";
+import { withHousehold } from "../../db/with-household.ts";
 import {
   balanceSeriesFromRows,
   type BalanceDayRow,
@@ -9,10 +11,17 @@ import {
 import type { BalanceState } from "./verify-import.ts";
 
 /** The stored balances, accounts and FX rates of a household, for the same checks as the mapped rows. */
-export async function readBalanceState(
+export function readBalanceState(
   db: FinanceDb,
   householdId: string,
 ): Promise<BalanceState> {
+  return withHousehold(db, householdId, (scope) => readBalances(scope));
+}
+
+async function readBalances({
+  db,
+  householdId,
+}: RepositoryScope): Promise<BalanceState> {
   const accountRows = await db
     .select({
       id: accounts.id,
