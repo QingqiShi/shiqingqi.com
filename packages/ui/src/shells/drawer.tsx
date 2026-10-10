@@ -155,12 +155,17 @@ const styles = stylex.create({
     insetBlockStart: { default: 0, [breakpoints.md]: RAIL_INSET },
     insetBlockEnd: { default: 0, [breakpoints.md]: "auto" },
     insetInlineEnd: { default: 0, [breakpoints.md]: "auto" },
-    alignSelf: { default: "auto", [breakpoints.md]: "stretch" },
-    // Cap = viewport minus the top+bottom margins, so the full-height card
-    // never reaches an edge.
+    // md+: the card is the viewport's height less its margins, so it never
+    // reaches an edge. This size also makes the grid row at least that tall
+    // at the page root, where the content can be shorter. The percentage cap
+    // keeps the card in a container that is shorter than the viewport.
+    blockSize: {
+      default: "auto",
+      [breakpoints.md]: `calc(100dvh - 2 * ${RAIL_INSET})`,
+    },
     maxBlockSize: {
       default: "none",
-      [breakpoints.md]: `calc(100dvh - 2 * ${RAIL_INSET})`,
+      [breakpoints.md]: `calc(100% - 2 * ${RAIL_INSET})`,
     },
     marginBlock: { default: 0, [breakpoints.md]: RAIL_INSET },
     marginInlineStart: { default: 0, [breakpoints.md]: RAIL_INSET },
