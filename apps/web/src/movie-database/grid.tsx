@@ -1,6 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { HTMLAttributes, PropsWithChildren, Ref } from "react";
 
@@ -12,7 +11,7 @@ export function Grid({
   HTMLAttributes<HTMLDivElement> & { ref?: Ref<HTMLDivElement> }
 >) {
   return (
-    <div {...props} ref={ref} css={[pageColumn.base, styles.grid]}>
+    <div {...props} ref={ref} css={styles.grid}>
       {children}
     </div>
   );

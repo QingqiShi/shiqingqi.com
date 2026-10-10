@@ -8,6 +8,7 @@ import { t } from "#src/i18n.ts";
 import { AIChatProvider } from "#src/movie-database/chat/ai-chat-provider.tsx";
 import { InlineChatProvider } from "#src/movie-database/chat/inline-chat-context.tsx";
 import { Providers } from "#src/movie-database/tmdb/providers.tsx";
+import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layout.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
@@ -66,14 +67,17 @@ export default async function Layout({
 }) {
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
+  // `as="div"`, because each page provides its own `<main>`.
   return (
-    <Providers>
-      <AIChatProvider locale={validatedLocale}>
-        <InlineChatProvider>
-          <div css={styles.container}>{children}</div>
-        </InlineChatProvider>
-      </AIChatProvider>
-    </Providers>
+    <SiteHeaderFooterLayout locale={validatedLocale} as="div" wideHeader>
+      <Providers>
+        <AIChatProvider locale={validatedLocale}>
+          <InlineChatProvider>
+            <div css={styles.container}>{children}</div>
+          </InlineChatProvider>
+        </AIChatProvider>
+      </Providers>
+    </SiteHeaderFooterLayout>
   );
 }
 

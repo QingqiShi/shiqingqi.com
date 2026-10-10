@@ -17,11 +17,14 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
+import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
+import { clamp } from "../surfaces/compute-popover-position.ts";
 import { FixedContainerContent } from "../surfaces/fixed-container-content.tsx";
+import { observeViewport } from "../surfaces/observe-viewport.ts";
 import { popoverSurface } from "../surfaces/popover-surface.stylex.ts";
 import { ProgressiveBlur } from "../surfaces/progressive-blur.tsx";
-import { border, color, controlSize, layer, space } from "../tokens.stylex.ts";
+import { border, color, controlSize, layer } from "../tokens.stylex.ts";
 import { Button } from "./button.tsx";
 import { useRovingFocus } from "./use-roving-focus.ts";
 import { useSheetCap } from "./use-sheet-cap.ts";
@@ -58,8 +61,9 @@ interface MenuButtonBaseProps {
    * `"sheet"` to span the bar the trigger sits in. Pick a corner that grows
    * the menu back across the trigger, since one that overhangs the viewport
    * edge stays in the page's scrollable area even while the menu is closed.
+   * A menu that opens across a screen edge moves back in, one gutter from it.
    *
-   * @zh 菜单从触发元素的哪个逻辑角展开，或使用 `"sheet"` 横跨触发按钮所在的工具栏。请选择朝触发按钮方向展开的角——若某个角会让菜单探出视口边缘，菜单即便处于关闭状态，也会一直占据页面的可滚动区域。
+   * @zh 菜单从触发元素的哪个逻辑角展开，或使用 `"sheet"` 横跨触发按钮所在的工具栏。请选择朝触发按钮方向展开的角——若某个角会让菜单探出视口边缘，菜单即便处于关闭状态，也会一直占据页面的可滚动区域。展开时越过屏幕边缘的菜单会移回屏幕内，离边缘一个边距。
    */
   position?: "topRight" | "topLeft" | "bottomLeft" | "bottomRight" | "sheet";
   /**
@@ -126,6 +130,27 @@ function opensUpwardFrom(trigger: HTMLElement) {
   return roomBelow < window.innerHeight * SHEET_ROOM_BELOW;
 }
 
+/**
+ * How far a corner menu moves sideways so that, open, it stays one page gutter
+ * from both screen edges. The menu is measured from where it would sit without
+ * its current move. Where the menu is wider than the screen, its left edge
+ * stays in view.
+ */
+function inlineShiftIntoView(menu: HTMLElement) {
+  const { left, width } = menu.getBoundingClientRect();
+  const computed = getComputedStyle(menu);
+  const px = (value: string) => Number.parseFloat(value) || 0;
+  const unshifted = left - px(computed.marginLeft);
+  const fitted = clamp(
+    unshifted,
+    px(computed.scrollMarginLeft),
+    document.documentElement.clientWidth -
+      px(computed.scrollMarginRight) -
+      width,
+  );
+  return fitted - unshifted;
+}
+
 /** A button that expands into a menu. */
 export function MenuButton({
   children,
@@ -146,7 +171,9 @@ export function MenuButton({
     onOpenChange?.(next);
   };
   const [opensUpward, setOpensUpward] = useState(false);
+  const [inlineShift, setInlineShift] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -165,6 +192,14 @@ export function MenuButton({
     isMenuShown,
     enabled: popupRole === "menu",
   });
+
+  useEffect(() => {
+    const menu = menuRef.current;
+    if (!isMenuShown || isSheet || !menu) return;
+    return observeViewport(() => {
+      setInlineShift(inlineShiftIntoView(menu));
+    });
+  }, [isMenuShown, isSheet]);
 
   const outsideClickedRef = useRef(false);
   useEffect(() => {
@@ -244,6 +279,8 @@ export function MenuButton({
             buttonProps.onClick?.(event);
             if (isSheet) {
               setOpensUpward(opensUpwardFrom(event.currentTarget));
+            } else if (menuRef.current) {
+              setInlineShift(inlineShiftIntoView(menuRef.current));
             }
             setIsMenuShown(true);
           }}
@@ -255,10 +292,12 @@ export function MenuButton({
         </Button>
       </FixedContainerContent>
       <div
+        ref={menuRef}
         css={[
           styles.menuContainer,
           styles[position],
           isSheet && opensUpward && styles.sheetAbove,
+          inlineShift !== 0 && dynamicStyles.inlineShift(inlineShift),
         ]}
         inert={!isMenuShown}
       >
@@ -334,6 +373,11 @@ const styles = stylex.create({
   menuContainer: {
     position: "absolute",
     zIndex: layer.raised,
+    // Not to scroll by: the page gutter resolves here to pixels, safe area
+    // included, for `inlineShiftIntoView` to read. The gutter tokens hold the
+    // left and the right safe-area insets, so they go on the physical sides.
+    scrollMarginLeft: pageGutter.inlineStart,
+    scrollMarginRight: pageGutter.inlineEnd,
   },
   hidden: {
     pointerEvents: "none",
@@ -426,8 +470,8 @@ const styles = stylex.create({
   // position, so on a sticky bar the sheet would render off-screen.
   sheet: {
     insetBlockStart: 0,
-    insetInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
-    insetInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
+    insetInlineStart: pageGutter.inlineStart,
+    insetInlineEnd: pageGutter.inlineEnd,
   },
   // A Sheet opens away from the nearer viewport edge, so one on a bar at the
   // foot of the viewport grows up over the bar instead of down off the screen.
@@ -459,4 +503,15 @@ const styles = stylex.create({
     inset: 0,
     zIndex: layer.raised,
   },
+});
+
+// A margin and not a transform, because a transform on an ancestor moves and
+// clips the blur's fixed box. The rect it comes from is physical, so the
+// margins are physical too. One of the two insets is auto, so only the margin
+// on the anchored side moves the menu.
+const dynamicStyles = stylex.create({
+  inlineShift: (shift: number) => ({
+    marginLeft: `${String(shift)}px`,
+    marginRight: `${String(-shift)}px`,
+  }),
 });

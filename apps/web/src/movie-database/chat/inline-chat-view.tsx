@@ -1,13 +1,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { pageColumn, pageGutter } from "@tuja/ui/primitives/page-column.stylex";
+import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { border, color, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { ViewTransition, useEffect, useState, type ReactNode } from "react";
 import { MediaDetailOverlay } from "#src/movie-database/details/media-detail-overlay.tsx";
 import { MediaDetailProvider } from "#src/movie-database/details/media-detail-provider.tsx";
 import { PersonDetailOverlay } from "#src/movie-database/details/person-detail-overlay.tsx";
+import { gutterBleed } from "#src/movie-database/gutter-bleed.stylex.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import {
@@ -117,7 +118,7 @@ export function InlineChatView({
             typingIndicatorLabel={typingIndicatorLabel}
             errorLabel={errorLabel}
           />
-          <div css={styles.inputArea}>
+          <div css={[gutterBleed.base, styles.inputArea]}>
             <ScrollToBottomButton
               visible={!isAtBottom && messages.length > 0}
               label={scrollToBottomLabel}
@@ -178,10 +179,6 @@ const styles = stylex.create({
     zIndex: layer.content,
     paddingTop: space._3,
     paddingBottom: `calc(${space._3} + env(safe-area-inset-bottom))`,
-    paddingInlineStart: pageGutter.inlineStart,
-    paddingInlineEnd: pageGutter.inlineEnd,
-    marginInlineStart: `calc(-1 * ${pageGutter.inlineStart})`,
-    marginInlineEnd: `calc(-1 * ${pageGutter.inlineEnd})`,
     borderTopWidth: border.size_1,
     borderTopStyle: "solid",
     borderTopColor: color.border,

@@ -17,6 +17,8 @@ interface SiteHeaderFooterLayoutProps {
   pageColumn?: boolean;
   /** Narrows the page column below the site default. */
   contentMaxInlineSize?: string;
+  /** Sets the header controls on the wide page column. */
+  wideHeader?: boolean;
   as?: "main" | "div";
   children: ReactNode;
 }
@@ -35,6 +37,7 @@ export function SiteHeaderFooterLayout({
   footer,
   pageColumn,
   contentMaxInlineSize,
+  wideHeader,
   as,
   children,
 }: SiteHeaderFooterLayoutProps) {
@@ -45,6 +48,7 @@ export function SiteHeaderFooterLayout({
       footer={footer}
       pageColumn={pageColumn}
       contentMaxInlineSize={contentMaxInlineSize}
+      wideHeader={wideHeader}
       headerStart={
         <FixedContainerContent>
           <BackButton locale={locale} label={t({ en: "Back", zh: "返回" })} />

@@ -14,6 +14,8 @@ import { configurationQuery } from "#src/movie-database/tmdb/queries/configurati
 import { similarMediaQuery } from "#src/movie-database/tmdb/queries/similar-media-query.ts";
 import { SimilarMediaList } from "./similar-media-list";
 
+const SIMILAR_TITLE_ID = "similar-title";
+
 const SKELETON_ITEMS = Array.from({ length: 20 }, (_, i) => ({
   key: `skeleton-${String(i)}`,
   delay: i * 100,
@@ -44,33 +46,38 @@ export function SimilarMedia({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div css={pageColumn.base}>
-        <h2 css={styles.heading}>{t({ en: "Similar", zh: "类似" })}</h2>
-      </div>
-      <Suspense
-        fallback={
-          <Grid>
-            {SKELETON_ITEMS.map((item) => (
-              <Skeleton
-                key={item.key}
-                css={styles.skeleton}
-                delay={item.delay}
-              />
-            ))}
-          </Grid>
-        }
+      <section
+        aria-labelledby={SIMILAR_TITLE_ID}
+        css={[pageColumn.base, pageColumn.wide]}
       >
-        <SimilarMediaList
-          mediaId={mediaId}
-          mediaType={mediaType}
-          locale={locale}
-          initialPage={1}
-          notFoundLabel={t({
-            en: "No similar content found",
-            zh: "没找到类似内容",
-          })}
-        />
-      </Suspense>
+        <h2 id={SIMILAR_TITLE_ID} css={styles.heading}>
+          {t({ en: "Similar", zh: "类似" })}
+        </h2>
+        <Suspense
+          fallback={
+            <Grid>
+              {SKELETON_ITEMS.map((item) => (
+                <Skeleton
+                  key={item.key}
+                  css={styles.skeleton}
+                  delay={item.delay}
+                />
+              ))}
+            </Grid>
+          }
+        >
+          <SimilarMediaList
+            mediaId={mediaId}
+            mediaType={mediaType}
+            locale={locale}
+            initialPage={1}
+            notFoundLabel={t({
+              en: "No similar content found",
+              zh: "没找到类似内容",
+            })}
+          />
+        </Suspense>
+      </section>
     </HydrationBoundary>
   );
 }

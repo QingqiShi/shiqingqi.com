@@ -44,6 +44,10 @@ _Avoid_: max width, line width, reading width, column width, 阅读宽度
 The centred column a page's content sits in, `layout.maxInlineSize` wide plus its gutters, set by the `pageColumn` Primitive. It places a page, not a line of prose (that is the Measure), and it is not the reading column of the doc pages. ZH: 页面栏.
 _Avoid_: content width, container, wrapper, site measure, reading column (for this sense), 版心, 内容宽度
 
+**Wide page column**:
+The page column widened to the whole screen, so the content keeps only the page gutter: `pageColumn.wide`, composed with `pageColumn.base` or `pageColumn.scroller`. It is for a gallery of cards, such as a poster grid, that takes every column a wide screen has room for; prose stays in the page column. A page with a wide gallery sets `HeaderFooterLayout`'s header controls on it with `wideHeader`, so they share the gallery's edges. ZH: 宽页面栏.
+_Avoid_: full-bleed (that has no gutter), edge-to-edge, 通栏
+
 **Stack**:
 A container that owns the space between its children, at one Rhythm step: `stack.*` for a column, `cluster.*` for a row that wraps, `row.*` for a row that does not. ZH: 堆叠.
 _Avoid_: spacer, list (for this sense), 间隔器

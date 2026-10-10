@@ -24,7 +24,7 @@ export function GenreFilterButton() {
         type: "button",
         isActive: genres.size > 0,
       }}
-      position="topLeft"
+      position="topRight"
       popupRole="group"
     >
       {t({ en: "Genre", zh: "类型" })}

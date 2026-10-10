@@ -41,7 +41,11 @@ export function MediaRow({ title, items, inset = "chat" }: MediaRowProps) {
   return (
     <section css={stack.tight}>
       <h2
-        css={[typeRole.overline, styles.title, isStandalone && pageColumn.base]}
+        css={[
+          typeRole.overline,
+          styles.title,
+          isStandalone && [pageColumn.base, pageColumn.wide],
+        ]}
       >
         {title}
       </h2>
@@ -50,7 +54,11 @@ export function MediaRow({ title, items, inset = "chat" }: MediaRowProps) {
         css={isStandalone ? standaloneStyles.root : chatStyles.root}
         contentCss={
           isStandalone
-            ? [pageColumn.scroller, standaloneStyles.scrollContainer]
+            ? [
+                pageColumn.scroller,
+                pageColumn.wide,
+                standaloneStyles.scrollContainer,
+              ]
             : chatStyles.scrollContainer
         }
       >
@@ -117,7 +125,7 @@ const chatStyles = stylex.create({
   },
 });
 
-// A standalone row spans the page and its cards rest on the page column.
+// A standalone row spans the page and its cards rest on the wide page column.
 const standaloneStyles = stylex.create({
   root: {
     marginInline: 0,

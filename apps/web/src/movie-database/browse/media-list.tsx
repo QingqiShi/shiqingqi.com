@@ -71,9 +71,8 @@ export function MediaList({ initialPage }: MediaListProps) {
   if (view === "table") {
     return (
       // A local boundary, because the lazy chunk suspends on the first switch
-      // to this view. Without it the suspension reaches the page-level
-      // boundary, which also wraps the filter bar — so clicking "Table" would
-      // replace the toggle the user just pressed with a skeleton.
+      // to this view. Without it the suspension reaches the page's boundary
+      // around the list, so clicking "Table" would show the poster skeleton.
       <Suspense fallback={<div css={styles.tablePlaceholder} />}>
         <MediaTable
           queryResult={queryResult}

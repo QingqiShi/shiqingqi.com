@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { UseSuspenseInfiniteQueryResult } from "@tanstack/react-query";
-import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { VirtuosoGrid } from "react-virtuoso";
 import { Grid } from "./grid.tsx";
@@ -38,7 +37,7 @@ export function MediaVirtuosoGrid({
 
   if (!items.length) {
     return (
-      <div css={[pageColumn.base, styles.notFound]}>
+      <div css={styles.notFound}>
         <span aria-hidden="true">🙉 </span>
         {notFoundLabel}
       </div>

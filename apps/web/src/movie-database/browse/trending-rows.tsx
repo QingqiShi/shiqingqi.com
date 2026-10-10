@@ -1,8 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { HydrationBoundary } from "@tanstack/react-query";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import {
   getTrendingMovies,
@@ -131,6 +130,6 @@ async function fetchTrending(
 
 const styles = stylex.create({
   page: {
-    paddingBlockEnd: { default: space._5, [breakpoints.md]: space._6 },
+    marginBlockEnd: rhythm.section,
   },
 });

@@ -15,6 +15,11 @@ test.describe("spacing check", () => {
           <h2 style="margin: 0">Spaced</h2>
           <p style="margin: 0">Its own text.</p>
         </section>
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 32px">
+          <h2 style="margin: 0">Unboxed</h2>
+          <span style="display: contents"><p style="margin: 0">Its own text.</p></span>
+          <p style="margin: 0">More text.</p>
+        </section>
         <section style="display: flex; flex-direction: column; gap: 24px">
           <h2 style="margin: 0">Cramped</h2>
           <p style="margin: 0">Its own text.</p>
