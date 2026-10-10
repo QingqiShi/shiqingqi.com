@@ -55,8 +55,13 @@ const config: LabConfig<SwitchLabProps> = {
       label: { en: "Indeterminate", zh: "未定" },
       props: { value: "indeterminate", "aria-label": ARIA_LABEL },
     },
+    {
+      id: "no-effect",
+      label: { en: "No effect", zh: "无效果" },
+      props: { value: "off", effect: "none", "aria-label": ARIA_LABEL },
+    },
   ],
-  controls: ["size", "value", { prop: "disabled", kind: "boolean" }],
+  controls: ["size", "value", "effect", { prop: "disabled", kind: "boolean" }],
 };
 
 /** The Switch Lab: a live Switch on the Canvas, with its API beside it. */

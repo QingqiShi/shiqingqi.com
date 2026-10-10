@@ -11,6 +11,8 @@ import {
   afterEach,
   type MockInstance,
 } from "vitest";
+import { createEffectRegistry } from "../effect-layer/create-effect-registry.ts";
+import { EffectLayerContext } from "../effect-layer/effect-layer-context.ts";
 import { Switch, type SwitchState } from "./switch.tsx";
 
 function ThreeStateTestComponent() {
@@ -410,17 +412,36 @@ describe("Switch Component", () => {
       expect(handleChange).toHaveBeenCalledTimes(1);
     });
 
-    it("does not respond to clicks when disabled", () => {
+    it.each(["mouse", "touch"])(
+      "does not toggle from a %s press when disabled",
+      (pointerType) => {
+        const handleChange = vi.fn();
+
+        render(<Switch disabled onChange={handleChange} />);
+
+        const switchElement = screen.getByRole("switch");
+        const press = { pointerId: 1, clientX: 120, button: 0, pointerType };
+
+        fireEvent.pointerDown(switchElement, press);
+        fireEvent.pointerUp(switchElement, press);
+
+        expect(handleChange).not.toHaveBeenCalled();
+      },
+    );
+
+    it("does not toggle from a release without a press on it", () => {
       const handleChange = vi.fn();
 
-      render(<Switch disabled onChange={handleChange} />);
+      render(<Switch onChange={handleChange} />);
 
-      const switchElement = screen.getByRole("switch");
+      fireEvent.pointerUp(screen.getByRole("switch"), {
+        pointerId: 1,
+        clientX: 120,
+        button: 0,
+        pointerType: "mouse",
+      });
 
-      // Disabled elements should not trigger onChange via user interaction
-      // However, userEvent may still trigger the handler due to testing environment
-      // Let's test the actual disabled state instead
-      expect(switchElement).toBeDisabled();
+      expect(handleChange).not.toHaveBeenCalled();
     });
 
     it("handles native events properly", () => {
@@ -920,6 +941,82 @@ describe("Switch Component", () => {
 
       // Should have triggered some state change
       expect(handleChange).toHaveBeenCalled();
+    });
+  });
+
+  describe("Liquid effect", () => {
+    beforeEach(() => {
+      Element.prototype.getBoundingClientRect = vi.fn(() => ({
+        left: 100,
+        top: 50,
+        right: 200,
+        bottom: 100,
+        width: 100,
+        height: 50,
+        x: 100,
+        y: 50,
+        toJSON: vi.fn(),
+      }));
+    });
+
+    function renderLiquid(effect?: "liquid" | "none") {
+      const registry = createEffectRegistry();
+      render(
+        <EffectLayerContext value={registry.register}>
+          <Switch effect={effect} aria-label="Liquid" />
+        </EffectLayerContext>,
+      );
+      const switchElement = screen.getByRole("switch");
+      const aim = () =>
+        registry.elements().get(switchElement)?.settings.liquid?.aim;
+      return { switchElement, aim };
+    }
+
+    it("draws the liquid by default", () => {
+      const { aim } = renderLiquid();
+      expect(aim()).toBe(0);
+    });
+
+    it('draws no effect with effect="none"', () => {
+      const { switchElement, aim } = renderLiquid("none");
+      fireEvent.keyDown(switchElement, { code: "Enter" });
+      expect(switchElement).toBeChecked();
+      expect(aim()).toBeUndefined();
+    });
+
+    it.each(["mouse", "touch", "pen"])(
+      "aims the liquid at where a %s press toggles it across the track",
+      (pointerType) => {
+        const { switchElement, aim } = renderLiquid();
+        const press = (clientY: number) => {
+          const point = { pointerId: 1, clientX: 120, clientY, button: 0 };
+          fireEvent.pointerDown(switchElement, { ...point, pointerType });
+          fireEvent.pointerUp(switchElement, { ...point, pointerType });
+        };
+
+        press(55);
+        expect(switchElement).toBeChecked();
+        expect(aim()).toBeCloseTo(-0.8);
+
+        press(75);
+        expect(aim()).toBeCloseTo(0);
+
+        press(140);
+        expect(aim()).toBe(1);
+      },
+    );
+
+    it("aims the liquid at the centre line on a toggle with no press point", () => {
+      const { switchElement, aim } = renderLiquid();
+      const point = { pointerId: 1, clientX: 120, clientY: 55, button: 0 };
+      fireEvent.pointerDown(switchElement, { ...point, pointerType: "mouse" });
+      fireEvent.pointerUp(switchElement, { ...point, pointerType: "mouse" });
+      expect(aim()).toBeCloseTo(-0.8);
+
+      fireEvent.keyDown(switchElement, { code: "Enter" });
+
+      expect(switchElement).not.toBeChecked();
+      expect(aim()).toBe(0);
     });
   });
 });

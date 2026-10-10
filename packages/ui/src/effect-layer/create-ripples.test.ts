@@ -7,7 +7,6 @@ import {
   frontRadius,
   heldRing,
   hoverStrength,
-  instanceRange,
   isInView,
   MAX_NEIGHBOURS,
   MAX_PULSES,
@@ -18,6 +17,7 @@ import {
   type RippleStep,
   type RippleStepInput,
 } from "./create-ripples.ts";
+import { instanceRange } from "./instance-range.ts";
 import type { EffectElementRecord, EffectScope } from "./types.ts";
 
 const RIPPLE = 0b01;

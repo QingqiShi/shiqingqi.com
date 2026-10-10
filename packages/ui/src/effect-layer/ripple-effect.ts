@@ -5,11 +5,11 @@ import {
 } from "./constants.ts";
 import {
   createRipples,
-  instanceRange,
   type RippleCause,
   type RippleStep,
 } from "./create-ripples.ts";
 import { roleBits } from "./effect-roles.ts";
+import { instanceRange } from "./instance-range.ts";
 import {
   packRippleInstances,
   RIPPLE_INSTANCE_BYTES,

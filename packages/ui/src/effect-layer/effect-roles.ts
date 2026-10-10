@@ -13,6 +13,7 @@ export const EFFECT_ROLES = [
   "extractorFan",
   "blackHole",
   "lightBeam",
+  "liquid",
 ] as const satisfies readonly string[];
 
 /**

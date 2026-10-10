@@ -25,6 +25,12 @@ export interface EffectSettings {
     readonly angle: number | undefined;
     readonly followsPointer: boolean;
   };
+  readonly liquid?: {
+    readonly position: number;
+    readonly drag: number | null;
+    readonly pressed: boolean;
+    readonly aim: number;
+  };
 }
 
 /**

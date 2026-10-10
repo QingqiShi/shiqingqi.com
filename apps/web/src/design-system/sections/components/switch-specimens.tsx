@@ -2,17 +2,19 @@
 
 import { Switch, type SwitchState } from "@tuja/ui/components/switch";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
 import { t } from "#src/i18n.ts";
 
 export function SpecimenSwitch({
   initial = "off",
   disabled,
+  effect,
   label,
 }: {
   initial?: SwitchState;
   disabled?: boolean;
+  effect?: ComponentProps<typeof Switch>["effect"];
   label: string;
 }) {
   const [state, setState] = useState<SwitchState>(initial);
@@ -21,6 +23,7 @@ export function SpecimenSwitch({
       value={state}
       onChange={setState}
       disabled={disabled}
+      effect={effect}
       aria-label={label}
     />
   );

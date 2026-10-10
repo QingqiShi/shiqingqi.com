@@ -81,6 +81,32 @@ export function SwitchShowcase() {
         </div>
       </Showcase>
 
+      <Showcase label={t({ en: "Effect", zh: "效果" })}>
+        <div css={stack.item}>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: 'By default the thumb is a frozen drop of frosted ice, which thaws into water and pours across the track when it is pressed or toggled, as the effect prop below describes. effect="none" keeps the plain thumb and track, and so does a switch without an EffectLayerProvider or WebGPU.',
+              zh: '默认情况下，滑块是一滴结霜的冰，按下或切换时融化成水并涌过轨道，详见下方的 effect 属性。设置 effect="none" 会保留普通的滑块与轨道；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
+            })}
+          </Text>
+          <SpecimenGrid>
+            <Specimen caption="liquid">
+              <SpecimenSwitch
+                initial="off"
+                label={t({ en: "Liquid", zh: "液态" })}
+              />
+            </Specimen>
+            <Specimen caption="none">
+              <SpecimenSwitch
+                initial="off"
+                effect="none"
+                label={t({ en: "No effect", zh: "无效果" })}
+              />
+            </Specimen>
+          </SpecimenGrid>
+        </div>
+      </Showcase>
+
       <PropsTable component="switch" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>

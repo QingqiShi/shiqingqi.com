@@ -2,8 +2,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { readScreenshotColumn } from "./helpers/read-screenshot-column.ts";
 import { scrollToAndSettle, scrollWithin } from "./helpers/scroll.ts";
 
-// The design-system overview is more than four bands tall at this viewport.
-const LONG_PAGE = "/en/design-system";
+// The Color page is more than four bands tall at this viewport, and no
+// element on it has an effect.
+const LONG_PAGE = "/en/design-system/foundations/color";
 const DEBUG_PAGE = `${LONG_PAGE}?effects=debug`;
 const EFFECT_PAGE = "/en/design-system/effect-layer?effects=debug";
 
