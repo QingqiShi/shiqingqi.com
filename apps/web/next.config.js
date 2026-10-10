@@ -39,6 +39,14 @@ module.exports = async (phase) => {
       // production this way). Build cold until the cache can track those
       // hidden inputs.
       turbopackFileSystemCacheForBuild: false,
+      // Next's default browser targets are older than the `light-dark()`
+      // floor in packages/ui/README.md, so Lightning CSS lowers `light-dark()`.
+      // The lowered form resolves a token where it is declared, on `:root`.
+      // Thus a `color-scheme` pin on a subtree, such as ThemeFrame, has no
+      // effect on the tokens in that subtree. Turbopack obeys this option
+      // without `useLightningcss`. Ignore the warning from `serwist build`,
+      // which loads this file without Turbopack.
+      lightningCssFeatures: { exclude: ["light-dark"] },
     },
     transpilePackages: ["@tuja/ui"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
