@@ -312,8 +312,8 @@ const styles = stylex.create({
   // Fixed, not absolute: absolute would grow scrollable ancestors by the
   // `reach` overhang and sit under a squircle clip that strips the masks.
   // Kept at 0×0 with size passed via custom properties, so Safari on iOS
-  // walks past it instead of flattening the status bar — see "Progressive
-  // blur" in `contexts/design-system/CONTEXT.md`.
+  // walks past it instead of flattening the status bar — see
+  // `.claude/skills/ios-status-bar/SKILL.md`.
   reachLayers: {
     position: "fixed",
     inset: "auto",

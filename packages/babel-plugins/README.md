@@ -329,8 +329,7 @@ directory.
 
 The site's private `t()` transform. It compiles the inline `t()` calls used
 across `apps/web` into locale bundles at build time. It is documented in
-`contexts/site/CONTEXT.md` and `.claude/skills/i18n-patterns/SKILL.md`. It is not
-meant for use outside `apps/web`.
+`.claude/skills/i18n-patterns/SKILL.md`. It is not meant for use outside `apps/web`.
 
 `@tuja/babel-plugins/i18n/generate-key` and
 `@tuja/babel-plugins/i18n/is-i18n-module-source` export the transform's

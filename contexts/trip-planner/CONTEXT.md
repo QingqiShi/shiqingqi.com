@@ -1,6 +1,6 @@
 # Trip Planner
 
-A private, password-gated, Chinese-only PWA for reading a pre-written road-trip itinerary day by day: a reader, not an authoring tool, since trips are hard-coded TypeScript modules compiled into the bundle. It is deliberately isolated from the rest of the monorepo — shadcn/ui on Tailwind rather than `@tuja/ui`, no i18n pipeline — so its words are its own.
+A private, password-gated, Chinese-only PWA for reading a pre-written road-trip itinerary day by day. Its words are its own, not the rest of the monorepo's.
 
 ## Language
 
@@ -9,11 +9,11 @@ One whole journey, unlocked by its own password and addressed by its slug. ZH: �
 _Avoid_: 旅行计划, 旅程, 旅途
 
 **Day feed**:
-The single chronological stream a day's parallel arrays are merged into — events, navigation, tips, dining, places, checklists, sign sheets, flights. The app's central construction.
+The single chronological stream a day's parallel arrays are merged into — events, navigation, tips, dining, places, checklists, sign sheets, flights.
 _Avoid_: 行程 (that word is the Trip)
 
 **Anchor**:
-A must-be-there commitment on a day — the thing that answers "where do I have to be". Distinct from a timeline event, and the target of the feed's jump-to links.
+A must-be-there commitment on a day — the thing that answers "where do I have to be". Not a timeline event.
 
 **Leg**:
 One navigable hop between two points, with its own travel mode and optional waypoints.

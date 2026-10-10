@@ -169,7 +169,7 @@ const styles = stylex.create({
     cornerShape: "inherit",
   },
   // No box of its own: a near-full-width fixed header flattens the iOS
-  // Safari status bar. See "Progressive blur" in `contexts/design-system/CONTEXT.md`.
+  // Safari status bar. See `.claude/skills/ios-status-bar/SKILL.md`.
   header: {
     display: "contents",
   },
