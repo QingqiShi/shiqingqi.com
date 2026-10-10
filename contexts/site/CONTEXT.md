@@ -13,5 +13,5 @@ Which language a page renders in — `en` or `zh`. ZH: 语言.
 _Avoid_: locale, lang (in our own code; the HTML `lang` attribute and TMDB's `language` param are imposed)
 
 **Translation key**:
-A translation's identity — the first eight hex characters of a hash over both languages. Two different pairs producing one key is a build-stopping collision.
+A translation's identity — a short hash of both languages.
 _Avoid_: key (bare), hash (as the noun for the key), id, token

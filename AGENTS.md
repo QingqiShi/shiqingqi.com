@@ -1,4 +1,4 @@
-`shiqingqi.com` is a pnpm monorepo: `apps/web` ships qingqi.dev, `apps/trip-planner` is a private trip reader, and `packages/*` are the `@tuja/*` internals. Domain language is defined in `CONTEXT-MAP.md`, which points at a `CONTEXT.md` per context — use those terms in code, comments, and copy. Design-system principles are in `DESIGN.md` — read it before designing or changing UI, component APIs, or user-facing copy.
+`shiqingqi.com` is a pnpm monorepo: `apps/web` ships qingqi.dev, `apps/trip-planner` is a private trip reader, and `packages/*` are the `@tuja/*` internals. Domain language is defined in `CONTEXT-MAP.md`, which points at a `CONTEXT.md` per context — use those terms in code, comments, and copy. They define words only; never cite them as the source of how something behaves or who may do what. Design-system principles are in `DESIGN.md` — read it before designing or changing UI, component APIs, or user-facing copy.
 
 # Gotchas
 
