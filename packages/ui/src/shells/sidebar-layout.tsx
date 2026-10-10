@@ -99,8 +99,8 @@ interface SidebarLayoutProps {
  * menu button opens the rail as a drawer (focus-trapped, scroll-locked,
  * dismissed by Escape, backdrop, or following a link).
  *
- * The rail fills its container's height (capped at the viewport), so the shell
- * works in any bounded box, not just the page root.
+ * The rail fills the viewport's height (capped at its container's), so the
+ * shell works in any bounded box, not just the page root.
  */
 export function SidebarLayout({
   sidebar,
@@ -239,9 +239,10 @@ const styles = stylex.create({
       default: `calc(${space._3} + env(safe-area-inset-right))`,
       [breakpoints.md]: 0,
     },
-    // md+ fills the container's height, not the viewport, so the rail and its
-    // footer track the container. This is inert at the page root, where
-    // height is indefinite; `minBlockSize: 0` lets it shrink as a grid item.
+    // md+ fills the container's height, so the rail and its footer track a
+    // bounded container. This is inert at the page root, where height is
+    // indefinite and the rail's own height sets the row instead.
+    // `minBlockSize: 0` lets it shrink as a grid item.
     blockSize: { [breakpoints.md]: "100%" },
     minBlockSize: { [breakpoints.md]: 0 },
     gridTemplateRows: { [breakpoints.md]: "minmax(0, 1fr)" },
