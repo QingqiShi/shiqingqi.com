@@ -10,6 +10,7 @@ dist/
 # Generated files
 public/sw.js
 public/sw.js.map
+apps/web/drizzle/meta/
 
 # Vendored third-party code (preserve upstream formatting)
 packages/system-palette-codegen/src/vendor/

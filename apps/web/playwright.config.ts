@@ -1,6 +1,10 @@
 import { execFileSync } from "node:child_process";
 
 import { defineConfig, devices } from "@playwright/test";
+import {
+  FINANCE_E2E_DB_PORT,
+  financeE2eEnv,
+} from "./e2e/finance/finance-e2e-env.ts";
 
 /**
  * Read environment variables from file.
@@ -136,29 +140,42 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    // On CI the app is built once in a dedicated job and its output is
-    // downloaded into each shard, so we only start it here. Locally we still
-    // build on demand (or reuse a running dev server via reuseExistingServer).
-    // The wrapper starts the real `pnpm start` and also catches server
-    // errors for web-server-error-reporter.ts to fail the run on.
-    command: `${process.env.CI ? "" : "pnpm build && "}node e2e/web-server-with-error-log.mjs`,
-    url: baseURL,
-    env: {
-      PORT: port, // next start binds this; reuses a running dev server if present
-      // Exercises the real posthog.init() path (see src/analytics/init-post-hog.ts)
-      // without sending anything: the host never resolves, so nothing leaves
-      // the machine, but a crash in init still fails the suite. NEXT_PUBLIC_*
-      // is inlined at build time, so these only take effect via the local
-      // `pnpm build` branch above — on CI the prebuilt artifact already
-      // carries the same placeholders from playwright.yml's build step.
-      // Playwright merges this object onto process.env rather than replacing
-      // it, so CI's TMDB/OpenAI vars still reach the spawned server.
-      NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder",
-      NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
+  webServer: [
+    /* Finance needs a database. An in-memory one starts empty on every run,
+     * and each Finance spec seeds the household it uses. */
+    {
+      command: `pnpm exec tsx src/finance/db/dev/serve-dev-db.ts --memory --port ${String(FINANCE_E2E_DB_PORT)}`,
+      port: FINANCE_E2E_DB_PORT,
+      reuseExistingServer: false,
+      timeout: 60 * 1000,
     },
-    reuseExistingServer: !process.env.CI,
-    timeout: 300 * 1000, // 5 minutes for build + server to start
-  },
+    /* Run your local dev server before starting the tests */
+    {
+      // On CI the app is built once in a dedicated job and its output is
+      // downloaded into each shard, so we only start it here. Locally we still
+      // build on demand (or reuse a running dev server via reuseExistingServer).
+      // The wrapper starts the real `pnpm start` and also catches server
+      // errors for web-server-error-reporter.ts to fail the run on.
+      command: `${process.env.CI ? "" : "pnpm build && "}node e2e/web-server-with-error-log.mjs`,
+      url: baseURL,
+      env: {
+        PORT: port, // next start binds this; reuses a running dev server if present
+        // Exercises the real posthog.init() path (see src/analytics/init-post-hog.ts)
+        // without sending anything: the host never resolves, so nothing leaves
+        // the machine, but a crash in init still fails the suite. NEXT_PUBLIC_*
+        // is inlined at build time, so these only take effect via the local
+        // `pnpm build` branch above — on CI the prebuilt artifact already
+        // carries the same placeholders from playwright.yml's build step.
+        // Playwright merges this object onto process.env rather than replacing
+        // it, so CI's TMDB/OpenAI vars still reach the spawned server.
+        NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder",
+        NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
+        // Read at runtime, so the prebuilt CI artifact picks them up too. A
+        // reused dev server does not get them; the Finance specs then skip.
+        ...financeE2eEnv,
+      },
+      reuseExistingServer: !process.env.CI,
+      timeout: 300 * 1000, // 5 minutes for build + server to start
+    },
+  ],
 });

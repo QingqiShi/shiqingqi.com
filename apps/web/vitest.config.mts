@@ -36,6 +36,10 @@ export default defineConfig({
   test: {
     environment: "./src/testing/test-environment.ts",
     globals: true,
+    // PGlite suites copy a migrated database in `beforeAll`; a loaded CI
+    // runner can need far more than the 10 s default.
+    testTimeout: 30_000,
+    hookTimeout: 120_000,
     setupFiles: ["./src/testing/test-setup.ts"],
     include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     exclude: [
@@ -58,7 +62,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "#src": path.resolve(__dirname, "./src"),
-      "server-only": path.resolve(__dirname, "./src/testing/test-stubs/server-only.ts"),
+      "server-only": path.resolve(
+        __dirname,
+        "./src/testing/test-stubs/server-only.ts",
+      ),
     },
   },
 });

@@ -17,7 +17,17 @@
     "KV_REST_API_URL",
     "KV_REST_API_TOKEN",
     "SITE_PASSWORD_GB",
-    "SITE_PASSWORD_TUSCANY"
+    "SITE_PASSWORD_TUSCANY",
+    "FINANCE_DATABASE_URL",
+    "FINANCE_DATABASE_URL_UNPOOLED",
+    "FINANCE_AUTH_SECRET",
+    "FINANCE_SETUP_SECRET",
+    "FINANCE_LUNCHFLOW_MODE",
+    "FINANCE_RATE_LIMIT",
+    "FINANCE_E2E_DB_PORT",
+    "FINANCE_PERF",
+    "LUNCH_FLOW_API_KEY",
+    "CRON_SECRET"
   ],
   "tasks": {
     "transit": {
@@ -56,7 +66,11 @@
       "dependsOn": ["transit"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [],
-      "env": ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"]
+      "env": [
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "FINANCE_DATABASE_URL"
+      ]
     },
     "test:e2e": {
       "dependsOn": ["^build"],

@@ -4,6 +4,7 @@ import { GhostIcon } from "@phosphor-icons/react/dist/ssr/Ghost";
 import { GraduationCapIcon } from "@phosphor-icons/react/dist/ssr/GraduationCap";
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
+import { PiggyBankIcon } from "@phosphor-icons/react/dist/ssr/PiggyBank";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -95,6 +96,17 @@ export default async function Home(props: PageProps) {
               description={t({
                 en: "Slice sprite sheets, clean up pixels, and assemble animation frames.",
                 zh: "切分精灵表、清理像素并组装动画帧。",
+              })}
+              scroll
+            />
+            <ProjectCard
+              icon={PiggyBankIcon}
+              href={getLocalePath("/finance", locale)}
+              css={[styles.card, styles.finance]}
+              name={t({ en: "Finance", zh: "家庭账本" })}
+              description={t({
+                en: "A private money tracker for our household: spending, balances and net worth.",
+                zh: "我们家的私人账本：记录开支、余额和净资产。",
               })}
               scroll
             />
@@ -285,6 +297,9 @@ const styles = stylex.create({
   },
   pixelCreatureCreator: {
     [projectCardTokens.brand]: brand.pixelCreatureCreator,
+  },
+  finance: {
+    [projectCardTokens.brand]: brand.finance,
   },
   spriteEditor: {
     [projectCardTokens.brand]: brand.pixelCreatureCreator,

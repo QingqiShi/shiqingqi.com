@@ -1,5 +1,5 @@
 const { createRequire } = require("node:module");
-const path = require("node:path");
+const { stylexExtractionPlugins } = require("./babel-plugins.mjs");
 // `postcss-import`'s own resolver, so the fallback below is additive rather
 // than a replacement. It is reached through the package's file layout because
 // `postcss-import` publishes no `exports` map.
@@ -62,8 +62,17 @@ module.exports = {
         "../../packages/ui/src/**/*.{js,jsx,ts,tsx}",
       ],
       useCSSLayers: true,
+      // This pass needs only the StyleX metadata. The full `babel.config.js`
+      // also compiles each file for Next. On the 8 GB Vercel build machine,
+      // that extra work used too much time and memory, and the build stopped.
+      // Here, Babel parses TypeScript and JSX, runs only the plugins that
+      // change the CSS, and does not generate code.
       babelConfig: {
-        configFile: path.resolve(__dirname, "babel.config.js"),
+        babelrc: false,
+        configFile: false,
+        code: false,
+        parserOpts: { plugins: ["typescript", "jsx"] },
+        plugins: stylexExtractionPlugins({ nodeEnv: process.env.NODE_ENV }),
       },
     },
 

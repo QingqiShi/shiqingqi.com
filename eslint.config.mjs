@@ -197,7 +197,10 @@ export default defineConfig([
   },
   {
     files: ["apps/web/src/**"],
-    ignores: ["apps/web/src/movie-database/tmdb/queries/**"],
+    ignores: [
+      "apps/web/src/movie-database/tmdb/queries/**",
+      "apps/web/src/finance/queries/**",
+    ],
     rules: {
       "restricted/tmdb-query-fn": [
         "error",
