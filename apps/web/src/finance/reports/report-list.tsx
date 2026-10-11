@@ -135,15 +135,6 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
                 zh: "每周一早上会为上一周生成一份周报：净资产、按分组列出的每个账户，以及这周的支出。",
               })}
             </Text>
-            <Text as="p" look="bodySmall" tone="muted">
-              {t(
-                {
-                  en: "To fill in the weeks before, run <strong>pnpm --filter web finance:reports:backfill</strong> once against this database.",
-                  zh: "要补上之前的每一周，对这个数据库运行一次 <strong>pnpm --filter web finance:reports:backfill</strong>。",
-                },
-                { parse: true },
-              )}
-            </Text>
           </div>
           <div>{generateButton}</div>
         </div>
