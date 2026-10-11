@@ -4,6 +4,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import {
   useDeferredValue,
+  useMemo,
   useRef,
   ViewTransition,
   type PropsWithChildren,
@@ -14,8 +15,10 @@ import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
+import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { viewportAnchor, viewportFill } from "../primitives/layout.stylex.ts";
 import { color, layer, space } from "../tokens.stylex.ts";
@@ -121,6 +124,8 @@ export function Overlay({
   // agreement, since the server renders nothing here.
   const isHydrated = useIsHydrated();
   const dialogRef = useRef<HTMLDivElement>(null);
+  const coverRef = useEffectCover();
+  const dialogRefs = useMemo(() => mergeRefs(dialogRef, coverRef), [coverRef]);
 
   useDialogFocus({
     isOpen: deferredIsOpen,
@@ -171,7 +176,7 @@ export function Overlay({
                 dialog div. Passing the ref through RemoveScroll instead keeps
                 `dialogRef` working for focus and the Tab trap. */}
             <RemoveScroll
-              ref={dialogRef}
+              ref={dialogRefs}
               enabled={deferredIsOpen}
               allowPinchZoom
               forwardProps

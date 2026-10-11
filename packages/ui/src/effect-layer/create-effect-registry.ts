@@ -1,17 +1,19 @@
 import type { ElementTracker } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
+import type { ElementBox } from "./read-element-box.ts";
 import type { EffectSettings, MeasuredElement } from "./types.ts";
 
 /**
- * Where a registration puts its element: the scope it is in, and the scope
- * it holds as an Effect container, or `null`.
+ * Where a registration puts its element: the scope it is in, the scope it
+ * holds as an Effect container, or `null`, and whether it is an Effect cover.
  *
  * @internal
  */
 export interface EffectPlacement {
   readonly scope: number;
   readonly holds: number | null;
+  readonly covers?: boolean;
 }
 
 /**
@@ -41,6 +43,15 @@ export interface EffectRegistration {
   /** Changes the roles, the settings and the scope, and keeps the element's id. */
   update: (roles: number, settings: EffectSettings, scope: number) => void;
   remove: () => void;
+}
+
+function overlaps(first: ElementBox, second: ElementBox) {
+  return (
+    first.x < second.x + second.width &&
+    second.x < first.x + first.width &&
+    first.y < second.y + second.height &&
+    second.y < first.y + first.height
+  );
 }
 
 function entriesEqual(
@@ -109,16 +120,25 @@ export function createEffectRegistry() {
       let settings = NO_SETTINGS;
       let scope = PAGE_SCOPE;
       let holds: number | null = null;
+      let covers = false;
       for (const registration of registrations) {
         elementRoles |= registration.roles;
         scope = registration.scope;
         holds = registration.holds ?? holds;
+        covers ||= registration.covers === true;
         settings =
           registrations.size === 1
             ? registration.settings
             : { ...settings, ...registration.settings };
       }
-      next.set(element, { id, roles: elementRoles, settings, scope, holds });
+      next.set(element, {
+        id,
+        roles: elementRoles,
+        settings,
+        scope,
+        holds,
+        covers,
+      });
       roles |= elementRoles;
     }
     elements = next;
@@ -219,14 +239,24 @@ export function createEffectRegistry() {
     /**
      * Every tracked element with a box, as it was last measured, in page
      * coordinates at this scroll: those in the document first, then the
-     * fixed ones, each group in registration order.
+     * fixed ones, each group in registration order. An Effect cover is not
+     * one of them, and neither is an element that the box of a cover
+     * overlaps and that is not inside that cover.
      */
     records: (scrollX: number, scrollY: number): MeasuredElement[] => {
       const inDocument: MeasuredElement[] = [];
       const fixed: MeasuredElement[] = [];
-      for (const [element, { id, roles, settings, scope, holds }] of elements) {
+      const covers: { element: Element; box: ElementBox }[] = [];
+      for (const [
+        element,
+        { id, roles, settings, scope, holds, covers: isCover },
+      ] of elements) {
         const box = uses.get(element)?.tracker?.boxAt(scrollX, scrollY);
         if (box == null) {
+          continue;
+        }
+        if (isCover === true) {
+          covers.push({ element, box });
           continue;
         }
         (box.fixed ? fixed : inDocument).push({
@@ -239,7 +269,12 @@ export function createEffectRegistry() {
           holds,
         });
       }
-      return [...inDocument, ...fixed];
+      return [...inDocument, ...fixed].filter((record) =>
+        covers.every(
+          ({ element, box }) =>
+            element.contains(record.element) || !overlaps(box, record),
+        ),
+      );
     },
   };
 }

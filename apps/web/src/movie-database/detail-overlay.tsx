@@ -4,14 +4,16 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { useDialogFocus } from "@tuja/ui/hooks/use-dialog-focus";
+import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { viewportFill } from "@tuja/ui/primitives/layout.stylex";
 import { motionConstants, transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { color, controlSize, layer, space } from "@tuja/ui/tokens.stylex";
+import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import type { PropsWithChildren, RefObject } from "react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { t } from "#src/i18n.ts";
@@ -65,6 +67,11 @@ export function DetailOverlay({
   const portalTarget = usePortalTarget();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const coverRef = useEffectCover();
+  // RemoveScroll puts its ref on the card container. It calls the ref with
+  // null and does not keep the cleanup that the ref gives. mergeRefs does
+  // that cleanup.
+  const cardContainerRef = useMemo(() => mergeRefs(coverRef), [coverRef]);
 
   useDialogFocus({
     isOpen,
@@ -85,7 +92,7 @@ export function DetailOverlay({
         onClick={onClose}
         aria-hidden="true"
       />
-      <RemoveScroll allowPinchZoom forwardProps>
+      <RemoveScroll ref={cardContainerRef} allowPinchZoom forwardProps>
         <div css={[viewportFill.absolute, styles.cardContainer]}>
           <div
             ref={dialogRef}

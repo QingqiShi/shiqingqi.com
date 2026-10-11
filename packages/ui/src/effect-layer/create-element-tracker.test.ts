@@ -56,6 +56,27 @@ describe("createElementTracker", () => {
     expect(tracker.boxAt(0, 900)).toMatchObject({ x: 10, y: 520 });
   });
 
+  it("draws on the fixed canvas while its sticky box is stuck, and in the document once the box lets go", () => {
+    const { element, tracker } = setUp();
+    const bar = document.createElement("div");
+    bar.style.position = "sticky";
+    bar.style.top = "0px";
+    document.body.append(bar);
+    bar.append(element);
+    layOut(bar, { x: 0, y: 0, width: 300, height: 60 });
+    tracker.measure(context(0, 500));
+    expect(tracker.measured).toMatchObject({
+      box: { fixed: true, sticksToViewport: true },
+      sticky: true,
+    });
+    expect(tracker.boxAt(0, 900)).toMatchObject({ x: 10, y: 920 });
+
+    layOut(bar, { x: 0, y: -40, width: 300, height: 60 });
+    tracker.measure(context(0, 500));
+    expect(tracker.measured?.box.fixed).toBe(false);
+    expect(tracker.boxAt(0, 900)).toMatchObject({ x: 10, y: 520 });
+  });
+
   it("moves a fixed element with the scroll it is asked at", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";

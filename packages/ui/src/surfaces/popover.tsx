@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
 import { createPortal } from "react-dom";
+import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import {
   usePopover,
   type PopoverPlacement,
@@ -153,6 +154,7 @@ export function Popover({
     "aria-labelledby": labelledByTrigger,
     ...restContentProps
   } = contentProps;
+  const coverRef = useEffectCover();
 
   // `undefined` means "use the default target"; `null` means the caller is
   // still resolving one, so hold rendering.
@@ -170,7 +172,7 @@ export function Popover({
         ? createPortal(
             <div
               {...restContentProps}
-              ref={mergeRefs(ref, contentRef)}
+              ref={mergeRefs(ref, contentRef, coverRef)}
               aria-label={ariaLabel}
               aria-labelledby={
                 ariaLabel === undefined

@@ -16,6 +16,7 @@ function record(fill: EffectElementRecord["fill"]): EffectElementRecord {
     fixed: false,
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
+    sticksToViewport: false,
     fill,
     grayscale: 0,
     scope: 0,

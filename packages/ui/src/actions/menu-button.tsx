@@ -5,13 +5,16 @@ import type { PropsWithChildren } from "react";
 import {
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type ComponentProps,
   type ReactNode,
 } from "react";
 import { RemoveScroll } from "react-remove-scroll";
+import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import {
   duration,
   easing,
@@ -177,6 +180,8 @@ export function MenuButton({
   const popupRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
+  const coverRef = useEffectCover();
+  const popupRefs = useMemo(() => mergeRefs(popupRef, coverRef), [coverRef]);
 
   const isSheet = position === "sheet";
 
@@ -323,7 +328,7 @@ export function MenuButton({
                   also sets the CSS var `HeaderFooterLayout` reads for its own
                   scrollbar compensation. */}
             <RemoveScroll
-              ref={popupRef}
+              ref={popupRefs}
               enabled={isMenuShown}
               allowPinchZoom
               forwardProps

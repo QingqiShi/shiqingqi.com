@@ -25,6 +25,8 @@ describe("packRingLightInstances", () => {
           alpha: 0.9,
           inset: 0.8,
           pageTint: 1,
+          box: { x: 10, y: 20, width: 64, height: 32, radius: 16 },
+          cornerExponent: 4,
         },
         {
           elementIndex: 5,
@@ -35,6 +37,8 @@ describe("packRingLightInstances", () => {
           alpha: 1,
           inset: 0.25,
           pageTint: 0,
+          box: { x: 0, y: 0, width: 72, height: 36, radius: 18 },
+          cornerExponent: 2,
         },
       ],
       buffer,
@@ -63,16 +67,28 @@ describe("packRingLightInstances", () => {
       0.5,
       expect.closeTo(0.2),
     ]);
-    expect([floats[24], floats[25]]).toEqual([expect.closeTo(0.8), 1]);
+    expect([...floats.slice(24, 32)]).toEqual([
+      expect.closeTo(0.8),
+      1,
+      16,
+      4,
+      10,
+      20,
+      64,
+      32,
+    ]);
 
     const second = RING_LIGHT_INSTANCE_BYTES / 4;
-    expect(second * 4).toBe(112);
+    expect(second * 4).toBe(128);
     expect([words[second], words[second + 1]]).toEqual([5, 0]);
     expect(floats[second + 2]).toBeCloseTo(0.6);
     expect([...floats.slice(second + 16, second + 24)]).toEqual(
       Array(8).fill(0),
     );
     expect(floats[second + 24]).toBe(0.25);
+    expect([...floats.slice(second + 26, second + 32)]).toEqual([
+      18, 2, 0, 0, 72, 36,
+    ]);
   });
 });
 

@@ -13,14 +13,16 @@ const FIELD_REACH = KERNEL_REACH * 1.5;
 const FIELD_THRESHOLD = 9.93;
 
 const FLAG_COVER = 1;
+const FLAG_SEE_THROUGH = 2;
 
 /**
- * One Switch's liquid as a frame draws it, in page coordinates and CSS px.
+ * One control's liquid as a frame draws it, in page coordinates and CSS px:
+ * a Switch's thumb or a segmented control's indicator.
  *
  * @internal
  */
 export interface LiquidInstance {
-  /** Its Switch's index in `EffectFrame.elements` and in WGSL's `effectElements`. */
+  /** Its control's index in `EffectFrame.elements` and in WGSL's `effectElements`. */
   readonly elementIndex: number;
   /** Its particles' range in the particle buffer. */
   readonly firstParticle: number;
@@ -28,15 +30,24 @@ export interface LiquidInstance {
   /** Its beads' range in the bead buffer. */
   readonly firstBead: number;
   readonly beadCount: number;
-  /** The thumb's rest radius. */
+  /** The rest radius: half the height of the thumb or the indicator. */
   readonly radius: number;
-  /** From 0 while the liquid moves to 1 once it rests as the thumb's circle. */
+  /** From 0 while the liquid moves to 1 once it rests in its rest shape. */
   readonly calm: number;
   /** The centre of the off position, where track space starts. */
   readonly originX: number;
   readonly originY: number;
-  /** Where the liquid rests now, along the travel. */
+  /** Where the centre of the rest shape is now, along the track. */
   readonly restX: number;
+  /**
+   * Half the length of the rest shape's straight part: the rest shape is a
+   * capsule, and a thumb's is a circle, with no span.
+   */
+  readonly span: number;
+  /** The reach of each particle, as `LiquidBody.scale` gives it. */
+  readonly scale: number;
+  /** How far the melted liquid spreads past its rest shape. */
+  readonly spread: number;
   /** The centre of the liquid's mass, in track space and CSS px. */
   readonly centreX: number;
   readonly centreY: number;
@@ -73,6 +84,13 @@ export interface LiquidInstance {
     readonly color: readonly [number, number, number];
     readonly strength: number;
   };
+  /**
+   * On a track the effect does not paint, the page shows through the
+   * liquid, with a glow under it this strong, from 0 to 1.
+   */
+  readonly underGlow?: number;
+  /** The corners of the rest shape, or none for a pill. */
+  readonly corner?: { readonly radius: number; readonly exponent: number };
   /** What the page shows around the track. */
   readonly backdrop: readonly [number, number, number];
 }
@@ -118,6 +136,7 @@ export const LIQUID_WGSL = /* wgsl */ `${TARGET_WGSL}
 const FIELD_REACH = ${FIELD_REACH.toFixed(4)};
 const FIELD_THRESHOLD = ${FIELD_THRESHOLD.toFixed(3)};
 const FLAG_COVER = ${String(FLAG_COVER)}u;
+const FLAG_SEE_THROUGH = ${String(FLAG_SEE_THROUGH)}u;
 const NECK_REACH = ${NECK_REACH.toFixed(4)};
 const BEAD_JOIN = 1.0;
 // The body's dome: a spherical cap this high, as a share of the radius.
@@ -125,9 +144,6 @@ const DOME = 0.85;
 // The index of refraction. Water's is 1.33; higher here, so that the bend
 // shows at the thumb's size.
 const INDEX = 2.2;
-// The melted body spreads this far past the thumb's circle, in CSS px:
-// out to the track's edge.
-const SPREAD = 2.0;
 // The rim: the steep surface reflects the room, brightest at the edge.
 const RIM_LIGHT = 0.9;
 const RIM_POWER = 12.0;
@@ -150,20 +166,16 @@ const SHADOW = 0.18;
 // The thumb thaws from the rim inward and freezes from the centre out, with
 // an edge this wide as a share of the radius.
 const MELT_WIDTH = 0.6;
-// The frozen thumb: how far in, as a share of the radius, the frost goes
-// from its edge's opacity to its core's; a soft sheen on the side towards
-// the light and a soft rim, which a light thumb takes and a dark one does
-// not; a broad, dim gloss; and a grain.
-const FROST_DEPTH = 0.45;
-const FROST_SHEEN = 0.16;
-const FROST_RIM = 0.3;
-const FROST_RIM_POWER = 3.0;
-const FROST_GLOSS = 0.18;
+// The frozen thumb is flat frost: an even fill with a grain, which goes
+// from its edge's opacity to its core's in a thin band this deep, as a
+// share of the radius.
+const FROST_DEPTH = 0.1;
 const FROST_GRAIN = 0.035;
 // The glow under the on fill: how far it reaches along the track and
 // across it, as a share of the radius.
-const GLOW_ALONG = 1.9;
-const GLOW_ACROSS = 1.3;
+const GLOW_REACH = vec2f(1.9, 1.3);
+// The faint glow under a liquid in front of the page is a wide, soft wash.
+const HUG_REACH = vec2f(2.4, 1.6);
 // How far ahead of the rest of the track the on fill rises under the
 // liquid, so that the glow blooms out from under it.
 const RISE_LEAD = 0.6;
@@ -192,13 +204,19 @@ struct LiquidInstance {
   off: vec4f,
   on: vec4f,
   backdrop: vec4f,
-  // Where the liquid rests, along the travel, and the centre of its mass.
+  // Where the liquid rests, along the track, the centre of its mass, and
+  // half the length of the rest shape's straight part.
   rest: vec4f,
   // The glow under the on fill: its colour and strength.
   glow: vec4f,
-  // The frost's opacity at the core and at the edge, and how plain the
-  // thumb still is.
+  // The frost's opacity at the core and at the edge, how plain the thumb
+  // still is, and how far the melted liquid spreads.
   frost: vec4f,
+  scale: f32,
+  underGlow: f32,
+  // The radius and the exponent of the rest shape's corners, or zero for a
+  // pill.
+  corner: vec2f,
 }
 
 struct Bead {
@@ -226,10 +244,12 @@ fn liquidVertex(
 }
 
 // How much of the light under the liquid reaches a page point: 1 under
-// the centre of the liquid's mass, and less with distance.
-fn underAt(liquid: LiquidInstance, page: vec2f) -> f32 {
-  let reach = liquid.radius * vec2f(GLOW_ALONG, GLOW_ACROSS);
-  let toLight = (page - liquid.origin - liquid.rest.yz) / reach;
+// the centre of the liquid's mass, and less with distance along and across
+// the track in rest radii.
+fn underAt(liquid: LiquidInstance, page: vec2f, reachInRadii: vec2f) -> f32 {
+  let reach = liquid.radius * reachInRadii;
+  let fromCentre = page - liquid.origin - liquid.rest.yz;
+  let toLight = vec2f(max(abs(fromCentre.x) - liquid.rest.w, 0.0), fromCentre.y) / reach;
   return exp(-dot(toLight, toLight));
 }
 
@@ -237,13 +257,13 @@ fn underAt(liquid: LiquidInstance, page: vec2f) -> f32 {
 // than on the rest of the track, with no edge between them.
 fn risenAt(liquid: LiquidInstance, page: vec2f) -> f32 {
   let rise = liquid.off.w;
-  return saturate(rise + (liquid.on.w - rise) * RISE_LEAD * underAt(liquid, page));
+  return saturate(rise + (liquid.on.w - rise) * RISE_LEAD * underAt(liquid, page, GLOW_REACH));
 }
 
 // The fill of the track at a page point, lit from underneath where it is on.
 fn fillAt(liquid: LiquidInstance, page: vec2f) -> vec3f {
   let on = risenAt(liquid, page);
-  let under = underAt(liquid, page);
+  let under = underAt(liquid, page, GLOW_REACH);
   let fill = mix(liquid.off.rgb, liquid.on.rgb, on);
   return mix(fill, liquid.glow.rgb, under * liquid.glow.w * on);
 }
@@ -259,7 +279,7 @@ fn trackAt(liquid: LiquidInstance, track: EffectElement, page: vec2f) -> vec3f {
 
 // The particles' field at a page point, with its gradient.
 fn fieldAt(liquid: LiquidInstance, page: vec2f) -> vec3f {
-  let reach = FIELD_REACH * liquid.radius;
+  let reach = FIELD_REACH * liquid.radius * liquid.scale;
   let reachSquared = reach * reach;
   var value = 0.0;
   var gradient = vec2f(0.0);
@@ -281,9 +301,24 @@ struct Surface {
   outward: vec2f,
 }
 
+// The distance from the rest shape: a pill, or a box with the corners of
+// the control's own indicator.
+fn restDistance(liquid: LiquidInstance, page: vec2f, toRest: vec2f) -> f32 {
+  if (liquid.corner.y == 0.0) {
+    return length(toRest) - liquid.radius;
+  }
+  var shape = effectElements[liquid.element];
+  let half = vec2f(liquid.rest.w + liquid.radius, liquid.radius);
+  shape.rect = vec4f(liquid.origin + vec2f(liquid.rest.x, 0.0) - half, 2.0 * half);
+  shape.radii = vec4f(liquid.corner.x);
+  shape.cornerExponent = liquid.corner.y;
+  return effectElementDistance(shape, page);
+}
+
 fn bodySurface(liquid: LiquidInstance, page: vec2f) -> Surface {
-  let toRest = page - (liquid.origin + vec2f(liquid.rest.x, 0.0));
-  let fromCircle = length(toRest) - liquid.radius;
+  let local = page - (liquid.origin + vec2f(liquid.rest.x, 0.0));
+  let toRest = local - vec2f(clamp(local.x, -liquid.rest.w, liquid.rest.w), 0.0);
+  let fromCircle = restDistance(liquid, page, toRest);
   let circleOutward = toRest / max(length(toRest), 1e-4);
   let calm = liquid.calm;
   if (calm >= 1.0) {
@@ -386,28 +421,21 @@ fn grain(page: vec2f) -> f32 {
   return fract(sin(dot(floor(page), vec2f(12.9898, 78.233))) * 43758.5453) - 0.5;
 }
 
-// The frozen drop: ice in the thumb's colour, which scatters the track it
-// lets through, so the track shows unbent, and which is lit diffusely.
+// The frozen drop: flat ice in the thumb's colour, which scatters the track
+// it lets through, so the track shows unbent.
 fn frost(
   liquid: LiquidInstance,
   track: EffectElement,
   page: vec2f,
   depth: f32,
   radius: f32,
-  dome: Dome,
 ) -> vec3f {
   let opacity = mix(liquid.frost.y, liquid.frost.x, smoothstep(0.0, FROST_DEPTH * radius, depth));
-  var color = mix(trackAt(liquid, track, page), liquid.thumb.rgb, opacity);
-  // A dark thumb that took the sheen and the rim would lose its contrast.
-  let pale = dot(liquid.thumb.rgb, vec3f(0.2126, 0.7152, 0.0722));
-  let towards = saturate(dot(dome.normal.xy, TO_LIGHT_FLAT));
-  color = mix(color, vec3f(1.0), towards * FROST_SHEEN * pale);
-  let rim = pow(dome.rim, FROST_RIM_POWER / RIM_POWER);
-  color = mix(color, vec3f(1.0), rim * FROST_RIM * pale);
-  let gloss = pow(max(dot(dome.normal, HALFWAY), 0.0), 10.0);
-  color = mix(color, vec3f(1.0), gloss * FROST_GLOSS * mix(0.4, 1.0, pale));
-  color += grain(page - liquid.origin) * FROST_GRAIN;
-  return mix(saturate(color), liquid.thumb.rgb, liquid.frost.z);
+  let color = mix(trackAt(liquid, track, page), liquid.thumb.rgb, opacity)
+    + grain(page - liquid.origin) * FROST_GRAIN;
+  // In front of the page, the control's own indicator is the plain thumb.
+  let plain = select(liquid.thumb.rgb, trackAt(liquid, track, page), (liquid.flags & FLAG_SEE_THROUGH) != 0u);
+  return mix(saturate(color), plain, liquid.frost.z);
 }
 
 // A drop of water over the track: the track as it shows through the dome,
@@ -422,16 +450,18 @@ fn lens(
   solid: f32,
 ) -> vec3f {
   let depth = -surface.distance;
-  let dome = domeAt(depth, radius, surface.outward);
   if (solid >= 1.0) {
-    return frost(liquid, track, page, depth, radius, dome);
+    return frost(liquid, track, page, depth, radius);
   }
+  let dome = domeAt(depth, radius, surface.outward);
   let normal = dome.normal;
   var behind = trackAt(liquid, track, page + dome.bend);
   let away = saturate(-dot(surface.outward, TO_LIGHT_FLAT));
   let band = (depth / radius - CAUSTIC_DEPTH) / CAUSTIC_WIDTH;
-  behind *= WET * (1.0 + away * exp(-band * band) * CAUSTIC);
-  var color = behind * (1.0 - saturate(-dot(normal.xy, TO_LIGHT.xy)) * SHADE);
+  // Water in front of the page does not darken it: it is clearer than frost.
+  let dry = (liquid.flags & FLAG_SEE_THROUGH) != 0u;
+  behind *= select(WET, 1.0, dry) * (1.0 + away * exp(-band * band) * CAUSTIC);
+  var color = behind * (1.0 - saturate(-dot(normal.xy, TO_LIGHT.xy)) * select(SHADE, 0.0, dry));
   color *= 1.0 - LIMB * (1.0 - smoothstep(0.0, LIMB_WIDTH, depth));
   color = mix(color, vec3f(1.0), dome.rim * RIM_LIGHT);
   let lit = max(dot(normal, HALFWAY), 0.0);
@@ -443,7 +473,7 @@ fn lens(
   if (solid <= 0.0) {
     return saturate(color);
   }
-  return mix(saturate(color), frost(liquid, track, page, depth, radius, dome), solid);
+  return mix(saturate(color), frost(liquid, track, page, depth, radius), solid);
 }
 
 @fragment
@@ -452,7 +482,9 @@ fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
   let track = effectElements[liquid.element];
   let page = fragmentToPage(input.position.xy);
   let pixel = effectTarget.pixelScale.x;
-  let onTrack = saturate(0.5 - effectElementDistance(track, page) * pixel);
+  // A liquid in front of the page stays inside the track's padding box.
+  let inset = select(0.0, track.rect.w * 0.5 - liquid.radius - liquid.frost.w, (liquid.flags & FLAG_SEE_THROUGH) != 0u);
+  let onTrack = saturate(0.5 - (effectElementDistance(track, page) + max(inset, 0.0)) * pixel);
   if (onTrack <= 0.0) {
     return vec4f(0.0);
   }
@@ -465,9 +497,12 @@ fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
   if ((liquid.flags & FLAG_COVER) != 0u) {
     color = fillAt(liquid, page);
     alpha = 1.0;
+  } else {
+    alpha = underAt(liquid, page, HUG_REACH) * liquid.underGlow;
+    color = liquid.glow.rgb * alpha;
   }
 
-  let spread = SPREAD * melted;
+  let spread = liquid.frost.w * melted;
   let found = liquidSurface(liquid, page, spread);
   let surface = found.surface;
   let coverage = saturate(0.5 - surface.distance * pixel);
@@ -480,15 +515,31 @@ fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
   alpha += shadow * (1.0 - alpha);
 
   if (coverage > 0.0) {
-    // The solid part is a disc, so that the field's bumps do not show in
-    // it: about the thumb's centre while the body is calm, and about the
-    // centre of the body's mass once it moves, so the melt moves with it.
+    // The solid part is the rest shape, so that the field's bumps do not
+    // show in it: about the rest place while the body is calm, and about
+    // the centre of the body's mass once it moves, so the melt moves with
+    // it.
     let solidCentre = mix(liquid.rest.yz, vec2f(liquid.rest.x, 0.0), liquid.calm);
     let toCentre = page - (liquid.origin + solidCentre);
-    let inward = saturate(1.0 - length(toCentre) / (liquid.radius + spread));
-    let body = lens(liquid, track, page, surface, found.radius, solidAt(inward, firm));
-    color = color * (1.0 - coverage) + body * coverage;
-    alpha = alpha * (1.0 - coverage) + coverage;
+    let toCore = vec2f(max(abs(toCentre.x) - liquid.rest.w, 0.0), toCentre.y);
+    let inward = saturate(1.0 - length(toCore) / (liquid.radius + spread));
+    let solid = solidAt(inward, firm);
+    if ((liquid.flags & FLAG_SEE_THROUGH) != 0u) {
+      // The liquid shows over the track as it is, and lets as much of the
+      // page through as it can. Where it is lighter than the track it only
+      // adds light, so a label under it keeps its contrast. It hides the
+      // glow under it.
+      let body = lens(liquid, track, page, surface, found.radius, solid);
+      let under = trackAt(liquid, track, page);
+      let ratio = body / max(under, vec3f(1e-3));
+      let through = min(1.0, min(ratio.x, min(ratio.y, ratio.z)));
+      color = color * (1.0 - coverage) + (body - under * through) * coverage;
+      alpha = alpha * (1.0 - coverage) + (1.0 - through) * coverage;
+    } else {
+      let body = lens(liquid, track, page, surface, found.radius, solid);
+      color = color * (1.0 - coverage) + body * coverage;
+      alpha = alpha * (1.0 - coverage) + coverage;
+    }
   }
   return vec4f(effectGrayscale(color, track.grayscale), alpha) * clip;
 }
@@ -499,7 +550,7 @@ fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
  *
  * @internal
  */
-export const LIQUID_INSTANCE_BYTES = 160;
+export const LIQUID_INSTANCE_BYTES = 176;
 
 const INSTANCE_WORDS = LIQUID_INSTANCE_BYTES / 4;
 
@@ -523,7 +574,9 @@ export function packLiquidInstances(
     words[at + 2] = liquid.particleCount;
     words[at + 3] = liquid.firstBead;
     words[at + 4] = liquid.beadCount;
-    words[at + 5] = liquid.cover ? FLAG_COVER : 0;
+    words[at + 5] =
+      (liquid.cover ? FLAG_COVER : 0) |
+      (liquid.underGlow === undefined ? 0 : FLAG_SEE_THROUGH);
     floats[at + 6] = liquid.radius;
     floats[at + 7] = liquid.calm;
     floats.set([liquid.originX, liquid.originY], at + 8);
@@ -531,9 +584,20 @@ export function packLiquidInstances(
     floats.set([...liquid.off, liquid.rise], at + 16);
     floats.set([...liquid.on, liquid.riseGoal], at + 20);
     floats.set([...liquid.backdrop, 1], at + 24);
-    floats.set([liquid.restX, liquid.centreX, liquid.centreY], at + 28);
+    floats.set(
+      [liquid.restX, liquid.centreX, liquid.centreY, liquid.span],
+      at + 28,
+    );
     floats.set([...liquid.glow.color, liquid.glow.strength], at + 32);
-    floats.set([liquid.frost.core, liquid.frost.edge, liquid.plain], at + 36);
+    floats.set(
+      [liquid.frost.core, liquid.frost.edge, liquid.plain, liquid.spread],
+      at + 36,
+    );
+    floats[at + 40] = liquid.scale;
+    floats[at + 41] = liquid.underGlow ?? 0;
+    if (liquid.corner !== undefined) {
+      floats.set([liquid.corner.radius, liquid.corner.exponent], at + 42);
+    }
   }
 }
 

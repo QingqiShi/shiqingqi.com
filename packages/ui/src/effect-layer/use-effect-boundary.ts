@@ -10,7 +10,9 @@ import { useEffectRegistration } from "./use-effect-registration.ts";
  * each signal that they can have changed, so they follow scrolling, layout
  * shifts, resizes, theme changes, hover, focus and CSS transitions.
  * `?effects=debug` draws what it measured. The element needs a box of its
- * own, so not `display: contents`. Outside an `EffectLayerProvider` the ref
+ * own, so not `display: contents`. While it, or an ancestor, has `opacity:
+ * 0` or `visibility: hidden`, nobody can see it, so the layer measures no
+ * box and draws nothing for it. Outside an `EffectLayerProvider` the ref
  * does nothing.
  *
  * The effect hooks — `useRipple`, `useDust`, `useExtractorFan`,

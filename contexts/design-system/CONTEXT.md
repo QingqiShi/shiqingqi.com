@@ -71,3 +71,6 @@ _Avoid_: obstacle (in copy), container (for this sense)
 **Effect container**:
 An element that holds a scope of effects apart from the page. `useEffectContainer` makes one. To the scope around it, it is an Effect boundary. ZH: 效果容器.
 _Avoid_: effect boundary (that is an obstacle), effect scope, sandbox, 效果作用域
+
+**Effect cover**:
+An element that shows over the page, such as a sheet or a dialog, so that the effects of the elements under it and not inside it do not draw. `useEffectCover` makes one. ZH: 效果遮盖.

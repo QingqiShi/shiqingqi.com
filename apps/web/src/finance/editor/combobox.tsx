@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { TextField } from "@tuja/ui/components/text-field";
+import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
@@ -85,6 +86,7 @@ export function Combobox({
   const showCreate = Boolean(createLabel) && trimmed !== "" && !exact;
   const count = options.length + (showCreate ? 1 : 0);
   const expanded = open && count > 0;
+  const coverRef = useEffectCover();
   const activeIndex = active < count ? active : -1;
 
   const pick = (index: number) => {
@@ -186,6 +188,7 @@ export function Combobox({
         onKeyDown={handleKeyDown}
       />
       <ul
+        ref={coverRef}
         id={listId}
         role="listbox"
         aria-label={label}

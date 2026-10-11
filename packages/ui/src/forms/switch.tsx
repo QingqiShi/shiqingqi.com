@@ -29,6 +29,7 @@ import {
   shadow,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { aimAt, DRAG_THRESHOLD, indexAt } from "./aim-at.ts";
 import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
@@ -148,9 +149,7 @@ export function Switch({
 
   const {
     isPressed,
-    isDragging,
-    position,
-    travel,
+    drag,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
@@ -165,8 +164,7 @@ export function Switch({
 
   const liquidRef = useLiquid({
     position: THUMB_POSITION[value],
-    drag:
-      isDragging && position !== null && travel > 0 ? position / travel : null,
+    drag,
     pressed: isPressed,
     aim: pressAim,
   });
@@ -199,7 +197,7 @@ export function Switch({
         styles.switch,
         sizeStyles[size],
         initialRendered && styles.animate,
-        isDragging && styles.dragging(position),
+        drag !== null && styles.dragging(drag),
         effect === "liquid" && styles.otherFill,
         css,
       ]}
@@ -244,15 +242,6 @@ export function Switch({
   );
 }
 
-/** Where `clientY` is across the track, from -1 at its top to 1 at its bottom. */
-function aimAt(rect: DOMRect, clientY: number) {
-  const half = rect.height / 2;
-  if (half <= 0) {
-    return 0;
-  }
-  return Math.max(-1, Math.min(1, (clientY - rect.top - half) / half));
-}
-
 /**
  * Pointer-drag mechanics for `Switch`: tracks the thumb's live position while
  * dragging, and commits `on`/`off` from which half of the track it's released
@@ -276,9 +265,8 @@ function useSwitchDrag({
   const initialClientXRef = useRef(0);
   const lastClientXRef = useRef(0);
   const [isPressed, setIsPressed] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState<number | null>(null);
-  const [travel, setTravel] = useState(0);
+  /** Where a drag holds the thumb, as a share of the travel. */
+  const [drag, setDrag] = useState<number | null>(null);
 
   function handleDragStart(e: React.PointerEvent<HTMLInputElement>) {
     if (
@@ -297,8 +285,7 @@ function useSwitchDrag({
 
   function handleDragCancel() {
     setIsPressed(false);
-    setIsDragging(false);
-    setPosition(null);
+    setDrag(null);
     initialRectRef.current = null;
   }
 
@@ -309,16 +296,17 @@ function useSwitchDrag({
       return;
     }
 
-    if (!isDragging && Math.abs(e.clientX - clientX) < 2) {
+    if (drag === null && Math.abs(e.clientX - clientX) < DRAG_THRESHOLD) {
       return;
     }
-    setIsDragging(true);
 
     lastClientXRef.current = e.clientX;
-    const x = e.clientX - rect.left - rect.height / 2;
-    const clampedX = Math.max(0, Math.min(rect.width - rect.height, x));
-    setPosition(clampedX);
-    setTravel(rect.width - rect.height);
+    setDrag(
+      indexAt(
+        [rect.left + rect.height / 2, rect.right - rect.height / 2],
+        e.clientX,
+      ),
+    );
 
     const midPoint = rect.left + rect.width / 2;
     const newState = lastClientXRef.current > midPoint ? "on" : "off";
@@ -340,7 +328,7 @@ function useSwitchDrag({
     // `onClick`) must not repeat it.
     toggleHandledRef.current = true;
 
-    if (isDragging) {
+    if (drag !== null) {
       if (elRef.current) {
         if (elRef.current.indeterminate) {
           elRef.current.indeterminate = false;
@@ -360,9 +348,7 @@ function useSwitchDrag({
 
   return {
     isPressed,
-    isDragging,
-    position,
-    travel,
+    drag,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
@@ -438,8 +424,8 @@ const styles = stylex.create({
       },
     },
   },
-  dragging: (position: number | null) => ({
-    [switchTokens.thumbPosition]: `${String(position)}px`,
+  dragging: (drag: number) => ({
+    [switchTokens.thumbPosition]: `calc(${String(drag)} * ${switchTokens.trackHeight})`,
     "::before": {
       transition: null,
     },

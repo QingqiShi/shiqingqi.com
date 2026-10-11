@@ -2,9 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   beadRadius,
   impactOn,
+  MAX_PARTICLE_COUNT,
   mean,
   PARTICLE_COUNT,
+  particleCountFor,
   restingLiquid,
+  scaleFor,
   stepLiquid,
   type LiquidBody,
   type LiquidInput,
@@ -15,7 +18,9 @@ const TRAVEL = 2.2;
 const FRAME = 1 / 60;
 const ON: LiquidInput = {
   target: TRAVEL,
-  travel: TRAVEL,
+  span: 0,
+  from: 0,
+  to: TRAVEL,
   pressed: false,
   reducedMotion: false,
   aim: 0,
@@ -320,4 +325,292 @@ describe("stepLiquid", () => {
     expect(mean(body.x)).toBeCloseTo(TRAVEL, 1);
     expect(body.beads).toHaveLength(0);
   });
+});
+
+/**
+ * An indicator's pour in a `md` segmented control, in rest radii: segments
+ * 78, 72 and 100 px wide on a 16 px radius, from the first to the last.
+ */
+const SEGMENTS = [
+  { start: 0, end: 2.875 },
+  { start: 4.875, end: 7.375 },
+  { start: 9.375, end: 13.625 },
+] as const;
+const restOf = ({ start, end }: { start: number; end: number }) => ({
+  target: (start + end) / 2,
+  span: (end - start) / 2,
+});
+const LAST = SEGMENTS[2];
+const POUR_ON: LiquidInput = {
+  ...restOf(LAST),
+  from: 0,
+  to: LAST.end,
+  pressed: false,
+  reducedMotion: false,
+  aim: 0,
+};
+const firstPill = restOf(SEGMENTS[0]);
+const pillPour = record(
+  restingLiquid(firstPill.target, { span: firstPill.span }),
+  POUR_ON,
+  2,
+);
+
+describe("a pill's liquid", () => {
+  it("fills the pill at rest, with more particles than a thumb's", () => {
+    const body = restingLiquid(firstPill.target, { span: firstPill.span });
+    expect(body.x.length).toBe(particleCountFor(firstPill.span));
+    expect(body.x.length).toBeGreaterThan(PARTICLE_COUNT);
+    expect(body.x.length).toBeLessThanOrEqual(MAX_PARTICLE_COUNT);
+    expect(mean(body.x)).toBeCloseTo(firstPill.target, 1);
+    expect(Math.min(...body.x)).toBeGreaterThan(SEGMENTS[0].start - 1);
+    expect(Math.max(...body.x)).toBeLessThan(SEGMENTS[0].end + 1);
+    expect(Math.min(...body.x)).toBeLessThan(SEGMENTS[0].start - 0.5);
+    expect(Math.max(...body.x)).toBeGreaterThan(SEGMENTS[0].end + 0.5);
+  });
+
+  it("keeps a thumb's count and reach for a circle", () => {
+    expect(particleCountFor(0)).toBe(PARTICLE_COUNT);
+    expect(scaleFor(0, PARTICLE_COUNT)).toBe(1);
+    expect(restingLiquid(0).scale).toBe(1);
+  });
+
+  it("spreads a capped count further apart to fill a longer pill", () => {
+    expect(particleCountFor(10)).toBe(MAX_PARTICLE_COUNT);
+    expect(scaleFor(10, MAX_PARTICLE_COUNT)).toBeGreaterThan(1);
+    expect(scaleFor(0.25, particleCountFor(0.25))).toBeCloseTo(1, 2);
+  });
+
+  it("lands on the far end of the target's pill a little later than a thumb does", () => {
+    const landedAt = firstTime(
+      pillPour,
+      (body) => impactOn(body, LAST.end) !== null,
+    );
+    expect(landedAt).not.toBeNull();
+    expect(landedAt).toBeGreaterThan(0.2);
+    expect(landedAt).toBeLessThan(0.36);
+  });
+
+  it("is frozen in the target's pill again within about as long as a thumb", () => {
+    const frozenAt = firstTime(pillPour, (body) => body.set === 1, 0.1);
+    expect(frozenAt).not.toBeNull();
+    expect(frozenAt).toBeLessThan(0.65);
+    const body = last(pillPour);
+    expect(body.settled).toBe(true);
+    expect(mean(body.x)).toBeCloseTo(POUR_ON.target, 0);
+    expect(body.scale).toBeCloseTo(scaleFor(POUR_ON.span, body.x.length), 5);
+  });
+
+  it("keeps every particle between its walls", () => {
+    let leftmost = Number.POSITIVE_INFINITY;
+    let rightmost = Number.NEGATIVE_INFINITY;
+    for (const { body } of pillPour) {
+      for (let i = 0; i < body.x.length; i++) {
+        leftmost = Math.min(leftmost, body.x[i]);
+        rightmost = Math.max(rightmost, body.x[i]);
+      }
+    }
+    expect(rightmost).toBeLessThan(LAST.end + 1);
+    expect(leftmost).toBeGreaterThan(-1);
+  });
+
+  it("stretches only a little on the way, as one mass, not into a slab", () => {
+    const length = (body: LiquidBody) =>
+      Math.max(...body.x) - Math.min(...body.x);
+    const atRest = length(last(pillPour));
+    for (const { body } of pillPour) {
+      expect(length(body)).toBeLessThan(atRest * 1.3);
+    }
+  });
+
+  it("sheds beads along a pour across three segments, and no foam", () => {
+    let most = 0;
+    let shed = 0;
+    let previous = 0;
+    for (const { body } of pillPour) {
+      most = Math.max(most, body.beads.length);
+      shed += Math.max(0, body.beads.length - previous);
+      previous = body.beads.length;
+      for (const bead of body.beads) {
+        expect(beadRadius(bead)).toBeLessThanOrEqual(0.38);
+      }
+    }
+    expect(shed).toBeGreaterThanOrEqual(5);
+    expect(most).toBeLessThanOrEqual(12);
+  });
+
+  it("does not count liquid past a wall that moved in behind it as landed on that wall", () => {
+    const body = restingLiquid(firstPill.target, { span: firstPill.span });
+    expect(impactOn(body, firstPill.target + 5, -1)).toBeNull();
+    expect(impactOn(body, firstPill.target - 5, 1)).toBeNull();
+  });
+
+  it("pours back the other way and lands on the near end of the pill", () => {
+    const first = SEGMENTS[0];
+    const back = record(
+      last(pillPour),
+      {
+        ...POUR_ON,
+        ...restOf(first),
+        from: first.start,
+        to: LAST.end,
+      },
+      1,
+    );
+    const landedAt = firstTime(
+      back,
+      (body) => impactOn(body, first.start, -1) !== null,
+    );
+    expect(landedAt).not.toBeNull();
+    expect(landedAt).toBeLessThan(0.36);
+    expect(impactOn(back[0].body, first.start, -1)).toBeNull();
+  });
+
+  it("is on its way from the first frames, with no dead start", () => {
+    const start = restingLiquid(firstPill.target, { span: firstPill.span });
+    const first = stepLiquid(start, POUR_ON, FRAME);
+    expect(mean(first.vx)).toBeGreaterThan(1);
+    expect(mean(pillPour[2].body.x)).toBeGreaterThan(firstPill.target + 0.15);
+  });
+
+  it("moves a wall in only as the liquid leaves it, never through the liquid", () => {
+    const body = restingLiquid(firstPill.target, {
+      span: firstPill.span,
+      from: 0,
+      to: 20,
+    });
+    const front = Math.max(...body.x);
+    const moved = stepLiquid(
+      body,
+      { ...POUR_ON, ...firstPill, from: 0, to: 0 },
+      FRAME,
+    );
+    expect(moved.to).toBeGreaterThan(0);
+    expect(moved.to).toBeLessThan(20);
+    expect(Math.max(...moved.x)).toBeGreaterThan(front - 0.2);
+  });
+});
+
+/**
+ * A thumb's pour at commit 2f741354, which the user approved: the mean
+ * position, the bead count, `calm` and `set` at fixed frames, for a `md`
+ * Switch, the widest Switch (`sm`, 2.29) and a margin past it, aimed and
+ * not, and for a toggle back in the middle of the pour. The pill's liquid
+ * must not change any of it.
+ */
+const THUMB_POURS = [
+  {
+    travel: 2.2,
+    aim: 0,
+    pour: [
+      [3, 0.15426, -0.00159, 1, 0.0, 0.55],
+      [6, 0.53779, -0.00003, 2, 0.0, 0.1],
+      [9, 1.12901, 0.00144, 4, 0.0, 0.0],
+      [12, 1.88888, 0.00262, 5, 0.0, 0.0],
+      [15, 2.37157, 0.00512, 5, 0.15, 0.15],
+      [18, 2.28749, 0.00085, 5, 0.3, 0.3],
+      [24, 2.10282, 0.0038, 5, 0.6, 0.6],
+      [30, 2.17518, 0.0057, 0, 0.9, 0.9],
+      [40, 2.19133, 0.00465, 0, 1.0, 1.0],
+      [60, 2.19121, 0.00286, 0, 1.0, 1.0],
+    ],
+    back: [
+      [3, 0.15426, -0.00159, 1, 0.0, 0.55],
+      [6, 0.53779, -0.00003, 2, 0.0, 0.1],
+      [9, 1.08952, 0.00144, 4, 0.0, 0.0],
+      [12, 1.3718, 0.00263, 5, 0.0, 0.0],
+      [15, 1.32065, 0.00356, 6, 0.0, 0.0],
+      [18, 0.99385, 0.00426, 7, 0.0, 0.0],
+      [24, -0.07215, 0.00524, 6, 0.1, 0.1],
+      [30, 0.0068, -0.00035, 2, 0.4, 0.4],
+      [40, 0.02038, 0.00257, 0, 0.9, 0.9],
+      [60, 0.00733, 0.00184, 0, 1.0, 1.0],
+    ],
+  },
+  {
+    travel: 2.29,
+    aim: 1,
+    pour: [
+      [3, 0.15438, 0.01143, 1, 0.0, 0.55],
+      [6, 0.53851, 0.04601, 2, 0.0, 0.1],
+      [9, 1.1258, 0.10525, 4, 0.0, 0.0],
+      [12, 1.87458, 0.18051, 5, 0.0, 0.0],
+      [15, 2.40228, 0.1933, 5, 0.15, 0.15],
+      [18, 2.36049, 0.10297, 5, 0.3, 0.3],
+      [24, 2.20687, 0.02873, 5, 0.6, 0.6],
+      [30, 2.26641, 0.02115, 0, 0.9, 0.9],
+      [40, 2.2785, 0.02161, 0, 1.0, 1.0],
+      [60, 2.27783, 0.02336, 0, 1.0, 1.0],
+    ],
+    back: [
+      [3, 0.15438, 0.01143, 1, 0.0, 0.55],
+      [6, 0.53851, 0.04601, 2, 0.0, 0.1],
+      [9, 1.08635, 0.10519, 4, 0.0, 0.0],
+      [12, 1.36018, 0.18097, 4, 0.0, 0.0],
+      [15, 1.30554, 0.26155, 5, 0.0, 0.0],
+      [18, 0.99261, 0.32555, 6, 0.0, 0.0],
+      [24, 0.06131, 0.30731, 6, 0.1, 0.1],
+      [30, 0.02319, 0.11443, 3, 0.4, 0.4],
+      [40, 0.01532, 0.06862, 0, 0.9, 0.9],
+      [60, 0.01393, 0.06767, 0, 1.0, 1.0],
+    ],
+  },
+  {
+    travel: 2.5,
+    aim: -1,
+    pour: [
+      [3, 0.15434, -0.01469, 1, 0.0, 0.55],
+      [6, 0.53861, -0.04671, 2, 0.0, 0.1],
+      [9, 1.12904, -0.10377, 4, 0.0, 0.0],
+      [12, 1.89005, -0.17818, 6, 0.0, 0.0],
+      [15, 2.56356, -0.21357, 6, 0.1, 0.1],
+      [18, 2.60371, -0.12501, 6, 0.25, 0.25],
+      [24, 2.411, -0.02584, 6, 0.55, 0.55],
+      [30, 2.46915, -0.01369, 1, 0.85, 0.85],
+      [40, 2.4901, -0.01515, 0, 1.0, 1.0],
+      [60, 2.48921, -0.0181, 0, 1.0, 1.0],
+    ],
+    back: [
+      [3, 0.15434, -0.01469, 1, 0.0, 0.55],
+      [6, 0.53861, -0.04671, 2, 0.0, 0.1],
+      [9, 1.08945, -0.1037, 4, 0.0, 0.0],
+      [12, 1.36783, -0.1781, 5, 0.0, 0.0],
+      [15, 1.31535, -0.25947, 6, 0.0, 0.0],
+      [18, 1.00403, -0.32323, 7, 0.0, 0.0],
+      [24, 0.06124, -0.30564, 7, 0.1, 0.1],
+      [30, 0.02212, -0.11242, 2, 0.4, 0.4],
+      [40, 0.01476, -0.06655, 0, 0.9, 0.9],
+      [60, 0.01077, -0.06636, 0, 1.0, 1.0],
+    ],
+  },
+] as const;
+
+describe("a thumb's liquid, as the user approved it", () => {
+  it.each(THUMB_POURS)(
+    "pours over a travel of $travel aimed at $aim exactly as before",
+    ({ travel, aim, pour, back }) => {
+      const input: LiquidInput = { ...ON, target: travel, to: travel, aim };
+      for (const [toggleBack, expected] of [
+        [Number.POSITIVE_INFINITY, pour],
+        [8, back],
+      ] as const) {
+        let body = restingLiquid(0);
+        let at = 0;
+        for (const [frame, x, y, beads, calm, set] of expected) {
+          for (; at < frame; at++) {
+            body = stepLiquid(
+              body,
+              at < toggleBack ? input : { ...input, target: 0 },
+              FRAME,
+            );
+          }
+          expect(mean(body.x)).toBeCloseTo(x, 5);
+          expect(mean(body.y)).toBeCloseTo(y, 5);
+          expect(body.beads).toHaveLength(beads);
+          expect(body.calm).toBeCloseTo(calm, 5);
+          expect(body.set).toBeCloseTo(set, 5);
+        }
+      }
+    },
+  );
 });

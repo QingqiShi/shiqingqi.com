@@ -5,7 +5,7 @@ import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { useState, type ReactNode } from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import { t } from "#src/i18n.ts";
 
 /** The movie database's own sort switch: the selected field carries the arrow. */
@@ -86,11 +86,13 @@ export function ViewControl({
   options,
   size,
   fullWidth,
+  effect,
 }: {
   /** Ordered segments, exactly as `SegmentedControl` takes them. */
   options: readonly { value: string; label: ReactNode; icon?: ReactNode }[];
   size?: "sm" | "md";
   fullWidth?: boolean;
+  effect?: ComponentProps<typeof SegmentedControl>["effect"];
 }) {
   const [view, setView] = useState(options[0].value);
 
@@ -102,6 +104,7 @@ export function ViewControl({
       onChange={setView}
       size={size}
       fullWidth={fullWidth}
+      effect={effect}
     />
   );
 }

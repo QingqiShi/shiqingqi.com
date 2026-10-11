@@ -2,9 +2,11 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode, RefObject } from "react";
+import { useMemo, type ReactNode, type RefObject } from "react";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
+import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { scrollbar } from "../primitives/layout.stylex.ts";
 import {
   duration,
@@ -52,6 +54,11 @@ export function Drawer({
   sidebarFooter,
   children,
 }: DrawerProps) {
+  const coverRef = useEffectCover();
+  const railRefs = useMemo(
+    () => mergeRefs(drawerRef, coverRef),
+    [drawerRef, coverRef],
+  );
   return (
     <>
       {/* Backdrop and drawer stay mounted, so the slide/fade transitions in
@@ -65,7 +72,7 @@ export function Drawer({
         />
       ) : null}
       <div
-        ref={drawerRef}
+        ref={railRefs}
         css={[
           styles.rail,
           isOpen && styles.railOpen,

@@ -10,7 +10,8 @@ import type { EffectSettings } from "./types.ts";
  * of the nearest `EffectContainer` above the hook. The ref stays the same
  * when the roles, the settings or the scope change; the registration takes
  * the new values, so the element keeps its id. With `holds`, each element
- * is an Effect container that holds that scope. Outside an
+ * is an Effect container that holds that scope. With `covers`, each element
+ * is an Effect cover. Outside an
  * `EffectLayerProvider` the ref does nothing.
  *
  * @internal
@@ -19,6 +20,7 @@ export function useEffectRegistration(
   roles: number,
   settings: EffectSettings,
   holds: number | null = null,
+  covers = false,
 ) {
   const register = use(EffectLayerContext);
   const scope = use(EffectScopeContext);
@@ -41,6 +43,7 @@ export function useEffectRegistration(
       const registration = register(element, current.roles, current.settings, {
         scope: current.scope,
         holds,
+        covers,
       });
       registrations.add(registration);
       return () => {
@@ -48,6 +51,6 @@ export function useEffectRegistration(
         registration.remove();
       };
     },
-    [register, registrations, holds],
+    [register, registrations, holds, covers],
   );
 }

@@ -19,6 +19,9 @@ const INSTANCE: LiquidInstance = {
   originX: 122,
   originY: 224,
   restX: 48,
+  span: 0,
+  scale: 1,
+  spread: 2,
   centreX: 47,
   centreY: 0.5,
   thumb: [1, 1, 1],
@@ -51,21 +54,33 @@ describe("packLiquidInstances", () => {
       expect.closeTo(0.8),
       1,
     ]);
-    expect([...floats.slice(28, 31)]).toEqual([48, 47, 0.5]);
+    expect([...floats.slice(28, 32)]).toEqual([48, 47, 0.5, 0]);
     expect([...floats.slice(32, 36)]).toEqual([
       expect.closeTo(0.6),
       expect.closeTo(0.4),
       expect.closeTo(0.9),
       0.75,
     ]);
-    expect([...floats.slice(36, 39)]).toEqual([
+    expect([...floats.slice(36, 40)]).toEqual([
       expect.closeTo(0.8),
       expect.closeTo(0.6),
       0.25,
+      2,
     ]);
+    expect([...floats.slice(40, 44)]).toEqual([1, 0, 0, 0]);
 
     const second = LIQUID_INSTANCE_BYTES / 4;
     expect(words[second + 5]).toBe(0);
+  });
+
+  it("packs an indicator's pill and the reach of its particles", () => {
+    const buffer = new ArrayBuffer(LIQUID_INSTANCE_BYTES);
+    packLiquidInstances(
+      [{ ...INSTANCE, span: 20, scale: 1.25, spread: 1 }],
+      buffer,
+    );
+    const floats = new Float32Array(buffer);
+    expect([floats[31], floats[39], floats[40]]).toEqual([20, 1, 1.25]);
   });
 });
 
