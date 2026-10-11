@@ -144,10 +144,11 @@ export const financePasskeyClient = {
     return post("/email", { email, locale });
   },
 
-  /** Opens the verification link with `token`. False when the link is unknown, used or expired, or the email changed after it was sent. */
-  async verifyEmail(token: string): Promise<boolean> {
+  /** Opens the verification link with `token`. False when the link is unknown, used or expired, or the email changed after it was sent. `locale` is for the notice to the Recovery email that this one replaces. */
+  async verifyEmail(token: string, locale: SupportedLocale): Promise<boolean> {
     const { verified } = await post<{ verified: boolean }>("/email/verify", {
       token,
+      locale,
     });
     return verified;
   },

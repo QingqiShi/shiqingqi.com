@@ -87,7 +87,7 @@ export function VerifyEmailPanel({ token }: { token: string }) {
           setBusy(true);
           setError(null);
           financePasskeyClient
-            .verifyEmail(token)
+            .verifyEmail(token, locale)
             .then(setVerified)
             .catch((caught: unknown) => {
               setError(toFinanceApiError(caught));

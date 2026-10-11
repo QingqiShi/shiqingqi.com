@@ -1,0 +1,1 @@
+ALTER TABLE "email_verifications" ADD COLUMN "replaces_email" text;

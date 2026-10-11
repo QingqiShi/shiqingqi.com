@@ -11,6 +11,7 @@ import { and, asc, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { resolveClientIp } from "#src/app/api/pixel-creature-creator/lore/resolve-client-ip.ts";
 import { lookups } from "#src/finance/db/lookups.ts";
+import { householdRepository } from "#src/finance/db/repositories/household-repository.ts";
 import { memberRepository } from "#src/finance/db/repositories/member-repository.ts";
 import { invites, passkeys, sessions, users } from "#src/finance/db/schema.ts";
 import type { FinanceDb } from "#src/finance/db/types.ts";
@@ -19,7 +20,9 @@ import {
   withHousehold,
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
+import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "#src/finance/domain/dates/default-household-time-zone.ts";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import { buildRecoveryEmailChangedEmail } from "../email/build-recovery-email-changed-email.ts";
 import { buildRecoveryEmail } from "../email/build-recovery-email.ts";
 import { buildSignUpEmail } from "../email/build-sign-up-email.ts";
 import { buildVerificationEmail } from "../email/build-verification-email.ts";
@@ -177,6 +180,7 @@ const inviteOptionsBody = z.object({
   email: z.string().max(320).optional(),
 });
 const tokenBody = z.object({ token: z.string().min(1) });
+const verifyEmailBody = tokenBody.extend({ locale: localeSchema });
 const inviteVerifyBody = z.object({
   token: z.string().min(1),
   response: registrationResponseSchema,
@@ -533,6 +537,18 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       email: user?.email ?? null,
       verified: user?.verifiedAt != null,
     };
+  }
+
+  async function householdTimeZone(db: FinanceDb, userId: string) {
+    const membership = (
+      await asFinanceApp(db, (tx) => lookups.membershipsOfUser(tx, userId))
+    ).at(0);
+    const household =
+      membership &&
+      (await withHousehold(db, membership.householdId, (scope) =>
+        householdRepository.find(scope),
+      ));
+    return household?.timezone ?? DEFAULT_HOUSEHOLD_TIME_ZONE;
   }
 
   /** The email that a new-member invite needs. Null for a recovery invite, whose user keeps the email it has. */
@@ -1002,11 +1018,36 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     }),
 
     verifyEmail: handle(async (request, context) => {
-      const { token } = await readBody(request, tokenBody);
-      const verified = await asFinanceApp(context.db, (db) =>
-        verifyRecoveryEmail(db, token, context.now),
+      const { token, locale } = await readBody(request, verifyEmailBody);
+      const { db, now, origin } = context;
+      const verified = await asFinanceApp(db, (tx) =>
+        verifyRecoveryEmail(tx, token, now),
       );
-      return json(context, { verified });
+      const sender = deps.emailSender();
+      const replaced = verified?.replacedEmail;
+      if (verified && replaced && sender) {
+        deps.afterResponse(async () => {
+          try {
+            const timeZone = await householdTimeZone(db, verified.userId);
+            await sender.send(
+              buildRecoveryEmailChangedEmail({
+                to: replaced,
+                locale,
+                newEmail: verified.email,
+                changedAt: now,
+                timeZone,
+                settingsUrl: `${origin}${getLocalePath("/finance/settings/members", locale)}`,
+              }),
+            );
+          } catch (error) {
+            console.error(
+              "Finance recovery email change notice failed:",
+              error,
+            );
+          }
+        });
+      }
+      return json(context, { verified: verified !== null });
     }),
 
     requestRecovery: handle(async (request, context) => {
