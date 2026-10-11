@@ -10,6 +10,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
@@ -36,7 +37,6 @@ import {
   floatingActionTokens,
 } from "../shell/floating-action.stylex.ts";
 import { FloatingActions } from "../shell/floating-actions.tsx";
-import { useToast } from "../shell/toast-provider.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";

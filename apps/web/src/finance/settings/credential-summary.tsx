@@ -3,6 +3,7 @@
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Text } from "@tuja/ui/components/text";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -10,7 +11,6 @@ import { t } from "#src/i18n.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import type { CredentialView } from "../bank/types.ts";
 import { displayMoment } from "../domain/dates/display-moment.ts";
-import { useToast } from "../shell/toast-provider.tsx";
 import { CredentialForm } from "./credential-form.tsx";
 
 interface CredentialSummaryProps {

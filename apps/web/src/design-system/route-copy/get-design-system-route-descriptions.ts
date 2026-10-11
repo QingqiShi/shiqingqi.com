@@ -139,6 +139,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "Placeholder shapes that hold space while content loads.",
       zh: "在内容加载时占位的骨架形状。",
     }),
+    "/design-system/components/toast": t({
+      en: "A short message on Glass about what an action did, with an optional Undo.",
+      zh: "玻璃质感上的一条短消息，告知某个操作的结果，可附带撤销。",
+    }),
     "/design-system/components/divider": t({
       en: "Horizontal, vertical, and decorative separators.",
       zh: "水平、垂直与装饰性分隔线。",

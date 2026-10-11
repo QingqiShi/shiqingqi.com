@@ -103,6 +103,7 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
     "/design-system/components/spinner": t({ en: "Spinner", zh: "加载指示器" }),
     "/design-system/components/progress": t({ en: "Progress", zh: "进度条" }),
     "/design-system/components/skeleton": t({ en: "Skeleton", zh: "骨架屏" }),
+    "/design-system/components/toast": t({ en: "Toast", zh: "轻提示" }),
     "/design-system/components/card": t({ en: "Card", zh: "卡片" }),
     "/design-system/components/section": t({ en: "Section", zh: "区块" }),
     "/design-system/components/disclosure": t({

@@ -1,5 +1,12 @@
 import { GPU_SHADER_STAGE, PREMULTIPLIED_BLEND } from "./constants.ts";
+import { createBinding } from "./create-binding.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
+import {
+  createRingLightRenderer,
+  type RingLightDraw,
+  ringLightBox,
+  ringLightPaint,
+} from "./create-ring-light-renderer.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
   EFFECT_SETTING_DEFAULTS,
@@ -10,9 +17,9 @@ import {
   frostOpacity,
   glowColors,
   restingGlow,
-  ringLightColors,
 } from "./glow-colors.ts";
 import { instanceRange } from "./instance-range.ts";
+import { lastResultOf } from "./last-result-of.ts";
 import { LIQUID_INDICATOR } from "./liquid-indicator.ts";
 import {
   LIQUID_INSTANCE_BYTES,
@@ -37,13 +44,7 @@ import {
   type RingLight,
   type RingLightBox,
 } from "./ring-light-at.ts";
-import {
-  packRingLightInstances,
-  RING_LIGHT_LOOK,
-  RING_LIGHT_INSTANCE_BYTES,
-  RING_LIGHT_WGSL,
-  type RingLightInstance,
-} from "./ring-light-wgsl.ts";
+import type { RingLightInstance } from "./ring-light-wgsl.ts";
 import { isLightBackdrop } from "./ripple-color.ts";
 import {
   beadRadius,
@@ -222,13 +223,7 @@ function readThumb(record: EffectElementRecord): LiquidControl | null {
     rings: [
       null,
       {
-        box: {
-          x: record.x,
-          y: record.y,
-          width: record.width,
-          height: record.height,
-          radius: Math.min(...record.radii),
-        },
+        box: ringLightBox(record),
         cornerExponent: record.cornerExponent,
         color: fill,
       },
@@ -323,19 +318,6 @@ const rgb = (color: EffectColor) => [color[0], color[1], color[2]] as const;
 const dim = (color: readonly [number, number, number], light: number) =>
   [color[0] * light, color[1] * light, color[2] * light] as const;
 
-/** Keeps the last result, and computes again only for different arguments. */
-function lastResultOf<Args extends readonly unknown[], Result>(
-  compute: (...args: Args) => Result,
-) {
-  let last: { args: Args; result: Result } | null = null;
-  return (...args: Args) => {
-    if (last === null || args.some((arg, index) => arg !== last?.args[index])) {
-      last = { args, result: compute(...args) };
-    }
-    return last.result;
-  };
-}
-
 /**
  * The colours of one control, which change only when its fills, its frost
  * or its backdrop do.
@@ -380,20 +362,7 @@ function createLiquidColors() {
         };
       },
     ),
-    ring: lastResultOf((fill: EffectColor, backdrop: EffectColor) => {
-      const { core, tint, bloom } = ringLightColors(fill, backdrop);
-      const look = isLightBackdrop(backdrop)
-        ? RING_LIGHT_LOOK.light
-        : RING_LIGHT_LOOK.dark;
-      return {
-        core,
-        tint,
-        bloom: [bloom[0], bloom[1], bloom[2], look.bloom] as const,
-        alpha: Math.sqrt(fill[3]),
-        inset: look.inset,
-        pageTint: look.pageTint,
-      };
-    }),
+    ring: lastResultOf(ringLightPaint),
   };
 }
 
@@ -670,33 +639,6 @@ export function layoutLiquid(
   };
 }
 
-/** The bind group of `buffers`, made again when one of them is replaced. */
-function createBinding(
-  device: GPUDevice,
-  layout: GPUBindGroupLayout,
-  buffers: readonly { readonly buffer: GPUBuffer }[],
-) {
-  let bound: readonly GPUBuffer[] = [];
-  let bindGroup: GPUBindGroup | null = null;
-  return () => {
-    const current = buffers.map(({ buffer }) => buffer);
-    if (
-      bindGroup === null ||
-      current.some((buffer, index) => buffer !== bound[index])
-    ) {
-      bound = current;
-      bindGroup = device.createBindGroup({
-        layout,
-        entries: current.map((buffer, binding) => ({
-          binding,
-          resource: { buffer },
-        })),
-      });
-    }
-    return bindGroup;
-  };
-}
-
 /**
  * Liquid: draws the thumb of each Switch with the role as a body of liquid
  * on the track, in the colour and at the size of the thumb the Switch draws
@@ -709,7 +651,8 @@ function createBinding(
  * @internal
  */
 export const liquidEffect: Effect = {
-  async setup({ device, format, pageLayout, targetLayout, requestFrame }) {
+  async setup(setup) {
+    const { device, format, pageLayout, targetLayout } = setup;
     const liquidLayout = device.createBindGroupLayout({
       entries: [0, 1, 2].map((binding) => ({
         binding,
@@ -717,41 +660,10 @@ export const liquidEffect: Effect = {
         buffer: { type: "read-only-storage" as const },
       })),
     });
-    const ringLayout = device.createBindGroupLayout({
-      entries: [
-        {
-          binding: 0,
-          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
-          buffer: { type: "read-only-storage" },
-        },
-      ],
-    });
     const liquidModule = device.createShaderModule({ code: LIQUID_WGSL });
-    const ringModule = device.createShaderModule({ code: RING_LIGHT_WGSL });
     // A ring starts only after a toggle lands, so the liquid does not wait
     // for the ring's pipeline, and a ring has no draw until it is ready.
-    let ringPipeline: GPURenderPipeline | null = null;
-    device
-      .createRenderPipelineAsync({
-        layout: device.createPipelineLayout({
-          bindGroupLayouts: [pageLayout, targetLayout, ringLayout],
-        }),
-        vertex: { module: ringModule, entryPoint: "ringLightVertex" },
-        fragment: {
-          module: ringModule,
-          entryPoint: "ringLightFragment",
-          targets: [{ format, blend: PREMULTIPLIED_BLEND }],
-        },
-        primitive: { topology: "triangle-strip" },
-      })
-      .then(
-        (pipeline) => {
-          ringPipeline = pipeline;
-        },
-        (error: unknown) => {
-          reportError(error);
-        },
-      );
+    const ringRenderer = createRingLightRenderer(setup);
     const liquidPipeline = await device.createRenderPipelineAsync({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [pageLayout, targetLayout, liquidLayout],
@@ -776,54 +688,25 @@ export const liquidEffect: Effect = {
       packLiquidParticles,
     );
     const beadBuffer = createPackedBuffer(device, BEAD_BYTES, packLiquidBeads);
-    const ringBuffer = createPackedBuffer(
-      device,
-      RING_LIGHT_INSTANCE_BYTES,
-      packRingLightInstances,
-    );
     const liquidBinding = createBinding(device, liquidLayout, [
       instanceBuffer,
       particleBuffer,
       beadBuffer,
     ]);
-    const ringBinding = createBinding(device, ringLayout, [ringBuffer]);
 
     const states = new Map<number, LiquidState>();
     const drawn = new Set<Element>();
     let instances: readonly LiquidInstance[] = [];
-    let rings: readonly RingLightInstance[] = [];
-    let endTimer: ReturnType<typeof setTimeout> | undefined;
-    let scheduledEnd: number | null = null;
-
-    // Under reduced motion no frame follows on its own, so the frame that
-    // takes a still glow away is asked for when it is due.
-    function scheduleEnd(nextEnd: number | null, time: number) {
-      if (nextEnd === scheduledEnd) {
-        return;
-      }
-      clearTimeout(endTimer);
-      scheduledEnd = nextEnd;
-      if (nextEnd !== null) {
-        endTimer = setTimeout(
-          () => {
-            scheduledEnd = null;
-            requestFrame();
-          },
-          Math.max(0, (nextEnd - time) * 1000) + 16,
-        );
-      }
-    }
 
     return {
       update(_encoder, frame) {
         const nextInstances: LiquidInstance[] = [];
-        const nextRings: RingLightInstance[] = [];
+        const nextRings: RingLightDraw[] = [];
         const particles: LiquidParticle[] = [];
         const beads: LiquidBeadInstance[] = [];
         const seen = new Set<Element>();
         const kept = new Set<number>();
         let animating = false;
-        let nextEnd: number | null = null;
         for (const [index, record] of frame.elements.entries()) {
           if ((record.roles & LIQUID) === 0) {
             continue;
@@ -861,11 +744,12 @@ export const liquidEffect: Effect = {
             continue;
           }
           animating = true;
-          if (frame.reducedMotion) {
-            const end = ringLightEnd(ring, true);
-            nextEnd = nextEnd === null ? end : Math.min(nextEnd, end);
-          }
-          nextRings.push({ elementIndex: index, state: ringState, ...look });
+          nextRings.push({
+            elementIndex: index,
+            state: ringState,
+            end: ringLightEnd(ring, frame.reducedMotion),
+            ...look,
+          });
         }
         for (const id of states.keys()) {
           if (!kept.has(id)) {
@@ -878,13 +762,11 @@ export const liquidEffect: Effect = {
             markEffectDrawn(element, false);
           }
         }
-        scheduleEnd(nextEnd, frame.time);
         instances = nextInstances;
-        rings = nextRings;
         instanceBuffer.write(nextInstances);
         particleBuffer.write(particles);
         beadBuffer.write(beads);
-        ringBuffer.write(nextRings);
+        ringRenderer.update(nextRings, frame);
         for (const element of seen) {
           if (!drawn.has(element)) {
             drawn.add(element);
@@ -904,19 +786,10 @@ export const liquidEffect: Effect = {
           pass.setBindGroup(2, liquidBinding());
           pass.draw(4, count, 0, first);
         }
-        const [firstRing, ringCount] = instanceRange(
-          rings,
-          target.firstElement,
-          target.elementCount,
-        );
-        if (ringPipeline !== null && ringCount > 0) {
-          pass.setPipeline(ringPipeline);
-          pass.setBindGroup(2, ringBinding());
-          pass.draw(4, ringCount, 0, firstRing);
-        }
+        ringRenderer.draw(pass, target);
       },
       destroy() {
-        clearTimeout(endTimer);
+        ringRenderer.destroy();
         for (const element of drawn) {
           markEffectDrawn(element, false);
         }
@@ -924,7 +797,6 @@ export const liquidEffect: Effect = {
         instanceBuffer.destroy();
         particleBuffer.destroy();
         beadBuffer.destroy();
-        ringBuffer.destroy();
       },
     };
   },

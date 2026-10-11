@@ -64,6 +64,7 @@
     "./hooks/use-press-animation": "./src/hooks/use-press-animation.ts",
     "./hooks/use-press-handlers": "./src/hooks/use-press-handlers.ts",
     "./hooks/use-radio-group": "./src/hooks/use-radio-group.ts",
+    "./hooks/use-ring-light": "./src/effect-layer/use-ring-light.ts",
     "./hooks/use-ripple": "./src/effect-layer/use-ripple.ts",
     "./hooks/use-scroll-mask": "./src/hooks/use-scroll-mask.ts",
     "./utils/contrast-ratio": "./src/contrast/contrast-ratio.ts",
@@ -152,7 +153,10 @@
     "./components/table.stylex": "./src/data-display/table.stylex.ts",
     "./components/text": "./src/content/text.tsx",
     "./components/text-field": "./src/forms/text-field.tsx",
-    "./components/textarea": "./src/forms/textarea.tsx"
+    "./components/textarea": "./src/forms/textarea.tsx",
+    "./components/toast": "./src/feedback/toast.tsx",
+    "./components/toast-provider": "./src/feedback/toast-provider.tsx",
+    "./components/toast.stylex": "./src/feedback/toast.stylex.ts"
   },
   "scripts": {
     "build:tsc": "tsc --noEmit",

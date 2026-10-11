@@ -6,6 +6,7 @@ import { EffectContainerShowcase } from "#src/design-system/sections/effect-laye
 import { EffectLayerRipple } from "#src/design-system/sections/effect-layer/effect-layer-ripple.tsx";
 import { EffectLayerShowcase } from "#src/design-system/sections/effect-layer/effect-layer-showcase.tsx";
 import { EffectLayerTestBenches } from "#src/design-system/sections/effect-layer/effect-layer-test-benches.tsx";
+import { RingLightShowcase } from "#src/design-system/sections/effect-layer/ring-light-showcase.tsx";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -36,6 +37,7 @@ export default function EffectLayerPage() {
       <EffectLayerRipple />
       <DustShowcase />
       <BlackHoleShowcase />
+      <RingLightShowcase />
       <EffectContainerShowcase />
       <EffectLayerTestBenches />
     </DocPage>

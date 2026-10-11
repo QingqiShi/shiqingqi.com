@@ -1,9 +1,9 @@
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { t } from "#src/i18n.ts";
 import { applyWithUndo } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import type { Mutation } from "../sync/mutation-schema.ts";
-import { useToast } from "./toast-provider.tsx";
 
 export interface UndoableToast {
   /** What happened, such as "4 balances updated". */

@@ -2,6 +2,7 @@
 
 import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
 import { Button } from "@tuja/ui/components/button";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -9,7 +10,6 @@ import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import { financeSignInPath } from "../auth/finance-sign-in-path.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { clearHouseholdFromDevice } from "./clear-household-from-device.ts";
-import { useToast } from "./toast-provider.tsx";
 
 const CLEAR_FAILED_TOAST_MS = 60_000;
 

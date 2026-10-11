@@ -3,12 +3,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { TextField } from "@tuja/ui/components/text-field";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState, type SubmitEvent } from "react";
 import { t } from "#src/i18n.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
-import { useToast } from "../shell/toast-provider.tsx";
 
 interface CredentialFormProps {
   /** Replacing a key the Connection already has, rather than connecting. */

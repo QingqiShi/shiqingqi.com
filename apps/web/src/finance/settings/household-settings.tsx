@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useDeferredValue, useState, type SubmitEvent } from "react";
 import { t } from "#src/i18n.ts";
@@ -11,7 +12,6 @@ import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "../domain/dates/default-household-t
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { useToast } from "../shell/toast-provider.tsx";
 import { householdApiClient } from "./household-api-client.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
 import { supportedTimeZones } from "./supported-time-zones.ts";

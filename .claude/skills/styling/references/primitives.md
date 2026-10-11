@@ -329,6 +329,7 @@ For building custom transitions:
 - `duration` — `{ _75, _100, _150, _200, _300, _400, _500, _700, _800, _1000, _1400, _1600, _2000 }` (ms strings)
 - `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, entrance, spring, springFallback, pulse }`
 - `motionConstants.REDUCED_MOTION` — media query string (defined via `stylex.defineConsts`, works cross-module as computed keys in `stylex.create`)
+- `motionKeyframes` — `{ fadeIn, fadeOut }`, the keyframes of `animate.fadeIn`/`fadeOut`, for an `animationName` that changes with a condition such as reduced motion
 
 ### Custom Transition Example
 

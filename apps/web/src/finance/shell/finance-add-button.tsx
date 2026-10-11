@@ -3,6 +3,7 @@
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { layer } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -33,7 +34,7 @@ export function FinanceAddButton() {
         look="primary"
         size="lg"
         icon={<PlusIcon weight="bold" />}
-        css={floatingAction.lift}
+        css={[floatingAction.lift, styles.button]}
       >
         {t({ en: "Add", zh: "记一笔" })}
       </AnchorButton>
@@ -48,5 +49,8 @@ const styles = stylex.create({
     insetBlockEnd: floatingActionTokens.insetBlockEnd,
     insetInlineEnd: pageGutter.inlineEnd,
     zIndex: layer.header,
+  },
+  button: {
+    [buttonTokens.height]: floatingActionTokens.blockSize,
   },
 });
