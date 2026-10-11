@@ -569,7 +569,10 @@ export const connections = pgTable("connections", {
   householdId: householdId(),
   provider: text("provider").notNull().default("lunchflow"),
   label: text("label").notNull(),
-  secretEnv: text("secret_env").notNull().default("LUNCH_FLOW_API_KEY"),
+  /** The provider API key, sealed with `FINANCE_CREDENTIAL_KEY`; null when the owner has not set one. */
+  credential: bytea("credential"),
+  credentialLastFour: text("credential_last_four"),
+  credentialSavedAt: timestamp("credential_saved_at", { withTimezone: true }),
   status: text("status").notNull().default("active"),
   version: version(),
   createdAt: createdAt(),

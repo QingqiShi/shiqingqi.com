@@ -7,15 +7,18 @@ export function buildLocalFinanceEnv({
   databasePort,
   authSecret,
   setupSecret,
+  credentialKey,
 }: {
   databasePort: number;
   authSecret: string;
   setupSecret: string;
+  credentialKey: string;
 }) {
   return {
     FINANCE_DATABASE_URL: localFinanceDatabaseUrl(databasePort),
     FINANCE_AUTH_SECRET: authSecret,
     FINANCE_SETUP_SECRET: setupSecret,
+    FINANCE_CREDENTIAL_KEY: credentialKey,
     FINANCE_LUNCHFLOW_MODE: "fake",
     FINANCE_RATE_LIMIT: "off",
   };

@@ -14,6 +14,7 @@ export function getLocalFinanceDefaults(
     databasePort,
     authSecret: "local-finance-auth-secret",
     setupSecret: "local-finance-setup-secret",
+    credentialKey: "bG9jYWwtZmluYW5jZS1jcmVkZW50aWFsLWtleS0zMmI=",
   });
   return Object.fromEntries(
     Object.entries(defaults).filter(([name]) => env[name] === undefined),

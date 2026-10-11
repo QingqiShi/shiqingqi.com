@@ -8,6 +8,7 @@ describe("getLocalFinanceDefaults", () => {
         "postgres://postgres:postgres@127.0.0.1:5433/postgres",
       FINANCE_AUTH_SECRET: "local-finance-auth-secret",
       FINANCE_SETUP_SECRET: "local-finance-setup-secret",
+      FINANCE_CREDENTIAL_KEY: "bG9jYWwtZmluYW5jZS1jcmVkZW50aWFsLWtleS0zMmI=",
       FINANCE_LUNCHFLOW_MODE: "fake",
       FINANCE_RATE_LIMIT: "off",
     });

@@ -9,8 +9,8 @@ export function useBankErrorMessage(): (code: string | null) => string | null {
       zh: "银行连接已过期。请在 Lunch Flow 重新连接。",
     }),
     auth: t({
-      en: "Lunch Flow refused the API key. Check LUNCH_FLOW_API_KEY.",
-      zh: "Lunch Flow 拒绝了 API 密钥。请检查 LUNCH_FLOW_API_KEY。",
+      en: "Lunch Flow refused the API key. The owner can replace it in Connections.",
+      zh: "Lunch Flow 拒绝了 API 密钥。所有者可在“银行连接”中更换。",
     }),
     not_found: t({
       en: "Lunch Flow no longer has this bank account. Link another one.",

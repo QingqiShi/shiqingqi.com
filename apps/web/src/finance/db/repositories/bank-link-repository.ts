@@ -11,6 +11,14 @@ type BankLinkPatch = Partial<Omit<NewBankLink, "id">>;
 
 const now = sql`now()`;
 
+function lunchFlowConnectionOf(householdId: string) {
+  return and(
+    eq(connections.householdId, householdId),
+    eq(connections.provider, "lunchflow"),
+    isNull(connections.deletedAt),
+  );
+}
+
 export const bankLinkRepository = {
   /** The Household's live Bank links. */
   async listLive(scope: RepositoryScope) {
@@ -105,13 +113,7 @@ export const bankLinkRepository = {
     const rows = await scope.db
       .select({ id: connections.id })
       .from(connections)
-      .where(
-        and(
-          eq(connections.householdId, scope.householdId),
-          eq(connections.provider, "lunchflow"),
-          isNull(connections.deletedAt),
-        ),
-      );
+      .where(lunchFlowConnectionOf(scope.householdId));
     const existing = rows.at(0);
     if (existing) return existing.id;
     await scope.db.insert(connections).values({
@@ -124,17 +126,71 @@ export const bankLinkRepository = {
     return id;
   },
 
-  async findConnectionId(scope: RepositoryScope) {
+  /** The sealed credential of the Household's Lunch Flow Connection, when the owner has set one. */
+  async findCredential(scope: RepositoryScope) {
     const rows = await scope.db
-      .select({ id: connections.id })
+      .select({
+        sealed: connections.credential,
+        lastFour: connections.credentialLastFour,
+        savedAt: connections.credentialSavedAt,
+      })
       .from(connections)
+      .where(lunchFlowConnectionOf(scope.householdId));
+    const row = rows.at(0);
+    if (!row?.sealed || row.lastFour === null || row.savedAt === null) {
+      return undefined;
+    }
+    return { sealed: row.sealed, lastFour: row.lastFour, savedAt: row.savedAt };
+  },
+
+  /** Stores the credential on the Household's Lunch Flow Connection, which it creates on first use. */
+  async saveCredential(
+    scope: WriteScope,
+    id: string,
+    credential: { sealed: Uint8Array; lastFour: string; savedAt: Date },
+  ) {
+    const connectionId = await bankLinkRepository.ensureConnection(scope, id);
+    await scope.db
+      .update(connections)
+      .set({
+        credential: credential.sealed,
+        credentialLastFour: credential.lastFour,
+        credentialSavedAt: credential.savedAt,
+        version: scope.version,
+        updatedAt: now,
+      })
+      .where(
+        and(
+          eq(connections.householdId, scope.householdId),
+          eq(connections.id, connectionId),
+        ),
+      );
+  },
+
+  /** Clears the credential; the Connection and its Bank links stay. */
+  async clearCredential(scope: WriteScope) {
+    await scope.db
+      .update(connections)
+      .set({
+        credential: null,
+        credentialLastFour: null,
+        credentialSavedAt: null,
+        version: scope.version,
+        updatedAt: now,
+      })
       .where(
         and(
           eq(connections.householdId, scope.householdId),
           eq(connections.provider, "lunchflow"),
-          isNull(connections.deletedAt),
         ),
       );
+  },
+
+  async findConnectionId(scope: RepositoryScope) {
+    const rows = await scope.db
+      .select({ id: connections.id })
+      .from(connections)
+      .where(lunchFlowConnectionOf(scope.householdId));
     return rows.at(0)?.id;
   },
 };

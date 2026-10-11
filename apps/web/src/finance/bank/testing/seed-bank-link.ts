@@ -1,7 +1,10 @@
+import { bankLinkRepository } from "../../db/repositories/bank-link-repository.ts";
 import { bankLinks, categories, connections } from "../../db/schema.ts";
 import type { SeededHousehold } from "../../db/testing/seed-test-household.ts";
 import type { FinanceDb } from "../../db/types.ts";
 import { nameBasedUuid } from "../../ids/name-based-uuid.ts";
+import { runServerWrite } from "../../sync/run-server-write.ts";
+import { credentialCipher } from "../credential-cipher.ts";
 
 /** Adds the system "Uncategorised" pair that `createHousehold` makes and the test seed does not. */
 export async function seedUncategorised(db: FinanceDb, home: SeededHousehold) {
@@ -62,4 +65,24 @@ export async function seedBankLink(
     version: 0,
   });
   return id;
+}
+
+/** Stores `apiKey`, sealed with `key`, on the Household's Lunch Flow Connection. */
+export async function seedCredential(
+  db: FinanceDb,
+  home: SeededHousehold,
+  apiKey: string,
+  key: Uint8Array,
+) {
+  await runServerWrite(db, home.householdId, new Date(), (context) =>
+    bankLinkRepository.saveCredential(
+      context.scope,
+      nameBasedUuid(`test:${home.householdId}:connection`),
+      {
+        sealed: credentialCipher.seal(apiKey, key, home.householdId),
+        lastFour: apiKey.slice(-4),
+        savedAt: new Date(),
+      },
+    ),
+  );
 }

@@ -2,6 +2,7 @@ import type { LabelInput, Suggestion } from "../ai/types.ts";
 import { financeFetch } from "../http/finance-fetch.ts";
 import type {
   BankLinkView,
+  CredentialView,
   ProviderAccountsResponse,
   PutBankLinkRequest,
   ResolveBalanceRequest,
@@ -18,6 +19,19 @@ export const bankApiClient = {
   /** The provider accounts with their link state, or `not_connected`. */
   listProviderAccounts() {
     return sendJson<ProviderAccountsResponse>("/api/finance/bank/accounts");
+  },
+
+  /** Stores the owner's Lunch Flow API key; throws `FinanceApiError` `auth` when Lunch Flow refuses it. */
+  putCredential(apiKey: string) {
+    return sendJson<CredentialView>("/api/finance/bank/credential", {
+      method: "PUT",
+      body: JSON.stringify({ apiKey }),
+    });
+  },
+
+  /** Forgets the API key; the Bank links stay. */
+  async removeCredential() {
+    await financeFetch("/api/finance/bank/credential", { method: "DELETE" });
   },
 
   /** Binds a cash or credit account to a provider account; binding again updates the link. */

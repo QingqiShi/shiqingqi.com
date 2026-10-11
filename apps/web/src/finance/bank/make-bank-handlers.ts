@@ -18,12 +18,14 @@ import type { LimitFinanceRequest } from "../http/types.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { accountMutations } from "../sync/account-mutations.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
+import { credentialCipher } from "./credential-cipher.ts";
 import { BankError } from "./lunchflow/bank-error.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import type {
   BankApiErrorCode,
   BankConnection,
   BankLinkView,
+  CredentialView,
   ProviderAccountsResponse,
   SyncNowResponse,
 } from "./types.ts";
@@ -33,6 +35,10 @@ export interface BankHandlerDependencies {
   getDb: () => FinanceDb;
   getSession: (request: Request) => Promise<FinanceSession | null>;
   getBankClient: (scope: RepositoryScope, now: Date) => Promise<BankConnection>;
+  /** Throws the provider's `BankError` when it refuses `apiKey`. */
+  verifyApiKey: (apiKey: string) => Promise<void>;
+  /** The key that seals each Connection's credential, or null when it is not set. */
+  credentialKey: () => Uint8Array | null;
   getModel: () => LanguageModel | null;
   now: () => Date;
   limitRequest?: LimitFinanceRequest;
@@ -54,6 +60,9 @@ const putLinkSchema = z.object({
   accountId: z.uuid(),
   providerAccountId: z.string().trim().min(1).max(200),
   signMultiplier: z.union([z.literal(1), z.literal(-1)]).default(1),
+});
+const putCredentialSchema = z.object({
+  apiKey: z.string().trim().min(8).max(500),
 });
 const removeLinkSchema = z.object({ linkId: z.uuid() });
 const resolveBalanceSchema = z.object({
@@ -117,6 +126,10 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
     };
   }
 
+  function lunchFlowConnectionId(scope: RepositoryScope) {
+    return nameBasedUuid(`connection:${scope.householdId}:lunchflow`);
+  }
+
   async function connectedClient(scope: RepositoryScope, now: Date) {
     const connection = await dependencies.getBankClient(scope, now);
     if (connection.status !== "connected") {
@@ -152,6 +165,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
         return financeJson({
           status: "connected",
           mode: connection.mode,
+          credential: connection.credential,
           accounts: accounts.map((account) => {
             const link = linkOf.get(account.id);
             return {
@@ -168,6 +182,63 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
         } satisfies ProviderAccountsResponse);
       },
       { write: false },
+    ),
+
+    /**
+     * `PUT /api/finance/bank/credential`: stores the Lunch Flow API key on the
+     * Household's Connection, sealed, after Lunch Flow takes it. 422 `auth`
+     * when Lunch Flow refuses it. The key never comes back.
+     */
+    putCredential: guarded(
+      async (request, _session, scope) => {
+        const input = await readFinanceBody(request, putCredentialSchema);
+        if (input instanceof Response) return input;
+        const key = dependencies.credentialKey();
+        if (!key) throw new BankRequestError("not-configured", 503);
+        try {
+          await dependencies.verifyApiKey(input.apiKey);
+        } catch (error) {
+          if (error instanceof BankError && error.kind === "auth") {
+            throw new BankRequestError("auth", 422);
+          }
+          throw error;
+        }
+        const now = dependencies.now();
+        const credential = {
+          sealed: credentialCipher.seal(input.apiKey, key, scope.householdId),
+          lastFour: input.apiKey.slice(-4),
+          savedAt: now,
+        };
+        await runServerWrite(scope.db, scope.householdId, now, (context) =>
+          bankLinkRepository.saveCredential(
+            context.scope,
+            lunchFlowConnectionId(scope),
+            credential,
+          ),
+        );
+        return financeJson({
+          lastFour: credential.lastFour,
+          savedAt: now.toISOString(),
+        } satisfies CredentialView);
+      },
+      { write: true, owner: true },
+    ),
+
+    /** `DELETE /api/finance/bank/credential`: forgets the API key; the Bank links stay and sync stops. */
+    removeCredential: guarded(
+      async (_request, _session, scope) => {
+        await runServerWrite(
+          scope.db,
+          scope.householdId,
+          dependencies.now(),
+          (context) => bankLinkRepository.clearCredential(context.scope),
+        );
+        return new Response(null, {
+          status: 204,
+          headers: { "Cache-Control": FINANCE_NO_STORE },
+        });
+      },
+      { write: true, owner: true },
     ),
 
     /** `PUT /api/finance/bank/links`: binds a cash or credit account to a provider account. */
@@ -204,7 +275,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
             }
             const connectionId = await bankLinkRepository.ensureConnection(
               write,
-              nameBasedUuid(`connection:${scope.householdId}:lunchflow`),
+              lunchFlowConnectionId(scope),
             );
             const holder = await bankLinkRepository.findByProviderAccount(
               write,
@@ -336,6 +407,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
       },
       {
         write: true,
+        owner: true,
         rateLimit: { bucket: "bank-sync", per: "household" },
       },
     ),
