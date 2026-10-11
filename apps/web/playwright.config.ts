@@ -171,7 +171,7 @@ export default defineConfig({
         NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder",
         NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
         // Read at runtime, so the prebuilt CI artifact picks them up too. A
-        // reused dev server does not get them; the Finance specs then skip.
+        // reused dev server does not get them; the Finance specs then fail.
         ...financeE2eEnv,
       },
       reuseExistingServer: !process.env.CI,

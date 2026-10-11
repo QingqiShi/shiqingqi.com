@@ -1,10 +1,6 @@
-import path from "node:path";
 import { parseArgs } from "node:util";
-import { PGlite } from "@electric-sql/pglite";
-import { drizzle } from "drizzle-orm/pglite";
-import { migrate } from "drizzle-orm/pglite/migrator";
-import { FINANCE_MIGRATIONS_FOLDER } from "../finance-migrations-folder.ts";
-import { servePglite } from "./serve-pglite.ts";
+import { localFinanceDatabaseUrl } from "../../dev/build-local-finance-env.ts";
+import { DEV_DB_DIR, startDevDb } from "./start-dev-db.ts";
 
 async function serveDevDb() {
   const { values } = parseArgs({
@@ -15,25 +11,14 @@ async function serveDevDb() {
   });
 
   const port = Number(values.port);
-  const dataDir = values.memory
-    ? undefined
-    : path.resolve(import.meta.dirname, "../../../../.finance-db");
-
-  const client = await PGlite.create(dataDir);
-  await migrate(drizzle({ client }), {
-    migrationsFolder: FINANCE_MIGRATIONS_FOLDER,
-  });
-
-  const server = await servePglite(client, { host: "127.0.0.1", port });
+  const dataDir = values.memory ? undefined : DEV_DB_DIR;
+  const db = await startDevDb({ port, dataDir });
 
   console.log(`Finance dev database: ${dataDir ?? "in memory"}`);
-  console.log(
-    `FINANCE_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:${String(port)}/postgres`,
-  );
+  console.log(`FINANCE_DATABASE_URL=${localFinanceDatabaseUrl(port)}`);
 
   async function stop() {
-    await server.close();
-    await client.close();
+    await db.close();
     process.exit(0);
   }
 

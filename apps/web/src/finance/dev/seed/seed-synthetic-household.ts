@@ -28,7 +28,13 @@ const INSERT_CHUNK = 500;
 /** `createHousehold` starts the clock at 1, so the seed is the first write after it. */
 const SEED_VERSION = 2;
 
-interface SyntheticHouseholdOptions {
+export const SYNTHETIC_HOUSEHOLD_DEFAULTS = {
+  years: 3,
+  transactionsPerYear: 2000,
+  seed: 1,
+};
+
+export interface SyntheticHouseholdOptions {
   /** Years of history before `today`. */
   years?: number;
   /** Transactions in each year, rules and transfers included. */
@@ -72,9 +78,9 @@ async function insertRows<T extends PgTable>(
 export async function seedSyntheticHousehold(
   db: FinanceDb,
   {
-    years = 3,
-    transactionsPerYear = 2000,
-    seed = 1,
+    years = SYNTHETIC_HOUSEHOLD_DEFAULTS.years,
+    transactionsPerYear = SYNTHETIC_HOUSEHOLD_DEFAULTS.transactionsPerYear,
+    seed = SYNTHETIC_HOUSEHOLD_DEFAULTS.seed,
     today = todayInTimeZone(DEFAULT_HOUSEHOLD_TIME_ZONE),
   }: SyntheticHouseholdOptions = {},
 ): Promise<SyntheticHousehold> {

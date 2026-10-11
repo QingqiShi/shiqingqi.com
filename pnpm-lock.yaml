@@ -27,6 +27,9 @@ catalogs:
     '@babel/types':
       specifier: 8.0.6
       version: 8.0.6
+    '@next/env':
+      specifier: 16.4.0
+      version: 16.4.0
     '@phosphor-icons/react':
       specifier: ^2.1.10
       version: 2.1.10
@@ -381,6 +384,9 @@ importers:
       '@electric-sql/pglite':
         specifier: 0.5.8
         version: 0.5.8
+      '@next/env':
+        specifier: 'catalog:'
+        version: 16.4.0
       '@playwright/test':
         specifier: ^1.63.0
         version: 1.63.0
@@ -483,6 +489,9 @@ importers:
       openapi-typescript:
         specifier: ^7.13.0
         version: 7.13.0(@typescript/typescript6@6.0.2)
+      pg-connection-string:
+        specifier: ^2.14.1
+        version: 2.14.1
       postcss-flexbugs-fixes:
         specifier: ^5.0.2
         version: 5.0.2(postcss@8.5.28)
