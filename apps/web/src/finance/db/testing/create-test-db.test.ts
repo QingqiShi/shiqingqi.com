@@ -32,7 +32,7 @@ describe("createTestDb", () => {
       sql`information_schema.tables`,
       sql`table_schema = 'public'`,
     );
-    expect(tableCount).toBe(26);
+    expect(tableCount).toBe(28);
   });
 
   it("round-trips a household, an account and a transaction", async () => {

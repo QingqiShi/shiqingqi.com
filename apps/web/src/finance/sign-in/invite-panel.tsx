@@ -12,7 +12,10 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
+import {
+  toFinanceApiError,
+  type FinanceApiError,
+} from "../http/finance-api-error.ts";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
 interface InvitePanelProps {
@@ -36,7 +39,7 @@ export function InvitePanel({
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FinanceApiError | null>(null);
   const invitedFor = t({ en: "This invite is for", zh: "此邀请的受邀成员：" });
 
   return (
@@ -82,11 +85,8 @@ export function InvitePanel({
               window.location.assign(getLocalePath("/finance", locale));
             })
             .catch((caught: unknown) => {
-              const code =
-                caught instanceof FinanceApiError
-                  ? caught.code
-                  : "request_failed";
-              if (code !== "cancelled") setError(code);
+              const apiError = toFinanceApiError(caught);
+              if (apiError.code !== "cancelled") setError(apiError);
               setBusy(false);
             });
         }}

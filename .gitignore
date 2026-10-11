@@ -37,8 +37,9 @@ next-env.d.ts
 **/public/pwa-*.png
 **/src/app/manifest.json
 
-# Finance local dev database (PGlite data directory)
+# Finance local dev database (PGlite data directory) and email outbox
 apps/web/.finance-db/
+apps/web/.finance-outbox/
 
 # Generated i18n bundles
 **/src/_generated/i18n/

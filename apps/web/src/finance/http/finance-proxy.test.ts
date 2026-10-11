@@ -53,8 +53,13 @@ describe("finance proxy gate", () => {
     );
   });
 
-  it("leaves sign-in, invites, and other pages alone", () => {
-    for (const path of ["/finance/sign-in", "/finance/invite/abc", "/"]) {
+  it("leaves sign-in, invites, email verification, and other pages alone", () => {
+    for (const path of [
+      "/finance/sign-in",
+      "/finance/invite/abc",
+      "/finance/verify-email/abc",
+      "/",
+    ]) {
       const response = proxy(documentRequest(path));
       expect(response.headers.get("x-finance-shell")).toBeNull();
       expect(response.headers.get("Location") ?? "").not.toContain("sign-in");

@@ -21,6 +21,8 @@ import {
   bankLinks,
   bankTransactions,
   connections,
+  emailCodes,
+  emailVerifications,
   entries,
   fxRates,
   households,
@@ -55,7 +57,13 @@ const DB_HOOK_TIMEOUT = 60_000;
 const tables: PgTable[] = Object.values(schema).flatMap((value) =>
   is(value, PgTable) ? [value] : [],
 );
-const globalTables = new Set<PgTable>([users, passkeys, sessions]);
+const globalTables = new Set<PgTable>([
+  users,
+  passkeys,
+  sessions,
+  emailVerifications,
+  emailCodes,
+]);
 /** The column that names the Household of a row. */
 function householdKey(table: PgTable): PgColumn {
   if (table === households) return households.id;
@@ -318,7 +326,7 @@ describe("the schema", () => {
     }
     expect(
       [...globalTables].map((table) => byName.get(getTableName(table))?.forced),
-    ).toEqual([false, false, false]);
+    ).toEqual([...globalTables].map(() => false));
   });
 
   it("lets finance_app use every table without owning any, and without BYPASSRLS", async () => {

@@ -22,6 +22,13 @@
       "when": 1791672002095,
       "tag": "0002_household_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791672863141,
+      "tag": "0003_recovery_email",
+      "breakpoints": true
     }
   ]
 }

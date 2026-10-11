@@ -25,8 +25,12 @@ A one-use link that binds a member to a new User and a passkey. A **Recovery lin
 _Avoid_: reset link, magic link
 
 **User**:
-A sign-in identity with passkeys.
+A sign-in identity with passkeys and, optionally, a Recovery email.
 _Avoid_: account (reserved for money)
+
+**Recovery email**:
+The confirmed email address where a User gets a Recovery link after losing every passkey. The same email holds a **Recovery code** (ZH: 恢复验证码): six digits that open the Recovery link in the browser that asked for it. ZH: 恢复邮箱.
+_Avoid_: login email, username, account email
 
 **Account**:
 One balance in one currency: a current account, a savings pot, a credit card, an ISA, a pension, the house, a mortgage, money a friend owes. It is the MoneyThings _sub-account_; the MoneyThings _account_ is our `institution` text (ZH: 机构). ZH: 账户.

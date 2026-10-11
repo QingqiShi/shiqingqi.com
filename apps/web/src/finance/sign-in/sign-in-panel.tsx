@@ -15,13 +15,16 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
-import { FinanceApiError } from "../http/finance-api-error.ts";
+import {
+  toFinanceApiError,
+  type FinanceApiError,
+} from "../http/finance-api-error.ts";
+import { RecoveryRequestForm } from "./recovery-request-form.tsx";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
 export type SignInSetup =
   | { mode: "create" }
   | { mode: "claim"; householdName: string; memberName: string }
-  | { mode: "recover" }
   | { mode: "closed" };
 
 interface SignInPanelProps {
@@ -32,19 +35,15 @@ interface SignInPanelProps {
 
 type Busy = "sign-in" | "set-up" | null;
 
-function errorCode(error: unknown) {
-  return error instanceof FinanceApiError ? error.code : "request_failed";
-}
-
 /**
  * Passkey sign-in, the one-time setup while the Household has no owner, and
- * owner recovery with the setup secret once it has one.
+ * a Recovery link by email for a user who lost every passkey.
  */
 export function SignInPanel({ next, setup }: SignInPanelProps) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
   const [busy, setBusy] = useState<Busy>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<FinanceApiError | null>(null);
   const [setupSecret, setSetupSecret] = useState("");
   const [householdName, setHouseholdName] = useState("");
   const [memberName, setMemberName] = useState("");
@@ -63,8 +62,8 @@ export function SignInPanel({ next, setup }: SignInPanelProps) {
       await action();
       finish();
     } catch (caught) {
-      const code = errorCode(caught);
-      if (code !== "cancelled") setError(code);
+      const apiError = toFinanceApiError(caught);
+      if (apiError.code !== "cancelled") setError(apiError);
       setBusy(null);
     }
   };
@@ -103,6 +102,17 @@ export function SignInPanel({ next, setup }: SignInPanelProps) {
     </Button>
   );
 
+  const recovery = (
+    <Disclosure
+      summary={t({
+        en: "Lost your passkey?",
+        zh: "丢失了通行密钥？",
+      })}
+    >
+      <RecoveryRequestForm />
+    </Disclosure>
+  );
+
   const setupForm =
     setup.mode === "closed" ? null : (
       <form
@@ -125,12 +135,7 @@ export function SignInPanel({ next, setup }: SignInPanelProps) {
                 en: "Create the household and save a passkey on this device. You need the setup secret.",
                 zh: "创建家庭并在本设备上保存通行密钥。需要设置口令。",
               })
-            : setup.mode === "claim"
-              ? joinLine
-              : t({
-                  en: "With the setup secret, save a new passkey on this device. The owner's old passkeys stop working and every other device signs out.",
-                  zh: "输入设置口令，在本设备上保存新的通行密钥。所有者的旧通行密钥将失效，其他设备都会退出登录。",
-                })}
+            : joinLine}
         </Text>
         <TextField
           label={t({ en: "Setup secret", zh: "设置口令" })}
@@ -168,21 +173,16 @@ export function SignInPanel({ next, setup }: SignInPanelProps) {
         ) : null}
         <Button
           type="submit"
-          look={isFirstRun ? "primary" : "outline"}
-          size={isFirstRun ? "lg" : undefined}
-          icon={isFirstRun ? <FingerprintIcon weight="bold" /> : undefined}
+          look="primary"
+          size="lg"
+          icon={<FingerprintIcon weight="bold" />}
           loading={busy === "set-up"}
           disabled={busy !== null}
           css={styles.wide}
         >
           {setup.mode === "create"
             ? t({ en: "Create household", zh: "创建家庭" })
-            : setup.mode === "claim"
-              ? t({ en: "Create a passkey", zh: "创建通行密钥" })
-              : t({
-                  en: "Replace the owner's passkeys",
-                  zh: "替换所有者的通行密钥",
-                })}
+            : t({ en: "Create a passkey", zh: "创建通行密钥" })}
         </Button>
       </form>
     );
@@ -208,6 +208,7 @@ export function SignInPanel({ next, setup }: SignInPanelProps) {
             })}
           </Text>
           {signInButton}
+          {setup.mode === "claim" ? recovery : null}
         </div>
       </div>
     );
@@ -228,16 +229,7 @@ export function SignInPanel({ next, setup }: SignInPanelProps) {
       </div>
       {errorCallout}
       {signInButton}
-      {setup.mode === "recover" ? (
-        <Disclosure
-          summary={t({
-            en: "Lost your passkey?",
-            zh: "丢失了通行密钥？",
-          })}
-        >
-          {setupForm}
-        </Disclosure>
-      ) : null}
+      {recovery}
     </div>
   );
 }

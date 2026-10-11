@@ -4,6 +4,7 @@ import {
   type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/browser";
+import type { SupportedLocale } from "#src/i18n/types.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { financeFetch } from "../http/finance-fetch.ts";
 
@@ -37,6 +38,17 @@ async function register(optionsJSON: PublicKeyCredentialCreationOptionsJSON) {
   return runCeremony(() => startRegistration({ optionsJSON }));
 }
 
+export interface RecoveryEmail {
+  email: string | null;
+  verified: boolean;
+}
+
+/** A household that a recovery code can get back into, with its Recovery link path (no locale). */
+export interface RecoveryChoice {
+  householdName: string;
+  path: string;
+}
+
 interface SignedIn {
   householdId: string;
   memberId: string;
@@ -44,7 +56,7 @@ interface SignedIn {
 
 type SetupMode =
   | { mode: "create" }
-  | { mode: "claim" | "recover"; householdName: string; memberName: string };
+  | { mode: "claim"; householdName: string; memberName: string };
 
 /** Browser calls for every passkey flow. Each throws `FinanceApiError`; its code is `cancelled` when the visitor closed the passkey sheet. */
 export const financePasskeyClient = {
@@ -58,11 +70,7 @@ export const financePasskeyClient = {
     await post("/sign-in/verify", { response });
   },
 
-  /**
-   * Creates the first household, claims its unclaimed owner member, or, once
-   * the owner is claimed, replaces the owner's passkeys and ends the owner's
-   * sessions (`recover`). `onMode` runs before the passkey sheet opens.
-   */
+  /** Creates the first household or claims its unclaimed owner member. `onMode` runs before the passkey sheet opens. */
   async setUp(input: {
     setupSecret: string;
     householdName?: string;
@@ -111,6 +119,41 @@ export const financePasskeyClient = {
     memberId: string,
   ): Promise<{ path: string; expiresAt: string; recovery: boolean }> {
     return post("/invites", { memberId });
+  },
+
+  async getRecoveryEmail(): Promise<RecoveryEmail> {
+    const response = await financeFetch(`${BASE}/email`, {}, "request_failed");
+    return (await response.json()) as RecoveryEmail;
+  },
+
+  /** Sets the signed-in user's Recovery email and sends it a verification link, in `locale`. */
+  async setRecoveryEmail(
+    email: string,
+    locale: SupportedLocale,
+  ): Promise<RecoveryEmail> {
+    return post("/email", { email, locale });
+  },
+
+  /** Opens the verification link with `token`. False when the link is unknown, used or expired, or the email changed after it was sent. */
+  async verifyEmail(token: string): Promise<boolean> {
+    const { verified } = await post<{ verified: boolean }>("/email/verify", {
+      token,
+    });
+    return verified;
+  },
+
+  /** Asks for a recovery email. The answer is the same whether or not a user has this address. */
+  async requestRecovery(email: string, locale: SupportedLocale): Promise<void> {
+    await post("/recovery", { email, locale });
+  },
+
+  /** Checks the code from the recovery email that this browser asked for, and returns a Recovery link for each household of the address. */
+  async checkRecoveryCode(code: string): Promise<RecoveryChoice[]> {
+    const { households } = await post<{ households: RecoveryChoice[] }>(
+      "/recovery/code",
+      { code },
+    );
+    return households;
   },
 
   async signOut(): Promise<void> {
