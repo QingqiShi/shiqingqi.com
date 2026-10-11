@@ -28,19 +28,6 @@ export const lookups = {
       .from(sql`finance_auth.memberships_of_user(${userId}) as memberships`);
   },
 
-  /** Every live owner Member with its Household, oldest Household first. */
-  ownerMembers(db: FinanceAppDb) {
-    return db
-      .select({
-        householdId: sql<string>`owners.household_id`,
-        householdName: sql<string>`owners.household_name`,
-        memberId: sql<string>`owners.member_id`,
-        memberName: sql<string>`owners.member_name`,
-        userId: sql<string | null>`owners.user_id`,
-      })
-      .from(sql`finance_auth.owner_members() as owners`);
-  },
-
   /**
    * The live Members whose user has `email` as a verified Recovery email,
    * with their Households, in Household name order.

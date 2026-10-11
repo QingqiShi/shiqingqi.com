@@ -1,6 +1,11 @@
 import { randomUUID } from "node:crypto";
 import type { RepositoryScope } from "#src/finance/db/repositories/types.ts";
-import { categories, households, members } from "#src/finance/db/schema.ts";
+import {
+  accountGroups,
+  categories,
+  households,
+  members,
+} from "#src/finance/db/schema.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "#src/finance/domain/dates/default-household-time-zone.ts";
 
 interface CreateHouseholdMember {
@@ -15,6 +20,8 @@ interface CreateHouseholdInput {
   baseCurrency?: string;
   timezone?: string;
   members: CreateHouseholdMember[];
+  /** In the order they show in. */
+  groups?: readonly { name: string; side: "asset" | "liability" }[];
 }
 
 interface CreatedHousehold {
@@ -26,9 +33,9 @@ interface CreatedHousehold {
 const INITIAL_CLOCK = 1;
 
 /**
- * Creates the Household of `scope`, its members, and the system
- * "Uncategorised" expense and income categories. Sign-in setup and the
- * importer both use it, inside `withHousehold` of the new Household's id.
+ * Creates the Household of `scope`, its members, its `groups`, and the system
+ * "Uncategorised" expense and income categories. Sign-up and the importer
+ * both use it, inside `withHousehold` of the new Household's id.
  */
 export async function createHousehold(
   { db, householdId }: RepositoryScope,
@@ -64,6 +71,18 @@ export async function createHousehold(
       version: INITIAL_CLOCK,
     })),
   );
+  if (input.groups && input.groups.length > 0) {
+    await db.insert(accountGroups).values(
+      input.groups.map((group, position) => ({
+        id: randomUUID(),
+        householdId,
+        name: group.name,
+        side: group.side,
+        position,
+        version: INITIAL_CLOCK,
+      })),
+    );
+  }
 
   return { memberIds: memberRows.map((row) => row.id), uncategorised };
 }

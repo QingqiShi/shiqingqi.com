@@ -14,6 +14,8 @@ const LIMITS: Record<
   "verify-email": { tokens: 5, window: "1 h" },
   "recovery-email-ip": { tokens: 10, window: "1 h" },
   "recovery-email-address": { tokens: 3, window: "1 h" },
+  "sign-up-ip": { tokens: 10, window: "1 h" },
+  "sign-up-address": { tokens: 3, window: "1 h" },
   "bank-sync": { tokens: 6, window: "1 h" },
   "ai-suggest": { tokens: 30, window: "60 s" },
   "report-regenerate": { tokens: 10, window: "60 s" },

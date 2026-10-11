@@ -1,9 +1,11 @@
 import {
-  claimWithPasskey,
   expect,
   getFinanceApi,
   readSession,
+  signInWithPasskey,
+  signUpWithEmail,
   test,
+  uniqueEmail,
 } from "./finance-test.ts";
 
 test.describe("Finance sign-in", () => {
@@ -52,25 +54,13 @@ test.describe("Finance sign-in", () => {
     test.describe(`at ${String(viewport.width)} px`, () => {
       test.use({ viewport });
 
-      test("claim with a passkey, sign out, then sign in with the same passkey", async ({
+      test("sign up with a passkey, sign out, then sign in with the same passkey", async ({
         page,
         passkeys: _passkeys,
-        unclaimedHousehold: _household,
       }) => {
-        await page.goto("/finance/sign-in");
-        await expect(
-          page.getByRole("heading", { name: "Claim your place" }),
-        ).toBeVisible();
-        await expect(
-          page.getByRole("main").getByText("Join as Alex · Home"),
-        ).toBeVisible();
-
-        await claimWithPasskey(page, "/finance/transactions");
-        await expect(
-          page.getByRole("heading", { level: 1, name: "Transactions" }),
-        ).toBeVisible();
-        const claimed = await readSession(page);
-        expect(claimed.role).toBe("owner");
+        await signUpWithEmail(page, { email: uniqueEmail("alex") });
+        const signedUp = await readSession(page);
+        expect(signedUp.role).toBe("owner");
 
         if (viewport.width < 768) {
           await page.getByRole("link", { name: "Settings" }).click();
@@ -81,13 +71,10 @@ test.describe("Finance sign-in", () => {
           (await getFinanceApi(page, "/api/finance/auth/session")).status(),
         ).toBe(401);
 
-        await page
-          .getByRole("button", { name: "Sign in with a passkey" })
-          .click();
-        await expect(page).toHaveURL("/finance");
+        await signInWithPasskey(page);
         const signedIn = await readSession(page);
-        expect(signedIn.userId).toBe(claimed.userId);
-        expect(signedIn.householdId).toBe(claimed.householdId);
+        expect(signedIn.userId).toBe(signedUp.userId);
+        expect(signedIn.householdId).toBe(signedUp.householdId);
       });
     });
   }

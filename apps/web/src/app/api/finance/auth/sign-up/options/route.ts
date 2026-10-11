@@ -1,3 +1,3 @@
 import { authHandlers } from "#src/finance/auth/auth-handlers.ts";
 
-export const POST = authHandlers.setupVerify;
+export const POST = authHandlers.signUpOptions;

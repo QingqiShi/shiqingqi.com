@@ -1,6 +1,6 @@
 # Finance
 
-A private household finance tracker at `/finance` (ZH: 家庭账本): two people record what they spend and earn, keep every account's balance current, and read a weekly report of their net worth. It replaces the MoneyThings app and a hand-made Numbers sheet, so some entries map a MoneyThings word to ours.
+A household finance tracker at `/finance` (ZH: 家庭账本): the people of a household record what they spend and earn, keep every account's balance current, and read a weekly report of their net worth. It replaces the MoneyThings app and a hand-made Numbers sheet, so some entries map a MoneyThings word to ours.
 
 ## Language
 
@@ -13,7 +13,7 @@ A person in a household, used for attribution ("who spent"). A member may have n
 _Avoid_: participant, owner (for this sense)
 
 **Owner**:
-The member who set up the household (role `owner`). ZH: 所有者.
+The member who created the household (role `owner`). ZH: 所有者.
 _Avoid_: admin
 
 **Shared**:
@@ -25,7 +25,7 @@ A one-use link that binds a member to a new User and a passkey. A **Recovery lin
 _Avoid_: reset link, magic link
 
 **User**:
-A sign-in identity with passkeys and, optionally, a Recovery email.
+A sign-in identity with passkeys and a Recovery email, in exactly one household.
 _Avoid_: account (reserved for money)
 
 **Recovery email**:

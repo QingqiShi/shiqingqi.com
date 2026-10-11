@@ -13,7 +13,6 @@ export function getLocalFinanceDefaults(
   const defaults = buildLocalFinanceEnv({
     databasePort,
     authSecret: "local-finance-auth-secret",
-    setupSecret: "local-finance-setup-secret",
     credentialKey: "bG9jYWwtZmluYW5jZS1jcmVkZW50aWFsLWtleS0zMmI=",
   });
   return Object.fromEntries(

@@ -44,7 +44,7 @@ export interface SyntheticHouseholdOptions {
   seed?: number;
   /** The household's day; history ends here. Defaults to today in London. */
   today?: string;
-  /** Gives the owner, Alex, a user with this id, so that sign-in setup cannot claim the Household. */
+  /** Gives the owner, Alex, a user with this id. Without it the owner has no user, as after a MoneyThings import. */
   ownerUserId?: string;
 }
 

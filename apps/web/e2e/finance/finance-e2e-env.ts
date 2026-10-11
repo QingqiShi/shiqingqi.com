@@ -29,14 +29,11 @@ export const FINANCE_E2E_EMAIL_OUTBOX: string =
     `finance-e2e-outbox-${randomUUID()}`,
   ));
 
-export const FINANCE_E2E_SETUP_SECRET = "e2e-finance-setup-secret";
-
 /** The Finance settings of the web server that Playwright starts. */
 export const financeE2eEnv = {
   ...buildLocalFinanceEnv({
     databasePort: FINANCE_E2E_DB_PORT,
     authSecret: "e2e-finance-auth-secret-for-tests-only",
-    setupSecret: FINANCE_E2E_SETUP_SECRET,
     credentialKey: "ZTJlLWZpbmFuY2UtY3JlZGVudGlhbC1rZXktMzJieXQ=",
   }),
   FINANCE_EMAIL_OUTBOX: FINANCE_E2E_EMAIL_OUTBOX,

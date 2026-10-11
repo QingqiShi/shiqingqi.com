@@ -8,7 +8,6 @@ import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Divider } from "@tuja/ui/components/divider";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
@@ -20,216 +19,78 @@ import {
   type FinanceApiError,
 } from "../http/finance-api-error.ts";
 import { RecoveryRequestForm } from "./recovery-request-form.tsx";
+import { SignUpRequestForm } from "./sign-up-request-form.tsx";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
-
-export type SignInSetup =
-  | { mode: "create" }
-  | { mode: "claim"; householdName: string; memberName: string }
-  | { mode: "closed" };
 
 interface SignInPanelProps {
   /** Where to go after signing in, without a locale. */
   next: string;
-  setup: SignInSetup;
 }
 
-type Busy = "sign-in" | "set-up" | null;
-
 /**
- * Passkey sign-in, the one-time setup while the Household has no owner, and
- * a Recovery link by email for a user who lost every passkey.
+ * Passkey sign-in, a Recovery link by email for a user who lost every
+ * passkey, and a sign-up code for a person who has no User yet.
  */
-export function SignInPanel({ next, setup }: SignInPanelProps) {
+export function SignInPanel({ next }: SignInPanelProps) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
-  const [busy, setBusy] = useState<Busy>(null);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<FinanceApiError | null>(null);
-  const [setupSecret, setSetupSecret] = useState("");
-  const [householdName, setHouseholdName] = useState("");
-  const [memberName, setMemberName] = useState("");
 
-  const finish = () => {
-    window.location.assign(getLocalePath(next, locale));
-  };
-
-  const run = async (
-    kind: Exclude<Busy, null>,
-    action: () => Promise<unknown>,
-  ) => {
-    setBusy(kind);
-    setError(null);
-    try {
-      await action();
-      finish();
-    } catch (caught) {
-      const apiError = toFinanceApiError(caught);
-      if (apiError.code !== "cancelled") setError(apiError);
-      setBusy(null);
-    }
-  };
-
-  const signInLabel = t({
-    en: "Sign in with a passkey",
-    zh: "使用通行密钥登录",
-  });
-
-  const isFirstRun = setup.mode === "create" || setup.mode === "claim";
-  const joinAs = t({ en: "Join as", zh: "加入身份：" });
-  const joinLine =
-    setup.mode === "claim"
-      ? `${joinAs}${locale === "zh" ? "" : " "}${setup.memberName} · ${setup.householdName}`
-      : "";
-
-  const errorCallout = error ? (
-    <Callout intent="danger" role="alert">
-      {messageOf(error)}
-    </Callout>
-  ) : null;
-
-  const signInButton = (
-    <Button
-      look={isFirstRun ? "outline" : "primary"}
-      size="lg"
-      icon={<FingerprintIcon weight="bold" />}
-      loading={busy === "sign-in"}
-      disabled={busy !== null}
-      css={styles.wide}
-      onClick={() => {
-        void run("sign-in", () => financePasskeyClient.signIn());
-      }}
-    >
-      {signInLabel}
-    </Button>
-  );
-
-  const recovery = (
-    <Disclosure
-      summary={t({
-        en: "Lost your passkey?",
-        zh: "丢失了通行密钥？",
-      })}
-    >
-      <RecoveryRequestForm />
-    </Disclosure>
-  );
-
-  const setupForm =
-    setup.mode === "closed" ? null : (
-      <form
-        css={stack.item}
-        onSubmit={(event) => {
-          event.preventDefault();
-          void run("set-up", () =>
-            financePasskeyClient.setUp({
-              setupSecret,
-              householdName:
-                setup.mode === "create" ? householdName : undefined,
-              memberName: setup.mode === "create" ? memberName : undefined,
-            }),
-          );
-        }}
-      >
-        <Text tone="muted" look="bodySmall">
-          {setup.mode === "create"
-            ? t({
-                en: "Create the household and save a passkey on this device. You need the setup secret.",
-                zh: "创建家庭并在本设备上保存通行密钥。需要设置口令。",
-              })
-            : joinLine}
-        </Text>
-        <TextField
-          label={t({ en: "Setup secret", zh: "设置口令" })}
-          type="password"
-          autoComplete="off"
-          required
-          value={setupSecret}
-          onChange={(event) => {
-            setSetupSecret(event.target.value);
-          }}
-        />
-        {setup.mode === "create" ? (
-          <>
-            <TextField
-              label={t({ en: "Household name", zh: "家庭名称" })}
-              autoComplete="off"
-              required
-              maxLength={200}
-              value={householdName}
-              onChange={(event) => {
-                setHouseholdName(event.target.value);
-              }}
-            />
-            <TextField
-              label={t({ en: "Your name", zh: "你的名字" })}
-              autoComplete="given-name"
-              required
-              maxLength={200}
-              value={memberName}
-              onChange={(event) => {
-                setMemberName(event.target.value);
-              }}
-            />
-          </>
+  return (
+    <div css={stack.section}>
+      <div css={stack.item}>
+        <div css={stack.tight}>
+          <Heading level={1} look="h1">
+            {t({ en: "Sign in", zh: "登录" })}
+          </Heading>
+          <Text tone="muted">
+            {t({
+              en: "Use the passkey saved on this device or your phone.",
+              zh: "使用保存在本设备或手机上的通行密钥。",
+            })}
+          </Text>
+        </div>
+        {error ? (
+          <Callout intent="danger" role="alert">
+            {messageOf(error)}
+          </Callout>
         ) : null}
         <Button
-          type="submit"
           look="primary"
           size="lg"
           icon={<FingerprintIcon weight="bold" />}
-          loading={busy === "set-up"}
-          disabled={busy !== null}
+          loading={busy}
+          disabled={busy}
           css={styles.wide}
+          onClick={() => {
+            setBusy(true);
+            setError(null);
+            financePasskeyClient
+              .signIn()
+              .then(() => {
+                window.location.assign(getLocalePath(next, locale));
+              })
+              .catch((caught: unknown) => {
+                const apiError = toFinanceApiError(caught);
+                if (apiError.code !== "cancelled") setError(apiError);
+                setBusy(false);
+              });
+          }}
         >
-          {setup.mode === "create"
-            ? t({ en: "Create household", zh: "创建家庭" })
-            : t({ en: "Create a passkey", zh: "创建通行密钥" })}
+          {t({ en: "Sign in with a passkey", zh: "使用通行密钥登录" })}
         </Button>
-      </form>
-    );
-
-  if (isFirstRun) {
-    return (
-      <div css={stack.section}>
-        <div css={stack.item}>
-          <Heading level={1} look="h1">
-            {setup.mode === "create"
-              ? t({ en: "Set up Finance", zh: "设置家庭账本" })
-              : t({ en: "Claim your place", zh: "认领你的成员身份" })}
-          </Heading>
-          {errorCallout}
-          {setupForm}
-        </div>
-        <Divider />
-        <div css={stack.item}>
-          <Text tone="muted" look="bodySmall">
-            {t({
-              en: "Saved a passkey already?",
-              zh: "已经保存过通行密钥？",
-            })}
-          </Text>
-          {signInButton}
-          {setup.mode === "claim" ? recovery : null}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div css={stack.item}>
-      <div css={stack.tight}>
-        <Heading level={1} look="h1">
-          {t({ en: "Sign in", zh: "登录" })}
-        </Heading>
-        <Text tone="muted">
-          {t({
-            en: "Use the passkey saved on this device or your phone.",
-            zh: "使用保存在本设备或手机上的通行密钥。",
+        <Disclosure
+          summary={t({
+            en: "Lost your passkey?",
+            zh: "丢失了通行密钥？",
           })}
-        </Text>
+        >
+          <RecoveryRequestForm />
+        </Disclosure>
       </div>
-      {errorCallout}
-      {signInButton}
-      {recovery}
+      <Divider />
+      <SignUpRequestForm />
     </div>
   );
 }

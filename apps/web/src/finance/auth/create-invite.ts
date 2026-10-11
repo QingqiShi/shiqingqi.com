@@ -9,7 +9,8 @@ const INVITE_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 
 interface CreateInviteInput {
   memberId: string;
-  createdBy: string;
+  /** Null when the operator makes the invite with `finance:invite-link`. */
+  createdBy: string | null;
   /** The owner may invite a Member who has a user already, to let them back in after they lost every passkey. */
   allowRecovery: boolean;
   now: Date;
@@ -40,7 +41,7 @@ export async function createInvite(
       .limit(1)
   ).at(0);
   if (!member) return { ok: false, reason: "member_not_found" };
-  if (member.userId === createdBy) {
+  if (member.userId !== null && member.userId === createdBy) {
     return { ok: false, reason: "member_claimed" };
   }
   if (member.userId !== null && !allowRecovery) {

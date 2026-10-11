@@ -14,7 +14,6 @@ export const authHandlers = makeAuthHandlers({
   getDb: () => (isFinanceConfigured() ? getFinanceDb() : null),
   now: () => new Date(),
   authSecret: () => process.env.FINANCE_AUTH_SECRET,
-  setupSecret: () => process.env.FINANCE_SETUP_SECRET,
   limitRequest: limitFinanceRequest,
   refundRequest: refundFinanceRequest,
   isAllowedOrigin: isAllowedFinanceOrigin,

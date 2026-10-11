@@ -4,6 +4,8 @@ export type FinanceRateLimitBucket =
   | "verify-email"
   | "recovery-email-ip"
   | "recovery-email-address"
+  | "sign-up-ip"
+  | "sign-up-address"
   | "bank-sync"
   | "ai-suggest"
   | "report-regenerate"

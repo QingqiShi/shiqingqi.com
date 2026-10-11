@@ -18,7 +18,7 @@ function setRequestHeader(response: NextResponse, name: string, value: string) {
 
 const FINANCE_PATH = /^(?:\/zh)?\/finance(?:\/|$)/;
 const OPEN_PATH =
-  /^(?:\/zh)?\/finance\/(?:sign-in|invite|verify-email)(?:\/|$)/;
+  /^(?:\/zh)?\/finance\/(?:sign-in|sign-up|invite|verify-email)(?:\/|$)/;
 
 /**
  * Finance pages behind the session: a visitor with no session cookie goes to
