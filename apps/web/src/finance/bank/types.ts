@@ -1,8 +1,19 @@
 import type { BankClient, BankErrorKind } from "./lunchflow/types.ts";
 
+/** What the owner sees of the Connection's API key: never the key itself. */
+export interface CredentialView {
+  lastFour: string;
+  savedAt: string;
+}
+
 /** Whether the Household can reach a bank provider, and with which client. */
 export type BankConnection =
-  | { status: "connected"; mode: "real" | "fake"; client: BankClient }
+  | {
+      status: "connected";
+      mode: "real" | "fake";
+      credential: CredentialView;
+      client: BankClient;
+    }
   | { status: "not_connected" };
 
 /** A Bank link as the Connections settings show it. */
@@ -33,6 +44,7 @@ export type ProviderAccountsResponse =
   | {
       status: "connected";
       mode: "real" | "fake";
+      credential: CredentialView;
       accounts: ProviderAccountView[];
     }
   | { status: "not_connected" };
