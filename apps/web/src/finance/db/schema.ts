@@ -81,6 +81,8 @@ export const emailVerifications = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     /** The address the link went to. It verifies only while the user's email is still this one. */
     email: text("email").notNull(),
+    /** The confirmed Recovery email that `email` replaces. It gets a notice when the link is opened. */
+    replacesEmail: text("replaces_email"),
     tokenHash: bytea("token_hash").notNull().unique(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     usedAt: timestamp("used_at", { withTimezone: true }),

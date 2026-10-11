@@ -1,9 +1,10 @@
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import type { FinanceEmail } from "./types.ts";
 
-/** A button that opens `url`, under an optional heading such as a Household name. */
+/** A button that opens `url`, under an optional heading such as a Household name and an optional line that says what to do there. */
 export interface FinanceEmailAction {
   heading?: string;
+  text?: string;
   label: string;
   url: string;
 }
@@ -101,7 +102,10 @@ function renderAction(
   const heading = action.heading
     ? `<p class="fg" style="${style({ ...text, margin: "0 0 12px", "font-size": "17px", "line-height": "24px", "font-weight": "600", color: LIGHT.fg })}">${escapeHtml(action.heading)}</p>`
     : "";
-  return `${heading}${renderButton(action, quiet)}
+  const line = action.text
+    ? `<p class="fg" style="${style({ ...text, margin: "0 0 16px", "font-size": "16px", "line-height": "24px", color: LIGHT.fg })}">${escapeHtml(action.text)}</p>`
+    : "";
+  return `${heading}${line}${renderButton(action, quiet)}
 <p class="muted" style="${style({ ...text, margin: "16px 0 0", "font-size": "13px", "line-height": "20px", color: LIGHT.fgMuted })}">${escapeHtml(copyLink)}<br><a class="muted" href="${url}" target="_blank" style="${style({ color: LIGHT.fgMuted, "text-decoration": "underline", "word-break": "break-all" })}">${url}</a></p>`;
 }
 
@@ -160,7 +164,9 @@ interface FinanceEmailContent {
   code?: FinanceEmailCode;
   actions: FinanceEmailAction[];
   /** How long the code and the links work. */
-  expiry: string;
+  expiry?: string;
+  /** The last note. By default it says to ignore the email when you did not ask for it. */
+  ignore?: string;
 }
 
 /**
@@ -169,10 +175,14 @@ interface FinanceEmailContent {
  * with "ignore this email". The plain-text body has the same parts.
  */
 export function renderFinanceEmail(content: FinanceEmailContent): FinanceEmail {
-  const { to, locale, subject, intro, code, actions, expiry } = content;
-  const notes = [expiry, COPY[locale].ignore];
+  const { to, locale, subject, intro, code, actions, expiry, ignore } = content;
+  const notes = [...(expiry ? [expiry] : []), ignore ?? COPY[locale].ignore];
   const links = actions
-    .map(({ heading, url }) => (heading ? `${heading}\n${url}` : url))
+    .map((action) =>
+      [action.heading, action.text, action.url]
+        .filter((part) => part !== undefined)
+        .join("\n"),
+    )
     .join("\n\n");
   return {
     to,

@@ -36,6 +36,13 @@
       "when": 1791675736243,
       "tag": "0004_public_sign_up",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791757287402,
+      "tag": "0005_recovery_email_change_notice",
+      "breakpoints": true
     }
   ]
 }

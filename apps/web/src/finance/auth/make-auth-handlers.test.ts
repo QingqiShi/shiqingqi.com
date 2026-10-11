@@ -156,10 +156,14 @@ function recoveryTokensIn(text = ""): string[] {
 }
 
 /** Opens the confirmation link with no session, as on another device. */
-async function confirmRecoveryEmail(token: string) {
-  const confirmed = await createAuthTestClient(makeHandlers()).post<{
+async function confirmRecoveryEmail(
+  token: string,
+  overrides: Partial<AuthHandlerDeps> = {},
+  locale: "en" | "zh" = "en",
+) {
+  const confirmed = await createAuthTestClient(makeHandlers(overrides)).post<{
     verified: boolean;
-  }>("verifyEmail", { token });
+  }>("verifyEmail", { token, locale });
   expect(confirmed.status).toBe(200);
   return confirmed.body.verified;
 }
@@ -823,7 +827,8 @@ describe("recovery email", () => {
     await confirmRecoveryEmail(oldLink);
     await client.post("setRecoveryEmail", { email: "first@example.com" });
     const firstLink = verificationTokenIn(
-      (await readOutbox(outboxDir))[1]?.text,
+      (await readOutbox(outboxDir)).find(({ to }) => to === "first@example.com")
+        ?.text,
     );
 
     const changed = await client.post("setRecoveryEmail", {
@@ -837,6 +842,85 @@ describe("recovery email", () => {
     expect(await confirmRecoveryEmail(firstLink)).toBe(false);
     expect((await client.get("recoveryEmail")).body).toMatchObject({
       verified: false,
+    });
+  });
+
+  async function lastLinkTo(email: string) {
+    return verificationTokenIn(
+      (await readOutbox(outboxDir)).findLast(({ to }) => to === email)?.text,
+    );
+  }
+
+  async function sentAfterResponse() {
+    await Promise.all(afterTasks);
+    return readOutbox(outboxDir);
+  }
+
+  it("tells the confirmed email it replaces, once the new one is confirmed", async () => {
+    const { client } = await signedInOwner();
+    await client.post("setRecoveryEmail", { email: "first@example.com" });
+    await client.post("setRecoveryEmail", { email: "jane@example.com" });
+
+    expect((await sentAfterResponse()).map(({ to }) => to)).not.toContain(
+      "owner@example.com",
+    );
+    expect(
+      await confirmRecoveryEmail(
+        await lastLinkTo("jane@example.com"),
+        {},
+        "zh",
+      ),
+    ).toBe(true);
+
+    const notices = (await sentAfterResponse()).filter(
+      ({ to }) => to === "owner@example.com",
+    );
+    expect(notices).toHaveLength(1);
+    expect(notices[0]).toMatchObject({ subject: "家庭账本恢复邮箱已更改" });
+    expect(notices[0]?.text).toContain("j•••@example.com");
+    expect(notices[0]?.text).not.toContain("jane@example.com");
+    expect(notices[0]?.text).toContain(
+      `${TEST_ORIGIN}/zh/finance/settings/members`,
+    );
+  });
+
+  it("tells no one when there was no confirmed email, or the confirmed one comes back", async () => {
+    const { owner } = await claimedHousehold();
+    await owner.post("setRecoveryEmail", { email: "first@example.com" });
+    await confirmRecoveryEmail(await lastLinkTo("first@example.com"));
+    await owner.post("setRecoveryEmail", { email: "second@example.com" });
+    await owner.post("setRecoveryEmail", { email: "first@example.com" });
+    await confirmRecoveryEmail(await lastLinkTo("first@example.com"));
+
+    expect((await sentAfterResponse()).map(({ to }) => to)).toEqual([
+      "first@example.com",
+      "second@example.com",
+      "first@example.com",
+    ]);
+    expect((await owner.get("recoveryEmail")).body).toEqual({
+      email: "first@example.com",
+      verified: true,
+    });
+  });
+
+  it("confirms the new email when the notice to the old one does not go out", async () => {
+    const email = brokenEmailSender();
+    email.state.works = true;
+    const { client } = await signedInOwner({ emailSender: () => email.sender });
+    await client.post("setRecoveryEmail", { email: "jane@example.com" });
+    const link = await lastLinkTo("jane@example.com");
+    email.state.works = false;
+
+    expect(
+      await confirmRecoveryEmail(link, { emailSender: () => email.sender }),
+    ).toBe(true);
+
+    expect((await sentAfterResponse()).map(({ to }) => to)).toEqual([
+      "jane@example.com",
+    ]);
+    expect((await client.get("recoveryEmail")).body).toEqual({
+      email: "jane@example.com",
+      verified: true,
     });
   });
 
