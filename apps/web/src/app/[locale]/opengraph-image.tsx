@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
-import type { PageProps } from "#src/types.ts";
-import { validateLocale } from "#src/utils/validate-locale.ts";
+import type { PageProps } from "#src/i18n/types.ts";
+import { validateLocale } from "#src/i18n/validate-locale.ts";
 
 export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
