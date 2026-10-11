@@ -1,8 +1,8 @@
 import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
 import { reportRepository } from "../db/repositories/report-repository.ts";
-import type { RepositoryScope } from "../db/repositories/types.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
 import {
   guardFinanceRequest,
@@ -90,12 +90,14 @@ export function makeReportHandlers(dependencies: ReportHandlerDependencies) {
   }
 
   async function findReport(
-    scope: RepositoryScope,
+    { db, householdId }: { db: FinanceDb; householdId: string },
     context: ReportRouteContext,
   ) {
     const id = await parseReportId(context);
     if (id === null) return null;
-    const row = await reportRepository.findById(scope, id);
+    const row = await withHousehold(db, householdId, (scope) =>
+      reportRepository.findById(scope, id),
+    );
     if (!row) return null;
     const data = weeklyReportDataSchema.safeParse(row.data);
     return { row, data: data.success ? data.data : null };
@@ -106,7 +108,9 @@ export function makeReportHandlers(dependencies: ReportHandlerDependencies) {
     async listReports(request: Request) {
       const scope = await guard(request, { write: false });
       if (scope instanceof Response) return scope;
-      const rows = await reportRepository.list(scope);
+      const rows = await withHousehold(scope.db, scope.householdId, (tx) =>
+        reportRepository.list(tx),
+      );
       return financeJson({
         reports: rows.map(toReportListItem),
       } satisfies ReportListResponse);
@@ -155,7 +159,11 @@ export function makeReportHandlers(dependencies: ReportHandlerDependencies) {
       const scope = await guard(request, { write: true });
       if (scope instanceof Response) return scope;
       const id = await parseReportId(context);
-      const removed = id !== null && (await reportRepository.remove(scope, id));
+      const removed =
+        id !== null &&
+        (await withHousehold(scope.db, scope.householdId, (tx) =>
+          reportRepository.remove(tx, id),
+        ));
       if (!removed) return failure("not-found", 404);
       return new Response(null, {
         status: 204,

@@ -1,6 +1,7 @@
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
-import type { RepositoryScope } from "../db/repositories/types.ts";
+import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "../domain/dates/default-household-time-zone.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { buildFakeBankFixture } from "./build-fake-bank-fixture.ts";
@@ -29,28 +30,35 @@ export function makeBankProvider(source: BankProviderSource) {
     credentialKey: source.credentialKey,
 
     getBankClient: async (
-      scope: RepositoryScope,
+      db: FinanceDb,
+      householdId: string,
       now: Date,
     ): Promise<BankConnection> => {
-      const credential = await bankLinkRepository.findCredential(scope);
-      if (!credential) return { status: "not_connected" };
-      const view = {
-        lastFour: credential.lastFour,
-        savedAt: credential.savedAt.toISOString(),
-      };
-      if (source.fake()) {
+      const found = await withHousehold(db, householdId, async (scope) => {
+        const credential = await bankLinkRepository.findCredential(scope);
+        if (!credential || !source.fake()) return { credential };
         const household = await householdRepository.find(scope);
         const today = todayInTimeZone(
           household?.timezone ?? DEFAULT_HOUSEHOLD_TIME_ZONE,
           now,
         );
         return {
+          credential,
+          fixture: await buildFakeBankFixture(scope, today),
+        };
+      });
+      const { credential } = found;
+      if (!credential) return { status: "not_connected" };
+      const view = {
+        lastFour: credential.lastFour,
+        savedAt: credential.savedAt.toISOString(),
+      };
+      if (found.fixture) {
+        return {
           status: "connected",
           mode: "fake",
           credential: view,
-          client: createFakeBankClient(
-            await buildFakeBankFixture(scope, today),
-          ),
+          client: createFakeBankClient(found.fixture),
         };
       }
       const key = source.credentialKey();
@@ -62,7 +70,7 @@ export function makeBankProvider(source: BankProviderSource) {
         mode: "real",
         credential: view,
         client: source.createClient(
-          credentialCipher.open(credential.sealed, key, scope.householdId),
+          credentialCipher.open(credential.sealed, key, householdId),
         ),
       };
     },

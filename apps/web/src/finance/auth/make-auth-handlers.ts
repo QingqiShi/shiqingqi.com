@@ -10,14 +10,15 @@ import {
 import { and, asc, eq, gt, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { resolveClientIp } from "#src/app/api/pixel-creature-creator/lore/resolve-client-ip.ts";
-import {
-  invites,
-  members,
-  passkeys,
-  sessions,
-  users,
-} from "#src/finance/db/schema.ts";
+import { lookups } from "#src/finance/db/lookups.ts";
+import { memberRepository } from "#src/finance/db/repositories/member-repository.ts";
+import { invites, passkeys, sessions, users } from "#src/finance/db/schema.ts";
 import type { FinanceDb } from "#src/finance/db/types.ts";
+import {
+  asFinanceApp,
+  withHousehold,
+  type FinanceAppDb,
+} from "#src/finance/db/with-household.ts";
 import { isSameOrigin } from "../http/is-same-origin.ts";
 import type {
   FinanceRateLimitResult,
@@ -321,13 +322,13 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
 
   type RegistrationInfo = Awaited<ReturnType<typeof verifyRegistration>>;
 
-  async function revokeUserAccess(db: FinanceDb, userId: string) {
+  async function revokeUserAccess(db: FinanceAppDb, userId: string) {
     await db.delete(passkeys).where(eq(passkeys.userId, userId));
     await db.delete(sessions).where(eq(sessions.userId, userId));
   }
 
   async function insertPasskey(
-    db: FinanceDb,
+    db: FinanceAppDb,
     userId: string,
     { credential }: RegistrationInfo,
     now: Date,
@@ -370,14 +371,16 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     signInVerify: handle(async (request, context) => {
       const { response } = await readBody(request, authenticationVerifyBody);
       const { challenge } = takeChallenge(request, context, "sign-in");
-      const { db, now } = context;
+      const { now } = context;
 
       const passkey = (
-        await db
-          .select()
-          .from(passkeys)
-          .where(eq(passkeys.id, response.id))
-          .limit(1)
+        await asFinanceApp(context.db, (db) =>
+          db
+            .select()
+            .from(passkeys)
+            .where(eq(passkeys.id, response.id))
+            .limit(1),
+        )
       ).at(0);
       if (!passkey) throw new HttpError(401, "passkey_unknown");
       const userHandle = response.response.userHandle;
@@ -414,36 +417,27 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
         throw new HttpError(401, "passkey_invalid");
       }
 
-      const membership = (
+      const token = await asFinanceApp(context.db, async (db) => {
+        const memberships = await lookups.membershipsOfUser(db, passkey.userId);
+        if (memberships.length === 0) throw new HttpError(403, "no_membership");
         await db
-          .select({ id: members.id })
-          .from(members)
-          .where(
-            and(eq(members.userId, passkey.userId), isNull(members.deletedAt)),
-          )
-          .limit(1)
-      ).at(0);
-      if (!membership) throw new HttpError(403, "no_membership");
-
-      await db
-        .update(passkeys)
-        .set({ counter: newCounter, lastUsedAt: now })
-        .where(eq(passkeys.id, passkey.id));
-      startSession(
-        context,
-        await createSession(db, {
+          .update(passkeys)
+          .set({ counter: newCounter, lastUsedAt: now })
+          .where(eq(passkeys.id, passkey.id));
+        return createSession(db, {
           userId: passkey.userId,
           userAgent: request.headers.get("User-Agent") ?? "",
           now,
-        }),
-      );
+        });
+      });
+      startSession(context, token);
       return json(context, { ok: true });
     }),
 
     setupOptions: handle(async (request, context) => {
       const body = await readBody(request, setupOptionsBody);
       checkSetupSecret(body.setupSecret);
-      const state = await getSetupState(context.db);
+      const state = await asFinanceApp(context.db, getSetupState);
       if (state.mode === "closed") throw new HttpError(403, "setup_closed");
 
       const userId = state.mode === "recover" ? state.userId : randomUUID();
@@ -483,7 +477,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       const info = await verifyRegistration(context, body.response, challenge);
       const { now } = context;
 
-      const result = await context.db.transaction(async (tx) => {
+      const result = await asFinanceApp(context.db, async (tx) => {
         await tx.execute(sql`select pg_advisory_xact_lock(${SETUP_LOCK_KEY})`);
         const state = await getSetupState(tx);
         if (
@@ -505,29 +499,26 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
         } else if (state.mode === "create") {
           const memberName = body.memberName ?? "Owner";
           memberId = randomUUID();
+          householdId = randomUUID();
           await tx
             .insert(users)
             .values({ id: userId, displayName: memberName });
-          const created = await createHousehold(tx, {
-            name: body.householdName ?? "Household",
-            members: [
-              { id: memberId, name: memberName, role: "owner", userId },
-            ],
-          });
-          householdId = created.householdId;
+          await withHousehold(tx, householdId, (scope) =>
+            createHousehold(scope, {
+              name: body.householdName ?? "Household",
+              members: [
+                { id: memberId, name: memberName, role: "owner", userId },
+              ],
+            }),
+          );
         } else {
           await tx
             .insert(users)
             .values({ id: userId, displayName: state.memberName });
-          if (
-            !(await bindUserToMember(tx, {
-              householdId: state.householdId,
-              memberId: state.memberId,
-              userId,
-            }))
-          ) {
-            throw new HttpError(409, "member_claimed");
-          }
+          const bound = await withHousehold(tx, state.householdId, (scope) =>
+            bindUserToMember(scope, { memberId: state.memberId, userId }),
+          );
+          if (!bound) throw new HttpError(409, "member_claimed");
           householdId = state.householdId;
           memberId = state.memberId;
         }
@@ -578,8 +569,8 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
         context,
         "invite",
       );
-      const { db, now } = context;
-      const invite = await lookupInvite(db, body.token, now);
+      const { now } = context;
+      const invite = await lookupInvite(context.db, body.token, now);
       if (
         !invite ||
         invite.inviteId !== inviteId ||
@@ -589,51 +580,53 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       }
       const info = await verifyRegistration(context, body.response, challenge);
 
-      const token = await db.transaction(async (tx) => {
-        const used = await tx
-          .update(invites)
-          .set({ usedAt: now })
-          .where(
-            and(
-              eq(invites.id, inviteId),
-              isNull(invites.usedAt),
-              gt(invites.expiresAt, now),
-            ),
-          )
-          .returning({ id: invites.id });
-        if (used.length === 0) throw new HttpError(410, "invite_invalid");
+      const token = await withHousehold(
+        context.db,
+        invite.householdId,
+        async (scope) => {
+          const { db } = scope;
+          const used = await db
+            .update(invites)
+            .set({ usedAt: now })
+            .where(
+              and(
+                eq(invites.householdId, invite.householdId),
+                eq(invites.id, inviteId),
+                isNull(invites.usedAt),
+                gt(invites.expiresAt, now),
+              ),
+            )
+            .returning({ id: invites.id });
+          if (used.length === 0) throw new HttpError(410, "invite_invalid");
 
-        if (invite.recoveryUserId !== null) {
-          // The Member lost every passkey. A lost device must not keep
-          // access, so its passkeys and sessions stop here.
-          await revokeUserAccess(tx, userId);
-          await insertPasskey(tx, userId, info, now);
-          return createSession(tx, {
+          if (invite.recoveryUserId !== null) {
+            // The Member lost every passkey. A lost device must not keep
+            // access, so its passkeys and sessions stop here.
+            await revokeUserAccess(db, userId);
+            await insertPasskey(db, userId, info, now);
+            return createSession(db, {
+              userId,
+              userAgent: request.headers.get("User-Agent") ?? "",
+              now,
+            });
+          }
+
+          await db
+            .insert(users)
+            .values({ id: userId, displayName: invite.memberName });
+          const bound = await bindUserToMember(scope, {
+            memberId: invite.memberId,
+            userId,
+          });
+          if (!bound) throw new HttpError(409, "member_claimed");
+          await insertPasskey(db, userId, info, now);
+          return createSession(db, {
             userId,
             userAgent: request.headers.get("User-Agent") ?? "",
             now,
           });
-        }
-
-        await tx
-          .insert(users)
-          .values({ id: userId, displayName: invite.memberName });
-        if (
-          !(await bindUserToMember(tx, {
-            householdId: invite.householdId,
-            memberId: invite.memberId,
-            userId,
-          }))
-        ) {
-          throw new HttpError(409, "member_claimed");
-        }
-        await insertPasskey(tx, userId, info, now);
-        return createSession(tx, {
-          userId,
-          userAgent: request.headers.get("User-Agent") ?? "",
-          now,
-        });
-      });
+        },
+      );
 
       startSession(context, token);
       return json(context, {
@@ -645,13 +638,17 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     createInvite: handle(async (request, context) => {
       const session = await requireSession(request, context);
       const { memberId } = await readBody(request, createInviteBody);
-      const result = await createInvite(context.db, {
-        householdId: session.householdId,
-        memberId,
-        createdBy: session.userId,
-        allowRecovery: session.role === "owner",
-        now: context.now,
-      });
+      const result = await withHousehold(
+        context.db,
+        session.householdId,
+        (scope) =>
+          createInvite(scope, {
+            memberId,
+            createdBy: session.userId,
+            allowRecovery: session.role === "owner",
+            now: context.now,
+          }),
+      );
       if (!result.ok) {
         throw new HttpError(
           { member_not_found: 404, member_claimed: 409, owner_only: 403 }[
@@ -674,18 +671,18 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
 
     passkeyOptions: handle(async (request, context) => {
       const session = await requireSession(request, context);
-      const member = (
-        await context.db
-          .select({ name: members.name })
-          .from(members)
-          .where(eq(members.id, session.memberId))
-          .limit(1)
-      ).at(0);
-      const existing = await context.db
-        .select({ id: passkeys.id, transports: passkeys.transports })
-        .from(passkeys)
-        .where(eq(passkeys.userId, session.userId))
-        .orderBy(asc(passkeys.createdAt));
+      const { member, existing } = await withHousehold(
+        context.db,
+        session.householdId,
+        async (scope) => ({
+          member: await memberRepository.findById(scope, session.memberId),
+          existing: await scope.db
+            .select({ id: passkeys.id, transports: passkeys.transports })
+            .from(passkeys)
+            .where(eq(passkeys.userId, session.userId))
+            .orderBy(asc(passkeys.createdAt)),
+        }),
+      );
       const options = await registrationOptions(context, {
         userId: session.userId,
         userName: member?.name ?? "Finance",
@@ -711,13 +708,17 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
         throw new HttpError(400, "challenge_invalid");
       }
       const info = await verifyRegistration(context, response, challenge);
-      await insertPasskey(context.db, session.userId, info, context.now);
+      await asFinanceApp(context.db, (db) =>
+        insertPasskey(db, session.userId, info, context.now),
+      );
       return json(context, { ok: true });
     }),
 
     signOut: handle(async (request, context) => {
       const token = readRequestCookie(request, financeSessionCookie.name);
-      if (token) await deleteSession(context.db, token);
+      if (token) {
+        await asFinanceApp(context.db, (db) => deleteSession(db, token));
+      }
       context.setCookies.push(financeSessionCookie.clear(context.secure));
       return json(context, { ok: true });
     }),

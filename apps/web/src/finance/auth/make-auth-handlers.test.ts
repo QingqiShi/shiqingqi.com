@@ -16,7 +16,7 @@ import {
   createTestDb,
   type TestDb,
 } from "#src/finance/db/testing/create-test-db.ts";
-import { createHousehold } from "./create-household.ts";
+import { createTestHousehold } from "#src/finance/db/testing/create-test-household.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { makeGetFinanceSession } from "./get-finance-session.ts";
 import { hashToken } from "./hash-token.ts";
@@ -118,7 +118,7 @@ async function acceptInvite(
 
 /** A household from the importer: two members, neither signed in. */
 async function importedHousehold() {
-  return createHousehold(db, {
+  return createTestHousehold(db, {
     name: "Home",
     members: [
       { name: "Qingqi", role: "owner" },
@@ -189,7 +189,7 @@ describe("setup", () => {
   });
 
   it("closes when the household has no owner member", async () => {
-    await createHousehold(db, {
+    await createTestHousehold(db, {
       name: "Home",
       members: [{ name: "Partner", role: "member" }],
     });
@@ -702,7 +702,7 @@ describe("invites", () => {
 
   it("only invites unclaimed members of the session's household", async () => {
     const { imported, owner } = await ownerAndInvite();
-    const other = await createHousehold(db, {
+    const other = await createTestHousehold(db, {
       name: "Other",
       members: [{ name: "Stranger", role: "owner" }],
     });

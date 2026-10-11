@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
 import { labelMemoryRepository } from "../db/repositories/label-memory-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { financeJson } from "../http/finance-json.ts";
 import { guardFinanceRequest } from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
@@ -46,10 +47,11 @@ export function makeSuggestHandler(dependencies: SuggestHandlerDependencies) {
       return financeJson({ error: "model-unavailable" }, { status: 503 });
     }
 
-    const memory = await labelMemoryRepository.load({
-      db: dependencies.getDb(),
-      householdId: session.householdId,
-    });
+    const memory = await withHousehold(
+      dependencies.getDb(),
+      session.householdId,
+      (scope) => labelMemoryRepository.load(scope),
+    );
     if (!memory.accounts.some((account) => account.id === input.accountId)) {
       return financeJson({ error: "unknown-account" }, { status: 400 });
     }

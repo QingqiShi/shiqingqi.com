@@ -1,14 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
+import type { RepositoryScope } from "#src/finance/db/repositories/types.ts";
 import { invites, members } from "#src/finance/db/schema.ts";
-import type { FinanceDb } from "#src/finance/db/types.ts";
 import { generateToken } from "./generate-token.ts";
 import { hashToken } from "./hash-token.ts";
 
 const INVITE_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 
 interface CreateInviteInput {
-  householdId: string;
   memberId: string;
   createdBy: string;
   /** The owner may invite a Member who has a user already, to let them back in after they lost every passkey. */
@@ -24,8 +23,8 @@ type CreateInviteResult =
     };
 
 export async function createInvite(
-  db: FinanceDb,
-  { householdId, memberId, createdBy, allowRecovery, now }: CreateInviteInput,
+  { db, householdId }: RepositoryScope,
+  { memberId, createdBy, allowRecovery, now }: CreateInviteInput,
 ): Promise<CreateInviteResult> {
   const member = (
     await db
@@ -50,19 +49,23 @@ export async function createInvite(
 
   const token = generateToken();
   const expiresAt = new Date(now.getTime() + INVITE_LIFETIME_MS);
-  await db.transaction(async (tx) => {
-    await tx
-      .delete(invites)
-      .where(and(eq(invites.memberId, memberId), isNull(invites.usedAt)));
-    await tx.insert(invites).values({
-      id: randomUUID(),
-      householdId,
-      memberId,
-      tokenHash: hashToken(token),
-      createdBy,
-      expiresAt,
-      recoveryUserId: member.userId,
-    });
+  await db
+    .delete(invites)
+    .where(
+      and(
+        eq(invites.householdId, householdId),
+        eq(invites.memberId, memberId),
+        isNull(invites.usedAt),
+      ),
+    );
+  await db.insert(invites).values({
+    id: randomUUID(),
+    householdId,
+    memberId,
+    tokenHash: hashToken(token),
+    createdBy,
+    expiresAt,
+    recoveryUserId: member.userId,
   });
   return { ok: true, token, expiresAt, recovery: member.userId !== null };
 }

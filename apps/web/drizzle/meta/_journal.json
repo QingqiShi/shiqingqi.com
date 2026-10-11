@@ -15,6 +15,13 @@
       "when": 1791665577263,
       "tag": "0001_connection_credential",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791672002095,
+      "tag": "0002_household_isolation",
+      "breakpoints": true
     }
   ]
 }

@@ -5,6 +5,7 @@ import { categoryRepository } from "../db/repositories/category-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import { payeeRepository } from "../db/repositories/payee-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
+import { withSavepoint } from "../db/with-household.ts";
 import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
@@ -146,11 +147,8 @@ export async function createBankTransaction(
   async function write(
     labelsOf: (nested: ServerWriteContext) => Promise<Labels>,
   ) {
-    await context.scope.db.transaction(async (savepoint) => {
-      const nested: ServerWriteContext = {
-        ...context,
-        scope: { ...context.scope, db: savepoint },
-      };
+    await withSavepoint(context.scope, async (savepoint) => {
+      const nested: ServerWriteContext = { ...context, scope: savepoint };
       const labels = await labelsOf(nested);
       await transactionMutations.create(nested, {
         id,

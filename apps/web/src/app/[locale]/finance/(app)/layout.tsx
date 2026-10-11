@@ -6,6 +6,7 @@ import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { householdRepository } from "#src/finance/db/repositories/household-repository.ts";
 import { memberRepository } from "#src/finance/db/repositories/member-repository.ts";
+import { withHousehold } from "#src/finance/db/with-household.ts";
 import { FINANCE_PATH_HEADER } from "#src/finance/http/constants.ts";
 import { FinanceProvider } from "#src/finance/replica/finance-provider.tsx";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
@@ -27,11 +28,14 @@ export default async function Layout({
     locale,
     safeFinanceNextPath((await headers()).get(FINANCE_PATH_HEADER)),
   );
-  const scope = { db: getFinanceDb(), householdId: session.householdId };
-  const [household, member] = await Promise.all([
-    householdRepository.find(scope),
-    memberRepository.findById(scope, session.memberId),
-  ]);
+  const { household, member } = await withHousehold(
+    getFinanceDb(),
+    session.householdId,
+    async (scope) => ({
+      household: await householdRepository.find(scope),
+      member: await memberRepository.findById(scope, session.memberId),
+    }),
+  );
 
   return (
     <FinanceProvider

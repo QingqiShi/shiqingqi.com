@@ -1,32 +1,14 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { bindNewUserToMember } from "../../auth/bind-new-user-to-member.ts";
 import { createSession } from "../../auth/create-session.ts";
 import { financeSessionCookie } from "../../auth/finance-session-cookie.ts";
-import { households, members, schema } from "../../db/schema.ts";
-import type { FinanceDb } from "../../db/types.ts";
+import { lookups } from "../../db/lookups.ts";
+import { schema } from "../../db/schema.ts";
+import { asFinanceApp } from "../../db/with-household.ts";
 import { assertLocalDatabaseUrl } from "../assert-local-database-url.ts";
 import { readCliOptions, readPortOption } from "../read-cli-options.ts";
 import { readDevFinanceEnv } from "../read-dev-finance-env.ts";
-
-async function findOwner(db: FinanceDb) {
-  return (
-    await db
-      .select({
-        householdId: households.id,
-        householdName: households.name,
-        memberId: members.id,
-        memberName: members.name,
-        userId: members.userId,
-      })
-      .from(members)
-      .innerJoin(households, eq(households.id, members.householdId))
-      .where(and(eq(members.role, "owner"), isNull(members.deletedAt)))
-      .orderBy(asc(households.createdAt), asc(members.createdAt))
-      .limit(1)
-  ).at(0);
-}
 
 /**
  * Prints a Finance session cookie for the owner of the first Household in
@@ -54,30 +36,33 @@ async function main() {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
   try {
     const db = drizzle({ client: pool, schema });
-    const owner = await findOwner(db).catch((error: unknown) => {
+    const owners = await asFinanceApp(db, (tx) =>
+      lookups.ownerMembers(tx),
+    ).catch((error: unknown) => {
       throw new Error(
         `No database answers at ${databaseUrl}. Start \`pnpm dev\` in apps/web first.`,
         { cause: error },
       );
     });
+    const owner = owners.at(0);
     if (!owner) {
       throw new Error(
         "The database has no Household. `pnpm dev` seeds one when it starts.",
       );
     }
-    const userId =
-      owner.userId ??
-      (await db.transaction((tx) =>
-        bindNewUserToMember(tx, {
+    const token = await asFinanceApp(db, async (tx) => {
+      const userId =
+        owner.userId ??
+        (await bindNewUserToMember(tx, {
           householdId: owner.householdId,
           memberId: owner.memberId,
           displayName: owner.memberName,
-        }),
-      ));
-    const token = await createSession(db, {
-      userId,
-      userAgent: "finance:session",
-      now: new Date(),
+        }));
+      return createSession(tx, {
+        userId,
+        userAgent: "finance:session",
+        now: new Date(),
+      });
     });
     const name = financeSessionCookie.name;
     console.log(

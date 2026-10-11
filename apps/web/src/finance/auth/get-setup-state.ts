@@ -1,6 +1,5 @@
-import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
-import { households, members } from "#src/finance/db/schema.ts";
-import type { FinanceDb } from "#src/finance/db/types.ts";
+import { lookups } from "#src/finance/db/lookups.ts";
+import type { FinanceAppDb } from "#src/finance/db/with-household.ts";
 
 type SetupState =
   | { mode: "create" }
@@ -26,55 +25,19 @@ type SetupState =
  * claim an owner member that has no user yet, give the owner's user a new
  * passkey when every owner member is claimed, or nothing.
  */
-export async function getSetupState(db: FinanceDb): Promise<SetupState> {
-  const household = (
-    await db.select({ id: households.id }).from(households).limit(1)
-  ).at(0);
-  if (!household) return { mode: "create" };
+export async function getSetupState(db: FinanceAppDb): Promise<SetupState> {
+  const owners = await lookups.ownerMembers(db);
+  if (owners.length === 0 && (await lookups.householdIds(db)).length === 0) {
+    return { mode: "create" };
+  }
 
-  const unclaimedOwner = (
-    await db
-      .select({
-        householdId: households.id,
-        householdName: households.name,
-        memberId: members.id,
-        memberName: members.name,
-      })
-      .from(members)
-      .innerJoin(households, eq(households.id, members.householdId))
-      .where(
-        and(
-          eq(members.role, "owner"),
-          isNull(members.userId),
-          isNull(members.deletedAt),
-        ),
-      )
-      .orderBy(asc(households.createdAt), asc(members.createdAt))
-      .limit(1)
-  ).at(0);
-  if (unclaimedOwner) return { mode: "claim", ...unclaimedOwner };
+  const unclaimedOwner = owners.find((owner) => owner.userId === null);
+  if (unclaimedOwner) {
+    const { householdId, householdName, memberId, memberName } = unclaimedOwner;
+    return { mode: "claim", householdId, householdName, memberId, memberName };
+  }
 
-  const claimedOwner = (
-    await db
-      .select({
-        householdId: households.id,
-        householdName: households.name,
-        memberId: members.id,
-        memberName: members.name,
-        userId: members.userId,
-      })
-      .from(members)
-      .innerJoin(households, eq(households.id, members.householdId))
-      .where(
-        and(
-          eq(members.role, "owner"),
-          isNotNull(members.userId),
-          isNull(members.deletedAt),
-        ),
-      )
-      .orderBy(asc(households.createdAt), asc(members.createdAt))
-      .limit(1)
-  ).at(0);
+  const claimedOwner = owners.find((owner) => owner.userId !== null);
   if (!claimedOwner?.userId) return { mode: "closed" };
   return { mode: "recover", ...claimedOwner, userId: claimedOwner.userId };
 }

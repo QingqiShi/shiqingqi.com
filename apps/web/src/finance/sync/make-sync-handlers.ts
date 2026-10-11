@@ -1,6 +1,7 @@
 import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
 import { guardFinanceRequest } from "../http/guard-finance-request.ts";
@@ -45,10 +46,11 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
 
       const db = dependencies.getDb();
       if (since === 0) {
-        const household = await householdRepository.find({
+        const household = await withHousehold(
           db,
-          householdId: session.householdId,
-        });
+          session.householdId,
+          (scope) => householdRepository.find(scope),
+        );
         if (!household) {
           return financeJson({ error: "unauthorised" }, { status: 401 });
         }

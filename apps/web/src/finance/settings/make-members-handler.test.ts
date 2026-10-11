@@ -5,7 +5,6 @@ import type {
 } from "@simplewebauthn/server";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createHousehold } from "../auth/create-household.ts";
 import { financeSessionCookie } from "../auth/finance-session-cookie.ts";
 import { makeGetFinanceSession } from "../auth/get-finance-session.ts";
 import { isAllowedFinanceOrigin } from "../auth/is-allowed-finance-origin.ts";
@@ -22,7 +21,9 @@ import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { members, passkeys, sessions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { createTestHousehold } from "../db/testing/create-test-household.ts";
 import { seedTestHousehold } from "../db/testing/seed-test-household.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
 import { makeMembersHandler } from "./make-members-handler.ts";
 
@@ -133,7 +134,7 @@ async function signIn(authenticator: Authenticator) {
 
 /** An owner and a partner who are both signed in, and a third Member who has a pending invite. */
 async function signedInHousehold() {
-  const household = await createHousehold(db, {
+  const household = await createTestHousehold(db, {
     name: "Home",
     members: [
       { name: "Alex", role: "owner" },
@@ -219,8 +220,9 @@ describe("makeMembersHandler", () => {
 
   it("syncs the removal as a soft delete that keeps the name", async () => {
     const home = await signedInHousehold();
-    const scope = { db, householdId: home.householdId };
-    const before = await householdRepository.find(scope);
+    const before = await withHousehold(db, home.householdId, (scope) =>
+      householdRepository.find(scope),
+    );
 
     const response = await patchMember(home.owner, {
       id: home.samId,

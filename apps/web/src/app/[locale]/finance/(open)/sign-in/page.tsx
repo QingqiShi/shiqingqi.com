@@ -6,6 +6,7 @@ import { getFinancePageSession } from "#src/finance/auth/get-finance-page-sessio
 import { getSetupState } from "#src/finance/auth/get-setup-state.ts";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
+import { asFinanceApp } from "#src/finance/db/with-household.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
 import {
@@ -37,7 +38,7 @@ export default async function Page({
   );
   if (await getFinancePageSession()) redirect(getLocalePath(next, locale));
 
-  const state = await getSetupState(getFinanceDb());
+  const state = await asFinanceApp(getFinanceDb(), getSetupState);
   const setup: SignInSetup =
     state.mode === "claim"
       ? {

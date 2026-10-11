@@ -68,7 +68,7 @@ export function makeMembersHandler(dependencies: MembersHandlerDependencies) {
           return "last-owner";
         }
         await memberRepository.remove(scope, member.id);
-        await revokeMemberAccess(scope.db, {
+        await revokeMemberAccess(scope, {
           memberId: member.id,
           userId: member.userId,
         });

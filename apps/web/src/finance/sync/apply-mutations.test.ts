@@ -16,6 +16,7 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { withHousehold } from "../db/with-household.ts";
 import {
   balanceSeriesToRows,
   computeBalanceDays,
@@ -314,18 +315,16 @@ describe("applyMutations", () => {
       date?: string;
     }) {
       const touches = new DerivedTouches();
-      await transactionMutations.update(
-        {
-          scope: {
-            db,
-            householdId: home.householdId,
-            version: created.clock + 1,
+      await withHousehold(db, home.householdId, (scope) =>
+        transactionMutations.update(
+          {
+            scope: { ...scope, version: created.clock + 1 },
+            today: "2026-10-10",
+            touches,
           },
-          today: "2026-10-10",
-          touches,
-        },
-        id,
-        patch,
+          id,
+          patch,
+        ),
       );
       return { accounts: [...touches.accounts], months: [...touches.months] };
     }

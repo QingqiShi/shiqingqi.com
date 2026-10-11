@@ -8,10 +8,10 @@ import {
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { z } from "zod";
-import { bindNewUserToMember } from "../../src/finance/auth/bind-new-user-to-member.ts";
 import { createInvite } from "../../src/finance/auth/create-invite.ts";
 import { schema, users } from "../../src/finance/db/schema.ts";
 import type { FinanceDb } from "../../src/finance/db/types.ts";
+import { withHousehold } from "../../src/finance/db/with-household.ts";
 import {
   seedSyntheticHousehold,
   type SyntheticHousehold,
@@ -68,28 +68,21 @@ async function probeFinance(
   return `The server at ${baseURL} does not run Finance with the e2e database (setup answered ${String(response.status())} ${body}). Playwright reused a server that was already up, such as \`pnpm dev\`, which uses its own database. Stop that server so that Playwright starts one with the e2e Finance settings.`;
 }
 
-function seedHousehold(db: FinanceDb) {
+function seedHousehold(db: FinanceDb, ownerUserId?: string) {
   return seedSyntheticHousehold(db, {
     ...SEED_OPTIONS,
     seed: randomInt(1, 2 ** 31 - 1),
+    ownerUserId,
   });
 }
 
 /**
- * Seeds a Household and gives its owner a user in one transaction. Sign-in
- * setup claims the oldest unclaimed owner, so a Household that other
- * workers can see unclaimed could go to the wrong test.
+ * Seeds a Household whose owner has a user from the start. Sign-in setup
+ * claims the oldest unclaimed owner, so a Household that other workers can
+ * see unclaimed could go to the wrong test.
  */
 function seedClaimedHousehold(db: FinanceDb) {
-  return db.transaction(async (tx) => {
-    const household = await seedHousehold(tx);
-    await bindNewUserToMember(tx, {
-      householdId: household.householdId,
-      memberId: household.memberIds.alex,
-      displayName: "Alex",
-    });
-    return household;
-  });
+  return seedHousehold(db, randomUUID());
 }
 
 /** Claims the oldest unclaimed owner with a new passkey, then waits for the page that `next` names. */
@@ -194,13 +187,17 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { page, passkeys: _passkeys, household, financeDb, inviterId },
     provide,
   ) => {
-    const invite = await createInvite(financeDb, {
-      householdId: household.householdId,
-      memberId: household.memberIds.alex,
-      createdBy: inviterId,
-      allowRecovery: true,
-      now: new Date(),
-    });
+    const invite = await withHousehold(
+      financeDb,
+      household.householdId,
+      (scope) =>
+        createInvite(scope, {
+          memberId: household.memberIds.alex,
+          createdBy: inviterId,
+          allowRecovery: true,
+          now: new Date(),
+        }),
+    );
     if (!invite.ok) throw new Error(`No invite: ${invite.reason}`);
     await page.goto(`/finance/invite/${invite.token}`);
     await page.getByRole("button", { name: "Save a new passkey" }).click();

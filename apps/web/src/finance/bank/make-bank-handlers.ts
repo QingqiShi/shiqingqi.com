@@ -5,8 +5,8 @@ import type { FinanceSession } from "../auth/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
-import type { RepositoryScope } from "../db/repositories/types.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { LINKABLE_KINDS } from "../domain/accounts/linkable-kinds.ts";
 import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
 import {
@@ -34,7 +34,11 @@ export interface BankHandlerDependencies {
   isConfigured: () => boolean;
   getDb: () => FinanceDb;
   getSession: (request: Request) => Promise<FinanceSession | null>;
-  getBankClient: (scope: RepositoryScope, now: Date) => Promise<BankConnection>;
+  getBankClient: (
+    db: FinanceDb,
+    householdId: string,
+    now: Date,
+  ) => Promise<BankConnection>;
   /** Throws the provider's `BankError` when it refuses `apiKey`. */
   verifyApiKey: (apiKey: string) => Promise<void>;
   /** The key that seals each Connection's credential, or null when it is not set. */
@@ -100,10 +104,16 @@ function toView(link: {
  * request. The Household always comes from the session.
  */
 export function makeBankHandlers(dependencies: BankHandlerDependencies) {
+  /** The Household of the session, not yet in a transaction: each read and write opens its own. */
+  interface SessionHousehold {
+    db: FinanceDb;
+    householdId: string;
+  }
+
   type Guarded = (
     request: Request,
     session: FinanceSession,
-    scope: RepositoryScope,
+    scope: SessionHousehold,
   ) => Promise<Response>;
 
   function guarded(handler: Guarded, options: FinanceRequestGuardOptions) {
@@ -126,12 +136,16 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
     };
   }
 
-  function lunchFlowConnectionId(scope: RepositoryScope) {
+  function lunchFlowConnectionId(scope: SessionHousehold) {
     return nameBasedUuid(`connection:${scope.householdId}:lunchflow`);
   }
 
-  async function connectedClient(scope: RepositoryScope, now: Date) {
-    const connection = await dependencies.getBankClient(scope, now);
+  async function connectedClient(scope: SessionHousehold, now: Date) {
+    const connection = await dependencies.getBankClient(
+      scope.db,
+      scope.householdId,
+      now,
+    );
     if (connection.status !== "connected") {
       throw new BankRequestError("not-connected", 409);
     }
@@ -143,7 +157,8 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
     listAccounts: guarded(
       async (_request, _session, scope) => {
         const connection = await dependencies.getBankClient(
-          scope,
+          scope.db,
+          scope.householdId,
           dependencies.now(),
         );
         if (connection.status !== "connected") {
@@ -151,10 +166,12 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
             status: "not_connected",
           } satisfies ProviderAccountsResponse);
         }
-        const [accounts, connectionId, liveLinks] = await Promise.all([
+        const [accounts, { connectionId, liveLinks }] = await Promise.all([
           connection.client.listAccounts(),
-          bankLinkRepository.findConnectionId(scope),
-          bankLinkRepository.listLive(scope),
+          withHousehold(scope.db, scope.householdId, async (read) => ({
+            connectionId: await bankLinkRepository.findConnectionId(read),
+            liveLinks: await bankLinkRepository.listLive(read),
+          })),
         ]);
         const links = liveLinks.filter(
           (link) => link.connectionId === connectionId,
@@ -399,7 +416,11 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
         ) {
           return failure("rate_limited", 429);
         }
-        const household = await householdRepository.find(scope);
+        const household = await withHousehold(
+          scope.db,
+          scope.householdId,
+          (read) => householdRepository.find(read),
+        );
         return financeJson({
           links,
           clock: household?.clock ?? 0,
