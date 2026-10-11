@@ -9,10 +9,7 @@ import {
 test.describe("Finance sign-in", () => {
   test("a visit without a session goes to sign-in with the page as next", async ({
     page,
-    financeUnavailable,
   }) => {
-    test.skip(financeUnavailable !== null, financeUnavailable ?? "");
-
     await page.goto("/finance/transactions?review=1");
     await expect(page).toHaveURL(
       "/finance/sign-in?next=%2Ffinance%2Ftransactions%3Freview%3D1",
@@ -32,10 +29,7 @@ test.describe("Finance sign-in", () => {
 
   test("a signed-out visitor who opens the Finance card on the home page goes to sign-in", async ({
     page,
-    financeUnavailable,
   }) => {
-    test.skip(financeUnavailable !== null, financeUnavailable ?? "");
-
     await page.goto("/");
     await page.getByRole("link", { name: /finance.*money tracker/i }).click();
     await expect(page).toHaveURL("/finance/sign-in");

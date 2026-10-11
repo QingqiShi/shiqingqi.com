@@ -24,6 +24,7 @@ catalog:
   "@babel/preset-typescript": ^8.0.1
   "@babel/traverse": 8.0.6
   "@babel/types": 8.0.6
+  "@next/env": 16.4.0
   "@phosphor-icons/react": ^2.1.10
   "@rolldown/plugin-babel": ^0.2.4
   "@serwist/cli": ^9.5.13

@@ -18,7 +18,7 @@
     "openapi:generate": "openapi-typescript https://developer.themoviedb.org/openapi/tmdb-api.json -o ../../packages/tmdb-types/src/openapi.d.ts && prettier '../../packages/tmdb-types/src/openapi.d.ts' -w",
     "predev": "npm-run-all codegen:i18n codegen:palette codegen:props",
     "dev": "run-p watch:i18n watch:props dev:next",
-    "dev:next": "next dev --turbopack -p $(node ../../scripts/get-worktree-port.mjs)",
+    "dev:next": "tsx src/finance/dev/run-with-local-finance.ts --db-port $(node ../../scripts/get-worktree-port.mjs 2433) -- next dev --turbopack -p $(node ../../scripts/get-worktree-port.mjs)",
     "build": "TURBO_TASKS_AVAILABLE_PARALLELISM=2 next build && serwist build serwist.config.mjs",
     "build:tsc": "next typegen && tsc --noEmit",
     "start": "next start",
@@ -37,6 +37,7 @@
     "finance:migrate": "drizzle-kit migrate",
     "finance:import": "tsx src/finance/import/moneythings/cli.ts",
     "finance:seed": "tsx src/finance/dev/seed/cli.ts",
+    "finance:session": "tsx src/finance/dev/session/cli.ts --db-port $(node ../../scripts/get-worktree-port.mjs 2433) --app-port $(node ../../scripts/get-worktree-port.mjs)",
     "finance:reports:backfill": "tsx src/finance/reports/backfill-cli.ts"
   },
   "dependencies": {
@@ -82,6 +83,7 @@
     "@babel/preset-typescript": "catalog:",
     "@babel/runtime": "^8.0.5",
     "@electric-sql/pglite": "0.5.8",
+    "@next/env": "catalog:",
     "@playwright/test": "^1.63.0",
     "@rolldown/plugin-babel": "catalog:",
     "@serwist/cli": "catalog:",
@@ -116,6 +118,7 @@
     "next-i18n-router": "^5.5.8",
     "npm-run-all2": "^9.0.3",
     "openapi-typescript": "^7.13.0",
+    "pg-connection-string": "^2.14.1",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^17.0.0",
     "postcss-preset-env": "^11.6.1",

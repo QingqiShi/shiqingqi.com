@@ -8,7 +8,7 @@ import {
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { z } from "zod";
-import { bindUserToMember } from "../../src/finance/auth/bind-user-to-member.ts";
+import { bindNewUserToMember } from "../../src/finance/auth/bind-new-user-to-member.ts";
 import { createInvite } from "../../src/finance/auth/create-invite.ts";
 import { schema, users } from "../../src/finance/db/schema.ts";
 import type { FinanceDb } from "../../src/finance/db/types.ts";
@@ -30,8 +30,7 @@ const financeSessionSchema = z.object({
 export type FinanceSession = z.infer<typeof financeSessionSchema>;
 
 interface WorkerFixtures {
-  /** Why the Finance specs cannot run against this server, or null when they can. */
-  financeUnavailable: string | null;
+  financeServer: undefined;
   financeDb: FinanceDb;
   /** A user with no Member, who creates the invites that sign the tests in. */
   inviterId: string;
@@ -54,11 +53,7 @@ interface TestFixtures {
  */
 const SEED_OPTIONS = { years: 1, transactionsPerYear: 400 };
 
-/**
- * Locally Playwright reuses a dev server that is already up, and that server
- * does not have the e2e Finance settings. Setup with the e2e secret tells the
- * two apart without a write.
- */
+/** Setup with the e2e secret tells a server with the e2e Finance settings from another server, without a write. */
 async function probeFinance(
   api: APIRequestContext,
   baseURL: string,
@@ -70,7 +65,7 @@ async function probeFinance(
   if (response.ok()) return null;
   const body = await response.text();
   if (response.status() === 403 && body.includes("setup_closed")) return null;
-  return `The server at ${baseURL} does not run Finance with the e2e database (setup answered ${String(response.status())} ${body}). Stop the dev server so that Playwright starts its own.`;
+  return `The server at ${baseURL} does not run Finance with the e2e database (setup answered ${String(response.status())} ${body}). Playwright reused a server that was already up, such as \`pnpm dev\`, which uses its own database. Stop that server so that Playwright starts one with the e2e Finance settings.`;
 }
 
 function seedHousehold(db: FinanceDb) {
@@ -88,14 +83,11 @@ function seedHousehold(db: FinanceDb) {
 function seedClaimedHousehold(db: FinanceDb) {
   return db.transaction(async (tx) => {
     const household = await seedHousehold(tx);
-    const userId = randomUUID();
-    await tx.insert(users).values({ id: userId, displayName: "Alex" });
-    const bound = await bindUserToMember(tx, {
+    await bindNewUserToMember(tx, {
       householdId: household.householdId,
       memberId: household.memberIds.alex,
-      userId,
+      displayName: "Alex",
     });
-    if (!bound) throw new Error("The seeded owner has a user already");
     return household;
   });
 }
@@ -151,19 +143,17 @@ export async function readSession(page: Page): Promise<FinanceSession> {
 }
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
-  financeUnavailable: [
+  financeServer: [
     async ({ playwright }, provide, workerInfo) => {
       const { baseURL } = workerInfo.project.use;
-      if (baseURL === undefined) {
-        await provide("No baseURL is set.");
-        return;
-      }
+      if (baseURL === undefined) throw new Error("No baseURL is set.");
       const api = await playwright.request.newContext({ baseURL });
       const reason = await probeFinance(api, baseURL);
       await api.dispose();
-      await provide(reason);
+      if (reason !== null) throw new Error(reason);
+      await provide(undefined);
     },
-    { scope: "worker" },
+    { scope: "worker", auto: true },
   ],
 
   financeDb: [
@@ -192,13 +182,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     await provide(await addVirtualAuthenticator(page));
   },
 
-  household: async ({ financeUnavailable, financeDb }, provide) => {
-    test.skip(financeUnavailable !== null, financeUnavailable ?? "");
+  household: async ({ financeDb }, provide) => {
     await provide(await seedClaimedHousehold(financeDb));
   },
 
-  unclaimedHousehold: async ({ financeUnavailable, financeDb }, provide) => {
-    test.skip(financeUnavailable !== null, financeUnavailable ?? "");
+  unclaimedHousehold: async ({ financeDb }, provide) => {
     await provide(await seedHousehold(financeDb));
   },
 
