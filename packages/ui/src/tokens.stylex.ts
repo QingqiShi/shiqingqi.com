@@ -521,7 +521,7 @@ export const border = stylex.defineVars({
 // one, and `effect` and `blur` sit between two rungs. The order encodes the
 // invariants, so read it as a ladder:
 //
-// - `effect` is the effect layer's `<canvas>` elements. They draw over
+// - `effect` is the effect layer's scroll `<canvas>` elements. They draw over
 //   everything the page scrolls, a card lifted to `content` too, so an effect
 //   can show on an opaque surface. They stay under the Blur plane, sticky
 //   chrome at `raised`, the header and every overlay, so the page's chrome
@@ -545,6 +545,10 @@ export const border = stylex.defineVars({
 // - `tooltip` covers an open overlay, because a tooltip can describe a control
 //   inside one; `toaster` covers everything, because a toast may be the only
 //   report that an action succeeded.
+// - `fixedEffect` is the effect layer's fixed `<canvas>`, over all other
+//   planes. It draws the effects of the elements that do not scroll with the
+//   page — the header, a stuck sticky bar, a fixed tab bar, an open sheet — so
+//   each effect shows over the surface it belongs to.
 //
 // A plane only applies where it can be seen: `position: fixed`, `sticky`, and
 // `isolation: isolate` all open a stacking context, and a child's `z-index`
@@ -560,6 +564,7 @@ export const layer = stylex.defineVars({
   overlay: stylex.types.integer(400),
   tooltip: stylex.types.integer(500),
   toaster: stylex.types.integer(600),
+  fixedEffect: stylex.types.integer(700),
 });
 
 // The fade that marks a control inactive. One value for every control, because

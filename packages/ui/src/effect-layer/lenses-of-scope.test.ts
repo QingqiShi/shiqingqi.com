@@ -24,6 +24,7 @@ function record(
     fixed: false,
     radii: [40, 40, 40, 40],
     cornerExponent: 2,
+    sticksToViewport: false,
     fill: [0, 0, 0, 1],
     grayscale: 0,
     scope: PAGE_SCOPE,

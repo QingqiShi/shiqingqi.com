@@ -11,6 +11,7 @@ import { useBlackHole } from "./use-black-hole.ts";
 import { useDust } from "./use-dust.ts";
 import { useEffectBoundary } from "./use-effect-boundary.ts";
 import { useEffectContainer } from "./use-effect-container.ts";
+import { useEffectCover } from "./use-effect-cover.ts";
 import { useExtractorFan } from "./use-extractor-fan.ts";
 import { useLightBeam } from "./use-light-beam.ts";
 import { useLiquid } from "./use-liquid.ts";
@@ -84,6 +85,16 @@ describe("useEffectBoundary", () => {
     }
     render(<Card />);
     expect(screen.getByTestId("card")).toBeInTheDocument();
+  });
+});
+
+describe("useEffectCover", () => {
+  it("registers the element its ref is attached to as a cover, with no role", () => {
+    function Sheet() {
+      return <div ref={useEffectCover()} data-testid="sheet" />;
+    }
+    const { entry } = renderWithRegistry(<Sheet />);
+    expect(entry("sheet")).toMatchObject({ roles: 0, covers: true });
   });
 });
 
@@ -179,6 +190,7 @@ describe("effect hooks", () => {
       settings: { blackHole: { mass: 3 } },
       scope: 0,
       holds: null,
+      covers: false,
     });
     expect(notified).toBeGreaterThan(0);
   });
@@ -311,6 +323,7 @@ describe("createEffectRegistry", () => {
       settings: {},
       scope: 0,
       holds: null,
+      covers: false,
     });
     expect(registry.getRoles()).toBe(0b11);
 
@@ -322,6 +335,7 @@ describe("createEffectRegistry", () => {
       settings: {},
       scope: 0,
       holds: null,
+      covers: false,
     });
     second.remove();
     expect(registry.elements().size).toBe(0);

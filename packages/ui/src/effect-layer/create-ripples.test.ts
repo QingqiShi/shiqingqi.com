@@ -39,6 +39,7 @@ function record(
     fixed: false,
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
+    sticksToViewport: false,
     fill: [0.6, 0.3, 0.8, 1],
     grayscale: 0,
     scope: 0,

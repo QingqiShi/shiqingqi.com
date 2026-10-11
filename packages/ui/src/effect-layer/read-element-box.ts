@@ -20,11 +20,17 @@ export interface ElementBox {
   readonly width: number;
   readonly height: number;
   /**
-   * Fixed to the viewport by its own `position: fixed` or an ancestor's. Its
-   * place in the page then changes with every scroll, and it draws on the
-   * fixed `<canvas>` element.
+   * Fixed to the viewport by its own `position: fixed` or an ancestor's, or
+   * by a sticky box around it that is stuck now, as `isStuckToViewport`
+   * explains. Its place in the page then changes with every scroll, and it
+   * draws on the fixed `<canvas>` element.
    */
   readonly fixed: boolean;
+  /**
+   * A sticky box around it sticks to the viewport, so a scroll can move it
+   * between the scroll `<canvas>` elements and the fixed one.
+   */
+  readonly sticksToViewport: boolean;
   readonly radii: CornerRadii;
   /**
    * The exponent `n` of the corners' superellipse, `|x|ⁿ + |y|ⁿ = 1`: 2 for a
@@ -274,10 +280,93 @@ export function isInSticky(
   return false;
 }
 
+/** Whether a box with this computed style is a scroll container. */
+function scrolls(style: CSSStyleDeclaration) {
+  return [style.overflow, style.overflowX, style.overflowY]
+    .flatMap((overflow) => overflow.split(/\s+/).filter(Boolean))
+    .some((overflow) => overflow !== "visible" && overflow !== "clip");
+}
+
 /**
- * Measures one element where the browser has laid it out now, or returns
- * `null` when it has no box, in viewport coordinates. `styleOf` lets the
- * elements of one frame share the computed styles of their ancestors.
+ * The sticky boxes around the element, itself included, that stick to the
+ * viewport: no box between one of them and the root element scrolls, and
+ * none is fixed. The root element and the body do not count, because the
+ * viewport takes their `overflow`.
+ *
+ * @internal
+ */
+export function viewportStickyBoxes(
+  element: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+) {
+  const { documentElement, body } = element.ownerDocument;
+  let boxes: Element[] = [];
+  for (
+    let node: Element | null = element;
+    node !== null && node !== documentElement && node !== body;
+    node = node.parentElement
+  ) {
+    const style = styleOf(node);
+    if (style.position === "fixed") {
+      return [];
+    }
+    if (node !== element && scrolls(style)) {
+      boxes = [];
+    }
+    if (style.position === "sticky") {
+      boxes.push(node);
+    }
+  }
+  return boxes;
+}
+
+/** Two px positions are the same within this distance. */
+const STUCK_TOLERANCE = 0.5;
+
+/** A computed inset in px, or `null` for `auto` or a value it cannot read. */
+function readInset(text: string) {
+  const value = Number.parseFloat(text);
+  return Number.isFinite(value) ? value : null;
+}
+
+/**
+ * Whether a sticky box that sticks to the viewport is stuck now: an edge is
+ * at its sticky offset from the same edge of the viewport. Then a scroll
+ * does not move it on the screen, so the elements in it draw on the fixed
+ * `<canvas>` element.
+ *
+ * @internal
+ */
+export function isStuckToViewport(
+  box: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+) {
+  const style = styleOf(box);
+  const root = box.ownerDocument.documentElement;
+  const rect = box.getBoundingClientRect();
+  const at = (inset: string, gap: number) => {
+    const offset = readInset(inset);
+    return offset !== null && Math.abs(gap - offset) <= STUCK_TOLERANCE;
+  };
+  return (
+    at(style.top, rect.top) ||
+    at(style.bottom, root.clientHeight - rect.bottom) ||
+    at(style.left, rect.left) ||
+    at(style.right, root.clientWidth - rect.right)
+  );
+}
+
+const SEEN = {
+  opacityProperty: true,
+  visibilityProperty: true,
+} satisfies CheckVisibilityOptions;
+
+/**
+ * Measures one element where the browser has laid it out now, in viewport
+ * coordinates, or returns `null` when it has no box or nobody can see it:
+ * it, or an ancestor, has `opacity: 0` or `visibility: hidden`. `styleOf`
+ * lets the elements of one frame share the computed styles of their
+ * ancestors.
  *
  * @internal
  */
@@ -286,16 +375,20 @@ export function readElementBox(
   styleOf: (element: Element) => CSSStyleDeclaration,
 ): ElementBox | null {
   const rect = element.getBoundingClientRect();
-  if (rect.width <= 0 || rect.height <= 0) {
+  if (rect.width <= 0 || rect.height <= 0 || !element.checkVisibility(SEEN)) {
     return null;
   }
   const style = styleOf(element);
+  const stickyBoxes = viewportStickyBoxes(element, styleOf);
   return {
     x: rect.left,
     y: rect.top,
     width: rect.width,
     height: rect.height,
-    fixed: isFixedToViewport(element, styleOf),
+    fixed:
+      isFixedToViewport(element, styleOf) ||
+      stickyBoxes.some((box) => isStuckToViewport(box, styleOf)),
+    sticksToViewport: stickyBoxes.length > 0,
     radii: resolveCornerRadii(rect.width, rect.height, [
       style.borderTopLeftRadius,
       style.borderTopRightRadius,

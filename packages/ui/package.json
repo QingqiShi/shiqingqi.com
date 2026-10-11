@@ -55,6 +55,7 @@
     "./hooks/use-dust": "./src/effect-layer/use-dust.ts",
     "./hooks/use-effect-boundary": "./src/effect-layer/use-effect-boundary.ts",
     "./hooks/use-effect-container": "./src/effect-layer/use-effect-container.ts",
+    "./hooks/use-effect-cover": "./src/effect-layer/use-effect-cover.ts",
     "./hooks/use-extractor-fan": "./src/effect-layer/use-extractor-fan.ts",
     "./hooks/use-is-hydrated": "./src/hooks/use-is-hydrated.ts",
     "./hooks/use-light-beam": "./src/effect-layer/use-light-beam.ts",

@@ -220,3 +220,47 @@ describe("createEffectRegistry records", () => {
     expect(reads).toEqual([]);
   });
 });
+
+describe("createEffectRegistry covers", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.innerHTML = "";
+  });
+
+  /** A fixed sheet over the bottom of the page, with a control inside it. */
+  function setUpSheet() {
+    const setup = setUp();
+    const sheet = element(0, 500, undefined);
+    sheet.style.position = "fixed";
+    layOut(sheet, { x: 0, y: 500, width: 400, height: 300 });
+    const inSheet = document.createElement("div");
+    sheet.append(inSheet);
+    layOut(inSheet, { x: 20, y: 520, width: 100, height: 40 });
+    const under = element(20, 600);
+    const beside = element(20, 100);
+    for (const target of [under, inSheet, beside]) {
+      setup.registry.register(target, 0b1, NO_SETTINGS, ON_PAGE);
+    }
+    setup.registry.register(sheet, 0, NO_SETTINGS, {
+      ...ON_PAGE,
+      covers: true,
+    });
+    setup.measureAll();
+    return { ...setup, sheet, under, inSheet, beside };
+  }
+
+  const elementsOf = (registry: ReturnType<typeof createEffectRegistry>) =>
+    registry.records(0, 0).map((record) => record.element);
+
+  it("leaves out the elements under a cover and the cover, and keeps those inside it or outside its box", () => {
+    const { registry, inSheet, beside } = setUpSheet();
+    expect(elementsOf(registry)).toEqual([beside, inSheet]);
+  });
+
+  it("gives the elements under a cover back when the cover can no longer be seen", () => {
+    const { registry, measureAll, sheet, under, beside } = setUpSheet();
+    sheet.style.opacity = "0";
+    measureAll();
+    expect(elementsOf(registry)).toEqual([under, beside]);
+  });
+});

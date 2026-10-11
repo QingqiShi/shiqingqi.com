@@ -1,8 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { createEffectRegistry } from "../effect-layer/create-effect-registry.ts";
+import { EffectLayerContext } from "../effect-layer/effect-layer-context.ts";
 import { SegmentedControl } from "./segmented-control.tsx";
 
 const ICON_OPTIONS = [
@@ -453,5 +455,359 @@ describe("SegmentedControl hideLabels", () => {
     expect(screen.getByTestId("icon-grid").parentElement).toHaveAttribute(
       "aria-hidden",
     );
+  });
+});
+
+describe("SegmentedControl liquid effect", () => {
+  function renderLiquid(effect?: "liquid" | "none") {
+    const registry = createEffectRegistry();
+    function LiquidHarness() {
+      const [value, setValue] = useState<"daily" | "overview">("daily");
+      return (
+        <SegmentedControl
+          aria-label="View"
+          options={OPTIONS}
+          value={value}
+          onChange={setValue}
+          effect={effect}
+        />
+      );
+    }
+    render(
+      <EffectLayerContext value={registry.register}>
+        <LiquidHarness />
+      </EffectLayerContext>,
+    );
+    const track = screen.getByRole("radiogroup");
+    const liquid = () => registry.elements().get(track)?.settings.liquid;
+    vi.spyOn(track, "getBoundingClientRect").mockReturnValue(
+      DOMRect.fromRect({ x: 100, y: 50, width: 200, height: 40 }),
+    );
+    return { track, liquid };
+  }
+
+  it("draws the indicator as liquid by default, resting on the selected segment", () => {
+    const { track, liquid } = renderLiquid();
+    expect(liquid()).toMatchObject({
+      position: 0,
+      pressed: false,
+      aim: 0,
+    });
+    expect(track.querySelector("[data-liquid-indicator]")).toBe(
+      track.firstElementChild,
+    );
+  });
+
+  it("pours to the segment a click selects, aimed at where it was pressed", () => {
+    const { liquid } = renderLiquid();
+    const overview = screen.getByRole("radio", { name: "Overview" });
+    const press = {
+      pointerId: 1,
+      clientY: 54,
+      button: 0,
+      pointerType: "mouse",
+    };
+
+    fireEvent.pointerDown(overview, press);
+    expect(liquid()).toMatchObject({ position: 1, pressed: true });
+    expect(liquid()?.aim).toBeCloseTo(-0.8);
+
+    fireEvent.pointerUp(overview, press);
+    fireEvent.click(overview, { detail: 1 });
+    expect(liquid()).toMatchObject({ position: 1, pressed: false });
+    expect(liquid()?.aim).toBeCloseTo(-0.8);
+  });
+
+  it("thaws only while a press is on the track", () => {
+    const { track, liquid } = renderLiquid();
+    fireEvent.pointerDown(track, {
+      pointerId: 1,
+      clientY: 70,
+      button: 0,
+      pointerType: "touch",
+    });
+    expect(liquid()?.pressed).toBe(true);
+    fireEvent.pointerLeave(track, { pointerId: 1, pointerType: "touch" });
+    expect(liquid()?.pressed).toBe(false);
+    fireEvent.pointerDown(track, {
+      pointerId: 1,
+      clientY: 70,
+      button: 2,
+      pointerType: "mouse",
+    });
+    expect(liquid()?.pressed).toBe(false);
+  });
+
+  it("aims a selection by arrow key at the centre line", async () => {
+    const user = userEvent.setup();
+    const { track, liquid } = renderLiquid();
+    fireEvent.pointerDown(track, {
+      pointerId: 1,
+      clientY: 88,
+      button: 0,
+      pointerType: "mouse",
+    });
+    fireEvent.pointerUp(track, {
+      pointerId: 1,
+      clientY: 88,
+      button: 0,
+      pointerType: "mouse",
+    });
+    expect(liquid()?.aim).toBeCloseTo(0.9);
+
+    screen.getByRole("radio", { name: "Daily" }).focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(liquid()).toMatchObject({ position: 1, aim: 0 });
+  });
+
+  it('draws no effect with effect="none"', () => {
+    const { liquid } = renderLiquid("none");
+    expect(liquid()).toBeUndefined();
+  });
+});
+
+describe("SegmentedControl drag", () => {
+  const THREE = [
+    { value: "day", label: "Day" },
+    { value: "week", label: "Week" },
+    { value: "month", label: "Month" },
+  ] as const;
+  type Three = (typeof THREE)[number]["value"];
+
+  // jsdom has no pointer capture. A real browser routes the pointer to the
+  // track; the events here go to the track already.
+  if (!("setPointerCapture" in HTMLElement.prototype)) {
+    Object.assign(HTMLElement.prototype, { setPointerCapture() {} });
+  }
+
+  /**
+   * Three segments of `widths` from x = 100 on a 40px track, starting on
+   * `day`. jsdom lays nothing out, so each box is given.
+   */
+  function renderDrag({
+    effect,
+    disabled,
+    widths = [100, 100, 100],
+  }: {
+    effect?: "liquid" | "none";
+    disabled?: boolean;
+    widths?: readonly number[];
+  } = {}) {
+    const registry = createEffectRegistry();
+    const onChange = vi.fn();
+    function DragHarness() {
+      const [value, setValue] = useState<Three>("day");
+      return (
+        <fieldset disabled={disabled}>
+          <SegmentedControl
+            aria-label="Range"
+            options={THREE}
+            value={value}
+            onChange={(next) => {
+              onChange(next);
+              setValue(next);
+            }}
+            effect={effect}
+          />
+        </fieldset>
+      );
+    }
+    render(
+      <EffectLayerContext value={registry.register}>
+        <DragHarness />
+      </EffectLayerContext>,
+    );
+    const track = screen.getByRole("radiogroup");
+    const width = widths.reduce((sum, each) => sum + each, 0);
+    vi.spyOn(track, "getBoundingClientRect").mockReturnValue(
+      DOMRect.fromRect({ x: 100, y: 50, width, height: 40 }),
+    );
+    vi.spyOn(track, "clientWidth", "get").mockReturnValue(width);
+    const segments = screen.getAllByRole("radio");
+    segments.forEach((segment, index) => {
+      vi.spyOn(segment, "getBoundingClientRect").mockReturnValue(
+        DOMRect.fromRect({
+          x: 100 + widths.slice(0, index).reduce((sum, each) => sum + each, 0),
+          y: 50,
+          width: widths[index],
+          height: 40,
+        }),
+      );
+    });
+    const liquid = () => registry.elements().get(track)?.settings.liquid;
+    const at = (clientX: number, clientY = 70) => ({
+      pointerId: 1,
+      clientX,
+      clientY,
+      button: 0,
+      pointerType: "mouse",
+    });
+    return { track, segments, liquid, onChange, at };
+  }
+
+  it("moves the liquid at once to the segment a press is on", () => {
+    const { segments, liquid, onChange, at } = renderDrag();
+    fireEvent.pointerDown(segments[2], at(350));
+    expect(liquid()).toMatchObject({ position: 2, drag: null, pressed: true });
+    expect(onChange).not.toHaveBeenCalled();
+    expect(segments[0]).toBeChecked();
+  });
+
+  it("drags from a press on a segment that is not selected", () => {
+    const { track, segments, liquid, onChange, at } = renderDrag();
+    const [, week, month] = segments;
+
+    fireEvent.pointerDown(week, at(250));
+    fireEvent.pointerMove(track, at(251));
+    expect(liquid()).toMatchObject({ position: 1, drag: null });
+
+    fireEvent.pointerMove(track, at(300));
+    expect(liquid()?.drag).toBeCloseTo(1.5);
+
+    fireEvent.pointerMove(track, at(900));
+    expect(liquid()?.drag).toBe(2);
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.pointerUp(track, at(900, 54));
+    fireEvent.click(month, { detail: 1 });
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("month");
+    expect(liquid()).toMatchObject({ position: 2, drag: null, pressed: false });
+    expect(liquid()?.aim).toBeCloseTo(-0.8);
+    expect(month).toBeChecked();
+  });
+
+  it("selects the segment under the indicator's centre on release", () => {
+    const { track, segments, onChange, at } = renderDrag({
+      widths: [100, 200, 60],
+    });
+    // The centres are at 150, 300 and 430. At 410 the indicator is mostly
+    // over `week`, but its centre is over `month`.
+    fireEvent.pointerDown(segments[0], at(150));
+    fireEvent.pointerMove(track, at(410));
+    fireEvent.pointerUp(track, at(410));
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("month");
+  });
+
+  it('keeps the plain indicator as wide as the segments under it under effect="none"', () => {
+    const { track, segments, onChange, at } = renderDrag({
+      effect: "none",
+      widths: [100, 200, 60],
+    });
+    const indicator = track.firstElementChild;
+    const style = () => indicator?.getAttribute("style") ?? "";
+    const before = style();
+
+    fireEvent.pointerDown(segments[2], at(430));
+    // On the narrow segment: 300px from the start, 0px from the end.
+    expect(style()).toContain("300px");
+    expect(style()).toContain("0px");
+
+    // Halfway from the centre of `week` to the centre of `month`, the
+    // indicator is 130px wide, from 200px to 30px from the end.
+    fireEvent.pointerMove(track, at(365));
+    expect(style()).toContain("200px");
+    expect(style()).toContain("30px");
+
+    fireEvent.pointerUp(track, at(365));
+    expect(style()).toBe(before);
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("week");
+  });
+
+  it("does not select again when the drag ends on the selected segment", () => {
+    const { track, segments, liquid, onChange, at } = renderDrag();
+    const [day] = segments;
+    fireEvent.pointerDown(day, at(150));
+    fireEvent.pointerMove(track, at(190));
+    fireEvent.pointerUp(day, at(190));
+    fireEvent.click(day, { detail: 1 });
+    expect(onChange).not.toHaveBeenCalled();
+    expect(liquid()).toMatchObject({ position: 0, drag: null });
+  });
+
+  it("selects the segment a tap is on, the selected one too", () => {
+    const { track, segments, onChange, at } = renderDrag();
+    const [day, week] = segments;
+    fireEvent.pointerDown(week, at(250));
+    fireEvent.pointerMove(track, at(251));
+    fireEvent.pointerUp(week, at(251));
+    fireEvent.click(week, { detail: 1 });
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("week");
+    expect(week).toBeChecked();
+
+    fireEvent.pointerDown(week, at(250));
+    fireEvent.pointerUp(week, at(250));
+    fireEvent.click(week, { detail: 1 });
+    expect(onChange).toHaveBeenLastCalledWith("week");
+    expect(onChange).toHaveBeenCalledTimes(2);
+    expect(day).not.toBeChecked();
+  });
+
+  it("shows the segment under the indicator as selected until the release", () => {
+    const { track, segments, onChange, at } = renderDrag();
+    const [day, week, month] = segments;
+    const looksSelected = () =>
+      segments.map((segment) => segment.className.includes("optionSelected"));
+
+    fireEvent.pointerDown(week, at(250));
+    expect(looksSelected()).toEqual([false, true, false]);
+    expect(day).toBeChecked();
+
+    fireEvent.pointerMove(track, at(350));
+    expect(looksSelected()).toEqual([false, false, true]);
+    expect(day).toBeChecked();
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.pointerUp(track, at(350));
+    expect(onChange).toHaveBeenCalledExactlyOnceWith("month");
+    expect(looksSelected()).toEqual([false, false, true]);
+    expect(month).toBeChecked();
+  });
+
+  it("shows the selected segment again when the pointer is cancelled", () => {
+    const { track, segments, at } = renderDrag();
+    fireEvent.pointerDown(segments[1], at(250));
+    fireEvent.pointerMove(track, at(350));
+    fireEvent.pointerCancel(track, at(350));
+    expect(
+      segments.map((segment) => segment.className.includes("optionSelected")),
+    ).toEqual([true, false, false]);
+  });
+
+  it("returns to the previous value when the pointer is cancelled", () => {
+    const { track, segments, liquid, onChange, at } = renderDrag();
+    fireEvent.pointerDown(segments[1], at(250));
+    expect(liquid()?.position).toBe(1);
+    fireEvent.pointerMove(track, at(350));
+    expect(liquid()?.drag).toBe(2);
+    fireEvent.pointerCancel(track, at(350));
+    expect(onChange).not.toHaveBeenCalled();
+    expect(liquid()).toMatchObject({ position: 0, drag: null, pressed: false });
+    expect(segments[0]).toBeChecked();
+  });
+
+  it("does not drag a disabled control", () => {
+    const { track, segments, liquid, onChange, at } = renderDrag({
+      disabled: true,
+    });
+    fireEvent.pointerDown(segments[1], at(250));
+    expect(liquid()?.position).toBe(0);
+    fireEvent.pointerMove(track, at(350));
+    fireEvent.pointerUp(track, at(350));
+    expect(liquid()?.drag).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("leaves the keys as they are after a drag", async () => {
+    const user = userEvent.setup();
+    const { track, segments, onChange, at } = renderDrag();
+    fireEvent.pointerDown(segments[0], at(150));
+    fireEvent.pointerMove(track, at(250));
+    fireEvent.pointerUp(track, at(250));
+    segments[1].focus();
+    await user.keyboard("{ArrowRight}");
+    expect(onChange).toHaveBeenLastCalledWith("month");
+    await user.keyboard(" ");
+    expect(onChange).toHaveBeenCalledTimes(3);
   });
 });

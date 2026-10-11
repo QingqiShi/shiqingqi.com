@@ -1,5 +1,5 @@
 import type { EffectColor } from "./parse-css-color.ts";
-import type { RingLightState } from "./ring-light-at.ts";
+import type { RingLightBox, RingLightState } from "./ring-light-at.ts";
 import { TARGET_WGSL } from "./target-wgsl.ts";
 
 /** The half width of a comet's core at its head, in CSS px. */
@@ -34,9 +34,9 @@ const RIM_REACH = 1 + CORE_HALF_WIDTH + 3 * BLOOM_SIGMA;
 
 /**
  * The render shader of the ring light, with each element that has a ring
- * light this frame in group 2. Each instance is one element: a quad around
- * it out to the reach of the light, which lights the outline where a comet
- * is.
+ * light this frame in group 2. Each instance is one box of an element: a
+ * quad around it out to the reach of the light, which lights the outline
+ * where a comet is.
  *
  * @internal
  */
@@ -65,6 +65,10 @@ struct RingLightInstance {
   comets: array<vec4f, 2>,
   inset: f32,
   pageTint: f32,
+  // The box the light runs around: its corners' radius and superellipse
+  // exponent, and its rect.
+  corner: vec2f,
+  box: vec4f,
 }
 
 @group(2) @binding(0) var<storage, read> ringLights: array<RingLightInstance>;
@@ -78,6 +82,15 @@ fn cornerRadius(element: EffectElement) -> f32 {
   let radii = element.radii;
   let radius = min(min(radii.x, radii.y), min(radii.z, radii.w));
   return max(0.0, min(radius, min(element.rect.z, element.rect.w) * 0.5));
+}
+
+// The element of a ring light with its box in place of the element's own.
+fn ringBox(ring: RingLightInstance) -> EffectElement {
+  var element = effectElements[ring.element];
+  element.rect = ring.box;
+  element.radii = vec4f(ring.corner.x);
+  element.cornerExponent = ring.corner.y;
+  return element;
 }
 
 fn outlineLength(element: EffectElement, radius: f32) -> f32 {
@@ -140,7 +153,7 @@ fn ringLightVertex(
   @builtin(instance_index) instance: u32,
 ) -> RingLightVarying {
   let ring = ringLights[instance];
-  let element = effectElements[ring.element];
+  let element = ringBox(ring);
   let corner = vec2f(f32(vertex & 1u), f32((vertex >> 1u) & 1u));
   let page = element.rect.xy - RIM_REACH + corner * (element.rect.zw + 2.0 * RIM_REACH);
   return RingLightVarying(pageToClip(page), instance);
@@ -157,7 +170,7 @@ fn band(across: f32, half: f32, pixel: f32) -> f32 {
 @fragment
 fn ringLightFragment(input: RingLightVarying) -> @location(0) vec4f {
   let ring = ringLights[input.instance];
-  let element = effectElements[ring.element];
+  let element = ringBox(ring);
   let page = fragmentToPage(input.position.xy);
   let pixel = 1.0 / effectTarget.pixelScale.x;
   let edge = effectElementDistance(element, page);
@@ -228,15 +241,21 @@ export interface RingLightInstance {
   readonly inset: number;
   /** How far the light goes to the bloom's colour where it is over the page. */
   readonly pageTint: number;
+  /**
+   * The box the light runs around, in page coordinates: the element's own,
+   * or a part of it, such as a segmented control's indicator.
+   */
+  readonly box: RingLightBox;
+  /** The superellipse exponent of the box's corners: 2 for circular arcs. */
+  readonly cornerExponent: number;
 }
 
 /**
- * The byte size of one `RingLightInstance`: its fields take 104 bytes, and
- * the struct's stride rounds up to 16.
+ * The byte size of one `RingLightInstance`.
  *
  * @internal
  */
-export const RING_LIGHT_INSTANCE_BYTES = 112;
+export const RING_LIGHT_INSTANCE_BYTES = 128;
 
 const INSTANCE_WORDS = RING_LIGHT_INSTANCE_BYTES / 4;
 
@@ -271,5 +290,8 @@ export function packRingLightInstances(
     }
     floats[at + 24] = instance.inset;
     floats[at + 25] = instance.pageTint;
+    const { box } = instance;
+    floats.set([box.radius, instance.cornerExponent], at + 26);
+    floats.set([box.x, box.y, box.width, box.height], at + 28);
   }
 }

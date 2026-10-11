@@ -19,6 +19,7 @@ function record(
     fixed: false,
     radii: [0, 0, 0, 0],
     cornerExponent: 2,
+    sticksToViewport: false,
     fill: [0, 0, 0, 0],
     grayscale: 0,
     scope: PAGE_SCOPE,
@@ -112,6 +113,17 @@ describe("planScopes", () => {
     expect(ids(plan.elements)).toEqual([4]);
     expect(plan.document.hasRole).toBe(false);
     expect(plan.scopes.map(({ id }) => id)).toEqual([PAGE_SCOPE]);
+  });
+
+  it("needs both canvases for an element with a role that sticks to the viewport, stuck or not", () => {
+    for (const fixed of [false, true]) {
+      const plan = planScopes(
+        [record(1, { roles: 1, fixed, sticksToViewport: true }), record(2)],
+        PAGE,
+      );
+      expect(plan.document.hasRole).toBe(true);
+      expect(plan.fixed.hasRole).toBe(true);
+    }
   });
 
   it("leaves out a loop of containers", () => {

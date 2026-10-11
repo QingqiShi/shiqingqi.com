@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { animate } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -55,6 +56,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [held, setHeld] = useState(false);
   const nextIdRef = useRef(0);
   const portalTarget = usePortalTarget();
+  const coverRef = useEffectCover();
 
   useEffect(() => {
     if (!toast || held) return;
@@ -83,6 +85,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toast ? (
           <div
             key={toast.id}
+            ref={coverRef}
             css={[
               corner.radius_3,
               styles.toast,

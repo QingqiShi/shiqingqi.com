@@ -44,7 +44,10 @@ export function readPageBackdrop(): EffectColor {
  * @internal
  */
 export interface CanvasRange extends ElementRange {
-  /** An element of the range has a role, so its `<canvas>` element is needed. */
+  /**
+   * An element with a role is in the range, or sticks to the viewport and
+   * can move into it, so its `<canvas>` element is needed.
+   */
   readonly hasRole: boolean;
 }
 
@@ -180,7 +183,11 @@ export function planScopes(
 
   const documentCount = elements.filter((record) => !record.fixed).length;
   const hasRole = (fixed: boolean) =>
-    elements.some((record) => record.fixed === fixed && record.roles !== 0);
+    elements.some(
+      (record) =>
+        record.roles !== 0 &&
+        (record.fixed === fixed || record.sticksToViewport),
+    );
   return {
     elements,
     document: {

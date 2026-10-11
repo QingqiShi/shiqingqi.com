@@ -1,9 +1,12 @@
 /**
- * The liquid of a Switch's thumb, as a particle fluid in track space: `x`
- * runs along the travel from the centre of the off position, `y` from the
- * centre line, both in units of the thumb's rest radius, so the same
- * numbers serve every size. The track holds the liquid inside its padding:
- * every point within 1 of the segment from `(0, 0)` to `(travel, 0)`.
+ * The liquid of a Switch's thumb or a segmented control's indicator, as a
+ * particle fluid in track space: `x` runs along the track from the centre
+ * of the first place the liquid can rest, `y` from the centre line, both in
+ * units of the rest radius, half the height of the thumb or the indicator,
+ * so the same numbers serve every size. The track holds the liquid inside
+ * its padding, between two walls: every point within 1 of the segment from
+ * `(from, 0)` to `(to, 0)`. At rest the liquid fills a pill, every point
+ * within 1 of a segment `2 × span` long, which for a thumb is a circle.
  *
  * The fluid is Clavet, Beaudoin and Poulin's double density relaxation: each
  * step moves the particles, then pushes them apart where they are denser
@@ -34,6 +37,15 @@ export interface LiquidBody {
   readonly set: number;
   /** Nothing moves any more, so no frame needs to follow for the body. */
   readonly settled: boolean;
+  /**
+   * The reach of each particle, against its reach in a thumb's liquid. The
+   * body has a fixed number of particles, so it spreads them further apart
+   * to fill a larger pill, and moves this to the target's as it pours.
+   */
+  readonly scale: number;
+  /** The walls that hold the liquid now, as `LiquidInput` gives them. */
+  readonly from: number;
+  readonly to: number;
   readonly beads: readonly LiquidBead[];
   /** Where the trailing edge last shed a bead. */
   readonly shedAt: number;
@@ -64,16 +76,28 @@ export interface LiquidBead {
 }
 
 /**
- * What one step reads from the Switch.
+ * What one step reads from the Switch or the segmented control.
  *
  * @internal
  */
 export interface LiquidInput {
-  /** Where the liquid is pulled to, along the travel. */
+  /** Where the liquid is pulled to: the centre of its rest shape. */
   readonly target: number;
-  /** How far the thumb's centre travels between off and on. */
-  readonly travel: number;
-  /** A pointer is down on the Switch, so the thumb stays melted. */
+  /**
+   * Half the length of the straight part of the rest shape: 0 for a
+   * thumb's circle, more for an indicator's pill.
+   */
+  readonly span: number;
+  /**
+   * The walls the liquid lands on: the centres of the end caps of the room
+   * it has. A Switch's are the ends of its track. A segmented control puts
+   * the wall ahead of the liquid at the far end of the target's pill, so
+   * the liquid lands there. A wall that moves in stops at the liquid and
+   * follows it in, so it never pushes the liquid.
+   */
+  readonly from: number;
+  readonly to: number;
+  /** A pointer is down on the control, so the liquid stays melted. */
   readonly pressed: boolean;
   readonly reducedMotion: boolean;
   /**
@@ -85,8 +109,21 @@ export interface LiquidInput {
   readonly aim: number;
 }
 
-/** @internal */
+/**
+ * The particles of a thumb's liquid. A longer pill has more, in proportion
+ * to its area, up to `MAX_PARTICLE_COUNT`.
+ *
+ * @internal
+ */
 export const PARTICLE_COUNT = 150;
+/**
+ * The most particles a body has. Past this a longer pill spreads them
+ * further apart instead, so that a step costs at most about as much as
+ * two thumbs.
+ *
+ * @internal
+ */
+export const MAX_PARTICLE_COUNT = 225;
 
 /**
  * The reach of a particle's density, in units of the rest radius. The
@@ -100,9 +137,16 @@ export const KERNEL_REACH = 0.42;
 /** The disk the particles fill at rest, inside the wall by one particle. */
 const PARTICLE_SPACING = Math.sqrt(Math.PI / PARTICLE_COUNT) * 0.93;
 const PARTICLE_RADIUS = PARTICLE_SPACING / 2;
-const REST_RADIUS = 1 - PARTICLE_RADIUS;
+/** A low-discrepancy sequence in two dimensions, which fills a box evenly. */
+const PLASTIC = [0.7548776662466927, 0.5698402909980532] as const;
 const SUBSTEP = 1 / 240;
 const MAX_STEP = 1 / 30;
+/**
+ * A particle moves at most this far, in rest radii, in one substep: a
+ * boosted pour takes more substeps, so that the relaxation stays stable.
+ * A Switch's particles never move more than 0.06 in a substep.
+ */
+const SUBSTEP_MOVE = 0.08;
 /**
  * The liquid's clock runs this many times faster than the page's: every
  * rate here is per second of the liquid's clock, so the whole pour, its
@@ -127,6 +171,17 @@ const TILT = 56;
 /** Within this reach of the target the tilt eases off. */
 const TILT_REACH = 0.4;
 /**
+ * Farther from the target than this, the tilt is steeper, by how much
+ * farther to the power `TILT_BOOST_POWER` and at most `TILT_BOOST_MAX`
+ * times, so that a pour to the next segment lands about when a Switch's
+ * does and a pour across several lands not much later: longer than any
+ * Switch's travel, which is at most 2.29 rest radii, so a Switch pours as
+ * it always has.
+ */
+const TILT_BOOST_REACH = 2.5;
+const TILT_BOOST_POWER = 1.5;
+const TILT_BOOST_MAX = 3.25;
+/**
  * The tilt across the track at a full `aim`, in rest radii per second
  * squared, while the liquid pours. It moves the body only a little across,
  * but enough that it lands well off the middle of the far end.
@@ -137,18 +192,25 @@ const CENTRE_PULL = 4;
 /**
  * The liquid wets the wall it touches: per second, how fast a particle
  * within `WALL_GRIP_REACH` of the wall loses its speed, so that the front
- * pins where it lands and the mass behind it sloshes.
+ * pins where it lands and the mass behind it sloshes. A pill wets the
+ * track's long sides all along its length, where a thumb touches them
+ * only at its poles, so the sides share this grip over `SIDE_GRIP_SHARE`
+ * times the pill's span: else they drag the pill out into a long slab
+ * with a tail.
  */
 const WALL_GRIP = 12;
 const WALL_GRIP_REACH = 0.08;
+const SIDE_GRIP_SHARE = 8;
 
 /** Below this mean speed, in rest radii per second, the liquid is still. */
 const STILL_SPEED = 0.3;
 /**
  * The liquid has arrived once the centre of its mass is this near the
- * target, in rest radii: as it lands on the far end.
+ * target, in rest radii, plus this share of the span for a pill, which
+ * sloshes further: as it lands on the far end.
  */
 const ARRIVE_REACH = 0.2;
+const ARRIVE_SPAN = 0.5;
 /**
  * Per second: how fast the liquid that has arrived settles into the
  * thumb's circle and freezes, both at once, so that they are one change
@@ -159,8 +221,14 @@ const CALM_FALL = 16;
 /** Per second: how fast the thumb thaws into water. */
 const MELT = 6;
 
-/** The trailing edge sheds at most one bead each time it moves this far. */
+/**
+ * The trailing edge sheds at most one bead each time it moves this far, or
+ * a `SHED_BUDGET` share of the room between the walls if that is more, so
+ * that a long pour leaves beads along its way and not a row of them. The
+ * room of a Switch is at most 2.29, so its spacing is always this.
+ */
 const SHED_SPACING = 0.21;
+const SHED_BUDGET = 12;
 const SHED_CHANCE = 0.9;
 /** The trailing edge sheds only when it moves faster than this. */
 const SHED_SPEED = 1;
@@ -194,10 +262,15 @@ export const NECK_REACH = 1.6;
 const ABSORB = 20;
 /** A bead this small has gone, in rest radii. */
 const GONE_RADIUS = 0.02;
+/** Per second: how fast the body spreads or gathers to fill a new pill. */
+const SCALE_RATE = 8;
 
 function between(unit: number, range: { min: number; max: number }) {
   return range.min + (range.max - range.min) * unit;
 }
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
@@ -215,9 +288,41 @@ export function mean(values: ArrayLike<number>) {
   return sum / values.length;
 }
 
-/** The density at the centre of the rest disk. */
+/** The area of a pill of radius 1 with a straight part `2 × span` long. */
+function pillArea(span: number) {
+  return Math.PI + 4 * Math.max(0, span);
+}
+
+/**
+ * How many particles the liquid of a pill of `span` has: a thumb's count
+ * for a circle, and more in proportion to the area, up to
+ * `MAX_PARTICLE_COUNT`.
+ *
+ * @internal
+ */
+export function particleCountFor(span: number) {
+  return Math.min(
+    MAX_PARTICLE_COUNT,
+    Math.max(
+      PARTICLE_COUNT,
+      Math.round((PARTICLE_COUNT * pillArea(span)) / Math.PI),
+    ),
+  );
+}
+
+/**
+ * The reach of each of `count` particles that fill a pill of `span`,
+ * against the reach of a thumb's: 1 for a thumb.
+ *
+ * @internal
+ */
+export function scaleFor(span: number, count: number) {
+  return Math.sqrt((pillArea(span) / Math.PI) * (PARTICLE_COUNT / count));
+}
+
+/** The density at the centre of a thumb's rest disk. */
 function restDensity() {
-  const [x, y] = restPositions(0);
+  const [x, y] = restPositions(0, 0, PARTICLE_COUNT, 1);
   let density = 0;
   for (let j = 0; j < PARTICLE_COUNT; j++) {
     const distance = Math.hypot(x[j], y[j]);
@@ -229,36 +334,77 @@ function restDensity() {
   return density;
 }
 
-const REST_DENSITY = restDensity();
-
-/** The particles laid out evenly over the rest disk, centred at `centre`. */
-function restPositions(centre: number): [Float32Array, Float32Array] {
-  const x = new Float32Array(PARTICLE_COUNT);
-  const y = new Float32Array(PARTICLE_COUNT);
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const radius = REST_RADIUS * Math.sqrt((i + 0.5) / PARTICLE_COUNT);
+/**
+ * The particles laid out evenly over the rest pill, centred at `centre`:
+ * a disk split into two halves at the ends, and a box between them.
+ */
+function restPositions(
+  centre: number,
+  span: number,
+  count: number,
+  scale: number,
+): [Float32Array, Float32Array] {
+  const x = new Float32Array(count);
+  const y = new Float32Array(count);
+  const radius = 1 - PARTICLE_RADIUS * scale;
+  const disk = Math.PI * radius * radius;
+  const box = 4 * span * radius;
+  const inBox = span > 0 ? Math.round((count * box) / (disk + box)) : 0;
+  const inDisk = count - inBox;
+  for (let i = 0; i < inDisk; i++) {
+    const distance = radius * Math.sqrt((i + 0.5) / inDisk);
     const angle = i * GOLDEN_ANGLE;
-    x[i] = centre + radius * Math.cos(angle);
-    y[i] = radius * Math.sin(angle);
+    const along = distance * Math.cos(angle);
+    x[i] = centre + along + Math.sign(along) * span;
+    y[i] = distance * Math.sin(angle);
+  }
+  for (let i = 0; i < inBox; i++) {
+    const u = (0.5 + (i + 1) * PLASTIC[0]) % 1;
+    const v = (0.5 + (i + 1) * PLASTIC[1]) % 1;
+    x[inDisk + i] = centre + (2 * u - 1) * span;
+    y[inDisk + i] = (2 * v - 1) * radius;
   }
   return [x, y];
 }
 
+const REST_DENSITY = restDensity();
+
 /**
- * The liquid at rest at `target`.
+ * The liquid at rest at `target`: a circle, or a pill of `span`, between
+ * the walls `from` and `to`, which are the ends of the pill unless given.
+ * `count` keeps the particles of a body that rests again.
  *
  * @internal
  */
-export function restingLiquid(target: number, seed = 1): LiquidBody {
-  const [x, y] = restPositions(target);
+export function restingLiquid(
+  target: number,
+  {
+    seed = 1,
+    span = 0,
+    count = particleCountFor(span),
+    from = target - span,
+    to = target + span,
+  }: {
+    seed?: number;
+    span?: number;
+    count?: number;
+    from?: number;
+    to?: number;
+  } = {},
+): LiquidBody {
+  const scale = scaleFor(span, count);
+  const [x, y] = restPositions(target, span, count, scale);
   return {
     x,
     y,
-    vx: new Float32Array(PARTICLE_COUNT),
-    vy: new Float32Array(PARTICLE_COUNT),
+    vx: new Float32Array(count),
+    vy: new Float32Array(count),
     calm: 1,
     set: 1,
     settled: true,
+    scale,
+    from,
+    to,
     beads: [],
     shedAt: target,
     seed,
@@ -269,23 +415,28 @@ export function restingLiquid(target: number, seed = 1): LiquidBody {
 const IMPACT_BAND = 0.15;
 
 /**
- * Where the liquid lands on the wall at the on end of the track, at `end`,
- * or `null` while it does not touch that wall: the middle of the particles
- * that meet the wall there, pushed out onto the wall.
+ * Where the liquid lands on the wall at `end`, which the liquid pours
+ * towards in `direction` (1 along the track, -1 back), or `null` while it
+ * does not touch that wall: the middle of the particles that meet the wall
+ * there, pushed out onto the wall. Liquid past the wall, which a wall that
+ * has moved in behind it leaves, does not touch it.
  *
  * @internal
  */
-export function impactOn(body: LiquidBody, end: number) {
-  const limit = 1 - PARTICLE_RADIUS - 0.03;
+export function impactOn(body: LiquidBody, end: number, direction: 1 | -1 = 1) {
+  const limit = 1 - PARTICLE_RADIUS * body.scale - 0.03;
   let touches = false;
   let sumX = 0;
   let sumY = 0;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const dx = body.x[i] - end;
+  for (let i = 0; i < body.x.length; i++) {
+    const dx = (body.x[i] - end) * direction;
     if (dx <= 0) {
       continue;
     }
     const distance = Math.hypot(dx, body.y[i]);
+    if (distance > limit + IMPACT_BAND) {
+      continue;
+    }
     touches ||= distance >= limit;
     if (distance >= limit - IMPACT_BAND) {
       sumX += dx;
@@ -296,18 +447,28 @@ export function impactOn(body: LiquidBody, end: number) {
     return null;
   }
   const length = Math.hypot(sumX, sumY);
-  return { x: end + sumX / length, y: sumY / length };
+  return { x: end + (direction * sumX) / length, y: sumY / length };
 }
 
-/** How far a particle is from the wall, which is one particle out. */
-function wallGap(x: number, y: number, travel: number) {
-  const nearX = Math.max(0, Math.min(travel, x));
-  return 1 - PARTICLE_RADIUS - Math.hypot(x - nearX, y);
+interface Walls {
+  readonly from: number;
+  readonly to: number;
+}
+
+/** How far a particle of `radius` is from the wall. */
+function wallGap(x: number, y: number, radius: number, { from, to }: Walls) {
+  const nearX = clamp(x, from, to);
+  return 1 - radius - Math.hypot(x - nearX, y);
 }
 
 /** The nearest point to `(x, y)` that a disk of `radius` fits in the track. */
-function insideTrack(x: number, y: number, radius: number, travel: number) {
-  const nearX = Math.max(0, Math.min(travel, x));
+function insideTrack(
+  x: number,
+  y: number,
+  radius: number,
+  { from, to }: Walls,
+) {
+  const nearX = clamp(x, from, to);
   const dx = x - nearX;
   const distance = Math.hypot(dx, y);
   const limit = 1 - radius;
@@ -318,22 +479,43 @@ function insideTrack(x: number, y: number, radius: number, travel: number) {
   return { x: nearX + dx * scale, y: y * scale };
 }
 
-const pairI = new Int32Array(PARTICLE_COUNT * PARTICLE_COUNT);
-const pairJ = new Int32Array(PARTICLE_COUNT * PARTICLE_COUNT);
-const density = new Float32Array(PARTICLE_COUNT);
-const nearDensity = new Float32Array(PARTICLE_COUNT);
-const previousX = new Float32Array(PARTICLE_COUNT);
-const previousY = new Float32Array(PARTICLE_COUNT);
+/**
+ * The walls for this step: the input's, but a wall that moves in stops
+ * where it would push a particle, and moves in only as the liquid leaves.
+ */
+function wallsFor(body: LiquidBody, input: Walls): Walls {
+  const reach = 1 - PARTICLE_RADIUS * body.scale;
+  let leftmost = Number.POSITIVE_INFINITY;
+  let rightmost = Number.NEGATIVE_INFINITY;
+  for (let i = 0; i < body.x.length; i++) {
+    const across = Math.sqrt(Math.max(0, reach * reach - body.y[i] ** 2));
+    leftmost = Math.min(leftmost, body.x[i] + across);
+    rightmost = Math.max(rightmost, body.x[i] - across);
+  }
+  return {
+    from: input.from <= body.from ? input.from : Math.min(input.from, leftmost),
+    to: input.to >= body.to ? input.to : Math.max(input.to, rightmost),
+  };
+}
 
-/** Lists every pair within the kernel's reach; returns how many. */
-function findPairs(x: Float32Array, y: Float32Array) {
+const density = new Float32Array(MAX_PARTICLE_COUNT);
+const nearDensity = new Float32Array(MAX_PARTICLE_COUNT);
+const previousX = new Float32Array(MAX_PARTICLE_COUNT);
+const previousY = new Float32Array(MAX_PARTICLE_COUNT);
+const pairI = new Int32Array(
+  (MAX_PARTICLE_COUNT * (MAX_PARTICLE_COUNT - 1)) / 2,
+);
+const pairJ = new Int32Array(pairI.length);
+
+/** Lists every pair within `reach`; returns how many. */
+function findPairs(x: Float32Array, y: Float32Array, reach: number) {
   let count = 0;
-  const reach = KERNEL_REACH * KERNEL_REACH;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    for (let j = i + 1; j < PARTICLE_COUNT; j++) {
+  const reachSquared = reach * reach;
+  for (let i = 0; i < x.length; i++) {
+    for (let j = i + 1; j < x.length; j++) {
       const dx = x[j] - x[i];
       const dy = y[j] - y[i];
-      if (dx * dx + dy * dy < reach) {
+      if (dx * dx + dy * dy < reachSquared) {
         pairI[count] = i;
         pairJ[count] = j;
         count++;
@@ -343,38 +525,63 @@ function findPairs(x: Float32Array, y: Float32Array) {
   return count;
 }
 
+/**
+ * How much steeper the tilt is at `away` from the target: 1 near it, and
+ * in proportion to the distance far from it.
+ */
+function tiltBoost(away: number) {
+  return Math.min(
+    TILT_BOOST_MAX,
+    Math.max(1, Math.abs(away) / TILT_BOOST_REACH) ** TILT_BOOST_POWER,
+  );
+}
+
 function substep(
   x: Float32Array,
   y: Float32Array,
   vx: Float32Array,
   vy: Float32Array,
-  { target, travel, aim }: LiquidInput,
+  { target, span, aim }: LiquidInput,
+  walls: Walls,
+  scale: number,
   dt: number,
 ) {
+  const count = x.length;
+  const reach = KERNEL_REACH * scale;
+  const particleRadius = PARTICLE_RADIUS * scale;
+  // The particles are `scale` times further apart, so the pressure must
+  // move them `scale` times as far for the same flow.
+  const stiffness = STIFFNESS * scale;
+  const nearStiffness = NEAR_STIFFNESS * scale;
+  const quadratic = VISCOSITY_QUADRATIC / scale;
   const wallDamping = Math.exp(-WALL_GRIP * dt);
+  const sideDamping = Math.exp(
+    (-WALL_GRIP * dt) / (1 + SIDE_GRIP_SHARE * span),
+  );
   let centreX = 0;
   let centreY = 0;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    centreX += x[i] / PARTICLE_COUNT;
-    centreY += y[i] / PARTICLE_COUNT;
+  for (let i = 0; i < count; i++) {
+    centreX += x[i] / count;
+    centreY += y[i] / count;
   }
   // The tilt is one acceleration for the whole body, as gravity is when a
   // container moves: it must not squeeze the body towards the target.
   const lean = Math.tanh((target - centreX) / TILT_REACH);
   const arrived = 1 - Math.abs(lean);
   const damping = Math.exp(-(DRAG + SETTLE_DRAG * arrived) * dt);
-  const tiltX = TILT * lean * dt;
+  const tiltX = TILT * tiltBoost(target - centreX) * lean * dt;
   const tiltY = (AIM_TILT * aim * Math.abs(lean) - CENTRE_PULL * centreY) * dt;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
+  for (let i = 0; i < count; i++) {
     vx[i] = (vx[i] + tiltX) * damping;
     vy[i] = (vy[i] + tiltY) * damping;
-    if (wallGap(x[i], y[i], travel) < WALL_GRIP_REACH) {
-      vx[i] *= wallDamping;
-      vy[i] *= wallDamping;
+    if (wallGap(x[i], y[i], particleRadius, walls) < WALL_GRIP_REACH) {
+      const onSide = x[i] > walls.from && x[i] < walls.to;
+      vx[i] *= onSide ? sideDamping : wallDamping;
+      vy[i] *= onSide ? sideDamping : wallDamping;
     }
   }
 
-  const pairs = findPairs(x, y);
+  const pairs = findPairs(x, y, reach);
   for (let p = 0; p < pairs; p++) {
     const i = pairI[p];
     const j = pairJ[p];
@@ -388,9 +595,9 @@ function substep(
     const uy = dy / distance;
     const inward = (vx[i] - vx[j]) * ux + (vy[i] - vy[j]) * uy;
     if (inward > 0) {
-      const q = 1 - distance / KERNEL_REACH;
+      const q = 1 - distance / reach;
       const impulse =
-        dt * q * (VISCOSITY * inward + VISCOSITY_QUADRATIC * inward * inward);
+        dt * q * (VISCOSITY * inward + quadratic * inward * inward);
       const half = Math.min(impulse, inward) / 2;
       vx[i] -= half * ux;
       vy[i] -= half * uy;
@@ -401,19 +608,19 @@ function substep(
 
   previousX.set(x);
   previousY.set(y);
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
+  for (let i = 0; i < count; i++) {
     x[i] += vx[i] * dt;
     y[i] += vy[i] * dt;
   }
 
-  const moved = findPairs(x, y);
-  density.fill(0);
-  nearDensity.fill(0);
+  const moved = findPairs(x, y, reach);
+  density.fill(0, 0, count);
+  nearDensity.fill(0, 0, count);
   for (let p = 0; p < moved; p++) {
     const i = pairI[p];
     const j = pairJ[p];
     const distance = Math.hypot(x[j] - x[i], y[j] - y[i]);
-    const q = 1 - distance / KERNEL_REACH;
+    const q = 1 - distance / reach;
     density[i] += q * q;
     density[j] += q * q;
     nearDensity[i] += q * q * q;
@@ -429,11 +636,11 @@ function substep(
     if (distance < 1e-6) {
       continue;
     }
-    const q = 1 - distance / KERNEL_REACH;
+    const q = 1 - distance / reach;
     const pressure =
-      STIFFNESS * (density[i] + density[j] - 2 * REST_DENSITY) * 0.5;
+      stiffness * (density[i] + density[j] - 2 * REST_DENSITY) * 0.5;
     const nearPressure =
-      NEAR_STIFFNESS * (nearDensity[i] + nearDensity[j]) * 0.5;
+      nearStiffness * (nearDensity[i] + nearDensity[j]) * 0.5;
     const push = (dtSquared * (pressure * q + nearPressure * q * q)) / 2;
     const ux = (dx / distance) * push;
     const uy = (dy / distance) * push;
@@ -443,8 +650,8 @@ function substep(
     y[j] += uy;
   }
 
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const inside = insideTrack(x[i], y[i], PARTICLE_RADIUS, travel);
+  for (let i = 0; i < count; i++) {
+    const inside = insideTrack(x[i], y[i], particleRadius, walls);
     x[i] = inside.x;
     y[i] = inside.y;
     vx[i] = (x[i] - previousX[i]) / dt;
@@ -471,7 +678,7 @@ function nearestParticle(
   y: number,
 ) {
   let nearest = Number.POSITIVE_INFINITY;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
+  for (let i = 0; i < body.x.length; i++) {
     nearest = Math.min(nearest, Math.hypot(body.x[i] - x, body.y[i] - y));
   }
   return nearest;
@@ -482,15 +689,17 @@ function nearestParticle(
  * the track holds them back. A bead pinches off once the body has drawn
  * away from it, and the body absorbs a bead that has pinched off once it
  * covers its centre: the bead shrinks into it. As the body settles, it
- * absorbs each bead once the bead is all in the thumb's circle at `target`.
+ * absorbs each bead once the bead is all in the rest shape at `target`.
  * Drops the beads that have evaporated or been absorbed.
  */
 function moveBeads(
   beads: readonly LiquidBead[],
   body: { x: Float32Array; y: Float32Array },
   delta: number,
-  travel: number,
-  target: number,
+  { target, span }: LiquidInput,
+  walls: Walls,
+  scale: number,
+  boost: number,
   settling: boolean,
 ) {
   const kept: LiquidBead[] = [];
@@ -499,18 +708,23 @@ function moveBeads(
     if (age >= bead.life) {
       continue;
     }
-    const tilt = TILT * Math.tanh((target - bead.x) / TILT_REACH) * delta;
-    const held = Math.min(BEAD_FRICTION * delta, Math.abs(bead.vx + tilt));
+    const tilt =
+      TILT * boost * Math.tanh((target - bead.x) / TILT_REACH) * delta;
+    const held = Math.min(
+      BEAD_FRICTION * boost * delta,
+      Math.abs(bead.vx + tilt),
+    );
     const vx = bead.vx + tilt - Math.sign(bead.vx + tilt) * held;
     const drawn = beadRadius({ ...bead, age });
-    const { x, y } = insideTrack(bead.x + vx * delta, bead.y, drawn, travel);
+    const { x, y } = insideTrack(bead.x + vx * delta, bead.y, drawn, walls);
     const nearest = nearestParticle(body, x, y);
-    const gap = nearest - PARTICLE_RADIUS - drawn;
+    const gap = nearest - PARTICLE_RADIUS * scale - drawn;
     const free =
       bead.free || (age > BEAD_GROW && gap > (NECK_REACH * drawn) / 2);
+    const restX = clamp(x, target - span, target + span);
     const absorbed = settling
-      ? Math.hypot(x - target, y) + drawn < 1
-      : free && nearest < PARTICLE_SPACING;
+      ? Math.hypot(x - restX, y) + drawn < 1
+      : free && nearest < PARTICLE_SPACING * scale;
     const radius = absorbed
       ? bead.radius * Math.exp(-ABSORB * delta)
       : bead.radius;
@@ -534,9 +748,10 @@ function shed(
   y: Float32Array,
   moved: number,
   step: number,
+  spacing: number,
 ): Shedding {
   const trailing = moved > 0 ? Math.min(...x) : Math.max(...x);
-  if (moved === 0 || Math.abs(trailing - last.shedAt) < SHED_SPACING) {
+  if (moved === 0 || Math.abs(trailing - last.shedAt) < spacing) {
     return last;
   }
   let seed = last.seed;
@@ -553,7 +768,7 @@ function shed(
   const direction = Math.sign(moved);
   let at = -1;
   let ahead = Number.POSITIVE_INFINITY;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
+  for (let i = 0; i < x.length; i++) {
     if (Math.abs(y[i] - height) < 0.2 && x[i] * direction < ahead) {
       at = i;
       ahead = x[i] * direction;
@@ -579,7 +794,7 @@ function shed(
 
 /**
  * Moves the liquid on by `delta` seconds. Under reduced motion it goes
- * straight to the target as the frozen thumb and sheds nothing.
+ * straight to the target as the frozen rest shape and sheds nothing.
  *
  * @internal
  */
@@ -588,46 +803,96 @@ export function stepLiquid(
   input: LiquidInput,
   delta: number,
 ): LiquidBody {
-  const { target, travel, pressed } = input;
+  const { target, span, pressed } = input;
+  const count = body.x.length;
   if (input.reducedMotion) {
-    return restingLiquid(target, body.seed);
+    return restingLiquid(target, {
+      seed: body.seed,
+      span,
+      count,
+      from: input.from,
+      to: input.to,
+    });
   }
   const step = Math.min(delta, MAX_STEP) * PACE;
+  const goal = scaleFor(span, count);
+  const scale = goal + (body.scale - goal) * Math.exp(-SCALE_RATE * step);
+  const walls = wallsFor(body, input);
   const x = new Float32Array(body.x);
   const y = new Float32Array(body.y);
   const vx = new Float32Array(body.vx);
   const vy = new Float32Array(body.vy);
-  const count = Math.max(1, Math.ceil(step / SUBSTEP));
-  for (let n = 0; n < count; n++) {
-    substep(x, y, vx, vy, input, step / count);
+  let fastest = 0;
+  for (let i = 0; i < count; i++) {
+    fastest = Math.max(fastest, Math.hypot(vx[i], vy[i]));
+  }
+  const substeps = Math.max(
+    1,
+    Math.ceil(step / SUBSTEP),
+    Math.ceil((step * fastest) / SUBSTEP_MOVE),
+  );
+  for (let n = 0; n < substeps; n++) {
+    substep(x, y, vx, vy, input, walls, scale, step / substeps);
   }
   let speedSum = 0;
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
+  for (let i = 0; i < count; i++) {
     speedSum += Math.hypot(vx[i], vy[i]);
   }
-  const speed = speedSum / PARTICLE_COUNT;
+  const speed = speedSum / count;
   const centre = mean(x);
   const away = Math.abs(target - centre);
-  const arrived = away < ARRIVE_REACH;
+  const boost = tiltBoost(away);
+  const arrived = away < ARRIVE_REACH + ARRIVE_SPAN * span;
   const calm = clamp01(body.calm + (arrived ? SETTLE : -CALM_FALL) * step);
   const set = clamp01(body.set + (arrived && !pressed ? SETTLE : -MELT) * step);
   const kept: Shedding = {
-    beads: moveBeads(body.beads, { x, y }, step, travel, target, arrived),
+    beads: moveBeads(
+      body.beads,
+      { x, y },
+      step,
+      input,
+      walls,
+      scale,
+      boost,
+      arrived,
+    ),
     shedAt: body.shedAt,
     seed: body.seed,
   };
   const { beads, shedAt, seed } =
     speed < SHED_SPEED || away < SHED_REACH
       ? kept
-      : shed(kept, x, y, centre - mean(body.x), step);
+      : shed(
+          kept,
+          x,
+          y,
+          centre - mean(body.x),
+          step,
+          Math.max(SHED_SPACING, (input.to - input.from) / SHED_BUDGET),
+        );
   const settled =
     calm >= 1 &&
     speed < STILL_SPEED &&
     set === (pressed ? 0 : 1) &&
-    beads.length === 0;
+    beads.length === 0 &&
+    Math.abs(scale - goal) < 1e-3;
   if (settled) {
     vx.fill(0);
     vy.fill(0);
   }
-  return { x, y, vx, vy, calm, set, settled, beads, shedAt, seed };
+  return {
+    x,
+    y,
+    vx,
+    vy,
+    calm,
+    set,
+    settled,
+    scale: settled ? goal : scale,
+    from: walls.from,
+    to: walls.to,
+    beads,
+    shedAt,
+    seed,
+  };
 }

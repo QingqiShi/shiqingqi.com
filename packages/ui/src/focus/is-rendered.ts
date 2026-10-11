@@ -21,6 +21,12 @@ export function isRendered(
     if (options.visibilityProperty === true && style.visibility === "hidden") {
       return false;
     }
+    if (
+      options.opacityProperty === true &&
+      Number.parseFloat(style.opacity) === 0
+    ) {
+      return false;
+    }
     const parent: HTMLElement | null = node.parentElement;
     // A closed `<details>` renders its first summary and hides the rest.
     if (

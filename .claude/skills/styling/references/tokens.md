@@ -337,18 +337,19 @@ Six elevation levels (`shadow._1` through `shadow._6`) plus `shadow.inset`. Each
 
 Z-index scale for stacking context.
 
-| Token              | Value  |
-| ------------------ | ------ |
-| `layer.background` | `-100` |
-| `layer.base`       | `0`    |
-| `layer.content`    | `100`  |
-| `layer.effect`     | `125`  |
-| `layer.blur`       | `150`  |
-| `layer.raised`     | `200`  |
-| `layer.header`     | `300`  |
-| `layer.overlay`    | `400`  |
-| `layer.tooltip`    | `500`  |
-| `layer.toaster`    | `600`  |
+| Token               | Value  |
+| ------------------- | ------ |
+| `layer.background`  | `-100` |
+| `layer.base`        | `0`    |
+| `layer.content`     | `100`  |
+| `layer.effect`      | `125`  |
+| `layer.blur`        | `150`  |
+| `layer.raised`      | `200`  |
+| `layer.header`      | `300`  |
+| `layer.overlay`     | `400`  |
+| `layer.tooltip`     | `500`  |
+| `layer.toaster`     | `600`  |
+| `layer.fixedEffect` | `700`  |
 
 ---
 

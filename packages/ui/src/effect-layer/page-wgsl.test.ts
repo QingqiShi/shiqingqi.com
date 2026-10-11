@@ -25,6 +25,7 @@ function record(
     fixed: false,
     radii: [16, 16, 8, 0],
     cornerExponent: 4,
+    sticksToViewport: false,
     fill: [0.25, 0.5, 0.75, 1],
     grayscale: 0,
     scope: 0,

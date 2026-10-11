@@ -22,9 +22,9 @@ interface EffectLayerCanvasesProps {
 const NO_CANVASES: EffectCanvasNeeds = { scroll: false, fixed: false };
 
 /**
- * The `<canvas>` elements of the effect layer, on the effect plane over the
- * page's content: two that take turns to cover the document while it
- * scrolls, and one fixed to the viewport. They are inert, so every pointer,
+ * The `<canvas>` elements of the effect layer: two on the effect plane over
+ * the page's content, which take turns to cover the document while it
+ * scrolls, and one fixed to the viewport over every other plane. They are inert, so every pointer,
  * hit test and text selection goes through to the content under them. Each
  * group mounts only while a registered element with a role needs it; the
  * debug view needs both.
@@ -129,7 +129,7 @@ const styles = stylex.create({
   },
   plane: {
     pointerEvents: "none",
-    zIndex: layer.effect,
+    zIndex: layer.fixedEffect,
   },
   probe: {
     position: "absolute",

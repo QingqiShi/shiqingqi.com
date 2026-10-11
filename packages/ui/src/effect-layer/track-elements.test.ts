@@ -141,7 +141,7 @@ describe("trackElements", () => {
 
     document.dispatchEvent(new Event("scroll"));
     frames.run();
-    expect(reads).toEqual([other]);
+    expect(new Set(reads)).toEqual(new Set([other]));
   });
 
   it("measures each frame while a transition runs, and once more after it ends", () => {
@@ -162,6 +162,27 @@ describe("trackElements", () => {
     frames.run();
     expect(reads).toEqual([button, button, button]);
     expect(frames.pending()).toBe(0);
+  });
+
+  it("takes the box away while an ancestor fades out, and gives it back when it fades in", async () => {
+    const { card, button, frames, registry } = track();
+    const boxOf = () =>
+      [...registry.trackers()].find((tracker) => tracker.element === button)
+        ?.measured?.box ?? null;
+    expect(boxOf()).not.toBeNull();
+    // jsdom has no Web Animations API.
+    Object.defineProperty(card, "getAnimations", { value: () => [] });
+
+    card.style.opacity = "0";
+    // The attribute change reaches the trackers in a microtask.
+    await Promise.resolve();
+    frames.run();
+    expect(boxOf()).toBeNull();
+
+    card.style.opacity = "1";
+    await Promise.resolve();
+    frames.run();
+    expect(boxOf()).toMatchObject({ width: 100, height: 40 });
   });
 
   it("removes every tracker and listener when it is destroyed", () => {
