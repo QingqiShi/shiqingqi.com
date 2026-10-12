@@ -5,6 +5,7 @@ import { Select } from "@tuja/ui/components/select";
 import type { Ref } from "react";
 import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
+import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { Combobox } from "../editor/combobox.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
@@ -43,7 +44,7 @@ export function NewRuleFields({
   const categories = useReplica(liveRowSelectors.categories);
   const baseCurrency = useBaseCurrency();
 
-  const open = accounts.filter((account) => account.closedOn === null);
+  const open = accounts.filter(isPickableAccount);
   const accountLabel = (account: (typeof open)[number]) =>
     account.currency === baseCurrency
       ? account.name

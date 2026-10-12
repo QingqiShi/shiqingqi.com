@@ -38,6 +38,7 @@ function account(
     statementDay: null,
     paymentDueDay: null,
     defaultPaymentAccountId: null,
+    isSystem: false,
     ...stamps,
     ...fields,
   };
@@ -117,5 +118,64 @@ describe("buildBalanceSheet", () => {
     expect(byId.get("tracked")?.hidden).toBe("excluded");
     expect(byId.get("dollars")?.baseBalance).toBe(7_778);
     expect(byId.get("amex")?.available).toBe(567_950);
+  });
+});
+
+describe("buildBalanceSheet with In transit", () => {
+  const groups = [group("cash", "asset", 0)];
+  const fx = createFxIndex([], "GBP");
+
+  function sheetWith(
+    inTransitEntries: { date: string; amountMinor: number }[],
+  ) {
+    const accounts = [
+      account("current", "cash", "cash"),
+      account("in-transit", "cash", "cash", { isSystem: true }),
+    ];
+    const series = new Map([
+      [
+        "current",
+        computeBalanceDays(
+          [{ on: "2026-09-01", amountMinor: 100_000 }],
+          [{ date: "2026-10-08", amountMinor: -50_000 }],
+        ),
+      ],
+      ["in-transit", computeBalanceDays([], inTransitEntries)],
+    ]);
+    const sheet = buildBalanceSheet({
+      groups,
+      accounts,
+      members: [],
+      latestValuations: new Map(),
+      bankLinks: [],
+      seriesByAccount: series,
+      fx,
+      day: "2026-10-10",
+    });
+    return { sheet, netWorth: netWorthAt(accounts, series, fx, "2026-10-10") };
+  }
+
+  it("lists and counts In transit while money is on its way", () => {
+    const { sheet, netWorth } = sheetWith([
+      { date: "2026-10-08", amountMinor: 50_000 },
+    ]);
+    expect(
+      sheet.sections[0].lines.map((line) => [line.account.id, line.balance]),
+    ).toEqual([
+      ["current", 50_000],
+      ["in-transit", 50_000],
+    ]);
+    expect(sheet.netWorth).toBe(100_000);
+    expect(netWorth).toBe(100_000);
+  });
+
+  it("leaves In transit out when its balance is zero", () => {
+    const { sheet } = sheetWith([
+      { date: "2026-10-08", amountMinor: 50_000 },
+      { date: "2026-10-09", amountMinor: -50_000 },
+    ]);
+    expect(sheet.sections[0].lines.map((line) => line.account.id)).toEqual([
+      "current",
+    ]);
   });
 });

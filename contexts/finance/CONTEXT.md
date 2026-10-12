@@ -40,6 +40,10 @@ _Avoid_: sub-account, pot, wallet
 What the account behaves like: `cash` (current or savings), `credit` (a card), `investment`, `property`, `loan` (mortgage, student loan, Help to Buy, instalment plan), `receivable` (money lent out or reimbursable). The UI names them Cash, Credit card, Investment, Property, Loan and Money owed to you (ZH: 现金, 信用卡, 投资, 房产, 贷款, 应收款). **Side** is derived from it: `credit` and `loan` are liabilities (ZH: 负债), the rest are assets (ZH: 资产). ZH: 类型; Side: 资产或负债.
 _Avoid_: asset type, account type (that is Group)
 
+**In transit**:
+The system account, one per currency, for money on its way between two of the household's accounts when the account it went to is not known yet. To **settle** an In transit Entry is to move it to the account the money reached. ZH: 在途.
+_Avoid_: suspense account, clearing account, pending (that is the bank's word)
+
 **Group**:
 A household-defined bucket for the balance sheet (流动资产, 投资, 退休资产, 不动产, 学贷, 信用). ZH: 分组.
 _Avoid_: category (reserved for transactions), account type

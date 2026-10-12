@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { createLabellingModel } from "../ai/testing/create-labelling-model.ts";
+import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import {
   bankLinks,
   bankTransactions,
@@ -16,9 +17,12 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { withHousehold } from "../db/with-household.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import type { MutationInput, MutationName } from "../sync/mutation-schema.ts";
+import { runServerWrite } from "../sync/run-server-write.ts";
+import { ensureInTransitAccount } from "./ensure-in-transit-account.ts";
 import {
   createFakeBankClient,
   type FakeBankFixture,
@@ -311,6 +315,66 @@ describe("syncBankLinks", () => {
     expect(aliases).toMatchObject([
       { alias: "GROCER LTD", payeeId: home.grocerId },
     ]);
+  });
+
+  it("settles an In transit Entry on the account the money reached, and keeps net worth", async () => {
+    const { result: inTransitId } = await runServerWrite(
+      db,
+      home.householdId,
+      NOW,
+      (context) => ensureInTransitAccount(context, "GBP"),
+    );
+    const transferId = randomUUID();
+    const inTransitEntryId = randomUUID();
+    await push([
+      mutation("createTransaction", {
+        id: transferId,
+        kind: "transfer",
+        date: "2026-10-08",
+        amountMinor: 0,
+        entries: [
+          { id: randomUUID(), accountId: home.currentId, amountMinor: -50_000 },
+          { id: inTransitEntryId, accountId: inTransitId, amountMinor: 50_000 },
+        ],
+      }),
+    ]);
+    const accountIds = [home.currentId, home.cardId, inTransitId];
+    const balances = () =>
+      withHousehold(db, home.householdId, (scope) =>
+        Promise.all(
+          accountIds.map((id) =>
+            valuationRepository.balanceAt(scope, id, "2026-10-10"),
+          ),
+        ),
+      );
+    const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
+    const before = await balances();
+    expect(before).toEqual([-50_000, 0, 50_000]);
+    fixture.transactions["acc-card"] = [
+      bankRow("c1", "2026-10-09", 50_000, "PAYMENT RECEIVED"),
+    ];
+
+    const [, card] = await sync();
+
+    expect(card).toMatchObject({ linked: 1, created: 0 });
+    const rows = await liveTransactions();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ id: transferId, kind: "transfer" });
+    const [entry] = await db
+      .select()
+      .from(entries)
+      .where(eq(entries.id, inTransitEntryId));
+    expect(entry).toMatchObject({
+      accountId: home.cardId,
+      amountMinor: 50_000,
+    });
+    expect((await bankRows(cardLinkId))[0]).toMatchObject({
+      state: "matched",
+      transactionId: transferId,
+    });
+    const after = await balances();
+    expect(after).toEqual([-50_000, 50_000, 0]);
+    expect(sum(after)).toBe(sum(before));
   });
 
   it("links a chain of repeated fares to the Transactions one day before them, and labels none", async () => {

@@ -10,13 +10,20 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useFreshPrefetch } from "../shell/use-fresh-prefetch.ts";
+import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
 import type { AccountLine } from "./build-balance-sheet.ts";
 import { VALUATION_KINDS } from "./valuation-kinds.ts";
@@ -43,7 +50,9 @@ export function AccountRow({
 }: AccountRowProps) {
   const locale = useLocale();
   const prefetch = useFreshPrefetch();
+  const accountName = useAccountDisplayName();
   const { account } = line;
+  const name = accountName(account);
   const facts: string[] = [];
   const detail = accountDetailLine(account, line.ownerName);
   if (detail) facts.push(detail);
@@ -81,7 +90,7 @@ export function AccountRow({
         )}
       >
         <span css={styles.main}>
-          <span css={[typeRole.body, styles.name]}>{account.name}</span>
+          <span css={[typeRole.body, styles.name]}>{name}</span>
           {facts.length > 0 || line.hidden !== null ? (
             <span css={[typeRole.caption, row.inline, styles.facts]}>
               {line.hidden === null ? null : (
@@ -106,15 +115,19 @@ export function AccountRow({
           ) : null}
         </span>
       </Link>
-      <Button
-        look="ghost"
-        size="sm"
-        icon={<ArrowsClockwiseIcon weight="bold" />}
-        aria-label={`${t({ en: "Update balance:", zh: "更新余额：" })} ${account.name}`}
-        onClick={() => {
-          onUpdate(line);
-        }}
-      />
+      {account.isSystem ? (
+        <span aria-hidden css={styles.noUpdate} />
+      ) : (
+        <Button
+          look="ghost"
+          size="sm"
+          icon={<ArrowsClockwiseIcon weight="bold" />}
+          aria-label={`${t({ en: "Update balance:", zh: "更新余额：" })} ${name}`}
+          onClick={() => {
+            onUpdate(line);
+          }}
+        />
+      )}
     </li>
   );
 }
@@ -163,5 +176,9 @@ const styles = stylex.create({
   },
   balance: {
     fontWeight: font.weight_5,
+  },
+  noUpdate: {
+    flexShrink: 0,
+    inlineSize: controlSize._8,
   },
 });

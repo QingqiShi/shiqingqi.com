@@ -21,6 +21,7 @@ import { useReplica } from "../replica/use-replica.ts";
 import { useBankErrorMessage } from "../settings/use-bank-error-message.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
+import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { AccountChart } from "./account-chart.tsx";
 import { accountDetailLine } from "./account-detail-line.ts";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
@@ -69,6 +70,7 @@ export function AccountDetail({
       : 0,
   );
   const bankErrorMessage = useBankErrorMessage();
+  const accountName = useAccountDisplayName();
   const [updating, setUpdating] = useState(false);
   const [editing, setEditing] = useState(false);
 
@@ -153,11 +155,15 @@ export function AccountDetail({
       <header css={stack.item}>
         <div css={stack.tight}>
           <Heading level={headingLevel} look="h3">
-            {account.name}
+            {accountName(account)}
           </Heading>
           <div css={[cluster.tight, typeRole.bodySmall, styles.muted]}>
             <span>
-              {[detail, kindLabels[account.kind], group?.name ?? ""]
+              {[
+                detail,
+                account.isSystem ? "" : kindLabels[account.kind],
+                group?.name ?? "",
+              ]
                 .filter((part) => part !== "")
                 .join(" · ")}
             </span>
@@ -174,28 +180,37 @@ export function AccountDetail({
           </div>
         </div>
         <span css={[typeRole.h2, styles.balance]}>{money(balance)}</span>
-        <div css={cluster.tight}>
-          <Button
-            size="sm"
-            look="primary"
-            icon={<ArrowsClockwiseIcon weight="bold" />}
-            onClick={() => {
-              setUpdating(true);
-            }}
-          >
-            {t({ en: "Update balance", zh: "更新余额" })}
-          </Button>
-          <Button
-            size="sm"
-            look="ghost"
-            icon={<PencilSimpleIcon weight="bold" />}
-            onClick={() => {
-              setEditing(true);
-            }}
-          >
-            {t({ en: "Edit", zh: "编辑" })}
-          </Button>
-        </div>
+        {account.isSystem ? (
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "Money on its way between your accounts. It moves to the account it reaches when that bank shows it.",
+              zh: "在你的账户之间转账途中的钱。到账的银行显示这笔钱后，它会移到那个账户。",
+            })}
+          </Text>
+        ) : (
+          <div css={cluster.tight}>
+            <Button
+              size="sm"
+              look="primary"
+              icon={<ArrowsClockwiseIcon weight="bold" />}
+              onClick={() => {
+                setUpdating(true);
+              }}
+            >
+              {t({ en: "Update balance", zh: "更新余额" })}
+            </Button>
+            <Button
+              size="sm"
+              look="ghost"
+              icon={<PencilSimpleIcon weight="bold" />}
+              onClick={() => {
+                setEditing(true);
+              }}
+            >
+              {t({ en: "Edit", zh: "编辑" })}
+            </Button>
+          </div>
+        )}
       </header>
       {bankLink ? (
         <BankBalanceNotice

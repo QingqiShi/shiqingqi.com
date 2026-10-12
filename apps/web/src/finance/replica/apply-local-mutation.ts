@@ -3,6 +3,10 @@ import { balanceAt } from "../domain/balance/balance-at.ts";
 import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
 import { SCHEDULE_FIELDS } from "../domain/rules/schedule-fields.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
+import {
+  checkSystemAccountPatch,
+  checkSystemAccountValuation,
+} from "../sync/check-system-account-patch.ts";
 import { checkTransactionShape } from "../sync/check-transaction-shape.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type {
@@ -470,7 +474,9 @@ function localBalanceAt(scope: Scope, accountId: string, day: string) {
 
 function putValuation(scope: Scope, args: Args<"putValuation">) {
   const { draft, context } = scope;
-  if (!isLiveAccount(scope, args.accountId)) invalid("Unknown account");
+  const account = draft.get("accounts", args.accountId);
+  if (!account || account.deletedAt !== null) invalid("Unknown account");
+  checkSystemAccountValuation(account);
 
   let existing;
   for (const valuation of draft.values("valuations")) {
@@ -551,6 +557,7 @@ function upsertAccount(scope: Scope, args: Args<"upsertAccount">) {
   const { draft, context } = scope;
   const { id, deleted, ...fields } = args;
   const existing = draft.get("accounts", id);
+  if (existing?.isSystem) checkSystemAccountPatch(fields, deleted);
   let row: AccountRow;
   if (
     existing &&
@@ -590,6 +597,7 @@ function upsertAccount(scope: Scope, args: Args<"upsertAccount">) {
       statementDay: fields.statementDay ?? null,
       paymentDueDay: fields.paymentDueDay ?? null,
       defaultPaymentAccountId: fields.defaultPaymentAccountId ?? null,
+      isSystem: false,
       version: 0,
       createdAt: context.now,
       updatedAt: context.now,

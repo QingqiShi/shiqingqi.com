@@ -1,3 +1,4 @@
+import { isIdleSystemAccount } from "../domain/accounts/is-idle-system-account.ts";
 import type { BalanceSeries } from "../domain/balance/compute-balance-days.ts";
 import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
@@ -56,6 +57,7 @@ export interface BalanceSheetInput {
  * The balance sheet on `day`: each Group with its accounts in order, the
  * Group subtotal, and the asset, liability and net-worth totals. Closed and
  * excluded accounts are listed but not counted, the same as `netWorthAt`.
+ * In transit is left out while nothing is on its way.
  */
 export function buildBalanceSheet(input: BalanceSheetInput): BalanceSheet {
   const epochDay = toEpochDay(input.day);
@@ -73,6 +75,7 @@ export function buildBalanceSheet(input: BalanceSheetInput): BalanceSheet {
       input.seriesByAccount.get(account.id),
       input.day,
     );
+    if (isIdleSystemAccount(account, balance)) continue;
     const rawBase = input.fx.toBase(balance, account.currency, epochDay);
     const hidden = closed
       ? "closed"

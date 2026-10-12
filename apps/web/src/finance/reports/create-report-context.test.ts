@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SINCE_THE_START_DAY } from "../import/moneythings/map-valuations.ts";
 import { computeNetWorthTrend } from "./compute-net-worth-trend.ts";
+import { computeWeeklyReport } from "./compute-weekly-report.ts";
 import { createReportContext } from "./create-report-context.ts";
 import type { ReportSource, ReportSourceAccount } from "./types.ts";
 
@@ -18,6 +19,7 @@ function account(
     excludedFromNetWorth: false,
     closedOn: null,
     position: 0,
+    isSystem: false,
     ...overrides,
   };
 }
@@ -87,5 +89,38 @@ describe("createReportContext firstDay", () => {
       ),
     );
     expect(context.firstDay).toBeNull();
+  });
+});
+
+describe("computeWeeklyReport with In transit", () => {
+  function reportAt(weekDay: string) {
+    const context = createReportContext(
+      source(
+        [account("current"), account("in-transit", { isSystem: true })],
+        [
+          { accountId: "current", day: "2026-09-01", balanceMinor: 1000_00 },
+          { accountId: "current", day: "2026-09-08", balanceMinor: 500_00 },
+          { accountId: "in-transit", day: "2026-09-08", balanceMinor: 500_00 },
+          { accountId: "in-transit", day: "2026-09-16", balanceMinor: 0 },
+        ],
+      ),
+    );
+    return computeWeeklyReport(context, weekDay);
+  }
+
+  it("counts In transit while money is on its way", () => {
+    const report = reportAt("2026-09-09");
+    expect(report.balanceSheet.assets.groups[0].accounts).toMatchObject([
+      { id: "current", baseMinor: 500_00, isSystem: false },
+      { id: "in-transit", baseMinor: 500_00, isSystem: true },
+    ]);
+    expect(report.balanceSheet.netWorthMinor).toBe(1000_00);
+  });
+
+  it("leaves In transit out when its balance is zero", () => {
+    const report = reportAt("2026-09-23");
+    expect(
+      report.balanceSheet.assets.groups[0].accounts.map((line) => line.id),
+    ).toEqual(["current"]);
   });
 });

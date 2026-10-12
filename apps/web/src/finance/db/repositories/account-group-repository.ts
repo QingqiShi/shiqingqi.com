@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { accountGroups } from "../schema.ts";
 import { softDeletePatch } from "./soft-delete-patch.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
@@ -23,6 +23,39 @@ export const accountGroupRepository = {
         ),
       );
     return rows.at(0);
+  },
+
+  /** The live asset Group that comes first in position order. */
+  async findFirstAsset(scope: RepositoryScope) {
+    const rows = await scope.db
+      .select()
+      .from(accountGroups)
+      .where(
+        and(
+          eq(accountGroups.householdId, scope.householdId),
+          eq(accountGroups.side, "asset"),
+          isNull(accountGroups.deletedAt),
+        ),
+      )
+      .orderBy(asc(accountGroups.position), asc(accountGroups.name))
+      .limit(1);
+    return rows.at(0);
+  },
+
+  /** The position after the last live Group. */
+  async nextPosition(scope: RepositoryScope) {
+    const rows = await scope.db
+      .select({
+        next: sql<number>`coalesce(max(${accountGroups.position}) + 1, 0)`,
+      })
+      .from(accountGroups)
+      .where(
+        and(
+          eq(accountGroups.householdId, scope.householdId),
+          isNull(accountGroups.deletedAt),
+        ),
+      );
+    return rows.at(0)?.next ?? 0;
   },
 
   /** Inserts the Group. False when the id is already used. */

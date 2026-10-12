@@ -1,4 +1,5 @@
 import type { ReplicaSnapshot } from "../replica/types.ts";
+import type { SystemAccountNames } from "../store/account-display-name.ts";
 import type {
   AccountRow,
   CategoryRow,
@@ -26,7 +27,9 @@ function accountLabels(
   accounts: ReadonlyMap<string, AccountRow>,
   members: ReadonlyMap<string, MemberRow>,
 ) {
-  const live = [...accounts.values()].filter((row) => row.deletedAt === null);
+  const live = [...accounts.values()].filter(
+    (row) => row.deletedAt === null && !row.isSystem,
+  );
   const byName = new Map<string, AccountRow[]>();
   for (const account of live) {
     const key = account.name.trim().toLowerCase();
@@ -34,7 +37,9 @@ function accountLabels(
   }
   const labels = new Map<string, string>();
   for (const account of accounts.values()) {
-    const sameName = byName.get(account.name.trim().toLowerCase()) ?? [];
+    const sameName = account.isSystem
+      ? []
+      : (byName.get(account.name.trim().toLowerCase()) ?? []);
     if (sameName.length <= 1) {
       labels.set(account.id, account.name);
       continue;
@@ -131,5 +136,30 @@ export function selectTransactionLookups(
     memberById: tables.members,
   };
   last = { tables, result };
+  return result;
+}
+
+const labelled = new WeakMap<
+  TransactionLookups,
+  { names: SystemAccountNames; result: TransactionLookups }
+>();
+
+/** The lookups with In transit labelled in the visitor's language. The same object until the lookups or the names change. */
+export function withSystemAccountLabels(
+  lookups: TransactionLookups,
+  names: SystemAccountNames,
+): TransactionLookups {
+  const cached = labelled.get(lookups);
+  if (cached?.names.inTransit === names.inTransit) return cached.result;
+  const systemIds = [...lookups.accountById.values()]
+    .filter((account) => account.isSystem)
+    .map((account) => account.id);
+  let result = lookups;
+  if (systemIds.length > 0) {
+    const accountLabelById = new Map(lookups.accountLabelById);
+    for (const id of systemIds) accountLabelById.set(id, names.inTransit);
+    result = { ...lookups, accountLabelById };
+  }
+  labelled.set(lookups, { names, result });
   return result;
 }

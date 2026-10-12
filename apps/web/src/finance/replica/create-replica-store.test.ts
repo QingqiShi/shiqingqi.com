@@ -10,7 +10,10 @@ import { selectTransactionsByDateDesc } from "../store/select-transactions-by-da
 import { MutationError } from "../sync/mutation-error.ts";
 import type { HouseholdRow, SyncRows } from "../sync/row-schemas.ts";
 import { createMemoryPersistence } from "./create-memory-persistence.ts";
-import { createReplicaStore } from "./create-replica-store.ts";
+import {
+  createReplicaStore,
+  REPLICA_ROW_SHAPE,
+} from "./create-replica-store.ts";
 import { REPLICA_TABLE_NAMES } from "./replica-table-names.ts";
 
 const NOW = "2026-10-10T09:00:00.000Z";
@@ -111,6 +114,7 @@ function seedRows(): Partial<SyncRows> {
         statementDay: null,
         paymentDueDay: null,
         defaultPaymentAccountId: null,
+        isSystem: false,
         ...stamps,
         deletedAt: null,
       },
@@ -348,6 +352,37 @@ describe("createReplicaStore", () => {
     ]);
     expect(reopened.getSnapshot().outboxCount).toBe(0);
     expect(reopened.getSnapshot().pendingKeys.size).toBeGreaterThan(0);
+  });
+
+  it("bootstraps again when the rows on disk have an old shape, and keeps the outbox", async () => {
+    const { store, persistence } = await seededStore();
+    const created = store.applyLocal(expense(randomUUID(), "2026-10-08", 700));
+    await store.flush();
+    const meta = store.getMeta();
+    await persistence.write({
+      meta: { ...meta, rowShape: REPLICA_ROW_SHAPE - 1 },
+    });
+
+    const reopened = createReplicaStore({
+      householdId: HOUSEHOLD,
+      persistence,
+    });
+    await reopened.load();
+
+    expect(reopened.getMeta()).toMatchObject({
+      clientId: meta.clientId,
+      clock: 0,
+      bootstrapped: false,
+    });
+    expect(reopened.takeOutbox()).toEqual([created]);
+
+    reopened.startBootstrap({ household, transactionsFrom: null });
+    reopened.finishBootstrap(11, new Set());
+    expect(reopened.getMeta()).toMatchObject({
+      clock: 11,
+      bootstrapped: true,
+      rowShape: REPLICA_ROW_SHAPE,
+    });
   });
 
   it("works out a balance again only for an update that moves it", async () => {

@@ -2,6 +2,7 @@ import type { CSSProperties, ReactElement } from "react";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { accountDisplayName } from "../store/account-display-name.ts";
 import { categoryLineName } from "../store/category-display-name.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { reportImageCopy } from "./report-image-copy.ts";
@@ -162,7 +163,7 @@ export function buildReportImage(
                           paddingLeft: 16,
                         }}
                       >
-                        {account.name}
+                        {accountDisplayName(account, copy)}
                       </span>
                       <span>{money(account.baseMinor)}</span>
                     </div>

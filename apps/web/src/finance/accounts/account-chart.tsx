@@ -9,6 +9,7 @@ import { TimeSeriesChart } from "../charts/time-series-chart.tsx";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
 import { selectAccountChart } from "./select-account-chart.ts";
 import { useStoredRange } from "./use-stored-range.ts";
@@ -21,6 +22,7 @@ interface AccountChartProps {
 /** One account's balance over the picked range, in its own currency. */
 export function AccountChart({ account, today }: AccountChartProps) {
   const locale = useLocale();
+  const accountName = useAccountDisplayName();
   const [range, setRange] = useStoredRange("finance:account-range", "1Y");
   const series = useReplica((snapshot) =>
     selectAccountChart(snapshot, account.id, range, today),
@@ -33,7 +35,7 @@ export function AccountChart({ account, today }: AccountChartProps) {
     >
       <TimeSeriesChart
         series={series}
-        label={`${account.name} · ${t({ en: "Balance", zh: "余额" })}`}
+        label={`${accountName(account)} · ${t({ en: "Balance", zh: "余额" })}`}
         description={t({
           en: "The account's balance at the end of each day in the range.",
           zh: "所选时间范围内该账户每天结束时的余额。",

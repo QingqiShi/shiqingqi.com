@@ -6,8 +6,10 @@ import {
   isNull,
   lte,
   notExists,
+  or,
   sql,
 } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type { ProviderTransaction } from "../../bank/lunchflow/types.ts";
 import { nameBasedUuid } from "../../ids/name-based-uuid.ts";
 import { bankTransactions, entries, transactions } from "../schema.ts";
@@ -16,9 +18,12 @@ import type { RepositoryScope, WriteScope } from "./types.ts";
 export type BankTransactionRecord = typeof bankTransactions.$inferSelect;
 type BankTransactionState = BankTransactionRecord["state"];
 
-/** A Transaction a bank row may match: one with an Entry on the linked account. */
+/** A Transaction a bank row may match: one with an Entry on the linked account, or on In transit. */
 export interface MatchCandidateRow {
   transactionId: string;
+  entryId: string;
+  /** The Entry is on In transit, not on the linked account. */
+  inTransit: boolean;
   status: "posted" | "expected";
   source: "manual" | "rule" | "bank" | "import";
   /** The Entry's date: the day the money moves on the linked account. */
@@ -161,17 +166,23 @@ export const bankTransactionRepository = {
 
   /**
    * Live Transactions with an Entry on `accountId` dated from `from` to `to`
-   * that no row of this link matches yet.
+   * that no row of this link matches yet. With `inTransitAccountId`, also
+   * the Transactions with an Entry on that In transit account and none on
+   * `accountId`, which a bank row can settle.
    */
   async findMatchCandidates(
     scope: RepositoryScope,
     linkId: string,
     accountId: string,
     range: { from: string; to: string },
+    inTransitAccountId: string | null = null,
   ): Promise<MatchCandidateRow[]> {
-    return scope.db
+    const linked = alias(entries, "linked_entries");
+    const rows = await scope.db
       .select({
         transactionId: transactions.id,
+        entryId: entries.id,
+        entryAccountId: entries.accountId,
         status: transactions.status,
         source: transactions.source,
         date: entries.date,
@@ -186,7 +197,27 @@ export const bankTransactionRepository = {
         and(
           eq(entries.householdId, scope.householdId),
           eq(transactions.householdId, scope.householdId),
-          eq(entries.accountId, accountId),
+          inTransitAccountId === null
+            ? eq(entries.accountId, accountId)
+            : or(
+                eq(entries.accountId, accountId),
+                and(
+                  eq(entries.accountId, inTransitAccountId),
+                  notExists(
+                    scope.db
+                      .select({ id: linked.id })
+                      .from(linked)
+                      .where(
+                        and(
+                          eq(linked.householdId, scope.householdId),
+                          eq(linked.transactionId, transactions.id),
+                          eq(linked.accountId, accountId),
+                          isNull(linked.deletedAt),
+                        ),
+                      ),
+                  ),
+                ),
+              ),
           isNull(entries.deletedAt),
           isNull(transactions.deletedAt),
           gte(entries.date, range.from),
@@ -205,5 +236,9 @@ export const bankTransactionRepository = {
           ),
         ),
       );
+    return rows.map(({ entryAccountId, ...row }) => ({
+      ...row,
+      inTransit: entryAccountId !== accountId,
+    }));
   },
 };

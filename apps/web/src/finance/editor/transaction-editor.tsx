@@ -36,6 +36,7 @@ import { currencySymbol } from "../accounts/currency-symbol.ts";
 import { suggestLabelsFromMemory } from "../ai/suggest-labels-from-memory.ts";
 import type { LabelMemory, Suggestion } from "../ai/types.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
+import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { currencyExponent } from "../domain/money/currency-exponent.ts";
@@ -474,7 +475,7 @@ function EditorForm({
 
   const accountChoices = data.accounts.filter(
     (candidate) =>
-      candidate.closedOn === null ||
+      isPickableAccount(candidate) ||
       candidate.id === draft.accountId ||
       candidate.id === draft.toAccountId,
   );
@@ -505,10 +506,13 @@ function EditorForm({
           ))}
         </optgroup>
       ));
-  const accountSelectChildren = accountSelectChildrenWhere(() => true);
+  const accountSelectChildren = accountSelectChildrenWhere(
+    (candidate) => !candidate.isSystem || candidate.id === draft.accountId,
+  );
   const toAccountSelectChildren = accountSelectChildrenWhere(
     (candidate) =>
-      candidate.id !== draft.accountId || candidate.id === draft.toAccountId,
+      candidate.id === draft.toAccountId ||
+      (!candidate.isSystem && candidate.id !== draft.accountId),
   );
   const paysDownSelectChildren = accountSelectChildrenWhere(
     (candidate) =>

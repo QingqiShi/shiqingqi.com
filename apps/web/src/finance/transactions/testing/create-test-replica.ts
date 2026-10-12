@@ -68,6 +68,7 @@ function account(
     statementDay: null,
     paymentDueDay: null,
     defaultPaymentAccountId: null,
+    isSystem: false,
     ...stamps,
   };
 }

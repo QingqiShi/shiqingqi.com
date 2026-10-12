@@ -26,6 +26,7 @@ import type {
   ProviderAccountView,
   ProviderAccountsResponse,
 } from "../bank/types.ts";
+import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
 import { displayMoment } from "../domain/dates/display-moment.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
@@ -559,7 +560,7 @@ function ProviderAccountCard({
   const bankErrorMessage = useBankErrorMessage();
   const linkable = accounts.filter(
     (finance) =>
-      (finance.kind === "cash" || finance.kind === "credit") &&
+      isLinkableAccount(finance) &&
       finance.closedOn === null &&
       (account.currency === null || finance.currency === account.currency),
   );

@@ -297,6 +297,7 @@ export const accounts = pgTable(
     statementDay: smallint("statement_day"),
     paymentDueDay: smallint("payment_due_day"),
     defaultPaymentAccountId: uuid("default_payment_account_id"),
+    isSystem: boolean("is_system").notNull().default(false),
     version: version(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -304,6 +305,9 @@ export const accounts = pgTable(
   },
   (t) => [
     index("accounts_household_idx").on(t.householdId, t.groupId, t.position),
+    uniqueIndex("accounts_system_currency_idx")
+      .on(t.householdId, t.currency)
+      .where(sql`${t.isSystem} and ${t.deletedAt} is null`),
     householdKey("accounts", t),
     householdReference("accounts_group_fk", t, t.groupId, accountGroups),
     householdReference("accounts_owner_member_fk", t, t.ownerMemberId, members),

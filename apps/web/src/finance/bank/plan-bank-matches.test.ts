@@ -8,9 +8,11 @@ function candidate(
 ): MatchCandidate {
   return {
     transactionId,
+    entryId: `${transactionId}-entry`,
     status: "posted",
     date: "2026-10-05",
     amountMinor: -1000,
+    inTransit: false,
     createdAt: new Date("2026-10-05T10:00:00Z"),
     ...overrides,
   };
@@ -28,9 +30,50 @@ function confirm(transactionId: string) {
   return { action: "confirm", transactionId } as const;
 }
 
+function settle(transactionId: string) {
+  return {
+    action: "settle",
+    transactionId,
+    entryId: `${transactionId}-entry`,
+  } as const;
+}
+
 const create = { action: "create" } as const;
 
 describe("planBankMatches", () => {
+  it("settles an In transit Entry of the same signed amount", () => {
+    expect(
+      planBankMatches(
+        [row("2026-10-06", 50_000)],
+        [candidate("transfer", { amountMinor: 50_000, inTransit: true })],
+      ),
+    ).toEqual([settle("transfer")]);
+  });
+
+  it("links a Transaction on the account before it settles In transit", () => {
+    expect(
+      planBankMatches(
+        [row("2026-10-05")],
+        [
+          candidate("transfer", {
+            inTransit: true,
+            createdAt: new Date("2026-10-01T10:00:00Z"),
+          }),
+          candidate("manual", { date: "2026-10-07" }),
+        ],
+      ),
+    ).toEqual([link("manual")]);
+  });
+
+  it("settles In transit when that matches one more row", () => {
+    expect(
+      planBankMatches(
+        [row("2026-10-05"), row("2026-10-06")],
+        [candidate("manual"), candidate("transfer", { inTransit: true })],
+      ),
+    ).toEqual([link("manual"), settle("transfer")]);
+  });
+
   it("creates when nothing has the same signed amount within three days", () => {
     expect(
       planBankMatches(

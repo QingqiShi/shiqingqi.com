@@ -1,0 +1,2 @@
+ALTER TABLE "accounts" ADD COLUMN "is_system" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "accounts_system_currency_idx" ON "accounts" USING btree ("household_id","currency") WHERE "accounts"."is_system" and "accounts"."deleted_at" is null;

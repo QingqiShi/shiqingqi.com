@@ -12,6 +12,7 @@ export interface ReportImageCopy {
   vsAverage: string;
   noSpending: string;
   uncategorised: string;
+  inTransit: string;
   moreAccounts: (count: number) => string;
 }
 
@@ -30,6 +31,7 @@ export const reportImageCopy: Record<SupportedLocale, ReportImageCopy> = {
     vsAverage: "vs 4-week average",
     noSpending: "Nothing spent this week",
     uncategorised: "Uncategorised",
+    inTransit: "In transit",
     moreAccounts: (count) => `+${String(count)} more`,
   },
   zh: {
@@ -44,6 +46,7 @@ export const reportImageCopy: Record<SupportedLocale, ReportImageCopy> = {
     vsAverage: "较 4 周平均",
     noSpending: "本周没有支出",
     uncategorised: "未分类",
+    inTransit: "在途",
     moreAccounts: (count) => `另有 ${String(count)} 个账户`,
   },
 };

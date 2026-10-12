@@ -13,6 +13,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useRef, useState, type SubmitEvent } from "react";
 import { t } from "#src/i18n.ts";
+import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import {
   sideOfKind,
   type AccountKind,
@@ -303,7 +304,7 @@ function AccountEditorForm({
     (other) =>
       other.kind === "cash" &&
       other.id !== account?.id &&
-      other.closedOn === null,
+      isPickableAccount(other),
   );
 
   return (

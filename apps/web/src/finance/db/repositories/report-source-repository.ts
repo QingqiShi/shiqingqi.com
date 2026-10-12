@@ -41,6 +41,7 @@ export const reportSourceRepository = {
         excludedFromNetWorth: accounts.excludedFromNetWorth,
         closedOn: accounts.closedOn,
         position: accounts.position,
+        isSystem: accounts.isSystem,
       })
       .from(accounts)
       .where(
