@@ -15,14 +15,12 @@ import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUrlSelection } from "../shell/use-url-selection.ts";
 import { AccountRow } from "./account-row.tsx";
 import { BankBalanceNotice } from "./bank-balance-notice.tsx";
-import type { AccountLine, BalanceSheet } from "./build-balance-sheet.ts";
-import { UpdateBalanceSheet } from "./update-balance-sheet.tsx";
+import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { useCollapsedGroups } from "./use-collapsed-groups.ts";
 
 interface AccountGroupListProps {
   sheet: BalanceSheet;
   baseCurrency: string;
-  today: string;
 }
 
 /**
@@ -33,14 +31,12 @@ interface AccountGroupListProps {
 export function AccountGroupList({
   sheet,
   baseCurrency,
-  today,
 }: AccountGroupListProps) {
   const locale = useLocale();
   const isWide = useIsWideLayout();
   const selection = useUrlSelection("account");
   const { collapsed, toggle } = useCollapsedGroups();
   const [showHidden, setShowHidden] = useState(false);
-  const [updating, setUpdating] = useState<AccountLine | null>(null);
   const hiddenSwitchId = useId();
   const emptyGroup = t({
     en: "No accounts in this group.",
@@ -117,7 +113,6 @@ export function AccountGroupList({
                         isSelected={
                           isWide && selection.value === line.account.id
                         }
-                        onUpdate={setUpdating}
                       />
                     ))}
                   </ul>
@@ -144,13 +139,6 @@ export function AccountGroupList({
           </label>
         </div>
       ) : null}
-      <UpdateBalanceSheet
-        line={updating}
-        today={today}
-        onClose={() => {
-          setUpdating(null);
-        }}
-      />
     </div>
   );
 }

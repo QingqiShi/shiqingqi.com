@@ -69,11 +69,7 @@ export function NetWorthOverview({ showTrend }: NetWorthOverviewProps) {
         <>
           <NetWorthHeadline sheet={sheet} today={today} currency={currency} />
           {showTrend ? <NetWorthTrend /> : null}
-          <AccountGroupList
-            sheet={sheet}
-            baseCurrency={currency}
-            today={today}
-          />
+          <AccountGroupList sheet={sheet} baseCurrency={currency} />
         </>
       ) : (
         <div css={stack.tight}>
