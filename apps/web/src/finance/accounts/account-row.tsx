@@ -1,22 +1,14 @@
 "use client";
 
-import { ArrowsClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsClockwise";
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
-import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  color,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Link from "next/link";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -33,20 +25,18 @@ interface AccountRowProps {
   baseCurrency: string;
   href: string;
   isSelected: boolean;
-  onUpdate: (line: AccountLine) => void;
 }
 
 /**
  * One account in the Net worth list: its name with the owner and
  * institution that tell it apart, its balance, and the facts that matter for
- * its kind. The row opens the account; "Update" sets its balance.
+ * its kind. The row opens the account.
  */
 export function AccountRow({
   line,
   baseCurrency,
   href,
   isSelected,
-  onUpdate,
 }: AccountRowProps) {
   const locale = useLocale();
   const prefetch = useFreshPrefetch();
@@ -76,7 +66,7 @@ export function AccountRow({
   const differs = account.currency !== baseCurrency;
 
   return (
-    <li css={[row.tight, styles.item]}>
+    <li css={styles.item}>
       <Link
         href={href}
         prefetch={prefetch}
@@ -115,26 +105,13 @@ export function AccountRow({
           ) : null}
         </span>
       </Link>
-      {account.isSystem ? (
-        <span aria-hidden css={styles.noUpdate} />
-      ) : (
-        <Button
-          look="ghost"
-          size="sm"
-          icon={<ArrowsClockwiseIcon weight="bold" />}
-          aria-label={`${t({ en: "Update balance:", zh: "更新余额：" })} ${name}`}
-          onClick={() => {
-            onUpdate(line);
-          }}
-        />
-      )}
     </li>
   );
 }
 
 const styles = stylex.create({
   item: {
-    alignItems: "center",
+    display: "flex",
   },
   link: {
     display: "flex",
@@ -176,9 +153,5 @@ const styles = stylex.create({
   },
   balance: {
     fontWeight: font.weight_5,
-  },
-  noUpdate: {
-    flexShrink: 0,
-    inlineSize: controlSize._8,
   },
 });
