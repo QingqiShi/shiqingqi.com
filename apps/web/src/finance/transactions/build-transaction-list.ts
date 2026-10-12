@@ -26,6 +26,8 @@ interface TransactionListSources {
   entriesByTransaction: ReadonlyMap<string, readonly EntryRow[]>;
   tagIdsByTransaction: ReadonlyMap<string, readonly string[]>;
   categoryDescendantsById: ReadonlyMap<string, ReadonlySet<string>>;
+  /** The Transactions in Review, from `selectReviewIds`. */
+  reviewIds: ReadonlySet<string>;
   baseCurrency: string;
 }
 
@@ -77,7 +79,7 @@ function matcherFor(
     .filter((word) => word !== "");
 
   return (row: TransactionRow) => {
-    if (filters.review && !row.needsReview) return false;
+    if (filters.review && !sources.reviewIds.has(row.id)) return false;
     if (filters.expected && row.status !== "expected") return false;
     if (filters.from !== null && row.date < filters.from) return false;
     if (filters.to !== null && row.date > filters.to) return false;

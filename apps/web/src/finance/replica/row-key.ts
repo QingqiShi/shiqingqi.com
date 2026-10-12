@@ -10,7 +10,6 @@ export function rowKey<Table extends SyncTableName>(
   row: ReplicaRow<Table>,
 ): string {
   if ("id" in row) return row.id;
-  if ("alias" in row) return row.alias;
   if ("tagId" in row) return `${row.transactionId}|${row.tagId}`;
   if ("balanceMinor" in row) return `${row.accountId}|${row.day}`;
   if ("month" in row) {

@@ -62,12 +62,16 @@ export async function generateWeeklyReports(
       if (requested?.length === 0) {
         return { reports: [], written: 0, unchanged: 0, deleted: 0 };
       }
-      const source = await loadReportSource(context.scope, {
-        transactionsFrom: requested
-          ? addDays(requested[0], -6 - REPORT_LOOKBACK_DAYS)
-          : null,
-        to: requested?.at(-1) ?? lastWeekEnd,
-      });
+      const source = await loadReportSource(
+        context.scope,
+        {
+          transactionsFrom: requested
+            ? addDays(requested[0], -6 - REPORT_LOOKBACK_DAYS)
+            : null,
+          to: requested?.at(-1) ?? lastWeekEnd,
+        },
+        context.today,
+      );
       const reportContext = createReportContext(source);
       const weekEnds =
         requested ??

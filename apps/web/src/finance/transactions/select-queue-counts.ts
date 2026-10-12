@@ -1,26 +1,26 @@
 import type { ReplicaSnapshot } from "../replica/types.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
-import type { TransactionRow } from "../sync/row-schemas.ts";
+import { selectReviewIds } from "./select-review-ids.ts";
 
 interface QueueCounts {
-  /** Transactions that need Review. */
+  /** Transactions in Review. */
   review: number;
   /** Expected Transactions waiting for Confirm or Skip. */
   expected: number;
 }
 
-const cache = new WeakMap<readonly TransactionRow[], QueueCounts>();
+const cache = new WeakMap<ReadonlySet<string>, QueueCounts>();
 
-/** How many Transactions wait in Review and as Expected; the same object until the Transactions change. */
+/** How many Transactions wait in Review and as Expected; the same object until either changes. */
 export function selectQueueCounts(snapshot: ReplicaSnapshot): QueueCounts {
-  const rows = selectTransactionsByDateDesc(snapshot);
-  const cached = cache.get(rows);
+  const reviewIds = selectReviewIds(snapshot);
+  const cached = cache.get(reviewIds);
   if (cached) return cached;
-  const counts = { review: 0, expected: 0 };
-  for (const row of rows) {
-    if (row.needsReview) counts.review++;
-    if (row.status === "expected") counts.expected++;
+  let expected = 0;
+  for (const row of selectTransactionsByDateDesc(snapshot)) {
+    if (row.status === "expected") expected++;
   }
-  cache.set(rows, counts);
+  const counts = { review: reviewIds.size, expected };
+  cache.set(reviewIds, counts);
   return counts;
 }

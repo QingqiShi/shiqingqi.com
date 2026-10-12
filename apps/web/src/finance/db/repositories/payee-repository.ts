@@ -1,5 +1,6 @@
-import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
-import { payeeAliases, payees, transactions } from "../schema.ts";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { payeeNameKey } from "../../domain/payees/payee-name-key.ts";
+import { payees } from "../schema.ts";
 import { softDeletePatch } from "./soft-delete-patch.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
@@ -20,19 +21,26 @@ export const payeeRepository = {
     return rows.at(0);
   },
 
-  /** The live Payee with this name, ignoring case. */
+  /**
+   * The live Payee with the same name as `name` by `payeeNameKey`: case,
+   * spaces, punctuation, accents and "&" for "and" do not count. An exact
+   * match comes first, then the oldest.
+   */
   async findLiveByName(scope: RepositoryScope, name: string) {
+    const key = payeeNameKey(name);
+    if (key === "") return undefined;
     const rows = await scope.db
-      .select()
+      .select({ id: payees.id, name: payees.name })
       .from(payees)
       .where(
         and(
           eq(payees.householdId, scope.householdId),
-          sql`lower(${payees.name}) = lower(${name})`,
           isNull(payees.deletedAt),
         ),
-      );
-    return rows.at(0);
+      )
+      .orderBy(asc(payees.createdAt), asc(payees.id));
+    const same = rows.filter((row) => payeeNameKey(row.name) === key);
+    return same.find((row) => row.name === name) ?? same.at(0);
   },
 
   /** Inserts the Payee. False when the id is already used. */
@@ -60,62 +68,5 @@ export const payeeRepository = {
         updatedAt: now,
       })
       .where(and(eq(payees.householdId, scope.householdId), eq(payees.id, id)));
-  },
-
-  /** Binds bank-statement strings to a Payee; an alias bound to another Payee moves. */
-  async putAliases(scope: WriteScope, payeeId: string, aliases: string[]) {
-    if (aliases.length === 0) return;
-    await scope.db
-      .insert(payeeAliases)
-      .values(
-        [...new Set(aliases)].map((alias) => ({
-          householdId: scope.householdId,
-          alias,
-          payeeId,
-          version: scope.version,
-        })),
-      )
-      .onConflictDoUpdate({
-        target: [payeeAliases.householdId, payeeAliases.alias],
-        set: { payeeId, version: scope.version, updatedAt: now },
-        setWhere: sql`${payeeAliases.payeeId} <> ${payeeId}`,
-      });
-  },
-
-  /** The Categories of the Payee's latest posted Transactions, newest first. */
-  async recentCategoryIds(
-    scope: RepositoryScope,
-    payeeId: string,
-    limit: number,
-  ) {
-    const rows = await scope.db
-      .select({ categoryId: transactions.categoryId })
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.householdId, scope.householdId),
-          eq(transactions.payeeId, payeeId),
-          eq(transactions.status, "posted"),
-          isNull(transactions.deletedAt),
-          isNotNull(transactions.categoryId),
-        ),
-      )
-      .orderBy(desc(transactions.date), desc(transactions.createdAt))
-      .limit(limit);
-    return rows.flatMap((row) =>
-      row.categoryId === null ? [] : [row.categoryId],
-    );
-  },
-
-  async repointAliases(scope: WriteScope, fromId: string, intoId: string) {
-    await scope.db
-      .update(payeeAliases)
-      .set({ payeeId: intoId, version: scope.version, updatedAt: now })
-      .where(
-        and(
-          eq(payeeAliases.householdId, scope.householdId),
-          eq(payeeAliases.payeeId, fromId),
-        ),
-      );
   },
 };

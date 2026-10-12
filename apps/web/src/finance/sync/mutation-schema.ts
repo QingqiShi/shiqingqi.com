@@ -90,7 +90,6 @@ export const payeeFieldsSchema = z.object({
   note,
   defaultCategoryId: id.nullable(),
   defaultAccountId: id.nullable(),
-  addAliases: z.array(name).max(50),
 });
 
 export const tagFieldsSchema = z.object({ name, position });

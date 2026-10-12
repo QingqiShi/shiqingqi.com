@@ -8,6 +8,7 @@ import {
   checkSystemAccountValuation,
 } from "../sync/check-system-account-patch.ts";
 import { checkTransactionShape } from "../sync/check-transaction-shape.ts";
+import { labelledByAfter } from "../sync/labelled-by-after.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type {
   Mutation,
@@ -345,7 +346,8 @@ function createTransaction(scope: Scope, input: TransactionInput) {
     note: input.note,
     source: "manual",
     needsReview: input.needsReview,
-    aiConfidence: null,
+    labelledBy: "member",
+    aiReason: null,
     searchText: "",
     version: 0,
     createdAt: context.now,
@@ -379,7 +381,16 @@ function updateTransaction(scope: Scope, id: string, patch: TransactionPatch) {
     touchEntries(scope, currentEntries, existing.date);
     touchEntries(scope, merged.entries, merged.date);
   }
-  putTransaction(scope, { ...existing, ...fields, updatedAt: context.now });
+  putTransaction(scope, {
+    ...existing,
+    ...fields,
+    labelledBy: labelledByAfter(
+      "member",
+      { ...existing, entries: currentEntries, tagIds: currentTagIds },
+      merged,
+    ),
+    updatedAt: context.now,
+  });
   if (patchEntries) {
     replaceEntries(scope, id, merged.date, patchEntries);
   } else if (merged.date !== existing.date) {
@@ -752,7 +763,7 @@ function upsertCategory(scope: Scope, args: Args<"upsertCategory">) {
 
 function upsertPayee(scope: Scope, args: Args<"upsertPayee">) {
   const { draft, context } = scope;
-  const { id, deleted, addAliases, ...fields } = args;
+  const { id, deleted, ...fields } = args;
   if (fields.defaultCategoryId) {
     const category = draft.get("categories", fields.defaultCategoryId);
     if (!category || category.deletedAt) invalid("Unknown category");
@@ -793,17 +804,6 @@ function upsertPayee(scope: Scope, args: Args<"upsertPayee">) {
       deletedAt: deleted ? context.now : null,
     });
   }
-  for (const alias of new Set(addAliases ?? [])) {
-    const current = draft.get("payeeAliases", alias);
-    if (current?.payeeId === id) continue;
-    draft.put("payeeAliases", alias, {
-      householdId: context.householdId,
-      alias,
-      payeeId: id,
-      version: current?.version ?? 0,
-      updatedAt: context.now,
-    });
-  }
 }
 
 function mergePayee(scope: Scope, args: Args<"mergePayee">) {
@@ -817,14 +817,6 @@ function mergePayee(scope: Scope, args: Args<"mergePayee">) {
     if (transaction.payeeId !== from.id) continue;
     draft.put("transactions", transaction.id, {
       ...transaction,
-      payeeId: into.id,
-      updatedAt: context.now,
-    });
-  }
-  for (const alias of [...draft.values("payeeAliases")]) {
-    if (alias.payeeId !== from.id) continue;
-    draft.put("payeeAliases", alias.alias, {
-      ...alias,
       payeeId: into.id,
       updatedAt: context.now,
     });

@@ -20,6 +20,7 @@ import { accountMutations } from "../sync/account-mutations.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { credentialCipher } from "./credential-cipher.ts";
 import { BankError } from "./lunchflow/bank-error.ts";
+import { PROCESS_BUDGET_MS, processBankRows } from "./process-bank-rows.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import type {
   BankApiErrorCode,
@@ -44,6 +45,9 @@ export interface BankHandlerDependencies {
   /** The key that seals each Connection's credential, or null when it is not set. */
   credentialKey: () => Uint8Array | null;
   getModel: () => LanguageModel | null;
+  /** Runs `task` after the response is sent, as Next's `after` does. */
+  afterResponse: (task: () => Promise<void>) => void;
+  onModelError?: (error: unknown) => void;
   now: () => Date;
   limitRequest?: LimitFinanceRequest;
 }
@@ -395,7 +399,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
 
     /**
      * `POST /api/finance/bank/sync-now`: syncs every link of the Household
-     * now. 429 `rate_limited` when the bank provider refused every link (it
+     * now, and labels the new bank rows after the response. 429 `rate_limited` when the bank provider refused every link (it
      * allows a few pulls per account a day), 429 `too-many-requests` when the
      * Household asked too often.
      */
@@ -407,8 +411,21 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
           db: scope.db,
           householdId: scope.householdId,
           client: connection.client,
-          model: dependencies.getModel(),
           now,
+        });
+        dependencies.afterResponse(async () => {
+          await processBankRows({
+            db: scope.db,
+            householdId: scope.householdId,
+            model: dependencies.getModel(),
+            now,
+            deadline: new Date(now.getTime() + PROCESS_BUDGET_MS),
+            clock: dependencies.now,
+            onModelError: dependencies.onModelError,
+            onUnusableAnswer: (problem) => {
+              console.warn("Finance labelling answer refused", problem);
+            },
+          });
         });
         if (
           links.length > 0 &&

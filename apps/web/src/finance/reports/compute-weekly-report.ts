@@ -200,7 +200,7 @@ function weekActivity(
   ) {
     const transaction = transactions[index];
     const isCurrent = transaction.date >= periodStart;
-    if (isCurrent && transaction.needsReview) reviewCount++;
+    if (isCurrent && transaction.inReview) reviewCount++;
     if (transaction.status !== "posted") continue;
     if (isCurrent) transactionCount++;
     if (transaction.kind === "income" && isCurrent) {

@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
-import { learnFromBankTransaction } from "../ai/learn-from-bank-transaction.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
 import type { WriteScope } from "../db/repositories/types.ts";
 import { transactions } from "../db/schema.ts";
+import { labelledByAfter, type LabelledBy } from "./labelled-by-after.ts";
 import { MutationError } from "./mutation-error.ts";
 import type { TransactionInput, TransactionPatch } from "./mutation-schema.ts";
 import type { WriteContext } from "./types.ts";
@@ -58,8 +58,28 @@ async function refreshSearchText(scope: WriteScope, id: string) {
   await transactionRepository.refreshSearchText(scope, eq(transactions.id, id));
 }
 
-async function create(context: WriteContext, input: TransactionInput) {
+/** Who decided the labels of a Transaction the server creates, and why. */
+interface Provenance {
+  labelledBy: LabelledBy;
+  aiReason: string | null;
+  source: "manual" | "bank";
+}
+
+const MEMBER_PROVENANCE: Provenance = {
+  labelledBy: "member",
+  aiReason: null,
+  source: "manual",
+};
+
+/** A Member's Transaction is always labelled by the Member; only the server passes `provenance`. */
+async function create(
+  context: WriteContext,
+  input: TransactionInput,
+  provenance: Provenance = MEMBER_PROVENANCE,
+) {
   const { scope } = context;
+  const { labelledBy, aiReason, source } =
+    context.actor === "member" ? MEMBER_PROVENANCE : provenance;
   await validateTransaction(scope, input);
   const inserted = await transactionRepository.insert(scope, {
     id: input.id,
@@ -74,7 +94,9 @@ async function create(context: WriteContext, input: TransactionInput) {
     refundOfId: input.refundOfId,
     note: input.note,
     needsReview: input.needsReview,
-    source: "manual",
+    source,
+    labelledBy,
+    aiReason,
   });
   if (!inserted) {
     const existing = await transactionRepository.findById(scope, input.id);
@@ -135,7 +157,12 @@ async function update(
     context.touches.month(existing.date);
     context.touches.month(merged.date);
   }
-  await transactionRepository.patch(scope, id, fields);
+  const labelledBy = labelledByAfter(
+    context.actor,
+    { ...existing, entries: currentEntries, tagIds: currentTagIds },
+    merged,
+  );
+  await transactionRepository.patch(scope, id, { ...fields, labelledBy });
   if (patchEntries) {
     if (
       !(await transactionRepository.replaceEntries(
@@ -156,14 +183,6 @@ async function update(
     ]);
   }
   await refreshSearchText(scope, id);
-
-  const reviewCleared = existing.needsReview && !merged.needsReview;
-  const relabelled =
-    merged.payeeId !== existing.payeeId ||
-    merged.categoryId !== existing.categoryId;
-  if ((reviewCleared || relabelled) && merged.payeeId !== null) {
-    await learnFromBankTransaction(scope, id, merged.payeeId);
-  }
 }
 
 async function remove(context: WriteContext, id: string) {

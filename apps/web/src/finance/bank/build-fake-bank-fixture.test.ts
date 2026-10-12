@@ -11,6 +11,7 @@ import { withHousehold } from "../db/with-household.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { buildFakeBankFixture } from "./build-fake-bank-fixture.ts";
 import { createFakeBankClient } from "./lunchflow/create-fake-bank-client.ts";
+import { processBankRows } from "./process-bank-rows.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import { seedBankLink, seedUncategorised } from "./testing/seed-bank-link.ts";
 
@@ -64,16 +65,20 @@ function fakeFixture(today: string) {
 
 async function fakeSync(now = NOW) {
   const fixture = await fakeFixture("2026-10-10");
-  return {
-    fixture,
-    results: await syncBankLinks({
-      db,
-      householdId: home.householdId,
-      client: createFakeBankClient(fixture),
-      model: null,
-      now,
-    }),
-  };
+  const results = await syncBankLinks({
+    db,
+    householdId: home.householdId,
+    client: createFakeBankClient(fixture),
+    now,
+  });
+  await processBankRows({
+    db,
+    householdId: home.householdId,
+    model: null,
+    now,
+    deadline: new Date(Date.now() + 60_000),
+  });
+  return { fixture, results };
 }
 
 describe("buildFakeBankFixture", () => {
@@ -103,7 +108,7 @@ describe("buildFakeBankFixture", () => {
 
     const { results } = await fakeSync();
 
-    expect(results).toMatchObject([{ error: null, linked: 2, created: 4 }]);
+    expect(results).toMatchObject([{ error: null, linked: 2, pending: 4 }]);
     const bankMade = await db
       .select()
       .from(transactions)
@@ -115,7 +120,7 @@ describe("buildFakeBankFixture", () => {
         .map((row) => [row.amountMinor, row.payeeId, row.needsReview])
         .sort(),
     ).toEqual([
-      [-1003, home.grocerId, false],
+      [-1003, null, true],
       [-1299, null, true],
       [-280, null, true],
       [-485, null, true],
@@ -125,7 +130,7 @@ describe("buildFakeBankFixture", () => {
 
     const second = await fakeSync(new Date("2026-10-10T18:00:00Z"));
     expect(second.results).toMatchObject([
-      { error: null, linked: 0, created: 0, missing: 0 },
+      { error: null, linked: 0, pending: 0, missing: 0 },
     ]);
   });
 
@@ -201,7 +206,7 @@ describe("buildFakeBankFixture", () => {
         (row) => !row.id.startsWith("fake-unknown-") || row.amountMinor < 0,
       ),
     ).toBe(true);
-    expect(results).toMatchObject([{ error: null, linked: 1, created: 4 }]);
+    expect(results).toMatchObject([{ error: null, linked: 1, pending: 4 }]);
     const cardEntries = await db
       .select({ amountMinor: entries.amountMinor, kind: transactions.kind })
       .from(entries)

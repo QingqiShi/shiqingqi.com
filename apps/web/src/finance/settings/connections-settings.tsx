@@ -34,6 +34,7 @@ import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
+import { selectReviewIds } from "../transactions/select-review-ids.ts";
 import { CredentialForm } from "./credential-form.tsx";
 import { CredentialSummary } from "./credential-summary.tsx";
 import {
@@ -299,12 +300,12 @@ function ConnectedSettings({
     const parts =
       locale === "zh"
         ? [
-            `${labels.newCount} ${numbers.format(line.created)}`,
+            `${labels.newCount} ${numbers.format(line.pending)}`,
             `${labels.matchedCount} ${numbers.format(line.matched)}`,
             `${labels.reviewCount} ${numbers.format(line.review)}`,
           ]
         : [
-            `${numbers.format(line.created)} ${labels.newCount}`,
+            `${numbers.format(line.pending)} ${labels.newCount}`,
             `${numbers.format(line.matched)} ${labels.matchedCount}`,
             `${numbers.format(line.review)} ${labels.reviewCount}`,
           ];
@@ -367,9 +368,9 @@ function ConnectedSettings({
     try {
       const result = await bankApiClient.syncNow();
       await runtime.loop.sync();
-      const byAccount = selectTransactionsByAccount(
-        runtime.store.getSnapshot(),
-      );
+      const snapshot = runtime.store.getSnapshot();
+      const byAccount = selectTransactionsByAccount(snapshot);
+      const reviewIds = selectReviewIds(snapshot);
       const lines = summariseBankSync(
         result,
         (accountId) =>
@@ -377,7 +378,7 @@ function ConnectedSettings({
         (accountId) =>
           (byAccount.get(accountId) ?? []).filter(
             (transaction) =>
-              transaction.needsReview &&
+              reviewIds.has(transaction.id) &&
               transaction.status === "posted" &&
               transaction.deletedAt === null,
           ).length,

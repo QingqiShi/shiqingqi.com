@@ -48,7 +48,8 @@ beforeEach(async () => {
     note: "Television",
     source: "manual",
     needsReview: false,
-    aiConfidence: null,
+    labelledBy: "member",
+    aiReason: null,
     searchText: "",
     ...STAMPS,
   };

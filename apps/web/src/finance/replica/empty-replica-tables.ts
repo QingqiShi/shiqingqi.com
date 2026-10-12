@@ -11,7 +11,6 @@ export function emptyReplicaTables(): ReplicaTables {
     valuations: EMPTY,
     categories: EMPTY,
     payees: EMPTY,
-    payeeAliases: EMPTY,
     tags: EMPTY,
     rules: EMPTY,
     transactions: EMPTY,

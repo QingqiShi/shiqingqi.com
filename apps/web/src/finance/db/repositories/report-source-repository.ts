@@ -4,6 +4,7 @@ import {
   accountGroups,
   accounts,
   categories,
+  entries,
   members,
   payees,
   transactions,
@@ -123,5 +124,30 @@ export const reportSourceRepository = {
         ),
       )
       .orderBy(asc(transactions.date));
+  },
+
+  /** The live Entries on In transit, which can put a Transaction in Review. */
+  async listInTransitEntries(scope: RepositoryScope) {
+    return scope.db
+      .select({
+        transactionId: entries.transactionId,
+        accountId: entries.accountId,
+        date: entries.date,
+      })
+      .from(entries)
+      .innerJoin(
+        accounts,
+        and(
+          eq(accounts.householdId, scope.householdId),
+          eq(accounts.id, entries.accountId),
+        ),
+      )
+      .where(
+        and(
+          eq(entries.householdId, scope.householdId),
+          isNull(entries.deletedAt),
+          eq(accounts.isSystem, true),
+        ),
+      );
   },
 };

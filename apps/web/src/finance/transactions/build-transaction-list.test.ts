@@ -36,6 +36,7 @@ function build(upcomingOpen: boolean, expected = false) {
       entriesByTransaction: new Map(),
       tagIdsByTransaction: new Map(),
       categoryDescendantsById: new Map(),
+      reviewIds: new Set(),
       baseCurrency: "GBP",
     },
     { ...EMPTY_TRANSACTION_FILTERS, expected },

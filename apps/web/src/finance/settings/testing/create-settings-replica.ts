@@ -167,6 +167,7 @@ export async function createSettingsReplica() {
       name: "Home",
       baseCurrency: "GBP",
       timezone: "Europe/London",
+      aiInstructions: "",
       clock: 10,
     },
     transactionsFrom: null,

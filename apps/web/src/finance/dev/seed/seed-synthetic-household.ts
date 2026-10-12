@@ -11,7 +11,6 @@ import {
   entries,
   fxRates,
   households,
-  payeeAliases,
   payees,
   rules,
   tags,
@@ -156,7 +155,6 @@ export async function seedSyntheticHousehold(
       rows.categories.filter((category) => category.parentId),
     );
     await insertRows(tx, payees, rows.payees);
-    await insertRows(tx, payeeAliases, rows.payeeAliases);
     await insertRows(tx, tags, rows.tags);
     await insertRows(tx, rules, rows.rules);
     await insertRows(tx, valuations, rows.valuations);

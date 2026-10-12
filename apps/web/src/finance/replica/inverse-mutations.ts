@@ -135,7 +135,7 @@ function inverseUpsert(
   }
   const previous: Record<string, unknown> = { id: mutation.args.id };
   for (const key of Object.keys(mutation.args)) {
-    if (key === "id" || key === "addAliases") continue;
+    if (key === "id") continue;
     const flag = FLAG_FIELDS[key];
     previous[key] = flag === undefined ? row[key] : row[flag] != null;
   }

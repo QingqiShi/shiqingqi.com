@@ -2,7 +2,13 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
-import { accounts, bankLinks, connections, valuations } from "../db/schema.ts";
+import {
+  accounts,
+  bankLinks,
+  connections,
+  transactions,
+  valuations,
+} from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -42,6 +48,7 @@ let home: SeededHousehold;
 let session: FinanceSession | null;
 let fixture: FakeBankFixture;
 let connected: boolean;
+let afterTasks: (() => Promise<void>)[];
 
 function providerAccount(id: string, currency = "GBP", status = "ACTIVE") {
   return {
@@ -60,6 +67,7 @@ beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db);
   await seedUncategorised(db, home);
+  afterTasks = [];
   session = {
     sessionId: randomUUID(),
     userId: randomUUID(),
@@ -117,6 +125,9 @@ function handlers(overrides: Partial<BankHandlerDependencies> = {}) {
     verifyApiKey: () => Promise.resolve(),
     credentialKey: () => CREDENTIAL_KEY,
     getModel: () => null,
+    afterResponse: (task) => {
+      afterTasks.push(task);
+    },
     now: () => NOW,
     ...overrides,
   });
@@ -297,7 +308,7 @@ describe("makeBankHandlers", () => {
     expect(relinked.id).toBe(first.id);
   });
 
-  it("syncs now and takes the bank balance as a bank Valuation", async () => {
+  it("syncs now, labels the new rows after the response, and takes the bank balance as a bank Valuation", async () => {
     await putLink({ accountId: home.currentId, providerAccountId: "p1" });
 
     const response = await handlers().syncNow(
@@ -305,9 +316,15 @@ describe("makeBankHandlers", () => {
     );
     const result = (await response.json()) as SyncNowResponse;
     expect(result.links).toMatchObject([
-      { error: null, created: 1, balanceDifferenceMinor: 600 },
+      { error: null, pending: 1, balanceDifferenceMinor: -400 },
     ]);
     expect(result.clock).toBeGreaterThan(0);
+    expect(await db.$count(transactions)).toBe(0);
+
+    for (const task of afterTasks.splice(0)) await task();
+    expect(await db.$count(transactions)).toBe(1);
+    const [processed] = await db.select().from(bankLinks);
+    expect(processed.balanceDifferenceMinor).toBe(600);
 
     const [link] = await db.select().from(bankLinks);
     const resolved = await handlers().resolveBalance(

@@ -4,6 +4,7 @@ import {
   makeHouseholdCronHandler,
   type HouseholdCronDependencies,
 } from "../http/make-household-cron-handler.ts";
+import { PROCESS_BUDGET_MS, processBankRows } from "./process-bank-rows.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import type { BankConnection } from "./types.ts";
 
@@ -23,7 +24,7 @@ interface BankSyncCronDependencies extends HouseholdCronDependencies {
  */
 const CRON_MIN_GAP_MS = 5 * 60 * 60 * 1000;
 
-/** The six-hourly cron: syncs the Bank links of every connected Household. */
+/** The six-hourly cron: syncs the Bank links of every connected Household, then labels their new bank rows. */
 export function makeBankSyncHandler(dependencies: BankSyncCronDependencies) {
   return makeHouseholdCronHandler(dependencies, {
     start: () => ({ households: 0, links: 0, failed: 0, created: 0 }),
@@ -34,17 +35,29 @@ export function makeBankSyncHandler(dependencies: BankSyncCronDependencies) {
         db,
         householdId,
         client: connection.client,
-        model: dependencies.getModel(),
         now,
         skipSyncedAfter: new Date(now.getTime() - CRON_MIN_GAP_MS),
+      });
+      const processed = await processBankRows({
+        db,
+        householdId,
+        model: dependencies.getModel(),
+        now,
+        deadline: new Date(now.getTime() + PROCESS_BUDGET_MS),
+        clock: dependencies.now,
+        onModelError: (error) => {
+          console.error("Finance labelling failed", error);
+        },
+        onUnusableAnswer: (problem) => {
+          console.warn("Finance labelling answer refused", problem);
+        },
       });
       totals.households++;
       totals.links += results.length;
       totals.failed += results.filter((result) => result.error).length;
-      totals.created += results.reduce(
-        (sum, result) => sum + result.created,
-        0,
-      );
+      for (const count of processed.createdByAccount.values()) {
+        totals.created += count;
+      }
     },
     onHouseholdError: (error, totals) => {
       console.error("Bank sync failed for a household", error);

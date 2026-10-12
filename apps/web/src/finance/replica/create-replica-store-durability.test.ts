@@ -17,6 +17,7 @@ function household(id: string, clock: number): HouseholdRow {
     name: "Home",
     baseCurrency: "GBP",
     timezone: "Europe/London",
+    aiInstructions: "",
     clock,
   };
 }

@@ -1,15 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createLabellingModel } from "../ai/testing/create-labelling-model.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import {
   bankLinks,
   bankTransactions,
   entries,
-  households,
-  payeeAliases,
-  payees,
   transactions,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
@@ -28,6 +24,7 @@ import {
   type FakeBankFixture,
 } from "./lunchflow/create-fake-bank-client.ts";
 import type { ProviderTransaction } from "./lunchflow/types.ts";
+import { processBankRows } from "./process-bank-rows.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import { seedBankLink, seedUncategorised } from "./testing/seed-bank-link.ts";
 
@@ -101,16 +98,30 @@ afterEach(async () => {
   await db.close();
 });
 
-function sync(
-  options: { model?: ReturnType<typeof createLabellingModel>; now?: Date } = {},
-) {
+function sync(options: { now?: Date } = {}) {
   return syncBankLinks({
     db,
     householdId: home.householdId,
     client: createFakeBankClient(fixture),
-    model: options.model ?? null,
     now: options.now ?? NOW,
   });
+}
+
+/** The AI step with no model: every new row becomes an Uncategorised Transaction. */
+function process(now = NOW) {
+  return processBankRows({
+    db,
+    householdId: home.householdId,
+    model: null,
+    now,
+    deadline: new Date(Date.now() + 60_000),
+  });
+}
+
+async function syncAndProcess(options: { now?: Date } = {}) {
+  const results = await sync(options);
+  await process(options.now);
+  return results;
 }
 
 function mutation<Name extends MutationName>(
@@ -183,94 +194,40 @@ async function link(id: string) {
   return row;
 }
 
-async function clock() {
-  const [row] = await db
-    .select({ clock: households.clock })
-    .from(households)
-    .where(eq(households.id, home.householdId));
-  return row.clock;
-}
-
 describe("syncBankLinks", () => {
-  it("creates labelled Transactions on the first sync", async () => {
-    await db.insert(payeeAliases).values({
-      householdId: home.householdId,
-      alias: "TESCO STORES",
-      payeeId: home.grocerId,
-      version: 0,
-    });
-    await db
-      .update(payees)
-      .set({ defaultCategoryId: home.groceriesId })
-      .where(eq(payees.id, home.grocerId));
-    const earlier = expense("2026-09-01", -500);
-    await push([earlier.mutation]);
-
+  it("stores new rows for the AI step and labels none of them", async () => {
     fixture.transactions["acc-current"] = [
       bankRow("t1", "2026-10-08", -1234, "TESCO STORES 3297"),
       bankRow("t2", "2026-10-09", -2150, "DELIVEROO*KFC"),
-      bankRow("old", "2026-06-01", -100, "TOO OLD"),
     ];
-    const model = createLabellingModel(() => ({
-      payeeName: "Deliveroo",
-      categoryId: home.groceriesId,
-      confidence: 0.9,
-    }));
 
-    const [current, card] = await sync({ model });
+    const [current, card] = await sync();
 
-    expect(current).toMatchObject({ error: null, created: 2, linked: 0 });
-    expect(card).toMatchObject({ error: null, created: 0 });
-    const created = (await liveTransactions()).filter(
-      (row) => row.source === "bank",
-    );
-    expect(created).toHaveLength(2);
-    const tesco = created.find((row) => row.date === "2026-10-08");
-    expect(tesco).toMatchObject({
-      kind: "expense",
-      amountMinor: -1234,
-      payeeId: home.grocerId,
-      categoryId: home.groceriesId,
-      needsReview: false,
-      memberId: home.memberId,
-    });
-    expect(tesco?.aiConfidence).toBeCloseTo(0.95);
-    const deliveroo = created.find((row) => row.date === "2026-10-09");
-    expect(deliveroo).toMatchObject({
-      amountMinor: -2150,
-      categoryId: home.groceriesId,
-      needsReview: true,
-      note: "DELIVEROO*KFC",
-    });
-    const [newPayee] = await db
-      .select()
-      .from(payees)
-      .where(eq(payees.name, "Deliveroo"));
-    expect(deliveroo?.payeeId).toBe(newPayee.id);
-
+    expect(current).toMatchObject({ error: null, pending: 2, linked: 0 });
+    expect(card).toMatchObject({ error: null, pending: 0 });
+    expect(await liveTransactions()).toEqual([]);
     const stored = await bankRows();
-    expect(stored.map((row) => [row.providerTxId, row.state])).toEqual([
-      ["t1", "matched"],
-      ["t2", "matched"],
+    expect(
+      stored.map((row) => [row.providerTxId, row.state, row.labelAttempts]),
+    ).toEqual([
+      ["t1", "new", 0],
+      ["t2", "new", 0],
     ]);
     const currentLink = await link(currentLinkId);
-    expect(tesco?.version).toBe(currentLink.version);
-    expect(await clock()).toBe(currentLink.version + 1);
     expect(currentLink.lastSyncedOn).toBe("2026-10-10");
-    expect(model.doGenerateCalls).toHaveLength(1);
   });
 
   it("changes nothing on a second sync of the same rows", async () => {
     fixture.transactions["acc-current"] = [
       bankRow("t1", "2026-10-08", -1234, "SOMEWHERE"),
     ];
-    await sync();
+    await syncAndProcess();
     const before = await liveTransactions();
     const entriesBefore = await db.select().from(entries);
 
     const [second] = await sync({ now: NEXT_DAY });
 
-    expect(second).toMatchObject({ created: 0, linked: 0, confirmed: 0 });
+    expect(second).toMatchObject({ pending: 0, linked: 0, confirmed: 0 });
     expect(await liveTransactions()).toEqual(before);
     expect(await db.select().from(entries)).toEqual(entriesBefore);
   });
@@ -284,7 +241,7 @@ describe("syncBankLinks", () => {
 
     const [result] = await sync();
 
-    expect(result).toMatchObject({ confirmed: 1, created: 0 });
+    expect(result).toMatchObject({ confirmed: 1, pending: 0 });
     const [row] = await liveTransactions();
     expect(row).toMatchObject({
       id: expected.id,
@@ -303,7 +260,7 @@ describe("syncBankLinks", () => {
 
     const [result] = await sync();
 
-    expect(result).toMatchObject({ linked: 1, created: 0 });
+    expect(result).toMatchObject({ linked: 1, pending: 0 });
     const rows = await liveTransactions();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ id: manual.id, source: "manual" });
@@ -311,10 +268,6 @@ describe("syncBankLinks", () => {
       state: "matched",
       transactionId: manual.id,
     });
-    const aliases = await db.select().from(payeeAliases);
-    expect(aliases).toMatchObject([
-      { alias: "GROCER LTD", payeeId: home.grocerId },
-    ]);
   });
 
   it("settles an In transit Entry on the account the money reached, and keeps net worth", async () => {
@@ -356,7 +309,7 @@ describe("syncBankLinks", () => {
 
     const [, card] = await sync();
 
-    expect(card).toMatchObject({ linked: 1, created: 0 });
+    expect(card).toMatchObject({ linked: 1, pending: 0 });
     const rows = await liveTransactions();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ id: transferId, kind: "transfer" });
@@ -377,7 +330,7 @@ describe("syncBankLinks", () => {
     expect(sum(after)).toBe(sum(before));
   });
 
-  it("links a chain of repeated fares to the Transactions one day before them, and labels none", async () => {
+  it("links a chain of repeated fares to the Transactions one day before them", async () => {
     const days = ["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08"];
     const manual = days.map((day) =>
       expense(addDays(day, -1), -720, { accountId: home.cardId }),
@@ -386,19 +339,12 @@ describe("syncBankLinks", () => {
     fixture.transactions["acc-card"] = days.map((day) =>
       bankRow(`tfl-${day}`, day, -720, "TFL TRAVEL CH"),
     );
-    const model = createLabellingModel(() => ({
-      payeeName: "TfL",
-      categoryId: home.groceriesId,
-      confidence: 0.9,
-    }));
+    const [, card] = await sync();
 
-    const [, card] = await sync({ model });
-
-    expect(card).toMatchObject({ error: null, linked: 4, created: 0 });
+    expect(card).toMatchObject({ error: null, linked: 4, pending: 0 });
     expect(
       (await bankRows(cardLinkId)).map((row) => row.transactionId),
     ).toEqual(manual.map((transaction) => transaction.id));
-    expect(model.doGenerateCalls).toHaveLength(0);
   });
 
   it("flags a row the bank leaves out of two answers in a row, and clears the flag when it returns", async () => {
@@ -408,7 +354,7 @@ describe("syncBankLinks", () => {
       bankRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
     fixture.transactions["acc-current"] = [cafe, ...others];
-    await sync();
+    await syncAndProcess();
     const created = (await liveTransactions()).find(
       (row) => row.amountMinor === -700,
     );
@@ -445,7 +391,7 @@ describe("syncBankLinks", () => {
       bankRow("t2", "2026-10-06", -800, "BAKERY"),
       bankRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
-    await sync();
+    await syncAndProcess();
     fixture.transactions["acc-current"] = [];
     const [empty] = await sync({ now: NEXT_DAY });
     const [emptyAgain] = await sync({ now: DAY_AFTER });
@@ -471,7 +417,7 @@ describe("syncBankLinks", () => {
       bankRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
     fixture.transactions["acc-current"] = rows;
-    await sync();
+    await syncAndProcess();
     fixture.transactions["acc-current"] = rows.slice(1);
     await sync({ now: NEXT_DAY });
     await sync({ now: DAY_AFTER });
@@ -485,7 +431,7 @@ describe("syncBankLinks", () => {
     expect(cafe?.needsReview).toBe(true);
   });
 
-  it("gives a returning missing row without a Transaction one, labelled once", async () => {
+  it("leaves a returning missing row without a Transaction for the AI step", async () => {
     fixture.transactions["acc-current"] = [
       bankRow("t1", "2026-10-08", -1500, "NEW PLACE"),
     ];
@@ -502,17 +448,10 @@ describe("syncBankLinks", () => {
       state: "missing",
       version: 0,
     });
-    const model = createLabellingModel(() => ({
-      payeeName: "New Place",
-      categoryId: home.groceriesId,
-      confidence: 0.9,
-    }));
+    const [result] = await sync();
 
-    const [result] = await sync({ model });
-
-    expect(result.created).toBe(1);
-    expect(model.doGenerateCalls).toHaveLength(1);
-    expect((await bankRows())[0].state).toBe("matched");
+    expect(result.pending).toBe(1);
+    expect((await bankRows())[0].state).toBe("new");
   });
 
   it("leaves out links tried after skipSyncedAfter", async () => {
@@ -525,35 +464,11 @@ describe("syncBankLinks", () => {
       db,
       householdId: home.householdId,
       client: createFakeBankClient(fixture),
-      model: null,
       now: NOW,
       skipSyncedAfter: new Date(NOW.getTime() - 5 * 60 * 60 * 1000),
     });
 
     expect(results.map((result) => result.linkId)).toEqual([currentLinkId]);
-  });
-
-  it("caps and cleans a Payee name the model proposes", async () => {
-    fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-08", -1500, "ODD SHOP"),
-    ];
-    const model = createLabellingModel(() => ({
-      payeeName: `Odd\u0000 \u202e Shop ${"x".repeat(500)}`,
-      categoryId: home.groceriesId,
-      confidence: 0.9,
-    }));
-
-    await sync({ model });
-
-    const names = (
-      await db
-        .select({ name: payees.name })
-        .from(payees)
-        .where(eq(payees.householdId, home.householdId))
-    ).map((row) => row.name);
-    const odd = names.find((name) => name.startsWith("Odd"));
-    expect(odd?.startsWith("Odd Shop x")).toBe(true);
-    expect(odd?.length).toBeLessThanOrEqual(80);
   });
 
   it("inverts amounts when the link's sign multiplier is -1", async () => {
@@ -565,7 +480,7 @@ describe("syncBankLinks", () => {
       bankRow("c1", "2026-10-07", 2000, "SHOP"),
     ];
 
-    await sync();
+    await syncAndProcess();
 
     const [row] = await liveTransactions();
     expect(row).toMatchObject({
@@ -590,7 +505,7 @@ describe("syncBankLinks", () => {
     const [current, card] = await sync();
 
     expect(current.error).toBe("reconnect");
-    expect(card).toMatchObject({ error: null, created: 1 });
+    expect(card).toMatchObject({ error: null, pending: 1 });
     expect(await link(currentLinkId)).toMatchObject({
       status: "reconnect",
       lastError: "reconnect",
@@ -608,57 +523,13 @@ describe("syncBankLinks", () => {
 
     const [current, card] = await sync();
 
-    expect(current.balanceDifferenceMinor).toBe(100);
+    expect(current.balanceDifferenceMinor).toBe(-900);
     expect(card.balanceDifferenceMinor).toBeNull();
+    await process();
     expect(await link(currentLinkId)).toMatchObject({
       bankBalanceMinor: -900,
       bankBalanceOn: "2026-10-10",
       balanceDifferenceMinor: 100,
-    });
-  });
-
-  it("learns the Payee when a person confirms a bank Transaction", async () => {
-    fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-01", -1500, "LOCAL GROCER 77 LONDON"),
-    ];
-    await sync();
-    const [created] = await liveTransactions();
-    expect(created).toMatchObject({ payeeId: null, needsReview: true });
-
-    const pushed = await push([
-      mutation("updateTransaction", {
-        id: created.id,
-        patch: {
-          payeeId: home.grocerId,
-          categoryId: home.groceriesId,
-          needsReview: false,
-        },
-      }),
-    ]);
-    expect(pushed.rejected).toEqual([]);
-    const [alias] = await db.select().from(payeeAliases);
-    expect(alias).toMatchObject({
-      alias: "LOCAL GROCER",
-      payeeId: home.grocerId,
-      version: pushed.clock,
-    });
-    const [grocer] = await db
-      .select()
-      .from(payees)
-      .where(eq(payees.id, home.grocerId));
-    expect(grocer.defaultCategoryId).toBe(home.groceriesId);
-
-    fixture.transactions["acc-current"].push(
-      bankRow("t2", "2026-10-09", -1800, "LOCAL GROCER 12"),
-    );
-    await sync({ now: NEXT_DAY });
-    const second = (await liveTransactions()).find(
-      (row) => row.date === "2026-10-09",
-    );
-    expect(second).toMatchObject({
-      payeeId: home.grocerId,
-      categoryId: home.groceriesId,
-      needsReview: false,
     });
   });
 });

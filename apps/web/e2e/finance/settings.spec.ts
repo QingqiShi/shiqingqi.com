@@ -4,8 +4,8 @@ import {
   bankLinks,
   categories,
   fxRates,
+  households,
   members,
-  payeeAliases,
   rules,
   tags,
 } from "../../src/finance/db/schema.ts";
@@ -251,7 +251,7 @@ test.describe("Settings", () => {
       .toHaveLength(1);
   });
 
-  test("an exchange rate and a payee's bank name sync", async ({
+  test("an exchange rate and the AI instructions save", async ({
     page,
     session,
     financeDb,
@@ -279,39 +279,24 @@ test.describe("Settings", () => {
       )
       .toContain(0.8123);
 
-    await openSettings(page, "payees", "Payees");
+    await openSettings(page, "ai", "AI labelling");
     await page
-      .getByRole("button", { name: /^Tesco/ })
-      .first()
-      .click();
-    const bankName = page.getByRole("textbox", { name: "Add a bank name" });
-    const add = page.getByRole("button", { name: "Add", exact: true });
-    await expect(async () => {
-      await bankName.fill("tesco express 1234 london");
-      await expect(add).toBeEnabled({ timeout: 1000 });
-    }).toPass();
-    await add.click();
-    await expect(
-      page.getByText("TESCO EXPRESS", { exact: true }),
-    ).toBeVisible();
+      .getByRole("textbox", { name: "Instructions for the AI" })
+      .fill("Payments to J SMITH are rent.");
     await page.getByRole("button", { name: "Save" }).click();
-    await expect(toast(page, "Payee saved")).toBeVisible();
-
+    await expect(toast(page, "AI instructions saved")).toBeVisible({
+      timeout: SYNC_TIMEOUT,
+    });
     await expect
       .poll(
         async () =>
           financeDb
-            .select({ alias: payeeAliases.alias })
-            .from(payeeAliases)
-            .where(
-              and(
-                eq(payeeAliases.householdId, session.householdId),
-                eq(payeeAliases.alias, "TESCO EXPRESS"),
-              ),
-            ),
+            .select({ aiInstructions: households.aiInstructions })
+            .from(households)
+            .where(eq(households.id, session.householdId)),
         { timeout: SYNC_TIMEOUT },
       )
-      .toHaveLength(1);
+      .toEqual([{ aiInstructions: "Payments to J SMITH are rent." }]);
   });
 
   test("the owner pastes a Lunch Flow key; bank links connect fake accounts; “Sync now” sums up and leads to Review", async ({

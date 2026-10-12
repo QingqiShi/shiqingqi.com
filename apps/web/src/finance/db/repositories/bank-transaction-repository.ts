@@ -25,12 +25,10 @@ export interface MatchCandidateRow {
   /** The Entry is on In transit, not on the linked account. */
   inTransit: boolean;
   status: "posted" | "expected";
-  source: "manual" | "rule" | "bank" | "import";
   /** The Entry's date: the day the money moves on the linked account. */
   date: string;
   transactionDate: string;
   amountMinor: number;
-  payeeId: string | null;
   createdAt: Date;
 }
 
@@ -53,6 +51,52 @@ export const bankTransactionRepository = {
         ),
       )
       .orderBy(bankTransactions.date, bankTransactions.providerTxId);
+  },
+
+  /** The `new` rows of these links, by date. */
+  async listOpen(scope: RepositoryScope, linkIds: readonly string[]) {
+    if (linkIds.length === 0) return [];
+    return scope.db
+      .select()
+      .from(bankTransactions)
+      .where(
+        and(
+          eq(bankTransactions.householdId, scope.householdId),
+          inArray(bankTransactions.linkId, [...linkIds]),
+          eq(bankTransactions.state, "new"),
+        ),
+      )
+      .orderBy(bankTransactions.date, bankTransactions.providerTxId);
+  },
+
+  async findByIds(scope: RepositoryScope, ids: readonly string[]) {
+    if (ids.length === 0) return [];
+    return scope.db
+      .select()
+      .from(bankTransactions)
+      .where(
+        and(
+          eq(bankTransactions.householdId, scope.householdId),
+          inArray(bankTransactions.id, [...ids]),
+        ),
+      );
+  },
+
+  /** Counts one more failed try to label each row. */
+  async addLabelAttempt(scope: WriteScope, ids: readonly string[]) {
+    if (ids.length === 0) return;
+    await scope.db
+      .update(bankTransactions)
+      .set({
+        labelAttempts: sql`${bankTransactions.labelAttempts} + 1`,
+        version: scope.version,
+      })
+      .where(
+        and(
+          eq(bankTransactions.householdId, scope.householdId),
+          inArray(bankTransactions.id, [...ids]),
+        ),
+      );
   },
 
   async findByTransactionId(scope: RepositoryScope, transactionId: string) {
@@ -184,11 +228,9 @@ export const bankTransactionRepository = {
         entryId: entries.id,
         entryAccountId: entries.accountId,
         status: transactions.status,
-        source: transactions.source,
         date: entries.date,
         transactionDate: transactions.date,
         amountMinor: entries.amountMinor,
-        payeeId: transactions.payeeId,
         createdAt: transactions.createdAt,
       })
       .from(entries)

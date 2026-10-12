@@ -154,6 +154,7 @@ export async function materialiseRules(
       scope: { ...scope, version },
       today: todayInTimeZone(household.timezone, now),
       touches: new DerivedTouches(),
+      actor: "server",
     };
     const written = await materialiseRulesInTransaction(context);
     if (written === 0) return { written, clock: household.clock };

@@ -1,17 +1,61 @@
-/** Labels proposed for a bank text. `newPayeeName` is set when no Payee fits. */
-export interface Suggestion {
-  payeeId?: string;
-  newPayeeName?: string;
-  categoryId: string;
-  tagIds: string[];
-  memberId?: string;
-  /** 0 to 1: how sure the pipeline is of the Category. */
-  confidence: number;
-  /** Where the Suggestion came from: a Payee alias, a near Payee name, or the model. */
-  source: "alias" | "history" | "model";
+import type { AccountKind } from "../domain/accounts/side-of-kind.ts";
+
+export interface LabellingAccount {
+  id: string;
+  name: string;
+  institution: string;
+  kind: AccountKind;
+  currency: string;
+  ownerMemberId: string | null;
+  /** The account has a Bank link, so its own bank rows arrive. */
+  linked: boolean;
+  closed: boolean;
+  /** In transit: never a label the model may choose. */
+  isSystem: boolean;
+  defaultPaymentAccountId: string | null;
+  paymentDueDay: number | null;
 }
 
-export interface LabelInput {
+export interface LabellingCategory {
+  id: string;
+  parentId: string | null;
+  kind: "expense" | "income";
+  name: string;
+  isSystem: boolean;
+}
+
+/** What the labeller knows about a Household before it reads any bank row. */
+export interface LabellingContext {
+  baseCurrency: string;
+  /** The Household's AI instructions, as the Members wrote them. */
+  instructions: string;
+  accounts: readonly LabellingAccount[];
+  categories: readonly LabellingCategory[];
+  tags: readonly { id: string; name: string }[];
+  members: readonly { id: string; name: string }[];
+  /** The most recently used first. */
+  payees: readonly {
+    id: string;
+    name: string;
+    defaultCategoryId: string | null;
+  }[];
+}
+
+/** A bank row the labeller reads. */
+export interface RowToLabel {
+  ref: string;
+  date: string;
+  /** Signed, in the account's currency, with the link's sign multiplier applied. */
+  amountMinor: number;
+  accountId: string;
+  merchant: string;
+  description: string;
+}
+
+/** `POST /api/finance/ai/suggest`: what the editor knows of the Transaction. */
+export interface SuggestRequest {
+  /** When the Transaction came from the bank, the server reads the bank's own text. */
+  transactionId?: string;
   text: string;
   /** Signed, in the account's currency: money out is negative. */
   amountMinor: number;
@@ -19,46 +63,17 @@ export interface LabelInput {
   accountId: string;
 }
 
-export interface MemoryTransaction {
-  id: string;
-  date: string;
+/** The labels the AI suggests for one Transaction. */
+export interface SuggestResponse {
   kind: "expense" | "income" | "transfer";
-  amountMinor: number;
-  payeeId: string | null;
   categoryId: string | null;
+  payeeId: string | null;
+  /** A Payee to create, when no known Payee fits. */
+  newPayeeName: string | null;
+  tagIds: string[];
   memberId: string | null;
-  tagIds: readonly string[];
-  accountIds: readonly string[];
-}
-
-/**
- * What the Household already knows, as plain rows, so the alias and history
- * steps run the same on the server and on the Replica.
- */
-export interface LabelMemory {
-  /** The currency of `transactions[].amountMinor`. */
-  baseCurrency: string;
-  aliases: readonly { alias: string; payeeId: string }[];
-  payees: readonly {
-    id: string;
-    name: string;
-    defaultCategoryId: string | null;
-  }[];
-  categories: readonly {
-    id: string;
-    parentId: string | null;
-    kind: "expense" | "income";
-    name: string;
-  }[];
-  tags: readonly { id: string; name: string }[];
-  members: readonly { id: string; name: string }[];
-  accounts: readonly {
-    id: string;
-    name: string;
-    kind: string;
-    currency: string;
-    ownerMemberId: string | null;
-  }[];
-  /** Posted Transactions, newest first. */
-  transactions: readonly MemoryTransaction[];
+  /** The other account of a transfer, when the AI knows it. */
+  toAccountId: string | null;
+  paysDownAccountId: string | null;
+  reason: string;
 }

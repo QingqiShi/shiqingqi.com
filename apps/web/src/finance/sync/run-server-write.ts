@@ -36,6 +36,7 @@ export async function runServerWrite<Result>(
       scope: { ...scope, version },
       today: todayInTimeZone(household.timezone, now),
       touches: new DerivedTouches(),
+      actor: "server",
       household: {
         baseCurrency: household.baseCurrency,
         timezone: household.timezone,

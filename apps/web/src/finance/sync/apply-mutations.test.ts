@@ -5,7 +5,6 @@ import {
   accountBalanceDays,
   entries,
   monthTotals,
-  payeeAliases,
   payees,
   transactions,
   transactionTags,
@@ -306,6 +305,46 @@ describe("applyMutations", () => {
     expect(await db.$count(transactions)).toBe(1);
   });
 
+  it("records who labelled a Transaction: a Member who creates, relabels or reviews it", async () => {
+    const created = randomUUID();
+    const ai = randomUUID();
+    await push([
+      expense(created, "2026-10-01", -700),
+      expense(ai, "2026-10-02", -800),
+    ]);
+    await db
+      .update(transactions)
+      .set({
+        labelledBy: "ai",
+        aiReason: "Grocer",
+        needsReview: true,
+        source: "bank",
+      })
+      .where(eq(transactions.id, ai));
+    const labelledBy = async (id: string) => {
+      const [row] = await db
+        .select({ labelledBy: transactions.labelledBy })
+        .from(transactions)
+        .where(eq(transactions.id, id));
+      return row.labelledBy;
+    };
+    const update = (patch: Record<string, unknown>) =>
+      push([mutation("updateTransaction", { id: ai, patch })]);
+
+    expect(await labelledBy(created)).toBe("member");
+    await update({ date: "2026-10-03" });
+    expect(await labelledBy(ai)).toBe("ai");
+    await update({ needsReview: false });
+    expect(await labelledBy(ai)).toBe("member");
+
+    await db
+      .update(transactions)
+      .set({ labelledBy: "ai", needsReview: false })
+      .where(eq(transactions.id, ai));
+    await update({ categoryId: home.groceriesId, memberId: home.partnerId });
+    expect(await labelledBy(ai)).toBe("member");
+  });
+
   it("marks only the derived rows an update can change", async () => {
     const id = randomUUID();
     const created = await push([expense(id, "2026-10-01", -700)]);
@@ -321,6 +360,7 @@ describe("applyMutations", () => {
             scope: { ...scope, version: created.clock + 1 },
             today: "2026-10-10",
             touches,
+            actor: "member",
           },
           id,
           patch,
@@ -523,7 +563,6 @@ describe("applyMutations", () => {
       mutation("upsertPayee", {
         id: otherPayeeId,
         name: "Corner Shop",
-        addAliases: ["CORNER SHOP"],
       }),
       {
         ...expense(id, "2026-10-01", -300),
@@ -554,9 +593,6 @@ describe("applyMutations", () => {
       mergedIntoId: home.grocerId,
       deletedAt: A_DATE,
     });
-    expect(await db.select().from(payeeAliases)).toEqual([
-      expect.objectContaining({ alias: "CORNER SHOP", payeeId: home.grocerId }),
-    ]);
   });
 
   it("confirms and skips Expected transactions", async () => {

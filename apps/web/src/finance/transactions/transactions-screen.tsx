@@ -1,6 +1,5 @@
 "use client";
 
-import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
@@ -13,7 +12,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useDeferredValue, useMemo, useRef, useState } from "react";
@@ -42,6 +41,7 @@ import type { TransactionRow } from "../sync/row-schemas.ts";
 import { buildTransactionList } from "./build-transaction-list.ts";
 import { QuickAdd } from "./quick-add.tsx";
 import { selectQueueCounts } from "./select-queue-counts.ts";
+import { selectReviewIds } from "./select-review-ids.ts";
 import { TransactionFilterBar } from "./transaction-filter-bar.tsx";
 import type { TransactionFilters } from "./transaction-filters.ts";
 import type { TransactionRowActions } from "./transaction-list-row.tsx";
@@ -49,8 +49,6 @@ import { TransactionList } from "./transaction-list.tsx";
 import { useListShortcuts } from "./use-list-shortcuts.ts";
 import { useTransactionLookups } from "./use-transaction-lookups.ts";
 import { useTransactionsUrl } from "./use-transactions-url.ts";
-
-const HIGH_CONFIDENCE = 0.9;
 
 function focusRow(id: string) {
   requestAnimationFrame(() => {
@@ -83,6 +81,7 @@ export function TransactionsScreen() {
   const accountGroups = useReplica(liveRowSelectors.accountGroups);
   const categories = useReplica(liveRowSelectors.categories);
   const counts = useReplica(selectQueueCounts);
+  const reviewIds = useReplica(selectReviewIds);
 
   const baseCurrency = useBaseCurrency();
   const today = useHouseholdToday();
@@ -107,6 +106,7 @@ export function TransactionsScreen() {
           entriesByTransaction,
           tagIdsByTransaction,
           categoryDescendantsById: lookups.categoryDescendantsById,
+          reviewIds,
           baseCurrency,
         },
         deferredFilters,
@@ -117,6 +117,7 @@ export function TransactionsScreen() {
       entriesByTransaction,
       tagIdsByTransaction,
       lookups,
+      reviewIds,
       baseCurrency,
       deferredFilters,
       today,
@@ -167,7 +168,6 @@ export function TransactionsScreen() {
   const toastSkipped = t({ en: "Skipped", zh: "已跳过" });
   const toastReviewed = t({ en: "Marked as reviewed", zh: "已标记为已审核" });
   const toastDeleted = t({ en: "Deleted", zh: "已删除" });
-  const toastAccepted = t({ en: "Accepted", zh: "已接受" });
 
   const applyWithUndo = (
     mutations: readonly LocalMutationInput[],
@@ -266,15 +266,6 @@ export function TransactionsScreen() {
       applyWithUndo([mutation], toastReviewed, [undo]);
     },
   };
-
-  const highConfidence = filters.review
-    ? list.transactions.filter(
-        (row) =>
-          row.needsReview &&
-          row.kind !== "transfer" &&
-          (row.aiConfidence ?? 0) >= HIGH_CONFIDENCE,
-      )
-    : [];
 
   const closePane = () => {
     const previous = url.selectedId;
@@ -497,26 +488,6 @@ export function TransactionsScreen() {
             today={today}
           />
         </search>
-        {highConfidence.length > 0 ? (
-          <div css={cluster.tight}>
-            <Button
-              size="sm"
-              icon={<CheckIcon weight="bold" />}
-              onClick={() => {
-                applyWithUndo(
-                  highConfidence.map((row) => reviewPatch(row).mutation),
-                  `${toastAccepted} ${String(highConfidence.length)}`,
-                  highConfidence.map((row) => reviewPatch(row).undo),
-                );
-              }}
-            >
-              {`${t({
-                en: "Accept all with high confidence",
-                zh: "接受全部高置信度交易",
-              })} (${String(highConfidence.length)})`}
-            </Button>
-          </div>
-        ) : null}
       </header>
 
       {!bootstrapped ? (

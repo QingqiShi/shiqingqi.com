@@ -41,6 +41,7 @@ export const testHousehold: HouseholdRow = {
   name: "Home",
   baseCurrency: "GBP",
   timezone: "Europe/London",
+  aiInstructions: "",
   clock: 10,
 };
 
@@ -108,7 +109,8 @@ export function testExpense(
     memberId?: string | null;
     status?: "posted" | "expected";
     needsReview?: boolean;
-    aiConfidence?: number | null;
+    labelledBy?: "member" | "ai";
+    aiReason?: string | null;
     searchText?: string;
   },
 ): { transaction: TransactionRow; entry: EntryRow } {
@@ -131,7 +133,8 @@ export function testExpense(
       note: "",
       source: "manual",
       needsReview: fields.needsReview ?? false,
-      aiConfidence: fields.aiConfidence ?? null,
+      labelledBy: fields.labelledBy ?? "member",
+      aiReason: fields.aiReason ?? null,
       searchText: fields.searchText ?? "",
       ...stamps,
       createdAt: `${fields.date}T12:00:00.000Z`,

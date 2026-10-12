@@ -9,6 +9,7 @@ import {
 import type { ProviderAccountsResponse } from "../bank/types.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
+import { AiSettings } from "./ai-settings.tsx";
 import { CategoriesSettings } from "./categories-settings.tsx";
 import { ConnectionsSettings } from "./connections-settings.tsx";
 import { ExchangeRatesSettings } from "./exchange-rates-settings.tsx";
@@ -328,7 +329,7 @@ describe("Settings", () => {
               linkId: "link-visa",
               accountId: ids.visa,
               error: null,
-              created: 12,
+              pending: 12,
               linked: 28,
               confirmed: 2,
               missing: 0,
@@ -533,27 +534,27 @@ describe("Settings", () => {
     expect(screen.getByText("1 USD = 0.79 GBP")).toBeInTheDocument();
   });
 
-  it("adds a bank name to a payee", async () => {
+  it("lets a Member save the AI instructions", async () => {
     const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <PayeesSettings />);
-    await openSheet(screen.getByRole("button", { name: /TfL/ }));
-    await userEvent.type(
-      screen.getByRole("textbox", { name: "Add a bank name" }),
-      "tfl travel ch 0042 london{Enter}",
-    );
-    expect(screen.getByText("TFL TRAVEL CH")).toBeInTheDocument();
+    const calls = stubFinanceApi({
+      "PATCH /api/finance/household/ai-instructions": () => ({
+        json: { clock: 2 },
+      }),
+    });
+    renderWithSettingsReplica(runtime, <AiSettings />, { memberId: ids.sam });
+    const field = screen.getByRole("textbox", {
+      name: "Instructions for the AI",
+    });
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+
+    await userEvent.type(field, "Payments to J SMITH are rent.");
+    expect(screen.getByText("29 / 8,000 characters")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    const outbox = runtime.store.takeOutbox();
-    expect(outbox).toHaveLength(1);
-    expect(outbox[0]).toMatchObject({
-      name: "upsertPayee",
-      args: { id: ids.tfl, addAliases: ["TFL TRAVEL CH"] },
+    expect(calls[0]).toEqual({
+      route: "PATCH /api/finance/household/ai-instructions",
+      body: { aiInstructions: "Payments to J SMITH are rent." },
     });
-    expect(
-      runtime.store.getSnapshot().tables.payeeAliases.get("TFL TRAVEL CH")
-        ?.payeeId,
-    ).toBe(ids.tfl);
   });
 
   it("makes a new rule from scratch, then pauses it with Undo", async () => {

@@ -58,6 +58,7 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
     payees: t({ en: "Payees", zh: "商家" }),
     tags: t({ en: "Tags", zh: "标签" }),
     rules: t({ en: "Recurring rules", zh: "周期规则" }),
+    ai: t({ en: "AI labelling", zh: "智能标注" }),
     connections: t({ en: "Connections", zh: "银行连接" }),
     data: t({ en: "Data", zh: "数据" }),
   };
