@@ -161,20 +161,28 @@ async function writeBatch(
   return result;
 }
 
-/** Compares each link's last bank balance with the ledger again, now that the ledger has the new rows. */
+/**
+ * Compares each link's last bank balance with the ledger again, now that the
+ * ledger has the new rows. A link with rows still waiting for the AI step
+ * shows no difference, as its ledger is not complete.
+ */
 async function refreshBalanceDifferences(context: ServerWriteContext) {
   const { scope } = context;
   for (const link of await bankLinkRepository.listLive(scope)) {
     if (link.bankBalanceMinor === null || link.bankBalanceOn === null) continue;
-    const ours = await valuationRepository.balanceAt(
-      scope,
-      link.accountId,
-      link.bankBalanceOn,
-    );
-    const balanceDifferenceMinor = balanceDifferenceOf(
-      link.bankBalanceMinor,
-      ours,
-    );
+    const waiting = (
+      await bankTransactionRepository.listOpen(scope, [link.id])
+    ).some((row) => isUsableBankRow(row, link));
+    const balanceDifferenceMinor = waiting
+      ? null
+      : balanceDifferenceOf(
+          link.bankBalanceMinor,
+          await valuationRepository.balanceAt(
+            scope,
+            link.accountId,
+            link.bankBalanceOn,
+          ),
+        );
     if (balanceDifferenceMinor === link.balanceDifferenceMinor) continue;
     await bankLinkRepository.patch(scope, link.id, { balanceDifferenceMinor });
     context.markWritten();

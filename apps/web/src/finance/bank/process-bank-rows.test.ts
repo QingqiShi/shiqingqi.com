@@ -10,6 +10,7 @@ import {
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import {
   accounts,
+  bankLinks,
   bankTransactions,
   entries,
   monthTotals,
@@ -169,6 +170,11 @@ async function bankRowById(id: string) {
     .select()
     .from(bankTransactions)
     .where(eq(bankTransactions.id, id));
+  return row;
+}
+
+async function linkById(id: string) {
+  const [row] = await db.select().from(bankLinks).where(eq(bankLinks.id, id));
   return row;
 }
 
@@ -608,6 +614,49 @@ describe("processBankRows", () => {
       labelAttempts: 1,
     });
     expect(await db.$count(transactions)).toBe(0);
+  });
+
+  it("notes no balance difference for a link whose rows still wait after the run, and compares once they are written", async () => {
+    const tried = await addBankRow(
+      currentLinkId,
+      "c1",
+      "2026-10-05",
+      -1000,
+      "TRIED",
+    );
+    await db
+      .update(bankTransactions)
+      .set({ labelAttempts: 3 })
+      .where(eq(bankTransactions.id, tried));
+    await addBankRow(currentLinkId, "c2", "2026-10-06", -700, "WAITING");
+    await db
+      .update(bankLinks)
+      .set({ bankBalanceMinor: -1700, bankBalanceOn: "2026-10-10" })
+      .where(eq(bankLinks.id, currentLinkId));
+    const model = new MockLanguageModelV3({
+      doGenerate: () => Promise.reject(new Error("overloaded")),
+    });
+
+    await process(model);
+
+    expect(await db.$count(transactions)).toBe(1);
+    expect(await linkById(currentLinkId)).toMatchObject({
+      balanceDifferenceMinor: null,
+    });
+    await process(null);
+    expect(await linkById(currentLinkId)).toMatchObject({
+      balanceDifferenceMinor: null,
+    });
+    await db
+      .update(bankLinks)
+      .set({ bankBalanceMinor: -1500 })
+      .where(eq(bankLinks.id, currentLinkId));
+    await addBankRow(currentLinkId, "c3", "2026-10-07", 0, "ZERO");
+    await addBankRow(currentLinkId, "c4", "2026-10-07", -100, "LAST");
+    await process(null);
+    expect(await linkById(currentLinkId)).toMatchObject({
+      balanceDifferenceMinor: 300,
+    });
   });
 
   it("writes Uncategorised for Review when there is no model, and changes nothing when run again", async () => {
