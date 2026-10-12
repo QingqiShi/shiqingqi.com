@@ -38,9 +38,9 @@ import type {
 } from "./lunchflow/types.ts";
 import {
   MATCH_DAY_WINDOW,
-  matchBankTransaction,
+  planBankMatches,
   type MatchCandidate,
-} from "./match-bank-transaction.ts";
+} from "./plan-bank-matches.ts";
 import { toEntryAmount } from "./to-entry-amount.ts";
 import type { BankLinkSyncSummary } from "./types.ts";
 
@@ -100,28 +100,18 @@ function candidateRange(rows: readonly { date: string }[]) {
   };
 }
 
-/** Plays the matcher over `rows` in date order; each Transaction matches at most one row. */
 function planMatches(
   rows: readonly { date: string; amountMinor: number }[],
-  candidates: MatchCandidate[],
+  candidates: readonly MatchCandidate[],
   link: Link,
 ) {
-  const open = [...candidates];
-  return rows.map((row) => {
-    const match = matchBankTransaction(
-      { date: row.date, amountMinor: toEntryAmount(row.amountMinor, link) },
-      open,
-    );
-    if (match.action !== "create") {
-      open.splice(
-        open.findIndex(
-          (candidate) => candidate.transactionId === match.transactionId,
-        ),
-        1,
-      );
-    }
-    return match;
-  });
+  return planBankMatches(
+    rows.map((row) => ({
+      date: row.date,
+      amountMinor: toEntryAmount(row.amountMinor, link),
+    })),
+    candidates,
+  );
 }
 
 function byDate<Row extends { date: string; providerTxId: string }>(
