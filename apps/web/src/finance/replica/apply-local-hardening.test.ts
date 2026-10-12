@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createTestReplica,
   TEST_IDS,
+  testReplicaRows,
 } from "../transactions/testing/create-test-replica.ts";
 
 const NEW_MEMBER = "00000000-0000-4000-8000-0000000000a9";
@@ -37,5 +38,49 @@ describe("applyLocal mirrors the server", () => {
         args: { id: TEST_IDS.card, deleted: true },
       }),
     ).toThrow(/close/);
+  });
+
+  it("lets a member only move In transit", async () => {
+    const rows = testReplicaRows();
+    const current = rows.accounts?.find(
+      (account) => account.id === TEST_IDS.current,
+    );
+    if (!current) throw new Error("No current account");
+    const inTransit = {
+      ...current,
+      id: "00000000-0000-4000-8000-0000000000b1",
+      name: "In transit",
+      ownerMemberId: null,
+      isSystem: true,
+    };
+    const { store } = await createTestReplica({
+      ...rows,
+      accounts: [...(rows.accounts ?? []), inTransit],
+    });
+
+    store.applyLocal({
+      name: "upsertAccount",
+      args: { id: inTransit.id, position: 5 },
+    });
+    expect(
+      store.getSnapshot().tables.accounts.get(inTransit.id)?.position,
+    ).toBe(5);
+    expect(() =>
+      store.applyLocal({
+        name: "upsertAccount",
+        args: { id: inTransit.id, name: "Float" },
+      }),
+    ).toThrow(/In transit/);
+    expect(() =>
+      store.applyLocal({
+        name: "putValuation",
+        args: {
+          id: "00000000-0000-4000-8000-0000000000b2",
+          accountId: inTransit.id,
+          on: "2026-10-01",
+          amountMinor: 100,
+        },
+      }),
+    ).toThrow(/In transit/);
   });
 });

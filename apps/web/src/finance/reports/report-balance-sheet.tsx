@@ -13,6 +13,7 @@ import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { ReportSection } from "./report-section.tsx";
 import type {
   ReportSide,
@@ -31,6 +32,7 @@ export function ReportBalanceSheet({
   headingLevel: 2 | 3;
 }) {
   const locale = useLocale();
+  const accountName = useAccountDisplayName();
   const currency = data.baseCurrency;
   const money = (minor: number, inCurrency = currency) =>
     formatMoney(minor, inCurrency, locale);
@@ -83,7 +85,7 @@ export function ReportBalanceSheet({
               ...group.accounts.map((account) => (
                 <TableRow key={account.id}>
                   <TableHeaderCell scope="row" css={styles.accountLabel}>
-                    <span css={styles.block}>{account.name}</span>
+                    <span css={styles.block}>{accountName(account)}</span>
                     {account.institution === "" ? null : (
                       <span
                         css={[typeRole.caption, styles.block, styles.muted]}

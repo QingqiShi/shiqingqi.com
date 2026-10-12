@@ -35,6 +35,7 @@ function account(
     currency: "GBP",
     kind: "cash",
     closedOn: null,
+    isSystem: false,
     ...overrides,
   };
 }
@@ -69,7 +70,7 @@ describe("suggestBankLinks", () => {
     expect(suggestions.get("p1")).toBe("a2");
   });
 
-  it("needs the same currency, a linkable open account, and one that is free", () => {
+  it("needs the same currency, a linkable open account that is not In transit, and one that is free", () => {
     const suggestions = suggestBankLinks(
       [
         provider("usd", "Dollar Account", "", "USD"),
@@ -77,12 +78,14 @@ describe("suggestBankLinks", () => {
         provider("pension", "Pension"),
         provider("taken", "Alex Visa"),
         provider("holder", "Card", "", "GBP", "visa"),
+        provider("transit", "In transit"),
       ],
       [
         account("us", "Dollar Account"),
         account("old", "Old Current", "", { closedOn: "2025-01-01" }),
         account("pen", "Pension", "", { kind: "investment" }),
         account("visa", "Alex Visa", "", { kind: "credit" }),
+        account("in-transit", "In transit", "", { isSystem: true }),
       ],
     );
     expect(suggestions.size).toBe(0);

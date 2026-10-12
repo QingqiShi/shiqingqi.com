@@ -10,6 +10,7 @@ import { color } from "@tuja/ui/tokens.stylex";
 import { useMemo, useState, type Ref } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { buildTransactionMutations } from "../editor/build-transaction-mutations.ts";
@@ -52,7 +53,7 @@ function placeholderWords({
         .get(row.id)
         ?.find((entry) => entry.amountMinor > 0);
       const account = to ? lookups.accountById.get(to.accountId) : undefined;
-      if (account?.closedOn === null && account.deletedAt === null) {
+      if (account?.deletedAt === null && isPickableAccount(account)) {
         target = account.name;
       }
     }

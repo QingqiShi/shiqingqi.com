@@ -1,4 +1,4 @@
-import { LINKABLE_KINDS } from "../domain/accounts/linkable-kinds.ts";
+import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
 
 export interface SuggestProviderAccount {
   providerAccountId: string;
@@ -15,6 +15,7 @@ export interface SuggestFinanceAccount {
   currency: string;
   kind: string;
   closedOn: string | null;
+  isSystem: boolean;
 }
 
 const MIN_NAME_SCORE = 0.3;
@@ -65,7 +66,8 @@ export function nameSimilarity(a: string, b: string): number {
 
 /**
  * The finance account each unlinked provider account most likely feeds:
- * an open cash or credit account in the same currency, not linked already,
+ * an open cash or credit account in the same currency, not linked already
+ * and not In transit,
  * whose name (and then institution) is most alike. Each finance account is
  * suggested once, best pair first. Returns provider account id → account id.
  */
@@ -80,7 +82,7 @@ export function suggestBankLinks(
   );
   const candidates = accounts.filter(
     (account) =>
-      LINKABLE_KINDS.has(account.kind) &&
+      isLinkableAccount(account) &&
       account.closedOn === null &&
       !taken.has(account.id),
   );

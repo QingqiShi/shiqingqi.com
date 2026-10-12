@@ -94,6 +94,20 @@ function bySeq(a: OutboxEntry, b: OutboxEntry) {
 }
 
 /**
+ * Bump when a synced row gains or loses a field, so that every device
+ * fetches its rows again in the new shape. The Outbox stays. Raising
+ * `DB_VERSION` instead would delete the Outbox.
+ */
+export const REPLICA_ROW_SHAPE = 2;
+
+/** Meta whose rows have an old shape must bootstrap again. */
+function withCurrentRowShape(meta: ReplicaMeta): ReplicaMeta {
+  return meta.rowShape === REPLICA_ROW_SHAPE
+    ? meta
+    : { ...meta, clock: 0, bootstrapped: false };
+}
+
+/**
  * The Replica: the server rows on disk and in memory, the Outbox, and the
  * view the UI reads — the server rows with every unconfirmed mutation on
  * top. A mutation stays in the view after the server applies it, until a
@@ -109,6 +123,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     clientId: createId(),
     clock: 0,
     bootstrapped: false,
+    rowShape: REPLICA_ROW_SHAPE,
     household: null,
     transactionsFrom: null,
     lastSyncedAt: null,
@@ -418,7 +433,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     async load() {
       const persisted = await persistence.load();
       if (persisted.meta) {
-        meta = persisted.meta;
+        meta = withCurrentRowShape(persisted.meta);
       } else {
         void persist({ meta });
       }
@@ -437,7 +452,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         updateStorageState();
         return;
       }
-      if (persisted.meta) meta = persisted.meta;
+      if (persisted.meta) meta = withCurrentRowShape(persisted.meta);
       adopt(persisted);
     },
 
@@ -708,6 +723,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         ...meta,
         clock,
         bootstrapped: true,
+        rowShape: REPLICA_ROW_SHAPE,
         lastSyncedAt: now().toISOString(),
       };
       void persist({ meta, outboxDelete: confirm(confirmed) });

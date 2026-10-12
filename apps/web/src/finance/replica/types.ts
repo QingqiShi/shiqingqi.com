@@ -30,6 +30,8 @@ export interface ReplicaMeta {
   clock: number;
   /** A whole bootstrap is on disk. */
   bootstrapped: boolean;
+  /** The `REPLICA_ROW_SHAPE` of the rows on disk. */
+  rowShape: number;
   household: HouseholdRow | null;
   /** The first Transaction day the bootstrap sent, or null for every one. */
   transactionsFrom: string | null;

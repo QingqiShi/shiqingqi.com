@@ -17,6 +17,7 @@ export interface ReportSourceAccount {
   excludedFromNetWorth: boolean;
   closedOn: string | null;
   position: number;
+  isSystem: boolean;
 }
 
 export interface ReportSourceTransaction {

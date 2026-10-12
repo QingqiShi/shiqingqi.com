@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
+import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
@@ -10,12 +11,12 @@ import { selectTagIdsByTransaction } from "../store/select-tag-ids-by-transactio
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import { selectTransactionsByPayee } from "../store/select-transactions-by-payee.ts";
-import { selectTransactionLookups } from "../transactions/select-transaction-lookups.ts";
+import { useTransactionLookups } from "../transactions/use-transaction-lookups.ts";
 
 /** Everything the editor reads from the Replica, each part stable until its tables change. */
 export function useEditorData() {
   const { memberId } = useFinanceRuntime();
-  const lookups = useReplica(selectTransactionLookups);
+  const lookups = useTransactionLookups();
   const accounts = useReplica(liveRowSelectors.accounts);
   const accountGroups = useReplica(liveRowSelectors.accountGroups);
   const categories = useReplica(liveRowSelectors.categories);
@@ -38,7 +39,7 @@ export function useEditorData() {
   const today = useHouseholdToday();
 
   const openAccounts = useMemo(
-    () => accounts.filter((account) => account.closedOn === null),
+    () => accounts.filter(isPickableAccount),
     [accounts],
   );
   const liveCategories = useMemo(

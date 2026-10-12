@@ -7,7 +7,7 @@ import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
-import { LINKABLE_KINDS } from "../domain/accounts/linkable-kinds.ts";
+import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
 import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
 import {
   guardFinanceRequest,
@@ -284,7 +284,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
             if (!account || account.deletedAt) {
               throw new BankRequestError("unknown-account", 400);
             }
-            if (!LINKABLE_KINDS.has(account.kind)) {
+            if (!isLinkableAccount(account)) {
               throw new BankRequestError("unlinkable-account", 400);
             }
             if (provider.currency && provider.currency !== account.currency) {

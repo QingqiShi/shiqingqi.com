@@ -67,6 +67,7 @@ const accountRowSchema = z.object({
   statementDay: z.int().nullable(),
   paymentDueDay: z.int().nullable(),
   defaultPaymentAccountId: id.nullable(),
+  isSystem: z.boolean(),
   version,
   createdAt: timestamp,
   updatedAt: timestamp,

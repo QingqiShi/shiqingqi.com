@@ -22,6 +22,7 @@ function account(id: string, currency: string): AccountRow {
     statementDay: null,
     paymentDueDay: null,
     defaultPaymentAccountId: null,
+    isSystem: false,
     version: 1,
     createdAt: NOW,
     updatedAt: NOW,

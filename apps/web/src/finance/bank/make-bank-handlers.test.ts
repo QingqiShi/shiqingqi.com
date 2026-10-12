@@ -221,9 +221,24 @@ describe("makeBankHandlers", () => {
       currency: "GBP",
       version: 0,
     });
+    const inTransitId = randomUUID();
+    await db.insert(accounts).values({
+      id: inTransitId,
+      householdId: home.householdId,
+      groupId: home.liquidGroupId,
+      name: "In transit",
+      kind: "cash",
+      currency: "GBP",
+      isSystem: true,
+      version: 0,
+    });
     const cases = [
       [
         { accountId: investmentId, providerAccountId: "p1" },
+        "unlinkable-account",
+      ],
+      [
+        { accountId: inTransitId, providerAccountId: "p1" },
         "unlinkable-account",
       ],
       [{ accountId: randomUUID(), providerAccountId: "p1" }, "unknown-account"],

@@ -62,6 +62,52 @@ export const accountRepository = {
     return rows.at(0);
   },
 
+  /** The id of the live In transit account in `currency`, if the Household has one. */
+  async findSystemId(scope: RepositoryScope, currency: string) {
+    const rows = await scope.db
+      .select({ id: accounts.id })
+      .from(accounts)
+      .where(
+        and(
+          eq(accounts.householdId, scope.householdId),
+          eq(accounts.currency, currency),
+          eq(accounts.isSystem, true),
+          isNull(accounts.deletedAt),
+        ),
+      );
+    return rows.at(0)?.id;
+  },
+
+  /** The live In transit account of each currency, by currency. */
+  async listSystemIds(scope: RepositoryScope) {
+    const rows = await scope.db
+      .select({ id: accounts.id, currency: accounts.currency })
+      .from(accounts)
+      .where(
+        and(
+          eq(accounts.householdId, scope.householdId),
+          eq(accounts.isSystem, true),
+          isNull(accounts.deletedAt),
+        ),
+      );
+    return new Map(rows.map((row) => [row.currency, row.id]));
+  },
+
+  /** The position after the last account in the Group. */
+  async nextPosition(scope: RepositoryScope, groupId: string) {
+    const rows = await scope.db
+      .select({ next: sql<number>`coalesce(max(${accounts.position}) + 1, 0)` })
+      .from(accounts)
+      .where(
+        and(
+          eq(accounts.householdId, scope.householdId),
+          eq(accounts.groupId, groupId),
+          isNull(accounts.deletedAt),
+        ),
+      );
+    return rows.at(0)?.next ?? 0;
+  },
+
   /** The ids among `ids` of accounts in the Household that are not deleted. */
   async findActiveIds(scope: RepositoryScope, ids: readonly string[]) {
     if (ids.length === 0) return new Set<string>();

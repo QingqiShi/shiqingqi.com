@@ -8,6 +8,10 @@ import {
   type ValuationSource,
 } from "../db/repositories/valuation-repository.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
+import {
+  checkSystemAccountPatch,
+  checkSystemAccountValuation,
+} from "./check-system-account-patch.ts";
 import { MutationError } from "./mutation-error.ts";
 import {
   accountFieldsSchema,
@@ -27,6 +31,7 @@ async function upsertAccount(
   const { scope } = context;
   const { id, deleted, ...fields } = args;
   const existing = await accountRepository.findById(scope, id);
+  if (existing?.isSystem) checkSystemAccountPatch(fields, deleted);
   const merged = existing
     ? { ...existing, ...fields }
     : parseNewRow(
@@ -123,8 +128,11 @@ async function putValuation(
   source: ValuationSource = "manual",
 ) {
   const { scope } = context;
-  const active = await accountRepository.findActiveIds(scope, [args.accountId]);
-  if (active.size === 0) throw new MutationError("invalid", "Unknown account");
+  const account = await accountRepository.findById(scope, args.accountId);
+  if (!account || account.deletedAt) {
+    throw new MutationError("invalid", "Unknown account");
+  }
+  checkSystemAccountValuation(account);
 
   const existing = await valuationRepository.findByAccountOn(
     scope,

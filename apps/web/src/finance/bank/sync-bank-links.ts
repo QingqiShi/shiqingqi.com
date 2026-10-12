@@ -17,6 +17,7 @@ import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { labelMemoryRepository } from "../db/repositories/label-memory-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
+import type { RepositoryScope } from "../db/repositories/types.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
@@ -66,7 +67,10 @@ interface SyncBankLinksDependencies {
   skipSyncedAfter?: Date;
 }
 
-type Link = BankLinkRecord;
+type Link = BankLinkRecord & {
+  /** The In transit account in the link's currency, when there is one. */
+  inTransitAccountId: string | null;
+};
 
 interface Fetched {
   from: string;
@@ -85,11 +89,49 @@ function isUsable(row: { currency: string; amountMinor: number }, link: Link) {
 function toCandidates(rows: readonly MatchCandidateRow[]): MatchCandidate[] {
   return rows.map((row) => ({
     transactionId: row.transactionId,
+    entryId: row.entryId,
     status: row.status,
     date: row.date,
     amountMinor: row.amountMinor,
+    inTransit: row.inTransit,
     createdAt: row.createdAt,
   }));
+}
+
+/** The Transactions a link's rows may match, In transit ones in the link's currency included. */
+function findCandidates(
+  scope: RepositoryScope,
+  link: Link,
+  rows: readonly { date: string }[],
+) {
+  return bankTransactionRepository.findMatchCandidates(
+    scope,
+    link.id,
+    link.accountId,
+    candidateRange(rows),
+    link.inTransitAccountId,
+  );
+}
+
+/** Moves the In transit Entry of a Transaction to the linked account: the money arrived. */
+async function settle(
+  context: ServerWriteContext,
+  link: Link,
+  transactionId: string,
+  entryId: string,
+) {
+  const current = await transactionRepository.findEntries(
+    context.scope,
+    transactionId,
+  );
+  await transactionMutations.update(context, transactionId, {
+    entries: current.map((entry) => ({
+      id: entry.id,
+      accountId: entry.id === entryId ? link.accountId : entry.accountId,
+      amountMinor: entry.amountMinor,
+      fxRate: entry.fxRate,
+    })),
+  });
 }
 
 function candidateRange(rows: readonly { date: string }[]) {
@@ -161,14 +203,7 @@ async function labelRows(
           ),
       );
       if (open.length === 0) return { open, candidates: [] };
-      const candidates = toCandidates(
-        await bankTransactionRepository.findMatchCandidates(
-          scope,
-          link.id,
-          link.accountId,
-          candidateRange(open),
-        ),
-      );
+      const candidates = toCandidates(await findCandidates(scope, link, open));
       return { open, candidates };
     },
   );
@@ -313,12 +348,7 @@ async function writeLink(
     ),
   );
   if (open.length > 0) {
-    const candidates = await bankTransactionRepository.findMatchCandidates(
-      scope,
-      link.id,
-      link.accountId,
-      candidateRange(open),
-    );
+    const candidates = await findCandidates(scope, link, open);
     const candidateById = new Map(
       candidates.map((candidate) => [candidate.transactionId, candidate]),
     );
@@ -354,7 +384,10 @@ async function writeLink(
 
       const candidate = candidateById.get(match.transactionId);
       if (!candidate) continue;
-      if (match.action === "confirm") {
+      if (match.action === "settle") {
+        await settle(context, link, match.transactionId, match.entryId);
+        counts.linked++;
+      } else if (match.action === "confirm") {
         await transactionMutations.confirmExpected(
           context,
           candidate.transactionId,
@@ -474,10 +507,16 @@ export async function syncBankLinks(
   const { household, links } = await withHousehold(
     db,
     householdId,
-    async (scope) => ({
-      household: await householdRepository.find(scope),
-      links: await bankLinkRepository.listLive(scope),
-    }),
+    async (scope) => {
+      const inTransitIds = await accountRepository.listSystemIds(scope);
+      return {
+        household: await householdRepository.find(scope),
+        links: (await bankLinkRepository.listLive(scope)).map((link) => ({
+          ...link,
+          inTransitAccountId: inTransitIds.get(link.currency) ?? null,
+        })),
+      };
+    },
   );
   if (!household) throw new Error("Household not found");
   const today = todayInTimeZone(household.timezone, dependencies.now);

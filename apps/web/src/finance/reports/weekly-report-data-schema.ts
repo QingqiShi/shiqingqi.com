@@ -19,6 +19,8 @@ const reportAccountSchema = z.object({
   balanceMinor: minor,
   /** The same balance in the base currency. Accounts add up to their Group's total. */
   baseMinor: minor,
+  /** In transit, whose stored name is English, so show it through `isSystem`. */
+  isSystem: z.boolean().default(false),
 });
 
 const reportGroupSchema = z.object({

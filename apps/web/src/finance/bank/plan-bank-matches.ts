@@ -5,35 +5,51 @@ export const MATCH_DAY_WINDOW = 3;
 
 export interface MatchCandidate {
   transactionId: string;
+  entryId: string;
   status: "posted" | "expected";
   date: string;
-  /** The Entry amount on the linked account. */
+  /** The Entry amount on the linked account, or on In transit. */
   amountMinor: number;
+  /** The Entry is on In transit, so a match moves it to the linked account. */
+  inTransit: boolean;
   createdAt: Date;
 }
 
 export type BankMatch =
   | { action: "confirm"; transactionId: string }
   | { action: "link"; transactionId: string }
+  | { action: "settle"; transactionId: string; entryId: string }
   | { action: "create" };
 
 interface Score {
   matches: number;
+  settles: number;
   expected: number;
   gap: number;
   /** The sum of each matched candidate's place in createdAt, then id, order. */
   age: number;
 }
 
-const NONE: Score = { matches: 0, expected: 0, gap: 0, age: 0 };
+const NONE: Score = { matches: 0, settles: 0, expected: 0, gap: 0, age: 0 };
 
 function compareScores(a: Score, b: Score) {
   return (
     a.matches - b.matches ||
+    b.settles - a.settles ||
     a.expected - b.expected ||
     b.gap - a.gap ||
     b.age - a.age
   );
+}
+
+function actionFor(candidate: MatchCandidate): BankMatch {
+  const { transactionId } = candidate;
+  if (candidate.inTransit) {
+    return { action: "settle", transactionId, entryId: candidate.entryId };
+  }
+  return candidate.status === "expected"
+    ? { action: "confirm", transactionId }
+    : { action: "link", transactionId };
 }
 
 const MATCH = 1;
@@ -92,6 +108,7 @@ function planAmount(
       const after = scoreAt(i + 1, j + 1);
       const matched = {
         matches: after.matches + 1,
+        settles: after.settles + Number(candidates[j].inTransit),
         expected: after.expected + Number(candidates[j].status === "expected"),
         gap: after.gap + Math.abs(rows[i].day - candidates[j].day),
         age: after.age + candidates[j].age,
@@ -117,10 +134,7 @@ function planAmount(
     j = Math.max(j, from[i]);
     if (chosen === MATCH) {
       const candidate = candidates[j];
-      plan[rows[i].index] =
-        candidate.status === "expected"
-          ? { action: "confirm", transactionId: candidate.transactionId }
-          : { action: "link", transactionId: candidate.transactionId };
+      plan[rows[i].index] = actionFor(candidate);
     }
     if (chosen !== SKIP_CANDIDATE) i++;
     if (chosen !== SKIP_ROW) j++;
@@ -132,7 +146,9 @@ function planAmount(
  * `amountMinor` already has the link's sign multiplier applied. A row can
  * match a candidate with the same signed amount and a date at most three days
  * away, and each candidate matches at most one row. The plan matches as many
- * rows as it can; then confirms as many Expected Transactions as it can;
+ * rows as it can; then settles as few In transit Entries as it can, so a
+ * Transaction already on the account wins; then confirms as many Expected
+ * Transactions as it can;
  * then keeps the sum of the day gaps smallest; then uses the earliest
  * created candidates. A row without a match gets a new Transaction.
  */
@@ -152,7 +168,8 @@ export function planBankMatches(
       .sort(
         (a, b) =>
           a.createdAt.getTime() - b.createdAt.getTime() ||
-          a.transactionId.localeCompare(b.transactionId),
+          a.transactionId.localeCompare(b.transactionId) ||
+          a.entryId.localeCompare(b.entryId),
       )
       .map((candidate, age) => ({
         ...candidate,

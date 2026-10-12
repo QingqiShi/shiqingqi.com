@@ -75,6 +75,7 @@ function rows(): Partial<SyncRows> {
     statementDay: null,
     paymentDueDay: null,
     defaultPaymentAccountId: null,
+    isSystem: false,
     ...stamps,
   });
   return {

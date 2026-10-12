@@ -111,7 +111,10 @@ export function UpdateValuesForm() {
   const listed = sections.flatMap((section) => section.lines);
   const addable = sheet.sections
     .flatMap((section) => section.lines)
-    .filter((line) => line.hidden === null && !isListed(line));
+    .filter(
+      (line) =>
+        line.hidden === null && !line.account.isSystem && !isListed(line),
+    );
   const firstId = listed.at(0)?.account.id;
 
   useEffect(() => {

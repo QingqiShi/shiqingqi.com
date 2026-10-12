@@ -11,6 +11,7 @@ const meta: ReplicaMeta = {
   clientId: randomUUID(),
   clock: 4,
   bootstrapped: true,
+  rowShape: 2,
   household: null,
   transactionsFrom: null,
   lastSyncedAt: null,

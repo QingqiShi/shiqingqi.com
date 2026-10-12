@@ -42,12 +42,12 @@ import type { TransactionRow } from "../sync/row-schemas.ts";
 import { buildTransactionList } from "./build-transaction-list.ts";
 import { QuickAdd } from "./quick-add.tsx";
 import { selectQueueCounts } from "./select-queue-counts.ts";
-import { selectTransactionLookups } from "./select-transaction-lookups.ts";
 import { TransactionFilterBar } from "./transaction-filter-bar.tsx";
 import type { TransactionFilters } from "./transaction-filters.ts";
 import type { TransactionRowActions } from "./transaction-list-row.tsx";
 import { TransactionList } from "./transaction-list.tsx";
 import { useListShortcuts } from "./use-list-shortcuts.ts";
+import { useTransactionLookups } from "./use-transaction-lookups.ts";
 import { useTransactionsUrl } from "./use-transactions-url.ts";
 
 const HIGH_CONFIDENCE = 0.9;
@@ -76,7 +76,7 @@ export function TransactionsScreen() {
   const rows = useReplica(selectTransactionsByDateDesc);
   const entriesByTransaction = useReplica(selectEntriesByTransaction);
   const tagIdsByTransaction = useReplica(selectTagIdsByTransaction);
-  const lookups = useReplica(selectTransactionLookups);
+  const lookups = useTransactionLookups();
   const pendingKeys = useReplica((snapshot) => snapshot.pendingKeys);
   const members = useReplica(liveRowSelectors.members);
   const accounts = useReplica(liveRowSelectors.accounts);

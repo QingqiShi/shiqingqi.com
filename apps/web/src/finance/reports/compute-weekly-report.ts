@@ -1,3 +1,4 @@
+import { isIdleSystemAccount } from "../domain/accounts/is-idle-system-account.ts";
 import {
   accountBalanceAt,
   netWorthAt,
@@ -48,9 +49,12 @@ function balanceSheet(context: ReportContext, periodEnd: string) {
       return false;
     }
     const series = context.seriesByAccount.get(account.id);
-    return series !== undefined && series.days.length > 0
-      ? series.days[0] <= epochDay
-      : false;
+    if (series === undefined || series.days.length === 0) return false;
+    if (series.days[0] > epochDay) return false;
+    return !isIdleSystemAccount(
+      account,
+      accountBalanceAt(account, series, periodEnd),
+    );
   });
   const balances = counted.map((account) =>
     accountBalanceAt(
@@ -85,6 +89,7 @@ function balanceSheet(context: ReportContext, periodEnd: string) {
               currency: account.currency,
               balanceMinor: balances[index],
               baseMinor: baseAmounts[index],
+              isSystem: account.isSystem,
             },
           ]
         : [],
