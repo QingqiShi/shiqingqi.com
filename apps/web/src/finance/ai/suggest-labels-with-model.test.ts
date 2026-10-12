@@ -88,6 +88,19 @@ describe("suggestLabelsWithModel", () => {
     expect(text).toContain("Tesco · 餐饮 > 超市");
   });
 
+  it("asks for a bounded answer without reasoning", async () => {
+    const model = createLabellingModel(() => ({
+      payeeName: "Tesco",
+      categoryId: categoryId("groceries"),
+      confidence: 0.9,
+    }));
+
+    await suggestLabelsWithModel(model, memory, [input("a", "TESCO EXPRESS")]);
+
+    const [call] = model.doGenerateCalls;
+    expect(call).toMatchObject({ reasoning: "none", maxOutputTokens: 4096 });
+  });
+
   it("rejects a category id that is not the Household's", async () => {
     const model = createLabellingModel(() => ({
       payeeName: "Tesco",

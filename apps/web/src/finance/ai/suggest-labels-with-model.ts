@@ -10,6 +10,7 @@ import type { LabelInput, LabelMemory, Suggestion } from "./types.ts";
 /** The most inputs one model call labels. */
 export const MODEL_BATCH_SIZE = 20;
 const MAX_PAYEES_IN_PROMPT = 400;
+const MAX_OUTPUT_TOKENS = 4096;
 
 export interface ModelLabelInput extends LabelInput {
   /** Identifies the input in the result map. */
@@ -190,6 +191,8 @@ export async function suggestLabelsWithModel(
     const result = await generateText({
       model,
       output: Output.object({ schema }),
+      reasoning: "none",
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       instructions: {
         role: "system",
         content: instructions,
