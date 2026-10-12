@@ -86,7 +86,7 @@
     "@babel/runtime": "^8.0.5",
     "@electric-sql/pglite": "0.5.8",
     "@next/env": "catalog:",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.0",
     "@rolldown/plugin-babel": "catalog:",
     "@serwist/cli": "catalog:",
     "@stylexjs/postcss-plugin": "^0.19.1",
