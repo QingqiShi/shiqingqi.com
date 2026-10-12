@@ -98,7 +98,7 @@ test.describe("Update balances at 1440 px", () => {
 test.describe("Bank balance at 390 px", () => {
   test.use({ viewport: MOBILE });
 
-  test("a bank balance that differs shows “Bank says … · we say …”, and “Use bank balance” sets it", async ({
+  test("a bank balance that differs shows a line on Net worth, and “Bank says … · we say …” on the account", async ({
     page,
     session,
     financeDb,
@@ -146,21 +146,22 @@ test.describe("Bank balance at 390 px", () => {
     });
 
     await page.goto("/finance");
+    const summary = page.getByRole("link", {
+      name: /^Alex Current · £[\d,.]+ off the bank/,
+    });
+    await expect(summary).toBeVisible({ timeout: SYNC_TIMEOUT });
+    await expect(page.getByText(/Bank says/)).toHaveCount(0);
+
+    await summary.click();
+    await expect(page).toHaveURL(new RegExp(`/finance/accounts/${currentId}`));
     const notice = page.getByText(/Bank says £1,234\.56 · we say/).first();
     await expect(notice).toBeVisible({ timeout: SYNC_TIMEOUT });
-    await page
-      .getByRole("button", { name: "Use bank balance" })
-      .first()
-      .click();
-    await expect(notice).toBeHidden({ timeout: SYNC_TIMEOUT });
-    await expect
-      .poll(
-        async () =>
-          (await liveValuations(financeDb, session.householdId, currentId)).at(
-            0,
-          ),
-        { timeout: SYNC_TIMEOUT },
-      )
-      .toMatchObject({ amountMinor: 123_456, source: "bank" });
+    await expect(
+      page
+        .getByText(
+          "The difference is older than the bank's records. Check the opening balance.",
+        )
+        .first(),
+    ).toBeVisible({ timeout: SYNC_TIMEOUT });
   });
 });

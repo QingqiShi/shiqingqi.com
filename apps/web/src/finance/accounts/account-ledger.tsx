@@ -2,12 +2,9 @@
 
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -24,13 +21,14 @@ import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { selectEntriesByTransaction } from "../store/select-entries-by-transaction.ts";
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
-import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type {
   AccountRow,
   TransactionRow,
   ValuationRow,
 } from "../sync/row-schemas.ts";
+import { LedgerEntryLink } from "./ledger-entry-link.tsx";
 import { ledgerRunningBalances } from "./ledger-running-balances.ts";
+import { useTransactionTitle } from "./use-transaction-title.ts";
 
 type LedgerItem =
   | { type: "valuation"; day: string; valuation: ValuationRow }
@@ -60,15 +58,13 @@ function valuationsOf(
 export function AccountLedger({ account }: { account: AccountRow }) {
   const locale = useLocale();
   const runUndoable = useUndoableMutations();
-  const categoryName = useCategoryDisplayName();
+  const titleOf = useTransactionTitle();
   const [limit, setLimit] = useState(PAGE);
   const valuationRows = useReplica((snapshot) => snapshot.tables.valuations);
   const transactions = useReplica(
     (snapshot) => selectTransactionsByAccount(snapshot).get(account.id) ?? null,
   );
   const entriesByTransaction = useReplica(selectEntriesByTransaction);
-  const payees = useReplica((snapshot) => snapshot.tables.payees);
-  const categories = useReplica((snapshot) => snapshot.tables.categories);
   const series = useReplica((snapshot) =>
     selectBalanceSeriesByAccount(snapshot).get(account.id),
   );
@@ -113,29 +109,8 @@ export function AccountLedger({ account }: { account: AccountRow }) {
     import: t({ en: "Imported balance", zh: "导入的余额" }),
     bank: t({ en: "Bank balance", zh: "银行余额" }),
   };
-  const kindLabels: Record<TransactionRow["kind"], string> = {
-    expense: t({ en: "Expense", zh: "支出" }),
-    income: t({ en: "Income", zh: "收入" }),
-    transfer: t({ en: "Transfer", zh: "转账" }),
-  };
   const removeLabel = t({ en: "Remove the balance of", zh: "删除余额记录：" });
   const removedLabel = t({ en: "Balance removed", zh: "余额记录已删除" });
-  const afterLabel = t({ en: "Balance after:", zh: "变动后余额：" });
-  const expectedLabel = t({ en: "Expected", zh: "待确认" });
-
-  const titleOf = (transaction: TransactionRow) => {
-    const payee =
-      transaction.payeeId === null
-        ? undefined
-        : payees.get(transaction.payeeId);
-    if (payee) return payee.name;
-    const category =
-      transaction.categoryId === null
-        ? undefined
-        : categories.get(transaction.categoryId);
-    if (category) return categoryName(category);
-    return transaction.note || kindLabels[transaction.kind];
-  };
 
   return (
     <section css={stack.item} aria-label={t({ en: "Ledger", zh: "明细" })}>
@@ -188,63 +163,14 @@ export function AccountLedger({ account }: { account: AccountRow }) {
               </li>
             ) : (
               <li key={`e:${item.transaction.id}`}>
-                <Link
-                  href={getLocalePath(
-                    `/finance/transactions?id=${item.transaction.id}`,
-                    locale,
-                  )}
-                  {...stylex.props(
-                    row.tight,
-                    corner.radius_2,
-                    transition.colors,
-                    a11y.focusRing,
-                    styles.item,
-                    styles.link,
-                  )}
-                >
-                  <span
-                    css={[typeRole.caption, typeModifier.numeric, styles.day]}
-                  >
-                    {displayDay(item.day, locale, "day")}
-                  </span>
-                  <span css={[typeRole.bodySmall, styles.title]}>
-                    {titleOf(item.transaction)}
-                  </span>
-                  {item.transaction.status === "expected" ? (
-                    <Badge size="sm" intent="info">
-                      {expectedLabel}
-                    </Badge>
-                  ) : null}
-                  <span css={styles.amounts}>
-                    <span
-                      css={[
-                        typeRole.bodySmall,
-                        typeModifier.numeric,
-                        styles.amount,
-                      ]}
-                    >
-                      {formatMoney(item.amount, account.currency, locale, {
-                        signDisplay: "exceptZero",
-                      })}
-                    </span>
-                    {balancesAfter[index] == null ? null : (
-                      <span
-                        css={[
-                          typeRole.caption,
-                          typeModifier.numeric,
-                          styles.after,
-                        ]}
-                      >
-                        <span css={a11y.srOnly}>{afterLabel} </span>
-                        {formatMoney(
-                          balancesAfter[index],
-                          account.currency,
-                          locale,
-                        )}
-                      </span>
-                    )}
-                  </span>
-                </Link>
+                <LedgerEntryLink
+                  transaction={item.transaction}
+                  title={titleOf(item.transaction)}
+                  day={item.day}
+                  amountMinor={item.amount}
+                  currency={account.currency}
+                  balanceAfter={balancesAfter[index]}
+                />
               </li>
             ),
           )}
@@ -295,14 +221,6 @@ const styles = stylex.create({
     paddingInline: space._1,
     gap: rhythm.tight,
   },
-  link: {
-    color: color.fg,
-    textDecoration: "none",
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
-    },
-  },
   day: {
     flexShrink: 0,
     minInlineSize: "4.5em",
@@ -319,15 +237,6 @@ const styles = stylex.create({
   amount: {
     flexShrink: 0,
     fontWeight: font.weight_5,
-  },
-  amounts: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    flexShrink: 0,
-  },
-  after: {
-    color: color.fgMuted,
   },
   muted: {
     margin: 0,

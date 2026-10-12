@@ -53,6 +53,23 @@ export const bankTransactionRepository = {
       .orderBy(bankTransactions.date, bankTransactions.providerTxId);
   },
 
+  /** Each bank row of the link, with only what the balance check needs. */
+  async listBacking(scope: RepositoryScope, linkId: string) {
+    return scope.db
+      .select({
+        date: bankTransactions.date,
+        state: bankTransactions.state,
+        transactionId: bankTransactions.transactionId,
+      })
+      .from(bankTransactions)
+      .where(
+        and(
+          eq(bankTransactions.householdId, scope.householdId),
+          eq(bankTransactions.linkId, linkId),
+        ),
+      );
+  },
+
   /** The `new` rows of these links, by date. */
   async listOpen(scope: RepositoryScope, linkIds: readonly string[]) {
     if (linkIds.length === 0) return [];

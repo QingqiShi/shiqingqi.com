@@ -56,10 +56,9 @@ export interface PutBankLinkRequest {
   signMultiplier?: 1 | -1;
 }
 
-/** `POST /api/finance/bank/balance`: use the bank balance as a Valuation, or dismiss the difference. */
-export interface ResolveBalanceRequest {
-  linkId: string;
-  action: "use" | "dismiss";
+/** `GET /api/finance/bank/unbacked-entries`: the Entries behind a balance difference, newest first. */
+export interface UnbackedEntriesResponse {
+  entryIds: string[];
 }
 
 /** The result of one link in `POST /api/finance/bank/sync-now`. */
@@ -97,6 +96,5 @@ export type BankApiErrorCode =
   | "unknown-provider-account"
   | "currency-mismatch"
   | "provider-account-linked"
-  | "no-bank-balance"
   | "model-unavailable"
   | BankErrorKind;

@@ -14,7 +14,7 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUrlSelection } from "../shell/use-url-selection.ts";
 import { AccountRow } from "./account-row.tsx";
-import { BankBalanceNotice } from "./bank-balance-notice.tsx";
+import { BankBalanceSummary } from "./bank-balance-notice.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { useCollapsedGroups } from "./use-collapsed-groups.ts";
 
@@ -93,10 +93,11 @@ export function AccountGroupList({
               <div css={[stack.tight, styles.body]}>
                 {notices.map((line) =>
                   line.bankLink ? (
-                    <BankBalanceNotice
+                    <BankBalanceSummary
                       key={line.bankLink.id}
                       link={line.bankLink}
-                      accountName={line.account.name}
+                      account={line.account}
+                      href={hrefOf(line.account.id)}
                     />
                   ) : null,
                 )}

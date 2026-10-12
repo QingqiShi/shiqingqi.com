@@ -213,11 +213,7 @@ export function AccountDetail({
         )}
       </header>
       {bankLink ? (
-        <BankBalanceNotice
-          link={bankLink}
-          accountName={account.name}
-          showName={false}
-        />
+        <BankBalanceNotice link={bankLink} account={account} />
       ) : null}
       <AccountChart account={account} today={today} />
       {facts.length > 0 ? (

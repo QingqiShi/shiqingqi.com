@@ -4,7 +4,9 @@ import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
+import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
+import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
@@ -16,11 +18,11 @@ import {
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import type { LimitFinanceRequest } from "../http/types.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
-import { accountMutations } from "../sync/account-mutations.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { credentialCipher } from "./credential-cipher.ts";
 import { BankError } from "./lunchflow/bank-error.ts";
 import { PROCESS_BUDGET_MS, processBankRows } from "./process-bank-rows.ts";
+import { selectUnbackedEntries } from "./select-unbacked-entries.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import type {
   BankApiErrorCode,
@@ -29,6 +31,7 @@ import type {
   CredentialView,
   ProviderAccountsResponse,
   SyncNowResponse,
+  UnbackedEntriesResponse,
 } from "./types.ts";
 
 export interface BankHandlerDependencies {
@@ -72,11 +75,7 @@ const putLinkSchema = z.object({
 const putCredentialSchema = z.object({
   apiKey: z.string().trim().min(8).max(500),
 });
-const removeLinkSchema = z.object({ linkId: z.uuid() });
-const resolveBalanceSchema = z.object({
-  linkId: z.uuid(),
-  action: z.enum(["use", "dismiss"]),
-});
+const linkIdSchema = z.object({ linkId: z.uuid() });
 
 function failure(code: BankApiErrorCode, status: number) {
   return financeJson({ error: code }, { status });
@@ -364,7 +363,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
     /** `DELETE /api/finance/bank/links?linkId=…`: removes a link; its bank rows stay. */
     removeLink: guarded(
       async (request, _session, scope) => {
-        const parsed = removeLinkSchema.safeParse({
+        const parsed = linkIdSchema.safeParse({
           linkId: new URL(request.url).searchParams.get("linkId"),
         });
         if (!parsed.success) return failure("invalid-body", 400);
@@ -450,51 +449,48 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
       },
     ),
 
-    /** `POST /api/finance/bank/balance`: takes the bank balance as a Valuation, or dismisses the difference. */
-    resolveBalance: guarded(
+    /**
+     * `GET /api/finance/bank/unbacked-entries?linkId=…`: the Entries behind
+     * the link's balance difference, which no bank row backs.
+     */
+    listUnbackedEntries: guarded(
       async (request, _session, scope) => {
-        const input = await readFinanceBody(request, resolveBalanceSchema);
-        if (input instanceof Response) return input;
-        const now = dependencies.now();
-        const { clock } = await runServerWrite(
+        const parsed = linkIdSchema.safeParse({
+          linkId: new URL(request.url).searchParams.get("linkId"),
+        });
+        if (!parsed.success) return failure("invalid-body", 400);
+        const entryIds = await withHousehold(
           scope.db,
           scope.householdId,
-          now,
-          async (context) => {
+          async (read) => {
             const link = await bankLinkRepository.findById(
-              context.scope,
-              input.linkId,
+              read,
+              parsed.data.linkId,
             );
             if (!link || link.deletedAt) {
               throw new BankRequestError("not-found", 404);
             }
-            if (input.action === "use") {
-              if (
-                link.bankBalanceMinor === null ||
-                link.bankBalanceOn === null
-              ) {
-                throw new BankRequestError("no-bank-balance", 409);
-              }
-              await accountMutations.putValuation(
-                context,
-                {
-                  id: randomUUID(),
-                  accountId: link.accountId,
-                  on: link.bankBalanceOn,
-                  amountMinor: link.bankBalanceMinor,
-                },
-                "bank",
-              );
-            }
-            await bankLinkRepository.patch(context.scope, link.id, {
-              balanceDifferenceMinor: null,
-            });
-            context.markWritten();
+            if (link.bankBalanceOn === null) return [];
+            const latest = await valuationRepository.latestOnOrBefore(
+              read,
+              link.accountId,
+              link.bankBalanceOn,
+            );
+            const unbacked = selectUnbackedEntries(
+              await valuationRepository.postedEntriesAfter(
+                read,
+                link.accountId,
+                latest?.on ?? null,
+                link.bankBalanceOn,
+              ),
+              await bankTransactionRepository.listBacking(read, link.id),
+            );
+            return unbacked.map((entry) => entry.id);
           },
         );
-        return financeJson({ clock });
+        return financeJson({ entryIds } satisfies UnbackedEntriesResponse);
       },
-      { write: true },
+      { write: false },
     ),
   };
 }

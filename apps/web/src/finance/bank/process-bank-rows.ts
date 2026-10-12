@@ -168,11 +168,16 @@ async function writeBatch(
  */
 async function refreshBalanceDifferences(context: ServerWriteContext) {
   const { scope } = context;
-  for (const link of await bankLinkRepository.listLive(scope)) {
+  const links = await bankLinkRepository.listLive(scope);
+  const open = await bankTransactionRepository.listOpen(
+    scope,
+    links.map((link) => link.id),
+  );
+  for (const link of links) {
     if (link.bankBalanceMinor === null || link.bankBalanceOn === null) continue;
-    const waiting = (
-      await bankTransactionRepository.listOpen(scope, [link.id])
-    ).some((row) => isUsableBankRow(row, link));
+    const waiting = open.some(
+      (row) => row.linkId === link.id && isUsableBankRow(row, link),
+    );
     const balanceDifferenceMinor = waiting
       ? null
       : balanceDifferenceOf(
