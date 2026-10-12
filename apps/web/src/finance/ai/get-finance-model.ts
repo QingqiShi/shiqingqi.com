@@ -1,6 +1,10 @@
 import type { LanguageModel } from "ai";
 import "server-only";
-import { getAnthropicModel } from "#src/anthropic/get-anthropic-model.ts";
+import { getAnthropicProvider } from "#src/anthropic/get-anthropic-provider.ts";
+
+const FINANCE_MODEL_ID = "claude-sonnet-5-5";
+
+let model: LanguageModel | null = null;
 
 /**
  * The model of the labelling pipeline, or null when no provider key is set.
@@ -9,5 +13,6 @@ import { getAnthropicModel } from "#src/anthropic/get-anthropic-model.ts";
  */
 export function getFinanceModel(): LanguageModel | null {
   if (!process.env.ANTHROPIC_API_KEY) return null;
-  return getAnthropicModel();
+  model ??= getAnthropicProvider().chat(FINANCE_MODEL_ID);
+  return model;
 }

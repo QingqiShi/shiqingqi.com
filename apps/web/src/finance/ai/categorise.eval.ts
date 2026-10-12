@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getAnthropicModel } from "#src/anthropic/get-anthropic-model.ts";
 import { throttle } from "#src/eval/throttle.ts";
 import {
   buildFixtureMemory,
   FIXTURE_ACCOUNT_ID,
 } from "./eval/build-fixture-memory.ts";
 import { categoriseFixture } from "./eval/categorise-fixture.ts";
+import { getFinanceModel } from "./get-finance-model.ts";
 import {
   MODEL_BATCH_SIZE,
   suggestLabelsWithModel,
@@ -29,6 +29,8 @@ function isSamePayee(answer: string, accepted: readonly string[]) {
 
 describe("Finance categorisation (model step)", () => {
   it(`labels ≥ ${String(CATEGORY_THRESHOLD * 100)}% of the synthetic bank strings with an accepted category`, async () => {
+    const model = getFinanceModel();
+    if (!model) throw new Error("ANTHROPIC_API_KEY is not set");
     const { memory, categoryId } = buildFixtureMemory();
     const payeeNames = new Map(
       memory.payees.map((payee) => [payee.id, payee.name]),
@@ -45,7 +47,7 @@ describe("Finance categorisation (model step)", () => {
     for (let start = 0; start < inputs.length; start += MODEL_BATCH_SIZE) {
       await throttle.waitIfNeeded();
       const batch = await suggestLabelsWithModel(
-        getAnthropicModel(),
+        model,
         memory,
         inputs.slice(start, start + MODEL_BATCH_SIZE),
       );
