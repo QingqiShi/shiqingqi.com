@@ -316,7 +316,7 @@ describe("makeBankHandlers", () => {
     );
     const result = (await response.json()) as SyncNowResponse;
     expect(result.links).toMatchObject([
-      { error: null, pending: 1, balanceDifferenceMinor: -400 },
+      { error: null, pending: 1, balanceDifferenceMinor: null },
     ]);
     expect(result.clock).toBeGreaterThan(0);
     expect(await db.$count(transactions)).toBe(0);

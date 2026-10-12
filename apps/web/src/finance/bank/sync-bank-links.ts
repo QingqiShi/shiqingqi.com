@@ -185,6 +185,7 @@ async function writeLink(
     link,
     open,
   );
+  const pending = open.length - matchedIds.size;
 
   const bankBalance = toEntryAmount(fetched.balance.amountMinor, link);
   await bankLinkRepository.recordBalance(scope, {
@@ -199,7 +200,7 @@ async function writeLink(
     today,
   );
   const balanceDifferenceMinor =
-    fetched.balance.currency === link.currency
+    pending === 0 && fetched.balance.currency === link.currency
       ? balanceDifferenceOf(bankBalance, ours)
       : null;
   await bankLinkRepository.patch(scope, link.id, {
@@ -214,7 +215,7 @@ async function writeLink(
   });
   context.markWritten();
   return {
-    pending: open.length - matchedIds.size,
+    pending,
     linked,
     confirmed,
     missing,
@@ -273,8 +274,9 @@ async function syncLink(
  * Syncs every live Bank link of a Household (design §7.3): reads the bank
  * rows since the last sync day less ten days (the first time, the last 90
  * days), stores them, flags rows the bank no longer returns, matches new
- * rows to Transactions already in the ledger, and compares the balances. A
- * row without a match stays `new` for `processBankRows` to label. A failing link records its error and the others go
+ * rows to Transactions already in the ledger, and compares the balances
+ * when no row of the link waits for the AI step. A row without a match
+ * stays `new` for `processBankRows` to label. A failing link records its error and the others go
  * on. Running it again with the same bank data changes no Transaction.
  */
 export async function syncBankLinks(
