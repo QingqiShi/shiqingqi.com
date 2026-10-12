@@ -55,6 +55,7 @@ const input: NewRuleInput = {
   unit: "month",
   interval: 1,
   day: 15,
+  nonBusinessDay: "stay",
   startsOn: "2026-01-01",
   endsOn: null,
   autoPost: false,
@@ -74,6 +75,7 @@ describe("buildNewRule", () => {
         dayOfMonth: 15,
         weekday: null,
         monthOfYear: null,
+        nonBusinessDay: "stay",
         startsOn: "2026-01-01",
         endsOn: null,
         nextOn: "2026-10-15",
@@ -91,6 +93,20 @@ describe("buildNewRule", () => {
         },
       },
     });
+  });
+
+  it("moves the first Expected off a weekend or a bank holiday", () => {
+    const mortgage = { ...input, day: 1, nonBusinessDay: "next" as const };
+    expect(
+      buildNewRule({ ...mortgage, today: "2026-10-02" }, context),
+    ).toMatchObject({
+      ok: true,
+      args: { nonBusinessDay: "next", nextOn: "2026-11-02" },
+    });
+    const salary = { ...input, day: 25, nonBusinessDay: "previous" as const };
+    expect(
+      buildNewRule({ ...salary, today: "2026-10-12" }, context),
+    ).toMatchObject({ ok: true, args: { nextOn: "2026-10-23" } });
   });
 
   it("counts a foreign-currency income in the base currency", () => {

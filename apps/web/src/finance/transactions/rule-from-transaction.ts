@@ -36,7 +36,12 @@ export function ruleFromTransaction(
     monthOfYear: null,
   };
   const startsOn = nextOccurrence(
-    { ...schedule, startsOn: transaction.date, endsOn: null },
+    {
+      ...schedule,
+      nonBusinessDay: "stay",
+      startsOn: transaction.date,
+      endsOn: null,
+    },
     addDays(input.today, 1),
   );
   return {
@@ -47,6 +52,7 @@ export function ruleFromTransaction(
     dayOfMonth: schedule.dayOfMonth,
     weekday: schedule.weekday,
     monthOfYear: schedule.monthOfYear,
+    nonBusinessDay: "stay",
     startsOn,
     nextOn: startsOn,
     autoPost: false,

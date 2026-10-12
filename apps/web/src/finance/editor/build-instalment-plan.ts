@@ -191,6 +191,7 @@ export function buildInstalmentPlan(
       dayOfMonth: parseDay(transaction.date).dayOfMonth,
       weekday: null,
       monthOfYear: null,
+      nonBusinessDay: "stay",
       startsOn,
       endsOn: lastPaymentOn,
       nextOn: startsOn,

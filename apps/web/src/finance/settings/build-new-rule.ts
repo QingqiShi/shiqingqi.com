@@ -1,4 +1,5 @@
 import type { FxIndex } from "../domain/balance/create-fx-index.ts";
+import type { NonBusinessDay } from "../domain/dates/to-business-day.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
 import type { MutationInput } from "../sync/mutation-schema.ts";
@@ -21,6 +22,7 @@ export interface NewRuleInput {
   interval: number;
   /** The weekday (1 is Monday) or day of the month; null takes it from `startsOn`. */
   day: number | null;
+  nonBusinessDay: NonBusinessDay;
   startsOn: string;
   endsOn: string | null;
   autoPost: boolean;
@@ -90,6 +92,7 @@ export function buildNewRule(
     dayOfMonth: input.unit === "week" ? null : input.day,
     weekday: input.unit === "week" ? input.day : null,
     monthOfYear: null,
+    nonBusinessDay: input.nonBusinessDay,
     startsOn: input.startsOn,
     endsOn: input.endsOn,
   };

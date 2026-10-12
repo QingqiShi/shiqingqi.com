@@ -445,6 +445,12 @@ export const tags = pgTable(
 
 export const ruleUnit = pgEnum("rule_unit", ["week", "month", "year"]);
 
+export const ruleNonBusinessDay = pgEnum("rule_non_business_day", [
+  "stay",
+  "next",
+  "previous",
+]);
+
 export const rules = pgTable(
   "rules",
   {
@@ -456,6 +462,9 @@ export const rules = pgTable(
     dayOfMonth: smallint("day_of_month"),
     weekday: smallint("weekday"),
     monthOfYear: smallint("month_of_year"),
+    nonBusinessDay: ruleNonBusinessDay("non_business_day")
+      .notNull()
+      .default("stay"),
     startsOn: date("starts_on", { mode: "string" }).notNull(),
     endsOn: date("ends_on", { mode: "string" }),
     nextOn: date("next_on", { mode: "string" }).notNull(),

@@ -404,6 +404,7 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       dayOfMonth: spec.dayOfMonth,
       weekday: null,
       monthOfYear: null,
+      nonBusinessDay: "stay",
       startsOn: start,
       endsOn: null,
     };

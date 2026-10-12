@@ -5,5 +5,6 @@ export const SCHEDULE_FIELDS = [
   "dayOfMonth",
   "weekday",
   "monthOfYear",
+  "nonBusinessDay",
   "startsOn",
 ] as const;
