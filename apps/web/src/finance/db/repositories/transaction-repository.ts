@@ -7,6 +7,7 @@ import {
   isNull,
   lte,
   notInArray,
+  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -290,16 +291,13 @@ export const transactionRepository = {
       );
   },
 
-  /** A Rule's Expected Transactions dated on or after `from`, deleted ones included. */
-  async findExpectedOfRuleFrom(
-    scope: RepositoryScope,
-    ruleId: string,
-    from: string,
-  ) {
+  /** A Rule's Transactions dated on or after `from`, deleted ones included. */
+  async findOfRuleFrom(scope: RepositoryScope, ruleId: string, from: string) {
     return scope.db
       .select({
         id: transactions.id,
         date: transactions.date,
+        status: transactions.status,
         deletedAt: transactions.deletedAt,
       })
       .from(transactions)
@@ -307,8 +305,26 @@ export const transactionRepository = {
         and(
           eq(transactions.householdId, scope.householdId),
           eq(transactions.ruleId, ruleId),
-          eq(transactions.status, "expected"),
           gte(transactions.date, from),
+        ),
+      );
+  },
+
+  /** A Rule's Transactions, deleted ones included, dated on one of `days` or with one of `ids`. */
+  async findOfRuleOnDaysOrIds(
+    scope: RepositoryScope,
+    ruleId: string,
+    days: string[],
+    ids: string[],
+  ) {
+    return scope.db
+      .select({ id: transactions.id, date: transactions.date })
+      .from(transactions)
+      .where(
+        and(
+          eq(transactions.householdId, scope.householdId),
+          eq(transactions.ruleId, ruleId),
+          or(inArray(transactions.date, days), inArray(transactions.id, ids)),
         ),
       );
   },

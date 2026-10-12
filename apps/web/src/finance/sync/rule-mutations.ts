@@ -74,7 +74,7 @@ async function upsertRule(
     const { remove, restore } = rescheduleExpected(
       existing,
       merged,
-      await transactionRepository.findExpectedOfRuleFrom(scope, id, today),
+      await transactionRepository.findOfRuleFrom(scope, id, today),
     );
     for (const transaction of remove) {
       await transactionRepository.softDelete(scope, transaction.id);
