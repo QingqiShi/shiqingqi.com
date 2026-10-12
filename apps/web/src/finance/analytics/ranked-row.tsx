@@ -8,8 +8,8 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { Link } from "#src/links/link.tsx";
 import { seriesKey } from "../charts/series-marks.stylex.ts";
 import type { SeriesTone } from "../charts/series-tone-at.ts";
 

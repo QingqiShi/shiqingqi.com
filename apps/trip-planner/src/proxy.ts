@@ -10,7 +10,7 @@ import { gateToken, tripGate } from "./trip-gate";
 // an HTTP Basic Auth challenge. Basic Auth let the browser cache one trip's
 // credentials and re-send them to every same-origin request — which silently
 // unlocked the other trip and popped a password dialog on the public homepage
-// (where the trip links are prefetched). A form-plus-cookie flow keeps each
+// (where the trip links were prefetched then). A form-plus-cookie flow keeps each
 // trip's unlock to itself and never prompts on a page the visitor can read.
 export const config = {
   matcher: "/((?!_next/static|_next/image|favicon.ico|robots.txt).*)",

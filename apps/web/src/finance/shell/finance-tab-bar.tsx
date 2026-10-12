@@ -21,16 +21,15 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { normalizePath } from "#src/i18n/normalize-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
 import { tabBarTokens } from "./tab-bar.stylex.ts";
 import { useFinanceDestinations } from "./use-finance-destinations.ts";
-import { useFreshPrefetch } from "./use-fresh-prefetch.ts";
 import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
 
 /**
@@ -43,7 +42,6 @@ export function FinanceTabBar() {
   const locale = useLocale();
   const current = normalizePath(usePathname());
   const destinations = useFinanceDestinations();
-  const prefetch = useFreshPrefetch();
   const { status, label, attention } = useSyncStatusSummary();
   const waiting = status.pendingCount > 0;
 
@@ -60,7 +58,6 @@ export function FinanceTabBar() {
             <li key={destination.path} css={styles.item}>
               <Link
                 href={getLocalePath(destination.path, locale)}
-                prefetch={prefetch}
                 aria-current={isCurrent ? "page" : undefined}
                 {...stylex.props(
                   typeRole.caption,

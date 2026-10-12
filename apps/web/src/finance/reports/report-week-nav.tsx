@@ -5,10 +5,10 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { formatReportWeek } from "./format-report-week.ts";
 import type { ReportListItem } from "./report-api-schemas.ts";
 

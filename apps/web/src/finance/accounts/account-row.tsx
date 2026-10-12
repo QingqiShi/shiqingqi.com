@@ -9,12 +9,11 @@ import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { useFreshPrefetch } from "../shell/use-fresh-prefetch.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
 import type { AccountLine } from "./build-balance-sheet.ts";
@@ -39,7 +38,6 @@ export function AccountRow({
   isSelected,
 }: AccountRowProps) {
   const locale = useLocale();
-  const prefetch = useFreshPrefetch();
   const accountName = useAccountDisplayName();
   const { account } = line;
   const name = accountName(account);
@@ -69,7 +67,6 @@ export function AccountRow({
     <li css={styles.item}>
       <Link
         href={href}
-        prefetch={prefetch}
         aria-current={isSelected ? "true" : undefined}
         {...stylex.props(
           corner.radius_2,

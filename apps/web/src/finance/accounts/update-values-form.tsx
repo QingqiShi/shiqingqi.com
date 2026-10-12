@@ -14,7 +14,6 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   useEffect,
@@ -25,6 +24,7 @@ import {
 } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
