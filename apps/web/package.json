@@ -83,7 +83,7 @@
     "@babel/preset-env": "catalog:",
     "@babel/preset-react": "catalog:",
     "@babel/preset-typescript": "catalog:",
-    "@babel/runtime": "^8.0.5",
+    "@babel/runtime": "^8.0.7",
     "@electric-sql/pglite": "0.5.8",
     "@next/env": "catalog:",
     "@playwright/test": "^1.64.0",
