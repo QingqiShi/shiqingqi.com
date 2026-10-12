@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { NON_BUSINESS_DAYS } from "../domain/dates/to-business-day.ts";
 import { ruleTemplateSchema } from "../rules/rule-template-schema.ts";
 import { wireFields } from "./wire-fields.ts";
 
@@ -18,6 +19,7 @@ export const transactionKindSchema = z.enum(["expense", "income", "transfer"]);
 export const categoryKindSchema = z.enum(["expense", "income"]);
 export const groupSideSchema = z.enum(["asset", "liability"]);
 export const ruleUnitSchema = z.enum(["week", "month", "year"]);
+export const nonBusinessDaySchema = z.enum(NON_BUSINESS_DAYS);
 
 export const householdRowSchema = z.object({
   id,
@@ -140,6 +142,7 @@ const ruleRowSchema = z.object({
   dayOfMonth: z.int().nullable(),
   weekday: z.int().nullable(),
   monthOfYear: z.int().nullable(),
+  nonBusinessDay: nonBusinessDaySchema,
   startsOn: day,
   endsOn: day.nullable(),
   nextOn: day,

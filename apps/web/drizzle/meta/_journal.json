@@ -57,6 +57,13 @@
       "when": 1791807861509,
       "tag": "0007_ai_labelling",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791839796671,
+      "tag": "0008_rule_non_business_day",
+      "breakpoints": true
     }
   ]
 }

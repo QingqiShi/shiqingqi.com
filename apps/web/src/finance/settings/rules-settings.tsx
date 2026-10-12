@@ -15,6 +15,10 @@ import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
+import {
+  NON_BUSINESS_DAYS,
+  type NonBusinessDay,
+} from "../domain/dates/to-business-day.ts";
 import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
@@ -30,6 +34,7 @@ import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
 import { SettingsRow } from "./settings-row.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
+import { useDescribeSchedule } from "./use-describe-schedule.ts";
 import { templateAmount, withTemplateAmount } from "./with-template-amount.ts";
 
 type Unit = RuleRow["unit"];
@@ -46,6 +51,7 @@ interface Draft {
   unit: Unit;
   interval: string;
   day: string;
+  nonBusinessDay: NonBusinessDay;
   endsOn: string;
   autoPost: boolean;
   paused: boolean;
@@ -88,11 +94,15 @@ export function RulesSettings() {
     year: t({ en: "years", zh: "年" }),
   };
   const everyLabel = t({ en: "Every", zh: "每" });
-  const onceLabels: Record<Unit, string> = {
-    week: t({ en: "Weekly", zh: "每周" }),
-    month: t({ en: "Monthly", zh: "每月" }),
-    year: t({ en: "Yearly", zh: "每年" }),
+  const nonBusinessDayLabels: Record<NonBusinessDay, string> = {
+    stay: t({ en: "Keep the date", zh: "日期不变" }),
+    next: t({ en: "Move to the next working day", zh: "顺延到下一个工作日" }),
+    previous: t({
+      en: "Move to the working day before",
+      zh: "提前到上一个工作日",
+    }),
   };
+  const describeSchedule = useDescribeSchedule();
   const nextLabel = t({ en: "next", zh: "下次" });
   const pausedLabel = t({ en: "Paused", zh: "已暂停" });
   const autoLabel = t({ en: "Posts automatically", zh: "自动入账" });
@@ -134,12 +144,10 @@ export function RulesSettings() {
   function summary(rule: RuleRow) {
     return [
       formatMoney(templateAmount(rule.template), baseCurrency, locale),
-      rule.interval === 1
-        ? onceLabels[rule.unit]
-        : `${everyLabel} ${String(rule.interval)} ${unitLabels[rule.unit]}`,
       rule.pausedAt === null
         ? `${nextLabel} ${displayDay(rule.nextOn, locale, "day")}`
         : "",
+      describeSchedule(rule),
     ]
       .filter((part) => part !== "")
       .join(" · ");
@@ -210,6 +218,7 @@ export function RulesSettings() {
         unit: current.unit,
         interval: schedule.interval,
         day: schedule.day,
+        nonBusinessDay: current.nonBusinessDay,
         startsOn: current.startsOn,
         endsOn: isValidDay(current.endsOn) ? current.endsOn : null,
         autoPost: current.autoPost,
@@ -274,6 +283,7 @@ export function RulesSettings() {
             interval,
             weekday: draft.unit === "week" ? day : null,
             dayOfMonth: draft.unit === "week" ? null : day,
+            nonBusinessDay: draft.nonBusinessDay,
             endsOn: isValidDay(draft.endsOn) ? draft.endsOn : null,
             autoPost: draft.autoPost,
             paused: draft.paused,
@@ -323,6 +333,7 @@ export function RulesSettings() {
               unit: "month",
               interval: "1",
               day: "",
+              nonBusinessDay: "stay",
               endsOn: "",
               autoPost: false,
               paused: false,
@@ -387,6 +398,7 @@ export function RulesSettings() {
                   unit: rule.unit,
                   interval: String(rule.interval),
                   day: scheduleDay(rule),
+                  nonBusinessDay: rule.nonBusinessDay,
                   endsOn: rule.endsOn ?? "",
                   autoPost: rule.autoPost,
                   paused: rule.pausedAt !== null,
@@ -502,6 +514,27 @@ export function RulesSettings() {
               value={draft.day}
               onChange={(event) => {
                 setDraft({ ...draft, day: event.target.value });
+              }}
+            />
+            <Select
+              label={t({
+                en: "On a weekend or bank holiday",
+                zh: "遇周末或节假日",
+              })}
+              description={t({
+                en: "Bank holidays are those of England and Wales.",
+                zh: "节假日按英格兰和威尔士的银行假日计算。",
+              })}
+              value={draft.nonBusinessDay}
+              options={NON_BUSINESS_DAYS.map((value) => ({
+                value,
+                label: nonBusinessDayLabels[value],
+              }))}
+              onChange={(event) => {
+                const nonBusinessDay = NON_BUSINESS_DAYS.find(
+                  (value) => value === event.target.value,
+                );
+                if (nonBusinessDay) setDraft({ ...draft, nonBusinessDay });
               }}
             />
             {draft.rule === null ? (

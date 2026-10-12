@@ -3,6 +3,7 @@ import { balanceAt } from "../domain/balance/balance-at.ts";
 import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
 import { SCHEDULE_FIELDS } from "../domain/rules/schedule-fields.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
+import { rescheduleExpected } from "../rules/reschedule-expected.ts";
 import {
   checkSystemAccountPatch,
   checkSystemAccountValuation,
@@ -911,6 +912,7 @@ function upsertRule(scope: Scope, args: Args<"upsertRule">) {
       dayOfMonth: fields.dayOfMonth ?? null,
       weekday: fields.weekday ?? null,
       monthOfYear: fields.monthOfYear ?? null,
+      nonBusinessDay: fields.nonBusinessDay ?? "stay",
       startsOn,
       endsOn: fields.endsOn ?? null,
       nextOn: startsOn,
@@ -958,6 +960,17 @@ function upsertRule(scope: Scope, args: Args<"upsertRule">) {
         softDeleteTransaction(scope, transaction);
       }
     }
+  } else if (scheduleChanged) {
+    const expected = [...draft.values("transactions")].filter(
+      (transaction) =>
+        transaction.ruleId === id &&
+        transaction.status === "expected" &&
+        transaction.date >= context.today,
+    );
+    const { remove, restore } = rescheduleExpected(existing, merged, expected);
+    for (const transaction of remove) softDeleteTransaction(scope, transaction);
+    for (const transaction of restore)
+      restoreTransaction(scope, transaction.id);
   }
 }
 

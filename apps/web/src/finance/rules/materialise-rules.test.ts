@@ -68,6 +68,20 @@ async function createRule(
   return id;
 }
 
+async function push(name: string, args: Record<string, unknown>, now: Date) {
+  const result = await applyMutations(
+    db,
+    home.householdId,
+    { clientId: randomUUID(), mutations: [{ id: randomUUID(), name, args }] },
+    now,
+  );
+  expect(result.rejected).toEqual([]);
+}
+
+async function ruleDays(ruleId: string) {
+  return (await ruleTransactions(ruleId)).map((row) => row.date);
+}
+
 function ruleTransactions(ruleId: string) {
   return db
     .select({
@@ -204,5 +218,71 @@ describe("materialiseRules", () => {
   it("creates nothing for a paused rule", async () => {
     const ruleId = await createRule({ paused: true });
     expect(await ruleTransactions(ruleId)).toEqual([]);
+  });
+
+  it("moves an occurrence past a weekend and a substitute bank holiday", async () => {
+    const ruleId = await createRule(
+      { startsOn: "2026-12-01", dayOfMonth: 25, nonBusinessDay: "next" },
+      new Date("2026-12-22T12:00:00Z"),
+    );
+    expect(await ruleTransactions(ruleId)).toEqual([
+      {
+        id: occurrenceId(ruleId, "2026-12-29"),
+        date: "2026-12-29",
+        status: "expected",
+      },
+    ]);
+    const [rule] = await db.select().from(rules).where(eq(rules.id, ruleId));
+    expect(rule.nextOn).toBe("2027-01-25");
+  });
+
+  it("keeps one Expected per occurrence when the schedule changes", async () => {
+    const now = new Date("2026-10-26T12:00:00Z");
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-11-01" },
+      now,
+    );
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-01"]);
+
+    await push("upsertRule", { id: ruleId, nonBusinessDay: "next" }, now);
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-02"]);
+
+    await push("upsertRule", { id: ruleId, nonBusinessDay: "previous" }, now);
+    expect(await ruleDays(ruleId)).toEqual(["2026-10-30"]);
+
+    await push("upsertRule", { id: ruleId, nonBusinessDay: "stay" }, now);
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-01"]);
+
+    await push("upsertRule", { id: ruleId, nonBusinessDay: "next" }, now);
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-02"]);
+  });
+
+  it("keeps a skipped occurrence skipped when the schedule keeps its day", async () => {
+    const now = new Date("2026-10-26T12:00:00Z");
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-11-01" },
+      now,
+    );
+    await push("skipExpected", { id: occurrenceId(ruleId, "2026-11-01") }, now);
+
+    await push("upsertRule", { id: ruleId, startsOn: "2026-09-01" }, now);
+
+    expect(await ruleDays(ruleId)).toEqual([]);
+  });
+
+  it("leaves past Expected transactions alone when the schedule changes", async () => {
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1 },
+      new Date("2026-09-28T12:00:00Z"),
+    );
+    expect(await ruleDays(ruleId)).toEqual(["2026-10-01"]);
+
+    await push(
+      "upsertRule",
+      { id: ruleId, nonBusinessDay: "next" },
+      new Date("2026-10-26T12:00:00Z"),
+    );
+
+    expect(await ruleDays(ruleId)).toEqual(["2026-10-01", "2026-11-02"]);
   });
 });

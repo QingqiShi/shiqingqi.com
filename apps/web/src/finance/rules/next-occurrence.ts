@@ -1,6 +1,10 @@
 import { addDays, daysBetween } from "../domain/dates/add-days.ts";
 import { startOfWeek, weekdayOf } from "../domain/dates/start-of-week.ts";
 import {
+  toBusinessDay,
+  type NonBusinessDay,
+} from "../domain/dates/to-business-day.ts";
+import {
   daysInMonth,
   formatDay,
   parseDay,
@@ -17,9 +21,14 @@ export interface RuleSchedule {
   weekday: number | null;
   /** 1–12, for yearly Rules. */
   monthOfYear: number | null;
+  /** Where an occurrence on a weekend or a bank holiday moves. */
+  nonBusinessDay: NonBusinessDay;
   startsOn: string;
   endsOn: string | null;
 }
+
+/** More days than the longest run of weekends and bank holidays. */
+const LONGEST_NON_BUSINESS_RUN = 7;
 
 function clampedDay(year: number, month: number, dayOfMonth: number) {
   return formatDay(year, month, Math.min(dayOfMonth, daysInMonth(year, month)));
@@ -71,12 +80,7 @@ function yearly(schedule: RuleSchedule, from: string) {
   }
 }
 
-/**
- * The first day on or after `onOrAfter` (and on or after `startsOn`) on which
- * the Rule happens. It does not look at `endsOn`: the caller stops there.
- */
-export function nextOccurrence(schedule: RuleSchedule, onOrAfter: string) {
-  const from = onOrAfter > schedule.startsOn ? onOrAfter : schedule.startsOn;
+function scheduledDay(schedule: RuleSchedule, from: string) {
   switch (schedule.unit) {
     case "week": {
       return weekly(schedule, from);
@@ -87,6 +91,27 @@ export function nextOccurrence(schedule: RuleSchedule, onOrAfter: string) {
     case "year": {
       return yearly(schedule, from);
     }
+  }
+}
+
+/**
+ * The first day on or after `onOrAfter` (and on or after `startsOn`) on which
+ * the Rule happens, after the move off a weekend or a bank holiday. It does
+ * not look at `endsOn`: the caller stops there.
+ */
+export function nextOccurrence(schedule: RuleSchedule, onOrAfter: string) {
+  const from = onOrAfter > schedule.startsOn ? onOrAfter : schedule.startsOn;
+  if (schedule.nonBusinessDay === "stay") return scheduledDay(schedule, from);
+  // A scheduled day before `from` can move forward onto `from` or later, so
+  // the search starts that many days early.
+  let scheduled = scheduledDay(
+    schedule,
+    addDays(from, -LONGEST_NON_BUSINESS_RUN),
+  );
+  for (;;) {
+    const moved = toBusinessDay(scheduled, schedule.nonBusinessDay);
+    if (moved >= from) return moved;
+    scheduled = scheduledDay(schedule, addDays(scheduled, 1));
   }
 }
 

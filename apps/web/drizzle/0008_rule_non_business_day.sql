@@ -1,0 +1,2 @@
+CREATE TYPE "public"."rule_non_business_day" AS ENUM('stay', 'next', 'previous');--> statement-breakpoint
+ALTER TABLE "rules" ADD COLUMN "non_business_day" "rule_non_business_day" DEFAULT 'stay' NOT NULL;

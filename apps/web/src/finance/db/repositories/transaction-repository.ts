@@ -1,6 +1,7 @@
 import {
   and,
   eq,
+  gte,
   inArray,
   isNotNull,
   isNull,
@@ -285,6 +286,29 @@ export const transactionRepository = {
         and(
           eq(transactions.householdId, scope.householdId),
           eq(transactions.id, id),
+        ),
+      );
+  },
+
+  /** A Rule's Expected Transactions dated on or after `from`, deleted ones included. */
+  async findExpectedOfRuleFrom(
+    scope: RepositoryScope,
+    ruleId: string,
+    from: string,
+  ) {
+    return scope.db
+      .select({
+        id: transactions.id,
+        date: transactions.date,
+        deletedAt: transactions.deletedAt,
+      })
+      .from(transactions)
+      .where(
+        and(
+          eq(transactions.householdId, scope.householdId),
+          eq(transactions.ruleId, ruleId),
+          eq(transactions.status, "expected"),
+          gte(transactions.date, from),
         ),
       );
   },

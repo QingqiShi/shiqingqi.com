@@ -124,6 +124,7 @@ export function mapRules(context: Context): RuleRow[] {
       dayOfMonth,
       weekday: null,
       monthOfYear: null,
+      nonBusinessDay: "stay" as const,
     };
     rules.push({
       id,

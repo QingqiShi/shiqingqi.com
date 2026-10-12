@@ -3,6 +3,7 @@ import { ruleRepository } from "../db/repositories/rule-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
 import { SCHEDULE_FIELDS } from "../domain/rules/schedule-fields.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
+import { rescheduleExpected } from "../rules/reschedule-expected.ts";
 import { MutationError } from "./mutation-error.ts";
 import {
   ruleFieldsSchema,
@@ -15,7 +16,9 @@ import { validateTransaction } from "./validate-transaction.ts";
 /**
  * Creates or changes a Rule. When its schedule changes or it is resumed, the
  * next occurrence is worked out again from today, so no missed occurrence
- * comes back. Deleting a Rule deletes its Expected Transactions too.
+ * comes back, and a schedule change makes the Expected Transactions from
+ * today on match the new schedule. Deleting a Rule deletes its Expected
+ * Transactions too.
  */
 async function upsertRule(
   context: WriteContext,
@@ -39,6 +42,7 @@ async function upsertRule(
       dayOfMonth: null,
       weekday: null,
       monthOfYear: null,
+      nonBusinessDay: "stay" as const,
       endsOn: null,
       ...row,
     };
@@ -66,6 +70,18 @@ async function upsertRule(
   await ruleRepository.patch(scope, id, { ...fields, nextOn, paused, deleted });
   if (deleted) {
     await transactionRepository.softDeleteExpectedOfRule(scope, id);
+  } else if (scheduleChanged) {
+    const { remove, restore } = rescheduleExpected(
+      existing,
+      merged,
+      await transactionRepository.findExpectedOfRuleFrom(scope, id, today),
+    );
+    for (const transaction of remove) {
+      await transactionRepository.softDelete(scope, transaction.id);
+    }
+    for (const transaction of restore) {
+      await transactionRepository.restore(scope, transaction.id);
+    }
   }
 }
 

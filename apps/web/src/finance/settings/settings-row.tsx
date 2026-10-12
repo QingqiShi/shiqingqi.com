@@ -81,6 +81,7 @@ const styles = stylex.create({
     alignItems: "center",
     gap: rhythm.tight,
     inlineSize: "100%",
+    minInlineSize: 0,
     minBlockSize: space._8,
     paddingBlock: space._1,
     paddingInline: space._2,
@@ -112,9 +113,6 @@ const styles = stylex.create({
   },
   detail: {
     color: color.fgMuted,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
   caret: {
     display: "inline-flex",

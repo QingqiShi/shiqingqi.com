@@ -71,3 +71,11 @@ export function displayDay(
   );
   return locale === "zh" ? `${date} ${weekday}` : `${weekday} ${date}`;
 }
+
+/** An ISO weekday (1 is Monday) for display: "Mon", "周一". */
+export function displayWeekday(weekday: number, locale: string): string {
+  // Epoch day 4, 1970-01-05, was a Monday.
+  return formatterFor(locale, { weekday: "short" }).format(
+    (3 + weekday) * MS_PER_DAY,
+  );
+}

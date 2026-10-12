@@ -4,6 +4,7 @@ import {
   accountKindSchema,
   categoryKindSchema,
   groupSideSchema,
+  nonBusinessDaySchema,
   ruleUnitSchema,
   transactionKindSchema,
 } from "./row-schemas.ts";
@@ -101,6 +102,7 @@ export const ruleFieldsSchema = z.object({
   dayOfMonth: z.int().min(1).max(31).nullable(),
   weekday: z.int().min(1).max(7).nullable(),
   monthOfYear: z.int().min(1).max(12).nullable(),
+  nonBusinessDay: nonBusinessDaySchema,
   startsOn: day,
   endsOn: day.nullable(),
   nextOn: day,
