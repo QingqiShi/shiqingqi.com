@@ -240,7 +240,9 @@ describe("Settings", () => {
     expect(
       await screen.findByText("Only the owner can change connections."),
     ).toBeInTheDocument();
-    expect(screen.getByText(`Feeds Current account`)).toBeInTheDocument();
+    expect(
+      screen.getByText("Feeds Alex Monzo Current account"),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Sync now" }),
@@ -273,7 +275,7 @@ describe("Settings", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("links the suggested bank account in one step, then summarises a sync", async () => {
+  it("leaves an unlinked bank account unlinked until the owner picks one, then summarises a sync", async () => {
     const runtime = await createSettingsReplica();
     runtime.store.applyLocal({
       name: "createTransaction",
@@ -325,10 +327,13 @@ describe("Settings", () => {
       })
     ).closest("li");
     if (!visaCard) throw new Error("No card for Alex Visa");
+    const picker = within(visaCard).getByRole("combobox", {
+      name: "Feeds this account",
+    });
+    expect(picker).toHaveValue("");
     expect(
-      within(visaCard).getByRole("combobox", { name: "Feeds this account" }),
-    ).toHaveValue(ids.visa);
-    expect(within(visaCard).getByText("Suggested")).toBeInTheDocument();
+      screen.queryByRole("button", { name: /Save changes/ }),
+    ).not.toBeInTheDocument();
     expect(
       within(visaCard).queryByRole("button", { name: "More" }),
     ).not.toBeInTheDocument();
@@ -341,8 +346,12 @@ describe("Settings", () => {
       ).tagName,
     ).not.toBe("LI");
 
+    await userEvent.selectOptions(
+      picker,
+      within(picker).getByRole("option", { name: "Northbank Alex Visa" }),
+    );
     await userEvent.click(
-      screen.getByRole("button", { name: "Link suggested (1)" }),
+      screen.getByRole("button", { name: "Save changes (1)" }),
     );
     await waitFor(() => {
       expect(calls.map((call) => call.route)).toContain(

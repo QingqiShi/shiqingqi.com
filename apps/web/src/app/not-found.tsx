@@ -6,6 +6,7 @@ import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { InlineScript } from "#src/site-shell/inline-script.tsx";
 import { NotFoundScreen } from "#src/site-shell/not-found-screen.tsx";
 import { globalStyles } from "#src/theme/global-styles.ts";
+import { ThemeApplier } from "#src/theme/theme-applier.tsx";
 import { themeHack } from "#src/theme/theme-hack.ts";
 
 /**
@@ -65,6 +66,7 @@ export default function RootNotFound() {
       <body css={[root.body, globalStyles.body]}>
         {/* Theme initialization before hydration */}
         <InlineScript html={themeHack} />
+        <ThemeApplier />
         <NotFoundScreen />
       </body>
     </html>

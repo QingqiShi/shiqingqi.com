@@ -11,7 +11,12 @@ export type ResolvedTheme = "light" | "dark";
  */
 export function useResolvedTheme(): ResolvedTheme {
   const [theme] = useTheme();
+  const systemTheme = useSystemTheme();
+  return theme === "system" ? systemTheme : theme;
+}
+
+/** The Theme that the prefers-color-scheme media query asks for. */
+export function useSystemTheme(): ResolvedTheme {
   const prefersDark = useMediaQuery("(prefers-color-scheme: dark)", false);
-  if (theme === "system") return prefersDark ? "dark" : "light";
-  return theme;
+  return prefersDark ? "dark" : "light";
 }

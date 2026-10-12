@@ -21,6 +21,7 @@ import { useEffect, useId, useState } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { accountFullName } from "../accounts/account-full-name.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import type {
   ProviderAccountView,
@@ -44,7 +45,6 @@ import {
   type BankLinkChoice,
 } from "./plan-bank-link-changes.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { suggestBankLinks } from "./suggest-bank-links.ts";
 import { summariseBankSync, type BankSyncLine } from "./summarise-bank-sync.ts";
 import { useBankErrorMessage } from "./use-bank-error-message.ts";
 import { useIsOwner } from "./use-is-owner.ts";
@@ -62,10 +62,9 @@ type ConnectedResponse = Extract<
 
 /**
  * Lunch Flow: each provider account beside the finance account it feeds,
- * with the best match picked in advance, and the last sync. The owner saves
- * every changed link at once; "Sync now" runs every link and says what came
- * in. Until the owner stores the Household's Lunch Flow API key, it asks
- * the owner for one.
+ * and the last sync. The owner saves every changed link at once; "Sync now"
+ * runs every link and says what came in. Until the owner stores the
+ * Household's Lunch Flow API key, it asks the owner for one.
  */
 export function ConnectionsSettings() {
   const isOwner = useIsOwner();
@@ -220,22 +219,17 @@ function ConnectedSettings({
   const showToast = useToast();
   const bankErrorMessage = useBankErrorMessage();
   const accounts = useReplica(liveRowSelectors.accounts);
-  const [suggestions] = useState(() =>
-    suggestBankLinks(response.accounts, accounts),
+  const members = useReplica(liveRowSelectors.members);
+  const memberNames = new Map(
+    members.map((member) => [member.id, member.name]),
   );
   const [choices, setChoices] = useState<ReadonlyMap<string, BankLinkChoice>>(
     () =>
       new Map(
-        response.accounts.map((account) => {
-          const current = choiceOf(account);
-          const suggested = suggestions.get(account.providerAccountId);
-          return [
-            account.providerAccountId,
-            suggested === undefined
-              ? current
-              : { ...current, accountId: suggested },
-          ];
-        }),
+        response.accounts.map((account) => [
+          account.providerAccountId,
+          choiceOf(account),
+        ]),
       ),
   );
   const [saving, setSaving] = useState(false);
@@ -245,14 +239,6 @@ function ConnectedSettings({
     const choice = choices.get(account.providerAccountId);
     return choice !== undefined && !isSameChoice(choice, choiceOf(account));
   });
-  const onlySuggestions =
-    changed.length > 0 &&
-    changed.every(
-      (account) =>
-        account.link === null &&
-        choices.get(account.providerAccountId)?.accountId ===
-          suggestions.get(account.providerAccountId),
-    );
   const chosenBy = new Map<string, string>();
   for (const [providerAccountId, choice] of choices) {
     if (choice.accountId !== "") {
@@ -261,7 +247,6 @@ function ConnectedSettings({
   }
 
   const labels = {
-    linkSuggested: t({ en: "Link suggested", zh: "关联建议账户" }),
     saveChanges: t({ en: "Save changes", zh: "保存更改" }),
     reset: t({ en: "Reset", zh: "还原" }),
     saved: t({ en: "Bank links saved", zh: "银行关联已保存" }),
@@ -466,7 +451,7 @@ function ConnectedSettings({
               loading={saving}
               onClick={() => void save()}
             >
-              {`${onlySuggestions ? labels.linkSuggested : labels.saveChanges} (${new Intl.NumberFormat(locale).format(changed.length)})`}
+              {`${labels.saveChanges} (${new Intl.NumberFormat(locale).format(changed.length)})`}
             </Button>
             <Button
               size="sm"
@@ -501,15 +486,10 @@ function ConnectedSettings({
                 key={account.providerAccountId}
                 account={account}
                 accounts={accounts}
+                memberNames={memberNames}
                 editable={isOwner}
                 choice={
                   choices.get(account.providerAccountId) ?? choiceOf(account)
-                }
-                suggested={
-                  account.link === null &&
-                  suggestions.get(account.providerAccountId) !== undefined &&
-                  choices.get(account.providerAccountId)?.accountId ===
-                    suggestions.get(account.providerAccountId)
                 }
                 takenBy={chosenBy}
                 onChange={(choice) => {
@@ -529,9 +509,10 @@ function ConnectedSettings({
 interface ProviderAccountCardProps {
   account: ProviderAccountView;
   accounts: readonly AccountRow[];
+  /** Member id → name. */
+  memberNames: ReadonlyMap<string, string>;
   editable: boolean;
   choice: BankLinkChoice;
-  suggested: boolean;
   /** Finance account id → the provider account that has it picked. */
   takenBy: ReadonlyMap<string, string>;
   onChange: (choice: BankLinkChoice) => void;
@@ -540,9 +521,9 @@ interface ProviderAccountCardProps {
 function ProviderAccountCard({
   account,
   accounts,
+  memberNames,
   editable,
   choice,
-  suggested,
   takenBy,
   onChange,
 }: ProviderAccountCardProps) {
@@ -565,9 +546,17 @@ function ProviderAccountCard({
       finance.closedOn === null &&
       (account.currency === null || finance.currency === account.currency),
   );
-  const linkedName =
-    accounts.find((finance) => finance.id === account.link?.accountId)?.name ??
-    null;
+  const fullName = (finance: AccountRow) =>
+    accountFullName(
+      finance,
+      finance.ownerMemberId === null
+        ? null
+        : (memberNames.get(finance.ownerMemberId) ?? null),
+    );
+  const linked = accounts.find(
+    (finance) => finance.id === account.link?.accountId,
+  );
+  const linkedName = linked ? fullName(linked) : null;
 
   return (
     <li css={[corner.radius_3, stack.item, styles.card]}>
@@ -591,10 +580,6 @@ function ProviderAccountCard({
           <Badge size="sm" intent="success">
             {t({ en: "Linked", zh: "已关联" })}
           </Badge>
-        ) : suggested && editable ? (
-          <Badge size="sm" intent="neutral">
-            {t({ en: "Suggested", zh: "建议" })}
-          </Badge>
         ) : null}
       </div>
       {editable ? (
@@ -606,7 +591,7 @@ function ProviderAccountCard({
             { value: "", label: t({ en: "Not linked", zh: "不关联" }) },
             ...linkable.map((finance) => ({
               value: finance.id,
-              label: finance.name,
+              label: fullName(finance),
               disabled:
                 (takenBy.get(finance.id) ?? account.providerAccountId) !==
                 account.providerAccountId,

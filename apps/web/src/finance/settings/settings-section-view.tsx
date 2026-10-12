@@ -12,6 +12,7 @@ import { GroupsSettings } from "./groups-settings.tsx";
 import { HouseholdSettings } from "./household-settings.tsx";
 import { MembersSettings } from "./members-settings.tsx";
 import { PayeesSettings } from "./payees-settings.tsx";
+import { PreferencesSettings } from "./preferences-settings.tsx";
 import { RulesSettings } from "./rules-settings.tsx";
 import type { SettingsSection } from "./settings-sections.ts";
 import { TagsSettings } from "./tags-settings.tsx";
@@ -28,6 +29,7 @@ const VIEWS: Record<SettingsSection, () => React.ReactNode> = {
   ai: AiSettings,
   connections: ConnectionsSettings,
   data: DataSettings,
+  preferences: PreferencesSettings,
 };
 
 /** One Settings section, once the Replica has loaded. */
