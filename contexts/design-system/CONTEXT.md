@@ -80,5 +80,5 @@ A comet of light that runs round an element's outline on the effect layer: one l
 _Avoid_: glow, halo, shimmer, border animation, 光晕, 流光
 
 **Toast**:
-A short message about what an action did, on a capsule of Glass at the bottom of the screen, with at most one action such as Undo. One shows at a time, and it goes by itself. `ToastProvider` shows it, `useToast` asks for it, and `Toast` is its surface. ZH: 轻提示.
+A short message about what an action did, on a capsule of Glass at the bottom of the screen, with up to two actions such as Undo. One shows at a time, and it goes by itself. `ToastProvider` shows it, `useToast` asks for it, and `Toast` is its surface. ZH: 轻提示.
 _Avoid_: snackbar, notification, flash message, banner (that is a Callout), 通知, 消息条

@@ -9,6 +9,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
+import type { ToastAction } from "@tuja/ui/components/toast";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -47,6 +48,7 @@ import type { TransactionFilters } from "./transaction-filters.ts";
 import type { TransactionRowActions } from "./transaction-list-row.tsx";
 import { TransactionList } from "./transaction-list.tsx";
 import { useListShortcuts } from "./use-list-shortcuts.ts";
+import { useTeachAi } from "./use-teach-ai.tsx";
 import { useTransactionLookups } from "./use-transaction-lookups.ts";
 import { useTransactionsUrl } from "./use-transactions-url.ts";
 
@@ -69,6 +71,7 @@ export function TransactionsScreen() {
   const store = useReplicaStore();
   const showToast = useToast();
   const isWide = useIsWideLayout();
+  const teach = useTeachAi();
 
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const rows = useReplica(selectTransactionsByDateDesc);
@@ -173,6 +176,7 @@ export function TransactionsScreen() {
     mutations: readonly LocalMutationInput[],
     message: string,
     undo: readonly LocalMutationInput[],
+    offerTeach?: () => ToastAction | undefined,
   ) => {
     try {
       for (const mutation of mutations) store.applyLocal(mutation);
@@ -181,6 +185,7 @@ export function TransactionsScreen() {
     }
     showToast({
       message,
+      secondAction: offerTeach?.(),
       action:
         undo.length === 0
           ? undefined
@@ -262,8 +267,9 @@ export function TransactionsScreen() {
       applyWithUndo([mutation], toastReviewed, [undo]);
     },
     onRecategorise: (row, categoryId) => {
+      const offerTeach = teach.watch(row.id);
       const { mutation, undo } = reviewPatch(row, categoryId);
-      applyWithUndo([mutation], toastReviewed, [undo]);
+      applyWithUndo([mutation], toastReviewed, [undo], offerTeach);
     },
   };
 
@@ -397,6 +403,7 @@ export function TransactionsScreen() {
           setSeed(null);
           url.openNew("expense", id);
         }}
+        watchCorrection={teach.watch}
       />
     ) : null;
 
@@ -558,6 +565,7 @@ export function TransactionsScreen() {
           {editor}
         </PaneSheet>
       )}
+      {teach.sheet}
     </div>
   );
 }

@@ -38,7 +38,8 @@ interface PromptMessage {
 const ROW =
   /^#(\S+) \| (\S+) \| (\S+) (\S+) \| .*\(([0-9a-f-]{36})\) \| (.*) \| (.*)$/gm;
 
-const USAGE = {
+/** The token usage every mock model reports. */
+export const MOCK_USAGE = {
   inputTokens: {
     total: 10,
     noCache: 10,
@@ -99,7 +100,7 @@ export function createLabellingModel(
             },
           ],
           finishReason: { unified: "tool-calls", raw: "tool_use" },
-          usage: USAGE,
+          usage: MOCK_USAGE,
           warnings: [],
         });
       }
@@ -129,7 +130,7 @@ export function createLabellingModel(
       return Promise.resolve({
         content: [{ type: "text", text: JSON.stringify({ rows }) }],
         finishReason: { unified: "stop", raw: "stop" },
-        usage: USAGE,
+        usage: MOCK_USAGE,
         warnings: [],
       });
     },

@@ -17,6 +17,7 @@ import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
+import type { ToastAction } from "@tuja/ui/components/toast";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -99,6 +100,12 @@ interface TransactionEditorProps {
   onSaved?: (transactionId: string, andNew: boolean) => void;
   onOpenTransaction: (transactionId: string) => void;
   onRefund?: (transactionId: string) => void;
+  /**
+   * Reads a Transaction's labels before a save. The function it returns
+   * gives the "Teach the AI" action for the toast after the save, when the
+   * save corrected the AI's labels.
+   */
+  watchCorrection?: (transactionId: string) => () => ToastAction | undefined;
 }
 
 const NO_ENTRIES: readonly EntryRow[] = [];
@@ -203,6 +210,7 @@ function EditorForm({
   onSaved,
   onOpenTransaction,
   onRefund,
+  watchCorrection,
 }: EditorFormProps) {
   const locale = useLocale();
   const store = useReplicaStore();
@@ -552,9 +560,14 @@ function EditorForm({
     for (const mutation of mutations) store.applyLocal(mutation);
   };
 
-  const undoable = (message: string, undo: readonly LocalMutationInput[]) => {
+  const undoable = (
+    message: string,
+    undo: readonly LocalMutationInput[],
+    secondAction?: ToastAction,
+  ) => {
     showToast({
       message,
+      secondAction,
       action:
         undo.length === 0
           ? undefined
@@ -624,6 +637,7 @@ function EditorForm({
         return;
       }
     }
+    const offerTeach = existing ? watchCorrection?.(existing.id) : undefined;
     try {
       apply(result.mutations);
     } catch {
@@ -633,6 +647,7 @@ function EditorForm({
     undoable(
       isNew ? toastAdded : isExpected ? toastConfirmed : toastSaved,
       result.undo,
+      offerTeach?.(),
     );
     newIdRef.current = null;
     if (andNew) {

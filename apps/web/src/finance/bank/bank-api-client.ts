@@ -1,4 +1,9 @@
-import type { SuggestRequest, SuggestResponse } from "../ai/types.ts";
+import type {
+  InstructionChange,
+  SuggestRequest,
+  SuggestResponse,
+  TeachRequest,
+} from "../ai/types.ts";
 import { financeFetch } from "../http/finance-fetch.ts";
 import type {
   BankLinkView,
@@ -14,7 +19,7 @@ async function sendJson<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-/** Fetch wrappers for the Connections settings, Review and the editor's Suggest button. */
+/** Fetch wrappers for the Connections settings, Review, the editor's Suggest button and "Teach the AI". */
 export const bankApiClient = {
   /** The provider accounts with their link state, or `not_connected`. */
   listProviderAccounts() {
@@ -70,6 +75,14 @@ export const bankApiClient = {
   /** The AI's labels for one Transaction, from the labeller that labels bank rows. */
   suggest(input: SuggestRequest) {
     return sendJson<SuggestResponse>("/api/finance/ai/suggest", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+
+  /** A draft change to the AI instructions after a Member corrected the AI's labels. Nothing is saved. */
+  teach(input: TeachRequest) {
+    return sendJson<InstructionChange>("/api/finance/ai/teach", {
       method: "POST",
       body: JSON.stringify(input),
     });

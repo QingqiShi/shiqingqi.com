@@ -259,6 +259,29 @@ describe("ToastProvider", () => {
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
   });
 
+  it("shows a second action after the first, and takes the toast away from it", () => {
+    const onSecondAction = vi.fn();
+    renderProvider(
+      <ShowButton
+        options={{
+          message: "Saved",
+          action: { label: "Undo", onAction: vi.fn() },
+          secondAction: { label: "Teach the AI", onAction: onSecondAction },
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Show" }));
+    expect(
+      screen
+        .getAllByRole("button")
+        .map((button) => button.textContent || button.ariaLabel),
+    ).toEqual(["Show", "Undo", "Teach the AI", "Dismiss"]);
+    fireEvent.click(screen.getByRole("button", { name: "Teach the AI" }));
+    expect(onSecondAction).toHaveBeenCalledTimes(1);
+    finishLeaving("Saved");
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
   it("takes the toast away from its close button", () => {
     renderProvider(<ShowButton options={{ message: "Saved" }} />);
     fireEvent.click(screen.getByRole("button", { name: "Show" }));
