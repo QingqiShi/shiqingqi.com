@@ -61,6 +61,7 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
     ai: t({ en: "AI labelling", zh: "智能标注" }),
     connections: t({ en: "Connections", zh: "银行连接" }),
     data: t({ en: "Data", zh: "数据" }),
+    preferences: t({ en: "Preferences", zh: "偏好设置" }),
   };
 
   return (

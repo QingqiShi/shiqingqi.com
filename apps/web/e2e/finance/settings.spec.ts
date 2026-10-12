@@ -317,9 +317,11 @@ test.describe("Settings", () => {
     });
     expect(await page.content()).not.toContain("lf-e2e-key-0000-abcd");
 
-    const link = page.getByRole("button", { name: /^Link suggested \(\d+\)$/ });
-    await expect(link).toBeVisible({ timeout: SYNC_TIMEOUT });
-    await link.click();
+    await page
+      .getByRole("combobox", { name: "Feeds this account" })
+      .first()
+      .selectOption({ index: 1 }, { timeout: SYNC_TIMEOUT });
+    await page.getByRole("button", { name: /^Save changes \(\d+\)$/ }).click();
     await expect(toast(page, "Bank links saved")).toBeVisible({
       timeout: SYNC_TIMEOUT,
     });

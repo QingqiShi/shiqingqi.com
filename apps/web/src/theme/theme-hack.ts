@@ -12,6 +12,9 @@ const systemClassName = getDocumentClassName(null);
 const darkThemeColor = gray._0;
 const lightThemeColor = gray._97;
 
+/** Lets `ThemeApplier` find and remove the pre-paint tag once it renders its own. */
+export const prePaintThemeColorId = "pre-paint-theme-color";
+
 /**
  * This is a inline script hack we use to set the initial theme of the page to avoid flash of incorrect
  * theme.
@@ -20,6 +23,7 @@ export const themeHack = `(function(){
     try{
         const theme = localStorage.getItem("theme");
         const meta = document.createElement("meta");
+        meta.setAttribute("id", "${prePaintThemeColorId}");
         meta.setAttribute("name", "theme-color");
         if (theme === "dark") {
             document.documentElement.className = "${darkClassName}";

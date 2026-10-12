@@ -13,6 +13,7 @@ import { InlineScript } from "#src/site-shell/inline-script.tsx";
 import { PortalTargetProvider } from "#src/site-shell/portal-target-provider.tsx";
 import { ReactGrab } from "#src/site-shell/react-grab.tsx";
 import { globalStyles } from "#src/theme/global-styles.ts";
+import { ThemeApplier } from "#src/theme/theme-applier.tsx";
 import { themeHack } from "#src/theme/theme-hack.ts";
 
 export const viewport: Viewport = {
@@ -64,6 +65,7 @@ export default async function RootLayout({
         <I18nProvider locale={locale}>
           <SerwistProvider>
             <InlineScript html={themeHack} />
+            <ThemeApplier />
             <EffectLayerProvider>
               <PortalTargetProvider>
                 <BackOverrideProvider>

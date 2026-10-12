@@ -3,11 +3,7 @@
 import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
 import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import { Button } from "@tuja/ui/components/button";
-import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
-import { gray } from "@tuja/ui/palette/gray.stylex";
-import { useLayoutEffect } from "react";
-import { useMediaQuery } from "#src/browser/use-media-query.ts";
-import { getDocumentClassName } from "./global-styles.ts";
+import { useResolvedTheme, useSystemTheme } from "./use-resolved-theme.ts";
 import { useTheme } from "./use-theme.ts";
 
 interface ThemeSwitchProps {
@@ -27,38 +23,10 @@ interface ThemeSwitchProps {
  * `aria-pressed` to contradict it.
  */
 export function ThemeSwitch({ labels, size = "md" }: ThemeSwitchProps) {
-  const preferDark = useMediaQuery("(prefers-color-scheme: dark)", false);
-  const systemTheme = preferDark ? "dark" : "light";
-
-  const [theme, setTheme] = useTheme();
-  const resolvedTheme = theme === "system" ? systemTheme : theme;
+  const [, setTheme] = useTheme();
+  const systemTheme = useSystemTheme();
+  const resolvedTheme = useResolvedTheme();
   const target = resolvedTheme === "dark" ? "light" : "dark";
-
-  const isHydrated = useIsHydrated();
-  useLayoutEffect(() => {
-    // The hydration pass renders the server snapshot ("system"). The inline
-    // `themeHack` already applied the stored theme, so wait for a client render.
-    if (!isHydrated) return;
-
-    document.documentElement.className = getDocumentClassName(theme);
-    const existingMetaTag = document.querySelector("meta[name=theme-color]");
-    const metaTag = existingMetaTag ?? document.createElement("meta");
-
-    // When the route changes, Next will replace the head content, resulting
-    // in the meta tag being removed, when this happens we must add it again.
-    if (!existingMetaTag) {
-      metaTag.setAttribute("name", "theme-color");
-      document.head.appendChild(metaTag);
-    }
-
-    // Mirror `color.bgCanvas` so the mobile browser chrome matches the page
-    // background: light canvas is `gray._97`, dark is `gray._0`. Keep this in
-    // sync with the pre-hydration `themeHack` script to avoid a color flash.
-    metaTag.setAttribute(
-      "content",
-      resolvedTheme === "dark" ? gray._0 : gray._97,
-    );
-  }, [isHydrated, theme, resolvedTheme]);
 
   return (
     <Button

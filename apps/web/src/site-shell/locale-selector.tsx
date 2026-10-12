@@ -8,11 +8,8 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, type ComponentProps } from "react";
-import {
-  LOCALE_COOKIE_MAX_AGE_SECONDS,
-  LOCALE_COOKIE_NAME,
-} from "#src/i18n/constants.ts";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import { setLocaleCookie } from "#src/i18n/set-locale-cookie.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { MenuItem } from "./menu-item";
 
@@ -123,18 +120,6 @@ function LocaleSelectorMenu({
       }
     />
   );
-}
-
-// Both items are links, so the switch is a document navigation. Every
-// client-router cache — router cache, segment cache, service-worker page caches
-// — is keyed by URL, and an unprefixed URL renders a different Locale depending
-// on this cookie. After it changes, no soft navigation can be trusted: only a
-// document navigation makes the server read the new Preference, and it leaves
-// no pre-switch entry alive.
-function setLocaleCookie(locale: SupportedLocale) {
-  // set cookie for next-i18n-router
-  const secure = window.location.protocol === "https:" ? ";Secure" : "";
-  document.cookie = `${LOCALE_COOKIE_NAME}=${locale};max-age=${String(LOCALE_COOKIE_MAX_AGE_SECONDS)};path=/;SameSite=Lax${secure}`;
 }
 
 const styles = stylex.create({

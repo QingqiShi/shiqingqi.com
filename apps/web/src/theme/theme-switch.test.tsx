@@ -1,9 +1,5 @@
-import { render as renderWithoutProviders } from "@testing-library/react";
-import { renderToString } from "react-dom/server";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "#src/testing/test-utils.tsx";
-import { getDocumentClassName } from "./global-styles.ts";
-import { themeHack } from "./theme-hack.ts";
 import { ThemeSwitch } from "./theme-switch";
 
 const LABELS: [string, string] = ["Switch to light", "Switch to dark"];
@@ -23,53 +19,6 @@ beforeEach(() => {
 function renderThemeSwitch() {
   render(<ThemeSwitch labels={LABELS} />);
 }
-
-// Hydration only, so it renders without the shared providers: the server
-// string and the client tree must match exactly. It seeds localStorage but
-// never calls `setTheme`, thus the module-level `themeSingleton` in
-// `use-theme.ts` stays untouched and the ordering below is safe.
-describe("ThemeSwitch hydration", () => {
-  it("never applies the system theme class while hydrating with a stored light theme", async () => {
-    // Run the real inline script: it must put the stored theme on <html>
-    // before React starts, exactly as in the browser.
-    localStorage.setItem("theme", "light");
-    document.documentElement.className = "";
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call -- `themeHack` is a script string, which only an eval can run
-    new Function(themeHack)();
-    expect(document.documentElement.className).toBe(
-      getDocumentClassName("light"),
-    );
-
-    const element = <ThemeSwitch labels={LABELS} />;
-    const container = document.createElement("div");
-    container.innerHTML = renderToString(element);
-    document.body.appendChild(container);
-
-    // Each record holds the value that the write replaced.
-    const replacedClassNames: (string | null)[] = [];
-    const observer = new MutationObserver((records) => {
-      replacedClassNames.push(...records.map((record) => record.oldValue));
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-      attributeOldValue: true,
-    });
-
-    renderWithoutProviders(element, { container, hydrate: true });
-    // MutationObserver callbacks are microtasks; flush them.
-    await act(async () => {});
-    observer.disconnect();
-
-    // `useTheme` returns its server snapshot ("system") during the hydration
-    // pass, so before the fix the layout effect stamped the system class.
-    expect(replacedClassNames).not.toHaveLength(0);
-    expect(replacedClassNames).not.toContain(getDocumentClassName("system"));
-    expect(document.documentElement.className).toBe(
-      getDocumentClassName("light"),
-    );
-  });
-});
 
 // Placed near the end because the dispatched `storage` event mutates the
 // module-level `themeSingleton` in `use-theme.ts`. The final assertion
@@ -102,9 +51,6 @@ describe("ThemeSwitch cross-tab sync", () => {
     // which only happens if the storage listener updated the singleton and
     // notified subscribers.
     expect(toggle).toHaveAttribute("aria-label", "Switch to light");
-    expect(document.documentElement.className).toBe(
-      getDocumentClassName("dark"),
-    );
 
     // Reset to "light" (both storage and singleton) so the resilience test
     // below starts from the theme it expects.
@@ -148,13 +94,12 @@ describe("ThemeSwitch cross-tab sync", () => {
 // this block has no reset hook of its own. The "press semantics" group below
 // resets the singleton itself, so it can safely run after this one.
 describe("ThemeSwitch localStorage resilience", () => {
-  it("still reflects the new theme on <html> when localStorage.setItem throws", () => {
+  it("still reflects the new theme when localStorage.setItem throws", () => {
     // Safari private mode / lockdown / quota-exceeded all surface as a
     // throw from setItem. Before the fix, the throw short-circuited the
-    // subscriber notification inside `setTheme`, so useLayoutEffect in
-    // ThemeSwitch never re-ran and toggling produced no visible change.
+    // subscriber notification inside `setTheme`, so toggling produced no
+    // visible change.
     localStorage.setItem("theme", "light");
-    const originalClassName = document.documentElement.className;
 
     const setItemSpy = vi
       .spyOn(Storage.prototype, "setItem")
@@ -167,10 +112,12 @@ describe("ThemeSwitch localStorage resilience", () => {
 
       fireEvent.click(screen.getByRole("button"));
 
-      // The class name must have changed in response to the toggle — the
-      // component subscribes via useSyncExternalStore, so this only
-      // flips if `setTheme` still fires its listeners after the throw.
-      expect(document.documentElement.className).not.toBe(originalClassName);
+      // The component subscribes via useSyncExternalStore, so the label
+      // only flips if `setTheme` still fires its listeners after the throw.
+      expect(screen.getByRole("button")).toHaveAttribute(
+        "aria-label",
+        "Switch to light",
+      );
       expect(setItemSpy).toHaveBeenCalledWith("theme", "dark");
     } finally {
       setItemSpy.mockRestore();

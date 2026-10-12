@@ -53,7 +53,7 @@ export function FlowGradient() {
 
   // Re-pick the hue preset and re-read the bgCanvas value whenever the resolved
   // theme flips. The <html> class is already correct here: `themeHack` set it
-  // before hydration, and ThemeSwitch's layout effect sets it on later flips.
+  // before hydration, and ThemeApplier's layout effect sets it on later flips.
   useEffect(() => {
     const hues = isDark ? DARK_COLORS : LIGHT_COLORS;
     const canvas = rendererRef.current?.canvas;
