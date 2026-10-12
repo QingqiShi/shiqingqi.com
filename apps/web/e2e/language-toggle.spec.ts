@@ -230,27 +230,19 @@ test.describe("Language Toggle", () => {
   });
 });
 
-test.describe("Language Toggle on prefetch-heavy pages", () => {
-  test("keeps English after switching from a zh-prefetched design-system page", async ({
+test.describe("Language Toggle and client-router fetches", () => {
+  test("keeps English after switching from a zh design-system page", async ({
     browser,
   }) => {
-    // The design system rail renders ~30 links to the current locale. Next
-    // prefetches them, and every prefetch used to answer with a Set-Cookie for
-    // the locale in the URL — overwriting the locale just picked.
+    // The design system rail renders ~30 links to the current locale. A fetch
+    // the router made for one of them used to answer with a Set-Cookie for the
+    // locale in the URL — overwriting the locale just picked.
     const zhContext = await browser.newContext({ locale: "zh-CN" });
     const page = await zhContext.newPage();
 
     await page.goto("/design-system");
     await expect(page).toHaveURL(/\/zh\/design-system$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "zh");
-
-    // Hover a few rail links so their prefetches are in flight during the switch
-    const railLinks = page
-      .getByRole("navigation", { name: "设计系统" })
-      .getByRole("link");
-    for (let index = 0; index < 4; index++) {
-      await railLinks.nth(index).hover();
-    }
 
     // Switch to English
     await page.getByRole("button", { name: "选择语言" }).click();
@@ -265,8 +257,8 @@ test.describe("Language Toggle on prefetch-heavy pages", () => {
       page.getByRole("button", { name: "Select a language" }),
     ).toBeVisible();
 
-    // Let the new page's own prefetches, and any stale ones the service worker
-    // still relays, settle before reading the cookie
+    // Let any fetch the service worker still relays settle before reading the
+    // cookie
     await page.waitForLoadState("networkidle");
     const localeCookie = (await zhContext.cookies()).find(
       (cookie) => cookie.name === "NEXT_LOCALE",
@@ -289,7 +281,7 @@ test.describe("Language Toggle on prefetch-heavy pages", () => {
     await zhContext.close();
   });
 
-  test("the running server writes no locale cookie for a prefetch", async ({
+  test("the running server writes no locale cookie for a client-router fetch", async ({
     request,
   }) => {
     // The unit test calls `proxy()` directly; this one goes through the real

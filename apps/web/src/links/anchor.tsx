@@ -6,9 +6,8 @@ import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { border } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import Link from "next/link";
 import { ExternalLinkIndicator } from "./external-link-indicator";
-import { usePrefetchOnIntent } from "./use-prefetch-on-intent.ts";
+import { Link } from "./link.tsx";
 
 interface AnchorExtraProps {
   /**
@@ -23,9 +22,6 @@ interface AnchorExtraProps {
 
 export function Anchor({
   css,
-  prefetch,
-  onMouseEnter,
-  onFocus,
   rel,
   target,
   ref,
@@ -34,12 +30,6 @@ export function Anchor({
   ...props
 }: Omit<React.ComponentProps<typeof Link>, "className" | "style"> &
   AnchorExtraProps) {
-  const intent = usePrefetchOnIntent<HTMLAnchorElement>({
-    prefetch,
-    onMouseEnter,
-    onFocus,
-  });
-
   // Automatically ensure noopener and noreferrer are present for _blank links
   const resolvedRel =
     target === "_blank" ? mergeRel(rel, "noopener noreferrer") : rel;
@@ -52,9 +42,6 @@ export function Anchor({
       target={target}
       rel={resolvedRel}
       ref={ref}
-      prefetch={intent.prefetch}
-      onMouseEnter={intent.onMouseEnter}
-      onFocus={intent.onFocus}
       {...stylex.props(styles.a, a11y.focusRing, css)}
     >
       {children}

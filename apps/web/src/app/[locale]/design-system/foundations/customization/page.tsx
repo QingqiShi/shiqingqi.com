@@ -16,7 +16,7 @@ import { t } from "#src/i18n.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 const LINK_COMPONENT = `import { AnchorButton } from "@tuja/ui/components/anchor-button";
-import Link from "next/link";
+import { Link } from "#src/links/link.tsx";
 
 <AnchorButton href="/trips" linkComponent={Link}>
   All trips
@@ -50,7 +50,7 @@ const styles = stylex.create({
 const SURFACE_ON_LINK = `import * as stylex from "@stylexjs/stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
+import { Link } from "#src/links/link.tsx";
 
 const styles = stylex.create({
   card: {

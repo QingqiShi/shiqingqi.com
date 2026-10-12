@@ -1,5 +1,5 @@
 import { CalendarDays, ChevronRight, Lock, Users } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/link";
 import { resolveDay } from "@/reader/resolve-day";
 import { Badge } from "@/shadcn/badge";
 import { trips } from "@/trips";

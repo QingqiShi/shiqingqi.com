@@ -7,7 +7,6 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -16,6 +15,7 @@ import { Specimen } from "#src/design-system/specimen.tsx";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 
 /** The link Slot's contract: forward `className` and `style` onto the anchor. */
 function RouterLink({ href, children, className, style }: BreadcrumbLinkProps) {

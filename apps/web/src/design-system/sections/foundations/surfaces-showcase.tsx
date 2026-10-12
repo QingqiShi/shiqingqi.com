@@ -248,7 +248,7 @@ export function SurfacesShowcase() {
         <UsageSnippet
           code={`import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
+import { Link } from "#src/links/link.tsx";
 
 // Link is not a host element, so spread the compiled props.
 <Link

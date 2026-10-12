@@ -12,13 +12,12 @@ import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { useFreshPrefetch } from "../shell/use-fresh-prefetch.ts";
+import { Link } from "#src/links/link.tsx";
 import {
   isSettingsSection,
   SETTINGS_SECTIONS,
@@ -37,7 +36,6 @@ import { useRecoveryEmail } from "./use-recovery-email.ts";
  */
 export function SettingsFrame({ children }: { children: ReactNode }) {
   const locale = useLocale();
-  const prefetch = useFreshPrefetch();
   const segment = useSelectedLayoutSegment();
   const isOwner = useIsOwner();
   const recoveryEmail = useRecoveryEmail();
@@ -78,7 +76,6 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
             <li key={section}>
               <Link
                 href={getLocalePath(`/finance/settings/${section}`, locale)}
-                prefetch={prefetch}
                 aria-current={
                   section === (current ?? "household") ? "page" : undefined
                 }

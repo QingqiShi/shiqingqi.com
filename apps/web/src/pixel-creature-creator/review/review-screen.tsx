@@ -6,10 +6,10 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { computeSeedStats } from "#src/pixel-creature-creator/creature/compute-seed-stats.ts";
 import type {
   CreatureDef,

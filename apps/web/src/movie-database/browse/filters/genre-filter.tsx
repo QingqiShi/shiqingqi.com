@@ -59,7 +59,6 @@ export function GenreFilter({ hideTitle }: GenreFilterProps) {
                 replace
                 shallow
                 bright
-                prefetch={false}
               >
                 {genre.name}
               </AnchorButton>

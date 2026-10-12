@@ -4,11 +4,11 @@ import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { AccountDetail } from "./account-detail.tsx";
 

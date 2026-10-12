@@ -5,12 +5,12 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { brand } from "#src/brand/brand.stylex.ts";
 import { BASE_URL } from "#src/constants.ts";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { FeaturedRow } from "#src/pixel-creature-creator/landing/featured-row.tsx";
 import { YourCreations } from "#src/pixel-creature-creator/landing/your-creations.tsx";
 
