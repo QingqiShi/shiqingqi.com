@@ -74,3 +74,11 @@ _Avoid_: effect boundary (that is an obstacle), effect scope, sandbox, 效果作
 
 **Effect cover**:
 An element that shows over the page, such as a sheet or a dialog, so that the effects of the elements under it and not inside it do not draw. `useEffectCover` makes one. ZH: 效果遮盖.
+
+**Ring light**:
+A comet of light that runs round an element's outline on the effect layer: one lap when an element arrives (`useRingLight`), or two comets that meet on the far side where a Switch's liquid lands. It marks a moment and carries no meaning of its own. ZH: 环形光.
+_Avoid_: glow, halo, shimmer, border animation, 光晕, 流光
+
+**Toast**:
+A short message about what an action did, on a capsule of Glass at the bottom of the screen, with at most one action such as Undo. One shows at a time, and it goes by itself. `ToastProvider` shows it, `useToast` asks for it, and `Toast` is its surface. ZH: 轻提示.
+_Avoid_: snackbar, notification, flash message, banner (that is a Callout), 通知, 消息条

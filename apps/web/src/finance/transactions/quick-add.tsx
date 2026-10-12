@@ -3,6 +3,7 @@
 import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import * as stylex from "@stylexjs/stylex";
 import { TextField } from "@tuja/ui/components/text-field";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
@@ -15,7 +16,6 @@ import { buildTransactionMutations } from "../editor/build-transaction-mutations
 import type { EditorDraft } from "../editor/editor-draft.ts";
 import { useEditorData, type EditorData } from "../editor/use-editor-data.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
-import { useToast } from "../shell/toast-provider.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import { parseQuickAdd } from "./parse-quick-add.ts";

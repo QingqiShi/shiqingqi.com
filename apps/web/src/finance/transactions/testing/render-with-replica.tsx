@@ -3,7 +3,7 @@ import { PortalTargetProvider } from "#src/site-shell/portal-target-provider.tsx
 import { render } from "#src/testing/test-utils.tsx";
 import type { FinanceRuntime } from "../../replica/create-finance-runtime.ts";
 import { FinanceRuntimeContext } from "../../replica/finance-runtime-context.ts";
-import { ToastProvider } from "../../shell/toast-provider.tsx";
+import { FinanceToastProvider } from "../../shell/finance-toast-provider.tsx";
 import { TEST_IDS } from "./create-test-replica.ts";
 
 /** Renders `ui` inside the Finance providers, signed in as Alex. */
@@ -17,7 +17,7 @@ export function renderWithReplica(runtime: FinanceRuntime, ui: ReactElement) {
       }}
     >
       <PortalTargetProvider>
-        <ToastProvider>{ui}</ToastProvider>
+        <FinanceToastProvider>{ui}</FinanceToastProvider>
       </PortalTargetProvider>
     </FinanceRuntimeContext>,
   );

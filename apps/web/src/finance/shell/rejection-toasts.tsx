@@ -1,9 +1,9 @@
 "use client";
 
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { useEffect } from "react";
 import { t } from "#src/i18n.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
-import { useToast } from "./toast-provider.tsx";
 
 const TRANSACTION_MUTATIONS = new Set([
   "createTransaction",

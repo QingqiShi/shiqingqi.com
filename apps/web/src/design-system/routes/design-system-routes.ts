@@ -319,6 +319,13 @@ const ROUTES = [
     path: "/design-system/components/skeleton",
     keywords: ["placeholder", "loading", "shimmer", "ghost"],
   },
+  {
+    section: "components",
+    category: "feedback",
+    path: "/design-system/components/toast",
+    lab: true,
+    keywords: ["snackbar", "notification", "undo", "flash message", "提示条"],
+  },
   // Containers and the chrome between them. Overlay is a surface too — one that
   // arrives above the page — so it sits with the rest rather than alone.
   {

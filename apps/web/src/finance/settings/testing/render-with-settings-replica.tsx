@@ -7,7 +7,7 @@ import { PortalTargetProvider } from "#src/site-shell/portal-target-provider.tsx
 import { render } from "#src/testing/test-utils.tsx";
 import type { FinanceRuntime } from "../../replica/create-finance-runtime.ts";
 import { FinanceRuntimeContext } from "../../replica/finance-runtime-context.ts";
-import { ToastProvider } from "../../shell/toast-provider.tsx";
+import { FinanceToastProvider } from "../../shell/finance-toast-provider.tsx";
 import { SETTINGS_IDS } from "./create-settings-replica.ts";
 
 /** A router that records where the screen navigates to, in `pushed`. */
@@ -46,7 +46,7 @@ export function renderWithSettingsReplica(
         }}
       >
         <PortalTargetProvider>
-          <ToastProvider>{ui}</ToastProvider>
+          <FinanceToastProvider>{ui}</FinanceToastProvider>
         </PortalTargetProvider>
       </FinanceRuntimeContext>
     </AppRouterContext>,

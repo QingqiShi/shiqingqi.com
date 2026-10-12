@@ -11,17 +11,16 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
-import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { viewportAnchor, viewportFill } from "../primitives/layout.stylex.ts";
+import { viewportFill } from "../primitives/layout.stylex.ts";
 import { color, layer, space } from "../tokens.stylex.ts";
+import { Portal } from "./portal.tsx";
 import { ProgressiveBlur } from "./progressive-blur.tsx";
 
 interface OverlayBaseProps {
@@ -119,10 +118,6 @@ export function Overlay({
   "aria-labelledby": ariaLabelledBy,
 }: PropsWithChildren<OverlayProps>) {
   const deferredIsOpen = useDeferredValue(isOpen);
-  // The shell mounts eagerly so the dialog's ViewTransition has a live parent
-  // to enter into. Deferring past hydration keeps server and client render in
-  // agreement, since the server renders nothing here.
-  const isHydrated = useIsHydrated();
   const dialogRef = useRef<HTMLDivElement>(null);
   const coverRef = useEffectCover();
   const dialogRefs = useMemo(() => mergeRefs(dialogRef, coverRef), [coverRef]);
@@ -133,19 +128,6 @@ export function Overlay({
     onClose,
     initialFocusRef,
   });
-
-  // `undefined` means "use the default target"; `null` means the caller is
-  // still resolving one, so hold rendering.
-  const usingDefaultTarget = portalTarget === undefined;
-  const resolvedTarget = usingDefaultTarget
-    ? typeof document === "undefined"
-      ? null
-      : document.body
-    : portalTarget;
-
-  if (!isHydrated || !resolvedTarget) {
-    return null;
-  }
 
   // React only animates a ViewTransition that is itself the root of what
   // mounts or unmounts; a host element inserted alongside it kills the
@@ -208,16 +190,12 @@ export function Overlay({
     </>
   );
 
-  return createPortal(
-    // The layers below need only a viewport-anchored containing block. An
-    // explicit `portalTarget` is assumed to already be one; `document.body`
-    // (statically positioned) is not, so it gets wrapped.
-    usingDefaultTarget ? (
-      <div css={[viewportAnchor.fixed, styles.positioningRoot]}>{overlay}</div>
-    ) : (
-      overlay
-    ),
-    resolvedTarget,
+  // The shell mounts eagerly so the dialog's ViewTransition has a live parent
+  // to enter into.
+  return (
+    <Portal target={portalTarget} anchored anchorCss={styles.positioningRoot}>
+      {overlay}
+    </Portal>
   );
 }
 

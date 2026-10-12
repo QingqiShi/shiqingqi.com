@@ -7,6 +7,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@tuja/ui/components/button";
 import { Switch } from "@tuja/ui/components/switch";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
@@ -16,7 +17,6 @@ import { downloadBlob } from "#src/browser/download-blob.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { reportImageQuery } from "../queries/report-image-query.ts";
-import { useToast } from "../shell/toast-provider.tsx";
 import {
   buildReportSummary,
   type ReportSummaryCopy,

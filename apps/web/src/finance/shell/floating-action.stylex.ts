@@ -1,17 +1,19 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { shadow, space } from "@tuja/ui/tokens.stylex";
+import { controlSize, shadow, space } from "@tuja/ui/tokens.stylex";
 import { tabBarTokens } from "./tab-bar.stylex.ts";
 
-/**
- * Where an action floats, as the distance from the bottom of the screen:
- * above the tab bar below `md`, above the safe area from `md` up.
- */
 export const floatingActionTokens = stylex.defineVars({
+  /**
+   * Where an action floats, as the distance from the bottom of the screen:
+   * above the tab bar below `md`, above the safe area from `md` up.
+   */
   insetBlockEnd: {
     default: `calc(${tabBarTokens.clearance} + ${space._3})`,
     [breakpoints.md]: `calc(${space._5} + env(safe-area-inset-bottom))`,
   },
+  /** The height of the floating Add action. */
+  blockSize: controlSize._10,
 });
 
 /**

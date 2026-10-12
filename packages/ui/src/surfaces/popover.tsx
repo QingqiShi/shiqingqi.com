@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, Ref } from "react";
-import { createPortal } from "react-dom";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import {
   usePopover,
@@ -13,6 +12,7 @@ import { mergeRefs } from "../merge-refs.ts";
 import { color, layer, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { popoverSurface } from "./popover-surface.stylex.ts";
+import { Portal } from "./portal.tsx";
 
 interface PopoverBaseProps {
   /**
@@ -156,41 +156,31 @@ export function Popover({
   } = contentProps;
   const coverRef = useEffectCover();
 
-  // `undefined` means "use the default target"; `null` means the caller is
-  // still resolving one, so hold rendering.
-  const resolvedTarget =
-    portalTarget === undefined
-      ? typeof document === "undefined"
-        ? null
-        : document.body
-      : portalTarget;
-
   return (
     <>
       {trigger(triggerProps)}
-      {open && resolvedTarget
-        ? createPortal(
-            <div
-              {...restContentProps}
-              ref={mergeRefs(ref, contentRef, coverRef)}
-              aria-label={ariaLabel}
-              aria-labelledby={
-                ariaLabel === undefined
-                  ? (ariaLabelledBy ?? labelledByTrigger)
-                  : undefined
-              }
-              css={[
-                styles.content,
-                popoverSurface.base,
-                popoverSurface.enter,
-                css,
-              ]}
-            >
-              {children}
-            </div>,
-            resolvedTarget,
-          )
-        : null}
+      {open ? (
+        <Portal target={portalTarget}>
+          <div
+            {...restContentProps}
+            ref={mergeRefs(ref, contentRef, coverRef)}
+            aria-label={ariaLabel}
+            aria-labelledby={
+              ariaLabel === undefined
+                ? (ariaLabelledBy ?? labelledByTrigger)
+                : undefined
+            }
+            css={[
+              styles.content,
+              popoverSurface.base,
+              popoverSurface.enter,
+              css,
+            ]}
+          >
+            {children}
+          </div>
+        </Portal>
+      ) : null}
     </>
   );
 }

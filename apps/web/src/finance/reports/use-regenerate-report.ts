@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
-import { useToast } from "../shell/toast-provider.tsx";
 import { reportApiClient } from "./report-api-client.ts";
 
 /**

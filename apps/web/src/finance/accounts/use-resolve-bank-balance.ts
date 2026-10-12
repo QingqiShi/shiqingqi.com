@@ -1,8 +1,8 @@
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
-import { useToast } from "../shell/toast-provider.tsx";
 
 /**
  * "Use bank balance" or "Dismiss" on a Bank link whose balance disagrees

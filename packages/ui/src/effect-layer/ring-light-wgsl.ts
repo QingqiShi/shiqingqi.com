@@ -29,6 +29,17 @@ export const RING_LIGHT_LOOK = {
   dark: { inset: 0, bloom: 0.8, pageTint: 0 },
 } as const;
 
+/**
+ * The look of a lap round a surface that blurs what is under it, such as
+ * Glass: the core runs just outside the edge, where the blur cannot reach.
+ *
+ * @internal
+ */
+export const RING_LAP_LOOK = {
+  light: { inset: -0.9, bloom: 1, pageTint: 0.65 },
+  dark: { inset: -0.9, bloom: 1, pageTint: 0.4 },
+} as const;
+
 /** How far from the edge the core and its bloom reach, in CSS px. */
 const RIM_REACH = 1 + CORE_HALF_WIDTH + 3 * BLOOM_SIGMA;
 

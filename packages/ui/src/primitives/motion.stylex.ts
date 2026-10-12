@@ -113,6 +113,15 @@ const fadeOutKeyframes = stylex.keyframes({
   to: { opacity: 0 },
 });
 
+/**
+ * The keyframes of `animate.fadeIn` and `animate.fadeOut`, for an
+ * `animationName` that changes with a condition, such as reduced motion.
+ */
+export const motionKeyframes = stylex.defineConsts({
+  fadeIn: fadeInKeyframes,
+  fadeOut: fadeOutKeyframes,
+});
+
 const slideUpKeyframes = stylex.keyframes({
   from: { transform: "translateY(100%)" },
 });

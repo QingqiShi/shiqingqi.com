@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
+import { UndoToastSpecimen } from "#src/design-system/sections/components/toast-specimens.tsx";
 import { AnchorButtonSpecimen } from "./anchor-button-specimen.tsx";
 import { AvatarSpecimen } from "./avatar-specimen.tsx";
 import { BadgeSpecimen } from "./badge-specimen.tsx";
@@ -94,6 +95,7 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/spinner": { element: <SpinnerSpecimen /> },
   "/design-system/components/progress": { element: <ProgressSpecimen /> },
   "/design-system/components/skeleton": { element: <SkeletonSpecimen /> },
+  "/design-system/components/toast": { element: <UndoToastSpecimen /> },
   "/design-system/components/divider": { element: <DividerSpecimen /> },
   "/design-system/components/switch": { element: <SwitchSpecimen /> },
   "/design-system/components/text-field": { element: <TextFieldSpecimen /> },

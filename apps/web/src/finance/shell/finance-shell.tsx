@@ -6,6 +6,7 @@ import { FinanceAddButton } from "./finance-add-button.tsx";
 import { FinanceNav } from "./finance-nav.tsx";
 import { FinanceSidebarHeader } from "./finance-sidebar-header.tsx";
 import { FinanceTabBar } from "./finance-tab-bar.tsx";
+import { FinanceToastProvider } from "./finance-toast-provider.tsx";
 import { OfflineNavigationGuard } from "./offline-navigation-guard.tsx";
 import { PrecacheFinanceShells } from "./precache-finance-shells.tsx";
 import { PrewarmScreens } from "./prewarm-screens.tsx";
@@ -13,7 +14,6 @@ import { RejectionToasts } from "./rejection-toasts.tsx";
 import { ReplicaGate } from "./replica-gate.tsx";
 import { SignedInMember } from "./signed-in-member.tsx";
 import { tabBarTokens } from "./tab-bar.stylex.ts";
-import { ToastProvider } from "./toast-provider.tsx";
 
 interface FinanceShellProps {
   locale: SupportedLocale;
@@ -36,7 +36,7 @@ export function FinanceShell({
   children,
 }: FinanceShellProps) {
   return (
-    <ToastProvider>
+    <FinanceToastProvider>
       <SidebarLayout
         sidebar={<FinanceNav />}
         sidebarHeader={<FinanceSidebarHeader locale={locale} />}
@@ -58,7 +58,7 @@ export function FinanceShell({
       <PrecacheFinanceShells />
       <PrewarmScreens />
       <OfflineNavigationGuard />
-    </ToastProvider>
+    </FinanceToastProvider>
   );
 }
 

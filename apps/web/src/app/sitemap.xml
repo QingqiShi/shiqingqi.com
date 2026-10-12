@@ -311,6 +311,26 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/skeleton" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/toast</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/toast" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/toast" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/toast</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/toast" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/toast" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/toast/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/toast/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/toast/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/toast/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/toast/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/toast/lab" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/switch</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/switch" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/switch" />
