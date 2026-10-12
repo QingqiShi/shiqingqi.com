@@ -2,7 +2,6 @@ import {
   Breadcrumb,
   type BreadcrumbLinkProps,
 } from "@tuja/ui/components/breadcrumb";
-import Link from "next/link";
 import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
 import { getDesignSystemRouteSection } from "#src/design-system/routes/get-design-system-route-section.ts";
@@ -10,6 +9,7 @@ import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 
 interface DocBreadcrumbProps {
   path: DesignSystemPath;

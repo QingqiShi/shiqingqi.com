@@ -59,7 +59,6 @@ export function MediaTitleCell({ api, row }: MediaCellParams) {
       <span css={[stack.tight, styles.titleText]}>
         <Anchor
           href={hrefFor(media)}
-          prefetch={false}
           rel="nofollow"
           css={[typeRole.label, styles.titleLink, truncate.base]}
         >

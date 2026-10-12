@@ -19,11 +19,11 @@ import {
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { getLocale } from "#src/i18n/server-locale.ts";
 import { t } from "#src/i18n.ts";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
+import { Link } from "#src/links/link.tsx";
 import { SiteHeaderFooterLayout } from "./site-header-footer-layout.tsx";
 
 /**

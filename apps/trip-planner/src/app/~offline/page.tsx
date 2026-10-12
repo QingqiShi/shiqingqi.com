@@ -1,6 +1,6 @@
 import { WifiOff } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/link";
 
 export const metadata: Metadata = {
   title: "当前离线",

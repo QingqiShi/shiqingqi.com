@@ -33,7 +33,6 @@ export function MediaCard({ media, allowFollow }: MediaCardProps) {
   return (
     <Card
       href={href}
-      prefetch={false}
       css={styles.card}
       aria-label={getMediaLabel(media)}
       rel={allowFollow ? undefined : "nofollow"}

@@ -143,7 +143,7 @@ export function TripActions({ css }: { css?: StyleProp }) {
 }`;
 
 const THIRD_PARTY = `import * as stylex from "@stylexjs/stylex";
-import Link from "next/link";
+import { Link } from "#src/links/link.tsx";
 
 <Link href="/trips" {...stylex.props(styles.link)}>
   All trips

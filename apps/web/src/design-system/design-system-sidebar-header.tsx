@@ -7,10 +7,10 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 
 /**
  * Title region of the design-system sidebar: a home escape hatch (the shell

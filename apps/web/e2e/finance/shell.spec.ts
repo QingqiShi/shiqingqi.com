@@ -13,7 +13,8 @@ async function screenshot(page: Page, name: string) {
 
 /**
  * The page shells the service worker stored for offline use. The same cache
- * holds prefetched screens under `?_rsc=`, which a page load cannot use.
+ * holds the data of visited screens under `?_rsc=`, which a page load cannot
+ * use.
  */
 function storedFinancePages(page: Page) {
   return page.evaluate(async () => {
@@ -109,9 +110,6 @@ for (const viewport of [DESKTOP, MOBILE]) {
       await page.context().setOffline(true);
       const rail = page.getByRole("navigation", { name: "Finance" });
       await expect(rail).toBeVisible();
-      await page.evaluate(() => {
-        Object.assign(window, { financeSamePage: true });
-      });
 
       await rail.getByRole("link", { name: "Analytics" }).click();
       await expect(page).toHaveURL("/finance/analytics");
@@ -129,10 +127,6 @@ for (const viewport of [DESKTOP, MOBILE]) {
         "aria-current",
         "page",
       );
-      expect(
-        await page.evaluate(() => "financeSamePage" in window),
-        "prefetched screens open offline without a page load",
-      ).toBe(true);
 
       await page.goto("/finance/settings/categories");
       await expect(page.getByText("食品").first()).toBeVisible();

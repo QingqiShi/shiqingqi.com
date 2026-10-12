@@ -9,7 +9,6 @@ import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
@@ -19,6 +18,7 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { normalizePath } from "#src/i18n/normalize-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 
 interface DesignSystemNavProps {
   /** Every route's name. Resolved on the server — see `route-copy/`. */

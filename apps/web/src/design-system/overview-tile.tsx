@@ -11,11 +11,11 @@ import {
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import Link from "next/link";
 import { IlloLayer } from "#src/design-system/foundation-illustrations/illo-layer.tsx";
 import { getFoundationIllustration } from "#src/design-system/foundation-illustrations/index.tsx";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { getComponentSpecimen } from "#src/design-system/specimens/index.tsx";
+import { Link } from "#src/links/link.tsx";
 import { tileMarker } from "./overview-tile.stylex.ts";
 
 interface OverviewTileProps {

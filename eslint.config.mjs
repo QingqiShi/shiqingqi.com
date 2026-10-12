@@ -134,6 +134,11 @@ export default defineConfig([
           message:
             "Vitest aliases `server-only` to a stub, so a mock of it does nothing.",
         },
+        {
+          selector: 'CallExpression[callee.property.name="prefetch"]',
+          message:
+            "Nothing prefetches a route: a screen loads when the visitor opens it.",
+        },
       ],
       "restricted/stylex-babel-plugin": [
         "error",
@@ -385,6 +390,25 @@ export default defineConfig([
       // specimens, tiny logos) alongside next/image for static assets — the
       // rule flagged only intentional uses.
       "@next/next/no-img-element": "off",
+    },
+  },
+  // Every link goes through an app's `Link`, which sets `prefetch={false}`.
+  {
+    files: ["apps/**", "packages/**"],
+    ignores: ["apps/*/src/link.tsx", "apps/web/src/links/link.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "next/link",
+              message:
+                "Import `Link` from `#src/links/link.tsx` (`@/link` in trip-planner). It never prefetches.",
+            },
+          ],
+        },
+      ],
     },
   },
   // Test files may call t() outside render scope for unit testing purposes.
