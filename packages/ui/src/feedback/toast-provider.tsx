@@ -29,6 +29,8 @@ export interface ToastOptions {
   message: ReactNode;
   /** One action that follows from the message, such as Undo. */
   action?: ToastAction;
+  /** A second action after `action`, such as "Teach the AI" after Undo. */
+  secondAction?: ToastAction;
   /**
    * How long the toast stays, in milliseconds, while the pointer and the
    * focus are elsewhere. Defaults to 10 s, which leaves time for Undo.
@@ -90,7 +92,7 @@ interface ToastProviderProps {
  * Shows the toasts of `useToast`: one at a time, centred at the bottom of
  * the screen, announced politely. A toast stays while the pointer or the
  * focus is on it, and otherwise goes after its duration; it fades as it
- * goes. Its action and its close button take it away as well.
+ * goes. Its actions and its close button take it away as well.
  */
 export function ToastProvider({
   children,
@@ -144,17 +146,8 @@ export function ToastProvider({
           >
             <Toast
               message={toast.message}
-              action={
-                toast.action
-                  ? {
-                      label: toast.action.label,
-                      onAction: () => {
-                        toast.action?.onAction();
-                        leave();
-                      },
-                    }
-                  : undefined
-              }
+              action={leaveAfter(toast.action, leave)}
+              secondAction={leaveAfter(toast.secondAction, leave)}
               onDismiss={leave}
               dismissLabel={dismissLabel}
               onPointerEnter={() => {
@@ -186,6 +179,20 @@ export function ToastProvider({
       </Portal>
     </ToastContext>
   );
+}
+
+function leaveAfter(
+  action: ToastAction | undefined,
+  leave: () => void,
+): ToastAction | undefined {
+  if (!action) return undefined;
+  return {
+    label: action.label,
+    onAction: () => {
+      action.onAction();
+      leave();
+    },
+  };
 }
 
 const styles = stylex.create({

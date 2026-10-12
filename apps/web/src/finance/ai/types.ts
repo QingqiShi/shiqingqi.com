@@ -77,3 +77,29 @@ export interface SuggestResponse {
   paysDownAccountId: string | null;
   reason: string;
 }
+
+/** A Transaction's labels by name, as a Member sees them. */
+export interface NamedLabels {
+  kind: "expense" | "income" | "transfer";
+  /** The Category path, "Transport > Commute". */
+  category: string | null;
+  payee: string | null;
+  tags: string[];
+  member: string | null;
+  /** The accounts of the Transaction's Entries. */
+  accounts: string[];
+}
+
+/** `POST /api/finance/ai/teach`: a Member's correction of the AI's labels on one bank Transaction. */
+export interface TeachRequest {
+  transactionId: string;
+  ai: NamedLabels;
+  member: NamedLabels;
+}
+
+/** The smallest change to the AI instructions that would have given the Member's labels. */
+export interface InstructionChange {
+  /** The line of the instructions that `line` replaces, or null to add `line` at the end. */
+  replaces: string | null;
+  line: string;
+}

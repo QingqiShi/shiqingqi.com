@@ -1,3 +1,4 @@
+import type { InstructionChange } from "../ai/types.ts";
 import { financeFetch } from "../http/finance-fetch.ts";
 
 /**
@@ -19,6 +20,18 @@ export const householdApiClient = {
     await financeFetch("/api/finance/household/ai-instructions", {
       method: "PATCH",
       body: JSON.stringify({ aiInstructions }),
+    });
+  },
+
+  /**
+   * Adds one line to the AI instructions, or changes the line it replaces,
+   * on the text as the server has it now. Throws `too-long` when the
+   * instructions would grow past their limit.
+   */
+  async changeAiInstructions(change: InstructionChange) {
+    await financeFetch("/api/finance/household/ai-instructions", {
+      method: "PATCH",
+      body: JSON.stringify({ change }),
     });
   },
 

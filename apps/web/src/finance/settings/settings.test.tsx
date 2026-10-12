@@ -9,6 +9,7 @@ import {
 import type { ProviderAccountsResponse } from "../bank/types.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
+import { stubFinanceApi } from "../testing/stub-finance-api.ts";
 import { AiSettings } from "./ai-settings.tsx";
 import { CategoriesSettings } from "./categories-settings.tsx";
 import { ConnectionsSettings } from "./connections-settings.tsx";
@@ -36,32 +37,6 @@ beforeAll(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
 });
-
-type Route = (body: unknown) => { status?: number; json?: unknown };
-
-/** Answers the Finance routes the screen calls, by "METHOD /path", and records each call. */
-function stubFinanceApi(routes: Record<string, Route>) {
-  const calls: { route: string; body: unknown }[] = [];
-  vi.stubGlobal("fetch", (input: string, init: RequestInit = {}) => {
-    const url = new URL(input, "http://localhost");
-    const route = `${init.method ?? "GET"} ${url.pathname}`;
-    const body: unknown =
-      typeof init.body === "string" ? JSON.parse(init.body) : null;
-    calls.push({ route, body });
-    if (!(route in routes)) {
-      return Promise.reject(new Error(`offline: ${route}`));
-    }
-    const handler = routes[route];
-    const answer = handler(body);
-    return Promise.resolve(
-      new Response(
-        answer.json === undefined ? null : JSON.stringify(answer.json),
-        { status: answer.status ?? 200 },
-      ),
-    );
-  });
-  return calls;
-}
 
 /**
  * Opens an edit sheet and waits until focus is in it. The sheet moves focus

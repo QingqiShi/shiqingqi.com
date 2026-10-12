@@ -19,7 +19,7 @@ import { color, controlSize, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 
 /**
- * The one action a toast can offer, such as Undo.
+ * An action a toast can offer, such as Undo.
  */
 export interface ToastAction {
   /** The button's label — the package ships no i18n. */
@@ -45,6 +45,12 @@ interface ToastBaseProps extends Omit<
    * @zh 紧随消息的一个操作，例如撤销。它以按钮形式显示在消息之后。
    */
   action?: ToastAction;
+  /**
+   * A second action after `action`, such as "Teach the AI" after Undo.
+   *
+   * @zh 位于 `action` 之后的第二个操作，例如撤销之后的“教 AI”。
+   */
+  secondAction?: ToastAction;
   /**
    * StyleX overrides, composed last so a caller can win over the defaults.
    *
@@ -79,7 +85,7 @@ type ToastProps = ToastBaseProps & ToastDismissProps;
 
 /**
  * A short message about what an action did, on a capsule of
- * Glass, with an optional action and a close button. It springs up as it
+ * Glass, with up to two actions and a close button. It springs up as it
  * arrives (a fade under reduced motion), and when it has arrived a Ring
  * light runs once round its edge, where the effect layer is on.
  *
@@ -89,6 +95,7 @@ type ToastProps = ToastBaseProps & ToastDismissProps;
 export function Toast({
   message,
   action,
+  secondAction,
   onDismiss,
   dismissLabel,
   css,
@@ -100,7 +107,8 @@ export function Toast({
   const ringLightRef = useRingLight();
   const coverRef = useEffectCover();
   const rootRefs = useMemo(() => mergeRefs(ref, coverRef), [ref, coverRef]);
-  const hasButtons = action !== undefined || onDismiss !== undefined;
+  const actions = [action, secondAction].filter((item) => item !== undefined);
+  const hasButtons = actions.length > 0 || onDismiss !== undefined;
 
   return (
     <div
@@ -134,11 +142,16 @@ export function Toast({
         <span css={[typeRole.bodySmall, styles.message]}>{message}</span>
         {hasButtons ? (
           <span css={styles.actions}>
-            {action ? (
-              <Button size="sm" look="ghost" onClick={action.onAction}>
-                {action.label}
+            {actions.map((item) => (
+              <Button
+                key={item.label}
+                size="sm"
+                look="ghost"
+                onClick={item.onAction}
+              >
+                {item.label}
               </Button>
-            ) : null}
+            ))}
             {onDismiss ? (
               <Button
                 size="sm"

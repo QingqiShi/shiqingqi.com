@@ -75,4 +75,48 @@ describe("makeAiInstructionsHandler", () => {
     ).toBe(403);
     expect((await find())?.aiInstructions).toBe("");
   });
+
+  it("adds a taught line at the end, or changes the line it replaces, on the text as it is now", async () => {
+    await patch({ aiInstructions: "J SMITH is rent.\nTesco is groceries." });
+
+    expect(
+      (
+        await patch({
+          change: { replaces: null, line: "TFL TRAVEL is the commute." },
+        })
+      ).status,
+    ).toBe(200);
+    expect((await find())?.aiInstructions).toBe(
+      "J SMITH is rent.\nTesco is groceries.\nTFL TRAVEL is the commute.",
+    );
+
+    await patch({
+      change: {
+        replaces: "Tesco is groceries.",
+        line: "Tesco is groceries; TESCO MOBILE is the phone bill.",
+      },
+    });
+    await patch({
+      change: { replaces: "A line since removed", line: "Boots is health." },
+    });
+    expect((await find())?.aiInstructions).toBe(
+      "J SMITH is rent.\nTesco is groceries; TESCO MOBILE is the phone bill.\nTFL TRAVEL is the commute.\nBoots is health.",
+    );
+  });
+
+  it("refuses a taught line that would make the instructions too long, or an empty one", async () => {
+    await patch({ aiInstructions: "x".repeat(7990) });
+    const before = await find();
+
+    const response = await patch({
+      change: { replaces: null, line: "TFL TRAVEL is the commute." },
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "too-long" });
+    expect(
+      (await patch({ change: { replaces: null, line: "  " } })).status,
+    ).toBe(400);
+    expect(await find()).toEqual(before);
+  });
 });
