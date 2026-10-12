@@ -4,6 +4,7 @@ import { memberRepository } from "../db/repositories/member-repository.ts";
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
 import { ruleRepository } from "../db/repositories/rule-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
+import type { RepositoryScope } from "../db/repositories/types.ts";
 import { transactions } from "../db/schema.ts";
 import { setStatementTimeout } from "../db/set-statement-timeout.ts";
 import type { FinanceDb } from "../db/types.ts";
@@ -30,6 +31,28 @@ type Rule = Awaited<ReturnType<typeof ruleRepository.findDue>>[number];
 /** The id of a Rule's Transaction on a day; the same occurrence always gets the same id. */
 export function occurrenceId(ruleId: string, day: string) {
   return nameBasedUuid(`rule:${ruleId}:${day}`);
+}
+
+/**
+ * The days among `days` that a Transaction of the Rule already stands for,
+ * live or deleted, whatever its id. A Transaction stands for the day that
+ * its id names, so a Transaction that Bank sync moved to the bank row's date
+ * still stands for its first day. A Transaction with a different id, for
+ * example an imported one, stands for its date.
+ */
+async function takenDays(
+  scope: RepositoryScope,
+  ruleId: string,
+  days: string[],
+) {
+  const dayById = new Map(days.map((day) => [occurrenceId(ruleId, day), day]));
+  const rows = await transactionRepository.findOfRuleOnDaysOrIds(
+    scope,
+    ruleId,
+    days,
+    [...dayById.keys()],
+  );
+  return new Set(rows.map((row) => dayById.get(row.id) ?? row.date));
 }
 
 async function isUsable(context: WriteContext, template: RuleTemplate) {
@@ -90,8 +113,9 @@ async function createOccurrence(
 /**
  * Inside an open write: creates the Expected Transactions of every live Rule
  * up to a week ahead, moves each Rule's `next_on` past them, and posts the
- * ones of `auto_post` Rules that are due. Running it twice changes nothing.
- * Returns how many rows it wrote.
+ * ones of `auto_post` Rules that are due. It creates no Transaction for a
+ * day that the Rule has a Transaction for already, so running it twice
+ * changes nothing. Returns how many rows it wrote.
  */
 export async function materialiseRulesInTransaction(context: WriteContext) {
   const { scope, today } = context;
@@ -113,8 +137,10 @@ export async function materialiseRulesInTransaction(context: WriteContext) {
           ),
         }
       : null;
-    if (template && (await isUsable(context, template))) {
+    if (days.length > 0 && template && (await isUsable(context, template))) {
+      const taken = await takenDays(scope, rule.id, days);
       for (const day of days) {
+        if (taken.has(day)) continue;
         written += await createOccurrence(context, rule, template, day);
       }
     }

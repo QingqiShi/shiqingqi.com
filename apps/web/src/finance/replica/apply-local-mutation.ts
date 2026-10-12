@@ -961,13 +961,11 @@ function upsertRule(scope: Scope, args: Args<"upsertRule">) {
       }
     }
   } else if (scheduleChanged) {
-    const expected = [...draft.values("transactions")].filter(
+    const ofRule = [...draft.values("transactions")].filter(
       (transaction) =>
-        transaction.ruleId === id &&
-        transaction.status === "expected" &&
-        transaction.date >= context.today,
+        transaction.ruleId === id && transaction.date >= context.today,
     );
-    const { remove, restore } = rescheduleExpected(existing, merged, expected);
+    const { remove, restore } = rescheduleExpected(existing, merged, ofRule);
     for (const transaction of remove) softDeleteTransaction(scope, transaction);
     for (const transaction of restore)
       restoreTransaction(scope, transaction.id);

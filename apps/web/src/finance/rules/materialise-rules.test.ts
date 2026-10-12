@@ -3,6 +3,7 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   accountBalanceDays,
+  entries,
   households,
   members,
   rules,
@@ -76,6 +77,40 @@ async function push(name: string, args: Record<string, unknown>, now: Date) {
     now,
   );
   expect(result.rejected).toEqual([]);
+}
+
+/** An Expected Transaction of the Rule whose id is not the one Materialise gives, as the MoneyThings import writes. */
+async function insertImported(
+  ruleId: string,
+  date: string,
+  fields: { id?: string; deletedAt?: Date } = {},
+) {
+  const id = fields.id ?? randomUUID();
+  await db.insert(transactions).values({
+    id,
+    householdId: home.householdId,
+    kind: "expense",
+    status: "expected",
+    date,
+    amountMinor: -120_000,
+    categoryId: home.groceriesId,
+    payeeId: home.grocerId,
+    ruleId,
+    source: "import",
+    version: 1,
+    deletedAt: fields.deletedAt ?? null,
+  });
+  await db.insert(entries).values({
+    id: randomUUID(),
+    householdId: home.householdId,
+    transactionId: id,
+    accountId: home.currentId,
+    date,
+    amountMinor: -120_000,
+    version: 1,
+    deletedAt: fields.deletedAt ?? null,
+  });
+  return id;
 }
 
 async function ruleDays(ruleId: string) {
@@ -284,5 +319,138 @@ describe("materialiseRules", () => {
     );
 
     expect(await ruleDays(ruleId)).toEqual(["2026-10-01", "2026-11-02"]);
+  });
+
+  it("adds no second occurrence next to an imported one when the schedule changes", async () => {
+    const now = new Date("2026-10-26T12:00:00Z");
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-12-01" },
+      now,
+    );
+    const importedId = await insertImported(ruleId, "2026-11-01");
+
+    await push("upsertRule", { id: ruleId, startsOn: "2026-09-01" }, now);
+
+    expect(await ruleTransactions(ruleId)).toEqual([
+      { id: importedId, date: "2026-11-01", status: "expected" },
+    ]);
+  });
+
+  it("adds no second occurrence next to an imported one when the rule resumes", async () => {
+    const now = new Date("2026-10-26T12:00:00Z");
+    const ruleId = await createRule(
+      {
+        startsOn: "2026-10-01",
+        dayOfMonth: 1,
+        nextOn: "2026-12-01",
+        paused: true,
+      },
+      now,
+    );
+    const importedId = await insertImported(ruleId, "2026-11-01");
+
+    await push("upsertRule", { id: ruleId, paused: false }, now);
+
+    expect(await ruleTransactions(ruleId)).toEqual([
+      { id: importedId, date: "2026-11-01", status: "expected" },
+    ]);
+  });
+
+  it("posts an imported auto_post occurrence once when the rule resumes on its day", async () => {
+    const now = new Date("2026-11-01T12:00:00Z");
+    const ruleId = await createRule(
+      {
+        startsOn: "2026-10-01",
+        dayOfMonth: 1,
+        nextOn: "2026-12-01",
+        autoPost: true,
+        paused: true,
+      },
+      new Date("2026-10-26T12:00:00Z"),
+    );
+    const importedId = await insertImported(ruleId, "2026-11-01");
+
+    await push("upsertRule", { id: ruleId, paused: false }, now);
+
+    expect(await ruleTransactions(ruleId)).toEqual([
+      { id: importedId, date: "2026-11-01", status: "posted" },
+    ]);
+    expect(
+      await db
+        .select({
+          day: accountBalanceDays.day,
+          balanceMinor: accountBalanceDays.balanceMinor,
+        })
+        .from(accountBalanceDays),
+    ).toEqual([{ day: "2026-11-01", balanceMinor: -120_000 }]);
+  });
+
+  it("does not bring back a skipped imported occurrence when the schedule changes", async () => {
+    const now = new Date("2026-10-26T12:00:00Z");
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-12-01" },
+      now,
+    );
+    const importedId = await insertImported(ruleId, "2026-11-01");
+    await push("skipExpected", { id: importedId }, now);
+
+    await push("upsertRule", { id: ruleId, startsOn: "2026-09-01" }, now);
+
+    expect(await ruleTransactions(ruleId)).toEqual([]);
+  });
+
+  it("does not bring back an occurrence that Bank sync confirmed on another day", async () => {
+    const now = new Date("2026-10-26T12:00:00Z");
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-11-01" },
+      now,
+    );
+    const id = occurrenceId(ruleId, "2026-11-01");
+    await push("confirmExpected", { id, patch: { date: "2026-10-30" } }, now);
+
+    await push("upsertRule", { id: ruleId, startsOn: "2026-09-01" }, now);
+
+    expect(await ruleTransactions(ruleId)).toEqual([
+      { id, date: "2026-10-30", status: "posted" },
+    ]);
+  });
+
+  it("creates the occurrence of a day that a moved occurrence now has", async () => {
+    const now = new Date("2026-10-28T12:00:00Z");
+    const ruleId = await createRule(
+      { unit: "week", startsOn: "2026-10-27", nextOn: "2026-12-01" },
+      now,
+    );
+    const movedId = await insertImported(ruleId, "2026-11-03", {
+      id: occurrenceId(ruleId, "2026-10-27"),
+    });
+    await db.update(rules).set({ nextOn: "2026-10-27" });
+
+    await materialiseRules(db, home.householdId, now);
+
+    const rows = await ruleTransactions(ruleId);
+    expect(rows.map((row) => row.id).sort()).toEqual(
+      [movedId, occurrenceId(ruleId, "2026-11-03")].sort(),
+    );
+    expect(rows.map((row) => row.date)).toEqual(["2026-11-03", "2026-11-03"]);
+  });
+
+  it("restores one occurrence for a day that has two deleted ones", async () => {
+    const now = new Date("2026-10-26T12:00:00Z");
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-12-01" },
+      now,
+    );
+    await insertImported(ruleId, "2026-11-01");
+    await insertImported(ruleId, "2026-11-01", {
+      id: occurrenceId(ruleId, "2026-11-01"),
+      deletedAt: new Date("2026-10-20T12:00:00Z"),
+    });
+
+    await push("upsertRule", { id: ruleId, nonBusinessDay: "next" }, now);
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-02"]);
+
+    await push("upsertRule", { id: ruleId, nonBusinessDay: "stay" }, now);
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-01"]);
   });
 });
