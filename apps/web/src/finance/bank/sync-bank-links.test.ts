@@ -16,6 +16,7 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { addDays } from "../domain/dates/add-days.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import type { MutationInput, MutationName } from "../sync/mutation-schema.ts";
 import {
@@ -310,6 +311,30 @@ describe("syncBankLinks", () => {
     expect(aliases).toMatchObject([
       { alias: "GROCER LTD", payeeId: home.grocerId },
     ]);
+  });
+
+  it("links a chain of repeated fares to the Transactions one day before them, and labels none", async () => {
+    const days = ["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08"];
+    const manual = days.map((day) =>
+      expense(addDays(day, -1), -720, { accountId: home.cardId }),
+    );
+    await push(manual.map((transaction) => transaction.mutation));
+    fixture.transactions["acc-card"] = days.map((day) =>
+      bankRow(`tfl-${day}`, day, -720, "TFL TRAVEL CH"),
+    );
+    const model = createLabellingModel(() => ({
+      payeeName: "TfL",
+      categoryId: home.groceriesId,
+      confidence: 0.9,
+    }));
+
+    const [, card] = await sync({ model });
+
+    expect(card).toMatchObject({ error: null, linked: 4, created: 0 });
+    expect(
+      (await bankRows(cardLinkId)).map((row) => row.transactionId),
+    ).toEqual(manual.map((transaction) => transaction.id));
+    expect(model.doGenerateCalls).toHaveLength(0);
   });
 
   it("flags a row the bank leaves out of two answers in a row, and clears the flag when it returns", async () => {
