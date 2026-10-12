@@ -30,8 +30,7 @@ const suggestRequestSchema = z.object({
 
 /**
  * `POST /api/finance/ai/suggest`: the model step for the editor's Suggest
- * button. The client runs the alias and history steps on the Replica first
- * and calls this only when they find nothing.
+ * button.
  */
 export function makeSuggestHandler(dependencies: SuggestHandlerDependencies) {
   return async function POST(request: Request) {

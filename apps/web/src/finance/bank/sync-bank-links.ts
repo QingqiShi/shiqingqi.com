@@ -3,6 +3,7 @@ import { learnPayeeFromBankTexts } from "../ai/learn-payee-from-bank-texts.ts";
 import { suggestLabelsBatch } from "../ai/suggest-labels-batch.ts";
 import type { ModelLabelInput } from "../ai/suggest-labels-with-model.ts";
 import type { LabelMemory, Suggestion } from "../ai/types.ts";
+import { withBankTexts } from "../ai/with-bank-texts.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import {
   bankLinkRepository,
@@ -137,7 +138,10 @@ function willBeOpen(stored: BankTransactionRecord | undefined) {
   );
 }
 
-/** Reads the rows that will need new Transactions and labels them, before any lock is taken. */
+/**
+ * Reads the rows that will need new Transactions and labels them, before any
+ * lock is taken. The rows that this sync matches teach their bank texts first.
+ */
 async function labelRows(
   dependencies: SyncBankLinksDependencies,
   link: Link,
@@ -183,10 +187,20 @@ async function labelRows(
       accountId: link.accountId,
     }));
   if (inputs.length === 0) return new Map();
-  return suggestLabelsBatch(await loadMemory(), inputs, {
-    model: dependencies.model,
-    onModelError: dependencies.onModelError,
+  const matched = open.flatMap((row, index) => {
+    const match = plan[index];
+    return match.action === "create"
+      ? []
+      : [{ transactionId: match.transactionId, text: bankText(row) }];
   });
+  return suggestLabelsBatch(
+    withBankTexts(await loadMemory(), matched),
+    inputs,
+    {
+      model: dependencies.model,
+      onModelError: dependencies.onModelError,
+    },
+  );
 }
 
 /**
@@ -502,7 +516,12 @@ export async function syncBankLinks(
       continue;
     }
     try {
-      results.push(await syncLink(dependencies, link, today, loadMemory));
+      const summary = await syncLink(dependencies, link, today, loadMemory);
+      results.push(summary);
+      if (summary.created + summary.linked + summary.confirmed > 0) {
+        // Load the memory again, so that the next link can use the bank rows of this link.
+        memory = undefined;
+      }
     } catch (error) {
       const kind = error instanceof BankError ? error.kind : "failed";
       if (kind === "failed") console.error("Bank sync failed", error);

@@ -67,7 +67,7 @@ export const bankApiClient = {
     });
   },
 
-  /** The model step of the labelling pipeline; run `suggestLabelsFromMemory` on the Replica first. */
+  /** The model step of the labelling pipeline. */
   suggest(input: LabelInput) {
     return sendJson<Suggestion>("/api/finance/ai/suggest", {
       method: "POST",

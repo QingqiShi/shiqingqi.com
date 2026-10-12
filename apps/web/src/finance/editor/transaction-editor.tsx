@@ -32,8 +32,7 @@ import {
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { currencySymbol } from "../accounts/currency-symbol.ts";
-import { suggestLabelsFromMemory } from "../ai/suggest-labels-from-memory.ts";
-import type { LabelMemory, Suggestion } from "../ai/types.ts";
+import type { Suggestion } from "../ai/types.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
@@ -126,52 +125,6 @@ function initialDraft(
     if (refund) return refund;
   }
   return draftOfNew(data, kind);
-}
-
-function labelMemoryOf(data: EditorData): LabelMemory {
-  return {
-    baseCurrency: data.baseCurrency,
-    aliases: [],
-    payees: data.payees.map((payee) => ({
-      id: payee.id,
-      name: payee.name,
-      defaultCategoryId: payee.defaultCategoryId,
-    })),
-    categories: data.categories.map((category) => ({
-      id: category.id,
-      parentId: category.parentId,
-      kind: category.kind,
-      name: category.name,
-    })),
-    tags: data.tags.map((tag) => ({ id: tag.id, name: tag.name })),
-    members: data.members.map((member) => ({
-      id: member.id,
-      name: member.name,
-    })),
-    accounts: data.openAccounts.map((account) => ({
-      id: account.id,
-      name: account.name,
-      kind: account.kind,
-      currency: account.currency,
-      ownerMemberId: account.ownerMemberId,
-    })),
-    transactions: data.transactions
-      .filter((row) => row.status === "posted" && row.payeeId !== null)
-      .slice(0, 2000)
-      .map((row) => ({
-        id: row.id,
-        date: row.date,
-        kind: row.kind,
-        amountMinor: row.amountMinor,
-        payeeId: row.payeeId,
-        categoryId: row.categoryId,
-        memberId: row.memberId,
-        tagIds: data.tagIdsByTransaction.get(row.id) ?? [],
-        accountIds: (data.entriesByTransaction.get(row.id) ?? []).map(
-          (entry) => entry.accountId,
-        ),
-      })),
-  };
 }
 
 /**
@@ -781,11 +734,6 @@ function EditorForm({
       date: draft.date,
       accountId: draft.accountId,
     };
-    const local = suggestLabelsFromMemory(input, labelMemoryOf(data));
-    if (local) {
-      applySuggestion(local);
-      return;
-    }
     setSuggestState("busy");
     try {
       applySuggestion(await bankApiClient.suggest(input));

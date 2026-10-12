@@ -1,10 +1,52 @@
-import { comparableText } from "./comparable-text.ts";
+import { comparableText, type ComparableText } from "./comparable-text.ts";
+import { bankTextHistory } from "./labels-for-bank-text.ts";
 import { scoreTextSimilarity } from "./score-text-similarity.ts";
 import type { LabelInput, LabelMemory, MemoryTransaction } from "./types.ts";
 
 const MIN_SCORE = 0.3;
-const PER_PAYEE = 3;
+const PER_INPUT = 3;
+const SAME_TEXT_PER_CATEGORY = 5;
 const AMOUNT_BAND = 0.2;
+
+type ExampleMemory = Pick<LabelMemory, "payees" | "transactions">;
+
+interface Candidate {
+  transaction: MemoryTransaction;
+  texts: ComparableText[];
+}
+
+const candidatesByTransactions = new WeakMap<
+  ExampleMemory["transactions"],
+  Candidate[]
+>();
+
+/** The labelled Transactions with the bank texts and Payee name each is known by, prepared once for each memory. */
+function candidatesOf(memory: ExampleMemory) {
+  const cached = candidatesByTransactions.get(memory.transactions);
+  if (cached) return cached;
+  const payeeNames = new Map(
+    memory.payees.map((payee) => [payee.id, payee.name]),
+  );
+  const candidates = memory.transactions
+    .filter(
+      (transaction) =>
+        transaction.kind !== "transfer" && transaction.categoryId !== null,
+    )
+    .map((transaction) => {
+      const payeeName = transaction.payeeId
+        ? payeeNames.get(transaction.payeeId)
+        : undefined;
+      return {
+        transaction,
+        texts: [
+          ...transaction.bankTexts,
+          ...(payeeName ? [payeeName] : []),
+        ].map((text) => comparableText(text)),
+      };
+    });
+  candidatesByTransactions.set(memory.transactions, candidates);
+  return candidates;
+}
 
 function inAmountBand(a: number, b: number) {
   const low = Math.abs(a) * (1 - AMOUNT_BAND);
@@ -12,54 +54,62 @@ function inAmountBand(a: number, b: number) {
   return Math.abs(b) >= low && Math.abs(b) <= high;
 }
 
+/** For each Category, the newest Transactions with the same bank text and sign, so the model sees how they differ. */
+function sameTextByCategory(input: LabelInput, memory: ExampleMemory) {
+  const perCategory = new Map<string, number>();
+  return bankTextHistory(input, memory).filter((transaction) => {
+    const key = transaction.categoryId ?? "";
+    const count = perCategory.get(key) ?? 0;
+    perCategory.set(key, count + 1);
+    return count < SAME_TEXT_PER_CATEGORY;
+  });
+}
+
 /**
- * Past Transactions that help the model label `inputs`: first those of the
- * Payees whose names are most alike, then those on the same account with a
- * near amount. Newest first within each group, at most `limit`.
+ * Past labelled Transactions that help the model label `inputs`: for each
+ * input, the five newest with the same bank text of each Category; then the
+ * three whose bank text or Payee name is most alike, newest first on a tie;
+ * then one on the same account with a near amount. At most `limit`.
  */
 export function findSimilarTransactions(
   inputs: readonly LabelInput[],
-  memory: Pick<LabelMemory, "payees" | "aliases" | "transactions">,
-  limit = 30,
+  memory: ExampleMemory,
+  limit = 60,
 ): MemoryTransaction[] {
-  const payeeScores = new Map<string, number>();
-  const texts = [
-    ...memory.payees.map((payee) => ({ payeeId: payee.id, text: payee.name })),
-    ...memory.aliases.map((alias) => ({
-      payeeId: alias.payeeId,
-      text: alias.alias,
-    })),
-  ].map(({ payeeId, text }) => ({ payeeId, text: comparableText(text) }));
+  const candidates = candidatesOf(memory);
+  const chosen = new Map<string, MemoryTransaction>();
+
+  for (const input of inputs) {
+    for (const transaction of sameTextByCategory(input, memory)) {
+      if (chosen.size >= limit) break;
+      chosen.set(transaction.id, transaction);
+    }
+  }
+
   for (const input of inputs) {
     const inputText = comparableText(input.text);
-    for (const candidate of texts) {
-      const score = scoreTextSimilarity(inputText, candidate.text);
-      if (score >= MIN_SCORE) {
-        payeeScores.set(
-          candidate.payeeId,
-          Math.max(score, payeeScores.get(candidate.payeeId) ?? 0),
-        );
-      }
-    }
-  }
-
-  const chosen = new Map<string, MemoryTransaction>();
-  const byScore = [...payeeScores].sort((a, b) => b[1] - a[1]);
-  for (const [payeeId] of byScore) {
-    let taken = 0;
-    for (const transaction of memory.transactions) {
-      if (chosen.size >= limit || taken >= PER_PAYEE) break;
-      if (transaction.payeeId !== payeeId) continue;
+    const scored = candidates
+      .map((candidate) => ({
+        transaction: candidate.transaction,
+        score: Math.max(
+          0,
+          ...candidate.texts.map((text) =>
+            scoreTextSimilarity(inputText, text),
+          ),
+        ),
+      }))
+      .filter((candidate) => candidate.score >= MIN_SCORE)
+      .sort((a, b) => b.score - a.score);
+    for (const { transaction } of scored.slice(0, PER_INPUT)) {
+      if (chosen.size >= limit) break;
       chosen.set(transaction.id, transaction);
-      taken++;
     }
   }
 
   for (const input of inputs) {
-    for (const transaction of memory.transactions) {
+    for (const { transaction } of candidates) {
       if (chosen.size >= limit) break;
       if (
-        transaction.kind !== "transfer" &&
         transaction.accountIds.includes(input.accountId) &&
         inAmountBand(input.amountMinor, transaction.amountMinor) &&
         !chosen.has(transaction.id)

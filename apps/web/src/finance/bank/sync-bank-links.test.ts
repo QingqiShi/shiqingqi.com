@@ -9,7 +9,9 @@ import {
   households,
   payeeAliases,
   payees,
+  tags,
   transactions,
+  transactionTags,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
@@ -596,5 +598,140 @@ describe("syncBankLinks", () => {
       categoryId: home.groceriesId,
       needsReview: false,
     });
+  });
+
+  function fare(date: string, amountMinor: number, tagIds: string[]) {
+    return mutation("createTransaction", {
+      id: randomUUID(),
+      kind: "expense",
+      date,
+      amountMinor,
+      categoryId: home.groceriesId,
+      payeeId: null,
+      memberId: home.partnerId,
+      tagIds,
+      entries: [{ id: randomUUID(), accountId: home.currentId, amountMinor }],
+    });
+  }
+
+  it("labels a new row like the rows with the same bank text that this sync links, also without a Payee", async () => {
+    await push([
+      fare("2026-09-20", -280, [home.trainTagId]),
+      fare("2026-09-25", -310, [home.trainTagId]),
+    ]);
+    fixture.transactions["acc-current"] = [
+      bankRow("t1", "2026-09-20", -280, "TFL TRAVEL CHARGE 0042"),
+      bankRow("t2", "2026-09-25", -310, "TFL TRAVEL CHARGE 0042"),
+      bankRow("t3", "2026-10-08", -340, "TFL TRAVEL CHARGE 0057"),
+    ];
+    const model = createLabellingModel(() => ({
+      payeeName: "TfL",
+      categoryId: home.salaryId,
+      confidence: 0.9,
+    }));
+
+    const [current] = await sync({ model });
+
+    expect(current).toMatchObject({ linked: 2, created: 1 });
+    const created = (await liveTransactions()).find(
+      (row) => row.source === "bank",
+    );
+    expect(created).toMatchObject({
+      categoryId: home.groceriesId,
+      payeeId: null,
+      memberId: home.partnerId,
+      needsReview: false,
+    });
+    expect(created?.aiConfidence).toBeCloseTo(0.95);
+    const createdTags = await db
+      .select({ tagId: transactionTags.tagId })
+      .from(transactionTags)
+      .where(eq(transactionTags.transactionId, created?.id ?? ""));
+    expect(createdTags).toEqual([{ tagId: home.trainTagId }]);
+    expect(model.doGenerateCalls).toHaveLength(0);
+  });
+
+  it("sends a row to Review when the user nearly always adds a Tag that changes", async () => {
+    const tubeTagId = randomUUID();
+    await db.insert(tags).values({
+      id: tubeTagId,
+      householdId: home.householdId,
+      name: "Tube",
+      version: 0,
+    });
+    await push([
+      fare("2026-09-20", -280, [home.trainTagId]),
+      fare("2026-09-22", -310, [tubeTagId]),
+      fare("2026-09-25", -330, [home.trainTagId]),
+    ]);
+    fixture.transactions["acc-current"] = [
+      bankRow("t1", "2026-09-20", -280, "FARE"),
+      bankRow("t2", "2026-09-22", -310, "FARE"),
+      bankRow("t3", "2026-09-25", -330, "FARE"),
+      bankRow("t4", "2026-10-08", -340, "FARE"),
+    ];
+
+    await sync();
+
+    const created = (await liveTransactions()).find(
+      (row) => row.source === "bank",
+    );
+    expect(created).toMatchObject({
+      categoryId: home.groceriesId,
+      needsReview: true,
+    });
+    expect(created?.aiConfidence).toBeCloseTo(0.95);
+    const createdTags = await db
+      .select({ tagId: transactionTags.tagId })
+      .from(transactionTags)
+      .where(eq(transactionTags.transactionId, created?.id ?? ""));
+    expect(createdTags).toEqual([]);
+  });
+
+  it("labels a row like a confident row it created before, without the model", async () => {
+    fixture.transactions["acc-current"] = [
+      bankRow("t1", "2026-10-08", -1234, "CORNER SHOP 12"),
+    ];
+    const model = createLabellingModel(() => ({
+      payeeName: "Grocer",
+      categoryId: home.groceriesId,
+      confidence: 0.9,
+    }));
+    await sync({ model });
+    expect(await liveTransactions()).toMatchObject([
+      { payeeId: home.grocerId, needsReview: false },
+    ]);
+
+    fixture.transactions["acc-current"].push(
+      bankRow("t2", "2026-10-10", -999, "CORNER SHOP 34"),
+    );
+    await sync({ model, now: NEXT_DAY });
+
+    expect((await liveTransactions())[1]).toMatchObject({
+      date: "2026-10-10",
+      payeeId: home.grocerId,
+      categoryId: home.groceriesId,
+      needsReview: false,
+    });
+    expect(model.doGenerateCalls).toHaveLength(1);
+  });
+
+  it("does not learn from a created row in Review", async () => {
+    fixture.transactions["acc-current"] = [
+      bankRow("t1", "2026-10-08", -1234, "CORNER SHOP 12"),
+    ];
+    const model = createLabellingModel(() => ({
+      payeeName: "Grocer",
+      categoryId: home.groceriesId,
+      confidence: 0.5,
+    }));
+    await sync({ model });
+
+    fixture.transactions["acc-current"].push(
+      bankRow("t2", "2026-10-10", -999, "CORNER SHOP 34"),
+    );
+    await sync({ model, now: NEXT_DAY });
+
+    expect(model.doGenerateCalls).toHaveLength(2);
   });
 });

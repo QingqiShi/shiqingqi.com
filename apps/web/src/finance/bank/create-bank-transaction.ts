@@ -40,6 +40,7 @@ interface Labels {
   memberId: string | null;
   tagIds: string[];
   confidence: number | null;
+  askForTags: boolean;
 }
 
 async function fallbackLabels(
@@ -63,6 +64,7 @@ async function fallbackLabels(
     ),
     tagIds: [],
     confidence: null,
+    askForTags: false,
   };
 }
 
@@ -119,14 +121,15 @@ async function labelsFrom(
       )),
     tagIds: suggestion.tagIds,
     confidence: suggestion.confidence,
+    askForTags: suggestion.askForTags === true,
   };
 }
 
 /**
  * Creates the Transaction for a bank row that matched nothing, labelled by
  * the Suggestion. Money in on an expense Category is a refund. It goes to
- * Review when the confidence is below 0.8, the Payee is new, or there is no
- * Suggestion. The ids come from the bank row, so a second run cannot create
+ * Review when the confidence is below 0.8, the Payee is new, the user
+ * nearly always adds a Tag that only they know, or there is no Suggestion. The ids come from the bank row, so a second run cannot create
  * a second Transaction.
  */
 export async function createBankTransaction(
@@ -165,7 +168,8 @@ export async function createBankTransaction(
         needsReview:
           labels.confidence === null ||
           labels.confidence < REVIEW_CONFIDENCE ||
-          labels.newPayee,
+          labels.newPayee ||
+          labels.askForTags,
         entries: [
           {
             id: nameBasedUuid(`bank-entry:${row.linkId}:${row.providerTxId}`),

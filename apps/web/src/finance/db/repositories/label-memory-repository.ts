@@ -1,7 +1,9 @@
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { normaliseBankText } from "../../ai/normalise-bank-text.ts";
 import type { LabelMemory, MemoryTransaction } from "../../ai/types.ts";
 import {
   accounts,
+  bankTransactions,
   categories,
   entries,
   households,
@@ -27,7 +29,11 @@ function group(rows: { key: string; value: string }[]) {
 }
 
 export const labelMemoryRepository = {
-  /** What the labelling pipeline knows about the Household: Payees, aliases, taxonomy and recent posted Transactions. */
+  /**
+   * What the labelling pipeline knows about the Household: Payees, aliases,
+   * taxonomy, and recent posted Transactions out of Review with the texts of
+   * their matched bank rows.
+   */
   async load(
     scope: RepositoryScope,
     transactionLimit = DEFAULT_TRANSACTION_LIMIT,
@@ -46,6 +52,7 @@ export const labelMemoryRepository = {
           eq(transactions.householdId, householdId),
           isNull(transactions.deletedAt),
           eq(transactions.status, "posted"),
+          eq(transactions.needsReview, false),
         ),
       )
       .orderBy(...newestFirst)
@@ -62,6 +69,7 @@ export const labelMemoryRepository = {
       transactionRows,
       tagLinks,
       entryLinks,
+      bankRows,
     ] = await Promise.all([
       db
         .select({ baseCurrency: households.baseCurrency })
@@ -144,6 +152,7 @@ export const labelMemoryRepository = {
             eq(transactions.householdId, householdId),
             isNull(transactions.deletedAt),
             eq(transactions.status, "posted"),
+            eq(transactions.needsReview, false),
           ),
         )
         .orderBy(...newestFirst)
@@ -171,9 +180,31 @@ export const labelMemoryRepository = {
             isNull(entries.deletedAt),
           ),
         ),
+      db
+        .select({
+          transactionId: bankTransactions.transactionId,
+          merchant: bankTransactions.merchant,
+          description: bankTransactions.description,
+        })
+        .from(bankTransactions)
+        .where(
+          and(
+            eq(bankTransactions.householdId, householdId),
+            eq(bankTransactions.state, "matched"),
+            inArray(bankTransactions.transactionId, recentIds),
+          ),
+        ),
     ]);
     const tagsOf = group(tagLinks);
     const accountsOf = group(entryLinks);
+    const bankTextsOf = group(
+      bankRows.flatMap((row) => {
+        const text = normaliseBankText(row.merchant || row.description);
+        return row.transactionId === null || text === ""
+          ? []
+          : [{ key: row.transactionId, value: text }];
+      }),
+    );
 
     return {
       baseCurrency: household.at(0)?.baseCurrency ?? "GBP",
@@ -187,6 +218,7 @@ export const labelMemoryRepository = {
         ...row,
         tagIds: tagsOf.get(row.id) ?? [],
         accountIds: accountsOf.get(row.id) ?? [],
+        bankTexts: [...new Set(bankTextsOf.get(row.id))],
       })),
     };
   },

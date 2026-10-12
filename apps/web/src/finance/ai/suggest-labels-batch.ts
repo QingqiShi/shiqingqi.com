@@ -8,15 +8,17 @@ import {
 import type { LabelMemory, Suggestion } from "./types.ts";
 
 interface SuggestLabelsDependencies {
-  /** Null when no model is set up: only the alias and history steps run. */
+  /** Null when no model is set up: only the bank-text and alias steps run. */
   model: LanguageModel | null;
   onModelError?: (error: unknown) => void;
 }
 
 /**
- * Labels many inputs: each goes through the alias and history steps, and the
- * ones still without labels go to the model in batches. An input with no
- * Suggestion is missing from the result, also when the model call fails.
+ * Labels many inputs: each goes through the bank-text and alias steps, and the
+ * ones still without labels go to the model in batches. So do the ones whose
+ * past bank rows disagree on the Category; they keep the memory answer when
+ * the model gives none. An input with no Suggestion is missing from the
+ * result, also when the model call fails.
  */
 export async function suggestLabelsBatch(
   memory: LabelMemory,
@@ -26,9 +28,9 @@ export async function suggestLabelsBatch(
   const suggestions = new Map<string, Suggestion>();
   const rest: ModelLabelInput[] = [];
   for (const input of inputs) {
-    const suggestion = suggestLabelsFromMemory(input, memory);
-    if (suggestion) suggestions.set(input.key, suggestion);
-    else rest.push(input);
+    const recalled = suggestLabelsFromMemory(input, memory);
+    if (recalled) suggestions.set(input.key, recalled.suggestion);
+    if (!recalled?.categoryAgrees) rest.push(input);
   }
   if (rest.length === 0 || !dependencies.model) return suggestions;
 

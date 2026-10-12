@@ -7,8 +7,10 @@ export interface Suggestion {
   memberId?: string;
   /** 0 to 1: how sure the pipeline is of the Category. */
   confidence: number;
-  /** Where the Suggestion came from: a Payee alias, a near Payee name, or the model. */
-  source: "alias" | "history" | "model";
+  /** True when the user nearly always adds a Tag that changes from one occurrence to the next, so the Transaction goes to Review. */
+  askForTags?: boolean;
+  /** Where the Suggestion came from: a past bank row with the same text, a Payee alias, or the model. */
+  source: "bank-text" | "alias" | "model";
 }
 
 export interface LabelInput {
@@ -29,12 +31,11 @@ export interface MemoryTransaction {
   memberId: string | null;
   tagIds: readonly string[];
   accountIds: readonly string[];
+  /** The normalised texts of the bank rows that match the Transaction. */
+  bankTexts: readonly string[];
 }
 
-/**
- * What the Household already knows, as plain rows, so the alias and history
- * steps run the same on the server and on the Replica.
- */
+/** What the Household already knows, as plain rows, for every step of the labelling pipeline. */
 export interface LabelMemory {
   /** The currency of `transactions[].amountMinor`. */
   baseCurrency: string;
@@ -59,6 +60,6 @@ export interface LabelMemory {
     currency: string;
     ownerMemberId: string | null;
   }[];
-  /** Posted Transactions, newest first. */
+  /** Posted Transactions that are not in Review, newest first. */
   transactions: readonly MemoryTransaction[];
 }

@@ -51,6 +51,7 @@ export function buildFixtureMemory() {
       memberId: null,
       tagIds: [],
       accountIds: [FIXTURE_ACCOUNT_ID],
+      bankTexts: past.aliases ?? [],
     })),
   };
   return { memory, categoryId, payeeId };
