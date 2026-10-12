@@ -1,5 +1,6 @@
 import type { WriteScope } from "../db/repositories/types.ts";
 import type { DerivedTouches } from "./derived-touches.ts";
+import type { WriteActor } from "./labelled-by-after.ts";
 import type { HouseholdRow, SyncRows, SyncTableName } from "./row-schemas.ts";
 
 /**
@@ -49,4 +50,5 @@ export interface WriteContext {
   /** Today in the Household's time zone. */
   today: string;
   touches: DerivedTouches;
+  actor: WriteActor;
 }

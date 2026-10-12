@@ -24,6 +24,7 @@ export const householdRowSchema = z.object({
   name: z.string(),
   baseCurrency: currency,
   timezone: z.string(),
+  aiInstructions: z.string(),
   clock: version,
 });
 
@@ -119,14 +120,6 @@ const payeeRowSchema = z.object({
   deletedAt,
 });
 
-const payeeAliasRowSchema = z.object({
-  householdId: id,
-  alias: z.string(),
-  payeeId: id,
-  version,
-  updatedAt: timestamp,
-});
-
 const tagRowSchema = z.object({
   id,
   householdId: id,
@@ -174,7 +167,8 @@ const transactionRowSchema = z.object({
   note: z.string(),
   source: z.enum(["manual", "rule", "bank", "import"]),
   needsReview: z.boolean(),
-  aiConfidence: z.number().nullable(),
+  labelledBy: z.enum(["member", "ai"]),
+  aiReason: z.string().nullable(),
   searchText: z.string(),
   version,
   createdAt: timestamp,
@@ -268,7 +262,6 @@ export const rowSchemas = {
   valuations: valuationRowSchema,
   categories: categoryRowSchema,
   payees: payeeRowSchema,
-  payeeAliases: payeeAliasRowSchema,
   tags: tagRowSchema,
   rules: ruleRowSchema,
   transactions: transactionRowSchema,

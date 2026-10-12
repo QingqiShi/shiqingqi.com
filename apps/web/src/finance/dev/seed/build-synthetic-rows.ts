@@ -1,11 +1,9 @@
-import { normaliseBankText } from "../../ai/normalise-bank-text.ts";
 import type {
   accountGroups,
   accounts,
   categories,
   entries,
   fxRates,
-  payeeAliases,
   payees,
   rules,
   tags,
@@ -58,7 +56,6 @@ interface SyntheticRows {
   accounts: Row<typeof accounts>[];
   categories: Row<typeof categories>[];
   payees: Row<typeof payees>[];
-  payeeAliases: Row<typeof payeeAliases>[];
   tags: Row<typeof tags>[];
   rules: Row<typeof rules>[];
   valuations: Row<typeof valuations>[];
@@ -87,6 +84,12 @@ const SPENDING_ACCOUNT_WEIGHTS: Record<string, number> = {
 
 const NOTES = ["Split bill", "Birthday", "Weekend away", "Work lunch"];
 
+const BANK_REASONS = [
+  "Past {payee} transactions use this category.",
+  "A member labelled earlier {payee} rows this way.",
+  "Same merchant as recent {payee} transactions.",
+];
+
 const REVIEW_ROWS = [
   {
     account: "alexCurrent",
@@ -94,7 +97,7 @@ const REVIEW_ROWS = [
     pounds: -14.2,
     category: null,
     payee: null,
-    confidence: 0.42,
+    reason: null,
   },
   {
     account: "alexCurrent",
@@ -102,7 +105,7 @@ const REVIEW_ROWS = [
     pounds: -86,
     category: "household",
     payee: null,
-    confidence: 0.55,
+    reason: "No past transactions from this company. The category is a guess.",
   },
   {
     account: "mastercard",
@@ -110,7 +113,7 @@ const REVIEW_ROWS = [
     pounds: -23.99,
     category: "online",
     payee: null,
-    confidence: 0.61,
+    reason: "PayPal hides the seller. Check the category.",
   },
   {
     account: "samCurrent",
@@ -118,7 +121,7 @@ const REVIEW_ROWS = [
     pounds: 120,
     category: null,
     payee: null,
-    confidence: 0.5,
+    reason: null,
   },
   {
     account: "visa",
@@ -126,7 +129,8 @@ const REVIEW_ROWS = [
     pounds: -31.45,
     category: "grocery",
     payee: "Tesco",
-    confidence: 0.74,
+    reason:
+      "Tesco is usually groceries, but this card is mostly used for travel.",
   },
 ] as const;
 
@@ -163,7 +167,8 @@ interface NewTransaction {
   note?: string;
   source?: "manual" | "rule" | "bank";
   needsReview?: boolean;
-  aiConfidence?: number | null;
+  labelledBy?: "member" | "ai";
+  aiReason?: string | null;
   entries: { account: string; amountMinor: number; id?: string }[];
   tagIds?: string[];
   /** A repayment or a claim: it pays off the month's charges and is not one itself. */
@@ -258,22 +263,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     createdAt: openedAt,
     updatedAt: openedAt,
   }));
-  const aliasSeen = new Set<string>();
-  const aliasRows: SyntheticRows["payeeAliases"] = [];
-  for (const payee of SYNTHETIC_PAYEES) {
-    if (!payee.bankText) continue;
-    const alias = normaliseBankText(payee.bankText);
-    if (aliasSeen.has(alias)) continue;
-    aliasSeen.add(alias);
-    aliasRows.push({
-      householdId,
-      alias,
-      payeeId: payeeId(payee.name),
-      version,
-      updatedAt: openedAt,
-    });
-  }
-
   // accounts
 
   const accountId = (key: string) => id("account", key);
@@ -355,7 +344,8 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       note: transaction.note ?? "",
       source: transaction.source ?? "manual",
       needsReview: transaction.needsReview ?? false,
-      aiConfidence: transaction.aiConfidence ?? null,
+      labelledBy: transaction.labelledBy ?? "member",
+      aiReason: transaction.aiReason ?? null,
       version,
       createdAt,
       updatedAt: createdAt,
@@ -579,7 +569,10 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
           ? prng.pick(NOTES)
           : "",
       source: bank ? "bank" : "manual",
-      aiConfidence: bank ? 0.8 + 0.19 * prng.next() : null,
+      labelledBy: bank ? "ai" : "member",
+      aiReason: bank
+        ? prng.pick(BANK_REASONS).replace("{payee}", payee.name)
+        : null,
       entries: [{ account, amountMinor: -amount }],
       tagIds,
     });
@@ -783,7 +776,8 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       note: row.text,
       source: "bank",
       needsReview: true,
-      aiConfidence: row.confidence,
+      labelledBy: "ai",
+      aiReason: row.reason,
       entries: [{ account: row.account, amountMinor }],
     });
   }
@@ -831,7 +825,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     accounts: accountRows,
     categories: categoryRows,
     payees: payeeRows,
-    payeeAliases: aliasRows,
     tags: tagRows,
     rules: ruleRows,
     valuations: valuationRows,

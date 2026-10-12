@@ -1,19 +1,12 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { Badge } from "@tuja/ui/components/badge";
-import { Button } from "@tuja/ui/components/button";
-import { fieldStyles } from "@tuja/ui/components/field-shared.stylex";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { useDeferredValue, useRef, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { normaliseBankText } from "../ai/normalise-bank-text.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
@@ -34,17 +27,13 @@ interface Draft {
   note: string;
   defaultCategoryId: string;
   mergeIntoId: string;
-  /** Bank names to add on save, in their normalised form. */
-  newAliases: string[];
-  aliasText: string;
 }
 
-/** The Payees: search, rename, set the usual category, add bank names, merge a duplicate into another. */
+/** The Payees: search, rename, set the usual category, merge a duplicate into another. */
 export function PayeesSettings() {
   const locale = useLocale();
   const payees = useReplica(liveRowSelectors.payees);
   const categories = useReplica(liveRowSelectors.categories);
-  const aliases = useReplica((snapshot) => snapshot.tables.payeeAliases);
   const apply = useApplyMutations();
   const displayName = useCategoryDisplayName();
   const nameRef = useRef<HTMLInputElement>(null);
@@ -74,17 +63,6 @@ export function PayeesSettings() {
     zh: "个未显示，可搜索缩小范围。",
   });
   const payeeSaved = t({ en: "Payee saved", zh: "商家已保存" });
-  const aliasLabels = {
-    belongsTo: t({ en: "now belongs to", zh: "目前属于" }),
-    moves: t({
-      en: "; saving moves it to this payee.",
-      zh: "；保存后会移到此商家。",
-    }),
-  };
-  const aliasesOf = (payeeId: string) =>
-    [...aliases.values()]
-      .filter((alias) => alias.payeeId === payeeId)
-      .map((alias) => alias.alias);
 
   function save() {
     if (!draft || draft.name.trim() === "") return false;
@@ -97,9 +75,6 @@ export function PayeesSettings() {
           note: draft.note,
           defaultCategoryId:
             draft.defaultCategoryId === "" ? null : draft.defaultCategoryId,
-          ...(draft.newAliases.length > 0
-            ? { addAliases: draft.newAliases }
-            : {}),
         },
       },
     ];
@@ -110,33 +85,6 @@ export function PayeesSettings() {
       });
     }
     return apply(mutations, { message: payeeSaved });
-  }
-
-  const draftAliases = draft ? aliasesOf(draft.payee.id) : [];
-  const payeeNames = new Map(payees.map((payee) => [payee.id, payee.name]));
-  const ownerOfAlias = (alias: string) => {
-    const payeeId = aliases.get(alias)?.payeeId;
-    return payeeId === undefined || payeeId === draft?.payee.id
-      ? null
-      : (payeeNames.get(payeeId) ?? null);
-  };
-
-  function addAlias() {
-    if (!draft) return;
-    const alias = normaliseBankText(draft.aliasText);
-    if (
-      alias === "" ||
-      draftAliases.includes(alias) ||
-      draft.newAliases.includes(alias)
-    ) {
-      setDraft({ ...draft, aliasText: "" });
-      return;
-    }
-    setDraft({
-      ...draft,
-      aliasText: "",
-      newAliases: [...draft.newAliases, alias],
-    });
   }
 
   return (
@@ -177,8 +125,6 @@ export function PayeesSettings() {
                 note: payee.note,
                 defaultCategoryId: payee.defaultCategoryId ?? "",
                 mergeIntoId: "",
-                newAliases: [],
-                aliasText: "",
               });
             }}
           />
@@ -235,72 +181,11 @@ export function PayeesSettings() {
                 setDraft({ ...draft, note: event.target.value });
               }}
             />
-            <div css={stack.tight}>
-              <span css={[typeRole.control, fieldStyles.label]}>
-                {t({ en: "Bank names", zh: "银行名称" })}
-              </span>
-              <Text look="caption" tone="muted">
-                {t({
-                  en: "How this payee appears on bank statements. A bank transaction with one of these names gets this payee.",
-                  zh: "此商家在银行账单上显示的名称。带有这些名称的银行交易会自动归到此商家。",
-                })}
-              </Text>
-              {draftAliases.length + draft.newAliases.length > 0 ? (
-                <ul css={[cluster.tight, styles.aliases]}>
-                  {[...draftAliases, ...draft.newAliases].map((alias) => (
-                    <li key={alias}>
-                      <Badge size="sm" intent="neutral">
-                        {alias}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {draft.newAliases.flatMap((alias) => {
-                const owner = ownerOfAlias(alias);
-                return owner === null
-                  ? []
-                  : [
-                      <Text key={alias} look="caption" tone="muted">
-                        {`${alias} ${aliasLabels.belongsTo} ${owner}${aliasLabels.moves}`}
-                      </Text>,
-                    ];
-              })}
-              <div css={[cluster.tight, styles.aliasAdd]}>
-                <TextField
-                  label={t({ en: "Add a bank name", zh: "添加银行名称" })}
-                  labelHidden
-                  placeholder={t({
-                    en: "Add a bank name, such as TESCO STORES",
-                    zh: "添加银行名称，例如 TESCO STORES",
-                  })}
-                  value={draft.aliasText}
-                  css={styles.aliasField}
-                  onChange={(event) => {
-                    setDraft({ ...draft, aliasText: event.target.value });
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      addAlias();
-                    }
-                  }}
-                />
-                <Button
-                  size="sm"
-                  look="outline"
-                  disabled={normaliseBankText(draft.aliasText) === ""}
-                  onClick={addAlias}
-                >
-                  {t({ en: "Add", zh: "添加" })}
-                </Button>
-              </div>
-            </div>
             <Select
               label={t({ en: "Merge into", zh: "合并到" })}
               description={t({
-                en: "Moves every transaction, bank name and rule of this payee to the one you pick, then removes this one.",
-                zh: "把此商家的所有交易、银行名称和周期规则移到所选商家，然后删除此商家。",
+                en: "Moves every transaction and rule of this payee to the one you pick, then removes this one.",
+                zh: "把此商家的所有交易和周期规则移到所选商家，然后删除此商家。",
               })}
               value={draft.mergeIntoId}
               options={[
@@ -319,19 +204,3 @@ export function PayeesSettings() {
     </SettingsPanel>
   );
 }
-
-const styles = stylex.create({
-  aliases: {
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
-  },
-  aliasAdd: {
-    flexWrap: "nowrap",
-    alignItems: "center",
-  },
-  aliasField: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-});

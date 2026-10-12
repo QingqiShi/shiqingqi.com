@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import "server-only";
 import { getFinanceModel } from "../ai/get-finance-model.ts";
 import { getFinanceSession } from "../auth/get-finance-session.ts";
@@ -15,6 +16,10 @@ export const bankHandlers = makeBankHandlers({
   verifyApiKey: bankProvider.verifyApiKey,
   credentialKey: bankProvider.credentialKey,
   getModel: getFinanceModel,
+  afterResponse: after,
+  onModelError: (error) => {
+    console.error("Finance labelling failed", error);
+  },
   now: () => new Date(),
   limitRequest: limitFinanceRequest,
 });

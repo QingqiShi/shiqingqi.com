@@ -3,6 +3,7 @@
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useReplica } from "../replica/use-replica.ts";
+import { AiSettings } from "./ai-settings.tsx";
 import { CategoriesSettings } from "./categories-settings.tsx";
 import { ConnectionsSettings } from "./connections-settings.tsx";
 import { DataSettings } from "./data-settings.tsx";
@@ -24,6 +25,7 @@ const VIEWS: Record<SettingsSection, () => React.ReactNode> = {
   payees: PayeesSettings,
   tags: TagsSettings,
   rules: RulesSettings,
+  ai: AiSettings,
   connections: ConnectionsSettings,
   data: DataSettings,
 };

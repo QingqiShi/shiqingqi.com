@@ -8,6 +8,7 @@ export const SETTINGS_SECTIONS = [
   "payees",
   "tags",
   "rules",
+  "ai",
   "connections",
   "data",
 ] as const;

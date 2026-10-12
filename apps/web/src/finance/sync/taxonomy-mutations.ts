@@ -122,7 +122,7 @@ async function upsertPayee(
   args: z.infer<typeof upsertPayeeArgsSchema>,
 ) {
   const { scope } = context;
-  const { id, deleted, addAliases, ...fields } = args;
+  const { id, deleted, ...fields } = args;
   await checkPayeeDefaults(scope, fields);
   const existing = await payeeRepository.findById(scope, id);
   if (existing) {
@@ -138,21 +138,17 @@ async function upsertPayee(
     }
   } else {
     const row = parseNewRow(
-      payeeFieldsSchema
-        .omit({ addAliases: true })
-        .partial()
-        .required({ name: true }),
+      payeeFieldsSchema.partial().required({ name: true }),
       fields,
     );
     if (!(await payeeRepository.insert(scope, { ...row, id }))) {
       throw new MutationError("forbidden");
     }
   }
-  await payeeRepository.putAliases(scope, id, addAliases ?? []);
 }
 
 /**
- * Folds one Payee into another: its Transactions, aliases and Rule templates
+ * Folds one Payee into another: its Transactions and Rule templates
  * move to the other Payee, and it is soft-deleted with a pointer to where it
  * went.
  */
@@ -167,7 +163,6 @@ async function mergePayee(
   if (from.deletedAt || into.deletedAt) throw new MutationError("deleted");
 
   await transactionRepository.repointPayee(scope, from.id, into.id);
-  await payeeRepository.repointAliases(scope, from.id, into.id);
   await ruleRepository.repointTemplatePayee(scope, from.id, into.id);
   await payeeRepository.patch(scope, from.id, {
     mergedIntoId: into.id,

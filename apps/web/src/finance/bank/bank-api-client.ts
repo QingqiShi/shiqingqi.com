@@ -1,4 +1,4 @@
-import type { LabelInput, Suggestion } from "../ai/types.ts";
+import type { SuggestRequest, SuggestResponse } from "../ai/types.ts";
 import { financeFetch } from "../http/finance-fetch.ts";
 import type {
   BankLinkView,
@@ -67,9 +67,9 @@ export const bankApiClient = {
     });
   },
 
-  /** The model step of the labelling pipeline; run `suggestLabelsFromMemory` on the Replica first. */
-  suggest(input: LabelInput) {
-    return sendJson<Suggestion>("/api/finance/ai/suggest", {
+  /** The AI's labels for one Transaction, from the labeller that labels bank rows. */
+  suggest(input: SuggestRequest) {
+    return sendJson<SuggestResponse>("/api/finance/ai/suggest", {
       method: "POST",
       body: JSON.stringify(input),
     });

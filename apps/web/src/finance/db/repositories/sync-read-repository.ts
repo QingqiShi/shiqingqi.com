@@ -11,7 +11,6 @@ import {
   fxRates,
   members,
   monthTotals,
-  payeeAliases,
   payees,
   rules,
   tags,
@@ -161,16 +160,6 @@ export const syncReadRepository = {
           and(
             eq(payees.householdId, scope.householdId),
             changedSince(payees.version, options),
-          ),
-        ),
-    payeeAliases: (scope, options) =>
-      scope.db
-        .select()
-        .from(payeeAliases)
-        .where(
-          and(
-            eq(payeeAliases.householdId, scope.householdId),
-            changedSince(payeeAliases.version, options),
           ),
         ),
     tags: (scope, options) =>

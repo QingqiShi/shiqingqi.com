@@ -7,6 +7,7 @@ const householdColumns = {
   name: households.name,
   baseCurrency: households.baseCurrency,
   timezone: households.timezone,
+  aiInstructions: households.aiInstructions,
   clock: households.clock,
 };
 
@@ -29,12 +30,18 @@ export const householdRepository = {
     return rows.at(0);
   },
 
-  /** Renames the Household or moves it to another timezone. */
+  /** Renames the Household, moves it to another timezone, or changes its AI instructions. */
   async update(
     scope: RepositoryScope,
-    fields: { name?: string; timezone?: string },
+    fields: { name?: string; timezone?: string; aiInstructions?: string },
   ) {
-    if (fields.name === undefined && fields.timezone === undefined) return;
+    if (
+      fields.name === undefined &&
+      fields.timezone === undefined &&
+      fields.aiInstructions === undefined
+    ) {
+      return;
+    }
     await scope.db
       .update(households)
       .set(fields)

@@ -420,7 +420,8 @@ describe("TransactionEditor", () => {
       accountId: ids.card,
       payeeId: ids.tesco,
       needsReview: true,
-      aiConfidence: 0.95,
+      labelledBy: "ai",
+      aiReason: "Tesco is usually groceries.",
     });
     const { runtime } = await openEditor(
       { transactionId: EXPECTED },
@@ -430,6 +431,7 @@ describe("TransactionEditor", () => {
         entries: [...(rows.entries ?? []), entry],
       },
     );
+    expect(screen.getByText("Tesco is usually groceries.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Looks right" }));
     expect(outbox(runtime)).toEqual([
       expect.objectContaining({

@@ -29,7 +29,6 @@ import {
   invites,
   monthTotals,
   passkeys,
-  payeeAliases,
   reports,
   rules,
   schema,
@@ -154,12 +153,6 @@ async function seedEveryTable(
     startsOn: day,
     nextOn: day,
     template: {},
-    version: 1,
-  });
-  await db.insert(payeeAliases).values({
-    householdId,
-    alias: id("alias"),
-    payeeId: home.grocerId,
     version: 1,
   });
   await db.insert(transactions).values({

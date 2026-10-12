@@ -14,7 +14,7 @@ for (const viewport of [DESKTOP, MOBILE]) {
   test.describe(`Review at ${String(viewport.width)} px`, () => {
     test.use({ viewport });
 
-    test("“Looks right” takes a bank row out of Review and syncs it", async ({
+    test("“Looks right” takes a bank row out of Review, makes it the Member's, and syncs it", async ({
       page,
       session,
       financeDb,
@@ -54,7 +54,10 @@ for (const viewport of [DESKTOP, MOBILE]) {
         .poll(
           async () =>
             financeDb
-              .select({ needsReview: transactions.needsReview })
+              .select({
+                needsReview: transactions.needsReview,
+                labelledBy: transactions.labelledBy,
+              })
               .from(transactions)
               .where(
                 and(
@@ -64,7 +67,7 @@ for (const viewport of [DESKTOP, MOBILE]) {
               ),
           { timeout: SYNC_TIMEOUT },
         )
-        .toEqual([{ needsReview: false }]);
+        .toEqual([{ needsReview: false, labelledBy: "member" }]);
     });
   });
 }

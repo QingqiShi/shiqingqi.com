@@ -67,7 +67,8 @@ export interface BankLinkSyncSummary {
   linkId: string;
   accountId: string;
   error: BankErrorKind | "failed" | null;
-  created: number;
+  /** Rows that matched nothing and wait for the AI to label them. */
+  pending: number;
   linked: number;
   confirmed: number;
   missing: number;

@@ -3,6 +3,9 @@ import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 
 const INT32_MAX = 2 ** 31 - 1;
 
+/** The longest note a Transaction or Payee may have. */
+export const MAX_NOTE_LENGTH = 2000;
+
 /** PostgreSQL text cannot hold the NUL character. */
 function hasNoNul(value: string) {
   return !value.includes("\0");
@@ -26,7 +29,7 @@ export const wireFields = {
     .min(1)
     .max(200)
     .refine(hasNoNul, "Text cannot hold NUL"),
-  note: text(2000),
+  note: text(MAX_NOTE_LENGTH),
   text,
   position: z
     .int()

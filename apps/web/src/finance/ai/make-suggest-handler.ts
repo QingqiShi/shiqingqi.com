@@ -1,7 +1,10 @@
 import type { LanguageModel } from "ai";
 import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
-import { labelMemoryRepository } from "../db/repositories/label-memory-repository.ts";
+import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
+import { labellingContextRepository } from "../db/repositories/labelling-context-repository.ts";
+import { payeeRepository } from "../db/repositories/payee-repository.ts";
+import { transactionSearchRepository } from "../db/repositories/transaction-search-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { financeJson } from "../http/finance-json.ts";
@@ -9,7 +12,8 @@ import { guardFinanceRequest } from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import type { LimitFinanceRequest } from "../http/types.ts";
 import { wireFields } from "../sync/wire-fields.ts";
-import { suggestLabelsWithModel } from "./suggest-labels-with-model.ts";
+import { labelBankRows, type RowLabel } from "./label-bank-rows.ts";
+import type { SuggestResponse } from "./types.ts";
 
 export interface SuggestHandlerDependencies {
   isConfigured: () => boolean;
@@ -22,16 +26,19 @@ export interface SuggestHandlerDependencies {
 }
 
 const suggestRequestSchema = z.object({
+  transactionId: wireFields.id.optional(),
   text: z.string().trim().min(1).max(500),
   amountMinor: wireFields.minorUnits,
   date: wireFields.day,
   accountId: wireFields.id,
 });
 
+const REF = "1";
+
 /**
- * `POST /api/finance/ai/suggest`: the model step for the editor's Suggest
- * button. The client runs the alias and history steps on the Replica first
- * and calls this only when they find nothing.
+ * `POST /api/finance/ai/suggest`: the editor's Suggest button. It runs the
+ * labeller that labels bank rows on one row: the Transaction's bank text
+ * when it came from the bank, else the text the Member typed.
  */
 export function makeSuggestHandler(dependencies: SuggestHandlerDependencies) {
   return async function POST(request: Request) {
@@ -47,26 +54,78 @@ export function makeSuggestHandler(dependencies: SuggestHandlerDependencies) {
       return financeJson({ error: "model-unavailable" }, { status: 503 });
     }
 
-    const memory = await withHousehold(
-      dependencies.getDb(),
+    const db = dependencies.getDb();
+    const { context, bankRow } = await withHousehold(
+      db,
       session.householdId,
-      (scope) => labelMemoryRepository.load(scope),
+      async (scope) => ({
+        context: await labellingContextRepository.load(scope),
+        bankRow: input.transactionId
+          ? (
+              await bankTransactionRepository.findByTransactionId(
+                scope,
+                input.transactionId,
+              )
+            ).at(0)
+          : undefined,
+      }),
     );
-    if (!memory.accounts.some((account) => account.id === input.accountId)) {
+    const account = context.accounts.find(
+      (candidate) => candidate.id === input.accountId,
+    );
+    if (!account || account.isSystem) {
       return financeJson({ error: "unknown-account" }, { status: 400 });
     }
+
+    let label: RowLabel;
     try {
-      const suggestions = await suggestLabelsWithModel(model, memory, [
-        { ...input, key: "input" },
-      ]);
-      const suggestion = suggestions.get("input");
-      if (!suggestion) {
+      const results = await labelBankRows(
+        model,
+        context,
+        [
+          {
+            ref: REF,
+            date: input.date,
+            amountMinor: input.amountMinor,
+            accountId: input.accountId,
+            merchant: bankRow ? bankRow.merchant : input.text,
+            description: bankRow ? bankRow.description : "",
+          },
+        ],
+        (search) =>
+          withHousehold(db, session.householdId, (scope) =>
+            transactionSearchRepository.search(scope, search),
+          ),
+      );
+      const result = results.get(REF);
+      if (!result?.ok) {
         return financeJson({ error: "model-unavailable" }, { status: 502 });
       }
-      return financeJson(suggestion);
+      label = result.label;
     } catch (error) {
       dependencies.onModelError?.(error);
       return financeJson({ error: "model-unavailable" }, { status: 502 });
     }
+
+    const { payee } = label;
+    const newName = payee !== null && "name" in payee ? payee.name : null;
+    const named =
+      newName === null
+        ? undefined
+        : await withHousehold(db, session.householdId, (scope) =>
+            payeeRepository.findLiveByName(scope, newName),
+          );
+    return financeJson({
+      kind: label.kind,
+      categoryId: label.categoryId,
+      payeeId: payee !== null && "id" in payee ? payee.id : (named?.id ?? null),
+      newPayeeName: named ? null : newName,
+      tagIds: label.tagIds,
+      memberId: label.memberId,
+      toAccountId:
+        label.transfer?.type === "account" ? label.transfer.accountId : null,
+      paysDownAccountId: label.paysDownAccountId,
+      reason: label.reason,
+    } satisfies SuggestResponse);
   };
 }

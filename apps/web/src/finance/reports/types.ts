@@ -28,7 +28,8 @@ export interface ReportSourceTransaction {
   categoryId: string | null;
   payeeId: string | null;
   memberId: string | null;
-  needsReview: boolean;
+  /** In Review on the day the Report was made. */
+  inReview: boolean;
 }
 
 /**

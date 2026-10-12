@@ -96,14 +96,18 @@ The system Category, one for expense and one for income. ZH: 未分类. It is no
 _Avoid_: other, misc, unknown
 
 **Payee**:
-The merchant or person on the other side: Ocado, Netflix, Deliveroo, a friend. The bank-statement strings that identify a payee are its **aliases**. ZH: 商家.
+The merchant or person on the other side: Ocado, Netflix, Deliveroo, a friend. ZH: 商家.
 _Avoid_: merchant (in code), vendor, tag
 
 **Tag**:
 A free label that cuts across categories and payees: 地铁, 火车, who a treat was for. ZH: 标签.
 
 **Review**:
-The queue of transactions that need a human look, which are those with `needs_review` set: a filter, not a status. "Looks right" (ZH: 没问题) clears the flag, and the transaction is then **reviewed**. ZH: 待审核.
+The queue of transactions that need a human look: those with `needs_review` set, and those with money In transit for more than five days. It is a filter, not a status. "Looks right" (ZH: 没问题) clears the flag, and the transaction is then **reviewed**. ZH: 待审核.
+
+**AI instructions**:
+The Household's own words to the AI that labels its bank rows: whose account is whose, what a transfer is for, which shop counts as what. ZH: AI 说明.
+_Avoid_: prompt, rules (that is a Rule)
 
 **Bank link**:
 The binding of one account to one provider account (a Lunch Flow account id). ZH: 银行关联. A **Connection** is the household's provider credential. ZH: 银行连接.

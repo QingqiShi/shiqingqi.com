@@ -62,7 +62,12 @@ export async function applyMutations(
       }
       try {
         await withSavepoint(write, async (savepoint) => {
-          const context: WriteContext = { scope: savepoint, today, touches };
+          const context: WriteContext = {
+            scope: savepoint,
+            today,
+            touches,
+            actor: "member",
+          };
           await applyMutation(context, parsed.data);
           await appliedMutationRepository.record(
             context.scope,
@@ -80,7 +85,12 @@ export async function applyMutations(
       }
     }
 
-    const context: WriteContext = { scope: write, today, touches };
+    const context: WriteContext = {
+      scope: write,
+      today,
+      touches,
+      actor: "server",
+    };
     if ((await materialiseRulesInTransaction(context)) > 0) written = true;
     if (!written) return { applied, rejected, clock: household.clock };
 

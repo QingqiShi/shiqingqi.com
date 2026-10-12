@@ -33,8 +33,7 @@ import {
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { currencySymbol } from "../accounts/currency-symbol.ts";
-import { suggestLabelsFromMemory } from "../ai/suggest-labels-from-memory.ts";
-import type { LabelMemory, Suggestion } from "../ai/types.ts";
+import type { SuggestResponse } from "../ai/types.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
@@ -49,10 +48,12 @@ import { floatingAction } from "../shell/floating-action.stylex.ts";
 import { FloatingActions } from "../shell/floating-actions.tsx";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
-import { ConfidenceBadge } from "../transactions/confidence-badge.tsx";
 import { detectRecurring } from "../transactions/detect-recurring.ts";
+import { isInReview } from "../transactions/is-in-review.ts";
+import { reviewReason } from "../transactions/review-reason.ts";
 import { ruleFromTransaction } from "../transactions/rule-from-transaction.ts";
 import type { TransactionKind } from "../transactions/transaction-filters.ts";
+import { useReviewReasonText } from "../transactions/use-review-reason-text.ts";
 import { canPayInInstalments } from "./build-instalment-plan.ts";
 import { buildTransactionMutations } from "./build-transaction-mutations.ts";
 import { CategoryPicker } from "./category-picker.tsx";
@@ -127,52 +128,6 @@ function initialDraft(
     if (refund) return refund;
   }
   return draftOfNew(data, kind);
-}
-
-function labelMemoryOf(data: EditorData): LabelMemory {
-  return {
-    baseCurrency: data.baseCurrency,
-    aliases: [],
-    payees: data.payees.map((payee) => ({
-      id: payee.id,
-      name: payee.name,
-      defaultCategoryId: payee.defaultCategoryId,
-    })),
-    categories: data.categories.map((category) => ({
-      id: category.id,
-      parentId: category.parentId,
-      kind: category.kind,
-      name: category.name,
-    })),
-    tags: data.tags.map((tag) => ({ id: tag.id, name: tag.name })),
-    members: data.members.map((member) => ({
-      id: member.id,
-      name: member.name,
-    })),
-    accounts: data.openAccounts.map((account) => ({
-      id: account.id,
-      name: account.name,
-      kind: account.kind,
-      currency: account.currency,
-      ownerMemberId: account.ownerMemberId,
-    })),
-    transactions: data.transactions
-      .filter((row) => row.status === "posted" && row.payeeId !== null)
-      .slice(0, 2000)
-      .map((row) => ({
-        id: row.id,
-        date: row.date,
-        kind: row.kind,
-        amountMinor: row.amountMinor,
-        payeeId: row.payeeId,
-        categoryId: row.categoryId,
-        memberId: row.memberId,
-        tagIds: data.tagIdsByTransaction.get(row.id) ?? [],
-        accountIds: (data.entriesByTransaction.get(row.id) ?? []).map(
-          (entry) => entry.accountId,
-        ),
-      })),
-  };
 }
 
 /**
@@ -285,7 +240,9 @@ function EditorForm({
     (existing ? data.entriesByTransaction.get(existing.id) : undefined) ??
     NO_ENTRIES;
   const isExpected = existing?.status === "expected";
-  const inReview = existing?.needsReview === true;
+  const inReview =
+    existing !== undefined &&
+    isInReview(existing, existingEntries, data.lookups.accountById, data.today);
   const paidToday = isExpected && draft.date > data.today;
 
   useEffect(() => {
@@ -745,14 +702,20 @@ function EditorForm({
     );
   };
 
-  const applySuggestion = (suggestion: Suggestion) => {
+  const applySuggestion = (suggestion: SuggestResponse) => {
     const payee =
-      suggestion.payeeId === undefined
+      suggestion.payeeId === null
         ? undefined
         : data.lookups.payeeById.get(suggestion.payeeId);
-    const category = data.lookups.categoryById.get(suggestion.categoryId);
+    const category =
+      suggestion.categoryId === null
+        ? undefined
+        : data.lookups.categoryById.get(suggestion.categoryId);
     const fields: Partial<EditorDraft> = {
+      kind: suggestion.kind,
       tagIds: suggestion.tagIds,
+      categoryId: category?.kind === suggestion.kind ? category.id : null,
+      refund: suggestion.kind === "expense" ? draft.refund : false,
     };
     if (payee) {
       fields.payeeId = payee.id;
@@ -760,8 +723,12 @@ function EditorForm({
     } else if (suggestion.newPayeeName) {
       fields.payeeName = suggestion.newPayeeName;
     }
-    if (category && category.kind === draft.kind) {
-      fields.categoryId = category.id;
+    if (
+      suggestion.kind === "transfer" &&
+      suggestion.toAccountId !== null &&
+      isUsableAccount(suggestion.toAccountId)
+    ) {
+      fields.toAccountId = suggestion.toAccountId;
     }
     if (
       suggestion.memberId &&
@@ -777,22 +744,19 @@ function EditorForm({
   const suggest = async () => {
     const text = [draft.payeeName, draft.note].join(" ").trim();
     if (text === "" || draft.accountId === null) return;
-    const input = {
-      text,
-      amountMinor:
-        (draft.kind === "income" ? 1 : -1) *
-        Math.abs(parseMoney(draft.amountText, currency) ?? 0),
-      date: draft.date,
-      accountId: draft.accountId,
-    };
-    const local = suggestLabelsFromMemory(input, labelMemoryOf(data));
-    if (local) {
-      applySuggestion(local);
-      return;
-    }
     setSuggestState("busy");
     try {
-      applySuggestion(await bankApiClient.suggest(input));
+      applySuggestion(
+        await bankApiClient.suggest({
+          ...(existing ? { transactionId: existing.id } : {}),
+          text,
+          amountMinor:
+            (draft.kind === "income" || draft.refund ? 1 : -1) *
+            Math.abs(parseMoney(draft.amountText, currency) ?? 0),
+          date: draft.date,
+          accountId: draft.accountId,
+        }),
+      );
     } catch {
       setSuggestState("failed");
     }
@@ -808,7 +772,10 @@ function EditorForm({
     }
   };
 
-  const confidence = existing?.aiConfidence ?? null;
+  const reasonText = useReviewReasonText();
+  const reason = existing
+    ? reviewReason(existing, existingEntries, data.lookups)
+    : null;
 
   const headings: Record<TransactionKind, string> = {
     expense: t({ en: "New expense", zh: "记一笔支出" }),
@@ -886,35 +853,48 @@ function EditorForm({
       {inReview ? (
         <Callout
           intent="info"
-          title={
-            <span css={cluster.tight}>
-              {t({ en: "From the bank", zh: "来自银行" })}
-              {confidence === null ? null : (
-                <ConfidenceBadge confidence={confidence} />
-              )}
-            </span>
-          }
+          title={t({ en: "From the bank", zh: "来自银行" })}
         >
           <div css={stack.tight}>
             <span>
-              {t({
-                en: "Check the payee and category, then confirm.",
-                zh: "请检查商家和分类，然后确认。",
-              })}
+              {reason === null
+                ? t({
+                    en: "Check the payee and category, then confirm.",
+                    zh: "请检查商家和分类，然后确认。",
+                  })
+                : reasonText(reason)}
             </span>
             <div>
-              <Button
-                size="sm"
-                icon={<CheckIcon weight="bold" />}
-                onClick={() => {
-                  save(false);
-                }}
-              >
-                {t({ en: "Looks right", zh: "没问题" })}
-              </Button>
+              {reason?.type === "inTransit" ? (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    (account?.isSystem
+                      ? accountRef
+                      : toAccountRef
+                    ).current?.focus();
+                  }}
+                >
+                  {t({ en: "Choose account", zh: "选择账户" })}
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  icon={<CheckIcon weight="bold" />}
+                  onClick={() => {
+                    save(false);
+                  }}
+                >
+                  {t({ en: "Looks right", zh: "没问题" })}
+                </Button>
+              )}
             </div>
           </div>
         </Callout>
+      ) : reason?.type === "ai" ? (
+        <span css={[typeRole.caption, styles.muted]}>
+          {`${t({ en: "Labelled by AI", zh: "由 AI 标注" })} · ${reason.text}`}
+        </span>
       ) : null}
 
       <div css={stack.item}>

@@ -14,7 +14,6 @@ import {
   pgEnum,
   pgTable,
   primaryKey,
-  real,
   smallint,
   text,
   timestamp,
@@ -164,6 +163,7 @@ export const households = pgTable("households", {
   name: text("name").notNull(),
   baseCurrency: currency("base_currency").notNull().default("GBP"),
   timezone: text("timezone").notNull().default(DEFAULT_HOUSEHOLD_TIME_ZONE),
+  aiInstructions: text("ai_instructions").notNull().default(""),
   clock: minor("clock").notNull().default(0),
   createdAt: createdAt(),
 });
@@ -421,21 +421,6 @@ export const payees = pgTable(
   ],
 );
 
-export const payeeAliases = pgTable(
-  "payee_aliases",
-  {
-    householdId: householdId(),
-    alias: text("alias").notNull(),
-    payeeId: uuid("payee_id").notNull(),
-    version: version(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [
-    primaryKey({ columns: [t.householdId, t.alias] }),
-    householdReference("payee_aliases_payee_fk", t, t.payeeId, payees),
-  ],
-);
-
 export const tags = pgTable(
   "tags",
   {
@@ -517,7 +502,10 @@ export const transactions = pgTable(
       .notNull()
       .default("manual"),
     needsReview: boolean("needs_review").notNull().default(false),
-    aiConfidence: real("ai_confidence"),
+    labelledBy: text("labelled_by", { enum: ["member", "ai"] })
+      .notNull()
+      .default("member"),
+    aiReason: text("ai_reason"),
     searchText: text("search_text").notNull().default(""),
     version: version(),
     createdAt: createdAt(),
@@ -528,6 +516,10 @@ export const transactions = pgTable(
     check(
       "transactions_source_check",
       sql`${t.source} in ('manual', 'rule', 'bank', 'import')`,
+    ),
+    check(
+      "transactions_labelled_by_check",
+      sql`${t.labelledBy} in ('member', 'ai')`,
     ),
     index("transactions_date_idx")
       .on(t.householdId, t.date.desc(), t.id)
@@ -772,6 +764,7 @@ export const bankTransactions = pgTable(
     raw: jsonb("raw").notNull(),
     state: bankTxState("state").notNull().default("new"),
     transactionId: uuid("transaction_id"),
+    labelAttempts: smallint("label_attempts").notNull().default(0),
     firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -847,7 +840,6 @@ export const schema = {
   valuations,
   categories,
   payees,
-  payeeAliases,
   tags,
   rules,
   transactions,

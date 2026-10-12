@@ -28,6 +28,7 @@ const household: HouseholdRow = {
   name: "Home",
   baseCurrency: "GBP",
   timezone: "Europe/London",
+  aiInstructions: "",
   clock: 10,
 };
 
@@ -49,7 +50,8 @@ function serverTransaction(id: string, date: string, amountMinor: number) {
     note: "",
     source: "import" as const,
     needsReview: false,
-    aiConfidence: null,
+    labelledBy: "member" as const,
+    aiReason: null,
     searchText: "groceries",
     ...stamps,
     deletedAt: null,

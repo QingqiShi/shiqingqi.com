@@ -1,7 +1,8 @@
 /**
  * A synthetic labelling fixture: a generic bilingual-household category tree,
- * a short labelled history, and held-out UK bank strings with the categories
- * a person would pick. No real household data.
+ * a short history a Member labelled, with the bank text of each row, and
+ * held-out UK bank strings with the categories a person would pick. No real
+ * household data.
  */
 export interface FixtureCategory {
   key: string;
@@ -26,7 +27,8 @@ export const categoriseFixture: {
     payee: string;
     category: string;
     amountMinor: number;
-    aliases?: string[];
+    /** What the bank called it. */
+    bankText: string;
   }[];
   cases: FixtureCase[];
 } = {
@@ -63,6 +65,7 @@ export const categoriseFixture: {
     { key: "health", name: "健康", kind: "expense" },
     { key: "entertainment", name: "娱乐", kind: "expense" },
     { key: "insurance", name: "保险", kind: "expense" },
+    { key: "rent", name: "房租", kind: "expense" },
     { key: "uncategorised-expense", name: "Uncategorised", kind: "expense" },
     { key: "salary", name: "工资", kind: "income" },
     { key: "interest", name: "利息", kind: "income" },
@@ -70,28 +73,78 @@ export const categoriseFixture: {
   ],
   tags: ["地铁", "火车", "请客"],
   history: [
-    { payee: "Tesco", category: "groceries", amountMinor: -4210 },
-    { payee: "Sainsbury's", category: "groceries", amountMinor: -3120 },
+    {
+      payee: "Tesco",
+      category: "groceries",
+      amountMinor: -4210,
+      bankText: "TESCO STORES 2210",
+    },
+    {
+      payee: "Sainsbury's",
+      category: "groceries",
+      amountMinor: -3120,
+      bankText: "SAINSBURYS S/MKT 0091",
+    },
     {
       payee: "Ocado",
       category: "groceries",
       amountMinor: -8650,
-      aliases: ["OCADO RETAIL LTD"],
+      bankText: "OCADO RETAIL LTD",
     },
-    { payee: "Deliveroo", category: "takeaway", amountMinor: -2380 },
-    { payee: "Pret A Manger", category: "coffee", amountMinor: -495 },
+    {
+      payee: "Deliveroo",
+      category: "takeaway",
+      amountMinor: -2380,
+      bankText: "DELIVEROO.CO.UK",
+    },
+    {
+      payee: "Pret A Manger",
+      category: "coffee",
+      amountMinor: -495,
+      bankText: "PRET A MANGER 1188",
+    },
     {
       payee: "TfL",
       category: "public-transport",
       amountMinor: -280,
-      aliases: ["TFL TRAVEL CH"],
+      bankText: "TFL TRAVEL CH",
     },
-    { payee: "Uber", category: "taxi", amountMinor: -1460 },
-    { payee: "Netflix", category: "subscriptions", amountMinor: -1099 },
-    { payee: "Spotify", category: "subscriptions", amountMinor: -1199 },
-    { payee: "Amazon", category: "online", amountMinor: -2599 },
-    { payee: "British Gas", category: "utilities", amountMinor: -9500 },
-    { payee: "Nando's", category: "eating-out", amountMinor: -3650 },
+    {
+      payee: "Uber",
+      category: "taxi",
+      amountMinor: -1460,
+      bankText: "UBER *TRIP",
+    },
+    {
+      payee: "Netflix",
+      category: "subscriptions",
+      amountMinor: -1099,
+      bankText: "NETFLIX.COM",
+    },
+    {
+      payee: "Spotify",
+      category: "subscriptions",
+      amountMinor: -1199,
+      bankText: "SPOTIFY UK",
+    },
+    {
+      payee: "Amazon",
+      category: "online",
+      amountMinor: -2599,
+      bankText: "AMAZON.CO.UK*1A2B3",
+    },
+    {
+      payee: "British Gas",
+      category: "utilities",
+      amountMinor: -9500,
+      bankText: "BRITISH GAS SERVICES",
+    },
+    {
+      payee: "Nando's",
+      category: "eating-out",
+      amountMinor: -3650,
+      bankText: "NANDOS CAMDEN",
+    },
   ],
   cases: [
     {

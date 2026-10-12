@@ -4,7 +4,7 @@ import { summariseBankSync } from "./summarise-bank-sync.ts";
 const link = {
   linkId: "l",
   error: null,
-  created: 0,
+  pending: 0,
   linked: 0,
   confirmed: 0,
   missing: 0,
@@ -17,7 +17,7 @@ describe("summariseBankSync", () => {
       {
         clock: 1,
         links: [
-          { ...link, accountId: "visa", created: 12, linked: 28, confirmed: 2 },
+          { ...link, accountId: "visa", pending: 12, linked: 28, confirmed: 2 },
           { ...link, accountId: "quiet" },
           { ...link, accountId: "broken", error: "rate_limited" },
         ],
@@ -30,7 +30,7 @@ describe("summariseBankSync", () => {
       {
         accountId: "visa",
         name: "Alex Visa",
-        created: 12,
+        pending: 12,
         matched: 30,
         review: 2,
         failed: false,
@@ -38,7 +38,7 @@ describe("summariseBankSync", () => {
       {
         accountId: "broken",
         name: "Sam Current",
-        created: 0,
+        pending: 0,
         matched: 0,
         review: 0,
         failed: true,

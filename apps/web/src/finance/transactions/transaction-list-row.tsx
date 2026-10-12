@@ -30,9 +30,10 @@ import type {
   EntryRow,
   TransactionRow,
 } from "../sync/row-schemas.ts";
-import { ConfidenceBadge } from "./confidence-badge.tsx";
-import { REVIEW_CONFIDENCE } from "./review-confidence.ts";
+import { isInReview } from "./is-in-review.ts";
+import { reviewReason, type ReviewReason } from "./review-reason.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
+import { useReviewReasonText } from "./use-review-reason-text.ts";
 
 export interface TransactionRowActions {
   hrefFor: (id: string) => string;
@@ -53,10 +54,17 @@ interface TransactionListRowProps {
   today: string;
   isSelected: boolean;
   isPending: boolean;
-  /** Shows the Review controls: the confidence, "Looks right" and the Category picker. */
+  /** Shows the Review controls: the reason, "Looks right" and the Category picker. */
   reviewMode: boolean;
   categoriesOfKind: readonly CategoryRow[];
   actions: TransactionRowActions;
+}
+
+function ReviewReasonCaption({ reason }: { reason: ReviewReason }) {
+  const reasonText = useReviewReasonText();
+  return (
+    <span css={[typeRole.caption, styles.muted]}>{reasonText(reason)}</span>
+  );
 }
 
 function isPlainClick(event: MouseEvent) {
@@ -141,8 +149,10 @@ function TransactionListRowView({
   const initial = (title || "·").trim().slice(0, 1).toUpperCase();
   const isExpected = row.status === "expected";
   const isFuture = isExpected && row.date > today;
-  const showReviewBadge = row.needsReview && !reviewMode;
-  const confidence = row.aiConfidence;
+  const inReview = isInReview(row, entries, lookups.accountById, today);
+  const showReviewBadge = inReview && !reviewMode;
+  const reason =
+    reviewMode && inReview ? reviewReason(row, entries, lookups) : null;
 
   return (
     <div css={styles.row} data-transaction-row={row.id}>
@@ -186,6 +196,7 @@ function TransactionListRowView({
               {subtitle}
             </span>
           ) : null}
+          {reason === null ? null : <ReviewReasonCaption reason={reason} />}
           {meta !== "" || isPending || isExpected || showReviewBadge ? (
             <span css={[flex.row, styles.metaLine]}>
               {isExpected ? (
@@ -194,14 +205,7 @@ function TransactionListRowView({
                 </Badge>
               ) : null}
               {showReviewBadge ? (
-                <Badge
-                  intent={
-                    confidence === null || confidence < REVIEW_CONFIDENCE.medium
-                      ? "danger"
-                      : "warning"
-                  }
-                  size="sm"
-                >
+                <Badge intent="warning" size="sm">
                   {t({ en: "Review", zh: "待审核" })}
                 </Badge>
               ) : null}
@@ -245,15 +249,8 @@ function TransactionListRowView({
           </Button>
         </div>
       ) : null}
-      {reviewMode && row.needsReview && !isTransfer ? (
+      {reviewMode && inReview && !isTransfer ? (
         <div css={[cluster.tight, styles.actions]}>
-          {confidence === null ? (
-            <Badge intent="neutral" size="sm">
-              {t({ en: "New payee", zh: "新商家" })}
-            </Badge>
-          ) : (
-            <ConfidenceBadge confidence={confidence} />
-          )}
           <label css={styles.selectWrap}>
             <span css={a11y.srOnly}>{t({ en: "Category", zh: "分类" })}</span>
             <select
