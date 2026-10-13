@@ -144,7 +144,7 @@ export function createLunchFlowClient(
       const body = await get("/accounts", lunchFlowSchemas.accounts);
       return body.accounts.map((account) => ({
         id: account.id,
-        connectionId: account.connection_id,
+        bankLoginId: account.connection_id,
         name: account.name,
         institution: account.institution_name,
         institutionLogo: account.institution_logo,

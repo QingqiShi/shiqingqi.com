@@ -8,6 +8,7 @@ function view(
 ): ProviderAccountView {
   return {
     providerAccountId: id,
+    bankLoginId: "c1",
     name: id,
     institution: "",
     institutionLogo: null,

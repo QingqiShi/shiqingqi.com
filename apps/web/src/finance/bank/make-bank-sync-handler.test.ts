@@ -35,7 +35,7 @@ function fixture(transactionIds: string[]): FakeBankFixture {
     accounts: [
       {
         id: "p1",
-        connectionId: "c",
+        bankLoginId: "c",
         name: "Current",
         institution: "Bank",
         institutionLogo: null,

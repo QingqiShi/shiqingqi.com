@@ -1,7 +1,8 @@
 /** One account the bank provider can read, as Lunch Flow lists it. */
 export interface ProviderAccount {
   id: string;
-  connectionId: string;
+  /** The Bank login that holds it: Lunch Flow's `connection_id`. */
+  bankLoginId: string;
   name: string;
   institution: string;
   institutionLogo: string | null;

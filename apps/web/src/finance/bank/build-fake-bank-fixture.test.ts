@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { bankLinks, entries, transactions } from "../db/schema.ts";
+import { accounts, bankLinks, entries, transactions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -97,6 +97,28 @@ describe("buildFakeBankFixture", () => {
     expect(off).toMatchObject([{ date: "2026-10-06", amountMinor: -1003 }]);
     expect(rows.find((row) => row.date === "2026-10-01")?.description).toMatch(
       /^GROCER/,
+    );
+  });
+
+  it("puts the accounts one Member holds at one institution in one Bank login", async () => {
+    await db
+      .update(accounts)
+      .set({ institution: "Chase" })
+      .where(eq(accounts.householdId, home.householdId));
+    await db
+      .update(accounts)
+      .set({ ownerMemberId: home.partnerId })
+      .where(eq(accounts.id, home.savingsId));
+
+    const fixture = await fakeFixture("2026-10-10");
+    const loginOf = new Map(
+      fixture.accounts.map((account) => [account.id, account.bankLoginId]),
+    );
+    expect(loginOf.get(`fake-${home.cardId}`)).toBe(
+      loginOf.get(`fake-${home.currentId}`),
+    );
+    expect(loginOf.get(`fake-${home.savingsId}`)).not.toBe(
+      loginOf.get(`fake-${home.currentId}`),
     );
   });
 

@@ -30,6 +30,7 @@ export interface BankLinkView {
 /** One provider account next to the Bank link that binds it, if any. */
 export interface ProviderAccountView {
   providerAccountId: string;
+  bankLoginId: string;
   name: string;
   institution: string;
   institutionLogo: string | null;

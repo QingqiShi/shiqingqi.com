@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
+import { Heading } from "@tuja/ui/components/heading";
 import { Select } from "@tuja/ui/components/select";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Switch } from "@tuja/ui/components/switch";
@@ -38,6 +39,7 @@ import type { AccountRow } from "../sync/row-schemas.ts";
 import { selectReviewIds } from "../transactions/select-review-ids.ts";
 import { CredentialForm } from "./credential-form.tsx";
 import { CredentialSummary } from "./credential-summary.tsx";
+import { groupByBankLogin } from "./group-by-bank-login.ts";
 import {
   choiceOf,
   isSameChoice,
@@ -61,10 +63,11 @@ type ConnectedResponse = Extract<
 >;
 
 /**
- * Lunch Flow: each provider account beside the finance account it feeds,
- * and the last sync. The owner saves every changed link at once; "Sync now"
- * runs every link and says what came in. Until the owner stores the
- * Household's Lunch Flow API key, it asks the owner for one.
+ * Lunch Flow: each provider account, under its Bank login, beside the
+ * finance account it feeds, and the last sync. The owner saves every
+ * changed link at once; "Sync now" runs every link and says what came in.
+ * Until the owner stores the Household's Lunch Flow API key, it asks the
+ * owner for one.
  */
 export function ConnectionsSettings() {
   const isOwner = useIsOwner();
@@ -480,26 +483,36 @@ function ConnectedSettings({
             })}
           </Text>
         ) : (
-          <ul css={[stack.tight, styles.list]}>
-            {response.accounts.map((account) => (
-              <ProviderAccountCard
-                key={account.providerAccountId}
-                account={account}
-                accounts={accounts}
-                memberNames={memberNames}
-                editable={isOwner}
-                choice={
-                  choices.get(account.providerAccountId) ?? choiceOf(account)
-                }
-                takenBy={chosenBy}
-                onChange={(choice) => {
-                  const next = new Map(choices);
-                  next.set(account.providerAccountId, choice);
-                  setChoices(next);
-                }}
-              />
+          <div css={stack.group}>
+            {groupByBankLogin(response.accounts).map((group) => (
+              <section key={group.bankLoginId} css={stack.tight}>
+                <Heading level={3} look="h4">
+                  {group.title}
+                </Heading>
+                <ul css={[stack.tight, styles.list]}>
+                  {group.accounts.map((account) => (
+                    <ProviderAccountCard
+                      key={account.providerAccountId}
+                      account={account}
+                      accounts={accounts}
+                      memberNames={memberNames}
+                      editable={isOwner}
+                      choice={
+                        choices.get(account.providerAccountId) ??
+                        choiceOf(account)
+                      }
+                      takenBy={chosenBy}
+                      onChange={(choice) => {
+                        const next = new Map(choices);
+                        next.set(account.providerAccountId, choice);
+                        setChoices(next);
+                      }}
+                    />
+                  ))}
+                </ul>
+              </section>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </SettingsPanel>
@@ -563,11 +576,11 @@ function ProviderAccountCard({
       <div css={[row.tight, styles.head]}>
         <div css={styles.names}>
           <span css={[typeRole.body, styles.name]}>{account.name}</span>
-          <span css={[typeRole.caption, styles.muted]}>
-            {[account.institution, account.currency ?? ""]
-              .filter((part) => part !== "")
-              .join(" · ")}
-          </span>
+          {account.currency === null ? null : (
+            <span css={[typeRole.caption, styles.muted]}>
+              {account.currency}
+            </span>
+          )}
         </div>
         {account.needsReconnect || replicaLink?.status === "reconnect" ? (
           <Badge size="sm" intent="warning">
