@@ -150,7 +150,12 @@ const PARTICLE_RADIUS = PARTICLE_SPACING / 2;
 /** A low-discrepancy sequence in two dimensions, which fills a box evenly. */
 const PLASTIC = [0.7548776662466927, 0.5698402909980532] as const;
 const SUBSTEP = 1 / 240;
-const MAX_STEP = 1 / 30;
+/**
+ * The longest frame the liquid keeps up with. At 30 Hz, as in iOS Low Power
+ * Mode, a frame can take twice its interval, and the liquid must not slow
+ * down then.
+ */
+const MAX_STEP = 1 / 15;
 /**
  * A particle moves at most this far, in rest radii, in one substep: a
  * boosted pour takes more substeps, so that the relaxation stays stable.
@@ -160,11 +165,12 @@ const SUBSTEP_MOVE = 0.08;
 /**
  * The most substeps one step takes, which bounds a frame's work on the GPU:
  * a frame's step is at most `MAX_STEP`, so this is reached only by a body
- * that moves faster than any pour does.
+ * that moves faster than any pour does. A pour across a wide track moves
+ * at most about 75 rest radii per second.
  *
  * @internal
  */
-export const MAX_SUBSTEPS = 64;
+export const MAX_SUBSTEPS = 96;
 /**
  * The liquid's clock runs this many times faster than the page's: every
  * rate here is per second of the liquid's clock, so the whole pour, its

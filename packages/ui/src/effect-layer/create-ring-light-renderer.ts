@@ -17,6 +17,7 @@ import { isLightBackdrop } from "./ripple-color.ts";
 import type {
   EffectElementRecord,
   EffectFrame,
+  EffectPass,
   EffectSetup,
   EffectTarget,
 } from "./types.ts";
@@ -162,7 +163,7 @@ export function createRingLightRenderer({
       rings = instances;
       buffer.write(instances);
     },
-    draw(pass: GPURenderPassEncoder, target: EffectTarget) {
+    draw(pass: EffectPass, target: EffectTarget) {
       const [first, count] = instanceRange(
         rings,
         target.firstElement,

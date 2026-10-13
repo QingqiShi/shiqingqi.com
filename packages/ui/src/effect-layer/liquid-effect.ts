@@ -85,7 +85,10 @@ const MIN_SLOT_CAPACITY = 4;
  * third covers a map that takes a frame longer.
  */
 const MAX_READBACKS = 3;
-/** A frame with no measured time, the first, steps this far. */
+/**
+ * A frame with no measured time, the first after the loop was idle, steps
+ * this far.
+ */
 const FIRST_STEP = 1 / 60;
 /**
  * Seconds the plain thumb takes to freeze into ice once the effect takes
