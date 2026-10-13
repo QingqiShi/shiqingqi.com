@@ -46,9 +46,10 @@ export function SidebarLayoutShowcase() {
         </ShowcaseHelper>
         <Specimen caption={t({ en: "rail and content", zh: "侧栏与内容列" })}>
           {/* The viewport's transform creates a containing block, so the
-              shell's fixed mobile chrome (pill bar, drawer, backdrop) anchors
-              to the specimen instead of the real viewport, and the viewport's
-              clip is what keeps that chrome inside the frame. */}
+              shell's fixed chrome (pill bar, drawer, backdrop, and the rail's
+              footer from md up) anchors to the specimen instead of the real
+              viewport, and the viewport's clip is what keeps that chrome
+              inside the frame. */}
           <div css={[corner.radius_3, styles.frame]}>
             <div css={styles.viewport}>
               <SidebarLayout
@@ -146,7 +147,7 @@ const styles = stylex.create({
   },
   // Fixed-height box; the shell fills it, so the rail bounds here and its footer
   // pins to the bottom without the specimen scrolling. It also holds the
-  // containing block and the clip for the shell's fixed mobile chrome, which
+  // containing block and the clip for the shell's fixed chrome, which
   // the frame can no longer keep in. That clip has to stay radius-free,
   // because it sits above the rail's Scroll mask bands and a rounded one would
   // strip their masks. The cost is the open demo drawer below `md`: it reaches
@@ -154,8 +155,8 @@ const styles = stylex.create({
   viewport: {
     blockSize: space._15,
     overflow: "hidden",
-    // Containing block for the shell's fixed mobile chrome (see comment at
-    // the callsite).
+    // Containing block for the shell's fixed chrome (see comment at the
+    // callsite).
     transform: "translateZ(0)",
   },
   cardGrid: {

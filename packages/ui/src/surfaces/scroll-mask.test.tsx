@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { createRef, type ComponentProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -393,6 +394,15 @@ describe("ScrollMask chrome slots", () => {
     expect(slotOf("footer").className).toContain("styles.chromeBlockEnd");
   });
 
+  it("merges endChromeCss over the end slot's own styles, and the end slot alone", () => {
+    const overrides = stylex.create({ slot: { position: "fixed" } });
+    renderChromeMask({ endChromeCss: overrides.slot });
+
+    expect(slotOf("footer").className).toContain("styles.chromeBlockEnd");
+    expect(slotOf("footer").className).toContain("overrides.slot");
+    expect(slotOf("header").className).not.toContain("overrides.slot");
+  });
+
   // A scroller with the region's corners is itself a rounded clip, so no band
   // may live inside it: every band stays a child of the root beside the
   // scroller, whichever edges carry chrome.
@@ -552,6 +562,21 @@ describe("ScrollMask measured chrome", () => {
     // The bare edge is untouched by the measurement: still `depth` alone.
     expect(end.getAttribute("style") ?? "").not.toContain("calc(");
     expect(end.getAttribute("style") ?? "").toContain("40px");
+  });
+
+  // A consumer that takes the end slot out of flow pads the scroller's end by
+  // this size, so the content can scroll clear of the slot.
+  it("publishes the end slot's measured size on the scroller", () => {
+    stubResizeObserver();
+    stubOffsetSize("offsetHeight", 56);
+
+    const scroller = renderMask({
+      endChrome: <span>footer</span>,
+    }).firstElementChild;
+
+    expect(scroller?.getAttribute("style") ?? "").toContain(
+      "--scroll-mask-end-chrome: 56px",
+    );
   });
 
   it("measures a horizontal slot across the inline axis", () => {

@@ -202,6 +202,38 @@ describe("SidebarLayout rail chrome slots", () => {
     expect(scroller).toContainElement(footer);
   });
 
+  // From md up, the footer slot is fixed to the viewport's bottom edge, so
+  // the scroller pads its end by the slot's measured size instead.
+  it("fixes the footer slot from md up and pads the scroller by its size", () => {
+    renderShell({ sidebarFooter: <span>Utilities</span> });
+    const slot = screen
+      .getByText("Utilities")
+      .closest('[class*="styles.chromeBlockEnd"]');
+    const scroller = screen
+      .getByText("Rail")
+      .closest('[class*="styles.scrollerVertical"]');
+
+    expect(slot?.className).toContain("styles.railFooterSlot");
+    expect(scroller?.className).toContain("styles.railNavContentFixedFooter");
+    expect(scroller?.className).not.toContain("styles.railNavContentNoFooter");
+    // The footer and the card's surface behind it take the card's width.
+    expect(scroller?.getAttribute("style") ?? "").toContain(
+      "--rail-card-inline-size",
+    );
+  });
+
+  it("pads the scroller's own end when there is no footer", () => {
+    renderShell();
+    const scroller = screen
+      .getByText("Rail")
+      .closest('[class*="styles.scrollerVertical"]');
+
+    expect(scroller?.className).toContain("styles.railNavContentNoFooter");
+    expect(scroller?.className).not.toContain(
+      "styles.railNavContentFixedFooter",
+    );
+  });
+
   // The nav root inherits the rail's corners, and inheritance only reaches
   // one element up, so the root has to be the rail's own child.
   it("puts the nav root straight inside the rail, taking the rail's corners", async () => {
