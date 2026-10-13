@@ -104,6 +104,7 @@ export function createElementTracker(
   onSignal: (tracker: ElementTracker) => void,
 ) {
   let measured: MeasuredElement | null = null;
+  let measurement = 0;
   let watch: MoveWatch | null = null;
   let destroyed = false;
   const animationSources = new Set<Element>();
@@ -151,6 +152,10 @@ export function createElementTracker(
     get measured() {
       return measured;
     },
+    /** How many times it has measured the element. */
+    get measurement() {
+      return measurement;
+    },
     /**
      * The last measured box in page coordinates at this scroll: an element
      * in the document keeps its page position, and a fixed element keeps its
@@ -186,6 +191,7 @@ export function createElementTracker(
       const box = element.isConnected
         ? readElementBox(element, context.styleOf)
         : null;
+      measurement += 1;
       measured = box && {
         box,
         pageBox: {

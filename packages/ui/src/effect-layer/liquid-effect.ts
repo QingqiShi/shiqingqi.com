@@ -266,15 +266,16 @@ function readThumb(record: EffectElementRecord): LiquidControl | null {
 
 /**
  * A segmented control: one stop over each segment marked with
- * `LIQUID_SEGMENT`, in a pill as long as the segment, and the indicator's
- * look, from the element marked with `LIQUID_INDICATOR`. Its text colour is the ring light's colour.
+ * `LIQUID_SEGMENT`, whose boxes are `segments`, in a pill as long as the
+ * segment, and the indicator's look, from the element marked with
+ * `LIQUID_INDICATOR`. Its text colour is the ring light's colour.
  */
-function readSegments(record: EffectElementRecord): LiquidControl | null {
+function readSegments(
+  record: EffectElementRecord,
+  segments: readonly DOMRect[],
+): LiquidControl | null {
   const { element } = record;
   const indicator = element.querySelector(`[${LIQUID_INDICATOR}]`);
-  const segments = [...element.querySelectorAll(`[${LIQUID_SEGMENT}]`)].map(
-    (segment) => segment.getBoundingClientRect(),
-  );
   const radius = (segments.at(0)?.height ?? 0) / 2;
   if (indicator === null || !(radius > 0)) {
     return null;
@@ -335,6 +336,126 @@ function readSegments(record: EffectElementRecord): LiquidControl | null {
     underGlow: { color, strength: SEGMENT_GLOW },
     corner: { radius: cornerRadius(segments[0]), exponent: cornerExponent },
     spread: px(own.paddingTop),
+  };
+}
+
+/**
+ * Reads each control from the page, and reads it again only when it can
+ * have changed: its element is measured again, a scroll moves it in the
+ * page, it takes a new position, or one of its segments changes size. A
+ * segment can change size in a track whose own box stays the same. Between
+ * those, a frame reads nothing from the DOM, so it forces no layout. When a
+ * segment changes size, it calls `onChange` for a frame to read it again.
+ *
+ * @internal
+ */
+export function createControlReader(onChange: () => void) {
+  interface Watched {
+    read: {
+      readonly id: number;
+      readonly measurement: number;
+      readonly x: number;
+      readonly y: number;
+      readonly position: number | undefined;
+      readonly control: LiquidControl | null;
+    } | null;
+    readonly observer: ResizeObserver;
+    /** The box each segment had when it was read. */
+    sizes: ReadonlyMap<Element, DOMRect>;
+    /** The segments whose first notice has not come yet. */
+    readonly starting: Set<Element>;
+  }
+  const controls = new Map<Element, Watched>();
+  let used = new Set<Element>();
+
+  function watch(element: Element) {
+    const watched: Watched = {
+      read: null,
+      // The first notice for a segment gives its size when the watch
+      // starts. Each later notice gives a new size.
+      observer: new ResizeObserver((entries) => {
+        const resized = entries.some(({ target, borderBoxSize }) => {
+          if (!watched.starting.delete(target)) {
+            return true;
+          }
+          const size = borderBoxSize.at(0);
+          const read = watched.sizes.get(target);
+          return (
+            size?.inlineSize !== read?.width || size?.blockSize !== read?.height
+          );
+        });
+        if (resized && watched.read !== null) {
+          watched.read = null;
+          onChange();
+        }
+      }),
+      sizes: new Map(),
+      starting: new Set(),
+    };
+    controls.set(element, watched);
+    return watched;
+  }
+
+  function observe(
+    watched: Watched,
+    segments: readonly Element[],
+    rects: readonly DOMRect[],
+  ) {
+    const { observer, sizes, starting } = watched;
+    for (const segment of sizes.keys()) {
+      if (!segments.includes(segment)) {
+        observer.unobserve(segment);
+        starting.delete(segment);
+      }
+    }
+    for (const segment of segments) {
+      if (!sizes.has(segment)) {
+        starting.add(segment);
+        observer.observe(segment, { box: "border-box" });
+      }
+    }
+    watched.sizes = new Map(segments.map((segment, i) => [segment, rects[i]]));
+  }
+
+  return {
+    read(record: EffectElementRecord) {
+      const { element, id, measurement, x, y } = record;
+      const position = record.settings.liquid?.position;
+      used.add(element);
+      const watched = controls.get(element) ?? watch(element);
+      const { read } = watched;
+      if (
+        read?.id === id &&
+        read.measurement === measurement &&
+        read.x === x &&
+        read.y === y &&
+        read.position === position
+      ) {
+        return read.control;
+      }
+      const segments = [...element.querySelectorAll(`[${LIQUID_SEGMENT}]`)];
+      const rects = segments.map((segment) => segment.getBoundingClientRect());
+      const control = readSegments(record, rects) ?? readThumb(record);
+      watched.read = { id, measurement, x, y, position, control };
+      observe(watched, segments, rects);
+      return control;
+    },
+    /** Stops watching each control that no read asked for since the last sweep. */
+    sweep() {
+      for (const [element, { observer }] of controls) {
+        if (!used.has(element)) {
+          observer.disconnect();
+          controls.delete(element);
+        }
+      }
+      used = new Set();
+    },
+    destroy() {
+      for (const { observer } of controls.values()) {
+        observer.disconnect();
+      }
+      controls.clear();
+    },
   };
 }
 
@@ -949,6 +1070,7 @@ export const liquidEffect: Effect = {
     ]);
 
     const states = new Map<number, LiquidState>();
+    const controlReader = createControlReader(setup.requestFrame);
     const drawn = new Set<Element>();
     let instances: readonly LiquidInstance[] = [];
 
@@ -958,11 +1080,12 @@ export const liquidEffect: Effect = {
           if ((record.roles & LIQUID) === 0) {
             return [];
           }
-          const control = readSegments(record) ?? readThumb(record);
+          const control = controlReader.read(record);
           return control === null
             ? []
             : [{ index, record, control, slot: slotOf(record.id) }];
         });
+        controlReader.sweep();
         ensureSlotCapacity(slots.size);
         const nextInstances: LiquidInstance[] = [];
         const nextRings: RingLightDraw[] = [];
@@ -1071,6 +1194,7 @@ export const liquidEffect: Effect = {
       },
       destroy() {
         destroyed = true;
+        controlReader.destroy();
         ringRenderer.destroy();
         for (const element of drawn) {
           markEffectDrawn(element, false);

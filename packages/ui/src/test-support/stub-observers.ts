@@ -1,7 +1,10 @@
 import { vi } from "vitest";
 
 type ResizeCallback = (
-  entries: { borderBoxSize: { inlineSize: number; blockSize: number }[] }[],
+  entries: {
+    target: Element;
+    borderBoxSize: { inlineSize: number; blockSize: number }[];
+  }[],
 ) => void;
 
 /**
@@ -32,6 +35,9 @@ export function stubObservers() {
       observe(target: Element) {
         this.#entry.targets.add(target);
       }
+      unobserve(target: Element) {
+        this.#entry.targets.delete(target);
+      }
       disconnect() {
         resizeObservers.delete(this.#entry);
       }
@@ -59,7 +65,7 @@ export function stubObservers() {
     resize(target: Element, inlineSize: number, blockSize: number) {
       for (const { callback, targets } of resizeObservers) {
         if (targets.has(target)) {
-          callback([{ borderBoxSize: [{ inlineSize, blockSize }] }]);
+          callback([{ target, borderBoxSize: [{ inlineSize, blockSize }] }]);
         }
       }
     },

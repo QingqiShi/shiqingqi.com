@@ -1,13 +1,25 @@
 import { createHash } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { layOut } from "../test-support/lay-out.ts";
+import { stubObservers } from "../test-support/stub-observers.ts";
+import { createEffectRegistry } from "./create-effect-registry.ts";
+import {
+  createElementTracker,
+  createMeasureContext,
+  type ElementTracker,
+} from "./create-element-tracker.ts";
+import { roleBits } from "./effect-roles.ts";
 import { FROST_CONTRAST } from "./glow-colors.ts";
 import {
+  createControlReader,
   layoutLiquid,
   pillAt,
   type LiquidControl,
   type LiquidState,
 } from "./liquid-effect.ts";
+import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
 import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
+import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
 import {
   mean,
@@ -339,5 +351,162 @@ describe("layoutLiquid", () => {
     // The lost particles are older than the seed, so they are not read again.
     expect(lay(4, lost).seed).toBe(false);
     expect(state?.body.settled).toBe(true);
+  });
+});
+
+describe("createControlReader", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.innerHTML = "";
+  });
+
+  const LIQUID = roleBits(["liquid"]);
+  const AT_REST = { drag: null, pressed: false, aim: 0 };
+
+  /**
+   * A tracked segmented control with two segments, whose box reads are
+   * counted in `segmentReads`.
+   */
+  function setUp({ fixed = false } = {}) {
+    const observers = stubObservers();
+    const track = document.createElement("div");
+    if (fixed) {
+      track.style.position = "fixed";
+    }
+    const indicator = document.createElement("div");
+    indicator.setAttribute(LIQUID_INDICATOR, "");
+    const segments = [0, 1].map(() => {
+      const segment = document.createElement("div");
+      segment.setAttribute(LIQUID_SEGMENT, "");
+      return segment;
+    });
+    track.append(indicator, ...segments);
+    document.body.append(track);
+    const segmentReads: Element[] = [];
+    const layOutSegments = (widths: readonly [number, number]) => {
+      layOut(
+        segments[0],
+        { x: 0, y: 0, width: widths[0], height: 40 },
+        segmentReads,
+      );
+      layOut(
+        segments[1],
+        { x: widths[0], y: 0, width: widths[1], height: 40 },
+        segmentReads,
+      );
+      layOut(track, { x: 0, y: 0, width: widths[0] + widths[1], height: 40 });
+    };
+    layOutSegments([100, 100]);
+
+    const registry = createEffectRegistry();
+    let tracker: ElementTracker | null = null;
+    registry.track((element) => {
+      tracker = createElementTracker(element, () => {});
+      return tracker;
+    });
+    const registration = registry.register(
+      track,
+      LIQUID,
+      { liquid: { position: 0, ...AT_REST } },
+      { scope: PAGE_SCOPE, holds: null },
+    );
+    const measure = () => {
+      tracker?.measure(createMeasureContext());
+    };
+    measure();
+    const changes: null[] = [];
+    const controls = createControlReader(() => {
+      changes.push(null);
+    });
+    const frame = (scrollY = 0) => {
+      const [record] = registry.records(0, scrollY);
+      const control = controls.read({ ...record, scopeIndex: 0 });
+      controls.sweep();
+      return control;
+    };
+    return {
+      observers,
+      segments,
+      segmentReads,
+      layOutSegments,
+      registration,
+      measure,
+      frame,
+      changes,
+      controls,
+    };
+  }
+
+  it("reads a control from the DOM once, and not again on frames where nothing changed", () => {
+    const { segmentReads, frame } = setUp();
+    const control = frame();
+    expect(control?.stops).toHaveLength(2);
+    expect(segmentReads).toHaveLength(2);
+    expect(frame()).toBe(control);
+    expect(frame()).toBe(control);
+    expect(segmentReads).toHaveLength(2);
+  });
+
+  it("reads a segment that grows once its control is measured again", () => {
+    const { segmentReads, layOutSegments, measure, frame } = setUp();
+    const before = frame();
+    layOutSegments([160, 100]);
+    expect(frame()).toBe(before);
+    measure();
+    const after = frame();
+    expect(segmentReads).toHaveLength(4);
+    expect(after?.stops[0].span).toBeGreaterThan(before?.stops[0].span ?? 0);
+    expect(after?.rings[1]?.box.x).toBe(160);
+  });
+
+  it("reads the control again after a segment changes size in a track that keeps its own", () => {
+    const {
+      observers,
+      segments,
+      segmentReads,
+      layOutSegments,
+      frame,
+      changes,
+    } = setUp();
+    const before = frame();
+    observers.resize(segments[0], 100, 40);
+    observers.resize(segments[1], 100, 40);
+    expect(changes).toHaveLength(0);
+    expect(frame()).toBe(before);
+
+    layOutSegments([140, 60]);
+    observers.resize(segments[0], 140, 40);
+    expect(changes).toHaveLength(1);
+    const after = frame();
+    expect(segmentReads).toHaveLength(4);
+    expect(after?.rings[1]?.box.x).toBe(140);
+  });
+
+  it("stops watching the segments of a control that is no longer read", () => {
+    const { observers, segments, frame, controls } = setUp();
+    frame();
+    expect(observers.resizeObserversOf(segments[0])).toBe(1);
+    controls.sweep();
+    expect(observers.resizeObserversOf(segments[0])).toBe(0);
+  });
+
+  it("reads the control again for a new position", () => {
+    const { segmentReads, registration, frame } = setUp();
+    frame();
+    registration.update(
+      LIQUID,
+      { liquid: { position: 1, ...AT_REST } },
+      PAGE_SCOPE,
+    );
+    frame();
+    expect(segmentReads).toHaveLength(4);
+  });
+
+  it("reads a fixed control again where a scroll moves it in the page", () => {
+    const { segmentReads, frame } = setUp({ fixed: true });
+    const before = frame();
+    const after = frame(300);
+    expect(segmentReads).toHaveLength(4);
+    expect((after?.originY ?? 0) - (before?.originY ?? 0)).toBe(300);
   });
 });
