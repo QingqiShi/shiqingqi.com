@@ -5,7 +5,11 @@ import {
   packLiquidSlot,
   readLiquidSlot,
 } from "./liquid-shared-wgsl.ts";
-import { MAX_PARTICLE_COUNT, restingLiquid } from "./step-liquid.ts";
+import {
+  MAX_PARTICLE_COUNT,
+  restingLiquid,
+  simulateLiquid,
+} from "./step-liquid.ts";
 
 describe("packLiquidSlot and readLiquidSlot", () => {
   it("put a body's particles and walls into a slot and read them back", () => {
@@ -17,7 +21,7 @@ describe("packLiquidSlot and readLiquidSlot", () => {
     expect([...floats.slice(0, offset)].every((value) => value === 7)).toBe(
       true,
     );
-    expect([...floats.slice(offset, offset + 4)]).toEqual([1, 4, 0, 0]);
+    expect([...floats.slice(offset, offset + 2)]).toEqual([1, 4]);
     expect([...floats.slice(offset + 4, offset + 8)]).toEqual([
       body.x[0],
       body.y[0],
@@ -33,6 +37,33 @@ describe("packLiquidSlot and readLiquidSlot", () => {
       from: 1,
       to: 4,
     });
+  });
+
+  it("puts the particles' extent along the track after the walls", () => {
+    const resting = restingLiquid(2, { span: 0.5, from: 0, to: 4 });
+    const poured = simulateLiquid(
+      resting,
+      {
+        target: 4,
+        span: 0.5,
+        from: 0,
+        to: 4,
+        pressed: false,
+        reducedMotion: false,
+        aim: 1,
+      },
+      resting.scale,
+      0.1,
+    );
+    for (const body of [resting, poured]) {
+      const floats = new Float32Array(LIQUID_SLOT_BYTES / 4);
+      packLiquidSlot(body, floats);
+      const [least, greatest] = floats.slice(2, 4);
+      expect(least).toBeLessThan(greatest);
+      expect(body.x.some((x) => x === least)).toBe(true);
+      expect(body.x.some((x) => x === greatest)).toBe(true);
+      expect(body.x.every((x) => x >= least && x <= greatest)).toBe(true);
+    }
   });
 
   it("leaves the slot's unused particles at zero", () => {

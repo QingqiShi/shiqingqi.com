@@ -84,6 +84,22 @@ describe("LIQUID_COMPUTE_WGSL", () => {
     expect(Math.tanh(LIQUID_PHYSICS.LEAN_LIMIT)).toBe(1);
   });
 
+  it("adds up the centre of the mass in pairs, over the whole workgroup", () => {
+    expect(Math.log2(LIQUID_WORKGROUP_SIZE) % 1).toBe(0);
+    expect(LIQUID_COMPUTE_WGSL).toContain(
+      `var<workgroup> centreShare: array<vec2f, ${String(LIQUID_WORKGROUP_SIZE)}>;`,
+    );
+    expect(LIQUID_COMPUTE_WGSL).toContain(
+      `for (var half = ${String(LIQUID_WORKGROUP_SIZE / 2)}u; half > 0u; half /= 2u)`,
+    );
+  });
+
+  it("writes the particles' extent along the track after the walls", () => {
+    expect(LIQUID_COMPUTE_WGSL).toContain(
+      "slots[slot].walls = vec4f(walls, least, greatest);",
+    );
+  });
+
   it("binds the steps and the slots in group 0", () => {
     expect(LIQUID_COMPUTE_WGSL).toContain(
       "@group(0) @binding(0) var<storage, read> steps: array<LiquidStep>",

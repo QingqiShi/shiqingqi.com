@@ -92,6 +92,19 @@ describe("packLiquidBeads", () => {
 });
 
 describe("LIQUID_WGSL", () => {
+  it("leaves the particles out of the field beyond their extent and their reach", () => {
+    const field = /fn fieldAt[\s\S]*?\n}\n/.exec(LIQUID_WGSL)?.[0] ?? "";
+    const skip = field.indexOf("return vec3f(0.0);");
+    expect(skip).toBeGreaterThan(-1);
+    expect(skip).toBeLessThan(field.indexOf("for ("));
+    expect(field).toContain(
+      "let extent = slots[liquid.slot].walls.zw * liquid.radius;",
+    );
+    expect(field).toContain(
+      "local.x < extent.x - reach - 1.0 || local.x > extent.y + reach + 1.0",
+    );
+  });
+
   it("declares the liquid, the simulation's slots and the beads in group 2", () => {
     expect(LIQUID_WGSL).toContain("@group(2) @binding(0)");
     expect(LIQUID_WGSL).toContain(

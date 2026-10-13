@@ -75,9 +75,10 @@ const physicsConstants = Object.entries(LIQUID_PHYSICS)
  * particle. The particles sit in workgroup memory for the whole step, and
  * every pass over them is a gather: each invocation sums what the other
  * particles do to its own, in the same order every frame, so the result
- * is the same for the same input and no atomics are needed. The centre of
- * the mass and the walls are sums that every invocation makes alike, for
- * the same reason.
+ * is the same for the same input and no atomics are needed. The walls
+ * are a sum that every invocation makes alike, for the same reason, and
+ * the centre of the mass is a sum that the invocations make together, in
+ * pairs in a fixed order.
  *
  * @internal
  */
@@ -103,6 +104,9 @@ var<workgroup> velocity: array<vec2f, LIQUID_MAX_PARTICLES>;
 // Each particle's density and its near density.
 var<workgroup> density: array<vec2f, LIQUID_MAX_PARTICLES>;
 var<workgroup> substeps: u32;
+// Each invocation's share of the centre of the mass, which centreOf adds
+// up in pairs.
+var<workgroup> centreShare: array<vec2f, ${String(LIQUID_WORKGROUP_SIZE)}>;
 
 fn tiltBoost(away: f32) -> f32 {
   return min(TILT_BOOST_MAX, pow(max(1.0, abs(away) / TILT_BOOST_REACH), TILT_BOOST_POWER));
@@ -132,12 +136,20 @@ fn insideTrack(point: vec2f, radius: f32, walls: vec2f) -> vec2f {
   return vec2f(nearX, 0.0) + offset * (limit / distance);
 }
 
-fn centreOf(count: u32) -> vec2f {
-  var centre = vec2f(0.0);
-  for (var j = 0u; j < count; j += 1u) {
-    centre += position[j] / f32(count);
+fn centreOf(i: u32, count: u32) -> vec2f {
+  var share = vec2f(0.0);
+  if (i < count) {
+    share = position[i] / f32(count);
   }
-  return centre;
+  centreShare[i] = share;
+  workgroupBarrier();
+  for (var half = ${String(LIQUID_WORKGROUP_SIZE / 2)}u; half > 0u; half /= 2u) {
+    if (i < half) {
+      centreShare[i] += centreShare[i + half];
+    }
+    workgroupBarrier();
+  }
+  return centreShare[0];
 }
 
 fn substep(i: u32, count: u32, step: LiquidStep, walls: vec2f, dt: f32) {
@@ -158,7 +170,7 @@ fn substep(i: u32, count: u32, step: LiquidStep, walls: vec2f, dt: f32) {
   let sideDamping = exp(-WALL_GRIP * dt / (1.0 + SIDE_GRIP_SHARE * span));
   // The tilt is one acceleration for the whole body, as gravity is when a
   // container moves: it must not squeeze the body towards the target.
-  let centre = centreOf(count);
+  let centre = centreOf(i, count);
   let lean = leanTo(goal - centre.x);
   let arrived = 1.0 - abs(lean);
   let damping = exp(-(DRAG + SETTLE_DRAG * arrived) * dt);
@@ -308,7 +320,13 @@ fn simulate(
     slots[slot].particles[i] = vec4f(position[i], velocity[i]);
   }
   if (i == 0u) {
-    slots[slot].walls = vec4f(walls, 0.0, 0.0);
+    var least = 1e30;
+    var greatest = -1e30;
+    for (var j = 0u; j < count; j += 1u) {
+      least = min(least, position[j].x);
+      greatest = max(greatest, position[j].x);
+    }
+    slots[slot].walls = vec4f(walls, least, greatest);
   }
 }
 `;
