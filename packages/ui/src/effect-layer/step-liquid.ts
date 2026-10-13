@@ -1,4 +1,22 @@
 /**
+ * The particles of a liquid and the walls that hold them: what a step
+ * moves. In production the compute shader of `LIQUID_COMPUTE_WGSL` keeps
+ * them on the GPU, and `simulateLiquid` runs the same physics on the CPU.
+ *
+ * @internal
+ */
+export interface LiquidParticles {
+  readonly x: Float32Array;
+  readonly y: Float32Array;
+  /** Units of the rest radius per second. */
+  readonly vx: Float32Array;
+  readonly vy: Float32Array;
+  /** The walls that hold the liquid now, as `LiquidInput` gives them. */
+  readonly from: number;
+  readonly to: number;
+}
+
+/**
  * The liquid of a Switch's thumb or a segmented control's indicator, as a
  * particle fluid in track space: `x` runs along the track from the centre
  * of the first place the liquid can rest, `y` from the centre line, both in
@@ -18,12 +36,7 @@
  *
  * @internal
  */
-export interface LiquidBody {
-  readonly x: Float32Array;
-  readonly y: Float32Array;
-  /** Units of the rest radius per second. */
-  readonly vx: Float32Array;
-  readonly vy: Float32Array;
+export interface LiquidBody extends LiquidParticles {
   /**
    * How far the drawn surface has settled into the thumb's circle, from 0
    * while the liquid is on its way to 1 once it has arrived.
@@ -43,9 +56,6 @@ export interface LiquidBody {
    * to fill a larger pill, and moves this to the target's as it pours.
    */
   readonly scale: number;
-  /** The walls that hold the liquid now, as `LiquidInput` gives them. */
-  readonly from: number;
-  readonly to: number;
   readonly beads: readonly LiquidBead[];
   /** Where the trailing edge last shed a bead. */
   readonly shedAt: number;
@@ -147,6 +157,14 @@ const MAX_STEP = 1 / 30;
  * A Switch's particles never move more than 0.06 in a substep.
  */
 const SUBSTEP_MOVE = 0.08;
+/**
+ * The most substeps one step takes, which bounds a frame's work on the GPU:
+ * a frame's step is at most `MAX_STEP`, so this is reached only by a body
+ * that moves faster than any pour does.
+ *
+ * @internal
+ */
+export const MAX_SUBSTEPS = 64;
 /**
  * The liquid's clock runs this many times faster than the page's: every
  * rate here is per second of the liquid's clock, so the whole pour, its
@@ -370,6 +388,64 @@ function restPositions(
 const REST_DENSITY = restDensity();
 
 /**
+ * The numbers of a substep, which `LIQUID_COMPUTE_WGSL` bakes in as
+ * constants of the same names, so that the GPU runs the physics of
+ * `simulateLiquid`.
+ *
+ * @internal
+ */
+export const LIQUID_PHYSICS = {
+  KERNEL_REACH,
+  PARTICLE_RADIUS,
+  REST_DENSITY,
+  SUBSTEP,
+  SUBSTEP_MOVE,
+  STIFFNESS,
+  NEAR_STIFFNESS,
+  VISCOSITY,
+  VISCOSITY_QUADRATIC,
+  DRAG,
+  SETTLE_DRAG,
+  TILT,
+  TILT_REACH,
+  TILT_BOOST_REACH,
+  TILT_BOOST_POWER,
+  TILT_BOOST_MAX,
+  AIM_TILT,
+  CENTRE_PULL,
+  WALL_GRIP,
+  WALL_GRIP_REACH,
+  SIDE_GRIP_SHARE,
+} as const;
+
+/**
+ * How far a frame of `delta` seconds moves the liquid's clock, in seconds
+ * of that clock.
+ *
+ * @internal
+ */
+export function liquidStep(delta: number) {
+  return Math.min(delta, MAX_STEP) * PACE;
+}
+
+/**
+ * How many substeps a step of `step` seconds takes for a body whose
+ * fastest particle moves at `fastest` rest radii per second.
+ *
+ * @internal
+ */
+export function substepCount(step: number, fastest: number) {
+  return Math.min(
+    MAX_SUBSTEPS,
+    Math.max(
+      1,
+      Math.ceil(step / SUBSTEP),
+      Math.ceil((step * fastest) / SUBSTEP_MOVE),
+    ),
+  );
+}
+
+/**
  * The liquid at rest at `target`: a circle, or a pill of `span`, between
  * the walls `from` and `to`, which are the ends of the pill unless given.
  * `count` keeps the particles of a body that rests again.
@@ -483,8 +559,8 @@ function insideTrack(
  * The walls for this step: the input's, but a wall that moves in stops
  * where it would push a particle, and moves in only as the liquid leaves.
  */
-function wallsFor(body: LiquidBody, input: Walls): Walls {
-  const reach = 1 - PARTICLE_RADIUS * body.scale;
+function wallsFor(body: LiquidParticles, input: Walls, scale: number): Walls {
+  const reach = 1 - PARTICLE_RADIUS * scale;
   let leftmost = Number.POSITIVE_INFINITY;
   let rightmost = Number.NEGATIVE_INFINITY;
   for (let i = 0; i < body.x.length; i++) {
@@ -793,31 +869,40 @@ function shed(
 }
 
 /**
- * Moves the liquid on by `delta` seconds. Under reduced motion it goes
- * straight to the target as the frozen rest shape and sheds nothing.
+ * The reach of the particles after a step of `step` seconds on the
+ * liquid's clock: it moves from `scale` towards the reach that fills the
+ * pill of `span` with `count` particles.
  *
  * @internal
  */
-export function stepLiquid(
-  body: LiquidBody,
-  input: LiquidInput,
-  delta: number,
-): LiquidBody {
-  const { target, span, pressed } = input;
-  const count = body.x.length;
-  if (input.reducedMotion) {
-    return restingLiquid(target, {
-      seed: body.seed,
-      span,
-      count,
-      from: input.from,
-      to: input.to,
-    });
-  }
-  const step = Math.min(delta, MAX_STEP) * PACE;
+export function scaleAfter(
+  scale: number,
+  span: number,
+  count: number,
+  step: number,
+) {
   const goal = scaleFor(span, count);
-  const scale = goal + (body.scale - goal) * Math.exp(-SCALE_RATE * step);
-  const walls = wallsFor(body, input);
+  return goal + (scale - goal) * Math.exp(-SCALE_RATE * step);
+}
+
+/**
+ * The substeps of one step of `step` seconds on the liquid's clock, as
+ * the compute shader runs them: the walls move in behind the liquid, and
+ * the particles tilt, slow, press and slide along the walls. Production
+ * runs `LIQUID_COMPUTE_WGSL` instead. That shader sums the pairs of each
+ * particle from the positions at the start of a pass, but this applies each
+ * pair in turn, so the two agree in their physics but not bit for bit.
+ *
+ * @internal
+ */
+export function simulateLiquid(
+  body: LiquidParticles,
+  input: LiquidInput,
+  scale: number,
+  step: number,
+): LiquidParticles {
+  const count = body.x.length;
+  const walls = wallsFor(body, input, scale);
   const x = new Float32Array(body.x);
   const y = new Float32Array(body.y);
   const vx = new Float32Array(body.vx);
@@ -826,14 +911,39 @@ export function stepLiquid(
   for (let i = 0; i < count; i++) {
     fastest = Math.max(fastest, Math.hypot(vx[i], vy[i]));
   }
-  const substeps = Math.max(
-    1,
-    Math.ceil(step / SUBSTEP),
-    Math.ceil((step * fastest) / SUBSTEP_MOVE),
-  );
+  const substeps = substepCount(step, fastest);
   for (let n = 0; n < substeps; n++) {
     substep(x, y, vx, vy, input, walls, scale, step / substeps);
   }
+  return { x, y, vx, vy, from: walls.from, to: walls.to };
+}
+
+/**
+ * The body after a step of `delta` seconds whose substeps moved its
+ * particles to `moved`: it reads where the liquid is and how fast it goes,
+ * settles and freezes it once it has arrived, moves its beads and sheds
+ * new ones. `elapsed` is how long on the liquid's clock the particles took
+ * to go from the body's to `moved`: the step, unless the GPU moved them
+ * over more than one frame, or not at all since the body last read them.
+ *
+ * @internal
+ */
+export function settleLiquid(
+  body: LiquidBody,
+  moved: LiquidParticles,
+  input: LiquidInput,
+  delta: number,
+  elapsed = liquidStep(delta),
+): LiquidBody {
+  const { target, span, pressed } = input;
+  const count = body.x.length;
+  const step = liquidStep(delta);
+  const goal = scaleFor(span, count);
+  const scale = scaleAfter(body.scale, span, count, step);
+  const { x, y, from, to } = moved;
+  const vx = new Float32Array(moved.vx);
+  const vy = new Float32Array(moved.vy);
+  const walls = { from, to };
   let speedSum = 0;
   for (let i = 0; i < count; i++) {
     speedSum += Math.hypot(vx[i], vy[i]);
@@ -860,14 +970,14 @@ export function stepLiquid(
     seed: body.seed,
   };
   const { beads, shedAt, seed } =
-    speed < SHED_SPEED || away < SHED_REACH
+    speed < SHED_SPEED || away < SHED_REACH || elapsed <= 0
       ? kept
       : shed(
           kept,
           x,
           y,
           centre - mean(body.x),
-          step,
+          elapsed,
           Math.max(SHED_SPACING, (input.to - input.from) / SHED_BUDGET),
         );
   const settled =
@@ -889,10 +999,91 @@ export function stepLiquid(
     set,
     settled,
     scale: settled ? goal : scale,
-    from: walls.from,
-    to: walls.to,
+    from,
+    to,
     beads,
     shedAt,
     seed,
   };
+}
+
+/**
+ * The particles of a body as the GPU last had them, and the time on the
+ * liquid's clock they are from.
+ *
+ * @internal
+ */
+export interface LiquidSnapshot {
+  readonly particles: LiquidParticles;
+  readonly time: number;
+}
+
+/**
+ * Settles the body on `snapshot` when it is newer than `particlesAt`, the
+ * time on the liquid's clock of the particles the body last read, and on
+ * its own particles when it is not. Returns the body and the time of its
+ * particles.
+ *
+ * @internal
+ */
+export function settleOnSnapshot(
+  body: LiquidBody,
+  snapshot: LiquidSnapshot | null,
+  particlesAt: number,
+  input: LiquidInput,
+  delta: number,
+): { body: LiquidBody; particlesAt: number } {
+  if (snapshot === null || snapshot.time <= particlesAt) {
+    return { body: settleLiquid(body, body, input, delta, 0), particlesAt };
+  }
+  return {
+    body: settleLiquid(
+      body,
+      snapshot.particles,
+      input,
+      delta,
+      snapshot.time - particlesAt,
+    ),
+    particlesAt: snapshot.time,
+  };
+}
+
+/**
+ * The body under reduced motion: the frozen rest shape at the target.
+ *
+ * @internal
+ */
+export function frozenLiquid(body: LiquidBody, input: LiquidInput) {
+  return restingLiquid(input.target, {
+    seed: body.seed,
+    span: input.span,
+    count: body.x.length,
+    from: input.from,
+    to: input.to,
+  });
+}
+
+/**
+ * Moves the liquid on by `delta` seconds, all on the CPU, where the effect
+ * runs the substeps on the GPU. Under reduced motion it goes straight to
+ * the target as the frozen rest shape and sheds nothing.
+ *
+ * @internal
+ */
+export function stepLiquid(
+  body: LiquidBody,
+  input: LiquidInput,
+  delta: number,
+): LiquidBody {
+  if (input.reducedMotion) {
+    return frozenLiquid(body, input);
+  }
+  const step = liquidStep(delta);
+  const scale = scaleAfter(body.scale, input.span, body.x.length, step);
+  return settleLiquid(
+    body,
+    simulateLiquid(body, input, scale, step),
+    input,
+    delta,
+  );
 }

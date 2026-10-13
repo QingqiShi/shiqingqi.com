@@ -7,10 +7,73 @@ import {
   type LiquidControl,
   type LiquidState,
 } from "./liquid-effect.ts";
-import type { LiquidBeadInstance, LiquidParticle } from "./liquid-wgsl.ts";
+import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { readFill } from "./read-element-box.ts";
-import { mean } from "./step-liquid.ts";
+import {
+  mean,
+  simulateLiquid,
+  type LiquidParticles,
+  type LiquidSnapshot,
+} from "./step-liquid.ts";
 import type { EffectSettings } from "./types.ts";
+
+type Liquid = NonNullable<EffectSettings["liquid"]>;
+
+const SLOT = 2;
+const BACKDROP = readFill("rgb(250, 250, 250)");
+
+/**
+ * Lays one control's liquid out frame by frame, with the CPU reference in
+ * the GPU's place: it runs each step the layout asks for, and sends the
+ * particles back a frame later, as the GPU's readback does.
+ */
+function createRun(id: number, elementIndex: number) {
+  let slot: LiquidParticles | null = null;
+  let pending: LiquidSnapshot | null = null;
+  let latest: LiquidSnapshot | null = null;
+  let state: LiquidState | undefined;
+  let time = 0;
+  return (
+    control: LiquidControl,
+    liquid: Liquid,
+    beads: LiquidBeadInstance[] = [],
+  ) => {
+    time += 1 / 60;
+    latest = pending ?? latest;
+    pending = null;
+    const laid = layoutLiquid(
+      control,
+      { id, settings: { liquid } },
+      elementIndex,
+      SLOT,
+      state,
+      { time, delta: 1 / 60, reducedMotion: false },
+      BACKDROP,
+      latest,
+      beads,
+    );
+    if (laid.seed) {
+      slot = laid.state.body;
+    }
+    if (laid.step !== null) {
+      if (slot === null) {
+        throw new Error("The step has no particles to move.");
+      }
+      const { target, span, aim, from, to, scale, step } = laid.step;
+      expect(laid.step.slot).toBe(SLOT);
+      expect(laid.step.count).toBe(slot.x.length);
+      slot = simulateLiquid(
+        slot,
+        { target, span, aim, from, to, pressed: false, reducedMotion: false },
+        scale,
+        step,
+      );
+      pending = { particles: slot, time: laid.state.simulated };
+    }
+    state = laid.state;
+    return laid;
+  };
+}
 
 describe("pillAt", () => {
   const stops = [
@@ -60,29 +123,18 @@ describe("layoutLiquid", () => {
       spread: 2,
     });
     const frames: unknown[] = [];
-    let state: LiquidState | undefined;
+    const run = createRun(7, 3);
     let on = false;
-    let time = 0;
-    const step = (liquid: NonNullable<EffectSettings["liquid"]>) => {
-      const particles: LiquidParticle[] = [];
+    const step = (liquid: Liquid) => {
       const beads: LiquidBeadInstance[] = [];
-      time += 1 / 60;
-      const laid = layoutLiquid(
-        switchOf(on),
-        { id: 7, settings: { liquid } },
-        3,
-        state,
-        { time, delta: 1 / 60, reducedMotion: false },
-        readFill("rgb(250, 250, 250)"),
-        particles,
-        beads,
-      );
-      state = laid.state;
+      const laid = run(switchOf(on), liquid, beads);
       frames.push({
         instance: laid.instance,
         ring: laid.ring,
         animating: laid.animating,
-        particles,
+        step: laid.step,
+        seed: laid.seed,
+        particles: [...laid.state.body.x, ...laid.state.body.y],
         beads,
       });
     };
@@ -98,11 +150,11 @@ describe("layoutLiquid", () => {
     on = true;
     for (let i = 0; i < 90; i++) step({ ...rest, position: 1 });
 
-    // Taken before the Switch and the SegmentedControl shared one
-    // controller: the Switch's liquid must not change.
+    // Taken when the simulation moved to the GPU: the Switch's liquid must
+    // not change.
     expect(
       createHash("sha256").update(JSON.stringify(frames)).digest("hex"),
-    ).toBe("1121a272aa625156fa263752d46205f862b6dc3c356746767032792913e2a6be");
+    ).toBe("0912f971b6fc93fbc3e6f8452d5e7bd0d331a553b263a3bf3fc1f1b66328257f");
   });
 
   it("runs the ring light once for each landing on a segment", () => {
@@ -133,22 +185,10 @@ describe("layoutLiquid", () => {
       fill: null,
       spread: 2,
     };
-    let state: LiquidState | undefined;
-    let time = 0;
+    const run = createRun(1, 0);
     const starts = new Map<number, number>();
-    const step = (liquid: NonNullable<EffectSettings["liquid"]>) => {
-      time += 1 / 60;
-      const laid = layoutLiquid(
-        control,
-        { id: 1, settings: { liquid } },
-        0,
-        state,
-        { time, delta: 1 / 60, reducedMotion: false },
-        readFill("rgb(250, 250, 250)"),
-        [],
-        [],
-      );
-      state = laid.state;
+    const step = (liquid: Liquid) => {
+      const laid = run(control, liquid);
       if (laid.ring !== null) {
         starts.set(laid.ring.ring.start, laid.ring.box.x);
       }
@@ -199,26 +239,16 @@ describe("layoutLiquid", () => {
       fill: null,
       spread: 2,
     };
-    let state: LiquidState | undefined;
-    let time = 0;
+    const run = createRun(1, 0);
     const centresAtRing: number[] = [];
+    let state: LiquidState | undefined;
     const step = (position: number) => {
-      time += 1 / 60;
-      const laid = layoutLiquid(
-        control,
-        {
-          id: 1,
-          settings: {
-            liquid: { position, drag: null, pressed: false, aim: 0 },
-          },
-        },
-        0,
-        state,
-        { time, delta: 1 / 60, reducedMotion: false },
-        readFill("rgb(250, 250, 250)"),
-        [],
-        [],
-      );
+      const laid = run(control, {
+        position,
+        drag: null,
+        pressed: false,
+        aim: 0,
+      });
       if (laid.ring !== null && state?.ring === null) {
         centresAtRing.push(mean(laid.state.body.x));
       }
