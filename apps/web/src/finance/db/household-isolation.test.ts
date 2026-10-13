@@ -560,7 +560,7 @@ describe("sync", () => {
     }
 
     const bootstrap = await new Response(
-      streamBootstrap(db, a.householdId, "2026-03-02"),
+      streamBootstrap(db, a.householdId),
     ).text();
     expect(bootstrap).toContain(own);
     expect(bootstrap).not.toContain(other);

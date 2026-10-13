@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { createPrng } from "../dev/seed/create-prng.ts";
 import { addDays } from "../domain/dates/add-days.ts";
-import { startOfMonth } from "../domain/dates/start-of-month.ts";
 import { fromEpochDay, toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { aggregateAnalytics } from "./aggregate-analytics.ts";
 import {
@@ -78,33 +77,6 @@ function randomSource(seed: number, count: number) {
   return { categories, payees, members, tags, transactions, transactionTags };
 }
 
-/** What `month_totals` holds for the rows: per month, kind, Category and Member. */
-function monthTotalsOf(rows: readonly Row[]) {
-  const totals = new Map<
-    string,
-    Source["monthTotals"] extends Iterable<infer T> ? T : never
-  >();
-  for (const row of rows) {
-    if (row.deletedAt !== null || row.status !== "posted") continue;
-    if (row.kind === "transfer" || row.categoryId === null) continue;
-    const month = startOfMonth(row.date);
-    const key = `${month}|${row.kind}|${row.categoryId}|${row.memberId ?? ""}`;
-    const total = totals.get(key) ?? {
-      month,
-      kind: row.kind,
-      categoryId: row.categoryId,
-      memberId: row.memberId,
-      amountMinor: 0,
-      count: 0,
-      deletedAt: null,
-    };
-    total.amountMinor += row.amountMinor;
-    total.count += 1;
-    totals.set(key, total);
-  }
-  return [...totals.values()];
-}
-
 interface NaiveQuery {
   from: string;
   to: string;
@@ -112,8 +84,6 @@ interface NaiveQuery {
   member: string | null;
   grouping: Grouping;
   bucketOf: (categoryId: string | null) => string | null;
-  /** Rows before this day come from month totals. */
-  rawFrom: string | null;
 }
 
 function naive(data: ReturnType<typeof randomSource>, query: NaiveQuery) {
@@ -133,29 +103,9 @@ function naive(data: ReturnType<typeof randomSource>, query: NaiveQuery) {
   const income = new Array<number>(starts.length).fill(0);
   const spending = new Array<number>(starts.length).fill(0);
   let total = 0;
-  const rows: {
-    date: string;
-    kind: string;
-    amountMinor: number;
-    categoryId: string | null;
-    memberId: string | null;
-    payeeId: string | null;
-    id: string | null;
-  }[] = [];
   for (const row of data.transactions) {
     if (row.deletedAt !== null || row.status !== "posted") continue;
     if (row.kind === "transfer") continue;
-    if (query.rawFrom !== null && row.date < query.rawFrom) continue;
-    rows.push(row);
-  }
-  if (query.rawFrom !== null) {
-    const rawFrom = query.rawFrom;
-    const old = data.transactions.filter((row) => row.date < rawFrom);
-    for (const total of monthTotalsOf(old)) {
-      rows.push({ ...total, date: total.month, payeeId: null, id: null });
-    }
-  }
-  for (const row of rows) {
     if (row.date < query.from || row.date > query.to) continue;
     if (query.member !== null && row.memberId !== query.member) continue;
     const period = periodOf(row.date);
@@ -173,27 +123,13 @@ function naive(data: ReturnType<typeof randomSource>, query: NaiveQuery) {
     if (row.payeeId !== null) {
       byPayee.set(row.payeeId, (byPayee.get(row.payeeId) ?? 0) + value);
     }
-    if (row.id !== null) {
-      for (const link of data.transactionTags) {
-        if (link.transactionId === row.id && link.deletedAt === null) {
-          byTag.set(link.tagId, (byTag.get(link.tagId) ?? 0) + value);
-        }
+    for (const link of data.transactionTags) {
+      if (link.transactionId === row.id && link.deletedAt === null) {
+        byTag.set(link.tagId, (byTag.get(link.tagId) ?? 0) + value);
       }
     }
   }
   return { total, byBucket, byPeriod, byPayee, byTag, income, spending };
-}
-
-function sourceOf(
-  data: ReturnType<typeof randomSource>,
-  transactionsFrom: string | null,
-): Source {
-  return {
-    ...data,
-    monthTotals:
-      transactionsFrom === null ? [] : monthTotalsOf(data.transactions),
-    transactionsFrom,
-  };
 }
 
 const rootOf = (id: string | null) =>
@@ -213,7 +149,6 @@ describe("aggregateAnalytics", () => {
       grouping: "month",
       from: "2023-03-15",
       to: "2025-11-02",
-      window: null,
     },
     {
       kind: "income",
@@ -221,7 +156,6 @@ describe("aggregateAnalytics", () => {
       grouping: "week",
       from: "2024-02-07",
       to: "2024-08-30",
-      window: null,
     },
     {
       kind: "net",
@@ -229,7 +163,6 @@ describe("aggregateAnalytics", () => {
       grouping: "day",
       from: "2025-01-01",
       to: "2025-02-28",
-      window: null,
     },
     {
       kind: "spending",
@@ -237,7 +170,6 @@ describe("aggregateAnalytics", () => {
       grouping: "year",
       from: "2023-01-01",
       to: "2026-01-04",
-      window: "2024-06-17",
     },
     {
       kind: "net",
@@ -245,12 +177,11 @@ describe("aggregateAnalytics", () => {
       grouping: "month",
       from: "2023-05-01",
       to: "2025-12-31",
-      window: "2024-01-01",
     },
   ] as const)(
-    "matches a naive sum: $kind, $member, $grouping, window $window",
-    ({ kind, member, grouping, from, to, window }) => {
-      const index = buildAnalyticsIndex(sourceOf(data, window));
+    "matches a naive sum: $kind, $member, $grouping",
+    ({ kind, member, grouping, from, to }) => {
+      const index = buildAnalyticsIndex(data);
       const buckets = categoryBuckets(index, kind, -1);
       const boundaries = periodBoundaries(from, to, grouping);
       const result = aggregateAnalytics(index, {
@@ -263,12 +194,6 @@ describe("aggregateAnalytics", () => {
         bucketCount: buckets.count,
         breakdowns: true,
       });
-      const rawFrom =
-        window === null
-          ? null
-          : window.endsWith("-01")
-            ? window
-            : `${window.slice(0, 5)}${String(Number(window.slice(5, 7)) + 1).padStart(2, "0")}-01`;
       const expected = naive(data, {
         from,
         to,
@@ -276,7 +201,6 @@ describe("aggregateAnalytics", () => {
         member,
         grouping,
         bucketOf: rootOf,
-        rawFrom,
       });
 
       expect(result.total).toBeCloseTo(expected.total, 6);
@@ -301,7 +225,7 @@ describe("aggregateAnalytics", () => {
   );
 
   test("adds a parent's children and the parent itself apart when opened", () => {
-    const index = buildAnalyticsIndex(sourceOf(data, null));
+    const index = buildAnalyticsIndex(data);
     const parent = index.categoryIds.indexOf("root-2");
     const buckets = categoryBuckets(index, "spending", parent);
     const boundaries = periodBoundaries("2023-01-01", "2026-01-31", "year");
@@ -322,7 +246,6 @@ describe("aggregateAnalytics", () => {
       grouping: "year",
       bucketOf: (id) =>
         id?.startsWith("child-2-") || id === "root-2" ? id : null,
-      rawFrom: null,
     });
     expect(buckets.count).toBe(4);
     expect(buckets.directBucket).toBeGreaterThanOrEqual(0);
@@ -392,8 +315,6 @@ describe("aggregateAnalytics", () => {
       payees: [],
       members: [],
       tags: [],
-      monthTotals: [],
-      transactionsFrom: null,
     });
     const buckets = categoryBuckets(index, "spending", -1);
     const query = {
@@ -436,8 +357,6 @@ describe("aggregateAnalytics", () => {
       payees: [],
       members: [],
       tags: [],
-      monthTotals: [],
-      transactionsFrom: null,
     });
     const { tones, bucketOf } = categoryBuckets(index, "spending", -1);
     expect(tones[bucketOf[9]]).toBe("series1");

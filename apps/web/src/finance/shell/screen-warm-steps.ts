@@ -51,10 +51,7 @@ export function screenWarmSteps(store: ReplicaStore): (() => void)[] {
       selectQueueCounts(store.getSnapshot());
     },
     () => {
-      selectAnalyticsIndex(
-        store.getSnapshot(),
-        store.getMeta().transactionsFrom,
-      );
+      selectAnalyticsIndex(store.getSnapshot());
     },
     ...timeZoneSteps(),
   ];

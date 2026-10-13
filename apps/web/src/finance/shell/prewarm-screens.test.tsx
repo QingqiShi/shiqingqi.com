@@ -18,10 +18,7 @@ describe("PrewarmScreens", () => {
       expect(performance.getEntriesByName(INDEX_BUILT)).toHaveLength(1);
     });
 
-    selectAnalyticsIndex(
-      runtime.store.getSnapshot(),
-      runtime.store.getMeta().transactionsFrom,
-    );
+    selectAnalyticsIndex(runtime.store.getSnapshot());
     expect(performance.getEntriesByName(INDEX_BUILT)).toHaveLength(1);
   });
 });

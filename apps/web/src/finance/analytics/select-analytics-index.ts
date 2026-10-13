@@ -10,11 +10,10 @@ let last: {
 
 /**
  * The analytics index of the Replica, built again only when a table it
- * reads changes. `transactionsFrom` is the Replica window's first day.
+ * reads changes.
  */
 export function selectAnalyticsIndex(
   snapshot: ReplicaSnapshot,
-  transactionsFrom: string | null,
 ): AnalyticsIndex {
   const { tables } = snapshot;
   const transactions = selectTransactionsByDateDesc(snapshot);
@@ -25,8 +24,6 @@ export function selectAnalyticsIndex(
     tables.payees,
     tables.members,
     tables.tags,
-    tables.monthTotals,
-    transactionsFrom,
   ];
   if (last?.inputs.every((input, at) => input === inputs[at])) {
     return last.index;
@@ -39,8 +36,6 @@ export function selectAnalyticsIndex(
     payees: tables.payees.values(),
     members: tables.members.values(),
     tags: tables.tags.values(),
-    monthTotals: tables.monthTotals.values(),
-    transactionsFrom,
   });
   if (process.env.NODE_ENV !== "production") {
     performance.measure("finance:analytics-index", { start: started });

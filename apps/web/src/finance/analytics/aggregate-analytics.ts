@@ -45,8 +45,6 @@ export function aggregateAnalytics(
     categories,
     payees,
     members,
-    counts,
-    aggregated,
     tagOffsets,
     tagIndexes,
   } = index;
@@ -80,9 +78,9 @@ export function aggregateAnalytics(
     const bucket = bucketOf[categories[i]];
     if (bucket < 0) continue;
     const value = kind === "spending" ? -amount : amount;
-    if (aggregated[i] === 0 && (value < keepLow || value > keepHigh)) continue;
+    if (value < keepLow || value > keepHigh) continue;
     total += value;
-    count += counts[i];
+    count++;
     byBucket[bucket] += value;
     if (inPeriods) {
       byPeriod[period] += value;

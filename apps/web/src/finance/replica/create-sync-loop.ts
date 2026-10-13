@@ -173,7 +173,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
       const line = JSON.parse(text) as BootstrapLine;
       switch (line.type) {
         case "start": {
-          store.startBootstrap(line);
+          store.startBootstrap(line.household);
           break;
         }
         case "rows": {

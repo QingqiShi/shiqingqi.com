@@ -7,8 +7,7 @@ export type Grouping = "day" | "week" | "month" | "year";
 /**
  * Every posted expense and income of the Household as typed columns, sorted
  * by day, so a date range is two binary searches and a pass over a slice.
- * Row `i` of each column is one Transaction, or one Category × Member month
- * total for a month before the Replica window.
+ * Row `i` of each column is one Transaction.
  */
 export interface AnalyticsIndex {
   length: number;
@@ -24,10 +23,6 @@ export interface AnalyticsIndex {
   payees: Int32Array;
   /** Index into `memberIds`, or -1. */
   members: Int32Array;
-  /** How many Transactions a row stands for: 1, or a month total's count. */
-  counts: Int32Array;
-  /** 1 for a month total, which has no Payee, Tags or Transaction id. */
-  aggregated: Uint8Array;
   transactionIds: readonly string[];
   /** The Tags of row `i` are `tagIndexes[tagOffsets[i] … tagOffsets[i + 1]]`. */
   tagOffsets: Int32Array;
@@ -41,8 +36,6 @@ export interface AnalyticsIndex {
   /** Spending (positive) per Category over all rows, to give each a stable colour. */
   spendingByCategory: Float64Array;
   incomeByCategory: Float64Array;
-  /** The first day that has Transactions, not month totals; null when every row is a Transaction. */
-  rawFrom: number | null;
   firstDay: number | null;
   lastDay: number | null;
 }

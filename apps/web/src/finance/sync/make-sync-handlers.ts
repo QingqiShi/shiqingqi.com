@@ -2,7 +2,6 @@ import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
-import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
 import { guardFinanceRequest } from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
@@ -54,8 +53,7 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
         if (!household) {
           return financeJson({ error: "unauthorised" }, { status: 401 });
         }
-        const today = todayInTimeZone(household.timezone, dependencies.now());
-        return new Response(streamBootstrap(db, session.householdId, today), {
+        return new Response(streamBootstrap(db, session.householdId), {
           headers: {
             "Content-Type": "application/x-ndjson; charset=utf-8",
             "Cache-Control": FINANCE_NO_STORE,

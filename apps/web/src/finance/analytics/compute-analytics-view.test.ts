@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { buildSyntheticRows } from "../dev/seed/build-synthetic-rows.ts";
 import { addMonths } from "../domain/dates/add-months.ts";
-import { startOfMonth } from "../domain/dates/start-of-month.ts";
 import { expectWithinBudget } from "../testing/expect-within-budget.ts";
 import {
   buildAnalyticsIndex,
@@ -16,10 +15,7 @@ import { ANALYTICS_RANGES } from "./resolve-analytics-range.ts";
 
 const TODAY = "2026-10-10";
 
-function syntheticSource(
-  transactionsPerYear: number,
-  transactionsFrom: string | null,
-): AnalyticsIndexSource {
+function syntheticSource(transactionsPerYear: number): AnalyticsIndexSource {
   const rows = buildSyntheticRows({
     years: 3,
     transactionsPerYear,
@@ -38,28 +34,6 @@ function syntheticSource(
     memberId: row.memberId ?? null,
     deletedAt: null,
   }));
-  const monthTotals = new Map<
-    string,
-    AnalyticsIndexSource["monthTotals"] extends Iterable<infer T> ? T : never
-  >();
-  for (const row of transactions) {
-    if (row.status !== "posted" || row.kind === "transfer") continue;
-    if (row.categoryId === null) continue;
-    const month = startOfMonth(row.date);
-    const key = `${month}|${row.kind}|${row.categoryId}|${row.memberId ?? ""}`;
-    const total = monthTotals.get(key) ?? {
-      month,
-      kind: row.kind,
-      categoryId: row.categoryId,
-      memberId: row.memberId,
-      amountMinor: 0,
-      count: 0,
-      deletedAt: null,
-    };
-    total.amountMinor += row.amountMinor;
-    total.count++;
-    monthTotals.set(key, total);
-  }
   return {
     transactions,
     transactionTags: rows.transactionTags.map((row) => ({
@@ -74,13 +48,11 @@ function syntheticSource(
     payees: rows.payees.map((row) => ({ id: row.id })),
     members: Object.values(rows.memberIds).map((id) => ({ id })),
     tags: rows.tags.map((row) => ({ id: row.id })),
-    monthTotals: [...monthTotals.values()],
-    transactionsFrom,
   };
 }
 
 describe("computeAnalyticsView at 60k Transactions", () => {
-  const source = syntheticSource(20_000, null);
+  const source = syntheticSource(20_000);
   const index = buildAnalyticsIndex(source);
 
   test("holds every posted expense and income", () => {
@@ -144,7 +116,7 @@ describe("computeAnalyticsView at 60k Transactions", () => {
 });
 
 describe("computeAnalyticsView", () => {
-  const source = syntheticSource(1500, null);
+  const source = syntheticSource(1500);
   const index = buildAnalyticsIndex(source);
 
   test("opens a parent to its children and compares with the period before", () => {
@@ -205,28 +177,14 @@ describe("computeAnalyticsView", () => {
     expect(kept.excluded).toBe(true);
   });
 
-  test("uses month totals before the Replica window, by month at least", () => {
-    const windowed = buildAnalyticsIndex(
-      syntheticSource(1500, addMonths(TODAY, -24)),
-    );
-    const state: AnalyticsState = {
-      ...DEFAULT_ANALYTICS_STATE,
-      range: "all",
-      grouping: "week",
-    };
-    const full = computeAnalyticsView(index, state, TODAY);
-    const view = computeAnalyticsView(windowed, state, TODAY);
-    expect(view.beyondWindow).toBe(true);
-    expect(view.grouping).toBe("month");
-    expect(view.rawFrom).toBe("2024-11-01");
-    expect(view.total).toBe(full.total);
-    const inWindow = computeAnalyticsView(
-      windowed,
-      { ...state, range: "12M" },
+  test("keeps the grouping asked for over the whole history", () => {
+    const view = computeAnalyticsView(
+      index,
+      { ...DEFAULT_ANALYTICS_STATE, range: "all", grouping: "week" },
       TODAY,
     );
-    expect(inWindow.beyondWindow).toBe(false);
-    expect(inWindow.grouping).toBe("week");
+    expect(view.grouping).toBe("week");
+    expect(view.boundaries.length - 1).toBeGreaterThan(104);
   });
 });
 
@@ -264,8 +222,6 @@ describe("computeAnalyticsView with the current month cut short", () => {
     payees: [],
     members: [],
     tags: [],
-    monthTotals: [],
-    transactionsFrom: null,
   });
   const view = computeAnalyticsView(
     index,
