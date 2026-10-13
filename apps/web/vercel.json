@@ -4,6 +4,7 @@
   "crons": [
     { "path": "/api/finance/cron/bank-sync", "schedule": "0 */6 * * *" },
     { "path": "/api/finance/cron/materialise", "schedule": "0 2 * * *" },
+    { "path": "/api/finance/cron/balance-repair", "schedule": "30 3 * * *" },
     { "path": "/api/finance/cron/weekly-report", "schedule": "0 7 * * 1" }
   ]
 }

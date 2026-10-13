@@ -390,7 +390,9 @@ describe("a Household scope", () => {
     "cannot insert a row of another Household into $name",
     async ({ table, key }) => {
       const [row] = await db.select().from(table).where(eq(key, b.householdId));
-      const copy = { ...row, ...("id" in row ? { id: randomUUID() } : {}) };
+      const { id, ...rest } = row;
+      const copy =
+        typeof id === "string" ? { ...rest, id: randomUUID() } : rest;
       expect(
         await failureOf(
           withHousehold(db, a.householdId, (scope) =>

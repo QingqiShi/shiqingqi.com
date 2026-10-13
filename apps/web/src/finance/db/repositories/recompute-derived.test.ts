@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull, lt, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   balanceSeriesToRows,
@@ -16,6 +16,7 @@ import {
   valuations,
 } from "../schema.ts";
 import { createTestDb, type TestDb } from "../testing/create-test-db.ts";
+import { insertTestExpense } from "../testing/insert-test-expense.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
@@ -174,6 +175,85 @@ async function storedRows(accountId: string) {
     .orderBy(asc(accountBalanceDays.day));
 }
 
+let nextId = 0;
+
+async function addAccount() {
+  const id = nameBasedUuid(`edits:account:${String(nextId++)}`);
+  await db.insert(accounts).values({
+    id,
+    householdId: home.householdId,
+    groupId: home.liquidGroupId,
+    name: `Edits ${id}`,
+    kind: "cash",
+    currency: "GBP",
+    version: 1,
+  });
+  return id;
+}
+
+function addExpense(accountId: string, date: string, amountMinor: number) {
+  return insertTestExpense(db, home, accountId, date, amountMinor);
+}
+
+async function moveExpense(transactionId: string, date: string) {
+  await db
+    .update(transactions)
+    .set({ date })
+    .where(eq(transactions.id, transactionId));
+  await db
+    .update(entries)
+    .set({ date })
+    .where(eq(entries.transactionId, transactionId));
+}
+
+async function addValuation(
+  accountId: string,
+  on: string,
+  amountMinor: number,
+) {
+  const id = nameBasedUuid(`edits:valuation:${String(nextId++)}`);
+  await db.insert(valuations).values({
+    id,
+    householdId: home.householdId,
+    accountId,
+    on,
+    amountMinor,
+    version: 1,
+  });
+  return id;
+}
+
+let nextVersion = 10;
+
+async function recomputeFrom(fromByAccount: Record<string, string>) {
+  const version = nextVersion++;
+  const written = await withHousehold(db, home.householdId, (scope) =>
+    recomputeDerived(
+      { ...scope, version },
+      { accounts: new Map(Object.entries(fromByAccount)), months: new Set() },
+    ),
+  );
+  return { version, written: written.balanceDays };
+}
+
+/**
+ * A full rebuild of these accounts finds nothing to change when the stored
+ * rows are right. It starts before every row, so no stored balance seeds it.
+ */
+async function expectSameAsFullRebuild(accountIds: readonly string[]) {
+  const version = nextVersion++;
+  const written = await withHousehold(db, home.householdId, (scope) =>
+    recomputeDerived(
+      { ...scope, version },
+      {
+        accounts: new Map(accountIds.map((id) => [id, "1900-01-01"])),
+        months: new Set(),
+      },
+    ),
+  );
+  expect(written.balanceDays).toBe(0);
+}
+
 describe("recomputeDerived", () => {
   it("builds every derived row for an imported ledger in one pass", async () => {
     const started = performance.now();
@@ -231,5 +311,99 @@ describe("recomputeDerived", () => {
     expect(changed.length).toBe(written.balanceDays);
     expect(changed.every((row) => row.day >= middle.day)).toBe(true);
     expect(await db.$count(monthTotals, eq(monthTotals.version, 3))).toBe(0);
+  });
+
+  it("from a day on, ends as a full rebuild would after many edits", async () => {
+    const own = await addAccount();
+    const other = await addAccount();
+    const days = Array.from({ length: 12 }, (_, i) =>
+      addDays("2020-01-01", i * 10),
+    );
+    const expenses: string[] = [];
+    for (const day of days) {
+      expenses.push(await addExpense(own, day, -1_000));
+      await addExpense(other, day, -500);
+    }
+    const valuationId = await addValuation(own, days[5] ?? "", 50_000);
+    await recomputeFrom({ [own]: days[0] ?? "", [other]: days[0] ?? "" });
+    await expectSameAsFullRebuild([own, other]);
+
+    await addExpense(own, "2019-12-01", -200);
+    await recomputeFrom({ [own]: "2019-12-01" });
+    await expectSameAsFullRebuild([own, other]);
+
+    await addExpense(own, "2020-01-15", -300);
+    await addExpense(other, days[10] ?? "", -400);
+    await recomputeFrom({ [own]: "2020-01-15", [other]: days[10] ?? "" });
+    await expectSameAsFullRebuild([own, other]);
+
+    await addValuation(own, days[8] ?? "", 80_000);
+    await recomputeFrom({ [own]: days[8] ?? "" });
+    await expectSameAsFullRebuild([own, other]);
+
+    await db
+      .update(valuations)
+      .set({ deletedAt: sql`now()` })
+      .where(eq(valuations.id, valuationId));
+    await recomputeFrom({ [own]: days[5] ?? "" });
+    await expectSameAsFullRebuild([own, other]);
+
+    await db
+      .update(transactions)
+      .set({ deletedAt: sql`now()` })
+      .where(eq(transactions.id, expenses[3] ?? ""));
+    await recomputeFrom({ [own]: days[3] ?? "" });
+    await expectSameAsFullRebuild([own, other]);
+    expect((await storedRows(own)).map((row) => row.day)).not.toContain(
+      days[3],
+    );
+
+    await moveExpense(expenses[9] ?? "", "2020-02-02");
+    await moveExpense(expenses[1] ?? "", days[11] ?? "");
+    await recomputeFrom({ [own]: "2020-02-02" });
+    await recomputeFrom({ [own]: days[1] ?? "" });
+    await expectSameAsFullRebuild([own, other]);
+    expect(await storedRows(own)).toEqual(
+      expect.not.arrayContaining([expect.objectContaining({ day: days[9] })]),
+    );
+  });
+
+  it("starts from the stored balance before the change, not the first Entry", async () => {
+    const accountId = await addAccount();
+    const days = Array.from({ length: 500 }, (_, i) =>
+      addDays("2015-01-01", i),
+    );
+    const firstId = await addExpense(accountId, days[0] ?? "", -100);
+    for (const day of days.slice(1)) await addExpense(accountId, day, -100);
+    const lastDay = days.at(-1) ?? "";
+    const built = await recomputeFrom({ [accountId]: days[0] ?? "" });
+    expect(built.written).toBe(500);
+
+    await db
+      .update(entries)
+      .set({ amountMinor: -1_000_000 })
+      .where(eq(entries.transactionId, firstId));
+    await db
+      .update(entries)
+      .set({ amountMinor: -300 })
+      .where(and(eq(entries.accountId, accountId), eq(entries.date, lastDay)));
+
+    const edit = await recomputeFrom({ [accountId]: lastDay });
+
+    expect(edit.written).toBe(1);
+    expect(
+      await db.$count(
+        accountBalanceDays,
+        and(
+          eq(accountBalanceDays.accountId, accountId),
+          lt(accountBalanceDays.day, lastDay),
+          eq(accountBalanceDays.version, built.version),
+        ),
+      ),
+    ).toBe(499);
+    expect((await storedRows(accountId)).at(-1)).toEqual({
+      day: lastDay,
+      balanceMinor: -499 * 100 - 300,
+    });
   });
 });
