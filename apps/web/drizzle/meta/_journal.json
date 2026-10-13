@@ -64,6 +64,13 @@
       "when": 1791839796671,
       "tag": "0008_rule_non_business_day",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791897896371,
+      "tag": "0009_balance_check_queue",
+      "breakpoints": true
     }
   ]
 }

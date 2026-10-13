@@ -628,6 +628,26 @@ export const accountBalanceDays = pgTable(
   ],
 );
 
+/**
+ * The account days whose stored balance a write may have changed, filled by
+ * triggers on `entries`, `transactions`, `valuations` and
+ * `account_balance_days`. The daily balance repair checks each one and
+ * deletes it. Server-only, never synced.
+ */
+export const balanceCheckDays = pgTable(
+  "balance_check_days",
+  {
+    id: bigint("id", { mode: "number" })
+      .primaryKey()
+      .generatedByDefaultAsIdentity(),
+    householdId: householdId(),
+    accountId: uuid("account_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("balance_check_days_household_idx").on(t.householdId, t.id)],
+);
+
 export const monthTotals = pgTable(
   "month_totals",
   {
@@ -855,6 +875,7 @@ export const schema = {
   entries,
   transactionTags,
   accountBalanceDays,
+  balanceCheckDays,
   monthTotals,
   fxRates,
   appliedMutations,

@@ -1,5 +1,6 @@
 import {
   and,
+  desc,
   eq,
   gte,
   inArray,
@@ -10,6 +11,7 @@ import {
   sql,
   type SQL,
 } from "drizzle-orm";
+import type { PgColumn } from "drizzle-orm/pg-core";
 import {
   balanceSeriesToRows,
   computeBalanceDays,
@@ -51,43 +53,75 @@ function push<K, V>(map: Map<K, V[]>, key: K, value: V) {
   else map.set(key, [value]);
 }
 
-/**
- * The last Valuation day before `from` for each account: the stored balances
- * up to it cannot change, so the work starts there. Null means from the
- * account's first row.
- */
-function anchorDays(
-  fromByAccount: ReadonlyMap<string, string | null>,
-  valuationsByAccount: ReadonlyMap<string, ValuationInput[]>,
-) {
-  const anchors = new Map<string, string | null>();
-  for (const [accountId, from] of fromByAccount) {
-    let anchor: string | null = null;
-    if (from !== null) {
-      for (const valuation of valuationsByAccount.get(accountId) ?? []) {
-        if (valuation.on < from && (anchor === null || valuation.on > anchor)) {
-          anchor = valuation.on;
-        }
-      }
-    }
-    anchors.set(accountId, anchor);
-  }
-  return anchors;
+/** The stored balance an account's recompute starts from. */
+interface Seed {
+  day: string;
+  balanceMinor: number;
 }
 
-/** Selects the rows of these accounts on or after each account's anchor day. */
-function sinceAnchor(
-  accountColumn: typeof entries.accountId | typeof accountBalanceDays.accountId,
-  dayColumn: typeof entries.date | typeof accountBalanceDays.day,
-  anchors: ReadonlyMap<string, string | null>,
+/**
+ * The last live stored balance before each account's first changed day: the
+ * stored balances up to it cannot change, so the work starts there. Null
+ * means from the account's first row.
+ */
+async function seedDays(
+  scope: WriteScope,
+  fromByAccount: ReadonlyMap<string, string>,
+) {
+  const seeds = new Map<string, Seed | null>(
+    [...fromByAccount.keys()].map((accountId) => [accountId, null]),
+  );
+  if (fromByAccount.size === 0) return seeds;
+  const latest = scope.db
+    .select({
+      day: accountBalanceDays.day,
+      balanceMinor: accountBalanceDays.balanceMinor,
+    })
+    .from(accountBalanceDays)
+    .where(
+      and(
+        eq(accountBalanceDays.householdId, scope.householdId),
+        sql`${accountBalanceDays.accountId} = changed.account_id`,
+        sql`${accountBalanceDays.day} < changed.from_day`,
+        isNull(accountBalanceDays.deletedAt),
+      ),
+    )
+    .orderBy(desc(accountBalanceDays.day))
+    .limit(1)
+    .as("latest");
+  const changed = sql.join(
+    [...fromByAccount].map(
+      ([accountId, from]) => sql`(${accountId}::uuid, ${from}::date)`,
+    ),
+    sql`, `,
+  );
+  const rows = await scope.db
+    .select({
+      accountId: sql<string>`changed.account_id`,
+      day: latest.day,
+      balanceMinor: latest.balanceMinor,
+    })
+    .from(sql`(values ${changed}) as changed(account_id, from_day)`)
+    .innerJoinLateral(latest, sql`true`);
+  for (const row of rows) {
+    seeds.set(row.accountId, { day: row.day, balanceMinor: row.balanceMinor });
+  }
+  return seeds;
+}
+
+/** Selects the rows of these accounts on or after each account's seed day. */
+function sinceSeed(
+  accountColumn: PgColumn,
+  dayColumn: PgColumn,
+  seeds: ReadonlyMap<string, Seed | null>,
 ): SQL | undefined {
   const whole: string[] = [];
   const partial: SQL[] = [];
-  for (const [accountId, anchor] of anchors) {
-    if (anchor === null) whole.push(accountId);
+  for (const [accountId, seed] of seeds) {
+    if (seed === null) whole.push(accountId);
     else {
       partial.push(
-        sql`(${accountColumn} = ${accountId} and ${dayColumn} >= ${anchor})`,
+        sql`(${accountColumn} = ${accountId} and ${dayColumn} >= ${seed.day})`,
       );
     }
   }
@@ -102,13 +136,12 @@ async function recomputeBalanceDays(
   changed: DerivedChanges["accounts"],
 ) {
   const everything = changed === "all";
-  const fromByAccount = new Map<string, string | null>(
-    everything
-      ? (await accountRepository.listAllIds(scope)).map((id) => [id, null])
-      : changed,
-  );
-  if (fromByAccount.size === 0) return 0;
-  const accountIds = [...fromByAccount.keys()];
+  const seeds = everything
+    ? new Map<string, Seed | null>(
+        (await accountRepository.listAllIds(scope)).map((id) => [id, null]),
+      )
+    : await seedDays(scope, changed);
+  if (seeds.size === 0) return 0;
 
   const valuationRows = await scope.db
     .select({
@@ -121,13 +154,14 @@ async function recomputeBalanceDays(
       and(
         eq(valuations.householdId, scope.householdId),
         isNull(valuations.deletedAt),
-        everything ? undefined : inArray(valuations.accountId, accountIds),
+        everything
+          ? undefined
+          : sinceSeed(valuations.accountId, valuations.on, seeds),
       ),
     );
   const valuationsByAccount = new Map<string, ValuationInput[]>();
   for (const row of valuationRows)
     push(valuationsByAccount, row.accountId, row);
-  const anchors = anchorDays(fromByAccount, valuationsByAccount);
 
   const entryRows = await scope.db
     .select({
@@ -146,7 +180,7 @@ async function recomputeBalanceDays(
         eq(transactions.status, "posted"),
         everything
           ? undefined
-          : sinceAnchor(entries.accountId, entries.date, anchors),
+          : sinceSeed(entries.accountId, entries.date, seeds),
       ),
     );
   const entriesByAccount = new Map<string, EntryInput[]>();
@@ -165,10 +199,10 @@ async function recomputeBalanceDays(
         eq(accountBalanceDays.householdId, scope.householdId),
         everything
           ? undefined
-          : sinceAnchor(
+          : sinceSeed(
               accountBalanceDays.accountId,
               accountBalanceDays.day,
-              anchors,
+              seeds,
             ),
       ),
     );
@@ -177,13 +211,16 @@ async function recomputeBalanceDays(
 
   const upserts: (typeof accountBalanceDays.$inferInsert)[] = [];
   const stale = new Map<string, string[]>();
-  for (const [accountId, anchor] of anchors) {
-    const accountValuations = (valuationsByAccount.get(accountId) ?? []).filter(
-      (valuation) => anchor === null || valuation.on >= anchor,
-    );
+  for (const [accountId, seed] of seeds) {
+    const accountValuations = valuationsByAccount.get(accountId) ?? [];
     const computed = balanceSeriesToRows(
       computeBalanceDays(
-        accountValuations,
+        seed
+          ? [
+              { on: seed.day, amountMinor: seed.balanceMinor },
+              ...accountValuations,
+            ]
+          : accountValuations,
         entriesByAccount.get(accountId) ?? [],
       ),
     );
