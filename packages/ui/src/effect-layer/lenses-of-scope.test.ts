@@ -15,6 +15,7 @@ function record(
   return {
     id,
     element: document.createElement("div"),
+    measurement: 0,
     roles: BLACK_HOLE,
     settings: {},
     x: 100 * id,

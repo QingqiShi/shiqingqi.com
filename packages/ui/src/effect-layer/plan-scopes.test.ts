@@ -10,6 +10,7 @@ function record(
   return {
     id,
     element: document.createElement("div"),
+    measurement: 0,
     roles: 0,
     settings: {},
     x: 0,

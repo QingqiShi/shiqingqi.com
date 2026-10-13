@@ -43,6 +43,13 @@ export interface MeasuredElement extends ElementBox {
   /** Stays the same while the element stays registered. */
   readonly id: number;
   readonly element: Element;
+  /**
+   * Changes each time the element is measured again, which happens only
+   * after a signal that it can have changed. An effect that reads more of
+   * the element than its box can keep what it read while this stays the
+   * same.
+   */
+  readonly measurement: number;
   /** One bit per role, as `EFFECT_ROLES` orders them; 0 for none. */
   readonly roles: number;
   /** The settings its effect hooks gave it. */

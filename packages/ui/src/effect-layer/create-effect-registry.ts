@@ -251,8 +251,9 @@ export function createEffectRegistry() {
         element,
         { id, roles, settings, scope, holds, covers: isCover },
       ] of elements) {
-        const box = uses.get(element)?.tracker?.boxAt(scrollX, scrollY);
-        if (box == null) {
+        const tracker = uses.get(element)?.tracker;
+        const box = tracker?.boxAt(scrollX, scrollY);
+        if (tracker == null || box == null) {
           continue;
         }
         if (isCover === true) {
@@ -263,6 +264,7 @@ export function createEffectRegistry() {
           ...box,
           id,
           element,
+          measurement: tracker.measurement,
           roles,
           settings,
           scope,
