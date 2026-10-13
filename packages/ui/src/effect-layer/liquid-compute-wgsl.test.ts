@@ -72,6 +72,18 @@ describe("LIQUID_COMPUTE_WGSL", () => {
     );
   });
 
+  it("gives tanh only an argument that relaxed math keeps finite", () => {
+    // WebKit compiles Metal with relaxed math, where a tanh that goes
+    // through exp overflows to NaN on a wide track. A NaN particle never
+    // settles, so the indicator would be gone for good.
+    expect(LIQUID_COMPUTE_WGSL.match(/tanh\(/g)).toHaveLength(1);
+    expect(LIQUID_COMPUTE_WGSL).toContain(
+      "tanh(clamp(away / TILT_REACH, -LEAN_LIMIT, LEAN_LIMIT))",
+    );
+    expect(LIQUID_PHYSICS.LEAN_LIMIT).toBeLessThanOrEqual(44);
+    expect(Math.tanh(LIQUID_PHYSICS.LEAN_LIMIT)).toBe(1);
+  });
+
   it("binds the steps and the slots in group 0", () => {
     expect(LIQUID_COMPUTE_WGSL).toContain(
       "@group(0) @binding(0) var<storage, read> steps: array<LiquidStep>",

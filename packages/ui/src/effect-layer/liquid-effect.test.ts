@@ -262,4 +262,82 @@ describe("layoutLiquid", () => {
       stops[1].target - stops[1].span - 1,
     );
   });
+
+  it("puts a body back on the GPU at rest when its particles came back non-finite", () => {
+    const color = readFill("rgb(120, 80, 240)");
+    const radius = 16;
+    const segments = [0, 70, 140, 210, 280].map((left) => ({
+      box: { x: left, y: 0, width: 70, height: 32, radius: 16 },
+      cornerExponent: 2,
+      color,
+    }));
+    const stops = segments.map(({ box }) => {
+      const start = box.x / radius;
+      const end = (box.x + box.width) / radius - 2;
+      return { target: (start + end) / 2, span: (end - start) / 2 };
+    });
+    const control: LiquidControl = {
+      radius,
+      originX: radius,
+      originY: radius,
+      travel: 350 / radius - 2,
+      stops,
+      rings: segments,
+      frost: {
+        color: readFill("rgb(255, 255, 255)"),
+        under: readFill("rgb(240, 240, 240)"),
+        least: { core: 0.35, edge: 0.25 },
+        contrast: { core: 1, edge: 1 },
+      },
+      fill: null,
+      spread: 2,
+    };
+    const rest = { drag: null, pressed: false, aim: 0 } as const;
+    let state: LiquidState | undefined;
+    let time = 0;
+    const lay = (position: number, moved: LiquidSnapshot | null) => {
+      time += 1 / 60;
+      const laid = layoutLiquid(
+        control,
+        { id: 1, settings: { liquid: { ...rest, position } } },
+        0,
+        SLOT,
+        state,
+        { time, delta: 1 / 60, reducedMotion: false },
+        BACKDROP,
+        moved,
+        [],
+      );
+      state = laid.state;
+      return laid;
+    };
+    lay(0, null);
+    const poured = lay(4, null);
+    expect(poured.step).not.toBeNull();
+    const count = poured.state.body.x.length;
+    const lost: LiquidSnapshot = {
+      particles: {
+        x: new Float32Array(count).fill(Number.NaN),
+        y: new Float32Array(count).fill(Number.NaN),
+        vx: new Float32Array(count).fill(Number.NaN),
+        vy: new Float32Array(count).fill(Number.NaN),
+        from: 0,
+        to: control.travel,
+      },
+      time: poured.state.simulated,
+    };
+
+    const recovered = lay(4, lost);
+
+    expect(recovered.seed).toBe(true);
+    expect(recovered.step).toBeNull();
+    expect(recovered.state.body.settled).toBe(true);
+    expect([...recovered.state.body.x].every(Number.isFinite)).toBe(true);
+    expect(mean(recovered.state.body.x)).toBeCloseTo(stops[4].target, 1);
+    expect(recovered.instance.calm).toBe(1);
+    expect(recovered.instance.set).toBe(1);
+    // The lost particles are older than the seed, so they are not read again.
+    expect(lay(4, lost).seed).toBe(false);
+    expect(state?.body.settled).toBe(true);
+  });
 });

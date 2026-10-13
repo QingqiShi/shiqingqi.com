@@ -189,6 +189,13 @@ const TILT = 56;
 /** Within this reach of the target the tilt eases off. */
 const TILT_REACH = 0.4;
 /**
+ * The most the lean's `tanh` is given, in units of `TILT_REACH`. `tanh` is
+ * 1 in f32 from 20 on, so this changes no result. Under relaxed math, which
+ * is WebKit's default for Metal, a `tanh` that goes through `exp` overflows
+ * to inf / inf = NaN from about 44 on, and a wide track reaches that.
+ */
+const LEAN_LIMIT = 20;
+/**
  * Farther from the target than this, the tilt is steeper, by how much
  * farther to the power `TILT_BOOST_POWER` and at most `TILT_BOOST_MAX`
  * times, so that a pour to the next segment lands about when a Switch's
@@ -408,6 +415,7 @@ export const LIQUID_PHYSICS = {
   SETTLE_DRAG,
   TILT,
   TILT_REACH,
+  LEAN_LIMIT,
   TILT_BOOST_REACH,
   TILT_BOOST_POWER,
   TILT_BOOST_MAX,
@@ -602,6 +610,33 @@ function findPairs(x: Float32Array, y: Float32Array, reach: number) {
 }
 
 /**
+ * How far the track leans towards a target `away` off: from -1 to 1, flat
+ * within `TILT_REACH` of it. `LIQUID_COMPUTE_WGSL` has the same function.
+ *
+ * @internal
+ */
+export function leanTo(away: number) {
+  return Math.tanh(clamp(away / TILT_REACH, -LEAN_LIMIT, LEAN_LIMIT));
+}
+
+/**
+ * Whether every particle has a finite place and speed: a GPU whose maths
+ * overflowed sends NaN back, which no step recovers from.
+ *
+ * @internal
+ */
+export function finiteParticles({ x, y, vx, vy }: LiquidParticles) {
+  for (const values of [x, y, vx, vy]) {
+    for (let i = 0; i < values.length; i++) {
+      if (!Number.isFinite(values[i])) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
  * How much steeper the tilt is at `away` from the target: 1 near it, and
  * in proportion to the distance far from it.
  */
@@ -642,7 +677,7 @@ function substep(
   }
   // The tilt is one acceleration for the whole body, as gravity is when a
   // container moves: it must not squeeze the body towards the target.
-  const lean = Math.tanh((target - centreX) / TILT_REACH);
+  const lean = leanTo(target - centreX);
   const arrived = 1 - Math.abs(lean);
   const damping = Math.exp(-(DRAG + SETTLE_DRAG * arrived) * dt);
   const tiltX = TILT * tiltBoost(target - centreX) * lean * dt;
@@ -784,8 +819,7 @@ function moveBeads(
     if (age >= bead.life) {
       continue;
     }
-    const tilt =
-      TILT * boost * Math.tanh((target - bead.x) / TILT_REACH) * delta;
+    const tilt = TILT * boost * leanTo(target - bead.x) * delta;
     const held = Math.min(
       BEAD_FRICTION * boost * delta,
       Math.abs(bead.vx + tilt),
