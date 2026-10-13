@@ -48,14 +48,15 @@ export interface LiquidOptions {
 
 /**
  * Draws a Switch's thumb or a segmented control's indicator as liquid on
- * the effect layer, as the Switch's and the SegmentedControl's `effect`
- * prop describes. For a thumb, attach the returned ref to the Switch's
- * `<input>`: its track gives the liquid its room, its `::before` thumb
- * gives the liquid its size and colour, and the colour of its `::after`
- * gives the fill the track takes on a toggle. For an indicator, attach it
- * to the track: each `[role="radio"]` segment gives the liquid a pill to
- * rest in, and the element marked with `data-liquid-indicator` gives its
- * colour, its corners and, with its text colour, the ring light's colour.
+ * the effect layer, as the `effect` prop of the Switch, the
+ * SegmentedControl and the TabBar describes. For a thumb, attach the
+ * returned ref to the Switch's `<input>`: its track gives the liquid its
+ * room, its `::before` thumb gives the liquid its size and colour, and the
+ * colour of its `::after` gives the fill the track takes on a toggle. For an
+ * indicator, attach it to the track: each segment marked with
+ * `data-liquid-segment` gives the liquid a pill to rest in, and the element
+ * marked with `data-liquid-indicator` gives its colour, its corners and,
+ * with its text colour, the ring light's colour.
  * While the effect draws, the element has the `data-effect-drawn`
  * attribute, so the control hides its own thumb or indicator then and at
  * no other time. Outside an `EffectLayerProvider`, or where the effect

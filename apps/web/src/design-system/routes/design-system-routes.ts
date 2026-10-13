@@ -216,6 +216,20 @@ const ROUTES = [
   },
   {
     section: "components",
+    category: "actions",
+    path: "/design-system/components/tab-bar",
+    keywords: [
+      "tabs",
+      "bottom navigation",
+      "navigation bar",
+      "tab bar",
+      "mobile nav",
+      "dock",
+      "liquid",
+    ],
+  },
+  {
+    section: "components",
     category: "forms",
     path: "/design-system/components/text-field",
     keywords: ["input", "field", "search box", "form"],

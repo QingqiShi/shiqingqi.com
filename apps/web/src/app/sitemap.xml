@@ -361,6 +361,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/breadcrumb" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/tab-bar</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/tab-bar" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/tab-bar" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/tab-bar</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/tab-bar" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/tab-bar" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/option-card</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/option-card" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/option-card" />

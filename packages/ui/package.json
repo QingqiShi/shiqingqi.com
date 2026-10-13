@@ -143,6 +143,8 @@
     "./components/switch": "./src/forms/switch.tsx",
     "./components/switch.stylex": "./src/forms/switch.stylex.ts",
     "./components/syntax.stylex": "./src/content/syntax.stylex.ts",
+    "./components/tab-bar": "./src/actions/tab-bar.tsx",
+    "./components/tab-bar.stylex": "./src/actions/tab-bar.stylex.ts",
     "./components/table": "./src/data-display/table.tsx",
     "./components/table-body": "./src/data-display/table-body.tsx",
     "./components/table-cell": "./src/data-display/table-cell.tsx",

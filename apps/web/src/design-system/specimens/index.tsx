@@ -32,6 +32,7 @@ import { SliderSpecimen } from "./slider-specimen.tsx";
 import { SpinnerSpecimen } from "./spinner-specimen.tsx";
 import { StickyControlsSpecimen } from "./sticky-controls-specimen.tsx";
 import { SwitchSpecimen } from "./switch-specimen.tsx";
+import { TabBarSpecimen } from "./tab-bar-specimen.tsx";
 import { TableSpecimen } from "./table-specimen.tsx";
 import { TextFieldSpecimen } from "./text-field-specimen.tsx";
 import { TextSpecimen } from "./text-specimen.tsx";
@@ -85,6 +86,7 @@ const COMPONENT_SPECIMENS: Partial<
   "/design-system/components/menu-button": { element: <MenuButtonSpecimen /> },
   "/design-system/components/chip": { element: <ChipSpecimen /> },
   "/design-system/components/breadcrumb": { element: <BreadcrumbSpecimen /> },
+  "/design-system/components/tab-bar": { element: <TabBarSpecimen /> },
   "/design-system/components/badge": { element: <BadgeSpecimen /> },
   "/design-system/components/avatar": { element: <AvatarSpecimen /> },
   "/design-system/components/table": { element: <TableSpecimen /> },
