@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Sidebar lab</title>
+    <style>
+      body {
+        font: 16px/1.6 system-ui, sans-serif;
+        margin: 0;
+        padding: 24px max(24px, env(safe-area-inset-left));
+      }
+      ul {
+        padding-left: 0;
+        list-style: none;
+      }
+      a {
+        display: block;
+        padding: 12px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sidebar lab</h1>
+    <ul>
+      <li><a href="a.html">A 原样：贴顶 + dvh</a></li>
+      <li><a href="b.html">B 贴顶 + svh</a></li>
+      <li><a href="c.html">C 贴底 + svh</a></li>
+      <li><a href="d.html">D 贴底 + dvh</a></li>
+      <li><a href="e.html">E 侧栏 fixed，top/bottom</a></li>
+      <li><a href="f.html">F 底部区 fixed，bottom</a></li>
+      <li><a href="g.html">G 文档不滚，内容区滚</a></li>
+    </ul>
+  </body>
+</html>
