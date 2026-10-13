@@ -2,6 +2,7 @@ import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { fromMinorUnits } from "../domain/money/to-minor-units.ts";
+import { sameSet } from "../domain/same-set.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import type { EntryInput, TransactionPatch } from "../sync/mutation-schema.ts";
 import type {
@@ -54,12 +55,6 @@ interface EntryDraft {
 
 function round(value: number) {
   return Math.round(value);
-}
-
-function sameSet(a: readonly string[], b: readonly string[]) {
-  if (a.length !== b.length) return false;
-  const set = new Set(a);
-  return b.every((id) => set.has(id));
 }
 
 function readAmount(text: string, currency: string) {

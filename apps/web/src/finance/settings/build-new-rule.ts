@@ -4,6 +4,7 @@ import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
 import type { MutationInput } from "../sync/mutation-schema.ts";
 import type { AccountRow, RuleRow } from "../sync/row-schemas.ts";
+import { ruleTemplateMoney } from "./rule-template-money.ts";
 
 type UpsertRuleArgs = Extract<MutationInput, { name: "upsertRule" }>["args"];
 
@@ -50,41 +51,22 @@ export function buildNewRule(
       ok: false;
       error: "account" | "toAccount" | "sameAccount" | "currency" | "category";
     } {
-  const account = context.accountById.get(input.accountId);
-  if (!account) return { ok: false, error: "account" };
-
-  let amountMinor: number;
-  let entries: { accountId: string; amountMinor: number }[];
-  let categoryId: string | null = null;
-  if (input.kind === "transfer") {
-    const to = context.accountById.get(input.toAccountId);
-    if (!to) return { ok: false, error: "toAccount" };
-    if (to.id === account.id) return { ok: false, error: "sameAccount" };
-    if (to.currency !== account.currency) {
-      return { ok: false, error: "currency" };
-    }
-    amountMinor = 0;
-    entries = [
-      { accountId: account.id, amountMinor: -input.amountMinor },
-      { accountId: to.id, amountMinor: input.amountMinor },
-    ];
-  } else {
-    if (input.categoryId === null) return { ok: false, error: "category" };
-    categoryId = input.categoryId;
-    const signed =
-      input.kind === "expense" ? -input.amountMinor : input.amountMinor;
-    entries = [{ accountId: account.id, amountMinor: signed }];
-    amountMinor =
-      account.currency === context.baseCurrency
-        ? signed
-        : Math.round(
-            context.fx.toBase(
-              signed,
-              account.currency,
-              toEpochDay(input.startsOn),
-            ),
-          );
+  const money = ruleTemplateMoney(input, (id) => context.accountById.get(id));
+  if (!money.ok) return money;
+  const { account, toAccount } = money;
+  if (toAccount && toAccount.currency !== account.currency) {
+    return { ok: false, error: "currency" };
   }
+  const amountMinor =
+    toAccount || account.currency === context.baseCurrency
+      ? money.amountMinor
+      : Math.round(
+          context.fx.toBase(
+            money.amountMinor,
+            account.currency,
+            toEpochDay(input.startsOn),
+          ),
+        );
 
   const schedule = {
     unit: input.unit,
@@ -109,11 +91,11 @@ export function buildNewRule(
       template: {
         kind: input.kind,
         amountMinor,
-        categoryId,
+        categoryId: money.categoryId,
         payeeId: input.payeeId,
         memberId: account.ownerMemberId,
         note: "",
-        entries,
+        entries: money.entries,
         tagIds: [],
       },
     },

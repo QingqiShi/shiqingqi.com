@@ -3,6 +3,10 @@ import { and, asc, eq, isNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   accountBalanceDays,
+  bankLinks,
+  bankTransactions,
+  categories,
+  connections,
   entries,
   households,
   members,
@@ -14,6 +18,7 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { materialiseRules, occurrenceId } from "./materialise-rules.ts";
 
@@ -452,5 +457,205 @@ describe("materialiseRules", () => {
 
     await push("upsertRule", { id: ruleId, nonBusinessDay: "stay" }, now);
     expect(await ruleDays(ruleId)).toEqual(["2026-11-01"]);
+  });
+});
+
+describe("a template change", () => {
+  const now = new Date("2026-10-26T12:00:00Z");
+
+  async function addDining() {
+    const id = randomUUID();
+    await db.insert(categories).values({
+      id,
+      householdId: home.householdId,
+      kind: "expense",
+      name: "Dining",
+      version: 1,
+    });
+    return id;
+  }
+
+  /** Marks the Transaction as matched to a bank row of the current account. */
+  async function linkToBankRow(transactionId: string) {
+    const connectionId = randomUUID();
+    const linkId = randomUUID();
+    await db.insert(connections).values({
+      id: connectionId,
+      householdId: home.householdId,
+      label: "Lunch Flow",
+      version: 1,
+    });
+    await db.insert(bankLinks).values({
+      id: linkId,
+      householdId: home.householdId,
+      connectionId,
+      accountId: home.currentId,
+      providerAccountId: "provider-current",
+      currency: "GBP",
+      version: 1,
+    });
+    await db.insert(bankTransactions).values({
+      id: randomUUID(),
+      householdId: home.householdId,
+      linkId,
+      providerTxId: "provider-tx",
+      date: "2026-12-01",
+      amountMinor: -120_000,
+      currency: "GBP",
+      raw: {},
+      transactionId,
+      version: 1,
+    });
+  }
+
+  async function shape(transactionId: string) {
+    const [row] = await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.id, transactionId));
+    const live = await db
+      .select({
+        id: entries.id,
+        accountId: entries.accountId,
+        amountMinor: entries.amountMinor,
+        date: entries.date,
+      })
+      .from(entries)
+      .where(
+        and(
+          eq(entries.transactionId, transactionId),
+          isNull(entries.deletedAt),
+        ),
+      )
+      .orderBy(asc(entries.position));
+    return {
+      amountMinor: row.amountMinor,
+      categoryId: row.categoryId,
+      payeeId: row.payeeId,
+      entries: live,
+    };
+  }
+
+  function newTemplate(categoryId: string) {
+    return {
+      kind: "expense",
+      amountMinor: -150_000,
+      categoryId,
+      payeeId: home.employerId,
+      entries: [{ accountId: home.cardId, amountMinor: -150_000 }],
+    };
+  }
+
+  it("moves the upcoming Expected transactions to the new account, Payee, Category and amount", async () => {
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-11-01" },
+      now,
+    );
+    const materialisedId = occurrenceId(ruleId, "2026-11-01");
+    const importedId = await insertImported(ruleId, "2026-11-15");
+    const pastId = await insertImported(ruleId, "2026-10-20");
+    const linkedId = await insertImported(ruleId, "2026-12-01");
+    await linkToBankRow(linkedId);
+    const confirmedId = await insertImported(ruleId, "2027-01-01");
+    await push("confirmExpected", { id: confirmedId }, now);
+    const untouched = {
+      past: await shape(pastId),
+      linked: await shape(linkedId),
+      confirmed: await shape(confirmedId),
+    };
+    const diningId = await addDining();
+
+    await push(
+      "upsertRule",
+      { id: ruleId, template: newTemplate(diningId) },
+      now,
+    );
+
+    expect(await shape(materialisedId)).toEqual({
+      amountMinor: -150_000,
+      categoryId: diningId,
+      payeeId: home.employerId,
+      entries: [
+        {
+          id: nameBasedUuid(`rule:${ruleId}:2026-11-01:0`),
+          accountId: home.cardId,
+          amountMinor: -150_000,
+          date: "2026-11-01",
+        },
+      ],
+    });
+    expect(await shape(importedId)).toMatchObject({
+      amountMinor: -150_000,
+      categoryId: diningId,
+      payeeId: home.employerId,
+      entries: [
+        { accountId: home.cardId, amountMinor: -150_000, date: "2026-11-15" },
+      ],
+    });
+    expect({
+      past: await shape(pastId),
+      linked: await shape(linkedId),
+      confirmed: await shape(confirmedId),
+    }).toEqual(untouched);
+  });
+
+  it("refuses to give a Rule another kind", async () => {
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-11-01" },
+      now,
+    );
+
+    const result = await applyMutations(
+      db,
+      home.householdId,
+      {
+        clientId: randomUUID(),
+        mutations: [
+          {
+            id: randomUUID(),
+            name: "upsertRule",
+            args: {
+              id: ruleId,
+              template: {
+                kind: "transfer",
+                amountMinor: 0,
+                entries: [
+                  { accountId: home.currentId, amountMinor: -1_000 },
+                  { accountId: home.cardId, amountMinor: 1_000 },
+                ],
+              },
+            },
+          },
+        ],
+      },
+      now,
+    );
+
+    expect(result.rejected).toMatchObject([
+      { reason: "invalid", message: "A rule keeps its kind" },
+    ]);
+  });
+
+  it("gives an occurrence that a schedule change restores the new template", async () => {
+    const ruleId = await createRule(
+      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-11-01" },
+      now,
+    );
+    await push("upsertRule", { id: ruleId, nonBusinessDay: "next" }, now);
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-02"]);
+    const diningId = await addDining();
+
+    await push(
+      "upsertRule",
+      { id: ruleId, nonBusinessDay: "stay", template: newTemplate(diningId) },
+      now,
+    );
+
+    expect(await ruleDays(ruleId)).toEqual(["2026-11-01"]);
+    expect(await shape(occurrenceId(ruleId, "2026-11-01"))).toMatchObject({
+      amountMinor: -150_000,
+      categoryId: diningId,
+      entries: [{ accountId: home.cardId, amountMinor: -150_000 }],
+    });
   });
 });

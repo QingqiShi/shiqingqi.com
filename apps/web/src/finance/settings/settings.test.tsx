@@ -640,4 +640,88 @@ describe("Settings", () => {
       liveRowSelectors.rules(runtime.store.getSnapshot())[0].pausedAt,
     ).toBeNull();
   });
+
+  it("moves an existing rule to another account and category", async () => {
+    const runtime = await createSettingsReplica();
+    runtime.store.applyLocal({
+      name: "upsertRule",
+      args: {
+        id: "00000000-0000-4000-8000-0000000000f1",
+        name: "TfL",
+        unit: "month",
+        startsOn: "2026-10-01",
+        template: {
+          kind: "expense",
+          amountMinor: -4200,
+          categoryId: ids.groceries,
+          payeeId: ids.tfl,
+          memberId: ids.alex,
+          entries: [{ accountId: ids.current, amountMinor: -4200 }],
+        },
+      },
+    });
+    runtime.store.takeOutbox();
+    renderWithSettingsReplica(runtime, <RulesSettings />);
+    await openSheet(screen.getByRole("button", { name: /^TfL/ }));
+    expect(screen.getByRole("combobox", { name: "Payee" })).toHaveValue("TfL");
+    expect(
+      within(screen.getByRole("combobox", { name: "Account" })).queryByRole(
+        "option",
+        { name: /US Brokerage/ },
+      ),
+    ).toBeNull();
+    await userEvent.selectOptions(
+      screen.getByRole("combobox", { name: "Account" }),
+      ids.visa,
+    );
+    await userEvent.selectOptions(
+      screen.getByRole("combobox", { name: "Category" }),
+      ids.dining,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const [mutation] = runtime.store.takeOutbox();
+    expect(mutation).toMatchObject({
+      name: "upsertRule",
+      args: {
+        template: {
+          kind: "expense",
+          amountMinor: -4200,
+          payeeId: ids.tfl,
+          categoryId: ids.dining,
+          memberId: ids.alex,
+          entries: [{ accountId: ids.visa, amountMinor: -4200 }],
+        },
+      },
+    });
+  });
+
+  it("keeps the amount and accounts of a rule in another currency read-only", async () => {
+    const runtime = await createSettingsReplica();
+    runtime.store.applyLocal({
+      name: "upsertRule",
+      args: {
+        id: "00000000-0000-4000-8000-0000000000f2",
+        name: "Index fund",
+        unit: "month",
+        startsOn: "2026-10-01",
+        template: {
+          kind: "expense",
+          amountMinor: -7500,
+          categoryId: ids.groceries,
+          entries: [{ accountId: ids.brokerage, amountMinor: -10_000 }],
+        },
+      },
+    });
+    renderWithSettingsReplica(runtime, <RulesSettings />);
+    await openSheet(screen.getByRole("button", { name: /^Index fund/ }));
+
+    for (const name of ["Payee", "Account", "Category"]) {
+      expect(screen.queryByRole("combobox", { name })).toBeNull();
+    }
+    expect(screen.queryByRole("textbox", { name: "Amount" })).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveValue(
+      "Index fund",
+    );
+  });
 });

@@ -17,6 +17,7 @@ import { MutationError } from "../sync/mutation-error.ts";
 import type { WriteContext } from "../sync/types.ts";
 import { validateTransaction } from "../sync/validate-transaction.ts";
 import { nextOccurrence, occurrencesBetween } from "./next-occurrence.ts";
+import { occurrenceFromTemplate } from "./occurrence-from-template.ts";
 import {
   ruleTemplateSchema,
   type RuleTemplate,
@@ -31,6 +32,26 @@ type Rule = Awaited<ReturnType<typeof ruleRepository.findDue>>[number];
 /** The id of a Rule's Transaction on a day; the same occurrence always gets the same id. */
 export function occurrenceId(ruleId: string, day: string) {
   return nameBasedUuid(`rule:${ruleId}:${day}`);
+}
+
+/** The id of the Entry at `position` of a Rule's Transaction on a day. */
+export function occurrenceEntryId(
+  ruleId: string,
+  day: string,
+  position: number,
+) {
+  return nameBasedUuid(`rule:${ruleId}:${day}:${String(position)}`);
+}
+
+/** The template with its Member only while that Member is active, as each Transaction of the Rule takes it. */
+export async function withActiveMember(
+  scope: RepositoryScope,
+  template: RuleTemplate,
+): Promise<RuleTemplate> {
+  return {
+    ...template,
+    memberId: await memberRepository.activeIdOrNull(scope, template.memberId),
+  };
 }
 
 /**
@@ -55,7 +76,8 @@ async function takenDays(
   return new Set(rows.map((row) => dayById.get(row.id) ?? row.date));
 }
 
-async function isUsable(context: WriteContext, template: RuleTemplate) {
+/** False when the template names a row that a Transaction cannot use, such as a deleted account. */
+export async function isUsable(context: WriteContext, template: RuleTemplate) {
   try {
     await validateTransaction(context.scope, template);
     return true;
@@ -74,35 +96,24 @@ async function createOccurrence(
   const { scope, today } = context;
   const id = occurrenceId(rule.id, day);
   const status = rule.autoPost && day <= today ? "posted" : "expected";
+  const { entries, tagIds, ...fields } = occurrenceFromTemplate(
+    template,
+    (position) => occurrenceEntryId(rule.id, day, position),
+  );
   const inserted = await transactionRepository.insert(scope, {
+    ...fields,
     id,
-    kind: template.kind,
     status,
     date: day,
-    amountMinor: template.amountMinor,
-    categoryId: template.categoryId,
-    payeeId: template.payeeId,
-    memberId: template.memberId,
     ruleId: rule.id,
-    note: template.note,
     source: "rule",
   });
   if (!inserted) return 0;
-  await transactionRepository.replaceEntries(
-    scope,
-    id,
-    day,
-    template.entries.map((entry, index) => ({
-      ...entry,
-      id: nameBasedUuid(`rule:${rule.id}:${day}:${String(index)}`),
-    })),
-  );
-  await transactionRepository.replaceTags(scope, id, [
-    ...new Set(template.tagIds),
-  ]);
+  await transactionRepository.replaceEntries(scope, id, day, entries);
+  await transactionRepository.replaceTags(scope, id, tagIds);
   await transactionRepository.refreshSearchText(scope, eq(transactions.id, id));
   if (status === "posted") {
-    for (const entry of template.entries) {
+    for (const entry of entries) {
       context.touches.account(entry.accountId, day);
     }
     context.touches.month(day);
@@ -129,13 +140,7 @@ export async function materialiseRulesInTransaction(context: WriteContext) {
     );
     const parsed = ruleTemplateSchema.safeParse(rule.template);
     const template = parsed.success
-      ? {
-          ...parsed.data,
-          memberId: await memberRepository.activeIdOrNull(
-            scope,
-            parsed.data.memberId,
-          ),
-        }
+      ? await withActiveMember(scope, parsed.data)
       : null;
     if (days.length > 0 && template && (await isUsable(context, template))) {
       const taken = await takenDays(scope, rule.id, days);

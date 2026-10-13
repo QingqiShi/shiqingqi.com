@@ -5,6 +5,12 @@ import { SCHEDULE_FIELDS } from "../domain/rules/schedule-fields.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
 import { rescheduleExpected } from "../rules/reschedule-expected.ts";
 import {
+  retemplateExpected,
+  templatePatch,
+} from "../rules/retemplate-expected.ts";
+import type { RuleTemplate } from "../rules/rule-template-schema.ts";
+import { sameTemplate } from "../rules/same-template.ts";
+import {
   checkSystemAccountPatch,
   checkSystemAccountValuation,
 } from "../sync/check-system-account-patch.ts";
@@ -890,6 +896,86 @@ function upsertMember(scope: Scope, args: Args<"upsertMember">) {
   });
 }
 
+function withActiveMember(scope: Scope, template: RuleTemplate) {
+  const member =
+    template.memberId === null
+      ? undefined
+      : scope.draft.get("members", template.memberId);
+  return {
+    ...template,
+    memberId: member && member.deletedAt === null ? member.id : null,
+  };
+}
+
+function isUsable(scope: Scope, template: RuleTemplate) {
+  try {
+    checkTransactionRows(scope, template);
+    return true;
+  } catch (error) {
+    if (error instanceof MutationError) return false;
+    throw error;
+  }
+}
+
+/** The live Entries and Tag ids of these Transactions, by Transaction id. */
+function detailsOf(scope: Scope, transactionIds: readonly string[]) {
+  const entries = new Map<string, EntryRow[]>(
+    transactionIds.map((transactionId) => [transactionId, []]),
+  );
+  const tagIds = new Map<string, string[]>(
+    transactionIds.map((transactionId) => [transactionId, []]),
+  );
+  for (const entry of scope.draft.values("entries")) {
+    if (entry.deletedAt === null) entries.get(entry.transactionId)?.push(entry);
+  }
+  for (const list of entries.values()) {
+    list.sort((a, b) => a.position - b.position);
+  }
+  for (const link of scope.draft.values("transactionTags")) {
+    if (link.deletedAt === null) {
+      tagIds.get(link.transactionId)?.push(link.tagId);
+    }
+  }
+  return { entries, tagIds };
+}
+
+/**
+ * Same rule as the server: makes the Rule's Expected Transactions from today
+ * on follow its template. The Replica does not know which Transactions a
+ * bank row is matched to, so it changes those too until the server answers.
+ */
+function rewriteExpected(
+  scope: Scope,
+  templates: { before: RuleTemplate; after: RuleTemplate },
+  rows: { kept: TransactionRow[]; restored: TransactionRow[] },
+) {
+  const before = withActiveMember(scope, templates.before);
+  const after = withActiveMember(scope, templates.after);
+  const restored = isUsable(scope, after) ? rows.restored : [];
+  const details = detailsOf(
+    scope,
+    [...rows.kept, ...restored].map((row) => row.id),
+  );
+  const detailed = (list: TransactionRow[]) =>
+    list.map((row) => ({
+      ...row,
+      entries: details.entries.get(row.id) ?? [],
+      tagIds: details.tagIds.get(row.id) ?? [],
+    }));
+  const newEntryId = () => crypto.randomUUID();
+  for (const row of detailed(restored)) {
+    updateTransaction(scope, row.id, templatePatch(after, row, newEntryId));
+  }
+  for (const { id, patch } of retemplateExpected(
+    before,
+    after,
+    detailed(rows.kept),
+    newEntryId,
+  )) {
+    updateTransaction(scope, id, patch);
+  }
+}
+
 function upsertRule(scope: Scope, args: Args<"upsertRule">) {
   const { draft, context } = scope;
   const { id, deleted, paused, ...fields } = args;
@@ -933,10 +1019,16 @@ function upsertRule(scope: Scope, args: Args<"upsertRule">) {
   if (existing.deletedAt && deleted !== false) {
     throw new MutationError("deleted");
   }
+  if (fields.template && fields.template.kind !== existing.template.kind) {
+    invalid("A rule keeps its kind");
+  }
   const merged = { ...existing, ...fields };
   const scheduleChanged = SCHEDULE_FIELDS.some(
     (field) => fields[field] !== undefined && fields[field] !== existing[field],
   );
+  const templateChanged =
+    fields.template !== undefined &&
+    !sameTemplate(existing.template, fields.template);
   const resumed = paused === false && existing.pausedAt !== null;
   const nextOn =
     fields.nextOn ??
@@ -960,16 +1052,32 @@ function upsertRule(scope: Scope, args: Args<"upsertRule">) {
         softDeleteTransaction(scope, transaction);
       }
     }
-  } else if (scheduleChanged) {
-    const ofRule = [...draft.values("transactions")].filter(
-      (transaction) =>
-        transaction.ruleId === id && transaction.date >= context.today,
-    );
-    const { remove, restore } = rescheduleExpected(existing, merged, ofRule);
-    for (const transaction of remove) softDeleteTransaction(scope, transaction);
-    for (const transaction of restore)
-      restoreTransaction(scope, transaction.id);
+    return;
   }
+  if (!scheduleChanged && !templateChanged) return;
+  const ofRule = [...draft.values("transactions")].filter(
+    (transaction) =>
+      transaction.ruleId === id && transaction.date >= context.today,
+  );
+  const { remove, restore } = scheduleChanged
+    ? rescheduleExpected(existing, merged, ofRule)
+    : { remove: [], restore: [] };
+  for (const transaction of remove) softDeleteTransaction(scope, transaction);
+  for (const transaction of restore) restoreTransaction(scope, transaction.id);
+  const removed = new Set(remove.map((row) => row.id));
+  const kept = templateChanged
+    ? ofRule.filter(
+        (row) =>
+          row.deletedAt === null &&
+          row.status === "expected" &&
+          !removed.has(row.id),
+      )
+    : [];
+  rewriteExpected(
+    scope,
+    { before: existing.template, after: merged.template },
+    { kept, restored: restore },
+  );
 }
 
 function applyTo(scope: Scope, mutation: Mutation) {
