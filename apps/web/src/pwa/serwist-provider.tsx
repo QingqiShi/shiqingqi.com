@@ -45,6 +45,10 @@ export function SerwistProvider({ children }: { children: ReactNode }) {
       // already caches pages at fetch time, and the provider's CACHE_URLS
       // message can reject uncaught.
       cacheOnNavigation={false}
+      // A reload when the device comes online discards what is on the
+      // screen, also a page load that is in progress. Finance syncs on
+      // `online` by itself.
+      reloadOnOnline={false}
     >
       <ServiceWorkerRegistrar />
       {children}
