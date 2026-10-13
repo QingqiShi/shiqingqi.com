@@ -27,7 +27,7 @@ export function useFinanceDestinations(): FinanceDestination[] {
     },
     {
       path: transactions,
-      label: t({ en: "Transactions", zh: "交易" }),
+      label: t({ en: "Activity", zh: "交易" }),
       icon: ReceiptIcon,
     },
     {

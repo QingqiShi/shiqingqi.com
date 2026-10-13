@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { tabBarTokens as tabBarSize } from "@tuja/ui/components/tab-bar.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 
-const BAR_BLOCK_SIZE = space._9;
 // The gap below the bar is the page gutter where the screen has no safe area,
 // so that the bar floats the same distance from the bottom edge as from the
 // side edges.
@@ -15,10 +15,9 @@ const BAR_INSET_BLOCK_END = `max(${space._3}, calc(env(safe-area-inset-bottom) +
  * floating actions and sticky footers above it.
  */
 export const tabBarTokens = stylex.defineVars({
-  blockSize: BAR_BLOCK_SIZE,
   insetBlockEnd: BAR_INSET_BLOCK_END,
   clearance: {
-    default: `calc(${BAR_BLOCK_SIZE} + ${BAR_INSET_BLOCK_END})`,
+    default: `calc(${tabBarSize.blockSize} + ${BAR_INSET_BLOCK_END})`,
     [breakpoints.md]: "0px",
   },
 });

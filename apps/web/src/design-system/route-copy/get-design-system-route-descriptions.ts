@@ -99,6 +99,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A trail of links back up the hierarchy, ending on the page you are reading.",
       zh: "沿层级向上回溯的链接路径，终点是当前所在页面。",
     }),
+    "/design-system/components/tab-bar": t({
+      en: "An app's top-level destinations in a pill of Glass, one tap or one drag apart.",
+      zh: "把应用的顶层目标页收进一枚玻璃胶囊，轻触或拖动即可切换。",
+    }),
     "/design-system/components/badge": t({
       en: "Compact status and label indicators in the six Intents plus a default.",
       zh: "六种意图色加默认样式的紧凑状态与标签指示器。",

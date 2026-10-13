@@ -20,7 +20,7 @@ import {
 } from "./glow-colors.ts";
 import { instanceRange } from "./instance-range.ts";
 import { lastResultOf } from "./last-result-of.ts";
-import { LIQUID_INDICATOR } from "./liquid-indicator.ts";
+import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
 import {
   LIQUID_INSTANCE_BYTES,
   LIQUID_WGSL,
@@ -240,14 +240,14 @@ function readThumb(record: EffectElementRecord): LiquidControl | null {
 }
 
 /**
- * A segmented control: one stop over each segment, in a pill as long as
- * the segment, and the indicator's look, from the element marked with
- * `LIQUID_INDICATOR`. Its text colour is the ring light's colour.
+ * A segmented control: one stop over each segment marked with
+ * `LIQUID_SEGMENT`, in a pill as long as the segment, and the indicator's
+ * look, from the element marked with `LIQUID_INDICATOR`. Its text colour is the ring light's colour.
  */
 function readSegments(record: EffectElementRecord): LiquidControl | null {
   const { element } = record;
   const indicator = element.querySelector(`[${LIQUID_INDICATOR}]`);
-  const segments = [...element.querySelectorAll('[role="radio"]')].map(
+  const segments = [...element.querySelectorAll(`[${LIQUID_SEGMENT}]`)].map(
     (segment) => segment.getBoundingClientRect(),
   );
   const radius = (segments.at(0)?.height ?? 0) / 2;

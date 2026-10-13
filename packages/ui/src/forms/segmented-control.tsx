@@ -1,18 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import {
-  useMemo,
-  useState,
-  type ComponentProps,
-  type PointerEvent,
-  type ReactNode,
-} from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
-import { LIQUID_INDICATOR } from "../effect-layer/liquid-indicator.ts";
-import { useLiquid } from "../effect-layer/use-liquid.ts";
+import {
+  LIQUID_INDICATOR,
+  LIQUID_SEGMENT,
+} from "../effect-layer/liquid-indicator.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
-import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner, cornerTokens } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
@@ -27,8 +22,11 @@ import { typeRole } from "../primitives/type.stylex.ts";
 import { glassSurface } from "../surfaces/glass-surface.stylex.ts";
 import { border, color, controlSize, font, shadow } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { aimAt, DRAG_THRESHOLD, indexAt } from "./aim-at.ts";
-import { segmentedControlMarker } from "./segmented-control.stylex.ts";
+import {
+  segmentIndicator,
+  segmentTrackMarker,
+} from "./segment-indicator.stylex.ts";
+import { useSegmentPress } from "./use-segment-press.ts";
 
 interface SegmentedControlOption<TValue extends string> {
   /** The value this segment selects. Must be unique within the group. */
@@ -207,21 +205,17 @@ export function SegmentedControl<TValue extends string>({
     value,
     onChange,
   });
-  const [pressed, setPressed] = useState(false);
-  const [aim, setAim] = useState(0);
   const selected = values.indexOf(value);
-  const drag = useSegmentDrag();
-  const shown = drag.segment ?? selected;
-  const liquidRef = useLiquid({
-    position: drag.pressed ?? selected,
-    drag: drag.index,
-    pressed,
-    aim,
+  const { trackRef, shown, held, inset, dragging, handlers } = useSegmentPress({
+    selected,
+    effect,
+    ref,
+    onDrop(drop) {
+      if (!drop.dragged || drop.index !== selected) {
+        onChange(values[drop.index]);
+      }
+    },
   });
-  // A new ref callback detaches and attaches again, which registers the
-  // track on the effect layer afresh, so the merged ref holds still.
-  const effectRef = effect === "liquid" ? liquidRef : undefined;
-  const trackRef = useMemo(() => mergeRefs(ref, effectRef), [ref, effectRef]);
 
   return (
     <div
@@ -232,7 +226,8 @@ export function SegmentedControl<TValue extends string>({
       aria-labelledby={ariaLabelledBy}
       css={[
         corner.squircle_round,
-        segmentedControlMarker,
+        segmentTrackMarker,
+        segmentIndicator.track,
         styles.track,
         trackSizeStyles[size],
         fullWidth && styles.trackFullWidth,
@@ -240,46 +235,27 @@ export function SegmentedControl<TValue extends string>({
       ]}
       onPointerDown={(event) => {
         onPointerDown?.(event);
-        if (event.pointerType !== "mouse" || event.button === 0) {
-          setPressed(true);
-          setAim(
-            aimAt(event.currentTarget.getBoundingClientRect(), event.clientY),
-          );
-          drag.start(event);
-        }
+        handlers.onPointerDown(event);
       }}
       onPointerMove={(event) => {
         onPointerMove?.(event);
-        drag.move(event);
+        handlers.onPointerMove(event);
       }}
       onPointerUp={(event) => {
         onPointerUp?.(event);
-        setPressed(false);
-        const drop = drag.end(event);
-        if (drop !== null) {
-          setAim(
-            aimAt(event.currentTarget.getBoundingClientRect(), event.clientY),
-          );
-          if (!drop.dragged || drop.index !== selected) {
-            onChange(values[drop.index]);
-          }
-        }
+        handlers.onPointerUp(event);
       }}
       onPointerCancel={(event) => {
         onPointerCancel?.(event);
-        setPressed(false);
-        drag.cancel();
+        handlers.onPointerCancel();
       }}
       onPointerLeave={(event) => {
         onPointerLeave?.(event);
-        if (drag.index === null) {
-          setPressed(false);
-          drag.cancel();
-        }
+        handlers.onPointerLeave();
       }}
       onKeyDown={(event) => {
         onKeyDown?.(event);
-        setAim(0);
+        handlers.onKeyDown();
       }}
       onClickCapture={(event) => {
         onClickCapture?.(event);
@@ -299,19 +275,14 @@ export function SegmentedControl<TValue extends string>({
         <span
           aria-hidden="true"
           {...{ [LIQUID_INDICATOR]: "" }}
-          // Cancel the blur from `glassSurface.base`. The track already
-          // paints an opaque colour, so the blur only adds cost to each
-          // slide frame.
           css={[
             corner.squircle_round,
-            styles.indicator,
+            segmentIndicator.base,
             segmentSizeStyles[size],
             glassSurface.base,
-            styles.indicatorNoBlur,
-            styles.indicatorLook,
-            drag.inset !== null &&
-              styles.indicatorAt(drag.inset.left, drag.inset.right),
-            drag.index !== null && styles.indicatorDragged,
+            segmentIndicator.noBlur,
+            inset !== null && segmentIndicator.at(inset.left, inset.right),
+            dragging && segmentIndicator.dragged,
           ]}
         />
       ) : null}
@@ -323,6 +294,7 @@ export function SegmentedControl<TValue extends string>({
           // enclosing form instead of switching the view.
           type="button"
           aria-label={option["aria-label"]}
+          {...{ [LIQUID_SEGMENT]: "" }}
           {...getOptionProps(option.value)}
           css={[
             sizeRoles[size],
@@ -334,8 +306,8 @@ export function SegmentedControl<TValue extends string>({
             segmentSizeStyles[size],
             sizeStyles[size],
             fullWidth && styles.optionFullWidth,
-            drag.pressed !== null && styles.optionHeld,
-            index === shown && styles.optionSelected,
+            held && segmentIndicator.held,
+            index === shown && [segmentIndicator.anchor, styles.optionSelected],
           ]}
         >
           {option.icon ? (
@@ -371,144 +343,6 @@ export function SegmentedControl<TValue extends string>({
   );
 }
 
-/** The segments of `track`, in the order of the options. */
-function segmentsOf(track: HTMLElement) {
-  return Array.from(track.children).filter(
-    (child) => child instanceof HTMLButtonElement,
-  );
-}
-
-/** A press on a segment, which a move along the track makes a drag. */
-interface Press {
-  readonly pointerId: number;
-  readonly startX: number;
-  /** The pressed segment. */
-  readonly index: number;
-  /** Where each segment starts and ends, in the viewport. */
-  readonly segments: readonly { left: number; right: number }[];
-  /** The ends of the track's padding box, in the viewport. */
-  readonly paddingLeft: number;
-  readonly paddingRight: number;
-}
-
-/** The segment under `x`, or the nearest one where `x` is in a gap. */
-function segmentAt(segments: Press["segments"], x: number) {
-  const distance = ({ left, right }: Press["segments"][number]) =>
-    Math.max(left - x, 0, x - right);
-  return segments.reduce(
-    (best, segment, index) =>
-      distance(segment) < distance(segments[best]) ? index : best,
-    0,
-  );
-}
-
-/** Where the plain indicator is inside the track at `index`, in CSS px. */
-function insetAt(press: Press, index: number) {
-  const { segments } = press;
-  const from = segments[Math.floor(index)];
-  const to = segments[Math.ceil(index)];
-  const share = index - Math.floor(index);
-  return {
-    left: from.left + (to.left - from.left) * share - press.paddingLeft,
-    right: press.paddingRight - from.right - (to.right - from.right) * share,
-  };
-}
-
-/**
- * Pointer-drag mechanics for `SegmentedControl`, the drag of the `Switch`
- * with a stop at each segment. A press on a segment moves the indicator
- * there at once. A move of `DRAG_THRESHOLD` along the track then drags it:
- * its centre follows the pointer between the first and the last segment,
- * and its width follows the segments under it. `end` gives the pressed
- * segment, or after a drag the segment under the indicator's centre. Each
- * segment is a native button, so the track captures the pointer only once
- * the press is a drag: a capture at the press would take the press away
- * from the segment.
- */
-function useSegmentDrag() {
-  const [held, setHeld] = useState<{ press: Press; x: number | null } | null>(
-    null,
-  );
-  const segment =
-    held === null
-      ? null
-      : held.x === null
-        ? held.press.index
-        : segmentAt(held.press.segments, held.x);
-  const index =
-    held === null || held.x === null
-      ? null
-      : indexAt(
-          held.press.segments.map(({ left, right }) => (left + right) / 2),
-          held.x,
-        );
-
-  function cancel() {
-    setHeld(null);
-  }
-
-  return {
-    /** The pressed segment, where the indicator goes until the release. */
-    pressed: held?.press.index ?? null,
-    /** Where a drag holds the indicator's centre, as a segment index. */
-    index,
-    /** The segment under the indicator, which looks selected until the release. */
-    segment,
-    inset:
-      held === null ? null : insetAt(held.press, index ?? held.press.index),
-    start(event: PointerEvent<HTMLDivElement>) {
-      const track = event.currentTarget;
-      const segments = segmentsOf(track);
-      const pressed = segments.findIndex(
-        (segment) =>
-          event.target instanceof Node && segment.contains(event.target),
-      );
-      if (pressed < 0 || segments[pressed].matches(":disabled")) {
-        return;
-      }
-      const paddingLeft = track.getBoundingClientRect().left + track.clientLeft;
-      setHeld({
-        press: {
-          pointerId: event.pointerId,
-          startX: event.clientX,
-          index: pressed,
-          segments: segments.map((segment) => {
-            const { left, right } = segment.getBoundingClientRect();
-            return { left, right };
-          }),
-          paddingLeft,
-          paddingRight: paddingLeft + track.clientWidth,
-        },
-        x: null,
-      });
-    },
-    move(event: PointerEvent<HTMLDivElement>) {
-      if (held === null || event.pointerId !== held.press.pointerId) {
-        return;
-      }
-      if (
-        held.x === null &&
-        Math.abs(event.clientX - held.press.startX) < DRAG_THRESHOLD
-      ) {
-        return;
-      }
-      if (held.x === null) {
-        event.currentTarget.setPointerCapture(event.pointerId);
-      }
-      setHeld({ press: held.press, x: event.clientX });
-    },
-    end(event: PointerEvent<HTMLDivElement>) {
-      setHeld(null);
-      if (held === null || event.pointerId !== held.press.pointerId) {
-        return null;
-      }
-      return { index: segment ?? held.press.index, dragged: held.x !== null };
-    },
-    cancel,
-  };
-}
-
-const SELECTED_ANCHOR = "--segmented-control-selected";
 const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
 /** The effect layer sets this attribute on the track while it draws the indicator. */
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
@@ -522,59 +356,6 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
-    // `relative` makes the track the indicator's containing block, so only the
-    // options in this track can be its anchor and a second control on the page
-    // cannot pull it away. `isolate` keeps the indicator's negative z-index
-    // inside the track's stacking context.
-    position: "relative",
-    // A drag along the track moves the indicator, and a swipe across it
-    // still scrolls the page.
-    touchAction: "pan-y",
-    isolation: "isolate",
-  },
-  // The one element that carries the selected option's surface. It follows the
-  // anchor, so nothing measures a segment in JS.
-  indicator: {
-    position: "absolute",
-    positionAnchor: SELECTED_ANCHOR,
-    top: "anchor(top)",
-    right: "anchor(right)",
-    bottom: "anchor(bottom)",
-    left: "anchor(left)",
-    zIndex: -1,
-    pointerEvents: "none",
-    display: { default: null, [NO_ANCHOR_POSITIONING]: "none" },
-    transition: {
-      default: `top ${duration._300} ${easing.spring}, right ${duration._300} ${easing.spring}, bottom ${duration._300} ${easing.spring}, left ${duration._300} ${easing.spring}, opacity ${duration._400} ${easing.linear}`,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-    // It keeps its box, its colours and its corners while the effect draws
-    // in its place, so the effect can read them from it. It fades out while
-    // the effect's glow fades in, so the change of shape does not jump.
-    opacity: {
-      default: null,
-      [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentedControlMarker)]: 0,
-    },
-  },
-  // A press holds the indicator off its anchor. Its top and bottom stay on
-  // the anchor. On release it slides back to the anchor on the spring.
-  indicatorAt: (left: number, right: number) => ({
-    left: `${String(left)}px`,
-    right: `${String(right)}px`,
-  }),
-  indicatorDragged: {
-    transition: "none",
-  },
-  // The effect reads the colour of the ring light from the text colour. The
-  // indicator has no text, so this colour does not show.
-  indicatorLook: {
-    color: color.bgAccent,
-  },
-  // The track fill is opaque, so the blur has nothing to sample and only
-  // repaints on each frame of the slide. Later in the indicator's `css` array
-  // than `glassSurface.base`, so it wins.
-  indicatorNoBlur: {
-    backdropFilter: "none",
   },
   trackFullWidth: {
     display: "flex",
@@ -610,11 +391,6 @@ const styles = stylex.create({
       },
     },
   },
-  // A held press keeps the indicator under the pointer, so no hover fill
-  // covers it.
-  optionHeld: {
-    backgroundColor: "transparent",
-  },
   // A non-wrapping label's min-content width blocks an even flex split, even
   // with `flexBasis: 0`. `minInlineSize: 0` fixes it, so the label truncates
   // before the track overflows.
@@ -629,12 +405,11 @@ const styles = stylex.create({
   // draws the indicator over the track. The weight and the colour stay in
   // all of them, because they are the selection signal in forced colours.
   optionSelected: {
-    anchorName: SELECTED_ANCHOR,
     backgroundColor: {
       default: "transparent",
       [NO_ANCHOR_POSITIONING]: {
         default: color.bgControl,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentedControlMarker)]:
+        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
           "transparent",
       },
     },
@@ -644,7 +419,7 @@ const styles = stylex.create({
       default: "transparent",
       [NO_ANCHOR_POSITIONING]: {
         default: color.border,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentedControlMarker)]:
+        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
           "transparent",
       },
     },
@@ -652,7 +427,7 @@ const styles = stylex.create({
       default: "none",
       [NO_ANCHOR_POSITIONING]: {
         default: shadow._1,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentedControlMarker)]: "none",
+        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: "none",
       },
     },
   },
