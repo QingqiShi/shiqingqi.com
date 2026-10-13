@@ -500,10 +500,10 @@ describe("Settings", () => {
         json: {
           ...providerAccounts,
           accounts: [
-            chase("tong-current", "26391", "Tong's Account"),
-            chase("tong-round-up", "26391", "Round-up"),
-            chase("qingqi-current", "26430", "Qingqi's Account"),
-            chase("qingqi-round-up", "26430", "Round-up"),
+            chase("42467", "26430", "Round-up"),
+            chase("42465", "26430", "Qingqi's Account"),
+            chase("42412", "26438", "Round-up"),
+            chase("42411", "26438", "Tong's Account"),
           ],
         } satisfies ProviderAccountsResponse,
       }),
@@ -518,13 +518,13 @@ describe("Settings", () => {
         .getAllByRole("listitem")
         .map((card) => card.querySelector("span")?.textContent);
     };
-    expect(await cardsUnder("Chase Bank · Tong's Account")).toEqual([
-      "Tong's Account",
-      "Round-up",
-    ]);
     expect(await cardsUnder("Chase Bank · Qingqi's Account")).toEqual([
-      "Qingqi's Account",
       "Round-up",
+      "Qingqi's Account",
+    ]);
+    expect(await cardsUnder("Chase Bank · Tong's Account")).toEqual([
+      "Round-up",
+      "Tong's Account",
     ]);
   });
 
