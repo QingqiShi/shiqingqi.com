@@ -11,6 +11,10 @@ export function useAuthErrorMessage() {
       en: "This sign-up has expired or was used already. Ask for a new code on the sign-in page.",
       zh: "此注册已过期或已被使用。请在登录页重新获取验证码。",
     }),
+    email_registered: t({
+      en: "Someone already uses Finance with this email. If it is you, sign in with your passkey, or get back in with your recovery email on the sign-in page.",
+      zh: "已有人用此邮箱使用家庭账本。如果是你本人，请用通行密钥登录，或在登录页通过恢复邮箱重新进入。",
+    }),
     passkey_unknown: t({
       en: "This passkey is not registered for Finance. Use another passkey, or ask for an invite.",
       zh: "此通行密钥未在家庭账本中注册。请换一个通行密钥，或请家人发送邀请。",

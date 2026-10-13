@@ -71,6 +71,13 @@
       "when": 1791897896371,
       "tag": "0009_balance_check_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791923249888,
+      "tag": "0010_verified_email_unique",
+      "breakpoints": true
     }
   ]
 }

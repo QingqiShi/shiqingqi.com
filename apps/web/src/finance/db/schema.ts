@@ -56,18 +56,25 @@ function version() {
 
 // identity and tenancy
 
+/** The unique index that lets at most one user have a given Recovery email verified. */
+export const VERIFIED_EMAIL_KEY = "users_verified_email_key";
+
 export const users = pgTable(
   "users",
   {
     id: uuid("id").primaryKey(),
     displayName: text("display_name").notNull(),
-    /** The Recovery email, lower-case. Several users may share one. */
+    /** The Recovery email, lower-case. At most one user has a given address verified. */
     email: text("email"),
     /** Set when the user opened the verification link for `email`. Recovery mail goes only to a verified email. */
     emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
-  (t) => [index("users_email_idx").on(t.email)],
+  (t) => [
+    uniqueIndex(VERIFIED_EMAIL_KEY)
+      .on(t.email)
+      .where(sql`${t.emailVerifiedAt} IS NOT NULL`),
+  ],
 );
 
 /** One-use links that confirm a user's Recovery email. Only the token's hash is stored. */

@@ -43,12 +43,6 @@ export interface RecoveryEmail {
   verified: boolean;
 }
 
-/** A household that a recovery code can get back into, with its Recovery link path (no locale). */
-export interface RecoveryChoice {
-  householdName: string;
-  path: string;
-}
-
 interface SignedIn {
   householdId: string;
   memberId: string;
@@ -79,7 +73,7 @@ export const financePasskeyClient = {
     await post("/sign-up", { email, locale });
   },
 
-  /** Checks the code from the sign-up email that this browser asked for, and returns the sign-up page's path, without a locale. */
+  /** Checks the code from the sign-up email that this browser asked for, and returns the sign-up page's path, without a locale. When a user has the address already, it is the path of that user's Recovery link. */
   async checkSignUpCode(code: string): Promise<string> {
     const { path } = await post<{ path: string }>("/sign-up/code", { code });
     return path;
@@ -144,7 +138,7 @@ export const financePasskeyClient = {
     return post("/email", { email, locale });
   },
 
-  /** Opens the verification link with `token`. False when the link is unknown, used or expired, or the email changed after it was sent. `locale` is for the notice to the Recovery email that this one replaces. */
+  /** Opens the verification link with `token`. False when the link is unknown, used or expired, or the email changed after it was sent. Throws `email_registered` when another user has the address. `locale` is for the notice to the Recovery email that this one replaces. */
   async verifyEmail(token: string, locale: SupportedLocale): Promise<boolean> {
     const { verified } = await post<{ verified: boolean }>("/email/verify", {
       token,
@@ -158,13 +152,10 @@ export const financePasskeyClient = {
     await post("/recovery", { email, locale });
   },
 
-  /** Checks the code from the recovery email that this browser asked for, and returns a Recovery link for each household of the address. */
-  async checkRecoveryCode(code: string): Promise<RecoveryChoice[]> {
-    const { households } = await post<{ households: RecoveryChoice[] }>(
-      "/recovery/code",
-      { code },
-    );
-    return households;
+  /** Checks the code from the recovery email that this browser asked for, and returns the path of the Recovery link, without a locale. */
+  async checkRecoveryCode(code: string): Promise<string> {
+    const { path } = await post<{ path: string }>("/recovery/code", { code });
+    return path;
   },
 
   async signOut(): Promise<void> {

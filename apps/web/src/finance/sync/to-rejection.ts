@@ -1,17 +1,6 @@
+import { findPostgresError } from "#src/finance/db/find-postgres-error.ts";
 import { MutationError } from "./mutation-error.ts";
 import type { Rejection } from "./types.ts";
-
-const MAX_CAUSE_DEPTH = 5;
-
-function errorCode(error: unknown): string | undefined {
-  let cause = error;
-  for (let depth = 0; depth < MAX_CAUSE_DEPTH; depth++) {
-    if (typeof cause !== "object" || cause === null) return undefined;
-    if ("code" in cause && typeof cause.code === "string") return cause.code;
-    cause = "cause" in cause ? cause.cause : undefined;
-  }
-  return undefined;
-}
 
 /**
  * PostgreSQL error classes that say the server or the connection failed, not
@@ -26,7 +15,7 @@ export function toRejection(id: string, error: unknown): Rejection | undefined {
   if (error instanceof MutationError) {
     return { id, reason: error.reason, message: error.message };
   }
-  const code = errorCode(error);
+  const code = findPostgresError(error)?.code;
   if (
     code === undefined ||
     code.length !== 5 ||
