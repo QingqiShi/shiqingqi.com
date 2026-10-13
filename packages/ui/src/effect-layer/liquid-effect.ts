@@ -537,12 +537,16 @@ export interface LiquidState {
   readonly heading: -1 | 1;
   /** The liquid is on its way to a stop with a ring, which waits for it to land. */
   readonly landing: boolean;
-  /** The ring, the stop it runs round, and the colour it took when it started. */
-  readonly ring: {
+  /**
+   * The rings that still run, each with the stop it runs round and the
+   * colour it took when it started. A new landing does not cut a ring
+   * short: it runs to its end on its own stop.
+   */
+  readonly rings: readonly {
     readonly light: RingLight;
     readonly stop: number;
     readonly color: EffectColor;
-  } | null;
+  }[];
   /** When the effect took the control over, on the effect layer's clock. */
   readonly since: number;
   readonly colors: ReturnType<typeof createLiquidColors>;
@@ -583,11 +587,9 @@ export function layoutLiquid(
 ): {
   state: LiquidState;
   instance: LiquidInstance;
-  ring:
-    | (Omit<RingLightInstance, "elementIndex" | "state"> & {
-        readonly ring: RingLight;
-      })
-    | null;
+  rings: (Omit<RingLightInstance, "elementIndex" | "state"> & {
+    readonly ring: RingLight;
+  })[];
   /** Something moves, so the next frame must follow. */
   animating: boolean;
   /** The step for the GPU to run on the body's slot this frame, or `null`. */
@@ -610,7 +612,7 @@ export function layoutLiquid(
   let body = state?.body ?? restingLiquid(target, { seed: record.id, span });
   let heading = state?.heading ?? headingTo(position, position, last);
   let landing = state?.landing ?? false;
-  let ring = state?.ring ?? null;
+  let running = state?.rings ?? [];
   if (state !== undefined && position !== state.position) {
     heading = headingTo(position, state.drag ?? state.position, last);
     landing = (rings[position] ?? null) !== null;
@@ -732,29 +734,41 @@ export function layoutLiquid(
     if (frame.reducedMotion || impact !== null) {
       landing = false;
       const { box } = landsOn;
-      ring = {
-        light: {
-          start: frame.time,
-          x:
-            impact === null
-              ? heading > 0
-                ? box.x + box.width
-                : box.x
-              : originX + impact.x * radius,
-          y: originY + (impact?.y ?? 0) * radius,
+      running = [
+        ...running,
+        {
+          light: {
+            start: frame.time,
+            x:
+              impact === null
+                ? heading > 0
+                  ? box.x + box.width
+                  : box.x
+                : originX + impact.x * radius,
+            y: originY + (impact?.y ?? 0) * radius,
+          },
+          stop: position,
+          color: landsOn.color,
         },
-        stop: position,
-        color: landsOn.color,
-      };
+      ];
     }
   }
-  if (
-    ring !== null &&
-    frame.time >= ringLightEnd(ring.light, frame.reducedMotion)
-  ) {
-    ring = null;
+  running = running.filter(
+    ({ light }) => frame.time < ringLightEnd(light, frame.reducedMotion),
+  );
+
+  const drawn = [];
+  for (const ring of running) {
+    const ringsOn = rings[ring.stop] ?? null;
+    if (ringsOn !== null) {
+      drawn.push({
+        ring: ring.light,
+        box: ringsOn.box,
+        cornerExponent: ringsOn.cornerExponent,
+        ...colors.ring(ring.color, backdrop),
+      });
+    }
   }
-  const ringsOn = ring === null ? null : (rings[ring.stop] ?? null);
 
   const firstBead = beads.length;
   for (const bead of body.beads) {
@@ -775,7 +789,7 @@ export function layoutLiquid(
       pressed,
       heading,
       landing,
-      ring,
+      rings: running,
       since,
       colors,
       simulated,
@@ -783,15 +797,7 @@ export function layoutLiquid(
     },
     step,
     seed,
-    ring:
-      ring === null || ringsOn === null
-        ? null
-        : {
-            ring: ring.light,
-            box: ringsOn.box,
-            cornerExponent: ringsOn.cornerExponent,
-            ...colors.ring(ring.color, backdrop),
-          },
+    rings: drawn,
     // While a drag holds the liquid short of its stop, it cannot land
     // there, so it waits for no frame.
     animating:
@@ -1123,26 +1129,24 @@ export const liquidEffect: Effect = {
             steps.push(laid.step);
             stepped.push({ id, step: laid.step, time: laid.state.simulated });
           }
-          if (laid.ring === null) {
-            continue;
+          for (const { ring, ...look } of laid.rings) {
+            const ringState = ringLightAt(
+              ring,
+              look.box,
+              frame.time,
+              frame.reducedMotion,
+            );
+            if (ringState === null) {
+              continue;
+            }
+            animating = true;
+            nextRings.push({
+              elementIndex: index,
+              state: ringState,
+              end: ringLightEnd(ring, frame.reducedMotion),
+              ...look,
+            });
           }
-          const { ring, ...look } = laid.ring;
-          const ringState = ringLightAt(
-            ring,
-            look.box,
-            frame.time,
-            frame.reducedMotion,
-          );
-          if (ringState === null) {
-            continue;
-          }
-          animating = true;
-          nextRings.push({
-            elementIndex: index,
-            state: ringState,
-            end: ringLightEnd(ring, frame.reducedMotion),
-            ...look,
-          });
         }
         for (const id of states.keys()) {
           if (!kept.has(id)) {
