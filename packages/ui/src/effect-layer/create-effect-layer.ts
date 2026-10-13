@@ -7,8 +7,10 @@ import {
 } from "./compute-bands.ts";
 import { GPU_BUFFER_USAGE, GPU_SHADER_STAGE } from "./constants.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
+import { createFrameClock } from "./create-frame-clock.ts";
 import { createFrameScheduler } from "./create-frame-scheduler.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
+import { encodeCanvasPass } from "./encode-canvas-pass.ts";
 import {
   ELEMENT_BYTES,
   packElements,
@@ -48,6 +50,8 @@ interface ConfiguredCanvas {
   readonly context: GPUCanvasContext;
   readonly uniform: GPUBuffer;
   readonly bindGroup: GPUBindGroup;
+  /** The last pass drew something, so the `<canvas>` element shows it. */
+  shown: boolean;
 }
 
 interface ScrollCanvas extends ConfiguredCanvas {
@@ -160,7 +164,7 @@ export function createEffectLayer(
   let drawRequested = true;
   let destroyed = false;
   const startTime = performance.now();
-  let lastFrameTime: number | null = null;
+  const clock = createFrameClock(MAX_DELTA_SECONDS);
 
   const reducedMotionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
   let pixelRatioQuery = watchPixelRatio();
@@ -236,7 +240,7 @@ export function createEffectLayer(
       layout: targetLayout,
       entries: [{ binding: 0, resource: { buffer: uniform } }],
     });
-    return { canvas, context, uniform, bindGroup };
+    return { canvas, context, uniform, bindGroup, shown: true };
   }
 
   function release({ context, uniform }: ConfiguredCanvas) {
@@ -473,26 +477,31 @@ export function createEffectLayer(
         seconds: frame.time,
       }),
     );
-    const pass = encoder.beginRenderPass({
-      colorAttachments: [
-        {
-          view: context.getCurrentTexture().createView(),
-          clearValue: { r: 0, g: 0, b: 0, a: 0 },
-          loadOp: "clear",
-          storeOp: "store",
-        },
-      ],
+    const begin = () => {
+      const pass = encoder.beginRenderPass({
+        colorAttachments: [
+          {
+            view: context.getCurrentTexture().createView(),
+            clearValue: { r: 0, g: 0, b: 0, a: 0 },
+            loadOp: "clear",
+            storeOp: "store",
+          },
+        ],
+      });
+      pass.setScissorRect(scissor.x, scissor.y, scissor.width, scissor.height);
+      return pass;
+    };
+    configured.shown = encodeCanvasPass(begin, configured.shown, (pass) => {
+      for (const renderer of ready) {
+        pass.setBindGroup(0, frame.pageBindGroup);
+        pass.setBindGroup(1, target.bindGroup);
+        renderer.draw(pass, target, frame);
+      }
     });
-    pass.setScissorRect(scissor.x, scissor.y, scissor.width, scissor.height);
-    for (const renderer of ready) {
-      pass.setBindGroup(0, frame.pageBindGroup);
-      pass.setBindGroup(1, target.bindGroup);
-      renderer.draw(pass, target, frame);
-    }
-    pass.end();
   }
 
   function renderFrame(now: number) {
+    const delta = clock.start(now);
     const { scrollX, scrollY } = window;
     const plan = planScopes(
       registry.records(scrollX, scrollY),
@@ -518,10 +527,7 @@ export function createEffectLayer(
     const viewport = bandGeometry(viewportHeight).viewport;
     const frame: EffectFrame = {
       time: (now - startTime) / 1000,
-      delta:
-        lastFrameTime === null
-          ? 0
-          : Math.min((now - lastFrameTime) / 1000, MAX_DELTA_SECONDS),
+      delta,
       reducedMotion: reducedMotionQuery.matches,
       viewport: {
         x: scrollX,
@@ -536,7 +542,6 @@ export function createEffectLayer(
       pageBindGroup,
       targets: passes.map(({ target }) => target),
     };
-    lastFrameTime = now;
     device.queue.writeBuffer(
       pageUniform,
       0,
@@ -563,6 +568,7 @@ export function createEffectLayer(
     }
     device.queue.submit([encoder.finish()]);
     if (animating && !frame.reducedMotion) {
+      clock.follow(now);
       requestFrame();
     }
   }

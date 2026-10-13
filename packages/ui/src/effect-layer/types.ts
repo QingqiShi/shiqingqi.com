@@ -197,7 +197,11 @@ export interface EffectTarget {
 export interface EffectFrame {
   /** Seconds since the effect layer started. */
   readonly time: number;
-  /** Seconds since the previous frame, at most a tenth of a second. */
+  /**
+   * Seconds since the previous frame, at most a tenth of a second, or 0
+   * when no frame asked for this one: the first frame after the loop was
+   * idle.
+   */
   readonly delta: number;
   /** Draw a still frame: under reduced motion no frame follows on its own. */
   readonly reducedMotion: boolean;
@@ -233,6 +237,25 @@ export interface EffectFrame {
 }
 
 /**
+ * The calls of a render pass that an effect's `draw` can make. The pass of
+ * a `<canvas>` element begins only once something draws on it, so a draw
+ * with no vertices or no instances draws nothing.
+ *
+ * @internal
+ */
+export interface EffectPass {
+  setPipeline: (pipeline: GPURenderPipeline) => void;
+  setBindGroup: (index: number, bindGroup: GPUBindGroup | null) => void;
+  setVertexBuffer: (slot: number, buffer: GPUBuffer | null) => void;
+  draw: (
+    vertexCount: number,
+    instanceCount?: number,
+    firstVertex?: number,
+    firstInstance?: number,
+  ) => void;
+}
+
+/**
  * An effect's GPU work, made once per device.
  *
  * @internal
@@ -247,11 +270,7 @@ export interface EffectRenderer {
    * Draws into every target of the frame, with groups 0 and 1 set; the
    * effect skips what it does not own.
    */
-  draw: (
-    pass: GPURenderPassEncoder,
-    target: EffectTarget,
-    frame: EffectFrame,
-  ) => void;
+  draw: (pass: EffectPass, target: EffectTarget, frame: EffectFrame) => void;
   /** Draw a frame each time the pointer moves. */
   followsPointer?: boolean;
   destroy: () => void;

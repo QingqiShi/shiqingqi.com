@@ -22,6 +22,7 @@ import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
 import {
+  liquidStep,
   mean,
   simulateLiquid,
   type LiquidParticles,
@@ -508,5 +509,57 @@ describe("createControlReader", () => {
     const after = frame(300);
     expect(segmentReads).toHaveLength(4);
     expect((after?.originY ?? 0) - (before?.originY ?? 0)).toBe(300);
+  });
+});
+
+describe("layoutLiquid's step", () => {
+  const travel = 32 / 14;
+  const color = readFill("rgb(52, 120, 246)");
+  const control: LiquidControl = {
+    radius: 14,
+    originX: 16,
+    originY: 16,
+    travel,
+    stops: [
+      { target: 0, span: 0 },
+      { target: travel, span: 0 },
+    ],
+    rings: [null, null],
+    frost: {
+      color: readFill("rgb(255, 255, 255)"),
+      under: color,
+      least: { core: 0.72, edge: 0.5 },
+      contrast: FROST_CONTRAST,
+    },
+    fill: null,
+    spread: 2,
+  };
+  const rest = { drag: null, pressed: false, aim: 0 } as const;
+  const lay = (
+    position: number,
+    state: LiquidState | undefined,
+    delta: number,
+  ) =>
+    layoutLiquid(
+      control,
+      { id: 1, settings: { liquid: { ...rest, position } } },
+      0,
+      SLOT,
+      state,
+      { time: 1, delta, reducedMotion: false },
+      BACKDROP,
+      null,
+      [],
+    );
+  const pourAfter = (delta: number) =>
+    lay(1, lay(0, undefined, 0).state, delta).step?.step;
+
+  it("takes a 60th of a second on the first frame after the loop was idle", () => {
+    expect(pourAfter(0)).toBe(liquidStep(1 / 60));
+  });
+
+  it("takes the whole of a frame that took twice a 30 Hz interval", () => {
+    expect(pourAfter(1 / 15)).toBe(liquidStep(1 / 15));
+    expect(pourAfter(1 / 15)).toBeCloseTo(2 * liquidStep(1 / 30), 10);
   });
 });

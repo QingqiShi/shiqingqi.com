@@ -655,13 +655,44 @@ describe("substepCount", () => {
   it("takes a substep for each 240th of a second, and at least one", () => {
     expect(substepCount(liquidStep(1 / 60), 0)).toBe(6);
     expect(substepCount(liquidStep(1 / 30), 0)).toBe(12);
-    expect(substepCount(liquidStep(0.1), 0)).toBe(12);
+    expect(substepCount(liquidStep(0.1), 0)).toBe(24);
     expect(substepCount(0.001, 0)).toBe(1);
   });
 
   it("takes more for a fast body, up to a limit", () => {
     expect(substepCount(liquidStep(1 / 60), 20)).toBe(7);
     expect(substepCount(liquidStep(1 / 60), 1000)).toBe(MAX_SUBSTEPS);
+  });
+
+  it("stays under the limit for the fastest pour in the longest frame", () => {
+    expect(substepCount(liquidStep(0.1), 75)).toBeLessThan(MAX_SUBSTEPS);
+  });
+});
+
+describe("liquidStep", () => {
+  it("keeps up with a frame that takes twice a 30 Hz interval", () => {
+    expect(liquidStep(1 / 15)).toBeCloseTo(2 * liquidStep(1 / 30), 10);
+    expect(liquidStep(0.1)).toBe(liquidStep(1 / 15));
+  });
+
+  it("pours at 30 Hz with every other frame dropped as it does at 60 Hz", () => {
+    const start = restingLiquid(firstPill.target, { span: firstPill.span });
+    let body = start;
+    let time = 0;
+    let settledAt: number | null = null;
+    for (let frame = 0; settledAt === null && time < 3; frame++) {
+      const delta = frame % 2 === 0 ? 1 / 30 : 1 / 15;
+      body = stepLiquid(body, POUR_ON, delta);
+      time += delta;
+      if (body.settled) {
+        settledAt = time;
+      }
+    }
+    const reference = firstTime(pillPour, (each) => each.settled);
+    expect(settledAt).not.toBeNull();
+    expect(reference).not.toBeNull();
+    expect(Math.abs((settledAt ?? 0) - (reference ?? 0))).toBeLessThan(0.15);
+    expect(mean(body.x)).toBeCloseTo(POUR_ON.target, 0);
   });
 });
 
