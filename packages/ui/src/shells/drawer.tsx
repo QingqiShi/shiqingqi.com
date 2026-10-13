@@ -199,10 +199,7 @@ const styles = stylex.create({
     // No padding: the nav spans the card's whole box, so the corners it
     // inherits line up with these. The chrome slots carry the block insets
     // the rail used to, and the scroller the inline ones.
-    backgroundColor: {
-      default: color.bgSurface,
-      [breakpoints.md]: color.bgSurfaceSunken,
-    },
+    backgroundColor: color.bgSurface,
     borderStartStartRadius: {
       default: border.radius_3,
       [breakpoints.md]: border.radius_3,
