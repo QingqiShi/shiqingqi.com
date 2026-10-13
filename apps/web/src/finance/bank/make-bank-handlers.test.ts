@@ -53,7 +53,7 @@ let afterTasks: (() => Promise<void>)[];
 function providerAccount(id: string, currency = "GBP", status = "ACTIVE") {
   return {
     id,
-    connectionId: "c1",
+    bankLoginId: "c1",
     name: `Account ${id}`,
     institution: "Example Bank",
     institutionLogo: null,
@@ -480,7 +480,9 @@ describe("the Lunch Flow API key", () => {
       status: "connected",
       mode: "real",
       credential: { lastFour: "wxyz", savedAt: NOW.toISOString() },
-      accounts: [{ providerAccountId: "101", name: "Everyday" }],
+      accounts: [
+        { providerAccountId: "101", bankLoginId: "7", name: "Everyday" },
+      ],
     });
     expect(listed.text).not.toContain(API_KEY);
     const [row] = await db.select().from(connections);

@@ -110,8 +110,8 @@ The Household's own words to the AI that labels its bank rows: whose account is 
 _Avoid_: prompt, rules (that is a Rule)
 
 **Bank link**:
-The binding of one account to one provider account (a Lunch Flow account id). ZH: 银行关联. A **Connection** is the household's provider credential. ZH: 银行连接.
-_Avoid_: integration, feed
+The binding of one account to one provider account (a Lunch Flow account id). ZH: 银行关联. A **Connection** is the household's provider credential. ZH: 银行连接. A **Bank login** is one sign-in at a bank that the provider reads, holding one or more provider accounts; Lunch Flow calls it a connection (`connection_id`). ZH: 银行登录.
+_Avoid_: integration, feed; connection (for a Bank login)
 
 **Bank balance**:
 The balance the bank reports for a linked account on a sync. A **balance check** compares it with the balance the household recorded. ZH: 银行余额.

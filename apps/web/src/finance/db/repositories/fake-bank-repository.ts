@@ -17,6 +17,7 @@ export const fakeBankRepository = {
         id: accounts.id,
         name: accounts.name,
         institution: accounts.institution,
+        ownerMemberId: accounts.ownerMemberId,
         currency: accounts.currency,
       })
       .from(accounts)

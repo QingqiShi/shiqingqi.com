@@ -229,7 +229,7 @@ function syncSavings(
   const fixture: FakeBankFixture = {
     accounts: ["acc-current", "acc-savings"].map((id) => ({
       id,
-      connectionId: "c1",
+      bankLoginId: "c1",
       name: id,
       institution: "Example Bank",
       institutionLogo: null,
@@ -495,7 +495,7 @@ describe("processBankRows", () => {
     const fixture: FakeBankFixture = {
       accounts: ["acc-current", "acc-savings"].map((id) => ({
         id,
-        connectionId: "c1",
+        bankLoginId: "c1",
         name: id,
         institution: "Example Bank",
         institutionLogo: null,

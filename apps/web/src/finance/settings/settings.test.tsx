@@ -58,6 +58,7 @@ const providerAccounts: ProviderAccountsResponse = {
   accounts: [
     {
       providerAccountId: "fake-visa",
+      bankLoginId: "login-northbank",
       name: "Alex Visa",
       institution: "Northbank",
       institutionLogo: null,
@@ -67,6 +68,7 @@ const providerAccounts: ProviderAccountsResponse = {
     },
     {
       providerAccountId: "fake-current",
+      bankLoginId: "login-monzo",
       name: "Current account",
       institution: "Monzo",
       institutionLogo: null,
@@ -475,6 +477,55 @@ describe("Settings", () => {
     expect(
       await screen.findByLabelText("Lunch Flow API key"),
     ).toBeInTheDocument();
+  });
+
+  it("puts each bank account under its Bank login, so two logins at one bank stay apart", async () => {
+    const runtime = await createSettingsReplica();
+    const chase = (
+      providerAccountId: string,
+      bankLoginId: string,
+      name: string,
+    ) => ({
+      providerAccountId,
+      bankLoginId,
+      name,
+      institution: "Chase Bank",
+      institutionLogo: null,
+      currency: "GBP",
+      needsReconnect: false,
+      link: null,
+    });
+    stubFinanceApi({
+      "GET /api/finance/bank/accounts": () => ({
+        json: {
+          ...providerAccounts,
+          accounts: [
+            chase("tong-current", "26391", "Tong's Account"),
+            chase("tong-round-up", "26391", "Round-up"),
+            chase("qingqi-current", "26430", "Qingqi's Account"),
+            chase("qingqi-round-up", "26430", "Round-up"),
+          ],
+        } satisfies ProviderAccountsResponse,
+      }),
+    });
+    renderWithSettingsReplica(runtime, <ConnectionsSettings />);
+
+    const cardsUnder = async (title: string) => {
+      const heading = await screen.findByRole("heading", { name: title });
+      const login = heading.closest("section");
+      if (!login) throw new Error(`No Bank login titled ${title}`);
+      return within(login)
+        .getAllByRole("listitem")
+        .map((card) => card.querySelector("span")?.textContent);
+    };
+    expect(await cardsUnder("Chase Bank · Tong's Account")).toEqual([
+      "Tong's Account",
+      "Round-up",
+    ]);
+    expect(await cardsUnder("Chase Bank · Qingqi's Account")).toEqual([
+      "Qingqi's Account",
+      "Round-up",
+    ]);
   });
 
   it("shows the sign switch only under More on a linked card", async () => {

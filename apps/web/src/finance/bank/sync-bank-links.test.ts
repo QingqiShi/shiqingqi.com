@@ -45,7 +45,7 @@ let fixture: FakeBankFixture;
 function providerAccount(id: string) {
   return {
     id,
-    connectionId: "c1",
+    bankLoginId: "c1",
     name: id,
     institution: "Example Bank",
     institutionLogo: null,

@@ -191,6 +191,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
             const link = linkOf.get(account.id);
             return {
               providerAccountId: account.id,
+              bankLoginId: account.bankLoginId,
               name: account.name,
               institution: account.institution,
               institutionLogo: account.institutionLogo,

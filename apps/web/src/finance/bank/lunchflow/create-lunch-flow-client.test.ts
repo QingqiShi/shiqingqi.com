@@ -89,7 +89,7 @@ describe("createLunchFlowClient", () => {
     expect(await client().listAccounts()).toEqual([
       {
         id: "101",
-        connectionId: "7",
+        bankLoginId: "7",
         name: "Everyday",
         institution: "Example Bank",
         institutionLogo: null,

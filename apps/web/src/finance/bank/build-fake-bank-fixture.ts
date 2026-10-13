@@ -69,7 +69,8 @@ function cycleDay(today: string, phase: number) {
 /**
  * A fake bank built from the Household's own data, so matching and Review
  * can be shown with no Lunch Flow key (design §7.1). Each cash or credit
- * account is a provider account. Its rows are the account's posted Entries
+ * account is a provider account, and the accounts one Member holds at one
+ * institution share a Bank login. Its rows are the account's posted Entries
  * of the last 90 days as bank-style strings, three unknown merchants, and
  * one Entry with an amount 1p off. The balance is ours, moved by what the
  * bank has that we do not yet have and by the Entry it shows 1p off.
@@ -92,11 +93,12 @@ export async function buildFakeBankFixture(
 
   for (const account of accounts) {
     const providerId = `fake-${account.id}`;
+    const institution = account.institution || "Demo Bank";
     fixture.accounts.push({
       id: providerId,
-      connectionId: "fake",
+      bankLoginId: `fake-${institution}-${account.ownerMemberId ?? "shared"}`,
       name: account.name,
-      institution: account.institution || "Demo Bank",
+      institution,
       institutionLogo: null,
       provider: "fake",
       currency: account.currency,
