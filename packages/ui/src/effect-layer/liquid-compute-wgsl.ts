@@ -108,6 +108,12 @@ fn tiltBoost(away: f32) -> f32 {
   return min(TILT_BOOST_MAX, pow(max(1.0, abs(away) / TILT_BOOST_REACH), TILT_BOOST_POWER));
 }
 
+// The lean of the track towards a target away off: the CPU's leanTo. The
+// clamp keeps tanh in the range where relaxed math is finite.
+fn leanTo(away: f32) -> f32 {
+  return tanh(clamp(away / TILT_REACH, -LEAN_LIMIT, LEAN_LIMIT));
+}
+
 // How far a particle of radius is from the wall.
 fn wallGap(point: vec2f, radius: f32, walls: vec2f) -> f32 {
   let nearX = clamp(point.x, walls.x, walls.y);
@@ -153,7 +159,7 @@ fn substep(i: u32, count: u32, step: LiquidStep, walls: vec2f, dt: f32) {
   // The tilt is one acceleration for the whole body, as gravity is when a
   // container moves: it must not squeeze the body towards the target.
   let centre = centreOf(count);
-  let lean = tanh((goal - centre.x) / TILT_REACH);
+  let lean = leanTo(goal - centre.x);
   let arrived = 1.0 - abs(lean);
   let damping = exp(-(DRAG + SETTLE_DRAG * arrived) * dt);
   let tilt = vec2f(

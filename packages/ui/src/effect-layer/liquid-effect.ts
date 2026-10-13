@@ -63,6 +63,7 @@ import type { RingLightInstance } from "./ring-light-wgsl.ts";
 import { isLightBackdrop } from "./ripple-color.ts";
 import {
   beadRadius,
+  finiteParticles,
   frozenLiquid,
   impactOn,
   liquidStep,
@@ -439,8 +440,9 @@ export interface LiquidState {
  * to run, and reads the particles the GPU last sent back, `moved`, to
  * settle the body. Those are a frame or so old, which the settling
  * tolerates. The body's own particles go to the GPU when `seed` is
- * returned: for a new body, under reduced motion, and once the body has
- * settled.
+ * returned: for a new body, under reduced motion, once the body has
+ * settled, and when the particles that came back are not finite, which
+ * puts the body at rest on its target.
  *
  * @internal
  */
@@ -532,6 +534,11 @@ export function layoutLiquid(
       input,
       delta,
     ));
+    if (!finiteParticles(body)) {
+      // The GPU's particles are lost, so the body rests at its target and
+      // goes back to the GPU whole.
+      body = frozenLiquid(body, input);
+    }
     if (body.settled) {
       seed = true;
     } else {

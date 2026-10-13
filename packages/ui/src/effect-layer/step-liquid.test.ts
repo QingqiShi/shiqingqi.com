@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   beadRadius,
+  finiteParticles,
   impactOn,
+  leanTo,
+  LIQUID_PHYSICS,
   liquidStep,
   MAX_PARTICLE_COUNT,
   MAX_SUBSTEPS,
@@ -101,6 +104,31 @@ const pour = record(restingLiquid(0), ON, 2.5);
 const pourAimedUp = record(restingLiquid(0), { ...ON, aim: -1 }, 2);
 const pourAimedDown = record(restingLiquid(0), { ...ON, aim: 1 }, 1);
 const held = record(restingLiquid(0), { ...OFF, pressed: true }, 0.5);
+
+describe("leanTo", () => {
+  it("is tanh of the distance in tilt reaches, and keeps the argument where f32 tanh is 1 anyway", () => {
+    const { TILT_REACH, LEAN_LIMIT } = LIQUID_PHYSICS;
+    for (const away of [0, 0.1, -0.3, 1, -2.5, 7.9, -7.9, 8, 20, -30, 1e6]) {
+      expect(leanTo(away)).toBe(Math.tanh(away / TILT_REACH));
+    }
+    expect(Math.tanh(LEAN_LIMIT)).toBe(1);
+    expect(leanTo(Number.POSITIVE_INFINITY)).toBe(1);
+    expect(leanTo(Number.NEGATIVE_INFINITY)).toBe(-1);
+  });
+});
+
+describe("finiteParticles", () => {
+  it("is false once any particle has a place or a speed that is not finite", () => {
+    const body = restingLiquid(1);
+    expect(finiteParticles(body)).toBe(true);
+    const vy = new Float32Array(body.vy);
+    vy[3] = Number.NaN;
+    expect(finiteParticles({ ...body, vy })).toBe(false);
+    const x = new Float32Array(body.x);
+    x[0] = Number.POSITIVE_INFINITY;
+    expect(finiteParticles({ ...body, x })).toBe(false);
+  });
+});
 
 describe("restingLiquid", () => {
   it("rests at the target as a disk inside the track, settled", () => {
