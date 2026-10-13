@@ -84,11 +84,13 @@ async function fakeSync(now = NOW) {
 describe("buildFakeBankFixture", () => {
   it("shows the Household's cash and credit accounts with bank-style rows", async () => {
     const fixture = await fakeFixture("2026-10-10");
-    expect(fixture.accounts.map((account) => account.id)).toEqual([
-      `fake-${home.cardId}`,
-      `fake-${home.currentId}`,
-      `fake-${home.savingsId}`,
-    ]);
+    expect(fixture.accounts.map((account) => account.id)).toEqual(
+      [
+        `fake-${home.cardId}`,
+        `fake-${home.currentId}`,
+        `fake-${home.savingsId}`,
+      ].sort((a, b) => b.localeCompare(a)),
+    );
     const rows = fixture.transactions[`fake-${home.currentId}`] ?? [];
     expect(
       rows.filter((row) => row.id.startsWith("fake-unknown-")),
