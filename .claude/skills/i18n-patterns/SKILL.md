@@ -58,9 +58,9 @@ export default function Page() {
 }
 ```
 
-For **page files** (`page.tsx` under `[locale]`), the Babel plugin auto-injects `setLocale()` at the top of the default export function. You do not need to manually call `setLocale` or accept `params` — the plugin makes the function async, reads `params.locale`, and calls `setLocale(validateLocale(params.locale))` for you. It does the same for an exported `generateMetadata` in page and layout files.
+For **page and layout files** (`page.tsx` and `layout.tsx` under `[locale]`) that call `t()` or are in the client translations manifest, the Babel plugin auto-injects `setLocale()` at the top of the default export function. You do not need to manually call `setLocale` or accept `params` — the plugin makes the function async, reads `params.locale`, and calls `setLocale(validateLocale(params.locale))` for you. It does the same for an exported `generateMetadata` in page and layout files.
 
-Layout files that need the locale for other purposes (e.g. `generateMetadata`, routing logic) should still read `params` manually since they have non-i18n reasons to do so.
+Every server page and layout under `[locale]` must set the locale itself. Next renders the segments of a route concurrently, so a layout can render before the root layout calls `setLocale`, and the server locale store still holds its `"en"` default. A layout that does not call `t()` itself but renders server components that do (e.g. `(with-header)/layout.tsx`) must import `setLocale` and call it after it reads `params`. The plugin skips any file that already imports `setLocale`.
 
 ## Client Components
 
@@ -124,7 +124,7 @@ Runs at compile time (both dev and build). Transforms:
 - `t({en, zh})` → `__i18n_lookup(key)` (server) or `i18nLookup(_translations, key)` (client)
 - `t({en, zh}, { parse: true })` → `__i18n_lookupParse(key)` or `i18nLookupParse(_translations, key)`
 - Client: declares `const _translations = useI18nTranslations()` at the top of each component or hook that calls `t()`. A local helper that calls `t()` gets the translations as a new first parameter, which each caller passes. The rewrite runs in the plugin's `pre()`, before React Compiler, so the compiler caches each lookup by the translations.
-- Auto-injects `setLocale` for page files with `t()` calls
+- Auto-injects `setLocale` for page and layout files with `t()` calls or a manifest entry
 - Auto-wraps returns with `<ClientTranslationsProvider>` for manifest entries
 
 ## Common Patterns
@@ -180,6 +180,7 @@ The parent page/layout must be in the manifest for client translations to work. 
 
 - Using variables or template literals in `t()` — values must be string literals
 - Forgetting to run `pnpm --filter web codegen:i18n` after adding new `t()` calls outside `pnpm dev`
-- Manually adding `setLocale` to page files — the Babel plugin does this automatically
+- Manually adding `setLocale` to page or layout files that call `t()` — the Babel plugin does this automatically
+- A layout under `[locale]` that renders translated server components without calling `t()` itself and without calling `setLocale` — it can render with the `"en"` default on a `/zh` route
 - Creating separate `translations.json` files — translations live inline in the component
 - Calling `t()` outside render scope — `t()` must be called directly in a React component body, custom hook, or `generateMetadata()`. It cannot be used in `useEffect`, event handlers, callbacks (`.map()`, `.then()`), `setTimeout`, module scope, or exported non-component functions. The ESLint rule `@tuja/no-t-outside-render` enforces this. Non-exported helper functions are allowed only if every call site is in render scope.

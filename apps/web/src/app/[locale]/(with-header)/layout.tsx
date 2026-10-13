@@ -1,3 +1,4 @@
+import { setLocale } from "#src/i18n/server-locale.ts";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layout.tsx";
@@ -23,6 +24,8 @@ export default async function Layout({
 }) {
   const { locale } = await params;
   const validatedLocale: SupportedLocale = validateLocale(locale);
+  // A layout can render before the root layout sets the locale, so it sets it too.
+  setLocale(validatedLocale);
 
   return (
     <SiteHeaderFooterLayout locale={validatedLocale} as="div">

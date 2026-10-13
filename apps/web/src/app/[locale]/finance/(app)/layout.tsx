@@ -11,6 +11,7 @@ import { FINANCE_PATH_HEADER } from "#src/finance/http/constants.ts";
 import { FinanceProvider } from "#src/finance/replica/finance-provider.tsx";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { FinanceShell } from "#src/finance/shell/finance-shell.tsx";
+import { setLocale } from "#src/i18n/server-locale.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 
 export default async function Layout({
@@ -21,6 +22,8 @@ export default async function Layout({
   params: Promise<{ locale: string }>;
 }) {
   const locale = validateLocale((await params).locale);
+  // A layout can render before the root layout sets the locale, so it sets it too.
+  setLocale(locale);
   await connection();
   if (!isFinanceConfigured()) return <FinanceNotConfigured />;
 

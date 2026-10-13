@@ -837,23 +837,59 @@ export default function Layout({ children }) {
       expect(output).toContain(".params");
     });
 
-    it("does not inject setLocale into layout default export", () => {
+    it("injects setLocale into a layout default export with t() calls", () => {
+      // Next renders a layout and the root layout as concurrent tasks, so a
+      // layout that reads the locale before the root layout sets it renders
+      // English on a /zh route.
       const input = `
 import { t } from "#src/i18n";
-export function generateMetadata(_props) {
-  return { title: t({ en: "Hello", zh: "你好" }) };
-}
 export default function Layout({ children }) {
-  return children;
+  return <Article description={t({ en: "Hello", zh: "你好" })}>{children}</Article>;
 }
 `;
       const filename = path.join(
         fakeRoot,
-        "src/app/[locale]/movie-database/(list)/layout.tsx",
+        "src/app/[locale]/design-system/components/switch/layout.tsx",
       );
       const output = transformWithManifest(input, filename);
 
-      // Layout's default export should NOT be made async
+      expect(output).toMatch(
+        /async function Layout\(__props\) \{\s*const __params = await __props\.params;\s*__setLocale\(__validateLocale\(__params\.locale\)\);\s*const \{\s*children\s*\} = __props;/,
+      );
+    });
+
+    it("injects setLocale into a layout that already awaits params", () => {
+      const input = `
+import { t } from "#src/i18n";
+export default async function Layout({ children, params }) {
+  const { locale } = await params;
+  return <Nav locale={locale} label={t({ en: "Menu", zh: "菜单" })}>{children}</Nav>;
+}
+`;
+      const filename = path.join(
+        fakeRoot,
+        "src/app/[locale]/design-system/layout.tsx",
+      );
+      const output = transformWithManifest(input, filename);
+
+      expect(output).toMatch(
+        /__setLocale\(__validateLocale\(__params\.locale\)\);\s*const \{\s*children,\s*params\s*\} = __props;\s*const \{\s*locale\s*\} = await params;/,
+      );
+    });
+
+    it("does not inject setLocale into a layout without locale-dependent output", () => {
+      const input = `
+export default function Layout({ children }) {
+  return <div>{children}</div>;
+}
+`;
+      const filename = path.join(
+        fakeRoot,
+        "src/app/[locale]/(home)/(details)/layout.tsx",
+      );
+      const output = transformWithManifest(input, filename);
+
+      expect(output).not.toContain("__setLocale");
       expect(output).not.toMatch(/async function Layout/);
     });
 
