@@ -3,10 +3,7 @@ import { accountGroupRepository } from "../db/repositories/account-group-reposit
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
-import {
-  valuationRepository,
-  type ValuationSource,
-} from "../db/repositories/valuation-repository.ts";
+import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import {
   checkSystemAccountPatch,
@@ -125,8 +122,8 @@ async function upsertGroup(
 async function putValuation(
   context: WriteContext,
   args: z.infer<typeof putValuationArgsSchema>,
-  source: ValuationSource = "manual",
 ) {
+  const source = "manual";
   const { scope } = context;
   const account = await accountRepository.findById(scope, args.accountId);
   if (!account || account.deletedAt) {

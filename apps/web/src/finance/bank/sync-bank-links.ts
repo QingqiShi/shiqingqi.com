@@ -194,14 +194,12 @@ async function writeLink(
     amountMinor: fetched.balance.amountMinor,
     currency: fetched.balance.currency,
   });
-  const ours = await valuationRepository.balanceAt(
-    scope,
-    link.accountId,
-    today,
-  );
   const balanceDifferenceMinor =
     pending === 0 && fetched.balance.currency === link.currency
-      ? balanceDifferenceOf(bankBalance, ours)
+      ? balanceDifferenceOf(
+          bankBalance,
+          await valuationRepository.balanceAt(scope, link.accountId, today),
+        )
       : null;
   await bankLinkRepository.patch(scope, link.id, {
     lastSyncedOn: today,

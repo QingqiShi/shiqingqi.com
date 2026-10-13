@@ -1,5 +1,4 @@
 import { randomBytes, randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
 import {
@@ -7,13 +6,13 @@ import {
   bankLinks,
   connections,
   transactions,
-  valuations,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { applyMutations } from "../sync/apply-mutations.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
 import {
   createFakeBankClient,
@@ -40,6 +39,7 @@ import type {
 
 const ORIGIN = "https://qingqi.dev";
 const NOW = new Date("2026-10-10T12:00:00Z");
+const CLIENT = "00000000-0000-4000-8000-00000000c001";
 const DB_HOOK_TIMEOUT = 60_000;
 const CREDENTIAL_KEY = new Uint8Array(randomBytes(32));
 
@@ -131,6 +131,23 @@ function handlers(overrides: Partial<BankHandlerDependencies> = {}) {
     now: () => NOW,
     ...overrides,
   });
+}
+
+function expense(id: string, date: string, entryId: string) {
+  return {
+    id: randomUUID(),
+    name: "createTransaction" as const,
+    args: {
+      id,
+      kind: "expense" as const,
+      date,
+      amountMinor: -1000,
+      categoryId: home.groceriesId,
+      payeeId: home.grocerId,
+      memberId: home.memberId,
+      entries: [{ id: entryId, accountId: home.currentId, amountMinor: -1000 }],
+    },
+  };
 }
 
 function request(
@@ -308,7 +325,7 @@ describe("makeBankHandlers", () => {
     expect(relinked.id).toBe(first.id);
   });
 
-  it("syncs now, labels the new rows after the response, and takes the bank balance as a bank Valuation", async () => {
+  it("syncs now, labels the new rows after the response, and lists the Entries no bank row backs", async () => {
     await putLink({ accountId: home.currentId, providerAccountId: "p1" });
 
     const response = await handlers().syncNow(
@@ -323,30 +340,36 @@ describe("makeBankHandlers", () => {
 
     for (const task of afterTasks.splice(0)) await task();
     expect(await db.$count(transactions)).toBe(1);
-    const [processed] = await db.select().from(bankLinks);
-    expect(processed.balanceDifferenceMinor).toBe(600);
-
     const [link] = await db.select().from(bankLinks);
-    const resolved = await handlers().resolveBalance(
-      request("balance", {
-        method: "POST",
-        body: { linkId: link.id, action: "use" },
-      }),
-    );
-    expect(resolved.status).toBe(200);
-    expect(await db.select().from(valuations)).toMatchObject([
+    expect(link.balanceDifferenceMinor).toBe(600);
+
+    const duplicateEntryId = randomUUID();
+    await applyMutations(
+      db,
+      home.householdId,
       {
-        accountId: home.currentId,
-        on: "2026-10-10",
-        amountMinor: -400,
-        source: "bank",
+        clientId: CLIENT,
+        mutations: [
+          expense(randomUUID(), "2026-10-08", duplicateEntryId),
+          expense(randomUUID(), "2026-10-01", randomUUID()),
+        ],
       },
-    ]);
-    const [after] = await db
-      .select()
-      .from(bankLinks)
-      .where(eq(bankLinks.id, link.id));
-    expect(after.balanceDifferenceMinor).toBeNull();
+      NOW,
+    );
+
+    const listed = await handlers().listUnbackedEntries(
+      request(`unbacked-entries?linkId=${link.id}`),
+    );
+    expect(listed.status).toBe(200);
+    expect(await listed.json()).toEqual({ entryIds: [duplicateEntryId] });
+  });
+
+  it("answers not-found for a Bank link that does not exist", async () => {
+    const response = await handlers().listUnbackedEntries(
+      request(`unbacked-entries?linkId=${randomUUID()}`),
+    );
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "not-found" });
   });
 
   it("lets only the owner link, unlink or sync accounts", async () => {

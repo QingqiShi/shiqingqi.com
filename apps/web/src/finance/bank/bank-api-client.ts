@@ -10,8 +10,8 @@ import type {
   CredentialView,
   ProviderAccountsResponse,
   PutBankLinkRequest,
-  ResolveBalanceRequest,
   SyncNowResponse,
+  UnbackedEntriesResponse,
 } from "./types.ts";
 
 async function sendJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -64,12 +64,12 @@ export const bankApiClient = {
     });
   },
 
-  /** "Use bank balance" (`use`) or "Dismiss" (`dismiss`) on a balance difference. */
-  resolveBalance(request: ResolveBalanceRequest) {
-    return sendJson<{ clock: number }>("/api/finance/bank/balance", {
-      method: "POST",
-      body: JSON.stringify(request),
-    });
+  /** The Entries behind a link's balance difference, which no bank row backs. */
+  listUnbackedEntries(linkId: string, signal?: AbortSignal) {
+    return sendJson<UnbackedEntriesResponse>(
+      `/api/finance/bank/unbacked-entries?linkId=${encodeURIComponent(linkId)}`,
+      { signal },
+    );
   },
 
   /** The AI's labels for one Transaction, from the labeller that labels bank rows. */

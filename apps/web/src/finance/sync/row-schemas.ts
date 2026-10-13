@@ -248,7 +248,7 @@ const bankLinkRowSchema = z.object({
   /** What the bank said the balance was at the end of `bankBalanceOn`. */
   bankBalanceMinor: minorUnits.nullable(),
   bankBalanceOn: day.nullable(),
-  /** The bank balance minus ours on `bankBalanceOn`; null when they agree or the difference is dismissed. */
+  /** The bank balance minus ours on `bankBalanceOn`; null when they agree, or while bank rows wait for the AI step. */
   balanceDifferenceMinor: minorUnits.nullable(),
   version,
   deletedAt,
