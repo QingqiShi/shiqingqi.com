@@ -1,8 +1,8 @@
 import { MAX_PARTICLE_COUNT, type LiquidParticles } from "./step-liquid.ts";
 
 /**
- * The byte size of one `LiquidSlot`: its walls, then room for the most
- * particles a body has.
+ * The byte size of one `LiquidSlot`: its walls and the particles' extent,
+ * then room for the most particles a body has.
  *
  * @internal
  */
@@ -14,9 +14,10 @@ const WALL_WORDS = 4;
 
 /**
  * What the liquid's simulation and its drawing share: a slot of the
- * simulation buffer, which holds one body's particles in track space and
- * the walls that held them at the last step. The simulation keeps each
- * body's slot across frames, and the drawing reads the particles from it.
+ * simulation buffer, which holds one body's particles in track space, the
+ * walls that held them at the last step, and how far along the track they
+ * reach. The simulation keeps each body's slot across frames, and the
+ * drawing reads the particles from it.
  *
  * @internal
  */
@@ -24,7 +25,8 @@ export const LIQUID_SHARED_WGSL = /* wgsl */ `
 const LIQUID_MAX_PARTICLES = ${String(MAX_PARTICLE_COUNT)}u;
 
 struct LiquidSlot {
-  // The walls that held the liquid at the last step: from, to.
+  // The walls that held the liquid at the last step: from, to. Then the
+  // extent of the particles along the track: the least x and the greatest.
   walls: vec4f,
   // Each particle's position, then its velocity, in rest radii and rest
   // radii per second.
@@ -33,8 +35,8 @@ struct LiquidSlot {
 `;
 
 /**
- * Packs the particles and the walls as one `LiquidSlot` at `offset` words
- * into `floats`.
+ * Packs the particles, the walls and the particles' extent as one
+ * `LiquidSlot` at `offset` words into `floats`.
  *
  * @internal
  */
@@ -46,6 +48,8 @@ export function packLiquidSlot(
   floats.fill(0, offset, offset + LIQUID_SLOT_WORDS);
   floats[offset] = from;
   floats[offset + 1] = to;
+  floats[offset + 2] = Math.min(...x);
+  floats[offset + 3] = Math.max(...x);
   for (let i = 0; i < x.length; i++) {
     const at = offset + WALL_WORDS + i * 4;
     floats[at] = x[i];

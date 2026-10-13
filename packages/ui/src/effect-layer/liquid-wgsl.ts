@@ -277,6 +277,12 @@ fn fieldAt(liquid: LiquidInstance, page: vec2f) -> vec3f {
   var value = 0.0;
   var gradient = vec2f(0.0);
   let local = page - liquid.origin;
+  // No particle reaches a point beyond their extent along the track. The
+  // extra pixel keeps rounding from losing a particle at its full reach.
+  let extent = slots[liquid.slot].walls.zw * liquid.radius;
+  if (local.x < extent.x - reach - 1.0 || local.x > extent.y + reach + 1.0) {
+    return vec3f(0.0);
+  }
   for (var i = 0u; i < liquid.particleCount; i += 1u) {
     let offset = local - slots[liquid.slot].particles[i].xy * liquid.radius;
     let distanceSquared = dot(offset, offset);
