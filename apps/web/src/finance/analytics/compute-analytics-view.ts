@@ -95,10 +95,6 @@ export interface CategoryTrend {
 export interface AnalyticsView {
   range: ResolvedRange;
   grouping: Grouping;
-  /** True when part of the range is older than the Replica window: month totals only. */
-  beyondWindow: boolean;
-  /** The first day with Transactions, when older days come from month totals. */
-  rawFrom: string | null;
   /** Each period's first epoch day, then the day after the last period. */
   boundaries: Int32Array;
   /** 1 for a period the range cuts short of its calendar week, month or year. */
@@ -198,11 +194,7 @@ export function computeAnalyticsView(
   });
   const from = toEpochDay(range.from);
   const to = toEpochDay(range.to);
-  const beyondWindow = index.rawFrom !== null && from < index.rawFrom;
-  let grouping = state.grouping ?? defaultGrouping(range.from, range.to);
-  if (beyondWindow && (grouping === "day" || grouping === "week")) {
-    grouping = "month";
-  }
+  const grouping = state.grouping ?? defaultGrouping(range.from, range.to);
   const boundaries = periodBoundaries(range.from, range.to, grouping);
   const periodCount = boundaries.length - 1;
   const partial = partialPeriods(boundaries, grouping);
@@ -355,8 +347,6 @@ export function computeAnalyticsView(
   return {
     range,
     grouping,
-    beyondWindow,
-    rawFrom: index.rawFrom === null ? null : fromEpochDay(index.rawFrom),
     boundaries,
     partial,
     lastPeriodOngoing:
@@ -406,14 +396,14 @@ function categoryTrend(
     }
   }
 
-  const { days, amounts, kinds, categories, members, aggregated } = index;
+  const { days, amounts, kinds, categories, members } = index;
   const start = lowerBound(days, options.from);
   const end = lowerBound(days, options.to + 1);
   const values = new Float64Array(end - start);
   const rows = new Int32Array(end - start);
   let found = 0;
   for (let i = start; i < end; i++) {
-    if (aggregated[i] === 1 || bucketOf[categories[i]] < 0) continue;
+    if (bucketOf[categories[i]] < 0) continue;
     if (options.member !== -1 && members[i] !== options.member) continue;
     const isIncome = kinds[i] === 1;
     if (options.kind === "spending" && isIncome) continue;

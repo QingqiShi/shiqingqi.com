@@ -34,13 +34,7 @@ export interface PullResponse {
  * when the `end` line arrives.
  */
 export type BootstrapLine =
-  | {
-      type: "start";
-      clock: number;
-      household: HouseholdRow;
-      /** The first Transaction day sent, or null when every one is sent. */
-      transactionsFrom: string | null;
-    }
+  | { type: "start"; clock: number; household: HouseholdRow }
   | { type: "rows"; table: SyncTableName; rows: SyncRows[SyncTableName] }
   | { type: "end"; clock: number };
 

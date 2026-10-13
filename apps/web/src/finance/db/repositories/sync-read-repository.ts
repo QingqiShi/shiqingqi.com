@@ -1,4 +1,4 @@
-import { and, count, eq, gt, gte, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, eq, gt, isNull } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import type { SyncTableName } from "../../sync/row-schemas.ts";
 import {
@@ -20,20 +20,9 @@ import {
 } from "../schema.ts";
 import type { RepositoryScope } from "./types.ts";
 
-export interface SyncReadOptions {
-  /**
-   * Rows with a version above this. Null is a bootstrap: every row, except
-   * the deleted rows of the large tables.
-   */
-  since: number | null;
-  /** When set, only Transactions on or after this day, plus every Expected one. */
-  transactionsFrom: string | null;
-  /** When set, only balances on or after this day, plus each account's last one before it. */
-  balanceDaysFrom: string | null;
-}
-
+/** A bootstrap (null `since`) skips the deleted rows of the tables that grow without bound. */
 function liveOnBootstrap(
-  options: SyncReadOptions,
+  since: number | null,
   deletedAt:
     | typeof valuations.deletedAt
     | typeof transactions.deletedAt
@@ -42,29 +31,11 @@ function liveOnBootstrap(
     | typeof accountBalanceDays.deletedAt
     | typeof monthTotals.deletedAt,
 ) {
-  return options.since === null ? isNull(deletedAt) : undefined;
+  return since === null ? isNull(deletedAt) : undefined;
 }
 
-function changedSince(version: AnyPgColumn, options: SyncReadOptions) {
-  return options.since === null ? undefined : gt(version, options.since);
-}
-
-function windowedTransactionIds(
-  scope: RepositoryScope,
-  transactionsFrom: string,
-) {
-  return scope.db
-    .select({ id: transactions.id })
-    .from(transactions)
-    .where(
-      and(
-        eq(transactions.householdId, scope.householdId),
-        or(
-          gte(transactions.date, transactionsFrom),
-          eq(transactions.status, "expected"),
-        ),
-      ),
-    );
+function changedSince(version: AnyPgColumn, since: number | null) {
+  return since === null ? undefined : gt(version, since);
 }
 
 /**
@@ -73,211 +44,154 @@ function windowedTransactionIds(
  * Replica.
  */
 export const syncReadRepository = {
-  async countPostedTransactions(scope: RepositoryScope) {
-    const rows = await scope.db
-      .select({ value: count() })
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.householdId, scope.householdId),
-          eq(transactions.status, "posted"),
-          isNull(transactions.deletedAt),
-        ),
-      );
-    return rows.at(0)?.value ?? 0;
-  },
-
-  async countBalanceDays(scope: RepositoryScope) {
-    const rows = await scope.db
-      .select({ value: count() })
-      .from(accountBalanceDays)
-      .where(
-        and(
-          eq(accountBalanceDays.householdId, scope.householdId),
-          isNull(accountBalanceDays.deletedAt),
-        ),
-      );
-    return rows.at(0)?.value ?? 0;
-  },
-
   tables: {
-    members: (scope, options) =>
+    members: (scope, since) =>
       scope.db
         .select()
         .from(members)
         .where(
           and(
             eq(members.householdId, scope.householdId),
-            changedSince(members.version, options),
+            changedSince(members.version, since),
           ),
         ),
-    accountGroups: (scope, options) =>
+    accountGroups: (scope, since) =>
       scope.db
         .select()
         .from(accountGroups)
         .where(
           and(
             eq(accountGroups.householdId, scope.householdId),
-            changedSince(accountGroups.version, options),
+            changedSince(accountGroups.version, since),
           ),
         ),
-    accounts: (scope, options) =>
+    accounts: (scope, since) =>
       scope.db
         .select()
         .from(accounts)
         .where(
           and(
             eq(accounts.householdId, scope.householdId),
-            changedSince(accounts.version, options),
+            changedSince(accounts.version, since),
           ),
         ),
-    valuations: (scope, options) =>
+    valuations: (scope, since) =>
       scope.db
         .select()
         .from(valuations)
         .where(
           and(
             eq(valuations.householdId, scope.householdId),
-            changedSince(valuations.version, options),
-            liveOnBootstrap(options, valuations.deletedAt),
+            changedSince(valuations.version, since),
+            liveOnBootstrap(since, valuations.deletedAt),
           ),
         ),
-    categories: (scope, options) =>
+    categories: (scope, since) =>
       scope.db
         .select()
         .from(categories)
         .where(
           and(
             eq(categories.householdId, scope.householdId),
-            changedSince(categories.version, options),
+            changedSince(categories.version, since),
           ),
         ),
-    payees: (scope, options) =>
+    payees: (scope, since) =>
       scope.db
         .select()
         .from(payees)
         .where(
           and(
             eq(payees.householdId, scope.householdId),
-            changedSince(payees.version, options),
+            changedSince(payees.version, since),
           ),
         ),
-    tags: (scope, options) =>
+    tags: (scope, since) =>
       scope.db
         .select()
         .from(tags)
         .where(
           and(
             eq(tags.householdId, scope.householdId),
-            changedSince(tags.version, options),
+            changedSince(tags.version, since),
           ),
         ),
-    rules: (scope, options) =>
+    rules: (scope, since) =>
       scope.db
         .select()
         .from(rules)
         .where(
           and(
             eq(rules.householdId, scope.householdId),
-            changedSince(rules.version, options),
+            changedSince(rules.version, since),
           ),
         ),
-    transactions: (scope, options) =>
+    transactions: (scope, since) =>
       scope.db
         .select()
         .from(transactions)
         .where(
           and(
             eq(transactions.householdId, scope.householdId),
-            changedSince(transactions.version, options),
-            liveOnBootstrap(options, transactions.deletedAt),
-            options.transactionsFrom === null
-              ? undefined
-              : or(
-                  gte(transactions.date, options.transactionsFrom),
-                  eq(transactions.status, "expected"),
-                ),
+            changedSince(transactions.version, since),
+            liveOnBootstrap(since, transactions.deletedAt),
           ),
         ),
-    entries: (scope, options) =>
+    entries: (scope, since) =>
       scope.db
         .select()
         .from(entries)
         .where(
           and(
             eq(entries.householdId, scope.householdId),
-            changedSince(entries.version, options),
-            liveOnBootstrap(options, entries.deletedAt),
-            options.transactionsFrom === null
-              ? undefined
-              : inArray(
-                  entries.transactionId,
-                  windowedTransactionIds(scope, options.transactionsFrom),
-                ),
+            changedSince(entries.version, since),
+            liveOnBootstrap(since, entries.deletedAt),
           ),
         ),
-    transactionTags: (scope, options) =>
+    transactionTags: (scope, since) =>
       scope.db
         .select()
         .from(transactionTags)
         .where(
           and(
             eq(transactionTags.householdId, scope.householdId),
-            changedSince(transactionTags.version, options),
-            liveOnBootstrap(options, transactionTags.deletedAt),
-            options.transactionsFrom === null
-              ? undefined
-              : inArray(
-                  transactionTags.transactionId,
-                  windowedTransactionIds(scope, options.transactionsFrom),
-                ),
+            changedSince(transactionTags.version, since),
+            liveOnBootstrap(since, transactionTags.deletedAt),
           ),
         ),
-    accountBalanceDays: (scope, options) =>
+    accountBalanceDays: (scope, since) =>
       scope.db
         .select()
         .from(accountBalanceDays)
         .where(
           and(
             eq(accountBalanceDays.householdId, scope.householdId),
-            changedSince(accountBalanceDays.version, options),
-            liveOnBootstrap(options, accountBalanceDays.deletedAt),
-            options.balanceDaysFrom === null
-              ? undefined
-              : or(
-                  gte(accountBalanceDays.day, options.balanceDaysFrom),
-                  sql`(${accountBalanceDays.accountId}, ${accountBalanceDays.day}) in (
-                    select ${accountBalanceDays.accountId}, max(${accountBalanceDays.day})
-                    from ${accountBalanceDays}
-                    where ${accountBalanceDays.householdId} = ${scope.householdId}
-                      and ${accountBalanceDays.deletedAt} is null
-                      and ${accountBalanceDays.day} < ${options.balanceDaysFrom}
-                    group by ${accountBalanceDays.accountId})`,
-                ),
+            changedSince(accountBalanceDays.version, since),
+            liveOnBootstrap(since, accountBalanceDays.deletedAt),
           ),
         ),
-    monthTotals: (scope, options) =>
+    monthTotals: (scope, since) =>
       scope.db
         .select()
         .from(monthTotals)
         .where(
           and(
             eq(monthTotals.householdId, scope.householdId),
-            changedSince(monthTotals.version, options),
-            liveOnBootstrap(options, monthTotals.deletedAt),
+            changedSince(monthTotals.version, since),
+            liveOnBootstrap(since, monthTotals.deletedAt),
           ),
         ),
-    fxRates: (scope, options) =>
+    fxRates: (scope, since) =>
       scope.db
         .select()
         .from(fxRates)
         .where(
           and(
             eq(fxRates.householdId, scope.householdId),
-            changedSince(fxRates.version, options),
+            changedSince(fxRates.version, since),
           ),
         ),
-    bankLinks: (scope, options) =>
+    bankLinks: (scope, since) =>
       scope.db
         .select({
           id: bankLinks.id,
@@ -300,11 +214,11 @@ export const syncReadRepository = {
         .where(
           and(
             eq(bankLinks.householdId, scope.householdId),
-            changedSince(bankLinks.version, options),
+            changedSince(bankLinks.version, since),
           ),
         ),
   } satisfies Record<
     SyncTableName,
-    (scope: RepositoryScope, options: SyncReadOptions) => Promise<object[]>
+    (scope: RepositoryScope, since: number | null) => Promise<object[]>
   >,
 };

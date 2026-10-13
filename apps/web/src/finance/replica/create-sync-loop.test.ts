@@ -11,9 +11,12 @@ import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import { makeSyncHandlers } from "../sync/make-sync-handlers.ts";
 import { createMemoryPersistence } from "./create-memory-persistence.ts";
-import { createReplicaStore } from "./create-replica-store.ts";
+import {
+  createReplicaStore,
+  REPLICA_ROW_SHAPE,
+} from "./create-replica-store.ts";
 import { createSyncLoop } from "./create-sync-loop.ts";
-import type { ReplicaRejection } from "./types.ts";
+import type { ReplicaPersistence, ReplicaRejection } from "./types.ts";
 
 const ORIGIN = "https://qingqi.dev";
 const ENDPOINT = `${ORIGIN}/api/finance/sync`;
@@ -64,14 +67,19 @@ function routeToHandlers() {
   };
 }
 
-function createClient(options: { pushFails?: () => boolean } = {}) {
+function createClient(
+  options: {
+    pushFails?: () => boolean;
+    persistence?: ReplicaPersistence;
+  } = {},
+) {
   let online = true;
   const handlers = routeToHandlers();
   const rejections: ReplicaRejection[] = [];
   let unauthorised = 0;
   const store = createReplicaStore({
     householdId: home.householdId,
-    persistence: createMemoryPersistence(),
+    persistence: options.persistence ?? createMemoryPersistence(),
     now: () => new Date(`${TODAY}T09:00:00Z`),
   });
   store.onRejection((rejection) => {
@@ -109,6 +117,7 @@ function createClient(options: { pushFails?: () => boolean } = {}) {
 function createExpense(
   client: ReturnType<typeof createClient>,
   amount: number,
+  date = "2026-10-09",
 ) {
   const id = randomUUID();
   client.store.applyLocal({
@@ -116,7 +125,7 @@ function createExpense(
     args: {
       id,
       kind: "expense",
-      date: "2026-10-09",
+      date,
       amountMinor: -amount,
       categoryId: home.groceriesId,
       payeeId: home.grocerId,
@@ -439,6 +448,32 @@ describe("sync loop against the real handlers", () => {
     expect(client.store.getMeta().clock).toBe(clock);
     expect(client.snapshot().bootstrapped).toBe(true);
     expect(client.snapshot().tables.accounts.size).toBe(3);
+  });
+
+  it("downloads the whole history again on a device that kept only recent Transactions", async () => {
+    const writer = createClient();
+    await writer.ready();
+    const old = createExpense(writer, 500, "2020-01-15");
+    const recent = createExpense(writer, 700);
+    await writer.loop.sync();
+
+    const persistence = createMemoryPersistence();
+    const device = createClient({ persistence });
+    await device.ready();
+    await persistence.write({
+      meta: { ...device.store.getMeta(), rowShape: REPLICA_ROW_SHAPE - 1 },
+      tables: { transactions: { put: [], delete: [old] } },
+    });
+
+    const reopened = createClient({ persistence });
+    await reopened.ready();
+    expect(reopened.store.getMeta()).toMatchObject({
+      bootstrapped: true,
+      rowShape: REPLICA_ROW_SHAPE,
+    });
+    expect([...reopened.snapshot().tables.transactions.keys()].sort()).toEqual(
+      [old, recent].sort(),
+    );
   });
 
   it("downloads the household although the push fails", async () => {

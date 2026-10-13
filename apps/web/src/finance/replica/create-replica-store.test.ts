@@ -195,7 +195,7 @@ async function seededStore() {
     now: () => new Date(NOW),
   });
   await store.load();
-  store.startBootstrap({ household, transactionsFrom: null });
+  store.startBootstrap(household);
   const rows = seedRows();
   for (const table of REPLICA_TABLE_NAMES) {
     const tableRows = rows[table];
@@ -378,7 +378,7 @@ describe("createReplicaStore", () => {
     });
     expect(reopened.takeOutbox()).toEqual([created]);
 
-    reopened.startBootstrap({ household, transactionsFrom: null });
+    reopened.startBootstrap(household);
     reopened.finishBootstrap(11, new Set());
     expect(reopened.getMeta()).toMatchObject({
       clock: 11,
@@ -407,7 +407,7 @@ describe("createReplicaStore", () => {
     const persistence = createMemoryPersistence();
     const store = createReplicaStore({ householdId: HOUSEHOLD, persistence });
     await store.load();
-    store.startBootstrap({ household, transactionsFrom: null });
+    store.startBootstrap(household);
     const rows = seedRows();
     for (const table of REPLICA_TABLE_NAMES) {
       const tableRows = rows[table];

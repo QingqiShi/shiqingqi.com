@@ -37,10 +37,7 @@ async function openStore(
 
 async function bootstrappedStore(householdId: string) {
   const store = await openStore(householdId);
-  store.startBootstrap({
-    household: household(householdId, 1),
-    transactionsFrom: null,
-  });
+  store.startBootstrap(household(householdId, 1));
   store.finishBootstrap(1, new Set());
   await store.flush();
   return store;

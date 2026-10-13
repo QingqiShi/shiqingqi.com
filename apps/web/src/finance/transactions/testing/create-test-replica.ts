@@ -287,7 +287,7 @@ export async function createTestReplica(
   });
   const { store } = runtime;
   await store.load();
-  store.startBootstrap({ household: testHousehold, transactionsFrom: null });
+  store.startBootstrap(testHousehold);
   for (const table of REPLICA_TABLE_NAMES) {
     const tableRows = rows[table];
     if (tableRows) store.applyBootstrapRows(table, tableRows);

@@ -7,10 +7,8 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
-import { displayDay } from "../domain/dates/display-day.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { AnalyticsControls } from "./analytics-controls.tsx";
@@ -24,7 +22,6 @@ import { useAnalyticsState } from "./use-analytics-state.ts";
 import { useAnalyticsView } from "./use-analytics-view.ts";
 
 function AnalyticsContent() {
-  const locale = useLocale();
   const [state, update] = useAnalyticsState();
   const { view, index } = useAnalyticsView(state);
   const currency = useBaseCurrency();
@@ -41,17 +38,6 @@ function AnalyticsContent() {
     );
   }
 
-  const windowNote =
-    view.beyondWindow && view.rawFrom !== null
-      ? `${t({
-          en: "Before",
-          zh: "早于",
-        })} ${displayDay(view.rawFrom, locale, "dayYear")}${t({
-          en: ", this device keeps only monthly totals by category and member. Payees and tags count from that day.",
-          zh: "的数据在本设备上只保留按分类和成员的月度汇总。商家和标签从这一天起才开始统计。",
-        })}`
-      : null;
-
   return (
     <>
       <AnalyticsControls
@@ -60,11 +46,6 @@ function AnalyticsContent() {
         members={members}
         onChange={update}
       />
-      {windowNote ? (
-        <Text as="p" look="caption" tone="muted">
-          {windowNote}
-        </Text>
-      ) : null}
       <div css={styles.columns}>
         <div css={[stack.group, styles.column]}>
           <AnalyticsSummary state={state} view={view} currency={currency} />

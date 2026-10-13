@@ -90,7 +90,6 @@ const bootstrapLineSchema = z.discriminatedUnion("type", [
     type: z.literal("start"),
     clock: z.number(),
     household: householdRowSchema,
-    transactionsFrom: z.string().nullable(),
   }),
   z.object({
     type: z.literal("rows"),
@@ -174,7 +173,6 @@ describe("makeSyncHandlers", () => {
     expect(lines[0]).toMatchObject({
       type: "start",
       clock: 1,
-      transactionsFrom: null,
       household: { id: home.householdId, baseCurrency: "GBP" },
     });
     expect(lines.at(-1)).toEqual({ type: "end", clock: 1 });
@@ -198,6 +196,32 @@ describe("makeSyncHandlers", () => {
       expect(isSyncTableName(table)).toBe(true);
       if (isSyncTableName(table)) expectWireRows(table, rows);
     }
+  });
+
+  it("bootstraps a Transaction with its Entries, tags and balance days however old it is", async () => {
+    await handlers().POST(
+      pushRequest({
+        clientId: randomUUID(),
+        mutations: [expenseMutation("2021-01-15")],
+      }),
+    );
+
+    const lines = await readNdjson(
+      await handlers().GET(new Request(`${URL_BASE}?since=0`)),
+    );
+    const tables = new Map<string, unknown[]>();
+    for (const line of lines) {
+      if (line.type === "rows") {
+        tables.set(line.table, [
+          ...(tables.get(line.table) ?? []),
+          ...line.rows,
+        ]);
+      }
+    }
+    expect(tables.get("transactions")).toHaveLength(1);
+    expect(tables.get("entries")).toHaveLength(1);
+    expect(tables.get("transactionTags")).toHaveLength(1);
+    expect(tables.get("accountBalanceDays")).toHaveLength(1);
   });
 
   it("pulls only what changed after the clock", async () => {

@@ -13,7 +13,6 @@ const meta: ReplicaMeta = {
   bootstrapped: true,
   rowShape: 2,
   household: null,
-  transactionsFrom: null,
   lastSyncedAt: null,
 };
 

@@ -98,7 +98,7 @@ function bySeq(a: OutboxEntry, b: OutboxEntry) {
  * fetches its rows again in the new shape. The Outbox stays. Raising
  * `DB_VERSION` instead would delete the Outbox.
  */
-export const REPLICA_ROW_SHAPE = 4;
+export const REPLICA_ROW_SHAPE = 5;
 
 /** Meta whose rows have an old shape must bootstrap again. */
 function withCurrentRowShape(meta: ReplicaMeta): ReplicaMeta {
@@ -125,7 +125,6 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     bootstrapped: false,
     rowShape: REPLICA_ROW_SHAPE,
     household: null,
-    transactionsFrom: null,
     lastSyncedAt: null,
   };
   let base: ReplicaTables = emptyReplicaTables();
@@ -684,10 +683,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     },
 
     /** Drops every server row before a bootstrap; the Outbox stays. */
-    startBootstrap(start: {
-      household: HouseholdRow;
-      transactionsFrom: string | null;
-    }) {
+    startBootstrap(household: HouseholdRow) {
       const draft = createTablesDraft(base);
       draft.clear();
       const result = draft.finish();
@@ -696,8 +692,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         ...meta,
         clock: 0,
         bootstrapped: false,
-        household: start.household,
-        transactionsFrom: start.transactionsFrom,
+        household,
       };
       void persist({ clearTables: true, meta }, { startsOver: true });
       rebuildView(result.changed);

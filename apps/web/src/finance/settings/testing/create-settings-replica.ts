@@ -162,15 +162,12 @@ export async function createSettingsReplica() {
   });
   await runtime.store.load();
   runtime.store.startBootstrap({
-    household: {
-      id: ids.household,
-      name: "Home",
-      baseCurrency: "GBP",
-      timezone: "Europe/London",
-      aiInstructions: "",
-      clock: 10,
-    },
-    transactionsFrom: null,
+    id: ids.household,
+    name: "Home",
+    baseCurrency: "GBP",
+    timezone: "Europe/London",
+    aiInstructions: "",
+    clock: 10,
   });
   const seed = rows();
   for (const table of REPLICA_TABLE_NAMES) {
