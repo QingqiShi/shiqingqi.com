@@ -214,18 +214,20 @@ function injectRuntimeImports(t, path, state) {
 /**
  * Auto-inject setLocale for server page/layout files under [locale].
  *
- * Next.js SSG can deduplicate renders when a function doesn't read
- * `params`. A page produces locale-dependent output in two ways:
+ * The locale store defaults to "en", and Next renders the segments of a
+ * route as concurrent tasks. A page or layout that reads the locale before
+ * some other segment sets it renders English on a /zh URL, and the static
+ * build keeps that HTML. So each page and layout that produces
+ * locale-dependent output sets the locale itself. It does so in two ways:
  *   - it calls t() directly (usedLookup/usedLookupParse), or
- *   - it is a manifest-wrapped page whose injected
+ *   - it is a manifest-wrapped file whose injected
  *     ClientTranslationsProvider resolves its client bundle via
  *     getClientTranslations() → getLocale().
- * Either way the page must accept params and call setLocale(); otherwise
- * SSG can serve one locale's bundle on another route (e.g. English text
- * rendered on a /zh URL for a page that only renders client t() children).
+ * Reading `params` also tells Next that the output varies by locale, so
+ * SSG and the client segment cache keep one copy per locale.
  *
  * This targets two kinds of functions:
- *   1. `export default function` in page files
+ *   1. `export default function` in page/layout files
  *   2. `export function generateMetadata` in page/layout files
  *
  * @param {BabelTypes} t
@@ -259,10 +261,6 @@ function injectSetLocaleForPages(t, path, state, projectRoot) {
     ExportDefaultDeclaration(exportPath) {
       const decl = exportPath.node.declaration;
       if (!t.isFunctionDeclaration(decl)) return;
-
-      // Only inject into page default exports (layouts typically
-      // read params manually for routing/validation purposes).
-      if (!/^page\.[jt]sx?$/.test(basename)) return;
 
       injectSetLocale(t, decl);
       needsImports = true;
