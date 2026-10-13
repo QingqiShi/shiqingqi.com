@@ -1,3 +1,4 @@
+import { LIQUID_SHARED_WGSL } from "./liquid-shared-wgsl.ts";
 import { KERNEL_REACH, NECK_REACH } from "./step-liquid.ts";
 import { TARGET_WGSL } from "./target-wgsl.ts";
 
@@ -24,8 +25,8 @@ const FLAG_SEE_THROUGH = 2;
 export interface LiquidInstance {
   /** Its control's index in `EffectFrame.elements` and in WGSL's `effectElements`. */
   readonly elementIndex: number;
-  /** Its particles' range in the particle buffer. */
-  readonly firstParticle: number;
+  /** The slot of the simulation buffer that holds its particles, and how many of them are in use. */
+  readonly slot: number;
   readonly particleCount: number;
   /** Its beads' range in the bead buffer. */
   readonly firstBead: number;
@@ -96,16 +97,6 @@ export interface LiquidInstance {
 }
 
 /**
- * One particle of liquid, in page coordinates.
- *
- * @internal
- */
-export interface LiquidParticle {
-  readonly x: number;
-  readonly y: number;
-}
-
-/**
  * One bead on the track, in page coordinates and CSS px.
  *
  * @internal
@@ -133,6 +124,7 @@ export interface LiquidBeadInstance {
  * @internal
  */
 export const LIQUID_WGSL = /* wgsl */ `${TARGET_WGSL}
+${LIQUID_SHARED_WGSL}
 const FIELD_REACH = ${FIELD_REACH.toFixed(4)};
 const FIELD_THRESHOLD = ${FIELD_THRESHOLD.toFixed(3)};
 const FLAG_COVER = ${String(FLAG_COVER)}u;
@@ -188,7 +180,7 @@ const GLEAM_HALFWAY = normalize(vec3f(-TO_LIGHT.xy, TO_LIGHT.z) + vec3f(0.0, 0.0
 
 struct LiquidInstance {
   element: u32,
-  firstParticle: u32,
+  slot: u32,
   particleCount: u32,
   firstBead: u32,
   beadCount: u32,
@@ -225,7 +217,7 @@ struct Bead {
 }
 
 @group(2) @binding(0) var<storage, read> liquids: array<LiquidInstance>;
-@group(2) @binding(1) var<storage, read> particles: array<vec2f>;
+@group(2) @binding(1) var<storage, read> slots: array<LiquidSlot>;
 @group(2) @binding(2) var<storage, read> beads: array<Bead>;
 
 struct LiquidVarying {
@@ -277,14 +269,16 @@ fn trackAt(liquid: LiquidInstance, track: EffectElement, page: vec2f) -> vec3f {
   return mix(mix(fill, shaded, rim), liquid.backdrop.rgb, smoothstep(0.0, 1.0, edge));
 }
 
-// The particles' field at a page point, with its gradient.
+// The particles' field at a page point, with its gradient. The particles
+// are in track space: rest radii from the origin.
 fn fieldAt(liquid: LiquidInstance, page: vec2f) -> vec3f {
   let reach = FIELD_REACH * liquid.radius * liquid.scale;
   let reachSquared = reach * reach;
   var value = 0.0;
   var gradient = vec2f(0.0);
-  for (var i = liquid.firstParticle; i < liquid.firstParticle + liquid.particleCount; i += 1u) {
-    let offset = page - particles[i];
+  let local = page - liquid.origin;
+  for (var i = 0u; i < liquid.particleCount; i += 1u) {
+    let offset = local - slots[liquid.slot].particles[i].xy * liquid.radius;
     let distanceSquared = dot(offset, offset);
     if (distanceSquared < reachSquared) {
       let q = 1.0 - distanceSquared / reachSquared;
@@ -570,7 +564,7 @@ export function packLiquidInstances(
     const at = index * INSTANCE_WORDS;
     words.fill(0, at, at + INSTANCE_WORDS);
     words[at] = liquid.elementIndex;
-    words[at + 1] = liquid.firstParticle;
+    words[at + 1] = liquid.slot;
     words[at + 2] = liquid.particleCount;
     words[at + 3] = liquid.firstBead;
     words[at + 4] = liquid.beadCount;
@@ -598,22 +592,6 @@ export function packLiquidInstances(
     if (liquid.corner !== undefined) {
       floats.set([liquid.corner.radius, liquid.corner.exponent], at + 42);
     }
-  }
-}
-
-/**
- * Packs the particles as `vec2f` at the start of `buffer`.
- *
- * @internal
- */
-export function packLiquidParticles(
-  particles: readonly LiquidParticle[],
-  buffer: ArrayBuffer,
-) {
-  const floats = new Float32Array(buffer);
-  for (const [index, particle] of particles.entries()) {
-    floats[index * 2] = particle.x;
-    floats[index * 2 + 1] = particle.y;
   }
 }
 

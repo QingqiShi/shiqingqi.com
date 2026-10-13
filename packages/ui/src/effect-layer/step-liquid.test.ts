@@ -2,15 +2,23 @@ import { describe, expect, it } from "vitest";
 import {
   beadRadius,
   impactOn,
+  liquidStep,
   MAX_PARTICLE_COUNT,
+  MAX_SUBSTEPS,
   mean,
   PARTICLE_COUNT,
   particleCountFor,
   restingLiquid,
+  scaleAfter,
   scaleFor,
+  settleLiquid,
+  settleOnSnapshot,
+  simulateLiquid,
   stepLiquid,
+  substepCount,
   type LiquidBody,
   type LiquidInput,
+  type LiquidParticles,
 } from "./step-liquid.ts";
 
 /** A `md` Switch: the thumb's centre travels 2.2 rest radii. */
@@ -613,4 +621,143 @@ describe("a thumb's liquid, as the user approved it", () => {
       }
     },
   );
+});
+
+describe("substepCount", () => {
+  it("takes a substep for each 240th of a second, and at least one", () => {
+    expect(substepCount(liquidStep(1 / 60), 0)).toBe(6);
+    expect(substepCount(liquidStep(1 / 30), 0)).toBe(12);
+    expect(substepCount(liquidStep(0.1), 0)).toBe(12);
+    expect(substepCount(0.001, 0)).toBe(1);
+  });
+
+  it("takes more for a fast body, up to a limit", () => {
+    expect(substepCount(liquidStep(1 / 60), 20)).toBe(7);
+    expect(substepCount(liquidStep(1 / 60), 1000)).toBe(MAX_SUBSTEPS);
+  });
+});
+
+/**
+ * The GPU's place in the effect: the particles of each step come back a
+ * frame late, and some frames bring none.
+ */
+function recordLate(
+  start: LiquidBody,
+  input: LiquidInput,
+  seconds: number,
+  lag: number,
+  missing: (frame: number) => boolean,
+) {
+  const frames: Frame[] = [];
+  let body = start;
+  let moved: LiquidParticles = start;
+  let simulated = 0;
+  let particlesAt = 0;
+  const pending: { particles: LiquidParticles; time: number; due: number }[] =
+    [];
+  for (let frame = 1; frame <= Math.round(seconds / FRAME); frame++) {
+    const arrived = pending.filter(
+      ({ due }) => due <= frame && !missing(frame),
+    );
+    const fresh = arrived.at(-1);
+    for (const snapshot of arrived) {
+      pending.splice(pending.indexOf(snapshot), 1);
+    }
+    ({ body, particlesAt } = settleOnSnapshot(
+      body,
+      fresh ?? null,
+      particlesAt,
+      input,
+      FRAME,
+    ));
+    if (!body.settled) {
+      const step = liquidStep(FRAME);
+      moved = simulateLiquid(moved, input, body.scale, step);
+      simulated += step;
+      pending.push({ particles: moved, time: simulated, due: frame + lag });
+    }
+    frames.push({ body, time: frame * FRAME });
+  }
+  return frames;
+}
+
+describe("simulateLiquid and settleLiquid", () => {
+  it("are the two halves of a step", () => {
+    const body = last(within(pour, 0.2));
+    const step = liquidStep(FRAME);
+    const scale = scaleAfter(body.scale, ON.span, body.x.length, step);
+    const moved = simulateLiquid(body, ON, scale, step);
+    expect(settleLiquid(body, moved, ON, FRAME)).toEqual(
+      stepLiquid(body, ON, FRAME),
+    );
+  });
+
+  it("keeps the walls of the step for the beads, and gives them back", () => {
+    const body = restingLiquid(firstPill.target, {
+      span: firstPill.span,
+      from: 0,
+      to: 20,
+    });
+    const moved = simulateLiquid(
+      body,
+      { ...POUR_ON, ...firstPill, from: 0, to: 0 },
+      body.scale,
+      liquidStep(FRAME),
+    );
+    expect(moved.to).toBeGreaterThan(0);
+    expect(moved.to).toBeLessThan(20);
+    expect(
+      settleLiquid(body, moved, { ...POUR_ON, ...firstPill }, FRAME).to,
+    ).toBe(moved.to);
+  });
+
+  it("lets time pass with no new particles, and sheds nothing then", () => {
+    const body = last(within(pour, 0.15));
+    const still = settleLiquid(body, body, ON, FRAME, 0);
+    expect(still.set).toBeLessThanOrEqual(body.set);
+    expect(still.beads.length).toBeLessThanOrEqual(body.beads.length);
+    expect(still.beads.every((bead) => bead.age > 0)).toBe(true);
+    expect(still.x).toBe(body.x);
+    expect(still.settled).toBe(false);
+  });
+
+  it("pours, lands, sheds and settles about as the reference does on particles a frame late", () => {
+    const late = recordLate(restingLiquid(0), ON, 2.5, 1, () => false);
+    const landedAt = firstTime(late, landed);
+    const reference = firstTime(pour, landed);
+    expect(landedAt).not.toBeNull();
+    expect(Math.abs((landedAt ?? 0) - (reference ?? 0))).toBeLessThan(0.04);
+    const shed = new Set(
+      late.flatMap(({ body }) => body.beads.map((bead) => bead.life)),
+    );
+    expect(shed.size).toBeGreaterThanOrEqual(4);
+    const settledAt = firstTime(late, (body) => body.settled);
+    expect(settledAt).not.toBeNull();
+    expect(settledAt).toBeLessThan(0.9);
+    const body = last(late);
+    expect(mean(body.x)).toBeCloseTo(TRAVEL, 1);
+    expect(body.beads).toHaveLength(0);
+  });
+
+  it("carries on when the particles skip a frame and come two frames late", () => {
+    const late = recordLate(
+      restingLiquid(0),
+      ON,
+      2.5,
+      2,
+      (frame) => frame % 3 === 0,
+    );
+    const landedAt = firstTime(late, landed);
+    expect(landedAt).not.toBeNull();
+    expect(landedAt).toBeLessThan(0.5);
+    for (const { body } of late) {
+      for (const bead of body.beads) {
+        expect(Math.abs(bead.vx)).toBeLessThan(20);
+      }
+    }
+    const settledAt = firstTime(late, (body) => body.settled);
+    expect(settledAt).not.toBeNull();
+    expect(settledAt).toBeLessThan(1);
+    expect(mean(last(late).x)).toBeCloseTo(TRAVEL, 1);
+  });
 });
