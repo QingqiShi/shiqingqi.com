@@ -29,18 +29,18 @@ export const lookups = {
   },
 
   /**
-   * The live Members whose user has `email` as a verified Recovery email,
-   * with their Households, in Household name order.
+   * The live Member whose user has `email` as a verified Recovery email, or
+   * null when there is none.
    */
-  recoveryMembers(db: FinanceAppDb, email: string) {
-    return db
+  async recoveryMember(db: FinanceAppDb, email: string) {
+    const rows = await db
       .select({
         householdId: sql<string>`recovery.household_id`,
-        householdName: sql<string>`recovery.household_name`,
         memberId: sql<string>`recovery.member_id`,
         userId: sql<string>`recovery.user_id`,
       })
       .from(sql`finance_auth.recovery_members(${email}) as recovery`);
+    return rows.at(0) ?? null;
   },
 
   /**

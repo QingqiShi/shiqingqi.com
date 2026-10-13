@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -149,10 +148,12 @@ function signUpTokenIn(text = ""): string {
   return match[1];
 }
 
-function recoveryTokensIn(text = ""): string[] {
-  return [...text.matchAll(/\/finance\/invite\/([\w-]+)/g)].map(
-    (match) => match[1],
-  );
+function recoveryTokenIn(text = ""): string {
+  const tokens = [...text.matchAll(/\/finance\/invite\/([\w-]+)/g)];
+  if (tokens.length !== 1 || !tokens[0]?.[1]) {
+    throw new Error(`Not one Recovery link in: ${text}`);
+  }
+  return tokens[0][1];
 }
 
 /** Opens the confirmation link with no session, as on another device. */
@@ -396,51 +397,94 @@ describe("sign-up", () => {
     });
   });
 
-  it("answers the same for an address that has users, and makes a new user and household each time", async () => {
+  it("answers the same for an address that a user has, and emails that address a Recovery link, not a sign-up link", async () => {
     const first = await signUp(
       createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
-      "shared@example.com",
+      "taken@example.com",
     );
     const known = await createAuthTestClient(makeHandlers()).post(
       "requestSignUp",
-      { email: "shared@example.com" },
+      { email: "Taken@example.com" },
     );
     const unknown = await createAuthTestClient(makeHandlers()).post(
       "requestSignUp",
       { email: "nobody@example.com" },
     );
+
     expect(unknown.status).toBe(known.status);
     expect(unknown.body).toEqual(known.body);
     expect(cookieShapes(unknown.setCookies)).toEqual(
       cookieShapes(known.setCookies),
     );
     const sent = await readOutbox(outboxDir);
+    expect(sent.map(({ to }) => to)).toEqual([
+      "taken@example.com",
+      "nobody@example.com",
+    ]);
+    expect(sent[0]?.subject).toMatch(/^\d{6} is your Finance code$/);
+    expect(sent[1]?.subject).toMatch(/^\d{6} is your Finance sign-up code$/);
+    expect(sent[0]?.text).not.toContain("/finance/sign-up/");
     expect(
-      sent.map((email) =>
-        /^\d{6} is your Finance sign-up code$/.test(email.subject),
-      ),
-    ).toEqual([true, true]);
+      await db
+        .select()
+        .from(signUps)
+        .where(eq(signUps.email, "taken@example.com")),
+    ).toEqual([expect.objectContaining({ usedAt: now })]);
 
-    const second = createAuthTestClient(makeHandlers());
-    const result = await finishSignUp(
-      second,
+    const link = recoveryTokenIn(sent[0]?.text);
+    const recovered = await acceptInvite(
+      createAuthTestClient(makeHandlers()),
       createSoftwareAuthenticator(),
-      signUpTokenIn(sent[0]?.text),
+      link,
     );
+    expect(recovered).toMatchObject({ status: 200, body: first.body });
+    expect(await db.select().from(households)).toHaveLength(1);
+  });
 
-    expect(result.status).toBe(200);
-    expect(result.body.householdId).not.toBe(first.body.householdId);
-    expect(await db.select().from(households)).toHaveLength(2);
-    const sharing = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, "shared@example.com"));
-    expect(sharing).toHaveLength(2);
-    expect((await second.get("session")).body).toMatchObject({
-      householdId: result.body.householdId,
-      role: "owner",
+  it("refuses a sign-up link for an address that a user confirmed after the link was sent", async () => {
+    const stale = await requestSignUpToken("taken@example.com");
+    const late = createAuthTestClient(makeHandlers());
+    const options = await late.post<RegistrationOptionsBody>("signUpOptions", {
+      token: stale,
     });
+    expect(options.status).toBe(200);
+    const owner = createAuthTestClient(makeHandlers());
+    await signUp(owner, createSoftwareAuthenticator());
+    await owner.post("setRecoveryEmail", { email: "taken@example.com" });
+    expect(
+      await confirmRecoveryEmail(
+        verificationTokenIn((await readOutbox(outboxDir)).at(-1)?.text),
+      ),
+    ).toBe(true);
+
+    const reopened = await createAuthTestClient(makeHandlers()).post(
+      "signUpOptions",
+      { token: stale },
+    );
+    const finished = await late.post("signUpVerify", {
+      token: stale,
+      response: await createSoftwareAuthenticator().register(
+        options.body.options,
+        TEST_ORIGIN,
+      ),
+      memberName: "Late",
+      baseCurrency: "GBP",
+    });
+
+    for (const refused of [reopened, finished]) {
+      expect(refused).toMatchObject({
+        status: 409,
+        body: { error: "email_registered" },
+      });
+    }
+    expect(await db.select().from(households)).toHaveLength(1);
+    expect(
+      await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, "taken@example.com")),
+    ).toHaveLength(1);
   });
 
   it("refuses a used link and a link older than 30 minutes", async () => {
@@ -450,7 +494,7 @@ describe("sign-up", () => {
       createSoftwareAuthenticator(),
       used,
     );
-    const expired = await requestSignUpToken();
+    const expired = await requestSignUpToken("late@example.com");
     advance(31 * 60 * 1000);
 
     for (const token of [used, expired, "unknown"]) {
@@ -714,6 +758,34 @@ describe("sign-up by code", () => {
     ).toBe(410);
   });
 
+  it("opens the Recovery link in the browser that asked when a user has the address", async () => {
+    const lostDevice = createAuthTestClient(makeHandlers());
+    const first = await signUp(
+      lostDevice,
+      createSoftwareAuthenticator(),
+      "taken@example.com",
+    );
+    const browser = createAuthTestClient(makeHandlers());
+    await browser.post("requestSignUp", {
+      email: "taken@example.com",
+      locale: "en",
+    });
+    const code = codeIn((await readOutbox(outboxDir)).at(-1)?.text);
+
+    const entered = await enterCode(browser, code);
+
+    expect(entered.status).toBe(200);
+    const token = recoveryTokenIn(entered.body.path);
+    const recovered = await acceptInvite(
+      browser,
+      createSoftwareAuthenticator(),
+      token,
+    );
+    expect(recovered).toMatchObject({ status: 200, body: first.body });
+    expect((await lostDevice.get("session")).status).toBe(401);
+    expect(await db.select().from(households)).toHaveLength(1);
+  });
+
   it("leaves the emailed link working until the code is used", async () => {
     const { linkToken } = await browserWithCode();
 
@@ -924,6 +996,34 @@ describe("recovery email", () => {
     });
   });
 
+  it("refuses to confirm an email that another user has confirmed, and changes neither user", async () => {
+    const { client: owner } = await signedInOwner();
+    const other = createAuthTestClient(makeHandlers());
+    await signUp(other, createSoftwareAuthenticator(), "other@example.com");
+    await other.post("setRecoveryEmail", { email: "owner@example.com" });
+
+    const refused = await createAuthTestClient(makeHandlers()).post(
+      "verifyEmail",
+      { token: await lastLinkTo("owner@example.com"), locale: "en" },
+    );
+
+    expect(refused).toMatchObject({
+      status: 409,
+      body: { error: "email_registered" },
+    });
+    expect((await other.get("recoveryEmail")).body).toEqual({
+      email: "owner@example.com",
+      verified: false,
+    });
+    expect((await owner.get("recoveryEmail")).body).toEqual({
+      email: "owner@example.com",
+      verified: true,
+    });
+    expect((await sentAfterResponse()).map(({ to }) => to)).toEqual([
+      "owner@example.com",
+    ]);
+  });
+
   it("refuses a confirmation link after 1 hour", async () => {
     const { client } = await signedInOwner();
     await client.post("setRecoveryEmail", { email: "qingqi@example.com" });
@@ -1033,37 +1133,7 @@ describe("recovery by email", () => {
   }
 
   function enterCode(browser: Client, code: string) {
-    return browser.post<{
-      households?: { householdName: string; path: string }[];
-    }>("recoveryCode", { code });
-  }
-
-  async function sharedAddressInTwoHouseholds() {
-    await ownerWithEmail("shared@example.com");
-    const cottage = await createTestHousehold(db, {
-      name: "Cottage",
-      members: [{ name: "Qingqi", role: "member" }],
-    });
-    const flat = await createTestHousehold(db, {
-      name: "Flat",
-      members: [{ name: "Qingqi", role: "member" }],
-    });
-    for (const [household, removed] of [
-      [cottage, false],
-      [flat, true],
-    ] as const) {
-      const userId = randomUUID();
-      await db.insert(users).values({
-        id: userId,
-        displayName: "Qingqi",
-        email: "shared@example.com",
-        emailVerifiedAt: now,
-      });
-      await db
-        .update(members)
-        .set({ userId, deletedAt: removed ? now : null })
-        .where(eq(members.id, household.memberIds[0] ?? ""));
-    }
+    return browser.post<{ path?: string }>("recoveryCode", { code });
   }
 
   it("answers the same for an address that no user has, and sends to no one", async () => {
@@ -1095,15 +1165,11 @@ describe("recovery by email", () => {
 
     await requestRecovery("qingqi@example.com");
     const [sent] = await readOutbox(outboxDir);
-    const links = recoveryTokensIn(sent.text);
-    expect(sent.text).toContain(
-      "Qingqi\nhttp://localhost:3000/finance/invite/",
-    );
-    expect(links).toHaveLength(1);
+    const link = recoveryTokenIn(sent.text);
 
     const newPhone = createSoftwareAuthenticator();
     const newDevice = createAuthTestClient(makeHandlers());
-    const recovered = await acceptInvite(newDevice, newPhone, links[0] ?? "");
+    const recovered = await acceptInvite(newDevice, newPhone, link);
 
     expect(recovered).toMatchObject({ status: 200, body: result.body });
     expect((await newDevice.get("session")).body).toMatchObject({ userId });
@@ -1119,7 +1185,7 @@ describe("recovery by email", () => {
         await acceptInvite(
           createAuthTestClient(makeHandlers()),
           createSoftwareAuthenticator(),
-          links[0] ?? "",
+          link,
         )
       ).status,
     ).toBe(410);
@@ -1128,9 +1194,7 @@ describe("recovery by email", () => {
   it("refuses a recovery link after 30 minutes", async () => {
     await ownerWithEmail("qingqi@example.com");
     await requestRecovery("qingqi@example.com");
-    const [token = ""] = recoveryTokensIn(
-      (await readOutbox(outboxDir))[0]?.text,
-    );
+    const token = recoveryTokenIn((await readOutbox(outboxDir))[0]?.text);
     advance(31 * 60 * 1000);
 
     const result = await acceptInvite(
@@ -1142,17 +1206,16 @@ describe("recovery by email", () => {
     expect(result.status).toBe(410);
   });
 
-  it("sends one email with a link for each household of each user with the address, but none for a removed member", async () => {
-    await sharedAddressInTwoHouseholds();
+  it("sends nothing for a removed member", async () => {
+    const { result } = await ownerWithEmail("qingqi@example.com");
+    await db
+      .update(members)
+      .set({ deletedAt: now })
+      .where(eq(members.id, result.body.memberId));
 
-    await requestRecovery("shared@example.com");
+    expect((await requestRecovery("qingqi@example.com")).status).toBe(202);
 
-    const sent = await readOutbox(outboxDir);
-    expect(sent).toHaveLength(1);
-    expect(sent[0]?.text).toMatch(/^Cottage\nhttp/m);
-    expect(sent[0]?.text).toMatch(/^Qingqi\nhttp/m);
-    expect(sent[0]?.text).not.toContain("Flat");
-    expect(recoveryTokensIn(sent[0]?.text)).toHaveLength(2);
+    expect(await readOutbox(outboxDir)).toEqual([]);
   });
 
   it("gets back in with the emailed code in the browser that asked, and the emailed link still works", async () => {
@@ -1167,10 +1230,7 @@ describe("recovery by email", () => {
     );
 
     expect(entered.status).toBe(200);
-    expect(
-      entered.body.households?.map(({ householdName }) => householdName),
-    ).toEqual(["Qingqi"]);
-    const [token = ""] = recoveryTokensIn(entered.body.households?.[0]?.path);
+    const token = recoveryTokenIn(entered.body.path);
     const newPhone = createSoftwareAuthenticator();
     const recovered = await acceptInvite(browser, newPhone, token);
     expect(recovered).toMatchObject({ status: 200, body: result.body });
@@ -1178,7 +1238,7 @@ describe("recovery by email", () => {
     expect((await lostDevice.get("session")).status).toBe(401);
     expect((await enterCode(browser, code)).status).toBe(410);
 
-    const [emailed = ""] = recoveryTokensIn(sent?.text);
+    const emailed = recoveryTokenIn(sent?.text);
     const emailedLink = await createAuthTestClient(makeHandlers()).post(
       "inviteOptions",
       { token: emailed },
@@ -1237,23 +1297,6 @@ describe("recovery by email", () => {
     }
 
     expect(answers[1]).toEqual(answers[0]);
-  });
-
-  it("offers each household when the address has several", async () => {
-    await sharedAddressInTwoHouseholds();
-    const { browser, code } = await browserWithCode("shared@example.com");
-
-    const entered = await enterCode(browser, code);
-
-    expect(
-      entered.body.households?.map(({ householdName }) => householdName),
-    ).toEqual(["Cottage", "Qingqi"]);
-    const [, home = ""] = recoveryTokensIn(
-      entered.body.households?.map(({ path }) => path).join(" "),
-    );
-    expect(
-      (await acceptInvite(browser, createSoftwareAuthenticator(), home)).status,
-    ).toBe(200);
   });
 
   it("limits requests by address and by IP", async () => {

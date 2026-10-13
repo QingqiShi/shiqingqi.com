@@ -17,7 +17,7 @@ import {
 import { createSoftwareAuthenticator } from "../auth/testing/create-software-authenticator.ts";
 import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
-import { members, passkeys, sessions } from "../db/schema.ts";
+import { members, passkeys, sessions, users } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { createTestHousehold } from "../db/testing/create-test-household.ts";
 import { seedTestHousehold } from "../db/testing/seed-test-household.ts";
@@ -202,6 +202,30 @@ describe("makeMembersHandler", () => {
         .status,
     ).not.toBe(200);
     expect((await home.owner.get("session")).status).toBe(200);
+  });
+
+  it("frees the removed Member's Recovery email for a new sign-up", async () => {
+    const home = await signedInHousehold();
+    const samUserId = (await memberRow(home.samId))?.userId ?? "";
+    await db
+      .update(users)
+      .set({ emailVerifiedAt: now })
+      .where(eq(users.id, samUserId));
+
+    await patchMember(home.owner, { id: home.samId, removed: true });
+
+    expect(
+      await db
+        .select({ email: users.email, verifiedAt: users.emailVerifiedAt })
+        .from(users)
+        .where(eq(users.id, samUserId)),
+    ).toEqual([{ email: null, verifiedAt: null }]);
+    await db.insert(users).values({
+      id: randomUUID(),
+      displayName: "Sam",
+      email: "sam@example.com",
+      emailVerifiedAt: now,
+    });
   });
 
   it("cancels the removed Member's pending invite", async () => {

@@ -120,7 +120,7 @@ test.describe("Recovery email", () => {
       address,
       /^\d{6} is your Finance recovery code$/,
     );
-    expect(recovery.text).toContain("Home\nhttp");
+    expect(recovery.text).toContain("/finance/invite/");
     const code = recovery.subject.slice(0, 6);
 
     const newAuthenticator = await addAuthenticator(cdp);

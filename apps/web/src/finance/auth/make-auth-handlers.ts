@@ -10,10 +10,17 @@ import {
 import { and, asc, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { resolveClientIp } from "#src/app/api/pixel-creature-creator/lore/resolve-client-ip.ts";
+import { findPostgresError } from "#src/finance/db/find-postgres-error.ts";
 import { lookups } from "#src/finance/db/lookups.ts";
 import { householdRepository } from "#src/finance/db/repositories/household-repository.ts";
 import { memberRepository } from "#src/finance/db/repositories/member-repository.ts";
-import { invites, passkeys, sessions, users } from "#src/finance/db/schema.ts";
+import {
+  invites,
+  passkeys,
+  sessions,
+  users,
+  VERIFIED_EMAIL_KEY,
+} from "#src/finance/db/schema.ts";
 import type { FinanceDb } from "#src/finance/db/types.ts";
 import {
   asFinanceApp,
@@ -38,7 +45,7 @@ import type {
 } from "../http/types.ts";
 import { uuidToBytes } from "../ids/uuid-to-bytes.ts";
 import { bindUserToMember } from "./bind-user-to-member.ts";
-import { createEmailRecoveryInvites } from "./create-email-recovery-invites.ts";
+import { createEmailRecoveryInvite } from "./create-email-recovery-invite.ts";
 import { createHousehold } from "./create-household.ts";
 import { createInvite } from "./create-invite.ts";
 import { createSession } from "./create-session.ts";
@@ -55,6 +62,7 @@ import {
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { getRequestOrigin } from "./get-request-origin.ts";
 import { hashToken } from "./hash-token.ts";
+import { isEmailRegistered } from "./is-email-registered.ts";
 import { lookupInvite } from "./lookup-invite.ts";
 import { needsSecureCookie } from "./needs-secure-cookie.ts";
 import { readRequestCookie } from "./read-request-cookie.ts";
@@ -135,6 +143,19 @@ class HttpError extends Error {
     this.code = code;
     this.headers = headers;
   }
+}
+
+/** The refusal to answer with for `error`. A second user with the same verified Recovery email is `email_registered`. */
+function toHttpError(error: unknown): HttpError | undefined {
+  if (error instanceof HttpError) return error;
+  const postgres = findPostgresError(error);
+  if (
+    postgres?.code === "23505" &&
+    postgres.constraint === VERIFIED_EMAIL_KEY
+  ) {
+    return new HttpError(409, "email_registered");
+  }
+  return undefined;
 }
 
 function isObjectWithId(value: unknown): boolean {
@@ -317,12 +338,13 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
             : prepareContext(request);
         return await run(request, context);
       } catch (error) {
-        if (error instanceof HttpError) {
+        const refusal = toHttpError(error);
+        if (refusal) {
           return json(
             { setCookies: context?.setCookies ?? [] },
-            { error: error.code },
-            error.status,
-            error.headers,
+            { error: refusal.code },
+            refusal.status,
+            refusal.headers,
           );
         }
         throw error;
@@ -559,6 +581,32 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     return email;
   }
 
+  /**
+   * Makes a Recovery link when a user has `email` as a verified Recovery
+   * email, and else starts a sign-up. Returns the path of the new link.
+   */
+  async function startSignUpOrRecovery(
+    db: FinanceAppDb,
+    {
+      email,
+      now,
+      replaceEmailed,
+    }: { email: string; now: Date; replaceEmailed: boolean },
+  ): Promise<{ path: string; registered: boolean }> {
+    const recoveryToken = await createEmailRecoveryInvite(db, {
+      email,
+      now,
+      replaceEmailed,
+    });
+    if (recoveryToken !== null) {
+      return { path: `/finance/invite/${recoveryToken}`, registered: true };
+    }
+    // A new link for the address ends the emailed one, so that one
+    // request makes at most one User.
+    const token = await startSignUp(db, { email, now });
+    return { path: `/finance/sign-up/${token}`, registered: false };
+  }
+
   function hashedAddress(email: string) {
     return Buffer.from(hashToken(email)).toString("hex");
   }
@@ -651,25 +699,33 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
           ["sign-up-address", hashedAddress(email)],
         ],
         async () => {
-          const { token, codeId, code } = await asFinanceApp(
+          const { now, origin } = context;
+          const { path, registered, codeId, code } = await asFinanceApp(
             context.db,
             async (db) => ({
-              token: await startSignUp(db, { email, now: context.now }),
+              ...(await startSignUpOrRecovery(db, {
+                email,
+                now,
+                replaceEmailed: true,
+              })),
               ...(await startEmailCode(db, {
                 purpose: "sign-up",
                 email,
-                now: context.now,
+                now,
               })),
             }),
           );
+          const content = {
+            to: email,
+            locale,
+            code,
+            url: `${origin}${getLocalePath(path, locale)}`,
+          };
           await sendOrFail(
             sender,
-            buildSignUpEmail({
-              to: email,
-              locale,
-              code,
-              url: `${context.origin}${getLocalePath(`/finance/sign-up/${token}`, locale)}`,
-            }),
+            registered
+              ? buildRecoveryEmail({ ...content, reason: "sign-up" })
+              : buildSignUpEmail(content),
           );
           issueEmailCode(context, { purpose: "sign-up", codeId });
         },
@@ -680,18 +736,27 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     signUpCode: handle(async (request, context) => {
       const { code } = await readBody(request, codeBody);
       const email = await takeEmailCode(request, context, "sign-up", code);
-      // A new link for the address ends the emailed one, so that one
-      // request makes at most one User.
-      const token = await asFinanceApp(context.db, (db) =>
-        startSignUp(db, { email, now: context.now }),
+      const { path } = await asFinanceApp(context.db, (db) =>
+        startSignUpOrRecovery(db, {
+          email,
+          now: context.now,
+          replaceEmailed: false,
+        }),
       );
-      return json(context, { path: `/finance/sign-up/${token}` });
+      return json(context, { path });
     }),
 
     signUpOptions: handle(async (request, context) => {
       const { token } = await readBody(request, tokenBody);
       const signUp = await lookupSignUp(context.db, token, context.now);
       if (!signUp) throw new HttpError(410, "sign_up_invalid");
+      if (
+        await asFinanceApp(context.db, (db) =>
+          isEmailRegistered(db, signUp.email),
+        )
+      ) {
+        throw new HttpError(409, "email_registered");
+      }
 
       const userId = randomUUID();
       const options = await registrationOptions(context, {
@@ -1064,21 +1129,20 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       // search and the email occur after the response.
       deps.afterResponse(async () => {
         try {
-          const created = await createEmailRecoveryInvites(db, {
-            email,
-            now,
-            replaceEmailed: true,
-          });
-          if (created.length === 0) return;
+          const token = await asFinanceApp(db, (tx) =>
+            createEmailRecoveryInvite(tx, {
+              email,
+              now,
+              replaceEmailed: true,
+            }),
+          );
+          if (token === null) return;
           await sender.send(
             buildRecoveryEmail({
               to: email,
               locale,
               code,
-              links: created.map(({ householdName, token }) => ({
-                householdName,
-                url: `${origin}${getLocalePath(`/finance/invite/${token}`, locale)}`,
-              })),
+              url: `${origin}${getLocalePath(`/finance/invite/${token}`, locale)}`,
             }),
           );
         } catch (error) {
@@ -1091,18 +1155,15 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     recoveryCode: handle(async (request, context) => {
       const { code } = await readBody(request, codeBody);
       const email = await takeEmailCode(request, context, "recovery", code);
-      const created = await createEmailRecoveryInvites(context.db, {
-        email,
-        now: context.now,
-        replaceEmailed: false,
-      });
-      if (created.length === 0) throw new HttpError(410, "code_expired");
-      return json(context, {
-        households: created.map(({ householdName, token }) => ({
-          householdName,
-          path: `/finance/invite/${token}`,
-        })),
-      });
+      const token = await asFinanceApp(context.db, (db) =>
+        createEmailRecoveryInvite(db, {
+          email,
+          now: context.now,
+          replaceEmailed: false,
+        }),
+      );
+      if (token === null) throw new HttpError(410, "code_expired");
+      return json(context, { path: `/finance/invite/${token}` });
     }),
 
     signOut: handle(async (request, context) => {

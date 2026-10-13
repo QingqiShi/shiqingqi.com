@@ -4,7 +4,6 @@ import {
   accounts,
   categories,
   households,
-  members,
   transactions,
   users,
 } from "../../src/finance/db/schema.ts";
@@ -30,7 +29,7 @@ async function openMembers(page: Page) {
 }
 
 test.describe("Sign-up", () => {
-  test("a visitor signs up with the emailed code and gets a household named after them, invites a member, and a second sign-up by link gets a household of its own", async ({
+  test("a visitor signs up with the emailed code and gets a household named after them, invites a member, and a second sign-up with the same email gets a Recovery link, not a household", async ({
     page,
     passkeys: _passkeys,
     financeDb,
@@ -139,24 +138,36 @@ test.describe("Sign-up", () => {
     const otherContext = await browser.newContext({ viewport: DESKTOP });
     const otherPage = await otherContext.newPage();
     await addVirtualAuthenticator(otherPage);
-    await signUpWithEmail(otherPage, { email: ownerEmail, via: "link" });
-    const other = await readSession(otherPage);
-    expect(other.householdId).not.toBe(owner.householdId);
-    expect(other.userId).not.toBe(owner.userId);
-    expect(other.role).toBe("owner");
-    await openMembers(otherPage);
+    await otherPage.goto("/finance/sign-in");
+    await otherPage.getByRole("textbox", { name: /^Email/ }).fill(ownerEmail);
+    await otherPage
+      .getByRole("button", { name: "Email me a sign-up code" })
+      .click();
     await expect(
-      otherPage.getByRole("button", { name: /^Alex/ }),
+      otherPage
+        .getByRole("status")
+        .filter({ hasText: `We sent a code to ${ownerEmail}` }),
     ).toBeVisible();
-    await expect(otherPage.getByRole("button", { name: /^Sam/ })).toHaveCount(
-      0,
+    const registered = await emailTo(
+      ownerEmail,
+      /^\d{6} is your Finance code$/,
     );
+    await otherPage.goto(linkIn(registered, "/finance/invite/"));
+    await expect(
+      otherPage.getByRole("heading", { name: "Back into Riley" }),
+    ).toBeVisible();
+    await otherPage.getByRole("button", { name: "Save a new passkey" }).click();
+    await otherPage.waitForURL((url) => url.pathname === "/finance");
+    expect(await readSession(otherPage)).toMatchObject({
+      householdId: owner.householdId,
+      userId: owner.userId,
+    });
     expect(
       await financeDb
-        .select({ name: members.name })
-        .from(members)
-        .where(eq(members.householdId, other.householdId)),
-    ).toEqual([{ name: "Alex" }]);
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, ownerEmail)),
+    ).toEqual([{ id: owner.userId }]);
     await otherContext.close();
   });
 });

@@ -1,7 +1,7 @@
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import type { FinanceEmail } from "./types.ts";
 
-/** A button that opens `url`, under an optional heading such as a Household name and an optional line that says what to do there. */
+/** A button that opens `url`, under an optional heading and an optional line that says what to do there. */
 export interface FinanceEmailAction {
   heading?: string;
   text?: string;
