@@ -21,6 +21,7 @@ import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
 import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
+import { RING_SECONDS } from "./ring-light-at.ts";
 import {
   liquidStep,
   mean,
@@ -88,6 +89,37 @@ function createRun(id: number, elementIndex: number) {
   };
 }
 
+/** A Segmented control of three segments, each 100 wide, with a ring on each. */
+function threeSegments(): LiquidControl {
+  const color = readFill("rgb(120, 80, 240)");
+  const radius = 16;
+  const segments = [0, 100, 200].map((left) => ({
+    box: { x: left, y: 0, width: 100, height: 32, radius: 16 },
+    cornerExponent: 2,
+    color,
+  }));
+  return {
+    radius,
+    originX: radius,
+    originY: radius,
+    travel: 300 / radius - 2,
+    stops: segments.map(({ box }) => {
+      const start = box.x / radius;
+      const end = (box.x + box.width) / radius - 2;
+      return { target: (start + end) / 2, span: (end - start) / 2 };
+    }),
+    rings: segments,
+    frost: {
+      color: readFill("rgb(255, 255, 255)"),
+      under: readFill("rgb(240, 240, 240)"),
+      least: { core: 0.35, edge: 0.25 },
+      contrast: { core: 1, edge: 1 },
+    },
+    fill: null,
+    spread: 2,
+  };
+}
+
 describe("pillAt", () => {
   const stops = [
     { target: 1, span: 0.5 },
@@ -143,7 +175,7 @@ describe("layoutLiquid", () => {
       const laid = run(switchOf(on), liquid, beads);
       frames.push({
         instance: laid.instance,
-        ring: laid.ring,
+        ring: laid.rings.at(0) ?? null,
         animating: laid.animating,
         step: laid.step,
         seed: laid.seed,
@@ -171,39 +203,13 @@ describe("layoutLiquid", () => {
   });
 
   it("runs the ring light once for each landing on a segment", () => {
-    const color = readFill("rgb(120, 80, 240)");
-    const radius = 16;
-    const segments = [0, 100, 200].map((left) => ({
-      box: { x: left, y: 0, width: 100, height: 32, radius: 16 },
-      cornerExponent: 2,
-      color,
-    }));
-    const control: LiquidControl = {
-      radius,
-      originX: radius,
-      originY: radius,
-      travel: 300 / radius - 2,
-      stops: segments.map(({ box }) => {
-        const start = box.x / radius;
-        const end = (box.x + box.width) / radius - 2;
-        return { target: (start + end) / 2, span: (end - start) / 2 };
-      }),
-      rings: segments,
-      frost: {
-        color: readFill("rgb(255, 255, 255)"),
-        under: readFill("rgb(240, 240, 240)"),
-        least: { core: 0.35, edge: 0.25 },
-        contrast: { core: 1, edge: 1 },
-      },
-      fill: null,
-      spread: 2,
-    };
+    const control = threeSegments();
     const run = createRun(1, 0);
     const starts = new Map<number, number>();
     const step = (liquid: Liquid) => {
       const laid = run(control, liquid);
-      if (laid.ring !== null) {
-        starts.set(laid.ring.ring.start, laid.ring.box.x);
+      for (const { ring, box } of laid.rings) {
+        starts.set(ring.start, box.x);
       }
     };
     const rest = { drag: null, pressed: false, aim: 0 } as const;
@@ -220,6 +226,34 @@ describe("layoutLiquid", () => {
     for (let i = 0; i < 90; i++) step({ ...rest, position: 1 });
     expect([...starts.values()]).toEqual([200, 100]);
   });
+
+  it("lets a ring light run to its end on its own segment when the liquid leaves for another", () => {
+    const control = threeSegments();
+    const run = createRun(1, 0);
+    const rest = { drag: null, pressed: false, aim: 0 } as const;
+    for (let i = 0; i < 10; i++) run(control, { ...rest, position: 0 });
+    let first = run(control, { ...rest, position: 1 });
+    while (first.rings.length === 0) {
+      first = run(control, { ...rest, position: 1 });
+    }
+    const { start } = first.rings[0].ring;
+    // Each frame the first ring runs in, by where it runs and how many run.
+    const frames: { x: number | undefined; count: number }[] = [];
+    for (let i = 0; i < 90; i++) {
+      const laid = run(control, { ...rest, position: i < 5 ? 1 : 2 });
+      const ring = laid.rings.find(
+        (candidate) => candidate.ring.start === start,
+      );
+      frames.push({ x: ring?.box.x, count: laid.rings.length });
+    }
+
+    const runs = frames.filter(({ x }) => x !== undefined);
+    expect(runs.length).toBeGreaterThanOrEqual(RING_SECONDS * 60 - 2);
+    expect(frames.slice(0, runs.length)).toEqual(runs);
+    expect(runs.every(({ x }) => x === 100)).toBe(true);
+    expect(runs.some(({ count }) => count === 2)).toBe(true);
+  });
+
   it("runs the ring light on a short segment only when the liquid from a long one is in it", () => {
     const color = readFill("rgb(120, 80, 240)");
     const radius = 16;
@@ -262,7 +296,7 @@ describe("layoutLiquid", () => {
         pressed: false,
         aim: 0,
       });
-      if (laid.ring !== null && state?.ring === null) {
+      if (laid.state.rings.length > (state?.rings.length ?? 0)) {
         centresAtRing.push(mean(laid.state.body.x));
       }
       state = laid.state;
