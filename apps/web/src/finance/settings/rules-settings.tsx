@@ -5,6 +5,7 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Checkbox } from "@tuja/ui/components/checkbox";
+import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -23,19 +24,28 @@ import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
+import { normalisePayeeText } from "../editor/rank-payees.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { sameTemplate } from "../rules/same-template.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectFxIndex } from "../store/select-fx-index.ts";
 import type { RuleRow } from "../sync/row-schemas.ts";
 import { buildNewRule } from "./build-new-rule.ts";
+import { editRuleTemplate } from "./edit-rule-template.ts";
 import { EditSheet } from "./edit-sheet.tsx";
-import { NewRuleFields, type NewRuleFieldsDraft } from "./new-rule-fields.tsx";
+import {
+  RuleTemplateFields,
+  type RuleTemplateFieldsDraft,
+} from "./rule-template-fields.tsx";
 import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
 import { SettingsRow } from "./settings-row.tsx";
+import {
+  simpleTemplateAccounts,
+  templateAmount,
+} from "./simple-template-accounts.ts";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 import { useDescribeSchedule } from "./use-describe-schedule.ts";
-import { templateAmount, withTemplateAmount } from "./with-template-amount.ts";
 
 type Unit = RuleRow["unit"];
 const UNITS: readonly Unit[] = ["week", "month", "year"];
@@ -43,8 +53,8 @@ const UNITS: readonly Unit[] = ["week", "month", "year"];
 interface Draft {
   /** Null while making a new Rule from scratch. */
   rule: RuleRow | null;
-  /** The new Rule's kind, Payee, accounts and Category. */
-  fresh: NewRuleFieldsDraft;
+  /** The kind, Payee, accounts and Category of the template. */
+  fields: RuleTemplateFieldsDraft;
   startsOn: string;
   name: string;
   amount: string;
@@ -62,7 +72,7 @@ function scheduleDay(rule: RuleRow) {
   return String(rule.dayOfMonth ?? "");
 }
 
-const EMPTY_FRESH: NewRuleFieldsDraft = {
+const EMPTY_FIELDS: RuleTemplateFieldsDraft = {
   kind: "expense",
   payeeText: "",
   payeeId: null,
@@ -71,7 +81,7 @@ const EMPTY_FRESH: NewRuleFieldsDraft = {
   categoryId: "",
 };
 
-/** The recurring Rules: make one from scratch, change its schedule and amount, pause or resume, delete. */
+/** The recurring Rules: make one from scratch, change its schedule, amount, accounts, Payee and Category, pause or resume, delete. */
 export function RulesSettings() {
   const locale = useLocale();
   const today = useHouseholdToday();
@@ -168,24 +178,46 @@ export function RulesSettings() {
     return { interval, day };
   }
 
+  const templateEditable =
+    draft !== null &&
+    (draft.rule === null ||
+      simpleTemplateAccounts(draft.rule.template, isBase) !== null);
+
+  /** The Payee the text names, and a new one to add when no Payee has that name. */
+  function resolvePayee(fields: RuleTemplateFieldsDraft) {
+    if (fields.payeeId !== null) {
+      return { payeeId: fields.payeeId, mutations: [] };
+    }
+    const name = fields.payeeText.trim();
+    if (name === "") return { payeeId: null, mutations: [] };
+    const wanted = normalisePayeeText(name);
+    const existing = payees.find(
+      (payee) =>
+        payee.mergedIntoId === null &&
+        normalisePayeeText(payee.name) === wanted,
+    );
+    if (existing) return { payeeId: existing.id, mutations: [] };
+    const payeeId = crypto.randomUUID();
+    return {
+      payeeId,
+      mutations: [
+        {
+          name: "upsertPayee" as const,
+          args: { id: payeeId, name: name.slice(0, 200) },
+        },
+      ],
+    };
+  }
+
   function saveNew(current: Draft) {
-    const { fresh } = current;
-    const existingPayee =
-      fresh.payeeId === null
-        ? payees.find(
-            (payee) =>
-              payee.mergedIntoId === null &&
-              payee.name.toLocaleLowerCase() ===
-                fresh.payeeText.trim().toLocaleLowerCase(),
-          )
-        : undefined;
-    const payeeName = fresh.payeeText.trim();
+    const { fields } = current;
+    const payeeName = fields.payeeText.trim();
     const name = current.name.trim() === "" ? payeeName : current.name.trim();
     if (name === "") {
       setError(messages.name);
       return false;
     }
-    const account = accounts.get(fresh.accountId);
+    const account = accounts.get(fields.accountId);
     if (!account) {
       setError(messages.account);
       return false;
@@ -201,20 +233,17 @@ export function RulesSettings() {
       setError(messages.startsOn);
       return false;
     }
-    const newPayeeId =
-      fresh.payeeId === null && !existingPayee && payeeName !== ""
-        ? crypto.randomUUID()
-        : null;
+    const payee = resolvePayee(fields);
     const built = buildNewRule(
       {
         id: crypto.randomUUID(),
         name,
-        kind: fresh.kind,
+        kind: fields.kind,
         amountMinor: amount,
-        accountId: fresh.accountId,
-        toAccountId: fresh.toAccountId,
-        payeeId: fresh.payeeId ?? existingPayee?.id ?? newPayeeId,
-        categoryId: fresh.categoryId === "" ? null : fresh.categoryId,
+        accountId: fields.accountId,
+        toAccountId: fields.toAccountId,
+        payeeId: payee.payeeId,
+        categoryId: fields.categoryId === "" ? null : fields.categoryId,
         unit: current.unit,
         interval: schedule.interval,
         day: schedule.day,
@@ -231,17 +260,7 @@ export function RulesSettings() {
       return false;
     }
     return apply(
-      [
-        ...(newPayeeId === null
-          ? []
-          : [
-              {
-                name: "upsertPayee" as const,
-                args: { id: newPayeeId, name: payeeName },
-              },
-            ]),
-        { name: "upsertRule", args: built.args },
-      ],
+      [...payee.mutations, { name: "upsertRule", args: built.args }],
       { message: messages.added },
     );
   }
@@ -257,23 +276,35 @@ export function RulesSettings() {
     const schedule = readSchedule(draft);
     if (!schedule) return false;
     const { interval, day } = schedule;
+    const payee = resolvePayee(draft.fields);
     let template = rule.template;
-    const editable = withTemplateAmount(
-      rule.template,
-      templateAmount(rule.template),
-      isBase,
-    );
-    if (editable) {
+    if (templateEditable) {
       const amount = parseMoney(draft.amount, baseCurrency);
       if (amount === null || amount <= 0) {
         setError(messages.amount);
         return false;
       }
-      template =
-        withTemplateAmount(rule.template, amount, isBase) ?? rule.template;
+      const edited = editRuleTemplate(
+        rule.template,
+        {
+          amountMinor: amount,
+          accountId: draft.fields.accountId,
+          toAccountId: draft.fields.toAccountId,
+          payeeId: payee.payeeId,
+          categoryId:
+            draft.fields.categoryId === "" ? null : draft.fields.categoryId,
+        },
+        { accountById: accounts, isBaseCurrency: isBase },
+      );
+      if (!edited.ok) {
+        setError(messages[edited.error]);
+        return false;
+      }
+      template = edited.template;
     }
     return apply(
       [
+        ...payee.mutations,
         {
           name: "upsertRule",
           args: {
@@ -287,7 +318,7 @@ export function RulesSettings() {
             endsOn: isValidDay(draft.endsOn) ? draft.endsOn : null,
             autoPost: draft.autoPost,
             paused: draft.paused,
-            ...(template === rule.template ? {} : { template }),
+            ...(sameTemplate(template, rule.template) ? {} : { template }),
           },
         },
       ],
@@ -295,14 +326,20 @@ export function RulesSettings() {
     );
   }
 
-  const amountEditable =
-    draft !== null &&
-    (draft.rule === null ||
-      withTemplateAmount(
-        draft.rule.template,
-        templateAmount(draft.rule.template),
-        isBase,
-      ) !== null);
+  function templateFields(rule: RuleRow): RuleTemplateFieldsDraft {
+    const { template } = rule;
+    const editable = simpleTemplateAccounts(template, isBase);
+    if (!editable) return EMPTY_FIELDS;
+    const payee = payees.find((row) => row.id === template.payeeId);
+    return {
+      kind: template.kind,
+      payeeText: payee?.name ?? "",
+      payeeId: payee?.id ?? null,
+      accountId: editable.accountId,
+      toAccountId: editable.toAccountId,
+      categoryId: template.categoryId ?? "",
+    };
+  }
 
   function toggle(rule: RuleRow) {
     const pausing = rule.pausedAt === null;
@@ -326,7 +363,7 @@ export function RulesSettings() {
             setError(undefined);
             setDraft({
               rule: null,
-              fresh: EMPTY_FRESH,
+              fields: EMPTY_FIELDS,
               startsOn: today,
               name: "",
               amount: "",
@@ -388,7 +425,7 @@ export function RulesSettings() {
                 setError(undefined);
                 setDraft({
                   rule,
-                  fresh: EMPTY_FRESH,
+                  fields: templateFields(rule),
                   startsOn: rule.startsOn,
                   name: rule.name,
                   amount: minorUnitsToDecimalString(
@@ -443,11 +480,33 @@ export function RulesSettings() {
               </Callout>
             ) : null}
             {draft.rule === null ? (
-              <NewRuleFields
-                value={draft.fresh}
+              <SegmentedControl
+                aria-label={t({ en: "Kind", zh: "类型" })}
+                fullWidth
+                options={[
+                  { value: "expense", label: t({ en: "Expense", zh: "支出" }) },
+                  { value: "income", label: t({ en: "Income", zh: "收入" }) },
+                  {
+                    value: "transfer",
+                    label: t({ en: "Transfer", zh: "转账" }),
+                  },
+                ]}
+                value={draft.fields.kind}
+                onChange={(kind) => {
+                  setDraft({
+                    ...draft,
+                    fields: { ...draft.fields, kind, categoryId: "" },
+                  });
+                }}
+              />
+            ) : null}
+            {templateEditable ? (
+              <RuleTemplateFields
+                value={draft.fields}
                 payeeRef={payeeRef}
-                onChange={(fresh) => {
-                  setDraft({ ...draft, fresh });
+                baseCurrencyOnly={draft.rule !== null}
+                onChange={(fields) => {
+                  setDraft({ ...draft, fields });
                 }}
                 onPayeePicked={(payeeName) => {
                   setDraft((current) =>
@@ -466,7 +525,7 @@ export function RulesSettings() {
                 setDraft({ ...draft, name: event.target.value });
               }}
             />
-            {amountEditable ? (
+            {templateEditable ? (
               <TextField
                 label={t({ en: "Amount", zh: "金额" })}
                 inputMode="decimal"

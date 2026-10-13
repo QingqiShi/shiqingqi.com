@@ -136,6 +136,38 @@ function currentBalance(client: ReturnType<typeof createClient>) {
   return series ? balanceAt(series, TODAY) : 0;
 }
 
+/** A Rule's Transactions with their live Entries, in date order. */
+function rowsOfRule(client: ReturnType<typeof createClient>, ruleId: string) {
+  const { tables } = client.snapshot();
+  return [...tables.transactions.values()]
+    .filter((row) => row.ruleId === ruleId)
+    .sort((a, b) => (a.date < b.date ? -1 : 1))
+    .map((row) => ({
+      id: row.id,
+      date: row.date,
+      status: row.status,
+      amountMinor: row.amountMinor,
+      categoryId: row.categoryId,
+      payeeId: row.payeeId,
+      memberId: row.memberId,
+      labelledBy: row.labelledBy,
+      searchText: row.searchText,
+      deleted: row.deletedAt !== null,
+      entries: [...tables.entries.values()]
+        .filter(
+          (entry) => entry.transactionId === row.id && entry.deletedAt === null,
+        )
+        .sort((a, b) => a.position - b.position)
+        .map((entry) => ({
+          id: entry.id,
+          accountId: entry.accountId,
+          amountMinor: entry.amountMinor,
+          fxRate: entry.fxRate,
+          date: entry.date,
+        })),
+    }));
+}
+
 describe("sync loop against the real handlers", () => {
   it("bootstraps the household", async () => {
     const client = createClient();
@@ -249,6 +281,147 @@ describe("sync loop against the real handlers", () => {
     expect(selectTransactionsByDateDesc(snapshot)).toEqual([]);
     expect(snapshot.outboxCount).toBe(0);
     expect(currentBalance(second)).toBe(0);
+  });
+
+  it("moves a Rule's Expected transactions offline the way the server does", async () => {
+    const client = createClient();
+    await client.ready();
+    const ruleId = randomUUID();
+    const diningId = randomUUID();
+    client.store.applyLocal({
+      name: "upsertCategory",
+      args: { id: diningId, kind: "expense", name: "Dining" },
+    });
+    client.store.applyLocal({
+      name: "upsertRule",
+      args: {
+        id: ruleId,
+        name: "Weekly shop",
+        unit: "week",
+        startsOn: "2026-10-08",
+        template: {
+          kind: "expense",
+          amountMinor: -1_000,
+          categoryId: home.groceriesId,
+          payeeId: home.grocerId,
+          entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
+        },
+      },
+    });
+    await client.loop.sync();
+    const ruleRows = () => rowsOfRule(client, ruleId);
+    expect(ruleRows().map((row) => row.date)).toEqual([
+      "2026-10-08",
+      "2026-10-15",
+    ]);
+
+    expect(() =>
+      client.store.applyLocal({
+        name: "upsertRule",
+        args: {
+          id: ruleId,
+          template: {
+            kind: "transfer",
+            amountMinor: 0,
+            entries: [
+              { accountId: home.currentId, amountMinor: -1_000 },
+              { accountId: home.cardId, amountMinor: 1_000 },
+            ],
+          },
+        },
+      }),
+    ).toThrow(/keeps its kind/);
+
+    client.setOnline(false);
+    client.store.applyLocal({
+      name: "upsertRule",
+      args: {
+        id: ruleId,
+        template: {
+          kind: "expense",
+          amountMinor: -2_500,
+          categoryId: diningId,
+          payeeId: home.employerId,
+          entries: [{ accountId: home.cardId, amountMinor: -2_500 }],
+        },
+      },
+    });
+    const local = ruleRows();
+    client.setOnline(true);
+    await client.loop.sync();
+
+    expect(client.snapshot().outboxCount).toBe(0);
+    expect(ruleRows()).toEqual(local);
+    expect(local[0]).toMatchObject({
+      amountMinor: -1_000,
+      entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
+    });
+    expect(local[1]).toMatchObject({
+      amountMinor: -2_500,
+      categoryId: diningId,
+      payeeId: home.employerId,
+      searchText: "employer dining",
+      entries: [{ accountId: home.cardId, amountMinor: -2_500 }],
+    });
+  });
+
+  it("gives an occurrence that a schedule change restores offline the new template, as the server does", async () => {
+    const client = createClient();
+    await client.ready();
+    const ruleId = randomUUID();
+    client.store.applyLocal({
+      name: "upsertRule",
+      args: {
+        id: ruleId,
+        name: "Weekly shop",
+        unit: "week",
+        weekday: 4,
+        startsOn: "2026-10-08",
+        template: {
+          kind: "expense",
+          amountMinor: -1_000,
+          categoryId: home.groceriesId,
+          payeeId: home.grocerId,
+          entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
+        },
+      },
+    });
+    await client.loop.sync();
+    const live = () => rowsOfRule(client, ruleId).filter((row) => !row.deleted);
+    expect(live().map((row) => row.date)).toEqual(["2026-10-08", "2026-10-15"]);
+
+    client.setOnline(false);
+    client.store.applyLocal({
+      name: "upsertRule",
+      args: { id: ruleId, weekday: 5 },
+    });
+    client.store.applyLocal({
+      name: "upsertRule",
+      args: {
+        id: ruleId,
+        weekday: 4,
+        template: {
+          kind: "expense",
+          amountMinor: -2_500,
+          categoryId: home.groceriesId,
+          payeeId: home.grocerId,
+          memberId: home.partnerId,
+          entries: [{ accountId: home.cardId, amountMinor: -2_500 }],
+        },
+      },
+    });
+    const local = live();
+    client.setOnline(true);
+    await client.loop.sync();
+
+    expect(client.snapshot().outboxCount).toBe(0);
+    expect(local[1]).toMatchObject({
+      date: "2026-10-15",
+      amountMinor: -2_500,
+      memberId: home.partnerId,
+      entries: [{ accountId: home.cardId, amountMinor: -2_500 }],
+    });
+    expect(live()).toEqual(local);
   });
 
   it("bootstraps again when the server clock is behind the replica", async () => {

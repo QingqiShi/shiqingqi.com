@@ -116,6 +116,24 @@ export const bankTransactionRepository = {
       );
   },
 
+  /** The ids among `transactionIds` that a bank row is matched to. */
+  async findLinkedTransactionIds(
+    scope: RepositoryScope,
+    transactionIds: readonly string[],
+  ) {
+    if (transactionIds.length === 0) return new Set<string>();
+    const rows = await scope.db
+      .select({ transactionId: bankTransactions.transactionId })
+      .from(bankTransactions)
+      .where(
+        and(
+          eq(bankTransactions.householdId, scope.householdId),
+          inArray(bankTransactions.transactionId, [...transactionIds]),
+        ),
+      );
+    return new Set(rows.flatMap((row) => row.transactionId ?? []));
+  },
+
   async findByTransactionId(scope: RepositoryScope, transactionId: string) {
     return scope.db
       .select()

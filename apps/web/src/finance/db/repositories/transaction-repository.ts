@@ -87,6 +87,54 @@ export const transactionRepository = {
       );
   },
 
+  /** The live Entries of these Transactions, in order, by Transaction id. */
+  async findEntriesOf(scope: RepositoryScope, transactionIds: string[]) {
+    const byTransaction = new Map<string, (typeof entries.$inferSelect)[]>();
+    if (transactionIds.length === 0) return byTransaction;
+    const rows = await scope.db
+      .select()
+      .from(entries)
+      .where(
+        and(
+          eq(entries.householdId, scope.householdId),
+          inArray(entries.transactionId, transactionIds),
+          isNull(entries.deletedAt),
+        ),
+      )
+      .orderBy(entries.position);
+    for (const row of rows) {
+      const list = byTransaction.get(row.transactionId) ?? [];
+      list.push(row);
+      byTransaction.set(row.transactionId, list);
+    }
+    return byTransaction;
+  },
+
+  /** The live Tag ids of these Transactions, by Transaction id. */
+  async findTagIdsOf(scope: RepositoryScope, transactionIds: string[]) {
+    const byTransaction = new Map<string, string[]>();
+    if (transactionIds.length === 0) return byTransaction;
+    const rows = await scope.db
+      .select({
+        transactionId: transactionTags.transactionId,
+        tagId: transactionTags.tagId,
+      })
+      .from(transactionTags)
+      .where(
+        and(
+          eq(transactionTags.householdId, scope.householdId),
+          inArray(transactionTags.transactionId, transactionIds),
+          isNull(transactionTags.deletedAt),
+        ),
+      );
+    for (const row of rows) {
+      const list = byTransaction.get(row.transactionId) ?? [];
+      list.push(row.tagId);
+      byTransaction.set(row.transactionId, list);
+    }
+    return byTransaction;
+  },
+
   async findTagIds(scope: RepositoryScope, transactionId: string) {
     const rows = await scope.db
       .select({ tagId: transactionTags.tagId })
@@ -294,12 +342,7 @@ export const transactionRepository = {
   /** A Rule's Transactions dated on or after `from`, deleted ones included. */
   async findOfRuleFrom(scope: RepositoryScope, ruleId: string, from: string) {
     return scope.db
-      .select({
-        id: transactions.id,
-        date: transactions.date,
-        status: transactions.status,
-        deletedAt: transactions.deletedAt,
-      })
+      .select()
       .from(transactions)
       .where(
         and(
