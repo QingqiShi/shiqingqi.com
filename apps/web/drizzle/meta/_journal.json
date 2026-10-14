@@ -85,6 +85,13 @@
       "when": 1791972058786,
       "tag": "0011_institution_icons",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792017784801,
+      "tag": "0012_institution_icon_version",
+      "breakpoints": true
     }
   ]
 }

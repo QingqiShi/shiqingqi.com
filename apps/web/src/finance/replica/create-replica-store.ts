@@ -98,7 +98,7 @@ function bySeq(a: OutboxEntry, b: OutboxEntry) {
  * fetches its rows again in the new shape. The Outbox stays. Raising
  * `DB_VERSION` instead would delete the Outbox.
  */
-export const REPLICA_ROW_SHAPE = 6;
+export const REPLICA_ROW_SHAPE = 7;
 
 /** Meta whose rows have an old shape must bootstrap again. */
 function withCurrentRowShape(meta: ReplicaMeta): ReplicaMeta {

@@ -297,6 +297,8 @@ export const accounts = pgTable(
     institutionDomain: text("institution_domain"),
     /** The domain the server guessed from `institution`; null when there is none or no guess yet. */
     guessedInstitutionDomain: text("guessed_institution_domain"),
+    /** The version of the cached icon of the account's domain; null when the server has no icon for it. */
+    institutionIconVersion: text("institution_icon_version"),
     kind: accountKind("kind").notNull(),
     currency: currency("currency").notNull(),
     excludedFromNetWorth: boolean("excluded_from_net_worth")

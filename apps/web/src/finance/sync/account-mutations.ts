@@ -4,8 +4,15 @@ import { accountRepository } from "../db/repositories/account-repository.ts";
 import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
-import { institutionFieldsAfter } from "../domain/accounts/institution-fields-after.ts";
+import {
+  institutionDomainOf,
+  institutionFieldsAfter,
+} from "../domain/accounts/institution-fields-after.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
+import {
+  institutionCacheRepository,
+  institutionIconVersionOf,
+} from "../institutions/institution-cache-repository.ts";
 import {
   checkSystemAccountPatch,
   checkSystemAccountValuation,
@@ -81,13 +88,37 @@ async function upsertAccount(
     );
   }
 
+  const institutionFields = existing
+    ? institutionFieldsAfter(existing, fields)
+    : {};
+  const after = {
+    guessedInstitutionDomain: null,
+    ...merged,
+    institutionDomain: merged.institutionDomain ?? null,
+    ...institutionFields,
+  };
+  const shownDomain = institutionDomainOf(after);
+  const institutionIconVersion = institutionIconVersionOf(
+    after,
+    await institutionCacheRepository.findIconVersions(
+      scope.db,
+      shownDomain === null ? [] : [shownDomain],
+    ),
+  );
   if (existing) {
     await accountRepository.patch(scope, id, {
       ...fields,
-      ...institutionFieldsAfter(existing, fields),
+      ...institutionFields,
+      institutionIconVersion,
       deleted,
     });
-  } else if (!(await accountRepository.insert(scope, { ...merged, id }))) {
+  } else if (
+    !(await accountRepository.insert(scope, {
+      ...merged,
+      id,
+      institutionIconVersion,
+    }))
+  ) {
     throw new MutationError("forbidden");
   }
   const changesInstitution = existing

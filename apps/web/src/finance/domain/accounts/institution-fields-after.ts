@@ -1,4 +1,4 @@
-interface InstitutionDomainFields {
+export interface InstitutionDomainFields {
   institutionDomain: string | null;
   guessedInstitutionDomain: string | null;
 }

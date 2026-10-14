@@ -68,6 +68,7 @@ function rows(): Partial<SyncRows> {
     institution,
     institutionDomain: null,
     guessedInstitutionDomain: null,
+    institutionIconVersion: null,
     kind,
     currency,
     excludedFromNetWorth: false,

@@ -17,8 +17,8 @@ interface InstitutionIconRouteContext {
   params: Promise<{ domain: string }>;
 }
 
-/** A day keeps the rows of a long list from asking again on every view, and a refreshed icon shows by the next day. */
-const CACHE_CONTROL = "private, max-age=86400";
+/** The URL of an icon holds its version, so a new icon gets a new URL. */
+const CACHE_CONTROL = "private, max-age=31536000, immutable";
 
 /**
  * `GET /api/finance/institution-icons/[domain]`: the cached icon of an
@@ -39,20 +39,16 @@ export function makeInstitutionIconHandler(
     const { domain } = await context.params;
     if (!isInstitutionDomain(domain)) return notFound();
 
-    const db = dependencies.getDb();
-    const version = await asFinanceApp(db, (app) =>
-      institutionCacheRepository.findIconVersion(app, domain),
+    const image = await asFinanceApp(dependencies.getDb(), (app) =>
+      institutionCacheRepository.findIconImage(app, domain),
     );
-    if (version === null) return notFound();
-    if (request.headers.get("If-None-Match") === etagOf(version)) {
-      return new Response(null, { status: 304, headers: headersOf(version) });
-    }
-    const icon = await asFinanceApp(db, (app) =>
-      institutionCacheRepository.findIcon(app, domain),
-    );
-    if (!icon || !isOnArrayBuffer(icon.image)) return notFound();
-    return new Response(icon.image, {
-      headers: { ...headersOf(icon.version), "Content-Type": "image/webp" },
+    if (!image || !isOnArrayBuffer(image)) return notFound();
+    return new Response(image, {
+      headers: {
+        "Cache-Control": CACHE_CONTROL,
+        "Content-Type": "image/webp",
+        "X-Content-Type-Options": "nosniff",
+      },
     });
   };
 }
@@ -64,16 +60,4 @@ function isOnArrayBuffer(bytes: Uint8Array): bytes is Uint8Array<ArrayBuffer> {
 
 function notFound() {
   return financeJson({ error: "not-found" }, { status: 404 });
-}
-
-function etagOf(version: string) {
-  return `"${version}"`;
-}
-
-function headersOf(version: string) {
-  return {
-    "Cache-Control": CACHE_CONTROL,
-    ETag: etagOf(version),
-    "X-Content-Type-Options": "nosniff",
-  };
 }
