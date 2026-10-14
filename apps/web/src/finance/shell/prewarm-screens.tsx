@@ -7,6 +7,10 @@ import { requestIdle, runStepsWhenIdle } from "./run-steps-when-idle.ts";
 /** Wait for the Replica to stop changing for this long before warming again. */
 const QUIET_MS = 500;
 
+function loadScreenWarmSteps() {
+  return import("./screen-warm-steps.ts");
+}
+
 /**
  * Fills the memos of the screens' Replica selectors in idle time once the
  * Replica holds data, and again after it changes, so the first switch to
@@ -31,7 +35,7 @@ export function PrewarmScreens() {
       if (!loaded || !bootstrapped || stop || tables === warmed) return;
       warmed = tables;
       stop = requestIdle(() => {
-        import("./screen-warm-steps.ts").then(
+        loadScreenWarmSteps().then(
           ({ screenWarmSteps }) => {
             if (disposed) return;
             stop = runStepsWhenIdle(screenWarmSteps(store), {

@@ -8,7 +8,6 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useId,
-  useMemo,
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
@@ -111,30 +110,19 @@ export function BarChart({
   const { ref, width } = useElementWidth<HTMLDivElement>();
   const stacked = layout === "stacked" && series.length > 1;
 
-  const geometry = useMemo(() => {
-    const plotRight = Math.max(width - GUTTER, 0);
-    const plotBottom = height - AXIS_BAND - BOTTOM_GAP;
-    const bars = buildBarGeometry({
-      periodCount,
-      series,
-      layout,
-      plotRight,
-      top: TOP,
-      bottom: plotBottom,
-      tickCount: height < 180 ? 3 : 4,
-      alsoShow: referenceLine ? [referenceLine.value] : undefined,
-      partial: partialPeriods,
-    });
-    return { ...bars, plotRight, plotBottom };
-  }, [
+  const plotRight = Math.max(width - GUTTER, 0);
+  const plotBottom = height - AXIS_BAND - BOTTOM_GAP;
+  const geometry = buildBarGeometry({
     periodCount,
     series,
     layout,
-    width,
-    height,
-    referenceLine,
-    partialPeriods,
-  ]);
+    plotRight,
+    top: TOP,
+    bottom: plotBottom,
+    tickCount: height < 180 ? 3 : 4,
+    alsoShow: referenceLine ? [referenceLine.value] : undefined,
+    partial: partialPeriods,
+  });
 
   const xTicks = chooseBarTicks({
     periodCount,
@@ -143,15 +131,12 @@ export function BarChart({
     isMajor: periodMajor,
   });
 
-  const totals = useMemo(() => {
-    const sums = new Float64Array(periodCount);
-    for (const { values } of series) {
-      for (let index = 0; index < periodCount; index++) {
-        sums[index] += values[index];
-      }
+  const totals = new Float64Array(periodCount);
+  for (const { values } of series) {
+    for (let index = 0; index < periodCount; index++) {
+      totals[index] += values[index];
     }
-    return sums;
-  }, [periodCount, series]);
+  }
 
   const table = [];
   for (
@@ -228,7 +213,7 @@ export function BarChart({
   }
 
   const hasBars = width > 0 && periodCount > 0;
-  const { band, plotRight, plotBottom } = geometry;
+  const { band } = geometry;
   const legendItems = series.map((item) => ({
     label:
       active === null

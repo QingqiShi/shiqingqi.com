@@ -6,24 +6,26 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 
+const HEADER_SLOTS = 2;
+
 const ROWS = [
   { key: "stream", logoCount: 3 },
   { key: "rent", logoCount: 2 },
-];
+].map((row, index, rows) => ({
+  ...row,
+  firstSlot: rows
+    .slice(0, index)
+    .reduce((slot, previous) => slot + 1 + previous.logoCount, HEADER_SLOTS),
+}));
 
 const STAGGER_DELAY = 80;
 
 export function ToolWatchProvidersSkeleton() {
-  let delayIndex = 0;
   return (
     <div css={[corner.radius_2, styles.card]}>
       <div css={styles.headerRow}>
-        <Skeleton
-          width={100}
-          height={14}
-          delay={delayIndex++ * STAGGER_DELAY}
-        />
-        <Skeleton width={24} height={18} delay={delayIndex++ * STAGGER_DELAY} />
+        <Skeleton width={100} height={14} delay={0} />
+        <Skeleton width={24} height={18} delay={STAGGER_DELAY} />
       </div>
       <div css={stack.item}>
         {ROWS.map((row) => (
@@ -31,7 +33,7 @@ export function ToolWatchProvidersSkeleton() {
             <Skeleton
               width={50}
               height={12}
-              delay={delayIndex++ * STAGGER_DELAY}
+              delay={row.firstSlot * STAGGER_DELAY}
             />
             <div css={styles.logoRow}>
               {Array.from({ length: row.logoCount }, (_, i) => (
@@ -39,7 +41,7 @@ export function ToolWatchProvidersSkeleton() {
                   key={`${row.key}-${String(i)}`}
                   width={36}
                   height={36}
-                  delay={delayIndex++ * STAGGER_DELAY}
+                  delay={(row.firstSlot + 1 + i) * STAGGER_DELAY}
                 />
               ))}
             </div>

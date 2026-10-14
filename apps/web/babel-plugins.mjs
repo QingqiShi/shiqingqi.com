@@ -18,12 +18,31 @@ const uiPackageRoot = path.resolve(appRoot, "../../packages/ui");
  * @returns {import("@babel/core").PluginItem[]}
  */
 export function babelPlugins({ nodeEnv }) {
-  return [
-    // Reads the original source, so it must run before anything rewrites it.
-    "@tuja/babel-plugins/specimen-source",
-    "@tuja/babel-plugins/i18n",
-    ...stylexExtractionPlugins({ nodeEnv }),
-  ];
+  return [...sourcePlugins, ...transformPlugins({ nodeEnv })];
+}
+
+/**
+ * The part of {@link babelPlugins} that reads the original source, so it must
+ * run before anything rewrites it. Vitest runs it in the React Compiler pass,
+ * which comes before every other transform.
+ *
+ * This split is part of the Babel 7 workaround in
+ * `@tuja/babel-plugins/react-compiler`. When that pass goes, remove the split.
+ *
+ * @type {import("@babel/core").PluginItem[]}
+ */
+export const sourcePlugins = ["@tuja/babel-plugins/specimen-source"];
+
+/**
+ * {@link babelPlugins} without {@link sourcePlugins}.
+ *
+ * @param {object} options
+ * @param {string | undefined} options.nodeEnv - Decides the StyleX plugin's
+ *   `dev` and `test` modes.
+ * @returns {import("@babel/core").PluginItem[]}
+ */
+export function transformPlugins({ nodeEnv }) {
+  return ["@tuja/babel-plugins/i18n", ...stylexExtractionPlugins({ nodeEnv })];
 }
 
 /**

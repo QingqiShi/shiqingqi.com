@@ -1,13 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import React, {
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
 import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
@@ -173,18 +167,18 @@ export function Switch({
   // animate the switch.
   const [initialRendered, setInitialRendered] = useState(false);
 
-  const markInitialRendered = useCallback((node: HTMLInputElement | null) => {
+  const markInitialRendered = (node: HTMLInputElement | null) => {
     if (node && !hasSetInitialRenderedRef.current) {
       hasSetInitialRenderedRef.current = true;
       setInitialRendered(true);
     }
-  }, []);
-  // A new ref callback detaches and attaches again, which registers the
-  // element on the effect layer afresh, so the merged ref holds still.
+  };
   const effectRef = effect === "liquid" ? liquidRef : undefined;
-  const setInputRef = useMemo(
-    () => mergeRefs(elRef, forwardedRef, effectRef, markInitialRendered),
-    [forwardedRef, effectRef, markInitialRendered],
+  const setInputRef = mergeRefs(
+    elRef,
+    forwardedRef,
+    effectRef,
+    markInitialRendered,
   );
 
   return (

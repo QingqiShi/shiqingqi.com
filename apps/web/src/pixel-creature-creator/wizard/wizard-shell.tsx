@@ -9,7 +9,7 @@ import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, font, opacity, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import {
@@ -128,7 +128,7 @@ export function WizardShell() {
     4: t({ en: "Name", zh: "命名" }),
   };
 
-  const stepContent = useMemo(() => {
+  const renderStep = () => {
     switch (state.step) {
       case 1:
         return <StepSpecies def={state.def} onChange={handleStepChange} />;
@@ -141,9 +141,7 @@ export function WizardShell() {
       default:
         return null;
     }
-    // `handleStepChange` closes over the stable dispatch from useReducer;
-    // omit it from deps so the memo only recomputes on actual state change.
-  }, [state.def, state.step]);
+  };
 
   const finishLabel = t({ en: "Finish", zh: "完成" });
   const nextLabel = t({ en: "Next", zh: "下一步" });
@@ -224,7 +222,7 @@ export function WizardShell() {
           </div>
         </aside>
 
-        <main css={styles.stepHost}>{stepContent}</main>
+        <main css={styles.stepHost}>{renderStep()}</main>
       </div>
 
       <footer css={styles.footer}>

@@ -19,6 +19,7 @@ import { displayDay } from "../domain/dates/display-day.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { withPendingKey } from "../shell/with-pending.ts";
 import { isRowPending } from "../store/is-row-pending.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import type { MemberRow } from "../sync/row-schemas.ts";
@@ -109,24 +110,23 @@ export function MembersSettings() {
   };
 
   async function createInvite(member: MemberRow) {
-    setBusy(`invite:${member.id}`);
-    try {
-      if (isRowPending(runtime.store.getSnapshot(), "members", member.id)) {
-        await runtime.loop.sync();
+    await withPendingKey(setBusy, `invite:${member.id}`, async () => {
+      try {
+        if (isRowPending(runtime.store.getSnapshot(), "members", member.id)) {
+          await runtime.loop.sync();
+        }
+        const result = await financePasskeyClient.createInvite(member.id);
+        const url = `${window.location.origin}${getLocalePath(result.path, locale)}`;
+        setInvite({
+          memberId: member.id,
+          url,
+          expiresAt: result.expiresAt,
+          recovery: result.recovery,
+        });
+      } catch {
+        showToast({ message: messages.inviteFailed });
       }
-      const result = await financePasskeyClient.createInvite(member.id);
-      const url = `${window.location.origin}${getLocalePath(result.path, locale)}`;
-      setInvite({
-        memberId: member.id,
-        url,
-        expiresAt: result.expiresAt,
-        recovery: result.recovery,
-      });
-    } catch {
-      showToast({ message: messages.inviteFailed });
-    } finally {
-      setBusy(null);
-    }
+    });
   }
 
   const removable =
@@ -145,41 +145,40 @@ export function MembersSettings() {
   }
 
   async function removeMember(member: MemberRow) {
-    setBusy(`remove:${member.id}`);
-    try {
-      if (isRowPending(runtime.store.getSnapshot(), "members", member.id)) {
+    const invited = invite?.memberId === member.id;
+    await withPendingKey(setBusy, `remove:${member.id}`, async () => {
+      try {
+        if (isRowPending(runtime.store.getSnapshot(), "members", member.id)) {
+          await runtime.loop.sync();
+        }
+        await householdApiClient.setMemberRemoved(member.id, true);
         await runtime.loop.sync();
+        setRemoving(null);
+        if (invited) setInvite(null);
+        showToast({
+          message: messages.removed,
+          action: {
+            label: messages.undo,
+            onAction: () => void restoreMember(member),
+          },
+        });
+      } catch {
+        showToast({ message: messages.removeFailed });
       }
-      await householdApiClient.setMemberRemoved(member.id, true);
-      await runtime.loop.sync();
-      setRemoving(null);
-      if (invite?.memberId === member.id) setInvite(null);
-      showToast({
-        message: messages.removed,
-        action: {
-          label: messages.undo,
-          onAction: () => void restoreMember(member),
-        },
-      });
-    } catch {
-      showToast({ message: messages.removeFailed });
-    } finally {
-      setBusy(null);
-    }
+    });
   }
 
   async function addPasskey() {
-    setBusy("passkey");
-    try {
-      await financePasskeyClient.addPasskey();
-      showToast({ message: messages.passkeyAdded, durationMs: 4000 });
-    } catch (error) {
-      if (!(error instanceof FinanceApiError && error.code === "cancelled")) {
-        showToast({ message: messages.passkeyFailed });
+    await withPendingKey(setBusy, "passkey", async () => {
+      try {
+        await financePasskeyClient.addPasskey();
+        showToast({ message: messages.passkeyAdded, durationMs: 4000 });
+      } catch (error) {
+        if (!(error instanceof FinanceApiError && error.code === "cancelled")) {
+          showToast({ message: messages.passkeyFailed });
+        }
       }
-    } finally {
-      setBusy(null);
-    }
+    });
   }
 
   async function share(url: string) {

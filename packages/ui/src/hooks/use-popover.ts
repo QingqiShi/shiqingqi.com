@@ -1,5 +1,4 @@
 import {
-  useCallback,
   useEffect,
   useEffectEvent,
   useId,
@@ -97,17 +96,14 @@ export function usePopover({
     defaultValue: defaultOpen,
   });
 
-  const setOpen = useCallback(
-    (next: boolean) => {
-      setInternalOpen(next);
-      onOpenChange?.(next);
-    },
-    [onOpenChange, setInternalOpen],
-  );
+  const setOpen = (next: boolean) => {
+    setInternalOpen(next);
+    onOpenChange?.(next);
+  };
 
-  const toggle = useCallback(() => {
+  const toggle = () => {
     setOpen(!open);
-  }, [open, setOpen]);
+  };
 
   useLayoutEffect(() => {
     const trigger = triggerRef.current;

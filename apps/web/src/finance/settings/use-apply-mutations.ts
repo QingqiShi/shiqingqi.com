@@ -1,5 +1,6 @@
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { t } from "#src/i18n.ts";
+import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import {
@@ -38,7 +39,7 @@ export function useApplyMutations() {
   ): boolean => {
     try {
       if (toast) applyUndoable(mutations, toast);
-      else for (const mutation of mutations) store.applyLocal(mutation);
+      else applyAll(store, mutations);
       return true;
     } catch (error) {
       const reason = error instanceof MutationError ? error.reason : null;

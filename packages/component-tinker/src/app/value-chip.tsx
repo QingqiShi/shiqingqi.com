@@ -5,7 +5,7 @@ import {
   type TokenEntry,
   type TokenIndex,
 } from "@tuja/component-tinker";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   keywordsFor,
   pickerSourcesFor,
@@ -99,10 +99,7 @@ export function PickerBody({
   sources: given,
   onPick,
 }: PickerBodyProps) {
-  const sources = useMemo(
-    () => given ?? pickerSourcesFor(property, index.catalogue),
-    [given, property, index],
-  );
+  const sources = given ?? pickerSourcesFor(property, index.catalogue);
   const keywords = keywordsFor(property);
   const [sourceId, setSourceId] = useState(sources[0]?.id ?? "");
   const [query, setQuery] = useState("");

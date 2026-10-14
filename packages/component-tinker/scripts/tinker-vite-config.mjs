@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { reactCompilerVitePlugins } from "@tuja/babel-plugins/react-compiler";
 import react from "@vitejs/plugin-react";
 import { packageRoot } from "../src/adapter/design-system-sources.mjs";
 
@@ -7,6 +8,13 @@ const CONFIG_ID = "virtual:tinker-config";
 const CATALOGUE_ID = "virtual:tinker-catalogue";
 
 const REACT_PACKAGE = /^(react|react-dom)(\/.*)?$/;
+
+/** React Compiler for the tinker app, shared by this build and Vitest. */
+export function tinkerReactCompiler() {
+  return reactCompilerVitePlugins({
+    include: /packages\/component-tinker\/src\/.*\.tsx?$/,
+  });
+}
 
 /** Points the app's two virtual imports at the files this build was given. */
 function tinkerInputs(configPath, cataloguePath) {
@@ -31,7 +39,11 @@ export function tinkerViteConfig({ configPath, cataloguePath, outDir }) {
   return {
     root: packageRoot,
     configFile: false,
-    plugins: [react(), tinkerInputs(configPath, cataloguePath)],
+    plugins: [
+      ...tinkerReactCompiler(),
+      react(),
+      tinkerInputs(configPath, cataloguePath),
+    ],
     resolve: {
       alias: {
         "@tuja/component-tinker": path.join(packageRoot, "src/core/index.ts"),

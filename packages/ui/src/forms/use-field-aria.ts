@@ -43,14 +43,13 @@ export function useFieldAria({
   const hasDescription = description !== undefined && description !== "";
   const hasError = error !== undefined && error !== "";
 
+  const describedIds = [
+    ariaDescribedBy,
+    hasDescription ? descriptionId : null,
+    hasError ? errorId : null,
+  ].filter(Boolean);
   const describedBy =
-    [
-      ariaDescribedBy,
-      hasDescription ? descriptionId : null,
-      hasError ? errorId : null,
-    ]
-      .filter(Boolean)
-      .join(" ") || undefined;
+    describedIds.length > 0 ? describedIds.join(" ") : undefined;
 
   return {
     fieldId,

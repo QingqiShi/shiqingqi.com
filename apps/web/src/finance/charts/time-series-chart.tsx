@@ -9,7 +9,7 @@ import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { bisectCenter } from "d3-array";
-import { useId, useMemo, type ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
@@ -111,34 +111,28 @@ export function TimeSeriesChart({
   const textRight = width - bleed.right;
   const plotBottom = height - AXIS_BAND - BOTTOM_GAP;
 
-  const geometry = useMemo(
-    () =>
-      buildTimeSeriesGeometry({
-        series,
-        trend: trendValues,
-        width,
-        top: TOP,
-        bottom: plotBottom,
-        tickCount: height < 180 ? 3 : 4,
-        dateSpacing: TICK_SPACING,
-      }),
-    [series, trendValues, width, plotBottom, height],
-  );
+  const geometry = buildTimeSeriesGeometry({
+    series,
+    trend: trendValues,
+    width,
+    top: TOP,
+    bottom: plotBottom,
+    tickCount: height < 180 ? 3 : 4,
+    dateSpacing: TICK_SPACING,
+  });
 
-  const table = useMemo(() => {
-    const { days, values } = series;
-    const step = Math.max(Math.ceil(days.length / TABLE_ROWS), 1);
-    const rows = [];
-    for (let index = days.length - 1; index >= 0; index -= step) {
-      const cells = [
-        displayDay(days[index], locale, "dayYear"),
-        formatValue(values[index]),
-      ];
-      if (trendValues) cells.push(formatValue(Math.round(trendValues[index])));
-      rows.push({ key: String(days[index]), cells });
-    }
-    return rows.reverse();
-  }, [series, trendValues, locale, formatValue]);
+  const { days, values } = series;
+  const step = Math.max(Math.ceil(days.length / TABLE_ROWS), 1);
+  const table = [];
+  for (let index = days.length - 1; index >= 0; index -= step) {
+    const cells = [
+      displayDay(days[index], locale, "dayYear"),
+      formatValue(values[index]),
+    ];
+    if (trendValues) cells.push(formatValue(Math.round(trendValues[index])));
+    table.push({ key: String(days[index]), cells });
+  }
+  table.reverse();
 
   const pick = useChartSelection({
     data: series,

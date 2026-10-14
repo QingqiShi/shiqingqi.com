@@ -40,7 +40,7 @@ export function IlloLayer({ children }: { children: ReactNode }) {
 
     const handleMove = (event: PointerEvent) => {
       pending = { x: event.clientX, y: event.clientY };
-      frame ||= requestAnimationFrame(flush);
+      if (!frame) frame = requestAnimationFrame(flush);
     };
 
     const recentre = () => {

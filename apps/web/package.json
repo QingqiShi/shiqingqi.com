@@ -91,7 +91,6 @@
     "@electric-sql/pglite": "0.5.8",
     "@next/env": "catalog:",
     "@playwright/test": "^1.64.0",
-    "@rolldown/plugin-babel": "catalog:",
     "@serwist/cli": "catalog:",
     "@stylexjs/postcss-plugin": "^0.19.1",
     "@testing-library/jest-dom": "catalog:",

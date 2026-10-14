@@ -12,6 +12,7 @@ import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "../domain/dates/default-household-t
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { withPending } from "../shell/with-pending.ts";
 import { householdApiClient } from "./household-api-client.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
 import { supportedTimeZones } from "./supported-time-zones.ts";
@@ -58,24 +59,24 @@ export function HouseholdSettings() {
       setError(messages.name);
       return;
     }
-    setSaving(true);
-    try {
-      await householdApiClient.update({
-        ...(name.trim() === household.name ? {} : { name: name.trim() }),
-        ...(timezone === household.timezone ? {} : { timezone }),
-      });
-      await runtime.loop.sync();
-      showToast({ message: messages.saved, durationMs: 4000 });
-    } catch (failure) {
-      showToast({
-        message:
-          failure instanceof FinanceApiError && failure.status === 403
-            ? messages.ownerOnly
-            : messages.failed,
-      });
-    } finally {
-      setSaving(false);
-    }
+    const changes = {
+      ...(name.trim() === household.name ? {} : { name: name.trim() }),
+      ...(timezone === household.timezone ? {} : { timezone }),
+    };
+    await withPending(setSaving, async () => {
+      try {
+        await householdApiClient.update(changes);
+        await runtime.loop.sync();
+        showToast({ message: messages.saved, durationMs: 4000 });
+      } catch (failure) {
+        showToast({
+          message:
+            failure instanceof FinanceApiError && failure.status === 403
+              ? messages.ownerOnly
+              : messages.failed,
+        });
+      }
+    });
   }
 
   return (

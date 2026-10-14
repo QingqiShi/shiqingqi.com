@@ -39,7 +39,7 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { parseHex } from "#src/pixel-art/parse-hex.ts";
 import { cloneCell } from "#src/sprite-editor/pixel-ops/clone-cell.ts";
@@ -152,6 +152,7 @@ export function PixelEditor({
     reset,
   } = history;
 
+  const commitPresent = useEffectEvent(onCommit);
   const isFirstSyncRef = useRef(true);
   const skipNextSyncRef = useRef(false);
   useEffect(() => {
@@ -163,8 +164,8 @@ export function PixelEditor({
       skipNextSyncRef.current = false;
       return;
     }
-    onCommit(present);
-  }, [present, onCommit]);
+    commitPresent(present);
+  }, [present]);
 
   const [tool, setTool] = useState<Tool>("pencil");
   const [activeColor, setActiveColor] = useState<string>("#000000");
@@ -207,7 +208,7 @@ export function PixelEditor({
 
   // Auto-fit transform when container or cell shape changes and there's no
   // user transform yet. Stored-deps pattern.
-  const fitTransform = useMemo<Transform | null>(() => {
+  const fitTransform = ((): Transform | null => {
     if (containerSize.width === 0 || containerSize.height === 0) return null;
     const sx = Math.floor(containerSize.width / present.width);
     const sy = Math.floor(containerSize.height / present.height);
@@ -217,7 +218,7 @@ export function PixelEditor({
       panX: Math.floor((containerSize.width - present.width * fit) / 2),
       panY: Math.floor((containerSize.height - present.height * fit) / 2),
     };
-  }, [containerSize, present.width, present.height]);
+  })();
 
   const [prevFitKey, setPrevFitKey] = useState<string | null>(null);
   const fitKey =
@@ -229,9 +230,9 @@ export function PixelEditor({
     if (transform === null) setTransform(fitTransform);
   }
 
-  const fitToView = useCallback(() => {
+  const fitToView = () => {
     if (fitTransform !== null) setTransform(fitTransform);
-  }, [fitTransform]);
+  };
 
   // Drawing.
   useEffect(() => {
@@ -437,12 +438,12 @@ export function PixelEditor({
     accentStroke,
   ]);
 
-  const remember = useCallback((hex: string) => {
+  const remember = (hex: string) => {
     setRecent((current) => {
       const next = [hex, ...current.filter((c) => c !== hex)];
       return next.slice(0, RECENT_LIMIT);
     });
-  }, []);
+  };
 
   // Selection action helpers ------------------------------------------------
 
@@ -452,7 +453,7 @@ export function PixelEditor({
    * marquee selections, this is a no-op. Either way, the selection is
    * cleared. Pushes a single history entry so the whole edit can be undone.
    */
-  const commitSelection = useCallback(() => {
+  const commitSelection = () => {
     if (selection === null) return;
     if (selection.mode === "floating") {
       const next = cloneCell(selection.previewBase);
@@ -467,13 +468,13 @@ export function PixelEditor({
       push(next);
     }
     setSelection(null);
-  }, [push, selection]);
+  };
 
-  const cancelSelection = useCallback(() => {
+  const cancelSelection = () => {
     setSelection(null);
-  }, []);
+  };
 
-  const eraseSelection = useCallback(() => {
+  const eraseSelection = () => {
     if (selection === null) return;
     if (selection.mode === "floating") {
       // Already cleared in previewBase — just commit that.
@@ -484,36 +485,33 @@ export function PixelEditor({
       push(next);
     }
     setSelection(null);
-  }, [presentRef, push, selection]);
+  };
 
-  const flipSelection = useCallback(
-    (axis: "h" | "v") => {
-      if (selection === null) return;
-      if (selection.mode === "floating") {
-        const next = cloneCell(selection.pixels);
-        if (axis === "h") flipCellH(next);
-        else flipCellV(next);
-        setSelection({ ...selection, pixels: next });
-        return;
-      }
-      // Marquee: lift, flip the lifted pixels, but keep them floating so the
-      // user can still move/resize/erase.
-      const cropped = cropCell(presentRef.current, selection.rect);
-      if (axis === "h") flipCellH(cropped);
-      else flipCellV(cropped);
-      const previewBase = cloneCell(presentRef.current);
-      eraseRect(previewBase, selection.rect);
-      setSelection({
-        mode: "floating",
-        rect: selection.rect,
-        pixels: cropped,
-        previewBase,
-      });
-    },
-    [presentRef, selection],
-  );
+  const flipSelection = (axis: "h" | "v") => {
+    if (selection === null) return;
+    if (selection.mode === "floating") {
+      const next = cloneCell(selection.pixels);
+      if (axis === "h") flipCellH(next);
+      else flipCellV(next);
+      setSelection({ ...selection, pixels: next });
+      return;
+    }
+    // Marquee: lift, flip the lifted pixels, but keep them floating so the
+    // user can still move/resize/erase.
+    const cropped = cropCell(presentRef.current, selection.rect);
+    if (axis === "h") flipCellH(cropped);
+    else flipCellV(cropped);
+    const previewBase = cloneCell(presentRef.current);
+    eraseRect(previewBase, selection.rect);
+    setSelection({
+      mode: "floating",
+      rect: selection.rect,
+      pixels: cropped,
+      previewBase,
+    });
+  };
 
-  const copySelection = useCallback(() => {
+  const copySelection = () => {
     if (selection === null) return;
     // "Copy" duplicates the contents at a +2,+2 offset and leaves the
     // duplicate floating. The original stays in place.
@@ -556,55 +554,52 @@ export function PixelEditor({
       pixels: cropped,
       previewBase,
     });
-  }, [presentRef, selection]);
+  };
 
   // Tool actions ------------------------------------------------------------
 
-  const applyAtPixel = useCallback(
-    (px: number, py: number, isDrag: boolean) => {
-      const current = presentRef.current;
-      const next = cloneCell(current);
-      const rgba = parseHex(activeColor);
-      const transparent = [0, 0, 0, 0] as const;
+  const applyAtPixel = (px: number, py: number, isDrag: boolean) => {
+    const current = presentRef.current;
+    const next = cloneCell(current);
+    const rgba = parseHex(activeColor);
+    const transparent = [0, 0, 0, 0] as const;
 
-      // Pencil/eraser drags coalesce into a single undo step: pointer-down
-      // pushes one entry, every subsequent pointer-move replaces present
-      // in-place. Ctrl+Z then restores the cell to its pre-stroke state in
-      // one go instead of one pixel at a time.
-      const commit = isDrag ? replace : push;
+    // Pencil/eraser drags coalesce into a single undo step: pointer-down
+    // pushes one entry, every subsequent pointer-move replaces present
+    // in-place. Ctrl+Z then restores the cell to its pre-stroke state in
+    // one go instead of one pixel at a time.
+    const commit = isDrag ? replace : push;
 
-      if (tool === "pencil") {
-        setPixel(next, px, py, rgba);
-        commit(next);
-        if (!isDrag) remember(activeColor);
-        return;
-      }
-      if (tool === "eraser") {
-        setPixel(next, px, py, transparent);
-        commit(next);
-        return;
-      }
-      if (tool === "eyedropper") {
-        const sample = getPixel(current, px, py);
-        if (sample === null) return;
-        if (sample[3] === 0) return;
-        const hex = rgbaToHex(sample[0], sample[1], sample[2]);
-        setActiveColor(hex);
-        remember(hex);
-        return;
-      }
-      if (tool === "fill") {
-        floodFill(next, px, py, rgba, 0);
-        push(next);
-        remember(activeColor);
-        return;
-      }
-      // bg-remove
-      floodFill(next, px, py, transparent, tolerance);
+    if (tool === "pencil") {
+      setPixel(next, px, py, rgba);
+      commit(next);
+      if (!isDrag) remember(activeColor);
+      return;
+    }
+    if (tool === "eraser") {
+      setPixel(next, px, py, transparent);
+      commit(next);
+      return;
+    }
+    if (tool === "eyedropper") {
+      const sample = getPixel(current, px, py);
+      if (sample === null) return;
+      if (sample[3] === 0) return;
+      const hex = rgbaToHex(sample[0], sample[1], sample[2]);
+      setActiveColor(hex);
+      remember(hex);
+      return;
+    }
+    if (tool === "fill") {
+      floodFill(next, px, py, rgba, 0);
       push(next);
-    },
-    [activeColor, presentRef, push, replace, remember, tool, tolerance],
-  );
+      remember(activeColor);
+      return;
+    }
+    // bg-remove
+    floodFill(next, px, py, transparent, tolerance);
+    push(next);
+  };
 
   // Pointer handling --------------------------------------------------------
 
@@ -880,58 +875,59 @@ export function PixelEditor({
   }, []);
 
   // Keyboard shortcuts.
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      // Don't hijack keys when the user is typing in a form field or
-      // contenteditable — Ctrl+Z would clobber native input undo, Backspace /
-      // Delete / Enter / Escape would steal keystrokes from inputs like the
-      // grid-controls sidebar or the in-editor color/tolerance pickers.
-      if (
-        isEditableTarget(event.target) ||
-        isEditableTarget(document.activeElement)
-      ) {
+  const onKey = useEffectEvent((event: KeyboardEvent) => {
+    // Don't hijack keys when the user is typing in a form field or
+    // contenteditable — Ctrl+Z would clobber native input undo, Backspace /
+    // Delete / Enter / Escape would steal keystrokes from inputs like the
+    // grid-controls sidebar or the in-editor color/tolerance pickers.
+    if (
+      isEditableTarget(event.target) ||
+      isEditableTarget(document.activeElement)
+    ) {
+      return;
+    }
+    const meta = event.metaKey || event.ctrlKey;
+    if (meta) {
+      const key = event.key.toLowerCase();
+      if (key === "z" && !event.shiftKey) {
+        event.preventDefault();
+        undo();
         return;
       }
-      const meta = event.metaKey || event.ctrlKey;
-      if (meta) {
-        const key = event.key.toLowerCase();
-        if (key === "z" && !event.shiftKey) {
-          event.preventDefault();
-          undo();
-          return;
-        }
-        if ((key === "z" && event.shiftKey) || key === "y") {
-          event.preventDefault();
-          redo();
-          return;
-        }
+      if ((key === "z" && event.shiftKey) || key === "y") {
+        event.preventDefault();
+        redo();
+        return;
       }
-      if (selection !== null) {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          cancelSelection();
-        } else if (event.key === "Enter") {
-          event.preventDefault();
-          commitSelection();
-        } else if (event.key === "Delete" || event.key === "Backspace") {
-          event.preventDefault();
-          eraseSelection();
-        }
+    }
+    if (selection !== null) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        cancelSelection();
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        commitSelection();
+      } else if (event.key === "Delete" || event.key === "Backspace") {
+        event.preventDefault();
+        eraseSelection();
       }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [undo, redo, selection, cancelSelection, commitSelection, eraseSelection]);
+    }
+  });
 
-  const switchTool = useCallback(
-    (next: Tool) => {
-      if (selection !== null) commitSelection();
-      setTool(next);
-    },
-    [commitSelection, selection],
-  );
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => {
+      onKey(event);
+    };
+    window.addEventListener("keydown", listener);
+    return () => {
+      window.removeEventListener("keydown", listener);
+    };
+  }, []);
+
+  const switchTool = (next: Tool) => {
+    if (selection !== null) commitSelection();
+    setTool(next);
+  };
 
   const cursorClass = (() => {
     if (tool === "select") return styles.canvasSelect;

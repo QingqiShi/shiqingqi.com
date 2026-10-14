@@ -17,13 +17,17 @@ export function ReactGrab() {
   return <ReactGrabEffect />;
 }
 
+function loadReactGrab() {
+  return import("react-grab");
+}
+
 function ReactGrabEffect() {
   useEffect(() => {
     // Not on touch devices: its full-viewport fixed overlay makes Safari on
     // iOS fill the status bar with a flat colour, which spoils device checks.
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
       return;
-    void import("react-grab");
+    void loadReactGrab();
   }, []);
 
   return null;

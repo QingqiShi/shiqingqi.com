@@ -241,15 +241,14 @@ export function UpdateValuesForm() {
     if (mutations.length === 0) {
       showToast({ message: nothing, durationMs: 4000 });
     } else {
+      const message =
+        count === 0
+          ? savedRates
+          : count === 1
+            ? savedOne
+            : `${new Intl.NumberFormat(locale).format(count)} ${savedMany}`;
       try {
-        runUndoable(mutations, {
-          message:
-            count === 0
-              ? savedRates
-              : count === 1
-                ? savedOne
-                : `${new Intl.NumberFormat(locale).format(count)} ${savedMany}`,
-        });
+        runUndoable(mutations, { message });
       } catch {
         showToast({ message: failed });
         return;

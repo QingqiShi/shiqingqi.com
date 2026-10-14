@@ -17,6 +17,7 @@ import { downloadBlob } from "#src/browser/download-blob.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { reportImageQuery } from "../queries/report-image-query.ts";
+import { withPendingKey } from "../shell/with-pending.ts";
 import {
   buildReportSummary,
   type ReportSummaryCopy,
@@ -86,34 +87,32 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
   }
 
   async function share() {
-    setBusy("share");
-    try {
-      const outcome = await shareReportImage(await readImage(), {
-        fileName,
-        title: messages.title,
-        target: navigator,
-        download: downloadBlob,
-      });
-      if (outcome === "retry") showToast({ message: messages.retry });
-      if (outcome === "downloaded") {
-        showToast({ message: messages.downloaded, durationMs: 4000 });
+    await withPendingKey(setBusy, "share", async () => {
+      try {
+        const outcome = await shareReportImage(await readImage(), {
+          fileName,
+          title: messages.title,
+          target: navigator,
+          download: downloadBlob,
+        });
+        if (outcome === "retry") showToast({ message: messages.retry });
+        if (outcome === "downloaded") {
+          showToast({ message: messages.downloaded, durationMs: 4000 });
+        }
+      } catch {
+        showToast({ message: messages.imageFailed });
       }
-    } catch {
-      showToast({ message: messages.imageFailed });
-    } finally {
-      setBusy(null);
-    }
+    });
   }
 
   async function download() {
-    setBusy("download");
-    try {
-      downloadBlob(await readImage(), fileName);
-    } catch {
-      showToast({ message: messages.imageFailed });
-    } finally {
-      setBusy(null);
-    }
+    await withPendingKey(setBusy, "download", async () => {
+      try {
+        downloadBlob(await readImage(), fileName);
+      } catch {
+        showToast({ message: messages.imageFailed });
+      }
+    });
   }
 
   async function copySummary() {

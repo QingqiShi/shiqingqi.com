@@ -2,7 +2,7 @@
 
 import { easing } from "@tuja/ui/primitives/motion.stylex";
 import { prefersReducedMotion } from "@tuja/ui/utils/prefers-reduced-motion";
-import { useCallback, useLayoutEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
   DATA_HERO_REFINE_BUTTON,
@@ -28,13 +28,10 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
   const heroElementRef = useRef<HTMLDivElement | null>(null);
   const { isVisible: isHeroInputVisible, setRef: setVisibilityRef } =
     useIsElementVisible();
-  const heroInputRef = useCallback(
-    (el: HTMLDivElement | null) => {
-      heroElementRef.current = el;
-      setVisibilityRef(el);
-    },
-    [setVisibilityRef],
-  );
+  const heroInputRef = (el: HTMLDivElement | null) => {
+    heroElementRef.current = el;
+    setVisibilityRef(el);
+  };
   const isFirstRenderRef = useRef(true);
   const morphAnimationsRef = useRef<Animation[]>([]);
   const refineAnimationRef = useRef<Animation | null>(null);

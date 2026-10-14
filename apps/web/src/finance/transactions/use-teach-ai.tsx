@@ -19,6 +19,7 @@ import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { householdApiClient } from "../settings/household-api-client.ts";
 import { MAX_INSTRUCTION_LINE_LENGTH } from "../settings/max-ai-instructions-length.ts";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
+import { withPending } from "../shell/with-pending.ts";
 import { useSystemCategoryNames } from "../store/use-category-display-name.ts";
 import { aiCorrection, labelledTransactionIn } from "./ai-correction.ts";
 import { useTransactionLookups } from "./use-transaction-lookups.ts";
@@ -140,25 +141,24 @@ function TeachAiForm({ title, draft, onRetry, onClose }: TeachAiFormProps) {
   async function save(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!change || line.trim() === "") return;
-    setSaving(true);
-    setSaveError(null);
-    try {
-      await householdApiClient.changeAiInstructions({
-        replaces: change.replaces,
-        line: line.trim(),
-      });
-      await runtime.loop.sync();
-      showToast({ message: messages.saved, durationMs: 4000 });
-      onClose();
-    } catch (error) {
-      setSaveError(
-        error instanceof FinanceApiError && error.code === "too-long"
-          ? messages.tooLong
-          : messages.failed,
-      );
-    } finally {
-      setSaving(false);
-    }
+    await withPending(setSaving, async () => {
+      setSaveError(null);
+      try {
+        await householdApiClient.changeAiInstructions({
+          replaces: change.replaces,
+          line: line.trim(),
+        });
+        await runtime.loop.sync();
+        showToast({ message: messages.saved, durationMs: 4000 });
+        onClose();
+      } catch (error) {
+        setSaveError(
+          error instanceof FinanceApiError && error.code === "too-long"
+            ? messages.tooLong
+            : messages.failed,
+        );
+      }
+    });
   }
 
   return (

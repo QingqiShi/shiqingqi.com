@@ -1,4 +1,4 @@
-import { useCallback, useId } from "react";
+import { useId } from "react";
 import { useControlled } from "./use-controlled.ts";
 
 interface DisclosureOptions {
@@ -63,17 +63,14 @@ export function useDisclosure({
 
   // `useControlled`'s setter is a no-op while controlled, so the callback is
   // what tells a controlling parent to update — it fires either way.
-  const setOpen = useCallback(
-    (next: boolean) => {
-      setInternalOpen(next);
-      onOpenChange?.(next);
-    },
-    [onOpenChange, setInternalOpen],
-  );
+  const setOpen = (next: boolean) => {
+    setInternalOpen(next);
+    onOpenChange?.(next);
+  };
 
-  const toggle = useCallback(() => {
+  const toggle = () => {
     setOpen(!open);
-  }, [open, setOpen]);
+  };
 
   const triggerProps: DisclosureTriggerProps = {
     type: "button",

@@ -28,12 +28,14 @@ import { bankApiClient } from "../bank/bank-api-client.ts";
 import type {
   ProviderAccountView,
   ProviderAccountsResponse,
+  SyncNowResponse,
 } from "../bank/types.ts";
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
 import { displayMoment } from "../domain/dates/display-moment.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { withPending } from "../shell/with-pending.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
@@ -317,98 +319,97 @@ function ConnectedSettings({
         choiceOf(account),
       ]),
     );
-    setSaving(true);
-    try {
-      await runPlan(choices);
-      showToast({
-        message: labels.saved,
-        action: {
-          label: labels.undo,
-          onAction: () => {
-            void runPlan(before).then(
-              () => {
-                showToast({ message: labels.undone, durationMs: 4000 });
-                onReload();
-              },
-              () => {
-                showToast({ message: labels.failed });
-                onReload();
-              },
-            );
+    await withPending(setSaving, async () => {
+      try {
+        await runPlan(choices);
+        showToast({
+          message: labels.saved,
+          action: {
+            label: labels.undo,
+            onAction: () => {
+              void runPlan(before).then(
+                () => {
+                  showToast({ message: labels.undone, durationMs: 4000 });
+                  onReload();
+                },
+                () => {
+                  showToast({ message: labels.failed });
+                  onReload();
+                },
+              );
+            },
           },
-        },
-      });
-      onReload();
-    } catch (error) {
-      showToast({
-        message:
-          error instanceof FinanceApiError && error.code === "owner-only"
-            ? labels.ownerOnly
-            : labels.failed,
-      });
-      onReload();
-    } finally {
-      setSaving(false);
-    }
+        });
+        onReload();
+      } catch (error) {
+        showToast({
+          message:
+            error instanceof FinanceApiError && error.code === "owner-only"
+              ? labels.ownerOnly
+              : labels.failed,
+        });
+        onReload();
+      }
+    });
+  }
+
+  function showSyncResult(result: SyncNowResponse) {
+    const snapshot = runtime.store.getSnapshot();
+    const byAccount = selectTransactionsByAccount(snapshot);
+    const reviewIds = selectReviewIds(snapshot);
+    const lines = summariseBankSync(
+      result,
+      (accountId) =>
+        accounts.find((account) => account.id === accountId)?.name ?? "",
+      (accountId) =>
+        (byAccount.get(accountId) ?? []).filter(
+          (transaction) =>
+            reviewIds.has(transaction.id) &&
+            transaction.status === "posted" &&
+            transaction.deletedAt === null,
+        ).length,
+    );
+    const toReview = lines.some((line) => line.review > 0);
+    showToast(
+      lines.length === 0
+        ? { message: labels.nothingNew, durationMs: 4000 }
+        : {
+            message: lines.map(lineText).join(locale === "zh" ? "；" : "; "),
+            ...(toReview
+              ? {
+                  action: {
+                    label: labels.view,
+                    onAction: () => {
+                      router.push(
+                        getLocalePath("/finance/transactions?review=1", locale),
+                      );
+                    },
+                  },
+                }
+              : {}),
+          },
+    );
   }
 
   async function syncNow() {
-    setSyncing(true);
-    try {
-      const result = await bankApiClient.syncNow();
-      await runtime.loop.sync();
-      const snapshot = runtime.store.getSnapshot();
-      const byAccount = selectTransactionsByAccount(snapshot);
-      const reviewIds = selectReviewIds(snapshot);
-      const lines = summariseBankSync(
-        result,
-        (accountId) =>
-          accounts.find((account) => account.id === accountId)?.name ?? "",
-        (accountId) =>
-          (byAccount.get(accountId) ?? []).filter(
-            (transaction) =>
-              reviewIds.has(transaction.id) &&
-              transaction.status === "posted" &&
-              transaction.deletedAt === null,
-          ).length,
-      );
-      const toReview = lines.some((line) => line.review > 0);
-      showToast(
-        lines.length === 0
-          ? { message: labels.nothingNew, durationMs: 4000 }
-          : {
-              message: lines.map(lineText).join(locale === "zh" ? "；" : "; "),
-              ...(toReview
-                ? {
-                    action: {
-                      label: labels.view,
-                      onAction: () => {
-                        router.push(
-                          getLocalePath(
-                            "/finance/transactions?review=1",
-                            locale,
-                          ),
-                        );
-                      },
-                    },
-                  }
-                : {}),
-            },
-      );
-      onReload();
-    } catch (error) {
-      const code = error instanceof FinanceApiError ? error.code : null;
-      showToast({
-        message:
-          code === "too-many-requests"
-            ? labels.syncedRecently
-            : code === "rate_limited"
-              ? (bankErrorMessage(code) ?? labels.syncFailed)
-              : labels.syncFailed,
-      });
-    } finally {
-      setSyncing(false);
-    }
+    await withPending(setSyncing, async () => {
+      try {
+        const result = await bankApiClient.syncNow();
+        await runtime.loop.sync();
+        showSyncResult(result);
+        onReload();
+      } catch (error) {
+        const code = error instanceof FinanceApiError ? error.code : null;
+        showToast({
+          message:
+            code === "too-many-requests"
+              ? labels.syncedRecently
+              : code === "rate_limited"
+                ? (bankErrorMessage(code) ?? labels.syncFailed)
+                : labels.syncFailed,
+        });
+      }
+    });
   }
 
   return (

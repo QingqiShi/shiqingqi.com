@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface HistoryState<T> {
   past: readonly T[];
@@ -30,23 +30,23 @@ export function useHistory<T>(initial: T) {
     presentRef.current = state.present;
   }, [state.present]);
 
-  const push = useCallback((next: T) => {
+  const push = (next: T) => {
     setState((prev) => ({
       past: [...prev.past, prev.present],
       present: next,
       future: [],
     }));
-  }, []);
+  };
 
-  const replace = useCallback((next: T) => {
+  const replace = (next: T) => {
     setState((prev) => ({
       past: prev.past,
       present: next,
       future: [],
     }));
-  }, []);
+  };
 
-  const undo = useCallback(() => {
+  const undo = () => {
     setState((prev) => {
       if (prev.past.length === 0) return prev;
       const previous = prev.past[prev.past.length - 1];
@@ -56,9 +56,9 @@ export function useHistory<T>(initial: T) {
         future: [prev.present, ...prev.future],
       };
     });
-  }, []);
+  };
 
-  const redo = useCallback(() => {
+  const redo = () => {
     setState((prev) => {
       if (prev.future.length === 0) return prev;
       const next = prev.future[0];
@@ -68,11 +68,11 @@ export function useHistory<T>(initial: T) {
         future: prev.future.slice(1),
       };
     });
-  }, []);
+  };
 
-  const reset = useCallback((next: T) => {
+  const reset = (next: T) => {
     setState({ past: [], present: next, future: [] });
-  }, []);
+  };
 
   return {
     present: state.present,

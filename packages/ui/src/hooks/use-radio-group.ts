@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 
 interface RadioGroupOptions<TValue extends string> {
   /** Ordered list of option values. Arrow-key navigation follows this order. */
@@ -47,35 +47,29 @@ export function useRadioGroup<TValue extends string>({
 }: RadioGroupOptions<TValue>) {
   const nodesRef = useRef(new Map<TValue, HTMLButtonElement>());
 
-  const focusValue = useCallback((target: TValue) => {
+  const focusValue = (target: TValue) => {
     nodesRef.current.get(target)?.focus();
-  }, []);
+  };
 
-  const move = useCallback(
-    (delta: 1 | -1) => {
-      if (values.length === 0) return;
-      const currentIndex = values.indexOf(value);
-      // If the current value isn't in the list (shouldn't happen but be
-      // defensive), fall back to the first option.
-      const baseIndex = currentIndex === -1 ? 0 : currentIndex;
-      const nextIndex = (baseIndex + delta + values.length) % values.length;
-      const nextValue = values[nextIndex];
-      onChange(nextValue);
-      focusValue(nextValue);
-    },
-    [focusValue, onChange, value, values],
-  );
+  const move = (delta: 1 | -1) => {
+    if (values.length === 0) return;
+    const currentIndex = values.indexOf(value);
+    // If the current value isn't in the list (shouldn't happen but be
+    // defensive), fall back to the first option.
+    const baseIndex = currentIndex === -1 ? 0 : currentIndex;
+    const nextIndex = (baseIndex + delta + values.length) % values.length;
+    const nextValue = values[nextIndex];
+    onChange(nextValue);
+    focusValue(nextValue);
+  };
 
-  const jump = useCallback(
-    (target: "first" | "last") => {
-      if (values.length === 0) return;
-      const nextValue =
-        target === "first" ? values[0] : values[values.length - 1];
-      onChange(nextValue);
-      focusValue(nextValue);
-    },
-    [focusValue, onChange, values],
-  );
+  const jump = (target: "first" | "last") => {
+    if (values.length === 0) return;
+    const nextValue =
+      target === "first" ? values[0] : values[values.length - 1];
+    onChange(nextValue);
+    focusValue(nextValue);
+  };
 
   // `value` is documented as one of `values`, but it can drift at runtime — a
   // view restored from a stale query param, options that arrive after the
@@ -92,45 +86,42 @@ export function useRadioGroup<TValue extends string>({
    * WAI-ARIA arrow/Home/End model, and a `ref` that registers the node so
    * keyboard navigation can move focus.
    */
-  const getOptionProps = useCallback(
-    (optionValue: TValue): OptionProps => ({
-      ref: (node) => {
-        if (node === null) {
-          nodesRef.current.delete(optionValue);
-        } else {
-          nodesRef.current.set(optionValue, node);
-        }
-      },
-      role: "radio",
-      "aria-checked": optionValue === value,
-      tabIndex: optionValue === (fallbackValue ?? value) ? 0 : -1,
-      onClick: () => {
-        onChange(optionValue);
-      },
-      onKeyDown: (event) => {
-        if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-          event.preventDefault();
-          move(1);
-          return;
-        }
-        if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-          event.preventDefault();
-          move(-1);
-          return;
-        }
-        if (event.key === "Home") {
-          event.preventDefault();
-          jump("first");
-          return;
-        }
-        if (event.key === "End") {
-          event.preventDefault();
-          jump("last");
-        }
-      },
-    }),
-    [fallbackValue, jump, move, onChange, value],
-  );
+  const getOptionProps = (optionValue: TValue): OptionProps => ({
+    ref: (node) => {
+      if (node === null) {
+        nodesRef.current.delete(optionValue);
+      } else {
+        nodesRef.current.set(optionValue, node);
+      }
+    },
+    role: "radio",
+    "aria-checked": optionValue === value,
+    tabIndex: optionValue === (fallbackValue ?? value) ? 0 : -1,
+    onClick: () => {
+      onChange(optionValue);
+    },
+    onKeyDown: (event) => {
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        event.preventDefault();
+        move(1);
+        return;
+      }
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        move(-1);
+        return;
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        jump("first");
+        return;
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        jump("last");
+      }
+    },
+  });
 
   return { getOptionProps, hasSelection: values.includes(value) };
 }

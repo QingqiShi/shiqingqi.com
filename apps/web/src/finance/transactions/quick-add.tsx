@@ -7,7 +7,7 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
-import { useMemo, useState, type Ref } from "react";
+import { useState, type Ref } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
@@ -16,6 +16,7 @@ import { parseMoney } from "../domain/money/parse-money.ts";
 import { buildTransactionMutations } from "../editor/build-transaction-mutations.ts";
 import type { EditorDraft } from "../editor/editor-draft.ts";
 import { useEditorData, type EditorData } from "../editor/use-editor-data.ts";
+import { applyAll } from "../replica/apply-with-undo.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
@@ -73,10 +74,11 @@ export function QuickAdd({ onNeedsEditor, inputRef }: QuickAddProps) {
   const data = useEditorData();
   const isWide = useIsWideLayout();
   const { transactions, lookups, entriesByTransaction } = data;
-  const words = useMemo(
-    () => placeholderWords({ transactions, lookups, entriesByTransaction }),
-    [transactions, lookups, entriesByTransaction],
-  );
+  const words = placeholderWords({
+    transactions,
+    lookups,
+    entriesByTransaction,
+  });
   const store = useReplicaStore();
   const showToast = useToast();
   const [text, setText] = useState("");
@@ -179,7 +181,7 @@ export function QuickAdd({ onNeedsEditor, inputRef }: QuickAddProps) {
       return;
     }
     try {
-      for (const mutation of result.mutations) store.applyLocal(mutation);
+      applyAll(store, result.mutations);
     } catch {
       onNeedsEditor(preview.draft);
       setText("");
@@ -192,7 +194,7 @@ export function QuickAdd({ onNeedsEditor, inputRef }: QuickAddProps) {
         label: undoLabel,
         onAction: () => {
           try {
-            for (const mutation of result.undo) store.applyLocal(mutation);
+            applyAll(store, result.undo);
           } catch {
             // The row changed again since; nothing is left to undo.
           }

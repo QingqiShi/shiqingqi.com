@@ -4,8 +4,8 @@ import * as stylex from "@stylexjs/stylex";
 import {
   createContext,
   use,
-  useCallback,
   useEffect,
+  useEffectEvent,
   useRef,
   useState,
   type ReactNode,
@@ -104,23 +104,27 @@ export function ToastProvider({
   const [held, setHeld] = useState(false);
   const nextIdRef = useRef(0);
 
-  const leave = useCallback(() => {
+  const leave = () => {
     setToast((shown) => (shown ? { ...shown, leaving: true } : null));
-  }, []);
+  };
+
+  const onTimeout = useEffectEvent(leave);
 
   useEffect(() => {
     if (!toast || toast.leaving || held) return;
-    const timer = setTimeout(leave, toast.durationMs ?? DEFAULT_DURATION_MS);
+    const timer = setTimeout(() => {
+      onTimeout();
+    }, toast.durationMs ?? DEFAULT_DURATION_MS);
     return () => {
       clearTimeout(timer);
     };
-  }, [toast, held, leave]);
+  }, [toast, held]);
 
-  const show = useCallback((options: ToastOptions) => {
+  const show = (options: ToastOptions) => {
     nextIdRef.current++;
     setHeld(false);
     setToast({ ...options, id: nextIdRef.current, leaving: false });
-  }, []);
+  };
 
   const region = (
     <div css={[styles.anchor, css]}>

@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import {
   use,
-  useCallback,
+  useEffectEvent,
   useLayoutEffect,
   useRef,
   useState,
@@ -159,7 +159,7 @@ export function ProgressiveBlur({
   // because a scroll gesture would otherwise re-render the floating element
   // every frame. Its size does reach state, because the masks are drawn at the
   // box's size — but only when it changes, which scrolling never does.
-  const place = useCallback(() => {
+  const place = () => {
     const layers = layersRef.current;
     const slot = slotRef.current;
     if (reach === undefined || !layers || !slot) return;
@@ -177,38 +177,41 @@ export function ProgressiveBlur({
       height: Math.round(rect.bottom - rect.top + 2 * reach),
     };
     setBoxSize((current) => (isSameSize(current, size) ? current : size));
-  }, [reach]);
+  };
 
   // The wrapper's own ref, because a fresh one — mounted onto the plane, or
   // beside the element — carries none of the offsets written to the last. On
   // the first mount the slot is not attached yet and `place` bails, leaving the
   // effect below to place the box.
-  const setLayers = useCallback(
-    (node: HTMLDivElement | null) => {
-      layersRef.current = node;
-      offsetRef.current = null;
-      if (node !== null) place();
-    },
-    [place],
-  );
+  const setLayers = (node: HTMLDivElement | null) => {
+    layersRef.current = node;
+    offsetRef.current = null;
+    if (node !== null) place();
+  };
+
+  const followElement = useEffectEvent(place);
 
   useLayoutEffect(() => {
     const slot = slotRef.current;
     if (reach === undefined || !slot) return;
 
-    place();
+    followElement();
     // The element is watched shown or not, so one that goes melts the blur out.
-    return observeChildren(slot, place);
-  }, [reach, place]);
+    return observeChildren(slot, () => {
+      followElement();
+    });
+  }, [reach]);
 
   useLayoutEffect(() => {
     if (reach === undefined || !isShown) return;
 
     // Placed again on being shown: while hidden, nothing followed the page.
-    place();
+    followElement();
 
-    return observeViewport(place);
-  }, [reach, isShown, place]);
+    return observeViewport(() => {
+      followElement();
+    });
+  }, [reach, isShown]);
 
   const layers = buildBlurLayers({
     geometry: hasReach ? reachGeometry(reach, boxSize) : geometry,

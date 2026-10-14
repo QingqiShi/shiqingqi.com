@@ -26,7 +26,7 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { downloadBlob } from "#src/browser/download-blob.ts";
 import { t } from "#src/i18n.ts";
 import { drawCellCentered } from "./draw-cell-centered";
@@ -175,7 +175,7 @@ export function AnimationMode({
   const moveDownLabel = t({ en: "Move down", zh: "下移" });
   const removeLabel = t({ en: "Remove frame", zh: "删除帧" });
 
-  const handleExport = useCallback(async () => {
+  const handleExport = async () => {
     const cellPayload: { cell: CellPixels; duration: number }[] = [];
     for (const frame of frames) {
       const cell = cells[frame.cellIndex];
@@ -190,7 +190,7 @@ export function AnimationMode({
       type: "application/json",
     });
     downloadBlob(manifestBlob, `${baseFilename}-sheet.json`);
-  }, [baseFilename, cells, frames]);
+  };
 
   return (
     <div css={styles.root}>

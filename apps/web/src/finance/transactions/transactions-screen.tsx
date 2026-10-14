@@ -16,7 +16,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useDeferredValue, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -29,6 +29,7 @@ import {
   type EditorFocusTarget,
 } from "../editor/transaction-editor.tsx";
 import { unconfirmMutations } from "../editor/unconfirm-mutations.ts";
+import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
@@ -95,59 +96,35 @@ export function TransactionsScreen() {
     setUrlQuery(url.filters.query);
     setQuery(url.filters.query);
   }
-  const filters = useMemo(
-    () => ({ ...url.filters, query }),
-    [url.filters, query],
-  );
+  const filters = { ...url.filters, query };
   const deferredFilters = useDeferredValue(filters);
   const [upcomingOpen, setUpcomingOpen] = useState(false);
-  const list = useMemo(
-    () =>
-      buildTransactionList(
-        {
-          rows,
-          entriesByTransaction,
-          tagIdsByTransaction,
-          categoryDescendantsById: lookups.categoryDescendantsById,
-          reviewIds,
-          baseCurrency,
-        },
-        deferredFilters,
-        { today, upcomingOpen },
-      ),
-    [
+  const list = buildTransactionList(
+    {
       rows,
       entriesByTransaction,
       tagIdsByTransaction,
-      lookups,
+      categoryDescendantsById: lookups.categoryDescendantsById,
       reviewIds,
       baseCurrency,
-      deferredFilters,
-      today,
-      upcomingOpen,
-    ],
+    },
+    deferredFilters,
+    { today, upcomingOpen },
   );
-  const summary = useMemo(() => {
-    let spent = 0;
-    for (const item of list.items) {
-      if (item.type === "day") spent += item.expenseMinor;
-    }
-    return { count: list.matchCount, spent };
-  }, [list]);
+  let spent = 0;
+  for (const item of list.items) {
+    if (item.type === "day") spent += item.expenseMinor;
+  }
+  const summary = { count: list.matchCount, spent };
 
-  const categoriesByKind = useMemo(
-    () => ({
-      expense: categories.filter(
-        (category) =>
-          category.kind === "expense" && category.archivedAt === null,
-      ),
-      income: categories.filter(
-        (category) =>
-          category.kind === "income" && category.archivedAt === null,
-      ),
-    }),
-    [categories],
-  );
+  const categoriesByKind = {
+    expense: categories.filter(
+      (category) => category.kind === "expense" && category.archivedAt === null,
+    ),
+    income: categories.filter(
+      (category) => category.kind === "income" && category.archivedAt === null,
+    ),
+  };
 
   const [seed, setSeed] = useState<{
     draft: EditorDraft;
@@ -179,7 +156,7 @@ export function TransactionsScreen() {
     offerTeach?: () => ToastAction | undefined,
   ) => {
     try {
-      for (const mutation of mutations) store.applyLocal(mutation);
+      applyAll(store, mutations);
     } catch {
       return;
     }
@@ -193,7 +170,7 @@ export function TransactionsScreen() {
               label: undoLabel,
               onAction: () => {
                 try {
-                  for (const mutation of undo) store.applyLocal(mutation);
+                  applyAll(store, undo);
                 } catch {
                   // The row changed again since; nothing is left to undo.
                 }
@@ -321,7 +298,10 @@ export function TransactionsScreen() {
   const openWithFocus = (focus: EditorFocusTarget) => {
     const row = target();
     if (!row) return;
-    setFocusRequest({ target: focus, nonce: Date.now() });
+    setFocusRequest((previous) => ({
+      target: focus,
+      nonce: (previous?.nonce ?? 0) + 1,
+    }));
     if (url.selectedId !== row.id) url.open(row.id);
   };
 
