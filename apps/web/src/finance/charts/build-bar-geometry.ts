@@ -1,6 +1,6 @@
+import { tickStep } from "d3-array";
+import { scaleLinear } from "d3-scale";
 import { barPath } from "./bar-path.ts";
-import { linearScale } from "./linear-scale.ts";
-import { niceTicks } from "./nice-ticks.ts";
 
 export type BarLayout = "stacked" | "grouped";
 
@@ -81,18 +81,6 @@ function domainOf(input: BarGeometryInput) {
   return [low, high];
 }
 
-function niceDomain(low: number, high: number, count: number) {
-  const rough = niceTicks(low, high, count);
-  const step = rough.length > 1 ? rough[1] - rough[0] : Math.max(high - low, 1);
-  const top = high > 0 ? Math.ceil(high / step) * step : 0;
-  const bottom = low < 0 ? Math.floor(low / step) * step : 0;
-  const ticks: number[] = [];
-  for (let tick = bottom; tick <= top + step / 2; tick += step) {
-    ticks.push(Math.round(tick) || 0);
-  }
-  return { bottom, top, step, ticks };
-}
-
 /**
  * The geometry of a bar chart: a slot per period, bars at most 24px wide,
  * a 2px gap between stacked segments and grouped bars, 4px round corners
@@ -102,9 +90,11 @@ function niceDomain(low: number, high: number, count: number) {
  */
 export function buildBarGeometry(input: BarGeometryInput): BarGeometry {
   const { periodCount, series, layout, plotRight, top, bottom } = input;
-  const [low, high] = domainOf(input);
-  const nice = niceDomain(low, high, input.tickCount);
-  const y = linearScale(nice.bottom, nice.top, bottom, top);
+  const y = scaleLinear()
+    .domain(domainOf(input))
+    .range([bottom, top])
+    .nice(input.tickCount);
+  const [niceLow, niceHigh] = y.domain();
   const zeroY = y(0);
   const band = periodCount > 0 ? plotRight / periodCount : 0;
   const dense = band < 4;
@@ -186,8 +176,10 @@ export function buildBarGeometry(input: BarGeometryInput): BarGeometry {
     partialPaths: partialParts.map((pieces) => pieces.join("")),
     spans,
     y,
-    yTicks: nice.ticks.map((value) => ({ value, y: y(value) })),
-    tickStep: nice.step,
+    yTicks: y
+      .ticks(input.tickCount)
+      .map((value) => ({ value: Math.round(value) || 0, y: y(value) })),
+    tickStep: tickStep(niceLow, niceHigh, input.tickCount),
     zeroY,
   };
 }

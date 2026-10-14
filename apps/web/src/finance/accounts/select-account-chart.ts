@@ -40,7 +40,6 @@ export function selectAccountChart(
   const chart = buildChartSeries({
     start: chartRangeStart(range, today, firstDay),
     end: today,
-    firstDay,
     valuesAt: (days) => sampleAccountBalance(series, closedOn, days),
   });
   byRange.set(key, chart);

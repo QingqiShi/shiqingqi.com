@@ -8,10 +8,10 @@ import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { formatPercentChange } from "../domain/money/format-percent-change.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { selectNetWorthAt } from "../store/select-net-worth-at.ts";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
-import { formatPercentChange } from "./format-percent-change.ts";
 import { netWorthComparisonDays } from "./net-worth-comparison-days.ts";
 
 interface NetWorthHeadlineProps {

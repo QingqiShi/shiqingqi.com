@@ -31,7 +31,7 @@ const WEEKDAY_PART: Partial<Record<DisplayDayStyle, "short" | "long">> = {
   weekdayLong: "long",
 };
 
-const MS_PER_DAY = 86_400_000;
+export const MS_PER_DAY = 86_400_000;
 const formatters = new Map<string, Intl.DateTimeFormat>();
 
 /** The Intl locale for a site locale. The Household is in the UK, so English is en-GB. */

@@ -168,13 +168,10 @@ describe("report list helpers", () => {
 });
 
 describe("report charts", () => {
-  it("plots net worth with its moving average", () => {
+  it("plots net worth week by week", () => {
     const series = reportChartSeries(data.trend, "netWorth");
     expect(series?.values).toEqual(
       Float64Array.from([90_000_00, 98_749_50, 100_000_00]),
-    );
-    expect(series?.trend).toEqual(
-      Float64Array.from([89_000_00, 90_000_00, 91_000_00]),
     );
     const days = Array.from(series?.days ?? []);
     expect(days.slice(1).map((day, index) => day - days[index])).toEqual([
@@ -185,7 +182,6 @@ describe("report charts", () => {
   it("plots the property net only from its first week", () => {
     const series = reportChartSeries(data.trend, "propertyNet");
     expect(series?.values).toEqual(Float64Array.from([50_000_00, 51_000_00]));
-    expect(series?.trend).toBeNull();
     expect(
       reportChartSeries(
         data.trend.map((point) => ({ ...point, propertyNetMinor: null })),

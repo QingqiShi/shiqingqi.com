@@ -20,8 +20,8 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { MoneyChange } from "../domain/money/money-change.tsx";
 import { fillTemplate } from "./fill-template.ts";
-import { ReportChange } from "./report-change.tsx";
 import { ReportSection } from "./report-section.tsx";
 import { useCategoryLineName } from "./use-category-line-name.ts";
 import type {
@@ -112,10 +112,7 @@ export function ReportSpending({
               {money(line.averageMinor)}
             </TableCell>
             <TableCell numeric>
-              <ReportChange
-                changeMinor={line.changeMinor}
-                currency={currency}
-              />
+              <MoneyChange changeMinor={line.changeMinor} currency={currency} />
             </TableCell>
           </TableRow>
         ))}
@@ -144,10 +141,7 @@ export function ReportSpending({
           {money(spending.totalMinor)}
         </span>
         <p css={[cluster.tight, typeRole.bodySmall, styles.line]}>
-          <ReportChange
-            changeMinor={spending.changeMinor}
-            currency={currency}
-          />
+          <MoneyChange changeMinor={spending.changeMinor} currency={currency} />
           <span css={styles.muted}>
             {fillTemplate(
               t({

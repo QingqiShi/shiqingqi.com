@@ -9,7 +9,7 @@ import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { ReportChange } from "./report-change.tsx";
+import { MoneyChange } from "../domain/money/money-change.tsx";
 import type { WeeklyReportData } from "./weekly-report-data-schema.ts";
 
 /** Net worth at the end of the week, and how it moved over one week, four weeks and the year. */
@@ -50,7 +50,7 @@ export function ReportHeadline({ data }: { data: WeeklyReportData }) {
           <div key={key} css={styles.change}>
             <dt css={[typeRole.caption, styles.muted]}>{label}</dt>
             <dd css={[typeRole.bodySmall, styles.value]}>
-              <ReportChange
+              <MoneyChange
                 changeMinor={comparison.changeMinor}
                 fromMinor={comparison.netWorthMinor}
                 currency={currency}

@@ -29,6 +29,7 @@ import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { formatPercentChange } from "../domain/money/format-percent-change.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { fillTemplate } from "../reports/fill-template.ts";
@@ -54,7 +55,6 @@ import {
 } from "./build-valuation-mutations.ts";
 import { currencySymbol } from "./currency-symbol.ts";
 import { DayChips } from "./day-chips.tsx";
-import { formatPercentChange } from "./format-percent-change.ts";
 import { formatValuationAge } from "./format-valuation-age.ts";
 import { selectBalanceSheet } from "./select-balance-sheet.ts";
 import { useBaseCurrency } from "./use-base-currency.ts";

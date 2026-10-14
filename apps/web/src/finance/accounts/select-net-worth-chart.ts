@@ -15,9 +15,6 @@ import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { selectFxIndex } from "../store/select-fx-index.ts";
 
-/** The trend line on the Net worth chart: a 13-week average. */
-const NET_WORTH_TREND_DAYS = 91;
-
 interface Cached {
   accounts: readonly NetWorthAccount[];
   fx: FxIndex;
@@ -37,9 +34,8 @@ function firstDayOf(seriesByAccount: ReadonlyMap<string, BalanceSeries>) {
 }
 
 /**
- * Net worth over `range` ending on `today`, with its 13-week average. Each
- * range is worked out once per change to the Replica, so switching back to
- * a range is a lookup.
+ * Net worth over `range` ending on `today`. Each range is worked out once
+ * per change to the Replica, so switching back to a range is a lookup.
  */
 export function selectNetWorthChart(
   snapshot: ReplicaSnapshot,
@@ -66,9 +62,7 @@ export function selectNetWorthChart(
   const series = buildChartSeries({
     start: chartRangeStart(range, today, cached.firstDay),
     end: today,
-    firstDay: cached.firstDay,
     valuesAt: (days) => sampleBalances(accounts, seriesByAccount, fx, days),
-    trendWindowDays: NET_WORTH_TREND_DAYS,
   });
   cached.byRange.set(key, series);
   if (process.env.NODE_ENV !== "production") {

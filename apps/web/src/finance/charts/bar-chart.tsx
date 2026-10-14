@@ -19,9 +19,10 @@ import { ChartDataTable } from "./chart-data-table.tsx";
 import { ChartLegend } from "./chart-legend.tsx";
 import { chartMarks } from "./chart-marks.stylex.ts";
 import { chooseBarTicks } from "./choose-bar-ticks.ts";
+import { crisp } from "./crisp.ts";
 import { seriesFill, seriesKey } from "./series-marks.stylex.ts";
 import type { SeriesTone } from "./series-tone-at.ts";
-import { useChartScrub } from "./use-chart-scrub.ts";
+import { useChartSelection } from "./use-chart-selection.ts";
 import { useElementWidth } from "./use-element-width.ts";
 
 export interface BarSeries {
@@ -159,10 +160,8 @@ export function BarChart({
     index++
   ) {
     if (totals[index] === 0) continue;
-    const cells = [
-      periodLabel(index),
-      ...series.map(({ values }) => formatValue(values[index])),
-    ];
+    const cells = [periodLabel(index)];
+    for (const { values } of series) cells.push(formatValue(values[index]));
     if (stacked) cells.push(formatValue(totals[index]));
     table.push({ key: String(index), cells });
   }
@@ -190,12 +189,18 @@ export function BarChart({
     return Math.min(Math.max(index, 0), periodCount - 1);
   }
 
-  const scrub = useChartScrub({ data: series, count: periodCount, indexAt });
-  const { active } = scrub;
+  const pick = useChartSelection({
+    data: series,
+    count: periodCount,
+    indexAt,
+    plotRef: ref,
+    ranges: false,
+  });
+  const active = pick.selection?.kind === "point" ? pick.selection.index : null;
 
   function onClick(event: MouseEvent<HTMLDivElement>) {
     if (!onActivate) return;
-    const rect = scrub.measure(event);
+    const rect = event.currentTarget.getBoundingClientRect();
     const index = indexAt(event.clientX - rect.left);
     if (index < 0) return;
     const key = seriesAt(
@@ -218,7 +223,7 @@ export function BarChart({
         series.length === 1 ? series[0].key : (activeSeriesKey ?? null),
       );
     } else {
-      scrub.onKeyDown(event);
+      pick.onKeyDown(event);
     }
   }
 
@@ -275,13 +280,15 @@ export function BarChart({
           styles.plot,
           onActivate && styles.actionable,
         ]}
-        onPointerDown={scrub.onPointerDown}
-        onPointerMove={scrub.onPointerMove}
-        onPointerLeave={scrub.clear}
-        onPointerCancel={scrub.clear}
+        onPointerDown={pick.onPointerDown}
+        onPointerEnter={pick.measure}
+        onPointerMove={pick.onPointerMove}
+        onPointerLeave={pick.onPointerLeave}
+        onPointerUp={pick.onPointerUp}
+        onPointerCancel={pick.onPointerCancel}
         onClick={onClick}
         onKeyDown={onKeyDown}
-        onBlur={scrub.onBlur}
+        onBlur={pick.onBlur}
       >
         <svg
           role="img"
@@ -310,8 +317,8 @@ export function BarChart({
                   <line
                     x1={0}
                     x2={plotRight}
-                    y1={Math.round(tick.y) + 0.5}
-                    y2={Math.round(tick.y) + 0.5}
+                    y1={crisp(tick.y)}
+                    y2={crisp(tick.y)}
                     css={
                       tick.value === 0
                         ? chartMarks.zeroLine
@@ -357,8 +364,8 @@ export function BarChart({
                   <line
                     x1={0}
                     x2={plotRight}
-                    y1={Math.round(geometry.y(referenceLine.value)) + 0.5}
-                    y2={Math.round(geometry.y(referenceLine.value)) + 0.5}
+                    y1={crisp(geometry.y(referenceLine.value))}
+                    y2={crisp(geometry.y(referenceLine.value))}
                     css={styles.reference}
                   />
                 </g>
