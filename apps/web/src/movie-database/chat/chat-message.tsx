@@ -47,12 +47,11 @@ export function ChatMessage({
     firstToolIndex,
     partKeys,
     textPartCount,
+    textPartIndexes,
     textPartTrailingBuffers,
   } = deriveMessageData(message.parts, message.role);
 
   if (!hasVisibleContent) return null;
-
-  let textPartIndex = 0;
 
   return (
     <div
@@ -65,7 +64,7 @@ export function ChatMessage({
       {message.parts.map((part, index) => {
         const key = partKeys[index];
         if (isTextUIPart(part)) {
-          const currentTextIndex = textPartIndex++;
+          const currentTextIndex = textPartIndexes[index];
           if (isUser) {
             const visibleText = stripUserScaffolding(part.text);
             // The prefs context (`[User Preferences]…`) is sometimes
@@ -207,6 +206,7 @@ export function deriveMessageData(
   let hasVisibleContent = false;
   let firstToolIndex = -1;
   let textPartCount = 0;
+  const textPartIndexes: number[] = [];
   const textPartLengths: number[] = [];
   const partKeys: string[] = [];
   const typeCounts = new Map<string, number>();
@@ -237,6 +237,7 @@ export function deriveMessageData(
       hasVisibleContent = true;
     } else {
       if (isTextUIPart(part)) {
+        textPartIndexes[i] = textPartCount;
         textPartCount++;
         textPartLengths.push(part.text.length);
         if (!hasVisibleContent) {
@@ -268,6 +269,7 @@ export function deriveMessageData(
     firstToolIndex,
     partKeys,
     textPartCount,
+    textPartIndexes,
     textPartTrailingBuffers,
   };
 }

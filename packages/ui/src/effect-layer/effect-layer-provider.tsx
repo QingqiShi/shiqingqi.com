@@ -4,7 +4,6 @@ import {
   lazy,
   Suspense,
   useEffect,
-  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -129,10 +128,7 @@ export function EffectLayerProvider({ children }: EffectLayerProviderProps) {
   );
 
   const hydrated = useIsHydrated();
-  const mode = useMemo(
-    () => (hydrated ? readEffectLayerMode() : "off"),
-    [hydrated],
-  );
+  const mode = hydrated ? readEffectLayerMode() : "off";
   const forcedColors = useSyncExternalStore(
     subscribeToForcedColors,
     () => getForcedColorsQuery().matches,

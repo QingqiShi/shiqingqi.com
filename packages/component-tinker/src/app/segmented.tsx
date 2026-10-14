@@ -18,7 +18,7 @@ export function Segmented<T>({
   options,
   value,
   onPick,
-  isPressed = (option) => option === value,
+  isPressed,
 }: SegmentedProps<T>) {
   return (
     <div className="tk-segmented" role="group" aria-label={label}>
@@ -27,7 +27,9 @@ export function Segmented<T>({
           key={String(option.value)}
           type="button"
           className="tk-segment"
-          aria-pressed={isPressed(option.value)}
+          aria-pressed={
+            isPressed ? isPressed(option.value) : option.value === value
+          }
           onClick={() => {
             onPick(option.value);
           }}

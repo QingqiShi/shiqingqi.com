@@ -268,6 +268,7 @@ function AccountEditorForm({
       excludedFromNetWorth: excluded,
       closedOn: closed ? closedOn : null,
     };
+    const opensWithValue = openingMinor !== null && openingMinor !== 0;
     try {
       if (account) {
         store.applyLocal({
@@ -283,7 +284,7 @@ function AccountEditorForm({
           name: "upsertAccount",
           args: { id, ...fields, position },
         });
-        if (openingMinor !== null && openingMinor !== 0) {
+        if (opensWithValue) {
           store.applyLocal({
             name: "putValuation",
             args: {

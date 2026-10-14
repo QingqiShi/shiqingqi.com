@@ -179,13 +179,10 @@ export function PreferencePanel({
     }
   }
 
-  const handleClearAll = async () => {
-    try {
-      await onClearAll();
-    } finally {
+  const handleClearAll = () =>
+    onClearAll().finally(() => {
       setConfirmingClear(false);
-    }
-  };
+    });
 
   return (
     <DetailOverlay

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Tracks whether an element is visible in the viewport using
@@ -18,7 +18,7 @@ export function useIsElementVisible() {
   // violate the Rules of React — updaters must be pure).
   const prevElRef = useRef<HTMLElement | null>(null);
 
-  const setRef = useCallback((node: HTMLElement | null) => {
+  const setRef = (node: HTMLElement | null) => {
     if (prevElRef.current === node) return;
     prevElRef.current = node;
     // Reset optimistically to the default when the observed target changes —
@@ -27,7 +27,7 @@ export function useIsElementVisible() {
     // on remount.
     setIsVisible(true);
     setEl(node);
-  }, []);
+  };
 
   useEffect(() => {
     if (!el) return;

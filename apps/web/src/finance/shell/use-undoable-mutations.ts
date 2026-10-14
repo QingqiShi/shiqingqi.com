@@ -40,7 +40,7 @@ export function useUndoableMutations() {
               onAction: () => {
                 try {
                   applyWithUndo(store, undo);
-                  onUndone?.();
+                  if (onUndone) onUndone();
                 } catch {
                   showToast({ message: undoFailed });
                 }

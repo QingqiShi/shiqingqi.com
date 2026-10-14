@@ -7,7 +7,7 @@ import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useId, useMemo } from "react";
+import { useId } from "react";
 import { t } from "#src/i18n.ts";
 import {
   type CreatureDef,
@@ -54,11 +54,8 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
     },
   });
 
-  const typeEntries = useMemo(
-    () => Object.values(elements).filter((tp) => tp !== undefined),
-    [],
-  );
-  const typeIds = useMemo(() => typeEntries.map((tp) => tp.id), [typeEntries]);
+  const typeEntries = Object.values(elements).filter((tp) => tp !== undefined);
+  const typeIds = typeEntries.map((tp) => tp.id);
   const typeGroup = useRadioGroup({
     values: typeIds,
     value: def.type,

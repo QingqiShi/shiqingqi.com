@@ -15,6 +15,7 @@ import {
   toFinanceApiError,
   type FinanceApiError,
 } from "../http/finance-api-error.ts";
+import { withPendingKey } from "../shell/with-pending.ts";
 import { useAuthErrorMessage } from "../sign-in/use-auth-error-message.ts";
 import { useIsOwner } from "./use-is-owner.ts";
 import {
@@ -37,22 +38,21 @@ export function RecoveryEmailSettings() {
   const email = recoveryEmail?.email ?? null;
 
   async function send(address: string, kind: "save" | "resend") {
-    setBusy(kind);
-    setError(null);
-    setSentTo(null);
-    try {
-      const result = await financePasskeyClient.setRecoveryEmail(
-        address,
-        locale,
-      );
-      publishRecoveryEmail(result);
-      setDraft("");
-      if (!result.verified && result.email) setSentTo(result.email);
-    } catch (caught) {
-      setError(toFinanceApiError(caught));
-    } finally {
-      setBusy(null);
-    }
+    await withPendingKey(setBusy, kind, async () => {
+      setError(null);
+      setSentTo(null);
+      try {
+        const result = await financePasskeyClient.setRecoveryEmail(
+          address,
+          locale,
+        );
+        publishRecoveryEmail(result);
+        setDraft("");
+        if (!result.verified) setSentTo(result.email);
+      } catch (caught) {
+        setError(toFinanceApiError(caught));
+      }
+    });
   }
 
   return (

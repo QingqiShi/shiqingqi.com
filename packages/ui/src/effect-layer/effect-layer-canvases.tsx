@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { absoluteFill, viewportAnchor } from "../primitives/layout.stylex.ts";
 import { layer } from "../tokens.stylex.ts";
 import {
@@ -46,10 +46,6 @@ export function EffectLayerCanvases({
   const [needs, setNeeds] = useState(NO_CANVASES);
   const hasScroll = debug || needs.scroll;
   const hasFixed = debug || needs.fixed;
-  const effects = useMemo(
-    () => [...(debug ? [debugEffect] : []), ...effectsForRoles(roles)],
-    [debug, roles],
-  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -80,8 +76,11 @@ export function EffectLayerCanvases({
   }, [gpu, registry, hasScroll, hasFixed]);
 
   useEffect(() => {
-    layerRef.current?.setEffects(effects);
-  }, [gpu, registry, effects]);
+    layerRef.current?.setEffects([
+      ...(debug ? [debugEffect] : []),
+      ...effectsForRoles(roles),
+    ]);
+  }, [gpu, registry, debug, roles]);
 
   return (
     <>

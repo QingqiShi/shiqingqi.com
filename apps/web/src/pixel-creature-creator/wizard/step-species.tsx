@@ -9,7 +9,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
-import { useId, useMemo } from "react";
+import { useId } from "react";
 import { t } from "#src/i18n.ts";
 import type { CreatureDef } from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
 import { species } from "#src/pixel-creature-creator/sprite/species/index.ts";
@@ -44,11 +44,8 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
     amorphous: t({ en: "Amorphous", zh: "不定形" }),
   };
 
-  const entries = useMemo(
-    () => Object.values(species).filter((entry) => entry !== undefined),
-    [],
-  );
-  const speciesIds = useMemo(() => entries.map((entry) => entry.id), [entries]);
+  const entries = Object.values(species).filter((entry) => entry !== undefined);
+  const speciesIds = entries.map((entry) => entry.id);
   const { getOptionProps } = useRadioGroup({
     values: speciesIds,
     value: def.species,

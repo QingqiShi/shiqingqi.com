@@ -10,6 +10,7 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { withPending } from "../shell/with-pending.ts";
 import { householdApiClient } from "./household-api-client.ts";
 import { MAX_AI_INSTRUCTIONS_LENGTH } from "./max-ai-instructions-length.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
@@ -36,16 +37,15 @@ export function AiSettings() {
 
   async function save(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSaving(true);
-    try {
-      await householdApiClient.setAiInstructions(text.trim());
-      await runtime.loop.sync();
-      showToast({ message: messages.saved, durationMs: 4000 });
-    } catch {
-      showToast({ message: messages.failed });
-    } finally {
-      setSaving(false);
-    }
+    await withPending(setSaving, async () => {
+      try {
+        await householdApiClient.setAiInstructions(text.trim());
+        await runtime.loop.sync();
+        showToast({ message: messages.saved, durationMs: 4000 });
+      } catch {
+        showToast({ message: messages.failed });
+      }
+    });
   }
 
   return (

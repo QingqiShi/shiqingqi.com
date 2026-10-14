@@ -4,14 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import {
-  startTransition,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useReducer,
-  useRef,
-} from "react";
+import { startTransition, useLayoutEffect, useReducer, useRef } from "react";
 import { ViewTransition } from "react";
 import { useMediaQuery } from "#src/browser/use-media-query.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -50,12 +43,9 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   // the client has measured a viewport narrower than `md`.
   const isCompact = !useMediaQuery(MD_MEDIA_QUERY, true);
   const stageRef = useRef<HTMLDivElement>(null);
-  const model = useMemo(
-    () => resolveLabModel(config, locale),
-    [config, locale],
-  );
+  const model = resolveLabModel(config, locale);
 
-  const reduce = useMemo(() => labReducer(config.variants), [config.variants]);
+  const reduce = labReducer(config.variants);
   const [state, dispatch] = useReducer(
     reduce,
     config.variants[0],
@@ -65,11 +55,11 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     }),
   );
 
-  const run = useCallback((action: LabAction) => {
+  const run = (action: LabAction) => {
     startTransition(() => {
       dispatch(action);
     });
-  }, []);
+  };
 
   // The stage fills what the chrome above it leaves of the first screen, and
   // the header's height at this width is known only once the page is laid out.
@@ -95,35 +85,22 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
 
   // A sample-driven prop holds the sample's id, which is what the snippet and
   // the controls read. The Specimen needs the node the id stands for.
-  const specimenProps = useMemo(() => {
-    const resolved: LabProps = { ...state.props };
-    for (const control of model.controls) {
-      if (control.samples === undefined) continue;
-      const sample = control.samples.find(
-        (choice) => choice.id === state.props[control.name],
-      );
-      resolved[control.name] = sample?.value;
-    }
-    return resolved;
-  }, [model.controls, state.props]);
+  const specimenProps: LabProps = { ...state.props };
+  for (const control of model.controls) {
+    if (control.samples === undefined) continue;
+    const sample = control.samples.find(
+      (choice) => choice.id === state.props[control.name],
+    );
+    specimenProps[control.name] = sample?.value;
+  }
 
-  const snippet = useMemo(
-    () =>
-      buildLabSnippet({
-        element: config.element,
-        importPath: config.importPath,
-        props: state.props,
-        docs: config.propsDoc.props,
-        controls: model.controls,
-      }),
-    [
-      config.element,
-      config.importPath,
-      config.propsDoc.props,
-      model.controls,
-      state.props,
-    ],
-  );
+  const snippet = buildLabSnippet({
+    element: config.element,
+    importPath: config.importPath,
+    props: state.props,
+    docs: config.propsDoc.props,
+    controls: model.controls,
+  });
 
   return (
     <div css={[texture.dot, styles.canvas]}>

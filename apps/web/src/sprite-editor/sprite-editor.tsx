@@ -12,7 +12,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { downloadBlob } from "#src/browser/download-blob.ts";
 import { t } from "#src/i18n.ts";
 import type { AnimationFrame } from "./animation-mode";
@@ -49,6 +49,16 @@ const DEFAULT_GRID: GridConfig = {
 
 const DEFAULT_OUTPUT: OutputConfig = { width: 42, height: 42 };
 
+function withoutEdit(
+  edits: Record<number, CellPixels>,
+  cellIndex: number,
+): Record<number, CellPixels> {
+  if (!(cellIndex in edits)) return edits;
+  // Drop the entry without `delete` so eslint's no-dynamic-delete passes.
+  const { [cellIndex]: _removed, ...rest } = edits;
+  return rest;
+}
+
 function basenameFor(source: SourceImage): string {
   return source.name.replace(/\.[^.]+$/, "") || "sprite";
 }
@@ -67,7 +77,7 @@ export function SpriteEditor() {
     readonly AnimationFrame[]
   >([]);
 
-  const baseCells = useMemo<readonly (CellPixels | null)[]>(() => {
+  const baseCells = ((): readonly (CellPixels | null)[] => {
     if (source === null) return [];
     const total = grid.cols * grid.rows;
     const result: (CellPixels | null)[] = [];
@@ -77,12 +87,11 @@ export function SpriteEditor() {
       result.push(sliceCell(source.bitmap, grid, output, col, row));
     }
     return result;
-  }, [source, grid, output]);
+  })();
 
   // Edited > base for display + download.
-  const cells = useMemo<readonly (CellPixels | null)[]>(
-    () => baseCells.map((base, index) => edits[index] ?? base),
-    [baseCells, edits],
+  const cells: readonly (CellPixels | null)[] = baseCells.map(
+    (base, index) => edits[index] ?? base,
   );
 
   // Drop derived state whenever the grid/output shape changes — the cell
@@ -134,18 +143,13 @@ export function SpriteEditor() {
     setEdits({});
   }
 
-  const commitEdit = useCallback((cellIndex: number, next: CellPixels) => {
+  const commitEdit = (cellIndex: number, next: CellPixels) => {
     setEdits((current) => ({ ...current, [cellIndex]: next }));
-  }, []);
+  };
 
-  const revertEdit = useCallback((cellIndex: number) => {
-    setEdits((current) => {
-      if (!(cellIndex in current)) return current;
-      // Drop the entry without `delete` so eslint's no-dynamic-delete passes.
-      const { [cellIndex]: _removed, ...rest } = current;
-      return rest;
-    });
-  }, []);
+  const revertEdit = (cellIndex: number) => {
+    setEdits((current) => withoutEdit(current, cellIndex));
+  };
 
   const handleDownloadCell = async (index: number) => {
     if (source === null) return;
@@ -179,68 +183,57 @@ export function SpriteEditor() {
   const selectedEdit =
     selectedCell !== null ? (edits[selectedCell] ?? null) : null;
 
-  // Stable callbacks for the pixel editor. Otherwise its sync effect re-fires
-  // every render of this parent, looping with `setEdits`.
-  const handleEditorCommit = useCallback(
-    (next: CellPixels) => {
-      if (selectedCell === null) return;
-      commitEdit(selectedCell, next);
-    },
-    [commitEdit, selectedCell],
-  );
-  const handleEditorRevert = useCallback(() => {
+  const handleEditorCommit = (next: CellPixels) => {
+    if (selectedCell === null) return;
+    commitEdit(selectedCell, next);
+  };
+  const handleEditorRevert = () => {
     if (selectedCell === null) return;
     revertEdit(selectedCell);
-  }, [revertEdit, selectedCell]);
+  };
 
   // Draw sub-cell guides on the source canvas — same fractional positions
   // applied within every grid cell so users can sanity-check alignment of
   // baselines, eyelines, etc. across all cells of the sheet at once.
-  const drawSourceGuides = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      pixelToCanvas: (x: number, y: number) => readonly [number, number],
-    ) => {
-      const fractions = computeGuideFractions(guides);
-      if (
-        fractions.vertical.length === 0 &&
-        fractions.horizontal.length === 0
-      ) {
-        return;
-      }
-      ctx.save();
-      ctx.strokeStyle = "rgba(251, 191, 36, 0.55)";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      const pitchX = grid.cellWidth + grid.gapX;
-      const pitchY = grid.cellHeight + grid.gapY;
-      for (let row = 0; row < grid.rows; row++) {
-        for (let col = 0; col < grid.cols; col++) {
-          const x0 = grid.offsetX + col * pitchX;
-          const y0 = grid.offsetY + row * pitchY;
-          for (const fx of fractions.vertical) {
-            const px = x0 + fx * grid.cellWidth;
-            const [a, b] = pixelToCanvas(px, y0);
-            const [, d] = pixelToCanvas(px, y0 + grid.cellHeight);
-            ctx.moveTo(Math.round(a) + 0.5, b);
-            ctx.lineTo(Math.round(a) + 0.5, d);
-          }
-          for (const fy of fractions.horizontal) {
-            const py = y0 + fy * grid.cellHeight;
-            const [a, b] = pixelToCanvas(x0, py);
-            const [c] = pixelToCanvas(x0 + grid.cellWidth, py);
-            ctx.moveTo(a, Math.round(b) + 0.5);
-            ctx.lineTo(c, Math.round(b) + 0.5);
-          }
+  const drawSourceGuides = (
+    ctx: CanvasRenderingContext2D,
+    pixelToCanvas: (x: number, y: number) => readonly [number, number],
+  ) => {
+    const fractions = computeGuideFractions(guides);
+    if (fractions.vertical.length === 0 && fractions.horizontal.length === 0) {
+      return;
+    }
+    ctx.save();
+    ctx.strokeStyle = "rgba(251, 191, 36, 0.55)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    const pitchX = grid.cellWidth + grid.gapX;
+    const pitchY = grid.cellHeight + grid.gapY;
+    for (let row = 0; row < grid.rows; row++) {
+      for (let col = 0; col < grid.cols; col++) {
+        const x0 = grid.offsetX + col * pitchX;
+        const y0 = grid.offsetY + row * pitchY;
+        for (const fx of fractions.vertical) {
+          const px = x0 + fx * grid.cellWidth;
+          const [a, b] = pixelToCanvas(px, y0);
+          const [, d] = pixelToCanvas(px, y0 + grid.cellHeight);
+          ctx.moveTo(Math.round(a) + 0.5, b);
+          ctx.lineTo(Math.round(a) + 0.5, d);
+        }
+        for (const fy of fractions.horizontal) {
+          const py = y0 + fy * grid.cellHeight;
+          const [a, b] = pixelToCanvas(x0, py);
+          const [c] = pixelToCanvas(x0 + grid.cellWidth, py);
+          ctx.moveTo(a, Math.round(b) + 0.5);
+          ctx.lineTo(c, Math.round(b) + 0.5);
         }
       }
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.restore();
-    },
-    [grid, guides],
-  );
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  };
 
   const onionCell =
     onionSourceCell !== null && onionSourceCell !== selectedCell

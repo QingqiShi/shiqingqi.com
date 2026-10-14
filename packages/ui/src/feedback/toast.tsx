@@ -2,7 +2,7 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { useMemo, useState, type ComponentProps, type ReactNode } from "react";
+import { useState, type ComponentProps, type ReactNode } from "react";
 import { Button } from "../actions/button.tsx";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useRingLight } from "../effect-layer/use-ring-light.ts";
@@ -106,7 +106,7 @@ export function Toast({
   const [arrived, setArrived] = useState(false);
   const ringLightRef = useRingLight();
   const coverRef = useEffectCover();
-  const rootRefs = useMemo(() => mergeRefs(ref, coverRef), [ref, coverRef]);
+  const rootRefs = mergeRefs(ref, coverRef);
   const actions = [action, secondAction].filter((item) => item !== undefined);
   const hasButtons = actions.length > 0 || onDismiss !== undefined;
 

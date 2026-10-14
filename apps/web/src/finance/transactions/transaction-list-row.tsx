@@ -21,7 +21,7 @@ import {
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { memo, type MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
@@ -77,7 +77,8 @@ function isPlainClick(event: MouseEvent) {
   );
 }
 
-function TransactionListRowView({
+/** One Transaction in the list: what it was, the account, the Tags and the amount, with the actions an Expected or Review row needs. */
+export function TransactionListRow({
   row,
   entries,
   tagIds,
@@ -288,9 +289,6 @@ function TransactionListRowView({
     </div>
   );
 }
-
-/** One Transaction in the list: what it was, the account, the Tags and the amount, with the actions an Expected or Review row needs. */
-export const TransactionListRow = memo(TransactionListRowView);
 
 const styles = stylex.create({
   row: {

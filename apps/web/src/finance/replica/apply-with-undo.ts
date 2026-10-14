@@ -11,6 +11,14 @@ interface UndoableResult {
   undo: LocalMutationInput[] | null;
 }
 
+/** Applies `inputs` to the Replica in order. It stops at the first one that is refused and throws its error. */
+export function applyAll(
+  store: Pick<ReplicaStore, "applyLocal">,
+  inputs: readonly LocalMutationInput[],
+): void {
+  for (const input of inputs) store.applyLocal(input);
+}
+
 /**
  * Applies `inputs` to the Replica in order and returns the mutations that
  * undo all of them. When one is refused, it undoes the ones before it and

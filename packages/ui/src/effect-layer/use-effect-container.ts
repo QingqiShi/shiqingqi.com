@@ -1,4 +1,4 @@
-import { useMemo, useState, type RefCallback } from "react";
+import { useState, type RefCallback } from "react";
 import { allocateScope } from "./effect-scope-context.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { useEffectRegistration } from "./use-effect-registration.ts";
@@ -36,11 +36,14 @@ export type EffectContainerRef = RefCallback<Element> & {
 export function useEffectContainer(): EffectContainerRef {
   const [scope] = useState(allocateScope);
   const register = useEffectRegistration(0, NO_SETTINGS, scope);
-  return useMemo(
-    () =>
-      Object.assign((element: Element | null) => register(element), {
-        scope,
-      }),
-    [register, scope],
-  );
+  return containerRef(register, scope);
+}
+
+function containerRef(
+  register: RefCallback<Element>,
+  scope: number,
+): EffectContainerRef {
+  return Object.assign((element: Element | null) => register(element), {
+    scope,
+  });
 }

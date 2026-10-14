@@ -1,4 +1,4 @@
-import { use, useCallback, useLayoutEffect, useRef, useState } from "react";
+import { use, useLayoutEffect, useRef, useState } from "react";
 import type { EffectRegistration } from "./create-effect-registry.ts";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { EffectScopeContext } from "./effect-scope-context.ts";
@@ -34,23 +34,20 @@ export function useEffectRegistration(
     }
   }, [registrations, roles, settings, scope]);
 
-  return useCallback(
-    (element: Element | null): (() => void) | undefined => {
-      if (element === null || register === null) {
-        return undefined;
-      }
-      const current = currentRef.current;
-      const registration = register(element, current.roles, current.settings, {
-        scope: current.scope,
-        holds,
-        covers,
-      });
-      registrations.add(registration);
-      return () => {
-        registrations.delete(registration);
-        registration.remove();
-      };
-    },
-    [register, registrations, holds, covers],
-  );
+  return (element: Element | null): (() => void) | undefined => {
+    if (element === null || register === null) {
+      return undefined;
+    }
+    const current = currentRef.current;
+    const registration = register(element, current.roles, current.settings, {
+      scope: current.scope,
+      holds,
+      covers,
+    });
+    registrations.add(registration);
+    return () => {
+      registrations.delete(registration);
+      registration.remove();
+    };
+  };
 }

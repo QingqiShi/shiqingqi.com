@@ -12,7 +12,7 @@ import {
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { drawCellCentered } from "./draw-cell-centered";
 import { prepareCanvas } from "./prepare-canvas";
@@ -30,7 +30,7 @@ export function CellStrip({ cells, selectedCell, onSelect }: CellStripProps) {
   // The radio-group hook is generic over `string`, so convert at the
   // boundary. Stringified indices are stable identifiers since cells are
   // positional.
-  const values = useMemo(() => cells.map((_, index) => String(index)), [cells]);
+  const values = cells.map((_, index) => String(index));
   // When nothing is selected yet, point `value` at the first cell so the
   // group still has exactly one tab stop (canonical radiogroup-with-no-
   // default pattern). We override `aria-checked` below to stay honest about

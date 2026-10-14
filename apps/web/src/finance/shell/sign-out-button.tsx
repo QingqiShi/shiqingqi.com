@@ -30,7 +30,7 @@ export function SignOutButton() {
   });
   const tryAgain = t({ en: "Try again", zh: "重试" });
 
-  async function clearThenLeave() {
+  const clearThenLeave = async () => {
     setBusy(true);
     try {
       await clearHouseholdFromDevice(householdId, runtime);
@@ -48,7 +48,7 @@ export function SignOutButton() {
         durationMs: CLEAR_FAILED_TOAST_MS,
       });
     }
-  }
+  };
 
   return (
     <Button

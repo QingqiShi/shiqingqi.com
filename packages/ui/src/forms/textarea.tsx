@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  useCallback,
+  useEffectEvent,
   useLayoutEffect,
   useRef,
   type ComponentProps,
@@ -114,7 +114,7 @@ export function Textarea({
   const innerRef = useRef<HTMLTextAreaElement>(null);
   const setRef = mergeRefs(innerRef, ref);
 
-  const resize = useCallback(() => {
+  const resize = () => {
     const element = innerRef.current;
     if (!element) {
       return;
@@ -129,13 +129,15 @@ export function Textarea({
     // `+ 2` adds the 1px block-start/end borders that `scrollHeight` excludes.
     element.style.blockSize = "auto";
     element.style.blockSize = `${String(element.scrollHeight + 2)}px`;
-  }, [autoGrow]);
+  };
 
-  // Re-measures on mount and when a controlled value changes; the `onInput`
-  // wrapper below handles uncontrolled edits.
+  const resizeToValue = useEffectEvent(resize);
+
+  // Re-measures on mount, when `autoGrow` changes and when a controlled value
+  // changes; the `onInput` wrapper below handles uncontrolled edits.
   useLayoutEffect(() => {
-    resize();
-  }, [resize, value]);
+    resizeToValue();
+  }, [autoGrow, value]);
 
   return (
     <div css={[stack.tight, fieldStyles.root]}>

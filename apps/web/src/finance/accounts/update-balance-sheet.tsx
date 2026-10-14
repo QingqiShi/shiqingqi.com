@@ -195,10 +195,9 @@ function UpdateBalanceForm({
     if (mutations.length === 0) {
       showToast({ message: unchanged, durationMs: 4000 });
     } else {
+      const message = pending.valuations.length > 0 ? saved : savedRate;
       try {
-        runUndoable(mutations, {
-          message: pending.valuations.length > 0 ? saved : savedRate,
-        });
+        runUndoable(mutations, { message });
       } catch {
         showToast({ message: failed });
         return;

@@ -139,6 +139,12 @@ export default defineConfig([
           message:
             "Nothing prefetches a route: a screen loads when the visitor opens it.",
         },
+        {
+          selector:
+            'ImportDeclaration[source.value="react"] > ImportSpecifier[imported.name=/^(useMemo|useCallback|memo)$/], MemberExpression[object.name="React"][property.name=/^(useMemo|useCallback|memo)$/]',
+          message:
+            "React Compiler memoizes components and hooks. Remove the manual `useMemo`, `useCallback`, or `memo`.",
+        },
       ],
       "restricted/stylex-babel-plugin": [
         "error",
@@ -172,6 +178,14 @@ export default defineConfig([
         { allowWholeFile: true },
       ],
       "@typescript-eslint/no-inferrable-types": "error",
+      // The build runs React Compiler with `panicThreshold: "all_errors"`, so
+      // code it cannot compile fails the build. These rules report most of
+      // that code in the editor. This plugin has a newer copy of the
+      // compiler, so the build can fail on code that these rules accept.
+      "react-hooks/todo": "error",
+      "react-hooks/unsupported-syntax": "error",
+      "react-hooks/syntax": "error",
+      "react-hooks/invariant": "error",
       "@eslint-react/set-state-in-effect": "off",
       // Positional lists (frames, cells, code lines) are common here and the
       // index IS the identity — the rule flagged only correct uses.

@@ -4,7 +4,6 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import {
   useDeferredValue,
-  useMemo,
   useRef,
   ViewTransition,
   type PropsWithChildren,
@@ -120,7 +119,7 @@ export function Overlay({
   const deferredIsOpen = useDeferredValue(isOpen);
   const dialogRef = useRef<HTMLDivElement>(null);
   const coverRef = useEffectCover();
-  const dialogRefs = useMemo(() => mergeRefs(dialogRef, coverRef), [coverRef]);
+  const dialogRefs = mergeRefs(dialogRef, coverRef);
 
   useDialogFocus({
     isOpen: deferredIsOpen,

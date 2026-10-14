@@ -5,7 +5,7 @@ import {
   renderCell,
   serialiseExport,
 } from "@tuja/component-tinker";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import catalogueJson from "virtual:tinker-catalogue";
 import configJson from "virtual:tinker-config";
@@ -20,19 +20,19 @@ import { loadSnapshot } from "./model/load-snapshot.ts";
 import { saveSnapshot } from "./model/save-snapshot.ts";
 import { Sheet, type SheetTab } from "./sheet.tsx";
 import { TopBar } from "./top-bar.tsx";
+import { useEditedStore } from "./use-edited-store.ts";
 import { useEscape } from "./use-escape.ts";
 import { useFlash } from "./use-flash.ts";
 import { useMediaQuery } from "./use-media-query.ts";
-import { useStoreVersion } from "./use-store-version.ts";
 import "./chrome.css";
 
 const catalogue = catalogueJson;
 const config = configJson;
 const index = createTokenIndex(catalogue);
-const store = createChangeStore(config);
+const changeStore = createChangeStore(config);
 const storageKey = `component-tinker:${configHash(config)}`;
 
-loadSnapshot(storageKey, store);
+loadSnapshot(storageKey, changeStore);
 
 const SHEET_TABS: SheetTab[] = [
   { id: "inspector", label: "Inspector" },
@@ -49,7 +49,7 @@ function chromeScheme(): "light" | "dark" {
 }
 
 function App() {
-  const version = useStoreVersion(store);
+  const { store, version } = useEditedStore(changeStore);
   const isPhone = !useMediaQuery("(min-width: 768px)");
   const [scheme, setScheme] = useState(chromeScheme);
   // `null` is the full canvas width: the stand-in starts with no container
@@ -64,7 +64,7 @@ function App() {
 
   useEffect(() => {
     saveSnapshot(storageKey, store);
-  }, [version]);
+  }, [store]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = scheme;
@@ -74,23 +74,16 @@ function App() {
     setSheetMode("peek");
   });
 
-  /* eslint-disable react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps -- `config`, `index` and `store` are module-level constants, and `version` is the store's edit counter, so it is the one dependency even though the body does not read it */
-  const cells = useMemo(
-    () =>
-      config.cells.map((cell, cellIndex) =>
-        renderCell({
-          cell,
-          cellIndex,
-          config,
-          index,
-          store,
-          effectStyle: (layer) =>
-            effectStyle(layerEffects(store, layer), index),
-        }),
-      ),
-    [version],
+  const cells = config.cells.map((cell, cellIndex) =>
+    renderCell({
+      cell,
+      cellIndex,
+      config,
+      index,
+      store,
+      effectStyle: (layer) => effectStyle(layerEffects(store, layer), index),
+    }),
   );
-  /* eslint-enable react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps -- only the cells memo depends on the edit counter */
 
   const fallback = cells.at(0)?.tree.at(0);
   const selection: Pick | null =

@@ -26,6 +26,7 @@
   "devDependencies": {
     "@serwist/cli": "catalog:",
     "@tailwindcss/postcss": "^4.3.3",
+    "@tuja/babel-plugins": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

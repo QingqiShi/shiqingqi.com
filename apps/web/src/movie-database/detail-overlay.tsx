@@ -13,7 +13,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { color, controlSize, layer, space } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import type { PropsWithChildren, RefObject } from "react";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { t } from "#src/i18n.ts";
@@ -71,7 +71,7 @@ export function DetailOverlay({
   // RemoveScroll puts its ref on the card container. It calls the ref with
   // null and does not keep the cleanup that the ref gives. mergeRefs does
   // that cleanup.
-  const cardContainerRef = useMemo(() => mergeRefs(coverRef), [coverRef]);
+  const cardContainerRef = mergeRefs(coverRef);
 
   useDialogFocus({
     isOpen,

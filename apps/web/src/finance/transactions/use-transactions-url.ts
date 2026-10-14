@@ -1,5 +1,5 @@
 import { usePathname, useSearchParams } from "next/navigation";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import {
   transactionFilters,
   type TransactionFilters,
@@ -23,10 +23,7 @@ export function useTransactionsUrl() {
   const pathname = usePathname();
   const pushedRef = useRef(false);
 
-  const filters = useMemo(
-    () => transactionFilters.parse(searchParams),
-    [searchParams],
-  );
+  const filters = transactionFilters.parse(searchParams);
   const selectedId = searchParams.get("id");
   const newKind = kindOf(searchParams.get("new"));
   const refundOfId = searchParams.get("refund");

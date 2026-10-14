@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
+import { withPending } from "../shell/with-pending.ts";
 import { reportApiClient } from "./report-api-client.ts";
 
 /**
@@ -19,23 +20,24 @@ export function useRegenerateReport() {
   });
 
   async function regenerate(periodEnd?: string): Promise<string | null> {
-    setPending(true);
-    try {
-      const result = await reportApiClient.regenerate(periodEnd);
-      await queryClient.invalidateQueries({
-        queryKey: ["finance", "report", result.id],
-      });
-      queryClient.removeQueries({
-        queryKey: ["finance", "report-image", result.id],
-      });
-      await queryClient.invalidateQueries({ queryKey: ["finance", "reports"] });
-      return result.id;
-    } catch {
-      showToast({ message: failed });
-      return null;
-    } finally {
-      setPending(false);
-    }
+    return withPending(setPending, async () => {
+      try {
+        const result = await reportApiClient.regenerate(periodEnd);
+        await queryClient.invalidateQueries({
+          queryKey: ["finance", "report", result.id],
+        });
+        queryClient.removeQueries({
+          queryKey: ["finance", "report-image", result.id],
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["finance", "reports"],
+        });
+        return result.id;
+      } catch {
+        showToast({ message: failed });
+        return null;
+      }
+    });
   }
 
   return { regenerate, pending };

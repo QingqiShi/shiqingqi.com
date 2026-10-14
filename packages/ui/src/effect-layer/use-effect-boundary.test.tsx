@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import { mergeRefs } from "../merge-refs.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
@@ -162,12 +162,7 @@ describe("effect hooks", () => {
     function Controlled({ mass, ambient }: { mass: number; ambient: boolean }) {
       const blackHole = useBlackHole({ mass });
       const ripple = useRipple({ ambient });
-      // React Compiler caches the merged ref like this. Vitest does not run
-      // React Compiler.
-      const ref = useMemo(
-        () => mergeRefs(blackHole, ripple),
-        [blackHole, ripple],
-      );
+      const ref = mergeRefs(blackHole, ripple);
       return <div ref={ref} data-testid="element" />;
     }
     const { entry, rerender, registry } = renderWithRegistry(
@@ -206,7 +201,7 @@ describe("useEffectContainer", () => {
     function Card() {
       const container = useEffectContainer();
       const dust = useDust();
-      const ref = useMemo(() => mergeRefs(container, dust), [container, dust]);
+      const ref = mergeRefs(container, dust);
       return (
         <section ref={ref} data-testid="card">
           <EffectContainer value={container}>

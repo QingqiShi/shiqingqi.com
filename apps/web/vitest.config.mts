@@ -1,33 +1,36 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import babel from "@rolldown/plugin-babel";
+import { reactCompilerVitePlugins } from "@tuja/babel-plugins/react-compiler";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
-import { babelPlugins } from "./babel-plugins.mjs";
+import { sourcePlugins, transformPlugins } from "./babel-plugins.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
-    babel({
-      include: /(?:apps\/web\/src|packages\/ui\/src)\/.*\.(tsx?|jsx?)$/,
-      presets: [
-        [
-          "@babel/preset-env",
-          {
-            targets: { node: "current" },
-            modules: false,
-          },
+    ...reactCompilerVitePlugins({
+      include: /(?:apps\/web\/src|packages\/ui\/src)\/.*\.tsx?$/,
+      sourcePlugins,
+      babel: {
+        presets: [
+          [
+            "@babel/preset-env",
+            {
+              targets: { node: "current" },
+              modules: false,
+            },
+          ],
+          [
+            "@babel/preset-react",
+            {
+              runtime: "automatic",
+            },
+          ],
+          "@babel/preset-typescript",
         ],
-        [
-          "@babel/preset-react",
-          {
-            runtime: "automatic",
-          },
-        ],
-        "@babel/preset-typescript",
-      ],
-      plugins: babelPlugins({ nodeEnv: "test" }),
+        plugins: transformPlugins({ nodeEnv: "test" }),
+      },
     }),
     react({
       jsxRuntime: "automatic",

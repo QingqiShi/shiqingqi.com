@@ -5,7 +5,6 @@ import type { PropsWithChildren } from "react";
 import {
   useEffect,
   useId,
-  useMemo,
   useRef,
   useState,
   type ComponentProps,
@@ -181,7 +180,7 @@ export function MenuButton({
   const frameRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const coverRef = useEffectCover();
-  const popupRefs = useMemo(() => mergeRefs(popupRef, coverRef), [coverRef]);
+  const popupRefs = mergeRefs(popupRef, coverRef);
 
   const isSheet = position === "sheet";
 

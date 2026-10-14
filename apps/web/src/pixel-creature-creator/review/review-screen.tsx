@@ -6,7 +6,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
@@ -122,9 +122,7 @@ function ReviewBody({ def, encodedHash, paused }: ReviewBodyProps) {
   // the lore.
   const [lore, setLore] = useState<LoreData | null>(null);
 
-  // `seedStats` is deterministic and pure — derive once per def change so
-  // every emotion toggle re-render reuses the same numbers.
-  const stats = useMemo(() => computeSeedStats(def), [def]);
+  const stats = computeSeedStats(def);
 
   return (
     <div css={[stack.item, styles.root]} data-testid="review-screen">

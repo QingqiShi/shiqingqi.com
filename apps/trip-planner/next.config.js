@@ -1,4 +1,5 @@
 const path = require("node:path");
+const { reactCompilerOptions } = require("@tuja/babel-plugins/react-compiler");
 const { PHASE_DEVELOPMENT_SERVER } = require("next/constants");
 
 module.exports = async (phase) => {
@@ -12,7 +13,7 @@ module.exports = async (phase) => {
   const nextConfig = {
     reactStrictMode: true,
     allowedDevOrigins,
-    reactCompiler: true,
+    reactCompiler: { ...reactCompilerOptions },
     // Type-checking runs as a dedicated CI job (build:tsc), so skip the
     // redundant in-build type-check pass to keep `next build` lean. (Linting
     // is enforced by the dedicated CI `lint` job; Next 16 no longer runs

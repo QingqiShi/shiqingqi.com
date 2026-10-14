@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 
 interface BlurPlaneValue {
   node: HTMLElement | null;
@@ -34,7 +34,7 @@ interface BlurPlaneProviderProps {
  */
 export function BlurPlaneProvider({ children }: BlurPlaneProviderProps) {
   const [node, setNode] = useState<HTMLElement | null>(null);
-  const value = useMemo(() => ({ node, setNode }), [node]);
-
-  return <BlurPlaneContext value={value}>{children}</BlurPlaneContext>;
+  return (
+    <BlurPlaneContext value={{ node, setNode }}>{children}</BlurPlaneContext>
+  );
 }

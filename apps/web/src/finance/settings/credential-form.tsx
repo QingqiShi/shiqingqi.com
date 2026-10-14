@@ -9,6 +9,7 @@ import { useState, type SubmitEvent } from "react";
 import { t } from "#src/i18n.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
+import { withPending } from "../shell/with-pending.ts";
 
 interface CredentialFormProps {
   /** Replacing a key the Connection already has, rather than connecting. */
@@ -54,29 +55,26 @@ export function CredentialForm({
       setError(messages.empty);
       return;
     }
-    setSaving(true);
-    try {
-      await bankApiClient.putCredential(apiKey.trim());
-      setApiKey("");
-      showToast({
-        message: replacing ? messages.replaced : messages.saved,
-        durationMs: 4000,
-      });
-      onSaved();
-    } catch (failure) {
-      const messageOf: Partial<Record<string, string>> = {
-        auth: messages.refused,
-        "invalid-body": messages.empty,
-        "not-configured": messages.notReady,
-      };
-      setError(
-        (failure instanceof FinanceApiError
-          ? messageOf[failure.code]
-          : undefined) ?? messages.failed,
-      );
-    } finally {
-      setSaving(false);
-    }
+    const saved = replacing ? messages.replaced : messages.saved;
+    await withPending(setSaving, async () => {
+      try {
+        await bankApiClient.putCredential(apiKey.trim());
+        setApiKey("");
+        showToast({ message: saved, durationMs: 4000 });
+        onSaved();
+      } catch (failure) {
+        const messageOf: Partial<Record<string, string>> = {
+          auth: messages.refused,
+          "invalid-body": messages.empty,
+          "not-configured": messages.notReady,
+        };
+        setError(
+          (failure instanceof FinanceApiError
+            ? messageOf[failure.code]
+            : undefined) ?? messages.failed,
+        );
+      }
+    });
   }
 
   return (

@@ -338,13 +338,14 @@ export function MediaTable({
     fallback: "code",
   });
   const languageName = (code: string) => {
+    let name: string | undefined;
     try {
-      return languageDisplay.of(code) ?? code;
+      name = languageDisplay.of(code);
     } catch {
       // `of` throws on structurally invalid tags, and TMDB occasionally
       // returns values ("cn", "xx") that are not valid ISO 639-1.
-      return code;
     }
+    return name ?? code;
   };
 
   const labels: ColumnLabels = {

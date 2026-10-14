@@ -43,6 +43,7 @@ import { currencyExponent } from "../domain/money/currency-exponent.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
+import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { floatingAction } from "../shell/floating-action.stylex.ts";
@@ -556,10 +557,6 @@ function EditorForm({
     year: t({ en: "every year", zh: "每年" }),
   };
 
-  const apply = (mutations: readonly LocalMutationInput[]) => {
-    for (const mutation of mutations) store.applyLocal(mutation);
-  };
-
   const undoable = (
     message: string,
     undo: readonly LocalMutationInput[],
@@ -575,7 +572,7 @@ function EditorForm({
               label: undoLabel,
               onAction: () => {
                 try {
-                  apply(undo);
+                  applyAll(store, undo);
                 } catch {
                   // The row changed again since; Undo has nothing left to do.
                 }
@@ -585,7 +582,7 @@ function EditorForm({
   };
 
   const save = (andNew: boolean) => {
-    newIdRef.current ??= crypto.randomUUID();
+    if (newIdRef.current === null) newIdRef.current = crypto.randomUUID();
     const result = buildTransactionMutations(
       paidToday ? { ...draft, date: data.today } : draft,
       {
@@ -639,7 +636,7 @@ function EditorForm({
     }
     const offerTeach = existing ? watchCorrection?.(existing.id) : undefined;
     try {
-      apply(result.mutations);
+      applyAll(store, result.mutations);
     } catch {
       setFailure(saveFailed);
       return;
@@ -759,19 +756,18 @@ function EditorForm({
   const suggest = async () => {
     const text = [draft.payeeName, draft.note].join(" ").trim();
     if (text === "" || draft.accountId === null) return;
+    const request = {
+      ...(existing ? { transactionId: existing.id } : {}),
+      text,
+      amountMinor:
+        (draft.kind === "income" || draft.refund ? 1 : -1) *
+        Math.abs(parseMoney(draft.amountText, currency) ?? 0),
+      date: draft.date,
+      accountId: draft.accountId,
+    };
     setSuggestState("busy");
     try {
-      applySuggestion(
-        await bankApiClient.suggest({
-          ...(existing ? { transactionId: existing.id } : {}),
-          text,
-          amountMinor:
-            (draft.kind === "income" || draft.refund ? 1 : -1) *
-            Math.abs(parseMoney(draft.amountText, currency) ?? 0),
-          date: draft.date,
-          accountId: draft.accountId,
-        }),
-      );
+      applySuggestion(await bankApiClient.suggest(request));
     } catch {
       setSuggestState("failed");
     }
@@ -1487,7 +1483,7 @@ function EditorForm({
           tagIds={data.tagIdsByTransaction.get(existing.id) ?? []}
           onCreate={(mutations, undo, summary) => {
             try {
-              apply(mutations);
+              applyAll(store, mutations);
             } catch {
               return false;
             }

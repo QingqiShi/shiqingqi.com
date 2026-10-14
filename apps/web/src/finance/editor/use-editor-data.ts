@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
@@ -38,26 +37,16 @@ export function useEditorData() {
   const baseCurrency = useBaseCurrency();
   const today = useHouseholdToday();
 
-  const openAccounts = useMemo(
-    () => accounts.filter(isPickableAccount),
-    [accounts],
+  const openAccounts = accounts.filter(isPickableAccount);
+  const liveCategories = categories.filter(
+    (category) => category.archivedAt === null,
   );
-  const liveCategories = useMemo(
-    () => categories.filter((category) => category.archivedAt === null),
-    [categories],
-  );
-  const livePayees = useMemo(
-    () => payees.filter((payee) => payee.mergedIntoId === null),
-    [payees],
-  );
-  const lastUsedByPayee = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const [payeeId, rows] of byPayee) {
-      const first = rows.at(0);
-      if (first) map.set(payeeId, first.date);
-    }
-    return map;
-  }, [byPayee]);
+  const livePayees = payees.filter((payee) => payee.mergedIntoId === null);
+  const lastUsedByPayee = new Map<string, string>();
+  for (const [payeeId, rows] of byPayee) {
+    const first = rows.at(0);
+    if (first) lastUsedByPayee.set(payeeId, first.date);
+  }
 
   return {
     memberId,

@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  use,
-  useCallback,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, use, useRef, useState, type ReactNode } from "react";
 
 /**
  * Registry that lets a subtree intercept the global `BackButton`. A child
@@ -36,14 +29,14 @@ export function BackOverrideProvider({ children }: { children: ReactNode }) {
   const handlerRef = useRef<(() => void) | null>(null);
   const [hasBackOverride, setHasBackOverride] = useState(false);
 
-  const setBackOverride = useCallback((handler: (() => void) | null) => {
+  const setBackOverride = (handler: (() => void) | null) => {
     handlerRef.current = handler;
     setHasBackOverride(handler !== null);
-  }, []);
+  };
 
-  const triggerBack = useCallback(() => {
+  const triggerBack = () => {
     handlerRef.current?.();
-  }, []);
+  };
 
   return (
     <BackOverrideContext

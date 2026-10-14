@@ -1,4 +1,4 @@
-import { useMemo, useState, type PointerEvent, type Ref } from "react";
+import { useState, type PointerEvent, type Ref } from "react";
 import { LIQUID_SEGMENT } from "../effect-layer/liquid-indicator.ts";
 import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { mergeRefs } from "../merge-refs.ts";
@@ -199,13 +199,8 @@ export function useSegmentPress<T extends HTMLElement>({
     pressed,
     aim,
   });
-  // A new ref callback detaches and attaches again, which registers the
-  // track on the effect layer afresh, so the merged ref holds still.
   const effectRef = effect === "liquid" ? liquidRef : undefined;
-  const trackRef = useMemo(
-    () => mergeRefs<T>(ref, effectRef),
-    [ref, effectRef],
-  );
+  const trackRef = mergeRefs<T>(ref, effectRef);
 
   return {
     trackRef,

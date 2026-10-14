@@ -9,7 +9,9 @@ compiles the site's `t()` calls. `@tuja/babel-plugins/stylex-options` is not a
 plugin: it is the one option set every StyleX build in the repo hands
 `@stylexjs/babel-plugin`. `@tuja/babel-plugins/stylex-plugins` puts the two
 together: the breakpoints plugin, then `@stylexjs/babel-plugin` with those
-options.
+options. `@tuja/babel-plugins/react-compiler` is the one option set every React
+Compiler build in the repo uses, and the Vite plugins that run the compiler
+outside Next.
 
 ## @tuja/babel-plugins/specimen-source
 
@@ -324,6 +326,45 @@ module.exports = {
 `breakpointsRootDir` is the package that owns `src/breakpoints.stylex.ts`. Each
 plugin comes back as a resolved path, so the chain works from any working
 directory.
+
+## @tuja/babel-plugins/react-compiler
+
+The options React Compiler runs with, in one place. `panicThreshold:
+"all_errors"` makes a component or hook that the compiler cannot compile fail
+the build. Without it, the compiler skips that code and it ships without
+memoization.
+
+```js
+// next.config.js
+const { reactCompilerOptions } = require("@tuja/babel-plugins/react-compiler");
+
+module.exports = { reactCompiler: { ...reactCompilerOptions } };
+```
+
+A Vite build or Vitest config takes `reactCompilerVitePlugins()`. It returns
+the compiler pass and, when `babel` is given, a `@rolldown/plugin-babel` pass
+with those options. Both take the files that `include` matches. The compiler
+pass comes before every other transform. It skips a file that has no `use` and
+no JSX, because such a file cannot have a component or hook. Compiler 1.0.0
+cannot compile a destructured default (`{ size = 3 }`) under Babel 8, so the
+compiler pass runs on Babel 7 and only parses TypeScript and JSX; the `babel`
+transforms stay on Babel 8. `sourcePlugins` run in the compiler pass, for a
+plugin that must also read the original source:
+
+```js
+// vitest.config.mts
+import { reactCompilerVitePlugins } from "@tuja/babel-plugins/react-compiler";
+
+export default defineConfig({
+  plugins: [
+    ...reactCompilerVitePlugins({
+      include: /packages\/ui\/src\/.*\.tsx?$/,
+      babel: { presets: [/* … */], plugins: [/* … */] },
+    }),
+    react(),
+  ],
+});
+```
 
 ## @tuja/babel-plugins/i18n
 
