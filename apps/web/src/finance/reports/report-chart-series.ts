@@ -3,9 +3,8 @@ import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import type { TrendPoint } from "./weekly-report-data-schema.ts";
 
 /**
- * A Report's weekly trend as a chart series: net worth with its moving
- * average, or the property net alone (null when the Household has no
- * property Account).
+ * A Report's weekly trend as a chart series: net worth, or the property
+ * net (null when the Household has no property Account).
  */
 export function reportChartSeries(
   trend: readonly TrendPoint[],
@@ -15,7 +14,6 @@ export function reportChartSeries(
     return {
       days: Int32Array.from(trend, (point) => toEpochDay(point.day)),
       values: Float64Array.from(trend, (point) => point.netWorthMinor),
-      trend: Float64Array.from(trend, (point) => point.averageMinor),
     };
   }
   const points = trend.flatMap((point) =>
@@ -27,6 +25,5 @@ export function reportChartSeries(
   return {
     days: Int32Array.from(points, (point) => toEpochDay(point.day)),
     values: Float64Array.from(points, (point) => point.value),
-    trend: null,
   };
 }

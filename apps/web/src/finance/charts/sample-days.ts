@@ -10,17 +10,14 @@ export function sampleDays(
   start: number,
   end: number,
   maxPoints = MAX_CHART_POINTS,
-  leadInDays = 0,
-): { days: Int32Array; stride: number; firstVisible: number } {
+): { days: Int32Array; stride: number } {
   const span = Math.max(end - start, 0);
   const stride = span + 1 <= maxPoints ? 1 : Math.ceil(span / (maxPoints - 1));
   const visible = Math.floor(span / stride) + 1;
-  const lead = Math.ceil(leadInDays / stride);
   const extraStart = (end - start) % stride === 0 ? 0 : 1;
-  const days = new Int32Array(lead + extraStart + visible);
+  const days = new Int32Array(extraStart + visible);
   let index = days.length - 1;
   for (let day = end; day >= start; day -= stride) days[index--] = day;
-  if (extraStart === 1) days[index--] = start;
-  for (let step = 1; index >= 0; step++) days[index--] = start - step * stride;
-  return { days, stride, firstVisible: lead };
+  if (extraStart === 1) days[index] = start;
+  return { days, stride };
 }

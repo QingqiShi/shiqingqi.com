@@ -4,7 +4,9 @@ import { color } from "@tuja/ui/tokens.stylex";
 /**
  * The marks every Finance chart shares, so a line, a bar and a stacked bar
  * read as one system: hairline solid gridlines, 2px lines with round joins,
- * a wash for an area, and a surface ring on a dot.
+ * an area that fades towards zero, and a surface ring on a dot. A line, an
+ * area stop and a dot paint in `currentColor`, so a group's `color` sets
+ * the series colour of all three.
  */
 export const chartMarks = stylex.create({
   gridline: {
@@ -20,19 +22,18 @@ export const chartMarks = stylex.create({
   axisLabel: {
     fill: color.fgMuted,
   },
-  primaryLine: {
+  line: {
     fill: "none",
-    stroke: color.bgAccent,
+    stroke: "currentColor",
     strokeWidth: 2,
     strokeLinejoin: "round",
     strokeLinecap: "round",
   },
-  primaryArea: {
-    fill: `color-mix(in srgb, ${color.bgAccent} 12%, transparent)`,
-    stroke: "none",
+  areaStop: {
+    stopColor: "currentColor",
   },
-  primaryFill: {
-    fill: color.bgAccent,
+  dotFill: {
+    fill: "currentColor",
   },
   trendLine: {
     fill: "none",

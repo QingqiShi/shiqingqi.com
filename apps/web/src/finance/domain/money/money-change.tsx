@@ -4,10 +4,10 @@ import * as stylex from "@stylexjs/stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
-import { formatPercentChange } from "../accounts/format-percent-change.ts";
-import { formatMoney } from "../domain/money/format-money.ts";
+import { formatMoney } from "./format-money.ts";
+import { formatPercentChange } from "./format-percent-change.ts";
 
-interface ReportChangeProps {
+interface MoneyChangeProps {
   changeMinor: number;
   /** The value the change is measured from; adds a percentage when not 0. */
   fromMinor?: number;
@@ -17,12 +17,12 @@ interface ReportChangeProps {
 }
 
 /** A signed change in money, such as `+£5,259.27 (+0.95%)`. */
-export function ReportChange({
+export function MoneyChange({
   changeMinor,
   fromMinor,
   currency,
   tone = false,
-}: ReportChangeProps) {
+}: MoneyChangeProps) {
   const locale = useLocale();
   const percent =
     fromMinor === undefined

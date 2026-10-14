@@ -4,7 +4,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
-import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { TimeSeriesChart } from "../charts/time-series-chart.tsx";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
@@ -41,9 +40,7 @@ export function AccountChart({ account, today }: AccountChartProps) {
           zh: "所选时间范围内该账户每天结束时的余额。",
         })}
         formatValue={(minor) => formatMoney(minor, account.currency, locale)}
-        formatTick={(minor, step) =>
-          formatAxisMoney(minor, step, account.currency, locale)
-        }
+        currency={account.currency}
         restReadout={`${displayDay(start, locale, "dayYear")} – ${displayDay(today, locale, "dayYear")}`}
         height={180}
       />

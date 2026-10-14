@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { currencyExponent } from "./currency-exponent.ts";
 import { formatMoney } from "./format-money.ts";
+import { formatPercentChange } from "./format-percent-change.ts";
 import { parseMoney } from "./parse-money.ts";
 import {
   fromMinorUnits,
@@ -111,6 +112,22 @@ describe("formatMoney", () => {
     expect(formatMoney(123456789, "GBP", "en", { notation: "compact" })).toBe(
       "£1.2M",
     );
+  });
+});
+
+describe("formatPercentChange", () => {
+  it("signs the change as a share of where it started", () => {
+    expect(formatPercentChange(50, 100, "en")).toBe("+50%");
+    expect(formatPercentChange(0, 150, "en")).toBe("0%");
+  });
+
+  it("has no percentage from a start of zero", () => {
+    expect(formatPercentChange(100, 0, "en")).toBeNull();
+  });
+
+  it("takes the percentage of a negative start's magnitude", () => {
+    expect(formatPercentChange(100, -200, "en")).toBe("+50%");
+    expect(formatPercentChange(200, -100, "en")).toBe("+200%");
   });
 });
 

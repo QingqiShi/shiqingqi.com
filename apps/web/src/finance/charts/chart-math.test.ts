@@ -10,12 +10,9 @@ import { chartDomain } from "./chart-domain.ts";
 import { chartRangeStart } from "./chart-range-start.ts";
 import { CHART_RANGES } from "./chart-ranges.ts";
 import { dateTicks } from "./date-ticks.ts";
-import { nearestIndex } from "./nearest-index.ts";
-import { niceTicks } from "./nice-ticks.ts";
 import { sampleAccountBalance, sampleBalances } from "./sample-balances.ts";
 import { MAX_CHART_POINTS, sampleDays } from "./sample-days.ts";
 import { summariseSeries } from "./summarise-series.ts";
-import { trailingAverage } from "./trailing-average.ts";
 
 const TODAY = "2026-10-10";
 
@@ -55,12 +52,6 @@ describe("sampleDays", () => {
     for (let i = 1; i < days.length; i++) {
       expect(days[i]).toBeGreaterThan(days[i - 1]);
     }
-  });
-
-  it("adds lead-in days before the start at the same stride", () => {
-    const { days, firstVisible } = sampleDays(100, 130, 400, 5);
-    expect(firstVisible).toBe(5);
-    expect([...days.subarray(0, 6)]).toEqual([95, 96, 97, 98, 99, 100]);
   });
 });
 
@@ -126,38 +117,12 @@ describe("sampleBalances", () => {
   });
 });
 
-describe("trailingAverage", () => {
-  it("averages the points inside the window ending on each day", () => {
-    const days = Int32Array.from([0, 1, 2, 3, 4]);
-    const values = Float64Array.from([1, 2, 3, 4, 5]);
-    expect([...trailingAverage(days, values, 3)]).toEqual([1, 1.5, 2, 3, 4]);
-  });
-});
-
 describe("buildChartSeries", () => {
-  it("reads lead-in days for the trend and returns only the range", () => {
-    const valuesAt = (days: Int32Array) =>
-      Float64Array.from(days, (day) =>
-        day >= toEpochDay("2026-10-01") ? 100 : 0,
-      );
-    const chart = buildChartSeries({
-      start: "2026-10-01",
-      end: TODAY,
-      firstDay: "2026-01-01",
-      valuesAt,
-      trendWindowDays: 91,
-    });
-    expect(chart.days.length).toBe(10);
-    expect(chart.days[0]).toBe(toEpochDay("2026-10-01"));
-    expect(chart.trend?.[0]).toBeCloseTo(100 / 91);
-  });
-
   it("keeps at most 400 points for any range", () => {
     for (const range of CHART_RANGES) {
       const chart = buildChartSeries({
         start: chartRangeStart(range, TODAY, "2010-01-01"),
         end: TODAY,
-        firstDay: "2010-01-01",
         valuesAt: (days) => new Float64Array(days.length),
       });
       expect(chart.days.length).toBeLessThanOrEqual(401);
@@ -180,17 +145,6 @@ describe("summariseSeries", () => {
   });
 });
 
-describe("niceTicks", () => {
-  it("picks round steps inside the domain", () => {
-    expect(niceTicks(40_123_456, 52_987_654, 4)).toEqual([
-      45_000_000, 50_000_000,
-    ]);
-    expect(niceTicks(-750_000, 0, 4)).toEqual([
-      -600_000, -400_000, -200_000, 0,
-    ]);
-  });
-});
-
 describe("dateTicks", () => {
   it("labels weeks, months or years by span", () => {
     const end = toEpochDay(TODAY);
@@ -207,15 +161,34 @@ describe("dateTicks", () => {
     expect(years.every((tick) => tick.unit === "year")).toBe(true);
     expect(years.length).toBeLessThanOrEqual(5);
   });
+
+  it("steps weeks from Mondays and marks each new year", () => {
+    const weeks = dateTicks(toEpochDay("2026-09-10"), toEpochDay(TODAY), 5);
+    expect(weeks.map((tick) => fromEpochDay(tick.epochDay))).toEqual([
+      "2026-09-14",
+      "2026-09-21",
+      "2026-09-28",
+      "2026-10-05",
+    ]);
+    const quarters = dateTicks(toEpochDay("2025-10-10"), toEpochDay(TODAY), 5);
+    expect(
+      quarters.map((tick) => [fromEpochDay(tick.epochDay), tick.unit]),
+    ).toEqual([
+      ["2026-01-01", "year"],
+      ["2026-04-01", "month"],
+      ["2026-07-01", "month"],
+      ["2026-10-01", "month"],
+    ]);
+  });
 });
 
-describe("chart geometry", () => {
-  it("pads the domain and finds the nearest point", () => {
+describe("chartDomain", () => {
+  it("pads the domain of every series together", () => {
     expect(chartDomain(Float64Array.from([0, 100]))).toEqual([-8, 108]);
-    const xs = Float64Array.from([0, 10, 20]);
-    expect(nearestIndex(xs, 4)).toBe(0);
-    expect(nearestIndex(xs, 6)).toBe(1);
-    expect(nearestIndex(xs, 99)).toBe(2);
+    expect(
+      chartDomain(Float64Array.from([0, 50]), Float64Array.from([100]), null),
+    ).toEqual([-8, 108]);
+    expect(chartDomain(null)).toEqual([0, 1]);
   });
 });
 
@@ -251,7 +224,6 @@ describe("range switching cost", () => {
       })),
       "GBP",
     );
-    const trendWindowDays = 91;
     const timings: number[] = [];
     for (const range of CHART_RANGES) {
       let sampledDays = 0;
@@ -259,17 +231,13 @@ describe("range switching cost", () => {
       buildChartSeries({
         start: chartRangeStart(range, TODAY, "2020-03-02"),
         end: TODAY,
-        firstDay: "2020-03-02",
         valuesAt: (days) => {
           sampledDays += days.length;
           return sampleBalances(accounts, series, fx, days);
         },
-        trendWindowDays,
       });
       timings.push(performance.now() - started);
-      expect(sampledDays).toBeLessThanOrEqual(
-        MAX_CHART_POINTS + trendWindowDays,
-      );
+      expect(sampledDays).toBeLessThanOrEqual(MAX_CHART_POINTS + 1);
     }
     expectWithinBudget(Math.max(...timings), 16);
   });

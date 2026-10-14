@@ -5,7 +5,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { TimeSeriesChart } from "../charts/time-series-chart.tsx";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { reportChartSeries } from "./report-chart-series.ts";
@@ -51,9 +50,7 @@ export function ReportPropertyNet({
             zh: "每周末房产价值减去其贷款后的净值。",
           })}
           formatValue={money}
-          formatTick={(minor, step) =>
-            formatAxisMoney(minor, step, currency, locale)
-          }
+          currency={currency}
           height={160}
         />
       ) : null}
