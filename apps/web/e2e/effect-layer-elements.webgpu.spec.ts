@@ -26,6 +26,7 @@ interface EffectFrameDetail {
     width: number;
     height: number;
     fixed: boolean;
+    fixedToBottom: boolean;
     radii: readonly number[];
     fill: readonly number[];
   }[];
@@ -115,7 +116,7 @@ test("mounts no canvas element for elements without an effect", async ({
 }) => {
   await page.goto(PAGE);
   // The Ripple, Dust and Black hole elements mount the scroll canvas
-  // elements; the fixed element, which has no effect, must not mount the
+  // elements; the fixed element, which has no effect, must not mount a
   // fixed one.
   await expect(page.locator('[data-effect-layer="scroll"]')).toHaveCount(2, {
     timeout: MOUNT_TIMEOUT,
@@ -124,6 +125,9 @@ test("mounts no canvas element for elements without an effect", async ({
   await expect(page.locator("[data-effect-test-fixed]")).toBeVisible();
   await page.waitForLoadState("networkidle");
   await expect(page.locator('[data-effect-layer="fixed"]')).toHaveCount(0);
+  await expect(page.locator('[data-effect-layer="fixed-bottom"]')).toHaveCount(
+    0,
+  );
 });
 
 test.describe("in the debug view", () => {
@@ -163,7 +167,7 @@ test.describe("in the debug view", () => {
     await expectLineOnLeftEdge(page);
   });
 
-  test("registers a fixed element on the fixed canvas element", async ({
+  test("registers an element fixed to the bottom on the bottom canvas element", async ({
     page,
   }) => {
     const fixedRecord = () =>
@@ -176,7 +180,7 @@ test.describe("in the debug view", () => {
           return null;
         }
         return {
-          fixed: record.fixed,
+          fixed: record.fixed && record.fixedToBottom,
           viewportTop: Math.round(record.y - frame.scrollY),
           top: Math.round(record.element.getBoundingClientRect().top),
         };

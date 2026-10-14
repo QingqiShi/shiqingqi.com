@@ -4,12 +4,13 @@ import type { ElementBox } from "./read-element-box.ts";
 
 /**
  * The `<canvas>` elements of the effect layer: the two scroll ones, which take
- * turns to cover the document, or the fixed one, which covers the viewport
- * for fixed elements.
+ * turns to cover the document; the fixed one, which covers the viewport for
+ * fixed elements; or the bottom one, which covers the viewport from its
+ * bottom edge for elements fixed to that edge, and moves with it.
  *
  * @internal
  */
-export type EffectCanvas = "scroll" | "fixed";
+export type EffectCanvas = "scroll" | "fixed" | "fixedBottom";
 
 /**
  * The settings of one registration, one entry for each effect hook that has
@@ -111,6 +112,11 @@ export interface EffectScope {
   readonly scroll: ElementRange;
   /** Its fixed elements, which draw on the fixed `<canvas>` element. */
   readonly fixed: ElementRange;
+  /**
+   * Its elements fixed to the viewport's bottom edge, which draw on the
+   * bottom `<canvas>` element.
+   */
+  readonly fixedBottom: ElementRange;
 }
 
 /**
@@ -153,9 +159,9 @@ export interface EffectSetup {
 }
 
 /**
- * One render pass: a band on a scroll `<canvas>` element, or the fixed
- * `<canvas>` element. Lengths are CSS px; positions are page coordinates,
- * from the top-left corner of the document. The pass clears the whole
+ * One render pass: a band on a scroll `<canvas>` element, the fixed
+ * `<canvas>` element, or the bottom one. Lengths are CSS px; positions are
+ * page coordinates, from the top-left corner of the document. The pass clears the whole
  * `<canvas>` element and has its scissor rect set to the part to draw.
  *
  * @internal
@@ -164,12 +170,14 @@ export interface EffectTarget {
   readonly canvas: EffectCanvas;
   /**
    * The band this pass draws, with the part drawn this frame, or `null` on
-   * the fixed `<canvas>` element.
+   * the fixed and the bottom `<canvas>` elements.
    */
   readonly band: Band | null;
   /**
-   * The `<canvas>` element's top-left corner: the band's document offset, or
-   * the scroll position on the fixed `<canvas>` element.
+   * The `<canvas>` element's top-left corner: the band's document offset,
+   * the scroll position on the fixed `<canvas>` element, or the scroll
+   * position plus the viewport's bottom edge less the height on the bottom
+   * one.
    */
   readonly x: number;
   readonly y: number;
@@ -179,8 +187,8 @@ export interface EffectTarget {
   /**
    * The elements that draw on this `<canvas>` element, as a range of
    * `EffectFrame.elements`: the ones in the document on a band, the fixed
-   * ones on the fixed `<canvas>` element, of every scope. Pass it to an
-   * instanced draw as
+   * ones on the fixed `<canvas>` element, the ones fixed to the bottom on the
+   * bottom one, of every scope. Pass it to an instanced draw as
    * `pass.draw(vertices, elementCount, 0, firstElement)`.
    */
   readonly firstElement: number;
@@ -215,10 +223,11 @@ export interface EffectFrame {
   readonly documentHeight: number;
   /**
    * Every registered element with a box, as it is at the start of this
-   * frame: the ones in the document first, then the fixed ones, each group
-   * by scope in the order of `scopes`, so each scope is one range of each
-   * group. An element whose Effect container has no box is not here. An
-   * element is measured again only after it can have changed.
+   * frame: the ones in the document first, then the fixed ones, then the
+   * ones fixed to the bottom, each group by scope in the order of `scopes`,
+   * so each scope is one range of each group. An element whose Effect
+   * container has no box is not here. An element is measured again only
+   * after it can have changed.
    */
   readonly elements: readonly EffectElementRecord[];
   /**

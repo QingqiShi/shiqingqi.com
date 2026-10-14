@@ -2,6 +2,7 @@ import { isDarkBackground } from "./dust-color.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { readFill } from "./read-element-box.ts";
 import type {
+  EffectCanvas,
   EffectElementRecord,
   EffectScope,
   ElementRange,
@@ -15,6 +16,33 @@ import type {
  * @internal
  */
 export const PAGE_SCOPE = 0;
+
+/**
+ * The `<canvas>` elements in the order of their elements, and of each
+ * scope's ranges.
+ *
+ * @internal
+ */
+export const CANVAS_ORDER: readonly EffectCanvas[] = [
+  "scroll",
+  "fixed",
+  "fixedBottom",
+];
+
+/**
+ * The `<canvas>` element a record draws on.
+ *
+ * @internal
+ */
+export function canvasOf({
+  fixed,
+  fixedToBottom,
+}: Pick<MeasuredElement, "fixed" | "fixedToBottom">): EffectCanvas {
+  if (!fixed) {
+    return "scroll";
+  }
+  return fixedToBottom ? "fixedBottom" : "fixed";
+}
 
 /** A fill at least this opaque is what a scope's effects draw over. */
 const OPAQUE_BACKDROP = 0.5;
@@ -59,15 +87,21 @@ export interface CanvasRange extends ElementRange {
  */
 export interface ScopePlan {
   /**
-   * The measured elements, the ones in the document before the fixed ones,
-   * each group by scope, less each element whose Effect container, or a
-   * container around that one, has no box.
+   * The measured elements, the ones in the document, then the fixed ones,
+   * then the ones fixed to the bottom, each group by scope, less each
+   * element whose Effect container, or a container around that one, has no
+   * box.
    */
   readonly elements: readonly EffectElementRecord[];
   /** The elements in the document, which draw on the bands. */
   readonly document: CanvasRange;
   /** The fixed elements, which draw on the fixed `<canvas>` element. */
   readonly fixed: CanvasRange;
+  /**
+   * The elements fixed to the viewport's bottom edge, which draw on the
+   * bottom `<canvas>` element.
+   */
+  readonly fixedBottom: CanvasRange;
   /** The page first, then the scope of each Effect container with a box. */
   readonly scopes: readonly EffectScope[];
 }
@@ -80,9 +114,9 @@ export interface ScopePlan {
  */
 export function peersOf(
   scopes: readonly EffectScope[],
-  record: Pick<EffectElementRecord, "scopeIndex" | "fixed">,
+  record: Pick<EffectElementRecord, "scopeIndex" | "fixed" | "fixedToBottom">,
 ): ElementRange {
-  return scopes[record.scopeIndex][record.fixed ? "fixed" : "scroll"];
+  return scopes[record.scopeIndex][canvasOf(record)];
 }
 
 /**
@@ -141,7 +175,8 @@ export function planScopes(
     })
     .sort(
       (first, second) =>
-        Number(first.fixed) - Number(second.fixed) ||
+        CANVAS_ORDER.indexOf(canvasOf(first)) -
+          CANVAS_ORDER.indexOf(canvasOf(second)) ||
         first.scopeIndex - second.scopeIndex,
     );
 
@@ -151,13 +186,25 @@ export function planScopes(
   const ranges = scopeIds.map(() => ({
     scroll: { firstElement: 0, elementCount: 0 },
     fixed: { firstElement: 0, elementCount: 0 },
+    fixedBottom: { firstElement: 0, elementCount: 0 },
   }));
+  const counts = { scroll: 0, fixed: 0, fixedBottom: 0 };
+  const hasRole = { scroll: false, fixed: false, fixedBottom: false };
   for (const [index, record] of elements.entries()) {
-    const range = ranges[record.scopeIndex][record.fixed ? "fixed" : "scroll"];
+    const canvas = canvasOf(record);
+    const range = ranges[record.scopeIndex][canvas];
     if (range.elementCount === 0) {
       range.firstElement = index;
     }
     range.elementCount += 1;
+    counts[canvas] += 1;
+    if (record.roles !== 0) {
+      hasRole[canvas] = true;
+      if (record.sticksToViewport) {
+        hasRole.scroll = true;
+        hasRole.fixed = true;
+      }
+    }
   }
 
   const backdrops: EffectColor[] = [pageBackdrop];
@@ -181,24 +228,22 @@ export function planScopes(
       : (indexOfId.get(holder.id) ?? -1);
   }
 
-  const documentCount = elements.filter((record) => !record.fixed).length;
-  const hasRole = (fixed: boolean) =>
-    elements.some(
-      (record) =>
-        record.roles !== 0 &&
-        (record.fixed === fixed || record.sticksToViewport),
-    );
   return {
     elements,
     document: {
       firstElement: 0,
-      elementCount: documentCount,
-      hasRole: hasRole(false),
+      elementCount: counts.scroll,
+      hasRole: hasRole.scroll,
     },
     fixed: {
-      firstElement: documentCount,
-      elementCount: elements.length - documentCount,
-      hasRole: hasRole(true),
+      firstElement: counts.scroll,
+      elementCount: counts.fixed,
+      hasRole: hasRole.fixed,
+    },
+    fixedBottom: {
+      firstElement: counts.scroll + counts.fixed,
+      elementCount: counts.fixedBottom,
+      hasRole: hasRole.fixedBottom,
     },
     scopes: scopeIds.map((id, index) => {
       const backdrop = backdropOf(index);

@@ -27,6 +27,12 @@ export interface ElementBox {
    */
   readonly fixed: boolean;
   /**
+   * Fixed by a `position: fixed` box at the bottom edge of the viewport, as
+   * `isAtViewportBottom` explains. It draws on the bottom `<canvas>` element,
+   * which moves with that edge.
+   */
+  readonly fixedToBottom: boolean;
+  /**
    * A sticky box around it sticks to the viewport, so a scroll can move it
    * between the scroll `<canvas>` elements and the fixed one.
    */
@@ -232,30 +238,67 @@ export function holdsFixedDescendants(style: CSSStyleDeclaration) {
 }
 
 /**
- * Whether the element is fixed to the viewport: it, or an ancestor, has
- * `position: fixed`, and no ancestor of that box holds it in the document.
+ * The `position: fixed` box that fixes the element to the viewport: the
+ * element or its nearest ancestor with `position: fixed` that no ancestor
+ * holds in the document. `null` when there is none.
  *
  * @internal
  */
-export function isFixedToViewport(
+export function viewportFixedBox(
   element: Element,
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
 ) {
-  let fixed = false;
+  let box: Element | null = null;
   for (
     let node: Element | null = element;
     node !== null;
     node = node.parentElement
   ) {
     const style = styleOf(node);
-    if (fixed && holdsFixedDescendants(style)) {
-      fixed = false;
+    if (box !== null && holdsFixedDescendants(style)) {
+      box = null;
     }
-    if (style.position === "fixed") {
-      fixed = true;
+    if (box === null && style.position === "fixed") {
+      box = node;
     }
   }
-  return fixed;
+  return box;
+}
+
+/** The computed `top` and `bottom` of a box, with `auto` kept. */
+function readBlockInsets(
+  box: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration,
+) {
+  // getComputedStyle gives the used px value of an `auto` inset on a
+  // positioned box. Thus, read the computed style map, which keeps `auto`.
+  if ("computedStyleMap" in box) {
+    const map = box.computedStyleMap();
+    return {
+      top: map.get("top")?.toString() ?? "",
+      bottom: map.get("bottom")?.toString() ?? "",
+    };
+  }
+  const style = styleOf(box);
+  return { top: style.top, bottom: style.bottom };
+}
+
+/**
+ * Whether a `position: fixed` box is at the bottom edge of the viewport: its
+ * `bottom` is set and its `top` is `auto`. When a mobile toolbar slides in
+ * or out, the browser moves such a box with the edge before a script can
+ * see it move. A browser without a computed style map gives no `auto`, so
+ * there no box is at the bottom edge.
+ *
+ * @internal
+ */
+export function isAtViewportBottom(
+  box: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+) {
+  const { top, bottom } = readBlockInsets(box, styleOf);
+  const isAuto = (inset: string) => inset === "auto" || inset === "";
+  return isAuto(top) && !isAuto(bottom);
 }
 
 /**
@@ -380,14 +423,16 @@ export function readElementBox(
   }
   const style = styleOf(element);
   const stickyBoxes = viewportStickyBoxes(element, styleOf);
+  const fixedBox = viewportFixedBox(element, styleOf);
   return {
     x: rect.left,
     y: rect.top,
     width: rect.width,
     height: rect.height,
     fixed:
-      isFixedToViewport(element, styleOf) ||
+      fixedBox !== null ||
       stickyBoxes.some((box) => isStuckToViewport(box, styleOf)),
+    fixedToBottom: fixedBox !== null && isAtViewportBottom(fixedBox, styleOf),
     sticksToViewport: stickyBoxes.length > 0,
     radii: resolveCornerRadii(rect.width, rect.height, [
       style.borderTopLeftRadius,

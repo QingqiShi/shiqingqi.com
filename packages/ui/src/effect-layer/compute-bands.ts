@@ -51,6 +51,23 @@ export function bandGeometry(viewportHeight: number) {
 }
 
 /**
+ * The page y of the bottom `<canvas>` element's top edge: its bottom edge is
+ * at the viewport's bottom edge, `viewportBottom` in viewport coordinates,
+ * and it is `height` tall. An element fixed to the bottom moves with
+ * `viewportBottom` too, so its place on the `<canvas>` element stays the
+ * same while the edge moves.
+ *
+ * @internal
+ */
+export function fixedBottomTop(
+  scrollY: number,
+  viewportBottom: number,
+  height: number,
+) {
+  return scrollY + viewportBottom - height;
+}
+
+/**
  * The bands that meet the viewport and its overscan margin, with the part of
  * each to draw this frame. A band is as tall as that range, so there are at
  * most two, and they use different slots.

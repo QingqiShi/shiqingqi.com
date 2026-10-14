@@ -3,6 +3,7 @@ import {
   bandGeometry,
   bandScissorRect,
   computeBands,
+  fixedBottomTop,
   type ScissorRect,
 } from "./compute-bands.ts";
 import { GPU_BUFFER_USAGE, GPU_SHADER_STAGE } from "./constants.ts";
@@ -24,6 +25,7 @@ import {
   PAGE_SCOPE,
   planScopes,
   readPageBackdrop,
+  type CanvasRange,
   type ScopePlan,
 } from "./plan-scopes.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
@@ -32,6 +34,7 @@ import { trackElements } from "./track-elements.ts";
 import { trackPointer } from "./track-pointer.ts";
 import type {
   Effect,
+  EffectCanvas,
   EffectFrame,
   EffectRenderer,
   EffectSetup,
@@ -68,24 +71,27 @@ interface Pass {
 
 /**
  * The `<canvas>` elements the effect layer draws into: the two scroll ones or
- * none, and the fixed one or `null`.
+ * none, the fixed one or `null`, and the bottom one or `null`.
  *
  * @internal
  */
 export interface EffectLayerCanvases {
   readonly scroll: readonly HTMLCanvasElement[];
   readonly fixed: HTMLCanvasElement | null;
+  readonly fixedBottom: HTMLCanvasElement | null;
 }
 
 /**
  * Which `<canvas>` elements the registered elements with a role need: the
- * scroll ones for elements in the document, the fixed one for fixed elements.
+ * scroll ones for elements in the document, the fixed one for fixed elements,
+ * the bottom one for elements fixed to the viewport's bottom edge.
  *
  * @internal
  */
 export interface EffectCanvasNeeds {
   readonly scroll: boolean;
   readonly fixed: boolean;
+  readonly fixedBottom: boolean;
 }
 
 interface EffectLayerOptions {
@@ -94,6 +100,11 @@ interface EffectLayerOptions {
   readonly container: HTMLElement;
   /** A box inside `container` that is as tall as the large viewport. */
   readonly probe: HTMLElement;
+  /**
+   * A fixed 0 x 0 box at the viewport's bottom edge, which holds the bottom
+   * `<canvas>` element.
+   */
+  readonly bottomAnchor: HTMLElement;
   readonly onCanvasNeedsChange: (needs: EffectCanvasNeeds) => void;
 }
 
@@ -110,7 +121,13 @@ interface EffectLayerOptions {
  */
 export function createEffectLayer(
   { device, format }: EffectDevice,
-  { registry, container, probe, onCanvasNeedsChange }: EffectLayerOptions,
+  {
+    registry,
+    container,
+    probe,
+    bottomAnchor,
+    onCanvasNeedsChange,
+  }: EffectLayerOptions,
 ) {
   const pageLayout = device.createBindGroupLayout({
     entries: [
@@ -143,6 +160,7 @@ export function createEffectLayer(
   let followsPointer = false;
   let scroll: ScrollCanvas[] = [];
   let fixed: ConfiguredCanvas | null = null;
+  let fixedBottom: ConfiguredCanvas | null = null;
 
   const pageUniform = device.createBuffer({
     size: PAGE_UNIFORM_BYTES,
@@ -169,7 +187,13 @@ export function createEffectLayer(
   const reducedMotionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
   let pixelRatioQuery = watchPixelRatio();
   const frames = createFrameScheduler();
-  const tracking = trackElements(registry, frames, requestElementsFrame);
+  const readViewportBottom = () => bottomAnchor.getBoundingClientRect().bottom;
+  const tracking = trackElements(
+    registry,
+    frames,
+    requestElementsFrame,
+    readViewportBottom,
+  );
   // A change of settings moves no element, so draw a frame for it.
   const unsubscribeSettings = registry.subscribe(requestFrame);
   const pointer = trackPointer(() => {
@@ -264,6 +288,12 @@ export function createEffectLayer(
       }
       fixed = canvases.fixed && configure(canvases.fixed);
     }
+    if (fixedBottom?.canvas !== canvases.fixedBottom) {
+      if (fixedBottom !== null) {
+        release(fixedBottom);
+      }
+      fixedBottom = canvases.fixedBottom && configure(canvases.fixedBottom);
+    }
     sizesChanged = true;
     requestFrame();
   }
@@ -340,10 +370,12 @@ export function createEffectLayer(
     const needs = {
       scroll: plan.document.hasRole,
       fixed: plan.fixed.hasRole,
+      fixedBottom: plan.fixedBottom.hasRole,
     };
     if (
       needs.scroll !== canvasNeeds?.scroll ||
-      needs.fixed !== canvasNeeds.fixed
+      needs.fixed !== canvasNeeds.fixed ||
+      needs.fixedBottom !== canvasNeeds.fixedBottom
     ) {
       canvasNeeds = needs;
       onCanvasNeedsChange(needs);
@@ -380,15 +412,22 @@ export function createEffectLayer(
       sizeCanvas(slot.canvas, documentWidth, bandHeight);
       slot.bandIndex = null;
     }
-    if (fixed !== null) {
-      sizeCanvas(fixed.canvas, documentWidth, viewport);
+    for (const plane of [fixed, fixedBottom]) {
+      if (plane !== null) {
+        sizeCanvas(plane.canvas, documentWidth, viewport);
+      }
     }
   }
 
-  /** Places the scroll `<canvas>` elements and lists this frame's passes. */
+  /**
+   * Places the scroll `<canvas>` elements and lists this frame's passes.
+   * `viewportBottom` is the viewport's bottom edge in viewport coordinates,
+   * from which the records fixed to the bottom are placed.
+   */
   function planPasses(
     scrollX: number,
     scrollY: number,
+    viewportBottom: number,
     plan: ScopePlan,
   ): Pass[] {
     const { viewport, bandHeight } = bandGeometry(viewportHeight);
@@ -431,28 +470,46 @@ export function createEffectLayer(
         });
       }
     }
-    if (fixed !== null) {
-      passes.push({
-        configured: fixed,
+    function viewportPass(
+      configured: ConfiguredCanvas,
+      canvas: EffectCanvas,
+      y: number,
+      range: CanvasRange,
+    ): Pass {
+      return {
+        configured,
         scissor: {
           x: 0,
           y: 0,
-          width: fixed.canvas.width,
-          height: fixed.canvas.height,
+          width: configured.canvas.width,
+          height: configured.canvas.height,
         },
-        drawnPageRange: [scrollY, scrollY + viewport],
+        drawnPageRange: [y, y + viewport],
         target: {
-          canvas: "fixed",
+          canvas,
           band: null,
           x: scrollX,
-          y: scrollY,
+          y,
           width: documentWidth,
           height: viewport,
-          firstElement: plan.fixed.firstElement,
-          elementCount: plan.fixed.elementCount,
-          bindGroup: fixed.bindGroup,
+          firstElement: range.firstElement,
+          elementCount: range.elementCount,
+          bindGroup: configured.bindGroup,
         },
-      });
+      };
+    }
+    if (fixed !== null) {
+      passes.push(viewportPass(fixed, "fixed", scrollY, plan.fixed));
+    }
+    if (fixedBottom !== null) {
+      passes.push(
+        viewportPass(
+          fixedBottom,
+          "fixedBottom",
+          fixedBottomTop(scrollY, viewportBottom, viewport),
+          plan.fixedBottom,
+        ),
+      );
     }
     return passes;
   }
@@ -503,8 +560,12 @@ export function createEffectLayer(
   function renderFrame(now: number) {
     const delta = clock.start(now);
     const { scrollX, scrollY } = window;
+    // Read the bottom edge before this frame writes a style, so that the
+    // read does not cause one more layout.
+    let viewportBottom = fixedBottom === null ? null : readViewportBottom();
+    const bottomNow = () => (viewportBottom ??= readViewportBottom());
     const plan = planScopes(
-      registry.records(scrollX, scrollY),
+      registry.records(scrollX, scrollY, bottomNow),
       readPageBackdrop(),
     );
     const records = plan.elements;
@@ -523,7 +584,7 @@ export function createEffectLayer(
       return;
     }
 
-    const passes = planPasses(scrollX, scrollY, plan);
+    const passes = planPasses(scrollX, scrollY, viewportBottom ?? 0, plan);
     const viewport = bandGeometry(viewportHeight).viewport;
     const frame: EffectFrame = {
       time: (now - startTime) / 1000,
@@ -591,11 +652,14 @@ export function createEffectLayer(
     for (const slot of scroll) {
       release(slot);
     }
-    if (fixed !== null) {
-      release(fixed);
+    for (const plane of [fixed, fixedBottom]) {
+      if (plane !== null) {
+        release(plane);
+      }
     }
     scroll = [];
     fixed = null;
+    fixedBottom = null;
     pageUniform.destroy();
     elementBuffer.destroy();
     scopeBuffer.destroy();

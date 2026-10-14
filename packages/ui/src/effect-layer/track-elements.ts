@@ -69,7 +69,8 @@ function isRelated(a: Element, b: Element) {
  * measures the queued ones together before it draws, then calls `onChange`.
  * A window scroll measures nothing: the registry keeps elements in the
  * document at their page position and fixed elements at their viewport
- * position.
+ * position. `readViewportBottom` reads the viewport's bottom edge, from
+ * which an element fixed to the bottom is measured.
  *
  * @internal
  */
@@ -77,6 +78,7 @@ export function trackElements(
   registry: EffectRegistry,
   frames: FrameScheduler,
   onChange: () => void,
+  readViewportBottom: () => number,
 ) {
   let queued = new Set<ElementTracker>();
   const root = document.documentElement;
@@ -84,7 +86,7 @@ export function trackElements(
   function measureQueued() {
     const trackers = queued;
     queued = new Set();
-    const context = createMeasureContext();
+    const context = createMeasureContext(readViewportBottom);
     for (const tracker of trackers) {
       tracker.measure(context);
     }

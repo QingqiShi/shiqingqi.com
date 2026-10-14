@@ -86,7 +86,12 @@ describe("trackElements", () => {
     registry.register(elements.button, 0, NO_SETTINGS, ON_PAGE);
     registry.register(elements.other, 0, NO_SETTINGS, ON_PAGE);
     const onChange = vi.fn();
-    const tracking = trackElements(registry, createFrameScheduler(), onChange);
+    const tracking = trackElements(
+      registry,
+      createFrameScheduler(),
+      onChange,
+      () => 0,
+    );
     frames.run();
     reads.length = 0;
     onChange.mockClear();
@@ -103,7 +108,7 @@ describe("trackElements", () => {
     const registry = createEffectRegistry();
     registry.register(button, 0, NO_SETTINGS, ON_PAGE);
     const onChange = vi.fn();
-    trackElements(registry, createFrameScheduler(), onChange);
+    trackElements(registry, createFrameScheduler(), onChange, () => 0);
     registry.register(other, 0, NO_SETTINGS, ON_PAGE);
     expect(reads).toEqual([]);
 

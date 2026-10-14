@@ -19,15 +19,21 @@ interface EffectLayerCanvasesProps {
   debug: boolean;
 }
 
-const NO_CANVASES: EffectCanvasNeeds = { scroll: false, fixed: false };
+const NO_CANVASES: EffectCanvasNeeds = {
+  scroll: false,
+  fixed: false,
+  fixedBottom: false,
+};
 
 /**
  * The `<canvas>` elements of the effect layer: two on the effect plane over
  * the page's content, which take turns to cover the document while it
- * scrolls, and one fixed to the viewport over every other plane. They are inert, so every pointer,
- * hit test and text selection goes through to the content under them. Each
+ * scrolls, and two fixed to the viewport over every other plane: one from
+ * its top edge, and one from its bottom edge, for elements fixed to that
+ * edge, which a mobile toolbar moves. They are inert, so every pointer, hit
+ * test and text selection goes through to the content under them. Each
  * group mounts only while a registered element with a role needs it; the
- * debug view needs both.
+ * debug view needs all of them.
  *
  * @internal
  */
@@ -42,21 +48,26 @@ export function EffectLayerCanvases({
   const firstRef = useRef<HTMLCanvasElement>(null);
   const secondRef = useRef<HTMLCanvasElement>(null);
   const fixedRef = useRef<HTMLCanvasElement>(null);
+  const bottomAnchorRef = useRef<HTMLDivElement>(null);
+  const fixedBottomRef = useRef<HTMLCanvasElement>(null);
   const layerRef = useRef<ReturnType<typeof createEffectLayer>>(null);
   const [needs, setNeeds] = useState(NO_CANVASES);
   const hasScroll = debug || needs.scroll;
   const hasFixed = debug || needs.fixed;
+  const hasFixedBottom = debug || needs.fixedBottom;
 
   useEffect(() => {
     const container = containerRef.current;
     const probe = probeRef.current;
-    if (container === null || probe === null) {
+    const bottomAnchor = bottomAnchorRef.current;
+    if (container === null || probe === null || bottomAnchor === null) {
       return;
     }
     const effectLayer = createEffectLayer(gpu, {
       registry,
       container,
       probe,
+      bottomAnchor,
       onCanvasNeedsChange: setNeeds,
     });
     layerRef.current = effectLayer;
@@ -72,8 +83,9 @@ export function EffectLayerCanvases({
     layerRef.current?.setCanvases({
       scroll: first && second ? [first, second] : [],
       fixed: fixedRef.current,
+      fixedBottom: fixedBottomRef.current,
     });
-  }, [gpu, registry, hasScroll, hasFixed]);
+  }, [gpu, registry, hasScroll, hasFixed, hasFixedBottom]);
 
   useEffect(() => {
     layerRef.current?.setEffects([
@@ -115,6 +127,20 @@ export function EffectLayerCanvases({
           />
         </div>
       )}
+      <div
+        ref={bottomAnchorRef}
+        aria-hidden
+        inert
+        css={[viewportAnchor.fixed, styles.bottomAnchor, styles.plane]}
+      >
+        {hasFixedBottom && (
+          <canvas
+            ref={fixedBottomRef}
+            data-effect-layer="fixed-bottom"
+            css={styles.bottomCanvas}
+          />
+        )}
+      </div>
     </>
   );
 }
@@ -130,6 +156,10 @@ const styles = stylex.create({
     pointerEvents: "none",
     zIndex: layer.fixedEffect,
   },
+  bottomAnchor: {
+    insetBlockStart: "auto",
+    insetBlockEnd: 0,
+  },
   probe: {
     position: "absolute",
     top: 0,
@@ -141,6 +171,12 @@ const styles = stylex.create({
   canvas: {
     position: "absolute",
     top: 0,
+    left: 0,
+    display: "block",
+  },
+  bottomCanvas: {
+    position: "absolute",
+    bottom: 0,
     left: 0,
     display: "block",
   },
