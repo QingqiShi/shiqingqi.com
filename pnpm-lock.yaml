@@ -279,8 +279,8 @@ importers:
         specifier: ^4.0.78
         version: 4.0.78(zod@4.4.3)
       '@ai-sdk/react':
-        specifier: ^4.0.139
-        version: 4.0.139(react@19.3.0)(zod@4.4.3)
+        specifier: ^4.0.140
+        version: 4.0.140(react@19.3.0)(zod@4.4.3)
       '@phosphor-icons/react':
         specifier: 'catalog:'
         version: 2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -324,8 +324,8 @@ importers:
         specifier: ^3.9.11
         version: 3.9.11
       ai:
-        specifier: ^7.0.136
-        version: 7.0.136(zod@4.4.3)
+        specifier: ^7.0.137
+        version: 7.0.137(zod@4.4.3)
       d3-array:
         specifier: ^3.2.4
         version: 3.2.4
@@ -963,8 +963,8 @@ packages:
     resolution: {integrity: sha512-BZ443uBEq6HuMA+Z4b7Hpm65GpZSo7pWqnYqpf/7tAO3C48JbtvAhOE2JnODFj+jodsZzfRHkAyQb64xuD2tZQ==}
     engines: {node: '>=22'}
 
-  '@ai-sdk/react@4.0.139':
-    resolution: {integrity: sha512-AZYw7qrn0UN1/YiUWkiQvNBMD8O8/+H9DgEDdDurr638cXSU0rthkJ38kqSSTf9x+HIpNi0Y8QUkZ5rJ1VUx/g==}
+  '@ai-sdk/react@4.0.140':
+    resolution: {integrity: sha512-ED/Q6VpWmo5kCwR4wNbyJbJSZ+3f/wcmTf/1gGtXYzM9KT3R+9X0Fuzb057ofb3wxobuDJykfB09iE+17xQAsw==}
     engines: {node: '>=22'}
     peerDependencies:
       react: ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
@@ -4219,8 +4219,8 @@ packages:
     resolution: {integrity: sha512-7NRMZ/ZDz2vHevQTgJsocBFpakB1/Wx5ip19YSJuj4VOXpraWztTerViNtdSyARKZT9e2yVwUUB5JXXCE7mNrA==}
     hasBin: true
 
-  ai@7.0.136:
-    resolution: {integrity: sha512-quFXFKEw7qUZL9v2ciJ9eruQYq9KUo3F+mDhwdL/pi7ZPu0bj7UX6yv55oAUiMjbGXd8MZRzIcu0oPc4y9llQw==}
+  ai@7.0.137:
+    resolution: {integrity: sha512-JxrPkSQknxIN/gYqS3UQksExS6eWI23QMPBrKMGXeeFHhru6xFtF4MuMq17WaHD+lXPh0lne6H0BM2Z2VMW9EQ==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -7872,12 +7872,12 @@ snapshots:
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@4.0.139(react@19.3.0)(zod@4.4.3)':
+  '@ai-sdk/react@4.0.140(react@19.3.0)(zod@4.4.3)':
     dependencies:
       '@ai-sdk/mcp': 2.0.73(zod@4.4.3)
       '@ai-sdk/provider': 4.0.26
       '@ai-sdk/provider-utils': 5.0.58(zod@4.4.3)
-      ai: 7.0.136(zod@4.4.3)
+      ai: 7.0.137(zod@4.4.3)
       react: 19.3.0
       swr: 2.5.1(react@19.3.0)
       throttleit: 2.1.0
@@ -11022,7 +11022,7 @@ snapshots:
       prompts: 2.4.2
       yaml: 2.9.1
 
-  ai@7.0.136(zod@4.4.3):
+  ai@7.0.137(zod@4.4.3):
     dependencies:
       '@ai-sdk/gateway': 4.0.110(zod@4.4.3)
       '@ai-sdk/provider': 4.0.26
