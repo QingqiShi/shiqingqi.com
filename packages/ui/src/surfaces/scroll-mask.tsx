@@ -80,6 +80,17 @@ interface ScrollMaskProps extends Omit<
    */
   endChrome?: ReactNode;
   /**
+   * StyleX styles merged over the `endChrome` slot's own, which pin it sticky
+   * against the end edge — for chrome that sits somewhere else, such as a
+   * footer fixed to the viewport. A slot taken out of flow no longer holds
+   * its room in the scroller, so pad the scroller's end in `contentCss` with
+   * `var(--scroll-mask-end-chrome)`, the slot's measured size. The band and
+   * the scroll padding follow that size wherever the slot sits.
+   *
+   * @zh 与 endChrome 插槽自身样式合并的 StyleX 样式。插槽默认粘附在结束边上；这组样式用于放在别处的界面元素，例如固定在视口上的页脚。脱离文档流的插槽不再在滚动元素中占位，因此请在 contentCss 中用 `var(--scroll-mask-end-chrome)`（插槽的实测尺寸）为滚动元素的结束端补上内边距。无论插槽在哪里，虚化带与滚动内边距都随这个尺寸变化。
+   */
+  endChromeCss?: StyleProp;
+  /**
    * A button per edge that scrolls the region one page towards that edge, and
    * the accessible name for each — the package ships no i18n, so the names
    * come in as props. Each button appears on a non-touch device only, since a
@@ -143,6 +154,7 @@ export function ScrollMask({
   depth = space._5,
   startChrome,
   endChrome,
+  endChromeCss,
   scrollButtons,
   clipMargin,
   css,
@@ -305,6 +317,7 @@ export function ScrollMask({
                   chromeSizes.start,
                   chromeSizes.end,
                 )),
+          hasEndChrome && dynamicStyles.endChromeSize(chromeSizes.end),
           // After `contentCss`, because the clip margin is what decides the
           // scroller's box on the axis that does not scroll.
           clipMargin !== undefined &&
@@ -331,6 +344,7 @@ export function ScrollMask({
             css={[
               styles.chrome,
               isHorizontal ? styles.chromeInlineEnd : styles.chromeBlockEnd,
+              endChromeCss,
             ]}
           >
             {endChrome}
@@ -484,6 +498,9 @@ const dynamicStyles = stylex.create({
   scrollPaddingBlock: (start: number, end: number) => ({
     scrollPaddingBlockStart: `${String(start)}px`,
     scrollPaddingBlockEnd: `${String(end)}px`,
+  }),
+  endChromeSize: (end: number) => ({
+    "--scroll-mask-end-chrome": `${String(end)}px`,
   }),
   scrollPaddingInline: (start: number, end: number) => ({
     scrollPaddingInlineStart: `${String(start)}px`,

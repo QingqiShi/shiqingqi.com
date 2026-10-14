@@ -28,6 +28,8 @@ type DrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   drawerRef: RefObject<HTMLDivElement | null>;
+  /** The inline size of the shell's rail column at `md` and up. */
+  railColumnSize: string;
   sidebarHeader?: ReactNode;
   sidebarFooter?: ReactNode;
   children: ReactNode;
@@ -48,6 +50,7 @@ export function Drawer({
   isOpen,
   onClose,
   drawerRef,
+  railColumnSize,
   menuLabel,
   closeLabel,
   sidebarHeader,
@@ -101,7 +104,12 @@ export function Drawer({
           css={styles.railNav}
           contentCss={[
             styles.railNavContent,
-            sidebarFooter == null && styles.railNavContentNoFooter,
+            sidebarFooter == null
+              ? styles.railNavContentNoFooter
+              : [
+                  styles.railNavContentFixedFooter,
+                  dynamicStyles.railCardInlineSize(railColumnSize),
+                ],
             scrollbar.autoHide,
             transition.scrollbarColor,
           ]}
@@ -125,6 +133,7 @@ export function Drawer({
               <div css={styles.railFooter}>{sidebarFooter}</div>
             ) : undefined
           }
+          endChromeCss={styles.railFooterSlot}
         >
           {children}
         </ScrollMask>
@@ -284,6 +293,52 @@ const styles = stylex.create({
       [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
     },
   },
+  // md+: the footer is fixed to the bottom edge of the viewport, at the
+  // card's bottom edge. It is not sticky in the card. On iPad, the Safari
+  // toolbar at the top collapses and expands while the page scrolls. Safari
+  // changes `dvh` only after that animation ends, so the bottom edge of the
+  // card jumps at the end. The bottom edge of the viewport does not move on
+  // iPad. The `default` values repeat the sticky slot of `ScrollMask`,
+  // because these values replace its values.
+  railFooterSlot: {
+    position: { default: "sticky", [breakpoints.md]: "fixed" },
+    insetBlockEnd: { default: 0, [breakpoints.md]: RAIL_INSET },
+    insetInlineStart: { default: null, [breakpoints.md]: RAIL_INSET },
+    inlineSize: {
+      default: null,
+      [breakpoints.md]: "var(--rail-card-inline-size)",
+    },
+    paddingInlineStart: {
+      default: null,
+      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-left))`,
+    },
+    paddingInlineEnd: { default: null, [breakpoints.md]: space._2 },
+  },
+  // md+: the fixed footer holds no room in the scroller, so the scroller
+  // pads its end by the footer's size, and the last link scrolls clear of it.
+  // The `::after` is the surface of the card behind the footer. It is below
+  // the nav, so the nav blurs behind the footer as before. While the height
+  // of the card changes, it shows the bottom of the card below the footer.
+  railNavContentFixedFooter: {
+    paddingBlockEnd: {
+      default: null,
+      [breakpoints.md]: "var(--scroll-mask-end-chrome, 0px)",
+    },
+    "::after": {
+      content: { default: null, [breakpoints.md]: '""' },
+      position: "fixed",
+      insetBlockEnd: RAIL_INSET,
+      insetInlineStart: RAIL_INSET,
+      inlineSize: "var(--rail-card-inline-size)",
+      blockSize: "var(--scroll-mask-end-chrome, 0px)",
+      zIndex: -1,
+      pointerEvents: "none",
+      backgroundColor: color.bgSurface,
+      borderEndStartRadius: border.radius_3,
+      borderEndEndRadius: border.radius_3,
+      cornerShape: "squircle",
+    },
+  },
   // Without a footer slot, no chrome carries the block-end inset, so the
   // scroller pads its own end and the band sits at the card edge.
   railNavContentNoFooter: {
@@ -292,4 +347,10 @@ const styles = stylex.create({
       [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
     },
   },
+});
+
+const dynamicStyles = stylex.create({
+  railCardInlineSize: (railColumnSize: string) => ({
+    "--rail-card-inline-size": `calc(${railColumnSize} - ${RAIL_INSET})`,
+  }),
 });

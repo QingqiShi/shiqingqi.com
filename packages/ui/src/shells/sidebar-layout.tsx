@@ -125,7 +125,10 @@ type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
  * shows from `md` up.
  *
  * The rail fills the viewport's height (capped at its container's), so the
- * shell works in any bounded box, not just the page root.
+ * shell works in any bounded box, not just the page root. Such a box must be
+ * the containing block for fixed descendants (for example with `transform` or
+ * `contain: layout`), because the mobile bar, the drawer, and the rail's
+ * footer from `md` up are fixed. Otherwise they go to the viewport's edges.
  */
 export function SidebarLayout({
   sidebar,
@@ -137,6 +140,7 @@ export function SidebarLayout({
   as = "main",
   ...mobile
 }: SidebarLayoutProps) {
+  const railColumnSize = sidebarInlineSize ?? DEFAULT_SIDEBAR_INLINE_SIZE;
   const drawer =
     mobile.mobileSidebar === "hidden"
       ? ({ hasDrawer: false } as const)
@@ -203,7 +207,7 @@ export function SidebarLayout({
       css={[
         styles.root,
         !drawer.hasDrawer && styles.rootWithoutMobileBar,
-        dynamicStyles.columns(sidebarInlineSize ?? DEFAULT_SIDEBAR_INLINE_SIZE),
+        dynamicStyles.columns(railColumnSize),
       ]}
     >
       {drawer.hasDrawer ? (
@@ -229,6 +233,7 @@ export function SidebarLayout({
           setIsOpen(false);
         }}
         drawerRef={drawerRef}
+        railColumnSize={railColumnSize}
         sidebarHeader={sidebarHeader}
         sidebarFooter={sidebarFooter}
       >
