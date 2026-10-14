@@ -279,6 +279,19 @@ describe("TabBar liquid effect and drag", () => {
     expect(liquid()?.position).toBe(0);
   });
 
+  it("holds the indicator on a tapped tab until the click that the release makes", () => {
+    const { links, liquid, followed, at } = renderBar();
+
+    fireEvent.pointerDown(links[2], at(350));
+    fireEvent.pointerUp(links[2], at(350));
+    expect(liquid()).toMatchObject({ position: 2, pressed: false });
+    expect(weightsOf(links)).toEqual(["bold", "bold", "fill"]);
+
+    fireEvent.click(links[2], { detail: 1 });
+    expect(followed).toEqual(["/settings"]);
+    expect(liquid()?.position).toBe(2);
+  });
+
   it("does not hold the indicator for a click that opens a new tab", () => {
     const { links, liquid, at } = renderBar();
 

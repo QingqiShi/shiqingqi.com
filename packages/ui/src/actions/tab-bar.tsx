@@ -169,7 +169,11 @@ export function TabBar({
   if (followed !== null && followed.from !== current) {
     setFollowed(null);
   }
-  const resting = followed?.index ?? current;
+  // The tab that a tap released on. The indicator stays on it until the
+  // click that the release causes. In iOS Safari, this click can come many
+  // frames after the release.
+  const [tapped, setTapped] = useState<number | null>(null);
+  const resting = tapped ?? followed?.index ?? current;
   const droppedRef = useRef(false);
   const { trackRef, shown, held, inset, dragging, handlers } =
     useSegmentPress<HTMLDivElement>({
@@ -179,6 +183,8 @@ export function TabBar({
         if (drop.dragged) {
           droppedRef.current = true;
           drop.element.click();
+        } else {
+          setTapped(drop.index);
         }
       },
     });
@@ -197,9 +203,11 @@ export function TabBar({
         {...handlers}
         onPointerDown={(event) => {
           droppedRef.current = false;
+          setTapped(null);
           handlers.onPointerDown(event);
         }}
         onClickCapture={(event) => {
+          setTapped(null);
           // A drag follows the link under the indicator on release, so the
           // click that the pointer makes after it goes nowhere. A click
           // with no pointer has a detail of 0 and goes on to the link.
