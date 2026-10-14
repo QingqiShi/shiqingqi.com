@@ -148,6 +148,54 @@ export const accountRepository = {
     return rows.map((row) => row.id);
   },
 
+  /** The institution fields of every live account that is not a system account. */
+  async listInstitutionFields(scope: RepositoryScope) {
+    return scope.db
+      .select({
+        id: accounts.id,
+        institution: accounts.institution,
+        institutionDomain: accounts.institutionDomain,
+        guessedInstitutionDomain: accounts.guessedInstitutionDomain,
+        currency: accounts.currency,
+      })
+      .from(accounts)
+      .where(
+        and(
+          eq(accounts.householdId, scope.householdId),
+          eq(accounts.isSystem, false),
+          isNull(accounts.deletedAt),
+        ),
+      )
+      .orderBy(accounts.position, accounts.id);
+  },
+
+  /** Sets the guessed institution domain of each account in `guesses`, by account id. */
+  async setGuessedInstitutionDomains(
+    scope: WriteScope,
+    guesses: ReadonlyMap<string, string | null>,
+  ) {
+    if (guesses.size === 0) return;
+    const cases = sql.join(
+      [...guesses].map(
+        ([id, domain]) => sql`when ${accounts.id} = ${id} then ${domain}::text`,
+      ),
+      sql` `,
+    );
+    await scope.db
+      .update(accounts)
+      .set({
+        guessedInstitutionDomain: sql`case ${cases} end`,
+        version: scope.version,
+        updatedAt: sql`now()`,
+      })
+      .where(
+        and(
+          eq(accounts.householdId, scope.householdId),
+          inArray(accounts.id, [...guesses.keys()]),
+        ),
+      );
+  },
+
   /** Inserts the account. False when the id is already used. */
   async insert(scope: WriteScope, row: NewAccount) {
     const inserted = await scope.db

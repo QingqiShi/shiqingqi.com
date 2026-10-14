@@ -60,6 +60,8 @@ function account(
     ownerMemberId: fields.ownerMemberId ?? null,
     name,
     institution: "",
+    institutionDomain: null,
+    guessedInstitutionDomain: null,
     kind,
     currency: fields.currency ?? "GBP",
     excludedFromNetWorth: false,

@@ -13,6 +13,8 @@ function account(id: string, currency: string): AccountRow {
     ownerMemberId: "alex",
     name: id,
     institution: "",
+    institutionDomain: null,
+    guessedInstitutionDomain: null,
     kind: "cash",
     currency,
     excludedFromNetWorth: false,

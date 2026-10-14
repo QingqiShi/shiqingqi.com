@@ -61,6 +61,8 @@ const accountRowSchema = z.object({
   ownerMemberId: id.nullable(),
   name: z.string(),
   institution: z.string(),
+  institutionDomain: z.string().nullable(),
+  guessedInstitutionDomain: z.string().nullable(),
   kind: accountKindSchema,
   currency,
   excludedFromNetWorth: z.boolean(),

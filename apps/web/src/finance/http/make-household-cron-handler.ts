@@ -11,17 +11,33 @@ export interface HouseholdCronDependencies {
   now: () => Date;
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 interface HouseholdCronJob<Totals> {
   /** The totals before the first Household. */
   start: (householdIds: readonly string[]) => Totals;
+  /** `endsAt` is the epoch milliseconds, by `now`, after which the job starts no new work. */
   runHousehold: (
     db: FinanceDb,
     householdId: string,
     now: Date,
     totals: Totals,
+    endsAt: number,
   ) => Promise<void>;
+  /**
+   * When set, the run starts no Household after this many milliseconds, and
+   * each day it starts at the next Household, so that the Households a run
+   * leaves out are not always the same ones.
+   */
+  budgetMs?: number;
   /** When set, a Household that fails is counted here and the run goes on; else the run stops. */
   onHouseholdError?: (error: unknown, totals: Totals) => void;
+}
+
+function rotatedForDay(householdIds: readonly string[], now: Date) {
+  if (householdIds.length === 0) return householdIds;
+  const first = Math.floor(now.getTime() / DAY_MS) % householdIds.length;
+  return [...householdIds.slice(first), ...householdIds.slice(0, first)];
 }
 
 /**
@@ -43,11 +59,18 @@ export function makeHouseholdCronHandler<Totals>(
     }
     const db = dependencies.getDb();
     const now = dependencies.now();
+    const endsAt =
+      job.budgetMs === undefined ? Infinity : now.getTime() + job.budgetMs;
     const householdIds = await listHouseholdIds(db);
     const totals = job.start(householdIds);
-    for (const householdId of householdIds) {
+    const ordered =
+      job.budgetMs === undefined
+        ? householdIds
+        : rotatedForDay(householdIds, now);
+    for (const householdId of ordered) {
+      if (dependencies.now().getTime() >= endsAt) break;
       try {
-        await job.runHousehold(db, householdId, now, totals);
+        await job.runHousehold(db, householdId, now, totals, endsAt);
       } catch (error) {
         if (!job.onHouseholdError) throw error;
         job.onHouseholdError(error, totals);

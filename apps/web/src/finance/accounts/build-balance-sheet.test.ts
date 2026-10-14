@@ -29,6 +29,8 @@ function account(
     ownerMemberId: null,
     name: id,
     institution: "",
+    institutionDomain: null,
+    guessedInstitutionDomain: null,
     kind,
     currency: "GBP",
     excludedFromNetWorth: false,

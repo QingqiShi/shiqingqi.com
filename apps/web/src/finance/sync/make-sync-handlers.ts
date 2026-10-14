@@ -9,12 +9,15 @@ import { applyMutations } from "./apply-mutations.ts";
 import { pullChanges } from "./pull-changes.ts";
 import { pushRequestSchema } from "./push-request-schema.ts";
 import { streamBootstrap } from "./stream-bootstrap.ts";
+import type { PushEffect } from "./types.ts";
 
 interface SyncHandlerDependencies {
   isConfigured: () => boolean;
   getDb: () => FinanceDb;
   getSession: (request: Request) => Promise<FinanceSession | null>;
   now: () => Date;
+  /** Called after a push that committed a mutation with an effect, to start the work that follows it. */
+  afterPush?: (householdId: string, effects: ReadonlySet<PushEffect>) => void;
 }
 
 const NOT_CONFIGURED_MESSAGE =
@@ -79,13 +82,16 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
       if (session instanceof Response) return session;
       const push = await readFinanceBody(request, pushRequestSchema);
       if (push instanceof Response) return push;
-      const result = await applyMutations(
+      const { effects, ...response } = await applyMutations(
         dependencies.getDb(),
         session.householdId,
         push,
         dependencies.now(),
       );
-      return financeJson(result);
+      if (effects.size > 0) {
+        dependencies.afterPush?.(session.householdId, effects);
+      }
+      return financeJson(response);
     },
   };
 }

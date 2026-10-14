@@ -107,6 +107,8 @@ function seedRows(): Partial<SyncRows> {
         ownerMemberId: null,
         name: "Current",
         institution: "",
+        institutionDomain: null,
+        guessedInstitutionDomain: null,
         kind: "cash",
         currency: "GBP",
         excludedFromNetWorth: false,

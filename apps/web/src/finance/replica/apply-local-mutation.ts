@@ -1,3 +1,4 @@
+import { institutionFieldsAfter } from "../domain/accounts/institution-fields-after.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { balanceAt } from "../domain/balance/balance-at.ts";
 import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
@@ -591,6 +592,7 @@ function upsertAccount(scope: Scope, args: Args<"upsertAccount">) {
     row = {
       ...existing,
       ...fields,
+      ...institutionFieldsAfter(existing, fields),
       updatedAt: context.now,
       deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
     };
@@ -606,6 +608,8 @@ function upsertAccount(scope: Scope, args: Args<"upsertAccount">) {
       ownerMemberId: fields.ownerMemberId ?? null,
       name,
       institution: fields.institution ?? "",
+      institutionDomain: fields.institutionDomain ?? null,
+      guessedInstitutionDomain: null,
       kind,
       currency,
       excludedFromNetWorth: fields.excludedFromNetWorth ?? false,

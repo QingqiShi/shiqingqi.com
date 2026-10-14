@@ -516,7 +516,12 @@ describe("Settings", () => {
       if (!login) throw new Error(`No Bank login titled ${title}`);
       return within(login)
         .getAllByRole("listitem")
-        .map((card) => card.querySelector("span")?.textContent);
+        .map(
+          (card) =>
+            [...card.querySelectorAll("span")].find(
+              (span) => !span.closest("[aria-hidden]"),
+            )?.textContent,
+        );
     };
     expect(await cardsUnder("Chase Bank · Qingqi's Account")).toEqual([
       "Round-up",

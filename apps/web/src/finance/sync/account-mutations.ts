@@ -4,6 +4,7 @@ import { accountRepository } from "../db/repositories/account-repository.ts";
 import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
+import { institutionFieldsAfter } from "../domain/accounts/institution-fields-after.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import {
   checkSystemAccountPatch,
@@ -19,12 +20,18 @@ import {
   type upsertAccountGroupArgsSchema,
 } from "./mutation-schema.ts";
 import { parseNewRow } from "./parse-new-row.ts";
-import type { WriteContext } from "./types.ts";
+import type { PushEffect, WriteContext } from "./types.ts";
+
+const INSTITUTION_INPUTS = [
+  "institution",
+  "institutionDomain",
+  "currency",
+] as const;
 
 async function upsertAccount(
   context: WriteContext,
   args: z.infer<typeof upsertAccountArgsSchema>,
-) {
+): Promise<PushEffect | undefined> {
   const { scope } = context;
   const { id, deleted, ...fields } = args;
   const existing = await accountRepository.findById(scope, id);
@@ -75,10 +82,20 @@ async function upsertAccount(
   }
 
   if (existing) {
-    await accountRepository.patch(scope, id, { ...fields, deleted });
+    await accountRepository.patch(scope, id, {
+      ...fields,
+      ...institutionFieldsAfter(existing, fields),
+      deleted,
+    });
   } else if (!(await accountRepository.insert(scope, { ...merged, id }))) {
     throw new MutationError("forbidden");
   }
+  const changesInstitution = existing
+    ? INSTITUTION_INPUTS.some(
+        (key) => fields[key] !== undefined && fields[key] !== existing[key],
+      )
+    : Boolean(fields.institution) || Boolean(fields.institutionDomain);
+  return changesInstitution ? "institution-changed" : undefined;
 }
 
 async function upsertGroup(

@@ -66,6 +66,8 @@ function rows(): Partial<SyncRows> {
     ownerMemberId: ids.alex,
     name,
     institution,
+    institutionDomain: null,
+    guessedInstitutionDomain: null,
     kind,
     currency,
     excludedFromNetWorth: false,

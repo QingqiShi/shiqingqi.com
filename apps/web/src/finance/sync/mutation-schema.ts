@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isInstitutionDomain } from "../domain/accounts/parse-institution-domain.ts";
 import { ruleTemplateSchema } from "../rules/rule-template-schema.ts";
 import {
   accountKindSchema,
@@ -59,6 +60,10 @@ export const accountFieldsSchema = z.object({
   ownerMemberId: id.nullable(),
   name,
   institution: text(200),
+  institutionDomain: z
+    .string()
+    .refine(isInstitutionDomain, "Expected a domain such as example.com")
+    .nullable(),
   kind: accountKindSchema,
   currency,
   excludedFromNetWorth: z.boolean(),

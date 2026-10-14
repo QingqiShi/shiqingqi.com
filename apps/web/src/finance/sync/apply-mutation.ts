@@ -5,7 +5,7 @@ import { taxonomyMutations } from "./taxonomy-mutations.ts";
 import { transactionMutations } from "./transaction-mutations.ts";
 import type { WriteContext } from "./types.ts";
 
-/** Applies one checked mutation inside an open write. Throws `MutationError` to reject it. */
+/** Applies one checked mutation inside an open write, and gives its effect, if any. Throws `MutationError` to reject it. */
 export async function applyMutation(context: WriteContext, mutation: Mutation) {
   switch (mutation.name) {
     case "createTransaction": {
