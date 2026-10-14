@@ -68,7 +68,7 @@
     "idb-keyval": "6.3.0",
     "next": "catalog:",
     "pg": "^8.23.1",
-    "posthog-js": "^1.438.3",
+    "posthog-js": "^1.438.7",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-error-boundary": "^6.1.6",
