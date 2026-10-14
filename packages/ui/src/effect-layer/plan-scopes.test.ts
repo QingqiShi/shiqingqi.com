@@ -18,6 +18,7 @@ function record(
     width: 100,
     height: 40,
     fixed: false,
+    fixedToBottom: false,
     radii: [0, 0, 0, 0],
     cornerExponent: 2,
     sticksToViewport: false,
@@ -61,11 +62,12 @@ describe("planScopes", () => {
       hasRole: false,
     });
     expect(
-      plan.scopes.map(({ id, container, scroll, fixed }) => ({
+      plan.scopes.map(({ id, container, scroll, fixed, fixedBottom }) => ({
         id,
         container,
         scroll,
         fixed,
+        fixedBottom,
       })),
     ).toEqual([
       {
@@ -73,18 +75,60 @@ describe("planScopes", () => {
         container: -1,
         scroll: { firstElement: 0, elementCount: 2 },
         fixed: { firstElement: 3, elementCount: 1 },
+        fixedBottom: { firstElement: 0, elementCount: 0 },
       },
       {
         id: 40,
         container: 1,
         scroll: { firstElement: 2, elementCount: 1 },
         fixed: { firstElement: 4, elementCount: 1 },
+        fixedBottom: { firstElement: 0, elementCount: 0 },
       },
     ]);
     expect(peersOf(plan.scopes, plan.elements[4])).toEqual({
       firstElement: 4,
       elementCount: 1,
     });
+  });
+
+  it("puts the elements fixed to the bottom after the fixed ones, on the bottom canvas, each scope one range", () => {
+    const plan = planScopes(
+      [
+        record(1, { fixed: true, fixedToBottom: true, scope: 40, roles: 1 }),
+        record(2, { fixed: true, fixedToBottom: true, holds: 40 }),
+        record(3, { fixed: true }),
+        record(4),
+      ],
+      PAGE,
+    );
+    expect(ids(plan.elements)).toEqual([4, 3, 2, 1]);
+    expect(plan.fixed).toEqual({
+      firstElement: 1,
+      elementCount: 1,
+      hasRole: false,
+    });
+    expect(plan.fixedBottom).toEqual({
+      firstElement: 2,
+      elementCount: 2,
+      hasRole: true,
+    });
+    expect(plan.scopes.map(({ fixedBottom }) => fixedBottom)).toEqual([
+      { firstElement: 2, elementCount: 1 },
+      { firstElement: 3, elementCount: 1 },
+    ]);
+    expect(plan.scopes[1].container).toBe(2);
+    expect(peersOf(plan.scopes, plan.elements[3])).toEqual({
+      firstElement: 3,
+      elementCount: 1,
+    });
+  });
+
+  it("does not need the bottom canvas for an element that sticks to the viewport", () => {
+    const plan = planScopes(
+      [record(1, { roles: 1, fixed: true, sticksToViewport: true })],
+      PAGE,
+    );
+    expect(plan.fixedBottom.hasRole).toBe(false);
   });
 
   it("points a nested container's scope at the container around it", () => {

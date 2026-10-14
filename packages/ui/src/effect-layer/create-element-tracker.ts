@@ -16,6 +16,11 @@ interface MeasuredElement {
    * it in the page.
    */
   readonly sticky: boolean;
+  /**
+   * The viewport's bottom edge in viewport coordinates when it was measured,
+   * for a box fixed to the bottom; else 0.
+   */
+  readonly viewportBottom: number;
 }
 
 /**
@@ -33,6 +38,8 @@ export interface MeasureContext {
   readonly isAnimating: (source: Element) => boolean;
   /** The viewport for a fixed element, or the root element's border box. */
   readonly watchRoot: (fixed: boolean) => Edges;
+  /** The viewport's bottom edge now, in viewport coordinates. */
+  readonly viewportBottom: () => number;
 }
 
 function isRunning(animation: Animation) {
@@ -40,17 +47,21 @@ function isRunning(animation: Animation) {
 }
 
 /**
- * A context that reads each computed style, each animation source and each
- * root once. Drop it after the frame, so that it keeps no style alive.
+ * A context that reads each computed style, each animation source, each
+ * root and the viewport's bottom edge once. Drop it after the frame, so
+ * that it keeps no style alive.
  *
  * @internal
  */
-export function createMeasureContext(): MeasureContext {
+export function createMeasureContext(
+  readViewportBottom: () => number,
+): MeasureContext {
   const styles = new Map<Element, CSSStyleDeclaration>();
   const animating = new Map<Element, boolean>();
   const root = document.documentElement;
   let rootEdges: Edges | null = null;
   let viewportEdges: Edges | null = null;
+  let viewportBottom: number | null = null;
   return {
     scrollX: window.scrollX,
     scrollY: window.scrollY,
@@ -82,6 +93,10 @@ export function createMeasureContext(): MeasureContext {
       }
       rootEdges ??= root.getBoundingClientRect();
       return rootEdges;
+    },
+    viewportBottom: () => {
+      viewportBottom ??= readViewportBottom();
+      return viewportBottom;
     },
   };
 }
@@ -158,17 +173,27 @@ export function createElementTracker(
     },
     /**
      * The last measured box in page coordinates at this scroll: an element
-     * in the document keeps its page position, and a fixed element keeps its
-     * viewport position. `null` while it has no box.
+     * in the document keeps its page position, a fixed element keeps its
+     * viewport position, and an element fixed to the bottom keeps its
+     * distance from the viewport's bottom edge, which `viewportBottom` reads
+     * now. `null` while it has no box.
      */
-    boxAt(scrollX: number, scrollY: number): ElementBox | null {
+    boxAt(
+      scrollX: number,
+      scrollY: number,
+      viewportBottom: () => number,
+    ): ElementBox | null {
       if (measured === null) {
         return null;
       }
       const { box, pageBox } = measured;
-      return box.fixed
-        ? { ...box, x: box.x + scrollX, y: box.y + scrollY }
-        : pageBox;
+      if (!box.fixed) {
+        return pageBox;
+      }
+      const shift = box.fixedToBottom
+        ? viewportBottom() - measured.viewportBottom
+        : 0;
+      return { ...box, x: box.x + scrollX, y: box.y + scrollY + shift };
     },
     signal,
     /**
@@ -200,6 +225,7 @@ export function createElementTracker(
           y: box.y + context.scrollY,
         },
         sticky: isInSticky(element, context.styleOf),
+        viewportBottom: box.fixedToBottom ? context.viewportBottom() : 0,
       };
       for (const source of animationSources) {
         if (!context.isAnimating(source)) {

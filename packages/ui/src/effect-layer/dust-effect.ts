@@ -335,11 +335,10 @@ export const dustEffect: Effect = {
           return;
         }
         // Particles live in the page, so they draw on the bands. Only a page
-        // with no band draws them on the fixed <canvas> element.
+        // with no band draws them, on its first <canvas> element.
         if (
           live.length === 0 ||
-          (target.band === null &&
-            frame.targets.some((other) => other.band !== null))
+          (target.band === null && target !== frame.targets[0])
         ) {
           return;
         }

@@ -398,7 +398,7 @@ export const debugEffect: Effect = {
         if (target.band !== null) {
           pass.setPipeline(bandPipeline);
           pass.draw(3, 1, 0, target.band.index);
-        } else {
+        } else if (target.canvas === "fixed") {
           const count = writeMinimap(rects, frame, layerTop, placed);
           device.queue.writeBuffer(rectBuffer, 0, rects);
           pass.setPipeline(rectPipeline);

@@ -27,7 +27,7 @@ function setUp() {
   );
   const measureAll = (scrollX = 0, scrollY = 0) => {
     for (const tracker of registry.trackers()) {
-      tracker.measure({ ...createMeasureContext(), scrollX, scrollY });
+      tracker.measure({ ...createMeasureContext(() => 0), scrollX, scrollY });
     }
   };
   return { observers, registry, untrack, measureAll };
@@ -87,7 +87,7 @@ describe("createEffectRegistry tracking", () => {
     expect([...registry.trackers()]).toHaveLength(0);
     expect(observers.resizeObserversOf(target)).toBe(0);
     expect(observers.intersectionObservers()).toBe(0);
-    expect(registry.records(0, 0)).toEqual([]);
+    expect(registry.records(0, 0, () => 0)).toEqual([]);
   });
 });
 
@@ -101,11 +101,11 @@ describe("createEffectRegistry records", () => {
     const { registry, measureAll } = setUp();
     const target = element(0, 0);
     registry.register(target, 0, NO_SETTINGS, ON_PAGE);
-    expect(registry.records(0, 0)).toEqual([]);
+    expect(registry.records(0, 0, () => 0)).toEqual([]);
     measureAll();
-    expect(registry.records(0, 0).map((record) => record.element)).toEqual([
-      target,
-    ]);
+    expect(
+      registry.records(0, 0, () => 0).map((record) => record.element),
+    ).toEqual([target]);
   });
 
   it("lists elements in the document first, then fixed ones, each in registration order", () => {
@@ -125,12 +125,9 @@ describe("createEffectRegistry records", () => {
       registry.register(target, 0, NO_SETTINGS, ON_PAGE);
     }
     measureAll();
-    expect(registry.records(0, 0).map((record) => record.element)).toEqual([
-      inDocument,
-      lastInDocument,
-      fixedFirst,
-      fixedSecond,
-    ]);
+    expect(
+      registry.records(0, 0, () => 0).map((record) => record.element),
+    ).toEqual([inDocument, lastInDocument, fixedFirst, fixedSecond]);
   });
 
   it("keeps an element in the document at its page position through a window scroll", () => {
@@ -139,7 +136,10 @@ describe("createEffectRegistry records", () => {
     registry.register(element(0, 20, reads), 0, NO_SETTINGS, ON_PAGE);
     measureAll(0, 500);
     reads.length = 0;
-    expect(registry.records(0, 900)[0]).toMatchObject({ x: 0, y: 520 });
+    expect(registry.records(0, 900, () => 0)[0]).toMatchObject({
+      x: 0,
+      y: 520,
+    });
     expect(reads).toEqual([]);
   });
 
@@ -151,7 +151,7 @@ describe("createEffectRegistry records", () => {
     registry.register(target, 0, NO_SETTINGS, ON_PAGE);
     measureAll(0, 500);
     reads.length = 0;
-    expect(registry.records(0, 900)[0]).toMatchObject({
+    expect(registry.records(0, 900, () => 0)[0]).toMatchObject({
       x: 20,
       y: 910,
       fixed: true,
@@ -168,19 +168,19 @@ describe("createEffectRegistry records", () => {
       holds: null,
     });
     measureAll();
-    expect(registry.records(0, 0)).toMatchObject([
+    expect(registry.records(0, 0, () => 0)).toMatchObject([
       { element: child, scope: 7, holds: null },
     ]);
 
     registry.register(container, 0, NO_SETTINGS, { scope: 0, holds: 7 });
     measureAll();
-    expect(registry.records(0, 0)).toMatchObject([
+    expect(registry.records(0, 0, () => 0)).toMatchObject([
       { element: child, scope: 7, holds: null },
       { element: container, scope: 0, holds: 7 },
     ]);
 
     inside.update(0b100, NO_SETTINGS, 0);
-    expect(registry.records(0, 0)[0]).toMatchObject({ scope: 0 });
+    expect(registry.records(0, 0, () => 0)[0]).toMatchObject({ scope: 0 });
   });
 
   it("keeps an element an Effect container while one of its registrations makes it one", () => {
@@ -216,7 +216,10 @@ describe("createEffectRegistry records", () => {
     reads.length = 0;
     const settings = { dust: { density: 7 } };
     registration.update(0b10, settings, 0);
-    expect(registry.records(0, 0)[0]).toMatchObject({ roles: 0b10, settings });
+    expect(registry.records(0, 0, () => 0)[0]).toMatchObject({
+      roles: 0b10,
+      settings,
+    });
     expect(reads).toEqual([]);
   });
 });
@@ -250,7 +253,7 @@ describe("createEffectRegistry covers", () => {
   }
 
   const elementsOf = (registry: ReturnType<typeof createEffectRegistry>) =>
-    registry.records(0, 0).map((record) => record.element);
+    registry.records(0, 0, () => 0).map((record) => record.element);
 
   it("leaves out the elements under a cover and the cover, and keeps those inside it or outside its box", () => {
     const { registry, inSheet, beside } = setUpSheet();

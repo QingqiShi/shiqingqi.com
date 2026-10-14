@@ -1,5 +1,5 @@
 import { EFFECT_ROLES, roleConstantsWgsl } from "./effect-roles.ts";
-import { PAGE_SCOPE } from "./plan-scopes.ts";
+import { CANVAS_ORDER, PAGE_SCOPE } from "./plan-scopes.ts";
 import type {
   EffectElementRecord,
   EffectPointer,
@@ -37,7 +37,9 @@ const POINTER_PRESSED = 2;
  *   has its `id`, which stays the same across frames, so a compute pass can
  *   keep it; the index in `effectElements` of its Effect container, or
  *   `EFFECT_NO_CONTAINER` on the page; and its elements in the document,
- *   then its fixed ones, each as the index of the first and the count.
+ *   then its fixed ones, then its ones fixed to the bottom, each as the
+ *   index of the first and the count. `EFFECT_CANVAS_COUNT` is how many
+ *   ranges each scope has.
  *
  * Put it at the start of a compute shader. `TARGET_WGSL` already includes it.
  *
@@ -71,7 +73,7 @@ struct EffectElement {
 struct EffectScope {
   id: u32,
   container: u32,
-  ranges: array<vec2u, 2>,
+  ranges: array<vec2u, ${String(CANVAS_ORDER.length)}>,
 }
 
 const EFFECT_POINTER_PRESENT = ${String(POINTER_PRESENT)}u;
@@ -79,6 +81,7 @@ const EFFECT_POINTER_PRESSED = ${String(POINTER_PRESSED)}u;
 const EFFECT_ELEMENT_FIXED = ${String(ELEMENT_FIXED)}u;
 const EFFECT_NO_CONTAINER = ${String(NO_CONTAINER)}u;
 const EFFECT_PAGE_SCOPE = ${String(PAGE_SCOPE)}u;
+const EFFECT_CANVAS_COUNT = ${String(CANVAS_ORDER.length)}u;
 ${roleConstantsWgsl(EFFECT_ROLES)}
 
 @group(0) @binding(0) var<uniform> effectPage: EffectPage;
@@ -159,7 +162,7 @@ export function packElements(
  *
  * @internal
  */
-export const SCOPE_BYTES = 24;
+export const SCOPE_BYTES = 8 + 8 * CANVAS_ORDER.length;
 
 /**
  * Packs the scopes in order as `EffectScope` structs at the start of
@@ -177,10 +180,10 @@ export function packScopes(
       [
         scope.id,
         scope.container === -1 ? NO_CONTAINER : scope.container,
-        scope.scroll.firstElement,
-        scope.scroll.elementCount,
-        scope.fixed.firstElement,
-        scope.fixed.elementCount,
+        ...CANVAS_ORDER.flatMap((canvas) => [
+          scope[canvas].firstElement,
+          scope[canvas].elementCount,
+        ]),
       ],
       (index * SCOPE_BYTES) / 4,
     );

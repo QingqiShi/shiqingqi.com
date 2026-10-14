@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import { layOut } from "../test-support/lay-out.ts";
 import {
   effectiveGrayscale,
-  isFixedToViewport,
+  isAtViewportBottom,
   isInSticky,
   isStuckToViewport,
   readCornerExponent,
   readElementBox,
   readGrayscale,
   resolveCornerRadii,
+  viewportFixedBox,
   viewportStickyBoxes,
 } from "./read-element-box.ts";
 
@@ -78,39 +79,75 @@ function mount(html: string) {
   return target;
 }
 
-describe("isFixedToViewport", () => {
-  it("is false in the document", () => {
-    expect(isFixedToViewport(mount("<div><p data-target></p></div>"))).toBe(
-      false,
+describe("viewportFixedBox", () => {
+  it("is the nearest fixed box that the viewport holds", () => {
+    const target = mount(
+      '<div id="outer" style="position: fixed"><div id="inner" style="position: fixed"><p data-target></p></div></div>',
+    );
+    expect(viewportFixedBox(target)?.id).toBe("inner");
+  });
+
+  it("skips a fixed box that a transformed box holds, for the fixed box around them", () => {
+    const target = mount(
+      '<div id="outer" style="position: fixed"><div style="transform: scale(1)"><div style="position: fixed"><p data-target></p></div></div></div>',
+    );
+    expect(viewportFixedBox(target)?.id).toBe("outer");
+  });
+
+  it("is null in the document", () => {
+    expect(viewportFixedBox(mount("<div><p data-target></p></div>"))).toBe(
+      null,
     );
   });
 
-  it("is true for a fixed box and everything inside it", () => {
-    expect(
-      isFixedToViewport(
-        mount('<div style="position: fixed"><p data-target></p></div>'),
-      ),
-    ).toBe(true);
+  it("is the box itself for a fixed box", () => {
+    const target = mount('<p data-target style="position: fixed"></p>');
+    expect(viewportFixedBox(target)).toBe(target);
   });
 
-  it("is false for a fixed box that a transformed ancestor holds", () => {
+  it("is null for a fixed box that a transformed ancestor holds", () => {
     expect(
-      isFixedToViewport(
+      viewportFixedBox(
         mount(
           '<div style="transform: scale(1)"><div style="position: fixed"><p data-target></p></div></div>',
         ),
       ),
-    ).toBe(false);
+    ).toBe(null);
   });
 
-  it("is true again when the box that holds it is fixed itself", () => {
-    expect(
-      isFixedToViewport(
-        mount(
-          '<div style="position: fixed; will-change: transform"><div style="position: fixed"><p data-target></p></div></div>',
-        ),
-      ),
-    ).toBe(true);
+  it("is the box that holds it when that box is fixed itself", () => {
+    const target = mount(
+      '<div id="outer" style="position: fixed; will-change: transform"><div style="position: fixed"><p data-target></p></div></div>',
+    );
+    expect(viewportFixedBox(target)?.id).toBe("outer");
+  });
+});
+
+describe("isAtViewportBottom", () => {
+  const box = (insets: string) =>
+    mount(`<div data-target style="position: fixed; ${insets}"></div>`);
+
+  it("is true for a box with a bottom inset and no top inset", () => {
+    expect(isAtViewportBottom(box("bottom: 16px"))).toBe(true);
+    expect(isAtViewportBottom(box("top: auto; bottom: 0"))).toBe(true);
+  });
+
+  it("is false for a box held by its top edge, or by both edges", () => {
+    expect(isAtViewportBottom(box("top: 0"))).toBe(false);
+    expect(isAtViewportBottom(box("top: 0; bottom: 0"))).toBe(false);
+    expect(isAtViewportBottom(box(""))).toBe(false);
+  });
+
+  it("reads `auto` from the computed style map, where getComputedStyle gives a length", () => {
+    const target = box("bottom: 16px");
+    const insets: Record<string, string> = { top: "auto", bottom: "16px" };
+    Object.defineProperty(target, "computedStyleMap", {
+      value: () => ({ get: (property: string) => insets[property] }),
+    });
+    const used = document.createElement("div").style;
+    used.top = "584px";
+    used.bottom = "16px";
+    expect(isAtViewportBottom(target, () => used)).toBe(true);
   });
 });
 
@@ -242,6 +279,28 @@ describe("readElementBox", () => {
       }
     },
   );
+
+  it("puts an element in a fixed box at the bottom edge on the bottom canvas", () => {
+    const target = mount(
+      '<nav style="position: fixed; bottom: 16px"><a data-target></a></nav>',
+    );
+    layOut(target, { x: 16, y: 700, width: 64, height: 48 });
+    expect(readElementBox(target, getComputedStyle)).toMatchObject({
+      fixed: true,
+      fixedToBottom: true,
+    });
+  });
+
+  it("keeps an element in a fixed box at the top edge on the fixed canvas", () => {
+    const target = mount(
+      '<header style="position: fixed; top: 0"><a data-target></a></header>',
+    );
+    layOut(target, { x: 16, y: 8, width: 64, height: 48 });
+    expect(readElementBox(target, getComputedStyle)).toMatchObject({
+      fixed: true,
+      fixedToBottom: false,
+    });
+  });
 
   it("keeps an element out of a sticky box on the scroll canvases", () => {
     const target = mount('<div style="top: 0"><p data-target></p></div>');

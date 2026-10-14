@@ -38,6 +38,7 @@ function record(
     width: 200,
     height: 120,
     fixed: false,
+    fixedToBottom: false,
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
     sticksToViewport: false,
@@ -69,6 +70,7 @@ function scopesOf(elements: readonly EffectElementRecord[]): EffectScope[] {
       dark: false,
       scroll: rangeOf(false),
       fixed: rangeOf(true),
+      fixedBottom: { firstElement: elements.length, elementCount: 0 },
     };
   });
 }

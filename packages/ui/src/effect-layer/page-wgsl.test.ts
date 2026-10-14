@@ -24,6 +24,7 @@ function record(
     width: 320,
     height: 180,
     fixed: false,
+    fixedToBottom: false,
     radii: [16, 16, 8, 0],
     cornerExponent: 4,
     sticksToViewport: false,
@@ -99,6 +100,7 @@ describe("packScopes", () => {
           dark: false,
           scroll: range(0, 3),
           fixed: range(5, 1),
+          fixedBottom: range(6, 2),
         },
         {
           id: 9,
@@ -107,12 +109,13 @@ describe("packScopes", () => {
           dark: false,
           scroll: range(3, 2),
           fixed: range(0, 0),
+          fixedBottom: range(5, 0),
         },
       ],
       buffer,
     );
     expect([...new Uint32Array(buffer)]).toEqual([
-      0, 0xff_ff_ff_ff, 0, 3, 5, 1, 9, 2, 3, 2, 0, 0,
+      0, 0xff_ff_ff_ff, 0, 3, 5, 1, 6, 2, 9, 2, 3, 2, 0, 0, 5, 0,
     ]);
   });
 });

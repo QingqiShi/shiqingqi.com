@@ -238,12 +238,17 @@ export function createEffectRegistry() {
     },
     /**
      * Every tracked element with a box, as it was last measured, in page
-     * coordinates at this scroll: those in the document first, then the
+     * coordinates at this scroll and with the viewport's bottom edge that
+     * `readViewportBottom` reads: those in the document first, then the
      * fixed ones, each group in registration order. An Effect cover is not
      * one of them, and neither is an element that the box of a cover
      * overlaps and that is not inside that cover.
      */
-    records: (scrollX: number, scrollY: number): MeasuredElement[] => {
+    records: (
+      scrollX: number,
+      scrollY: number,
+      readViewportBottom: () => number,
+    ): MeasuredElement[] => {
       const inDocument: MeasuredElement[] = [];
       const fixed: MeasuredElement[] = [];
       const covers: { element: Element; box: ElementBox }[] = [];
@@ -252,7 +257,7 @@ export function createEffectRegistry() {
         { id, roles, settings, scope, holds, covers: isCover },
       ] of elements) {
         const tracker = uses.get(element)?.tracker;
-        const box = tracker?.boxAt(scrollX, scrollY);
+        const box = tracker?.boxAt(scrollX, scrollY, readViewportBottom);
         if (tracker == null || box == null) {
           continue;
         }

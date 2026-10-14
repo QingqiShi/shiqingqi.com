@@ -10,8 +10,12 @@ import {
   type Lens,
   type PageRect,
 } from "./lens-from-box.ts";
-import { indicesIn } from "./plan-scopes.ts";
-import type { EffectElementRecord, EffectScope } from "./types.ts";
+import { CANVAS_ORDER, indicesIn } from "./plan-scopes.ts";
+import type {
+  EffectCanvas,
+  EffectElementRecord,
+  EffectScope,
+} from "./types.ts";
 
 const BLACK_HOLE = roleBits(["blackHole"]);
 
@@ -34,14 +38,13 @@ export interface ShaderLens {
  */
 export function lensesOfScope(
   elements: readonly EffectElementRecord[],
-  scope: Pick<EffectScope, "scroll" | "fixed">,
+  scope: Pick<EffectScope, EffectCanvas>,
   viewport: PageRect,
 ): ShaderLens[] {
   const lenses: ShaderLens[] = [];
-  for (const element of [
-    ...indicesIn(scope.scroll),
-    ...indicesIn(scope.fixed),
-  ]) {
+  for (const element of CANVAS_ORDER.flatMap((canvas) => [
+    ...indicesIn(scope[canvas]),
+  ])) {
     const record = elements[element];
     if ((record.roles & BLACK_HOLE) === 0) {
       continue;

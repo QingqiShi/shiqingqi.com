@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { layOut } from "../test-support/lay-out.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
+import { fixedBottomTop } from "./compute-bands.ts";
 import {
   createElementTracker,
   createMeasureContext,
@@ -10,7 +11,7 @@ import {
 
 /** The context of one frame, at a scroll. */
 function context(scrollX = 0, scrollY = 0): MeasureContext {
-  return { ...createMeasureContext(), scrollX, scrollY };
+  return { ...createMeasureContext(() => 0), scrollX, scrollY };
 }
 
 function setUp() {
@@ -53,7 +54,7 @@ describe("createElementTracker", () => {
       box: { x: 10, y: 20, width: 100, height: 40, fixed: false },
       sticky: false,
     });
-    expect(tracker.boxAt(0, 900)).toMatchObject({ x: 10, y: 520 });
+    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 520 });
   });
 
   it("draws on the fixed canvas while its sticky box is stuck, and in the document once the box lets go", () => {
@@ -69,19 +70,58 @@ describe("createElementTracker", () => {
       box: { fixed: true, sticksToViewport: true },
       sticky: true,
     });
-    expect(tracker.boxAt(0, 900)).toMatchObject({ x: 10, y: 920 });
+    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 920 });
 
     layOut(bar, { x: 0, y: -40, width: 300, height: 60 });
     tracker.measure(context(0, 500));
     expect(tracker.measured?.box.fixed).toBe(false);
-    expect(tracker.boxAt(0, 900)).toMatchObject({ x: 10, y: 520 });
+    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 520 });
   });
 
   it("moves a fixed element with the scroll it is asked at", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";
     tracker.measure(context(0, 500));
-    expect(tracker.boxAt(0, 900)).toMatchObject({ x: 10, y: 920, fixed: true });
+    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({
+      x: 10,
+      y: 920,
+      fixed: true,
+    });
+  });
+
+  it("keeps an element fixed to the bottom at its distance from the viewport's bottom edge", () => {
+    const { element, tracker } = setUp();
+    element.style.position = "fixed";
+    element.style.bottom = "16px";
+    layOut(element, { x: 16, y: 736, width: 300, height: 48 });
+    tracker.measure({ ...createMeasureContext(() => 800), scrollY: 500 });
+    expect(tracker.measured?.box).toMatchObject({
+      fixed: true,
+      fixedToBottom: true,
+    });
+    expect(tracker.boxAt(0, 900, () => 800)).toMatchObject({ x: 16, y: 1636 });
+    expect(tracker.boxAt(0, 900, () => 760)).toMatchObject({ x: 16, y: 1596 });
+  });
+
+  it("keeps an element fixed to the bottom at one place on the bottom canvas while the bottom edge moves, with no new measurement", () => {
+    const { element, tracker } = setUp();
+    element.style.position = "fixed";
+    element.style.bottom = "16px";
+    layOut(element, { x: 16, y: 736, width: 300, height: 48 });
+    tracker.measure({ ...createMeasureContext(() => 800), scrollY: 0 });
+    const canvasHeight = 900;
+    const onCanvas = (scrollY: number, viewportBottom: number) =>
+      (tracker.boxAt(0, scrollY, () => viewportBottom)?.y ?? Number.NaN) -
+      fixedBottomTop(scrollY, viewportBottom, canvasHeight);
+    const measurement = tracker.measurement;
+    const places = [
+      [0, 800],
+      [0, 760],
+      [0, 860],
+      [1200, 731.5],
+    ].map(([scrollY, viewportBottom]) => onCanvas(scrollY, viewportBottom));
+    expect(tracker.measurement).toBe(measurement);
+    expect(places).toEqual([836, 836, 836, 836]);
   });
 
   it("queues itself when its own ResizeObserver reports a new size", () => {

@@ -446,7 +446,7 @@ describe("createControlReader", () => {
       { scope: PAGE_SCOPE, holds: null },
     );
     const measure = () => {
-      tracker?.measure(createMeasureContext());
+      tracker?.measure(createMeasureContext(() => 0));
     };
     measure();
     const changes: null[] = [];
@@ -454,7 +454,7 @@ describe("createControlReader", () => {
       changes.push(null);
     });
     const frame = (scrollY = 0) => {
-      const [record] = registry.records(0, scrollY);
+      const [record] = registry.records(0, scrollY, () => 0);
       const control = controls.read({ ...record, scopeIndex: 0 });
       controls.sweep();
       return control;

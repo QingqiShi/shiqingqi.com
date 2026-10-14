@@ -23,6 +23,7 @@ function record(
     width: 80,
     height: 80,
     fixed: false,
+    fixedToBottom: false,
     radii: [40, 40, 40, 40],
     cornerExponent: 2,
     sticksToViewport: false,
@@ -50,7 +51,7 @@ describe("lensesOfScope", () => {
     ];
     const lenses = lensesOfScope(
       elements,
-      { scroll: range(0, 2), fixed: range(3, 1) },
+      { scroll: range(0, 2), fixed: range(3, 1), fixedBottom: range(4, 0) },
       VIEWPORT,
     );
     expect(lenses.map(({ element }) => element).toSorted()).toEqual([0, 3]);
@@ -63,7 +64,11 @@ describe("lensesOfScope", () => {
     expect(
       lensesOfScope(
         elements,
-        { scroll: range(0, 12), fixed: range(12, 0) },
+        {
+          scroll: range(0, 12),
+          fixed: range(12, 0),
+          fixedBottom: range(12, 0),
+        },
         VIEWPORT,
       ),
     ).toHaveLength(SCENE_LAYOUT.maxLenses);

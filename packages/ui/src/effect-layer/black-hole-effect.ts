@@ -20,17 +20,14 @@ import {
   type PageRect,
 } from "./lens-from-box.ts";
 import { lensesOfScope, type ShaderLens } from "./lenses-of-scope.ts";
-import { indicesIn } from "./plan-scopes.ts";
+import { CANVAS_ORDER, indicesIn } from "./plan-scopes.ts";
 import { cssAngleToRadians, stepAim, type Aim } from "./step-aim.ts";
 import type {
   Effect,
-  EffectCanvas,
   EffectElementRecord,
   EffectFrame,
   EffectTarget,
 } from "./types.ts";
-
-const CANVASES: readonly EffectCanvas[] = ["scroll", "fixed"];
 
 const LIGHT_BEAM = roleBits(["lightBeam"]);
 
@@ -240,7 +237,7 @@ export const blackHoleEffect: Effect = {
             frame.viewport,
           );
           const lenses = shaderLenses.map(({ lens }) => lens);
-          for (const canvas of CANVASES) {
+          for (const canvas of CANVAS_ORDER) {
             const beams: ShaderBeam[] = [];
             for (const element of indicesIn(scope[canvas])) {
               const record = frame.elements[element];
