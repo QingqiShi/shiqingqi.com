@@ -13,7 +13,9 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useRef, useState, type SubmitEvent } from "react";
 import { t } from "#src/i18n.ts";
+import { institutionFieldsAfter } from "../domain/accounts/institution-fields-after.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
+import { parseInstitutionDomain } from "../domain/accounts/parse-institution-domain.ts";
 import {
   sideOfKind,
   type AccountKind,
@@ -135,6 +137,13 @@ function AccountEditorForm({
 
   const [name, setName] = useState(account?.name ?? "");
   const [institution, setInstitution] = useState(account?.institution ?? "");
+  const [domain, setDomain] = useState(account?.institutionDomain ?? "");
+  const guessedDomain = account
+    ? {
+        ...account,
+        ...institutionFieldsAfter(account, { institution: institution.trim() }),
+      }.guessedInstitutionDomain
+    : null;
   const [kind, setKind] = useState<AccountKind>(account?.kind ?? "cash");
   const [groupId, setGroupId] = useState(account?.groupId ?? "");
   const [ownerId, setOwnerId] = useState(account?.ownerMemberId ?? "");
@@ -187,6 +196,10 @@ function AccountEditorForm({
     }),
     amount: t({ en: "Enter an amount", zh: "请输入金额" }),
     day: t({ en: "Enter a day from 1 to 31", zh: "请输入 1 到 31 之间的日期" }),
+    domain: t({
+      en: "Enter a website such as barclays.co.uk",
+      zh: "请输入网站，例如 barclays.co.uk",
+    }),
     failed: t({
       en: "The account did not save. Try again.",
       zh: "账户未能保存，请重试。",
@@ -228,6 +241,10 @@ function AccountEditorForm({
       ? readDay(statementDay, "statementDay", found)
       : null;
     const due = isCredit ? readDay(dueDay, "dueDay", found) : null;
+    const institutionDomain = parseInstitutionDomain(domain);
+    if (domain.trim() !== "" && institutionDomain === null) {
+      found.domain = messages.domain;
+    }
     const openingMinor =
       opening.trim() === "" ? null : parseMoney(opening, code);
     if (opening.trim() !== "" && openingMinor === null)
@@ -238,6 +255,7 @@ function AccountEditorForm({
     const fields = {
       name: name.trim(),
       institution: institution.trim(),
+      institutionDomain,
       kind,
       groupId: resolvedGroupId,
       ownerMemberId: ownerId === "" ? null : ownerId,
@@ -338,6 +356,23 @@ function AccountEditorForm({
           value={institution}
           onChange={(event) => {
             setInstitution(event.target.value);
+          }}
+        />
+        <TextField
+          label={t({ en: "Website", zh: "网站" })}
+          description={t({
+            en: "Its icon shows beside the account. Leave empty to find it from the institution.",
+            zh: "账户旁会显示该网站的图标。留空则按机构名称自动查找。",
+          })}
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          placeholder={guessedDomain ?? undefined}
+          value={domain}
+          error={errors.domain}
+          onChange={(event) => {
+            setDomain(event.target.value);
           }}
         />
         <Select

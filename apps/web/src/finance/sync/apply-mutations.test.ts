@@ -301,6 +301,7 @@ describe("applyMutations", () => {
       applied: first.applied,
       rejected: [],
       clock: first.clock,
+      effects: new Set(),
     });
     expect(await db.$count(transactions)).toBe(1);
   });

@@ -37,17 +37,19 @@ jobs:
           # The host is deliberately unresolvable so init sends nothing.
           NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder"
           NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid"
+      # `.next/node_modules` holds relative symlinks to externalised packages
+      # such as sharp. upload-artifact copies a symlink as a bare directory, so
+      # sharp would lose its own dependencies; a tar file keeps the links.
+      - name: Pack build output
+        # `next start` serves from `.next`; `public` carries the generated
+        # service worker and hashed PWA icons. `.next/cache` is build-only, so
+        # excluding it keeps the artifact small and the shard download fast.
+        run: tar --exclude=apps/web/.next/cache -cf web-build.tar apps/web/.next apps/web/public
       - name: Upload build output
         uses: actions/upload-artifact@v7
         with:
           name: web-build
-          # `next start` serves from `.next`; `public` carries the generated
-          # service worker and hashed PWA icons. `.next/cache` is build-only, so
-          # excluding it keeps the artifact small and the shard download fast.
-          path: |
-            apps/web/.next
-            !apps/web/.next/cache
-            apps/web/public
+          path: web-build.tar
           include-hidden-files: true
           retention-days: 1
 
@@ -121,7 +123,8 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: web-build
-          path: apps/web
+      - name: Unpack prebuilt web app
+        run: tar -xf web-build.tar
       - name: Run Playwright tests
         working-directory: apps/web
         # webServer runs `pnpm start` on CI (see playwright.config.ts); the app is

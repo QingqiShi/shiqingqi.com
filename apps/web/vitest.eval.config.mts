@@ -10,6 +10,7 @@ export default defineConfig({
     include: ["src/**/*.eval.ts"],
     testTimeout: 120_000,
     maxWorkers: 1,
+    silent: false,
     setupFiles: ["./src/eval/setup.ts"],
   },
   resolve: {

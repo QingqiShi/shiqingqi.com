@@ -3,6 +3,7 @@
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsClockwise";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
+import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -574,13 +575,21 @@ function ProviderAccountCard({
   return (
     <li css={[corner.radius_3, stack.item, styles.card]}>
       <div css={[row.tight, styles.head]}>
-        <div css={styles.names}>
-          <span css={[typeRole.body, styles.name]}>{account.name}</span>
-          {account.currency === null ? null : (
-            <span css={[typeRole.caption, styles.muted]}>
-              {account.currency}
-            </span>
-          )}
+        <div css={[row.tight, styles.identity]}>
+          <Avatar
+            name={account.institution}
+            src={account.institutionLogo ?? undefined}
+            shape="square"
+            aria-hidden
+          />
+          <div css={styles.names}>
+            <span css={[typeRole.body, styles.name]}>{account.name}</span>
+            {account.currency === null ? null : (
+              <span css={[typeRole.caption, styles.muted]}>
+                {account.currency}
+              </span>
+            )}
+          </div>
         </div>
         {account.needsReconnect || replicaLink?.status === "reconnect" ? (
           <Badge size="sm" intent="warning">
@@ -706,6 +715,9 @@ const styles = stylex.create({
   head: {
     justifyContent: "space-between",
     alignItems: "flex-start",
+  },
+  identity: {
+    minInlineSize: 0,
   },
   names: {
     display: "flex",

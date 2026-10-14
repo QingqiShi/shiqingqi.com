@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
-import { corner } from "../primitives/corner.stylex.ts";
+import { corner, cornerTokens } from "../primitives/corner.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { border, color, font, shadow, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -11,10 +11,10 @@ interface AvatarBaseProps extends Omit<
 > {
   /**
    * Who the avatar stands for, and the source of the derived monogram when
-   * there is no `src` or `initials`. Keep it to the person — anything the
-   * `badge` means belongs in `badgeLabel`.
+   * there is no `src` or `initials`. Keep it to the person or organisation
+   * it stands for — anything the `badge` means belongs in `badgeLabel`.
    *
-   * @zh 该头像所代表的人；在没有 `src` 或 `initials` 时，也是字母缩写的推导来源——只应写这个人本身，`badge` 的含义放到 `badgeLabel` 中。
+   * @zh 该头像所代表的人或机构；在没有 `src` 或 `initials` 时，也是字母缩写的推导来源——只应写它所代表的人或机构本身，`badge` 的含义放到 `badgeLabel` 中。
    */
   name: string;
   /**
@@ -41,6 +41,14 @@ interface AvatarBaseProps extends Omit<
    * @zh 直径与字号阶梯，以 rem 为单位，使头像随用户字号缩放。
    */
   size?: "sm" | "md" | "lg";
+  /**
+   * `"circle"` (the default) is for a person. `"square"` is a rounded square
+   * with squircle corners, like an app icon, for an organisation such as a
+   * bank: its logo is usually drawn for that mask, and a circle crops it.
+   *
+   * @zh 圆形（默认）用于人。方形是带超椭圆圆角的圆角方形，类似应用图标，用于银行等机构：机构标志通常按这种遮罩绘制，圆形会将其裁切。
+   */
+  shape?: "circle" | "square";
   /**
    * `"subtle"` (the default) is a quiet tinted medallion for anyone present.
    * `"solid"` inverts it, so the people a view is actually about stand out
@@ -96,8 +104,8 @@ function monogramFrom(name: string): string {
 }
 
 /**
- * A circular medallion for one person: their portrait, or else a monogram
- * derived from their name, with an optional badge in the corner.
+ * A medallion for one person or organisation: their portrait or logo, or else
+ * a monogram derived from their name, with an optional badge in the corner.
  */
 export function Avatar({
   name,
@@ -105,6 +113,7 @@ export function Avatar({
   initials,
   size = "md",
   look = "subtle",
+  shape = "circle",
   badge,
   badgeLabel,
   css,
@@ -126,6 +135,7 @@ export function Avatar({
   // image fails WCAG 1.1.1.
   const isDrawn = src !== undefined || monogram !== "";
   const isImage = isNamed || isDrawn;
+  const hasImage = src !== undefined;
 
   return (
     <span
@@ -137,18 +147,19 @@ export function Avatar({
       <span
         css={[
           initialsRoles[size],
-          corner.radius_round,
+          shape === "circle" ? corner.radius_round : corner.squircle_round,
           styles.medallion,
           lookStyles[look],
+          (look === "subtle" || hasImage) && styles.edge,
         ]}
         aria-hidden
       >
         {monogram}
-        {src === undefined ? null : (
+        {hasImage ? (
           // Decorative: the root already carries the accessible name, so an
           // `alt` here would announce the person twice.
           <img src={src} alt="" css={styles.image} />
-        )}
+        ) : null}
       </span>
       {hasBadge ? (
         <span
@@ -187,6 +198,19 @@ const styles = stylex.create({
     lineHeight: font.lineHeight_0,
     userSelect: "none",
   },
+  // Drawn above the image, so a logo that fills the medallion with the page's
+  // own colour, such as a black square on the dark page, keeps its edge.
+  edge: {
+    "::after": {
+      content: "''",
+      position: "absolute",
+      inset: 0,
+      borderRadius: "inherit",
+      cornerShape: "inherit",
+      boxShadow: `inset 0 0 0 ${border.size_1} ${color.border}`,
+      pointerEvents: "none",
+    },
+  },
   // No background, on purpose: a failed portrait paints nothing, so the
   // monogram underneath still shows through with no `onError` handler
   // needed. A background would repaint over the monogram whenever the image
@@ -217,19 +241,24 @@ const styles = stylex.create({
 });
 
 // rem-based, like Spinner's diameters, so sizing scales with the user's font
-// size (WCAG 1.4.4) instead of a fixed pixel grid.
+// size (WCAG 1.4.4) instead of a fixed pixel grid. `cornerTokens.height` is
+// the side `corner.squircle_round` closes at, so a square gets the same
+// app-icon shape at every size.
 const sizeStyles = stylex.create({
   sm: {
     inlineSize: space._5,
     blockSize: space._5,
+    [cornerTokens.height]: space._5,
   },
   md: {
     inlineSize: space._7,
     blockSize: space._7,
+    [cornerTokens.height]: space._7,
   },
   lg: {
     inlineSize: space._8,
     blockSize: space._8,
+    [cornerTokens.height]: space._8,
   },
 });
 
@@ -260,7 +289,6 @@ const lookStyles = stylex.create({
   subtle: {
     backgroundColor: color.bgNeutralSubtle,
     color: color.fgMuted,
-    boxShadow: `inset 0 0 0 ${border.size_1} ${color.border}`,
   },
   solid: {
     backgroundColor: color.bgInverse,

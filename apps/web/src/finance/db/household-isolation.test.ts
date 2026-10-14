@@ -26,6 +26,8 @@ import {
   entries,
   fxRates,
   households,
+  institutionDomainGuesses,
+  institutionIcons,
   invites,
   monthTotals,
   passkeys,
@@ -64,6 +66,8 @@ const globalTables = new Set<PgTable>([
   emailVerifications,
   emailCodes,
   signUps,
+  institutionDomainGuesses,
+  institutionIcons,
 ]);
 /** The column that names the Household of a row. */
 function householdKey(table: PgTable): PgColumn {

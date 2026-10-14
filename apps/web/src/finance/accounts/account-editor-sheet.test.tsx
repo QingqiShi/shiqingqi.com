@@ -80,4 +80,32 @@ describe("AccountEditorSheet", () => {
       },
     ]);
   });
+
+  it("saves the website a Member types as a bare domain", async () => {
+    const { runtime, user } = await openEditor(ids.card);
+    await user.type(
+      screen.getByRole("textbox", { name: "Website" }),
+      "https://www.Barclays.co.uk/personal",
+    );
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(runtime.store.takeOutbox()).toMatchObject([
+      {
+        name: "upsertAccount",
+        args: { id: ids.card, institutionDomain: "barclays.co.uk" },
+      },
+    ]);
+  });
+
+  it("refuses a website that is not a domain", async () => {
+    const { runtime, user } = await openEditor(ids.card);
+    await user.type(
+      screen.getByRole("textbox", { name: "Website" }),
+      "my bank",
+    );
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(
+      screen.getByText("Enter a website such as barclays.co.uk"),
+    ).toBeVisible();
+    expect(runtime.store.takeOutbox()).toEqual([]);
+  });
 });

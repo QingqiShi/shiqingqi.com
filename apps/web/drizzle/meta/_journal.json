@@ -78,6 +78,13 @@
       "when": 1791923249888,
       "tag": "0010_verified_email_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791972058786,
+      "tag": "0011_institution_icons",
+      "breakpoints": true
     }
   ]
 }

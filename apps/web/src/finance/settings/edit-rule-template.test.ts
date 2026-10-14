@@ -18,6 +18,8 @@ function account(
     ownerMemberId,
     name: id,
     institution: "",
+    institutionDomain: null,
+    guessedInstitutionDomain: null,
     kind: "cash",
     currency,
     excludedFromNetWorth: false,

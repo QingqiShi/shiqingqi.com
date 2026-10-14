@@ -22,6 +22,13 @@ export interface PushResponse {
   clock: number;
 }
 
+/**
+ * What a committed mutation changed that work after the push must follow.
+ * `institution-changed`: an account has a new institution name, website
+ * domain or currency, so its institution icon must be worked out again.
+ */
+export type PushEffect = "institution-changed";
+
 /** The answer to `GET /api/finance/sync?since=<clock>` when `since` is above 0. */
 export interface PullResponse {
   clock: number;

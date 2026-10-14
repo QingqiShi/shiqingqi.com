@@ -28,11 +28,13 @@ let db: TestDb;
 let home: SeededHousehold;
 let session: FinanceSession | null;
 let configured: boolean;
+let pushEffects: { householdId: string; effects: string[] }[];
 
 beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db);
   configured = true;
+  pushEffects = [];
   session = {
     sessionId: randomUUID(),
     userId: randomUUID(),
@@ -52,6 +54,9 @@ function handlers() {
     getDb: () => db,
     getSession: () => Promise.resolve(session),
     now: () => new Date("2026-10-10T12:00:00Z"),
+    afterPush: (householdId, effects) => {
+      pushEffects.push({ householdId, effects: [...effects] });
+    },
   });
 }
 
@@ -262,5 +267,35 @@ describe("makeSyncHandlers", () => {
     const response = await handlers().GET(new Request(`${URL_BASE}?since=9`));
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({ error: "resync", clock: 0 });
+  });
+});
+
+describe("a push that changes an institution", () => {
+  function upsertAccount(args: Record<string, unknown>, id = randomUUID()) {
+    return { id, name: "upsertAccount", args };
+  }
+
+  it("reports the change after the push commits it, and only a real change", async () => {
+    const clientId = randomUUID();
+    const push = (mutation: ReturnType<typeof upsertAccount>) =>
+      handlers().POST(pushRequest({ clientId, mutations: [mutation] }));
+
+    await push(upsertAccount({ id: home.currentId, position: 3 }));
+    await push(upsertAccount({ id: home.currentId, institution: "" }));
+    await push(upsertAccount({ id: randomUUID(), institution: "Wise" }));
+    expect(pushEffects).toEqual([]);
+
+    const change = upsertAccount({
+      id: home.currentId,
+      institutionDomain: "wise.com",
+    });
+    const response = await push(change);
+    await push(change);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).not.toHaveProperty("effects");
+    expect(pushEffects).toEqual([
+      { householdId: home.householdId, effects: ["institution-changed"] },
+    ]);
   });
 });

@@ -13,7 +13,17 @@ import { DerivedTouches } from "./derived-touches.ts";
 import { mutationSchema } from "./mutation-schema.ts";
 import type { PushRequest } from "./push-request-schema.ts";
 import { toRejection } from "./to-rejection.ts";
-import type { PushResponse, Rejection, WriteContext } from "./types.ts";
+import type {
+  PushEffect,
+  PushResponse,
+  Rejection,
+  WriteContext,
+} from "./types.ts";
+
+export interface PushResult extends PushResponse {
+  /** The effects of the mutations this push applied; a re-pushed one has none. */
+  effects: ReadonlySet<PushEffect>;
+}
 
 /**
  * Applies a pushed batch for the session's Household in one database
@@ -28,7 +38,7 @@ export async function applyMutations(
   householdId: string,
   request: PushRequest,
   now: Date,
-): Promise<PushResponse> {
+): Promise<PushResult> {
   return withHousehold(db, householdId, async (scope) => {
     await setStatementTimeout(scope.db);
     const household = await householdRepository.lockForWrite(scope);
@@ -39,6 +49,7 @@ export async function applyMutations(
     const today = todayInTimeZone(household.timezone, now);
     const applied: string[] = [];
     const rejected: Rejection[] = [];
+    const effects = new Set<PushEffect>();
     let written = false;
     const alreadyApplied = await appliedMutationRepository.findApplied(
       scope,
@@ -61,20 +72,22 @@ export async function applyMutations(
         continue;
       }
       try {
-        await withSavepoint(write, async (savepoint) => {
+        const effect = await withSavepoint(write, async (savepoint) => {
           const context: WriteContext = {
             scope: savepoint,
             today,
             touches,
             actor: "member",
           };
-          await applyMutation(context, parsed.data);
+          const result = await applyMutation(context, parsed.data);
           await appliedMutationRepository.record(
             context.scope,
             request.clientId,
             raw.id,
           );
+          return result;
         });
+        if (effect) effects.add(effect);
         alreadyApplied.add(raw.id);
         applied.push(raw.id);
         written = true;
@@ -92,10 +105,12 @@ export async function applyMutations(
       actor: "server",
     };
     if ((await materialiseRulesInTransaction(context)) > 0) written = true;
-    if (!written) return { applied, rejected, clock: household.clock };
+    if (!written) {
+      return { applied, rejected, clock: household.clock, effects };
+    }
 
     await recomputeDerived(write, touches);
     await householdRepository.setClock(write, version);
-    return { applied, rejected, clock: version };
+    return { applied, rejected, clock: version, effects };
   });
 }

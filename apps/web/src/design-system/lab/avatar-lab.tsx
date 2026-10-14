@@ -44,6 +44,7 @@ const PORTRAIT =
 // the snippet as source, where a translated string would not be what a
 // consumer writes.
 const NAME = "Ada Lovelace";
+const ORGANISATION = "Northwind Bank";
 
 const config: LabConfig<AvatarLabProps> = {
   component: "avatar",
@@ -97,11 +98,27 @@ const config: LabConfig<AvatarLabProps> = {
       label: { en: "Solid lg", zh: "实心 lg" },
       props: { name: NAME, look: "solid", size: "lg" },
     },
+    {
+      id: "squareSm",
+      label: { en: "Square sm", zh: "方形 sm" },
+      props: { name: ORGANISATION, shape: "square", size: "sm" },
+    },
+    {
+      id: "squareMd",
+      label: { en: "Square md", zh: "方形 md" },
+      props: { name: ORGANISATION, shape: "square", size: "md" },
+    },
+    {
+      id: "squareLg",
+      label: { en: "Square lg", zh: "方形 lg" },
+      props: { name: ORGANISATION, shape: "square", size: "lg" },
+    },
   ],
   controls: [
     "name",
     "look",
     "size",
+    "shape",
     "initials",
     { prop: "badge", samples: BADGE_SAMPLES },
     "badgeLabel",

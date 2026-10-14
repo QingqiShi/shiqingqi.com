@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -17,6 +18,7 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
 import type { AccountLine } from "./build-balance-sheet.ts";
+import { institutionIconUrl } from "./institution-icon-url.ts";
 import { VALUATION_KINDS } from "./valuation-kinds.ts";
 
 interface AccountRowProps {
@@ -27,9 +29,9 @@ interface AccountRowProps {
 }
 
 /**
- * One account in the Net worth list: its name with the owner and
- * institution that tell it apart, its balance, and the facts that matter for
- * its kind. The row opens the account.
+ * One account in the Net worth list: its institution's icon, its name with
+ * the owner and institution that tell it apart, its balance, and the facts
+ * that matter for its kind. The row opens the account.
  */
 export function AccountRow({
   line,
@@ -76,6 +78,12 @@ export function AccountRow({
           styles.link,
         )}
       >
+        <Avatar
+          name={account.institution.trim() || account.name}
+          src={institutionIconUrl(account)}
+          shape="square"
+          aria-hidden
+        />
         <span css={styles.main}>
           <span css={[typeRole.body, styles.name]}>{name}</span>
           {facts.length > 0 || line.hidden !== null ? (

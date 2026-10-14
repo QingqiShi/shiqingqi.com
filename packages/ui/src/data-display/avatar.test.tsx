@@ -159,6 +159,53 @@ describe("Avatar styling", () => {
     expect(avatar.firstElementChild?.className).toContain("lookStyles.solid");
   });
 
+  it("is a circle by default", () => {
+    render(<Avatar name="Qingqi Shi" data-testid="avatar" />);
+
+    expect(screen.getByTestId("avatar").firstElementChild?.className).toContain(
+      "corner.radius_round",
+    );
+  });
+
+  it("draws a square with squircle corners closed at its own size", () => {
+    render(
+      <Avatar
+        name="Northwind Bank"
+        shape="square"
+        size="lg"
+        data-testid="avatar"
+      />,
+    );
+
+    const avatar = screen.getByTestId("avatar");
+    expect(avatar.className).toContain("sizeStyles.lg");
+    const medallion = avatar.firstElementChild;
+    expect(medallion?.className).toContain("corner.squircle_round");
+    expect(medallion?.className).not.toContain("corner.radius_round");
+  });
+
+  it("draws its edge above the image, on either look", () => {
+    render(
+      <>
+        <Avatar name="Ada Lovelace" data-testid="subtle" />
+        <Avatar name="Ada Lovelace" look="solid" data-testid="solid" />
+        <Avatar
+          name="Northwind Bank"
+          src="/logo.png"
+          look="solid"
+          shape="square"
+          data-testid="solid-logo"
+        />
+      </>,
+    );
+
+    const medallionOf = (testId: string) =>
+      screen.getByTestId(testId).firstElementChild?.className;
+    expect(medallionOf("subtle")).toContain("styles.edge");
+    expect(medallionOf("solid")).not.toContain("styles.edge");
+    expect(medallionOf("solid-logo")).toContain("styles.edge");
+  });
+
   it("composes a caller css override last", () => {
     const overrides = stylex.create({ box: { opacity: 0.9 } });
     render(

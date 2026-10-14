@@ -293,6 +293,10 @@ export const accounts = pgTable(
     ownerMemberId: uuid("owner_member_id"),
     name: text("name").notNull(),
     institution: text("institution").notNull().default(""),
+    /** The institution's website domain as a Member set it. It wins over the guess. */
+    institutionDomain: text("institution_domain"),
+    /** The domain the server guessed from `institution`; null when there is none or no guess yet. */
+    guessedInstitutionDomain: text("guessed_institution_domain"),
     kind: accountKind("kind").notNull(),
     currency: currency("currency").notNull(),
     excludedFromNetWorth: boolean("excluded_from_net_worth")
@@ -716,6 +720,48 @@ export const appliedMutations = pgTable(
   (t) => [primaryKey({ columns: [t.householdId, t.clientId, t.mutationId] })],
 );
 
+/**
+ * The website domain a model guessed for an institution name, by the
+ * normalised name and the currencies the model saw with it, as the same
+ * name can be a different institution in another country. `domain` is null
+ * when the name is not an institution. Until `guessed_at` is set,
+ * `next_attempt_at` is when a worker may ask the model again: a claim
+ * pushes it forward, a failure backs it off.
+ */
+export const institutionDomainGuesses = pgTable(
+  "institution_domain_guesses",
+  {
+    nameKey: text("name_key").notNull(),
+    baseCurrency: text("base_currency").notNull(),
+    accountCurrency: text("account_currency").notNull(),
+    domain: text("domain"),
+    guessedAt: timestamp("guessed_at", { withTimezone: true }),
+    attempts: integer("attempts").notNull().default(0),
+    nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.nameKey, t.baseCurrency, t.accountCurrency] }),
+  ],
+);
+
+/**
+ * The website icon of a domain, a small square WebP image. `version` changes
+ * with the image, so it is the ETag of the icon. `next_attempt_at` is when a
+ * worker may fetch it again: a refresh after a success, a retry after a
+ * failure.
+ */
+export const institutionIcons = pgTable("institution_icons", {
+  domain: text("domain").primaryKey(),
+  image: bytea("image"),
+  version: text("version"),
+  attempts: integer("attempts").notNull().default(0),
+  nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 // bank
 
 export const connections = pgTable(
@@ -891,4 +937,6 @@ export const schema = {
   bankTransactions,
   bankBalances,
   reports,
+  institutionDomainGuesses,
+  institutionIcons,
 };

@@ -1,4 +1,3 @@
-import { wrapLanguageModel } from "ai";
 import { and, eq, isNull } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 import { processBankRows } from "../bank/process-bank-rows.ts";
@@ -19,14 +18,11 @@ import {
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { categoriseFixture } from "./eval/categorise-fixture.ts";
-import { getFinanceModel } from "./get-finance-model.ts";
+import { meterFinanceModel } from "./eval/meter-finance-model.ts";
 
 const CATEGORY_THRESHOLD = 0.85;
 const PAYEE_THRESHOLD = 0.9;
 const TRANSFER_THRESHOLD = 0.9;
-
-/** Claude Sonnet 5.5, US dollars per million tokens. */
-const PRICE = { input: 2, cacheWrite: 2.5, cacheRead: 0.2, output: 10 };
 
 const INSTRUCTIONS = `Payments to J SMITH are our rent.
 Alex also has an HSBC account that is not in this app; money to or from it is a transfer.`;
@@ -298,31 +294,7 @@ async function outcomeOf(db: TestDb, ref: string) {
 
 describe("Finance labelling (process step, real model)", () => {
   it("labels the synthetic bank rows, follows the instructions, copies a Member's label over an earlier AI guess, and finds each transfer's other side", async () => {
-    const base = getFinanceModel();
-    if (!base || typeof base === "string") {
-      throw new Error("ANTHROPIC_API_KEY is not set");
-    }
-    const usage = {
-      input: 0,
-      cacheWrite: 0,
-      cacheRead: 0,
-      output: 0,
-      calls: 0,
-    };
-    const model = wrapLanguageModel({
-      model: base,
-      middleware: {
-        wrapGenerate: async ({ doGenerate }) => {
-          const result = await doGenerate();
-          usage.calls++;
-          usage.input += result.usage.inputTokens.noCache ?? 0;
-          usage.cacheWrite += result.usage.inputTokens.cacheWrite ?? 0;
-          usage.cacheRead += result.usage.inputTokens.cacheRead ?? 0;
-          usage.output += result.usage.outputTokens.total ?? 0;
-          return result;
-        },
-      },
-    });
+    const meter = meterFinanceModel();
 
     const db = await createTestDb();
     await seed(db);
@@ -387,7 +359,7 @@ describe("Finance labelling (process step, real model)", () => {
     await processBankRows({
       db,
       householdId: HOUSEHOLD,
-      model,
+      model: meter.model,
       now: new Date("2026-10-10T12:00:00Z"),
       deadline: new Date(Date.now() + 15 * 60_000),
       onModelError: (error) => {
@@ -452,17 +424,11 @@ describe("Finance labelling (process step, real model)", () => {
       );
     }
 
-    const cost =
-      (usage.input * PRICE.input +
-        usage.cacheWrite * PRICE.cacheWrite +
-        usage.cacheRead * PRICE.cacheRead +
-        usage.output * PRICE.output) /
-      1_000_000;
     const total = cases.length;
     const report = [
       `category ${String(categoryHits)}/${String(total)}, payee ${String(payeeHits)}/${String(total)}`,
       `instruction ${instructionOk ? "ok" : "missed"}, earlier AI guess ignored ${aiGuessIgnored ? "ok" : "missed"}, transfers ${JSON.stringify(transfers)}`,
-      `${String(usage.calls)} model calls in ${seconds.toFixed(0)} s; tokens: input ${String(usage.input)}, cache write ${String(usage.cacheWrite)}, cache read ${String(usage.cacheRead)}, output ${String(usage.output)}; cost $${cost.toFixed(3)}`,
+      `${meter.summary()}, in ${seconds.toFixed(0)} s`,
       ...misses,
     ].join("\n");
     console.log(report);
