@@ -43,9 +43,10 @@ export interface LiquidBody extends LiquidParticles {
    */
   readonly calm: number;
   /**
-   * How frozen the thumb is, from 0 as clear water to 1 as frosted ice:
-   * it thaws when it is pressed or starts to move, and freezes again as it
-   * settles into the thumb's circle, at the same pace.
+   * How solid the thumb is, from 0 as clear water to 1 as the control's
+   * own solid surface: it melts when it is pressed or starts to move, sets
+   * as far as `LINGER_SET` once it arrives, and sets all the way at the
+   * end of the time it settles in.
    */
   readonly set: number;
   /** Nothing moves any more, so no frame needs to follow for the body. */
@@ -181,15 +182,15 @@ const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 const STIFFNESS = 150;
 const NEAR_STIFFNESS = 500;
-const VISCOSITY = 6;
-const VISCOSITY_QUADRATIC = 0.5;
+const VISCOSITY = 3;
+const VISCOSITY_QUADRATIC = 0.25;
 /** Per second, on every particle: the liquid's loss to the track. */
 const DRAG = 2.5;
 /**
  * Per second, more loss once the body has come to its target, so that the
- * slosh after it lands dies away soon.
+ * slosh after it lands dies away over the time it lingers.
  */
-const SETTLE_DRAG = 6;
+const SETTLE_DRAG = 2.5;
 /** The tilt towards the target, in rest radii per second squared. */
 const TILT = 56;
 /** Within this reach of the target the tilt eases off. */
@@ -243,11 +244,28 @@ const STILL_SPEED = 0.3;
 const ARRIVE_REACH = 0.2;
 const ARRIVE_SPAN = 0.5;
 /**
- * Per second: how fast the liquid that has arrived settles into the
- * thumb's circle and freezes, both at once, so that they are one change
- * while it comes to rest.
+ * Seconds on the page's clock that the liquid takes to settle once it has
+ * arrived: until then it flows on, sloshes, and takes its drops back in.
  */
-const SETTLE = 2;
+const LINGER = 0.8;
+/**
+ * Seconds on the page's clock, at the end of `LINGER`, in which the
+ * liquid sets solid.
+ */
+const SET_TIME = 1 / 3;
+/**
+ * Per second: how fast the liquid that has arrived settles into the rest
+ * shape, and how fast it sets.
+ */
+const SETTLE = 1 / (LINGER * PACE);
+const SET = 1 / (SET_TIME * PACE);
+/**
+ * How far the liquid sets while it lingers: its core is solid, and its rim
+ * is water.
+ *
+ * @internal
+ */
+export const LINGER_SET = 0.4;
 const CALM_FALL = 16;
 /** Per second: how fast the thumb thaws into water. */
 const MELT = 6;
@@ -258,8 +276,8 @@ const MELT = 6;
  * that a long pour leaves beads along its way and not a row of them. The
  * room of a Switch is at most 2.29, so its spacing is always this.
  */
-const SHED_SPACING = 0.21;
-const SHED_BUDGET = 12;
+const SHED_SPACING = 0.233;
+const SHED_BUDGET = 10.8;
 const SHED_CHANCE = 0.9;
 /** The trailing edge sheds only when it moves faster than this. */
 const SHED_SPEED = 1;
@@ -994,7 +1012,13 @@ export function settleLiquid(
   const boost = tiltBoost(away);
   const arrived = away < ARRIVE_REACH + ARRIVE_SPAN * span;
   const calm = clamp01(body.calm + (arrived ? SETTLE : -CALM_FALL) * step);
-  const set = clamp01(body.set + (arrived && !pressed ? SETTLE : -MELT) * step);
+  // The liquid sets only as far as `LINGER_SET` while it lingers, so that
+  // its rim stays water and flows. It sets all the way at the end.
+  const setGoal = calm >= 1 - SET_TIME / LINGER ? 1 : LINGER_SET;
+  const set =
+    arrived && !pressed
+      ? Math.max(body.set, Math.min(setGoal, body.set + SET * step))
+      : clamp01(body.set - MELT * step);
   const kept: Shedding = {
     beads: moveBeads(
       body.beads,

@@ -3,10 +3,11 @@
  * grid: extra stops at 2/5/7/9/11/13 (dark surfaces) and 92/95/97/98/99 (light
  * surfaces) let surface ramps live inside the palette rather than as a
  * separately-tuned token set. Mid-tones (20–80) stay on the familiar 10-point
- * grid for chromatic UI roles.
+ * grid for chromatic UI roles, plus 35: the darkest tone that holds 3:1
+ * against every dark control ground, for a control's edge in dark.
  */
 export const SYSTEM_PALETTE_TONES = [
-  0, 2, 5, 7, 9, 11, 13, 20, 30, 40, 50, 60, 70, 80, 90, 92, 95, 97, 98, 99,
+  0, 2, 5, 7, 9, 11, 13, 20, 30, 35, 40, 50, 60, 70, 80, 90, 92, 95, 97, 98, 99,
   100,
 ] as const;
 

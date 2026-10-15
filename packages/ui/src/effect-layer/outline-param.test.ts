@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  farthestOutlineParam,
-  outlineLength,
-  outlineParam,
-} from "./outline-param.ts";
+import { outlineLength, outlineParam } from "./outline-param.ts";
 
-/** A `md` Switch track below the `md` breakpoint: a stadium 2:1. */
 const STADIUM = { width: 96, height: 48, radius: 24 };
 const ROUNDED = { width: 100, height: 60, radius: 10 };
 
@@ -76,12 +71,6 @@ describe("outlineParam", () => {
     expect(outlineParam(ROUNDED, 110, 30)).toBeCloseTo(40 + quarter + 20);
   });
 
-  it("maps the thumb of an off switch to the tip of the left cap", () => {
-    expect(outlineParam(STADIUM, 24, 24)).toBeCloseTo(
-      outlineLength(STADIUM) / 2 + 24 + Math.PI * 12,
-    );
-  });
-
   it("stays below the outline's length all around", () => {
     for (let angle = 0; angle < 2 * Math.PI; angle += 0.05) {
       const x = STADIUM.width / 2 + 60 * Math.cos(angle);
@@ -90,26 +79,5 @@ describe("outlineParam", () => {
       expect(param).toBeGreaterThanOrEqual(0);
       expect(param).toBeLessThanOrEqual(outlineLength(STADIUM));
     }
-  });
-});
-
-describe("farthestOutlineParam", () => {
-  it("is the tip of the far cap from the thumb of an off switch", () => {
-    expect(farthestOutlineParam(STADIUM, 24, 24)).toBeCloseTo(
-      24 + (Math.PI / 2) * 24,
-    );
-  });
-
-  it("is on the far arc from a corner of a box with small corners", () => {
-    const quarter = (Math.PI / 2) * ROUNDED.radius;
-    const param = farthestOutlineParam(ROUNDED, 0, 0);
-    expect(param).toBeGreaterThan(40 + quarter + 40);
-    expect(param).toBeLessThan(40 + 2 * quarter + 40);
-  });
-
-  it("is the tip of the off cap from the tip of the on cap", () => {
-    expect(farthestOutlineParam(STADIUM, 96, 24)).toBeCloseTo(
-      outlineParam(STADIUM, 0, 24),
-    );
   });
 });

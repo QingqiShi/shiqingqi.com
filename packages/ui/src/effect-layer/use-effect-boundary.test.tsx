@@ -135,7 +135,7 @@ describe("effect hooks", () => {
     });
     expect(entry("liquid")).toMatchObject({
       roles: roleBits(["liquid"]),
-      settings: { liquid: { position: 1, drag: null, pressed: false, aim: 0 } },
+      settings: { liquid: { position: 1, drag: null, pressed: false } },
     });
   });
 

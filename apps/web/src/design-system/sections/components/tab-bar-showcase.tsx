@@ -69,8 +69,8 @@ export function TabBarShowcase() {
         </SpecimenGrid>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: 'By default the indicator is the Segmented control\'s liquid: frosted ice that thaws into water, pours to the tab you press and follows a drag with inertia. effect="none" keeps the plain Glass indicator, and so does a bar without an EffectLayerProvider or WebGPU, or under forced colours, where the filled icon marks the current tab.',
-            zh: '默认情况下，指示块就是分段控件的液体：一块结霜的冰，融化成水后涌向你按下的标签页，并带着惯性跟随拖动。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU，或处于强制颜色模式时也是如此，此时由填充样式的图标标记当前标签页。',
+            en: 'By default the indicator is the Segmented control\'s liquid: it melts into water, pours to the tab you press, flows on for a moment after it arrives, and follows a drag with inertia. effect="none" keeps the plain Glass indicator, and so does a bar without an EffectLayerProvider or WebGPU, or under forced colours, where the filled icon marks the current tab.',
+            zh: '默认情况下，指示块就是分段控件的液体：它融化成水后涌向你按下的标签页，到位后继续流动片刻，并带着惯性跟随拖动。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU，或处于强制颜色模式时也是如此，此时由填充样式的图标标记当前标签页。',
           })}
         </Text>
       </Showcase>

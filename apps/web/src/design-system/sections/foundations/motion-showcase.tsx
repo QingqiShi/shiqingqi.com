@@ -240,8 +240,8 @@ export function MotionShowcase() {
       term: "SegmentedControl",
       value: t({ en: "easing.spring, 300ms", zh: "easing.spring，300 毫秒" }),
       note: t({
-        en: "The plain indicator springs to the selected option. The liquid effect pours it there instead, as water that freezes again in the segment's shape. Reduced motion moves it at once.",
-        zh: "普通指示块以弹簧曲线移到选中项。液态效果则让它化作水涌过去，再按分段的形状重新冻结。减弱动效时立即移过去。",
+        en: "The plain indicator springs to the selected option. The liquid effect pours it there instead, as water that flows on for about 0.8 s after it arrives and then sets in the segment's shape. Reduced motion moves it at once, or crossfades it with the effect.",
+        zh: "普通指示块以弹簧曲线移到选中项。液态效果则让它化作水涌过去，到位后继续流动约 0.8 秒，再按分段的形状凝固。减弱动效时立即移过去；有效果时以交叉淡入淡出到位。",
       }),
     },
     {
@@ -281,8 +281,8 @@ export function MotionShowcase() {
       term: "Switch",
       value: t({ en: "easing.ease, 200ms", zh: "easing.ease，200 毫秒" }),
       note: t({
-        en: "The plain thumb slides across. The liquid effect pours it across instead, as a drop of water that freezes again at the other end. Reduced motion moves it at once.",
-        zh: "普通滑块滑到另一侧。液态效果则让它化作一滴水涌到另一侧，再重新冻结。减弱动效时立即移过去。",
+        en: "The plain thumb slides across. The liquid effect pours it across instead, as a drop of water that flows on for about 0.8 s after it arrives and then sets at the other end. Reduced motion moves it at once, or crossfades it with the effect.",
+        zh: "普通滑块滑到另一侧。液态效果则让它化作一滴水涌到另一侧，到位后继续流动约 0.8 秒，再凝固。减弱动效时立即移过去；有效果时以交叉淡入淡出到位。",
       }),
     },
     {

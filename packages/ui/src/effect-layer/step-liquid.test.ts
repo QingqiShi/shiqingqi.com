@@ -4,6 +4,7 @@ import {
   finiteParticles,
   impactOn,
   leanTo,
+  LINGER_SET,
   LIQUID_PHYSICS,
   liquidStep,
   MAX_PARTICLE_COUNT,
@@ -168,13 +169,12 @@ describe("melting and setting", () => {
     expect(last(held).settled).toBe(true);
   });
 
-  it("melts as it pours and sets once it rests, and not before", () => {
+  it("melts as it pours, sets only its core while it lingers, and sets all the way at the end", () => {
     const meltedAt = firstTime(pour, (body) => body.set === 0);
     expect(meltedAt).not.toBeNull();
     for (const { body, time } of pour) {
-      if (time >= (meltedAt ?? 0)) {
-        // It draws into the circle and freezes as one change.
-        expect(body.set).toBeCloseTo(body.calm, 5);
+      if (time >= (meltedAt ?? 0) && body.calm < 0.5) {
+        expect(body.set).toBeLessThanOrEqual(LINGER_SET);
       }
       if (body.set > 0 && body.set < 1) {
         expect(body.settled).toBe(false);
@@ -182,7 +182,9 @@ describe("melting and setting", () => {
     }
     const setAt = firstTime(pour, (body) => body.set === 1, meltedAt ?? 0);
     expect(setAt).not.toBeNull();
-    expect(pour.find(({ time }) => time === setAt)?.body.calm).toBe(1);
+    expect(pour.find(({ time }) => time === setAt)?.body.calm).toBeGreaterThan(
+      0.5,
+    );
     expect(last(pour).set).toBe(1);
   });
 
@@ -202,10 +204,14 @@ describe("melting and setting", () => {
     expect((freezingAt ?? 1) - (landedAt ?? 0)).toBeLessThan(0.05);
   });
 
-  it("is solid at rest again well within a second of a toggle", () => {
+  it("is solid at rest again about 0.8 s after it lands", () => {
+    const landedAt = firstTime(pour, landed);
     const settledAt = firstTime(within(pour, 2), (body) => body.settled);
+    expect(landedAt).not.toBeNull();
     expect(settledAt).not.toBeNull();
-    expect(settledAt).toBeLessThan(0.9);
+    const lingered = (settledAt ?? 0) - (landedAt ?? 0);
+    expect(lingered).toBeGreaterThan(0.6);
+    expect(lingered).toBeLessThan(1);
   });
 });
 
@@ -429,8 +435,9 @@ describe("a pill's liquid", () => {
 
   it("is frozen in the target's pill again within about as long as a thumb", () => {
     const frozenAt = firstTime(pillPour, (body) => body.set === 1, 0.1);
+    const thumbFrozenAt = firstTime(pour, (body) => body.set === 1, 0.1);
     expect(frozenAt).not.toBeNull();
-    expect(frozenAt).toBeLessThan(0.65);
+    expect(frozenAt).toBeLessThan((thumbFrozenAt ?? 0) + 0.1);
     const body = last(pillPour);
     expect(body.settled).toBe(true);
     expect(mean(body.x)).toBeCloseTo(POUR_ON.target, 0);
@@ -528,95 +535,95 @@ describe("a pill's liquid", () => {
 });
 
 /**
- * A thumb's pour at commit 2f741354, which the user approved: the mean
- * position, the bead count, `calm` and `set` at fixed frames, for a `md`
- * Switch, the widest Switch (`sm`, 2.29) and a margin past it, aimed and
- * not, and for a toggle back in the middle of the pour. The pill's liquid
- * must not change any of it.
+ * A thumb's pour as the user tuned and approved it: the mean position, the
+ * bead count, `calm` and `set` at fixed frames, for a `md` Switch, the
+ * widest Switch (`sm`, 2.29) and a margin past it, aimed and not, and for a
+ * toggle back in the middle of the pour. The pill's liquid must not change
+ * any of it.
  */
 const THUMB_POURS = [
   {
     travel: 2.2,
     aim: 0,
     pour: [
-      [3, 0.15426, -0.00159, 1, 0.0, 0.55],
-      [6, 0.53779, -0.00003, 2, 0.0, 0.1],
-      [9, 1.12901, 0.00144, 4, 0.0, 0.0],
-      [12, 1.88888, 0.00262, 5, 0.0, 0.0],
-      [15, 2.37157, 0.00512, 5, 0.15, 0.15],
-      [18, 2.28749, 0.00085, 5, 0.3, 0.3],
-      [24, 2.10282, 0.0038, 5, 0.6, 0.6],
-      [30, 2.17518, 0.0057, 0, 0.9, 0.9],
-      [40, 2.19133, 0.00465, 0, 1.0, 1.0],
-      [60, 2.19121, 0.00286, 0, 1.0, 1.0],
+      [3, 0.15425, -0.00161, 1, 0, 0.55],
+      [6, 0.53806, -0.00015, 2, 0, 0.1],
+      [9, 1.1298, 0.00123, 4, 0, 0],
+      [12, 1.89487, 0.00236, 5, 0, 0],
+      [15, 2.4057, 0.00364, 5, 0, 0],
+      [18, 2.28797, -0.00328, 5, 0.04167, 0.1],
+      [24, 2.02909, -0.00299, 5, 0.16667, 0.4],
+      [30, 2.16461, -0.00335, 0, 0.29167, 0.4],
+      [40, 2.18838, 0.00067, 0, 0.5, 0.4],
+      [60, 2.19295, 0.00121, 0, 0.91667, 1],
     ],
     back: [
-      [3, 0.15426, -0.00159, 1, 0.0, 0.55],
-      [6, 0.53779, -0.00003, 2, 0.0, 0.1],
-      [9, 1.08952, 0.00144, 4, 0.0, 0.0],
-      [12, 1.3718, 0.00263, 5, 0.0, 0.0],
-      [15, 1.32065, 0.00356, 6, 0.0, 0.0],
-      [18, 0.99385, 0.00426, 7, 0.0, 0.0],
-      [24, -0.07215, 0.00524, 6, 0.1, 0.1],
-      [30, 0.0068, -0.00035, 2, 0.4, 0.4],
-      [40, 0.02038, 0.00257, 0, 0.9, 0.9],
-      [60, 0.00733, 0.00184, 0, 1.0, 1.0],
+      [3, 0.15425, -0.00161, 1, 0, 0.55],
+      [6, 0.53806, -0.00015, 2, 0, 0.1],
+      [9, 1.09042, 0.00123, 4, 0, 0],
+      [12, 1.374, 0.00236, 5, 0, 0],
+      [15, 1.324, 0.00324, 6, 0, 0],
+      [18, 0.99792, 0.00391, 7, 0, 0],
+      [24, -0.09992, 0.00985, 6, 0.04167, 0.1],
+      [30, 0.0305, 0.00314, 2, 0.16667, 0.4],
+      [40, 0.02925, 0.00721, 0, 0.375, 0.4],
+      [60, 0.00583, -0.00769, 0, 0.79167, 0.9],
     ],
   },
   {
     travel: 2.29,
     aim: 1,
     pour: [
-      [3, 0.15438, 0.01143, 1, 0.0, 0.55],
-      [6, 0.53851, 0.04601, 2, 0.0, 0.1],
-      [9, 1.1258, 0.10525, 4, 0.0, 0.0],
-      [12, 1.87458, 0.18051, 5, 0.0, 0.0],
-      [15, 2.40228, 0.1933, 5, 0.15, 0.15],
-      [18, 2.36049, 0.10297, 5, 0.3, 0.3],
-      [24, 2.20687, 0.02873, 5, 0.6, 0.6],
-      [30, 2.26641, 0.02115, 0, 0.9, 0.9],
-      [40, 2.2785, 0.02161, 0, 1.0, 1.0],
-      [60, 2.27783, 0.02336, 0, 1.0, 1.0],
+      [3, 0.15437, 0.01144, 1, 0, 0.55],
+      [6, 0.53863, 0.04593, 2, 0, 0.1],
+      [9, 1.12634, 0.1051, 4, 0, 0],
+      [12, 1.8781, 0.18066, 5, 0, 0],
+      [15, 2.4306, 0.19045, 5, 0.0625, 0.15],
+      [18, 2.36835, 0.08449, 5, 0.125, 0.3],
+      [24, 2.15174, -0.01785, 5, 0.25, 0.4],
+      [30, 2.25528, -0.03574, 0, 0.375, 0.4],
+      [40, 2.27738, -0.02162, 0, 0.58333, 0.4],
+      [60, 2.28303, -0.01291, 0, 1, 1],
     ],
     back: [
-      [3, 0.15438, 0.01143, 1, 0.0, 0.55],
-      [6, 0.53851, 0.04601, 2, 0.0, 0.1],
-      [9, 1.08635, 0.10519, 4, 0.0, 0.0],
-      [12, 1.36018, 0.18097, 4, 0.0, 0.0],
-      [15, 1.30554, 0.26155, 5, 0.0, 0.0],
-      [18, 0.99261, 0.32555, 6, 0.0, 0.0],
-      [24, 0.06131, 0.30731, 6, 0.1, 0.1],
-      [30, 0.02319, 0.11443, 3, 0.4, 0.4],
-      [40, 0.01532, 0.06862, 0, 0.9, 0.9],
-      [60, 0.01393, 0.06767, 0, 1.0, 1.0],
+      [3, 0.15437, 0.01144, 1, 0, 0.55],
+      [6, 0.53863, 0.04593, 2, 0, 0.1],
+      [9, 1.08704, 0.10506, 4, 0, 0],
+      [12, 1.36212, 0.181, 4, 0, 0],
+      [15, 1.30902, 0.26378, 5, 0, 0],
+      [18, 0.99695, 0.32793, 6, 0, 0],
+      [24, 0.04455, 0.31011, 5, 0.04167, 0.1],
+      [30, 0.02409, 0.0841, 2, 0.16667, 0.4],
+      [40, 0.01162, 0.01022, 0, 0.375, 0.4],
+      [60, 0.0081, -0.00054, 0, 0.79167, 0.9],
     ],
   },
   {
     travel: 2.5,
     aim: -1,
     pour: [
-      [3, 0.15434, -0.01469, 1, 0.0, 0.55],
-      [6, 0.53861, -0.04671, 2, 0.0, 0.1],
-      [9, 1.12904, -0.10377, 4, 0.0, 0.0],
-      [12, 1.89005, -0.17818, 6, 0.0, 0.0],
-      [15, 2.56356, -0.21357, 6, 0.1, 0.1],
-      [18, 2.60371, -0.12501, 6, 0.25, 0.25],
-      [24, 2.411, -0.02584, 6, 0.55, 0.55],
-      [30, 2.46915, -0.01369, 1, 0.85, 0.85],
-      [40, 2.4901, -0.01515, 0, 1.0, 1.0],
-      [60, 2.48921, -0.0181, 0, 1.0, 1.0],
+      [3, 0.15434, -0.01471, 1, 0, 0.55],
+      [6, 0.53885, -0.04661, 2, 0, 0.1],
+      [9, 1.12973, -0.10358, 4, 0, 0],
+      [12, 1.89214, -0.17814, 6, 0, 0],
+      [15, 2.58901, -0.21195, 6, 0.04167, 0.1],
+      [18, 2.62107, -0.10991, 6, 0.10417, 0.25],
+      [24, 2.35897, 0.0131, 6, 0.22917, 0.4],
+      [30, 2.45783, 0.03969, 1, 0.35417, 0.4],
+      [40, 2.48713, 0.03067, 0, 0.5625, 0.4],
+      [60, 2.48997, 0.01304, 0, 0.97917, 1],
     ],
     back: [
-      [3, 0.15434, -0.01469, 1, 0.0, 0.55],
-      [6, 0.53861, -0.04671, 2, 0.0, 0.1],
-      [9, 1.08945, -0.1037, 4, 0.0, 0.0],
-      [12, 1.36783, -0.1781, 5, 0.0, 0.0],
-      [15, 1.31535, -0.25947, 6, 0.0, 0.0],
-      [18, 1.00403, -0.32323, 7, 0.0, 0.0],
-      [24, 0.06124, -0.30564, 7, 0.1, 0.1],
-      [30, 0.02212, -0.11242, 2, 0.4, 0.4],
-      [40, 0.01476, -0.06655, 0, 0.9, 0.9],
-      [60, 0.01077, -0.06636, 0, 1.0, 1.0],
+      [3, 0.15434, -0.01471, 1, 0, 0.55],
+      [6, 0.53885, -0.04661, 2, 0, 0.1],
+      [9, 1.09029, -0.10354, 4, 0, 0],
+      [12, 1.36958, -0.1781, 5, 0, 0],
+      [15, 1.31802, -0.26024, 6, 0, 0],
+      [18, 1.00704, -0.32581, 7, 0, 0],
+      [24, 0.04627, -0.31035, 7, 0.04167, 0.1],
+      [30, 0.0205, -0.08114, 2, 0.16667, 0.4],
+      [40, 0.01279, -0.00366, 0, 0.375, 0.4],
+      [60, 0.00654, 0, 0, 0.79167, 0.9],
     ],
   },
 ] as const;
@@ -791,8 +798,11 @@ describe("simulateLiquid and settleLiquid", () => {
     );
     expect(shed.size).toBeGreaterThanOrEqual(4);
     const settledAt = firstTime(late, (body) => body.settled);
+    const referenceSettledAt = firstTime(pour, (body) => body.settled);
     expect(settledAt).not.toBeNull();
-    expect(settledAt).toBeLessThan(0.9);
+    expect(Math.abs((settledAt ?? 0) - (referenceSettledAt ?? 0))).toBeLessThan(
+      0.1,
+    );
     const body = last(late);
     expect(mean(body.x)).toBeCloseTo(TRAVEL, 1);
     expect(body.beads).toHaveLength(0);
@@ -816,7 +826,7 @@ describe("simulateLiquid and settleLiquid", () => {
     }
     const settledAt = firstTime(late, (body) => body.settled);
     expect(settledAt).not.toBeNull();
-    expect(settledAt).toBeLessThan(1);
+    expect(settledAt).toBeLessThan(1.25);
     expect(mean(last(late).x)).toBeCloseTo(TRAVEL, 1);
   });
 });

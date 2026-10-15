@@ -1,3 +1,4 @@
+import { clamp } from "../clamp.ts";
 import { indicesIn, peersOf } from "./plan-scopes.ts";
 import type {
   EffectElementRecord,
@@ -125,9 +126,6 @@ interface Box {
   readonly width: number;
   readonly height: number;
 }
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
 
 const isIn = ({ firstElement, elementCount }: ElementRange, index: number) =>
   index >= firstElement && index < firstElement + elementCount;

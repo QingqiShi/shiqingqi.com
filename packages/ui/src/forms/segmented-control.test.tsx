@@ -490,15 +490,15 @@ describe("SegmentedControl liquid effect", () => {
     const { track, liquid } = renderLiquid();
     expect(liquid()).toMatchObject({
       position: 0,
+      drag: null,
       pressed: false,
-      aim: 0,
     });
     expect(track.querySelector("[data-liquid-indicator]")).toBe(
       track.firstElementChild,
     );
   });
 
-  it("pours to the segment a click selects, aimed at where it was pressed", () => {
+  it("moves to the segment a click selects", () => {
     const { liquid } = renderLiquid();
     const overview = screen.getByRole("radio", { name: "Overview" });
     const press = {
@@ -510,15 +510,13 @@ describe("SegmentedControl liquid effect", () => {
 
     fireEvent.pointerDown(overview, press);
     expect(liquid()).toMatchObject({ position: 1, pressed: true });
-    expect(liquid()?.aim).toBeCloseTo(-0.8);
 
     fireEvent.pointerUp(overview, press);
     fireEvent.click(overview, { detail: 1 });
     expect(liquid()).toMatchObject({ position: 1, pressed: false });
-    expect(liquid()?.aim).toBeCloseTo(-0.8);
   });
 
-  it("thaws only while a press is on the track", () => {
+  it("is pressed only while a press is on the track", () => {
     const { track, liquid } = renderLiquid();
     fireEvent.pointerDown(track, {
       pointerId: 1,
@@ -538,27 +536,14 @@ describe("SegmentedControl liquid effect", () => {
     expect(liquid()?.pressed).toBe(false);
   });
 
-  it("aims a selection by arrow key at the centre line", async () => {
+  it("moves to the segment an arrow key selects, with no press", async () => {
     const user = userEvent.setup();
-    const { track, liquid } = renderLiquid();
-    fireEvent.pointerDown(track, {
-      pointerId: 1,
-      clientY: 88,
-      button: 0,
-      pointerType: "mouse",
-    });
-    fireEvent.pointerUp(track, {
-      pointerId: 1,
-      clientY: 88,
-      button: 0,
-      pointerType: "mouse",
-    });
-    expect(liquid()?.aim).toBeCloseTo(0.9);
+    const { liquid } = renderLiquid();
 
     screen.getByRole("radio", { name: "Daily" }).focus();
     await user.keyboard("{ArrowRight}");
 
-    expect(liquid()).toMatchObject({ position: 1, aim: 0 });
+    expect(liquid()).toMatchObject({ position: 1, pressed: false });
   });
 
   it('draws no effect with effect="none"', () => {
@@ -673,7 +658,6 @@ describe("SegmentedControl drag", () => {
     fireEvent.click(month, { detail: 1 });
     expect(onChange).toHaveBeenCalledExactlyOnceWith("month");
     expect(liquid()).toMatchObject({ position: 2, drag: null, pressed: false });
-    expect(liquid()?.aim).toBeCloseTo(-0.8);
     expect(month).toBeChecked();
   });
 

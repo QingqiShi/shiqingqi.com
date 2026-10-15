@@ -967,56 +967,49 @@ describe("Switch Component", () => {
         </EffectLayerContext>,
       );
       const switchElement = screen.getByRole("switch");
-      const aim = () =>
-        registry.elements().get(switchElement)?.settings.liquid?.aim;
-      return { switchElement, aim };
+      const liquid = () =>
+        registry.elements().get(switchElement)?.settings.liquid;
+      return { switchElement, liquid };
     }
 
-    it("draws the liquid by default", () => {
-      const { aim } = renderLiquid();
-      expect(aim()).toBe(0);
+    it("draws the liquid by default, resting at the off end", () => {
+      const { liquid } = renderLiquid();
+      expect(liquid()).toMatchObject({
+        position: 0,
+        drag: null,
+        pressed: false,
+      });
     });
 
     it('draws no effect with effect="none"', () => {
-      const { switchElement, aim } = renderLiquid("none");
+      const { switchElement, liquid } = renderLiquid("none");
       fireEvent.keyDown(switchElement, { code: "Enter" });
       expect(switchElement).toBeChecked();
-      expect(aim()).toBeUndefined();
+      expect(liquid()).toBeUndefined();
     });
 
     it.each(["mouse", "touch", "pen"])(
-      "aims the liquid at where a %s press toggles it across the track",
+      "moves the thumb across the track when a %s press toggles it",
       (pointerType) => {
-        const { switchElement, aim } = renderLiquid();
-        const press = (clientY: number) => {
-          const point = { pointerId: 1, clientX: 120, clientY, button: 0 };
-          fireEvent.pointerDown(switchElement, { ...point, pointerType });
-          fireEvent.pointerUp(switchElement, { ...point, pointerType });
-        };
+        const { switchElement, liquid } = renderLiquid();
+        const point = { pointerId: 1, clientX: 120, clientY: 55, button: 0 };
 
-        press(55);
+        fireEvent.pointerDown(switchElement, { ...point, pointerType });
+        expect(liquid()).toMatchObject({ position: 0, pressed: true });
+
+        fireEvent.pointerUp(switchElement, { ...point, pointerType });
         expect(switchElement).toBeChecked();
-        expect(aim()).toBeCloseTo(-0.8);
-
-        press(75);
-        expect(aim()).toBeCloseTo(0);
-
-        press(140);
-        expect(aim()).toBe(1);
+        expect(liquid()).toMatchObject({ position: 1, pressed: false });
       },
     );
 
-    it("aims the liquid at the centre line on a toggle with no press point", () => {
-      const { switchElement, aim } = renderLiquid();
-      const point = { pointerId: 1, clientX: 120, clientY: 55, button: 0 };
-      fireEvent.pointerDown(switchElement, { ...point, pointerType: "mouse" });
-      fireEvent.pointerUp(switchElement, { ...point, pointerType: "mouse" });
-      expect(aim()).toBeCloseTo(-0.8);
+    it("moves the thumb on a toggle with no press", () => {
+      const { switchElement, liquid } = renderLiquid();
 
       fireEvent.keyDown(switchElement, { code: "Enter" });
 
-      expect(switchElement).not.toBeChecked();
-      expect(aim()).toBe(0);
+      expect(switchElement).toBeChecked();
+      expect(liquid()).toMatchObject({ position: 1, pressed: false });
     });
   });
 });
