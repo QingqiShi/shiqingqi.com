@@ -31,6 +31,7 @@ function account(
     institution: "",
     institutionDomain: null,
     guessedInstitutionDomain: null,
+    institutionIconVersion: null,
     kind,
     currency: "GBP",
     excludedFromNetWorth: false,

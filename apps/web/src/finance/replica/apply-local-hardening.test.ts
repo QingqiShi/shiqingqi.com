@@ -40,6 +40,54 @@ describe("applyLocal mirrors the server", () => {
     ).toThrow(/close/);
   });
 
+  it("drops the icon version only when the domain the account shows changes", async () => {
+    const rows = testReplicaRows();
+    const { store } = await createTestReplica({
+      ...rows,
+      accounts: (rows.accounts ?? []).map((account) =>
+        account.id === TEST_IDS.current || account.id === TEST_IDS.card
+          ? {
+              ...account,
+              institution: "Barclay",
+              guessedInstitutionDomain: "barclays.co.uk",
+              institutionIconVersion: "v1",
+            }
+          : account,
+      ),
+    });
+    const account = (id: string) => store.getSnapshot().tables.accounts.get(id);
+
+    store.applyLocal({
+      name: "upsertAccount",
+      args: { id: TEST_IDS.current, institutionDomain: "barclays.co.uk" },
+    });
+    expect(account(TEST_IDS.current)?.institutionIconVersion).toBe("v1");
+
+    store.applyLocal({
+      name: "upsertAccount",
+      args: { id: TEST_IDS.current, institution: "Wise" },
+    });
+    expect(account(TEST_IDS.current)).toMatchObject({
+      guessedInstitutionDomain: null,
+      institutionIconVersion: "v1",
+    });
+
+    store.applyLocal({
+      name: "upsertAccount",
+      args: { id: TEST_IDS.current, institutionDomain: "monzo.com" },
+    });
+    expect(account(TEST_IDS.current)?.institutionIconVersion).toBeNull();
+
+    store.applyLocal({
+      name: "upsertAccount",
+      args: { id: TEST_IDS.card, institution: "Wise" },
+    });
+    expect(account(TEST_IDS.card)).toMatchObject({
+      guessedInstitutionDomain: null,
+      institutionIconVersion: null,
+    });
+  });
+
   it("lets a member only move In transit", async () => {
     const rows = testReplicaRows();
     const current = rows.accounts?.find(

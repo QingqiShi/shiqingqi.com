@@ -8,12 +8,17 @@ import {
   withHousehold,
   type FinanceAppDb,
 } from "../db/with-household.ts";
-import { institutionDomainOf } from "../domain/accounts/institution-fields-after.ts";
+import {
+  institutionDomainOf,
+  type InstitutionDomainFields,
+} from "../domain/accounts/institution-fields-after.ts";
 import { institutionNameKey } from "../domain/accounts/institution-name-key.ts";
+import type { AccountRow } from "../sync/row-schemas.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import {
   domainGuessKeyId,
   institutionCacheRepository,
+  institutionIconVersionOf,
   type DomainGuessKey,
 } from "./institution-cache-repository.ts";
 
@@ -52,6 +57,7 @@ interface AccountInstitution {
   institution: string;
   institutionDomain: string | null;
   guessedInstitutionDomain: string | null;
+  institutionIconVersion: string | null;
   currency: string;
 }
 
@@ -87,6 +93,62 @@ function guessFor(
   if (key === null) return null;
   const answer = answers.get(domainGuessKeyId(key));
   return answer === undefined ? account.guessedInstitutionDomain : answer;
+}
+
+/** The domain fields of the account with the guess that `guessFor` gives. */
+function domainFieldsAfterGuess(
+  account: AccountInstitution,
+  baseCurrency: string,
+  answers: ReadonlyMap<string, string | null>,
+): InstitutionDomainFields {
+  return {
+    institutionDomain: account.institutionDomain,
+    guessedInstitutionDomain: guessFor(
+      account,
+      guessKeyOf(account, baseCurrency),
+      answers,
+    ),
+  };
+}
+
+/**
+ * The accounts whose server fields are not what they must be, with the
+ * fields they must hold: the guess that `guessFor` gives, and the version in
+ * `versions` of the domain that the account then shows. An account that
+ * shows a domain that is not in `versions` keeps its version, because the
+ * write that gave it that domain also set the version.
+ */
+function staleInstitutionFields(
+  accounts: readonly AccountInstitution[],
+  baseCurrency: string,
+  answers: ReadonlyMap<string, string | null>,
+  versions: ReadonlyMap<string, string | null>,
+) {
+  const stale = new Map<
+    string,
+    Pick<AccountRow, "guessedInstitutionDomain" | "institutionIconVersion">
+  >();
+  for (const account of accounts) {
+    const after = domainFieldsAfterGuess(account, baseCurrency, answers);
+    const domain = institutionDomainOf(after);
+    const keepsVersion =
+      domain !== null &&
+      !versions.has(domain) &&
+      domain === institutionDomainOf(account);
+    const version = keepsVersion
+      ? account.institutionIconVersion
+      : institutionIconVersionOf(after, versions);
+    if (
+      after.guessedInstitutionDomain !== account.guessedInstitutionDomain ||
+      version !== account.institutionIconVersion
+    ) {
+      stale.set(account.id, {
+        guessedInstitutionDomain: after.guessedInstitutionDomain,
+        institutionIconVersion: version,
+      });
+    }
+  }
+  return stale;
 }
 
 /** The items, the most counted first, else in their first order. */
@@ -152,15 +214,16 @@ async function attempt<T>(db: FinanceDb, timeoutMs: number, work: Work<T>) {
 }
 
 /**
- * Works out the institution icon of every account of one Household: guesses
- * the domain of each institution name whose guess key has no answer (from
- * the global cache, else from the model), fetches the icon of each domain
- * that is due, then writes the changed guesses to the accounts in one server
- * write, so that clients see them on their next pull. A failed guess or
- * fetch is recorded in the cache and tried again by a later run. The names
- * and domains of the most accounts go first, so that they get the time when
- * the run ends before all work is done. Work that another run holds is
- * skipped, and this run goes on to the next.
+ * Works out the institution icon and its version for every account of one
+ * Household: guesses the domain of each institution name whose guess key
+ * has no answer (from the global cache, else from the model), fetches the
+ * icon of each domain that is due, then writes the changed guesses and icon
+ * versions to the accounts in one server write, so that clients see them on
+ * their next pull. A failed guess or fetch is recorded in the cache and
+ * tried again by a later run. The names and domains of the most accounts go
+ * first, so that they get the time when the run ends before all work is
+ * done. Work that another run holds is skipped, and this run goes on to the
+ * next.
  */
 export async function refreshInstitutionIcons(
   db: FinanceDb,
@@ -189,16 +252,13 @@ export async function refreshInstitutionIcons(
       accounts: await accountRepository.listInstitutionFields(scope),
     }),
   );
-  const keyOf = new Map(
-    accounts.map((account) => [account.id, guessKeyOf(account, baseCurrency)]),
-  );
   const toGuess = new Map<
     string,
     { key: DomainGuessKey; name: string; accounts: number }
   >();
   const keys = new Map<string, DomainGuessKey>();
   for (const account of accounts) {
-    const key = keyOf.get(account.id);
+    const key = guessKeyOf(account, baseCurrency);
     if (!key) continue;
     const id = domainGuessKeyId(key);
     keys.set(id, key);
@@ -250,20 +310,15 @@ export async function refreshInstitutionIcons(
 
   const accountsOfDomain = new Map<string, number>();
   for (const account of accounts) {
-    const domain = institutionDomainOf({
-      institutionDomain: account.institutionDomain,
-      guessedInstitutionDomain: guessFor(
-        account,
-        keyOf.get(account.id) ?? null,
-        answers,
-      ),
-    });
+    const domain = institutionDomainOf(
+      domainFieldsAfterGuess(account, baseCurrency, answers),
+    );
     if (domain !== null) {
       accountsOfDomain.set(domain, (accountsOfDomain.get(domain) ?? 0) + 1);
     }
   }
-  const dueIcons = await asFinanceApp(db, (app) =>
-    institutionCacheRepository.findDueIcons(
+  const { due: dueIcons, versions } = await asFinanceApp(db, (app) =>
+    institutionCacheRepository.findIconsToRefresh(
       app,
       [...accountsOfDomain.keys()],
       dependencies.now(),
@@ -288,6 +343,7 @@ export async function refreshInstitutionIcons(
             { image, version },
             now,
           );
+          versions.set(domain, version);
           return true;
         },
         fail: (app, attempts) =>
@@ -297,30 +353,25 @@ export async function refreshInstitutionIcons(
     },
   );
 
-  const isStale = accounts.some(
-    (account) =>
-      guessFor(account, keyOf.get(account.id) ?? null, answers) !==
-      account.guessedInstitutionDomain,
-  );
-  if (!isStale) return result;
+  if (
+    staleInstitutionFields(accounts, baseCurrency, answers, versions).size === 0
+  ) {
+    return result;
+  }
 
   const { result: updated } = await runServerWrite(
     db,
     householdId,
     dependencies.now(),
     async (context) => {
-      const base = context.household.baseCurrency;
-      const changed = new Map<string, string | null>();
-      for (const account of await accountRepository.listInstitutionFields(
-        context.scope,
-      )) {
-        const guess = guessFor(account, guessKeyOf(account, base), answers);
-        if (guess !== account.guessedInstitutionDomain) {
-          changed.set(account.id, guess);
-        }
-      }
+      const changed = staleInstitutionFields(
+        await accountRepository.listInstitutionFields(context.scope),
+        context.household.baseCurrency,
+        answers,
+        versions,
+      );
       if (changed.size > 0) {
-        await accountRepository.setGuessedInstitutionDomains(
+        await accountRepository.setServerInstitutionFields(
           context.scope,
           changed,
         );

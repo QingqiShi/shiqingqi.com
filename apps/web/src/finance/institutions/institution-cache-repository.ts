@@ -1,17 +1,11 @@
-import {
-  and,
-  eq,
-  gt,
-  inArray,
-  isNotNull,
-  isNull,
-  lte,
-  or,
-  sql,
-} from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, lte, or, sql } from "drizzle-orm";
 import type { InstitutionHints } from "../ai/guess-institution-domain.ts";
 import { institutionDomainGuesses, institutionIcons } from "../db/schema.ts";
 import type { FinanceAppDb } from "../db/with-household.ts";
+import {
+  institutionDomainOf,
+  type InstitutionDomainFields,
+} from "../domain/accounts/institution-fields-after.ts";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -37,6 +31,23 @@ export interface DomainGuessKey extends InstitutionHints {
 /** One string for each guess key, to use as a Map key. */
 export function domainGuessKeyId(key: DomainGuessKey) {
   return JSON.stringify([key.nameKey, key.baseCurrency, key.accountCurrency]);
+}
+
+const hasIcon = and(
+  isNotNull(institutionIcons.image),
+  isNotNull(institutionIcons.version),
+);
+
+/**
+ * The version of the cached icon of the domain that `account` shows, from
+ * `versions` by domain; null when that domain has no icon.
+ */
+export function institutionIconVersionOf(
+  account: InstitutionDomainFields,
+  versions: ReadonlyMap<string, string | null>,
+) {
+  const domain = institutionDomainOf(account);
+  return domain === null ? null : (versions.get(domain) ?? null);
 }
 
 function isGuessFor(key: DomainGuessKey) {
@@ -134,46 +145,58 @@ export const institutionCacheRepository = {
       .where(isGuessFor(key));
   },
 
-  /** The domains among `domains` whose first fetch, refresh or retry is due at `now`. */
-  async findDueIcons(db: FinanceAppDb, domains: readonly string[], now: Date) {
-    if (domains.length === 0) return [];
-    const rows = await db
-      .select({ domain: institutionIcons.domain })
-      .from(institutionIcons)
-      .where(
-        and(
-          inArray(institutionIcons.domain, [...domains]),
-          gt(institutionIcons.nextAttemptAt, now),
-        ),
-      );
-    const notDue = new Set(rows.map((row) => row.domain));
-    return domains.filter((domain) => !notDue.has(domain));
-  },
-
-  async findIconVersion(db: FinanceAppDb, domain: string) {
-    const rows = await db
-      .select({ version: institutionIcons.version })
-      .from(institutionIcons)
-      .where(
-        and(
-          eq(institutionIcons.domain, domain),
-          isNotNull(institutionIcons.image),
-        ),
-      );
-    return rows.at(0)?.version ?? null;
-  },
-
-  async findIcon(db: FinanceAppDb, domain: string) {
+  /**
+   * The domains among `domains` whose first fetch, refresh or retry is due
+   * at `now`, and the icon version of each of `domains`: null when it has no
+   * icon.
+   */
+  async findIconsToRefresh(
+    db: FinanceAppDb,
+    domains: readonly string[],
+    now: Date,
+  ) {
+    const versions = new Map<string, string | null>(
+      domains.map((domain) => [domain, null]),
+    );
+    if (domains.length === 0) return { due: [], versions };
     const rows = await db
       .select({
-        image: institutionIcons.image,
-        version: institutionIcons.version,
+        domain: institutionIcons.domain,
+        nextAttemptAt: institutionIcons.nextAttemptAt,
+        version: sql<
+          string | null
+        >`case when ${hasIcon} then ${institutionIcons.version} end`,
       })
       .from(institutionIcons)
-      .where(eq(institutionIcons.domain, domain));
-    const row = rows.at(0);
-    if (!row?.image || !row.version) return null;
-    return { image: row.image, version: row.version };
+      .where(inArray(institutionIcons.domain, [...domains]));
+    const notDue = new Set<string>();
+    for (const row of rows) {
+      if (row.nextAttemptAt > now) notDue.add(row.domain);
+      versions.set(row.domain, row.version);
+    }
+    return { due: domains.filter((domain) => !notDue.has(domain)), versions };
+  },
+
+  /** The icon version of each domain among `domains` that has an icon, by domain. */
+  async findIconVersions(db: FinanceAppDb, domains: readonly string[]) {
+    if (domains.length === 0) return new Map<string, string>();
+    const rows = await db
+      .select({
+        domain: institutionIcons.domain,
+        version: sql<string>`${institutionIcons.version}`,
+      })
+      .from(institutionIcons)
+      .where(and(inArray(institutionIcons.domain, [...domains]), hasIcon));
+    return new Map(rows.map((row) => [row.domain, row.version]));
+  },
+
+  /** The icon image of the domain, or null when it has no icon. */
+  async findIconImage(db: FinanceAppDb, domain: string) {
+    const rows = await db
+      .select({ image: institutionIcons.image })
+      .from(institutionIcons)
+      .where(and(eq(institutionIcons.domain, domain), hasIcon));
+    return rows.at(0)?.image ?? null;
   },
 
   /** Claims the domain for one fetch and returns the count of tries since the last success. Null when another worker holds it, or its refresh or retry is not due. */

@@ -1,4 +1,5 @@
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import type { AccountRow } from "../../sync/row-schemas.ts";
 import { accounts, bankLinks, entries, valuations } from "../schema.ts";
 import { softDeletePatch } from "./soft-delete-patch.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
@@ -10,6 +11,11 @@ type NewAccount = Omit<
 type AccountPatch = Partial<Omit<NewAccount, "id">> & {
   deleted?: boolean;
 };
+
+type ServerInstitutionFields = Pick<
+  AccountRow,
+  "guessedInstitutionDomain" | "institutionIconVersion"
+>;
 
 export const accountRepository = {
   /** True when a live Entry, Valuation or Bank link uses the account. */
@@ -156,6 +162,7 @@ export const accountRepository = {
         institution: accounts.institution,
         institutionDomain: accounts.institutionDomain,
         guessedInstitutionDomain: accounts.guessedInstitutionDomain,
+        institutionIconVersion: accounts.institutionIconVersion,
         currency: accounts.currency,
       })
       .from(accounts)
@@ -169,29 +176,32 @@ export const accountRepository = {
       .orderBy(accounts.position, accounts.id);
   },
 
-  /** Sets the guessed institution domain of each account in `guesses`, by account id. */
-  async setGuessedInstitutionDomains(
+  /** Sets the guessed institution domain and the icon version of each account in `updates`, by account id. */
+  async setServerInstitutionFields(
     scope: WriteScope,
-    guesses: ReadonlyMap<string, string | null>,
+    updates: ReadonlyMap<string, ServerInstitutionFields>,
   ) {
-    if (guesses.size === 0) return;
-    const cases = sql.join(
-      [...guesses].map(
-        ([id, domain]) => sql`when ${accounts.id} = ${id} then ${domain}::text`,
-      ),
-      sql` `,
-    );
+    if (updates.size === 0) return;
+    const caseOf = (field: keyof ServerInstitutionFields) =>
+      sql`case ${sql.join(
+        [...updates].map(
+          ([id, fields]) =>
+            sql`when ${accounts.id} = ${id} then ${fields[field]}::text`,
+        ),
+        sql` `,
+      )} end`;
     await scope.db
       .update(accounts)
       .set({
-        guessedInstitutionDomain: sql`case ${cases} end`,
+        guessedInstitutionDomain: caseOf("guessedInstitutionDomain"),
+        institutionIconVersion: caseOf("institutionIconVersion"),
         version: scope.version,
         updatedAt: sql`now()`,
       })
       .where(
         and(
           eq(accounts.householdId, scope.householdId),
-          inArray(accounts.id, [...guesses.keys()]),
+          inArray(accounts.id, [...updates.keys()]),
         ),
       );
   },

@@ -15,6 +15,7 @@ function account(id: string, currency: string): AccountRow {
     institution: "",
     institutionDomain: null,
     guessedInstitutionDomain: null,
+    institutionIconVersion: null,
     kind: "cash",
     currency,
     excludedFromNetWorth: false,

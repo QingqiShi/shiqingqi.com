@@ -161,6 +161,30 @@ async function accountRow(id: string) {
   };
 }
 
+async function accountIconVersion(id: string) {
+  const rows = await db
+    .select({ version: accounts.institutionIconVersion })
+    .from(accounts)
+    .where(eq(accounts.id, id));
+  return rows.at(0)?.version ?? null;
+}
+
+function pulledAccount(
+  pull: Awaited<ReturnType<typeof pullChanges>>,
+  id: string,
+) {
+  return (pull.tables.accounts ?? [])
+    .map((row) =>
+      z
+        .object({
+          id: z.string(),
+          institutionIconVersion: z.string().nullable(),
+        })
+        .parse(row),
+    )
+    .find((row) => row.id === id);
+}
+
 async function iconVersion(domain: string) {
   const rows = await db
     .select({ version: institutionIcons.version })
@@ -223,6 +247,102 @@ describe("refreshInstitutionIcons", () => {
     expect(await accountRow(other.currentId)).toMatchObject({
       guessedInstitutionDomain: "wise.com",
     });
+    expect(await accountIconVersion(other.currentId)).toBe(
+      await iconVersion("wise.com"),
+    );
+  });
+
+  it("gives an account no icon version until a fetch works, then a later pull carries the version", async () => {
+    sites.delete("wise.com");
+    await setInstitution(home, home.currentId, { institution: "Wise" });
+    await refresh();
+    expect(await accountIconVersion(home.currentId)).toBeNull();
+    const before = await pullChanges(db, home.householdId, 0);
+    expect(pulledAccount(before, home.currentId)).toMatchObject({
+      institutionIconVersion: null,
+    });
+
+    sites.set("wise.com", icon(2));
+    now = new Date(START.getTime() + HOUR_MS);
+    expect(await refresh(home.householdId, { model: false })).toMatchObject({
+      fetched: 1,
+      updated: 1,
+    });
+
+    const version = await iconVersion("wise.com");
+    expect(version).not.toBeNull();
+    const pulled = await pullChanges(db, home.householdId, before.clock);
+    expect(pulledAccount(pulled, home.currentId)).toEqual({
+      id: home.currentId,
+      institutionIconVersion: version,
+    });
+  });
+
+  it("gives an account the icon version of an icon that a run for another Household fetched", async () => {
+    await setInstitution(other, other.currentId, {
+      institutionDomain: "monzo.com",
+    });
+    await setInstitution(home, home.currentId, {
+      institutionDomain: "monzo.com",
+    });
+    await refresh(home.householdId);
+    expect(await accountIconVersion(other.currentId)).toBeNull();
+    const before = await pullChanges(db, other.householdId, 0);
+
+    expect(await refresh(other.householdId)).toMatchObject({
+      fetched: 0,
+      updated: 1,
+    });
+
+    const version = await iconVersion("monzo.com");
+    expect(version).not.toBeNull();
+    const pulled = await pullChanges(db, other.householdId, before.clock);
+    expect(pulledAccount(pulled, other.currentId)).toMatchObject({
+      institutionIconVersion: version,
+    });
+  });
+
+  it("sets the icon version as soon as a Member sets a domain whose icon is cached, and none for a domain without an icon", async () => {
+    await setInstitution(home, home.currentId, {
+      institutionDomain: "monzo.com",
+    });
+    await refresh();
+    const version = await iconVersion("monzo.com");
+    expect(version).not.toBeNull();
+
+    await setInstitution(home, home.savingsId, {
+      institutionDomain: "monzo.com",
+    });
+    expect(await accountIconVersion(home.savingsId)).toBe(version);
+
+    await setInstitution(home, home.savingsId, {
+      institutionDomain: "example.com",
+    });
+    expect(await accountIconVersion(home.savingsId)).toBeNull();
+  });
+
+  it("keeps the icon version that a Member's change during the run gave an account", async () => {
+    await setInstitution(other, other.currentId, {
+      institutionDomain: "monzo.com",
+    });
+    await refresh(other.householdId);
+    const version = await iconVersion("monzo.com");
+    expect(version).not.toBeNull();
+    await setInstitution(home, home.currentId, { institution: "Wise" });
+
+    await refresh(home.householdId, {
+      guessDomain: async () => {
+        await setInstitution(home, home.savingsId, {
+          institutionDomain: "monzo.com",
+        });
+        return "wise.com";
+      },
+    });
+
+    expect(await accountIconVersion(home.currentId)).toBe(
+      await iconVersion("wise.com"),
+    );
+    expect(await accountIconVersion(home.savingsId)).toBe(version);
   });
 
   it("keeps a separate guess for each pair of currencies that the model sees with a name", async () => {
@@ -442,7 +562,7 @@ describe("refreshInstitutionIcons", () => {
       guessed: 0,
       fetched: 1,
       failed: 1,
-      updated: 0,
+      updated: 1,
     });
     expect(fetches).toEqual(["monzo.com"]);
 

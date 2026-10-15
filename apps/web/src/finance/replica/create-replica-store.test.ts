@@ -109,6 +109,7 @@ function seedRows(): Partial<SyncRows> {
         institution: "",
         institutionDomain: null,
         guessedInstitutionDomain: null,
+        institutionIconVersion: null,
         kind: "cash",
         currency: "GBP",
         excludedFromNetWorth: false,

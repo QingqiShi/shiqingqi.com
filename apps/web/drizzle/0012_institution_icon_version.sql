@@ -1,0 +1,2 @@
+ALTER TABLE "accounts" ADD COLUMN "institution_icon_version" text;--> statement-breakpoint
+UPDATE "accounts" SET "institution_icon_version" = "institution_icons"."version" FROM "institution_icons" WHERE "institution_icons"."domain" = coalesce("accounts"."institution_domain", "accounts"."guessed_institution_domain") AND "institution_icons"."image" IS NOT NULL AND "institution_icons"."version" IS NOT NULL;

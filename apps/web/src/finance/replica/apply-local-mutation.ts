@@ -1,4 +1,7 @@
-import { institutionFieldsAfter } from "../domain/accounts/institution-fields-after.ts";
+import {
+  institutionDomainOf,
+  institutionFieldsAfter,
+} from "../domain/accounts/institution-fields-after.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { balanceAt } from "../domain/balance/balance-at.ts";
 import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
@@ -589,10 +592,17 @@ function upsertAccount(scope: Scope, args: Args<"upsertAccount">) {
     );
   }
   if (existing) {
-    row = {
+    const changed = {
       ...existing,
       ...fields,
       ...institutionFieldsAfter(existing, fields),
+    };
+    row = {
+      ...changed,
+      institutionIconVersion:
+        institutionDomainOf(changed) === institutionDomainOf(existing)
+          ? existing.institutionIconVersion
+          : null,
       updatedAt: context.now,
       deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
     };
@@ -610,6 +620,7 @@ function upsertAccount(scope: Scope, args: Args<"upsertAccount">) {
       institution: fields.institution ?? "",
       institutionDomain: fields.institutionDomain ?? null,
       guessedInstitutionDomain: null,
+      institutionIconVersion: null,
       kind,
       currency,
       excludedFromNetWorth: fields.excludedFromNetWorth ?? false,
