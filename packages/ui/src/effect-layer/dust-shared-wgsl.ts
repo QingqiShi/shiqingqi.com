@@ -1,3 +1,5 @@
+import { PCG_WGSL } from "./pcg-wgsl.ts";
+
 /**
  * The byte size of one `DustParticle`.
  *
@@ -55,12 +57,7 @@ struct DustElement {
   dark: u32,
 }
 
-fn pcg(value: u32) -> u32 {
-  let state = value * 747796405u + 2891336453u;
-  let word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-  return (word >> 22u) ^ word;
-}
-
+${PCG_WGSL}
 fn random(state: ptr<function, u32>) -> f32 {
   *state = pcg(*state);
   return f32(*state) / 4294967295.0;

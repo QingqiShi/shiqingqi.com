@@ -251,7 +251,7 @@ describe("TabBar liquid effect and drag", () => {
 
   it("draws the indicator as liquid by default, resting on the current tab", () => {
     const { liquid } = renderBar({ current: 1 });
-    expect(liquid()).toMatchObject({ position: 1, pressed: false, aim: 0 });
+    expect(liquid()).toMatchObject({ position: 1, drag: null, pressed: false });
   });
 
   it('draws no effect with effect="none"', () => {
@@ -259,7 +259,7 @@ describe("TabBar liquid effect and drag", () => {
     expect(liquid()).toBeUndefined();
   });
 
-  it("pours to the tab a press is on and holds it there while its page loads", () => {
+  it("moves to the tab a press is on and holds it there while its page loads", () => {
     const { links, liquid, followed, at, navigate } = renderBar();
 
     fireEvent.pointerDown(links[2], at(350));
@@ -373,16 +373,13 @@ describe("TabBar liquid effect and drag", () => {
     expect(style()).toBe(before);
   });
 
-  it("aims a keyboard selection at the centre line", async () => {
+  it("moves to the tab that the keyboard follows, with no press", async () => {
     const user = userEvent.setup();
-    const { track, links, liquid, at } = renderBar();
-
-    fireEvent.pointerDown(track, at(150, 110));
-    fireEvent.pointerUp(track, at(150, 110));
-    expect(liquid()?.aim).toBeCloseTo(0.875);
+    const { links, liquid, followed } = renderBar();
 
     links[1].focus();
     await user.keyboard("{Enter}");
-    expect(liquid()).toMatchObject({ position: 1, aim: 0 });
+    expect(followed).toEqual(["/activity"]);
+    expect(liquid()).toMatchObject({ position: 1, pressed: false });
   });
 });

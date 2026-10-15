@@ -244,11 +244,15 @@ describe.each(["light", "dark"] as const)("%s intent tints", (scheme) => {
   );
 });
 
-// `borderControl` and `bgControlStrong` are the only sign of an unselected
-// control: the edge of an empty checkbox or radio or a text field, the track of
-// an off switch. WCAG 1.4.11 holds them to 3:1 against every surface a control
-// sits on. `bgControlHover` is here because an option card hovers under its
-// selection mark.
+// `borderControl` is the only sign of an unselected control such as an empty
+// checkbox or radio or a text field: its edge. WCAG 1.4.11 holds it to 3:1
+// against every surface a control sits on. `bgControlHover` is here because
+// an option card hovers under its selection mark.
+//
+// The off track of a switch shows its edge with its fill, `bgControlStrong`,
+// or with the ring inside its edge, `borderControlStrong`. One of the two must
+// hold 3:1. Where the ring shows, the ring must hold it, and the fill does
+// not have to. In dark the fill is darker than the ring and does not.
 const NON_TEXT_RATIO = 3;
 
 const CONTROL_GROUNDS = [
@@ -263,10 +267,14 @@ const CONTROL_GROUNDS = [
 describe.each(["light", "dark"] as const)("%s control boundary", (scheme) => {
   const resolve = (token: Token) =>
     readCustomProperty(css, color[token])[scheme];
+  const offTrackEdge =
+    resolve("borderControlStrong") === "transparent"
+      ? "bgControlStrong"
+      : "borderControlStrong";
 
   it.each(
     CONTROL_GROUNDS.flatMap((ground) =>
-      (["borderControl", "bgControlStrong"] as const).map(
+      (["borderControl", offTrackEdge] as const).map(
         (boundary) => [boundary, ground] as const,
       ),
     ),
@@ -277,14 +285,54 @@ describe.each(["light", "dark"] as const)("%s control boundary", (scheme) => {
     );
   });
 
-  // The switch thumb is `fgOnAccent` both off and on, so it must hold 3:1 on
-  // both of its tracks.
-  it.each(["bgControlStrong", "bgAccent"] as const)(
-    "the switch thumb clears 3:1 against %s",
-    (track) => {
-      const ratio = contrastRatio(resolve("fgOnAccent"), resolve(track));
-      expect(ratio, `ratio ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
-        NON_TEXT_RATIO,
+  // The switch thumb is `fgOnControlStrong` both off and on, so it must hold
+  // 3:1 on both of its tracks, and on the ring inside the off track.
+  it.each([
+    ...new Set([
+      "bgControlStrong",
+      "bgControlStrongSelected",
+      offTrackEdge,
+    ] as const),
+  ])("the switch thumb clears 3:1 against %s", (track) => {
+    const ratio = contrastRatio(resolve("fgOnControlStrong"), resolve(track));
+    expect(ratio, `ratio ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+      NON_TEXT_RATIO,
+    );
+  });
+});
+
+// `fgControl` is the label of an unselected SegmentedControl option or TabBar
+// tab. An option sits on the `bgControlSunken` track. A tab sits on the bar's
+// Glass, which lets its ground through, so a tab is measured on each ground a
+// page offers. A selected option takes `fg` on `bgControlRaised`; the shown
+// tab takes `fgControlSelected` on `bgMaterialGlassSelected` over its ground.
+// These are labels, so they take the label floor.
+describe.each(["light", "dark"] as const)("%s control labels", (scheme) => {
+  const resolve = (token: Token) =>
+    readCustomProperty(css, color[token])[scheme];
+
+  function expectLabel(text: string, background: string) {
+    const lc = apcaContrast(text, background);
+    expect(lc, `Lc ${lc.toFixed(1)}`).toBeGreaterThanOrEqual(APCA_LABEL_TEXT);
+  }
+
+  it.each(["bgControlSunken", ...INTENT_GROUNDS] as const)(
+    "fgControl clears the label floor on %s",
+    (ground) => {
+      expectLabel(resolve("fgControl"), resolve(ground));
+    },
+  );
+
+  it("fg clears the label floor on bgControlRaised", () => {
+    expectLabel(resolve("fg"), resolve("bgControlRaised"));
+  });
+
+  it.each(INTENT_GROUNDS)(
+    "fgControlSelected clears the label floor on bgMaterialGlassSelected over %s",
+    (ground) => {
+      expectLabel(
+        resolve("fgControlSelected"),
+        overCanvas(resolve("bgMaterialGlassSelected"), resolve(ground)),
       );
     },
   );

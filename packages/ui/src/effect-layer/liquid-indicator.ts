@@ -9,7 +9,7 @@ export const LIQUID_INDICATOR = "data-liquid-indicator";
 
 /**
  * The attribute of each segment inside a segmented control's track, such as
- * a radio or a link: the liquid rests in a pill as long as the segment.
+ * a radio or a link: the indicator rests in a pill as long as the segment.
  *
  * @internal
  */

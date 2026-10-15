@@ -27,8 +27,8 @@ function computeSwatch(
 const EXPECTED_SWATCH_COUNT = SYSTEM_HUES.length * SYSTEM_PALETTE_TONES.length;
 
 describe("SYSTEM_PALETTE_TONES", () => {
-  it("spans 0 to 100 in 21 strictly ascending steps", () => {
-    expect(SYSTEM_PALETTE_TONES).toHaveLength(21);
+  it("spans 0 to 100 in 22 strictly ascending steps", () => {
+    expect(SYSTEM_PALETTE_TONES).toHaveLength(22);
     expect(SYSTEM_PALETTE_TONES[0]).toBe(0);
     expect(SYSTEM_PALETTE_TONES[SYSTEM_PALETTE_TONES.length - 1]).toBe(100);
     for (let index = 1; index < SYSTEM_PALETTE_TONES.length; index++) {

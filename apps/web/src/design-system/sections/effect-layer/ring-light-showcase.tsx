@@ -28,8 +28,8 @@ export function RingLightShowcase() {
           </Text>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "The light takes the element's color, and follows its border box and corner radius. Toast uses it once it has arrived, and the Switch runs the same light, split in two, where its liquid lands.",
-              zh: "光取元素的 color，并沿着它的边框盒与圆角运行。轻提示在到位后使用它；开关在液体落点处运行同一道光，只是分成两颗。",
+              en: "The light takes the element's color, and follows its border box and corner radius. Toast uses it once it has arrived.",
+              zh: "光取元素的 color，并沿着它的边框盒与圆角运行。轻提示在到位后使用它。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">

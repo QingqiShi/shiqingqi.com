@@ -96,19 +96,21 @@ interface TabBarProps {
    */
   label: string;
   /**
-   * An effect the effect layer draws in place of the indicator. `"liquid"`,
-   * the default, draws it as the SegmentedControl's liquid does: a press on
-   * a tab pours it there at once, and a drag from that press moves it with
-   * inertia across the tabs. A release after a drag follows the link of the
-   * tab under it; a tap follows the tab's own link, as a click does. The
-   * indicator stays on the tab it went to while that page loads. Under
-   * reduced motion it goes straight to its place. `"none"` keeps the plain
-   * Glass indicator, which a press and a drag move in the same way. The
-   * effect draws only inside an `EffectLayerProvider` with WebGPU;
-   * elsewhere, and under forced colours, the bar looks and works as it does
-   * with `"none"`.
+   * An effect the effect layer draws on the indicator. `"liquid"`, the
+   * default, draws it as the SegmentedControl's does: solid at rest with a
+   * lit edge, and in motion it winds up, travels with a motion blur, sheds
+   * pixels from its trailing edge that fade out, overshoots a little and
+   * settles. A press on a tab moves it there at once, and a drag from that
+   * press moves it with inertia across the tabs. A release after a drag
+   * follows the link of the tab under it; a tap follows the tab's own link,
+   * as a click does. The indicator stays on the tab it went to while that
+   * page loads. Under reduced motion it crossfades to its place. `"none"`
+   * keeps the plain Glass indicator, which a press and a drag move in the
+   * same way. The effect draws only inside an `EffectLayerProvider` with
+   * WebGPU; elsewhere, and under forced colours, the bar looks and works as
+   * it does with `"none"`.
    *
-   * @zh 由效果层代替指示块绘制的效果。默认的 `"liquid"` 与分段控件的液体相同：按下某个标签页时它立即涌向该标签页，从这次按下开始拖动时它带着惯性在各标签页之间移动。拖动后松开，会打开其下方标签页的链接；轻触则与点击一样打开该标签页自身的链接。在页面加载期间，指示块停留在它去往的标签页上。减少动态效果时它直接到位。`"none"` 保留普通的玻璃指示块，按下与拖动以同样的方式移动它。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，标签栏的外观与行为与 `"none"` 相同。
+   * @zh 由效果层在指示块上绘制的效果。默认的 `"liquid"` 与分段控件的效果相同：静止时是边缘带光的实心指示块；运动时先蓄力，再带着动态模糊移动，尾缘脱落的像素逐渐淡去，略微冲过头后回稳。按下某个标签页时它立即移向该标签页，从这次按下开始拖动时它带着惯性在各标签页之间移动。拖动后松开，会打开其下方标签页的链接；轻触则与点击一样打开该标签页自身的链接。在页面加载期间，指示块停留在它去往的标签页上。减少动态效果时，它以交叉淡入淡出到位。`"none"` 保留普通的玻璃指示块，按下与拖动以同样的方式移动它。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，标签栏的外观与行为与 `"none"` 相同。
    */
   effect?: "liquid" | "none";
   /**
@@ -225,8 +227,7 @@ export function TabBar({
             css={[
               corner.radius_round,
               segmentIndicator.base,
-              glassSurface.base,
-              segmentIndicator.noBlur,
+              segmentIndicator.tint,
               inset !== null && segmentIndicator.at(inset.left, inset.right),
               dragging && segmentIndicator.dragged,
             ]}
@@ -334,7 +335,7 @@ const styles = stylex.create({
     minInlineSize: 0,
     paddingInline: space._0,
     color: {
-      default: color.fgMuted,
+      default: color.fgControl,
       ":hover": { default: null, [pointer.canHover]: color.fg },
     },
     backgroundColor: {
@@ -353,11 +354,12 @@ const styles = stylex.create({
   // colour and the filled icon stay in all of them, because they are the
   // signal in forced colours.
   linkShown: {
-    color: color.fg,
+    color: color.fgControlSelected,
+    fontWeight: font.weight_6,
     backgroundColor: {
       default: "transparent",
       [NO_ANCHOR_POSITIONING]: {
-        default: color.bgControlSelected,
+        default: color.bgMaterialGlassSelected,
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
           "transparent",
       },

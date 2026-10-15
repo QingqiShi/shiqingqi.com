@@ -1,5 +1,5 @@
 import type { EffectColor } from "./parse-css-color.ts";
-import type { RingLightBox, RingLightState } from "./ring-light-at.ts";
+import type { RingLightState } from "./ring-lap-at.ts";
 import { TARGET_WGSL } from "./target-wgsl.ts";
 
 /** The half width of a comet's core at its head, in CSS px. */
@@ -17,37 +17,27 @@ const TAIL_TINT = 0.5;
 const BLOOM_SIGMA = 3.5;
 
 /**
- * Where the core runs, in CSS px inside the edge, how strong its bloom is,
- * and how far the light goes to the bloom's colour where it is over the
- * page. On a light page the core runs on the track, where a white glint
- * shows, and over the page the light takes the bloom's colour.
- *
- * @internal
+ * Where the core runs, in CSS px inside the edge. A surface such as Glass
+ * blurs what is under it, so the core runs just outside the edge, where the
+ * blur cannot reach.
  */
-export const RING_LIGHT_LOOK = {
-  light: { inset: 1.1, bloom: 0.9, pageTint: 1 },
-  dark: { inset: 0, bloom: 0.8, pageTint: 0 },
-} as const;
+const INSET = -0.9;
 
 /**
- * The look of a lap round a surface that blurs what is under it, such as
- * Glass: the core runs just outside the edge, where the blur cannot reach.
+ * How far the light goes to the bloom's colour where it is over the page.
  *
  * @internal
  */
-export const RING_LAP_LOOK = {
-  light: { inset: -0.9, bloom: 1, pageTint: 0.65 },
-  dark: { inset: -0.9, bloom: 1, pageTint: 0.4 },
-} as const;
+export const PAGE_TINT = { light: 0.65, dark: 0.4 } as const;
 
 /** How far from the edge the core and its bloom reach, in CSS px. */
 const RIM_REACH = 1 + CORE_HALF_WIDTH + 3 * BLOOM_SIGMA;
 
 /**
  * The render shader of the ring light, with each element that has a ring
- * light this frame in group 2. Each instance is one box of an element: a
- * quad around it out to the reach of the light, which lights the outline
- * where a comet is.
+ * light this frame in group 2. Each instance is a quad around its element
+ * out to the reach of the light, which lights the outline where the comet
+ * is.
  *
  * @internal
  */
@@ -60,26 +50,20 @@ const TAIL_GAIN = ${TAIL_GAIN.toFixed(2)};
 const TAIL_TINT = ${TAIL_TINT.toFixed(2)};
 const BLOOM_SIGMA = ${BLOOM_SIGMA.toFixed(2)};
 const RIM_REACH = ${RIM_REACH.toFixed(2)};
+const INSET = ${INSET.toFixed(2)};
 const PI = 3.14159265;
 
 struct RingLightInstance {
   element: u32,
-  cometCount: u32,
   even: f32,
   alpha: f32,
+  pageTint: f32,
   core: vec4f,
   tint: vec4f,
-  // The bloom's colour, and its strength as alpha.
   bloom: vec4f,
   // The head as a share of the outline, the direction, the strength and the
-  // tail as a share of the outline.
-  comets: array<vec4f, 2>,
-  inset: f32,
-  pageTint: f32,
-  // The box the light runs around: its corners' radius and superellipse
-  // exponent, and its rect.
-  corner: vec2f,
-  box: vec4f,
+  // tail as a share of the outline. A strength of 0 draws no comet.
+  comet: vec4f,
 }
 
 @group(2) @binding(0) var<storage, read> ringLights: array<RingLightInstance>;
@@ -93,15 +77,6 @@ fn cornerRadius(element: EffectElement) -> f32 {
   let radii = element.radii;
   let radius = min(min(radii.x, radii.y), min(radii.z, radii.w));
   return max(0.0, min(radius, min(element.rect.z, element.rect.w) * 0.5));
-}
-
-// The element of a ring light with its box in place of the element's own.
-fn ringBox(ring: RingLightInstance) -> EffectElement {
-  var element = effectElements[ring.element];
-  element.rect = ring.box;
-  element.radii = vec4f(ring.corner.x);
-  element.cornerExponent = ring.corner.y;
-  return element;
 }
 
 fn outlineLength(element: EffectElement, radius: f32) -> f32 {
@@ -163,8 +138,7 @@ fn ringLightVertex(
   @builtin(vertex_index) vertex: u32,
   @builtin(instance_index) instance: u32,
 ) -> RingLightVarying {
-  let ring = ringLights[instance];
-  let element = ringBox(ring);
+  let element = effectElements[ringLights[instance].element];
   let corner = vec2f(f32(vertex & 1u), f32((vertex >> 1u) & 1u));
   let page = element.rect.xy - RIM_REACH + corner * (element.rect.zw + 2.0 * RIM_REACH);
   return RingLightVarying(pageToClip(page), instance);
@@ -181,11 +155,11 @@ fn band(across: f32, half: f32, pixel: f32) -> f32 {
 @fragment
 fn ringLightFragment(input: RingLightVarying) -> @location(0) vec4f {
   let ring = ringLights[input.instance];
-  let element = ringBox(ring);
+  let element = effectElements[ring.element];
   let page = fragmentToPage(input.position.xy);
   let pixel = 1.0 / effectTarget.pixelScale.x;
   let edge = effectElementDistance(element, page);
-  let across = edge + ring.inset;
+  let across = edge + INSET;
 
   if (abs(across) >= RIM_REACH) {
     return vec4f(0.0);
@@ -196,8 +170,8 @@ fn ringLightFragment(input: RingLightVarying) -> @location(0) vec4f {
   var light = ring.even;
   var shape = 1.0;
   var head = 1.0;
-  for (var i = 0u; i < ring.cometCount; i += 1u) {
-    let comet = ring.comets[i];
+  let comet = ring.comet;
+  if (comet.z > 0.0) {
     // How far behind the head this point is, as a share of the outline.
     let behind = fract((comet.x - along) * comet.y);
     let back = behind * length / HEAD_LENGTH;
@@ -224,7 +198,7 @@ fn ringLightFragment(input: RingLightVarying) -> @location(0) vec4f {
   let glint = mix(mix(ring.tint.rgb, ring.core.rgb, white), ring.bloom.rgb, onPage);
   let clip = effectClip(element.scope, page) * ring.alpha;
   let coreAlpha = saturate(core) * ring.core.a;
-  let bloomAlpha = saturate(bloom * ring.bloom.a);
+  let bloomAlpha = saturate(bloom);
   let alpha = (coreAlpha + bloomAlpha * (1.0 - coreAlpha)) * clip;
   let rgb = (glint * coreAlpha + ring.bloom.rgb * bloomAlpha * (1.0 - coreAlpha)) * clip;
   return vec4f(effectGrayscale(rgb, element.grayscale), alpha);
@@ -244,21 +218,12 @@ export interface RingLightInstance {
   readonly core: EffectColor;
   /** The colour a comet's tail takes a hint of. */
   readonly tint: EffectColor;
-  /** The bloom round the glint, sRGB with its strength as alpha. */
+  /** The colour of the bloom round the glint. */
   readonly bloom: EffectColor;
   /** The most the light covers the page. */
   readonly alpha: number;
-  /** How far inside the edge the glint runs, in CSS px. */
-  readonly inset: number;
   /** How far the light goes to the bloom's colour where it is over the page. */
   readonly pageTint: number;
-  /**
-   * The box the light runs around, in page coordinates: the element's own,
-   * or a part of it, such as a segmented control's indicator.
-   */
-  readonly box: RingLightBox;
-  /** The superellipse exponent of the box's corners: 2 for circular arcs. */
-  readonly cornerExponent: number;
 }
 
 /**
@@ -266,7 +231,7 @@ export interface RingLightInstance {
  *
  * @internal
  */
-export const RING_LIGHT_INSTANCE_BYTES = 128;
+export const RING_LIGHT_INSTANCE_BYTES = 80;
 
 const INSTANCE_WORDS = RING_LIGHT_INSTANCE_BYTES / 4;
 
@@ -284,25 +249,19 @@ export function packRingLightInstances(
   const words = new Uint32Array(buffer);
   for (const [index, instance] of instances.entries()) {
     const at = index * INSTANCE_WORDS;
-    const { comets, even } = instance.state;
-    words.fill(0, at, at + INSTANCE_WORDS);
+    const { comet, even } = instance.state;
     words[at] = instance.elementIndex;
-    words[at + 1] = comets.length;
-    floats[at + 2] = even;
-    floats[at + 3] = instance.alpha;
+    floats[at + 1] = even;
+    floats[at + 2] = instance.alpha;
+    floats[at + 3] = instance.pageTint;
     floats.set(instance.core, at + 4);
     floats.set(instance.tint, at + 8);
     floats.set(instance.bloom, at + 12);
-    for (const [slot, comet] of comets.slice(0, 2).entries()) {
-      floats.set(
-        [comet.head, comet.direction, comet.strength, comet.tail],
-        at + 16 + slot * 4,
-      );
-    }
-    floats[at + 24] = instance.inset;
-    floats[at + 25] = instance.pageTint;
-    const { box } = instance;
-    floats.set([box.radius, instance.cornerExponent], at + 26);
-    floats.set([box.x, box.y, box.width, box.height], at + 28);
+    floats.set(
+      comet === null
+        ? [0, 0, 0, 0]
+        : [comet.head, comet.direction, comet.strength, comet.tail],
+      at + 16,
+    );
   }
 }

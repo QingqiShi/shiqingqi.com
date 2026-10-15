@@ -2,7 +2,7 @@ import { useState, type PointerEvent, type Ref } from "react";
 import { LIQUID_SEGMENT } from "../effect-layer/liquid-indicator.ts";
 import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { mergeRefs } from "../merge-refs.ts";
-import { aimAt, DRAG_THRESHOLD, indexAt } from "./aim-at.ts";
+import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
 
 /** The segments of `track`, in the order of the options. */
 function segmentsOf(track: HTMLElement) {
@@ -165,7 +165,7 @@ function useSegmentDrag() {
 interface SegmentPressOptions<T extends HTMLElement> {
   /** The segment the indicator rests on, or -1 for none. */
   selected: number;
-  /** Draws the indicator as liquid on the effect layer, or not at all. */
+  /** Lets the effect layer draw the indicator, or not. */
   effect: "liquid" | "none";
   /** A ref for the track, merged with the effect's. */
   ref?: Ref<T> | undefined;
@@ -174,7 +174,7 @@ interface SegmentPressOptions<T extends HTMLElement> {
 }
 
 /**
- * The press, the drag and the liquid indicator of a track of segments,
+ * The press, the drag and the effect on the indicator of a track of segments,
  * shared by `SegmentedControl` and `TabBar`. Spread `handlers` on the track
  * and attach `trackRef` to it. Each segment carries `LIQUID_SEGMENT`, and
  * the indicator carries `LIQUID_INDICATOR`. `shown` is the segment that
@@ -191,13 +191,11 @@ export function useSegmentPress<T extends HTMLElement>({
   onDrop,
 }: SegmentPressOptions<T>) {
   const [pressed, setPressed] = useState(false);
-  const [aim, setAim] = useState(0);
   const drag = useSegmentDrag();
   const liquidRef = useLiquid({
     position: drag.pressed ?? selected,
     drag: drag.index,
     pressed,
-    aim,
   });
   const effectRef = effect === "liquid" ? liquidRef : undefined;
   const trackRef = mergeRefs<T>(ref, effectRef);
@@ -213,9 +211,6 @@ export function useSegmentPress<T extends HTMLElement>({
       onPointerDown: (event: PointerEvent<HTMLElement>) => {
         if (event.pointerType !== "mouse" || event.button === 0) {
           setPressed(true);
-          setAim(
-            aimAt(event.currentTarget.getBoundingClientRect(), event.clientY),
-          );
           drag.start(event);
         }
       },
@@ -226,9 +221,6 @@ export function useSegmentPress<T extends HTMLElement>({
         setPressed(false);
         const drop = drag.end(event);
         if (drop !== null) {
-          setAim(
-            aimAt(event.currentTarget.getBoundingClientRect(), event.clientY),
-          );
           onDrop(drop);
         }
       },
@@ -241,9 +233,6 @@ export function useSegmentPress<T extends HTMLElement>({
           setPressed(false);
           drag.cancel();
         }
-      },
-      onKeyDown: () => {
-        setAim(0);
       },
     },
   };

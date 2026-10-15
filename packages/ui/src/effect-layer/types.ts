@@ -30,7 +30,6 @@ export interface EffectSettings {
     readonly position: number;
     readonly drag: number | null;
     readonly pressed: boolean;
-    readonly aim: number;
   };
 }
 
@@ -280,8 +279,11 @@ export interface EffectRenderer {
    * effect skips what it does not own.
    */
   draw: (pass: EffectPass, target: EffectTarget, frame: EffectFrame) => void;
-  /** Draw a frame each time the pointer moves. */
-  followsPointer?: boolean;
+  /**
+   * Draw a frame each time the pointer moves, or only for the moves this
+   * function returns `true` for.
+   */
+  followsPointer?: boolean | ((pointer: EffectPointer) => boolean);
   destroy: () => void;
 }
 

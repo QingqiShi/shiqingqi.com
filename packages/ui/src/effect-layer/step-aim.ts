@@ -1,3 +1,5 @@
+import { stepSpring } from "./step-spring.ts";
+
 /**
  * Radians clockwise from pointing right, for a CSS angle: 0deg points up and
  * 90deg points right, as in `linear-gradient`.
@@ -34,7 +36,7 @@ export interface Aim {
 // as much as the rest of the system's motion.
 const SPRING_DAMPING = 0.7;
 const SPRING_FREQUENCY = 2 * Math.PI * 1.3;
-const SPRING_STEP = 1 / 240;
+const SPRING_RATE = 240;
 const SETTLED_ANGLE = 0.0005;
 const SETTLED_VELOCITY = 0.005;
 
@@ -45,17 +47,14 @@ const SETTLED_VELOCITY = 0.005;
  * @internal
  */
 export function stepAim(aim: Aim, target: number, seconds: number) {
-  let offset = angleBetween(target, aim.angle);
-  let { velocity } = aim;
-  const steps = Math.ceil(seconds / SPRING_STEP);
-  const step = steps > 0 ? seconds / steps : 0;
-  for (let index = 0; index < steps; index++) {
-    velocity +=
-      (-SPRING_FREQUENCY * SPRING_FREQUENCY * offset -
-        2 * SPRING_DAMPING * SPRING_FREQUENCY * velocity) *
-      step;
-    offset += velocity * step;
-  }
+  const { value: offset, speed: velocity } = stepSpring(
+    { value: angleBetween(target, aim.angle), speed: aim.velocity },
+    0,
+    seconds,
+    SPRING_FREQUENCY,
+    SPRING_DAMPING,
+    SPRING_RATE,
+  );
   const settled =
     Math.abs(offset) < SETTLED_ANGLE && Math.abs(velocity) < SETTLED_VELOCITY;
   return settled

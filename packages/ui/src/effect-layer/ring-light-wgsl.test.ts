@@ -8,45 +8,43 @@ import {
 describe("packRingLightInstances", () => {
   it("packs each instance in struct order", () => {
     const buffer = new ArrayBuffer(RING_LIGHT_INSTANCE_BYTES * 2);
+    // Fill the buffer first, to show that an instance with no comet clears
+    // the comet of an earlier frame.
+    new Float32Array(buffer).fill(9);
     packRingLightInstances(
       [
         {
           elementIndex: 3,
           state: {
-            comets: [
-              { head: 0.25, direction: 1, strength: 0.5, tail: 0.2 },
-              { head: 0.75, direction: -1, strength: 0.5, tail: 0.2 },
-            ],
+            comet: { head: 0.25, direction: -1, strength: 0.5, tail: 0.2 },
             even: 0,
           },
           core: [1, 0.9, 0.8, 1],
           tint: [0.5, 0.4, 0.3, 1],
-          bloom: [0.7, 0.6, 0.5, 0.35],
+          bloom: [0.7, 0.6, 0.5, 1],
           alpha: 0.9,
-          inset: 0.8,
-          pageTint: 1,
-          box: { x: 10, y: 20, width: 64, height: 32, radius: 16 },
-          cornerExponent: 4,
+          pageTint: 0.65,
         },
         {
           elementIndex: 5,
-          state: { comets: [], even: 0.6 },
+          state: { comet: null, even: 0.6 },
           core: [1, 1, 1, 1],
           tint: [0, 0, 0, 1],
-          bloom: [0, 0, 0, 0.5],
+          bloom: [0, 0, 0, 1],
           alpha: 1,
-          inset: 0.25,
-          pageTint: 0,
-          box: { x: 0, y: 0, width: 72, height: 36, radius: 18 },
-          cornerExponent: 2,
+          pageTint: 0.4,
         },
       ],
       buffer,
     );
     const words = new Uint32Array(buffer);
     const floats = new Float32Array(buffer);
-    expect([words[0], words[1]]).toEqual([3, 2]);
-    expect([floats[2], floats[3]]).toEqual([0, expect.closeTo(0.9)]);
+    expect(words[0]).toBe(3);
+    expect([...floats.slice(1, 4)]).toEqual([
+      0,
+      expect.closeTo(0.9),
+      expect.closeTo(0.65),
+    ]);
     expect([...floats.slice(4, 8)]).toEqual([
       1,
       expect.closeTo(0.9),
@@ -54,41 +52,20 @@ describe("packRingLightInstances", () => {
       1,
     ]);
     expect(floats[8]).toBe(0.5);
-    expect(floats[15]).toBeCloseTo(0.35);
+    expect(floats[12]).toBeCloseTo(0.7);
     expect([...floats.slice(16, 20)]).toEqual([
       0.25,
-      1,
-      0.5,
-      expect.closeTo(0.2),
-    ]);
-    expect([...floats.slice(20, 24)]).toEqual([
-      0.75,
       -1,
       0.5,
       expect.closeTo(0.2),
     ]);
-    expect([...floats.slice(24, 32)]).toEqual([
-      expect.closeTo(0.8),
-      1,
-      16,
-      4,
-      10,
-      20,
-      64,
-      32,
-    ]);
 
     const second = RING_LIGHT_INSTANCE_BYTES / 4;
-    expect(second * 4).toBe(128);
-    expect([words[second], words[second + 1]]).toEqual([5, 0]);
-    expect(floats[second + 2]).toBeCloseTo(0.6);
-    expect([...floats.slice(second + 16, second + 24)]).toEqual(
-      Array(8).fill(0),
-    );
-    expect(floats[second + 24]).toBe(0.25);
-    expect([...floats.slice(second + 26, second + 32)]).toEqual([
-      18, 2, 0, 0, 72, 36,
-    ]);
+    expect(second * 4).toBe(80);
+    expect(words[second]).toBe(5);
+    expect(floats[second + 1]).toBeCloseTo(0.6);
+    expect(floats[second + 3]).toBeCloseTo(0.4);
+    expect([...floats.slice(second + 16, second + 20)]).toEqual([0, 0, 0, 0]);
   });
 });
 

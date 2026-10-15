@@ -16,7 +16,7 @@ import { breakpoints } from "./breakpoints.stylex.ts";
 //   (`MaterialGlass`). `inverse` and `scrim` are treatments a surface takes,
 //   not Token Roles. `fgOn<X>` is the foreground for `bg<X>`.
 // • qualifier — `subtle` is an Intent's tint; `sunken`, `raised` and `fade`
-//   are a surface's elevation.
+//   are the elevation of a surface or a control.
 // • state — `hover`, `pressed`, `selected`, `disabled`. Bare is rest.
 //
 // The bare form is the default: `fg` is body text, `border` the quiet edge,
@@ -71,7 +71,17 @@ const light = {
   // there, so the dark `fgMuted` is one tone louder than the light one.
   fg: gray._13,
   fgMuted: gray._30,
+  // The label of an unselected item in a group of controls, such as a
+  // SegmentedControl option or a TabBar tab. In dark it is dimmer than
+  // `fgMuted`, so the selected item, in `fg`, stands out from it.
+  // `fgControlSelected` is the label of the selected item where its colour
+  // marks the selection, such as the shown tab of a TabBar.
+  fgControl: gray._30,
+  fgControlSelected: purple._30,
   fgOnControlBright: gray._20,
+  // The same white in both themes, on the off and the on fill alike (the
+  // thumb of a switch).
+  fgOnControlStrong: gray._100,
   fgOnInverse: gray._92,
   // The scrim is the same black in both themes, so its foreground is the same
   // white.
@@ -105,11 +115,20 @@ const light = {
   bgControlPressed: gray._92,
   bgControlSelected: gray._90,
   bgControlDisabled: gray._95,
+  // The track that holds a group of controls, such as the options of a
+  // SegmentedControl, and the selected item raised on it.
+  bgControlSunken: gray._92,
+  bgControlRaised: gray._100,
   // A neutral fill for an unselected control when the fill is its only sign,
-  // such as an off switch. WCAG 1.4.11 sets a 3:1 floor on it against every
-  // surface a control sits on. Its foreground is `fgOnAccent`, so that the
-  // control keeps the same foreground when it becomes selected.
+  // such as an off switch. Selected, it takes `bgControlStrongSelected`. Its
+  // foreground is `fgOnControlStrong` in both states.
   bgControlStrong: gray._40,
+  bgControlStrongSelected: purple._40,
+  // The ring inside the edge of `bgControlStrong`. WCAG 1.4.11 sets a 3:1
+  // floor on the fill or on this ring against every surface a control sits
+  // on. In light the fill holds it, so there is no ring. In dark the fill is
+  // darker, so the ring holds it.
+  borderControlStrong: "transparent",
 
   // The quiet default edge, and the neutral Intent's border.
   border: gray._90,
@@ -117,6 +136,8 @@ const light = {
   // checkbox or a text field. It is not quiet, because WCAG 1.4.11 sets a 3:1
   // floor on it against every surface a control sits on.
   borderControl: gray._40,
+  // The edge of `bgControlSunken`.
+  borderControlSunken: gray._92,
 
   // Intents — a solid fill and its hover, a tint (alpha is fixed, colour comes
   // from the palette), a solid border for rings and selected edges, a
@@ -169,12 +190,18 @@ const light = {
   bgMaterialGlass: `rgba(${gray_rgb._100}, 0.8)`,
   borderMaterialGlass: `rgba(${gray_rgb._0}, 0.3)`,
   borderMaterialGlassHighlight: `rgba(${gray_rgb._100}, 0.6)`,
+  // The tint that marks the selected item on Glass, such as the shown tab of
+  // a TabBar.
+  bgMaterialGlassSelected: `rgba(${gray_rgb._0}, 0.06)`,
 };
 
 const dark: { [key in keyof typeof light]: string } = {
   fg: gray._92,
   fgMuted: gray._80,
+  fgControl: gray._60,
+  fgControlSelected: purple._70,
   fgOnControlBright: gray._0,
+  fgOnControlStrong: gray._100,
   fgOnInverse: gray._20,
   fgOnScrim: gray._100,
 
@@ -195,10 +222,15 @@ const dark: { [key in keyof typeof light]: string } = {
   bgControlPressed: gray._11,
   bgControlSelected: gray._20,
   bgControlDisabled: gray._5,
-  bgControlStrong: gray._40,
+  bgControlSunken: gray._7,
+  bgControlRaised: gray._13,
+  bgControlStrong: gray._30,
+  bgControlStrongSelected: purple._40,
+  borderControlStrong: gray._35,
 
   border: gray._13,
   borderControl: gray._40,
+  borderControlSunken: gray._11,
 
   bgAccent: darkIntentTone.accent,
   bgAccentHover: purple._80,
@@ -243,6 +275,7 @@ const dark: { [key in keyof typeof light]: string } = {
   bgMaterialGlass: `rgba(${gray_rgb._100}, 0.12)`,
   borderMaterialGlass: "transparent",
   borderMaterialGlassHighlight: `rgba(${gray_rgb._100}, 0.25)`,
+  bgMaterialGlassSelected: `rgba(${gray_rgb._100}, 0.1)`,
 };
 
 const NO_CORNER_SHAPE = "@supports not (corner-shape: squircle)";
@@ -273,7 +306,10 @@ export const measure = stylex.defineConsts({
 export const color = stylex.defineVars({
   fg: `light-dark(${light.fg}, ${dark.fg})`,
   fgMuted: `light-dark(${light.fgMuted}, ${dark.fgMuted})`,
+  fgControl: `light-dark(${light.fgControl}, ${dark.fgControl})`,
+  fgControlSelected: `light-dark(${light.fgControlSelected}, ${dark.fgControlSelected})`,
   fgOnControlBright: `light-dark(${light.fgOnControlBright}, ${dark.fgOnControlBright})`,
+  fgOnControlStrong: `light-dark(${light.fgOnControlStrong}, ${dark.fgOnControlStrong})`,
   fgOnInverse: `light-dark(${light.fgOnInverse}, ${dark.fgOnInverse})`,
   fgOnScrim: `light-dark(${light.fgOnScrim}, ${dark.fgOnScrim})`,
 
@@ -294,10 +330,15 @@ export const color = stylex.defineVars({
   bgControlPressed: `light-dark(${light.bgControlPressed}, ${dark.bgControlPressed})`,
   bgControlSelected: `light-dark(${light.bgControlSelected}, ${dark.bgControlSelected})`,
   bgControlDisabled: `light-dark(${light.bgControlDisabled}, ${dark.bgControlDisabled})`,
+  bgControlSunken: `light-dark(${light.bgControlSunken}, ${dark.bgControlSunken})`,
+  bgControlRaised: `light-dark(${light.bgControlRaised}, ${dark.bgControlRaised})`,
   bgControlStrong: `light-dark(${light.bgControlStrong}, ${dark.bgControlStrong})`,
+  bgControlStrongSelected: `light-dark(${light.bgControlStrongSelected}, ${dark.bgControlStrongSelected})`,
+  borderControlStrong: `light-dark(${light.borderControlStrong}, ${dark.borderControlStrong})`,
 
   border: `light-dark(${light.border}, ${dark.border})`,
   borderControl: `light-dark(${light.borderControl}, ${dark.borderControl})`,
+  borderControlSunken: `light-dark(${light.borderControlSunken}, ${dark.borderControlSunken})`,
 
   bgAccent: `light-dark(${light.bgAccent}, ${dark.bgAccent})`,
   bgAccentHover: `light-dark(${light.bgAccentHover}, ${dark.bgAccentHover})`,
@@ -342,6 +383,7 @@ export const color = stylex.defineVars({
   bgMaterialGlass: `light-dark(${light.bgMaterialGlass}, ${dark.bgMaterialGlass})`,
   borderMaterialGlass: `light-dark(${light.borderMaterialGlass}, ${dark.borderMaterialGlass})`,
   borderMaterialGlassHighlight: `light-dark(${light.borderMaterialGlassHighlight}, ${dark.borderMaterialGlassHighlight})`,
+  bgMaterialGlassSelected: `light-dark(${light.bgMaterialGlassSelected}, ${dark.bgMaterialGlassSelected})`,
 });
 
 export const font = stylex.defineVars({

@@ -1,3 +1,4 @@
+import { smoothstep } from "../smoothstep.ts";
 import type { EffectFrame, EffectPointer } from "./types.ts";
 
 /**
@@ -74,11 +75,6 @@ export interface DustFan extends DustBox {
   /** How far from its edge it pulls, CSS px. */
   readonly reach: number;
 }
-
-const smoothstep = (edge0: number, edge1: number, value: number) => {
-  const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
-  return t * t * (3 - 2 * t);
-};
 
 /** The gap between two boxes, 0 when they touch or overlap. */
 const gapBetween = (first: DustBox, second: DustBox) =>
