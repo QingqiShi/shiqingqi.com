@@ -1,14 +1,21 @@
 "use client";
 
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
+import { ScalesIcon } from "@phosphor-icons/react/dist/ssr/Scales";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
+import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { row, stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -21,18 +28,16 @@ import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { selectEntriesByTransaction } from "../store/select-entries-by-transaction.ts";
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
-import type {
-  AccountRow,
-  TransactionRow,
-  ValuationRow,
-} from "../sync/row-schemas.ts";
+import type { AccountRow, ValuationRow } from "../sync/row-schemas.ts";
+import { DayHeader } from "../transactions/day-header.tsx";
+import { TransactionFace } from "../transactions/transaction-face.tsx";
+import { UpcomingHeader } from "../transactions/upcoming-header.tsx";
+import {
+  buildAccountLedger,
+  type LedgerEntryItem,
+} from "./build-account-ledger.ts";
 import { LedgerEntryLink } from "./ledger-entry-link.tsx";
-import { ledgerRunningBalances } from "./ledger-running-balances.ts";
-import { useTransactionTitle } from "./use-transaction-title.ts";
-
-type LedgerItem =
-  | { type: "valuation"; day: string; valuation: ValuationRow }
-  | { type: "entry"; day: string; transaction: TransactionRow; amount: number };
+import { useDescribeLedgerEntry } from "./use-describe-ledger-entry.ts";
 
 const PAGE = 30;
 
@@ -49,17 +54,22 @@ function valuationsOf(
   return list.sort((a, b) => (a.on < b.on ? 1 : a.on > b.on ? -1 : 0));
 }
 
-/**
- * The newest Valuations and Entries of one account, interleaved by day, each
- * with the balance after it: a Valuation is the balance at the end of its
- * day, so it leads its day. The whole history is in the Transactions list,
- * filtered to the account.
- */
-export function AccountLedger({ account }: { account: AccountRow }) {
+interface AccountLedgerProps {
+  account: AccountRow;
+  today: string;
+  dayHeadingLevel: 3 | 4;
+}
+
+export function AccountLedger({
+  account,
+  today,
+  dayHeadingLevel,
+}: AccountLedgerProps) {
   const locale = useLocale();
   const runUndoable = useUndoableMutations();
-  const titleOf = useTransactionTitle();
+  const describe = useDescribeLedgerEntry();
   const [limit, setLimit] = useState(PAGE);
+  const [comingUpOpen, setComingUpOpen] = useState(false);
   const valuationRows = useReplica((snapshot) => snapshot.tables.valuations);
   const transactions = useReplica(
     (snapshot) => selectTransactionsByAccount(snapshot).get(account.id) ?? null,
@@ -69,52 +79,58 @@ export function AccountLedger({ account }: { account: AccountRow }) {
     selectBalanceSeriesByAccount(snapshot).get(account.id),
   );
 
-  const valuations = valuationsOf(valuationRows, account.id);
-  const items: LedgerItem[] = [];
-  let v = 0;
-  let e = 0;
-  const list = transactions ?? [];
-  while (items.length < limit && (v < valuations.length || e < list.length)) {
-    const valuation = valuations.at(v);
-    const transaction = list.at(e);
-    if (valuation && (!transaction || valuation.on >= transaction.date)) {
-      items.push({ type: "valuation", day: valuation.on, valuation });
-      v++;
-    } else if (transaction) {
-      const amount = (entriesByTransaction.get(transaction.id) ?? [])
+  const ledger = buildAccountLedger({
+    valuations: valuationsOf(valuationRows, account.id),
+    transactions: transactions ?? [],
+    amountOf: (transaction) =>
+      (entriesByTransaction.get(transaction.id) ?? [])
         .filter((entry) => entry.accountId === account.id)
-        .reduce((sum, entry) => sum + entry.amountMinor, 0);
-      items.push({ type: "entry", day: transaction.date, transaction, amount });
-      e++;
-    }
-  }
-  const hasMore = v < valuations.length || e < list.length;
-  const balancesAfter = ledgerRunningBalances(
-    items.map((item) =>
-      item.type === "valuation"
-        ? { day: item.day, valuationMinor: item.valuation.amountMinor }
-        : {
-            day: item.day,
-            entry: {
-              amountMinor: item.amount,
-              counts: item.transaction.status === "posted",
-            },
-          },
-    ),
-    (day) => accountBalanceAt(account, series, day),
-  );
+        .reduce((sum, entry) => sum + entry.amountMinor, 0),
+    today,
+    limit,
+    balanceAt: (day) => accountBalanceAt(account, series, day),
+  });
 
+  const money = (minor: number) => formatMoney(minor, account.currency, locale);
   const sourceLabels: Record<ValuationRow["source"], string> = {
     manual: t({ en: "Balance set", zh: "余额记录" }),
     import: t({ en: "Imported balance", zh: "导入的余额" }),
     bank: t({ en: "Bank balance", zh: "银行余额" }),
   };
+  const firstValuationCaption = t({
+    en: "First recorded balance",
+    zh: "首次记录的余额",
+  });
+  const noChangeCaption = t({ en: "No change", zh: "无变动" });
+  const changeLabel = t({ en: "Change", zh: "变动" });
+  const valuationCaption = (changeMinor: number | null) =>
+    changeMinor === null
+      ? firstValuationCaption
+      : changeMinor === 0
+        ? noChangeCaption
+        : `${changeLabel} ${formatMoney(changeMinor, account.currency, locale, { signDisplay: "exceptZero" })}`;
+  const expectedLabel = t({ en: "Expected", zh: "待确认" });
+  const afterLabel = t({ en: "Balance after:", zh: "变动后余额：" });
   const removeLabel = t({ en: "Remove the balance of", zh: "删除余额记录：" });
   const removedLabel = t({ en: "Balance removed", zh: "余额记录已删除" });
 
+  const entryLink = (item: LedgerEntryItem, trailing: ReactNode) => (
+    <li key={`e:${item.transaction.id}`}>
+      <LedgerEntryLink
+        transaction={item.transaction}
+        description={describe(item.transaction, account.id)}
+        amountMinor={item.amountMinor}
+        currency={account.currency}
+        trailing={trailing}
+      />
+    </li>
+  );
+
+  const isEmpty = ledger.comingUp.length === 0 && ledger.days.length === 0;
+
   return (
     <section css={stack.item} aria-label={t({ en: "Ledger", zh: "明细" })}>
-      {items.length === 0 ? (
+      {isEmpty ? (
         <p css={[typeRole.bodySmall, styles.muted]}>
           {t({
             en: "Nothing recorded on this account yet.",
@@ -122,65 +138,93 @@ export function AccountLedger({ account }: { account: AccountRow }) {
           })}
         </p>
       ) : (
-        <ol css={styles.list}>
-          {items.map((item, index) =>
-            item.type === "valuation" ? (
-              <li key={`v:${item.valuation.id}`} css={[row.tight, styles.item]}>
-                <span
-                  css={[typeRole.caption, typeModifier.numeric, styles.day]}
-                >
-                  {displayDay(item.day, locale, "day")}
-                </span>
-                <span css={[typeRole.bodySmall, styles.title]}>
-                  {sourceLabels[item.valuation.source]}
-                </span>
-                <span
-                  css={[
-                    typeRole.bodySmall,
-                    typeModifier.numeric,
-                    styles.amount,
-                  ]}
-                >
-                  {`= ${formatMoney(item.valuation.amountMinor, account.currency, locale)}`}
-                </span>
-                <Button
-                  size="sm"
-                  look="ghost"
-                  icon={<TrashIcon weight="bold" />}
-                  aria-label={`${removeLabel} ${displayDay(item.day, locale, "dayYear")}`}
-                  onClick={() => {
-                    runUndoable(
-                      [
-                        {
-                          name: "deleteValuation",
-                          args: { id: item.valuation.id },
-                        },
-                      ],
-                      { message: removedLabel },
-                    );
-                  }}
-                />
-              </li>
-            ) : (
-              <li key={`e:${item.transaction.id}`}>
-                <LedgerEntryLink
-                  transaction={item.transaction}
-                  title={titleOf(item.transaction)}
-                  day={item.day}
-                  amountMinor={item.amount}
-                  currency={account.currency}
-                  balanceAfter={balancesAfter[index]}
-                />
-              </li>
-            ),
-          )}
-        </ol>
+        <div>
+          {ledger.comingUp.length > 0 ? (
+            <div css={styles.comingUp}>
+              <UpcomingHeader
+                count={ledger.comingUp.length}
+                totalMinor={ledger.comingUpMinor}
+                open={comingUpOpen}
+                currency={account.currency}
+                locale={locale}
+                onToggle={() => {
+                  setComingUpOpen(!comingUpOpen);
+                }}
+              />
+              {comingUpOpen ? (
+                <ol css={[styles.list, styles.comingUpList]}>
+                  {ledger.comingUp.map((item) =>
+                    entryLink(item, displayDay(item.day, locale, "weekday")),
+                  )}
+                </ol>
+              ) : null}
+            </div>
+          ) : null}
+          {ledger.days.map((day) => (
+            <div key={day.day}>
+              <DayHeader
+                day={day.day}
+                today={today}
+                locale={locale}
+                level={dayHeadingLevel}
+              />
+              <ol css={[styles.list, styles.dayList]}>
+                {day.items.map((item) =>
+                  item.type === "valuation" ? (
+                    <li key={`v:${item.valuation.id}`}>
+                      <TransactionFace
+                        icon={<ScalesIcon weight="bold" />}
+                        title={sourceLabels[item.valuation.source]}
+                        subtitle={valuationCaption(item.changeMinor)}
+                        amount={money(item.valuation.amountMinor)}
+                        trailing={
+                          <Button
+                            size="sm"
+                            look="ghost"
+                            icon={<TrashIcon weight="bold" />}
+                            aria-label={`${removeLabel} ${displayDay(item.day, locale, "dayYear")}`}
+                            css={styles.remove}
+                            onClick={() => {
+                              runUndoable(
+                                [
+                                  {
+                                    name: "deleteValuation",
+                                    args: { id: item.valuation.id },
+                                  },
+                                ],
+                                { message: removedLabel },
+                              );
+                            }}
+                          />
+                        }
+                      />
+                    </li>
+                  ) : (
+                    entryLink(
+                      item,
+                      item.transaction.status === "expected" ? (
+                        <Badge intent="info" size="sm">
+                          {expectedLabel}
+                        </Badge>
+                      ) : item.balanceAfter === null ? null : (
+                        <>
+                          <span css={a11y.srOnly}>{`${afterLabel} `}</span>
+                          {money(item.balanceAfter)}
+                        </>
+                      ),
+                    )
+                  ),
+                )}
+              </ol>
+            </div>
+          ))}
+        </div>
       )}
-      <div css={row.tight}>
-        {hasMore ? (
+      <div css={stack.tight}>
+        {ledger.hasMore ? (
           <Button
-            size="sm"
             look="ghost"
+            css={styles.more}
             onClick={() => {
               setLimit(limit + PAGE);
             }}
@@ -194,9 +238,11 @@ export function AccountLedger({ account }: { account: AccountRow }) {
             locale,
           )}
           {...stylex.props(
+            flex.between,
             typeRole.bodySmall,
-            corner.radius_1,
-            a11y.focusRing,
+            corner.radius_3,
+            transition.colors,
+            a11y.focusRingInset,
             styles.all,
           )}
         >
@@ -204,6 +250,7 @@ export function AccountLedger({ account }: { account: AccountRow }) {
             en: "All transactions on this account",
             zh: "此账户的全部交易",
           })}
+          <CaretRightIcon weight="bold" aria-hidden />
         </Link>
       </div>
     </section>
@@ -216,33 +263,36 @@ const styles = stylex.create({
     padding: 0,
     listStyle: "none",
   },
-  item: {
-    minBlockSize: space._7,
-    paddingInline: space._1,
-    gap: rhythm.tight,
+  comingUp: {
+    paddingBlockEnd: space._1,
   },
-  day: {
-    flexShrink: 0,
-    minInlineSize: "4.5em",
-    whiteSpace: "nowrap",
-    color: color.fgMuted,
+  comingUpList: {
+    paddingBlockStart: space._1,
   },
-  title: {
-    flexGrow: 1,
-    minInlineSize: 0,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
+  dayList: {
+    paddingBlockStart: space._0,
   },
-  amount: {
-    flexShrink: 0,
-    fontWeight: font.weight_5,
+  remove: {
+    [buttonTokens.height]: `calc(${font.uiBodySmall} * ${font.lineHeight_4} + ${space._00} * 2)`,
+    marginBlock: `calc(${space._00} * -1)`,
+    [buttonTokens.color]: color.fgMuted,
   },
   muted: {
     margin: 0,
     color: color.fgMuted,
   },
+  more: {
+    inlineSize: "100%",
+  },
   all: {
-    color: color.fgAccent,
+    gap: rhythm.tight,
+    paddingBlock: space._2,
+    paddingInline: space._2,
+    color: color.fgMuted,
+    textDecoration: "none",
+    backgroundColor: {
+      default: "transparent",
+      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
+    },
   },
 });

@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { CloudArrowUpIcon } from "@phosphor-icons/react/dist/ssr/CloudArrowUp";
 import * as stylex from "@stylexjs/stylex";
@@ -13,14 +12,8 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  color,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { MouseEvent } from "react";
 import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
@@ -33,6 +26,7 @@ import type {
 import { isInReview } from "./is-in-review.ts";
 import { reviewReason, type ReviewReason } from "./review-reason.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
+import { TransactionFace, transactionIcon } from "./transaction-face.tsx";
 import { useReviewReasonText } from "./use-review-reason-text.ts";
 
 export interface TransactionRowActions {
@@ -143,11 +137,6 @@ export function TransactionListRow({
         locale,
         { signDisplay: "exceptZero" },
       );
-  const emoji =
-    row.categoryId === null
-      ? ""
-      : (lookups.categoryEmojiById.get(row.categoryId) ?? "");
-  const initial = (title || "·").trim().slice(0, 1).toUpperCase();
   const isExpected = row.status === "expected";
   const isFuture = isExpected && row.date > today;
   const inReview = isInReview(row, entries, lookups.accountById, today);
@@ -167,36 +156,18 @@ export function TransactionListRow({
           actions.onOpen(row.id);
         }}
         css={[
-          flex.row,
           selected.quiet,
           corner.radius_3,
           a11y.focusRingInset,
           styles.link,
         ]}
       >
-        <span css={[corner.radius_round, flex.center, styles.icon]} aria-hidden>
-          {isTransfer ? (
-            <ArrowsLeftRightIcon weight="bold" />
-          ) : emoji === "" ? (
-            <span css={[typeRole.label, styles.initial]}>{initial}</span>
-          ) : (
-            emoji
-          )}
-        </span>
-        <span css={[flex.col, styles.main]}>
-          <span css={[flex.between, styles.line]}>
-            <span css={[typeRole.body, truncate.base, styles.title]}>
-              {title}
-            </span>
-            <span css={[typeRole.body, typeModifier.numeric, styles.amount]}>
-              {amount}
-            </span>
-          </span>
-          {subtitle !== "" ? (
-            <span css={[typeRole.bodySmall, truncate.base, styles.muted]}>
-              {subtitle}
-            </span>
-          ) : null}
+        <TransactionFace
+          icon={transactionIcon(row, lookups, title)}
+          title={title}
+          amount={amount}
+          subtitle={subtitle}
+        >
           {reason === null ? null : <ReviewReasonCaption reason={reason} />}
           {meta !== "" || isPending || isExpected || showReviewBadge ? (
             <span css={[flex.row, styles.metaLine]}>
@@ -225,7 +196,7 @@ export function TransactionListRow({
               ) : null}
             </span>
           ) : null}
-        </span>
+        </TransactionFace>
       </a>
       {isExpected ? (
         <div css={[cluster.tight, styles.actions]}>
@@ -295,39 +266,9 @@ const styles = stylex.create({
     paddingBlock: space._00,
   },
   link: {
-    gap: rhythm.item,
-    alignItems: "flex-start",
-    paddingBlock: space._1,
-    paddingInline: space._2,
+    display: "block",
     color: "inherit",
     textDecoration: "none",
-    minInlineSize: 0,
-  },
-  icon: {
-    flexShrink: 0,
-    inlineSize: "2.25rem",
-    blockSize: "2.25rem",
-    backgroundColor: color.bgSurfaceSunken,
-    fontSize: controlSize._5,
-  },
-  initial: {
-    color: color.fgMuted,
-  },
-  main: {
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  line: {
-    gap: rhythm.tight,
-    minInlineSize: 0,
-  },
-  title: {
-    fontWeight: font.weight_5,
-    minInlineSize: 0,
-  },
-  amount: {
-    flexShrink: 0,
-    fontWeight: font.weight_5,
   },
   muted: {
     color: color.fgMuted,

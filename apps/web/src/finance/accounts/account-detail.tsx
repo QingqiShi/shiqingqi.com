@@ -3,13 +3,15 @@
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsClockwise";
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
+import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -18,7 +20,6 @@ import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { useBankErrorMessage } from "../settings/use-bank-error-message.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
@@ -27,6 +28,9 @@ import { accountDetailLine } from "./account-detail-line.ts";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
 import { AccountLedger } from "./account-ledger.tsx";
 import { BankBalanceNotice } from "./bank-balance-notice.tsx";
+import { BankLinkStatus } from "./bank-link-status.tsx";
+import { CreditUsageMeter } from "./credit-usage-meter.tsx";
+import { institutionIconUrl } from "./institution-icon-url.ts";
 import { UpdateBalanceSheet } from "./update-balance-sheet.tsx";
 import { useHouseholdToday } from "./use-household-today.ts";
 
@@ -34,14 +38,9 @@ interface AccountDetailProps {
   accountId: string;
   /** 1 on the account's own page, 2 in the pane beside the Net worth list. */
   headingLevel: 1 | 2;
-  /** Leaves the account's screen once it is deleted. */
   onDeleted: () => void;
 }
 
-/**
- * One account: its balance and history chart, the facts of its kind, its
- * Bank link, and its ledger, with "Update" and "Edit".
- */
 export function AccountDetail({
   accountId,
   headingLevel,
@@ -69,7 +68,6 @@ export function AccountDetail({
         )
       : 0,
   );
-  const bankErrorMessage = useBankErrorMessage();
   const accountName = useAccountDisplayName();
   const [updating, setUpdating] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -101,18 +99,6 @@ export function AccountDetail({
 
   const facts: { key: string; label: string; value: string }[] = [];
   if (account.kind === "credit") {
-    if (account.creditLimitMinor !== null) {
-      facts.push({
-        key: "limit",
-        label: t({ en: "Credit limit", zh: "信用额度" }),
-        value: money(account.creditLimitMinor),
-      });
-      facts.push({
-        key: "available",
-        label: t({ en: "Available", zh: "可用额度" }),
-        value: money(account.creditLimitMinor + balance),
-      });
-    }
     if (account.statementDay !== null) {
       facts.push({
         key: "statement",
@@ -128,117 +114,131 @@ export function AccountDetail({
       });
     }
   }
-  if (bankLink) {
-    facts.push({
-      key: "bank",
-      label: t({ en: "Bank link", zh: "银行关联" }),
-      value: [
-        bankLink.providerName || bankLink.providerInstitution,
-        bankLink.lastSyncAt === null
-          ? t({ en: "not synced yet", zh: "尚未同步" })
-          : `${t({ en: "synced", zh: "同步于" })} ${displayDay(bankLink.lastSyncAt.slice(0, 10), locale, "day")}`,
-        bankLink.status === "active"
-          ? ""
-          : t({
-              en: "reconnect in Lunch Flow",
-              zh: "需在 Lunch Flow 重新连接",
-            }),
-        bankErrorMessage(bankLink.lastError) ?? "",
-      ]
-        .filter((part) => part !== "")
-        .join(" · "),
-    });
-  }
+  const creditLimit =
+    account.kind === "credit" ? account.creditLimitMinor : null;
+  const layout = headingLevel === 1 ? pageLayout : null;
+  const ledgerHeadingLevel = headingLevel === 1 ? 2 : 3;
 
   return (
-    <article css={stack.group}>
-      <header css={stack.item}>
-        <div css={stack.tight}>
-          <Heading level={headingLevel} look="h3">
-            {accountName(account)}
-          </Heading>
-          <div css={[cluster.tight, typeRole.bodySmall, styles.muted]}>
-            <span>
-              {[
-                detail,
-                account.isSystem ? "" : kindLabels[account.kind],
-                group?.name ?? "",
-              ]
-                .filter((part) => part !== "")
-                .join(" · ")}
+    <article css={layout?.container}>
+      <div css={[stack.group, layout?.columns]}>
+        <div css={[stack.group, layout?.aside]}>
+          <header css={stack.item}>
+            <div css={[flex.row, styles.identity]}>
+              <Avatar
+                name={account.institution.trim() || accountName(account)}
+                src={institutionIconUrl(account)}
+                shape="square"
+                size="lg"
+                aria-hidden
+              />
+              <div css={[flex.col, styles.names]}>
+                <Heading level={headingLevel} look="h3">
+                  {accountName(account)}
+                </Heading>
+                <div css={[cluster.tight, typeRole.bodySmall, styles.muted]}>
+                  <span>
+                    {[
+                      detail,
+                      account.isSystem ? "" : kindLabels[account.kind],
+                      group?.name ?? "",
+                    ]
+                      .filter((part) => part !== "")
+                      .join(" · ")}
+                  </span>
+                  {account.closedOn !== null ? (
+                    <Badge size="sm" intent="neutral">
+                      {`${t({ en: "Closed", zh: "已关闭" })} ${displayDay(account.closedOn, locale, "day")}`}
+                    </Badge>
+                  ) : null}
+                  {account.excludedFromNetWorth ? (
+                    <Badge size="sm" intent="neutral">
+                      {t({ en: "Not counted", zh: "不计入" })}
+                    </Badge>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+            <span
+              css={[typeRole.subDisplay, typeModifier.numeric, styles.balance]}
+            >
+              {money(balance)}
             </span>
-            {account.closedOn !== null ? (
-              <Badge size="sm" intent="neutral">
-                {`${t({ en: "Closed", zh: "已关闭" })} ${displayDay(account.closedOn, locale, "day")}`}
-              </Badge>
-            ) : null}
-            {account.excludedFromNetWorth ? (
-              <Badge size="sm" intent="neutral">
-                {t({ en: "Not counted", zh: "不计入" })}
-              </Badge>
+            {account.isSystem ? (
+              <Text look="bodySmall" tone="muted">
+                {t({
+                  en: "Money on its way between your accounts. It moves to the account it reaches when that bank shows it.",
+                  zh: "在你的账户之间转账途中的钱。到账的银行显示这笔钱后，它会移到那个账户。",
+                })}
+              </Text>
+            ) : (
+              <div css={cluster.tight}>
+                <Button
+                  size="sm"
+                  look="primary"
+                  icon={<ArrowsClockwiseIcon weight="bold" />}
+                  onClick={() => {
+                    setUpdating(true);
+                  }}
+                >
+                  {t({ en: "Update balance", zh: "更新余额" })}
+                </Button>
+                <Button
+                  size="sm"
+                  look="ghost"
+                  icon={<PencilSimpleIcon weight="bold" />}
+                  onClick={() => {
+                    setEditing(true);
+                  }}
+                >
+                  {t({ en: "Edit", zh: "编辑" })}
+                </Button>
+              </div>
+            )}
+            {bankLink ? <BankLinkStatus link={bankLink} /> : null}
+          </header>
+          {bankLink ? (
+            <BankBalanceNotice link={bankLink} account={account} />
+          ) : null}
+          <AccountChart account={account} today={today} />
+          <div css={[stack.item, styles.creditFacts]}>
+            {creditLimit === null ? null : (
+              <CreditUsageMeter
+                balanceMinor={balance}
+                limitMinor={creditLimit}
+                currency={account.currency}
+              />
+            )}
+            {facts.length > 0 ? (
+              <dl css={styles.facts}>
+                {facts.map((fact) => (
+                  <div key={fact.key} css={styles.fact}>
+                    <dt css={[typeRole.caption, styles.muted]}>{fact.label}</dt>
+                    <dd
+                      css={[
+                        typeRole.bodySmall,
+                        typeModifier.numeric,
+                        styles.factValue,
+                      ]}
+                    >
+                      {fact.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             ) : null}
           </div>
         </div>
-        <span css={[typeRole.h2, styles.balance]}>{money(balance)}</span>
-        {account.isSystem ? (
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "Money on its way between your accounts. It moves to the account it reaches when that bank shows it.",
-              zh: "在你的账户之间转账途中的钱。到账的银行显示这笔钱后，它会移到那个账户。",
-            })}
-          </Text>
-        ) : (
-          <div css={cluster.tight}>
-            <Button
-              size="sm"
-              look="primary"
-              icon={<ArrowsClockwiseIcon weight="bold" />}
-              onClick={() => {
-                setUpdating(true);
-              }}
-            >
-              {t({ en: "Update balance", zh: "更新余额" })}
-            </Button>
-            <Button
-              size="sm"
-              look="ghost"
-              icon={<PencilSimpleIcon weight="bold" />}
-              onClick={() => {
-                setEditing(true);
-              }}
-            >
-              {t({ en: "Edit", zh: "编辑" })}
-            </Button>
-          </div>
-        )}
-      </header>
-      {bankLink ? (
-        <BankBalanceNotice link={bankLink} account={account} />
-      ) : null}
-      <AccountChart account={account} today={today} />
-      {facts.length > 0 ? (
-        <dl css={styles.facts}>
-          {facts.map((fact) => (
-            <div key={fact.key} css={styles.fact}>
-              <dt css={[typeRole.caption, styles.muted]}>{fact.label}</dt>
-              <dd
-                css={[
-                  typeRole.bodySmall,
-                  typeModifier.numeric,
-                  styles.factValue,
-                ]}
-              >
-                {fact.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      ) : null}
-      <div css={stack.item}>
-        <Heading level={headingLevel === 1 ? 2 : 3} look="h4">
-          {t({ en: "Ledger", zh: "明细" })}
-        </Heading>
-        <AccountLedger account={account} />
+        <div css={[stack.item, layout?.ledger]}>
+          <Heading level={ledgerHeadingLevel} look="h4">
+            {t({ en: "Ledger", zh: "明细" })}
+          </Heading>
+          <AccountLedger
+            account={account}
+            today={today}
+            dayHeadingLevel={ledgerHeadingLevel === 2 ? 3 : 4}
+          />
+        </div>
       </div>
       <UpdateBalanceSheet
         line={updating ? { account, ownerName, bankLink } : null}
@@ -259,12 +259,52 @@ export function AccountDetail({
   );
 }
 
+const TWO_COLUMNS = "@container (min-width: 60rem)";
+const TALL_ENOUGH = "@media (min-height: 48rem)";
+
+const pageLayout = stylex.create({
+  container: {
+    containerType: "inline-size",
+  },
+  columns: {
+    display: { default: "flex", [TWO_COLUMNS]: "grid" },
+    gridTemplateColumns: {
+      default: null,
+      [TWO_COLUMNS]: "minmax(0, 1fr) minmax(0, 36rem)",
+    },
+    columnGap: { default: null, [TWO_COLUMNS]: rhythm.section },
+    maxInlineSize: { default: "40rem", [TWO_COLUMNS]: "none" },
+    alignItems: { default: null, [TWO_COLUMNS]: "start" },
+  },
+  aside: {
+    position: {
+      default: null,
+      [TWO_COLUMNS]: { default: null, [TALL_ENOUGH]: "sticky" },
+    },
+    insetBlockStart: { default: null, [TWO_COLUMNS]: space._4 },
+  },
+  ledger: {
+    minInlineSize: 0,
+  },
+});
+
 const styles = stylex.create({
+  identity: {
+    gap: rhythm.item,
+    minInlineSize: 0,
+  },
+  names: {
+    gap: rhythm.inline,
+    minInlineSize: 0,
+  },
   muted: {
     color: color.fgMuted,
   },
   balance: {
     fontWeight: font.weight_7,
+  },
+  creditFacts: {
+    display: { default: "flex", ":empty": "none" },
   },
   facts: {
     display: "grid",

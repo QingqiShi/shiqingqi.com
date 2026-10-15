@@ -7,6 +7,7 @@ import { FinanceNav } from "./finance-nav.tsx";
 import { FinanceSidebarHeader } from "./finance-sidebar-header.tsx";
 import { FinanceTabBar } from "./finance-tab-bar.tsx";
 import { FinanceToastProvider } from "./finance-toast-provider.tsx";
+import { floatingActionTokens } from "./floating-action.stylex.ts";
 import { OfflineNavigationGuard } from "./offline-navigation-guard.tsx";
 import { PrecacheFinanceShells } from "./precache-finance-shells.tsx";
 import { PrewarmScreens } from "./prewarm-screens.tsx";
@@ -64,6 +65,6 @@ export function FinanceShell({
 
 const styles = stylex.create({
   content: {
-    paddingBlockEnd: tabBarTokens.clearance,
+    paddingBlockEnd: `max(${tabBarTokens.clearance}, ${floatingActionTokens.clearance})`,
   },
 });
