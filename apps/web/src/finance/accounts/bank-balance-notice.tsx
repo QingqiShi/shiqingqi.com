@@ -29,7 +29,7 @@ import type {
 } from "../sync/row-schemas.ts";
 import { LedgerEntryLink } from "./ledger-entry-link.tsx";
 import { shownUnbackedEntries } from "./shown-unbacked-entries.ts";
-import { useTransactionTitle } from "./use-transaction-title.ts";
+import { useDescribeLedgerEntry } from "./use-describe-ledger-entry.ts";
 import { useUnbackedEntries } from "./use-unbacked-entries.ts";
 
 interface BankBalanceProps {
@@ -152,7 +152,7 @@ function UnbackedEntryList({
   ourExcess: number;
 }) {
   const locale = useLocale();
-  const titleOf = useTransactionTitle();
+  const describe = useDescribeLedgerEntry();
   const runUndoable = useUndoableMutations();
   const [expanded, setExpanded] = useState(false);
   const unbacked = useUnbackedRows(link, accountId, ourExcess);
@@ -184,16 +184,17 @@ function UnbackedEntryList({
           </p>
           <ul css={styles.list}>
             {shown.map(({ entry, transaction }) => {
-              const title = titleOf(transaction);
+              const description = describe(transaction, accountId);
+              const { title } = description;
               return (
                 <li key={entry.id} css={row.tight}>
                   <div css={styles.entry}>
                     <LedgerEntryLink
                       transaction={transaction}
-                      title={title}
-                      day={entry.date}
+                      description={description}
                       amountMinor={entry.amountMinor}
                       currency={link.currency}
+                      trailing={displayDay(entry.date, locale, "day")}
                     />
                   </div>
                   <Button
