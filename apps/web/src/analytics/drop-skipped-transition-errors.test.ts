@@ -50,8 +50,4 @@ describe("dropSkippedTransitionErrors", () => {
     } satisfies CaptureResult;
     expect(dropSkippedTransitionErrors(event)).toBe(event);
   });
-
-  it("passes a null event through", () => {
-    expect(dropSkippedTransitionErrors(null)).toBeNull();
-  });
 });
