@@ -117,7 +117,7 @@ export function SurfacesShowcase() {
       token: "corner.radius_4",
       meta: "2rem",
       swatch: radiusStyles.r4,
-      use: t({ en: "Overlay", zh: "Overlay" }),
+      use: t({ en: "Sheet", zh: "Sheet" }),
     },
     {
       token: "corner.radius_5",

@@ -218,7 +218,7 @@ describe("Popover", () => {
     expect(screen.getByRole("button", { name: "Last" })).toHaveFocus();
 
     // Past the last control focus leaves the popover instead of cycling back to
-    // the first, which is what a focus trap (`Overlay`) would do.
+    // the first, which is what a focus trap (`Sheet`) would do.
     await user.tab();
     expect(dialog.contains(document.activeElement)).toBe(false);
   });

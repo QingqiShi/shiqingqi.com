@@ -123,7 +123,7 @@ type PopoverProps = PopoverBaseProps & PopoverStateProps;
 /**
  * Arbitrary content hung off a trigger, placed against the viewport so it
  * always lands on screen; it closes on Escape, an outside pointer, or lost
- * focus, but does not trap focus or lock scroll — for a modal use `Overlay`,
+ * focus, but does not trap focus or lock scroll — for a modal use `Sheet`,
  * for a menu of commands `MenuButton`. It unmounts when closed and remounts
  * on every open, so lift any state a consumer needs to keep.
  */

@@ -100,11 +100,13 @@ const light = {
   bgSurfaceFade: gray._95,
 
   // A bright control stays light in both themes (a slider thumb).
-  // Inverse flips the theme (tooltips, snackbars). Scrim dims the page behind
-  // a modal.
+  // Inverse flips the theme (tooltips, snackbars). Scrim is a dark ground for
+  // light text over media. Dim darkens the page behind a sheet, less than the
+  // scrim, so the page stays legible as the context of the sheet.
   bgControlBright: gray._100,
   bgInverse: gray._20,
   bgScrim: "rgba(0, 0, 0, 0.7)",
+  bgDim: "rgba(0, 0, 0, 0.32)",
 
   // Control — buttons, list rows, menu items. `Disabled` is the one tone that
   // never lands at full strength: it is painted on the same element as
@@ -216,6 +218,9 @@ const dark: { [key in keyof typeof light]: string } = {
   bgControlBright: gray._80,
   bgInverse: gray._92,
   bgScrim: "rgba(0, 0, 0, 0.7)",
+  // The dark page is near black already, so the dim is stronger there for the
+  // same separation.
+  bgDim: "rgba(0, 0, 0, 0.56)",
 
   bgControl: gray._7,
   bgControlHover: gray._13,
@@ -324,6 +329,7 @@ export const color = stylex.defineVars({
   bgControlBright: `light-dark(${light.bgControlBright}, ${dark.bgControlBright})`,
   bgInverse: `light-dark(${light.bgInverse}, ${dark.bgInverse})`,
   bgScrim: `light-dark(${light.bgScrim}, ${dark.bgScrim})`,
+  bgDim: `light-dark(${light.bgDim}, ${dark.bgDim})`,
 
   bgControl: `light-dark(${light.bgControl}, ${dark.bgControl})`,
   bgControlHover: `light-dark(${light.bgControlHover}, ${dark.bgControlHover})`,

@@ -15,6 +15,12 @@ The colour then latches. It survives scrolling and client-side navigation, and
 clears only on a page load. So the cost of one wrong box is that the top of the
 page loses its Progressive blur for the rest of the visit.
 
+The bottom edge is sampled the same way, at the midpoint of the bottom edge
+pulled in by 4px. A candidate there turns the band under Safari's bottom
+toolbar into a flat colour, such as a Sheet card's fill. A box that covers a
+sample point only while it slides in or is dragged still latches its colour,
+so a box that moves must stay out of the sampling at every position.
+
 Three facts trip people up:
 
 - `pointer-events: none` does not hide a box from the first pass. The sampler
@@ -65,10 +71,25 @@ it again if the header height or the bar's inset changes.
   from a custom property, so the box on the Blur plane never grows.
 - `packages/ui/src/shells/header-controls.tsx`. The header floats
   two narrow control groups instead of one bar across the top.
+- `packages/ui/src/surfaces/sheet.tsx`. Nothing of a Sheet is fixed. When
+  its card was fixed, it latched the toolbar band to its fill. Safari also
+  paints no fixed subtree below the top of its bottom toolbar, but it paints
+  the document there. So the dim and the card are absolute in
+  `document.body`, and the card is placed at the bottom of the visual
+  viewport in document coordinates, so it can slide in from below the
+  screen. Safari paints nothing past the end of the document, not even ink
+  overflow such as a `box-shadow`, so the dim makes the document one screen
+  taller while the sheet is open.
+- `useVisibleArea` in `packages/ui/src/hooks/use-visible-area.ts` writes
+  the bottom of the visual viewport, in document coordinates, to a custom
+  property. An absolute box reads it to sit at the bottom of what the visitor
+  sees, above an on-screen keyboard too, with no fixed box.
 - `findStatusBarCandidates` in `apps/web/e2e/helpers/status-bar.ts` is the
   executable guard. It walks every fixed and sticky box that covers the
-  top-centre point, because `elementsFromPoint` honours `pointer-events: none`
-  and would miss the culprit.
+  top-centre or the bottom-centre point, because `elementsFromPoint` honours
+  `pointer-events: none` and would miss the culprit. Pass it a selector to
+  check every fixed and sticky box in and around that element at any
+  position, for a box that moves.
 - The Progressive blur showcase states the rule in domain language:
   `apps/web/src/design-system/sections/components/progressive-blur-showcase.tsx`.
 

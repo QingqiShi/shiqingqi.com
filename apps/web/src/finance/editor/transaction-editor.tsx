@@ -77,7 +77,6 @@ import { ruleDeclines } from "./rule-declines.ts";
 import { TagPicker } from "./tag-picker.tsx";
 import { topCategories } from "./top-categories.ts";
 import { useEditorData, type EditorData } from "./use-editor-data.ts";
-import { useKeyboardInset } from "./use-keyboard-inset.ts";
 
 export type EditorFocusTarget = "amount" | "category" | "heading";
 
@@ -230,7 +229,6 @@ function EditorForm({
   >("idle");
   const [ruleOffer, setRuleOffer] = useState<"open" | "declined">("open");
   const [instalmentsOpen, setInstalmentsOpen] = useState(false);
-  const keyboardInset = useKeyboardInset();
   const newIdRef = useRef<string | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
@@ -1504,12 +1502,7 @@ function EditorForm({
         })}
       </p>
 
-      <FloatingActions
-        css={[
-          styles.footer,
-          keyboardInset > 0 && styles.lift(`${String(keyboardInset)}px`),
-        ]}
-      >
+      <FloatingActions css={styles.footer}>
         {secondaryAction}
         <Button
           type="submit"
@@ -1572,9 +1565,6 @@ const styles = stylex.create({
     insetBlockEnd: `calc(${space._3} - ${PANE_END_GAP})`,
     zIndex: 1,
   },
-  lift: (inset: string) => ({
-    transform: `translateY(calc(-1 * ${inset}))`,
-  }),
   paysDownHeader: {
     gap: rhythm.tight,
   },

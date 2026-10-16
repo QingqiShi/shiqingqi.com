@@ -78,7 +78,7 @@ export const specimenLayout = stylex.create({
 
 /**
  * Chrome for the six specimens whose subject is a whole page and so cannot be
- * rendered live inside a tile — Overlay (portals to a fixed, focus-trapping
+ * rendered live inside a tile — Sheet (portals to a fixed, focus-trapping
  * layer), the two page shells (they own the viewport and the `<main>` landmark),
  * the composed movie-details example (a whole screen is illegible at plate
  * size), Progressive blur (it paints nothing of its own, only what it does to a
@@ -121,8 +121,8 @@ export const wireframe = stylex.create({
   },
   // For a miniature whose own parts run out to the page's edge — a rail, a
   // header bar, a footer bar — which would otherwise show square corners over
-  // the page's rounded ones. The Overlay and Progressive blur miniatures leave
-  // it off: their content is inset, and a squircle-cornered clip above a blur's
+  // the page's rounded ones. The Progressive blur miniature leaves it off: its
+  // content is inset, and a squircle-cornered clip above a blur's
   // layers makes Chrome drop their masks and render one flat blur.
   clip: {
     overflow: "hidden",

@@ -13,7 +13,7 @@ The [StyleX](https://stylexjs.com) design system that powers
   each exported as a StyleX var file.
 - **Composable primitives** — flex/layout/motion/reset style objects you spread
   through the `css` prop.
-- **Accessible React components** — buttons, overlays, switches, headings,
+- **Accessible React components** — buttons, sheets, switches, headings,
   badges, skeletons, and more, with focus management and keyboard behaviour
   built in.
 
@@ -429,7 +429,7 @@ as the system gains components.
 | `@tuja/ui/test-support/install-jsdom-shims`   | `installJsdomShims()` — backs `isContentEditable` and related behaviour jsdom does not implement, for a test suite's setup file.                                                                               |
 | `@tuja/ui/hooks/use-black-hole`               | Ref that makes its element a Black hole on the effect layer, which bends the light of a Light beam passing behind it.                                                                                          |
 | `@tuja/ui/hooks/use-controlled`               | Controlled/uncontrolled state hook.                                                                                                                                                                            |
-| `@tuja/ui/hooks/use-dialog-focus`             | Focus trap + restore for dialogs and overlays.                                                                                                                                                                 |
+| `@tuja/ui/hooks/use-dialog-focus`             | Focus trap + restore for dialogs and sheets.                                                                                                                                                                   |
 | `@tuja/ui/hooks/use-disclosure`               | Headless expand/collapse state with the `aria-expanded` / `aria-controls` wiring.                                                                                                                              |
 | `@tuja/ui/hooks/use-dust`                     | Ref that sheds dust in its element's fill colour, which floats off, then speeds into any Extractor fan in reach.                                                                                               |
 | `@tuja/ui/hooks/use-effect-boundary`          | Ref that registers its element on the effect layer with no effect, so effects see it; the layer measures its box, corners and fill whenever they can change.                                                   |
@@ -445,6 +445,7 @@ as the system gains components.
 | `@tuja/ui/hooks/use-ring-light`               | Ref that runs one lap of light round its element's outline on the effect layer, once, when the element mounts.                                                                                                 |
 | `@tuja/ui/hooks/use-ripple`                   | Ref that pulses its element's background colour out in rings on the effect layer, on hover, press and focus.                                                                                                   |
 | `@tuja/ui/hooks/use-scroll-mask`              | Whether each edge of a scroll region has scrolled-away content past it.                                                                                                                                        |
+| `@tuja/ui/hooks/use-visible-area`             | Ref that writes where the visible area ends, above an on-screen keyboard, to `--visible-bottom` on an absolute element, with no React state.                                                                   |
 | `@tuja/ui/utils/contrast-ratio`               | `contrastRatio` and `relativeLuminance` — the WCAG 2 contrast ratio of two opaque colours.                                                                                                                     |
 | `@tuja/ui/utils/get-scroll-behavior`          | `"smooth"`, or `"instant"` under reduced motion — read at scroll time so it always reports the current setting.                                                                                                |
 | `@tuja/ui/utils/merge-refs`                   | `mergeRefs(...refs)` — one callback ref for several refs, with each ref's cleanup; gives one element two effect hooks.                                                                                         |
@@ -498,7 +499,6 @@ as the system gains components.
 | `@tuja/ui/components/option-card`             | Selectable card (`row` or `tile` look), radio or checkbox semantics set by its group.                                                                                                                          |
 | `@tuja/ui/components/option-card-group`       | Single- or multiple-select group of `OptionCard`s.                                                                                                                                                             |
 | `@tuja/ui/components/option-card.stylex`      | The selectable-card skin, composed over `cardSurface`.                                                                                                                                                         |
-| `@tuja/ui/components/overlay`                 | Accessible dialog/popover overlay (requires `aria-label` **xor** `aria-labelledby`).                                                                                                                           |
 | `@tuja/ui/components/popover`                 | Anchored floating surface (menu, tooltip, dropdown), positioned off a trigger and dismissed on outside click or Escape.                                                                                        |
 | `@tuja/ui/components/popover-surface.stylex`  | The floating-surface skin shared by every popup that hangs off an anchor.                                                                                                                                      |
 | `@tuja/ui/components/progress`                | Determinate progress bar.                                                                                                                                                                                      |
@@ -508,6 +508,7 @@ as the system gains components.
 | `@tuja/ui/components/section`                 | Labelled content block (quiet heading, optional icon and trailing actions).                                                                                                                                    |
 | `@tuja/ui/components/segmented-control`       | Track-style single select over `useRadioGroup`; `hideLabels` for an icon-only bar.                                                                                                                             |
 | `@tuja/ui/components/select`                  | Styled native select (options prop or `<option>` children).                                                                                                                                                    |
+| `@tuja/ui/components/sheet`                   | Modal card over a dimmed page: floats at the bottom below `md` and closes on a drag down, centred from `md` up (requires `aria-label` **xor** `aria-labelledby`).                                              |
 | `@tuja/ui/components/sidebar-layout`          | Sidebar + content layout.                                                                                                                                                                                      |
 | `@tuja/ui/components/skeleton`                | Loading skeleton.                                                                                                                                                                                              |
 | `@tuja/ui/components/skeleton.stylex`         | Skeleton style tokens.                                                                                                                                                                                         |

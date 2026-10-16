@@ -206,8 +206,7 @@ export default function CustomizationPage() {
             },
             {
               term: t({ en: "No css", zh: "不接收 css" }),
-              value:
-                "MenuButton · Overlay · HeaderFooterLayout · SidebarLayout",
+              value: "MenuButton · Sheet · HeaderFooterLayout · SidebarLayout",
               note: t({
                 en: "MenuButton takes css for its trigger inside buttonProps. The other three take none.",
                 zh: "MenuButton 通过 buttonProps 为其触发按钮接收 css。其余三个都不接收。",
@@ -368,7 +367,7 @@ export default function CustomizationPage() {
             },
             {
               term: "useDialogFocus",
-              value: "Overlay · SidebarLayout",
+              value: "Sheet · SidebarLayout",
               note: t({
                 en: "Moves focus into a dialog, keeps Tab inside it, calls onClose on Escape and gives focus back to the trigger. Scroll locking is not part of it.",
                 zh: "把焦点移入对话框，让 Tab 留在其中，按 Escape 时调用 onClose，并把焦点交还给触发元素。它不包含滚动锁定。",

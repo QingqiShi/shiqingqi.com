@@ -82,3 +82,11 @@ _Avoid_: glow, halo, shimmer, border animation, 光晕, 流光
 **Toast**:
 A short message about what an action did, on a capsule of Glass at the bottom of the screen, with up to two actions such as Undo. One shows at a time, and it goes by itself. `ToastProvider` shows it, `useToast` asks for it, and `Toast` is its surface. ZH: 轻提示.
 _Avoid_: snackbar, notification, flash message, banner (that is a Callout), 通知, 消息条
+
+**Sheet**:
+A modal card over the dimmed page. Below `md` it floats at the bottom of the screen and a drag down puts it away; from `md` up it sits in the centre. `Sheet` is its component. ZH: 弹出面板.
+_Avoid_: overlay, modal (for this sense), bottom sheet, drawer (that is SidebarLayout's), 覆盖层, 抽屉
+
+**Dim**:
+The darkening over the whole page behind a Sheet, painted with `color.bgDim`. It is not a scrim, which is a dark ground for light text over media. ZH: 暗化层.
+_Avoid_: backdrop, scrim (for this sense), overlay, 遮罩

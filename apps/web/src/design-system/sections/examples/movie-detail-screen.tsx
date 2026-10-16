@@ -31,7 +31,7 @@ import { AnnotatedRegion } from "./annotated-region.tsx";
 import { CastPanel } from "./cast-panel.tsx";
 import { OverviewPanel } from "./overview-panel.tsx";
 import { SimilarPanel } from "./similar-panel.tsx";
-import { TrailerOverlay } from "./trailer-overlay.tsx";
+import { TrailerSheet } from "./trailer-sheet.tsx";
 import { TypesetPoster } from "./typeset-poster.tsx";
 import { useMovies } from "./use-movies.ts";
 
@@ -158,7 +158,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
       <AnnotatedRegion
         annotated={annotated}
         label={t({ en: "Hero", zh: "头部" })}
-        composes="Heading · Text · Badge · Button · MenuButton · Callout · Overlay"
+        composes="Heading · Text · Badge · Button · MenuButton · Callout · Sheet"
       >
         <div css={styles.hero}>
           <TypesetPoster
@@ -473,7 +473,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
         </div>
       </div>
 
-      <TrailerOverlay
+      <TrailerSheet
         title={movie.title}
         studio={movie.studio}
         isOpen={trailerOpen}

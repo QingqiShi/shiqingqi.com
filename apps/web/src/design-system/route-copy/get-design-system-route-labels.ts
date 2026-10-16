@@ -111,7 +111,7 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Disclosure",
       zh: "折叠面板",
     }),
-    "/design-system/components/overlay": t({ en: "Overlay", zh: "覆盖层" }),
+    "/design-system/components/sheet": t({ en: "Sheet", zh: "弹出面板" }),
     "/design-system/components/popover": t({ en: "Popover", zh: "浮层" }),
     "/design-system/components/progressive-blur": t({
       en: "Progressive blur",

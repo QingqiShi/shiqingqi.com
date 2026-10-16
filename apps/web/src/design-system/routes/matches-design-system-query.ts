@@ -12,7 +12,7 @@ function foldForSearch(value: string) {
 /**
  * Whether a route answers a search. It matches the route's localised name, its
  * URL slug — which keeps the English name searchable in the Chinese locale —
- * and its `keywords`, so a visitor finds Overlay by typing "modal".
+ * and its `keywords`, so a visitor finds Sheet by typing "modal".
  */
 export function matchesDesignSystemQuery(
   path: DesignSystemPath,

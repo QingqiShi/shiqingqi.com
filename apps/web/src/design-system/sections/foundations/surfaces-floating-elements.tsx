@@ -13,12 +13,12 @@ export function SurfacesFloatingElements() {
   const rules = [
     {
       term: t({
-        en: "Blur, not a shadow or a scrim",
-        zh: "虚化，而非阴影或遮罩",
+        en: "Blur or a dim, not a shadow",
+        zh: "虚化或压暗，而非阴影",
       }),
       note: t({
-        en: "MenuButton and Overlay put a ProgressiveBlur around what they float, strongest at its edge and fading out. popoverSurface casts no shadow, and Overlay's backdrop is invisible: it only catches the click that dismisses it.",
-        zh: "MenuButton 与 Overlay 在它们悬浮的元素周围放一层 ProgressiveBlur，紧贴边缘处最强，向外逐渐消退。popoverSurface 不投阴影，Overlay 的背景层也不可见：它只接住用来关闭的那次点击。",
+        en: "MenuButton puts a ProgressiveBlur around what it floats, strongest at its edge and fading out. popoverSurface casts no shadow. A Sheet stops the whole page, so it dims all of it with color.bgDim, and a click on the dim closes the sheet.",
+        zh: "MenuButton 在它悬浮的元素周围放一层 ProgressiveBlur，紧贴边缘处最强，向外逐渐消退。popoverSurface 不投阴影。Sheet 会让整个页面停下，所以用 color.bgDim 压暗整个页面，点击暗化层即可关闭面板。",
       }),
     },
     {

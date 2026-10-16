@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { viewportAnchor } from "../primitives/layout.stylex.ts";
-import type { StyleProp } from "../types.ts";
 
 interface PortalProps {
   children: ReactNode;
@@ -19,8 +18,6 @@ interface PortalProps {
    * `document.body`, which is not a viewport anchor.
    */
   anchored?: boolean;
-  /** StyleX styles for the anchor box around the children in the body. */
-  anchorCss?: StyleProp;
 }
 
 /**
@@ -30,21 +27,12 @@ interface PortalProps {
  *
  * @internal
  */
-export function Portal({
-  children,
-  target,
-  anchored = false,
-  anchorCss,
-}: PortalProps) {
+export function Portal({ children, target, anchored = false }: PortalProps) {
   const isHydrated = useIsHydrated();
   if (!isHydrated || target === null) return null;
   if (target !== undefined) return createPortal(children, target);
   return createPortal(
-    anchored ? (
-      <div css={[viewportAnchor.fixed, anchorCss]}>{children}</div>
-    ) : (
-      children
-    ),
+    anchored ? <div css={viewportAnchor.fixed}>{children}</div> : children,
     document.body,
   );
 }

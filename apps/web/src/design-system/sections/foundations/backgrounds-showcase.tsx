@@ -210,12 +210,15 @@ const styles = stylex.create({
         </Band>
 
         <Band
-          name={t({ en: "Bright, inverse and scrim", zh: "明亮、反相与遮罩" })}
-          use={t({
-            en: 'Grounds that take a foreground of their own, so each pairs with its fgOn token. Bright stays light in both schemes: the Slider thumb, and Button with bright. Inverse is dark in light and light in dark: Avatar with look="solid". Scrim is the same translucent black in both, and dims the page behind a modal surface.',
-            zh: '需要专属前景色的底面，因此每一种都搭配自己的 fgOn 令牌。Bright 在两种配色方案下都保持浅色：Slider 的手柄，以及设置了 bright 的 Button。Inverse 在浅色下是深色、在深色下是浅色：look="solid" 的 Avatar。Scrim 在两种方案下是同一种半透明黑色，用于压暗模态表面背后的页面。',
+          name={t({
+            en: "Bright, inverse, scrim and dim",
+            zh: "明亮、反相、遮罩与暗化",
           })}
-          columns={3}
+          use={t({
+            en: 'Grounds that take a foreground of their own, so each pairs with its fgOn token. Bright stays light in both schemes: the Slider thumb, and Button with bright. Inverse is dark in light and light in dark: Avatar with look="solid". Scrim is the same translucent black in both, a dark ground for light text over media. Dim darkens the whole page behind a Sheet and takes no foreground; it is stronger in dark, where the page is near black already.',
+            zh: '需要专属前景色的底面，因此每一种都搭配自己的 fgOn 令牌。Bright 在两种配色方案下都保持浅色：Slider 的手柄，以及设置了 bright 的 Button。Inverse 在浅色下是深色、在深色下是浅色：look="solid" 的 Avatar。Scrim 在两种方案下是同一种半透明黑色，是媒体上浅色文字的深色底。Dim 压暗 Sheet 背后的整个页面，不搭配前景色；深色方案下页面本已接近黑色，所以它更深。',
+          })}
+          columns={4}
           snippet={
             <UsageSnippet
               code={`const styles = stylex.create({
@@ -244,6 +247,11 @@ const styles = stylex.create({
             token="color.bgScrim"
             bg={styles.fillScrim}
             fg={styles.fgOnScrim}
+          />
+          <BandCell
+            label={t({ en: "Dim", zh: "暗化" })}
+            token="color.bgDim"
+            bg={styles.fillDim}
           />
         </Band>
       </div>
@@ -320,4 +328,8 @@ const styles = stylex.create({
     backgroundImage: `linear-gradient(${color.bgScrim}, ${color.bgScrim})`,
   },
   fgOnScrim: { color: color.fgOnScrim },
+  fillDim: {
+    backgroundColor: color.bgControlBright,
+    backgroundImage: `linear-gradient(${color.bgDim}, ${color.bgDim})`,
+  },
 });
