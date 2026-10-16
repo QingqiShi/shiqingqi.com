@@ -3,6 +3,11 @@ import type {
   SheetPhase,
   SheetPose,
 } from "../effect-layer/publish-sheet-pose.ts";
+import {
+  LIQUID_HIDDEN,
+  LIQUID_STATE,
+  SHEET_DROPS_TIMING,
+} from "../effect-layer/sheet-drops-timing.ts";
 import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
 import {
@@ -86,6 +91,11 @@ interface SheetControllerOptions {
   readonly closeCorner: () => HTMLElement | null;
   /** The dim over the page, which fades as the card goes. */
   readonly dim: () => HTMLElement | null;
+  /**
+   * Whether the effect layer can form and break the card as liquid now.
+   * Asked each time the card comes in.
+   */
+  readonly liquid?: () => boolean;
   /** A drag let go far enough or fast enough to close the sheet. */
   readonly onDismiss: () => void;
   /** The card has left the screen. */
@@ -186,6 +196,68 @@ export function createSheetController(options: SheetControllerOptions) {
   let reach = Number.POSITIVE_INFINITY;
   let animations: Animation[] = [];
   let drag: Drag | null = null;
+  // The card came in as liquid, so it leaves as liquid.
+  let isLiquid = false;
+  let liquidTimers: ReturnType<typeof setTimeout>[] = [];
+
+  function clearLiquidTimers() {
+    for (const timer of liquidTimers) clearTimeout(timer);
+    liquidTimers = [];
+  }
+
+  function fadeDim(from: number, to: number, ms: number) {
+    const dim = options.dim();
+    if (!dim || !canAnimate) return;
+    animations.push(
+      dim.animate([{ opacity: from }, { opacity: to }], {
+        duration: ms,
+        easing: easing.easeOut,
+        fill: "forwards",
+      }),
+    );
+  }
+
+  /**
+   * Leaves the card at rest under the effect layer, which forms it from
+   * drops, and falls back to the plain motion if the layer does not take
+   * it in time.
+   */
+  function showLiquid(isFresh: boolean) {
+    isLiquid = true;
+    const fromDim = isFresh ? 0 : dimOpacity(pose);
+    mover.setAttribute(LIQUID_HIDDEN, "");
+    mover.setAttribute(LIQUID_STATE, motion === "slide" ? "rise" : "condense");
+    place(REST);
+    fadeDim(fromDim, 1, SHEET_DROPS_TIMING.formMs);
+    liquidTimers.push(
+      setTimeout(() => {
+        const state = mover.getAttribute(LIQUID_STATE);
+        if (state !== "rise" && state !== "condense") return;
+        isLiquid = false;
+        mover.removeAttribute(LIQUID_STATE);
+        mover.removeAttribute(LIQUID_HIDDEN);
+        stop();
+        place(awayFrom(REST));
+        moveTo(REST, spring, fadeTiming, markShown);
+      }, SHEET_DROPS_TIMING.ackMs),
+      setTimeout(
+        markShown,
+        SHEET_DROPS_TIMING.formMs + SHEET_DROPS_TIMING.setMs,
+      ),
+    );
+  }
+
+  /** Breaks the card into drops where it is, then calls `onExited`. */
+  function hideLiquid() {
+    mover.setAttribute(LIQUID_STATE, "break");
+    fadeDim(dimOpacity(pose), 0, SHEET_DROPS_TIMING.breakMs);
+    liquidTimers.push(
+      setTimeout(() => {
+        enter("hidden");
+        options.onExited();
+      }, SHEET_DROPS_TIMING.breakMs),
+    );
+  }
 
   function measureReach() {
     if (window.matchMedia(WIDE_QUERY).matches) {
@@ -325,6 +397,7 @@ export function createSheetController(options: SheetControllerOptions) {
   }
 
   function markShown() {
+    if (phase !== "entering") return;
     enter("shown");
   }
 
@@ -332,7 +405,8 @@ export function createSheetController(options: SheetControllerOptions) {
   function show() {
     if (phase !== "hidden" && phase !== "exiting") return;
     stop();
-    const isFresh = phase === "hidden";
+    clearLiquidTimers();
+    const isFresh = phase === "hidden" || isLiquid;
     enter("entering");
     motion = motionNow();
     const dim = options.dim();
@@ -341,6 +415,13 @@ export function createSheetController(options: SheetControllerOptions) {
       if (isFresh) coverDocument(dim);
     }
     measureReach();
+    if (motion !== "fade" && options.liquid?.() === true) {
+      showLiquid(isFresh);
+      return;
+    }
+    isLiquid = false;
+    mover.removeAttribute(LIQUID_STATE);
+    mover.removeAttribute(LIQUID_HIDDEN);
     if (isFresh) place(awayFrom(REST));
     moveTo(
       REST,
@@ -354,12 +435,17 @@ export function createSheetController(options: SheetControllerOptions) {
   function hide() {
     if (phase === "hidden" || phase === "exiting") return;
     stop();
+    clearLiquidTimers();
     drag = null;
     enter("exiting");
     motion = motionNow();
     const dim = options.dim();
     if (dim) dim.style.pointerEvents = "none";
     measureReach();
+    if (isLiquid && motion !== "fade") {
+      hideLiquid();
+      return;
+    }
     const timing = { slide: slideExit, rise: riseExit, fade: fadeTiming }[
       motion
     ];
@@ -518,6 +604,7 @@ export function createSheetController(options: SheetControllerOptions) {
       card.removeEventListener("pointerup", onPointerUp);
       card.removeEventListener("pointercancel", onPointerCancel);
       card.removeEventListener("touchmove", onTouchMove);
+      clearLiquidTimers();
       for (const animation of animations) animation.cancel();
       animations = [];
       drag = null;

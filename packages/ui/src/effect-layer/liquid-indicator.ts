@@ -14,13 +14,3 @@ export const LIQUID_INDICATOR = "data-liquid-indicator";
  * @internal
  */
 export const LIQUID_SEGMENT = "data-liquid-segment";
-
-/**
- * The attribute of the bar inside a Sheet's grabber: the liquid swells out
- * of the bar on the card while the card moves or a finger holds it, and
- * sets into the bar again. The effect reads the bar's size and colour, and
- * the card's colour under it.
- *
- * @internal
- */
-export const LIQUID_GRABBER = "data-liquid-grabber";

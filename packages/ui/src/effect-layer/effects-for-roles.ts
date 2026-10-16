@@ -4,6 +4,7 @@ import { EFFECT_ROLES, type EffectRole } from "./effect-roles.ts";
 import { liquidEffect } from "./liquid-effect.ts";
 import { ringLightEffect } from "./ring-light-effect.ts";
 import { rippleEffect } from "./ripple-effect.ts";
+import { sheetDropsEffect } from "./sheet-drops-effect.ts";
 import type { Effect } from "./types.ts";
 
 /**
@@ -20,6 +21,7 @@ const ROLE_EFFECTS = new Map<EffectRole, Effect>([
   ["lightBeam", blackHoleEffect],
   ["liquid", liquidEffect],
   ["ringLight", ringLightEffect],
+  ["sheetDrops", sheetDropsEffect],
 ]);
 
 /**

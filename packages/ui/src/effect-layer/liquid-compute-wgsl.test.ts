@@ -22,18 +22,13 @@ const STEP: LiquidStep = {
   from: 0,
   to: 2.7,
   step: 0.025,
-  force: [0, 0],
-  room: [0, 0],
 };
 
 describe("packLiquidSteps", () => {
   it("packs each step in struct order", () => {
     const buffer = new ArrayBuffer(LIQUID_STEP_BYTES * 2);
     new Uint32Array(buffer).fill(0xffffffff);
-    packLiquidSteps(
-      [STEP, { ...STEP, slot: 1, count: 225, force: [-3, 40], room: [0.5, 2] }],
-      buffer,
-    );
+    packLiquidSteps([STEP, { ...STEP, slot: 1, count: 225 }], buffer);
     const floats = new Float32Array(buffer);
     const words = new Uint32Array(buffer);
     expect([...floats.slice(0, 4)]).toEqual([
@@ -48,13 +43,9 @@ describe("packLiquidSteps", () => {
       expect.closeTo(0.025),
       0,
     ]);
-    expect([...floats.slice(8, 12)]).toEqual([0, 0, 0, 0]);
-    expect([...words.slice(12, 16)]).toEqual([150, 3, 0, 0]);
+    expect([...words.slice(8, 12)]).toEqual([150, 3, 0, 0]);
     const second = LIQUID_STEP_BYTES / 4;
-    expect([...floats.slice(second + 8, second + 12)]).toEqual([
-      -3, 40, 0.5, 2,
-    ]);
-    expect([...words.slice(second + 12, second + 14)]).toEqual([225, 1]);
+    expect([...words.slice(second + 8, second + 10)]).toEqual([225, 1]);
   });
 });
 

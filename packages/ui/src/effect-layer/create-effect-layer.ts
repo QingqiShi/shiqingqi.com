@@ -671,7 +671,7 @@ export function createEffectLayer(
           : box;
       stages.push({ element, width, height });
       const { under: underCanvas, over: overCanvas } = carries.canvases();
-      const { rise, depth, spill } = carries.band;
+      const { rise, depth, spill, fall = 0 } = carries.band;
       const under =
         underCanvas &&
         stageCanvas(underCanvas, width + 2 * spill, rise + depth);
@@ -684,7 +684,8 @@ export function createEffectLayer(
         );
       }
       const above =
-        overCanvas && stageCanvas(overCanvas, width + 2 * spill, rise + height);
+        overCanvas &&
+        stageCanvas(overCanvas, width + 2 * spill, rise + height + fall);
       if (above !== null) {
         passes.push(
           stagePass(

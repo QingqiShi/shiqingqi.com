@@ -15,11 +15,10 @@ import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { Heading } from "../content/heading.tsx";
 import { handBack } from "../effect-layer/hand-back.stylex.ts";
-import { LIQUID_GRABBER } from "../effect-layer/liquid-indicator.ts";
 import { publishSheetPose } from "../effect-layer/publish-sheet-pose.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useEffectStage } from "../effect-layer/use-effect-stage.ts";
-import { useLiquidGrabber } from "../effect-layer/use-liquid-grabber.ts";
+import { useSheetDrops } from "../effect-layer/use-sheet-drops.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { useVisibleArea } from "../hooks/use-visible-area.ts";
@@ -32,7 +31,7 @@ import {
   type SheetController,
 } from "./create-sheet-controller.ts";
 import { Portal } from "./portal.tsx";
-import { grabberReach, liquidGrabberMarker } from "./sheet-grabber.stylex.ts";
+import { sheetLiquidMarker, sheetLiquidReach } from "./sheet-liquid.stylex.ts";
 
 interface SheetBaseProps {
   /**
@@ -81,21 +80,19 @@ interface SheetBaseProps {
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * What the grabber at the top of the card is, below `md`. `"plain"` is
-   * the bar. `"liquid"` draws the bar on the effect layer as the liquid of
-   * a Switch's thumb while the card moves or a finger holds it: it swells
-   * out of the bar into a drop of water, which the card's motion sloshes
-   * as the card lands and springs back, a finger stretches towards itself
-   * and leans with its sideways motion, a pull past the top draws up into
-   * a drop on a neck, and the card's drop streaks. It stays wet for a
-   * moment after the card stops, sets from its core out, and shrinks back
-   * into the bar. The card itself stays rigid. Without WebGPU, with effects
-   * off, under forced colours or reduced motion, it is the bar.
+   * Forms the card out of liquid as it comes in, and breaks it into liquid
+   * as it goes. Below `md`, drops of the card's colour rise from below the
+   * screen and merge into the card; from `md` up they condense in place.
+   * The card is wet for a moment and sets from its centre out while its
+   * content fades in. On close, the card breaks into drops that fall off
+   * the screen from where it is. A drag moves the card as it always does.
+   * Without WebGPU, with effects off, under forced colours or reduced
+   * motion, the sheet moves as it does without this prop.
    *
-   * @default "plain"
-   * @zh 卡片顶部的拖动条，在 `md` 以下显示。`"plain"` 是普通的横条。`"liquid"` 在卡片移动或手指按住时，由效果层把横条画成与开关滑块相同的液体：它从横条中涨成一滴水，卡片落定和弹回时随之晃荡；手指拖动时向手指伸展，并随手指的左右移动倾斜；向上拖过顶部时被拉成带颈的水滴；卡片下落时拖出水痕。卡片停下后它会湿润片刻，从核心向外凝固，再缩回横条。卡片本身保持刚性。没有 WebGPU、效果关闭、强制颜色或减少动态时，它就是普通的横条。
+   * @default false
+   * @zh 打开时由液体凝成卡片，关闭时卡片碎成液滴。在 `md` 以下，与卡片同色的水滴从屏幕下方升起并汇聚成卡片；在 `md` 及以上，水滴在原处凝结。卡片先湿润片刻，再从中心向外凝固，同时内容淡入。关闭时，卡片从当前位置碎成水滴落出屏幕。拖动时卡片照常移动。没有 WebGPU、效果关闭、强制颜色或减少动态时，面板与不设此项时一样。
    */
-  grabber?: "plain" | "liquid";
+  liquid?: boolean;
 }
 
 /**
@@ -154,7 +151,7 @@ export function Sheet({
   closeLabel,
   closeIcon,
   initialFocusRef,
-  grabber = "plain",
+  liquid = false,
   title,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -175,16 +172,19 @@ export function Sheet({
   const isOpenRef = useRef(isOpen);
   const onCloseRef = useRef(onClose);
   const coverRef = useEffectCover();
-  const isLiquid = grabber === "liquid";
-  const { ref: stageRef, overRef } = useEffectStage(isLiquid, STAGE_REACH);
-  const liquidRef = useLiquidGrabber();
+  const { ref: stageRef, overRef } = useEffectStage(true, STAGE_REACH);
+  const { ref: dropsRef, warmRef, canDraw } = useSheetDrops(liquid);
+  const liquidRef = useRef(liquid);
+  const canDrawRef = useRef(canDraw);
   const visibleAreaRef = useVisibleArea();
   const moverRefs = mergeRefs(moverRef, coverRef, stageRef);
-  const grabberRefs = mergeRefs(grabberRef, isLiquid ? liquidRef : undefined);
+  const cardRefs = mergeRefs(cardRef, dropsRef);
 
   useLayoutEffect(() => {
     isOpenRef.current = isOpen;
     onCloseRef.current = onClose;
+    liquidRef.current = liquid;
+    canDrawRef.current = canDraw;
   });
 
   const requestClose = () => {
@@ -207,9 +207,9 @@ export function Sheet({
       card,
       mover,
       onPose: (pose) => {
-        const grabberBox = grabberRef.current;
-        if (grabberBox) publishSheetPose(grabberBox, pose);
+        publishSheetPose(card, pose);
       },
+      liquid: () => liquidRef.current && canDrawRef.current(),
       scroller: () => scrollerRef.current,
       grabber: () => grabberRef.current,
       closeCorner: () => closeCornerRef.current,
@@ -240,76 +240,84 @@ export function Sheet({
     }
   }, [isOpen, isMounted, isHydrated]);
 
-  if (!isMounted) return null;
+  const warm = liquid ? <span ref={warmRef} hidden /> : null;
 
+  if (!isMounted) return warm;
+
+  // Safari on iOS paints no fixed box below the top of its bottom toolbar,
+  // so the dim and the card are in the document. Then nothing of the sheet
+  // is in the boxes that Safari samples for the colour of its chrome.
   return (
-    // Safari on iOS paints no fixed box below the top of its bottom toolbar,
-    // so the dim and the card are in the document. Then nothing of the sheet
-    // is in the boxes that Safari samples for the colour of its chrome.
-    <Portal target={undefined}>
-      <div
-        ref={dimRef}
-        css={styles.dim}
-        onClick={requestClose}
-        aria-hidden="true"
-      />
-      <div ref={visibleAreaRef} css={styles.anchor}>
-        {/* The mover is what the controller moves and fades. With a liquid
-            grabber it is an Effect stage: it carries the effect layer's
-            canvas over the card, so the liquid moves with the card on the
-            compositor and never lags it. */}
-        <div ref={moverRefs} css={styles.mover}>
-          {/* forwardProps makes RemoveScroll clone its child and inject its
+    <>
+      {warm}
+      <Portal target={undefined}>
+        <div
+          ref={dimRef}
+          css={styles.dim}
+          onClick={requestClose}
+          aria-hidden="true"
+        />
+        <div ref={visibleAreaRef} css={styles.anchor}>
+          {/* The mover is what the controller moves and fades. It is an
+            Effect stage: it carries the effect layer's canvas over the
+            card, so effects move with the card on the compositor and never
+            lag it. */}
+          <div ref={moverRefs} css={[styles.mover, sheetLiquidMarker]}>
+            {/* forwardProps makes RemoveScroll clone its child and inject its
               own ref, which would clobber a ref placed directly on the card.
               Passing the ref through RemoveScroll keeps `cardRef` working for
               focus and the Tab trap. */}
-          <RemoveScroll ref={cardRef} allowPinchZoom forwardProps>
-            <div
-              css={[corner.radius_4, styles.card]}
-              role="dialog"
-              aria-modal="true"
-              aria-label={ariaLabel}
-              aria-labelledby={hasTitle ? titleId : ariaLabelledBy}
-            >
+            <RemoveScroll ref={cardRefs} allowPinchZoom forwardProps>
               <div
-                ref={grabberRefs}
-                css={[styles.grabber, liquidGrabberMarker]}
-                aria-hidden="true"
+                css={[corner.radius_4, styles.card]}
+                role="dialog"
+                aria-modal="true"
+                aria-label={ariaLabel}
+                aria-labelledby={hasTitle ? titleId : ariaLabelledBy}
               >
-                <span
-                  css={[
-                    corner.radius_round,
-                    styles.grabberBar,
-                    isLiquid && styles.liquidBar,
-                  ]}
-                  {...(isLiquid ? { [LIQUID_GRABBER]: "" } : {})}
-                />
-              </div>
-              {/* `Button` sets its own `position: relative` for its busy
+                <div
+                  ref={grabberRef}
+                  css={[styles.grabber, styles.liquidContent]}
+                  aria-hidden="true"
+                >
+                  <span css={[corner.radius_round, styles.grabberBar]} />
+                </div>
+                {/* `Button` sets its own `position: relative` for its busy
                   spinner, which a caller's `position: absolute` can't
                   reliably outrank. Pin the corner from this wrapper instead. */}
-              <div ref={closeCornerRef} css={styles.closeCorner}>
-                <Button
-                  look="ghost"
-                  icon={closeIcon ?? <XIcon weight="bold" />}
-                  aria-label={closeLabel}
-                  onClick={requestClose}
-                />
+                <div
+                  ref={closeCornerRef}
+                  css={[styles.closeCorner, styles.liquidContent]}
+                >
+                  <Button
+                    look="ghost"
+                    icon={closeIcon ?? <XIcon weight="bold" />}
+                    aria-label={closeLabel}
+                    onClick={requestClose}
+                  />
+                </div>
+                <div
+                  ref={scrollerRef}
+                  css={[
+                    styles.scroller,
+                    hasTitle && styles.scrollerTitled,
+                    styles.liquidContent,
+                  ]}
+                >
+                  {hasTitle ? (
+                    <Heading
+                      level={2}
+                      look="h3"
+                      id={titleId}
+                      css={styles.title}
+                    >
+                      {title}
+                    </Heading>
+                  ) : null}
+                  {children}
+                </div>
               </div>
-              <div
-                ref={scrollerRef}
-                css={[styles.scroller, hasTitle && styles.scrollerTitled]}
-              >
-                {hasTitle ? (
-                  <Heading level={2} look="h3" id={titleId} css={styles.title}>
-                    {title}
-                  </Heading>
-                ) : null}
-                {children}
-              </div>
-            </div>
-          </RemoveScroll>
-          {isLiquid && (
+            </RemoveScroll>
             <canvas
               ref={overRef}
               css={styles.overCanvas}
@@ -317,10 +325,10 @@ export function Sheet({
               width={0}
               height={0}
             />
-          )}
+          </div>
         </div>
-      </div>
-    </Portal>
+      </Portal>
+    </>
   );
 }
 
@@ -334,9 +342,13 @@ const CLOSE_INSET = space._2;
 const CONTENT_INSET = space._3;
 // The close button is an md Button, so it is as tall as the md step.
 const CLOSE_SIZE = controlSize._9;
-const STAGE_REACH = { rise: Number.parseFloat(grabberReach.rise), spill: 0 };
-/** The effect layer sets this attribute on the grabber while it draws the bar. */
-const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
+const STAGE_REACH = {
+  rise: Number.parseFloat(sheetLiquidReach.rise),
+  spill: Number.parseFloat(sheetLiquidReach.spill),
+  fall: Number.parseFloat(sheetLiquidReach.fall),
+};
+/** The liquid drops set this attribute on the mover while they draw the card. */
+const DRAWN_AS_LIQUID = ":is([data-liquid-hidden])";
 
 const styles = stylex.create({
   // A 0 x 0 box in the document. Below `md` it is at the bottom of the
@@ -399,13 +411,18 @@ const styles = stylex.create({
     overflow: "hidden",
     backgroundColor: color.bgSurface,
     pointerEvents: "auto",
+    // Clipped, not faded, so that the effect layer still measures the card.
+    clipPath: {
+      default: null,
+      [stylex.when.ancestor(DRAWN_AS_LIQUID, sheetLiquidMarker)]: "inset(50%)",
+    },
   },
   // The effect layer sizes the canvas to the mover and its reach above.
   // Physical offsets, since the layer places it in page coordinates.
   overCanvas: {
     position: "absolute",
-    top: `calc(-1 * ${grabberReach.rise})`,
-    left: 0,
+    top: `calc(-1 * ${sheetLiquidReach.rise})`,
+    left: `calc(-1 * ${sheetLiquidReach.spill})`,
     display: "block",
     pointerEvents: "none",
   },
@@ -431,19 +448,16 @@ const styles = stylex.create({
     blockSize: space._0,
     backgroundColor: color.bgNeutral,
   },
-  // The bar keeps its box and its colour while the effect draws in its
-  // place, so the effect can read them from it. It hides at once when the
-  // effect takes over, and fades back in as the effect hands it back. The
-  // grabber carries the drawn state, not the bar: the effect layer measures
-  // no box for an element with `opacity: 0`.
-  liquidBar: {
+  // The content hides at once while the liquid drops draw the card, and
+  // fades in as they hand the card back.
+  liquidContent: {
     opacity: {
       default: 1,
-      [stylex.when.ancestor(DRAWN_BY_EFFECT, liquidGrabberMarker)]: 0,
+      [stylex.when.ancestor(DRAWN_AS_LIQUID, sheetLiquidMarker)]: 0,
     },
     transition: {
       default: `opacity ${handBack.duration} ${easing.linear}`,
-      [stylex.when.ancestor(DRAWN_BY_EFFECT, liquidGrabberMarker)]: "none",
+      [stylex.when.ancestor(DRAWN_AS_LIQUID, sheetLiquidMarker)]: "none",
     },
   },
   scroller: {

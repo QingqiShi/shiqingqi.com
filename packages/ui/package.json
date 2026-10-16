@@ -61,7 +61,6 @@
     "./hooks/use-is-hydrated": "./src/hooks/use-is-hydrated.ts",
     "./hooks/use-light-beam": "./src/effect-layer/use-light-beam.ts",
     "./hooks/use-liquid": "./src/effect-layer/use-liquid.ts",
-    "./hooks/use-liquid-grabber": "./src/effect-layer/use-liquid-grabber.ts",
     "./hooks/use-popover": "./src/hooks/use-popover.ts",
     "./hooks/use-press-animation": "./src/hooks/use-press-animation.ts",
     "./hooks/use-press-handlers": "./src/hooks/use-press-handlers.ts",

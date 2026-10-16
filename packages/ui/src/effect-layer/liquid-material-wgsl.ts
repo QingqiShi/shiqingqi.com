@@ -4,8 +4,8 @@
  * lit by a thin rim, a highlight and a caustic; the way a body sets from
  * its core to its rim; and the lit bevel of the solid surface at rest.
  * Each function takes a surface as a distance and an outward normal, so
- * the Liquid effect draws a thumb, an indicator and a grabber with it. Put
- * it after `TARGET_WGSL` in a render shader.
+ * the Liquid effect draws a thumb with it and the Sheet edge a wave. Put it
+ * after `TARGET_WGSL` in a render shader.
  *
  * @internal
  */
@@ -91,13 +91,12 @@ fn domeAt(depth: f32, radius: f32, outward: vec2f) -> Dome {
 // gathers a caustic on the side away from the light and shades the side
 // towards it, a dark contact line runs round the rim, and the steep rim,
 // a highlight and a fainter gleam reflect the room. Water in front of the
-// page, dry, does not darken it; else it darkens it to wet, WET for a
-// track.
-fn wetShade(behind: vec3f, dome: Dome, outward: vec2f, depth: f32, radius: f32, dry: bool, wet: f32) -> vec3f {
+// page, dry, does not darken it.
+fn wetShade(behind: vec3f, dome: Dome, outward: vec2f, depth: f32, radius: f32, dry: bool) -> vec3f {
   let normal = dome.normal;
   let away = saturate(-dot(outward, TO_LIGHT_FLAT));
   let band = (depth / radius - CAUSTIC_DEPTH) / CAUSTIC_WIDTH;
-  let seen = behind * select(wet, 1.0, dry) * (1.0 + away * exp(-band * band) * CAUSTIC);
+  let seen = behind * select(WET, 1.0, dry) * (1.0 + away * exp(-band * band) * CAUSTIC);
   var color = seen * (1.0 - saturate(-dot(normal.xy, TO_LIGHT.xy)) * select(SHADE, 0.0, dry));
   color *= 1.0 - LIMB * (1.0 - smoothstep(0.0, LIMB_WIDTH, depth));
   color = mix(color, vec3f(1.0), dome.rim * RIM_LIGHT);

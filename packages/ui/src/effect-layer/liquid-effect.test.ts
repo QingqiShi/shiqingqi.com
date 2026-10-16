@@ -10,7 +10,6 @@ import {
   createMeasureContext,
   type ElementTracker,
 } from "./create-element-tracker.ts";
-import type { LiquidDrive } from "./drive-grabber.ts";
 import { roleBits } from "./effect-roles.ts";
 import type { LightContext } from "./lean-light.ts";
 import {
@@ -23,11 +22,7 @@ import {
   type LiquidControl,
   type LiquidState,
 } from "./liquid-effect.ts";
-import {
-  LIQUID_GRABBER,
-  LIQUID_INDICATOR,
-  LIQUID_SEGMENT,
-} from "./liquid-indicator.ts";
+import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
 import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
@@ -89,29 +84,6 @@ function thumb(): LiquidControl {
     thumb: true,
     edge: [0.06, 0.18, 0.12, 0],
     spread: 2,
-  };
-}
-
-/** A Sheet's grabber: a 32 x 4 bar, 10 px below the top of a white card. */
-function grabber(): LiquidControl {
-  const restRadius = 2;
-  const radius = restRadius + 4;
-  return {
-    radius,
-    restRadius,
-    restSpan: 14 / radius,
-    originX: 40,
-    originY: 10,
-    travel: 0,
-    stops: [{ target: 0, span: 4 / radius }],
-    color: readFill("rgb(220, 220, 215)"),
-    under: readFill("rgb(255, 255, 255)"),
-    fill: null,
-    ring: null,
-    thumb: true,
-    edge: [0, 0, 0, 0],
-    spread: 0,
-    room: { up: 2.5, down: 2.5, side: 2 },
   };
 }
 
@@ -373,11 +345,7 @@ function createRun(control: LiquidControl, reducedMotion = false) {
   let latest: LiquidSnapshot | null = null;
   let state: LiquidState | undefined;
   let time = 0;
-  return (
-    liquid: Liquid,
-    moved?: LiquidSnapshot,
-    drive: LiquidDrive | null = null,
-  ) => {
+  return (liquid: Liquid, moved?: LiquidSnapshot) => {
     time += 1 / 60;
     latest = moved ?? pending ?? latest;
     pending = null;
@@ -393,7 +361,6 @@ function createRun(control: LiquidControl, reducedMotion = false) {
       CONTEXT,
       latest,
       beads,
-      drive,
     );
     if (laid.seed) {
       slot = laid.state.body;
@@ -402,23 +369,12 @@ function createRun(control: LiquidControl, reducedMotion = false) {
       if (slot === null) {
         throw new Error("The step has no particles to move.");
       }
-      const { target, span, aim, from, to, scale, step, force, room } =
-        laid.step;
+      const { target, span, aim, from, to, scale, step } = laid.step;
       expect(laid.step.slot).toBe(SLOT);
       expect(laid.step.count).toBe(slot.x.length);
       slot = simulateLiquid(
         slot,
-        {
-          target,
-          span,
-          aim,
-          from,
-          to,
-          pressed: false,
-          reducedMotion: false,
-          force,
-          room: { up: room[0], down: room[1] },
-        },
+        { target, span, aim, from, to, pressed: false, reducedMotion: false },
         scale,
         step,
       );
@@ -640,126 +596,5 @@ describe("layoutLiquid's step", () => {
   it("takes the whole of a frame that took twice a 30 Hz interval", () => {
     expect(pourAfter(1 / 15)).toBe(liquidStep(1 / 15));
     expect(pourAfter(1 / 15)).toBeCloseTo(2 * liquidStep(1 / 30), 10);
-  });
-});
-
-describe("createControlReader for a grabber", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    document.body.innerHTML = "";
-  });
-
-  it("reads the bar inside the grabber, and the card under it", () => {
-    stubObservers();
-    const card = document.createElement("div");
-    card.style.backgroundColor = "rgb(250, 250, 250)";
-    const box = document.createElement("div");
-    const bar = document.createElement("span");
-    bar.setAttribute(LIQUID_GRABBER, "");
-    bar.style.backgroundColor = "rgb(200, 200, 196)";
-    box.append(bar);
-    card.append(box);
-    document.body.append(card);
-    layOut(box, { x: 20, y: 8, width: 80, height: 24 });
-    layOut(bar, { x: 44, y: 16, width: 32, height: 4 });
-
-    const registry = createEffectRegistry();
-    const trackers: ElementTracker[] = [];
-    registry.track((element) => {
-      const tracker = createElementTracker(element, () => {});
-      trackers.push(tracker);
-      return tracker;
-    });
-    registry.register(
-      box,
-      roleBits(["liquid"]),
-      { liquid: { position: 0, drag: null, pressed: false } },
-      { scope: PAGE_SCOPE, holds: null },
-    );
-    for (const tracker of trackers) {
-      tracker.measure(createMeasureContext(() => 0));
-    }
-    const controls = createControlReader(() => {});
-    const [record] = registry.records(0, 0, () => 0);
-    const control = controls.read({ ...record, scopeIndex: 0 });
-
-    expect(control).not.toBeNull();
-    expect(control?.room).toBeDefined();
-    expect(control?.restRadius).toBe(2);
-    expect(control?.radius).toBe(6);
-    expect(control?.originX).toBe(60);
-    expect(control?.originY).toBe(18);
-    expect(control?.stops).toHaveLength(1);
-    expect(control?.stops[0].target).toBe(0);
-    expect(control?.stops[0].span).toBeCloseTo(4 / 6);
-    expect(control?.restSpan).toBeCloseTo(14 / 6);
-    expect(control?.color).toEqual(readFill("rgb(200, 200, 196)"));
-    expect(control?.under).toEqual(readFill("rgb(250, 250, 250)"));
-    expect(control?.thumb).toBe(true);
-  });
-});
-
-describe("layoutLiquid for a grabber", () => {
-  const rest = { position: 0, drag: null, pressed: false } as const;
-  const still: LiquidDrive = { force: [0, 0], stir: false, pressed: false };
-  const held: LiquidDrive = { force: [0, 0], stir: true, pressed: true };
-  const pushed: LiquidDrive = { force: [0, -40], stir: true, pressed: false };
-
-  it("lets the Sheet draw the bar at rest, and lays the drop out round the bar", () => {
-    const run = createRun(grabber());
-    let laid = run(rest, undefined, still);
-    for (let i = 0; i < 5; i++) laid = run(rest, undefined, still);
-    expect(laid.drawn).toBe(false);
-    expect(laid.animating).toBe(false);
-    expect(laid.instance.room).toBe(true);
-    expect(laid.instance.restRadius).toBe(2);
-    expect(laid.instance.restSpan).toBe(14);
-    expect(laid.instance.radius).toBe(6);
-    expect(laid.instance.seeThrough).toBe(false);
-    expect(laid.instance.cover).toBe(false);
-  });
-
-  it("melts and swells while a finger holds it, with a frame to follow, and sets back into the bar once let go", () => {
-    const run = createRun(grabber());
-    for (let i = 0; i < 5; i++) run(rest, undefined, still);
-    let laid = run(rest, undefined, held);
-    for (let i = 0; i < 30; i++) laid = run(rest, undefined, held);
-    expect(laid.drawn).toBe(true);
-    expect(laid.animating).toBe(true);
-    expect(laid.instance.calm).toBe(0);
-    expect(laid.instance.set).toBe(0);
-    expect(laid.step?.room).toEqual([2.5, 2.5]);
-    let frames = 0;
-    while (laid.animating && frames < 240) {
-      laid = run(rest, undefined, still);
-      frames += 1;
-    }
-    expect(frames).toBeLessThan(240);
-    expect(laid.drawn).toBe(false);
-    expect(laid.instance.calm).toBe(1);
-    expect(laid.instance.set).toBe(1);
-  });
-
-  it("gives the GPU the force and the room with each step, and moves the drop with the force", () => {
-    const run = createRun(grabber());
-    for (let i = 0; i < 5; i++) run(rest, undefined, still);
-    let laid = run(rest, undefined, pushed);
-    expect(laid.step?.force).toEqual([0, -40]);
-    expect(laid.step?.from).toBeCloseTo(-(4 / 6 + 2));
-    expect(laid.step?.to).toBeCloseTo(4 / 6 + 2);
-    for (let i = 0; i < 30; i++) laid = run(rest, undefined, pushed);
-    expect(laid.instance.centreY).toBeLessThan(-2);
-  });
-
-  it("takes the surface's edge and what shows past it from the drive", () => {
-    const run = createRun(grabber());
-    const laid = run(rest, undefined, {
-      ...still,
-      surface: { edge: 300, above: [0.4, 0.4, 0.4] },
-    });
-    expect(laid.instance.surface).toEqual({
-      edge: 300,
-      above: [0.4, 0.4, 0.4],
-    });
   });
 });

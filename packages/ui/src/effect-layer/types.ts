@@ -28,6 +28,8 @@ export interface StageBand {
   readonly rise: number;
   readonly depth: number;
   readonly spill: number;
+  /** How far the one over it reaches below its bottom edge. */
+  readonly fall?: number;
 }
 
 /**

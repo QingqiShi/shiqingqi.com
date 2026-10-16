@@ -26,23 +26,38 @@ export interface SheetPose {
 }
 
 const poses = new WeakMap<Element, SheetPose>();
+const listeners = new Set<() => void>();
 
 /**
- * Publishes the pose of the Sheet whose grabber is `grabber`, for the
- * Liquid effect to read on its next frame. It goes through no React state:
- * a drag publishes on every move.
+ * Publishes the pose of the Sheet whose card is `card`, for an effect to
+ * read on its next frame, and wakes the effects that listen. It goes
+ * through no React state: a drag publishes on every move.
  *
  * @internal
  */
-export function publishSheetPose(grabber: Element, pose: SheetPose) {
-  poses.set(grabber, pose);
+export function publishSheetPose(card: Element, pose: SheetPose) {
+  poses.set(card, pose);
+  for (const listener of listeners) listener();
 }
 
 /**
- * The last pose published for `grabber`, or `null` for none.
+ * The last pose published for `card`, or `null` for none.
  *
  * @internal
  */
-export function readSheetPose(grabber: Element): SheetPose | null {
-  return poses.get(grabber) ?? null;
+export function readSheetPose(card: Element): SheetPose | null {
+  return poses.get(card) ?? null;
+}
+
+/**
+ * Calls `listener` on each pose any Sheet publishes. Returns the call that
+ * stops it.
+ *
+ * @internal
+ */
+export function subscribeSheetPoses(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }

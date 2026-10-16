@@ -314,11 +314,15 @@ export function createEffectRegistry() {
           carries: carries ?? null,
         });
       }
-      return [...inDocument, ...fixed].filter((record) =>
-        covers.every(
-          ({ element, box }) =>
-            element.contains(record.element) || !overlaps(box, record),
-        ),
+      // An element on an Effect stage draws on the stage's own canvas, so
+      // a cover around it on the page does not hide it.
+      return [...inDocument, ...fixed].filter(
+        (record) =>
+          record.stage !== null ||
+          covers.every(
+            ({ element, box }) =>
+              element.contains(record.element) || !overlaps(box, record),
+          ),
       );
     },
   };

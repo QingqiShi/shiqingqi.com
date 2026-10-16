@@ -8,11 +8,6 @@ import {
 } from "./constants.ts";
 import { createBinding } from "./create-binding.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
-import {
-  driveGrabber,
-  type GrabberMotion,
-  type LiquidDrive,
-} from "./drive-grabber.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
   EFFECT_SETTING_DEFAULTS,
@@ -28,11 +23,7 @@ import {
   packLiquidSteps,
   type LiquidStep,
 } from "./liquid-compute-wgsl.ts";
-import {
-  LIQUID_GRABBER,
-  LIQUID_INDICATOR,
-  LIQUID_SEGMENT,
-} from "./liquid-indicator.ts";
+import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
 import {
   LIQUID_SLOT_BYTES,
   LIQUID_SLOT_WORDS,
@@ -50,7 +41,6 @@ import {
 } from "./liquid-wgsl.ts";
 import { markEffectDrawn } from "./mark-effect-drawn.ts";
 import type { EffectColor } from "./parse-css-color.ts";
-import { readSheetPose } from "./publish-sheet-pose.ts";
 import {
   readCornerExponent,
   readFill,
@@ -140,48 +130,7 @@ export interface LiquidControl {
   readonly edge: Edge;
   /** How far the liquid's surface swells past its rest shape, in CSS px. */
   readonly spread: number;
-  /**
-   * The radius of the solid rest shape the liquid sets into, in CSS px,
-   * where it is less than the rest radius: a grabber's bar, which its
-   * liquid swells out of. The rest radius for a control.
-   */
-  readonly restRadius?: number;
-  /**
-   * Half the length of the solid rest shape's straight part, in rest radii,
-   * where it differs from the stop's span: a grabber's bar, which its
-   * liquid beads up shorter than. The stop's span for a control.
-   */
-  readonly restSpan?: number;
-  /**
-   * The room a grabber's liquid has, in rest radii: above and below the
-   * centre line, and past each end of its rest shape. None for a control,
-   * whose liquid fills its track from side to side and lands on its walls.
-   */
-  readonly room?: {
-    readonly up: number;
-    readonly down: number;
-    readonly side: number;
-  };
 }
-
-/**
- * How far a grabber's liquid swells past its bar, in CSS px: the bar's
- * radius plus this is the rest radius of the liquid, which a dome of water
- * needs to read as one. The bar beads up as it melts: its straight part
- * shortens by `GRABBER_BEAD` times this at each end, so the drop is round
- * enough to slosh as one and not to bend as a line would.
- */
-const GRABBER_SWELL = 4;
-const GRABBER_BEAD = 2.5;
-/**
- * The room of a grabber's liquid, in rest radii: a little above, since the
- * bar sits near the top of the card, more below, towards the finger, and
- * some past each end, to lean into.
- */
-const GRABBER_ROOM = { up: 2.5, down: 2.5, side: 2 } as const;
-const NO_EDGE: Edge = [0, 0, 0, 0];
-const NO_FORCE: readonly [number, number] = [0, 0];
-const NO_ROOM: readonly [number, number] = [0, 0];
 
 /**
  * The opacity of a selected surface's ring, of its two shadows, and of its
@@ -392,64 +341,6 @@ function readSegments(
   };
 }
 
-/** The fill of the nearest ancestor of `element` that is at least half opaque, or `null`. */
-function fillBehind(element: Element): EffectColor | null {
-  for (
-    let node = element.parentElement;
-    node !== null;
-    node = node.parentElement
-  ) {
-    const fill = readFill(getComputedStyle(node).backgroundColor);
-    if (fill[3] >= 0.5) {
-      return fill;
-    }
-  }
-  return null;
-}
-
-/**
- * A Sheet's grabber: the box a drag takes hold of, with the bar marked
- * with `LIQUID_GRABBER` inside it, on the card. The liquid's rest radius is
- * the bar's radius plus `GRABBER_SWELL`, so it swells out of the bar when
- * it melts and sets back into it. It has one stop, the bar, with
- * `GRABBER_ROOM` round it, and the card's fill shows through it.
- */
-function readGrabber(record: EffectElementRecord): LiquidControl | null {
-  const { element } = record;
-  const bar = element.querySelector(`[${LIQUID_GRABBER}]`);
-  if (bar === null) {
-    return null;
-  }
-  const under = fillBehind(element);
-  const { width, height, left, top } = bar.getBoundingClientRect();
-  const restRadius = height / 2;
-  if (!(restRadius > 0) || under === null) {
-    return null;
-  }
-  // The rect is in the viewport, and the record in the page.
-  const box = element.getBoundingClientRect();
-  const radius = restRadius + GRABBER_SWELL;
-  const restSpan = Math.max(0, width - height) / 2 / radius;
-  const span = Math.max(0, restSpan - (GRABBER_BEAD * GRABBER_SWELL) / radius);
-  return {
-    radius,
-    restRadius,
-    restSpan,
-    originX: record.x - box.left + left + width / 2,
-    originY: record.y - box.top + top + height / 2,
-    travel: 0,
-    stops: [{ target: 0, span }],
-    color: readFill(getComputedStyle(bar).backgroundColor),
-    under,
-    fill: null,
-    ring: null,
-    thumb: true,
-    edge: NO_EDGE,
-    spread: 0,
-    room: GRABBER_ROOM,
-  };
-}
-
 /**
  * Reads each control from the page, and reads it again only when it can
  * have changed: its element is measured again, a scroll moves it in the
@@ -546,8 +437,7 @@ export function createControlReader(onChange: () => void) {
       }
       const segments = [...element.querySelectorAll(`[${LIQUID_SEGMENT}]`)];
       const rects = segments.map((segment) => segment.getBoundingClientRect());
-      const control =
-        readGrabber(record) ?? readSegments(record, rects) ?? readThumb(record);
+      const control = readSegments(record, rects) ?? readThumb(record);
       watched.read = { id, measurement, x, y, position, control };
       observe(watched, segments, rects);
       return control;
@@ -572,22 +462,6 @@ export function createControlReader(onChange: () => void) {
 }
 
 const rgb = (color: EffectColor) => [color[0], color[1], color[2]] as const;
-
-/** The page's backdrop as it shows under the Dim, or as it is with none. */
-function dimmed(backdrop: EffectColor, dim: Element | null): EffectColor {
-  if (dim === null) {
-    return backdrop;
-  }
-  const style = getComputedStyle(dim);
-  const fill = readFill(style.backgroundColor);
-  const alpha = fill[3] * finiteOr(Number.parseFloat(style.opacity), 1);
-  return [
-    backdrop[0] + (fill[0] - backdrop[0]) * alpha,
-    backdrop[1] + (fill[1] - backdrop[1]) * alpha,
-    backdrop[2] + (fill[2] - backdrop[2]) * alpha,
-    1,
-  ];
-}
 
 const dim = (color: readonly [number, number, number], light: number) =>
   [color[0] * light, color[1] * light, color[2] * light] as const;
@@ -741,7 +615,6 @@ export function layoutLiquid(
   context: LightContext,
   moved: LiquidSnapshot | null,
   beads: LiquidBeadInstance[],
-  drive: LiquidDrive | null = null,
 ): {
   state: LiquidState;
   instance: LiquidInstance;
@@ -757,15 +630,12 @@ export function layoutLiquid(
   fading: boolean;
 } {
   const settings = record.settings.liquid ?? EFFECT_SETTING_DEFAULTS.liquid;
-  const { radius, travel, stops, originX, originY, fill, room } = control;
+  const { radius, travel, stops, originX, originY, fill } = control;
   const last = stops.length - 1;
   const position = clamp(finiteOr(settings.position, 0), 0, last);
   const drag =
     settings.drag === null ? null : clamp(finiteOr(settings.drag, 0), 0, last);
-  // A grabber's finger comes with the drive, not through React state.
-  const pressed =
-    room === undefined ? settings.pressed : (drive?.pressed ?? false);
-  const stir = drive?.stir ?? false;
+  const pressed = settings.pressed;
   const held = drag !== null;
   const reduced = frame.reducedMotion;
   const { target, span } = pillAt(stops, drag ?? position);
@@ -785,35 +655,19 @@ export function layoutLiquid(
     heading > 0
       ? pillAt(stops, Math.ceil(position))
       : pillAt(stops, Math.floor(position));
-  // A grabber's liquid has its room round its rest shape; a control's lands
-  // on the walls of its track.
-  const walls =
-    room === undefined
-      ? {
-          from: held || heading > 0 ? 0 : ahead.target - ahead.span,
-          to: held || heading < 0 ? travel : ahead.target + ahead.span,
-        }
-      : { from: target - span - room.side, to: target + span + room.side };
   const input = {
     target,
     span,
-    ...walls,
+    from: held || heading > 0 ? 0 : ahead.target - ahead.span,
+    to: held || heading < 0 ? travel : ahead.target + ahead.span,
     pressed,
     reducedMotion: reduced,
     aim: 0,
-    ...(room === undefined
-      ? {}
-      : {
-          room: { up: room.up, down: room.down },
-          force: drive?.force ?? NO_FORCE,
-          stir,
-        }),
   };
   // A new body rests as laid out: a step would move the particles towards
   // their own spacing and melt the surface for no reason.
   const resting =
     body.settled &&
-    !stir &&
     (state === undefined ||
       (target === state.target &&
         span === state.span &&
@@ -852,9 +706,6 @@ export function layoutLiquid(
         from: input.from,
         to: input.to,
         step: liquidStep(delta),
-        force: input.force ?? NO_FORCE,
-        room:
-          input.room === undefined ? NO_ROOM : [input.room.up, input.room.down],
       };
     }
   }
@@ -971,8 +822,6 @@ export function layoutLiquid(
       firstBead,
       beadCount: body.beads.length,
       radius,
-      restRadius: control.restRadius ?? radius,
-      restSpan: (control.restSpan ?? span) * radius,
       // The drawn surface keeps the liquid's own shape for most of the
       // time the body takes to calm, and rounds into the rest shape at
       // the end.
@@ -1000,8 +849,6 @@ export function layoutLiquid(
       riseGoal,
       cover: fill !== null && active,
       seeThrough: !control.thumb,
-      room: room !== undefined,
-      surface: drive?.surface,
       corner: control.corner,
       backdrop: rgb(backdrop),
       body: handAlpha(control, active, handFrom, frame.time) * fadeIn,
@@ -1248,8 +1095,6 @@ export const liquidEffect: Effect = {
     ]);
 
     const states = new Map<number, LiquidState>();
-    /** How each grabber's card moved up to the last frame. */
-    const motions = new Map<number, GrabberMotion>();
     const controlReader = createControlReader(setup.requestFrame);
     const drawn = new Set<Element>();
     let instances: readonly LiquidInstance[] = [];
@@ -1294,36 +1139,6 @@ export const liquidEffect: Effect = {
         leaning = false;
         for (const { index, record, control, slot } of controls) {
           const { id } = record;
-          let drive: LiquidDrive | null = null;
-          if (control.room !== undefined) {
-            const pose = readSheetPose(record.element);
-            const driven = driveGrabber(
-              motions.get(id) ?? null,
-              record.y,
-              pose,
-              frame.delta > 0 ? frame.delta : FIRST_STEP,
-              control.radius,
-            );
-            motions.set(id, driven.motion);
-            const stage = frame.elements.find(
-              ({ id: stageId }) => stageId === record.stage?.host,
-            );
-            drive = {
-              ...driven.drive,
-              surface:
-                stage === undefined
-                  ? undefined
-                  : {
-                      edge: stage.y,
-                      above: rgb(
-                        dimmed(
-                          frame.scopes[record.scopeIndex].backdrop,
-                          pose?.dim ?? null,
-                        ),
-                      ),
-                    },
-            };
-          }
           const laid = layoutLiquid(
             control,
             record,
@@ -1335,7 +1150,6 @@ export const liquidEffect: Effect = {
             context,
             latest.get(id) ?? null,
             beads,
-            drive,
           );
           if (laid.drawn) {
             seen.add(record.element);
@@ -1358,7 +1172,6 @@ export const liquidEffect: Effect = {
         for (const id of states.keys()) {
           if (!kept.has(id)) {
             states.delete(id);
-            motions.delete(id);
             latest.delete(id);
             const slot = slots.get(id);
             if (slot !== undefined) {

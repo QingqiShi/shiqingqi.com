@@ -215,7 +215,7 @@ function KeyboardReadout({ metrics }: { metrics: Metrics | null }) {
  */
 export function SheetLab() {
   const [open, setOpen] = useState<"form" | "tall" | null>(null);
-  const [grabber, setGrabber] = useState<"plain" | "liquid">("liquid");
+  const [liquid, setLiquid] = useState<"off" | "on">("on");
   const [kind, setKind] = useState("note");
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const probeRef = useRef<HTMLDivElement>(null);
@@ -282,20 +282,20 @@ export function SheetLab() {
       zh: "打开长内容面板，在内容上上下滑动：内容滚动。滚到顶部后，再向下滑会拖动面板。在标题行上向下滑，无论内容滚到哪里都会拖动面板。在表单面板中打开键盘后再试一次。",
     }),
     t({
-      en: "With the liquid grabber, open a sheet: as the card lands, the bar swells into a drop of water, sloshes, stays wet for a moment, sets from its core out and shrinks back into the bar. Hold the grabber: it swells under your finger; move sideways and it leans; pull up past the top and it draws up into a drop on a neck; let go and it snaps back and sloshes. Flick it away: it streaks as the card drops. It is the same water as a Switch's thumb mid-toggle. Switch to the plain grabber and compare. The Kind control inside the form sheet pours its liquid over the card.",
-      zh: "选择液态拖动条后打开面板：卡片落定时，横条涨成一滴水，晃荡，湿润片刻后从核心向外凝固，再缩回横条。按住拖动条：它在指下涨起；左右移动时它倾斜；向上拖过顶部时被拉成带颈的水滴；松手后它弹回并晃荡。快速一甩关闭：它随卡片下落拖出水痕。它与开关滑块切换时的水是同一种材质。切换到普通拖动条做对比。表单面板中的“类型”控件会把液体泼在卡片上方。",
+      en: "With Liquid on, open a sheet: drops of the card's colour rise from below the screen, sway, merge into the card, stay wet for a moment and set from the centre out while the content fades in. Close it with the close button, Escape or a flick: the card goes wet and breaks into drops that fall off the screen. A drag moves the card as before. Turn Liquid off and compare.",
+      zh: "打开“液态”后打开面板：与卡片同色的水滴从屏幕下方升起、轻轻摆动、汇聚成卡片，湿润片刻后从中心向外凝固，同时内容淡入。用关闭按钮、Escape 或快速一甩关闭：卡片变湿并碎成水滴落出屏幕。拖动时卡片照常移动。关闭“液态”做对比。",
     }),
   ];
 
-  const grabberControl = (
+  const liquidControl = (
     <SegmentedControl
-      aria-label={t({ en: "Grabber", zh: "拖动条" })}
-      value={grabber}
+      aria-label={t({ en: "Liquid", zh: "液态" })}
+      value={liquid}
       options={[
-        { value: "plain", label: t({ en: "Plain", zh: "普通" }) },
-        { value: "liquid", label: t({ en: "Liquid", zh: "液态" }) },
+        { value: "off", label: t({ en: "Off", zh: "关" }) },
+        { value: "on", label: t({ en: "On", zh: "开" }) },
       ]}
-      onChange={setGrabber}
+      onChange={setLiquid}
     />
   );
 
@@ -339,7 +339,7 @@ export function SheetLab() {
       </div>
 
       <Readout metrics={metrics} />
-      {grabberControl}
+      {liquidControl}
       {triggers}
       <div css={stack.item}>
         {Array.from({ length: PAGE_PARAGRAPHS }, (_, index) => (
@@ -353,7 +353,7 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "Add a note", zh: "添加备注" })}
-        grabber={grabber}
+        liquid={liquid === "on"}
       >
         <form
           css={stack.item}
@@ -393,7 +393,7 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "A long read", zh: "长篇内容" })}
-        grabber={grabber}
+        liquid={liquid === "on"}
       >
         <div css={stack.item}>
           <Readout metrics={metrics} />

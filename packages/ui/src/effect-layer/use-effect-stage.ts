@@ -22,19 +22,24 @@ const NO_REACH: StageBand = { rise: 0, depth: 0, spill: 0 };
  * The effects of the elements inside the stage draw on that `<canvas>`
  * element, so they show over the stage's content and move with it on the
  * compositor, never a frame behind. The `<canvas>` element covers the
- * stage, and `reach` more above it and past each side, in CSS px, for an
- * effect that goes past the stage's edge; place the element that far up
- * and out. With `enabled` false, outside an `EffectLayerProvider`, or
+ * stage, and `reach` more above it, past each side and below it, in CSS
+ * px, for an effect that goes past the stage's edge; place the element
+ * that far up and out. With `enabled` false, outside an `EffectLayerProvider`, or
  * where the effect layer is off, the refs do nothing.
  */
 export function useEffectStage(
   enabled: boolean,
-  reach: Pick<StageBand, "rise" | "spill"> = NO_REACH,
+  reach: Pick<StageBand, "rise" | "spill" | "fall"> = NO_REACH,
 ): EffectStageRefs {
   const overRef = useRef<HTMLCanvasElement>(null);
   const [stage] = useState<EffectStage>(() => ({
     canvases: () => ({ under: null, over: overRef.current }),
-    band: { rise: reach.rise, spill: reach.spill, depth: 0 },
+    band: {
+      rise: reach.rise,
+      spill: reach.spill,
+      fall: reach.fall ?? 0,
+      depth: 0,
+    },
   }));
   const ref = useEffectRegistration(0, NO_SETTINGS, null, false, stage);
   return { ref: enabled ? ref : null, overRef };
