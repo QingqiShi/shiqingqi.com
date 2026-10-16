@@ -1,3 +1,5 @@
+import { clamp } from "../clamp.ts";
+
 type PopoverSide = "top" | "right" | "bottom" | "left";
 type PopoverAlign = "start" | "end";
 
@@ -67,16 +69,6 @@ const OPPOSITE_ALIGN: Record<PopoverAlign, PopoverAlign> = {
   start: "end",
   end: "start",
 };
-
-/**
- * `value` held between `min` and `max`. Where the range is empty, `min` wins,
- * so a box too large for the room keeps its start edge in view.
- *
- * @internal
- */
-export function clamp(value: number, min: number, max: number) {
-  return max < min ? min : Math.min(Math.max(value, min), max);
-}
 
 function alignCrossAxis(
   align: PopoverAlign | "center",

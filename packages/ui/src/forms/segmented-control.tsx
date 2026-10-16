@@ -19,12 +19,12 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { glassSurface } from "../surfaces/glass-surface.stylex.ts";
-import { border, color, controlSize, font, shadow } from "../tokens.stylex.ts";
+import { border, color, controlSize, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   segmentIndicator,
   segmentTrackMarker,
+  selectedSurface,
 } from "./segment-indicator.stylex.ts";
 import { useSegmentPress } from "./use-segment-press.ts";
 
@@ -111,24 +111,23 @@ interface SegmentedControlBaseProps<TValue extends string> extends Omit<
    */
   hideLabels?: boolean;
   /**
-   * An effect the effect layer draws in place of the indicator. `"liquid"`,
-   * the default, draws the indicator as frosted ice, which thaws into water
-   * when the control is pressed or a segment is selected: it pours to the
-   * selected segment, by a click, a tap or an arrow key, lands on its far
-   * end, sloshes to rest and freezes again in the segment's shape. A press
-   * on a segment pours it there at once, and a drag from that press moves
-   * it with inertia, as wide as the segment under it; on release it pours
-   * to the segment under it in the same way. The
-   * beads it sheds on the way drift after it and merge back in, and a ring
-   * light runs once round the segment from where it lands: a press above or
-   * below the middle of the track aims it a little that way. The labels
-   * read through the liquid. Under reduced motion the indicator goes straight
-   * to its place and a still glow marks it. `"none"` keeps the plain Glass
-   * indicator. The effect draws only inside an `EffectLayerProvider` with
-   * WebGPU; elsewhere, and under forced colours, the control looks and
-   * works as it does with `"none"`.
+   * An effect the effect layer draws on the indicator. `"liquid"`, the
+   * default, keeps the solid indicator at rest and lights its edge from
+   * above, leaning the light towards a pointer over the control. When a
+   * segment is selected, by a click, a tap or an arrow key, the effect
+   * draws the indicator as liquid: it melts into water, which pours to the
+   * segment, sheds drops on its way and sloshes against the far end. It
+   * flows on for a moment while the drops catch up and merge into it, then
+   * sets into the solid indicator in the segment's shape. A press on a
+   * segment pours it there at once, and a drag from that press moves it
+   * with inertia, as wide as the segment under it; on release it pours to
+   * the segment under it in the same way. The labels read through the
+   * indicator. Under reduced motion the indicator crossfades to its place.
+   * `"none"` keeps the plain Glass indicator. The effect draws only inside
+   * an `EffectLayerProvider` with WebGPU; elsewhere, and under forced
+   * colours, the control looks and works as it does with `"none"`.
    *
-   * @zh 由效果层代替指示块绘制的效果。默认的 `"liquid"` 把指示块画成一块结霜的冰，按下控件或选中分段时它融化成水：随点击、轻触或方向键涌向选中的分段，撞上它的远端后晃动至静止，再按分段的形状重新冻结。按下某个分段时它立即涌向该分段，从这次按下开始拖动时它带着惯性跟随，宽度随其下方的分段变化；松开后以同样的方式涌向其下方的分段。沿途甩下的水珠随惯性追上它，重新并入其中，一道环形光从落点出发绕分段跑一圈：按在轨道中线以上或以下，落点也随之略微偏上或偏下。标签透过液体显示。减少动态效果时指示块直接到位，只亮起一圈静止的微光。`"none"` 保留普通的玻璃指示块。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，控件的外观与行为与 `"none"` 相同。
+   * @zh 由效果层在指示块上绘制的效果。默认的 `"liquid"` 在静止时保留实心指示块，并从上方照亮它的边缘；指针停在控件上时，光会偏向指针。通过点击、轻触或方向键选中分段时，由效果把指示块绘制成液体：它融化成水，涌向该分段，途中甩出水珠，在远端来回晃动。它继续流动片刻，水珠追上并融入其中，然后按该分段的形状重新凝固成实心指示块。按下某个分段时液体立即涌向该分段，从这次按下开始拖动时它带着惯性跟随，宽度随其下方的分段变化；松开后以同样的方式涌向其下方的分段。标签透过指示块显示。减少动态效果时，指示块以交叉淡入淡出到位。`"none"` 保留普通的玻璃指示块。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，控件的外观与行为与 `"none"` 相同。
    */
   effect?: "liquid" | "none";
   /**
@@ -195,7 +194,6 @@ export function SegmentedControl<TValue extends string>({
   onPointerUp,
   onPointerCancel,
   onPointerLeave,
-  onKeyDown,
   onClickCapture,
   ...restProps
 }: SegmentedControlProps<TValue>) {
@@ -253,10 +251,6 @@ export function SegmentedControl<TValue extends string>({
         onPointerLeave?.(event);
         handlers.onPointerLeave();
       }}
-      onKeyDown={(event) => {
-        onKeyDown?.(event);
-        handlers.onKeyDown();
-      }}
       onClickCapture={(event) => {
         onClickCapture?.(event);
         // The pointer handlers select on the release. A click with no
@@ -279,8 +273,7 @@ export function SegmentedControl<TValue extends string>({
             corner.squircle_round,
             segmentIndicator.base,
             segmentSizeStyles[size],
-            glassSurface.base,
-            segmentIndicator.noBlur,
+            segmentIndicator.solid,
             inset !== null && segmentIndicator.at(inset.left, inset.right),
             dragging && segmentIndicator.dragged,
           ]}
@@ -354,8 +347,8 @@ const styles = stylex.create({
     gap: controlSize._0,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.bgSurfaceSunken,
+    borderColor: color.borderControlSunken,
+    backgroundColor: color.bgControlSunken,
   },
   trackFullWidth: {
     display: "flex",
@@ -380,7 +373,7 @@ const styles = stylex.create({
     // cropped by the neighbouring segments.
     fontWeight: font.weight_5,
     color: {
-      default: color.fgMuted,
+      default: color.fgControl,
       ":hover": { default: null, [pointer.canHover]: color.fg },
     },
     backgroundColor: {
@@ -408,25 +401,18 @@ const styles = stylex.create({
     backgroundColor: {
       default: "transparent",
       [NO_ANCHOR_POSITIONING]: {
-        default: color.bgControl,
+        default: color.bgControlRaised,
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
           "transparent",
       },
     },
     color: color.fg,
     fontWeight: font.weight_6,
-    borderColor: {
-      default: "transparent",
-      [NO_ANCHOR_POSITIONING]: {
-        default: color.border,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
-          "transparent",
-      },
-    },
+    borderColor: "transparent",
     boxShadow: {
       default: "none",
       [NO_ANCHOR_POSITIONING]: {
-        default: shadow._1,
+        default: selectedSurface.edge,
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: "none",
       },
     },

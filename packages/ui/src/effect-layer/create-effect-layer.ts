@@ -157,7 +157,9 @@ export function createEffectLayer(
   };
   const renderers = new Map<Effect, { renderer: EffectRenderer | null }>();
   let ready: EffectRenderer[] = [];
-  let followsPointer = false;
+  let pointerFollowers: readonly NonNullable<
+    EffectRenderer["followsPointer"]
+  >[] = [];
   let scroll: ScrollCanvas[] = [];
   let fixed: ConfiguredCanvas | null = null;
   let fixedBottom: ConfiguredCanvas | null = null;
@@ -197,7 +199,15 @@ export function createEffectLayer(
   // A change of settings moves no element, so draw a frame for it.
   const unsubscribeSettings = registry.subscribe(requestFrame);
   const pointer = trackPointer(() => {
-    if (followsPointer) {
+    if (pointerFollowers.length === 0) {
+      return;
+    }
+    const now = pointer.read(window.scrollX, window.scrollY, performance.now());
+    if (
+      pointerFollowers.some(
+        (follows) => follows === true || (follows !== false && follows(now)),
+      )
+    ) {
       requestFrame();
     }
   });
@@ -302,7 +312,11 @@ export function createEffectLayer(
     ready = [...renderers.values()].flatMap(({ renderer }) =>
       renderer === null ? [] : [renderer],
     );
-    followsPointer = ready.some((renderer) => renderer.followsPointer === true);
+    pointerFollowers = ready.flatMap(({ followsPointer }) =>
+      followsPointer === undefined || followsPointer === false
+        ? []
+        : [followsPointer],
+    );
     requestFrame();
   }
 

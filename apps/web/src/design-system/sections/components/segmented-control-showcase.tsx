@@ -149,8 +149,8 @@ export function SegmentedControlShowcase() {
         </SpecimenGrid>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: 'By default the indicator is frosted ice, which thaws into water and pours to the segment you select, by pointer or by arrow key, as the effect prop below describes. The labels stay over it. effect="none" keeps the plain Glass indicator, and so does a control without an EffectLayerProvider or WebGPU, or inside anything that starts a stacking context, such as a sticky bar.',
-            zh: '默认情况下，指示块是一块结霜的冰，你用指针或方向键选择分段时，它会融化成水并涌向该分段，详见下方的 effect 属性。标签始终位于其上。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU，或位于建立层叠上下文的元素（例如吸顶栏）之内时也是如此。',
+            en: 'By default the indicator is solid with a lit edge. When you select a segment, by pointer or by arrow key, it melts into water, pours there, flows on for a moment after it arrives and sets solid again, as the effect prop below describes. The labels stay over it. effect="none" keeps the plain Glass indicator, and so does a control without an EffectLayerProvider or WebGPU, or inside anything that starts a stacking context, such as a sticky bar.',
+            zh: '默认情况下，指示块是边缘带光的实心块。你用指针或方向键选择分段时，它会融化成水并涌向该分段，到位后继续流动片刻，再重新凝固，详见下方的 effect 属性。标签始终位于其上。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU，或位于建立层叠上下文的元素（例如吸顶栏）之内时也是如此。',
           })}
         </Text>
       </Showcase>

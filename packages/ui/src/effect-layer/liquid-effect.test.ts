@@ -1,4 +1,6 @@
-import { createHash } from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { compileStylexCss } from "@tuja/stylex-testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { layOut } from "../test-support/lay-out.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
@@ -9,11 +11,14 @@ import {
   type ElementTracker,
 } from "./create-element-tracker.ts";
 import { roleBits } from "./effect-roles.ts";
-import { FROST_CONTRAST } from "./glow-colors.ts";
+import type { LightContext } from "./lean-light.ts";
 import {
   createControlReader,
+  HAND_SECONDS,
   layoutLiquid,
   pillAt,
+  readEdge,
+  readInsetRing,
   type LiquidControl,
   type LiquidState,
 } from "./liquid-effect.ts";
@@ -21,7 +26,6 @@ import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
 import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
-import { RING_SECONDS } from "./ring-light-at.ts";
 import {
   liquidStep,
   mean,
@@ -36,86 +40,49 @@ type Liquid = NonNullable<EffectSettings["liquid"]>;
 const SLOT = 2;
 const BACKDROP = readFill("rgb(250, 250, 250)");
 
-/**
- * Lays one control's liquid out frame by frame, with the CPU reference in
- * the GPU's place: it runs each step the layout asks for, and sends the
- * particles back a frame later, as the GPU's readback does.
- */
-function createRun(id: number, elementIndex: number) {
-  let slot: LiquidParticles | null = null;
-  let pending: LiquidSnapshot | null = null;
-  let latest: LiquidSnapshot | null = null;
-  let state: LiquidState | undefined;
-  let time = 0;
-  return (
-    control: LiquidControl,
-    liquid: Liquid,
-    beads: LiquidBeadInstance[] = [],
-  ) => {
-    time += 1 / 60;
-    latest = pending ?? latest;
-    pending = null;
-    const laid = layoutLiquid(
-      control,
-      { id, settings: { liquid } },
-      elementIndex,
-      SLOT,
-      state,
-      { time, delta: 1 / 60, reducedMotion: false },
-      BACKDROP,
-      latest,
-      beads,
-    );
-    if (laid.seed) {
-      slot = laid.state.body;
-    }
-    if (laid.step !== null) {
-      if (slot === null) {
-        throw new Error("The step has no particles to move.");
-      }
-      const { target, span, aim, from, to, scale, step } = laid.step;
-      expect(laid.step.slot).toBe(SLOT);
-      expect(laid.step.count).toBe(slot.x.length);
-      slot = simulateLiquid(
-        slot,
-        { target, span, aim, from, to, pressed: false, reducedMotion: false },
-        scale,
-        step,
-      );
-      pending = { particles: slot, time: laid.state.simulated };
-    }
-    state = laid.state;
-    return laid;
-  };
-}
-
-/** A Segmented control of three segments, each 100 wide, with a ring on each. */
+/** A segmented control of three segments, each 100 wide. */
 function threeSegments(): LiquidControl {
-  const color = readFill("rgb(120, 80, 240)");
   const radius = 16;
-  const segments = [0, 100, 200].map((left) => ({
-    box: { x: left, y: 0, width: 100, height: 32, radius: 16 },
-    cornerExponent: 2,
-    color,
-  }));
   return {
     radius,
     originX: radius,
     originY: radius,
     travel: 300 / radius - 2,
-    stops: segments.map(({ box }) => {
-      const start = box.x / radius;
-      const end = (box.x + box.width) / radius - 2;
+    stops: [0, 100, 200].map((left) => {
+      const start = left / radius;
+      const end = (left + 100) / radius - 2;
       return { target: (start + end) / 2, span: (end - start) / 2 };
     }),
-    rings: segments,
-    frost: {
-      color: readFill("rgb(255, 255, 255)"),
-      under: readFill("rgb(240, 240, 240)"),
-      least: { core: 0.35, edge: 0.25 },
-      contrast: { core: 1, edge: 1 },
-    },
+    color: readFill("rgb(255, 255, 255)"),
+    under: readFill("rgb(240, 240, 240)"),
     fill: null,
+    ring: null,
+    thumb: false,
+    edge: [0.08, 0.06, 0.06, 0],
+    spread: 2,
+  };
+}
+
+/** A Switch's thumb, 12 px in radius, with a travel of two radii. */
+function thumb(): LiquidControl {
+  const off = readFill("rgb(120, 120, 128)");
+  const on = readFill("rgb(120, 80, 240)");
+  const white = readFill("rgb(255, 255, 255)");
+  return {
+    radius: 12,
+    originX: 12,
+    originY: 12,
+    travel: 2,
+    stops: [
+      { target: 0, span: 0 },
+      { target: 2, span: 0 },
+    ],
+    color: white,
+    under: off,
+    fill: { off, on },
+    ring: { off: readFill("rgb(140, 140, 148)"), on, width: 1 },
+    thumb: true,
+    edge: [0.06, 0.18, 0.12, 0],
     spread: 2,
   };
 }
@@ -136,256 +103,57 @@ describe("pillAt", () => {
   });
 });
 
-describe("layoutLiquid", () => {
-  it("lays a Switch's liquid out frame by frame as it toggles on, back and is dragged", () => {
-    const onFill = readFill("rgb(52, 120, 246)");
-    const offFill = readFill("rgb(200, 200, 205)");
-    const travel = 32 / 14;
-    const switchOf = (on: boolean): LiquidControl => ({
-      radius: 14,
-      originX: 116,
-      originY: 66,
-      travel,
-      stops: [
-        { target: 0, span: 0 },
-        { target: travel, span: 0 },
-      ],
-      rings: [
-        null,
-        {
-          box: { x: 100, y: 50, width: 64, height: 32, radius: 16 },
-          cornerExponent: 2,
-          color: on ? onFill : offFill,
-        },
-      ],
-      frost: {
-        color: readFill("rgb(255, 255, 255)"),
-        under: on ? onFill : offFill,
-        least: { core: 0.72, edge: 0.5 },
-        contrast: FROST_CONTRAST,
-      },
-      fill: { off: offFill, on: onFill },
-      spread: 2,
-    });
-    const frames: unknown[] = [];
-    const run = createRun(7, 3);
-    let on = false;
-    const step = (liquid: Liquid) => {
-      const beads: LiquidBeadInstance[] = [];
-      const laid = run(switchOf(on), liquid, beads);
-      frames.push({
-        instance: laid.instance,
-        ring: laid.rings.at(0) ?? null,
-        animating: laid.animating,
-        step: laid.step,
-        seed: laid.seed,
-        particles: [...laid.state.body.x, ...laid.state.body.y],
-        beads,
-      });
-    };
-    const rest = { drag: null, pressed: false, aim: 0 } as const;
-    for (let i = 0; i < 10; i++) step({ ...rest, position: 0 });
-    on = true;
-    for (let i = 0; i < 90; i++) step({ ...rest, position: 1, aim: 0.3 });
-    on = false;
-    for (let i = 0; i < 60; i++) step({ ...rest, position: 0, aim: -0.5 });
-    for (let i = 0; i < 40; i++) {
-      step({ ...rest, position: 0, pressed: true, drag: i / 40 });
-    }
-    on = true;
-    for (let i = 0; i < 90; i++) step({ ...rest, position: 1 });
-
-    // Taken when the simulation moved to the GPU: the Switch's liquid must
-    // not change.
-    expect(
-      createHash("sha256").update(JSON.stringify(frames)).digest("hex"),
-    ).toBe("0912f971b6fc93fbc3e6f8452d5e7bd0d331a553b263a3bf3fc1f1b66328257f");
-  });
-
-  it("runs the ring light once for each landing on a segment", () => {
-    const control = threeSegments();
-    const run = createRun(1, 0);
-    const starts = new Map<number, number>();
-    const step = (liquid: Liquid) => {
-      const laid = run(control, liquid);
-      for (const { ring, box } of laid.rings) {
-        starts.set(ring.start, box.x);
-      }
-    };
-    const rest = { drag: null, pressed: false, aim: 0 } as const;
-    for (let i = 0; i < 10; i++) step({ ...rest, position: 0 });
-    // A press and hold on the last segment, and a release on it.
-    for (let i = 0; i < 60; i++) step({ ...rest, position: 2, pressed: true });
-    for (let i = 0; i < 90; i++) step({ ...rest, position: 2 });
-    expect([...starts.values()]).toEqual([200]);
-
-    // A press on the last segment, a drag to the middle one and a release.
-    for (let i = 0; i < 30; i++) {
-      step({ ...rest, position: 2, pressed: true, drag: 2 - i / 29 });
-    }
-    for (let i = 0; i < 90; i++) step({ ...rest, position: 1 });
-    expect([...starts.values()]).toEqual([200, 100]);
-  });
-
-  it("lets a ring light run to its end on its own segment when the liquid leaves for another", () => {
-    const control = threeSegments();
-    const run = createRun(1, 0);
-    const rest = { drag: null, pressed: false, aim: 0 } as const;
-    for (let i = 0; i < 10; i++) run(control, { ...rest, position: 0 });
-    let first = run(control, { ...rest, position: 1 });
-    while (first.rings.length === 0) {
-      first = run(control, { ...rest, position: 1 });
-    }
-    const { start } = first.rings[0].ring;
-    // Each frame the first ring runs in, by where it runs and how many run.
-    const frames: { x: number | undefined; count: number }[] = [];
-    for (let i = 0; i < 90; i++) {
-      const laid = run(control, { ...rest, position: i < 5 ? 1 : 2 });
-      const ring = laid.rings.find(
-        (candidate) => candidate.ring.start === start,
-      );
-      frames.push({ x: ring?.box.x, count: laid.rings.length });
-    }
-
-    const runs = frames.filter(({ x }) => x !== undefined);
-    expect(runs.length).toBeGreaterThanOrEqual(RING_SECONDS * 60 - 2);
-    expect(frames.slice(0, runs.length)).toEqual(runs);
-    expect(runs.every(({ x }) => x === 100)).toBe(true);
-    expect(runs.some(({ count }) => count === 2)).toBe(true);
-  });
-
-  it("runs the ring light on a short segment only when the liquid from a long one is in it", () => {
-    const color = readFill("rgb(120, 80, 240)");
-    const radius = 16;
-    const segments = [
-      [0, 200],
-      [200, 32],
-    ].map(([x, width]) => ({
-      box: { x, y: 0, width, height: 32, radius: 16 },
-      cornerExponent: 2,
-      color,
-    }));
-    const stops = segments.map(({ box }) => {
-      const start = box.x / radius;
-      const end = (box.x + box.width) / radius - 2;
-      return { target: (start + end) / 2, span: (end - start) / 2 };
-    });
-    const control: LiquidControl = {
-      radius,
-      originX: radius,
-      originY: radius,
-      travel: 232 / radius - 2,
-      stops,
-      rings: segments,
-      frost: {
-        color: readFill("rgb(255, 255, 255)"),
-        under: readFill("rgb(240, 240, 240)"),
-        least: { core: 0.35, edge: 0.25 },
-        contrast: { core: 1, edge: 1 },
-      },
-      fill: null,
-      spread: 2,
-    };
-    const run = createRun(1, 0);
-    const centresAtRing: number[] = [];
-    let state: LiquidState | undefined;
-    const step = (position: number) => {
-      const laid = run(control, {
-        position,
-        drag: null,
-        pressed: false,
-        aim: 0,
-      });
-      if (laid.state.rings.length > (state?.rings.length ?? 0)) {
-        centresAtRing.push(mean(laid.state.body.x));
-      }
-      state = laid.state;
-    };
-    for (let i = 0; i < 10; i++) step(0);
-    for (let i = 0; i < 90; i++) step(1);
-
-    expect(centresAtRing).toHaveLength(1);
-    expect(centresAtRing[0]).toBeGreaterThanOrEqual(
-      stops[1].target - stops[1].span - 1,
+describe("HAND_SECONDS", () => {
+  it("is as long as the segment indicator takes to fade back in", () => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const css = compileStylexCss([
+      path.join(here, "hand-back.stylex.ts"),
+      path.join(here, "../forms/segment-indicator.stylex.ts"),
+    ]);
+    const fades = [...css.matchAll(/opacity (\d*\.?\d+)(ms|s)\b/g)].map(
+      ([, value, unit]) => Number(value) / (unit === "ms" ? 1000 : 1),
     );
+    expect(fades).toEqual([HAND_SECONDS]);
+  });
+});
+
+describe("readEdge", () => {
+  it("reads a ring and two shadows outside, and a ring inside", () => {
+    expect(
+      readEdge(
+        "rgba(0, 0, 0, 0.08) 0px 0px 0px 0.5px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px, rgba(0, 0, 0, 0.06) 0px 2px 8px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0) 0px 1px 0px 0px inset",
+      ),
+    ).toEqual([0.08, 0.06, 0.06, 0]);
+    expect(
+      readEdge(
+        "rgba(0, 0, 0, 0) 0px 0px 0px 0.5px, rgba(0, 0, 0, 0) 0px 1px 2px 0px, rgba(0, 0, 0, 0) 0px 2px 8px 0px, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.06) 0px 1px 0px 0px inset",
+      ),
+    ).toEqual([0, 0, 0, 0.1]);
   });
 
-  it("puts a body back on the GPU at rest when its particles came back non-finite", () => {
-    const color = readFill("rgb(120, 80, 240)");
-    const radius = 16;
-    const segments = [0, 70, 140, 210, 280].map((left) => ({
-      box: { x: left, y: 0, width: 70, height: 32, radius: 16 },
-      cornerExponent: 2,
-      color,
-    }));
-    const stops = segments.map(({ box }) => {
-      const start = box.x / radius;
-      const end = (box.x + box.width) / radius - 2;
-      return { target: (start + end) / 2, span: (end - start) / 2 };
-    });
-    const control: LiquidControl = {
-      radius,
-      originX: radius,
-      originY: radius,
-      travel: 350 / radius - 2,
-      stops,
-      rings: segments,
-      frost: {
-        color: readFill("rgb(255, 255, 255)"),
-        under: readFill("rgb(240, 240, 240)"),
-        least: { core: 0.35, edge: 0.25 },
-        contrast: { core: 1, edge: 1 },
-      },
-      fill: null,
-      spread: 2,
-    };
-    const rest = { drag: null, pressed: false, aim: 0 } as const;
-    let state: LiquidState | undefined;
-    let time = 0;
-    const lay = (position: number, moved: LiquidSnapshot | null) => {
-      time += 1 / 60;
-      const laid = layoutLiquid(
-        control,
-        { id: 1, settings: { liquid: { ...rest, position } } },
-        0,
-        SLOT,
-        state,
-        { time, delta: 1 / 60, reducedMotion: false },
-        BACKDROP,
-        moved,
-        [],
-      );
-      state = laid.state;
-      return laid;
-    };
-    lay(0, null);
-    const poured = lay(4, null);
-    expect(poured.step).not.toBeNull();
-    const count = poured.state.body.x.length;
-    const lost: LiquidSnapshot = {
-      particles: {
-        x: new Float32Array(count).fill(Number.NaN),
-        y: new Float32Array(count).fill(Number.NaN),
-        vx: new Float32Array(count).fill(Number.NaN),
-        vy: new Float32Array(count).fill(Number.NaN),
-        from: 0,
-        to: control.travel,
-      },
-      time: poured.state.simulated,
-    };
+  it("reads no edge from no shadow", () => {
+    expect(readEdge("none")).toEqual([0, 0, 0, 0]);
+  });
+});
 
-    const recovered = lay(4, lost);
+describe("readInsetRing", () => {
+  it("reads the colour and the width of a ring inside", () => {
+    expect(
+      readInsetRing(
+        "rgb(121, 120, 117) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.03) 0px 3px 5px -2px, rgba(0, 0, 0, 0.05) 0px 7px 14px -5px",
+      ),
+    ).toEqual({ color: readFill("rgb(121, 120, 117)"), width: 1 });
+  });
 
-    expect(recovered.seed).toBe(true);
-    expect(recovered.step).toBeNull();
-    expect(recovered.state.body.settled).toBe(true);
-    expect([...recovered.state.body.x].every(Number.isFinite)).toBe(true);
-    expect(mean(recovered.state.body.x)).toBeCloseTo(stops[4].target, 1);
-    expect(recovered.instance.calm).toBe(1);
-    expect(recovered.instance.set).toBe(1);
-    // The lost particles are older than the seed, so they are not read again.
-    expect(lay(4, lost).seed).toBe(false);
-    expect(state?.body.settled).toBe(true);
+  it("reads no ring from an inset shadow that is offset or blurred, or from no inset shadow", () => {
+    expect(readInsetRing("rgba(0, 0, 0, 0.1) 0px 1px 0px 0px inset")).toBe(
+      null,
+    );
+    expect(readInsetRing("rgba(0, 0, 0, 0.1) 0px 0px 2px 1px inset")).toBe(
+      null,
+    );
+    expect(readInsetRing("rgba(0, 0, 0, 0.03) 0px 3px 5px -2px")).toBe(null);
+    expect(readInsetRing("none")).toBe(null);
   });
 });
 
@@ -396,7 +164,7 @@ describe("createControlReader", () => {
   });
 
   const LIQUID = roleBits(["liquid"]);
-  const AT_REST = { drag: null, pressed: false, aim: 0 };
+  const AT_REST = { drag: null, pressed: false };
 
   /**
    * A tracked segmented control with two segments, whose box reads are
@@ -472,6 +240,12 @@ describe("createControlReader", () => {
     };
   }
 
+  /** Where the second segment starts, in px from the start of the track. */
+  const secondStart = (control: LiquidControl | null) =>
+    control === null
+      ? Number.NaN
+      : (control.stops[1].target - control.stops[1].span) * control.radius;
+
   it("reads a control from the DOM once, and not again on frames where nothing changed", () => {
     const { segmentReads, frame } = setUp();
     const control = frame();
@@ -491,7 +265,7 @@ describe("createControlReader", () => {
     const after = frame();
     expect(segmentReads).toHaveLength(4);
     expect(after?.stops[0].span).toBeGreaterThan(before?.stops[0].span ?? 0);
-    expect(after?.rings[1]?.box.x).toBe(160);
+    expect(secondStart(after)).toBeCloseTo(160, 6);
   });
 
   it("reads the control again after a segment changes size in a track that keeps its own", () => {
@@ -514,7 +288,7 @@ describe("createControlReader", () => {
     expect(changes).toHaveLength(1);
     const after = frame();
     expect(segmentReads).toHaveLength(4);
-    expect(after?.rings[1]?.box.x).toBe(140);
+    expect(secondStart(after)).toBeCloseTo(140, 6);
   });
 
   it("stops watching the segments of a control that is no longer read", () => {
@@ -546,29 +320,255 @@ describe("createControlReader", () => {
   });
 });
 
-describe("layoutLiquid's step", () => {
-  const travel = 32 / 14;
-  const color = readFill("rgb(52, 120, 246)");
-  const control: LiquidControl = {
-    radius: 14,
-    originX: 16,
-    originY: 16,
-    travel,
-    stops: [
-      { target: 0, span: 0 },
-      { target: travel, span: 0 },
-    ],
-    rings: [null, null],
-    frost: {
-      color: readFill("rgb(255, 255, 255)"),
-      under: color,
-      least: { core: 0.72, edge: 0.5 },
-      contrast: FROST_CONTRAST,
-    },
-    fill: null,
-    spread: 2,
+const CONTEXT: LightContext = {
+  pointer: {
+    x: 0,
+    y: 0,
+    velocityX: 0,
+    velocityY: 0,
+    pressed: false,
+    present: false,
+  },
+  hoverable: false,
+  viewport: { x: 0, y: 0, width: 800, height: 600 },
+};
+
+/**
+ * Lays one control's liquid out frame by frame, 60 a second, with the CPU
+ * reference in the GPU's place: it runs each step the layout asks for, and
+ * sends the particles back a frame later, as the GPU's readback does.
+ */
+function createRun(control: LiquidControl, reducedMotion = false) {
+  const box = { x: 0, y: 0, width: 300, height: 2 * control.radius };
+  let slot: LiquidParticles | null = null;
+  let pending: LiquidSnapshot | null = null;
+  let latest: LiquidSnapshot | null = null;
+  let state: LiquidState | undefined;
+  let time = 0;
+  return (liquid: Liquid, moved?: LiquidSnapshot) => {
+    time += 1 / 60;
+    latest = moved ?? pending ?? latest;
+    pending = null;
+    const beads: LiquidBeadInstance[] = [];
+    const laid = layoutLiquid(
+      control,
+      { id: 1, settings: { liquid }, ...box },
+      0,
+      SLOT,
+      state,
+      { time, delta: 1 / 60, reducedMotion },
+      BACKDROP,
+      CONTEXT,
+      latest,
+      beads,
+    );
+    if (laid.seed) {
+      slot = laid.state.body;
+    }
+    if (laid.step !== null) {
+      if (slot === null) {
+        throw new Error("The step has no particles to move.");
+      }
+      const { target, span, aim, from, to, scale, step } = laid.step;
+      expect(laid.step.slot).toBe(SLOT);
+      expect(laid.step.count).toBe(slot.x.length);
+      slot = simulateLiquid(
+        slot,
+        { target, span, aim, from, to, pressed: false, reducedMotion: false },
+        scale,
+        step,
+      );
+      pending = { particles: slot, time: laid.state.simulated };
+    }
+    state = laid.state;
+    return { ...laid, beads, time };
   };
-  const rest = { drag: null, pressed: false, aim: 0 } as const;
+}
+
+describe("layoutLiquid", () => {
+  const rest = { drag: null, pressed: false } as const;
+
+  /** Runs a move to `position` from rest, until nothing moves or `seconds` pass. */
+  function move(control: LiquidControl, from: number, to: number, seconds = 4) {
+    const run = createRun(control);
+    let laid = run({ ...rest, position: from });
+    for (let i = 0; i < 5; i++) laid = run({ ...rest, position: from });
+    const before = laid;
+    const frames = [run({ ...rest, position: to })];
+    for (
+      let i = 0;
+      i < seconds * 60 && (frames.at(-1)?.animating ?? false);
+      i++
+    ) {
+      frames.push(run({ ...rest, position: to }));
+    }
+    return { before, frames, start: frames[0].time - 1 / 60 };
+  }
+
+  /** The first frame on which the centre of the liquid's mass is in the target's pill. */
+  const arrival = (
+    frames: readonly {
+      instance: { centreX: number; restX: number; span: number };
+    }[],
+  ) =>
+    frames.findIndex(
+      ({ instance }) =>
+        Math.abs(instance.centreX - instance.restX) <= instance.span,
+    );
+
+  it("lets the control draw the solid surface at rest, under a lit edge", () => {
+    const { before } = move(threeSegments(), 0, 0, 0);
+    expect(before.drawn).toBe(false);
+    expect(before.animating).toBe(false);
+    expect(before.step).toBeNull();
+    expect(before.instance.body).toBe(0);
+    expect(before.instance.edgeLit).toBe(1);
+    expect(before.instance.calm).toBe(1);
+  });
+
+  it("pours a segment's liquid over as fast as the live site, lets it flow on after it arrives, and hands it back as the solid surface", () => {
+    const { frames, start } = move(threeSegments(), 0, 2);
+    expect(frames[0].drawn).toBe(true);
+    expect(frames[0].step).not.toBeNull();
+    // It melts into water as it leaves.
+    expect(frames[10].instance.set).toBe(0);
+    expect(frames.some(({ beads }) => beads.length > 0)).toBe(true);
+
+    const arrivedAt = arrival(frames);
+    const arrived = frames[arrivedAt];
+    expect(arrived.time - start).toBeLessThan(0.45);
+    // Its rim stays water while it lingers, with no lit edge.
+    expect(frames[arrivedAt + 24].instance.set).toBeLessThanOrEqual(0.5);
+    expect(frames[arrivedAt + 24].instance.edgeLit).toBe(0);
+    expect(frames[arrivedAt + 24].instance.calm).toBeLessThan(0.5);
+
+    const handedAt = frames.findIndex(({ drawn }) => !drawn);
+    const handed = frames[handedAt];
+    // It flows on for about 0.8 s.
+    expect(handed.time - arrived.time).toBeGreaterThan(0.64);
+    expect(handed.time - start).toBeLessThan(2);
+    // The surface is the solid rest shape when the control takes it back.
+    expect(handed.instance.set).toBe(1);
+    expect(handed.instance.calm).toBe(1);
+    expect(handed.instance.beadCount).toBe(0);
+    expect(handed.instance.edgeLit).toBe(1);
+    expect(handed.instance.body).toBe(1);
+
+    const last = frames.at(-1);
+    expect(last?.animating).toBe(false);
+    expect(last?.instance.body).toBe(0);
+    expect((last?.time ?? 0) - handed.time).toBeCloseTo(HAND_SECONDS, 1);
+  });
+
+  it("toggles a Switch's thumb across, covers the track while it pours, and hands both back", () => {
+    const { frames } = move(thumb(), 0, 1);
+    expect(frames[0].instance.cover).toBe(true);
+    expect(frames[0].instance.riseGoal).toBe(1);
+    const last = frames.at(-1);
+    expect(last?.drawn).toBe(false);
+    expect(last?.animating).toBe(false);
+    expect(last?.instance.cover).toBe(false);
+    expect(last?.instance.rise).toBeCloseTo(1, 2);
+    expect(last?.instance.restX).toBe(2 * 12);
+  });
+
+  it("melts a pressed thumb into water, and holds it there with no frame to follow", () => {
+    const run = createRun(thumb());
+    for (let i = 0; i < 3; i++) run({ ...rest, position: 0 });
+    let held = run({ ...rest, position: 0, pressed: true });
+    for (let i = 0; i < 60 && held.animating; i++) {
+      held = run({ ...rest, position: 0, pressed: true });
+    }
+    expect(held.animating).toBe(false);
+    expect(held.drawn).toBe(true);
+    expect(held.instance.set).toBe(0);
+    let released = run({ ...rest, position: 0 });
+    for (let i = 0; i < 180 && released.animating; i++) {
+      released = run({ ...rest, position: 0 });
+    }
+    expect(released.drawn).toBe(false);
+    expect(released.instance.set).toBe(1);
+  });
+
+  it.each([
+    ["a segmented control", threeSegments()],
+    ["a Switch", thumb()],
+  ])(
+    "crossfades %s to its place under reduced motion, and then leaves the control to draw it",
+    (_, control) => {
+      const run = createRun(control, true);
+      run({ ...rest, position: 0 });
+      const first = run({ ...rest, position: 1 });
+      expect(first.drawn).toBe(true);
+      expect(first.fading).toBe(true);
+      expect(first.step).toBeNull();
+      expect(first.instance.restX).toBe(
+        control.stops[1].target * control.radius,
+      );
+      expect(first.instance.leaving[0]).toBe(
+        control.stops[0].target * control.radius,
+      );
+
+      const frames = [first];
+      for (let i = 0; i < 30 && (frames.at(-1)?.fading ?? false); i++) {
+        frames.push(run({ ...rest, position: 1 }));
+      }
+      const midway = frames[Math.floor(HAND_SECONDS * 30)];
+      expect(midway.instance.body).toBeGreaterThan(0.2);
+      expect(midway.instance.leaving[2]).toBeGreaterThan(0.2);
+      expect(midway.instance.body + midway.instance.leaving[2]).toBeCloseTo(
+        1,
+        5,
+      );
+
+      const last = frames.at(-1);
+      expect((last?.time ?? 0) - first.time).toBeCloseTo(HAND_SECONDS, 1);
+      expect(last?.fading).toBe(false);
+      expect(last?.drawn).toBe(false);
+      expect(last?.instance.body).toBe(0);
+      expect(last?.instance.leaving[2]).toBe(0);
+      expect(last?.instance.edgeLit).toBe(1);
+    },
+  );
+
+  it("puts a body back on the GPU at rest when its particles came back non-finite", () => {
+    const control = threeSegments();
+    const run = createRun(control);
+    run({ ...rest, position: 0 });
+    const poured = run({ ...rest, position: 2 });
+    expect(poured.step).not.toBeNull();
+    const count = poured.state.body.x.length;
+    const lost: LiquidSnapshot = {
+      particles: {
+        x: new Float32Array(count).fill(Number.NaN),
+        y: new Float32Array(count).fill(Number.NaN),
+        vx: new Float32Array(count).fill(Number.NaN),
+        vy: new Float32Array(count).fill(Number.NaN),
+        from: 0,
+        to: control.travel,
+      },
+      time: poured.state.simulated + 1,
+    };
+
+    const recovered = run({ ...rest, position: 2 }, lost);
+
+    expect(recovered.seed).toBe(true);
+    expect(recovered.step).toBeNull();
+    expect(recovered.state.body.settled).toBe(true);
+    expect([...recovered.state.body.x].every(Number.isFinite)).toBe(true);
+    expect(mean(recovered.state.body.x)).toBeCloseTo(
+      control.stops[2].target,
+      1,
+    );
+    expect(recovered.instance.calm).toBe(1);
+    expect(recovered.instance.set).toBe(1);
+  });
+});
+
+describe("layoutLiquid's step", () => {
+  const rest = { drag: null, pressed: false } as const;
+  const control = thumb();
+  const box = { x: 0, y: 0, width: 48, height: 24 };
   const lay = (
     position: number,
     state: LiquidState | undefined,
@@ -576,12 +576,13 @@ describe("layoutLiquid's step", () => {
   ) =>
     layoutLiquid(
       control,
-      { id: 1, settings: { liquid: { ...rest, position } } },
+      { id: 1, settings: { liquid: { ...rest, position } }, ...box },
       0,
       SLOT,
       state,
       { time: 1, delta, reducedMotion: false },
       BACKDROP,
+      CONTEXT,
       null,
       [],
     );

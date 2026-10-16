@@ -85,8 +85,8 @@ export function SwitchShowcase() {
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: 'By default the thumb is a frozen drop of frosted ice, which thaws into water and pours across the track when it is pressed or toggled, as the effect prop below describes. effect="none" keeps the plain thumb and track, and so does a switch without an EffectLayerProvider or WebGPU.',
-              zh: '默认情况下，滑块是一滴结霜的冰，按下或切换时融化成水并涌过轨道，详见下方的 effect 属性。设置 effect="none" 会保留普通的滑块与轨道；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
+              en: 'By default the thumb is solid with a lit edge. When it is pressed or toggled, it melts into water, pours across the track, flows on for a moment after it arrives and sets solid again, as the effect prop below describes. effect="none" keeps the plain thumb and track, and so does a switch without an EffectLayerProvider or WebGPU.',
+              zh: '默认情况下，滑块是边缘带光的实心块。按下或切换时，它融化成水并涌过轨道，到位后继续流动片刻，再重新凝固，详见下方的 effect 属性。设置 effect="none" 会保留普通的滑块与轨道；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
             })}
           </Text>
           <SpecimenGrid>

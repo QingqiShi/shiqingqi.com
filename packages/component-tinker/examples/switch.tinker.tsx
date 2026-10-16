@@ -56,9 +56,11 @@ export default tinker({
         display: "flex",
         padding: "border.size_2",
         position: "relative",
-        transition: "background-color {duration._200} {easing.ease}",
+        transition:
+          "background-color {duration._200} {easing.ease}, box-shadow {duration._200} {easing.ease}",
         backgroundColor: "color.bgControlStrong",
-        boxShadow: "shadow._2",
+        boxShadow:
+          "inset 0 0 0 {border.size_1} {color.borderControlStrong}, {shadow._2}",
         touchAction: "none",
       },
       // Each size sets `switchTokens.trackHeight`, and the track height is the
@@ -69,13 +71,16 @@ export default tinker({
         lg: { height: "controlSize._10" },
       },
       states: {
-        checked: { backgroundColor: "color.bgAccent" },
+        checked: {
+          backgroundColor: "color.bgControlStrongSelected",
+          boxShadow: "inset 0 0 0 {border.size_1} transparent, {shadow._2}",
+        },
         disabled: { cursor: "not-allowed", opacity: "opacity.disabled" },
       },
     },
     before: {
       base: {
-        backgroundColor: "color.fgOnAccent",
+        backgroundColor: "color.fgOnControlStrong",
         borderRadius: "border.radius_round",
         boxShadow: "none",
         display: "block",

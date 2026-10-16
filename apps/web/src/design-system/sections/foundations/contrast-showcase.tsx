@@ -40,6 +40,14 @@ export function ContrastShowcase() {
             }),
           },
           {
+            term: "color.fgControl…",
+            value: "Lc 60",
+            note: t({
+              en: "fgControl, the label of an unselected option or tab, on bgControlSunken, the canvas and every surface. fgControlSelected, the label of the shown tab, on bgMaterialGlassSelected laid over the canvas or any surface.",
+              zh: "fgControl 是未选中选项或标签页的文字，在 bgControlSunken、画布与每一种表面上测量。fgControlSelected 是当前标签页的文字，在叠于画布或任一表面之上的 bgMaterialGlassSelected 上测量。",
+            }),
+          },
+          {
             term: "color.fg<Intent>",
             value: t({
               en: "Lc 75 on the page, Lc 60 on its tint",

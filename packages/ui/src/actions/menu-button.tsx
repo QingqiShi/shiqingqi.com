@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { RemoveScroll } from "react-remove-scroll";
+import { clamp } from "../clamp.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
@@ -21,7 +22,6 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { clamp } from "../surfaces/compute-popover-position.ts";
 import { FixedContainerContent } from "../surfaces/fixed-container-content.tsx";
 import { observeViewport } from "../surfaces/observe-viewport.ts";
 import { popoverSurface } from "../surfaces/popover-surface.stylex.ts";

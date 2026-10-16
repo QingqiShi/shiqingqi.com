@@ -1,3 +1,5 @@
+import { CAN_HOVER_QUERY } from "../can-hover-query.ts";
+import { clamp } from "../clamp.ts";
 import {
   GPU_BUFFER_USAGE,
   GPU_MAP_MODE,
@@ -6,25 +8,15 @@ import {
 } from "./constants.ts";
 import { createBinding } from "./create-binding.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
-import {
-  createRingLightRenderer,
-  type RingLightDraw,
-  ringLightBox,
-  ringLightPaint,
-} from "./create-ring-light-renderer.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
   EFFECT_SETTING_DEFAULTS,
   finiteOr,
 } from "./effect-setting-defaults.ts";
-import {
-  FROST_CONTRAST,
-  frostOpacity,
-  glowColors,
-  restingGlow,
-} from "./glow-colors.ts";
+import { handBack } from "./hand-back.stylex.ts";
 import { instanceRange } from "./instance-range.ts";
-import { lastResultOf } from "./last-result-of.ts";
+import { leanLight, pointerOver, type LightContext } from "./lean-light.ts";
+import type { PageRect } from "./lens-from-box.ts";
 import {
   LIQUID_COMPUTE_WGSL,
   LIQUID_STEP_BYTES,
@@ -45,6 +37,7 @@ import {
   packLiquidInstances,
   type LiquidBeadInstance,
   type LiquidInstance,
+  type TrackRing,
 } from "./liquid-wgsl.ts";
 import { markEffectDrawn } from "./mark-effect-drawn.ts";
 import type { EffectColor } from "./parse-css-color.ts";
@@ -53,19 +46,12 @@ import {
   readFill,
   resolveCornerRadii,
 } from "./read-element-box.ts";
-import {
-  ringLightAt,
-  ringLightEnd,
-  type RingLight,
-  type RingLightBox,
-} from "./ring-light-at.ts";
-import type { RingLightInstance } from "./ring-light-wgsl.ts";
-import { isLightBackdrop } from "./ripple-color.ts";
+import { srgbToOklab } from "./ripple-color.ts";
 import {
   beadRadius,
   finiteParticles,
   frozenLiquid,
-  impactOn,
+  LINGER_SET,
   liquidStep,
   mean,
   restingLiquid,
@@ -74,7 +60,13 @@ import {
   type LiquidSnapshot,
 } from "./step-liquid.ts";
 import { stepRise, type Rise } from "./step-rise.ts";
-import type { Effect, EffectElementRecord, EffectFrame } from "./types.ts";
+import type {
+  Effect,
+  EffectElementRecord,
+  EffectFrame,
+  EffectPointer,
+  EffectSetup,
+} from "./types.ts";
 
 const LIQUID = roleBits(["liquid"]);
 const BEAD_BYTES = 16;
@@ -90,40 +82,6 @@ const MAX_READBACKS = 3;
  * this far.
  */
 const FIRST_STEP = 1 / 60;
-/**
- * Seconds the plain thumb takes to freeze into ice once the effect takes
- * over from the control, so that nothing jumps.
- */
-const FREEZE_IN_SECONDS = 0.4;
-/** How opaque the frozen thumb is at least, at its core and at its edge. */
-const FROST = { core: 0.72, edge: 0.5 } as const;
-/**
- * How opaque the frozen indicator is at least, and at most as opaque as
- * its own fill. The segment labels are under the liquid, so it lets the
- * selected label show through.
- */
-const SEGMENT_FROST = { core: 0.35, edge: 0.25 } as const;
-/** How strong the faint glow under the indicator is, on a light page and on a dark one. */
-const SEGMENT_GLOW = { light: 0.08, dark: 0.16 } as const;
-/** A contrast of 1:1, which every frost has: no floor. */
-const NO_FLOOR = { core: 1, edge: 1 } as const;
-/**
- * How strong the glow that stays under the frozen thumb on the on fill is:
- * how far it goes from the fill towards the glow's colour, before the
- * thumb's contrast limits it. That colour is the glow's pale core on a dark
- * page. On a light page it is the glow's saturated halo, because a pale glow
- * there would take the contrast of the light thumb over it.
- */
-const REST_GLOW = 0.7;
-/**
- * How bright the on fill and its glow are under the clear liquid, as a
- * share of their brightness under the frozen thumb, so that the clear
- * liquid shows over them.
- */
-const THAWED_LIGHT = 0.55;
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
 
 const px = (value: string) => finiteOr(Number.parseFloat(value), 0);
 
@@ -136,11 +94,6 @@ const px = (value: string) => finiteOr(Number.parseFloat(value), 0);
 export interface Pill {
   readonly target: number;
   readonly span: number;
-}
-
-interface FrostLevels {
-  readonly core: number;
-  readonly edge: number;
 }
 
 /**
@@ -159,36 +112,93 @@ export interface LiquidControl {
   readonly travel: number;
   /** Where the liquid rests at each position, in track space. */
   readonly stops: readonly Pill[];
-  /** The ring light that runs where the liquid lands on each stop, or `null` for none. */
-  readonly rings: readonly ({
-    readonly box: RingLightBox;
-    readonly cornerExponent: number;
-    readonly color: EffectColor;
-  } | null)[];
-  /**
-   * The frozen liquid's colour, the fill under it at rest, how opaque it is
-   * at least, and the contrast against that fill that makes it more opaque.
-   */
-  readonly frost: {
-    readonly color: EffectColor;
-    readonly under: EffectColor;
-    readonly least: FrostLevels;
-    readonly contrast: FrostLevels;
-  };
-  /** The fills the track goes from and to as the liquid rises through it, or `null` for none. */
+  /** The selected surface's colour, and the fill of the track under it at rest. */
+  readonly color: EffectColor;
+  readonly under: EffectColor;
+  /** The fills the track goes from and to as the on fill rises through it, or `null` for none. */
   readonly fill: { readonly off: EffectColor; readonly on: EffectColor } | null;
-  /**
-   * On a track with no fill, the page shows through the liquid, and a glow
-   * of this colour and strength lies under it.
-   */
-  readonly underGlow?: {
-    readonly color: EffectColor;
-    readonly strength: { readonly light: number; readonly dark: number };
-  };
+  /** The ring inside the track's edge, off and on, which changes with the fill, or `null` for none. */
+  readonly ring: TrackRing | null;
   /** The corners of the rest shape, where they are not those of a pill. */
   readonly corner?: { readonly radius: number; readonly exponent: number };
+  /**
+   * The selected surface is a Switch's thumb. Else it is an indicator that
+   * the track shows through.
+   */
+  readonly thumb: boolean;
+  /** The selected surface's own edge, as `LiquidInstance.edge` takes it. */
+  readonly edge: Edge;
   /** How far the liquid's surface swells past its rest shape, in CSS px. */
   readonly spread: number;
+}
+
+/**
+ * The opacity of a selected surface's ring, of its two shadows, and of its
+ * inset ring.
+ *
+ * @internal
+ */
+export type Edge = readonly [number, number, number, number];
+
+/**
+ * The edge of a Switch's thumb at rest. The thumb's shadow changes on hover,
+ * with a transition, so the effect does not read it from the thumb.
+ */
+const THUMB_EDGE: Edge = [0.06, 0.18, 0.12, 0];
+
+const COLOR_FUNCTION = /[a-z-]+\([^)]*\)/i;
+
+/**
+ * The edge from a computed `box-shadow`: the opacity of its first three
+ * outer shadows, a ring and two shadows, and of its first inset shadow, a
+ * ring. `none` is no edge.
+ *
+ * @internal
+ */
+export function readEdge(boxShadow: string): Edge {
+  const outer: number[] = [];
+  const inset: number[] = [];
+  for (const shadow of boxShadow.split(/,(?![^(]*\))/)) {
+    const color = COLOR_FUNCTION.exec(shadow)?.[0];
+    const opacity = color === undefined ? 0 : readFill(color)[3];
+    (/\binset\b/.test(shadow) ? inset : outer).push(opacity);
+  }
+  return [
+    outer.at(0) ?? 0,
+    outer.at(1) ?? 0,
+    outer.at(2) ?? 0,
+    inset.at(0) ?? 0,
+  ];
+}
+
+const NO_RING: TrackRing = { off: [0, 0, 0, 0], on: [0, 0, 0, 0], width: 0 };
+
+const LENGTH = /-?\d*\.?\d+px/g;
+
+/**
+ * The colour and the width of the first ring inside in a computed
+ * `box-shadow`: an inset shadow with no offset and no blur. `null` is no
+ * ring.
+ *
+ * @internal
+ */
+export function readInsetRing(
+  boxShadow: string,
+): { readonly color: EffectColor; readonly width: number } | null {
+  for (const shadow of boxShadow.split(/,(?![^(]*\))/)) {
+    if (!/\binset\b/.test(shadow)) {
+      continue;
+    }
+    const color = COLOR_FUNCTION.exec(shadow)?.[0];
+    const lengths = (
+      shadow.replace(COLOR_FUNCTION, "").match(LENGTH) ?? []
+    ).map(px);
+    const spread = lengths.at(3) ?? 0;
+    if (color !== undefined && lengths.slice(0, 3).every((l) => l === 0)) {
+      return spread > 0 ? { color: readFill(color), width: spread } : null;
+    }
+  }
+  return null;
 }
 
 /**
@@ -218,8 +228,10 @@ function headingTo(position: number, from: number, last: number) {
 
 /**
  * A Switch: its thumb from its `::before` and its own style, and the fill
- * its track takes when it toggles, from the colour of its `::after`. A
- * disabled Switch keeps its own dimmed thumb.
+ * its track takes when it toggles, from the colour of its `::after`. The
+ * ring inside the track's edge is its first inset shadow, and the ring it
+ * takes when it toggles is the border colour of its `::after`. A disabled
+ * Switch keeps its own dimmed thumb.
  */
 function readThumb(record: EffectElementRecord): LiquidControl | null {
   const { element } = record;
@@ -236,9 +248,13 @@ function readThumb(record: EffectElementRecord): LiquidControl | null {
   const radius = diameter / 2;
   const travel = Math.max(0, record.width - record.height) / radius;
   const fill = readFill(own.backgroundColor);
-  const after = readFill(getComputedStyle(element, "::after").color);
+  const afterStyle = getComputedStyle(element, "::after");
+  const after = readFill(afterStyle.color);
   const other = after[3] > 0 ? after : fill;
   const on = (record.settings.liquid?.position ?? 0) >= 1;
+  const ring = readInsetRing(own.boxShadow);
+  const otherRing =
+    after[3] > 0 ? readFill(afterStyle.borderTopColor) : ring?.color;
   return {
     radius,
     originX: record.x + record.height / 2,
@@ -248,21 +264,19 @@ function readThumb(record: EffectElementRecord): LiquidControl | null {
       { target: 0, span: 0 },
       { target: travel, span: 0 },
     ],
-    rings: [
-      null,
-      {
-        box: ringLightBox(record),
-        cornerExponent: record.cornerExponent,
-        color: fill,
-      },
-    ],
-    frost: {
-      color: readFill(thumb.backgroundColor),
-      under: fill,
-      least: FROST,
-      contrast: FROST_CONTRAST,
-    },
+    color: readFill(thumb.backgroundColor),
+    under: fill,
     fill: on ? { off: other, on: fill } : { off: fill, on: other },
+    ring:
+      ring === null || otherRing === undefined
+        ? null
+        : {
+            off: on ? otherRing : ring.color,
+            on: on ? ring.color : otherRing,
+            width: ring.width,
+          },
+    thumb: true,
+    edge: THUMB_EDGE,
     spread: px(own.paddingTop),
   };
 }
@@ -271,7 +285,7 @@ function readThumb(record: EffectElementRecord): LiquidControl | null {
  * A segmented control: one stop over each segment marked with
  * `LIQUID_SEGMENT`, whose boxes are `segments`, in a pill as long as the
  * segment, and the indicator's look, from the element marked with
- * `LIQUID_INDICATOR`. Its text colour is the ring light's colour.
+ * `LIQUID_INDICATOR`.
  */
 function readSegments(
   record: EffectElementRecord,
@@ -297,14 +311,6 @@ function readSegments(
     look.borderBottomRightRadius,
     look.borderBottomLeftRadius,
   ] as const;
-  const cornerExponent = readCornerExponent(
-    look.getPropertyValue("corner-top-left-shape"),
-  );
-  const color = readFill(look.color);
-  const frost = readFill(look.backgroundColor);
-  const cornerRadius = (segment: DOMRect) =>
-    resolveCornerRadii(segment.width, segment.height, corners)[0];
-  const opacity = Math.min(1, frost[3] / SEGMENT_FROST.core);
   return {
     radius,
     originX: left + radius + toPageX,
@@ -315,29 +321,22 @@ function readSegments(
       const end = Math.max(start, (segment.right - left) / radius - 2);
       return { target: (start + end) / 2, span: (end - start) / 2 };
     }),
-    rings: segments.map((segment) => ({
-      box: {
-        x: segment.left + toPageX,
-        y: segment.top + toPageY,
-        width: segment.width,
-        height: segment.height,
-        radius: cornerRadius(segment),
-      },
-      cornerExponent,
-      color,
-    })),
-    frost: {
-      color: frost,
-      under: readFill(own.backgroundColor),
-      least: {
-        core: SEGMENT_FROST.core * opacity,
-        edge: SEGMENT_FROST.edge * opacity,
-      },
-      contrast: NO_FLOOR,
-    },
+    color: readFill(look.backgroundColor),
+    under: readFill(own.backgroundColor),
     fill: null,
-    underGlow: { color, strength: SEGMENT_GLOW },
-    corner: { radius: cornerRadius(segments[0]), exponent: cornerExponent },
+    ring: null,
+    corner: {
+      radius: resolveCornerRadii(
+        segments[0].width,
+        segments[0].height,
+        corners,
+      )[0],
+      exponent: readCornerExponent(
+        look.getPropertyValue("corner-top-left-shape"),
+      ),
+    },
+    thumb: false,
+    edge: readEdge(look.boxShadow),
     spread: px(own.paddingTop),
   };
 }
@@ -468,52 +467,10 @@ const dim = (color: readonly [number, number, number], light: number) =>
   [color[0] * light, color[1] * light, color[2] * light] as const;
 
 /**
- * The colours of one control, which change only when its fills, its frost
- * or its backdrop do.
+ * How bright the on fill is under the clear liquid, as a share of its
+ * brightness under the solid thumb, so that the clear liquid shows over it.
  */
-function createLiquidColors() {
-  return {
-    track: lastResultOf(
-      (
-        color: EffectColor,
-        under: EffectColor,
-        least: FrostLevels,
-        contrast: FrostLevels,
-        onFill: EffectColor,
-        backdrop: EffectColor,
-        level: number,
-      ) => {
-        const thumb = rgb(color);
-        const glow = glowColors(onFill, backdrop);
-        const restGlow = restingGlow(
-          rgb(onFill),
-          isLightBackdrop(backdrop) ? rgb(glow.halo) : rgb(glow.core),
-          thumb,
-          REST_GLOW,
-          contrast.core,
-        );
-        // At rest on the on fill, the thumb sits over the glow, and is as
-        // opaque as it must be to keep its contrast over both.
-        const restTracks = level === 1 ? [rgb(under), restGlow] : [rgb(under)];
-        const frostOver = (least: number, contrast: number) =>
-          Math.max(
-            ...restTracks.map((track) =>
-              frostOpacity(thumb, track, least, contrast),
-            ),
-          );
-        return {
-          restGlow,
-          halo: rgb(glow.halo),
-          frost: {
-            core: frostOver(least.core, contrast.core),
-            edge: frostOver(least.edge, contrast.edge),
-          },
-        };
-      },
-    ),
-    ring: lastResultOf(ringLightPaint),
-  };
-}
+const THAWED_LIGHT = 0.55;
 
 /**
  * The liquid of one control between frames.
@@ -535,33 +492,103 @@ export interface LiquidState {
   readonly pressed: boolean;
   /** Which way the liquid last poured: 1 along the track, -1 back. */
   readonly heading: -1 | 1;
-  /** The liquid is on its way to a stop with a ring, which waits for it to land. */
-  readonly landing: boolean;
-  /**
-   * The rings that still run, each with the stop it runs round and the
-   * colour it took when it started. A new landing does not cut a ring
-   * short: it runs to its end on its own stop.
-   */
-  readonly rings: readonly {
-    readonly light: RingLight;
-    readonly stop: number;
-    readonly color: EffectColor;
-  }[];
-  /** When the effect took the control over, on the effect layer's clock. */
-  readonly since: number;
-  readonly colors: ReturnType<typeof createLiquidColors>;
+  /** The effect draws the liquid, in place of the control's own surface. */
+  readonly active: boolean;
+  /** When the effect started to hand the surface back, or `null`. */
+  readonly handFrom: number | null;
+  /** How far the pointer leans the light, from 0 to 1, and the way to it. */
+  readonly lean: number;
+  readonly toPointer: readonly [number, number];
   /** Seconds on the liquid's clock that the GPU has been given to simulate. */
   readonly simulated: number;
   /** The time on that clock that the body's particles are from. */
   readonly particlesAt: number;
+  /**
+   * Under reduced motion, the pill the surface fades out of, in rest radii,
+   * and when the fade started, or `null`.
+   */
+  readonly fade: {
+    readonly target: number;
+    readonly span: number;
+    readonly start: number;
+  } | null;
+}
+
+/**
+ * Seconds the effect takes to hand the selected surface back to the
+ * control, and, under reduced motion, to fade it from one place to the
+ * next.
+ *
+ * @internal
+ */
+export const HAND_SECONDS = Number.parseFloat(handBack.duration) / 1000;
+/** The fill that rises through a track is as good as risen this near its goal. */
+const RISE_SEEN = 0.03;
+
+/**
+ * How much of the liquid the effect draws while it hands the surface back.
+ * The control fades its own surface in under the effect. An indicator that
+ * the labels show through fades out at the same pace, so the two add up to
+ * one. An opaque thumb stays whole until the control's is whole, because
+ * two half-opaque thumbs over each other let the track through.
+ */
+function handAlpha(
+  control: LiquidControl,
+  active: boolean,
+  handFrom: number | null,
+  time: number,
+) {
+  if (!active) {
+    return 0;
+  }
+  if (handFrom === null || control.thumb) {
+    return 1;
+  }
+  return clamp(1 - (time - handFrom) / HAND_SECONDS, 0, 1);
+}
+
+/** The selected surface as it shows over the track: its fill over the track's. */
+function solidOf(control: LiquidControl) {
+  const { color, under } = control;
+  const a = color[3];
+  return [
+    under[0] + (color[0] - under[0]) * a,
+    under[1] + (color[1] - under[1]) * a,
+    under[2] + (color[2] - under[2]) * a,
+  ] as const;
+}
+
+const palettes = new WeakMap<
+  LiquidControl,
+  {
+    readonly solid: readonly [number, number, number];
+    readonly lightBody: boolean;
+  }
+>();
+
+/** The colour of a control's surface over its track, worked out once for each read of the control. */
+function paletteOf(control: LiquidControl) {
+  const cached = palettes.get(control);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const solid = solidOf(control);
+  const palette = { solid, lightBody: srgbToOklab(solid)[0] > 0.7 };
+  palettes.set(control, palette);
+  return palette;
 }
 
 /**
  * Steps one control's liquid and lays it out on the page. It rests in the
- * pill of the stop at `position`, or where a drag holds it. A new position
- * pours it there: the wall ahead is the far end of that stop's pill, so it
- * lands there and sloshes against it, and where the stop has a ring, the
- * ring light runs from where it lands.
+ * pill of the stop at `position`, or where a drag holds it, and there the
+ * control draws its own solid surface, with a lit edge from the effect over
+ * it. A new position pours the liquid there: it melts into water, pours
+ * over, lands on the wall ahead, the far end of that stop's pill, and
+ * sloshes against it. It flows on for about 0.8 s after it arrives, and
+ * sets into the control's solid surface as it settles.
+ * Once it is solid and still, the effect hands the surface back to the
+ * control. Under reduced motion it pours nothing: the solid surface fades
+ * out of the old pill as it fades into the new one, in `HAND_SECONDS`.
  *
  * The GPU moves the particles, in the slot `slot` of the simulation
  * buffer: each frame the liquid moves, this returns the step for the GPU
@@ -576,46 +603,47 @@ export interface LiquidState {
  */
 export function layoutLiquid(
   control: LiquidControl,
-  record: Pick<EffectElementRecord, "id" | "settings">,
+  record: Pick<
+    EffectElementRecord,
+    "id" | "settings" | "x" | "y" | "width" | "height"
+  >,
   elementIndex: number,
   slot: number,
   state: LiquidState | undefined,
   frame: Pick<EffectFrame, "time" | "delta" | "reducedMotion">,
   backdrop: EffectColor,
+  context: LightContext,
   moved: LiquidSnapshot | null,
   beads: LiquidBeadInstance[],
 ): {
   state: LiquidState;
   instance: LiquidInstance;
-  rings: (Omit<RingLightInstance, "elementIndex" | "state"> & {
-    readonly ring: RingLight;
-  })[];
+  /** The effect draws the surface, so the control hides its own. */
+  drawn: boolean;
   /** Something moves, so the next frame must follow. */
   animating: boolean;
   /** The step for the GPU to run on the body's slot this frame, or `null`. */
   step: LiquidStep | null;
   /** Put the body's particles into its slot before the step. */
   seed: boolean;
+  /** A fade under reduced motion needs the next frame, though reduced motion asks for none. */
+  fading: boolean;
 } {
   const settings = record.settings.liquid ?? EFFECT_SETTING_DEFAULTS.liquid;
-  const { radius, travel, stops, rings, originX, originY } = control;
+  const { radius, travel, stops, originX, originY, fill } = control;
   const last = stops.length - 1;
   const position = clamp(finiteOr(settings.position, 0), 0, last);
   const drag =
     settings.drag === null ? null : clamp(finiteOr(settings.drag, 0), 0, last);
   const pressed = settings.pressed;
   const held = drag !== null;
-  const aim = held ? 0 : clamp(finiteOr(settings.aim, 0), -1, 1);
+  const reduced = frame.reducedMotion;
   const { target, span } = pillAt(stops, drag ?? position);
-  const stop = pillAt(stops, position);
 
   let body = state?.body ?? restingLiquid(target, { seed: record.id, span });
   let heading = state?.heading ?? headingTo(position, position, last);
-  let landing = state?.landing ?? false;
-  let running = state?.rings ?? [];
   if (state !== undefined && position !== state.position) {
     heading = headingTo(position, state.drag ?? state.position, last);
-    landing = (rings[position] ?? null) !== null;
   }
   if (state !== undefined && (target !== state.target || span !== state.span)) {
     // The drawn surface settles into the rest pill as the body calms. A new
@@ -633,11 +661,11 @@ export function layoutLiquid(
     from: held || heading > 0 ? 0 : ahead.target - ahead.span,
     to: held || heading < 0 ? travel : ahead.target + ahead.span,
     pressed,
-    reducedMotion: frame.reducedMotion,
-    aim,
+    reducedMotion: reduced,
+    aim: 0,
   };
   // A new body rests as laid out: a step would move the particles towards
-  // their own spacing and melt the thumb for no reason.
+  // their own spacing and melt the surface for no reason.
   const resting =
     body.settled &&
     (state === undefined ||
@@ -649,7 +677,7 @@ export function layoutLiquid(
   let particlesAt = state?.particlesAt ?? 0;
   let seed = state === undefined;
   let step: LiquidStep | null = null;
-  if (!resting && frame.reducedMotion) {
+  if (!resting && reduced) {
     body = frozenLiquid(body, input);
     seed = true;
   } else if (!resting) {
@@ -673,7 +701,7 @@ export function layoutLiquid(
         count: body.x.length,
         target,
         span,
-        aim,
+        aim: 0,
         scale: body.scale,
         from: input.from,
         to: input.to,
@@ -687,10 +715,10 @@ export function layoutLiquid(
   if (step !== null) {
     simulated += step.step;
   }
+
   // The track is all one fill, which goes from off to on as the on fill
   // rises through it: with the liquid while a drag holds it, and on its
   // own after a toggle.
-  const { fill } = control;
   const level = fill !== null && position === last ? 1 : 0;
   const riseGoal =
     fill === null
@@ -701,74 +729,55 @@ export function layoutLiquid(
   const rise =
     state === undefined
       ? { level, speed: 0 }
-      : stepRise(state.rise, riseGoal, delta, frame.reducedMotion);
-  const onFill = fill?.on ?? control.underGlow?.color ?? control.frost.under;
-  const offFill = fill?.off ?? control.frost.under;
-  const since = state?.since ?? frame.time;
-  // Under reduced motion no frame follows on its own, so the effect takes
-  // over at once.
-  const plain = frame.reducedMotion
-    ? 0
-    : clamp(1 - (frame.time - since) / FREEZE_IN_SECONDS, 0, 1);
-  const colors = state?.colors ?? createLiquidColors();
-  const { restGlow, halo, frost } = colors.track(
-    control.frost.color,
-    control.frost.under,
-    control.frost.least,
-    control.frost.contrast,
-    onFill,
-    backdrop,
-    level,
-  );
-  // The on fill and its glow are dim under the clear liquid, and brighten
-  // as it freezes.
-  const light = THAWED_LIGHT + (1 - THAWED_LIGHT) * body.set;
-  const landsOn = rings[position] ?? null;
-  if (landing && landsOn !== null) {
-    const wall = stop.target + heading * stop.span;
-    // A long body can touch the far wall of a short stop next to it before
-    // most of it is there. The liquid lands only when its middle is in the
-    // pill of the stop.
-    const arrived = heading * (mean(body.x) - stop.target) >= -(stop.span + 1);
-    const impact = arrived ? impactOn(body, wall, heading) : null;
-    if (frame.reducedMotion || impact !== null) {
-      landing = false;
-      const { box } = landsOn;
-      running = [
-        ...running,
-        {
-          light: {
-            start: frame.time,
-            x:
-              impact === null
-                ? heading > 0
-                  ? box.x + box.width
-                  : box.x
-                : originX + impact.x * radius,
-            y: originY + (impact?.y ?? 0) * radius,
-          },
-          stop: position,
-          color: landsOn.color,
-        },
-      ];
-    }
-  }
-  running = running.filter(
-    ({ light }) => frame.time < ringLightEnd(light, frame.reducedMotion),
-  );
+      : stepRise(state.rise, riseGoal, delta, reduced);
 
-  const drawn = [];
-  for (const ring of running) {
-    const ringsOn = rings[ring.stop] ?? null;
-    if (ringsOn !== null) {
-      drawn.push({
-        ring: ring.light,
-        box: ringsOn.box,
-        cornerExponent: ringsOn.cornerExponent,
-        ...colors.ring(ring.color, backdrop),
-      });
-    }
+  let fade = reduced ? (state?.fade ?? null) : null;
+  if (
+    reduced &&
+    state !== undefined &&
+    !held &&
+    (target !== state.target || span !== state.span)
+  ) {
+    fade = { target: state.target, span: state.span, start: frame.time };
   }
+  if (fade !== null && frame.time - fade.start >= HAND_SECONDS) {
+    fade = null;
+  }
+  const fadeIn =
+    fade === null ? 1 : clamp((frame.time - fade.start) / HAND_SECONDS, 0, 1);
+
+  // The effect draws the liquid from the first frame it is not the solid
+  // surface at rest, and hands the surface back once it is again. Under
+  // reduced motion no frame follows to hand it back, so it hands it back at
+  // once.
+  const atRest =
+    body.settled &&
+    body.set >= 1 &&
+    Math.abs(rise.level - riseGoal) < RISE_SEEN;
+  let active = state?.active ?? false;
+  let handFrom = state?.handFrom ?? null;
+  if (reduced) {
+    active = fade !== null || !atRest;
+    handFrom = null;
+  } else if (!atRest) {
+    active = true;
+    handFrom = null;
+  } else if (active && handFrom === null) {
+    handFrom = frame.time;
+  } else if (active && frame.time - (handFrom ?? 0) >= HAND_SECONDS) {
+    active = false;
+    handFrom = null;
+  }
+
+  const centreX = mean(body.x);
+  const lit = leanLight(
+    context,
+    state ?? { lean: 0, toPointer: [0, -1] },
+    { x: originX + centreX * radius, y: originY },
+    record,
+    delta,
+    reduced,
+  );
 
   const firstBead = beads.length;
   for (const bead of body.beads) {
@@ -778,6 +787,7 @@ export function layoutLiquid(
       radius: beadRadius(bead) * radius,
     });
   }
+  const { solid, lightBody } = paletteOf(control);
   return {
     state: {
       body,
@@ -788,23 +798,23 @@ export function layoutLiquid(
       span,
       pressed,
       heading,
-      landing,
-      rings: running,
-      since,
-      colors,
+      active,
+      handFrom,
+      lean: lit.lean,
+      toPointer: lit.toPointer,
       simulated,
       particlesAt,
+      fade,
     },
     step,
     seed,
-    rings: drawn,
-    // While a drag holds the liquid short of its stop, it cannot land
-    // there, so it waits for no frame.
+    fading: fade !== null,
+    drawn: active && handFrom === null,
     animating:
       !body.settled ||
-      (landing && target === stop.target) ||
-      plain > 0 ||
-      rise.level !== riseGoal,
+      rise.level !== riseGoal ||
+      !lit.resting ||
+      handFrom !== null,
     instance: {
       elementIndex,
       slot,
@@ -812,38 +822,45 @@ export function layoutLiquid(
       firstBead,
       beadCount: body.beads.length,
       radius,
-      calm: body.calm,
+      // The drawn surface keeps the liquid's own shape for most of the
+      // time the body takes to calm, and rounds into the rest shape at
+      // the end.
+      calm: body.calm * body.calm,
       originX,
       originY,
       restX: target * radius,
       span: span * radius,
       scale: body.scale,
       spread: control.spread,
-      centreX: mean(body.x) * radius,
+      centreX: centreX * radius,
       centreY: mean(body.y) * radius,
-      thumb: rgb(control.frost.color),
+      thumb: solid,
       set: body.set,
-      plain,
-      frost,
-      off: rgb(offFill),
-      on: dim(rgb(onFill), light),
+      lightBody,
+      off: rgb(fill?.off ?? control.under),
+      // The on fill is dim under the clear liquid, and brightens as it
+      // sets.
+      on: dim(
+        rgb(fill?.on ?? control.under),
+        THAWED_LIGHT + (1 - THAWED_LIGHT) * body.set,
+      ),
+      ring: control.ring ?? NO_RING,
       rise: rise.level,
       riseGoal,
-      cover: rise.level > 0 || riseGoal > 0,
-      // The glow fades in as the effect takes over from the control's flat
-      // fill, so that nothing jumps.
-      glow: {
-        color: dim(fill === null ? halo : restGlow, light),
-        strength: fill === null ? 0 : 1 - plain,
-      },
-      underGlow:
-        control.underGlow &&
-        control.underGlow.strength[
-          isLightBackdrop(backdrop) ? "light" : "dark"
-        ] *
-          (1 - plain),
+      cover: fill !== null && active,
+      seeThrough: !control.thumb,
       corner: control.corner,
       backdrop: rgb(backdrop),
+      body: handAlpha(control, active, handFrom, frame.time) * fadeIn,
+      light: lit.light,
+      edge: control.edge,
+      // The lit edge is the solid surface's, so it shows only as the
+      // liquid sets past the core it keeps while it lingers.
+      edgeLit: clamp((body.set - LINGER_SET) / (1 - LINGER_SET), 0, 1) * fadeIn,
+      leaving:
+        fade === null
+          ? [0, 0, 0]
+          : [fade.target * radius, fade.span * radius, 1 - fadeIn],
     },
   };
 }
@@ -863,13 +880,15 @@ interface Stepped {
 }
 
 /**
- * Liquid: draws the thumb of each Switch with the role as a body of liquid
- * on the track, in the colour and at the size of the thumb the Switch draws
- * itself, and covers the track with the fill that rises or sinks under it,
- * as `useLiquid` describes, and a segmented control's indicator in the same
- * way, in a pill over the selected segment, with no fill. It marks the control with
- * `markEffectDrawn` while it draws, so the control hides its own thumb or
- * indicator only then. It asks for frames only while something moves.
+ * Liquid: draws the selected surface of each control with the role, a
+ * Switch's thumb or a segmented control's indicator, as a body of liquid
+ * while it moves, in the colour and at the size of the one the control
+ * draws itself, as `useLiquid` describes. On a Switch it also covers the
+ * track with the fill that rises or sinks under it. It marks the control
+ * with `markEffectDrawn` while it draws the surface, so the control hides
+ * its own only then. At rest it draws only a lit edge over the control's
+ * own surface. It asks for frames only while something moves, or while the
+ * pointer is near a control.
  *
  * The particles live on the GPU, in a slot of the simulation buffer for
  * each control, where a compute pass moves them each frame the liquid
@@ -881,7 +900,7 @@ interface Stepped {
  * @internal
  */
 export const liquidEffect: Effect = {
-  async setup(setup) {
+  async setup(setup: EffectSetup) {
     const { device, format, pageLayout, targetLayout } = setup;
     const liquidLayout = device.createBindGroupLayout({
       entries: [0, 1, 2].map((binding) => ({
@@ -903,9 +922,6 @@ export const liquidEffect: Effect = {
     const computeModule = device.createShaderModule({
       code: LIQUID_COMPUTE_WGSL,
     });
-    // A ring starts only after a toggle lands, so the liquid does not wait
-    // for the ring's pipeline, and a ring has no draw until it is ready.
-    const ringRenderer = createRingLightRenderer(setup);
     const [liquidPipeline, simulatePipeline] = await Promise.all([
       device.createRenderPipelineAsync({
         layout: device.createPipelineLayout({
@@ -1082,9 +1098,25 @@ export const liquidEffect: Effect = {
     const controlReader = createControlReader(setup.requestFrame);
     const drawn = new Set<Element>();
     let instances: readonly LiquidInstance[] = [];
+    const hoverQuery = window.matchMedia(CAN_HOVER_QUERY);
+    /** The boxes of the controls at the last frame, and whether a pointer leaned a light. */
+    let boxes: readonly PageRect[] = [];
+    let leaning = false;
 
     return {
+      // A pointer that moves near a control leans its light, and one that
+      // leaves takes the lean away.
+      followsPointer: (pointer: EffectPointer) =>
+        leaning ||
+        boxes.some((box) =>
+          pointerOver({ pointer, hoverable: hoverQuery.matches }, box),
+        ),
       update(encoder, frame) {
+        const context: LightContext = {
+          pointer: frame.pointer,
+          hoverable: hoverQuery.matches,
+          viewport: frame.viewport,
+        };
         const controls = frame.elements.flatMap((record, index) => {
           if ((record.roles & LIQUID) === 0) {
             return [];
@@ -1097,13 +1129,14 @@ export const liquidEffect: Effect = {
         controlReader.sweep();
         ensureSlotCapacity(slots.size);
         const nextInstances: LiquidInstance[] = [];
-        const nextRings: RingLightDraw[] = [];
         const beads: LiquidBeadInstance[] = [];
         const steps: LiquidStep[] = [];
         const stepped: Stepped[] = [];
         const seen = new Set<Element>();
         const kept = new Set<number>();
         let animating = false;
+        let fading = false;
+        leaning = false;
         for (const { index, record, control, slot } of controls) {
           const { id } = record;
           const laid = layoutLiquid(
@@ -1114,14 +1147,19 @@ export const liquidEffect: Effect = {
             states.get(id),
             frame,
             frame.scopes[record.scopeIndex].backdrop,
+            context,
             latest.get(id) ?? null,
             beads,
           );
-          seen.add(record.element);
+          if (laid.drawn) {
+            seen.add(record.element);
+          }
           kept.add(id);
           states.set(id, laid.state);
           nextInstances.push(laid.instance);
           animating ||= laid.animating;
+          fading ||= laid.fading;
+          leaning ||= laid.state.lean > 0;
           if (laid.seed) {
             writeSlot(slot, laid.state.body);
           }
@@ -1129,25 +1167,8 @@ export const liquidEffect: Effect = {
             steps.push(laid.step);
             stepped.push({ id, step: laid.step, time: laid.state.simulated });
           }
-          for (const { ring, ...look } of laid.rings) {
-            const ringState = ringLightAt(
-              ring,
-              look.box,
-              frame.time,
-              frame.reducedMotion,
-            );
-            if (ringState === null) {
-              continue;
-            }
-            animating = true;
-            nextRings.push({
-              elementIndex: index,
-              state: ringState,
-              end: ringLightEnd(ring, frame.reducedMotion),
-              ...look,
-            });
-          }
         }
+        boxes = controls.map(({ record }) => record);
         for (const id of states.keys()) {
           if (!kept.has(id)) {
             states.delete(id);
@@ -1177,12 +1198,14 @@ export const liquidEffect: Effect = {
           pass.end();
           readBack(encoder, stepped);
         }
-        ringRenderer.update(nextRings, frame);
         for (const element of seen) {
           if (!drawn.has(element)) {
             drawn.add(element);
             markEffectDrawn(element, true);
           }
+        }
+        if (fading) {
+          setup.requestFrame();
         }
         return animating;
       },
@@ -1197,12 +1220,10 @@ export const liquidEffect: Effect = {
           pass.setBindGroup(2, liquidBinding());
           pass.draw(4, count, 0, first);
         }
-        ringRenderer.draw(pass, target);
       },
       destroy() {
         destroyed = true;
         controlReader.destroy();
-        ringRenderer.destroy();
         for (const element of drawn) {
           markEffectDrawn(element, false);
         }

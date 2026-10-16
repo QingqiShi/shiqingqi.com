@@ -1,6 +1,5 @@
 /**
- * A box with round corners of one radius, such as the stadium of a Switch's
- * track. Lengths are CSS px.
+ * A box with round corners of one radius. Lengths are CSS px.
  *
  * @internal
  */
@@ -9,9 +8,6 @@ export interface OutlineBox {
   readonly height: number;
   readonly radius: number;
 }
-
-/** How much nearer a side must be than the top or bottom to win, in CSS px. */
-const TIE = 0.5;
 
 /** The radius the corners can have: at most half the shorter side. */
 function cornerRadius({ width, height, radius }: OutlineBox) {
@@ -74,10 +70,7 @@ export function outlineParam(box: OutlineBox, x: number, y: number) {
     const toBottom = halfHeight - localY;
     const toLeft = localX + halfWidth;
     const toRight = halfWidth - localX;
-    // The centre of a stadium's cap is as near to the cap's tip as to its
-    // top, and a Switch's thumb sits there: the tip wins, so that a ring
-    // light from the thumb starts at the end of the track.
-    if (Math.min(toLeft, toRight) <= Math.min(toTop, toBottom) + TIE) {
+    if (Math.min(toLeft, toRight) <= Math.min(toTop, toBottom)) {
       return toLeft <= toRight ? onLeft() : onRight();
     }
     return toTop <= toBottom ? onTop() : onBottom();
@@ -107,37 +100,4 @@ export function outlineParam(box: OutlineBox, x: number, y: number) {
     starts.arcTopLeft +
     ((angle > 0 ? angle - 2 * Math.PI : angle) + Math.PI) * radius
   );
-}
-
-/**
- * How far along the outline the point of it farthest from `(x, y)` is,
- * as `outlineParam` measures it: where a flood from that point covers the
- * box last.
- *
- * @internal
- */
-export function farthestOutlineParam(box: OutlineBox, x: number, y: number) {
-  const { centreX, centreY, reach } = farthest(box, x, y);
-  const radius = cornerRadius(box);
-  const distance = Math.max(reach - radius, 1e-6);
-  return outlineParam(
-    box,
-    centreX + ((centreX - x) / distance) * radius,
-    centreY + ((centreY - y) / distance) * radius,
-  );
-}
-
-/** The corner arc farthest from a point, by its centre, and how far. */
-function farthest(box: OutlineBox, x: number, y: number) {
-  const radius = cornerRadius(box);
-  let far = { centreX: radius, centreY: radius, reach: 0 };
-  for (const centreX of [radius, box.width - radius]) {
-    for (const centreY of [radius, box.height - radius]) {
-      const reach = Math.hypot(x - centreX, y - centreY) + radius;
-      if (reach > far.reach) {
-        far = { centreX, centreY, reach };
-      }
-    }
-  }
-  return far;
 }

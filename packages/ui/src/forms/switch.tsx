@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
+import { handBack } from "../effect-layer/hand-back.stylex.ts";
 import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
@@ -23,7 +24,8 @@ import {
   shadow,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { aimAt, DRAG_THRESHOLD, indexAt } from "./aim-at.ts";
+import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
+import { selectedSurface } from "./segment-indicator.stylex.ts";
 import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";
@@ -67,24 +69,22 @@ interface SwitchProps extends Omit<
    */
   size?: "sm" | "md" | "lg";
   /**
-   * An effect the effect layer draws in place of the thumb. `"liquid"`, the
-   * default, draws the thumb as a frozen drop of frosted ice, which thaws
-   * into water when it is pressed or toggled: it pours across the track,
-   * lands on the far end, sloshes to rest and freezes again. The beads it
-   * sheds on the way drift after it and merge back in.
-   * Turning on, the on fill rises through the whole track as a glow from
-   * underneath, which stays under the frozen drop; turning off, it sinks
-   * away. When the drop lands on the on end a ring light runs once around
-   * the track from where it lands: a press above or below the middle of
-   * the track aims the drop a little that way, so it lands higher or lower.
-   * A drag moves it with inertia, and the glow follows how far it has gone.
-   * Under reduced motion the thumb goes straight to its place, the fill
-   * changes at once and a still glow marks turning on. `"none"` keeps the
-   * plain thumb and track. The effect draws only inside an
+   * An effect the effect layer draws on the thumb. `"liquid"`, the default,
+   * keeps the solid thumb at rest and lights its edge from above, leaning
+   * the light towards a pointer over the switch. When the switch is pressed
+   * or toggled, the effect draws the thumb as liquid: it melts into water,
+   * which pours across the track, sheds drops on its way and sloshes
+   * against the far end. It flows on for a moment while the drops catch up
+   * and merge into it, then sets into the solid thumb again.
+   * Turning on, the on fill rises through the track, ahead under the thumb;
+   * turning off, it sinks away. A drag moves the liquid with inertia, and
+   * the fill follows how far it has gone. Under reduced motion the thumb
+   * crossfades to its place and the fill changes at once. `"none"` keeps
+   * the plain thumb and track. The effect draws only inside an
    * `EffectLayerProvider` with WebGPU; elsewhere, and under forced colours,
    * the switch looks and works as it does with `"none"`.
    *
-   * @zh 由效果层代替滑块绘制的效果。默认的 `"liquid"` 把滑块画成一滴结霜的冰，按下或切换时它融化成水：涌过轨道，撞上远端后晃动至静止，再重新冻结。沿途甩下的水珠随惯性追上它，重新并入其中。打开时，开启的填充色化作一团从下方透出的光，在整条轨道上亮起，并留在冻结的水滴下方；关闭时，这团光渐渐沉下去。水滴落到开启端时，一道环形光从落点出发沿轨道跑一圈：按在轨道中线以上或以下，水滴会略微偏向那一侧，落点也随之偏上或偏下。拖动时它带着惯性跟随，光随它走过的距离变化。减少动态效果时滑块直接到位，填充色立即切换，打开时只亮起一圈静止的微光。`"none"` 保留普通的滑块与轨道。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，开关的外观与行为与 `"none"` 相同。
+   * @zh 由效果层在滑块上绘制的效果。默认的 `"liquid"` 在静止时保留实心滑块，并从上方照亮它的边缘；指针停在开关上时，光会偏向指针。按下或切换开关时，由效果把滑块绘制成液体：它融化成水，涌过轨道，途中甩出水珠，在远端来回晃动。它继续流动片刻，水珠追上并融入其中，然后重新凝固成实心滑块。打开时，开启的填充色在整条轨道上升起，在滑块下方领先一步；关闭时，它渐渐退去。拖动时液体带着惯性跟随，填充色随它走过的距离变化。减少动态效果时，滑块以交叉淡入淡出到位，填充色立即切换。`"none"` 保留普通的滑块与轨道。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，开关的外观与行为与 `"none"` 相同。
    */
   effect?: "liquid" | "none";
   /**
@@ -125,10 +125,7 @@ export function Switch({
     defaultValue: defaultValue ?? "off",
   });
 
-  const [pressAim, setPressAim] = useState(0);
-
-  function setControlledValue(newValue: SwitchState, aim = 0) {
-    setPressAim(aim);
+  function setControlledValue(newValue: SwitchState) {
     setValue(newValue);
     onChange?.(newValue);
   }
@@ -160,7 +157,6 @@ export function Switch({
     position: THUMB_POSITION[value],
     drag,
     pressed: isPressed,
-    aim: pressAim,
   });
 
   // Enables animation only after mount, so a route or locale change does not
@@ -253,7 +249,7 @@ function useSwitchDrag({
   toggleHandledRef: React.RefObject<boolean>;
   value: SwitchState;
   disabled: boolean | undefined;
-  setControlledValue: (next: SwitchState, aim?: number) => void;
+  setControlledValue: (next: SwitchState) => void;
 }) {
   const initialRectRef = useRef<DOMRect | null>(null);
   const initialClientXRef = useRef(0);
@@ -330,10 +326,10 @@ function useSwitchDrag({
 
         const midPoint = rect.left + rect.width / 2;
         const newState = lastClientXRef.current > midPoint ? "on" : "off";
-        setControlledValue(newState, aimAt(rect, e.clientY));
+        setControlledValue(newState);
       }
     } else {
-      setControlledValue(value === "on" ? "off" : "on", aimAt(rect, e.clientY));
+      setControlledValue(value === "on" ? "off" : "on");
     }
 
     elRef.current?.releasePointerCapture(e.pointerId);
@@ -364,16 +360,21 @@ const styles = stylex.create({
     padding: border.size_2,
     position: "relative",
     // The fill changes at once while the effect draws the thumb: the effect
-    // covers the track and lets the new fill rise or sink as a glow.
+    // covers the track and draws the new fill as it rises or sinks.
     transition: {
-      default: `background-color ${duration._200} ${easing.ease}`,
+      default: `background-color ${duration._200} ${easing.ease}, box-shadow ${duration._200} ${easing.ease}`,
       [DRAWN_BY_EFFECT]: "none",
     },
     backgroundColor: {
       default: color.bgControlStrong,
-      ":checked": color.bgAccent,
+      ":checked": color.bgControlStrongSelected,
     },
-    boxShadow: shadow._2,
+    // The ring inside the edge belongs to the off track. It fades out as the
+    // track turns on, while the fill changes.
+    boxShadow: {
+      default: `inset 0 0 0 ${border.size_1} ${color.borderControlStrong}, ${shadow._2}`,
+      ":checked": `inset 0 0 0 ${border.size_1} transparent, ${shadow._2}`,
+    },
     touchAction: "none",
 
     [switchTokens.thumbPosition]: {
@@ -382,16 +383,16 @@ const styles = stylex.create({
       ":indeterminate": `calc(${switchTokens.trackHeight} / 2)`,
     },
     [switchTokens.thumbShadow]: {
-      default: null,
+      default: selectedSurface.thumbShadow,
       [pointer.canHover]: {
-        default: null,
-        ":hover": shadow._3,
+        default: selectedSurface.thumbShadow,
+        ":hover": selectedSurface.thumbShadowHover,
         ":disabled:hover": "none",
       },
     },
 
     "::before": {
-      backgroundColor: color.fgOnAccent,
+      backgroundColor: color.fgOnControlStrong,
       borderRadius: border.radius_round,
       cornerShape: "round",
       boxShadow: switchTokens.thumbShadow,
@@ -403,17 +404,20 @@ const styles = stylex.create({
       transition: null,
       zIndex: layer.content,
       // The thumb keeps its box, its colour and its position while the
-      // effect draws in its place, so the effect can read them from it.
-      visibility: {
-        default: null,
-        [DRAWN_BY_EFFECT]: "hidden",
+      // effect draws in its place, so the effect can read them from it. It
+      // hides at once when the effect takes over, and fades back in as the
+      // effect hands it back.
+      opacity: {
+        default: 1,
+        [DRAWN_BY_EFFECT]: 0,
       },
     },
   },
   animate: {
     "::before": {
       transition: {
-        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}`,
+        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}, opacity ${handBack.duration} ${easing.linear}`,
+        [DRAWN_BY_EFFECT]: "none",
         [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._400} ${easing.ease}`,
       },
     },
@@ -428,12 +432,18 @@ const styles = stylex.create({
   // drag can change the fill before the toggle. It is the text colour of the
   // `::after`, not its background: on a coarse pointer, `buttonReset` makes
   // the `::after` the touch target, and a background there covers the
-  // track. The `::after` has no text, so this colour does not show.
+  // track. The `::after` has no text, so this colour does not show. The
+  // ring inside the edge that the track takes is its border colour, which
+  // does not show, because the `::after` has no border.
   otherFill: {
     "::after": {
       color: {
-        default: color.bgAccent,
+        default: color.bgControlStrongSelected,
         ":checked": color.bgControlStrong,
+      },
+      borderColor: {
+        default: "transparent",
+        ":checked": color.borderControlStrong,
       },
     },
   },

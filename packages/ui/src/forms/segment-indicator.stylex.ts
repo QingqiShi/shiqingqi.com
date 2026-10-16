@@ -1,10 +1,27 @@
 import * as stylex from "@stylexjs/stylex";
+import { handBack } from "../effect-layer/hand-back.stylex.ts";
 import {
   duration,
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
 import { color } from "../tokens.stylex.ts";
+
+/**
+ * The shadows of the selected surface of a SegmentedControl and of the
+ * thumb of a Switch. The selected option is `bgControlRaised` on the
+ * `bgControlSunken` track, with a hairline and a faint tight shadow. In dark
+ * it has a ring instead of a shadow.
+ *
+ * @internal
+ */
+export const selectedSurface = stylex.defineVars({
+  edge: "0 0 0 0.5px light-dark(rgba(0, 0, 0, 0.08), transparent), 0 1px 2px light-dark(rgba(0, 0, 0, 0.06), transparent), 0 2px 8px light-dark(rgba(0, 0, 0, 0.06), transparent), inset 0 0 0 1px light-dark(transparent, rgba(255, 255, 255, 0.1)), inset 0 1px 0 light-dark(transparent, rgba(255, 255, 255, 0.06))",
+  thumbShadow:
+    "0 0 0 0.5px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.12)",
+  thumbShadowHover:
+    "0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.16)",
+});
 
 /**
  * Marks the track of a SegmentedControl or a TabBar, so its parts can follow
@@ -41,19 +58,28 @@ export const segmentIndicator = stylex.create({
     pointerEvents: "none",
     display: { default: null, [NO_ANCHOR_POSITIONING]: "none" },
     transition: {
-      default: `top ${duration._300} ${easing.spring}, right ${duration._300} ${easing.spring}, bottom ${duration._300} ${easing.spring}, left ${duration._300} ${easing.spring}, opacity ${duration._400} ${easing.linear}`,
+      default: `top ${duration._300} ${easing.spring}, right ${duration._300} ${easing.spring}, bottom ${duration._300} ${easing.spring}, left ${duration._300} ${easing.spring}, opacity ${handBack.duration} ${easing.linear}`,
+      [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
+        `top ${duration._300} ${easing.spring}, right ${duration._300} ${easing.spring}, bottom ${duration._300} ${easing.spring}, left ${duration._300} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     // It keeps its box, its colours and its corners while the effect draws
-    // in its place, so the effect can read them from it. It fades out while
-    // the effect's glow fades in, so the change of shape does not jump.
+    // in its place, so the effect can read them from it. The effect draws
+    // only while the indicator moves or is pressed: it hides at once when
+    // the effect takes over, and fades back in as the effect hands it back.
     opacity: {
       default: null,
       [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: 0,
     },
-    // The effect reads the colour of the ring light from the text colour.
-    // The indicator has no text, so this colour does not show.
-    color: color.bgAccent,
+  },
+  // The selected surface of a SegmentedControl.
+  solid: {
+    backgroundColor: color.bgControlRaised,
+    boxShadow: selectedSurface.edge,
+  },
+  // The selected surface of a TabBar: a tint of the bar's own Glass.
+  tint: {
+    backgroundColor: color.bgMaterialGlassSelected,
   },
   // A press holds the indicator off its anchor. Its top and bottom stay on
   // the anchor. On release it slides back to the anchor on the spring.
@@ -66,12 +92,6 @@ export const segmentIndicator = stylex.create({
   },
   anchor: {
     anchorName: SELECTED_ANCHOR,
-  },
-  // The track already sits behind the indicator, so a second blur only
-  // repaints on each frame of the slide. Later in the indicator's `css`
-  // array than `glassSurface.base`, so it wins.
-  noBlur: {
-    backdropFilter: "none",
   },
   // On the segments while a press holds the indicator under the pointer, so
   // no hover fill covers it.
