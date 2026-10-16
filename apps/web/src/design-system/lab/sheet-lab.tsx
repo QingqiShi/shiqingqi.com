@@ -7,12 +7,52 @@ import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
+import { effectDiagnostics } from "@tuja/ui/effect-layer/effect-diagnostics";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { t } from "#src/i18n.ts";
+
+// Lab-only diagnostics: remove before the PR. They start at module load,
+// before the effect layer requests its device after hydration.
+if (typeof window !== "undefined") {
+  effectDiagnostics.enable();
+}
+
+const NO_DIAGNOSTICS = effectDiagnostics.read();
+
+/** Lab-only diagnostics: the effect layer's state and log, as plain text. */
+function EffectDiagnostics() {
+  const { status, log } = useSyncExternalStore(
+    effectDiagnostics.subscribe,
+    effectDiagnostics.read,
+    () => NO_DIAGNOSTICS,
+  );
+  const lines = [
+    ...Object.entries(status).map(([key, value]) => `${key}: ${value}`),
+    "— log —",
+    ...log,
+  ];
+  return (
+    <div css={stack.tight}>
+      <Heading level={2} look="h3">
+        {t({ en: "Effect diagnostics (lab only)", zh: "效果诊断（仅实验室）" })}
+      </Heading>
+      <pre
+        css={[
+          corner.radius_3,
+          typeRole.caption,
+          styles.readout,
+          styles.diagnostics,
+        ]}
+      >
+        {lines.join("\n")}
+      </pre>
+    </div>
+  );
+}
 
 const PAGE_PARAGRAPHS = 24;
 const SHEET_PARAGRAPHS = 30;
@@ -282,6 +322,7 @@ export function SheetLab() {
   return (
     <div css={[stack.group, styles.lab]}>
       <div ref={probeRef} css={styles.probe} aria-hidden="true" />
+      <EffectDiagnostics />
 
       <div css={stack.item}>
         <Heading level={2} look="h3">
@@ -396,6 +437,13 @@ const styles = stylex.create({
     margin: 0,
     padding: space._2,
     backgroundColor: color.bgNeutralSubtle,
+  },
+  diagnostics: {
+    display: "block",
+    margin: 0,
+    fontFamily: font.familyMono,
+    whiteSpace: "pre-wrap",
+    overflowWrap: "anywhere",
   },
   readoutRow: {
     display: "flex",

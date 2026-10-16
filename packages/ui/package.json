@@ -48,6 +48,7 @@
     "./palette/*.stylex": "./src/_generated/palette/hues/*.stylex.ts",
     "./palette-table": "./src/_generated/palette/palette-table.ts",
     "./test-support/install-jsdom-shims": "./src/test-support/install-jsdom-shims.ts",
+    "./effect-layer/effect-diagnostics": "./src/effect-layer/effect-diagnostics.ts",
     "./hooks/use-black-hole": "./src/effect-layer/use-black-hole.ts",
     "./hooks/use-controlled": "./src/hooks/use-controlled.ts",
     "./hooks/use-dialog-focus": "./src/hooks/use-dialog-focus.ts",

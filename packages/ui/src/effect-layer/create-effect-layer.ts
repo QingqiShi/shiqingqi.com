@@ -11,6 +11,11 @@ import type { EffectRegistry } from "./create-effect-registry.ts";
 import { createFrameClock } from "./create-frame-clock.ts";
 import { createFrameScheduler } from "./create-frame-scheduler.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
+import {
+  describeError,
+  noteEffect,
+  setEffectStatus,
+} from "./effect-diagnostics.ts";
 import { encodeCanvasPass } from "./encode-canvas-pass.ts";
 import {
   ELEMENT_BYTES,
@@ -279,11 +284,24 @@ export function createEffectLayer(
   }
 
   function configure(canvas: HTMLCanvasElement): ConfiguredCanvas | null {
+    const kind =
+      canvas.dataset.effectLayer ?? canvas.parentElement?.tagName ?? "?";
     const context = canvas.getContext("webgpu");
     if (!(context instanceof GPUCanvasContext)) {
+      noteEffect(
+        `canvas ${kind}: getContext("webgpu") gave ${context === null ? "null" : Object.prototype.toString.call(context)}`,
+      );
       return null;
     }
-    context.configure({ device, format, alphaMode: "premultiplied" });
+    try {
+      context.configure({ device, format, alphaMode: "premultiplied" });
+    } catch (error) {
+      noteEffect(`canvas ${kind}: configure threw ${describeError(error)}`);
+      throw error;
+    }
+    noteEffect(
+      `canvas ${kind}: configured ${format} premultiplied at ${String(canvas.width)}x${String(canvas.height)}`,
+    );
     const uniform = device.createBuffer({
       size: TARGET_UNIFORM_BYTES,
       usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST,
@@ -322,6 +340,10 @@ export function createEffectLayer(
       }
       fixedBottom = canvases.fixedBottom && configure(canvases.fixedBottom);
     }
+    setEffectStatus(
+      "canvases",
+      `scroll ${String(scroll.length)}/${String(canvases.scroll.length)}, fixed ${fixed === null ? "-" : "on"}, fixedBottom ${fixedBottom === null ? "-" : "on"}`,
+    );
     sizesChanged = true;
     requestFrame();
   }
@@ -329,6 +351,10 @@ export function createEffectLayer(
   function collectReady() {
     ready = [...renderers.values()].flatMap(({ renderer }) =>
       renderer === null ? [] : [renderer],
+    );
+    setEffectStatus(
+      "renderers",
+      `${String(ready.length)} ready of ${String(renderers.size)}`,
     );
     pointerFollowers = ready.flatMap(({ followsPointer }) =>
       followsPointer === undefined || followsPointer === false
@@ -361,11 +387,16 @@ export function createEffectLayer(
           collectReady();
         },
         (error: unknown) => {
+          noteEffect(`effect setup FAILED: ${describeError(error)}`);
           reportError(error);
         },
       );
     }
     collectReady();
+    setEffectStatus(
+      "effects",
+      `${String(effects.length)} wanted, ${String(ready.length)} ready at setEffects`,
+    );
   }
 
   function createPageBindGroup() {
@@ -411,6 +442,7 @@ export function createEffectLayer(
     ) {
       canvasNeeds = needs;
       onCanvasNeedsChange(needs);
+      setEffectStatus("canvas needs", JSON.stringify(needs));
     }
   }
 
@@ -426,11 +458,14 @@ export function createEffectLayer(
   ): StageCanvas | null {
     let configured = stageCanvases.get(canvas);
     if (configured === undefined) {
+      // A canvas with no size must not be configured: then the device
+      // makes an empty texture, which is a validation error.
+      sizeCanvas(canvas, cssWidth, cssHeight);
       const fresh = configure(canvas);
       if (fresh === null) {
         return null;
       }
-      configured = { ...fresh, cssWidth: 0, cssHeight: 0, seen: false };
+      configured = { ...fresh, cssWidth, cssHeight, seen: false };
       stageCanvases.set(canvas, configured);
     }
     configured.seen = true;
@@ -677,6 +712,11 @@ export function createEffectLayer(
         seconds: frame.time,
       }),
     );
+    if (canvas.width === 0 || canvas.height === 0) {
+      noteEffect(
+        `pass on empty canvas ${target.canvas} ${String(canvas.width)}x${String(canvas.height)}`,
+      );
+    }
     const begin = () => {
       const pass = encoder.beginRenderPass({
         colorAttachments: [
@@ -700,7 +740,27 @@ export function createEffectLayer(
     });
   }
 
+  let frameCount = 0;
+  let drawnCount = 0;
+  let frameErrors = 0;
+
   function renderFrame(now: number) {
+    frameCount += 1;
+    try {
+      renderFrameUnsafe(now);
+    } catch (error) {
+      frameErrors += 1;
+      noteEffect(`frame threw ${describeError(error)}`);
+      throw error;
+    } finally {
+      setEffectStatus(
+        "frames",
+        `${String(frameCount)} run, ${String(drawnCount)} drawn, ${String(frameErrors)} threw; size ${String(documentWidth)}x${String(viewportHeight)}`,
+      );
+    }
+  }
+
+  function renderFrameUnsafe(now: number) {
     const delta = clock.start(now);
     const { scrollX, scrollY } = window;
     // Read the bottom edge before this frame writes a style, so that the
@@ -777,6 +837,11 @@ export function createEffectLayer(
       encodePass(encoder, pass, frame);
     }
     device.queue.submit([encoder.finish()]);
+    drawnCount += 1;
+    setEffectStatus(
+      "last frame",
+      `${String(passes.length)} passes [${[...new Set(passes.map(({ target }) => target.canvas))].join(",")}], ${String(records.length)} elements, ${String(stages.length)} stages, ${String(ready.length)} renderers`,
+    );
     if (animating && !frame.reducedMotion) {
       clock.follow(now);
       requestFrame();

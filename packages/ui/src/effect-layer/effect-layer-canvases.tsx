@@ -8,6 +8,7 @@ import {
 } from "./create-effect-layer.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
 import { debugEffect } from "./debug-effect.ts";
+import { setEffectStatus } from "./effect-diagnostics.ts";
 import { effectsForRoles } from "./effects-for-roles.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
 
@@ -63,6 +64,7 @@ export function EffectLayerCanvases({
     if (container === null || probe === null || bottomAnchor === null) {
       return;
     }
+    setEffectStatus("canvases component", "mounted");
     const effectLayer = createEffectLayer(gpu, {
       registry,
       container,

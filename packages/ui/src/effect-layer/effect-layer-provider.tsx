@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
+import { setEffectStatus } from "./effect-diagnostics.ts";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { readEffectLayerMode } from "./read-effect-layer-mode.ts";
 import {
@@ -87,6 +88,13 @@ function useEffectLayerDevice(wanted: boolean) {
     };
   }, [gpu]);
 
+  useEffect(() => {
+    setEffectStatus(
+      "device state",
+      `${gpu === null ? (failed ? "failed (layer stays off)" : "none yet") : "ready"}, losses ${String(lossCountRef.current)}`,
+    );
+  });
+
   return gpu;
 }
 
@@ -137,6 +145,12 @@ export function EffectLayerProvider({ children }: EffectLayerProviderProps) {
   const debug = mode === "debug";
   const wanted = mode !== "off" && !forcedColors && (debug || roles !== 0);
   const gpu = useEffectLayerDevice(wanted);
+  useEffect(() => {
+    setEffectStatus(
+      "layer",
+      `${wanted && gpu !== null ? "ON" : "OFF"}: hydrated ${String(hydrated)}, mode ${mode}, forcedColors ${String(forcedColors)}, roles 0b${roles.toString(2)}, wanted ${String(wanted)}, device ${gpu === null ? "none" : "ready"}`,
+    );
+  });
 
   return (
     <EffectLayerContext value={registry.register}>
