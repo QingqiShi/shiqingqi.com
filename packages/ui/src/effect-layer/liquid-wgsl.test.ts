@@ -14,6 +14,8 @@ const INSTANCE: LiquidInstance = {
   firstBead: 2,
   beadCount: 1,
   radius: 22,
+  restRadius: 22,
+  restSpan: 0,
   calm: 0.5,
   originX: 122,
   originY: 224,
@@ -33,6 +35,7 @@ const INSTANCE: LiquidInstance = {
   riseGoal: 1,
   cover: true,
   seeThrough: false,
+  room: false,
   backdrop: [1, 1, 1],
   body: 0.25,
   light: [0.6, -0.8],
@@ -84,11 +87,34 @@ describe("packLiquidInstances", () => {
       expect.closeTo(0.8),
       1,
     ]);
-    expect([...floats.slice(48, 52)]).toEqual([0, 0, 0, 0]);
+    expect([...floats.slice(48, 52)]).toEqual([0, 0, 22, 0]);
     expect([...floats.slice(52, 56)]).toEqual([96, 4, 0.25, 0]);
 
     const second = LIQUID_INSTANCE_BYTES / 4;
     expect(words[second + 5]).toBe(0);
+  });
+
+  it("packs a grabber's room, the bar it sets into, and the edge of its card", () => {
+    const buffer = new ArrayBuffer(LIQUID_INSTANCE_BYTES);
+    packLiquidInstances(
+      [
+        {
+          ...INSTANCE,
+          cover: false,
+          lightBody: false,
+          room: true,
+          restRadius: 2,
+          restSpan: 14,
+          surface: { edge: 300, above: [0.5, 0.5, 0.5] },
+        },
+      ],
+      buffer,
+    );
+    const words = new Uint32Array(buffer);
+    const floats = new Float32Array(buffer);
+    expect(words[5]).toBe(8);
+    expect([...floats.slice(50, 52)]).toEqual([2, 14]);
+    expect([...floats.slice(56, 60)]).toEqual([300, 0.5, 0.5, 0.5]);
   });
 
   it("packs an indicator's corners and marks that the track shows through it", () => {

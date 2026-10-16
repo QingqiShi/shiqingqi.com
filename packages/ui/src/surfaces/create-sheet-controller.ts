@@ -61,6 +61,8 @@ interface Drag {
   base: number;
   isActive: boolean;
   samples: DragSample[];
+  /** How far the finger is from where it took hold, less how far it has taken the card. */
+  finger: readonly [number, number];
 }
 
 interface SheetControllerOptions {
@@ -220,7 +222,12 @@ export function createSheetController(options: SheetControllerOptions) {
   }
 
   function publish() {
-    options.onPose?.({ phase, y: pose.y });
+    options.onPose?.({
+      phase,
+      y: pose.y,
+      finger: drag?.isActive === true ? drag.finger : null,
+      dim: options.dim(),
+    });
   }
 
   function enter(next: SheetPhase) {
@@ -424,6 +431,7 @@ export function createSheetController(options: SheetControllerOptions) {
       base: 0,
       isActive: false,
       samples: [],
+      finger: [0, 0],
     };
     if (isOnGrabber) {
       event.preventDefault();
@@ -447,11 +455,12 @@ export function createSheetController(options: SheetControllerOptions) {
     }
     drag.samples.push({ time: performance.now(), y: event.clientY });
     if (drag.samples.length > MAX_SAMPLES) drag.samples.shift();
-    place({
-      y: rubberBand(drag.base + event.clientY - drag.startY),
-      scale: 1,
-      fade: 1,
-    });
+    const pulled = event.clientY - drag.startY;
+    const y = rubberBand(drag.base + pulled);
+    // The card follows the finger down, so the finger is away from it only
+    // sideways, and upwards where the rubber band holds the card back.
+    drag.finger = [event.clientX - drag.startX, pulled - (y - drag.base)];
+    place({ y, scale: 1, fade: 1 });
   }
 
   function release(event: PointerEvent, canDismiss: boolean) {

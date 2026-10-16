@@ -17,6 +17,12 @@ const FIELD_THRESHOLD = 9.93;
 const FLAG_COVER = 1;
 const FLAG_SEE_THROUGH = 2;
 const FLAG_LIGHT_BODY = 4;
+const FLAG_ROOM = 8;
+/**
+ * How far past its element a liquid with room draws, in rest radii: the
+ * room, the body's reach past its walls, and its shadow.
+ */
+const ROOM_MARGIN = 5;
 
 /**
  * A ring inside the edge of a track: its colour off and on, sRGB-encoded with
@@ -47,6 +53,18 @@ export interface LiquidInstance {
   readonly beadCount: number;
   /** The rest radius: half the height of the thumb or the indicator. */
   readonly radius: number;
+  /**
+   * The radius of the solid rest shape, which the liquid sets into: the
+   * rest radius for a control, and less for a grabber, whose liquid swells
+   * out of its bar.
+   */
+  readonly restRadius: number;
+  /**
+   * Half the length of the solid rest shape's straight part, in CSS px:
+   * `span` for a control, and the bar's for a grabber, whose liquid beads
+   * up shorter than the bar.
+   */
+  readonly restSpan: number;
   /** From 0 while the liquid moves to 1 once it rests in its rest shape. */
   readonly calm: number;
   /** The centre of the off position, where track space starts. */
@@ -87,6 +105,12 @@ export interface LiquidInstance {
   readonly cover: boolean;
   /** The track shows through the liquid, as through a segmented control's indicator. */
   readonly seeThrough: boolean;
+  /**
+   * The liquid has room across its track, on a plain surface: a grabber's.
+   * It draws past its element, is not clipped to it, and what shows
+   * through it is the surface's one colour.
+   */
+  readonly room: boolean;
   /** The corners of the rest shape, or none for a pill. */
   readonly corner?: { readonly radius: number; readonly exponent: number };
   /** What the page shows around the track. */
@@ -105,6 +129,15 @@ export interface LiquidInstance {
    * length, in CSS px, and how much of it the effect draws. None at 0.
    */
   readonly leaving: readonly [number, number, number];
+  /**
+   * For a liquid with room: where the surface it sits on ends, as a page
+   * y above which there is no surface, and the colour that shows there.
+   * None for a control.
+   */
+  readonly surface?: {
+    readonly edge: number;
+    readonly above: readonly [number, number, number];
+  };
 }
 
 /**
@@ -144,6 +177,9 @@ const FIELD_THRESHOLD = ${FIELD_THRESHOLD.toFixed(3)};
 const FLAG_COVER = ${String(FLAG_COVER)}u;
 const FLAG_SEE_THROUGH = ${String(FLAG_SEE_THROUGH)}u;
 const FLAG_LIGHT_BODY = ${String(FLAG_LIGHT_BODY)}u;
+const FLAG_ROOM = ${String(FLAG_ROOM)}u;
+const ROOM_MARGIN = ${ROOM_MARGIN.toFixed(1)};
+const ROOM_WET = 0.9;
 const NECK_REACH = ${NECK_REACH.toFixed(4)};
 const BEAD_JOIN = 1.0;
 const SHADOW_REACH = 3.0;
@@ -191,12 +227,16 @@ struct LiquidInstance {
   ringOff: vec4f,
   ringOn: vec4f,
   // The radius and the exponent of the rest shape's corners, or zero for a
-  // pill.
-  corner: vec2f,
+  // pill, then the radius of the solid rest shape and half the length of
+  // its straight part.
+  corner: vec4f,
   // Under reduced motion, the rest shape that fades out: where it is along
   // the track, half the length of its straight part, and how much of it
   // shows.
   leaving: vec4f,
+  // With room, the page y where the surface under the liquid ends, and the
+  // colour above it.
+  surface: vec4f,
 }
 
 struct Bead {
@@ -218,9 +258,13 @@ fn liquidVertex(
   @builtin(vertex_index) vertex: u32,
   @builtin(instance_index) instance: u32,
 ) -> LiquidVarying {
-  let element = effectElements[liquids[instance].element];
+  let liquid = liquids[instance];
+  let element = effectElements[liquid.element];
   let corner = vec2f(f32(vertex & 1u), f32((vertex >> 1u) & 1u));
-  return LiquidVarying(pageToClip(element.rect.xy + corner * element.rect.zw), instance);
+  // A liquid with room draws past its element, as far as its room goes.
+  let margin = select(0.0, ROOM_MARGIN * liquid.radius, (liquid.flags & FLAG_ROOM) != 0u);
+  let rect = element.rect + vec4f(-margin, -margin, 2.0 * margin, 2.0 * margin);
+  return LiquidVarying(pageToClip(rect.xy + corner * rect.zw), instance);
 }
 
 // How far the on fill has risen at a page point: further under the liquid
@@ -247,8 +291,13 @@ fn coverAt(liquid: LiquidInstance, track: EffectElement, page: vec2f) -> vec3f {
   return fill * (1.0 - ring.a * inRing) + ring.rgb * inRing;
 }
 
-// The colour of the track at a page point, as the liquid sees it.
+// The colour of the track at a page point, as the liquid sees it. A liquid
+// with room sits on a plain surface, which is one colour.
 fn trackAt(liquid: LiquidInstance, track: EffectElement, page: vec2f) -> vec3f {
+  if ((liquid.flags & FLAG_ROOM) != 0u) {
+    let past = 1.0 - smoothstep(-0.5, 0.5, page.y - liquid.surface.x);
+    return mix(liquid.off.rgb, liquid.surface.yzw, past);
+  }
   let edge = effectElementDistance(track, page);
   let fill = coverAt(liquid, track, page);
   let shaded = mix(fill, liquid.backdrop.rgb, EDGE_SHADE);
@@ -282,18 +331,33 @@ fn fieldAt(liquid: LiquidInstance, page: vec2f) -> vec3f {
   return vec3f(value, gradient);
 }
 
+// The solid rest shape's radius and half the length of its straight part.
+// A liquid with room beads up rounder than its bar while it moves, and
+// sets back into the bar as it calms, so its rest shape goes from the
+// drop's to the bar's with calm.
+fn restShape(liquid: LiquidInstance) -> vec2f {
+  var shape = liquid.corner.zw;
+  if ((liquid.flags & FLAG_ROOM) != 0u) {
+    shape = mix(vec2f(liquid.radius, liquid.rest.w), shape, liquid.calm);
+  }
+  return shape;
+}
+
 // The distance from the rest shape: a pill, or a box with the corners of
 // the control's own indicator.
 fn restDistance(liquid: LiquidInstance, page: vec2f) -> f32 {
   let local = page - (liquid.origin + vec2f(liquid.rest.x, 0.0));
+  let rest = restShape(liquid);
+  let restRadius = rest.x;
+  let restSpan = rest.y;
   if (liquid.corner.y == 0.0) {
-    let toRest = local - vec2f(clamp(local.x, -liquid.rest.w, liquid.rest.w), 0.0);
-    return length(toRest) - liquid.radius;
+    let toRest = local - vec2f(clamp(local.x, -restSpan, restSpan), 0.0);
+    return length(toRest) - restRadius;
   }
   var shape = effectElements[liquid.element];
-  let half = vec2f(liquid.rest.w + liquid.radius, liquid.radius);
+  let half = vec2f(restSpan + restRadius, restRadius);
   shape.rect = vec4f(liquid.origin + vec2f(liquid.rest.x, 0.0) - half, 2.0 * half);
-  shape.radii = vec4f(min(liquid.corner.x, liquid.radius));
+  shape.radii = vec4f(min(liquid.corner.x, restRadius));
   shape.cornerExponent = liquid.corner.y;
   return effectElementDistance(shape, page);
 }
@@ -403,7 +467,10 @@ fn lens(
   let behind = trackAt(liquid, track, page + dome.bend);
   // Water in front of the page does not darken it.
   let dry = (liquid.flags & FLAG_SEE_THROUGH) != 0u;
-  let color = wetShade(behind, dome, surface.outward, depth, radius, dry);
+  // A drop on a plain surface shows mostly by its shade, so it is a little
+  // darker than one on a track.
+  let wet = select(WET, ROOM_WET, (liquid.flags & FLAG_ROOM) != 0u);
+  let color = wetShade(behind, dome, surface.outward, depth, radius, dry, wet);
   if (solid <= 0.0) {
     return color;
   }
@@ -429,9 +496,14 @@ fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
   let page = fragmentToPage(input.position.xy);
   let pixel = effectTarget.pixelScale.x;
   let seeThrough = (liquid.flags & FLAG_SEE_THROUGH) != 0u;
-  // A liquid in front of the page stays inside the track's padding box.
+  // A liquid in front of the page stays inside the track's padding box. A
+  // liquid with room is not held to its element.
   let inset = select(0.0, track.rect.w * 0.5 - liquid.radius - liquid.backdrop.w, seeThrough);
-  let onTrack = saturate(0.5 - (effectElementDistance(track, page) + max(inset, 0.0)) * pixel);
+  let onTrack = select(
+    saturate(0.5 - (effectElementDistance(track, page) + max(inset, 0.0)) * pixel),
+    1.0,
+    (liquid.flags & FLAG_ROOM) != 0u,
+  );
   if (onTrack <= 0.0) {
     return vec4f(0.0);
   }
@@ -529,7 +601,7 @@ fn drawBody(
  *
  * @internal
  */
-export const LIQUID_INSTANCE_BYTES = 224;
+export const LIQUID_INSTANCE_BYTES = 240;
 
 const INSTANCE_WORDS = LIQUID_INSTANCE_BYTES / 4;
 
@@ -556,7 +628,8 @@ export function packLiquidInstances(
     words[at + 5] =
       (liquid.cover ? FLAG_COVER : 0) |
       (liquid.seeThrough ? FLAG_SEE_THROUGH : 0) |
-      (liquid.lightBody ? FLAG_LIGHT_BODY : 0);
+      (liquid.lightBody ? FLAG_LIGHT_BODY : 0) |
+      (liquid.room ? FLAG_ROOM : 0);
     floats[at + 6] = liquid.radius;
     floats[at + 7] = liquid.calm;
     floats.set(
@@ -578,7 +651,11 @@ export function packLiquidInstances(
     if (liquid.corner !== undefined) {
       floats.set([liquid.corner.radius, liquid.corner.exponent], at + 48);
     }
+    floats.set([liquid.restRadius, liquid.restSpan], at + 50);
     floats.set(liquid.leaving, at + 52);
+    if (liquid.surface !== undefined) {
+      floats.set([liquid.surface.edge, ...liquid.surface.above], at + 56);
+    }
   }
 }
 

@@ -14,22 +14,25 @@ import { RemoveScroll } from "react-remove-scroll";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { Heading } from "../content/heading.tsx";
+import { handBack } from "../effect-layer/hand-back.stylex.ts";
+import { LIQUID_GRABBER } from "../effect-layer/liquid-indicator.ts";
 import { publishSheetPose } from "../effect-layer/publish-sheet-pose.ts";
-import { SHEET_SURFACE } from "../effect-layer/sheet-edge-band.ts";
-import { sheetEdge } from "../effect-layer/sheet-edge.stylex.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
-import { useSheetEdge } from "../effect-layer/use-sheet-edge.ts";
+import { useEffectStage } from "../effect-layer/use-effect-stage.ts";
+import { useLiquidGrabber } from "../effect-layer/use-liquid-grabber.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { useVisibleArea } from "../hooks/use-visible-area.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
+import { easing } from "../primitives/motion.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
 import {
   createSheetController,
   type SheetController,
 } from "./create-sheet-controller.ts";
 import { Portal } from "./portal.tsx";
+import { grabberReach, liquidGrabberMarker } from "./sheet-grabber.stylex.ts";
 
 interface SheetBaseProps {
   /**
@@ -78,21 +81,21 @@ interface SheetBaseProps {
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * How the card's top edge moves. `"plain"` keeps it rigid. `"liquid"`
-   * draws it on the effect layer as a water surface across the card's
-   * width, in the card's own colour: it swells and sloshes as the card
-   * lands, rises to a peak under a finger that drags it, bulges when the
-   * drag pulls past the top, runs side to side when the drag lets go, and
-   * trails as the card drops. It stays wet for a moment after the card
-   * stops, then sets from the middle out into the plain edge, with a lit
-   * edge. Only the edge moves; the content never bends. Without WebGPU,
-   * with effects off, under forced colours or reduced motion, it is the
-   * plain edge.
+   * What the grabber at the top of the card is, below `md`. `"plain"` is
+   * the bar. `"liquid"` draws the bar on the effect layer as the liquid of
+   * a Switch's thumb while the card moves or a finger holds it: it swells
+   * out of the bar into a drop of water, which the card's motion sloshes
+   * as the card lands and springs back, a finger stretches towards itself
+   * and leans with its sideways motion, a pull past the top draws up into
+   * a drop on a neck, and the card's drop streaks. It stays wet for a
+   * moment after the card stops, sets from its core out, and shrinks back
+   * into the bar. The card itself stays rigid. Without WebGPU, with effects
+   * off, under forced colours or reduced motion, it is the bar.
    *
    * @default "plain"
-   * @zh 卡片顶边的动态。`"plain"` 保持刚性。`"liquid"` 在效果层上把顶边画成横贯卡片宽度的水面，颜色与卡片相同：卡片落定时它会涌起、晃荡；手指拖动时在指下隆起；拖过顶部时鼓起；松手时左右荡开；卡片下落时拖尾。卡片停下后它会湿润片刻，再从中间向两边凝固成平直的边缘，并带有受光的边线。只有顶边会动，内容不会变形。没有 WebGPU、效果关闭、强制颜色或减少动态时，它就是平直的边缘。
+   * @zh 卡片顶部的拖动条，在 `md` 以下显示。`"plain"` 是普通的横条。`"liquid"` 在卡片移动或手指按住时，由效果层把横条画成与开关滑块相同的液体：它从横条中涨成一滴水，卡片落定和弹回时随之晃荡；手指拖动时向手指伸展，并随手指的左右移动倾斜；向上拖过顶部时被拉成带颈的水滴；卡片下落时拖出水痕。卡片停下后它会湿润片刻，从核心向外凝固，再缩回横条。卡片本身保持刚性。没有 WebGPU、效果关闭、强制颜色或减少动态时，它就是普通的横条。
    */
-  edge?: "plain" | "liquid";
+  grabber?: "plain" | "liquid";
 }
 
 /**
@@ -151,7 +154,7 @@ export function Sheet({
   closeLabel,
   closeIcon,
   initialFocusRef,
-  edge = "plain",
+  grabber = "plain",
   title,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -172,10 +175,12 @@ export function Sheet({
   const isOpenRef = useRef(isOpen);
   const onCloseRef = useRef(onClose);
   const coverRef = useEffectCover();
-  const isLiquid = edge === "liquid";
-  const { ref: edgeRef, underRef, overRef } = useSheetEdge(isLiquid);
+  const isLiquid = grabber === "liquid";
+  const { ref: stageRef, overRef } = useEffectStage(isLiquid, STAGE_REACH);
+  const liquidRef = useLiquidGrabber();
   const visibleAreaRef = useVisibleArea();
-  const moverRefs = mergeRefs(moverRef, coverRef, edgeRef);
+  const moverRefs = mergeRefs(moverRef, coverRef, stageRef);
+  const grabberRefs = mergeRefs(grabberRef, isLiquid ? liquidRef : undefined);
 
   useLayoutEffect(() => {
     isOpenRef.current = isOpen;
@@ -202,7 +207,8 @@ export function Sheet({
       card,
       mover,
       onPose: (pose) => {
-        publishSheetPose(mover, pose);
+        const grabberBox = grabberRef.current;
+        if (grabberBox) publishSheetPose(grabberBox, pose);
       },
       scroller: () => scrollerRef.current,
       grabber: () => grabberRef.current,
@@ -249,37 +255,35 @@ export function Sheet({
       />
       <div ref={visibleAreaRef} css={styles.anchor}>
         {/* The mover is what the controller moves and fades. With a liquid
-            edge it carries the effect layer's two canvases with the card,
-            so they move with it on the compositor and never lag it. */}
+            grabber it is an Effect stage: it carries the effect layer's
+            canvas over the card, so the liquid moves with the card on the
+            compositor and never lags it. */}
         <div ref={moverRefs} css={styles.mover}>
-          {isLiquid && (
-            <canvas
-              ref={underRef}
-              css={styles.underCanvas}
-              aria-hidden="true"
-              width={0}
-              height={0}
-            />
-          )}
           {/* forwardProps makes RemoveScroll clone its child and inject its
               own ref, which would clobber a ref placed directly on the card.
               Passing the ref through RemoveScroll keeps `cardRef` working for
               focus and the Tab trap. */}
           <RemoveScroll ref={cardRef} allowPinchZoom forwardProps>
             <div
-              css={[
-                corner.radius_4,
-                styles.card,
-                isLiquid && styles.liquidCard,
-              ]}
+              css={[corner.radius_4, styles.card]}
               role="dialog"
               aria-modal="true"
               aria-label={ariaLabel}
               aria-labelledby={hasTitle ? titleId : ariaLabelledBy}
-              {...(isLiquid ? { [SHEET_SURFACE]: "" } : {})}
             >
-              <div ref={grabberRef} css={styles.grabber} aria-hidden="true">
-                <span css={[corner.radius_round, styles.grabberBar]} />
+              <div
+                ref={grabberRefs}
+                css={[styles.grabber, liquidGrabberMarker]}
+                aria-hidden="true"
+              >
+                <span
+                  css={[
+                    corner.radius_round,
+                    styles.grabberBar,
+                    isLiquid && styles.liquidBar,
+                  ]}
+                  {...(isLiquid ? { [LIQUID_GRABBER]: "" } : {})}
+                />
               </div>
               {/* `Button` sets its own `position: relative` for its busy
                   spinner, which a caller's `position: absolute` can't
@@ -330,7 +334,8 @@ const CLOSE_INSET = space._2;
 const CONTENT_INSET = space._3;
 // The close button is an md Button, so it is as tall as the md step.
 const CLOSE_SIZE = controlSize._9;
-/** The effect layer sets this attribute on the card while it draws its edge. */
+const STAGE_REACH = { rise: Number.parseFloat(grabberReach.rise), spill: 0 };
+/** The effect layer sets this attribute on the grabber while it draws the bar. */
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 
 const styles = stylex.create({
@@ -395,31 +400,11 @@ const styles = stylex.create({
     backgroundColor: color.bgSurface,
     pointerEvents: "auto",
   },
-  // While the effect draws the edge on the canvas under the card, the card's
-  // own fill starts below the band, where the canvas is already solid, so
-  // the two meet solid on solid.
-  liquidCard: {
-    backgroundColor: {
-      default: color.bgSurface,
-      [DRAWN_BY_EFFECT]: "transparent",
-    },
-    backgroundImage: {
-      default: "none",
-      [DRAWN_BY_EFFECT]: `linear-gradient(to bottom, transparent ${sheetEdge.fillStart}, ${color.bgSurface} ${sheetEdge.fillStart})`,
-    },
-  },
-  // The effect layer sizes both canvases. Physical offsets, since the layer
-  // places them in page coordinates.
-  underCanvas: {
-    position: "absolute",
-    top: `calc(-1 * ${sheetEdge.rise})`,
-    left: `calc(-1 * ${sheetEdge.spill})`,
-    display: "block",
-    pointerEvents: "none",
-  },
+  // The effect layer sizes the canvas to the mover and its reach above.
+  // Physical offsets, since the layer places it in page coordinates.
   overCanvas: {
     position: "absolute",
-    top: 0,
+    top: `calc(-1 * ${grabberReach.rise})`,
     left: 0,
     display: "block",
     pointerEvents: "none",
@@ -445,6 +430,21 @@ const styles = stylex.create({
     inlineSize: space._7,
     blockSize: space._0,
     backgroundColor: color.bgNeutral,
+  },
+  // The bar keeps its box and its colour while the effect draws in its
+  // place, so the effect can read them from it. It hides at once when the
+  // effect takes over, and fades back in as the effect hands it back. The
+  // grabber carries the drawn state, not the bar: the effect layer measures
+  // no box for an element with `opacity: 0`.
+  liquidBar: {
+    opacity: {
+      default: 1,
+      [stylex.when.ancestor(DRAWN_BY_EFFECT, liquidGrabberMarker)]: 0,
+    },
+    transition: {
+      default: `opacity ${handBack.duration} ${easing.linear}`,
+      [stylex.when.ancestor(DRAWN_BY_EFFECT, liquidGrabberMarker)]: "none",
+    },
   },
   scroller: {
     flexGrow: 0,

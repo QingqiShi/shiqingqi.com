@@ -6,7 +6,7 @@ import { LIQUID_PHYSICS, MAX_SUBSTEPS } from "./step-liquid.ts";
  *
  * @internal
  */
-export const LIQUID_STEP_BYTES = 48;
+export const LIQUID_STEP_BYTES = 64;
 
 /**
  * The invocations of one workgroup: one body's particles, up to
@@ -36,6 +36,10 @@ export interface LiquidStep {
   readonly to: number;
   /** Seconds on the liquid's clock. */
   readonly step: number;
+  /** The force on every particle, as `LiquidInput.force` gives it; none for a control. */
+  readonly force: readonly [number, number];
+  /** The room across the track, up and down, as `LiquidInput.room` gives it; none for a control. */
+  readonly room: readonly [number, number];
 }
 
 /**
@@ -54,9 +58,10 @@ export function packLiquidSteps(
     const at = index * STEP_WORDS;
     floats.set([step.target, step.span, step.aim, step.scale], at);
     floats.set([step.from, step.to, step.step, 0], at + 4);
-    words[at + 8] = step.count;
-    words[at + 9] = step.slot;
-    words.fill(0, at + 10, at + STEP_WORDS);
+    floats.set([...step.force, ...step.room], at + 8);
+    words[at + 12] = step.count;
+    words[at + 13] = step.slot;
+    words.fill(0, at + 14, at + STEP_WORDS);
   }
 }
 
@@ -92,6 +97,9 @@ struct LiquidStep {
   pour: vec4f,
   // The walls the control gives, and the step on the liquid's clock.
   room: vec4f,
+  // The force on every particle, then the room across the track, up and
+  // down: none for a control.
+  drive: vec4f,
   count: u32,
   slot: u32,
 }
@@ -118,22 +126,28 @@ fn leanTo(away: f32) -> f32 {
   return tanh(clamp(away / TILT_REACH, -LEAN_LIMIT, LEAN_LIMIT));
 }
 
+// The nearest point of the room to point: between the walls along the
+// track, and within the room across it, which for a control is the centre
+// line.
+fn nearestInRoom(point: vec2f, walls: vec2f, room: vec2f) -> vec2f {
+  return vec2f(clamp(point.x, walls.x, walls.y), clamp(point.y, -room.x, room.y));
+}
+
 // How far a particle of radius is from the wall.
-fn wallGap(point: vec2f, radius: f32, walls: vec2f) -> f32 {
-  let nearX = clamp(point.x, walls.x, walls.y);
-  return 1.0 - radius - length(vec2f(point.x - nearX, point.y));
+fn wallGap(point: vec2f, radius: f32, walls: vec2f, room: vec2f) -> f32 {
+  return 1.0 - radius - length(point - nearestInRoom(point, walls, room));
 }
 
 // The nearest point to point that a disk of radius fits in the track.
-fn insideTrack(point: vec2f, radius: f32, walls: vec2f) -> vec2f {
-  let nearX = clamp(point.x, walls.x, walls.y);
-  let offset = vec2f(point.x - nearX, point.y);
+fn insideTrack(point: vec2f, radius: f32, walls: vec2f, room: vec2f) -> vec2f {
+  let near = nearestInRoom(point, walls, room);
+  let offset = point - near;
   let distance = length(offset);
   let limit = 1.0 - radius;
   if (distance <= limit) {
     return point;
   }
-  return vec2f(nearX, 0.0) + offset * (limit / distance);
+  return near + offset * (limit / distance);
 }
 
 fn centreOf(i: u32, count: u32) -> vec2f {
@@ -168,22 +182,34 @@ fn substep(i: u32, count: u32, step: LiquidStep, walls: vec2f, dt: f32) {
   let quadratic = VISCOSITY_QUADRATIC / scale;
   let wallDamping = exp(-WALL_GRIP * dt);
   let sideDamping = exp(-WALL_GRIP * dt / (1.0 + SIDE_GRIP_SHARE * span));
+  let wetDamping = exp(-WET_GRIP * dt);
+  let room = step.drive.zw;
+  let roomy = room.x + room.y > 0.0;
   // The tilt is one acceleration for the whole body, as gravity is when a
   // container moves: it must not squeeze the body towards the target.
   let centre = centreOf(i, count);
   let lean = leanTo(goal - centre.x);
   let arrived = 1.0 - abs(lean);
   let damping = exp(-(DRAG + SETTLE_DRAG * arrived) * dt);
-  let tilt = vec2f(
+  var pull = vec2f(
     TILT * tiltBoost(goal - centre.x) * lean,
     AIM_TILT * aim * abs(lean) - CENTRE_PULL * centre.y,
-  ) * dt;
+  );
+  if (roomy) {
+    // With room across the track, a spring pulls the body to its rest, and
+    // the force drives the whole body.
+    pull = ROOM_SPRING * vec2f(goal - centre.x, -centre.y) + step.drive.xy;
+  }
+  let tilt = pull * dt;
   if (moving) {
     let point = position[i];
     var v = (velocity[i] + tilt) * damping;
-    if (wallGap(point, particleRadius, walls) < WALL_GRIP_REACH) {
+    if (wallGap(point, particleRadius, walls, room) < WALL_GRIP_REACH) {
       let onSide = point.x > walls.x && point.x < walls.y;
       v *= select(wallDamping, sideDamping, onSide);
+    }
+    if (roomy && abs(point.y) < WET_BAND) {
+      v *= wetDamping;
     }
     velocity[i] = v;
   }
@@ -264,7 +290,7 @@ fn substep(i: u32, count: u32, step: LiquidStep, walls: vec2f, dt: f32) {
   workgroupBarrier();
 
   if (moving) {
-    let point = insideTrack(position[i] + push, particleRadius, walls);
+    let point = insideTrack(position[i] + push, particleRadius, walls, room);
     position[i] = point;
     velocity[i] = (point - previous) / dt;
   }
@@ -295,7 +321,8 @@ fn simulate(
   var fastest = 0.0;
   for (var j = 0u; j < count; j += 1u) {
     let point = position[j];
-    let across = sqrt(max(0.0, reach * reach - point.y * point.y));
+    let dy = point.y - clamp(point.y, -step.drive.z, step.drive.w);
+    let across = sqrt(max(0.0, reach * reach - dy * dy));
     leftmost = min(leftmost, point.x + across);
     rightmost = max(rightmost, point.x - across);
     fastest = max(fastest, length(velocity[j]));

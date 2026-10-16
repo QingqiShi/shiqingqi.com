@@ -87,7 +87,21 @@ export interface LiquidBead {
 }
 
 /**
- * What one step reads from the Switch or the segmented control.
+ * The room a liquid has across its track, in rest radii: how far above the
+ * centre line and how far below it the walls' round ends go. A control's
+ * track has none, so its liquid fills it from side to side. A grabber's
+ * liquid has room to slosh across, stretch and lean.
+ *
+ * @internal
+ */
+export interface LiquidRoom {
+  readonly up: number;
+  readonly down: number;
+}
+
+/**
+ * What one step reads from the Switch, the segmented control or the
+ * grabber.
  *
  * @internal
  */
@@ -118,6 +132,32 @@ export interface LiquidInput {
    * far end. A toggle with no press point aims at 0, the centre line.
    */
   readonly aim: number;
+  /**
+   * The room across the track, or none for a control's track. With room,
+   * the liquid is pulled back to the centre line as it is pulled to the
+   * target, and the band of liquid on the centre line wets the surface
+   * under it, so a force stretches the body from that band.
+   */
+  readonly room?: LiquidRoom;
+  /**
+   * An acceleration on every particle, in rest radii per second squared of
+   * the liquid's clock: for a grabber, the card's motion felt inside the
+   * card, and the pull of the finger. None for a control.
+   */
+  readonly force?: readonly [number, number];
+  /**
+   * Something stirs the liquid, a finger that holds it or a force that
+   * drives it, so it has not arrived and stays water in its own shape.
+   */
+  readonly stir?: boolean;
+}
+
+const NO_ROOM: LiquidRoom = { up: 0, down: 0 };
+const NO_FORCE: readonly [number, number] = [0, 0];
+
+/** Whether the input gives the liquid room across the track. */
+function hasRoom({ room }: LiquidInput) {
+  return room !== undefined && room.up + room.down > 0;
 }
 
 /**
@@ -176,8 +216,10 @@ export const MAX_SUBSTEPS = 96;
  * The liquid's clock runs this many times faster than the page's: every
  * rate here is per second of the liquid's clock, so the whole pour, its
  * beads and its setting speed up together and the physics stays the same.
+ *
+ * @internal
  */
-const PACE = 1.5;
+export const PACE = 1.5;
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
 const STIFFNESS = 150;
@@ -233,6 +275,21 @@ const CENTRE_PULL = 4;
 const WALL_GRIP = 12;
 const WALL_GRIP_REACH = 0.08;
 const SIDE_GRIP_SHARE = 8;
+/**
+ * With room across the track, the liquid wets the surface under it along
+ * the centre line, where its rest shape lies: per second, how fast a
+ * particle within `WET_BAND` of the centre line loses its speed, so that
+ * a force stretches the body out from that band, and the band holds on.
+ */
+const WET_GRIP = 6;
+const WET_BAND = 0.35;
+/**
+ * With room across the track, the pull back to the rest shape is a spring,
+ * in rest radii per second squared for each rest radius away, along the
+ * track and across it alike: a force moves the body as far as it is
+ * strong, and the body sloshes back.
+ */
+const ROOM_SPRING = 45;
 
 /** Below this mean speed, in rest radii per second, the liquid is still. */
 const STILL_SPEED = 0.3;
@@ -267,6 +324,12 @@ const SET = 1 / (SET_TIME * PACE);
  */
 export const LINGER_SET = 0.4;
 const CALM_FALL = 16;
+/**
+ * Per second: how fast a liquid with room across the track leaves its rest
+ * shape once it is stirred. Slower than a control's, because its rest
+ * shape is thinner than the body, so the body swells out of it.
+ */
+const ROOM_CALM_FALL = 6;
 /** Per second: how fast the thumb thaws into water. */
 const MELT = 6;
 
@@ -448,6 +511,9 @@ export const LIQUID_PHYSICS = {
   WALL_GRIP,
   WALL_GRIP_REACH,
   SIDE_GRIP_SHARE,
+  WET_GRIP,
+  WET_BAND,
+  ROOM_SPRING,
 } as const;
 
 /**
@@ -563,10 +629,24 @@ interface Walls {
   readonly to: number;
 }
 
+/**
+ * How far across the track a point is from the room: 0 inside it. With
+ * no room, the point's own distance from the centre line.
+ */
+function acrossRoom(y: number, { up, down }: LiquidRoom) {
+  return y - clamp(y, -up, down);
+}
+
 /** How far a particle of `radius` is from the wall. */
-function wallGap(x: number, y: number, radius: number, { from, to }: Walls) {
+function wallGap(
+  x: number,
+  y: number,
+  radius: number,
+  { from, to }: Walls,
+  room: LiquidRoom,
+) {
   const nearX = clamp(x, from, to);
-  return 1 - radius - Math.hypot(x - nearX, y);
+  return 1 - radius - Math.hypot(x - nearX, acrossRoom(y, room));
 }
 
 /** The nearest point to `(x, y)` that a disk of `radius` fits in the track. */
@@ -575,28 +655,36 @@ function insideTrack(
   y: number,
   radius: number,
   { from, to }: Walls,
+  room: LiquidRoom,
 ) {
   const nearX = clamp(x, from, to);
   const dx = x - nearX;
-  const distance = Math.hypot(dx, y);
+  const dy = acrossRoom(y, room);
+  const distance = Math.hypot(dx, dy);
   const limit = 1 - radius;
   if (distance <= limit) {
     return { x, y };
   }
   const scale = limit / distance;
-  return { x: nearX + dx * scale, y: y * scale };
+  return { x: nearX + dx * scale, y: y - dy + dy * scale };
 }
 
 /**
  * The walls for this step: the input's, but a wall that moves in stops
  * where it would push a particle, and moves in only as the liquid leaves.
  */
-function wallsFor(body: LiquidParticles, input: Walls, scale: number): Walls {
+function wallsFor(
+  body: LiquidParticles,
+  input: Walls,
+  room: LiquidRoom,
+  scale: number,
+): Walls {
   const reach = 1 - PARTICLE_RADIUS * scale;
   let leftmost = Number.POSITIVE_INFINITY;
   let rightmost = Number.NEGATIVE_INFINITY;
   for (let i = 0; i < body.x.length; i++) {
-    const across = Math.sqrt(Math.max(0, reach * reach - body.y[i] ** 2));
+    const dy = acrossRoom(body.y[i], room);
+    const across = Math.sqrt(Math.max(0, reach * reach - dy * dy));
     leftmost = Math.min(leftmost, body.x[i] + across);
     rightmost = Math.max(rightmost, body.x[i] - across);
   }
@@ -676,11 +764,14 @@ function substep(
   y: Float32Array,
   vx: Float32Array,
   vy: Float32Array,
-  { target, span, aim }: LiquidInput,
+  input: LiquidInput,
   walls: Walls,
   scale: number,
   dt: number,
 ) {
+  const { target, span, aim, force = NO_FORCE } = input;
+  const room = input.room ?? NO_ROOM;
+  const roomy = hasRoom(input);
   const count = x.length;
   const reach = KERNEL_REACH * scale;
   const particleRadius = PARTICLE_RADIUS * scale;
@@ -693,6 +784,7 @@ function substep(
   const sideDamping = Math.exp(
     (-WALL_GRIP * dt) / (1 + SIDE_GRIP_SHARE * span),
   );
+  const wetDamping = Math.exp(-WET_GRIP * dt);
   let centreX = 0;
   let centreY = 0;
   for (let i = 0; i < count; i++) {
@@ -704,15 +796,27 @@ function substep(
   const lean = leanTo(target - centreX);
   const arrived = 1 - Math.abs(lean);
   const damping = Math.exp(-(DRAG + SETTLE_DRAG * arrived) * dt);
-  const tiltX = TILT * tiltBoost(target - centreX) * lean * dt;
-  const tiltY = (AIM_TILT * aim * Math.abs(lean) - CENTRE_PULL * centreY) * dt;
+  let pullX = TILT * tiltBoost(target - centreX) * lean;
+  let pullY = AIM_TILT * aim * Math.abs(lean) - CENTRE_PULL * centreY;
+  if (roomy) {
+    // With room across the track, a spring pulls the body to its rest, and
+    // the force drives the whole body.
+    pullX = ROOM_SPRING * (target - centreX) + force[0];
+    pullY = ROOM_SPRING * -centreY + force[1];
+  }
+  const tiltX = pullX * dt;
+  const tiltY = pullY * dt;
   for (let i = 0; i < count; i++) {
     vx[i] = (vx[i] + tiltX) * damping;
     vy[i] = (vy[i] + tiltY) * damping;
-    if (wallGap(x[i], y[i], particleRadius, walls) < WALL_GRIP_REACH) {
+    if (wallGap(x[i], y[i], particleRadius, walls, room) < WALL_GRIP_REACH) {
       const onSide = x[i] > walls.from && x[i] < walls.to;
       vx[i] *= onSide ? sideDamping : wallDamping;
       vy[i] *= onSide ? sideDamping : wallDamping;
+    }
+    if (roomy && Math.abs(y[i]) < WET_BAND) {
+      vx[i] *= wetDamping;
+      vy[i] *= wetDamping;
     }
   }
 
@@ -786,7 +890,7 @@ function substep(
   }
 
   for (let i = 0; i < count; i++) {
-    const inside = insideTrack(x[i], y[i], particleRadius, walls);
+    const inside = insideTrack(x[i], y[i], particleRadius, walls, room);
     x[i] = inside.x;
     y[i] = inside.y;
     vx[i] = (x[i] - previousX[i]) / dt;
@@ -850,7 +954,13 @@ function moveBeads(
     );
     const vx = bead.vx + tilt - Math.sign(bead.vx + tilt) * held;
     const drawn = beadRadius({ ...bead, age });
-    const { x, y } = insideTrack(bead.x + vx * delta, bead.y, drawn, walls);
+    const { x, y } = insideTrack(
+      bead.x + vx * delta,
+      bead.y,
+      drawn,
+      walls,
+      NO_ROOM,
+    );
     const nearest = nearestParticle(body, x, y);
     const gap = nearest - PARTICLE_RADIUS * scale - drawn;
     const free =
@@ -960,7 +1070,7 @@ export function simulateLiquid(
   step: number,
 ): LiquidParticles {
   const count = body.x.length;
-  const walls = wallsFor(body, input, scale);
+  const walls = wallsFor(body, input, input.room ?? NO_ROOM, scale);
   const x = new Float32Array(body.x);
   const y = new Float32Array(body.y);
   const vx = new Float32Array(body.vx);
@@ -993,7 +1103,8 @@ export function settleLiquid(
   delta: number,
   elapsed = liquidStep(delta),
 ): LiquidBody {
-  const { target, span, pressed } = input;
+  const { target, span, pressed, stir = false } = input;
+  const roomy = hasRoom(input);
   const count = body.x.length;
   const step = liquidStep(delta);
   const goal = scaleFor(span, count);
@@ -1008,10 +1119,15 @@ export function settleLiquid(
   }
   const speed = speedSum / count;
   const centre = mean(x);
-  const away = Math.abs(target - centre);
+  // With room across the track, the liquid is away from its rest across
+  // it too.
+  const away = roomy
+    ? Math.hypot(target - centre, mean(y))
+    : Math.abs(target - centre);
   const boost = tiltBoost(away);
-  const arrived = away < ARRIVE_REACH + ARRIVE_SPAN * span;
-  const calm = clamp01(body.calm + (arrived ? SETTLE : -CALM_FALL) * step);
+  const arrived = away < ARRIVE_REACH + ARRIVE_SPAN * span && !stir;
+  const calmFall = roomy ? ROOM_CALM_FALL : CALM_FALL;
+  const calm = clamp01(body.calm + (arrived ? SETTLE : -calmFall) * step);
   // The liquid sets only as far as `LINGER_SET` while it lingers, so that
   // its rim stays water and flows. It sets all the way at the end.
   const setGoal = calm >= 1 - SET_TIME / LINGER ? 1 : LINGER_SET;
@@ -1033,8 +1149,10 @@ export function settleLiquid(
     shedAt: body.shedAt,
     seed: body.seed,
   };
+  // A body with room across the track sheds nothing: a bead runs along the
+  // track, and the body does not.
   const { beads, shedAt, seed } =
-    speed < SHED_SPEED || away < SHED_REACH || elapsed <= 0
+    speed < SHED_SPEED || away < SHED_REACH || elapsed <= 0 || roomy
       ? kept
       : shed(
           kept,

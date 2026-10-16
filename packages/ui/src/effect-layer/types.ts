@@ -17,9 +17,10 @@ export type EffectCanvas =
   "scroll" | "fixed" | "fixedBottom" | "stageUnder" | "stageOver";
 
 /**
- * The band that the `<canvas>` element under an Effect stage covers, in CSS
- * px from the stage's border box: `rise` above its top edge, `depth` below
- * it, and `spill` past each side.
+ * How far past the stage's border box its `<canvas>` elements reach, in
+ * CSS px: `rise` above its top edge and `spill` past each side, for both,
+ * and `depth` below the top edge for the one under it, which covers only a
+ * band at the top.
  *
  * @internal
  */

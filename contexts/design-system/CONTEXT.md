@@ -76,12 +76,16 @@ _Avoid_: effect boundary (that is an obstacle), effect scope, sandbox, 效果作
 An element that shows over the page, such as a sheet or a dialog, so that the effects of the elements under it and not inside it do not draw. `useEffectCover` makes one. ZH: 效果遮盖.
 
 **Effect stage**:
-An element that carries two `<canvas>` elements of the effect layer with it, one under its surface for its own effects and one over its content for the effects of the elements inside it, so that they move with it and show over it. A Sheet with a liquid edge is one; `useSheetEdge` makes it. ZH: 效果舞台.
+An element that carries a `<canvas>` element of the effect layer with it, over its content, for the effects of the elements inside it, so that they move with it and show over it. A Sheet with a liquid grabber is one; `useEffectStage` makes it. ZH: 效果舞台.
 _Avoid_: plane (that is a z-index rung), layer, 图层
 
-**Sheet edge**:
-The top edge of a Sheet drawn as a water surface across the card's width while the card moves, in the card's own colour: the `edge="liquid"` prop of the Sheet, drawn by `useSheetEdge`. Only the edge moves; the content never bends. ZH: 面板顶边.
-_Avoid_: wave, liquid sheet, 波浪
+**Grabber**:
+The bar at the top of a Sheet's card below `md`, which a drag on moves the card and puts the Sheet away. ZH: 拖动条.
+_Avoid_: handle, drag indicator, pill (for this sense), 把手
+
+**Liquid grabber**:
+A Grabber drawn as the liquid of a Switch's thumb while the card moves or a finger holds it: the `grabber="liquid"` prop of the Sheet, drawn by `useLiquidGrabber`. It swells out of the bar, sloshes, stretches and sets back into the bar; the card itself stays rigid. ZH: 液态拖动条.
+_Avoid_: liquid edge, liquid sheet, wave, 波浪
 
 **Ring light**:
 A comet of light that runs round an element's outline on the effect layer, one lap when an element arrives (`useRingLight`). It marks a moment and carries no meaning of its own. ZH: 环形光.

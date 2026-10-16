@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react";
 import { useRef } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { readSheetPose } from "../effect-layer/publish-sheet-pose.ts";
 import { Sheet } from "./sheet.tsx";
 
 function SheetHarness({
@@ -247,6 +248,76 @@ describe("Sheet", () => {
 
     rerender(<SheetHarness isOpen={false} onClose={vi.fn()} />);
     expect(document.body).not.toHaveAttribute("data-scroll-locked");
+  });
+
+  describe("liquid grabber", () => {
+    it("keeps the plain grabber by default: a bar, no canvas, no mark", () => {
+      render(<SheetHarness isOpen onClose={vi.fn()} />);
+      expect(mover().querySelector("canvas")).toBeNull();
+      expect(part("grabber").querySelector("[data-liquid-grabber]")).toBeNull();
+    });
+
+    it("marks the bar for the effect, carries a canvas over the card, and publishes the card's pose on the grabber", () => {
+      render(
+        <Sheet
+          isOpen
+          onClose={vi.fn()}
+          closeLabel="Close"
+          aria-label="Player"
+          grabber="liquid"
+        >
+          <p>Content</p>
+        </Sheet>,
+      );
+      const bar = part("grabber").querySelector("[data-liquid-grabber]");
+      expect(bar).not.toBeNull();
+      const canvas = mover().querySelector("canvas");
+      expect(canvas).not.toBeNull();
+      expect(canvas?.compareDocumentPosition(card())).toBe(
+        Node.DOCUMENT_POSITION_PRECEDING,
+      );
+      expect(readSheetPose(part("grabber"))).toEqual({
+        phase: "shown",
+        y: 0,
+        finger: null,
+        dim: part("dim"),
+      });
+    });
+
+    it("tells the effect how far the finger pulls the card past where it can go", () => {
+      render(
+        <Sheet
+          isOpen
+          onClose={vi.fn()}
+          closeLabel="Close"
+          aria-label="Player"
+          grabber="liquid"
+        >
+          <p>Content</p>
+        </Sheet>,
+      );
+      const pointer = {
+        pointerId: 1,
+        pointerType: "mouse",
+        isPrimary: true,
+        button: 0,
+      };
+      fireEvent.pointerDown(part("grabber"), {
+        ...pointer,
+        clientX: 100,
+        clientY: 0,
+      });
+      fireEvent.pointerMove(card(), { ...pointer, clientX: 130, clientY: 20 });
+      expect(readSheetPose(part("grabber"))).toMatchObject({
+        phase: "dragging",
+        y: 20,
+        finger: [30, 0],
+      });
+      fireEvent.pointerMove(card(), { ...pointer, clientX: 100, clientY: -64 });
+      const pulled = readSheetPose(part("grabber"));
+      expect(pulled?.y).toBe(-32);
+      expect(pulled?.finger).toEqual([0, -32]);
+    });
   });
 
   describe("motion", () => {

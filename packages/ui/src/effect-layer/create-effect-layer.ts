@@ -683,9 +683,19 @@ export function createEffectLayer(
           }),
         );
       }
-      const above = overCanvas && stageCanvas(overCanvas, width, height);
+      const above =
+        overCanvas && stageCanvas(overCanvas, width + 2 * spill, rise + height);
       if (above !== null) {
-        passes.push(stagePass(above, "stageOver", element, box.x, box.y, over));
+        passes.push(
+          stagePass(
+            above,
+            "stageOver",
+            element,
+            box.x - spill,
+            box.y - rise,
+            over,
+          ),
+        );
       }
     }
     releaseUnseenStageCanvases();
