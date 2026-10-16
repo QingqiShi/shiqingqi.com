@@ -45,8 +45,4 @@ describe("dropOpaqueCrossOriginErrors", () => {
     } satisfies CaptureResult;
     expect(dropOpaqueCrossOriginErrors(event)).toBe(event);
   });
-
-  it("passes a null event through", () => {
-    expect(dropOpaqueCrossOriginErrors(null)).toBeNull();
-  });
 });

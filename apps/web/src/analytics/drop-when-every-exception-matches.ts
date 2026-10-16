@@ -9,7 +9,7 @@ export function dropWhenEveryExceptionMatches(
   matches: (exception: unknown) => boolean,
 ): BeforeSendFn {
   return (event) => {
-    if (!event || event.event !== "$exception") return event;
+    if (event.event !== "$exception") return event;
     const exceptions: unknown = event.properties.$exception_list;
     return Array.isArray(exceptions) &&
       exceptions.length > 0 &&
