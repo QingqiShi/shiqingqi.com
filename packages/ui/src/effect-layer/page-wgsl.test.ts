@@ -32,6 +32,8 @@ function record(
     grayscale: 0,
     scope: 0,
     holds: null,
+    stage: null,
+    carries: null,
     scopeIndex: 0,
     ...overrides,
   };
@@ -101,6 +103,8 @@ describe("packScopes", () => {
           scroll: range(0, 3),
           fixed: range(5, 1),
           fixedBottom: range(6, 2),
+          stageUnder: range(8, 0),
+          stageOver: range(8, 0),
         },
         {
           id: 9,
@@ -110,12 +114,15 @@ describe("packScopes", () => {
           scroll: range(3, 2),
           fixed: range(0, 0),
           fixedBottom: range(5, 0),
+          stageUnder: range(5, 0),
+          stageOver: range(5, 0),
         },
       ],
       buffer,
     );
     expect([...new Uint32Array(buffer)]).toEqual([
-      0, 0xff_ff_ff_ff, 0, 3, 5, 1, 6, 2, 9, 2, 3, 2, 0, 0, 5, 0,
+      0, 0xff_ff_ff_ff, 0, 3, 5, 1, 6, 2, 8, 0, 8, 0, 9, 2, 3, 2, 0, 0, 5, 0, 5,
+      0, 5, 0,
     ]);
   });
 });

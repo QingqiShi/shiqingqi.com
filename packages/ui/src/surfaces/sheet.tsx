@@ -14,7 +14,11 @@ import { RemoveScroll } from "react-remove-scroll";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { Heading } from "../content/heading.tsx";
+import { publishSheetPose } from "../effect-layer/publish-sheet-pose.ts";
+import { SHEET_SURFACE } from "../effect-layer/sheet-edge-band.ts";
+import { sheetEdge } from "../effect-layer/sheet-edge.stylex.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
+import { useSheetEdge } from "../effect-layer/use-sheet-edge.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { useVisibleArea } from "../hooks/use-visible-area.ts";
@@ -73,6 +77,22 @@ interface SheetBaseProps {
    * @zh 面板打开时聚焦的元素；回退到面板内第一个可聚焦元素（关闭按钮）。
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
+  /**
+   * How the card's top edge moves. `"plain"` keeps it rigid. `"liquid"`
+   * draws it on the effect layer as a water surface across the card's
+   * width, in the card's own colour: it swells and sloshes as the card
+   * lands, rises to a peak under a finger that drags it, bulges when the
+   * drag pulls past the top, runs side to side when the drag lets go, and
+   * trails as the card drops. It stays wet for a moment after the card
+   * stops, then sets from the middle out into the plain edge, with a lit
+   * edge. Only the edge moves; the content never bends. Without WebGPU,
+   * with effects off, under forced colours or reduced motion, it is the
+   * plain edge.
+   *
+   * @default "plain"
+   * @zh 卡片顶边的动态。`"plain"` 保持刚性。`"liquid"` 在效果层上把顶边画成横贯卡片宽度的水面，颜色与卡片相同：卡片落定时它会涌起、晃荡；手指拖动时在指下隆起；拖过顶部时鼓起；松手时左右荡开；卡片下落时拖尾。卡片停下后它会湿润片刻，再从中间向两边凝固成平直的边缘，并带有受光的边线。只有顶边会动，内容不会变形。没有 WebGPU、效果关闭、强制颜色或减少动态时，它就是平直的边缘。
+   */
+  edge?: "plain" | "liquid";
 }
 
 /**
@@ -131,6 +151,7 @@ export function Sheet({
   closeLabel,
   closeIcon,
   initialFocusRef,
+  edge = "plain",
   title,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -142,6 +163,7 @@ export function Sheet({
   const titleId = useId();
   const hasTitle = title !== undefined;
   const cardRef = useRef<HTMLDivElement>(null);
+  const moverRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const grabberRef = useRef<HTMLDivElement>(null);
   const closeCornerRef = useRef<HTMLDivElement>(null);
@@ -150,8 +172,10 @@ export function Sheet({
   const isOpenRef = useRef(isOpen);
   const onCloseRef = useRef(onClose);
   const coverRef = useEffectCover();
+  const isLiquid = edge === "liquid";
+  const { ref: edgeRef, underRef, overRef } = useSheetEdge(isLiquid);
   const visibleAreaRef = useVisibleArea();
-  const cardRefs = mergeRefs(cardRef, coverRef);
+  const moverRefs = mergeRefs(moverRef, coverRef, edgeRef);
 
   useLayoutEffect(() => {
     isOpenRef.current = isOpen;
@@ -172,9 +196,14 @@ export function Sheet({
 
   useLayoutEffect(() => {
     const card = cardRef.current;
-    if (!isMounted || !card) return;
+    const mover = moverRef.current;
+    if (!isMounted || !card || !mover) return;
     const controller = createSheetController({
       card,
+      mover,
+      onPose: (pose) => {
+        publishSheetPose(mover, pose);
+      },
       scroller: () => scrollerRef.current,
       grabber: () => grabberRef.current,
       closeCorner: () => closeCornerRef.current,
@@ -219,45 +248,73 @@ export function Sheet({
         aria-hidden="true"
       />
       <div ref={visibleAreaRef} css={styles.anchor}>
-        {/* forwardProps makes RemoveScroll clone its child and inject its
+        {/* The mover is what the controller moves and fades. With a liquid
+            edge it carries the effect layer's two canvases with the card,
+            so they move with it on the compositor and never lag it. */}
+        <div ref={moverRefs} css={styles.mover}>
+          {isLiquid && (
+            <canvas
+              ref={underRef}
+              css={styles.underCanvas}
+              aria-hidden="true"
+              width={0}
+              height={0}
+            />
+          )}
+          {/* forwardProps makes RemoveScroll clone its child and inject its
               own ref, which would clobber a ref placed directly on the card.
               Passing the ref through RemoveScroll keeps `cardRef` working for
               focus and the Tab trap. */}
-        <RemoveScroll ref={cardRefs} allowPinchZoom forwardProps>
-          <div
-            css={[corner.radius_4, styles.card]}
-            role="dialog"
-            aria-modal="true"
-            aria-label={ariaLabel}
-            aria-labelledby={hasTitle ? titleId : ariaLabelledBy}
-          >
-            <div ref={grabberRef} css={styles.grabber} aria-hidden="true">
-              <span css={[corner.radius_round, styles.grabberBar]} />
-            </div>
-            {/* `Button` sets its own `position: relative` for its busy
+          <RemoveScroll ref={cardRef} allowPinchZoom forwardProps>
+            <div
+              css={[
+                corner.radius_4,
+                styles.card,
+                isLiquid && styles.liquidCard,
+              ]}
+              role="dialog"
+              aria-modal="true"
+              aria-label={ariaLabel}
+              aria-labelledby={hasTitle ? titleId : ariaLabelledBy}
+              {...(isLiquid ? { [SHEET_SURFACE]: "" } : {})}
+            >
+              <div ref={grabberRef} css={styles.grabber} aria-hidden="true">
+                <span css={[corner.radius_round, styles.grabberBar]} />
+              </div>
+              {/* `Button` sets its own `position: relative` for its busy
                   spinner, which a caller's `position: absolute` can't
                   reliably outrank. Pin the corner from this wrapper instead. */}
-            <div ref={closeCornerRef} css={styles.closeCorner}>
-              <Button
-                look="ghost"
-                icon={closeIcon ?? <XIcon weight="bold" />}
-                aria-label={closeLabel}
-                onClick={requestClose}
-              />
+              <div ref={closeCornerRef} css={styles.closeCorner}>
+                <Button
+                  look="ghost"
+                  icon={closeIcon ?? <XIcon weight="bold" />}
+                  aria-label={closeLabel}
+                  onClick={requestClose}
+                />
+              </div>
+              <div
+                ref={scrollerRef}
+                css={[styles.scroller, hasTitle && styles.scrollerTitled]}
+              >
+                {hasTitle ? (
+                  <Heading level={2} look="h3" id={titleId} css={styles.title}>
+                    {title}
+                  </Heading>
+                ) : null}
+                {children}
+              </div>
             </div>
-            <div
-              ref={scrollerRef}
-              css={[styles.scroller, hasTitle && styles.scrollerTitled]}
-            >
-              {hasTitle ? (
-                <Heading level={2} look="h3" id={titleId} css={styles.title}>
-                  {title}
-                </Heading>
-              ) : null}
-              {children}
-            </div>
-          </div>
-        </RemoveScroll>
+          </RemoveScroll>
+          {isLiquid && (
+            <canvas
+              ref={overRef}
+              css={styles.overCanvas}
+              aria-hidden="true"
+              width={0}
+              height={0}
+            />
+          )}
+        </div>
       </div>
     </Portal>
   );
@@ -273,6 +330,8 @@ const CLOSE_INSET = space._2;
 const CONTENT_INSET = space._3;
 // The close button is an md Button, so it is as tall as the md step.
 const CLOSE_SIZE = controlSize._9;
+/** The effect layer sets this attribute on the card while it draws its edge. */
+const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 
 const styles = stylex.create({
   // A 0 x 0 box in the document. Below `md` it is at the bottom of the
@@ -304,12 +363,10 @@ const styles = stylex.create({
     backgroundColor: color.bgDim,
     zIndex: `calc(${layer.overlay} - 1)`,
   },
-  // The anchor has no size, so the card takes its width from the viewport.
-  card: {
+  // The anchor has no size, so the mover takes its width from the viewport.
+  // It is the box the controller moves, and the card fills it.
+  mover: {
     position: "absolute",
-    display: "flex",
-    flexDirection: "column",
-    boxSizing: "border-box",
     insetBlockStart: { default: "auto", [breakpoints.md]: 0 },
     insetBlockEnd: { default: BOTTOM_GAP, [breakpoints.md]: "auto" },
     left: {
@@ -321,14 +378,51 @@ const styles = stylex.create({
       default: `calc(100vw - 2 * ${EDGE_GAP} - env(safe-area-inset-left) - env(safe-area-inset-right))`,
       [breakpoints.md]: `min(100vw - 2 * ${space._7}, ${space._16})`,
     },
+    transformOrigin: "50% 100%",
+    pointerEvents: "none",
+  },
+  card: {
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    boxSizing: "border-box",
+    inlineSize: "100%",
     maxBlockSize: {
       default: `calc(${VISIBLE_HEIGHT} - ${TOP_GAP} - ${BOTTOM_GAP})`,
       [breakpoints.md]: `calc(${VISIBLE_HEIGHT} - 2 * ${space._8})`,
     },
     overflow: "hidden",
     backgroundColor: color.bgSurface,
-    transformOrigin: "50% 100%",
     pointerEvents: "auto",
+  },
+  // While the effect draws the edge on the canvas under the card, the card's
+  // own fill starts below the band, where the canvas is already solid, so
+  // the two meet solid on solid.
+  liquidCard: {
+    backgroundColor: {
+      default: color.bgSurface,
+      [DRAWN_BY_EFFECT]: "transparent",
+    },
+    backgroundImage: {
+      default: "none",
+      [DRAWN_BY_EFFECT]: `linear-gradient(to bottom, transparent ${sheetEdge.fillStart}, ${color.bgSurface} ${sheetEdge.fillStart})`,
+    },
+  },
+  // The effect layer sizes both canvases. Physical offsets, since the layer
+  // places them in page coordinates.
+  underCanvas: {
+    position: "absolute",
+    top: `calc(-1 * ${sheetEdge.rise})`,
+    left: `calc(-1 * ${sheetEdge.spill})`,
+    display: "block",
+    pointerEvents: "none",
+  },
+  overCanvas: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    display: "block",
+    pointerEvents: "none",
   },
   grabber: {
     position: "absolute",

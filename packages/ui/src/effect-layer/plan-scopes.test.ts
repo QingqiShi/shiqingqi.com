@@ -26,6 +26,8 @@ function record(
     grayscale: 0,
     scope: PAGE_SCOPE,
     holds: null,
+    stage: null,
+    carries: null,
     ...overrides,
   };
 }
@@ -120,6 +122,47 @@ describe("planScopes", () => {
     expect(peersOf(plan.scopes, plan.elements[3])).toEqual({
       firstElement: 3,
       elementCount: 1,
+    });
+  });
+
+  it("puts each stage after the fixed elements and the elements over it last, each stage one range, and leaves out an element on a stage with no box", () => {
+    const carries = {
+      canvases: () => ({ under: null, over: null }),
+      band: { rise: 8, depth: 16, spill: 0 },
+    };
+    const plan = planScopes(
+      [
+        record(1, { stage: { host: 7, side: "over" }, roles: 1 }),
+        record(2),
+        record(7, { stage: { host: 7, side: "under" }, carries, roles: 1 }),
+        record(3, { stage: { host: 7, side: "over" } }),
+        record(8, { stage: { host: 8, side: "under" }, carries }),
+        record(4, { stage: { host: 8, side: "over" } }),
+        record(5, { stage: { host: 9, side: "over" } }),
+      ],
+      PAGE,
+    );
+    expect(ids(plan.elements)).toEqual([2, 7, 8, 1, 3, 4]);
+    expect(plan.document).toEqual({
+      firstElement: 0,
+      elementCount: 1,
+      hasRole: false,
+    });
+    expect(plan.stages).toEqual([
+      { element: 1, carries, over: { firstElement: 3, elementCount: 2 } },
+      { element: 2, carries, over: { firstElement: 5, elementCount: 1 } },
+    ]);
+    expect(plan.scopes[0].stageUnder).toEqual({
+      firstElement: 1,
+      elementCount: 2,
+    });
+    expect(plan.scopes[0].stageOver).toEqual({
+      firstElement: 3,
+      elementCount: 3,
+    });
+    expect(peersOf(plan.scopes, plan.elements[4])).toEqual({
+      firstElement: 3,
+      elementCount: 3,
     });
   });
 

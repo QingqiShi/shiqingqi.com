@@ -66,6 +66,7 @@
     "./hooks/use-radio-group": "./src/hooks/use-radio-group.ts",
     "./hooks/use-ring-light": "./src/effect-layer/use-ring-light.ts",
     "./hooks/use-ripple": "./src/effect-layer/use-ripple.ts",
+    "./hooks/use-sheet-edge": "./src/effect-layer/use-sheet-edge.ts",
     "./hooks/use-scroll-mask": "./src/hooks/use-scroll-mask.ts",
     "./hooks/use-visible-area": "./src/hooks/use-visible-area.ts",
     "./utils/contrast-ratio": "./src/contrast/contrast-ratio.ts",

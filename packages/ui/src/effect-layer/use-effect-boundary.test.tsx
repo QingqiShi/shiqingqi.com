@@ -186,6 +186,7 @@ describe("effect hooks", () => {
       scope: 0,
       holds: null,
       covers: false,
+      carries: null,
     });
     expect(notified).toBeGreaterThan(0);
   });
@@ -319,6 +320,7 @@ describe("createEffectRegistry", () => {
       scope: 0,
       holds: null,
       covers: false,
+      carries: null,
     });
     expect(registry.getRoles()).toBe(0b11);
 
@@ -331,6 +333,7 @@ describe("createEffectRegistry", () => {
       scope: 0,
       holds: null,
       covers: false,
+      carries: null,
     });
     second.remove();
     expect(registry.elements().size).toBe(0);

@@ -2,7 +2,7 @@ import { use, useLayoutEffect, useRef, useState } from "react";
 import type { EffectRegistration } from "./create-effect-registry.ts";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { EffectScopeContext } from "./effect-scope-context.ts";
-import type { EffectSettings } from "./types.ts";
+import type { EffectSettings, EffectStage } from "./types.ts";
 
 /**
  * The registration under every effect hook: a ref callback that registers
@@ -11,8 +11,9 @@ import type { EffectSettings } from "./types.ts";
  * when the roles, the settings or the scope change; the registration takes
  * the new values, so the element keeps its id. With `holds`, each element
  * is an Effect container that holds that scope. With `covers`, each element
- * is an Effect cover. Outside an
- * `EffectLayerProvider` the ref does nothing.
+ * is an Effect cover. With `carries`, each element is an Effect stage that
+ * carries those `<canvas>` elements. Outside an `EffectLayerProvider` the
+ * ref does nothing.
  *
  * @internal
  */
@@ -21,6 +22,7 @@ export function useEffectRegistration(
   settings: EffectSettings,
   holds: number | null = null,
   covers = false,
+  carries: EffectStage | null = null,
 ) {
   const register = use(EffectLayerContext);
   const scope = use(EffectScopeContext);
@@ -43,6 +45,7 @@ export function useEffectRegistration(
       scope: current.scope,
       holds,
       covers,
+      carries,
     });
     registrations.add(registration);
     return () => {

@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
+import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -174,6 +175,8 @@ function KeyboardReadout({ metrics }: { metrics: Metrics | null }) {
  */
 export function SheetLab() {
   const [open, setOpen] = useState<"form" | "tall" | null>(null);
+  const [edge, setEdge] = useState<"plain" | "liquid">("liquid");
+  const [kind, setKind] = useState("note");
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const probeRef = useRef<HTMLDivElement>(null);
 
@@ -238,7 +241,23 @@ export function SheetLab() {
       en: "Open the tall sheet and swipe its content down and up: it scrolls. Once it is at its top, a new swipe down drags the sheet. A swipe down on the title row drags it from anywhere. Do the same with the keyboard open in the form sheet.",
       zh: "打开长内容面板，在内容上上下滑动：内容滚动。滚到顶部后，再向下滑会拖动面板。在标题行上向下滑，无论内容滚到哪里都会拖动面板。在表单面板中打开键盘后再试一次。",
     }),
+    t({
+      en: "With the liquid edge, open a sheet: as the card lands, its top edge swells in the middle, sloshes, stays wet for a moment and then sets flat from the middle out. Drag the grabber: the edge peaks under your finger and follows it sideways; pull up past the top and it bulges; let go and a wave runs side to side. Flick it away: the edge trails the card down. Switch to the plain edge and compare. The Kind control inside the form sheet pours its liquid over the card.",
+      zh: "选择液态顶边后打开面板：卡片落定时，顶边在中间涌起、晃荡，湿润片刻后从中间向两边凝固平直。拖动拖动条：顶边在指下隆起并随手指左右移动；向上拖过顶部时它鼓起；松手后一道波从一侧荡到另一侧。快速一甩关闭：顶边随卡片下落而拖尾。切换到平直顶边做对比。表单面板中的“类型”控件会把液体泼在卡片上方。",
+    }),
   ];
+
+  const edgeControl = (
+    <SegmentedControl
+      aria-label={t({ en: "Edge", zh: "顶边" })}
+      value={edge}
+      options={[
+        { value: "plain", label: t({ en: "Plain", zh: "平直" }) },
+        { value: "liquid", label: t({ en: "Liquid", zh: "液态" }) },
+      ]}
+      onChange={setEdge}
+    />
+  );
 
   const triggers = (
     <div css={cluster.item}>
@@ -279,6 +298,7 @@ export function SheetLab() {
       </div>
 
       <Readout metrics={metrics} />
+      {edgeControl}
       {triggers}
       <div css={stack.item}>
         {Array.from({ length: PAGE_PARAGRAPHS }, (_, index) => (
@@ -292,6 +312,7 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "Add a note", zh: "添加备注" })}
+        edge={edge}
       >
         <form
           css={stack.item}
@@ -301,6 +322,17 @@ export function SheetLab() {
           }}
         >
           <KeyboardReadout metrics={metrics} />
+          <SegmentedControl
+            aria-label={t({ en: "Kind", zh: "类型" })}
+            fullWidth
+            value={kind}
+            options={[
+              { value: "note", label: t({ en: "Note", zh: "备注" }) },
+              { value: "task", label: t({ en: "Task", zh: "任务" }) },
+              { value: "idea", label: t({ en: "Idea", zh: "想法" }) },
+            ]}
+            onChange={setKind}
+          />
           <TextField
             label={t({ en: "Note", zh: "备注" })}
             description={t({
@@ -320,6 +352,7 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "A long read", zh: "长篇内容" })}
+        edge={edge}
       >
         <div css={stack.item}>
           <Readout metrics={metrics} />

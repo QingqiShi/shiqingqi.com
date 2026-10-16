@@ -266,4 +266,51 @@ describe("createEffectRegistry covers", () => {
     measureAll();
     expect(elementsOf(registry)).toEqual([under, beside]);
   });
+
+  it("keeps a cover that has a role as a record, which covers nothing of its own", () => {
+    const { registry, sheet, inSheet, beside } = setUpSheet();
+    registry.register(sheet, 0b100, NO_SETTINGS, ON_PAGE);
+    expect(elementsOf(registry)).toEqual([inSheet, beside, sheet]);
+  });
+});
+
+describe("createEffectRegistry stages", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.innerHTML = "";
+  });
+
+  const stage = {
+    canvases: () => ({ under: null, over: null }),
+    band: { rise: 8, depth: 16, spill: 0 },
+  };
+
+  it("puts a stage under itself and the elements inside it over it, the nearest stage when they nest", () => {
+    const { registry, measureAll } = setUp();
+    const outer = element(0, 0);
+    const inner = document.createElement("div");
+    outer.append(inner);
+    layOut(inner, { x: 10, y: 10, width: 50, height: 20 });
+    const deep = document.createElement("div");
+    inner.append(deep);
+    layOut(deep, { x: 12, y: 12, width: 10, height: 10 });
+    const beside = element(0, 100);
+    registry.register(outer, 0b1, NO_SETTINGS, { ...ON_PAGE, carries: stage });
+    registry.register(inner, 0b1, NO_SETTINGS, { ...ON_PAGE, carries: stage });
+    registry.register(deep, 0b1, NO_SETTINGS, ON_PAGE);
+    registry.register(beside, 0b1, NO_SETTINGS, ON_PAGE);
+    measureAll();
+    const records = registry.records(0, 0, () => 0);
+    const ids = new Map(records.map(({ element, id }) => [element, id]));
+    expect(
+      records.map(({ element, stage: place }) => [element, place]),
+    ).toEqual([
+      [outer, { host: ids.get(outer), side: "under" }],
+      [inner, { host: ids.get(inner), side: "under" }],
+      [deep, { host: ids.get(inner), side: "over" }],
+      [beside, null],
+    ]);
+    expect(records[0].carries).toBe(stage);
+    expect(records[2].carries).toBeNull();
+  });
 });

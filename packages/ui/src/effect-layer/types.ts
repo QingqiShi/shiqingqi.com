@@ -5,12 +5,78 @@ import type { ElementBox } from "./read-element-box.ts";
 /**
  * The `<canvas>` elements of the effect layer: the two scroll ones, which take
  * turns to cover the document; the fixed one, which covers the viewport for
- * fixed elements; or the bottom one, which covers the viewport from its
- * bottom edge for elements fixed to that edge, and moves with it.
+ * fixed elements; the bottom one, which covers the viewport from its
+ * bottom edge for elements fixed to that edge, and moves with it; or the
+ * two of an Effect stage, which ride with the stage: one under its surface,
+ * for the stage's own effects, and one over its content, for the elements
+ * inside it.
  *
  * @internal
  */
-export type EffectCanvas = "scroll" | "fixed" | "fixedBottom";
+export type EffectCanvas =
+  "scroll" | "fixed" | "fixedBottom" | "stageUnder" | "stageOver";
+
+/**
+ * The band that the `<canvas>` element under an Effect stage covers, in CSS
+ * px from the stage's border box: `rise` above its top edge, `depth` below
+ * it, and `spill` past each side.
+ *
+ * @internal
+ */
+export interface StageBand {
+  readonly rise: number;
+  readonly depth: number;
+  readonly spill: number;
+}
+
+/**
+ * The `<canvas>` elements an Effect stage carries, read when a frame needs
+ * them, since they mount after the stage registers. Either can be missing.
+ *
+ * @internal
+ */
+export interface StageCanvases {
+  readonly under: HTMLCanvasElement | null;
+  readonly over: HTMLCanvasElement | null;
+}
+
+/**
+ * What an element registers to be an Effect stage: its `<canvas>` elements
+ * and the band the one under it covers.
+ *
+ * @internal
+ */
+export interface EffectStage {
+  readonly canvases: () => StageCanvases;
+  readonly band: StageBand;
+}
+
+/**
+ * One Effect stage of a frame: the index in `EffectFrame.elements` of the
+ * stage, and the size of its layout box in CSS px. Its `<canvas>` elements
+ * ride inside it, so a transform on it scales them with it: an effect
+ * draws on them at this size, from the measured box's top-left corner, so
+ * that what it draws lands on the stage after the transform.
+ *
+ * @internal
+ */
+export interface StageFrame {
+  readonly element: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * Where a record is on an Effect stage: the id of the stage element, and
+ * the side it draws on. The stage itself draws under its surface, the
+ * elements inside it over its content.
+ *
+ * @internal
+ */
+export interface StagePlace {
+  readonly host: number;
+  readonly side: "under" | "over";
+}
 
 /**
  * The settings of one registration, one entry for each effect hook that has
@@ -62,6 +128,13 @@ export interface MeasuredElement extends ElementBox {
   readonly scope: number;
   /** The scope it holds as an Effect container, or `null`. */
   readonly holds: number | null;
+  /**
+   * The Effect stage it draws on, or `null` for the page's own `<canvas>`
+   * elements. A stage is on itself, under its surface.
+   */
+  readonly stage: StagePlace | null;
+  /** What it carries as an Effect stage, or `null`. */
+  readonly carries: EffectStage | null;
 }
 
 /**
@@ -116,6 +189,13 @@ export interface EffectScope {
    * bottom `<canvas>` element.
    */
   readonly fixedBottom: ElementRange;
+  /**
+   * Its Effect stages, which draw under their own surface, and its elements
+   * inside a stage, which draw over the stage's content. Each range runs
+   * across every stage of the scope.
+   */
+  readonly stageUnder: ElementRange;
+  readonly stageOver: ElementRange;
 }
 
 /**
@@ -169,14 +249,20 @@ export interface EffectTarget {
   readonly canvas: EffectCanvas;
   /**
    * The band this pass draws, with the part drawn this frame, or `null` on
-   * the fixed and the bottom `<canvas>` elements.
+   * every `<canvas>` element but a scroll one.
    */
   readonly band: Band | null;
   /**
+   * On a `<canvas>` element of an Effect stage, the index in
+   * `EffectFrame.elements` of the stage; else -1.
+   */
+  readonly stage: number;
+  /**
    * The `<canvas>` element's top-left corner: the band's document offset,
-   * the scroll position on the fixed `<canvas>` element, or the scroll
+   * the scroll position on the fixed `<canvas>` element, the scroll
    * position plus the viewport's bottom edge less the height on the bottom
-   * one.
+   * one, or the stage's border box, less the band's rise and spill under
+   * it, on a stage's.
    */
   readonly x: number;
   readonly y: number;
@@ -187,7 +273,8 @@ export interface EffectTarget {
    * The elements that draw on this `<canvas>` element, as a range of
    * `EffectFrame.elements`: the ones in the document on a band, the fixed
    * ones on the fixed `<canvas>` element, the ones fixed to the bottom on the
-   * bottom one, of every scope. Pass it to an instanced draw as
+   * bottom one, of every scope; the stage itself under a stage, and the
+   * elements inside it over it. Pass it to an instanced draw as
    * `pass.draw(vertices, elementCount, 0, firstElement)`.
    */
   readonly firstElement: number;
@@ -223,8 +310,10 @@ export interface EffectFrame {
   /**
    * Every registered element with a box, as it is at the start of this
    * frame: the ones in the document first, then the fixed ones, then the
-   * ones fixed to the bottom, each group by scope in the order of `scopes`,
-   * so each scope is one range of each group. An element whose Effect
+   * ones fixed to the bottom, then each Effect stage, then the elements
+   * inside the stages, each group by scope in the order of `scopes`, and
+   * the last two by stage inside a scope, so each scope is one range of
+   * each group and each stage one range of the last. An element whose Effect
    * container has no box is not here. An element is measured again only
    * after it can have changed.
    */
@@ -234,6 +323,8 @@ export interface EffectFrame {
    * with a box. In WGSL, `effectScopes` has them in the same order.
    */
   readonly scopes: readonly EffectScope[];
+  /** Each Effect stage with a box, with its `<canvas>` elements this frame. */
+  readonly stages: readonly StageFrame[];
   readonly pointer: EffectPointer;
   /**
    * Group 0, laid out as `pageLayout`. Each render pass has it set already; a

@@ -2,11 +2,17 @@ import type { ElementTracker } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import type { ElementBox } from "./read-element-box.ts";
-import type { EffectSettings, MeasuredElement } from "./types.ts";
+import type {
+  EffectSettings,
+  EffectStage,
+  MeasuredElement,
+  StagePlace,
+} from "./types.ts";
 
 /**
  * Where a registration puts its element: the scope it is in, the scope it
- * holds as an Effect container, or `null`, and whether it is an Effect cover.
+ * holds as an Effect container, or `null`, whether it is an Effect cover,
+ * and what it carries as an Effect stage, or `null`.
  *
  * @internal
  */
@@ -14,14 +20,16 @@ export interface EffectPlacement {
   readonly scope: number;
   readonly holds: number | null;
   readonly covers?: boolean;
+  readonly carries?: EffectStage | null;
 }
 
 /**
  * One registered element. An element registered more than once, by several
  * effect hooks for example, is one entry: its roles are every role the
  * registrations add, each effect's settings come from the latest
- * registration that has them, its scope from the latest registration, and
- * the scope it holds from the latest registration that holds one.
+ * registration that has them, its scope from the latest registration, the
+ * scope it holds from the latest registration that holds one, and the stage
+ * it carries from the latest registration that carries one.
  *
  * @internal
  */
@@ -121,11 +129,13 @@ export function createEffectRegistry() {
       let scope = PAGE_SCOPE;
       let holds: number | null = null;
       let covers = false;
+      let carries: EffectStage | null = null;
       for (const registration of registrations) {
         elementRoles |= registration.roles;
         scope = registration.scope;
         holds = registration.holds ?? holds;
         covers ||= registration.covers === true;
+        carries = registration.carries ?? carries;
         settings =
           registrations.size === 1
             ? registration.settings
@@ -138,6 +148,7 @@ export function createEffectRegistry() {
         scope,
         holds,
         covers,
+        carries,
       });
       roles |= elementRoles;
     }
@@ -240,9 +251,11 @@ export function createEffectRegistry() {
      * Every tracked element with a box, as it was last measured, in page
      * coordinates at this scroll and with the viewport's bottom edge that
      * `readViewportBottom` reads: those in the document first, then the
-     * fixed ones, each group in registration order. An Effect cover is not
-     * one of them, and neither is an element that the box of a cover
-     * overlaps and that is not inside that cover.
+     * fixed ones, each group in registration order. An Effect cover with no
+     * role, and no stage, is not one of them, and neither is an element
+     * that the box of a cover overlaps and that is not inside that cover.
+     * An element inside an Effect stage is on that stage, the nearest one
+     * when stages nest, and a stage is on itself.
      */
     records: (
       scrollX: number,
@@ -252,9 +265,30 @@ export function createEffectRegistry() {
       const inDocument: MeasuredElement[] = [];
       const fixed: MeasuredElement[] = [];
       const covers: { element: Element; box: ElementBox }[] = [];
+      const stages: { element: Element; id: number }[] = [];
+      for (const [element, { id, carries }] of elements) {
+        if (carries !== null && carries !== undefined) {
+          stages.push({ element, id });
+        }
+      }
+      const stageOf = (element: Element, id: number): StagePlace | null => {
+        let nearest: (typeof stages)[number] | null = null;
+        for (const stage of stages) {
+          if (stage.element === element) {
+            return { host: id, side: "under" };
+          }
+          if (
+            stage.element.contains(element) &&
+            (nearest === null || nearest.element.contains(stage.element))
+          ) {
+            nearest = stage;
+          }
+        }
+        return nearest === null ? null : { host: nearest.id, side: "over" };
+      };
       for (const [
         element,
-        { id, roles, settings, scope, holds, covers: isCover },
+        { id, roles, settings, scope, holds, covers: isCover, carries },
       ] of elements) {
         const tracker = uses.get(element)?.tracker;
         const box = tracker?.boxAt(scrollX, scrollY, readViewportBottom);
@@ -263,7 +297,9 @@ export function createEffectRegistry() {
         }
         if (isCover === true) {
           covers.push({ element, box });
-          continue;
+          if (roles === 0 && (carries === null || carries === undefined)) {
+            continue;
+          }
         }
         (box.fixed ? fixed : inDocument).push({
           ...box,
@@ -274,6 +310,8 @@ export function createEffectRegistry() {
           settings,
           scope,
           holds,
+          stage: stageOf(element, id),
+          carries: carries ?? null,
         });
       }
       return [...inDocument, ...fixed].filter((record) =>

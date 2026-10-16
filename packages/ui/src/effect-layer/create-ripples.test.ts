@@ -46,6 +46,8 @@ function record(
     grayscale: 0,
     scope: 0,
     holds: null,
+    stage: null,
+    carries: null,
     scopeIndex: 0,
     ...overrides,
   };
@@ -71,6 +73,8 @@ function scopesOf(elements: readonly EffectElementRecord[]): EffectScope[] {
       scroll: rangeOf(false),
       fixed: rangeOf(true),
       fixedBottom: { firstElement: elements.length, elementCount: 0 },
+      stageUnder: { firstElement: elements.length, elementCount: 0 },
+      stageOver: { firstElement: elements.length, elementCount: 0 },
     };
   });
 }

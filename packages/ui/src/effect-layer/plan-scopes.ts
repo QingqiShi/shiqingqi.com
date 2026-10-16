@@ -5,6 +5,7 @@ import type {
   EffectCanvas,
   EffectElementRecord,
   EffectScope,
+  EffectStage,
   ElementRange,
   MeasuredElement,
 } from "./types.ts";
@@ -27,17 +28,24 @@ export const CANVAS_ORDER: readonly EffectCanvas[] = [
   "scroll",
   "fixed",
   "fixedBottom",
+  "stageUnder",
+  "stageOver",
 ];
 
 /**
- * The `<canvas>` element a record draws on.
+ * The `<canvas>` element a record draws on. An element on an Effect stage
+ * draws on the stage's, fixed or not: the stage carries it.
  *
  * @internal
  */
 export function canvasOf({
   fixed,
   fixedToBottom,
-}: Pick<MeasuredElement, "fixed" | "fixedToBottom">): EffectCanvas {
+  stage,
+}: Pick<MeasuredElement, "fixed" | "fixedToBottom" | "stage">): EffectCanvas {
+  if (stage !== null) {
+    return stage.side === "under" ? "stageUnder" : "stageOver";
+  }
   if (!fixed) {
     return "scroll";
   }
@@ -80,6 +88,18 @@ export interface CanvasRange extends ElementRange {
 }
 
 /**
+ * One Effect stage of a frame: the index in `ScopePlan.elements` of the
+ * stage, what it carries, and the elements inside it, which draw over it.
+ *
+ * @internal
+ */
+export interface StagePlan {
+  readonly element: number;
+  readonly carries: EffectStage;
+  readonly over: ElementRange;
+}
+
+/**
  * The elements and scopes of one frame, and where each `<canvas>` element's
  * elements are.
  *
@@ -102,6 +122,8 @@ export interface ScopePlan {
    * bottom `<canvas>` element.
    */
   readonly fixedBottom: CanvasRange;
+  /** Each Effect stage with a box, in the order of `elements`. */
+  readonly stages: readonly StagePlan[];
   /** The page first, then the scope of each Effect container with a box. */
   readonly scopes: readonly EffectScope[];
 }
@@ -114,7 +136,10 @@ export interface ScopePlan {
  */
 export function peersOf(
   scopes: readonly EffectScope[],
-  record: Pick<EffectElementRecord, "scopeIndex" | "fixed" | "fixedToBottom">,
+  record: Pick<
+    EffectElementRecord,
+    "scopeIndex" | "fixed" | "fixedToBottom" | "stage"
+  >,
 ): ElementRange {
   return scopes[record.scopeIndex][canvasOf(record)];
 }
@@ -132,9 +157,11 @@ export function* indicesIn({ firstElement, elementCount }: ElementRange) {
 
 /**
  * Puts the measured elements in scopes, and orders them so that each scope
- * is one range on each `<canvas>` element. An element whose Effect container
- * has no box, because its ref is not attached yet or the container is not
- * measured, is left out until the container has one.
+ * is one range on each `<canvas>` element, and each Effect stage one range
+ * of the elements over it. An element whose Effect container has no box,
+ * because its ref is not attached yet or the container is not measured, is
+ * left out until the container has one, and so is an element on a stage
+ * that has no box.
  *
  * @internal
  */
@@ -168,28 +195,48 @@ export function planScopes(
     ...[...holders.keys()].filter((scope) => isPlaced(scope)),
   ];
   const indexOfScope = new Map(scopeIds.map((id, index) => [id, index]));
+  const stageIds = new Set(
+    records.flatMap((record) =>
+      record.stage?.side === "under" ? [record.id] : [],
+    ),
+  );
   const elements = records
     .flatMap((record): EffectElementRecord[] => {
       const scopeIndex = indexOfScope.get(record.scope);
-      return scopeIndex === undefined ? [] : [{ ...record, scopeIndex }];
+      const onStage = record.stage === null || stageIds.has(record.stage.host);
+      return scopeIndex === undefined || !onStage
+        ? []
+        : [{ ...record, scopeIndex }];
     })
     .sort(
       (first, second) =>
         CANVAS_ORDER.indexOf(canvasOf(first)) -
           CANVAS_ORDER.indexOf(canvasOf(second)) ||
-        first.scopeIndex - second.scopeIndex,
+        first.scopeIndex - second.scopeIndex ||
+        (first.stage?.host ?? 0) - (second.stage?.host ?? 0),
     );
 
   const indexOfId = new Map(
     elements.map((record, index) => [record.id, index]),
   );
-  const ranges = scopeIds.map(() => ({
-    scroll: { firstElement: 0, elementCount: 0 },
-    fixed: { firstElement: 0, elementCount: 0 },
-    fixedBottom: { firstElement: 0, elementCount: 0 },
-  }));
+  const emptyRange = () => ({ firstElement: 0, elementCount: 0 });
+  const emptyRanges = (): Record<
+    EffectCanvas,
+    { firstElement: number; elementCount: number }
+  > => ({
+    scroll: emptyRange(),
+    fixed: emptyRange(),
+    fixedBottom: emptyRange(),
+    stageUnder: emptyRange(),
+    stageOver: emptyRange(),
+  });
+  const ranges = scopeIds.map(emptyRanges);
   const counts = { scroll: 0, fixed: 0, fixedBottom: 0 };
   const hasRole = { scroll: false, fixed: false, fixedBottom: false };
+  const overRanges = new Map<
+    number,
+    { firstElement: number; elementCount: number }
+  >();
   for (const [index, record] of elements.entries()) {
     const canvas = canvasOf(record);
     const range = ranges[record.scopeIndex][canvas];
@@ -197,6 +244,18 @@ export function planScopes(
       range.firstElement = index;
     }
     range.elementCount += 1;
+    if (canvas === "stageOver" && record.stage !== null) {
+      const over = overRanges.get(record.stage.host) ?? {
+        firstElement: index,
+        elementCount: 0,
+      };
+      over.elementCount += 1;
+      overRanges.set(record.stage.host, over);
+      continue;
+    }
+    if (canvas === "stageUnder" || canvas === "stageOver") {
+      continue;
+    }
     counts[canvas] += 1;
     if (record.roles !== 0) {
       hasRole[canvas] = true;
@@ -206,6 +265,20 @@ export function planScopes(
       }
     }
   }
+  const stages = elements.flatMap((record, index): StagePlan[] =>
+    record.stage?.side === "under" && record.carries !== null
+      ? [
+          {
+            element: index,
+            carries: record.carries,
+            over: overRanges.get(record.id) ?? {
+              firstElement: 0,
+              elementCount: 0,
+            },
+          },
+        ]
+      : [],
+  );
 
   const backdrops: EffectColor[] = [pageBackdrop];
   function backdropOf(scopeIndex: number): EffectColor {
@@ -245,6 +318,7 @@ export function planScopes(
       elementCount: counts.fixedBottom,
       hasRole: hasRole.fixedBottom,
     },
+    stages,
     scopes: scopeIds.map((id, index) => {
       const backdrop = backdropOf(index);
       return {

@@ -48,6 +48,13 @@ function card() {
   return screen.getByRole("dialog");
 }
 
+/** The box around the card that the controller moves. */
+function mover() {
+  const element = card().parentElement;
+  if (!element) throw new Error("The card has no mover");
+  return element;
+}
+
 function drag(
   target: HTMLElement,
   moves: readonly number[],
@@ -214,7 +221,7 @@ describe("Sheet", () => {
     render(<SheetHarness isOpen onClose={vi.fn()} />);
 
     expect(part("dim").parentElement).toBe(document.body);
-    expect(card().parentElement?.parentElement).toBe(document.body);
+    expect(mover().parentElement?.parentElement).toBe(document.body);
   });
 
   it("renders nothing while closed", () => {
@@ -244,7 +251,7 @@ describe("Sheet", () => {
 
   describe("motion", () => {
     function cardMotion(started: ReturnType<typeof recordAnimations>) {
-      return started.filter(({ element }) => element === card());
+      return started.filter(({ element }) => element === mover());
     }
 
     it("slides the card up from below the bottom of the screen, and fades the dim in", () => {
@@ -309,7 +316,7 @@ describe("Sheet", () => {
       fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
       fireEvent.pointerMove(card(), { ...pointer, clientY: 30 });
 
-      expect(card().style.transform).toBe("translateY(30px)");
+      expect(mover().style.transform).toBe("translateY(30px)");
     });
 
     it("keeps the card opaque under the finger past the bottom of the screen, and fades the dim with the distance", () => {
@@ -318,13 +325,13 @@ describe("Sheet", () => {
 
       fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
       fireEvent.pointerMove(card(), { ...pointer, clientY: 222 });
-      expect(card().style.opacity).toBe("");
+      expect(mover().style.opacity).toBe("");
       expect(part("dim").style.opacity).toBe("0.5");
 
       fireEvent.pointerMove(card(), { ...pointer, clientY: 600 });
-      expect(card().style.transform).toBe("translateY(600px)");
-      expect(card().style.opacity).toBe("");
-      expect(card().style.getPropertyValue("mask-image")).toBe("");
+      expect(mover().style.transform).toBe("translateY(600px)");
+      expect(mover().style.opacity).toBe("");
+      expect(mover().style.getPropertyValue("mask-image")).toBe("");
       expect(part("dim").style.opacity).toBe("0");
     });
 
@@ -346,7 +353,7 @@ describe("Sheet", () => {
       drag(part("grabber"), [10, 20, 30]);
 
       expect(onClose).not.toHaveBeenCalled();
-      expect(card().style.transform).toBe("");
+      expect(mover().style.transform).toBe("");
     });
 
     it("resists a drag up", () => {
@@ -355,7 +362,7 @@ describe("Sheet", () => {
       fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 300 });
       fireEvent.pointerMove(card(), { ...pointer, clientY: 0 });
 
-      const moved = Number(/-?[\d.]+/.exec(card().style.transform)?.[0]);
+      const moved = Number(/-?[\d.]+/.exec(mover().style.transform)?.[0]);
       expect(moved).toBeLessThan(0);
       expect(moved).toBeGreaterThan(-100);
     });
@@ -378,7 +385,7 @@ describe("Sheet", () => {
       drag(screen.getByRole("button", { name: "Play" }), [40, 120, 200]);
 
       expect(onClose).not.toHaveBeenCalled();
-      expect(card().style.transform).toBe("");
+      expect(mover().style.transform).toBe("");
     });
 
     it("leaves a pull to the scroll while the content is scrolled down", () => {

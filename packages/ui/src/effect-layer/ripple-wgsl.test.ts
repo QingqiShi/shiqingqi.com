@@ -23,6 +23,8 @@ function record(fill: EffectElementRecord["fill"]): EffectElementRecord {
     grayscale: 0,
     scope: 0,
     holds: null,
+    stage: null,
+    carries: null,
     scopeIndex: 0,
   };
 }
@@ -59,6 +61,8 @@ describe("packRippleInstances", () => {
             scroll: { firstElement: 0, elementCount: 2 },
             fixed: { firstElement: 2, elementCount: 0 },
             fixedBottom: { firstElement: 2, elementCount: 0 },
+            stageUnder: { firstElement: 0, elementCount: 0 },
+            stageOver: { firstElement: 0, elementCount: 0 },
           },
         ],
       },

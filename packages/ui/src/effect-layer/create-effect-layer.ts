@@ -39,6 +39,8 @@ import type {
   EffectRenderer,
   EffectSetup,
   EffectTarget,
+  ElementRange,
+  StageFrame,
 } from "./types.ts";
 
 const MAX_PIXEL_RATIO = 2;
@@ -62,11 +64,25 @@ interface ScrollCanvas extends ConfiguredCanvas {
   bandIndex: number | null;
 }
 
+interface StageCanvas extends ConfiguredCanvas {
+  /** The CSS size it was last given. */
+  cssWidth: number;
+  cssHeight: number;
+  /** A frame of this run listed it, so its stage is still there. */
+  seen: boolean;
+}
+
 interface Pass {
   readonly configured: ConfiguredCanvas;
   readonly target: EffectTarget;
   readonly scissor: ScissorRect;
   readonly drawnPageRange: readonly [number, number];
+}
+
+/** The passes of one frame, and the Effect stages they draw on. */
+interface PassPlan {
+  readonly passes: Pass[];
+  readonly stages: StageFrame[];
 }
 
 /**
@@ -163,6 +179,8 @@ export function createEffectLayer(
   let scroll: ScrollCanvas[] = [];
   let fixed: ConfiguredCanvas | null = null;
   let fixedBottom: ConfiguredCanvas | null = null;
+  /** The `<canvas>` elements of the Effect stages, configured as they come. */
+  const stageCanvases = new Map<HTMLCanvasElement, StageCanvas>();
 
   const pageUniform = device.createBuffer({
     size: PAGE_UNIFORM_BYTES,
@@ -396,6 +414,54 @@ export function createEffectLayer(
     }
   }
 
+  /**
+   * The configured `<canvas>` element of an Effect stage, at this CSS size.
+   * A stage's `<canvas>` element is configured the first time a frame lists
+   * it, and released once no frame lists it.
+   */
+  function stageCanvas(
+    canvas: HTMLCanvasElement,
+    cssWidth: number,
+    cssHeight: number,
+  ): StageCanvas | null {
+    let configured = stageCanvases.get(canvas);
+    if (configured === undefined) {
+      const fresh = configure(canvas);
+      if (fresh === null) {
+        return null;
+      }
+      configured = { ...fresh, cssWidth: 0, cssHeight: 0, seen: false };
+      stageCanvases.set(canvas, configured);
+    }
+    configured.seen = true;
+    if (
+      configured.cssWidth !== cssWidth ||
+      configured.cssHeight !== cssHeight
+    ) {
+      configured.cssWidth = cssWidth;
+      configured.cssHeight = cssHeight;
+      sizeCanvas(canvas, cssWidth, cssHeight);
+    }
+    return configured;
+  }
+
+  /**
+   * Releases each stage `<canvas>` element that this frame did not list,
+   * and empties it, so that it shows nothing of its last frame.
+   */
+  function releaseUnseenStageCanvases() {
+    for (const [canvas, configured] of stageCanvases) {
+      if (configured.seen) {
+        configured.seen = false;
+      } else {
+        release(configured);
+        stageCanvases.delete(canvas);
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+    }
+  }
+
   function sizeCanvas(
     canvas: HTMLCanvasElement,
     cssWidth: number,
@@ -443,7 +509,7 @@ export function createEffectLayer(
     scrollY: number,
     viewportBottom: number,
     plan: ScopePlan,
-  ): Pass[] {
+  ): PassPlan {
     const { viewport, bandHeight } = bandGeometry(viewportHeight);
     const passes: Pass[] = [];
     if (scroll.length === 2) {
@@ -473,6 +539,7 @@ export function createEffectLayer(
           target: {
             canvas: "scroll",
             band,
+            stage: -1,
             x: pageLeft,
             y,
             width: documentWidth,
@@ -502,6 +569,7 @@ export function createEffectLayer(
         target: {
           canvas,
           band: null,
+          stage: -1,
           x: scrollX,
           y,
           width: documentWidth,
@@ -525,7 +593,68 @@ export function createEffectLayer(
         ),
       );
     }
-    return passes;
+    function stagePass(
+      configured: StageCanvas,
+      canvas: EffectCanvas,
+      stage: number,
+      x: number,
+      y: number,
+      range: ElementRange,
+    ): Pass {
+      return {
+        configured,
+        scissor: {
+          x: 0,
+          y: 0,
+          width: configured.canvas.width,
+          height: configured.canvas.height,
+        },
+        drawnPageRange: [y, y + configured.cssHeight],
+        target: {
+          canvas,
+          band: null,
+          stage,
+          x,
+          y,
+          width: configured.cssWidth,
+          height: configured.cssHeight,
+          firstElement: range.firstElement,
+          elementCount: range.elementCount,
+          bindGroup: configured.bindGroup,
+        },
+      };
+    }
+    const stages: StageFrame[] = [];
+    for (const { element, carries, over } of plan.stages) {
+      const box = plan.elements[element];
+      // The stage's `<canvas>` elements ride inside it, so a transform on
+      // it scales them with it: they take the layout size, not the
+      // measured one.
+      const { width, height } =
+        box.element instanceof HTMLElement
+          ? { width: box.element.offsetWidth, height: box.element.offsetHeight }
+          : box;
+      stages.push({ element, width, height });
+      const { under: underCanvas, over: overCanvas } = carries.canvases();
+      const { rise, depth, spill } = carries.band;
+      const under =
+        underCanvas &&
+        stageCanvas(underCanvas, width + 2 * spill, rise + depth);
+      if (under !== null) {
+        passes.push(
+          stagePass(under, "stageUnder", element, box.x - spill, box.y - rise, {
+            firstElement: element,
+            elementCount: 1,
+          }),
+        );
+      }
+      const above = overCanvas && stageCanvas(overCanvas, width, height);
+      if (above !== null) {
+        passes.push(stagePass(above, "stageOver", element, box.x, box.y, over));
+      }
+    }
+    releaseUnseenStageCanvases();
+    return { passes, stages };
   }
 
   function encodePass(
@@ -598,7 +727,12 @@ export function createEffectLayer(
       return;
     }
 
-    const passes = planPasses(scrollX, scrollY, viewportBottom ?? 0, plan);
+    const { passes, stages } = planPasses(
+      scrollX,
+      scrollY,
+      viewportBottom ?? 0,
+      plan,
+    );
     const viewport = bandGeometry(viewportHeight).viewport;
     const frame: EffectFrame = {
       time: (now - startTime) / 1000,
@@ -613,6 +747,7 @@ export function createEffectLayer(
       documentHeight,
       elements: records,
       scopes: plan.scopes,
+      stages,
       pointer: pointer.read(scrollX, scrollY, now),
       pageBindGroup,
       targets: passes.map(({ target }) => target),
@@ -671,6 +806,10 @@ export function createEffectLayer(
         release(plane);
       }
     }
+    for (const configured of stageCanvases.values()) {
+      release(configured);
+    }
+    stageCanvases.clear();
     scroll = [];
     fixed = null;
     fixedBottom = null;

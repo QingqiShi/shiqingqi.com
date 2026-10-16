@@ -31,6 +31,8 @@ function record(
     grayscale: 0,
     scope: PAGE_SCOPE,
     holds: null,
+    stage: null,
+    carries: null,
     scopeIndex: PAGE_SCOPE,
     ...overrides,
   };
@@ -51,7 +53,13 @@ describe("lensesOfScope", () => {
     ];
     const lenses = lensesOfScope(
       elements,
-      { scroll: range(0, 2), fixed: range(3, 1), fixedBottom: range(4, 0) },
+      {
+        scroll: range(0, 2),
+        fixed: range(3, 1),
+        fixedBottom: range(4, 0),
+        stageUnder: range(4, 0),
+        stageOver: range(4, 0),
+      },
       VIEWPORT,
     );
     expect(lenses.map(({ element }) => element).toSorted()).toEqual([0, 3]);
@@ -68,6 +76,8 @@ describe("lensesOfScope", () => {
           scroll: range(0, 12),
           fixed: range(12, 0),
           fixedBottom: range(12, 0),
+          stageUnder: range(12, 0),
+          stageOver: range(12, 0),
         },
         VIEWPORT,
       ),

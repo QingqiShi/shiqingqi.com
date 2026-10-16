@@ -1,4 +1,8 @@
 import { breakpoints } from "../breakpoints.stylex.ts";
+import type {
+  SheetPhase,
+  SheetPose,
+} from "../effect-layer/publish-sheet-pose.ts";
 import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
 import {
@@ -60,8 +64,15 @@ interface Drag {
 }
 
 interface SheetControllerOptions {
-  /** The card: the sheet's surface, which moves. */
+  /** The card: the sheet's surface, which takes the pointer. */
   readonly card: HTMLElement;
+  /**
+   * The box that moves and fades: the card itself, or a box around it that
+   * holds it and whatever rides with it.
+   */
+  readonly mover?: HTMLElement;
+  /** Told where the card is each time the controller places it or changes phase. */
+  readonly onPose?: (pose: SheetPose) => void;
   /** The box the content scrolls in. */
   readonly scroller: () => HTMLElement | null;
   /** The grabber, which starts a drag for any pointer. */
@@ -153,7 +164,8 @@ function motionNow(): Motion {
  */
 export function createSheetController(options: SheetControllerOptions) {
   const { card } = options;
-  const canAnimate = typeof card.animate === "function";
+  const mover = options.mover ?? card;
+  const canAnimate = typeof mover.animate === "function";
   const spring: Timing = { duration: ENTER_MS, easing: springEasing() };
   const fadeTiming: Timing = { duration: FADE_MS, easing: easing.easeOut };
   const riseExit: Timing = { duration: RISE_EXIT_MS, easing: easing.easeOut };
@@ -165,8 +177,7 @@ export function createSheetController(options: SheetControllerOptions) {
     duration: REDUCED_SETTLE_MS,
     easing: easing.easeOut,
   };
-  let phase: "hidden" | "entering" | "shown" | "dragging" | "exiting" =
-    "hidden";
+  let phase: SheetPhase = "hidden";
   let motion: Motion = "slide";
   let pose: Pose = REST;
   // How far down, in px, the card goes before it is fully below the screen.
@@ -208,19 +219,29 @@ export function createSheetController(options: SheetControllerOptions) {
     }
   }
 
+  function publish() {
+    options.onPose?.({ phase, y: pose.y });
+  }
+
+  function enter(next: SheetPhase) {
+    phase = next;
+    publish();
+  }
+
   function place(next: Pose) {
     pose = next;
     const transform = transformOf(next);
-    card.style.transform = transform === "none" ? "" : transform;
-    card.style.opacity = next.fade >= 1 ? "" : String(next.fade);
+    mover.style.transform = transform === "none" ? "" : transform;
+    mover.style.opacity = next.fade >= 1 ? "" : String(next.fade);
     const dim = options.dim();
     if (dim) dim.style.opacity = String(dimOpacity(next));
+    publish();
   }
 
   /** Stops the motion where it is now, and keeps the card there. */
   function stop() {
     if (animations.length === 0) return;
-    const style = getComputedStyle(card);
+    const style = getComputedStyle(mover);
     const matrix =
       style.transform === "" || style.transform === "none"
         ? null
@@ -251,7 +272,7 @@ export function createSheetController(options: SheetControllerOptions) {
     const started: { animation: Animation; duration: number }[] = [];
     if (transformOf(from) !== transformOf(to)) {
       started.push({
-        animation: card.animate(
+        animation: mover.animate(
           [{ transform: transformOf(from) }, { transform: transformOf(to) }],
           { duration: move.duration, easing: move.easing, fill: "forwards" },
         ),
@@ -260,7 +281,7 @@ export function createSheetController(options: SheetControllerOptions) {
     }
     if (from.fade !== to.fade) {
       started.push({
-        animation: card.animate(
+        animation: mover.animate(
           [{ opacity: from.fade }, { opacity: to.fade }],
           fadeOptions,
         ),
@@ -297,7 +318,7 @@ export function createSheetController(options: SheetControllerOptions) {
   }
 
   function markShown() {
-    phase = "shown";
+    enter("shown");
   }
 
   /** Brings the card in, from away or from where it is. */
@@ -305,7 +326,7 @@ export function createSheetController(options: SheetControllerOptions) {
     if (phase !== "hidden" && phase !== "exiting") return;
     stop();
     const isFresh = phase === "hidden";
-    phase = "entering";
+    enter("entering");
     motion = motionNow();
     const dim = options.dim();
     if (dim) {
@@ -327,7 +348,7 @@ export function createSheetController(options: SheetControllerOptions) {
     if (phase === "hidden" || phase === "exiting") return;
     stop();
     drag = null;
-    phase = "exiting";
+    enter("exiting");
     motion = motionNow();
     const dim = options.dim();
     if (dim) dim.style.pointerEvents = "none";
@@ -336,13 +357,13 @@ export function createSheetController(options: SheetControllerOptions) {
       motion
     ];
     moveTo(awayFrom(pose), timing, timing, () => {
-      phase = "hidden";
+      enter("hidden");
       options.onExited();
     });
   }
 
   function settle() {
-    phase = "entering";
+    enter("entering");
     const timing = prefersReducedMotion() ? reducedSettle : spring;
     moveTo(REST, timing, timing, markShown);
   }
@@ -377,7 +398,7 @@ export function createSheetController(options: SheetControllerOptions) {
     drag.base = pose.y;
     drag.startY = event.clientY;
     measureReach();
-    phase = "dragging";
+    enter("dragging");
     try {
       card.setPointerCapture(event.pointerId);
     } catch {

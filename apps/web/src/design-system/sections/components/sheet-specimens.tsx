@@ -29,6 +29,7 @@ export function ShortSheetDemo() {
         onClose={close}
         closeLabel={t({ en: "Close", zh: "关闭" })}
         title={t({ en: "Archive this list?", zh: "归档这个清单？" })}
+        edge="liquid"
       >
         <div css={stack.item}>
           <Text tone="muted">
@@ -71,6 +72,7 @@ export function TallSheetDemo() {
         }}
         closeLabel={t({ en: "Close", zh: "关闭" })}
         title={t({ en: "Release notes", zh: "更新说明" })}
+        edge="liquid"
       >
         <div css={stack.item}>
           {Array.from({ length: PARAGRAPH_COUNT }, (_, index) => (
