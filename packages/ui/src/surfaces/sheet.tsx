@@ -3,6 +3,7 @@
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import {
+  useEffect,
   useId,
   useLayoutEffect,
   useRef,
@@ -14,24 +15,21 @@ import { RemoveScroll } from "react-remove-scroll";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { Heading } from "../content/heading.tsx";
-import { handBack } from "../effect-layer/hand-back.stylex.ts";
 import { publishSheetPose } from "../effect-layer/publish-sheet-pose.ts";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useEffectStage } from "../effect-layer/use-effect-stage.ts";
-import { useSheetDrops } from "../effect-layer/use-sheet-drops.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { useVisibleArea } from "../hooks/use-visible-area.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { easing } from "../primitives/motion.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
+import { createInkDim } from "./create-ink-dim.ts";
 import {
   createSheetController,
   type SheetController,
 } from "./create-sheet-controller.ts";
 import { Portal } from "./portal.tsx";
-import { sheetLiquidMarker, sheetLiquidReach } from "./sheet-liquid.stylex.ts";
 
 interface SheetBaseProps {
   /**
@@ -80,19 +78,16 @@ interface SheetBaseProps {
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * Forms the card out of liquid as it comes in, and breaks it into liquid
-   * as it goes. Below `md`, drops of the card's colour rise from below the
-   * screen and merge into the card; from `md` up they condense in place.
-   * The card is wet for a moment and sets from its centre out while its
-   * content fades in. On close, the card breaks into drops that fall off
-   * the screen from where it is. A drag moves the card as it always does.
-   * Without WebGPU, with effects off, under forced colours or reduced
-   * motion, the sheet moves as it does without this prop.
+   * How the dim over the page comes and goes. `plain` fades it. `ink`
+   * lets it spread out of the card's edge like ink in water as the card
+   * comes in, until it is the plain dim, and breaks it up and swirls it
+   * away as the card goes. Without WebGPU, with effects off, under forced
+   * colours or reduced motion, `ink` is `plain`.
    *
-   * @default false
-   * @zh 打开时由液体凝成卡片，关闭时卡片碎成液滴。在 `md` 以下，与卡片同色的水滴从屏幕下方升起并汇聚成卡片；在 `md` 及以上，水滴在原处凝结。卡片先湿润片刻，再从中心向外凝固，同时内容淡入。关闭时，卡片从当前位置碎成水滴落出屏幕。拖动时卡片照常移动。没有 WebGPU、效果关闭、强制颜色或减少动态时，面板与不设此项时一样。
+   * @default "plain"
+   * @zh 暗化层的出现与消失方式。`plain` 为淡入淡出。`ink` 让暗化层在卡片进入时像墨水入水一样从卡片边缘扩散开，直到成为普通暗化层；卡片离开时墨水散开并旋转消失。没有 WebGPU、效果关闭、强制颜色或减少动态时，`ink` 等同于 `plain`。
    */
-  liquid?: boolean;
+  dim?: "plain" | "ink";
 }
 
 /**
@@ -151,7 +146,7 @@ export function Sheet({
   closeLabel,
   closeIcon,
   initialFocusRef,
-  liquid = false,
+  dim = "plain",
   title,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -173,24 +168,28 @@ export function Sheet({
   const onCloseRef = useRef(onClose);
   const coverRef = useEffectCover();
   const { ref: stageRef, overRef } = useEffectStage(true, STAGE_REACH);
-  const { ref: dropsRef, warmRef, canDraw } = useSheetDrops(liquid);
-  const liquidRef = useRef(liquid);
-  const canDrawRef = useRef(canDraw);
+  const [{ ink, attachInk }] = useState(() => {
+    const created = createInkDim();
+    return { ink: created, attachInk: created.attach };
+  });
+  const dimModeRef = useRef(dim);
   const visibleAreaRef = useVisibleArea();
   const moverRefs = mergeRefs(moverRef, coverRef, stageRef);
-  const cardRefs = mergeRefs(cardRef, dropsRef);
 
   useLayoutEffect(() => {
     isOpenRef.current = isOpen;
     onCloseRef.current = onClose;
-    liquidRef.current = liquid;
-    canDrawRef.current = canDraw;
+    dimModeRef.current = dim;
   });
 
   const requestClose = () => {
     controllerRef.current?.hide();
     onCloseRef.current();
   };
+
+  useEffect(() => {
+    if (dim === "ink") ink.warm();
+  }, [dim, ink]);
 
   useDialogFocus({
     isOpen: isOpen && isHydrated,
@@ -209,7 +208,7 @@ export function Sheet({
       onPose: (pose) => {
         publishSheetPose(card, pose);
       },
-      liquid: () => liquidRef.current && canDrawRef.current(),
+      ink: () => (dimModeRef.current === "ink" ? ink : null),
       scroller: () => scrollerRef.current,
       grabber: () => grabberRef.current,
       closeCorner: () => closeCornerRef.current,
@@ -230,7 +229,7 @@ export function Sheet({
       controller.destroy();
       controllerRef.current = null;
     };
-  }, [isMounted, isHydrated]);
+  }, [isMounted, isHydrated, ink]);
 
   useLayoutEffect(() => {
     if (isOpen) {
@@ -240,16 +239,13 @@ export function Sheet({
     }
   }, [isOpen, isMounted, isHydrated]);
 
-  const warm = liquid ? <span ref={warmRef} hidden /> : null;
-
-  if (!isMounted) return warm;
+  if (!isMounted) return null;
 
   // Safari on iOS paints no fixed box below the top of its bottom toolbar,
   // so the dim and the card are in the document. Then nothing of the sheet
   // is in the boxes that Safari samples for the colour of its chrome.
   return (
     <>
-      {warm}
       <Portal target={undefined}>
         <div
           ref={dimRef}
@@ -258,16 +254,25 @@ export function Sheet({
           aria-hidden="true"
         />
         <div ref={visibleAreaRef} css={styles.anchor}>
+          {dim === "ink" ? (
+            <canvas
+              ref={attachInk}
+              css={styles.inkCanvas}
+              aria-hidden="true"
+              width={0}
+              height={0}
+            />
+          ) : null}
           {/* The mover is what the controller moves and fades. It is an
             Effect stage: it carries the effect layer's canvas over the
             card, so effects move with the card on the compositor and never
             lag it. */}
-          <div ref={moverRefs} css={[styles.mover, sheetLiquidMarker]}>
+          <div ref={moverRefs} css={styles.mover}>
             {/* forwardProps makes RemoveScroll clone its child and inject its
               own ref, which would clobber a ref placed directly on the card.
               Passing the ref through RemoveScroll keeps `cardRef` working for
               focus and the Tab trap. */}
-            <RemoveScroll ref={cardRefs} allowPinchZoom forwardProps>
+            <RemoveScroll ref={cardRef} allowPinchZoom forwardProps>
               <div
                 css={[corner.radius_4, styles.card]}
                 role="dialog"
@@ -275,20 +280,13 @@ export function Sheet({
                 aria-label={ariaLabel}
                 aria-labelledby={hasTitle ? titleId : ariaLabelledBy}
               >
-                <div
-                  ref={grabberRef}
-                  css={[styles.grabber, styles.liquidContent]}
-                  aria-hidden="true"
-                >
+                <div ref={grabberRef} css={styles.grabber} aria-hidden="true">
                   <span css={[corner.radius_round, styles.grabberBar]} />
                 </div>
                 {/* `Button` sets its own `position: relative` for its busy
                   spinner, which a caller's `position: absolute` can't
                   reliably outrank. Pin the corner from this wrapper instead. */}
-                <div
-                  ref={closeCornerRef}
-                  css={[styles.closeCorner, styles.liquidContent]}
-                >
+                <div ref={closeCornerRef} css={styles.closeCorner}>
                   <Button
                     look="ghost"
                     icon={closeIcon ?? <XIcon weight="bold" />}
@@ -298,11 +296,7 @@ export function Sheet({
                 </div>
                 <div
                   ref={scrollerRef}
-                  css={[
-                    styles.scroller,
-                    hasTitle && styles.scrollerTitled,
-                    styles.liquidContent,
-                  ]}
+                  css={[styles.scroller, hasTitle && styles.scrollerTitled]}
                 >
                   {hasTitle ? (
                     <Heading
@@ -342,13 +336,12 @@ const CLOSE_INSET = space._2;
 const CONTENT_INSET = space._3;
 // The close button is an md Button, so it is as tall as the md step.
 const CLOSE_SIZE = controlSize._9;
-const STAGE_REACH = {
-  rise: Number.parseFloat(sheetLiquidReach.rise),
-  spill: Number.parseFloat(sheetLiquidReach.spill),
-  fall: Number.parseFloat(sheetLiquidReach.fall),
-};
-/** The liquid drops set this attribute on the mover while they draw the card. */
-const DRAWN_AS_LIQUID = ":is([data-liquid-hidden])";
+const STAGE_REACH = { rise: 16, spill: 8, fall: 200 };
+const STAGE_RISE = "16px";
+const STAGE_SPILL = "8px";
+// The ink reaches this far below the visible area, under the toolbar
+// that Safari on iOS lays over the page.
+const INK_FALL = "120px";
 
 const styles = stylex.create({
   // A 0 x 0 box in the document. Below `md` it is at the bottom of the
@@ -411,18 +404,27 @@ const styles = stylex.create({
     overflow: "hidden",
     backgroundColor: color.bgSurface,
     pointerEvents: "auto",
-    // Clipped, not faded, so that the effect layer still measures the card.
-    clipPath: {
-      default: null,
-      [stylex.when.ancestor(DRAWN_AS_LIQUID, sheetLiquidMarker)]: "inset(50%)",
+  },
+  // Over the visible area, under the card and over the dim.
+  inkCanvas: {
+    position: "absolute",
+    top: {
+      default: `calc(-1 * ${VISIBLE_HEIGHT})`,
+      [breakpoints.md]: `calc(-0.5 * ${VISIBLE_HEIGHT})`,
     },
+    left: { default: 0, [breakpoints.md]: "-50vw" },
+    display: "block",
+    inlineSize: "100vw",
+    blockSize: `calc(${VISIBLE_HEIGHT} + ${INK_FALL})`,
+    visibility: "hidden",
+    pointerEvents: "none",
   },
   // The effect layer sizes the canvas to the mover and its reach above.
   // Physical offsets, since the layer places it in page coordinates.
   overCanvas: {
     position: "absolute",
-    top: `calc(-1 * ${sheetLiquidReach.rise})`,
-    left: `calc(-1 * ${sheetLiquidReach.spill})`,
+    top: `calc(-1 * ${STAGE_RISE})`,
+    left: `calc(-1 * ${STAGE_SPILL})`,
     display: "block",
     pointerEvents: "none",
   },
@@ -447,18 +449,6 @@ const styles = stylex.create({
     inlineSize: space._7,
     blockSize: space._0,
     backgroundColor: color.bgNeutral,
-  },
-  // The content hides at once while the liquid drops draw the card, and
-  // fades in as they hand the card back.
-  liquidContent: {
-    opacity: {
-      default: 1,
-      [stylex.when.ancestor(DRAWN_AS_LIQUID, sheetLiquidMarker)]: 0,
-    },
-    transition: {
-      default: `opacity ${handBack.duration} ${easing.linear}`,
-      [stylex.when.ancestor(DRAWN_AS_LIQUID, sheetLiquidMarker)]: "none",
-    },
   },
   scroller: {
     flexGrow: 0,

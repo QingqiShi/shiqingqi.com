@@ -215,7 +215,7 @@ function KeyboardReadout({ metrics }: { metrics: Metrics | null }) {
  */
 export function SheetLab() {
   const [open, setOpen] = useState<"form" | "tall" | null>(null);
-  const [liquid, setLiquid] = useState<"off" | "on">("on");
+  const [dim, setDim] = useState<"plain" | "ink">("ink");
   const [kind, setKind] = useState("note");
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const probeRef = useRef<HTMLDivElement>(null);
@@ -282,20 +282,20 @@ export function SheetLab() {
       zh: "打开长内容面板，在内容上上下滑动：内容滚动。滚到顶部后，再向下滑会拖动面板。在标题行上向下滑，无论内容滚到哪里都会拖动面板。在表单面板中打开键盘后再试一次。",
     }),
     t({
-      en: "With Liquid on, open a sheet: drops of the card's colour rise from below the screen, sway, merge into the card, stay wet for a moment and set from the centre out while the content fades in. Close it with the close button, Escape or a flick: the card goes wet and breaks into drops that fall off the screen. A drag moves the card as before. Turn Liquid off and compare.",
-      zh: "打开“液态”后打开面板：与卡片同色的水滴从屏幕下方升起、轻轻摆动、汇聚成卡片，湿润片刻后从中心向外凝固，同时内容淡入。用关闭按钮、Escape 或快速一甩关闭：卡片变湿并碎成水滴落出屏幕。拖动时卡片照常移动。关闭“液态”做对比。",
+      en: "With the ink dim, open a sheet: as the card rises, the dim spreads out of its edge like ink in water, billows and curls, and settles into the plain dim. Close it with the close button, Escape or a flick: the dim breaks up and swirls away. Switch to the plain dim and compare.",
+      zh: "选择墨水暗化层后打开面板：卡片升起时，暗化层像墨水入水一样从卡片边缘扩散、翻卷，最后变成普通暗化层。用关闭按钮、Escape 或快速一甩关闭：暗化层散开并旋转消失。切换到普通暗化层做对比。",
     }),
   ];
 
-  const liquidControl = (
+  const dimControl = (
     <SegmentedControl
-      aria-label={t({ en: "Liquid", zh: "液态" })}
-      value={liquid}
+      aria-label={t({ en: "Dim", zh: "暗化层" })}
+      value={dim}
       options={[
-        { value: "off", label: t({ en: "Off", zh: "关" }) },
-        { value: "on", label: t({ en: "On", zh: "开" }) },
+        { value: "plain", label: t({ en: "Plain", zh: "普通" }) },
+        { value: "ink", label: t({ en: "Ink", zh: "墨水" }) },
       ]}
-      onChange={setLiquid}
+      onChange={setDim}
     />
   );
 
@@ -339,7 +339,7 @@ export function SheetLab() {
       </div>
 
       <Readout metrics={metrics} />
-      {liquidControl}
+      {dimControl}
       {triggers}
       <div css={stack.item}>
         {Array.from({ length: PAGE_PARAGRAPHS }, (_, index) => (
@@ -353,7 +353,7 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "Add a note", zh: "添加备注" })}
-        liquid={liquid === "on"}
+        dim={dim}
       >
         <form
           css={stack.item}
@@ -393,7 +393,7 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "A long read", zh: "长篇内容" })}
-        liquid={liquid === "on"}
+        dim={dim}
       >
         <div css={stack.item}>
           <Readout metrics={metrics} />
