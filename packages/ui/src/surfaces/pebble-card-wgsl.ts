@@ -6,8 +6,10 @@
  * light ceiling and a dark floor, by Schlick's Fresnel, less what the flat
  * face would reflect, so that the flat face stays the plain card. A thin
  * strip light behind the viewer gives one crisp line where the curve is
- * steepest, on the top left part of the edge only. It draws a veil, white
- * or black, that turns the card's colour under it into the lit glass.
+ * steepest, on the top left part of the edge only. A light card cannot
+ * show a lighter rim, so its curve shades to a soft grey where it turns
+ * away from a light near the viewer. It draws a veil, white or black, that
+ * turns the card's colour under it into the lit glass.
  *
  * @internal
  */
@@ -27,8 +29,11 @@ const MAX_SLOPE = 1.36;
 // Dense glass, about n = 1.65.
 const F0 = 0.06;
 const GAMMA = 2.2;
-// How deep the shade inside the line is on a light card.
-const SHADE = 5.0;
+// How dark the curve of a light card gets where it turns away.
+const ROLL = 0.3;
+// The light that shades a light card: a little up and left of the viewer,
+// in CSS space.
+const LIGHT = vec3f(-0.21, -0.1, 0.97);
 
 @vertex
 fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
@@ -111,14 +116,19 @@ fn shine(p: vec2f, card: vec3f) -> vec3f {
   let f = fresnel(dot(n, v));
   let f0 = fresnel(dot(az, v));
   let brightness = u.look.z;
-  let reflected = f * (room(e) * brightness - card) - f0 * (room(e0) * brightness - card);
-  // A ring of shade or of light along the whole outline reads as a border
-  // at real size. So the curve lights the card only, and mostly where the
-  // light falls. A white card cannot show a lighter line, so there the
-  // curve inside the line shades a little.
   let a = lit(p);
-  let shade = a * smoothstep(0.2, 0.55, s) * SHADE * (f - f0) * card;
-  return u.look.x * (max(reflected, vec3f(0.0)) * mix(0.08, 1.0, a) - shade) + vec3f(u.look.y * brightness * f * strip(e) * a);
+  let line = vec3f(u.look.y * brightness * f * strip(e) * a);
+  if (dot(card, vec3f(0.2126, 0.7152, 0.0722)) > 0.5) {
+    // A white card cannot show a lighter rim. Like a white glass front, it
+    // shows its curve as a soft grey roll-off, less towards the light.
+    let face = max(dot(az, LIGHT), 1e-3);
+    let turn = saturate(1.0 - max(dot(n, LIGHT), 0.0) / face);
+    return line - u.look.x * ROLL * pow(turn, 0.75) * card;
+  }
+  let reflected = f * (room(e) * brightness - card) - f0 * (room(e0) * brightness - card);
+  // A ring of light along the whole outline reads as a border at real
+  // size. So the curve lights the card mostly where the light falls.
+  return u.look.x * max(reflected, vec3f(0.0)) * mix(0.08, 1.0, a) + line;
 }
 
 // The part of the edge that the light falls on: the top left corner, from
