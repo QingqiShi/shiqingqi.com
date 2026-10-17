@@ -216,11 +216,12 @@ function KeyboardReadout({ metrics }: { metrics: Metrics | null }) {
  */
 export function SheetLab() {
   const [open, setOpen] = useState<"form" | "tall" | null>(null);
-  const [motion, setMotion] = useState<"plain" | "thick">("thick");
-  const [tilt, setTilt] = useState(10);
-  const [thickness, setThickness] = useState(9);
-  const [dragTilt, setDragTilt] = useState(14);
-  const [edge, setEdge] = useState<"solid" | "glass" | "css">("solid");
+  const [motion, setMotion] = useState<"plain" | "pebble">("pebble");
+  const [curve, setCurve] = useState(14);
+  const [reflection, setReflection] = useState(1);
+  const [specular, setSpecular] = useState(1);
+  const [tilt, setTilt] = useState(4);
+  const pebbleDials = { curve, reflection, specular, tilt };
   const [kind, setKind] = useState("note");
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const probeRef = useRef<HTMLDivElement>(null);
@@ -287,8 +288,8 @@ export function SheetLab() {
       zh: "打开长内容面板，在内容上上下滑动：内容滚动。滚到顶部后，再向下滑会拖动面板。在标题行上向下滑，无论内容滚到哪里都会拖动面板。在表单面板中打开键盘后再试一次。",
     }),
     t({
-      en: "With the thick card, open a sheet: as it rises, it tilts so that its top edge comes towards you and shows a thick, rounded edge, then settles flat. Close it: it tilts and goes. Does it read as a slab, not an outline? Then drag the card down by its grabber, slowly and then fast: the faster it goes, the more it tilts, and it springs back flat when you let go. Compare Solid, Glass and CSS, tune the tilt, the thickness and the drag tilt, and compare with Plain.",
-      zh: "选择厚卡片后打开面板：卡片升起时向你倾斜，顶边朝前，显出圆润的厚边，然后平稳落定。关闭时：它倾斜并离开。看起来像一块板，而不是一圈描边吗？然后按住拖动条向下拖动卡片，先慢后快：越快倾斜越多，松手后弹回平整。对比实心、玻璃和 CSS，调整倾斜、厚度和拖动倾斜，再与普通方式对比。",
+      en: "With the pebble card, open a sheet and look at its top edge and top corners at rest: does the face curve down smoothly, like glass over the card, with one thin bright line near the edge, and no outline? Then drag the card down by its grabber, slowly and then fast: it tilts a little, and the reflections flow over the curve, which stays on the card's edge. Tune the curve, the reflection, the specular line and the drag tilt, in light and dark, and compare with Plain.",
+      zh: "选择鹅卵石卡片后打开面板，看静止时的顶边和两个上角：表面是否像覆在卡片上的玻璃一样圆滑地向下弯曲，边缘附近有一条细亮线，而没有描边？然后按住拖动条向下拖动卡片，先慢后快：卡片轻微倾斜，反光在弯面上流动，弯面始终贴在卡片边缘。在浅色和深色下调整弯曲宽度、反射、高光线和拖动倾斜，再与普通卡片对比。",
     }),
   ];
 
@@ -299,46 +300,48 @@ export function SheetLab() {
         value={motion}
         options={[
           { value: "plain", label: t({ en: "Plain", zh: "普通" }) },
-          { value: "thick", label: t({ en: "Thick card", zh: "厚卡片" }) },
+          {
+            value: "pebble",
+            label: t({ en: "Pebble card", zh: "鹅卵石卡片" }),
+          },
         ]}
         onChange={setMotion}
       />
-      <SegmentedControl
-        aria-label={t({ en: "Edge", zh: "边缘" })}
-        value={edge}
-        options={[
-          { value: "solid", label: t({ en: "Solid", zh: "实心" }) },
-          { value: "glass", label: t({ en: "Glass", zh: "玻璃" }) },
-          { value: "css", label: "CSS" },
-        ]}
-        onChange={setEdge}
+      <Slider
+        label={t({ en: "Curve width", zh: "弯曲宽度" })}
+        readout={`${String(curve)} px`}
+        min={4}
+        max={28}
+        step={1}
+        value={curve}
+        onChange={setCurve}
       />
       <Slider
-        label={t({ en: "Tilt", zh: "倾斜" })}
-        readout={`${String(tilt)}°`}
+        label={t({ en: "Reflection", zh: "反射" })}
+        readout={`${String(Math.round(reflection * 100))}%`}
         min={0}
-        max={15}
-        step={0.5}
-        value={tilt}
-        onChange={setTilt}
+        max={3}
+        step={0.05}
+        value={reflection}
+        onChange={setReflection}
       />
       <Slider
-        label={t({ en: "Thickness", zh: "厚度" })}
-        readout={`${String(thickness)} px`}
+        label={t({ en: "Specular line", zh: "高光线" })}
+        readout={`${String(Math.round(specular * 100))}%`}
         min={0}
-        max={16}
-        step={0.5}
-        value={thickness}
-        onChange={setThickness}
+        max={3}
+        step={0.05}
+        value={specular}
+        onChange={setSpecular}
       />
       <Slider
         label={t({ en: "Drag tilt", zh: "拖动倾斜" })}
-        readout={`${String(dragTilt)}°`}
+        readout={`${String(tilt)}°`}
         min={0}
-        max={30}
-        step={1}
-        value={dragTilt}
-        onChange={setDragTilt}
+        max={10}
+        step={0.5}
+        value={tilt}
+        onChange={setTilt}
       />
     </div>
   );
@@ -398,7 +401,7 @@ export function SheetLab() {
         closeLabel={closeLabel}
         title={t({ en: "Add a note", zh: "添加备注" })}
         motion={motion}
-        thickDials={{ tilt, thickness, edge, drag: dragTilt }}
+        pebbleDials={pebbleDials}
       >
         <form
           css={stack.item}
@@ -439,7 +442,7 @@ export function SheetLab() {
         closeLabel={closeLabel}
         title={t({ en: "A long read", zh: "长篇内容" })}
         motion={motion}
-        thickDials={{ tilt, thickness, edge, drag: dragTilt }}
+        pebbleDials={pebbleDials}
       >
         <div css={stack.item}>
           <Readout metrics={metrics} />

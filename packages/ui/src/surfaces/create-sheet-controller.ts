@@ -5,7 +5,7 @@ import type {
 } from "../effect-layer/publish-sheet-pose.ts";
 import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
-import type { ThickCard, ThickCardDials } from "./create-thick-card.ts";
+import type { PebbleCard, PebbleCardDials } from "./create-pebble-card.ts";
 import {
   claimGesture,
   releaseVelocity,
@@ -88,12 +88,13 @@ interface SheetControllerOptions {
   /** The dim over the page, which fades as the card goes. */
   readonly dim: () => HTMLElement | null;
   /**
-   * The thick card, with its dials, which tilts the card as it comes and
-   * goes, or `null` for the plain motion. Asked each time the card moves.
+   * The pebble card, with its dials, which lays glass on the card and
+   * tilts it as it moves, or `null` for the plain card. Asked each time the
+   * card moves.
    */
-  readonly thick?: () => {
-    readonly card: ThickCard;
-    readonly dials: ThickCardDials;
+  readonly pebble?: () => {
+    readonly card: PebbleCard;
+    readonly dials: PebbleCardDials;
   } | null;
   /** A drag let go far enough or fast enough to close the sheet. */
   readonly onDismiss: () => void;
@@ -196,17 +197,16 @@ export function createSheetController(options: SheetControllerOptions) {
   let animations: Animation[] = [];
   let drag: Drag | null = null;
 
-  function thickNow() {
-    if (motion === "fade") return null;
-    const thick = options.thick?.() ?? null;
-    return thick?.card.canRun(thick.dials) === true ? thick : null;
+  function pebbleNow() {
+    const pebble = options.pebble?.() ?? null;
+    return pebble?.card.canDraw() === true ? pebble : null;
   }
 
-  function stopThick() {
-    options.thick?.()?.card.stop();
+  function detachPebble() {
+    options.pebble?.()?.card.detach();
   }
 
-  /** What the drag is doing now, for the thick card's tilt. */
+  /** What the drag is doing now, for the pebble card's tilt. */
   function dragFeel() {
     const samples = drag?.samples ?? [];
     const last = samples.at(-1);
@@ -372,11 +372,11 @@ export function createSheetController(options: SheetControllerOptions) {
     }
     measureReach();
     if (isFresh) place(awayFrom(REST));
-    const thick = thickNow();
-    if (thick) {
-      thick.card.open(card, thick.dials);
+    const pebble = pebbleNow();
+    if (pebble) {
+      pebble.card.open(card, pebble.dials, motion !== "fade");
     } else {
-      stopThick();
+      detachPebble();
     }
     moveTo(
       REST,
@@ -399,14 +399,14 @@ export function createSheetController(options: SheetControllerOptions) {
     const timing = { slide: slideExit, rise: riseExit, fade: fadeTiming }[
       motion
     ];
-    const thick = thickNow();
-    if (thick) {
-      thick.card.close(card, thick.dials, timing.duration);
+    const pebble = pebbleNow();
+    if (pebble) {
+      pebble.card.close(card, pebble.dials, timing.duration, motion !== "fade");
     } else {
-      stopThick();
+      detachPebble();
     }
     moveTo(awayFrom(pose), timing, timing, () => {
-      stopThick();
+      detachPebble();
       enter("hidden");
       options.onExited();
     });
@@ -444,12 +444,8 @@ export function createSheetController(options: SheetControllerOptions) {
   function begin(event: PointerEvent) {
     if (!drag) return;
     stop();
-    const thick = motion === "fade" ? null : (options.thick?.() ?? null);
-    if (thick?.card.canFollow(thick.dials) === true) {
-      thick.card.follow(card, thick.dials, dragFeel);
-    } else {
-      stopThick();
-    }
+    const pebble = motion === "fade" ? null : pebbleNow();
+    pebble?.card.follow(card, pebble.dials, dragFeel);
     drag.isActive = true;
     drag.base = pose.y;
     drag.startY = event.clientY;
@@ -517,7 +513,7 @@ export function createSheetController(options: SheetControllerOptions) {
     const ended = drag;
     drag = null;
     if (!ended.isActive) return;
-    options.thick?.()?.card.release();
+    options.pebble?.()?.card.release();
     const velocity = releaseVelocity(ended.samples);
     if (canDismiss && shouldDismiss(pose.y, velocity, card.offsetHeight)) {
       hide();
@@ -568,7 +564,7 @@ export function createSheetController(options: SheetControllerOptions) {
       card.removeEventListener("pointerup", onPointerUp);
       card.removeEventListener("pointercancel", onPointerCancel);
       card.removeEventListener("touchmove", onTouchMove);
-      stopThick();
+      detachPebble();
       for (const animation of animations) animation.cancel();
       animations = [];
       drag = null;

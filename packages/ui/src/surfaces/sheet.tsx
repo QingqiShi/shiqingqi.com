@@ -25,14 +25,14 @@ import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
 import {
+  createPebbleCard,
+  PEBBLE_CARD_DEFAULTS,
+  type PebbleCardDials,
+} from "./create-pebble-card.ts";
+import {
   createSheetController,
   type SheetController,
 } from "./create-sheet-controller.ts";
-import {
-  createThickCard,
-  THICK_CARD_DEFAULTS,
-  type ThickCardDials,
-} from "./create-thick-card.ts";
 import { Portal } from "./portal.tsx";
 
 interface SheetBaseProps {
@@ -82,22 +82,23 @@ interface SheetBaseProps {
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * How the card comes and goes. `plain` slides or rises it flat. `thick`
-   * tilts it as it moves, so that its top edge comes towards the viewer and
-   * shows the card as a slab with a thick, rounded edge; it settles flat,
-   * and at rest it is the plain card. Without WebGPU, with effects off,
-   * under forced colours or reduced motion, `thick` is `plain`.
+   * The card's material. `plain` is the flat card. `pebble` lays glass on
+   * it whose face curves down over its last few px, like a pebble, and
+   * reflects a soft studio; the card tilts a little as it moves, so that
+   * the reflections flow over the curve. Without WebGPU, with effects off
+   * or under forced colours, `pebble` is `plain`; under reduced motion it
+   * does not tilt.
    *
    * @default "plain"
-   * @zh 卡片出现与消失的方式。`plain` 为平移或平稳升起。`thick` 在移动时让卡片倾斜，顶边朝向观看者，使卡片显出带圆润厚边的板状；最后平稳落定，静止时与普通卡片相同。没有 WebGPU、效果关闭、强制颜色或减少动态时，`thick` 等同于 `plain`。
+   * @zh 卡片的材质。`plain` 为平整卡片。`pebble` 在卡片上覆一层玻璃，表面在最后几像素处像鹅卵石一样圆滑地向下弯曲，并映出柔和的摄影棚光；卡片移动时会轻微倾斜，让反光在弯面上流动。没有 WebGPU、效果关闭或强制颜色时，`pebble` 等同于 `plain`；减少动态时不倾斜。
    */
-  motion?: "plain" | "thick";
+  motion?: "plain" | "pebble";
   /**
-   * Lab-only dials for the `thick` motion.
+   * Lab-only dials for the `pebble` material.
    *
    * @internal
    */
-  thickDials?: ThickCardDials;
+  pebbleDials?: PebbleCardDials;
 }
 
 /**
@@ -157,7 +158,7 @@ export function Sheet({
   closeIcon,
   initialFocusRef,
   motion = "plain",
-  thickDials = THICK_CARD_DEFAULTS,
+  pebbleDials = PEBBLE_CARD_DEFAULTS,
   title,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -179,15 +180,15 @@ export function Sheet({
   const onCloseRef = useRef(onClose);
   const coverRef = useEffectCover();
   const { ref: stageRef, overRef } = useEffectStage(true, STAGE_REACH);
-  const [thick] = useState(createThickCard);
-  const motionRef = useRef({ motion, dials: thickDials });
+  const [pebble] = useState(createPebbleCard);
+  const motionRef = useRef({ motion, dials: pebbleDials });
   const visibleAreaRef = useVisibleArea();
   const moverRefs = mergeRefs(moverRef, coverRef, stageRef);
 
   useLayoutEffect(() => {
     isOpenRef.current = isOpen;
     onCloseRef.current = onClose;
-    motionRef.current = { motion, dials: thickDials };
+    motionRef.current = { motion, dials: pebbleDials };
   });
 
   const requestClose = () => {
@@ -196,8 +197,17 @@ export function Sheet({
   };
 
   useEffect(() => {
-    if (motion === "thick") thick.warm();
-  }, [motion, thick]);
+    if (motion === "pebble") {
+      pebble.warm();
+    } else {
+      pebble.detach();
+    }
+  }, [motion, pebble]);
+
+  const { curve, reflection, specular, tilt } = pebbleDials;
+  useEffect(() => {
+    pebble.tune({ curve, reflection, specular, tilt });
+  }, [pebble, curve, reflection, specular, tilt]);
 
   useDialogFocus({
     isOpen: isOpen && isHydrated,
@@ -216,9 +226,9 @@ export function Sheet({
       onPose: (pose) => {
         publishSheetPose(card, pose);
       },
-      thick: () =>
-        motionRef.current.motion === "thick"
-          ? { card: thick, dials: motionRef.current.dials }
+      pebble: () =>
+        motionRef.current.motion === "pebble"
+          ? { card: pebble, dials: motionRef.current.dials }
           : null,
       scroller: () => scrollerRef.current,
       grabber: () => grabberRef.current,
@@ -240,7 +250,7 @@ export function Sheet({
       controller.destroy();
       controllerRef.current = null;
     };
-  }, [isMounted, isHydrated, thick]);
+  }, [isMounted, isHydrated, pebble]);
 
   useLayoutEffect(() => {
     if (isOpen) {
