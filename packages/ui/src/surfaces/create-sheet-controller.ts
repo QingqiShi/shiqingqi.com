@@ -5,7 +5,7 @@ import type {
 } from "../effect-layer/publish-sheet-pose.ts";
 import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
-import type { InkDim } from "./create-ink-dim.ts";
+import type { ThickCard, ThickCardDials } from "./create-thick-card.ts";
 import {
   claimGesture,
   releaseVelocity,
@@ -87,8 +87,14 @@ interface SheetControllerOptions {
   readonly closeCorner: () => HTMLElement | null;
   /** The dim over the page, which fades as the card goes. */
   readonly dim: () => HTMLElement | null;
-  /** The ink dim, which takes the dim's place while the card comes and goes. */
-  readonly ink?: () => InkDim | null;
+  /**
+   * The thick card, with its dials, which tilts the card as it comes and
+   * goes, or `null` for the plain motion. Asked each time the card moves.
+   */
+  readonly thick?: () => {
+    readonly card: ThickCard;
+    readonly dials: ThickCardDials;
+  } | null;
   /** A drag let go far enough or fast enough to close the sheet. */
   readonly onDismiss: () => void;
   /** The card has left the screen. */
@@ -189,19 +195,15 @@ export function createSheetController(options: SheetControllerOptions) {
   let reach = Number.POSITIVE_INFINITY;
   let animations: Animation[] = [];
   let drag: Drag | null = null;
-  // While the ink draws the dim, the plain dim stays clear.
-  let isInk = false;
 
-  function inkNow() {
+  function thickNow() {
     if (motion === "fade") return null;
-    const ink = options.ink?.() ?? null;
-    return ink?.canRun() === true ? ink : null;
+    const thick = options.thick?.() ?? null;
+    return thick?.card.canRun(thick.dials) === true ? thick : null;
   }
 
-  function stopInk() {
-    if (!isInk) return;
-    isInk = false;
-    options.ink?.()?.stop();
+  function stopThick() {
+    options.thick?.()?.card.stop(card);
   }
 
   function measureReach() {
@@ -258,7 +260,7 @@ export function createSheetController(options: SheetControllerOptions) {
     mover.style.transform = transform === "none" ? "" : transform;
     mover.style.opacity = next.fade >= 1 ? "" : String(next.fade);
     const dim = options.dim();
-    if (dim) dim.style.opacity = isInk ? "0" : String(dimOpacity(next));
+    if (dim) dim.style.opacity = String(dimOpacity(next));
     publish();
   }
 
@@ -313,7 +315,7 @@ export function createSheetController(options: SheetControllerOptions) {
       });
     }
     const dim = options.dim();
-    if (dim && !isInk && dimOpacity(from) !== dimOpacity(to)) {
+    if (dim && dimOpacity(from) !== dimOpacity(to)) {
       started.push({
         animation: dim.animate(
           [{ opacity: dimOpacity(from) }, { opacity: dimOpacity(to) }],
@@ -350,8 +352,7 @@ export function createSheetController(options: SheetControllerOptions) {
   function show() {
     if (phase !== "hidden" && phase !== "exiting") return;
     stop();
-    const wasInk = isInk;
-    stopInk();
+    stopThick();
     const isFresh = phase === "hidden";
     enter("entering");
     motion = motionNow();
@@ -361,20 +362,9 @@ export function createSheetController(options: SheetControllerOptions) {
       if (isFresh) coverDocument(dim);
     }
     measureReach();
-    const ink = isFresh || wasInk ? inkNow() : null;
-    if (ink && dim) {
-      isInk = true;
-      ink.open({
-        card,
-        dim,
-        level: () => (phase === "dragging" ? dimOpacity(pose) : 1),
-        onDone: () => {
-          isInk = false;
-          dim.style.opacity = String(dimOpacity(pose));
-        },
-      });
-    }
     if (isFresh) place(awayFrom(REST));
+    const thick = thickNow();
+    if (thick) thick.card.open(card, thick.dials);
     moveTo(
       REST,
       motion === "fade" ? fadeTiming : spring,
@@ -387,34 +377,23 @@ export function createSheetController(options: SheetControllerOptions) {
   function hide() {
     if (phase === "hidden" || phase === "exiting") return;
     stop();
-    stopInk();
+    stopThick();
     drag = null;
     enter("exiting");
     motion = motionNow();
     const dim = options.dim();
     if (dim) dim.style.pointerEvents = "none";
     measureReach();
-    // The sheet leaves when both the card and the ink are gone.
-    let waiting = 1;
-    const finish = () => {
-      waiting -= 1;
-      if (waiting > 0) return;
-      isInk = false;
-      enter("hidden");
-      options.onExited();
-    };
-    const ink = inkNow();
-    if (ink && dim) {
-      waiting += 1;
-      const from = dimOpacity(pose);
-      isInk = true;
-      dim.style.opacity = "0";
-      ink.close({ card, dim, from, onDone: finish });
-    }
     const timing = { slide: slideExit, rise: riseExit, fade: fadeTiming }[
       motion
     ];
-    moveTo(awayFrom(pose), timing, timing, finish);
+    const thick = thickNow();
+    if (thick) thick.card.close(card, thick.dials, timing.duration);
+    moveTo(awayFrom(pose), timing, timing, () => {
+      stopThick();
+      enter("hidden");
+      options.onExited();
+    });
   }
 
   function settle() {
@@ -449,6 +428,7 @@ export function createSheetController(options: SheetControllerOptions) {
   function begin(event: PointerEvent) {
     if (!drag) return;
     stop();
+    stopThick();
     drag.isActive = true;
     drag.base = pose.y;
     drag.startY = event.clientY;
@@ -566,7 +546,7 @@ export function createSheetController(options: SheetControllerOptions) {
       card.removeEventListener("pointerup", onPointerUp);
       card.removeEventListener("pointercancel", onPointerCancel);
       card.removeEventListener("touchmove", onTouchMove);
-      stopInk();
+      stopThick();
       for (const animation of animations) animation.cancel();
       animations = [];
       drag = null;

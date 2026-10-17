@@ -5,6 +5,7 @@ import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Sheet } from "@tuja/ui/components/sheet";
+import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { effectDiagnostics } from "@tuja/ui/effect-layer/effect-diagnostics";
@@ -215,7 +216,10 @@ function KeyboardReadout({ metrics }: { metrics: Metrics | null }) {
  */
 export function SheetLab() {
   const [open, setOpen] = useState<"form" | "tall" | null>(null);
-  const [dim, setDim] = useState<"plain" | "ink">("ink");
+  const [motion, setMotion] = useState<"plain" | "thick">("thick");
+  const [tilt, setTilt] = useState(10);
+  const [thickness, setThickness] = useState(9);
+  const [edge, setEdge] = useState<"solid" | "glass" | "css">("solid");
   const [kind, setKind] = useState("note");
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const probeRef = useRef<HTMLDivElement>(null);
@@ -282,21 +286,51 @@ export function SheetLab() {
       zh: "打开长内容面板，在内容上上下滑动：内容滚动。滚到顶部后，再向下滑会拖动面板。在标题行上向下滑，无论内容滚到哪里都会拖动面板。在表单面板中打开键盘后再试一次。",
     }),
     t({
-      en: "With the ink dim, open a sheet: as the card rises, the dim spreads out of its edge like ink in water, billows and curls, and settles into the plain dim. Close it with the close button, Escape or a flick: the dim breaks up and swirls away. Switch to the plain dim and compare.",
-      zh: "选择墨水暗化层后打开面板：卡片升起时，暗化层像墨水入水一样从卡片边缘扩散、翻卷，最后变成普通暗化层。用关闭按钮、Escape 或快速一甩关闭：暗化层散开并旋转消失。切换到普通暗化层做对比。",
+      en: "With the thick card, open a sheet: as it rises, it tilts so that its top edge comes towards you and shows a thick, rounded edge, then settles flat. Close it: it tilts and goes. Does it read as a slab, not an outline? Compare Solid, Glass and CSS, tune the tilt and the thickness, and compare with Plain.",
+      zh: "选择厚卡片后打开面板：卡片升起时向你倾斜，顶边朝前，显出圆润的厚边，然后平稳落定。关闭时：它倾斜并离开。看起来像一块板，而不是一圈描边吗？对比实心、玻璃和 CSS，调整倾斜和厚度，再与普通方式对比。",
     }),
   ];
 
-  const dimControl = (
-    <SegmentedControl
-      aria-label={t({ en: "Dim", zh: "暗化层" })}
-      value={dim}
-      options={[
-        { value: "plain", label: t({ en: "Plain", zh: "普通" }) },
-        { value: "ink", label: t({ en: "Ink", zh: "墨水" }) },
-      ]}
-      onChange={setDim}
-    />
+  const motionControl = (
+    <div css={stack.tight}>
+      <SegmentedControl
+        aria-label={t({ en: "Motion", zh: "动效" })}
+        value={motion}
+        options={[
+          { value: "plain", label: t({ en: "Plain", zh: "普通" }) },
+          { value: "thick", label: t({ en: "Thick card", zh: "厚卡片" }) },
+        ]}
+        onChange={setMotion}
+      />
+      <SegmentedControl
+        aria-label={t({ en: "Edge", zh: "边缘" })}
+        value={edge}
+        options={[
+          { value: "solid", label: t({ en: "Solid", zh: "实心" }) },
+          { value: "glass", label: t({ en: "Glass", zh: "玻璃" }) },
+          { value: "css", label: "CSS" },
+        ]}
+        onChange={setEdge}
+      />
+      <Slider
+        label={t({ en: "Tilt", zh: "倾斜" })}
+        readout={`${String(tilt)}°`}
+        min={0}
+        max={15}
+        step={0.5}
+        value={tilt}
+        onChange={setTilt}
+      />
+      <Slider
+        label={t({ en: "Thickness", zh: "厚度" })}
+        readout={`${String(thickness)} px`}
+        min={0}
+        max={16}
+        step={0.5}
+        value={thickness}
+        onChange={setThickness}
+      />
+    </div>
   );
 
   const triggers = (
@@ -339,7 +373,7 @@ export function SheetLab() {
       </div>
 
       <Readout metrics={metrics} />
-      {dimControl}
+      {motionControl}
       {triggers}
       <div css={stack.item}>
         {Array.from({ length: PAGE_PARAGRAPHS }, (_, index) => (
@@ -353,7 +387,8 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "Add a note", zh: "添加备注" })}
-        dim={dim}
+        motion={motion}
+        thickDials={{ tilt, thickness, edge }}
       >
         <form
           css={stack.item}
@@ -393,7 +428,8 @@ export function SheetLab() {
         onClose={close}
         closeLabel={closeLabel}
         title={t({ en: "A long read", zh: "长篇内容" })}
-        dim={dim}
+        motion={motion}
+        thickDials={{ tilt, thickness, edge }}
       >
         <div css={stack.item}>
           <Readout metrics={metrics} />

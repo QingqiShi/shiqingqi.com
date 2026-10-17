@@ -24,11 +24,15 @@ import { useVisibleArea } from "../hooks/use-visible-area.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
-import { createInkDim } from "./create-ink-dim.ts";
 import {
   createSheetController,
   type SheetController,
 } from "./create-sheet-controller.ts";
+import {
+  createThickCard,
+  THICK_CARD_DEFAULTS,
+  type ThickCardDials,
+} from "./create-thick-card.ts";
 import { Portal } from "./portal.tsx";
 
 interface SheetBaseProps {
@@ -78,16 +82,22 @@ interface SheetBaseProps {
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
   /**
-   * How the dim over the page comes and goes. `plain` fades it. `ink`
-   * lets it spread out of the card's edge like ink in water as the card
-   * comes in, until it is the plain dim, and breaks it up and swirls it
-   * away as the card goes. Without WebGPU, with effects off, under forced
-   * colours or reduced motion, `ink` is `plain`.
+   * How the card comes and goes. `plain` slides or rises it flat. `thick`
+   * tilts it as it moves, so that its top edge comes towards the viewer and
+   * shows the card as a slab with a thick, rounded edge; it settles flat,
+   * and at rest it is the plain card. Without WebGPU, with effects off,
+   * under forced colours or reduced motion, `thick` is `plain`.
    *
    * @default "plain"
-   * @zh 暗化层的出现与消失方式。`plain` 为淡入淡出。`ink` 让暗化层在卡片进入时像墨水入水一样从卡片边缘扩散开，直到成为普通暗化层；卡片离开时墨水散开并旋转消失。没有 WebGPU、效果关闭、强制颜色或减少动态时，`ink` 等同于 `plain`。
+   * @zh 卡片出现与消失的方式。`plain` 为平移或平稳升起。`thick` 在移动时让卡片倾斜，顶边朝向观看者，使卡片显出带圆润厚边的板状；最后平稳落定，静止时与普通卡片相同。没有 WebGPU、效果关闭、强制颜色或减少动态时，`thick` 等同于 `plain`。
    */
-  dim?: "plain" | "ink";
+  motion?: "plain" | "thick";
+  /**
+   * Lab-only dials for the `thick` motion.
+   *
+   * @internal
+   */
+  thickDials?: ThickCardDials;
 }
 
 /**
@@ -146,7 +156,8 @@ export function Sheet({
   closeLabel,
   closeIcon,
   initialFocusRef,
-  dim = "plain",
+  motion = "plain",
+  thickDials = THICK_CARD_DEFAULTS,
   title,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -168,18 +179,15 @@ export function Sheet({
   const onCloseRef = useRef(onClose);
   const coverRef = useEffectCover();
   const { ref: stageRef, overRef } = useEffectStage(true, STAGE_REACH);
-  const [{ ink, attachInk }] = useState(() => {
-    const created = createInkDim();
-    return { ink: created, attachInk: created.attach };
-  });
-  const dimModeRef = useRef(dim);
+  const [thick] = useState(createThickCard);
+  const motionRef = useRef({ motion, dials: thickDials });
   const visibleAreaRef = useVisibleArea();
   const moverRefs = mergeRefs(moverRef, coverRef, stageRef);
 
   useLayoutEffect(() => {
     isOpenRef.current = isOpen;
     onCloseRef.current = onClose;
-    dimModeRef.current = dim;
+    motionRef.current = { motion, dials: thickDials };
   });
 
   const requestClose = () => {
@@ -188,8 +196,8 @@ export function Sheet({
   };
 
   useEffect(() => {
-    if (dim === "ink") ink.warm();
-  }, [dim, ink]);
+    if (motion === "thick") thick.warm();
+  }, [motion, thick]);
 
   useDialogFocus({
     isOpen: isOpen && isHydrated,
@@ -208,7 +216,10 @@ export function Sheet({
       onPose: (pose) => {
         publishSheetPose(card, pose);
       },
-      ink: () => (dimModeRef.current === "ink" ? ink : null),
+      thick: () =>
+        motionRef.current.motion === "thick"
+          ? { card: thick, dials: motionRef.current.dials }
+          : null,
       scroller: () => scrollerRef.current,
       grabber: () => grabberRef.current,
       closeCorner: () => closeCornerRef.current,
@@ -229,7 +240,7 @@ export function Sheet({
       controller.destroy();
       controllerRef.current = null;
     };
-  }, [isMounted, isHydrated, ink]);
+  }, [isMounted, isHydrated, thick]);
 
   useLayoutEffect(() => {
     if (isOpen) {
@@ -254,15 +265,6 @@ export function Sheet({
           aria-hidden="true"
         />
         <div ref={visibleAreaRef} css={styles.anchor}>
-          {dim === "ink" ? (
-            <canvas
-              ref={attachInk}
-              css={styles.inkCanvas}
-              aria-hidden="true"
-              width={0}
-              height={0}
-            />
-          ) : null}
           {/* The mover is what the controller moves and fades. It is an
             Effect stage: it carries the effect layer's canvas over the
             card, so effects move with the card on the compositor and never
@@ -339,9 +341,6 @@ const CLOSE_SIZE = controlSize._9;
 const STAGE_REACH = { rise: 16, spill: 8, fall: 200 };
 const STAGE_RISE = "16px";
 const STAGE_SPILL = "8px";
-// The ink reaches this far below the visible area, under the toolbar
-// that Safari on iOS lays over the page.
-const INK_FALL = "120px";
 
 const styles = stylex.create({
   // A 0 x 0 box in the document. Below `md` it is at the bottom of the
@@ -404,20 +403,6 @@ const styles = stylex.create({
     overflow: "hidden",
     backgroundColor: color.bgSurface,
     pointerEvents: "auto",
-  },
-  // Over the visible area, under the card and over the dim.
-  inkCanvas: {
-    position: "absolute",
-    top: {
-      default: `calc(-1 * ${VISIBLE_HEIGHT})`,
-      [breakpoints.md]: `calc(-0.5 * ${VISIBLE_HEIGHT})`,
-    },
-    left: { default: 0, [breakpoints.md]: "-50vw" },
-    display: "block",
-    inlineSize: "100vw",
-    blockSize: `calc(${VISIBLE_HEIGHT} + ${INK_FALL})`,
-    visibility: "hidden",
-    pointerEvents: "none",
   },
   // The effect layer sizes the canvas to the mover and its reach above.
   // Physical offsets, since the layer places it in page coordinates.
