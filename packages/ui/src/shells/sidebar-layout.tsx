@@ -129,6 +129,8 @@ type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
  * the containing block for fixed descendants (for example with `transform` or
  * `contain: layout`), because the mobile bar, the drawer, and the rail's
  * footer from `md` up are fixed. Otherwise they go to the viewport's edges.
+ * Inside such a box the drawer covers only that box and leaves the page free
+ * to scroll.
  */
 export function SidebarLayout({
   sidebar,
@@ -181,7 +183,11 @@ export function SidebarLayout({
   // `<ViewTransition>` undisturbed, and the drawer's own nav still scrolls
   // since only the body is clamped.
   useEffect(() => {
-    if (!isOpen) return;
+    // A fixed box has an `offsetParent` only when an ancestor, such as a
+    // transformed demo frame, contains it. Then the drawer covers only that
+    // frame. A body lock would keep the parts of the drawer below the
+    // viewport out of reach.
+    if (!isOpen || drawerRef.current?.offsetParent !== null) return;
     const { overflow } = document.body.style;
     document.body.style.overflow = "hidden";
     return () => {
