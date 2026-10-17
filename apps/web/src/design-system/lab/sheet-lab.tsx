@@ -219,6 +219,7 @@ export function SheetLab() {
   const [motion, setMotion] = useState<"plain" | "thick">("thick");
   const [tilt, setTilt] = useState(10);
   const [thickness, setThickness] = useState(9);
+  const [dragTilt, setDragTilt] = useState(14);
   const [edge, setEdge] = useState<"solid" | "glass" | "css">("solid");
   const [kind, setKind] = useState("note");
   const [metrics, setMetrics] = useState<Metrics | null>(null);
@@ -286,8 +287,8 @@ export function SheetLab() {
       zh: "打开长内容面板，在内容上上下滑动：内容滚动。滚到顶部后，再向下滑会拖动面板。在标题行上向下滑，无论内容滚到哪里都会拖动面板。在表单面板中打开键盘后再试一次。",
     }),
     t({
-      en: "With the thick card, open a sheet: as it rises, it tilts so that its top edge comes towards you and shows a thick, rounded edge, then settles flat. Close it: it tilts and goes. Does it read as a slab, not an outline? Compare Solid, Glass and CSS, tune the tilt and the thickness, and compare with Plain.",
-      zh: "选择厚卡片后打开面板：卡片升起时向你倾斜，顶边朝前，显出圆润的厚边，然后平稳落定。关闭时：它倾斜并离开。看起来像一块板，而不是一圈描边吗？对比实心、玻璃和 CSS，调整倾斜和厚度，再与普通方式对比。",
+      en: "With the thick card, open a sheet: as it rises, it tilts so that its top edge comes towards you and shows a thick, rounded edge, then settles flat. Close it: it tilts and goes. Does it read as a slab, not an outline? Then drag the card down by its grabber, slowly and then fast: the faster it goes, the more it tilts, and it springs back flat when you let go. Compare Solid, Glass and CSS, tune the tilt, the thickness and the drag tilt, and compare with Plain.",
+      zh: "选择厚卡片后打开面板：卡片升起时向你倾斜，顶边朝前，显出圆润的厚边，然后平稳落定。关闭时：它倾斜并离开。看起来像一块板，而不是一圈描边吗？然后按住拖动条向下拖动卡片，先慢后快：越快倾斜越多，松手后弹回平整。对比实心、玻璃和 CSS，调整倾斜、厚度和拖动倾斜，再与普通方式对比。",
     }),
   ];
 
@@ -329,6 +330,15 @@ export function SheetLab() {
         step={0.5}
         value={thickness}
         onChange={setThickness}
+      />
+      <Slider
+        label={t({ en: "Drag tilt", zh: "拖动倾斜" })}
+        readout={`${String(dragTilt)}°`}
+        min={0}
+        max={30}
+        step={1}
+        value={dragTilt}
+        onChange={setDragTilt}
       />
     </div>
   );
@@ -388,7 +398,7 @@ export function SheetLab() {
         closeLabel={closeLabel}
         title={t({ en: "Add a note", zh: "添加备注" })}
         motion={motion}
-        thickDials={{ tilt, thickness, edge }}
+        thickDials={{ tilt, thickness, edge, drag: dragTilt }}
       >
         <form
           css={stack.item}
@@ -429,7 +439,7 @@ export function SheetLab() {
         closeLabel={closeLabel}
         title={t({ en: "A long read", zh: "长篇内容" })}
         motion={motion}
-        thickDials={{ tilt, thickness, edge }}
+        thickDials={{ tilt, thickness, edge, drag: dragTilt }}
       >
         <div css={stack.item}>
           <Readout metrics={metrics} />

@@ -128,7 +128,7 @@ fn fs(@builtin(position) frag: vec4f) -> @location(0) vec4f {
   if (isDark) {
     color = base + vec3f(0.08 * side * side + 0.05 * toward);
   } else {
-    color = base * (1.0 - 0.15 * side * side + 0.12 * min(toward, 0.0)) + vec3f(0.04 * max(toward, 0.0));
+    color = base * (1.0 - 0.32 * side * side + 0.12 * min(toward, 0.0)) + vec3f(0.04 * max(toward, 0.0));
   }
   var alpha = 1.0;
   if (isGlass) {

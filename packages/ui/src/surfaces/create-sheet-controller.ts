@@ -203,7 +203,17 @@ export function createSheetController(options: SheetControllerOptions) {
   }
 
   function stopThick() {
-    options.thick?.()?.card.stop(card);
+    options.thick?.()?.card.stop();
+  }
+
+  /** What the drag is doing now, for the thick card's tilt. */
+  function dragFeel() {
+    const samples = drag?.samples ?? [];
+    const last = samples.at(-1);
+    const velocity = last
+      ? releaseVelocity([...samples, { time: performance.now(), y: last.y }])
+      : 0;
+    return { velocity, pull: pose.y };
   }
 
   function measureReach() {
@@ -352,7 +362,6 @@ export function createSheetController(options: SheetControllerOptions) {
   function show() {
     if (phase !== "hidden" && phase !== "exiting") return;
     stop();
-    stopThick();
     const isFresh = phase === "hidden";
     enter("entering");
     motion = motionNow();
@@ -364,7 +373,11 @@ export function createSheetController(options: SheetControllerOptions) {
     measureReach();
     if (isFresh) place(awayFrom(REST));
     const thick = thickNow();
-    if (thick) thick.card.open(card, thick.dials);
+    if (thick) {
+      thick.card.open(card, thick.dials);
+    } else {
+      stopThick();
+    }
     moveTo(
       REST,
       motion === "fade" ? fadeTiming : spring,
@@ -377,7 +390,6 @@ export function createSheetController(options: SheetControllerOptions) {
   function hide() {
     if (phase === "hidden" || phase === "exiting") return;
     stop();
-    stopThick();
     drag = null;
     enter("exiting");
     motion = motionNow();
@@ -388,7 +400,11 @@ export function createSheetController(options: SheetControllerOptions) {
       motion
     ];
     const thick = thickNow();
-    if (thick) thick.card.close(card, thick.dials, timing.duration);
+    if (thick) {
+      thick.card.close(card, thick.dials, timing.duration);
+    } else {
+      stopThick();
+    }
     moveTo(awayFrom(pose), timing, timing, () => {
       stopThick();
       enter("hidden");
@@ -428,7 +444,12 @@ export function createSheetController(options: SheetControllerOptions) {
   function begin(event: PointerEvent) {
     if (!drag) return;
     stop();
-    stopThick();
+    const thick = motion === "fade" ? null : (options.thick?.() ?? null);
+    if (thick?.card.canFollow(thick.dials) === true) {
+      thick.card.follow(card, thick.dials, dragFeel);
+    } else {
+      stopThick();
+    }
     drag.isActive = true;
     drag.base = pose.y;
     drag.startY = event.clientY;
@@ -496,6 +517,7 @@ export function createSheetController(options: SheetControllerOptions) {
     const ended = drag;
     drag = null;
     if (!ended.isActive) return;
+    options.thick?.()?.card.release();
     const velocity = releaseVelocity(ended.samples);
     if (canDismiss && shouldDismiss(pose.y, velocity, card.offsetHeight)) {
       hide();
