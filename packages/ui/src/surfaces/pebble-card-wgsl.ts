@@ -2,12 +2,12 @@
  * The Sheet's pebble card: glass over the card whose face curves down over
  * its last few px, like the edge of a pebble. The canvas carries the same
  * tilt as the card, so each fragment is a point of the card's face. The
- * curve reflects a soft studio, a softbox above and to the left, a ceiling,
- * walls and a dark floor, by Schlick's Fresnel, less what the flat face
- * would reflect, so that the flat face stays the plain card. A thin strip
- * light behind the viewer gives one crisp line where the curve is steepest.
- * It draws a veil, white or black, that turns the card's colour under it
- * into the lit glass.
+ * curve reflects a soft studio, a softbox above and to the left over a
+ * light ceiling and a dark floor, by Schlick's Fresnel, less what the flat
+ * face would reflect, so that the flat face stays the plain card. A thin
+ * strip light behind the viewer gives one crisp line where the curve is
+ * steepest, on the top left part of the edge only. It draws a veil, white
+ * or black, that turns the card's colour under it into the lit glass.
  *
  * @internal
  */
@@ -27,6 +27,8 @@ const MAX_SLOPE = 1.36;
 // Dense glass, about n = 1.65.
 const F0 = 0.06;
 const GAMMA = 2.2;
+// How deep the shade inside the line is on a light card.
+const SHADE = 5.0;
 
 @vertex
 fn vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4f {
@@ -53,19 +55,13 @@ fn outward(p: vec2f) -> vec2f {
   return g / max(length(g), 1e-5);
 }
 
-// The studio, seen along e: x right, y up, z towards the viewer.
+// The studio, seen along e: x right, y up, z towards the viewer. It has
+// no hard edges: walls and a softbox with hard edges give the curve bands,
+// which read as outlines at real size.
 fn room(e: vec3f) -> vec3f {
-  let wall = mix(vec3f(0.42, 0.42, 0.44), vec3f(0.27, 0.27, 0.29), smoothstep(-0.3, 0.8, e.x));
-  var c = mix(vec3f(0.16, 0.16, 0.17), wall, smoothstep(-0.3, 0.06, e.y));
-  c = mix(c, vec3f(0.58, 0.575, 0.57), smoothstep(0.18, 0.9, e.y));
-  // The softbox: a soft-edged panel above, to the left and in front.
+  let dome = mix(vec3f(0.16, 0.16, 0.17), vec3f(0.58, 0.575, 0.57), smoothstep(-0.5, 0.9, e.y));
   let sb = normalize(vec3f(-0.34, 0.8, 0.5));
-  let bx = normalize(vec3f(sb.z, 0.0, -sb.x));
-  let by = cross(sb, bx);
-  let fz = dot(e, sb);
-  let q = vec2f(dot(e, bx), dot(e, by)) / max(fz, 0.15);
-  let box = (1.0 - smoothstep(0.2, 1.1, abs(q.x))) * (1.0 - smoothstep(0.05, 0.8, abs(q.y))) * smoothstep(0.15, 0.4, fz);
-  return c + vec3f(1.0, 0.97, 0.93) * 1.7 * box;
+  return dome + vec3f(1.0, 0.97, 0.93) * pow(saturate(dot(e, sb)), 4.0);
 }
 
 // The strip light: a thin band high up behind the viewer's line of sight,
@@ -116,7 +112,20 @@ fn shine(p: vec2f, card: vec3f) -> vec3f {
   let f0 = fresnel(dot(az, v));
   let brightness = u.look.z;
   let reflected = f * (room(e) * brightness - card) - f0 * (room(e0) * brightness - card);
-  return u.look.x * reflected + vec3f(u.look.y * brightness * f * strip(e));
+  // A ring of shade or of light along the whole outline reads as a border
+  // at real size. So the curve lights the card only, and mostly where the
+  // light falls. A white card cannot show a lighter line, so there the
+  // curve inside the line shades a little.
+  let a = lit(p);
+  let shade = a * smoothstep(0.2, 0.55, s) * SHADE * (f - f0) * card;
+  return u.look.x * (max(reflected, vec3f(0.0)) * mix(0.08, 1.0, a) - shade) + vec3f(u.look.y * brightness * f * strip(e) * a);
+}
+
+// The part of the edge that the light falls on: the top left corner, from
+// where it fades out along the top and down the left side.
+fn lit(p: vec2f) -> f32 {
+  let q = vec2f(p.x / (0.6 * u.card.x), p.y / 150.0);
+  return 1.0 - smoothstep(0.2, 1.0, length(q));
 }
 
 @fragment
