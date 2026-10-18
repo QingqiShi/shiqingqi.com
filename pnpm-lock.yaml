@@ -109,11 +109,11 @@ catalogs:
       specifier: ^0.3.25
       version: 0.3.25
     react:
-      specifier: 19.3.0
-      version: 19.3.0
+      specifier: 19.3.1
+      version: 19.3.1
     react-dom:
-      specifier: 19.3.0
-      version: 19.3.0
+      specifier: 19.3.1
+      version: 19.3.1
     react-remove-scroll:
       specifier: ^2.7.2
       version: 2.7.2
@@ -201,16 +201,16 @@ importers:
     dependencies:
       '@radix-ui/react-slot':
         specifier: ^1.4.0
-        version: 1.4.0(@types/react@19.3.0)(react@19.3.0)
+        version: 1.4.0(@types/react@19.3.0)(react@19.3.1)
       '@serwist/next':
         specifier: 'catalog:'
-        version: 9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.97.1(esbuild@0.28.2))
+        version: 9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2))
       '@vercel/analytics':
         specifier: 'catalog:'
-        version: 2.0.1(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)
+        version: 2.0.1(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@vercel/speed-insights':
         specifier: 'catalog:'
-        version: 2.0.0(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)
+        version: 2.0.0(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -219,16 +219,16 @@ importers:
         version: 2.1.1
       lucide-react:
         specifier: ^1.55.0
-        version: 1.55.0(@types/react@19.3.0)(react@19.3.0)
+        version: 1.55.0(@types/react@19.3.0)(react@19.3.1)
       next:
         specifier: 'catalog:'
-        version: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react:
         specifier: 'catalog:'
-        version: 19.3.0
+        version: 19.3.1
       react-dom:
         specifier: 'catalog:'
-        version: 19.3.0(react@19.3.0)
+        version: 19.3.1(react@19.3.1)
       serwist:
         specifier: 'catalog:'
         version: 9.5.13(@typescript/typescript6@6.0.2)(browserslist@4.29.3)
@@ -274,19 +274,19 @@ importers:
     dependencies:
       '@1771technologies/lytenyte-pro':
         specifier: ^2.2.1
-        version: 2.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.2.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@ai-sdk/anthropic':
         specifier: ^4.0.79
         version: 4.0.79(zod@4.4.3)
       '@ai-sdk/react':
         specifier: ^4.0.143
-        version: 4.0.143(react@19.3.0)(zod@4.4.3)
+        version: 4.0.143(react@19.3.1)(zod@4.4.3)
       '@phosphor-icons/react':
         specifier: 'catalog:'
-        version: 2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@serwist/next':
         specifier: 'catalog:'
-        version: 9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
+        version: 9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
       '@simplewebauthn/browser':
         specifier: ^14.0.0
         version: 14.0.0
@@ -301,10 +301,10 @@ importers:
         version: 5.104.2
       '@tanstack/react-query':
         specifier: 5.104.2
-        version: 5.104.2(react@19.3.0)
+        version: 5.104.2(react@19.3.1)
       '@tanstack/react-query-persist-client':
         specifier: 5.104.2
-        version: 5.104.2(@tanstack/react-query@5.104.2(react@19.3.0))(react@19.3.0)
+        version: 5.104.2(@tanstack/react-query@5.104.2(react@19.3.1))(react@19.3.1)
       '@tuja/tmdb-types':
         specifier: workspace:*
         version: link:../../packages/tmdb-types
@@ -346,31 +346,31 @@ importers:
         version: 6.3.0
       next:
         specifier: 'catalog:'
-        version: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       pg:
         specifier: ^8.23.1
         version: 8.23.1
       posthog-js:
         specifier: ^1.438.9
-        version: 1.438.9(@types/react@19.3.0)(react@19.3.0)
+        version: 1.438.9(@types/react@19.3.0)(react@19.3.1)
       react:
         specifier: 'catalog:'
-        version: 19.3.0
+        version: 19.3.1
       react-dom:
         specifier: 'catalog:'
-        version: 19.3.0(react@19.3.0)
+        version: 19.3.1(react@19.3.1)
       react-error-boundary:
         specifier: ^6.1.6
-        version: 6.1.6(@types/react@19.3.0)(react@19.3.0)
+        version: 6.1.6(@types/react@19.3.0)(react@19.3.1)
       react-markdown:
         specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.3.0)(react@19.3.0)
+        version: 10.1.0(@types/react@19.3.0)(react@19.3.1)
       react-remove-scroll:
         specifier: 'catalog:'
-        version: 2.7.2(@types/react@19.3.0)(react@19.3.0)
+        version: 2.7.2(@types/react@19.3.0)(react@19.3.1)
       react-virtuoso:
         specifier: ^4.18.16
-        version: 4.18.16(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 4.18.16(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -425,7 +425,7 @@ importers:
         version: 7.0.1(@testing-library/dom@10.4.1)(vitest@5.0.4)
       '@testing-library/react':
         specifier: 'catalog:'
-        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@testing-library/user-event':
         specifier: 'catalog:'
         version: 14.6.8(@testing-library/dom@10.4.1)
@@ -515,7 +515,7 @@ importers:
         version: 3.0.3(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(graphql@16.14.2)(supports-color@10.2.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
       next-i18n-router:
         specifier: ^5.5.8
-        version: 5.5.8(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+        version: 5.5.8(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       npm-run-all2:
         specifier: ^9.0.3
         version: 9.0.3
@@ -542,7 +542,7 @@ importers:
         version: 4.0.2(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))
       react-grab:
         specifier: ^0.2.0
-        version: 0.2.0(react@19.3.0)
+        version: 0.2.0(react@19.3.1)
       tsx:
         specifier: 'catalog:'
         version: 4.23.15
@@ -639,10 +639,10 @@ importers:
         version: 3.0.1
       react:
         specifier: 'catalog:'
-        version: 19.3.0
+        version: 19.3.1
       react-dom:
         specifier: 'catalog:'
-        version: 19.3.0(react@19.3.0)
+        version: 19.3.1(react@19.3.1)
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)
@@ -812,10 +812,10 @@ importers:
     dependencies:
       '@phosphor-icons/react':
         specifier: 'catalog:'
-        version: 2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       react-remove-scroll:
         specifier: 'catalog:'
-        version: 2.7.2(@types/react@19.3.0)(react@19.3.0)
+        version: 2.7.2(@types/react@19.3.0)(react@19.3.1)
     devDependencies:
       '@babel/core':
         specifier: 'catalog:'
@@ -837,7 +837,7 @@ importers:
         version: 7.0.1(@testing-library/dom@10.4.1)(vitest@5.0.4)
       '@testing-library/react':
         specifier: 'catalog:'
-        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@testing-library/user-event':
         specifier: 'catalog:'
         version: 14.6.8(@testing-library/dom@10.4.1)
@@ -870,10 +870,10 @@ importers:
         version: 0.3.25
       react:
         specifier: 'catalog:'
-        version: 19.3.0
+        version: 19.3.1
       react-dom:
         specifier: 'catalog:'
-        version: 19.3.0(react@19.3.0)
+        version: 19.3.1(react@19.3.1)
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)
@@ -6712,10 +6712,10 @@ packages:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
 
-  react-dom@19.3.0:
-    resolution: {integrity: sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==}
+  react-dom@19.3.1:
+    resolution: {integrity: sha512-Y0bARz53lhEC1NMCASs0/j+faB/zqt3R8hpvg1e8+61ZVJ4UL0UdC4cBbXfZMcIuhrfgeILTLe+ZeBCavQPtKQ==}
     peerDependencies:
-      react: ^19.3.0
+      react: ^19.3.1
 
   react-error-boundary@6.1.6:
     resolution: {integrity: sha512-CDXPnXDGyFIbkwaaJ6u+xgsRmJhSi6YdgUDW1vnyKHfXp1a9pfAlM+ZET2CDu80/A+8iRcmXN0NSY9BCCoWP5A==}
@@ -6780,8 +6780,8 @@ packages:
       react: '>=16 || >=17 || >= 18 || >= 19'
       react-dom: '>=16 || >=17 || >= 18 || >=19'
 
-  react@19.3.0:
-    resolution: {integrity: sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==}
+  react@19.3.1:
+    resolution: {integrity: sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.2:
@@ -7747,26 +7747,26 @@ snapshots:
 
   '@1771technologies/js-utils@2.2.1': {}
 
-  '@1771technologies/lytenyte-core@2.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@1771technologies/lytenyte-core@2.2.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@1771technologies/dom-utils': 2.2.1
       '@1771technologies/js-utils': 2.2.1
       '@1771technologies/lytenyte-design': 2.2.1
       '@1771technologies/lytenyte-shared': 2.2.1
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   '@1771technologies/lytenyte-design@2.2.1': {}
 
-  '@1771technologies/lytenyte-pro@2.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@1771technologies/lytenyte-pro@2.2.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@1771technologies/dom-utils': 2.2.1
       '@1771technologies/js-utils': 2.2.1
-      '@1771technologies/lytenyte-core': 2.2.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@1771technologies/lytenyte-core': 2.2.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@1771technologies/lytenyte-design': 2.2.1
       '@1771technologies/lytenyte-shared': 2.2.1
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   '@1771technologies/lytenyte-shared@2.2.1':
     dependencies:
@@ -7809,14 +7809,14 @@ snapshots:
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@4.0.143(react@19.3.0)(zod@4.4.3)':
+  '@ai-sdk/react@4.0.143(react@19.3.1)(zod@4.4.3)':
     dependencies:
       '@ai-sdk/mcp': 2.0.74(zod@4.4.3)
       '@ai-sdk/provider': 4.0.27
       '@ai-sdk/provider-utils': 5.0.59(zod@4.4.3)
       ai: 7.0.140(zod@4.4.3)
-      react: 19.3.0
-      swr: 2.5.1(react@19.3.0)
+      react: 19.3.1
+      swr: 2.5.1(react@19.3.1)
       throttleit: 2.1.0
     transitivePeerDependencies:
       - zod
@@ -9852,10 +9852,10 @@ snapshots:
       tslib: 2.8.1
       tsyringe: 4.10.0
 
-  '@phosphor-icons/react@2.1.10(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@phosphor-icons/react@2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   '@playwright/test@1.64.0':
     dependencies:
@@ -9890,16 +9890,16 @@ snapshots:
     dependencies:
       tinyexec: 1.3.0
 
-  '@radix-ui/react-compose-refs@1.1.5(@types/react@19.3.0)(react@19.3.0)':
+  '@radix-ui/react-compose-refs@1.1.5(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
     optionalDependencies:
       '@types/react': 19.3.0
 
-  '@radix-ui/react-slot@1.4.0(@types/react@19.3.0)(react@19.3.0)':
+  '@radix-ui/react-slot@1.4.0(@types/react@19.3.0)(react@19.3.1)':
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.5(@types/react@19.3.0)(react@19.3.0)
-      react: 19.3.0
+      '@radix-ui/react-compose-refs': 1.1.5(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
     optionalDependencies:
       '@types/react': 19.3.0
 
@@ -10028,7 +10028,7 @@ snapshots:
       - browserslist
       - typescript
 
-  '@serwist/next@9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))':
+  '@serwist/next@9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2)(postcss@8.5.28))':
     dependencies:
       '@serwist/build': 9.5.13(@typescript/typescript6@6.0.2)(browserslist@4.29.3)
       '@serwist/utils': 9.5.13(browserslist@4.29.3)
@@ -10037,8 +10037,8 @@ snapshots:
       browserslist: 4.29.3
       glob: 13.0.6
       kolorist: 1.8.0
-      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      react: 19.3.0
+      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react: 19.3.1
       semver: 7.8.5
       serwist: 9.5.13(@typescript/typescript6@6.0.2)(browserslist@4.29.3)
       zod: 4.6.5
@@ -10048,7 +10048,7 @@ snapshots:
     transitivePeerDependencies:
       - webpack
 
-  '@serwist/next@9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(webpack@5.97.1(esbuild@0.28.2))':
+  '@serwist/next@9.5.13(@serwist/cli@9.5.13(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(browserslist@4.29.3)(esbuild@0.28.2))(@typescript/typescript6@6.0.2)(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)(webpack@5.97.1(esbuild@0.28.2))':
     dependencies:
       '@serwist/build': 9.5.13(@typescript/typescript6@6.0.2)(browserslist@4.29.3)
       '@serwist/utils': 9.5.13(browserslist@4.29.3)
@@ -10057,8 +10057,8 @@ snapshots:
       browserslist: 4.29.3
       glob: 13.0.6
       kolorist: 1.8.0
-      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      react: 19.3.0
+      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react: 19.3.1
       semver: 7.8.5
       serwist: 9.5.13(@typescript/typescript6@6.0.2)(browserslist@4.29.3)
       zod: 4.6.5
@@ -10247,16 +10247,16 @@ snapshots:
     dependencies:
       '@tanstack/query-core': 5.104.2
 
-  '@tanstack/react-query-persist-client@5.104.2(@tanstack/react-query@5.104.2(react@19.3.0))(react@19.3.0)':
+  '@tanstack/react-query-persist-client@5.104.2(@tanstack/react-query@5.104.2(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@tanstack/query-persist-client-core': 5.104.2
-      '@tanstack/react-query': 5.104.2(react@19.3.0)
-      react: 19.3.0
+      '@tanstack/react-query': 5.104.2(react@19.3.1)
+      react: 19.3.1
 
-  '@tanstack/react-query@5.104.2(react@19.3.0)':
+  '@tanstack/react-query@5.104.2(react@19.3.1)':
     dependencies:
       '@tanstack/query-core': 5.104.2
-      react: 19.3.0
+      react: 19.3.1
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -10281,12 +10281,12 @@ snapshots:
     optionalDependencies:
       vitest: 5.0.4(@opentelemetry/api@1.9.1)(@types/node@26.6.5)(@vitest/coverage-v8@5.0.4)(@vitest/ui@5.0.4)(jsdom@30.1.2)(msw@3.0.3(@types/node@26.6.5)(@typescript/typescript6@6.0.2)(graphql@16.14.2)(supports-color@10.2.2)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)))(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))
 
-  '@testing-library/react@16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@testing-library/react@16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@testing-library/dom': 10.4.1
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
     optionalDependencies:
       '@types/react': 19.3.0
       '@types/react-dom': 19.3.0(@types/react@19.3.0)
@@ -10723,10 +10723,10 @@ snapshots:
 
   '@upstash/vector@1.2.3': {}
 
-  '@vercel/analytics@2.0.1(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)':
+  '@vercel/analytics@2.0.1(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
     optionalDependencies:
-      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      react: 19.3.0
+      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react: 19.3.1
 
   '@vercel/cli-config@0.3.1':
     dependencies:
@@ -10749,10 +10749,10 @@ snapshots:
       '@vercel/cli-exec': 1.0.1
       jose: 5.10.0
 
-  '@vercel/speed-insights@2.0.0(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)':
+  '@vercel/speed-insights@2.0.0(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
     optionalDependencies:
-      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      react: 19.3.0
+      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react: 19.3.1
 
   '@vitejs/plugin-react@6.1.2(@rolldown/plugin-babel@0.2.4(@babel/core@8.0.7)(@babel/runtime@8.0.7)(rolldown@1.2.13)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)))(babel-plugin-react-compiler@1.0.0)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))':
     dependencies:
@@ -11082,9 +11082,9 @@ snapshots:
 
   big.js@5.2.2: {}
 
-  bippy@0.6.1(react@19.3.0):
+  bippy@0.6.1(react@19.3.1):
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
 
   boxen@8.0.1:
     dependencies:
@@ -12712,9 +12712,9 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@1.55.0(@types/react@19.3.0)(react@19.3.0):
+  lucide-react@1.55.0(@types/react@19.3.0)(react@19.3.1):
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
     optionalDependencies:
       '@types/react': 19.3.0
 
@@ -13230,22 +13230,22 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-i18n-router@5.5.8(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)):
+  next-i18n-router@5.5.8(next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)):
     dependencies:
       '@formatjs/intl-localematcher': 0.6.2
       negotiator: 1.0.0
-      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      next: 16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
-  next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  next@16.4.0(@babel/core@8.0.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.64.0)(@types/node@26.6.5)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       '@next/env': 16.4.0
       '@swc/helpers': 0.5.23
       baseline-browser-mapping: 2.11.27
       caniuse-lite: 1.0.30001814
       postcss: 8.5.28
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
-      styled-jsx: 5.1.6(@babel/core@8.0.7)(react@19.3.0)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      styled-jsx: 5.1.6(@babel/core@8.0.7)(react@19.3.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.4.0
       '@next/swc-darwin-x64': 16.4.0
@@ -13771,7 +13771,7 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-js@1.438.9(@types/react@19.3.0)(react@19.3.0):
+  posthog-js@1.438.9(@types/react@19.3.0)(react@19.3.1):
     dependencies:
       '@posthog/browser-common': 0.9.4
       '@posthog/core': 1.58.1
@@ -13785,7 +13785,7 @@ snapshots:
       web-vitals-soft-navs: web-vitals@6.2.1
     optionalDependencies:
       '@types/react': 19.3.0
-      react: 19.3.0
+      react: 19.3.1
     transitivePeerDependencies:
       - preact-render-to-string
 
@@ -13854,27 +13854,27 @@ snapshots:
       minimist: 1.2.8
       strip-json-comments: 2.0.1
 
-  react-dom@19.3.0(react@19.3.0):
+  react-dom@19.3.1(react@19.3.1):
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
       scheduler: 0.28.0
 
-  react-error-boundary@6.1.6(@types/react@19.3.0)(react@19.3.0):
+  react-error-boundary@6.1.6(@types/react@19.3.0)(react@19.3.1):
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-grab@0.2.0(react@19.3.0):
+  react-grab@0.2.0(react@19.3.1):
     dependencies:
       '@react-grab/cli': 0.2.0
-      bippy: 0.6.1(react@19.3.0)
+      bippy: 0.6.1(react@19.3.1)
     optionalDependencies:
-      react: 19.3.0
+      react: 19.3.1
 
   react-is@17.0.2: {}
 
-  react-markdown@10.1.0(@types/react@19.3.0)(react@19.3.0):
+  react-markdown@10.1.0(@types/react@19.3.0)(react@19.3.1):
     dependencies:
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
@@ -13883,7 +13883,7 @@ snapshots:
       hast-util-to-jsx-runtime: 2.3.6
       html-url-attributes: 3.0.1
       mdast-util-to-hast: 13.2.1
-      react: 19.3.0
+      react: 19.3.1
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       unified: 11.0.5
@@ -13892,39 +13892,39 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react-remove-scroll-bar@2.3.8(@types/react@19.3.0)(react@19.3.0):
+  react-remove-scroll-bar@2.3.8(@types/react@19.3.0)(react@19.3.1):
     dependencies:
-      react: 19.3.0
-      react-style-singleton: 2.2.3(@types/react@19.3.0)(react@19.3.0)
+      react: 19.3.1
+      react-style-singleton: 2.2.3(@types/react@19.3.0)(react@19.3.1)
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-remove-scroll@2.7.2(@types/react@19.3.0)(react@19.3.0):
+  react-remove-scroll@2.7.2(@types/react@19.3.0)(react@19.3.1):
     dependencies:
-      react: 19.3.0
-      react-remove-scroll-bar: 2.3.8(@types/react@19.3.0)(react@19.3.0)
-      react-style-singleton: 2.2.3(@types/react@19.3.0)(react@19.3.0)
+      react: 19.3.1
+      react-remove-scroll-bar: 2.3.8(@types/react@19.3.0)(react@19.3.1)
+      react-style-singleton: 2.2.3(@types/react@19.3.0)(react@19.3.1)
       tslib: 2.8.1
-      use-callback-ref: 1.3.3(@types/react@19.3.0)(react@19.3.0)
-      use-sidecar: 1.1.3(@types/react@19.3.0)(react@19.3.0)
+      use-callback-ref: 1.3.3(@types/react@19.3.0)(react@19.3.1)
+      use-sidecar: 1.1.3(@types/react@19.3.0)(react@19.3.1)
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-style-singleton@2.2.3(@types/react@19.3.0)(react@19.3.0):
+  react-style-singleton@2.2.3(@types/react@19.3.0)(react@19.3.1):
     dependencies:
       get-nonce: 1.0.1
-      react: 19.3.0
+      react: 19.3.1
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-virtuoso@4.18.16(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  react-virtuoso@4.18.16(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
-  react@19.3.0: {}
+  react@19.3.1: {}
 
   read-cache@1.0.2: {}
 
@@ -14398,10 +14398,10 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  styled-jsx@5.1.6(@babel/core@8.0.7)(react@19.3.0):
+  styled-jsx@5.1.6(@babel/core@8.0.7)(react@19.3.1):
     dependencies:
       client-only: 0.0.1
-      react: 19.3.0
+      react: 19.3.1
     optionalDependencies:
       '@babel/core': 8.0.7
 
@@ -14421,11 +14421,11 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  swr@2.5.1(react@19.3.0):
+  swr@2.5.1(react@19.3.1):
     dependencies:
       dequal: 2.0.3
-      react: 19.3.0
-      use-sync-external-store: 1.7.0(react@19.3.0)
+      react: 19.3.1
+      use-sync-external-store: 1.7.0(react@19.3.1)
 
   tagged-tag@1.0.0: {}
 
@@ -14746,24 +14746,24 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-callback-ref@1.3.3(@types/react@19.3.0)(react@19.3.0):
+  use-callback-ref@1.3.3(@types/react@19.3.0)(react@19.3.1):
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.3.0
 
-  use-sidecar@1.1.3(@types/react@19.3.0)(react@19.3.0):
+  use-sidecar@1.1.3(@types/react@19.3.0)(react@19.3.1):
     dependencies:
       detect-node-es: 1.1.0
-      react: 19.3.0
+      react: 19.3.1
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.3.0
 
-  use-sync-external-store@1.7.0(react@19.3.0):
+  use-sync-external-store@1.7.0(react@19.3.1):
     dependencies:
-      react: 19.3.0
+      react: 19.3.1
 
   util-deprecate@1.0.2: {}
 
