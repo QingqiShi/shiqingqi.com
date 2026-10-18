@@ -149,7 +149,7 @@ export function packElements(
     floats.set(element.radii, at + 4);
     floats.set(element.fill, at + 8);
     words[at + 12] = element.roles;
-    words[at + 13] = element.fixed ? ELEMENT_FIXED : 0;
+    words[at + 13] = element.canvas === "scroll" ? 0 : ELEMENT_FIXED;
     floats[at + 14] = element.cornerExponent;
     words[at + 15] = element.id;
     words[at + 16] = element.scopeIndex;

@@ -43,8 +43,8 @@ export function LayoutShowcase() {
     {
       term: "layer.raised",
       note: t({
-        en: "Above the content, under the header, so it scrolls away beneath the header. MenuButton's menu and StickyControls use it. Use it for your own sticky bar, or a menu that opens in the page.",
-        zh: "高于内容、低于页头，因此会从页头下方滚走。MenuButton 的菜单与 StickyControls 位于这一层。你自己的吸顶栏，或在页面中展开的菜单，用这一层。",
+        en: "Above the content, under the header, so it scrolls away beneath the header. MenuButton's menu and a stuck StickyControls use it. Use it for your own sticky bar while it is stuck, or a menu that opens in the page.",
+        zh: "高于内容、低于页头，因此会从页头下方滚走。MenuButton 的菜单与吸附中的 StickyControls 位于这一层。你自己的吸顶栏在吸附时，或在页面中展开的菜单，用这一层。",
       }),
     },
     {
@@ -297,7 +297,7 @@ const styles = stylex.create({
           code={`import { layer } from "@tuja/ui/tokens.stylex";
 
 const styles = stylex.create({
-  // On the bar's outermost element.
+  // On the bar's outermost element, with the css of useEffectSticky after it.
   filterBar: { position: "sticky", insetBlockStart: 0, zIndex: layer.raised },
 });`}
         />

@@ -5,7 +5,9 @@ import * as stylex from "@stylexjs/stylex";
 import type { ReactNode, RefObject } from "react";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
+import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
+import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { scrollbar } from "../primitives/layout.stylex.ts";
 import {
@@ -58,7 +60,9 @@ export function Drawer({
   children,
 }: DrawerProps) {
   const coverRef = useEffectCover();
-  const railRefs = mergeRefs(drawerRef, coverRef);
+  const sticky = useEffectSticky();
+  const { ref, css } = sticky;
+  const railRefs = mergeRefs(drawerRef, coverRef, ref);
   return (
     <>
       {/* Backdrop and drawer stay mounted, so the slide/fade transitions in
@@ -77,6 +81,7 @@ export function Drawer({
           styles.rail,
           isOpen && styles.railOpen,
           !hasDrawer && styles.railWithoutDrawer,
+          css,
         ]}
         role={isOpen ? "dialog" : undefined}
         aria-modal={isOpen || undefined}
@@ -96,44 +101,50 @@ export function Drawer({
         {/* Header and footer ride in ScrollMask's chrome slots, so the nav
             bleeds to the rail's edges and scrolled links blur progressively
             past the chrome. */}
-        <ScrollMask
-          orientation="vertical"
-          css={styles.railNav}
-          contentCss={[
-            styles.railNavContent,
-            sidebarFooter == null
-              ? styles.railNavContentNoFooter
-              : [
-                  styles.railNavContentFixedFooter,
-                  dynamicStyles.railCardInlineSize(railColumnSize),
-                ],
-            scrollbar.autoHide,
-            transition.scrollbarColor,
-          ]}
-          startChrome={
-            <div css={styles.railHeader}>
-              <div css={styles.railTitle}>{sidebarHeader}</div>
-              {hasDrawer ? (
-                <Button
-                  size="sm"
-                  look="ghost"
-                  css={styles.railClose}
-                  icon={<XIcon weight="bold" />}
-                  aria-label={closeLabel}
-                  onClick={onClose}
-                />
-              ) : null}
-            </div>
-          }
-          endChrome={
-            sidebarFooter != null ? (
-              <div css={styles.railFooter}>{sidebarFooter}</div>
-            ) : undefined
-          }
-          endChromeCss={styles.railFooterSlot}
-        >
-          {children}
-        </ScrollMask>
+        <EffectCarrier value={sticky}>
+          <ScrollMask
+            orientation="vertical"
+            css={styles.railNav}
+            contentCss={[
+              styles.railNavContent,
+              sidebarFooter == null
+                ? styles.railNavContentNoFooter
+                : [
+                    styles.railNavContentFixedFooter,
+                    dynamicStyles.railCardInlineSize(railColumnSize),
+                  ],
+              scrollbar.autoHide,
+              transition.scrollbarColor,
+            ]}
+            startChrome={
+              <div css={styles.railHeader}>
+                <div css={styles.railTitle}>{sidebarHeader}</div>
+                {hasDrawer ? (
+                  <Button
+                    size="sm"
+                    look="ghost"
+                    css={styles.railClose}
+                    icon={<XIcon weight="bold" />}
+                    aria-label={closeLabel}
+                    onClick={onClose}
+                  />
+                ) : null}
+              </div>
+            }
+            endChrome={
+              sidebarFooter != null ? (
+                <div css={styles.railFooter}>
+                  <EffectCarrier value="viewport-bottom">
+                    {sidebarFooter}
+                  </EffectCarrier>
+                </div>
+              ) : undefined
+            }
+            endChromeCss={styles.railFooterSlot}
+          >
+            {children}
+          </ScrollMask>
+        </EffectCarrier>
       </div>
     </>
   );
@@ -198,9 +209,9 @@ const styles = stylex.create({
       [breakpoints.md]: "auto",
     },
     // Mobile: the drawer is an overlay, so it takes that plane and covers the
-    // pill bar (`layer.header`). md+: the rail is sticky page chrome, so it
-    // takes the header plane over content and the effect layer, which leaves
-    // an open overlay above it.
+    // pill bar (`layer.header`). md+: the stuck rail is sticky page chrome, so
+    // it takes the header plane over content and the effect layer, which
+    // leaves an open overlay above it.
     zIndex: { default: layer.overlay, [breakpoints.md]: layer.header },
     // No padding: the nav spans the card's whole box, so the corners it
     // inherits line up with these. The chrome slots carry the block insets

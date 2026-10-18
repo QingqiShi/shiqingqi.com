@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
+import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import {
@@ -212,18 +213,20 @@ export function SidebarLayout({
     >
       {drawer.hasDrawer ? (
         <div css={[corner.radius_round, styles.mobileBar]}>
-          <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
-          <Button
-            size="sm"
-            look="ghost"
-            icon={<ListIcon weight="bold" />}
-            aria-label={drawer.menuLabel}
-            aria-haspopup="dialog"
-            aria-expanded={isOpen}
-            onClick={() => {
-              setIsOpen(true);
-            }}
-          />
+          <EffectCarrier value="viewport">
+            <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
+            <Button
+              size="sm"
+              look="ghost"
+              icon={<ListIcon weight="bold" />}
+              aria-label={drawer.menuLabel}
+              aria-haspopup="dialog"
+              aria-expanded={isOpen}
+              onClick={() => {
+                setIsOpen(true);
+              }}
+            />
+          </EffectCarrier>
         </div>
       ) : null}
       <Drawer

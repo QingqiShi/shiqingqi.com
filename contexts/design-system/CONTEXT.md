@@ -75,6 +75,14 @@ _Avoid_: effect boundary (that is an obstacle), effect scope, sandbox, 效果作
 **Effect cover**:
 An element that shows over the page, such as a sheet or a dialog, so that the effects of the elements under it and not inside it do not draw. `useEffectCover` makes one. ZH: 效果遮盖.
 
+**Effect carrier**:
+What an element's effects move with: the viewport, or the content of a Scroll region. Each `<canvas>` element of the effect layer belongs to a carrier, never to one element. `EffectCarrier` declares one. ZH: 效果载体.
+_Avoid_: frame (one drawn `EffectFrame`), plane (a z-index rung), layer, stage, surface, effect origin (the viewport origin is the 0 × 0 point)
+
+**Scroll region**:
+A scroller whose content is an Effect carrier, so that the compositor moves the effects in it with its scroll. The page is the root Scroll region. ZH: 滚动区域.
+_Avoid_: scroll container (the CSS term, which is broader)
+
 **Ring light**:
 A comet of light that runs round an element's outline on the effect layer, one lap when an element arrives (`useRingLight`). It marks a moment and carries no meaning of its own. ZH: 环形光.
 _Avoid_: glow, halo, shimmer, border animation, 光晕, 流光

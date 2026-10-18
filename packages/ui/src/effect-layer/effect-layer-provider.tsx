@@ -117,7 +117,10 @@ interface EffectLayerProviderProps {
  * its scope, and the pointer.
  *
  * Mount it once, high in the page, inside a positioned `<body>` so that the
- * scroll `<canvas>` elements cover the document and no more.
+ * scroll `<canvas>` elements cover the document and no more. Elements join
+ * the layer through the effect hooks. A component that pins content to the
+ * viewport, or that sticks, declares this with `EffectCarrier`. It does not
+ * add a `<canvas>` element.
  */
 export function EffectLayerProvider({ children }: EffectLayerProviderProps) {
   const [registry] = useState(createEffectRegistry);
@@ -139,7 +142,7 @@ export function EffectLayerProvider({ children }: EffectLayerProviderProps) {
   const gpu = useEffectLayerDevice(wanted);
 
   return (
-    <EffectLayerContext value={registry.register}>
+    <EffectLayerContext value={registry}>
       {children}
       {wanted && gpu !== null && (
         <Suspense fallback={null}>

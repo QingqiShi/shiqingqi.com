@@ -22,11 +22,10 @@ function record(
     y: 100,
     width: 80,
     height: 80,
-    fixed: false,
-    fixedToBottom: false,
+    canvas: "scroll",
+    canvases: ["scroll"],
     radii: [40, 40, 40, 40],
     cornerExponent: 2,
-    sticksToViewport: false,
     fill: [0, 0, 0, 1],
     grayscale: 0,
     scope: PAGE_SCOPE,
@@ -47,7 +46,7 @@ describe("lensesOfScope", () => {
       record(1),
       record(2, { roles: 0 }),
       record(3, { scopeIndex: 1 }),
-      record(4, { fixed: true }),
+      record(4, { canvas: "fixed" }),
     ];
     const lenses = lensesOfScope(
       elements,

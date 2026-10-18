@@ -3,10 +3,11 @@ import type { EffectColor } from "./parse-css-color.ts";
 import type { ElementBox } from "./read-element-box.ts";
 
 /**
- * The `<canvas>` elements of the effect layer: the two scroll ones, which take
- * turns to cover the document; the fixed one, which covers the viewport for
- * fixed elements; or the bottom one, which covers the viewport from its
- * bottom edge for elements fixed to that edge, and moves with it.
+ * The `<canvas>` elements of the effect layer, one for each Effect carrier:
+ * the two scroll ones, which take turns to cover the document, for the
+ * page; the fixed one, which covers the viewport, for the viewport; or the
+ * bottom one, which covers the viewport from its bottom edge and moves with
+ * it, for the viewport's bottom edge.
  *
  * @internal
  */
@@ -62,6 +63,19 @@ export interface MeasuredElement extends ElementBox {
   readonly scope: number;
   /** The scope it holds as an Effect container, or `null`. */
   readonly holds: number | null;
+  /**
+   * The `<canvas>` element it draws on: the one of the Effect carrier it
+   * was last measured on. The carrier comes from the nearest
+   * `EffectCarrier` above its effect hooks in the React tree. Measurement
+   * does not choose it.
+   */
+  readonly canvas: EffectCanvas;
+  /**
+   * Each `<canvas>` element it can draw on: `canvas`, and the other one of
+   * each sticky carrier that it is on, which it moves to when that box
+   * sticks or lets go.
+   */
+  readonly canvases: readonly EffectCanvas[];
 }
 
 /**
@@ -288,7 +302,10 @@ export interface EffectRenderer {
 }
 
 /**
- * Something the effect layer draws, set up once on the shared device.
+ * Something the effect layer draws, set up once on the shared device. An
+ * effect draws on each target of a frame. A target is a part of the
+ * `<canvas>` element of an Effect carrier. An effect must not make its own
+ * `<canvas>` element.
  *
  * @internal
  */

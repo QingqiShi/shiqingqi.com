@@ -2,6 +2,11 @@
 
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
+import {
+  EffectCarrierContext,
+  EffectContainedContext,
+} from "../effect-layer/effect-carrier-context.ts";
+import { VIEWPORT_CARRIER } from "../effect-layer/resolve-carrier.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { viewportAnchor } from "../primitives/layout.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -26,7 +31,10 @@ interface PortalProps {
 /**
  * Portals its children to `target` from the first client render after
  * hydration. The server renders nothing, so the first client pass agrees
- * with it.
+ * with it. The children are fixed to the viewport: a viewport anchor holds
+ * them, or they are fixed themselves. Thus, their effect hooks are on the
+ * viewport, also when the portal is inside a box that holds its fixed
+ * descendants.
  *
  * @internal
  */
@@ -38,12 +46,19 @@ export function Portal({
 }: PortalProps) {
   const isHydrated = useIsHydrated();
   if (!isHydrated || target === null) return null;
-  if (target !== undefined) return createPortal(children, target);
+  const onViewport = (
+    <EffectContainedContext value={false}>
+      <EffectCarrierContext value={VIEWPORT_CARRIER}>
+        {children}
+      </EffectCarrierContext>
+    </EffectContainedContext>
+  );
+  if (target !== undefined) return createPortal(onViewport, target);
   return createPortal(
     anchored ? (
-      <div css={[viewportAnchor.fixed, anchorCss]}>{children}</div>
+      <div css={[viewportAnchor.fixed, anchorCss]}>{onViewport}</div>
     ) : (
-      children
+      onViewport
     ),
     document.body,
   );

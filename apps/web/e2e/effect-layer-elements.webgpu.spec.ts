@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { recordEffectLayerFrames } from "./helpers/effect-layer-frame.ts";
 import { readScreenshotColumn } from "./helpers/read-screenshot-column.ts";
 import { scrollWithin } from "./helpers/scroll.ts";
 import { findStatusBarCandidates } from "./helpers/status-bar.ts";
@@ -14,39 +15,6 @@ const MOUNT_TIMEOUT = 15_000;
 // The debug view's line on the edge of an element in the document, in 8-bit
 // sRGB: vec3f(0.1, 0.7, 0.2).
 const DOCUMENT_LINE = [26, 179, 51];
-
-interface EffectFrameDetail {
-  scrollX: number;
-  scrollY: number;
-  elements: {
-    id: number;
-    element: Element;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    fixed: boolean;
-    fixedToBottom: boolean;
-    radii: readonly number[];
-    fill: readonly number[];
-  }[];
-  pointer: {
-    x: number;
-    y: number;
-    pressed: boolean;
-    present: boolean;
-  };
-}
-
-declare global {
-  interface Window {
-    /** The detail of the last `effectlayerframe` event. */
-    lastEffectLayerFrame?: EffectFrameDetail;
-  }
-  interface WindowEventMap {
-    effectlayerframe: CustomEvent<EffectFrameDetail>;
-  }
-}
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -132,11 +100,7 @@ test("mounts no canvas element for elements without an effect", async ({
 
 test.describe("in the debug view", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      window.addEventListener("effectlayerframe", (event) => {
-        window.lastEffectLayerFrame = event.detail;
-      });
-    });
+    await recordEffectLayerFrames(page);
     await page.goto(DEBUG_PAGE);
     await expect(page.locator('[data-effect-layer="fixed"]')).toHaveCount(1, {
       timeout: MOUNT_TIMEOUT,
@@ -167,7 +131,7 @@ test.describe("in the debug view", () => {
     await expectLineOnLeftEdge(page);
   });
 
-  test("registers an element fixed to the bottom on the bottom canvas element", async ({
+  test("draws an element declared on the viewport's bottom edge on the bottom canvas element", async ({
     page,
   }) => {
     const fixedRecord = () =>
@@ -180,7 +144,7 @@ test.describe("in the debug view", () => {
           return null;
         }
         return {
-          fixed: record.fixed && record.fixedToBottom,
+          onBottom: record.canvas === "fixedBottom",
           viewportTop: Math.round(record.y - frame.scrollY),
           top: Math.round(record.element.getBoundingClientRect().top),
         };
@@ -192,7 +156,9 @@ test.describe("in the debug view", () => {
         .poll(async () => {
           const record = await fixedRecord();
           return (
-            record !== null && record.fixed && record.viewportTop === record.top
+            record !== null &&
+            record.onBottom &&
+            record.viewportTop === record.top
           );
         })
         .toBe(true);

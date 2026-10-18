@@ -2,6 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
+import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
@@ -29,11 +31,18 @@ function ReportsColumns({ children }: { children: ReactNode }) {
   const newestId = useReportList().data?.at(0)?.id ?? null;
   const isOnReport = segment !== null;
   const currentId = segment ?? (isWide ? newestId : null);
+  const sticky = useEffectSticky();
+  const { ref, css } = sticky;
 
   return (
     <div css={styles.root}>
-      <div css={[styles.list, isOnReport && styles.listOnReport]}>
-        <ReportList currentId={currentId} headingLevel={isOnReport ? 2 : 1} />
+      <div
+        ref={ref}
+        css={[styles.list, isOnReport && styles.listOnReport, css]}
+      >
+        <EffectCarrier value={sticky}>
+          <ReportList currentId={currentId} headingLevel={isOnReport ? 2 : 1} />
+        </EffectCarrier>
       </div>
       <div css={[styles.content, !isOnReport && styles.contentOnIndex]}>
         {children}

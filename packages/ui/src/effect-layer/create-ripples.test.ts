@@ -37,11 +37,10 @@ function record(
     y: 0,
     width: 200,
     height: 120,
-    fixed: false,
-    fixedToBottom: false,
+    canvas: "scroll",
+    canvases: ["scroll"],
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
-    sticksToViewport: false,
     fill: [0.6, 0.3, 0.8, 1],
     grayscale: 0,
     scope: 0,
@@ -59,7 +58,7 @@ function scopesOf(elements: readonly EffectElementRecord[]): EffectScope[] {
       const indices = [...elements.keys()].filter(
         (index) =>
           elements[index].scopeIndex === scopeIndex &&
-          elements[index].fixed === fixed,
+          (elements[index].canvas === "fixed") === fixed,
       );
       return { firstElement: indices[0] ?? 0, elementCount: indices.length };
     };
@@ -449,7 +448,7 @@ describe("createRipples", () => {
       record(1),
       record(2, { x: 400 }),
       record(3, { x: 800, scopeIndex: 1 }),
-      record(4, { fixed: true }),
+      record(4, { canvas: "fixed" }),
     ];
     for (const { element } of elements) {
       ripples.start(element, "focus", 0, 0);

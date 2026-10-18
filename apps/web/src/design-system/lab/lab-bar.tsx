@@ -5,6 +5,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import {
   glassSurface,
   glassTokens,
@@ -69,101 +70,103 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
 
   return (
     <div css={styles.bar}>
-      {/* Glass on a layer of its own, not on the bar itself: a
+      <EffectCarrier value="viewport-bottom">
+        {/* Glass on a layer of its own, not on the bar itself: a
           `backdrop-filter` makes a containing block for fixed children, which
           would trap the Sheet's backdrop and its Progressive blur inside the
           bar. */}
-      <div
-        css={[corner.radius_3, glassSurface.base, styles.pane]}
-        aria-hidden
-      />
-      <div
-        css={styles.row}
-        onKeyDown={(event) => {
-          if (event.key !== "Escape" || activeControl === undefined) return;
-          event.stopPropagation();
-          setActiveControlName(null);
-        }}
-      >
-        {activeControl === undefined ? (
-          <>
-            <div ref={triggerRef}>
-              <MenuButton
-                position="sheet"
-                popupRole="group"
-                open={isSheetShown}
-                onOpenChange={setIsSheetShown}
-                buttonProps={{
-                  type: "button",
-                  size: "sm",
-                  icon: <SlidersHorizontalIcon weight="bold" />,
+        <div
+          css={[corner.radius_3, glassSurface.base, styles.pane]}
+          aria-hidden
+        />
+        <div
+          css={styles.row}
+          onKeyDown={(event) => {
+            if (event.key !== "Escape" || activeControl === undefined) return;
+            event.stopPropagation();
+            setActiveControlName(null);
+          }}
+        >
+          {activeControl === undefined ? (
+            <>
+              <div ref={triggerRef}>
+                <MenuButton
+                  position="sheet"
+                  popupRole="group"
+                  open={isSheetShown}
+                  onOpenChange={setIsSheetShown}
+                  buttonProps={{
+                    type: "button",
+                    size: "sm",
+                    icon: <SlidersHorizontalIcon weight="bold" />,
+                  }}
+                  menuContent={
+                    <LabSheet
+                      variants={variants}
+                      controls={controls}
+                      variantId={state.variantId}
+                      props={state.props}
+                      onSelectVariant={(variantId) => {
+                        dispatch({ type: "selectVariant", variantId });
+                        setActiveControlName(null);
+                        setIsSheetShown(false);
+                      }}
+                      onOpenControl={(prop) => {
+                        setActiveControlName(prop);
+                        setIsSheetShown(false);
+                      }}
+                    />
+                  }
+                >
+                  {t({ en: "Controls", zh: "控件" })}
+                </MenuButton>
+              </div>
+              <Button
+                look="ghost"
+                size="sm"
+                css={styles.trailing}
+                onClick={() => {
+                  dispatch({ type: "reset" });
+                  setActiveControlName(null);
                 }}
-                menuContent={
-                  <LabSheet
-                    variants={variants}
-                    controls={controls}
-                    variantId={state.variantId}
-                    props={state.props}
-                    onSelectVariant={(variantId) => {
-                      dispatch({ type: "selectVariant", variantId });
-                      setActiveControlName(null);
-                      setIsSheetShown(false);
-                    }}
-                    onOpenControl={(prop) => {
-                      setActiveControlName(prop);
-                      setIsSheetShown(false);
-                    }}
-                  />
-                }
               >
-                {t({ en: "Controls", zh: "控件" })}
-              </MenuButton>
-            </div>
-            <Button
-              look="ghost"
-              size="sm"
-              css={styles.trailing}
-              onClick={() => {
-                dispatch({ type: "reset" });
-                setActiveControlName(null);
-              }}
-            >
-              {t({ en: "Reset", zh: "重置" })}
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              size="sm"
-              look="ghost"
-              icon={<XIcon weight="bold" />}
-              aria-label={t({ en: "Close control", zh: "关闭控件" })}
-              onClick={() => {
-                setActiveControlName(null);
-              }}
-            />
-            {/* The control carries the prop name as its accessible name, so
-                the visible copy is hidden from assistive technology and the
-                name is announced once. */}
-            <span aria-hidden css={[typeRole.caption, styles.propName]}>
-              <Identifier>{activeControl.name}</Identifier>
-            </span>
-            <div ref={controlRef} css={styles.control}>
-              <LabControl
-                control={activeControl}
-                props={state.props}
-                onChange={(value) => {
-                  dispatch({
-                    type: "setProp",
-                    prop: activeControl.name,
-                    value,
-                  });
+                {t({ en: "Reset", zh: "重置" })}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                look="ghost"
+                icon={<XIcon weight="bold" />}
+                aria-label={t({ en: "Close control", zh: "关闭控件" })}
+                onClick={() => {
+                  setActiveControlName(null);
                 }}
               />
-            </div>
-          </>
-        )}
-      </div>
+              {/* The control carries the prop name as its accessible name, so
+                the visible copy is hidden from assistive technology and the
+                name is announced once. */}
+              <span aria-hidden css={[typeRole.caption, styles.propName]}>
+                <Identifier>{activeControl.name}</Identifier>
+              </span>
+              <div ref={controlRef} css={styles.control}>
+                <LabControl
+                  control={activeControl}
+                  props={state.props}
+                  onChange={(value) => {
+                    dispatch({
+                      type: "setProp",
+                      prop: activeControl.name,
+                      value,
+                    });
+                  }}
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </EffectCarrier>
     </div>
   );
 }

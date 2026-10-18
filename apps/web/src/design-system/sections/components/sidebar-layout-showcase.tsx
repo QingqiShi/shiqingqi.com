@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { Heading } from "@tuja/ui/components/heading";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { Text } from "@tuja/ui/components/text";
@@ -52,55 +53,59 @@ export function SidebarLayoutShowcase() {
               inside the frame. */}
           <div css={[corner.radius_3, styles.frame]}>
             <div css={styles.viewport}>
-              <SidebarLayout
-                as="div"
-                menuLabel={t({ en: "Demo menu", zh: "演示菜单" })}
-                closeLabel={t({ en: "Close demo menu", zh: "关闭演示菜单" })}
-                sidebarHeader={<DesignSystemSidebarHeader locale={locale} />}
-                sidebarFooter={<DesignSystemSidebarControls locale={locale} />}
-                sidebar={
-                  <DesignSystemNav
-                    routeLabels={getDesignSystemRouteLabels()}
-                    groupLabels={getDesignSystemGroupLabels()}
-                    ariaLabel={t({
-                      en: "Design system (demo)",
-                      zh: "设计系统（演示）",
-                    })}
-                  />
-                }
-              >
-                <div css={stack.group}>
-                  <div css={stack.tight}>
-                    <Heading level={2}>
-                      {t({ en: "Content column", zh: "内容列" })}
-                    </Heading>
-                    <Text look="bodySmall" tone="muted">
-                      {t({
-                        en: "Your page renders in the content column, capped to a readable width beside the rail.",
-                        zh: "你的页面渲染在这里，在侧栏旁保持可读宽度。",
+              <EffectCarrier value="contained">
+                <SidebarLayout
+                  as="div"
+                  menuLabel={t({ en: "Demo menu", zh: "演示菜单" })}
+                  closeLabel={t({ en: "Close demo menu", zh: "关闭演示菜单" })}
+                  sidebarHeader={<DesignSystemSidebarHeader locale={locale} />}
+                  sidebarFooter={
+                    <DesignSystemSidebarControls locale={locale} />
+                  }
+                  sidebar={
+                    <DesignSystemNav
+                      routeLabels={getDesignSystemRouteLabels()}
+                      groupLabels={getDesignSystemGroupLabels()}
+                      ariaLabel={t({
+                        en: "Design system (demo)",
+                        zh: "设计系统（演示）",
                       })}
-                    </Text>
+                    />
+                  }
+                >
+                  <div css={stack.group}>
+                    <div css={stack.tight}>
+                      <Heading level={2}>
+                        {t({ en: "Content column", zh: "内容列" })}
+                      </Heading>
+                      <Text look="bodySmall" tone="muted">
+                        {t({
+                          en: "Your page renders in the content column, capped to a readable width beside the rail.",
+                          zh: "你的页面渲染在这里，在侧栏旁保持可读宽度。",
+                        })}
+                      </Text>
+                    </div>
+                    <div css={styles.cardGrid}>
+                      <div
+                        css={[corner.radius_2, styles.placeholder]}
+                        aria-hidden="true"
+                      />
+                      <div
+                        css={[corner.radius_2, styles.placeholder]}
+                        aria-hidden="true"
+                      />
+                      <div
+                        css={[corner.radius_2, styles.placeholder]}
+                        aria-hidden="true"
+                      />
+                      <div
+                        css={[corner.radius_2, styles.placeholder]}
+                        aria-hidden="true"
+                      />
+                    </div>
                   </div>
-                  <div css={styles.cardGrid}>
-                    <div
-                      css={[corner.radius_2, styles.placeholder]}
-                      aria-hidden="true"
-                    />
-                    <div
-                      css={[corner.radius_2, styles.placeholder]}
-                      aria-hidden="true"
-                    />
-                    <div
-                      css={[corner.radius_2, styles.placeholder]}
-                      aria-hidden="true"
-                    />
-                    <div
-                      css={[corner.radius_2, styles.placeholder]}
-                      aria-hidden="true"
-                    />
-                  </div>
-                </div>
-              </SidebarLayout>
+                </SidebarLayout>
+              </EffectCarrier>
             </div>
           </div>
         </Specimen>

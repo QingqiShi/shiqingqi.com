@@ -8,10 +8,35 @@ import {
   type ElementTracker,
   type MeasureContext,
 } from "./create-element-tracker.ts";
+import {
+  PAGE_CARRIER,
+  VIEWPORT_BOTTOM_CARRIER,
+  VIEWPORT_CARRIER,
+  type EffectCarrierRef,
+} from "./resolve-carrier.ts";
 
-/** The context of one frame, at a scroll. */
-function context(scrollX = 0, scrollY = 0): MeasureContext {
-  return { ...createMeasureContext(() => 0), scrollX, scrollY };
+/**
+ * The context of one frame, at a scroll, where every element declares
+ * `carrier`, sticky carrier 1 is `stickyBox`, and it is stuck when `stuck`
+ * says so.
+ */
+function context(
+  scrollX = 0,
+  scrollY = 0,
+  carrier: EffectCarrierRef = PAGE_CARRIER,
+  stickyBox: Element | null = null,
+  viewportBottom = 0,
+  stuck = false,
+): MeasureContext {
+  return {
+    ...createMeasureContext(() => viewportBottom, {
+      carrierOf: () => carrier,
+      stickyBox: (id) => (id === 1 ? stickyBox : null),
+      isStuck: (id) => id === 1 && stuck,
+    }),
+    scrollX,
+    scrollY,
+  };
 }
 
 function setUp() {
@@ -51,64 +76,81 @@ describe("createElementTracker", () => {
     const { tracker } = setUp();
     tracker.measure(context(0, 500));
     expect(tracker.measured).toMatchObject({
-      box: { x: 10, y: 20, width: 100, height: 40, fixed: false },
-      sticky: false,
+      box: { x: 10, y: 20, width: 100, height: 40 },
+      canvas: "scroll",
     });
     expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 520 });
   });
 
-  it("draws on the fixed canvas while its sticky box is stuck, and in the document once the box lets go", () => {
+  it("takes the canvas from the declared carrier, not from where the browser lays the element out", () => {
+    const { element, tracker } = setUp();
+    element.style.position = "fixed";
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    tracker.measure(context(0, 500));
+    expect(tracker.measured?.canvas).toBe("scroll");
+    expect(console.warn).toHaveBeenCalledOnce();
+    vi.restoreAllMocks();
+  });
+
+  it("does not check the declared carrier in production", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const { element, tracker } = setUp();
+    element.style.position = "fixed";
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    tracker.measure(context(0, 500));
+    expect(warn).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  it("draws on the fixed canvas while its sticky carrier is stuck, and in the document once the box lets go", () => {
     const { element, tracker } = setUp();
     const bar = document.createElement("div");
     bar.style.position = "sticky";
     bar.style.top = "0px";
     document.body.append(bar);
     bar.append(element);
+    const carrier: EffectCarrierRef = {
+      kind: "sticky",
+      id: 1,
+      parent: PAGE_CARRIER,
+    };
     layOut(bar, { x: 0, y: 0, width: 300, height: 60 });
-    tracker.measure(context(0, 500));
-    expect(tracker.measured).toMatchObject({
-      box: { fixed: true, sticksToViewport: true },
-      sticky: true,
-    });
+    tracker.measure(context(0, 500, carrier, bar, 0, true));
+    expect(tracker.measured?.canvas).toBe("fixed");
     expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 920 });
 
     layOut(bar, { x: 0, y: -40, width: 300, height: 60 });
-    tracker.measure(context(0, 500));
-    expect(tracker.measured?.box.fixed).toBe(false);
+    tracker.measure(context(0, 500, carrier, bar, 0, false));
+    expect(tracker.measured?.canvas).toBe("scroll");
     expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 520 });
   });
 
-  it("moves a fixed element with the scroll it is asked at", () => {
+  it("moves an element on the viewport with the scroll it is asked at", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";
-    tracker.measure(context(0, 500));
-    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({
-      x: 10,
-      y: 920,
-      fixed: true,
-    });
+    tracker.measure(context(0, 500, VIEWPORT_CARRIER));
+    expect(tracker.measured?.canvas).toBe("fixed");
+    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 920 });
   });
 
-  it("keeps an element fixed to the bottom at its distance from the viewport's bottom edge", () => {
+  it("keeps an element on the viewport's bottom edge at its distance from that edge", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";
     element.style.bottom = "16px";
     layOut(element, { x: 16, y: 736, width: 300, height: 48 });
-    tracker.measure({ ...createMeasureContext(() => 800), scrollY: 500 });
-    expect(tracker.measured?.box).toMatchObject({
-      fixed: true,
-      fixedToBottom: true,
-    });
+    tracker.measure(context(0, 500, VIEWPORT_BOTTOM_CARRIER, null, 800));
+    expect(tracker.measured?.canvas).toBe("fixedBottom");
     expect(tracker.boxAt(0, 900, () => 800)).toMatchObject({ x: 16, y: 1636 });
     expect(tracker.boxAt(0, 900, () => 760)).toMatchObject({ x: 16, y: 1596 });
   });
 
-  it("keeps an element fixed to the bottom at one place on the bottom canvas while the bottom edge moves, with no new measurement", () => {
+  it("keeps an element on the viewport's bottom edge at one place on the bottom canvas while the edge moves, with no new measurement", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";
     element.style.bottom = "16px";
     layOut(element, { x: 16, y: 736, width: 300, height: 48 });
-    tracker.measure({ ...createMeasureContext(() => 800), scrollY: 0 });
+    tracker.measure(context(0, 0, VIEWPORT_BOTTOM_CARRIER, null, 800));
     const canvasHeight = 900;
     const onCanvas = (scrollY: number, viewportBottom: number) =>
       (tracker.boxAt(0, scrollY, () => viewportBottom)?.y ?? Number.NaN) -

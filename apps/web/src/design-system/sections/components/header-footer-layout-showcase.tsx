@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
@@ -36,67 +37,69 @@ export function HeaderFooterLayoutShowcase() {
           <div css={blurStage.base}>
             <div css={[corner.radius_3, styles.frame]}>
               <div css={styles.viewport}>
-                <HeaderFooterLayout
-                  as="div"
-                  pageColumn
-                  headerStart={
-                    <BackButton
-                      locale={locale}
-                      label={t({ en: "Back", zh: "返回" })}
-                    />
-                  }
-                  headerEnd={
-                    <>
-                      <ThemeSwitch
-                        labels={[
-                          t({
-                            en: "Switch to light theme",
-                            zh: "切换至浅色模式",
-                          }),
-                          t({
-                            en: "Switch to dark theme",
-                            zh: "切换至深色模式",
-                          }),
-                        ]}
-                      />
-                      <LocaleSelector
-                        ariaLabel={t({
-                          en: "Select a language",
-                          zh: "选择语言",
-                        })}
+                <EffectCarrier value="contained">
+                  <HeaderFooterLayout
+                    as="div"
+                    pageColumn
+                    headerStart={
+                      <BackButton
                         locale={locale}
+                        label={t({ en: "Back", zh: "返回" })}
                       />
-                    </>
-                  }
-                  background={
-                    <div css={styles.specimenBackground} aria-hidden="true" />
-                  }
-                  footer={<Footer locale={locale} />}
-                >
-                  <article css={styles.article}>
-                    <Heading level={2}>
-                      {t({ en: "The quiet harbour", zh: "静谧的港湾" })}
-                    </Heading>
-                    <Text tone="muted">
-                      {t({
-                        en: "Reading surfaces get one centred measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
-                        zh: "阅读型页面拥有单一居中的版心与充裕的留白。界面装饰退居其次：左侧是返回入口，右侧是实用控件，没有其他元素与正文争夺注意力。",
-                      })}
-                    </Text>
-                    <Text tone="muted">
-                      {t({
-                        en: "The background layer bleeds edge to edge beneath the content, and each floating group is pointer-transparent outside its own controls — text remains selectable right up to the top edge.",
-                        zh: "背景层在内容下方满幅延展，每组悬浮控件在控件本身之外不拦截指针事件——文字直到顶部边缘都可以选中。",
-                      })}
-                    </Text>
-                    <Text tone="muted">
-                      {t({
-                        en: "The footer shares the column's width and gutters, so the page reads as one continuous measure from headline to colophon.",
-                        zh: "页脚与内容列共享宽度和边距，从标题到版权信息整页保持同一版心。",
-                      })}
-                    </Text>
-                  </article>
-                </HeaderFooterLayout>
+                    }
+                    headerEnd={
+                      <>
+                        <ThemeSwitch
+                          labels={[
+                            t({
+                              en: "Switch to light theme",
+                              zh: "切换至浅色模式",
+                            }),
+                            t({
+                              en: "Switch to dark theme",
+                              zh: "切换至深色模式",
+                            }),
+                          ]}
+                        />
+                        <LocaleSelector
+                          ariaLabel={t({
+                            en: "Select a language",
+                            zh: "选择语言",
+                          })}
+                          locale={locale}
+                        />
+                      </>
+                    }
+                    background={
+                      <div css={styles.specimenBackground} aria-hidden="true" />
+                    }
+                    footer={<Footer locale={locale} />}
+                  >
+                    <article css={styles.article}>
+                      <Heading level={2}>
+                        {t({ en: "The quiet harbour", zh: "静谧的港湾" })}
+                      </Heading>
+                      <Text tone="muted">
+                        {t({
+                          en: "Reading surfaces get one centred measure and generous breathing room. The chrome recedes: a back affordance on the left, utilities on the right, and nothing else competing with the text.",
+                          zh: "阅读型页面拥有单一居中的版心与充裕的留白。界面装饰退居其次：左侧是返回入口，右侧是实用控件，没有其他元素与正文争夺注意力。",
+                        })}
+                      </Text>
+                      <Text tone="muted">
+                        {t({
+                          en: "The background layer bleeds edge to edge beneath the content, and each floating group is pointer-transparent outside its own controls — text remains selectable right up to the top edge.",
+                          zh: "背景层在内容下方满幅延展，每组悬浮控件在控件本身之外不拦截指针事件——文字直到顶部边缘都可以选中。",
+                        })}
+                      </Text>
+                      <Text tone="muted">
+                        {t({
+                          en: "The footer shares the column's width and gutters, so the page reads as one continuous measure from headline to colophon.",
+                          zh: "页脚与内容列共享宽度和边距，从标题到版权信息整页保持同一版心。",
+                        })}
+                      </Text>
+                    </article>
+                  </HeaderFooterLayout>
+                </EffectCarrier>
               </div>
             </div>
           </div>

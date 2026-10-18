@@ -5,6 +5,7 @@ import {
   type ElementTracker,
 } from "./create-element-tracker.ts";
 import type { FrameScheduler } from "./create-frame-scheduler.ts";
+import { stickiesOf } from "./resolve-carrier.ts";
 
 /** Events whose target, with its relative, can enter or leave a state. */
 const STATE_EVENTS = [
@@ -55,8 +56,9 @@ function isRelated(a: Element, b: Element) {
  *
  * - its own `ResizeObserver` reports a new size;
  * - its own `IntersectionObserver` reports a move, as `observeMove` explains;
- * - a scroll moves it: a nested scroll of a box around it, or a window
- *   scroll when it is sticky;
+ * - a nested scroll of a box around it moves it;
+ * - a sticky carrier that it is on sticks or lets go, as the stuck watch of
+ *   `useEffectSticky` tells the registry;
  * - an attribute of it or an ancestor changes, which can change its style;
  * - the pointer or the focus enters or leaves it or an ancestor, or a press
  *   starts or ends on it, an ancestor or a descendant;
@@ -67,10 +69,11 @@ function isRelated(a: Element, b: Element) {
  *
  * A signalled tracker waits in a queue, and the next frame of `frames`
  * measures the queued ones together before it draws, then calls `onChange`.
- * A window scroll measures nothing: the registry keeps elements in the
- * document at their page position and fixed elements at their viewport
- * position. `readViewportBottom` reads the viewport's bottom edge, from
- * which an element fixed to the bottom is measured.
+ * A window scroll measures nothing: the registry keeps elements on the page
+ * at their page position and elements on the viewport at their viewport
+ * position. When a sticky box sticks or lets go, the elements on it measure
+ * again together on their new carrier. `readViewportBottom` reads the
+ * viewport's bottom edge, from which an element on that edge is measured.
  *
  * @internal
  */
@@ -82,11 +85,19 @@ export function trackElements(
 ) {
   let queued = new Set<ElementTracker>();
   const root = document.documentElement;
+  const lookup = {
+    carrierOf: registry.carrierOf,
+    stickyBox: (id: number) => registry.sticky(id)?.element ?? null,
+    isStuck: (id: number) => registry.sticky(id)?.isStuck() ?? false,
+  };
+
+  const onSticky = (id: number, tracker: ElementTracker) =>
+    stickiesOf(registry.carrierOf(tracker.element)).includes(id);
 
   function measureQueued() {
     const trackers = queued;
     queued = new Set();
-    const context = createMeasureContext(readViewportBottom);
+    const context = createMeasureContext(readViewportBottom, lookup);
     for (const tracker of trackers) {
       tracker.measure(context);
     }
@@ -124,7 +135,7 @@ export function trackElements(
   // The root element's box is the root of each move watch in the document.
   // When its size changes, each of these watches is wrong.
   const rootObserver = new ResizeObserver(() => {
-    signalWhere(({ measured }) => measured?.box.fixed === false);
+    signalWhere(({ measured }) => measured?.canvas === "scroll");
   });
   rootObserver.observe(root);
 
@@ -148,10 +159,10 @@ export function trackElements(
   mutationObserver.observe(root, { attributes: true, subtree: true });
   mutationObserver.observe(document.head, { childList: true });
 
+  // A nested scroller that no carrier declares moves the elements in it
+  // under the compositor. Thus, measure them again, one frame late.
   function onScroll({ target }: Event) {
-    if (target === document) {
-      signalWhere(({ measured }) => measured?.sticky === true);
-    } else if (target instanceof Element) {
+    if (target instanceof Element) {
       signalWhere(({ element }) => target.contains(element));
     }
   }
@@ -180,8 +191,14 @@ export function trackElements(
     }
   }
 
+  // A resize can move the viewport's edges, and a breakpoint can change the
+  // sticky offsets or make a sticky box fixed.
   function onResize() {
-    signalWhere(({ measured }) => measured?.box.fixed === true);
+    signalWhere(
+      ({ element, measured }) =>
+        (measured !== null && measured.canvas !== "scroll") ||
+        stickiesOf(registry.carrierOf(element)).length > 0,
+    );
   }
 
   function onLoad({ target }: Event) {
@@ -209,8 +226,11 @@ export function trackElements(
     document.addEventListener(type, onAnimationStart, capture);
   }
 
-  const untrack = registry.track((element) =>
-    createElementTracker(element, queue),
+  const untrack = registry.track(
+    (element) => createElementTracker(element, queue),
+    (id) => {
+      signalWhere((tracker) => onSticky(id, tracker));
+    },
   );
 
   return {

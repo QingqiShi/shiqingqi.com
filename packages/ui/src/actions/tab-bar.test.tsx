@@ -200,7 +200,7 @@ describe("TabBar liquid effect and drag", () => {
     const followed: string[] = [];
     const Link = recordingLink(followed);
     const ui = (at: number | null) => (
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <TabBar
           label="Main"
           items={itemsAt(at)}

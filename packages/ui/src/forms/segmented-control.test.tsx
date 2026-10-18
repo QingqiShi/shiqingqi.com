@@ -474,7 +474,7 @@ describe("SegmentedControl liquid effect", () => {
       );
     }
     render(
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <LiquidHarness />
       </EffectLayerContext>,
     );
@@ -599,7 +599,7 @@ describe("SegmentedControl drag", () => {
       );
     }
     render(
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <DragHarness />
       </EffectLayerContext>,
     );

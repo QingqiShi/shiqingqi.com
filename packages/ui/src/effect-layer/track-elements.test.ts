@@ -6,6 +6,7 @@ import { createEffectRegistry } from "./create-effect-registry.ts";
 import { createFrameScheduler } from "./create-frame-scheduler.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
+import { PAGE_CARRIER } from "./resolve-carrier.ts";
 import { changedScope, trackElements } from "./track-elements.ts";
 
 const ON_PAGE = { scope: PAGE_SCOPE, holds: null };
@@ -135,7 +136,7 @@ describe("trackElements", () => {
     expect(reads).toEqual([button]);
   });
 
-  it("measures only sticky elements on a window scroll", () => {
+  it("measures nothing on a window scroll, in a sticky box too", () => {
     const { other, reads, frames, registry } = track();
     other.style.position = "sticky";
     for (const tracker of registry.trackers()) {
@@ -146,7 +147,78 @@ describe("trackElements", () => {
 
     document.dispatchEvent(new Event("scroll"));
     frames.run();
-    expect(new Set(reads)).toEqual(new Set([other]));
+    expect(reads).toEqual([]);
+  });
+
+  /**
+   * Tracks `button` and `padding` in the sticky box `card`, which
+   * `useEffectSticky` declares, and `other` on the page.
+   */
+  function trackSticky() {
+    const frames = stubFrames();
+    const observers = stubObservers();
+    const elements = mount();
+    const { card, button, padding, other } = elements;
+    card.style.position = "sticky";
+    card.style.top = "0px";
+    const reads: Element[] = [];
+    layOut(card, { x: 0, y: 200, width: 300, height: 60 });
+    layOut(button, { x: 0, y: 210, width: 100, height: 40 }, reads);
+    layOut(padding, { x: 120, y: 210, width: 20, height: 40 }, reads);
+    layOut(other, { x: 0, y: 400, width: 100, height: 40 }, reads);
+    const registry = createEffectRegistry();
+    let isStuck = false;
+    const carrier = { kind: "sticky", id: 1, parent: PAGE_CARRIER } as const;
+    const sticky = registry.registerSticky(card, carrier, () => isStuck);
+    const setStuck = (stuck: boolean) => {
+      isStuck = stuck;
+      sticky.changed();
+    };
+    const onSticky = { ...ON_PAGE, carrier };
+    registry.register(button, 0, NO_SETTINGS, onSticky);
+    registry.register(padding, 0, NO_SETTINGS, onSticky);
+    registry.register(other, 0, NO_SETTINGS, ON_PAGE);
+    trackElements(
+      registry,
+      createFrameScheduler(),
+      () => {},
+      () => 0,
+    );
+    frames.run();
+    reads.length = 0;
+    const canvasOf = (element: Element) =>
+      [...registry.trackers()].find((tracker) => tracker.element === element)
+        ?.measured?.canvas;
+    return { ...elements, frames, observers, reads, canvasOf, setStuck };
+  }
+
+  it("moves every element of a sticky box to the fixed canvas in one frame when its stuck watch reports, and back", () => {
+    const { card, button, padding, frames, reads, canvasOf, setStuck } =
+      trackSticky();
+    expect(canvasOf(button)).toBe("scroll");
+
+    layOut(card, { x: 0, y: 0, width: 300, height: 60 });
+    setStuck(true);
+    frames.run();
+    expect(reads).toEqual([button, padding]);
+    expect(canvasOf(button)).toBe("fixed");
+    expect(canvasOf(padding)).toBe("fixed");
+
+    layOut(card, { x: 0, y: 120, width: 300, height: 60 });
+    setStuck(false);
+    frames.run();
+    expect(canvasOf(button)).toBe("scroll");
+  });
+
+  it("keeps the elements of a sticky box on the canvas its stuck watch reports, whatever the layout says", () => {
+    const { card, button, padding, frames, canvasOf } = trackSticky();
+    layOut(card, { x: 0, y: 0, width: 300, height: 60 });
+    padding.dispatchEvent(
+      new MouseEvent("pointerover", { bubbles: true, relatedTarget: button }),
+    );
+    frames.run();
+    expect(canvasOf(padding)).toBe("scroll");
+    expect(canvasOf(button)).toBe("scroll");
   });
 
   it("measures each frame while a transition runs, and once more after it ends", () => {

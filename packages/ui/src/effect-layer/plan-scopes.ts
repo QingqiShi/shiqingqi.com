@@ -29,21 +29,6 @@ export const CANVAS_ORDER: readonly EffectCanvas[] = [
   "fixedBottom",
 ];
 
-/**
- * The `<canvas>` element a record draws on.
- *
- * @internal
- */
-export function canvasOf({
-  fixed,
-  fixedToBottom,
-}: Pick<MeasuredElement, "fixed" | "fixedToBottom">): EffectCanvas {
-  if (!fixed) {
-    return "scroll";
-  }
-  return fixedToBottom ? "fixedBottom" : "fixed";
-}
-
 /** A fill at least this opaque is what a scope's effects draw over. */
 const OPAQUE_BACKDROP = 0.5;
 const WHITE: EffectColor = [1, 1, 1, 1];
@@ -73,7 +58,7 @@ export function readPageBackdrop(): EffectColor {
  */
 export interface CanvasRange extends ElementRange {
   /**
-   * An element with a role is in the range, or sticks to the viewport and
+   * An element with a role is in the range, or is on a sticky carrier and
    * can move into it, so its `<canvas>` element is needed.
    */
   readonly hasRole: boolean;
@@ -114,9 +99,9 @@ export interface ScopePlan {
  */
 export function peersOf(
   scopes: readonly EffectScope[],
-  record: Pick<EffectElementRecord, "scopeIndex" | "fixed" | "fixedToBottom">,
+  record: Pick<EffectElementRecord, "scopeIndex" | "canvas">,
 ): ElementRange {
-  return scopes[record.scopeIndex][canvasOf(record)];
+  return scopes[record.scopeIndex][record.canvas];
 }
 
 /**
@@ -175,8 +160,8 @@ export function planScopes(
     })
     .sort(
       (first, second) =>
-        CANVAS_ORDER.indexOf(canvasOf(first)) -
-          CANVAS_ORDER.indexOf(canvasOf(second)) ||
+        CANVAS_ORDER.indexOf(first.canvas) -
+          CANVAS_ORDER.indexOf(second.canvas) ||
         first.scopeIndex - second.scopeIndex,
     );
 
@@ -191,7 +176,7 @@ export function planScopes(
   const counts = { scroll: 0, fixed: 0, fixedBottom: 0 };
   const hasRole = { scroll: false, fixed: false, fixedBottom: false };
   for (const [index, record] of elements.entries()) {
-    const canvas = canvasOf(record);
+    const { canvas } = record;
     const range = ranges[record.scopeIndex][canvas];
     if (range.elementCount === 0) {
       range.firstElement = index;
@@ -199,10 +184,8 @@ export function planScopes(
     range.elementCount += 1;
     counts[canvas] += 1;
     if (record.roles !== 0) {
-      hasRole[canvas] = true;
-      if (record.sticksToViewport) {
-        hasRole.scroll = true;
-        hasRole.fixed = true;
+      for (const reachable of record.canvases) {
+        hasRole[reachable] = true;
       }
     }
   }

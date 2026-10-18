@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
+import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { ControlGroupBlur } from "../surfaces/control-group-blur.tsx";
 import { layer, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -32,7 +33,7 @@ export function HeaderControls({ children, css }: HeaderControlsProps) {
 
   return (
     <ControlGroupBlur isShown={isScrolled} css={[styles.floating, css]}>
-      {children}
+      <EffectCarrier value="viewport">{children}</EffectCarrier>
     </ControlGroupBlur>
   );
 }
