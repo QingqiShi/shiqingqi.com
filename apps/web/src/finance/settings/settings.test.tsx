@@ -120,7 +120,7 @@ describe("Settings", () => {
     expect(screen.getByRole("button", { name: /Holiday/ })).toBeInTheDocument();
   });
 
-  it("moves a group down by renumbering its side", async () => {
+  it("moves a group down past the next group", async () => {
     const runtime = await createSettingsReplica();
     renderWithSettingsReplica(runtime, <GroupsSettings />);
     await userEvent.click(

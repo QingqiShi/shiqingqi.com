@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { ListChecksIcon } from "@phosphor-icons/react/dist/ssr/ListChecks";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
@@ -9,6 +10,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
+import dynamic from "next/dynamic";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
@@ -23,6 +25,10 @@ import { NetWorthTrend } from "./net-worth-trend.tsx";
 import { selectBalanceSheet } from "./select-balance-sheet.ts";
 import { useBaseCurrency } from "./use-base-currency.ts";
 import { useHouseholdToday } from "./use-household-today.ts";
+
+const ReorderAccounts = dynamic(() =>
+  import("./reorder-accounts.tsx").then((mod) => mod.ReorderAccounts),
+);
 
 interface NetWorthOverviewProps {
   /** False where the trend chart has a pane of its own. */
@@ -40,9 +46,45 @@ export function NetWorthOverview({ showTrend }: NetWorthOverviewProps) {
   const updateParams = new URLSearchParams(searchParams);
   updateParams.delete("account");
   updateParams.set("mode", "update");
+  const reorderParams = new URLSearchParams(searchParams);
+  reorderParams.set("mode", "reorder");
+  const listParams = new URLSearchParams(searchParams);
+  listParams.delete("mode");
+  const listHref =
+    listParams.size > 0 ? `${pathname}?${listParams.toString()}` : pathname;
   const hasAccounts = sheet.sections.some(
     (section) => section.lines.length > 0,
   );
+
+  if (searchParams.get("mode") === "reorder") {
+    return (
+      <div css={stack.group}>
+        <header css={stack.tight}>
+          <div css={[cluster.item, styles.header]}>
+            <Heading level={1} look="h3" css={styles.title}>
+              {t({ en: "Reorder accounts", zh: "调整账户顺序" })}
+            </Heading>
+            <AnchorButton
+              href={listHref}
+              linkComponent={Link}
+              size="sm"
+              look="primary"
+              icon={<CheckIcon weight="bold" />}
+            >
+              {t({ en: "Done", zh: "完成" })}
+            </AnchorButton>
+          </div>
+          <Text as="p" look="bodySmall" tone="muted">
+            {t({
+              en: "Drag a group or an account to move it. An account stays in its group.",
+              zh: "拖动分组或账户即可调整顺序。账户只能在所属分组内移动。",
+            })}
+          </Text>
+        </header>
+        <ReorderAccounts sheet={sheet} />
+      </div>
+    );
+  }
 
   return (
     <div css={stack.group}>
@@ -104,7 +146,11 @@ export function NetWorthOverview({ showTrend }: NetWorthOverviewProps) {
         )}
       </div>
       {hasAccounts ? (
-        <AccountGroupList sheet={sheet} baseCurrency={currency} />
+        <AccountGroupList
+          sheet={sheet}
+          baseCurrency={currency}
+          reorderHref={`${pathname}?${reorderParams.toString()}`}
+        />
       ) : null}
       <AccountEditorSheet
         account={null}
