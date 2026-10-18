@@ -14,6 +14,8 @@ interface MoneyChangeProps {
   currency: string;
   /** Colours a rise green and a fall red; leave off where up is not good, such as spending. */
   tone?: boolean;
+  /** Whole currency units and a short percentage, for a summary figure. */
+  whole?: boolean;
 }
 
 /** A signed change in money, such as `+£5,259.27 (+0.95%)`. */
@@ -22,12 +24,13 @@ export function MoneyChange({
   fromMinor,
   currency,
   tone = false,
+  whole = false,
 }: MoneyChangeProps) {
   const locale = useLocale();
   const percent =
     fromMinor === undefined
       ? null
-      : formatPercentChange(changeMinor, fromMinor, locale);
+      : formatPercentChange(changeMinor, fromMinor, locale, { short: whole });
   return (
     <span
       css={[
@@ -39,6 +42,7 @@ export function MoneyChange({
     >
       {formatMoney(changeMinor, currency, locale, {
         signDisplay: "exceptZero",
+        wholeUnits: whole,
       })}
       {percent === null ? "" : ` (${percent})`}
     </span>

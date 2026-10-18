@@ -17,12 +17,12 @@ import { BarChart, type BarSeries } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { formatPercent } from "../domain/money/format-percent.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
   BreakdownRow,
 } from "./compute-analytics-view.ts";
-import { formatPercent } from "./format-percent.ts";
 import { formatPeriod } from "./format-period.ts";
 import { isMajorPeriod } from "./is-major-period.ts";
 import { RankedRow } from "./ranked-row.tsx";

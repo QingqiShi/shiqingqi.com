@@ -9,11 +9,11 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { formatPercent } from "../domain/money/format-percent.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
 } from "./compute-analytics-view.ts";
-import { formatPercent } from "./format-percent.ts";
 import { useScopeLabel } from "./use-scope-label.ts";
 
 function formatRange(from: string, to: string, locale: string) {

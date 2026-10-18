@@ -72,6 +72,18 @@ export function displayDay(
   return locale === "zh" ? `${date} ${weekday}` : `${weekday} ${date}`;
 }
 
+/** Two days as a span, "15 Oct 2026 – 18 Oct 2026", or one day when they are the same. */
+export function displayDayRange(
+  start: string | number,
+  end: string | number,
+  locale: string,
+  style: DisplayDayStyle = "dayYear",
+): string {
+  const first = displayDay(start, locale, style);
+  const last = displayDay(end, locale, style);
+  return first === last ? first : `${first} – ${last}`;
+}
+
 /** An ISO weekday (1 is Monday) for display: "Mon", "周一". */
 export function displayWeekday(weekday: number, locale: string): string {
   // Epoch day 4, 1970-01-05, was a Monday.

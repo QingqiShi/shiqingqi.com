@@ -12,7 +12,7 @@ import { bisectCenter } from "d3-array";
 import { useId, type ReactNode } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { displayDay } from "../domain/dates/display-day.ts";
+import { displayDay, displayDayRange } from "../domain/dates/display-day.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import type { ChartSeries } from "./build-chart-series.ts";
 import {
@@ -30,6 +30,17 @@ import {
 } from "./use-chart-selection.ts";
 import { useElementWidth } from "./use-element-width.ts";
 
+/** A day or a span of days picked on the chart, with the value on each end. */
+export type ChartPick =
+  | { kind: "point"; day: number; value: number }
+  | {
+      kind: "range";
+      startDay: number;
+      endDay: number;
+      from: number;
+      to: number;
+    };
+
 interface TimeSeriesChartProps {
   series: ChartSeries;
   /** Names the plotted value, such as "Net worth"; the chart's title. */
@@ -46,6 +57,11 @@ interface TimeSeriesChartProps {
   restReadout?: ReactNode;
   /** The drawing's height in pixels, axis included. */
   height?: number;
+  /**
+   * Hears each new pick. With it, the parent shows the pick, so the readout
+   * row is kept for assistive technology only.
+   */
+  onPick?: (pick: ChartPick | null) => void;
 }
 
 const TOP = 22;
@@ -98,6 +114,7 @@ export function TimeSeriesChart({
   currency,
   restReadout,
   height = 200,
+  onPick,
 }: TimeSeriesChartProps) {
   const locale = useLocale();
   const titleId = useId();
@@ -142,6 +159,28 @@ export function TimeSeriesChart({
         ? bisectCenter(geometry.xs, plotXFromPointer(x, width, bleed))
         : -1,
     plotRef: ref,
+    onChange:
+      onPick &&
+      ((next) => {
+        const nextRange = rangeOf(next);
+        onPick(
+          next === null
+            ? null
+            : nextRange
+              ? {
+                  kind: "range",
+                  startDay: series.days[nextRange.start],
+                  endDay: series.days[nextRange.end],
+                  from: series.values[nextRange.start],
+                  to: series.values[nextRange.end],
+                }
+              : {
+                  kind: "point",
+                  day: series.days[next.index],
+                  value: series.values[next.index],
+                },
+        );
+      }),
   });
   const { selection } = pick;
   const active = selection?.kind === "point" ? selection.index : null;
@@ -152,9 +191,7 @@ export function TimeSeriesChart({
   const day = (index: number) =>
     displayDay(series.days[index], locale, "dayYear");
   const rangeDays = range
-    ? range.start === range.end
-      ? day(range.start)
-      : `${day(range.start)} – ${day(range.end)}`
+    ? displayDayRange(series.days[range.start], series.days[range.end], locale)
     : null;
   const marked = range
     ? [range.start, range.end]
@@ -191,44 +228,55 @@ export function TimeSeriesChart({
       <div
         id={readoutId}
         aria-live="polite"
-        css={[row.item, typeRole.caption, styles.readout]}
+        css={[typeRole.caption, styles.readout, onPick && a11y.srOnly]}
       >
-        {range ? (
-          <>
-            <span>
-              <span css={a11y.srOnly}>
-                {t({ en: "Change: ", zh: "变化：" })}
-              </span>
-              <MoneyChange
-                changeMinor={change}
-                fromMinor={from}
-                currency={currency}
-                tone
-              />
-            </span>
-            <span>{rangeDays}</span>
-          </>
-        ) : active === null ? (
-          restReadout
-        ) : (
-          <>
-            <span css={[typeModifier.numeric, styles.readoutValue]}>
-              {formatValue(series.values[active])}
-            </span>
-            {activeTrend === null || trend === undefined ? null : (
-              <span css={[row.inline, typeModifier.numeric]}>
-                <span
-                  aria-hidden
-                  css={[styles.readoutKey, chartMarks.trendKey]}
-                />
-                <span css={a11y.srOnly}>
-                  {`${trend.label}${t({ en: ": ", zh: "：" })}`}
+        <div
+          css={[
+            row.item,
+            styles.readoutLayer,
+            selection !== null && styles.readoutHidden,
+          ]}
+        >
+          {restReadout}
+        </div>
+        {selection === null ? null : (
+          <div css={[row.item, styles.readoutLayer]}>
+            {range ? (
+              <>
+                <span>
+                  <span css={a11y.srOnly}>
+                    {t({ en: "Change: ", zh: "变化：" })}
+                  </span>
+                  <MoneyChange
+                    changeMinor={change}
+                    fromMinor={from}
+                    currency={currency}
+                    tone
+                  />
                 </span>
-                {formatValue(Math.round(activeTrend))}
-              </span>
+                <span>{rangeDays}</span>
+              </>
+            ) : active === null ? null : (
+              <>
+                <span css={[typeModifier.numeric, styles.readoutValue]}>
+                  {formatValue(series.values[active])}
+                </span>
+                {activeTrend === null || trend === undefined ? null : (
+                  <span css={[row.inline, typeModifier.numeric]}>
+                    <span
+                      aria-hidden
+                      css={[styles.readoutKey, chartMarks.trendKey]}
+                    />
+                    <span css={a11y.srOnly}>
+                      {`${trend.label}${t({ en: ": ", zh: "：" })}`}
+                    </span>
+                    {formatValue(Math.round(activeTrend))}
+                  </span>
+                )}
+                <span>{day(active)}</span>
+              </>
             )}
-            <span>{day(active)}</span>
-          </>
+          </div>
         )}
       </div>
       <div
@@ -492,11 +540,20 @@ const styles = stylex.create({
     margin: 0,
     minInlineSize: 0,
   },
+  // The readout at rest and the readout of a pick share one cell, so that
+  // the row keeps the height of the taller one and a pick moves nothing.
   readout: {
+    display: "grid",
     minBlockSize: space._5,
     color: color.fgMuted,
+  },
+  readoutLayer: {
+    gridArea: "1 / 1",
     flexWrap: "wrap",
     columnGap: rhythm.item,
+  },
+  readoutHidden: {
+    visibility: "hidden",
   },
   readoutValue: {
     color: color.fg,

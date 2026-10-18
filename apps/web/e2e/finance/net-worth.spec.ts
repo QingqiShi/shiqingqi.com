@@ -21,9 +21,10 @@ test.describe("Net worth at 1440 px", () => {
   }) => {
     await openNetWorth(page);
     const headline = page.getByRole("region", { name: "Net worth today" });
-    await expect(headline).toContainText(/£[\d,]+\.\d\d/);
-    await expect(headline.getByText("vs last week")).toBeVisible();
-    await expect(headline.getByText("since 1 Jan")).toBeVisible();
+    await expect(headline).toContainText(/£[\d,]+/);
+    await expect(headline).not.toContainText(/£[\d,]+\.\d/);
+    await expect(headline.getByText("1W", { exact: true })).toBeVisible();
+    await expect(headline.getByText("YTD", { exact: true })).toBeVisible();
     await expect(headline.getByText("Assets")).toBeVisible();
     await expect(headline.getByText("Liabilities")).toBeVisible();
 
@@ -67,8 +68,8 @@ test.describe("Net worth at 390 px", () => {
   }) => {
     await openNetWorth(page, "zh");
     const headline = page.getByRole("region", { name: "今日净资产" });
-    await expect(headline.getByText("较上周")).toBeVisible();
-    await expect(headline.getByText("今年以来")).toBeVisible();
+    await expect(headline.getByText("近一周")).toBeVisible();
+    await expect(headline.getByText("今年", { exact: true })).toBeVisible();
     const ranges = page.getByRole("radiogroup", { name: "时间范围" });
     await expect(ranges.getByRole("radio", { name: "6M" })).toBeChecked();
     await expect(ranges.getByRole("radio")).toHaveText([
@@ -82,6 +83,29 @@ test.describe("Net worth at 390 px", () => {
       "全部",
     ]);
     await expectNoSidewaysScroll(page);
+  });
+
+  test("picking a day or a range on the trend chart does not move the chart", async ({
+    page,
+    session: _session,
+  }) => {
+    await openNetWorth(page, "zh");
+    const plot = page.getByRole("group", { name: /^净资产。/ });
+    const readout = page.locator(
+      `[id="${String(await plot.getAttribute("aria-describedby"))}"]`,
+    );
+    await expect(readout).toContainText("平均");
+    const restTop = (await plot.boundingBox())?.y;
+    await plot.focus();
+    await page.keyboard.press("ArrowLeft");
+    await expect(readout).not.toContainText("平均", { useInnerText: true });
+    expect((await plot.boundingBox())?.y).toBe(restTop);
+    await page.keyboard.down("Shift");
+    for (let step = 0; step < 40; step++)
+      await page.keyboard.press("ArrowLeft");
+    await page.keyboard.up("Shift");
+    await expect(readout).toContainText(" – ", { useInnerText: true });
+    expect((await plot.boundingBox())?.y).toBe(restTop);
   });
 
   test("an account opens on its own page and leads back to Net worth", async ({

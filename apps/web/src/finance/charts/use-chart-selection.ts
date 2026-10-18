@@ -26,6 +26,8 @@ interface ChartSelectionOptions<Data> {
   plotRef: RefObject<HTMLElement | null>;
   /** False reads points only: no drag, second finger or Shift range. */
   ranges?: boolean;
+  /** Hears each new selection, from the event that made it. */
+  onChange?: (selection: ChartSelection | null) => void;
 }
 
 interface MouseDrag {
@@ -117,6 +119,7 @@ export function useChartSelection<Data>({
   indexAt,
   plotRef,
   ranges = true,
+  onChange,
 }: ChartSelectionOptions<Data>) {
   const rectRef = useRef<DOMRect | null>(null);
   const dragRef = useRef<MouseDrag | null>(null);
@@ -150,6 +153,7 @@ export function useChartSelection<Data>({
   function select(next: ChartSelection | null) {
     if (sameSelection(next, selection)) return;
     setState(next === null ? null : { data, selection: next });
+    onChange?.(next);
   }
 
   function clear() {
@@ -157,6 +161,7 @@ export function useChartSelection<Data>({
     dragRef.current = null;
     touchesRef.current.clear();
     setState(null);
+    if (selection !== null) onChange?.(null);
   }
 
   /** Reads the plot's box again; later events reuse it until `clear`. */

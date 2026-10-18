@@ -1,14 +1,17 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { Text } from "@tuja/ui/components/text";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import type { ReactNode } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import type { ChartPick } from "../charts/time-series-chart.tsx";
+import { displayDay, displayDayRange } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { formatPercentChange } from "../domain/money/format-percent-change.ts";
+import { MoneyChange } from "../domain/money/money-change.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { selectNetWorthAt } from "../store/select-net-worth-at.ts";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
@@ -18,18 +21,105 @@ interface NetWorthHeadlineProps {
   sheet: BalanceSheet;
   today: string;
   currency: string;
+  /** What is picked on the trend chart, shown in place of today's figure. */
+  pick: ChartPick | null;
 }
 
 /**
  * Today's net worth, its change since a week ago and since 1 January, and
- * the assets and liabilities it is made of.
+ * the assets and liabilities it is made of, in whole currency units. While
+ * a day or a range is picked on the trend chart, the figure and the line
+ * under it show the pick instead.
  */
 export function NetWorthHeadline({
   sheet,
   today,
   currency,
+  pick,
 }: NetWorthHeadlineProps) {
   const locale = useLocale();
+  const money = (minor: number, signed = false) =>
+    formatMoney(minor, currency, locale, {
+      wholeUnits: true,
+      signDisplay: signed ? "exceptZero" : "auto",
+    });
+
+  return (
+    <section
+      css={styles.headline}
+      aria-label={t({ en: "Net worth today", zh: "今日净资产" })}
+    >
+      <span css={[typeRole.h1, typeModifier.numeric, styles.figure]}>
+        {pick === null
+          ? money(sheet.netWorth)
+          : pick.kind === "point"
+            ? money(pick.value)
+            : money(pick.to - pick.from, true)}
+      </span>
+      <div css={styles.layers}>
+        <TodayChanges
+          netWorth={sheet.netWorth}
+          today={today}
+          currency={currency}
+          hidden={pick !== null}
+        />
+        {pick === null ? null : (
+          <span
+            aria-hidden
+            css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
+          >
+            {pick.kind === "point" ? (
+              displayDay(pick.day, locale, "dayYear")
+            ) : (
+              <>
+                <span
+                  css={[
+                    typeModifier.numeric,
+                    styles.value,
+                    pick.to > pick.from && styles.up,
+                    pick.to < pick.from && styles.down,
+                  ]}
+                >
+                  {formatPercentChange(pick.to - pick.from, pick.from, locale, {
+                    short: true,
+                  })}
+                </span>
+                <span>
+                  {displayDayRange(pick.startDay, pick.endDay, locale)}
+                </span>
+              </>
+            )}
+          </span>
+        )}
+      </div>
+      <dl css={[cluster.item, typeRole.bodySmall, styles.facts]}>
+        <Fact label={t({ en: "Assets", zh: "资产" })}>
+          {money(sheet.assets)}
+        </Fact>
+        <Fact label={t({ en: "Liabilities", zh: "负债" })}>
+          {money(sheet.liabilities)}
+        </Fact>
+      </dl>
+    </section>
+  );
+}
+
+/**
+ * Today's change since a week ago and since 1 January. A component of its
+ * own, so that a pick on the chart does not read the two past net worths
+ * again.
+ */
+function TodayChanges({
+  netWorth,
+  today,
+  currency,
+  hidden,
+}: {
+  netWorth: number;
+  today: string;
+  currency: string;
+  hidden: boolean;
+}) {
   const days = netWorthComparisonDays(today);
   const lastWeek = useReplica((snapshot) =>
     selectNetWorthAt(snapshot, days.lastWeek),
@@ -37,92 +127,72 @@ export function NetWorthHeadline({
   const yearStart = useReplica((snapshot) =>
     selectNetWorthAt(snapshot, days.yearStart),
   );
-  const money = (minor: number) => formatMoney(minor, currency, locale);
   const changes = [
-    {
-      key: "week",
-      from: lastWeek,
-      label: t({ en: "vs last week", zh: "较上周" }),
-    },
-    {
-      key: "year",
-      from: yearStart,
-      label: t({ en: "since 1 Jan", zh: "今年以来" }),
-    },
+    { from: lastWeek, label: t({ en: "1W", zh: "近一周" }) },
+    { from: yearStart, label: t({ en: "YTD", zh: "今年" }) },
   ];
-
   return (
-    <section
-      css={stack.item}
-      aria-label={t({ en: "Net worth today", zh: "今日净资产" })}
+    <dl
+      css={[
+        cluster.item,
+        typeRole.bodySmall,
+        styles.facts,
+        styles.layer,
+        hidden && styles.hidden,
+      ]}
     >
-      <div css={stack.tight}>
-        <Text look="caption" tone="muted">
-          {t({ en: "Net worth today", zh: "今日净资产" })}
-        </Text>
-        <span css={[typeRole.h1, typeModifier.numeric, styles.headline]}>
-          {money(sheet.netWorth)}
-        </span>
-        <dl css={[cluster.item, styles.changes]}>
-          {changes.map(({ key, from, label }) => {
-            const change = sheet.netWorth - from;
-            const percent = formatPercentChange(change, from, locale);
-            return (
-              <div key={key} css={[cluster.tight, typeRole.bodySmall]}>
-                <dt css={styles.muted}>{label}</dt>
-                <dd
-                  css={[
-                    typeModifier.numeric,
-                    styles.delta,
-                    change > 0 && styles.up,
-                    change < 0 && styles.down,
-                  ]}
-                >
-                  {formatMoney(change, currency, locale, {
-                    signDisplay: "exceptZero",
-                  })}
-                  {percent === null ? "" : ` (${percent})`}
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
-      </div>
-      <dl css={[cluster.item, styles.sides]}>
-        <div css={styles.side}>
-          <dt css={[typeRole.caption, styles.muted]}>
-            {t({ en: "Assets", zh: "资产" })}
-          </dt>
-          <dd css={[typeRole.body, typeModifier.numeric, styles.sideValue]}>
-            {money(sheet.assets)}
-          </dd>
-        </div>
-        <div css={styles.side}>
-          <dt css={[typeRole.caption, styles.muted]}>
-            {t({ en: "Liabilities", zh: "负债" })}
-          </dt>
-          <dd css={[typeRole.body, typeModifier.numeric, styles.sideValue]}>
-            {money(sheet.liabilities)}
-          </dd>
-        </div>
-      </dl>
-    </section>
+      {changes.map(({ from, label }) => (
+        <Fact key={label} label={label}>
+          <MoneyChange
+            changeMinor={netWorth - from}
+            fromMinor={from}
+            currency={currency}
+            tone
+            whole
+          />
+        </Fact>
+      ))}
+    </dl>
+  );
+}
+
+function Fact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div css={row.inline}>
+      <dt css={styles.muted}>{label}</dt>
+      <dd css={[typeModifier.numeric, styles.value]}>{children}</dd>
+    </div>
   );
 }
 
 const styles = stylex.create({
   headline: {
+    display: "flex",
+    flexDirection: "column",
+    gap: rhythm.inline,
+  },
+  // Today's changes and the pick's day share one cell, so that the block
+  // keeps the height of the taller one and a pick moves nothing.
+  layers: {
+    display: "grid",
+  },
+  layer: {
+    gridArea: "1 / 1",
+    minInlineSize: 0,
+  },
+  hidden: {
+    visibility: "hidden",
+  },
+  figure: {
     fontWeight: font.weight_7,
   },
-  changes: {
+  facts: {
     margin: 0,
-    rowGap: rhythm.tight,
+    rowGap: 0,
   },
-  delta: {
+  value: {
     margin: 0,
-    order: -1,
     fontWeight: font.weight_6,
-    color: color.fg,
   },
   up: {
     color: color.fgSuccess,
@@ -132,17 +202,5 @@ const styles = stylex.create({
   },
   muted: {
     color: color.fgMuted,
-  },
-  sides: {
-    margin: 0,
-  },
-  side: {
-    display: "flex",
-    flexDirection: "column",
-    minInlineSize: 0,
-  },
-  sideValue: {
-    margin: 0,
-    fontWeight: font.weight_6,
   },
 });
