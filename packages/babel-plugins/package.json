@@ -22,6 +22,7 @@
     "./stylex-breakpoints": "./src/stylex-breakpoints/index.js",
     "./stylex-options": "./src/stylex-options/index.js",
     "./stylex-plugins": "./src/stylex-plugins/index.js",
+    "./stylex-plugins/process-stylex-rules": "./src/stylex-plugins/process-stylex-rules.mjs",
     "./i18n": "./src/i18n/index.js",
     "./i18n/extract-translations": "./src/i18n/extract-translations.js",
     "./i18n/generate-key": "./src/i18n/generate-key.js",
@@ -33,7 +34,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint --max-warnings 0 .",
     "test": "vitest run"
   },
   "dependencies": {

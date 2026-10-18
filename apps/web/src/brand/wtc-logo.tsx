@@ -25,13 +25,11 @@ const styles = stylex.create({
     height: "100%",
   },
   plusPath: {
-    // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know stylex.firstThatWorks() and rejects the function call as a colour value
     color: stylex.firstThatWorks(svgTokens.fill, brand.wtcPlus),
     fill: "currentColor",
     transition: "fill .2s",
   },
   letterPath: {
-    // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know stylex.firstThatWorks() and rejects the function call as a colour value
     color: stylex.firstThatWorks(svgTokens.fill, brand.wtcLetter),
     fill: "currentColor",
     transition: "fill .2s",

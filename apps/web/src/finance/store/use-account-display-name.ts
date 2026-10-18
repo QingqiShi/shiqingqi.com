@@ -6,7 +6,6 @@ import {
 } from "./account-display-name.ts";
 
 /** The translated system account names, for code outside render that calls `accountDisplayName`. */
-// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- the i18n transform adds a useI18nTranslations hook call to each function that calls t(), so the prefix is earned; the rule only sees the pre-transform source
 export function useSystemAccountNames(): SystemAccountNames {
   return { inTransit: t({ en: "In transit", zh: "在途" }) };
 }

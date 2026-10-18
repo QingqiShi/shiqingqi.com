@@ -5,7 +5,11 @@
  * Do not edit manually - changes will be overwritten.
  */
 
+import { z } from "zod";
 import { getTvShowDetails } from "#src/_generated/tmdb-server-functions.ts";
 import { apiRouteWrapper } from "#src/app/api/tmdb/api-route-wrapper.ts";
 
-export const GET = apiRouteWrapper(getTvShowDetails);
+export const GET = apiRouteWrapper(
+  getTvShowDetails,
+  z.object({ series_id: z.string() }).catchall(z.string()),
+);

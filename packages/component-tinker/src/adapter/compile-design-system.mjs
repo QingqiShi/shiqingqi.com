@@ -1,9 +1,8 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-// eslint-disable-next-line restricted/stylex-babel-plugin -- Only for `processStylexRules`. The Babel plugins come from `stylexPlugins`.
-import stylexBabelPlugin from "@stylexjs/babel-plugin";
 import { stylexPlugins } from "@tuja/babel-plugins/stylex-plugins";
+import { processStylexRules } from "@tuja/babel-plugins/stylex-plugins/process-stylex-rules";
 import {
   designSystemSources,
   monorepoRoot,
@@ -172,7 +171,7 @@ export function compileDesignSystem() {
   const loadAuthored = createModuleGraph(authoredModules, shimStylex);
   const loadResolved = createModuleGraph(resolvedModules, shimStylex);
 
-  const css = stylexBabelPlugin.processStylexRules(rules, {
+  const css = processStylexRules(rules, {
     useLayers: true,
   });
 

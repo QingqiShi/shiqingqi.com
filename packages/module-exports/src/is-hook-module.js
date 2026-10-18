@@ -26,6 +26,16 @@ function isHookName(name) {
 }
 
 /**
+ * Whether a function name marks a component or a hook, the two kinds of
+ * function that React renders.
+ * @param {string} name
+ * @returns {boolean}
+ */
+function isComponentOrHookName(name) {
+  return /^[A-Z]/.test(name) || isHookName(name);
+}
+
+/**
  * @param {any} program
  * @returns {boolean}
  */
@@ -34,4 +44,4 @@ function isHookModule(program) {
   return names !== null && names.length > 0 && names.every(isHookName);
 }
 
-module.exports = { isHookModule, isHookName };
+module.exports = { isComponentOrHookName, isHookModule, isHookName };

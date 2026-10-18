@@ -60,20 +60,12 @@ const DROP_DELETED = new Set<SyncTableName>([
   "monthTotals",
 ]);
 
-/** Calls `visit` once per table with the table's own row type. */
-function eachTable(
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters -- Each call must index the table types with one table. This needs the type parameter.
-  visit: <Table extends SyncTableName>(table: Table) => void,
-) {
-  for (const table of REPLICA_TABLE_NAMES) visit(table);
-}
-
 function writesOf(tables: TablesDraft, changed: ChangedKeys) {
   const writes: ReplicaTableWrites = {};
-  eachTable((table) => {
+  for (const table of REPLICA_TABLE_NAMES) {
     const keys = changed.get(table);
-    if (!keys) return;
-    const put: ReplicaRow<typeof table>[] = [];
+    if (!keys) continue;
+    const put: ReplicaRow<SyncTableName>[] = [];
     const remove: string[] = [];
     for (const key of keys) {
       const row = tables.get(table, key);
@@ -81,7 +73,7 @@ function writesOf(tables: TablesDraft, changed: ChangedKeys) {
       else remove.push(key);
     }
     Object.assign(writes, { [table]: { put, delete: remove } });
-  });
+  }
   return writes;
 }
 
@@ -297,15 +289,15 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     changed: ChangedKeys,
   ) {
     const changes: ReplicaChanges = {};
-    eachTable((table) => {
-      if (previous[table] === tables[table]) return;
+    for (const table of REPLICA_TABLE_NAMES) {
+      if (previous[table] === tables[table]) continue;
       Object.assign(changes, {
         [table]: {
           from: previous[table],
           keys: changed.get(table) ?? new Set(),
         },
       });
-    });
+    }
     return changes;
   }
 
@@ -371,10 +363,10 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   /** Returns the keys it changed. */
   function mergeServerRows(draft: TablesDraft, tables: Partial<SyncRows>) {
     const changed: ChangedKeys = new Map();
-    eachTable((table) => {
-      const rows: readonly ReplicaRow<typeof table>[] | undefined =
+    for (const table of REPLICA_TABLE_NAMES) {
+      const rows: readonly ReplicaRow<SyncTableName>[] | undefined =
         tables[table];
-      if (!rows) return;
+      if (!rows) continue;
       const keys = new Set<string>();
       for (const row of rows) {
         const key = rowKey(table, row);
@@ -386,7 +378,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         }
       }
       if (keys.size > 0) changed.set(table, keys);
-    });
+    }
     return changed;
   }
 
@@ -417,12 +409,12 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     awaiting = entries.filter((entry) => entry.acknowledged);
     lastSeq = Math.max(lastSeq, entries.at(-1)?.seq ?? 0);
     const changed: ChangedKeys = new Map();
-    eachTable((table) => {
-      if (previous[table] === base[table]) return;
+    for (const table of REPLICA_TABLE_NAMES) {
+      if (previous[table] === base[table]) continue;
       const keys = new Set<string>(previous[table].keys());
       for (const key of base[table].keys()) keys.add(key);
       changed.set(table, keys);
-    });
+    }
     rebuildView(changed);
   }
 

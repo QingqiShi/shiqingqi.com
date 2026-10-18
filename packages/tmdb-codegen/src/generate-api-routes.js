@@ -1,6 +1,23 @@
 import fs from "fs";
 import path from "path";
 import { apiRoutes } from "./api-routes.js";
+import { endpoints } from "./endpoints.js";
+import { extractPathParams } from "./extract-path-params.js";
+
+/**
+ * The Zod schema for a route's search params: its server function's path
+ * params, and every other param as a string.
+ * @param {string} functionName - The server function the route calls
+ * @returns {string} The schema as source
+ */
+function searchParamsSchema(functionName) {
+  const endpoint = endpoints.find((e) => e.functionName === functionName);
+  if (!endpoint) throw new Error(`No endpoint for ${functionName}`);
+  const shape = extractPathParams(endpoint.path)
+    .map((param) => `${param}: z.string()`)
+    .join(", ");
+  return `z.object({ ${shape} }).catchall(z.string())`;
+}
 
 /**
  * Replace the `/api/tmdb` route directory with one route per api route.
@@ -39,10 +56,14 @@ export function generateApiRoutes(projectRoot) {
  * Do not edit manually - changes will be overwritten.
  */
 
+import { z } from "zod";
 import { ${functionName} } from "#src/_generated/tmdb-server-functions.ts";
 import { apiRouteWrapper } from "#src/app/api/tmdb/api-route-wrapper.ts";
 
-export const GET = apiRouteWrapper(${functionName});
+export const GET = apiRouteWrapper(
+  ${functionName},
+  ${searchParamsSchema(functionName)},
+);
 `;
 
     const routeFile = path.join(routeDir, "route.ts");

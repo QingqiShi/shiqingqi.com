@@ -7,7 +7,7 @@
     "build": "next build && serwist build serwist.config.mjs",
     "build:tsc": "tsc --noEmit",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint --max-warnings 0 ."
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.4.0",

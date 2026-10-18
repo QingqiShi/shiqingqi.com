@@ -1,13 +1,10 @@
 import { CalendarDays, ChevronRight, Lock, Users } from "lucide-react";
+import { connection } from "next/server";
 import { Link } from "@/link";
 import { resolveDay } from "@/reader/resolve-day";
 import { Badge } from "@/shadcn/badge";
 import { trips } from "@/trips";
 import type { Trip } from "@/trips/types";
-
-// "Where is each trip relative to today" depends on the wall clock, so render
-// per-request.
-export const dynamic = "force-dynamic";
 
 function phaseBadge(trip: Trip, now: Date) {
   const { index, phase, daysUntil } = resolveDay(now, trip.days);
@@ -58,8 +55,8 @@ function TripCard({ trip, now }: { trip: Trip; now: Date }) {
   );
 }
 
-export default function HomePage() {
-  // eslint-disable-next-line @eslint-react/purity -- force-dynamic page: request time IS the content, and render is its only per-request phase
+export default async function HomePage() {
+  await connection();
   const now = new Date();
 
   return (

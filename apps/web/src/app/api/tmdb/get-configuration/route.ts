@@ -5,7 +5,11 @@
  * Do not edit manually - changes will be overwritten.
  */
 
+import { z } from "zod";
 import { getConfiguration } from "#src/_generated/tmdb-server-functions.ts";
 import { apiRouteWrapper } from "#src/app/api/tmdb/api-route-wrapper.ts";
 
-export const GET = apiRouteWrapper(getConfiguration);
+export const GET = apiRouteWrapper(
+  getConfiguration,
+  z.object({}).catchall(z.string()),
+);

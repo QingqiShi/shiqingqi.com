@@ -27,33 +27,33 @@ export function createFakeBankClient(fixture: FakeBankFixture): BankClient {
   }
 
   return {
-    // eslint-disable-next-line @typescript-eslint/require-await -- The fake must reject, not throw, as the real client does.
-    async listAccounts() {
-      if (fixture.listAccountsError) {
-        throw new BankError(fixture.listAccountsError, "Fake error");
-      }
-      return fixture.accounts.map((account) => ({ ...account }));
-    },
+    listAccounts: () =>
+      Promise.try(() => {
+        if (fixture.listAccountsError) {
+          throw new BankError(fixture.listAccountsError, "Fake error");
+        }
+        return fixture.accounts.map((account) => ({ ...account }));
+      }),
 
-    // eslint-disable-next-line @typescript-eslint/require-await -- The fake must reject, not throw, as the real client does.
-    async listTransactions(providerAccountId, range) {
-      failIfScripted(providerAccountId);
-      const rows = fixture.transactions[providerAccountId] ?? [];
-      return rows
-        .filter(
-          (row) =>
-            row.date >= range.from &&
-            (range.to === undefined || row.date <= range.to),
-        )
-        .map((row) => ({ ...row }));
-    },
+    listTransactions: (providerAccountId, range) =>
+      Promise.try(() => {
+        failIfScripted(providerAccountId);
+        const rows = fixture.transactions[providerAccountId] ?? [];
+        return rows
+          .filter(
+            (row) =>
+              row.date >= range.from &&
+              (range.to === undefined || row.date <= range.to),
+          )
+          .map((row) => ({ ...row }));
+      }),
 
-    // eslint-disable-next-line @typescript-eslint/require-await -- The fake must reject, not throw, as the real client does.
-    async getBalance(providerAccountId) {
-      failIfScripted(providerAccountId);
-      const balance = fixture.balances[providerAccountId];
-      if (!balance) throw new BankError("unavailable", "No balance");
-      return { ...balance };
-    },
+    getBalance: (providerAccountId) =>
+      Promise.try(() => {
+        failIfScripted(providerAccountId);
+        const balance = fixture.balances[providerAccountId];
+        if (!balance) throw new BankError("unavailable", "No balance");
+        return { ...balance };
+      }),
   };
 }

@@ -23,35 +23,33 @@ interface AnimateCall {
 /**
  * jsdom has no `Element.prototype.animate`, `getAnimations`, or
  * `ResizeObserver` — the three `parts` reads to animate a change. Stubbed
- * just enough to exercise the arrive/leave paths.
+ * just enough to exercise the arrive/leave paths: an animation carries only
+ * the fields CodeBlock reads back (id, cancel, finished).
  */
 function stubAnimationApis() {
   const calls: AnimateCall[] = [];
-  // eslint-disable-next-line @typescript-eslint/unbound-method -- captured only to restore later, never invoked detached
-  const originalAnimate = Element.prototype.animate;
-  // eslint-disable-next-line @typescript-eslint/unbound-method -- captured only to restore later, never invoked detached
-  const originalGetAnimations = Element.prototype.getAnimations;
   const originalResizeObserver = globalThis.ResizeObserver;
 
-  Element.prototype.animate = function (
-    this: Element,
-    keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
-    options?: number | KeyframeAnimationOptions,
-  ) {
-    const resolved = typeof options === "object" ? options : {};
-    calls.push({
-      target: this,
-      keyframes: Array.isArray(keyframes) ? keyframes : [],
-      options: resolved,
-    });
-    // eslint-disable-next-line no-restricted-syntax -- the stub carries only the fields CodeBlock reads back off an Animation (id, cancel, finished)
-    return {
-      id: resolved.id ?? "",
-      cancel: vi.fn(),
-      finished: Promise.resolve(),
-    } as unknown as Animation;
-  };
-  Element.prototype.getAnimations = vi.fn(() => []);
+  Object.assign(Element.prototype, {
+    animate(
+      this: Element,
+      keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+      options?: number | KeyframeAnimationOptions,
+    ) {
+      const resolved = typeof options === "object" ? options : {};
+      calls.push({
+        target: this,
+        keyframes: Array.isArray(keyframes) ? keyframes : [],
+        options: resolved,
+      });
+      return {
+        id: resolved.id ?? "",
+        cancel: vi.fn(),
+        finished: Promise.resolve(),
+      };
+    },
+    getAnimations: vi.fn(() => []),
+  });
 
   class StubResizeObserver {
     observe() {
@@ -69,8 +67,8 @@ function stubAnimationApis() {
   return {
     calls,
     restore() {
-      Element.prototype.animate = originalAnimate;
-      Element.prototype.getAnimations = originalGetAnimations;
+      Reflect.deleteProperty(Element.prototype, "animate");
+      Reflect.deleteProperty(Element.prototype, "getAnimations");
       globalThis.ResizeObserver = originalResizeObserver;
     },
   };

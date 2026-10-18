@@ -15,7 +15,6 @@ interface FinanceDestination {
 }
 
 /** The five Finance destinations with their labels, for the rail and the tab bar. */
-// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- the i18n transform adds a useI18nTranslations hook call to each function that calls t(), so the prefix is earned; the rule only sees the pre-transform source
 export function useFinanceDestinations(): FinanceDestination[] {
   const [netWorth, transactions, analytics, reports, settings] =
     FINANCE_DESTINATION_PATHS;

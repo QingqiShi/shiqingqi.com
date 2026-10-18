@@ -1,7 +1,6 @@
 import { t } from "#src/i18n.ts";
 
 /** Turns a Bank link's `lastError` code into a sentence for the household; null stays null. */
-// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- the i18n transform adds a useI18nTranslations hook call to each function that calls t(), so the prefix is earned; the rule only sees the pre-transform source
 export function useBankErrorMessage(): (code: string | null) => string | null {
   const messages: Record<string, string> = {
     reconnect: t({

@@ -1,17 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { endpoints } from "./endpoints.js";
-
-/**
- * Auto-detect path parameters from URL pattern
- * @param {string} pathPattern - URL pattern like "/3/movie/{movie_id}"
- * @returns {string[]} Array of parameter names
- */
-function extractPathParams(pathPattern) {
-  const matches = pathPattern.match(/{([^}]+)}/g);
-  if (!matches) return [];
-  return matches.map((match) => match.slice(1, -1)); // Remove { and }
-}
+import { extractPathParams } from "./extract-path-params.js";
 
 /**
  * Write the server function per endpoint into `_generated`.

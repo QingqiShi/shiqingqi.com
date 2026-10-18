@@ -37,7 +37,6 @@ export interface Movie {
  * with a `useI18nTranslations` hook call, which is also why it can only be
  * called from render scope.
  */
-// eslint-disable-next-line @eslint-react/no-unnecessary-use-prefix -- the i18n transform adds a useI18nTranslations hook call to each function that calls t(), so the prefix is earned; the rule only sees the pre-transform source
 export function useMovies(): Movie[] {
   const northbound: Movie = {
     id: "northbound",

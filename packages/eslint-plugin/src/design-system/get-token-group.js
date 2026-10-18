@@ -1,5 +1,7 @@
 "use strict";
 
+const { findVariable } = require("./find-variable");
+
 /**
  * The leaves of a style value: each branch of a conditional object
  * (`{ default: …, [breakpoints.md]: … }`), or the value itself.
@@ -23,26 +25,18 @@ function collectLeaves(value) {
  * @returns {{ name: string, namespace: boolean }}
  */
 function resolveImportName(sourceCode, identifier) {
-  let scope = sourceCode.getScope(identifier);
-  while (scope != null) {
-    const variable = scope.set.get(identifier.name);
-    if (variable !== undefined) {
-      const definition = variable.defs[0];
-      if (definition?.type === "ImportBinding") {
-        const specifier = definition.node;
-        if (specifier.type === "ImportNamespaceSpecifier") {
-          return { name: identifier.name, namespace: true };
-        }
-        if (
-          specifier.type === "ImportSpecifier" &&
-          specifier.imported.type === "Identifier"
-        ) {
-          return { name: specifier.imported.name, namespace: false };
-        }
-      }
-      break;
+  const definition = findVariable(sourceCode, identifier)?.defs[0];
+  if (definition?.type === "ImportBinding") {
+    const specifier = definition.node;
+    if (specifier.type === "ImportNamespaceSpecifier") {
+      return { name: identifier.name, namespace: true };
     }
-    scope = scope.upper;
+    if (
+      specifier.type === "ImportSpecifier" &&
+      specifier.imported.type === "Identifier"
+    ) {
+      return { name: specifier.imported.name, namespace: false };
+    }
   }
   return { name: identifier.name, namespace: false };
 }

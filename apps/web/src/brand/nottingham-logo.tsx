@@ -39,7 +39,6 @@ export default function NottinghamLogo({ title }: NottinghamLogoProps) {
 
 const styles = stylex.create({
   svg: {
-    // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know stylex.firstThatWorks() and rejects the function call as a colour value
     color: stylex.firstThatWorks(svgTokens.fill, brand.nottingham),
     fill: "currentColor",
     objectFit: "contain",

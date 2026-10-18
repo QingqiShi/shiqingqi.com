@@ -8,6 +8,7 @@ import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { ThemeFramePair } from "#src/design-system/theme-frame.tsx";
 import { t } from "#src/i18n.ts";
+import { hardCodedType } from "./hard-coded-type.stylex.ts";
 
 export function TextShowcase() {
   const runtimes = ["1:02", "12:45", "128:09"];
@@ -258,7 +259,7 @@ export function TextShowcase() {
           zh: "选择 look 与 tone，让字体角色与主题掌控字号和颜色。",
         })}
         dont={
-          <Text css={styles.hardCodedType}>
+          <Text css={hardCodedType.base}>
             {t({ en: "Added 3 hours ago", zh: "3 小时前添加" })}
           </Text>
         }
@@ -272,12 +273,6 @@ export function TextShowcase() {
 }
 
 const styles = stylex.create({
-  // The don't specimen: hard-coded pixels and opacity in place of the scale.
-  hardCodedType: {
-    // eslint-disable-next-line @tuja/require-type-role -- The "don't" specimen must show a raw size.
-    fontSize: "11px",
-    opacity: 0.5,
-  },
   // Narrow enough that the line breaks land differently per mode, and clipped
   // so the nowrap specimen overflows its box instead of the page.
   wrapSpecimen: {

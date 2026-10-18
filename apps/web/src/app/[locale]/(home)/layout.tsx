@@ -101,7 +101,7 @@ export default async function Layout({
       }
     >
       {/* JSON-LD must be emitted inline; the payload is escaped in buildHomeJsonLd */}
-      <InlineScript type="application/ld+json" html={jsonLd} />
+      <InlineScript type="application/ld+json">{jsonLd}</InlineScript>
       <div css={styles.wrapperInner}>
         <BackgroundLines />
         <main>{children}</main>

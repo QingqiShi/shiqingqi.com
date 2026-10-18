@@ -2,7 +2,10 @@
 
 const nodePath = require("node:path");
 
-const { isHookModule, isHookName } = require("@tuja/module-exports");
+const {
+  isClientModule,
+  isComponentOrHookName,
+} = require("@tuja/module-exports");
 const { createContextWrapper } = require("./create-context-wrapper");
 const { extractTranslations } = require("./extract-translations");
 const { generateKey } = require("./generate-key");
@@ -78,7 +81,7 @@ module.exports = function i18nBabelPlugin({ types: t }, opts) {
  */
 function transformProgram(t, path, state, { projectRoot, manifestPath }) {
   state.tLocalName = null;
-  state.isClientModule = false;
+  state.isClientModule = isClientModule(path.node);
   state.usedLookup = false;
   state.usedLookupParse = false;
   state.tImportPath = null;
@@ -86,30 +89,6 @@ function transformProgram(t, path, state, { projectRoot, manifestPath }) {
   state.hasSetLocaleImport = false;
   state.translationsOf = new Map();
   state.translationsHooks = [];
-
-  // Detect "use client" directive
-  // Babel parses directives (like "use strict", "use client") into
-  // path.node.directives rather than the body as ExpressionStatements.
-  const directives = path.node.directives;
-  if (directives && directives.length > 0) {
-    for (const directive of directives) {
-      if (
-        t.isDirective(directive) &&
-        t.isDirectiveLiteral(directive.value) &&
-        directive.value.value === "use client"
-      ) {
-        state.isClientModule = true;
-        break;
-      }
-    }
-  }
-
-  // A hook can only run inside a client component, so a module
-  // whose value exports are all hooks is client code even with no
-  // directive.
-  if (!state.isClientModule) {
-    state.isClientModule = isHookModule(path.node);
-  }
 
   // Check if this file is a page/layout with client translations.
   // Read the manifest per-file (not once at plugin construction) so
@@ -484,7 +463,7 @@ function isRenderFunction(fnPath) {
       fnPath.parentPath.isExportDefaultDeclaration()
     );
   }
-  return /^[A-Z]/.test(name) || isHookName(name);
+  return isComponentOrHookName(name);
 }
 
 /**

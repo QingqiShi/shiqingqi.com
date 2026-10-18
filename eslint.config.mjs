@@ -2,7 +2,6 @@ import comments from "@eslint-community/eslint-plugin-eslint-comments";
 import eslintReact from "@eslint-react/eslint-plugin";
 import js from "@eslint/js";
 import nextPlugin from "@next/eslint-plugin-next";
-import stylexjs from "@stylexjs/eslint-plugin";
 import turboConfig from "eslint-config-turbo/flat";
 import importPlugin from "eslint-plugin-import-x";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -30,7 +29,18 @@ const restrictedPlugin = {
     "stylex-babel-plugin": noRestrictedSyntax,
     "tmdb-query-fn": noRestrictedSyntax,
     "reduced-motion": noRestrictedSyntax,
+    "type-assertion": noRestrictedSyntax,
   },
+};
+
+const noUnusedVarsOptions = {
+  args: "all",
+  argsIgnorePattern: "^_",
+  caughtErrors: "all",
+  caughtErrorsIgnorePattern: "^_",
+  destructuredArrayIgnorePattern: "^_",
+  varsIgnorePattern: "^_",
+  ignoreRestSiblings: true,
 };
 
 const stylexPluginsMessage =
@@ -62,7 +72,6 @@ export default defineConfig([
   {
     plugins: {
       "import-x": importPlugin,
-      "@stylexjs": stylexjs,
       unicorn: eslintPluginUnicorn,
       "@tuja": tujaPlugin,
       restricted: restrictedPlugin,
@@ -77,10 +86,12 @@ export default defineConfig([
       },
     },
     linterOptions: {
-      reportUnusedDisableDirectives: "error",
+      noInlineConfig: true,
     },
     rules: {
-      "@stylexjs/valid-styles": "error",
+      // This rule replaces @stylexjs/valid-styles. Its doc header gives the
+      // reason.
+      "@tuja/valid-styles": "error",
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/consistent-type-exports": "error",
       "import-x/no-relative-packages": "error",
@@ -114,21 +125,6 @@ export default defineConfig([
             "Use `opacity.disabled` from tokens.stylex. Hand-picked disabled fades drifted to five different values before it existed.",
         },
         {
-          // Carve-outs: `as const`, and assertions directly on JSON parsing
-          // (`JSON.parse(x) as T`, `res.json() as T`, `(await res.json()) as
-          // T`) — the untyped-data trust boundary where the type system has
-          // nothing to offer without runtime validation.
-          selector:
-            'TSAsExpression:not([typeAnnotation.typeName.name="const"]):not([expression.callee.object.name="JSON"][expression.callee.property.name="parse"]):not([expression.callee.property.name="json"]):not([expression.argument.callee.property.name="json"])',
-          message:
-            "Type assertions hide real type errors. Prefer `satisfies`, a type guard, or schema validation. (`as const` and JSON-parse results are allowed.)",
-        },
-        {
-          selector: "TSTypeAssertion",
-          message:
-            "Angle-bracket type assertions are banned for the same reason as `as`.",
-        },
-        {
           selector:
             'CallExpression[callee.object.name="vi"][callee.property.name=/^(mock|doMock)$/][arguments.0.value="server-only"]',
           message:
@@ -146,6 +142,24 @@ export default defineConfig([
             "React Compiler memoizes components and hooks. Remove the manual `useMemo`, `useCallback`, or `memo`.",
         },
       ],
+      "restricted/type-assertion": [
+        "error",
+        {
+          // Carve-outs: `as const`, and assertions directly on JSON parsing
+          // (`JSON.parse(x) as T`, `res.json() as T`, `(await res.json()) as
+          // T`) — the untyped-data trust boundary where the type system has
+          // nothing to offer without runtime validation.
+          selector:
+            'TSAsExpression:not([typeAnnotation.typeName.name="const"]):not([expression.callee.object.name="JSON"][expression.callee.property.name="parse"]):not([expression.callee.property.name="json"]):not([expression.argument.callee.property.name="json"])',
+          message:
+            "Type assertions hide real type errors. Prefer `satisfies`, a type guard, or schema validation. (`as const` and JSON-parse results are allowed.)",
+        },
+        {
+          selector: "TSTypeAssertion",
+          message:
+            "Angle-bracket type assertions are banned for the same reason as `as`.",
+        },
+      ],
       "restricted/stylex-babel-plugin": [
         "error",
         {
@@ -159,23 +173,13 @@ export default defineConfig([
           message: stylexPluginsMessage,
         },
       ],
-      // Inline disables are the sanctioned escape hatch for genuinely
-      // unavoidable violations: name the rule and state a reason after `--`.
-      "@eslint-community/eslint-comments/no-use": [
+      // `noInlineConfig` makes a directive comment do nothing. This rule
+      // reports the comment, so it does not stay in the code. If a rule is
+      // wrong for a file, change the rule or its scope in this config.
+      "@eslint-community/eslint-comments/no-use": "error",
+      "@typescript-eslint/ban-ts-comment": [
         "error",
-        {
-          allow: [
-            "eslint-disable",
-            "eslint-disable-next-line",
-            "eslint-enable",
-          ],
-        },
-      ],
-      "@eslint-community/eslint-comments/no-unlimited-disable": "error",
-      "@eslint-community/eslint-comments/require-description": "error",
-      "@eslint-community/eslint-comments/disable-enable-pair": [
-        "error",
-        { allowWholeFile: true },
+        { "ts-expect-error": true, "ts-ignore": true, "ts-nocheck": true },
       ],
       "@typescript-eslint/no-inferrable-types": "error",
       // The build runs React Compiler with `panicThreshold: "all_errors"`, so
@@ -194,17 +198,40 @@ export default defineConfig([
       "@tuja/no-t-outside-render": "error",
       "@tuja/no-banned-copy-words": "error",
       "@tuja/no-single-use-literal-alias": "error",
+      // @tuja/no-unnecessary-use-prefix replaces this rule. Its doc header
+      // gives the reason.
+      "@eslint-react/no-unnecessary-use-prefix": "off",
+      "@tuja/no-unnecessary-use-prefix": "error",
+      "@typescript-eslint/no-unused-vars": ["error", noUnusedVarsOptions],
+    },
+  },
+  // A `declare module "react"` augmentation must use the same type parameter
+  // names as the React declaration (TS2428). Thus `T` stays unused.
+  {
+    files: ["apps/web/src/babel.d.ts", "packages/ui/src/css-prop.d.ts"],
+    rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
-        {
-          args: "all",
-          argsIgnorePattern: "^_",
-          caughtErrors: "all",
-          caughtErrorsIgnorePattern: "^_",
-          destructuredArrayIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          ignoreRestSiblings: true,
-        },
+        { ...noUnusedVarsOptions, varsIgnorePattern: "^(_|T$)" },
+      ],
+    },
+  },
+  // A Lab lets the visitor pair props that the component's types forbid.
+  // Thus the Specimen's props do not have the component's prop type.
+  {
+    files: ["apps/web/src/design-system/lab/render-specimen.ts"],
+    rules: {
+      "restricted/type-assertion": "off",
+    },
+  },
+  // `document.execCommand("copy")` is deprecated, but it is the only copy
+  // method in a non-secure context (HTTP on a LAN address, some webviews).
+  {
+    files: ["apps/web/src/browser/copy-text-to-clipboard.ts"],
+    rules: {
+      "@typescript-eslint/no-deprecated": [
+        "error",
+        { allow: [{ from: "lib", name: "execCommand" }] },
       ],
     },
   },
@@ -286,7 +313,12 @@ export default defineConfig([
   // builds them from the cap and the safe area.
   {
     files: ["apps/*/src/**/*.{ts,tsx}"],
-    ignores: ["**/*.test.{ts,tsx}"],
+    ignores: [
+      "**/*.test.{ts,tsx}",
+      // The playground canvas covers the full screen. It extends past the
+      // safe area and does not set a gutter.
+      "apps/web/src/playground/full-screen-canvas.stylex.ts",
+    ],
     rules: {
       "@tuja/require-page-column": "error",
     },
@@ -353,6 +385,8 @@ export default defineConfig([
       "apps/web/src/design-system/sections/foundations/{families-showcase,viewport-scale-specimen,container-scale-specimen}.tsx",
       // The calculator sizes its keys and its readout to its container.
       "apps/web/src/calculator/calculator-{button,display}.tsx",
+      // The "don't" specimen of `Text` shows a raw pixel size on purpose.
+      "apps/web/src/design-system/sections/components/hard-coded-type.stylex.ts",
     ],
     rules: {
       "@tuja/require-type-role": "error",
@@ -364,7 +398,7 @@ export default defineConfig([
   {
     files: ["packages/ui/src/**/*.{ts,tsx}"],
     rules: {
-      "@stylexjs/valid-styles": [
+      "@tuja/valid-styles": [
         "error",
         {
           propLimits: {
@@ -389,6 +423,14 @@ export default defineConfig([
     files: ["packages/ui/src/**/*.stylex.ts", "apps/web/src/**/*.stylex.ts"],
     rules: {
       "@tuja/only-stylex-exports": "error",
+    },
+  },
+  // A Playwright fixture names the fixtures it needs in the pattern of its
+  // first parameter. A fixture that needs no fixture has an empty pattern.
+  {
+    files: ["apps/*/e2e/**/*.ts"],
+    rules: {
+      "no-empty-pattern": ["error", { allowObjectPatternsAsParameters: true }],
     },
   },
   // Next.js rules apply only to the Next.js apps.
@@ -479,6 +521,10 @@ export default defineConfig([
       "apps/trip-planner/src/shadcn/**",
       // A constant-only bag is named for its category.
       "**/constants.ts",
+      // The i18n Babel plugin imports these files by path, so their names
+      // cannot change to match their exports.
+      "apps/web/src/i18n.ts",
+      "apps/web/src/i18n/{client-runtime,server-locale,server-runtime}.ts",
     ],
     rules: {
       "@tuja/export-matches-filename": "error",
