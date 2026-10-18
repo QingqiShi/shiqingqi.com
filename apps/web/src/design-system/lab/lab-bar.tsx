@@ -18,10 +18,10 @@ import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { t } from "#src/i18n.ts";
+import { LabBarMenu } from "./lab-bar-menu.tsx";
 import { labBar } from "./lab-bar.stylex.ts";
 import { LabControl } from "./lab-control.tsx";
 import type { LabAction, LabState } from "./lab-reducer.ts";
-import { LabSheet } from "./lab-sheet.tsx";
 import type { LabControlModel, LabVariantChoice } from "./types.ts";
 
 const FOCUSABLE = [
@@ -42,7 +42,7 @@ interface LabBarProps {
 
 /**
  * The Lab's controls below `md`: a bar of Glass at the foot of the viewport,
- * carrying either the way into the Sheet or the one control the visitor is
+ * carrying either the way into its menu or the one control the visitor is
  * tuning. The Specimen keeps the rest of the screen.
  */
 export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
@@ -51,7 +51,7 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
   const [activeControlName, setActiveControlName] = useState<string | null>(
     null,
   );
-  const [isSheetShown, setIsSheetShown] = useState(false);
+  const [isMenuShown, setIsMenuShown] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const controlRef = useRef<HTMLDivElement>(null);
   const shownControlRef = useRef(activeControlName);
@@ -73,7 +73,7 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
       <EffectCarrier value="viewport-bottom">
         {/* Glass on a layer of its own, not on the bar itself: a
           `backdrop-filter` makes a containing block for fixed children, which
-          would trap the Sheet's backdrop and its Progressive blur inside the
+          would trap the menu's backdrop and its Progressive blur inside the
           bar. */}
         <div
           css={[corner.radius_3, glassSurface.base, styles.pane]}
@@ -93,15 +93,15 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
                 <MenuButton
                   position="sheet"
                   popupRole="group"
-                  open={isSheetShown}
-                  onOpenChange={setIsSheetShown}
+                  open={isMenuShown}
+                  onOpenChange={setIsMenuShown}
                   buttonProps={{
                     type: "button",
                     size: "sm",
                     icon: <SlidersHorizontalIcon weight="bold" />,
                   }}
                   menuContent={
-                    <LabSheet
+                    <LabBarMenu
                       variants={variants}
                       controls={controls}
                       variantId={state.variantId}
@@ -109,11 +109,11 @@ export function LabBar({ variants, controls, state, dispatch }: LabBarProps) {
                       onSelectVariant={(variantId) => {
                         dispatch({ type: "selectVariant", variantId });
                         setActiveControlName(null);
-                        setIsSheetShown(false);
+                        setIsMenuShown(false);
                       }}
                       onOpenControl={(prop) => {
                         setActiveControlName(prop);
-                        setIsSheetShown(false);
+                        setIsMenuShown(false);
                       }}
                     />
                   }

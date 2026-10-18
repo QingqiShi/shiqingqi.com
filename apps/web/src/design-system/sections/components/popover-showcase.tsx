@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
-import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
 import { Text } from "@tuja/ui/components/text";
 import type { PopoverPlacement } from "@tuja/ui/hooks/use-popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -63,19 +62,18 @@ function PopoverDiagram() {
   );
 }
 
-/** The same page under a modal: blurred, and the panel centred rather than hung. */
+/** The same page under a sheet: dimmed, and the card floating at the bottom rather than hung. */
 function ModalDiagram() {
   return (
-    <div css={[corner.radius_2, guidelineDiagram.frame]}>
+    <div css={[corner.radius_2, guidelineDiagram.frame, guidelineDiagram.clip]}>
       <div css={[corner.radius_1, styles.diagramTrigger]} />
       <WireframeBar width="72%" />
       <WireframeBar width="48%" />
-      <ProgressiveBlur radius={10}>
-        <div css={[popoverSurface.base, styles.diagramModal]}>
-          <WireframeBar width="55%" strong />
-          <WireframeBar width="80%" />
-        </div>
-      </ProgressiveBlur>
+      <div css={styles.diagramDim} />
+      <div css={[corner.radius_1, styles.diagramModal]}>
+        <WireframeBar width="55%" strong />
+        <WireframeBar width="80%" />
+      </div>
     </div>
   );
 }
@@ -160,8 +158,8 @@ export function PopoverShowcase() {
           </li>
           <li>
             {t({
-              en: "Tab past the last control leaves the panel. It never cycles back to the first: that is a focus trap, and only Overlay does it.",
-              zh: "从最后一个控件继续按 Tab 会离开面板。它不会绕回第一个：那是焦点捕获，只有覆盖层才这么做。",
+              en: "Tab past the last control leaves the panel. It never cycles back to the first: that is a focus trap, and only Sheet does it.",
+              zh: "从最后一个控件继续按 Tab 会离开面板。它不会绕回第一个：那是焦点捕获，只有弹出面板才这么做。",
             })}
           </li>
         </ul>
@@ -205,8 +203,8 @@ export function PopoverShowcase() {
           })}
           dont={<ModalDiagram />}
           dontCaption={t({
-            en: "Don't reach for one when the page has to stop. A decision that blocks everything else needs Overlay's blurred page, focus trap, and scroll lock — a Popover deliberately has none of the three.",
-            zh: "当页面必须停下来时不要用它。会阻断其余一切的决定需要覆盖层的页面虚化、焦点捕获与滚动锁定——浮层刻意不提供这三者。",
+            en: "Don't reach for one when the page has to stop. A decision that blocks everything else needs Sheet's dimmed page, focus trap, and scroll lock — a Popover deliberately has none of the three.",
+            zh: "当页面必须停下来时不要用它。会阻断其余一切的决定需要弹出面板的页面压暗、焦点捕获与滚动锁定——浮层刻意不提供这三者。",
           })}
         />
         <DoDont
@@ -279,16 +277,20 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._2,
   },
+  diagramDim: {
+    position: "absolute",
+    inset: 0,
+    backgroundColor: color.bgScrim,
+  },
   diagramModal: {
     position: "absolute",
-    insetBlockStart: "50%",
-    insetInlineStart: "50%",
-    transform: "translate(-50%, -50%)",
+    insetInline: space._0,
+    insetBlockEnd: space._0,
     display: "flex",
     flexDirection: "column",
     gap: rhythm.tight,
-    inlineSize: "72%",
     paddingBlock: space._2,
     paddingInline: space._2,
+    backgroundColor: color.bgSurface,
   },
 });

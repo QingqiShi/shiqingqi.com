@@ -316,7 +316,7 @@ const styles = stylex.create({
   // `reach` overhang and sit under a squircle clip that strips the masks.
   // Kept at 0×0 with size passed via custom properties, so Safari on iOS
   // walks past it instead of flattening the status bar — see
-  // `.claude/skills/ios-status-bar/SKILL.md`.
+  // `.claude/skills/ios-safari-edge-tint/SKILL.md`.
   reachLayers: {
     position: "fixed",
     inset: "auto",

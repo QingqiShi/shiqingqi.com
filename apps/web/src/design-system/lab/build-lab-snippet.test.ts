@@ -171,4 +171,37 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
       snippet.parts.some((part) => part.id.startsWith("attr-loading:")),
     ).toBe(false);
   });
+
+  it("prints the children a sample stands for, with its imports", () => {
+    const snippet = buildLabSnippet({
+      element: "Sheet",
+      importPath: "@tuja/ui/components/sheet",
+      props: { title: "Add a note", children: "form" },
+      docs: [
+        { name: "title", kind: "node" },
+        { name: "children", kind: "node" },
+      ],
+      controls: [
+        { name: "title", kind: "node" },
+        {
+          name: "children",
+          kind: "node",
+          samples: [
+            {
+              id: "form",
+              label: "Form",
+              code: "<NoteForm />",
+              imports: [{ name: "NoteForm", from: "./note-form.tsx" }],
+              value: null,
+            },
+          ],
+        },
+      ],
+    });
+    expect(snippet.text).toBe(
+      'import { Sheet } from "@tuja/ui/components/sheet";\n' +
+        'import { NoteForm } from "./note-form.tsx";\n\n' +
+        '<Sheet title="Add a note"><NoteForm /></Sheet>',
+    );
+  });
 });

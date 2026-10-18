@@ -61,7 +61,7 @@ const VIEWPORT_PADDING = 8;
  * dismissal rules (Escape, outside pointer, focus leaving), and the ARIA wiring
  * that makes a trigger a popover trigger. It moves focus into the popup on open
  * and hands it back to the trigger if the popup still holds it when it closes,
- * but it never traps focus and never locks scroll — that is `Overlay`'s job.
+ * but it never traps focus and never locks scroll — that is `Sheet`'s job.
  *
  * This is the custom layer beneath the `Popover` component: reach for it when
  * the popup needs to be something other than a plain surface, and spread

@@ -57,15 +57,15 @@ export function LayoutShowcase() {
     {
       term: "layer.overlay",
       note: t({
-        en: "A surface that owns the viewport while it is open, above the chrome: Overlay, and SidebarLayout's drawer below md.",
-        zh: "打开期间占据整个视口、压在框架之上的表面：Overlay，以及 SidebarLayout 在 md 以下的抽屉。",
+        en: "A surface that owns the viewport while it is open, above the chrome: Sheet, and SidebarLayout's drawer on a phone.",
+        zh: "打开期间占据整个视口、压在框架之上的表面：Sheet，以及 SidebarLayout 在手机上的抽屉。",
       }),
     },
     {
       term: "layer.tooltip",
       note: t({
-        en: "Above an open overlay. Popover renders into document.body at this plane, so it shows over an Overlay that holds its trigger.",
-        zh: "高于打开的覆盖层。Popover 渲染到 document.body，位于这一层，所以当它的触发元素在 Overlay 里时，它也显示在 Overlay 之上。",
+        en: "Above an open sheet. Popover renders into document.body at this plane, so it shows over a Sheet that holds its trigger.",
+        zh: "高于打开的弹出面板。Popover 渲染到 document.body，位于这一层，所以当它的触发元素在 Sheet 里时，它也显示在 Sheet 之上。",
       }),
     },
     {
@@ -130,8 +130,8 @@ const styles = stylex.create({
         />
         <GuideNote>
           {t({
-            en: "The components change at md and at no other breakpoint: controlSize and font.uiControl step down, SidebarLayout moves its rail beside the content, Overlay moves its close button, and a Button with hideLabelOnMobile shows its label. Make your own main layout change at md too, so the page changes in one step.",
-            zh: "组件只在 md 处变化，不在其他断点变化：controlSize 与 font.uiControl 缩小一级，SidebarLayout 把侧栏移到内容旁边，Overlay 移动它的关闭按钮，启用 hideLabelOnMobile 的 Button 显示出标签。你自己的主要布局变化也放在 md，页面就在同一步里一起变化。",
+            en: "The components change at md and at no other breakpoint: controlSize and font.uiControl step down, SidebarLayout moves its rail beside the content, Sheet moves from the bottom of the screen to the centre, and a Button with hideLabelOnMobile shows its label. Make your own main layout change at md too, so the page changes in one step.",
+            zh: "组件只在 md 处变化，不在其他断点变化：controlSize 与 font.uiControl 缩小一级，SidebarLayout 把侧栏移到内容旁边，Sheet 从屏幕底部移到中央，启用 hideLabelOnMobile 的 Button 显示出标签。你自己的主要布局变化也放在 md，页面就在同一步里一起变化。",
           })}
         </GuideNote>
         <GuideNote>

@@ -16,7 +16,7 @@ import { LabVariantSection } from "./lab-variant-section.tsx";
 import type { LabControlModel, LabProps, LabVariantChoice } from "./types.ts";
 import { unquote } from "./unquote.ts";
 
-interface LabSheetProps {
+interface LabBarMenuProps {
   variants: readonly LabVariantChoice[];
   controls: readonly LabControlModel[];
   /** The Variant the props came from. */
@@ -44,22 +44,22 @@ function currentValue(
 }
 
 /**
- * What the Sheet carries below `md`: the Variants, then one row per prop. A
- * row opens that prop's control in the bar, so the visitor tunes it with the
- * Specimen in view rather than behind the Sheet.
+ * What the bar's menu carries below `md`: the Variants, then one row per
+ * prop. A row opens that prop's control in the bar, so the visitor tunes it
+ * with the Specimen in view rather than behind the menu.
  */
-export function LabSheet({
+export function LabBarMenu({
   variants,
   controls,
   variantId,
   props,
   onSelectVariant,
   onOpenControl,
-}: LabSheetProps) {
+}: LabBarMenuProps) {
   const defaultLabel = t({ en: "Default", zh: "默认" });
 
   return (
-    <div css={[stack.group, styles.sheet]}>
+    <div css={[stack.group, styles.menu]}>
       <LabVariantSection
         variants={variants}
         variantId={variantId}
@@ -103,11 +103,11 @@ export function LabSheet({
 }
 
 const styles = stylex.create({
-  sheet: {
+  menu: {
     padding: space._5,
   },
   // No surface at rest: the caret says the row opens something, and a fill
-  // behind every row would put nine cards on the Sheet.
+  // behind every row would put nine cards on the menu.
   row: {
     display: "flex",
     alignItems: "center",

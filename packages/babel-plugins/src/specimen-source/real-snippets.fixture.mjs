@@ -251,20 +251,20 @@ const [plan, setPlan] = useState<"free" | "pro">("free");
 import { OptionCard } from "@tuja/ui/components/option-card";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";`,
 
-  // components/overlay-showcase.tsx
-  `import { Overlay } from "@tuja/ui/components/overlay";
+  // components/sheet-showcase.tsx
+  `import { Sheet } from "@tuja/ui/components/sheet";
 import { useState } from "react";
 
 const [isOpen, setIsOpen] = useState(false);
 
-<Overlay
+<Sheet
   isOpen={isOpen}
   onClose={() => setIsOpen(false)}
   closeLabel="Close"
   aria-label="Trailer"
 >
   {/* content */}
-</Overlay>`,
+</Sheet>`,
 
   // components/popover-showcase.tsx
   `import { Button } from "@tuja/ui/components/button";

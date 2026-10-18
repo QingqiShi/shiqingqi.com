@@ -11,7 +11,10 @@ or sticky boxes is never sampled.
 ## The hit test
 
 One point per edge. For the top edge it is the midpoint of the top edge of the
-fixed-position layout rect, contracted by 4px.
+fixed-position layout rect, contracted by 4px. The bottom edge uses the
+midpoint of the bottom edge in the same way, and its colour goes under the
+bottom toolbar. The walk, the colour and the latch below are the same for
+each edge.
 
 Hit-test options: `ReadOnly`, `IgnoreClipping`, `DisallowUserAgentShadowContent`,
 `ForFixedContainerSampling`, plus `IgnoreCSSPointerEventsProperty` on the first

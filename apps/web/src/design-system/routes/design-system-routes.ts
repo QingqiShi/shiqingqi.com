@@ -340,7 +340,7 @@ const ROUTES = [
     lab: true,
     keywords: ["snackbar", "notification", "undo", "flash message", "提示条"],
   },
-  // Containers and the chrome between them. Overlay is a surface too — one that
+  // Containers and the chrome between them. Sheet is a surface too — one that
   // arrives above the page — so it sits with the rest rather than alone.
   {
     section: "components",
@@ -363,8 +363,17 @@ const ROUTES = [
   {
     section: "components",
     category: "surfaces",
-    path: "/design-system/components/overlay",
-    keywords: ["modal", "dialog", "popup", "lightbox"],
+    path: "/design-system/components/sheet",
+    lab: true,
+    keywords: [
+      "modal",
+      "dialog",
+      "popup",
+      "lightbox",
+      "overlay",
+      "bottom sheet",
+      "dim",
+    ],
   },
   {
     section: "components",

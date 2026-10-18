@@ -2,7 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
-import { Overlay } from "@tuja/ui/components/overlay";
+import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -17,7 +17,7 @@ import {
 import { useId } from "react";
 import { t } from "#src/i18n.ts";
 
-interface TrailerOverlayProps {
+interface TrailerSheetProps {
   /** The Movie's localized title, set as the card the player would open on. */
   title: string;
   studio: string;
@@ -28,7 +28,7 @@ interface TrailerOverlayProps {
 /**
  * The trailer dialog behind the hero's primary action.
  *
- * `Overlay` supplies the whole dialog contract — the portal, the scroll lock,
+ * `Sheet` supplies the whole dialog contract — the portal, the scroll lock,
  * the focus trap, Escape, focus restoration, and the close button — so
  * everything this file adds is content: a heading for `aria-labelledby` and the
  * player region.
@@ -40,16 +40,16 @@ interface TrailerOverlayProps {
  * resolves is the one thing on the screen that reads as broken rather than as
  * placeheld, whatever the caption beside it says.
  */
-export function TrailerOverlay({
+export function TrailerSheet({
   title,
   studio,
   isOpen,
   onClose,
-}: TrailerOverlayProps) {
+}: TrailerSheetProps) {
   const titleId = useId();
 
   return (
-    <Overlay
+    <Sheet
       isOpen={isOpen}
       onClose={onClose}
       closeLabel={t({ en: "Close trailer", zh: "关闭预告片" })}
@@ -62,7 +62,7 @@ export function TrailerOverlay({
             zh: "官方预告片",
           })}
         </Heading>
-        <div css={[corner.radius_2, styles.player]}>
+        <div css={[corner.radius_3, styles.player]}>
           <Text as="span" look="overline" tone="muted" transform="uppercase">
             {studio}
           </Text>
@@ -75,25 +75,15 @@ export function TrailerOverlay({
           </Text>
         </div>
       </div>
-    </Overlay>
+    </Sheet>
   );
 }
 
 const styles = stylex.create({
-  // Centred in the dialog rather than parked at its top. The Overlay is
-  // full-screen and the player is one 16:9 box, so top-aligning it left half a
-  // viewport of nothing under the only thing in the room.
   body: {
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
     gap: rhythm.tight,
-    inlineSize: "100%",
-    maxInlineSize: "48rem",
-    minBlockSize: "100%",
-    marginInline: "auto",
-    paddingInline: space._3,
-    paddingBlock: space._7,
   },
   player: {
     display: "flex",

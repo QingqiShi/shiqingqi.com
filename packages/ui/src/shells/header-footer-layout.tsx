@@ -178,7 +178,7 @@ const styles = stylex.create({
     cornerShape: "inherit",
   },
   // No box of its own: a near-full-width fixed header flattens the iOS
-  // Safari status bar. See `.claude/skills/ios-status-bar/SKILL.md`.
+  // Safari status bar. See `.claude/skills/ios-safari-edge-tint/SKILL.md`.
   header: {
     display: "contents",
   },

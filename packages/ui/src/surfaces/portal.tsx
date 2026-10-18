@@ -9,7 +9,6 @@ import {
 import { VIEWPORT_CARRIER } from "../effect-layer/resolve-carrier.ts";
 import { useIsHydrated } from "../hooks/use-is-hydrated.ts";
 import { viewportAnchor } from "../primitives/layout.stylex.ts";
-import type { StyleProp } from "../types.ts";
 
 interface PortalProps {
   children: ReactNode;
@@ -24,8 +23,6 @@ interface PortalProps {
    * `document.body`, which is not a viewport anchor.
    */
   anchored?: boolean;
-  /** StyleX styles for the anchor box around the children in the body. */
-  anchorCss?: StyleProp;
 }
 
 /**
@@ -38,12 +35,7 @@ interface PortalProps {
  *
  * @internal
  */
-export function Portal({
-  children,
-  target,
-  anchored = false,
-  anchorCss,
-}: PortalProps) {
+export function Portal({ children, target, anchored = false }: PortalProps) {
   const isHydrated = useIsHydrated();
   if (!isHydrated || target === null) return null;
   const onViewport = (
@@ -55,11 +47,7 @@ export function Portal({
   );
   if (target !== undefined) return createPortal(onViewport, target);
   return createPortal(
-    anchored ? (
-      <div css={[viewportAnchor.fixed, anchorCss]}>{onViewport}</div>
-    ) : (
-      onViewport
-    ),
+    anchored ? <div css={viewportAnchor.fixed}>{onViewport}</div> : onViewport,
     document.body,
   );
 }

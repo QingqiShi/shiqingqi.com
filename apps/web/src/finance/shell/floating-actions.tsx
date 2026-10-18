@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 
 interface FloatingActionsProps {
   /**
@@ -12,14 +12,20 @@ interface FloatingActionsProps {
   children: ReactNode;
   /** Places the group, such as a sticky offset. */
   css?: StyleProp;
+  /** The group's box, such as the ref of `useEffectSticky`. */
+  ref?: Ref<HTMLDivElement>;
 }
 
 /**
  * Form actions that float over the content scrolling behind them at the
  * inline end, instead of a bar across the bottom of the screen.
  */
-export function FloatingActions({ children, css }: FloatingActionsProps) {
-  return <div css={[row.tight, styles.group, css]}>{children}</div>;
+export function FloatingActions({ children, css, ref }: FloatingActionsProps) {
+  return (
+    <div ref={ref} css={[row.tight, styles.group, css]}>
+      {children}
+    </div>
+  );
 }
 
 const styles = stylex.create({

@@ -18,7 +18,6 @@ import { HeadingSpecimen } from "./heading-specimen.tsx";
 import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
 import { MovieDetailSpecimen } from "./movie-detail-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
-import { OverlaySpecimen } from "./overlay-specimen.tsx";
 import { PopoverSpecimen } from "./popover-specimen.tsx";
 import { ProgressSpecimen } from "./progress-specimen.tsx";
 import { ProgressiveBlurSpecimen } from "./progressive-blur-specimen.tsx";
@@ -26,6 +25,7 @@ import { ScrollMaskSpecimen } from "./scroll-mask-specimen.tsx";
 import { SectionSpecimen } from "./section-specimen.tsx";
 import { SegmentedControlSpecimen } from "./segmented-control-specimen.tsx";
 import { SelectSpecimen } from "./select-specimen.tsx";
+import { SheetSpecimen } from "./sheet-specimen.tsx";
 import { SidebarLayoutSpecimen } from "./sidebar-layout-specimen.tsx";
 import { SkeletonSpecimen } from "./skeleton-specimen.tsx";
 import { SliderSpecimen } from "./slider-specimen.tsx";
@@ -57,7 +57,7 @@ interface ComponentSpecimen {
  * foundations get abstract illustrations because a token has no rendered form,
  * whereas a component does — so these are the real components, rendered live,
  * and they cannot drift from the thing they advertise. The seven that cannot
- * render their real form inside a tile (Overlay, Menu button, the two page
+ * render their real form inside a tile (Sheet, Menu button, the two page
  * shells, the movie-details example, Progressive blur and Sticky controls)
  * fall back to a miniature drawn from the same tokens; each specimen's own doc
  * comment says why.
@@ -119,8 +119,8 @@ const COMPONENT_SPECIMENS: Partial<
     element: <StickyControlsSpecimen />,
     fillsPlate: true,
   },
-  "/design-system/components/overlay": {
-    element: <OverlaySpecimen />,
+  "/design-system/components/sheet": {
+    element: <SheetSpecimen />,
     fillsPlate: true,
   },
   "/design-system/components/sidebar-layout": {

@@ -1,11 +1,8 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { Overlay } from "@tuja/ui/components/overlay";
-import { space } from "@tuja/ui/tokens.stylex";
+import { Sheet } from "@tuja/ui/components/sheet";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { t } from "#src/i18n.ts";
-import { usePortalTarget } from "#src/site-shell/portal-context.tsx";
 
 interface PaneSheetProps {
   isOpen: boolean;
@@ -35,7 +32,7 @@ function returnFocus(trigger: HTMLElement) {
 }
 
 /**
- * A detail pane as a full-height sheet from the bottom, below `lg`. Drive
+ * A detail pane in a `Sheet`, below `lg`. Drive
  * `isOpen` from the URL (`useUrlSelection`) so back closes it and a reload
  * opens it again; `MasterDetailLayout` does that wiring. When it closes,
  * focus goes back to the row that opened it, also when the list drew that
@@ -48,7 +45,6 @@ export function PaneSheet({
   initialFocusRef,
   children,
 }: PaneSheetProps) {
-  const portalTarget = usePortalTarget();
   const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -71,26 +67,14 @@ export function PaneSheet({
   }, [isOpen]);
 
   return (
-    <Overlay
+    <Sheet
       isOpen={isOpen}
       onClose={onClose}
       closeLabel={t({ en: "Close", zh: "关闭" })}
       aria-label={label}
-      portalTarget={portalTarget}
       initialFocusRef={initialFocusRef}
     >
-      <div css={styles.body}>{children}</div>
-    </Overlay>
+      {children}
+    </Sheet>
   );
 }
-
-const styles = stylex.create({
-  body: {
-    blockSize: "100%",
-    overflowY: "auto",
-    overscrollBehavior: "contain",
-    paddingBlockStart: space._8,
-    paddingBlockEnd: `calc(${space._7} + env(safe-area-inset-bottom))`,
-    paddingInline: space._3,
-  },
-});
