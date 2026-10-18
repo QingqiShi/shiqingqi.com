@@ -44,7 +44,7 @@
   "dependencies": {
     "@1771technologies/lytenyte-pro": "^2.2.1",
     "@ai-sdk/anthropic": "^4.0.79",
-    "@ai-sdk/react": "^4.0.141",
+    "@ai-sdk/react": "^4.0.143",
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@simplewebauthn/browser": "^14.0.0",
@@ -59,7 +59,7 @@
     "@upstash/redis": "^1.39.0",
     "@upstash/vector": "catalog:",
     "@vercel/functions": "^3.10.1",
-    "ai": "^7.0.138",
+    "ai": "^7.0.140",
     "d3-array": "^3.2.4",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
