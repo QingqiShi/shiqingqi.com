@@ -391,6 +391,9 @@ const styles = stylex.create({
     flexGrow: 1,
     flexBasis: 0,
     minInlineSize: 0,
+    // The label is centred in an equal share, so the padding does not move it.
+    // The padding only makes the label truncate sooner.
+    paddingInline: controlSize._0,
   },
   // The indicator paints the selected surface, so the option names the anchor
   // and gives up its own fill, edge and shadow. Where there is no anchor
