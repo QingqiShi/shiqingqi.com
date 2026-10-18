@@ -13,7 +13,7 @@ export { BlurPlaneContext, BlurPlaneProvider };
  * blur is painted on, so no control's blur ever lands on another control.
  *
  * Keeps no size of its own, so it is never the wide fixed box Safari on iOS
- * flattens — see `.claude/skills/ios-status-bar/SKILL.md`.
+ * flattens — see `.claude/skills/ios-safari-edge-tint/SKILL.md`.
  *
  * @internal
  */

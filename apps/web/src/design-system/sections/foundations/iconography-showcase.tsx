@@ -120,7 +120,7 @@ export function IconographyShowcase() {
       }),
     },
     {
-      term: "Overlay · Breadcrumb",
+      term: "Sheet · Breadcrumb",
       value: "closeIcon · separator",
       note: t({
         en: "Replace the close icon and the separator between crumbs.",
@@ -133,8 +133,8 @@ export function IconographyShowcase() {
     {
       term: "bold",
       value: t({
-        en: "Select, Disclosure, Breadcrumb, Overlay, SidebarLayout, ScrollMask, OptionCard",
-        zh: "Select、Disclosure、Breadcrumb、Overlay、SidebarLayout、ScrollMask、OptionCard",
+        en: "Select, Disclosure, Breadcrumb, Sheet, SidebarLayout, ScrollMask, OptionCard",
+        zh: "Select、Disclosure、Breadcrumb、Sheet、SidebarLayout、ScrollMask、OptionCard",
       }),
       note: t({
         en: "Every glyph inside a control: carets, close, menu, check and scroll arrows.",

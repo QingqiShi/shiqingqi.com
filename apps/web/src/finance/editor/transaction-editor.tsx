@@ -13,17 +13,19 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Chip } from "@tuja/ui/components/chip";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
 import type { ToastAction } from "@tuja/ui/components/toast";
 import { useToast } from "@tuja/ui/components/toast-provider";
+import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   useEffect,
   useRef,
@@ -77,7 +79,6 @@ import { ruleDeclines } from "./rule-declines.ts";
 import { TagPicker } from "./tag-picker.tsx";
 import { topCategories } from "./top-categories.ts";
 import { useEditorData, type EditorData } from "./use-editor-data.ts";
-import { useKeyboardInset } from "./use-keyboard-inset.ts";
 
 export type EditorFocusTarget = "amount" | "category" | "heading";
 
@@ -230,7 +231,8 @@ function EditorForm({
   >("idle");
   const [ruleOffer, setRuleOffer] = useState<"open" | "declined">("open");
   const [instalmentsOpen, setInstalmentsOpen] = useState(false);
-  const keyboardInset = useKeyboardInset();
+  const footerSticky = useEffectSticky();
+  const { ref: footerStickyRef, css: footerStickyCss } = footerSticky;
   const newIdRef = useRef<string | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
@@ -1505,20 +1507,20 @@ function EditorForm({
       </p>
 
       <FloatingActions
-        css={[
-          styles.footer,
-          keyboardInset > 0 && styles.lift(`${String(keyboardInset)}px`),
-        ]}
+        ref={footerStickyRef}
+        css={[styles.footer, footerStickyCss]}
       >
-        {secondaryAction}
-        <Button
-          type="submit"
-          look="primary"
-          size={secondaryAction ? "md" : "lg"}
-          css={floatingAction.lift}
-        >
-          {saveLabel}
-        </Button>
+        <EffectCarrier value={footerSticky}>
+          {secondaryAction}
+          <Button
+            type="submit"
+            look="primary"
+            size={secondaryAction ? "md" : "lg"}
+            css={floatingAction.lift}
+          >
+            {saveLabel}
+          </Button>
+        </EffectCarrier>
       </FloatingActions>
     </form>
   );
@@ -1570,11 +1572,8 @@ const styles = stylex.create({
   footer: {
     position: "sticky",
     insetBlockEnd: `calc(${space._3} - ${PANE_END_GAP})`,
-    zIndex: 1,
+    zIndex: layer.raised,
   },
-  lift: (inset: string) => ({
-    transform: `translateY(calc(-1 * ${inset}))`,
-  }),
   paysDownHeader: {
     gap: rhythm.tight,
   },

@@ -1,5 +1,10 @@
 import type { CodePart, CodeToken } from "@tuja/ui/components/code-block";
-import type { LabControlModel, LabPropDoc, LabProps } from "./types.ts";
+import type {
+  LabControlModel,
+  LabPropDoc,
+  LabProps,
+  LabSampleChoice,
+} from "./types.ts";
 
 export interface LabSnippet {
   parts: readonly CodePart[];
@@ -96,6 +101,17 @@ function valueTokens(
   return printed === defaultValue ? null : [["string", printed]];
 }
 
+/** The children as source: a sample's code, or the text the visitor typed. */
+function childrenTokens(
+  value: unknown,
+  sample: LabSampleChoice | undefined,
+): CodeToken[] {
+  if (sample !== undefined) {
+    return sample.code === "" ? [] : sampleTokens(sample.code);
+  }
+  return typeof value === "string" && value !== "" ? [["plain", value]] : [];
+}
+
 /**
  * The snippet for what is on the Canvas, built from the Lab's state rather
  * than parsed: every run is emitted with the kind it is, so the snippet needs
@@ -135,14 +151,20 @@ export function buildLabSnippet({
     return value === null ? [] : [{ prop: name, value }];
   });
 
-  const usedSamples = printed.flatMap(({ prop }) => {
-    const sample = controlByName
+  const sampleOf = (prop: string) =>
+    controlByName
       .get(prop)
       ?.samples?.find((choice) => choice.id === props[prop]);
-    return sample === undefined ? [] : [sample];
-  });
+  const childrenSample = sampleOf("children");
+  const usedSamples = [...printed.map(({ prop }) => prop), "children"].flatMap(
+    (prop) => {
+      const sample = sampleOf(prop);
+      return sample === undefined ? [] : [sample];
+    },
+  );
 
-  const children = typeof props.children === "string" ? props.children : "";
+  const childTokens = childrenTokens(props.children, childrenSample);
+  const children = textOf(childTokens);
   const open: CodeToken[] = [
     ["punct", "<"],
     ["component", element],
@@ -194,7 +216,7 @@ export function buildLabSnippet({
           {
             id: "children",
             lead: multiline ? "\n  " : "",
-            tokens: [["plain", children]],
+            tokens: childTokens,
           },
           {
             id: "end",

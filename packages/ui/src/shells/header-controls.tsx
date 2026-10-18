@@ -24,7 +24,7 @@ interface HeaderControlsProps {
  *
  * A group sits per end of the measure rather than one bar across the top,
  * because a near-full-width fixed element costs the browser's own
- * treatment — see `.claude/skills/ios-status-bar/SKILL.md`.
+ * treatment — see `.claude/skills/ios-safari-edge-tint/SKILL.md`.
  *
  * @internal
  */

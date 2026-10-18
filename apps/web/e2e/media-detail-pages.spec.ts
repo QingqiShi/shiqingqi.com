@@ -68,7 +68,7 @@ test("should display English and Chinese UI labels and localized content", async
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
-test("should open trailer overlay, display video, and close", async ({
+test("should open the trailer sheet, display video, and close", async ({
   page,
 }) => {
   await page.goto(`/en/movie-database/movie/${FIGHT_CLUB_ID}`);
@@ -76,35 +76,34 @@ test("should open trailer overlay, display video, and close", async ({
   // Click play trailer button
   await page.getByRole("button", { name: /play trailer/i }).click();
 
-  // Verify YouTube iframe is present (indicates overlay is open)
+  // Verify YouTube iframe is present (indicates the sheet is open)
   const iframe = page.locator('iframe[src*="youtube.com/embed"]');
   await expect(iframe).toBeVisible();
 
-  // Close overlay using close button
+  // Close the sheet using its close button
   const closeButton = page
-    .getByRole("button")
-    .filter({ has: page.locator("svg") })
-    .last();
+    .getByRole("dialog")
+    .getByRole("button", { name: "Close" });
   await closeButton.click();
 
-  // Verify overlay is closed
+  // Verify the sheet is closed
   await expect(iframe).not.toBeVisible();
 
-  // Reopen overlay and test backdrop click
+  // Reopen the sheet and test a click on the dimmed page
   await page.getByRole("button", { name: /play trailer/i }).click();
   await expect(iframe).toBeVisible();
 
-  // Wait for view transition animation to complete before clicking backdrop
+  // Wait for the slide in to finish before clicking the dimmed page
   await page.waitForTimeout(500);
 
-  // Click backdrop to close (click at viewport coordinates outside overlay content)
+  // Click the dimmed page to close (at viewport coordinates outside the card)
   await page.mouse.click(5, 5);
 
-  // Verify overlay is closed
+  // Verify the sheet is closed
   await expect(iframe).not.toBeVisible();
 });
 
-test("should prevent body scroll when trailer overlay is open", async ({
+test("should prevent body scroll when the trailer sheet is open", async ({
   page,
 }) => {
   await page.goto(`/en/movie-database/movie/${FIGHT_CLUB_ID}`);
@@ -112,29 +111,28 @@ test("should prevent body scroll when trailer overlay is open", async ({
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await scrollToAndSettle(page, 200);
 
-  // Open the trailer overlay.
+  // Open the trailer sheet.
   await page.getByRole("button", { name: /play trailer/i }).click();
   const iframe = page.locator('iframe[src*="youtube.com/embed"]');
   await expect(iframe).toBeVisible();
 
-  // The overlay locks body scroll — react-remove-scroll marks the document
+  // The sheet locks body scroll — react-remove-scroll marks the document
   // with `data-scroll-locked` while active.
   const scrollLock = page.locator("[data-scroll-locked]");
   await expect(scrollLock).toHaveCount(1);
 
   // A wheel gesture must not scroll the page past where it was.
   await page.mouse.wheel(0, 500);
-  const scrollYDuringOverlay = await page.evaluate(() => window.scrollY);
-  expect(scrollYDuringOverlay).toBeLessThanOrEqual(200);
+  const scrollYDuringSheet = await page.evaluate(() => window.scrollY);
+  expect(scrollYDuringSheet).toBeLessThanOrEqual(200);
 
-  // Closing removes the overlay and releases the scroll lock. (We don't assert
+  // Closing removes the sheet and releases the scroll lock. (We don't assert
   // the exact restored scroll position: react-remove-scroll only locks/unlocks
   // scrolling, it doesn't restore a saved offset, so the post-close position is
   // not a stable guarantee — asserting `=== 200` was the original flake.)
   const closeButton = page
-    .getByRole("button")
-    .filter({ has: page.locator("svg") })
-    .last();
+    .getByRole("dialog")
+    .getByRole("button", { name: "Close" });
   await closeButton.click();
   await expect(iframe).not.toBeVisible();
   await expect(scrollLock).toHaveCount(0);

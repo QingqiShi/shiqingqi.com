@@ -167,7 +167,7 @@ describe("HeaderFooterLayout floating controls", () => {
     );
     const groups = controlGroups();
 
-    // A box per group rather than one bar — see `.claude/skills/ios-status-bar/SKILL.md`
+    // A box per group rather than one bar — see `.claude/skills/ios-safari-edge-tint/SKILL.md`
     // for what a near-full-width fixed element costs on iOS.
     expect(groups).toHaveLength(2);
     expect(groups[0]).toContainElement(screen.getByText("Back"));

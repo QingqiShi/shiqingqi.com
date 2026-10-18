@@ -19,7 +19,7 @@ function entry(path: OverviewEntry["path"], label: string): OverviewEntry {
 const ENTRIES: OverviewEntry[] = [
   entry("/design-system/foundations/color", "Color"),
   entry("/design-system/components/button", "Button"),
-  entry("/design-system/components/overlay", "Overlay"),
+  entry("/design-system/components/sheet", "Sheet"),
   entry("/design-system/components/avatar", "Avatar"),
   entry("/design-system/primitives", "Primitives"),
 ];
@@ -28,8 +28,8 @@ const ALPHABETICAL = [
   "/design-system/components/avatar",
   "/design-system/components/button",
   "/design-system/foundations/color",
-  "/design-system/components/overlay",
   "/design-system/primitives",
+  "/design-system/components/sheet",
 ] as const;
 
 // The headings the server resolves. Only the ones these entries fall under are
@@ -95,8 +95,8 @@ describe("OverviewBrowser", () => {
       "Avatar",
       "Button",
       "Color",
-      "Overlay",
       "Primitives",
+      "Sheet",
     ]);
     expect(screen.queryByRole("heading", { name: "Components" })).toBeNull();
   });
@@ -106,7 +106,7 @@ describe("OverviewBrowser", () => {
 
     await userEvent.type(screen.getByRole("searchbox"), "modal");
 
-    expect(tileOrder()).toEqual(["Overlay"]);
+    expect(tileOrder()).toEqual(["Sheet"]);
     expect(screen.getByRole("status")).toHaveTextContent("1 result");
   });
 

@@ -27,8 +27,8 @@ describe("matchesDesignSystemQuery", () => {
   it("finds a route by the word a visitor arrives with", () => {
     expect(
       matchesDesignSystemQuery(
-        "/design-system/components/overlay",
-        "Overlay",
+        "/design-system/components/sheet",
+        "Sheet",
         "modal",
       ),
     ).toBe(true);

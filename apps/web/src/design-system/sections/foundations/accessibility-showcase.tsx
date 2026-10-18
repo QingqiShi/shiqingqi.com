@@ -52,8 +52,8 @@ export function AccessibilityShowcase() {
       zh: "SegmentedControl、单选 OptionCardGroup 与 MenuButton 菜单支持方向键、Home 与 End",
     }),
     t({
-      en: "Overlay and the SidebarLayout drawer move focus in, trap Tab, close on Escape and give focus back",
-      zh: "Overlay 与 SidebarLayout 的抽屉会移入焦点、捕获 Tab、按 Escape 关闭并交还焦点",
+      en: "Sheet and the SidebarLayout drawer move focus in, trap Tab, close on Escape and give focus back",
+      zh: "Sheet 与 SidebarLayout 的抽屉会移入焦点、捕获 Tab、按 Escape 关闭并交还焦点",
     }),
     t({
       en: "Label, description and error wired to the control on every field",
@@ -125,7 +125,7 @@ export function AccessibilityShowcase() {
       }),
     },
     {
-      term: "Overlay",
+      term: "Sheet",
       value: "aria-label / aria-labelledby · closeLabel",
       note: t({
         en: "Names the dialog and its close button.",

@@ -471,14 +471,24 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/menu-button" />
   </url>
   <url>
-    <loc>https://qingqi.dev/design-system/components/overlay</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/overlay" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/overlay" />
+    <loc>https://qingqi.dev/design-system/components/sheet</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sheet" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sheet" />
   </url>
   <url>
-    <loc>https://qingqi.dev/zh/design-system/components/overlay</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/overlay" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/overlay" />
+    <loc>https://qingqi.dev/zh/design-system/components/sheet</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sheet" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sheet" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/sheet/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sheet/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sheet/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/sheet/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/sheet/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/sheet/lab" />
   </url>
   <url>
     <loc>https://qingqi.dev/design-system/components/progressive-blur</loc>

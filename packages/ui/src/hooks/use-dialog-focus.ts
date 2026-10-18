@@ -56,9 +56,11 @@ export function useDialogFocus({
         ? document.activeElement
         : null;
 
-    // Move focus into the dialog once the portal renders
+    // Move focus into the dialog once the portal renders. A dialog can start
+    // out of view, such as a sheet that slides in from below the screen, and
+    // a focus that scrolls would then move the page.
     requestAnimationFrame(() => {
-      resolveInitialFocus()?.focus();
+      resolveInitialFocus()?.focus({ preventScroll: true });
     });
 
     function handleKeyDown(event: KeyboardEvent) {

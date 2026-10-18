@@ -1,22 +1,48 @@
 /**
- * The fixed or sticky boxes Safari on iOS would sample for the status-bar
- * colour: the ones under the top-centre of the viewport that WebKit does not
- * walk past. Runs in the page through `page.evaluate`, so keep it standalone.
- * The rules it mirrors are in the `ios-status-bar` skill.
+ * The fixed or sticky boxes Safari on iOS would sample for the colour of its
+ * chrome: the ones under the top-centre or the bottom-centre of the viewport
+ * that WebKit does not walk past. The top point colours the status bar, the
+ * bottom point the band under the toolbar.
+ *
+ * With a selector as `within`, it checks every fixed or sticky box in that
+ * element and around it, wherever the box is now: a box that crosses a
+ * sample point only while it animates or is dragged still latches its colour.
+ *
+ * Runs in the page through `page.evaluate`, so keep it standalone. The rules
+ * it mirrors are in the `ios-safari-edge-tint` skill.
  */
-export function findStatusBarCandidates() {
-  const pointX = window.innerWidth / 2;
-  const pointY = 4;
+export function findStatusBarCandidates(within?: unknown) {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const pointX = viewportWidth / 2;
+  const points = [4, document.documentElement.clientHeight - 4];
 
-  return [...document.querySelectorAll("body *")]
+  let elements: Element[];
+  if (typeof within !== "string") {
+    elements = [...document.querySelectorAll("body *")];
+  } else {
+    const root = document.querySelector(within);
+    if (!root) {
+      throw new Error(`No element matches ${within}`);
+    }
+    const ancestors: Element[] = [];
+    for (let node = root.parentElement; node; node = node.parentElement) {
+      ancestors.push(node);
+    }
+    elements = [root, ...root.querySelectorAll("*"), ...ancestors];
+  }
+
+  return elements
     .filter((element) => {
       const rect = element.getBoundingClientRect();
-      const coversPoint =
-        rect.left <= pointX &&
-        pointX <= rect.right &&
-        rect.top <= pointY &&
-        pointY <= rect.bottom;
-      if (!coversPoint) {
+      const coversPoint = points.some(
+        (pointY) =>
+          rect.left <= pointX &&
+          pointX <= rect.right &&
+          rect.top <= pointY &&
+          pointY <= rect.bottom,
+      );
+      if (typeof within !== "string" && !coversPoint) {
         return false;
       }
 
@@ -48,14 +74,14 @@ export function findStatusBarCandidates() {
         return false;
       }
 
-      const isWide = rect.width >= window.innerWidth * 0.9;
-      const isTall = rect.height >= window.innerHeight * 0.9;
+      const isWide = rect.width >= viewportWidth * 0.9;
+      const isTall = rect.height >= viewportHeight * 0.9;
       if (!isWide && !isTall) {
         return false;
       }
       // WebKit skips a box taller than the viewport with no background, and a
       // viewport-sized box behind the page.
-      if (rect.height >= window.innerHeight * 1.05 && isTransparent) {
+      if (rect.height >= viewportHeight * 1.05 && isTransparent) {
         return false;
       }
       return !(isWide && isTall && Number(style.zIndex) < 0);
