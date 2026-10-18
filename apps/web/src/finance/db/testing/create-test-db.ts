@@ -26,7 +26,10 @@ async function createMigratedDataDir() {
  */
 export async function createTestDb(): Promise<TestDb> {
   migratedDataDir ??= createMigratedDataDir();
-  const client = new PGlite({ loadDataDir: await migratedDataDir });
+  // PGlite 0.5.10 makes `close` wait for the queries that run. A database that
+  // the caller never queries does not become ready, and then `close` waits for
+  // ever. `create` waits for the database to become ready.
+  const client = await PGlite.create({ loadDataDir: await migratedDataDir });
   const db = drizzle({ client, schema });
   return Object.assign(db, { close: () => client.close() });
 }
