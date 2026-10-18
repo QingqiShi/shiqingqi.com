@@ -43,20 +43,31 @@ export function stubObservers() {
       }
     },
   );
+  const intersectionCallbacks = new Map<() => void, Set<Element>>();
   vi.stubGlobal(
     "IntersectionObserver",
     class {
       #connected = false;
-      observe() {
+      readonly #callback: () => void;
+      readonly #targets = new Set<Element>();
+      constructor(callback: (entries: []) => void) {
+        this.#callback = () => {
+          callback([]);
+        };
+      }
+      observe(target: Element) {
+        this.#targets.add(target);
         if (!this.#connected) {
           this.#connected = true;
           intersectionObservers += 1;
+          intersectionCallbacks.set(this.#callback, this.#targets);
         }
       }
       disconnect() {
         if (this.#connected) {
           this.#connected = false;
           intersectionObservers -= 1;
+          intersectionCallbacks.delete(this.#callback);
         }
       }
     },
@@ -74,5 +85,16 @@ export function stubObservers() {
       [...resizeObservers].filter(({ targets }) => targets.has(target)).length,
     /** How many intersection observers are connected. */
     intersectionObservers: () => intersectionObservers,
+    /**
+     * Calls each connected intersection observer of `target`, with no
+     * entries.
+     */
+    intersect(target: Element) {
+      for (const [callback, targets] of [...intersectionCallbacks]) {
+        if (targets.has(target)) {
+          callback();
+        }
+      }
+    },
   };
 }

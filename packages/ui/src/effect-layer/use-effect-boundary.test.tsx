@@ -7,6 +7,7 @@ import { EffectContainer } from "./effect-container.tsx";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { roleBits } from "./effect-roles.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
+import { PAGE_CARRIER } from "./resolve-carrier.ts";
 import { useBlackHole } from "./use-black-hole.ts";
 import { useDust } from "./use-dust.ts";
 import { useEffectBoundary } from "./use-effect-boundary.ts";
@@ -22,9 +23,7 @@ const ON_PAGE = { scope: PAGE_SCOPE, holds: null };
 function renderWithRegistry(children: ReactNode) {
   const registry = createEffectRegistry();
   const result = render(
-    <EffectLayerContext value={registry.register}>
-      {children}
-    </EffectLayerContext>,
+    <EffectLayerContext value={registry}>{children}</EffectLayerContext>,
   );
   const registered = () => [...registry.elements().keys()];
   const entry = (testId: string) =>
@@ -175,7 +174,7 @@ describe("effect hooks", () => {
     });
 
     rerender(
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <Controlled mass={3} ambient />
       </EffectLayerContext>,
     );
@@ -186,6 +185,9 @@ describe("effect hooks", () => {
       scope: 0,
       holds: null,
       covers: false,
+      carrier: PAGE_CARRIER,
+      ownCarrier: PAGE_CARRIER,
+      canvases: ["scroll"],
     });
     expect(notified).toBeGreaterThan(0);
   });
@@ -266,7 +268,7 @@ describe("useEffectContainer", () => {
     expect(entry("fan")?.scope).toBe(entry("first")?.holds);
 
     rerender(
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <Cards inSecond />
       </EffectLayerContext>,
     );
@@ -291,7 +293,7 @@ describe("useEffectContainer", () => {
     );
     expect(registered()).toHaveLength(2);
     rerender(
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <Card open={false} />
       </EffectLayerContext>,
     );
@@ -319,6 +321,9 @@ describe("createEffectRegistry", () => {
       scope: 0,
       holds: null,
       covers: false,
+      carrier: PAGE_CARRIER,
+      ownCarrier: PAGE_CARRIER,
+      canvases: ["scroll"],
     });
     expect(registry.getRoles()).toBe(0b11);
 
@@ -331,6 +336,9 @@ describe("createEffectRegistry", () => {
       scope: 0,
       holds: null,
       covers: false,
+      carrier: PAGE_CARRIER,
+      ownCarrier: PAGE_CARRIER,
+      canvases: ["scroll"],
     });
     second.remove();
     expect(registry.elements().size).toBe(0);
@@ -364,7 +372,7 @@ describe("createEffectRegistry", () => {
       blackHole: { mass: 1 },
       dust: { density: 2 },
     });
-    first.update(0, { blackHole: { mass: 4 } }, 0);
+    first.update(0, { blackHole: { mass: 4 } }, 0, PAGE_CARRIER);
     expect(registry.elements().get(element)?.settings.blackHole).toEqual({
       mass: 4,
     });
@@ -385,9 +393,9 @@ describe("createEffectRegistry", () => {
     registry.subscribe(() => {
       notified += 1;
     });
-    registration.update(0, { blackHole: { mass: 1 } }, 0);
+    registration.update(0, { blackHole: { mass: 1 } }, 0, PAGE_CARRIER);
     expect(notified).toBe(0);
-    registration.update(0, { blackHole: { mass: 2 } }, 0);
+    registration.update(0, { blackHole: { mass: 2 } }, 0, PAGE_CARRIER);
     expect(notified).toBe(1);
   });
 

@@ -1,9 +1,12 @@
+import { checkDeclaredCarrier } from "./check-declared-carrier.ts";
 import { observeMove, type Edges, type MoveWatch } from "./observe-move.ts";
+import { readElementBox, type ElementBox } from "./read-element-box.ts";
 import {
-  isInSticky,
-  readElementBox,
-  type ElementBox,
-} from "./read-element-box.ts";
+  PAGE_CARRIER,
+  resolveCarrier,
+  type EffectCarrierRef,
+} from "./resolve-carrier.ts";
+import type { EffectCanvas } from "./types.ts";
 
 /** The last measurement of a registered element. */
 interface MeasuredElement {
@@ -12,21 +15,40 @@ interface MeasuredElement {
   /** The box in page coordinates, from the scroll it was measured at. */
   readonly pageBox: ElementBox;
   /**
-   * It, or an ancestor, has `position: sticky`, so a window scroll can move
-   * it in the page.
+   * The `<canvas>` element of the carrier it was measured on, which tells
+   * how its box moves with a scroll.
    */
-  readonly sticky: boolean;
+  readonly canvas: EffectCanvas;
   /**
    * The viewport's bottom edge in viewport coordinates when it was measured,
-   * for a box fixed to the bottom; else 0.
+   * for a box on the bottom `<canvas>` element; else 0.
    */
   readonly viewportBottom: number;
 }
 
 /**
+ * Where the carriers of the elements come from: the carrier that each
+ * element declares, the box of each sticky carrier, and whether it is stuck.
+ *
+ * @internal
+ */
+export interface CarrierLookup {
+  readonly carrierOf: (element: Element) => EffectCarrierRef;
+  readonly stickyBox: (id: number) => Element | null;
+  /** Whether the sticky carrier `id` is stuck, as its stuck watch read it. */
+  readonly isStuck: (id: number) => boolean;
+}
+
+const PAGE_ONLY: CarrierLookup = {
+  carrierOf: () => PAGE_CARRIER,
+  stickyBox: () => null,
+  isStuck: () => false,
+};
+
+/**
  * What the elements measured in one frame share: the scroll, the computed
- * styles of their ancestors, whether an animation source still runs, and
- * the roots of their move watches.
+ * styles of their ancestors, whether an animation source still runs, the
+ * roots of their move watches, and whether each sticky carrier is stuck.
  *
  * @internal
  */
@@ -40,6 +62,12 @@ export interface MeasureContext {
   readonly watchRoot: (fixed: boolean) => Edges;
   /** The viewport's bottom edge now, in viewport coordinates. */
   readonly viewportBottom: () => number;
+  /** The carrier that the element declares. */
+  readonly carrierOf: (element: Element) => EffectCarrierRef;
+  /** The box of the sticky carrier `id`, or `null`. */
+  readonly stickyBox: (id: number) => Element | null;
+  /** Whether the sticky carrier `id` is stuck, as its stuck watch read it. */
+  readonly isStuck: (id: number) => boolean;
 }
 
 function isRunning(animation: Animation) {
@@ -48,13 +76,14 @@ function isRunning(animation: Animation) {
 
 /**
  * A context that reads each computed style, each animation source, each
- * root and the viewport's bottom edge once. Drop it after the frame, so
- * that it keeps no style alive.
+ * root and the viewport's bottom edge once. Drop it after
+ * the frame, so that it keeps no style alive.
  *
  * @internal
  */
 export function createMeasureContext(
   readViewportBottom: () => number,
+  { carrierOf, stickyBox, isStuck }: CarrierLookup = PAGE_ONLY,
 ): MeasureContext {
   const styles = new Map<Element, CSSStyleDeclaration>();
   const animating = new Map<Element, boolean>();
@@ -62,17 +91,27 @@ export function createMeasureContext(
   let rootEdges: Edges | null = null;
   let viewportEdges: Edges | null = null;
   let viewportBottom: number | null = null;
+  const styleOf = (element: Element) => {
+    let style = styles.get(element);
+    if (style === undefined) {
+      style = getComputedStyle(element);
+      styles.set(element, style);
+    }
+    return style;
+  };
+  const readViewport = () => {
+    viewportEdges ??= {
+      left: 0,
+      top: 0,
+      right: root.clientWidth,
+      bottom: root.clientHeight,
+    };
+    return viewportEdges;
+  };
   return {
     scrollX: window.scrollX,
     scrollY: window.scrollY,
-    styleOf: (element) => {
-      let style = styles.get(element);
-      if (style === undefined) {
-        style = getComputedStyle(element);
-        styles.set(element, style);
-      }
-      return style;
-    },
+    styleOf,
     isAnimating: (source) => {
       let running = animating.get(source);
       if (running === undefined) {
@@ -83,13 +122,7 @@ export function createMeasureContext(
     },
     watchRoot: (fixed) => {
       if (fixed) {
-        viewportEdges ??= {
-          left: 0,
-          top: 0,
-          right: root.clientWidth,
-          bottom: root.clientHeight,
-        };
-        return viewportEdges;
+        return readViewport();
       }
       rootEdges ??= root.getBoundingClientRect();
       return rootEdges;
@@ -98,6 +131,9 @@ export function createMeasureContext(
       viewportBottom ??= readViewportBottom();
       return viewportBottom;
     },
+    carrierOf,
+    stickyBox,
+    isStuck,
   };
 }
 
@@ -149,11 +185,11 @@ export function createElementTracker(
       watch = null;
       return;
     }
-    const { box } = measured;
+    const fixed = measured.canvas !== "scroll";
     const area = {
-      rect: edgesOf(box),
-      fixed: box.fixed,
-      root: context.watchRoot(box.fixed),
+      rect: edgesOf(measured.box),
+      fixed,
+      root: context.watchRoot(fixed),
     };
     if (watch?.covers(area) === true) {
       return;
@@ -172,11 +208,11 @@ export function createElementTracker(
       return measurement;
     },
     /**
-     * The last measured box in page coordinates at this scroll: an element
-     * in the document keeps its page position, a fixed element keeps its
-     * viewport position, and an element fixed to the bottom keeps its
-     * distance from the viewport's bottom edge, which `viewportBottom` reads
-     * now. `null` while it has no box.
+     * The last measured box in page coordinates at this scroll, from the
+     * carrier it was measured on: an element on the page keeps its page
+     * position, an element on the viewport keeps its viewport position, and
+     * an element on the viewport's bottom edge keeps its distance from that
+     * edge, which `viewportBottom` reads now. `null` while it has no box.
      */
     boxAt(
       scrollX: number,
@@ -186,13 +222,14 @@ export function createElementTracker(
       if (measured === null) {
         return null;
       }
-      const { box, pageBox } = measured;
-      if (!box.fixed) {
+      const { box, pageBox, canvas } = measured;
+      if (canvas === "scroll") {
         return pageBox;
       }
-      const shift = box.fixedToBottom
-        ? viewportBottom() - measured.viewportBottom
-        : 0;
+      const shift =
+        canvas === "fixedBottom"
+          ? viewportBottom() - measured.viewportBottom
+          : 0;
       return { ...box, x: box.x + scrollX, y: box.y + scrollY + shift };
     },
     signal,
@@ -206,8 +243,9 @@ export function createElementTracker(
       signal();
     },
     /**
-     * Reads the element's box now, and watches it from there. While an
-     * animation it follows still runs, it queues itself again instead.
+     * Reads the element's box now, on the carrier that it declares, and
+     * watches it from there. While an animation it follows still runs, it
+     * queues itself again instead.
      */
     measure(context: MeasureContext) {
       if (destroyed) {
@@ -217,16 +255,26 @@ export function createElementTracker(
         ? readElementBox(element, context.styleOf)
         : null;
       measurement += 1;
-      measured = box && {
-        box,
-        pageBox: {
-          ...box,
-          x: box.x + context.scrollX,
-          y: box.y + context.scrollY,
-        },
-        sticky: isInSticky(element, context.styleOf),
-        viewportBottom: box.fixedToBottom ? context.viewportBottom() : 0,
-      };
+      if (box === null) {
+        measured = null;
+      } else {
+        const carrier = context.carrierOf(element);
+        const canvas = resolveCarrier(carrier, context.isStuck);
+        if (process.env.NODE_ENV !== "production") {
+          checkDeclaredCarrier(element, carrier, context);
+        }
+        measured = {
+          box,
+          pageBox: {
+            ...box,
+            x: box.x + context.scrollX,
+            y: box.y + context.scrollY,
+          },
+          canvas,
+          viewportBottom:
+            canvas === "fixedBottom" ? context.viewportBottom() : 0,
+        };
+      }
       for (const source of animationSources) {
         if (!context.isAnimating(source)) {
           animationSources.delete(source);

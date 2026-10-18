@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
@@ -149,7 +150,13 @@ export function EffectLayerTestBench() {
         </Badge>
       </div>
 
-      {hasFixed && createPortal(<FixedElement />, document.body)}
+      {hasFixed &&
+        createPortal(
+          <EffectCarrier value="viewport-bottom">
+            <FixedElement />
+          </EffectCarrier>,
+          document.body,
+        )}
     </div>
   );
 }

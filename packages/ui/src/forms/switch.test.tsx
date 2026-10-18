@@ -952,7 +952,7 @@ describe("Switch Component", () => {
     function renderLiquid(effect?: "liquid" | "none") {
       const registry = createEffectRegistry();
       render(
-        <EffectLayerContext value={registry.register}>
+        <EffectLayerContext value={registry}>
           <Switch effect={effect} aria-label="Liquid" />
         </EffectLayerContext>,
       );

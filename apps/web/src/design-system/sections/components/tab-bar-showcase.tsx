@@ -77,21 +77,26 @@ export function TabBarShowcase() {
 
       <Showcase label={t({ en: "Usage", zh: "用法" })}>
         <UsageSnippet
-          code={`import { TabBar } from "@tuja/ui/components/tab-bar";
+          code={`import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
+import { TabBar } from "@tuja/ui/components/tab-bar";
 import { tabBarTokens } from "@tuja/ui/components/tab-bar.stylex";
 
-<TabBar
-  label="Main"
-  linkComponent={Link}
-  css={styles.bar}
-  items={[
-    { href: "/", label: "Home", icon: HouseIcon, current: true },
-    { href: "/search", label: "Search", icon: MagnifyingGlassIcon },
-  ]}
-/>
+<EffectCarrier value="viewport-bottom">
+  <TabBar
+    label="Main"
+    linkComponent={Link}
+    css={styles.bar}
+    items={[
+      { href: "/", label: "Home", icon: HouseIcon, current: true },
+      { href: "/search", label: "Search", icon: MagnifyingGlassIcon },
+    ]}
+  />
+</EffectCarrier>
 
 // The bar does not place itself: float it over the bottom of the
-// screen, and keep the content clear of it with its height.
+// screen, and keep the content clear of it with its height. A bar
+// fixed to the bottom edge tells the effect layer so, and the liquid
+// moves with that edge.
 const styles = stylex.create({
   bar: {
     position: "fixed",

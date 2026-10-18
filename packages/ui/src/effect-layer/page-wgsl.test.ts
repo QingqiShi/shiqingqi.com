@@ -23,11 +23,10 @@ function record(
     y: 1200.5,
     width: 320,
     height: 180,
-    fixed: false,
-    fixedToBottom: false,
+    canvas: "scroll",
+    canvases: ["scroll"],
     radii: [16, 16, 8, 0],
     cornerExponent: 4,
-    sticksToViewport: false,
     fill: [0.25, 0.5, 0.75, 1],
     grayscale: 0,
     scope: 0,
@@ -41,7 +40,7 @@ describe("packElements", () => {
   it("packs each element as one EffectElement struct, in order", () => {
     const buffer = new ArrayBuffer(2 * ELEMENT_BYTES);
     packElements(
-      [record(), record({ id: 8, fixed: true, roles: 0, x: -4 })],
+      [record(), record({ id: 8, canvas: "fixed", roles: 0, x: -4 })],
       buffer,
     );
     const floats = new Float32Array(buffer);

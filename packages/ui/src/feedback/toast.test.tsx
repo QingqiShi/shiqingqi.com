@@ -65,7 +65,7 @@ describe("Toast", () => {
   it("runs the Ring light only once it has arrived", () => {
     const registry = createEffectRegistry();
     render(
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <Toast message="Saved" />
       </EffectLayerContext>,
     );
@@ -92,7 +92,7 @@ describe("Toast", () => {
   it("covers the effects of the page under it", () => {
     const registry = createEffectRegistry();
     render(
-      <EffectLayerContext value={registry.register}>
+      <EffectLayerContext value={registry}>
         <Toast message="Saved" />
       </EffectLayerContext>,
     );

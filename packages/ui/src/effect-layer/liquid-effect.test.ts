@@ -26,6 +26,7 @@ import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
 import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
+import { PAGE_CARRIER, VIEWPORT_CARRIER } from "./resolve-carrier.ts";
 import {
   liquidStep,
   mean,
@@ -211,10 +212,20 @@ describe("createControlReader", () => {
       track,
       LIQUID,
       { liquid: { position: 0, ...AT_REST } },
-      { scope: PAGE_SCOPE, holds: null },
+      {
+        scope: PAGE_SCOPE,
+        holds: null,
+        carrier: fixed ? VIEWPORT_CARRIER : PAGE_CARRIER,
+      },
     );
     const measure = () => {
-      tracker?.measure(createMeasureContext(() => 0));
+      tracker?.measure(
+        createMeasureContext(() => 0, {
+          carrierOf: registry.carrierOf,
+          stickyBox: () => null,
+          isStuck: () => false,
+        }),
+      );
     };
     measure();
     const changes: null[] = [];
@@ -306,6 +317,7 @@ describe("createControlReader", () => {
       LIQUID,
       { liquid: { position: 1, ...AT_REST } },
       PAGE_SCOPE,
+      PAGE_CARRIER,
     );
     frame();
     expect(segmentReads).toHaveLength(4);

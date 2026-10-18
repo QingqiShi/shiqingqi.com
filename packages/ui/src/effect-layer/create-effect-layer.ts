@@ -1,3 +1,13 @@
+// The effect layer is global. One layer draws the effects of all elements.
+// Each <canvas> element belongs to an Effect carrier: the viewport or a
+// Scroll region. The page is the root Scroll region. A <canvas> element
+// never belongs to one element. A component must not add a <canvas>
+// element.
+// The carrier of an element comes from EffectCarrierContext. Measurement
+// gives only the geometry. It does not choose the <canvas> element.
+// The scroll <canvas> elements are in the scrolled content, thus the
+// compositor moves them with the content. Do not measure elements again on
+// scroll to move their effects. That is one frame late.
 import { REDUCED_MOTION_QUERY } from "../prefers-reduced-motion.ts";
 import {
   bandGeometry,
@@ -83,8 +93,8 @@ export interface EffectLayerCanvases {
 
 /**
  * Which `<canvas>` elements the registered elements with a role need: the
- * scroll ones for elements in the document, the fixed one for fixed elements,
- * the bottom one for elements fixed to the viewport's bottom edge.
+ * scroll ones for elements on the page, the fixed one for elements on the
+ * viewport, the bottom one for elements on the viewport's bottom edge.
  *
  * @internal
  */

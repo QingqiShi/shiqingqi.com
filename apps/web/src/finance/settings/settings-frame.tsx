@@ -4,7 +4,9 @@ import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { Heading } from "@tuja/ui/components/heading";
+import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -40,6 +42,8 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
   const isOwner = useIsOwner();
   const recoveryEmail = useRecoveryEmail();
   const needsRecoveryEmail = recoveryEmail?.verified === false;
+  const sticky = useEffectSticky();
+  const { ref, css } = sticky;
   const noRecoveryEmail = t({
     en: "No confirmed recovery email",
     zh: "没有已确认的恢复邮箱",
@@ -65,47 +69,55 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
   return (
     <div css={styles.root}>
       <nav
+        ref={ref}
         aria-label={t({ en: "Settings", zh: "设置" })}
-        css={[stack.item, styles.nav, current !== null && styles.navOnSection]}
+        css={[
+          stack.item,
+          styles.nav,
+          current !== null && styles.navOnSection,
+          css,
+        ]}
       >
-        <Heading level={1} look="h3">
-          {t({ en: "Settings", zh: "设置" })}
-        </Heading>
-        <ul css={styles.list}>
-          {SETTINGS_SECTIONS.map((section) => (
-            <li key={section}>
-              <Link
-                href={getLocalePath(`/finance/settings/${section}`, locale)}
-                aria-current={
-                  section === (current ?? "household") ? "page" : undefined
-                }
-                {...stylex.props(
-                  typeRole.label,
-                  corner.radius_2,
-                  transition.colors,
-                  selected.quiet,
-                  a11y.focusRingInset,
-                  styles.link,
-                  current === null && styles.linkOnIndex,
-                )}
-              >
-                {labels[section]}
-                {section === "members" && needsRecoveryEmail ? (
-                  <>
-                    <span
-                      css={[
-                        corner.radius_round,
-                        styles.dot,
-                        isOwner && styles.dotOwner,
-                      ]}
-                    />
-                    <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
-                  </>
-                ) : null}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <EffectCarrier value={sticky}>
+          <Heading level={1} look="h3">
+            {t({ en: "Settings", zh: "设置" })}
+          </Heading>
+          <ul css={styles.list}>
+            {SETTINGS_SECTIONS.map((section) => (
+              <li key={section}>
+                <Link
+                  href={getLocalePath(`/finance/settings/${section}`, locale)}
+                  aria-current={
+                    section === (current ?? "household") ? "page" : undefined
+                  }
+                  {...stylex.props(
+                    typeRole.label,
+                    corner.radius_2,
+                    transition.colors,
+                    selected.quiet,
+                    a11y.focusRingInset,
+                    styles.link,
+                    current === null && styles.linkOnIndex,
+                  )}
+                >
+                  {labels[section]}
+                  {section === "members" && needsRecoveryEmail ? (
+                    <>
+                      <span
+                        css={[
+                          corner.radius_round,
+                          styles.dot,
+                          isOwner && styles.dotOwner,
+                        ]}
+                      />
+                      <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
+                    </>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </EffectCarrier>
       </nav>
       {current === null ? <SettingsSignedInMember /> : null}
       <div

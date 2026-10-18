@@ -2,11 +2,18 @@ import type { ElementTracker } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import type { ElementBox } from "./read-element-box.ts";
-import type { EffectSettings, MeasuredElement } from "./types.ts";
+import {
+  carrierCanvases,
+  PAGE_CARRIER,
+  type EffectCarrierRef,
+} from "./resolve-carrier.ts";
+import type { EffectCanvas, EffectSettings, MeasuredElement } from "./types.ts";
 
 /**
  * Where a registration puts its element: the scope it is in, the scope it
- * holds as an Effect container, or `null`, and whether it is an Effect cover.
+ * holds as an Effect container, or `null`, whether it is an Effect cover,
+ * and the Effect carrier it declares, which is the page when it declares
+ * none.
  *
  * @internal
  */
@@ -14,14 +21,16 @@ export interface EffectPlacement {
   readonly scope: number;
   readonly holds: number | null;
   readonly covers?: boolean;
+  readonly carrier?: EffectCarrierRef;
 }
 
 /**
  * One registered element. An element registered more than once, by several
  * effect hooks for example, is one entry: its roles are every role the
  * registrations add, each effect's settings come from the latest
- * registration that has them, its scope from the latest registration, and
- * the scope it holds from the latest registration that holds one.
+ * registration that has them, its scope and its carrier from the latest
+ * registration, and the scope it holds from the latest registration that
+ * holds one.
  *
  * @internal
  */
@@ -31,6 +40,14 @@ export interface RegisteredElement extends EffectPlacement {
   /** One bit per role, as `EFFECT_ROLES` orders them. */
   readonly roles: number;
   readonly settings: EffectSettings;
+  readonly carrier: EffectCarrierRef;
+  /**
+   * The carrier that the element is on: its own sticky carrier when it is a
+   * sticky box on `carrier`, else `carrier`.
+   */
+  readonly ownCarrier: EffectCarrierRef;
+  /** Every `<canvas>` element that the elements on `ownCarrier` can draw on. */
+  readonly canvases: readonly EffectCanvas[];
 }
 
 /**
@@ -40,8 +57,41 @@ export interface RegisteredElement extends EffectPlacement {
  * @internal
  */
 export interface EffectRegistration {
-  /** Changes the roles, the settings and the scope, and keeps the element's id. */
-  update: (roles: number, settings: EffectSettings, scope: number) => void;
+  /**
+   * Changes the roles, the settings, the scope and the carrier, and keeps
+   * the element's id.
+   */
+  update: (
+    roles: number,
+    settings: EffectSettings,
+    scope: number,
+    carrier: EffectCarrierRef,
+  ) => void;
+  remove: () => void;
+}
+
+/**
+ * A sticky box that `useEffectSticky` declares as a carrier: its box, the
+ * sticky carrier, and whether it is stuck now, from the stuck watch of the
+ * hook.
+ *
+ * @internal
+ */
+export interface RegisteredSticky {
+  readonly element: Element;
+  readonly carrier: EffectCarrierRef & { readonly kind: "sticky" };
+  readonly isStuck: () => boolean;
+}
+
+/**
+ * One registration of a sticky box, which `useEffectSticky` keeps while its
+ * ref stays attached.
+ *
+ * @internal
+ */
+export interface StickyRegistration {
+  /** Tells the layer that the box stuck or let go. */
+  changed: () => void;
   remove: () => void;
 }
 
@@ -97,6 +147,7 @@ export function createEffectRegistry() {
     roles: number;
     settings: EffectSettings;
     scope: number;
+    carrier: EffectCarrierRef;
   }
   const uses = new Map<
     Element,
@@ -106,11 +157,26 @@ export function createEffectRegistry() {
       tracker: ElementTracker | null;
     }
   >();
+  const stickies = new Map<number, RegisteredSticky>();
   let createTracker: ((element: Element) => ElementTracker) | null = null;
+  let onStuck: ((id: number) => void) | null = null;
   const listeners = new Set<() => void>();
   let elements: ReadonlyMap<Element, RegisteredElement> = new Map();
   let roles = 0;
   let nextId = 1;
+
+  /**
+   * The carrier of an element that declares `declared`: the sticky carrier
+   * of the element when it is a sticky box on `declared`, or `declared`.
+   */
+  function ownCarrier(element: Element, declared: EffectCarrierRef) {
+    for (const sticky of stickies.values()) {
+      if (sticky.element === element && sticky.carrier.parent === declared) {
+        return sticky.carrier;
+      }
+    }
+    return declared;
+  }
 
   function notify() {
     const next = new Map<Element, RegisteredElement>();
@@ -121,9 +187,11 @@ export function createEffectRegistry() {
       let scope = PAGE_SCOPE;
       let holds: number | null = null;
       let covers = false;
+      let carrier = PAGE_CARRIER;
       for (const registration of registrations) {
         elementRoles |= registration.roles;
         scope = registration.scope;
+        carrier = registration.carrier;
         holds = registration.holds ?? holds;
         covers ||= registration.covers === true;
         settings =
@@ -131,6 +199,7 @@ export function createEffectRegistry() {
             ? registration.settings
             : { ...settings, ...registration.settings };
       }
+      const own = ownCarrier(element, carrier);
       next.set(element, {
         id,
         roles: elementRoles,
@@ -138,6 +207,9 @@ export function createEffectRegistry() {
         scope,
         holds,
         covers,
+        carrier,
+        ownCarrier: own,
+        canvases: carrierCanvases(own),
       });
       roles |= elementRoles;
     }
@@ -150,8 +222,8 @@ export function createEffectRegistry() {
   return {
     /**
      * Adds an element and returns the registration that changes or removes
-     * it. `placement` gives the scope the element is in, and the scope it
-     * holds when it is an Effect container.
+     * it. `placement` gives the scope the element is in, the scope it holds
+     * when it is an Effect container, and its carrier.
      */
     register: (
       element: Element,
@@ -168,25 +240,32 @@ export function createEffectRegistry() {
       const { registrations } = use;
       const registration: Registration = {
         ...placement,
+        carrier: placement.carrier ?? PAGE_CARRIER,
         roles: elementRoles,
         settings,
       };
       registrations.add(registration);
       notify();
       return {
-        update: (nextRoles, nextSettings, nextScope) => {
+        update: (nextRoles, nextSettings, nextScope, nextCarrier) => {
           if (
             !registrations.has(registration) ||
             (registration.roles === nextRoles &&
               registration.scope === nextScope &&
+              registration.carrier === nextCarrier &&
               settingsEqual(registration.settings, nextSettings))
           ) {
             return;
           }
+          const carrierChanged = registration.carrier !== nextCarrier;
           registration.roles = nextRoles;
           registration.settings = nextSettings;
           registration.scope = nextScope;
+          registration.carrier = nextCarrier;
           notify();
+          if (carrierChanged) {
+            use.tracker?.signal();
+          }
         },
         remove: () => {
           if (!registrations.delete(registration)) {
@@ -200,6 +279,45 @@ export function createEffectRegistry() {
         },
       };
     },
+    /**
+     * Adds the sticky box of the sticky carrier `carrier`, and returns the
+     * registration that tells when it sticks or lets go, or removes it.
+     * `isStuck` tells whether it is stuck now. The box is not an element of
+     * the frame, so it changes no effect. The effect hooks of the box itself
+     * that are on the parent of `carrier` are on `carrier` too.
+     */
+    registerSticky: (
+      element: Element,
+      carrier: EffectCarrierRef & { readonly kind: "sticky" },
+      isStuck: () => boolean,
+    ): StickyRegistration => {
+      const { id } = carrier;
+      const sticky: RegisteredSticky = { element, carrier, isStuck };
+      stickies.set(id, sticky);
+      notify();
+      uses.get(element)?.tracker?.signal();
+      onStuck?.(id);
+      return {
+        changed: () => {
+          if (stickies.get(id) === sticky) {
+            onStuck?.(id);
+          }
+        },
+        remove: () => {
+          if (stickies.get(id) === sticky) {
+            onStuck?.(id);
+            stickies.delete(id);
+            notify();
+            uses.get(element)?.tracker?.signal();
+          }
+        },
+      };
+    },
+    /** The sticky box of the sticky carrier `id`, or `undefined`. */
+    sticky: (id: number): RegisteredSticky | undefined => stickies.get(id),
+    /** The carrier of a registered element, or the page. */
+    carrierOf: (element: Element) =>
+      elements.get(element)?.ownCarrier ?? PAGE_CARRIER,
     subscribe: (listener: () => void) => {
       listeners.add(listener);
       return () => {
@@ -211,17 +329,23 @@ export function createEffectRegistry() {
     /** Every registered element, in the order they first registered. */
     elements: () => elements,
     /**
-     * Gives each registered element a tracker from `create`, now and as
-     * elements register, and destroys it when its element leaves. Returns a
-     * function that destroys every tracker and stops.
+     * Gives each registered element a tracker from `create`, now and as they
+     * register, and destroys it when they leave. Calls `stuck` with the id
+     * of a sticky box when it registers, sticks, lets go or leaves. Returns a
+     * function that destroys every tracker, and stops.
      */
-    track: (create: (element: Element) => ElementTracker) => {
+    track: (
+      create: (element: Element) => ElementTracker,
+      stuck?: (id: number) => void,
+    ) => {
       createTracker = create;
+      onStuck = stuck ?? null;
       for (const [element, use] of uses) {
         use.tracker = create(element);
       }
       return () => {
         createTracker = null;
+        onStuck = null;
         for (const use of uses.values()) {
           use.tracker?.destroy();
           use.tracker = null;
@@ -239,33 +363,33 @@ export function createEffectRegistry() {
     /**
      * Every tracked element with a box, as it was last measured, in page
      * coordinates at this scroll and with the viewport's bottom edge that
-     * `readViewportBottom` reads: those in the document first, then the
-     * fixed ones, each group in registration order. An Effect cover is not
-     * one of them, and neither is an element that the box of a cover
-     * overlaps and that is not inside that cover.
+     * `readViewportBottom` reads, in registration order. Each one draws on
+     * the `<canvas>` element of the carrier it was measured on. An Effect
+     * cover is not one of them, and neither is an element that the box of a
+     * cover overlaps and that is not inside that cover.
      */
     records: (
       scrollX: number,
       scrollY: number,
       readViewportBottom: () => number,
     ): MeasuredElement[] => {
-      const inDocument: MeasuredElement[] = [];
-      const fixed: MeasuredElement[] = [];
+      const records: MeasuredElement[] = [];
       const covers: { element: Element; box: ElementBox }[] = [];
       for (const [
         element,
-        { id, roles, settings, scope, holds, covers: isCover },
+        { id, roles, settings, scope, holds, covers: isCover, canvases },
       ] of elements) {
         const tracker = uses.get(element)?.tracker;
         const box = tracker?.boxAt(scrollX, scrollY, readViewportBottom);
-        if (tracker == null || box == null) {
+        const canvas = tracker?.measured?.canvas;
+        if (tracker == null || box == null || canvas === undefined) {
           continue;
         }
         if (isCover === true) {
           covers.push({ element, box });
           continue;
         }
-        (box.fixed ? fixed : inDocument).push({
+        records.push({
           ...box,
           id,
           element,
@@ -274,9 +398,13 @@ export function createEffectRegistry() {
           settings,
           scope,
           holds,
+          canvas,
+          canvases: canvases.includes(canvas)
+            ? canvases
+            : [...canvases, canvas],
         });
       }
-      return [...inDocument, ...fixed].filter((record) =>
+      return records.filter((record) =>
         covers.every(
           ({ element, box }) =>
             element.contains(record.element) || !overlaps(box, record),

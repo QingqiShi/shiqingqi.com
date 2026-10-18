@@ -2,6 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
+import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -37,13 +39,21 @@ export function MasterDetailLayout({
   const selection = useUrlSelection(param);
   const isWide = useIsWideLayout();
   const isOpen = selection.value !== null;
+  const sticky = useEffectSticky();
+  const { ref, css } = sticky;
 
   return (
     <div css={styles.root}>
       <div css={styles.master}>{master}</div>
       {isWide ? (
-        <aside css={[corner.radius_4, styles.pane]} aria-label={detailLabel}>
-          {isOpen ? detail : empty}
+        <aside
+          ref={ref}
+          css={[corner.radius_4, styles.pane, css]}
+          aria-label={detailLabel}
+        >
+          <EffectCarrier value={sticky}>
+            {isOpen ? detail : empty}
+          </EffectCarrier>
         </aside>
       ) : (
         <PaneSheet

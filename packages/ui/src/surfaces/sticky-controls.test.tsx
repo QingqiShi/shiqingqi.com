@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { layOut } from "../test-support/lay-out.ts";
 import { BlurPlane, BlurPlaneProvider } from "./blur-plane.tsx";
 import { StickyControlGroup, StickyControls } from "./sticky-controls.tsx";
 
@@ -21,26 +22,14 @@ function renderControls(children: ReactNode = sortGroup) {
 
 const STUCK_OFFSET_PX = 80;
 
-function rectAt(top: number, height: number) {
-  return {
-    top,
-    height,
-    bottom: top + height,
-    left: 0,
-    right: 0,
-    width: 0,
-    x: 0,
-    y: top,
-    toJSON: vi.fn(),
-  };
-}
-
-// jsdom lays nothing out, so the row holds at its offset only once it is handed
-// a box that has reached it. The offset itself is read back through
-// `getComputedStyle`, which resolves an inline style in jsdom.
+// jsdom lays nothing out and loads no StyleX sheet, so the row holds at its
+// offset only once it is handed a box that has reached it. The position and
+// the offset are read back through `getComputedStyle`, which resolves an
+// inline style in jsdom.
 function scrollTo(box: HTMLElement, top: number, height: number) {
+  box.style.position = "sticky";
   box.style.top = `${String(STUCK_OFFSET_PX)}px`;
-  box.getBoundingClientRect = vi.fn(() => rectAt(top, height));
+  layOut(box, { x: 0, y: top, width: 300, height });
   fireEvent.scroll(document);
 }
 
@@ -152,28 +141,16 @@ describe("StickyControls", () => {
     });
   });
 
-  // A row inside a scrolling panel holds against that panel's own edge rather
-  // than the viewport's, so the offset is measured from there.
-  it("measures the offset from the nearest scrolling ancestor", async () => {
-    const scrollerTop = 120;
-    const { container } = render(
-      <div style={{ overflowY: "auto" }}>
-        <StickyControls>{sortGroup}</StickyControls>
-      </div>,
-    );
-    const scroller = container.firstElementChild;
-    const box = scroller?.firstElementChild;
-    if (!(scroller instanceof HTMLElement) || !(box instanceof HTMLElement)) {
-      throw new Error("StickyControls rendered nothing");
-    }
-    scroller.getBoundingClientRect = vi.fn(() => rectAt(scrollerTop, 600));
+  // While the row is in the flow of the page, the page's effects draw over
+  // it, so its controls show their own. Once it holds, it rises to its plane.
+  it("sits under the effect layer until the row is stuck", async () => {
+    const box = renderControls();
+    expect(box.className).toContain("use-effect-sticky__styles.unstuck");
 
-    scrollTo(box, scrollerTop + STUCK_OFFSET_PX, 40);
+    scrollTo(box, STUCK_OFFSET_PX, 40);
 
     await waitFor(() => {
-      expect(blurLayers(box)[0]?.className).not.toContain(
-        "progressive-blur__styles.hidden",
-      );
+      expect(box.className).not.toContain("use-effect-sticky__styles.unstuck");
     });
   });
 

@@ -2,10 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
+import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
+import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import { layer, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { StuckContext } from "./sticky-control-group.tsx";
-import { useStuck } from "./use-stuck.ts";
 
 export { StickyControlGroup } from "./sticky-control-group.tsx";
 
@@ -41,19 +42,20 @@ interface StickyControlsProps {
  * them sharp, the way the header's own groups do.
  */
 export function StickyControls({ children, css }: StickyControlsProps) {
-  const { ref, isStuck } = useStuck();
+  const sticky = useEffectSticky();
+  const { ref, isStuck, css: stickyCss } = sticky;
 
   return (
     <StuckContext value={isStuck}>
-      <div ref={ref} css={[styles.sticky, css]}>
-        {children}
+      <div ref={ref} css={[styles.sticky, css, stickyCss]}>
+        <EffectCarrier value={sticky}>{children}</EffectCarrier>
       </div>
     </StuckContext>
   );
 }
 
 const styles = stylex.create({
-  // Sticky at `raised`, above the cards it pins over (including one lifted by
+  // Stuck at `raised`, above the cards it pins over (including one lifted by
   // hover), and below the header it parks beneath. The small gap keeps two
   // groups reading as one cluster rather than spanning the row.
   sticky: {

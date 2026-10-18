@@ -8,6 +8,11 @@ import {
 } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
+import {
+  PAGE_CARRIER,
+  VIEWPORT_BOTTOM_CARRIER,
+  VIEWPORT_CARRIER,
+} from "./resolve-carrier.ts";
 
 const ON_PAGE = { scope: PAGE_SCOPE, holds: null };
 
@@ -26,8 +31,17 @@ function setUp() {
     createElementTracker(tracked, () => {}),
   );
   const measureAll = (scrollX = 0, scrollY = 0) => {
+    const lookup = {
+      carrierOf: registry.carrierOf,
+      stickyBox: (id: number) => registry.sticky(id)?.element ?? null,
+      isStuck: (id: number) => registry.sticky(id)?.isStuck() ?? false,
+    };
     for (const tracker of registry.trackers()) {
-      tracker.measure({ ...createMeasureContext(() => 0), scrollX, scrollY });
+      tracker.measure({
+        ...createMeasureContext(() => 0, lookup),
+        scrollX,
+        scrollY,
+      });
     }
   };
   return { observers, registry, untrack, measureAll };
@@ -108,26 +122,121 @@ describe("createEffectRegistry records", () => {
     ).toEqual([target]);
   });
 
-  it("lists elements in the document first, then fixed ones, each in registration order", () => {
+  it("lists the elements in registration order, each on the canvas of the carrier it declares", () => {
     const { registry, measureAll } = setUp();
-    const fixedFirst = element(0, 0);
-    fixedFirst.style.position = "fixed";
-    const inDocument = element(0, 100);
-    const fixedSecond = element(0, 200);
-    fixedSecond.style.position = "fixed";
-    const lastInDocument = element(0, 300);
-    for (const target of [
-      fixedFirst,
-      inDocument,
-      fixedSecond,
-      lastInDocument,
-    ]) {
-      registry.register(target, 0, NO_SETTINGS, ON_PAGE);
-    }
+    const onViewport = element(0, 0);
+    onViewport.style.position = "fixed";
+    const onPage = element(0, 100);
+    registry.register(onViewport, 0, NO_SETTINGS, {
+      ...ON_PAGE,
+      carrier: VIEWPORT_CARRIER,
+    });
+    registry.register(onPage, 0, NO_SETTINGS, ON_PAGE);
     measureAll();
     expect(
-      registry.records(0, 0, () => 0).map((record) => record.element),
-    ).toEqual([inDocument, lastInDocument, fixedFirst, fixedSecond]);
+      registry
+        .records(0, 0, () => 0)
+        .map(({ element: target, canvas, canvases }) => ({
+          target,
+          canvas,
+          canvases,
+        })),
+    ).toEqual([
+      { target: onViewport, canvas: "fixed", canvases: ["fixed"] },
+      { target: onPage, canvas: "scroll", canvases: ["scroll"] },
+    ]);
+  });
+
+  it("takes the carrier from the latest registration, as it takes the scope, and measures again on a new one", () => {
+    const signals: Element[] = [];
+    stubObservers();
+    const registry = createEffectRegistry();
+    registry.track((tracked) =>
+      createElementTracker(tracked, ({ element: signalled }) => {
+        signals.push(signalled);
+      }),
+    );
+    const target = element(0, 0);
+    const first = registry.register(target, 0, NO_SETTINGS, {
+      ...ON_PAGE,
+      carrier: VIEWPORT_CARRIER,
+    });
+    registry.register(target, 0b1, NO_SETTINGS, ON_PAGE);
+    expect(registry.carrierOf(target)).toBe(PAGE_CARRIER);
+    signals.length = 0;
+
+    first.update(0, NO_SETTINGS, 0, VIEWPORT_BOTTOM_CARRIER);
+    expect(signals).toEqual([target]);
+    expect(registry.carrierOf(target)).toBe(PAGE_CARRIER);
+  });
+
+  it("lets an element on a sticky carrier need the canvases of both of its states", () => {
+    const { registry, measureAll } = setUp();
+    const target = element(0, 0);
+    registry.register(target, 0b1, NO_SETTINGS, {
+      ...ON_PAGE,
+      carrier: { kind: "sticky", id: 9, parent: PAGE_CARRIER },
+    });
+    measureAll();
+    expect(registry.records(0, 0, () => 0)[0]).toMatchObject({
+      canvas: "scroll",
+      canvases: ["scroll", "fixed"],
+    });
+  });
+
+  it("puts the effect hooks of a sticky box itself on its sticky carrier", () => {
+    const { registry } = setUp();
+    const box = element(0, 0);
+    registry.register(box, 0, NO_SETTINGS, ON_PAGE);
+    expect(registry.carrierOf(box)).toBe(PAGE_CARRIER);
+    const carrier = { kind: "sticky", id: 5, parent: PAGE_CARRIER } as const;
+    const sticky = registry.registerSticky(box, carrier, () => false);
+    expect(registry.carrierOf(box)).toBe(carrier);
+    expect(registry.elements().get(box)?.canvases).toEqual(["scroll", "fixed"]);
+    sticky.remove();
+    expect(registry.carrierOf(box)).toBe(PAGE_CARRIER);
+    expect(registry.elements().get(box)?.canvases).toEqual(["scroll"]);
+  });
+
+  it("keeps a sticky box apart from the elements, and tells the layer each time it registers, sticks, lets go or leaves", () => {
+    const registry = createEffectRegistry();
+    const box = element(0, 0);
+    let stuck = false;
+    const early = registry.registerSticky(
+      box,
+      { kind: "sticky", id: 3, parent: PAGE_CARRIER },
+      () => stuck,
+    );
+    const told: number[] = [];
+    const untrack = registry.track(
+      (tracked) => createElementTracker(tracked, () => {}),
+      (id) => {
+        told.push(id);
+      },
+    );
+    const late = registry.registerSticky(
+      element(0, 50),
+      { kind: "sticky", id: 4, parent: PAGE_CARRIER },
+      () => false,
+    );
+    expect(told).toEqual([4]);
+    expect(registry.sticky(3)?.element).toBe(box);
+    expect(registry.elements().size).toBe(0);
+
+    stuck = true;
+    early.changed();
+    expect(told).toEqual([4, 3]);
+    expect(registry.sticky(3)?.isStuck()).toBe(true);
+
+    late.remove();
+    expect(told).toEqual([4, 3, 4]);
+    expect(registry.sticky(4)).toBeUndefined();
+    late.changed();
+    expect(told).toEqual([4, 3, 4]);
+    untrack();
+    early.remove();
+    expect(told).toEqual([4, 3, 4]);
+    expect(registry.sticky(3)).toBeUndefined();
   });
 
   it("keeps an element in the document at its page position through a window scroll", () => {
@@ -143,18 +252,21 @@ describe("createEffectRegistry records", () => {
     expect(reads).toEqual([]);
   });
 
-  it("moves a fixed element with each window scroll, without reading it", () => {
+  it("moves an element on the viewport with each window scroll, without reading it", () => {
     const { registry, measureAll } = setUp();
     const reads: Element[] = [];
     const target = element(20, 10, reads);
     target.style.position = "fixed";
-    registry.register(target, 0, NO_SETTINGS, ON_PAGE);
+    registry.register(target, 0, NO_SETTINGS, {
+      ...ON_PAGE,
+      carrier: VIEWPORT_CARRIER,
+    });
     measureAll(0, 500);
     reads.length = 0;
     expect(registry.records(0, 900, () => 0)[0]).toMatchObject({
       x: 20,
       y: 910,
-      fixed: true,
+      canvas: "fixed",
     });
     expect(reads).toEqual([]);
   });
@@ -179,7 +291,7 @@ describe("createEffectRegistry records", () => {
       { element: container, scope: 0, holds: 7 },
     ]);
 
-    inside.update(0b100, NO_SETTINGS, 0);
+    inside.update(0b100, NO_SETTINGS, 0, PAGE_CARRIER);
     expect(registry.records(0, 0, () => 0)[0]).toMatchObject({ scope: 0 });
   });
 
@@ -215,7 +327,7 @@ describe("createEffectRegistry records", () => {
     measureAll();
     reads.length = 0;
     const settings = { dust: { density: 7 } };
-    registration.update(0b10, settings, 0);
+    registration.update(0b10, settings, 0, PAGE_CARRIER);
     expect(registry.records(0, 0, () => 0)[0]).toMatchObject({
       roles: 0b10,
       settings,

@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { TabBar } from "@tuja/ui/components/tab-bar";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
@@ -31,31 +32,33 @@ export function FinanceTabBar() {
   const waiting = status.pendingCount > 0;
 
   return (
-    <TabBar
-      label={t({ en: "Finance", zh: "家庭账本" })}
-      linkComponent={Link}
-      css={styles.bar}
-      items={destinations.map((destination) => {
-        const isSettings = destination.path === "/finance/settings";
-        const dot =
-          isSettings && attention
-            ? attentionStyles[attention]
-            : waiting && destination.path === "/finance/transactions"
-              ? attentionStyles.waiting
-              : null;
-        return {
-          href: getLocalePath(destination.path, locale),
-          label: destination.label,
-          icon: destination.icon,
-          current: isCurrentDestination(current, destination.path),
-          badge:
-            dot === null ? null : (
-              <span css={[corner.radius_round, styles.dot, dot]} />
-            ),
-          status: isSettings ? (attention ? label : null) : undefined,
-        };
-      })}
-    />
+    <EffectCarrier value="viewport-bottom">
+      <TabBar
+        label={t({ en: "Finance", zh: "家庭账本" })}
+        linkComponent={Link}
+        css={styles.bar}
+        items={destinations.map((destination) => {
+          const isSettings = destination.path === "/finance/settings";
+          const dot =
+            isSettings && attention
+              ? attentionStyles[attention]
+              : waiting && destination.path === "/finance/transactions"
+                ? attentionStyles.waiting
+                : null;
+          return {
+            href: getLocalePath(destination.path, locale),
+            label: destination.label,
+            icon: destination.icon,
+            current: isCurrentDestination(current, destination.path),
+            badge:
+              dot === null ? null : (
+                <span css={[corner.radius_round, styles.dot, dot]} />
+              ),
+            status: isSettings ? (attention ? label : null) : undefined,
+          };
+        })}
+      />
+    </EffectCarrier>
   );
 }
 

@@ -19,24 +19,6 @@ export interface ElementBox {
   readonly y: number;
   readonly width: number;
   readonly height: number;
-  /**
-   * Fixed to the viewport by its own `position: fixed` or an ancestor's, or
-   * by a sticky box around it that is stuck now, as `isStuckToViewport`
-   * explains. Its place in the page then changes with every scroll, and it
-   * draws on the fixed `<canvas>` element.
-   */
-  readonly fixed: boolean;
-  /**
-   * Fixed by a `position: fixed` box at the bottom edge of the viewport, as
-   * `isAtViewportBottom` explains. It draws on the bottom `<canvas>` element,
-   * which moves with that edge.
-   */
-  readonly fixedToBottom: boolean;
-  /**
-   * A sticky box around it sticks to the viewport, so a scroll can move it
-   * between the scroll `<canvas>` elements and the fixed one.
-   */
-  readonly sticksToViewport: boolean;
   readonly radii: CornerRadii;
   /**
    * The exponent `n` of the corners' superellipse, `|x|ⁿ + |y|ⁿ = 1`: 2 for a
@@ -208,195 +190,52 @@ export function effectiveGrayscale(
   return 1 - kept;
 }
 
-const isSet = (value: string) => value !== "" && value !== "none";
-
 /**
- * Whether a box with this computed style holds its `position: fixed`
- * descendants, so that they scroll with it instead of with the viewport.
+ * The computed insets of a positioned box, top first and then clockwise,
+ * with `auto` kept.
  *
  * @internal
  */
-export function holdsFixedDescendants(style: CSSStyleDeclaration) {
-  return (
-    [
-      style.transform,
-      style.translate,
-      style.rotate,
-      style.scale,
-      style.perspective,
-      style.filter,
-      style.backdropFilter,
-    ].some(isSet) ||
-    style.transformStyle === "preserve-3d" ||
-    style.contentVisibility === "auto" ||
-    /\b(layout|paint|strict|content)\b/.test(style.contain) ||
-    /\b(size|inline-size)\b/.test(style.containerType) ||
-    /\b(transform|translate|rotate|scale|perspective|filter|backdrop-filter)\b/.test(
-      style.willChange,
-    )
-  );
+export interface Insets {
+  readonly top: string;
+  readonly right: string;
+  readonly bottom: string;
+  readonly left: string;
 }
 
 /**
- * The `position: fixed` box that fixes the element to the viewport: the
- * element or its nearest ancestor with `position: fixed` that no ancestor
- * holds in the document. `null` when there is none.
+ * Reads the computed insets of a box, with `auto` kept.
  *
  * @internal
  */
-export function viewportFixedBox(
-  element: Element,
-  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
-) {
-  let box: Element | null = null;
-  for (
-    let node: Element | null = element;
-    node !== null;
-    node = node.parentElement
-  ) {
-    const style = styleOf(node);
-    if (box !== null && holdsFixedDescendants(style)) {
-      box = null;
-    }
-    if (box === null && style.position === "fixed") {
-      box = node;
-    }
-  }
-  return box;
-}
-
-/** The computed `top` and `bottom` of a box, with `auto` kept. */
-function readBlockInsets(
+export function readInsets(
   box: Element,
-  styleOf: (element: Element) => CSSStyleDeclaration,
-) {
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+): Insets {
   // getComputedStyle gives the used px value of an `auto` inset on a
   // positioned box. Thus, read the computed style map, which keeps `auto`.
   if ("computedStyleMap" in box) {
     const map = box.computedStyleMap();
+    const read = (side: string) => map.get(side)?.toString() ?? "";
     return {
-      top: map.get("top")?.toString() ?? "",
-      bottom: map.get("bottom")?.toString() ?? "",
+      top: read("top"),
+      right: read("right"),
+      bottom: read("bottom"),
+      left: read("left"),
     };
   }
-  const style = styleOf(box);
-  return { top: style.top, bottom: style.bottom };
+  const { top, right, bottom, left } = styleOf(box);
+  return { top, right, bottom, left };
 }
 
 /**
- * Whether a `position: fixed` box is at the bottom edge of the viewport: its
- * `bottom` is set and its `top` is `auto`. When a mobile toolbar slides in
- * or out, the browser moves such a box with the edge before a script can
- * see it move. A browser without a computed style map gives no `auto`, so
- * there no box is at the bottom edge.
+ * A computed inset in px, or `null` for `auto` or a value it cannot read.
  *
  * @internal
  */
-export function isAtViewportBottom(
-  box: Element,
-  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
-) {
-  const { top, bottom } = readBlockInsets(box, styleOf);
-  const isAuto = (inset: string) => inset === "auto" || inset === "";
-  return isAuto(top) && !isAuto(bottom);
-}
-
-/**
- * Whether the element, or an ancestor, has `position: sticky`, so that a
- * scroll can move it in the page.
- *
- * @internal
- */
-export function isInSticky(
-  element: Element,
-  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
-) {
-  for (
-    let node: Element | null = element;
-    node !== null;
-    node = node.parentElement
-  ) {
-    if (styleOf(node).position === "sticky") {
-      return true;
-    }
-  }
-  return false;
-}
-
-/** Whether a box with this computed style is a scroll container. */
-function scrolls(style: CSSStyleDeclaration) {
-  return [style.overflow, style.overflowX, style.overflowY]
-    .flatMap((overflow) => overflow.split(/\s+/).filter(Boolean))
-    .some((overflow) => overflow !== "visible" && overflow !== "clip");
-}
-
-/**
- * The sticky boxes around the element, itself included, that stick to the
- * viewport: no box between one of them and the root element scrolls, and
- * none is fixed. The root element and the body do not count, because the
- * viewport takes their `overflow`.
- *
- * @internal
- */
-export function viewportStickyBoxes(
-  element: Element,
-  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
-) {
-  const { documentElement, body } = element.ownerDocument;
-  let boxes: Element[] = [];
-  for (
-    let node: Element | null = element;
-    node !== null && node !== documentElement && node !== body;
-    node = node.parentElement
-  ) {
-    const style = styleOf(node);
-    if (style.position === "fixed") {
-      return [];
-    }
-    if (node !== element && scrolls(style)) {
-      boxes = [];
-    }
-    if (style.position === "sticky") {
-      boxes.push(node);
-    }
-  }
-  return boxes;
-}
-
-/** Two px positions are the same within this distance. */
-const STUCK_TOLERANCE = 0.5;
-
-/** A computed inset in px, or `null` for `auto` or a value it cannot read. */
-function readInset(text: string) {
+export function readInset(text: string) {
   const value = Number.parseFloat(text);
   return Number.isFinite(value) ? value : null;
-}
-
-/**
- * Whether a sticky box that sticks to the viewport is stuck now: an edge is
- * at its sticky offset from the same edge of the viewport. Then a scroll
- * does not move it on the screen, so the elements in it draw on the fixed
- * `<canvas>` element.
- *
- * @internal
- */
-export function isStuckToViewport(
-  box: Element,
-  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
-) {
-  const style = styleOf(box);
-  const root = box.ownerDocument.documentElement;
-  const rect = box.getBoundingClientRect();
-  const at = (inset: string, gap: number) => {
-    const offset = readInset(inset);
-    return offset !== null && Math.abs(gap - offset) <= STUCK_TOLERANCE;
-  };
-  return (
-    at(style.top, rect.top) ||
-    at(style.bottom, root.clientHeight - rect.bottom) ||
-    at(style.left, rect.left) ||
-    at(style.right, root.clientWidth - rect.right)
-  );
 }
 
 const SEEN = {
@@ -422,18 +261,11 @@ export function readElementBox(
     return null;
   }
   const style = styleOf(element);
-  const stickyBoxes = viewportStickyBoxes(element, styleOf);
-  const fixedBox = viewportFixedBox(element, styleOf);
   return {
     x: rect.left,
     y: rect.top,
     width: rect.width,
     height: rect.height,
-    fixed:
-      fixedBox !== null ||
-      stickyBoxes.some((box) => isStuckToViewport(box, styleOf)),
-    fixedToBottom: fixedBox !== null && isAtViewportBottom(fixedBox, styleOf),
-    sticksToViewport: stickyBoxes.length > 0,
     radii: resolveCornerRadii(rect.width, rect.height, [
       style.borderTopLeftRadius,
       style.borderTopRightRadius,

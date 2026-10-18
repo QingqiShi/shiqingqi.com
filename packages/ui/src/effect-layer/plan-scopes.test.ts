@@ -17,16 +17,15 @@ function record(
     y: 0,
     width: 100,
     height: 40,
-    fixed: false,
-    fixedToBottom: false,
+    canvas: "scroll",
     radii: [0, 0, 0, 0],
     cornerExponent: 2,
-    sticksToViewport: false,
     fill: [0, 0, 0, 0],
     grayscale: 0,
     scope: PAGE_SCOPE,
     holds: null,
     ...overrides,
+    canvases: overrides.canvases ?? [overrides.canvas ?? "scroll"],
   };
 }
 
@@ -42,8 +41,8 @@ describe("planScopes", () => {
         record(1),
         record(2, { scope: 40, roles: 1 }),
         record(5, { holds: 40 }),
-        record(3, { fixed: true, scope: 40 }),
-        record(4, { fixed: true }),
+        record(3, { canvas: "fixed", scope: 40 }),
+        record(4, { canvas: "fixed" }),
       ],
       PAGE,
     );
@@ -94,9 +93,9 @@ describe("planScopes", () => {
   it("puts the elements fixed to the bottom after the fixed ones, on the bottom canvas, each scope one range", () => {
     const plan = planScopes(
       [
-        record(1, { fixed: true, fixedToBottom: true, scope: 40, roles: 1 }),
-        record(2, { fixed: true, fixedToBottom: true, holds: 40 }),
-        record(3, { fixed: true }),
+        record(1, { canvas: "fixedBottom", scope: 40, roles: 1 }),
+        record(2, { canvas: "fixedBottom", holds: 40 }),
+        record(3, { canvas: "fixed" }),
         record(4),
       ],
       PAGE,
@@ -123,9 +122,15 @@ describe("planScopes", () => {
     });
   });
 
-  it("does not need the bottom canvas for an element that sticks to the viewport", () => {
+  it("does not need the bottom canvas for an element on a sticky carrier", () => {
     const plan = planScopes(
-      [record(1, { roles: 1, fixed: true, sticksToViewport: true })],
+      [
+        record(1, {
+          roles: 1,
+          canvas: "fixed",
+          canvases: ["scroll", "fixed"],
+        }),
+      ],
       PAGE,
     );
     expect(plan.fixedBottom.hasRole).toBe(false);
@@ -160,10 +165,13 @@ describe("planScopes", () => {
     expect(plan.scopes.map(({ id }) => id)).toEqual([PAGE_SCOPE]);
   });
 
-  it("needs both canvases for an element with a role that sticks to the viewport, stuck or not", () => {
-    for (const fixed of [false, true]) {
+  it("needs both canvases for an element with a role on a sticky carrier, stuck or not", () => {
+    for (const canvas of ["scroll", "fixed"] as const) {
       const plan = planScopes(
-        [record(1, { roles: 1, fixed, sticksToViewport: true }), record(2)],
+        [
+          record(1, { roles: 1, canvas, canvases: ["scroll", "fixed"] }),
+          record(2),
+        ],
         PAGE,
       );
       expect(plan.document.hasRole).toBe(true);
