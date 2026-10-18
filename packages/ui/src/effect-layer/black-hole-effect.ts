@@ -20,7 +20,7 @@ import {
   type PageRect,
 } from "./lens-from-box.ts";
 import { lensesOfScope, type ShaderLens } from "./lenses-of-scope.ts";
-import { CANVAS_ORDER, indicesIn } from "./plan-scopes.ts";
+import { indicesIn } from "./plan-scopes.ts";
 import { cssAngleToRadians, stepAim, type Aim } from "./step-aim.ts";
 import type {
   Effect,
@@ -237,9 +237,9 @@ export const blackHoleEffect: Effect = {
             frame.viewport,
           );
           const lenses = shaderLenses.map(({ lens }) => lens);
-          for (const canvas of CANVAS_ORDER) {
+          for (const [carrier, range] of scope.ranges.entries()) {
             const beams: ShaderBeam[] = [];
-            for (const element of indicesIn(scope[canvas])) {
+            for (const element of indicesIn(range)) {
               const record = frame.elements[element];
               if ((record.roles & LIGHT_BEAM) === 0) {
                 continue;
@@ -270,11 +270,11 @@ export const blackHoleEffect: Effect = {
             if (beams.length === 0) {
               continue;
             }
-            const key = `${canvas} ${String(scope.id)}`;
+            const key = `${String(frame.carriers[carrier])} ${String(scope.id)}`;
             kept.add(key);
             const shown = new Set<ShaderBeam>();
             for (const target of frame.targets) {
-              if (target.canvas !== canvas) {
+              if (target.carrier !== carrier) {
                 continue;
               }
               const rect = drawnRect(target);

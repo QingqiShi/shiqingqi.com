@@ -1,13 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { useId, type ComponentProps, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { corner } from "../primitives/corner.stylex.ts";
-import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 import { color, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { TableScroller } from "./table-scroller.tsx";
 import { tableTokens } from "./table.stylex.ts";
 
 interface TableProps extends Omit<
@@ -76,19 +73,10 @@ export function Table({
   const captionId = useId();
 
   return (
-    <ScrollMask
-      orientation="horizontal"
-      role="region"
-      aria-labelledby={captionId}
-      tabIndex={0}
-      css={[corner.radius_2, styles.container, containerCss]}
-      contentCss={[
-        scrollX.base,
-        scrollbar.autoHide,
-        transition.scrollbarColor,
-        styles.scroller,
-        stickyHeader && styles.scrollBlock,
-      ]}
+    <TableScroller
+      labelledBy={captionId}
+      scrollsBlock={stickyHeader}
+      containerCss={containerCss}
     >
       <table
         {...restProps}
@@ -108,7 +96,7 @@ export function Table({
         </caption>
         {children}
       </table>
-    </ScrollMask>
+    </TableScroller>
   );
 }
 
@@ -120,18 +108,6 @@ export { TableHeaderCell } from "./table-header-cell.tsx";
 export { TableCell } from "./table-cell.tsx";
 
 const styles = stylex.create({
-  container: {
-    maxInlineSize: "100%",
-  },
-  // The head is always positioned and raised over the rows. The scroller keeps
-  // that raise inside itself, so the Scroll mask blurs the head too.
-  scroller: {
-    isolation: "isolate",
-  },
-  // A sticky head sticks to the scroller, so the rows have to scroll there.
-  scrollBlock: {
-    overflowY: "auto",
-  },
   // Re-stated here, not left to the token default: a nested plain table would
   // otherwise inherit the outer sticky table's head inset.
   table: {

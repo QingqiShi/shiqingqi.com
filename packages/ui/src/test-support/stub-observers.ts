@@ -43,24 +43,35 @@ export function stubObservers() {
       }
     },
   );
-  const intersectionCallbacks = new Map<() => void, Set<Element>>();
+  const intersectionCallbacks = new Map<
+    () => void,
+    { targets: Set<Element>; root: Element | null }
+  >();
   vi.stubGlobal(
     "IntersectionObserver",
     class {
       #connected = false;
       readonly #callback: () => void;
       readonly #targets = new Set<Element>();
-      constructor(callback: (entries: []) => void) {
+      readonly #root: Element | null;
+      constructor(
+        callback: (entries: []) => void,
+        options?: { root?: Element | null },
+      ) {
         this.#callback = () => {
           callback([]);
         };
+        this.#root = options?.root ?? null;
       }
       observe(target: Element) {
         this.#targets.add(target);
         if (!this.#connected) {
           this.#connected = true;
           intersectionObservers += 1;
-          intersectionCallbacks.set(this.#callback, this.#targets);
+          intersectionCallbacks.set(this.#callback, {
+            targets: this.#targets,
+            root: this.#root,
+          });
         }
       }
       disconnect() {
@@ -90,11 +101,19 @@ export function stubObservers() {
      * entries.
      */
     intersect(target: Element) {
-      for (const [callback, targets] of [...intersectionCallbacks]) {
+      for (const [callback, { targets }] of [...intersectionCallbacks]) {
         if (targets.has(target)) {
           callback();
         }
       }
     },
+    /**
+     * The root of each connected intersection observer of `target`: an
+     * element, or `null` for the viewport.
+     */
+    intersectionRootsOf: (target: Element) =>
+      [...intersectionCallbacks.values()].flatMap(({ targets, root }) =>
+        targets.has(target) ? [root] : [],
+      ),
   };
 }

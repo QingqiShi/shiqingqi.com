@@ -4,8 +4,11 @@ import {
   ELEMENT_BYTES,
   packElements,
   packPageUniform,
+  packRanges,
   packScopes,
   PAGE_UNIFORM_BYTES,
+  RANGE_BYTES,
+  rangesOf,
   SCOPE_BYTES,
 } from "./page-wgsl.ts";
 import type { EffectElementRecord } from "./types.ts";
@@ -23,8 +26,9 @@ function record(
     y: 1200.5,
     width: 320,
     height: 180,
-    canvas: "scroll",
-    canvases: ["scroll"],
+    carrier: "page",
+    carriers: ["page"],
+    carrierIndex: 0,
     radii: [16, 16, 8, 0],
     cornerExponent: 4,
     fill: [0.25, 0.5, 0.75, 1],
@@ -40,7 +44,10 @@ describe("packElements", () => {
   it("packs each element as one EffectElement struct, in order", () => {
     const buffer = new ArrayBuffer(2 * ELEMENT_BYTES);
     packElements(
-      [record(), record({ id: 8, canvas: "fixed", roles: 0, x: -4 })],
+      [
+        record(),
+        record({ id: 8, carrier: "fixed", carrierIndex: 1, roles: 0, x: -4 }),
+      ],
       buffer,
     );
     const floats = new Float32Array(buffer);
@@ -97,24 +104,49 @@ describe("packScopes", () => {
           container: -1,
           backdrop: [1, 1, 1, 1],
           dark: false,
-          scroll: range(0, 3),
-          fixed: range(5, 1),
-          fixedBottom: range(6, 2),
+          ranges: [range(0, 3), range(5, 1), range(6, 2)],
         },
         {
           id: 9,
           container: 2,
           backdrop: [1, 1, 1, 1],
           dark: false,
-          scroll: range(3, 2),
-          fixed: range(0, 0),
-          fixedBottom: range(5, 0),
+          ranges: [range(3, 2), range(0, 0), range(5, 0)],
         },
       ],
       buffer,
     );
+    expect([...new Uint32Array(buffer)]).toEqual([0, 0xff_ff_ff_ff, 9, 2]);
+  });
+});
+
+describe("packRanges", () => {
+  it("packs the ranges of each scope on each carrier, scope after scope", () => {
+    const range = (firstElement: number, elementCount: number) => ({
+      firstElement,
+      elementCount,
+    });
+    const scopes = [
+      {
+        id: 0,
+        container: -1,
+        backdrop: [1, 1, 1, 1] as const,
+        dark: false,
+        ranges: [range(0, 3), range(5, 1), range(6, 2), range(8, 1)],
+      },
+      {
+        id: 9,
+        container: 2,
+        backdrop: [1, 1, 1, 1] as const,
+        dark: false,
+        ranges: [range(3, 2), range(0, 0), range(8, 0), range(9, 4)],
+      },
+    ];
+    const ranges = rangesOf(scopes);
+    const buffer = new ArrayBuffer(ranges.length * RANGE_BYTES);
+    packRanges(ranges, buffer);
     expect([...new Uint32Array(buffer)]).toEqual([
-      0, 0xff_ff_ff_ff, 0, 3, 5, 1, 6, 2, 9, 2, 3, 2, 0, 0, 5, 0,
+      0, 3, 5, 1, 6, 2, 8, 1, 3, 2, 0, 0, 8, 0, 9, 4,
     ]);
   });
 });
@@ -136,6 +168,7 @@ describe("packPageUniform", () => {
       delta: 0.016,
       elementCount: 3,
       scopeCount: 2,
+      carrierCount: 5,
     });
     expect(uniform.byteLength).toBe(PAGE_UNIFORM_BYTES);
     const floats = new Float32Array(uniform);
@@ -144,7 +177,9 @@ describe("packPageUniform", () => {
       0, 640, 1280, 800, 100, 740, -30, 12, 1280, 5000, 2.5,
     ]);
     expect(floats[11]).toBeCloseTo(0.016, 6);
-    expect([words[12], words[13], words[14]]).toEqual([3, 0b11, 2]);
+    expect([words[12], words[13], words[14], words[15]]).toEqual([
+      3, 0b11, 2, 5,
+    ]);
   });
 
   it("clears the flags of a pointer that left", () => {
@@ -163,6 +198,7 @@ describe("packPageUniform", () => {
       delta: 0,
       elementCount: 0,
       scopeCount: 1,
+      carrierCount: 3,
     });
     expect(new Uint32Array(uniform)[13]).toBe(0);
   });

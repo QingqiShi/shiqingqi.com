@@ -72,11 +72,13 @@ export function edgesMatch(a: Edges, b: Edges) {
 export interface MoveWatchArea {
   readonly rect: Edges;
   /**
-   * Watch against the viewport, for an element fixed to it. Otherwise watch
-   * against the root element, so that a window scroll moves neither.
+   * The box to watch against: `null` for the viewport, for an element fixed
+   * to it. Otherwise an ancestor that moves with the element's carrier, such
+   * as the root element or the content box of a Scroll region, so that a
+   * scroll moves neither.
    */
-  readonly fixed: boolean;
-  /** The viewport, or the root element's border box. */
+  readonly rootElement: Element | null;
+  /** The viewport, or the border box of `rootElement`. */
   readonly root: Edges;
 }
 
@@ -104,7 +106,7 @@ export function observeMove(
   onMove: () => void,
 ) {
   const margin = moveRootMargin(area.rect, area.root);
-  const root = area.fixed ? null : element.ownerDocument.documentElement;
+  const root = area.rootElement;
   let ratio = 1;
   let observer = arm();
 
@@ -123,7 +125,7 @@ export function observeMove(
     // The viewport size can be different from the size that made the margin,
     // for example because of a scroll bar. Thus, compare a fixed element with
     // its own box. The root bounds move with the root element on scroll.
-    const expected = area.fixed ? area.rect : entry.rootBounds;
+    const expected = root === null ? area.rect : entry.rootBounds;
     if (expected === null || !edgesMatch(entry.boundingClientRect, expected)) {
       onMove();
     } else if (Math.abs(entry.intersectionRatio - ratio) > RATIO_BAND / 2) {
@@ -136,7 +138,7 @@ export function observeMove(
   return {
     /** Tells whether this watch already covers the same area. */
     covers: (next: MoveWatchArea) =>
-      next.fixed === area.fixed &&
+      next.rootElement === area.rootElement &&
       moveRootMargin(next.rect, next.root) === margin,
     disconnect: () => {
       observer.disconnect();

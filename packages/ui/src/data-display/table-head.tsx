@@ -1,5 +1,10 @@
+"use client";
+
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps } from "react";
+import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
+import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { layer } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { tableTokens } from "./table.stylex.ts";
@@ -24,9 +29,15 @@ export function TableHead({
   children,
   ...restProps
 }: TableHeadProps) {
+  const sticky = useEffectSticky();
+  const { ref: stickyRef, css: stickyCss } = sticky;
   return (
-    <thead {...restProps} ref={ref} css={[styles.head, css]}>
-      {children}
+    <thead
+      {...restProps}
+      ref={mergeRefs(ref, stickyRef)}
+      css={[styles.head, css, stickyCss]}
+    >
+      <EffectCarrier value={sticky}>{children}</EffectCarrier>
     </thead>
   );
 }
@@ -35,7 +46,9 @@ const styles = stylex.create({
   head: {
     position: "sticky",
     insetBlockStart: tableTokens.headInset,
-    zIndex: layer.content,
+    // The plane of the stuck head. The table's scroller keeps it inside
+    // itself.
+    zIndex: layer.raised,
     backgroundColor: tableTokens.headBackground,
   },
 });

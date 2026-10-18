@@ -8,6 +8,8 @@
 // The scroll <canvas> elements are in the scrolled content, thus the
 // compositor moves them with the content. Do not measure elements again on
 // scroll to move their effects. That is one frame late.
+// While a modal Effect cover shows, the page and each Scroll region under
+// it have no <canvas> element. Their elements keep their state.
 import { REDUCED_MOTION_QUERY } from "../prefers-reduced-motion.ts";
 import {
   bandGeometry,
@@ -26,25 +28,32 @@ import {
   ELEMENT_BYTES,
   packElements,
   packPageUniform,
+  packRanges,
   packScopes,
   PAGE_UNIFORM_BYTES,
+  RANGE_BYTES,
+  rangesOf,
   SCOPE_BYTES,
 } from "./page-wgsl.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import {
+  canvasNeedsEqual,
   PAGE_SCOPE,
+  planCanvasNeeds,
   planScopes,
   readPageBackdrop,
-  type CanvasRange,
+  type CarrierRange,
+  type EffectCanvasNeeds,
   type ScopePlan,
 } from "./plan-scopes.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
+import type { CarrierKey } from "./resolve-carrier.ts";
 import { packTargetUniform, TARGET_UNIFORM_BYTES } from "./target-wgsl.ts";
-import { trackElements } from "./track-elements.ts";
+import { trackElements, type FrameClock } from "./track-elements.ts";
 import { trackPointer } from "./track-pointer.ts";
 import type {
   Effect,
-  EffectCanvas,
+  EffectCanvasKind,
   EffectFrame,
   EffectRenderer,
   EffectSetup,
@@ -53,6 +62,8 @@ import type {
 
 const MAX_PIXEL_RATIO = 2;
 const MAX_DELTA_SECONDS = 0.1;
+/** More Scroll regions than this with `<canvas>` elements use much memory. */
+const MANY_REGIONS = 3;
 const ALL_STAGES =
   GPU_SHADER_STAGE.VERTEX |
   GPU_SHADER_STAGE.FRAGMENT |
@@ -72,6 +83,13 @@ interface ScrollCanvas extends ConfiguredCanvas {
   bandIndex: number | null;
 }
 
+/** The two scroll `<canvas>` elements of a Scroll region, and their size. */
+interface RegionCanvases {
+  readonly slots: ScrollCanvas[];
+  /** The CSS size they were last given, or `null` before the first frame. */
+  size: { readonly width: number; readonly bandHeight: number } | null;
+}
+
 interface Pass {
   readonly configured: ConfiguredCanvas;
   readonly target: EffectTarget;
@@ -80,28 +98,16 @@ interface Pass {
 }
 
 /**
- * The `<canvas>` elements the effect layer draws into: the two scroll ones or
- * none, the fixed one or `null`, and the bottom one or `null`.
+ * The `<canvas>` elements of the viewport and of the page that the effect
+ * layer draws into: the two scroll ones of the page or none, the fixed one
+ * or `null`, and the bottom one or `null`.
  *
  * @internal
  */
 export interface EffectLayerCanvases {
-  readonly scroll: readonly HTMLCanvasElement[];
+  readonly page: readonly HTMLCanvasElement[];
   readonly fixed: HTMLCanvasElement | null;
   readonly fixedBottom: HTMLCanvasElement | null;
-}
-
-/**
- * Which `<canvas>` elements the registered elements with a role need: the
- * scroll ones for elements on the page, the fixed one for elements on the
- * viewport, the bottom one for elements on the viewport's bottom edge.
- *
- * @internal
- */
-export interface EffectCanvasNeeds {
-  readonly scroll: boolean;
-  readonly fixed: boolean;
-  readonly fixedBottom: boolean;
 }
 
 interface EffectLayerOptions {
@@ -142,7 +148,7 @@ export function createEffectLayer(
   const pageLayout = device.createBindGroupLayout({
     entries: [
       { binding: 0, visibility: ALL_STAGES, buffer: { type: "uniform" } },
-      ...[1, 2].map((binding) => ({
+      ...[1, 2, 3].map((binding) => ({
         binding,
         visibility: ALL_STAGES,
         buffer: { type: "read-only-storage" as const },
@@ -170,9 +176,10 @@ export function createEffectLayer(
   let pointerFollowers: readonly NonNullable<
     EffectRenderer["followsPointer"]
   >[] = [];
-  let scroll: ScrollCanvas[] = [];
+  let page: ScrollCanvas[] = [];
   let fixed: ConfiguredCanvas | null = null;
   let fixedBottom: ConfiguredCanvas | null = null;
+  const regions = new Map<number, RegionCanvases>();
 
   const pageUniform = device.createBuffer({
     size: PAGE_UNIFORM_BYTES,
@@ -180,7 +187,12 @@ export function createEffectLayer(
   });
   const elementBuffer = createPackedBuffer(device, ELEMENT_BYTES, packElements);
   const scopeBuffer = createPackedBuffer(device, SCOPE_BYTES, packScopes);
-  let pageBuffers = [elementBuffer.buffer, scopeBuffer.buffer];
+  const rangeBuffer = createPackedBuffer(device, RANGE_BYTES, packRanges);
+  let pageBuffers = [
+    elementBuffer.buffer,
+    scopeBuffer.buffer,
+    rangeBuffer.buffer,
+  ];
   let pageBindGroup = createPageBindGroup();
   let pageBackdrop: EffectColor | null = null;
   let canvasNeeds: EffectCanvasNeeds | null = null;
@@ -205,6 +217,7 @@ export function createEffectLayer(
     frames,
     requestElementsFrame,
     readViewportBottom,
+    requestFrame,
   );
   // A change of settings moves no element, so draw a frame for it.
   const unsubscribeSettings = registry.subscribe(requestFrame);
@@ -287,20 +300,30 @@ export function createEffectLayer(
     return { canvas, context, uniform, bindGroup, shown: true };
   }
 
-  function release({ context, uniform }: ConfiguredCanvas) {
+  function release({ canvas, context, uniform }: ConfiguredCanvas) {
     context.unconfigure();
     uniform.destroy();
+    // A <canvas> element keeps its backing store until it is collected. iOS
+    // frees it at once when its size is 0.
+    if (!canvas.isConnected) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+  }
+
+  function configureSlots(canvases: readonly HTMLCanvasElement[]) {
+    return canvases.flatMap((canvas): ScrollCanvas[] => {
+      const configured = configure(canvas);
+      return configured === null ? [] : [{ ...configured, bandIndex: null }];
+    });
   }
 
   function setCanvases(canvases: EffectLayerCanvases) {
-    if (scroll[0]?.canvas !== canvases.scroll[0]) {
-      for (const slot of scroll) {
+    if (page[0]?.canvas !== canvases.page[0]) {
+      for (const slot of page) {
         release(slot);
       }
-      scroll = canvases.scroll.flatMap((canvas) => {
-        const configured = configure(canvas);
-        return configured === null ? [] : [{ ...configured, bandIndex: null }];
-      });
+      page = configureSlots(canvases.page);
     }
     if (fixed?.canvas !== canvases.fixed) {
       if (fixed !== null) {
@@ -315,6 +338,36 @@ export function createEffectLayer(
       fixedBottom = canvases.fixedBottom && configure(canvases.fixedBottom);
     }
     sizesChanged = true;
+    requestFrame();
+  }
+
+  /**
+   * Gives the Scroll region `id` its two scroll `<canvas>` elements, or
+   * takes them away with `null`.
+   */
+  function setRegionCanvases(
+    id: number,
+    canvases: readonly HTMLCanvasElement[] | null,
+  ) {
+    const known = regions.get(id);
+    if (known !== undefined && known.slots[0]?.canvas === canvases?.[0]) {
+      return;
+    }
+    for (const slot of known?.slots ?? []) {
+      release(slot);
+    }
+    regions.delete(id);
+    if (canvases !== null) {
+      regions.set(id, { slots: configureSlots(canvases), size: null });
+      if (
+        process.env.NODE_ENV !== "production" &&
+        regions.size > MANY_REGIONS
+      ) {
+        console.warn(
+          `[effect layer] ${String(regions.size)} Scroll regions have <canvas> elements at one time. Each one holds two bands in memory. Show at most ${String(MANY_REGIONS)} Scroll regions with effects at one time.`,
+        );
+      }
+    }
     requestFrame();
   }
 
@@ -377,7 +430,12 @@ export function createEffectLayer(
   function writePage(plan: ScopePlan) {
     const elementsChanged = elementBuffer.write(plan.elements);
     const scopesChanged = scopeBuffer.write(plan.scopes);
-    const buffers = [elementBuffer.buffer, scopeBuffer.buffer];
+    const rangesChanged = rangeBuffer.write(rangesOf(plan.scopes));
+    const buffers = [
+      elementBuffer.buffer,
+      scopeBuffer.buffer,
+      rangeBuffer.buffer,
+    ];
     if (buffers.some((buffer, index) => buffer !== pageBuffers[index])) {
       pageBuffers = buffers;
       pageBindGroup = createPageBindGroup();
@@ -387,20 +445,16 @@ export function createEffectLayer(
       pageBackdrop === null ||
       backdrop.some((channel, index) => channel !== pageBackdrop?.[index]);
     pageBackdrop = backdrop;
-    return elementsChanged || scopesChanged || backdropChanged;
+    return elementsChanged || scopesChanged || rangesChanged || backdropChanged;
   }
 
   function reportCanvasNeeds(plan: ScopePlan) {
-    const needs = {
-      scroll: plan.document.hasRole,
-      fixed: plan.fixed.hasRole,
-      fixedBottom: plan.fixedBottom.hasRole,
-    };
-    if (
-      needs.scroll !== canvasNeeds?.scroll ||
-      needs.fixed !== canvasNeeds.fixed ||
-      needs.fixedBottom !== canvasNeeds.fixedBottom
-    ) {
+    const needs = planCanvasNeeds(
+      plan,
+      registry.modalCovers(),
+      registry.region,
+    );
+    if (canvasNeeds === null || !canvasNeedsEqual(needs, canvasNeeds)) {
       canvasNeeds = needs;
       onCanvasNeedsChange(needs);
     }
@@ -432,7 +486,7 @@ export function createEffectLayer(
 
   function applySizes() {
     const { viewport, bandHeight } = bandGeometry(viewportHeight);
-    for (const slot of scroll) {
+    for (const slot of page) {
       sizeCanvas(slot.canvas, documentWidth, bandHeight);
       slot.bandIndex = null;
     }
@@ -444,62 +498,150 @@ export function createEffectLayer(
   }
 
   /**
+   * The passes of the bands of one scrolled box: the page, or the content
+   * box of a Scroll region. It places the two scroll `<canvas>` elements on
+   * the bands that `scrollTop` shows. `left` and `top` are the page position
+   * of the box.
+   */
+  function bandPasses(
+    slots: readonly ScrollCanvas[],
+    kind: EffectCanvasKind,
+    carrier: number,
+    range: CarrierRange,
+    box: {
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+      scrollTop: number;
+      viewportHeight: number;
+    },
+  ): Pass[] {
+    if (slots.length !== 2) {
+      return [];
+    }
+    const { bandHeight } = bandGeometry(box.viewportHeight);
+    return computeBands({
+      scrollTop: box.scrollTop,
+      viewportHeight: box.viewportHeight,
+      documentHeight: box.height,
+    }).map((band) => {
+      const slot = slots[band.slot];
+      if (slot.bandIndex !== band.index) {
+        slot.bandIndex = band.index;
+        slot.canvas.style.transform = `translateY(${String(band.top)}px)`;
+      }
+      const y = box.top + band.top;
+      return {
+        configured: slot,
+        scissor: bandScissorRect(
+          band,
+          slot.canvas.width,
+          slot.canvas.height,
+          bandHeight,
+        ),
+        drawnPageRange: [
+          y + band.drawnTop,
+          y + band.drawnTop + band.drawnHeight,
+        ],
+        target: {
+          kind,
+          carrier,
+          band,
+          x: box.left,
+          y,
+          width: box.width,
+          height: bandHeight,
+          firstElement: range.firstElement,
+          elementCount: range.elementCount,
+          bindGroup: slot.bindGroup,
+        },
+      };
+    });
+  }
+
+  /**
+   * Gives the scroll `<canvas>` elements of each Scroll region the size of
+   * its content box and of its scrollport, when they change.
+   */
+  function sizeRegions(clock: FrameClock) {
+    for (const [id, canvases] of regions) {
+      const place = clock.regionPlace(id);
+      if (place === null) {
+        continue;
+      }
+      const width = Math.round(place.width);
+      const { bandHeight } = bandGeometry(place.viewportHeight);
+      if (
+        !sizesChanged &&
+        canvases.size?.width === width &&
+        canvases.size.bandHeight === bandHeight
+      ) {
+        continue;
+      }
+      canvases.size = { width, bandHeight };
+      for (const slot of canvases.slots) {
+        sizeCanvas(slot.canvas, Math.max(1, width), bandHeight);
+        slot.bandIndex = null;
+      }
+    }
+  }
+
+  /**
    * Places the scroll `<canvas>` elements and lists this frame's passes.
    * `viewportBottom` is the viewport's bottom edge in viewport coordinates,
-   * from which the records fixed to the bottom are placed.
+   * from which the records fixed to the bottom are placed. A band of a
+   * Scroll region outside the viewport and its overscan margin has no pass:
+   * it keeps its last pixels, which no one sees, until it comes near again.
    */
   function planPasses(
-    scrollX: number,
-    scrollY: number,
+    clock: FrameClock,
     viewportBottom: number,
     plan: ScopePlan,
   ): Pass[] {
-    const { viewport, bandHeight } = bandGeometry(viewportHeight);
-    const passes: Pass[] = [];
-    if (scroll.length === 2) {
-      for (const band of computeBands({
+    const { scrollX, scrollY } = clock;
+    const { viewport, margin } = bandGeometry(viewportHeight);
+    const isNearViewport = ({ drawnPageRange: [top, bottom] }: Pass) =>
+      bottom > scrollY - margin && top < scrollY + viewport + margin;
+    const carrierOf = (key: CarrierKey) => plan.carriers.indexOf(key);
+    const passes: Pass[] = bandPasses(
+      page,
+      "page",
+      carrierOf("page"),
+      plan.ranges[carrierOf("page")],
+      {
+        left: pageLeft,
+        top: pageTop,
+        width: documentWidth,
+        height: documentHeight,
         scrollTop: scrollY - pageTop,
         viewportHeight,
-        documentHeight,
-      })) {
-        const slot = scroll[band.slot];
-        if (slot.bandIndex !== band.index) {
-          slot.bandIndex = band.index;
-          slot.canvas.style.transform = `translateY(${String(band.top)}px)`;
-        }
-        const y = pageTop + band.top;
-        passes.push({
-          configured: slot,
-          scissor: bandScissorRect(
-            band,
-            slot.canvas.width,
-            slot.canvas.height,
-            bandHeight,
-          ),
-          drawnPageRange: [
-            y + band.drawnTop,
-            y + band.drawnTop + band.drawnHeight,
-          ],
-          target: {
-            canvas: "scroll",
-            band,
-            x: pageLeft,
-            y,
-            width: documentWidth,
-            height: bandHeight,
-            firstElement: plan.document.firstElement,
-            elementCount: plan.document.elementCount,
-            bindGroup: slot.bindGroup,
-          },
-        });
+      },
+    );
+    for (const [id, { slots }] of regions) {
+      const carrier = carrierOf(id);
+      const place = clock.regionPlace(id);
+      if (carrier === -1 || place === null) {
+        continue;
       }
+      passes.push(
+        ...bandPasses(slots, "region", carrier, plan.ranges[carrier], {
+          left: place.origin.x,
+          top: place.origin.y,
+          width: Math.max(1, Math.round(place.width)),
+          height: place.height,
+          scrollTop: place.scrollTop,
+          viewportHeight: place.viewportHeight,
+        }).filter(isNearViewport),
+      );
     }
     function viewportPass(
       configured: ConfiguredCanvas,
-      canvas: EffectCanvas,
+      kind: "fixed" | "fixedBottom",
       y: number,
-      range: CanvasRange,
     ): Pass {
+      const carrier = carrierOf(kind);
+      const range = plan.ranges[carrier];
       return {
         configured,
         scissor: {
@@ -510,7 +652,8 @@ export function createEffectLayer(
         },
         drawnPageRange: [y, y + viewport],
         target: {
-          canvas,
+          kind,
+          carrier,
           band: null,
           x: scrollX,
           y,
@@ -523,7 +666,7 @@ export function createEffectLayer(
       };
     }
     if (fixed !== null) {
-      passes.push(viewportPass(fixed, "fixed", scrollY, plan.fixed));
+      passes.push(viewportPass(fixed, "fixed", scrollY));
     }
     if (fixedBottom !== null) {
       passes.push(
@@ -531,7 +674,6 @@ export function createEffectLayer(
           fixedBottom,
           "fixedBottom",
           fixedBottomTop(scrollY, viewportBottom, viewport),
-          plan.fixedBottom,
         ),
       );
     }
@@ -588,10 +730,8 @@ export function createEffectLayer(
     // read does not cause one more layout.
     let viewportBottom = fixedBottom === null ? null : readViewportBottom();
     const bottomNow = () => (viewportBottom ??= readViewportBottom());
-    const plan = planScopes(
-      registry.records(scrollX, scrollY, bottomNow),
-      readPageBackdrop(),
-    );
+    const carrierClock = tracking.clock(scrollX, scrollY, bottomNow);
+    const plan = planScopes(registry.records(carrierClock), readPageBackdrop());
     const records = plan.elements;
     const pageChanged = writePage(plan);
     reportCanvasNeeds(plan);
@@ -600,6 +740,7 @@ export function createEffectLayer(
     }
     drawRequested = false;
 
+    sizeRegions(carrierClock);
     if (sizesChanged) {
       sizesChanged = false;
       applySizes();
@@ -608,7 +749,7 @@ export function createEffectLayer(
       return;
     }
 
-    const passes = planPasses(scrollX, scrollY, viewportBottom ?? 0, plan);
+    const passes = planPasses(carrierClock, viewportBottom ?? 0, plan);
     const viewport = bandGeometry(viewportHeight).viewport;
     const frame: EffectFrame = {
       time: (now - startTime) / 1000,
@@ -621,6 +762,7 @@ export function createEffectLayer(
         height: viewport,
       },
       documentHeight,
+      carriers: plan.carriers,
       elements: records,
       scopes: plan.scopes,
       pointer: pointer.read(scrollX, scrollY, now),
@@ -638,6 +780,7 @@ export function createEffectLayer(
         delta: frame.delta,
         elementCount: records.length,
         scopeCount: plan.scopes.length,
+        carrierCount: plan.carriers.length,
       }),
     );
 
@@ -673,7 +816,10 @@ export function createEffectLayer(
     }
     renderers.clear();
     ready = [];
-    for (const slot of scroll) {
+    for (const slot of [
+      ...page,
+      ...[...regions.values()].flatMap(({ slots }) => slots),
+    ]) {
       release(slot);
     }
     for (const plane of [fixed, fixedBottom]) {
@@ -681,13 +827,15 @@ export function createEffectLayer(
         release(plane);
       }
     }
-    scroll = [];
+    page = [];
+    regions.clear();
     fixed = null;
     fixedBottom = null;
     pageUniform.destroy();
     elementBuffer.destroy();
     scopeBuffer.destroy();
+    rangeBuffer.destroy();
   }
 
-  return { setCanvases, setEffects, destroy };
+  return { setCanvases, setRegionCanvases, setEffects, destroy };
 }

@@ -43,6 +43,13 @@ describe("stuckRootMargins", () => {
     );
   });
 
+  it("counts each offset from the padding of a scroller, where a sticky box stops", () => {
+    const padding = { left: 0, top: 12, right: 0, bottom: 20 };
+    const margins = stuckRootMargins(insets("0px", "8px"), SIZE, padding);
+    expect(margins.box).toBe("-13px 0px -29px 0px");
+    expect(margins.container).toBe("-60px 0px -76px 0px");
+  });
+
   it("watches no container for a box with no sticky offset", () => {
     expect(stuckRootMargins(insets("auto"), SIZE).container).toBeNull();
   });

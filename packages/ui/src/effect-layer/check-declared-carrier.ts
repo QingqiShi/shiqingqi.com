@@ -1,7 +1,8 @@
 import { readInsets } from "./read-element-box.ts";
 import {
-  scrollsWithPage,
+  scrollRegionOf,
   stickiesOf,
+  stickyRefsOf,
   viewportEdgeOf,
   type EffectCarrierRef,
 } from "./resolve-carrier.ts";
@@ -88,48 +89,105 @@ function scrolls(style: CSSStyleDeclaration) {
     .some((overflow) => overflow !== "visible" && overflow !== "clip");
 }
 
+/** Whether a scroller with this computed style lets a person scroll it. */
+function scrollsByHand(overflow: string) {
+  return overflow === "auto" || overflow === "scroll";
+}
+
 /**
- * The sticky boxes around the element, itself included, that stick to the
- * viewport: no box between one of them and the root element scrolls, and
- * none is fixed. The root element and the body do not count, because the
- * viewport takes their `overflow`.
+ * The sticky boxes around the element, itself included, that stick to
+ * `scroller`, or to the viewport for `null`: no box between one of them and
+ * `scroller` scrolls, and none is fixed. The root element and the body do
+ * not count, because the viewport takes their `overflow`. `nested` is the
+ * nearest box between the element and `scroller` that a person can scroll
+ * on the block axis and whose content overflows it, or `null`.
  *
  * @internal
  */
-export function viewportStickyBoxes(
+export function stickyBoxesOn(
   element: Element,
+  scroller: Element | null,
   styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
 ) {
   const { documentElement, body } = element.ownerDocument;
   let boxes: Element[] = [];
+  let nested: Element | null = null;
   for (
     let node: Element | null = element;
-    node !== null && node !== documentElement && node !== body;
+    node !== null &&
+    node !== documentElement &&
+    node !== body &&
+    node !== scroller;
     node = node.parentElement
   ) {
     const style = styleOf(node);
     if (style.position === "fixed") {
-      return [];
+      return { boxes: [], nested };
     }
     if (node !== element && scrolls(style)) {
       boxes = [];
+      if (
+        nested === null &&
+        scrollsByHand(style.overflowY) &&
+        node.scrollHeight > node.clientHeight + 1
+      ) {
+        nested = node;
+      }
     }
     if (style.position === "sticky") {
       boxes.push(node);
     }
   }
-  return boxes;
+  return { boxes, nested };
 }
 
 /**
- * What the check reads: the computed styles of the frame, and the box of
- * each sticky carrier.
+ * The scroller that a sticky box sticks to: its nearest ancestor that is a
+ * scroll container, or `null` for the viewport.
+ */
+function scrollerOfSticky(
+  box: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration,
+) {
+  const { documentElement, body } = box.ownerDocument;
+  for (
+    let node = box.parentElement;
+    node !== null && node !== documentElement && node !== body;
+    node = node.parentElement
+  ) {
+    const style = styleOf(node);
+    if (scrolls(style)) {
+      return node;
+    }
+    if (style.position === "fixed") {
+      return null;
+    }
+  }
+  return null;
+}
+
+/** Whether a box has a sticky offset, so that it can stick. */
+function hasStickyInset(
+  box: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration,
+) {
+  const { top, right, bottom, left } = readInsets(box, styleOf);
+  return [top, right, bottom, left].some((inset) => !isAuto(inset));
+}
+
+/**
+ * What the check reads: the computed styles of the frame, the box of each
+ * sticky carrier, the scroller of each Scroll region, and whether an element
+ * is in a modal Effect cover.
  *
  * @internal
  */
 export interface CarrierCheckContext {
   readonly styleOf: (element: Element) => CSSStyleDeclaration;
   readonly stickyBox: (id: number) => Element | null;
+  readonly regionScroller: (id: number) => Element | null;
+  readonly hasRegion: (id: number) => boolean;
+  readonly isInModalCover: (element: Element) => boolean;
 }
 
 const describe = (element: Element) => {
@@ -140,15 +198,19 @@ const describe = (element: Element) => {
 
 /**
  * Why the carrier that an element declares does not agree with where the
- * browser lays the element out, or `null` when it agrees.
+ * browser lays the element out, or `null` when it agrees. A modal Effect
+ * cover locks the page, so a box in the document in such a cover stays
+ * where the viewport is. There, a viewport declaration needs no fixed box.
  *
  * @internal
  */
 export function carrierMismatch(
   element: Element,
   carrier: EffectCarrierRef,
-  { styleOf, stickyBox }: CarrierCheckContext,
+  context: CarrierCheckContext,
 ): string | null {
+  const { styleOf, stickyBox, regionScroller, hasRegion, isInModalCover } =
+    context;
   const name = describe(element);
   const stickyBoxes = stickiesOf(carrier).flatMap((id) => {
     const box = stickyBox(id);
@@ -167,25 +229,43 @@ export function carrierMismatch(
       return `${name} is not fixed to the bottom edge of the viewport. Declare <EffectCarrier value="viewport">.`;
     }
   }
-  if (fixedBox === null && edge !== null) {
+  if (fixedBox === null && edge !== null && !isInModalCover(element)) {
     return `${name} declares <EffectCarrier value="viewport">, but it scrolls with the page: no fixed box holds it to the viewport.`;
   }
-  if (!scrollsWithPage(carrier)) {
+  const scroll = scrollRegionOf(carrier, hasRegion);
+  if (scroll === null) {
     return null;
   }
-  const stuckBoxes = viewportStickyBoxes(element, styleOf);
-  const undeclared = stuckBoxes.find((box) => !stickyBoxes.includes(box));
+  const scroller = scroll === "page" ? null : regionScroller(scroll);
+  const { boxes, nested } = stickyBoxesOn(element, scroller, styleOf);
+  const undeclared = boxes.find(
+    (box) => !stickyBoxes.includes(box) && hasStickyInset(box, styleOf),
+  );
   if (undeclared !== undefined) {
     return `${name} is in the sticky box ${describe(undeclared)}, but no useEffectSticky declares it. Its effects lag the scroll.`;
   }
-  const lost = stickyBoxes.find(
-    (box) =>
-      styleOf(box).position === "sticky" &&
-      box.contains(element) &&
-      !stuckBoxes.includes(box),
-  );
-  if (lost !== undefined) {
-    return `${name} declares the sticky box ${describe(lost)}, but that box sticks to a scroll container, not to the viewport.`;
+  for (const { id, parent } of stickyRefsOf(carrier)) {
+    const box = stickyBox(id);
+    const on = scrollRegionOf(parent, hasRegion);
+    if (
+      box === null ||
+      on === null ||
+      styleOf(box).position !== "sticky" ||
+      !box.contains(element) ||
+      !hasStickyInset(box, styleOf)
+    ) {
+      continue;
+    }
+    const expected = on === "page" ? null : regionScroller(on);
+    const actual = scrollerOfSticky(box, styleOf);
+    if (actual !== expected) {
+      return actual === null
+        ? `${name} declares the sticky box ${describe(box)}, but that box sticks to the viewport, not to its Scroll region.`
+        : `${name} declares the sticky box ${describe(box)}, but that box sticks to the scroll container ${describe(actual)}, which no useScrollRegion declares.`;
+    }
+  }
+  if (nested !== null) {
+    return `${name} is in the scroller ${describe(nested)}, but no useScrollRegion declares it. Its effects lag the scroll.`;
   }
   return null;
 }

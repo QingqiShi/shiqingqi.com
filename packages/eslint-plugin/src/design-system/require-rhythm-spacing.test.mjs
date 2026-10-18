@@ -15,6 +15,10 @@ const ruleTester = new RuleTester({
 // so call it at the top level (not inside an it() block).
 ruleTester.run("require-rhythm-spacing", rule, {
   valid: [
+    // V0: a gap that the parent's gap gives
+    {
+      code: `const s = stylex.create({ inner: { rowGap: "inherit", columnGap: "inherit" } });`,
+    },
     // V1: a rhythm step
     {
       code: `const s = stylex.create({ list: { gap: rhythm.item } });`,

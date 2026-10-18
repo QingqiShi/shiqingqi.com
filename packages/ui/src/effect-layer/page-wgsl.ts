@@ -1,9 +1,10 @@
 import { EFFECT_ROLES, roleConstantsWgsl } from "./effect-roles.ts";
-import { CANVAS_ORDER, PAGE_SCOPE } from "./plan-scopes.ts";
+import { PAGE_SCOPE } from "./plan-scopes.ts";
 import type {
   EffectElementRecord,
   EffectPointer,
   EffectScope,
+  ElementRange,
 } from "./types.ts";
 
 const ELEMENT_FIXED = 1;
@@ -13,8 +14,9 @@ const POINTER_PRESSED = 2;
 
 /**
  * The WGSL side of group 0 in every effect's pipelines, render or compute:
- * the page this frame, every registered element in one storage buffer, and
- * every scope in another.
+ * the page this frame, every registered element in one storage buffer,
+ * every scope in another, and the elements of each scope on each carrier
+ * in a third.
  * Coordinates are page coordinates, CSS px from the top-left corner of the
  * document, for fixed elements too.
  *
@@ -35,11 +37,12 @@ const POINTER_PRESSED = 2;
  *   is as grey as the element.
  * - `effectScopes` has the scopes as `EffectFrame.scopes` orders them. Each
  *   has its `id`, which stays the same across frames, so a compute pass can
- *   keep it; the index in `effectElements` of its Effect container, or
- *   `EFFECT_NO_CONTAINER` on the page; and its elements in the document,
- *   then its fixed ones, then its ones fixed to the bottom, each as the
- *   index of the first and the count. `EFFECT_CANVAS_COUNT` is how many
- *   ranges each scope has.
+ *   keep it; and the index in `effectElements` of its Effect container, or
+ *   `EFFECT_NO_CONTAINER` on the page.
+ * - `effectRanges` has, for each scope in order, its elements on each
+ *   carrier, as `EffectFrame.carriers` orders them: the index of the first
+ *   and the count. `effectPage.carrierCount` is how many ranges each scope
+ *   has, and `effectRange` reads one.
  *
  * Put it at the start of a compute shader. `TARGET_WGSL` already includes it.
  *
@@ -56,6 +59,7 @@ struct EffectPage {
   elementCount: u32,
   pointerFlags: u32,
   scopeCount: u32,
+  carrierCount: u32,
 }
 
 struct EffectElement {
@@ -73,7 +77,6 @@ struct EffectElement {
 struct EffectScope {
   id: u32,
   container: u32,
-  ranges: array<vec2u, ${String(CANVAS_ORDER.length)}>,
 }
 
 const EFFECT_POINTER_PRESENT = ${String(POINTER_PRESENT)}u;
@@ -81,12 +84,18 @@ const EFFECT_POINTER_PRESSED = ${String(POINTER_PRESSED)}u;
 const EFFECT_ELEMENT_FIXED = ${String(ELEMENT_FIXED)}u;
 const EFFECT_NO_CONTAINER = ${String(NO_CONTAINER)}u;
 const EFFECT_PAGE_SCOPE = ${String(PAGE_SCOPE)}u;
-const EFFECT_CANVAS_COUNT = ${String(CANVAS_ORDER.length)}u;
 ${roleConstantsWgsl(EFFECT_ROLES)}
 
 @group(0) @binding(0) var<uniform> effectPage: EffectPage;
 @group(0) @binding(1) var<storage, read> effectElements: array<EffectElement>;
 @group(0) @binding(2) var<storage, read> effectScopes: array<EffectScope>;
+@group(0) @binding(3) var<storage, read> effectRanges: array<vec2u>;
+
+// The elements of the scope at this index of effectScopes on the carrier at
+// this index of EffectFrame.carriers: the index of the first, and the count.
+fn effectRange(scope: u32, carrier: u32) -> vec2u {
+  return effectRanges[scope * effectPage.carrierCount + carrier];
+}
 
 // The signed distance from a page point to the element's border box: below
 // zero inside, zero on the edge. Exact on the edge; near a corner that is not
@@ -149,7 +158,10 @@ export function packElements(
     floats.set(element.radii, at + 4);
     floats.set(element.fill, at + 8);
     words[at + 12] = element.roles;
-    words[at + 13] = element.canvas === "scroll" ? 0 : ELEMENT_FIXED;
+    words[at + 13] =
+      element.carrier === "fixed" || element.carrier === "fixedBottom"
+        ? ELEMENT_FIXED
+        : 0;
     floats[at + 14] = element.cornerExponent;
     words[at + 15] = element.id;
     words[at + 16] = element.scopeIndex;
@@ -162,7 +174,7 @@ export function packElements(
  *
  * @internal
  */
-export const SCOPE_BYTES = 8 + 8 * CANVAS_ORDER.length;
+export const SCOPE_BYTES = 8;
 
 /**
  * Packs the scopes in order as `EffectScope` structs at the start of
@@ -177,16 +189,43 @@ export function packScopes(
   const words = new Uint32Array(buffer);
   for (const [index, scope] of scopes.entries()) {
     words.set(
-      [
-        scope.id,
-        scope.container === -1 ? NO_CONTAINER : scope.container,
-        ...CANVAS_ORDER.flatMap((canvas) => [
-          scope[canvas].firstElement,
-          scope[canvas].elementCount,
-        ]),
-      ],
+      [scope.id, scope.container === -1 ? NO_CONTAINER : scope.container],
       (index * SCOPE_BYTES) / 4,
     );
+  }
+}
+
+/**
+ * The byte size of one entry of `effectRanges`.
+ *
+ * @internal
+ */
+export const RANGE_BYTES = 8;
+
+/**
+ * The ranges of each scope, scope after scope, in the order of
+ * `effectRanges`.
+ *
+ * @internal
+ */
+export function rangesOf(scopes: readonly EffectScope[]): ElementRange[] {
+  return scopes.flatMap(({ ranges }) => ranges);
+}
+
+/**
+ * Packs the ranges in order as the `vec2u` entries of `effectRanges` at the
+ * start of `buffer`, which must hold at least that many.
+ *
+ * @internal
+ */
+export function packRanges(
+  ranges: readonly ElementRange[],
+  buffer: ArrayBuffer,
+) {
+  const words = new Uint32Array(buffer);
+  for (const [index, range] of ranges.entries()) {
+    words[index * 2] = range.firstElement;
+    words[index * 2 + 1] = range.elementCount;
   }
 }
 
@@ -208,6 +247,7 @@ export function packPageUniform(values: {
   delta: number;
   elementCount: number;
   scopeCount: number;
+  carrierCount: number;
 }) {
   const { pointer } = values;
   pageFloats.set(values.viewport, 0);
@@ -223,5 +263,6 @@ export function packPageUniform(values: {
     (pointer.present ? POINTER_PRESENT : 0) |
     (pointer.pressed ? POINTER_PRESSED : 0);
   pageWords[14] = values.scopeCount;
+  pageWords[15] = values.carrierCount;
   return pageUniform;
 }

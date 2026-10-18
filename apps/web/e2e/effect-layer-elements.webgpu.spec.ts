@@ -144,7 +144,7 @@ test.describe("in the debug view", () => {
           return null;
         }
         return {
-          onBottom: record.canvas === "fixedBottom",
+          onBottom: record.carrier === "fixedBottom",
           viewportTop: Math.round(record.y - frame.scrollY),
           top: Math.round(record.element.getBoundingClientRect().top),
         };

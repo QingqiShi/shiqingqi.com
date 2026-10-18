@@ -1,5 +1,11 @@
 import type { Edges } from "./observe-move.ts";
-import { readInset, readInsets, type Insets } from "./read-element-box.ts";
+import {
+  readInset,
+  readInsets,
+  scrollerPadding,
+  stickyViewOf,
+  type Insets,
+} from "./read-element-box.ts";
 
 /** Two px positions are the same within this distance. */
 const STUCK_TOLERANCE = 0.5;
@@ -40,29 +46,33 @@ export function stuckDistance(
   );
 }
 
+const NO_PADDING: Edges = { left: 0, top: 0, right: 0, bottom: 0 };
+
 /**
  * The root margins that tell when a sticky box can stick or let go, as CSS
- * margins, top first and then clockwise. `box` shrinks the viewport by each
+ * margins, top first and then clockwise. `box` shrinks the scroller by each
  * sticky offset and 1px more, so the box leaves that root by 1px when it
- * sticks. `container` shrinks the viewport by each sticky offset and the
+ * sticks. `container` shrinks the scroller by each sticky offset and the
  * box's size, so the box's container leaves that root when its end pushes
- * the box out. `container` is `null` for a box with no sticky offset.
+ * the box out. `container` is `null` for a box with no sticky offset. Each
+ * offset counts from the scroller's `padding`, where a sticky box stops.
  *
  * @internal
  */
 export function stuckRootMargins(
   insets: Insets,
   size: { readonly width: number; readonly height: number },
+  padding: Edges = NO_PADDING,
 ) {
   const sides = [
-    [insets.top, size.height],
-    [insets.right, size.width],
-    [insets.bottom, size.height],
-    [insets.left, size.width],
+    [insets.top, size.height, padding.top],
+    [insets.right, size.width, padding.right],
+    [insets.bottom, size.height, padding.bottom],
+    [insets.left, size.width, padding.left],
   ] as const;
-  const offsets = sides.map(([inset, length]) => {
+  const offsets = sides.map(([inset, length, pad]) => {
     const offset = readInset(inset);
-    return offset === null ? null : { offset, length };
+    return offset === null ? null : { offset: offset + pad, length };
   });
   const margin = (shrink: (offset: number, length: number) => number) =>
     offsets
@@ -81,17 +91,22 @@ export function stuckRootMargins(
 }
 
 /**
- * Calls `onChange` when a sticky box on the page can have stuck to the
- * viewport or let go of it. It adds no element to the page. One
- * `IntersectionObserver` watches the box against the viewport less its
- * sticky offsets, and one watches the box's container against the viewport
+ * Calls `onChange` when a sticky box can have stuck to its scroller or let
+ * go of it: the viewport for `root` `null`, or else the scroller `root` of a
+ * Scroll region. It adds no element to the page. One
+ * `IntersectionObserver` watches the box against the scroller less its
+ * sticky offsets, and one watches the box's container against the scroller
  * less the offsets and the box's size, for the end of the container that
  * pushes the box out. A call only signals. `watchStuck` then reads whether
  * the box is stuck.
  *
  * @internal
  */
-export function observeStuck(box: Element, onChange: () => void) {
+export function observeStuck(
+  box: Element,
+  onChange: () => void,
+  root: Element | null = null,
+) {
   let observers: IntersectionObserver[] = [];
   let size = { width: 0, height: 0 };
   let armed: ReturnType<typeof stuckRootMargins> | null = null;
@@ -106,7 +121,11 @@ export function observeStuck(box: Element, onChange: () => void) {
   function arm() {
     const { width, height } = box.getBoundingClientRect();
     size = { width, height };
-    const margins = stuckRootMargins(readInsets(box), size);
+    const margins = stuckRootMargins(
+      readInsets(box),
+      size,
+      root === null ? NO_PADDING : scrollerPadding(root),
+    );
     if (
       observers.length > 0 &&
       armed?.box === margins.box &&
@@ -131,7 +150,7 @@ export function observeStuck(box: Element, onChange: () => void) {
           }
           started = true;
         },
-        { root: null, rootMargin, threshold },
+        { root, rootMargin, threshold },
       );
       observer.observe(target);
       observers.push(observer);
@@ -177,29 +196,35 @@ export function observeStuck(box: Element, onChange: () => void) {
 const NEAR_OFFSET = 2;
 
 /**
- * Whether a sticky box on the page is stuck, and a call to `onChange` each
- * time that changes. It is the one stuck state of the box: the plane of the
- * box and the `<canvas>` element of its effects both follow it. It reads the
- * box when `observeStuck` signals, after a resize, and on each scroll while
- * the box is near its sticky offset, which includes the time it is stuck.
- * Without `IntersectionObserver` or `ResizeObserver`, it reads the box on
- * each scroll.
+ * Whether a sticky box is stuck to its scroller, and a call to `onChange`
+ * each time that changes: the viewport for `scroller` `null`, or else the
+ * scroller of a Scroll region. It is the one stuck state of the box: the
+ * plane of the box and the `<canvas>` element of its effects both follow it.
+ * It reads the box when `observeStuck` signals, after a resize, and on each
+ * scroll of its scroller while the box is near its sticky offset, which
+ * includes the time it is stuck. Without `IntersectionObserver` or
+ * `ResizeObserver`, it reads the box on each scroll.
  *
  * @internal
  */
-export function watchStuck(box: Element, onChange: (stuck: boolean) => void) {
+export function watchStuck(
+  box: Element,
+  onChange: (stuck: boolean) => void,
+  scroller: Element | null = null,
+) {
   const root = document.documentElement;
   let stuck = false;
   let isNear = false;
   let frame = 0;
 
+  function readScrollport() {
+    return scroller === null
+      ? { left: 0, top: 0, right: root.clientWidth, bottom: root.clientHeight }
+      : stickyViewOf(scroller);
+  }
+
   function read() {
-    const distance = stuckDistance(box, {
-      left: 0,
-      top: 0,
-      right: root.clientWidth,
-      bottom: root.clientHeight,
-    });
+    const distance = stuckDistance(box, readScrollport());
     isNear = watch === null || distance <= NEAR_OFFSET;
     const next = distance <= STUCK_TOLERANCE;
     if (next !== stuck) {
@@ -226,10 +251,10 @@ export function watchStuck(box: Element, onChange: (stuck: boolean) => void) {
     typeof IntersectionObserver === "undefined" ||
     typeof ResizeObserver === "undefined"
       ? null
-      : observeStuck(box, read);
+      : observeStuck(box, read, scroller);
   const listeners = new AbortController();
   const passive = { passive: true, signal: listeners.signal };
-  document.addEventListener("scroll", onScroll, passive);
+  (scroller ?? document).addEventListener("scroll", onScroll, passive);
   window.addEventListener("resize", onResize, passive);
   read();
 

@@ -202,8 +202,26 @@ describe("ScrollMask", () => {
     const ref = createRef<HTMLDivElement>();
     const root = renderMask({ ref });
 
-    expect(ref.current).toBe(screen.getByText("content").parentElement);
-    expect(ref.current).not.toBe(root);
+    expect(ref.current).toBe(root.firstElementChild);
+    expect(ref.current).toContainElement(screen.getByText("content"));
+  });
+
+  // A vertical region is a Scroll region of the effect layer, whose <canvas>
+  // elements go in one positioned box around the content.
+  it("wraps the content of a vertical region in a box that takes the scroller's layout", () => {
+    renderMask();
+    const content = screen.getByText("content").parentElement;
+
+    expect(content?.className).toContain("styles.content");
+    expect(content?.className).toContain("styles.contentTakesLayout");
+  });
+
+  it("keeps the content of a horizontal region straight in the scroller", () => {
+    const root = renderMask({ orientation: "horizontal" });
+
+    expect(screen.getByText("content").parentElement).toBe(
+      root.firstElementChild,
+    );
   });
 
   it("passes native div attributes through to the scroller", () => {

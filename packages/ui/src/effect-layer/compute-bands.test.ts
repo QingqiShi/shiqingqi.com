@@ -28,6 +28,27 @@ describe("bandGeometry", () => {
 });
 
 describe("computeBands", () => {
+  it("covers the content box of a Scroll region that starts below the top of its scroller", () => {
+    // A 400px scrollport, with the content box 60px down its scroll: at a
+    // scroll of 0 the content box is 60px below the scrollport's top.
+    expect(
+      computeBands({
+        scrollTop: 0 - 60,
+        viewportHeight: 400,
+        documentHeight: 900,
+      }),
+    ).toEqual([
+      {
+        index: 0,
+        slot: 0,
+        top: 0,
+        height: 480,
+        drawnTop: 0,
+        drawnHeight: 380,
+      },
+    ]);
+  });
+
   it("draws only the first band at the top of a long document", () => {
     expect(
       computeBands({ scrollTop: 0, viewportHeight, documentHeight: 10_000 }),

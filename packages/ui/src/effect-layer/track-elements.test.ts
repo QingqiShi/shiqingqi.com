@@ -136,6 +136,49 @@ describe("trackElements", () => {
     expect(reads).toEqual([button]);
   });
 
+  it("measures nothing on a scroll of a Scroll region, and asks for a frame", () => {
+    const frames = stubFrames();
+    const observers = stubObservers();
+    document.body.innerHTML =
+      '<div id="list"><div id="content"><button id="item"></button></div></div>';
+    const list = document.getElementById("list");
+    const content = document.getElementById("content");
+    const item = document.getElementById("item");
+    if (list === null || content === null || item === null) {
+      throw new Error("no region");
+    }
+    const reads: Element[] = [];
+    layOut(list, { x: 0, y: 100, width: 300, height: 200 });
+    layOut(content, { x: 0, y: 100, width: 300, height: 900 });
+    layOut(item, { x: 0, y: 500, width: 100, height: 40 }, reads);
+    const registry = createEffectRegistry();
+    const carrier = { kind: "region", id: 3, parent: PAGE_CARRIER } as const;
+    registry.register(item, 0, NO_SETTINGS, { ...ON_PAGE, carrier });
+    registry.registerRegion(3, PAGE_CARRIER, "scroller", list);
+    registry.registerRegion(3, PAGE_CARRIER, "content", content);
+    const onScroll = vi.fn();
+    const tracking = trackElements(
+      registry,
+      createFrameScheduler(),
+      () => {},
+      () => 0,
+      onScroll,
+    );
+    frames.run();
+    reads.length = 0;
+    expect(observers.intersectionRootsOf(item)).toEqual([content]);
+
+    list.dispatchEvent(new Event("scroll", { bubbles: false }));
+    frames.run();
+    expect(reads).toEqual([]);
+    expect(onScroll).toHaveBeenCalledOnce();
+
+    expect(tracking.clock(0, 40, () => 0).regionPlace(3)).toMatchObject({
+      origin: { x: 0, y: 100 },
+      scrollTop: 0,
+    });
+  });
+
   it("measures nothing on a window scroll, in a sticky box too", () => {
     const { other, reads, frames, registry } = track();
     other.style.position = "sticky";
@@ -186,39 +229,39 @@ describe("trackElements", () => {
     );
     frames.run();
     reads.length = 0;
-    const canvasOf = (element: Element) =>
+    const carrierOf = (element: Element) =>
       [...registry.trackers()].find((tracker) => tracker.element === element)
-        ?.measured?.canvas;
-    return { ...elements, frames, observers, reads, canvasOf, setStuck };
+        ?.measured?.carrier;
+    return { ...elements, frames, observers, reads, carrierOf, setStuck };
   }
 
   it("moves every element of a sticky box to the fixed canvas in one frame when its stuck watch reports, and back", () => {
-    const { card, button, padding, frames, reads, canvasOf, setStuck } =
+    const { card, button, padding, frames, reads, carrierOf, setStuck } =
       trackSticky();
-    expect(canvasOf(button)).toBe("scroll");
+    expect(carrierOf(button)).toBe("page");
 
     layOut(card, { x: 0, y: 0, width: 300, height: 60 });
     setStuck(true);
     frames.run();
     expect(reads).toEqual([button, padding]);
-    expect(canvasOf(button)).toBe("fixed");
-    expect(canvasOf(padding)).toBe("fixed");
+    expect(carrierOf(button)).toBe("fixed");
+    expect(carrierOf(padding)).toBe("fixed");
 
     layOut(card, { x: 0, y: 120, width: 300, height: 60 });
     setStuck(false);
     frames.run();
-    expect(canvasOf(button)).toBe("scroll");
+    expect(carrierOf(button)).toBe("page");
   });
 
   it("keeps the elements of a sticky box on the canvas its stuck watch reports, whatever the layout says", () => {
-    const { card, button, padding, frames, canvasOf } = trackSticky();
+    const { card, button, padding, frames, carrierOf } = trackSticky();
     layOut(card, { x: 0, y: 0, width: 300, height: 60 });
     padding.dispatchEvent(
       new MouseEvent("pointerover", { bubbles: true, relatedTarget: button }),
     );
     frames.run();
-    expect(canvasOf(padding)).toBe("scroll");
-    expect(canvasOf(button)).toBe("scroll");
+    expect(carrierOf(padding)).toBe("page");
+    expect(carrierOf(button)).toBe("page");
   });
 
   it("measures each frame while a transition runs, and once more after it ends", () => {

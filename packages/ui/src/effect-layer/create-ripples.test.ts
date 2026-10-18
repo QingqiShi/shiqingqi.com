@@ -37,8 +37,9 @@ function record(
     y: 0,
     width: 200,
     height: 120,
-    canvas: "scroll",
-    canvases: ["scroll"],
+    carrier: "page",
+    carriers: ["page"],
+    carrierIndex: 0,
     radii: [12, 12, 12, 12],
     cornerExponent: 4,
     fill: [0.6, 0.3, 0.8, 1],
@@ -58,7 +59,7 @@ function scopesOf(elements: readonly EffectElementRecord[]): EffectScope[] {
       const indices = [...elements.keys()].filter(
         (index) =>
           elements[index].scopeIndex === scopeIndex &&
-          (elements[index].canvas === "fixed") === fixed,
+          (elements[index].carrier === "fixed") === fixed,
       );
       return { firstElement: indices[0] ?? 0, elementCount: indices.length };
     };
@@ -67,9 +68,11 @@ function scopesOf(elements: readonly EffectElementRecord[]): EffectScope[] {
       container: -1,
       backdrop: [1, 1, 1, 1],
       dark: false,
-      scroll: rangeOf(false),
-      fixed: rangeOf(true),
-      fixedBottom: { firstElement: elements.length, elementCount: 0 },
+      ranges: [
+        rangeOf(false),
+        rangeOf(true),
+        { firstElement: elements.length, elementCount: 0 },
+      ],
     };
   });
 }
@@ -448,7 +451,7 @@ describe("createRipples", () => {
       record(1),
       record(2, { x: 400 }),
       record(3, { x: 800, scopeIndex: 1 }),
-      record(4, { canvas: "fixed" }),
+      record(4, { carrier: "fixed", carrierIndex: 1 }),
     ];
     for (const { element } of elements) {
       ripples.start(element, "focus", 0, 0);

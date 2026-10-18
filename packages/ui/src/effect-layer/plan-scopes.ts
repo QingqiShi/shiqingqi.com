@@ -1,8 +1,9 @@
+import type { RegisteredRegion } from "./create-effect-registry.ts";
 import { isDarkBackground } from "./dust-color.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { readFill } from "./read-element-box.ts";
+import { FIXED_CARRIER_KEYS, type CarrierKey } from "./resolve-carrier.ts";
 import type {
-  EffectCanvas,
   EffectElementRecord,
   EffectScope,
   ElementRange,
@@ -16,18 +17,6 @@ import type {
  * @internal
  */
 export const PAGE_SCOPE = 0;
-
-/**
- * The `<canvas>` elements in the order of their elements, and of each
- * scope's ranges.
- *
- * @internal
- */
-export const CANVAS_ORDER: readonly EffectCanvas[] = [
-  "scroll",
-  "fixed",
-  "fixedBottom",
-];
 
 /** A fill at least this opaque is what a scope's effects draw over. */
 const OPAQUE_BACKDROP = 0.5;
@@ -51,57 +40,53 @@ export function readPageBackdrop(): EffectColor {
 }
 
 /**
- * The elements of one `<canvas>` element as a range of
- * `EffectFrame.elements`.
+ * The elements of one carrier as a range of `EffectFrame.elements`.
  *
  * @internal
  */
-export interface CanvasRange extends ElementRange {
+export interface CarrierRange extends ElementRange {
   /**
    * An element with a role is in the range, or is on a sticky carrier and
-   * can move into it, so its `<canvas>` element is needed.
+   * can move into it, so the carrier's `<canvas>` elements are needed.
    */
   readonly hasRole: boolean;
 }
 
 /**
- * The elements and scopes of one frame, and where each `<canvas>` element's
- * elements are.
+ * The elements and scopes of one frame, and where the elements of each
+ * carrier are.
  *
  * @internal
  */
 export interface ScopePlan {
   /**
-   * The measured elements, the ones in the document, then the fixed ones,
-   * then the ones fixed to the bottom, each group by scope, less each
-   * element whose Effect container, or a container around that one, has no
-   * box.
+   * The measured elements, grouped by carrier in the order of `carriers`,
+   * each group by scope, less each element whose Effect container, or a
+   * container around that one, has no box.
    */
   readonly elements: readonly EffectElementRecord[];
-  /** The elements in the document, which draw on the bands. */
-  readonly document: CanvasRange;
-  /** The fixed elements, which draw on the fixed `<canvas>` element. */
-  readonly fixed: CanvasRange;
   /**
-   * The elements fixed to the viewport's bottom edge, which draw on the
-   * bottom `<canvas>` element.
+   * The page, the viewport, the viewport's bottom edge, then each Scroll
+   * region that an element can draw on, by id.
    */
-  readonly fixedBottom: CanvasRange;
+  readonly carriers: readonly CarrierKey[];
+  /** The elements of each carrier, in the order of `carriers`. */
+  readonly ranges: readonly CarrierRange[];
   /** The page first, then the scope of each Effect container with a box. */
   readonly scopes: readonly EffectScope[];
 }
 
 /**
  * The range of `EffectFrame.elements` with the elements that the effects of
- * a record can meet: those of its scope on its `<canvas>` element.
+ * a record can meet: those of its scope on its carrier.
  *
  * @internal
  */
 export function peersOf(
   scopes: readonly EffectScope[],
-  record: Pick<EffectElementRecord, "scopeIndex" | "canvas">,
+  record: Pick<EffectElementRecord, "scopeIndex" | "carrierIndex">,
 ): ElementRange {
-  return scopes[record.scopeIndex][record.canvas];
+  return scopes[record.scopeIndex].ranges[record.carrierIndex];
 }
 
 /**
@@ -116,9 +101,28 @@ export function* indicesIn({ firstElement, elementCount }: ElementRange) {
 }
 
 /**
+ * Each carrier that the records can draw on, in the order of
+ * `ScopePlan.carriers`.
+ */
+function carriersOf(records: readonly MeasuredElement[]): CarrierKey[] {
+  const regions = new Set<number>();
+  for (const record of records) {
+    for (const key of record.carriers) {
+      if (typeof key === "number") {
+        regions.add(key);
+      }
+    }
+  }
+  return [
+    ...FIXED_CARRIER_KEYS,
+    ...[...regions].sort((first, second) => first - second),
+  ];
+}
+
+/**
  * Puts the measured elements in scopes, and orders them so that each scope
- * is one range on each `<canvas>` element. An element whose Effect container
- * has no box, because its ref is not attached yet or the container is not
+ * is one range on each carrier. An element whose Effect container has no
+ * box, because its ref is not attached yet or the container is not
  * measured, is left out until the container has one.
  *
  * @internal
@@ -148,6 +152,8 @@ export function planScopes(
     return placed;
   }
 
+  const carriers = carriersOf(records);
+  const indexOfCarrier = new Map(carriers.map((key, index) => [key, index]));
   const scopeIds = [
     PAGE_SCOPE,
     ...[...holders.keys()].filter((scope) => isPlaced(scope)),
@@ -156,36 +162,38 @@ export function planScopes(
   const elements = records
     .flatMap((record): EffectElementRecord[] => {
       const scopeIndex = indexOfScope.get(record.scope);
-      return scopeIndex === undefined ? [] : [{ ...record, scopeIndex }];
+      const carrierIndex = indexOfCarrier.get(record.carrier);
+      return scopeIndex === undefined || carrierIndex === undefined
+        ? []
+        : [{ ...record, scopeIndex, carrierIndex }];
     })
     .sort(
       (first, second) =>
-        CANVAS_ORDER.indexOf(first.canvas) -
-          CANVAS_ORDER.indexOf(second.canvas) ||
+        first.carrierIndex - second.carrierIndex ||
         first.scopeIndex - second.scopeIndex,
     );
 
   const indexOfId = new Map(
     elements.map((record, index) => [record.id, index]),
   );
-  const ranges = scopeIds.map(() => ({
-    scroll: { firstElement: 0, elementCount: 0 },
-    fixed: { firstElement: 0, elementCount: 0 },
-    fixedBottom: { firstElement: 0, elementCount: 0 },
-  }));
-  const counts = { scroll: 0, fixed: 0, fixedBottom: 0 };
-  const hasRole = { scroll: false, fixed: false, fixedBottom: false };
+  const scopeRanges = scopeIds.map(() =>
+    carriers.map(() => ({ firstElement: 0, elementCount: 0 })),
+  );
+  const counts = carriers.map(() => 0);
+  const hasRole = carriers.map(() => false);
   for (const [index, record] of elements.entries()) {
-    const { canvas } = record;
-    const range = ranges[record.scopeIndex][canvas];
+    const range = scopeRanges[record.scopeIndex][record.carrierIndex];
     if (range.elementCount === 0) {
       range.firstElement = index;
     }
     range.elementCount += 1;
-    counts[canvas] += 1;
+    counts[record.carrierIndex] += 1;
     if (record.roles !== 0) {
-      for (const reachable of record.canvases) {
-        hasRole[reachable] = true;
+      for (const reachable of record.carriers) {
+        const carrierIndex = indexOfCarrier.get(reachable);
+        if (carrierIndex !== undefined) {
+          hasRole[carrierIndex] = true;
+        }
       }
     }
   }
@@ -211,23 +219,21 @@ export function planScopes(
       : (indexOfId.get(holder.id) ?? -1);
   }
 
+  let firstElement = 0;
+  const ranges = carriers.map((_, index) => {
+    const range = {
+      firstElement,
+      elementCount: counts[index],
+      hasRole: hasRole[index],
+    };
+    firstElement += counts[index];
+    return range;
+  });
+
   return {
     elements,
-    document: {
-      firstElement: 0,
-      elementCount: counts.scroll,
-      hasRole: hasRole.scroll,
-    },
-    fixed: {
-      firstElement: counts.scroll,
-      elementCount: counts.fixed,
-      hasRole: hasRole.fixed,
-    },
-    fixedBottom: {
-      firstElement: counts.scroll + counts.fixed,
-      elementCount: counts.fixedBottom,
-      hasRole: hasRole.fixedBottom,
-    },
+    carriers,
+    ranges,
     scopes: scopeIds.map((id, index) => {
       const backdrop = backdropOf(index);
       return {
@@ -235,8 +241,80 @@ export function planScopes(
         container: containerOf(index),
         backdrop,
         dark: isDarkBackground(backdrop),
-        ...ranges[index],
+        ranges: scopeRanges[index],
       };
     }),
   };
+}
+
+/**
+ * Which `<canvas>` elements the registered elements with a role need: the
+ * scroll ones of the page for elements on the page, the fixed one for
+ * elements on the viewport, the bottom one for elements on the viewport's
+ * bottom edge, and the scroll ones of each Scroll region, in its content
+ * box, for the elements on it.
+ *
+ * @internal
+ */
+export interface EffectCanvasNeeds {
+  readonly page: boolean;
+  readonly fixed: boolean;
+  readonly fixedBottom: boolean;
+  readonly regions: readonly {
+    readonly id: number;
+    readonly content: Element;
+  }[];
+}
+
+/**
+ * The `<canvas>` elements that a plan needs. While a modal Effect cover in
+ * `modalCovers` shows, the page and each Scroll region outside every modal
+ * cover need none: nothing on them can show or move. Their elements stay in
+ * the plan, so the effects keep their state. `region` gives each Scroll
+ * region with its scroller and its content box.
+ *
+ * @internal
+ */
+export function planCanvasNeeds(
+  plan: Pick<ScopePlan, "carriers" | "ranges">,
+  modalCovers: readonly Element[],
+  region: (id: number) => RegisteredRegion | undefined,
+): EffectCanvasNeeds {
+  const shows = (scroller: Element) =>
+    modalCovers.length === 0 ||
+    modalCovers.some((cover) => cover.contains(scroller));
+  const hasRole = (key: CarrierKey) => {
+    const index = plan.carriers.indexOf(key);
+    return index !== -1 && plan.ranges[index].hasRole;
+  };
+  return {
+    page: modalCovers.length === 0 && hasRole("page"),
+    fixed: hasRole("fixed"),
+    fixedBottom: hasRole("fixedBottom"),
+    regions: plan.carriers.flatMap((key) => {
+      const found =
+        typeof key === "number" && hasRole(key) ? region(key) : undefined;
+      return found !== undefined && shows(found.scroller)
+        ? [{ id: found.id, content: found.content }]
+        : [];
+    }),
+  };
+}
+
+/** @internal */
+export function canvasNeedsEqual(
+  first: EffectCanvasNeeds,
+  second: EffectCanvasNeeds,
+) {
+  return (
+    first.page === second.page &&
+    first.fixed === second.fixed &&
+    first.fixedBottom === second.fixedBottom &&
+    first.regions.length === second.regions.length &&
+    first.regions.every(
+      ({ id, content }, index) =>
+        second.regions[index].id === id &&
+        second.regions[index].content === content,
+    )
+  );
 }

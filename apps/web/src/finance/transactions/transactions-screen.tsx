@@ -33,6 +33,7 @@ import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { DetailPane } from "../shell/detail-pane.tsx";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
@@ -532,9 +533,9 @@ export function TransactionsScreen() {
     <div css={styles.root}>
       <div css={styles.master}>{master}</div>
       {isWide ? (
-        <aside aria-label={detailLabel} css={[corner.radius_4, styles.pane]}>
+        <DetailPane label={detailLabel} css={styles.pane}>
           {editor ?? <EmptyPane />}
-        </aside>
+        </DetailPane>
       ) : (
         <PaneSheet
           isOpen={url.isOpen}
@@ -606,18 +607,8 @@ const styles = stylex.create({
     display: { default: "none", [breakpoints.lg]: "block" },
   },
   pane: {
-    position: "sticky",
-    insetBlockStart: space._4,
-    maxBlockSize: `calc(100dvh - ${space._8})`,
-    overflowY: "auto",
     overscrollBehavior: "contain",
-    paddingBlockStart: space._5,
     paddingBlockEnd: `calc(${space._7} + env(safe-area-inset-bottom))`,
-    paddingInline: space._5,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.bgSurface,
   },
   skeletonRow: {
     gap: rhythm.item,

@@ -1,19 +1,20 @@
-import type { ElementTracker } from "./create-element-tracker.ts";
+import type { CarrierClock, ElementTracker } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import type { ElementBox } from "./read-element-box.ts";
 import {
-  carrierCanvases,
   PAGE_CARRIER,
+  reachableCarriers,
+  type CarrierKey,
   type EffectCarrierRef,
 } from "./resolve-carrier.ts";
-import type { EffectCanvas, EffectSettings, MeasuredElement } from "./types.ts";
+import type { EffectSettings, MeasuredElement } from "./types.ts";
 
 /**
  * Where a registration puts its element: the scope it is in, the scope it
  * holds as an Effect container, or `null`, whether it is an Effect cover,
- * and the Effect carrier it declares, which is the page when it declares
- * none.
+ * whether that cover is modal, and the Effect carrier it declares, which is
+ * the page when it declares none.
  *
  * @internal
  */
@@ -21,6 +22,7 @@ export interface EffectPlacement {
   readonly scope: number;
   readonly holds: number | null;
   readonly covers?: boolean;
+  readonly modal?: boolean;
   readonly carrier?: EffectCarrierRef;
 }
 
@@ -43,11 +45,12 @@ export interface RegisteredElement extends EffectPlacement {
   readonly carrier: EffectCarrierRef;
   /**
    * The carrier that the element is on: its own sticky carrier when it is a
-   * sticky box on `carrier`, else `carrier`.
+   * sticky box on `carrier`, the parent of a Scroll region when it is the
+   * scroller of that region, else `carrier`.
    */
   readonly ownCarrier: EffectCarrierRef;
-  /** Every `<canvas>` element that the elements on `ownCarrier` can draw on. */
-  readonly canvases: readonly EffectCanvas[];
+  /** Every carrier that the elements on `ownCarrier` can draw on now. */
+  readonly carriers: readonly CarrierKey[];
 }
 
 /**
@@ -93,6 +96,28 @@ export interface StickyRegistration {
   /** Tells the layer that the box stuck or let go. */
   changed: () => void;
   remove: () => void;
+}
+
+/**
+ * A Scroll region that `useScrollRegion` declares, with its scroller and
+ * its content box, and the carrier that it is on.
+ *
+ * @internal
+ */
+export interface RegisteredRegion {
+  readonly id: number;
+  readonly scroller: Element;
+  readonly content: Element;
+  readonly parent: EffectCarrierRef;
+}
+
+/**
+ * What the effect layer keeps for a Scroll region while it tracks it.
+ *
+ * @internal
+ */
+export interface RegionWatch {
+  destroy: () => void;
 }
 
 function overlaps(first: ElementBox, second: ElementBox) {
@@ -149,6 +174,15 @@ export function createEffectRegistry() {
     scope: number;
     carrier: EffectCarrierRef;
   }
+  interface Region {
+    readonly id: number;
+    readonly parent: EffectCarrierRef;
+    scroller: Element | null;
+    content: Element | null;
+    /** The region while it has both parts. */
+    complete: RegisteredRegion | undefined;
+    watch: RegionWatch | null;
+  }
   const uses = new Map<
     Element,
     {
@@ -158,16 +192,20 @@ export function createEffectRegistry() {
     }
   >();
   const stickies = new Map<number, RegisteredSticky>();
+  const regions = new Map<number, Region>();
   let createTracker: ((element: Element) => ElementTracker) | null = null;
   let onStuck: ((id: number) => void) | null = null;
+  let watchRegion: ((region: RegisteredRegion) => RegionWatch) | null = null;
   const listeners = new Set<() => void>();
   let elements: ReadonlyMap<Element, RegisteredElement> = new Map();
+  let modalElements: Element[] = [];
   let roles = 0;
   let nextId = 1;
 
   /**
    * The carrier of an element that declares `declared`: the sticky carrier
-   * of the element when it is a sticky box on `declared`, or `declared`.
+   * of the element when it is a sticky box on `declared`, the parent of a
+   * Scroll region when it is the scroller of that region, or `declared`.
    */
   function ownCarrier(element: Element, declared: EffectCarrierRef) {
     for (const sticky of stickies.values()) {
@@ -175,11 +213,35 @@ export function createEffectRegistry() {
         return sticky.carrier;
       }
     }
+    if (declared.kind === "region") {
+      const region = regions.get(declared.id);
+      if (region?.scroller === element) {
+        return region.parent;
+      }
+    }
     return declared;
+  }
+
+  /** The region `id` when it has its scroller and its content box. */
+  const completeRegion = (id: number) => regions.get(id)?.complete;
+  const hasRegion = (id: number) => completeRegion(id) !== undefined;
+
+  function setPart(
+    region: Region,
+    part: "scroller" | "content",
+    element: Element | null,
+  ) {
+    region[part] = element;
+    const { id, parent, scroller, content } = region;
+    region.complete =
+      scroller === null || content === null
+        ? undefined
+        : { id, parent, scroller, content };
   }
 
   function notify() {
     const next = new Map<Element, RegisteredElement>();
+    modalElements = [];
     roles = 0;
     for (const [element, { id, registrations }] of uses) {
       let elementRoles = 0;
@@ -187,6 +249,7 @@ export function createEffectRegistry() {
       let scope = PAGE_SCOPE;
       let holds: number | null = null;
       let covers = false;
+      let modal = false;
       let carrier = PAGE_CARRIER;
       for (const registration of registrations) {
         elementRoles |= registration.roles;
@@ -194,6 +257,7 @@ export function createEffectRegistry() {
         carrier = registration.carrier;
         holds = registration.holds ?? holds;
         covers ||= registration.covers === true;
+        modal ||= registration.covers === true && registration.modal === true;
         settings =
           registrations.size === 1
             ? registration.settings
@@ -207,10 +271,14 @@ export function createEffectRegistry() {
         scope,
         holds,
         covers,
+        modal,
         carrier,
         ownCarrier: own,
-        canvases: carrierCanvases(own),
+        carriers: reachableCarriers(own, hasRegion),
       });
+      if (modal) {
+        modalElements.push(element);
+      }
       roles |= elementRoles;
     }
     elements = next;
@@ -219,11 +287,21 @@ export function createEffectRegistry() {
     }
   }
 
+  /** Starts or stops the watch of a region as it gains or loses a part. */
+  function rewatchRegion(region: Region) {
+    region.watch?.destroy();
+    region.watch =
+      region.complete === undefined
+        ? null
+        : (watchRegion?.(region.complete) ?? null);
+  }
+
   return {
     /**
      * Adds an element and returns the registration that changes or removes
      * it. `placement` gives the scope the element is in, the scope it holds
-     * when it is an Effect container, and its carrier.
+     * when it is an Effect container, whether it is an Effect cover, and its
+     * carrier.
      */
     register: (
       element: Element,
@@ -313,8 +391,66 @@ export function createEffectRegistry() {
         },
       };
     },
+    /**
+     * Adds one part of the Scroll region `id`, which is on the carrier
+     * `parent`: its scroller or its content box. Returns a function that
+     * removes that part. The layer tracks the region while it has both
+     * parts. Until then, the elements on it draw on `parent`. The effect
+     * hooks of the scroller itself are on `parent`.
+     */
+    registerRegion: (
+      id: number,
+      parent: EffectCarrierRef,
+      part: "scroller" | "content",
+      element: Element,
+    ): (() => void) => {
+      let region = regions.get(id);
+      if (region?.parent !== parent) {
+        region?.watch?.destroy();
+        region = {
+          id,
+          parent,
+          scroller: region?.scroller ?? null,
+          content: region?.content ?? null,
+          complete: undefined,
+          watch: null,
+        };
+        regions.set(id, region);
+      }
+      const added = region;
+      setPart(added, part, element);
+      notify();
+      rewatchRegion(added);
+      uses.get(element)?.tracker?.signal();
+      return () => {
+        if (regions.get(id) !== added || added[part] !== element) {
+          return;
+        }
+        setPart(added, part, null);
+        if (added.scroller === null && added.content === null) {
+          regions.delete(id);
+        }
+        notify();
+        rewatchRegion(added);
+        uses.get(element)?.tracker?.signal();
+      };
+    },
     /** The sticky box of the sticky carrier `id`, or `undefined`. */
     sticky: (id: number): RegisteredSticky | undefined => stickies.get(id),
+    /**
+     * The Scroll region `id` when it has its scroller and its content box,
+     * or `undefined`.
+     */
+    region: completeRegion,
+    /** The id of the Scroll region whose scroller `element` is, if any. */
+    regionOfScroller: (element: Element): number | undefined => {
+      for (const region of regions.values()) {
+        if (region.scroller === element && region.content !== null) {
+          return region.id;
+        }
+      }
+      return undefined;
+    },
     /** The carrier of a registered element, or the page. */
     carrierOf: (element: Element) =>
       elements.get(element)?.ownCarrier ?? PAGE_CARRIER,
@@ -329,26 +465,37 @@ export function createEffectRegistry() {
     /** Every registered element, in the order they first registered. */
     elements: () => elements,
     /**
-     * Gives each registered element a tracker from `create`, now and as they
-     * register, and destroys it when they leave. Calls `stuck` with the id
-     * of a sticky box when it registers, sticks, lets go or leaves. Returns a
-     * function that destroys every tracker, and stops.
+     * Gives each registered element a tracker from `create`, and each Scroll
+     * region a watch from `region`, now and as they register, and destroys
+     * them when they leave. Calls `stuck` with the id of a sticky box when
+     * it registers, sticks, lets go or leaves. Returns a function that
+     * destroys every tracker and every watch, and stops.
      */
     track: (
       create: (element: Element) => ElementTracker,
       stuck?: (id: number) => void,
+      region?: (region: RegisteredRegion) => RegionWatch,
     ) => {
       createTracker = create;
       onStuck = stuck ?? null;
+      watchRegion = region ?? null;
       for (const [element, use] of uses) {
         use.tracker = create(element);
+      }
+      for (const entry of regions.values()) {
+        rewatchRegion(entry);
       }
       return () => {
         createTracker = null;
         onStuck = null;
+        watchRegion = null;
         for (const use of uses.values()) {
           use.tracker?.destroy();
           use.tracker = null;
+        }
+        for (const entry of regions.values()) {
+          entry.watch?.destroy();
+          entry.watch = null;
         }
       };
     },
@@ -361,28 +508,33 @@ export function createEffectRegistry() {
       }
     },
     /**
-     * Every tracked element with a box, as it was last measured, in page
-     * coordinates at this scroll and with the viewport's bottom edge that
-     * `readViewportBottom` reads, in registration order. Each one draws on
-     * the `<canvas>` element of the carrier it was measured on. An Effect
-     * cover is not one of them, and neither is an element that the box of a
-     * cover overlaps and that is not inside that cover.
+     * Each modal Effect cover that has a box now, as it was last measured.
      */
-    records: (
-      scrollX: number,
-      scrollY: number,
-      readViewportBottom: () => number,
-    ): MeasuredElement[] => {
+    modalCovers: (): Element[] =>
+      modalElements.filter(
+        (element) => uses.get(element)?.tracker?.measured != null,
+      ),
+    /** Whether `element` is in a registered modal Effect cover, or is one. */
+    isInModalCover: (element: Element) =>
+      modalElements.some((cover) => cover.contains(element)),
+    /**
+     * Every tracked element with a box, as it was last measured, in page
+     * coordinates at the time of `clock`, in registration order. Each one
+     * draws on the carrier it was measured on. An Effect cover is not one of
+     * them, and neither is an element that the box of a cover overlaps and
+     * that is not inside that cover.
+     */
+    records: (clock: CarrierClock): MeasuredElement[] => {
       const records: MeasuredElement[] = [];
       const covers: { element: Element; box: ElementBox }[] = [];
       for (const [
         element,
-        { id, roles, settings, scope, holds, covers: isCover, canvases },
+        { id, roles, settings, scope, holds, covers: isCover, carriers },
       ] of elements) {
         const tracker = uses.get(element)?.tracker;
-        const box = tracker?.boxAt(scrollX, scrollY, readViewportBottom);
-        const canvas = tracker?.measured?.canvas;
-        if (tracker == null || box == null || canvas === undefined) {
+        const box = tracker?.boxAt(clock);
+        const measured = tracker?.measured?.carrier;
+        if (tracker == null || box == null || measured === undefined) {
           continue;
         }
         if (isCover === true) {
@@ -398,10 +550,10 @@ export function createEffectRegistry() {
           settings,
           scope,
           holds,
-          canvas,
-          canvases: canvases.includes(canvas)
-            ? canvases
-            : [...canvases, canvas],
+          carrier: measured,
+          carriers: carriers.includes(measured)
+            ? carriers
+            : [...carriers, measured],
         });
       }
       return records.filter((record) =>
