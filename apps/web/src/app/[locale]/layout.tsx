@@ -64,7 +64,7 @@ export default async function RootLayout({
         />
         <I18nProvider locale={locale}>
           <SerwistProvider>
-            <InlineScript html={themeHack} />
+            <InlineScript>{themeHack}</InlineScript>
             <ThemeApplier />
             <EffectLayerProvider>
               <PortalTargetProvider>

@@ -22,8 +22,9 @@ beforeEach(() => {
 });
 
 function runThemeHack() {
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-call -- `themeHack` is a script string, which only an eval can run
-  new Function(themeHack)();
+  const script = document.createElement("script");
+  script.textContent = themeHack;
+  document.head.appendChild(script);
 }
 
 function themeColorContents() {

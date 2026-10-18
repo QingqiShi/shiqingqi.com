@@ -11,7 +11,12 @@ import {
   type TinkerConfig,
   type TokenIndex,
 } from "@tuja/component-tinker";
-import { useLayoutEffect, useState } from "react";
+import {
+  useEffectEvent,
+  useLayoutEffect,
+  useState,
+  type RefObject,
+} from "react";
 import { ConditionChips } from "./condition-chips.tsx";
 import { EffectControls } from "./effect-controls.tsx";
 import { checkGuardrails, type Guardrail } from "./model/check-guardrails.ts";
@@ -91,6 +96,8 @@ interface InspectorProps {
   isPhone: boolean;
   /** Changes whenever the canvas has repainted, so measurements refresh. */
   renderKey: string;
+  /** The canvas that shows `node`, where its guardrails are measured. */
+  canvasRef: RefObject<HTMLDivElement | null>;
 }
 
 interface Measured {
@@ -105,6 +112,7 @@ export function Inspector({
   node,
   isPhone,
   renderKey,
+  canvasRef,
 }: InspectorProps) {
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [adding, setAdding] = useState<{
@@ -121,9 +129,8 @@ export function Inspector({
   });
 
   const id = node?.id ?? "";
-  /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps -- a guardrail is measured from the laid-out DOM, which no render can read, so the effect must store what it read; `renderKey` already changes with every input that changes what is on screen, and `node` is a fresh object each render, so listing it would measure in a loop */
-  useLayoutEffect(() => {
-    const element = document.querySelector<HTMLElement>(
+  const measure = useEffectEvent(() => {
+    const element = canvasRef.current?.querySelector<HTMLElement>(
       `.tk-cell-body [data-tinker-id="${id}"]`,
     );
     const frame = element?.closest(".tk-cell-frame");
@@ -141,8 +148,10 @@ export function Inspector({
         element.scrollHeight > element.clientHeight ||
         element.scrollWidth > element.clientWidth,
     });
+  });
+  useLayoutEffect(() => {
+    measure();
   }, [id, renderKey]);
-  /* eslint-enable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps -- the measurement effect above ends here */
 
   if (!node) {
     return (

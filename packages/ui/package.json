@@ -162,7 +162,7 @@
   },
   "scripts": {
     "build:tsc": "tsc --noEmit",
-    "lint": "eslint . && publint --strict",
+    "lint": "eslint --max-warnings 0 . && publint --strict",
     "test": "vitest run"
   },
   "dependencies": {

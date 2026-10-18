@@ -12,8 +12,11 @@ const requirePackageExport = require("./design-system/require-package-export");
 const requirePageColumn = require("./design-system/require-page-column");
 const requireRhythmSpacing = require("./design-system/require-rhythm-spacing");
 const requireTypeRole = require("./design-system/require-type-role");
+const validStyles = require("./design-system/valid-styles.mjs").default;
 const noBannedCopyWords = require("./i18n/no-banned-copy-words");
 const noTOutsideRender = require("./i18n/no-t-outside-render");
+const noUnnecessaryUsePrefix =
+  require("./i18n/no-unnecessary-use-prefix.mjs").default;
 
 module.exports = {
   meta: { name: "@tuja/eslint-plugin" },
@@ -30,7 +33,9 @@ module.exports = {
     "require-package-export": requirePackageExport,
     "require-rhythm-spacing": requireRhythmSpacing,
     "require-type-role": requireTypeRole,
+    "valid-styles": validStyles,
     "no-banned-copy-words": noBannedCopyWords,
     "no-t-outside-render": noTOutsideRender,
+    "no-unnecessary-use-prefix": noUnnecessaryUsePrefix,
   },
 };

@@ -65,7 +65,7 @@ export default function RootNotFound() {
     <html lang={fallbackLocale} suppressHydrationWarning>
       <body css={[root.body, globalStyles.body]}>
         {/* Theme initialization before hydration */}
-        <InlineScript html={themeHack} />
+        <InlineScript>{themeHack}</InlineScript>
         <ThemeApplier />
         <NotFoundScreen />
       </body>

@@ -1,13 +1,17 @@
 /**
- * Renders a `<script>` whose body is injected verbatim (theme init before
- * hydration, JSON-LD). This is the one sanctioned `dangerouslySetInnerHTML`
- * call site in the app.
+ * Renders a `<script>` with an inline body: the theme init that runs before
+ * hydration, or JSON-LD. React escapes `</script` in the body, so the body
+ * cannot close the element early.
  *
- * Contract: `html` must be a static or pre-escaped string — build-time
- * constants or output already run through an escaper (e.g. JSON-LD with
- * `<` replaced). Never interpolate unescaped user data into it.
+ * Contract: a JavaScript body runs as written, so it must be a build-time
+ * constant. Never interpolate user data into it.
  */
-export function InlineScript({ html, type }: { html: string; type?: string }) {
-  // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml -- the one sanctioned call site; see the doc comment for the contract
-  return <script type={type} dangerouslySetInnerHTML={{ __html: html }} />;
+export function InlineScript({
+  children,
+  type,
+}: {
+  children: string;
+  type?: string;
+}) {
+  return <script type={type}>{children}</script>;
 }

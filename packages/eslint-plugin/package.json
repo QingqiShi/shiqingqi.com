@@ -5,15 +5,22 @@
   "type": "commonjs",
   "main": "src/index.js",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint --max-warnings 0 .",
     "test": "vitest run"
   },
   "dependencies": {
     "@tuja/babel-plugins": "workspace:*",
-    "@tuja/module-exports": "workspace:*",
+    "@tuja/module-exports": "workspace:*"
+  },
+  "peerDependencies": {
+    "@eslint-react/eslint-plugin": "catalog:",
+    "@stylexjs/eslint-plugin": "catalog:",
     "eslint": "catalog:"
   },
   "devDependencies": {
+    "@eslint-react/eslint-plugin": "catalog:",
+    "@stylexjs/eslint-plugin": "catalog:",
+    "eslint": "catalog:",
     "typescript-eslint": "catalog:",
     "vitest": "catalog:"
   }

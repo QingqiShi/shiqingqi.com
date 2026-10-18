@@ -36,7 +36,6 @@ export const selected = stylex.create({
         default: null,
         ":hover:not(:disabled)": color.bgControlHover,
       },
-      // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know :is(), which reads the ARIA state
       [SELECTED]: {
         default: color.bgControlSelected,
         // StyleX puts a hover in a media query after a bare state, so the
@@ -59,7 +58,6 @@ export const selected = stylex.create({
         default: null,
         ":hover:not(:disabled)": color.bgControlHover,
       },
-      // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know :is(), which reads the ARIA state
       [SELECTED]: {
         default: color.bgAccentSubtle,
         ":hover": {

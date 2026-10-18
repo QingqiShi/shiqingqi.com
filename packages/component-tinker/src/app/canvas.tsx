@@ -405,6 +405,7 @@ interface CanvasProps {
   zoom: number;
   onZoom: (zoom: number) => void;
   renderKey: string;
+  canvasRef: RefObject<HTMLDivElement | null>;
   selection: Pick | null;
   onSelect: (pick: Pick) => void;
 }
@@ -463,6 +464,7 @@ export function Canvas({
   zoom,
   onZoom,
   renderKey,
+  canvasRef,
   selection,
   onSelect,
 }: CanvasProps) {
@@ -476,7 +478,7 @@ export function Canvas({
 
   return (
     <div className="tk-canvas-scroll" ref={scrollRef}>
-      <div className="tk-cells" style={{ zoom }}>
+      <div className="tk-cells" ref={canvasRef} style={{ zoom }}>
         {cells.map((cell) => (
           <Cell
             key={cell.index}

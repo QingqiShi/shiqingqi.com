@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import type { z } from "zod";
 
 /**
  * Makes it easier to create dynamic routes (route handlers) for server actions.
@@ -7,23 +8,18 @@ import { NextResponse, type NextRequest } from "next/server";
  * during render (suspense query does this) causes problems with updating states in
  * Route provider.
  */
-export function apiRouteWrapper(
-  serverFunction: (
-    // `params` is a `Record<string, string>` at the call below, but server
-    // functions declare specific required fields (e.g. `{ movie_id: string
-    // }`). Contravariance means a `never` param type would accept those
-    // functions here, but then the runtime call below (a real
-    // `Record<string, string>` argument) stops type-checking — there is no
-    // non-`any` type that is both a valid supertype of every server
-    // function's params and a valid argument type for that call.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- params are contravariant across every TMDB server function; no non-any type satisfies both sides
-    params: any,
-  ) => Promise<unknown>,
+export function apiRouteWrapper<Params>(
+  serverFunction: (params: Params) => Promise<unknown>,
+  // The query values stay strings. A server function only adds them to the
+  // TMDB URL. Thus it can use a string where its type has a number.
+  searchParamsSchema: z.ZodType<NoInfer<Params>>,
 ) {
   return async function routeHandler(request: NextRequest) {
     try {
       const result = await serverFunction(
-        Object.fromEntries(request.nextUrl.searchParams.entries()),
+        searchParamsSchema.parse(
+          Object.fromEntries(request.nextUrl.searchParams.entries()),
+        ),
       );
 
       return NextResponse.json(result);

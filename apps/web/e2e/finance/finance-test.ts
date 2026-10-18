@@ -252,7 +252,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   ],
 
   financeDb: [
-    // eslint-disable-next-line no-empty-pattern -- Playwright reads the fixtures that a fixture needs from this pattern, so the pattern must stay when it is empty.
     async ({}, provide) => {
       const pool = new Pool({
         connectionString: financeE2eEnv.FINANCE_DATABASE_URL,

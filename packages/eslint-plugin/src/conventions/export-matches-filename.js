@@ -27,10 +27,9 @@
  * CommonJS has no concept of types.
  *
  * A file with no exports passes (entry scripts), and so does a file with an
- * `export * from` (a barrel cannot be judged). A whole category of files is
- * exempted in the ESLint config through `files`/`ignores`; a single file is
- * exempted by an inline disable that states its reason. The rule takes no
- * options.
+ * `export * from` (a barrel cannot be judged). An exemption, for a category
+ * of files or for a single file, is a scoped `ignores` entry in
+ * eslint.config.mjs that states its reason. The rule takes no options.
  */
 
 "use strict";

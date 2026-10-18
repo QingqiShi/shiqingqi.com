@@ -5,7 +5,7 @@ import {
   renderCell,
   serialiseExport,
 } from "@tuja/component-tinker";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import catalogueJson from "virtual:tinker-catalogue";
 import configJson from "virtual:tinker-config";
@@ -61,6 +61,7 @@ function App() {
   const [sheetTab, setSheetTab] = useState("inspector");
   const [dialogText, setDialogText] = useState<string | null>(null);
   const [flash, setFlash] = useFlash();
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     saveSnapshot(storageKey, store);
@@ -127,6 +128,7 @@ function App() {
       node={node}
       isPhone={isPhone}
       renderKey={renderKey}
+      canvasRef={canvasRef}
     />
   );
 
@@ -182,6 +184,7 @@ function App() {
             zoom={zoom}
             onZoom={setZoom}
             renderKey={renderKey}
+            canvasRef={canvasRef}
             selection={selection}
             onSelect={setPicked}
           />

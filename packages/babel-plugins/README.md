@@ -327,6 +327,16 @@ module.exports = {
 plugin comes back as a resolved path, so the chain works from any working
 directory.
 
+A build that runs Babel itself, instead of through a bundler plugin, turns the
+rules the StyleX plugin collects into CSS with `processStylexRules`, from the
+ES module `@tuja/babel-plugins/stylex-plugins/process-stylex-rules`:
+
+```js
+import { processStylexRules } from "@tuja/babel-plugins/stylex-plugins/process-stylex-rules";
+
+const css = processStylexRules(rules, { useLayers: true });
+```
+
 ## @tuja/babel-plugins/react-compiler
 
 The options React Compiler runs with, in one place. `panicThreshold:

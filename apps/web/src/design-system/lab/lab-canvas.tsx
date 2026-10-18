@@ -14,6 +14,7 @@ import { LabBar } from "./lab-bar.tsx";
 import { LabControls } from "./lab-controls.tsx";
 import { type LabAction, labReducer } from "./lab-reducer.ts";
 import { LabSnippet } from "./lab-snippet.tsx";
+import { renderSpecimen } from "./render-specimen.ts";
 import { resolveLabModel } from "./resolve-lab-model.ts";
 import type { LabConfig, LabProps } from "./types.ts";
 
@@ -108,12 +109,7 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
         <div css={styles.specimenArea}>
           <ViewTransition name="lab-specimen" default="lab-morph">
             <div css={styles.specimen}>
-              {/* A component's own types rule out pairings the visitor is free
-                  to make — a Button with neither children nor an aria-label.
-                  The Specimen's props are therefore typed at runtime, from the
-                  generated documentation, and named here. */}
-              {/* eslint-disable-next-line no-restricted-syntax -- see above */}
-              {config.render(specimenProps as P)}
+              {renderSpecimen(config, specimenProps)}
             </div>
           </ViewTransition>
         </div>

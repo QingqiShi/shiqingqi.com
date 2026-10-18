@@ -4,9 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { transformSync } from "@babel/core";
 import type { Rule } from "@stylexjs/babel-plugin";
-// eslint-disable-next-line restricted/stylex-babel-plugin -- Only for `processStylexRules`. The Babel plugins come from `stylexPlugins`.
-import stylexBabelPlugin from "@stylexjs/babel-plugin";
 import { stylexPlugins } from "@tuja/babel-plugins/stylex-plugins";
+import { processStylexRules } from "@tuja/babel-plugins/stylex-plugins/process-stylex-rules";
 
 const require = createRequire(import.meta.url);
 const typescriptPreset = require.resolve("@babel/preset-typescript");
@@ -64,7 +63,7 @@ export function compileStylexCss(files: readonly string[]): string {
   const cached = cssByFileList.get(key);
   if (cached !== undefined) return cached;
 
-  const css = stylexBabelPlugin.processStylexRules(
+  const css = processStylexRules(
     sorted.flatMap((file) => compileRules(file)),
     false,
   );

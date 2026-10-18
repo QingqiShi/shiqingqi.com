@@ -8,7 +8,7 @@
  *
  * The rule finds the directive in the directive prologue: the leading
  * string-literal statements at the top of the file. It then asks whether
- * the module is a hook module: the test lives in `@tuja/module-exports`.
+ * the module is a hook module. Both tests live in `@tuja/module-exports`.
  *
  * The rule reports the directive only when the module has at least one
  * value export and every value export is a hook. An `export * from` makes
@@ -21,7 +21,11 @@
 
 "use strict";
 
-const { isHookModule, valueExportNamesOf } = require("@tuja/module-exports");
+const {
+  findUseClientDirective,
+  isHookModule,
+  valueExportNamesOf,
+} = require("@tuja/module-exports");
 const {
   removeWithTrailingWhitespace,
 } = require("./remove-with-trailing-whitespace");
@@ -44,19 +48,7 @@ const noUseClientInHooks = {
   create(context) {
     return {
       "Program:exit"(program) {
-        let directiveNode;
-        for (const node of program.body) {
-          if (
-            node.type !== "ExpressionStatement" ||
-            typeof node.directive !== "string"
-          ) {
-            break;
-          }
-          if (node.directive === "use client") {
-            directiveNode = node;
-            break;
-          }
-        }
+        const directiveNode = findUseClientDirective(program);
         if (!directiveNode) return;
 
         if (!isHookModule(program)) return;

@@ -804,32 +804,22 @@ describe("Switch Component", () => {
   });
 
   describe("Edge Cases and Error Scenarios", () => {
-    it("handles missing getBoundingClientRect gracefully", () => {
-      render(<Switch />);
+    it("does not drag from a move without a press on it", () => {
+      const handleChange = vi.fn();
+
+      render(<Switch onChange={handleChange} />);
 
       const switchElement = screen.getByRole("switch");
-      const setPointerCapture = vi.fn();
-      switchElement.setPointerCapture = setPointerCapture;
+      const initialClassName = switchElement.className;
 
-      // eslint-disable-next-line no-restricted-syntax -- forcing getBoundingClientRect to return null to test the guard; only an assertion can produce that impossible type
-      const missingBoundingClientRect = () => null as unknown as DOMRect;
-      switchElement.getBoundingClientRect = vi.fn(missingBoundingClientRect);
+      fireEvent.pointerMove(switchElement, {
+        pointerId: 1,
+        clientX: 300,
+        pointerType: "mouse",
+      });
 
-      // Should not throw when trying to drag
-      expect(() => {
-        fireEvent.pointerDown(switchElement, {
-          pointerId: 1,
-          clientX: 120,
-          button: 0,
-          pointerType: "mouse",
-        });
-
-        fireEvent.pointerMove(switchElement, {
-          pointerId: 1,
-          clientX: 130,
-          pointerType: "mouse",
-        });
-      }).not.toThrow();
+      expect(switchElement.className).toBe(initialClassName);
+      expect(handleChange).not.toHaveBeenCalled();
     });
 
     it("handles rapid state changes without issues", async () => {

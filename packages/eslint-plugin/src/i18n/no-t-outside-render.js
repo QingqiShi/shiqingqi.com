@@ -18,33 +18,12 @@
 
 "use strict";
 
-const { isHookName } = require("@tuja/module-exports");
 const { createTImportTracker } = require("./create-t-import-tracker.js");
-
-/** @param {string} name */
-function isComponentName(name) {
-  return /^[A-Z]/.test(name);
-}
-
-/**
- * Walk up from a node to find the nearest enclosing function.
- * @param {import("eslint").Rule.Node} node
- * @returns {import("eslint").Rule.Node | null}
- */
-function getEnclosingFunction(node) {
-  let current = node.parent;
-  while (current) {
-    if (
-      current.type === "FunctionDeclaration" ||
-      current.type === "FunctionExpression" ||
-      current.type === "ArrowFunctionExpression"
-    ) {
-      return current;
-    }
-    current = current.parent;
-  }
-  return null;
-}
+const {
+  getEnclosingFunction,
+  getFunctionName,
+  isRenderFunction,
+} = require("./is-render-function.js");
 
 /**
  * Check if a function node is a callback argument or assigned to a JSX event attribute.
@@ -69,25 +48,6 @@ function isCallbackOrEventHandler(fnNode) {
   }
 
   return false;
-}
-
-/**
- * Get the name of a function node, if it has one.
- * @param {import("eslint").Rule.Node} fnNode
- * @returns {string | null}
- */
-function getFunctionName(fnNode) {
-  if (fnNode.type === "FunctionDeclaration" && fnNode.id) {
-    return fnNode.id.name;
-  }
-  // Variable declarator: const foo = () => {} or const foo = function() {}
-  if (
-    fnNode.parent.type === "VariableDeclarator" &&
-    fnNode.parent.id.type === "Identifier"
-  ) {
-    return fnNode.parent.id.name;
-  }
-  return null;
 }
 
 /**
@@ -119,28 +79,10 @@ function isExported(fnNode) {
  * @returns {boolean}
  */
 function isRenderScopeFunction(fnNode) {
-  const name = getFunctionName(fnNode);
-  if (!name) {
-    // export default function() {} — anonymous default export is a component
-    if (
-      fnNode.type === "FunctionDeclaration" &&
-      fnNode.parent.type === "ExportDefaultDeclaration"
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  if (isComponentName(name) || isHookName(name)) {
-    return true;
-  }
-
-  // generateMetadata is whitelisted
-  if (name === "generateMetadata" && isExported(fnNode)) {
-    return true;
-  }
-
-  return false;
+  return (
+    isRenderFunction(fnNode) ||
+    (getFunctionName(fnNode) === "generateMetadata" && isExported(fnNode))
+  );
 }
 
 /** @type {import("eslint").Rule.RuleModule} */

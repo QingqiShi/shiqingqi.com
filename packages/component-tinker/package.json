@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build:tsc": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint --max-warnings 0 .",
     "tinker": "node scripts/build.mjs",
     "test": "vitest run"
   },
@@ -14,7 +14,6 @@
     "@babel/core": "catalog:",
     "@babel/plugin-transform-modules-commonjs": "^8.0.1",
     "@babel/preset-typescript": "catalog:",
-    "@stylexjs/babel-plugin": "catalog:",
     "@stylexjs/stylex": "catalog:",
     "@tuja/babel-plugins": "workspace:*",
     "@tuja/ui": "workspace:*",

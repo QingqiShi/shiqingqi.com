@@ -8,6 +8,6 @@
     "tmdb-codegen": "./src/generator.js"
   },
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint --max-warnings 0 ."
   }
 }

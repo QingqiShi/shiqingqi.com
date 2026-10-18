@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import { createPathtracerLoop } from "./create-pathtracer-loop";
 import displayFs from "./display-fs.glsl";
+import { fullScreenCanvas } from "./full-screen-canvas.stylex.ts";
 import pathtracerFs from "./pathtracer-fs.glsl";
 import type {
   DebugMode,
@@ -247,7 +248,7 @@ export function PlaygroundCanvas() {
 
   return (
     <>
-      <canvas ref={canvasRef} css={styles.canvas} />
+      <canvas ref={canvasRef} css={fullScreenCanvas.base} />
       {/* Spacer gives the page a real scroll range. The shader reads
           window.scrollY to pan the camera, so this also defines the total
           travel distance along the desk. */}
@@ -264,26 +265,6 @@ export function PlaygroundCanvas() {
 }
 
 const styles = stylex.create({
-  canvas: {
-    // Lock to the large viewport (`100lvh`) so iOS Safari's URL-bar
-    // collapse on scroll doesn't resize the canvas — a resize would fire
-    // the ResizeObserver, recreate the FBOs, and flash the page white
-    // between the buffer clear and the next render. iOS Safari's
-    // `100lvh` excludes the Dynamic Island / home-indicator safe areas
-    // even with `viewport-fit=cover`, so we negatively offset and grow
-    // by the safe-area insets to cover the full screen — OS chrome just
-    // overlays those extended regions.
-    position: "fixed",
-    top: "calc(-1 * env(safe-area-inset-top))",
-    // eslint-disable-next-line @tuja/require-page-column -- covers the screen, not a column
-    left: "calc(-1 * env(safe-area-inset-left))",
-    width:
-      // eslint-disable-next-line @tuja/require-page-column -- covers the screen, not a column
-      "calc(100vw + env(safe-area-inset-left) + env(safe-area-inset-right))",
-    height:
-      "calc(100lvh + env(safe-area-inset-top) + env(safe-area-inset-bottom))",
-    pointerEvents: "none",
-  },
   scrollSpacer: {
     width: "1px",
     height: "4000px",

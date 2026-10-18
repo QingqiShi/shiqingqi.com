@@ -1,6 +1,21 @@
 "use strict";
 
-const { isHookModule, isHookName } = require("./is-hook-module");
+const {
+  findUseClientDirective,
+  isClientModule,
+} = require("./is-client-module");
+const {
+  isComponentOrHookName,
+  isHookModule,
+  isHookName,
+} = require("./is-hook-module");
 const { valueExportNamesOf } = require("./value-export-names-of");
 
-module.exports = { valueExportNamesOf, isHookModule, isHookName };
+module.exports = {
+  findUseClientDirective,
+  isClientModule,
+  isComponentOrHookName,
+  isHookModule,
+  isHookName,
+  valueExportNamesOf,
+};

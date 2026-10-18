@@ -27,7 +27,6 @@ export default function CitadelLogo() {
 
 const styles = stylex.create({
   svg: {
-    // eslint-disable-next-line @stylexjs/valid-styles -- the rule does not know stylex.firstThatWorks() and rejects the function call as a colour value
     color: stylex.firstThatWorks(svgTokens.fill, brand.citadel),
     fill: "currentColor",
     clipRule: "evenodd",
