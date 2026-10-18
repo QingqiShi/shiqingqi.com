@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { clockAt } from "../test-support/clock-at.ts";
 import { layOut } from "../test-support/lay-out.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
@@ -31,14 +32,9 @@ function setUp() {
     createElementTracker(tracked, () => {}),
   );
   const measureAll = (scrollX = 0, scrollY = 0) => {
-    const lookup = {
-      carrierOf: registry.carrierOf,
-      stickyBox: (id: number) => registry.sticky(id)?.element ?? null,
-      isStuck: (id: number) => registry.sticky(id)?.isStuck() ?? false,
-    };
     for (const tracker of registry.trackers()) {
       tracker.measure({
-        ...createMeasureContext(() => 0, lookup),
+        ...createMeasureContext(() => 0, registry),
         scrollX,
         scrollY,
       });
@@ -101,7 +97,7 @@ describe("createEffectRegistry tracking", () => {
     expect([...registry.trackers()]).toHaveLength(0);
     expect(observers.resizeObserversOf(target)).toBe(0);
     expect(observers.intersectionObservers()).toBe(0);
-    expect(registry.records(0, 0, () => 0)).toEqual([]);
+    expect(registry.records(clockAt())).toEqual([]);
   });
 });
 
@@ -115,11 +111,11 @@ describe("createEffectRegistry records", () => {
     const { registry, measureAll } = setUp();
     const target = element(0, 0);
     registry.register(target, 0, NO_SETTINGS, ON_PAGE);
-    expect(registry.records(0, 0, () => 0)).toEqual([]);
+    expect(registry.records(clockAt())).toEqual([]);
     measureAll();
-    expect(
-      registry.records(0, 0, () => 0).map((record) => record.element),
-    ).toEqual([target]);
+    expect(registry.records(clockAt()).map((record) => record.element)).toEqual(
+      [target],
+    );
   });
 
   it("lists the elements in registration order, each on the canvas of the carrier it declares", () => {
@@ -135,15 +131,15 @@ describe("createEffectRegistry records", () => {
     measureAll();
     expect(
       registry
-        .records(0, 0, () => 0)
-        .map(({ element: target, canvas, canvases }) => ({
+        .records(clockAt())
+        .map(({ element: target, carrier, carriers }) => ({
           target,
-          canvas,
-          canvases,
+          carrier,
+          carriers,
         })),
     ).toEqual([
-      { target: onViewport, canvas: "fixed", canvases: ["fixed"] },
-      { target: onPage, canvas: "scroll", canvases: ["scroll"] },
+      { target: onViewport, carrier: "fixed", carriers: ["fixed"] },
+      { target: onPage, carrier: "page", carriers: ["page"] },
     ]);
   });
 
@@ -178,9 +174,9 @@ describe("createEffectRegistry records", () => {
       carrier: { kind: "sticky", id: 9, parent: PAGE_CARRIER },
     });
     measureAll();
-    expect(registry.records(0, 0, () => 0)[0]).toMatchObject({
-      canvas: "scroll",
-      canvases: ["scroll", "fixed"],
+    expect(registry.records(clockAt())[0]).toMatchObject({
+      carrier: "page",
+      carriers: ["page", "fixed"],
     });
   });
 
@@ -192,10 +188,10 @@ describe("createEffectRegistry records", () => {
     const carrier = { kind: "sticky", id: 5, parent: PAGE_CARRIER } as const;
     const sticky = registry.registerSticky(box, carrier, () => false);
     expect(registry.carrierOf(box)).toBe(carrier);
-    expect(registry.elements().get(box)?.canvases).toEqual(["scroll", "fixed"]);
+    expect(registry.elements().get(box)?.carriers).toEqual(["page", "fixed"]);
     sticky.remove();
     expect(registry.carrierOf(box)).toBe(PAGE_CARRIER);
-    expect(registry.elements().get(box)?.canvases).toEqual(["scroll"]);
+    expect(registry.elements().get(box)?.carriers).toEqual(["page"]);
   });
 
   it("keeps a sticky box apart from the elements, and tells the layer each time it registers, sticks, lets go or leaves", () => {
@@ -245,7 +241,7 @@ describe("createEffectRegistry records", () => {
     registry.register(element(0, 20, reads), 0, NO_SETTINGS, ON_PAGE);
     measureAll(0, 500);
     reads.length = 0;
-    expect(registry.records(0, 900, () => 0)[0]).toMatchObject({
+    expect(registry.records(clockAt(0, 900))[0]).toMatchObject({
       x: 0,
       y: 520,
     });
@@ -263,10 +259,10 @@ describe("createEffectRegistry records", () => {
     });
     measureAll(0, 500);
     reads.length = 0;
-    expect(registry.records(0, 900, () => 0)[0]).toMatchObject({
+    expect(registry.records(clockAt(0, 900))[0]).toMatchObject({
       x: 20,
       y: 910,
-      canvas: "fixed",
+      carrier: "fixed",
     });
     expect(reads).toEqual([]);
   });
@@ -280,19 +276,19 @@ describe("createEffectRegistry records", () => {
       holds: null,
     });
     measureAll();
-    expect(registry.records(0, 0, () => 0)).toMatchObject([
+    expect(registry.records(clockAt())).toMatchObject([
       { element: child, scope: 7, holds: null },
     ]);
 
     registry.register(container, 0, NO_SETTINGS, { scope: 0, holds: 7 });
     measureAll();
-    expect(registry.records(0, 0, () => 0)).toMatchObject([
+    expect(registry.records(clockAt())).toMatchObject([
       { element: child, scope: 7, holds: null },
       { element: container, scope: 0, holds: 7 },
     ]);
 
     inside.update(0b100, NO_SETTINGS, 0, PAGE_CARRIER);
-    expect(registry.records(0, 0, () => 0)[0]).toMatchObject({ scope: 0 });
+    expect(registry.records(clockAt())[0]).toMatchObject({ scope: 0 });
   });
 
   it("keeps an element an Effect container while one of its registrations makes it one", () => {
@@ -328,11 +324,97 @@ describe("createEffectRegistry records", () => {
     reads.length = 0;
     const settings = { dust: { density: 7 } };
     registration.update(0b10, settings, 0, PAGE_CARRIER);
-    expect(registry.records(0, 0, () => 0)[0]).toMatchObject({
+    expect(registry.records(clockAt())[0]).toMatchObject({
       roles: 0b10,
       settings,
     });
     expect(reads).toEqual([]);
+  });
+});
+
+describe("createEffectRegistry Scroll regions", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.innerHTML = "";
+  });
+
+  /** A scroller with a content box, and a control in it on the region. */
+  function setUpRegion() {
+    const setup = setUp();
+    const scroller = element(0, 100);
+    const content = document.createElement("div");
+    scroller.append(content);
+    layOut(content, { x: 0, y: 60, width: 400, height: 900 });
+    const control = document.createElement("div");
+    content.append(control);
+    layOut(control, { x: 20, y: 160, width: 100, height: 40 });
+    const carrier = { kind: "region", id: 6, parent: PAGE_CARRIER } as const;
+    setup.registry.register(scroller, 0, NO_SETTINGS, ON_PAGE);
+    setup.registry.register(control, 0b1, NO_SETTINGS, { ...ON_PAGE, carrier });
+    return { ...setup, scroller, content, control, carrier };
+  }
+
+  it("tracks a region once it has its scroller and its content box, and draws its elements on the parent until then", () => {
+    const { registry, measureAll, scroller, content, control } = setUpRegion();
+    const watched: number[] = [];
+    registry.track(
+      (tracked) => createElementTracker(tracked, () => {}),
+      undefined,
+      ({ id }) => {
+        watched.push(id);
+        return { destroy: () => {} };
+      },
+    );
+    const removeScroller = registry.registerRegion(
+      6,
+      PAGE_CARRIER,
+      "scroller",
+      scroller,
+    );
+    measureAll(0, 300);
+    expect(registry.region(6)).toBeUndefined();
+    expect(watched).toEqual([]);
+    expect(registry.records(clockAt(0, 300))).toMatchObject([
+      { element: scroller, carrier: "page" },
+      { element: control, carrier: "page", y: 460 },
+    ]);
+
+    registry.registerRegion(6, PAGE_CARRIER, "content", content);
+    measureAll(0, 300);
+    expect(watched).toEqual([6]);
+    expect(registry.region(6)).toMatchObject({ scroller, content });
+    expect(registry.regionOfScroller(scroller)).toBe(6);
+    removeScroller();
+    expect(registry.region(6)).toBeUndefined();
+  });
+
+  it("gives each element on a region its place in the content box plus the region's origin, which a scroll of the region does not change", () => {
+    const { registry, measureAll, scroller, content, control } = setUpRegion();
+    registry.registerRegion(6, PAGE_CARRIER, "scroller", scroller);
+    registry.registerRegion(6, PAGE_CARRIER, "content", content);
+    measureAll(0, 300);
+    const at = (origin: { x: number; y: number }) =>
+      registry
+        .records(clockAt(0, 300, 0, new Map([[6, origin]])))
+        .find((record) => record.element === control);
+    expect(at({ x: 0, y: 360 })).toMatchObject({
+      x: 20,
+      y: 460,
+      carrier: 6,
+      carriers: [6],
+    });
+    expect(at({ x: 0, y: 160 })).toMatchObject({ x: 20, y: 260 });
+    expect(
+      registry.records(clockAt(0, 300)).map((record) => record.element),
+    ).toEqual([scroller]);
+  });
+
+  it("puts the effect hooks of a scroller itself on the region's parent", () => {
+    const { registry, scroller, content, carrier } = setUpRegion();
+    registry.register(scroller, 0, NO_SETTINGS, { ...ON_PAGE, carrier });
+    registry.registerRegion(6, VIEWPORT_CARRIER, "scroller", scroller);
+    registry.registerRegion(6, VIEWPORT_CARRIER, "content", content);
+    expect(registry.carrierOf(scroller)).toBe(VIEWPORT_CARRIER);
   });
 });
 
@@ -365,7 +447,7 @@ describe("createEffectRegistry covers", () => {
   }
 
   const elementsOf = (registry: ReturnType<typeof createEffectRegistry>) =>
-    registry.records(0, 0, () => 0).map((record) => record.element);
+    registry.records(clockAt()).map((record) => record.element);
 
   it("leaves out the elements under a cover and the cover, and keeps those inside it or outside its box", () => {
     const { registry, inSheet, beside } = setUpSheet();
@@ -377,5 +459,47 @@ describe("createEffectRegistry covers", () => {
     sheet.style.opacity = "0";
     measureAll();
     expect(elementsOf(registry)).toEqual([under, beside]);
+  });
+});
+
+describe("createEffectRegistry modal covers", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.innerHTML = "";
+  });
+
+  it("lists each modal cover that has a box", () => {
+    const { registry, measureAll } = setUp();
+    const sheet = element(0, 0);
+    const menu = element(0, 100);
+    registry.register(sheet, 0, NO_SETTINGS, {
+      ...ON_PAGE,
+      covers: true,
+      modal: true,
+    });
+    registry.register(menu, 0, NO_SETTINGS, { ...ON_PAGE, covers: true });
+    expect(registry.modalCovers()).toEqual([]);
+    measureAll();
+    expect(registry.modalCovers()).toEqual([sheet]);
+    sheet.style.visibility = "hidden";
+    measureAll();
+    expect(registry.modalCovers()).toEqual([]);
+  });
+
+  it("knows each element in a modal cover from the time the cover registers", () => {
+    const { registry } = setUp();
+    const sheet = element(0, 0);
+    const menu = element(0, 100);
+    const inSheet = sheet.appendChild(document.createElement("button"));
+    const inMenu = menu.appendChild(document.createElement("button"));
+    registry.register(sheet, 0, NO_SETTINGS, {
+      ...ON_PAGE,
+      covers: true,
+      modal: true,
+    });
+    registry.register(menu, 0, NO_SETTINGS, { ...ON_PAGE, covers: true });
+    expect(registry.isInModalCover(inSheet)).toBe(true);
+    expect(registry.isInModalCover(sheet)).toBe(true);
+    expect(registry.isInModalCover(inMenu)).toBe(false);
   });
 });

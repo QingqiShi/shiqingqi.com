@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileStylexCss } from "@tuja/stylex-testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { clockAt } from "../test-support/clock-at.ts";
 import { layOut } from "../test-support/lay-out.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
@@ -219,13 +220,7 @@ describe("createControlReader", () => {
       },
     );
     const measure = () => {
-      tracker?.measure(
-        createMeasureContext(() => 0, {
-          carrierOf: registry.carrierOf,
-          stickyBox: () => null,
-          isStuck: () => false,
-        }),
-      );
+      tracker?.measure(createMeasureContext(() => 0, registry));
     };
     measure();
     const changes: null[] = [];
@@ -233,8 +228,12 @@ describe("createControlReader", () => {
       changes.push(null);
     });
     const frame = (scrollY = 0) => {
-      const [record] = registry.records(0, scrollY, () => 0);
-      const control = controls.read({ ...record, scopeIndex: 0 });
+      const [record] = registry.records(clockAt(0, scrollY));
+      const control = controls.read({
+        ...record,
+        scopeIndex: 0,
+        carrierIndex: 0,
+      });
       controls.sweep();
       return control;
     };

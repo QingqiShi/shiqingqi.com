@@ -1,5 +1,8 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { recordEffectLayerFrames } from "./helpers/effect-layer-frame.ts";
+import {
+  effectRecordOf,
+  recordEffectLayerFrames,
+} from "./helpers/effect-layer-frame.ts";
 import { readScreenshotRegion } from "./helpers/read-screenshot-region.ts";
 import { boxOf, scrollWithin } from "./helpers/scroll.ts";
 
@@ -20,32 +23,8 @@ declare global {
 
 test.use({ viewport: { width: 1280, height: 800 } });
 
-/**
- * The Segmented control's record in the last frame: the canvas it draws on,
- * how many times it was measured, and how far the record is from where the
- * browser lays the control out now.
- */
-function controlRecord(page: Page) {
-  return page.evaluate(() => {
-    const frame = window.lastEffectLayerFrame;
-    const group = document.querySelector('[aria-label="Media type"]');
-    const record = frame?.elements.find(
-      ({ element, roles }) =>
-        roles !== 0 &&
-        group !== null &&
-        (group.contains(element) || element.contains(group)),
-    );
-    if (frame === undefined || record === undefined) {
-      return null;
-    }
-    const top = record.element.getBoundingClientRect().top;
-    return {
-      canvas: record.canvas,
-      measurement: record.measurement,
-      offset: Math.round(record.y - frame.scrollY - top),
-    };
-  });
-}
+/** The Segmented control's record in the last frame. */
+const controlRecord = (page: Page) => effectRecordOf(page, "Media type");
 
 /**
  * The page offset of the sticky bar around the Segmented control, and its
@@ -86,18 +65,18 @@ test.describe("carrier records", () => {
   }) => {
     await expect
       .poll(() => controlRecord(page))
-      .toMatchObject({ canvas: "scroll", offset: 0 });
+      .toMatchObject({ carrier: "page", offset: 0 });
 
     const top = await barTop(page);
     await scrollWithin(page, top + 120);
     await expect
       .poll(() => controlRecord(page))
-      .toMatchObject({ canvas: "fixed", offset: 0 });
+      .toMatchObject({ carrier: "fixed", offset: 0 });
 
     await scrollWithin(page, 0);
     await expect
       .poll(() => controlRecord(page))
-      .toMatchObject({ canvas: "scroll", offset: 0 });
+      .toMatchObject({ carrier: "page", offset: 0 });
   });
 
   test("does not measure a control in a stuck bar again while the page scrolls", async ({
@@ -107,14 +86,14 @@ test.describe("carrier records", () => {
     await scrollWithin(page, top + 60);
     await expect
       .poll(() => controlRecord(page))
-      .toMatchObject({ canvas: "fixed", offset: 0 });
+      .toMatchObject({ carrier: "fixed", offset: 0 });
     const stuck = await controlRecord(page);
 
     for (const y of [top + 120, top + 180, top + 90]) {
       await scrollWithin(page, y);
       await expect
         .poll(() => controlRecord(page))
-        .toMatchObject({ canvas: "fixed", offset: 0 });
+        .toMatchObject({ carrier: "fixed", offset: 0 });
     }
     expect((await controlRecord(page))?.measurement).toBe(stuck?.measurement);
   });

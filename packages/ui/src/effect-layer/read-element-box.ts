@@ -1,3 +1,4 @@
+import type { Edges } from "./observe-move.ts";
 import { clamp, parseCssColor, type EffectColor } from "./parse-css-color.ts";
 
 /**
@@ -236,6 +237,48 @@ export function readInsets(
 export function readInset(text: string) {
   const value = Number.parseFloat(text);
   return Number.isFinite(value) ? value : null;
+}
+
+/**
+ * The padding of a scroller, in px. A sticky box in the scroller stops at
+ * this padding, not at the scroller's padding edge.
+ *
+ * @internal
+ */
+export function scrollerPadding(
+  scroller: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+): Edges {
+  const style = styleOf(scroller);
+  const px = (value: string) => Number.parseFloat(value) || 0;
+  return {
+    left: px(style.paddingLeft),
+    top: px(style.paddingTop),
+    right: px(style.paddingRight),
+    bottom: px(style.paddingBottom),
+  };
+}
+
+/**
+ * The box that a sticky box in a scroller sticks to, in viewport
+ * coordinates: the scroller's padding box less its padding.
+ *
+ * @internal
+ */
+export function stickyViewOf(
+  scroller: Element,
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+): Edges {
+  const rect = scroller.getBoundingClientRect();
+  const padding = scrollerPadding(scroller, styleOf);
+  const left = rect.left + scroller.clientLeft;
+  const top = rect.top + scroller.clientTop;
+  return {
+    left: left + padding.left,
+    top: top + padding.top,
+    right: left + scroller.clientWidth - padding.right,
+    bottom: top + scroller.clientHeight - padding.bottom,
+  };
 }
 
 const SEEN = {

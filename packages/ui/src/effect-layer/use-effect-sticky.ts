@@ -10,6 +10,8 @@ import {
   allocateSticky,
   EffectCarrierContext,
   EffectContainedContext,
+  onRegionScrollers,
+  scrollerOf,
 } from "./effect-carrier-context.ts";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { watchStuck } from "./observe-stuck.ts";
@@ -56,8 +58,11 @@ export interface EffectSticky {
  * each scroll. Only the one frame in which the box sticks or lets go is
  * late.
  *
- * The box must stick to the page's scroll, not to a nested scroller. A box
- * that is fixed at one breakpoint and sticky at another can use it too:
+ * The box sticks to the scroller of the Scroll region that it is in, from
+ * the carrier context, or else to the page. The stuck watch reads the box
+ * against that scroller, and a stuck box in a region draws on the carrier
+ * around the region. A box that is fixed at one breakpoint and sticky at
+ * another can use it too:
  * while it is fixed, it counts as stuck. The effect hooks of the box itself
  * are on its sticky carrier too. The stuck watch and the plane work also
  * without an `EffectLayerProvider`, and inside
@@ -96,14 +101,31 @@ function stickyRef(
       return undefined;
     }
     let registration: StickyRegistration | null = null;
-    const watch = watchStuck(element, (stuck) => {
+    const onChange = (stuck: boolean) => {
       setIsStuck(stuck);
       registration?.changed();
-    });
+    };
+    let scroller = scrollerOf(carrier.parent);
+    let watch = watchStuck(element, onChange, scroller);
     registration =
-      registry?.registerSticky(element, carrier, watch.isStuck) ?? null;
+      registry?.registerSticky(element, carrier, () => watch.isStuck()) ?? null;
     setIsStuck(watch.isStuck());
+    const stopScrollers = onRegionScrollers(() => {
+      const next = scrollerOf(carrier.parent);
+      if (next !== scroller) {
+        scroller = next;
+        const wasStuck = watch.isStuck();
+        watch.disconnect();
+        watch = watchStuck(element, onChange, scroller);
+        // A new watch starts as not stuck, and tells only when the box is
+        // stuck.
+        if (wasStuck && !watch.isStuck()) {
+          onChange(false);
+        }
+      }
+    });
     return () => {
+      stopScrollers();
       registration?.remove();
       watch.disconnect();
     };

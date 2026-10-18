@@ -22,8 +22,9 @@ function record(
     y: 100,
     width: 80,
     height: 80,
-    canvas: "scroll",
-    canvases: ["scroll"],
+    carrier: "page",
+    carriers: ["page"],
+    carrierIndex: 0,
     radii: [40, 40, 40, 40],
     cornerExponent: 2,
     fill: [0, 0, 0, 1],
@@ -41,16 +42,16 @@ const range = (firstElement: number, elementCount: number) => ({
 });
 
 describe("lensesOfScope", () => {
-  it("takes the Black holes of the scope on both canvas elements, by their index in the elements", () => {
+  it("takes the Black holes of the scope on every carrier, by their index in the elements", () => {
     const elements = [
       record(1),
       record(2, { roles: 0 }),
       record(3, { scopeIndex: 1 }),
-      record(4, { canvas: "fixed" }),
+      record(4, { carrier: "fixed", carrierIndex: 1 }),
     ];
     const lenses = lensesOfScope(
       elements,
-      { scroll: range(0, 2), fixed: range(3, 1), fixedBottom: range(4, 0) },
+      { ranges: [range(0, 2), range(3, 1), range(4, 0)] },
       VIEWPORT,
     );
     expect(lenses.map(({ element }) => element).toSorted()).toEqual([0, 3]);
@@ -63,11 +64,7 @@ describe("lensesOfScope", () => {
     expect(
       lensesOfScope(
         elements,
-        {
-          scroll: range(0, 12),
-          fixed: range(12, 0),
-          fixedBottom: range(12, 0),
-        },
+        { ranges: [range(0, 12), range(12, 0), range(12, 0)] },
         VIEWPORT,
       ),
     ).toHaveLength(SCENE_LAYOUT.maxLenses);

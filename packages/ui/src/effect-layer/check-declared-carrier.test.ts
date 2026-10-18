@@ -4,8 +4,8 @@ import {
   carrierMismatch,
   checkDeclaredCarrier,
   isAtViewportBottom,
+  stickyBoxesOn,
   viewportFixedBox,
-  viewportStickyBoxes,
 } from "./check-declared-carrier.ts";
 import {
   PAGE_CARRIER,
@@ -86,7 +86,10 @@ describe("isAtViewportBottom", () => {
   });
 });
 
-describe("viewportStickyBoxes", () => {
+describe("stickyBoxesOn", () => {
+  const viewportStickyBoxes = (element: Element) =>
+    stickyBoxesOn(element, null).boxes;
+
   it("lists each sticky box around the element that sticks to the viewport", () => {
     const target = mount(
       '<div id="outer" style="position: sticky"><div id="inner" style="position: sticky"><p data-target></p></div></div>',
@@ -134,11 +137,39 @@ const sticky = (parent: EffectCarrierRef = PAGE_CARRIER): EffectCarrierRef => ({
   parent,
 });
 
-/** The check's context, where sticky carrier 1 is the box `#bar`. */
+/**
+ * The check's context, where sticky carrier 1 is the box `#bar`, and Scroll
+ * region 2 has the scroller `#list`.
+ */
 const context = {
   styleOf: getComputedStyle,
   stickyBox: (id: number) => (id === 1 ? document.getElementById("bar") : null),
+  regionScroller: (id: number) =>
+    id === 2 ? document.getElementById("list") : null,
+  hasRegion: (id: number) =>
+    id === 2 && document.getElementById("list") !== null,
+  isInModalCover: (element: Element) =>
+    element.closest("[data-modal-cover]") !== null,
 };
+
+const region = (parent: EffectCarrierRef = PAGE_CARRIER): EffectCarrierRef => ({
+  kind: "region",
+  id: 2,
+  parent,
+});
+
+/** Makes `box` as tall as `clientHeight` with content as tall as `scrollHeight`. */
+function overflow(
+  box: Element | null,
+  clientHeight: number,
+  scrollHeight: number,
+) {
+  if (box === null) {
+    throw new Error("no box");
+  }
+  Object.defineProperty(box, "clientHeight", { value: clientHeight });
+  Object.defineProperty(box, "scrollHeight", { value: scrollHeight });
+}
 
 describe("carrierMismatch", () => {
   it("agrees with an element on the page that declares nothing", () => {
@@ -184,6 +215,32 @@ describe("carrierMismatch", () => {
     );
   });
 
+  it("agrees with a viewport declaration in a modal cover, where the page cannot scroll", () => {
+    const target = mount(
+      '<div style="position: absolute; bottom: 0"><div data-modal-cover><p data-target></p></div></div>',
+    );
+    expect(carrierMismatch(target, VIEWPORT_CARRIER, context)).toBeNull();
+
+    const outside = mount(
+      '<div style="position: absolute; bottom: 0"><div><p data-target></p></div></div>',
+    );
+    expect(carrierMismatch(outside, VIEWPORT_CARRIER, context)).toMatch(
+      /scrolls with the page/,
+    );
+  });
+
+  it("still checks a Scroll region in a modal cover", () => {
+    const target = mount(
+      '<div data-modal-cover><div id="list" style="overflow-y: auto"><div id="bar" style="position: sticky; bottom: 0"><p data-target></p></div></div></div>',
+    );
+    expect(carrierMismatch(target, region(VIEWPORT_CARRIER), context)).toMatch(
+      /no useEffectSticky declares it/,
+    );
+    expect(
+      carrierMismatch(target, sticky(region(VIEWPORT_CARRIER)), context),
+    ).toBeNull();
+  });
+
   it("reports a sticky box that no sticky carrier declares", () => {
     const target = mount(
       '<div id="bar" style="position: sticky; top: 0"><p data-target></p></div>',
@@ -201,6 +258,60 @@ describe("carrierMismatch", () => {
     expect(carrierMismatch(target, sticky(), context)).toMatch(
       /scroll container/,
     );
+  });
+
+  it("reports a scroller that scrolls its content but that no Scroll region declares", () => {
+    const target = mount(
+      '<div id="list" style="overflow-y: auto"><div><p data-target></p></div></div>',
+    );
+    overflow(document.getElementById("list"), 100, 400);
+    expect(carrierMismatch(target, PAGE_CARRIER, context)).toMatch(
+      /useScrollRegion/,
+    );
+    expect(carrierMismatch(target, region(), context)).toBeNull();
+  });
+
+  it("agrees with a scroller whose content fits, and with one that only clips", () => {
+    const fits = mount(
+      '<div id="list" style="overflow-y: auto"><p data-target></p></div>',
+    );
+    overflow(document.getElementById("list"), 100, 100);
+    expect(carrierMismatch(fits, PAGE_CARRIER, context)).toBeNull();
+    const clips = mount(
+      '<div style="overflow-y: hidden; overflow-x: auto"><p data-target></p></div>',
+    );
+    expect(carrierMismatch(clips, PAGE_CARRIER, context)).toBeNull();
+  });
+
+  it("reports a scroller nested in a Scroll region that no region declares", () => {
+    const target = mount(
+      '<div id="list" style="overflow-y: auto"><div id="inner" style="overflow-y: scroll"><p data-target></p></div></div>',
+    );
+    overflow(document.getElementById("list"), 100, 400);
+    overflow(document.getElementById("inner"), 50, 300);
+    expect(carrierMismatch(target, region(), context)).toMatch(
+      /scroller <div#inner>/,
+    );
+  });
+
+  it("agrees with a sticky box in a Scroll region that sticks to the region's scroller", () => {
+    const target = mount(
+      '<div id="list" style="overflow-y: auto"><div id="bar" style="position: sticky; top: 0"><p data-target></p></div></div>',
+    );
+    expect(carrierMismatch(target, sticky(region()), context)).toBeNull();
+    expect(carrierMismatch(target, region(), context)).toMatch(
+      /useEffectSticky/,
+    );
+    expect(carrierMismatch(target, sticky(), context)).toMatch(
+      /scroll container <div#list>/,
+    );
+  });
+
+  it("ignores a sticky box with no sticky offset, which never sticks", () => {
+    const target = mount(
+      '<div style="position: sticky"><p data-target></p></div>',
+    );
+    expect(carrierMismatch(target, PAGE_CARRIER, context)).toBeNull();
   });
 
   it("agrees with a sticky box that is fixed or in flow at this breakpoint", () => {

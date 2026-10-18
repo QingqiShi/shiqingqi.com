@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { clockAt } from "../test-support/clock-at.ts";
 import { layOut } from "../test-support/lay-out.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import { fixedBottomTop } from "./compute-bands.ts";
+import type { RegisteredRegion } from "./create-effect-registry.ts";
 import {
   createElementTracker,
   createMeasureContext,
@@ -17,8 +19,8 @@ import {
 
 /**
  * The context of one frame, at a scroll, where every element declares
- * `carrier`, sticky carrier 1 is `stickyBox`, and it is stuck when `stuck`
- * says so.
+ * `carrier`, sticky carrier 1 on the page is `stickyBox` and is stuck when
+ * `stuck` says so, and `region` is the only Scroll region.
  */
 function context(
   scrollX = 0,
@@ -26,13 +28,22 @@ function context(
   carrier: EffectCarrierRef = PAGE_CARRIER,
   stickyBox: Element | null = null,
   viewportBottom = 0,
+  region?: RegisteredRegion,
   stuck = false,
 ): MeasureContext {
   return {
     ...createMeasureContext(() => viewportBottom, {
       carrierOf: () => carrier,
-      stickyBox: (id) => (id === 1 ? stickyBox : null),
-      isStuck: (id) => id === 1 && stuck,
+      sticky: (id) =>
+        id === 1 && stickyBox !== null
+          ? {
+              element: stickyBox,
+              carrier: { kind: "sticky", id, parent: PAGE_CARRIER },
+              isStuck: () => stuck,
+            }
+          : undefined,
+      region: (id) => (id === region?.id ? region : undefined),
+      isInModalCover: () => false,
     }),
     scrollX,
     scrollY,
@@ -77,17 +88,17 @@ describe("createElementTracker", () => {
     tracker.measure(context(0, 500));
     expect(tracker.measured).toMatchObject({
       box: { x: 10, y: 20, width: 100, height: 40 },
-      canvas: "scroll",
+      carrier: "page",
     });
-    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 520 });
+    expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 520 });
   });
 
-  it("takes the canvas from the declared carrier, not from where the browser lays the element out", () => {
+  it("takes the carrier it declares, not from where the browser lays the element out", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";
     vi.spyOn(console, "warn").mockImplementation(() => {});
     tracker.measure(context(0, 500));
-    expect(tracker.measured?.canvas).toBe("scroll");
+    expect(tracker.measured?.carrier).toBe("page");
     expect(console.warn).toHaveBeenCalledOnce();
     vi.restoreAllMocks();
   });
@@ -116,22 +127,22 @@ describe("createElementTracker", () => {
       parent: PAGE_CARRIER,
     };
     layOut(bar, { x: 0, y: 0, width: 300, height: 60 });
-    tracker.measure(context(0, 500, carrier, bar, 0, true));
-    expect(tracker.measured?.canvas).toBe("fixed");
-    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 920 });
+    tracker.measure(context(0, 500, carrier, bar, 0, undefined, true));
+    expect(tracker.measured?.carrier).toBe("fixed");
+    expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 920 });
 
     layOut(bar, { x: 0, y: -40, width: 300, height: 60 });
-    tracker.measure(context(0, 500, carrier, bar, 0, false));
-    expect(tracker.measured?.canvas).toBe("scroll");
-    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 520 });
+    tracker.measure(context(0, 500, carrier, bar, 0, undefined, false));
+    expect(tracker.measured?.carrier).toBe("page");
+    expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 520 });
   });
 
   it("moves an element on the viewport with the scroll it is asked at", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";
     tracker.measure(context(0, 500, VIEWPORT_CARRIER));
-    expect(tracker.measured?.canvas).toBe("fixed");
-    expect(tracker.boxAt(0, 900, () => 0)).toMatchObject({ x: 10, y: 920 });
+    expect(tracker.measured?.carrier).toBe("fixed");
+    expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 920 });
   });
 
   it("keeps an element on the viewport's bottom edge at its distance from that edge", () => {
@@ -140,9 +151,15 @@ describe("createElementTracker", () => {
     element.style.bottom = "16px";
     layOut(element, { x: 16, y: 736, width: 300, height: 48 });
     tracker.measure(context(0, 500, VIEWPORT_BOTTOM_CARRIER, null, 800));
-    expect(tracker.measured?.canvas).toBe("fixedBottom");
-    expect(tracker.boxAt(0, 900, () => 800)).toMatchObject({ x: 16, y: 1636 });
-    expect(tracker.boxAt(0, 900, () => 760)).toMatchObject({ x: 16, y: 1596 });
+    expect(tracker.measured?.carrier).toBe("fixedBottom");
+    expect(tracker.boxAt(clockAt(0, 900, 800))).toMatchObject({
+      x: 16,
+      y: 1636,
+    });
+    expect(tracker.boxAt(clockAt(0, 900, 760))).toMatchObject({
+      x: 16,
+      y: 1596,
+    });
   });
 
   it("keeps an element on the viewport's bottom edge at one place on the bottom canvas while the edge moves, with no new measurement", () => {
@@ -153,7 +170,7 @@ describe("createElementTracker", () => {
     tracker.measure(context(0, 0, VIEWPORT_BOTTOM_CARRIER, null, 800));
     const canvasHeight = 900;
     const onCanvas = (scrollY: number, viewportBottom: number) =>
-      (tracker.boxAt(0, scrollY, () => viewportBottom)?.y ?? Number.NaN) -
+      (tracker.boxAt(clockAt(0, scrollY, viewportBottom))?.y ?? Number.NaN) -
       fixedBottomTop(scrollY, viewportBottom, canvasHeight);
     const measurement = tracker.measurement;
     const places = [
@@ -164,6 +181,32 @@ describe("createElementTracker", () => {
     ].map(([scrollY, viewportBottom]) => onCanvas(scrollY, viewportBottom));
     expect(tracker.measurement).toBe(measurement);
     expect(places).toEqual([836, 836, 836, 836]);
+  });
+
+  it("keeps an element in a Scroll region at its place in the content box, which no scroll changes", () => {
+    const { observers, element, tracker } = setUp();
+    const scroller = document.createElement("div");
+    const content = document.createElement("div");
+    document.body.append(scroller);
+    scroller.append(content);
+    content.append(element);
+    layOut(content, { x: 0, y: -300, width: 400, height: 2000 });
+    const region = { id: 4, scroller, content, parent: PAGE_CARRIER };
+    const carrier: EffectCarrierRef = {
+      kind: "region",
+      id: 4,
+      parent: PAGE_CARRIER,
+    };
+    tracker.measure(context(0, 500, carrier, null, 0, region));
+    expect(tracker.measured).toMatchObject({
+      carrier: 4,
+      local: { x: 10, y: 320, width: 100, height: 40 },
+    });
+    expect(
+      tracker.boxAt(clockAt(0, 900, 0, new Map([[4, { x: 50, y: 700 }]]))),
+    ).toMatchObject({ x: 60, y: 1020 });
+    expect(tracker.boxAt(clockAt(0, 900))).toBeNull();
+    expect(observers.intersectionRootsOf(element)).toEqual([content]);
   });
 
   it("queues itself when its own ResizeObserver reports a new size", () => {

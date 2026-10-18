@@ -9,6 +9,9 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
+import { OptionalEffectCarrier } from "../effect-layer/effect-carrier.tsx";
+import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { getScrollBehavior } from "../get-scroll-behavior.ts";
 import {
   useScrollMask,
@@ -16,7 +19,7 @@ import {
 } from "../hooks/use-scroll-mask.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
-import { space } from "../tokens.stylex.ts";
+import { layer, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { MaskBand } from "./mask-band.tsx";
 import { ScrollButton } from "./scroll-button.tsx";
@@ -146,6 +149,11 @@ interface ScrollMaskProps extends Omit<
  * stopping at a line. The root never clips — the consumer's corners, border,
  * and background reach the scroller and bands by inheritance, so nothing
  * above the bands may clip either (see `MaskBand`).
+ *
+ * A vertical region is a Scroll region of the effect layer: the effects of
+ * the controls in it move with its scroll. A box in the scroller holds the
+ * content and takes the scroller's layout of the children, so `contentCss`
+ * still lays them out. The chrome stays over the effects.
  */
 export function ScrollMask({
   children,
@@ -166,6 +174,15 @@ export function ScrollMask({
   const { showStartMask, showEndMask } = useScrollMask(scrollRef, orientation);
 
   const isHorizontal = orientation === "horizontal";
+  // The effect layer has bands only on the block axis, so only a vertical
+  // region is a Scroll region.
+  const region = useScrollRegion();
+  const { scroller: regionScroller, content: regionContent } = region;
+  const startSticky = useEffectSticky();
+  const { ref: startStickyRef, css: startStickyCss } = startSticky;
+  const endSticky = useEffectSticky();
+  const { ref: endStickyRef, css: endStickyCss } = endSticky;
+  const isRegion = !isHorizontal;
   const hasStartChrome = startChrome != null;
   const hasEndChrome = endChrome != null;
   const hasChrome = hasStartChrome || hasEndChrome;
@@ -294,7 +311,11 @@ export function ScrollMask({
     >
       <div
         {...rest}
-        ref={mergeRefs(scrollRef, forwardedRef)}
+        ref={mergeRefs(
+          scrollRef,
+          forwardedRef,
+          isRegion ? regionScroller : undefined,
+        )}
         css={[
           isHorizontal ? styles.scrollerHorizontal : styles.scrollerVertical,
           hasChrome &&
@@ -326,30 +347,57 @@ export function ScrollMask({
               : dynamicStyles.clipMarginInline(clipMargin)),
         ]}
       >
-        {hasStartChrome && (
-          <div
-            ref={startChromeRef}
-            css={[
-              styles.chrome,
-              isHorizontal ? styles.chromeInlineStart : styles.chromeBlockStart,
-            ]}
-          >
-            {startChrome}
-          </div>
-        )}
-        {hasChrome ? <div css={styles.middle}>{children}</div> : children}
-        {hasEndChrome && (
-          <div
-            ref={endChromeRef}
-            css={[
-              styles.chrome,
-              isHorizontal ? styles.chromeInlineEnd : styles.chromeBlockEnd,
-              endChromeCss,
-            ]}
-          >
-            {endChrome}
-          </div>
-        )}
+        <OptionalEffectCarrier value={isRegion ? region : null}>
+          {hasStartChrome && (
+            <div
+              ref={mergeRefs(
+                startChromeRef,
+                isRegion ? startStickyRef : undefined,
+              )}
+              css={[
+                styles.chrome,
+                isRegion && styles.chromeOverEffects,
+                isHorizontal
+                  ? styles.chromeInlineStart
+                  : styles.chromeBlockStart,
+                isRegion && startStickyCss,
+              ]}
+            >
+              <OptionalEffectCarrier value={isRegion ? startSticky : null}>
+                {startChrome}
+              </OptionalEffectCarrier>
+            </div>
+          )}
+          {hasChrome || isRegion ? (
+            <div
+              ref={isRegion ? regionContent : undefined}
+              css={[
+                hasChrome ? styles.middle : styles.contentTakesLayout,
+                isRegion && styles.content,
+              ]}
+            >
+              {children}
+            </div>
+          ) : (
+            children
+          )}
+          {hasEndChrome && (
+            <div
+              ref={mergeRefs(endChromeRef, isRegion ? endStickyRef : undefined)}
+              css={[
+                styles.chrome,
+                isRegion && styles.chromeOverEffects,
+                isHorizontal ? styles.chromeInlineEnd : styles.chromeBlockEnd,
+                endChromeCss,
+                isRegion && endStickyCss,
+              ]}
+            >
+              <OptionalEffectCarrier value={isRegion ? endSticky : null}>
+                {endChrome}
+              </OptionalEffectCarrier>
+            </div>
+          )}
+        </OptionalEffectCarrier>
       </div>
       <MaskBand
         css={[
@@ -450,6 +498,37 @@ const styles = stylex.create({
     flexGrow: 1,
     flexShrink: 0,
   },
+  // The effect layer puts the Scroll region's <canvas> elements at the end of
+  // this box, so they cover it and scroll with it.
+  content: {
+    position: "relative",
+  },
+  // The one child of the scroller lays out the children as the scroller
+  // would, from the layout that `contentCss` gives the scroller, and fills
+  // the scroller's content box on each axis.
+  contentTakesLayout: {
+    display: "inherit",
+    flexDirection: "inherit",
+    flexWrap: "inherit",
+    alignItems: "inherit",
+    alignContent: "inherit",
+    justifyContent: "inherit",
+    justifyItems: "inherit",
+    rowGap: "inherit",
+    columnGap: "inherit",
+    gridTemplateColumns: "inherit",
+    gridTemplateRows: "inherit",
+    gridTemplateAreas: "inherit",
+    gridAutoFlow: "inherit",
+    gridAutoColumns: "inherit",
+    gridAutoRows: "inherit",
+    flexGrow: 1,
+    flexShrink: 0,
+    alignSelf: "stretch",
+    justifySelf: "stretch",
+    gridColumn: "1 / -1",
+    minInlineSize: 0,
+  },
   // z-index:1 clears the middle's own positioned descendants and this edge's
   // band. `backdrop-filter` only blurs what painted before it, so keeping this
   // chrome above keeps it crisp.
@@ -457,6 +536,11 @@ const styles = stylex.create({
     position: "sticky",
     zIndex: 1,
     flexShrink: 0,
+  },
+  // The plane of stuck chrome in a Scroll region, over the region's <canvas>
+  // elements on `layer.effect`. The css of `useEffectSticky` comes after it.
+  chromeOverEffects: {
+    zIndex: layer.raised,
   },
   chromeBlockStart: {
     insetBlockStart: 0,

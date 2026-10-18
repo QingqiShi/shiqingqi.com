@@ -67,7 +67,7 @@ export function DetailOverlay({
   const portalTarget = usePortalTarget();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const coverRef = useEffectCover();
+  const coverRef = useEffectCover({ modal: true });
   // RemoveScroll puts its ref on the card container. It calls the ref with
   // null and does not keep the cleanup that the ref gives. mergeRefs does
   // that cleanup.

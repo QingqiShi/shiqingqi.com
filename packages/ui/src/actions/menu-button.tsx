@@ -12,7 +12,10 @@ import {
 } from "react";
 import { RemoveScroll } from "react-remove-scroll";
 import { clamp } from "../clamp.ts";
+import { OptionalEffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
+import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { useControlled } from "../hooks/use-controlled.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import {
@@ -180,9 +183,16 @@ export function MenuButton({
   const frameRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const coverRef = useEffectCover();
-  const popupRefs = mergeRefs(popupRef, coverRef);
-
   const isSheet = position === "sheet";
+  const region = useScrollRegion();
+  const { scroller: sheetScroller, content: sheetContent } = region;
+  const titleSticky = useEffectSticky();
+  const { ref: titleStickyRef, css: titleStickyCss } = titleSticky;
+  const popupRefs = mergeRefs(
+    popupRef,
+    coverRef,
+    isSheet ? sheetScroller : undefined,
+  );
 
   const targetId = useId();
   const popupId = `${targetId}-popup`;
@@ -343,21 +353,35 @@ export function MenuButton({
                   isSheet && styles.sheetScroller,
                 ]}
               >
-                {/* Hidden: aria-labelledby already names the popup, and a
-                      bare node here would be invalid inside role="menu". */}
-                {children && (
-                  <div
-                    css={[
-                      typeRole.controlCaption,
-                      styles.menuTitle,
-                      isSheet && styles.stickyMenuTitle,
-                    ]}
-                    aria-hidden
-                  >
-                    {children}
-                  </div>
-                )}
-                {menuContent}
+                <div
+                  ref={isSheet ? sheetContent : undefined}
+                  css={styles.menuBody}
+                >
+                  <OptionalEffectCarrier value={isSheet ? region : null}>
+                    {/* Hidden: aria-labelledby already names the popup, and
+                          a bare node here would be invalid inside
+                          role="menu". */}
+                    {children && (
+                      <div
+                        ref={isSheet ? titleStickyRef : undefined}
+                        css={[
+                          typeRole.controlCaption,
+                          styles.menuTitle,
+                          isSheet && styles.stickyMenuTitle,
+                          isSheet && titleStickyCss,
+                        ]}
+                        aria-hidden
+                      >
+                        <OptionalEffectCarrier
+                          value={isSheet ? titleSticky : null}
+                        >
+                          {children}
+                        </OptionalEffectCarrier>
+                      </div>
+                    )}
+                    {menuContent}
+                  </OptionalEffectCarrier>
+                </div>
               </div>
             </RemoveScroll>
           </div>
@@ -491,12 +515,18 @@ const styles = stylex.create({
   },
   // z-index required: `Button`'s resting `transform`/`filter` makes every
   // button its own stacking context, which would otherwise paint over this
-  // heading while scrolling past.
+  // heading while scrolling past. This is the plane of the stuck title. The
+  // css of `useEffectSticky` comes after it.
   stickyMenuTitle: {
     position: "sticky",
     insetBlockStart: 0,
     backgroundColor: color.bgSurfaceRaised,
-    zIndex: layer.content,
+    zIndex: layer.raised,
+  },
+  // A sheet is a Scroll region of the effect layer, and this box holds its
+  // <canvas> elements. The stuck title rises over them.
+  menuBody: {
+    position: "relative",
   },
   // Relies on `position: fixed` resolving to the viewport: a `transform`,
   // `filter`, `contain`, or `will-change: transform` on any ancestor silently

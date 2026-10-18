@@ -84,11 +84,17 @@ const requireRhythmSpacing = {
 
     /** @param {import("estree").Node} leaf */
     function isAllowedGap(leaf) {
+      // `inherit` takes the gap of the parent, thus it picks no size.
       if (leaf.type === "Literal") {
-        return leaf.value === null || leaf.value === 0 || leaf.value === "0";
+        return (
+          leaf.value === null ||
+          leaf.value === 0 ||
+          leaf.value === "0" ||
+          leaf.value === "inherit"
+        );
       }
       const text = getStaticString(leaf);
-      if (text !== null) return text.trim() === "0";
+      if (text !== null) return ["0", "inherit"].includes(text.trim());
       const group = getTokenGroup(sourceCode, leaf);
       return group !== null && gapGroups.has(group);
     }

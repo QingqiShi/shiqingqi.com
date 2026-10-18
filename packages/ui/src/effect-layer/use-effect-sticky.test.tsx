@@ -8,6 +8,7 @@ import { createElementTracker } from "./create-element-tracker.ts";
 import { EffectCarrier } from "./effect-carrier.tsx";
 import { EffectLayerContext } from "./effect-layer-context.ts";
 import { useEffectSticky } from "./use-effect-sticky.ts";
+import { useScrollRegion } from "./use-scroll-region.ts";
 
 const UNSTUCK = "use-effect-sticky__styles.unstuck";
 
@@ -25,7 +26,7 @@ function Bar({ children }: { children?: ReactNode }) {
 /**
  * Renders `ui` around a `Bar` that sticks 64px from the top, and returns a
  * function that lays the bar out `y` px from the top and signals its stuck
- * watch.
+ * watch, with the stand-in observers.
  */
 function renderBar(ui: (bar: ReactNode) => ReactNode = (bar) => bar) {
   const observers = stubObservers();
@@ -35,13 +36,27 @@ function renderBar(ui: (bar: ReactNode) => ReactNode = (bar) => bar) {
   bar.style.top = "64px";
   // An observer reports once when it starts to observe.
   observers.intersect(bar);
-  return (y: number) => {
+  const moveBar = (y: number) => {
     layOut(bar, { x: 0, y, width: 300, height: 48 });
     act(() => {
       observers.intersect(bar);
     });
     return bar;
   };
+  return Object.assign(moveBar, { observers });
+}
+
+/** A Scroll region around `children`. */
+function Region({ children }: { children: ReactNode }) {
+  const region = useScrollRegion();
+  const { scroller, content } = region;
+  return (
+    <div ref={scroller} data-testid="scroller">
+      <div ref={content}>
+        <EffectCarrier value={region}>{children}</EffectCarrier>
+      </div>
+    </div>
+  );
 }
 
 describe("useEffectSticky", () => {
@@ -111,5 +126,46 @@ describe("useEffectSticky", () => {
     expect(bar.dataset.stuck).toBe("true");
     expect(bar.className).not.toContain(UNSTUCK);
     expect(told).toEqual([]);
+  });
+
+  it("watches a box in a Scroll region against the region's scroller less its padding, and switches its plane from there", async () => {
+    const registry = createEffectRegistry();
+    const told: number[] = [];
+    registry.track(
+      (element) => createElementTracker(element, () => {}),
+      (id) => {
+        told.push(id);
+      },
+    );
+    const moveBar = renderBar((bar) => (
+      <EffectLayerContext value={registry}>
+        <Region>{bar}</Region>
+      </EffectLayerContext>
+    ));
+    const scroller = screen.getByTestId("scroller");
+    scroller.style.paddingTop = "16px";
+    layOut(scroller, { x: 0, y: 300, width: 300, height: 400 });
+    // The scroller attaches after the bar, and the bar takes it one task later.
+    await act(async () => {});
+    const bar = screen.getByTestId("bar");
+    expect(moveBar.observers.intersectionRootsOf(bar)).toEqual([scroller]);
+    moveBar.observers.intersect(bar);
+    const id = told.at(0);
+    if (id === undefined) {
+      throw new Error("the bar did not register");
+    }
+
+    moveBar(64);
+    expect(bar.dataset.stuck).toBe("false");
+    expect(bar.className).toContain(UNSTUCK);
+    expect(registry.sticky(id)?.isStuck()).toBe(false);
+
+    moveBar(364);
+    expect(bar.dataset.stuck).toBe("false");
+
+    moveBar(380);
+    expect(bar.dataset.stuck).toBe("true");
+    expect(bar.className).not.toContain(UNSTUCK);
+    expect(registry.sticky(id)?.isStuck()).toBe(true);
   });
 });

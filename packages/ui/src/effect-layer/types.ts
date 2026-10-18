@@ -1,17 +1,18 @@
 import type { Band } from "./compute-bands.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import type { ElementBox } from "./read-element-box.ts";
+import type { CarrierKey } from "./resolve-carrier.ts";
 
 /**
- * The `<canvas>` elements of the effect layer, one for each Effect carrier:
- * the two scroll ones, which take turns to cover the document, for the
- * page; the fixed one, which covers the viewport, for the viewport; or the
- * bottom one, which covers the viewport from its bottom edge and moves with
- * it, for the viewport's bottom edge.
+ * The kind of `<canvas>` element that a target is part of: one of the two
+ * scroll ones of the page, which take turns to cover the document; the
+ * fixed one, which covers the viewport; the bottom one, which covers the
+ * viewport from its bottom edge and moves with it; or one of the two scroll
+ * ones of a Scroll region, which take turns to cover its content.
  *
  * @internal
  */
-export type EffectCanvas = "scroll" | "fixed" | "fixedBottom";
+export type EffectCanvasKind = "page" | "fixed" | "fixedBottom" | "region";
 
 /**
  * The settings of one registration, one entry for each effect hook that has
@@ -64,18 +65,17 @@ export interface MeasuredElement extends ElementBox {
   /** The scope it holds as an Effect container, or `null`. */
   readonly holds: number | null;
   /**
-   * The `<canvas>` element it draws on: the one of the Effect carrier it
-   * was last measured on. The carrier comes from the nearest
-   * `EffectCarrier` above its effect hooks in the React tree. Measurement
-   * does not choose it.
+   * The Effect carrier it draws on: the one it was last measured on. The
+   * declared carrier comes from the nearest `EffectCarrier` above its effect
+   * hooks in the React tree. Measurement does not choose it.
    */
-  readonly canvas: EffectCanvas;
+  readonly carrier: CarrierKey;
   /**
-   * Each `<canvas>` element it can draw on: `canvas`, and the other one of
-   * each sticky carrier that it is on, which it moves to when that box
-   * sticks or lets go.
+   * Each carrier it can draw on: `carrier`, and the other one of each
+   * sticky carrier that it is on, which it moves to when that box sticks or
+   * lets go.
    */
-  readonly canvases: readonly EffectCanvas[];
+  readonly carriers: readonly CarrierKey[];
 }
 
 /**
@@ -87,6 +87,8 @@ export interface MeasuredElement extends ElementBox {
 export interface EffectElementRecord extends MeasuredElement {
   /** The index in `EffectFrame.scopes` of its scope. */
   readonly scopeIndex: number;
+  /** The index in `EffectFrame.carriers` of its carrier. */
+  readonly carrierIndex: number;
 }
 
 /**
@@ -121,15 +123,8 @@ export interface EffectScope {
   readonly backdrop: EffectColor;
   /** Whether the backdrop is dark, so light effects add to it. */
   readonly dark: boolean;
-  /** Its elements in the document, which draw on the bands. */
-  readonly scroll: ElementRange;
-  /** Its fixed elements, which draw on the fixed `<canvas>` element. */
-  readonly fixed: ElementRange;
-  /**
-   * Its elements fixed to the viewport's bottom edge, which draw on the
-   * bottom `<canvas>` element.
-   */
-  readonly fixedBottom: ElementRange;
+  /** Its elements on each carrier, in the order of `EffectFrame.carriers`. */
+  readonly ranges: readonly ElementRange[];
 }
 
 /**
@@ -172,22 +167,26 @@ export interface EffectSetup {
 }
 
 /**
- * One render pass: a band on a scroll `<canvas>` element, the fixed
- * `<canvas>` element, or the bottom one. Lengths are CSS px; positions are
- * page coordinates, from the top-left corner of the document. The pass clears the whole
- * `<canvas>` element and has its scissor rect set to the part to draw.
+ * One render pass: a band on a scroll `<canvas>` element of the page or of
+ * a Scroll region, the fixed `<canvas>` element, or the bottom one. Lengths
+ * are CSS px; positions are page coordinates, from the top-left corner of
+ * the document. The pass clears the whole `<canvas>` element and has its
+ * scissor rect set to the part to draw.
  *
  * @internal
  */
 export interface EffectTarget {
-  readonly canvas: EffectCanvas;
+  readonly kind: EffectCanvasKind;
+  /** The index in `EffectFrame.carriers` of its carrier. */
+  readonly carrier: number;
   /**
    * The band this pass draws, with the part drawn this frame, or `null` on
-   * the fixed and the bottom `<canvas>` elements.
+   * the fixed and the bottom `<canvas>` elements. The band of a Scroll
+   * region is in the coordinates of its content box.
    */
   readonly band: Band | null;
   /**
-   * The `<canvas>` element's top-left corner: the band's document offset,
+   * The `<canvas>` element's top-left corner: the page position of the band,
    * the scroll position on the fixed `<canvas>` element, or the scroll
    * position plus the viewport's bottom edge less the height on the bottom
    * one.
@@ -199,9 +198,7 @@ export interface EffectTarget {
   readonly height: number;
   /**
    * The elements that draw on this `<canvas>` element, as a range of
-   * `EffectFrame.elements`: the ones in the document on a band, the fixed
-   * ones on the fixed `<canvas>` element, the ones fixed to the bottom on the
-   * bottom one, of every scope. Pass it to an instanced draw as
+   * `EffectFrame.elements`: the ones on its carrier, of every scope. Pass it to an instanced draw as
    * `pass.draw(vertices, elementCount, 0, firstElement)`.
    */
   readonly firstElement: number;
@@ -235,10 +232,15 @@ export interface EffectFrame {
   };
   readonly documentHeight: number;
   /**
+   * The carrier of each range of `EffectScope.ranges`: the page, the
+   * viewport, the viewport's bottom edge, then each Scroll region by id.
+   */
+  readonly carriers: readonly CarrierKey[];
+  /**
    * Every registered element with a box, as it is at the start of this
-   * frame: the ones in the document first, then the fixed ones, then the
-   * ones fixed to the bottom, each group by scope in the order of `scopes`,
-   * so each scope is one range of each group. An element whose Effect
+   * frame, grouped by carrier in the order of `carriers`, each group by
+   * scope in the order of `scopes`, so each scope is one range of each
+   * group. An element whose Effect
    * container has no box is not here. An element is measured again only
    * after it can have changed.
    */
@@ -254,7 +256,7 @@ export interface EffectFrame {
    * compute pass sets it itself. It changes when the element buffer grows.
    */
   readonly pageBindGroup: GPUBindGroup;
-  /** Every pass of this frame, bands first. */
+  /** Every pass of this frame. */
   readonly targets: readonly EffectTarget[];
 }
 

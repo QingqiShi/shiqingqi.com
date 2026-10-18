@@ -59,7 +59,7 @@ export function Drawer({
   sidebarFooter,
   children,
 }: DrawerProps) {
-  const coverRef = useEffectCover();
+  const coverRef = useEffectCover({ modal: isOpen });
   const sticky = useEffectSticky();
   const { ref, css } = sticky;
   const railRefs = mergeRefs(drawerRef, coverRef, ref);

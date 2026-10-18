@@ -27,11 +27,12 @@ export type EffectContainerRef = RefCallback<Element> & {
  * page. From outside, the container is an Effect boundary; effect hooks of
  * its own, merged with `mergeRefs`, act in the scope around it.
  *
- * The container needs a box of its own, so not `display: contents`. It must
- * not scroll its own content: with `overflow: auto` or `scroll` the clip
- * stays on the container's box, but the effects stay where the content
- * was. Under a CSS transform or scale the clip and the effects draw at the
- * unscaled size. Outside an `EffectLayerProvider` the ref does nothing.
+ * The container needs a box of its own, so not `display: contents`. A
+ * container that scrolls its own content must also be a Scroll region
+ * (`useScrollRegion`): the clip stays on the container's box, and the
+ * effects move with the content. Under a CSS transform or scale the clip
+ * and the effects draw at the unscaled size. Outside an
+ * `EffectLayerProvider` the ref does nothing.
  */
 export function useEffectContainer(): EffectContainerRef {
   const [scope] = useState(allocateScope);

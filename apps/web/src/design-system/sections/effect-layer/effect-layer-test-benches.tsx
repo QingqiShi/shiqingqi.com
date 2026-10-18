@@ -13,6 +13,7 @@ import { DustTestBench } from "./dust-test-bench.tsx";
 import { EffectContainerTestBench } from "./effect-container-test-bench.tsx";
 import { EffectLayerRippleBench } from "./effect-layer-ripple-bench.tsx";
 import { EffectLayerTestBench } from "./effect-layer-test-bench.tsx";
+import { ScrollRegionTestBench } from "./scroll-region-test-bench.tsx";
 
 interface BenchProps {
   title: string;
@@ -105,6 +106,16 @@ export function EffectLayerTestBenches() {
           })}
         >
           <EffectLayerTestBench />
+        </Bench>
+
+        <Bench
+          title={t({ en: "Scroll regions", zh: "滚动区域" })}
+          helper={t({
+            en: "A vertical Scroll mask is a Scroll region: its two <canvas> elements sit in its content and scroll with it. Flick the list fast: the liquid of each Segmented control stays on its control. Show the four extra regions to see the console warning for more than three Scroll regions at one time.",
+            zh: "纵向的滚动遮罩是一个滚动区域：它的两个 <canvas> 元素位于其内容中，随内容一起滚动。快速滑动列表：每个分段控件的液体都应贴在控件上。显示另外四个区域，即可在控制台看到同时超过三个滚动区域时的警告。",
+          })}
+        >
+          <ScrollRegionTestBench />
         </Bench>
       </div>
     </GuideSection>

@@ -119,8 +119,8 @@ fn curlNoise(point: vec2f) -> vec2f {
 // does not pull at its own dust.
 fn fanGap(page: vec2f, emitter: u32, scope: u32) -> f32 {
   var gap = 1.0;
-  for (var group = 0u; group < EFFECT_CANVAS_COUNT; group += 1u) {
-    let span = effectScopes[scope].ranges[group];
+  for (var group = 0u; group < effectPage.carrierCount; group += 1u) {
+    let span = effectRange(scope, group);
     for (var k = span.x; k < span.x + span.y; k += 1u) {
       let element = effectElements[k];
       let reach = dustElements[k].reach;
@@ -210,8 +210,8 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
   let container = effectScopes[scope].container;
   let inScope = container == EFFECT_NO_CONTAINER
     || effectElementDistance(effectElements[container], position) < 0.0;
-  for (var group = 0u; group < EFFECT_CANVAS_COUNT; group += 1u) {
-    let span = effectScopes[scope].ranges[group];
+  for (var group = 0u; group < effectPage.carrierCount; group += 1u) {
+    let span = effectRange(scope, group);
     for (var k = span.x; k < span.x + span.y; k += 1u) {
       let element = effectElements[k];
       if (element.id == particle.emitter) {

@@ -222,7 +222,7 @@ fn fragmentMain(input: RectVarying) -> @location(0) vec4f {
 /**
  * Writes the minimap at the right edge of the viewport into `rects` and
  * returns how many it wrote: the document as a track, the band each scroll
- * `<canvas>` element sits on, the part of it drawn this frame, and the
+ * `<canvas>` element of the page sits on, the part of it drawn this frame, and the
  * viewport beside them.
  */
 function writeMinimap(
@@ -268,8 +268,8 @@ function writeMinimap(
       write(trackLeft, band.top, 12, band.height, SLOT_COLORS[band.slot], 0.35);
     }
   }
-  for (const { band } of frame.targets) {
-    if (band !== null) {
+  for (const { kind, band } of frame.targets) {
+    if (kind === "page" && band !== null) {
       write(
         trackLeft + 3,
         band.top + band.drawnTop,
@@ -375,8 +375,8 @@ export const debugEffect: Effect = {
     return {
       followsPointer: true,
       update(_encoder, frame) {
-        for (const { band, y } of frame.targets) {
-          if (band !== null) {
+        for (const { kind, band, y } of frame.targets) {
+          if (kind === "page" && band !== null) {
             placed[band.slot] = band;
             layerTop = y - band.top;
           }
@@ -398,7 +398,7 @@ export const debugEffect: Effect = {
         if (target.band !== null) {
           pass.setPipeline(bandPipeline);
           pass.draw(3, 1, 0, target.band.index);
-        } else if (target.canvas === "fixed") {
+        } else if (target.kind === "fixed") {
           const count = writeMinimap(rects, frame, layerTop, placed);
           device.queue.writeBuffer(rectBuffer, 0, rects);
           pass.setPipeline(rectPipeline);
@@ -409,7 +409,7 @@ export const debugEffect: Effect = {
           pass.setPipeline(elementPipeline);
           pass.draw(4, target.elementCount, 0, target.firstElement);
         }
-        if (target.canvas === "fixed" && frame.pointer.present) {
+        if (target.kind === "fixed" && frame.pointer.present) {
           pass.setPipeline(pointerPipeline);
           pass.draw(4);
         }

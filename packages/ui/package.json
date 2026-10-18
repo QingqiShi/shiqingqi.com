@@ -68,6 +68,7 @@
     "./hooks/use-ring-light": "./src/effect-layer/use-ring-light.ts",
     "./hooks/use-ripple": "./src/effect-layer/use-ripple.ts",
     "./hooks/use-scroll-mask": "./src/hooks/use-scroll-mask.ts",
+    "./hooks/use-scroll-region": "./src/effect-layer/use-scroll-region.ts",
     "./utils/contrast-ratio": "./src/contrast/contrast-ratio.ts",
     "./utils/get-scroll-behavior": "./src/get-scroll-behavior.ts",
     "./utils/merge-refs": "./src/merge-refs.ts",

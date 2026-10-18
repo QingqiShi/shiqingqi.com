@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { EffectColor } from "./parse-css-color.ts";
-import { PAGE_SCOPE, peersOf, planScopes } from "./plan-scopes.ts";
+import {
+  PAGE_SCOPE,
+  peersOf,
+  planCanvasNeeds,
+  planScopes,
+} from "./plan-scopes.ts";
 import type { EffectElementRecord, MeasuredElement } from "./types.ts";
 
 function record(
@@ -17,7 +22,7 @@ function record(
     y: 0,
     width: 100,
     height: 40,
-    canvas: "scroll",
+    carrier: "page",
     radii: [0, 0, 0, 0],
     cornerExponent: 2,
     fill: [0, 0, 0, 0],
@@ -25,7 +30,7 @@ function record(
     scope: PAGE_SCOPE,
     holds: null,
     ...overrides,
-    canvases: overrides.canvases ?? [overrides.canvas ?? "scroll"],
+    carriers: overrides.carriers ?? [overrides.carrier ?? "page"],
   };
 }
 
@@ -41,8 +46,8 @@ describe("planScopes", () => {
         record(1),
         record(2, { scope: 40, roles: 1 }),
         record(5, { holds: 40 }),
-        record(3, { canvas: "fixed", scope: 40 }),
-        record(4, { canvas: "fixed" }),
+        record(3, { carrier: "fixed", scope: 40 }),
+        record(4, { carrier: "fixed" }),
       ],
       PAGE,
     );
@@ -50,38 +55,41 @@ describe("planScopes", () => {
     expect(plan.elements.map(({ scopeIndex }) => scopeIndex)).toEqual([
       0, 0, 1, 0, 1,
     ]);
-    expect(plan.document).toEqual({
+    expect(plan.carriers).toEqual(["page", "fixed", "fixedBottom"]);
+    expect(plan.ranges[0]).toEqual({
       firstElement: 0,
       elementCount: 3,
       hasRole: true,
     });
-    expect(plan.fixed).toEqual({
+    expect(plan.ranges[1]).toEqual({
       firstElement: 3,
       elementCount: 2,
       hasRole: false,
     });
     expect(
-      plan.scopes.map(({ id, container, scroll, fixed, fixedBottom }) => ({
+      plan.scopes.map(({ id, container, ranges }) => ({
         id,
         container,
-        scroll,
-        fixed,
-        fixedBottom,
+        ranges,
       })),
     ).toEqual([
       {
         id: PAGE_SCOPE,
         container: -1,
-        scroll: { firstElement: 0, elementCount: 2 },
-        fixed: { firstElement: 3, elementCount: 1 },
-        fixedBottom: { firstElement: 0, elementCount: 0 },
+        ranges: [
+          { firstElement: 0, elementCount: 2 },
+          { firstElement: 3, elementCount: 1 },
+          { firstElement: 0, elementCount: 0 },
+        ],
       },
       {
         id: 40,
         container: 1,
-        scroll: { firstElement: 2, elementCount: 1 },
-        fixed: { firstElement: 4, elementCount: 1 },
-        fixedBottom: { firstElement: 0, elementCount: 0 },
+        ranges: [
+          { firstElement: 2, elementCount: 1 },
+          { firstElement: 4, elementCount: 1 },
+          { firstElement: 0, elementCount: 0 },
+        ],
       },
     ]);
     expect(peersOf(plan.scopes, plan.elements[4])).toEqual({
@@ -93,25 +101,25 @@ describe("planScopes", () => {
   it("puts the elements fixed to the bottom after the fixed ones, on the bottom canvas, each scope one range", () => {
     const plan = planScopes(
       [
-        record(1, { canvas: "fixedBottom", scope: 40, roles: 1 }),
-        record(2, { canvas: "fixedBottom", holds: 40 }),
-        record(3, { canvas: "fixed" }),
+        record(1, { carrier: "fixedBottom", scope: 40, roles: 1 }),
+        record(2, { carrier: "fixedBottom", holds: 40 }),
+        record(3, { carrier: "fixed" }),
         record(4),
       ],
       PAGE,
     );
     expect(ids(plan.elements)).toEqual([4, 3, 2, 1]);
-    expect(plan.fixed).toEqual({
+    expect(plan.ranges[1]).toEqual({
       firstElement: 1,
       elementCount: 1,
       hasRole: false,
     });
-    expect(plan.fixedBottom).toEqual({
+    expect(plan.ranges[2]).toEqual({
       firstElement: 2,
       elementCount: 2,
       hasRole: true,
     });
-    expect(plan.scopes.map(({ fixedBottom }) => fixedBottom)).toEqual([
+    expect(plan.scopes.map(({ ranges }) => ranges[2])).toEqual([
       { firstElement: 2, elementCount: 1 },
       { firstElement: 3, elementCount: 1 },
     ]);
@@ -127,13 +135,13 @@ describe("planScopes", () => {
       [
         record(1, {
           roles: 1,
-          canvas: "fixed",
-          canvases: ["scroll", "fixed"],
+          carrier: "fixed",
+          carriers: ["page", "fixed"],
         }),
       ],
       PAGE,
     );
-    expect(plan.fixedBottom.hasRole).toBe(false);
+    expect(plan.ranges[2].hasRole).toBe(false);
   });
 
   it("points a nested container's scope at the container around it", () => {
@@ -161,22 +169,61 @@ describe("planScopes", () => {
       PAGE,
     );
     expect(ids(plan.elements)).toEqual([4]);
-    expect(plan.document.hasRole).toBe(false);
+    expect(plan.ranges[0].hasRole).toBe(false);
     expect(plan.scopes.map(({ id }) => id)).toEqual([PAGE_SCOPE]);
   });
 
   it("needs both canvases for an element with a role on a sticky carrier, stuck or not", () => {
-    for (const canvas of ["scroll", "fixed"] as const) {
+    for (const carrier of ["page", "fixed"] as const) {
       const plan = planScopes(
         [
-          record(1, { roles: 1, canvas, canvases: ["scroll", "fixed"] }),
+          record(1, { roles: 1, carrier, carriers: ["page", "fixed"] }),
           record(2),
         ],
         PAGE,
       );
-      expect(plan.document.hasRole).toBe(true);
-      expect(plan.fixed.hasRole).toBe(true);
+      expect(plan.ranges[0].hasRole).toBe(true);
+      expect(plan.ranges[1].hasRole).toBe(true);
     }
+  });
+
+  it("gives each Scroll region a carrier after the viewport's, by id, with a range in each scope", () => {
+    const plan = planScopes(
+      [
+        record(1, { carrier: 9, roles: 1 }),
+        record(2, { carrier: 4, scope: 40 }),
+        record(3, { holds: 40 }),
+        record(4, { carrier: "fixed", carriers: [4, "fixed"], roles: 1 }),
+        record(5, { carrier: 4 }),
+      ],
+      PAGE,
+    );
+    expect(plan.carriers).toEqual(["page", "fixed", "fixedBottom", 4, 9]);
+    expect(ids(plan.elements)).toEqual([3, 4, 5, 2, 1]);
+    expect(plan.elements.map(({ carrierIndex }) => carrierIndex)).toEqual([
+      0, 1, 3, 3, 4,
+    ]);
+    expect(plan.ranges.map(({ hasRole }) => hasRole)).toEqual([
+      false,
+      true,
+      false,
+      true,
+      true,
+    ]);
+    expect(plan.scopes.map(({ ranges }) => ranges.slice(3))).toEqual([
+      [
+        { firstElement: 2, elementCount: 1 },
+        { firstElement: 4, elementCount: 1 },
+      ],
+      [
+        { firstElement: 3, elementCount: 1 },
+        { firstElement: 0, elementCount: 0 },
+      ],
+    ]);
+    expect(peersOf(plan.scopes, plan.elements[3])).toEqual({
+      firstElement: 3,
+      elementCount: 1,
+    });
   });
 
   it("leaves out a loop of containers", () => {
@@ -209,5 +256,61 @@ describe("planScopes", () => {
     expect(scope(12)?.backdrop).toEqual([0.1, 0.1, 0.1, 1]);
     expect(scope(13)?.backdrop).toEqual(PAGE);
     expect(scope(14)?.backdrop).toEqual([1, 0, 0, 0.5]);
+  });
+});
+
+describe("planCanvasNeeds", () => {
+  const scroller = document.createElement("div");
+  const content = document.createElement("div");
+  const sheet = document.createElement("div");
+  const inSheet = document.createElement("div");
+  const sheetContent = document.createElement("div");
+  sheet.append(inSheet);
+  const regions = new Map([
+    [4, { id: 4, scroller, content, parent: { kind: "page" } as const }],
+    [
+      9,
+      {
+        id: 9,
+        scroller: inSheet,
+        content: sheetContent,
+        parent: { kind: "viewport", edge: "top" } as const,
+      },
+    ],
+  ]);
+  const plan = planScopes(
+    [
+      record(1, { roles: 1 }),
+      record(2, { carrier: "fixed", roles: 1 }),
+      record(3, { carrier: 4, roles: 1 }),
+      record(4, { carrier: 9, roles: 1 }),
+      record(5, { carrier: "fixedBottom" }),
+    ],
+    PAGE,
+  );
+
+  it("needs the canvases of each carrier with a role", () => {
+    expect(planCanvasNeeds(plan, [], (id) => regions.get(id))).toEqual({
+      page: true,
+      fixed: true,
+      fixedBottom: false,
+      regions: [
+        { id: 4, content },
+        { id: 9, content: sheetContent },
+      ],
+    });
+  });
+
+  it("releases the page and each region outside a modal cover while the cover shows", () => {
+    expect(planCanvasNeeds(plan, [sheet], (id) => regions.get(id))).toEqual({
+      page: false,
+      fixed: true,
+      fixedBottom: false,
+      regions: [{ id: 9, content: sheetContent }],
+    });
+  });
+
+  it("needs no canvases for a region with no scroller or content box", () => {
+    expect(planCanvasNeeds(plan, [], () => undefined).regions).toEqual([]);
   });
 });

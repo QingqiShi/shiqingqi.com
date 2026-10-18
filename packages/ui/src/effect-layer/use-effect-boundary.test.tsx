@@ -185,9 +185,10 @@ describe("effect hooks", () => {
       scope: 0,
       holds: null,
       covers: false,
+      modal: false,
       carrier: PAGE_CARRIER,
       ownCarrier: PAGE_CARRIER,
-      canvases: ["scroll"],
+      carriers: ["page"],
     });
     expect(notified).toBeGreaterThan(0);
   });
@@ -321,9 +322,10 @@ describe("createEffectRegistry", () => {
       scope: 0,
       holds: null,
       covers: false,
+      modal: false,
       carrier: PAGE_CARRIER,
       ownCarrier: PAGE_CARRIER,
-      canvases: ["scroll"],
+      carriers: ["page"],
     });
     expect(registry.getRoles()).toBe(0b11);
 
@@ -336,9 +338,10 @@ describe("createEffectRegistry", () => {
       scope: 0,
       holds: null,
       covers: false,
+      modal: false,
       carrier: PAGE_CARRIER,
       ownCarrier: PAGE_CARRIER,
-      canvases: ["scroll"],
+      carriers: ["page"],
     });
     second.remove();
     expect(registry.elements().size).toBe(0);

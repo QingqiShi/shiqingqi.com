@@ -7,6 +7,7 @@ import {
   useRef,
   ViewTransition,
   type PropsWithChildren,
+  type ReactElement,
   type ReactNode,
   type RefObject,
 } from "react";
@@ -118,8 +119,6 @@ export function Overlay({
 }: PropsWithChildren<OverlayProps>) {
   const deferredIsOpen = useDeferredValue(isOpen);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const coverRef = useEffectCover();
-  const dialogRefs = mergeRefs(dialogRef, coverRef);
 
   useDialogFocus({
     isOpen: deferredIsOpen,
@@ -156,12 +155,7 @@ export function Overlay({
                 own ref, which would clobber a ref placed directly on the
                 dialog div. Passing the ref through RemoveScroll instead keeps
                 `dialogRef` working for focus and the Tab trap. */}
-            <RemoveScroll
-              ref={dialogRefs}
-              enabled={deferredIsOpen}
-              allowPinchZoom
-              forwardProps
-            >
+            <ModalCover dialogRef={dialogRef} enabled={deferredIsOpen}>
               <div
                 css={[corner.radius_4, styles.content]}
                 role="dialog"
@@ -182,7 +176,7 @@ export function Overlay({
                 </div>
                 {children}
               </div>
-            </RemoveScroll>
+            </ModalCover>
           </ViewTransition>
         ) : null}
       </ProgressiveBlur>
@@ -195,6 +189,33 @@ export function Overlay({
     <Portal target={portalTarget} anchored anchorCss={styles.positioningRoot}>
       {overlay}
     </Portal>
+  );
+}
+
+/**
+ * Locks the page under the dialog, its only child, and makes the dialog a
+ * modal Effect cover. It renders inside the `Portal`, so the cover is on the
+ * viewport carrier, as the dialog is.
+ */
+function ModalCover({
+  dialogRef,
+  enabled,
+  children,
+}: {
+  dialogRef: RefObject<HTMLDivElement | null>;
+  enabled: boolean;
+  children: ReactElement;
+}) {
+  const coverRef = useEffectCover({ modal: true });
+  return (
+    <RemoveScroll
+      ref={mergeRefs(dialogRef, coverRef)}
+      enabled={enabled}
+      allowPinchZoom
+      forwardProps
+    >
+      {children}
+    </RemoveScroll>
   );
 }
 

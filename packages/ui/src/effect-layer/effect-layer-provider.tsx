@@ -119,8 +119,8 @@ interface EffectLayerProviderProps {
  * Mount it once, high in the page, inside a positioned `<body>` so that the
  * scroll `<canvas>` elements cover the document and no more. Elements join
  * the layer through the effect hooks. A component that pins content to the
- * viewport, or that sticks, declares this with `EffectCarrier`. It does not
- * add a `<canvas>` element.
+ * viewport, scrolls content, or sticks, declares this with `EffectCarrier`.
+ * It does not add a `<canvas>` element.
  */
 export function EffectLayerProvider({ children }: EffectLayerProviderProps) {
   const [registry] = useState(createEffectRegistry);

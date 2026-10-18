@@ -11,19 +11,26 @@ import {
   type EffectCarrierRef,
 } from "./resolve-carrier.ts";
 import type { EffectSticky } from "./use-effect-sticky.ts";
+import type { ScrollRegionRef } from "./use-scroll-region.ts";
 
 export interface EffectCarrierProps {
   /**
    * What the content moves with. `"viewport"` for content that is fixed to
    * the viewport, `"viewport-bottom"` for content that is fixed to the
-   * viewport's bottom edge, or the result of `useEffectSticky` for content
-   * in a sticky box. `"contained"` for a box that holds the fixed and sticky
+   * viewport's bottom edge, the result of `useEffectSticky` for content in
+   * a sticky box, or the region from `useScrollRegion` for the content of a
+   * Scroll region. `"contained"` for a box that holds the fixed and sticky
    * boxes inside it, such as a preview stage with a `transform`: the content
    * then moves with the carrier around the box, whatever it declares inside.
    *
-   * @zh 内容随什么移动。固定在视口上的内容用 `"viewport"`，固定在视口底边的内容用 `"viewport-bottom"`，粘性盒子里的内容用 `useEffectSticky` 的返回值。`"contained"` 用于自己容纳内部固定与粘性盒子的盒子，例如带 `transform` 的预览舞台：此时内容随盒子外的载体移动，无论内部声明了什么。
+   * @zh 内容随什么移动。固定在视口上的内容用 `"viewport"`，固定在视口底边的内容用 `"viewport-bottom"`，粘性盒子里的内容用 `useEffectSticky` 的返回值，滚动区域的内容用 `useScrollRegion` 返回的区域。`"contained"` 用于自己容纳内部固定与粘性盒子的盒子，例如带 `transform` 的预览舞台：此时内容随盒子外的载体移动，无论内部声明了什么。
    */
-  value: "viewport" | "viewport-bottom" | "contained" | EffectSticky;
+  value:
+    | "viewport"
+    | "viewport-bottom"
+    | "contained"
+    | EffectSticky
+    | ScrollRegionRef;
   /**
    * The content. Each effect hook in it, at any depth, draws its effects on
    * this Effect carrier, also when its element is portalled out, until an
@@ -67,5 +74,25 @@ export function EffectCarrier({ value, children }: EffectCarrierProps) {
         : value.carrier;
   return (
     <EffectCarrierContext value={declared}>{children}</EffectCarrierContext>
+  );
+}
+
+/**
+ * `EffectCarrier` when `value` is set, or else the children alone, for a
+ * component whose box is a carrier only in some modes.
+ *
+ * @internal
+ */
+export function OptionalEffectCarrier({
+  value,
+  children,
+}: {
+  value: EffectCarrierProps["value"] | null;
+  children: ReactNode;
+}) {
+  return value === null ? (
+    children
+  ) : (
+    <EffectCarrier value={value}>{children}</EffectCarrier>
   );
 }

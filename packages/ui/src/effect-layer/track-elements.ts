@@ -1,11 +1,25 @@
-import type { EffectRegistry } from "./create-effect-registry.ts";
+import type {
+  EffectRegistry,
+  RegisteredRegion,
+} from "./create-effect-registry.ts";
 import {
   createElementTracker,
   createMeasureContext,
+  type CarrierClock,
   type ElementTracker,
+  type MeasureContext,
 } from "./create-element-tracker.ts";
 import type { FrameScheduler } from "./create-frame-scheduler.ts";
-import { stickiesOf } from "./resolve-carrier.ts";
+import {
+  createScrollRegion,
+  type RegionPlace,
+  type ScrollRegionWatch,
+} from "./create-scroll-region.ts";
+import {
+  regionsOf,
+  stickiesOf,
+  type EffectCarrierRef,
+} from "./resolve-carrier.ts";
 
 /** Events whose target, with its relative, can enter or leave a state. */
 const STATE_EVENTS = [
@@ -50,13 +64,28 @@ function isRelated(a: Element, b: Element) {
   return a.contains(b) || b.contains(a);
 }
 
+/** Something that the next frame measures. */
+interface Measurable {
+  measure: (context: MeasureContext) => void;
+}
+
+/**
+ * A clock for one frame, which also gives the place of each Scroll region,
+ * read once.
+ *
+ * @internal
+ */
+export interface FrameClock extends CarrierClock {
+  readonly regionPlace: (id: number) => RegionPlace | null;
+}
+
 /**
  * Gives each registered element a tracker, which measures the element again
  * only after a signal that it can have moved, resized or changed fill:
  *
  * - its own `ResizeObserver` reports a new size;
  * - its own `IntersectionObserver` reports a move, as `observeMove` explains;
- * - a nested scroll of a box around it moves it;
+ * - a scroll of a box around it that no Scroll region declares moves it;
  * - a sticky carrier that it is on sticks or lets go, as the stuck watch of
  *   `useEffectSticky` tells the registry;
  * - an attribute of it or an ancestor changes, which can change its style;
@@ -71,9 +100,13 @@ function isRelated(a: Element, b: Element) {
  * measures the queued ones together before it draws, then calls `onChange`.
  * A window scroll measures nothing: the registry keeps elements on the page
  * at their page position and elements on the viewport at their viewport
- * position. When a sticky box sticks or lets go, the elements on it measure
- * again together on their new carrier. `readViewportBottom` reads the
- * viewport's bottom edge, from which an element on that edge is measured.
+ * position. A scroll of a Scroll region measures nothing either: each
+ * element in it keeps its place in the region's content box, and
+ * `createScrollRegion` tracks where that box is. When a sticky box sticks or
+ * lets go, the elements on it measure again together on their new carrier.
+ * `readViewportBottom` reads the viewport's bottom edge, from which an
+ * element on that edge is measured.
+ * `onScroll` asks for a frame after each scroll of a Scroll region.
  *
  * @internal
  */
@@ -82,35 +115,43 @@ export function trackElements(
   frames: FrameScheduler,
   onChange: () => void,
   readViewportBottom: () => number,
+  onScroll: () => void = onChange,
 ) {
-  let queued = new Set<ElementTracker>();
+  let queued = new Set<Measurable>();
   const root = document.documentElement;
-  const lookup = {
-    carrierOf: registry.carrierOf,
-    stickyBox: (id: number) => registry.sticky(id)?.element ?? null,
-    isStuck: (id: number) => registry.sticky(id)?.isStuck() ?? false,
-  };
+  const regions = new Map<number, ScrollRegionWatch>();
+
+  /** The tracker of each element, then the scroller of each region. */
+  function* allTrackers() {
+    yield* registry.trackers();
+    for (const watch of regions.values()) {
+      yield watch.tracker;
+    }
+  }
+
+  const chainOf = (tracker: ElementTracker): EffectCarrierRef =>
+    tracker.declared ?? registry.carrierOf(tracker.element);
 
   const onSticky = (id: number, tracker: ElementTracker) =>
-    stickiesOf(registry.carrierOf(tracker.element)).includes(id);
+    stickiesOf(chainOf(tracker)).includes(id);
 
   function measureQueued() {
-    const trackers = queued;
+    const measured = queued;
     queued = new Set();
-    const context = createMeasureContext(readViewportBottom, lookup);
-    for (const tracker of trackers) {
-      tracker.measure(context);
+    const context = createMeasureContext(readViewportBottom, registry);
+    for (const item of measured) {
+      item.measure(context);
     }
     onChange();
   }
 
-  function queue(tracker: ElementTracker) {
-    queued.add(tracker);
+  function queue(item: Measurable) {
+    queued.add(item);
     frames.read(measureQueued);
   }
 
   function signalWhere(test: (tracker: ElementTracker) => boolean) {
-    for (const tracker of registry.trackers()) {
+    for (const tracker of allTrackers()) {
       if (test(tracker)) {
         tracker.signal();
       }
@@ -125,7 +166,7 @@ export function trackElements(
     source: Element,
     test: (tracker: ElementTracker) => boolean,
   ) {
-    for (const tracker of registry.trackers()) {
+    for (const tracker of allTrackers()) {
       if (test(tracker)) {
         tracker.follow(source);
       }
@@ -135,7 +176,7 @@ export function trackElements(
   // The root element's box is the root of each move watch in the document.
   // When its size changes, each of these watches is wrong.
   const rootObserver = new ResizeObserver(() => {
-    signalWhere(({ measured }) => measured?.canvas === "scroll");
+    signalWhere(({ measured }) => measured?.carrier === "page");
   });
   rootObserver.observe(root);
 
@@ -159,10 +200,13 @@ export function trackElements(
   mutationObserver.observe(root, { attributes: true, subtree: true });
   mutationObserver.observe(document.head, { childList: true });
 
-  // A nested scroller that no carrier declares moves the elements in it
-  // under the compositor. Thus, measure them again, one frame late.
-  function onScroll({ target }: Event) {
-    if (target instanceof Element) {
+  // A nested scroller that no Scroll region declares moves the elements in
+  // it under the compositor. Thus, measure them again, one frame late.
+  function onNestedScroll({ target }: Event) {
+    if (
+      target instanceof Element &&
+      registry.regionOfScroller(target) === undefined
+    ) {
       signalWhere(({ element }) => target.contains(element));
     }
   }
@@ -195,9 +239,9 @@ export function trackElements(
   // sticky offsets or make a sticky box fixed.
   function onResize() {
     signalWhere(
-      ({ element, measured }) =>
-        (measured !== null && measured.canvas !== "scroll") ||
-        stickiesOf(registry.carrierOf(element)).length > 0,
+      (tracker) =>
+        (tracker.measured !== null && tracker.measured.carrier !== "page") ||
+        stickiesOf(chainOf(tracker)).length > 0,
     );
   }
 
@@ -214,7 +258,7 @@ export function trackElements(
     .matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", signalAll, { signal });
   window.addEventListener("resize", onResize, { passive: true, signal });
-  document.addEventListener("scroll", onScroll, capture);
+  document.addEventListener("scroll", onNestedScroll, capture);
   document.addEventListener("load", onLoad, capture);
   for (const type of STATE_EVENTS) {
     document.addEventListener(type, onStateChange, capture);
@@ -226,14 +270,74 @@ export function trackElements(
     document.addEventListener(type, onAnimationStart, capture);
   }
 
+  /** Signals each tracker on the Scroll region `id`. */
+  function signalRegion(id: number) {
+    signalWhere((tracker) => regionsOf(chainOf(tracker)).includes(id));
+  }
+
+  /**
+   * Watches a Scroll region while it has both parts. The elements on it
+   * measure again when the watch starts or stops, because they change
+   * carrier.
+   */
+  function watchRegion(region: RegisteredRegion) {
+    const { id } = region;
+    const watch = createScrollRegion(region, {
+      queue,
+      onScroll,
+      onResize: () => {
+        signalRegion(id);
+      },
+    });
+    regions.set(id, watch);
+    signalRegion(id);
+    return {
+      destroy: () => {
+        watch.destroy();
+        if (regions.get(id) === watch) {
+          regions.delete(id);
+        }
+        signalRegion(id);
+      },
+    };
+  }
+
   const untrack = registry.track(
     (element) => createElementTracker(element, queue),
     (id) => {
       signalWhere((tracker) => onSticky(id, tracker));
     },
+    watchRegion,
   );
 
   return {
+    /**
+     * A clock at this scroll, which reads the viewport's bottom edge and the
+     * place of each Scroll region at most once.
+     */
+    clock(
+      scrollX: number,
+      scrollY: number,
+      viewportBottom: () => number,
+    ): FrameClock {
+      const places = new Map<number, RegionPlace | null>();
+      const regionPlace = (id: number) => {
+        if (!places.has(id)) {
+          // Stops a loop of regions.
+          places.set(id, null);
+          places.set(id, regions.get(id)?.place(clock) ?? null);
+        }
+        return places.get(id) ?? null;
+      };
+      const clock: FrameClock = {
+        scrollX,
+        scrollY,
+        viewportBottom,
+        regionOrigin: (id) => regionPlace(id)?.origin ?? null,
+        regionPlace,
+      };
+      return clock;
+    },
     destroy() {
       untrack();
       queued.clear();

@@ -10,12 +10,8 @@ import {
   type Lens,
   type PageRect,
 } from "./lens-from-box.ts";
-import { CANVAS_ORDER, indicesIn } from "./plan-scopes.ts";
-import type {
-  EffectCanvas,
-  EffectElementRecord,
-  EffectScope,
-} from "./types.ts";
+import { indicesIn } from "./plan-scopes.ts";
+import type { EffectElementRecord, EffectScope } from "./types.ts";
 
 const BLACK_HOLE = roleBits(["blackHole"]);
 
@@ -30,7 +26,7 @@ export interface ShaderLens {
 }
 
 /**
- * The Black holes of one scope, on either `<canvas>` element, the ones that
+ * The Black holes of one scope, on any carrier, the ones that
  * bend light most in `viewport` first, at most `SCENE_LAYOUT.maxLenses`. A
  * lens bends only the light of its own scope.
  *
@@ -38,12 +34,12 @@ export interface ShaderLens {
  */
 export function lensesOfScope(
   elements: readonly EffectElementRecord[],
-  scope: Pick<EffectScope, EffectCanvas>,
+  scope: Pick<EffectScope, "ranges">,
   viewport: PageRect,
 ): ShaderLens[] {
   const lenses: ShaderLens[] = [];
-  for (const element of CANVAS_ORDER.flatMap((canvas) => [
-    ...indicesIn(scope[canvas]),
+  for (const element of scope.ranges.flatMap((range) => [
+    ...indicesIn(range),
   ])) {
     const record = elements[element];
     if ((record.roles & BLACK_HOLE) === 0) {

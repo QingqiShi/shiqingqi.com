@@ -13,8 +13,8 @@ import type { EffectSettings } from "./types.ts";
  * the roles, the settings, the scope or the carrier change; the
  * registration takes the new values, so the element keeps its id. With
  * `holds`, each element is an Effect container that holds that scope. With
- * `covers`, each element is an Effect cover. Outside an
- * `EffectLayerProvider` the ref does nothing.
+ * `covers`, each element is an Effect cover, and with `modal` a modal one.
+ * Outside an `EffectLayerProvider` the ref does nothing.
  *
  * @internal
  */
@@ -23,6 +23,7 @@ export function useEffectRegistration(
   settings: EffectSettings,
   holds: number | null = null,
   covers = false,
+  modal = false,
 ) {
   const registry = use(EffectLayerContext);
   const scope = use(EffectScopeContext);
@@ -50,6 +51,7 @@ export function useEffectRegistration(
         scope: current.scope,
         holds,
         covers,
+        modal,
         carrier: current.carrier,
       },
     );
