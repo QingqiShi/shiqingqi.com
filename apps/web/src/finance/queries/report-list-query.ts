@@ -1,13 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 import { reportApiClient } from "../reports/report-api-client.ts";
 import { reportQuery } from "./report-query.ts";
-import { REPORTS_MAX_AGE } from "./reports-persister.ts";
 
 const MINUTE = 60 * 1000;
 
 /**
  * Every Report without its data, newest week first. Each read marks the
- * stored Reports that the server wrote again since as stale, so they are
+ * Reports in memory that the server wrote again since as stale, so they are
  * read again.
  */
 export const reportListQuery = queryOptions({
@@ -24,5 +23,4 @@ export const reportListQuery = queryOptions({
     return reports;
   },
   staleTime: 5 * MINUTE,
-  gcTime: REPORTS_MAX_AGE,
 });

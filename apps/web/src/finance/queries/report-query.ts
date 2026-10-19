@@ -2,7 +2,6 @@ import { queryOptions } from "@tanstack/react-query";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { reportApiClient } from "../reports/report-api-client.ts";
 import { reportApiSchemas } from "../reports/report-api-schemas.ts";
-import { REPORTS_MAX_AGE } from "./reports-persister.ts";
 
 const HOUR = 60 * 60 * 1000;
 
@@ -23,5 +22,4 @@ export const reportQuery = (id: string) =>
       }
     },
     staleTime: HOUR,
-    gcTime: REPORTS_MAX_AGE,
   });

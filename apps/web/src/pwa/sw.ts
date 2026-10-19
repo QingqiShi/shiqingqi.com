@@ -2,6 +2,7 @@ import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import { Serwist } from "serwist";
 import { FINANCE_PAGES_CACHE } from "#src/pwa/runtime-caching/finance-pages-cache.ts";
+import { FINANCE_REPORTS_CACHE } from "#src/pwa/runtime-caching/finance-reports-cache.ts";
 import { financeRuntimeCaching } from "#src/pwa/runtime-caching/finance-runtime-caching.ts";
 import { isFinancePrecacheMessage } from "#src/pwa/runtime-caching/is-finance-precache-message.ts";
 import { precacheFinancePages } from "#src/pwa/runtime-caching/precache-finance-pages.ts";
@@ -28,10 +29,16 @@ const serwist = new Serwist({
 
 serwist.addEventListeners();
 
-// A stored Finance page names the script chunks of its own build. A new
-// worker comes with a new build, so the pages of the old build are deleted.
+// A stored Finance page names the script chunks of its own build, and a
+// stored Report has the data shape of its own build. A new worker comes with
+// a new build, so the pages and Reports of the old build are deleted.
 self.addEventListener("activate", (event) => {
-  event.waitUntil(caches.delete(FINANCE_PAGES_CACHE));
+  event.waitUntil(
+    Promise.all([
+      caches.delete(FINANCE_PAGES_CACHE),
+      caches.delete(FINANCE_REPORTS_CACHE),
+    ]),
+  );
 });
 
 self.addEventListener("message", (event) => {
