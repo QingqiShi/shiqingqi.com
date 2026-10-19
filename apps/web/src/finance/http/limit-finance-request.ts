@@ -20,7 +20,6 @@ const LIMITS: Record<
   "ai-suggest": { tokens: 30, window: "60 s" },
   "ai-teach": { tokens: 10, window: "60 s" },
   "report-regenerate": { tokens: 10, window: "60 s" },
-  "report-image": { tokens: 20, window: "60 s" },
 };
 
 const limiters = new Map<FinanceRateLimitBucket, Ratelimit>();

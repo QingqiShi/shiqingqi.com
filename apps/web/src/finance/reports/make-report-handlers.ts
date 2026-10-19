@@ -11,8 +11,6 @@ import {
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import type { LimitFinanceRequest } from "../http/types.ts";
 import { generateWeeklyReports } from "./generate-weekly-reports.ts";
-import type { ReportFont } from "./load-report-fonts.ts";
-import { renderWeeklyReportImage } from "./render-weekly-report-image.ts";
 import type {
   OutdatedReportResponse,
   RegenerateReportResponse,
@@ -27,7 +25,6 @@ interface ReportHandlerDependencies {
   isConfigured: () => boolean;
   getDb: () => FinanceDb;
   getSession: (request: Request) => Promise<FinanceSession | null>;
-  loadFonts: (text: string) => Promise<ReportFont[]>;
   now: () => Date;
   limitRequest?: LimitFinanceRequest;
 }
@@ -38,13 +35,6 @@ interface ReportRouteContext {
 }
 
 const regenerateSchema = z.object({ periodEnd: z.iso.date().optional() });
-const imageQuerySchema = z.object({
-  locale: z.enum(["en", "zh"]).catch("en"),
-  names: z
-    .string()
-    .nullable()
-    .transform((value) => value === "1"),
-});
 
 function failure(code: ReportApiErrorCode, status: number) {
   return financeJson({ error: code }, { status });
@@ -169,28 +159,6 @@ export function makeReportHandlers(dependencies: ReportHandlerDependencies) {
         status: 204,
         headers: { "Cache-Control": FINANCE_NO_STORE },
       });
-    },
-
-    /** `GET /api/finance/reports/[id]/image?locale=en|zh&names=0|1`: the share image as a PNG. */
-    async image(request: Request, context: ReportRouteContext) {
-      const scope = await guard(request, {
-        write: false,
-        rateLimit: { bucket: "report-image", per: "household" },
-      });
-      if (scope instanceof Response) return scope;
-      const report = await findReport(scope, context);
-      if (!report) return failure("not-found", 404);
-      if (!report.data) return outdated(report.row.periodEnd);
-      const { searchParams } = new URL(request.url);
-      const query = imageQuerySchema.parse({
-        locale: searchParams.get("locale"),
-        names: searchParams.get("names"),
-      });
-      return renderWeeklyReportImage(
-        report.data,
-        { locale: query.locale, includeNames: query.names },
-        dependencies.loadFonts,
-      );
     },
   };
 }

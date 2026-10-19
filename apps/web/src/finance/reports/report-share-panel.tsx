@@ -11,7 +11,7 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
 import { downloadBlob } from "#src/browser/download-blob.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -25,11 +25,16 @@ import {
 import type { WeeklyReportResponse } from "./report-api-schemas.ts";
 import { canShareFiles, shareReportImage } from "./share-report-image.ts";
 import { useCategoryLineName } from "./use-category-line-name.ts";
+import { useReportImageCopy } from "./use-report-image-copy.ts";
+
+/** The longest wait for an idle moment before the image is drawn. Safari has no idle callback, so it always waits this long. */
+const IDLE_TIMEOUT_MS = 1000;
 
 /**
- * Share the Report as an image, save it, or copy a short text summary.
- * Where the browser can share files, the image is read ahead: Safari
- * refuses a share that starts too long after the tap.
+ * Share the Report as an image, save it, or copy a short text summary. The
+ * image is drawn on the device when the browser is idle, before a tap:
+ * Safari refuses a share that starts too long after the tap. A tap before
+ * then draws it at once.
  */
 export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
   const locale = useLocale();
@@ -42,22 +47,39 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
   const [sharesFiles] = useState(
     () => typeof navigator !== "undefined" && canShareFiles(navigator),
   );
-  const imageOptions = { locale, includeNames };
-  const image = useQuery({
-    ...reportImageQuery(report.id, imageOptions),
-    enabled: sharesFiles,
-  });
+  const imageCopy = useReportImageCopy();
+  const imageQuery = reportImageQuery(
+    report,
+    { locale, includeNames },
+    imageCopy,
+  );
+  const [drawAhead, setDrawAhead] = useState(false);
+  const image = useQuery({ ...imageQuery, enabled: drawAhead });
+  useEffect(() => {
+    const draw = () => {
+      setDrawAhead(true);
+    };
+    if (typeof requestIdleCallback === "function") {
+      const id = requestIdleCallback(draw, { timeout: IDLE_TIMEOUT_MS });
+      return () => {
+        cancelIdleCallback(id);
+      };
+    }
+    const id = setTimeout(draw, IDLE_TIMEOUT_MS);
+    return () => {
+      clearTimeout(id);
+    };
+  }, []);
   const fileName = `weekly-report-${report.periodEnd}.png`;
   const messages = {
-    title: t({ en: "Weekly report", zh: "周报" }),
     retry: t({
       en: "The image is ready. Tap Share image again.",
       zh: "图片已准备好，请再点一次“分享图片”。",
     }),
     downloaded: t({ en: "Image saved.", zh: "图片已保存。" }),
     imageFailed: t({
-      en: "The image could not be made. Try again when you are online.",
-      zh: "图片未能生成，请联网后重试。",
+      en: "The image could not be made. Try again.",
+      zh: "图片未能生成，请重试。",
     }),
     copied: t({ en: "Summary copied.", zh: "摘要已复制。" }),
     copyFailed: t({
@@ -80,10 +102,7 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
   };
 
   async function readImage() {
-    return (
-      image.data ??
-      (await queryClient.query(reportImageQuery(report.id, imageOptions)))
-    );
+    return image.data ?? (await queryClient.query(imageQuery));
   }
 
   async function share() {
@@ -91,7 +110,7 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
       try {
         const outcome = await shareReportImage(await readImage(), {
           fileName,
-          title: messages.title,
+          title: imageCopy.title,
           target: navigator,
           download: downloadBlob,
         });

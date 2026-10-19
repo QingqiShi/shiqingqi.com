@@ -1,4 +1,3 @@
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { financeFetch } from "../http/finance-fetch.ts";
 import {
   reportApiSchemas,
@@ -38,20 +37,5 @@ export const reportApiClient = {
         body: JSON.stringify(periodEnd === undefined ? {} : { periodEnd }),
       }),
     );
-  },
-
-  /** The share image's URL. Account names show only when `includeNames`. */
-  imageUrl(
-    id: string,
-    {
-      locale,
-      includeNames,
-    }: { locale: SupportedLocale; includeNames: boolean },
-  ) {
-    const query = new URLSearchParams({
-      locale,
-      names: includeNames ? "1" : "0",
-    });
-    return `${reportPath(id)}/image?${query.toString()}`;
   },
 };

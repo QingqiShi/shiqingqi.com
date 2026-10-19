@@ -27,6 +27,8 @@ const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
 /* Specs that need a WebGPU adapter. */
 const webgpuSpecs = /\.webgpu\.spec\.ts$/;
+/* Specs that run in WebKit, the engine of Safari on iPhone. */
+const webkitSpecs = /\.webkit\.spec\.ts$/;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -82,7 +84,12 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: webgpuSpecs,
+      testIgnore: [webgpuSpecs, webkitSpecs],
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+      testMatch: webkitSpecs,
     },
     /* Chromium has no WebGPU adapter without a GPU. These flags give it the
      * SwiftShader adapter, for the WebGPU specs only. On Linux, only the

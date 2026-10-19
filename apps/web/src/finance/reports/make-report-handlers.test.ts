@@ -1,17 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
-import { accountGroups, reports, valuations } from "../db/schema.ts";
+import { reports, valuations } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -26,7 +17,6 @@ const ORIGIN = "https://qingqi.dev";
 const NOW = new Date("2026-10-10T12:00:00Z");
 const SECRET = "cron-secret-for-tests";
 const DB_HOOK_TIMEOUT = 60_000;
-const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -66,15 +56,6 @@ beforeEach(async () => {
   other = await seedTestHousehold(db, "other");
   await seedBalances(home);
   await seedBalances(other);
-  // With Latin names only, the default font covers the image and no font is fetched.
-  await db
-    .update(accountGroups)
-    .set({ name: "Cash" })
-    .where(eq(accountGroups.side, "asset"));
-  await db
-    .update(accountGroups)
-    .set({ name: "Credit" })
-    .where(eq(accountGroups.side, "liability"));
   session = {
     sessionId: randomUUID(),
     userId: randomUUID(),
@@ -92,7 +73,6 @@ const handlers = makeReportHandlers({
   isConfigured: () => true,
   getDb: () => db,
   getSession: () => Promise.resolve(session),
-  loadFonts: () => Promise.resolve([]),
   now: () => NOW,
 });
 
@@ -109,12 +89,6 @@ function request(
     },
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
   });
-}
-
-function isUint8ArrayConstructor(
-  value: unknown,
-): value is Uint8ArrayConstructor {
-  return typeof value === "function" && value.name === "Uint8Array";
 }
 
 function routeContext(id: string) {
@@ -142,11 +116,8 @@ describe("makeReportHandlers", () => {
     const responses = await Promise.all([
       regenerate(),
       handlers.getReport(request(id), routeContext(id)),
-      handlers.image(request(`${id}/image`), routeContext(id)),
     ]);
-    expect(responses.map((response) => response.status)).toEqual([
-      401, 401, 401,
-    ]);
+    expect(responses.map((response) => response.status)).toEqual([401, 401]);
   });
 
   it("stores last week's report and serves its data", async () => {
@@ -191,13 +162,12 @@ describe("makeReportHandlers", () => {
     expect(response.status).toBe(404);
   });
 
-  it("limits how often a Household regenerates or renders a Report", async () => {
+  it("limits how often a Household regenerates a Report", async () => {
     const buckets: string[] = [];
     const limited = makeReportHandlers({
       isConfigured: () => true,
       getDb: () => db,
       getSession: () => Promise.resolve(session),
-      loadFonts: () => Promise.resolve([]),
       now: () => NOW,
       limitRequest: (bucket) => {
         buckets.push(bucket);
@@ -207,16 +177,13 @@ describe("makeReportHandlers", () => {
         });
       },
     });
-    const id = randomUUID();
-
     const regenerated = await limited.regenerate(
       request("regenerate", { method: "POST", body: {} }),
     );
-    const image = await limited.image(request(`${id}/image`), routeContext(id));
 
-    expect([regenerated.status, image.status]).toEqual([429, 429]);
+    expect(regenerated.status).toBe(429);
     expect(regenerated.headers.get("Retry-After")).toBe("30");
-    expect(buckets).toEqual(["report-regenerate", "report-image"]);
+    expect(buckets).toEqual(["report-regenerate"]);
   });
 
   it("lists the household's reports, newest week first", async () => {
@@ -299,40 +266,6 @@ describe("makeReportHandlers", () => {
       error: "outdated",
       periodEnd: "2026-10-04",
     });
-  });
-
-  describe("share image", () => {
-    const jsdomUint8Array = globalThis.Uint8Array;
-    // jsdom puts its own Uint8Array on the global object, so sharp does not
-    // see Node bytes as a buffer. The image renderer runs in Node, so give
-    // it the Node Uint8Array while it renders.
-    beforeAll(() => {
-      const nodeUint8Array: unknown = Object.getPrototypeOf(Buffer);
-      if (isUint8ArrayConstructor(nodeUint8Array)) {
-        globalThis.Uint8Array = nodeUint8Array;
-      }
-    });
-    afterAll(() => {
-      globalThis.Uint8Array = jsdomUint8Array;
-    });
-
-    it("renders the share image as a PNG in both locales", async () => {
-      const { id } = reportApiSchemas.regenerate.parse(
-        await (await regenerate()).json(),
-      );
-      for (const query of ["locale=en&names=1", "locale=zh&names=0"]) {
-        const response = await handlers.image(
-          request(`${id}/image?${query}`),
-          routeContext(id),
-        );
-        expect(response.status).toBe(200);
-        expect(response.headers.get("Content-Type")).toBe("image/png");
-        expect(response.headers.get("Cache-Control")).toBe("private, no-store");
-        const bytes = new Uint8Array(await response.arrayBuffer());
-        expect([...bytes.slice(0, 4)]).toEqual(PNG_SIGNATURE);
-        expect(bytes.length).toBeLessThan(1_000_000);
-      }
-    }, 30_000);
   });
 });
 
