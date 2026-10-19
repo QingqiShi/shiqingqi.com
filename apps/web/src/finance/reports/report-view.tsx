@@ -7,6 +7,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { useStoredRange } from "../accounts/use-stored-range.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import type {
   ReportListItem,
@@ -14,9 +15,11 @@ import type {
 } from "./report-api-schemas.ts";
 import { ReportBackLink } from "./report-back-link.tsx";
 import { ReportBalanceSheet } from "./report-balance-sheet.tsx";
+import { reportColumns } from "./report-columns.stylex.ts";
 import { ReportFooter } from "./report-footer.tsx";
-import { ReportGroups } from "./report-groups.tsx";
+import { ReportGroupNets } from "./report-group-nets.tsx";
 import { ReportHeadline } from "./report-headline.tsx";
+import { ReportMovesChart } from "./report-moves-chart.tsx";
 import { ReportPropertyNet } from "./report-property-net.tsx";
 import { ReportSharePanel } from "./report-share-panel.tsx";
 import { ReportSpending } from "./report-spending.tsx";
@@ -30,7 +33,12 @@ interface ReportViewProps {
   newer: ReportListItem | null;
 }
 
-/** A weekly Report: net worth and its trend, the week's spending, the Groups, and the balance sheet. */
+/**
+ * A weekly Report: net worth, its trend, the balance sheet, the net of each
+ * Group, what moved over the week, the property net, and the week's
+ * spending. In a wide container the charts take one column and the balance
+ * sheet the other.
+ */
 export function ReportView({
   report,
   headingLevel,
@@ -40,9 +48,10 @@ export function ReportView({
   const locale = useLocale();
   const { data } = report;
   const sectionLevel = headingLevel === 1 ? 2 : 3;
+  const [range, setRange] = useStoredRange("finance:report-range", "all");
 
   return (
-    <article css={stack.section}>
+    <article css={[stack.section, layout.container]}>
       <header css={stack.item}>
         <ReportBackLink />
         <div css={[cluster.item, styles.titleRow]}>
@@ -59,15 +68,38 @@ export function ReportView({
         <ReportSharePanel report={report} />
       </header>
       <ReportHeadline data={data} />
-      <ReportTrend data={data} headingLevel={sectionLevel} />
+      <div css={[reportColumns.base, layout.columns]}>
+        <div css={stack.section}>
+          <ReportTrend
+            data={data}
+            headingLevel={sectionLevel}
+            range={range}
+            onRangeChange={setRange}
+          />
+          <ReportGroupNets data={data} headingLevel={sectionLevel} />
+          <ReportMovesChart data={data} headingLevel={sectionLevel} />
+          <ReportPropertyNet
+            data={data}
+            range={range}
+            headingLevel={sectionLevel}
+          />
+        </div>
+        <ReportBalanceSheet data={data} headingLevel={sectionLevel} />
+      </div>
       <ReportSpending data={data} headingLevel={sectionLevel} />
-      <ReportGroups data={data} headingLevel={sectionLevel} />
-      <ReportBalanceSheet data={data} headingLevel={sectionLevel} />
-      <ReportPropertyNet data={data} headingLevel={sectionLevel} />
       <ReportFooter report={report} />
     </article>
   );
 }
+
+const layout = stylex.create({
+  container: {
+    containerType: "inline-size",
+  },
+  columns: {
+    gap: rhythm.section,
+  },
+});
 
 const styles = stylex.create({
   titleBlock: {

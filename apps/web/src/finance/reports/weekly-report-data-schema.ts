@@ -1,10 +1,13 @@
 import { z } from "zod";
 
-/** Bump when the shape of `WeeklyReportData` changes; a stored Report with another version is out of date. */
+/** Bump when a stored Report of the old shape still parses but is out of date. A stored Report that does not parse is out of date without a bump. */
 export const WEEKLY_REPORT_SCHEMA_VERSION = 2;
 
 /** Weeks in the exponential moving average of the net-worth trend. */
 export const TREND_AVERAGE_WEEKS = 13;
+
+/** Weeks in `spending.history`, the Report's own week included. */
+export const SPENDING_HISTORY_WEEKS = 12;
 
 const day = z.iso.date();
 const minor = z.number().int();
@@ -15,10 +18,14 @@ const reportAccountSchema = z.object({
   institution: z.string(),
   kind: z.string(),
   currency: z.string(),
+  /** The Member who owns the Account when the Report is made; null when it has no owner. */
+  ownerName: z.string().nullable().default(null),
   /** The balance at the end of the week in the Account's currency. */
   balanceMinor: minor,
   /** The same balance in the base currency. Accounts add up to their Group's total. */
   baseMinor: minor,
+  /** The base-currency balance at the end of the week before; 0 when the Account did not count then. Accounts add up to their Group's previous total. */
+  previousBaseMinor: minor,
   /** In transit, whose stored name is English, so show it through `isSystem`. */
   isSystem: z.boolean().default(false),
 });
@@ -27,6 +34,8 @@ const reportGroupSchema = z.object({
   id: z.string(),
   name: z.string(),
   totalMinor: minor,
+  /** The total at the end of the week before. The changes of all Groups add up to the net-worth change of the week. */
+  previousTotalMinor: minor,
   accounts: z.array(reportAccountSchema),
 });
 
@@ -43,10 +52,11 @@ const netWorthComparisonSchema = z.object({
   changeMinor: minor,
 });
 
-/** A Group with the liability Groups named after it, such as 不动产 and 不动产负债: one bar in the per-group chart. */
+/** An asset Group with the liability Groups named after it, such as 不动产 and 不动产负债, or a liability Group named after none. */
 const groupNetSchema = z.object({
   name: z.string(),
   groupIds: z.array(z.string()),
+  /** The sum of the Groups' totals. The values of all families add up to the net worth. */
   valueMinor: minor,
 });
 
@@ -62,6 +72,13 @@ const spendingLineSchema = z.object({
   /** The average week of the four weeks before. */
   averageMinor: minor,
   changeMinor: minor,
+});
+
+const spendingWeekSchema = z.object({
+  /** A week end (Sunday). */
+  periodEnd: day,
+  /** Spent in that week, net of Refunds. */
+  totalMinor: minor,
 });
 
 const topPayeeSchema = z.object({
@@ -100,6 +117,7 @@ export const weeklyReportDataSchema = z.object({
     /** The end of 31 December before the week. */
     yearStart: netWorthComparisonSchema,
   }),
+  /** One family per asset Group in balance-sheet order, then the liability Groups named after no asset Group. */
   groupNets: z.array(groupNetSchema),
   propertyNetMinor: minor.nullable(),
   spending: z.object({
@@ -108,6 +126,8 @@ export const weeklyReportDataSchema = z.object({
     changeMinor: minor,
     byCategory: z.array(spendingLineSchema),
     byMember: z.array(spendingLineSchema),
+    /** The spending of each week up to this one, oldest first; at most `SPENDING_HISTORY_WEEKS`, none before the first balance. */
+    history: z.array(spendingWeekSchema),
   }),
   incomeMinor: minor,
   topPayees: z.array(topPayeeSchema),

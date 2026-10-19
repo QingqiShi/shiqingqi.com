@@ -59,4 +59,10 @@ export const chartMarks = stylex.create({
     backgroundColor: color.fgMuted,
     opacity: 0.7,
   },
+  neutralKey: {
+    backgroundColor: `color-mix(in srgb, ${color.fgMuted} 60%, transparent)`,
+  },
+  referenceKey: {
+    backgroundColor: color.fg,
+  },
 });

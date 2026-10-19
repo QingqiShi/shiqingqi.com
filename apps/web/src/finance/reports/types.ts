@@ -10,6 +10,7 @@ export interface ReportSourceGroup {
 export interface ReportSourceAccount {
   id: string;
   groupId: string;
+  ownerMemberId: string | null;
   name: string;
   institution: string;
   kind: string;

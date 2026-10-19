@@ -12,6 +12,7 @@ function account(
   return {
     id,
     groupId: "cash",
+    ownerMemberId: null,
     name: id,
     institution: "",
     kind: "current",

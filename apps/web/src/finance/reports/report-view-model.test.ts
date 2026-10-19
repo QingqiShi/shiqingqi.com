@@ -10,11 +10,17 @@ import {
 import { collectElementText } from "./collect-element-text.ts";
 import { fillTemplate } from "./fill-template.ts";
 import { formatReportWeek } from "./format-report-week.ts";
+import { groupMoves } from "./group-moves.ts";
 import { groupReportsByYear } from "./group-reports-by-year.ts";
 import { layoutBars } from "./layout-bars.ts";
 import type { ReportListItem } from "./report-api-schemas.ts";
 import { reportChartSeries } from "./report-chart-series.ts";
-import { reportGroupBars } from "./report-group-bars.ts";
+import {
+  IMAGE_TABLE_ROW_HEIGHT,
+  IMAGE_TREND_MAX_HEIGHT,
+  IMAGE_TREND_MIN_HEIGHT,
+  reportImageLayout,
+} from "./report-image-layout.ts";
 import {
   WEEKLY_REPORT_SCHEMA_VERSION,
   type SpendingLine,
@@ -84,6 +90,11 @@ const data: WeeklyReportData = {
       spendingLine("refunds", "Shopping", -10_00),
     ],
     byMember: [],
+    history: [
+      { periodEnd: "2026-09-20", totalMinor: 350_00 },
+      { periodEnd: "2026-09-27", totalMinor: 410_00 },
+      { periodEnd: "2026-10-04", totalMinor: 412_30 },
+    ],
   },
   incomeMinor: 0,
   topPayees: [],
@@ -190,7 +201,66 @@ describe("report charts", () => {
     ).toBeNull();
   });
 
-  it("grows negative bars from the zero line towards the start", () => {
+  it("ranks what moved by the size of the change, apart from what did not", () => {
+    const account = (
+      id: string,
+      baseMinor: number,
+      previousBaseMinor: number,
+    ) => ({
+      id,
+      name: id,
+      institution: "",
+      kind: "current",
+      currency: "GBP",
+      ownerName: null,
+      balanceMinor: baseMinor,
+      baseMinor,
+      previousBaseMinor,
+      isSystem: false,
+    });
+    const group = (id: string, accounts: ReturnType<typeof account>[]) => ({
+      id,
+      name: id,
+      totalMinor: accounts.reduce((sum, item) => sum + item.baseMinor, 0),
+      previousTotalMinor: accounts.reduce(
+        (sum, item) => sum + item.previousBaseMinor,
+        0,
+      ),
+      accounts,
+    });
+    const moving: WeeklyReportData = {
+      ...data,
+      balanceSheet: {
+        assets: {
+          totalMinor: 0,
+          groups: [
+            group("cash", [
+              account("current", 4_000_00, 5_500_00),
+              account("savings", 6_000_00, 5_500_00),
+            ]),
+            group("invest", [account("isa", 50_000_00, 49_800_00)]),
+            group("home", [account("house", 500_000_00, 500_000_00)]),
+          ],
+        },
+        liabilities: {
+          totalMinor: 0,
+          groups: [group("card", [account("visa", -500_00, -800_00)])],
+        },
+        netWorthMinor: 0,
+      },
+    };
+    const groups = groupMoves(moving);
+    expect(
+      groups.moved.map((move) => [move.group.id, move.changeMinor]),
+    ).toEqual([
+      ["cash", -1_000_00],
+      ["card", 300_00],
+      ["invest", 200_00],
+    ]);
+    expect(groups.unchanged.map((item) => item.id)).toEqual(["home"]);
+  });
+
+  it("lays bars either side of a shared zero", () => {
     const { zero, bars } = layoutBars([300, -100, 0]);
     expect(zero).toBeCloseTo(0.25);
     expect(bars[0]).toEqual({ offset: 0.25, size: 0.75 });
@@ -200,50 +270,6 @@ describe("report charts", () => {
     expect(layoutBars([0, 0]).bars).toEqual([
       { offset: 0, size: 0 },
       { offset: 0, size: 0 },
-    ]);
-  });
-
-  it("draws each Group at its balance-sheet total, a liability after its asset Group", () => {
-    const group = (id: string, name: string, totalMinor: number) => ({
-      id,
-      name,
-      totalMinor,
-      accounts: [],
-    });
-    const bars = reportGroupBars({
-      ...data,
-      balanceSheet: {
-        assets: {
-          totalMinor: 0,
-          groups: [
-            group("cash", "Cash", 10_000_00),
-            group("home", "Home", 500_000_00),
-          ],
-        },
-        liabilities: {
-          totalMinor: 0,
-          groups: [
-            group("card", "Card", -500_00),
-            group("home-loan", "Home loan", -250_000_00),
-          ],
-        },
-        netWorthMinor: 0,
-      },
-      groupNets: [
-        { name: "Cash", groupIds: ["cash"], valueMinor: 10_000_00 },
-        {
-          name: "Home",
-          groupIds: ["home", "home-loan"],
-          valueMinor: 250_000_00,
-        },
-        { name: "Card", groupIds: ["card"], valueMinor: -500_00 },
-      ],
-    });
-    expect(bars).toEqual([
-      { id: "cash", name: "Cash", valueMinor: 10_000_00 },
-      { id: "home", name: "Home", valueMinor: 500_000_00 },
-      { id: "home-loan", name: "Home loan", valueMinor: -250_000_00 },
-      { id: "card", name: "Card", valueMinor: -500_00 },
     ]);
   });
 
@@ -312,14 +338,63 @@ describe("share image", () => {
       },
     };
     const zh = collectElementText(
-      buildReportImage(withSystemLine, { locale: "zh", includeNames: false }),
+      buildReportImage(withSystemLine, { locale: "zh", includeNames: false })
+        .element,
     );
     expect(zh).toContain("未分类");
     expect(zh).not.toContain("Uncategorised");
     expect(
       collectElementText(
-        buildReportImage(withSystemLine, { locale: "en", includeNames: false }),
+        buildReportImage(withSystemLine, { locale: "en", includeNames: false })
+          .element,
       ),
     ).toContain("Uncategorised");
+  });
+
+  it("says so when nothing was spent", () => {
+    const quiet: WeeklyReportData = {
+      ...data,
+      spending: { ...data.spending, byCategory: [], history: [] },
+      trend: [],
+    };
+    const text = collectElementText(
+      buildReportImage(quiet, { locale: "en", includeNames: true }).element,
+    );
+    expect(text).toContain("Nothing spent this week");
+  });
+});
+
+describe("share image layout", () => {
+  const counts = { groupNets: 7, categories: 4, payees: 5 };
+
+  it("puts the spending under a short balance sheet and lines both columns up", () => {
+    const layout = reportImageLayout({ ...counts, tableRows: 10 });
+    expect(layout.spendingColumn).toBe("left");
+    expect(layout.trendHeight).toBeGreaterThanOrEqual(IMAGE_TREND_MIN_HEIGHT);
+  });
+
+  it("moves the spending to the right under a long balance sheet and grows with it", () => {
+    const short = reportImageLayout({ ...counts, tableRows: 30 });
+    const long = reportImageLayout({ ...counts, tableRows: 34 });
+    expect(short.spendingColumn).toBe("right");
+    expect(long.spendingColumn).toBe("right");
+    expect(long.height - short.height).toBe(4 * IMAGE_TABLE_ROW_HEIGHT);
+    expect(long.trendHeight - short.trendHeight).toBe(
+      4 * IMAGE_TABLE_ROW_HEIGHT,
+    );
+  });
+
+  it("beside a long balance sheet, lists more spending before it stretches the trend", () => {
+    const bare = reportImageLayout({
+      ...counts,
+      payees: 0,
+      tableRows: 44,
+    });
+    const full = reportImageLayout({ ...counts, categories: 6, tableRows: 44 });
+    expect(bare.trendHeight).toBeGreaterThan(IMAGE_TREND_MAX_HEIGHT);
+    expect(full.categories).toBe(6);
+    expect(full.payees).toBe(5);
+    expect(full.height).toBe(bare.height);
+    expect(full.trendHeight).toBeLessThan(bare.trendHeight);
   });
 });
