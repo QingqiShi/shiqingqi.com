@@ -1,12 +1,10 @@
 import "fake-indexeddb/auto";
 import { randomUUID } from "node:crypto";
 import {
-  QueryClient,
-  useIsRestoring,
+  type QueryClient,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { persistQueryClientSave } from "@tanstack/react-query-persist-client";
 import { useEffect, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "#src/testing/test-utils.tsx";
@@ -22,24 +20,17 @@ import { WEEKLY_REPORT_SCHEMA_VERSION } from "../reports/weekly-report-data-sche
 import { FinanceQueryProvider } from "./finance-query-provider.tsx";
 import { reportListQuery } from "./report-list-query.ts";
 import { reportQuery } from "./report-query.ts";
-import {
-  reportsPersister,
-  shouldPersistReportsQuery,
-} from "./reports-persister.ts";
 
-const PERSIST_THROTTLE_MS = 1000;
-
-function OnRestored({ then }: { then: (client: QueryClient) => void }) {
+function OnMount({ then }: { then: (client: QueryClient) => void }) {
   const client = useQueryClient();
-  const isRestoring = useIsRestoring();
   useEffect(() => {
-    if (!isRestoring) then(client);
-  }, [isRestoring, client, then]);
+    then(client);
+  }, [client, then]);
   return null;
 }
 
-function storedReports(householdId: string) {
-  return reportsPersister(householdId).persister.restoreClient();
+function databaseNames() {
+  return indexedDB.databases().then((list) => list.map(({ name }) => name));
 }
 
 afterEach(() => {
@@ -105,96 +96,70 @@ function ReportNetWorth({ id }: { id: string }) {
 }
 
 describe("FinanceQueryProvider", () => {
-  it("reads a stored Report again when the list shows the server wrote it again", async () => {
+  it("reads a Report again when the list shows the server wrote it again", async () => {
     const householdId = randomUUID();
-    const stored = (periodEnd: string): ReportListItem => ({
+    const item: ReportListItem = {
       id: randomUUID(),
-      periodStart: periodEnd,
-      periodEnd,
+      periodStart: "2026-09-28",
+      periodEnd: "2026-10-04",
       generatedAt: "2026-10-05T06:00:00.000Z",
-    });
-    const opened = stored("2026-10-04");
-    const older = stored("2026-09-27");
-    const previous = new QueryClient();
-    previous.setQueryData(reportListQuery.queryKey, [opened, older]);
-    previous.setQueryData(reportQuery(opened.id).queryKey, report(opened, 100));
-    previous.setQueryData(reportQuery(older.id).queryKey, report(older, 100));
-    await persistQueryClientSave({
-      queryClient: previous,
-      persister: reportsPersister(householdId).persister,
-      buster: String(WEEKLY_REPORT_SCHEMA_VERSION),
-      dehydrateOptions: {
-        shouldDehydrateQuery: (query) =>
-          shouldPersistReportsQuery(previous, query),
-      },
-    });
-    await waitFor(
-      async () => {
-        expect(await storedReports(householdId)).toBeDefined();
-      },
-      { timeout: PERSIST_THROTTLE_MS * 3 },
-    );
-    const rewritten = [opened, older].map((item) => ({
-      ...item,
-      generatedAt: "2026-10-11T09:00:00.000Z",
-    }));
+    };
+    const served = { item, netWorthMinor: 100 };
     vi.stubGlobal("fetch", (input: string) => {
       const { pathname } = new URL(input, "http://localhost");
-      const item = rewritten.find((row) => pathname.endsWith(row.id));
-      const body =
-        item === undefined ? { reports: rewritten } : report(item, 200);
+      const body = pathname.endsWith(item.id)
+        ? report(served.item, served.netWorthMinor)
+        : { reports: [served.item] };
       return Promise.resolve(new Response(JSON.stringify(body)));
     });
-    const restored = Promise.withResolvers<QueryClient>();
-
+    const mounted = Promise.withResolvers<QueryClient>();
     const runtime = await renderProvider(
       householdId,
       <>
-        <OnRestored then={restored.resolve} />
-        <ReportNetWorth id={opened.id} />
+        <OnMount then={mounted.resolve} />
+        <ReportNetWorth id={item.id} />
       </>,
     );
+    expect(await screen.findByText("Net worth 100")).toBeVisible();
+    const client = await mounted.promise;
+
+    served.item = { ...item, generatedAt: "2026-10-11T09:00:00.000Z" };
+    served.netWorthMinor = 200;
+    await client.refetchQueries({ queryKey: reportListQuery.queryKey });
 
     expect(await screen.findByText("Net worth 200")).toBeVisible();
-    const client = await restored.promise;
-    expect(client.getQueryState(reportQuery(older.id).queryKey)).toMatchObject({
-      isInvalidated: true,
-    });
     runtime.close();
   });
 
-  it("forgets the Reports and stores nothing more when another tab deletes the Replica", async () => {
+  it("forgets the Reports when another tab deletes the Replica", async () => {
     const householdId = randomUUID();
-    const restored = Promise.withResolvers<QueryClient>();
+    const mounted = Promise.withResolvers<QueryClient>();
     const runtime = await renderProvider(
       householdId,
-      <OnRestored then={restored.resolve} />,
+      <OnMount then={mounted.resolve} />,
     );
-    const client = await restored.promise;
-    const list: ReportListItem[] = [
-      {
-        id: randomUUID(),
-        periodStart: "2026-09-28",
-        periodEnd: "2026-10-04",
-        generatedAt: "2026-10-05T06:00:00.000Z",
-      },
-    ];
-    client.setQueryData(reportListQuery.queryKey, list);
-    await waitFor(
-      async () => {
-        expect(await storedReports(householdId)).toBeDefined();
-      },
-      { timeout: PERSIST_THROTTLE_MS * 3 },
-    );
+    const client = await mounted.promise;
+    client.setQueryData(reportListQuery.queryKey, []);
 
     await deleteReplicaDb(householdId);
 
     expect(client.getQueryCache().getAll()).toEqual([]);
-    client.setQueryData(reportListQuery.queryKey, list);
-    await new Promise((resolve) =>
-      setTimeout(resolve, PERSIST_THROTTLE_MS * 2),
-    );
-    expect(await storedReports(householdId)).toBeUndefined();
+    runtime.close();
+  });
+
+  it("deletes the IndexedDB database where an earlier version kept the Reports", async () => {
+    const legacy = indexedDB.open("finance-reports");
+    await new Promise((resolve) => {
+      legacy.onsuccess = resolve;
+    });
+    legacy.result.close();
+    expect(await databaseNames()).toContain("finance-reports");
+
+    const runtime = await renderProvider(randomUUID(), null);
+
+    await waitFor(async () => {
+      expect(await databaseNames()).not.toContain("finance-reports");
+    });
     runtime.close();
   });
 });

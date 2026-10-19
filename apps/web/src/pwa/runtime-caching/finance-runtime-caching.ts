@@ -7,9 +7,11 @@ import {
 import { FINANCE_SHELL_HEADER } from "#src/finance/http/constants.ts";
 import { FINANCE_OFFLINE_HEADER } from "./finance-offline-header.ts";
 import { FINANCE_PAGES_CACHE } from "./finance-pages-cache.ts";
+import { FINANCE_REPORTS_CACHE } from "./finance-reports-cache.ts";
 import { offlineRedirectFor } from "./offline-redirect-for.ts";
 
 const FINANCE_PAGE = /^(?:\/zh)?\/finance(?:\/|$)/;
+const REPORT_API = /^\/api\/finance\/reports(?:\/[^/]+)?$/;
 const NETWORK_TIMEOUT_SECONDS = 3;
 
 /**
@@ -69,13 +71,28 @@ const offlineFallback: SerwistPlugin = {
   },
 };
 
+/** The Reports list and one Report, which a device keeps for offline use. Not the share image. */
+export function isReportApiPath(pathname: string) {
+  return REPORT_API.test(pathname);
+}
+
 /**
- * Finance offline rules, ahead of the defaults: its API never touches a cache
- * (the Replica is the offline layer), and its pages and their RSC payloads
- * come from the network first, falling back to the last signed-in copy after
- * 3 s, and then to `offlineFallback`.
+ * Finance offline rules, ahead of the defaults. Its pages and their RSC
+ * payloads come from the network first, falling back to the last signed-in
+ * copy after 3 s, and then to `offlineFallback`. The Reports API does the same
+ * with the last 200 answer; the rest of its API never touches a cache (the
+ * Replica is the offline layer).
  */
 export const financeRuntimeCaching: RuntimeCaching[] = [
+  {
+    matcher: ({ url, sameOrigin }) =>
+      sameOrigin && isReportApiPath(url.pathname),
+    method: "GET",
+    handler: new NetworkFirst({
+      cacheName: FINANCE_REPORTS_CACHE,
+      networkTimeoutSeconds: NETWORK_TIMEOUT_SECONDS,
+    }),
+  },
   {
     matcher: ({ url, sameOrigin }) =>
       sameOrigin && url.pathname.startsWith("/api/finance/"),

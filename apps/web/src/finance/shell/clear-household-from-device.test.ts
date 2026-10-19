@@ -1,10 +1,6 @@
 import "fake-indexeddb/auto";
 import { randomUUID } from "node:crypto";
-import { QueryClient } from "@tanstack/react-query";
-import { persistQueryClientSave } from "@tanstack/react-query-persist-client";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { reportListQuery } from "../queries/report-list-query.ts";
-import { reportsPersister } from "../queries/reports-persister.ts";
 import {
   deleteReplicaDb,
   openReplicaDb,
@@ -20,15 +16,6 @@ async function storeReplica(householdId: string) {
   const replica = openReplicaDb(householdId);
   await replica.write({ outboxDelete: ["nothing"] });
   return replica;
-}
-
-async function storeReports(householdId: string) {
-  const queryClient = new QueryClient();
-  queryClient.setQueryData(reportListQuery.queryKey, []);
-  await persistQueryClientSave({
-    queryClient,
-    persister: reportsPersister(householdId).persister,
-  });
 }
 
 /** Opens the Replica database the way an old tab does: it does not close on `versionchange`. */
@@ -50,29 +37,30 @@ afterEach(() => {
 });
 
 describe("clearHouseholdFromDevice", () => {
-  it("closes this tab's Replica, then deletes the Household's Replica and stored Reports only", async () => {
+  it("closes this tab's Replica, then deletes the Household's Replica and the stored pages and Reports", async () => {
     const householdId = randomUUID();
     const otherId = randomUUID();
     const replica = await storeReplica(householdId);
-    await storeReports(householdId);
-    await storeReports(otherId);
+    (await storeReplica(otherId)).close();
+    const deleted: string[] = [];
+    vi.stubGlobal("caches", {
+      delete: (name: string) => {
+        deleted.push(name);
+        return Promise.resolve(true);
+      },
+    });
 
     await clearHouseholdFromDevice(householdId, replica);
 
     expect(await databaseNames()).not.toContain(replicaDbName(householdId));
+    expect(await databaseNames()).toContain(replicaDbName(otherId));
     await expect(replica.loadOutbox()).rejects.toThrow("closed");
-    await expect(
-      reportsPersister(householdId).persister.restoreClient(),
-    ).resolves.toBeUndefined();
-    await expect(
-      reportsPersister(otherId).persister.restoreClient(),
-    ).resolves.toBeDefined();
+    expect(deleted.toSorted()).toEqual(["finance-pages", "finance-reports"]);
   });
 
   it("rejects when one copy is not deleted, after it deleted the others", async () => {
     const householdId = randomUUID();
     const replica = await storeReplica(householdId);
-    await storeReports(householdId);
     vi.stubGlobal("caches", {
       delete: () => Promise.reject(new Error("The cache is not deleted")),
     });
@@ -81,9 +69,6 @@ describe("clearHouseholdFromDevice", () => {
       clearHouseholdFromDevice(householdId, replica),
     ).rejects.toThrow("Household data remains on this device");
     expect(await databaseNames()).not.toContain(replicaDbName(householdId));
-    await expect(
-      reportsPersister(householdId).persister.restoreClient(),
-    ).resolves.toBeUndefined();
   });
 });
 

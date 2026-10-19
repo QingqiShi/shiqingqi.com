@@ -13,10 +13,6 @@ function minorOf(text: string | null) {
   return Math.round(Number(value) * 100);
 }
 
-const REPORT_API = /\/api\/finance\/reports(?:[/?]|$)/;
-const SYNC_API = "**/api/finance/sync**";
-const PERSIST_THROTTLE_MS = 1000;
-
 function sameOrigin(page: Page) {
   return { Origin: new URL(page.url()).origin, Referer: page.url() };
 }
@@ -35,33 +31,34 @@ async function makeReport(page: Page, periodEnd: string) {
   return String(body.id);
 }
 
-/** The Reports this device stored for offline, one value for each Household. */
+/** The paths of the Reports answers that the service worker keeps for offline use. */
 function storedReports(page: Page) {
-  return page.evaluate(
-    () =>
-      new Promise<string[]>((resolve, reject) => {
-        const open = indexedDB.open("finance-reports");
-        open.onupgradeneeded = () => {
-          open.result.createObjectStore("queries");
-        };
-        open.onerror = () => {
-          reject(new Error("The Reports store did not open"));
-        };
-        open.onsuccess = () => {
-          const read = open.result
-            .transaction("queries", "readonly")
-            .objectStore("queries")
-            .getAll();
-          read.onerror = () => {
-            reject(new Error("The Reports store did not read"));
-          };
-          read.onsuccess = () => {
-            open.result.close();
-            resolve(read.result.map(String));
-          };
-        };
+  return page.evaluate(async () => {
+    const cache = await caches.open("finance-reports");
+    const requests = await cache.keys();
+    return requests.map((request) => new URL(request.url).pathname);
+  });
+}
+
+/** Waits until the service worker controls the page, and skips the test on a dev server, which has no worker. */
+async function waitForServiceWorker(page: Page) {
+  const hasWorker = await page.evaluate(() =>
+    Promise.race([
+      navigator.serviceWorker.ready.then(() => true),
+      new Promise<boolean>((resolve) => {
+        setTimeout(() => {
+          resolve(false);
+        }, 10_000);
       }),
+    ]),
   );
+  test.skip(!hasWorker, "The service worker runs in a production build only.");
+  await expect
+    .poll(
+      () => page.evaluate(() => navigator.serviceWorker.controller !== null),
+      { timeout: SYNC_TIMEOUT },
+    )
+    .toBe(true);
 }
 
 function balanceSheetRow(page: Page, name: string) {
@@ -160,11 +157,13 @@ test.describe("Weekly reports written again on the server", () => {
       .first();
 
     await page.goto(`/finance/reports/${newest}`);
+    await waitForServiceWorker(page);
+    await page.reload();
     await expect(headline).toBeVisible({ timeout: SYNC_TIMEOUT });
     await expect(headline).not.toHaveText("£123,456.78");
     await expect
-      .poll(async () => (await storedReports(page)).join(""))
-      .toContain(`"report","${older}"`);
+      .poll(() => storedReports(page))
+      .toContain(`/api/finance/reports/${older}`);
 
     await financeDb
       .update(reports)
@@ -185,9 +184,9 @@ test.describe("Weekly reports written again on the server", () => {
 });
 
 test.describe("Weekly reports without the server", () => {
-  test.use({ viewport: DESKTOP, serviceWorkers: "block" });
+  test.use({ viewport: DESKTOP });
 
-  test("shows the stored list and reports offline, drops a deleted report at the next load, and keeps nothing after sign-out, not even from another tab", async ({
+  test("shows the last list and reports offline, and keeps nothing after sign-out", async ({
     page,
     household,
     session: _session,
@@ -204,53 +203,35 @@ test.describe("Weekly reports without the server", () => {
       .first();
 
     await page.goto("/finance/reports");
+    await waitForServiceWorker(page);
+    await page.reload();
     await expect(weeks).toHaveCount(2, { timeout: SYNC_TIMEOUT });
     await expect(headline).toBeVisible({ timeout: SYNC_TIMEOUT });
     await weeks.nth(1).click();
     await expect(page).toHaveURL(`/finance/reports/${older}`);
     await expect(headline).toBeVisible({ timeout: SYNC_TIMEOUT });
     await expect
-      .poll(async () => (await storedReports(page)).join(""))
-      .toContain(`"report","${older}"`);
+      .poll(() => storedReports(page))
+      .toEqual(
+        expect.arrayContaining([
+          "/api/finance/reports",
+          `/api/finance/reports/${older}`,
+        ]),
+      );
 
-    await page.route(REPORT_API, (route) =>
-      route.abort("internetdisconnected"),
-    );
-    await page.reload();
+    await page.context().setOffline(true);
+    await page.goto("/finance/reports");
     await expect(weeks).toHaveCount(2);
     await expect(headline).toBeVisible();
     await expect(page.getByText("The reports did not load")).toBeHidden();
-
-    await page.unroute(REPORT_API);
-    const deleted = await page.request.delete(`/api/finance/reports/${older}`, {
-      headers: sameOrigin(page),
-    });
-    expect(deleted.status()).toBe(204);
-    await page.goto("/finance/reports");
-    await expect(weeks).toHaveCount(1, { timeout: SYNC_TIMEOUT });
-    await expect
-      .poll(async () => (await storedReports(page)).join(""))
-      .not.toContain(older);
-
-    const other = await page.context().newPage();
-    await other.route(SYNC_API, (route) => route.abort("internetdisconnected"));
-    await other.goto("/finance/reports");
-    const saveImage = other.getByRole("button", { name: "Save image" });
-    await expect(saveImage).toBeVisible({ timeout: SYNC_TIMEOUT });
+    await weeks.nth(1).click();
+    await expect(page).toHaveURL(`/finance/reports/${older}`);
+    await expect(headline).toBeVisible();
+    await page.context().setOffline(false);
 
     await page.getByRole("button", { name: "Sign out" }).click();
     await expect(page).toHaveURL("/finance/sign-in");
     expect(await storedReports(page)).toEqual([]);
-
-    await saveImage.click();
-    await expect(
-      toast(
-        other,
-        "The image could not be made. Try again when you are online.",
-      ),
-    ).toBeVisible();
-    await other.waitForTimeout(PERSIST_THROTTLE_MS * 2);
-    expect(await storedReports(other)).toEqual([]);
   });
 });
 

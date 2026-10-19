@@ -1,10 +1,10 @@
 import { FINANCE_PAGES_CACHE } from "#src/pwa/runtime-caching/finance-pages-cache.ts";
-import { reportsPersister } from "../queries/reports-persister.ts";
+import { FINANCE_REPORTS_CACHE } from "#src/pwa/runtime-caching/finance-reports-cache.ts";
 import { deleteReplicaDb } from "../replica/open-replica-db.ts";
 
 /**
  * Deletes every copy of the Household's data on this device: the Replica,
- * the stored Reports and the stored Finance pages. It closes this tab's
+ * the stored Finance pages and the stored Reports. It closes this tab's
  * Replica first. It rejects when one of them is not deleted, after it tried
  * all of them.
  */
@@ -15,8 +15,8 @@ export async function clearHouseholdFromDevice(
   replica.close();
   const results = await Promise.allSettled([
     deleteReplicaDb(householdId),
-    reportsPersister(householdId).clear(),
     "caches" in globalThis ? caches.delete(FINANCE_PAGES_CACHE) : null,
+    "caches" in globalThis ? caches.delete(FINANCE_REPORTS_CACHE) : null,
   ]);
   const errors: unknown[] = [];
   for (const result of results) {

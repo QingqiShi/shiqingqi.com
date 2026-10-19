@@ -1,26 +1,21 @@
 "use client";
 
-import { QueryClient } from "@tanstack/react-query";
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
-import { WEEKLY_REPORT_SCHEMA_VERSION } from "../reports/weekly-report-data-schema.ts";
-import { reportListQuery } from "./report-list-query.ts";
-import {
-  REPORTS_MAX_AGE,
-  reportsPersister,
-  shouldPersistReportsQuery,
-} from "./reports-persister.ts";
+
+/** The IndexedDB database where an earlier version of the app kept the Reports. */
+const LEGACY_REPORTS_DB = "finance-reports";
 
 /**
  * React Query for the Finance screens that read the server directly, such as
- * the Reports. The Reports this device read are kept in IndexedDB, so they
- * show offline; each page load reads the list from the server again. When
- * sign-out in another tab deletes the Replica, this tab forgets them too.
+ * the Reports. The service worker keeps the last answer of each Reports read,
+ * so they show offline. When sign-out in another tab deletes the Replica, this
+ * tab forgets them too.
  */
 export function FinanceQueryProvider({ children }: { children: ReactNode }) {
-  const { runtime, householdId } = useFinanceRuntime();
+  const { runtime } = useFinanceRuntime();
   const [client] = useState(
     () =>
       new QueryClient({
@@ -31,43 +26,23 @@ export function FinanceQueryProvider({ children }: { children: ReactNode }) {
               !(error instanceof FinanceApiError && error.status < 500) &&
               failureCount < 2,
           },
-          hydrate: { queries: { gcTime: REPORTS_MAX_AGE } },
         },
       }),
   );
-  const [reports] = useState(() => reportsPersister(householdId));
-  const [persistOptions] = useState(() => ({
-    persister: reports.persister,
-    maxAge: REPORTS_MAX_AGE,
-    buster: String(WEEKLY_REPORT_SCHEMA_VERSION),
-    dehydrateOptions: {
-      shouldDehydrateQuery: (
-        query: Parameters<typeof shouldPersistReportsQuery>[1],
-      ) => shouldPersistReportsQuery(client, query),
-    },
-  }));
+
+  useEffect(() => {
+    // An open tab of the earlier version can block this delete. Do not wait
+    // for it: IndexedDB deletes the database when that tab closes.
+    indexedDB.deleteDatabase(LEGACY_REPORTS_DB);
+  }, []);
 
   useEffect(
     () =>
       runtime.onReplicaDeleted(() => {
-        void reports.clear().catch(() => undefined);
         client.clear();
       }),
-    [runtime, reports, client],
+    [runtime, client],
   );
 
-  return (
-    <PersistQueryClientProvider
-      client={client}
-      persistOptions={persistOptions}
-      onSuccess={() =>
-        client.invalidateQueries({
-          queryKey: reportListQuery.queryKey,
-          exact: true,
-        })
-      }
-    >
-      {children}
-    </PersistQueryClientProvider>
-  );
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
