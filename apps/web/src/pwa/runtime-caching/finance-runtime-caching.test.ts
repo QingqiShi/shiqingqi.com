@@ -23,8 +23,7 @@ describe("isReportApiPath", () => {
     expect(isReportApiPath("/api/finance/reports/f77861df")).toBe(true);
   });
 
-  it("never keeps the share image or the rest of the Finance API", () => {
-    expect(isReportApiPath("/api/finance/reports/f77861df/image")).toBe(false);
+  it("never keeps the rest of the Finance API", () => {
     expect(isReportApiPath("/api/finance/sync")).toBe(false);
     expect(isReportApiPath("/api/finance/reportsx")).toBe(false);
   });

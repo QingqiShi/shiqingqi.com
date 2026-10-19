@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 import { categoryLineName } from "../store/category-display-name.ts";
 import { adjacentReports } from "./adjacent-reports.ts";
 import { assetLiabilitySplit } from "./asset-liability-split.ts";
-import { buildReportImage } from "./build-report-image.tsx";
+import {
+  buildReportImageDrawing,
+  type MeasureText,
+  type ReportImageOptions,
+} from "./build-report-image-drawing.ts";
 import {
   buildReportSummary,
   type ReportSummaryCopy,
 } from "./build-report-summary.ts";
-import { collectElementText } from "./collect-element-text.ts";
 import { fillTemplate } from "./fill-template.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { groupMoves } from "./group-moves.ts";
@@ -21,6 +24,7 @@ import {
   IMAGE_TREND_MIN_HEIGHT,
   reportImageLayout,
 } from "./report-image-layout.ts";
+import type { ReportImageCopy } from "./use-report-image-copy.ts";
 import {
   WEEKLY_REPORT_SCHEMA_VERSION,
   type SpendingLine,
@@ -326,6 +330,86 @@ describe("text summary", () => {
 });
 
 describe("share image", () => {
+  const copy: ReportImageCopy = {
+    title: "Weekly report",
+    netWorth: "Net worth",
+    vsLastWeek: "vs last week",
+    sinceYearStart: "since 1 Jan",
+    balanceSheet: "Balance sheet",
+    account: "Account",
+    group: "Group",
+    balance: "Balance",
+    thisWeek: "This week",
+    assets: "Assets",
+    liabilities: "Liabilities",
+    trend: "Net worth trend",
+    average: "13-week average",
+    groupNets: "Net by group",
+    spentThisWeek: "Spent this week",
+    topPayees: "Top payees",
+    vsAverage: "vs 4-week average",
+    fourWeekAverage: "4-week average",
+    income: "Income",
+    noSpending: "Nothing spent this week",
+    uncategorised: "Uncategorised",
+    inTransit: "In transit",
+  };
+  /** Every character as wide as half the font size, like a narrow sans-serif. */
+  const measureText: MeasureText = (text, font) =>
+    Array.from(text).length * font.size * 0.5;
+
+  function drawnText(
+    report: WeeklyReportData,
+    options: ReportImageOptions,
+    imageCopy = copy,
+  ) {
+    return buildReportImageDrawing(report, {
+      ...options,
+      copy: imageCopy,
+      measureText,
+    }).commands.flatMap((command) =>
+      command.kind === "text" ? [command.text] : [],
+    );
+  }
+
+  const account = (id: string, name: string, baseMinor: number) => ({
+    id,
+    name,
+    institution: "Example Bank",
+    kind: "current",
+    currency: "GBP",
+    ownerName: "Alex",
+    balanceMinor: baseMinor,
+    baseMinor,
+    previousBaseMinor: baseMinor,
+    isSystem: false,
+  });
+  const withAccounts: WeeklyReportData = {
+    ...data,
+    balanceSheet: {
+      ...data.balanceSheet,
+      assets: {
+        totalMinor: 120_000_00,
+        groups: [
+          {
+            id: "cash",
+            name: "Cash",
+            totalMinor: 120_000_00,
+            previousTotalMinor: 120_000_00,
+            accounts: [
+              account("joint", "Joint current account", 20_000_00),
+              account(
+                "isa",
+                "Stocks and shares ISA with a name far too long to fit its column",
+                100_000_00,
+              ),
+            ],
+          },
+        ],
+      },
+    },
+  };
+
   it("names a system Category line in the image's language", () => {
     const withSystemLine: WeeklyReportData = {
       ...data,
@@ -337,17 +421,15 @@ describe("share image", () => {
         ],
       },
     };
-    const zh = collectElementText(
-      buildReportImage(withSystemLine, { locale: "zh", includeNames: false })
-        .element,
+    const zh = drawnText(
+      withSystemLine,
+      { locale: "zh", includeNames: false },
+      { ...copy, uncategorised: "未分类" },
     );
     expect(zh).toContain("未分类");
     expect(zh).not.toContain("Uncategorised");
     expect(
-      collectElementText(
-        buildReportImage(withSystemLine, { locale: "en", includeNames: false })
-          .element,
-      ),
+      drawnText(withSystemLine, { locale: "en", includeNames: false }),
     ).toContain("Uncategorised");
   });
 
@@ -357,10 +439,49 @@ describe("share image", () => {
       spending: { ...data.spending, byCategory: [], history: [] },
       trend: [],
     };
-    const text = collectElementText(
-      buildReportImage(quiet, { locale: "en", includeNames: true }).element,
+    expect(drawnText(quiet, { locale: "en", includeNames: true })).toContain(
+      "Nothing spent this week",
     );
-    expect(text).toContain("Nothing spent this week");
+  });
+
+  it("leaves out Account names unless asked", () => {
+    const hidden = drawnText(withAccounts, {
+      locale: "en",
+      includeNames: false,
+    });
+    const shown = drawnText(withAccounts, { locale: "en", includeNames: true });
+
+    expect(hidden.join("\n")).not.toMatch(/Joint|ISA|Alex|Example/);
+    expect(shown).toContain("Joint current account");
+    expect(shown.some((text) => text.startsWith("Alex ·"))).toBe(true);
+  });
+
+  it("cuts a long name short to fit its column", () => {
+    const name = drawnText(withAccounts, {
+      locale: "en",
+      includeNames: true,
+    }).find((text) => text.startsWith("Stocks"));
+    expect(name).toMatch(/…$/);
+    expect(name?.length).toBeLessThan(
+      "Stocks and shares ISA with a name far too long to fit its column".length,
+    );
+  });
+
+  it("keeps every command inside the image", () => {
+    const drawing = buildReportImageDrawing(withAccounts, {
+      locale: "zh",
+      includeNames: true,
+      copy,
+      measureText,
+    });
+    for (const command of drawing.commands) {
+      const right =
+        command.kind === "rect" ? command.x + command.width : command.x;
+      expect(command.x).toBeGreaterThanOrEqual(0);
+      expect(right).toBeLessThanOrEqual(drawing.width);
+      expect(command.y).toBeGreaterThanOrEqual(0);
+      expect(command.y).toBeLessThanOrEqual(drawing.height);
+    }
   });
 });
 

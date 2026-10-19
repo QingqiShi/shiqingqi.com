@@ -4,6 +4,7 @@ import { reports } from "../../src/finance/db/schema.ts";
 import { addDays } from "../../src/finance/domain/dates/add-days.ts";
 import { lastCompleteWeekEnd } from "../../src/finance/reports/last-complete-week-end.ts";
 import { expect, test } from "./finance-test.ts";
+import { makeReport } from "./make-report.ts";
 import { DESKTOP, MOBILE, SYNC_TIMEOUT, toast } from "./transactions-page.ts";
 
 const MONEY = /^[−-]?£[\d,]+\.\d\d$/;
@@ -11,24 +12,6 @@ const MONEY = /^[−-]?£[\d,]+\.\d\d$/;
 function minorOf(text: string | null) {
   const value = (text ?? "").replace(/[£,]/g, "").replace("−", "-");
   return Math.round(Number(value) * 100);
-}
-
-function sameOrigin(page: Page) {
-  return { Origin: new URL(page.url()).origin, Referer: page.url() };
-}
-
-/** Makes the Report of the week that ends on `periodEnd` through the API, as the page's Member, and returns its id. */
-async function makeReport(page: Page, periodEnd: string) {
-  const response = await page.request.post("/api/finance/reports/regenerate", {
-    headers: sameOrigin(page),
-    data: { periodEnd },
-  });
-  expect(response.status()).toBe(200);
-  const body: unknown = await response.json();
-  if (typeof body !== "object" || body === null || !("id" in body)) {
-    throw new Error("The regenerate response has no id");
-  }
-  return String(body.id);
 }
 
 /** The paths of the Reports answers that the service worker keeps for offline use. */

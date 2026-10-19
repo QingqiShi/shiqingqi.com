@@ -7,7 +7,7 @@ import { reportApiClient } from "./report-api-client.ts";
 
 /**
  * Builds a Report again on the server (last week when `periodEnd` is left
- * out), then reads the list and the Report again and drops its share image.
+ * out), then reads the list and the Report again.
  * Resolves to the Report's id, or null when it failed.
  */
 export function useRegenerateReport() {
@@ -25,9 +25,6 @@ export function useRegenerateReport() {
         const result = await reportApiClient.regenerate(periodEnd);
         await queryClient.invalidateQueries({
           queryKey: ["finance", "report", result.id],
-        });
-        queryClient.removeQueries({
-          queryKey: ["finance", "report-image", result.id],
         });
         await queryClient.invalidateQueries({
           queryKey: ["finance", "reports"],

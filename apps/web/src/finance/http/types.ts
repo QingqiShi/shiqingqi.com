@@ -9,8 +9,7 @@ export type FinanceRateLimitBucket =
   | "bank-sync"
   | "ai-suggest"
   | "ai-teach"
-  | "report-regenerate"
-  | "report-image";
+  | "report-regenerate";
 
 export interface FinanceRateLimitResult {
   success: boolean;

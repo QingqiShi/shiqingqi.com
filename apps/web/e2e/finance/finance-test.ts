@@ -10,6 +10,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { z } from "zod";
 import { createInvite } from "../../src/finance/auth/create-invite.ts";
+import { createSession } from "../../src/finance/auth/create-session.ts";
+import { financeSessionCookie } from "../../src/finance/auth/finance-session-cookie.ts";
 import { startSignUp } from "../../src/finance/auth/start-sign-up.ts";
 import { schema } from "../../src/finance/db/schema.ts";
 import type { FinanceDb } from "../../src/finance/db/types.ts";
@@ -46,9 +48,11 @@ interface TestFixtures {
   /** A CDP virtual authenticator on `page`, so passkey ceremonies complete without a person. */
   passkeys: string;
   /** A new synthetic Household. Its owner has a user but no passkey yet. */
-  household: SyntheticHousehold;
+  household: SyntheticHousehold & { ownerUserId: string };
   /** The test's page, signed in as the owner of `household` through a recovery invite, which asks for no email. */
   session: FinanceSession;
+  /** The test's page, signed in as the owner of `household` with a session cookie. Unlike `session`, it needs no passkey, so it works outside Chromium. */
+  cookieSession: undefined;
 }
 
 /**
@@ -90,8 +94,9 @@ function seedHousehold(db: FinanceDb, ownerUserId?: string) {
 }
 
 /** Seeds a Household and gives its owner a user, so that a recovery invite can sign the test in. */
-function seedClaimedHousehold(db: FinanceDb) {
-  return seedHousehold(db, randomUUID());
+async function seedClaimedHousehold(db: FinanceDb) {
+  const ownerUserId = randomUUID();
+  return { ...(await seedHousehold(db, ownerUserId)), ownerUserId };
 }
 
 /**
@@ -269,6 +274,27 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   household: async ({ financeDb }, provide) => {
     await provide(await seedClaimedHousehold(financeDb));
+  },
+
+  cookieSession: async ({ page, household, financeDb, baseURL }, provide) => {
+    if (baseURL === undefined) throw new Error("No baseURL is set.");
+    const token = await asFinanceApp(financeDb, (tx) =>
+      createSession(tx, {
+        userId: household.ownerUserId,
+        userAgent: "e2e",
+        now: new Date(),
+      }),
+    );
+    await page.context().addCookies([
+      {
+        name: financeSessionCookie.name,
+        value: token,
+        url: baseURL,
+        httpOnly: true,
+        sameSite: "Lax",
+      },
+    ]);
+    await provide(undefined);
   },
 
   session: async (

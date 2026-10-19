@@ -71,7 +71,7 @@ const offlineFallback: SerwistPlugin = {
   },
 };
 
-/** The Reports list and one Report, which a device keeps for offline use. Not the share image. */
+/** The Reports list and one Report, which a device keeps for offline use. */
 export function isReportApiPath(pathname: string) {
   return REPORT_API.test(pathname);
 }

@@ -13,14 +13,14 @@ export const IMAGE_BLOCK_GAP = 48;
 export const IMAGE_TITLE_HEIGHT = 52;
 export const IMAGE_TABLE_ROW_HEIGHT = 40;
 export const IMAGE_GROUP_NET_ROW_HEIGHT = 40;
-export const IMAGE_DONUT_HEIGHT = 300;
+const IMAGE_DONUT_HEIGHT = 300;
 /** The spending title and the line of facts under it. */
 export const IMAGE_SPENDING_HEAD_HEIGHT = 110;
 /** The week bars and their legend, beside the categories. */
-export const IMAGE_WEEK_BARS_BLOCK_HEIGHT = 190;
+const IMAGE_WEEK_BARS_BLOCK_HEIGHT = 190;
 /** A ranked line (a name, an amount and a bar) and the gap under it. */
 export const IMAGE_RANKED_ROW_HEIGHT = 54;
-export const IMAGE_RANKED_ROW_GAP = 12;
+const IMAGE_RANKED_ROW_GAP = 12;
 export const IMAGE_TREND_MIN_HEIGHT = 340;
 /** Taller than this, the trend reads as a stretched line. */
 export const IMAGE_TREND_MAX_HEIGHT = 600;
