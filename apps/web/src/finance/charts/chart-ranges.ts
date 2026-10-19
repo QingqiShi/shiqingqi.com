@@ -1,5 +1,6 @@
 /** The date ranges a time-series chart offers, shortest first. */
 export const CHART_RANGES = [
+  "1W",
   "1M",
   "3M",
   "6M",

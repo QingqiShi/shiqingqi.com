@@ -22,6 +22,7 @@ interface Candidate {
 
 const CANDIDATES: readonly Candidate[] = [
   { interval: utcDay, step: 1, unit: "day" },
+  { interval: utcDay, step: 2, unit: "day" },
   { interval: utcMonday, step: 1, unit: "day" },
   { interval: utcMonday, step: 2, unit: "day" },
   ...[1, 2, 3, 6].map((step) => ({

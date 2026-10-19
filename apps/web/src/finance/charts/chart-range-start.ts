@@ -1,8 +1,9 @@
+import { addDays } from "../domain/dates/add-days.ts";
 import { addMonths } from "../domain/dates/add-months.ts";
 import { startOfYear } from "../domain/dates/start-of-month.ts";
 import type { ChartRange } from "./chart-ranges.ts";
 
-const MONTHS: Record<Exclude<ChartRange, "YTD" | "all">, number> = {
+const MONTHS: Record<Exclude<ChartRange, "1W" | "YTD" | "all">, number> = {
   "1M": 1,
   "3M": 3,
   "6M": 6,
@@ -21,7 +22,8 @@ export function chartRangeStart(
   firstDay: string | null,
 ): string {
   let start: string;
-  if (range === "YTD") start = startOfYear(today);
+  if (range === "1W") start = addDays(today, -7);
+  else if (range === "YTD") start = startOfYear(today);
   else if (range === "all") start = firstDay ?? addMonths(today, -1);
   else start = addMonths(today, -MONTHS[range]);
   if (firstDay !== null && start < firstDay) start = firstDay;

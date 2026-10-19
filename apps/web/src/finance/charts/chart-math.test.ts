@@ -17,7 +17,8 @@ import { summariseSeries } from "./summarise-series.ts";
 const TODAY = "2026-10-10";
 
 describe("chartRangeStart", () => {
-  it("counts months back from today and clamps to the first day with data", () => {
+  it("counts days or months back from today and clamps to the first day with data", () => {
+    expect(chartRangeStart("1W", TODAY, null)).toBe("2026-10-03");
     expect(chartRangeStart("1M", TODAY, null)).toBe("2026-09-10");
     expect(chartRangeStart("3M", TODAY, null)).toBe("2026-07-10");
     expect(chartRangeStart("6M", TODAY, null)).toBe("2026-04-10");
@@ -160,6 +161,16 @@ describe("dateTicks", () => {
     const years = dateTicks(toEpochDay("2020-03-02"), end, 5);
     expect(years.every((tick) => tick.unit === "year")).toBe(true);
     expect(years.length).toBeLessThanOrEqual(5);
+  });
+
+  it("labels every other day of a week too long for one label a day", () => {
+    const days = dateTicks(toEpochDay("2026-10-03"), toEpochDay(TODAY), 5);
+    expect(days.map((tick) => fromEpochDay(tick.epochDay))).toEqual([
+      "2026-10-03",
+      "2026-10-05",
+      "2026-10-07",
+      "2026-10-09",
+    ]);
   });
 
   it("steps weeks from Mondays and marks each new year", () => {

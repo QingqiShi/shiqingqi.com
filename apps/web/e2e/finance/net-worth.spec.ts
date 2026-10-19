@@ -69,8 +69,18 @@ test.describe("Net worth at 390 px", () => {
     const headline = page.getByRole("region", { name: "今日净资产" });
     await expect(headline.getByText("较上周")).toBeVisible();
     await expect(headline.getByText("今年以来")).toBeVisible();
-    await expect(page.getByRole("radio", { name: "6 个月" })).toBeChecked();
-    await expect(page.getByRole("radio", { name: "1 个月" })).toBeVisible();
+    const ranges = page.getByRole("radiogroup", { name: "时间范围" });
+    await expect(ranges.getByRole("radio", { name: "6M" })).toBeChecked();
+    await expect(ranges.getByRole("radio")).toHaveText([
+      "1W",
+      "1M",
+      "3M",
+      "6M",
+      "YTD",
+      "1Y",
+      "5Y",
+      "全部",
+    ]);
     await expectNoSidewaysScroll(page);
   });
 
