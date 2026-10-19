@@ -88,7 +88,7 @@ function report(
       },
       groupNets: [],
       propertyNetMinor: null,
-      spending: { ...noSpending, byCategory: [], byMember: [] },
+      spending: { ...noSpending, byCategory: [], byMember: [], history: [] },
       incomeMinor: 0,
       topPayees: [],
       transactionCount: 0,

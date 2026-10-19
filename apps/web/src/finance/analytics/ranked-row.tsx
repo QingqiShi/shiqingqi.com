@@ -10,6 +10,7 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Link } from "#src/links/link.tsx";
+import { chartMarks } from "../charts/chart-marks.stylex.ts";
 import { seriesKey } from "../charts/series-marks.stylex.ts";
 import type { SeriesTone } from "../charts/series-tone-at.ts";
 
@@ -18,9 +19,11 @@ interface RankedRowProps {
   /** The amount, formatted. */
   value: string;
   /** Facts under the amount, such as the share and the change. */
-  detail?: string;
+  detail?: ReactNode;
   /** The row's share of the largest row, 0–1, drawn as a bar. */
   magnitude: number;
+  /** A level on the same scale as `magnitude`, drawn as a mark across the track, such as an average. */
+  mark?: number;
   /** The colour the row has in the chart above, if it has one. */
   tone?: SeriesTone;
   href?: string;
@@ -38,6 +41,7 @@ export function RankedRow({
   value,
   detail,
   magnitude,
+  mark,
   tone,
   href,
   onSelect,
@@ -58,10 +62,19 @@ export function RankedRow({
         <span
           css={[
             styles.bar,
-            tone ? seriesKey[tone] : styles.neutralBar,
+            tone ? seriesKey[tone] : chartMarks.neutralKey,
             styles.width(Math.max(Math.min(magnitude, 1), 0)),
           ]}
         />
+        {mark === undefined || mark <= 0 ? null : (
+          <span
+            css={[
+              styles.mark,
+              chartMarks.referenceKey,
+              styles.at(Math.min(mark, 1)),
+            ]}
+          />
+        )}
       </span>
       {detail ? (
         <span css={[typeRole.caption, typeModifier.numeric, styles.detail]}>
@@ -142,12 +155,12 @@ const styles = stylex.create({
     textAlign: "end",
   },
   track: {
+    position: "relative",
     display: "block",
     blockSize: "4px",
     borderRadius: "2px",
     cornerShape: "round",
     backgroundColor: color.bgNeutralSubtle,
-    overflow: "hidden",
   },
   trackWide: {
     gridColumn: "1 / -1",
@@ -158,11 +171,17 @@ const styles = stylex.create({
     borderRadius: "2px",
     cornerShape: "round",
   },
-  neutralBar: {
-    backgroundColor: `color-mix(in srgb, ${color.fgMuted} 60%, transparent)`,
-  },
   width: (fraction: number) => ({
     inlineSize: `${String(fraction * 100)}%`,
+  }),
+  mark: {
+    position: "absolute",
+    insetBlock: `calc(-1 * ${space._0})`,
+    inlineSize: "2px",
+    marginInlineStart: "-1px",
+  },
+  at: (fraction: number) => ({
+    insetInlineStart: `${String(fraction * 100)}%`,
   }),
   detail: {
     minInlineSize: "9rem",

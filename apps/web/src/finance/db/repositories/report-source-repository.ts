@@ -35,6 +35,7 @@ export const reportSourceRepository = {
       .select({
         id: accounts.id,
         groupId: accounts.groupId,
+        ownerMemberId: accounts.ownerMemberId,
         name: accounts.name,
         institution: accounts.institution,
         kind: accounts.kind,

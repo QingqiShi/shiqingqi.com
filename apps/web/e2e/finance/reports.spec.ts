@@ -96,24 +96,42 @@ test.describe("Weekly reports at 1440 px", () => {
     await expect(headline).toBeVisible({ timeout: SYNC_TIMEOUT });
     const netWorth = minorOf(await headline.textContent());
     const cell = (name: string) =>
-      balanceSheetRow(page, name).getByRole("cell").last();
+      balanceSheetRow(page, name).getByRole("cell").first();
+    const changeCell = (name: string) =>
+      balanceSheetRow(page, name).getByRole("cell").nth(1);
     expect(minorOf(await cell("Net worth").textContent())).toBe(netWorth);
     expect(
       minorOf(await cell("Assets").textContent()) +
         minorOf(await cell("Liabilities").textContent()),
     ).toBe(netWorth);
 
-    const groups = page
-      .getByRole("region", { name: "By group" })
+    const moves = page
+      .getByRole("region", { name: "What moved" })
       .getByRole("listitem");
-    expect(await groups.count()).toBeGreaterThan(0);
-    for (const group of await groups.all()) {
-      const [name, value] = await group
-        .locator("span")
-        .allTextContents()
-        .then((texts) => texts.slice(0, 2));
-      expect(minorOf(await cell(name).textContent())).toBe(minorOf(value));
+    let moved = 0;
+    for (const move of await moves.all()) {
+      const [name, value] = await move
+        .locator(":scope > span:not([aria-hidden])")
+        .allTextContents();
+      expect(minorOf(await changeCell(name).textContent())).toBe(
+        minorOf(value),
+      );
+      moved += minorOf(value);
     }
+    const weekChange = await changeCell("Net worth").textContent();
+    expect(moved).toBe(weekChange === "–" ? 0 : minorOf(weekChange));
+
+    let groupNets = 0;
+    for (const net of await page
+      .getByRole("region", { name: "Net by group" })
+      .getByRole("listitem")
+      .all()) {
+      const [, value] = await net
+        .locator(":scope > span:not([aria-hidden])")
+        .allTextContents();
+      groupNets += minorOf(value);
+    }
+    expect(groupNets).toBe(netWorth);
 
     await page.getByRole("button", { name: "Copy summary" }).click();
     await expect(toast(page, "Summary copied.")).toBeVisible();

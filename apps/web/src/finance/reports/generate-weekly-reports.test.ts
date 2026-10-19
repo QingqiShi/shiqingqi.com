@@ -23,6 +23,7 @@ import { addDays } from "../domain/dates/add-days.ts";
 import { weekdayOf } from "../domain/dates/start-of-week.ts";
 import { generateWeeklyReports } from "./generate-weekly-reports.ts";
 import {
+  SPENDING_HISTORY_WEEKS,
   TREND_AVERAGE_WEEKS,
   weeklyReportDataSchema,
   type WeeklyReportData,
@@ -149,6 +150,25 @@ describe("generateWeeklyReports data", () => {
     expect(liabilities.totalMinor).toBeLessThan(0);
   });
 
+  it("adds the changes of the groups up to the change in net worth", () => {
+    const { assets, liabilities } = report.balanceSheet;
+    const groups = [...assets.groups, ...liabilities.groups];
+    for (const group of groups) {
+      expect(
+        sum(group.accounts.map((account) => account.previousBaseMinor)),
+      ).toBe(group.previousTotalMinor);
+    }
+    expect(sum(groups.map((group) => group.previousTotalMinor))).toBe(
+      report.comparisons.previousWeek.netWorthMinor,
+    );
+    expect(
+      sum(groups.map((group) => group.totalMinor - group.previousTotalMinor)),
+    ).toBe(report.comparisons.previousWeek.changeMinor);
+    expect(
+      groups.some((group) => group.totalMinor !== group.previousTotalMinor),
+    ).toBe(true);
+  });
+
   it("states the net worth the engine gives from raw rows", () => {
     expect(report.balanceSheet.netWorthMinor).toBe(
       engineNetWorthAt(PERIOD_END),
@@ -166,6 +186,16 @@ describe("generateWeeklyReports data", () => {
     expect(names).not.toContain("Work Expenses");
     expect(names).not.toContain("Old Current Account");
     expect(names).toContain("US Brokerage");
+  });
+
+  it("names the Member who owns each account", () => {
+    const owners = new Map(
+      [...report.balanceSheet.assets.groups]
+        .flatMap((group) => group.accounts)
+        .map((account) => [account.name, account.ownerName]),
+    );
+    expect(owners.get("US Brokerage")).toBe("Alex");
+    expect(owners.get("Family Home")).toBeNull();
   });
 
   it("compares with a week, four weeks and the year start before", () => {
@@ -232,6 +262,18 @@ describe("generateWeeklyReports data", () => {
     expect(spending.averageMinor).toBe(Math.round(previous / 4));
     expect(spending.changeMinor).toBe(spent - spending.averageMinor);
     expect(spending.byMember.map((line) => line.name)).toContain("Alex");
+  });
+
+  it("keeps the spending of the twelve weeks up to the report's", async () => {
+    const { history, totalMinor } = report.spending;
+    expect(history).toHaveLength(SPENDING_HISTORY_WEEKS);
+    expect(history.at(-1)).toEqual({ periodEnd: PERIOD_END, totalMinor });
+    for (const week of history) {
+      expect(weekdayOf(week.periodEnd)).toBe(7);
+      expect(week.totalMinor).toBe(
+        await spentBetween(addDays(week.periodEnd, -6), week.periodEnd),
+      );
+    }
   });
 
   it("marks the line of a system Category", () => {

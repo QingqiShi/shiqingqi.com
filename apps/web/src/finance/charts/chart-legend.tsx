@@ -8,8 +8,8 @@ interface ChartLegendItem {
   label: string;
   /** The mark's colour, such as `chartMarks.primaryKey`. */
   keyStyle: StyleProp;
-  /** A line key for a line series, a square for a bar or an area. */
-  shape: "line" | "square";
+  /** A line key for a line series, a square for a bar or an area, a tick for a mark across a bar. */
+  shape: "line" | "square" | "tick";
 }
 
 /** Names each series of a chart with two or more, keyed by the mark's own shape. */
@@ -18,13 +18,7 @@ export function ChartLegend({ items }: { items: readonly ChartLegendItem[] }) {
     <ul css={[cluster.item, styles.list]}>
       {items.map((item) => (
         <li key={item.label} css={[row.tight, typeRole.caption, styles.item]}>
-          <span
-            aria-hidden
-            css={[
-              item.shape === "line" ? styles.lineKey : styles.squareKey,
-              item.keyStyle,
-            ]}
-          />
+          <span aria-hidden css={[shapeKeys[item.shape], item.keyStyle]} />
           {item.label}
         </li>
       ))}
@@ -51,4 +45,15 @@ const styles = stylex.create({
     inlineSize: space._1,
     blockSize: space._1,
   },
+  tickKey: {
+    display: "inline-block",
+    inlineSize: "2px",
+    blockSize: space._2,
+  },
 });
+
+const shapeKeys = {
+  line: styles.lineKey,
+  square: styles.squareKey,
+  tick: styles.tickKey,
+};

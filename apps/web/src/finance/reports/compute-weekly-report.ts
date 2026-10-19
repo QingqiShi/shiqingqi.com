@@ -1,3 +1,4 @@
+import { sum } from "d3-array";
 import { isIdleSystemAccount } from "../domain/accounts/is-idle-system-account.ts";
 import {
   accountBalanceAt,
@@ -11,7 +12,9 @@ import { computeNetWorthTrend } from "./compute-net-worth-trend.ts";
 import type { ReportContext } from "./create-report-context.ts";
 import { reportWeekOf } from "./report-week-of.ts";
 import type { ReportSourceTransaction } from "./types.ts";
+import { weekEndsBetween } from "./week-ends-between.ts";
 import {
+  SPENDING_HISTORY_WEEKS,
   WEEKLY_REPORT_SCHEMA_VERSION,
   type NetWorthComparison,
   type ReportGroup,
@@ -23,6 +26,10 @@ import {
 
 const AVERAGE_WEEKS = 4;
 const TOP_PAYEES = 5;
+
+/** Days of Transactions before a Report week that its averages and spending history read. */
+export const REPORT_LOOKBACK_DAYS =
+  7 * Math.max(AVERAGE_WEEKS, SPENDING_HISTORY_WEEKS - 1);
 
 function firstIndexOnOrAfter(
   transactions: readonly ReportSourceTransaction[],
@@ -41,65 +48,84 @@ function firstIndexOnOrAfter(
   return low;
 }
 
-function balanceSheet(context: ReportContext, periodEnd: string) {
-  const epochDay = toEpochDay(periodEnd);
-  const counted = context.accounts.filter((account) => {
-    if (account.excludedFromNetWorth) return false;
-    if (account.closedOn !== null && periodEnd >= account.closedOn) {
-      return false;
-    }
+/** The Accounts that count towards net worth at the end of `day`, with their balances and base amounts that add up to it. */
+function countedAt(context: ReportContext, day: string) {
+  const epochDay = toEpochDay(day);
+  const counted = context.accounts.flatMap((account) => {
+    if (account.excludedFromNetWorth) return [];
+    if (account.closedOn !== null && day >= account.closedOn) return [];
     const series = context.seriesByAccount.get(account.id);
-    if (series === undefined || series.days.length === 0) return false;
-    if (series.days[0] > epochDay) return false;
-    return !isIdleSystemAccount(
-      account,
-      accountBalanceAt(account, series, periodEnd),
-    );
+    if (series === undefined || series.days.length === 0) return [];
+    if (series.days[0] > epochDay) return [];
+    const balanceMinor = accountBalanceAt(account, series, day);
+    return isIdleSystemAccount(account, balanceMinor)
+      ? []
+      : [{ account, balanceMinor }];
   });
-  const balances = counted.map((account) =>
-    accountBalanceAt(
-      account,
-      context.seriesByAccount.get(account.id),
-      periodEnd,
-    ),
-  );
   const netWorthMinor = netWorthAt(
     context.accounts,
     context.seriesByAccount,
     context.fx,
-    periodEnd,
+    day,
   );
   const baseAmounts = allocateRounded(
-    counted.map((account, index) =>
-      context.fx.toBase(balances[index], account.currency, epochDay),
+    counted.map(({ account, balanceMinor }) =>
+      context.fx.toBase(balanceMinor, account.currency, epochDay),
     ),
     netWorthMinor,
   );
+  return {
+    netWorthMinor,
+    byAccount: new Map(
+      counted.map(({ account, balanceMinor }, index) => [
+        account.id,
+        { balanceMinor, baseMinor: baseAmounts[index] },
+      ]),
+    ),
+  };
+}
+
+/**
+ * The balance sheet at the end of `periodEnd`, with every amount also at the
+ * end of the week before. An Account that counts at either end is listed, so
+ * the changes of the Groups add up to the change in net worth.
+ */
+function balanceSheet(context: ReportContext, periodEnd: string) {
+  const current = countedAt(context, periodEnd);
+  const previous = countedAt(context, addDays(periodEnd, -7));
 
   const groups: (ReportGroup & { side: "asset" | "liability" })[] = [];
   for (const group of context.groups) {
-    const accounts = counted.flatMap((account, index) =>
-      account.groupId === group.id
-        ? [
-            {
-              id: account.id,
-              name: account.name,
-              institution: account.institution,
-              kind: account.kind,
-              currency: account.currency,
-              balanceMinor: balances[index],
-              baseMinor: baseAmounts[index],
-              isSystem: account.isSystem,
-            },
-          ]
-        : [],
-    );
+    const accounts = context.accounts.flatMap((account) => {
+      if (account.groupId !== group.id) return [];
+      const now = current.byAccount.get(account.id);
+      const before = previous.byAccount.get(account.id);
+      if (now === undefined && before === undefined) return [];
+      return [
+        {
+          id: account.id,
+          name: account.name,
+          institution: account.institution,
+          kind: account.kind,
+          currency: account.currency,
+          ownerName:
+            account.ownerMemberId === null
+              ? null
+              : (context.memberNames.get(account.ownerMemberId) ?? null),
+          balanceMinor: now?.balanceMinor ?? 0,
+          baseMinor: now?.baseMinor ?? 0,
+          previousBaseMinor: before?.baseMinor ?? 0,
+          isSystem: account.isSystem,
+        },
+      ];
+    });
     if (accounts.length === 0) continue;
     groups.push({
       side: group.side,
       id: group.id,
       name: group.name,
-      totalMinor: accounts.reduce((sum, account) => sum + account.baseMinor, 0),
+      totalMinor: sum(accounts, (account) => account.baseMinor),
+      previousTotalMinor: sum(accounts, (account) => account.previousBaseMinor),
       accounts,
     });
   }
@@ -109,7 +135,7 @@ function balanceSheet(context: ReportContext, periodEnd: string) {
       .filter((group) => group.side === name)
       .map(({ side: _side, ...group }) => group);
     return {
-      totalMinor: sideGroups.reduce((sum, group) => sum + group.totalMinor, 0),
+      totalMinor: sum(sideGroups, (group) => group.totalMinor),
       groups: sideGroups,
     };
   }
@@ -117,7 +143,8 @@ function balanceSheet(context: ReportContext, periodEnd: string) {
   return {
     assets: side("asset"),
     liabilities: side("liability"),
-    netWorthMinor,
+    netWorthMinor: current.netWorthMinor,
+    previousNetWorthMinor: previous.netWorthMinor,
     groupTotals: new Map(groups.map((group) => [group.id, group.totalMinor])),
   };
 }
@@ -183,6 +210,10 @@ function weekActivity(
   periodEnd: string,
 ) {
   const averageFrom = addDays(periodStart, -7 * AVERAGE_WEEKS);
+  const historyFrom = addDays(periodStart, -7 * (SPENDING_HISTORY_WEEKS - 1));
+  const historyStartDay = toEpochDay(historyFrom);
+  const historyEnds = weekEndsBetween(historyFrom, periodEnd);
+  const weekTotals = new Array<number>(SPENDING_HISTORY_WEEKS).fill(0);
   const transactions = context.transactions;
   const byCategory = new Map<string, Tally>();
   const byMember = new Map<string, Tally>();
@@ -194,7 +225,10 @@ function weekActivity(
   let reviewCount = 0;
 
   for (
-    let index = firstIndexOnOrAfter(transactions, averageFrom);
+    let index = firstIndexOnOrAfter(
+      transactions,
+      addDays(periodStart, -REPORT_LOOKBACK_DAYS),
+    );
     index < transactions.length && transactions[index].date <= periodEnd;
     index++
   ) {
@@ -209,6 +243,13 @@ function weekActivity(
     if (transaction.kind !== "expense") continue;
 
     const spent = -transaction.amountMinor;
+    if (transaction.date >= historyFrom) {
+      const week = Math.floor(
+        (toEpochDay(transaction.date) - historyStartDay) / 7,
+      );
+      weekTotals[week] += spent;
+    }
+    if (transaction.date < averageFrom) continue;
     if (isCurrent) {
       current += spent;
     } else {
@@ -256,6 +297,11 @@ function weekActivity(
       changeMinor: current - averageMinor,
       byCategory: spendingLines(byCategory),
       byMember: spendingLines(byMember),
+      history: historyEnds.flatMap((end, week) =>
+        context.firstDay !== null && end < context.firstDay
+          ? []
+          : [{ periodEnd: end, totalMinor: weekTotals[week] }],
+      ),
     },
     incomeMinor,
     topPayees: [...byPayee.values()]
@@ -285,13 +331,15 @@ export function computeWeeklyReport(
   const { periodStart, periodEnd } = reportWeekOf(weekDay);
   const sheet = balanceSheet(context, periodEnd);
 
-  function compareWith(day: string): NetWorthComparison {
-    const netWorthMinor = netWorthAt(
+  function compareWith(
+    day: string,
+    netWorthMinor = netWorthAt(
       context.accounts,
       context.seriesByAccount,
       context.fx,
       day,
-    );
+    ),
+  ): NetWorthComparison {
     return {
       day,
       netWorthMinor,
@@ -327,7 +375,10 @@ export function computeWeeklyReport(
       netWorthMinor: sheet.netWorthMinor,
     },
     comparisons: {
-      previousWeek: compareWith(addDays(periodEnd, -7)),
+      previousWeek: compareWith(
+        addDays(periodEnd, -7),
+        sheet.previousNetWorthMinor,
+      ),
       fourWeeksAgo: compareWith(addDays(periodEnd, -28)),
       yearStart: compareWith(addDays(startOfYear(periodEnd), -1)),
     },

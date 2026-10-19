@@ -77,7 +77,7 @@ const styles = stylex.create({
   },
   content: {
     minInlineSize: 0,
-    maxInlineSize: "56rem",
+    maxInlineSize: "84rem",
   },
   contentOnIndex: {
     display: { default: "none", [breakpoints.lg]: "block" },

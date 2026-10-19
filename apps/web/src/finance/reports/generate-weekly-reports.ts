@@ -5,7 +5,10 @@ import { addDays } from "../domain/dates/add-days.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { computeNetWorthTrend } from "./compute-net-worth-trend.ts";
-import { computeWeeklyReport } from "./compute-weekly-report.ts";
+import {
+  computeWeeklyReport,
+  REPORT_LOOKBACK_DAYS,
+} from "./compute-weekly-report.ts";
 import { createReportContext } from "./create-report-context.ts";
 import { lastCompleteWeekEnd } from "./last-complete-week-end.ts";
 import { loadReportSource } from "./load-report-source.ts";
@@ -14,9 +17,6 @@ import { weekEndsBetween } from "./week-ends-between.ts";
 import { weeklyReportDataSchema } from "./weekly-report-data-schema.ts";
 
 const UPSERT_CHUNK = 50;
-
-/** Days of Transactions before a Report week that its averages read. */
-const REPORT_LOOKBACK_DAYS = 28;
 
 interface GeneratedReports {
   /** The Reports of the weeks asked for, oldest first. */
