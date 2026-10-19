@@ -4,20 +4,17 @@ import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Button } from "@tuja/ui/components/button";
-import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useRef, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import type { AccountGroupRow } from "../sync/row-schemas.ts";
 import { EditSheet } from "./edit-sheet.tsx";
 import { nextPosition } from "./next-position.ts";
-import { reorder } from "./reorder.ts";
+import { moveBy, reorderMutations } from "./reorder.ts";
 import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
 import { SettingsRow } from "./settings-row.tsx";
@@ -25,20 +22,23 @@ import { useApplyMutations } from "./use-apply-mutations.ts";
 
 type Side = AccountGroupRow["side"];
 
-const SIDES: readonly Side[] = ["asset", "liability"];
-
 function moveGroup(
-  rows: readonly AccountGroupRow[],
+  groups: readonly AccountGroupRow[],
   id: string,
   direction: -1 | 1,
 ) {
-  return reorder(rows, id, direction).map((change): LocalMutationInput => ({
-    name: "upsertGroup",
-    args: change,
-  }));
+  return reorderMutations(
+    "upsertGroup",
+    groups,
+    moveBy(
+      groups.map((group) => group.id),
+      id,
+      direction,
+    ),
+  );
 }
 
-/** The Groups of the balance sheet, by side: add, rename, reorder, delete an empty one. */
+/** The Groups of the balance sheet, in the Net worth order: add, rename, reorder, delete an empty one. */
 export function GroupsSettings() {
   const locale = useLocale();
   const groups = useReplica(liveRowSelectors.accountGroups);
@@ -88,8 +88,8 @@ export function GroupsSettings() {
     <SettingsPanel
       title={t({ en: "Groups", zh: "分组" })}
       description={t({
-        en: "The sections of the balance sheet. A group holds assets or liabilities, not both.",
-        zh: "资产负债表中的分组。一个分组只能放资产或负债，不能混放。",
+        en: "The sections of the balance sheet, in the order Net worth lists them. A group holds assets or liabilities, not both.",
+        zh: "资产负债表中的分组，按净资产页的顺序排列。一个分组只能放资产或负债，不能混放。",
       })}
       actions={
         <Button
@@ -105,58 +105,48 @@ export function GroupsSettings() {
         </Button>
       }
     >
-      {SIDES.map((groupSide) => {
-        const rows = groups.filter((group) => group.side === groupSide);
-        return (
-          <div key={groupSide} css={stack.tight}>
-            <Heading level={3} look="h4">
-              {sideLabels[groupSide]}
-            </Heading>
-            <SettingsList>
-              {rows.map((group, index) => (
-                <SettingsRow
-                  key={group.id}
-                  title={group.name}
-                  detail={
-                    counts.get(group.id) === 1
-                      ? oneAccountLabel
-                      : `${new Intl.NumberFormat(locale).format(counts.get(group.id) ?? 0)} ${accountsLabel}`
-                  }
+      <SettingsList>
+        {groups.map((group, index) => (
+          <SettingsRow
+            key={group.id}
+            title={group.name}
+            detail={`${sideLabels[group.side]} · ${
+              counts.get(group.id) === 1
+                ? oneAccountLabel
+                : `${new Intl.NumberFormat(locale).format(counts.get(group.id) ?? 0)} ${accountsLabel}`
+            }`}
+            onClick={() => {
+              setEditing(group);
+              setName(group.name);
+              setSide(group.side);
+            }}
+            actions={
+              <>
+                <Button
+                  size="sm"
+                  look="ghost"
+                  icon={<ArrowUpIcon weight="bold" />}
+                  aria-label={`${upLabel} ${group.name}`}
+                  disabled={index === 0}
                   onClick={() => {
-                    setEditing(group);
-                    setName(group.name);
-                    setSide(group.side);
+                    apply(moveGroup(groups, group.id, -1));
                   }}
-                  actions={
-                    <>
-                      <Button
-                        size="sm"
-                        look="ghost"
-                        icon={<ArrowUpIcon weight="bold" />}
-                        aria-label={`${upLabel} ${group.name}`}
-                        disabled={index === 0}
-                        onClick={() => {
-                          apply(moveGroup(rows, group.id, -1));
-                        }}
-                      />
-                      <Button
-                        size="sm"
-                        look="ghost"
-                        icon={<ArrowDownIcon weight="bold" />}
-                        aria-label={`${downLabel} ${group.name}`}
-                        disabled={index === rows.length - 1}
-                        onClick={() => {
-                          apply(moveGroup(rows, group.id, 1));
-                        }}
-                      />
-                    </>
-                  }
                 />
-              ))}
-            </SettingsList>
-          </div>
-        );
-      })}
+                <Button
+                  size="sm"
+                  look="ghost"
+                  icon={<ArrowDownIcon weight="bold" />}
+                  aria-label={`${downLabel} ${group.name}`}
+                  disabled={index === groups.length - 1}
+                  onClick={() => {
+                    apply(moveGroup(groups, group.id, 1));
+                  }}
+                />
+              </>
+            }
+          />
+        ))}
+      </SettingsList>
       <EditSheet
         isOpen={editing !== null}
         onClose={() => {
