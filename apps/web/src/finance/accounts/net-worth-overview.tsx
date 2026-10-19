@@ -13,9 +13,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
+import type { ChartPick } from "../charts/time-series-chart.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
 import { AccountGroupList } from "./account-group-list.tsx";
+import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { NetWorthHeadline } from "./net-worth-headline.tsx";
 import { NetWorthTrend } from "./net-worth-trend.tsx";
 import { selectBalanceSheet } from "./select-balance-sheet.ts";
@@ -38,63 +40,72 @@ export function NetWorthOverview({ showTrend }: NetWorthOverviewProps) {
   const updateParams = new URLSearchParams(searchParams);
   updateParams.delete("account");
   updateParams.set("mode", "update");
+  const hasAccounts = sheet.sections.some(
+    (section) => section.lines.length > 0,
+  );
 
   return (
     <div css={stack.group}>
-      <header css={[cluster.item, styles.header]}>
-        <Heading level={1} look="h3" css={styles.title}>
-          {t({ en: "Net worth", zh: "净资产" })}
-        </Heading>
-        <div css={cluster.tight}>
-          <AnchorButton
-            href={`${pathname}?${updateParams.toString()}`}
-            linkComponent={Link}
-            size="sm"
-            icon={<ListChecksIcon weight="bold" />}
-          >
-            {t({ en: "Update balances", zh: "批量更新余额" })}
-          </AnchorButton>
-          <Button
-            size="sm"
-            icon={<PlusIcon weight="bold" />}
-            onClick={() => {
-              setCreating(true);
-            }}
-          >
-            {t({ en: "Account", zh: "账户" })}
-          </Button>
-        </div>
-      </header>
-      {sheet.sections.some((section) => section.lines.length > 0) ? (
-        <>
-          <NetWorthHeadline sheet={sheet} today={today} currency={currency} />
-          {showTrend ? <NetWorthTrend /> : null}
-          <AccountGroupList sheet={sheet} baseCurrency={currency} />
-        </>
-      ) : (
-        <div css={stack.tight}>
-          <Text as="p" look="body">
-            {t({ en: "No accounts yet.", zh: "还没有账户。" })}
-          </Text>
-          <Text as="p" look="bodySmall" tone="muted">
-            {t({
-              en: "Add each current account, card, investment, property and loan, with today's balance. Net worth adds them up from there.",
-              zh: "添加每个活期账户、信用卡、投资、房产和贷款，并填写今天的余额，净资产会据此汇总。",
-            })}
-          </Text>
-          <div>
+      <div css={stack.tight}>
+        <header css={[cluster.item, styles.header]}>
+          <Heading level={1} look="h3" css={styles.title}>
+            {t({ en: "Net worth", zh: "净资产" })}
+          </Heading>
+          <div css={cluster.tight}>
+            <AnchorButton
+              href={`${pathname}?${updateParams.toString()}`}
+              linkComponent={Link}
+              size="sm"
+              icon={<ListChecksIcon weight="bold" />}
+            >
+              {t({ en: "Update balances", zh: "批量更新余额" })}
+            </AnchorButton>
             <Button
-              look="primary"
+              size="sm"
               icon={<PlusIcon weight="bold" />}
               onClick={() => {
                 setCreating(true);
               }}
             >
-              {t({ en: "Add account", zh: "添加账户" })}
+              {t({ en: "Account", zh: "账户" })}
             </Button>
           </div>
-        </div>
-      )}
+        </header>
+        {hasAccounts ? (
+          <NetWorthSummary
+            sheet={sheet}
+            today={today}
+            currency={currency}
+            showTrend={showTrend}
+          />
+        ) : (
+          <>
+            <Text as="p" look="body">
+              {t({ en: "No accounts yet.", zh: "还没有账户。" })}
+            </Text>
+            <Text as="p" look="bodySmall" tone="muted">
+              {t({
+                en: "Add each current account, card, investment, property and loan, with today's balance. Net worth adds them up from there.",
+                zh: "添加每个活期账户、信用卡、投资、房产和贷款，并填写今天的余额，净资产会据此汇总。",
+              })}
+            </Text>
+            <div>
+              <Button
+                look="primary"
+                icon={<PlusIcon weight="bold" />}
+                onClick={() => {
+                  setCreating(true);
+                }}
+              >
+                {t({ en: "Add account", zh: "添加账户" })}
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+      {hasAccounts ? (
+        <AccountGroupList sheet={sheet} baseCurrency={currency} />
+      ) : null}
       <AccountEditorSheet
         account={null}
         isOpen={creating}
@@ -102,6 +113,36 @@ export function NetWorthOverview({ showTrend }: NetWorthOverviewProps) {
           setCreating(false);
         }}
       />
+    </div>
+  );
+}
+
+/**
+ * Today's figures and, where it has no pane of its own, the trend under
+ * them. It holds the pick on the trend, so that a pick re-renders only this
+ * part.
+ */
+function NetWorthSummary({
+  sheet,
+  today,
+  currency,
+  showTrend,
+}: {
+  sheet: BalanceSheet;
+  today: string;
+  currency: string;
+  showTrend: boolean;
+}) {
+  const [pick, setPick] = useState<ChartPick | null>(null);
+  return (
+    <div css={stack.item}>
+      <NetWorthHeadline
+        sheet={sheet}
+        today={today}
+        currency={currency}
+        pick={showTrend ? pick : null}
+      />
+      {showTrend ? <NetWorthTrend onPick={setPick} /> : null}
     </div>
   );
 }

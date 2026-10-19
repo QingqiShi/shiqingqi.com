@@ -113,6 +113,18 @@ describe("formatMoney", () => {
       "£1.2M",
     );
   });
+
+  it("rounds to whole units for a summary figure", () => {
+    expect(formatMoney(113709307, "GBP", "en", { wholeUnits: true })).toBe(
+      "£1,137,093",
+    );
+    expect(
+      formatMoney(-265448, "GBP", "en", {
+        wholeUnits: true,
+        signDisplay: "exceptZero",
+      }),
+    ).toBe("-£2,654");
+  });
 });
 
 describe("formatPercentChange", () => {
@@ -128,6 +140,13 @@ describe("formatPercentChange", () => {
   it("takes the percentage of a negative start's magnitude", () => {
     expect(formatPercentChange(100, -200, "en")).toBe("+50%");
     expect(formatPercentChange(200, -100, "en")).toBe("+200%");
+  });
+
+  it("keeps one decimal below 10% and none from there when short", () => {
+    const short = { short: true };
+    expect(formatPercentChange(-23, 10000, "en", short)).toBe("-0.2%");
+    expect(formatPercentChange(2698, 10000, "en", short)).toBe("+27%");
+    expect(formatPercentChange(3614097, 10000, "en", short)).toBe("+36,141%");
   });
 });
 

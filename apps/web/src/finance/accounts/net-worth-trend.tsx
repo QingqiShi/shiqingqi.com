@@ -6,8 +6,11 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { summariseSeries } from "../charts/summarise-series.ts";
-import { TimeSeriesChart } from "../charts/time-series-chart.tsx";
-import { displayDay } from "../domain/dates/display-day.ts";
+import {
+  TimeSeriesChart,
+  type ChartPick,
+} from "../charts/time-series-chart.tsx";
+import { displayDayRange } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import { useReplica } from "../replica/use-replica.ts";
@@ -16,12 +19,18 @@ import { useBaseCurrency } from "./use-base-currency.ts";
 import { useHouseholdToday } from "./use-household-today.ts";
 import { useStoredRange } from "./use-stored-range.ts";
 
+interface NetWorthTrendProps {
+  height?: number;
+  /** Hears each new pick; the parent then shows it in place of the readout. */
+  onPick?: (pick: ChartPick | null) => void;
+}
+
 /**
  * The net-worth trend chart with its range chips and the change over the
  * picked range. Only this part re-renders on a new range, so the switch
  * costs one sample of at most 400 days.
  */
-export function NetWorthTrend({ height }: { height?: number }) {
+export function NetWorthTrend({ height, onPick }: NetWorthTrendProps) {
   const locale = useLocale();
   const today = useHouseholdToday();
   const currency = useBaseCurrency();
@@ -32,13 +41,13 @@ export function NetWorthTrend({ height }: { height?: number }) {
   const summary = summariseSeries(series.values);
   const last =
     series.values.length > 0 ? series.values[series.values.length - 1] : 0;
-  const money = (minor: number) => formatMoney(minor, currency, locale);
-  const startLabel = displayDay(
+  const money = (minor: number) =>
+    formatMoney(minor, currency, locale, { wholeUnits: true });
+  const rangeLabel = displayDayRange(
     series.days.length > 0 ? series.days[0] : today,
+    today,
     locale,
-    "dayYear",
   );
-  const rangeLabel = `${startLabel} – ${displayDay(today, locale, "dayYear")}`;
 
   return (
     <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
@@ -52,6 +61,7 @@ export function NetWorthTrend({ height }: { height?: number }) {
         formatValue={money}
         currency={currency}
         height={height}
+        onPick={onPick}
         restReadout={
           <span>
             {rangeLabel}
@@ -61,6 +71,7 @@ export function NetWorthTrend({ height }: { height?: number }) {
               fromMinor={summary.first}
               currency={currency}
               tone
+              whole
             />
             {" · "}
             {t({ en: "Average", zh: "平均" })}{" "}

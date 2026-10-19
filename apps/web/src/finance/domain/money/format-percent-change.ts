@@ -1,12 +1,20 @@
+import { formatPercent } from "./format-percent.ts";
+
 const formatters = new Map<string, Intl.NumberFormat>();
 
-/** `+13.56%` for a change of `change` on `from`, or null when `from` is 0. */
+/**
+ * `+13.56%` for a change of `change` on `from`, or null when `from` is 0.
+ * `short` is the same change as `formatPercent` shows it: `-0.2%`, `+27%`.
+ */
 export function formatPercentChange(
   change: number,
   from: number,
   locale: string,
+  { short = false }: { short?: boolean } = {},
 ): string | null {
   if (from === 0) return null;
+  const ratio = change / Math.abs(from);
+  if (short) return formatPercent(ratio, locale, true);
   let formatter = formatters.get(locale);
   if (!formatter) {
     formatter = new Intl.NumberFormat(locale, {
@@ -16,5 +24,5 @@ export function formatPercentChange(
     });
     formatters.set(locale, formatter);
   }
-  return formatter.format(change / Math.abs(from));
+  return formatter.format(ratio);
 }
