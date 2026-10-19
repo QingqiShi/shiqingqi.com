@@ -54,7 +54,6 @@ function paintCommand(
       if (command.stroke !== undefined) {
         context.strokeStyle = command.stroke.color;
         context.lineWidth = command.stroke.width;
-        context.setLineDash(command.stroke.dash ?? []);
         context.lineCap = command.stroke.round ? "round" : "butt";
         context.lineJoin = command.stroke.round ? "round" : "miter";
         context.stroke(path);
@@ -64,9 +63,15 @@ function paintCommand(
     }
     case "text":
       context.font = fontOf(command.font);
-      context.fillStyle = command.color;
       context.textAlign = command.align;
       context.textBaseline = command.baseline;
+      if (command.halo !== undefined) {
+        context.strokeStyle = command.halo.color;
+        context.lineWidth = command.halo.width;
+        context.lineJoin = "round";
+        context.strokeText(command.text, command.x, command.y);
+      }
+      context.fillStyle = command.color;
       context.fillText(command.text, command.x, command.y);
       return;
   }

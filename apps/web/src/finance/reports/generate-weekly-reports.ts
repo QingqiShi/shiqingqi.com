@@ -6,6 +6,7 @@ import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { computeNetWorthTrend } from "./compute-net-worth-trend.ts";
 import {
+  computeGroupTotals,
   computeWeeklyReport,
   REPORT_LOOKBACK_DAYS,
 } from "./compute-weekly-report.ts";
@@ -85,6 +86,10 @@ export async function generateWeeklyReports(
       }
 
       const trend = computeNetWorthTrend(reportContext, lastReportEnd);
+      const groupTotals = computeGroupTotals(
+        reportContext,
+        trend.map((point) => point.day),
+      );
       const stored = await reportRepository.listDataByPeriodEnd(
         context.scope,
         weekEnds,
@@ -92,7 +97,7 @@ export async function generateWeeklyReports(
       const changed = [];
       for (const periodEnd of weekEnds) {
         const data = weeklyReportDataSchema.parse(
-          computeWeeklyReport(reportContext, periodEnd, trend),
+          computeWeeklyReport(reportContext, periodEnd, { trend, groupTotals }),
         );
         if (isDeepStrictEqual(stored.get(periodEnd), data)) continue;
         changed.push({
