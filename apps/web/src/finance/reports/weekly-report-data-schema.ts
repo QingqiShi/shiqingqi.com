@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Bump when a stored Report of the old shape still parses but is out of date. A stored Report that does not parse is out of date without a bump. */
-export const WEEKLY_REPORT_SCHEMA_VERSION = 2;
+export const WEEKLY_REPORT_SCHEMA_VERSION = 3;
 
 /** Weeks in the exponential moving average of the net-worth trend. */
 export const TREND_AVERAGE_WEEKS = 13;
@@ -36,6 +36,8 @@ const reportGroupSchema = z.object({
   totalMinor: minor,
   /** The total at the end of the week before. The changes of all Groups add up to the net-worth change of the week. */
   previousTotalMinor: minor,
+  /** The total at each week end of `trend`, oldest first, so the last is `totalMinor`. */
+  history: z.array(minor),
   accounts: z.array(reportAccountSchema),
 });
 

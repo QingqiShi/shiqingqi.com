@@ -7,12 +7,8 @@ import { makeReport } from "./make-report.ts";
 import { DESKTOP, SYNC_TIMEOUT } from "./transactions-page.ts";
 
 const copy = {
-  en: {
-    path: "",
-    save: "Save image",
-    names: "Include account names in the image",
-  },
-  zh: { path: "/zh", save: "保存图片", names: "图片中显示账户名称" },
+  en: { path: "", save: "Save image" },
+  zh: { path: "/zh", save: "保存图片" },
 };
 
 async function saveImage(page: Page, label: string) {
@@ -27,7 +23,7 @@ async function saveImage(page: Page, label: string) {
 test.describe("Report share image in WebKit", () => {
   test.use({ viewport: DESKTOP });
 
-  test("draws a full-width PNG in each language, with and without names", async ({
+  test("draws a full-width PNG in each language", async ({
     page,
     household,
     cookieSession: _cookieSession,
@@ -40,21 +36,15 @@ test.describe("Report share image in WebKit", () => {
       const save = page.getByRole("button", { name: words.save, exact: true });
       await expect(save).toBeVisible({ timeout: SYNC_TIMEOUT });
 
-      const images = [];
-      for (const includeNames of [false, true]) {
-        if (includeNames) await page.getByLabel(words.names).click();
-        const png = await saveImage(page, words.save);
-        const { width, height } = await sharp(png).metadata();
-        const { channels } = await sharp(png).stats();
-        expect(width).toBe(1600);
-        expect(height).toBeGreaterThan(800);
-        expect(
-          channels.some((channel) => channel.stdev > 10),
-          "the image is not blank",
-        ).toBe(true);
-        images.push(png);
-      }
-      expect(images[0].equals(images[1])).toBe(false);
+      const png = await saveImage(page, words.save);
+      const { width, height } = await sharp(png).metadata();
+      const { channels } = await sharp(png).stats();
+      expect(width).toBe(1600);
+      expect(height).toBeGreaterThan(800);
+      expect(
+        channels.some((channel) => channel.stdev > 10),
+        "the image is not blank",
+      ).toBe(true);
     }
   });
 });

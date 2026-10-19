@@ -19,9 +19,8 @@ import { layoutBars } from "./layout-bars.ts";
 import type { ReportListItem } from "./report-api-schemas.ts";
 import { reportChartSeries } from "./report-chart-series.ts";
 import {
-  IMAGE_TABLE_ROW_HEIGHT,
-  IMAGE_TREND_MAX_HEIGHT,
-  IMAGE_TREND_MIN_HEIGHT,
+  IMAGE_GROUP_HEIGHT,
+  IMAGE_GROUP_ROW_GAP,
   reportImageLayout,
 } from "./report-image-layout.ts";
 import type { ReportImageCopy } from "./use-report-image-copy.ts";
@@ -230,6 +229,7 @@ describe("report charts", () => {
         (sum, item) => sum + item.previousBaseMinor,
         0,
       ),
+      history: [],
       accounts,
     });
     const moving: WeeklyReportData = {
@@ -333,26 +333,22 @@ describe("share image", () => {
   const copy: ReportImageCopy = {
     title: "Weekly report",
     netWorth: "Net worth",
-    vsLastWeek: "vs last week",
-    sinceYearStart: "since 1 Jan",
-    balanceSheet: "Balance sheet",
-    account: "Account",
-    group: "Group",
-    balance: "Balance",
     thisWeek: "This week",
-    assets: "Assets",
-    liabilities: "Liabilities",
-    trend: "Net worth trend",
-    average: "13-week average",
-    groupNets: "Net by group",
+    sinceYearStart: "Since 1 Jan",
+    byGroup: "By group",
+    groupChange: "{change} this week",
+    noChange: "No change this week",
+    owed: "{amount} owed",
+    owedMore: "{amount} more",
+    owedLess: "{amount} less",
     spentThisWeek: "Spent this week",
-    topPayees: "Top payees",
-    vsAverage: "vs 4-week average",
+    aboveAverage: "{amount} above the 4-week average",
+    belowAverage: "{amount} below the 4-week average",
+    atAverage: "The same as the 4-week average",
     fourWeekAverage: "4-week average",
-    income: "Income",
+    byCategory: "By category",
     noSpending: "Nothing spent this week",
     uncategorised: "Uncategorised",
-    inTransit: "In transit",
   };
   /** Every character as wide as half the font size, like a narrow sans-serif. */
   const measureText: MeasureText = (text, font) =>
@@ -384,7 +380,7 @@ describe("share image", () => {
     previousBaseMinor: baseMinor,
     isSystem: false,
   });
-  const withAccounts: WeeklyReportData = {
+  const withGroups: WeeklyReportData = {
     ...data,
     balanceSheet: {
       ...data.balanceSheet,
@@ -395,15 +391,33 @@ describe("share image", () => {
             id: "cash",
             name: "Cash",
             totalMinor: 120_000_00,
-            previousTotalMinor: 120_000_00,
+            previousTotalMinor: 119_000_00,
+            history: [118_000_00, 119_000_00, 120_000_00],
             accounts: [
               account("joint", "Joint current account", 20_000_00),
-              account(
-                "isa",
-                "Stocks and shares ISA with a name far too long to fit its column",
-                100_000_00,
-              ),
+              account("isa", "Stocks and shares ISA", 100_000_00),
             ],
+          },
+          {
+            id: "other",
+            name: "Other",
+            totalMinor: 0,
+            previousTotalMinor: 0,
+            history: [0, 0, 0],
+            accounts: [account("loan", "Lent to a friend", 0)],
+          },
+        ],
+      },
+      liabilities: {
+        totalMinor: -20_000_00,
+        groups: [
+          {
+            id: "cards",
+            name: "Cards",
+            totalMinor: -20_000_00,
+            previousTotalMinor: -18_500_00,
+            history: [-19_000_00, -18_500_00, -20_000_00],
+            accounts: [account("visa", "Visa", -20_000_00)],
           },
         ],
       },
@@ -423,14 +437,14 @@ describe("share image", () => {
     };
     const zh = drawnText(
       withSystemLine,
-      { locale: "zh", includeNames: false },
+      { locale: "zh" },
       { ...copy, uncategorised: "未分类" },
     );
     expect(zh).toContain("未分类");
     expect(zh).not.toContain("Uncategorised");
-    expect(
-      drawnText(withSystemLine, { locale: "en", includeNames: false }),
-    ).toContain("Uncategorised");
+    expect(drawnText(withSystemLine, { locale: "en" })).toContain(
+      "Uncategorised",
+    );
   });
 
   it("says so when nothing was spent", () => {
@@ -439,38 +453,33 @@ describe("share image", () => {
       spending: { ...data.spending, byCategory: [], history: [] },
       trend: [],
     };
-    expect(drawnText(quiet, { locale: "en", includeNames: true })).toContain(
+    expect(drawnText(quiet, { locale: "en" })).toContain(
       "Nothing spent this week",
     );
   });
 
-  it("leaves out Account names unless asked", () => {
-    const hidden = drawnText(withAccounts, {
-      locale: "en",
-      includeNames: false,
-    });
-    const shown = drawnText(withAccounts, { locale: "en", includeNames: true });
-
-    expect(hidden.join("\n")).not.toMatch(/Joint|ISA|Alex|Example/);
-    expect(shown).toContain("Joint current account");
-    expect(shown.some((text) => text.startsWith("Alex ·"))).toBe(true);
+  it("shows each Group's balance and change, and no Account", () => {
+    const drawn = drawnText(withGroups, { locale: "en" });
+    expect(drawn).toContain("Cash");
+    expect(drawn).toContain("£120,000.00");
+    expect(drawn).toContain("+£1,000.00");
+    expect(drawn.join("\n")).not.toMatch(/Joint|ISA|Visa|Alex|Example/);
   });
 
-  it("cuts a long name short to fit its column", () => {
-    const name = drawnText(withAccounts, {
-      locale: "en",
-      includeNames: true,
-    }).find((text) => text.startsWith("Stocks"));
-    expect(name).toMatch(/…$/);
-    expect(name?.length).toBeLessThan(
-      "Stocks and shares ISA with a name far too long to fit its column".length,
-    );
+  it("shows what a liability Group owes and whether it owes more", () => {
+    const drawn = drawnText(withGroups, { locale: "en" });
+    expect(drawn).toContain("£20,000.00");
+    expect(drawn).toContain(" owed");
+    expect(drawn).toContain("£1,500.00 more");
+  });
+
+  it("leaves out a Group that never had a balance", () => {
+    expect(drawnText(withGroups, { locale: "en" })).not.toContain("Other");
   });
 
   it("keeps every command inside the image", () => {
-    const drawing = buildReportImageDrawing(withAccounts, {
+    const drawing = buildReportImageDrawing(withGroups, {
       locale: "zh",
-      includeNames: true,
       copy,
       measureText,
     });
@@ -486,36 +495,25 @@ describe("share image", () => {
 });
 
 describe("share image layout", () => {
-  const counts = { groupNets: 7, categories: 4, payees: 5 };
-
-  it("puts the spending under a short balance sheet and lines both columns up", () => {
-    const layout = reportImageLayout({ ...counts, tableRows: 10 });
-    expect(layout.spendingColumn).toBe("left");
-    expect(layout.trendHeight).toBeGreaterThanOrEqual(IMAGE_TREND_MIN_HEIGHT);
-  });
-
-  it("moves the spending to the right under a long balance sheet and grows with it", () => {
-    const short = reportImageLayout({ ...counts, tableRows: 30 });
-    const long = reportImageLayout({ ...counts, tableRows: 34 });
-    expect(short.spendingColumn).toBe("right");
-    expect(long.spendingColumn).toBe("right");
-    expect(long.height - short.height).toBe(4 * IMAGE_TABLE_ROW_HEIGHT);
-    expect(long.trendHeight - short.trendHeight).toBe(
-      4 * IMAGE_TABLE_ROW_HEIGHT,
+  it("grows by a row of Groups for every three Groups", () => {
+    const base = { hasTrend: true, categories: 6 };
+    const three = reportImageLayout({ ...base, groups: 3 });
+    const four = reportImageLayout({ ...base, groups: 4 });
+    const six = reportImageLayout({ ...base, groups: 6 });
+    expect(four.height - three.height).toBe(
+      IMAGE_GROUP_HEIGHT + IMAGE_GROUP_ROW_GAP,
     );
+    expect(six.height).toBe(four.height);
   });
 
-  it("beside a long balance sheet, lists more spending before it stretches the trend", () => {
+  it("leaves out the trend and the Groups when there are none", () => {
     const bare = reportImageLayout({
-      ...counts,
-      payees: 0,
-      tableRows: 44,
+      hasTrend: false,
+      groups: 0,
+      categories: 0,
     });
-    const full = reportImageLayout({ ...counts, categories: 6, tableRows: 44 });
-    expect(bare.trendHeight).toBeGreaterThan(IMAGE_TREND_MAX_HEIGHT);
-    expect(full.categories).toBe(6);
-    expect(full.payees).toBe(5);
-    expect(full.height).toBe(bare.height);
-    expect(full.trendHeight).toBeLessThan(bare.trendHeight);
+    expect(bare.trendTop).toBeNull();
+    expect(bare.groupsTop).toBeNull();
+    expect(bare.spendingTop).toBeLessThan(bare.height);
   });
 });

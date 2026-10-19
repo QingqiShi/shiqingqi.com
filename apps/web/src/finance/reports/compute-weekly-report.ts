@@ -85,12 +85,45 @@ function countedAt(context: ReportContext, day: string) {
   };
 }
 
+/** Each Group's total at the end of a week end, keyed by week end and then by Group id. */
+export type GroupTotalsByWeek = ReadonlyMap<
+  string,
+  ReadonlyMap<string, number>
+>;
+
+function groupTotalsAt(context: ReportContext, day: string) {
+  const { byAccount } = countedAt(context, day);
+  const totals = new Map<string, number>();
+  for (const account of context.accounts) {
+    const counted = byAccount.get(account.id);
+    if (counted === undefined) continue;
+    totals.set(
+      account.groupId,
+      (totals.get(account.groupId) ?? 0) + counted.baseMinor,
+    );
+  }
+  return totals;
+}
+
+/** Each Group's total at every one of `weekEnds`, so many weeks can share them. */
+export function computeGroupTotals(
+  context: ReportContext,
+  weekEnds: readonly string[],
+): GroupTotalsByWeek {
+  return new Map(weekEnds.map((day) => [day, groupTotalsAt(context, day)]));
+}
+
 /**
  * The balance sheet at the end of `periodEnd`, with every amount also at the
- * end of the week before. An Account that counts at either end is listed, so
- * the changes of the Groups add up to the change in net worth.
+ * end of the week before, and each Group's total at every one of
+ * `weekTotals`. An Account that counts at either end is listed, so the
+ * changes of the Groups add up to the change in net worth.
  */
-function balanceSheet(context: ReportContext, periodEnd: string) {
+function balanceSheet(
+  context: ReportContext,
+  periodEnd: string,
+  weekTotals: readonly ReadonlyMap<string, number>[],
+) {
   const current = countedAt(context, periodEnd);
   const previous = countedAt(context, addDays(periodEnd, -7));
 
@@ -126,6 +159,7 @@ function balanceSheet(context: ReportContext, periodEnd: string) {
       name: group.name,
       totalMinor: sum(accounts, (account) => account.baseMinor),
       previousTotalMinor: sum(accounts, (account) => account.previousBaseMinor),
+      history: weekTotals.map((totals) => totals.get(group.id) ?? 0),
       accounts,
     });
   }
@@ -320,16 +354,30 @@ function weekActivity(
  * an indexed source. Balances follow the balance engine, so the net worth
  * equals the app's on that day; account amounts add up to their Group, the
  * Groups to their side, and the sides to the net worth, to the penny.
- * Pass `trend` (from `computeNetWorthTrend` up to a later week) to reuse
- * one trend across many weeks.
+ * Pass `shared.trend` (from `computeNetWorthTrend` up to a later week) and
+ * `shared.groupTotals` (from `computeGroupTotals` over its week ends) to
+ * reuse them across many weeks.
  */
 export function computeWeeklyReport(
   context: ReportContext,
   weekDay: string,
-  trend?: readonly TrendPoint[],
+  {
+    trend,
+    groupTotals,
+  }: { trend?: readonly TrendPoint[]; groupTotals?: GroupTotalsByWeek } = {},
 ): WeeklyReportData {
   const { periodStart, periodEnd } = reportWeekOf(weekDay);
-  const sheet = balanceSheet(context, periodEnd);
+  const reportTrend = (
+    trend ?? computeNetWorthTrend(context, periodEnd)
+  ).filter((point) => point.day <= periodEnd);
+  const sheet = balanceSheet(
+    context,
+    periodEnd,
+    reportTrend.map(
+      (point) =>
+        groupTotals?.get(point.day) ?? groupTotalsAt(context, point.day),
+    ),
+  );
 
   function compareWith(
     day: string,
@@ -388,8 +436,6 @@ export function computeWeeklyReport(
         ? null
         : propertyNets.reduce((sum, family) => sum + family.valueMinor, 0),
     ...weekActivity(context, periodStart, periodEnd),
-    trend: (trend ?? computeNetWorthTrend(context, periodEnd)).filter(
-      (point) => point.day <= periodEnd,
-    ),
+    trend: reportTrend,
   };
 }

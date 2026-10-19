@@ -169,6 +169,15 @@ describe("generateWeeklyReports data", () => {
     ).toBe(true);
   });
 
+  it("gives each group its total at every week of the trend", () => {
+    const { assets, liabilities } = report.balanceSheet;
+    for (const group of [...assets.groups, ...liabilities.groups]) {
+      expect(group.history).toHaveLength(report.trend.length);
+      expect(group.history.at(-1)).toBe(group.totalMinor);
+      expect(group.history.at(-2)).toBe(group.previousTotalMinor);
+    }
+  });
+
   it("states the net worth the engine gives from raw rows", () => {
     expect(report.balanceSheet.netWorthMinor).toBe(
       engineNetWorthAt(PERIOD_END),

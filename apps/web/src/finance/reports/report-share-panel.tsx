@@ -3,15 +3,11 @@
 import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
 import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
 import { ShareNetworkIcon } from "@phosphor-icons/react/dist/ssr/ShareNetwork";
-import * as stylex from "@stylexjs/stylex";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@tuja/ui/components/button";
-import { Switch } from "@tuja/ui/components/switch";
 import { useToast } from "@tuja/ui/components/toast-provider";
-import { cluster, row } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm } from "@tuja/ui/tokens.stylex";
-import { useEffect, useId, useState } from "react";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { useEffect, useState } from "react";
 import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
 import { downloadBlob } from "#src/browser/download-blob.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -41,18 +37,12 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
   const queryClient = useQueryClient();
   const showToast = useToast();
   const categoryName = useCategoryLineName();
-  const switchId = useId();
-  const [includeNames, setIncludeNames] = useState(false);
   const [busy, setBusy] = useState<"share" | "download" | null>(null);
   const [sharesFiles] = useState(
     () => typeof navigator !== "undefined" && canShareFiles(navigator),
   );
   const imageCopy = useReportImageCopy();
-  const imageQuery = reportImageQuery(
-    report,
-    { locale, includeNames },
-    imageCopy,
-  );
+  const imageQuery = reportImageQuery(report, { locale }, imageCopy);
   const [drawAhead, setDrawAhead] = useState(false);
   const image = useQuery({ ...imageQuery, enabled: drawAhead });
   useEffect(() => {
@@ -146,36 +136,22 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
   }
 
   return (
-    <div css={[cluster.item, styles.panel]}>
-      <div css={cluster.tight}>
-        {sharesFiles ? (
-          <>
-            <Button
-              size="sm"
-              look="primary"
-              icon={<ShareNetworkIcon weight="bold" />}
-              loading={busy === "share"}
-              onClick={() => {
-                void share();
-              }}
-            >
-              {t({ en: "Share image", zh: "分享图片" })}
-            </Button>
-            <Button
-              size="sm"
-              icon={<DownloadSimpleIcon weight="bold" />}
-              loading={busy === "download"}
-              onClick={() => {
-                void download();
-              }}
-            >
-              {t({ en: "Save image", zh: "保存图片" })}
-            </Button>
-          </>
-        ) : (
+    <div css={cluster.tight}>
+      {sharesFiles ? (
+        <>
           <Button
             size="sm"
             look="primary"
+            icon={<ShareNetworkIcon weight="bold" />}
+            loading={busy === "share"}
+            onClick={() => {
+              void share();
+            }}
+          >
+            {t({ en: "Share image", zh: "分享图片" })}
+          </Button>
+          <Button
+            size="sm"
             icon={<DownloadSimpleIcon weight="bold" />}
             loading={busy === "download"}
             onClick={() => {
@@ -184,42 +160,29 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
           >
             {t({ en: "Save image", zh: "保存图片" })}
           </Button>
-        )}
+        </>
+      ) : (
         <Button
           size="sm"
-          icon={<CopyIcon weight="bold" />}
+          look="primary"
+          icon={<DownloadSimpleIcon weight="bold" />}
+          loading={busy === "download"}
           onClick={() => {
-            void copySummary();
+            void download();
           }}
         >
-          {t({ en: "Copy summary", zh: "复制摘要" })}
+          {t({ en: "Save image", zh: "保存图片" })}
         </Button>
-      </div>
-      <div css={row.tight}>
-        <Switch
-          id={switchId}
-          size="sm"
-          value={includeNames ? "on" : "off"}
-          onChange={(state) => {
-            setIncludeNames(state === "on");
-          }}
-        />
-        <label htmlFor={switchId} css={[typeRole.bodySmall, styles.label]}>
-          {t({
-            en: "Include account names in the image",
-            zh: "图片中显示账户名称",
-          })}
-        </label>
-      </div>
+      )}
+      <Button
+        size="sm"
+        icon={<CopyIcon weight="bold" />}
+        onClick={() => {
+          void copySummary();
+        }}
+      >
+        {t({ en: "Copy summary", zh: "复制摘要" })}
+      </Button>
     </div>
   );
 }
-
-const styles = stylex.create({
-  panel: {
-    rowGap: rhythm.tight,
-  },
-  label: {
-    color: color.fgMuted,
-  },
-});
