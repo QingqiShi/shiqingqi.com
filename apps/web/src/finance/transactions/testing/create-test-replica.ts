@@ -1,13 +1,13 @@
 import { createFinanceRuntime } from "../../replica/create-finance-runtime.ts";
 import { createMemoryPersistence } from "../../replica/create-memory-persistence.ts";
 import type { ReplicaStore } from "../../replica/create-replica-store.ts";
-import { REPLICA_TABLE_NAMES } from "../../replica/replica-table-names.ts";
-import type {
-  AccountRow,
-  EntryRow,
-  HouseholdRow,
-  SyncRows,
-  TransactionRow,
+import {
+  SYNC_TABLE_NAMES,
+  type AccountRow,
+  type EntryRow,
+  type HouseholdRow,
+  type SyncRows,
+  type TransactionRow,
 } from "../../sync/row-schemas.ts";
 
 const NOW = "2026-10-01T09:00:00.000Z";
@@ -311,7 +311,7 @@ export function applyTestBootstrap(
   rows: Partial<SyncRows>,
 ) {
   store.startBootstrap(testHousehold);
-  for (const table of REPLICA_TABLE_NAMES) {
+  for (const table of SYNC_TABLE_NAMES) {
     const tableRows = rows[table];
     if (tableRows) store.applyBootstrapRows(table, tableRows);
   }

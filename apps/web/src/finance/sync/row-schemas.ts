@@ -280,6 +280,14 @@ export const rowSchemas = {
 };
 
 export type SyncTableName = keyof typeof rowSchemas;
+
+export function isSyncTableName(name: string): name is SyncTableName {
+  return name in rowSchemas;
+}
+
+/** Every synced table, in the order the server sends them. */
+export const SYNC_TABLE_NAMES: readonly SyncTableName[] =
+  Object.keys(rowSchemas).filter(isSyncTableName);
 export type SyncRows = {
   [Table in SyncTableName]: z.infer<(typeof rowSchemas)[Table]>[];
 };

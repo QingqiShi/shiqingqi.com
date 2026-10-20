@@ -1,4 +1,4 @@
-import type { SyncTableName } from "../sync/row-schemas.ts";
+import { SYNC_TABLE_NAMES, type SyncTableName } from "../sync/row-schemas.ts";
 import type { ReplicaRow, ReplicaTables } from "./types.ts";
 
 type WritableTables = {
@@ -64,8 +64,7 @@ export function createTablesDraft(base: ReplicaTables) {
     },
     /** Drops every row of every table. */
     clear() {
-      for (const table of Object.keys(base)) {
-        if (!isTableOf(base, table)) continue;
+      for (const table of SYNC_TABLE_NAMES) {
         for (const key of read(table).keys()) markChanged(table, key);
         Object.assign(copies, { [table]: new Map() });
       }
@@ -74,10 +73,6 @@ export function createTablesDraft(base: ReplicaTables) {
       return { tables: { ...base, ...copies }, changed };
     },
   };
-}
-
-function isTableOf(tables: ReplicaTables, name: string): name is SyncTableName {
-  return name in tables;
 }
 
 export type TablesDraft = ReturnType<typeof createTablesDraft>;

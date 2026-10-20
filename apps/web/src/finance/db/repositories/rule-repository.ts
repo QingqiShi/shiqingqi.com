@@ -1,6 +1,6 @@
 import { and, eq, isNull, lte, or, sql } from "drizzle-orm";
 import { rules } from "../schema.ts";
-import { softDeletePatch } from "./soft-delete-patch.ts";
+import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 type NewRule = Omit<
@@ -17,14 +17,10 @@ type RulePatch = Partial<Omit<NewRule, "id">> & {
   deleted?: boolean;
 };
 
+const ruleRows = householdRows(rules);
+
 export const ruleRepository = {
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(rules)
-      .where(and(eq(rules.householdId, scope.householdId), eq(rules.id, id)));
-    return rows.at(0);
-  },
+  findById: ruleRows.findById,
 
   /** Rules that are live and have an occurrence on or before `horizon`. */
   async findDue(scope: RepositoryScope, horizon: string) {
@@ -43,35 +39,25 @@ export const ruleRepository = {
       .orderBy(rules.nextOn, rules.id);
   },
 
-  /** Inserts the Rule. False when the id is already used. */
-  async insert(scope: WriteScope, row: NewRule) {
-    const inserted = await scope.db
-      .insert(rules)
-      .values({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      })
-      .onConflictDoNothing({ target: rules.id })
-      .returning({ id: rules.id });
-    return inserted.length > 0;
-  },
+  insert: (scope: WriteScope, row: NewRule) =>
+    ruleRows.insert(scope, stamped(scope, row)),
 
-  async patch(scope: WriteScope, id: string, patch: RulePatch) {
-    const { paused, deleted, ...fields } = patch;
-    await scope.db
-      .update(rules)
-      .set({
+  patch: (
+    scope: WriteScope,
+    id: string,
+    { paused, deleted, ...fields }: RulePatch,
+  ) =>
+    ruleRows.patch(
+      scope,
+      id,
+      {
         ...fields,
         ...(paused === undefined
           ? {}
           : { pausedAt: paused ? sql`now()` : null }),
-        ...softDeletePatch(deleted),
-        version: scope.version,
-        updatedAt: sql`now()`,
-      })
-      .where(and(eq(rules.householdId, scope.householdId), eq(rules.id, id)));
-  },
+      },
+      deleted,
+    ),
 
   /** Points every Rule template that names one Payee at another. */
   async repointTemplatePayee(

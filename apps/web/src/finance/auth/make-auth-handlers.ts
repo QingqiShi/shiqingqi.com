@@ -29,9 +29,8 @@ import {
 } from "#src/finance/db/with-household.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "#src/finance/domain/dates/default-household-time-zone.ts";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import { buildCodeEmail } from "../email/build-code-email.ts";
 import { buildRecoveryEmailChangedEmail } from "../email/build-recovery-email-changed-email.ts";
-import { buildRecoveryEmail } from "../email/build-recovery-email.ts";
-import { buildSignUpEmail } from "../email/build-sign-up-email.ts";
 import { buildVerificationEmail } from "../email/build-verification-email.ts";
 import { normaliseEmail } from "../email/normalise-email.ts";
 import type { FinanceEmail, FinanceEmailSender } from "../email/types.ts";
@@ -220,6 +219,19 @@ const emailBody = z.object({
   email: z.string().max(320),
   locale: localeSchema,
 });
+
+function openSession(
+  db: FinanceAppDb,
+  request: Request,
+  userId: string,
+  now: Date,
+) {
+  return createSession(db, {
+    userId,
+    userAgent: request.headers.get("User-Agent") ?? "",
+    now,
+  });
+}
 
 function json(
   context: Pick<Context, "setCookies">,
@@ -680,11 +692,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
           .update(passkeys)
           .set({ counter: newCounter, lastUsedAt: now })
           .where(eq(passkeys.id, passkey.id));
-        return createSession(db, {
-          userId: passkey.userId,
-          userAgent: request.headers.get("User-Agent") ?? "",
-          now,
-        });
+        return openSession(db, request, passkey.userId, now);
       });
       startSession(context, token);
       return json(context, { ok: true });
@@ -715,17 +723,15 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
               })),
             }),
           );
-          const content = {
-            to: email,
-            locale,
-            code,
-            url: `${origin}${getLocalePath(path, locale)}`,
-          };
           await sendOrFail(
             sender,
-            registered
-              ? buildRecoveryEmail({ ...content, reason: "sign-up" })
-              : buildSignUpEmail(content),
+            buildCodeEmail({
+              to: email,
+              locale,
+              code,
+              url: `${origin}${getLocalePath(path, locale)}`,
+              reason: registered ? "registered-sign-up" : "sign-up",
+            }),
           );
           issueEmailCode(context, { purpose: "sign-up", codeId });
         },
@@ -813,11 +819,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
           }),
         );
         await insertPasskey(tx, userId, info, now);
-        const token = await createSession(tx, {
-          userId,
-          userAgent: request.headers.get("User-Agent") ?? "",
-          now,
-        });
+        const token = await openSession(tx, request, userId, now);
         return { householdId, memberId, token };
       });
 
@@ -895,32 +897,19 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
             // The Member lost every passkey. A lost device must not keep
             // access, so its passkeys and sessions stop here.
             await revokeUserAccess(db, userId);
-            await insertPasskey(db, userId, info, now);
-            return {
-              token: await createSession(db, {
-                userId,
-                userAgent: request.headers.get("User-Agent") ?? "",
-                now,
-              }),
-              verification: null,
-            };
+          } else {
+            await db
+              .insert(users)
+              .values({ id: userId, displayName: invite.memberName });
+            const bound = await bindUserToMember(scope, {
+              memberId: invite.memberId,
+              userId,
+            });
+            if (!bound) throw new HttpError(409, "member_claimed");
           }
-
-          await db
-            .insert(users)
-            .values({ id: userId, displayName: invite.memberName });
-          const bound = await bindUserToMember(scope, {
-            memberId: invite.memberId,
-            userId,
-          });
-          if (!bound) throw new HttpError(409, "member_claimed");
           await insertPasskey(db, userId, info, now);
           return {
-            token: await createSession(db, {
-              userId,
-              userAgent: request.headers.get("User-Agent") ?? "",
-              now,
-            }),
+            token: await openSession(db, request, userId, now),
             verification:
               email === null
                 ? null
@@ -1138,7 +1127,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
           );
           if (token === null) return;
           await sender.send(
-            buildRecoveryEmail({
+            buildCodeEmail({
               to: email,
               locale,
               code,

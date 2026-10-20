@@ -1,7 +1,7 @@
-import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { payeeNameKey } from "../../domain/payees/payee-name-key.ts";
 import { payees } from "../schema.ts";
-import { softDeletePatch } from "./soft-delete-patch.ts";
+import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 type NewPayee = Omit<
@@ -10,16 +10,10 @@ type NewPayee = Omit<
 >;
 type PayeePatch = Partial<Omit<NewPayee, "id">> & { deleted?: boolean };
 
-const now = sql`now()`;
+const payeeRows = householdRows(payees);
 
 export const payeeRepository = {
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(payees)
-      .where(and(eq(payees.householdId, scope.householdId), eq(payees.id, id)));
-    return rows.at(0);
-  },
+  findById: payeeRows.findById,
 
   /**
    * The live Payee with the same name as `name` by `payeeNameKey`: case,
@@ -43,30 +37,9 @@ export const payeeRepository = {
     return same.find((row) => row.name === name) ?? same.at(0);
   },
 
-  /** Inserts the Payee. False when the id is already used. */
-  async insert(scope: WriteScope, row: NewPayee) {
-    const inserted = await scope.db
-      .insert(payees)
-      .values({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      })
-      .onConflictDoNothing({ target: payees.id })
-      .returning({ id: payees.id });
-    return inserted.length > 0;
-  },
+  insert: (scope: WriteScope, row: NewPayee) =>
+    payeeRows.insert(scope, stamped(scope, row)),
 
-  async patch(scope: WriteScope, id: string, patch: PayeePatch) {
-    const { deleted, ...fields } = patch;
-    await scope.db
-      .update(payees)
-      .set({
-        ...fields,
-        ...softDeletePatch(deleted),
-        version: scope.version,
-        updatedAt: now,
-      })
-      .where(and(eq(payees.householdId, scope.householdId), eq(payees.id, id)));
-  },
+  patch: (scope: WriteScope, id: string, { deleted, ...fields }: PayeePatch) =>
+    payeeRows.patch(scope, id, fields, deleted),
 };

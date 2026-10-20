@@ -18,6 +18,7 @@ import type {
   AnalyticsState,
   AnalyticsView,
 } from "./compute-analytics-view.ts";
+import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { formatPeriod } from "./format-period.ts";
 import { isMajorPeriod } from "./is-major-period.ts";
 import { transactionsHref } from "./transactions-href.ts";
@@ -47,6 +48,14 @@ export function IncomeSpendingChart({
   for (const value of view.incomeByPeriod) income += value;
   for (const value of view.spendingByPeriod) spending += value;
   const net = income - spending;
+  const netReadout = (minor: number) => (
+    <span css={typeModifier.numeric}>
+      {`${netLabel} `}
+      <span css={styles.net}>
+        {formatAnalyticsMoney(minor, currency, locale, "net")}
+      </span>
+    </span>
+  );
 
   return (
     <section css={stack.item} aria-labelledby={headingId}>
@@ -87,31 +96,10 @@ export function IncomeSpendingChart({
         formatTick={(minor, step) =>
           formatAxisMoney(minor, step, currency, locale)
         }
-        restReadout={
-          <span css={typeModifier.numeric}>
-            {`${netLabel} `}
-            <span css={styles.net}>
-              {formatMoney(Math.round(net), currency, locale, {
-                signDisplay: "exceptZero",
-              })}
-            </span>
-          </span>
+        restReadout={netReadout(net)}
+        readout={(index) =>
+          netReadout(view.incomeByPeriod[index] - view.spendingByPeriod[index])
         }
-        readout={(index) => (
-          <span css={typeModifier.numeric}>
-            {`${netLabel} `}
-            <span css={styles.net}>
-              {formatMoney(
-                Math.round(
-                  view.incomeByPeriod[index] - view.spendingByPeriod[index],
-                ),
-                currency,
-                locale,
-                { signDisplay: "exceptZero" },
-              )}
-            </span>
-          </span>
-        )}
         onActivate={(index, key) => {
           router.push(
             getLocalePath(

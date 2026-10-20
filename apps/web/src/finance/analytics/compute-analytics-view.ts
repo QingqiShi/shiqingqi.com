@@ -1,6 +1,7 @@
 import type { SeriesTone } from "../charts/series-tone-at.ts";
 import { fromEpochDay, toEpochDay } from "../domain/dates/to-epoch-day.ts";
-import { aggregateAnalytics, lowerBound } from "./aggregate-analytics.ts";
+import { upperBound } from "../domain/upper-bound.ts";
+import { aggregateAnalytics } from "./aggregate-analytics.ts";
 import { categoryBuckets } from "./category-buckets.ts";
 import { outlierFences } from "./outlier-fences.ts";
 import { partialPeriods } from "./partial-periods.ts";
@@ -397,8 +398,8 @@ function categoryTrend(
   }
 
   const { days, amounts, kinds, categories, members } = index;
-  const start = lowerBound(days, options.from);
-  const end = lowerBound(days, options.to + 1);
+  const start = upperBound(days, options.from - 1);
+  const end = upperBound(days, options.to);
   const values = new Float64Array(end - start);
   const rows = new Int32Array(end - start);
   let found = 0;

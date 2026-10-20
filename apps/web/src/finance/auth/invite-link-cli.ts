@@ -6,9 +6,9 @@ import { BASE_URL } from "../../constants.ts";
 import { getLocalePath } from "../../i18n/get-locale-path.ts";
 import { members, schema } from "../db/schema.ts";
 import { withHousehold } from "../db/with-household.ts";
+import { assertLocalDatabaseUrl } from "../dev/assert-local-database-url.ts";
 import { createInvite } from "./create-invite.ts";
 
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
 const USAGE =
   "Usage: finance:invite-link <household id> <member id> [--origin <url>] [--locale en|zh] [--allow-remote]";
 
@@ -34,10 +34,10 @@ async function main() {
 
   const connectionString = process.env.FINANCE_DATABASE_URL;
   if (!connectionString) throw new Error("Set FINANCE_DATABASE_URL.");
-  const { hostname } = new URL(connectionString);
-  if (!LOCAL_HOSTS.has(hostname) && !values["allow-remote"]) {
-    throw new Error(
-      `FINANCE_DATABASE_URL points at ${hostname}, not this machine. Pass --allow-remote to use it anyway.`,
+  if (!values["allow-remote"]) {
+    assertLocalDatabaseUrl(
+      connectionString,
+      "Pass --allow-remote to use it anyway.",
     );
   }
 

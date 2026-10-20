@@ -1,7 +1,6 @@
-import type { SyncTableName } from "../sync/row-schemas.ts";
+import { SYNC_TABLE_NAMES, type SyncTableName } from "../sync/row-schemas.ts";
 import { createTablesDraft } from "./create-tables-draft.ts";
 import { emptyReplicaTables } from "./empty-replica-tables.ts";
-import { REPLICA_TABLE_NAMES } from "./replica-table-names.ts";
 import { rowKey } from "./row-key.ts";
 import type {
   OutboxEntry,
@@ -44,7 +43,7 @@ export function createMemoryPersistence(): ReplicaPersistence {
         for (const row of tableWrites.put)
           draft.put(table, rowKey(table, row), row);
       };
-      for (const table of REPLICA_TABLE_NAMES) visit(table, writes[table]);
+      for (const table of SYNC_TABLE_NAMES) visit(table, writes[table]);
       tables = draft.finish().tables;
       if (batch.meta) meta = { ...batch.meta };
       for (const entry of batch.outboxPut ?? []) {

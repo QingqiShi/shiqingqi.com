@@ -10,12 +10,12 @@ import { useState } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { Anchor } from "#src/links/anchor.tsx";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import {
   toFinanceApiError,
   type FinanceApiError,
 } from "../http/finance-api-error.ts";
+import { AuthNotice } from "./auth-notice.tsx";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
 /**
@@ -30,12 +30,6 @@ export function VerifyEmailPanel({ token }: { token: string }) {
     "verified" | "ended" | "registered" | null
   >(null);
   const [error, setError] = useState<FinanceApiError | null>(null);
-
-  const settingsLink = (
-    <Anchor href={getLocalePath("/finance/settings/members", locale)}>
-      {t({ en: "Go to Settings", zh: "前往设置" })}
-    </Anchor>
-  );
 
   const outcomes = {
     verified: {
@@ -63,13 +57,11 @@ export function VerifyEmailPanel({ token }: { token: string }) {
 
   if (outcome !== null) {
     return (
-      <div css={stack.tight}>
-        <Heading level={1} look="h2">
-          {outcomes[outcome].heading}
-        </Heading>
-        <Text tone="muted">{outcomes[outcome].text}</Text>
-        {settingsLink}
-      </div>
+      <AuthNotice
+        {...outcomes[outcome]}
+        href={getLocalePath("/finance/settings/members", locale)}
+        linkLabel={t({ en: "Go to Settings", zh: "前往设置" })}
+      />
     );
   }
 

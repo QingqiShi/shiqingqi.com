@@ -1,9 +1,11 @@
-import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
-import { guardFinanceRequest } from "../http/guard-finance-request.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import { applyMutations } from "./apply-mutations.ts";
 import { pullChanges } from "./pull-changes.ts";
@@ -11,10 +13,8 @@ import { pushRequestSchema } from "./push-request-schema.ts";
 import { streamBootstrap } from "./stream-bootstrap.ts";
 import type { PushEffect } from "./types.ts";
 
-interface SyncHandlerDependencies {
-  isConfigured: () => boolean;
+interface SyncHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   now: () => Date;
   /** Called after a push that committed a mutation with an effect, to start the work that follows it. */
   afterPush?: (householdId: string, effects: ReadonlySet<PushEffect>) => void;
@@ -32,7 +32,7 @@ function parseSince(request: Request) {
  */
 export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
   return {
-    async GET(request: Request) {
+    GET: async (request: Request) => {
       const session = await guardFinanceRequest(dependencies, request, {
         write: false,
       });
@@ -70,7 +70,7 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
       return financeJson(pull);
     },
 
-    async POST(request: Request) {
+    POST: async (request: Request) => {
       const session = await guardFinanceRequest(dependencies, request, {
         write: true,
       });

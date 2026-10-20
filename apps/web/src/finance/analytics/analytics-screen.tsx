@@ -16,8 +16,8 @@ import { AnalyticsSummary } from "./analytics-summary.tsx";
 import { CategoryBreakdown } from "./category-breakdown.tsx";
 import { CategoryTrend } from "./category-trend.tsx";
 import { IncomeSpendingChart } from "./income-spending-chart.tsx";
-import { TagBreakdown } from "./tag-breakdown.tsx";
-import { TopPayees } from "./top-payees.tsx";
+import { RankedBreakdown } from "./ranked-breakdown.tsx";
+import { useAnalyticsNames } from "./use-analytics-names.ts";
 import { useAnalyticsState } from "./use-analytics-state.ts";
 import { useAnalyticsView } from "./use-analytics-view.ts";
 
@@ -26,6 +26,7 @@ function AnalyticsContent() {
   const { view, index } = useAnalyticsView(state);
   const currency = useBaseCurrency();
   const members = useReplica(liveRowSelectors.members);
+  const names = useAnalyticsNames();
 
   if (index.length === 0) {
     return (
@@ -68,8 +69,40 @@ function AnalyticsContent() {
             />
           ) : null}
           <IncomeSpendingChart state={state} view={view} currency={currency} />
-          <TopPayees state={state} view={view} currency={currency} />
-          <TagBreakdown state={state} view={view} currency={currency} />
+          <RankedBreakdown
+            heading={t({ en: "Top payees", zh: "主要商家" })}
+            empty={t({
+              en: "No payees in this range.",
+              zh: "这段时间没有商家记录。",
+            })}
+            list="ol"
+            items={view.payees.map((item) => ({
+              key: item.payeeId,
+              label: names.payee(item.payeeId),
+              value: item.value,
+              filter: { payeeId: item.payeeId },
+            }))}
+            state={state}
+            view={view}
+            currency={currency}
+          />
+          <RankedBreakdown
+            heading={t({ en: "By tag", zh: "按标签" })}
+            empty={t({
+              en: "No tagged transactions in this range.",
+              zh: "这段时间没有带标签的交易。",
+            })}
+            list="ul"
+            items={view.tags.map((item) => ({
+              key: item.tagId,
+              label: `#${names.tag(item.tagId)}`,
+              value: item.value,
+              filter: { tagId: item.tagId },
+            }))}
+            state={state}
+            view={view}
+            currency={currency}
+          />
         </div>
       </div>
     </>

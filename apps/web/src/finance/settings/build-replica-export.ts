@@ -1,5 +1,5 @@
-import { REPLICA_TABLE_NAMES } from "../replica/replica-table-names.ts";
 import type { ReplicaSnapshot } from "../replica/types.ts";
+import { SYNC_TABLE_NAMES } from "../sync/row-schemas.ts";
 
 /**
  * Everything the Replica holds as one JSON document: the Household and
@@ -10,7 +10,7 @@ export function buildReplicaExport(
   exportedAt: Date,
 ) {
   const tables: Record<string, unknown[]> = {};
-  for (const table of REPLICA_TABLE_NAMES) {
+  for (const table of SYNC_TABLE_NAMES) {
     tables[table] = [...snapshot.tables[table].values()];
   }
   return {

@@ -1,5 +1,5 @@
 import type { ReplicaSnapshot } from "../replica/types.ts";
-import type { SystemAccountNames } from "../store/account-display-name.ts";
+import type { SystemAccountNames } from "../store/use-account-display-name.ts";
 import type {
   AccountRow,
   CategoryRow,

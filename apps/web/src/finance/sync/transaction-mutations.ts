@@ -129,8 +129,10 @@ async function update(
 ) {
   const { scope } = context;
   const existing = await findLive(scope, id);
-  const currentEntries = await transactionRepository.findEntries(scope, id);
-  const currentTagIds = await transactionRepository.findTagIds(scope, id);
+  const currentEntries =
+    (await transactionRepository.findEntriesOf(scope, [id])).get(id) ?? [];
+  const currentTagIds =
+    (await transactionRepository.findTagIdsOf(scope, [id])).get(id) ?? [];
   const { entries: patchEntries, tagIds: patchTagIds, ...fields } = patch;
   const merged = {
     ...existing,

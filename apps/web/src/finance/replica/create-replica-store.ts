@@ -4,10 +4,11 @@ import {
   type Mutation,
   type MutationInput,
 } from "../sync/mutation-schema.ts";
-import type {
-  HouseholdRow,
-  SyncRows,
-  SyncTableName,
+import {
+  SYNC_TABLE_NAMES,
+  type HouseholdRow,
+  type SyncRows,
+  type SyncTableName,
 } from "../sync/row-schemas.ts";
 import type { PushResponse } from "../sync/types.ts";
 import type { LocalMutationContext } from "./apply-local-mutation.ts";
@@ -23,7 +24,6 @@ import {
   mergeChangedKeys,
   replayOutbox,
 } from "./replay-outbox.ts";
-import { REPLICA_TABLE_NAMES } from "./replica-table-names.ts";
 import { rowKey } from "./row-key.ts";
 import type {
   OutboxEntry,
@@ -62,7 +62,7 @@ const DROP_DELETED = new Set<SyncTableName>([
 
 function writesOf(tables: TablesDraft, changed: ChangedKeys) {
   const writes: ReplicaTableWrites = {};
-  for (const table of REPLICA_TABLE_NAMES) {
+  for (const table of SYNC_TABLE_NAMES) {
     const keys = changed.get(table);
     if (!keys) continue;
     const put: ReplicaRow<SyncTableName>[] = [];
@@ -282,7 +282,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     changed: ChangedKeys,
   ) {
     const changes: ReplicaChanges = {};
-    for (const table of REPLICA_TABLE_NAMES) {
+    for (const table of SYNC_TABLE_NAMES) {
       if (previous[table] === tables[table]) continue;
       Object.assign(changes, {
         [table]: {
@@ -331,7 +331,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     mergeChangedKeys(changed, replay.changed);
     for (const key of snapshot.pendingKeys) {
       const split = key.indexOf(":");
-      const table = REPLICA_TABLE_NAMES.find(
+      const table = SYNC_TABLE_NAMES.find(
         (name) => name === key.slice(0, split),
       );
       if (!table) continue;
@@ -356,7 +356,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   /** Returns the keys it changed. */
   function mergeServerRows(draft: TablesDraft, tables: Partial<SyncRows>) {
     const changed: ChangedKeys = new Map();
-    for (const table of REPLICA_TABLE_NAMES) {
+    for (const table of SYNC_TABLE_NAMES) {
       const rows: readonly ReplicaRow<SyncTableName>[] | undefined =
         tables[table];
       if (!rows) continue;
@@ -402,7 +402,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     awaiting = entries.filter((entry) => entry.acknowledged);
     lastSeq = Math.max(lastSeq, entries.at(-1)?.seq ?? 0);
     const changed: ChangedKeys = new Map();
-    for (const table of REPLICA_TABLE_NAMES) {
+    for (const table of SYNC_TABLE_NAMES) {
       if (previous[table] === base[table]) continue;
       const keys = new Set<string>(previous[table].keys());
       for (const key of base[table].keys()) keys.add(key);

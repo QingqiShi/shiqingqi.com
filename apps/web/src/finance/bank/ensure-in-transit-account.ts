@@ -19,7 +19,7 @@ export async function ensureInTransitAccount(
   currency: string,
 ): Promise<string> {
   const { scope } = context;
-  const existing = await accountRepository.findSystemId(scope, currency);
+  const existing = (await accountRepository.listSystemIds(scope)).get(currency);
   if (existing) return existing;
 
   let group = await accountGroupRepository.findFirstAsset(scope);

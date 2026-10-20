@@ -1,5 +1,6 @@
 import { toEpochDay } from "../dates/to-epoch-day.ts";
 import { currencyExponent } from "../money/currency-exponent.ts";
+import { upperBound } from "../upper-bound.ts";
 
 /** One `fx_rates` row: one unit of `base` is worth `rate` units of `quote` on `on`. */
 export interface FxRateInput {
@@ -82,16 +83,7 @@ export function createFxIndex(
     // the earliest rate; with no rate at all, count the amount at par.
     if (!found) return { rate: 1, minorFactor: 1 };
     const { days, rates, minorFactor } = found;
-    let low = 0;
-    let high = days.length;
-    while (low < high) {
-      const middle = (low + high) >>> 1;
-      if (days[middle] <= epochDay) {
-        low = middle + 1;
-      } else {
-        high = middle;
-      }
-    }
+    const low = upperBound(days, epochDay);
     return { rate: rates[Math.max(low - 1, 0)], minorFactor };
   }
 

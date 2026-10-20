@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { applyInstructionChange } from "../ai/apply-instruction-change.ts";
-import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { financeJson } from "../http/finance-json.ts";
-import { guardFinanceRequest } from "../http/guard-finance-request.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import {
@@ -12,10 +14,8 @@ import {
   MAX_INSTRUCTION_LINE_LENGTH,
 } from "./max-ai-instructions-length.ts";
 
-interface AiInstructionsHandlerDependencies {
-  isConfigured: () => boolean;
+interface AiInstructionsHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   now: () => Date;
 }
 

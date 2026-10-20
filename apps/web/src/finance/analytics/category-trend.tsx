@@ -20,12 +20,12 @@ import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
-import { formatMoney } from "../domain/money/format-money.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
   CategoryTrend as Trend,
 } from "./compute-analytics-view.ts";
+import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { formatPeriod } from "./format-period.ts";
 import { isMajorPeriod } from "./is-major-period.ts";
 import { transactionsHref } from "./transactions-href.ts";
@@ -63,11 +63,8 @@ export function CategoryTrend({
   const switchId = useId();
   const { name, emoji } = names.category(trend.categoryId);
   const title = emoji ? `${emoji} ${name}` : name;
-  const signed = state.kind === "net";
   const money = (minor: number) =>
-    formatMoney(Math.round(minor), currency, locale, {
-      signDisplay: signed ? "exceptZero" : "auto",
-    });
+    formatAnalyticsMoney(minor, currency, locale, state.kind);
   const tone =
     view.path.at(-1) === trend.categoryId
       ? "accent"

@@ -13,15 +13,15 @@ import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
 import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
 import {
   guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
   type FinanceRequestGuardOptions,
 } from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
-import type { LimitFinanceRequest } from "../http/types.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { credentialCipher } from "./credential-cipher.ts";
 import { BankError } from "./lunchflow/bank-error.ts";
-import { PROCESS_BUDGET_MS, processBankRows } from "./process-bank-rows.ts";
+import { processBankRows } from "./process-bank-rows.ts";
 import { selectUnbackedEntries } from "./select-unbacked-entries.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import type {
@@ -34,10 +34,8 @@ import type {
   UnbackedEntriesResponse,
 } from "./types.ts";
 
-export interface BankHandlerDependencies {
-  isConfigured: () => boolean;
+export interface BankHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   getBankClient: (
     db: FinanceDb,
     householdId: string,
@@ -50,9 +48,7 @@ export interface BankHandlerDependencies {
   getModel: () => LanguageModel | null;
   /** Runs `task` after the response is sent, as Next's `after` does. */
   afterResponse: (task: () => Promise<void>) => void;
-  onModelError?: (error: unknown) => void;
   now: () => Date;
-  limitRequest?: LimitFinanceRequest;
 }
 
 /** A request the handler refuses; the write it was in rolls back. */
@@ -419,12 +415,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
             householdId: scope.householdId,
             model: dependencies.getModel(),
             now,
-            deadline: new Date(now.getTime() + PROCESS_BUDGET_MS),
             clock: dependencies.now,
-            onModelError: dependencies.onModelError,
-            onUnusableAnswer: (problem) => {
-              console.warn("Finance labelling answer refused", problem);
-            },
           });
         });
         if (

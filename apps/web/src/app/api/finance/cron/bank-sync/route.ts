@@ -6,14 +6,10 @@ import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 
 export const maxDuration = 300;
 
-const handler = makeBankSyncHandler({
+export const GET = makeBankSyncHandler({
   isConfigured: isFinanceConfigured,
   getDb: getFinanceDb,
   getBankClient: bankProvider.getBankClient,
   getModel: getFinanceModel,
   now: () => new Date(),
 });
-
-export function GET(request: Request) {
-  return handler(request);
-}

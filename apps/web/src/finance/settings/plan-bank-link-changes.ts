@@ -14,6 +14,13 @@ export function choiceOf(account: ProviderAccountView): BankLinkChoice {
   };
 }
 
+/** The choice of each provider account as its link stands, by provider account id. */
+export function choicesOf(accounts: readonly ProviderAccountView[]) {
+  return new Map(
+    accounts.map((account) => [account.providerAccountId, choiceOf(account)]),
+  );
+}
+
 export function isSameChoice(a: BankLinkChoice, b: BankLinkChoice) {
   return a.accountId === b.accountId && a.flipped === b.flipped;
 }

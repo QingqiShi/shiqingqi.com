@@ -2,18 +2,7 @@ import type { BalanceSeries } from "../domain/balance/compute-balance-days.ts";
 import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import type { NetWorthAccount } from "../domain/balance/net-worth-at.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
-
-/** The index of the last change on or before `epochDay`, or -1. */
-function lastIndexOnOrBefore(days: Int32Array, epochDay: number) {
-  let low = 0;
-  let high = days.length;
-  while (low < high) {
-    const middle = (low + high) >>> 1;
-    if (days[middle] <= epochDay) low = middle + 1;
-    else high = middle;
-  }
-  return low - 1;
-}
+import { upperBound } from "../domain/upper-bound.ts";
 
 /**
  * Adds one account's end-of-day balance on each of `days` (ascending) into
@@ -29,7 +18,7 @@ function addSeries(
 ) {
   const changes = series.days;
   if (changes.length === 0 || days.length === 0) return;
-  let index = lastIndexOnOrBefore(changes, days[0]);
+  let index = upperBound(changes, days[0]) - 1;
   for (let point = 0; point < days.length; point++) {
     const day = days[point];
     if (closedOn !== null && day >= closedOn) break;

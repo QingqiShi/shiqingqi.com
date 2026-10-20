@@ -1,7 +1,7 @@
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { AccountRow } from "../../sync/row-schemas.ts";
 import { accounts, bankLinks, entries, valuations } from "../schema.ts";
-import { softDeletePatch } from "./soft-delete-patch.ts";
+import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 type NewAccount = Omit<
@@ -16,6 +16,8 @@ type ServerInstitutionFields = Pick<
   AccountRow,
   "guessedInstitutionDomain" | "institutionIconVersion"
 >;
+
+const accountRows = householdRows(accounts);
 
 export const accountRepository = {
   /** True when a live Entry, Valuation or Bank link uses the account. */
@@ -58,31 +60,7 @@ export const accountRepository = {
     return link.length > 0;
   },
 
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(accounts)
-      .where(
-        and(eq(accounts.householdId, scope.householdId), eq(accounts.id, id)),
-      );
-    return rows.at(0);
-  },
-
-  /** The id of the live In transit account in `currency`, if the Household has one. */
-  async findSystemId(scope: RepositoryScope, currency: string) {
-    const rows = await scope.db
-      .select({ id: accounts.id })
-      .from(accounts)
-      .where(
-        and(
-          eq(accounts.householdId, scope.householdId),
-          eq(accounts.currency, currency),
-          eq(accounts.isSystem, true),
-          isNull(accounts.deletedAt),
-        ),
-      );
-    return rows.at(0)?.id;
-  },
+  findById: accountRows.findById,
 
   /** The live In transit account of each currency, by currency. */
   async listSystemIds(scope: RepositoryScope) {
@@ -206,32 +184,12 @@ export const accountRepository = {
       );
   },
 
-  /** Inserts the account. False when the id is already used. */
-  async insert(scope: WriteScope, row: NewAccount) {
-    const inserted = await scope.db
-      .insert(accounts)
-      .values({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      })
-      .onConflictDoNothing({ target: accounts.id })
-      .returning({ id: accounts.id });
-    return inserted.length > 0;
-  },
+  insert: (scope: WriteScope, row: NewAccount) =>
+    accountRows.insert(scope, stamped(scope, row)),
 
-  async patch(scope: WriteScope, id: string, patch: AccountPatch) {
-    const { deleted, ...fields } = patch;
-    await scope.db
-      .update(accounts)
-      .set({
-        ...fields,
-        ...softDeletePatch(deleted),
-        version: scope.version,
-        updatedAt: sql`now()`,
-      })
-      .where(
-        and(eq(accounts.householdId, scope.householdId), eq(accounts.id, id)),
-      );
-  },
+  patch: (
+    scope: WriteScope,
+    id: string,
+    { deleted, ...fields }: AccountPatch,
+  ) => accountRows.patch(scope, id, fields, deleted),
 };

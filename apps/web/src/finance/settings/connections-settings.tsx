@@ -45,6 +45,7 @@ import { CredentialSummary } from "./credential-summary.tsx";
 import { groupByBankLogin } from "./group-by-bank-login.ts";
 import {
   choiceOf,
+  choicesOf,
   isSameChoice,
   planBankLinkChanges,
   type BankLinkChoice,
@@ -230,13 +231,7 @@ function ConnectedSettings({
     members.map((member) => [member.id, member.name]),
   );
   const [choices, setChoices] = useState<ReadonlyMap<string, BankLinkChoice>>(
-    () =>
-      new Map(
-        response.accounts.map((account) => [
-          account.providerAccountId,
-          choiceOf(account),
-        ]),
-      ),
+    () => choicesOf(response.accounts),
   );
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -313,12 +308,7 @@ function ConnectedSettings({
   }
 
   async function save() {
-    const before = new Map(
-      response.accounts.map((account) => [
-        account.providerAccountId,
-        choiceOf(account),
-      ]),
-    );
+    const before = choicesOf(response.accounts);
     await withPending(setSaving, async () => {
       try {
         await runPlan(choices);
@@ -463,14 +453,7 @@ function ConnectedSettings({
               look="ghost"
               disabled={saving}
               onClick={() => {
-                setChoices(
-                  new Map(
-                    response.accounts.map((account) => [
-                      account.providerAccountId,
-                      choiceOf(account),
-                    ]),
-                  ),
-                );
+                setChoices(choicesOf(response.accounts));
               }}
             >
               {labels.reset}

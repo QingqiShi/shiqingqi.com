@@ -1,4 +1,5 @@
 import type { NamedLabels, TeachRequest } from "../ai/types.ts";
+import { categoryAncestry } from "../domain/category-ancestry.ts";
 import type { ReplicaSnapshot } from "../replica/types.ts";
 import {
   categoryDisplayName,
@@ -64,18 +65,9 @@ function categoryPath(
   lookups: TransactionLookups,
   names: SystemCategoryNames,
 ) {
-  const path: string[] = [];
-  const seen = new Set<string>();
-  let current = lookups.categoryById.get(categoryId);
-  while (current && !seen.has(current.id)) {
-    seen.add(current.id);
-    path.unshift(categoryDisplayName(current, names));
-    current =
-      current.parentId === null
-        ? undefined
-        : lookups.categoryById.get(current.parentId);
-  }
-  return path.join(" > ");
+  return categoryAncestry(categoryId, lookups.categoryById)
+    .map((category) => categoryDisplayName(category, names))
+    .join(" > ");
 }
 
 function nameLabels(

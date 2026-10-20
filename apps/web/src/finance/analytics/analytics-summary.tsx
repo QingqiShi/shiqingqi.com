@@ -14,6 +14,7 @@ import type {
   AnalyticsState,
   AnalyticsView,
 } from "./compute-analytics-view.ts";
+import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { useScopeLabel } from "./use-scope-label.ts";
 
 /** The range's total, the change on the period before, and the count and average behind it. */
@@ -42,11 +43,8 @@ export function AnalyticsSummary({
   const transactionsLabel = t({ en: "transactions", zh: "笔交易" });
   const versus = t({ en: "vs", zh: "对比" });
   const sameAsBefore = t({ en: "Same as", zh: "持平，对比" });
-  const signed = state.kind === "net";
   const money = (minor: number) =>
-    formatMoney(Math.round(minor), currency, locale, {
-      signDisplay: signed ? "exceptZero" : "auto",
-    });
+    formatAnalyticsMoney(minor, currency, locale, state.kind);
   const average = view.periodAverage;
   const change =
     view.previousTotal === null ? null : view.total - view.previousTotal;

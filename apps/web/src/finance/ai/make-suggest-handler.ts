@@ -1,6 +1,5 @@
 import type { LanguageModel } from "ai";
 import { z } from "zod";
-import type { FinanceSession } from "../auth/types.ts";
 import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { labellingContextRepository } from "../db/repositories/labelling-context-repository.ts";
 import { payeeRepository } from "../db/repositories/payee-repository.ts";
@@ -8,20 +7,19 @@ import { transactionSearchRepository } from "../db/repositories/transaction-sear
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { financeJson } from "../http/finance-json.ts";
-import { guardFinanceRequest } from "../http/guard-finance-request.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
-import type { LimitFinanceRequest } from "../http/types.ts";
 import { wireFields } from "../sync/wire-fields.ts";
 import { labelBankRows, type RowLabel } from "./label-bank-rows.ts";
 import type { SuggestResponse } from "./types.ts";
 
-export interface SuggestHandlerDependencies {
-  isConfigured: () => boolean;
+export interface SuggestHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   getModel: () => LanguageModel | null;
   onModelError?: (error: unknown) => void;
-  limitRequest?: LimitFinanceRequest;
 }
 
 const suggestRequestSchema = z.object({

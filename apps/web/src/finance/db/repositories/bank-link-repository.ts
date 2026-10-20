@@ -1,5 +1,6 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { bankBalances, bankLinks, connections } from "../schema.ts";
+import { householdRows } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 export type BankLinkRecord = typeof bankLinks.$inferSelect;
@@ -19,6 +20,8 @@ function lunchFlowConnectionOf(householdId: string) {
   );
 }
 
+const bankLinkRows = householdRows(bankLinks);
+
 export const bankLinkRepository = {
   /** The Household's live Bank links. */
   async listLive(scope: RepositoryScope) {
@@ -34,15 +37,7 @@ export const bankLinkRepository = {
       .orderBy(bankLinks.createdAt);
   },
 
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(bankLinks)
-      .where(
-        and(eq(bankLinks.householdId, scope.householdId), eq(bankLinks.id, id)),
-      );
-    return rows.at(0);
-  },
+  findById: bankLinkRows.findById,
 
   /** The link of an account, a removed one too: an account has at most one row. */
   async findByAccountId(scope: RepositoryScope, accountId: string) {
@@ -84,14 +79,8 @@ export const bankLinkRepository = {
     });
   },
 
-  async patch(scope: WriteScope, id: string, fields: BankLinkPatch) {
-    await scope.db
-      .update(bankLinks)
-      .set({ ...fields, version: scope.version, updatedAt: now })
-      .where(
-        and(eq(bankLinks.householdId, scope.householdId), eq(bankLinks.id, id)),
-      );
-  },
+  patch: (scope: WriteScope, id: string, fields: BankLinkPatch) =>
+    bankLinkRows.patch(scope, id, fields),
 
   async recordBalance(
     scope: RepositoryScope,

@@ -5,13 +5,9 @@ import { makeInstitutionIconsCronHandler } from "#src/finance/institutions/make-
 
 export const maxDuration = 300;
 
-const handler = makeInstitutionIconsCronHandler({
+export const GET = makeInstitutionIconsCronHandler({
   isConfigured: isFinanceConfigured,
   getDb: getFinanceDb,
   now: () => new Date(),
   ...institutionIconSources(),
 });
-
-export function GET(request: Request) {
-  return handler(request);
-}

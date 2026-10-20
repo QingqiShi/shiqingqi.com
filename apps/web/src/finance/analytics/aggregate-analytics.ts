@@ -1,20 +1,9 @@
+import { upperBound } from "../domain/upper-bound.ts";
 import type {
   AnalyticsIndex,
   AnalyticsQuery,
   AnalyticsTotals,
 } from "./types.ts";
-
-/** The first position in `days` whose day is `day` or later. */
-export function lowerBound(days: Int32Array, day: number): number {
-  let low = 0;
-  let high = days.length;
-  while (low < high) {
-    const middle = (low + high) >>> 1;
-    if (days[middle] < day) low = middle + 1;
-    else high = middle;
-  }
-  return low;
-}
 
 /**
  * Adds up one date range of the index in a single pass over its slice:
@@ -55,8 +44,8 @@ export function aggregateAnalytics(
 
   let total = 0;
   let count = 0;
-  const start = lowerBound(days, query.from);
-  const end = lowerBound(days, query.to + 1);
+  const start = upperBound(days, query.from - 1);
+  const end = upperBound(days, query.to);
   let period = 0;
   let nextStart = periodCount > 0 ? boundaries[1] : Infinity;
 

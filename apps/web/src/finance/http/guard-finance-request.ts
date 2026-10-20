@@ -4,7 +4,7 @@ import { financeJson } from "./finance-json.ts";
 import { isSameOrigin } from "./is-same-origin.ts";
 import type { FinanceRateLimitBucket, LimitFinanceRequest } from "./types.ts";
 
-interface FinanceRequestGuardDependencies {
+export interface FinanceRequestGuardDependencies {
   isConfigured: () => boolean;
   getSession: (request: Request) => Promise<FinanceSession | null>;
   limitRequest?: LimitFinanceRequest;

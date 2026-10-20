@@ -1,6 +1,5 @@
-import type { SyncTableName } from "../sync/row-schemas.ts";
+import { SYNC_TABLE_NAMES, type SyncTableName } from "../sync/row-schemas.ts";
 import { emptyReplicaTables } from "./empty-replica-tables.ts";
-import { REPLICA_TABLE_NAMES } from "./replica-table-names.ts";
 import { rowKey } from "./row-key.ts";
 import type {
   OutboxEntry,
@@ -85,7 +84,7 @@ function openDb(name: string, onClose: () => void, onDeleted: () => void) {
     request.onupgradeneeded = () => {
       const db = request.result;
       for (const store of [...db.objectStoreNames]) db.deleteObjectStore(store);
-      for (const table of REPLICA_TABLE_NAMES) db.createObjectStore(table);
+      for (const table of SYNC_TABLE_NAMES) db.createObjectStore(table);
       db.createObjectStore(META_STORE);
       db.createObjectStore(OUTBOX_STORE, {
         keyPath: "mutation.id",
@@ -110,7 +109,7 @@ function openDb(name: string, onClose: () => void, onDeleted: () => void) {
 /** The stores a write touches; a write that leaves the outbox alone does not wait for an outbox write. */
 function scopeOf(batch: ReplicaWrite) {
   const stores: string[] = [];
-  if (batch.clearTables || batch.tables) stores.push(...REPLICA_TABLE_NAMES);
+  if (batch.clearTables || batch.tables) stores.push(...SYNC_TABLE_NAMES);
   if (batch.meta) stores.push(META_STORE);
   if (batch.outboxPut?.length || batch.outboxDelete?.length) {
     stores.push(OUTBOX_STORE);
@@ -201,14 +200,14 @@ export function openReplicaDb(
     async load() {
       const handle = await db();
       const transaction = handle.transaction(
-        [...REPLICA_TABLE_NAMES, META_STORE, OUTBOX_STORE],
+        [...SYNC_TABLE_NAMES, META_STORE, OUTBOX_STORE],
         "readonly",
       );
       const tables: WritableTables = emptyReplicaTables();
       const [metaValue, outboxValues] = await Promise.all([
         promisify<unknown>(transaction.objectStore(META_STORE).get(META_KEY)),
         promisify<unknown[]>(transaction.objectStore(OUTBOX_STORE).getAll()),
-        ...REPLICA_TABLE_NAMES.map((table) =>
+        ...SYNC_TABLE_NAMES.map((table) =>
           readTable(transaction, table, tables),
         ),
       ]);
@@ -240,11 +239,11 @@ export function openReplicaDb(
       });
       const done = completion(transaction);
       if (batch.clearTables) {
-        for (const table of REPLICA_TABLE_NAMES) {
+        for (const table of SYNC_TABLE_NAMES) {
           transaction.objectStore(table).clear();
         }
       }
-      for (const table of REPLICA_TABLE_NAMES) {
+      for (const table of SYNC_TABLE_NAMES) {
         const writes = batch.tables?.[table];
         if (!writes) continue;
         const store = transaction.objectStore(table);

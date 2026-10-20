@@ -41,10 +41,10 @@ async function settle(
   transactionId: string,
   entryId: string,
 ) {
-  const current = await transactionRepository.findEntries(
-    context.scope,
-    transactionId,
-  );
+  const current =
+    (
+      await transactionRepository.findEntriesOf(context.scope, [transactionId])
+    ).get(transactionId) ?? [];
   await transactionMutations.update(context, transactionId, {
     entries: current.map((entry) => ({
       id: entry.id,

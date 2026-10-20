@@ -1,18 +1,18 @@
 import { z } from "zod";
-import type { FinanceSession } from "../auth/types.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { financeJson } from "../http/finance-json.ts";
-import { guardFinanceRequest } from "../http/guard-finance-request.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { wireFields } from "../sync/wire-fields.ts";
 import { isTimeZone } from "./is-time-zone.ts";
 
-interface HouseholdHandlerDependencies {
-  isConfigured: () => boolean;
+interface HouseholdHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   now: () => Date;
 }
 
