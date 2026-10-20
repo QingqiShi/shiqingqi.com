@@ -95,9 +95,13 @@ export default defineConfig({
      * SwiftShader adapter, for the WebGPU specs only. On Linux, only the
      * headless shell with SwiftShader Vulkan shows a WebGPU <canvas> element
      * in a screenshot. On macOS, that setup loses the device after a few
-     * frames, so the specs use the full Chromium build there. */
+     * frames, so the specs use the full Chromium build there.
+     * SwiftShader draws on the CPU. Two of these browsers on one CI runner
+     * slow each other down until a frame takes seconds, and the specs that
+     * wait for an animation then time out. Thus they run one at a time. */
     {
       name: "chromium-webgpu",
+      workers: 1,
       use: {
         ...devices["Desktop Chrome"],
         ...(process.platform === "linux"
