@@ -21,9 +21,6 @@ function isSyncTableName(name: string): name is SyncTableName {
 const ORIGIN = "https://qingqi.dev";
 const URL_BASE = `${ORIGIN}/api/finance/sync`;
 
-/** The first test database of a file runs the migrations, which is slow on a busy machine. */
-const DB_HOOK_TIMEOUT = 60_000;
-
 let db: TestDb;
 let home: SeededHousehold;
 let session: FinanceSession | null;
@@ -42,7 +39,7 @@ beforeEach(async () => {
     memberId: home.memberId,
     role: "owner",
   };
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

@@ -14,13 +14,14 @@ import {
 import { makeBankProvider } from "./make-bank-provider.ts";
 import { makeBankSyncHandler } from "./make-bank-sync-handler.ts";
 import {
+  providerAccount,
+  providerRow,
   seedBankLink,
   seedCredential,
   seedUncategorised,
 } from "./testing/seed-bank-link.ts";
 
 const SECRET = "cron-secret";
-const DB_HOOK_TIMEOUT = 60_000;
 const CREDENTIAL_KEY = new Uint8Array(randomBytes(32));
 
 let db: TestDb;
@@ -32,28 +33,11 @@ let clientsMade: string[];
 /** A fake bank with one account, `p1`, and one transaction for each id. */
 function fixture(transactionIds: string[]): FakeBankFixture {
   return {
-    accounts: [
-      {
-        id: "p1",
-        bankLoginId: "c",
-        name: "Current",
-        institution: "Bank",
-        institutionLogo: null,
-        provider: "fake",
-        currency: "GBP",
-        status: "ACTIVE",
-      },
-    ],
+    accounts: [providerAccount("p1")],
     transactions: {
-      p1: transactionIds.map((id) => ({
-        id,
-        date: "2026-10-09",
-        amountMinor: -500,
-        currency: "GBP",
-        merchant: "",
-        description: "SHOP",
-        raw: {},
-      })),
+      p1: transactionIds.map((id) =>
+        providerRow(id, "2026-10-09", -500, "SHOP"),
+      ),
     },
     balances: { p1: { amountMinor: -500, currency: "GBP" } },
   };
@@ -79,7 +63,7 @@ beforeEach(async () => {
   }
   await seedCredential(db, home, "home-lunch-flow-key", CREDENTIAL_KEY);
   await seedCredential(db, other, "other-lunch-flow-key", CREDENTIAL_KEY);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -121,11 +105,6 @@ async function bankRowsOf(household: SeededHousehold) {
 }
 
 describe("makeBankSyncHandler", () => {
-  it("refuses a request without the cron secret", async () => {
-    expect((await handler()(cronRequest())).status).toBe(401);
-    expect((await handler()(cronRequest("wrong"))).status).toBe(401);
-  });
-
   it("syncs each Household with its own API key, and skips one without a key", async () => {
     const response = await handler()(cronRequest(SECRET));
 

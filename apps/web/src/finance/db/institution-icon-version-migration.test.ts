@@ -7,13 +7,11 @@ import { accounts, institutionIcons } from "./schema.ts";
 import { createTestDb, type TestDb } from "./testing/create-test-db.ts";
 import { seedTestHousehold } from "./testing/seed-test-household.ts";
 
-const DB_HOOK_TIMEOUT = 60_000;
-
 let db: TestDb;
 
 beforeAll(async () => {
   db = await createTestDb();
-}, DB_HOOK_TIMEOUT);
+});
 
 afterAll(async () => {
   await db.close();

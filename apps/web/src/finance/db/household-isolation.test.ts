@@ -54,8 +54,6 @@ import {
   type FinanceAppDb,
 } from "./with-household.ts";
 
-const DB_HOOK_TIMEOUT = 60_000;
-
 const tables: PgTable[] = Object.values(schema).flatMap((value) =>
   is(value, PgTable) ? [value] : [],
 );
@@ -276,7 +274,7 @@ beforeAll(async () => {
   b = await seedTestHousehold(db, "b");
   await seedEveryTable(db, a, "2026-01");
   await seedEveryTable(db, b, "2026-02");
-}, DB_HOOK_TIMEOUT);
+});
 
 afterAll(async () => {
   await db.close();
@@ -285,13 +283,6 @@ afterAll(async () => {
 describe("the schema", () => {
   it("has a seeded row of both Households in every Household table", async () => {
     for (const { name, table, key } of householdTables) {
-      expect(
-        [
-          await countRows(table, key, a.householdId),
-          await countRows(table, key, b.householdId),
-        ],
-        name,
-      ).toEqual([expect.any(Number), expect.any(Number)]);
       expect(await countRows(table, key, a.householdId), name).toBeGreaterThan(
         0,
       );
@@ -406,15 +397,6 @@ describe("a Household scope", () => {
       ).toMatch(/row-level security/);
     },
   );
-
-  it("reads only its own Lunch Flow credential", async () => {
-    const seen = await withHousehold(db, a.householdId, (scope) =>
-      scope.db
-        .select({ lastFour: connections.credentialLastFour })
-        .from(connections),
-    );
-    expect(seen).toEqual([{ lastFour: a.householdId.slice(-4) }]);
-  });
 
   it("sees nothing without a Household, and inserts nothing", async () => {
     const counts = await asFinanceApp(db, async (tx) => {

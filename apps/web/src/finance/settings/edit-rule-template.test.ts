@@ -1,41 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { RuleTemplate } from "../rules/rule-template-schema.ts";
-import type { AccountRow } from "../sync/row-schemas.ts";
+import { testAccount } from "../transactions/testing/create-test-replica.ts";
 import { editRuleTemplate } from "./edit-rule-template.ts";
 import { simpleTemplateAccounts } from "./simple-template-accounts.ts";
 
-const NOW = "2026-10-01T09:00:00.000Z";
-
-function account(
-  id: string,
-  currency: string,
-  ownerMemberId: string | null,
-): AccountRow {
-  return {
-    id,
-    householdId: "h",
-    groupId: "g",
-    ownerMemberId,
-    name: id,
-    institution: "",
-    institutionDomain: null,
-    guessedInstitutionDomain: null,
-    institutionIconVersion: null,
-    kind: "cash",
-    currency,
-    excludedFromNetWorth: false,
-    closedOn: null,
-    position: 0,
-    creditLimitMinor: null,
-    statementDay: null,
-    paymentDueDay: null,
-    defaultPaymentAccountId: null,
-    isSystem: false,
-    version: 1,
-    createdAt: NOW,
-    updatedAt: NOW,
-    deletedAt: null,
-  };
+function account(id: string, currency: string, ownerMemberId: string | null) {
+  return testAccount(id, { ownerMemberId, currency });
 }
 
 const accountById = new Map([

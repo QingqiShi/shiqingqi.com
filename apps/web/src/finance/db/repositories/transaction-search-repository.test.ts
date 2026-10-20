@@ -30,7 +30,7 @@ beforeEach(async () => {
     accountId: home.currentId,
     providerAccountId: "acc-current",
   });
-}, 60_000);
+});
 
 afterEach(async () => {
   await db.close();

@@ -11,6 +11,7 @@ import {
   valuations,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { mutation } from "../db/testing/mutation.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
@@ -22,7 +23,6 @@ import {
 } from "../domain/balance/compute-balance-days.ts";
 import { applyMutations } from "./apply-mutations.ts";
 import { DerivedTouches } from "./derived-touches.ts";
-import type { MutationInput, MutationName } from "./mutation-schema.ts";
 import { pullChanges } from "./pull-changes.ts";
 import type { PushRequest } from "./push-request-schema.ts";
 import { transactionMutations } from "./transaction-mutations.ts";
@@ -32,28 +32,17 @@ const NOW = new Date("2026-10-10T12:00:00Z");
 const A_DATE: unknown = expect.any(Date);
 const CLIENT = "00000000-0000-4000-8000-00000000c001";
 
-/** The first test database of a file runs the migrations, which is slow on a busy machine. */
-const DB_HOOK_TIMEOUT = 60_000;
-
 let db: TestDb;
 let home: SeededHousehold;
 
 beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
 });
-
-function mutation<Name extends MutationName>(
-  name: Name,
-  args: Extract<MutationInput, { name: Name }>["args"],
-  id: string = randomUUID(),
-) {
-  return { id, name, args };
-}
 
 function push(
   mutations: PushRequest["mutations"],

@@ -5,6 +5,10 @@ import type { FinanceDb } from "../../db/types.ts";
 import { nameBasedUuid } from "../../ids/name-based-uuid.ts";
 import { runServerWrite } from "../../sync/run-server-write.ts";
 import { credentialCipher } from "../credential-cipher.ts";
+import type {
+  ProviderAccount,
+  ProviderTransaction,
+} from "../lunchflow/types.ts";
 
 /** Adds the system "Uncategorised" pair that `createHousehold` makes and the test seed does not. */
 export async function seedUncategorised(db: FinanceDb, home: SeededHousehold) {
@@ -85,4 +89,38 @@ export async function seedCredential(
       },
     ),
   );
+}
+
+export function providerAccount(
+  id: string,
+  overrides: Partial<ProviderAccount> = {},
+): ProviderAccount {
+  return {
+    id,
+    bankLoginId: "c1",
+    name: id,
+    institution: "Example Bank",
+    institutionLogo: null,
+    provider: "gocardless",
+    currency: "GBP",
+    status: "ACTIVE",
+    ...overrides,
+  };
+}
+
+export function providerRow(
+  id: string,
+  date: string,
+  amountMinor: number,
+  description: string,
+): ProviderTransaction {
+  return {
+    id,
+    date,
+    amountMinor,
+    currency: "GBP",
+    merchant: "",
+    description,
+    raw: {},
+  };
 }

@@ -137,6 +137,47 @@ function otherCode(code: string): string {
   return String((Number(code) + 1) % 1_000_000).padStart(6, "0");
 }
 
+/** Declares the checks of an emailed code that sign-up and recovery share. */
+function itChecksEmailCodes(
+  start: () => Promise<() => Promise<{ browser: Client; code: string }>>,
+  enterCode: (browser: Client, code: string) => Promise<{ status: number }>,
+) {
+  it("checks a code only against the request of the browser that holds it", async () => {
+    const browserWithCode = await start();
+    const first = await browserWithCode();
+    const second = await browserWithCode();
+
+    expect(await enterCode(second.browser, first.code)).toMatchObject({
+      status: 400,
+      body: { error: "code_invalid" },
+    });
+    expect(
+      await enterCode(createAuthTestClient(makeHandlers()), first.code),
+    ).toMatchObject({ status: 410, body: { error: "code_expired" } });
+    expect((await enterCode(first.browser, first.code)).status).toBe(200);
+  });
+
+  it("ends a code after five tries, and after 30 minutes", async () => {
+    const browserWithCode = await start();
+    const guessed = await browserWithCode();
+    const statuses: number[] = [];
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      statuses.push(
+        (await enterCode(guessed.browser, otherCode(guessed.code))).status,
+      );
+    }
+    expect(statuses).toEqual([400, 400, 400, 400, 410]);
+    expect(await enterCode(guessed.browser, guessed.code)).toMatchObject({
+      status: 410,
+      body: { error: "code_expired" },
+    });
+
+    const late = await browserWithCode();
+    advance(31 * 60 * 1000);
+    expect((await enterCode(late.browser, late.code)).status).toBe(410);
+  });
+}
+
 /** The Set-Cookie headers without their values, which are random. */
 function cookieShapes(setCookies: string[]): string[] {
   return setCookies.map((cookie) => cookie.replace(/=[^;]*;/, "=;"));
@@ -798,35 +839,10 @@ describe("sign-up by code", () => {
     expect(result.status).toBe(200);
   });
 
-  it("checks a code only against the request of the browser that holds it", async () => {
-    const first = await browserWithCode("first@example.com");
-    const second = await browserWithCode("second@example.com");
-
-    expect(await enterCode(second.browser, first.code)).toMatchObject({
-      status: 400,
-      body: { error: "code_invalid" },
-    });
-    expect(
-      await enterCode(createAuthTestClient(makeHandlers()), first.code),
-    ).toMatchObject({ status: 410, body: { error: "code_expired" } });
-    expect((await enterCode(first.browser, first.code)).status).toBe(200);
-  });
-
-  it("ends a code after five tries, and after 30 minutes", async () => {
-    const guessed = await browserWithCode();
-    const statuses: number[] = [];
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      statuses.push(
-        (await enterCode(guessed.browser, otherCode(guessed.code))).status,
-      );
-    }
-    expect(statuses).toEqual([400, 400, 400, 400, 410]);
-    expect((await enterCode(guessed.browser, guessed.code)).status).toBe(410);
-
-    const late = await browserWithCode();
-    advance(31 * 60 * 1000);
-    expect((await enterCode(late.browser, late.code)).status).toBe(410);
-  });
+  itChecksEmailCodes(() => {
+    const emails = ["first@example.com", "second@example.com"];
+    return Promise.resolve(() => browserWithCode(emails.shift()));
+  }, enterCode);
 });
 
 describe("an imported household", () => {
@@ -1246,39 +1262,10 @@ describe("recovery by email", () => {
     expect(emailedLink.status).toBe(200);
   });
 
-  it("checks a code only against the request of the browser that holds it", async () => {
+  itChecksEmailCodes(async () => {
     await ownerWithEmail("qingqi@example.com");
-    const first = await browserWithCode("qingqi@example.com");
-    const second = await browserWithCode("qingqi@example.com");
-
-    expect((await enterCode(second.browser, first.code)).body).toEqual({
-      error: "code_invalid",
-    });
-    expect(
-      await enterCode(createAuthTestClient(makeHandlers()), first.code),
-    ).toMatchObject({ status: 410, body: { error: "code_expired" } });
-    expect((await enterCode(first.browser, first.code)).status).toBe(200);
-  });
-
-  it("ends a code after five tries, and after 30 minutes", async () => {
-    await ownerWithEmail("qingqi@example.com");
-    const guessed = await browserWithCode("qingqi@example.com");
-    const statuses: number[] = [];
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      statuses.push(
-        (await enterCode(guessed.browser, otherCode(guessed.code))).status,
-      );
-    }
-    expect(statuses).toEqual([400, 400, 400, 400, 410]);
-    expect(await enterCode(guessed.browser, guessed.code)).toMatchObject({
-      status: 410,
-      body: { error: "code_expired" },
-    });
-
-    const late = await browserWithCode("qingqi@example.com");
-    advance(31 * 60 * 1000);
-    expect((await enterCode(late.browser, late.code)).status).toBe(410);
-  });
+    return () => browserWithCode("qingqi@example.com");
+  }, enterCode);
 
   it("answers a code for an address that no user has as it answers a wrong code", async () => {
     await ownerWithEmail("qingqi@example.com");

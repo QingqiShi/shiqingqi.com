@@ -13,7 +13,7 @@ let db: TestDb;
 
 beforeEach(async () => {
   db = await createTestDb();
-}, 60_000);
+});
 
 afterEach(async () => {
   await db.close();

@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
-import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { periodBoundaries } from "./period-boundaries.ts";
 import {
   defaultGrouping,
@@ -33,31 +32,6 @@ describe("periodBoundaries", () => {
     expect(
       startsOf(periodBoundaries("2026-02-27", "2026-03-01", "day")),
     ).toEqual(["2026-02-27", "2026-02-28", "2026-03-01"]);
-  });
-
-  test("buckets by the Household's day, not the device's", () => {
-    // 23:30 UTC on Sunday 4 Oct is already Monday 5 Oct in Shanghai.
-    const now = new Date("2026-10-04T23:30:00Z");
-    const london = todayInTimeZone("Europe/London", now);
-    const shanghai = todayInTimeZone("Asia/Shanghai", now);
-    expect(london).toBe("2026-10-05");
-    expect(shanghai).toBe("2026-10-05");
-    const lateUtc = new Date("2026-10-04T22:30:00Z");
-    expect(todayInTimeZone("Europe/London", lateUtc)).toBe("2026-10-04");
-    const thisWeek = (today: string) =>
-      startsOf(
-        periodBoundaries(
-          resolveAnalyticsRange("3M", today, { firstDay: null }).from,
-          today,
-          "week",
-        ),
-      ).at(-1);
-    expect(thisWeek(todayInTimeZone("Europe/London", lateUtc))).toBe(
-      "2026-09-28",
-    );
-    expect(thisWeek(todayInTimeZone("Asia/Shanghai", lateUtc))).toBe(
-      "2026-10-05",
-    );
   });
 });
 

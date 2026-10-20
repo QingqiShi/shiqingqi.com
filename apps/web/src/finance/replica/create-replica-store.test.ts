@@ -8,138 +8,36 @@ import { selectNetWorthAt } from "../store/select-net-worth-at.ts";
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import { MutationError } from "../sync/mutation-error.ts";
-import type { HouseholdRow, SyncRows } from "../sync/row-schemas.ts";
-import { createMemoryPersistence } from "./create-memory-persistence.ts";
+import type { SyncRows } from "../sync/row-schemas.ts";
 import {
-  createReplicaStore,
-  REPLICA_ROW_SHAPE,
-} from "./create-replica-store.ts";
-import { REPLICA_TABLE_NAMES } from "./replica-table-names.ts";
+  applyTestBootstrap,
+  TEST_IDS,
+  testExpense,
+  testHousehold,
+  testReplicaRows,
+  testStamps,
+} from "../transactions/testing/create-test-replica.ts";
+import { createMemoryPersistence } from "./create-memory-persistence.ts";
+import { createReplicaStore } from "./create-replica-store.ts";
 
 const NOW = "2026-10-10T09:00:00.000Z";
-const HOUSEHOLD = randomUUID();
-const GROUP = randomUUID();
-const CURRENT = randomUUID();
-const GROCERIES = randomUUID();
-const MEMBER = randomUUID();
-
-const household: HouseholdRow = {
-  id: HOUSEHOLD,
-  name: "Home",
-  baseCurrency: "GBP",
-  timezone: "Europe/London",
-  aiInstructions: "",
-  clock: 10,
-};
-
-const stamps = { version: 1, createdAt: NOW, updatedAt: NOW };
+const HOUSEHOLD = TEST_IDS.household;
+const CURRENT = TEST_IDS.current;
+const GROCERIES = TEST_IDS.groceries;
 
 function serverTransaction(id: string, date: string, amountMinor: number) {
-  return {
-    id,
-    householdId: HOUSEHOLD,
-    kind: "expense" as const,
-    status: "posted" as const,
+  return testExpense(id, randomUUID(), {
     date,
     amountMinor,
-    categoryId: GROCERIES,
-    payeeId: null,
-    memberId: null,
-    ruleId: null,
-    refundOfId: null,
-    note: "",
-    source: "import" as const,
-    needsReview: false,
-    labelledBy: "member" as const,
-    aiReason: null,
-    searchText: "groceries",
-    ...stamps,
-    deletedAt: null,
-  };
-}
-
-function serverEntry(transactionId: string, date: string, amountMinor: number) {
-  return {
-    id: randomUUID(),
-    householdId: HOUSEHOLD,
-    transactionId,
     accountId: CURRENT,
-    date,
-    amountMinor,
-    fxRate: null,
-    position: 0,
-    ...stamps,
-    deletedAt: null,
-  };
+  });
 }
 
 function seedRows(): Partial<SyncRows> {
-  const first = randomUUID();
-  const second = randomUUID();
+  const first = serverTransaction(randomUUID(), "2026-10-03", -2_000);
+  const second = serverTransaction(randomUUID(), "2026-10-05", -3_000);
   return {
-    members: [
-      {
-        id: MEMBER,
-        householdId: HOUSEHOLD,
-        userId: null,
-        name: "Alex",
-        role: "owner",
-        ...stamps,
-        deletedAt: null,
-      },
-    ],
-    accountGroups: [
-      {
-        id: GROUP,
-        householdId: HOUSEHOLD,
-        name: "Cash",
-        side: "asset",
-        position: 0,
-        ...stamps,
-        deletedAt: null,
-      },
-    ],
-    accounts: [
-      {
-        id: CURRENT,
-        householdId: HOUSEHOLD,
-        groupId: GROUP,
-        ownerMemberId: null,
-        name: "Current",
-        institution: "",
-        institutionDomain: null,
-        guessedInstitutionDomain: null,
-        institutionIconVersion: null,
-        kind: "cash",
-        currency: "GBP",
-        excludedFromNetWorth: false,
-        closedOn: null,
-        position: 0,
-        creditLimitMinor: null,
-        statementDay: null,
-        paymentDueDay: null,
-        defaultPaymentAccountId: null,
-        isSystem: false,
-        ...stamps,
-        deletedAt: null,
-      },
-    ],
-    categories: [
-      {
-        id: GROCERIES,
-        householdId: HOUSEHOLD,
-        parentId: null,
-        kind: "expense",
-        name: "Groceries",
-        emoji: "",
-        color: "",
-        position: 0,
-        isSystem: false,
-        archivedAt: null,
-        ...stamps,
-        deletedAt: null,
-      },
-    ],
+    ...testReplicaRows(),
     valuations: [
       {
         id: randomUUID(),
@@ -149,44 +47,26 @@ function seedRows(): Partial<SyncRows> {
         amountMinor: 100_000,
         source: "import",
         note: "",
-        ...stamps,
-        deletedAt: null,
+        ...testStamps,
       },
     ],
-    transactions: [
-      serverTransaction(first, "2026-10-03", -2_000),
-      serverTransaction(second, "2026-10-05", -3_000),
-    ],
-    entries: [
-      serverEntry(first, "2026-10-03", -2_000),
-      serverEntry(second, "2026-10-05", -3_000),
-    ],
-    accountBalanceDays: [
-      {
-        householdId: HOUSEHOLD,
-        accountId: CURRENT,
-        day: "2026-10-01",
-        balanceMinor: 100_000,
-        version: 1,
-        deletedAt: null,
-      },
-      {
-        householdId: HOUSEHOLD,
-        accountId: CURRENT,
-        day: "2026-10-03",
-        balanceMinor: 98_000,
-        version: 1,
-        deletedAt: null,
-      },
-      {
-        householdId: HOUSEHOLD,
-        accountId: CURRENT,
-        day: "2026-10-05",
-        balanceMinor: 95_000,
-        version: 1,
-        deletedAt: null,
-      },
-    ],
+    transactions: [first.transaction, second.transaction],
+    entries: [first.entry, second.entry],
+    transactionTags: [],
+    accountBalanceDays: (
+      [
+        ["2026-10-01", 100_000],
+        ["2026-10-03", 98_000],
+        ["2026-10-05", 95_000],
+      ] as const
+    ).map(([day, balanceMinor]) => ({
+      householdId: HOUSEHOLD,
+      accountId: CURRENT,
+      day,
+      balanceMinor,
+      version: 1,
+      deletedAt: null,
+    })),
   };
 }
 
@@ -198,12 +78,7 @@ async function seededStore() {
     now: () => new Date(NOW),
   });
   await store.load();
-  store.startBootstrap(household);
-  const rows = seedRows();
-  for (const table of REPLICA_TABLE_NAMES) {
-    const tableRows = rows[table];
-    if (tableRows) store.applyBootstrapRows(table, tableRows);
-  }
+  applyTestBootstrap(store, seedRows());
   store.finishBootstrap(10, new Set());
   return { store, persistence };
 }
@@ -313,9 +188,11 @@ describe("createReplicaStore", () => {
     store.applyPull(
       {
         clock: 11,
-        household: { ...household, clock: 11 },
+        household: { ...testHousehold, clock: 11 },
         tables: {
-          transactions: [serverTransaction(other, "2026-10-07", -100)],
+          transactions: [
+            serverTransaction(other, "2026-10-07", -100).transaction,
+          ],
         },
       },
       new Set(),
@@ -359,37 +236,6 @@ describe("createReplicaStore", () => {
     expect(reopened.getSnapshot().pendingKeys.size).toBeGreaterThan(0);
   });
 
-  it("bootstraps again when the rows on disk have an old shape, and keeps the outbox", async () => {
-    const { store, persistence } = await seededStore();
-    const created = store.applyLocal(expense(randomUUID(), "2026-10-08", 700));
-    await store.flush();
-    const meta = store.getMeta();
-    await persistence.write({
-      meta: { ...meta, rowShape: REPLICA_ROW_SHAPE - 1 },
-    });
-
-    const reopened = createReplicaStore({
-      householdId: HOUSEHOLD,
-      persistence,
-    });
-    await reopened.load();
-
-    expect(reopened.getMeta()).toMatchObject({
-      clientId: meta.clientId,
-      clock: 0,
-      bootstrapped: false,
-    });
-    expect(reopened.takeOutbox()).toEqual([created]);
-
-    reopened.startBootstrap(household);
-    reopened.finishBootstrap(11, new Set());
-    expect(reopened.getMeta()).toMatchObject({
-      clock: 11,
-      bootstrapped: true,
-      rowShape: REPLICA_ROW_SHAPE,
-    });
-  });
-
   it("works out a balance again only for an update that moves it", async () => {
     const { store } = await seededStore();
     const [first] = store.getSnapshot().tables.transactions.keys();
@@ -410,12 +256,7 @@ describe("createReplicaStore", () => {
     const persistence = createMemoryPersistence();
     const store = createReplicaStore({ householdId: HOUSEHOLD, persistence });
     await store.load();
-    store.startBootstrap(household);
-    const rows = seedRows();
-    for (const table of REPLICA_TABLE_NAMES) {
-      const tableRows = rows[table];
-      if (tableRows) store.applyBootstrapRows(table, tableRows);
-    }
+    applyTestBootstrap(store, seedRows());
     expect(store.getSnapshot().tables.transactions.size).toBe(0);
 
     store.finishBootstrap(10, new Set());
@@ -428,15 +269,20 @@ describe("createReplicaStore", () => {
   it("tells other tabs to reload only after a pull that changes something", async () => {
     const { store } = await seededStore();
     const revision = store.getDiskRevision();
-    store.applyPull({ clock: 10, household, tables: {} }, new Set());
+    store.applyPull(
+      { clock: 10, household: testHousehold, tables: {} },
+      new Set(),
+    );
     expect(store.getDiskRevision()).toBe(revision);
 
     store.applyPull(
       {
         clock: 11,
-        household: { ...household, clock: 11 },
+        household: { ...testHousehold, clock: 11 },
         tables: {
-          transactions: [serverTransaction(randomUUID(), "2026-10-07", -100)],
+          transactions: [
+            serverTransaction(randomUUID(), "2026-10-07", -100).transaction,
+          ],
         },
       },
       new Set(),

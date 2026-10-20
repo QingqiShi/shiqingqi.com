@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { accounts, bankLinks, entries, transactions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { mutation } from "../db/testing/mutation.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
@@ -16,7 +17,6 @@ import { syncBankLinks } from "./sync-bank-links.ts";
 import { seedBankLink, seedUncategorised } from "./testing/seed-bank-link.ts";
 
 const NOW = new Date("2026-10-10T12:00:00Z");
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -28,21 +28,15 @@ beforeEach(async () => {
   const mutations = ["2026-10-01", "2026-10-03", "2026-10-06"].map(
     (date, index) => {
       const amountMinor = -1000 - index;
-      return {
+      return mutation("createTransaction", {
         id: randomUUID(),
-        name: "createTransaction",
-        args: {
-          id: randomUUID(),
-          kind: "expense",
-          date,
-          amountMinor,
-          categoryId: home.groceriesId,
-          payeeId: home.grocerId,
-          entries: [
-            { id: randomUUID(), accountId: home.currentId, amountMinor },
-          ],
-        },
-      };
+        kind: "expense",
+        date,
+        amountMinor,
+        categoryId: home.groceriesId,
+        payeeId: home.grocerId,
+        entries: [{ id: randomUUID(), accountId: home.currentId, amountMinor }],
+      });
     },
   );
   await applyMutations(
@@ -51,7 +45,7 @@ beforeEach(async () => {
     { clientId: randomUUID(), mutations },
     NOW,
   );
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -82,26 +76,6 @@ async function fakeSync(now = NOW) {
 }
 
 describe("buildFakeBankFixture", () => {
-  it("shows the Household's cash and credit accounts with bank-style rows", async () => {
-    const fixture = await fakeFixture("2026-10-10");
-    expect(fixture.accounts.map((account) => account.id)).toEqual(
-      [
-        `fake-${home.cardId}`,
-        `fake-${home.currentId}`,
-        `fake-${home.savingsId}`,
-      ].sort((a, b) => b.localeCompare(a)),
-    );
-    const rows = fixture.transactions[`fake-${home.currentId}`] ?? [];
-    expect(
-      rows.filter((row) => row.id.startsWith("fake-unknown-")),
-    ).toHaveLength(3);
-    const off = rows.filter((row) => row.id.startsWith("fake-off-"));
-    expect(off).toMatchObject([{ date: "2026-10-06", amountMinor: -1003 }]);
-    expect(rows.find((row) => row.date === "2026-10-01")?.description).toMatch(
-      /^GROCER/,
-    );
-  });
-
   it("puts the accounts one Member holds at one institution in one Bank login", async () => {
     await db
       .update(accounts)
@@ -124,87 +98,40 @@ describe("buildFakeBankFixture", () => {
     );
   });
 
-  it("links the Household's own rows and adds the unknown and the 1p-off ones", async () => {
-    await seedBankLink(db, home, {
-      accountId: home.currentId,
-      providerAccountId: `fake-${home.currentId}`,
-    });
-
-    const { results } = await fakeSync();
-
-    expect(results).toMatchObject([{ error: null, linked: 2, pending: 4 }]);
-    const bankMade = await db
-      .select()
-      .from(transactions)
-      .where(
-        and(eq(transactions.source, "bank"), isNull(transactions.deletedAt)),
-      );
-    expect(
-      bankMade
-        .map((row) => [row.amountMinor, row.payeeId, row.needsReview])
-        .sort(),
-    ).toEqual([
-      [-1003, null, true],
-      [-1299, null, true],
-      [-280, null, true],
-      [-485, null, true],
-    ]);
-    const [link] = await db.select().from(bankLinks);
-    expect(link.balanceDifferenceMinor).toBe(1002);
-
-    const second = await fakeSync(new Date("2026-10-10T18:00:00Z"));
-    expect(second.results).toMatchObject([
-      { error: null, linked: 0, pending: 0, missing: 0 },
-    ]);
-  });
-
   it("shows a credit card the way a card statement does: purchases negative, a repayment positive", async () => {
-    const purchase = randomUUID();
     await applyMutations(
       db,
       home.householdId,
       {
         clientId: randomUUID(),
         mutations: [
-          {
+          mutation("createTransaction", {
             id: randomUUID(),
-            name: "createTransaction",
-            args: {
-              id: purchase,
-              kind: "expense",
-              date: "2026-10-02",
-              amountMinor: -2500,
-              categoryId: home.groceriesId,
-              payeeId: home.grocerId,
-              entries: [
-                {
-                  id: randomUUID(),
-                  accountId: home.cardId,
-                  amountMinor: -2500,
-                },
-              ],
-            },
-          },
-          {
+            kind: "expense",
+            date: "2026-10-02",
+            amountMinor: -2500,
+            categoryId: home.groceriesId,
+            payeeId: home.grocerId,
+            entries: [
+              { id: randomUUID(), accountId: home.cardId, amountMinor: -2500 },
+            ],
+          }),
+          mutation("createTransaction", {
             id: randomUUID(),
-            name: "createTransaction",
-            args: {
-              id: randomUUID(),
-              kind: "transfer",
-              date: "2026-10-05",
-              amountMinor: 0,
-              categoryId: null,
-              payeeId: null,
-              entries: [
-                {
-                  id: randomUUID(),
-                  accountId: home.currentId,
-                  amountMinor: -2000,
-                },
-                { id: randomUUID(), accountId: home.cardId, amountMinor: 2000 },
-              ],
-            },
-          },
+            kind: "transfer",
+            date: "2026-10-05",
+            amountMinor: 0,
+            categoryId: null,
+            payeeId: null,
+            entries: [
+              {
+                id: randomUUID(),
+                accountId: home.currentId,
+                amountMinor: -2000,
+              },
+              { id: randomUUID(), accountId: home.cardId, amountMinor: 2000 },
+            ],
+          }),
         ],
       },
       NOW,

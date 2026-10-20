@@ -9,6 +9,7 @@ import {
 } from "./build-analytics-index.ts";
 import { categoryBuckets } from "./category-buckets.ts";
 import { periodBoundaries } from "./period-boundaries.ts";
+import { buildTestIndex, postedRow } from "./testing/build-test-index.ts";
 import type { AnalyticsKind, Grouping } from "./types.ts";
 
 type Source = AnalyticsIndexSource;
@@ -257,65 +258,16 @@ describe("aggregateAnalytics", () => {
   });
 
   test("nets a refund against its own Category", () => {
-    const base = {
-      status: "posted",
-      payeeId: null,
-      memberId: null,
-      deletedAt: null,
-    };
-    const index = buildAnalyticsIndex({
-      transactions: [
-        {
-          ...base,
-          id: "a",
-          kind: "expense",
-          date: "2026-09-02",
-          amountMinor: -5000,
-          categoryId: "shopping",
-        },
-        {
-          ...base,
-          id: "b",
-          kind: "expense",
-          date: "2026-09-09",
-          amountMinor: 2000,
-          categoryId: "shopping",
-        },
-        {
-          ...base,
-          id: "c",
-          kind: "expense",
-          date: "2026-09-10",
-          amountMinor: -700,
-          categoryId: "food",
-        },
-        {
-          ...base,
-          id: "d",
-          kind: "transfer",
-          date: "2026-09-11",
-          amountMinor: 0,
-          categoryId: null,
-        },
-        {
-          ...base,
-          id: "e",
-          kind: "income",
-          date: "2026-09-12",
-          amountMinor: 10000,
-          categoryId: "salary",
-        },
+    const index = buildTestIndex(
+      [
+        postedRow("a", "2026-09-02", -5000, "shopping"),
+        postedRow("b", "2026-09-09", 2000, "shopping"),
+        postedRow("c", "2026-09-10", -700, "food"),
+        postedRow("d", "2026-09-11", 0, null, "transfer"),
+        postedRow("e", "2026-09-12", 10000, "salary", "income"),
       ],
-      transactionTags: [],
-      categories: [
-        { id: "shopping", parentId: null },
-        { id: "food", parentId: null },
-        { id: "salary", parentId: null },
-      ],
-      payees: [],
-      members: [],
-      tags: [],
-    });
+      ["shopping", "food", "salary"],
+    );
     const buckets = categoryBuckets(index, "spending", -1);
     const query = {
       from: toEpochDay("2026-09-01"),
@@ -336,28 +288,11 @@ describe("aggregateAnalytics", () => {
   });
 
   test("keeps colours by rank over all time, past eight as Other", () => {
-    const categories = Array.from({ length: 10 }, (_, i) => ({
-      id: `c${String(i)}`,
-      parentId: null,
-    }));
-    const index = buildAnalyticsIndex({
-      transactions: categories.map((category, i) => ({
-        id: category.id,
-        kind: "expense",
-        status: "posted",
-        date: "2026-01-01",
-        amountMinor: -(i + 1) * 100,
-        categoryId: category.id,
-        payeeId: null,
-        memberId: null,
-        deletedAt: null,
-      })),
-      transactionTags: [],
-      categories,
-      payees: [],
-      members: [],
-      tags: [],
-    });
+    const ids = Array.from({ length: 10 }, (_, i) => `c${String(i)}`);
+    const index = buildTestIndex(
+      ids.map((id, i) => postedRow(id, "2026-01-01", -(i + 1) * 100, id)),
+      ids,
+    );
     const { tones, bucketOf } = categoryBuckets(index, "spending", -1);
     expect(tones[bucketOf[9]]).toBe("series1");
     expect(tones[bucketOf[3]]).toBe("series7");

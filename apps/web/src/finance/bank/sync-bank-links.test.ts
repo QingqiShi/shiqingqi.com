@@ -9,6 +9,7 @@ import {
   transactions,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { mutation } from "../db/testing/mutation.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
@@ -16,24 +17,26 @@ import {
 import { withHousehold } from "../db/with-household.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
-import type { MutationInput, MutationName } from "../sync/mutation-schema.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { ensureInTransitAccount } from "./ensure-in-transit-account.ts";
 import {
   createFakeBankClient,
   type FakeBankFixture,
 } from "./lunchflow/create-fake-bank-client.ts";
-import type { ProviderTransaction } from "./lunchflow/types.ts";
 import { processBankRows } from "./process-bank-rows.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
-import { seedBankLink, seedUncategorised } from "./testing/seed-bank-link.ts";
+import {
+  providerAccount,
+  providerRow,
+  seedBankLink,
+  seedUncategorised,
+} from "./testing/seed-bank-link.ts";
 
 const NOW = new Date("2026-10-10T12:00:00Z");
 const NEXT_DAY = new Date("2026-10-11T12:00:00Z");
 const DAY_AFTER = new Date("2026-10-12T12:00:00Z");
 const THIRD_DAY = new Date("2026-10-13T12:00:00Z");
 const CLIENT = "00000000-0000-4000-8000-00000000c001";
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -41,36 +44,6 @@ let uncategorised: { expense: string; income: string };
 let currentLinkId: string;
 let cardLinkId: string;
 let fixture: FakeBankFixture;
-
-function providerAccount(id: string) {
-  return {
-    id,
-    bankLoginId: "c1",
-    name: id,
-    institution: "Example Bank",
-    institutionLogo: null,
-    provider: "gocardless",
-    currency: "GBP",
-    status: "ACTIVE",
-  };
-}
-
-function bankRow(
-  id: string,
-  date: string,
-  amountMinor: number,
-  text: string,
-): ProviderTransaction {
-  return {
-    id,
-    date,
-    amountMinor,
-    currency: "GBP",
-    merchant: "",
-    description: text,
-    raw: { id },
-  };
-}
 
 beforeEach(async () => {
   db = await createTestDb();
@@ -92,7 +65,7 @@ beforeEach(async () => {
       "acc-card": { amountMinor: 0, currency: "GBP" },
     },
   };
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -122,13 +95,6 @@ async function syncAndProcess(options: { now?: Date } = {}) {
   const results = await sync(options);
   await process(options.now);
   return results;
-}
-
-function mutation<Name extends MutationName>(
-  name: Name,
-  args: Extract<MutationInput, { name: Name }>["args"],
-) {
-  return { id: randomUUID(), name, args };
 }
 
 function push(mutations: ReturnType<typeof mutation>[]) {
@@ -197,8 +163,8 @@ async function link(id: string) {
 describe("syncBankLinks", () => {
   it("stores new rows for the AI step and labels none of them", async () => {
     fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-08", -1234, "TESCO STORES 3297"),
-      bankRow("t2", "2026-10-09", -2150, "DELIVEROO*KFC"),
+      providerRow("t1", "2026-10-08", -1234, "TESCO STORES 3297"),
+      providerRow("t2", "2026-10-09", -2150, "DELIVEROO*KFC"),
     ];
 
     const [current, card] = await sync();
@@ -219,7 +185,7 @@ describe("syncBankLinks", () => {
 
   it("changes nothing on a second sync of the same rows", async () => {
     fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-08", -1234, "SOMEWHERE"),
+      providerRow("t1", "2026-10-08", -1234, "SOMEWHERE"),
     ];
     await syncAndProcess();
     const before = await liveTransactions();
@@ -236,7 +202,7 @@ describe("syncBankLinks", () => {
     const expected = expense("2026-10-09", -999, { status: "expected" });
     await push([expected.mutation]);
     fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-08", -999, "GYM"),
+      providerRow("t1", "2026-10-08", -999, "GYM"),
     ];
 
     const [result] = await sync();
@@ -255,7 +221,7 @@ describe("syncBankLinks", () => {
     const manual = expense("2026-10-09", -1250);
     await push([manual.mutation]);
     fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-09", -1250, "GROCER LTD"),
+      providerRow("t1", "2026-10-09", -1250, "GROCER LTD"),
     ];
 
     const [result] = await sync();
@@ -304,7 +270,7 @@ describe("syncBankLinks", () => {
     const before = await balances();
     expect(before).toEqual([-50_000, 0, 50_000]);
     fixture.transactions["acc-card"] = [
-      bankRow("c1", "2026-10-09", 50_000, "PAYMENT RECEIVED"),
+      providerRow("c1", "2026-10-09", 50_000, "PAYMENT RECEIVED"),
     ];
 
     const [, card] = await sync();
@@ -337,7 +303,7 @@ describe("syncBankLinks", () => {
     );
     await push(manual.map((transaction) => transaction.mutation));
     fixture.transactions["acc-card"] = days.map((day) =>
-      bankRow(`tfl-${day}`, day, -720, "TFL TRAVEL CH"),
+      providerRow(`tfl-${day}`, day, -720, "TFL TRAVEL CH"),
     );
     const [, card] = await sync();
 
@@ -348,10 +314,10 @@ describe("syncBankLinks", () => {
   });
 
   it("flags a row the bank leaves out of two answers in a row, and clears the flag when it returns", async () => {
-    const cafe = bankRow("t1", "2026-10-05", -700, "CAFE");
+    const cafe = providerRow("t1", "2026-10-05", -700, "CAFE");
     const others = [
-      bankRow("t2", "2026-10-06", -800, "BAKERY"),
-      bankRow("t3", "2026-10-07", -900, "BUTCHER"),
+      providerRow("t2", "2026-10-06", -800, "BAKERY"),
+      providerRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
     fixture.transactions["acc-current"] = [cafe, ...others];
     await syncAndProcess();
@@ -387,16 +353,16 @@ describe("syncBankLinks", () => {
 
   it("flags nothing on an empty or short answer", async () => {
     fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-05", -700, "CAFE"),
-      bankRow("t2", "2026-10-06", -800, "BAKERY"),
-      bankRow("t3", "2026-10-07", -900, "BUTCHER"),
+      providerRow("t1", "2026-10-05", -700, "CAFE"),
+      providerRow("t2", "2026-10-06", -800, "BAKERY"),
+      providerRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
     await syncAndProcess();
     fixture.transactions["acc-current"] = [];
     const [empty] = await sync({ now: NEXT_DAY });
     const [emptyAgain] = await sync({ now: DAY_AFTER });
     fixture.transactions["acc-current"] = [
-      bankRow("t3", "2026-10-07", -900, "BUTCHER"),
+      providerRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
     const [short] = await sync({ now: THIRD_DAY });
 
@@ -412,9 +378,9 @@ describe("syncBankLinks", () => {
 
   it("keeps a Review that the missing flag did not set", async () => {
     const rows = [
-      bankRow("t1", "2026-10-05", -700, "CAFE"),
-      bankRow("t2", "2026-10-06", -800, "BAKERY"),
-      bankRow("t3", "2026-10-07", -900, "BUTCHER"),
+      providerRow("t1", "2026-10-05", -700, "CAFE"),
+      providerRow("t2", "2026-10-06", -800, "BAKERY"),
+      providerRow("t3", "2026-10-07", -900, "BUTCHER"),
     ];
     fixture.transactions["acc-current"] = rows;
     await syncAndProcess();
@@ -433,7 +399,7 @@ describe("syncBankLinks", () => {
 
   it("leaves a returning missing row without a Transaction for the AI step", async () => {
     fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-08", -1500, "NEW PLACE"),
+      providerRow("t1", "2026-10-08", -1500, "NEW PLACE"),
     ];
     await db.insert(bankTransactions).values({
       id: randomUUID(),
@@ -477,7 +443,7 @@ describe("syncBankLinks", () => {
       .set({ signMultiplier: -1 })
       .where(eq(bankLinks.id, cardLinkId));
     fixture.transactions["acc-card"] = [
-      bankRow("c1", "2026-10-07", 2000, "SHOP"),
+      providerRow("c1", "2026-10-07", 2000, "SHOP"),
     ];
 
     await syncAndProcess();
@@ -499,7 +465,7 @@ describe("syncBankLinks", () => {
   it("records a reconnect error and goes on with the next link", async () => {
     fixture.errors = { "acc-current": "reconnect" };
     fixture.transactions["acc-card"] = [
-      bankRow("c1", "2026-10-07", -300, "SHOP"),
+      providerRow("c1", "2026-10-07", -300, "SHOP"),
     ];
 
     const [current, card] = await sync();
@@ -529,10 +495,10 @@ describe("syncBankLinks", () => {
 
   it("notes no balance difference while rows wait for the AI step, and compares once they are written", async () => {
     fixture.transactions["acc-current"] = [
-      bankRow("t1", "2026-10-08", -1000, "SHOP"),
+      providerRow("t1", "2026-10-08", -1000, "SHOP"),
     ];
     fixture.transactions["acc-card"] = [
-      bankRow("c1", "2026-10-08", -300, "CAFE"),
+      providerRow("c1", "2026-10-08", -300, "CAFE"),
     ];
     fixture.balances["acc-current"] = { amountMinor: -900, currency: "GBP" };
     fixture.balances["acc-card"] = { amountMinor: -300, currency: "GBP" };

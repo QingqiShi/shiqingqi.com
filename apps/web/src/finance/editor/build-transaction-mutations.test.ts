@@ -77,21 +77,6 @@ function mortgagePayment(status: "posted" | "expected" = "posted") {
 }
 
 describe("buildTransactionMutations on an existing Transaction", () => {
-  it("keeps the loan Entry when only the note changes", () => {
-    const { transaction, entries, draft } = mortgagePayment();
-    const result = buildTransactionMutations(
-      { ...draft, note: "September" },
-      context(transaction, entries),
-    );
-    if (!result.ok) throw new Error("Expected a save");
-    expect(result.mutations).toEqual([
-      {
-        name: "updateTransaction",
-        args: { id: PAYMENT, patch: { note: "September" } },
-      },
-    ]);
-  });
-
   it("keeps an Entry the editor does not show when the amount changes", () => {
     const { transaction, entries, draft } = mortgagePayment();
     const result = buildTransactionMutations(

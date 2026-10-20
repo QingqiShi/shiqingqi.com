@@ -18,6 +18,7 @@ import {
   transactions,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { mutation } from "../db/testing/mutation.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
@@ -26,18 +27,21 @@ import { withHousehold } from "../db/with-household.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { loadReportSource } from "../reports/load-report-source.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
-import type { MutationInput, MutationName } from "../sync/mutation-schema.ts";
 import {
   createFakeBankClient,
   type FakeBankFixture,
 } from "./lunchflow/create-fake-bank-client.ts";
 import { processBankRows } from "./process-bank-rows.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
-import { seedBankLink, seedUncategorised } from "./testing/seed-bank-link.ts";
+import {
+  providerAccount,
+  providerRow,
+  seedBankLink,
+  seedUncategorised,
+} from "./testing/seed-bank-link.ts";
 
 const NOW = new Date("2026-10-10T12:00:00Z");
 const CLIENT = "00000000-0000-4000-8000-00000000c002";
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -90,7 +94,7 @@ beforeEach(async () => {
       version: 0,
     },
   ]);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -188,13 +192,6 @@ function balances(accountIds: readonly string[]) {
   );
 }
 
-function mutation<Name extends MutationName>(
-  name: Name,
-  args: Extract<MutationInput, { name: Name }>["args"],
-) {
-  return { id: randomUUID(), name, args };
-}
-
 function push(mutations: ReturnType<typeof mutation>[]) {
   return applyMutations(
     db,
@@ -227,25 +224,12 @@ function syncSavings(
   rows: readonly { id: string; date: string; amountMinor: number }[],
 ) {
   const fixture: FakeBankFixture = {
-    accounts: ["acc-current", "acc-savings"].map((id) => ({
-      id,
-      bankLoginId: "c1",
-      name: id,
-      institution: "Example Bank",
-      institutionLogo: null,
-      provider: "gocardless",
-      currency: "GBP",
-      status: "ACTIVE",
-    })),
+    accounts: [providerAccount("acc-current"), providerAccount("acc-savings")],
     transactions: {
       "acc-current": [],
-      "acc-savings": rows.map((row) => ({
-        ...row,
-        currency: "GBP",
-        merchant: "",
-        description: "FROM CURRENT",
-        raw: {},
-      })),
+      "acc-savings": rows.map((row) =>
+        providerRow(row.id, row.date, row.amountMinor, "FROM CURRENT"),
+      ),
     },
     balances: {
       "acc-current": { amountMinor: 0, currency: "GBP" },
@@ -492,42 +476,9 @@ describe("processBankRows", () => {
     ]);
     expect(total(middle)).toBe(total(before));
 
-    const fixture: FakeBankFixture = {
-      accounts: ["acc-current", "acc-savings"].map((id) => ({
-        id,
-        bankLoginId: "c1",
-        name: id,
-        institution: "Example Bank",
-        institutionLogo: null,
-        provider: "gocardless",
-        currency: "GBP",
-        status: "ACTIVE",
-      })),
-      transactions: {
-        "acc-current": [],
-        "acc-savings": [
-          {
-            id: "s1",
-            date: "2026-10-06",
-            amountMinor: 50_000,
-            currency: "GBP",
-            merchant: "",
-            description: "FROM CURRENT",
-            raw: {},
-          },
-        ],
-      },
-      balances: {
-        "acc-current": { amountMinor: 0, currency: "GBP" },
-        "acc-savings": { amountMinor: 0, currency: "GBP" },
-      },
-    };
-    const [, savings] = await syncBankLinks({
-      db,
-      householdId: home.householdId,
-      client: createFakeBankClient(fixture),
-      now: NOW,
-    });
+    const [, savings] = await syncSavings([
+      { id: "s1", date: "2026-10-06", amountMinor: 50_000 },
+    ]);
 
     expect(savings).toMatchObject({ linked: 1, pending: 0 });
     expect(await entriesOf(transfer)).toEqual([

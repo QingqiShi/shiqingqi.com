@@ -3,17 +3,16 @@ import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { accountGroups, accounts } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { mutation } from "../db/testing/mutation.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
-import type { MutationInput, MutationName } from "../sync/mutation-schema.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { ensureInTransitAccount } from "./ensure-in-transit-account.ts";
 
 const NOW = new Date("2026-10-10T12:00:00Z");
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -21,7 +20,7 @@ let home: SeededHousehold;
 beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -47,13 +46,6 @@ function systemAccounts() {
         eq(accounts.isSystem, true),
       ),
     );
-}
-
-function mutation<Name extends MutationName>(
-  name: Name,
-  args: Extract<MutationInput, { name: Name }>["args"],
-) {
-  return { id: randomUUID(), name, args };
 }
 
 async function push(...mutations: ReturnType<typeof mutation>[]) {

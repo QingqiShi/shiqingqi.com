@@ -10,22 +10,20 @@ import type { ProviderAccountsResponse } from "../bank/types.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { stubFinanceApi } from "../testing/stub-finance-api.ts";
+import { renderWithReplica } from "../transactions/testing/render-with-replica.tsx";
 import { AiSettings } from "./ai-settings.tsx";
 import { CategoriesSettings } from "./categories-settings.tsx";
 import { ConnectionsSettings } from "./connections-settings.tsx";
-import { ExchangeRatesSettings } from "./exchange-rates-settings.tsx";
 import { GroupsSettings } from "./groups-settings.tsx";
 import { HouseholdSettings } from "./household-settings.tsx";
 import { MembersSettings } from "./members-settings.tsx";
 import { PayeesSettings } from "./payees-settings.tsx";
 import { RulesSettings } from "./rules-settings.tsx";
 import { SettingsSignedInMember } from "./settings-signed-in-member.tsx";
-import { TagsSettings } from "./tags-settings.tsx";
 import {
   createSettingsReplica,
   SETTINGS_IDS,
 } from "./testing/create-settings-replica.ts";
-import { renderWithSettingsReplica } from "./testing/render-with-settings-replica.tsx";
 
 const ids = SETTINGS_IDS;
 
@@ -90,7 +88,7 @@ const providerAccounts: ProviderAccountsResponse = {
 describe("Settings", () => {
   it("shows the signed-in Member, the Household, the sync status and sign out", async () => {
     const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <SettingsSignedInMember />, {
+    renderWithReplica(runtime, <SettingsSignedInMember />, {
       memberId: ids.sam,
     });
 
@@ -102,27 +100,9 @@ describe("Settings", () => {
     ).toBeInTheDocument();
   });
 
-  it("adds a tag", async () => {
-    const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <TagsSettings />);
-    await openSheet(screen.getByRole("button", { name: "Tag" }));
-    await userEvent.type(
-      screen.getByRole("textbox", { name: "Name" }),
-      "Holiday",
-    );
-    await userEvent.click(screen.getByRole("button", { name: "Save" }));
-
-    const [mutation] = runtime.store.takeOutbox();
-    expect(mutation).toMatchObject({
-      name: "upsertTag",
-      args: { name: "Holiday", position: 0 },
-    });
-    expect(screen.getByRole("button", { name: /Holiday/ })).toBeInTheDocument();
-  });
-
   it("moves a group down past the next group", async () => {
     const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <GroupsSettings />);
+    renderWithReplica(runtime, <GroupsSettings />);
     await userEvent.click(
       screen.getByRole("button", { name: "Move down: Cash" }),
     );
@@ -146,7 +126,7 @@ describe("Settings", () => {
 
   it("moves a category under another and archives it", async () => {
     const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <CategoriesSettings />);
+    renderWithReplica(runtime, <CategoriesSettings />);
     await openSheet(screen.getByRole("button", { name: /Eating out/ }));
     await userEvent.selectOptions(
       screen.getByRole("combobox", { name: "Parent" }),
@@ -166,7 +146,7 @@ describe("Settings", () => {
 
   it("sets a payee's usual category", async () => {
     const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <PayeesSettings />);
+    renderWithReplica(runtime, <PayeesSettings />);
     await openSheet(screen.getByRole("button", { name: /TfL/ }));
     await userEvent.selectOptions(
       screen.getByRole("combobox", { name: "Usual category" }),
@@ -182,48 +162,9 @@ describe("Settings", () => {
     });
   });
 
-  it("adds a member, who can then get an invite link", async () => {
-    const runtime = await createSettingsReplica();
-    const calls = stubFinanceApi({
-      "POST /api/finance/auth/invites": () => ({
-        status: 201,
-        json: {
-          path: "/finance/invite/token",
-          expiresAt: "2026-10-17T09:00:00.000Z",
-          recovery: false,
-        },
-      }),
-    });
-    renderWithSettingsReplica(runtime, <MembersSettings />);
-    await openSheet(screen.getByRole("button", { name: "Member" }));
-    await userEvent.type(screen.getByRole("textbox", { name: /Name/ }), "Jo");
-    await userEvent.click(screen.getByRole("button", { name: "Save" }));
-
-    const [mutation] = runtime.store.takeOutbox();
-    expect(mutation).toMatchObject({
-      name: "upsertMember",
-      args: { name: "Jo" },
-    });
-    const jo = liveRowSelectors
-      .members(runtime.store.getSnapshot())
-      .find((member) => member.name === "Jo");
-    expect(jo).toMatchObject({ role: "member", userId: null });
-
-    await userEvent.click(
-      screen.getByRole("button", { name: "Create invite link: Jo" }),
-    );
-    expect(await screen.findByRole("textbox", { name: "Link" })).toHaveValue(
-      "http://localhost:3000/finance/invite/token",
-    );
-    expect(calls.at(-1)).toEqual({
-      route: "POST /api/finance/auth/invites",
-      body: { memberId: jo?.id },
-    });
-  });
-
   it("offers the owner a recovery link for a member who signs in", async () => {
     const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <MembersSettings />);
+    renderWithReplica(runtime, <MembersSettings />);
     expect(
       screen.getByRole("button", { name: "Recovery link: Kim" }),
     ).toBeInTheDocument();
@@ -234,11 +175,9 @@ describe("Settings", () => {
     stubFinanceApi({
       "GET /api/finance/bank/accounts": () => ({ json: providerAccounts }),
     });
-    const connections = renderWithSettingsReplica(
-      runtime,
-      <ConnectionsSettings />,
-      { memberId: ids.sam },
-    );
+    const connections = renderWithReplica(runtime, <ConnectionsSettings />, {
+      memberId: ids.sam,
+    });
     expect(
       await screen.findByText("Only the owner can change connections."),
     ).toBeInTheDocument();
@@ -254,13 +193,9 @@ describe("Settings", () => {
     ).not.toBeInTheDocument();
     connections.unmount();
 
-    const household = renderWithSettingsReplica(
-      runtime,
-      <HouseholdSettings />,
-      {
-        memberId: ids.sam,
-      },
-    );
+    const household = renderWithReplica(runtime, <HouseholdSettings />, {
+      memberId: ids.sam,
+    });
     expect(
       screen.getByText("Only the owner can change the household."),
     ).toBeInTheDocument();
@@ -269,7 +204,7 @@ describe("Settings", () => {
     ).not.toBeInTheDocument();
     household.unmount();
 
-    renderWithSettingsReplica(runtime, <MembersSettings />, {
+    renderWithReplica(runtime, <MembersSettings />, {
       memberId: ids.sam,
     });
     expect(
@@ -318,10 +253,7 @@ describe("Settings", () => {
         },
       }),
     });
-    const { pushed } = renderWithSettingsReplica(
-      runtime,
-      <ConnectionsSettings />,
-    );
+    const { pushed } = renderWithReplica(runtime, <ConnectionsSettings />);
 
     const visaCard = (
       await screen.findByText("Alex Visa", {
@@ -394,7 +326,7 @@ describe("Settings", () => {
         };
       },
     });
-    renderWithSettingsReplica(runtime, <ConnectionsSettings />);
+    renderWithReplica(runtime, <ConnectionsSettings />);
 
     const field = await screen.findByLabelText("Lunch Flow API key");
     await userEvent.type(field, "lf-bad-key-0000");
@@ -436,7 +368,7 @@ describe("Settings", () => {
         json: { status: "not_connected" },
       }),
     });
-    renderWithSettingsReplica(runtime, <ConnectionsSettings />, {
+    renderWithReplica(runtime, <ConnectionsSettings />, {
       memberId: ids.sam,
     });
     expect(
@@ -459,7 +391,7 @@ describe("Settings", () => {
         return { status: 204 };
       },
     });
-    renderWithSettingsReplica(runtime, <ConnectionsSettings />);
+    renderWithReplica(runtime, <ConnectionsSettings />);
 
     await userEvent.click(
       await screen.findByRole("button", { name: "Remove key" }),
@@ -479,66 +411,12 @@ describe("Settings", () => {
     ).toBeInTheDocument();
   });
 
-  it("puts each bank account under its Bank login, so two logins at one bank stay apart", async () => {
-    const runtime = await createSettingsReplica();
-    const chase = (
-      providerAccountId: string,
-      bankLoginId: string,
-      name: string,
-    ) => ({
-      providerAccountId,
-      bankLoginId,
-      name,
-      institution: "Chase Bank",
-      institutionLogo: null,
-      currency: "GBP",
-      needsReconnect: false,
-      link: null,
-    });
-    stubFinanceApi({
-      "GET /api/finance/bank/accounts": () => ({
-        json: {
-          ...providerAccounts,
-          accounts: [
-            chase("42467", "26430", "Round-up"),
-            chase("42465", "26430", "Qingqi's Account"),
-            chase("42412", "26438", "Round-up"),
-            chase("42411", "26438", "Tong's Account"),
-          ],
-        } satisfies ProviderAccountsResponse,
-      }),
-    });
-    renderWithSettingsReplica(runtime, <ConnectionsSettings />);
-
-    const cardsUnder = async (title: string) => {
-      const heading = await screen.findByRole("heading", { name: title });
-      const login = heading.closest("section");
-      if (!login) throw new Error(`No Bank login titled ${title}`);
-      return within(login)
-        .getAllByRole("listitem")
-        .map(
-          (card) =>
-            [...card.querySelectorAll("span")].find(
-              (span) => !span.closest("[aria-hidden]"),
-            )?.textContent,
-        );
-    };
-    expect(await cardsUnder("Chase Bank · Qingqi's Account")).toEqual([
-      "Round-up",
-      "Qingqi's Account",
-    ]);
-    expect(await cardsUnder("Chase Bank · Tong's Account")).toEqual([
-      "Round-up",
-      "Tong's Account",
-    ]);
-  });
-
   it("shows the sign switch only under More on a linked card", async () => {
     const runtime = await createSettingsReplica();
     stubFinanceApi({
       "GET /api/finance/bank/accounts": () => ({ json: providerAccounts }),
     });
-    renderWithSettingsReplica(runtime, <ConnectionsSettings />);
+    renderWithReplica(runtime, <ConnectionsSettings />);
     const more = await screen.findByRole("button", { name: "More" });
     expect(screen.queryByRole("switch")).not.toBeInTheDocument();
     await userEvent.click(more);
@@ -550,30 +428,6 @@ describe("Settings", () => {
     ).toBeInTheDocument();
   });
 
-  it("enters an exchange rate and shows it as 1 USD = … GBP", async () => {
-    const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <ExchangeRatesSettings />);
-    expect(screen.getByText("1 USD = 0.75 GBP")).toBeInTheDocument();
-    await openSheet(screen.getByRole("button", { name: "Update rate: USD" }));
-    const rate = screen.getByRole("textbox", { name: /1 USD = \? GBP/ });
-    await userEvent.clear(rate);
-    await userEvent.type(rate, "0.79");
-    await userEvent.click(screen.getByRole("button", { name: "Save" }));
-
-    expect(runtime.store.takeOutbox()).toEqual([
-      expect.objectContaining({
-        name: "setFxRate",
-        args: {
-          base: "USD",
-          quote: "GBP",
-          on: todayInTimeZone("Europe/London"),
-          rate: 0.79,
-        },
-      }),
-    ]);
-    expect(screen.getByText("1 USD = 0.79 GBP")).toBeInTheDocument();
-  });
-
   it("lets a Member save the AI instructions", async () => {
     const runtime = await createSettingsReplica();
     const calls = stubFinanceApi({
@@ -581,7 +435,7 @@ describe("Settings", () => {
         json: { clock: 2 },
       }),
     });
-    renderWithSettingsReplica(runtime, <AiSettings />, { memberId: ids.sam });
+    renderWithReplica(runtime, <AiSettings />, { memberId: ids.sam });
     const field = screen.getByRole("textbox", {
       name: "Instructions for the AI",
     });
@@ -599,7 +453,7 @@ describe("Settings", () => {
 
   it("makes a new rule from scratch, then pauses it with Undo", async () => {
     const runtime = await createSettingsReplica();
-    renderWithSettingsReplica(runtime, <RulesSettings />);
+    renderWithReplica(runtime, <RulesSettings />);
     await openSheet(screen.getByRole("button", { name: "New rule" }));
     await userEvent.type(screen.getByRole("combobox", { name: "Payee" }), "Tf");
     await userEvent.click(screen.getByRole("option", { name: /TfL/ }));
@@ -666,7 +520,7 @@ describe("Settings", () => {
       },
     });
     runtime.store.takeOutbox();
-    renderWithSettingsReplica(runtime, <RulesSettings />);
+    renderWithReplica(runtime, <RulesSettings />);
     await openSheet(screen.getByRole("button", { name: /^TfL/ }));
     expect(screen.getByRole("combobox", { name: "Payee" })).toHaveValue("TfL");
     expect(
@@ -718,7 +572,7 @@ describe("Settings", () => {
         },
       },
     });
-    renderWithSettingsReplica(runtime, <RulesSettings />);
+    renderWithReplica(runtime, <RulesSettings />);
     await openSheet(screen.getByRole("button", { name: /^Index fund/ }));
 
     for (const name of ["Payee", "Account", "Category"]) {

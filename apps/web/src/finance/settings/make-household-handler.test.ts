@@ -22,11 +22,11 @@ beforeEach(async () => {
     memberId: home.memberId,
     role: "owner",
   };
-}, 60_000);
+});
 
 afterEach(async () => {
   await db.close();
-}, 60_000);
+});
 
 function patch(body: unknown, origin: string | null = ORIGIN) {
   const handler = makeHouseholdHandler({

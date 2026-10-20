@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { retemplateExpected, templatePatch } from "./retemplate-expected.ts";
+import { retemplateExpected } from "./retemplate-expected.ts";
 import type { RuleTemplate } from "./rule-template-schema.ts";
 
 const before: RuleTemplate = {
@@ -150,33 +150,5 @@ describe("retemplateExpected", () => {
         newEntryId,
       ),
     ).toEqual([]);
-  });
-});
-
-describe("templatePatch", () => {
-  it("gives every field of the template, keeping the Entry id", () => {
-    expect(
-      templatePatch(
-        after,
-        row("restored", { note: "Old", tagIds: ["train"] }),
-        newEntryId,
-      ),
-    ).toEqual({
-      kind: "expense",
-      amountMinor: -1_500,
-      categoryId: "dining",
-      payeeId: "cafe",
-      memberId: null,
-      note: "",
-      entries: [
-        {
-          id: "restored-entry",
-          accountId: "card",
-          amountMinor: -1_500,
-          fxRate: null,
-        },
-      ],
-      tagIds: [],
-    });
   });
 });

@@ -1,7 +1,9 @@
 import { createFinanceRuntime } from "../../replica/create-finance-runtime.ts";
 import { createMemoryPersistence } from "../../replica/create-memory-persistence.ts";
+import type { ReplicaStore } from "../../replica/create-replica-store.ts";
 import { REPLICA_TABLE_NAMES } from "../../replica/replica-table-names.ts";
 import type {
+  AccountRow,
   EntryRow,
   HouseholdRow,
   SyncRows,
@@ -9,7 +11,13 @@ import type {
 } from "../../sync/row-schemas.ts";
 
 const NOW = "2026-10-01T09:00:00.000Z";
-const stamps = { version: 1, createdAt: NOW, updatedAt: NOW, deletedAt: null };
+/** The version and timestamps of every test row. */
+export const testStamps = {
+  version: 1,
+  createdAt: NOW,
+  updatedAt: NOW,
+  deletedAt: null,
+};
 
 /** Fixed ids of the synthetic Household, so tests can name its rows. */
 export const TEST_IDS = {
@@ -45,39 +53,37 @@ export const testHousehold: HouseholdRow = {
   clock: 10,
 };
 
-function account(
+/** An open GBP cash account of the test Household with no owner, named after its id. */
+export function testAccount(
   id: string,
-  groupId: string,
-  name: string,
-  kind: "cash" | "credit" | "investment",
-  position: number,
-  fields: { currency?: string; ownerMemberId?: string | null } = {},
-) {
+  fields: Partial<AccountRow> = {},
+): AccountRow {
   return {
     id,
     householdId: ids.household,
-    groupId,
-    ownerMemberId: fields.ownerMemberId ?? null,
-    name,
+    groupId: ids.cashGroup,
+    ownerMemberId: null,
+    name: id,
     institution: "",
     institutionDomain: null,
     guessedInstitutionDomain: null,
     institutionIconVersion: null,
-    kind,
-    currency: fields.currency ?? "GBP",
+    kind: "cash",
+    currency: "GBP",
     excludedFromNetWorth: false,
     closedOn: null,
-    position,
+    position: 0,
     creditLimitMinor: null,
     statementDay: null,
     paymentDueDay: null,
     defaultPaymentAccountId: null,
     isSystem: false,
-    ...stamps,
+    ...testStamps,
+    ...fields,
   };
 }
 
-function category(
+export function testCategory(
   id: string,
   name: string,
   kind: "expense" | "income",
@@ -95,7 +101,7 @@ function category(
     position,
     isSystem: false,
     archivedAt: null,
-    ...stamps,
+    ...testStamps,
   };
 }
 
@@ -139,7 +145,7 @@ export function testExpense(
       labelledBy: fields.labelledBy ?? "member",
       aiReason: fields.aiReason ?? null,
       searchText: fields.searchText ?? "",
-      ...stamps,
+      ...testStamps,
       createdAt: `${fields.date}T12:00:00.000Z`,
     },
     entry: {
@@ -151,7 +157,7 @@ export function testExpense(
       amountMinor: fields.amountMinor,
       fxRate: null,
       position: 0,
-      ...stamps,
+      ...testStamps,
     },
   };
 }
@@ -175,10 +181,7 @@ export function testReplicaRows(): Partial<SyncRows> {
         userId: null,
         name: "Alex",
         role: "owner",
-        version: 1,
-        createdAt: NOW,
-        updatedAt: NOW,
-        deletedAt: null,
+        ...testStamps,
       },
       {
         id: ids.sam,
@@ -186,10 +189,7 @@ export function testReplicaRows(): Partial<SyncRows> {
         userId: null,
         name: "Sam",
         role: "member",
-        version: 1,
-        createdAt: NOW,
-        updatedAt: NOW,
-        deletedAt: null,
+        ...testStamps,
       },
     ],
     accountGroups: [
@@ -206,25 +206,35 @@ export function testReplicaRows(): Partial<SyncRows> {
         side: "liability" as const,
         position: 2,
       },
-    ].map((group) => ({ ...group, householdId: ids.household, ...stamps })),
+    ].map((group) => ({ ...group, householdId: ids.household, ...testStamps })),
     accounts: [
-      account(ids.current, ids.cashGroup, "Current account", "cash", 0, {
+      testAccount(ids.current, {
+        name: "Current account",
         ownerMemberId: ids.alex,
       }),
-      account(ids.dollars, ids.cashGroup, "Dollar account", "cash", 1, {
+      testAccount(ids.dollars, {
+        name: "Dollar account",
         currency: "USD",
         ownerMemberId: ids.sam,
+        position: 1,
       }),
-      account(ids.isa, ids.investGroup, "Stocks ISA", "investment", 0),
-      account(ids.card, ids.creditGroup, "Credit card", "credit", 0, {
+      testAccount(ids.isa, {
+        groupId: ids.investGroup,
+        name: "Stocks ISA",
+        kind: "investment",
+      }),
+      testAccount(ids.card, {
+        groupId: ids.creditGroup,
+        name: "Credit card",
+        kind: "credit",
         ownerMemberId: ids.alex,
       }),
     ],
     categories: [
-      category(ids.groceries, "Groceries", "expense", "🛒", 0),
-      category(ids.dining, "Dining", "expense", "🍽️", 1),
-      category(ids.transport, "Transport", "expense", "🚇", 2),
-      category(ids.salary, "Salary", "income", "💼", 3),
+      testCategory(ids.groceries, "Groceries", "expense", "🛒", 0),
+      testCategory(ids.dining, "Dining", "expense", "🍽️", 1),
+      testCategory(ids.transport, "Transport", "expense", "🚇", 2),
+      testCategory(ids.salary, "Salary", "income", "💼", 3),
     ],
     payees: [
       {
@@ -239,7 +249,7 @@ export function testReplicaRows(): Partial<SyncRows> {
       note: "",
       defaultAccountId: null,
       mergedIntoId: null,
-      ...stamps,
+      ...testStamps,
     })),
     tags: [
       {
@@ -247,7 +257,7 @@ export function testReplicaRows(): Partial<SyncRows> {
         householdId: ids.household,
         name: "Weekly shop",
         position: 0,
-        ...stamps,
+        ...testStamps,
       },
     ],
     transactions: [shop.transaction],
@@ -290,11 +300,19 @@ export async function createTestReplica(
   });
   const { store } = runtime;
   await store.load();
+  applyTestBootstrap(store, rows);
+  store.finishBootstrap(10, new Set());
+  return runtime;
+}
+
+/** Starts a bootstrap of the test Household and applies `rows`, but does not finish it. */
+export function applyTestBootstrap(
+  store: ReplicaStore,
+  rows: Partial<SyncRows>,
+) {
   store.startBootstrap(testHousehold);
   for (const table of REPLICA_TABLE_NAMES) {
     const tableRows = rows[table];
     if (tableRows) store.applyBootstrapRows(table, tableRows);
   }
-  store.finishBootstrap(10, new Set());
-  return runtime;
 }

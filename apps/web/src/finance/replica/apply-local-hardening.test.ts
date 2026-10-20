@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createTestReplica,
   TEST_IDS,
+  testAccount,
   testReplicaRows,
 } from "../transactions/testing/create-test-replica.ts";
 
@@ -90,17 +91,10 @@ describe("applyLocal mirrors the server", () => {
 
   it("lets a member only move In transit", async () => {
     const rows = testReplicaRows();
-    const current = rows.accounts?.find(
-      (account) => account.id === TEST_IDS.current,
-    );
-    if (!current) throw new Error("No current account");
-    const inTransit = {
-      ...current,
-      id: "00000000-0000-4000-8000-0000000000b1",
+    const inTransit = testAccount("00000000-0000-4000-8000-0000000000b1", {
       name: "In transit",
-      ownerMemberId: null,
       isSystem: true,
-    };
+    });
     const { store } = await createTestReplica({
       ...rows,
       accounts: [...(rows.accounts ?? []), inTransit],

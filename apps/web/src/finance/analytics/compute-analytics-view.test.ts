@@ -12,6 +12,7 @@ import {
   type AnalyticsState,
 } from "./compute-analytics-view.ts";
 import { ANALYTICS_RANGES } from "./resolve-analytics-range.ts";
+import { buildTestIndex, postedRow } from "./testing/build-test-index.ts";
 
 const TODAY = "2026-10-10";
 
@@ -192,37 +193,15 @@ describe("computeAnalyticsView with the current month cut short", () => {
   const months = Array.from({ length: 11 }, (_, at) =>
     addMonths("2025-11-05", at),
   );
-  const index = buildAnalyticsIndex({
-    transactions: [
-      ...months.map((date, at) => ({
-        id: `t${String(at)}`,
-        kind: "expense",
-        status: "posted",
-        date,
-        amountMinor: -(100_00 + at * 10_00),
-        categoryId: "food",
-        payeeId: null,
-        memberId: null,
-        deletedAt: null,
-      })),
-      {
-        id: "today",
-        kind: "expense",
-        status: "posted",
-        date: "2026-10-05",
-        amountMinor: -10_00,
-        categoryId: "food",
-        payeeId: null,
-        memberId: null,
-        deletedAt: null,
-      },
+  const index = buildTestIndex(
+    [
+      ...months.map((date, at) =>
+        postedRow(`t${String(at)}`, date, -(100_00 + at * 10_00), "food"),
+      ),
+      postedRow("today", "2026-10-05", -10_00, "food"),
     ],
-    transactionTags: [],
-    categories: [{ id: "food", parentId: null }],
-    payees: [],
-    members: [],
-    tags: [],
-  });
+    ["food"],
+  );
   const view = computeAnalyticsView(
     index,
     { ...DEFAULT_ANALYTICS_STATE, range: "12M", category: "food" },

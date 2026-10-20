@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { detectRecurring } from "./detect-recurring.ts";
 import { ruleFromTransaction } from "./rule-from-transaction.ts";
+import { testExpense } from "./testing/create-test-replica.ts";
 
 function row(id: string, date: string, amountMinor = -1_099) {
   return {
@@ -78,48 +79,16 @@ describe("detectRecurring", () => {
 
 describe("ruleFromTransaction", () => {
   it("starts the Rule at the first occurrence after today", () => {
+    const { transaction, entry } = testExpense("t", "e", {
+      date: "2026-09-28",
+      amountMinor: -1_099,
+      accountId: "a",
+    });
     const args = ruleFromTransaction({
       ruleId: "00000000-0000-4000-8000-000000000001",
       name: "Netflix",
-      transaction: {
-        id: "t",
-        householdId: "h",
-        kind: "expense",
-        status: "posted",
-        date: "2026-09-28",
-        amountMinor: -1_099,
-        categoryId: "c",
-        payeeId: "p",
-        memberId: "m",
-        ruleId: null,
-        refundOfId: null,
-        note: "",
-        source: "manual",
-        needsReview: false,
-        labelledBy: "member",
-        aiReason: null,
-        searchText: "",
-        version: 1,
-        createdAt: "2026-09-28T10:00:00.000Z",
-        updatedAt: "2026-09-28T10:00:00.000Z",
-        deletedAt: null,
-      },
-      entries: [
-        {
-          id: "e",
-          householdId: "h",
-          transactionId: "t",
-          accountId: "a",
-          date: "2026-09-28",
-          amountMinor: -1_099,
-          fxRate: null,
-          position: 0,
-          version: 1,
-          createdAt: "2026-09-28T10:00:00.000Z",
-          updatedAt: "2026-09-28T10:00:00.000Z",
-          deletedAt: null,
-        },
-      ],
+      transaction,
+      entries: [entry],
       tagIds: ["tag"],
       pattern: null,
       today: "2026-10-10",

@@ -23,7 +23,6 @@ const STAMPS = {
   updatedAt: NOW.toISOString(),
   deletedAt: null,
 };
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -81,7 +80,7 @@ beforeEach(async () => {
       },
     },
   ]);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

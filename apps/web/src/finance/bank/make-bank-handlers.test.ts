@@ -28,7 +28,11 @@ import {
   type BankHandlerDependencies,
 } from "./make-bank-handlers.ts";
 import { makeBankProvider } from "./make-bank-provider.ts";
-import { seedUncategorised } from "./testing/seed-bank-link.ts";
+import {
+  providerAccount,
+  providerRow,
+  seedUncategorised,
+} from "./testing/seed-bank-link.ts";
 import type {
   BankConnection,
   BankLinkView,
@@ -40,7 +44,6 @@ import type {
 const ORIGIN = "https://qingqi.dev";
 const NOW = new Date("2026-10-10T12:00:00Z");
 const CLIENT = "00000000-0000-4000-8000-00000000c001";
-const DB_HOOK_TIMEOUT = 60_000;
 const CREDENTIAL_KEY = new Uint8Array(randomBytes(32));
 
 let db: TestDb;
@@ -49,19 +52,6 @@ let session: FinanceSession | null;
 let fixture: FakeBankFixture;
 let connected: boolean;
 let afterTasks: (() => Promise<void>)[];
-
-function providerAccount(id: string, currency = "GBP", status = "ACTIVE") {
-  return {
-    id,
-    bankLoginId: "c1",
-    name: `Account ${id}`,
-    institution: "Example Bank",
-    institutionLogo: null,
-    provider: "gocardless",
-    currency,
-    status,
-  };
-}
 
 beforeEach(async () => {
   db = await createTestDb();
@@ -79,28 +69,18 @@ beforeEach(async () => {
   fixture = {
     accounts: [
       providerAccount("p1"),
-      providerAccount("p2", "GBP", "DISCONNECTED"),
-      providerAccount("usd", "USD"),
+      providerAccount("p2", { status: "DISCONNECTED" }),
+      providerAccount("usd", { currency: "USD" }),
     ],
     transactions: {
-      p1: [
-        {
-          id: "t1",
-          date: "2026-10-08",
-          amountMinor: -1000,
-          currency: "GBP",
-          merchant: "",
-          description: "SHOP",
-          raw: {},
-        },
-      ],
+      p1: [providerRow("t1", "2026-10-08", -1000, "SHOP")],
     },
     balances: {
       p1: { amountMinor: -400, currency: "GBP" },
       p2: { amountMinor: 0, currency: "GBP" },
     },
   };
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

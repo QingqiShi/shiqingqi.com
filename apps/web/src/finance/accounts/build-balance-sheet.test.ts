@@ -3,17 +3,18 @@ import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
 import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { netWorthAt } from "../domain/balance/net-worth-at.ts";
 import type { AccountGroupRow, AccountRow } from "../sync/row-schemas.ts";
+import {
+  testAccount,
+  testStamps,
+} from "../transactions/testing/create-test-replica.ts";
 import { buildBalanceSheet } from "./build-balance-sheet.ts";
-
-const NOW = "2026-10-01T09:00:00.000Z";
-const stamps = { version: 1, createdAt: NOW, updatedAt: NOW, deletedAt: null };
 
 function group(
   id: string,
   side: "asset" | "liability",
   position: number,
 ): AccountGroupRow {
-  return { id, householdId: "h", name: id, side, position, ...stamps };
+  return { id, householdId: "h", name: id, side, position, ...testStamps };
 }
 
 function account(
@@ -21,30 +22,8 @@ function account(
   groupId: string,
   kind: AccountRow["kind"],
   fields: Partial<AccountRow> = {},
-): AccountRow {
-  return {
-    id,
-    householdId: "h",
-    groupId,
-    ownerMemberId: null,
-    name: id,
-    institution: "",
-    institutionDomain: null,
-    guessedInstitutionDomain: null,
-    institutionIconVersion: null,
-    kind,
-    currency: "GBP",
-    excludedFromNetWorth: false,
-    closedOn: null,
-    position: 0,
-    creditLimitMinor: null,
-    statementDay: null,
-    paymentDueDay: null,
-    defaultPaymentAccountId: null,
-    isSystem: false,
-    ...stamps,
-    ...fields,
-  };
+) {
+  return testAccount(id, { groupId, kind, ...fields });
 }
 
 describe("buildBalanceSheet", () => {

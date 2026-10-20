@@ -7,7 +7,7 @@ describe("readHomepageLinks", () => {
   it("reads attributes in any order, quoted or not, in any case", () => {
     const { icons, manifests } = readHomepageLinks(
       `<LINK SIZES=180x180 HREF=/a.png REL="Apple-Touch-Icon">
-       <link href='b.png' rel='icon shortcut' sizes="16x16 48x48" />
+       <link href='b.png' rel='icon shortcut' sizes="16X16 192x96 any" />
        <link rel="apple-touch-icon-precomposed" href="c.png">
        <link
          rel="manifest"
@@ -18,7 +18,7 @@ describe("readHomepageLinks", () => {
       icons.map(({ url, size, source }) => [url.href, size, source]),
     ).toEqual([
       ["https://www.example.com/a.png", 180, "apple-touch-icon"],
-      ["https://www.example.com/en/b.png", 48, "icon"],
+      ["https://www.example.com/en/b.png", 96, "icon"],
       ["https://www.example.com/en/c.png", 180, "apple-touch-icon"],
     ]);
     expect(manifests.map(String)).toEqual([

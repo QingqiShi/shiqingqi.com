@@ -11,7 +11,6 @@ import { failureOf } from "./testing/failure-of.ts";
 import type { FinanceDb } from "./types.ts";
 import { asFinanceApp, withHousehold } from "./with-household.ts";
 
-const DB_HOOK_TIMEOUT = 60_000;
 const householdId = randomUUID();
 
 let client: PGlite;
@@ -43,7 +42,7 @@ beforeAll(async () => {
   const migrated = drizzle({ client, schema });
   await migrate(migrated, { migrationsFolder: FINANCE_MIGRATIONS_FOLDER });
   db = migrated;
-}, DB_HOOK_TIMEOUT);
+});
 
 afterAll(async () => {
   await client.close();

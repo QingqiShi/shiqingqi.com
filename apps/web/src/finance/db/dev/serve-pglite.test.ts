@@ -73,7 +73,7 @@ describe("servePglite", () => {
       connectionString: `postgres://postgres:postgres@127.0.0.1:${String(port)}/postgres`,
       max: 8,
     });
-  }, 60_000);
+  });
 
   afterAll(async () => {
     await pool.end();

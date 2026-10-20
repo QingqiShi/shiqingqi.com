@@ -22,11 +22,11 @@ beforeEach(async () => {
     memberId: home.partnerId,
     role: "member",
   };
-}, 60_000);
+});
 
 afterEach(async () => {
   await db.close();
-}, 60_000);
+});
 
 function patch(body: unknown, origin = ORIGIN) {
   const handler = makeAiInstructionsHandler({

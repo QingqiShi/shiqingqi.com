@@ -20,7 +20,6 @@ import type { ReplicaPersistence, ReplicaRejection } from "./types.ts";
 
 const ORIGIN = "https://qingqi.dev";
 const ENDPOINT = `${ORIGIN}/api/finance/sync`;
-const DB_HOOK_TIMEOUT = 60_000;
 const TODAY = "2026-10-10";
 
 let db: TestDb;
@@ -37,7 +36,7 @@ beforeEach(async () => {
     memberId: home.memberId,
     role: "owner",
   };
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -450,7 +449,7 @@ describe("sync loop against the real handlers", () => {
     expect(client.snapshot().tables.accounts.size).toBe(3);
   });
 
-  it("downloads the whole history again on a device that kept only recent Transactions", async () => {
+  it("downloads the whole history again on a device that kept only recent Transactions, and keeps its Outbox", async () => {
     const writer = createClient();
     await writer.ready();
     const old = createExpense(writer, 500, "2020-01-15");
@@ -460,6 +459,8 @@ describe("sync loop against the real handlers", () => {
     const persistence = createMemoryPersistence();
     const device = createClient({ persistence });
     await device.ready();
+    const queued = createExpense(device, 300);
+    await device.store.flush();
     await persistence.write({
       meta: { ...device.store.getMeta(), rowShape: REPLICA_ROW_SHAPE - 1 },
       tables: { transactions: { put: [], delete: [old] } },
@@ -468,11 +469,13 @@ describe("sync loop against the real handlers", () => {
     const reopened = createClient({ persistence });
     await reopened.ready();
     expect(reopened.store.getMeta()).toMatchObject({
+      clientId: device.store.getMeta().clientId,
       bootstrapped: true,
       rowShape: REPLICA_ROW_SHAPE,
     });
+    expect(reopened.snapshot().outboxCount).toBe(0);
     expect([...reopened.snapshot().tables.transactions.keys()].sort()).toEqual(
-      [old, recent].sort(),
+      [old, recent, queued].sort(),
     );
   });
 

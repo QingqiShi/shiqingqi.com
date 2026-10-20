@@ -18,7 +18,6 @@ import {
 } from "./testing/create-labelling-model.ts";
 
 const ORIGIN = "https://qingqi.dev";
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -40,7 +39,7 @@ beforeEach(async () => {
     newPayeeName: "GROCÉR.",
     reason: "Grocer is groceries",
   }));
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

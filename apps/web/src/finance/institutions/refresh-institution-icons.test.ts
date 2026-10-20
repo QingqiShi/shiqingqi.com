@@ -18,8 +18,6 @@ import { applyMutations } from "../sync/apply-mutations.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
 import { refreshInstitutionIcons } from "./refresh-institution-icons.ts";
 
-/** The first test database of a file runs the migrations, which is slow on a busy machine. */
-const DB_HOOK_TIMEOUT = 60_000;
 const HOUR_MS = 60 * 60 * 1000;
 const START = new Date("2026-10-14T09:00:00Z");
 
@@ -50,7 +48,7 @@ beforeEach(async () => {
     ["wise.com", icon(2)],
     ["monzo.com", icon(3)],
   ]);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -250,32 +248,6 @@ describe("refreshInstitutionIcons", () => {
     expect(await accountIconVersion(other.currentId)).toBe(
       await iconVersion("wise.com"),
     );
-  });
-
-  it("gives an account no icon version until a fetch works, then a later pull carries the version", async () => {
-    sites.delete("wise.com");
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-    await refresh();
-    expect(await accountIconVersion(home.currentId)).toBeNull();
-    const before = await pullChanges(db, home.householdId, 0);
-    expect(pulledAccount(before, home.currentId)).toMatchObject({
-      institutionIconVersion: null,
-    });
-
-    sites.set("wise.com", icon(2));
-    now = new Date(START.getTime() + HOUR_MS);
-    expect(await refresh(home.householdId, { model: false })).toMatchObject({
-      fetched: 1,
-      updated: 1,
-    });
-
-    const version = await iconVersion("wise.com");
-    expect(version).not.toBeNull();
-    const pulled = await pullChanges(db, home.householdId, before.clock);
-    expect(pulledAccount(pulled, home.currentId)).toEqual({
-      id: home.currentId,
-      institutionIconVersion: version,
-    });
   });
 
   it("gives an account the icon version of an icon that a run for another Household fetched", async () => {
@@ -516,7 +488,7 @@ describe("refreshInstitutionIcons", () => {
     expect(await iconVersion("nationwide.co.uk")).not.toBeNull();
   });
 
-  it("shows the guessed domain without an icon until a fetch works, then adds the icon", async () => {
+  it("shows the guessed domain without an icon until a fetch works, then a later pull carries the icon version", async () => {
     sites.delete("wise.com");
     await setInstitution(home, home.currentId, { institution: "Wise" });
 
@@ -525,15 +497,28 @@ describe("refreshInstitutionIcons", () => {
       institutionDomain: null,
       guessedInstitutionDomain: "wise.com",
     });
+    const before = await pullChanges(db, home.householdId, 0);
+    expect(pulledAccount(before, home.currentId)).toMatchObject({
+      institutionIconVersion: null,
+    });
 
     sites.set("wise.com", icon(2));
     await refresh();
     expect(fetches).toEqual(["wise.com"]);
 
     now = new Date(START.getTime() + HOUR_MS);
-    await refresh();
+    expect(await refresh(home.householdId, { model: false })).toMatchObject({
+      fetched: 1,
+      updated: 1,
+    });
     expect(fetches).toEqual(["wise.com", "wise.com"]);
-    expect(await iconVersion("wise.com")).not.toBeNull();
+    const version = await iconVersion("wise.com");
+    expect(version).not.toBeNull();
+    const pulled = await pullChanges(db, home.householdId, before.clock);
+    expect(pulledAccount(pulled, home.currentId)).toEqual({
+      id: home.currentId,
+      institutionIconVersion: version,
+    });
   });
 
   it("fetches a Member's domain without a model, and guesses nothing", async () => {
@@ -571,25 +556,6 @@ describe("refreshInstitutionIcons", () => {
     expect(await accountRow(home.currentId)).toMatchObject({
       guessedInstitutionDomain: "wise.com",
     });
-  });
-
-  it("guesses every name and fetches every icon in one run, also when there are more than ten", async () => {
-    const names = banks(15);
-    const ids = await addAccounts(names);
-
-    expect(await refresh()).toEqual({
-      guessed: 15,
-      fetched: 15,
-      failed: 0,
-      updated: 15,
-    });
-    expect(guesses.map((guess) => guess.name).toSorted()).toEqual(
-      names.toSorted(),
-    );
-    expect(await accountRow(ids[14])).toMatchObject({
-      guessedInstitutionDomain: "bank15.com",
-    });
-    expect(await iconVersion("bank15.com")).not.toBeNull();
   });
 
   it("guesses the names of the most accounts first, then in account order, when the run ends before all are guessed", async () => {
