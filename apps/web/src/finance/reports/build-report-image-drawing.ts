@@ -25,11 +25,9 @@ import {
   IMAGE_COLUMN_GAP,
   IMAGE_COLUMN_WIDTH,
   IMAGE_CONTENT_WIDTH,
-  IMAGE_GROUP_COLUMNS,
   IMAGE_GROUP_GAP,
   IMAGE_GROUP_HEIGHT,
   IMAGE_GROUP_ROW_GAP,
-  IMAGE_GROUP_WIDTH,
   IMAGE_PADDING,
   IMAGE_RULE_GAP,
   IMAGE_TITLE_HEIGHT,
@@ -203,15 +201,15 @@ function lineAndArea(
   };
 }
 
-/** A Group with a tile: one whose total was not zero at some week of the trend. */
+/** A Group with a tile: one with a balance or a change this week. */
 function shownGroups(data: WeeklyReportData) {
   const groups = (side: "assets" | "liabilities") =>
     data.balanceSheet[side].groups.map((group) => ({
       group,
       owed: side === "liabilities",
     }));
-  return [...groups("assets"), ...groups("liabilities")].filter(({ group }) =>
-    group.history.some((total) => total !== 0),
+  return [...groups("assets"), ...groups("liabilities")].filter(
+    ({ group }) => group.totalMinor !== 0 || groupChange(group) !== 0,
   );
 }
 
@@ -546,7 +544,7 @@ export function buildReportImageDrawing(
       .range([IMAGE_GROUP_HEIGHT - 6, GROUP_LINE_TOP]);
     const shape = lineAndArea(
       values.map(
-        (_value, index) => (index / (values.length - 1)) * IMAGE_GROUP_WIDTH,
+        (_value, index) => (index / (values.length - 1)) * layout.groupWidth,
       ),
       values.map((value) => y(value)),
       IMAGE_GROUP_HEIGHT,
@@ -577,9 +575,9 @@ export function buildReportImageDrawing(
     const owed = splitTemplate(copy.owed, "amount");
     const weekChange = splitTemplate(copy.groupChange, "change");
     groups.forEach(({ group, owed: isOwed }, index) => {
-      const column = index % IMAGE_GROUP_COLUMNS;
-      const row = Math.floor(index / IMAGE_GROUP_COLUMNS);
-      const tileLeft = left + column * (IMAGE_GROUP_WIDTH + IMAGE_GROUP_GAP);
+      const column = index % layout.groupColumns;
+      const row = Math.floor(index / layout.groupColumns);
+      const tileLeft = left + column * (layout.groupWidth + IMAGE_GROUP_GAP);
       const tileTop =
         groupsTop +
         IMAGE_TITLE_HEIGHT +
@@ -587,7 +585,7 @@ export function buildReportImageDrawing(
       groupLine(group, isOwed, tileLeft, tileTop);
       const halo = GROUP_TEXT_HALO;
       text(group.name, tileLeft, tileTop + 14, fonts.groupName, colors.muted, {
-        maxWidth: IMAGE_GROUP_WIDTH,
+        maxWidth: layout.groupWidth,
         halo,
       });
       const amount = {
