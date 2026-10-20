@@ -1,4 +1,3 @@
-import type { PageRect } from "./lens-from-box.ts";
 import type { EffectFrame, EffectPointer } from "./types.ts";
 
 /**
@@ -8,49 +7,40 @@ import type { EffectFrame, EffectPointer } from "./types.ts";
  */
 export interface LightContext {
   readonly pointer: EffectPointer;
-  /** The primary pointer can hover, so a pointer that is not down still leans the light. */
-  readonly hoverable: boolean;
   readonly viewport: EffectFrame["viewport"];
 }
 
 /**
- * The way to the light in the page plane, as a unit vector from a point:
- * the light hangs above and beyond the top-left corner of the viewport, so
- * the highlight shifts a little as the page scrolls the control.
+ * The light is a pointer that hovers over the page. A finger that lifts
+ * leaves no hover behind, and a finger that is down is not a light.
+ *
+ * @internal
+ */
+export function pointerLights(pointer: EffectPointer) {
+  return pointer.present && pointer.pointerType !== "touch";
+}
+
+/** A unit vector along `[x, y]`, or `fallback` where it has no length. */
+function unit(
+  x: number,
+  y: number,
+  fallback: readonly [number, number],
+): readonly [number, number] {
+  const length = Math.hypot(x, y);
+  return length < 1e-6 ? fallback : [x / length, y / length];
+}
+
+/**
+ * The way to the light with no pointer, in the page plane, as a unit vector
+ * from a point: the light is at the top-left corner of the viewport, so the
+ * highlight turns as the page scrolls the control.
  */
 function restLight(
   x: number,
   y: number,
   viewport: EffectFrame["viewport"],
 ): readonly [number, number] {
-  const dx = viewport.x - viewport.width * 0.25 - x;
-  const dy = viewport.y - viewport.height * 0.45 - y;
-  const length = Math.hypot(dx, dy) || 1;
-  return [dx / length, dy / length];
-}
-
-/** How far past the control's box the pointer still leans the light, in px. */
-const LEAN_REACH = 16;
-
-/**
- * The pointer leans the light when it is down on the control, or when it
- * hovers over it with a pointer that can hover. A finger that lifts leaves
- * no hover behind.
- *
- * @internal
- */
-export function pointerOver(
-  { pointer, hoverable }: Pick<LightContext, "pointer" | "hoverable">,
-  box: PageRect,
-) {
-  return (
-    pointer.present &&
-    (pointer.pressed || hoverable) &&
-    pointer.x > box.x - LEAN_REACH &&
-    pointer.x < box.x + box.width + LEAN_REACH &&
-    pointer.y > box.y - LEAN_REACH &&
-    pointer.y < box.y + box.height + LEAN_REACH
-  );
+  return unit(viewport.x - x, viewport.y - y, STILL_LIGHT);
 }
 
 /**
@@ -59,12 +49,20 @@ export function pointerOver(
  */
 const STILL_LIGHT = [-0.537, -0.844] as const;
 
+/**
+ * How far from the centre a pointer pulls the light as much as the
+ * viewport's corner does, in the radius of the control's surface.
+ */
+const REACH = 2;
+
 /** Seconds of the lean's time constant: about 200 ms to arrive. */
 const LEAN_SECONDS = 0.065;
 
 /**
- * The way to the light that a lit edge takes: from above the top-left of
- * the viewport, leaning towards a pointer over the control. Returns the
+ * The way to the light that a lit edge takes: towards a pointer that
+ * hovers, else towards the top-left corner of the viewport. The pointer's
+ * pull grows with its distance from `centre`, in `radius`, so a pointer over
+ * the control does not swing the highlight from side to side. Returns the
  * light as a unit vector, and how far it leans and where the pointer was,
  * for the next frame. Under reduced motion the light stays where it is.
  *
@@ -77,7 +75,7 @@ export function leanLight(
     readonly toPointer: readonly [number, number];
   },
   centre: { readonly x: number; readonly y: number },
-  box: PageRect,
+  radius: number,
   delta: number,
   reduced: boolean,
 ) {
@@ -90,26 +88,28 @@ export function leanLight(
       light: STILL_LIGHT,
     };
   }
-  const [restX, restY] = restLight(centre.x, centre.y, context.viewport);
-  const over = pointerOver(context, box);
-  if (over) {
-    const dx = context.pointer.x - centre.x;
-    const dy = context.pointer.y - centre.y;
-    const length = Math.hypot(dx, dy) || 1;
-    toPointer = [dx / length, dy / length];
+  const rest = restLight(centre.x, centre.y, context.viewport);
+  const lights = pointerLights(context.pointer);
+  if (lights) {
+    toPointer = [
+      (context.pointer.x - centre.x) / (radius * REACH),
+      (context.pointer.y - centre.y) / (radius * REACH),
+    ];
   }
-  const goal = over ? 1 : 0;
+  const goal = lights ? 1 : 0;
   lean = goal + (lean - goal) * Math.exp(-delta / LEAN_SECONDS);
   if (Math.abs(lean - goal) < 0.005) {
     lean = goal;
   }
-  const lx = restX + (toPointer[0] - restX) * 0.8 * lean;
-  const ly = restY + (toPointer[1] - restY) * 0.8 * lean;
-  const length = Math.hypot(lx, ly) || 1;
+  const [toX, toY] = unit(rest[0] + toPointer[0], rest[1] + toPointer[1], rest);
   return {
     lean,
     toPointer,
     resting: lean === goal,
-    light: [lx / length, ly / length] as const,
+    light: unit(
+      rest[0] + (toX - rest[0]) * lean,
+      rest[1] + (toY - rest[1]) * lean,
+      rest,
+    ),
   };
 }

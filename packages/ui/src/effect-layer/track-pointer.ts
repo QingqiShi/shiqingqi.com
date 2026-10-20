@@ -58,6 +58,7 @@ export function trackPointer(onChange: () => void) {
   let lastTime: number | null = null;
   let present = false;
   let pressed = false;
+  let pointerType = "";
 
   function sample(event: PointerEvent) {
     const elapsed = lastTime === null ? 0 : event.timeStamp - lastTime;
@@ -80,6 +81,7 @@ export function trackPointer(onChange: () => void) {
     clientY = event.clientY;
     lastTime = event.timeStamp;
     present = true;
+    pointerType = event.pointerType;
   }
 
   function onPointer(event: PointerEvent) {
@@ -130,6 +132,7 @@ export function trackPointer(onChange: () => void) {
         velocityY: decayVelocity(velocityY, idle),
         pressed,
         present,
+        pointerType,
       };
     },
     destroy() {

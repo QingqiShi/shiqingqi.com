@@ -141,6 +141,8 @@ export interface EffectPointer {
   readonly velocityY: number;
   readonly pressed: boolean;
   readonly present: boolean;
+  /** The `pointerType` of the last event: `"mouse"`, `"pen"` or `"touch"`. */
+  readonly pointerType: string;
 }
 
 /**

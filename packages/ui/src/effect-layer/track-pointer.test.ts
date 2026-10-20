@@ -90,4 +90,12 @@ describe("trackPointer", () => {
     dispatch("pointerout", { relatedTarget: null });
     expect(tracker.read(0, 0, 0).present).toBe(false);
   });
+
+  it("reports the type of the last pointer", () => {
+    tracker = trackPointer(() => undefined);
+    dispatch("pointerdown", { clientX: 1, clientY: 1, pointerType: "touch" });
+    expect(tracker.read(0, 0, 0).pointerType).toBe("touch");
+    dispatch("pointermove", { clientX: 1, clientY: 1, pointerType: "pen" });
+    expect(tracker.read(0, 0, 0).pointerType).toBe("pen");
+  });
 });

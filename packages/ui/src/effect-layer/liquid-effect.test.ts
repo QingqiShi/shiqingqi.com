@@ -339,8 +339,8 @@ const CONTEXT: LightContext = {
     velocityY: 0,
     pressed: false,
     present: false,
+    pointerType: "mouse",
   },
-  hoverable: false,
   viewport: { x: 0, y: 0, width: 800, height: 600 },
 };
 
