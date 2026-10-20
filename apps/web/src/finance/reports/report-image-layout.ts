@@ -18,11 +18,7 @@ const IMAGE_BLOCK_GAP = 44;
 export const IMAGE_RULE_GAP = 36;
 /** A section title and the space under it. */
 export const IMAGE_TITLE_HEIGHT = 58;
-export const IMAGE_GROUP_COLUMNS = 3;
 export const IMAGE_GROUP_GAP = 48;
-export const IMAGE_GROUP_WIDTH =
-  (IMAGE_CONTENT_WIDTH - IMAGE_GROUP_GAP * (IMAGE_GROUP_COLUMNS - 1)) /
-  IMAGE_GROUP_COLUMNS;
 export const IMAGE_GROUP_HEIGHT = 200;
 export const IMAGE_GROUP_ROW_GAP = 40;
 /** The spending title and the line under it, above the week bars. */
@@ -37,12 +33,26 @@ export const IMAGE_CATEGORY_ROW_GAP = 14;
 /** The most categories the spending lists. */
 export const IMAGE_CATEGORIES = 6;
 
+/**
+ * Three or four tiles a row, whichever fills the last row more, so that a
+ * Group is rarely alone on its row.
+ */
+function groupColumns(groups: number) {
+  const fill = (columns: number) => {
+    const last = groups % columns;
+    return (last === 0 ? columns : last) / columns;
+  };
+  return fill(4) > fill(3) ? 4 : 3;
+}
+
 interface ReportImageLayout {
   height: number;
   /** Null when the Report has no trend to draw. */
   trendTop: number | null;
   /** Null when no Group has a balance. */
   groupsTop: number | null;
+  groupColumns: number;
+  groupWidth: number;
   spendingTop: number;
 }
 
@@ -53,8 +63,7 @@ function section(height: number) {
 
 /**
  * Where the blocks of the share image go, top to bottom: the header, the
- * net-worth trend, the Groups in rows of `IMAGE_GROUP_COLUMNS`, and the
- * spending. The image is as tall as its blocks.
+ * net-worth trend, the Groups in rows of three or four, and the spending. The image is as tall as its blocks.
  */
 export function reportImageLayout({
   hasTrend,
@@ -74,7 +83,8 @@ export function reportImageLayout({
     top = trendTop + IMAGE_TREND_HEIGHT;
   }
   let groupsTop = null;
-  const rows = Math.ceil(groups / IMAGE_GROUP_COLUMNS);
+  const columns = groupColumns(groups);
+  const rows = Math.ceil(groups / columns);
   if (rows > 0) {
     const tiles = rows * IMAGE_GROUP_HEIGHT + (rows - 1) * IMAGE_GROUP_ROW_GAP;
     groupsTop = top + IMAGE_BLOCK_GAP + IMAGE_RULE_GAP;
@@ -91,6 +101,9 @@ export function reportImageLayout({
     height: top + IMAGE_PADDING,
     trendTop,
     groupsTop,
+    groupColumns: columns,
+    groupWidth:
+      (IMAGE_CONTENT_WIDTH - IMAGE_GROUP_GAP * (columns - 1)) / columns,
     spendingTop,
   };
 }

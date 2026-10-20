@@ -403,7 +403,7 @@ describe("share image", () => {
             name: "Other",
             totalMinor: 0,
             previousTotalMinor: 0,
-            history: [0, 0, 0],
+            history: [0, 5_000_00, 0],
             accounts: [account("loan", "Lent to a friend", 0)],
           },
         ],
@@ -473,7 +473,7 @@ describe("share image", () => {
     expect(drawn).toContain("£1,500.00 more");
   });
 
-  it("leaves out a Group that never had a balance", () => {
+  it("leaves out a Group with no balance and no change this week", () => {
     expect(drawnText(withGroups, { locale: "en" })).not.toContain("Other");
   });
 
@@ -495,15 +495,17 @@ describe("share image", () => {
 });
 
 describe("share image layout", () => {
-  it("grows by a row of Groups for every three Groups", () => {
+  it("puts three or four Groups on a row, whichever fills the last row more", () => {
     const base = { hasTrend: true, categories: 6 };
-    const three = reportImageLayout({ ...base, groups: 3 });
+    const columns = [3, 4, 5, 6, 7, 8, 9].map(
+      (groups) => reportImageLayout({ ...base, groups }).groupColumns,
+    );
+    expect(columns).toEqual([3, 4, 3, 3, 4, 4, 3]);
     const four = reportImageLayout({ ...base, groups: 4 });
-    const six = reportImageLayout({ ...base, groups: 6 });
-    expect(four.height - three.height).toBe(
+    const seven = reportImageLayout({ ...base, groups: 7 });
+    expect(seven.height - four.height).toBe(
       IMAGE_GROUP_HEIGHT + IMAGE_GROUP_ROW_GAP,
     );
-    expect(six.height).toBe(four.height);
   });
 
   it("leaves out the trend and the Groups when there are none", () => {
