@@ -28,7 +28,7 @@ export interface FakeLunchFlowAccount {
   balance: { amount: number; currency: string };
 }
 
-export interface ScriptedResponse {
+interface ScriptedResponse {
   status: number;
   body?: unknown;
   headers?: Record<string, string>;
@@ -60,14 +60,14 @@ function send(
   response.end(JSON.stringify(body));
 }
 
-function inRange(date: string, from: string | null, to: string | null) {
-  return (from === null || date >= from) && (to === null || date <= to);
+function inRange(date: string, from: string | null) {
+  return from === null || date >= from;
 }
 
 /**
  * A local HTTP server that answers like the Lunch Flow Personal API
  * (`lf/openapi.json`): `x-api-key` auth, the account list, transactions with
- * `include_pending`/`from`/`to`, balances, and the documented error bodies.
+ * `from`, balances, and the documented error bodies.
  */
 export async function serveFakeLunchFlow(options: {
   apiKey: string;
@@ -87,16 +87,7 @@ export async function serveFakeLunchFlow(options: {
       return;
     }
 
-    const key = request.headers["x-api-key"];
-    if (key === undefined) {
-      send(response, 401, {
-        error: "Unauthorized",
-        message:
-          "Authentication required. Provide x-api-key header or Authorization: Bearer token.",
-      });
-      return;
-    }
-    if (key !== options.apiKey) {
+    if (request.headers["x-api-key"] !== options.apiKey) {
       send(response, 403, {
         error: "Forbidden",
         message: "Invalid credentials.",
@@ -148,12 +139,10 @@ export async function serveFakeLunchFlow(options: {
       send(response, 200, { balance: account.balance });
       return;
     }
-    const includePending = url.searchParams.get("include_pending") === "true";
     const from = url.searchParams.get("from");
-    const to = url.searchParams.get("to");
     const transactions = account.transactions
-      .filter((row) => includePending || row.isPending !== true)
-      .filter((row) => inRange(row.date, from, to))
+      .filter((row) => row.isPending !== true)
+      .filter((row) => inRange(row.date, from))
       .map((row) => ({ ...row, accountId: account.id }));
     send(response, 200, { transactions, total: transactions.length });
   }

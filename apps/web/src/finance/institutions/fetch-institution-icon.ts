@@ -17,11 +17,6 @@ import {
 import { readHomepageLinks } from "./read-homepage-links.ts";
 import { readManifestIcons } from "./read-manifest-icons.ts";
 
-export type {
-  LookupAddresses,
-  ResolvedAddress,
-} from "./fetch-public-resource.ts";
-
 export const INSTITUTION_ICON_SIZE = 128;
 
 const TOTAL_TIMEOUT_MS = 20_000;

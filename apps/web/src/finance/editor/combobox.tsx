@@ -40,14 +40,9 @@ interface ComboboxProps {
   /** Called when the person picks the `createLabel` option. */
   onCreate?: (value: string) => void;
   placeholder?: string;
-  description?: string;
-  error?: string;
   /** The keys the list does not use, such as Enter with the list closed. */
   onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
-  /** Called when the list closes because focus left the field. */
-  onBlur?: () => void;
   inputRef?: Ref<HTMLInputElement>;
-  autoFocus?: boolean;
 }
 
 /**
@@ -67,12 +62,8 @@ export function Combobox({
   createLabel,
   onCreate,
   placeholder,
-  description,
-  error,
   onKeyDown,
-  onBlur,
   inputRef,
-  autoFocus,
 }: ComboboxProps) {
   const listId = useId();
   const optionId = (index: number) => `${listId}-option-${String(index)}`;
@@ -153,11 +144,8 @@ export function Combobox({
         ref={inputRef}
         label={label}
         labelHidden={labelHidden}
-        description={description}
-        error={error}
         value={value}
         placeholder={placeholder}
-        autoFocus={autoFocus}
         autoComplete="off"
         autoCapitalize="words"
         spellCheck={false}
@@ -183,7 +171,6 @@ export function Combobox({
         onBlur={() => {
           setOpen(false);
           setActive(-1);
-          onBlur?.();
         }}
         onKeyDown={handleKeyDown}
       />

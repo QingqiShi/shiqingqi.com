@@ -137,7 +137,6 @@ export function TransactionsScreen() {
   const [cursorId, setCursorId] = useState<string | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const quickAddRef = useRef<HTMLInputElement>(null);
   const focusTargetRef = useRef<HTMLElement | null>(null);
 
   const undoLabel = t({ en: "Undo", zh: "撤销" });
@@ -316,9 +315,6 @@ export function TransactionsScreen() {
     onOpen: () => {
       openWithFocus("amount");
     },
-    onEdit: () => {
-      openWithFocus("amount");
-    },
     onCategory: () => {
       openWithFocus("category");
     },
@@ -421,7 +417,6 @@ export function TransactionsScreen() {
         </div>
         {bootstrapped ? (
           <QuickAdd
-            inputRef={quickAddRef}
             onNeedsEditor={(draft) => {
               setFocusRequest(undefined);
               setSeed({ draft, nonce: Date.now() });

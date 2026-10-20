@@ -2,10 +2,9 @@ import { describe, expect, it } from "vitest";
 import { valuationChange } from "./valuation-change.ts";
 
 describe("valuationChange", () => {
-  it("gives the change and its share of the last value", () => {
+  it("gives the change", () => {
     expect(valuationChange(100_000, 103_100)).toEqual({
       changeMinor: 3_100,
-      share: 0.031,
       isLarge: false,
     });
   });
@@ -16,10 +15,9 @@ describe("valuationChange", () => {
     expect(valuationChange(100_000, 125_000).isLarge).toBe(false);
   });
 
-  it("has no share when the last value is zero", () => {
+  it("does not flag a change from zero", () => {
     expect(valuationChange(0, 5_000)).toEqual({
       changeMinor: 5_000,
-      share: null,
       isLarge: false,
     });
   });

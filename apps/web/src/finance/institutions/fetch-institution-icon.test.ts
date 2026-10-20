@@ -4,8 +4,8 @@ import {
   fetchInstitutionIcon,
   INSTITUTION_ICON_SIZE,
   type FetchInstitutionIconOptions,
-  type ResolvedAddress,
 } from "./fetch-institution-icon.ts";
+import type { ResolvedAddress } from "./fetch-public-resource.ts";
 import { isPublicAddress } from "./is-public-address.ts";
 import {
   icoFile,

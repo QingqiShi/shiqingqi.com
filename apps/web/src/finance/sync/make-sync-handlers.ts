@@ -20,9 +20,6 @@ interface SyncHandlerDependencies {
   afterPush?: (householdId: string, effects: ReadonlySet<PushEffect>) => void;
 }
 
-const NOT_CONFIGURED_MESSAGE =
-  "Finance has no database here: FINANCE_DATABASE_URL is not set.";
-
 function parseSince(request: Request) {
   const value = new URL(request.url).searchParams.get("since") ?? "0";
   if (!/^\d{1,15}$/.test(value)) return null;
@@ -38,7 +35,6 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
     async GET(request: Request) {
       const session = await guardFinanceRequest(dependencies, request, {
         write: false,
-        notConfiguredMessage: NOT_CONFIGURED_MESSAGE,
       });
       if (session instanceof Response) return session;
       const since = parseSince(request);
@@ -77,7 +73,6 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
     async POST(request: Request) {
       const session = await guardFinanceRequest(dependencies, request, {
         write: true,
-        notConfiguredMessage: NOT_CONFIGURED_MESSAGE,
       });
       if (session instanceof Response) return session;
       const push = await readFinanceBody(request, pushRequestSchema);

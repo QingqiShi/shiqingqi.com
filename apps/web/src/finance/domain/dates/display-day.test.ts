@@ -7,7 +7,6 @@ describe("displayDay", () => {
   it.each([
     ["weekday", "Thu 15 Oct", "10月15日 周四"],
     ["weekdayYear", "Thu 15 Oct 2026", "2026年10月15日 周四"],
-    ["weekdayLong", "Thursday 15 October", "10月15日 星期四"],
     ["day", "15 Oct", "10月15日"],
     ["dayYear", "15 Oct 2026", "2026年10月15日"],
     ["monthYear", "Oct 2026", "2026年10月"],

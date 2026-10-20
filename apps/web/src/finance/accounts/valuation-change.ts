@@ -3,8 +3,6 @@ const LARGE_CHANGE_SHARE = 0.25;
 
 export interface ValuationChange {
   changeMinor: number;
-  /** The change as a share of the last value; null when the last value is 0. */
-  share: number | null;
   isLarge: boolean;
 }
 
@@ -17,7 +15,6 @@ export function valuationChange(
   const share = current === 0 ? null : changeMinor / Math.abs(current);
   return {
     changeMinor,
-    share,
     isLarge: share !== null && Math.abs(share) > LARGE_CHANGE_SHARE,
   };
 }

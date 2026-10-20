@@ -56,7 +56,6 @@ interface ReportImageLayout {
   spendingTop: number;
 }
 
-/** The height of a section after a rule: the rule, its gap, and the section. */
 function section(height: number) {
   return IMAGE_BLOCK_GAP + IMAGE_RULE_GAP + height;
 }

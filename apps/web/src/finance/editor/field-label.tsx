@@ -10,28 +10,18 @@ import { t } from "#src/i18n.ts";
 
 interface FieldLabelProps {
   id?: string;
-  /** Set for a `<label>`; leave out for a group's name. */
-  htmlFor?: string;
   /** Marks a value the Payee's last Transaction filled in. */
   fromLastTime?: boolean;
   children: ReactNode;
 }
 
 /** The name above an editor field that is not a `TextField`, with the "from last time" mark. */
-export function FieldLabel({
-  id,
-  htmlFor,
-  fromLastTime,
-  children,
-}: FieldLabelProps) {
-  const text = (
-    <span id={id} css={[typeRole.control, styles.label]}>
-      {children}
-    </span>
-  );
+export function FieldLabel({ id, fromLastTime, children }: FieldLabelProps) {
   return (
     <span css={cluster.tight}>
-      {htmlFor ? <label htmlFor={htmlFor}>{text}</label> : text}
+      <span id={id} css={[typeRole.control, styles.label]}>
+        {children}
+      </span>
       {fromLastTime ? (
         <Badge intent="neutral" size="sm">
           {t({ en: "From last time", zh: "沿用上次" })}

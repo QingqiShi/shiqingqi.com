@@ -1,18 +1,13 @@
 import { MockLanguageModelV3 } from "ai/test";
-import { MOCK_USAGE, userText } from "./create-labelling-model.ts";
+import { MOCK_USAGE } from "./create-labelling-model.ts";
 
 /**
- * A mock model that answers a domain guess: it reads the name from the
- * prompt and calls `report_domain` with what `answer` gives, or answers in
- * text only when `answer` gives undefined.
+ * A mock model that answers a domain guess: it calls `report_domain` with
+ * `domain`, or answers in text only when `domain` is undefined.
  */
-export function createDomainModel(
-  answer: (name: string) => string | null | undefined,
-) {
+export function createDomainModel(domain: string | null | undefined) {
   return new MockLanguageModelV3({
-    doGenerate: ({ prompt }) => {
-      const name = /^Name: (".*")$/m.exec(userText(prompt))?.[1];
-      const domain = answer(name === undefined ? "" : String(JSON.parse(name)));
+    doGenerate: () => {
       return Promise.resolve({
         content:
           domain === undefined

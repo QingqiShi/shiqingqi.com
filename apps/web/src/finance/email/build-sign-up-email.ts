@@ -44,7 +44,7 @@ export function buildSignUpEmail({
     heading: copy.heading,
     intro: copy.intro,
     code: { value: code, hint: copy.hint, alternative: copy.alternative },
-    actions: [{ label: copy.action, url }],
+    action: { label: copy.action, url },
     expiry: copy.expiry,
   });
 }

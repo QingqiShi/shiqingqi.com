@@ -159,7 +159,6 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   const listeners = new Set<() => void>();
   const localListeners = new Set<() => void>();
   const rejectionListeners = new Set<(rejection: ReplicaRejection) => void>();
-  const errorListeners = new Set<(error: unknown) => void>();
   const storageListeners = new Set<() => void>();
   let writes: Promise<void> = Promise.resolve();
 
@@ -189,10 +188,6 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     for (const listener of storageListeners) listener();
   }
 
-  function reportStorageError(error: unknown) {
-    for (const listener of errorListeners) listener(error);
-  }
-
   /** Writes server rows and the meta, one batch after another; these can wait. */
   function persist(
     batch: ReplicaWrite,
@@ -212,10 +207,9 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         () => {
           rowsFailed = false;
         },
-        (error: unknown) => {
+        () => {
           rowsBehind = true;
           rowsFailed = true;
-          reportStorageError(error);
         },
       )
       .finally(updateStorageState);
@@ -253,9 +247,8 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
             if (unsaved.get(id) === wanted) unsaved.delete(id);
           }
         },
-        (error: unknown) => {
+        () => {
           for (const id of written.keys()) failedSaves.add(id);
-          reportStorageError(error);
         },
       )
       .finally(() => {
@@ -419,8 +412,6 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   }
 
   return {
-    householdId,
-
     async load() {
       const persisted = await persistence.load();
       if (persisted.meta) {
@@ -437,9 +428,8 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       let persisted: PersistedReplica;
       try {
         persisted = await persistence.load();
-      } catch (error) {
+      } catch {
         rowsFailed = true;
-        reportStorageError(error);
         updateStorageState();
         return;
       }
@@ -519,8 +509,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       let stored: OutboxEntry[];
       try {
         stored = await persistence.loadOutbox();
-      } catch (error) {
-        reportStorageError(error);
+      } catch {
         return;
       }
       const added = stored.filter(
@@ -547,13 +536,6 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       rejectionListeners.add(listener);
       return () => {
         rejectionListeners.delete(listener);
-      };
-    },
-
-    onStorageError(listener: (error: unknown) => void) {
-      errorListeners.add(listener);
-      return () => {
-        errorListeners.delete(listener);
       };
     },
 

@@ -6,7 +6,6 @@ interface ListShortcuts {
   /** `j` is +1, `k` is −1. */
   onMove: (step: 1 | -1) => void;
   onOpen: () => void;
-  onEdit: () => void;
   onCategory: () => void;
   onDelete: () => void;
   onClose: () => void;
@@ -51,7 +50,7 @@ export function useListShortcuts(shortcuts: ListShortcuts) {
       k: () => {
         shortcuts.onMove(-1);
       },
-      e: shortcuts.onEdit,
+      e: shortcuts.onOpen,
       c: shortcuts.onCategory,
       d: shortcuts.onDelete,
       Escape: shortcuts.onClose,

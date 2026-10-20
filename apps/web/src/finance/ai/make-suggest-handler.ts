@@ -22,7 +22,6 @@ export interface SuggestHandlerDependencies {
   getModel: () => LanguageModel | null;
   onModelError?: (error: unknown) => void;
   limitRequest?: LimitFinanceRequest;
-  now?: () => Date;
 }
 
 const suggestRequestSchema = z.object({

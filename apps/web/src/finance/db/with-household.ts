@@ -33,12 +33,11 @@ function markHousehold(tx: FinanceDb): HouseholdDb {
 export function asFinanceApp<T>(
   db: FinanceDb,
   run: (db: FinanceAppDb) => Promise<T>,
-  config?: PgTransactionConfig,
 ): Promise<T> {
   return db.transaction(async (tx) => {
     await tx.execute(sql.raw("set local role finance_app"));
     return run(Object.assign(tx, { [financeApp]: true as const }));
-  }, config);
+  });
 }
 
 /**

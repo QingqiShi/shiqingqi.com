@@ -183,8 +183,6 @@ export function UpdateValuesForm() {
     zh: "1 {currency} 兑 {base}",
   });
 
-  const backHref = pathname;
-
   function moveFrom(accountId: string, event: KeyboardEvent<HTMLInputElement>) {
     if (event.key !== "Enter") return;
     event.preventDefault();
@@ -254,7 +252,7 @@ export function UpdateValuesForm() {
         return;
       }
     }
-    router.push(backHref, { scroll: false });
+    router.push(pathname, { scroll: false });
   }
 
   return (
@@ -496,7 +494,7 @@ export function UpdateValuesForm() {
         ) : null}
         <FloatingActions>
           <AnchorButton
-            href={backHref}
+            href={pathname}
             linkComponent={Link}
             css={floatingAction.lift}
           >

@@ -112,10 +112,6 @@ interface TextRun {
   color: string;
 }
 
-export interface ReportImageOptions {
-  locale: SupportedLocale;
-}
-
 const TREND_LINE_WIDTH = 4;
 const TREND_DOT_RADIUS = 8;
 /** Room on the right of the trend for its amounts. */
@@ -226,7 +222,11 @@ export function buildReportImageDrawing(
     locale,
     copy,
     measureText,
-  }: ReportImageOptions & { copy: ReportImageCopy; measureText: MeasureText },
+  }: {
+    locale: SupportedLocale;
+    copy: ReportImageCopy;
+    measureText: MeasureText;
+  },
 ): ReportImageDrawing {
   const commands: ReportImageCommand[] = [];
   const currency = data.baseCurrency;
@@ -357,7 +357,6 @@ export function buildReportImageDrawing(
 
   rect(0, 0, REPORT_IMAGE_WIDTH, layout.height, colors.background);
 
-  // Header: the title and week, then the net worth with its changes on the right.
   runs(
     [
       { text: copy.title, font: fonts.heading, color: colors.ink },
@@ -428,7 +427,6 @@ export function buildReportImageDrawing(
     statRight = statLeft - 48;
   }
 
-  // The whole net-worth trend, from zero unless every week is far above it.
   if (layout.trendTop !== null) {
     const top = layout.trendTop;
     const plotRight = IMAGE_CONTENT_WIDTH - TREND_AXIS_WIDTH;
@@ -568,7 +566,6 @@ export function buildReportImageDrawing(
     });
   }
 
-  // A tile per Group, its line behind its numbers.
   const groupsTop = layout.groupsTop;
   if (groupsTop !== null) {
     sectionStart(copy.byGroup, groupsTop);
@@ -638,7 +635,6 @@ export function buildReportImageDrawing(
     });
   }
 
-  // The week's spending against the weeks before it, and by category.
   const { spending } = data;
   const spendingTop = layout.spendingTop;
   sectionStart(copy.spentThisWeek, spendingTop);

@@ -1,6 +1,5 @@
 import { addDays } from "../domain/dates/add-days.ts";
 import type { TransactionRow, ValuationRow } from "../sync/row-schemas.ts";
-import { ledgerRunningBalances } from "./ledger-running-balances.ts";
 
 export interface LedgerEntryItem {
   type: "entry";
@@ -136,24 +135,18 @@ export function buildAccountLedger({
   }
   for (const day of days) day.items.sort((a, b) => rank(a) - rank(b));
 
-  const ordered = days.flatMap((day) => day.items);
-  const balances = ledgerRunningBalances(
-    ordered.map((item) =>
-      item.type === "valuation"
-        ? { day: item.day, valuationMinor: item.valuation.amountMinor }
-        : {
-            day: item.day,
-            entry: {
-              amountMinor: item.amountMinor,
-              counts: item.transaction.status === "posted",
-            },
-          },
-    ),
-    balanceAt,
-  );
-  ordered.forEach((item, index) => {
-    if (item.type === "entry") item.balanceAfter = balances[index] ?? null;
-  });
+  for (const day of days) {
+    let running = balanceAt(day.day);
+    let dayHasValuation = false;
+    for (const item of day.items) {
+      if (item.type === "valuation") {
+        dayHasValuation = true;
+      } else if (item.transaction.status === "posted" && !dayHasValuation) {
+        item.balanceAfter = running;
+        running -= item.amountMinor;
+      }
+    }
+  }
 
   return { comingUp, comingUpMinor, days, hasMore };
 }

@@ -17,7 +17,6 @@ const MAX_DELAY_MS = 30_000;
 
 interface LunchFlowClientOptions {
   apiKey: string;
-  fetch?: typeof globalThis.fetch;
   baseUrl?: string;
   /** How many times a 429 or 5xx is tried again. */
   retries?: number;
@@ -70,7 +69,6 @@ function errorMessage(body: string, status: number) {
 export function createLunchFlowClient(
   options: LunchFlowClientOptions,
 ): BankClient {
-  const fetch = options.fetch ?? globalThis.fetch;
   const baseUrl = options.baseUrl ?? LUNCH_FLOW_BASE_URL;
   const retries = options.retries ?? DEFAULT_RETRIES;
   const sleep = options.sleep ?? defaultSleep;
@@ -130,7 +128,6 @@ export function createLunchFlowClient(
       throw new BankError(
         kindOfStatus(response.status, body),
         errorMessage(body, response.status),
-        response.status,
       );
     }
   }
@@ -159,7 +156,6 @@ export function createLunchFlowClient(
         include_pending: "false",
         from: range.from,
       });
-      if (range.to) query.set("to", range.to);
       const body = await get(
         accountPath(providerAccountId, `transactions?${query.toString()}`),
         lunchFlowSchemas.transactions,

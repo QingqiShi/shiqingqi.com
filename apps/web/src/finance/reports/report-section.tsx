@@ -5,8 +5,6 @@ import { useId, type ReactNode } from "react";
 interface ReportSectionProps {
   title: string;
   headingLevel: 2 | 3;
-  /** Beside the title, such as a total. */
-  aside?: ReactNode;
   children: ReactNode;
 }
 
@@ -14,7 +12,6 @@ interface ReportSectionProps {
 export function ReportSection({
   title,
   headingLevel,
-  aside,
   children,
 }: ReportSectionProps) {
   const headingId = useId();
@@ -23,7 +20,6 @@ export function ReportSection({
       <Heading id={headingId} level={headingLevel} look="h4">
         {title}
       </Heading>
-      {aside}
       {children}
     </section>
   );

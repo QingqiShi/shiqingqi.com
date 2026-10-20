@@ -36,8 +36,8 @@ export interface MatchCandidateRow {
 const MATCH_BATCH = 500;
 
 export const bankTransactionRepository = {
-  /** The link's bank rows, from `fromDay` on when given. */
-  async listForLink(scope: RepositoryScope, linkId: string, fromDay?: string) {
+  /** The link's bank rows. */
+  async listForLink(scope: RepositoryScope, linkId: string) {
     return scope.db
       .select()
       .from(bankTransactions)
@@ -45,9 +45,6 @@ export const bankTransactionRepository = {
         and(
           eq(bankTransactions.householdId, scope.householdId),
           eq(bankTransactions.linkId, linkId),
-          fromDay === undefined
-            ? undefined
-            : gte(bankTransactions.date, fromDay),
         ),
       )
       .orderBy(bankTransactions.date, bankTransactions.providerTxId);
@@ -195,14 +192,12 @@ export const bankTransactionRepository = {
     scope: WriteScope,
     ids: readonly string[],
     state: BankTransactionState,
-    transactionId?: string | null,
   ) {
     if (ids.length === 0) return;
     await scope.db
       .update(bankTransactions)
       .set({
         state,
-        ...(transactionId === undefined ? {} : { transactionId }),
         version: scope.version,
       })
       .where(
@@ -254,7 +249,7 @@ export const bankTransactionRepository = {
     linkId: string,
     accountId: string,
     range: { from: string; to: string },
-    inTransitAccountId: string | null = null,
+    inTransitAccountId: string | null,
   ): Promise<MatchCandidateRow[]> {
     const linked = alias(entries, "linked_entries");
     const rows = await scope.db

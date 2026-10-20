@@ -1,5 +1,3 @@
-export type ImageFormat = "png" | "jpeg" | "gif" | "webp" | "ico";
-
 /** Bytes that sharp decodes as they are, or raw RGBA pixels with their size. */
 export type DecodableImage =
   | { kind: "encoded"; data: Uint8Array }
@@ -26,7 +24,9 @@ function isPng(bytes: Uint8Array) {
 }
 
 /** The format the magic bytes say, whatever the URL or Content-Type claim; null for anything else, SVG included. */
-export function sniffImageFormat(bytes: Uint8Array): ImageFormat | null {
+function sniffImageFormat(
+  bytes: Uint8Array,
+): "png" | "jpeg" | "gif" | "webp" | "ico" | null {
   if (isPng(bytes)) return "png";
   if (startsWith(bytes, [0xff, 0xd8, 0xff])) return "jpeg";
   if (
@@ -92,7 +92,7 @@ function maskBitIsSet(
 }
 
 /** A 24-bit or 32-bit BI_RGB/BI_BITFIELDS icon bitmap as RGBA; null for other depths. */
-export function decodeIconBitmap(
+function decodeIconBitmap(
   data: Uint8Array,
 ): Extract<DecodableImage, { kind: "rgba" }> | null {
   if (data.length < DIB_HEADER_BYTES) return null;

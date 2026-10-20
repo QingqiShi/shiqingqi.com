@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { SupportedLocale } from "#src/i18n/types.ts";
 import { categoryLineName } from "../store/category-display-name.ts";
 import { adjacentReports } from "./adjacent-reports.ts";
 import { assetLiabilitySplit } from "./asset-liability-split.ts";
 import {
   buildReportImageDrawing,
   type MeasureText,
-  type ReportImageOptions,
 } from "./build-report-image-drawing.ts";
 import {
   buildReportSummary,
@@ -356,11 +356,11 @@ describe("share image", () => {
 
   function drawnText(
     report: WeeklyReportData,
-    options: ReportImageOptions,
+    locale: SupportedLocale,
     imageCopy = copy,
   ) {
     return buildReportImageDrawing(report, {
-      ...options,
+      locale,
       copy: imageCopy,
       measureText,
     }).commands.flatMap((command) =>
@@ -435,16 +435,13 @@ describe("share image", () => {
         ],
       },
     };
-    const zh = drawnText(
-      withSystemLine,
-      { locale: "zh" },
-      { ...copy, uncategorised: "未分类" },
-    );
+    const zh = drawnText(withSystemLine, "zh", {
+      ...copy,
+      uncategorised: "未分类",
+    });
     expect(zh).toContain("未分类");
     expect(zh).not.toContain("Uncategorised");
-    expect(drawnText(withSystemLine, { locale: "en" })).toContain(
-      "Uncategorised",
-    );
+    expect(drawnText(withSystemLine, "en")).toContain("Uncategorised");
   });
 
   it("says so when nothing was spent", () => {
@@ -453,13 +450,11 @@ describe("share image", () => {
       spending: { ...data.spending, byCategory: [], history: [] },
       trend: [],
     };
-    expect(drawnText(quiet, { locale: "en" })).toContain(
-      "Nothing spent this week",
-    );
+    expect(drawnText(quiet, "en")).toContain("Nothing spent this week");
   });
 
   it("shows each Group's balance and change, and no Account", () => {
-    const drawn = drawnText(withGroups, { locale: "en" });
+    const drawn = drawnText(withGroups, "en");
     expect(drawn).toContain("Cash");
     expect(drawn).toContain("£120,000.00");
     expect(drawn).toContain("+£1,000.00");
@@ -467,14 +462,14 @@ describe("share image", () => {
   });
 
   it("shows what a liability Group owes and whether it owes more", () => {
-    const drawn = drawnText(withGroups, { locale: "en" });
+    const drawn = drawnText(withGroups, "en");
     expect(drawn).toContain("£20,000.00");
     expect(drawn).toContain(" owed");
     expect(drawn).toContain("£1,500.00 more");
   });
 
   it("leaves out a Group with no balance and no change this week", () => {
-    expect(drawnText(withGroups, { locale: "en" })).not.toContain("Other");
+    expect(drawnText(withGroups, "en")).not.toContain("Other");
   });
 
   it("keeps every command inside the image", () => {

@@ -10,15 +10,13 @@ import { createFakeBankClient } from "./lunchflow/create-fake-bank-client.ts";
 import type { BankClient } from "./lunchflow/types.ts";
 import type { BankConnection } from "./types.ts";
 
-export interface BankProviderSource {
+interface BankProviderSource {
   /** Dev and e2e: a bank made up from the Household's own data. */
   fake: () => boolean;
   /** The key that seals each Connection's credential, or null when it is not set. */
   credentialKey: () => Uint8Array | null;
   createClient: (apiKey: string) => BankClient;
 }
-
-export type BankProvider = ReturnType<typeof makeBankProvider>;
 
 /**
  * Each Household reaches Lunch Flow with the API key its owner stored on its

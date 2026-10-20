@@ -35,6 +35,6 @@ export function buildVerificationEmail({
     ...copy,
     to,
     locale,
-    actions: [{ label: action, url }],
+    action: { label: action, url },
   });
 }

@@ -39,8 +39,6 @@ const outdatedReportResponseSchema = z.object({
 const regenerateReportResponseSchema = z.object({
   id: z.string(),
   periodEnd: z.iso.date(),
-  /** False when the stored Report already had this data. */
-  written: z.boolean(),
 });
 
 /** The response bodies of the Report routes, shared by the handlers and the client. */

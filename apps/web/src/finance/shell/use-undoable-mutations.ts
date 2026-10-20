@@ -8,8 +8,6 @@ import type { Mutation } from "../sync/mutation-schema.ts";
 export interface UndoableToast {
   /** What happened, such as "4 balances updated". */
   message: string;
-  /** Called after Undo has put the Replica back. */
-  onUndone?: () => void;
 }
 
 /**
@@ -28,7 +26,7 @@ export function useUndoableMutations() {
 
   return (
     inputs: readonly LocalMutationInput[],
-    { message, onUndone }: UndoableToast,
+    { message }: UndoableToast,
   ): Mutation[] => {
     const { mutations, undo } = applyWithUndo(store, inputs);
     showToast({
@@ -40,7 +38,6 @@ export function useUndoableMutations() {
               onAction: () => {
                 try {
                   applyWithUndo(store, undo);
-                  if (onUndone) onUndone();
                 } catch {
                   showToast({ message: undoFailed });
                 }

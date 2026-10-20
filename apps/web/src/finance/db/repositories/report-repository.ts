@@ -34,17 +34,6 @@ export const reportRepository = {
       .orderBy(desc(reports.periodEnd));
   },
 
-  /** Deletes one Report. False when the Household has no Report with this id. */
-  async remove(scope: RepositoryScope, id: string) {
-    const removed = await scope.db
-      .delete(reports)
-      .where(
-        and(eq(reports.householdId, scope.householdId), eq(reports.id, id)),
-      )
-      .returning({ id: reports.id });
-    return removed.length > 0;
-  },
-
   /** Deletes the Reports of the weeks that end before `periodEnd`, and says how many. */
   async removeBefore(scope: RepositoryScope, periodEnd: string) {
     const removed = await scope.db

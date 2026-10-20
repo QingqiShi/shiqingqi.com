@@ -8,5 +8,5 @@ import { selectAnalyticsView } from "./select-analytics-view.ts";
 export function useAnalyticsView(state: AnalyticsState) {
   const index = useReplica(selectAnalyticsIndex);
   const today = useHouseholdToday();
-  return { view: selectAnalyticsView(index, state, today), index, today };
+  return { view: selectAnalyticsView(index, state, today), index };
 }

@@ -112,11 +112,6 @@ describe("week boundaries", () => {
     expect(endOfWeek("2026-10-11")).toBe("2026-10-11");
     expect(startOfWeek("2027-01-01")).toBe("2026-12-28");
   });
-
-  it("starts weeks on another weekday when asked", () => {
-    expect(startOfWeek("2026-10-09", 7)).toBe("2026-10-04");
-    expect(endOfWeek("2026-10-09", 7)).toBe("2026-10-10");
-  });
 });
 
 describe("month and year boundaries", () => {

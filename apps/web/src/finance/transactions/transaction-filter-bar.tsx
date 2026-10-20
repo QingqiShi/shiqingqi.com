@@ -51,7 +51,7 @@ interface TransactionFilterBarProps {
 type RangeKey =
   "any" | "thisMonth" | "lastMonth" | "threeMonths" | "thisYear" | "custom";
 
-function rangeOf(key: RangeKey, today: string) {
+function rangeOf(key: Exclude<RangeKey, "any" | "custom">, today: string) {
   const month = startOfMonth(today);
   switch (key) {
     case "thisMonth": {
@@ -66,10 +66,6 @@ function rangeOf(key: RangeKey, today: string) {
     }
     case "thisYear": {
       return { from: startOfYear(today), to: `${today.slice(0, 4)}-12-31` };
-    }
-    case "any":
-    case "custom": {
-      return { from: null, to: null };
     }
   }
 }

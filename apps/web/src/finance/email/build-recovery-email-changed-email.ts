@@ -68,14 +68,12 @@ export function buildRecoveryEmailChangedEmail({
     subject: copy.subject,
     heading: copy.heading,
     intro: copy.intro(maskEmail(newEmail), when),
-    actions: [
-      {
-        heading: copy.notYou,
-        text: copy.steps,
-        label: copy.action,
-        url: settingsUrl,
-      },
-    ],
+    action: {
+      heading: copy.notYou,
+      text: copy.steps,
+      label: copy.action,
+      url: settingsUrl,
+    },
     ignore: copy.ignore,
   });
 }

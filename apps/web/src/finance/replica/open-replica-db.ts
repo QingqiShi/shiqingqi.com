@@ -10,7 +10,6 @@ import type {
   ReplicaWrite,
 } from "./types.ts";
 
-/** Raise it when a row shape changes: an upgrade drops every store, and the next sync bootstraps. */
 // Older devices keep an unused `reports` store. Do not raise the version to
 // remove it: the upgrade also deletes the Outbox.
 const DB_VERSION = 1;

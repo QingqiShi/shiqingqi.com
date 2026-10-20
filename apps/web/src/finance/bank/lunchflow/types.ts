@@ -32,7 +32,6 @@ export interface ProviderBalance {
 
 export interface TransactionRange {
   from: string;
-  to?: string;
 }
 
 /** The provider seam of Bank sync: the real Lunch Flow client and the fake both implement it. */
