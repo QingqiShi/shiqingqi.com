@@ -37,7 +37,9 @@ function currentValue(
     const id = typeof raw === "string" ? raw : control.samples[0]?.id;
     return control.samples.find((sample) => sample.id === id)?.label ?? "";
   }
-  if (control.kind === "boolean") return raw === true ? "true" : "false";
+  if (control.kind === "boolean") {
+    return (raw ?? control.defaultValue === "true") === true ? "true" : "false";
+  }
   if (typeof raw === "number") return String(raw);
   if (typeof raw === "string") return raw;
   return unquote(control.defaultValue) ?? defaultLabel;

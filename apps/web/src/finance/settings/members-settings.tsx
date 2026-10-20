@@ -5,6 +5,8 @@ import { ShareNetworkIcon } from "@phosphor-icons/react/dist/ssr/ShareNetwork";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
@@ -27,9 +29,7 @@ import { EditSheet } from "./edit-sheet.tsx";
 import { householdApiClient } from "./household-api-client.ts";
 import { RecoveryEmailSettings } from "./recovery-email-settings.tsx";
 import { RemoveMemberSheet } from "./remove-member-sheet.tsx";
-import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { SettingsRow } from "./settings-row.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 import { useIsOwner } from "./use-is-owner.ts";
 
@@ -228,11 +228,10 @@ export function MembersSettings() {
         </>
       }
     >
-      <SettingsList>
+      <List>
         {members.map((member) => (
-          <SettingsRow
+          <ListRow
             key={member.id}
-            title={member.name}
             detail={
               member.userId === null
                 ? labels.notSignedIn
@@ -252,9 +251,11 @@ export function MembersSettings() {
               setName(member.name);
               setNameError(undefined);
             }}
-          />
+          >
+            {member.name}
+          </ListRow>
         ))}
-      </SettingsList>
+      </List>
       {members
         .filter(
           (member) =>

@@ -3,18 +3,16 @@
 import * as stylex from "@stylexjs/stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
 import type { AccountLine } from "./build-balance-sheet.ts";
@@ -41,6 +39,7 @@ export function AccountRow({
 }: AccountRowProps) {
   const locale = useLocale();
   const accountName = useAccountDisplayName();
+  const isWide = useIsWideLayout();
   const { account } = line;
   const name = accountName(account);
   const facts: string[] = [];
@@ -66,89 +65,64 @@ export function AccountRow({
   const differs = account.currency !== baseCurrency;
 
   return (
-    <li css={styles.item}>
-      <Link
-        href={href}
-        aria-current={isSelected ? "true" : undefined}
-        {...stylex.props(
-          corner.radius_2,
-          transition.colors,
-          selected.quiet,
-          a11y.focusRing,
-          styles.link,
-        )}
-      >
+    <ListRow
+      href={href}
+      linkComponent={Link}
+      aria-current={isSelected ? "true" : undefined}
+      caret={!isWide}
+      leading={
         <Avatar
           name={account.institution.trim() || account.name}
           src={institutionIconUrl(account)}
           shape="square"
           aria-hidden
         />
-        <span css={styles.main}>
-          <span css={[typeRole.body, styles.name]}>{name}</span>
-          {facts.length > 0 || line.hidden !== null ? (
-            <span css={[typeRole.caption, row.inline, styles.facts]}>
-              {line.hidden === null ? null : (
-                <Badge size="sm" intent="neutral">
-                  {line.hidden === "closed"
-                    ? t({ en: "Closed", zh: "已关闭" })
-                    : t({ en: "Not counted", zh: "不计入" })}
-                </Badge>
-              )}
-              <span css={styles.factText}>{facts.join(" · ")}</span>
-            </span>
-          ) : null}
-        </span>
+      }
+      detail={
+        facts.length > 0 || line.hidden !== null ? (
+          <span css={[row.inline, styles.facts]}>
+            {line.hidden === null ? null : (
+              <Badge size="sm" intent="neutral">
+                {line.hidden === "closed"
+                  ? t({ en: "Closed", zh: "已关闭" })
+                  : t({ en: "Not counted", zh: "不计入" })}
+              </Badge>
+            )}
+            <span css={styles.factText}>{facts.join(" · ")}</span>
+          </span>
+        ) : null
+      }
+      trailing={
         <span css={styles.amounts}>
           <span css={[typeRole.body, typeModifier.numeric, styles.balance]}>
             {formatMoney(line.balance, account.currency, locale)}
           </span>
           {differs ? (
-            <span css={[typeRole.caption, typeModifier.numeric, styles.facts]}>
+            <span
+              css={[typeRole.caption, typeModifier.numeric, styles.converted]}
+            >
               {`≈ ${formatMoney(line.baseBalance, baseCurrency, locale)}`}
             </span>
           ) : null}
         </span>
-      </Link>
-    </li>
+      }
+    >
+      {name}
+    </ListRow>
   );
 }
 
 const styles = stylex.create({
-  item: {
-    display: "flex",
-  },
-  link: {
-    display: "flex",
-    alignItems: "center",
-    gap: rhythm.item,
-    flexGrow: 1,
-    minInlineSize: 0,
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    color: color.fg,
-    textDecoration: "none",
-  },
-  main: {
-    display: "flex",
-    flexDirection: "column",
-    flexGrow: 1,
-    minInlineSize: 0,
-  },
-  name: {
-    fontWeight: font.weight_5,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
   facts: {
-    color: color.fgMuted,
     minInlineSize: 0,
   },
   factText: {
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
+  },
+  converted: {
+    color: color.fgMuted,
   },
   amounts: {
     display: "flex",

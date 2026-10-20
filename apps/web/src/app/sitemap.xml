@@ -421,6 +421,26 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/table" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/components/list</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/list" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/list" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/list</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/list" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/list" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/design-system/components/list/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/list/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/list/lab" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/components/list/lab</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/list/lab" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/list/lab" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/components/button</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/components/button" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/components/button" />

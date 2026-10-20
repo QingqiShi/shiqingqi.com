@@ -2,6 +2,8 @@
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Button } from "@tuja/ui/components/button";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useRef, useState } from "react";
@@ -11,9 +13,7 @@ import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import type { TagRow } from "../sync/row-schemas.ts";
 import { EditSheet } from "./edit-sheet.tsx";
 import { nextPosition } from "./next-position.ts";
-import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { SettingsRow } from "./settings-row.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 
 /** The Tags: add, rename, delete. */
@@ -67,18 +67,19 @@ export function TagsSettings() {
           {t({ en: "No tags yet.", zh: "还没有标签。" })}
         </Text>
       ) : (
-        <SettingsList>
+        <List>
           {tags.map((tag) => (
-            <SettingsRow
+            <ListRow
               key={tag.id}
-              title={tag.name}
               onClick={() => {
                 setEditing(tag);
                 setName(tag.name);
               }}
-            />
+            >
+              {tag.name}
+            </ListRow>
           ))}
-        </SettingsList>
+        </List>
       )}
       <EditSheet
         isOpen={editing !== null}

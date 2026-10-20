@@ -115,6 +115,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A semantic data table in its own scrolling region, with tabular figures and a sticky head.",
       zh: "位于独立滚动区域的语义化数据表格，支持等宽数字与粘性表头。",
     }),
+    "/design-system/components/list": t({
+      en: "Rows that each open something, on one surface with a divider between them.",
+      zh: "每一行都能打开某个内容，所有行位于同一表面上，行间有分隔线。",
+    }),
     "/design-system/components/callout": t({
       en: "An inline message box in six Intents for status and guidance.",
       zh: "六种意图色的行内消息框，用于状态与提示。",

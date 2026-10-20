@@ -98,7 +98,7 @@ export function LabControl({ control, props, onChange }: LabControlProps) {
       <Switch
         size="sm"
         aria-label={name}
-        value={raw === true ? "on" : "off"}
+        value={(raw ?? defaultValue === "true") === true ? "on" : "off"}
         onChange={(state) => {
           onChange(state === "on");
         }}

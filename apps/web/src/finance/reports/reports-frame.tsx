@@ -56,7 +56,7 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [breakpoints.lg]: "15rem minmax(0, 1fr)",
+      [breakpoints.lg]: "16rem minmax(0, 1fr)",
     },
     gap: rhythm.section,
     alignItems: "start",
