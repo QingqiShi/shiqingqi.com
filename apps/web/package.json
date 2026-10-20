@@ -35,7 +35,6 @@
     "finance:db": "tsx src/finance/db/dev/serve-dev-db.ts --port $(node ../../scripts/get-worktree-port.mjs 2433)",
     "finance:generate": "drizzle-kit generate",
     "finance:migrate": "drizzle-kit migrate",
-    "finance:import": "tsx src/finance/import/moneythings/cli.ts",
     "finance:invite-link": "tsx src/finance/auth/invite-link-cli.ts",
     "finance:seed": "tsx src/finance/dev/seed/cli.ts",
     "finance:session": "tsx src/finance/dev/session/cli.ts --db-port $(node ../../scripts/get-worktree-port.mjs 2433) --app-port $(node ../../scripts/get-worktree-port.mjs)",

@@ -1,5 +1,5 @@
-import type { accountKind } from "../../db/schema.ts";
-import type { GroupKey } from "../../import/moneythings/assign-group.ts";
+import type { AccountKind } from "../../domain/accounts/side-of-kind.ts";
+import type { SyntheticGroupKey } from "./synthetic-groups.ts";
 
 export type SyntheticOwner = "alex" | "sam" | null;
 
@@ -7,8 +7,8 @@ export interface SyntheticAccount {
   key: string;
   name: string;
   institution: string;
-  kind: (typeof accountKind.enumValues)[number];
-  group: GroupKey;
+  kind: AccountKind;
+  group: SyntheticGroupKey;
   currency: "GBP" | "USD";
   owner: SyntheticOwner;
   /** The balance on the day before the history starts, in pounds (or dollars). */
