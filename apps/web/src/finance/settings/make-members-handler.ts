@@ -1,18 +1,18 @@
 import { z } from "zod";
 import { revokeMemberAccess } from "../auth/revoke-member-access.ts";
-import type { FinanceSession } from "../auth/types.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { financeJson } from "../http/finance-json.ts";
-import { guardFinanceRequest } from "../http/guard-finance-request.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { wireFields } from "../sync/wire-fields.ts";
 
-interface MembersHandlerDependencies {
-  isConfigured: () => boolean;
+interface MembersHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   now: () => Date;
 }
 

@@ -30,9 +30,9 @@ import { DayInput } from "./day-input.tsx";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
 import {
   EMPTY_TRANSACTION_FILTERS,
+  isTransactionKind,
   transactionFilters,
   type TransactionFilters,
-  type TransactionKind,
 } from "./transaction-filters.ts";
 
 interface TransactionFilterBarProps {
@@ -233,12 +233,7 @@ export function TransactionFilterBar({
           isActive={filters.kinds.length > 0}
           onChange={(value) => {
             set({
-              kinds:
-                value === "expense" ||
-                value === "income" ||
-                value === "transfer"
-                  ? [value satisfies TransactionKind]
-                  : [],
+              kinds: isTransactionKind(value) ? [value] : [],
             });
           }}
         >

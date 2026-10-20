@@ -1,49 +1,66 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { formatMoney } from "../domain/money/format-money.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
 } from "./compute-analytics-view.ts";
+import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { RankedRow } from "./ranked-row.tsx";
 import { transactionsHref } from "./transactions-href.ts";
-import { useAnalyticsNames } from "./use-analytics-names.ts";
 import { useScopeLabel } from "./use-scope-label.ts";
 
-/** The ten Payees with the most money in the range; each opens its Transactions. */
-export function TopPayees({
+const COLLAPSED_ROWS = 10;
+
+interface RankedItem {
+  key: string;
+  label: string;
+  value: number;
+  filter: { payeeId: string } | { tagId: string };
+}
+
+/** Money per Payee or Tag in the range, largest first. Each row opens its Transactions. */
+export function RankedBreakdown({
+  heading,
+  empty,
+  list: List,
+  items,
   state,
   view,
   currency,
 }: {
+  heading: string;
+  empty: string;
+  list: "ol" | "ul";
+  items: readonly RankedItem[];
   state: AnalyticsState;
   view: AnalyticsView;
   currency: string;
 }) {
   const locale = useLocale();
-  const names = useAnalyticsNames();
   const headingId = useId();
   const scope = useScopeLabel(view);
   const inLabel = t({ en: "In ", zh: "范围：" });
-  const largest = view.payees.reduce(
+  const largest = items.reduce(
     (most, item) => Math.max(most, Math.abs(item.value)),
     0,
   );
-  const signed = state.kind === "net";
+  const [showAll, setShowAll] = useState(false);
+  const shown = showAll ? items : items.slice(0, COLLAPSED_ROWS);
 
   return (
     <section css={stack.item} aria-labelledby={headingId}>
       <div css={stack.tight}>
         <Heading level={2} look="h4" id={headingId} css={styles.heading}>
-          {t({ en: "Top payees", zh: "主要商家" })}
+          {heading}
         </Heading>
         {scope === null ? null : (
           <Text look="caption" tone="muted">
@@ -51,19 +68,22 @@ export function TopPayees({
           </Text>
         )}
       </div>
-      {view.payees.length === 0 ? (
+      {items.length === 0 ? (
         <Text as="p" look="bodySmall" tone="muted">
-          {t({ en: "No payees in this range.", zh: "这段时间没有商家记录。" })}
+          {empty}
         </Text>
       ) : (
-        <ol css={[stack.tight, styles.list]}>
-          {view.payees.map((item) => (
+        <List {...stylex.props(stack.tight, styles.list)}>
+          {shown.map((item) => (
             <RankedRow
-              key={item.payeeId}
-              label={names.payee(item.payeeId)}
-              value={formatMoney(Math.round(item.value), currency, locale, {
-                signDisplay: signed ? "exceptZero" : "auto",
-              })}
+              key={item.key}
+              label={item.label}
+              value={formatAnalyticsMoney(
+                item.value,
+                currency,
+                locale,
+                state.kind,
+              )}
               magnitude={largest === 0 ? 0 : Math.abs(item.value) / largest}
               href={getLocalePath(
                 transactionsHref({
@@ -71,14 +91,29 @@ export function TopPayees({
                   to: view.range.to,
                   kind: state.kind,
                   member: state.member,
-                  payeeId: item.payeeId,
+                  ...item.filter,
                 }),
                 locale,
               )}
             />
           ))}
-        </ol>
+        </List>
       )}
+      {items.length > COLLAPSED_ROWS ? (
+        <div>
+          <Button
+            size="sm"
+            look="ghost"
+            onClick={() => {
+              setShowAll(!showAll);
+            }}
+          >
+            {showAll
+              ? t({ en: "Show fewer", zh: "收起" })
+              : `${t({ en: "Show all", zh: "显示全部" })} (${String(items.length)})`}
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }

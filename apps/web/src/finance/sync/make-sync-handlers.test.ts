@@ -10,13 +10,10 @@ import {
 import { makeSyncHandlers } from "./make-sync-handlers.ts";
 import {
   householdRowSchema,
+  isSyncTableName,
   rowSchemas,
   type SyncTableName,
 } from "./row-schemas.ts";
-
-function isSyncTableName(name: string): name is SyncTableName {
-  return name in rowSchemas;
-}
 
 const ORIGIN = "https://qingqi.dev";
 const URL_BASE = `${ORIGIN}/api/finance/sync`;

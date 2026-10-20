@@ -4,12 +4,8 @@ import { makeWeeklyReportCronHandler } from "#src/finance/reports/make-weekly-re
 
 export const maxDuration = 300;
 
-const handler = makeWeeklyReportCronHandler({
+export const GET = makeWeeklyReportCronHandler({
   isConfigured: isFinanceConfigured,
   getDb: getFinanceDb,
   now: () => new Date(),
 });
-
-export function GET(request: Request) {
-  return handler(request);
-}

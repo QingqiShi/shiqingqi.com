@@ -4,12 +4,8 @@ import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 
 export const maxDuration = 300;
 
-const handler = makeBalanceRepairCronHandler({
+export const GET = makeBalanceRepairCronHandler({
   isConfigured: isFinanceConfigured,
   getDb: getFinanceDb,
   now: () => new Date(),
 });
-
-export function GET(request: Request) {
-  return handler(request);
-}

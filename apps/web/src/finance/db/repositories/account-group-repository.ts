@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { accountGroups } from "../schema.ts";
-import { softDeletePatch } from "./soft-delete-patch.ts";
+import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 type NewAccountGroup = Omit<
@@ -11,19 +11,10 @@ type AccountGroupPatch = Partial<Omit<NewAccountGroup, "id">> & {
   deleted?: boolean;
 };
 
+const accountGroupRows = householdRows(accountGroups);
+
 export const accountGroupRepository = {
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(accountGroups)
-      .where(
-        and(
-          eq(accountGroups.householdId, scope.householdId),
-          eq(accountGroups.id, id),
-        ),
-      );
-    return rows.at(0);
-  },
+  findById: accountGroupRows.findById,
 
   /** The live asset Group that comes first in position order. */
   async findFirstAsset(scope: RepositoryScope) {
@@ -58,35 +49,12 @@ export const accountGroupRepository = {
     return rows.at(0)?.next ?? 0;
   },
 
-  /** Inserts the Group. False when the id is already used. */
-  async insert(scope: WriteScope, row: NewAccountGroup) {
-    const inserted = await scope.db
-      .insert(accountGroups)
-      .values({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      })
-      .onConflictDoNothing({ target: accountGroups.id })
-      .returning({ id: accountGroups.id });
-    return inserted.length > 0;
-  },
+  insert: (scope: WriteScope, row: NewAccountGroup) =>
+    accountGroupRows.insert(scope, stamped(scope, row)),
 
-  async patch(scope: WriteScope, id: string, patch: AccountGroupPatch) {
-    const { deleted, ...fields } = patch;
-    await scope.db
-      .update(accountGroups)
-      .set({
-        ...fields,
-        ...softDeletePatch(deleted),
-        version: scope.version,
-        updatedAt: sql`now()`,
-      })
-      .where(
-        and(
-          eq(accountGroups.householdId, scope.householdId),
-          eq(accountGroups.id, id),
-        ),
-      );
-  },
+  patch: (
+    scope: WriteScope,
+    id: string,
+    { deleted, ...fields }: AccountGroupPatch,
+  ) => accountGroupRows.patch(scope, id, fields, deleted),
 };

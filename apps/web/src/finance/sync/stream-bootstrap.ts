@@ -1,6 +1,7 @@
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
-import { readSnapshot, readTable, SYNC_TABLE_NAMES } from "./pull-changes.ts";
+import { readSnapshot, readTable } from "./pull-changes.ts";
+import { SYNC_TABLE_NAMES } from "./row-schemas.ts";
 
 const ROWS_PER_LINE = 1000;
 

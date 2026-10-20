@@ -67,7 +67,7 @@ function listOf(params: ReadableParams, name: string) {
   return [...new Set(values)];
 }
 
-function isKind(value: string): value is TransactionKind {
+export function isTransactionKind(value: string): value is TransactionKind {
   return KINDS.some((kind) => kind === value);
 }
 
@@ -95,7 +95,7 @@ export const transactionFilters = {
       payeeIds: ids("payee"),
       memberIds: ids("member"),
       tagIds: ids("tag"),
-      kinds: listOf(params, "kind").filter(isKind),
+      kinds: listOf(params, "kind").filter(isTransactionKind),
       review: TRUE_VALUES.has(params.get("review") ?? ""),
       expected: TRUE_VALUES.has(params.get("expected") ?? ""),
       from,

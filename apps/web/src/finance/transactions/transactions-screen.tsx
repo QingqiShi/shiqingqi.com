@@ -10,7 +10,6 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import type { ToastAction } from "@tuja/ui/components/toast";
-import { useToast } from "@tuja/ui/components/toast-provider";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -36,6 +35,7 @@ import { useReplica } from "../replica/use-replica.ts";
 import { DetailPane } from "../shell/detail-pane.tsx";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
+import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectEntriesByTransaction } from "../store/select-entries-by-transaction.ts";
 import { selectTagIdsByTransaction } from "../store/select-tag-ids-by-transaction.ts";
@@ -71,7 +71,7 @@ export function TransactionsScreen() {
   const locale = useLocale();
   const url = useTransactionsUrl();
   const store = useReplicaStore();
-  const showToast = useToast();
+  const showUndoToast = useUndoToast();
   const isWide = useIsWideLayout();
   const teach = useTeachAi();
 
@@ -139,7 +139,6 @@ export function TransactionsScreen() {
   const searchRef = useRef<HTMLInputElement>(null);
   const focusTargetRef = useRef<HTMLElement | null>(null);
 
-  const undoLabel = t({ en: "Undo", zh: "撤销" });
   const toastConfirmed = t({ en: "Confirmed", zh: "已确认" });
   const toastPaidToday = t({
     en: "Confirmed as paid today",
@@ -160,23 +159,7 @@ export function TransactionsScreen() {
     } catch {
       return;
     }
-    showToast({
-      message,
-      secondAction: offerTeach?.(),
-      action:
-        undo.length === 0
-          ? undefined
-          : {
-              label: undoLabel,
-              onAction: () => {
-                try {
-                  applyAll(store, undo);
-                } catch {
-                  // The row changed again since; nothing is left to undo.
-                }
-              },
-            },
-    });
+    showUndoToast(message, undo, offerTeach?.());
   };
 
   const reviewPatch = (row: TransactionRow, categoryId?: string) => ({

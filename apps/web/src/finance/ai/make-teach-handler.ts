@@ -1,6 +1,5 @@
 import type { LanguageModel } from "ai";
 import { z } from "zod";
-import type { FinanceSession } from "../auth/types.ts";
 import { toEntryAmount } from "../bank/to-entry-amount.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
@@ -10,9 +9,11 @@ import { transactionRepository } from "../db/repositories/transaction-repository
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { financeJson } from "../http/finance-json.ts";
-import { guardFinanceRequest } from "../http/guard-finance-request.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
-import type { LimitFinanceRequest } from "../http/types.ts";
 import { wireFields } from "../sync/wire-fields.ts";
 import {
   draftInstructionChange,
@@ -20,13 +21,10 @@ import {
 } from "./draft-instruction-change.ts";
 import type { InstructionChange } from "./types.ts";
 
-export interface TeachHandlerDependencies {
-  isConfigured: () => boolean;
+export interface TeachHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   getModel: () => LanguageModel | null;
   onModelError?: (error: unknown) => void;
-  limitRequest?: LimitFinanceRequest;
 }
 
 const name = z.string().trim().max(200);

@@ -138,42 +138,29 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
   return (
     <div css={cluster.tight}>
       {sharesFiles ? (
-        <>
-          <Button
-            size="sm"
-            look="primary"
-            icon={<ShareNetworkIcon weight="bold" />}
-            loading={busy === "share"}
-            onClick={() => {
-              void share();
-            }}
-          >
-            {t({ en: "Share image", zh: "分享图片" })}
-          </Button>
-          <Button
-            size="sm"
-            icon={<DownloadSimpleIcon weight="bold" />}
-            loading={busy === "download"}
-            onClick={() => {
-              void download();
-            }}
-          >
-            {t({ en: "Save image", zh: "保存图片" })}
-          </Button>
-        </>
-      ) : (
         <Button
           size="sm"
           look="primary"
-          icon={<DownloadSimpleIcon weight="bold" />}
-          loading={busy === "download"}
+          icon={<ShareNetworkIcon weight="bold" />}
+          loading={busy === "share"}
           onClick={() => {
-            void download();
+            void share();
           }}
         >
-          {t({ en: "Save image", zh: "保存图片" })}
+          {t({ en: "Share image", zh: "分享图片" })}
         </Button>
-      )}
+      ) : null}
+      <Button
+        size="sm"
+        look={sharesFiles ? undefined : "primary"}
+        icon={<DownloadSimpleIcon weight="bold" />}
+        loading={busy === "download"}
+        onClick={() => {
+          void download();
+        }}
+      >
+        {t({ en: "Save image", zh: "保存图片" })}
+      </Button>
       <Button
         size="sm"
         icon={<CopyIcon weight="bold" />}

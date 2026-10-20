@@ -1,4 +1,5 @@
 import { toEpochDay } from "../dates/to-epoch-day.ts";
+import { upperBound } from "../upper-bound.ts";
 import type { BalanceSeries } from "./compute-balance-days.ts";
 
 /** The balance at the end of `epochDay`: the last change on or before it, else 0. */
@@ -7,16 +8,7 @@ export function balanceAtEpochDay(
   epochDay: number,
 ): number {
   const { days, balances } = series;
-  let low = 0;
-  let high = days.length;
-  while (low < high) {
-    const middle = (low + high) >>> 1;
-    if (days[middle] <= epochDay) {
-      low = middle + 1;
-    } else {
-      high = middle;
-    }
-  }
+  const low = upperBound(days, epochDay);
   return low === 0 ? 0 : balances[low - 1];
 }
 

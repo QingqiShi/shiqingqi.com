@@ -1,15 +1,14 @@
 import { z } from "zod";
-import type { FinanceSession } from "../auth/types.ts";
 import { reportRepository } from "../db/repositories/report-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { financeJson } from "../http/finance-json.ts";
 import {
   guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
   type FinanceRequestGuardOptions,
 } from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
-import type { LimitFinanceRequest } from "../http/types.ts";
 import { generateWeeklyReports } from "./generate-weekly-reports.ts";
 import type {
   OutdatedReportResponse,
@@ -21,12 +20,9 @@ import type {
 } from "./report-api-schemas.ts";
 import { weeklyReportDataSchema } from "./weekly-report-data-schema.ts";
 
-interface ReportHandlerDependencies {
-  isConfigured: () => boolean;
+interface ReportHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
   now: () => Date;
-  limitRequest?: LimitFinanceRequest;
 }
 
 /** The second argument Next.js passes a handler of a `[id]` route. */

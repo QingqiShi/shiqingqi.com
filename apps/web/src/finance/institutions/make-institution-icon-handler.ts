@@ -1,15 +1,15 @@
-import type { FinanceSession } from "../auth/types.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { asFinanceApp } from "../db/with-household.ts";
 import { isInstitutionDomain } from "../domain/accounts/parse-institution-domain.ts";
 import { financeJson } from "../http/finance-json.ts";
-import { guardFinanceRequest } from "../http/guard-finance-request.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
 import { institutionCacheRepository } from "./institution-cache-repository.ts";
 
-interface InstitutionIconHandlerDependencies {
-  isConfigured: () => boolean;
+interface InstitutionIconHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getSession: (request: Request) => Promise<FinanceSession | null>;
 }
 
 /** The second argument Next.js passes a handler of a `[domain]` route. */

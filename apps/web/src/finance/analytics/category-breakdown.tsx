@@ -16,13 +16,13 @@ import { t } from "#src/i18n.ts";
 import { BarChart, type BarSeries } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
-import { formatMoney } from "../domain/money/format-money.ts";
 import { formatPercent } from "../domain/money/format-percent.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
   BreakdownRow,
 } from "./compute-analytics-view.ts";
+import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { formatPeriod } from "./format-period.ts";
 import { isMajorPeriod } from "./is-major-period.ts";
 import { RankedRow } from "./ranked-row.tsx";
@@ -56,9 +56,7 @@ export function CategoryBreakdown({
   const headingId = useId();
   const signed = state.kind === "net";
   const money = (minor: number) =>
-    formatMoney(Math.round(minor), currency, locale, {
-      signDisplay: signed ? "exceptZero" : "auto",
-    });
+    formatAnalyticsMoney(minor, currency, locale, state.kind);
   const otherLabel = t({ en: "Other", zh: "其他" });
   const noCategory = t({ en: "No category", zh: "无分类" });
   const ownLabel = t({ en: "not in a subcategory", zh: "未细分" });

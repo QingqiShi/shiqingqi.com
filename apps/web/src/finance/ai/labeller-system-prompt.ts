@@ -1,3 +1,4 @@
+import { categoryAncestry } from "../domain/category-ancestry.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import type { LabellingContext, RowToLabel } from "./types.ts";
 
@@ -22,18 +23,10 @@ export function categoryPathOf(context: LabellingContext) {
   const byId = new Map(
     context.categories.map((category) => [category.id, category]),
   );
-  return (categoryId: string) => {
-    const names: string[] = [];
-    const seen = new Set<string>();
-    let current = byId.get(categoryId);
-    while (current && !seen.has(current.id)) {
-      seen.add(current.id);
-      names.unshift(current.name);
-      current =
-        current.parentId === null ? undefined : byId.get(current.parentId);
-    }
-    return names.join(" > ");
-  };
+  return (categoryId: string) =>
+    categoryAncestry(categoryId, byId)
+      .map((category) => category.name)
+      .join(" > ");
 }
 
 function accountLines(context: LabellingContext) {

@@ -8,7 +8,7 @@ import { makeSyncHandlers } from "#src/finance/sync/make-sync-handlers.ts";
 /** The work in `after()` uses this limit too. See `AFTER_PUSH_BUDGET_MS`. */
 export const maxDuration = 180;
 
-const handlers = makeSyncHandlers({
+export const { GET, POST } = makeSyncHandlers({
   isConfigured: isFinanceConfigured,
   getDb: getFinanceDb,
   getSession: getFinanceSession,
@@ -19,11 +19,3 @@ const handlers = makeSyncHandlers({
     }
   },
 });
-
-export function GET(request: Request) {
-  return handlers.GET(request);
-}
-
-export function POST(request: Request) {
-  return handlers.POST(request);
-}

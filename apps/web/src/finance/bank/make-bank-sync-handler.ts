@@ -4,7 +4,7 @@ import {
   makeHouseholdCronHandler,
   type HouseholdCronDependencies,
 } from "../http/make-household-cron-handler.ts";
-import { PROCESS_BUDGET_MS, processBankRows } from "./process-bank-rows.ts";
+import { processBankRows } from "./process-bank-rows.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import type { BankConnection } from "./types.ts";
 
@@ -43,14 +43,7 @@ export function makeBankSyncHandler(dependencies: BankSyncCronDependencies) {
         householdId,
         model: dependencies.getModel(),
         now,
-        deadline: new Date(now.getTime() + PROCESS_BUDGET_MS),
         clock: dependencies.now,
-        onModelError: (error) => {
-          console.error("Finance labelling failed", error);
-        },
-        onUnusableAnswer: (problem) => {
-          console.warn("Finance labelling answer refused", problem);
-        },
       });
       totals.households++;
       totals.links += results.length;

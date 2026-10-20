@@ -4,14 +4,10 @@ import type { RepositoryScope } from "../db/repositories/types.ts";
 import { setStatementTimeout } from "../db/set-statement-timeout.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
-import { rowSchemas, type SyncTableName } from "./row-schemas.ts";
+import { SYNC_TABLE_NAMES, type SyncTableName } from "./row-schemas.ts";
 
 /** Rows as the database returns them; JSON turns their timestamps into the wire's ISO strings. */
 type ServerSyncTables = Partial<Record<SyncTableName, object[]>>;
-
-export const SYNC_TABLE_NAMES = Object.keys(rowSchemas).filter(
-  (name): name is SyncTableName => name in rowSchemas,
-);
 
 /**
  * Runs `read` on one consistent snapshot, so the clock it reads matches the

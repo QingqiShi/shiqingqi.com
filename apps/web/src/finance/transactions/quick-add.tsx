@@ -3,7 +3,6 @@
 import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import * as stylex from "@stylexjs/stylex";
 import { TextField } from "@tuja/ui/components/text-field";
-import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
@@ -19,6 +18,7 @@ import { useEditorData, type EditorData } from "../editor/use-editor-data.ts";
 import { applyAll } from "../replica/apply-with-undo.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
+import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import { parseQuickAdd } from "./parse-quick-add.ts";
 import { quickAddDraft } from "./quick-add-draft.ts";
@@ -79,7 +79,7 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
     entriesByTransaction,
   });
   const store = useReplicaStore();
-  const showToast = useToast();
+  const showUndoToast = useUndoToast();
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +93,6 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
   };
   const addedLabel = t({ en: "Added", zh: "已记录" });
   const categoryName = useCategoryDisplayName();
-  const undoLabel = t({ en: "Undo", zh: "撤销" });
   const paysDownLabel = t({ en: "pays down", zh: "还款到" });
   const examplePayee = words.payee ?? t({ en: "Tesco", zh: "Tesco" });
   const exampleIncome = words.income ?? t({ en: "Salary", zh: "工资" });
@@ -187,19 +186,10 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
       return;
     }
     const summary = describe()?.split(" · ").slice(1, 3).join(" · ") ?? "";
-    showToast({
-      message: summary === "" ? addedLabel : `${addedLabel} · ${summary}`,
-      action: {
-        label: undoLabel,
-        onAction: () => {
-          try {
-            applyAll(store, result.undo);
-          } catch {
-            // The row changed again since; nothing is left to undo.
-          }
-        },
-      },
-    });
+    showUndoToast(
+      summary === "" ? addedLabel : `${addedLabel} · ${summary}`,
+      result.undo,
+    );
     setText("");
   };
 

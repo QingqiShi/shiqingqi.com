@@ -1,6 +1,6 @@
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { categories, transactions } from "../schema.ts";
-import { softDeletePatch } from "./soft-delete-patch.ts";
+import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 type NewCategory = Omit<
@@ -16,6 +16,8 @@ type CategoryPatch = Partial<Omit<NewCategory, "id">> & {
   archived?: boolean;
   deleted?: boolean;
 };
+
+const categoryRows = householdRows(categories);
 
 export const categoryRepository = {
   /** True when a live Transaction or a live child Category uses the Category. */
@@ -46,18 +48,7 @@ export const categoryRepository = {
     return child.length > 0;
   },
 
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(categories)
-      .where(
-        and(
-          eq(categories.householdId, scope.householdId),
-          eq(categories.id, id),
-        ),
-      );
-    return rows.at(0);
-  },
+  findById: categoryRows.findById,
 
   /** The Household's live "Uncategorised" Category of `kind`. */
   async findSystem(scope: RepositoryScope, kind: "expense" | "income") {
@@ -75,38 +66,23 @@ export const categoryRepository = {
     return rows.at(0)?.id;
   },
 
-  /** Inserts the Category. False when the id is already used. */
-  async insert(scope: WriteScope, row: NewCategory) {
-    const inserted = await scope.db
-      .insert(categories)
-      .values({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      })
-      .onConflictDoNothing({ target: categories.id })
-      .returning({ id: categories.id });
-    return inserted.length > 0;
-  },
+  insert: (scope: WriteScope, row: NewCategory) =>
+    categoryRows.insert(scope, stamped(scope, row)),
 
-  async patch(scope: WriteScope, id: string, patch: CategoryPatch) {
-    const { archived, deleted, ...fields } = patch;
-    await scope.db
-      .update(categories)
-      .set({
+  patch: (
+    scope: WriteScope,
+    id: string,
+    { archived, deleted, ...fields }: CategoryPatch,
+  ) =>
+    categoryRows.patch(
+      scope,
+      id,
+      {
         ...fields,
         ...(archived === undefined
           ? {}
           : { archivedAt: archived ? sql`now()` : null }),
-        ...softDeletePatch(deleted),
-        version: scope.version,
-        updatedAt: sql`now()`,
-      })
-      .where(
-        and(
-          eq(categories.householdId, scope.householdId),
-          eq(categories.id, id),
-        ),
-      );
-  },
+      },
+      deleted,
+    ),
 };

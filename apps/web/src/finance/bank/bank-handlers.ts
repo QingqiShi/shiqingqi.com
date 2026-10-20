@@ -17,9 +17,6 @@ export const bankHandlers = makeBankHandlers({
   credentialKey: bankProvider.credentialKey,
   getModel: getFinanceModel,
   afterResponse: after,
-  onModelError: (error) => {
-    console.error("Finance labelling failed", error);
-  },
   now: () => new Date(),
   limitRequest: limitFinanceRequest,
 });

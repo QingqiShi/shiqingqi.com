@@ -1,16 +1,11 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRef } from "react";
 import {
+  isTransactionKind,
   transactionFilters,
   type TransactionFilters,
   type TransactionKind,
 } from "./transaction-filters.ts";
-
-function kindOf(value: string | null): TransactionKind | null {
-  return value === "expense" || value === "income" || value === "transfer"
-    ? value
-    : null;
-}
 
 /**
  * The Transactions screen's state in the URL: the filters, `?id=` for the
@@ -25,7 +20,9 @@ export function useTransactionsUrl() {
 
   const filters = transactionFilters.parse(searchParams);
   const selectedId = searchParams.get("id");
-  const newKind = kindOf(searchParams.get("new"));
+  const newParam = searchParams.get("new");
+  const newKind =
+    newParam !== null && isTransactionKind(newParam) ? newParam : null;
   const refundOfId = searchParams.get("refund");
 
   const write = (

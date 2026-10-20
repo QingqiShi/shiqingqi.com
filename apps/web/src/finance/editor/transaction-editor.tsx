@@ -19,7 +19,6 @@ import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
 import type { ToastAction } from "@tuja/ui/components/toast";
-import { useToast } from "@tuja/ui/components/toast-provider";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -46,10 +45,10 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import { applyAll } from "../replica/apply-with-undo.ts";
-import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { floatingAction } from "../shell/floating-action.stylex.ts";
 import { FloatingActions } from "../shell/floating-actions.tsx";
+import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
 import { detectRecurring } from "../transactions/detect-recurring.ts";
@@ -209,7 +208,7 @@ function EditorForm({
 }: EditorFormProps) {
   const locale = useLocale();
   const store = useReplicaStore();
-  const showToast = useToast();
+  const undoable = useUndoToast();
   const [touched, setTouched] = useState<ReadonlySet<string>>(() => new Set());
   const [fromLast, setFromLast] = useState<ReadonlySet<PrefillField>>(
     () => new Set(),
@@ -298,7 +297,6 @@ function EditorForm({
   const toastDeleted = t({ en: "Deleted", zh: "已删除" });
   const toastSkipped = t({ en: "Skipped", zh: "已跳过" });
   const toastRule = t({ en: "Rule added", zh: "已添加周期规则" });
-  const undoLabel = t({ en: "Undo", zh: "撤销" });
   const saveFailed = t({
     en: "This could not be saved. Check the fields and try again.",
     zh: "未能保存，请检查各项后重试。",
@@ -545,30 +543,6 @@ function EditorForm({
     week: t({ en: "every week", zh: "每周" }),
     month: t({ en: "every month", zh: "每月" }),
     year: t({ en: "every year", zh: "每年" }),
-  };
-
-  const undoable = (
-    message: string,
-    undo: readonly LocalMutationInput[],
-    secondAction?: ToastAction,
-  ) => {
-    showToast({
-      message,
-      secondAction,
-      action:
-        undo.length === 0
-          ? undefined
-          : {
-              label: undoLabel,
-              onAction: () => {
-                try {
-                  applyAll(store, undo);
-                } catch {
-                  // The row changed again since; Undo has nothing left to do.
-                }
-              },
-            },
-    });
   };
 
   const save = (andNew: boolean) => {

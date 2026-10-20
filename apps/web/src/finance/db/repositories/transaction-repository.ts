@@ -19,6 +19,7 @@ import {
   transactions,
   transactionTags,
 } from "../schema.ts";
+import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 type NewTransaction = Omit<
@@ -45,33 +46,10 @@ const searchTextExpression = sql<string>`lower(concat_ws(' ',
 
 const now = sql`now()`;
 
-export const transactionRepository = {
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.householdId, scope.householdId),
-          eq(transactions.id, id),
-        ),
-      );
-    return rows.at(0);
-  },
+const transactionRows = householdRows(transactions);
 
-  async findEntries(scope: RepositoryScope, transactionId: string) {
-    return scope.db
-      .select()
-      .from(entries)
-      .where(
-        and(
-          eq(entries.householdId, scope.householdId),
-          eq(entries.transactionId, transactionId),
-          isNull(entries.deletedAt),
-        ),
-      )
-      .orderBy(entries.position);
-  },
+export const transactionRepository = {
+  findById: transactionRows.findById,
 
   /** The Entries of these Transactions, deleted ones included, for working out which balances changed. */
   async findEntryAccounts(scope: RepositoryScope, transactionIds: string[]) {
@@ -135,45 +113,11 @@ export const transactionRepository = {
     return byTransaction;
   },
 
-  async findTagIds(scope: RepositoryScope, transactionId: string) {
-    const rows = await scope.db
-      .select({ tagId: transactionTags.tagId })
-      .from(transactionTags)
-      .where(
-        and(
-          eq(transactionTags.householdId, scope.householdId),
-          eq(transactionTags.transactionId, transactionId),
-          isNull(transactionTags.deletedAt),
-        ),
-      );
-    return rows.map((row) => row.tagId);
-  },
+  insert: (scope: WriteScope, row: NewTransaction) =>
+    transactionRows.insert(scope, stamped(scope, row)),
 
-  /** Inserts the Transaction. False when the id is already used. */
-  async insert(scope: WriteScope, row: NewTransaction) {
-    const inserted = await scope.db
-      .insert(transactions)
-      .values({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      })
-      .onConflictDoNothing({ target: transactions.id })
-      .returning({ id: transactions.id });
-    return inserted.length > 0;
-  },
-
-  async patch(scope: WriteScope, id: string, fields: TransactionFields) {
-    await scope.db
-      .update(transactions)
-      .set({ ...fields, version: scope.version, updatedAt: now })
-      .where(
-        and(
-          eq(transactions.householdId, scope.householdId),
-          eq(transactions.id, id),
-        ),
-      );
-  },
+  patch: (scope: WriteScope, id: string, fields: TransactionFields) =>
+    transactionRows.patch(scope, id, fields),
 
   /**
    * Makes `values` the Transaction's Entries: updates the ones with a known

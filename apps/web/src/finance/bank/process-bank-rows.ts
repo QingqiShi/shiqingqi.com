@@ -32,7 +32,7 @@ import {
 } from "./write-labelled-rows.ts";
 
 /** How long after a route starts the AI step may begin a new batch: the routes' 300 seconds, less a margin. */
-export const PROCESS_BUDGET_MS = 240_000;
+const PROCESS_BUDGET_MS = 240_000;
 
 interface ProcessBankRowsDependencies {
   db: FinanceDb;
@@ -40,8 +40,8 @@ interface ProcessBankRowsDependencies {
   /** Null when no model is set up: every row is written as Uncategorised for Review. */
   model: LanguageModel | null;
   now: Date;
-  /** No new batch starts after this time. */
-  deadline: Date;
+  /** No new batch starts after this time. Defaults to `PROCESS_BUDGET_MS` after `now`. */
+  deadline?: Date;
   /** The current time, for the deadline. */
   clock?: () => Date;
   onModelError?: (error: unknown) => void;
@@ -194,14 +194,17 @@ async function refreshBalanceDifferences(context: ServerWriteContext) {
   }
 }
 
+function logUnusableAnswer(problem: string) {
+  console.warn("Finance labelling answer refused", problem);
+}
+
 function addOutcome(
   summary: ProcessSummary,
   outcome: WriteOutcome,
   dependencies: ProcessBankRowsDependencies,
 ) {
-  for (const problem of outcome.problems) {
-    dependencies.onUnusableAnswer?.(problem);
-  }
+  const onUnusableAnswer = dependencies.onUnusableAnswer ?? logUnusableAnswer;
+  for (const problem of outcome.problems) onUnusableAnswer(problem);
   for (const [accountId, count] of outcome.createdByAccount) {
     summary.createdByAccount.set(
       accountId,
@@ -224,14 +227,23 @@ function addOutcome(
 export async function processBankRows(
   dependencies: ProcessBankRowsDependencies,
 ): Promise<ProcessSummary> {
-  const { db, householdId, model, now } = dependencies;
-  const clock = dependencies.clock ?? (() => new Date());
+  const {
+    db,
+    householdId,
+    model,
+    now,
+    deadline = new Date(now.getTime() + PROCESS_BUDGET_MS),
+    clock = () => new Date(),
+    onModelError = (error) => {
+      console.error("Finance labelling failed", error);
+    },
+  } = dependencies;
   const summary: ProcessSummary = { createdByAccount: new Map() };
   let queue = await loadQueue(db, householdId);
   let context: LabellingContext | null = null;
   let matched = 0;
 
-  while (queue.length > 0 && clock() < dependencies.deadline) {
+  while (queue.length > 0 && clock() < deadline) {
     const first = await matchFirst(
       dependencies,
       queue.slice(0, LABEL_BATCH_SIZE),
@@ -252,7 +264,7 @@ export async function processBankRows(
       try {
         labels = await label(dependencies, model, context, toLabel);
       } catch (error) {
-        dependencies.onModelError?.(error);
+        onModelError(error);
         await runServerWrite(db, householdId, now, (write) =>
           bankTransactionRepository.addLabelAttempt(
             write.scope,

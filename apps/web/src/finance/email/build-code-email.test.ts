@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildRecoveryEmail } from "./build-recovery-email.ts";
+import { buildCodeEmail } from "./build-code-email.ts";
 
-describe.each(["en", "zh"] as const)("buildRecoveryEmail in %s", (locale) => {
+describe.each(["en", "zh"] as const)("buildCodeEmail in %s", (locale) => {
   const url = "https://example.com/finance/invite/b2?x=1&y=2";
-  const email = buildRecoveryEmail({
+  const email = buildCodeEmail({
     to: "qingqi@example.com",
     locale,
     code: "042917",
@@ -30,7 +30,21 @@ describe.each(["en", "zh"] as const)("buildRecoveryEmail in %s", (locale) => {
   });
 
   it("answers a sign-up request by saying to sign in, and never names a household", () => {
-    const signUp = buildRecoveryEmail({
+    const signUp = buildCodeEmail({
+      to: "qingqi@example.com",
+      locale,
+      code: "482913",
+      url,
+      reason: "registered-sign-up",
+    });
+    expect(signUp.subject).toContain("482913");
+    expect(signUp.text).toContain(url);
+    expect(signUp.text).toMatch(locale === "zh" ? /登录/ : /Sign in/);
+    expect(signUp.text).not.toMatch(/household|家庭(?!账本)/i);
+  });
+
+  it("signs up a new address with the code first and never names a household", () => {
+    const signUp = buildCodeEmail({
       to: "qingqi@example.com",
       locale,
       code: "482913",
@@ -38,8 +52,10 @@ describe.each(["en", "zh"] as const)("buildRecoveryEmail in %s", (locale) => {
       reason: "sign-up",
     });
     expect(signUp.subject).toContain("482913");
-    expect(signUp.text).toContain(url);
-    expect(signUp.text).toMatch(locale === "zh" ? /登录/ : /Sign in/);
+    expect(signUp.text.indexOf("\n482913\n")).toBeGreaterThan(0);
+    expect(signUp.text.indexOf("482913")).toBeLessThan(
+      signUp.text.indexOf(url),
+    );
     expect(signUp.text).not.toMatch(/household|家庭(?!账本)/i);
   });
 });

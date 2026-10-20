@@ -1,8 +1,7 @@
 import { and, desc, eq, gt, isNull, lte, sql } from "drizzle-orm";
 import { entries, transactions, valuations } from "../schema.ts";
+import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
-
-const now = sql`now()`;
 
 export type ValuationSource = "manual" | "import" | "bank";
 
@@ -44,19 +43,10 @@ async function latestOnOrBefore(
   return rows.at(0);
 }
 
+const valuationRows = householdRows(valuations);
+
 export const valuationRepository = {
-  async findById(scope: RepositoryScope, id: string) {
-    const rows = await scope.db
-      .select()
-      .from(valuations)
-      .where(
-        and(
-          eq(valuations.householdId, scope.householdId),
-          eq(valuations.id, id),
-        ),
-      );
-    return rows.at(0);
-  },
+  findById: valuationRows.findById,
 
   /** The Valuation of an account on a day, a deleted one included. */
   async findByAccountOn(scope: RepositoryScope, accountId: string, on: string) {
@@ -73,8 +63,7 @@ export const valuationRepository = {
     return rows.at(0);
   },
 
-  /** Inserts the Valuation. False when the id is already used. */
-  async insert(
+  insert: (
     scope: WriteScope,
     row: {
       id: string;
@@ -84,45 +73,21 @@ export const valuationRepository = {
       note?: string;
       source?: ValuationSource;
     },
-  ) {
-    const inserted = await scope.db
-      .insert(valuations)
-      .values({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      })
-      .onConflictDoNothing({ target: valuations.id })
-      .returning({ id: valuations.id });
-    return inserted.length > 0;
-  },
+  ) => valuationRows.insert(scope, stamped(scope, row)),
 
-  async patch(
+  patch: (
     scope: WriteScope,
     id: string,
-    fields: {
+    {
+      deleted,
+      ...fields
+    }: {
       amountMinor?: number;
       note?: string;
       source?: ValuationSource;
       deleted?: boolean;
     },
-  ) {
-    const { deleted, ...rest } = fields;
-    await scope.db
-      .update(valuations)
-      .set({
-        ...rest,
-        ...(deleted === undefined ? {} : { deletedAt: deleted ? now : null }),
-        version: scope.version,
-        updatedAt: now,
-      })
-      .where(
-        and(
-          eq(valuations.householdId, scope.householdId),
-          eq(valuations.id, id),
-        ),
-      );
-  },
+  ) => valuationRows.patch(scope, id, fields, deleted),
 
   latestOnOrBefore,
 
