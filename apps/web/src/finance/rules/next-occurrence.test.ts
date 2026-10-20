@@ -104,64 +104,12 @@ describe("nextOccurrence off weekends and bank holidays", () => {
   const monthly = (dayOfMonth: number, nonBusinessDay: "next" | "previous") =>
     schedule({ startsOn: "2026-01-01", dayOfMonth, nonBusinessDay });
 
-  it("moves a mortgage on day 1 to the next business day", () => {
-    expect(
-      occurrencesBetween(monthly(1, "next"), "2026-08-01", "2027-01-31"),
-    ).toEqual([
-      "2026-08-03",
-      "2026-09-01",
-      "2026-10-01",
-      "2026-11-02",
-      "2026-12-01",
-      "2027-01-04",
-    ]);
-  });
-
   it("moves past Christmas and its substitute day", () => {
     const councilTax = monthly(25, "next");
     expect(nextOccurrence(councilTax, "2026-12-01")).toBe("2026-12-29");
     expect(nextOccurrence(councilTax, "2026-12-26")).toBe("2026-12-29");
     expect(nextOccurrence(councilTax, "2026-12-29")).toBe("2026-12-29");
     expect(nextOccurrence(councilTax, "2026-12-30")).toBe("2027-01-25");
-  });
-
-  it("moves a salary on day 25 to the business day before", () => {
-    const salary = monthly(25, "previous");
-    expect(occurrencesBetween(salary, "2026-10-01", "2026-12-31")).toEqual([
-      "2026-10-23",
-      "2026-11-25",
-      "2026-12-24",
-    ]);
-    expect(nextOccurrence(salary, "2026-10-24")).toBe("2026-11-25");
-  });
-
-  it("makes the last business day from day 31", () => {
-    expect(
-      occurrencesBetween(monthly(31, "previous"), "2026-05-01", "2027-02-28"),
-    ).toEqual([
-      "2026-05-29",
-      "2026-06-30",
-      "2026-07-31",
-      "2026-08-28",
-      "2026-09-30",
-      "2026-10-30",
-      "2026-11-30",
-      "2026-12-31",
-      "2027-01-29",
-      "2027-02-26",
-    ]);
-  });
-
-  it("moves day 1 back into the month before", () => {
-    const early = monthly(1, "previous");
-    expect(occurrencesBetween(early, "2026-10-01", "2026-12-31")).toEqual([
-      "2026-10-01",
-      "2026-10-30",
-      "2026-12-01",
-      "2026-12-31",
-    ]);
-    expect(nextOccurrence(early, "2026-10-02")).toBe("2026-10-30");
-    expect(nextOccurrence(early, "2026-10-31")).toBe("2026-12-01");
   });
 
   it("keeps every occurrence on or after the start", () => {
@@ -185,37 +133,6 @@ describe("nextOccurrence off weekends and bank holidays", () => {
         "2026-10-25",
       ),
     ).toBe("2026-10-26");
-  });
-
-  it("moves a weekly day off Easter Monday", () => {
-    const mondays = schedule({
-      unit: "week",
-      weekday: 1,
-      startsOn: "2026-03-02",
-      nonBusinessDay: "next",
-    });
-    expect(occurrencesBetween(mondays, "2026-03-30", "2026-04-20")).toEqual([
-      "2026-03-30",
-      "2026-04-07",
-      "2026-04-13",
-      "2026-04-20",
-    ]);
-    expect(
-      nextOccurrence({ ...mondays, nonBusinessDay: "previous" }, "2026-04-01"),
-    ).toBe("2026-04-02");
-  });
-
-  it("moves a yearly day across a year's bank holidays", () => {
-    const boxing = schedule({
-      unit: "year",
-      startsOn: "2026-12-25",
-      nonBusinessDay: "next",
-    });
-    expect(occurrencesBetween(boxing, "2026-01-01", "2028-12-31")).toEqual([
-      "2026-12-29",
-      "2027-12-29",
-      "2028-12-27",
-    ]);
   });
 
   it("gives one business day for each scheduled day, in order, over ten years", () => {

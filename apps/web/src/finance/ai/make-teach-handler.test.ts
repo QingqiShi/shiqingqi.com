@@ -18,7 +18,6 @@ import { createTeachingModel } from "./testing/create-teaching-model.ts";
 import type { NamedLabels, TeachRequest } from "./types.ts";
 
 const ORIGIN = "https://qingqi.dev";
-const DB_HOOK_TIMEOUT = 60_000;
 const INSTRUCTIONS = "Payments to J SMITH are rent.\nTesco is groceries.";
 
 let db: TestDb;
@@ -76,7 +75,7 @@ beforeEach(async () => {
     transactionId,
     version: 0,
   });
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

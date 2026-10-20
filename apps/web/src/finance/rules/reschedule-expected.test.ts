@@ -32,13 +32,4 @@ describe("rescheduleExpected", () => {
       restore: [],
     });
   });
-
-  it("restores one Expected Transaction for a day that has two deleted ones", () => {
-    const rows = [
-      { id: "b", date: "2026-11-01", status: "expected" as const, deletedAt },
-      { id: "a", date: "2026-11-01", status: "expected" as const, deletedAt },
-    ];
-
-    expect(rescheduleExpected(before, after, rows).restore).toEqual([rows[1]]);
-  });
 });

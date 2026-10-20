@@ -4,8 +4,8 @@ import {
   createTestReplica,
   TEST_IDS,
 } from "../transactions/testing/create-test-replica.ts";
+import { renderWithReplica } from "../transactions/testing/render-with-replica.tsx";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
-import { renderWithAccountsReplica } from "./testing/render-with-accounts-replica.tsx";
 
 const ids = TEST_IDS;
 
@@ -22,7 +22,7 @@ async function openEditor(accountId: string | null) {
       : (runtime.store.getSnapshot().tables.accounts.get(accountId) ?? null);
   const onClose = vi.fn();
   const onDeleted = vi.fn();
-  renderWithAccountsReplica(
+  renderWithReplica(
     runtime,
     <AccountEditorSheet
       account={account}

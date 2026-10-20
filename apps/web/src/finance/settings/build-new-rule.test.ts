@@ -1,36 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { createFxIndex } from "../domain/balance/create-fx-index.ts";
-import type { AccountRow } from "../sync/row-schemas.ts";
+import { testAccount } from "../transactions/testing/create-test-replica.ts";
 import { buildNewRule, type NewRuleInput } from "./build-new-rule.ts";
 
-const NOW = "2026-10-01T09:00:00.000Z";
-
-function account(id: string, currency: string): AccountRow {
-  return {
-    id,
-    householdId: "h",
-    groupId: "g",
-    ownerMemberId: "alex",
-    name: id,
-    institution: "",
-    institutionDomain: null,
-    guessedInstitutionDomain: null,
-    institutionIconVersion: null,
-    kind: "cash",
-    currency,
-    excludedFromNetWorth: false,
-    closedOn: null,
-    position: 0,
-    creditLimitMinor: null,
-    statementDay: null,
-    paymentDueDay: null,
-    defaultPaymentAccountId: null,
-    isSystem: false,
-    version: 1,
-    createdAt: NOW,
-    updatedAt: NOW,
-    deletedAt: null,
-  };
+function account(id: string, currency: string) {
+  return testAccount(id, { ownerMemberId: "alex", currency });
 }
 
 const context = {

@@ -13,9 +13,6 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const BUDGET_MS = 60_000;
 const START = new Date("2026-10-14T03:00:00Z");
 
-/** The first test database of a file runs the migrations, which is slow on a busy machine. */
-const DB_HOOK_TIMEOUT = 60_000;
-
 let db: TestDb;
 let now: Date;
 let guessed: string[];
@@ -26,7 +23,7 @@ beforeEach(async () => {
   guessed = [];
   await nameInstitution(await seedTestHousehold(db, "home"), "Alpha Bank");
   await nameInstitution(await seedTestHousehold(db, "other"), "Beta Bank");
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

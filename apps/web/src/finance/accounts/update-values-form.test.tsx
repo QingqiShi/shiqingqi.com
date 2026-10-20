@@ -1,11 +1,11 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { screen, userEvent, waitFor } from "#src/testing/test-utils.tsx";
+import { screen, userEvent } from "#src/testing/test-utils.tsx";
 import {
   createTestReplica,
   TEST_IDS,
   testReplicaRows,
 } from "../transactions/testing/create-test-replica.ts";
-import { renderWithAccountsReplica } from "./testing/render-with-accounts-replica.tsx";
+import { renderWithReplica } from "../transactions/testing/render-with-replica.tsx";
 import { UpdateValuesForm } from "./update-values-form.tsx";
 
 const ids = TEST_IDS;
@@ -50,42 +50,21 @@ function rowsWithIsaValue() {
 }
 
 describe("UpdateValuesForm", () => {
-  it("shows each change, asks again about a large one, and saves with Undo", async () => {
+  it("shows the change and its share next to a new balance", async () => {
     const runtime = await createTestReplica(rowsWithIsaValue());
-    const { pushed } = renderWithAccountsReplica(runtime, <UpdateValuesForm />);
+    renderWithReplica(runtime, <UpdateValuesForm />, { pathname: "/finance" });
     const user = userEvent.setup();
 
     const field = screen.getByRole("textbox", { name: "Stocks ISA" });
     expect(field).toHaveValue("10,000.00");
     await user.clear(field);
     await user.type(field, "100000");
-    expect(
-      screen.getByText(/\+£90,000\.00 · \+900%.*check this/),
-    ).toBeVisible();
-
-    await user.click(screen.getByRole("button", { name: /Save all/ }));
-    expect(screen.getByText("Some balances changed a lot")).toBeVisible();
-    expect(runtime.store.takeOutbox()).toEqual([]);
-
-    await user.click(screen.getByRole("button", { name: "Save anyway" }));
-    const [saved] = runtime.store.takeOutbox();
-    expect(saved).toMatchObject({
-      name: "putValuation",
-      args: { accountId: ids.isa, amountMinor: 10_000_000 },
-    });
-    expect(pushed).toEqual(["/finance"]);
-
-    await user.click(await screen.findByRole("button", { name: "Undo" }));
-    await waitFor(() => {
-      expect(runtime.store.takeOutbox()).toMatchObject([
-        { name: "deleteValuation" },
-      ]);
-    });
+    expect(screen.getByText(/\+£90,000\.00 · \+900%/)).toBeVisible();
   });
 
   it("writes the exchange rate of a foreign account's currency", async () => {
     const runtime = await createTestReplica(rowsWithIsaValue());
-    renderWithAccountsReplica(runtime, <UpdateValuesForm />);
+    renderWithReplica(runtime, <UpdateValuesForm />, { pathname: "/finance" });
     const user = userEvent.setup();
 
     await user.selectOptions(

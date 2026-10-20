@@ -3,20 +3,19 @@ import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { categories, members } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
+import { mutation } from "../db/testing/mutation.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
 import { applyMutations } from "./apply-mutations.ts";
 import { MutationError } from "./mutation-error.ts";
-import type { MutationInput, MutationName } from "./mutation-schema.ts";
 import { pullChanges } from "./pull-changes.ts";
 import type { PushRequest } from "./push-request-schema.ts";
 import { toRejection } from "./to-rejection.ts";
 
 const NOW = new Date("2026-10-10T12:00:00Z");
 const CLIENT = "00000000-0000-4000-8000-00000000c002";
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -24,18 +23,11 @@ let home: SeededHousehold;
 beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
 });
-
-function mutation<Name extends MutationName>(
-  name: Name,
-  args: Extract<MutationInput, { name: Name }>["args"],
-) {
-  return { id: randomUUID(), name, args };
-}
 
 function push(
   mutations: PushRequest["mutations"],

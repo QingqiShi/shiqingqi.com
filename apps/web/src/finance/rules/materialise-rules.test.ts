@@ -22,16 +22,13 @@ import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { materialiseRules, occurrenceId } from "./materialise-rules.ts";
 
-/** The first test database of a file runs the migrations, which is slow on a busy machine. */
-const DB_HOOK_TIMEOUT = 60_000;
-
 let db: TestDb;
 let home: SeededHousehold;
 
 beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -42,35 +39,24 @@ async function createRule(
   now = new Date("2026-01-25T12:00:00Z"),
 ) {
   const id = randomUUID();
-  const result = await applyMutations(
-    db,
-    home.householdId,
+  await push(
+    "upsertRule",
     {
-      clientId: randomUUID(),
-      mutations: [
-        {
-          id: randomUUID(),
-          name: "upsertRule",
-          args: {
-            id,
-            name: "Rent",
-            unit: "month",
-            startsOn: "2026-01-31",
-            template: {
-              kind: "expense",
-              amountMinor: -120_000,
-              categoryId: home.groceriesId,
-              payeeId: home.grocerId,
-              entries: [{ accountId: home.currentId, amountMinor: -120_000 }],
-            },
-            ...fields,
-          },
-        },
-      ],
+      id,
+      name: "Rent",
+      unit: "month",
+      startsOn: "2026-01-31",
+      template: {
+        kind: "expense",
+        amountMinor: -120_000,
+        categoryId: home.groceriesId,
+        payeeId: home.grocerId,
+        entries: [{ accountId: home.currentId, amountMinor: -120_000 }],
+      },
+      ...fields,
     },
     now,
   );
-  expect(result.rejected).toEqual([]);
   return id;
 }
 
@@ -82,6 +68,15 @@ async function push(name: string, args: Record<string, unknown>, now: Date) {
     now,
   );
   expect(result.rejected).toEqual([]);
+}
+
+function balanceDays() {
+  return db
+    .select({
+      day: accountBalanceDays.day,
+      balanceMinor: accountBalanceDays.balanceMinor,
+    })
+    .from(accountBalanceDays);
 }
 
 /** An Expected Transaction of the Rule whose id is not the one Materialise gives. */
@@ -205,15 +200,9 @@ describe("materialiseRules", () => {
   it("does not bring back a skipped occurrence", async () => {
     const ruleId = await createRule({});
     const skippedId = occurrenceId(ruleId, "2026-01-31");
-    await applyMutations(
-      db,
-      home.householdId,
-      {
-        clientId: randomUUID(),
-        mutations: [
-          { id: randomUUID(), name: "skipExpected", args: { id: skippedId } },
-        ],
-      },
+    await push(
+      "skipExpected",
+      { id: skippedId },
       new Date("2026-01-26T12:00:00Z"),
     );
     await db.update(rules).set({ nextOn: "2026-01-31" });
@@ -245,14 +234,9 @@ describe("materialiseRules", () => {
     expect(await ruleTransactions(ruleId)).toEqual([
       expect.objectContaining({ date: "2026-02-01", status: "posted" }),
     ]);
-    expect(
-      await db
-        .select({
-          day: accountBalanceDays.day,
-          balanceMinor: accountBalanceDays.balanceMinor,
-        })
-        .from(accountBalanceDays),
-    ).toEqual([{ day: "2026-02-01", balanceMinor: -120_000 }]);
+    expect(await balanceDays()).toEqual([
+      { day: "2026-02-01", balanceMinor: -120_000 },
+    ]);
   });
 
   it("creates nothing for a paused rule", async () => {
@@ -380,14 +364,9 @@ describe("materialiseRules", () => {
     expect(await ruleTransactions(ruleId)).toEqual([
       { id: importedId, date: "2026-11-01", status: "posted" },
     ]);
-    expect(
-      await db
-        .select({
-          day: accountBalanceDays.day,
-          balanceMinor: accountBalanceDays.balanceMinor,
-        })
-        .from(accountBalanceDays),
-    ).toEqual([{ day: "2026-11-01", balanceMinor: -120_000 }]);
+    expect(await balanceDays()).toEqual([
+      { day: "2026-11-01", balanceMinor: -120_000 },
+    ]);
   });
 
   it("does not bring back a skipped imported occurrence when the schedule changes", async () => {

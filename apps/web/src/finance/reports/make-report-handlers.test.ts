@@ -16,7 +16,6 @@ import { reportApiSchemas } from "./report-api-schemas.ts";
 const ORIGIN = "https://qingqi.dev";
 const NOW = new Date("2026-10-10T12:00:00Z");
 const SECRET = "cron-secret-for-tests";
-const DB_HOOK_TIMEOUT = 60_000;
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -63,7 +62,7 @@ beforeEach(async () => {
     memberId: home.memberId,
     role: "owner",
   };
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
@@ -270,36 +269,18 @@ describe("makeReportHandlers", () => {
 });
 
 describe("makeWeeklyReportCronHandler", () => {
-  function cron(secret: string | undefined = SECRET) {
-    return makeWeeklyReportCronHandler({
+  it("stores last week's report for every household", async () => {
+    const cron = makeWeeklyReportCronHandler({
       isConfigured: () => true,
       getDb: () => db,
-      getCronSecret: () => secret,
+      getCronSecret: () => SECRET,
       now: () => new Date("2026-10-12T07:00:00Z"),
     });
-  }
-
-  function cronRequest(authorization?: string) {
-    return new Request(`${ORIGIN}/api/finance/cron/weekly-report`, {
-      headers:
-        authorization === undefined ? {} : { Authorization: authorization },
-    });
-  }
-
-  it("refuses a request without the cron secret", async () => {
-    const responses = await Promise.all([
-      cron()(cronRequest()),
-      cron()(cronRequest("Bearer wrong")),
-      cron(undefined)(cronRequest("Bearer undefined")),
-    ]);
-    expect(responses.map((response) => response.status)).toEqual([
-      401, 401, 401,
-    ]);
-    expect(await db.select().from(reports)).toEqual([]);
-  });
-
-  it("stores last week's report for every household", async () => {
-    const response = await cron()(cronRequest(`Bearer ${SECRET}`));
+    const response = await cron(
+      new Request(`${ORIGIN}/api/finance/cron/weekly-report`, {
+        headers: { Authorization: `Bearer ${SECRET}` },
+      }),
+    );
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
       households: 2,

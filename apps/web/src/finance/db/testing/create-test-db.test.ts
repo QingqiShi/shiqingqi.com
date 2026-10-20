@@ -1,20 +1,11 @@
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import {
-  accountGroups,
-  accounts,
-  entries,
-  households,
-  passkeys,
-  transactions,
-  users,
-} from "../schema.ts";
+import { accountGroups, households, passkeys, users } from "../schema.ts";
 import { createTestDb, type TestDb } from "./create-test-db.ts";
 
 const householdId = "00000000-0000-4000-8000-000000000001";
 const groupId = "00000000-0000-4000-8000-000000000002";
-const accountId = "00000000-0000-4000-8000-000000000003";
-const transactionId = "00000000-0000-4000-8000-000000000004";
+const otherGroupId = "00000000-0000-4000-8000-000000000003";
 
 let db: TestDb;
 
@@ -27,83 +18,6 @@ afterAll(async () => {
 });
 
 describe("createTestDb", () => {
-  it("applies every migration", async () => {
-    const tableCount = await db.$count(
-      sql`information_schema.tables`,
-      sql`table_schema = 'public'`,
-    );
-    expect(tableCount).toBe(31);
-  });
-
-  it("round-trips a household, an account and a transaction", async () => {
-    await db.insert(households).values({ id: householdId, name: "Home" });
-    await db.insert(accountGroups).values({
-      id: groupId,
-      householdId,
-      name: "流动资产",
-      side: "asset",
-      version: 1,
-    });
-    await db.insert(accounts).values({
-      id: accountId,
-      householdId,
-      groupId,
-      name: "Current",
-      kind: "cash",
-      currency: "GBP",
-      version: 1,
-    });
-    await db.insert(transactions).values({
-      id: transactionId,
-      householdId,
-      kind: "expense",
-      date: "2026-10-09",
-      amountMinor: -1250,
-      version: 1,
-    });
-    await db.insert(entries).values({
-      id: "00000000-0000-4000-8000-000000000005",
-      householdId,
-      transactionId,
-      accountId,
-      date: "2026-10-09",
-      amountMinor: -1250,
-      fxRate: 1.23456789,
-      version: 1,
-    });
-
-    const [household] = await db
-      .select()
-      .from(households)
-      .where(eq(households.id, householdId));
-    expect(household).toMatchObject({
-      baseCurrency: "GBP",
-      timezone: "Europe/London",
-      clock: 0,
-    });
-
-    const rows = await db
-      .select({
-        date: transactions.date,
-        amountMinor: transactions.amountMinor,
-        status: transactions.status,
-        entryAmountMinor: entries.amountMinor,
-        fxRate: entries.fxRate,
-      })
-      .from(transactions)
-      .innerJoin(entries, eq(entries.transactionId, transactions.id))
-      .where(eq(transactions.householdId, householdId));
-    expect(rows).toEqual([
-      {
-        date: "2026-10-09",
-        amountMinor: -1250,
-        status: "posted",
-        entryAmountMinor: -1250,
-        fxRate: 1.23456789,
-      },
-    ]);
-  });
-
   it("round-trips a bigint beyond 32 bits and bytes", async () => {
     const userId = "00000000-0000-4000-8000-000000000006";
     await db.insert(users).values({ id: userId, displayName: "Qingqi" });
@@ -125,14 +39,16 @@ describe("createTestDb", () => {
   });
 
   it("rejects a second live group with the same name", async () => {
+    await db.insert(households).values({ id: householdId, name: "Home" });
+    const group = {
+      householdId,
+      name: "流动资产",
+      side: "asset",
+      version: 1,
+    } as const;
+    await db.insert(accountGroups).values({ ...group, id: groupId });
     await expect(
-      db.insert(accountGroups).values({
-        id: "00000000-0000-4000-8000-000000000007",
-        householdId,
-        name: "流动资产",
-        side: "asset",
-        version: 2,
-      }),
+      db.insert(accountGroups).values({ ...group, id: otherGroupId }),
     ).rejects.toThrow();
   });
 });

@@ -25,8 +25,6 @@ import { withHousehold } from "../db/with-household.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
 import { makeMembersHandler } from "./make-members-handler.ts";
 
-const DB_HOOK_TIMEOUT = 60_000;
-
 type Client = ReturnType<typeof createAuthTestClient>;
 type Authenticator = ReturnType<typeof createSoftwareAuthenticator>;
 
@@ -36,11 +34,11 @@ let now: Date;
 beforeEach(async () => {
   db = await createTestDb();
   now = new Date("2026-10-10T12:00:00Z");
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
-}, DB_HOOK_TIMEOUT);
+});
 
 function authHandlers() {
   return makeAuthHandlers({

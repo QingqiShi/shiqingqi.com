@@ -14,7 +14,7 @@ export interface IconCandidate {
 }
 
 /** The largest square edge in a `sizes` value such as `16x16 32x32`; 0 for `any` or none. */
-export function largestDeclaredSize(sizes: string | undefined) {
+function largestDeclaredSize(sizes: string | undefined) {
   let largest = 0;
   for (const token of sizes?.toLowerCase().split(/\s+/) ?? []) {
     const match = /^(\d+)x(\d+)$/.exec(token);

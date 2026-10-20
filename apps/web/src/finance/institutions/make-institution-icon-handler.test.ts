@@ -5,7 +5,6 @@ import { institutionIcons } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { makeInstitutionIconHandler } from "./make-institution-icon-handler.ts";
 
-const DB_HOOK_TIMEOUT = 60_000;
 const IMAGE = new Uint8Array([82, 73, 70, 70]);
 
 let db: TestDb;
@@ -24,7 +23,7 @@ beforeEach(async () => {
     { domain: "wise.com", image: IMAGE, version: "v1" },
     { domain: "broken.com", attempts: 3 },
   ]);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

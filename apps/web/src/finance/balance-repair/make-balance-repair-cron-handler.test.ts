@@ -11,9 +11,6 @@ import { makeBalanceRepairCronHandler } from "./make-balance-repair-cron-handler
 const SECRET = "cron-secret-for-tests";
 const URL = "https://qingqi.dev/api/finance/cron/balance-repair";
 
-/** The first test database of a file runs the migrations, which is slow on a busy machine. */
-const DB_HOOK_TIMEOUT = 60_000;
-
 let db: TestDb;
 let home: SeededHousehold;
 let drifts: { householdId: string; drift: BalanceDrift }[];
@@ -23,7 +20,7 @@ beforeEach(async () => {
   home = await seedTestHousehold(db, "home");
   await seedTestHousehold(db, "other");
   drifts = [];
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();

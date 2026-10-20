@@ -1,16 +1,17 @@
-import { createFinanceRuntime } from "../../replica/create-finance-runtime.ts";
-import { createMemoryPersistence } from "../../replica/create-memory-persistence.ts";
-import { REPLICA_TABLE_NAMES } from "../../replica/replica-table-names.ts";
 import type { SyncRows } from "../../sync/row-schemas.ts";
-
-const NOW = "2026-10-01T09:00:00.000Z";
-const stamps = { version: 1, createdAt: NOW, updatedAt: NOW, deletedAt: null };
+import {
+  createTestReplica,
+  TEST_IDS,
+  testAccount,
+  testCategory,
+  testStamps,
+} from "../../transactions/testing/create-test-replica.ts";
 
 /** Fixed ids of the synthetic Household the Settings tests use. */
 export const SETTINGS_IDS = {
-  household: "00000000-0000-4000-8000-000000000001",
-  alex: "00000000-0000-4000-8000-0000000000a1",
-  sam: "00000000-0000-4000-8000-0000000000a2",
+  household: TEST_IDS.household,
+  alex: TEST_IDS.alex,
+  sam: TEST_IDS.sam,
   kim: "00000000-0000-4000-8000-0000000000a3",
   cash: "00000000-0000-4000-8000-0000000000b1",
   savings: "00000000-0000-4000-8000-0000000000b2",
@@ -26,104 +27,45 @@ export const SETTINGS_IDS = {
 const ids = SETTINGS_IDS;
 
 function rows(): Partial<SyncRows> {
-  const group = (
+  const member = (
     id: string,
     name: string,
-    side: "asset" | "liability",
-    position: number,
-  ) => ({
-    id,
-    householdId: ids.household,
-    name,
-    side,
-    position,
-    ...stamps,
-  });
-  const category = (id: string, name: string) => ({
-    id,
-    householdId: ids.household,
-    parentId: null,
-    kind: "expense" as const,
-    name,
-    emoji: "",
-    color: "",
-    position: 0,
-    isSystem: false,
-    archivedAt: null,
-    ...stamps,
-  });
-  const account = (
-    id: string,
-    groupId: string,
-    name: string,
-    institution: string,
-    kind: "cash" | "credit" | "investment",
-    currency: string,
-  ) => ({
-    id,
-    householdId: ids.household,
-    groupId,
-    ownerMemberId: ids.alex,
-    name,
-    institution,
-    institutionDomain: null,
-    guessedInstitutionDomain: null,
-    institutionIconVersion: null,
-    kind,
-    currency,
-    excludedFromNetWorth: false,
-    closedOn: null,
-    position: 0,
-    creditLimitMinor: null,
-    statementDay: null,
-    paymentDueDay: null,
-    defaultPaymentAccountId: null,
-    isSystem: false,
-    ...stamps,
-  });
+    role: "owner" | "member",
+    userId: string | null,
+  ) => ({ id, householdId: ids.household, userId, name, role, ...testStamps });
   return {
     members: [
-      {
-        id: ids.alex,
-        householdId: ids.household,
-        userId: ids.alex,
-        name: "Alex",
-        role: "owner",
-        ...stamps,
-      },
-      {
-        id: ids.sam,
-        householdId: ids.household,
-        userId: null,
-        name: "Sam",
-        role: "member",
-        ...stamps,
-      },
-      {
-        id: ids.kim,
-        householdId: ids.household,
-        userId: ids.kim,
-        name: "Kim",
-        role: "member",
-        ...stamps,
-      },
+      member(ids.alex, "Alex", "owner", ids.alex),
+      member(ids.sam, "Sam", "member", null),
+      member(ids.kim, "Kim", "member", ids.kim),
     ],
     accountGroups: [
-      group(ids.cash, "Cash", "asset", 0),
-      group(ids.savings, "Savings", "asset", 1),
-      group(ids.cards, "Cards", "liability", 2),
-    ],
+      { id: ids.cash, name: "Cash", side: "asset" as const, position: 0 },
+      { id: ids.savings, name: "Savings", side: "asset" as const, position: 1 },
+      { id: ids.cards, name: "Cards", side: "liability" as const, position: 2 },
+    ].map((group) => ({ ...group, householdId: ids.household, ...testStamps })),
     accounts: [
-      account(ids.current, ids.cash, "Current account", "Monzo", "cash", "GBP"),
-      account(ids.visa, ids.cards, "Alex Visa", "Northbank", "credit", "GBP"),
-      account(
-        ids.brokerage,
-        ids.savings,
-        "US Brokerage",
-        "Atlas",
-        "investment",
-        "USD",
-      ),
+      testAccount(ids.current, {
+        groupId: ids.cash,
+        ownerMemberId: ids.alex,
+        name: "Current account",
+        institution: "Monzo",
+      }),
+      testAccount(ids.visa, {
+        groupId: ids.cards,
+        ownerMemberId: ids.alex,
+        name: "Alex Visa",
+        institution: "Northbank",
+        kind: "credit",
+      }),
+      testAccount(ids.brokerage, {
+        groupId: ids.savings,
+        ownerMemberId: ids.alex,
+        name: "US Brokerage",
+        institution: "Atlas",
+        kind: "investment",
+        currency: "USD",
+      }),
     ],
     fxRates: [
       {
@@ -137,8 +79,8 @@ function rows(): Partial<SyncRows> {
       },
     ],
     categories: [
-      category(ids.groceries, "Groceries"),
-      category(ids.dining, "Eating out"),
+      testCategory(ids.groceries, "Groceries", "expense", "", 0),
+      testCategory(ids.dining, "Eating out", "expense", "", 0),
     ],
     payees: [
       {
@@ -149,34 +91,13 @@ function rows(): Partial<SyncRows> {
         defaultCategoryId: null,
         defaultAccountId: null,
         mergedIntoId: null,
-        ...stamps,
+        ...testStamps,
       },
     ],
   };
 }
 
 /** A Replica runtime in memory, loaded with a small synthetic Household and never started. */
-export async function createSettingsReplica() {
-  const runtime = createFinanceRuntime({
-    householdId: ids.household,
-    persistence: createMemoryPersistence(),
-    onUnauthorised: () => undefined,
-    fetch: () => Promise.reject(new Error("offline in tests")),
-  });
-  await runtime.store.load();
-  runtime.store.startBootstrap({
-    id: ids.household,
-    name: "Home",
-    baseCurrency: "GBP",
-    timezone: "Europe/London",
-    aiInstructions: "",
-    clock: 10,
-  });
-  const seed = rows();
-  for (const table of REPLICA_TABLE_NAMES) {
-    const tableRows = seed[table];
-    if (tableRows) runtime.store.applyBootstrapRows(table, tableRows);
-  }
-  runtime.store.finishBootstrap(10, new Set());
-  return runtime;
+export function createSettingsReplica() {
+  return createTestReplica(rows());
 }

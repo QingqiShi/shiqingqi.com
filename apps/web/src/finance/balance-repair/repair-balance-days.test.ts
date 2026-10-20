@@ -14,6 +14,7 @@ import {
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { insertTestExpense } from "../db/testing/insert-test-expense.ts";
+import { mutation } from "../db/testing/mutation.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
@@ -21,13 +22,10 @@ import {
 import { withHousehold } from "../db/with-household.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
-import type { MutationInput, MutationName } from "../sync/mutation-schema.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
 import { expectWithinBudget } from "../testing/expect-within-budget.ts";
 import { repairBalanceDays } from "./repair-balance-days.ts";
 
-/** The first test database of a file runs the migrations, which is slow on a busy machine. */
-const DB_HOOK_TIMEOUT = 60_000;
 const NOW = new Date("2026-10-13T03:30:00Z");
 const CLIENT = "00000000-0000-4000-8000-00000000c001";
 
@@ -37,18 +35,11 @@ let home: SeededHousehold;
 beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db);
-}, DB_HOOK_TIMEOUT);
+});
 
 afterEach(async () => {
   await db.close();
 });
-
-function mutation<Name extends MutationName>(
-  name: Name,
-  args: Extract<MutationInput, { name: Name }>["args"],
-) {
-  return { id: randomUUID(), name, args };
-}
 
 async function push(...mutations: ReturnType<typeof mutation>[]) {
   const result = await applyMutations(
