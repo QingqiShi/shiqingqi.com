@@ -20,6 +20,7 @@ const NO_POINTER: EffectPointer = {
   velocityY: 0,
   pressed: false,
   present: false,
+  pointerType: "mouse",
 };
 
 function emitter(overrides: Partial<DustEmitter> = {}): DustEmitter {

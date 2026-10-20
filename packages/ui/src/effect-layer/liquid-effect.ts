@@ -1,4 +1,3 @@
-import { CAN_HOVER_QUERY } from "../can-hover-query.ts";
 import { clamp } from "../clamp.ts";
 import {
   GPU_BUFFER_USAGE,
@@ -8,6 +7,7 @@ import {
 } from "./constants.ts";
 import { createBinding } from "./create-binding.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
+import { isInView } from "./create-ripples.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
   EFFECT_SETTING_DEFAULTS,
@@ -15,8 +15,7 @@ import {
 } from "./effect-setting-defaults.ts";
 import { handBack } from "./hand-back.stylex.ts";
 import { instanceRange } from "./instance-range.ts";
-import { leanLight, pointerOver, type LightContext } from "./lean-light.ts";
-import type { PageRect } from "./lens-from-box.ts";
+import { leanLight, pointerLights, type LightContext } from "./lean-light.ts";
 import {
   LIQUID_COMPUTE_WGSL,
   LIQUID_STEP_BYTES,
@@ -774,7 +773,7 @@ export function layoutLiquid(
     context,
     state ?? { lean: 0, toPointer: [0, -1] },
     { x: originX + centreX * radius, y: originY },
-    record,
+    radius,
     delta,
     reduced,
   );
@@ -1098,23 +1097,18 @@ export const liquidEffect: Effect = {
     const controlReader = createControlReader(setup.requestFrame);
     const drawn = new Set<Element>();
     let instances: readonly LiquidInstance[] = [];
-    const hoverQuery = window.matchMedia(CAN_HOVER_QUERY);
-    /** The boxes of the controls at the last frame, and whether a pointer leaned a light. */
-    let boxes: readonly PageRect[] = [];
+    /** A control was in the viewport at the last frame, and a pointer leaned a light. */
+    let shown = false;
     let leaning = false;
 
     return {
-      // A pointer that moves near a control leans its light, and one that
-      // leaves takes the lean away.
+      // A pointer that hovers leans the light of each control in view, and
+      // one that leaves takes the lean away.
       followsPointer: (pointer: EffectPointer) =>
-        leaning ||
-        boxes.some((box) =>
-          pointerOver({ pointer, hoverable: hoverQuery.matches }, box),
-        ),
+        shown && (leaning || pointerLights(pointer)),
       update(encoder, frame) {
         const context: LightContext = {
           pointer: frame.pointer,
-          hoverable: hoverQuery.matches,
           viewport: frame.viewport,
         };
         const controls = frame.elements.flatMap((record, index) => {
@@ -1137,7 +1131,9 @@ export const liquidEffect: Effect = {
         let animating = false;
         let fading = false;
         leaning = false;
+        shown = false;
         for (const { index, record, control, slot } of controls) {
+          shown ||= isInView(record, 0, frame.viewport);
           const { id } = record;
           const laid = layoutLiquid(
             control,
@@ -1168,7 +1164,6 @@ export const liquidEffect: Effect = {
             stepped.push({ id, step: laid.step, time: laid.state.simulated });
           }
         }
-        boxes = controls.map(({ record }) => record);
         for (const id of states.keys()) {
           if (!kept.has(id)) {
             states.delete(id);
