@@ -10,6 +10,12 @@ async function openNetWorth(page: Page, locale: "en" | "zh" = "en") {
       name: locale === "zh" ? "净资产" : "Net worth",
     }),
   ).toBeVisible();
+  // The skeleton shows the same heading. Only the loaded screen has this region.
+  await expect(
+    page.getByRole("region", {
+      name: locale === "zh" ? "今日净资产" : "Net worth today",
+    }),
+  ).toBeVisible();
 }
 
 async function openReorder(page: Page) {
