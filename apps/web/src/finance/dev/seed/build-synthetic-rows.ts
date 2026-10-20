@@ -17,7 +17,6 @@ import { endOfMonth, startOfMonth } from "../../domain/dates/start-of-month.ts";
 import { startOfWeek } from "../../domain/dates/start-of-week.ts";
 import { daysInMonth, parseDay } from "../../domain/dates/to-epoch-day.ts";
 import { nameBasedUuid } from "../../ids/name-based-uuid.ts";
-import { GROUP_SEEDS } from "../../import/moneythings/assign-group.ts";
 import { occurrenceId } from "../../rules/materialise-rules.ts";
 import {
   nextOccurrence,
@@ -32,6 +31,7 @@ import {
   type SyntheticOwner,
 } from "./synthetic-accounts.ts";
 import { SYNTHETIC_CATEGORIES } from "./synthetic-categories.ts";
+import { SYNTHETIC_GROUPS } from "./synthetic-groups.ts";
 import { SYNTHETIC_PAYEES, type SyntheticPayee } from "./synthetic-payees.ts";
 import { SYNTHETIC_RULES, type SyntheticRule } from "./synthetic-rules.ts";
 import { SYNTHETIC_TAGS } from "./synthetic-tags.ts";
@@ -207,7 +207,7 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
   // taxonomy
 
   const groupId = (key: string) => id("group", key);
-  const usedGroups = GROUP_SEEDS.filter((group) =>
+  const usedGroups = SYNTHETIC_GROUPS.filter((group) =>
     SYNTHETIC_ACCOUNTS.some((account) => account.group === group.key),
   );
   const openedAt = stamp(openingDay);

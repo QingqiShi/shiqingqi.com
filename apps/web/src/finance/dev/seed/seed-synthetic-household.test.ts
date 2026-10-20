@@ -19,13 +19,13 @@ import {
   valuations,
 } from "../../db/schema.ts";
 import { createTestDb } from "../../db/testing/create-test-db.ts";
+import { readBalanceState } from "../../db/testing/read-balance-state.ts";
 import {
   computeBalanceDays,
   type BalanceSeries,
 } from "../../domain/balance/compute-balance-days.ts";
 import { createFxIndex } from "../../domain/balance/create-fx-index.ts";
 import { netWorthAt } from "../../domain/balance/net-worth-at.ts";
-import { readBalanceState } from "../../import/moneythings/read-balance-state.ts";
 import { seedSyntheticHousehold } from "./seed-synthetic-household.ts";
 
 const TODAY = "2026-09-30";

@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { SINCE_THE_START_DAY } from "../import/moneythings/map-valuations.ts";
 import { computeNetWorthTrend } from "./compute-net-worth-trend.ts";
 import { computeWeeklyReport } from "./compute-weekly-report.ts";
 import { createReportContext } from "./create-report-context.ts";
 import type { ReportSource, ReportSourceAccount } from "./types.ts";
+
+const OPENING_VALUATION_DAY = "2000-01-01";
 
 function account(
   id: string,
@@ -46,7 +47,7 @@ describe("createReportContext firstDay", () => {
   const imported = source(
     [account("current"), account("work", { excludedFromNetWorth: true })],
     [
-      { accountId: "current", day: SINCE_THE_START_DAY, balanceMinor: 0 },
+      { accountId: "current", day: OPENING_VALUATION_DAY, balanceMinor: 0 },
       { accountId: "current", day: "2019-03-06", balanceMinor: 1500_00 },
       { accountId: "current", day: "2019-03-20", balanceMinor: 1600_00 },
       { accountId: "work", day: "2015-05-05", balanceMinor: 50_00 },
@@ -74,19 +75,19 @@ describe("createReportContext firstDay", () => {
       source(
         [account("current")],
         [
-          { accountId: "current", day: SINCE_THE_START_DAY, balanceMinor: 1 },
+          { accountId: "current", day: OPENING_VALUATION_DAY, balanceMinor: 1 },
           { accountId: "current", day: "2019-03-06", balanceMinor: 1500_00 },
         ],
       ),
     );
-    expect(context.firstDay).toBe(SINCE_THE_START_DAY);
+    expect(context.firstDay).toBe(OPENING_VALUATION_DAY);
   });
 
   it("is null when no counted Account has a balance other than zero", () => {
     const context = createReportContext(
       source(
         [account("current")],
-        [{ accountId: "current", day: SINCE_THE_START_DAY, balanceMinor: 0 }],
+        [{ accountId: "current", day: OPENING_VALUATION_DAY, balanceMinor: 0 }],
       ),
     );
     expect(context.firstDay).toBeNull();

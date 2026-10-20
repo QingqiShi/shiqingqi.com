@@ -84,7 +84,7 @@ async function push(name: string, args: Record<string, unknown>, now: Date) {
   expect(result.rejected).toEqual([]);
 }
 
-/** An Expected Transaction of the Rule whose id is not the one Materialise gives, as the MoneyThings import writes. */
+/** An Expected Transaction of the Rule whose id is not the one Materialise gives. */
 async function insertImported(
   ruleId: string,
   date: string,
