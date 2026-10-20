@@ -6,10 +6,3 @@ export function GET(
 ) {
   return reportHandlers.getReport(request, context);
 }
-
-export function DELETE(
-  request: Request,
-  context: RouteContext<"/api/finance/reports/[id]">,
-) {
-  return reportHandlers.remove(request, context);
-}

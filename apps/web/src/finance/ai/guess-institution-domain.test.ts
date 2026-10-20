@@ -7,7 +7,7 @@ const HINTS = { baseCurrency: "GBP", accountCurrency: "USD" };
 
 describe("guessInstitutionDomain", () => {
   it("returns the reported domain as a bare domain", async () => {
-    const model = createDomainModel(() => "https://www.Barclays.co.uk/");
+    const model = createDomainModel("https://www.Barclays.co.uk/");
     expect(await guessInstitutionDomain(model, "Barclay", HINTS)).toBe(
       "barclays.co.uk",
     );
@@ -15,15 +15,11 @@ describe("guessInstitutionDomain", () => {
 
   it("returns null when the name is not an institution, or the answer is not a domain", async () => {
     expect(
-      await guessInstitutionDomain(
-        createDomainModel(() => null),
-        "SIPP",
-        HINTS,
-      ),
+      await guessInstitutionDomain(createDomainModel(null), "SIPP", HINTS),
     ).toBeNull();
     expect(
       await guessInstitutionDomain(
-        createDomainModel(() => "not a domain"),
+        createDomainModel("not a domain"),
         "Lock 17",
         HINTS,
       ),
@@ -32,16 +28,12 @@ describe("guessInstitutionDomain", () => {
 
   it("throws when the model answers without reporting", async () => {
     await expect(
-      guessInstitutionDomain(
-        createDomainModel(() => undefined),
-        "Wise",
-        HINTS,
-      ),
+      guessInstitutionDomain(createDomainModel(undefined), "Wise", HINTS),
     ).rejects.toThrow("did not report");
   });
 
   it("sends the name with both currencies, a web search limited to the UK, and the report tool", async () => {
-    const model = createDomainModel(() => "wise.com");
+    const model = createDomainModel("wise.com");
     await guessInstitutionDomain(model, 'Wise "USD"', HINTS);
 
     const [call] = model.doGenerateCalls;

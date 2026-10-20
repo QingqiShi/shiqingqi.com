@@ -53,10 +53,6 @@ interface EntryDraft {
   fxRate: number | null;
 }
 
-function round(value: number) {
-  return Math.round(value);
-}
-
 function readAmount(text: string, currency: string) {
   if (text.trim() === "") return { error: "amountMissing" as const };
   const minor = parseMoney(text, currency);
@@ -174,7 +170,7 @@ function readDraft(draft: EditorDraft, context: BuildMutationsContext) {
       amountMinor:
         currency === context.baseCurrency
           ? signed
-          : round(context.fx.toBase(signed, currency, day)),
+          : Math.round(context.fx.toBase(signed, currency, day)),
       categoryId: draft.categoryId,
       refundOfId:
         draft.kind === "expense" && draft.refund ? draft.refundOfId : null,

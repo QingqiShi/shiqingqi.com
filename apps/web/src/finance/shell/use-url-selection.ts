@@ -1,9 +1,6 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-/**
- * A selection the URL carries, such as `?id=<transaction>`: a reload keeps
- * it, and the back button clears it when `select` pushed it.
- */
+/** A selection the URL carries, such as `?account=<id>`: a reload keeps it. */
 export function useUrlSelection(param: string) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -22,9 +19,6 @@ export function useUrlSelection(param: string) {
     value,
     /** The URL with the selection set, for a link. */
     hrefWith,
-    select: (next: string) => {
-      router.push(hrefWith(next), { scroll: false });
-    },
     clear: () => {
       router.replace(hrefWith(null), { scroll: false });
     },

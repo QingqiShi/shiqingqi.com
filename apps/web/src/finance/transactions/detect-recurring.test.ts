@@ -29,7 +29,6 @@ describe("detectRecurring", () => {
       dayOfMonth: 1,
       weekday: null,
       monthOfYear: null,
-      anchorDate: "2026-03-01",
     });
   });
 

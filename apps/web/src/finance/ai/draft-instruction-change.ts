@@ -16,7 +16,7 @@ Rules:
 4. Say only the labels that the member changed, and the others only when the line needs them to be clear. Name a category by its path, and accounts, members, payees and tags by name.
 5. Write one short line in the language and the style of the instructions, or in English when there are none.`;
 
-export interface CorrectedRow {
+interface CorrectedRow {
   date: string;
   /** Signed, in the account's currency: money out is negative. */
   amountMinor: number;

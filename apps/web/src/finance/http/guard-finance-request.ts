@@ -16,8 +16,6 @@ export interface FinanceRequestGuardOptions {
   write: boolean;
   owner?: boolean;
   rateLimit?: { bucket: FinanceRateLimitBucket; per: "household" | "user" };
-  /** Sent with the 503 `not-configured` response. */
-  notConfiguredMessage?: string;
 }
 
 /**
@@ -32,10 +30,7 @@ export async function guardFinanceRequest(
   options: FinanceRequestGuardOptions,
 ): Promise<FinanceSession | Response> {
   if (!dependencies.isConfigured()) {
-    return financeJson(
-      { error: "not-configured", message: options.notConfiguredMessage },
-      { status: 503 },
-    );
+    return financeJson({ error: "not-configured" }, { status: 503 });
   }
   if (options.write && !isSameOrigin(request)) {
     return financeJson({ error: "forbidden-origin" }, { status: 403 });

@@ -118,14 +118,6 @@ describe("createLunchFlowClient", () => {
     );
   });
 
-  it("sends the date range", async () => {
-    const rows = await client().listTransactions("101", {
-      from: "2026-10-02",
-      to: "2026-10-31",
-    });
-    expect(rows.map((row) => row.id)).toEqual(["tx-2"]);
-  });
-
   it("reads the balance in minor units", async () => {
     expect(await client().getBalance("101")).toEqual({
       amountMinor: 102_450,
@@ -136,7 +128,6 @@ describe("createLunchFlowClient", () => {
   it("maps a missing or wrong key to auth without a retry", async () => {
     const error = await bankErrorOf(client("wrong").listAccounts());
     expect(error.kind).toBe("auth");
-    expect(error.status).toBe(403);
     expect(server.requests).toHaveLength(1);
   });
 

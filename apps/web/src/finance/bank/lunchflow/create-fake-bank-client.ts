@@ -13,7 +13,6 @@ export interface FakeBankFixture {
   transactions: Partial<Record<string, ProviderTransaction[]>>;
   balances: Partial<Record<string, ProviderBalance>>;
   errors?: Partial<Record<string, BankErrorKind>>;
-  listAccountsError?: BankErrorKind;
 }
 
 /** A `BankClient` that answers from a fixture, for dev, e2e and tests. A test may change the fixture between calls. */
@@ -28,23 +27,14 @@ export function createFakeBankClient(fixture: FakeBankFixture): BankClient {
 
   return {
     listAccounts: () =>
-      Promise.try(() => {
-        if (fixture.listAccountsError) {
-          throw new BankError(fixture.listAccountsError, "Fake error");
-        }
-        return fixture.accounts.map((account) => ({ ...account }));
-      }),
+      Promise.try(() => fixture.accounts.map((account) => ({ ...account }))),
 
     listTransactions: (providerAccountId, range) =>
       Promise.try(() => {
         failIfScripted(providerAccountId);
         const rows = fixture.transactions[providerAccountId] ?? [];
         return rows
-          .filter(
-            (row) =>
-              row.date >= range.from &&
-              (range.to === undefined || row.date <= range.to),
-          )
+          .filter((row) => row.date >= range.from)
           .map((row) => ({ ...row }));
       }),
 

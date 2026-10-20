@@ -99,21 +99,6 @@ describe("formatMoney", () => {
     );
   });
 
-  it("shows the code instead of the symbol when asked", () => {
-    expect(
-      formatMoney(500, "GBP", "en", { currencyDisplay: "code" }).replaceAll(
-        " ",
-        " ",
-      ),
-    ).toBe("GBP 5.00");
-  });
-
-  it("formats compact amounts for chart axes", () => {
-    expect(formatMoney(123456789, "GBP", "en", { notation: "compact" })).toBe(
-      "£1.2M",
-    );
-  });
-
   it("rounds to whole units for a summary figure", () => {
     expect(formatMoney(113709307, "GBP", "en", { wholeUnits: true })).toBe(
       "£1,137,093",

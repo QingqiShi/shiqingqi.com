@@ -86,10 +86,7 @@ function countedAt(context: ReportContext, day: string) {
 }
 
 /** Each Group's total at the end of a week end, keyed by week end and then by Group id. */
-export type GroupTotalsByWeek = ReadonlyMap<
-  string,
-  ReadonlyMap<string, number>
->;
+type GroupTotalsByWeek = ReadonlyMap<string, ReadonlyMap<string, number>>;
 
 function groupTotalsAt(context: ReportContext, day: string) {
   const { byAccount } = countedAt(context, day);

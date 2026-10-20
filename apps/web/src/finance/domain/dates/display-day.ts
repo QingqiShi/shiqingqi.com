@@ -7,7 +7,6 @@ import { toEpochDay } from "./to-epoch-day.ts";
 type DisplayDayStyle =
   | "weekday"
   | "weekdayYear"
-  | "weekdayLong"
   | "day"
   | "dayYear"
   | "month"
@@ -17,7 +16,6 @@ type DisplayDayStyle =
 const DATE_PART: Record<DisplayDayStyle, Intl.DateTimeFormatOptions> = {
   weekday: { day: "numeric", month: "short" },
   weekdayYear: { day: "numeric", month: "short", year: "numeric" },
-  weekdayLong: { day: "numeric", month: "long" },
   day: { day: "numeric", month: "short" },
   dayYear: { day: "numeric", month: "short", year: "numeric" },
   month: { month: "short" },
@@ -25,10 +23,9 @@ const DATE_PART: Record<DisplayDayStyle, Intl.DateTimeFormatOptions> = {
   year: { year: "numeric" },
 };
 
-const WEEKDAY_PART: Partial<Record<DisplayDayStyle, "short" | "long">> = {
+const WEEKDAY_PART: Partial<Record<DisplayDayStyle, "short">> = {
   weekday: "short",
   weekdayYear: "short",
-  weekdayLong: "long",
 };
 
 export const MS_PER_DAY = 86_400_000;
@@ -77,10 +74,9 @@ export function displayDayRange(
   start: string | number,
   end: string | number,
   locale: string,
-  style: DisplayDayStyle = "dayYear",
 ): string {
-  const first = displayDay(start, locale, style);
-  const last = displayDay(end, locale, style);
+  const first = displayDay(start, locale, "dayYear");
+  const last = displayDay(end, locale, "dayYear");
   return first === last ? first : `${first} – ${last}`;
 }
 

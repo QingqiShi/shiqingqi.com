@@ -7,7 +7,7 @@ import type { AddressInfo } from "node:net";
 import { gzipSync } from "node:zlib";
 import sharp from "sharp";
 
-export interface FakeRoute {
+interface FakeRoute {
   status?: number;
   headers?: Record<string, string>;
   body?: string | Uint8Array;
@@ -206,7 +206,7 @@ export function solidIconBitmap(
   edge: number,
   colour: Rgb,
   bitCount: 24 | 32,
-  options: { maskBorder?: number; alpha?: number } = {},
+  options: { maskBorder?: number } = {},
 ): Uint8Array {
   const bytesPerPixel = bitCount / 8;
   const stride = Math.ceil((edge * bytesPerPixel) / 4) * 4;
@@ -224,7 +224,7 @@ export function solidIconBitmap(
       data[at] = colour.b;
       data[at + 1] = colour.g;
       data[at + 2] = colour.r;
-      if (bitCount === 32) data[at + 3] = options.alpha ?? 255;
+      if (bitCount === 32) data[at + 3] = 255;
       const edgePixel =
         x < border ||
         row < border ||

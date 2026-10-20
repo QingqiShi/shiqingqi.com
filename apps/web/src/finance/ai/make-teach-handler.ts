@@ -27,7 +27,6 @@ export interface TeachHandlerDependencies {
   getModel: () => LanguageModel | null;
   onModelError?: (error: unknown) => void;
   limitRequest?: LimitFinanceRequest;
-  now?: () => Date;
 }
 
 const name = z.string().trim().max(200);

@@ -2,7 +2,7 @@ import type { SupportedLocale } from "#src/i18n/types.ts";
 import type { FinanceEmail } from "./types.ts";
 
 /** A button that opens `url`, under an optional heading and an optional line that says what to do there. */
-export interface FinanceEmailAction {
+interface FinanceEmailAction {
   heading?: string;
   text?: string;
   label: string;
@@ -123,35 +123,26 @@ function renderCode({ value, hint }: FinanceEmailCode): string {
 </td></tr>`;
 }
 
-function renderActions(
-  { actions, code }: FinanceEmailContent,
+function renderActionRows(
+  { action, code }: FinanceEmailContent,
   copyLink: string,
 ): string {
   if (!code) {
-    return actions
-      .map((action, index) => {
-        const body = renderAction(action, copyLink, false);
-        return index === 0
-          ? `<tr><td style="padding-top:32px">${body}</td></tr>`
-          : ruledRow(body);
-      })
-      .join("\n");
+    return `<tr><td style="padding-top:32px">${renderAction(action, copyLink, false)}</td></tr>`;
   }
   const alternative = `<p class="fg" style="${style({ ...text, margin: "0 0 16px", "font-size": "16px", "line-height": "24px", color: LIGHT.fg })}">${escapeHtml(code.alternative)}</p>`;
   return [
     renderCode(code),
-    ruledRow(
-      `${alternative}${actions.map((action) => renderAction(action, copyLink, true)).join('\n<div style="height:24px;line-height:24px;font-size:0">&nbsp;</div>\n')}`,
-    ),
+    ruledRow(`${alternative}${renderAction(action, copyLink, true)}`),
   ].join("\n");
 }
 
-/** A code to type on the device that asked for the email. It leads the email, and the actions become the other way in. */
-export interface FinanceEmailCode {
+/** A code to type on the device that asked for the email. It leads the email, and the action becomes the other way in. */
+interface FinanceEmailCode {
   value: string;
   /** Where to type the code. */
   hint: string;
-  /** The line that brings in the actions. */
+  /** The line that brings in the action. */
   alternative: string;
 }
 
@@ -162,7 +153,7 @@ interface FinanceEmailContent {
   heading: string;
   intro: string;
   code?: FinanceEmailCode;
-  actions: FinanceEmailAction[];
+  action: FinanceEmailAction;
   /** How long the code and the links work. */
   expiry?: string;
   /** The last note. By default it says to ignore the email when you did not ask for it. */
@@ -170,27 +161,23 @@ interface FinanceEmailContent {
 }
 
 /**
- * A Finance email: a heading, an intro, an optional code to type, one button
- * per action with its link also as text, and quieter notes below, which end
- * with "ignore this email". The plain-text body has the same parts.
+ * A Finance email: a heading, an intro, an optional code to type, a button
+ * with its link also as text, and quieter notes below, which end with
+ * "ignore this email". The plain-text body has the same parts.
  */
 export function renderFinanceEmail(content: FinanceEmailContent): FinanceEmail {
-  const { to, locale, subject, intro, code, actions, expiry, ignore } = content;
+  const { to, locale, subject, intro, code, action, expiry, ignore } = content;
   const notes = [...(expiry ? [expiry] : []), ignore ?? COPY[locale].ignore];
-  const links = actions
-    .map((action) =>
-      [action.heading, action.text, action.url]
-        .filter((part) => part !== undefined)
-        .join("\n"),
-    )
-    .join("\n\n");
+  const link = [action.heading, action.text, action.url]
+    .filter((part) => part !== undefined)
+    .join("\n");
   return {
     to,
     subject,
     text: [
       intro,
       ...(code ? [code.value, code.hint, code.alternative] : []),
-      links,
+      link,
       ...notes,
     ].join("\n\n"),
     html: renderHtml(content, notes),
@@ -252,7 +239,7 @@ body { margin: 0; padding: 0; width: 100%; -webkit-text-size-adjust: 100%; -ms-t
 <h1 class="fg" style="${style({ ...text, margin: "0", "font-size": "24px", "line-height": "31px", "font-weight": "600", "letter-spacing": "-0.01em", color: LIGHT.fg })}">${escapeHtml(heading)}</h1>
 <p class="fg" style="${style({ ...text, margin: "8px 0 0", "font-size": "16px", "line-height": "24px", color: LIGHT.fg })}">${escapeHtml(intro)}</p>
 </td></tr>
-${renderActions(content, copy.copyLink)}
+${renderActionRows(content, copy.copyLink)}
 <tr><td style="padding-top:32px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="rule" style="${style({ "border-top": `1px solid ${LIGHT.border}`, "padding-top": "24px" })}">
 ${notes.map((note, index) => `<p class="muted" style="${style({ ...text, margin: index === 0 ? "0" : "8px 0 0", "font-size": "14px", "line-height": "21px", color: LIGHT.fgMuted })}">${escapeHtml(note)}</p>`).join("\n")}

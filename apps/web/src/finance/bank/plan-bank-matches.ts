@@ -15,7 +15,7 @@ export interface MatchCandidate {
   createdAt: Date;
 }
 
-export type BankMatch =
+type BankMatch =
   | { action: "confirm"; transactionId: string }
   | { action: "link"; transactionId: string }
   | { action: "settle"; transactionId: string; entryId: string }

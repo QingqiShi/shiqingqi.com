@@ -42,7 +42,7 @@ export function ReportSharePanel({ report }: { report: WeeklyReportResponse }) {
     () => typeof navigator !== "undefined" && canShareFiles(navigator),
   );
   const imageCopy = useReportImageCopy();
-  const imageQuery = reportImageQuery(report, { locale }, imageCopy);
+  const imageQuery = reportImageQuery(report, locale, imageCopy);
   const [drawAhead, setDrawAhead] = useState(false);
   const image = useQuery({ ...imageQuery, enabled: drawAhead });
   useEffect(() => {

@@ -16,7 +16,7 @@ export interface LabellingAccount {
   paymentDueDay: number | null;
 }
 
-export interface LabellingCategory {
+interface LabellingCategory {
   id: string;
   parentId: string | null;
   kind: "expense" | "income";

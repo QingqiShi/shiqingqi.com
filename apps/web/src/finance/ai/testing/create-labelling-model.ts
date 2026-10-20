@@ -62,7 +62,7 @@ export function userText(prompt: readonly PromptMessage[]) {
 }
 
 /** The bank rows of a labeller prompt. */
-export function promptRows(prompt: readonly PromptMessage[]): PromptRow[] {
+function promptRows(prompt: readonly PromptMessage[]): PromptRow[] {
   return [...userText(prompt).matchAll(ROW)].map(
     ([, ref, date, amount, currency, accountId, merchant, description]) => ({
       ref,

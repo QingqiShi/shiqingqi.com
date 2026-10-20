@@ -17,21 +17,21 @@ interface MasterDetailLayoutProps {
   /** Shown in the pane when nothing is selected, at `lg+` only. */
   empty?: ReactNode;
   /** The search param that carries the selection. */
-  param?: string;
+  param: string;
   /** Names the sheet below `lg`. */
   detailLabel: string;
 }
 
 /**
  * A list and the detail of its selected row: side by side at `lg` and wider,
- * the detail in a `PaneSheet` below. The selection lives in the URL
- * (`?id=` by default), so link rows with `useUrlSelection(param).hrefWith`.
+ * the detail in a `PaneSheet` below. The selection lives in the `param`
+ * search param, so link rows with `useUrlSelection(param).hrefWith`.
  */
 export function MasterDetailLayout({
   master,
   detail,
   empty,
-  param = "id",
+  param,
   detailLabel,
 }: MasterDetailLayoutProps) {
   const selection = useUrlSelection(param);

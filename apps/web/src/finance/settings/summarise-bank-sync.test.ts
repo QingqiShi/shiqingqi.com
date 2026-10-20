@@ -28,7 +28,6 @@ describe("summariseBankSync", () => {
     );
     expect(lines).toEqual([
       {
-        accountId: "visa",
         name: "Alex Visa",
         pending: 12,
         matched: 30,
@@ -36,7 +35,6 @@ describe("summariseBankSync", () => {
         failed: false,
       },
       {
-        accountId: "broken",
         name: "Sam Current",
         pending: 0,
         matched: 0,

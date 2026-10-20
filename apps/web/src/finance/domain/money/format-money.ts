@@ -3,11 +3,7 @@ import { fromMinorUnits } from "./to-minor-units.ts";
 
 interface FormatMoneyOptions {
   /** `"exceptZero"` shows `+£5.00` for money in; the default shows a sign only on money out. */
-  signDisplay?: "auto" | "always" | "exceptZero" | "never";
-  /** `"code"` shows `GBP 5.00`; the default shows `£5.00`. */
-  currencyDisplay?: "symbol" | "narrowSymbol" | "code";
-  /** `"compact"` shows `£1.1M`, for chart axes and tight tiles. */
-  notation?: "standard" | "compact";
+  signDisplay?: "auto" | "exceptZero";
   /** True shows `£1,137,093` for a summary figure, where pence are noise. */
   wholeUnits?: boolean;
 }
@@ -17,9 +13,9 @@ const formatters = new Map<string, Intl.NumberFormat>();
 function getFormatter(
   currency: string,
   locale: string,
-  { signDisplay, currencyDisplay, notation, wholeUnits }: FormatMoneyOptions,
+  { signDisplay, wholeUnits }: FormatMoneyOptions,
 ) {
-  const key = `${locale}|${currency}|${signDisplay ?? ""}|${currencyDisplay ?? ""}|${notation ?? ""}|${wholeUnits ? "whole" : ""}`;
+  const key = `${locale}|${currency}|${signDisplay ?? ""}|${wholeUnits ? "whole" : ""}`;
   let formatter = formatters.get(key);
   if (!formatter) {
     const exponent = wholeUnits ? 0 : currencyExponent(currency);
@@ -27,14 +23,8 @@ function getFormatter(
       style: "currency",
       currency,
       signDisplay,
-      currencyDisplay,
-      notation,
-      ...(notation === "compact"
-        ? { maximumFractionDigits: 1 }
-        : {
-            minimumFractionDigits: exponent,
-            maximumFractionDigits: exponent,
-          }),
+      minimumFractionDigits: exponent,
+      maximumFractionDigits: exponent,
     });
     formatters.set(key, formatter);
   }

@@ -7,7 +7,7 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { displayDay } from "../domain/dates/display-day.ts";
+import { displayDayRange } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { formatPercent } from "../domain/money/format-percent.ts";
 import type {
@@ -15,12 +15,6 @@ import type {
   AnalyticsView,
 } from "./compute-analytics-view.ts";
 import { useScopeLabel } from "./use-scope-label.ts";
-
-function formatRange(from: string, to: string, locale: string) {
-  return from === to
-    ? displayDay(from, locale, "dayYear")
-    : `${displayDay(from, locale, "dayYear")} – ${displayDay(to, locale, "dayYear")}`;
-}
 
 /** The range's total, the change on the period before, and the count and average behind it. */
 export function AnalyticsSummary({
@@ -65,7 +59,11 @@ export function AnalyticsSummary({
   return (
     <section css={stack.tight} aria-label={heading}>
       <Text look="caption" tone="muted">
-        {[heading, scope, formatRange(view.range.from, view.range.to, locale)]
+        {[
+          heading,
+          scope,
+          displayDayRange(view.range.from, view.range.to, locale),
+        ]
           .filter((part) => part !== null)
           .join(" · ")}
       </Text>
@@ -84,7 +82,7 @@ export function AnalyticsSummary({
           )}
           <span css={styles.muted}>
             {change === 0 ? "" : `${versus} `}
-            {formatRange(previous.from, previous.to, locale)}
+            {displayDayRange(previous.from, previous.to, locale)}
           </span>
         </p>
       )}

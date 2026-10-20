@@ -2,7 +2,7 @@ import { MATCH_DAY_WINDOW } from "../bank/plan-bank-matches.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 
 /** How many days an In transit Entry waits for a bank row to settle it before a person should look: the match window and two days more. */
-export const STALE_IN_TRANSIT_DAYS = MATCH_DAY_WINDOW + 2;
+const STALE_IN_TRANSIT_DAYS = MATCH_DAY_WINDOW + 2;
 
 /**
  * Whether a Transaction is in Review: something flagged it (`needsReview`),

@@ -80,7 +80,7 @@ import { TagPicker } from "./tag-picker.tsx";
 import { topCategories } from "./top-categories.ts";
 import { useEditorData, type EditorData } from "./use-editor-data.ts";
 
-export type EditorFocusTarget = "amount" | "category" | "heading";
+export type EditorFocusTarget = "amount" | "category";
 
 interface TransactionEditorProps {
   /** The Transaction to edit, or null for a new one. */
@@ -183,14 +183,7 @@ export function TransactionEditor(props: TransactionEditorProps) {
     );
   }
   return (
-    <EditorForm
-      {...props}
-      data={data}
-      draft={draft}
-      setDraft={(next) => {
-        setDraft(next);
-      }}
-    />
+    <EditorForm {...props} data={data} draft={draft} setDraft={setDraft} />
   );
 }
 
@@ -226,15 +219,14 @@ function EditorForm({
   >({});
   const [duplicate, setDuplicate] = useState<TransactionRow | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
-  const [suggestState, setSuggestState] = useState<
-    "idle" | "busy" | "none" | "failed"
-  >("idle");
+  const [suggestState, setSuggestState] = useState<"idle" | "busy" | "failed">(
+    "idle",
+  );
   const [ruleOffer, setRuleOffer] = useState<"open" | "declined">("open");
   const [instalmentsOpen, setInstalmentsOpen] = useState(false);
   const footerSticky = useEffectSticky();
   const { ref: footerStickyRef, css: footerStickyCss } = footerSticky;
   const newIdRef = useRef<string | null>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
   const categoryRef = useRef<HTMLButtonElement>(null);
   const toAccountRef = useRef<HTMLSelectElement>(null);
@@ -259,11 +251,7 @@ function EditorForm({
   useEffect(() => {
     const target = focusRequest?.target ?? "amount";
     const element =
-      target === "amount"
-        ? amountRef.current
-        : target === "category"
-          ? categoryRef.current
-          : headingRef.current;
+      target === "amount" ? amountRef.current : categoryRef.current;
     if (focusTargetRef) focusTargetRef.current = element;
     element?.focus();
     if (target === "amount") amountRef.current?.select();
@@ -846,7 +834,6 @@ function EditorForm({
       <div css={[flex.between, styles.header]}>
         <h2
           id="finance-editor-heading"
-          ref={headingRef}
           tabIndex={-1}
           css={[typeRole.h4, a11y.focusRing]}
         >

@@ -81,7 +81,7 @@ export function buildRecoveryEmail({
     heading,
     intro,
     code: { value: code, hint: copy.hint, alternative: copy.alternative },
-    actions: [{ label: copy.action, url }],
+    action: { label: copy.action, url },
     expiry: copy.expiry,
   });
 }

@@ -28,7 +28,6 @@ import type {
   TransactionRow,
 } from "../sync/row-schemas.ts";
 import { LedgerEntryLink } from "./ledger-entry-link.tsx";
-import { shownUnbackedEntries } from "./shown-unbacked-entries.ts";
 import { useDescribeLedgerEntry } from "./use-describe-ledger-entry.ts";
 import { useUnbackedEntries } from "./use-unbacked-entries.ts";
 
@@ -170,7 +169,7 @@ function UnbackedEntryList({
 
   if (unbacked === null) return null;
   const { rows, explained } = unbacked;
-  const { shown, hidden } = shownUnbackedEntries(rows, expanded);
+  const shown = expanded ? rows : rows.slice(0, 5);
 
   return (
     <>
@@ -218,7 +217,7 @@ function UnbackedEntryList({
               );
             })}
           </ul>
-          {hidden > 0 ? (
+          {shown.length < rows.length ? (
             <div>
               <Button
                 size="sm"

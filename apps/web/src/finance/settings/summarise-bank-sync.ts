@@ -2,7 +2,6 @@ import type { SyncNowResponse } from "../bank/types.ts";
 
 /** What "Sync now" did to one Bank link's account. */
 export interface BankSyncLine {
-  accountId: string;
   name: string;
   /** New bank rows the AI labels after the sync. */
   pending: number;
@@ -21,7 +20,6 @@ export function summariseBankSync(
 ): BankSyncLine[] {
   return response.links
     .map((link) => ({
-      accountId: link.accountId,
       name: nameOf(link.accountId),
       pending: link.pending,
       matched: link.linked + link.confirmed,

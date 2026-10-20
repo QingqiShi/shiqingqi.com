@@ -19,8 +19,6 @@ export interface RecurringPattern {
   dayOfMonth: number | null;
   weekday: number | null;
   monthOfYear: number | null;
-  /** The Transaction the pattern was found from; its date anchors the schedule. */
-  anchorDate: string;
 }
 
 type Candidate = Pick<
@@ -73,6 +71,5 @@ export function detectRecurring(
     dayOfMonth: cadence.unit === "week" ? null : day.dayOfMonth,
     weekday: cadence.unit === "week" ? weekdayOf(transaction.date) : null,
     monthOfYear: cadence.unit === "year" ? day.month : null,
-    anchorDate: transaction.date,
   };
 }

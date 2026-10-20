@@ -306,7 +306,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
     return running;
   }
 
-  const unsubscribeStore = store.subscribe(() => {
+  store.subscribe(() => {
     setStatus({ pendingCount: store.getSnapshot().outboxCount });
   });
 
@@ -391,11 +391,6 @@ export function createSyncLoop(options: SyncLoopOptions) {
         leader: false,
         pendingCount: store.getSnapshot().outboxCount,
       });
-    },
-
-    dispose() {
-      stop();
-      unsubscribeStore();
     },
   };
 }

@@ -3,7 +3,7 @@ import type { FinanceSession } from "../auth/types.ts";
 import { reportRepository } from "../db/repositories/report-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
-import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
+import { financeJson } from "../http/finance-json.ts";
 import {
   guardFinanceRequest,
   type FinanceRequestGuardOptions,
@@ -69,8 +69,8 @@ async function parseReportId(context: ReportRouteContext) {
 
 /**
  * The Report routes under `/api/finance/reports/`. Every route needs a
- * session, and the Household comes from it; Regenerate and delete also need
- * a same-origin request.
+ * session, and the Household comes from it; Regenerate also needs a
+ * same-origin request.
  */
 export function makeReportHandlers(dependencies: ReportHandlerDependencies) {
   async function guard(request: Request, options: FinanceRequestGuardOptions) {
@@ -140,25 +140,7 @@ export function makeReportHandlers(dependencies: ReportHandlerDependencies) {
       return financeJson({
         id: report.id,
         periodEnd: report.periodEnd,
-        written: result.written > 0,
       } satisfies RegenerateReportResponse);
-    },
-
-    /** `DELETE /api/finance/reports/[id]`: deletes one Report. Any Member may. */
-    async remove(request: Request, context: ReportRouteContext) {
-      const scope = await guard(request, { write: true });
-      if (scope instanceof Response) return scope;
-      const id = await parseReportId(context);
-      const removed =
-        id !== null &&
-        (await withHousehold(scope.db, scope.householdId, (tx) =>
-          reportRepository.remove(tx, id),
-        ));
-      if (!removed) return failure("not-found", 404);
-      return new Response(null, {
-        status: 204,
-        headers: { "Cache-Control": FINANCE_NO_STORE },
-      });
     },
   };
 }

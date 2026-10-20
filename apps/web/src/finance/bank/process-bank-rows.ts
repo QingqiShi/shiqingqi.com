@@ -49,7 +49,7 @@ interface ProcessBankRowsDependencies {
   onUnusableAnswer?: (problem: string) => void;
 }
 
-export interface ProcessSummary {
+interface ProcessSummary {
   /** New Transactions, by the account of the bank row. */
   createdByAccount: Map<string, number>;
 }

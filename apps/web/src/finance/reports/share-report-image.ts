@@ -4,13 +4,6 @@ export interface FileShareTarget {
   share?: (data: ShareData) => Promise<void>;
 }
 
-/**
- * - `shared`: the share sheet took the file.
- * - `cancelled`: the visitor closed the share sheet.
- * - `retry`: the browser refused the share because too much time went by
- *   since the tap; a second tap works, because the image is then at hand.
- * - `downloaded`: the browser cannot share files, so the image was saved.
- */
 /** True when the browser can put a file in its share sheet. */
 export function canShareFiles(
   target: FileShareTarget,

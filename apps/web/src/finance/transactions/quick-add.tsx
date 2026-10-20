@@ -7,7 +7,7 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
-import { useState, type Ref } from "react";
+import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
@@ -26,7 +26,6 @@ import { quickAddDraft } from "./quick-add-draft.ts";
 interface QuickAddProps {
   /** Opens the full editor with what the line gave, when the line is not enough to save. */
   onNeedsEditor: (draft: EditorDraft) => void;
-  inputRef?: Ref<HTMLInputElement>;
 }
 
 /** Words from the Household's own data, so each placeholder example saves as it reads. */
@@ -69,7 +68,7 @@ function placeholderWords({
  * Transaction; when something is missing, the full editor opens with what
  * the line gave.
  */
-export function QuickAdd({ onNeedsEditor, inputRef }: QuickAddProps) {
+export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
   const locale = useLocale();
   const data = useEditorData();
   const isWide = useIsWideLayout();
@@ -216,7 +215,6 @@ export function QuickAdd({ onNeedsEditor, inputRef }: QuickAddProps) {
       }}
     >
       <TextField
-        ref={inputRef}
         label={t({ en: "Quick add", zh: "快速记账" })}
         labelHidden
         placeholder={placeholder}

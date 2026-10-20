@@ -100,7 +100,6 @@ describe("buildValuationMutations", () => {
     );
     expect(result.changes.get("isa")).toEqual({
       changeMinor: 95_040,
-      share: 95_040 / 1_830_000,
       isLarge: false,
     });
     expect(result.changes.get("mortgage")?.changeMinor).toBe(-50_000);

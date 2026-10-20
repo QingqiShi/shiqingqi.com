@@ -13,7 +13,7 @@ const MAX_ATTEMPTS = 5;
 
 type EmailCodePurpose = (typeof emailCodes.$inferInsert)["purpose"];
 
-export type EmailCodeCheck =
+type EmailCodeCheck =
   | { ok: true; email: string }
   /** `ended` when the code is used, expired or out of tries, so that a new one is needed. */
   | { ok: false; ended: boolean };

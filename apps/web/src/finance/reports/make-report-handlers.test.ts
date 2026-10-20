@@ -124,7 +124,6 @@ describe("makeReportHandlers", () => {
       await (await regenerate()).json(),
     );
     expect(created.periodEnd).toBe("2026-10-04");
-    expect(created.written).toBe(true);
 
     const response = await handlers.getReport(
       request(created.id),
@@ -139,7 +138,7 @@ describe("makeReportHandlers", () => {
     const again = reportApiSchemas.regenerate.parse(
       await (await regenerate({ periodEnd: "2026-10-01" })).json(),
     );
-    expect(again).toMatchObject({ id: created.id, written: false });
+    expect(again).toMatchObject({ id: created.id });
   });
 
   it("refuses a week that has not ended", async () => {
@@ -222,36 +221,6 @@ describe("makeReportHandlers", () => {
 
     session = null;
     expect((await handlers.listReports(request(""))).status).toBe(401);
-  });
-
-  it("deletes a report of the household, and only with a same-origin request", async () => {
-    const homeSession = session;
-    if (!homeSession) throw new Error("No session");
-    session = { ...homeSession, householdId: other.householdId };
-    const otherReport = reportApiSchemas.regenerate.parse(
-      await (await regenerate()).json(),
-    );
-    session = { ...homeSession, role: "member" };
-    const { id } = reportApiSchemas.regenerate.parse(
-      await (await regenerate()).json(),
-    );
-    const remove = (reportId: string, origin?: string) =>
-      handlers.remove(
-        request(reportId, { method: "DELETE", origin }),
-        routeContext(reportId),
-      );
-
-    expect((await remove(id, "https://example.com")).status).toBe(403);
-    expect((await remove(otherReport.id)).status).toBe(404);
-    expect((await remove("not-a-uuid")).status).toBe(404);
-
-    const removed = await remove(id);
-    expect(removed.status).toBe(204);
-    expect(removed.headers.get("Cache-Control")).toBe("private, no-store");
-    expect((await remove(id)).status).toBe(404);
-    expect((await db.select().from(reports)).map((row) => row.id)).toEqual([
-      otherReport.id,
-    ]);
   });
 
   it("says a report with an old shape is outdated", async () => {
