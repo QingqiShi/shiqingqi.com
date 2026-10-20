@@ -3,7 +3,12 @@ import { inArray, sql } from "drizzle-orm";
 import { reports } from "../../src/finance/db/schema.ts";
 import { addDays } from "../../src/finance/domain/dates/add-days.ts";
 import { lastCompleteWeekEnd } from "../../src/finance/reports/last-complete-week-end.ts";
-import { expect, test } from "./finance-test.ts";
+import {
+  expect,
+  expectNoSidewaysScroll,
+  test,
+  waitForServiceWorker,
+} from "./finance-test.ts";
 import { makeReport } from "./make-report.ts";
 import { DESKTOP, MOBILE, SYNC_TIMEOUT, toast } from "./transactions-page.ts";
 
@@ -21,27 +26,6 @@ function storedReports(page: Page) {
     const requests = await cache.keys();
     return requests.map((request) => new URL(request.url).pathname);
   });
-}
-
-/** Waits until the service worker controls the page, and skips the test on a dev server, which has no worker. */
-async function waitForServiceWorker(page: Page) {
-  const hasWorker = await page.evaluate(() =>
-    Promise.race([
-      navigator.serviceWorker.ready.then(() => true),
-      new Promise<boolean>((resolve) => {
-        setTimeout(() => {
-          resolve(false);
-        }, 10_000);
-      }),
-    ]),
-  );
-  test.skip(!hasWorker, "The service worker runs in a production build only.");
-  await expect
-    .poll(
-      () => page.evaluate(() => navigator.serviceWorker.controller !== null),
-      { timeout: SYNC_TIMEOUT },
-    )
-    .toBe(true);
 }
 
 function balanceSheetRow(page: Page, name: string) {
@@ -242,12 +226,7 @@ test.describe("Weekly reports at 390 px", () => {
       page.getByRole("region", { name: "Net worth" }).getByText(MONEY).first(),
     ).toBeVisible();
 
-    const overflow = await page.evaluate(
-      () =>
-        document.documentElement.scrollWidth -
-        document.documentElement.clientWidth,
-    );
-    expect(overflow).toBe(0);
+    await expectNoSidewaysScroll(page);
 
     await page.getByRole("link", { name: /^Week before: / }).click();
     await expect(page).not.toHaveURL(newestUrl);

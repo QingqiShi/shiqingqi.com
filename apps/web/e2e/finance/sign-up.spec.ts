@@ -1,4 +1,3 @@
-import type { Page } from "@playwright/test";
 import { and, eq } from "drizzle-orm";
 import {
   accounts,
@@ -17,16 +16,9 @@ import {
   test,
   uniqueEmail,
 } from "./finance-test.ts";
-import { DESKTOP, SYNC_TIMEOUT, toast } from "./transactions-page.ts";
+import { DESKTOP, inviteMember, toast } from "./transactions-page.ts";
 
 test.use({ viewport: DESKTOP });
-
-async function openMembers(page: Page) {
-  await page.goto("/finance/settings/members");
-  await expect(
-    page.getByRole("heading", { level: 2, name: "Members" }),
-  ).toBeVisible({ timeout: SYNC_TIMEOUT });
-}
 
 test.describe("Sign-up", () => {
   test("a visitor signs up with the emailed code and gets a household named after them, invites a member, and a second sign-up with the same email gets a Recovery link, not a household", async ({
@@ -94,17 +86,7 @@ test.describe("Sign-up", () => {
     await expect(toast(page, "Account saved")).toBeVisible();
     await expect(page.getByRole("link", { name: /^Current/ })).toBeVisible();
 
-    await openMembers(page);
-    await page.getByRole("button", { name: "Member", exact: true }).click();
-    await page.getByRole("textbox", { name: /Name/ }).fill("Sam");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect(toast(page, "Member added")).toBeVisible();
-    await page.getByRole("button", { name: "Create invite link: Sam" }).click();
-    const link = page.getByRole("textbox", { name: "Link" });
-    await expect(link).toHaveValue(/\/finance\/invite\//, {
-      timeout: SYNC_TIMEOUT,
-    });
-    const inviteUrl = await link.inputValue();
+    const inviteUrl = await inviteMember(page, "Sam");
 
     const samContext = await browser.newContext({ viewport: DESKTOP });
     const samPage = await samContext.newPage();

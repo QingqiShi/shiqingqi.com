@@ -1,6 +1,7 @@
-import type { Page, Route } from "@playwright/test";
+import type { Locator, Page, Route } from "@playwright/test";
 import { and, eq, isNull } from "drizzle-orm";
 import { transactions } from "../../src/finance/db/schema.ts";
+import type { FinanceDb } from "../../src/finance/db/types.ts";
 import { expect, test } from "./finance-test.ts";
 import {
   DESKTOP,
@@ -41,6 +42,25 @@ function bootstrappedOnDisk(page: Page, householdId: string) {
   }, householdId);
 }
 
+/** The amounts on the server of the live Transaction that `row` shows. */
+async function storedAmounts(
+  financeDb: FinanceDb,
+  householdId: string,
+  row: Locator,
+) {
+  const id = await row.getAttribute("data-transaction-id");
+  return financeDb
+    .select({ amountMinor: transactions.amountMinor })
+    .from(transactions)
+    .where(
+      and(
+        eq(transactions.householdId, householdId),
+        eq(transactions.id, id ?? ""),
+        isNull(transactions.deletedAt),
+      ),
+    );
+}
+
 test("a transaction added offline waits on the device, then syncs when the network is back", async ({
   page,
   household,
@@ -71,18 +91,9 @@ test("a transaction added offline waits on the device, then syncs when the netwo
     timeout: SYNC_TIMEOUT,
   });
 
-  const id = await row.getAttribute("data-transaction-id");
-  const stored = await financeDb
-    .select({ amountMinor: transactions.amountMinor })
-    .from(transactions)
-    .where(
-      and(
-        eq(transactions.householdId, session.householdId),
-        eq(transactions.id, id ?? ""),
-        isNull(transactions.deletedAt),
-      ),
-    );
-  expect(stored).toEqual([{ amountMinor: -777 }]);
+  expect(await storedAmounts(financeDb, session.householdId, row)).toEqual([
+    { amountMinor: -777 },
+  ]);
 
   await page.reload();
   await expect(row).toHaveCount(1);
@@ -120,17 +131,9 @@ test("a transaction added just before a reload stays on the device and syncs aft
   await expect(row).not.toContainText("Not synced yet", {
     timeout: SYNC_TIMEOUT,
   });
-  const id = await row.getAttribute("data-transaction-id");
-  const stored = await financeDb
-    .select({ amountMinor: transactions.amountMinor })
-    .from(transactions)
-    .where(
-      and(
-        eq(transactions.householdId, session.householdId),
-        eq(transactions.id, id ?? ""),
-      ),
-    );
-  expect(stored).toEqual([{ amountMinor: -643 }]);
+  expect(await storedAmounts(financeDb, session.householdId, row)).toEqual([
+    { amountMinor: -643 },
+  ]);
 });
 
 test("a change the server does not take stays on the device, and new data still arrives", async ({
@@ -176,15 +179,7 @@ test("a change the server does not take stays on the device, and new data still 
   await expect(row).not.toContainText("Not synced yet", {
     timeout: SYNC_TIMEOUT,
   });
-  const id = await row.getAttribute("data-transaction-id");
-  const stored = await financeDb
-    .select({ amountMinor: transactions.amountMinor })
-    .from(transactions)
-    .where(
-      and(
-        eq(transactions.householdId, session.householdId),
-        eq(transactions.id, id ?? ""),
-      ),
-    );
-  expect(stored).toEqual([{ amountMinor: -555 }]);
+  expect(await storedAmounts(financeDb, session.householdId, row)).toEqual([
+    { amountMinor: -555 },
+  ]);
 });

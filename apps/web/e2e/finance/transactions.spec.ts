@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { accounts } from "../../src/finance/db/schema.ts";
-import { expect, test } from "./finance-test.ts";
+import { expect, expectNoSidewaysScroll, test } from "./finance-test.ts";
 import {
   DESKTOP,
   MOBILE,
@@ -324,11 +324,7 @@ test.describe("Transactions at 390 px", () => {
     await filter.click();
     await expect(filter).toHaveAttribute("aria-expanded", "true");
     await expect(kind).toHaveValue("income");
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= window.innerWidth,
-      ),
-    ).toBe(true);
+    await expectNoSidewaysScroll(page);
   });
 });
 
