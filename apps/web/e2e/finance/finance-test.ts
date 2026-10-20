@@ -3,6 +3,7 @@ import {
   test as base,
   expect,
   type APIRequestContext,
+  type CDPSession,
   type Locator,
   type Page,
 } from "@playwright/test";
@@ -164,18 +165,13 @@ export function uniqueEmail(name: string): string {
 }
 
 /**
- * Asks for a sign-up code on the sign-in page, then goes on with the code
- * typed on the page or, with `via: "link"`, with the emailed link. Creates
- * the User and their Household with a passkey from the page's
- * authenticator, and waits for the Household's home page.
+ * Asks for a sign-up code on the sign-in page and types it. Creates the User
+ * and their Household with a passkey from the page's authenticator, and
+ * waits for the Household's home page.
  */
 export async function signUpWithEmail(
   page: Page,
-  {
-    email,
-    name = "Alex",
-    via = "code",
-  }: { email: string; name?: string; via?: "code" | "link" },
+  { email, name = "Alex" }: { email: string; name?: string },
 ) {
   await page.goto("/finance/sign-in");
   await page.getByRole("textbox", { name: /^Email/ }).fill(email);
@@ -184,14 +180,10 @@ export async function signUpWithEmail(
     page.getByRole("status").filter({ hasText: `We sent a code to ${email}` }),
   ).toBeVisible();
   const sent = await emailTo(email, /^\d{6} is your Finance sign-up code$/);
-  if (via === "code") {
-    await page
-      .getByRole("textbox", { name: "Code" })
-      .fill(sent.subject.slice(0, 6));
-    await page.getByRole("button", { name: "Continue" }).click();
-  } else {
-    await page.goto(linkIn(sent, "/finance/sign-up/"));
-  }
+  await page
+    .getByRole("textbox", { name: "Code" })
+    .fill(sent.subject.slice(0, 6));
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(
     page.getByRole("heading", { name: "Sign up for Finance" }),
   ).toBeVisible();
@@ -202,10 +194,8 @@ export async function signUpWithEmail(
   await page.waitForURL((url) => url.pathname === "/finance");
 }
 
-/** Adds a CDP virtual authenticator to `page`, so passkey ceremonies complete without a person. */
-export async function addVirtualAuthenticator(page: Page): Promise<string> {
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send("WebAuthn.enable");
+/** Adds a virtual authenticator through `cdp`, which must have `WebAuthn.enable` sent. */
+export async function addAuthenticator(cdp: CDPSession): Promise<string> {
   const { authenticatorId } = await cdp.send(
     "WebAuthn.addVirtualAuthenticator",
     {
@@ -220,6 +210,57 @@ export async function addVirtualAuthenticator(page: Page): Promise<string> {
     },
   );
   return authenticatorId;
+}
+
+/** Adds a CDP virtual authenticator to `page`, so passkey ceremonies complete without a person. */
+export async function addVirtualAuthenticator(page: Page): Promise<string> {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("WebAuthn.enable");
+  return addAuthenticator(cdp);
+}
+
+/** Signs `page` in as the owner of `household` through a recovery invite, with a new passkey of the page's authenticator. */
+export async function signInWithRecoveryInvite(
+  page: Page,
+  financeDb: FinanceDb,
+  household: SyntheticHousehold,
+) {
+  const invite = await withHousehold(
+    financeDb,
+    household.householdId,
+    (scope) =>
+      createInvite(scope, {
+        memberId: household.memberIds.alex,
+        createdBy: null,
+        allowRecovery: true,
+        now: new Date(),
+      }),
+  );
+  if (!invite.ok) throw new Error(`No invite: ${invite.reason}`);
+  await page.goto(`/finance/invite/${invite.token}`);
+  await page.getByRole("button", { name: "Save a new passkey" }).click();
+  await page.waitForURL((url) => url.pathname === "/finance");
+}
+
+/** Waits until the service worker controls the page, and skips the test on a dev server, which has no worker. */
+export async function waitForServiceWorker(page: Page) {
+  const hasWorker = await page.evaluate(() =>
+    Promise.race([
+      navigator.serviceWorker.ready.then(() => true),
+      new Promise<boolean>((resolve) => {
+        setTimeout(() => {
+          resolve(false);
+        }, 10_000);
+      }),
+    ]),
+  );
+  base.skip(!hasWorker, "The service worker runs in a production build only.");
+  await expect
+    .poll(
+      () => page.evaluate(() => navigator.serviceWorker.controller !== null),
+      { timeout: SYNC_TIMEOUT },
+    )
+    .toBe(true);
 }
 
 export async function expectNoSidewaysScroll(page: Page) {
@@ -301,21 +342,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { page, passkeys: _passkeys, household, financeDb },
     provide,
   ) => {
-    const invite = await withHousehold(
-      financeDb,
-      household.householdId,
-      (scope) =>
-        createInvite(scope, {
-          memberId: household.memberIds.alex,
-          createdBy: null,
-          allowRecovery: true,
-          now: new Date(),
-        }),
-    );
-    if (!invite.ok) throw new Error(`No invite: ${invite.reason}`);
-    await page.goto(`/finance/invite/${invite.token}`);
-    await page.getByRole("button", { name: "Save a new passkey" }).click();
-    await page.waitForURL((url) => url.pathname === "/finance");
+    await signInWithRecoveryInvite(page, financeDb, household);
     await page.goto("/finance/transactions");
     const session = await readSession(page);
     expect(session.householdId).toBe(household.householdId);

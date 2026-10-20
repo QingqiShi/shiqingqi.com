@@ -1,36 +1,19 @@
-import type { CDPSession, Page } from "@playwright/test";
-import { createInvite } from "../../src/finance/auth/create-invite.ts";
-import { withHousehold } from "../../src/finance/db/with-household.ts";
+import type { Page } from "@playwright/test";
 import {
+  addAuthenticator,
   clickUntil,
   emailTo,
   expect,
   linkIn,
   readSession,
   signInWithPasskey,
+  signInWithRecoveryInvite,
   test,
   uniqueEmail,
 } from "./finance-test.ts";
 import { DESKTOP, SYNC_TIMEOUT } from "./transactions-page.ts";
 
 test.use({ viewport: DESKTOP });
-
-async function addAuthenticator(cdp: CDPSession): Promise<string> {
-  const { authenticatorId } = await cdp.send(
-    "WebAuthn.addVirtualAuthenticator",
-    {
-      options: {
-        protocol: "ctap2",
-        transport: "internal",
-        hasResidentKey: true,
-        hasUserVerification: true,
-        isUserVerified: true,
-        automaticPresenceSimulation: true,
-      },
-    },
-  );
-  return authenticatorId;
-}
 
 async function signOut(page: Page) {
   await page.getByRole("button", { name: "Sign out" }).click();
@@ -46,21 +29,7 @@ test.describe("Recovery email", () => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send("WebAuthn.enable");
     const lostAuthenticator = await addAuthenticator(cdp);
-    const invite = await withHousehold(
-      financeDb,
-      household.householdId,
-      (scope) =>
-        createInvite(scope, {
-          memberId: household.memberIds.alex,
-          createdBy: null,
-          allowRecovery: true,
-          now: new Date(),
-        }),
-    );
-    if (!invite.ok) throw new Error(`No invite: ${invite.reason}`);
-    await page.goto(`/finance/invite/${invite.token}`);
-    await page.getByRole("button", { name: "Save a new passkey" }).click();
-    await page.waitForURL((url) => url.pathname === "/finance");
+    await signInWithRecoveryInvite(page, financeDb, household);
     const address = uniqueEmail("alex");
 
     await page.goto("/finance/settings/members");

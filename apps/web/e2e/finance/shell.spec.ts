@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "./finance-test.ts";
+import { expect, test, waitForServiceWorker } from "./finance-test.ts";
 import {
   DESKTOP,
   MOBILE,
@@ -74,27 +74,7 @@ for (const viewport of [DESKTOP, MOBILE]) {
       session: _session,
     }) => {
       await openTransactions(page);
-      const hasWorker = await page.evaluate(() =>
-        Promise.race([
-          navigator.serviceWorker.ready.then(() => true),
-          new Promise<boolean>((resolve) => {
-            setTimeout(() => {
-              resolve(false);
-            }, 10_000);
-          }),
-        ]),
-      );
-      test.skip(
-        !hasWorker,
-        "The service worker runs in a production build only.",
-      );
-      await expect
-        .poll(
-          () =>
-            page.evaluate(() => navigator.serviceWorker.controller !== null),
-          { timeout: SYNC_TIMEOUT },
-        )
-        .toBe(true);
+      await waitForServiceWorker(page);
       await expect
         .poll(() => storedFinancePages(page), { timeout: SYNC_TIMEOUT })
         .toEqual(

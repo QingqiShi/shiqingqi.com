@@ -84,3 +84,32 @@ export async function optionValue(select: Locator, text: string) {
   expect(value).not.toBeNull();
   return value ?? "";
 }
+
+/** Opens a Settings section and waits until the Replica has the Household. */
+export async function openSettings(
+  page: Page,
+  section: string,
+  heading: string,
+) {
+  await page.goto(`/finance/settings/${section}`);
+  await expect(
+    page.getByRole("heading", { level: 2, name: heading }),
+  ).toBeVisible({ timeout: SYNC_TIMEOUT });
+}
+
+/** Adds a member named `name` on the Members settings, and returns the URL of a new invite link for them. */
+export async function inviteMember(page: Page, name: string) {
+  await openSettings(page, "members", "Members");
+  await page.getByRole("button", { name: "Member", exact: true }).click();
+  await page.getByRole("textbox", { name: /Name/ }).fill(name);
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(toast(page, "Member added")).toBeVisible();
+  await page
+    .getByRole("button", { name: `Create invite link: ${name}` })
+    .click();
+  const link = page.getByRole("textbox", { name: "Link" });
+  await expect(link).toHaveValue(/\/finance\/invite\//, {
+    timeout: SYNC_TIMEOUT,
+  });
+  return link.inputValue();
+}

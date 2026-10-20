@@ -1,4 +1,3 @@
-import type { Page } from "@playwright/test";
 import { and, eq, isNotNull } from "drizzle-orm";
 import {
   bankLinks,
@@ -16,17 +15,15 @@ import {
   test,
   uniqueEmail,
 } from "./finance-test.ts";
-import { DESKTOP, SYNC_TIMEOUT, toast } from "./transactions-page.ts";
+import {
+  DESKTOP,
+  inviteMember,
+  openSettings,
+  SYNC_TIMEOUT,
+  toast,
+} from "./transactions-page.ts";
 
 test.use({ viewport: DESKTOP });
-
-/** Opens a Settings section and waits until the Replica has the Household. */
-async function openSettings(page: Page, section: string, heading: string) {
-  await page.goto(`/finance/settings/${section}`);
-  await expect(
-    page.getByRole("heading", { level: 2, name: heading }),
-  ).toBeVisible({ timeout: SYNC_TIMEOUT });
-}
 
 test.describe("Settings", () => {
   test("a category and a tag can be added and renamed, and the change syncs", async ({
@@ -82,72 +79,17 @@ test.describe("Settings", () => {
       .toHaveLength(1);
   });
 
-  test("an owner adds a member and invites them; the member accepts with a passkey on another device", async ({
-    page,
-    session,
-    financeDb,
-    browser,
-  }) => {
-    await openSettings(page, "members", "Members");
-    await page.getByRole("button", { name: "Member", exact: true }).click();
-    await page.getByRole("textbox", { name: /Name/ }).fill("Jo");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect(toast(page, "Member added")).toBeVisible();
-    await page.getByRole("button", { name: "Create invite link: Jo" }).click();
-    const link = page.getByRole("textbox", { name: "Link" });
-    await expect(link).toHaveValue(/\/finance\/invite\//, {
-      timeout: SYNC_TIMEOUT,
-    });
-    const url = await link.inputValue();
-
-    const other = await browser.newContext({ viewport: DESKTOP });
-    const otherPage = await other.newPage();
-    await addVirtualAuthenticator(otherPage);
-    await otherPage.goto(url);
-    await otherPage
-      .getByRole("textbox", { name: "Recovery email" })
-      .fill(uniqueEmail("jo"));
-    await otherPage.getByRole("button", { name: "Create a passkey" }).click();
-    await otherPage.waitForURL((next) => next.pathname === "/finance");
-    await other.close();
-
-    await expect
-      .poll(
-        async () =>
-          financeDb
-            .select({ name: members.name, role: members.role })
-            .from(members)
-            .where(
-              and(
-                eq(members.householdId, session.householdId),
-                eq(members.name, "Jo"),
-                isNotNull(members.userId),
-              ),
-            ),
-        { timeout: SYNC_TIMEOUT },
-      )
-      .toEqual([{ name: "Jo", role: "member" }]);
-  });
-
   test("an owner removes a member: their device is signed out, and Undo brings the member back without access", async ({
     page,
     session,
     financeDb,
     browser,
   }) => {
-    await openSettings(page, "members", "Members");
-    await page.getByRole("button", { name: "Member", exact: true }).click();
-    await page.getByRole("textbox", { name: /Name/ }).fill("Jo");
-    await page.getByRole("button", { name: "Save" }).click();
-    await page.getByRole("button", { name: "Create invite link: Jo" }).click();
-    const link = page.getByRole("textbox", { name: "Link" });
-    await expect(link).toHaveValue(/\/finance\/invite\//, {
-      timeout: SYNC_TIMEOUT,
-    });
+    const inviteUrl = await inviteMember(page, "Jo");
     const other = await browser.newContext({ viewport: DESKTOP });
     const otherPage = await other.newPage();
     await addVirtualAuthenticator(otherPage);
-    await otherPage.goto(await link.inputValue());
+    await otherPage.goto(inviteUrl);
     await otherPage
       .getByRole("textbox", { name: "Recovery email" })
       .fill(uniqueEmail("jo"));
