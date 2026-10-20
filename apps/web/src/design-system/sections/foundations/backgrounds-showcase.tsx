@@ -162,8 +162,8 @@ const styles = stylex.create({
         <Band
           name={t({ en: "Control", zh: "控件" })}
           use={t({
-            en: "Anything a person presses or types into: a button, a field, a row that opens something. Hover lifts it to bgControlHover. Disabled, it keeps its rest fill on hover and fades as a whole with opacity.disabled; fields and Checkbox also switch to bgControlDisabled. A selected item takes bgControlSelected from the selected primitive, which reads the item's ARIA state. No component uses bgControlPressed.",
-            zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到 bgControlHover。禁用时，悬停也保持静止填充，并通过 opacity.disabled 整体变淡；输入框与 Checkbox 还会换成 bgControlDisabled。选中项从 selected 原语取得 bgControlSelected，该原语读取元素的 ARIA 状态。没有任何组件使用 bgControlPressed。",
+            en: "Anything a person presses or types into: a button, a field, a row that opens something. Hover lifts it to bgControlHover. Disabled, it keeps its rest fill on hover and fades as a whole with opacity.disabled; fields and Checkbox also switch to bgControlDisabled. A selected item takes bgControlSelected from the selected primitive, which reads the item's ARIA state. ListRow takes bgControlPressed while it is pressed.",
+            zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到 bgControlHover。禁用时，悬停也保持静止填充，并通过 opacity.disabled 整体变淡；输入框与 Checkbox 还会换成 bgControlDisabled。选中项从 selected 原语取得 bgControlSelected，该原语读取元素的 ARIA 状态。ListRow 在被按下时使用 bgControlPressed。",
           })}
           columns={5}
           snippet={

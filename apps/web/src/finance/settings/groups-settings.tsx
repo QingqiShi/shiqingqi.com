@@ -4,6 +4,8 @@ import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { Button } from "@tuja/ui/components/button";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useRef, useState } from "react";
@@ -15,9 +17,7 @@ import type { AccountGroupRow } from "../sync/row-schemas.ts";
 import { EditSheet } from "./edit-sheet.tsx";
 import { nextPosition } from "./next-position.ts";
 import { moveBy, reorderMutations } from "./reorder.ts";
-import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { SettingsRow } from "./settings-row.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 
 type Side = AccountGroupRow["side"];
@@ -105,11 +105,10 @@ export function GroupsSettings() {
         </Button>
       }
     >
-      <SettingsList>
+      <List>
         {groups.map((group, index) => (
-          <SettingsRow
+          <ListRow
             key={group.id}
-            title={group.name}
             detail={`${sideLabels[group.side]} · ${
               counts.get(group.id) === 1
                 ? oneAccountLabel
@@ -144,9 +143,11 @@ export function GroupsSettings() {
                 />
               </>
             }
-          />
+          >
+            {group.name}
+          </ListRow>
         ))}
-      </SettingsList>
+      </List>
       <EditSheet
         isOpen={editing !== null}
         onClose={() => {

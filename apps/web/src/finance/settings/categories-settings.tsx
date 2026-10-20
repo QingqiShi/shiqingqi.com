@@ -1,12 +1,16 @@
 "use client";
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
 import { t } from "#src/i18n.ts";
 import { useReplica } from "../replica/use-replica.ts";
@@ -16,9 +20,7 @@ import type { CategoryRow } from "../sync/row-schemas.ts";
 import { categoryTree } from "./category-tree.ts";
 import { EditSheet } from "./edit-sheet.tsx";
 import { nextPosition } from "./next-position.ts";
-import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { SettingsRow } from "./settings-row.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 
 type Kind = CategoryRow["kind"];
@@ -145,12 +147,11 @@ export function CategoriesSettings() {
           onChange={setKind}
         />
       </div>
-      <SettingsList>
+      <List>
         {nodes.map(({ category, depth }) => (
-          <SettingsRow
+          <ListRow
             key={category.id}
-            depth={depth}
-            title={`${category.emoji ? `${category.emoji} ` : ""}${displayName(category)}`}
+            css={depth > 0 && styles.child}
             trailing={
               category.archivedAt !== null ? (
                 <Badge size="sm" intent="neutral">
@@ -171,9 +172,11 @@ export function CategoriesSettings() {
                 archived: category.archivedAt !== null,
               });
             }}
-          />
+          >
+            {`${category.emoji ? `${category.emoji} ` : ""}${displayName(category)}`}
+          </ListRow>
         ))}
-      </SettingsList>
+      </List>
       <EditSheet
         isOpen={draft !== null}
         onClose={() => {
@@ -241,3 +244,9 @@ export function CategoriesSettings() {
     </SettingsPanel>
   );
 }
+
+const styles = stylex.create({
+  child: {
+    paddingInlineStart: space._7,
+  },
+});

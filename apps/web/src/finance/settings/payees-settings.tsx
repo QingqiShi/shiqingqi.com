@@ -1,5 +1,7 @@
 "use client";
 
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -14,9 +16,7 @@ import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type { PayeeRow } from "../sync/row-schemas.ts";
 import { categoryTree } from "./category-tree.ts";
 import { EditSheet } from "./edit-sheet.tsx";
-import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { SettingsRow } from "./settings-row.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 
 const SHOWN = 150;
@@ -105,11 +105,10 @@ export function PayeesSettings() {
           setQuery(event.target.value);
         }}
       />
-      <SettingsList>
+      <List>
         {matches.slice(0, SHOWN).map((payee) => (
-          <SettingsRow
+          <ListRow
             key={payee.id}
-            title={payee.name}
             detail={[
               payee.defaultCategoryId === null
                 ? ""
@@ -127,9 +126,11 @@ export function PayeesSettings() {
                 mergeIntoId: "",
               });
             }}
-          />
+          >
+            {payee.name}
+          </ListRow>
         ))}
-      </SettingsList>
+      </List>
       {matches.length > SHOWN ? (
         <Text look="bodySmall" tone="muted">
           {`${new Intl.NumberFormat(locale).format(matches.length - SHOWN)} ${moreLabel}`}

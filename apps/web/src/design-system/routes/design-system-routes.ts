@@ -308,6 +308,13 @@ const ROUTES = [
   },
   {
     section: "components",
+    category: "dataDisplay",
+    path: "/design-system/components/list",
+    lab: true,
+    keywords: ["rows", "list row", "settings", "caret", "divider", "items"],
+  },
+  {
+    section: "components",
     category: "feedback",
     path: "/design-system/components/callout",
     lab: true,

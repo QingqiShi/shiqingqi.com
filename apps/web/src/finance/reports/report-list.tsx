@@ -2,18 +2,18 @@
 
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import * as stylex from "@stylexjs/stylex";
+import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
@@ -21,6 +21,7 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
+import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { groupReportsByYear } from "./group-reports-by-year.ts";
 import { lastCompleteWeekEnd } from "./last-complete-week-end.ts";
@@ -28,7 +29,6 @@ import { useRegenerateReport } from "./use-regenerate-report.ts";
 import { useReportList } from "./use-report-list.ts";
 
 const LOADING_ROWS = 5;
-const WEEK_LINK_BLOCK_SIZE = "2.625rem";
 
 interface ReportListProps {
   /** The Report on screen, marked in the list. */
@@ -48,7 +48,8 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
     (report) => report.periodEnd === lastWeekEnd,
   );
   const { regenerate, pending } = useRegenerateReport();
-  const currentRef = useRef<HTMLAnchorElement>(null);
+  const isWide = useIsWideLayout();
+  const currentRef = useRef<HTMLElement>(null);
   const lastWeekLabel = t({ en: "Last week", zh: "上周" });
 
   useEffect(() => {
@@ -84,16 +85,15 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
       {list.data === undefined &&
       list.status === "pending" &&
       list.fetchStatus !== "paused" ? (
-        <div css={styles.list} aria-busy>
+        <List aria-busy>
           {Array.from({ length: LOADING_ROWS }, (_, index) => (
-            <Skeleton
-              key={index}
-              width="100%"
-              height={WEEK_LINK_BLOCK_SIZE}
-              delay={index * 100}
-            />
+            <li key={index} css={listSurface.item}>
+              <span css={listSurface.row}>
+                <Skeleton width="8rem" height="1em" delay={index * 100} />
+              </span>
+            </li>
           ))}
-        </div>
+        </List>
       ) : list.data === undefined ? (
         <Callout
           intent="warning"
@@ -150,46 +150,40 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
               <Text look="overline" tone="muted">
                 {year}
               </Text>
-              <ul css={styles.list}>
+              <List>
                 {inYear.map((report) => {
                   const isCurrent = report.id === currentId;
                   return (
-                    <li key={report.id}>
-                      <Link
-                        ref={isCurrent ? currentRef : undefined}
-                        href={getLocalePath(
-                          `/finance/reports/${report.id}`,
-                          locale,
-                        )}
-                        aria-current={isCurrent ? "page" : undefined}
-                        {...stylex.props(
-                          typeRole.label,
-                          typeModifier.numeric,
-                          corner.radius_2,
-                          transition.colors,
-                          selected.quiet,
-                          a11y.focusRingInset,
-                          styles.link,
-                        )}
-                      >
-                        <span>
-                          {formatReportWeek(
-                            report.periodStart,
-                            report.periodEnd,
-                            locale,
-                            { withYear: false },
-                          )}
-                        </span>
-                        {report.periodEnd === lastWeekEnd ? (
-                          <span css={[typeRole.caption, styles.muted]}>
+                    <ListRow
+                      key={report.id}
+                      ref={isCurrent ? currentRef : undefined}
+                      href={getLocalePath(
+                        `/finance/reports/${report.id}`,
+                        locale,
+                      )}
+                      linkComponent={Link}
+                      aria-current={isCurrent ? "page" : undefined}
+                      caret={!isWide}
+                      trailing={
+                        report.periodEnd === lastWeekEnd ? (
+                          <Badge intent="neutral" size="sm">
                             {lastWeekLabel}
-                          </span>
-                        ) : null}
-                      </Link>
-                    </li>
+                          </Badge>
+                        ) : null
+                      }
+                    >
+                      <span css={typeModifier.numeric}>
+                        {formatReportWeek(
+                          report.periodStart,
+                          report.periodEnd,
+                          locale,
+                          { withYear: false },
+                        )}
+                      </span>
+                    </ListRow>
                   );
                 })}
-              </ul>
+              </List>
             </section>
           ))}
         </>
@@ -201,27 +195,5 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
 const styles = stylex.create({
   year: {
     paddingBlockStart: rhythm.tight,
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.inline,
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
-  },
-  link: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: space._2,
-    color: color.fg,
-    fontWeight: font.weight_5,
-    textDecoration: "none",
-  },
-  muted: {
-    color: color.fgMuted,
   },
 });

@@ -4,6 +4,7 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import * as stylex from "@stylexjs/stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
+import { List } from "@tuja/ui/components/list";
 import { Switch } from "@tuja/ui/components/switch";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -109,7 +110,7 @@ export function AccountGroupList({
                 {lines.length === 0 ? (
                   <p css={[typeRole.bodySmall, styles.empty]}>{emptyGroup}</p>
                 ) : (
-                  <ul css={styles.list}>
+                  <List>
                     {lines.map((line) => (
                       <AccountRow
                         key={line.account.id}
@@ -121,7 +122,7 @@ export function AccountGroupList({
                         }
                       />
                     ))}
-                  </ul>
+                  </List>
                 )}
               </div>
             </Disclosure>
@@ -175,11 +176,6 @@ const styles = stylex.create({
   },
   body: {
     paddingBlockStart: space._1,
-  },
-  list: {
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
   },
   empty: {
     margin: 0,

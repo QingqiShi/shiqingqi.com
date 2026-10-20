@@ -5,6 +5,8 @@ import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Checkbox } from "@tuja/ui/components/checkbox";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { Text } from "@tuja/ui/components/text";
@@ -37,9 +39,7 @@ import {
   RuleTemplateFields,
   type RuleTemplateFieldsDraft,
 } from "./rule-template-fields.tsx";
-import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { SettingsRow } from "./settings-row.tsx";
 import {
   simpleTemplateAccounts,
   templateAmount,
@@ -389,11 +389,10 @@ export function RulesSettings() {
           })}
         </Text>
       ) : (
-        <SettingsList>
+        <List>
           {rules.map((rule) => (
-            <SettingsRow
+            <ListRow
               key={rule.id}
-              title={rule.name}
               detail={summary(rule)}
               trailing={
                 <span css={cluster.inline}>
@@ -441,9 +440,11 @@ export function RulesSettings() {
                   paused: rule.pausedAt !== null,
                 });
               }}
-            />
+            >
+              {rule.name}
+            </ListRow>
           ))}
-        </SettingsList>
+        </List>
       )}
       <EditSheet
         isOpen={draft !== null}

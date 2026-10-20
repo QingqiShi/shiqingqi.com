@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@tuja/ui/components/button";
+import { List } from "@tuja/ui/components/list";
+import { ListRow } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useRef, useState } from "react";
@@ -19,9 +21,7 @@ import {
   parseFxRate,
   type LatestFxRate,
 } from "./latest-fx-rates.ts";
-import { SettingsList } from "./settings-list.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { SettingsRow } from "./settings-row.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
 
 interface Draft {
@@ -141,17 +141,12 @@ export function ExchangeRatesSettings() {
           })}`}
         </Text>
       ) : (
-        <SettingsList>
+        <List>
           {rates.map((entry) => {
             const count = accountCount(entry.currency);
             return (
-              <SettingsRow
+              <ListRow
                 key={entry.currency}
-                title={
-                  entry.rate === null
-                    ? entry.currency
-                    : `1 ${entry.currency} = ${formatRate(entry.rate, locale)} ${baseCurrency}`
-                }
                 detail={[
                   entry.on === null
                     ? labels.noRate
@@ -173,10 +168,14 @@ export function ExchangeRatesSettings() {
                 onClick={() => {
                   open(entry);
                 }}
-              />
+              >
+                {entry.rate === null
+                  ? entry.currency
+                  : `1 ${entry.currency} = ${formatRate(entry.rate, locale)} ${baseCurrency}`}
+              </ListRow>
             );
           })}
-        </SettingsList>
+        </List>
       )}
       <EditSheet
         isOpen={draft !== null}
