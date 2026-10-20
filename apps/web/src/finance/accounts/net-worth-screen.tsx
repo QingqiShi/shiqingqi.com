@@ -1,6 +1,5 @@
 "use client";
 
-import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useSearchParams } from "next/navigation";
@@ -11,6 +10,7 @@ import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUrlSelection } from "../shell/use-url-selection.ts";
 import { AccountDetail } from "./account-detail.tsx";
 import { NetWorthOverview } from "./net-worth-overview.tsx";
+import { NetWorthSkeleton } from "./net-worth-skeleton.tsx";
 import { NetWorthTrend } from "./net-worth-trend.tsx";
 import { UpdateValuesForm } from "./update-values-form.tsx";
 
@@ -35,15 +35,7 @@ export function NetWorthScreen() {
   const mode = useSearchParams().get("mode");
   const isWide = useIsWideLayout();
 
-  if (!bootstrapped) {
-    return (
-      <div css={stack.item} aria-busy>
-        <Skeleton width="8rem" height="1.5rem" />
-        <Skeleton width="14rem" height="2.5rem" />
-        <Skeleton width="100%" height="12rem" />
-      </div>
-    );
-  }
+  if (!bootstrapped) return <NetWorthSkeleton />;
   if (mode === "update") return <UpdateValuesForm />;
   return (
     <MasterDetailLayout

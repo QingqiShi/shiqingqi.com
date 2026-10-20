@@ -7,6 +7,8 @@ interface ReportPageProps {
   params: Promise<{ locale: string; id: string }>;
 }
 
+export const unstable_dynamicStaleTime = 300;
+
 export async function generateMetadata(
   props: ReportPageProps,
 ): Promise<Metadata> {

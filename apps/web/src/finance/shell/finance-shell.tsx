@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { FinanceAddButton } from "./finance-add-button.tsx";
 import { FinanceNav } from "./finance-nav.tsx";
+import {
+  FinanceScreenSlot,
+  PendingScreenProvider,
+} from "./finance-screen-slot.tsx";
 import { FinanceSidebarHeader } from "./finance-sidebar-header.tsx";
 import { FinanceTabBar } from "./finance-tab-bar.tsx";
 import { FinanceToastProvider } from "./finance-toast-provider.tsx";
@@ -38,22 +42,26 @@ export function FinanceShell({
 }: FinanceShellProps) {
   return (
     <FinanceToastProvider>
-      <SidebarLayout
-        sidebar={<FinanceNav />}
-        sidebarHeader={<FinanceSidebarHeader locale={locale} />}
-        sidebarFooter={
-          <SignedInMember
-            memberName={memberName}
-            householdName={householdName}
-          />
-        }
-        mobileSidebar="hidden"
-      >
-        <div css={styles.content}>
-          <ReplicaGate>{children}</ReplicaGate>
-        </div>
-      </SidebarLayout>
-      <FinanceTabBar />
+      <PendingScreenProvider>
+        <SidebarLayout
+          sidebar={<FinanceNav />}
+          sidebarHeader={<FinanceSidebarHeader locale={locale} />}
+          sidebarFooter={
+            <SignedInMember
+              memberName={memberName}
+              householdName={householdName}
+            />
+          }
+          mobileSidebar="hidden"
+        >
+          <div css={styles.content}>
+            <FinanceScreenSlot>
+              <ReplicaGate>{children}</ReplicaGate>
+            </FinanceScreenSlot>
+          </div>
+        </SidebarLayout>
+        <FinanceTabBar />
+      </PendingScreenProvider>
       <FinanceAddButton />
       <RejectionToasts />
       <PrecacheFinanceShells />
