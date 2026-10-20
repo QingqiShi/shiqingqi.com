@@ -3,7 +3,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
-import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
@@ -12,6 +11,7 @@ import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { AnalyticsControls } from "./analytics-controls.tsx";
+import { AnalyticsSkeleton } from "./analytics-skeleton.tsx";
 import { AnalyticsSummary } from "./analytics-summary.tsx";
 import { CategoryBreakdown } from "./category-breakdown.tsx";
 import { CategoryTrend } from "./category-trend.tsx";
@@ -115,21 +115,14 @@ function AnalyticsContent() {
  */
 export function AnalyticsScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
+  if (!bootstrapped) return <AnalyticsSkeleton />;
 
   return (
     <div css={stack.group}>
       <Heading level={1} look="h3" css={styles.title}>
         {t({ en: "Analytics", zh: "分析" })}
       </Heading>
-      {bootstrapped ? (
-        <AnalyticsContent />
-      ) : (
-        <div css={stack.item} aria-busy>
-          <Skeleton width="100%" height="2rem" />
-          <Skeleton width="10rem" height="2.5rem" />
-          <Skeleton width="100%" height="12rem" />
-        </div>
-      )}
+      <AnalyticsContent />
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
-import { TabBar } from "@tuja/ui/components/tab-bar";
+import { TabBar, type TabBarLinkProps } from "@tuja/ui/components/tab-bar";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { color, layer, space } from "@tuja/ui/tokens.stylex";
@@ -14,9 +14,19 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
+import { PendingScreenMarker } from "./finance-screen-slot.tsx";
 import { tabBarTokens } from "./tab-bar.stylex.ts";
 import { useFinanceDestinations } from "./use-finance-destinations.ts";
 import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
+
+function TabLink({ children, ...props }: TabBarLinkProps) {
+  return (
+    <Link {...props} prefetchOnIntent>
+      {children}
+      <PendingScreenMarker href={props.href} />
+    </Link>
+  );
+}
 
 /**
  * The five Finance destinations in a pill that floats above the bottom of the
@@ -35,7 +45,7 @@ export function FinanceTabBar() {
     <EffectCarrier value="viewport-bottom">
       <TabBar
         label={t({ en: "Finance", zh: "家庭账本" })}
-        linkComponent={Link}
+        linkComponent={TabLink}
         css={styles.bar}
         items={destinations.map((destination) => {
           const isSettings = destination.path === "/finance/settings";

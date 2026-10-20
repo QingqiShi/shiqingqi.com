@@ -5,6 +5,8 @@ import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
 
+export const unstable_dynamicStaleTime = 300;
+
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
   return { title: t({ en: "Analytics", zh: "分析" }) };
