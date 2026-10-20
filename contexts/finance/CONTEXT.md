@@ -29,7 +29,7 @@ A sign-in identity with passkeys and a Recovery email, in exactly one household.
 _Avoid_: account (reserved for money)
 
 **Recovery email**:
-The confirmed email address where a User gets a Recovery link after losing every passkey. The same email holds a **Recovery code** (ZH: 恢复验证码): six digits that open the Recovery link in the browser that asked for it. ZH: 恢复邮箱.
+The confirmed email address where a User gets a Recovery link after losing every passkey. The same email holds a **Recovery code** (ZH: 恢复验证码): six digits sent with the Recovery link. ZH: 恢复邮箱.
 _Avoid_: login email, username, account email
 
 **Account**:
@@ -103,7 +103,7 @@ _Avoid_: merchant (in code), vendor, tag
 A free label that cuts across categories and payees: 地铁, 火车, who a treat was for. ZH: 标签.
 
 **Review**:
-The queue of transactions that need a human look: those with `needs_review` set, and those with money In transit for more than five days. It is a filter, not a status. "Looks right" (ZH: 没问题) clears the flag, and the transaction is then **reviewed**. ZH: 待审核.
+The queue of transactions that need a human look: those with `needs_review` set, and those with money In transit for too long. It is a filter, not a status. "Looks right" (ZH: 没问题) clears the flag, and the transaction is then **reviewed**. ZH: 待审核.
 
 **AI instructions**:
 The Household's own words to the AI that labels its bank rows: whose account is whose, what a transfer is for, which shop counts as what. ZH: AI 说明.
@@ -122,7 +122,7 @@ The household's data held in the browser (IndexedDB and memory) and kept in step
 _Avoid_: cache (for the replica), queue
 
 **Report**:
-A stored weekly snapshot of the balance sheet and the week's spending. The server holds Reports, not the Replica: the Monday cron makes last week's, Regenerate makes one week again, and the backfill makes every week again and deletes the weeks before the first. A device keeps the last Reports list it read and each Report in that list it read, so they show offline; sign-out deletes them with the Replica. ZH: 周报.
+A stored weekly snapshot of the balance sheet and the week's spending, held by the server rather than the Replica. ZH: 周报.
 
 **Property net**:
 A report figure: each `property` account's value less the loans in the liability groups named after it. ZH: 房产净值.
