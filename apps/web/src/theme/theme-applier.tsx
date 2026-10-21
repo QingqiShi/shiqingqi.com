@@ -2,6 +2,7 @@
 
 import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
 import { gray } from "@tuja/ui/palette/gray.stylex";
+import { usePathname } from "next/navigation";
 import { useLayoutEffect } from "react";
 import { getDocumentClassName } from "./global-styles.ts";
 import { prePaintThemeColorId } from "./theme-hack.ts";
@@ -13,14 +14,15 @@ export function ThemeApplier() {
   const [theme] = useTheme();
   const resolvedTheme = useResolvedTheme();
   const isHydrated = useIsHydrated();
+  const pathname = usePathname();
 
   useLayoutEffect(() => {
     // The hydration pass renders the server snapshot ("system"). The inline
     // `themeHack` already applied the stored theme, so wait for a client render.
     if (!isHydrated) return;
-    document.documentElement.className = getDocumentClassName(theme);
+    document.documentElement.className = getDocumentClassName(theme, pathname);
     document.getElementById(prePaintThemeColorId)?.remove();
-  }, [isHydrated, theme]);
+  }, [isHydrated, theme, pathname]);
 
   if (!isHydrated) return null;
 
