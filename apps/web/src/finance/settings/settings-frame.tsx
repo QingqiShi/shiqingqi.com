@@ -20,6 +20,7 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
+import { SettingsFinanceLogo } from "./settings-finance-logo.tsx";
 import {
   isSettingsSection,
   SETTINGS_SECTIONS,
@@ -32,7 +33,8 @@ import { useRecoveryEmail } from "./use-recovery-email.ts";
 /**
  * Settings: the section menu beside the open section at `lg` and wider.
  * Below `lg` the menu is its own page and each section opens on its own
- * with a way back. Below `md` the menu page also shows the signed-in Member.
+ * with a way back. Below `md` the menu page also shows the signed-in Member
+ * and the Finance mark.
  * A dot on Members says the signed-in user has no confirmed Recovery email;
  * it is stronger for the owner, whom nobody else can let back in.
  */
@@ -119,7 +121,12 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
           </ul>
         </EffectCarrier>
       </nav>
-      {current === null ? <SettingsSignedInMember /> : null}
+      {current === null ? (
+        <>
+          <SettingsSignedInMember />
+          <SettingsFinanceLogo />
+        </>
+      ) : null}
       <div
         css={[
           stack.item,

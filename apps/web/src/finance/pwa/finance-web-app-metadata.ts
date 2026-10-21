@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { buildFinanceManifest } from "./build-finance-manifest.ts";
+import icon16 from "./finance-icon-16.png";
 import appleIcon from "./finance-icon-180.png";
 import icon192 from "./finance-icon-192.png";
+import icon32 from "./finance-icon-32.png";
 
 /** What makes a Finance page add to the home screen as its own app, not as the site. */
 export function financeWebAppMetadata(
@@ -13,7 +15,13 @@ export function financeWebAppMetadata(
     // no session to sign-in, and a browser gets a manifest without cookies.
     manifest: `/${locale}/finance/manifest.webmanifest`,
     icons: {
-      icon: { url: icon192.src, sizes: "192x192", type: "image/png" },
+      // The 16px and 32px icons align to the pixel grid. When a browser tab
+      // makes the 192px icon smaller, the coin slot of the mark becomes blurred.
+      icon: [
+        { url: icon16.src, sizes: "16x16", type: "image/png" },
+        { url: icon32.src, sizes: "32x32", type: "image/png" },
+        { url: icon192.src, sizes: "192x192", type: "image/png" },
+      ],
       apple: { url: appleIcon.src, sizes: "180x180", type: "image/png" },
     },
     appleWebApp: { title: buildFinanceManifest(locale).short_name },
