@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import type { ReactNode } from "react";
 import type { SupportedLocale } from "#src/i18n/types.ts";
+import { InstallSheet } from "../pwa/install-sheet.tsx";
 import { FinanceAddButton } from "./finance-add-button.tsx";
 import { FinanceNav } from "./finance-nav.tsx";
 import {
@@ -68,6 +69,7 @@ export function FinanceShell({
       <PrecacheFinanceShells />
       <PrewarmScreens />
       <OfflineNavigationGuard />
+      <InstallSheet />
     </FinanceToastProvider>
   );
 }
