@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { financeWebAppMetadata } from "#src/finance/pwa/finance-web-app-metadata.ts";
 import type { PageProps } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  validateLocale(params.locale);
+  const locale = validateLocale(params.locale);
   return {
     title: {
       default: t({ en: "Finance | Qingqi Shi", zh: "家庭账本 | 石清琪" }),
@@ -15,6 +16,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
       }),
     },
     robots: { index: false, follow: false },
+    ...financeWebAppMetadata(locale),
   };
 }
 
