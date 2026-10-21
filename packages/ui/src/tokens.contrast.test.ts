@@ -245,7 +245,7 @@ describe.each(["light", "dark"] as const)("%s intent tints", (scheme) => {
 });
 
 // `borderControl` is the only sign of an unselected control such as an empty
-// checkbox or radio or a text field: its edge. WCAG 1.4.11 holds it to 3:1
+// checkbox or radio: its edge. WCAG 1.4.11 holds it to 3:1
 // against every surface a control sits on. `bgControlHover` is here because
 // an option card hovers under its selection mark.
 //

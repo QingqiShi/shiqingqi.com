@@ -130,11 +130,12 @@ const light = {
   // darker, so the ring holds it.
   borderControlStrong: "transparent",
 
-  // The quiet default edge, and the neutral Intent's border.
+  // The quiet default edge, the edge of a text field, and the neutral Intent's
+  // border.
   border: gray._90,
   // The edge that is the only sign of an unselected control, such as an empty
-  // checkbox or a text field. It is not quiet, because WCAG 1.4.11 sets a 3:1
-  // floor on it against every surface a control sits on.
+  // checkbox or radio. It is not quiet, because WCAG 1.4.11 sets a 3:1 floor on
+  // it against every surface a control sits on.
   borderControl: gray._40,
   // The edge of `bgControlSunken`.
   borderControlSunken: gray._92,
@@ -229,7 +230,7 @@ const dark: { [key in keyof typeof light]: string } = {
   borderControlStrong: gray._35,
 
   border: gray._13,
-  borderControl: gray._40,
+  borderControl: gray._35,
   borderControlSunken: gray._11,
 
   bgAccent: darkIntentTone.accent,
