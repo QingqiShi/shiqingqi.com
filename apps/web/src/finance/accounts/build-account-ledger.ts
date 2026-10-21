@@ -1,5 +1,6 @@
 import { addDays } from "../domain/dates/add-days.ts";
 import type { TransactionRow, ValuationRow } from "../sync/row-schemas.ts";
+import { sumDayTotals } from "../transactions/sum-day-totals.ts";
 
 export interface LedgerEntryItem {
   type: "entry";
@@ -22,6 +23,9 @@ type LedgerItem = LedgerEntryItem | LedgerValuationItem;
 
 interface LedgerDay {
   day: string;
+  /** Posted expenses on this account net of refunds: negative for money out. Counts the whole day, also past the limit. */
+  expenseMinor: number;
+  incomeMinor: number;
   /** Valuations, then Expected Entries, then posted Entries. */
   items: LedgerItem[];
 }
@@ -127,12 +131,25 @@ export function buildAccountLedger({
   }
   const hasMore = v < valuations.length || e < transactions.length;
 
-  const days: LedgerDay[] = [];
+  const itemsByDay = new Map<string, LedgerItem[]>();
   for (const item of items) {
-    const last = days.at(-1);
-    if (last?.day === item.day) last.items.push(item);
-    else days.push({ day: item.day, items: [item] });
+    const list = itemsByDay.get(item.day);
+    if (list) list.push(item);
+    else itemsByDay.set(item.day, [item]);
   }
+  const transactionsByDay = new Map<string, TransactionRow[]>();
+  for (const transaction of transactions) {
+    if (itemsByDay.has(transaction.date)) {
+      const list = transactionsByDay.get(transaction.date);
+      if (list) list.push(transaction);
+      else transactionsByDay.set(transaction.date, [transaction]);
+    }
+  }
+  const days: LedgerDay[] = [...itemsByDay].map(([day, dayItems]) => ({
+    day,
+    ...sumDayTotals(transactionsByDay.get(day) ?? [], amountOf),
+    items: dayItems,
+  }));
   for (const day of days) day.items.sort((a, b) => rank(a) - rank(b));
 
   for (const day of days) {

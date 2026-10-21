@@ -1,17 +1,11 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm } from "@tuja/ui/tokens.stylex";
 import type { ComponentProps, Ref } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
-import { t } from "#src/i18n.ts";
-import { formatMoney } from "../domain/money/format-money.ts";
 import type { CategoryRow, EntryRow } from "../sync/row-schemas.ts";
 import type { TransactionListItem } from "./build-transaction-list.ts";
 import { DayHeader } from "./day-header.tsx";
+import { DayTotals } from "./day-totals.tsx";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
 import {
   TransactionListRow,
@@ -55,43 +49,6 @@ function Item(
 ) {
   const { item: _item, context: _context, ...rest } = props;
   return <div {...rest} role="listitem" />;
-}
-
-function DayTotals({
-  expenseMinor,
-  incomeMinor,
-  baseCurrency,
-  locale,
-}: {
-  expenseMinor: number;
-  incomeMinor: number;
-  baseCurrency: string;
-  locale: string;
-}) {
-  const spentLabel = t({ en: "spent", zh: "支出" });
-  const receivedLabel = t({ en: "received", zh: "收入" });
-  return (
-    <span
-      css={[flex.row, typeRole.caption, typeModifier.numeric, styles.totals]}
-    >
-      {expenseMinor !== 0 ? (
-        <span>
-          <span css={a11y.srOnly}>{`${spentLabel} `}</span>
-          {formatMoney(expenseMinor, baseCurrency, locale, {
-            signDisplay: "exceptZero",
-          })}
-        </span>
-      ) : null}
-      {incomeMinor !== 0 ? (
-        <span>
-          <span css={a11y.srOnly}>{`${receivedLabel} `}</span>
-          {formatMoney(incomeMinor, baseCurrency, locale, {
-            signDisplay: "exceptZero",
-          })}
-        </span>
-      ) : null}
-    </span>
-  );
 }
 
 /**
@@ -146,7 +103,7 @@ export function TransactionList({
             <DayTotals
               expenseMinor={item.expenseMinor}
               incomeMinor={item.incomeMinor}
-              baseCurrency={baseCurrency}
+              currency={baseCurrency}
               locale={locale}
             />
           </DayHeader>
@@ -174,10 +131,3 @@ export function TransactionList({
     />
   );
 }
-
-const styles = stylex.create({
-  totals: {
-    gap: rhythm.item,
-    color: color.fgMuted,
-  },
-});

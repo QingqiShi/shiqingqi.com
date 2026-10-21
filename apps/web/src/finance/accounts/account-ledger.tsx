@@ -5,7 +5,6 @@ import { ScalesIcon } from "@phosphor-icons/react/dist/ssr/Scales";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -30,6 +29,7 @@ import { selectEntriesByTransaction } from "../store/select-entries-by-transacti
 import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
 import type { AccountRow, ValuationRow } from "../sync/row-schemas.ts";
 import { DayHeader } from "../transactions/day-header.tsx";
+import { DayTotals } from "../transactions/day-totals.tsx";
 import { TransactionFace } from "../transactions/transaction-face.tsx";
 import { UpcomingHeader } from "../transactions/upcoming-header.tsx";
 import {
@@ -109,7 +109,6 @@ export function AccountLedger({
       : changeMinor === 0
         ? noChangeCaption
         : `${changeLabel} ${formatMoney(changeMinor, account.currency, locale, { signDisplay: "exceptZero" })}`;
-  const expectedLabel = t({ en: "Expected", zh: "待确认" });
   const afterLabel = t({ en: "Balance after:", zh: "变动后余额：" });
   const removeLabel = t({ en: "Remove the balance of", zh: "删除余额记录：" });
   const removedLabel = t({ en: "Balance removed", zh: "余额记录已删除" });
@@ -167,7 +166,14 @@ export function AccountLedger({
                 today={today}
                 locale={locale}
                 level={dayHeadingLevel}
-              />
+              >
+                <DayTotals
+                  expenseMinor={day.expenseMinor}
+                  incomeMinor={day.incomeMinor}
+                  currency={account.currency}
+                  locale={locale}
+                />
+              </DayHeader>
               <ol css={[styles.list, styles.dayList]}>
                 {day.items.map((item) =>
                   item.type === "valuation" ? (
@@ -202,11 +208,7 @@ export function AccountLedger({
                   ) : (
                     entryLink(
                       item,
-                      item.transaction.status === "expected" ? (
-                        <Badge intent="info" size="sm">
-                          {expectedLabel}
-                        </Badge>
-                      ) : item.balanceAfter === null ? null : (
+                      item.balanceAfter === null ? null : (
                         <>
                           <span css={a11y.srOnly}>{`${afterLabel} `}</span>
                           {money(item.balanceAfter)}

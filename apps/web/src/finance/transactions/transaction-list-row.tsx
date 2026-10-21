@@ -1,15 +1,11 @@
 "use client";
 
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
-import { CloudArrowUpIcon } from "@phosphor-icons/react/dist/ssr/CloudArrowUp";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -23,10 +19,13 @@ import type {
   EntryRow,
   TransactionRow,
 } from "../sync/row-schemas.ts";
+import { transferLegs } from "./describe-transaction.ts";
 import { isInReview } from "./is-in-review.ts";
 import { reviewReason, type ReviewReason } from "./review-reason.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
-import { TransactionFace, transactionIcon } from "./transaction-face.tsx";
+import { TransactionFace } from "./transaction-face.tsx";
+import { TransactionMetaLine } from "./transaction-meta-line.tsx";
+import { useDescribeTransaction } from "./use-describe-transaction.ts";
 import { useReviewReasonText } from "./use-review-reason-text.ts";
 
 export interface TransactionRowActions {
@@ -86,39 +85,15 @@ export function TransactionListRow({
   categoriesOfKind,
   actions,
 }: TransactionListRowProps) {
-  const category =
-    row.categoryId === null
-      ? undefined
-      : lookups.categoryById.get(row.categoryId);
-  const payee =
-    row.payeeId === null ? undefined : lookups.payeeById.get(row.payeeId);
+  const describe = useDescribeTransaction(lookups);
+  const { title, subtitle, meta, icon } = describe(row, {
+    entries,
+    tagIds,
+    accountId: null,
+  });
   const isTransfer = row.kind === "transfer";
-  const accountLabel = (accountId: string) =>
-    lookups.accountLabelById.get(accountId) ?? "";
-  const from = isTransfer
-    ? (entries.find((entry) => entry.amountMinor < 0) ?? entries.at(0))
-    : entries.at(0);
-  const to = isTransfer ? entries.find((entry) => entry !== from) : undefined;
-
-  const transferLabel = t({ en: "Transfer", zh: "转账" });
+  const from = isTransfer ? transferLegs(entries).from : entries.at(0);
   const categoryName = useCategoryDisplayName();
-  const categoryLabel = category ? categoryName(category) : undefined;
-  const title = isTransfer
-    ? (payee?.name ?? transferLabel)
-    : (payee?.name ?? categoryLabel ?? row.note);
-  const subtitle = isTransfer
-    ? [from && accountLabel(from.accountId), to && accountLabel(to.accountId)]
-        .filter(Boolean)
-        .join(" → ")
-    : [payee ? categoryLabel : undefined, row.note]
-        .filter((part) => part !== undefined && part !== "")
-        .join(" · ");
-  const meta = [
-    isTransfer ? "" : from ? accountLabel(from.accountId) : "",
-    ...tagIds.map((id) => `#${lookups.tagById.get(id)?.name ?? ""}`),
-  ]
-    .filter((part) => part !== "" && part !== "#")
-    .join("  ");
 
   const fromAccount = from
     ? lookups.accountById.get(from.accountId)
@@ -163,39 +138,19 @@ export function TransactionListRow({
         ]}
       >
         <TransactionFace
-          icon={transactionIcon(row, lookups, title)}
+          icon={icon}
           title={title}
           amount={amount}
+          amountMuted={isExpected}
           subtitle={subtitle}
         >
           {reason === null ? null : <ReviewReasonCaption reason={reason} />}
-          {meta !== "" || isPending || isExpected || showReviewBadge ? (
-            <span css={[flex.row, styles.metaLine]}>
-              {isExpected ? (
-                <Badge intent="info" size="sm">
-                  {t({ en: "Expected", zh: "待确认" })}
-                </Badge>
-              ) : null}
-              {showReviewBadge ? (
-                <Badge intent="warning" size="sm">
-                  {t({ en: "Review", zh: "待审核" })}
-                </Badge>
-              ) : null}
-              {meta !== "" ? (
-                <span css={[typeRole.caption, truncate.base, styles.muted]}>
-                  {meta}
-                </span>
-              ) : null}
-              {isPending ? (
-                <span css={[typeRole.caption, flex.row, styles.pending]}>
-                  <CloudArrowUpIcon weight="bold" aria-hidden />
-                  <span css={a11y.srOnly}>
-                    {t({ en: "Not synced yet", zh: "尚未同步" })}
-                  </span>
-                </span>
-              ) : null}
-            </span>
-          ) : null}
+          <TransactionMetaLine
+            meta={meta}
+            isExpected={isExpected}
+            showReviewBadge={showReviewBadge}
+            isPending={isPending}
+          />
         </TransactionFace>
       </a>
       {isExpected ? (
@@ -271,14 +226,6 @@ const styles = stylex.create({
     textDecoration: "none",
   },
   muted: {
-    color: color.fgMuted,
-  },
-  metaLine: {
-    gap: rhythm.tight,
-    minInlineSize: 0,
-  },
-  pending: {
-    gap: rhythm.inline,
     color: color.fgMuted,
   },
   actions: {

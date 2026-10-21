@@ -13,11 +13,12 @@ import { Link } from "#src/links/link.tsx";
 import { formatMoney } from "../domain/money/format-money.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import { TransactionFace } from "../transactions/transaction-face.tsx";
-import type { LedgerEntryDescription } from "./use-describe-ledger-entry.ts";
+import { TransactionMetaLine } from "../transactions/transaction-meta-line.tsx";
+import type { TransactionRowDescription } from "../transactions/use-describe-transaction.ts";
 
 interface LedgerEntryLinkProps {
   transaction: TransactionRow;
-  description: LedgerEntryDescription;
+  description: TransactionRowDescription;
   /** In `currency`. */
   amountMinor: number;
   currency: string;
@@ -32,6 +33,7 @@ export function LedgerEntryLink({
   trailing,
 }: LedgerEntryLinkProps) {
   const locale = useLocale();
+  const isExpected = transaction.status === "expected";
   return (
     <Link
       href={getLocalePath(`/finance/transactions?id=${transaction.id}`, locale)}
@@ -49,9 +51,11 @@ export function LedgerEntryLink({
         amount={formatMoney(amountMinor, currency, locale, {
           signDisplay: "exceptZero",
         })}
-        amountMuted={transaction.status === "expected"}
+        amountMuted={isExpected}
         trailing={trailing}
-      />
+      >
+        <TransactionMetaLine meta={description.meta} isExpected={isExpected} />
+      </TransactionFace>
     </Link>
   );
 }

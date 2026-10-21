@@ -164,4 +164,33 @@ describe("buildAccountLedger", () => {
     expect(ledger.hasMore).toBe(true);
     expect(build([tx("a", "2026-10-15", -100)]).hasMore).toBe(false);
   });
+
+  it("totals each day's posted spending and income, also past the limit", () => {
+    const salary = testExpense("pay", "pay-entry", {
+      date: "2026-10-15",
+      amountMinor: 50_000,
+      accountId: TEST_IDS.current,
+      categoryId: TEST_IDS.salary,
+    }).transaction;
+    const transfer: TransactionRow = {
+      ...tx("move", "2026-10-15", -7_000),
+      kind: "transfer",
+    };
+    const ledger = build(
+      [
+        salary,
+        tx("a", "2026-10-15", -1_500),
+        tx("b", "2026-10-15", 300),
+        tx("due", "2026-10-15", -900, "expected"),
+        transfer,
+        tx("c", "2026-10-15", -100),
+      ],
+      { limit: 2 },
+    );
+    expect(ledger.days).toHaveLength(1);
+    expect(ledger.days[0]).toMatchObject({
+      expenseMinor: -1_300,
+      incomeMinor: 50_000,
+    });
+  });
 });
