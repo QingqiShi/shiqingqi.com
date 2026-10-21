@@ -27,8 +27,14 @@ export function useUrlSelection(param: string) {
     value,
     /** The URL with the selection set, for a link. */
     hrefWith,
-    /** The view transition types for a link from `hrefWith`. */
-    linkTransitionTypes: value === null ? OPEN_TYPES : undefined,
+    /**
+     * The props for a link from `hrefWith`: it keeps the list where it is,
+     * and gives the navigation the view transition types of the selection.
+     */
+    linkProps: {
+      scroll: false,
+      transitionTypes: value === null ? OPEN_TYPES : undefined,
+    },
     clear: () => {
       router.replace(hrefWith(null), {
         scroll: false,

@@ -32,7 +32,7 @@ import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { DetailPane } from "../shell/detail-pane.tsx";
+import { MasterDetailColumns } from "../shell/master-detail-columns.tsx";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoToast } from "../shell/use-undo-toast.ts";
@@ -507,25 +507,34 @@ export function TransactionsScreen() {
   );
 
   const detailLabel = t({ en: "Transaction", zh: "交易" });
-  return (
-    <div css={styles.root}>
-      <div css={styles.master}>{master}</div>
-      {isWide ? (
-        <DetailPane label={detailLabel} css={styles.pane}>
-          {editor ?? <EmptyPane />}
-        </DetailPane>
-      ) : (
-        <PaneSheet
-          isOpen={url.isOpen}
-          onClose={closePane}
-          label={detailLabel}
-          initialFocusRef={focusTargetRef}
+  if (isWide) {
+    return (
+      <>
+        <MasterDetailColumns
+          master={master}
+          detailLabel={detailLabel}
+          css={styles.columns}
+          paneScrollerCss={styles.paneScroller}
         >
-          {editor}
-        </PaneSheet>
-      )}
+          {editor ?? <EmptyPane />}
+        </MasterDetailColumns>
+        {teach.sheet}
+      </>
+    );
+  }
+  return (
+    <>
+      <div css={styles.master}>{master}</div>
+      <PaneSheet
+        isOpen={url.isOpen}
+        onClose={closePane}
+        label={detailLabel}
+        initialFocusRef={focusTargetRef}
+      >
+        {editor}
+      </PaneSheet>
       {teach.sheet}
-    </div>
+    </>
   );
 }
 
@@ -565,14 +574,8 @@ function EmptyPane() {
 }
 
 const styles = stylex.create({
-  root: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [breakpoints.lg]: "minmax(0, 1fr) minmax(22rem, 26rem)",
-    },
-    gap: rhythm.group,
-    alignItems: "start",
+  columns: {
+    gridTemplateColumns: "minmax(0, 1fr) minmax(22rem, 26rem)",
   },
   master: {
     minInlineSize: 0,
@@ -584,8 +587,7 @@ const styles = stylex.create({
   wideOnly: {
     display: { default: "none", [breakpoints.lg]: "block" },
   },
-  pane: {
-    overscrollBehavior: "contain",
+  paneScroller: {
     paddingBlockEnd: `calc(${space._7} + env(safe-area-inset-bottom))`,
   },
   skeletonRow: {
