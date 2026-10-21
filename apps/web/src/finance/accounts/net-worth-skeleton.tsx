@@ -14,6 +14,7 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
+import { masterDetailTokens } from "../shell/master-detail.stylex.ts";
 
 const GROUP_ROWS = [3, 4];
 
@@ -67,7 +68,7 @@ export function NetWorthSkeleton() {
       </div>
       <div css={[corner.radius_4, stack.item, styles.pane]}>
         <Skeleton width="60%" height="1rem" />
-        <Skeleton width="100%" height="20rem" />
+        <Skeleton width="100%" css={styles.grow} />
         <Skeleton width="100%" css={styles.button} />
         <Skeleton width="14rem" height="1.25rem" />
       </div>
@@ -80,7 +81,7 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [breakpoints.lg]: "minmax(0, 1fr) minmax(0, 1fr)",
+      [breakpoints.lg]: masterDetailTokens.columns,
     },
     gap: rhythm.group,
     alignItems: "start",
@@ -122,6 +123,7 @@ const styles = stylex.create({
   },
   pane: {
     display: { default: "none", [breakpoints.lg]: "flex" },
+    blockSize: masterDetailTokens.paneBlockSize,
     padding: space._5,
     borderWidth: border.size_1,
     borderStyle: "solid",

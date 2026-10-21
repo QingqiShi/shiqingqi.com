@@ -22,7 +22,7 @@ import { crisp } from "./crisp.ts";
 import { seriesFill, seriesKey } from "./series-marks.stylex.ts";
 import type { SeriesTone } from "./series-tone-at.ts";
 import { useChartSelection } from "./use-chart-selection.ts";
-import { useElementWidth } from "./use-element-width.ts";
+import { useElementSize } from "./use-element-size.ts";
 
 export interface BarSeries {
   key: string;
@@ -107,7 +107,7 @@ export function BarChart({
   const titleId = useId();
   const descriptionId = useId();
   const readoutId = useId();
-  const { ref, width } = useElementWidth<HTMLDivElement>();
+  const { ref, width } = useElementSize<HTMLDivElement>();
   const stacked = layout === "stacked" && series.length > 1;
 
   const plotRight = Math.max(width - GUTTER, 0);

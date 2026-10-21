@@ -53,6 +53,7 @@ export function FinanceShell({
             />
           }
           mobileSidebar="hidden"
+          contentMaxInlineSize="none"
         >
           <div css={styles.content}>
             <FinanceScreenSlot>

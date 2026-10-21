@@ -83,6 +83,8 @@ test.describe("Net worth at 1440 px", () => {
     await expect(
       pane.getByRole("group", { name: /^Net worth\. Use the arrow keys/ }),
     ).toBeVisible();
+    const paneBox = await pane.boundingBox();
+    expect(paneBox?.height).toBeGreaterThan(DESKTOP.height * 0.9);
     const yearChip = pane.getByRole("radio", { name: "1Y" });
     await yearChip.click();
     await expect(yearChip).toBeChecked();
@@ -107,6 +109,33 @@ test.describe("Net worth at 1440 px", () => {
     await expect(
       ledger.getByRole("link", { name: "All transactions on this account" }),
     ).toBeVisible();
+  });
+
+  test("the trend moves to the list while an account is open, and Close brings it back to the pane", async ({
+    page,
+    session: _session,
+  }) => {
+    await openNetWorth(page);
+    const pane = page.getByRole("complementary", { name: "Account" });
+    const trend = page.getByRole("region", { name: "Trend" });
+    await expect(pane.getByRole("region", { name: "Trend" })).toBeVisible();
+
+    await page.getByRole("link", { name: /^Alex Current/ }).click();
+    await expect(
+      pane.getByRole("heading", { level: 2, name: "Alex Current" }),
+    ).toBeVisible();
+    await expect(trend).toHaveCount(1);
+    await expect(pane.getByRole("region", { name: "Trend" })).toHaveCount(0);
+    const trendBox = await trend.boundingBox();
+    const rowBox = await page
+      .getByRole("link", { name: /^Alex Current/ })
+      .boundingBox();
+    expect(trendBox?.y).toBeLessThan(rowBox?.y ?? 0);
+
+    await pane.getByRole("button", { name: "Close" }).click();
+    await expect(page).not.toHaveURL(/[?&]account=/);
+    await expect(pane.getByRole("region", { name: "Trend" })).toBeVisible();
+    await expect(trend).toHaveCount(1);
   });
 });
 

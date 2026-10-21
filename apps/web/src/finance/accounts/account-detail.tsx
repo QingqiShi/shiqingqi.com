@@ -2,6 +2,7 @@
 
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsClockwise";
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
@@ -39,12 +40,15 @@ interface AccountDetailProps {
   /** 1 on the account's own page, 2 in the pane beside the Net worth list. */
   headingLevel: 1 | 2;
   onDeleted: () => void;
+  /** Shows a Close button that calls it, for the pane beside the Net worth list. */
+  onClose?: () => void;
 }
 
 export function AccountDetail({
   accountId,
   headingLevel,
   onDeleted,
+  onClose,
 }: AccountDetailProps) {
   const locale = useLocale();
   const today = useHouseholdToday();
@@ -158,6 +162,16 @@ export function AccountDetail({
                   ) : null}
                 </div>
               </div>
+              {onClose ? (
+                <Button
+                  look="ghost"
+                  size="sm"
+                  icon={<XIcon weight="bold" />}
+                  aria-label={t({ en: "Close", zh: "关闭" })}
+                  css={styles.close}
+                  onClick={onClose}
+                />
+              ) : null}
             </div>
             <span
               css={[typeRole.subDisplay, typeModifier.numeric, styles.balance]}
@@ -296,6 +310,10 @@ const styles = stylex.create({
   names: {
     gap: rhythm.inline,
     minInlineSize: 0,
+  },
+  close: {
+    alignSelf: "flex-start",
+    marginInlineStart: "auto",
   },
   muted: {
     color: color.fgMuted,

@@ -28,7 +28,7 @@ import {
   useChartSelection,
   type ChartSelection,
 } from "./use-chart-selection.ts";
-import { useElementWidth } from "./use-element-width.ts";
+import { useElementSize } from "./use-element-size.ts";
 
 /** A day or a span of days picked on the chart, with the value on each end. */
 export type ChartPick =
@@ -55,8 +55,12 @@ interface TimeSeriesChartProps {
   currency: string;
   /** What the readout row shows while nothing is picked, such as the range. */
   restReadout?: ReactNode;
-  /** The drawing's height in pixels, axis included. */
-  height?: number;
+  /**
+   * The drawing's height in pixels, axis included, or `"fill"` to take the
+   * height its parent gives it: put the chart in a flex column that has a
+   * height.
+   */
+  height?: number | "fill";
   /**
    * Hears each new pick. With it, the parent shows the pick, so the readout
    * row is kept for assistive technology only.
@@ -113,7 +117,7 @@ export function TimeSeriesChart({
   formatValue,
   currency,
   restReadout,
-  height = 200,
+  height: heightProp = 200,
   onPick,
 }: TimeSeriesChartProps) {
   const locale = useLocale();
@@ -122,7 +126,14 @@ export function TimeSeriesChart({
   const readoutId = useId();
   const rangeGradientId = useId();
   const rangeClipId = useId();
-  const { ref, width, bleed } = useElementWidth<HTMLDivElement>();
+  const {
+    ref,
+    width,
+    height: plotHeight,
+    bleed,
+  } = useElementSize<HTMLDivElement>();
+  const fills = heightProp === "fill";
+  const height = fills ? plotHeight : heightProp;
   const trendValues = trend?.values ?? null;
   const textLeft = bleed.left;
   const textRight = width - bleed.right;
@@ -224,7 +235,7 @@ export function TimeSeriesChart({
   );
 
   return (
-    <figure css={[stack.tight, styles.figure]}>
+    <figure css={[stack.tight, styles.figure, fills && styles.fill]}>
       <div
         id={readoutId}
         aria-live="polite"
@@ -288,7 +299,12 @@ export function TimeSeriesChart({
           zh: "用方向键逐日查看，按住 Shift 键再用方向键可比较两天。",
         })}`}
         aria-describedby={readoutId}
-        css={[corner.radius_2, a11y.focusRing, styles.plot]}
+        css={[
+          corner.radius_2,
+          a11y.focusRing,
+          styles.plot,
+          fills && styles.plotFill,
+        ]}
         onPointerDown={pick.onPointerDown}
         onPointerEnter={pick.measure}
         onPointerMove={pick.onPointerMove}
@@ -305,7 +321,7 @@ export function TimeSeriesChart({
           width={width}
           height={height}
           viewBox={`0 0 ${String(width)} ${String(height)}`}
-          css={styles.svg}
+          css={[styles.svg, fills && styles.svgFill]}
         >
           <title id={titleId}>{label}</title>
           <desc id={descriptionId}>{description}</desc>
@@ -540,6 +556,10 @@ const styles = stylex.create({
     margin: 0,
     minInlineSize: 0,
   },
+  fill: {
+    flexGrow: 1,
+    minBlockSize: 0,
+  },
   // The readout at rest and the readout of a pick share one cell, so that
   // the row keeps the height of the taller one and a pick moves nothing.
   readout: {
@@ -580,9 +600,20 @@ const styles = stylex.create({
     userSelect: "none",
     cursor: "crosshair",
   },
+  plotFill: {
+    flexGrow: 1,
+    minBlockSize: space._14,
+  },
   svg: {
     display: "block",
     overflow: "visible",
+  },
+  // The plot takes its height from the flex column, and the drawing takes
+  // the plot's. In flow, the drawing would make the plot as tall as itself.
+  svgFill: {
+    position: "absolute",
+    insetBlockStart: 0,
+    insetInlineStart: 0,
   },
   dimmed: {
     opacity: 0.4,

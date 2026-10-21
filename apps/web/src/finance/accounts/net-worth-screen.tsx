@@ -1,6 +1,7 @@
 "use client";
 
 import { Text } from "@tuja/ui/components/text";
+import { grow } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useSearchParams } from "next/navigation";
 import { t } from "#src/i18n.ts";
@@ -16,11 +17,13 @@ import { UpdateValuesForm } from "./update-values-form.tsx";
 
 function SelectedAccount() {
   const selection = useUrlSelection("account");
+  const isWide = useIsWideLayout();
   return selection.value === null ? null : (
     <AccountDetail
       accountId={selection.value}
       headingLevel={2}
       onDeleted={selection.clear}
+      onClose={isWide ? selection.clear : undefined}
     />
   );
 }
@@ -28,11 +31,13 @@ function SelectedAccount() {
 /**
  * `/finance`: the Net worth list beside the selected account at `lg` and
  * wider (`?account=`), and the "Update balances" form (`?mode=update`). With
- * no account picked, the pane holds the trend chart.
+ * no account picked, the trend fills the pane; with one picked, the trend
+ * moves to the top of the list.
  */
 export function NetWorthScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const mode = useSearchParams().get("mode");
+  const isAccountOpen = useUrlSelection("account").value !== null;
   const isWide = useIsWideLayout();
 
   if (!bootstrapped) return <NetWorthSkeleton />;
@@ -40,11 +45,11 @@ export function NetWorthScreen() {
   return (
     <MasterDetailLayout
       param="account"
-      master={<NetWorthOverview showTrend={!isWide} />}
+      master={<NetWorthOverview showTrend={!isWide || isAccountOpen} />}
       detail={<SelectedAccount />}
       empty={
-        <div css={stack.item}>
-          <NetWorthTrend height={320} />
+        <div css={[stack.item, grow._1]}>
+          <NetWorthTrend height="fill" />
           <Text look="bodySmall" tone="muted">
             {t({
               en: "Pick an account to see its history.",

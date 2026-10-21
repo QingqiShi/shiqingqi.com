@@ -5,10 +5,12 @@ import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { useScrollRegion } from "@tuja/ui/hooks/use-scroll-region";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
 import type { ReactNode, RefCallback } from "react";
+import { masterDetailTokens } from "./master-detail.stylex.ts";
 
 interface DetailPaneProps {
   /** Names the pane. */
@@ -53,7 +55,7 @@ function DetailPaneScroller({
       aria-label={label}
       css={[corner.radius_4, styles.pane, css]}
     >
-      <div ref={content} css={styles.content}>
+      <div ref={content} css={[flex.col, styles.content]}>
         <EffectCarrier value={region}>{children}</EffectCarrier>
       </div>
     </aside>
@@ -64,7 +66,7 @@ const styles = stylex.create({
   pane: {
     position: "sticky",
     insetBlockStart: space._4,
-    maxBlockSize: `calc(100dvh - ${space._8})`,
+    maxBlockSize: masterDetailTokens.paneBlockSize,
     overflowY: "auto",
     padding: space._5,
     borderWidth: border.size_1,
@@ -74,5 +76,6 @@ const styles = stylex.create({
   },
   content: {
     position: "relative",
+    minBlockSize: "100%",
   },
 });
