@@ -28,6 +28,8 @@ export interface TransactionFilters {
 }
 
 /** The search param of each list field. A param repeats, or holds ids split by commas. */
+export const MAX_QUERY_LENGTH = 200;
+
 const LIST_PARAMS = [
   ["accountIds", "account"],
   ["categoryIds", "category"],
@@ -100,7 +102,7 @@ export const transactionFilters = {
       expected: TRUE_VALUES.has(params.get("expected") ?? ""),
       from,
       to,
-      query: (params.get("q") ?? "").trim().slice(0, 200),
+      query: (params.get("q") ?? "").trim().slice(0, MAX_QUERY_LENGTH),
     };
   },
 

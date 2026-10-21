@@ -353,4 +353,32 @@ test.describe("Transactions in Chinese", () => {
     await expect(page.getByRole("form", { name: "记一笔支出" })).toBeVisible();
     await expect(page).toHaveURL(/\/zh\/finance\/transactions\?.*new=expense/);
   });
+
+  test("search keeps pinyin as it composes and stops at 200 characters", async ({
+    page,
+    household,
+    session: _session,
+  }) => {
+    await openTransactions(page, dayListPath(household.today, {}, "zh"));
+    const search = page.getByRole("searchbox", { name: "搜索交易" });
+    await search.click();
+
+    const cdp = await page.context().newCDPSession(page);
+    for (const text of ["h", "hu", "hua", "hua f", "hua fe", "hua fei"]) {
+      await cdp.send("Input.imeSetComposition", {
+        text,
+        selectionStart: text.length,
+        selectionEnd: text.length,
+      });
+      await expect(search).toHaveValue(text);
+    }
+    await cdp.send("Input.insertText", { text: "话费" });
+
+    await expect(search).toHaveValue("话费");
+    await expect(page).toHaveURL(/[?&]q=%E8%AF%9D%E8%B4%B9(&|$)/);
+
+    await search.fill("");
+    await page.keyboard.insertText("话".repeat(250));
+    await expect(search).toHaveValue("话".repeat(200));
+  });
 });
