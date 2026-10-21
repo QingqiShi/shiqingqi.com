@@ -19,7 +19,13 @@ import {
 } from "../primitives/motion.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { border, color, controlSize, font } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlHeight,
+  controlSize,
+  font,
+} from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
   segmentIndicator,
@@ -469,12 +475,12 @@ const styles = stylex.create({
 
 const trackSizeStyles = stylex.create({
   sm: {
-    [cornerTokens.height]: controlSize._8,
-    padding: `calc((${controlSize._8} - ${controlSize._7}) / 2 - ${border.size_1})`,
+    [cornerTokens.height]: controlHeight.sm,
+    padding: `calc((${controlHeight.sm} - ${controlSize._7}) / 2 - ${border.size_1})`,
   },
   md: {
-    [cornerTokens.height]: controlSize._9,
-    padding: `calc((${controlSize._9} - ${controlSize._8}) / 2 - ${border.size_1})`,
+    [cornerTokens.height]: controlHeight.md,
+    padding: `calc((${controlHeight.md} - ${controlSize._8}) / 2 - ${border.size_1})`,
   },
 });
 

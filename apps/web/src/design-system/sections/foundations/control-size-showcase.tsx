@@ -6,15 +6,16 @@ import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 import { t } from "#src/i18n.ts";
+import { ControlHeightSpecimen } from "./control-height-specimen.tsx";
 
 export function ControlSizeShowcase() {
   const guidance = [
     {
       term: t({ en: "Heights", zh: "高度" }),
-      value: "_8 · _9 · _10",
+      value: "controlHeight",
       note: t({
-        en: "Button's sm, md and lg sizes are controlSize._8, _9 and _10 tall. At sm and md, TextField, Select and SegmentedControl are _8 and _9 too. A control you build at one of these heights lines up with them in a row.",
-        zh: "Button 的 sm、md、lg 三个尺寸分别高 controlSize._8、_9、_10。在 sm 与 md 尺寸下，TextField、Select 与 SegmentedControl 也是 _8 与 _9。你自己搭建的控件取其中一个高度，就能与它们排成一行。",
+        en: "A size names one height in every control: controlHeight.sm, md and lg are controlSize._8, _9 and _10, and xs, which only Chip takes, is _6. Button, TextField, Select, SegmentedControl, Switch and Chip all take their height from it, and so does the first line of a Textarea. Build your control on the same step and it lines up with them in a row.",
+        zh: "同一个尺寸在每个控件里都是同一个高度：controlHeight.sm、md、lg 分别是 controlSize._8、_9、_10，只有 Chip 使用的 xs 是 _6。Button、TextField、Select、SegmentedControl、Switch 与 Chip 都从这里取高度，Textarea 的第一行也是。你的控件取同一级，就能与它们排成一行。",
       }),
     },
     {
@@ -37,8 +38,8 @@ export function ControlSizeShowcase() {
       term: t({ en: "Rounded ends", zh: "圆润的两端" }),
       value: "cornerTokens.height",
       note: t({
-        en: "corner.squircle_round closes its corners at half of cornerTokens.height, which is controlSize._9 by default. Set it to your control's height, as Button and SegmentedControl do.",
-        zh: "corner.squircle_round 在 cornerTokens.height 的一半处闭合角，默认是 controlSize._9。把它设成你控件的高度，Button 与 SegmentedControl 就是这样做的。",
+        en: "corner.squircle_round closes its corners at half of cornerTokens.height, which is controlHeight.md by default. Set it to your control's height, as Button and SegmentedControl do.",
+        zh: "corner.squircle_round 在 cornerTokens.height 的一半处闭合角，默认是 controlHeight.md。把它设成你控件的高度，Button 与 SegmentedControl 就是这样做的。",
       }),
     },
   ];
@@ -68,16 +69,17 @@ export function ControlSizeShowcase() {
       })}
     >
       <GuideList items={guidance} />
+      <ControlHeightSpecimen />
       <UsageSnippet
         code={`import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
-import { controlSize, font } from "@tuja/ui/tokens.stylex";
+import { controlHeight, controlSize, font } from "@tuja/ui/tokens.stylex";
 
 <button css={[corner.squircle_round, styles.toggle]}>…</button>
 
 const styles = stylex.create({
   // The height, padding and label size of a md Button.
   toggle: {
-    [cornerTokens.height]: controlSize._9,
+    [cornerTokens.height]: controlHeight.md,
     minBlockSize: cornerTokens.height,
     paddingInline: controlSize._3,
     gap: controlSize._2,

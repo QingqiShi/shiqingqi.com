@@ -11,11 +11,18 @@ interface DayInputProps {
   label: string;
   value: string;
   onChange: (day: string) => void;
+  size?: "xs" | "sm";
   css?: StyleProp;
 }
 
 /** A chip-sized date input with a hidden label; it reports only valid `YYYY-MM-DD` days. */
-export function DayInput({ label, value, onChange, css }: DayInputProps) {
+export function DayInput({
+  label,
+  value,
+  onChange,
+  size = "sm",
+  css,
+}: DayInputProps) {
   const id = useId();
   return (
     <>
@@ -30,9 +37,9 @@ export function DayInput({ label, value, onChange, css }: DayInputProps) {
           if (isValidDay(event.target.value)) onChange(event.target.value);
         }}
         css={[
-          typeRole.caption,
+          size === "xs" ? typeRole.caption : typeRole.label,
           chipSurface.base,
-          chipSize.sm,
+          chipSize[size],
           chipSurface.interactive,
           css,
         ]}

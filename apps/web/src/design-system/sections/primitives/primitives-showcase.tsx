@@ -24,6 +24,7 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
 import {
   color,
+  controlHeight,
   controlSize,
   font,
   rhythm,
@@ -1273,7 +1274,7 @@ const styles = stylex.create({
   // it to the box's own height — skip it and the NO_CORNER_SHAPE fallback
   // sizes off the wrong height.
   cornerButton: {
-    [cornerTokens.height]: controlSize._9,
+    [cornerTokens.height]: controlHeight.md,
     inlineSize: "120px",
     blockSize: cornerTokens.height,
     backgroundColor: color.bgAccentSubtle,

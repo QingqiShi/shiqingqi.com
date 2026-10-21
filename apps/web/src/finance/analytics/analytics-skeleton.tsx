@@ -6,7 +6,7 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { controlSize, rhythm } from "@tuja/ui/tokens.stylex";
+import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 const RANGES = [
@@ -79,7 +79,7 @@ const styles = stylex.create({
     margin: 0,
   },
   range: {
-    height: controlSize._6,
+    height: controlHeight.xs,
   },
   segmentedControls: {
     display: "grid",
@@ -90,7 +90,7 @@ const styles = stylex.create({
     },
   },
   segmented: {
-    height: controlSize._8,
+    height: controlHeight.sm,
   },
   columns: {
     display: "grid",

@@ -8,7 +8,7 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
-  controlSize,
+  controlHeight,
   measure,
   rhythm,
   space,
@@ -119,6 +119,6 @@ const styles = stylex.create({
     color: color.fgMuted,
   },
   trailerButtonSkeleton: {
-    [skeletonTokens.height]: controlSize._9,
+    [skeletonTokens.height]: controlHeight.md,
   },
 });

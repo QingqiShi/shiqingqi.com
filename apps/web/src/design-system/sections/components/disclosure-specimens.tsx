@@ -27,7 +27,7 @@ export function DisclosureHeadlessSpecimen() {
           {t({ en: "Florence → Siena", zh: "佛罗伦萨 → 锡耶纳" })}
         </a>
         <Chip
-          size="sm"
+          size="xs"
           {...triggerProps}
           trailing={
             <span

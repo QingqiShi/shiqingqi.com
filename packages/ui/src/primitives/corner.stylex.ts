@@ -1,9 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { border, constants, controlSize } from "../tokens.stylex.ts";
+import { border, constants, controlHeight } from "../tokens.stylex.ts";
 
 /** The height `corner.squircle_round` closes its corners at. */
 export const cornerTokens = stylex.defineVars({
-  height: controlSize._9,
+  height: controlHeight.md,
 });
 
 // Rounded corners — radius paired with shape. Every fixed-radius corner in

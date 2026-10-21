@@ -107,8 +107,8 @@ describe("TextField size and adornments", () => {
     const small = screen.getByLabelText("Small");
     const large = screen.getByLabelText("Large");
     expect(small.className).not.toBe(large.className);
-    expect(small.className).toContain("fieldSizeBox.sm");
-    expect(large.className).toContain("fieldSizeBox.lg");
+    expect(small.className).toContain("fieldSizeLine.sm");
+    expect(large.className).toContain("fieldSizeLine.lg");
   });
 
   it("renders leading and trailing adornments as decorative slots", () => {

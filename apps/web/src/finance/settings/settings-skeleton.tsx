@@ -5,13 +5,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import {
-  border,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { controlHeight, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 
 const SECTION_WIDTHS = [
@@ -96,9 +90,9 @@ const styles = stylex.create({
     maxInlineSize: "32rem",
   },
   field: {
-    height: `calc(${controlSize._10} + 2 * ${border.size_1})`,
+    height: controlHeight.md,
   },
   button: {
-    height: controlSize._9,
+    height: controlHeight.md,
   },
 });

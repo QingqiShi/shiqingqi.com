@@ -62,7 +62,7 @@ export function AnalyticsControls({
         {ranges.map((range) => (
           <Chip
             key={range.value}
-            size="sm"
+            size="xs"
             aria-pressed={state.range === range.value}
             css={[selected.quiet, styles.rangeChip]}
             onClick={() => {
@@ -84,6 +84,7 @@ export function AnalyticsControls({
         {state.range === "custom" ? (
           <>
             <DayInput
+              size="xs"
               css={styles.day}
               label={t({ en: "From", zh: "开始" })}
               value={view.range.from}
@@ -92,6 +93,7 @@ export function AnalyticsControls({
               }}
             />
             <DayInput
+              size="xs"
               css={styles.day}
               label={t({ en: "To", zh: "结束" })}
               value={view.range.to}

@@ -27,11 +27,12 @@ interface ChipBaseProps {
    */
   trailing?: ReactNode;
   /**
-   * Height and type scale.
+   * Height and type scale. `sm` is as tall as a `sm` Button; `xs` is one step
+   * smaller, for a dense row.
    *
-   * @zh 高度与字号阶梯。
+   * @zh 高度与字号阶梯。`sm` 与 `sm` 尺寸的 Button 等高；`xs` 小一级，用于紧凑的一行。
    */
-  size?: "sm" | "md";
+  size?: "xs" | "sm";
   /**
    * Paints the chip as the selected one. On the button form this also emits
    * `aria-pressed`; on the anchor form it's visual only — mark the current
@@ -76,7 +77,7 @@ type ChipProps = ChipBaseProps &
  * `@tuja/ui/components/chip.stylex` directly instead.
  */
 export function Chip(props: ChipProps) {
-  const { children, icon, trailing, size = "md", isActive, css } = props;
+  const { children, icon, trailing, size = "sm", isActive, css } = props;
 
   const chipCss = [
     sizeRoles[size],
@@ -145,8 +146,8 @@ export function Chip(props: ChipProps) {
 }
 
 const sizeRoles = {
-  sm: typeRole.caption,
-  md: typeRole.label,
+  xs: typeRole.caption,
+  sm: typeRole.label,
 };
 
 const styles = stylex.create({

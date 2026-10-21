@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import {
   border,
   color,
+  controlHeight,
   controlSize,
   font,
   opacity,
@@ -153,9 +154,24 @@ export const fieldSizeInline = stylex.create({
   lg: { [fieldVars.paddingInline]: controlSize._5 },
 });
 
-// Per-size vertical rhythm — applied directly to the control element.
+// Per-size height of a single-line control. A minimum, so text that the
+// visitor enlarges can still grow the box.
+export const fieldSizeLine = stylex.create({
+  sm: { paddingBlock: controlSize._0, minBlockSize: controlHeight.sm },
+  md: { paddingBlock: controlSize._0, minBlockSize: controlHeight.md },
+  lg: { paddingBlock: controlSize._0, minBlockSize: controlHeight.lg },
+});
+
+// Per-size vertical padding of a multiline control, set so that its first line
+// is as tall as a single-line control of the same size.
 export const fieldSizeBox = stylex.create({
-  sm: { paddingBlock: controlSize._2, minBlockSize: controlSize._8 },
-  md: { paddingBlock: controlSize._3, minBlockSize: controlSize._9 },
-  lg: { paddingBlock: controlSize._4, minBlockSize: controlSize._9 },
+  sm: {
+    paddingBlock: `max(${controlSize._0}, calc((${controlHeight.sm} - 1lh) / 2 - ${border.size_1}))`,
+  },
+  md: {
+    paddingBlock: `max(${controlSize._0}, calc((${controlHeight.md} - 1lh) / 2 - ${border.size_1}))`,
+  },
+  lg: {
+    paddingBlock: `max(${controlSize._0}, calc((${controlHeight.lg} - 1lh) / 2 - ${border.size_1}))`,
+  },
 });
