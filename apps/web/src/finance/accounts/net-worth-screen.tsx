@@ -45,6 +45,7 @@ export function NetWorthScreen() {
   return (
     <MasterDetailLayout
       param="account"
+      masterKey={mode ?? undefined}
       master={<NetWorthOverview showTrend={!isWide || isAccountOpen} />}
       detail={<SelectedAccount />}
       empty={

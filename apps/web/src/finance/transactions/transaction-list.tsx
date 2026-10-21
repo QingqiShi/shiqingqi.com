@@ -2,6 +2,7 @@
 
 import type { ComponentProps, Ref } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
+import { useMasterScroller } from "../shell/master-detail-columns.tsx";
 import type { CategoryRow, EntryRow } from "../sync/row-schemas.ts";
 import type { TransactionListItem } from "./build-transaction-list.ts";
 import { DayHeader } from "./day-header.tsx";
@@ -73,12 +74,16 @@ export function TransactionList({
   listLabel,
   virtuosoRef,
 }: TransactionListProps) {
+  const scrollParent = useMasterScroller();
+  if (scrollParent === null) return null;
   return (
     <Virtuoso
+      key={scrollParent ? "master" : "window"}
       ref={virtuosoRef}
       context={{ label: listLabel }}
       data={items}
-      useWindowScroll
+      useWindowScroll={scrollParent === undefined}
+      customScrollParent={scrollParent}
       increaseViewportBy={{ top: 400, bottom: 800 }}
       components={{ List, Item }}
       computeItemKey={(_, item) =>

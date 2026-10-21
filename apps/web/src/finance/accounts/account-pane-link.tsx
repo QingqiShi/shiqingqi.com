@@ -6,10 +6,10 @@ import { useUrlSelection } from "../shell/use-url-selection.ts";
 
 /**
  * The link of an account row that opens the account in the pane beside the
- * Net worth list. It gives the navigation the view transition types of the
- * selection, so that the trend moves to the list when the pane opens.
+ * Net worth list. It keeps the list where it is, and the trend moves to the
+ * list when the pane opens.
  */
 export function AccountPaneLink(props: ListRowLinkProps) {
   const selection = useUrlSelection("account");
-  return <Link {...props} transitionTypes={selection.linkTransitionTypes} />;
+  return <Link {...props} {...selection.linkProps} />;
 }
