@@ -220,7 +220,6 @@ const styles = stylex.create({
   main: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.inline,
     flexGrow: 1,
     minInlineSize: 0,
   },

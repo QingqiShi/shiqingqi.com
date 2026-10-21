@@ -157,8 +157,12 @@ const styles = stylex.create({
   content: {
     position: "relative",
   },
+  // The rows of a plain list reach `space._2` into the gutter (`bleed.rows`).
+  // The scroller goes out by the same amount, so that it does not clip them.
   master: {
     minInlineSize: 0,
+    marginInline: `calc(-1 * ${space._2})`,
+    paddingInline: space._2,
     paddingBlockStart: sidebarLayoutTokens.contentPaddingBlockStart,
     paddingBlockEnd: sidebarLayoutTokens.contentPaddingBlockEnd,
   },

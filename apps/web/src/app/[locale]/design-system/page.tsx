@@ -48,7 +48,7 @@ export default function DesignSystemOverview() {
 
   return (
     <div css={stack.section}>
-      <header css={stack.tight}>
+      <header css={stack.text}>
         <h1 css={[typeRole.fluidDisplay, styles.heading]}>{heading}</h1>
         <p css={[typeRole.fluidLead, styles.intro]}>
           {t({

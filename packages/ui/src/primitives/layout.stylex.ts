@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { color } from "../tokens.stylex.ts";
+import { color, space } from "../tokens.stylex.ts";
 
 // Position + inset fills
 export const absoluteFill = stylex.create({
@@ -134,6 +134,18 @@ export const scrollbar = stylex.create({
         ":focus-within": `${color.bgNeutral} transparent`,
       },
     },
+  },
+});
+
+/**
+ * A plain list, on no surface, whose rows pad their content by `space._2`.
+ * Pulled out by the same amount, the row content lines up with the text
+ * around the list, and a row's hover or selected plate reaches into the
+ * gutter.
+ */
+export const bleed = stylex.create({
+  rows: {
+    marginInline: `calc(-1 * ${space._2})`,
   },
 });
 

@@ -60,6 +60,13 @@ export const fieldStyles = stylex.create({
   description: {
     color: color.fgMuted,
   },
+  // A live region must be in the DOM before its text arrives, so the status
+  // is never removed. While it is empty, it goes out of flow and takes no gap
+  // in the field's stack.
+  status: {
+    position: { default: null, ":empty": "absolute" },
+    color: color.fgMuted,
+  },
   // Positioning context for the absolutely-placed affix slots. Also carries the
   // size variable so both the control and the affixes read the same padding.
   controlAffixRow: {

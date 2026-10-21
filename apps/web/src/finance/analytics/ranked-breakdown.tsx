@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
+import { bleed } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
@@ -58,7 +59,7 @@ export function RankedBreakdown({
 
   return (
     <section css={stack.item} aria-labelledby={headingId}>
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Heading level={2} look="h4" id={headingId} css={styles.heading}>
           {heading}
         </Heading>
@@ -73,7 +74,7 @@ export function RankedBreakdown({
           {empty}
         </Text>
       ) : (
-        <List {...stylex.props(stack.tight, styles.list)}>
+        <List {...stylex.props(stack.tight, bleed.rows, styles.list)}>
           {shown.map((item) => (
             <RankedRow
               key={item.key}

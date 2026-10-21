@@ -1,11 +1,7 @@
 "use client";
 
 import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
-import * as stylex from "@stylexjs/stylex";
 import { TextField } from "@tuja/ui/components/text-field";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -190,12 +186,9 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
     setText("");
   };
 
-  const description = error ?? describe();
-
   return (
     <form
       aria-label={t({ en: "Quick add", zh: "快速记账" })}
-      css={stack.tight}
       onSubmit={(event) => {
         event.preventDefault();
         submit();
@@ -208,28 +201,14 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
         leading={<LightningIcon weight="bold" />}
         autoComplete="off"
         enterKeyHint="done"
+        status={error === null ? (describe() ?? "") : ""}
+        error={error ?? undefined}
         value={text}
         onChange={(event) => {
           setText(event.target.value);
           setError(null);
         }}
       />
-      <p
-        aria-live="polite"
-        css={[typeRole.caption, styles.preview, error !== null && styles.error]}
-      >
-        {description}
-      </p>
     </form>
   );
 }
-
-const styles = stylex.create({
-  preview: {
-    color: color.fgMuted,
-    margin: 0,
-  },
-  error: {
-    color: color.fgDanger,
-  },
-});

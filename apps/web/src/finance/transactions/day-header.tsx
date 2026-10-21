@@ -34,21 +34,27 @@ export function DayHeader({
           day.slice(0, 4) === today.slice(0, 4) ? "weekday" : "weekdayYear",
         );
   return (
-    <div css={[flex.between, styles.day]}>
-      <Heading level={level} css={[typeRole.label, styles.label]}>
-        {label}
-      </Heading>
-      {children}
+    <div css={styles.day}>
+      <div css={[flex.between, styles.rule]}>
+        <Heading level={level} css={[typeRole.label, styles.label]}>
+          {label}
+        </Heading>
+        {children}
+      </div>
     </div>
   );
 }
 
 const styles = stylex.create({
+  // The list pulls its rows out by `space._2`, so that their plates reach
+  // into the gutter. The rule stays on the text edges.
   day: {
-    gap: rhythm.tight,
     paddingBlockStart: space._3,
-    paddingBlockEnd: space._1,
     paddingInline: space._2,
+  },
+  rule: {
+    gap: rhythm.tight,
+    paddingBlockEnd: space._1,
     borderBlockEndWidth: border.size_1,
     borderBlockEndStyle: "solid",
     borderBlockEndColor: color.border,

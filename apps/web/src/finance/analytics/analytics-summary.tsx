@@ -55,7 +55,7 @@ export function AnalyticsSummary({
   const previous = view.range.previous;
 
   return (
-    <section css={stack.tight} aria-label={heading}>
+    <section css={stack.text} aria-label={heading}>
       <Text look="caption" tone="muted">
         {[
           heading,

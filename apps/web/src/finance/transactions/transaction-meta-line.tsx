@@ -28,7 +28,13 @@ export function TransactionMetaLine({
     return null;
   }
   return (
-    <span css={[flex.row, styles.line]}>
+    <span
+      css={[
+        flex.row,
+        styles.line,
+        (isExpected || showReviewBadge) && styles.withBadge,
+      ]}
+    >
       {isExpected ? (
         <Badge intent="info" size="sm">
           {t({ en: "Expected", zh: "待确认" })}
@@ -60,6 +66,9 @@ const styles = stylex.create({
   line: {
     gap: rhythm.tight,
     minInlineSize: 0,
+  },
+  withBadge: {
+    marginBlockStart: rhythm.inline,
   },
   muted: {
     color: color.fgMuted,

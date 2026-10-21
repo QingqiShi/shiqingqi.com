@@ -47,6 +47,16 @@ interface TextFieldProps extends Omit<
    */
   error?: string;
   /**
+   * Live text under the control that follows what the visitor types, such as
+   * a preview of what the input will do. It is a polite live region, so a
+   * screen reader reads each change. Pass `""` while there is nothing to say:
+   * the region must exist before its first text, and it takes no space while
+   * empty.
+   *
+   * @zh 输入框下方随输入实时变化的文字，例如输入结果的预览。以礼貌型实时区域呈现，屏幕阅读器会读出每次变化。暂无内容时传入 `""`：实时区域须在首次出现文字前就已存在；为空时不占空间。
+   */
+  status?: string;
+  /**
    * Control height and padding via `controlSize`. Defaults to `"md"`.
    *
    * @zh 基于 `controlSize` 的控件高度与内边距。
@@ -73,8 +83,8 @@ interface TextFieldProps extends Omit<
 }
 
 /**
- * Single-line text input with a built-in label, optional helper text, and an
- * error state, all accessibly wired (`htmlFor`, `aria-describedby`,
+ * Single-line text input with a built-in label, optional helper text, a live
+ * status line, and an error state, all accessibly wired (`htmlFor`, `aria-describedby`,
  * `aria-invalid`, `role="alert"`). Forwards `ref` and native `<input>`
  * attributes to the underlying element, and stays server-renderable (no client
  * directive) since it only uses `useId`.
@@ -84,6 +94,7 @@ export function TextField({
   labelHidden,
   description,
   error,
+  status,
   size = "md",
   leading,
   trailing,
@@ -100,11 +111,19 @@ export function TextField({
     fieldId,
     descriptionId,
     errorId,
+    statusId,
     hasDescription,
     hasError,
     describedBy,
     ariaInvalid: resolvedAriaInvalid,
-  } = useFieldAria({ id, ariaDescribedBy, ariaInvalid, description, error });
+  } = useFieldAria({
+    id,
+    ariaDescribedBy,
+    ariaInvalid,
+    description,
+    error,
+    status,
+  });
 
   return (
     <div css={[stack.tight, fieldStyles.root]}>
@@ -165,6 +184,15 @@ export function TextField({
           </span>
         ) : null}
       </div>
+      {status === undefined ? null : (
+        <span
+          id={statusId}
+          role="status"
+          css={[typeRole.caption, fieldStyles.status]}
+        >
+          {status}
+        </span>
+      )}
       {hasError ? (
         <span
           id={errorId}

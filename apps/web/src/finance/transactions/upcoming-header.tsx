@@ -63,7 +63,7 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._2,
     backgroundColor: {
-      default: color.bgSurfaceSunken,
+      default: "transparent",
       ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
     },
   },

@@ -78,6 +78,7 @@ A container that owns the space between its children at one `rhythm` step. Prefe
 
 | Export           | Properties                                                  |
 | ---------------- | ----------------------------------------------------------- |
+| `stack.text`     | flex column, no gap: lines of text in one item              |
 | `stack.tight`    | flex column + gap: `rhythm.tight`                           |
 | `stack.item`     | flex column + gap: `rhythm.item`                            |
 | `stack.group`    | flex column + gap: `rhythm.group`                           |
@@ -95,7 +96,7 @@ A container that owns the space between its children at one `rhythm` step. Prefe
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 
 <section css={stack.group}>
-  <header css={stack.tight}>
+  <header css={stack.text}>
     <h3>Tonight</h3>
     <p>Two films.</p>
   </header>
@@ -168,7 +169,7 @@ The job a piece of text does. Each role sets `fontSize`, `lineHeight`, `fontWeig
 ```tsx
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 
-<header css={stack.tight}>
+<header css={stack.text}>
   <h3 css={typeRole.h3}>Tonight</h3>
   <span css={[typeRole.caption, typeModifier.numeric, styles.meta]}>
     2h 44m
@@ -229,6 +230,7 @@ There is no global `corner-shape` rule.
 | `viewportFill.absolute` | position: absolute + start insets: 0 + end insets: auto + 100vw × 100dvh (one viewport-sized layer inside the anchor) |
 | `scrollX.base`          | overflowX: auto + scrollbarWidth: none                                                                                |
 | `scrollY.base`          | overflowY: auto                                                                                                       |
+| `bleed.rows`            | marginInline: −`space._2` (a plain list whose rows pad by `space._2`: row content lines up with the text around it)   |
 | `truncate.base`         | overflow: hidden + textOverflow: ellipsis + whiteSpace: nowrap                                                        |
 | `imageCover.base`       | objectFit: cover + width: 100% + height: 100%                                                                         |
 | `imageContain.base`     | objectFit: contain + width: 100% + height: 100%                                                                       |

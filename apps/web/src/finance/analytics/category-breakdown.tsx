@@ -4,6 +4,7 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
+import { bleed } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -15,6 +16,7 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { BarChart, type BarSeries } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
+import { displayDayRange } from "../domain/dates/display-day.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { formatPercent } from "../domain/money/format-percent.ts";
 import type {
@@ -84,6 +86,7 @@ export function CategoryBreakdown({
     tone: item.tone,
   }));
 
+  const total = view.rows.reduce((sum, item) => sum + item.value, 0);
   const largest = view.rows.reduce(
     (most, item) => Math.max(most, Math.abs(item.value)),
     0,
@@ -120,7 +123,7 @@ export function CategoryBreakdown({
 
   return (
     <section css={stack.item} aria-labelledby={headingId}>
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Heading level={2} look="h4" id={headingId} css={styles.heading}>
           {t({ en: "By category", zh: "按分类" })}
         </Heading>
@@ -193,6 +196,11 @@ export function CategoryBreakdown({
             }
             series={series}
             formatValue={money}
+            restReadout={`${money(total)} · ${displayDayRange(
+              view.range.from,
+              view.range.to,
+              locale,
+            )}`}
             formatTick={(minor, step) =>
               formatAxisMoney(minor, step, currency, locale)
             }
@@ -205,7 +213,7 @@ export function CategoryBreakdown({
               zh: "按回车查看交易。",
             })}
           />
-          <ul css={[stack.tight, styles.list]}>
+          <ul css={[stack.tight, bleed.rows, styles.list]}>
             {view.rows.map((item) => {
               const change =
                 item.previous === null || item.previous === 0

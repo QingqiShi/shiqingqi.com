@@ -125,7 +125,7 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
         </Callout>
       ) : reports.length === 0 ? (
         <div css={stack.item}>
-          <div css={stack.tight}>
+          <div css={stack.text}>
             <Text as="p" look="body">
               {t({ en: "No reports yet.", zh: "还没有周报。" })}
             </Text>

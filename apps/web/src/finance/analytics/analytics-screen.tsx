@@ -40,7 +40,7 @@ function AnalyticsContent() {
   }
 
   return (
-    <>
+    <div css={stack.section}>
       <AnalyticsControls
         state={state}
         view={view}
@@ -48,7 +48,7 @@ function AnalyticsContent() {
         onChange={update}
       />
       <div css={styles.columns}>
-        <div css={[stack.group, styles.column]}>
+        <div css={[stack.section, styles.column]}>
           <AnalyticsSummary state={state} view={view} currency={currency} />
           <CategoryBreakdown
             state={state}
@@ -57,7 +57,7 @@ function AnalyticsContent() {
             onChange={update}
           />
         </div>
-        <div css={[stack.group, styles.column]}>
+        <div css={[stack.section, styles.column]}>
           {view.trend ? (
             <CategoryTrend
               trend={view.trend}
@@ -105,7 +105,7 @@ function AnalyticsContent() {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -138,7 +138,7 @@ const styles = stylex.create({
       [breakpoints.lg]: "repeat(2, minmax(0, 1fr))",
     },
     columnGap: rhythm.section,
-    rowGap: rhythm.group,
+    rowGap: rhythm.section,
     alignItems: "start",
   },
   column: {

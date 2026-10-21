@@ -15,6 +15,8 @@ interface UseFieldAriaOptions {
   description?: string;
   /** Error text, if any. Empty strings count as absent. */
   error?: string;
+  /** Live status text, if any. Empty strings count as absent. */
+  status?: string;
 }
 
 /**
@@ -23,7 +25,7 @@ interface UseFieldAriaOptions {
  * `aria-describedby`, and `aria-invalid` in one place keeps the accessibility
  * contract identical across controls instead of drifting per copy-paste.
  *
- * Empty-string `description`/`error` are treated as absent so a control never
+ * Empty-string `description`/`error`/`status` are treated as absent so a control never
  * points `aria-describedby` at an empty node.
  *
  * @internal
@@ -34,18 +36,22 @@ export function useFieldAria({
   ariaInvalid,
   description,
   error,
+  status,
 }: UseFieldAriaOptions) {
   const reactId = useId();
   const fieldId = id ?? reactId;
   const descriptionId = `${fieldId}-description`;
   const errorId = `${fieldId}-error`;
+  const statusId = `${fieldId}-status`;
 
   const hasDescription = description !== undefined && description !== "";
   const hasError = error !== undefined && error !== "";
+  const hasStatus = status !== undefined && status !== "";
 
   const describedIds = [
     ariaDescribedBy,
     hasDescription ? descriptionId : null,
+    hasStatus ? statusId : null,
     hasError ? errorId : null,
   ].filter(Boolean);
   const describedBy =
@@ -55,6 +61,7 @@ export function useFieldAria({
     fieldId,
     descriptionId,
     errorId,
+    statusId,
     hasDescription,
     hasError,
     describedBy,
