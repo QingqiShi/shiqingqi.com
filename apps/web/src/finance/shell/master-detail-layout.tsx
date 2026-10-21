@@ -2,9 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { flex, grow } from "@tuja/ui/primitives/flex.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import type { ReactNode } from "react";
+import { ViewTransition, type ReactNode } from "react";
 import { DetailPane } from "./detail-pane.tsx";
+import { masterDetailTokens } from "./master-detail.stylex.ts";
 import { PaneSheet } from "./pane-sheet.tsx";
 import { useIsWideLayout } from "./use-is-wide-layout.ts";
 import { useUrlSelection } from "./use-url-selection.ts";
@@ -24,8 +26,11 @@ interface MasterDetailLayoutProps {
 
 /**
  * A list and the detail of its selected row: side by side at `lg` and wider,
- * the detail in a `PaneSheet` below. The selection lives in the `param`
- * search param, so link rows with `useUrlSelection(param).hrefWith`.
+ * the detail in a `PaneSheet` below. The list stops at a width that reads
+ * well, and the pane takes the rest of the width and the height of the
+ * screen. When the selection changes, the old content of the pane fades out
+ * before the new content fades in. The selection lives in the `param` search
+ * param, so link rows with `useUrlSelection(param).hrefWith`.
  */
 export function MasterDetailLayout({
   master,
@@ -42,7 +47,16 @@ export function MasterDetailLayout({
     <div css={styles.root}>
       <div css={styles.master}>{master}</div>
       {isWide ? (
-        <DetailPane label={detailLabel}>{isOpen ? detail : empty}</DetailPane>
+        <DetailPane label={detailLabel} css={styles.pane}>
+          <ViewTransition
+            key={selection.value}
+            enter="master-detail-swap"
+            exit="master-detail-swap"
+            default="none"
+          >
+            <div css={[flex.col, grow._1]}>{isOpen ? detail : empty}</div>
+          </ViewTransition>
+        </DetailPane>
       ) : (
         <PaneSheet
           isOpen={isOpen}
@@ -61,12 +75,15 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [breakpoints.lg]: "minmax(0, 1fr) minmax(0, 1fr)",
+      [breakpoints.lg]: masterDetailTokens.columns,
     },
     gap: rhythm.group,
     alignItems: "start",
   },
   master: {
     minInlineSize: 0,
+  },
+  pane: {
+    blockSize: masterDetailTokens.paneBlockSize,
   },
 });

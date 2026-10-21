@@ -15,6 +15,7 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
+import { AccountPaneLink } from "./account-pane-link.tsx";
 import type { AccountLine } from "./build-balance-sheet.ts";
 import { institutionIconUrl } from "./institution-icon-url.ts";
 import { VALUATION_KINDS } from "./valuation-kinds.ts";
@@ -67,7 +68,7 @@ export function AccountRow({
   return (
     <ListRow
       href={href}
-      linkComponent={Link}
+      linkComponent={isWide ? AccountPaneLink : Link}
       aria-current={isSelected ? "true" : undefined}
       caret={!isWide}
       leading={

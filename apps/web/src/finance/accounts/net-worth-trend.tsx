@@ -1,7 +1,9 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
+import { ViewTransition } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
@@ -20,7 +22,8 @@ import { useHouseholdToday } from "./use-household-today.ts";
 import { useStoredRange } from "./use-stored-range.ts";
 
 interface NetWorthTrendProps {
-  height?: number;
+  /** The chart's height in pixels, or `"fill"` to take the rest of a flex column that has a height. */
+  height?: number | "fill";
   /** Hears each new pick; the parent then shows it in place of the readout. */
   onPick?: (pick: ChartPick | null) => void;
 }
@@ -28,7 +31,9 @@ interface NetWorthTrendProps {
 /**
  * The net-worth trend chart with its range chips and the change over the
  * picked range. Only this part re-renders on a new range, so the switch
- * costs one sample of at most 400 days.
+ * costs one sample of at most 400 days. Where an account opens beside the
+ * list, the trend moves between the pane and the top of the list; show it in
+ * one of the two places at a time.
  */
 export function NetWorthTrend({ height, onPick }: NetWorthTrendProps) {
   const locale = useLocale();
@@ -50,38 +55,54 @@ export function NetWorthTrend({ height, onPick }: NetWorthTrendProps) {
   );
 
   return (
-    <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
-      <TimeSeriesChart
-        series={series}
-        label={t({ en: "Net worth", zh: "净资产" })}
-        description={t({
-          en: "Net worth at the end of each day in the range.",
-          zh: "所选时间范围内每天结束时的净资产。",
-        })}
-        formatValue={money}
-        currency={currency}
-        height={height}
-        onPick={onPick}
-        restReadout={
-          <span>
-            {rangeLabel}
-            {" · "}
-            <MoneyChange
-              changeMinor={last - summary.first}
-              fromMinor={summary.first}
-              currency={currency}
-              tone
-              whole
-            />
-            {" · "}
-            {t({ en: "Average", zh: "平均" })}{" "}
-            <span css={typeModifier.numeric}>
-              {money(Math.round(summary.average))}
+    <ViewTransition
+      name="net-worth-trend"
+      share="net-worth-trend"
+      default="none"
+    >
+      <section
+        css={[stack.item, height === "fill" && styles.fill]}
+        aria-label={t({ en: "Trend", zh: "趋势" })}
+      >
+        <TimeSeriesChart
+          series={series}
+          label={t({ en: "Net worth", zh: "净资产" })}
+          description={t({
+            en: "Net worth at the end of each day in the range.",
+            zh: "所选时间范围内每天结束时的净资产。",
+          })}
+          formatValue={money}
+          currency={currency}
+          height={height}
+          onPick={onPick}
+          restReadout={
+            <span>
+              {rangeLabel}
+              {" · "}
+              <MoneyChange
+                changeMinor={last - summary.first}
+                fromMinor={summary.first}
+                currency={currency}
+                tone
+                whole
+              />
+              {" · "}
+              {t({ en: "Average", zh: "平均" })}{" "}
+              <span css={typeModifier.numeric}>
+                {money(Math.round(summary.average))}
+              </span>
             </span>
-          </span>
-        }
-      />
-      <ChartRangeChips value={range} onChange={setRange} />
-    </section>
+          }
+        />
+        <ChartRangeChips value={range} onChange={setRange} />
+      </section>
+    </ViewTransition>
   );
 }
+
+const styles = stylex.create({
+  fill: {
+    flexGrow: 1,
+    minBlockSize: 0,
+  },
+});

@@ -12,11 +12,15 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import dynamic from "next/dynamic";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, ViewTransition } from "react";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import type { ChartPick } from "../charts/time-series-chart.tsx";
 import { useReplica } from "../replica/use-replica.ts";
+import {
+  SELECTION_CLEAR_TRANSITION,
+  SELECTION_OPEN_TRANSITION,
+} from "../shell/use-url-selection.ts";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
 import { AccountGroupList } from "./account-group-list.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
@@ -26,12 +30,19 @@ import { selectBalanceSheet } from "./select-balance-sheet.ts";
 import { useBaseCurrency } from "./use-base-currency.ts";
 import { useHouseholdToday } from "./use-household-today.ts";
 
+/** The list moves only when the trend comes into it or leaves it. */
+const LIST_SHIFT = {
+  [SELECTION_OPEN_TRANSITION]: "net-worth-shift",
+  [SELECTION_CLEAR_TRANSITION]: "net-worth-shift",
+  default: "none",
+};
+
 const ReorderAccounts = dynamic(() =>
   import("./reorder-accounts.tsx").then((mod) => mod.ReorderAccounts),
 );
 
 interface NetWorthOverviewProps {
-  /** False where the trend chart has a pane of its own. */
+  /** False while the trend fills the pane beside the list. */
   showTrend: boolean;
 }
 
@@ -146,11 +157,13 @@ export function NetWorthOverview({ showTrend }: NetWorthOverviewProps) {
         )}
       </div>
       {hasAccounts ? (
-        <AccountGroupList
-          sheet={sheet}
-          baseCurrency={currency}
-          reorderHref={`${pathname}?${reorderParams.toString()}`}
-        />
+        <ViewTransition update={LIST_SHIFT} default="none">
+          <AccountGroupList
+            sheet={sheet}
+            baseCurrency={currency}
+            reorderHref={`${pathname}?${reorderParams.toString()}`}
+          />
+        </ViewTransition>
       ) : null}
       <AccountEditorSheet
         account={null}
