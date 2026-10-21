@@ -126,7 +126,9 @@ export function ContainerScaleSpecimen() {
   const activeRemText =
     activeRem === undefined ? undefined : `${activeRem.toFixed(2)}rem`;
   const liveValue =
-    activeRemText === undefined ? " " : `${activeWidthText} → ${activeRemText}`;
+    activeRemText === undefined
+      ? "\u00A0"
+      : `${activeWidthText} → ${activeRemText}`;
 
   return (
     <div css={stack.item}>

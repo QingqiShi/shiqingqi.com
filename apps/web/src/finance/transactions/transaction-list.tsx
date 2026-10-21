@@ -1,5 +1,8 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
+import { bleed } from "@tuja/ui/primitives/layout.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import type { ComponentProps, Ref } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import { useMasterScroller } from "../shell/master-detail-columns.tsx";
@@ -77,62 +80,73 @@ export function TransactionList({
   const scrollParent = useMasterScroller();
   if (scrollParent === null) return null;
   return (
-    <Virtuoso
-      key={scrollParent ? "master" : "window"}
-      ref={virtuosoRef}
-      context={{ label: listLabel }}
-      data={items}
-      useWindowScroll={scrollParent === undefined}
-      customScrollParent={scrollParent}
-      increaseViewportBy={{ top: 400, bottom: 800 }}
-      components={{ List, Item }}
-      computeItemKey={(_, item) =>
-        item.type === "day"
-          ? `day:${item.day}`
-          : item.type === "upcoming"
-            ? "upcoming"
-            : item.row.id
-      }
-      itemContent={(_, item) =>
-        item.type === "upcoming" ? (
-          <UpcomingHeader
-            count={item.count}
-            totalMinor={item.totalMinor}
-            open={item.open}
-            currency={baseCurrency}
-            locale={locale}
-            onToggle={onToggleUpcoming}
-          />
-        ) : item.type === "day" ? (
-          <DayHeader day={item.day} today={today} locale={locale}>
-            <DayTotals
-              expenseMinor={item.expenseMinor}
-              incomeMinor={item.incomeMinor}
+    <div css={[bleed.rows, styles.list]}>
+      <Virtuoso
+        key={scrollParent ? "master" : "window"}
+        ref={virtuosoRef}
+        context={{ label: listLabel }}
+        data={items}
+        useWindowScroll={scrollParent === undefined}
+        customScrollParent={scrollParent}
+        increaseViewportBy={{ top: 400, bottom: 800 }}
+        components={{ List, Item }}
+        computeItemKey={(_, item) =>
+          item.type === "day"
+            ? `day:${item.day}`
+            : item.type === "upcoming"
+              ? "upcoming"
+              : item.row.id
+        }
+        itemContent={(_, item) =>
+          item.type === "upcoming" ? (
+            <UpcomingHeader
+              count={item.count}
+              totalMinor={item.totalMinor}
+              open={item.open}
               currency={baseCurrency}
               locale={locale}
+              onToggle={onToggleUpcoming}
             />
-          </DayHeader>
-        ) : (
-          <TransactionListRow
-            row={item.row}
-            entries={entriesByTransaction.get(item.row.id) ?? NO_ENTRIES}
-            tagIds={tagIdsByTransaction.get(item.row.id) ?? NO_TAGS}
-            lookups={lookups}
-            baseCurrency={baseCurrency}
-            locale={locale}
-            today={today}
-            isSelected={item.row.id === selectedId}
-            isPending={pendingKeys.has(`transactions:${item.row.id}`)}
-            reviewMode={reviewMode}
-            categoriesOfKind={
-              item.row.kind === "income"
-                ? categoriesByKind.income
-                : categoriesByKind.expense
-            }
-            actions={actions}
-          />
-        )
-      }
-    />
+          ) : item.type === "day" ? (
+            <DayHeader day={item.day} today={today} locale={locale}>
+              <DayTotals
+                expenseMinor={item.expenseMinor}
+                incomeMinor={item.incomeMinor}
+                currency={baseCurrency}
+                locale={locale}
+              />
+            </DayHeader>
+          ) : (
+            <TransactionListRow
+              row={item.row}
+              entries={entriesByTransaction.get(item.row.id) ?? NO_ENTRIES}
+              tagIds={tagIdsByTransaction.get(item.row.id) ?? NO_TAGS}
+              lookups={lookups}
+              baseCurrency={baseCurrency}
+              locale={locale}
+              today={today}
+              isSelected={item.row.id === selectedId}
+              isPending={pendingKeys.has(`transactions:${item.row.id}`)}
+              reviewMode={reviewMode}
+              categoriesOfKind={
+                item.row.kind === "income"
+                  ? categoriesByKind.income
+                  : categoriesByKind.expense
+              }
+              actions={actions}
+            />
+          )
+        }
+      />
+    </div>
   );
 }
+
+const styles = stylex.create({
+  // The first row pads its text by up to `space._3` at the top. The list
+  // goes up by the same amount, so that the first line of text sits one gap
+  // below the block above the list.
+  list: {
+    marginBlockStart: `calc(-1 * ${space._3})`,
+  },
+});

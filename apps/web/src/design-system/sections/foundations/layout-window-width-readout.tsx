@@ -49,7 +49,7 @@ export function LayoutWindowWidthReadout({
         css={[typeRole.bodySmall, typeModifier.numeric, styles.markerValue]}
       >
         {viewport === undefined ? (
-          " "
+          "\u00A0"
         ) : (
           <>
             {`${viewport.toString()}px → `}

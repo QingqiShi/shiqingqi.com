@@ -222,7 +222,13 @@ export function Slider({
 
   return (
     <div css={[stack.tight, fieldStyles.root, css]}>
-      <div css={[flex.between, styles.labelRow]}>
+      <div
+        css={[
+          flex.between,
+          styles.labelRow,
+          labelHidden && readout === undefined && a11y.srOnly,
+        ]}
+      >
         <label
           htmlFor={fieldId}
           css={[

@@ -5,6 +5,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { bleed } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   border,
@@ -47,7 +48,7 @@ export function TransactionsSkeleton() {
               css={[corner.radius_3, styles.add, styles.wideOnly]}
             />
           </div>
-          <Skeleton width="100%" css={[styles.field, styles.quickAdd]} />
+          <Skeleton width="100%" css={styles.field} />
           <div css={stack.tight}>
             <Skeleton width="100%" css={styles.field} />
             <div css={[cluster.tight, styles.narrowOnly]}>
@@ -70,7 +71,7 @@ export function TransactionsSkeleton() {
             </div>
           </div>
         </div>
-        <div>
+        <div css={bleed.rows}>
           <Skeleton width="100%" height="2.625rem" css={corner.radius_3} />
           <div css={styles.day}>
             <Skeleton width="8rem" height="1.125rem" />
@@ -132,9 +133,6 @@ const styles = stylex.create({
   },
   field: {
     height: controlHeight.md,
-  },
-  quickAdd: {
-    marginBlockEnd: rhythm.tight,
   },
   filter: {
     height: controlHeight.sm,

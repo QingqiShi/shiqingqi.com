@@ -514,10 +514,14 @@ export const space = stylex.defineVars({
  *
  * - `inline` — the parts of one unit on one line, such as an icon and its
  *   label, or a value and its unit.
- * - `tight` — inside one item: a heading and its own text.
+ * - `tight` — the boxes inside one item, such as a field and its chips.
  * - `item` — siblings in a group.
  * - `group` — between groups, such as h3 sub-sections.
  * - `section` — between h2 sections. It grows at `md`.
+ *
+ * Lines of text in one item, such as a heading and its own text, take no gap
+ * (`stack.text`). A line box already holds space above and below its
+ * letters, so a gap of `tight` between two lines looks as wide as `item`.
  */
 export const rhythm = stylex.defineVars({
   inline: ".25rem",

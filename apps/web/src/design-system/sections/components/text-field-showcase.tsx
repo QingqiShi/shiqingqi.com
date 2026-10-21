@@ -56,6 +56,21 @@ export function TextFieldShowcase() {
         </Specimen>
       </Showcase>
 
+      <Showcase label={t({ en: "Status", zh: "状态文字" })}>
+        <Specimen caption="status">
+          <div css={styles.single}>
+            <TextField
+              label={t({ en: "Quick add", zh: "快速记账" })}
+              defaultValue="12.50 Tesco"
+              status={t({
+                en: "Expense · £12.50 · Groceries · Enter saves",
+                zh: "支出 · £12.50 · 日用杂货 · 按 Enter 保存",
+              })}
+            />
+          </div>
+        </Specimen>
+      </Showcase>
+
       <Showcase label={t({ en: "Adornments", zh: "装饰图标" })}>
         <SpecimenGrid>
           <Specimen caption={t({ en: "leading unit", zh: "前置单位" })}>

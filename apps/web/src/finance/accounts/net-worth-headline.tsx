@@ -3,7 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { cluster, row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -169,7 +169,6 @@ const styles = stylex.create({
   headline: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.inline,
   },
   // Today's changes and the pick's day share one cell, so that the block
   // keeps the height of the taller one and a pick moves nothing.

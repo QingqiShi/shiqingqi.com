@@ -10,16 +10,34 @@ export interface StackFailure {
   second: string;
 }
 
+export interface EmptyFailure {
+  container: string;
+  empty: string;
+}
+
+export interface TextFailure {
+  container: string;
+  first: string;
+  second: string;
+  gap: number;
+}
+
 export interface SpacingReport {
   headings: HeadingFailure[];
   stacks: StackFailure[];
+  empties: EmptyFailure[];
+  texts: TextFailure[];
 }
 
 /**
  * Checks the spacing under the first element that `rootSelectors` matches, in
- * order: each h2 and h3 has at least twice the space above it as below it, and
- * no two blocks in a stack touch. Runs in the page through `page.evaluate`, so
- * keep it standalone.
+ * order: each h2 and h3 has at least twice the space above it as below it, no
+ * two blocks in a stack touch, no empty box in a stack takes a gap, which
+ * would add a second gap between its neighbours, and two lines of text in one
+ * item take no gap smaller than `rhythm.item`. A line box holds space above
+ * and below its letters, so such a gap looks as wide as `rhythm.item`, and two
+ * lines of text may touch. Runs in the page through `page.evaluate`, so keep
+ * it standalone.
  *
  * Distances are measured between what a reader sees, not between boxes. A
  * surface (a background, a border, a shadow, a replaced element) is seen at its
@@ -67,6 +85,9 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     "SELECT",
     "HR",
   ]);
+
+  const CONTROL =
+    'button, input, select, textarea, a[href], [role="button"], [role="link"]';
 
   type Side = "top" | "right" | "bottom" | "left";
 
@@ -136,6 +157,50 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
         node.nodeType === Node.TEXT_NODE &&
         (node.textContent ?? "").trim() !== "",
     );
+  }
+
+  // An icon on a line of text is part of the text. A drawing, such as a
+  // chart, is a box.
+  function isIcon(el: Element) {
+    const parent = el.parentElement;
+    if (el.tagName.toLowerCase() !== "svg" || parent === null) return false;
+    const fontSize = Number.parseFloat(styleOf(parent).fontSize);
+    return el.getBoundingClientRect().height <= 1.5 * fontSize;
+  }
+
+  // Text with no surface in it. A block that is one control, such as a ghost
+  // button or a nav link, is a box even when it paints nothing. A link inside
+  // a sentence is still text.
+  function isText(el: Element) {
+    const text = el.textContent.trim();
+    if (text === "") return false;
+    const controls = [el, ...el.querySelectorAll(CONTROL)].filter((part) =>
+      part.matches(CONTROL),
+    );
+    if (controls.some((control) => control.textContent.trim() === text)) {
+      return false;
+    }
+    const parts = [el, ...el.querySelectorAll("*")].filter(
+      (part) => part.parentElement?.closest("svg") == null,
+    );
+    return !parts.some((part) => isPainted(part) && !isIcon(part));
+  }
+
+  // Whether the edge of a block that faces its neighbour is text: the first
+  // line for the top edge, the last line for the bottom edge.
+  function facesWithText(el: Element, edge: "top" | "bottom"): boolean {
+    if (isPainted(el) && !isIcon(el)) return false;
+    if (hasOwnText(el)) return isText(el);
+    const shown = laidOut(el).filter((child) => visualBox(child) !== null);
+    const facing = edge === "top" ? shown.at(0) : shown.at(-1);
+    if (facing === undefined) return isText(el);
+    const style = styleOf(el);
+    const isColumn =
+      (style.display.includes("flex") &&
+        style.flexDirection.startsWith("column")) ||
+      style.display === "block";
+    if (isColumn) return facesWithText(facing, edge);
+    return shown.every((child) => facesWithText(child, edge));
   }
 
   function contentBox(el: Element): Box {
@@ -229,7 +294,19 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
       if (parent === null || parent.hasAttribute("data-spacing-scope")) {
         return null;
       }
-      if (isPainted(parent)) return gapInside(parent.getBoundingClientRect());
+      // A rule on the far side of the heading is not an edge it sits against.
+      const parentStyle = styleOf(parent);
+      const ruledAway = isAbove
+        ? hasRule(parentStyle, "bottom", "top")
+        : hasRule(parentStyle, "top", "bottom");
+      const onlyRuled =
+        ruledAway &&
+        isTransparent(parentStyle.backgroundColor) &&
+        parentStyle.backgroundImage === "none" &&
+        parentStyle.boxShadow === "none";
+      if (isPainted(parent) && !onlyRuled) {
+        return gapInside(parent.getBoundingClientRect());
+      }
       node = parent;
     }
     return null;
@@ -250,7 +327,26 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     }
   }
 
+  // The boxes that take part in a container's layout: a box with no box of
+  // its own (`display: contents`) gives its children instead.
+  function laidOut(el: Element): Element[] {
+    return [...el.children].flatMap((child) => {
+      const style = styleOf(child);
+      if (style.display === "contents") return laidOut(child);
+      if (style.display === "none") return [];
+      if (style.position === "absolute" || style.position === "fixed") {
+        return [];
+      }
+      return [child];
+    });
+  }
+
+  const ITEM = Number.parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
   const stacks: StackFailure[] = [];
+  const empties: EmptyFailure[] = [];
+  const texts: TextFailure[] = [];
   for (const container of root.querySelectorAll("*")) {
     const style = styleOf(container);
     const isFlex = style.display === "flex" || style.display === "inline-flex";
@@ -264,6 +360,34 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     if (!isColumn && !isCluster) continue;
     if (container.closest(OUT_OF_SCOPE) !== null || !isShown(container)) {
       continue;
+    }
+
+    const gapSize = Number.parseFloat(
+      isColumn ? style.rowGap : style.columnGap,
+    );
+    const items = laidOut(container);
+    if (gapSize > TOLERANCE && items.length > 1) {
+      for (const item of items) {
+        const rect = item.getBoundingClientRect();
+        const size = isColumn ? rect.height : rect.width;
+        // A hairline rule is drawn, so it takes its gaps on purpose.
+        if (size > TOLERANCE || isPainted(item)) continue;
+        empties.push({ container: describe(container), empty: describe(item) });
+      }
+    }
+
+    if (isColumn && gapSize > TOLERANCE && gapSize < ITEM - TOLERANCE) {
+      for (let index = 1; index < items.length; index++) {
+        const first = items[index - 1];
+        const second = items[index];
+        if (!isText(first) || !isText(second)) continue;
+        texts.push({
+          container: describe(container),
+          first: describe(first),
+          second: describe(second),
+          gap: Math.round(gapSize),
+        });
+      }
     }
 
     const children = [...container.children].flatMap((child) => {
@@ -287,6 +411,12 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
         : following.box.left - previous.box.right;
       // Overlap is deliberate, as in an avatar stack.
       if (gap < -TOLERANCE || gap > TOLERANCE) continue;
+      if (
+        facesWithText(previous.child, "bottom") &&
+        facesWithText(following.child, "top")
+      ) {
+        continue;
+      }
       const ruled = isColumn
         ? hasRule(previous.childStyle, "bottom", "top") ||
           hasRule(following.childStyle, "top", "bottom")
@@ -301,5 +431,5 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     }
   }
 
-  return { headings, stacks };
+  return { headings, stacks, empties, texts };
 }

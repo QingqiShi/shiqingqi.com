@@ -1,5 +1,6 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { DESIGN_SYSTEM_PATHS } from "../src/design-system/routes/design-system-paths.ts";
+import { expectSpacing } from "./helpers/expect-spacing.ts";
 import { measureSpacing } from "./helpers/measure-spacing.ts";
 import { PRODUCT_ROUTES } from "./helpers/product-routes.ts";
 
@@ -38,9 +39,17 @@ test.describe("spacing check", () => {
           </div>
           <p style="margin: 0">Caption</p>
         </div>
-        <div id="touching" style="display: flex; flex-direction: column">
+        <div style="display: flex; flex-direction: column">
           <p style="margin: 0">Term</p>
           <p style="margin: 0">Note</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <p style="margin: 0">Title</p>
+          <p style="margin: 0">Its own text.</p>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <p style="margin: 0">Label</p>
+          <p style="margin: 0; background: silver">Boxed</p>
         </div>
         <div style="display: flex; flex-direction: column">
           <a style="padding: 8px">Padded link</a>
@@ -54,6 +63,14 @@ test.describe("spacing check", () => {
           <button style="margin: 0">One</button>
           <button style="margin: 0">Two</button>
         </div>
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <form style="display: flex; flex-direction: column; gap: 8px">
+            <input>
+            <p role="status" style="margin: 0"></p>
+            <p role="status" style="margin: 0; position: absolute"></p>
+          </form>
+          <input>
+        </div>
         <div aria-hidden="true" style="display: flex; flex-direction: column">
           <p style="margin: 0">Drawn</p>
           <p style="margin: 0">Drawn</p>
@@ -66,23 +83,19 @@ test.describe("spacing check", () => {
       '<h2> "Cramped"',
     ]);
     expect(report.stacks.map((failure) => failure.container)).toEqual([
-      '<div> "Term Note"',
+      '<div> "Label Boxed"',
       '<div> "One Two"',
+    ]);
+    expect(report.empties).toEqual([
+      { container: '<form> ""', empty: '<p> ""' },
+    ]);
+    expect(report.texts.map((failure) => failure.container)).toEqual([
+      '<div> "Staged text Staged Caption"',
+      '<div> "Staged text Staged"',
+      '<div> "Title Its own text."',
     ]);
   });
 });
-
-async function expectSpacing(page: Page, root: string[]) {
-  await page.evaluate(() => document.fonts.ready);
-  const report = await page.evaluate(measureSpacing, root);
-  expect
-    .soft(
-      report.headings,
-      "Each h2 and h3 has at least twice the space above it as below it",
-    )
-    .toEqual([]);
-  expect.soft(report.stacks, "No two blocks in a stack touch").toEqual([]);
-}
 
 for (const width of WIDTHS) {
   test.describe(`spacing at ${String(width)}px`, () => {

@@ -135,7 +135,7 @@ export function CategoryTrend({
   return (
     <section css={stack.item} aria-labelledby={headingId}>
       <header css={[cluster.item, styles.header]}>
-        <div css={stack.tight}>
+        <div css={stack.text}>
           <Text look="caption" tone="muted">
             {t({ en: "Category trend", zh: "分类趋势" })}
           </Text>

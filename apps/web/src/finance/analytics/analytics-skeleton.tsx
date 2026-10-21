@@ -28,45 +28,47 @@ export function AnalyticsSkeleton() {
       <Heading level={1} look="h3" css={styles.title}>
         {t({ en: "Analytics", zh: "分析" })}
       </Heading>
-      <div css={stack.item}>
-        <div css={cluster.tight}>
-          {RANGES.map((width, index) => (
-            <Skeleton
-              key={index}
-              width={width}
-              css={[corner.radius_round, styles.range]}
-            />
-          ))}
-        </div>
-        <div css={styles.segmentedControls}>
-          {Array.from({ length: SEGMENTED_CONTROLS }, (_, index) => (
-            <Skeleton key={index} width="100%" css={styles.segmented} />
-          ))}
-        </div>
-      </div>
-      <div css={styles.columns}>
-        <div css={stack.group}>
-          <div css={stack.tight}>
-            <Skeleton width="14rem" height="1rem" />
-            <Skeleton width="9rem" height="1.8rem" />
-            <Skeleton width="18rem" height="1.25rem" />
-            <Skeleton width="16rem" height="1rem" />
-          </div>
-          <div css={stack.item}>
-            <Skeleton width="7rem" height="1.3rem" />
-            <Skeleton width="100%" height="15rem" />
-          </div>
-        </div>
-        <div css={stack.group}>
-          <div css={stack.item}>
-            <Skeleton width="10rem" height="1.3rem" />
-            <Skeleton width="100%" height="15rem" />
-          </div>
-          <div css={stack.item}>
-            <Skeleton width="7rem" height="1.3rem" />
-            {Array.from({ length: RANKED_ROWS }, (_, index) => (
-              <Skeleton key={index} width="100%" height="2.25rem" />
+      <div css={stack.section}>
+        <div css={stack.item}>
+          <div css={cluster.tight}>
+            {RANGES.map((width, index) => (
+              <Skeleton
+                key={index}
+                width={width}
+                css={[corner.radius_round, styles.range]}
+              />
             ))}
+          </div>
+          <div css={styles.segmentedControls}>
+            {Array.from({ length: SEGMENTED_CONTROLS }, (_, index) => (
+              <Skeleton key={index} width="100%" css={styles.segmented} />
+            ))}
+          </div>
+        </div>
+        <div css={styles.columns}>
+          <div css={stack.section}>
+            <div css={stack.tight}>
+              <Skeleton width="14rem" height="1rem" />
+              <Skeleton width="9rem" height="1.8rem" />
+              <Skeleton width="18rem" height="1.25rem" />
+              <Skeleton width="16rem" height="1rem" />
+            </div>
+            <div css={stack.item}>
+              <Skeleton width="7rem" height="1.3rem" />
+              <Skeleton width="100%" height="15rem" />
+            </div>
+          </div>
+          <div css={stack.section}>
+            <div css={stack.item}>
+              <Skeleton width="10rem" height="1.3rem" />
+              <Skeleton width="100%" height="15rem" />
+            </div>
+            <div css={stack.item}>
+              <Skeleton width="7rem" height="1.3rem" />
+              {Array.from({ length: RANKED_ROWS }, (_, index) => (
+                <Skeleton key={index} width="100%" height="2.25rem" />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -99,7 +101,7 @@ const styles = stylex.create({
       [breakpoints.lg]: "repeat(2, minmax(0, 1fr))",
     },
     columnGap: rhythm.section,
-    rowGap: rhythm.group,
+    rowGap: rhythm.section,
     alignItems: "start",
   },
 });

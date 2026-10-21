@@ -65,6 +65,24 @@ describe("TextField description and error wiring", () => {
     expect(describedBy).toContain(screen.getByText("Full name").id);
   });
 
+  it("keeps the status live region in the DOM before it has text", () => {
+    const { rerender } = render(<TextField label="Amount" status="" />);
+    const input = screen.getByLabelText("Amount");
+    const region = screen.getByRole("status");
+    expect(region).toBeEmptyDOMElement();
+    expect(input).not.toHaveAttribute("aria-describedby");
+
+    rerender(<TextField label="Amount" status="Enter saves" />);
+    expect(screen.getByRole("status")).toBe(region);
+    expect(region).toHaveTextContent("Enter saves");
+    expect(input.getAttribute("aria-describedby")).toContain(region.id);
+  });
+
+  it("renders no status region when status is not given", () => {
+    render(<TextField label="Amount" />);
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("applies the invalid control style when errored", () => {
     render(<TextField label="Email" error="Bad" />);
     expect(screen.getByLabelText("Email").className).toContain(

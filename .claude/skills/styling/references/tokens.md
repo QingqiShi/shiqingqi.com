@@ -164,10 +164,12 @@ The space between two things, named by how they relate. Use it for every `gap`, 
 | Token            | Default   | `md` and up | Relationship                                    |
 | ---------------- | --------- | ----------- | ----------------------------------------------- |
 | `rhythm.inline`  | `0.25rem` | —           | The parts of one unit on one line: icon → label |
-| `rhythm.tight`   | `0.5rem`  | —           | Inside one item: a heading and its text         |
+| `rhythm.tight`   | `0.5rem`  | —           | The boxes inside one item: a field → its chips  |
 | `rhythm.item`    | `1rem`    | —           | Siblings in a group                             |
 | `rhythm.group`   | `2rem`    | —           | Between groups, h3 sub-sections                 |
 | `rhythm.section` | `3rem`    | `4rem`      | Between h2 sections                             |
+
+Lines of text in one item (a heading and its own text, a row's title and its detail) take no gap: compose `stack.text`. A line box already holds space above and below its letters, so a gap of `rhythm.tight` between two lines looks as wide as `rhythm.item`, and the two lines stop reading as one item.
 
 A gap inside a control (the icon and label of a Button, sized with `controlSize`) takes `controlSize`, not `rhythm`.
 
