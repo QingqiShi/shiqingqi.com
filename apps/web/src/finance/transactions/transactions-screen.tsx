@@ -15,7 +15,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useDeferredValue, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -46,7 +46,11 @@ import { QuickAdd } from "./quick-add.tsx";
 import { selectQueueCounts } from "./select-queue-counts.ts";
 import { selectReviewIds } from "./select-review-ids.ts";
 import { TransactionFilterBar } from "./transaction-filter-bar.tsx";
-import type { TransactionFilters } from "./transaction-filters.ts";
+import {
+  MAX_QUERY_LENGTH,
+  transactionFilters,
+  type TransactionFilters,
+} from "./transaction-filters.ts";
 import type { TransactionRowActions } from "./transaction-list-row.tsx";
 import { TransactionList } from "./transaction-list.tsx";
 import { useListShortcuts } from "./use-list-shortcuts.ts";
@@ -92,11 +96,18 @@ export function TransactionsScreen() {
   const today = useHouseholdToday();
 
   const [query, setQuery] = useState(url.filters.query);
-  const [urlQuery, setUrlQuery] = useState(url.filters.query);
-  if (url.filters.query !== urlQuery) {
-    setUrlQuery(url.filters.query);
-    setQuery(url.filters.query);
-  }
+  // Do not copy `?q=` from `url.filters` after each change. Next gives it one
+  // render late, and the old value replaces the text while an IME composes.
+  useEffect(() => {
+    const onPopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      setQuery(transactionFilters.parse(params).query);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
   const filters = { ...url.filters, query };
   const deferredFilters = useDeferredValue(filters);
   const [upcomingOpen, setUpcomingOpen] = useState(false);
@@ -423,10 +434,10 @@ export function TransactionsScreen() {
             }
             leading={<MagnifyingGlassIcon weight="bold" />}
             aria-keyshortcuts="/"
+            maxLength={MAX_QUERY_LENGTH}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
-              setUrlQuery(event.target.value.trim());
               url.setFilters({
                 ...url.filters,
                 query: event.target.value.trim(),
@@ -436,7 +447,6 @@ export function TransactionsScreen() {
               if (event.key === "Escape" && query !== "") {
                 event.preventDefault();
                 setQuery("");
-                setUrlQuery("");
                 url.setFilters({ ...url.filters, query: "" });
               }
             }}
