@@ -540,6 +540,17 @@ export const controlSize = stylex.defineVars({
   _10: { default: "57.6px", [breakpoints.md]: "48px" },
 });
 
+/**
+ * The height of a control at each `size` step. A step names the same height
+ * in every control, so a `sm` Chip, Button and TextField line up in a row.
+ */
+export const controlHeight = stylex.defineVars({
+  xs: controlSize._6,
+  sm: controlSize._8,
+  md: controlSize._9,
+  lg: controlSize._10,
+});
+
 export const border = stylex.defineVars({
   size_1: "1px",
   size_2: "2px",

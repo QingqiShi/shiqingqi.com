@@ -934,7 +934,7 @@ function EditorForm({
           <div css={stack.tight}>
             <div>
               <Chip
-                size="sm"
+                size="xs"
                 isActive={draft.refund}
                 icon={<ArrowUUpLeftIcon weight="bold" />}
                 onClick={() => {
@@ -1273,7 +1273,7 @@ function EditorForm({
               {memberChoices.map((member) => (
                 <Chip
                   key={member.id}
-                  size="sm"
+                  size="xs"
                   isActive={draft.memberId === member.id}
                   onClick={() => {
                     update({ memberId: member.id }, ["member"]);

@@ -42,7 +42,7 @@ function CategoryChip({
   return (
     <Chip
       ref={chipRef}
-      size="sm"
+      size="xs"
       isActive={isActive}
       icon={emoji === "" ? undefined : <span>{emoji}</span>}
       onClick={onPick}
@@ -107,7 +107,7 @@ export function CategoryPicker({
           />
         ))}
         <Chip
-          size="sm"
+          size="xs"
           aria-expanded={showAll}
           trailing={
             <CaretDownIcon

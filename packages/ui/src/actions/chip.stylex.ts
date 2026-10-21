@@ -1,12 +1,19 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
-import { border, color, controlSize, font, opacity } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlHeight,
+  controlSize,
+  font,
+  opacity,
+} from "../tokens.stylex.ts";
 
 /**
  * The pill skin shared by every chip and, at rest, by `Badge` — exposed as
  * composable StyleX for an element `Chip` can't be, most often a `<Link>`.
- * Compose a type role first (`typeRole.label` for the `md` step,
- * `typeRole.caption` for `sm`), then `base` plus a `chipSize` step, then
+ * Compose a type role first (`typeRole.label` for the `sm` step,
+ * `typeRole.caption` for `xs`), then `base` plus a `chipSize` step, then
  * `interactive`, then `active` for the selected one.
  *
  * `interactive` inlines its focus ring and its touch target instead of
@@ -86,16 +93,16 @@ export const chipSurface = stylex.create({
 /**
  * Height steps for a chip, split from `chipSurface` so a
  * hand-composed chip sizes itself the same way the `size` prop does. Heights
- * use `controlSize`, so every step grows on touch viewports.
+ * use `controlHeight`, so a chip is as tall as any control of the same step.
  */
 export const chipSize = stylex.create({
-  sm: {
-    minBlockSize: controlSize._6,
+  xs: {
+    minBlockSize: controlHeight.xs,
     paddingBlock: controlSize._0,
     paddingInline: controlSize._2,
   },
-  md: {
-    minBlockSize: controlSize._8,
+  sm: {
+    minBlockSize: controlHeight.sm,
     paddingBlock: controlSize._1,
     paddingInline: controlSize._3,
   },

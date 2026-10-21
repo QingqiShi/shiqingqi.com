@@ -98,7 +98,7 @@ function FilterSelect({
           onChange(event.target.value);
         }}
         css={[
-          typeRole.caption,
+          typeRole.label,
           chipSurface.base,
           chipSize.sm,
           chipSurface.interactive,
@@ -165,7 +165,6 @@ export function TransactionFilterBar({
     >
       {reviewCount > 0 || filters.review ? (
         <Chip
-          size="sm"
           isActive={filters.review}
           onClick={() => {
             set({ review: !filters.review });
@@ -176,7 +175,6 @@ export function TransactionFilterBar({
       ) : null}
       {expectedCount > 0 || filters.expected ? (
         <Chip
-          size="sm"
           isActive={filters.expected}
           onClick={() => {
             set({ expected: !filters.expected });
@@ -187,7 +185,6 @@ export function TransactionFilterBar({
       ) : null}
       <span css={styles.narrowOnly}>
         <Chip
-          size="sm"
           icon={<FunnelSimpleIcon weight="bold" />}
           aria-expanded={moreOpen}
           aria-controls={moreId}
@@ -212,7 +209,6 @@ export function TransactionFilterBar({
               return (
                 <Chip
                   key={member.id}
-                  size="sm"
                   isActive={active}
                   onClick={() => {
                     set({
@@ -339,7 +335,6 @@ export function TransactionFilterBar({
         {filters.payeeIds.map((id) => (
           <Chip
             key={id}
-            size="sm"
             isActive
             aria-label={`${removeLabel} ${lookups.payeeById.get(id)?.name ?? ""}`}
             trailing={<XIcon weight="bold" aria-hidden />}
@@ -355,7 +350,6 @@ export function TransactionFilterBar({
         {filters.tagIds.map((id) => (
           <Chip
             key={id}
-            size="sm"
             isActive
             aria-label={`${removeLabel} #${lookups.tagById.get(id)?.name ?? ""}`}
             trailing={<XIcon weight="bold" aria-hidden />}
@@ -369,7 +363,6 @@ export function TransactionFilterBar({
       </div>
       {transactionFilters.isEmpty({ ...filters, query: "" }) ? null : (
         <Chip
-          size="sm"
           onClick={() => {
             onChange({ ...EMPTY_TRANSACTION_FILTERS, query: filters.query });
           }}

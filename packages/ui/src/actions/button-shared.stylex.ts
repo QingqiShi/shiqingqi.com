@@ -6,7 +6,13 @@ import {
   easing,
   motionConstants,
 } from "../primitives/motion.stylex.ts";
-import { border, color, controlSize, font } from "../tokens.stylex.ts";
+import {
+  border,
+  color,
+  controlHeight,
+  controlSize,
+  font,
+} from "../tokens.stylex.ts";
 import { buttonTokens } from "./button.stylex.ts";
 
 // Can't use a `transition.*` preset for a compound transform+filter
@@ -183,20 +189,19 @@ export const lookStyles = stylex.create({
 
 // Each size drives `buttonTokens.height` and scales padding to match. The
 // label size comes from a type role composed before `sharedStyles.base`:
-// `label` for `sm`, `control` for `md`, `h2` for `lg`. `md` reproduces the
-// historic default, so callers that omit `size` are unaffected.
+// `label` for `sm`, `control` for `md`, `h2` for `lg`.
 export const sizeStyles = stylex.create({
   sm: {
-    [buttonTokens.height]: controlSize._8,
+    [buttonTokens.height]: controlHeight.sm,
     [buttonTokens.paddingInline]: controlSize._2,
     gap: controlSize._1,
     paddingBlock: controlSize._0,
   },
   md: {
-    [buttonTokens.height]: controlSize._9,
+    [buttonTokens.height]: controlHeight.md,
   },
   lg: {
-    [buttonTokens.height]: controlSize._10,
+    [buttonTokens.height]: controlHeight.lg,
     [buttonTokens.paddingInline]: controlSize._4,
     paddingBlock: controlSize._2,
   },

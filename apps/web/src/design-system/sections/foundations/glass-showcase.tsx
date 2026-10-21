@@ -11,7 +11,7 @@ import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
 import {
   border,
   color,
-  controlSize,
+  controlHeight,
   font,
   rhythm,
   space,
@@ -326,7 +326,7 @@ const styles = stylex.create({
     maxInlineSize: "100%",
   },
   heroPill: {
-    [cornerTokens.height]: controlSize._9,
+    [cornerTokens.height]: controlHeight.md,
     position: "relative",
     display: "inline-flex",
     alignItems: "center",

@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
-import { controlSize } from "@tuja/ui/tokens.stylex";
+import { controlHeight } from "@tuja/ui/tokens.stylex";
 import type { SupportedLocale } from "#src/i18n/types.ts";
 import { FiltersContainer } from "./filters-container";
 
@@ -57,6 +57,6 @@ const controlWidths = {
 
 const styles = stylex.create({
   control: {
-    [skeletonTokens.height]: controlSize._9,
+    [skeletonTokens.height]: controlHeight.md,
   },
 });

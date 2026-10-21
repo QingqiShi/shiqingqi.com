@@ -149,17 +149,17 @@ describe("Chip styling", () => {
     const className = screen.getByTestId("chip").className;
     expect(className).toContain("chipSurface.base");
     expect(className).toContain("chipSurface.interactive");
-    expect(className).toContain("chipSize.md");
+    expect(className).toContain("chipSize.sm");
   });
 
-  it("applies the small size step", () => {
+  it("applies the extra-small size step", () => {
     render(
-      <Chip size="sm" data-testid="chip">
+      <Chip size="xs" data-testid="chip">
         Day 1
       </Chip>,
     );
 
-    expect(screen.getByTestId("chip").className).toContain("chipSize.sm");
+    expect(screen.getByTestId("chip").className).toContain("chipSize.xs");
   });
 
   it("composes a caller css override last", () => {

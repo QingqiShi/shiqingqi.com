@@ -9,7 +9,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   border,
   color,
-  controlSize,
+  controlHeight,
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -97,7 +97,7 @@ const styles = stylex.create({
     margin: 0,
   },
   button: {
-    height: controlSize._8,
+    height: controlHeight.sm,
   },
   lines: {
     display: "flex",

@@ -39,7 +39,7 @@ export function LabVariantChips({
       {variants.map((variant) => (
         <Chip
           key={variant.id}
-          size="sm"
+          size="xs"
           isActive={variant.id === variantId}
           // `Chip` emits `aria-pressed` for its own selected state, which a
           // radio must not carry beside `aria-checked`.

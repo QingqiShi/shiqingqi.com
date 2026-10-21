@@ -5,7 +5,7 @@ import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import {
-  fieldSizeBox,
+  fieldSizeLine,
   fieldSizeInline,
   fieldStyles,
 } from "./field-shared.stylex.ts";
@@ -147,7 +147,7 @@ export function TextField({
           css={[
             typeRole.control,
             fieldStyles.control,
-            fieldSizeBox[size],
+            fieldSizeLine[size],
             transition.colors,
             a11y.focusRing,
             leading ? fieldStyles.hasLeadingAffix : null,

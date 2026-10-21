@@ -58,7 +58,7 @@ export function TagPicker({
           {value.map((tagId) => (
             <Chip
               key={tagId}
-              size="sm"
+              size="xs"
               aria-label={`${removeLabel} ${byId.get(tagId)?.name ?? ""}`}
               trailing={<XIcon weight="bold" aria-hidden />}
               onClick={() => {

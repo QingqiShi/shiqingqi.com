@@ -9,7 +9,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   border,
   color,
-  controlSize,
+  controlHeight,
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
@@ -128,16 +128,16 @@ const styles = stylex.create({
     margin: 0,
   },
   add: {
-    height: controlSize._9,
+    height: controlHeight.md,
   },
   field: {
-    height: `calc(${controlSize._10} + 2 * ${border.size_1})`,
+    height: controlHeight.md,
   },
   quickAdd: {
     marginBlockEnd: rhythm.tight,
   },
   filter: {
-    height: controlSize._6,
+    height: controlHeight.sm,
   },
   narrowOnly: {
     display: { default: "flex", [breakpoints.lg]: "none" },

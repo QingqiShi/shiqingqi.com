@@ -40,7 +40,7 @@ export function SectionShowcase() {
             title={t({ en: "Similar titles", zh: "相似作品" })}
             icon={<FilmSlateIcon weight="bold" />}
             actions={
-              <Chip size="sm" href="#section">
+              <Chip size="xs" href="#section">
                 {t({ en: "See all", zh: "查看全部" })}
               </Chip>
             }

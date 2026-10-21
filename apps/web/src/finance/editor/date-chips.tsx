@@ -36,7 +36,7 @@ export function DateChips({ value, today, onChange }: DateChipsProps) {
         {choices.map((choice) => (
           <Chip
             key={choice.day}
-            size="sm"
+            size="xs"
             isActive={value === choice.day}
             onClick={() => {
               onChange(choice.day);

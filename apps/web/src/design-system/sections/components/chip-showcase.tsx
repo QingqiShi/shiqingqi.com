@@ -16,11 +16,11 @@ export function ChipShowcase() {
     <>
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
         <SpecimenGrid>
+          <Specimen caption="xs">
+            <Chip size="xs">{t({ en: "Extra small", zh: "特小" })}</Chip>
+          </Specimen>
           <Specimen caption="sm">
             <Chip size="sm">{t({ en: "Small", zh: "小" })}</Chip>
-          </Specimen>
-          <Specimen caption="md">
-            <Chip size="md">{t({ en: "Medium", zh: "中" })}</Chip>
           </Specimen>
         </SpecimenGrid>
       </Showcase>
@@ -97,7 +97,7 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
   {...stylex.props(
     typeRole.label,
     chipSurface.base,
-    chipSize.md,
+    chipSize.sm,
     chipSurface.interactive,
     transition.colors,
   )}

@@ -17,7 +17,7 @@ import { buttonReset } from "../primitives/reset.stylex.ts";
 import {
   border,
   color,
-  controlSize,
+  controlHeight,
   layer,
   opacity,
   ratio,
@@ -61,11 +61,11 @@ interface SwitchProps extends Omit<
    */
   onChange?: (state: SwitchState) => void;
   /**
-   * Track-height scale via `controlSize`; the width and thumb scale with it.
-   * Every size, `md` included, grows below the `md` breakpoint like the
-   * `controlSize` scale.
+   * Track-height scale via `controlHeight`; the width and thumb scale with
+   * it. Every size, `md` included, grows below the `md` breakpoint like the
+   * `controlHeight` scale.
    *
-   * @zh 基于 `controlSize` 的轨道高度阶梯；宽度与滑块随之缩放。
+   * @zh 基于 `controlHeight` 的轨道高度阶梯；宽度与滑块随之缩放。
    */
   size?: "sm" | "md" | "lg";
   /**
@@ -450,10 +450,9 @@ const styles = stylex.create({
 });
 
 // Each size sets the `switchTokens.trackHeight` knob; `styles.switch` derives
-// height, width, thumb size, and travel from it. `md` reproduces the historic
-// default, so omitting `size` stays pixel-identical.
+// height, width, thumb size, and travel from it.
 const sizeStyles = stylex.create({
-  sm: { [switchTokens.trackHeight]: controlSize._8 },
-  md: { [switchTokens.trackHeight]: controlSize._9 },
-  lg: { [switchTokens.trackHeight]: controlSize._10 },
+  sm: { [switchTokens.trackHeight]: controlHeight.sm },
+  md: { [switchTokens.trackHeight]: controlHeight.md },
+  lg: { [switchTokens.trackHeight]: controlHeight.lg },
 });

@@ -310,16 +310,16 @@ const styles = stylex.create({
       >
         <UsageSnippet
           code={`import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
-import { controlSize } from "@tuja/ui/tokens.stylex";
+import { controlHeight } from "@tuja/ui/tokens.stylex";
 
 <article css={[corner.radius_3, styles.card]} />
 <span css={corner.radius_round} />
 <button css={[corner.squircle_round, styles.control]} />
 
 const styles = stylex.create({
-  // squircle_round closes at half this height. The default is controlSize._9.
+  // squircle_round closes at half this height. The default is controlHeight.md.
   control: {
-    [cornerTokens.height]: controlSize._8,
+    [cornerTokens.height]: controlHeight.sm,
     minBlockSize: cornerTokens.height,
   },
 });`}

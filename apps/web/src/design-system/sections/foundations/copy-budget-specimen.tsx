@@ -45,7 +45,7 @@ export function CopyBudgetSpecimen() {
         />
         <div css={cluster.tight}>
           <Chip
-            size="sm"
+            size="xs"
             isActive={label === short}
             onClick={() => {
               setLabel(short);
@@ -54,7 +54,7 @@ export function CopyBudgetSpecimen() {
             {short}
           </Chip>
           <Chip
-            size="sm"
+            size="xs"
             isActive={label === long}
             onClick={() => {
               setLabel(long);
@@ -75,10 +75,10 @@ export function CopyBudgetSpecimen() {
           </Badge>
         </div>
         <div css={cluster.tight}>
-          <Chip size="sm" isActive>
+          <Chip size="xs" isActive>
             {shown}
           </Chip>
-          <Chip size="sm">{t({ en: "Watchlist", zh: "待看清单" })}</Chip>
+          <Chip size="xs">{t({ en: "Watchlist", zh: "待看清单" })}</Chip>
         </div>
         <div css={cluster.tight}>
           <Button look="primary" size="sm">
