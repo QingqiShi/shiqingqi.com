@@ -22,6 +22,7 @@ import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import { parseQuickAdd } from "./parse-quick-add.ts";
 import { quickAddDraft } from "./quick-add-draft.ts";
+import { useTransactionKindLabels } from "./use-transaction-kind-labels.ts";
 
 interface QuickAddProps {
   /** Opens the full editor with what the line gave, when the line is not enough to save. */
@@ -86,11 +87,7 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
   const parsed = parseQuickAdd(text, data.baseCurrency);
   const preview = parsed ? quickAddDraft(data, parsed) : null;
 
-  const kindLabels = {
-    expense: t({ en: "Expense", zh: "支出" }),
-    income: t({ en: "Income", zh: "收入" }),
-    transfer: t({ en: "Transfer", zh: "转账" }),
-  };
+  const kindLabels = useTransactionKindLabels();
   const addedLabel = t({ en: "Added", zh: "已记录" });
   const categoryName = useCategoryDisplayName();
   const paysDownLabel = t({ en: "pays down", zh: "还款到" });

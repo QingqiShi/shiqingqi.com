@@ -1,5 +1,6 @@
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
+import { sumDayTotals } from "./sum-day-totals.ts";
 import type { TransactionFilters } from "./transaction-filters.ts";
 
 export type TransactionListItem =
@@ -120,14 +121,7 @@ function matcherFor(
 }
 
 function dayItem(day: string, rows: readonly TransactionRow[]) {
-  let expenseMinor = 0;
-  let incomeMinor = 0;
-  for (const row of rows) {
-    if (row.status !== "posted") continue;
-    if (row.kind === "expense") expenseMinor += row.amountMinor;
-    else if (row.kind === "income") incomeMinor += row.amountMinor;
-  }
-  return { type: "day" as const, day, expenseMinor, incomeMinor };
+  return { type: "day" as const, day, ...sumDayTotals(rows) };
 }
 
 /**

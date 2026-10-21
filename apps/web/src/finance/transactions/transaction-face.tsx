@@ -1,7 +1,7 @@
 import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight";
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -38,7 +38,7 @@ export function TransactionFace({
   // empty. Thus the amounts and the trailing content of a list stay in line.
   const hasTrailing = trailing !== undefined;
   return (
-    <span css={[flex.row, styles.face, hasTrailing && styles.twoLines]}>
+    <span css={[flex.row, styles.face]}>
       <span css={[corner.radius_round, flex.center, styles.icon]} aria-hidden>
         {icon}
       </span>
@@ -58,26 +58,29 @@ export function TransactionFace({
             {amount}
           </span>
         </span>
-        {subtitle !== "" || hasTrailing ? (
-          <span css={[flex.between, styles.line, styles.second]}>
-            <span css={[typeRole.bodySmall, truncate.base, styles.muted]}>
-              {subtitle}
-            </span>
-            {hasTrailing ? (
-              <span
-                css={[
-                  flex.row,
-                  typeRole.caption,
-                  typeModifier.numeric,
-                  styles.trailing,
-                ]}
-              >
-                {trailing}
+        <span css={[flex.row, align.start, styles.line]}>
+          <span css={[flex.col, styles.main]}>
+            {subtitle === "" ? null : (
+              <span css={[typeRole.bodySmall, truncate.base, styles.muted]}>
+                {subtitle}
               </span>
-            ) : null}
+            )}
+            {children}
           </span>
-        ) : null}
-        {children}
+          {hasTrailing ? (
+            <span
+              css={[
+                flex.row,
+                typeRole.caption,
+                typeModifier.numeric,
+                styles.second,
+                styles.trailing,
+              ]}
+            >
+              {trailing}
+            </span>
+          ) : null}
+        </span>
       </span>
     </span>
   );
@@ -110,9 +113,6 @@ const styles = stylex.create({
     paddingBlock: space._1,
     paddingInline: space._2,
     minInlineSize: 0,
-  },
-  twoLines: {
-    alignItems: "center",
   },
   icon: {
     flexShrink: 0,

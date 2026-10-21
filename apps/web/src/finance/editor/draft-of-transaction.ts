@@ -1,4 +1,5 @@
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
+import { transferLegs } from "../transactions/describe-transaction.ts";
 import type { TransactionKind } from "../transactions/transaction-filters.ts";
 import { editorDraft, type EditorDraft } from "./editor-draft.ts";
 import { pickDefaultAccount } from "./pick-default-account.ts";
@@ -38,9 +39,7 @@ export function draftOfTransaction(
     refundOfId: row.refundOfId,
   };
   if (row.kind === "transfer") {
-    const from =
-      entries.find((entry) => entry.amountMinor < 0) ?? entries.at(0);
-    const to = entries.find((entry) => entry !== from);
+    const { from, to } = transferLegs(entries);
     const fromCurrency = currencyOf(data, from?.accountId ?? null);
     const toCurrency = currencyOf(data, to?.accountId ?? null);
     return editorDraft("transfer", row.date, {
