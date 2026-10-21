@@ -13,7 +13,9 @@ import { ReportList } from "./report-list.tsx";
 import { useReportList } from "./use-report-list.ts";
 
 /**
- * Reports: the list of weeks beside the open Report at `lg` and wider.
+ * Reports: the list of weeks beside the open Report at `lg` and wider. The
+ * list is as wide as its widest week, so no locale cuts a week short, and
+ * takes that width from the gap, so the Report never moves.
  * Below `lg` the list is its own page and a Report opens on its own with a
  * way back.
  */
@@ -56,12 +58,19 @@ const styles = stylex.create({
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [breakpoints.lg]: "16rem minmax(0, 1fr)",
+      [breakpoints.lg]: `calc(16rem + ${rhythm.section}) minmax(0, 1fr)`,
     },
-    gap: rhythm.section,
+    rowGap: rhythm.section,
+    columnGap: { default: rhythm.section, [breakpoints.lg]: 0 },
     alignItems: "start",
   },
   list: {
+    justifySelf: { default: null, [breakpoints.lg]: "start" },
+    minInlineSize: { default: null, [breakpoints.lg]: "16rem" },
+    maxInlineSize: {
+      default: null,
+      [breakpoints.lg]: `calc(100% - ${rhythm.group})`,
+    },
     position: { default: "static", [breakpoints.lg]: "sticky" },
     insetBlockStart: space._4,
     maxBlockSize: {
@@ -69,6 +78,7 @@ const styles = stylex.create({
       [breakpoints.lg]: `calc(100dvh - ${space._8})`,
     },
     overflowY: { default: null, [breakpoints.lg]: "auto" },
+    scrollbarGutter: { default: null, [breakpoints.lg]: "stable" },
     paddingInlineEnd: { default: null, [breakpoints.lg]: space._2 },
     scrollbarColor: `${color.border} transparent`,
   },
