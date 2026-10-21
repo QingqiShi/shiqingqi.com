@@ -1,6 +1,5 @@
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { green } from "@tuja/ui/palette/green.stylex";
-import { purple } from "@tuja/ui/palette/purple.stylex";
 import { red } from "@tuja/ui/palette/red.stylex";
 import { range, tickStep } from "d3-array";
 import { scaleLinear } from "d3-scale";
@@ -150,7 +149,7 @@ const colors = {
   hairline: gray._90,
   axis: gray._80,
   track: gray._92,
-  accent: purple._40,
+  accent: gray._13,
   gain: green._30,
   loss: red._30,
 };

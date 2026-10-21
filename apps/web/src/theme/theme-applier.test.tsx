@@ -142,3 +142,22 @@ describe("ThemeApplier", () => {
     }
   });
 });
+
+describe("themeHack on a Finance page", () => {
+  it("adds the Finance theme before the first paint", () => {
+    localStorage.setItem("theme", "dark");
+    window.history.pushState(null, "", "/zh/finance/settings");
+    try {
+      runThemeHack();
+      expect(document.documentElement.className).toBe(
+        getDocumentClassName("dark", "/finance"),
+      );
+      expect(document.documentElement.className).not.toBe(
+        getDocumentClassName("dark"),
+      );
+    } finally {
+      window.history.pushState(null, "", "/");
+      localStorage.removeItem("theme");
+    }
+  });
+});
