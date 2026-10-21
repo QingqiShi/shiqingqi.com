@@ -1,9 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { MockLanguageModelV3 } from "ai/test";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { LabellingModel } from "../ai/label-bank-rows.ts";
+import { pairLabel } from "../ai/row-questions.ts";
 import {
+  createFailingLabellingModel,
   createLabellingModel,
+  offeredLabels,
   type ModelAnswer,
   type PromptRow,
 } from "../ai/testing/create-labelling-model.ts";
@@ -129,7 +132,7 @@ function transactionIdOf(linkId: string, providerTxId: string) {
 }
 
 function process(
-  model: MockLanguageModelV3 | null,
+  model: LabellingModel | null,
   options: { deadline?: Date } = {},
 ) {
   return processBankRows({
@@ -245,7 +248,7 @@ function syncSavings(
 }
 
 describe("processBankRows", () => {
-  it("writes an expense with the model's labels and reason, and a new Payee", async () => {
+  it("writes an expense with the model's labels, and a new Payee in Review with what Jev was unsure of", async () => {
     const tesco = await addBankRow(
       currentLinkId,
       "t1",
@@ -256,24 +259,22 @@ describe("processBankRows", () => {
     await addBankRow(currentLinkId, "t2", "2026-10-09", -2150, "ODD SHOP");
     const model = modelFor({
       "TESCO STORES 3297": {
-        categoryId: home.groceriesId,
-        payeeId: home.grocerId,
-        tagIds: [home.trainTagId],
-        memberId: home.partnerId,
-        reason: "Grocer is groceries in past transactions",
+        category: "Groceries",
+        payee: "Grocer",
+        tags: ["Train"],
+        member: "Partner",
       },
       "ODD SHOP": {
-        categoryId: home.groceriesId,
-        newPayeeName: `Odd\u0000 ‮ Shop ${"x".repeat(500)}`,
-        reason: "First time at this shop",
-        needsReview: true,
+        category: "Groceries",
+        payee: "Odd Shop",
+        probability: 0.4,
       },
     });
 
     const summary = await process(model);
 
     expect(summary.createdByAccount.get(home.currentId)).toBe(2);
-    expect(model.doGenerateCalls).toHaveLength(1);
+    expect(model.requests).toHaveLength(2);
     const grocer = await transactionById(transactionIdOf(currentLinkId, "t1"));
     expect(grocer).toMatchObject({
       kind: "expense",
@@ -283,42 +284,54 @@ describe("processBankRows", () => {
       memberId: home.partnerId,
       source: "bank",
       labelledBy: "ai",
-      aiReason: "Grocer is groceries in past transactions",
+      aiReason: null,
       needsReview: false,
       note: "TESCO STORES 3297",
     });
     const odd = await transactionById(transactionIdOf(currentLinkId, "t2"));
     expect(odd).toMatchObject({ needsReview: true, labelledBy: "ai" });
+    expect(odd.aiReason).toMatch(/^Unsure of the kind: expense 40%/);
     const [newPayee] = await db
       .select()
       .from(payees)
       .where(eq(payees.id, odd.payeeId ?? ""));
-    expect(newPayee.name.startsWith("Odd Shop x")).toBe(true);
-    expect(newPayee.name.length).toBeLessThanOrEqual(80);
+    expect(newPayee.name).toBe("Odd Shop");
     expect(await bankRowById(tesco)).toMatchObject({
       state: "matched",
       transactionId: grocer.id,
     });
   });
 
-  it("reuses a Payee whose name differs only in case, punctuation or accents, and makes a new name once per batch", async () => {
+  it("offers a known Payee instead of the same name from the bank text, and makes a new name once per batch", async () => {
     await addBankRow(currentLinkId, "p1", "2026-10-07", -500, "GROCER 12");
-    await addBankRow(currentLinkId, "p2", "2026-10-08", -600, "M&S 1");
-    await addBankRow(currentLinkId, "p3", "2026-10-09", -700, "M AND S 2");
+    await addBankRow(
+      currentLinkId,
+      "p2",
+      "2026-10-08",
+      -600,
+      "MARKS AND SPENCER 1",
+    );
+    await addBankRow(
+      currentLinkId,
+      "p3",
+      "2026-10-09",
+      -700,
+      "MARKS & SPENCER 2",
+    );
     await addBankRow(currentLinkId, "p4", "2026-10-09", -800, "REF 123");
     await addBankRow(currentLinkId, "p5", "2026-10-09", -900, "REF 456");
     const model = modelFor({
-      "GROCER 12": { categoryId: home.groceriesId, newPayeeName: " grocér. " },
-      "M&S 1": {
-        categoryId: home.groceriesId,
-        newPayeeName: "Marks & Spencer",
+      "GROCER 12": { category: "Groceries", payee: "Grocer" },
+      "MARKS AND SPENCER 1": {
+        category: "Groceries",
+        payee: "Marks and Spencer",
       },
-      "M AND S 2": {
-        categoryId: home.groceriesId,
-        newPayeeName: "MARKS AND SPENCER",
+      "MARKS & SPENCER 2": {
+        category: "Groceries",
+        payee: "Marks & Spencer",
       },
-      "REF 123": { categoryId: home.groceriesId, newPayeeName: "" },
-      "REF 456": { categoryId: home.groceriesId, newPayeeName: " - " },
+      "REF 123": { category: "Groceries", payee: null },
+      "REF 456": { category: "Groceries" },
     });
 
     await process(model);
@@ -339,22 +352,25 @@ describe("processBankRows", () => {
     expect(names.map(({ name }) => name)).toEqual([
       "Employer",
       "Grocer",
-      "Marks & Spencer",
+      "Marks and Spencer",
     ]);
+    const grocerRequest = model.requests.find(
+      (request) => request.state.bank_row.description === "GROCER 12",
+    );
+    expect(offeredLabels(grocerRequest?.questions.payee)).not.toContain(
+      "Grocer (new payee)",
+    );
   });
 
   it("writes a mortgage payment that pays down the loan, and an income that pays back money owed", async () => {
     await addBankRow(currentLinkId, "m1", "2026-10-01", -150_000, "MORTGAGE");
     await addBankRow(currentLinkId, "s1", "2026-10-02", 3_000, "SAM REPAYS");
     const model = modelFor({
-      MORTGAGE: {
-        categoryId: home.groceriesId,
-        paysDownAccountId: loanId,
-      },
+      MORTGAGE: { category: "Groceries", paysDown: "Mortgage" },
       "SAM REPAYS": {
         kind: "income",
-        categoryId: home.salaryId,
-        paysDownAccountId: receivableId,
+        category: "Salary",
+        paysDown: "Owed by Sam",
       },
     });
 
@@ -384,7 +400,7 @@ describe("processBankRows", () => {
     await addBankRow(currentLinkId, "c1", "2026-10-05", -50_000, "TO SAVINGS");
     await process(
       modelFor({
-        "TO SAVINGS": { kind: "transfer", transferAccountId: home.savingsId },
+        "TO SAVINGS": { kind: "transfer", transfer: "Savings" },
       }),
     );
     const transfer = transactionIdOf(currentLinkId, "c1");
@@ -408,7 +424,7 @@ describe("processBankRows", () => {
     const model = modelFor({});
     await process(model);
 
-    expect(model.doGenerateCalls).toHaveLength(0);
+    expect(model.requests).toHaveLength(0);
     expect(await bankRowById(savingsRow)).toMatchObject({
       state: "matched",
       transactionId: transfer,
@@ -431,11 +447,13 @@ describe("processBankRows", () => {
       20_000,
       "TRANSFER IN",
     );
-    const model = createLabellingModel((row) =>
-      row.description === "TRANSFER OUT"
-        ? { kind: "transfer", pairRef: "2" }
-        : { kind: "transfer", pairRef: "1" },
-    );
+    const model = createLabellingModel((row) => ({
+      kind: "transfer",
+      transfer:
+        row.description === "TRANSFER OUT"
+          ? pairLabel("Savings", "2026-10-05")
+          : pairLabel("Current", "2026-10-05"),
+    }));
 
     const summary = await process(model);
 
@@ -455,7 +473,7 @@ describe("processBankRows", () => {
     const before = await balances([home.currentId, home.savingsId]);
 
     await process(
-      modelFor({ "TO SOMEONE": { kind: "transfer", transferUnknown: true } }),
+      modelFor({ "TO SOMEONE": { kind: "transfer", transfer: "unknown" } }),
     );
 
     const transfer = transactionIdOf(currentLinkId, "c1");
@@ -497,7 +515,7 @@ describe("processBankRows", () => {
     await addBankRow(currentLinkId, "c1", "2026-10-05", -10_000, "TO USD");
 
     await process(
-      modelFor({ "TO USD": { kind: "transfer", transferAccountId: usdId } }),
+      modelFor({ "TO USD": { kind: "transfer", transfer: "Dollar account" } }),
     );
 
     const transfer = transactionIdOf(currentLinkId, "c1");
@@ -520,12 +538,12 @@ describe("processBankRows", () => {
       "MYSTERY",
     );
     const model = modelFor({
-      MYSTERY: { categoryId: home.salaryId },
+      MYSTERY: { category: "Salary" },
     });
 
     await process(model);
 
-    expect(model.doGenerateCalls).toHaveLength(3);
+    expect(model.requests).toHaveLength(3);
     expect(
       await transactionById(transactionIdOf(currentLinkId, "c1")),
     ).toMatchObject({
@@ -546,9 +564,7 @@ describe("processBankRows", () => {
   it("leaves the rows new with one more try when the model fails", async () => {
     const row = await addBankRow(currentLinkId, "c1", "2026-10-05", -700, "X");
     const errors: unknown[] = [];
-    const model = new MockLanguageModelV3({
-      doGenerate: () => Promise.reject(new Error("overloaded")),
-    });
+    const model = createFailingLabellingModel();
 
     await processBankRows({
       db,
@@ -584,11 +600,7 @@ describe("processBankRows", () => {
       .update(bankLinks)
       .set({ bankBalanceMinor: -1700, bankBalanceOn: "2026-10-10" })
       .where(eq(bankLinks.id, currentLinkId));
-    const model = new MockLanguageModelV3({
-      doGenerate: () => Promise.reject(new Error("overloaded")),
-    });
-
-    await process(model);
+    await process(createFailingLabellingModel());
 
     expect(await db.$count(transactions)).toBe(1);
     expect(await linkById(currentLinkId)).toMatchObject({
@@ -630,11 +642,11 @@ describe("processBankRows", () => {
 
   it("starts no batch after the deadline", async () => {
     const row = await addBankRow(currentLinkId, "c1", "2026-10-05", -700, "X");
-    const model = modelFor({ X: { categoryId: home.groceriesId } });
+    const model = modelFor({ X: { category: "Groceries" } });
 
     await process(model, { deadline: new Date(Date.now() - 1) });
 
-    expect(model.doGenerateCalls).toHaveLength(0);
+    expect(model.requests).toHaveLength(0);
     expect((await bankRowById(row)).state).toBe("new");
   });
 
@@ -659,11 +671,11 @@ describe("processBankRows", () => {
         ],
       }),
     ]);
-    const model = modelFor({ GYM: { categoryId: home.groceriesId } });
+    const model = modelFor({ GYM: { category: "Groceries" } });
 
     await process(model);
 
-    expect(model.doGenerateCalls).toHaveLength(0);
+    expect(model.requests).toHaveLength(0);
     expect(await bankRowById(row)).toMatchObject({
       state: "matched",
       transactionId: manualId,
@@ -673,7 +685,7 @@ describe("processBankRows", () => {
   it("puts money In transit for more than five days in Review without a flag, and takes it out when a bank row settles it", async () => {
     await addBankRow(currentLinkId, "c1", "2026-10-04", -1_000, "AWAY");
     await addBankRow(currentLinkId, "c2", "2026-10-05", -2_000, "AWAY TOO");
-    const unknown: ModelAnswer = { kind: "transfer", transferUnknown: true };
+    const unknown: ModelAnswer = { kind: "transfer", transfer: "unknown" };
     await process(modelFor({ AWAY: unknown, "AWAY TOO": unknown }));
     const away = transactionIdOf(currentLinkId, "c1");
     const awayToo = transactionIdOf(currentLinkId, "c2");
@@ -700,12 +712,7 @@ describe("processBankRows", () => {
     await addBankRow(currentLinkId, "c1", "2026-10-05", -1_000, "ODD");
     await process(
       modelFor({
-        ODD: {
-          kind: "transfer",
-          transferUnknown: true,
-          needsReview: true,
-          reason: "Not sure this is a transfer",
-        },
+        ODD: { kind: "transfer", transfer: "unknown", probability: 0.4 },
       }),
     );
 
@@ -716,9 +723,8 @@ describe("processBankRows", () => {
       { accountId: home.currentId, amountMinor: -1_000 },
       { accountId: home.savingsId, amountMinor: 1_000 },
     ]);
-    expect(await transactionById(transfer)).toMatchObject({
-      needsReview: true,
-      aiReason: "Not sure this is a transfer",
-    });
+    const written = await transactionById(transfer);
+    expect(written.needsReview).toBe(true);
+    expect(written.aiReason).toMatch(/^Unsure of the kind: transfer 40%/);
   });
 });

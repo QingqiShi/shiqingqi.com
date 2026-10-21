@@ -1,49 +1,54 @@
-import { generateText, isStepCount, Output, type LanguageModel } from "ai";
-import { z } from "zod";
-import { payeeNameKey } from "../domain/payees/payee-name-key.ts";
-import { MAX_NOTE_LENGTH } from "../sync/wire-fields.ts";
-import { cleanPayeeName } from "./clean-payee-name.ts";
-import {
-  categoryPathOf,
-  describeRows,
-  labellerSystemPrompt,
-} from "./labeller-system-prompt.ts";
-import {
-  searchTransactionsTool,
-  type SearchTransactions,
-} from "./search-transactions-tool.ts";
 import type {
-  LabellingAccount,
-  LabellingContext,
-  RowToLabel,
-} from "./types.ts";
+  ChoiceResponse,
+  Question,
+  ResultFor,
+  TypeSafeClient,
+} from "@typesafe-ai/sdk";
+import { forEachLimited } from "../domain/for-each-limited.ts";
+import {
+  findPastTransactions,
+  type SearchTransactions,
+} from "./find-past-transactions.ts";
+import {
+  householdQuestions,
+  requestQuestions,
+  rowQuestions,
+  rowState,
+  type Kind,
+  type Options,
+  type PayeeChoice,
+  type RowChoices,
+  type TagQuestion,
+  type TransferTarget,
+} from "./row-questions.ts";
+import type { LabellingContext, RowToLabel } from "./types.ts";
 
-/** The most bank rows one model call labels. */
+/** The System One model that labels bank rows. */
+export type LabellingModel = Pick<TypeSafeClient, "systemOne">;
+
+/** The most bank rows one run of the labeller reads together, so that it can pair the two sides of a transfer. */
 export const LABEL_BATCH_SIZE = 20;
-/** Steps of one call: searches, then the answer. The last step may not search. */
-const MAX_STEPS = 8;
-const MAX_OUTPUT_TOKENS = 16_000;
+/** The most rows the labeller asks about at the same time. */
+const CONCURRENCY = 5;
+/** An answer that Jev gives less probability than this puts the row in Review. */
+const REVIEW_BELOW = 0.6;
+const TAG_AT = 0.5;
 const MAX_REASON_LENGTH = 500;
-
-type TransferTarget =
-  | { type: "account"; accountId: string }
-  | { type: "pair"; ref: string }
-  | { type: "unknown" };
 
 /** The labels the model chose for one bank row, with ids it knows. */
 export interface RowLabel {
-  kind: "expense" | "income" | "transfer";
+  kind: Kind;
   /** Null for a transfer. */
   categoryId: string | null;
   /** A known Payee by id, or a new one by name. Null for a transfer. */
-  payee: { id: string } | { name: string } | null;
+  payee: PayeeChoice;
   tagIds: string[];
   memberId: string | null;
-  note: string;
   /** Null unless the kind is transfer. */
   transfer: TransferTarget | null;
   /** A loan or receivable account that takes an opposite Entry. */
   paysDownAccountId: string | null;
+  /** Which answers Jev was unsure of, when it was; else empty. */
   reason: string;
   needsReview: boolean;
 }
@@ -51,33 +56,7 @@ export interface RowLabel {
 export type LabelResult =
   { ok: true; label: RowLabel } | { ok: false; problem: string };
 
-function outputSchema(context: LabellingContext) {
-  const [first, ...rest] = context.categories.map((category) => category.id);
-  const categoryId =
-    context.categories.length === 0 ? z.string() : z.enum([first, ...rest]);
-  return z.object({
-    rows: z.array(
-      z.object({
-        ref: z.string(),
-        kind: z.enum(["expense", "income", "transfer"]),
-        categoryId: categoryId.nullable(),
-        payeeId: z.string().nullable(),
-        newPayeeName: z.string().nullable(),
-        tagIds: z.array(z.string()),
-        memberId: z.string().nullable(),
-        note: z.string(),
-        transferAccountId: z.string().nullable(),
-        pairRef: z.string().nullable(),
-        transferUnknown: z.boolean(),
-        paysDownAccountId: z.string().nullable(),
-        reason: z.string(),
-        needsReview: z.boolean(),
-      }),
-    ),
-  });
-}
-
-type ModelRow = z.infer<ReturnType<typeof outputSchema>>["rows"][number];
+type Answers = Readonly<Partial<Record<string, ResultFor<Question>>>>;
 
 class Invalid extends Error {}
 
@@ -85,169 +64,148 @@ function check(condition: unknown, problem: string): asserts condition {
   if (!condition) throw new Invalid(problem);
 }
 
-function stripRef(ref: string) {
-  return ref.trim().replace(/^#/, "");
+interface Chosen<Value> {
+  value: Value;
+  /** The probability of the answer as the labeller reads it. */
+  probability: number;
+  answer: ChoiceResponse;
 }
 
-interface Lookup {
-  context: LabellingContext;
-  rows: Map<string, RowToLabel>;
-  accounts: Map<string, LabellingAccount>;
-}
-
-function transferOf(answer: ModelRow, row: RowToLabel, lookup: Lookup) {
-  const targets = [
-    answer.transferAccountId !== null,
-    answer.pairRef !== null,
-    answer.transferUnknown,
-  ].filter(Boolean).length;
-  check(targets === 1, "A transfer needs exactly one other side");
-  if (answer.transferUnknown) return { type: "unknown" } as const;
-  if (answer.pairRef !== null) {
-    const ref = stripRef(answer.pairRef);
-    const partner = lookup.rows.get(ref);
-    check(partner && ref !== row.ref, "Unknown pair");
-    check(partner.accountId !== row.accountId, "A pair on one account");
-    check(
-      Math.sign(partner.amountMinor) === -Math.sign(row.amountMinor),
-      "A pair must move money in opposite directions",
-    );
-    return { type: "pair", ref } as const;
+/** The chosen value, with the probability of every label that leads to the same outcome. */
+function pick<Value>(
+  answers: Answers,
+  id: string,
+  options: Options<Value> | undefined,
+): Chosen<Value> {
+  const answer = answers[id];
+  check(options && answer?.type === "choice", `No ${id} answer`);
+  const value = options.values.get(answer.choice);
+  check(value !== undefined, `Unknown ${id} answer`);
+  const outcome = options.outcomes.get(answer.choice);
+  let probability = 0;
+  for (const [label, each] of options.outcomes) {
+    if (each === outcome) probability += answer.probabilities[label] ?? 0;
   }
-  const account = lookup.accounts.get(answer.transferAccountId ?? "");
-  check(account && !account.isSystem, "Unknown transfer account");
-  check(account.id !== row.accountId, "A transfer to its own account");
-  return { type: "account", accountId: account.id } as const;
+  return { value, probability, answer };
 }
 
-function payeeOf(answer: ModelRow) {
-  if (answer.payeeId !== null) return { id: answer.payeeId };
-  const name = cleanPayeeName(answer.newPayeeName ?? "");
-  return payeeNameKey(name) === "" ? null : { name };
+/** "Unsure of the category: Food > Groceries 48%, Food > Eating out 31%": the answer, then the strongest other answer. */
+function describeDoubt(what: string, answer: ChoiceResponse) {
+  const runnerUp = Object.entries(answer.probabilities)
+    .filter(([label]) => label !== answer.choice)
+    .sort(([, a], [, b]) => b - a)
+    .at(0);
+  const top = [
+    [answer.choice, answer.probabilities[answer.choice] ?? 0] as const,
+    ...(runnerUp ? [runnerUp] : []),
+  ].map(
+    ([label, probability]) =>
+      `${label} ${String(Math.round(probability * 100))}%`,
+  );
+  return `Unsure of the ${what}: ${top.join(", ")}`;
 }
 
-function paysDownOf(answer: ModelRow, row: RowToLabel, lookup: Lookup) {
-  if (answer.paysDownAccountId === null) return null;
-  const account = lookup.accounts.get(answer.paysDownAccountId);
-  const own = lookup.accounts.get(row.accountId);
-  check(
-    account &&
-      !account.isSystem &&
-      (account.kind === "loan" || account.kind === "receivable"),
-    "paysDownAccountId must be a loan or receivable account",
-  );
-  check(account.id !== row.accountId, "Pays down its own account");
-  check(own?.currency === account.currency, "Pays down another currency");
-  return account.id;
-}
-
-/** Checks the model's answer for one row against what the Household has. */
-function toLabel(answer: ModelRow, row: RowToLabel, lookup: Lookup): RowLabel {
-  const { context } = lookup;
-  const tagIds = [...new Set(answer.tagIds)];
-  const knownTags = new Set(context.tags.map((tag) => tag.id));
-  check(
-    tagIds.every((id) => knownTags.has(id)),
-    "Unknown tag",
-  );
-  check(
-    answer.memberId === null ||
-      context.members.some((member) => member.id === answer.memberId),
-    "Unknown member",
-  );
-  const common = {
-    kind: answer.kind,
-    tagIds,
-    memberId: answer.memberId,
-    note: answer.note.trim().slice(0, MAX_NOTE_LENGTH),
-    reason: answer.reason.trim().slice(0, MAX_REASON_LENGTH),
-    needsReview: answer.needsReview,
-  };
-  if (answer.kind === "transfer") {
-    return {
-      ...common,
+/** Reads Jev's answers for one row as labels. */
+function toLabel(
+  choices: RowChoices,
+  tags: readonly TagQuestion[],
+  answers: Answers,
+): RowLabel {
+  const kind = pick(answers, "kind", choices.kind);
+  const tagIds = tags.flatMap((tag) => {
+    const answer = answers[tag.tagId];
+    check(answer?.type === "noul", "No tag answer");
+    return answer.noul >= TAG_AT ? [tag.tagId] : [];
+  });
+  const memberId = choices.member
+    ? pick(answers, "member", choices.member).value
+    : null;
+  const used: [string, Chosen<unknown>][] = [["kind", kind]];
+  let label: Omit<RowLabel, "reason" | "needsReview" | "tagIds" | "memberId">;
+  if (kind.value === "transfer") {
+    const transfer = pick(answers, "transfer", choices.transfer);
+    used.push(["other side", transfer]);
+    label = {
+      kind: "transfer",
       categoryId: null,
       payee: null,
-      transfer: transferOf(answer, row, lookup),
+      transfer: transfer.value,
       paysDownAccountId: null,
     };
+  } else {
+    const categoryOf = `${kind.value}Category` as const;
+    const category = pick(answers, categoryOf, choices[categoryOf]);
+    const payee = pick(answers, "payee", choices.payee);
+    const paysDown = choices.paysDown
+      ? pick(answers, "paysDown", choices.paysDown)
+      : null;
+    used.push(["category", category], ["payee", payee]);
+    if (paysDown && paysDown.value !== null) {
+      used.push(["loan or money owed", paysDown]);
+    }
+    label = {
+      kind: kind.value,
+      categoryId: category.value,
+      payee: payee.value,
+      transfer: null,
+      paysDownAccountId: paysDown?.value ?? null,
+    };
   }
-  const category = context.categories.find(
-    (candidate) => candidate.id === answer.categoryId,
-  );
-  check(category, "An expense or income needs a category");
-  check(category.kind === answer.kind, "The category is of another kind");
-  check(
-    answer.kind === "expense" || row.amountMinor > 0,
-    "Money out cannot be an income",
-  );
+  const doubts = used.filter(([, chosen]) => chosen.probability < REVIEW_BELOW);
   return {
-    ...common,
-    categoryId: category.id,
-    payee: payeeOf(answer),
-    transfer: null,
-    paysDownAccountId: paysDownOf(answer, row, lookup),
+    ...label,
+    tagIds,
+    memberId,
+    reason: doubts
+      .map(([what, chosen]) => describeDoubt(what, chosen.answer))
+      .join("; ")
+      .slice(0, MAX_REASON_LENGTH),
+    needsReview: doubts.length > 0,
   };
 }
 
 /**
- * Asks the model for the labels of up to 20 bank rows in one call. The
- * model may search past Transactions first. The Household's instructions,
- * accounts, taxonomy, Members and Payees go in the cached system part.
- * Every answer is checked here; a row without a usable answer comes back
- * with the problem. A failing call throws.
+ * Asks Jev for the labels of up to 20 bank rows, one request per row. For
+ * each row, code first finds the Household's past Transactions with similar
+ * bank text and cuts new Payee names from the bank text; Jev only chooses
+ * among them. Rows with the same search words share one search. A row
+ * whose answer cannot be read comes back with the problem. A failing
+ * request throws.
  */
 export async function labelBankRows(
-  model: LanguageModel,
+  model: LabellingModel,
   context: LabellingContext,
   rows: readonly RowToLabel[],
   search: SearchTransactions,
 ): Promise<Map<string, LabelResult>> {
-  const results = new Map<string, LabelResult>();
-  if (rows.length === 0) return results;
-  const result = await generateText({
-    model,
-    tools: {
-      search_transactions: searchTransactionsTool(
-        search,
-        categoryPathOf(context),
-      ),
-    },
-    output: Output.object({ schema: outputSchema(context) }),
-    stopWhen: isStepCount(MAX_STEPS),
-    prepareStep: ({ stepNumber }) =>
-      stepNumber === MAX_STEPS - 1 ? { toolChoice: "none" } : undefined,
-    reasoning: "low",
-    maxOutputTokens: MAX_OUTPUT_TOKENS,
-    instructions: {
-      role: "system",
-      content: labellerSystemPrompt(context),
-      providerOptions: {
-        anthropic: { cacheControl: { type: "ephemeral" } },
-      },
-    },
-    messages: [{ role: "user", content: describeRows(rows, context) }],
-  });
-
-  const lookup: Lookup = {
-    context,
-    rows: new Map(rows.map((row) => [row.ref, row])),
-    accounts: new Map(context.accounts.map((account) => [account.id, account])),
+  const household = householdQuestions(context);
+  const searches = new Map<string, ReturnType<SearchTransactions>>();
+  const cachedSearch: SearchTransactions = (input) => {
+    const key = JSON.stringify(input);
+    let found = searches.get(key);
+    if (!found) {
+      found = search(input);
+      searches.set(key, found);
+    }
+    return found;
   };
-  for (const answer of result.output.rows) {
-    const row = lookup.rows.get(stripRef(answer.ref));
-    if (!row || results.has(row.ref)) continue;
+  const results = new Map<string, LabelResult>();
+  await forEachLimited(rows, CONCURRENCY, async (row) => {
+    const past = await findPastTransactions(cachedSearch, row);
+    const choices = rowQuestions(household, row, rows, past);
+    const { answers } = await model.systemOne({
+      state: rowState(household, row, past),
+      questions: requestQuestions(choices, household.tags),
+    });
     try {
-      results.set(row.ref, { ok: true, label: toLabel(answer, row, lookup) });
+      results.set(row.ref, {
+        ok: true,
+        label: toLabel(choices, household.tags, answers),
+      });
     } catch (error) {
       if (!(error instanceof Invalid)) throw error;
       results.set(row.ref, { ok: false, problem: error.message });
     }
-  }
-  for (const row of rows) {
-    if (!results.has(row.ref)) {
-      results.set(row.ref, { ok: false, problem: "No answer" });
-    }
-  }
+  });
   return results;
 }

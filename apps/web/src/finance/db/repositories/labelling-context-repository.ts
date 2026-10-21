@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import type { LabellingContext } from "../../ai/types.ts";
 import {
   accounts,
@@ -14,6 +14,8 @@ import type { RepositoryScope } from "./types.ts";
 
 /** The most Payees the labeller sees by name; it finds the others with search. */
 const MAX_PAYEES = 500;
+/** The most Payees the labeller sees as examples of one Category. */
+const MAX_USUAL_PAYEES = 5;
 
 export const labellingContextRepository = {
   /** The Household's instructions, accounts, taxonomy, Members and Payees, for the labeller. */
@@ -87,6 +89,34 @@ export const labellingContextRepository = {
         ),
       )
       .orderBy(categories.kind, categories.position, categories.name);
+    const uses = sql<number>`count(*)::int`;
+    const usualRows = await db
+      .select({ categoryId: transactions.categoryId, name: payees.name })
+      .from(transactions)
+      .innerJoin(
+        payees,
+        and(
+          eq(payees.householdId, householdId),
+          eq(payees.id, transactions.payeeId),
+        ),
+      )
+      .where(
+        and(
+          eq(transactions.householdId, householdId),
+          isNull(transactions.deletedAt),
+          eq(transactions.labelledBy, "member"),
+          isNotNull(transactions.categoryId),
+        ),
+      )
+      .groupBy(transactions.categoryId, payees.name)
+      .orderBy(desc(uses), payees.name);
+    const usualPayees = new Map<string, string[]>();
+    for (const { categoryId, name } of usualRows) {
+      if (categoryId === null) continue;
+      const names = usualPayees.get(categoryId) ?? [];
+      if (names.length < MAX_USUAL_PAYEES) names.push(name);
+      usualPayees.set(categoryId, names);
+    }
     const tagRows = await db
       .select({ id: tags.id, name: tags.name })
       .from(tags)
@@ -128,7 +158,10 @@ export const labellingContextRepository = {
         linked: linkId !== null,
         closed: closedOn !== null,
       })),
-      categories: categoryRows,
+      categories: categoryRows.map((category) => ({
+        ...category,
+        usualPayees: usualPayees.get(category.id) ?? [],
+      })),
       tags: tagRows,
       members: memberRows,
       payees: payeeRows,

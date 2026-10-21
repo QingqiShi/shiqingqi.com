@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import type { LanguageModel } from "ai";
 import { z } from "zod";
+import type { LabellingModel } from "../ai/label-bank-rows.ts";
 import type { FinanceSession } from "../auth/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
@@ -45,7 +45,7 @@ export interface BankHandlerDependencies extends FinanceRequestGuardDependencies
   verifyApiKey: (apiKey: string) => Promise<void>;
   /** The key that seals each Connection's credential, or null when it is not set. */
   credentialKey: () => Uint8Array | null;
-  getModel: () => LanguageModel | null;
+  getModel: () => LabellingModel | null;
   /** Runs `task` after the response is sent, as Next's `after` does. */
   afterResponse: (task: () => Promise<void>) => void;
   now: () => Date;

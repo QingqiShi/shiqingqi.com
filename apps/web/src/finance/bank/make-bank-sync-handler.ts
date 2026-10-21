@@ -1,4 +1,4 @@
-import type { LanguageModel } from "ai";
+import type { LabellingModel } from "../ai/label-bank-rows.ts";
 import type { FinanceDb } from "../db/types.ts";
 import {
   makeHouseholdCronHandler,
@@ -14,7 +14,7 @@ interface BankSyncCronDependencies extends HouseholdCronDependencies {
     householdId: string,
     now: Date,
   ) => Promise<BankConnection>;
-  getModel: () => LanguageModel | null;
+  getModel: () => LabellingModel | null;
 }
 
 /**

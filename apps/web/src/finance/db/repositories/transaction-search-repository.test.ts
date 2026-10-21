@@ -113,8 +113,8 @@ function search(household: SeededHousehold, input: TransactionSearch) {
 }
 
 describe("transactionSearchRepository", () => {
-  it("finds only rows a Member labelled, by bank text, with the bank text and labels", async () => {
-    await expense(home, {
+  it("finds rows by bank text, newest first, with the bank text, the labels and who labelled them", async () => {
+    const aiLabelled = await expense(home, {
       date: "2026-10-05",
       amountMinor: -1200,
       labelledBy: "ai",
@@ -130,8 +130,10 @@ describe("transactionSearchRepository", () => {
 
     const found = await search(home, { text: "tesco" });
 
-    expect(found.map((row) => row.id)).toEqual([memberLabelled]);
-    expect(found[0]).toMatchObject({
+    expect(found.map((row) => row.id)).toEqual([aiLabelled, memberLabelled]);
+    expect(found[0].labelledBy).toBe("ai");
+    expect(found[1]).toMatchObject({
+      labelledBy: "member",
       bankTexts: ["TESCO EXPRESS | CARD PAYMENT"],
       payeeName: "Grocer",
       categoryId: home.groceriesId,

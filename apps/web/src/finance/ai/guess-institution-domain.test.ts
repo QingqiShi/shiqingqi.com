@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { guessInstitutionDomain } from "./guess-institution-domain.ts";
 import { createDomainModel } from "./testing/create-domain-model.ts";
-import { userText } from "./testing/create-labelling-model.ts";
+import { userText } from "./testing/mock-usage.ts";
 
 const HINTS = { baseCurrency: "GBP", accountCurrency: "USD" };
 

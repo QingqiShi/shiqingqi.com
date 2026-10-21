@@ -1,4 +1,3 @@
-import type { LanguageModel } from "ai";
 import { z } from "zod";
 import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { labellingContextRepository } from "../db/repositories/labelling-context-repository.ts";
@@ -13,12 +12,16 @@ import {
 } from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import { wireFields } from "../sync/wire-fields.ts";
-import { labelBankRows, type RowLabel } from "./label-bank-rows.ts";
+import {
+  labelBankRows,
+  type LabellingModel,
+  type RowLabel,
+} from "./label-bank-rows.ts";
 import type { SuggestResponse } from "./types.ts";
 
 export interface SuggestHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
-  getModel: () => LanguageModel | null;
+  getModel: () => LabellingModel | null;
   onModelError?: (error: unknown) => void;
 }
 

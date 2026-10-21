@@ -1,5 +1,5 @@
 import { MockLanguageModelV3 } from "ai/test";
-import { MOCK_USAGE } from "./create-labelling-model.ts";
+import { MOCK_USAGE } from "./mock-usage.ts";
 
 /**
  * A mock model that answers a domain guess: it calls `report_domain` with
