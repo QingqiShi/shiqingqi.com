@@ -3,14 +3,19 @@ import type { LanguageModel } from "ai";
 import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
-import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
+import { bankKeptTransactionRepository } from "../db/repositories/bank-kept-transaction-repository.ts";
+import {
+  bankLinkRepository,
+  type BankLinkRecord,
+} from "../db/repositories/bank-link-repository.ts";
 import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
+import type { RepositoryScope } from "../db/repositories/types.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
-import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
+import { financeJson, financeNoContent } from "../http/finance-json.ts";
 import {
   guardFinanceRequest,
   type FinanceRequestGuardDependencies,
@@ -72,6 +77,10 @@ const putCredentialSchema = z.object({
   apiKey: z.string().trim().min(8).max(500),
 });
 const linkIdSchema = z.object({ linkId: z.uuid() });
+const keptTransactionSchema = z.object({
+  linkId: z.uuid(),
+  transactionId: z.uuid(),
+});
 
 function failure(code: BankApiErrorCode, status: number) {
   return financeJson({ error: code }, { status });
@@ -95,6 +104,32 @@ function toView(link: {
     lastSyncAt: link.lastSyncAt?.toISOString() ?? null,
     lastError: link.lastError,
   };
+}
+
+async function findLiveLink(scope: RepositoryScope, linkId: string) {
+  const link = await bankLinkRepository.findById(scope, linkId);
+  if (!link || link.deletedAt) throw new BankRequestError("not-found", 404);
+  return link;
+}
+
+/** The Entries behind the link's balance difference, which no bank row backs and no Member kept. */
+async function unbackedEntriesOf(scope: RepositoryScope, link: BankLinkRecord) {
+  if (link.bankBalanceOn === null) return [];
+  const latest = await valuationRepository.latestOnOrBefore(
+    scope,
+    link.accountId,
+    link.bankBalanceOn,
+  );
+  return selectUnbackedEntries(
+    await valuationRepository.postedEntriesAfter(
+      scope,
+      link.accountId,
+      latest?.on ?? null,
+      link.bankBalanceOn,
+    ),
+    await bankTransactionRepository.listBacking(scope, link.id),
+    await bankKeptTransactionRepository.listIds(scope, link.id),
+  );
 }
 
 /**
@@ -250,10 +285,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
           dependencies.now(),
           (context) => bankLinkRepository.clearCredential(context.scope),
         );
-        return new Response(null, {
-          status: 204,
-          headers: { "Cache-Control": FINANCE_NO_STORE },
-        });
+        return financeNoContent();
       },
       { write: true, owner: true },
     ),
@@ -385,10 +417,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
             context.markWritten();
           },
         );
-        return new Response(null, {
-          status: 204,
-          headers: { "Cache-Control": FINANCE_NO_STORE },
-        });
+        return financeNoContent();
       },
       { write: true, owner: true },
     ),
@@ -455,34 +484,81 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
           scope.db,
           scope.householdId,
           async (read) => {
-            const link = await bankLinkRepository.findById(
-              read,
-              parsed.data.linkId,
-            );
-            if (!link || link.deletedAt) {
-              throw new BankRequestError("not-found", 404);
-            }
-            if (link.bankBalanceOn === null) return [];
-            const latest = await valuationRepository.latestOnOrBefore(
-              read,
-              link.accountId,
-              link.bankBalanceOn,
-            );
-            const unbacked = selectUnbackedEntries(
-              await valuationRepository.postedEntriesAfter(
-                read,
-                link.accountId,
-                latest?.on ?? null,
-                link.bankBalanceOn,
-              ),
-              await bankTransactionRepository.listBacking(read, link.id),
-            );
+            const link = await findLiveLink(read, parsed.data.linkId);
+            const unbacked = await unbackedEntriesOf(read, link);
             return unbacked.map((entry) => entry.id);
           },
         );
         return financeJson({ entryIds } satisfies UnbackedEntriesResponse);
       },
       { write: false },
+    ),
+
+    /**
+     * `PUT /api/finance/bank/kept-transactions`: a Member keeps a Transaction
+     * behind the link's balance difference, so the balance check stops
+     * listing it. The link takes a new version, so every client reads the
+     * list again.
+     */
+    keepTransaction: guarded(
+      async (request, _session, scope) => {
+        const input = await readFinanceBody(request, keptTransactionSchema);
+        if (input instanceof Response) return input;
+        const { linkId, transactionId } = input;
+        await runServerWrite(
+          scope.db,
+          scope.householdId,
+          dependencies.now(),
+          async (context) => {
+            const link = await findLiveLink(context.scope, linkId);
+            const unbacked = await unbackedEntriesOf(context.scope, link);
+            if (
+              !unbacked.some((entry) => entry.transactionId === transactionId)
+            ) {
+              throw new BankRequestError("not-found", 404);
+            }
+            await bankKeptTransactionRepository.keep(
+              context.scope,
+              linkId,
+              transactionId,
+            );
+            await bankLinkRepository.patch(context.scope, linkId, {});
+            context.markWritten();
+          },
+        );
+        return financeNoContent();
+      },
+      { write: true },
+    ),
+
+    /** `DELETE /api/finance/bank/kept-transactions?linkId=…&transactionId=…`: undoes `keepTransaction`. */
+    unkeepTransaction: guarded(
+      async (request, _session, scope) => {
+        const params = new URL(request.url).searchParams;
+        const parsed = keptTransactionSchema.safeParse({
+          linkId: params.get("linkId"),
+          transactionId: params.get("transactionId"),
+        });
+        if (!parsed.success) return failure("invalid-body", 400);
+        const { linkId, transactionId } = parsed.data;
+        await runServerWrite(
+          scope.db,
+          scope.householdId,
+          dependencies.now(),
+          async (context) => {
+            await findLiveLink(context.scope, linkId);
+            await bankKeptTransactionRepository.unkeep(
+              context.scope,
+              linkId,
+              transactionId,
+            );
+            await bankLinkRepository.patch(context.scope, linkId, {});
+            context.markWritten();
+          },
+        );
+        return financeNoContent();
+      },
+      { write: true },
     ),
   };
 }

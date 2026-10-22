@@ -7,3 +7,11 @@ export function financeJson(body: unknown, init?: ResponseInit) {
   headers.set("Cache-Control", FINANCE_NO_STORE);
   return Response.json(body, { ...init, headers });
 }
+
+/** An empty 204 response that no cache keeps. */
+export function financeNoContent() {
+  return new Response(null, {
+    status: 204,
+    headers: { "Cache-Control": FINANCE_NO_STORE },
+  });
+}

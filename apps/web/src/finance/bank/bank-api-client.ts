@@ -72,6 +72,23 @@ export const bankApiClient = {
     );
   },
 
+  /** Keeps a Transaction that no bank row of the link backs, so the balance check stops listing it. */
+  async keepTransaction(linkId: string, transactionId: string) {
+    await financeFetch("/api/finance/bank/kept-transactions", {
+      method: "PUT",
+      body: JSON.stringify({ linkId, transactionId }),
+    });
+  },
+
+  /** Undoes `keepTransaction`. */
+  async unkeepTransaction(linkId: string, transactionId: string) {
+    const query = new URLSearchParams({ linkId, transactionId });
+    await financeFetch(
+      `/api/finance/bank/kept-transactions?${query.toString()}`,
+      { method: "DELETE" },
+    );
+  },
+
   /** The AI's labels for one Transaction, from the labeller that labels bank rows. */
   suggest(input: SuggestRequest) {
     return sendJson<SuggestResponse>("/api/finance/ai/suggest", {
