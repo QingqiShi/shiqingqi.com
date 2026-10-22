@@ -113,7 +113,6 @@ export function TransactionListRow({
         { signDisplay: "exceptZero" },
       );
   const isExpected = row.status === "expected";
-  const isFuture = isExpected && row.date > today;
   const inReview = isInReview(row, entries, lookups.accountById, today);
   const showReviewBadge = inReview && !reviewMode;
   const reason =
@@ -161,9 +160,7 @@ export function TransactionListRow({
               actions.onConfirm(row);
             }}
           >
-            {isFuture
-              ? t({ en: "Paid today", zh: "今天已付" })
-              : t({ en: "Confirm", zh: "确认" })}
+            {t({ en: "Confirm", zh: "确认" })}
           </Button>
           <Button
             size="sm"

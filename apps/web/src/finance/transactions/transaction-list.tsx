@@ -15,7 +15,6 @@ import {
   TransactionListRow,
   type TransactionRowActions,
 } from "./transaction-list-row.tsx";
-import { UpcomingHeader } from "./upcoming-header.tsx";
 
 interface TransactionListProps {
   items: readonly TransactionListItem[];
@@ -26,7 +25,6 @@ interface TransactionListProps {
   baseCurrency: string;
   locale: string;
   today: string;
-  onToggleUpcoming: () => void;
   selectedId: string | null;
   reviewMode: boolean;
   categoriesByKind: {
@@ -69,7 +67,6 @@ export function TransactionList({
   baseCurrency,
   locale,
   today,
-  onToggleUpcoming,
   selectedId,
   reviewMode,
   categoriesByKind,
@@ -91,23 +88,10 @@ export function TransactionList({
         increaseViewportBy={{ top: 400, bottom: 800 }}
         components={{ List, Item }}
         computeItemKey={(_, item) =>
-          item.type === "day"
-            ? `day:${item.day}`
-            : item.type === "upcoming"
-              ? "upcoming"
-              : item.row.id
+          item.type === "day" ? `day:${item.day}` : item.row.id
         }
         itemContent={(_, item) =>
-          item.type === "upcoming" ? (
-            <UpcomingHeader
-              count={item.count}
-              totalMinor={item.totalMinor}
-              open={item.open}
-              currency={baseCurrency}
-              locale={locale}
-              onToggle={onToggleUpcoming}
-            />
-          ) : item.type === "day" ? (
+          item.type === "day" ? (
             <DayHeader day={item.day} today={today} locale={locale}>
               <DayTotals
                 expenseMinor={item.expenseMinor}

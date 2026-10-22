@@ -1,5 +1,6 @@
 import { addDays } from "../domain/dates/add-days.ts";
 import type { TransactionRow, ValuationRow } from "../sync/row-schemas.ts";
+import { isFutureExpected } from "../transactions/is-future-expected.ts";
 import { sumDayTotals } from "../transactions/sum-day-totals.ts";
 
 export interface LedgerEntryItem {
@@ -31,9 +32,6 @@ interface LedgerDay {
 }
 
 interface AccountLedger {
-  /** Soonest first. */
-  comingUp: LedgerEntryItem[];
-  comingUpMinor: number;
   /** Newest first. */
   days: LedgerDay[];
   hasMore: boolean;
@@ -42,12 +40,11 @@ interface AccountLedger {
 interface AccountLedgerSources {
   /** Newest first. */
   valuations: readonly ValuationRow[];
-  /** Newest first. */
+  /** Newest first. An Expected one dated after `today` is left out. */
   transactions: readonly TransactionRow[];
   /** On this account. */
   amountOf: (transaction: TransactionRow) => number;
   today: string;
-  /** Coming up is not in the limit. */
   limit: number;
   /** At the end of the day. */
   balanceAt: (day: string) => number;
@@ -79,37 +76,16 @@ export function buildAccountLedger({
   limit,
   balanceAt,
 }: AccountLedgerSources): AccountLedger {
-  let afterToday = 0;
-  while ((transactions[afterToday]?.date ?? today) > today) afterToday++;
-  const isComingUp = (index: number) =>
-    index < afterToday && transactions[index]?.status === "expected";
-
-  const comingUp = transactions
-    .slice(0, afterToday)
-    .filter((transaction) => transaction.status === "expected")
-    .reverse()
-    .map((transaction) => entryItem(transaction, amountOf(transaction)));
-  const comingUpMinor = comingUp.reduce(
-    (sum, item) => sum + item.amountMinor,
-    0,
+  const shown = transactions.filter(
+    (transaction) => !isFutureExpected(transaction, today),
   );
-
-  const oldestDay = transactions.findLast(
-    (_, index) => !isComingUp(index),
-  )?.date;
+  const oldestDay = shown.at(-1)?.date;
   const items: LedgerItem[] = [];
   let v = 0;
   let e = 0;
-  const skipComingUp = () => {
-    while (isComingUp(e)) e++;
-  };
-  skipComingUp();
-  while (
-    items.length < limit &&
-    (v < valuations.length || e < transactions.length)
-  ) {
+  while (items.length < limit && (v < valuations.length || e < shown.length)) {
     const valuation = valuations.at(v);
-    const transaction = transactions.at(e);
+    const transaction = shown.at(e);
     if (valuation && (!transaction || valuation.on >= transaction.date)) {
       const isFirst =
         v === valuations.length - 1 &&
@@ -126,10 +102,9 @@ export function buildAccountLedger({
     } else if (transaction) {
       items.push(entryItem(transaction, amountOf(transaction)));
       e++;
-      skipComingUp();
     }
   }
-  const hasMore = v < valuations.length || e < transactions.length;
+  const hasMore = v < valuations.length || e < shown.length;
 
   const itemsByDay = new Map<string, LedgerItem[]>();
   for (const item of items) {
@@ -138,7 +113,7 @@ export function buildAccountLedger({
     else itemsByDay.set(item.day, [item]);
   }
   const transactionsByDay = new Map<string, TransactionRow[]>();
-  for (const transaction of transactions) {
+  for (const transaction of shown) {
     if (itemsByDay.has(transaction.date)) {
       const list = transactionsByDay.get(transaction.date);
       if (list) list.push(transaction);
@@ -165,5 +140,5 @@ export function buildAccountLedger({
     }
   }
 
-  return { comingUp, comingUpMinor, days, hasMore };
+  return { days, hasMore };
 }

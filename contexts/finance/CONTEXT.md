@@ -75,10 +75,6 @@ An expense with a positive amount. A tax refund is an income, not a Refund. ZH: 
 A transaction a Rule says will happen, not yet confirmed. As a status label it is capitalised ("Expected"); in a sentence it is "an expected transaction". ZH: 待确认.
 _Avoid_: pending (that is the bank's word for an unsettled card payment), scheduled, pre-generated
 
-**Coming up**:
-The folded section at the top of the transaction list that holds Expected transactions dated after today. Code calls it `upcoming`. ZH: 即将到期.
-_Avoid_: future, scheduled
-
 **Rule** (recurring rule):
 A schedule plus a transaction template that produces Expected transactions. A rule that "posts automatically" (ZH: 自动入账) makes a confirmed transaction on the day instead. ZH: 周期规则.
 _Avoid_: crontab, template, one-touch, subscription

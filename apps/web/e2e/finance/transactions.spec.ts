@@ -149,28 +149,6 @@ test.describe("Transactions at 1440 px", () => {
     await expect(edited).toHaveCount(1);
   });
 
-  test("Expected rows after today fold under Coming up, and Paid today can be undone", async ({
-    page,
-    session: _session,
-  }) => {
-    await openTransactions(page);
-    const comingUp = page.getByRole("button", { name: /^Coming up \(\d+\)/ });
-    await expect(comingUp).toHaveAttribute("aria-expanded", "false");
-    const paidToday = page.getByRole("button", { name: "Paid today" });
-    await expect(paidToday).toHaveCount(0);
-
-    await comingUp.click();
-    await expect(comingUp).toHaveAttribute("aria-expanded", "true");
-    await expect(paidToday.first()).toBeVisible();
-    const before = await paidToday.count();
-    await paidToday.first().click();
-    const confirmed = toast(page, "Confirmed as paid today");
-    await expect(confirmed).toBeVisible();
-    await expect(paidToday).toHaveCount(before - 1);
-    await confirmed.getByRole("button", { name: "Undo" }).click();
-    await expect(paidToday).toHaveCount(before);
-  });
-
   test("a purchase can be paid in instalments", async ({
     page,
     household,

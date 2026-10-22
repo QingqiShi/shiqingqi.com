@@ -31,7 +31,6 @@ import type { AccountRow, ValuationRow } from "../sync/row-schemas.ts";
 import { DayHeader } from "../transactions/day-header.tsx";
 import { DayTotals } from "../transactions/day-totals.tsx";
 import { TransactionFace } from "../transactions/transaction-face.tsx";
-import { UpcomingHeader } from "../transactions/upcoming-header.tsx";
 import {
   buildAccountLedger,
   type LedgerEntryItem,
@@ -69,7 +68,6 @@ export function AccountLedger({
   const runUndoable = useUndoableMutations();
   const describe = useDescribeLedgerEntry();
   const [limit, setLimit] = useState(PAGE);
-  const [comingUpOpen, setComingUpOpen] = useState(false);
   const valuationRows = useReplica((snapshot) => snapshot.tables.valuations);
   const transactions = useReplica(
     (snapshot) => selectTransactionsByAccount(snapshot).get(account.id) ?? null,
@@ -125,11 +123,9 @@ export function AccountLedger({
     </li>
   );
 
-  const isEmpty = ledger.comingUp.length === 0 && ledger.days.length === 0;
-
   return (
     <section css={stack.item} aria-label={t({ en: "Ledger", zh: "明细" })}>
-      {isEmpty ? (
+      {ledger.days.length === 0 ? (
         <p css={[typeRole.bodySmall, styles.muted]}>
           {t({
             en: "Nothing recorded on this account yet.",
@@ -138,27 +134,6 @@ export function AccountLedger({
         </p>
       ) : (
         <div>
-          {ledger.comingUp.length > 0 ? (
-            <div css={styles.comingUp}>
-              <UpcomingHeader
-                count={ledger.comingUp.length}
-                totalMinor={ledger.comingUpMinor}
-                open={comingUpOpen}
-                currency={account.currency}
-                locale={locale}
-                onToggle={() => {
-                  setComingUpOpen(!comingUpOpen);
-                }}
-              />
-              {comingUpOpen ? (
-                <ol css={[styles.list, styles.comingUpList]}>
-                  {ledger.comingUp.map((item) =>
-                    entryLink(item, displayDay(item.day, locale, "weekday")),
-                  )}
-                </ol>
-              ) : null}
-            </div>
-          ) : null}
           {ledger.days.map((day) => (
             <div key={day.day}>
               <DayHeader
@@ -264,12 +239,6 @@ const styles = stylex.create({
     margin: 0,
     padding: 0,
     listStyle: "none",
-  },
-  comingUp: {
-    paddingBlockEnd: space._1,
-  },
-  comingUpList: {
-    paddingBlockStart: space._1,
   },
   dayList: {
     paddingBlockStart: space._0,

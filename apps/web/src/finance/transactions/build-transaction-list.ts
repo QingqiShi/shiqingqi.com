@@ -1,5 +1,6 @@
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
+import { isFutureExpected } from "./is-future-expected.ts";
 import { sumDayTotals } from "./sum-day-totals.ts";
 import type { TransactionFilters } from "./transaction-filters.ts";
 
@@ -10,14 +11,6 @@ export type TransactionListItem =
       /** Posted expenses of the day net of refunds: negative for money out. */
       expenseMinor: number;
       incomeMinor: number;
-    }
-  | {
-      /** The Expected Transactions dated after today, folded into one line. */
-      type: "upcoming";
-      count: number;
-      /** Their expenses and incomes added up: negative for money out. */
-      totalMinor: number;
-      open: boolean;
     }
   | { type: "transaction"; row: TransactionRow };
 
@@ -34,16 +27,12 @@ interface TransactionListSources {
 
 interface TransactionListOptions {
   today: string;
-  /** Shows the Expected Transactions after today under "Coming up". */
-  upcomingOpen: boolean;
 }
 
 interface TransactionList {
   items: TransactionListItem[];
-  /** The Transactions in `items`, in list order. Folded ones are not in it. */
+  /** The Transactions in `items`, in list order. */
   transactions: TransactionRow[];
-  /** Every Transaction that matches the filters, folded ones too. */
-  matchCount: number;
   /** Each Transaction's position in `items`. */
   indexById: Map<string, number>;
 }
@@ -126,10 +115,8 @@ function dayItem(day: string, rows: readonly TransactionRow[]) {
 
 /**
  * The rows the list shows for `filters`: a header per day with the day's
- * totals, then the day's Transactions, Expected ones first. Expected
- * Transactions dated after today fold into one "Coming up" line at the top
- * (soonest first when open), so the list starts at today; with the Expected
- * filter on they stay in their days.
+ * totals, then the day's Transactions, Expected ones first. An Expected
+ * Transaction dated after today is not in the list until its day.
  */
 export function buildTransactionList(
   sources: TransactionListSources,
@@ -140,8 +127,6 @@ export function buildTransactionList(
   const items: TransactionListItem[] = [];
   const transactions: TransactionRow[] = [];
   const indexById = new Map<string, number>();
-  const upcoming: TransactionRow[] = [];
-  let matchCount = 0;
   let day: string | null = null;
   let expected: TransactionRow[] = [];
   let posted: TransactionRow[] = [];
@@ -159,44 +144,15 @@ export function buildTransactionList(
     posted = [];
   };
 
-  const foldUpcoming = !filters.expected;
-  const rest: TransactionRow[] = [];
   for (const row of sources.rows) {
-    if (!matches(row)) continue;
-    matchCount++;
-    if (foldUpcoming && row.status === "expected" && row.date > options.today) {
-      upcoming.push(row);
-    } else {
-      rest.push(row);
+    if (isFutureExpected(row, options.today) || !matches(row)) continue;
+    if (row.date !== day) {
+      flush();
+      day = row.date;
     }
+    if (row.status === "expected") expected.push(row);
+    else posted.push(row);
   }
-
-  const group = (rows: readonly TransactionRow[]) => {
-    for (const row of rows) {
-      if (row.date !== day) {
-        flush();
-        day = row.date;
-      }
-      if (row.status === "expected") expected.push(row);
-      else posted.push(row);
-    }
-    flush();
-    day = null;
-  };
-
-  if (upcoming.length > 0) {
-    let totalMinor = 0;
-    for (const row of upcoming) {
-      if (row.kind !== "transfer") totalMinor += row.amountMinor;
-    }
-    items.push({
-      type: "upcoming",
-      count: upcoming.length,
-      totalMinor,
-      open: options.upcomingOpen,
-    });
-    if (options.upcomingOpen) group(upcoming.toReversed());
-  }
-  group(rest);
-  return { items, transactions, matchCount, indexById };
+  flush();
+  return { items, transactions, indexById };
 }
