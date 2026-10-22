@@ -155,13 +155,15 @@ export function FinanceScreenSlot({ children }: { children: ReactNode }) {
   );
 }
 
-// Two keyframes with the same frames: the name must change to start the
-// animation again on the next switch.
+// The animation starts again only when its name changes, so each switch
+// uses the other keyframes. StyleX makes the name from the frames, thus
+// `riseEven` has a `to` frame that does not change the motion.
 const riseOdd = stylex.keyframes({
   from: { opacity: 0, transform: `translateY(${space._7})` },
 });
 const riseEven = stylex.keyframes({
   from: { opacity: 0, transform: `translateY(${space._7})` },
+  to: { opacity: 1, transform: "none" },
 });
 
 const styles = stylex.create({
