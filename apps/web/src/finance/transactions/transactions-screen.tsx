@@ -111,7 +111,6 @@ export function TransactionsScreen() {
   }, []);
   const filters = { ...url.filters, query };
   const deferredFilters = useDeferredValue(filters);
-  const [upcomingOpen, setUpcomingOpen] = useState(false);
   const list = buildTransactionList(
     {
       rows,
@@ -122,13 +121,13 @@ export function TransactionsScreen() {
       baseCurrency,
     },
     deferredFilters,
-    { today, upcomingOpen },
+    { today },
   );
   let spent = 0;
   for (const item of list.items) {
     if (item.type === "day") spent += item.expenseMinor;
   }
-  const summary = { count: list.matchCount, spent };
+  const summary = { count: list.transactions.length, spent };
 
   const categoriesByKind = {
     expense: categories.filter(
@@ -152,10 +151,6 @@ export function TransactionsScreen() {
   const focusTargetRef = useRef<HTMLElement | null>(null);
 
   const toastConfirmed = t({ en: "Confirmed", zh: "已确认" });
-  const toastPaidToday = t({
-    en: "Confirmed as paid today",
-    zh: "已确认为今天付款",
-  });
   const toastSkipped = t({ en: "Skipped", zh: "已跳过" });
   const toastReviewed = t({ en: "Marked as reviewed", zh: "已标记为已审核" });
   const toastDeleted = t({ en: "Deleted", zh: "已删除" });
@@ -208,17 +203,9 @@ export function TransactionsScreen() {
       url.open(id);
     },
     onConfirm: (row) => {
-      const paidToday = row.date > today;
       applyWithUndo(
-        [
-          {
-            name: "confirmExpected",
-            args: paidToday
-              ? { id: row.id, patch: { date: today } }
-              : { id: row.id },
-          },
-        ],
-        paidToday ? toastPaidToday : toastConfirmed,
+        [{ name: "confirmExpected", args: { id: row.id } }],
+        toastConfirmed,
         unconfirmMutations({
           transaction: row,
           entries: entriesByTransaction.get(row.id) ?? [],
@@ -507,9 +494,6 @@ export function TransactionsScreen() {
           baseCurrency={baseCurrency}
           locale={locale}
           today={today}
-          onToggleUpcoming={() => {
-            setUpcomingOpen(!upcomingOpen);
-          }}
           selectedId={url.selectedId}
           reviewMode={filters.review}
           categoriesByKind={categoriesByKind}
