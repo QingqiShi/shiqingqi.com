@@ -344,6 +344,57 @@ describe("makeBankHandlers", () => {
     expect(await listed.json()).toEqual({ entryIds: [duplicateEntryId] });
   });
 
+  it("stops listing an Entry the bank left out once a Member keeps it, and lists it again on undo", async () => {
+    await putLink({ accountId: home.currentId, providerAccountId: "p1" });
+    await handlers().syncNow(request("sync-now", { method: "POST", body: {} }));
+    for (const task of afterTasks.splice(0)) await task();
+    const [link] = await db.select().from(bankLinks);
+    const [backed] = await db.select().from(transactions);
+
+    const realId = randomUUID();
+    const realEntryId = randomUUID();
+    await applyMutations(
+      db,
+      home.householdId,
+      {
+        clientId: CLIENT,
+        mutations: [expense(realId, "2026-10-09", realEntryId)],
+      },
+      NOW,
+    );
+    const listUnbacked = async () =>
+      (await (
+        await handlers().listUnbackedEntries(
+          request(`unbacked-entries?linkId=${link.id}`),
+        )
+      ).json()) as unknown;
+    expect(await listUnbacked()).toEqual({ entryIds: [realEntryId] });
+
+    const keep = (transactionId: string) =>
+      handlers().keepTransaction(
+        request("kept-transactions", {
+          method: "PUT",
+          body: { linkId: link.id, transactionId },
+        }),
+      );
+    for (const transactionId of [backed.id, randomUUID()]) {
+      expect((await keep(transactionId)).status).toBe(404);
+    }
+
+    expect((await keep(realId)).status).toBe(204);
+    expect(await listUnbacked()).toEqual({ entryIds: [] });
+    const [keptLink] = await db.select().from(bankLinks);
+    expect(keptLink.version).toBeGreaterThan(link.version);
+
+    const undone = await handlers().unkeepTransaction(
+      request(`kept-transactions?linkId=${link.id}&transactionId=${realId}`, {
+        method: "DELETE",
+      }),
+    );
+    expect(undone.status).toBe(204);
+    expect(await listUnbacked()).toEqual({ entryIds: [realEntryId] });
+  });
+
   it("answers not-found for a Bank link that does not exist", async () => {
     const response = await handlers().listUnbackedEntries(
       request(`unbacked-entries?linkId=${randomUUID()}`),

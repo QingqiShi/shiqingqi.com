@@ -92,6 +92,13 @@
       "when": 1792017784801,
       "tag": "0012_institution_icon_version",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792659278025,
+      "tag": "0013_bank_kept_transactions",
+      "breakpoints": true
     }
   ]
 }

@@ -884,6 +884,32 @@ export const bankBalances = pgTable(
   ],
 );
 
+/** The Transactions a Member keeps on a Bank link although no bank row backs them. Server-only, never synced. */
+export const bankKeptTransactions = pgTable(
+  "bank_kept_transactions",
+  {
+    householdId: householdId(),
+    linkId: uuid("link_id").notNull(),
+    transactionId: uuid("transaction_id").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.linkId, t.transactionId] }),
+    householdReference(
+      "bank_kept_transactions_link_fk",
+      t,
+      t.linkId,
+      bankLinks,
+    ),
+    householdReference(
+      "bank_kept_transactions_transaction_fk",
+      t,
+      t.transactionId,
+      transactions,
+    ).onDelete("cascade"),
+  ],
+);
+
 // reports
 
 export const reports = pgTable(

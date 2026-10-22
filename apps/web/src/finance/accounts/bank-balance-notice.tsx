@@ -5,6 +5,7 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { useToast } from "@tuja/ui/components/toast-provider";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -15,9 +16,11 @@ import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
+import { bankApiClient } from "../bank/bank-api-client.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
@@ -62,7 +65,7 @@ export function BankBalanceSummary({
     zh: "银行未显示 {count} 笔交易",
   });
   if (gap === null) return null;
-  const count = unbacked?.rows.length ?? 0;
+  const count = unbacked?.length ?? 0;
   const parts = [
     account.name,
     offLabel.replace(
@@ -104,8 +107,9 @@ export function BankBalanceSummary({
 
 /**
  * "Bank says £X · we say £Y", and the Entries no bank row backs, oldest
- * first: each is a payment the bank has not posted yet, or a duplicate to
- * delete here. What they do not explain is older than the bank's records.
+ * first: each is a payment the bank has not posted yet, a duplicate to
+ * delete here, or a real payment the bank left out, to keep here. What they
+ * do not explain is older than the bank's records, or the bank left it out.
  * Our balance comes from the Replica, so the notice goes once the Member
  * deletes the duplicate.
  */
@@ -139,7 +143,7 @@ export function BankBalanceNotice({ link, account }: BankBalanceProps) {
   );
 }
 
-/** The Entries behind the difference, each deletable here, and what they do not explain. */
+/** The Entries behind the difference, each deletable or keepable here, and what they do not explain. */
 function UnbackedEntryList({
   link,
   accountId,
@@ -153,22 +157,74 @@ function UnbackedEntryList({
   const locale = useLocale();
   const describe = useDescribeLedgerEntry();
   const runUndoable = useUndoableMutations();
+  const showToast = useToast();
+  const { runtime } = useFinanceRuntime();
   const [expanded, setExpanded] = useState(false);
+  const [keptIds, setKeptIds] = useState<ReadonlySet<string>>(() => new Set());
   const unbacked = useUnbackedRows(link, accountId, ourExcess);
   const olderLabel = t({
-    en: "The difference is older than the bank's records. Check the opening balance.",
-    zh: "差额早于银行记录，请检查期初余额。",
+    en: "The bank's transactions don't explain the difference: it is older than them, or the bank left a transaction out.",
+    zh: "银行的交易记录解释不了这个差额：可能早于银行记录，也可能银行漏了交易。",
   });
   const restOlderLabel = t({
-    en: "The rest is older than the bank's records. Check the opening balance.",
-    zh: "其余差额早于银行记录，请检查期初余额。",
+    en: "The bank's transactions don't explain the rest: it is older than them, or the bank left a transaction out.",
+    zh: "银行的交易记录解释不了其余差额：可能早于银行记录，也可能银行漏了交易。",
   });
   const deleteLabel = t({ en: "Delete", zh: "删除" });
   const deletedLabel = t({ en: "Deleted", zh: "已删除" });
+  const keepLabel = t({ en: "Keep", zh: "保留" });
+  const keptLabel = t({ en: "Kept", zh: "已保留" });
+  const undoLabel = t({ en: "Undo", zh: "撤销" });
+  const failedLabel = t({
+    en: "Couldn't save. Try again.",
+    zh: "保存失败，请重试。",
+  });
+
+  const setKept = (transactionId: string, kept: boolean) => {
+    setKeptIds((current) => {
+      const next = new Set(current);
+      if (kept) next.add(transactionId);
+      else next.delete(transactionId);
+      return next;
+    });
+  };
+
+  const unkeep = async (transactionId: string) => {
+    try {
+      await bankApiClient.unkeepTransaction(link.id, transactionId);
+      await runtime.loop.sync();
+      setKept(transactionId, false);
+    } catch {
+      showToast({ message: failedLabel });
+    }
+  };
+
+  const keep = async (transactionId: string) => {
+    setKept(transactionId, true);
+    try {
+      await bankApiClient.keepTransaction(link.id, transactionId);
+    } catch {
+      setKept(transactionId, false);
+      showToast({ message: failedLabel });
+      return;
+    }
+    showToast({
+      message: keptLabel,
+      action: {
+        label: undoLabel,
+        onAction: () => void unkeep(transactionId),
+      },
+    });
+    await runtime.loop.sync();
+  };
+
   const showAllLabel = t({ en: "Show all {count}", zh: "显示全部 {count} 笔" });
 
   if (unbacked === null) return null;
-  const { rows, explained } = unbacked;
+  const rows = unbacked.filter(
+    ({ transaction }) => !keptIds.has(transaction.id),
+  );
+  const explained = rows.reduce((sum, row) => sum + row.entry.amountMinor, 0);
   const shown = expanded ? rows : rows.slice(0, 5);
 
   return (
@@ -177,8 +233,8 @@ function UnbackedEntryList({
         <>
           <p css={[typeRole.bodySmall, styles.muted]}>
             {t({
-              en: "The bank doesn't show these yet. Delete any that are duplicates.",
-              zh: "银行还没有显示这些交易。如有重复，请删除。",
+              en: "The bank doesn't show these. Delete any that are duplicates, and keep any that are real.",
+              zh: "银行没有显示这些交易。重复的请删除，真实的请保留。",
             })}
           </p>
           <ul css={styles.list}>
@@ -196,6 +252,15 @@ function UnbackedEntryList({
                       trailing={displayDay(entry.date, locale, "day")}
                     />
                   </div>
+                  <Button
+                    size="sm"
+                    look="ghost"
+                    css={styles.keep}
+                    aria-label={`${keepLabel} ${title}, ${displayDay(entry.date, locale, "dayYear")}, ${formatMoney(entry.amountMinor, link.currency, locale, { signDisplay: "exceptZero" })}`}
+                    onClick={() => void keep(transaction.id)}
+                  >
+                    {keepLabel}
+                  </Button>
                   <Button
                     size="sm"
                     look="ghost"
@@ -262,7 +327,7 @@ function useBalanceGap(link: BankLinkRow, account: AccountRow) {
   return { bank, ours, ourExcess: ours - bank };
 }
 
-/** The Entries behind the difference that are still in the account's posted Ledger, and their sum; null while the server reads them. */
+/** The Entries behind the difference that are still in the account's posted Ledger; null while the server reads them. */
 function useUnbackedRows(
   link: BankLinkRow,
   accountId: string,
@@ -286,8 +351,7 @@ function useUnbackedRows(
       ? [{ entry, transaction }]
       : [];
   });
-  const explained = rows.reduce((sum, row) => sum + row.entry.amountMinor, 0);
-  return { rows, explained };
+  return rows;
 }
 
 /** The server read the list before the last local change: an Entry that left the account's posted Ledger since is no longer behind the difference. */
@@ -348,5 +412,8 @@ const styles = stylex.create({
   entry: {
     flexGrow: 1,
     minInlineSize: 0,
+  },
+  keep: {
+    flexShrink: 0,
   },
 });

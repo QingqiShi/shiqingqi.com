@@ -2,8 +2,11 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import {
   accounts,
   bankLinks,
+  bankTransactions,
   connections,
+  entries,
   households,
+  transactions,
   valuations,
 } from "../../src/finance/db/schema.ts";
 import type { FinanceDb } from "../../src/finance/db/types.ts";
@@ -98,7 +101,7 @@ test.describe("Update balances at 1440 px", () => {
 test.describe("Bank balance at 390 px", () => {
   test.use({ viewport: MOBILE });
 
-  test("a bank balance that differs shows a line on Net worth, and “Bank says … · we say …” on the account", async ({
+  test("a bank balance that differs shows a line on Net worth, “Bank says … · we say …” on the account, and keeps an Entry the bank left out", async ({
     page,
     session,
     financeDb,
@@ -126,8 +129,9 @@ test.describe("Bank balance at 390 px", () => {
         label: "Lunch Flow",
         version,
       });
+      const linkId = crypto.randomUUID();
       await tx.insert(bankLinks).values({
-        id: crypto.randomUUID(),
+        id: linkId,
         householdId: session.householdId,
         connectionId,
         accountId: currentId,
@@ -137,6 +141,37 @@ test.describe("Bank balance at 390 px", () => {
         bankBalanceMinor: 123_456,
         bankBalanceOn: today,
         balanceDifferenceMinor: 1,
+        version,
+      });
+      await tx.insert(bankTransactions).values({
+        id: crypto.randomUUID(),
+        householdId: session.householdId,
+        linkId,
+        providerTxId: "e2e-history",
+        date: today,
+        amountMinor: -100,
+        currency: "GBP",
+        raw: {},
+        state: "ignored",
+        version,
+      });
+      const transactionId = crypto.randomUUID();
+      await tx.insert(transactions).values({
+        id: transactionId,
+        householdId: session.householdId,
+        kind: "expense",
+        date: today,
+        amountMinor: -8495,
+        note: "Left out by the bank",
+        version,
+      });
+      await tx.insert(entries).values({
+        id: crypto.randomUUID(),
+        householdId: session.householdId,
+        transactionId,
+        accountId: currentId,
+        date: today,
+        amountMinor: -8495,
         version,
       });
       await tx
@@ -156,12 +191,20 @@ test.describe("Bank balance at 390 px", () => {
     await expect(page).toHaveURL(new RegExp(`/finance/accounts/${currentId}`));
     const notice = page.getByText(/Bank says £1,234\.56 · we say/).first();
     await expect(notice).toBeVisible({ timeout: SYNC_TIMEOUT });
+    const keep = page.getByRole("button", { name: /^Keep .*[-−]£84\.95$/ });
+    await expect(keep).toBeVisible({ timeout: SYNC_TIMEOUT });
+
+    await keep.click();
+    await expect(keep).toHaveCount(0);
     await expect(
       page
         .getByText(
-          "The difference is older than the bank's records. Check the opening balance.",
+          "The bank's transactions don't explain the difference: it is older than them, or the bank left a transaction out.",
         )
         .first(),
-    ).toBeVisible({ timeout: SYNC_TIMEOUT });
+    ).toBeVisible();
+
+    await toast(page, "Kept").getByRole("button", { name: "Undo" }).click();
+    await expect(keep).toBeVisible({ timeout: SYNC_TIMEOUT });
   });
 });

@@ -12,8 +12,14 @@ function matched(id: string, date: string): BackingRow {
   return { date, state: "matched", transactionId: `tx-${id}` };
 }
 
-function select(entries: ReturnType<typeof entry>[], bankRows: BackingRow[]) {
-  return selectUnbackedEntries(entries, bankRows).map((row) => row.id);
+function select(
+  entries: ReturnType<typeof entry>[],
+  bankRows: BackingRow[],
+  keptTransactionIds: string[] = [],
+) {
+  return selectUnbackedEntries(entries, bankRows, keptTransactionIds).map(
+    (row) => row.id,
+  );
 }
 
 describe("selectUnbackedEntries", () => {
@@ -42,6 +48,16 @@ describe("selectUnbackedEntries", () => {
         [{ date: "2026-10-03", state: "missing", transactionId: "tx-a" }],
       ),
     ).toEqual(["a"]);
+  });
+
+  it("leaves out each Entry whose Transaction a Member kept", () => {
+    expect(
+      select(
+        [entry("kept", "2026-10-02"), entry("b", "2026-10-03")],
+        [matched("x", "2026-10-01")],
+        ["tx-kept"],
+      ),
+    ).toEqual(["b"]);
   });
 
   it("lists oldest first", () => {
