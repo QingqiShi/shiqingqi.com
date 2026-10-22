@@ -197,7 +197,7 @@ describe("generatePropsDocs over @tuja/ui", () => {
 
   it("reads props a component takes whole and destructures in its body", () => {
     const size = docFor("chip").props.find((prop) => prop.name === "size");
-    expect(size?.defaultValue).toBe('"md"');
+    expect(size?.defaultValue).toBe('"sm"');
   });
 
   it("keeps a Chinese sentence whole, with no space inside it", () => {

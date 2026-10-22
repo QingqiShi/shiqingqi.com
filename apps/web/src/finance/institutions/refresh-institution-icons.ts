@@ -13,6 +13,7 @@ import {
   type InstitutionDomainFields,
 } from "../domain/accounts/institution-fields-after.ts";
 import { institutionNameKey } from "../domain/accounts/institution-name-key.ts";
+import { forEachLimited } from "../domain/for-each-limited.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import {
@@ -160,24 +161,6 @@ function byCountDescending<T>(
     .map((item, index) => ({ item, index, count: countOf(item) }))
     .sort((a, b) => b.count - a.count || a.index - b.index)
     .map(({ item }) => item);
-}
-
-/** Runs `run` on each item, at most `limit` at a time. */
-async function forEachLimited<T>(
-  items: readonly T[],
-  limit: number,
-  run: (item: T) => Promise<void>,
-) {
-  const queue = [...items];
-  const workers = Array.from(
-    { length: Math.min(limit, queue.length) },
-    async () => {
-      for (let item = queue.shift(); item !== undefined; item = queue.shift()) {
-        await run(item);
-      }
-    },
-  );
-  await Promise.all(workers);
 }
 
 /** Gives the signal to `call` and rejects when the time is up, also when `call` does not stop. */

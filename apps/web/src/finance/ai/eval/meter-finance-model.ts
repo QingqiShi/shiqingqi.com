@@ -4,9 +4,11 @@ import {
   type LanguageModelMiddleware,
 } from "ai";
 import {
-  getFinanceModel,
   getInstitutionDomainModel,
+  getFinanceModel,
+  getTeachingModel,
 } from "../get-finance-model.ts";
+import type { LabellingModel } from "../label-bank-rows.ts";
 
 interface Price {
   input: number;
@@ -38,12 +40,41 @@ type Generated = Awaited<
   ReturnType<NonNullable<LanguageModelMiddleware["wrapGenerate"]>>
 >;
 
-/** The finance model, wrapped to count its calls, tokens and web searches for an eval's report. */
-export function meterFinanceModel(onGenerate?: (result: Generated) => void) {
-  return meterModel(getFinanceModel(), SONNET_PRICE, onGenerate);
+/** Jev, US dollars per million input tokens. It charges no output tokens. */
+const JEV_INPUT_PRICE = 0.042;
+
+/** The labelling model, wrapped to count its requests and tokens for an eval's report. */
+export function meterFinanceModel() {
+  const base = getFinanceModel();
+  if (!base) throw new Error("TYPESAFE_API_KEY is not set");
+  const usage = { requests: 0, input: 0 };
+  const model: LabellingModel = {
+    systemOne: (request, options) =>
+      base.systemOne(request, options).map((result) => {
+        usage.requests++;
+        usage.input += result.usage.input_tokens ?? 0;
+        return result;
+      }),
+  };
+
+  /** In US dollars. */
+  function cost() {
+    return (usage.input * JEV_INPUT_PRICE) / 1_000_000;
+  }
+
+  function summary() {
+    return `${String(usage.requests)} requests; input tokens ${String(usage.input)}; cost $${cost().toFixed(4)}`;
+  }
+
+  return { model, summary };
 }
 
-/** The institution domain model, metered as {@link meterFinanceModel} meters its model. */
+/** The teaching model, wrapped to count its calls, tokens and web searches for an eval's report. */
+export function meterTeachingModel(onGenerate?: (result: Generated) => void) {
+  return meterModel(getTeachingModel(), SONNET_PRICE, onGenerate);
+}
+
+/** The institution domain model, metered as {@link meterTeachingModel} meters its model. */
 export function meterInstitutionDomainModel() {
   return meterModel(getInstitutionDomainModel(), HAIKU_PRICE);
 }

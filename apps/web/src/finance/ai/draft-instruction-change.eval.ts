@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { draftInstructionChange } from "./draft-instruction-change.ts";
-import { meterFinanceModel } from "./eval/meter-finance-model.ts";
+import { meterTeachingModel } from "./eval/meter-finance-model.ts";
 
 const INSTRUCTIONS = `Payments to J SMITH are our rent.
 Alex also has an HSBC account that is not in this app; money to or from it is a transfer.`;
@@ -9,7 +9,7 @@ Alex also has an HSBC account that is not in this app; money to or from it is a 
 describe("Teach the AI (real model)", () => {
   it("drafts one new line that names the merchant for a commute the AI labelled as travel", async () => {
     let answer = "";
-    const meter = meterFinanceModel((result) => {
+    const meter = meterTeachingModel((result) => {
       for (const part of result.content) {
         if (part.type === "text") answer += part.text;
       }

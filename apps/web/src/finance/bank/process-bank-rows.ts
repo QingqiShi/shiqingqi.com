@@ -1,7 +1,7 @@
-import type { LanguageModel } from "ai";
 import {
   LABEL_BATCH_SIZE,
   labelBankRows,
+  type LabellingModel,
   type LabelResult,
 } from "../ai/label-bank-rows.ts";
 import type { LabellingContext } from "../ai/types.ts";
@@ -38,7 +38,7 @@ interface ProcessBankRowsDependencies {
   db: FinanceDb;
   householdId: string;
   /** Null when no model is set up: every row is written as Uncategorised for Review. */
-  model: LanguageModel | null;
+  model: LabellingModel | null;
   now: Date;
   /** No new batch starts after this time. Defaults to `PROCESS_BUDGET_MS` after `now`. */
   deadline?: Date;
@@ -115,7 +115,7 @@ async function matchFirst(
 
 async function label(
   dependencies: ProcessBankRowsDependencies,
-  model: LanguageModel,
+  model: LabellingModel,
   context: LabellingContext,
   batch: readonly BatchRow[],
 ): Promise<Map<string, LabelResult>> {
@@ -217,11 +217,11 @@ function addOutcome(
  * The AI step after a sync: labels the `new` bank rows of every Bank link
  * of the Household together, 20 at a time in date order, and writes each
  * batch as Transactions. The model runs outside any lock. A failing model
- * call counts a failed try for its rows and ends the run; the next run tries
- * again. A row without a usable answer goes back in the queue. A row with
- * three failed tries is written as Uncategorised for Review. The labeller
- * reads the Household as it was when the run began, so its cached prompt
- * stays the same. No batch starts after the deadline. At the end, when the
+ * request counts a failed try for the batch's rows and ends the run; the
+ * next run tries again. A row without a usable answer goes back in the
+ * queue. A row with three failed tries is written as Uncategorised for
+ * Review. The labeller reads the Household as it was when the run began.
+ * No batch starts after the deadline. At the end, when the
  * ledger changed, each link's bank balance is compared with it again.
  */
 export async function processBankRows(

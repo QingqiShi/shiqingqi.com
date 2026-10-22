@@ -14,7 +14,7 @@ import {
 } from "./make-suggest-handler.ts";
 import {
   createLabellingModel,
-  userText,
+  offeredLabels,
 } from "./testing/create-labelling-model.ts";
 
 const ORIGIN = "https://qingqi.dev";
@@ -35,9 +35,8 @@ beforeEach(async () => {
     role: "owner",
   };
   model = createLabellingModel(() => ({
-    categoryId: home.groceriesId,
-    newPayeeName: "GROCÉR.",
-    reason: "Grocer is groceries",
+    category: "Groceries",
+    payee: "Grocer",
   }));
 });
 
@@ -74,7 +73,7 @@ const body = () => ({
 });
 
 describe("makeSuggestHandler", () => {
-  it("answers with the labeller's labels for one row, reusing a known Payee by name", async () => {
+  it("answers with the labeller's labels for one row, offering the known Payee that the bank text names", async () => {
     const response = await suggest(body());
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
@@ -86,10 +85,12 @@ describe("makeSuggestHandler", () => {
       memberId: null,
       toAccountId: null,
       paysDownAccountId: null,
-      reason: "Grocer is groceries",
+      reason: "",
     });
-    expect(userText(model?.doGenerateCalls[0].prompt ?? [])).toContain(
-      "GROCER 12 LONDON",
+    const [request] = model?.requests ?? [];
+    expect(request.state.bank_row.merchant).toBe("GROCER 12 LONDON");
+    expect(offeredLabels(request.questions.payee)).not.toContain(
+      "Grocer (new payee)",
     );
   });
 
@@ -125,7 +126,7 @@ describe("makeSuggestHandler", () => {
     });
     model = createLabellingModel(() => ({
       kind: "transfer",
-      transferAccountId: home.savingsId,
+      transfer: "Savings",
     }));
 
     const response = await suggest({ ...body(), transactionId });
@@ -135,9 +136,10 @@ describe("makeSuggestHandler", () => {
       categoryId: null,
       toAccountId: home.savingsId,
     });
-    const prompt = userText(model.doGenerateCalls[0].prompt);
-    expect(prompt).toContain("MONZO POT | TO SAVINGS POT");
-    expect(prompt).not.toContain("GROCER 12 LONDON");
+    expect(model.requests[0].state.bank_row).toMatchObject({
+      merchant: "MONZO POT",
+      description: "TO SAVINGS POT",
+    });
   });
 
   it("guards the origin, the session, the body and the model", async () => {
@@ -165,6 +167,6 @@ describe("makeSuggestHandler", () => {
     expect(response.status).toBe(429);
     expect(await response.json()).toEqual({ error: "too-many-requests" });
     expect(buckets).toEqual(["ai-suggest"]);
-    expect(model?.doGenerateCalls ?? []).toHaveLength(0);
+    expect(model?.requests ?? []).toHaveLength(0);
   });
 });

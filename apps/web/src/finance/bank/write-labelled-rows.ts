@@ -252,7 +252,7 @@ async function labelledInput(
       )),
     ruleId: null,
     refundOfId: null,
-    note: (label.note || bankNote(row)).slice(0, MAX_NOTE_LENGTH),
+    note: bankNote(row).slice(0, MAX_NOTE_LENGTH),
     tagIds: label.tagIds,
   };
   const ownEntry = {

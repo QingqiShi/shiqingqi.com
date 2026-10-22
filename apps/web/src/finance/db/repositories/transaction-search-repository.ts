@@ -52,6 +52,8 @@ export interface FoundTransaction {
   }[];
   /** What the bank said: the merchant and description of each bank row. */
   bankTexts: string[];
+  /** "ai" when the AI labelled it and no Member changed it since. */
+  labelledBy: "member" | "ai";
   payeeId: string | null;
   payeeName: string | null;
   categoryId: string | null;
@@ -159,8 +161,8 @@ function group<Row extends { transactionId: string }>(rows: readonly Row[]) {
 
 export const transactionSearchRepository = {
   /**
-   * Live posted Transactions that a Member labelled and that are not in
-   * Review, filtered by `search`, the newest first.
+   * Live posted Transactions that are not in Review, filtered by `search`,
+   * the newest first.
    */
   async search(
     scope: RepositoryScope,
@@ -177,6 +179,7 @@ export const transactionSearchRepository = {
         id: transactions.id,
         date: transactions.date,
         kind: transactions.kind,
+        labelledBy: transactions.labelledBy,
         payeeId: transactions.payeeId,
         payeeName: payees.name,
         categoryId: transactions.categoryId,
@@ -204,7 +207,6 @@ export const transactionSearchRepository = {
           isNull(transactions.deletedAt),
           eq(transactions.status, "posted"),
           eq(transactions.needsReview, false),
-          eq(transactions.labelledBy, "member"),
           search.kind === undefined
             ? undefined
             : eq(transactions.kind, search.kind),

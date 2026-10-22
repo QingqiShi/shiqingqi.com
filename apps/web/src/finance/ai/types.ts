@@ -22,6 +22,8 @@ interface LabellingCategory {
   kind: "expense" | "income";
   name: string;
   isSystem: boolean;
+  /** The Payees that Members put in this Category most often. */
+  usualPayees: readonly string[];
 }
 
 /** What the labeller knows about a Household before it reads any bank row. */
