@@ -21,7 +21,10 @@ import { BlurredDialogMock, MeltDemo } from "./progressive-blur-specimens.tsx";
 export function ProgressiveBlurShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Progressive blur", zh: "渐进虚化" })}>
+      <Showcase
+        label={t({ en: "Progressive blur", zh: "渐进虚化" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { align } from "@tuja/ui/primitives/flex.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -140,23 +141,25 @@ export function ViewportScaleSpecimen() {
                 <span css={[styles.iconWrap, active && styles.iconWrapActive]}>
                   <DeviceIcon device={step.device} />
                 </span>
-                <span
-                  css={[
-                    typeRole.caption,
-                    styles.colBand,
-                    active && styles.colBandActive,
-                  ]}
-                >
-                  {step.label}
-                </span>
-                <span
-                  css={[
-                    typeRole.caption,
-                    typeModifier.numeric,
-                    styles.colThreshold,
-                  ]}
-                >
-                  {step.threshold}
+                <span css={[stack.text, align.center]}>
+                  <span
+                    css={[
+                      typeRole.caption,
+                      styles.colBand,
+                      active && styles.colBandActive,
+                    ]}
+                  >
+                    {step.label}
+                  </span>
+                  <span
+                    css={[
+                      typeRole.caption,
+                      typeModifier.numeric,
+                      styles.colThreshold,
+                    ]}
+                  >
+                    {step.threshold}
+                  </span>
                 </span>
               </div>
             );
@@ -189,7 +192,7 @@ export function ViewportScaleSpecimen() {
         </div>
       </ScrollMask>
 
-      <p css={[stack.tight, styles.marker]} aria-live="polite">
+      <p css={[stack.text, styles.marker]} aria-live="polite">
         <span css={[typeRole.overline, styles.markerLabel]}>
           {t({ en: "your window", zh: "你的窗口" })}
         </span>

@@ -16,7 +16,7 @@ import { ShortSheetDemo, TallSheetDemo } from "./sheet-specimens.tsx";
 export function SheetShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Live", zh: "实时演示" })}>
+      <Showcase label={t({ en: "Live", zh: "实时演示" })} leadsWithText>
         <div css={stack.item}>
           <ShowcaseHelper>
             {t({
@@ -35,7 +35,10 @@ export function SheetShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Drag to dismiss", zh: "拖动关闭" })}>
+      <Showcase
+        label={t({ en: "Drag to dismiss", zh: "拖动关闭" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <ShowcaseHelper>
             {t({

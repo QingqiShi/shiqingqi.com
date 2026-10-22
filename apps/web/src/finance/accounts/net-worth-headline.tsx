@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { cluster, row } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -46,7 +46,7 @@ export function NetWorthHeadline({
 
   return (
     <section
-      css={styles.headline}
+      css={stack.tight}
       aria-label={t({ en: "Net worth today", zh: "今日净资产" })}
     >
       <span css={[typeRole.h1, typeModifier.numeric, styles.figure]}>
@@ -56,50 +56,57 @@ export function NetWorthHeadline({
             ? money(pick.value)
             : money(pick.to - pick.from, true)}
       </span>
-      <div css={styles.layers}>
-        <TodayChanges
-          netWorth={sheet.netWorth}
-          today={today}
-          currency={currency}
-          hidden={pick !== null}
-        />
-        {pick === null ? null : (
-          <span
-            aria-hidden
-            css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
-          >
-            {pick.kind === "point" ? (
-              displayDay(pick.day, locale, "dayYear")
-            ) : (
-              <>
-                <span
-                  css={[
-                    typeModifier.numeric,
-                    styles.value,
-                    pick.to > pick.from && styles.up,
-                    pick.to < pick.from && styles.down,
-                  ]}
-                >
-                  {formatPercentChange(pick.to - pick.from, pick.from, locale, {
-                    short: true,
-                  })}
-                </span>
-                <span>
-                  {displayDayRange(pick.startDay, pick.endDay, locale)}
-                </span>
-              </>
-            )}
-          </span>
-        )}
+      <div css={stack.text}>
+        <div css={styles.layers}>
+          <TodayChanges
+            netWorth={sheet.netWorth}
+            today={today}
+            currency={currency}
+            hidden={pick !== null}
+          />
+          {pick === null ? null : (
+            <span
+              aria-hidden
+              css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
+            >
+              {pick.kind === "point" ? (
+                displayDay(pick.day, locale, "dayYear")
+              ) : (
+                <>
+                  <span
+                    css={[
+                      typeModifier.numeric,
+                      styles.value,
+                      pick.to > pick.from && styles.up,
+                      pick.to < pick.from && styles.down,
+                    ]}
+                  >
+                    {formatPercentChange(
+                      pick.to - pick.from,
+                      pick.from,
+                      locale,
+                      {
+                        short: true,
+                      },
+                    )}
+                  </span>
+                  <span>
+                    {displayDayRange(pick.startDay, pick.endDay, locale)}
+                  </span>
+                </>
+              )}
+            </span>
+          )}
+        </div>
+        <dl css={[cluster.item, typeRole.bodySmall, styles.facts]}>
+          <Fact label={t({ en: "Assets", zh: "资产" })}>
+            {money(sheet.assets)}
+          </Fact>
+          <Fact label={t({ en: "Liabilities", zh: "负债" })}>
+            {money(sheet.liabilities)}
+          </Fact>
+        </dl>
       </div>
-      <dl css={[cluster.item, typeRole.bodySmall, styles.facts]}>
-        <Fact label={t({ en: "Assets", zh: "资产" })}>
-          {money(sheet.assets)}
-        </Fact>
-        <Fact label={t({ en: "Liabilities", zh: "负债" })}>
-          {money(sheet.liabilities)}
-        </Fact>
-      </dl>
     </section>
   );
 }
@@ -166,10 +173,6 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 }
 
 const styles = stylex.create({
-  headline: {
-    display: "flex",
-    flexDirection: "column",
-  },
   // Today's changes and the pick's day share one cell, so that the block
   // keeps the height of the taller one and a pick moves nothing.
   layers: {

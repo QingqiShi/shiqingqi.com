@@ -27,7 +27,7 @@ export function SkeletonShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Fill", zh: "填充" })}>
+      <Showcase label={t({ en: "Fill", zh: "填充" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -43,7 +43,7 @@ export function SkeletonShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Staggered", zh: "错峰" })}>
+      <Showcase label={t({ en: "Staggered", zh: "错峰" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

@@ -655,7 +655,7 @@ interface ChecklistProps {
 function Checklist({ title, items, marker }: ChecklistProps) {
   const check = marker === "check";
   return (
-    <div css={[stack.tight, corner.radius_2, styles.checklist]}>
+    <div css={[stack.text, corner.radius_2, styles.checklist]}>
       <h3 css={[typeRole.overline, styles.checklistTitle]}>{title}</h3>
       <ul css={[stack.item, styles.checklistItems]}>
         {items.map((item) => (

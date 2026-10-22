@@ -29,7 +29,7 @@ export default async function Home(props: PageProps) {
   const { locale } = await props.params;
   return (
     <>
-      <section css={[stack.tight, styles.heroContainer]}>
+      <section css={[stack.item, styles.heroContainer]}>
         <h1 css={[typeRole.fluidDisplay, styles.display]}>
           {t({ en: "Hi, I'm Qingqi.", zh: "嗨，我叫石清琪。" })}
           <br />

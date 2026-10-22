@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { bleed } from "@tuja/ui/primitives/layout.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ComponentProps, Ref } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
@@ -80,7 +80,7 @@ export function TransactionList({
   const scrollParent = useMasterScroller();
   if (scrollParent === null) return null;
   return (
-    <div css={[bleed.rows, styles.list]}>
+    <div css={[plainList.list, styles.list]}>
       <Virtuoso
         key={scrollParent ? "master" : "window"}
         ref={virtuosoRef}

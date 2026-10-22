@@ -100,6 +100,7 @@ export function ProgressShowcase() {
 
       <Showcase
         label={t({ en: "Counting, not percent", zh: "计数而非百分比" })}
+        leadsWithText
       >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
@@ -122,6 +123,7 @@ export function ProgressShowcase() {
 
       <Showcase
         label={t({ en: "What a screen reader gets", zh: "屏幕阅读器读到什么" })}
+        leadsWithText
       >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
@@ -137,7 +139,7 @@ export function ProgressShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Interactive", zh: "交互" })}>
+      <Showcase label={t({ en: "Interactive", zh: "交互" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -187,7 +189,7 @@ export function ProgressShowcase() {
 
       <PropsTable component="progress" />
 
-      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })}>
+      <Showcase label={t({ en: "Guidelines", zh: "使用准则" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

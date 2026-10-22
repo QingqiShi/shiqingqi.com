@@ -26,11 +26,8 @@ export function SectionShowcase() {
             title={t({ en: "Cast & crew", zh: "演职人员" })}
             icon={<UsersIcon weight="bold" />}
             css={fill.inline}
-          >
-            <Text look="bodySmall" tone="muted">
-              {castBody}
-            </Text>
-          </Section>
+            description={castBody}
+          />
         </Specimen>
       </Showcase>
 
@@ -45,14 +42,11 @@ export function SectionShowcase() {
               </Chip>
             }
             css={fill.inline}
-          >
-            <Text look="bodySmall" tone="muted">
-              {t({
-                en: "Actions stay in the accessibility tree and may be interactive — unlike the icon, which is decorative.",
-                zh: "操作区保留在无障碍树中且可交互——与装饰性的图标不同。",
-              })}
-            </Text>
-          </Section>
+            description={t({
+              en: "Actions stay in the accessibility tree and may be interactive — unlike the icon, which is decorative.",
+              zh: "操作区保留在无障碍树中且可交互——与装饰性的图标不同。",
+            })}
+          />
         </Specimen>
       </Showcase>
 
@@ -61,22 +55,21 @@ export function SectionShowcase() {
           caption={t({ en: "rule between sections", zh: "区块之间的分隔线" })}
         >
           <div css={[stack.group, fill.inline]}>
-            <Section title={t({ en: "Overview", zh: "概览" })}>
-              <Text look="bodySmall" tone="muted">
-                {t({
-                  en: "The first section needs no rule — nothing precedes it.",
-                  zh: "第一个区块无需分隔线——它前面没有内容。",
-                })}
-              </Text>
-            </Section>
-            <Section title={t({ en: "Cast & crew", zh: "演职人员" })} divider>
-              <Text look="bodySmall" tone="muted">
-                {t({
-                  en: "Add the rule when sections follow one another directly and the label alone isn't enough of a break.",
-                  zh: "当区块紧密相连、仅靠标签不足以形成断点时，加上分隔线。",
-                })}
-              </Text>
-            </Section>
+            <Section
+              title={t({ en: "Overview", zh: "概览" })}
+              description={t({
+                en: "The first section needs no rule — nothing precedes it.",
+                zh: "第一个区块无需分隔线——它前面没有内容。",
+              })}
+            />
+            <Section
+              title={t({ en: "Cast & crew", zh: "演职人员" })}
+              divider
+              description={t({
+                en: "Add the rule when sections follow one another directly and the label alone isn't enough of a break.",
+                zh: "当区块紧密相连、仅靠标签不足以形成断点时，加上分隔线。",
+              })}
+            />
           </div>
         </Specimen>
       </Showcase>
@@ -90,11 +83,8 @@ export function SectionShowcase() {
               title={t({ en: "Cast & crew", zh: "演职人员" })}
               icon={<UsersIcon weight="bold" />}
               css={fill.inline}
-            >
-              <Text look="bodySmall" tone="muted">
-                {castBody}
-              </Text>
-            </Section>
+              description={castBody}
+            />
           }
           doCaption={t({
             en: "Use a Section to label a block inside a page — the quiet heading is wayfinding, and the reader's eye stays on the content.",

@@ -99,7 +99,7 @@ export function SliderShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Readout", zh: "数值显示" })}>
+      <Showcase label={t({ en: "Readout", zh: "数值显示" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -115,7 +115,10 @@ export function SliderShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Range and step", zh: "范围与步长" })}>
+      <Showcase
+        label={t({ en: "Range and step", zh: "范围与步长" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -131,7 +134,7 @@ export function SliderShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label="onChange / onCommit" labelLook="code">
+      <Showcase label="onChange / onCommit" labelLook="code" leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" weight="semibold">
             {t({
@@ -155,6 +158,7 @@ export function SliderShowcase() {
 
       <Showcase
         label={t({ en: "Label, description, error", zh: "标签、说明与错误" })}
+        leadsWithText
       >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
@@ -184,7 +188,7 @@ export function SliderShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })}>
+      <Showcase label={t({ en: "Keyboard", zh: "键盘操作" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

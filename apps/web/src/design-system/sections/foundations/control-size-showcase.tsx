@@ -107,6 +107,7 @@ const styles = stylex.create({
     gap: rhythm.item,
   },
   csFloor: {
+    marginBlockStart: rhythm.tight,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

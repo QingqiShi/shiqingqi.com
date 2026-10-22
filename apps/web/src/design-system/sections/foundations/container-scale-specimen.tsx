@@ -168,6 +168,7 @@ export function ContainerScaleSpecimen() {
                     {width}px
                   </span>
                   <p
+                    data-spacing-scope=""
                     ref={(node) => {
                       titleElementsRef.current[i] = node;
                     }}
@@ -303,7 +304,6 @@ const styles = stylex.create({
     margin: 0,
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     flexShrink: 0,
   },
   liveValue: {

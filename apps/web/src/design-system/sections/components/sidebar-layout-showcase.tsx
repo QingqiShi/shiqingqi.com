@@ -38,7 +38,7 @@ export function SidebarLayoutShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Page shell", zh: "页面骨架" })}>
+      <Showcase label={t({ en: "Page shell", zh: "页面骨架" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "A live miniature of the shell you're looking at: the slots hold this site's real sidebar chrome — the title with its home link, the design-system navigation, and the theme and language controls pinned at the bottom. Every control works. Below the md breakpoint the rail collapses into a floating bar whose menu button opens the same content as a drawer. An app with its own mobile navigation, such as a tab bar, sets mobileSidebar to \"hidden\": then there is no bar and no drawer, the content starts at the top of the screen below the safe area, and the app gives the header's and the footer's content another place below md.",

@@ -94,7 +94,7 @@ export function CalloutShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase label={t({ en: "Icon", zh: "图标" })}>
+      <Showcase label={t({ en: "Icon", zh: "图标" })} leadsWithText>
         <div css={stack.item}>
           <ShowcaseHelper>
             {t({
@@ -121,7 +121,7 @@ export function CalloutShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Dismissible", zh: "可关闭" })}>
+      <Showcase label={t({ en: "Dismissible", zh: "可关闭" })} leadsWithText>
         <div css={stack.item}>
           <ShowcaseHelper>
             {t({

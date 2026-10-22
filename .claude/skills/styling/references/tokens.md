@@ -169,7 +169,7 @@ The space between two things, named by how they relate. Use it for every `gap`, 
 | `rhythm.group`   | `2rem`    | —           | Between groups, h3 sub-sections                 |
 | `rhythm.section` | `3rem`    | `4rem`      | Between h2 sections                             |
 
-Lines of text in one item (a heading and its own text, a row's title and its detail) take no gap: compose `stack.text`. A line box already holds space above and below its letters, so a gap of `rhythm.tight` between two lines looks as wide as `rhythm.item`, and the two lines stop reading as one item.
+Lines of text in one item (an h3 or h4 title and its own text, a row's title and its detail, a label and its hint) take no gap: compose `stack.text`. A line box already holds space above and below its letters, so a gap of `rhythm.tight` between two lines looks as wide as `rhythm.item`, and the two lines stop reading as one item. A heading at h2 size or larger (`typeRole.h2`, `h1`, `subDisplay`, and their `fluid*` roles) is the exception: its line height is so small that its letters fill its line box, and with no gap it touches its text. It takes `stack.tight` to its text, and display type (`typeRole.display`, `fluidDisplay`) takes `stack.item`. Two paragraphs are two items: `stack.item`. The `@tuja/require-text-stack` ESLint rule flags `stack.tight` on an element whose children are all lines of text, and `stack.text` when one of them is a heading at h2 size or larger. `apps/web/e2e/design-system-spacing.spec.ts` flags any gap under `rhythm.item` between two lines of text, and any gap under `rhythm.tight` next to a heading at h2 size or larger.
 
 A gap inside a control (the icon and label of a Button, sized with `controlSize`) takes `controlSize`, not `rhythm`.
 

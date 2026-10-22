@@ -189,7 +189,7 @@ function DialogSpecimen() {
           aria-label={dialogLabel}
           css={[stack.item, corner.radius_3, styles.dialogCard]}
         >
-          <div css={stack.tight}>
+          <div css={stack.text}>
             <Heading level={3}>{title}</Heading>
             <Text look="bodySmall" tone="muted">
               {body}

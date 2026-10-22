@@ -42,7 +42,7 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
 
   return (
     <section css={stack.item} data-testid="wizard-step-features">
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <h3 css={[typeRole.h3, styles.heading]}>
           {t({
             en: "Pick up to 2 features",

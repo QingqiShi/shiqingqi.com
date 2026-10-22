@@ -57,7 +57,7 @@ export function RecoveryEmailSettings() {
 
   return (
     <section css={stack.item}>
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Heading level={3} look="h4">
           {t({ en: "Your recovery email", zh: "你的恢复邮箱" })}
         </Heading>

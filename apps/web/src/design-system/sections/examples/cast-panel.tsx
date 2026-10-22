@@ -15,7 +15,7 @@ export function CastPanel({ cast }: { cast: Credit[] }) {
       {cast.map((credit) => (
         <li key={credit.name} css={[row.tight, styles.credit]}>
           <Avatar name={credit.name} size="md" />
-          <span css={[stack.tight, styles.creditText]}>
+          <span css={[stack.text, styles.creditText]}>
             <Text as="span" look="bodySmall" weight="medium">
               {credit.name}
             </Text>

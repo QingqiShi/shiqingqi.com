@@ -67,7 +67,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
   return (
     <section css={stack.group} data-testid="wizard-step-vibe">
       <div css={stack.item}>
-        <div css={stack.tight}>
+        <div css={stack.text}>
           <h3 css={[typeRole.h3, styles.heading]} id={moodHeadingId}>
             {t({ en: "Pick a default mood", zh: "选择默认情绪" })}
           </h3>
@@ -99,7 +99,7 @@ export function StepVibe({ def, onChange }: StepVibeProps) {
       </div>
 
       <div css={stack.item}>
-        <div css={stack.tight}>
+        <div css={stack.text}>
           <h3 css={[typeRole.h3, styles.heading]} id={elementHeadingId}>
             {t({ en: "Pick an element", zh: "选择元素" })}
           </h3>

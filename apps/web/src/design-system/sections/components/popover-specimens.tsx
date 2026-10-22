@@ -25,7 +25,7 @@ export function AnchoredPanelDemo() {
         </Button>
       )}
     >
-      <div css={[stack.tight, styles.narrowPanel]}>
+      <div css={[stack.text, styles.narrowPanel]}>
         <Text as="span" look="bodySmall" weight="semibold">
           {t({ en: "Arbitrary content", zh: "任意内容" })}
         </Text>
@@ -189,7 +189,7 @@ export function RepaymentSourcesDemo() {
         </Button>
       )}
     >
-      <div css={[stack.tight, styles.narrowPanel]}>
+      <div css={[stack.text, styles.narrowPanel]}>
         <Text as="span" look="bodySmall" weight="semibold">
           {t({ en: "Two sources", zh: "两个来源" })}
         </Text>

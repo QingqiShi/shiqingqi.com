@@ -224,37 +224,47 @@ export function Slider({
     <div css={[stack.tight, fieldStyles.root, css]}>
       <div
         css={[
-          flex.between,
-          styles.labelRow,
-          labelHidden && readout === undefined && a11y.srOnly,
+          stack.text,
+          labelHidden &&
+            readout === undefined &&
+            !hasDescription &&
+            a11y.srOnly,
         ]}
       >
-        <label
-          htmlFor={fieldId}
+        <div
           css={[
-            typeRole.control,
-            fieldStyles.label,
-            labelHidden && a11y.srOnly,
+            flex.between,
+            styles.labelRow,
+            labelHidden && readout === undefined && a11y.srOnly,
           ]}
         >
-          {label}
-        </label>
-        {readout === undefined ? null : (
-          <span
-            css={[typeRole.control, fieldStyles.label, typeModifier.numeric]}
+          <label
+            htmlFor={fieldId}
+            css={[
+              typeRole.control,
+              fieldStyles.label,
+              labelHidden && a11y.srOnly,
+            ]}
           >
-            {readout}
+            {label}
+          </label>
+          {readout === undefined ? null : (
+            <span
+              css={[typeRole.control, fieldStyles.label, typeModifier.numeric]}
+            >
+              {readout}
+            </span>
+          )}
+        </div>
+        {hasDescription ? (
+          <span
+            id={descriptionId}
+            css={[typeRole.caption, fieldStyles.description]}
+          >
+            {description}
           </span>
-        )}
+        ) : null}
       </div>
-      {hasDescription ? (
-        <span
-          id={descriptionId}
-          css={[typeRole.caption, fieldStyles.description]}
-        >
-          {description}
-        </span>
-      ) : null}
       <input
         {...rest}
         ref={ref}

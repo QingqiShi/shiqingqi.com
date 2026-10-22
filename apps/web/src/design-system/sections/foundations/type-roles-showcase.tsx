@@ -256,7 +256,7 @@ function Movement({ label, description, snippet, children }: MovementProps) {
   return (
     <section css={stack.item}>
       <div css={[corner.radius_3, stack.item, styles.movement]}>
-        <header css={stack.tight}>
+        <header css={stack.text}>
           <Heading level={3}>{label}</Heading>
           <p css={[typeRole.bodySmall, styles.movementDesc]}>{description}</p>
         </header>
@@ -276,12 +276,12 @@ interface RoleLedgerProps {
 
 function RoleLedger({ legend, rows, inContainer = false }: RoleLedgerProps) {
   return (
-    <div css={stack.tight}>
+    <div css={stack.item}>
       <p css={[typeRole.caption, styles.legend]}>{legend}</p>
       <ol css={[stack.item, styles.ledger]}>
         {rows.map((row) => (
           <li key={row.name} css={styles.row}>
-            <div css={[stack.tight, styles.meta]}>
+            <div css={[stack.text, styles.meta]}>
               <span css={[typeRole.caption, styles.metaToken]}>
                 <Identifier>{`typeRole.${row.name}`}</Identifier>
               </span>
@@ -300,7 +300,10 @@ function RoleLedger({ legend, rows, inContainer = false }: RoleLedgerProps) {
                 </span>
               ) : null}
             </div>
-            <div css={[styles.specimen, inContainer && styles.container]}>
+            <div
+              data-spacing-scope=""
+              css={[styles.specimen, inContainer && styles.container]}
+            >
               <span css={typeRole[row.name]}>{row.sample}</span>
             </div>
           </li>

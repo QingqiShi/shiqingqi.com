@@ -49,7 +49,7 @@ export function ReplicaGate({ children }: { children: ReactNode }) {
           <WarningCircleIcon weight="bold" role="presentation" />
         )}
       </span>
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Heading level={1} look="h3" id="finance-download-heading">
           {offline
             ? t({ en: "You're offline", zh: "当前处于离线状态" })

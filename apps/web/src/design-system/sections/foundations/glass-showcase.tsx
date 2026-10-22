@@ -319,7 +319,6 @@ const styles = stylex.create({
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._4,
     inlineSize: "15rem",

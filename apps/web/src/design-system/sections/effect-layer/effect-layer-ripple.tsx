@@ -23,7 +23,7 @@ function Cta({ label }) {
 export function EffectLayerRipple() {
   return (
     <>
-      <Showcase label={t({ en: "Ripple", zh: "涟漪" })}>
+      <Showcase label={t({ en: "Ripple", zh: "涟漪" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

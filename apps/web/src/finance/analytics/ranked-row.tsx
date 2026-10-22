@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
@@ -87,6 +88,7 @@ export function RankedRow({
     corner.radius_2,
     transition.colors,
     selected.quiet,
+    plainList.row,
     styles.row,
   ];
 
@@ -109,7 +111,7 @@ export function RankedRow({
           {body}
         </button>
       ) : (
-        <div css={styles.row}>{body}</div>
+        <div css={[plainList.row, styles.row]}>{body}</div>
       )}
     </li>
   );
@@ -124,7 +126,6 @@ const styles = stylex.create({
     rowGap: rhythm.inline,
     inlineSize: "100%",
     paddingBlock: space._1,
-    paddingInline: space._2,
     color: color.fg,
     textAlign: "start",
   },

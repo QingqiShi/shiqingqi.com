@@ -29,7 +29,7 @@ export function GuideList({ items }: GuideListProps) {
           <dt css={[typeRole.h4, styles.term]}>
             {breakAfterSlashes(item.term)}
           </dt>
-          <dd css={[stack.tight, definitionRows.definition]}>
+          <dd css={[stack.text, definitionRows.definition]}>
             {item.value ? (
               <span css={[typeRole.label, styles.value]}>{item.value}</span>
             ) : null}

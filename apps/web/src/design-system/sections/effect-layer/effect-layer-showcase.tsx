@@ -35,7 +35,7 @@ function Row({ children }) {
 export function EffectLayerShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Set up", zh: "设置" })}>
+      <Showcase label={t({ en: "Set up", zh: "设置" })} leadsWithText>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Mount EffectLayerProvider once, high in the tree, inside a <body> with position: relative, so that its <canvas> elements cover the document and no more. Until an element registers with an effect, it mounts no <canvas> and requests no GPU device, so a page with no effects pays nothing for it.",
@@ -48,7 +48,10 @@ export function EffectLayerShowcase() {
 
       <PropsTable component="effect-layer-provider" />
 
-      <Showcase label={t({ en: "Where effects draw", zh: "效果绘制的位置" })}>
+      <Showcase
+        label={t({ en: "Where effects draw", zh: "效果绘制的位置" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -71,7 +74,10 @@ export function EffectLayerShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "When nothing draws", zh: "何时不绘制" })}>
+      <Showcase
+        label={t({ en: "When nothing draws", zh: "何时不绘制" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -88,7 +94,10 @@ export function EffectLayerShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Registering an element", zh: "登记元素" })}>
+      <Showcase
+        label={t({ en: "Registering an element", zh: "登记元素" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

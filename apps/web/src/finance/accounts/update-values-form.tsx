@@ -257,7 +257,7 @@ export function UpdateValuesForm() {
 
   return (
     <form onSubmit={save} css={[stack.group, styles.form]} noValidate>
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Heading level={1} look="h3">
           {t({ en: "Update balances", zh: "批量更新余额" })}
         </Heading>

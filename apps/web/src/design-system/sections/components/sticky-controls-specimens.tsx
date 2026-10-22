@@ -69,7 +69,7 @@ export function FilterBar() {
         {films.map((film) => (
           <div key={film.title} css={[corner.radius_2, styles.row]}>
             <div css={[corner.radius_1, styles.poster]} />
-            <div css={stack.tight}>
+            <div css={stack.text}>
               <Text look="bodySmall" weight="semibold">
                 {film.title}
               </Text>

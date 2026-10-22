@@ -168,7 +168,7 @@ function TeachAiForm({ title, draft, onRetry, onClose }: TeachAiFormProps) {
       css={[stack.group, styles.form]}
       onSubmit={(event) => void save(event)}
     >
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Heading id={headingId} level={2} look="h3">
           {title}
         </Heading>

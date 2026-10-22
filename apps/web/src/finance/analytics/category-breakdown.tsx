@@ -4,7 +4,7 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { bleed } from "@tuja/ui/primitives/layout.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -213,7 +213,7 @@ export function CategoryBreakdown({
               zh: "按回车查看交易。",
             })}
           />
-          <ul css={[stack.tight, bleed.rows, styles.list]}>
+          <ul css={[stack.tight, plainList.list]}>
             {view.rows.map((item) => {
               const change =
                 item.previous === null || item.previous === 0
@@ -267,11 +267,6 @@ export function CategoryBreakdown({
 const styles = stylex.create({
   heading: {
     margin: 0,
-  },
-  list: {
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
   },
   crumb: {
     color: color.fgMuted,

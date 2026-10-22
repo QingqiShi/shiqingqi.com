@@ -13,11 +13,19 @@ import { ApiGrid, type ApiEntry, GenreChips } from "./api-grid.tsx";
 export function StackSection() {
   const api: ApiEntry[] = [
     {
+      token: "stack.text",
+      meta: "column · no gap",
+      description: t({
+        en: "Lines of text in one item, such as a heading and its own text. Their line height spaces them.",
+        zh: "同一项中的几行文字，例如标题与它自己的文字。行高为它们留出间距。",
+      }),
+    },
+    {
       token: "stack.tight",
       meta: "column · gap rhythm.tight",
       description: t({
-        en: "Inside one item: a heading and its own text, a stage and its caption.",
-        zh: "同一项之内：标题与它自己的文字、展示区与它的说明。",
+        en: "The boxes inside one item, such as a stage and its caption.",
+        zh: "同一项之内的各个盒子，例如展示区与它的说明。",
       }),
     },
     {
@@ -118,11 +126,13 @@ export function StackSection() {
       <UsageSnippet
         code={`import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 
-<section css={stack.tight}>
-  <h2>…</h2>
-  <div css={stack.item}>…</div>
+<section css={stack.item}>
+  <header css={stack.text}>
+    <h3>…</h3>
+    <p>…</p>
+  </header>
+  <div css={cluster.tight}>…</div>
 </section>
-<div css={cluster.tight}>…</div>
 <span css={row.inline}><Icon /> Label</span>`}
       />
     </Showcase>

@@ -37,7 +37,7 @@ export function ReportPropertyNet({
       title={t({ en: "Property net", zh: "房产净值" })}
       headingLevel={headingLevel}
     >
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <span css={[typeRole.h3, typeModifier.numeric]}>
           {money(data.propertyNetMinor)}
         </span>

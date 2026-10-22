@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Identifier } from "./identifier.tsx";
 
@@ -29,7 +29,6 @@ const styles = stylex.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,

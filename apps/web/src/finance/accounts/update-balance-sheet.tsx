@@ -212,7 +212,7 @@ function UpdateBalanceForm({
       onSubmit={save}
       css={[stack.group, styles.form]}
     >
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Heading id={headingId} level={2} look="h3">
           {account.name}
         </Heading>

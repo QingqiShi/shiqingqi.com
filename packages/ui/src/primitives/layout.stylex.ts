@@ -138,14 +138,20 @@ export const scrollbar = stylex.create({
 });
 
 /**
- * A plain list, on no surface, whose rows pad their content by `space._2`.
- * Pulled out by the same amount, the row content lines up with the text
- * around the list, and a row's hover or selected plate reaches into the
- * gutter.
+ * A list on no surface whose rows show a plate on hover or when selected.
+ * `row` pads the content of a row by `space._2`, and `list` pulls the list
+ * out by the same amount. Thus the row content lines up with the text around
+ * the list, and the plate reaches into the gutter. Use the two together.
  */
-export const bleed = stylex.create({
-  rows: {
+export const plainList = stylex.create({
+  list: {
+    marginBlock: 0,
     marginInline: `calc(-1 * ${space._2})`,
+    padding: 0,
+    listStyle: "none",
+  },
+  row: {
+    paddingInline: space._2,
   },
 });
 

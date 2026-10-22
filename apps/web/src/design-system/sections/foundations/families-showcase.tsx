@@ -23,7 +23,7 @@ export function FamiliesShowcase() {
     >
       <div css={styles.grid}>
         <div css={[stack.item, corner.radius_2, styles.card]}>
-          <header css={stack.tight}>
+          <header css={stack.text}>
             <span css={[typeRole.caption, styles.token]}>
               <Identifier>font.family</Identifier>
             </span>
@@ -39,7 +39,7 @@ export function FamiliesShowcase() {
           </div>
         </div>
         <div css={[stack.item, corner.radius_2, styles.card]}>
-          <header css={stack.tight}>
+          <header css={stack.text}>
             <span css={[typeRole.caption, styles.token]}>
               <Identifier>font.familyMono</Identifier>
             </span>

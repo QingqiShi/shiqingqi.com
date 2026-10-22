@@ -5,7 +5,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { bleed } from "@tuja/ui/primitives/layout.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import {
   border,
@@ -71,14 +71,14 @@ export function TransactionsSkeleton() {
             </div>
           </div>
         </div>
-        <div css={bleed.rows}>
+        <div css={plainList.list}>
           <Skeleton width="100%" height="2.625rem" css={corner.radius_3} />
-          <div css={styles.day}>
+          <div css={[plainList.row, styles.day]}>
             <Skeleton width="8rem" height="1.125rem" />
             <Skeleton width="7rem" height="1rem" />
           </div>
           {Array.from({ length: ROWS }, (_, index) => (
-            <div key={index} css={styles.row}>
+            <div key={index} css={[plainList.row, styles.row]}>
               <Skeleton
                 width="2.25rem"
                 height="2.25rem"
@@ -148,7 +148,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     alignItems: "center",
     blockSize: "2.75rem",
-    paddingInline: space._2,
   },
   row: {
     display: "flex",
@@ -157,7 +156,6 @@ const styles = stylex.create({
     blockSize: "4.75rem",
     marginBlockEnd: rhythm.inline,
     paddingBlock: space._1,
-    paddingInline: space._2,
   },
   lines: {
     display: "flex",

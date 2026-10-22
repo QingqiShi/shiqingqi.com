@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -35,7 +36,13 @@ export function UpcomingHeader({
       type="button"
       aria-expanded={open}
       onClick={onToggle}
-      css={[buttonReset.base, flex.between, corner.radius_3, styles.upcoming]}
+      css={[
+        buttonReset.base,
+        flex.between,
+        corner.radius_3,
+        plainList.row,
+        styles.upcoming,
+      ]}
     >
       <span css={[flex.row, typeRole.label, styles.label]}>
         {open ? (
@@ -61,7 +68,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     gap: rhythm.tight,
     paddingBlock: space._2,
-    paddingInline: space._2,
     backgroundColor: {
       default: "transparent",
       ":hover": { default: null, [pointer.canHover]: color.bgControlHover },

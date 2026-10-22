@@ -31,7 +31,10 @@ function Vent() {
 export function DustShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Dust and Extractor fan", zh: "灰尘与抽风机" })}>
+      <Showcase
+        label={t({ en: "Dust and Extractor fan", zh: "灰尘与抽风机" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

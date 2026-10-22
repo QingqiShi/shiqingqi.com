@@ -67,7 +67,7 @@ export function OverviewTile({
       ]}
     >
       {illustration ? <IlloLayer>{illustration}</IlloLayer> : null}
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <Link href={href} {...stylex.props(typeRole.h3, styles.link)}>
           {label}
         </Link>

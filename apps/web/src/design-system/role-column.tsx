@@ -1,7 +1,7 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { font, space } from "@tuja/ui/tokens.stylex";
 import { gridlineGround, gridlineTokens } from "./gridline-ground.stylex.ts";
 import { Identifier } from "./identifier.tsx";
 
@@ -66,7 +66,6 @@ const styles = stylex.create({
     justifyContent: "space-between",
     paddingBlock: space._2,
     paddingInline: space._3,
-    gap: rhythm.tight,
   },
   cellLarge: {
     minBlockSize: "108px",

@@ -25,7 +25,7 @@ function Bench({ title, helper, children }: BenchProps) {
   return (
     <Showcase frame="plain" breakout>
       <div css={stack.item}>
-        <div css={stack.tight}>
+        <div css={stack.text}>
           <Heading level={3} css={onReadingColumn.base}>
             {title}
           </Heading>

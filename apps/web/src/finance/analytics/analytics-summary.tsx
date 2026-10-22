@@ -55,7 +55,7 @@ export function AnalyticsSummary({
   const previous = view.range.previous;
 
   return (
-    <section css={stack.text} aria-label={heading}>
+    <section css={stack.tight} aria-label={heading}>
       <Text look="caption" tone="muted">
         {[
           heading,
@@ -66,38 +66,40 @@ export function AnalyticsSummary({
           .join(" · ")}
       </Text>
       <span css={[typeRole.h1, styles.total]}>{money(view.total)}</span>
-      {change === null || previous === null ? null : (
-        <p css={[cluster.tight, typeRole.bodySmall, styles.line]}>
-          {change === 0 ? (
-            <span css={styles.muted}>{sameAsBefore}</span>
-          ) : (
-            <span css={[typeModifier.numeric, styles.change]}>
-              {formatMoney(Math.round(change), currency, locale, {
-                signDisplay: "exceptZero",
-              })}
-              {percent === null ? "" : ` (${percent})`}
+      <div css={stack.text}>
+        {change === null || previous === null ? null : (
+          <p css={[cluster.tight, typeRole.bodySmall, styles.line]}>
+            {change === 0 ? (
+              <span css={styles.muted}>{sameAsBefore}</span>
+            ) : (
+              <span css={[typeModifier.numeric, styles.change]}>
+                {formatMoney(Math.round(change), currency, locale, {
+                  signDisplay: "exceptZero",
+                })}
+                {percent === null ? "" : ` (${percent})`}
+              </span>
+            )}
+            <span css={styles.muted}>
+              {change === 0 ? "" : `${versus} `}
+              {displayDayRange(previous.from, previous.to, locale)}
             </span>
-          )}
-          <span css={styles.muted}>
-            {change === 0 ? "" : `${versus} `}
-            {displayDayRange(previous.from, previous.to, locale)}
-          </span>
+          </p>
+        )}
+        <p
+          css={[
+            typeRole.caption,
+            typeModifier.numeric,
+            styles.line,
+            styles.muted,
+          ]}
+        >
+          {`${view.count.toLocaleString(locale)} ${transactionsLabel} · ${
+            locale === "zh"
+              ? `${perPeriod} ${money(average)}`
+              : `${money(average)} ${perPeriod}`
+          }`}
         </p>
-      )}
-      <p
-        css={[
-          typeRole.caption,
-          typeModifier.numeric,
-          styles.line,
-          styles.muted,
-        ]}
-      >
-        {`${view.count.toLocaleString(locale)} ${transactionsLabel} · ${
-          locale === "zh"
-            ? `${perPeriod} ${money(average)}`
-            : `${money(average)} ${perPeriod}`
-        }`}
-      </p>
+      </div>
     </section>
   );
 }

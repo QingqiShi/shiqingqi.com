@@ -91,7 +91,7 @@ export function MarkedSelectedSpecimen() {
           {...getOptionProps(option)}
           css={[
             buttonReset.base,
-            stack.tight,
+            stack.text,
             corner.radius_3,
             styles.card,
             selected.marked,

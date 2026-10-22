@@ -288,7 +288,6 @@ const styles = stylex.create({
   meter: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
     backgroundColor: color.bgSurfaceRaised,

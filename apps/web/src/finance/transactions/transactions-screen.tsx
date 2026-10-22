@@ -12,7 +12,7 @@ import { TextField } from "@tuja/ui/components/text-field";
 import type { ToastAction } from "@tuja/ui/components/toast";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { bleed } from "@tuja/ui/primitives/layout.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -468,9 +468,12 @@ export function TransactionsScreen() {
       </header>
 
       {!bootstrapped ? (
-        <div css={[stack.item, bleed.rows]} aria-busy="true">
+        <div css={[stack.item, plainList.list]} aria-busy="true">
           {Array.from({ length: 8 }, (_, index) => (
-            <div key={index} css={[flex.row, styles.skeletonRow]}>
+            <div
+              key={index}
+              css={[flex.row, plainList.row, styles.skeletonRow]}
+            >
               <Skeleton width="2.25rem" height="2.25rem" />
               <div css={[stack.tight, styles.grow]}>
                 <Skeleton width="60%" height="1rem" />
@@ -603,7 +606,6 @@ const styles = stylex.create({
   },
   skeletonRow: {
     gap: rhythm.item,
-    paddingInline: space._2,
   },
   grow: {
     flexGrow: 1,

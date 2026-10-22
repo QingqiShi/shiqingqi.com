@@ -110,7 +110,7 @@ export function ButtonShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Icon-only", zh: "纯图标" })}>
+      <Showcase label={t({ en: "Icon-only", zh: "纯图标" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "With no children the button renders icon-only: a square of its own height, at the corner radius half that height gives — named by aria-label or aria-labelledby, since the icon itself is decorative.",

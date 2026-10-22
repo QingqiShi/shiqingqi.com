@@ -57,7 +57,7 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
 
   return (
     <section css={stack.item} data-testid="wizard-step-species">
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <h3 css={[typeRole.h3, styles.heading]} id={headingId}>
           {t({ en: "Pick a species", zh: "选择物种" })}
         </h3>

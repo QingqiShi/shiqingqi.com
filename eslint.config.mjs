@@ -369,6 +369,15 @@ export default defineConfig([
       ],
     },
   },
+  // Lines of text in one item take no gap, because their line height spaces
+  // them.
+  {
+    files: ["apps/*/src/**/*.tsx", "packages/ui/src/**/*.tsx"],
+    ignores: ["**/*.test.tsx"],
+    rules: {
+      "@tuja/require-text-stack": "error",
+    },
+  },
   // Text takes its size from a type role. The primitives and the tokens define
   // the roles, so they are not in scope.
   {

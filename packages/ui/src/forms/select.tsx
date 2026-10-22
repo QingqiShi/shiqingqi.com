@@ -141,20 +141,26 @@ export function Select({
 
   return (
     <div css={[stack.tight, fieldStyles.root, css]}>
-      <label
-        htmlFor={fieldId}
-        css={[typeRole.control, fieldStyles.label, labelHidden && a11y.srOnly]}
-      >
-        {label}
-      </label>
-      {hasDescription ? (
-        <span
-          id={descriptionId}
-          css={[typeRole.caption, fieldStyles.description]}
+      <div css={[stack.text, labelHidden && !hasDescription && a11y.srOnly]}>
+        <label
+          htmlFor={fieldId}
+          css={[
+            typeRole.control,
+            fieldStyles.label,
+            labelHidden && a11y.srOnly,
+          ]}
         >
-          {description}
-        </span>
-      ) : null}
+          {label}
+        </label>
+        {hasDescription ? (
+          <span
+            id={descriptionId}
+            css={[typeRole.caption, fieldStyles.description]}
+          >
+            {description}
+          </span>
+        ) : null}
+      </div>
       <div css={[fieldStyles.controlAffixRow, fieldSizeInline[size]]}>
         <select
           {...rest}

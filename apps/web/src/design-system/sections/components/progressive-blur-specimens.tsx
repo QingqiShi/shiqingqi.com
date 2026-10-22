@@ -43,7 +43,7 @@ export function BlurredDialogMock({ isShown }: { isShown?: boolean }) {
       </div>
       <ProgressiveBlur isShown={isShown}>
         <div css={[popoverSurface.base, styles.mockDialog]}>
-          <div css={stack.tight}>
+          <div css={stack.text}>
             <Text look="bodySmall" weight="semibold">
               {t({ en: "Discard three edits?", zh: "放弃三处修改？" })}
             </Text>

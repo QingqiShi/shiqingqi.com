@@ -138,7 +138,7 @@ export function ReportSpending({
     >
       <div css={[reportColumns.base, styles.top]}>
         <div css={stack.item}>
-          <div css={stack.tight}>
+          <div css={stack.text}>
             <span css={[typeRole.h3, typeModifier.numeric]}>
               {money(spending.totalMinor)}
             </span>

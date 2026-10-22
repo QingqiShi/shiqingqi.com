@@ -57,7 +57,7 @@ const RUNS: readonly CodeToken[] = [
 export function CodeBlockShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Runs", zh: "片段" })}>
+      <Showcase label={t({ en: "Runs", zh: "片段" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "Ten kinds, three hues. Kinds that do the same job share a colour: a string and a number are both literals, an attribute name and a property name both name a value. The greys repeat the page's own text roles, so a snippet reads as part of the page.",
@@ -69,7 +69,7 @@ export function CodeBlockShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase label={t({ en: "Parts", zh: "Parts" })}>
+      <Showcase label={t({ en: "Parts", zh: "Parts" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "A part whose id stays keeps its box across a change: what stays slides to its new place, what arrives rises in, and what leaves fades where it stood. With reduced motion the slide and the rise go; the fade stays.",

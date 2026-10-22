@@ -62,7 +62,7 @@ export default async function Page(props: PageProps) {
   return (
     <div css={[stack.section, styles.root]}>
       <section css={[stack.item, styles.hero]}>
-        <div css={stack.tight}>
+        <div css={stack.item}>
           <h1 css={[typeRole.fluidDisplay, styles.title]}>
             {t({ en: "Pixel Creature Creator", zh: "像素生物创造器" })}
           </h1>

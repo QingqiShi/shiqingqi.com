@@ -4,7 +4,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, measure, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import {
   gridlineGround,
@@ -57,7 +57,7 @@ function Band({
 }: BandProps) {
   return (
     <section css={stack.item}>
-      <header css={[stack.tight, styles.bandHeader]}>
+      <header css={[stack.text, styles.bandHeader]}>
         <Heading level={3}>{name}</Heading>
         <p css={[typeRole.bodySmall, styles.bandUse]}>{use}</p>
       </header>
@@ -274,7 +274,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._3,
     minBlockSize: "88px",

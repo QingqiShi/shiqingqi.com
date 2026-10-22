@@ -177,7 +177,7 @@ export function OptionCard({
           {icon}
         </span>
       ) : null}
-      <span css={[stack.tight, grow._1, styles.text]}>
+      <span css={[stack.text, grow._1, styles.text]}>
         <span id={labelId} css={typeRole.h4}>
           {label}
         </span>

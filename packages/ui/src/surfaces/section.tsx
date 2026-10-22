@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
+import { Text } from "../content/text.tsx";
 import { row, stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { border, color, space } from "../tokens.stylex.ts";
@@ -19,11 +20,18 @@ interface SectionProps extends Omit<
    */
   title: ReactNode;
   /**
-   * Section body.
+   * A muted line under the label that says what the block holds. The label and
+   * this line are lines of one item, so no gap separates them.
    *
-   * @zh 区块正文。
+   * @zh 标签下方说明区块内容的弱化文字。标签与这行文字属于同一项，因此二者之间没有间距。
    */
-  children: ReactNode;
+  description?: ReactNode;
+  /**
+   * Section body. Leave it out when the description says all there is.
+   *
+   * @zh 区块正文。若说明文字已经足够，可以省略。
+   */
+  children?: ReactNode;
   /**
    * Decorative icon before the label, rendered `aria-hidden`.
    *
@@ -69,6 +77,7 @@ interface SectionProps extends Omit<
  */
 export function Section({
   title,
+  description,
   children,
   icon,
   actions,
@@ -84,7 +93,7 @@ export function Section({
       ref={ref}
       css={[stack.tight, divider === true && styles.divided, css]}
     >
-      <div css={row.tight}>
+      <div css={[row.tight, description ? styles.described : null]}>
         {/* Truthiness: `icon={cond && <X/>}` / `actions={cond && <Y/>}` then
             render no slot. `!= null` would keep an empty box and the gap. */}
         {icon ? (
@@ -92,12 +101,19 @@ export function Section({
             {icon}
           </span>
         ) : null}
-        <SectionHeading level={level}>{title}</SectionHeading>
+        <div css={[stack.text, styles.titles]}>
+          <SectionHeading level={level}>{title}</SectionHeading>
+          {description ? (
+            <Text look="bodySmall" tone="muted">
+              {description}
+            </Text>
+          ) : null}
+        </div>
         {actions ? (
           <div css={[row.tight, styles.actions]}>{actions}</div>
         ) : null}
       </div>
-      <div css={stack.item}>{children}</div>
+      {children ? <div css={stack.item}>{children}</div> : null}
     </section>
   );
 }
@@ -109,16 +125,25 @@ const styles = stylex.create({
     borderBlockStartColor: color.border,
     paddingBlockStart: space._5,
   },
-  // `em` box against the title's type role, so the icon tracks the label
-  // rather than whatever the section's contents happen to set.
+  // The icon box takes the type role of the title, so the icon tracks the
+  // label rather than whatever the section's contents happen to set. It is one
+  // line tall, so it centres on the first line of the label.
   icon: {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
     inlineSize: "1em",
-    blockSize: "1em",
+    blockSize: "1lh",
     color: color.fgMuted,
+  },
+  // The description makes the text two lines, so the icon and the actions
+  // align with the label at the top.
+  described: {
+    alignItems: "flex-start",
+  },
+  titles: {
+    minInlineSize: 0,
   },
   actions: {
     marginInlineStart: "auto",

@@ -177,7 +177,7 @@ function CardLorePanel({ lore }: CardLorePanelProps) {
     lore === null ? null : locale === "zh" ? lore.loreZh : lore.loreEn;
 
   return (
-    <section css={[corner.radius_2, stack.tight, styles.lorePanel]}>
+    <section css={[corner.radius_2, stack.text, styles.lorePanel]}>
       <h2 css={[typeRole.overline, styles.loreHeading]}>
         {t({ en: "Lore", zh: "传说" })}
       </h2>

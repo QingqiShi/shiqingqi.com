@@ -71,6 +71,29 @@ test.describe("spacing check", () => {
           </form>
           <input>
         </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <p style="margin: 0">Group label</p>
+          <ul style="margin: 0"><li>First</li><li>Second</li></ul>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div data-spacing-scope><p style="margin: 0">Staged sample</p></div>
+          <p style="margin: 0">Its caption</p>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <a href="#tile">Tile title</a>
+          <span>Tile text</span>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <h2 style="margin: 0; font-size: 24px; line-height: 1.2">Large</h2>
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <p style="margin: 0">Its own text.</p>
+            <input>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px">
+          <h2 style="margin: 0; font-size: 24px; line-height: 1.2">Spaced large</h2>
+          <p style="margin: 0">Its own text.</p>
+        </div>
         <div aria-hidden="true" style="display: flex; flex-direction: column">
           <p style="margin: 0">Drawn</p>
           <p style="margin: 0">Drawn</p>
@@ -90,9 +113,9 @@ test.describe("spacing check", () => {
       { container: '<form> ""', empty: '<p> ""' },
     ]);
     expect(report.texts.map((failure) => failure.container)).toEqual([
-      '<div> "Staged text Staged Caption"',
       '<div> "Staged text Staged"',
       '<div> "Title Its own text."',
+      '<div> "Large Its own text."',
     ]);
   });
 });
