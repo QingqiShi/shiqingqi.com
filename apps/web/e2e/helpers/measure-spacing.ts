@@ -36,8 +36,10 @@ export interface SpacingReport {
  * would add a second gap between its neighbours, and two lines of text in one
  * item take no gap smaller than `rhythm.item`. A line box holds space above
  * and below its letters, so such a gap looks as wide as `rhythm.item`, and two
- * lines of text may touch. Runs in the page through `page.evaluate`, so keep
- * it standalone.
+ * lines of text may touch. A heading at h2 size or larger is the exception:
+ * its letters fill its line box, so it stands at least `rhythm.tight` from
+ * the text next to it. Runs in the page through `page.evaluate`, so keep it
+ * standalone.
  *
  * Distances are measured between what a reader sees, not between boxes. A
  * surface (a background, a border, a shadow, a replaced element) is seen at its
@@ -168,16 +170,11 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     return el.getBoundingClientRect().height <= 1.5 * fontSize;
   }
 
-  // Text with no surface in it. A block that is one control, such as a ghost
-  // button or a nav link, is a box even when it paints nothing. A link inside
-  // a sentence is still text.
-  function isText(el: Element) {
-    const text = el.textContent.trim();
-    if (text === "") return false;
-    const controls = [el, ...el.querySelectorAll(CONTROL)].filter((part) =>
-      part.matches(CONTROL),
-    );
-    if (controls.some((control) => control.textContent.trim() === text)) {
+  // Ink with no surface in it. A stage marked `data-spacing-scope` frames a
+  // sample, so it is a box even when the sample is text.
+  function isBareInk(el: Element) {
+    if (el.textContent.trim() === "") return false;
+    if (el.matches("[data-spacing-scope], :has([data-spacing-scope])")) {
       return false;
     }
     const parts = [el, ...el.querySelectorAll("*")].filter(
@@ -186,21 +183,78 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     return !parts.some((part) => isPainted(part) && !isIcon(part));
   }
 
-  // Whether the edge of a block that faces its neighbour is text: the first
-  // line for the top edge, the last line for the bottom edge.
-  function facesWithText(el: Element, edge: "top" | "bottom"): boolean {
-    if (isPainted(el) && !isIcon(el)) return false;
-    if (hasOwnText(el)) return isText(el);
-    const shown = laidOut(el).filter((child) => visualBox(child) !== null);
-    const facing = edge === "top" ? shown.at(0) : shown.at(-1);
-    if (facing === undefined) return isText(el);
+  // Text with no surface in it. A block that is one control, such as a ghost
+  // button or a nav link, is a box even when it paints nothing. A link inside
+  // a sentence is still text.
+  function isText(el: Element) {
+    if (!isBareInk(el)) return false;
+    const text = el.textContent.trim();
+    const controls = [el, ...el.querySelectorAll(CONTROL)].filter((part) =>
+      part.matches(CONTROL),
+    );
+    return !controls.some((control) => control.textContent.trim() === text);
+  }
+
+  function stacksChildren(el: Element) {
     const style = styleOf(el);
-    const isColumn =
+    return (
       (style.display.includes("flex") &&
         style.flexDirection.startsWith("column")) ||
-      style.display === "block";
-    if (isColumn) return facesWithText(facing, edge);
+      style.display === "block"
+    );
+  }
+
+  // Whether the edge of a block that faces its neighbour is text: the first
+  // line for the top edge, the last line for the bottom edge. A control that
+  // paints nothing, such as a link, faces with its text.
+  function facesWithText(el: Element, edge: "top" | "bottom"): boolean {
+    if (isPainted(el) && !isIcon(el)) return false;
+    if (el.hasAttribute("data-spacing-scope")) return false;
+    if (hasOwnText(el)) return isBareInk(el);
+    const shown = laidOut(el).filter((child) => visualBox(child) !== null);
+    const facing = edge === "top" ? shown.at(0) : shown.at(-1);
+    if (facing === undefined) return isBareInk(el);
+    if (stacksChildren(el)) return facesWithText(facing, edge);
     return shown.every((child) => facesWithText(child, edge));
+  }
+
+  // The elements that hold the line of text at the edge of a block.
+  function edgeLines(el: Element, edge: "top" | "bottom"): Element[] {
+    if (hasOwnText(el)) return [el];
+    const shown = laidOut(el).filter((child) => visualBox(child) !== null);
+    const facing = edge === "top" ? shown.at(0) : shown.at(-1);
+    if (facing === undefined) return [];
+    if (stacksChildren(el)) return edgeLines(facing, edge);
+    return shown.flatMap((child) => edgeLines(child, edge));
+  }
+
+  // The line box of an element that holds text. The box of an inline element
+  // is its font's content area, which can be taller than its line box.
+  function lineBox(el: Element): Box {
+    const style = styleOf(el);
+    const lineHeight = Number.parseFloat(style.lineHeight);
+    if (style.display !== "inline" || Number.isNaN(lineHeight)) {
+      return contentBox(el);
+    }
+    const lines = el.getClientRects();
+    const first = lines[0];
+    const last = lines[lines.length - 1];
+    const trim = (line: DOMRect) => (line.height - lineHeight) / 2;
+    return {
+      top: first.top + trim(first),
+      bottom: last.bottom - trim(last),
+      left: first.left,
+      right: last.right,
+    };
+  }
+
+  // A heading at h2 size or larger. Its line height is so small that its
+  // letters fill its line box.
+  function isLargeLine(el: Element) {
+    const style = styleOf(el);
+    const size = Number.parseFloat(style.fontSize);
+    const leading = Number.parseFloat(style.lineHeight) / size;
+    return size >= LARGE - TOLERANCE && leading <= 1.25;
   }
 
   function contentBox(el: Element): Box {
@@ -341,9 +395,28 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     });
   }
 
+  // A list or a grid of several items is a group, not one line of text. A
+  // label above a group takes a gap.
+  function isGroup(el: Element): boolean {
+    if (hasOwnText(el)) return false;
+    const shown = laidOut(el);
+    if (shown.length === 1) return isGroup(shown[0]);
+    if (shown.length < 2) return false;
+    return el.matches("ul, ol, dl") || styleOf(el).display.endsWith("grid");
+  }
+
   const ITEM = Number.parseFloat(
     getComputedStyle(document.documentElement).fontSize,
   );
+  const TIGHT = ITEM / 2;
+  // Above h3 (1.1rem), so that a fluid h2 counts at its smallest size.
+  const LARGE = 1.2 * ITEM;
+  function isLarge(first: Element, second: Element) {
+    return [...edgeLines(first, "bottom"), ...edgeLines(second, "top")].some(
+      isLargeLine,
+    );
+  }
+
   const stacks: StackFailure[] = [];
   const empties: EmptyFailure[] = [];
   const texts: TextFailure[] = [];
@@ -376,16 +449,45 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
       }
     }
 
+    // Flex `order` can show the items in another order than the DOM.
+    const shownInOrder = items.toSorted(
+      (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+    );
     if (isColumn && gapSize > TOLERANCE && gapSize < ITEM - TOLERANCE) {
-      for (let index = 1; index < items.length; index++) {
-        const first = items[index - 1];
-        const second = items[index];
+      for (let index = 1; index < shownInOrder.length; index++) {
+        const first = shownInOrder[index - 1];
+        const second = shownInOrder[index];
         if (!isText(first) || !isText(second)) continue;
+        if (isGroup(first) || isGroup(second)) continue;
+        if (isLarge(first, second)) continue;
         texts.push({
           container: describe(container),
           first: describe(first),
           second: describe(second),
           gap: Math.round(gapSize),
+        });
+      }
+    }
+
+    if (isColumn) {
+      for (let index = 1; index < shownInOrder.length; index++) {
+        const first = shownInOrder[index - 1];
+        const second = shownInOrder[index];
+        if (!facesWithText(first, "bottom") || !facesWithText(second, "top")) {
+          continue;
+        }
+        if (!isLarge(first, second)) continue;
+        const above = edgeLines(first, "bottom").map(lineBox);
+        const below = edgeLines(second, "top").map(lineBox);
+        const gap =
+          Math.min(...below.map((box) => box.top)) -
+          Math.max(...above.map((box) => box.bottom));
+        if (gap >= TIGHT - TOLERANCE) continue;
+        texts.push({
+          container: describe(container),
+          first: describe(first),
+          second: describe(second),
+          gap: Math.round(gap),
         });
       }
     }

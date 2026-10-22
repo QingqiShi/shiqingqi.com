@@ -41,7 +41,7 @@ export function LayoutWindowWidthReadout({
       : bands.findLast((band) => viewport >= band.min);
 
   return (
-    <p css={[stack.tight, styles.marker]} aria-live="polite">
+    <p css={[stack.text, styles.marker]} aria-live="polite">
       <span css={[typeRole.overline, styles.markerLabel]}>
         {t({ en: "your window", zh: "你的窗口" })}
       </span>

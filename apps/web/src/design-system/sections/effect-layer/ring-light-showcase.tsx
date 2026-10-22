@@ -18,7 +18,7 @@ function Arrived() {
 export function RingLightShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Ring light", zh: "环形光" })}>
+      <Showcase label={t({ en: "Ring light", zh: "环形光" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

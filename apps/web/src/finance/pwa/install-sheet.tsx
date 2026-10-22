@@ -115,7 +115,7 @@ export function InstallSheet() {
           <div css={styles.appIcon}>
             <FinanceLogo css={styles.fill} />
           </div>
-          <div css={stack.tight}>
+          <div css={stack.text}>
             <h2
               ref={titleRef}
               id={titleId}

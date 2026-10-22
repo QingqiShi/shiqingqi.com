@@ -24,7 +24,7 @@ export function HeaderFooterLayoutShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Page shell", zh: "页面骨架" })}>
+      <Showcase label={t({ en: "Page shell", zh: "页面骨架" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "The shell the site's header/footer pages are built on, composed from this site's real chrome. Two floating groups hold the back button and the theme toggle with the language picker; a full-bleed background layer sits beneath the content; the content flows up past the groups (text pages add their own clearance); and the footer sits at the bottom, in the same page column. Once the page is scrolled away from the top, the page blurs around each group — strongest against the controls, sharp again a little way out. At rest the blur melts away. The footer carries none, because nothing floats over it. Everything is live — flip the theme from inside it.",

@@ -130,7 +130,6 @@ const styles = stylex.create({
   empty: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgSurface,

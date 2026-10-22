@@ -519,9 +519,13 @@ export const space = stylex.defineVars({
  * - `group` — between groups, such as h3 sub-sections.
  * - `section` — between h2 sections. It grows at `md`.
  *
- * Lines of text in one item, such as a heading and its own text, take no gap
- * (`stack.text`). A line box already holds space above and below its
+ * Lines of text in one item, such as an item's title and its detail, take no
+ * gap (`stack.text`). A line box already holds space above and below its
  * letters, so a gap of `tight` between two lines looks as wide as `item`.
+ * Two paragraphs are two items, so they take `item`. A heading at h2 size or
+ * larger is the exception: its line height is so small that its letters fill
+ * its line box, so it takes `tight` to its text, and display type takes
+ * `item`. The `@tuja/require-text-stack` lint rule checks both.
  */
 export const rhythm = stylex.defineVars({
   inline: ".25rem",

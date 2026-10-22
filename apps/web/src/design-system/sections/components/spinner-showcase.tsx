@@ -41,7 +41,7 @@ export function SpinnerShowcase() {
         </ShowcaseHelper>
       </Showcase>
 
-      <Showcase label={t({ en: "Tone", zh: "色调" })}>
+      <Showcase label={t({ en: "Tone", zh: "色调" })} leadsWithText>
         <div css={stack.item}>
           <ShowcaseHelper>
             {t({
@@ -73,7 +73,10 @@ export function SpinnerShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "In a busy control", zh: "用于繁忙控件" })}>
+      <Showcase
+        label={t({ en: "In a busy control", zh: "用于繁忙控件" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <ShowcaseHelper>
             {t({
@@ -89,7 +92,10 @@ export function SpinnerShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Reduced motion", zh: "减弱动态" })}>
+      <Showcase
+        label={t({ en: "Reduced motion", zh: "减弱动态" })}
+        leadsWithText
+      >
         <ShowcaseHelper>
           {t({
             en: "Under prefers-reduced-motion the rotation is replaced by a gentle opacity pulse — never an infinite spin — so the busy affordance stays visible without vestibular motion.",

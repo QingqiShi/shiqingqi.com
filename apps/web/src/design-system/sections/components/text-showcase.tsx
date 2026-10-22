@@ -15,7 +15,7 @@ export function TextShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Looks", zh: "Look" })}>
+      <Showcase label={t({ en: "Looks", zh: "Look" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "Five looks, each a type role that sets the size, line height, weight and tracking together. Pick the look by the job of the text, not by eyeballing a pixel size.",
@@ -60,7 +60,7 @@ export function TextShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Tones", zh: "色调" })}>
+      <Showcase label={t({ en: "Tones", zh: "色调" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "Three tones that resolve per theme — never a hand-picked colour.",
@@ -122,7 +122,7 @@ export function TextShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Element", zh: "元素" })}>
+      <Showcase label={t({ en: "Element", zh: "元素" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "as picks the semantic element; look picks the size. They stay decoupled, so a span can still read at body size inline. A p at body or bodySmall is a paragraph, so its lines stop at the Measure.",
@@ -142,7 +142,10 @@ export function TextShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Case transform", zh: "大小写转换" })}>
+      <Showcase
+        label={t({ en: "Case transform", zh: "大小写转换" })}
+        leadsWithText
+      >
         <ShowcaseHelper>
           {t({
             en: "transform sets the letter case independently of look — e.g. an uppercase eyebrow at caption size.",
@@ -226,7 +229,7 @@ export function TextShowcase() {
       <Showcase label={t({ en: "Figures", zh: "数字" })}>
         <div css={cluster.item}>
           <Specimen caption="default">
-            <div css={stack.tight}>
+            <div css={stack.text}>
               {runtimes.map((runtime) => (
                 <Text key={runtime} align="end">
                   {runtime}
@@ -235,7 +238,7 @@ export function TextShowcase() {
             </div>
           </Specimen>
           <Specimen caption="numeric">
-            <div css={stack.tight}>
+            <div css={stack.text}>
               {runtimes.map((runtime) => (
                 <Text key={runtime} numeric align="end">
                   {runtime}

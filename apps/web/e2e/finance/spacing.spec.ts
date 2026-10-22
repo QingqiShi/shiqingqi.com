@@ -25,7 +25,7 @@ for (const viewport of [MOBILE, DESKTOP]) {
         await expect(main.locator('[aria-busy="true"]')).toHaveCount(0, {
           timeout: SYNC_TIMEOUT,
         });
-        await expectSpacing(page, ["main"], { textGaps: true });
+        await expectSpacing(page, ["main"]);
       });
     }
   });

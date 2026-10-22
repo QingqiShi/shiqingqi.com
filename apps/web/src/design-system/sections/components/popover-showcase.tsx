@@ -81,7 +81,10 @@ function ModalDiagram() {
 export function PopoverShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Trigger and panel", zh: "触发元素与面板" })}>
+      <Showcase
+        label={t({ en: "Trigger and panel", zh: "触发元素与面板" })}
+        leadsWithText
+      >
         <Text look="bodySmall" tone="muted">
           {t({
             en: "A surface hung off a trigger. Click to open it; Escape, a pointer outside, or focus leaving all close it. It holds no focus trap and no scroll lock, so the page behind stays readable and usable the whole time.",
@@ -93,7 +96,7 @@ export function PopoverShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase label={t({ en: "Placement", zh: "位置" })}>
+      <Showcase label={t({ en: "Placement", zh: "位置" })} leadsWithText>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Four sides, each on its own or aligned to one of the anchor's edges — twelve values, defaulting to bottom-start. Alignment mirrors under RTL, so start follows the reading direction rather than the left edge.",
@@ -109,7 +112,10 @@ export function PopoverShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase label={t({ en: "Viewport collisions", zh: "视口碰撞" })}>
+      <Showcase
+        label={t({ en: "Viewport collisions", zh: "视口碰撞" })}
+        leadsWithText
+      >
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Placement is computed against the window, not the trigger's corner. Scroll this rail until a trigger sits near a window edge, then open it — the panel shifts back inside the 8px gutter it keeps from every edge. Leave it open and keep scrolling: it re-reads the anchor on every scroll and resize.",
@@ -174,7 +180,10 @@ export function PopoverShowcase() {
         </ShowcaseHelper>
       </Showcase>
 
-      <Showcase label={t({ en: "Portal target", zh: "渲染目标" })}>
+      <Showcase
+        label={t({ en: "Portal target", zh: "渲染目标" })}
+        leadsWithText
+      >
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The panel is portalled so a clipping or transformed ancestor cannot cut it off, and document.body is the default because it is almost always the right answer. Pass an element to render it somewhere else — inside a native dialog, say — or null to hold rendering until a target exists.",

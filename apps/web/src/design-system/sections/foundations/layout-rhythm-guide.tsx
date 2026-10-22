@@ -29,8 +29,8 @@ export function LayoutRhythmGuide() {
       term: "rhythm.tight",
       value: t({ en: "8px · inside one item", zh: "8px · 一项之内" }),
       note: t({
-        en: "A heading and its own text, a term and its note, a specimen and its caption.",
-        zh: "标题与它自己的正文、术语与它的注释、样例与它的说明。",
+        en: "The boxes inside one item, such as a field and its chips. Lines of text in one item, such as a heading and its own text, take no gap: their line height already spaces them, so compose stack.text.",
+        zh: "一项之内的各个盒子，比如字段与它的标签。同一项中的几行文字，比如标题与它自己的正文，不留间隙：行高已经为它们留出了空间，因此使用 stack.text。",
       }),
     },
     {
@@ -71,13 +71,13 @@ export function LayoutRhythmGuide() {
         <GuideList items={steps} />
         <Specimen
           caption={t({
-            en: "Two groups in stack.group; a title and its text in stack.tight; the actions in cluster.tight",
-            zh: "两组内容放在 stack.group 中；标题与正文放在 stack.tight 中；操作放在 cluster.tight 中",
+            en: "Two groups in stack.group; a title and its text in stack.text; the actions in cluster.tight",
+            zh: "两组内容放在 stack.group 中；标题与正文放在 stack.text 中；操作放在 cluster.tight 中",
           })}
         >
           <div css={[stack.group, styles.specimen]}>
             <Card>
-              <div css={stack.tight}>
+              <div css={stack.text}>
                 <Text weight="semibold">
                   {t({ en: "Tonight", zh: "今晚" })}
                 </Text>
@@ -96,7 +96,7 @@ export function LayoutRhythmGuide() {
               </div>
             </Card>
             <Card>
-              <div css={stack.tight}>
+              <div css={stack.text}>
                 <Text weight="semibold">
                   {t({ en: "This weekend", zh: "本周末" })}
                 </Text>
@@ -127,7 +127,7 @@ export function LayoutRhythmGuide() {
 import { rhythm } from "@tuja/ui/tokens.stylex";
 
 <section css={stack.item}>
-  <header css={stack.tight}>
+  <header css={stack.text}>
     <h3>Tonight</h3>
     <p>Two films, under four hours together.</p>
   </header>

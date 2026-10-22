@@ -3,7 +3,7 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 import { LayoutWindowWidthReadout } from "./layout-window-width-readout.tsx";
 
@@ -62,7 +62,6 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._1,
   },

@@ -5,6 +5,8 @@ import { Heading } from "@tuja/ui/components/heading";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { align } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
@@ -63,10 +65,12 @@ export function TrailerSheet({
           })}
         </Heading>
         <div css={[corner.radius_3, styles.player]}>
-          <Text as="span" look="overline" tone="muted" transform="uppercase">
-            {studio}
-          </Text>
-          <span css={[typeRole.subDisplay, styles.cardTitle]}>{title}</span>
+          <span css={[stack.tight, align.center]}>
+            <Text as="span" look="overline" tone="muted" transform="uppercase">
+              {studio}
+            </Text>
+            <span css={[typeRole.subDisplay, styles.cardTitle]}>{title}</span>
+          </span>
           <Text look="bodySmall" tone="muted" align="center">
             {t({
               en: "No video ships with the exemplar. The player holds the title card instead.",
@@ -90,7 +94,7 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    gap: rhythm.tight,
+    gap: rhythm.item,
     aspectRatio: ratio.wide,
     padding: space._4,
     borderWidth: border.size_1,

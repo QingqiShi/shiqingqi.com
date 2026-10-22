@@ -218,7 +218,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 </span>
                 <span css={[typeRole.caption, styles.dialScale]}>/10</span>
               </div>
-              <div css={[stack.tight, styles.ratingText]}>
+              <div css={[stack.text, styles.ratingText]}>
                 <Text as="span" look="bodySmall" weight="medium">
                   {t({ en: "Rating", zh: "评分" })}
                 </Text>
@@ -382,7 +382,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 </Badge>
               }
             >
-              <div css={stack.tight}>
+              <div css={stack.text}>
                 <Text>{movie.reviewSummary}</Text>
                 <Text look="caption" tone="muted">
                   {t({
@@ -610,12 +610,14 @@ const styles = stylex.create({
   },
   // A subgrid, so every term shares one row and every value shares the next.
   // As independent columns, one term wrapping to two lines dropped its own value
-  // a line below the other four and the strip stopped reading as a strip.
+  // a line below the other four and the strip stopped reading as a strip. A
+  // subgrid takes the row gap of its parent, so the term and its value set no
+  // gap here.
   fact: {
     display: "grid",
     gridTemplateRows: "subgrid",
     gridRow: "span 2",
-    gap: rhythm.tight,
+    rowGap: 0,
     minInlineSize: 0,
   },
   // Both the `dt` and the `dd`. The UA's 40px inline indent on `dd` is the one

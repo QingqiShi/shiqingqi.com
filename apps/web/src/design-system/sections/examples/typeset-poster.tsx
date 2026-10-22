@@ -94,20 +94,22 @@ export function TypesetPoster({
       {hasFooter ? (
         <span css={[stack.tight, styles.footer]}>
           <span css={[corner.radius_round, styles.rule]} />
-          {credit ? (
-            <Text as="span" look="caption" tone="muted" weight="medium">
-              {credit}
-            </Text>
-          ) : null}
-          {/* `overline` is doing the work here: its tracking and semibold default
-              are the credit-block treatment, and its uppercase is a no-op on a
-              year. Only `title` stays local, because `weight_8` is a step past
-              what `Text` exposes. */}
-          {year ? (
-            <Text as="span" look="overline" tone="muted" numeric>
-              {year}
-            </Text>
-          ) : null}
+          <span css={stack.text}>
+            {credit ? (
+              <Text as="span" look="caption" tone="muted" weight="medium">
+                {credit}
+              </Text>
+            ) : null}
+            {/* `overline` is doing the work here: its tracking and semibold default
+                are the credit-block treatment, and its uppercase is a no-op on a
+                year. Only `title` stays local, because `weight_8` is a step past
+                what `Text` exposes. */}
+            {year ? (
+              <Text as="span" look="overline" tone="muted" numeric>
+                {year}
+              </Text>
+            ) : null}
+          </span>
         </span>
       ) : null}
     </div>
@@ -127,7 +129,7 @@ const styles = stylex.create({
     backgroundColor: color.bgSurfaceSunken,
   },
   lead: {
-    gap: rhythm.tight,
+    gap: rhythm.item,
     // The padding steps with the plate. At the wide padding a 120px plate has
     // 88px of measure left inside it, which is narrower than the title set at
     // any step the plate is worth setting it at.

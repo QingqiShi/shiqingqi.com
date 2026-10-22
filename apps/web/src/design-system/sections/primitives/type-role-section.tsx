@@ -85,7 +85,7 @@ export function TypeRoleSection() {
       </ShowcaseHelper>
       <SpecimenGrid>
         <Specimen token="typeRole.h3 · label">
-          <div css={stack.tight}>
+          <div css={stack.text}>
             <span css={typeRole.h3}>
               {t({ en: "Tonight's double bill", zh: "今晚的双片连映" })}
             </span>

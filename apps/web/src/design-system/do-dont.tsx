@@ -52,7 +52,9 @@ export function DoDont({
           </Text>
         </div>
         <div css={stack.tight}>
-          <div css={styles.example}>{doExample}</div>
+          <div data-spacing-scope="" css={styles.example}>
+            {doExample}
+          </div>
           <Text look="caption" tone="muted">
             {doCaption}
           </Text>
@@ -73,7 +75,9 @@ export function DoDont({
           </Text>
         </div>
         <div css={stack.tight}>
-          <div css={styles.example}>{dont}</div>
+          <div data-spacing-scope="" css={styles.example}>
+            {dont}
+          </div>
           <Text look="caption" tone="muted">
             {dontCaption}
           </Text>

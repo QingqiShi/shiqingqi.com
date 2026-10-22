@@ -456,6 +456,7 @@ const styles = stylex.create({
   lzTooltip: { zIndex: layer.tooltip },
   lzToaster: { zIndex: layer.toaster },
   ratioFloor: {
+    marginBlockStart: rhythm.tight,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

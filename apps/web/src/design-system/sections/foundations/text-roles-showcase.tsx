@@ -139,7 +139,7 @@ interface TextLevelProps {
 
 function TextLevel({ token, sample, levelStyle }: TextLevelProps) {
   return (
-    <div css={[stack.tight, styles.level]}>
+    <div css={[stack.text, styles.level]}>
       <span css={[typeRole.body, levelStyle]}>{sample}</span>
       <span css={[typeRole.caption, styles.token, levelStyle]}>{token}</span>
     </div>
@@ -158,7 +158,7 @@ const styles = stylex.create({
   cell: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
+    gap: rhythm.item,
     paddingBlock: space._4,
     paddingInline: space._4,
     minInlineSize: 0,

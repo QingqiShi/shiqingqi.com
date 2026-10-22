@@ -23,7 +23,11 @@ function DustyCard({ children }) {
 export function EffectContainerShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Effect container", zh: "效果容器" })} breakout>
+      <Showcase
+        label={t({ en: "Effect container", zh: "效果容器" })}
+        breakout
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -45,7 +49,7 @@ export function EffectContainerShowcase() {
 
       <PropsTable component="effect-container" />
 
-      <Showcase label={t({ en: "Limits", zh: "限制" })}>
+      <Showcase label={t({ en: "Limits", zh: "限制" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

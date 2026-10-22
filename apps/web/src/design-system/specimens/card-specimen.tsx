@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { Card } from "@tuja/ui/components/card";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
@@ -17,7 +16,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function CardSpecimen() {
   return (
-    <Card css={[specimenLayout.fill, stack.tight, styles.card]}>
+    <Card css={[specimenLayout.fill, styles.card]}>
       <Text look="bodySmall" weight="semibold">
         {t({ en: "Blade Runner 2049", zh: "银翼杀手 2049" })}
       </Text>
@@ -30,6 +29,7 @@ export function CardSpecimen() {
 
 const styles = stylex.create({
   card: {
+    gap: 0,
     paddingBlock: space._2,
     paddingInline: space._2,
   },

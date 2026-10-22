@@ -25,6 +25,7 @@ export function BlackHoleShowcase() {
     <>
       <Showcase
         label={t({ en: "Black hole and Light beam", zh: "黑洞与光束" })}
+        leadsWithText
       >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">

@@ -35,6 +35,12 @@ interface ShowcaseProps {
    * nothing.
    */
   breakout?: boolean;
+  /**
+   * Set when the content starts with a line of text, such as an intro. The
+   * label and that text are lines of one item, so no gap separates them.
+   * Not for `frame="plain"`: its h2 label keeps `rhythm.tight` to its text.
+   */
+  leadsWithText?: boolean;
   children: ReactNode;
 }
 
@@ -43,6 +49,7 @@ export function Showcase({
   labelLook = "words",
   frame = "card",
   breakout = false,
+  leadsWithText = false,
   children,
 }: ShowcaseProps) {
   const plain = frame === "plain";
@@ -60,6 +67,7 @@ export function Showcase({
         !plain && [cardSurface.base, styles.card],
         breakout && styles.breakout,
       ]}
+      leadsWithText={leadsWithText}
     >
       {children}
     </DocSection>

@@ -18,6 +18,15 @@ describe("Section", () => {
     expect(screen.getByText("Two options")).toBeInTheDocument();
   });
 
+  it("shows a description under the label, with no body", () => {
+    const { container } = render(
+      <Section title="Cast & crew" description="Twelve credited roles" />,
+    );
+
+    expect(screen.getByText("Twelve credited roles")).toBeInTheDocument();
+    expect(container.querySelector("section")?.children).toHaveLength(1);
+  });
+
   it("honours an explicit heading level", () => {
     render(
       <Section title="Dining" level={2}>

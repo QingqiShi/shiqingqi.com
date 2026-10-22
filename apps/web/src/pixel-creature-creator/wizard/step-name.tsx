@@ -32,7 +32,7 @@ export function StepName({ def, onChange }: StepNameProps) {
 
   return (
     <section css={stack.item} data-testid="wizard-step-name">
-      <div css={stack.tight}>
+      <div css={stack.text}>
         <h3 css={[typeRole.h3, styles.heading]}>
           {t({ en: "Name your creature", zh: "为生物命名" })}
         </h3>
@@ -90,7 +90,7 @@ export function StepName({ def, onChange }: StepNameProps) {
             : ""}
         </p>
       </div>
-      <div css={[stack.tight, styles.lorePanel]} data-testid="lore-placeholder">
+      <div css={[stack.text, styles.lorePanel]} data-testid="lore-placeholder">
         <h4 css={[typeRole.label, styles.loreTitle]}>
           {t({ en: "Lore coming next", zh: "下一步:背景故事" })}
         </h4>

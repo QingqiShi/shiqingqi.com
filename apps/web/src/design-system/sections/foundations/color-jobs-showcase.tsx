@@ -92,7 +92,7 @@ const styles = stylex.create({
       />
       <ThemeFramePair>
         <section css={[corner.radius_3, stack.item, styles.panel]}>
-          <div css={stack.tight}>
+          <div css={stack.text}>
             <p css={[typeRole.h4, styles.line, styles.title]}>Arrival</p>
             <p css={[typeRole.bodySmall, styles.line, styles.meta]}>
               2016 · 116 min

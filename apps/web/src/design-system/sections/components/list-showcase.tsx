@@ -15,7 +15,10 @@ import {
 export function ListShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "When to use it", zh: "何时使用" })}>
+      <Showcase
+        label={t({ en: "When to use it", zh: "何时使用" })}
+        leadsWithText
+      >
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Use List for every list of rows that each open something: settings, reports, accounts, members. The surface, the dividers and the caret are not options, so a row that can be tapped looks the same on every screen, and a reader learns it once.",

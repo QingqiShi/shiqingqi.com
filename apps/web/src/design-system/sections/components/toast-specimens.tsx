@@ -56,7 +56,7 @@ function TransactionRow() {
           <Text tone="muted">{emptyLabel}</Text>
         ) : (
           <>
-            <span css={stack.tight}>
+            <span css={stack.text}>
               <Text as="span">{payee}</Text>
               <Text as="span" look="bodySmall" tone="muted">
                 {amount}

@@ -141,25 +141,27 @@ export function Textarea({
 
   return (
     <div css={[stack.tight, fieldStyles.root]}>
-      <label
-        htmlFor={fieldId}
-        css={[
-          typeRole.control,
-          fieldStyles.label,
-          required && fieldStyles.labelRequired,
-          labelHidden && a11y.srOnly,
-        ]}
-      >
-        {label}
-      </label>
-      {hasDescription ? (
-        <span
-          id={descriptionId}
-          css={[typeRole.caption, fieldStyles.description]}
+      <div css={[stack.text, labelHidden && !hasDescription && a11y.srOnly]}>
+        <label
+          htmlFor={fieldId}
+          css={[
+            typeRole.control,
+            fieldStyles.label,
+            required && fieldStyles.labelRequired,
+            labelHidden && a11y.srOnly,
+          ]}
         >
-          {description}
-        </span>
-      ) : null}
+          {label}
+        </label>
+        {hasDescription ? (
+          <span
+            id={descriptionId}
+            css={[typeRole.caption, fieldStyles.description]}
+          >
+            {description}
+          </span>
+        ) : null}
+      </div>
       <textarea
         {...rest}
         ref={setRef}

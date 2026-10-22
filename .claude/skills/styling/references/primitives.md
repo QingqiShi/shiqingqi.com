@@ -230,7 +230,8 @@ There is no global `corner-shape` rule.
 | `viewportFill.absolute` | position: absolute + start insets: 0 + end insets: auto + 100vw × 100dvh (one viewport-sized layer inside the anchor) |
 | `scrollX.base`          | overflowX: auto + scrollbarWidth: none                                                                                |
 | `scrollY.base`          | overflowY: auto                                                                                                       |
-| `bleed.rows`            | marginInline: −`space._2` (a plain list whose rows pad by `space._2`: row content lines up with the text around it)   |
+| `plainList.list`        | margin: 0 −`space._2` + padding: 0 + no bullets (a list on no surface whose rows show a hover or selected plate)      |
+| `plainList.row`         | paddingInline: `space._2` (the row of a `plainList.list`: its content lines up with the text around the list)         |
 | `truncate.base`         | overflow: hidden + textOverflow: ellipsis + whiteSpace: nowrap                                                        |
 | `imageCover.base`       | objectFit: cover + width: 100% + height: 100%                                                                         |
 | `imageContain.base`     | objectFit: contain + width: 100% + height: 100%                                                                       |

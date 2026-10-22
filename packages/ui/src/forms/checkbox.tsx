@@ -140,21 +140,25 @@ export function Checkbox({
           {label}
         </span>
       </label>
-      {hasDescription ? (
-        <span
-          id={descriptionId}
-          css={[typeRole.caption, fieldStyles.description]}
-        >
-          {description}
-        </span>
-      ) : null}
-      {hasError ? (
-        <span
-          id={errorId}
-          role="alert"
-          css={[typeRole.caption, fieldStyles.errorText]}
-        >
-          {error}
+      {hasDescription || hasError ? (
+        <span css={stack.text}>
+          {hasDescription ? (
+            <span
+              id={descriptionId}
+              css={[typeRole.caption, fieldStyles.description]}
+            >
+              {description}
+            </span>
+          ) : null}
+          {hasError ? (
+            <span
+              id={errorId}
+              role="alert"
+              css={[typeRole.caption, fieldStyles.errorText]}
+            >
+              {error}
+            </span>
+          ) : null}
         </span>
       ) : null}
     </span>

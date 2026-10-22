@@ -3,9 +3,9 @@ import { border, color, rhythm } from "@tuja/ui/tokens.stylex";
 
 /**
  * The row anatomy `GuideList` and the stacked `PropsTable` share. Inside a row
- * the term, value and note bind at `rhythm.tight`. A rule separates two rows,
- * with `rhythm.item` on each side of it and no space past the first or the
- * last row. Compose `definition` after `stack.tight`.
+ * the term, value and note are lines of text in one item, so they take no gap.
+ * A rule separates two rows, with `rhythm.item` on each side of it and no space
+ * past the first or the last row. Compose `definition` after `stack.text`.
  */
 export const definitionRows = stylex.create({
   list: {
@@ -17,7 +17,6 @@ export const definitionRows = stylex.create({
   row: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr)",
-    rowGap: rhythm.tight,
     alignItems: "baseline",
     paddingBlockStart: { default: 0, ":not(:first-child)": rhythm.item },
     borderBlockStartWidth: { default: 0, ":not(:first-child)": border.size_1 },

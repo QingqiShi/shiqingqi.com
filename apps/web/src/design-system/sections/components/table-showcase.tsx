@@ -340,7 +340,7 @@ export function TableShowcase() {
         </Text>
       </Showcase>
 
-      <Showcase label={t({ en: "Caption", zh: "表格标题" })}>
+      <Showcase label={t({ en: "Caption", zh: "表格标题" })} leadsWithText>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "caption is required. It names both the table and the scroll region around it, so a screen reader announces what the figures are instead of the word “table”. It is sr-only by default — set captionVisible when the table needs a heading on the page as well.",
@@ -357,7 +357,10 @@ export function TableShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Numeric columns", zh: "数字列" })}>
+      <Showcase
+        label={t({ en: "Numeric columns", zh: "数字列" })}
+        leadsWithText
+      >
         <Text look="bodySmall" tone="muted">
           {t({
             en: "numeric renders figures at a fixed width and aligns the cell to the end, so a four-figure balance and a five-figure one line up digit for digit. Set it on the column's header as well as its cells, or the header drifts away from the numbers it labels.",
@@ -403,7 +406,10 @@ export function TableShowcase() {
         </Text>
       </Showcase>
 
-      <Showcase label={t({ en: "Sticky header", zh: "固定表头" })}>
+      <Showcase
+        label={t({ en: "Sticky header", zh: "固定表头" })}
+        leadsWithText
+      >
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The head sticks to the scroll container, not to the page, so the container needs a height before anything can scroll under it. This one is capped through containerCss — scroll the rows and the column headers hold.",
@@ -415,7 +421,10 @@ export function TableShowcase() {
         </Specimen>
       </Showcase>
 
-      <Showcase label={t({ en: "Scroll region", zh: "滚动区域" })}>
+      <Showcase
+        label={t({ en: "Scroll region", zh: "滚动区域" })}
+        leadsWithText
+      >
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The table always sits in its own horizontally scrolling region, so a wide table scrolls inside its box and the page never scrolls sideways. The region is focusable, which is what makes the overflow reachable from the keyboard (WCAG 2.1.1), and it takes its accessible name from the same caption. Tab to it, then scroll with the arrow keys. The region below is capped narrow so it overflows on any screen.",

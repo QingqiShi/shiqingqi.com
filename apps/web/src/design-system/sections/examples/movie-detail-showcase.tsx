@@ -35,7 +35,7 @@ function LayerCard({ title, description, entries }: LayerCardProps) {
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ul css={[stack.tight, styles.entries]}>
+        <ul css={[stack.item, styles.entries]}>
           {entries.map((entry) => (
             <li key={entry} css={[typeRole.caption, styles.entry]}>
               {entry}

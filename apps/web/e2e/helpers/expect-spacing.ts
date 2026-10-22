@@ -3,14 +3,8 @@ import { measureSpacing } from "./measure-spacing.ts";
 
 /**
  * Runs `measureSpacing` under `root` and fails softly on each kind of failure.
- * `textGaps` also fails on a gap between two lines of text in one item. Only
- * the screens that follow that rule turn it on.
  */
-export async function expectSpacing(
-  page: Page,
-  root: string[],
-  { textGaps = false }: { textGaps?: boolean } = {},
-) {
+export async function expectSpacing(page: Page, root: string[]) {
   await page.evaluate(() => document.fonts.ready);
   const report = await page.evaluate(measureSpacing, root);
   expect
@@ -23,9 +17,10 @@ export async function expectSpacing(
   expect
     .soft(report.empties, "No empty box in a stack takes a gap")
     .toEqual([]);
-  if (textGaps) {
-    expect
-      .soft(report.texts, "Lines of text in one item take no gap")
-      .toEqual([]);
-  }
+  expect
+    .soft(
+      report.texts,
+      "Lines of text in one item take no gap, and a heading at h2 size or larger takes rhythm.tight",
+    )
+    .toEqual([]);
 }

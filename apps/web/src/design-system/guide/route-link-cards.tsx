@@ -71,7 +71,6 @@ const styles = stylex.create({
   },
   // Matches the padding of `Card`, which `cardSurface` does not carry.
   card: {
-    gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._4,
     textDecoration: "none",

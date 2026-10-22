@@ -145,7 +145,7 @@ export function Callout({
           {resolvedIcon}
         </span>
       ) : null}
-      <div css={[stack.tight, styles.content]}>
+      <div css={[stack.text, styles.content]}>
         {title != null ? (
           <div css={[typeRole.h4, styles.title, accentStyles[intent]]}>
             {title}

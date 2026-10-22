@@ -158,7 +158,6 @@ const styles = stylex.create({
   },
   tile: {
     justifyContent: "flex-end",
-    gap: rhythm.tight,
     blockSize: space._11,
     padding: space._3,
   },

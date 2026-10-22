@@ -12,9 +12,8 @@ import {
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { color, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
@@ -32,7 +31,7 @@ export function CardShowcase() {
     <>
       <Showcase label={t({ en: "Surface", zh: "表面" })}>
         <Specimen caption={t({ en: "static", zh: "静态" })}>
-          <Card css={[stack.tight, styles.fill]}>
+          <Card css={[styles.fill, styles.lines]}>
             <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
             <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
           </Card>
@@ -41,7 +40,7 @@ export function CardShowcase() {
 
       <Showcase label={t({ en: "Interactive", zh: "可交互" })}>
         <Specimen caption="interactive">
-          <Card interactive css={[stack.tight, styles.fill]}>
+          <Card interactive css={[styles.fill, styles.lines]}>
             <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
             <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
           </Card>
@@ -133,7 +132,7 @@ export function CardShowcase() {
             zh: "可点击的卡片应渲染真实的链接或按钮并组合 cardSurface——它可获得焦点并被读屏识别为链接。",
           })}
           dont={
-            <Card interactive css={[stack.tight, styles.fill]}>
+            <Card interactive css={[styles.fill, styles.lines]}>
               <span css={[typeRole.h3, styles.title]}>{sampleTitle}</span>
               <span css={[typeRole.bodySmall, styles.body]}>{sampleBody}</span>
             </Card>
@@ -154,10 +153,14 @@ const styles = stylex.create({
   fill: {
     inlineSize: "100%",
   },
+  // Card puts a gap between its blocks. The title and the text are lines of
+  // one item, so they take no gap.
+  lines: {
+    gap: 0,
+  },
   link: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     padding: space._5,
     textDecoration: "none",
     inlineSize: "100%",

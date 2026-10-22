@@ -23,7 +23,7 @@ export function SignUpRequestForm() {
   return (
     <EmailCodeForm
       intro={
-        <div css={stack.tight}>
+        <div css={stack.text}>
           <Heading level={2} look="h3">
             {t({ en: "New to Finance?", zh: "第一次使用家庭账本？" })}
           </Heading>

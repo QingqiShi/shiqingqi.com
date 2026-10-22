@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { t } from "#src/i18n.ts";
@@ -14,7 +15,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function HeadingSpecimen() {
   return (
-    <div css={specimenLayout.stack}>
+    <div css={[specimenLayout.stack, styles.lines]}>
       <Heading level={3} look="h4">
         {t({ en: "Section title", zh: "章节标题" })}
       </Heading>
@@ -27,3 +28,9 @@ export function HeadingSpecimen() {
     </div>
   );
 }
+
+const styles = stylex.create({
+  lines: {
+    gap: 0,
+  },
+});

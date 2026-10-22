@@ -40,7 +40,7 @@ export function RemoveMemberSheet({
           <Heading id={headingId} level={2} look="h3">
             {title}
           </Heading>
-          <div css={stack.tight}>
+          <div css={stack.item}>
             <Text as="p">
               {t({
                 en: "They are signed out on every device at once. Their passkeys and any invite link for them stop working.",

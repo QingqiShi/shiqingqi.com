@@ -9,7 +9,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { t } from "#src/i18n.ts";
@@ -197,7 +197,6 @@ const styles = stylex.create({
   },
   source: {
     justifyContent: "flex-end",
-    gap: rhythm.tight,
     inlineSize: space._13,
     blockSize: space._11,
     padding: space._3,
@@ -211,7 +210,6 @@ const styles = stylex.create({
   },
   fan: {
     flexDirection: "column",
-    gap: rhythm.tight,
     inlineSize: space._12,
     blockSize: space._12,
   },

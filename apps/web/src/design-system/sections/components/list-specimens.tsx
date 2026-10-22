@@ -314,7 +314,6 @@ const styles = stylex.create({
   pane: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     padding: space._3,
     color: color.fg,
   },

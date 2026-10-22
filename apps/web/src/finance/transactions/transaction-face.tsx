@@ -2,7 +2,7 @@ import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRi
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
-import { truncate } from "@tuja/ui/primitives/layout.stylex";
+import { plainList, truncate } from "@tuja/ui/primitives/layout.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
@@ -38,7 +38,7 @@ export function TransactionFace({
   // empty. Thus the amounts and the trailing content of a list stay in line.
   const hasTrailing = trailing !== undefined;
   return (
-    <span css={[flex.row, styles.face]}>
+    <span css={[flex.row, plainList.row, styles.face]}>
       <span css={[corner.radius_round, flex.center, styles.icon]} aria-hidden>
         {icon}
       </span>
@@ -111,7 +111,6 @@ const styles = stylex.create({
     gap: rhythm.item,
     alignItems: "flex-start",
     paddingBlock: space._1,
-    paddingInline: space._2,
     minInlineSize: 0,
   },
   icon: {

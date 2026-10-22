@@ -56,7 +56,7 @@ const styles = stylex.create({
 export function ToastShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Live", zh: "实时演示" })}>
+      <Showcase label={t({ en: "Live", zh: "实时演示" })} leadsWithText>
         <div css={stack.item}>
           <ShowcaseHelper>
             {t({
@@ -82,7 +82,7 @@ export function ToastShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Arrival", zh: "出现" })}>
+      <Showcase label={t({ en: "Arrival", zh: "出现" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -99,7 +99,7 @@ export function ToastShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Placement", zh: "位置" })}>
+      <Showcase label={t({ en: "Placement", zh: "位置" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

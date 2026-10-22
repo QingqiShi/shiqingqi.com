@@ -11,7 +11,7 @@ import { t } from "#src/i18n.ts";
 export function HeadingShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Looks", zh: "Look" })}>
+      <Showcase label={t({ en: "Looks", zh: "Look" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "Five looks, each a type role, from the hero display down to a body-size section label.",
@@ -50,7 +50,10 @@ export function HeadingShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Level vs look", zh: "层级与字号" })}>
+      <Showcase
+        label={t({ en: "Level vs look", zh: "层级与字号" })}
+        leadsWithText
+      >
         <ShowcaseHelper>
           {t({
             en: "level sets the semantic rank for the document outline; look sets the visual step. Decoupling lets an <h2> read as a display heading without breaking the outline.",
@@ -81,7 +84,7 @@ export function HeadingShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Weight", zh: "字重" })}>
+      <Showcase label={t({ en: "Weight", zh: "字重" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: "weight overrides the weight the look sets, so a display heading can read light or extra-heavy without touching its size.",
@@ -132,7 +135,7 @@ export function HeadingShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Wrapping", zh: "换行" })}>
+      <Showcase label={t({ en: "Wrapping", zh: "换行" })} leadsWithText>
         <ShowcaseHelper>
           {t({
             en: 'A heading balances by default: the lines are evened, so a two-line title doesn\'t leave one word stranded. The browser\'s line cap is no constraint at heading length. Pass wrap="pretty" or wrap="nowrap" only where a heading must break differently.',

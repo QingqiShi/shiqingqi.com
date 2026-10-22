@@ -83,7 +83,10 @@ export function CheckboxShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Controlled select-all", zh: "受控的全选" })}>
+      <Showcase
+        label={t({ en: "Controlled select-all", zh: "受控的全选" })}
+        leadsWithText
+      >
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

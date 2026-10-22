@@ -32,7 +32,7 @@ export function DocHeader({ path, description }: DocHeaderProps) {
   return (
     <DocHeaderColumn docsPath={path}>
       <DocBreadcrumb path={path} />
-      <div css={hasDesignSystemLab(path) ? stack.tight : stack.text}>
+      <div css={stack.tight}>
         <div css={[cluster.item, justify.between]}>
           <h1 css={[typeRole.subDisplay, styles.title]}>
             {getDesignSystemRouteLabel(path)}

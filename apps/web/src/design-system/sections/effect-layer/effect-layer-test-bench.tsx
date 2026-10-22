@@ -12,14 +12,7 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  border,
-  color,
-  font,
-  layer,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { border, color, font, layer, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -174,7 +167,6 @@ const styles = stylex.create({
   },
   swatch: {
     justifyContent: "flex-end",
-    gap: rhythm.tight,
     inlineSize: space._13,
     blockSize: space._11,
     padding: space._3,
@@ -202,7 +194,6 @@ const styles = stylex.create({
     insetBlockEnd: space._4,
     insetInlineEnd: space._4,
     zIndex: layer.raised,
-    gap: rhythm.tight,
     paddingBlock: space._2,
     paddingInline: space._3,
   },

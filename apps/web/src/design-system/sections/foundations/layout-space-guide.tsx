@@ -112,7 +112,7 @@ export function LayoutSpaceGuide() {
           })}
         >
           <Card css={styles.card}>
-            <div css={stack.tight}>
+            <div css={stack.text}>
               <Text look="bodySmall" weight="semibold">
                 {t({ en: "Watchlist", zh: "待看清单" })}
               </Text>

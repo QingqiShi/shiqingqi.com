@@ -208,7 +208,7 @@ export function SurfacesShowcase() {
               zh: "cardSurface，经由 Card",
             })}
           >
-            <Card css={[stack.tight, styles.card]}>
+            <Card css={[stack.text, styles.card]}>
               <Text look="bodySmall" weight="semibold">
                 {t({ en: "Watchlist", zh: "待看清单" })}
               </Text>
@@ -284,10 +284,12 @@ const styles = stylex.create({
         <div css={styles.grid}>
           {widths.map((step) => (
             <SpecCard key={step.token} token={step.token} meta={step.px}>
-              <div css={[corner.radius_2, styles.widthSwatch, step.swatch]} />
-              <Text look="caption" tone="muted">
-                {step.use}
-              </Text>
+              <div css={[stack.tight, styles.underLabel]}>
+                <div css={[corner.radius_2, styles.widthSwatch, step.swatch]} />
+                <Text look="caption" tone="muted">
+                  {step.use}
+                </Text>
+              </div>
             </SpecCard>
           ))}
         </div>
@@ -327,10 +329,12 @@ const styles = stylex.create({
         <div css={styles.grid}>
           {radii.map((step) => (
             <SpecCard key={step.token} token={step.token} meta={step.meta}>
-              <div css={[styles.radiusSwatch, step.swatch]} />
-              <Text look="caption" tone="muted">
-                {step.use}
-              </Text>
+              <div css={[stack.tight, styles.underLabel]}>
+                <div css={[styles.radiusSwatch, step.swatch]} />
+                <Text look="caption" tone="muted">
+                  {step.use}
+                </Text>
+              </div>
             </SpecCard>
           ))}
         </div>
@@ -423,14 +427,16 @@ const styles = stylex.create({
         <div css={styles.grid}>
           {shadows.map((step) => (
             <SpecCard key={step.token} token={step.token} meta="">
-              <div css={styles.shadowFloor}>
-                <div
-                  css={[corner.radius_2, styles.shadowSwatch, step.swatch]}
-                />
+              <div css={[stack.tight, styles.underLabel]}>
+                <div css={styles.shadowFloor}>
+                  <div
+                    css={[corner.radius_2, styles.shadowSwatch, step.swatch]}
+                  />
+                </div>
+                <Text look="caption" tone="muted">
+                  {step.use}
+                </Text>
               </div>
-              <Text look="caption" tone="muted">
-                {step.use}
-              </Text>
             </SpecCard>
           ))}
         </div>
@@ -446,6 +452,10 @@ const styles = stylex.create({
 }
 
 const styles = stylex.create({
+  // A swatch is a box, so it keeps a gap under the label of its card.
+  underLabel: {
+    marginBlockStart: rhythm.tight,
+  },
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",

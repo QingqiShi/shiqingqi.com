@@ -592,6 +592,7 @@ const styles = stylex.create({
     gap: rhythm.item,
   },
   track: {
+    marginBlockStart: rhythm.tight,
     blockSize: space._1,
     backgroundColor: color.bgControlPressed,
     overflow: "hidden",
@@ -605,6 +606,7 @@ const styles = stylex.create({
     inlineSize,
   }),
   curve: {
+    marginBlockStart: rhythm.tight,
     inlineSize: "100%",
     blockSize: "72px",
     overflow: "visible",

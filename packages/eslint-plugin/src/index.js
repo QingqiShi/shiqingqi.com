@@ -11,6 +11,7 @@ const requireMeasure = require("./design-system/require-measure");
 const requirePackageExport = require("./design-system/require-package-export");
 const requirePageColumn = require("./design-system/require-page-column");
 const requireRhythmSpacing = require("./design-system/require-rhythm-spacing");
+const requireTextStack = require("./design-system/require-text-stack");
 const requireTypeRole = require("./design-system/require-type-role");
 const validStyles = require("./design-system/valid-styles.mjs").default;
 const noBannedCopyWords = require("./i18n/no-banned-copy-words");
@@ -32,6 +33,7 @@ module.exports = {
     "require-page-column": requirePageColumn,
     "require-package-export": requirePackageExport,
     "require-rhythm-spacing": requireRhythmSpacing,
+    "require-text-stack": requireTextStack,
     "require-type-role": requireTypeRole,
     "valid-styles": validStyles,
     "no-banned-copy-words": noBannedCopyWords,

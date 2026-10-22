@@ -67,7 +67,7 @@ export function SwitchShowcase() {
         </SpecimenGrid>
       </Showcase>
 
-      <Showcase label={t({ en: "Interactive", zh: "交互" })}>
+      <Showcase label={t({ en: "Interactive", zh: "交互" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -81,7 +81,7 @@ export function SwitchShowcase() {
         </div>
       </Showcase>
 
-      <Showcase label={t({ en: "Effect", zh: "效果" })}>
+      <Showcase label={t({ en: "Effect", zh: "效果" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({

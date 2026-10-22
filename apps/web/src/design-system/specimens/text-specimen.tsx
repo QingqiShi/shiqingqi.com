@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { Text } from "@tuja/ui/components/text";
 import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
@@ -9,7 +10,7 @@ import { specimenLayout } from "./specimen.stylex.ts";
  */
 export function TextSpecimen() {
   return (
-    <div css={specimenLayout.stack}>
+    <div css={[specimenLayout.stack, styles.lines]}>
       <Text look="body">
         {t({ en: "Body copy sets the rhythm.", zh: "正文决定阅读节奏。" })}
       </Text>
@@ -19,3 +20,9 @@ export function TextSpecimen() {
     </div>
   );
 }
+
+const styles = stylex.create({
+  lines: {
+    gap: 0,
+  },
+});

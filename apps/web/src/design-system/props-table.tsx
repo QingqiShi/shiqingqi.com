@@ -112,12 +112,20 @@ export function PropsTable({ component }: PropsTableProps) {
             <dd
               css={[
                 typeRole.bodySmall,
-                stack.tight,
+                stack.text,
                 definitionRows.definition,
                 styles.stackFields,
               ]}
             >
-              <div css={[cluster.tight, styles.stackField]}>
+              <div
+                css={[
+                  cluster.tight,
+                  styles.stackField,
+                  prop.kind === "enum" &&
+                    prop.members !== undefined &&
+                    styles.tokenField,
+                ]}
+              >
                 <span css={[typeRole.caption, styles.stackLabel]}>
                   {typeLabel}
                 </span>
@@ -318,6 +326,10 @@ const styles = stylex.create({
   },
   stackFields: {
     color: color.fgMuted,
+  },
+  // The type tokens of an enum are chips, so the row is a box.
+  tokenField: {
+    marginBlockEnd: rhythm.tight,
   },
   stackField: {
     alignItems: "baseline",

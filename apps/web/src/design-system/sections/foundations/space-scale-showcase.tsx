@@ -73,7 +73,7 @@ export function SpaceScaleShowcase() {
             styles.scroller,
           ]}
         >
-          <div aria-hidden="true" css={stack.tight}>
+          <div aria-hidden="true" css={stack.item}>
             {steps.map((step) => (
               <div
                 key={step.member}
@@ -106,7 +106,7 @@ const styles = stylex.create({
   // of two caption lines to keep a label beside its bar.
   row: {
     display: "flex",
-    blockSize: `calc(2lh + ${rhythm.tight})`,
+    blockSize: "2lh",
   },
   // The hairline is the ruler's zero line.
   labels: {
@@ -115,7 +115,7 @@ const styles = stylex.create({
     padding: 0,
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
+    gap: rhythm.item,
     inlineSize: "9rem",
     flexShrink: 0,
     boxSizing: "border-box",
@@ -127,7 +127,6 @@ const styles = stylex.create({
   label: {
     flexDirection: "column",
     justifyContent: "center",
-    gap: rhythm.tight,
   },
   barRow: {
     alignItems: "center",

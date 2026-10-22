@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -34,7 +35,7 @@ export function DayHeader({
           day.slice(0, 4) === today.slice(0, 4) ? "weekday" : "weekdayYear",
         );
   return (
-    <div css={styles.day}>
+    <div css={[plainList.row, styles.day]}>
       <div css={[flex.between, styles.rule]}>
         <Heading level={level} css={[typeRole.label, styles.label]}>
           {label}
@@ -46,11 +47,8 @@ export function DayHeader({
 }
 
 const styles = stylex.create({
-  // The list pulls its rows out by `space._2`, so that their plates reach
-  // into the gutter. The rule stays on the text edges.
   day: {
     paddingBlockStart: space._3,
-    paddingInline: space._2,
   },
   rule: {
     gap: rhythm.tight,

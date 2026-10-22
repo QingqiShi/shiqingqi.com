@@ -157,7 +157,7 @@ const styles = stylex.create({
   content: {
     position: "relative",
   },
-  // The rows of a plain list reach `space._2` into the gutter (`bleed.rows`).
+  // The rows of a plain list reach `space._2` into the gutter (`plainList`).
   // The scroller goes out by the same amount, so that it does not clip them.
   master: {
     minInlineSize: 0,

@@ -30,8 +30,8 @@ interface CardHeaderProps extends Omit<
 }
 
 /**
- * The card's title block: a tight stack for the title and its description,
- * with an optional trailing `action`.
+ * The card's title block: the title over its description, with no gap
+ * between the lines, and an optional trailing `action`.
  */
 export function CardHeader({
   action,
@@ -42,7 +42,7 @@ export function CardHeader({
 }: CardHeaderProps) {
   return (
     <div {...restProps} ref={ref} css={[row.tight, styles.header, css]}>
-      <div css={[stack.tight, styles.headerText]}>{children}</div>
+      <div css={[stack.text, styles.headerText]}>{children}</div>
       {/* Truthiness: `action={cond && <Button/>}` then renders no slot.
           `!= null` would keep an empty flex item and its gap. */}
       {action ? <div css={styles.headerAction}>{action}</div> : null}

@@ -30,7 +30,10 @@ export function StickyControlsShowcase() {
 
   return (
     <>
-      <Showcase label={t({ en: "Sticky controls", zh: "粘性控件" })}>
+      <Showcase
+        label={t({ en: "Sticky controls", zh: "粘性控件" })}
+        leadsWithText
+      >
         <ShowcaseHelper>
           {t({
             en: "Scroll this page: the row below parks near the top of the viewport and the cards blur as they pass under each of its two groups, while the page between the groups stays sharp. The controls are live.",

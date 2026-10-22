@@ -17,7 +17,7 @@ import { t } from "#src/i18n.ts";
 export function ScrollMaskShowcase() {
   return (
     <>
-      <Showcase label={t({ en: "Scroll mask", zh: "滚动虚化" })}>
+      <Showcase label={t({ en: "Scroll mask", zh: "滚动虚化" })} leadsWithText>
         <div css={stack.item}>
           <Text look="bodySmall" tone="muted">
             {t({
@@ -334,7 +334,6 @@ const styles = stylex.create({
   rowItem: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.tight,
     flexShrink: 0,
     inlineSize: "9.5rem",
     paddingBlock: space._2,
