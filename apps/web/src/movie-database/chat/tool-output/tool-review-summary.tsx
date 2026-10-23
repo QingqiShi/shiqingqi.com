@@ -237,7 +237,6 @@ const styles = stylex.create({
     borderTopColor: color.border,
   },
   levelButtons: {
-    gap: rhythm.tight,
     justifyContent: "center",
     flexWrap: "wrap",
   },

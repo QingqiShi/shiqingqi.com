@@ -74,7 +74,7 @@ export function RankedBreakdown({
           {empty}
         </Text>
       ) : (
-        <List {...stylex.props(stack.tight, plainList.list)}>
+        <List {...stylex.props(stack.rows, plainList.list)}>
           {shown.map((item) => (
             <RankedRow
               key={item.key}

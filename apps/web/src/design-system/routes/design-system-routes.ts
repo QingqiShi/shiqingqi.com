@@ -230,6 +230,20 @@ const ROUTES = [
   },
   {
     section: "components",
+    category: "actions",
+    path: "/design-system/components/nav-list",
+    keywords: [
+      "navigation",
+      "sidebar",
+      "rail",
+      "menu",
+      "nav link",
+      "nav group",
+      "settings",
+    ],
+  },
+  {
+    section: "components",
     category: "forms",
     path: "/design-system/components/text-field",
     keywords: ["input", "field", "search box", "form"],

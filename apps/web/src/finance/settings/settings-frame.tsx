@@ -6,13 +6,12 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { Heading } from "@tuja/ui/components/heading";
+import { NavLink } from "@tuja/ui/components/nav-link";
+import { NavList } from "@tuja/ui/components/nav-list";
 import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
@@ -73,52 +72,35 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
       <nav
         ref={ref}
         aria-label={t({ en: "Settings", zh: "设置" })}
-        css={[
-          stack.item,
-          styles.nav,
-          current !== null && styles.navOnSection,
-          css,
-        ]}
+        css={[styles.nav, current !== null && styles.navOnSection, css]}
       >
         <EffectCarrier value={sticky}>
           <Heading level={1} look="h3">
             {t({ en: "Settings", zh: "设置" })}
           </Heading>
-          <ul css={styles.list}>
+          <NavList linkComponent={Link}>
             {SETTINGS_SECTIONS.map((section) => (
-              <li key={section}>
-                <Link
-                  href={getLocalePath(`/finance/settings/${section}`, locale)}
-                  aria-current={
-                    section === (current ?? "household") ? "page" : undefined
-                  }
-                  {...stylex.props(
-                    typeRole.label,
-                    corner.radius_2,
-                    transition.colors,
-                    selected.quiet,
-                    a11y.focusRingInset,
-                    styles.link,
-                    current === null && styles.linkOnIndex,
-                  )}
-                >
-                  {labels[section]}
-                  {section === "members" && needsRecoveryEmail ? (
-                    <>
-                      <span
-                        css={[
-                          corner.radius_round,
-                          styles.dot,
-                          isOwner && styles.dotOwner,
-                        ]}
-                      />
-                      <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
-                    </>
-                  ) : null}
-                </Link>
-              </li>
+              <NavLink
+                key={section}
+                href={getLocalePath(`/finance/settings/${section}`, locale)}
+                current={section === (current ?? "household")}
+              >
+                {labels[section]}
+                {section === "members" && needsRecoveryEmail ? (
+                  <>
+                    <span
+                      css={[
+                        corner.radius_round,
+                        styles.dot,
+                        isOwner && styles.dotOwner,
+                      ]}
+                    />
+                    <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
+                  </>
+                ) : null}
+              </NavLink>
             ))}
-          </ul>
+          </NavList>
         </EffectCarrier>
       </nav>
       {current === null ? (
@@ -168,22 +150,7 @@ const styles = stylex.create({
     insetBlockStart: space._4,
   },
   navOnSection: {
-    display: { default: "none", [breakpoints.lg]: "flex" },
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.inline,
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
-  },
-  link: {
-    display: "block",
-    paddingBlock: space._1,
-    paddingInline: space._2,
-    color: color.fg,
-    textDecoration: "none",
+    display: { default: "none", [breakpoints.lg]: "block" },
   },
   dot: {
     display: "inline-block",
@@ -195,9 +162,6 @@ const styles = stylex.create({
   },
   dotOwner: {
     backgroundColor: color.fgWarning,
-  },
-  linkOnIndex: {
-    paddingBlock: { default: space._2, [breakpoints.lg]: space._1 },
   },
   content: {
     minInlineSize: 0,

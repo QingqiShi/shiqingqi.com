@@ -24,6 +24,11 @@ const ringShape = {
  * 44px (WCAG 2.5.8) that does not change how the control looks.
  * `buttonReset.base` and `chipSurface.interactive` already carry it.
  * `cardSurface.interactive` carries all of it except the hit area.
+ *
+ * `touchRow` is `touchTarget` for a control that abuts its neighbours, such
+ * as a nav link in a list of rows: the same touch feel, and under a coarse
+ * pointer the control itself grows to at least 44px tall, because a hit
+ * area past its box would cover the next row.
  */
 export const a11y = stylex.create({
   // Visually hidden, still announced. The `inset(50%)` clip + 1px box is the
@@ -74,6 +79,11 @@ export const a11y = stylex.create({
       inset: "min(0px, calc(50% - 22px))",
       zIndex: -1,
     },
+  },
+  touchRow: {
+    WebkitTapHighlightColor: "transparent",
+    touchAction: "manipulation",
+    minBlockSize: { default: null, [pointer.coarse]: "44px" },
   },
   // The ring on a frame around a control that has no frame of its own, such
   // as a bare text field. Put `stylex.defaultMarker()` on that control.

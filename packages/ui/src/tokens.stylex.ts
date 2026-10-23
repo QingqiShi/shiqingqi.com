@@ -526,6 +526,12 @@ export const space = stylex.defineVars({
  * larger is the exception: its line height is so small that its letters fill
  * its line box, so it takes `tight` to its text, and display type takes
  * `item`. The `@tuja/require-text-stack` lint rule checks both.
+ *
+ * Rows that pad themselves, such as nav links, take no gap either
+ * (`stack.rows`): their padding is the space between them, and a gap would
+ * double it. The same holds for such controls side by side, such as ghost
+ * buttons in a row. Measure a gap between what a reader sees, not between
+ * boxes.
  */
 export const rhythm = stylex.defineVars({
   inline: ".25rem",

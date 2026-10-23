@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex, justify } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -18,12 +19,12 @@ const BUILD_YEAR = new Date().getFullYear();
 export function Footer({ locale }: FooterProps) {
   return (
     <footer css={[flex.wrap, justify.between, styles.footer]}>
-      <div css={[stack.tight, styles.section, styles.linksSection]}>
+      <div css={[stack.rows, styles.section, styles.linksSection]}>
         <Anchor
           href="https://github.com/QingqiShi"
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          css={[typeRole.label, styles.link]}
+          css={[typeRole.label, a11y.touchRow, styles.link]}
         >
           GitHub
         </Anchor>
@@ -35,7 +36,7 @@ export function Footer({ locale }: FooterProps) {
           }
           target="_blank"
           rel="nofollow me noopener noreferrer"
-          css={[typeRole.label, styles.link]}
+          css={[typeRole.label, a11y.touchRow, styles.link]}
         >
           LinkedIn
         </Anchor>
@@ -80,6 +81,7 @@ const styles = stylex.create({
   },
   link: {
     display: "block",
-    paddingBlock: { default: space._1, [breakpoints.md]: 0 },
+    alignContent: "center",
+    paddingBlock: space._0,
   },
 });

@@ -10,6 +10,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
+import { useId } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { t } from "#src/i18n.ts";
 import { LabVariantSection } from "./lab-variant-section.tsx";
@@ -59,6 +60,7 @@ export function LabBarMenu({
   onOpenControl,
 }: LabBarMenuProps) {
   const defaultLabel = t({ en: "Default", zh: "默认" });
+  const propsLabelId = useId();
 
   return (
     <div css={[stack.group, styles.menu]}>
@@ -68,11 +70,17 @@ export function LabBarMenu({
         onSelect={onSelectVariant}
       />
 
-      <section css={stack.tight}>
-        <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
+      <div role="group" aria-labelledby={propsLabelId}>
+        <Text
+          as="div"
+          id={propsLabelId}
+          look="caption"
+          tone="muted"
+          css={typeRole.overline}
+        >
           {t({ en: "Props", zh: "属性" })}
         </Text>
-        <div css={stack.tight}>
+        <div css={stack.rows}>
           {controls.map((control) => (
             <button
               key={control.name}
@@ -99,7 +107,7 @@ export function LabBarMenu({
             </button>
           ))}
         </div>
-      </section>
+      </div>
     </div>
   );
 }

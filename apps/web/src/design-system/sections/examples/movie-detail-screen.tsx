@@ -583,7 +583,6 @@ const styles = stylex.create({
   menu: {
     display: "flex",
     flexDirection: "column",
-    gap: rhythm.inline,
     padding: space._2,
     inlineSize: space._13,
   },

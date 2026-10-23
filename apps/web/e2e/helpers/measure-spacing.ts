@@ -22,23 +22,45 @@ export interface TextFailure {
   gap: number;
 }
 
+export interface PaddedRowFailure {
+  container: string;
+  first: string;
+  second: string;
+  gap: number;
+}
+
 export interface SpacingReport {
   headings: HeadingFailure[];
   stacks: StackFailure[];
   empties: EmptyFailure[];
   texts: TextFailure[];
+  paddedRows: PaddedRowFailure[];
+}
+
+export interface SpacingOptions {
+  /** Selectors tried in order. The first element that one matches is the root. */
+  roots: string[];
+  /**
+   * The selector of the selected state, `selectedSelector` from
+   * `@tuja/ui/primitives/selected-selector`. A selected control paints its
+   * state, such as the pill of the current link, so it paints nothing at rest.
+   */
+  selected: string;
 }
 
 /**
- * Checks the spacing under the first element that `rootSelectors` matches, in
- * order: each h2 and h3 has at least twice the space above it as below it, no
- * two blocks in a stack touch, no empty box in a stack takes a gap, which
- * would add a second gap between its neighbours, and two lines of text in one
- * item take no gap smaller than `rhythm.item`. A line box holds space above
- * and below its letters, so such a gap looks as wide as `rhythm.item`, and two
- * lines of text may touch. A heading at h2 size or larger is the exception:
- * its letters fill its line box, so it stands at least `rhythm.tight` from
- * the text next to it. Runs in the page through `page.evaluate`, so keep it
+ * Checks the spacing under the root: each h2, h3 and group label (a
+ * `<legend>`, or the title of a `role="group"` that its `aria-labelledby`
+ * names) has at least twice the space above it as below it, no two blocks in
+ * a stack touch, no empty box in a stack takes a gap, which would add a
+ * second gap between its neighbours, two lines of text in one item take no
+ * gap smaller than `rhythm.item`, and two controls that paint nothing at rest
+ * and pad themselves along the stack, such as nav links, take no gap. A line
+ * box holds space above and below its letters, so such a gap looks as wide as
+ * `rhythm.item`, and two lines of text may touch. A heading at h2 size or
+ * larger is the exception: its letters fill its line box, so it stands at
+ * least `rhythm.tight` from the text next to it. A padded control's padding
+ * already spaces it. Runs in the page through `page.evaluate`, so keep it
  * standalone.
  *
  * Distances are measured between what a reader sees, not between boxes. A
@@ -50,13 +72,16 @@ export interface SpacingReport {
  * not a block. A heading's distance stops at an element marked
  * `data-spacing-scope`, such as a Specimen's stage.
  */
-export function measureSpacing(rootSelectors: string[]): SpacingReport {
+export function measureSpacing({
+  roots,
+  selected,
+}: SpacingOptions): SpacingReport {
   const TOLERANCE = 1;
-  const root = rootSelectors
+  const root = roots
     .map((selector) => document.querySelector(selector))
     .find((element) => element !== null);
   if (root === undefined) {
-    throw new Error(`No element matches ${rootSelectors.join(" or ")}`);
+    throw new Error(`No element matches ${roots.join(" or ")}`);
   }
 
   // Content whose spacing is not a stack of blocks: drawn illustrations,
@@ -366,8 +391,27 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     return null;
   }
 
+  // A label elsewhere, such as the trigger of a MenuButton, names the group
+  // but is not a title above it.
+  const groupLabels = [
+    ...root.querySelectorAll('[role="group"][aria-labelledby]'),
+  ].flatMap((group) =>
+    (group.getAttribute("aria-labelledby") ?? "").split(/\s+/).flatMap((id) => {
+      const label = document.getElementById(id);
+      return label !== null &&
+        root.contains(label) &&
+        (group.contains(label) || group.previousElementSibling === label)
+        ? [label]
+        : [];
+    }),
+  );
+  const titles = new Set([
+    ...root.querySelectorAll("h2, h3, legend"),
+    ...groupLabels,
+  ]);
+
   const headings: HeadingFailure[] = [];
-  for (const heading of root.querySelectorAll("h2, h3")) {
+  for (const heading of titles) {
     if (heading.closest(OUT_OF_SCOPE) !== null || !isShown(heading)) continue;
     const above = distance(heading, "above");
     const below = distance(heading, "below");
@@ -405,6 +449,60 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     return el.matches("ul, ol, dl") || styleOf(el).display.endsWith("grid");
   }
 
+  // An item that is one control, or a wrapper that paints nothing around one,
+  // such as an <li> around a link.
+  function soleControl(el: Element): Element | null {
+    if (el.matches(CONTROL)) return el;
+    if (isPainted(el) || hasOwnText(el)) return null;
+    const parts = laidOut(el);
+    return parts.length === 1 ? soleControl(parts[0]) : null;
+  }
+
+  function padsItself(control: Element, isColumn: boolean) {
+    if (!isShown(control)) return false;
+    if (isPainted(control) && !control.matches(selected)) return false;
+    const style = styleOf(control);
+    const sides: Side[] = isColumn ? ["top", "bottom"] : ["left", "right"];
+    return sides.every(
+      (side) =>
+        Number.parseFloat(style.getPropertyValue(`padding-${side}`)) >
+        TOLERANCE,
+    );
+  }
+
+  function findPaddedRowGaps(
+    container: Element,
+    items: Element[],
+    isColumn: boolean,
+  ): PaddedRowFailure[] {
+    const rows = items.map((item) => {
+      const control = soleControl(item);
+      return control !== null && padsItself(control, isColumn)
+        ? { control, rect: control.getBoundingClientRect() }
+        : null;
+    });
+    const failures: PaddedRowFailure[] = [];
+    for (let index = 1; index < rows.length; index++) {
+      const first = rows[index - 1];
+      const second = rows[index];
+      if (first === null || second === null) continue;
+      const a = first.rect;
+      const b = second.rect;
+      if (!isColumn && (b.top >= a.bottom || a.top >= b.bottom)) continue;
+      const gap = isColumn
+        ? Math.max(b.top - a.bottom, a.top - b.bottom)
+        : Math.max(b.left - a.right, a.left - b.right);
+      if (gap <= TOLERANCE) continue;
+      failures.push({
+        container: describe(container),
+        first: describe(first.control),
+        second: describe(second.control),
+        gap: Math.round(gap),
+      });
+    }
+    return failures;
+  }
+
   const ITEM = Number.parseFloat(
     getComputedStyle(document.documentElement).fontSize,
   );
@@ -420,6 +518,7 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
   const stacks: StackFailure[] = [];
   const empties: EmptyFailure[] = [];
   const texts: TextFailure[] = [];
+  const paddedRows: PaddedRowFailure[] = [];
   for (const container of root.querySelectorAll("*")) {
     const style = styleOf(container);
     const isFlex = style.display === "flex" || style.display === "inline-flex";
@@ -428,17 +527,25 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     const isColumn =
       (isFlex && style.flexDirection.startsWith("column")) ||
       (isGrid && style.gridTemplateColumns.trim().split(/\s+/).length === 1);
-    const isCluster =
-      isFlex && style.flexDirection === "row" && style.flexWrap === "wrap";
-    if (!isColumn && !isCluster) continue;
+    const isRow = isFlex && style.flexDirection.startsWith("row");
+    const isCluster = isRow && style.flexWrap === "wrap";
+    if (!isColumn && !isRow) continue;
     if (container.closest(OUT_OF_SCOPE) !== null || !isShown(container)) {
       continue;
     }
 
+    const items = laidOut(container);
+    // On a track that the container paints, such as a SegmentedControl, the
+    // items are segments of one control, and the gap shows the track.
+    if (!isPainted(container)) {
+      paddedRows.push(...findPaddedRowGaps(container, items, isColumn));
+    }
+
+    if (!isColumn && !isCluster) continue;
+
     const gapSize = Number.parseFloat(
       isColumn ? style.rowGap : style.columnGap,
     );
-    const items = laidOut(container);
     if (gapSize > TOLERANCE && items.length > 1) {
       for (const item of items) {
         const rect = item.getBoundingClientRect();
@@ -533,5 +640,5 @@ export function measureSpacing(rootSelectors: string[]): SpacingReport {
     }
   }
 
-  return { headings, stacks, empties, texts };
+  return { headings, stacks, empties, texts, paddedRows };
 }

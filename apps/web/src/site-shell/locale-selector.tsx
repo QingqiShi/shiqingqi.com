@@ -124,7 +124,6 @@ function LocaleSelectorMenu({
 
 const styles = stylex.create({
   menu: {
-    gap: controlSize._1,
     overflow: "hidden",
     padding: controlSize._1,
   },
