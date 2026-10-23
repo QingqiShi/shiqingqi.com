@@ -13,6 +13,7 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
+import { addDays } from "../domain/dates/add-days.ts";
 import type { ExchangeRateRow } from "./exchange-rate-row-schema.ts";
 import {
   collectHouseholdPairs,
@@ -253,6 +254,88 @@ describe("refreshHouseholdExchangeRates", () => {
 
     frankfurter.requests.length = 0;
     expect(await refresh()).toEqual({ pairs: 1, added: 0, failed: 0 });
+    expect(frankfurter.requests).toEqual([]);
+  });
+
+  it("fills the days between two rates more than a week apart, keeps the rates there, and asks nothing more next time", async () => {
+    await setCurrency(home.savingsId, "USD");
+    await insertTestExpense(db, home, home.savingsId, "2026-10-01", -500);
+    const reverse: ExchangeRateRow = {
+      base: "GBP",
+      quote: "USD",
+      on: "2026-10-13",
+      rate: 1.4,
+      source: "ecb",
+    };
+    const stored = [
+      ecb("USD", "2026-10-01", 0.7),
+      reverse,
+      ecb("USD", "2026-10-22", 0.72),
+    ];
+    await insertRates(stored);
+
+    expect(await refresh()).toEqual({ pairs: 1, added: 13, failed: 0 });
+
+    expect(frankfurter.requests).toEqual([
+      url("USD", "2026-10-02", "2026-10-21"),
+    ]);
+    const rates = await readRates();
+    for (const row of stored) expect(rates).toContainEqual(row);
+    expect(rates.filter((row) => row.on === "2026-10-13")).toEqual([reverse]);
+    expect(rates).toContainEqual(ecb("USD", "2026-10-02", 0.75));
+    expect(rates).toContainEqual(ecb("USD", "2026-10-21", 0.75));
+
+    frankfurter.requests.length = 0;
+    expect(await refresh()).toEqual({ pairs: 1, added: 0, failed: 0 });
+    expect(frankfurter.requests).toEqual([]);
+  });
+
+  it("downloads gaps more than a month apart one by one", async () => {
+    await setCurrency(home.savingsId, "USD");
+    await insertTestExpense(db, home, home.savingsId, "2026-08-03", -500);
+    const stored = [ecb("USD", "2026-08-03", 0.7)];
+    for (let day = "2026-08-17"; day <= "2026-10-05"; day = addDays(day, 1)) {
+      stored.push(ecb("USD", day, 0.7));
+    }
+    stored.push(ecb("USD", "2026-10-19", 0.7), ecb("USD", "2026-10-22", 0.7));
+    await insertRates(stored);
+
+    expect(await refresh()).toEqual({ pairs: 1, added: 18, failed: 0 });
+
+    expect(frankfurter.requests).toEqual([
+      url("USD", "2026-08-04", "2026-08-16"),
+      url("USD", "2026-10-06", "2026-10-18"),
+    ]);
+  });
+
+  it("fills a gap only from the first day a Household needs", async () => {
+    await setCurrency(home.savingsId, "USD");
+    await insertTestExpense(db, home, home.savingsId, "2026-10-08", -500);
+    await insertRates([
+      ecb("USD", "2026-10-01", 0.7),
+      ecb("USD", "2026-10-13", 0.7),
+      ecb("USD", "2026-10-22", 0.7),
+    ]);
+
+    expect(await refresh()).toEqual({ pairs: 1, added: 9, failed: 0 });
+
+    expect(frankfurter.requests).toEqual([
+      url("USD", "2026-10-08", "2026-10-21"),
+    ]);
+  });
+
+  it("asks nothing for rates a weekend or a holiday apart", async () => {
+    await setCurrency(home.savingsId, "USD");
+    await insertTestExpense(db, home, home.savingsId, "2026-10-09", -500);
+    await insertRates([
+      ecb("USD", "2026-10-09", 0.7),
+      ecb("USD", "2026-10-13", 0.7),
+      ecb("USD", "2026-10-15", 0.7),
+      ecb("USD", "2026-10-22", 0.7),
+    ]);
+
+    expect(await refresh()).toEqual({ pairs: 1, added: 0, failed: 0 });
+
     expect(frankfurter.requests).toEqual([]);
   });
 
