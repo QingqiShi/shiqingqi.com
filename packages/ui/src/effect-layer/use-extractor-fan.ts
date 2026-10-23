@@ -7,7 +7,9 @@ const EXTRACTOR_FAN = roleBits(["extractorFan"]);
 export interface ExtractorFanOptions {
   /**
    * How far from its edge the element pulls dust in, in CSS px. The pull is
-   * strongest at the edge and fades out towards this distance.
+   * strongest at the edge and fades out towards this distance. At 0 it
+   * pulls nothing, and the element is an Effect boundary until the reach
+   * goes up.
    *
    * @default 400
    * @zh 元素从多远的地方把灰尘吸进来，以 CSS px 计，从边缘量起。吸力在边缘处最强，到这个距离时逐渐消失。
@@ -26,5 +28,7 @@ export interface ExtractorFanOptions {
 export function useExtractorFan({
   reach = EFFECT_SETTING_DEFAULTS.extractorFan.reach,
 }: ExtractorFanOptions = {}) {
-  return useEffectRegistration(EXTRACTOR_FAN, { extractorFan: { reach } });
+  return useEffectRegistration(reach > 0 ? EXTRACTOR_FAN : 0, {
+    extractorFan: { reach },
+  });
 }

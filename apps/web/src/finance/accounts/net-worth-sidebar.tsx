@@ -6,7 +6,10 @@ import * as stylex from "@stylexjs/stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
-import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
+import {
+  SplitViewLink,
+  useSplitViewShared,
+} from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -25,7 +28,11 @@ import {
   useNetWorthPick,
   useSetNetWorthPick,
 } from "./net-worth-pick-provider.tsx";
-import { NetWorthTrend, useNetWorthRange } from "./net-worth-trend.tsx";
+import {
+  HOUSEHOLD_TREND,
+  NetWorthTrend,
+  useNetWorthRange,
+} from "./net-worth-trend.tsx";
 import type { NetWorthUrl } from "./use-net-worth-url.ts";
 
 /** The height of the trend in the sidebar, in pixels. */
@@ -55,6 +62,10 @@ export function NetWorthSidebar({
   url,
   onCreateAccount,
 }: NetWorthSheetProps & { url: NetWorthUrl; onCreateAccount: () => void }) {
+  const householdRef = useSplitViewShared("household");
+  const actionsRef = useSplitViewShared("sidebar-actions");
+  const differencesRef = useSplitViewShared("sidebar-bank-differences");
+  const accountsRef = useSplitViewShared("sidebar-accounts");
   if (!hasAccounts(sheet)) {
     return <NoAccounts onCreateAccount={onCreateAccount} />;
   }
@@ -62,6 +73,7 @@ export function NetWorthSidebar({
     <div css={stack.item}>
       <div css={stack.tight}>
         <SplitViewLink
+          ref={householdRef}
           href={url.hrefOf({ account: null })}
           aria-current={url.account === null ? "page" : undefined}
           {...stylex.props(
@@ -76,18 +88,26 @@ export function NetWorthSidebar({
         </SplitViewLink>
         {url.account === null ? null : <SidebarTrend />}
       </div>
-      <NetWorthActions
-        updateHref={url.modeHref("update")}
-        onCreateAccount={onCreateAccount}
-      />
-      <BankDifferences sheet={sheet} url={url} />
-      <AccountGroupList
-        sheet={sheet}
-        baseCurrency={currency}
-        reorderHref={url.modeHref("reorder")}
-        accountHref={(accountId) => url.hrefOf({ account: accountId })}
-        selectedAccountId={url.account}
-      />
+      <div ref={actionsRef}>
+        <NetWorthActions
+          updateHref={url.modeHref("update")}
+          onCreateAccount={onCreateAccount}
+        />
+      </div>
+      {bankDifferenceLines(sheet).length === 0 ? null : (
+        <div ref={differencesRef}>
+          <BankDifferences sheet={sheet} url={url} />
+        </div>
+      )}
+      <div ref={accountsRef}>
+        <AccountGroupList
+          sheet={sheet}
+          baseCurrency={currency}
+          reorderHref={url.modeHref("reorder")}
+          accountHref={(accountId) => url.hrefOf({ account: accountId })}
+          selectedAccountId={url.account}
+        />
+      </div>
     </div>
   );
 }
@@ -99,6 +119,7 @@ export function NetWorthSidebar({
 function SidebarTrend() {
   const [range] = useNetWorthRange();
   const setPick = useSetNetWorthPick();
+  const trendRef = useSplitViewShared(HOUSEHOLD_TREND);
   useEffect(
     () => () => {
       setPick(null);
@@ -107,11 +128,14 @@ function SidebarTrend() {
   );
   return (
     <div css={styles.trend}>
-      <NetWorthTrend
-        range={range}
-        height={SIDEBAR_TREND_HEIGHT}
-        onPick={setPick}
-      />
+      <div ref={trendRef}>
+        <NetWorthTrend
+          range={range}
+          height={SIDEBAR_TREND_HEIGHT}
+          onPick={setPick}
+          shared={HOUSEHOLD_TREND}
+        />
+      </div>
     </div>
   );
 }

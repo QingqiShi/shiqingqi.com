@@ -11,6 +11,7 @@ import {
   StackedOnly,
   UnlessFullSidebar,
   UnlessStacked,
+  useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -40,7 +41,11 @@ import {
   NoAccounts,
   PickedHeadline,
 } from "./net-worth-sidebar.tsx";
-import { NetWorthTrend, useNetWorthRange } from "./net-worth-trend.tsx";
+import {
+  HOUSEHOLD_TREND,
+  NetWorthTrend,
+  useNetWorthRange,
+} from "./net-worth-trend.tsx";
 import { selectWeekMovers } from "./select-week-movers.ts";
 import type { NetWorthUrl } from "./use-net-worth-url.ts";
 
@@ -69,6 +74,7 @@ export function HouseholdView({
 }: HouseholdViewProps) {
   const setPick = useSetNetWorthPick();
   const [range, setRange] = useNetWorthRange();
+  const trendRef = useSplitViewShared(HOUSEHOLD_TREND);
 
   useEffect(
     () => () => {
@@ -109,7 +115,14 @@ export function HouseholdView({
           </div>
         </div>
         <Card css={styles.chartCard}>
-          <NetWorthTrend range={range} height="fill" onPick={setPick} />
+          <div ref={trendRef} css={styles.trend}>
+            <NetWorthTrend
+              range={range}
+              height="fill"
+              onPick={setPick}
+              shared={HOUSEHOLD_TREND}
+            />
+          </div>
         </Card>
       </section>
       <div css={styles.cards}>
@@ -333,6 +346,12 @@ const styles = stylex.create({
     flexDirection: "column",
     blockSize: { default: "15rem", [breakpoints.md]: "18.75rem" },
     padding: space._3,
+  },
+  trend: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minBlockSize: 0,
   },
   cards: {
     display: "grid",

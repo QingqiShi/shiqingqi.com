@@ -1,11 +1,12 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { useEffect, type ComponentProps } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import {
   NavigationSplitView,
   SplitViewLink,
   useSplitViewColumn,
+  useSplitViewShared,
   type SplitViewLinkProps,
 } from "./navigation-split-view.tsx";
 
@@ -348,6 +349,8 @@ describe("NavigationSplitView history", () => {
     const back = vi.spyOn(window.history, "back").mockImplementation(() => {});
     window.history.replaceState(null, "", "/?account=a&tx=2");
     vi.stubGlobal("navigation", {
+      addEventListener: () => {},
+      removeEventListener: () => {},
       currentEntry: { index: 1 },
       entries: () => [
         { url: `${window.location.origin}/?account=a` },
@@ -364,6 +367,8 @@ describe("NavigationSplitView history", () => {
     const replace = vi.fn();
     const back = vi.spyOn(window.history, "back").mockImplementation(() => {});
     vi.stubGlobal("navigation", {
+      addEventListener: () => {},
+      removeEventListener: () => {},
       currentEntry: { index: 1 },
       entries: () => [
         { url: `${window.location.origin}/elsewhere` },
@@ -374,5 +379,128 @@ describe("NavigationSplitView history", () => {
     fireEvent.click(screen.getByRole("link", { name: "Household" }));
     expect(replace).toHaveBeenCalledExactlyOnceWith("/");
     expect(back).not.toHaveBeenCalled();
+  });
+});
+
+function Shared({ name, children }: { name: string; children: string }) {
+  const ref = useSplitViewShared(name);
+  return (
+    <span ref={ref} data-shared={name}>
+      {children}
+    </span>
+  );
+}
+
+/** Goes to its URL as a router does, which the test then renders. */
+function RouterLink(props: SplitViewLinkProps) {
+  return (
+    <a
+      {...props}
+      onClick={(event) => {
+        props.onClick?.(event);
+        if (event.defaultPrevented) return;
+        event.preventDefault();
+        window.history.pushState(null, "", props.href);
+      }}
+    />
+  );
+}
+
+/** A ledger whose row "Bakery" flies into the detail where it opens. */
+function flyingView(isOpen: boolean) {
+  return (
+    <NavigationSplitView
+      closeLabel="Close"
+      linkComponent={RouterLink}
+      content={{
+        label: "Everyday",
+        node: (
+          <SplitViewLink href="/?tx=1">
+            {isOpen ? "Bakery" : <Shared name="tx-1">Bakery</Shared>}
+          </SplitViewLink>
+        ),
+      }}
+      detail={
+        isOpen
+          ? {
+              label: "Transaction",
+              key: "1",
+              back: { href: "/", label: "Everyday" },
+              node: <Shared name="tx-1">Bakery</Shared>,
+            }
+          : null
+      }
+    />
+  );
+}
+
+/** The Shared element and the copies of it that fly. */
+function sharedCount(container: HTMLElement) {
+  return container.querySelectorAll('[data-shared="tx-1"]').length;
+}
+
+describe("NavigationSplitView Shared elements", () => {
+  // jsdom has no layout, and the view flies only an element with a box.
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      function (this: HTMLElement) {
+        return this.matches("[data-shared]")
+          ? DOMRect.fromRect({ width: 80, height: 20 })
+          : DOMRect.fromRect();
+      },
+    );
+  });
+
+  it("flies a Shared element for a column link it follows", () => {
+    const { container, rerender } = render(flyingView(false));
+    fireEvent.click(screen.getByRole("link", { name: "Bakery" }));
+    rerender(flyingView(true));
+    expect(sharedCount(container)).toBe(3);
+  });
+
+  it("flies a Shared element for a step through the history, read at its navigate event", () => {
+    const navigation = new EventTarget();
+    vi.stubGlobal("navigation", navigation);
+    const { container, rerender } = render(flyingView(false));
+    navigation.dispatchEvent(
+      Object.assign(new Event("navigate"), {
+        navigationType: "traverse",
+        destination: { url: `${window.location.origin}/?tx=1` },
+      }),
+    );
+    window.history.replaceState(null, "", "/?tx=1");
+    rerender(flyingView(true));
+    expect(sharedCount(container)).toBe(3);
+  });
+
+  it("flies a Shared element for Forward of the browser, read at popstate without the Navigation API", () => {
+    const { container, rerender } = render(flyingView(false));
+    window.history.replaceState(null, "", "/?tx=1");
+    fireEvent(window, new PopStateEvent("popstate"));
+    rerender(flyingView(true));
+    expect(sharedCount(container)).toBe(3);
+  });
+
+  it("moves the columns with no flight for a navigation it did not start", () => {
+    const { container, rerender } = render(flyingView(false));
+    window.history.pushState(null, "", "/?tx=1");
+    rerender(flyingView(true));
+    expect(sharedCount(container)).toBe(1);
+  });
+
+  it("flies no Shared element where the motion lands at another URL than the link", () => {
+    const { container, rerender } = render(flyingView(false));
+    fireEvent.click(screen.getByRole("link", { name: "Bakery" }));
+    window.history.replaceState(null, "", "/?tx=2");
+    rerender(flyingView(true));
+    expect(sharedCount(container)).toBe(1);
+  });
+
+  it("drops the snapshot of a navigation that lands with no motion", () => {
+    const { container, rerender } = render(flyingView(false));
+    fireEvent.click(screen.getByRole("link", { name: "Bakery" }));
+    rerender(flyingView(false));
+    rerender(flyingView(true));
+    expect(sharedCount(container)).toBe(1);
   });
 });

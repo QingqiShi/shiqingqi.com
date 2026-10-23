@@ -21,6 +21,9 @@ import { useStoredRange } from "./use-stored-range.ts";
 /** The key under which this device keeps the range of the net-worth trend. */
 const RANGE_KEY = "finance:net-worth-range";
 
+/** The Shared element of the net-worth trend: the chart of the household view and its compact form in the sidebar. */
+export const HOUSEHOLD_TREND = "household-trend";
+
 /** The range of the net-worth trend that this device remembers. */
 export function useNetWorthRange() {
   return useStoredRange(RANGE_KEY, "6M");
@@ -32,6 +35,8 @@ interface NetWorthTrendProps {
   height: number | "fill";
   /** Hears each new pick; the parent then shows it in place of the readout. */
   onPick?: (pick: ChartPick | null) => void;
+  /** In a Navigation split view, the name of the Shared element that the chart is a form of. */
+  shared?: string;
 }
 
 /**
@@ -40,7 +45,12 @@ interface NetWorthTrendProps {
  * Only this part re-renders on a new range, so the switch costs one sample
  * of at most 400 days.
  */
-export function NetWorthTrend({ range, height, onPick }: NetWorthTrendProps) {
+export function NetWorthTrend({
+  range,
+  height,
+  onPick,
+  shared,
+}: NetWorthTrendProps) {
   const locale = useLocale();
   const today = useHouseholdToday();
   const currency = useBaseCurrency();
@@ -71,6 +81,7 @@ export function NetWorthTrend({ range, height, onPick }: NetWorthTrendProps) {
       height={height}
       bleeds={false}
       onPick={onPick}
+      shared={shared}
       restReadout={
         <span>
           {rangeLabel}

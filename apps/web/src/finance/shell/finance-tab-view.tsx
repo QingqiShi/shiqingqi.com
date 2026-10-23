@@ -13,6 +13,7 @@ import { Link } from "#src/links/link.tsx";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
 import {
   PendingScreenMarker,
+  useShownDestination,
   useShownFinancePath,
 } from "./finance-screen-slot.tsx";
 import { useFinanceDestinations } from "./use-finance-destinations.ts";
@@ -49,6 +50,7 @@ export function FinanceTabView({
 }: FinanceTabViewProps) {
   const locale = useLocale();
   const current = useShownFinancePath();
+  const shownDestination = useShownDestination();
   const destinations = useFinanceDestinations();
   const { status, label, attention } = useSyncStatusSummary();
   const waiting = status.pendingCount > 0;
@@ -59,6 +61,7 @@ export function FinanceTabView({
       linkComponent={TabLink}
       header={header}
       footer={footer}
+      screenKey={shownDestination}
       items={destinations.map((destination) => {
         const isSettings = destination.path === "/finance/settings";
         const dot =
