@@ -9,6 +9,7 @@
 - Run `pnpm dev` from the one app you work on (e.g. `apps/web`), never from the root, which starts every app. The port is per worktree — `node scripts/get-worktree-port.mjs` prints it; never assume 3000. Other devices reach it at this machine's IP or `<hostname>.local`; `scripts/get-local-dev-origins.mjs` allow-lists those hosts for Next.
 - Finance runs locally under `pnpm dev` in `apps/web`: unless `FINANCE_DATABASE_URL` is set, it starts a per-worktree PGlite database (`apps/web/.finance-db/`), seeds it once, and sets local Finance defaults. `FINANCE_DATABASE_URL= pnpm dev` runs without Finance.
 - To sign in to Finance as an agent, run `pnpm --filter web finance:session` while `pnpm dev` runs, and set the cookie it prints. Use `http://localhost`: on a LAN host the cookie must be Secure. Playwright e2e cannot reuse this dev server for Finance specs; stop it first.
+- The deployed Finance databases are the Neon project `finance` in the Vercel-managed org, not the personal one: branch `main` is production and branch `preview` is a daily copy of it. Neon `list_projects` without `org_id` searches only the personal org and returns nothing, so call `list_organizations` first.
 - `.env*` files are denied to the Read tool. `turbo.json` lists most environment variable names under `globalPassThroughEnv`; confirm a name there or in source before you use it.
 - Tests run against real implementations. `vi.mock` is a last resort at the store boundary — see `apps/web/src/app/api/ai-chat/route.test.ts`. Never mock `server-only`: Vitest aliases it to a stub.
 
