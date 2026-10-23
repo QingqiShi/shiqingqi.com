@@ -10,7 +10,6 @@ import {
   exchangeRates,
   households,
   members,
-  monthTotals,
   payees,
   rules,
   tags,
@@ -45,7 +44,6 @@ const tables: Record<string, PgTable> = {
   entries,
   transactionTags,
   accountBalanceDays,
-  monthTotals,
   exchangeRates,
 };
 

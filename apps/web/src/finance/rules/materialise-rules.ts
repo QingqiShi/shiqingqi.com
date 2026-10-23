@@ -116,7 +116,6 @@ async function createOccurrence(
     for (const entry of entries) {
       context.touches.account(entry.accountId, day);
     }
-    context.touches.month(day);
   }
   return 1;
 }
@@ -163,7 +162,6 @@ export async function materialiseRulesInTransaction(context: WriteContext) {
   )) {
     context.touches.account(entry.accountId, entry.date);
   }
-  for (const row of posted) context.touches.month(row.date);
   return written + posted.length;
 }
 

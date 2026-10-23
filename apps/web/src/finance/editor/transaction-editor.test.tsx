@@ -123,7 +123,6 @@ describe("TransactionEditor", () => {
     expect(args).toMatchObject({
       kind: "expense",
       date: today(),
-      amountMinor: -1_250,
       categoryId: ids.groceries,
       payeeId: ids.tesco,
       memberId: ids.sam,
@@ -150,7 +149,6 @@ describe("TransactionEditor", () => {
     expect(payee.args.name).toBe("Acme Ltd");
     expect(args).toMatchObject({
       kind: "income",
-      amountMinor: 200_000,
       categoryId: ids.salary,
       payeeId: payee.args.id,
       memberId: ids.alex,
@@ -176,7 +174,6 @@ describe("TransactionEditor", () => {
 
     expect(created(runtime).args).toMatchObject({
       kind: "transfer",
-      amountMinor: 0,
       categoryId: null,
       entries: [
         { accountId: ids.current, amountMinor: -50_000 },
@@ -214,7 +211,6 @@ describe("TransactionEditor", () => {
 
     expect(created(runtime).args).toMatchObject({
       kind: "expense",
-      amountMinor: 500,
       refundOfId: ids.tescoShop,
       entries: [{ accountId: ids.card, amountMinor: 500 }],
     });
@@ -248,7 +244,6 @@ describe("TransactionEditor", () => {
     expect(update.args).toEqual({
       id: ids.tescoShop,
       patch: {
-        amountMinor: -4_500,
         entries: [
           {
             id: ids.tescoShopEntry,
@@ -262,7 +257,10 @@ describe("TransactionEditor", () => {
     expect(outbox(runtime)).toMatchObject([
       {
         name: "updateTransaction",
-        args: { id: ids.tescoShop, patch: { amountMinor: -4_210 } },
+        args: {
+          id: ids.tescoShop,
+          patch: { entries: [{ id: ids.tescoShopEntry, amountMinor: -4_210 }] },
+        },
       },
     ]);
   });
@@ -319,7 +317,6 @@ describe("TransactionEditor", () => {
     );
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
     expect(created(runtime).args).toMatchObject({
-      amountMinor: -100_000,
       entries: [
         { accountId: ids.current, amountMinor: -100_000 },
         { accountId: MORTGAGE, amountMinor: 60_000 },
@@ -406,7 +403,11 @@ describe("TransactionEditor", () => {
       { name: "deleteTransaction", args: { id: EXPECTED } },
       {
         name: "createTransaction",
-        args: { status: "expected", date: tomorrow, amountMinor: -1_099 },
+        args: {
+          status: "expected",
+          date: tomorrow,
+          entries: [{ accountId: ids.card, amountMinor: -1_099 }],
+        },
       },
     ]);
   });

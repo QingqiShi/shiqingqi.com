@@ -32,7 +32,6 @@ beforeEach(async () => {
         id: randomUUID(),
         kind: "expense",
         date,
-        amountMinor,
         categoryId: home.groceriesId,
         payeeId: home.grocerId,
         entries: [{ id: randomUUID(), accountId: home.currentId, amountMinor }],
@@ -109,7 +108,6 @@ describe("buildFakeBankFixture", () => {
             id: randomUUID(),
             kind: "expense",
             date: "2026-10-02",
-            amountMinor: -2500,
             categoryId: home.groceriesId,
             payeeId: home.grocerId,
             entries: [
@@ -120,7 +118,6 @@ describe("buildFakeBankFixture", () => {
             id: randomUUID(),
             kind: "transfer",
             date: "2026-10-05",
-            amountMinor: 0,
             categoryId: null,
             payeeId: null,
             entries: [

@@ -55,13 +55,14 @@ import {
   type FinanceAppDb,
 } from "./with-household.ts";
 
-// "fx_rates" is not in `schema`, but older deployments still use it. Keep it
-// in these tests until a migration removes it.
+// "fx_rates" and "month_totals" are not in `schema`, but older deployments
+// still use them. Keep them in these tests until a migration removes them.
 const tables: PgTable[] = [
   ...Object.values(schema).flatMap((value) =>
     is(value, PgTable) ? [value] : [],
   ),
   fxRates,
+  monthTotals,
 ];
 const globalTables = new Set<PgTable>([
   users,
@@ -169,7 +170,6 @@ async function seedEveryTable(
     householdId,
     kind: "expense",
     date: day,
-    amountMinor: -100,
     categoryId: home.groceriesId,
     payeeId: home.grocerId,
     memberId: home.memberId,

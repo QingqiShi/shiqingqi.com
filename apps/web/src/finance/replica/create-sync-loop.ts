@@ -20,6 +20,8 @@ const SYNC_ENDPOINT = "/api/finance/sync";
 const EXCHANGE_RATES_ENDPOINT = "/api/finance/exchange-rates";
 const EXCHANGE_RATES_INTERVAL_MS = 15 * 60_000;
 const EXCHANGE_RATES_RETRY_START_MS = 30_000;
+const FIRST_EXCHANGE_RATES_TIMEOUT_MS = 5_000;
+const FIRST_EXCHANGE_RATES_RETRY_START_MS = 2_000;
 const PUSH_BATCH = 500;
 const BACKOFF_START_MS = 1_000;
 const BACKOFF_MAX_MS = 60_000;
@@ -96,10 +98,29 @@ function problemOf(error: unknown, online: boolean): SyncProblem {
   return "server";
 }
 
+/** Rejects when `signal` aborts, also when `promise` does not listen to it. */
+function untilAborted<T>(promise: Promise<T>, signal: AbortSignal) {
+  return new Promise<T>((resolve, reject) => {
+    signal.addEventListener(
+      "abort",
+      () => {
+        reject(new Error("The request was aborted", { cause: signal.reason }));
+      },
+      { once: true },
+    );
+    promise.then(resolve, reject);
+  });
+}
+
 /**
  * Keeps the Replica in step with the server: pushes the Outbox, then pulls
  * what changed since the Replica's clock, or bootstraps when it has none,
  * then pushes what was queued meanwhile, then downloads new exchange rates.
+ * A device with no exchange rates tries to download them before its
+ * bootstrap finishes, for at most 5 s. When that fails, the bootstrap
+ * finishes without them, a currency with no rate counts one unit as one
+ * unit of the base currency, and a timer tries the download again after 2 s,
+ * doubling, until it gets them.
  * A failed push does not stop the pull: the Outbox stays on this device and
  * the status shows it as not sent. One run at a time; a trigger during a
  * run starts one more run after it. A failed run retries after 1 s,
@@ -143,10 +164,13 @@ export function createSyncLoop(options: SyncLoopOptions) {
   let pushFailures = 0;
   let retryAfterMs = 0;
   let retryTimer: ReturnType<typeof setTimeout> | undefined;
+  let exchangeRatesTimer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
   let exchangeRatesDueAt = -Infinity;
   let exchangeRatesFailed = false;
   let exchangeRatesRetries = 0;
+  let firstExchangeRatesTried = false;
+  let downloadedExchangeRates = false;
   let servedPairsId: string | null = null;
   let householdPairsId: string | null = null;
 
@@ -249,7 +273,15 @@ export function createSyncLoop(options: SyncLoopOptions) {
           break;
         }
         case "end": {
+          const isFirst =
+            !firstExchangeRatesTried &&
+            store.getMeta().exchangeRateCursor === null;
+          firstExchangeRatesTried = true;
+          const gotFirstRates =
+            isFirst &&
+            (await downloadExchangeRates(FIRST_EXCHANGE_RATES_TIMEOUT_MS));
           store.finishBootstrap(line.clock, confirmed);
+          if (gotFirstRates) scheduleExchangeRates();
           return;
         }
       }
@@ -306,50 +338,91 @@ export function createSyncLoop(options: SyncLoopOptions) {
     return false;
   }
 
+  /** A device with no rates yet tries again soon, and does not wait for the next run. */
   function retryExchangeRatesLater() {
     exchangeRatesRetries++;
-    exchangeRatesDueAt =
-      now() +
-      Math.min(
-        EXCHANGE_RATES_INTERVAL_MS,
-        EXCHANGE_RATES_RETRY_START_MS *
-          2 ** Math.min(exchangeRatesRetries - 1, 10),
-      );
+    const hasNoRates =
+      !downloadedExchangeRates && store.getMeta().exchangeRateCursor === null;
+    const delay = Math.min(
+      EXCHANGE_RATES_INTERVAL_MS,
+      (hasNoRates
+        ? FIRST_EXCHANGE_RATES_RETRY_START_MS
+        : EXCHANGE_RATES_RETRY_START_MS) *
+        2 ** Math.min(exchangeRatesRetries - 1, 10),
+    );
+    exchangeRatesDueAt = now() + delay;
+    clearTimeout(exchangeRatesTimer);
+    if (hasNoRates && !stopped) {
+      exchangeRatesTimer = setTimeout(() => {
+        void sync();
+      }, delay);
+    }
+  }
+
+  async function fetchExchangeRates(signal: AbortSignal) {
+    const cursor = store.getMeta().exchangeRateCursor;
+    const response = await send(
+      cursor
+        ? `${exchangeRatesEndpoint}?since=${encodeURIComponent(cursor)}`
+        : exchangeRatesEndpoint,
+      { signal },
+    );
+    if (!response.ok) throw httpError(response);
+    return exchangeRatesResponseSchema.parse(await response.json());
   }
 
   /**
-   * A pair with no rate yet waits for the download that the server starts
-   * after the push, so it retries soon. Only a lost session or another row
-   * shape throws; the rates on the device stay in use.
+   * Downloads the rates that are new since the last download, and gives up
+   * after `timeoutMs`. True when it got them. Only a lost session or another
+   * row shape throws; the rates on the device stay in use.
    */
-  async function refreshExchangeRates() {
-    if (!exchangeRatesDue()) return;
+  async function downloadExchangeRates(timeoutMs?: number) {
+    const controller = new AbortController();
+    const timer =
+      timeoutMs === undefined
+        ? undefined
+        : setTimeout(() => {
+            controller.abort(new Error("The exchange rates took too long"));
+          }, timeoutMs);
     try {
-      const cursor = store.getMeta().exchangeRateCursor;
-      const response = await send(
-        cursor
-          ? `${exchangeRatesEndpoint}?since=${encodeURIComponent(cursor)}`
-          : exchangeRatesEndpoint,
+      const rates = await untilAborted(
+        fetchExchangeRates(controller.signal),
+        controller.signal,
       );
-      if (!response.ok) throw httpError(response);
-      const rates = exchangeRatesResponseSchema.parse(await response.json());
       store.applyExchangeRates(rates);
       const pairsId = exchangeRateCursor.parse(rates.cursor)?.pairsId ?? null;
       if (pairsId !== servedPairsId) exchangeRatesRetries = 0;
       servedPairsId = pairsId;
       exchangeRatesFailed = false;
+      downloadedExchangeRates = true;
+      clearTimeout(exchangeRatesTimer);
     } catch (error) {
       if (isUnauthorised(error) || error instanceof RowShapeError) throw error;
       exchangeRatesFailed = true;
       retryExchangeRatesLater();
-      return;
+      return false;
+    } finally {
+      clearTimeout(timer);
     }
+    return true;
+  }
+
+  /**
+   * A pair with no rate yet waits for the download that the server starts
+   * after the push, so it retries soon.
+   */
+  function scheduleExchangeRates() {
     if (householdLacksRates()) {
       retryExchangeRatesLater();
     } else {
       exchangeRatesRetries = 0;
       exchangeRatesDueAt = now() + EXCHANGE_RATES_INTERVAL_MS;
     }
+  }
+
+  async function refreshExchangeRates() {
+    if (!exchangeRatesDue()) return;
+    if (await downloadExchangeRates()) scheduleExchangeRates();
   }
 
   /** Returns the error of a failed push, or null. A lost session or another row shape throws, because the download then fails too. */
@@ -476,6 +549,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
   function stop() {
     stopped = true;
     clearTimeout(retryTimer);
+    clearTimeout(exchangeRatesTimer);
     detach?.();
     detach = null;
     setStatus({ leader: false });

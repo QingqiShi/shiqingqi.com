@@ -9,7 +9,7 @@ interface DayTotals {
 /** What a day's posted Transactions spent and received. Transfers count in neither. */
 export function sumDayTotals(
   rows: readonly TransactionRow[],
-  amountOf: (row: TransactionRow) => number = (row) => row.amountMinor,
+  amountOf: (row: TransactionRow) => number,
 ): DayTotals {
   let expenseMinor = 0;
   let incomeMinor = 0;

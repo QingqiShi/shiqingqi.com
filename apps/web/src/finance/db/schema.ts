@@ -513,7 +513,8 @@ export const transactions = pgTable(
     kind: transactionKind("kind").notNull(),
     status: transactionStatus("status").notNull().default("posted"),
     date: date("date", { mode: "string" }).notNull(),
-    amountMinor: minor("amount_minor").notNull(),
+    /** Retired. Only older deployments use it. A later migration removes it. */
+    amountMinor: minor("amount_minor"),
     categoryId: uuid("category_id"),
     payeeId: uuid("payee_id"),
     memberId: uuid("member_id"),
@@ -595,6 +596,11 @@ export const entries = pgTable(
   ],
 );
 
+const { amountMinor: _retiredAmountMinor, ...liveTransactionColumns } =
+  getTableColumns(transactions);
+/** Every column of `transactions` but the retired `amount_minor`. */
+export { liveTransactionColumns };
+
 const { fxRate: _retiredFxRate, ...liveEntryColumns } =
   getTableColumns(entries);
 /** Every column of `entries` but the retired `fx_rate`. */
@@ -667,6 +673,7 @@ export const balanceCheckDays = pgTable(
   (t) => [index("balance_check_days_household_idx").on(t.householdId, t.id)],
 );
 
+/** Retired. Only older deployments use it. A later migration removes it. */
 export const monthTotals = pgTable(
   "month_totals",
   {
@@ -999,7 +1006,6 @@ export const schema = {
   transactionTags,
   accountBalanceDays,
   balanceCheckDays,
-  monthTotals,
   exchangeRates,
   appliedMutations,
   connections,

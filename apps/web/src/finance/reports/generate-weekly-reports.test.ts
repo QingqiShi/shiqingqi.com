@@ -21,6 +21,7 @@ import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { netWorthAt } from "../domain/balance/net-worth-at.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { weekdayOf } from "../domain/dates/start-of-week.ts";
+import { createTransactionAmount } from "../domain/transactions/create-transaction-amount.ts";
 import { generateWeeklyReports } from "./generate-weekly-reports.ts";
 import {
   SPENDING_HISTORY_WEEKS,
@@ -41,7 +42,11 @@ let engineNetWorthAt: (day: string) => number;
 
 async function spentBetween(from: string, to: string) {
   const rows = await db
-    .select({ amountMinor: transactions.amountMinor })
+    .select({
+      id: transactions.id,
+      kind: transactions.kind,
+      date: transactions.date,
+    })
     .from(transactions)
     .where(
       and(
@@ -53,7 +58,21 @@ async function spentBetween(from: string, to: string) {
         lte(transactions.date, to),
       ),
     );
-  return rows.reduce((sum, row) => sum - row.amountMinor, 0);
+  const accountRows = new Map(
+    (await db.select().from(accounts)).map((row) => [row.id, row]),
+  );
+  const entriesByTransaction = Map.groupBy(
+    await db.select().from(entries).where(isNull(entries.deletedAt)),
+    (entry) => entry.transactionId,
+  );
+  const amountOf = createTransactionAmount(
+    createFxIndex(await db.select().from(exchangeRates), "GBP"),
+    (id) => accountRows.get(id),
+  );
+  return rows.reduce(
+    (sum, row) => sum - amountOf(row, entriesByTransaction.get(row.id) ?? []),
+    0,
+  );
 }
 
 /** Stores a Report of a week before any balance, as an older backfill could have left. */

@@ -1,7 +1,6 @@
-import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { addMonths } from "../domain/dates/add-months.ts";
-import { parseDay, toEpochDay } from "../domain/dates/to-epoch-day.ts";
+import { parseDay } from "../domain/dates/to-epoch-day.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import type {
   AccountGroupRow,
@@ -30,8 +29,6 @@ export interface InstalmentPlanInput {
   groups: readonly Pick<AccountGroupRow, "id" | "side" | "position">[];
   /** The names the new rows get, in the reader's language. */
   names: { account: string; rule: string; group: string };
-  baseCurrency: string;
-  fx: FxIndex;
   createId: () => string;
 }
 
@@ -56,7 +53,6 @@ export function canPayInInstalments(
     transaction.kind === "expense" &&
     transaction.status === "posted" &&
     transaction.ruleId === null &&
-    transaction.amountMinor < 0 &&
     entries.length === 1 &&
     entries[0].amountMinor < 0
   );
@@ -90,10 +86,6 @@ export function buildInstalmentPlan(
   const totalMinor = -main.amountMinor + input.feeMinor;
   const paymentMinor = Math.floor(totalMinor / months);
   const firstPaymentMinor = totalMinor - paymentMinor * (months - 1);
-  const toBase = (minor: number, day: string) =>
-    account.currency === input.baseCurrency
-      ? minor
-      : Math.round(input.fx.toBase(minor, account.currency, toEpochDay(day)));
 
   const mutations: LocalMutationInput[] = [];
   const undo: LocalMutationInput[] = [];
@@ -159,7 +151,6 @@ export function buildInstalmentPlan(
     args: {
       id: transaction.id,
       patch: {
-        amountMinor: toBase(-firstPaymentMinor, transaction.date),
         entries: [
           {
             id: main.id,
@@ -197,7 +188,6 @@ export function buildInstalmentPlan(
       paused: false,
       template: {
         kind: "expense",
-        amountMinor: toBase(-paymentMinor, startsOn),
         categoryId: transaction.categoryId,
         payeeId: transaction.payeeId,
         memberId: transaction.memberId,
@@ -218,7 +208,6 @@ export function buildInstalmentPlan(
       args: {
         id: transaction.id,
         patch: {
-          amountMinor: transaction.amountMinor,
           entries: [
             {
               id: main.id,

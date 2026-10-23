@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
 import {
   TEST_IDS,
@@ -24,14 +23,6 @@ const accountById = new Map([
   [MORTGAGE, { currency: "GBP" }],
 ]);
 
-const fx = createFxIndex(
-  [
-    { base: "GBP", quote: "USD", on: "2026-01-01", rate: 1.25 },
-    { base: "GBP", quote: "USD", on: "2026-09-01", rate: 1.6 },
-  ],
-  "GBP",
-);
-
 let counter = 0;
 function context(
   transaction: TransactionRow,
@@ -42,7 +33,6 @@ function context(
     accountById,
     payees: [],
     baseCurrency: "GBP",
-    fx,
     createId: () => {
       counter++;
       return `00000000-0000-4000-8000-${String(counter).padStart(12, "0")}`;
@@ -91,7 +81,6 @@ describe("buildTransactionMutations on an existing Transaction", () => {
       name: "updateTransaction",
       args: {
         patch: {
-          amountMinor: -110_000,
           entries: [
             {
               id: PAYMENT_ENTRY,
@@ -161,7 +150,6 @@ describe("buildTransactionMutations on an existing Transaction", () => {
         args: {
           status: "expected",
           date: "2026-09-01",
-          amountMinor: -100_000,
           entries: [
             { accountId: ids.current, amountMinor: -100_000 },
             { accountId: MORTGAGE, amountMinor: 60_000 },
@@ -199,41 +187,29 @@ describe("buildTransactionMutations on an existing Transaction", () => {
   });
 });
 
-describe("buildTransactionMutations and exchange rates", () => {
+describe("buildTransactionMutations in another currency", () => {
   const { transaction, entry } = testExpense(PAYMENT, PAYMENT_ENTRY, {
     date: "2026-03-01",
-    amountMinor: -801,
+    amountMinor: -1_000,
     accountId: ids.dollars,
   });
-  const dollarEntry = { ...entry, amountMinor: -1_000 };
   const draft = editorDraft("expense", "2026-03-01", {
     amountText: "10.00",
     accountId: ids.dollars,
     categoryId: ids.groceries,
   });
 
-  it("keeps the stats amount when the amount, account and date stay", () => {
+  it("changes only the date when the date changes", () => {
     const result = buildTransactionMutations(
-      { ...draft, note: "Lunch" },
-      context(transaction, [dollarEntry]),
+      { ...draft, date: "2026-09-02" },
+      context(transaction, [entry]),
     );
     if (!result.ok) throw new Error("Expected a save");
     expect(result.mutations).toEqual([
       {
         name: "updateTransaction",
-        args: { id: PAYMENT, patch: { note: "Lunch" } },
+        args: { id: PAYMENT, patch: { date: "2026-09-02" } },
       },
     ]);
-  });
-
-  it("works the stats amount out again when the date changes", () => {
-    const result = buildTransactionMutations(
-      { ...draft, date: "2026-09-02" },
-      context(transaction, [dollarEntry]),
-    );
-    if (!result.ok) throw new Error("Expected a save");
-    expect(result.mutations[0]).toMatchObject({
-      args: { patch: { date: "2026-09-02", amountMinor: -625 } },
-    });
   });
 });

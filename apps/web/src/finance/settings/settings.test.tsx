@@ -220,7 +220,6 @@ describe("Settings", () => {
         id: "00000000-0000-4000-8000-0000000000f1",
         kind: "expense",
         date: "2026-10-01",
-        amountMinor: -1250,
         categoryId: ids.groceries,
         needsReview: true,
         entries: [
@@ -482,7 +481,6 @@ describe("Settings", () => {
         dayOfMonth: 3,
         template: {
           kind: "expense",
-          amountMinor: -4200,
           payeeId: ids.tfl,
           categoryId: ids.groceries,
           entries: [{ accountId: ids.current, amountMinor: -4200 }],
@@ -511,7 +509,6 @@ describe("Settings", () => {
         startsOn: "2026-10-01",
         template: {
           kind: "expense",
-          amountMinor: -4200,
           categoryId: ids.groceries,
           payeeId: ids.tfl,
           memberId: ids.alex,
@@ -545,7 +542,6 @@ describe("Settings", () => {
       args: {
         template: {
           kind: "expense",
-          amountMinor: -4200,
           payeeId: ids.tfl,
           categoryId: ids.dining,
           memberId: ids.alex,
@@ -566,7 +562,6 @@ describe("Settings", () => {
         startsOn: "2026-10-01",
         template: {
           kind: "expense",
-          amountMinor: -7500,
           categoryId: ids.groceries,
           entries: [{ accountId: ids.brokerage, amountMinor: -10_000 }],
         },

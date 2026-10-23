@@ -1,6 +1,6 @@
 import { daysInMonth, parseDay } from "./to-epoch-day.ts";
 
-/** The first day of the day's month: the key `month_totals` uses. */
+/** The first day of the day's month. */
 export function startOfMonth(day: string): string {
   return `${day.slice(0, 7)}-01`;
 }

@@ -36,9 +36,13 @@ function buildSeries(
   return {
     days: Int32Array.from(days),
     rates: Float64Array.from(rates),
-    minorFactor:
-      10 ** (currencyExponent(baseCurrency) - currencyExponent(currency)),
+    minorFactor: minorFactorOf(currency, baseCurrency),
   };
+}
+
+/** Converts minor units of `currency` to minor units of `baseCurrency` at a rate of 1 in major units. */
+function minorFactorOf(currency: string, baseCurrency: string) {
+  return 10 ** (currencyExponent(baseCurrency) - currencyExponent(currency));
 }
 
 /**
@@ -68,8 +72,11 @@ export function createFxIndex(
   function lookup(currency: string, epochDay: number) {
     const found = series.get(currency);
     // Same as the MoneyThings app: with no rate on or before the day, use
-    // the earliest rate; with no rate at all, count the amount at par.
-    if (!found) return { rate: 1, minorFactor: 1 };
+    // the earliest rate; with no rate at all, count one unit as one unit of
+    // the base currency.
+    if (!found) {
+      return { rate: 1, minorFactor: minorFactorOf(currency, baseCurrency) };
+    }
     const { days, rates, minorFactor } = found;
     const low = upperBound(days, epochDay);
     return { rate: rates[Math.max(low - 1, 0)], minorFactor };

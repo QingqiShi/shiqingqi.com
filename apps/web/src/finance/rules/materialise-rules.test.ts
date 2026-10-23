@@ -48,7 +48,6 @@ async function createRule(
       startsOn: "2026-01-31",
       template: {
         kind: "expense",
-        amountMinor: -120_000,
         categoryId: home.groceriesId,
         payeeId: home.grocerId,
         entries: [{ accountId: home.currentId, amountMinor: -120_000 }],
@@ -92,7 +91,6 @@ async function insertImported(
     kind: "expense",
     status: "expected",
     date,
-    amountMinor: -120_000,
     categoryId: home.groceriesId,
     payeeId: home.grocerId,
     ruleId,
@@ -168,7 +166,6 @@ describe("materialiseRules", () => {
     const ruleId = await createRule({
       template: {
         kind: "expense",
-        amountMinor: -120_000,
         categoryId: home.groceriesId,
         payeeId: home.grocerId,
         memberId: home.partnerId,
@@ -508,7 +505,6 @@ describe("a template change", () => {
       )
       .orderBy(asc(entries.position));
     return {
-      amountMinor: row.amountMinor,
       categoryId: row.categoryId,
       payeeId: row.payeeId,
       entries: live,
@@ -518,7 +514,6 @@ describe("a template change", () => {
   function newTemplate(categoryId: string) {
     return {
       kind: "expense",
-      amountMinor: -150_000,
       categoryId,
       payeeId: home.employerId,
       entries: [{ accountId: home.cardId, amountMinor: -150_000 }],
@@ -551,7 +546,6 @@ describe("a template change", () => {
     );
 
     expect(await shape(materialisedId)).toEqual({
-      amountMinor: -150_000,
       categoryId: diningId,
       payeeId: home.employerId,
       entries: [
@@ -564,7 +558,6 @@ describe("a template change", () => {
       ],
     });
     expect(await shape(importedId)).toMatchObject({
-      amountMinor: -150_000,
       categoryId: diningId,
       payeeId: home.employerId,
       entries: [
@@ -597,7 +590,6 @@ describe("a template change", () => {
               id: ruleId,
               template: {
                 kind: "transfer",
-                amountMinor: 0,
                 entries: [
                   { accountId: home.currentId, amountMinor: -1_000 },
                   { accountId: home.cardId, amountMinor: 1_000 },
@@ -632,7 +624,6 @@ describe("a template change", () => {
 
     expect(await ruleDays(ruleId)).toEqual(["2026-11-01"]);
     expect(await shape(occurrenceId(ruleId, "2026-11-01"))).toMatchObject({
-      amountMinor: -150_000,
       categoryId: diningId,
       entries: [{ accountId: home.cardId, amountMinor: -150_000 }],
     });

@@ -347,7 +347,6 @@ function createTransaction(scope: Scope, input: TransactionInput) {
     kind: input.kind,
     status: input.status,
     date: input.date,
-    amountMinor: input.amountMinor,
     categoryId: input.categoryId,
     payeeId: input.payeeId,
     memberId: input.memberId,

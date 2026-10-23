@@ -9,8 +9,8 @@ import {
   categories,
   entries,
   liveEntryColumns,
+  liveTransactionColumns,
   members,
-  monthTotals,
   payees,
   rules,
   tags,
@@ -74,6 +74,7 @@ export const syncReadRepository = {
     rules: changedRows(rules),
     transactions: changedRows(transactions, {
       liveOnBootstrap: transactions.deletedAt,
+      columns: liveTransactionColumns,
     }),
     entries: changedRows(entries, {
       liveOnBootstrap: entries.deletedAt,
@@ -84,9 +85,6 @@ export const syncReadRepository = {
     }),
     accountBalanceDays: changedRows(accountBalanceDays, {
       liveOnBootstrap: accountBalanceDays.deletedAt,
-    }),
-    monthTotals: changedRows(monthTotals, {
-      liveOnBootstrap: monthTotals.deletedAt,
     }),
     bankLinks: (scope, since) =>
       scope.db

@@ -23,25 +23,41 @@ export interface RecurringPattern {
 
 type Candidate = Pick<
   TransactionRow,
-  "id" | "date" | "amountMinor" | "kind" | "status" | "deletedAt"
+  "id" | "date" | "kind" | "status" | "deletedAt"
 >;
 
-function isNear(amount: number, target: number) {
-  if (target === 0) return amount === 0;
-  return Math.abs(amount - target) <= Math.abs(target) * AMOUNT_TOLERANCE;
+/** The amount a Transaction shows, in its account's currency; see `shownAmount`. */
+type ShownAmountOf = (transaction: Candidate) => {
+  amountMinor: number;
+  currency: string;
+};
+
+function isNear(
+  amount: ReturnType<ShownAmountOf>,
+  target: ReturnType<ShownAmountOf>,
+) {
+  if (amount.currency !== target.currency) return false;
+  if (target.amountMinor === 0) return amount.amountMinor === 0;
+  return (
+    Math.abs(amount.amountMinor - target.amountMinor) <=
+    Math.abs(target.amountMinor) * AMOUNT_TOLERANCE
+  );
 }
 
 /**
  * Finds a schedule in a Payee's history: the Transaction and at least three
- * Transactions before it with near-equal amounts (± 5 %) and the same gap
+ * Transactions before it with near-equal amounts (± 5 %, in the same
+ * currency) and the same gap
  * each time — 7 ± 1, 30 ± 3 or 365 ± 7 days. `history` is the Payee's
  * Transactions, newest first. Null when there is no such pattern.
  */
 export function detectRecurring(
   transaction: Candidate,
   history: readonly Candidate[],
+  shownAmountOf: ShownAmountOf,
 ): RecurringPattern | null {
   if (transaction.kind === "transfer") return null;
+  const target = shownAmountOf(transaction);
   const earlier = history
     .filter(
       (row) =>
@@ -50,7 +66,7 @@ export function detectRecurring(
         row.status === "posted" &&
         row.kind === transaction.kind &&
         row.date < transaction.date &&
-        isNear(row.amountMinor, transaction.amountMinor),
+        isNear(shownAmountOf(row), target),
     )
     .slice(0, PRIOR_NEEDED);
   if (earlier.length < PRIOR_NEEDED) return null;

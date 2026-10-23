@@ -35,7 +35,6 @@ describe("QuickAdd", () => {
     if (created.name !== "createTransaction") throw new Error("Not created");
     expect(created.args).toMatchObject({
       kind: "expense",
-      amountMinor: -1_250,
       payeeId: ids.tesco,
       categoryId: ids.groceries,
       memberId: ids.sam,
@@ -63,7 +62,6 @@ describe("QuickAdd", () => {
     if (created.name !== "createTransaction") throw new Error("Not created");
     expect(created.args).toMatchObject({
       kind: "expense",
-      amountMinor: -1_250,
       payeeId: null,
       categoryId: ids.groceries,
       entries: [{ accountId: ids.card }],
@@ -77,7 +75,6 @@ describe("QuickAdd", () => {
     if (created.name !== "createTransaction") throw new Error("Not created");
     expect(created.args).toMatchObject({
       kind: "income",
-      amountMinor: 200_000,
       categoryId: ids.salary,
     });
   });

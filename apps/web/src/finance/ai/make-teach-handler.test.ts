@@ -53,7 +53,6 @@ beforeEach(async () => {
     householdId: home.householdId,
     kind: "expense",
     date: "2026-10-09",
-    amountMinor: -280,
     categoryId: home.groceriesId,
     labelledBy: "member",
     aiReason: "TfL sells snacks at stations",

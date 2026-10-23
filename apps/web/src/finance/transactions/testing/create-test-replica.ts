@@ -134,7 +134,6 @@ export function testExpense(
           : "expense",
       status: fields.status ?? "posted",
       date: fields.date,
-      amountMinor: fields.amountMinor,
       categoryId: fields.categoryId ?? ids.groceries,
       payeeId: fields.payeeId ?? null,
       memberId: fields.memberId ?? null,

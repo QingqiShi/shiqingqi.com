@@ -8,7 +8,6 @@ interface RuleTransaction {
   id: string;
   date: string;
   kind: RuleTemplate["kind"];
-  amountMinor: number;
   categoryId: string | null;
   payeeId: string | null;
   memberId: string | null;
@@ -44,8 +43,7 @@ export function templatePatch(
  * on that no bank row is matched to, so that each looks as Materialise
  * would make it from the new template. Each one takes the fields that the
  * change touched, so a field that a Member changed on one Transaction stays
- * when the template keeps it. The amount and the Entries go together, so
- * that they always agree. A Transaction that a Member gave another kind
+ * when the template keeps it. A Transaction that a Member gave another kind
  * stays as it is.
  */
 export function retemplateExpected(
@@ -55,9 +53,7 @@ export function retemplateExpected(
   newEntryId: NewEntryId,
 ) {
   const tagsChanged = !sameSet(before.tagIds, after.tagIds);
-  const moneyChanged =
-    before.amountMinor !== after.amountMinor ||
-    !sameEntries(before.entries, after.entries);
+  const moneyChanged = !sameEntries(before.entries, after.entries);
   const changes: { id: string; patch: TransactionPatch }[] = [];
   for (const row of rows) {
     if (row.kind !== after.kind) continue;
@@ -70,9 +66,6 @@ export function retemplateExpected(
     }
     if (tagsChanged && !sameSet(row.tagIds, target.tagIds)) {
       patch.tagIds = target.tagIds;
-    }
-    if (moneyChanged && row.amountMinor !== target.amountMinor) {
-      patch.amountMinor = target.amountMinor;
     }
     if (moneyChanged && !sameEntries(row.entries, target.entries)) {
       patch.entries = target.entries;

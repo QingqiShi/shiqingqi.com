@@ -12,7 +12,7 @@ export interface RuleTemplateMoneyInput {
 }
 
 /**
- * The accounts, Entries, amount and Category of a Rule's template: an
+ * The accounts, Entries and Category of a Rule's template: an
  * expense spends the amount from the account, an income earns it into the
  * account, and a transfer moves it to `toAccountId` with no Category.
  * `findAccount` gives only the accounts that the Rule can use.
@@ -27,8 +27,6 @@ export function ruleTemplateMoney(
       account: AccountRow;
       /** Null for an expense or income. */
       toAccount: AccountRow | null;
-      /** Signed, in the account's minor units; 0 for a transfer. */
-      amountMinor: number;
       categoryId: string | null;
       entries: RuleTemplate["entries"];
     } {
@@ -42,7 +40,6 @@ export function ruleTemplateMoney(
       ok: true,
       account,
       toAccount,
-      amountMinor: 0,
       categoryId: null,
       entries: [
         { accountId: account.id, amountMinor: -input.amountMinor },
@@ -57,7 +54,6 @@ export function ruleTemplateMoney(
     ok: true,
     account,
     toAccount: null,
-    amountMinor: signed,
     categoryId: input.categoryId,
     entries: [{ accountId: account.id, amountMinor: signed }],
   };

@@ -1,0 +1,1 @@
+ALTER TABLE "transactions" ALTER COLUMN "amount_minor" DROP NOT NULL;

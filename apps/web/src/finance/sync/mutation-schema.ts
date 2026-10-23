@@ -23,7 +23,6 @@ const entryInputSchema = z.object({
 const transactionFields = z.object({
   kind: transactionKindSchema,
   date: day,
-  amountMinor: minorUnits,
   categoryId: id.nullable(),
   payeeId: id.nullable(),
   memberId: id.nullable(),

@@ -15,9 +15,10 @@ import type {
   ReplicaWrite,
 } from "./types.ts";
 
-// Older devices keep an unused `reports` store. Do not raise the version to
-// remove it: the upgrade also deletes the Outbox.
+// Older devices keep the unused stores `reports` and `monthTotals`. Do not
+// raise the version to remove them: the upgrade also deletes the Outbox.
 const DB_VERSION = 1;
+const RETIRED_MONTH_TOTALS_STORE = "monthTotals";
 const META_STORE = "meta";
 const OUTBOX_STORE = "outbox";
 // The global exchange rates use the store of the old synced table
@@ -88,6 +89,19 @@ function completion(transaction: IDBTransaction) {
   });
 }
 
+/** Removes the rows of the retired `monthTotals` store, which older devices keep. A failure does not stop the open. */
+async function clearRetiredStores(db: IDBDatabase) {
+  if (!db.objectStoreNames.contains(RETIRED_MONTH_TOTALS_STORE)) return;
+  try {
+    const transaction = db.transaction(RETIRED_MONTH_TOTALS_STORE, "readwrite");
+    const done = completion(transaction);
+    transaction.objectStore(RETIRED_MONTH_TOTALS_STORE).clear();
+    await done;
+  } catch {
+    return;
+  }
+}
+
 function openDb(name: string, onClose: () => void, onDeleted: () => void) {
   return new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(name, DB_VERSION);
@@ -109,7 +123,9 @@ function openDb(name: string, onClose: () => void, onDeleted: () => void) {
         if (event.newVersion === null) onDeleted();
       };
       db.onclose = onClose;
-      resolve(db);
+      void clearRetiredStores(db).then(() => {
+        resolve(db);
+      });
     };
     request.onerror = () => {
       reject(request.error ?? new Error("Failed to open IndexedDB"));

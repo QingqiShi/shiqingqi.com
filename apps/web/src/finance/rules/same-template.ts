@@ -25,7 +25,6 @@ export function sameEntries(
 export function sameTemplate(a: RuleTemplate, b: RuleTemplate) {
   return (
     a.kind === b.kind &&
-    a.amountMinor === b.amountMinor &&
     a.categoryId === b.categoryId &&
     a.payeeId === b.payeeId &&
     a.memberId === b.memberId &&

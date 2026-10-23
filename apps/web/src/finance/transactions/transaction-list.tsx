@@ -20,6 +20,8 @@ interface TransactionListProps {
   items: readonly TransactionListItem[];
   lookups: TransactionLookups;
   entriesByTransaction: ReadonlyMap<string, readonly EntryRow[]>;
+  /** From `selectTransactionAmounts`. */
+  amounts: ReadonlyMap<string, number>;
   tagIdsByTransaction: ReadonlyMap<string, readonly string[]>;
   pendingKeys: ReadonlySet<string>;
   baseCurrency: string;
@@ -62,6 +64,7 @@ export function TransactionList({
   items,
   lookups,
   entriesByTransaction,
+  amounts,
   tagIdsByTransaction,
   pendingKeys,
   baseCurrency,
@@ -104,6 +107,7 @@ export function TransactionList({
             <TransactionListRow
               row={item.row}
               entries={entriesByTransaction.get(item.row.id) ?? NO_ENTRIES}
+              countedMinor={amounts.get(item.row.id) ?? 0}
               tagIds={tagIdsByTransaction.get(item.row.id) ?? NO_TAGS}
               lookups={lookups}
               baseCurrency={baseCurrency}

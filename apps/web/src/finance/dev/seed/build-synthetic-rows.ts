@@ -157,8 +157,6 @@ interface NewTransaction {
   kind: "expense" | "income" | "transfer";
   status?: "posted" | "expected";
   date: string;
-  /** The statistics amount: an expense is negative, a refund and an income positive, a transfer 0. */
-  amountMinor: number;
   categoryId: string | null;
   payeeId?: string | null;
   memberId?: string | null;
@@ -335,7 +333,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       kind: transaction.kind,
       status,
       date: transaction.date,
-      amountMinor: transaction.amountMinor,
       categoryId: transaction.categoryId,
       payeeId: transaction.payeeId ?? null,
       memberId: transaction.memberId ?? null,
@@ -415,12 +412,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     const amountMinor = minorOf(spec.amount);
     const template: RuleTemplate = {
       kind: spec.kind,
-      amountMinor:
-        spec.kind === "expense"
-          ? -amountMinor
-          : spec.kind === "income"
-            ? amountMinor
-            : 0,
       categoryId: spec.category ? categoryId(spec.category) : null,
       payeeId: spec.payee ? payeeId(spec.payee) : null,
       memberId: memberOf(spec.member),
@@ -471,12 +462,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
         kind: spec.kind,
         status,
         date: day,
-        amountMinor:
-          spec.kind === "expense"
-            ? -occurrenceAmount
-            : spec.kind === "income"
-              ? occurrenceAmount
-              : 0,
         categoryId: spec.category ? categoryId(spec.category) : null,
         payeeId: spec.payee ? payeeId(spec.payee) : null,
         memberId: memberOf(spec.member),
@@ -560,7 +545,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     const transactionId = add({
       kind: "expense",
       date,
-      amountMinor: -amount,
       categoryId: categoryId(payee.category),
       payeeId: payeeId(payee.name),
       memberId: member,
@@ -589,7 +573,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       add({
         kind: "expense",
         date: refundDay,
-        amountMinor: amount,
         categoryId: categoryId(payee.category),
         payeeId: payeeId(payee.name),
         memberId: member,
@@ -620,7 +603,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
         add({
           kind: "transfer",
           date: repaymentDay,
-          amountMinor: 0,
           categoryId: null,
           memberId: memberOf(card.owner),
           note: "Card repayment",
@@ -647,7 +629,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       add({
         kind: "income",
         date: claimDay,
-        amountMinor: claimed,
         categoryId: categoryId("reimbursement"),
         payeeId: payeeId("Acme Ltd"),
         memberId: memberIds.alex,
@@ -661,7 +642,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       add({
         kind: "transfer",
         date: addDays(monthStart, 11),
-        amountMinor: 0,
         categoryId: null,
         memberId: memberIds.alex,
         note: "Friend paid back part of the loan",
@@ -676,7 +656,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       add({
         kind: "income",
         date: randomDay(monthStart, monthEnd),
-        amountMinor: Math.round(2200 * amountScale),
         categoryId: categoryId("secondHand"),
         payeeId: payeeId("Vinted"),
         memberId: memberIds.sam,
@@ -747,7 +726,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     add({
       kind: "transfer",
       date: sweepDay,
-      amountMinor: 0,
       categoryId: null,
       memberId: memberIds.alex,
       note: "Close account",
@@ -770,7 +748,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     add({
       kind,
       date: randomDay(reviewFrom, today),
-      amountMinor,
       categoryId: row.category ? categoryId(row.category) : uncategorised[kind],
       payeeId: row.payee ? payeeId(row.payee) : null,
       memberId: memberOf(accountSpec(row.account).owner),
@@ -789,7 +766,6 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
       kind: "expense",
       status: "expected",
       date: addDays(today, row.inDays),
-      amountMinor: -minorOf(row.pounds),
       categoryId: categoryId(payee.category),
       payeeId: payeeId(payee.name),
       memberId: memberOf(accountSpec(row.account).owner),

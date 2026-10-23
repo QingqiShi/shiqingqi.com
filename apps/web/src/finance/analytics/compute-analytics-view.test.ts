@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { buildSyntheticRows } from "../dev/seed/build-synthetic-rows.ts";
+import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { addMonths } from "../domain/dates/add-months.ts";
+import { createTransactionAmount } from "../domain/transactions/create-transaction-amount.ts";
 import { expectWithinBudget } from "../testing/expect-within-budget.ts";
 import {
   buildAnalyticsIndex,
@@ -29,14 +31,28 @@ function syntheticSource(transactionsPerYear: number): AnalyticsIndexSource {
     kind: row.kind,
     status: row.status ?? "posted",
     date: row.date,
-    amountMinor: row.amountMinor,
     categoryId: row.categoryId ?? null,
     payeeId: row.payeeId ?? null,
     memberId: row.memberId ?? null,
     deletedAt: null,
   }));
+  const accounts = new Map(rows.accounts.map((row) => [row.id, row]));
+  const amountOf = createTransactionAmount(
+    createFxIndex(rows.exchangeRates, "GBP"),
+    (id) => accounts.get(id),
+  );
+  const entriesByTransaction = Map.groupBy(
+    rows.entries.map((entry) => ({ ...entry, position: entry.position ?? 0 })),
+    (entry) => entry.transactionId,
+  );
   return {
     transactions,
+    amounts: new Map(
+      transactions.map((row) => [
+        row.id,
+        amountOf(row, entriesByTransaction.get(row.id) ?? []),
+      ]),
+    ),
     transactionTags: rows.transactionTags.map((row) => ({
       transactionId: row.transactionId,
       tagId: row.tagId,

@@ -42,10 +42,7 @@ async function seedBalances(household: SeededHousehold) {
     },
   ]);
   await withHousehold(db, household.householdId, (scope) =>
-    recomputeDerived(
-      { ...scope, version: 1 },
-      { accounts: "all", months: "all" },
-    ),
+    recomputeDerived({ ...scope, version: 1 }, { accounts: "all" }),
   );
 }
 

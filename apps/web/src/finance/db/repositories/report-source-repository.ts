@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, isNull, lte } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, lte } from "drizzle-orm";
 import {
   accountBalanceDays,
   accountGroups,
@@ -30,6 +30,7 @@ export const reportSourceRepository = {
       );
   },
 
+  /** Every account, deleted ones too, so an old Entry still finds its kind and currency. */
   async listAccounts(scope: RepositoryScope) {
     return scope.db
       .select({
@@ -44,14 +45,10 @@ export const reportSourceRepository = {
         closedOn: accounts.closedOn,
         position: accounts.position,
         isSystem: accounts.isSystem,
+        deletedAt: accounts.deletedAt,
       })
       .from(accounts)
-      .where(
-        and(
-          eq(accounts.householdId, scope.householdId),
-          isNull(accounts.deletedAt),
-        ),
-      );
+      .where(eq(accounts.householdId, scope.householdId));
   },
 
   async listBalanceDays(scope: RepositoryScope) {
@@ -109,7 +106,6 @@ export const reportSourceRepository = {
         kind: transactions.kind,
         status: transactions.status,
         date: transactions.date,
-        amountMinor: transactions.amountMinor,
         categoryId: transactions.categoryId,
         payeeId: transactions.payeeId,
         memberId: transactions.memberId,
@@ -125,6 +121,38 @@ export const reportSourceRepository = {
         ),
       )
       .orderBy(asc(transactions.date));
+  },
+
+  /** The live Entries of the live expenses and incomes dated `from` to `to`. */
+  async listAmountEntries(
+    scope: RepositoryScope,
+    range: { from: string | null; to: string },
+  ) {
+    return scope.db
+      .select({
+        transactionId: entries.transactionId,
+        accountId: entries.accountId,
+        amountMinor: entries.amountMinor,
+        position: entries.position,
+      })
+      .from(entries)
+      .innerJoin(
+        transactions,
+        and(
+          eq(transactions.householdId, scope.householdId),
+          eq(transactions.id, entries.transactionId),
+        ),
+      )
+      .where(
+        and(
+          eq(entries.householdId, scope.householdId),
+          isNull(entries.deletedAt),
+          isNull(transactions.deletedAt),
+          inArray(transactions.kind, ["expense", "income"]),
+          range.from === null ? undefined : gte(transactions.date, range.from),
+          lte(transactions.date, range.to),
+        ),
+      );
   },
 
   /** The live Entries on In transit, which can put a Transaction in Review. */

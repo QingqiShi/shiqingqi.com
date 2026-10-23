@@ -1,13 +1,4 @@
 import { randomUUID } from "node:crypto";
-import {
-  cpSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
 import { PGlite } from "@electric-sql/pglite";
 import { asc, sql } from "drizzle-orm";
 import { drizzle, type PgliteDatabase } from "drizzle-orm/pglite";
@@ -16,30 +7,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { FINANCE_MIGRATIONS_FOLDER } from "./finance-migrations-folder.ts";
 import { exchangeRates, schema } from "./schema.ts";
+import { migrationsFolderBefore } from "./testing/migrations-folder-before.ts";
 import type { FinanceDb } from "./types.ts";
 import { withHousehold } from "./with-household.ts";
 
 const MIGRATION = "0014_exchange_rates";
-
-const journalSchema = z.object({
-  entries: z.array(z.object({ tag: z.string() }).loose()),
-});
-
-/** A copy of the migrations folder that stops before `MIGRATION`. */
-function foldersBefore(tag: string) {
-  const folder = mkdtempSync(path.join(tmpdir(), "finance-migrations-"));
-  cpSync(FINANCE_MIGRATIONS_FOLDER, folder, { recursive: true });
-  const journalPath = path.join(folder, "meta", "_journal.json");
-  const journal = journalSchema
-    .loose()
-    .parse(JSON.parse(readFileSync(journalPath, "utf8")));
-  const end = journal.entries.findIndex((entry) => entry.tag === tag);
-  writeFileSync(
-    journalPath,
-    JSON.stringify({ ...journal, entries: journal.entries.slice(0, end) }),
-  );
-  return folder;
-}
 
 const homeId = randomUUID();
 const otherId = randomUUID();
@@ -47,7 +19,7 @@ const otherId = randomUUID();
 let client: PGlite;
 let migrated: PgliteDatabase<typeof schema>;
 let db: FinanceDb;
-let before: string;
+let before: ReturnType<typeof migrationsFolderBefore>;
 let ownerSawBefore: number;
 
 async function seedHousehold(
@@ -86,7 +58,7 @@ async function countFxRates(from: Pick<FinanceDb, "execute"> = db) {
  * superuser, so row level security on `fx_rates` applies to it.
  */
 beforeAll(async () => {
-  before = foldersBefore(MIGRATION);
+  before = migrationsFolderBefore(MIGRATION);
   client = new PGlite();
   await client.exec(`
     create role owner_like login createrole createdb;
@@ -96,7 +68,7 @@ beforeAll(async () => {
   `);
   migrated = drizzle({ client, schema });
   db = migrated;
-  await migrate(migrated, { migrationsFolder: before });
+  await migrate(migrated, { migrationsFolder: before.folder });
   await seedHousehold(homeId, [
     { base: "CNY", quote: "GBP", on: "2024-01-02", rate: 0.1075 },
     { base: "USD", quote: "GBP", on: "2024-01-02", rate: 1 },
@@ -119,7 +91,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await client.close();
-  rmSync(before, { recursive: true, force: true });
+  before.remove();
 });
 
 describe(`migration ${MIGRATION}`, () => {

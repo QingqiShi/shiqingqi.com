@@ -69,7 +69,6 @@ function previousPatch(
       }
       case "kind":
       case "date":
-      case "amountMinor":
       case "categoryId":
       case "payeeId":
       case "memberId":
@@ -100,7 +99,6 @@ function unconfirm(
         kind: row.kind,
         status: "expected",
         date: row.date,
-        amountMinor: row.amountMinor,
         categoryId: row.categoryId,
         payeeId: row.payeeId,
         memberId: row.memberId,

@@ -1,6 +1,6 @@
 import type { Locator, Page, Route } from "@playwright/test";
 import { and, eq, isNull } from "drizzle-orm";
-import { transactions } from "../../src/finance/db/schema.ts";
+import { entries, transactions } from "../../src/finance/db/schema.ts";
 import type { FinanceDb } from "../../src/finance/db/types.ts";
 import { expect, test } from "./finance-test.ts";
 import {
@@ -42,7 +42,7 @@ function bootstrappedOnDisk(page: Page, householdId: string) {
   }, householdId);
 }
 
-/** The amounts on the server of the live Transaction that `row` shows. */
+/** The Entry amounts on the server of the live Transaction that `row` shows. */
 async function storedAmounts(
   financeDb: FinanceDb,
   householdId: string,
@@ -50,13 +50,15 @@ async function storedAmounts(
 ) {
   const id = await row.getAttribute("data-transaction-id");
   return financeDb
-    .select({ amountMinor: transactions.amountMinor })
-    .from(transactions)
+    .select({ amountMinor: entries.amountMinor })
+    .from(entries)
+    .innerJoin(transactions, eq(transactions.id, entries.transactionId))
     .where(
       and(
         eq(transactions.householdId, householdId),
         eq(transactions.id, id ?? ""),
         isNull(transactions.deletedAt),
+        isNull(entries.deletedAt),
       ),
     );
 }

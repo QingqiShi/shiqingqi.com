@@ -1,6 +1,4 @@
-import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import type { NonBusinessDay } from "../domain/dates/to-business-day.ts";
-import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
 import type { MutationInput } from "../sync/mutation-schema.ts";
 import type { AccountRow, RuleRow } from "../sync/row-schemas.ts";
@@ -32,15 +30,12 @@ export interface NewRuleInput {
 
 interface NewRuleContext {
   accountById: ReadonlyMap<string, AccountRow>;
-  baseCurrency: string;
-  fx: FxIndex;
 }
 
 /**
  * The `upsertRule` arguments for a Rule made from scratch. The first
  * Expected is on or after both the start and today, so no past occurrence
- * comes back. An expense or income in another currency counts in the base
- * currency at the start day's rate; a transfer stays in one currency.
+ * comes back. A transfer stays in one currency.
  */
 export function buildNewRule(
   input: NewRuleInput,
@@ -57,17 +52,6 @@ export function buildNewRule(
   if (toAccount && toAccount.currency !== account.currency) {
     return { ok: false, error: "currency" };
   }
-  const amountMinor =
-    toAccount || account.currency === context.baseCurrency
-      ? money.amountMinor
-      : Math.round(
-          context.fx.toBase(
-            money.amountMinor,
-            account.currency,
-            toEpochDay(input.startsOn),
-          ),
-        );
-
   const schedule = {
     unit: input.unit,
     interval: input.interval,
@@ -90,7 +74,6 @@ export function buildNewRule(
       paused: false,
       template: {
         kind: input.kind,
-        amountMinor,
         categoryId: money.categoryId,
         payeeId: input.payeeId,
         memberId: account.ownerMemberId,

@@ -20,7 +20,6 @@ export async function insertTestExpense(
     householdId: home.householdId,
     kind: "expense",
     date,
-    amountMinor,
     categoryId: home.groceriesId,
     version: 1,
   });

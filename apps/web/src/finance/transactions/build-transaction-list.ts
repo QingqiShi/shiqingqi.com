@@ -1,6 +1,11 @@
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
-import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
+import type {
+  AccountRow,
+  EntryRow,
+  TransactionRow,
+} from "../sync/row-schemas.ts";
 import { isFutureExpected } from "./is-future-expected.ts";
+import { shownAmount } from "./shown-amount.ts";
 import { sumDayTotals } from "./sum-day-totals.ts";
 import type { TransactionFilters } from "./transaction-filters.ts";
 
@@ -18,6 +23,9 @@ interface TransactionListSources {
   /** Every live Transaction, newest first. */
   rows: readonly TransactionRow[];
   entriesByTransaction: ReadonlyMap<string, readonly EntryRow[]>;
+  /** From `selectTransactionAmounts`. */
+  amounts: ReadonlyMap<string, number>;
+  accountById: ReadonlyMap<string, Pick<AccountRow, "currency">>;
   tagIdsByTransaction: ReadonlyMap<string, readonly string[]>;
   categoryDescendantsById: ReadonlyMap<string, ReadonlySet<string>>;
   /** The Transactions in Review, from `selectReviewIds`. */
@@ -97,20 +105,31 @@ function matcherFor(
     for (const word of words) {
       if (row.searchText.includes(word)) continue;
       if (/^[\d.,]+$/.test(word)) {
-        const amount = minorUnitsToDecimalString(
-          Math.abs(row.amountMinor),
+        const digits = word.replaceAll(",", "");
+        const shown = shownAmount(
+          row,
+          sources.entriesByTransaction.get(row.id) ?? [],
+          sources.accountById,
           sources.baseCurrency,
         );
-        if (amount.startsWith(word.replaceAll(",", ""))) continue;
+        const counted = sources.amounts.get(row.id);
+        const matchesAmount = (amountMinor: number, currency: string) =>
+          minorUnitsToDecimalString(Math.abs(amountMinor), currency).startsWith(
+            digits,
+          );
+        if (matchesAmount(shown.amountMinor, shown.currency)) continue;
+        if (
+          counted !== undefined &&
+          counted !== 0 &&
+          matchesAmount(counted, sources.baseCurrency)
+        ) {
+          continue;
+        }
       }
       return false;
     }
     return true;
   };
-}
-
-function dayItem(day: string, rows: readonly TransactionRow[]) {
-  return { type: "day" as const, day, ...sumDayTotals(rows) };
 }
 
 /**
@@ -134,7 +153,11 @@ export function buildTransactionList(
   const flush = () => {
     if (day === null) return;
     const ordered = expected.length === 0 ? posted : [...expected, ...posted];
-    items.push(dayItem(day, ordered));
+    items.push({
+      type: "day",
+      day,
+      ...sumDayTotals(ordered, (row) => sources.amounts.get(row.id) ?? 0),
+    });
     for (const row of ordered) {
       indexById.set(row.id, items.length);
       items.push({ type: "transaction", row });

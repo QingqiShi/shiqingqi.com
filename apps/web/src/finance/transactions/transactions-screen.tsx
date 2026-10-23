@@ -40,6 +40,7 @@ import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectEntriesByTransaction } from "../store/select-entries-by-transaction.ts";
 import { selectTagIdsByTransaction } from "../store/select-tag-ids-by-transaction.ts";
+import { selectTransactionAmounts } from "../store/select-transaction-amounts.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import { buildTransactionList } from "./build-transaction-list.ts";
@@ -83,6 +84,7 @@ export function TransactionsScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const rows = useReplica(selectTransactionsByDateDesc);
   const entriesByTransaction = useReplica(selectEntriesByTransaction);
+  const amounts = useReplica(selectTransactionAmounts);
   const tagIdsByTransaction = useReplica(selectTagIdsByTransaction);
   const lookups = useTransactionLookups();
   const pendingKeys = useReplica((snapshot) => snapshot.pendingKeys);
@@ -115,6 +117,8 @@ export function TransactionsScreen() {
     {
       rows,
       entriesByTransaction,
+      amounts,
+      accountById: lookups.accountById,
       tagIdsByTransaction,
       categoryDescendantsById: lookups.categoryDescendantsById,
       reviewIds,
@@ -489,6 +493,7 @@ export function TransactionsScreen() {
           items={list.items}
           lookups={lookups}
           entriesByTransaction={entriesByTransaction}
+          amounts={amounts}
           tagIdsByTransaction={tagIdsByTransaction}
           pendingKeys={pendingKeys}
           baseCurrency={baseCurrency}

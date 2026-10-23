@@ -55,6 +55,7 @@ import { detectRecurring } from "../transactions/detect-recurring.ts";
 import { isInReview } from "../transactions/is-in-review.ts";
 import { reviewReason } from "../transactions/review-reason.ts";
 import { ruleFromTransaction } from "../transactions/rule-from-transaction.ts";
+import { shownAmount } from "../transactions/shown-amount.ts";
 import type { TransactionKind } from "../transactions/transaction-filters.ts";
 import { useReviewReasonText } from "../transactions/use-review-reason-text.ts";
 import { canPayInInstalments } from "./build-instalment-plan.ts";
@@ -261,6 +262,17 @@ function EditorForm({
       ? undefined
       : data.lookups.accountById.get(draft.accountId);
   const currency = account?.currency ?? data.baseCurrency;
+  const shownOf = (row: Pick<TransactionRow, "id" | "kind">) =>
+    shownAmount(
+      row,
+      data.entriesByTransaction.get(row.id) ?? NO_ENTRIES,
+      data.lookups.accountById,
+      data.baseCurrency,
+    );
+  const shownMoney = (row: Pick<TransactionRow, "id" | "kind">) => {
+    const shown = shownOf(row);
+    return formatMoney(shown.amountMinor, shown.currency, locale);
+  };
   const toAccount =
     draft.toAccountId === null
       ? undefined
@@ -509,7 +521,7 @@ function EditorForm({
     .filter(
       (row) =>
         row.kind === "expense" &&
-        row.amountMinor < 0 &&
+        shownOf(row).amountMinor < 0 &&
         row.status === "posted" &&
         row.id !== transactionId,
     )
@@ -526,7 +538,11 @@ function EditorForm({
 
   const pattern =
     existing && existing.status === "posted" && existing.payeeId !== null
-      ? detectRecurring(existing, data.byPayee.get(existing.payeeId) ?? [])
+      ? detectRecurring(
+          existing,
+          data.byPayee.get(existing.payeeId) ?? [],
+          shownOf,
+        )
       : null;
   const payeeHasRule =
     existing?.payeeId != null &&
@@ -561,7 +577,6 @@ function EditorForm({
         accountById: data.lookups.accountById,
         payees: data.payees,
         baseCurrency: data.baseCurrency,
-        fx: data.fx,
         createId: () => crypto.randomUUID(),
       },
     );
@@ -966,7 +981,7 @@ function EditorForm({
                   <option key={row.id} value={row.id}>
                     {[
                       displayDay(row.date, locale, "weekday"),
-                      formatMoney(row.amountMinor, data.baseCurrency, locale),
+                      shownMoney(row),
                       row.note,
                     ]
                       .filter((part) => part !== "")
@@ -1359,11 +1374,7 @@ function EditorForm({
         >
           <div css={stack.tight}>
             <span>
-              {`${displayDay(duplicate.date, locale, "weekday")} · ${formatMoney(
-                duplicate.amountMinor,
-                data.baseCurrency,
-                locale,
-              )}`}
+              {`${displayDay(duplicate.date, locale, "weekday")} · ${shownMoney(duplicate)}`}
             </span>
             <div css={cluster.tight}>
               <Button size="sm" look="primary" type="submit">
@@ -1391,7 +1402,7 @@ function EditorForm({
       {existing && !isExpected ? (
         <div css={cluster.tight}>
           {existing.kind === "expense" &&
-          existing.amountMinor < 0 &&
+          (existingEntries.at(0)?.amountMinor ?? 0) < 0 &&
           onRefund ? (
             <Button
               size="sm"

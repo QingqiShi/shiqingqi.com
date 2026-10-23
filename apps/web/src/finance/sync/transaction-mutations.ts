@@ -8,15 +8,6 @@ import type { TransactionInput, TransactionPatch } from "./mutation-schema.ts";
 import type { WriteContext } from "./types.ts";
 import { validateTransaction } from "./validate-transaction.ts";
 
-/** The Transaction fields that `month_totals` sums by. */
-const MONTH_TOTAL_FIELDS = [
-  "kind",
-  "date",
-  "amountMinor",
-  "categoryId",
-  "memberId",
-] as const;
-
 /** Marks the balances that Entries of a Transaction on `date` may change. */
 function touchEntries(
   context: WriteContext,
@@ -31,7 +22,7 @@ function touchEntries(
   }
 }
 
-/** Marks the balances and month totals a Transaction on `date` with these Entries may change. */
+/** Marks the balances a Transaction on `date` with these Entries may change. */
 async function touchTransaction(
   context: WriteContext,
   transactionId: string,
@@ -44,7 +35,6 @@ async function touchTransaction(
     ]),
     date,
   );
-  context.touches.month(date);
 }
 
 async function findLive(scope: WriteScope, id: string) {
@@ -86,7 +76,6 @@ async function create(
     kind: input.kind,
     status: input.status,
     date: input.date,
-    amountMinor: input.amountMinor,
     categoryId: input.categoryId,
     payeeId: input.payeeId,
     memberId: input.memberId,
@@ -119,7 +108,6 @@ async function create(
   ]);
   await refreshSearchText(scope, input.id);
   touchEntries(context, input.entries, input.date);
-  context.touches.month(input.date);
 }
 
 async function update(
@@ -148,16 +136,9 @@ async function update(
 
   const movesBalances =
     patchEntries !== undefined || merged.date !== existing.date;
-  const movesMonthTotals = MONTH_TOTAL_FIELDS.some(
-    (field) => merged[field] !== existing[field],
-  );
   if (movesBalances) {
     touchEntries(context, currentEntries, existing.date);
     touchEntries(context, merged.entries, merged.date);
-  }
-  if (movesMonthTotals) {
-    context.touches.month(existing.date);
-    context.touches.month(merged.date);
   }
   const labelledBy = labelledByAfter(
     context.actor,

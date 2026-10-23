@@ -164,7 +164,6 @@ const transactionRowSchema = z.object({
   kind: transactionKindSchema,
   status: z.enum(["posted", "expected"]),
   date: day,
-  amountMinor: minorUnits,
   categoryId: id.nullable(),
   payeeId: id.nullable(),
   memberId: id.nullable(),
@@ -213,18 +212,6 @@ const accountBalanceDayRowSchema = z.object({
   deletedAt,
 });
 
-const monthTotalRowSchema = z.object({
-  householdId: id,
-  month: day,
-  kind: transactionKindSchema,
-  categoryId: id,
-  memberId: id.nullable(),
-  amountMinor: minorUnits,
-  count: z.int(),
-  version,
-  deletedAt,
-});
-
 /** The status fields of a Bank link; the provider credential never leaves the server. */
 const bankLinkRowSchema = z.object({
   id,
@@ -263,7 +250,6 @@ export const rowSchemas = {
   entries: entryRowSchema,
   transactionTags: transactionTagRowSchema,
   accountBalanceDays: accountBalanceDayRowSchema,
-  monthTotals: monthTotalRowSchema,
   bankLinks: bankLinkRowSchema,
 };
 
