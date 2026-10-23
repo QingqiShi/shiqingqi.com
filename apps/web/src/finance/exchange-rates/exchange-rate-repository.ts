@@ -1,4 +1,4 @@
-import { and, eq, gt, max, or, sql, type SQL } from "drizzle-orm";
+import { and, eq, gt, lte, max, or, sql, type SQL } from "drizzle-orm";
 import { exchangeRates } from "../db/schema.ts";
 import type { FinanceAppDb } from "../db/with-household.ts";
 import type {
@@ -11,6 +11,12 @@ const WRITE_LOCK = 4_271_903_118;
 
 /** Rows per insert: well below the 65,535 parameters of one statement. */
 const INSERT_CHUNK = 5_000;
+
+/**
+ * The ECB does not publish on weekends and TARGET holidays, so its rates are
+ * at most five days apart. A longer distance is a gap.
+ */
+const LONGEST_NORMAL_DISTANCE = 7;
 
 const rowColumns = {
   base: exchangeRates.base,
@@ -102,6 +108,51 @@ export const exchangeRateRepository = {
     return spans;
   },
 
+  /**
+   * By pair: the days strictly between two consecutive rates more than
+   * `LONGEST_NORMAL_DISTANCE` days apart, oldest first. Rates dated after
+   * `today` do not count.
+   */
+  async gaps(
+    db: FinanceAppDb,
+    pairs: readonly CurrencyPair[],
+    today: string,
+  ): Promise<Map<string, DayRange[]>> {
+    const gaps = new Map<string, DayRange[]>();
+    if (pairs.length === 0) return gaps;
+    const low = sql<string>`least(${exchangeRates.base}, ${exchangeRates.quote})`;
+    const high = sql<string>`greatest(${exchangeRates.base}, ${exchangeRates.quote})`;
+    const ordered = db
+      .select({
+        low: low.as("low"),
+        high: high.as("high"),
+        on: exchangeRates.on,
+        next: sql<string>`lead(${exchangeRates.on}) over (partition by ${low}, ${high} order by ${exchangeRates.on})`.as(
+          "next",
+        ),
+      })
+      .from(exchangeRates)
+      .where(and(lte(exchangeRates.on, today), or(...pairs.map(ofPair))))
+      .as("ordered");
+    const rows = await db
+      .select({
+        low: ordered.low,
+        high: ordered.high,
+        start: sql<string>`${ordered.on} + 1`.mapWith(exchangeRates.on),
+        end: sql<string>`${ordered.next} - 1`.mapWith(exchangeRates.on),
+      })
+      .from(ordered)
+      .where(sql`${ordered.next} - ${ordered.on} > ${LONGEST_NORMAL_DISTANCE}`)
+      .orderBy(ordered.low, ordered.high, ordered.on);
+    for (const row of rows) {
+      const key = unorderedPairKey({ base: row.low, quote: row.high });
+      const ranges = gaps.get(key) ?? [];
+      ranges.push([row.start, row.end]);
+      gaps.set(key, ranges);
+    }
+    return gaps;
+  },
+
   /** Call it in its own transaction: the lock it takes holds to the end. */
   async insertNew(
     db: FinanceAppDb,
@@ -131,6 +182,9 @@ export interface PairSpan {
   /** Null when as many rows have each orientation. */
   orientation: CurrencyPair | null;
 }
+
+/** From the first day to the last day, both included. */
+export type DayRange = readonly [start: string, end: string];
 
 export function unorderedPairKey(pair: CurrencyPair) {
   return pair.base < pair.quote
