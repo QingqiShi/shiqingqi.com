@@ -1,3 +1,6 @@
+import { exchangeRateCursor } from "../exchange-rates/exchange-rate-cursor.ts";
+import { exchangeRatesResponseSchema } from "../exchange-rates/exchange-rate-row-schema.ts";
+import { firstEcbDayOf } from "../exchange-rates/supported-currencies.ts";
 import {
   readRowShape,
   REPLICA_ROW_SHAPE,
@@ -14,6 +17,9 @@ import { readNdjsonLines } from "./read-ndjson-lines.ts";
 import type { SyncProblem, SyncStatus } from "./types.ts";
 
 const SYNC_ENDPOINT = "/api/finance/sync";
+const EXCHANGE_RATES_ENDPOINT = "/api/finance/exchange-rates";
+const EXCHANGE_RATES_INTERVAL_MS = 15 * 60_000;
+const EXCHANGE_RATES_RETRY_START_MS = 30_000;
 const PUSH_BATCH = 500;
 const BACKOFF_START_MS = 1_000;
 const BACKOFF_MAX_MS = 60_000;
@@ -24,6 +30,9 @@ interface SyncLoopOptions {
   fetch?: typeof fetch;
   /** Absolute in tests; the page uses the relative default. */
   endpoint?: string;
+  /** Absolute in tests; the page uses the relative default. */
+  exchangeRatesEndpoint?: string;
+  now?: () => number;
   /** The server says the session is gone: send the visitor to sign-in. */
   onUnauthorised?: () => void;
   /** Tests give another row shape to act as older or newer code. */
@@ -89,7 +98,8 @@ function problemOf(error: unknown, online: boolean): SyncProblem {
 
 /**
  * Keeps the Replica in step with the server: pushes the Outbox, then pulls
- * what changed since the Replica's clock, or bootstraps when it has none.
+ * what changed since the Replica's clock, or bootstraps when it has none,
+ * then pushes what was queued meanwhile, then downloads new exchange rates.
  * A failed push does not stop the pull: the Outbox stays on this device and
  * the status shows it as not sent. One run at a time; a trigger during a
  * run starts one more run after it. A failed run retries after 1 s,
@@ -102,6 +112,9 @@ export function createSyncLoop(options: SyncLoopOptions) {
   const rowShape = options.rowShape ?? REPLICA_ROW_SHAPE;
   const request = options.fetch ?? ((input, init) => fetch(input, init));
   const endpoint = options.endpoint ?? SYNC_ENDPOINT;
+  const exchangeRatesEndpoint =
+    options.exchangeRatesEndpoint ?? EXCHANGE_RATES_ENDPOINT;
+  const now = options.now ?? (() => Date.now());
   const isOnline = options.isOnline ?? (() => navigator.onLine);
   const isVisible =
     options.isVisible ?? (() => document.visibilityState === "visible");
@@ -131,6 +144,11 @@ export function createSyncLoop(options: SyncLoopOptions) {
   let retryAfterMs = 0;
   let retryTimer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
+  let exchangeRatesDueAt = -Infinity;
+  let exchangeRatesFailed = false;
+  let exchangeRatesRetries = 0;
+  let servedPairsId: string | null = null;
+  let householdPairsId: string | null = null;
 
   function setStatus(patch: Partial<SyncStatus>) {
     status = { ...status, ...patch };
@@ -222,6 +240,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
       const line = JSON.parse(text) as BootstrapLine;
       switch (line.type) {
         case "start": {
+          householdPairsId = line.exchangeRatePairsId ?? householdPairsId;
           store.startBootstrap(line.household);
           break;
         }
@@ -250,7 +269,87 @@ export function createSyncLoop(options: SyncLoopOptions) {
       return;
     }
     if (!response.ok) throw httpError(response);
-    store.applyPull((await response.json()) as PullResponse, confirmed);
+    const changes = (await response.json()) as PullResponse;
+    householdPairsId = changes.exchangeRatePairsId ?? householdPairsId;
+    store.applyPull(changes, confirmed);
+  }
+
+  function exchangeRatesDue() {
+    if (now() >= exchangeRatesDueAt) return true;
+    return (
+      !exchangeRatesFailed &&
+      householdPairsId !== null &&
+      householdPairsId !== servedPairsId
+    );
+  }
+
+  function householdLacksRates() {
+    const { household, tables, exchangeRates } = store.getSnapshot();
+    if (!household) return false;
+    const quote = household.baseCurrency;
+    const withRates = new Set<string>();
+    for (const rate of exchangeRates.values()) {
+      if (rate.quote === quote) withRates.add(rate.base);
+      if (rate.base === quote) withRates.add(rate.quote);
+    }
+    for (const account of tables.accounts.values()) {
+      const base = account.currency;
+      if (
+        account.deletedAt === null &&
+        base !== quote &&
+        !withRates.has(base) &&
+        firstEcbDayOf({ base, quote }) !== null
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function retryExchangeRatesLater() {
+    exchangeRatesRetries++;
+    exchangeRatesDueAt =
+      now() +
+      Math.min(
+        EXCHANGE_RATES_INTERVAL_MS,
+        EXCHANGE_RATES_RETRY_START_MS *
+          2 ** Math.min(exchangeRatesRetries - 1, 10),
+      );
+  }
+
+  /**
+   * A pair with no rate yet waits for the download that the server starts
+   * after the push, so it retries soon. Only a lost session or another row
+   * shape throws; the rates on the device stay in use.
+   */
+  async function refreshExchangeRates() {
+    if (!exchangeRatesDue()) return;
+    try {
+      const cursor = store.getMeta().exchangeRateCursor;
+      const response = await send(
+        cursor
+          ? `${exchangeRatesEndpoint}?since=${encodeURIComponent(cursor)}`
+          : exchangeRatesEndpoint,
+      );
+      if (!response.ok) throw httpError(response);
+      const rates = exchangeRatesResponseSchema.parse(await response.json());
+      store.applyExchangeRates(rates);
+      const pairsId = exchangeRateCursor.parse(rates.cursor)?.pairsId ?? null;
+      if (pairsId !== servedPairsId) exchangeRatesRetries = 0;
+      servedPairsId = pairsId;
+      exchangeRatesFailed = false;
+    } catch (error) {
+      if (isUnauthorised(error) || error instanceof RowShapeError) throw error;
+      exchangeRatesFailed = true;
+      retryExchangeRatesLater();
+      return;
+    }
+    if (householdLacksRates()) {
+      retryExchangeRatesLater();
+    } else {
+      exchangeRatesRetries = 0;
+      exchangeRatesDueAt = now() + EXCHANGE_RATES_INTERVAL_MS;
+    }
   }
 
   /** Returns the error of a failed push, or null. A lost session or another row shape throws, because the download then fails too. */
@@ -276,12 +375,13 @@ export function createSyncLoop(options: SyncLoopOptions) {
   /** One run. Returns the push error when only the push failed; throws when the download failed. */
   async function runOnce(): Promise<unknown> {
     await store.mergeOutboxFromDisk();
-    const pushError = await tryPush();
+    let pushError = await tryPush();
     const meta = store.getMeta();
     if (!meta.bootstrapped || meta.clock === 0) await bootstrap();
     else await pull();
-    if (pushError !== null || !store.hasQueued()) return pushError;
-    return tryPush();
+    if (pushError === null && store.hasQueued()) pushError = await tryPush();
+    await refreshExchangeRates();
+    return pushError;
   }
 
   function scheduleRetry() {

@@ -37,7 +37,6 @@ function row(id: string, fields: Record<string, unknown> = {}) {
         id: `${id}-entry`,
         accountId: "current",
         amountMinor: -1_000,
-        fxRate: null,
       },
     ],
     tagIds: [],
@@ -59,7 +58,6 @@ describe("retemplateExpected", () => {
               id: "a-entry",
               accountId: "card",
               amountMinor: -1_500,
-              fxRate: null,
             },
           ],
         },
@@ -94,7 +92,6 @@ describe("retemplateExpected", () => {
               id: "a-entry",
               accountId: "current",
               amountMinor: -2_000,
-              fxRate: null,
             },
           ],
         }),
@@ -103,9 +100,7 @@ describe("retemplateExpected", () => {
     );
     expect(changes[0].patch).toEqual({
       amountMinor: -1_000,
-      entries: [
-        { id: "a-entry", accountId: "card", amountMinor: -1_000, fxRate: null },
-      ],
+      entries: [{ id: "a-entry", accountId: "card", amountMinor: -1_000 }],
     });
   });
 
@@ -134,9 +129,8 @@ describe("retemplateExpected", () => {
           id: "a-entry",
           accountId: "current",
           amountMinor: -600,
-          fxRate: null,
         },
-        { id: "a:1", accountId: "card", amountMinor: -400, fxRate: null },
+        { id: "a:1", accountId: "card", amountMinor: -400 },
       ],
     });
   });

@@ -597,7 +597,7 @@ describe("sign-up", () => {
     expect(await db.select().from(households)).toHaveLength(1);
   });
 
-  it("refuses a challenge of another ceremony, a missing name and an unknown currency", async () => {
+  it("refuses a challenge of another ceremony, a missing name, and an unknown or unsupported currency", async () => {
     const token = await requestSignUpToken();
     const client = createAuthTestClient(makeHandlers());
     await client.post("signInOptions");
@@ -619,6 +619,12 @@ describe("sign-up", () => {
       token,
       { baseCurrency: "ZZZ" },
     );
+    const unsupportedCurrency = await finishSignUp(
+      createAuthTestClient(makeHandlers()),
+      createSoftwareAuthenticator(),
+      token,
+      { baseCurrency: "AED" },
+    );
 
     expect(crossed).toMatchObject({
       status: 400,
@@ -626,6 +632,7 @@ describe("sign-up", () => {
     });
     expect(noName.status).toBe(400);
     expect(badCurrency.status).toBe(400);
+    expect(unsupportedCurrency.status).toBe(400);
     expect(await db.select().from(households)).toHaveLength(0);
   });
 

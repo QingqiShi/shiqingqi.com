@@ -1,33 +1,75 @@
 import { describe, expect, it } from "vitest";
-import { latestFxRates, parseFxRate } from "./latest-fx-rates.ts";
+import { latestFxRates } from "./latest-fx-rates.ts";
 
 describe("latestFxRates", () => {
-  it("takes the newest rate in either orientation, as base units per unit", () => {
+  it("takes the newest rate in either orientation, as base units per unit, with its source", () => {
     const rates = latestFxRates(
       [
-        { base: "USD", quote: "GBP", on: "2026-01-01", rate: 0.8 },
-        { base: "GBP", quote: "USD", on: "2026-03-01", rate: 1.25 },
-        { base: "CNY", quote: "GBP", on: "2026-02-01", rate: 0.11 },
-        { base: "EUR", quote: "USD", on: "2026-04-01", rate: 1.1 },
+        {
+          base: "USD",
+          quote: "GBP",
+          on: "2026-01-01",
+          rate: 0.8,
+          source: "household",
+        },
+        {
+          base: "GBP",
+          quote: "USD",
+          on: "2026-03-01",
+          rate: 1.25,
+          source: "ecb",
+        },
+        {
+          base: "CNY",
+          quote: "GBP",
+          on: "2026-02-01",
+          rate: 0.11,
+          source: "household",
+        },
+        {
+          base: "EUR",
+          quote: "USD",
+          on: "2026-04-01",
+          rate: 1.1,
+          source: "ecb",
+        },
       ],
       ["CNY", "EUR", "USD"],
       "GBP",
     );
     expect(rates).toEqual([
-      { currency: "CNY", rate: 0.11, on: "2026-02-01" },
-      { currency: "EUR", rate: null, on: null },
-      { currency: "USD", rate: 0.8, on: "2026-03-01" },
+      { currency: "CNY", rate: 0.11, on: "2026-02-01", source: "household" },
+      { currency: "EUR", rate: null, on: null, source: null },
+      { currency: "USD", rate: 0.8, on: "2026-03-01", source: "ecb" },
     ]);
   });
-});
 
-describe("parseFxRate", () => {
-  it("reads a positive number and refuses the rest", () => {
-    expect(parseFxRate(" 0.79 ")).toBe(0.79);
-    expect(parseFxRate("1,234.5")).toBe(1234.5);
-    expect(parseFxRate("０.５")).toBe(0.5);
-    expect(parseFxRate("0")).toBeNull();
-    expect(parseFxRate("-1")).toBeNull();
-    expect(parseFxRate("abc")).toBeNull();
+  it("prefers the row quoted in the base currency when both orientations share a day", () => {
+    const [usd] = latestFxRates(
+      [
+        {
+          base: "GBP",
+          quote: "USD",
+          on: "2026-03-01",
+          rate: 1.2,
+          source: "ecb",
+        },
+        {
+          base: "USD",
+          quote: "GBP",
+          on: "2026-03-01",
+          rate: 0.79,
+          source: "household",
+        },
+      ],
+      ["USD"],
+      "GBP",
+    );
+    expect(usd).toEqual({
+      currency: "USD",
+      rate: 0.79,
+      on: "2026-03-01",
+      source: "household",
+    });
   });
 });

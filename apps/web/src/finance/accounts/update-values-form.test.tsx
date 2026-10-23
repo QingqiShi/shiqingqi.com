@@ -62,7 +62,7 @@ describe("UpdateValuesForm", () => {
     expect(screen.getByText(/\+£90,000\.00 · \+900%/)).toBeVisible();
   });
 
-  it("writes the exchange rate of a foreign account's currency", async () => {
+  it("asks for no exchange rate when a foreign account joins the list", async () => {
     const runtime = await createTestReplica(rowsWithIsaValue());
     renderWithReplica(runtime, <UpdateValuesForm />, { pathname: "/finance" });
     const user = userEvent.setup();
@@ -71,17 +71,7 @@ describe("UpdateValuesForm", () => {
       screen.getByRole("combobox", { name: "Add an account to this list" }),
       ids.dollars,
     );
-    const rate = screen.getByRole("textbox", { name: "1 USD in GBP" });
-    expect(rate).toHaveValue("0.8");
-    await user.clear(rate);
-    await user.type(rate, "0.79");
-    await user.click(screen.getByRole("button", { name: /Save all/ }));
-
-    expect(runtime.store.takeOutbox()).toMatchObject([
-      {
-        name: "setFxRate",
-        args: { base: "USD", quote: "GBP", rate: 0.79 },
-      },
-    ]);
+    expect(screen.getAllByRole("textbox")).toHaveLength(2);
+    expect(screen.queryByText("Exchange rates")).toBeNull();
   });
 });

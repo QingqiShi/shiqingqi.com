@@ -7,7 +7,7 @@ import {
   accounts,
   categories,
   entries,
-  fxRates,
+  exchangeRates,
   households,
   members,
   monthTotals,
@@ -46,7 +46,7 @@ const tables: Record<string, PgTable> = {
   transactionTags,
   accountBalanceDays,
   monthTotals,
-  fxRates,
+  exchangeRates,
 };
 
 /** Every row of every table, without the columns the database fills with the time of the write. */
@@ -130,7 +130,7 @@ describe("seedSyntheticHousehold", () => {
         ),
       );
     }
-    const fx = createFxIndex(state.fxRates, "GBP");
+    const fx = createFxIndex(state.exchangeRates, "GBP");
     for (const day of ["2024-10-31", "2025-06-15", "2026-03-31", TODAY]) {
       const stored = netWorthAt(state.accounts, state.seriesByAccount, fx, day);
       const engine = netWorthAt(state.accounts, engineSeries, fx, day);
@@ -204,7 +204,7 @@ describe("seedSyntheticHousehold", () => {
     expect(perYear).toBeGreaterThan(340);
     expect(perYear).toBeLessThan(480);
     expect((await db.select().from(tags)).length).toBeGreaterThan(0);
-    expect((await db.select().from(fxRates)).length).toBeGreaterThan(100);
+    expect((await db.select().from(exchangeRates)).length).toBeGreaterThan(100);
   });
 
   it("keeps every current and savings balance above zero", async () => {

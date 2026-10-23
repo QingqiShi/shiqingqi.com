@@ -4,7 +4,7 @@ import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
 interface UnconfirmInput {
   /** The Expected Transaction as it was before the confirm. */
   transaction: TransactionRow;
-  entries: readonly Pick<EntryRow, "accountId" | "amountMinor" | "fxRate">[];
+  entries: readonly Pick<EntryRow, "accountId" | "amountMinor">[];
   tagIds: readonly string[];
   createId: () => string;
 }
@@ -42,7 +42,6 @@ export function unconfirmMutations({
           id: createId(),
           accountId: entry.accountId,
           amountMinor: entry.amountMinor,
-          fxRate: entry.fxRate,
         })),
         tagIds: [...tagIds],
       },

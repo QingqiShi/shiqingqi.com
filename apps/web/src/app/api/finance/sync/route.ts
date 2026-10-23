@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { getFinanceSession } from "#src/finance/auth/get-finance-session.ts";
 import { getFinanceDb } from "#src/finance/db/get-finance-db.ts";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
+import { refreshExchangeRatesAfterPush } from "#src/finance/exchange-rates/refresh-exchange-rates-after-push.ts";
 import { refreshInstitutionIconsAfterPush } from "#src/finance/institutions/institution-icon-sources.ts";
 import { makeSyncHandlers } from "#src/finance/sync/make-sync-handlers.ts";
 
@@ -16,6 +17,9 @@ export const { GET, POST } = makeSyncHandlers({
   afterPush: (householdId, effects) => {
     if (effects.has("institution-changed")) {
       after(() => refreshInstitutionIconsAfterPush(householdId));
+    }
+    if (effects.has("currency-changed")) {
+      after(() => refreshExchangeRatesAfterPush(householdId));
     }
   },
 });

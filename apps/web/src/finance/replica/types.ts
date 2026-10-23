@@ -1,3 +1,4 @@
+import type { ExchangeRateRow } from "../exchange-rates/exchange-rate-row-schema.ts";
 import type { Mutation } from "../sync/mutation-schema.ts";
 import type {
   HouseholdRow,
@@ -13,6 +14,9 @@ export type ReplicaRow<Table extends SyncTableName> = SyncRows[Table][number];
 export type ReplicaTables = {
   readonly [Table in SyncTableName]: ReadonlyMap<string, ReplicaRow<Table>>;
 };
+
+/** The global exchange rates the Household needs, by `exchangeRateKey`. */
+export type ReplicaExchangeRates = ReadonlyMap<string, ExchangeRateRow>;
 
 /** Rows to write or remove per table, by row key. */
 export type ReplicaTableWrites = {
@@ -34,6 +38,8 @@ export interface ReplicaMeta {
   rowShape: number;
   household: HouseholdRow | null;
   lastSyncedAt: string | null;
+  /** The `cursor` of the last exchange rate download; absent or null before the first. */
+  exchangeRateCursor?: string | null;
 }
 
 /** A mutation in the Outbox, waiting to be pushed. */
@@ -49,6 +55,7 @@ export interface OutboxEntry {
 export interface PersistedReplica {
   meta: ReplicaMeta | null;
   tables: ReplicaTables;
+  exchangeRates: ReplicaExchangeRates;
   outbox: OutboxEntry[];
 }
 
@@ -56,6 +63,8 @@ export interface PersistedReplica {
 export interface ReplicaWrite {
   clearTables?: boolean;
   tables?: ReplicaTableWrites;
+  /** Rates to add; with `replace`, the rates on disk go first. `clearTables` leaves the rates. */
+  exchangeRates?: { replace: boolean; put: readonly ExchangeRateRow[] };
   meta?: ReplicaMeta;
   outboxPut?: readonly OutboxEntry[];
   outboxDelete?: readonly string[];
@@ -87,6 +96,8 @@ export type ReplicaChanges = {
 export interface ReplicaSnapshot {
   household: HouseholdRow | null;
   tables: ReplicaTables;
+  /** The global exchange rates, which no mutation changes. */
+  exchangeRates: ReplicaExchangeRates;
   /** `<table>:<row key>` of every row a local mutation changed that no pull has confirmed yet. */
   pendingKeys: ReadonlySet<string>;
   /** Accounts whose balances local mutations changed, with the first day they change. */

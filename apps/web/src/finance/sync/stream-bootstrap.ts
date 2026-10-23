@@ -1,5 +1,9 @@
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
+import {
+  findHouseholdPairs,
+  householdPairsId,
+} from "../exchange-rates/find-household-pairs.ts";
 import { readSnapshot, readTable } from "./pull-changes.ts";
 import { SYNC_TABLE_NAMES } from "./row-schemas.ts";
 
@@ -21,7 +25,13 @@ export function streamBootstrap(db: FinanceDb, householdId: string) {
         await readSnapshot(db, householdId, async (scope) => {
           const household = await householdRepository.find(scope);
           if (!household) throw new Error("Household not found");
-          send({ type: "start", clock: household.clock, household });
+          const pairs = await findHouseholdPairs(scope, household.baseCurrency);
+          send({
+            type: "start",
+            clock: household.clock,
+            household,
+            exchangeRatePairsId: householdPairsId(pairs),
+          });
           for (const table of SYNC_TABLE_NAMES) {
             const rows = await readTable(scope, table, null);
             for (let i = 0; i < rows.length; i += ROWS_PER_LINE) {

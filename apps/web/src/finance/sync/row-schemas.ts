@@ -189,7 +189,6 @@ const entryRowSchema = z.object({
   accountId: id,
   date: day,
   amountMinor: minorUnits,
-  fxRate: z.number().nullable(),
   position: z.int(),
   version,
   createdAt: timestamp,
@@ -224,16 +223,6 @@ const monthTotalRowSchema = z.object({
   count: z.int(),
   version,
   deletedAt,
-});
-
-const fxRateRowSchema = z.object({
-  householdId: id,
-  base: currency,
-  quote: currency,
-  on: day,
-  rate: z.number().positive(),
-  source: z.string(),
-  version,
 });
 
 /** The status fields of a Bank link; the provider credential never leaves the server. */
@@ -275,7 +264,6 @@ export const rowSchemas = {
   transactionTags: transactionTagRowSchema,
   accountBalanceDays: accountBalanceDayRowSchema,
   monthTotals: monthTotalRowSchema,
-  fxRates: fxRateRowSchema,
   bankLinks: bankLinkRowSchema,
 };
 
@@ -305,5 +293,4 @@ export type TransactionRow = z.infer<typeof transactionRowSchema>;
 export type EntryRow = z.infer<typeof entryRowSchema>;
 export type TransactionTagRow = z.infer<typeof transactionTagRowSchema>;
 export type AccountBalanceDayRow = z.infer<typeof accountBalanceDayRowSchema>;
-export type FxRateRow = z.infer<typeof fxRateRowSchema>;
 export type BankLinkRow = z.infer<typeof bankLinkRowSchema>;

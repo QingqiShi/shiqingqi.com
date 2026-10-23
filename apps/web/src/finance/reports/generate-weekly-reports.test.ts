@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   accounts,
   entries,
-  fxRates,
+  exchangeRates,
   households,
   reports,
   transactions,
@@ -119,7 +119,7 @@ beforeAll(async () => {
       ),
     );
   }
-  const fx = createFxIndex(await db.select().from(fxRates), "GBP");
+  const fx = createFxIndex(await db.select().from(exchangeRates), "GBP");
   engineNetWorthAt = (day) => netWorthAt(accountRows, series, fx, day);
 }, DB_HOOK_TIMEOUT);
 

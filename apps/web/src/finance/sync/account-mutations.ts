@@ -1,7 +1,7 @@
 import type { z } from "zod";
 import { accountGroupRepository } from "../db/repositories/account-group-repository.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
-import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
+import { householdRepository } from "../db/repositories/household-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import {
@@ -9,6 +9,7 @@ import {
   institutionFieldsAfter,
 } from "../domain/accounts/institution-fields-after.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
+import { isSupportedCurrency } from "../exchange-rates/supported-currencies.ts";
 import {
   institutionCacheRepository,
   institutionIconVersionOf,
@@ -22,7 +23,6 @@ import {
   accountFieldsSchema,
   accountGroupFieldsSchema,
   type putValuationArgsSchema,
-  type setFxRateArgsSchema,
   type upsertAccountArgsSchema,
   type upsertAccountGroupArgsSchema,
 } from "./mutation-schema.ts";
@@ -38,10 +38,15 @@ const INSTITUTION_INPUTS = [
 async function upsertAccount(
   context: WriteContext,
   args: z.infer<typeof upsertAccountArgsSchema>,
-): Promise<PushEffect | undefined> {
+): Promise<PushEffect[]> {
   const { scope } = context;
   const { id, deleted, ...fields } = args;
   const existing = await accountRepository.findById(scope, id);
+  let baseCurrency: Promise<string | undefined> | undefined;
+  const findBaseCurrency = () =>
+    (baseCurrency ??= householdRepository
+      .find(scope)
+      .then((household) => household?.baseCurrency));
   if (existing?.isSystem) checkSystemAccountPatch(fields, deleted);
   const merged = existing
     ? { ...existing, ...fields }
@@ -63,6 +68,17 @@ async function upsertAccount(
         `A ${merged.kind} account cannot go in a ${group.side} group`,
       );
     }
+  }
+  if (
+    fields.currency !== undefined &&
+    fields.currency !== existing?.currency &&
+    !isSupportedCurrency(fields.currency) &&
+    fields.currency !== (await findBaseCurrency())
+  ) {
+    throw new MutationError(
+      "invalid",
+      "Finance supports only the currencies the ECB publishes rates for",
+    );
   }
   if (fields.ownerMemberId) {
     const owner = await memberRepository.findById(scope, fields.ownerMemberId);
@@ -126,7 +142,26 @@ async function upsertAccount(
         (key) => fields[key] !== undefined && fields[key] !== existing[key],
       )
     : Boolean(fields.institution) || Boolean(fields.institutionDomain);
-  return changesInstitution ? "institution-changed" : undefined;
+  const effects: PushEffect[] = [];
+  if (changesInstitution) effects.push("institution-changed");
+  if (
+    startsToCountIn(existing, merged.currency, deleted) &&
+    merged.currency !== (await findBaseCurrency())
+  ) {
+    effects.push("currency-changed");
+  }
+  return effects;
+}
+
+/** True when the account is new, restored, or has a new currency. */
+function startsToCountIn(
+  existing: { currency: string; deletedAt: Date | null } | undefined,
+  currency: string,
+  deleted: boolean | undefined,
+) {
+  const live = existing?.deletedAt ? deleted === false : !deleted;
+  const counted = Boolean(existing && !existing.deletedAt);
+  return live && !(counted && existing?.currency === currency);
 }
 
 async function upsertGroup(
@@ -230,17 +265,9 @@ async function deleteValuation(context: WriteContext, id: string) {
   context.touches.account(existing.accountId, existing.on);
 }
 
-async function setFxRate(
-  context: WriteContext,
-  args: z.infer<typeof setFxRateArgsSchema>,
-) {
-  await fxRateRepository.put(context.scope, args);
-}
-
 export const accountMutations = {
   upsertAccount,
   upsertGroup,
   putValuation,
   deleteValuation,
-  setFxRate,
 };

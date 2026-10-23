@@ -1,14 +1,7 @@
 import { toEpochDay } from "../dates/to-epoch-day.ts";
 import { currencyExponent } from "../money/currency-exponent.ts";
 import { upperBound } from "../upper-bound.ts";
-
-/** One `fx_rates` row: one unit of `base` is worth `rate` units of `quote` on `on`. */
-export interface FxRateInput {
-  readonly base: string;
-  readonly quote: string;
-  readonly on: string;
-  readonly rate: number;
-}
+import { rateToBaseOf, type FxRateInput } from "./rate-to-base-of.ts";
 
 export interface FxIndex {
   readonly baseCurrency: string;
@@ -59,14 +52,9 @@ export function createFxIndex(
 ): FxIndex {
   const points = new Map<string, { day: number; rate: number }[]>();
   for (const row of rows) {
-    const currency =
-      row.quote === baseCurrency
-        ? row.base
-        : row.base === baseCurrency
-          ? row.quote
-          : null;
-    if (currency === null || currency === baseCurrency) continue;
-    const rate = row.quote === baseCurrency ? row.rate : 1 / row.rate;
+    const toBase = rateToBaseOf(row, baseCurrency);
+    if (!toBase) continue;
+    const { currency, rate } = toBase;
     const list = points.get(currency) ?? [];
     list.push({ day: toEpochDay(row.on), rate });
     points.set(currency, list);

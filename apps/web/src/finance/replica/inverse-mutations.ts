@@ -58,7 +58,6 @@ function previousPatch(
           id: entry.id,
           accountId: entry.accountId,
           amountMinor: entry.amountMinor,
-          fxRate: entry.fxRate,
         }));
         break;
       }
@@ -113,7 +112,6 @@ function unconfirm(
           id: createId(),
           accountId: entry.accountId,
           amountMinor: entry.amountMinor,
-          fxRate: entry.fxRate,
         })),
         tagIds: [...(selectTagIdsByTransaction(snapshot).get(row.id) ?? [])],
       },
@@ -268,12 +266,6 @@ export function inverseMutations(
           },
         },
       ];
-    }
-    case "setFxRate": {
-      const { base, quote, on } = mutation.args;
-      const row = snapshot.tables.fxRates.get(`${base}|${quote}|${on}`);
-      if (!row) return null;
-      return [{ name: "setFxRate", args: { base, quote, on, rate: row.rate } }];
     }
     case "mergePayee": {
       return null;

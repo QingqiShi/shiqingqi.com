@@ -11,14 +11,13 @@ import {
 } from "./row-schemas.ts";
 import { wireFields } from "./wire-fields.ts";
 
-const { id, day, minorUnits, currency, name, note, position, text, fxRate } =
+const { id, day, minorUnits, currency, name, note, position, text } =
   wireFields;
 
 const entryInputSchema = z.object({
   id,
   accountId: id,
   amountMinor: minorUnits,
-  fxRate: fxRate.nullable().default(null),
 });
 
 const transactionFields = z.object({
@@ -138,15 +137,6 @@ export const putValuationArgsSchema = z.object({
   note: note.optional(),
 });
 
-export const setFxRateArgsSchema = z
-  .object({
-    base: currency,
-    quote: currency,
-    on: day,
-    rate: fxRate,
-  })
-  .refine((args) => args.base !== args.quote, "base and quote must differ");
-
 export const mergePayeeArgsSchema = z
   .object({ fromId: id, intoId: id })
   .refine((args) => args.fromId !== args.intoId, "cannot merge into itself");
@@ -183,8 +173,17 @@ export const mutationSchema = z.discriminatedUnion("name", [
   mutation("upsertTag", upsertTagArgsSchema),
   mutation("upsertRule", upsertRuleArgsSchema),
   mutation("mergePayee", mergePayeeArgsSchema),
-  mutation("setFxRate", setFxRateArgsSchema),
   mutation("upsertMember", z.object({ id, name })),
+]);
+
+/**
+ * Mutations an older client may still hold in its Outbox, though the server
+ * no longer takes them. A push reports them as applied and does nothing, so
+ * that they leave the Outbox with no error. `setFxRate`: exchange rates are
+ * global market rates now, and nobody edits them.
+ */
+export const RETIRED_MUTATION_NAMES: ReadonlySet<string> = new Set([
+  "setFxRate",
 ]);
 
 export type Mutation = z.infer<typeof mutationSchema>;

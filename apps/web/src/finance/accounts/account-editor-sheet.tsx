@@ -22,6 +22,7 @@ import {
 } from "../domain/accounts/side-of-kind.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
+import { isSupportedCurrency } from "../exchange-rates/supported-currencies.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { nextPosition } from "../settings/next-position.ts";
@@ -191,8 +192,8 @@ function AccountEditorForm({
       zh: "请先在资产负债表的这一侧创建分组",
     }),
     currency: t({
-      en: "Use a three-letter code, such as GBP",
-      zh: "请填写三位字母的币种代码，例如 GBP",
+      en: "Choose a currency from the list",
+      zh: "请从列表中选择币种",
     }),
     amount: t({ en: "Enter an amount", zh: "请输入金额" }),
     day: t({ en: "Enter a day from 1 to 31", zh: "请输入 1 到 31 之间的日期" }),
@@ -228,7 +229,13 @@ function AccountEditorForm({
     const code = currency.trim().toUpperCase();
     if (name.trim() === "") found.name = messages.name;
     if (resolvedGroupId === "") found.group = messages.group;
-    if (!/^[A-Z]{3}$/.test(code)) found.currency = messages.currency;
+    if (
+      code !== account?.currency &&
+      code !== baseCurrency &&
+      !isSupportedCurrency(code)
+    ) {
+      found.currency = messages.currency;
+    }
     const isCredit = kind === "credit";
     const limit =
       isCredit && creditLimit.trim() !== ""
@@ -428,9 +435,10 @@ function AccountEditorForm({
           error={errors.currency}
           value={currency}
           disabled={hasHistory}
-          options={currencyOptions(baseCurrency, usedCurrencies, currency).map(
-            (code) => ({ value: code, label: code }),
-          )}
+          options={currencyOptions(baseCurrency, usedCurrencies, [
+            account?.currency,
+            currency,
+          ]).map((code) => ({ value: code, label: code }))}
           onChange={(event) => {
             setCurrency(event.target.value);
           }}

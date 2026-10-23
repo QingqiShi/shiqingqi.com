@@ -10,7 +10,7 @@ import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import { materialiseRulesInTransaction } from "../rules/materialise-rules.ts";
 import { applyMutation } from "./apply-mutation.ts";
 import { DerivedTouches } from "./derived-touches.ts";
-import { mutationSchema } from "./mutation-schema.ts";
+import { mutationSchema, RETIRED_MUTATION_NAMES } from "./mutation-schema.ts";
 import type { PushRequest } from "./push-request-schema.ts";
 import { toRejection } from "./to-rejection.ts";
 import type {
@@ -58,7 +58,7 @@ export async function applyMutations(
     );
 
     for (const raw of request.mutations) {
-      if (alreadyApplied.has(raw.id)) {
+      if (alreadyApplied.has(raw.id) || RETIRED_MUTATION_NAMES.has(raw.name)) {
         applied.push(raw.id);
         continue;
       }
@@ -87,7 +87,7 @@ export async function applyMutations(
           );
           return result;
         });
-        if (effect) effects.add(effect);
+        for (const each of [effect ?? []].flat()) effects.add(each);
         alreadyApplied.add(raw.id);
         applied.push(raw.id);
         written = true;

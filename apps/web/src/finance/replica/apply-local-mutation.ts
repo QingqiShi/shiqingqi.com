@@ -267,7 +267,6 @@ function replaceEntries(
       accountId: input.accountId,
       date,
       amountMinor: input.amountMinor,
-      fxRate: input.fxRate ?? null,
       position,
       version: existing?.version ?? 0,
       createdAt: existing?.createdAt ?? context.now,
@@ -696,20 +695,6 @@ function upsertGroup(scope: Scope, args: Args<"upsertGroup">) {
   });
 }
 
-function setFxRate(scope: Scope, args: Args<"setFxRate">) {
-  scope.draft.put("fxRates", `${args.base}|${args.quote}|${args.on}`, {
-    householdId: scope.context.householdId,
-    base: args.base,
-    quote: args.quote,
-    on: args.on,
-    rate: args.rate,
-    source: "manual",
-    version:
-      scope.draft.get("fxRates", `${args.base}|${args.quote}|${args.on}`)
-        ?.version ?? 0,
-  });
-}
-
 function checkParent(
   scope: Scope,
   id: string,
@@ -1135,10 +1120,6 @@ function applyTo(scope: Scope, mutation: Mutation) {
     }
     case "upsertGroup": {
       upsertGroup(scope, mutation.args);
-      return;
-    }
-    case "setFxRate": {
-      setFxRate(scope, mutation.args);
       return;
     }
     case "upsertCategory": {

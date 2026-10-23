@@ -50,7 +50,6 @@ async function settle(
       id: entry.id,
       accountId: entry.id === entryId ? link.accountId : entry.accountId,
       amountMinor: entry.amountMinor,
-      fxRate: entry.fxRate,
     })),
   });
 }

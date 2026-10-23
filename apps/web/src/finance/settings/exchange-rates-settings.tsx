@@ -1,34 +1,21 @@
 "use client";
 
-import { Button } from "@tuja/ui/components/button";
-import { List } from "@tuja/ui/components/list";
-import { ListRow } from "@tuja/ui/components/list-row";
+import * as stylex from "@stylexjs/stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { TextField } from "@tuja/ui/components/text-field";
-import { useRef, useState } from "react";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { fxRateText } from "../accounts/build-fx-rate-mutations.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
-import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
-import { EditSheet } from "./edit-sheet.tsx";
-import {
-  latestFxRates,
-  parseFxRate,
-  type LatestFxRate,
-} from "./latest-fx-rates.ts";
+import { latestFxRates } from "./latest-fx-rates.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
-import { useApplyMutations } from "./use-apply-mutations.ts";
-
-interface Draft {
-  currency: string;
-  rate: string;
-  on: string;
-}
 
 function formatRate(rate: number, locale: string) {
   return new Intl.NumberFormat(locale, {
@@ -39,95 +26,46 @@ function formatRate(rate: number, locale: string) {
 
 /**
  * The rate of each other currency the open accounts use, against the base
- * currency: "1 USD = 0.79 GBP" on its date, and a form to enter a newer
- * one. Balances in that currency count at the latest rate on or before
- * each day.
+ * currency: "1 USD = 0.79 GBP", where it came from, and its date. Nobody
+ * edits the rates: they are market rates, and balances in that currency
+ * count at the latest rate on or before each day.
  */
 export function ExchangeRatesSettings() {
   const locale = useLocale();
   const today = useHouseholdToday();
   const baseCurrency = useBaseCurrency();
   const accounts = useReplica(liveRowSelectors.accounts);
-  const fxRows = useReplica((snapshot) => snapshot.tables.fxRates);
-  const apply = useApplyMutations();
-  const rateRef = useRef<HTMLInputElement>(null);
-  const [draft, setDraft] = useState<Draft | null>(null);
-  const [errors, setErrors] = useState<{ rate?: string; on?: string }>({});
+  const exchangeRates = useReplica((snapshot) => snapshot.exchangeRates);
 
+  const openAccounts = accounts.filter((account) => account.closedOn === null);
   const currencies = [
     ...new Set(
-      accounts
-        .filter(
-          (account) =>
-            account.closedOn === null && account.currency !== baseCurrency,
-        )
-        .map((account) => account.currency),
+      openAccounts
+        .map((account) => account.currency)
+        .filter((currency) => currency !== baseCurrency),
     ),
   ].sort();
-  const rates = latestFxRates(fxRows.values(), currencies, baseCurrency);
+  const rates = latestFxRates(exchangeRates.values(), currencies, baseCurrency);
   const accountCount = (currency: string) =>
-    accounts.filter(
-      (account) => account.closedOn === null && account.currency === currency,
-    ).length;
+    openAccounts.filter((account) => account.currency === currency).length;
 
   const labels = {
     noRate: t({
-      en: "No rate yet, so it counts one to one",
-      zh: "尚无汇率，暂按 1:1 计算",
+      en: "Counts one to one until a rate arrives, within a day",
+      zh: "暂按 1:1 计算，一天内会有汇率",
     }),
+    ecb: t({ en: "ECB", zh: "欧洲央行" }),
+    household: t({ en: "From your records", zh: "来自你的记录" }),
     accounts: t({ en: "accounts", zh: "个账户" }),
     account: t({ en: "account", zh: "个账户" }),
-    rateMissing: t({
-      en: "Enter a rate above zero, such as 0.79",
-      zh: "请输入大于零的汇率，例如 0.79",
-    }),
-    dayMissing: t({ en: "Pick a date", zh: "请选择日期" }),
-    update: t({ en: "Update rate", zh: "更新汇率" }),
-    saved: t({ en: "rate saved", zh: "汇率已保存" }),
   };
-
-  function open(entry: LatestFxRate) {
-    setErrors({});
-    setDraft({
-      currency: entry.currency,
-      rate: entry.rate === null ? "" : fxRateText(entry.rate),
-      on: today,
-    });
-  }
-
-  function save() {
-    if (!draft) return false;
-    const rate = parseFxRate(draft.rate);
-    const nextErrors = {
-      ...(rate === null ? { rate: labels.rateMissing } : {}),
-      ...(isValidDay(draft.on) ? {} : { on: labels.dayMissing }),
-    };
-    setErrors(nextErrors);
-    if (rate === null || Object.keys(nextErrors).length > 0) return false;
-    return apply(
-      [
-        {
-          name: "setFxRate",
-          args: {
-            base: draft.currency,
-            quote: baseCurrency,
-            on: draft.on,
-            rate,
-          },
-        },
-      ],
-      { message: `${draft.currency} ${labels.saved}` },
-    );
-  }
-
-  const typed = draft ? parseFxRate(draft.rate) : null;
 
   return (
     <SettingsPanel
       title={t({ en: "Exchange rates", zh: "汇率" })}
       description={t({
-        en: "Accounts in another currency count in the base currency at the latest rate on or before each day. Enter a new rate when it has moved.",
-        zh: "外币账户按当天或之前最近一次的汇率折算为本位币。汇率变动时，在这里输入新汇率。",
+        en: "Market rates from the European Central Bank, updated each working day. Accounts in another currency count in the base currency at the latest rate on or before each day.",
+        zh: "汇率为欧洲央行公布的市场汇率，每个工作日更新。外币账户按当天或之前最近一次的汇率折算为本位币。",
       })}
     >
       {rates.length === 0 ? (
@@ -141,92 +79,58 @@ export function ExchangeRatesSettings() {
           })}`}
         </Text>
       ) : (
-        <List>
+        <ul css={[cardSurface.base, listSurface.list]}>
           {rates.map((entry) => {
             const count = accountCount(entry.currency);
+            const rateFacts =
+              entry.rate === null
+                ? [labels.noRate]
+                : [
+                    entry.source === "ecb" ? labels.ecb : labels.household,
+                    displayDay(
+                      entry.on,
+                      locale,
+                      entry.on.slice(0, 4) === today.slice(0, 4)
+                        ? "day"
+                        : "dayYear",
+                    ),
+                  ];
             return (
-              <ListRow
-                key={entry.currency}
-                detail={[
-                  entry.on === null
-                    ? labels.noRate
-                    : displayDay(entry.on, locale, "dayYear"),
-                  `${new Intl.NumberFormat(locale).format(count)} ${count === 1 ? labels.account : labels.accounts}`,
-                ].join(" · ")}
-                actions={
-                  <Button
-                    size="sm"
-                    look="outline"
-                    aria-label={`${labels.update}: ${entry.currency}`}
-                    onClick={() => {
-                      open(entry);
-                    }}
-                  >
-                    {labels.update}
-                  </Button>
-                }
-                onClick={() => {
-                  open(entry);
-                }}
-              >
-                {entry.rate === null
-                  ? entry.currency
-                  : `1 ${entry.currency} = ${formatRate(entry.rate, locale)} ${baseCurrency}`}
-              </ListRow>
+              <li key={entry.currency} css={listSurface.item}>
+                <div css={listSurface.row}>
+                  <div css={[stack.text, styles.text]}>
+                    <span
+                      css={[typeRole.body, typeModifier.numeric, styles.title]}
+                    >
+                      {entry.rate === null
+                        ? entry.currency
+                        : `1 ${entry.currency} = ${formatRate(entry.rate, locale)} ${baseCurrency}`}
+                    </span>
+                    <span css={[typeRole.caption, styles.detail]}>
+                      {[
+                        ...rateFacts,
+                        `${new Intl.NumberFormat(locale).format(count)} ${count === 1 ? labels.account : labels.accounts}`,
+                      ].join(" · ")}
+                    </span>
+                  </div>
+                </div>
+              </li>
             );
           })}
-        </List>
+        </ul>
       )}
-      <EditSheet
-        isOpen={draft !== null}
-        onClose={() => {
-          setDraft(null);
-        }}
-        title={
-          draft ? `${draft.currency} ${t({ en: "rate", zh: "汇率" })}` : ""
-        }
-        initialFocusRef={rateRef}
-        onSave={save}
-      >
-        {draft ? (
-          <>
-            <TextField
-              ref={rateRef}
-              label={`${t({ en: "Rate", zh: "汇率" })} · 1 ${draft.currency} = ? ${baseCurrency}`}
-              inputMode="decimal"
-              value={draft.rate}
-              error={errors.rate}
-              description={
-                typed === null
-                  ? undefined
-                  : `1 ${draft.currency} = ${formatRate(typed, locale)} ${baseCurrency} · 1 ${baseCurrency} = ${formatRate(1 / typed, locale)} ${draft.currency}`
-              }
-              onChange={(event) => {
-                setDraft({ ...draft, rate: event.target.value });
-                setErrors({ ...errors, rate: undefined });
-              }}
-              onFocus={(event) => {
-                event.currentTarget.select();
-              }}
-            />
-            <TextField
-              type="date"
-              label={t({ en: "From", zh: "生效日期" })}
-              description={t({
-                en: "The rate counts from this day until a newer one.",
-                zh: "此汇率从这天起生效，直到有更新的汇率。",
-              })}
-              value={draft.on}
-              max={today}
-              error={errors.on}
-              onChange={(event) => {
-                setDraft({ ...draft, on: event.target.value });
-                setErrors({ ...errors, on: undefined });
-              }}
-            />
-          </>
-        ) : null}
-      </EditSheet>
     </SettingsPanel>
   );
 }
+
+const styles = stylex.create({
+  text: {
+    minInlineSize: 0,
+  },
+  title: {
+    fontWeight: font.weight_5,
+  },
+  detail: {
+    color: color.fgMuted,
+  },
+});

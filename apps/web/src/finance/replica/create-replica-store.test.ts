@@ -289,4 +289,40 @@ describe("createReplicaStore", () => {
     );
     expect(store.getDiskRevision()).not.toBe(revision);
   });
+
+  it("adds and replaces exchange rates, keeps them through a bootstrap, and shows them to another tab", async () => {
+    const { store, persistence } = await seededStore();
+    const usd = {
+      base: "USD",
+      quote: "GBP",
+      on: "2026-10-01",
+      rate: 0.8,
+      source: "ecb" as const,
+    };
+    const revision = store.getDiskRevision();
+    store.applyExchangeRates({ cursor: "1.a", replace: true, rates: [usd] });
+    const added = store.getSnapshot().exchangeRates;
+    expect([...added.values()]).toEqual([usd]);
+    expect(store.getDiskRevision()).not.toBe(revision);
+
+    store.applyExchangeRates({ cursor: "1.a", replace: false, rates: [] });
+    expect(store.getSnapshot().exchangeRates).toBe(added);
+
+    const next = { ...usd, on: "2026-10-02", rate: 0.81 };
+    store.applyExchangeRates({ cursor: "2.a", replace: false, rates: [next] });
+    expect(store.getSnapshot().exchangeRates.size).toBe(2);
+
+    store.startBootstrap(testHousehold);
+    store.finishBootstrap(11, new Set());
+    expect(store.getSnapshot().exchangeRates.size).toBe(2);
+
+    await store.flush();
+    const other = createReplicaStore({ householdId: HOUSEHOLD, persistence });
+    await other.load();
+    expect(other.getSnapshot().exchangeRates.size).toBe(2);
+    expect(other.getMeta().exchangeRateCursor).toBe("2.a");
+
+    store.applyExchangeRates({ cursor: "3.b", replace: true, rates: [next] });
+    expect([...store.getSnapshot().exchangeRates.values()]).toEqual([next]);
+  });
 });

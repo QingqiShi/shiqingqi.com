@@ -4,7 +4,7 @@
  * server asks a tab that runs older code to reload. The Outbox stays.
  * Raising `DB_VERSION` instead would delete the Outbox.
  */
-export const REPLICA_ROW_SHAPE = 7;
+export const REPLICA_ROW_SHAPE = 8;
 
 export const ROW_SHAPE_HEADER = "X-Finance-Row-Shape";
 

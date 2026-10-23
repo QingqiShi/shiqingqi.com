@@ -2,7 +2,6 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import {
   bankLinks,
   categories,
-  fxRates,
   households,
   members,
   rules,
@@ -193,33 +192,17 @@ test.describe("Settings", () => {
       .toHaveLength(1);
   });
 
-  test("an exchange rate and the AI instructions save", async ({
+  test("exchange rates show read-only, and the AI instructions save", async ({
     page,
     session,
     financeDb,
   }) => {
     await openSettings(page, "exchange-rates", "Exchange rates");
-    await page.getByRole("button", { name: "Update rate: USD" }).click();
-    await page.getByRole("textbox", { name: /1 USD = \? GBP/ }).fill("0.8123");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect(page.getByText("1 USD = 0.8123 GBP")).toBeVisible();
-    await expect
-      .poll(
-        async () =>
-          financeDb
-            .select({ rate: fxRates.rate })
-            .from(fxRates)
-            .where(
-              and(
-                eq(fxRates.householdId, session.householdId),
-                eq(fxRates.base, "USD"),
-                eq(fxRates.quote, "GBP"),
-              ),
-            )
-            .then((rows) => rows.map((row) => row.rate)),
-        { timeout: SYNC_TIMEOUT },
-      )
-      .toContain(0.8123);
+    await expect(page.getByText(/^1 USD = \d+\.\d+ GBP$/)).toBeVisible();
+    await expect(
+      page.getByText(/^From your records · .+ · \d+ accounts?$/),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /rate/i })).toHaveCount(0);
 
     await openSettings(page, "ai", "AI labelling");
     await page

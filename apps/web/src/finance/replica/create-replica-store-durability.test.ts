@@ -213,3 +213,59 @@ describe("the Outbox on disk", () => {
     fresh.close();
   });
 });
+
+describe("exchange rates on disk", () => {
+  const usd = (on: string) => ({
+    base: "USD",
+    quote: "GBP",
+    on,
+    rate: 0.75,
+    source: "ecb" as const,
+  });
+
+  it("keeps the cursor where the rates on disk reach when their write fails, also through a later write of the meta", async () => {
+    const householdId = randomUUID();
+    const { persistence, control } = flakyPersistence();
+    const tab = await openStore(householdId, persistence);
+    tab.startBootstrap(household(householdId, 1));
+    tab.finishBootstrap(1, new Set());
+    tab.applyExchangeRates({
+      cursor: "1.a",
+      replace: true,
+      rates: [usd("2026-10-01")],
+    });
+    await tab.flush();
+
+    control.failing = true;
+    tab.applyExchangeRates({
+      cursor: "2.a",
+      replace: false,
+      rates: [usd("2026-10-02")],
+    });
+    await tab.flush();
+    expect(tab.getSnapshot().exchangeRates.size).toBe(2);
+    expect(tab.getMeta().exchangeRateCursor).toBe("1.a");
+
+    control.failing = false;
+    tab.applyPull(
+      { clock: 2, household: household(householdId, 2), tables: {} },
+      new Set(),
+    );
+    await tab.flush();
+
+    const reloaded = await openStore(householdId, persistence);
+    expect(reloaded.getSnapshot().exchangeRates.size).toBe(1);
+    expect(reloaded.getMeta().exchangeRateCursor).toBe("1.a");
+
+    tab.applyExchangeRates({
+      cursor: "2.a",
+      replace: false,
+      rates: [usd("2026-10-02")],
+    });
+    await tab.flush();
+    expect(tab.getMeta().exchangeRateCursor).toBe("2.a");
+    const again = await openStore(householdId, persistence);
+    expect(again.getSnapshot().exchangeRates.size).toBe(2);
+    expect(again.getMeta().exchangeRateCursor).toBe("2.a");
+  });
+});

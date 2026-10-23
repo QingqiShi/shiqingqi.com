@@ -82,6 +82,118 @@ describe("openReplicaDb", () => {
     reopened.close();
   });
 
+  it("opens a database that an older version made, keeps its Outbox, and reads its old rates as exchange rates", async () => {
+    const id = randomUUID();
+    const oldStores = [
+      "members",
+      "accountGroups",
+      "accounts",
+      "valuations",
+      "categories",
+      "payees",
+      "tags",
+      "rules",
+      "transactions",
+      "entries",
+      "transactionTags",
+      "accountBalanceDays",
+      "monthTotals",
+      "fxRates",
+      "bankLinks",
+      "reports",
+    ];
+    const oldRate = {
+      householdId: id,
+      base: "USD",
+      quote: "GBP",
+      on: "2026-09-01",
+      rate: 0.75,
+      source: "manual",
+      version: 3,
+    };
+    const old = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(replicaDbName(id), 1);
+      request.onupgradeneeded = () => {
+        for (const store of oldStores) request.result.createObjectStore(store);
+        request.result.createObjectStore("meta");
+        request.result
+          .createObjectStore("outbox", { keyPath: "mutation.id" })
+          .createIndex("seq", "seq");
+      };
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      request.onerror = () => {
+        reject(request.error ?? new Error("open failed"));
+      };
+    });
+    await new Promise<void>((resolve, reject) => {
+      const transaction = old.transaction(
+        ["fxRates", "meta", "outbox"],
+        "readwrite",
+      );
+      transaction.objectStore("fxRates").put(oldRate, "USD|GBP|2026-09-01");
+      transaction.objectStore("meta").put({ ...meta, householdId: id }, "meta");
+      transaction.objectStore("outbox").put(entry);
+      transaction.oncomplete = () => {
+        resolve();
+      };
+      transaction.onerror = () => {
+        reject(transaction.error ?? new Error("write failed"));
+      };
+    });
+    old.close();
+
+    const db = openReplicaDb(id);
+    const loaded = await db.load();
+    expect(loaded.outbox).toEqual([entry]);
+    expect([...loaded.exchangeRates.values()]).toEqual([
+      {
+        base: "USD",
+        quote: "GBP",
+        on: "2026-09-01",
+        rate: 0.75,
+        source: "household",
+      },
+    ]);
+
+    const rate = {
+      base: "CNY",
+      quote: "GBP",
+      on: "2026-10-09",
+      rate: 0.11,
+      source: "ecb" as const,
+    };
+    await db.write({
+      clearTables: true,
+      exchangeRates: { replace: true, put: [rate] },
+    });
+    const replaced = await db.load();
+    expect([...replaced.exchangeRates.values()]).toEqual([rate]);
+    expect(replaced.outbox).toEqual([entry]);
+    db.close();
+  });
+
+  it("makes the exchange rate store in a new database and adds rates to it", async () => {
+    const id = randomUUID();
+    const db = openReplicaDb(id);
+    const first = {
+      base: "USD",
+      quote: "GBP",
+      on: "2026-10-08",
+      rate: 0.75,
+      source: "ecb" as const,
+    };
+    const second = { ...first, on: "2026-10-09", rate: 0.76 };
+    await db.write({ exchangeRates: { replace: false, put: [first] } });
+    await db.write({ exchangeRates: { replace: false, put: [second] } });
+    expect([...(await db.load()).exchangeRates.values()]).toEqual([
+      first,
+      second,
+    ]);
+    db.close();
+  });
+
   it("never opens a database again that something else deleted, and says it was deleted", async () => {
     const id = randomUUID();
     const onDeleted = vi.fn();

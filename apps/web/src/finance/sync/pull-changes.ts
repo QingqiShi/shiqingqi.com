@@ -4,6 +4,10 @@ import type { RepositoryScope } from "../db/repositories/types.ts";
 import { setStatementTimeout } from "../db/set-statement-timeout.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
+import {
+  findHouseholdPairs,
+  householdPairsId,
+} from "../exchange-rates/find-household-pairs.ts";
 import { SYNC_TABLE_NAMES, type SyncTableName } from "./row-schemas.ts";
 
 /** Rows as the database returns them; JSON turns their timestamps into the wire's ISO strings. */
@@ -38,7 +42,11 @@ export function readTable(
   return syncReadRepository.tables[table](scope, since);
 }
 
-/** Every synced row of the Household with a version above `since`, and the clock they reach. */
+/**
+ * Every synced row of the Household with a version above `since`, and the
+ * clock they reach. With rows, also the id of the pairs the Household needs
+ * rates for.
+ */
 export async function pullChanges(
   db: FinanceDb,
   householdId: string,
@@ -55,6 +63,12 @@ export async function pullChanges(
       const rows = await readTable(scope, table, since);
       if (rows.length > 0) tables[table] = rows;
     }
-    return { clock: household.clock, household, tables };
+    const pairs = await findHouseholdPairs(scope, household.baseCurrency);
+    return {
+      clock: household.clock,
+      household,
+      tables,
+      exchangeRatePairsId: householdPairsId(pairs),
+    };
   });
 }

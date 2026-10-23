@@ -1,4 +1,4 @@
-import type { FxRateInput } from "../domain/balance/create-fx-index.ts";
+import type { FxRateInput } from "../domain/balance/rate-to-base-of.ts";
 
 export interface ReportSourceGroup {
   id: string;
@@ -48,7 +48,7 @@ export interface ReportSource {
     day: string;
     balanceMinor: number;
   }[];
-  fxRates: readonly FxRateInput[];
+  exchangeRates: readonly FxRateInput[];
   categories: readonly {
     id: string;
     parentId: string | null;

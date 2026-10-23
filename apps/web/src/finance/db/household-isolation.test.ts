@@ -24,6 +24,7 @@ import {
   emailCodes,
   emailVerifications,
   entries,
+  exchangeRates,
   fxRates,
   households,
   institutionDomainGuesses,
@@ -54,9 +55,14 @@ import {
   type FinanceAppDb,
 } from "./with-household.ts";
 
-const tables: PgTable[] = Object.values(schema).flatMap((value) =>
-  is(value, PgTable) ? [value] : [],
-);
+// "fx_rates" is not in `schema`, but older deployments still use it. Keep it
+// in these tests until a migration removes it.
+const tables: PgTable[] = [
+  ...Object.values(schema).flatMap((value) =>
+    is(value, PgTable) ? [value] : [],
+  ),
+  fxRates,
+];
 const globalTables = new Set<PgTable>([
   users,
   passkeys,
@@ -66,6 +72,7 @@ const globalTables = new Set<PgTable>([
   signUps,
   institutionDomainGuesses,
   institutionIcons,
+  exchangeRates,
 ]);
 /** The column that names the Household of a row. */
 function householdKey(table: PgTable): PgColumn {

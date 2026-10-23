@@ -2,13 +2,19 @@ import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
-import { transactions } from "../db/schema.ts";
+import { accounts, exchangeRates, transactions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
 import { balanceAt } from "../domain/balance/balance-at.ts";
+import { makeExchangeRatesHandler } from "../exchange-rates/make-exchange-rates-handler.ts";
+import { refreshHouseholdExchangeRates } from "../exchange-rates/refresh-exchange-rates.ts";
+import {
+  createFakeFrankfurter,
+  type FakeFrankfurter,
+} from "../exchange-rates/testing/create-fake-frankfurter.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import { makeSyncHandlers } from "../sync/make-sync-handlers.ts";
@@ -23,13 +29,23 @@ import type { ReplicaPersistence, ReplicaRejection } from "./types.ts";
 
 const ORIGIN = "https://qingqi.dev";
 const ENDPOINT = `${ORIGIN}/api/finance/sync`;
+const EXCHANGE_RATES_ENDPOINT = `${ORIGIN}/api/finance/exchange-rates`;
 const TODAY = "2026-10-10";
+
+let exchangeRateRequests: string[] = [];
+let exchangeRatesFail = false;
+let frankfurter: FakeFrankfurter;
+let afterPushWork: (() => Promise<unknown>)[] = [];
 
 let db: TestDb;
 let home: SeededHousehold;
 let session: FinanceSession | null;
 
 beforeEach(async () => {
+  exchangeRateRequests = [];
+  exchangeRatesFail = false;
+  frankfurter = createFakeFrankfurter();
+  afterPushWork = [];
   db = await createTestDb();
   home = await seedTestHousehold(db);
   session = {
@@ -45,7 +61,10 @@ afterEach(async () => {
   await db.close();
 });
 
-function routeToHandlers(serverRowShape: () => number) {
+function routeToHandlers(
+  serverRowShape: () => number,
+  ratesRowShape: () => number,
+) {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
     const handlers = makeSyncHandlers({
       isConfigured: () => true,
@@ -53,6 +72,15 @@ function routeToHandlers(serverRowShape: () => number) {
       getSession: () => Promise.resolve(session),
       now: () => new Date(`${TODAY}T12:00:00Z`),
       rowShape: serverRowShape(),
+      afterPush: (householdId, effects) => {
+        if (!effects.has("currency-changed")) return;
+        afterPushWork.push(() =>
+          refreshHouseholdExchangeRates(db, householdId, {
+            fetch: (input, init) => frankfurter.fetch(input, init),
+            now: () => new Date(`${TODAY}T12:00:00Z`),
+          }),
+        );
+      },
     });
     const url =
       typeof input === "string"
@@ -65,6 +93,17 @@ function routeToHandlers(serverRowShape: () => number) {
     headers.set("Content-Type", "application/json");
     headers.set("Origin", ORIGIN);
     const request = new Request(url, { method, headers, body: init?.body });
+    if (url.startsWith(EXCHANGE_RATES_ENDPOINT)) {
+      exchangeRateRequests.push(url);
+      return exchangeRatesFail
+        ? new Response("", { status: 500 })
+        : makeExchangeRatesHandler({
+            isConfigured: () => true,
+            getDb: () => db,
+            getSession: () => Promise.resolve(session),
+            rowShape: ratesRowShape(),
+          })(request);
+    }
     return method === "POST" ? handlers.POST(request) : handlers.GET(request);
   };
 }
@@ -74,11 +113,16 @@ function createClient(
     pushFails?: () => boolean;
     persistence?: ReplicaPersistence;
     serverRowShape?: () => number;
+    ratesRowShape?: () => number;
+    now?: () => number;
+    onRequest?: (method: string, url: string) => void;
   } = {},
 ) {
   let online = true;
+  const serverRowShape = options.serverRowShape ?? (() => REPLICA_ROW_SHAPE);
   const handlers = routeToHandlers(
-    options.serverRowShape ?? (() => REPLICA_ROW_SHAPE),
+    serverRowShape,
+    options.ratesRowShape ?? serverRowShape,
   );
   const rejections: ReplicaRejection[] = [];
   let unauthorised = 0;
@@ -92,11 +136,22 @@ function createClient(
   });
   const loop = createSyncLoop({
     store,
-    fetch: (input, init) =>
-      init?.method === "POST" && options.pushFails?.()
+    fetch: (input, init) => {
+      options.onRequest?.(
+        init?.method ?? "GET",
+        input instanceof Request
+          ? input.url
+          : input instanceof URL
+            ? input.href
+            : input,
+      );
+      return init?.method === "POST" && options.pushFails?.()
         ? Promise.resolve(new Response("", { status: 500 }))
-        : handlers(input, init),
+        : handlers(input, init);
+    },
     endpoint: ENDPOINT,
+    exchangeRatesEndpoint: EXCHANGE_RATES_ENDPOINT,
+    now: options.now,
     isOnline: () => online,
     isVisible: () => true,
     onUnauthorised: () => {
@@ -176,7 +231,6 @@ function rowsOfRule(client: ReturnType<typeof createClient>, ruleId: string) {
           id: entry.id,
           accountId: entry.accountId,
           amountMinor: entry.amountMinor,
-          fxRate: entry.fxRate,
           date: entry.date,
         })),
     }));
@@ -771,5 +825,289 @@ describe("sync loop when the server fails", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("exchange rates", () => {
+  async function moveSavingsToUsd() {
+    await db
+      .update(accounts)
+      .set({ currency: "USD" })
+      .where(eq(accounts.id, home.savingsId));
+  }
+
+  it("downloads the rates on the first run, then only the new ones, and keeps them on disk", async () => {
+    await moveSavingsToUsd();
+    await db.insert(exchangeRates).values([
+      {
+        base: "USD",
+        quote: "GBP",
+        on: "2026-10-08",
+        rate: 0.75,
+        source: "household",
+      },
+      { base: "CNY", quote: "GBP", on: "2026-10-08", rate: 0.1, source: "ecb" },
+    ]);
+    let time = 0;
+    const persistence = createMemoryPersistence();
+    const client = createClient({ persistence, now: () => time });
+    await client.ready();
+    expect([...client.snapshot().exchangeRates.values()]).toEqual([
+      {
+        base: "USD",
+        quote: "GBP",
+        on: "2026-10-08",
+        rate: 0.75,
+        source: "household",
+      },
+    ]);
+    expect(exchangeRateRequests).toEqual([EXCHANGE_RATES_ENDPOINT]);
+
+    await db.insert(exchangeRates).values({
+      base: "USD",
+      quote: "GBP",
+      on: "2026-10-09",
+      rate: 0.76,
+      source: "ecb",
+    });
+    time = 60_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(1);
+
+    time = 15 * 60_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(2);
+    expect(exchangeRateRequests[1]).toContain("?since=");
+    expect(
+      [...client.snapshot().exchangeRates.values()].map((rate) => rate.on),
+    ).toEqual(["2026-10-08", "2026-10-09"]);
+
+    const reloaded = createClient({ persistence, now: () => time });
+    await reloaded.store.load();
+    expect(reloaded.snapshot().exchangeRates.size).toBe(2);
+    expect(reloaded.store.getMeta().exchangeRateCursor).toBe(
+      client.store.getMeta().exchangeRateCursor,
+    );
+  });
+
+  it("tries again soon while a pair has no rate, doubling the wait, then waits 15 minutes", async () => {
+    await moveSavingsToUsd();
+    let time = 0;
+    const client = createClient({ now: () => time });
+    await client.ready();
+    expect(exchangeRateRequests).toHaveLength(1);
+
+    for (const [at, requests] of [
+      [29_000, 1],
+      [30_000, 2],
+      [89_000, 2],
+    ] as const) {
+      time = at;
+      await client.loop.sync();
+      expect(exchangeRateRequests, String(at)).toHaveLength(requests);
+    }
+
+    await db.insert(exchangeRates).values({
+      base: "GBP",
+      quote: "USD",
+      on: "2026-10-09",
+      rate: 1.3,
+      source: "ecb",
+    });
+    time = 90_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(3);
+    expect(client.snapshot().exchangeRates.size).toBe(1);
+
+    time = 90_000 + 15 * 60_000 - 1;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(3);
+    time = 90_000 + 15 * 60_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(4);
+  });
+
+  it("does not try again for a currency the ECB does not publish", async () => {
+    await db
+      .update(accounts)
+      .set({ currency: "AED" })
+      .where(eq(accounts.id, home.savingsId));
+    let time = 0;
+    const client = createClient({ now: () => time });
+    await client.ready();
+
+    time = 15 * 60_000 - 1;
+    await client.loop.sync();
+
+    expect(exchangeRateRequests).toHaveLength(1);
+  });
+
+  it("downloads at once when the Household starts to use another currency, then again once the server has its rates", async () => {
+    frankfurter.rates.set("USD/GBP", 0.75);
+    let time = 0;
+    const client = createClient({ now: () => time });
+    await client.ready();
+    expect(client.snapshot().exchangeRates.size).toBe(0);
+
+    client.store.applyLocal({
+      name: "upsertAccount",
+      args: { id: home.savingsId, currency: "USD" },
+    });
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(2);
+    expect(client.snapshot().exchangeRates.size).toBe(0);
+
+    expect(afterPushWork).toHaveLength(1);
+    for (const work of afterPushWork) await work();
+    time = 29_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(2);
+    time = 30_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(3);
+    expect([...client.snapshot().exchangeRates.values()]).toContainEqual(
+      expect.objectContaining({ base: "USD", quote: "GBP", rate: 0.75 }),
+    );
+
+    time = 31_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(3);
+  });
+
+  it("pushes a change made during the pull before it downloads rates", async () => {
+    const calls: string[] = [];
+    let duringPull: (() => void) | undefined;
+    let time = 0;
+    const client = createClient({
+      now: () => time,
+      onRequest: (method, url) => {
+        const kind = url.startsWith(EXCHANGE_RATES_ENDPOINT)
+          ? "rates"
+          : method === "POST"
+            ? "push"
+            : "pull";
+        calls.push(kind);
+        if (kind === "pull") duringPull?.();
+        duringPull = undefined;
+      },
+    });
+    await client.ready();
+    calls.length = 0;
+    duringPull = () => createExpense(client, 100);
+    time = 15 * 60_000;
+
+    await client.loop.sync();
+
+    expect(calls).toEqual(["pull", "push", "rates"]);
+    expect(client.snapshot().outboxCount).toBe(0);
+  });
+
+  it("does not download for a new account in the Base currency", async () => {
+    const client = createClient({ now: () => 0 });
+    await client.ready();
+
+    client.store.applyLocal({
+      name: "upsertAccount",
+      args: {
+        id: randomUUID(),
+        groupId: home.liquidGroupId,
+        name: "Pounds",
+        kind: "cash",
+        currency: "GBP",
+      },
+    });
+    await client.loop.sync();
+
+    expect(exchangeRateRequests).toHaveLength(1);
+  });
+
+  it("tries a failed download again after 30 s, doubling the wait, and not before", async () => {
+    let time = 0;
+    exchangeRatesFail = true;
+    const client = createClient({ now: () => time });
+    await client.ready();
+    expect(exchangeRateRequests).toHaveLength(1);
+
+    for (const [at, requests] of [
+      [29_000, 1],
+      [30_000, 2],
+      [89_000, 2],
+      [90_000, 3],
+    ] as const) {
+      time = at;
+      await client.loop.sync();
+      expect(exchangeRateRequests, String(at)).toHaveLength(requests);
+    }
+
+    exchangeRatesFail = false;
+    time = 210_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(4);
+    time = 211_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(4);
+  });
+
+  it.each([
+    [
+      "asks to reload",
+      "a newer",
+      REPLICA_ROW_SHAPE + 1,
+      { problem: "outdated", newerRowShape: REPLICA_ROW_SHAPE + 1 },
+    ],
+    [
+      "backs off without a reload",
+      "an older",
+      REPLICA_ROW_SHAPE - 1,
+      { problem: "server-behind", failures: 1, newerRowShape: null },
+    ],
+  ])(
+    "%s, and keeps the rates on the device, when the rates download meets %s row shape",
+    async (_, __, ratesShape, expected) => {
+      await moveSavingsToUsd();
+      await db.insert(exchangeRates).values({
+        base: "USD",
+        quote: "GBP",
+        on: "2026-10-08",
+        rate: 0.75,
+        source: "ecb",
+      });
+      let time = 0;
+      let ratesRowShape = REPLICA_ROW_SHAPE;
+      const client = createClient({
+        now: () => time,
+        ratesRowShape: () => ratesRowShape,
+      });
+      await client.ready();
+      ratesRowShape = ratesShape;
+      time = 15 * 60_000;
+
+      await client.loop.sync();
+      client.loop.stop();
+
+      expect(exchangeRateRequests).toHaveLength(2);
+      expect(client.loop.getStatus()).toMatchObject(expected);
+      expect(client.snapshot().exchangeRates.size).toBe(1);
+    },
+  );
+
+  it("keeps the rates on the device when the download fails", async () => {
+    await moveSavingsToUsd();
+    await db.insert(exchangeRates).values({
+      base: "USD",
+      quote: "GBP",
+      on: "2026-10-08",
+      rate: 0.75,
+      source: "ecb",
+    });
+    let time = 0;
+    const client = createClient({ now: () => time });
+    await client.ready();
+    exchangeRatesFail = true;
+    time = 15 * 60_000;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(2);
+    expect(client.snapshot().exchangeRates.size).toBe(1);
+    expect(client.loop.getStatus().problem).toBeNull();
   });
 });
