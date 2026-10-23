@@ -52,7 +52,7 @@ function groceriesExpense(id = randomUUID()) {
 }
 
 describe("toRejection", () => {
-  it("rejects data errors and keeps server errors for a retry", () => {
+  it("rejects data errors and keeps server and schema errors for a retry", () => {
     const wrapped = new Error("Failed query", {
       cause: Object.assign(new Error("numeric field overflow"), {
         code: "22003",
@@ -69,6 +69,15 @@ describe("toRejection", () => {
     expect(toRejection("c", { code: "40001" })).toBeUndefined();
     expect(toRejection("d", { code: "57014" })).toBeUndefined();
     expect(toRejection("e", { code: "08006" })).toBeUndefined();
+    expect(toRejection("h", { code: "42703" })).toBeUndefined();
+    expect(toRejection("i", { code: "42P01" })).toBeUndefined();
+    expect(toRejection("j", { code: "55P03" })).toBeUndefined();
+    expect(toRejection("k", { code: "42501" })).toMatchObject({
+      reason: "invalid",
+    });
+    expect(toRejection("l", { code: "42804" })).toMatchObject({
+      reason: "invalid",
+    });
     expect(toRejection("f", new Error("no code"))).toBeUndefined();
     expect(toRejection("g", new MutationError("deleted"))).toMatchObject({
       reason: "deleted",

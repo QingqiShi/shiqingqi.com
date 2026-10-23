@@ -10,6 +10,16 @@ import type { Rejection } from "./types.ts";
  */
 const SERVER_ERROR_CLASSES = new Set(["08", "40", "53", "57", "58"]);
 
+/**
+ * Migrations run before the new code serves, so for a short time the old
+ * code meets a schema it does not know: a column or table it writes is gone
+ * (42703, 42P01), or a migration holds a lock past the lock timeout
+ * (55P03). The push must try again. The other codes of class 42 and 55 do
+ * not go away on their own, so they reject the mutation; if not, it blocks
+ * the Outbox.
+ */
+const SCHEMA_CHANGE_CODES = new Set(["42703", "42P01", "55P03"]);
+
 /** A rejection for errors a mutation can cause; undefined for any other error. */
 export function toRejection(id: string, error: unknown): Rejection | undefined {
   if (error instanceof MutationError) {
@@ -19,7 +29,8 @@ export function toRejection(id: string, error: unknown): Rejection | undefined {
   if (
     code === undefined ||
     code.length !== 5 ||
-    SERVER_ERROR_CLASSES.has(code.slice(0, 2))
+    SERVER_ERROR_CLASSES.has(code.slice(0, 2)) ||
+    SCHEMA_CHANGE_CODES.has(code)
   ) {
     return undefined;
   }

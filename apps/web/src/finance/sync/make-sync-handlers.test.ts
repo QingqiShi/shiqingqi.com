@@ -8,6 +8,7 @@ import {
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
 import { makeSyncHandlers } from "./make-sync-handlers.ts";
+import { REPLICA_ROW_SHAPE, ROW_SHAPE_HEADER } from "./replica-row-shape.ts";
 import {
   householdRowSchema,
   isSyncTableName,
@@ -42,8 +43,9 @@ afterEach(async () => {
   await db.close();
 });
 
-function handlers() {
+function handlers(rowShape?: number) {
   return makeSyncHandlers({
+    rowShape,
     isConfigured: () => configured,
     getDb: () => db,
     getSession: () => Promise.resolve(session),
@@ -54,14 +56,28 @@ function handlers() {
   });
 }
 
-function pushRequest(body: unknown, origin: string | null = ORIGIN) {
+function pushRequest(
+  body: unknown,
+  origin: string | null = ORIGIN,
+  rowShape: number | null = REPLICA_ROW_SHAPE,
+) {
   return new Request(URL_BASE, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...(origin === null ? {} : { Origin: origin }),
+      ...(rowShape === null ? {} : { [ROW_SHAPE_HEADER]: String(rowShape) }),
     },
     body: JSON.stringify(body),
+  });
+}
+
+function pullRequest(
+  since: number,
+  rowShape: number | null = REPLICA_ROW_SHAPE,
+) {
+  return new Request(`${URL_BASE}?since=${String(since)}`, {
+    headers: rowShape === null ? {} : { [ROW_SHAPE_HEADER]: String(rowShape) },
   });
 }
 
@@ -125,14 +141,14 @@ function expectWireRows(table: SyncTableName, rows: unknown[]) {
 describe("makeSyncHandlers", () => {
   it("answers 503 with a reason when Finance has no database", async () => {
     configured = false;
-    const response = await handlers().GET(new Request(`${URL_BASE}?since=0`));
+    const response = await handlers().GET(pullRequest(0));
     expect(response.status).toBe(503);
     expect(await response.json()).toMatchObject({ error: "not-configured" });
   });
 
   it("answers 401 without a session", async () => {
     session = null;
-    const get = await handlers().GET(new Request(`${URL_BASE}?since=0`));
+    const get = await handlers().GET(pullRequest(0));
     const post = await handlers().POST(
       pushRequest({ clientId: randomUUID(), mutations: [] }),
     );
@@ -166,7 +182,7 @@ describe("makeSyncHandlers", () => {
     const pushed: unknown = await push.json();
     expect(pushed).toMatchObject({ rejected: [], clock: 1 });
 
-    const pull = await handlers().GET(new Request(`${URL_BASE}?since=0`));
+    const pull = await handlers().GET(pullRequest(0));
     expect(pull.headers.get("Content-Type")).toContain("application/x-ndjson");
     const lines = await readNdjson(pull);
     expect(lines[0]).toMatchObject({
@@ -205,9 +221,7 @@ describe("makeSyncHandlers", () => {
       }),
     );
 
-    const lines = await readNdjson(
-      await handlers().GET(new Request(`${URL_BASE}?since=0`)),
-    );
+    const lines = await readNdjson(await handlers().GET(pullRequest(0)));
     const tables = new Map<string, unknown[]>();
     for (const line of lines) {
       if (line.type === "rows") {
@@ -237,7 +251,7 @@ describe("makeSyncHandlers", () => {
       }),
     );
 
-    const response = await handlers().GET(new Request(`${URL_BASE}?since=1`));
+    const response = await handlers().GET(pullRequest(1));
     const pull = pullResponseSchema.parse(await response.json());
     expect(pull.clock).toBe(2);
     expect(pull.household.id).toBe(home.householdId);
@@ -258,9 +272,115 @@ describe("makeSyncHandlers", () => {
   });
 
   it("asks for a fresh bootstrap when the client is ahead of the server", async () => {
-    const response = await handlers().GET(new Request(`${URL_BASE}?since=9`));
+    const response = await handlers().GET(pullRequest(9));
     expect(response.status).toBe(409);
     expect(await response.json()).toEqual({ error: "resync", clock: 0 });
+  });
+});
+
+describe("the row shape handshake", () => {
+  const SERVER_SHAPE = REPLICA_ROW_SHAPE;
+
+  async function storedTransactionCount() {
+    const pull = await handlers().GET(pullRequest(0));
+    const lines = await readNdjson(pull);
+    return lines
+      .filter((line) => line.type === "rows" && line.table === "transactions")
+      .reduce(
+        (count, line) => count + (line.type === "rows" ? line.rows.length : 0),
+        0,
+      );
+  }
+
+  it("says the server row shape on every response a handler returns, refusals included", async () => {
+    const bootstrap = await handlers().GET(pullRequest(0));
+    const pull = await handlers().GET(pullRequest(1));
+    const push = await handlers().POST(
+      pushRequest({ clientId: randomUUID(), mutations: [] }),
+    );
+    session = null;
+    const refused = await handlers().GET(pullRequest(0));
+    expect(
+      [bootstrap, pull, push, refused].map((response) =>
+        response.headers.get(ROW_SHAPE_HEADER),
+      ),
+    ).toEqual(Array(4).fill(String(SERVER_SHAPE)));
+  });
+
+  it("accepts a request without the header while the server row shape is 7, the shape of the clients from before the header", async () => {
+    const server = handlers(7);
+    const push = await server.POST(
+      pushRequest(
+        { clientId: randomUUID(), mutations: [expenseMutation("2026-10-01")] },
+        ORIGIN,
+        null,
+      ),
+    );
+    const pull = await server.GET(pullRequest(1, null));
+    expect([push.status, pull.status]).toEqual([200, 200]);
+  });
+
+  it("answers 426 and applies nothing to a client without the header once the server row shape is past 7", async () => {
+    const server = handlers(8);
+    const push = await server.POST(
+      pushRequest(
+        { clientId: randomUUID(), mutations: [expenseMutation("2026-10-01")] },
+        ORIGIN,
+        null,
+      ),
+    );
+    const pull = await server.GET(pullRequest(1, null));
+    const bootstrap = await server.GET(pullRequest(0, null));
+    expect([push.status, pull.status, bootstrap.status]).toEqual([
+      426, 426, 426,
+    ]);
+    expect(await push.json()).toEqual({ error: "row-shape", rowShape: 8 });
+    expect(await storedTransactionCount()).toBe(0);
+  });
+
+  it.each([
+    ["older", SERVER_SHAPE - 1],
+    ["newer", SERVER_SHAPE + 1],
+  ])(
+    "answers 426 and applies nothing to a client with an %s row shape",
+    async (_, clientShape) => {
+      const push = await handlers().POST(
+        pushRequest(
+          {
+            clientId: randomUUID(),
+            mutations: [expenseMutation("2026-10-01")],
+          },
+          ORIGIN,
+          clientShape,
+        ),
+      );
+      const pull = await handlers().GET(pullRequest(1, clientShape));
+      expect([push.status, pull.status]).toEqual([426, 426]);
+      expect(push.headers.get(ROW_SHAPE_HEADER)).toBe(String(SERVER_SHAPE));
+      expect(await storedTransactionCount()).toBe(0);
+    },
+  );
+
+  it("lets an error a handler throws reach Next, without a response of its own", async () => {
+    const server = makeSyncHandlers({
+      isConfigured: () => true,
+      getDb: () => {
+        throw new Error("The database is gone");
+      },
+      getSession: () => Promise.resolve(session),
+      now: () => new Date(),
+    });
+    await expect(server.GET(pullRequest(1))).rejects.toThrow(
+      "The database is gone",
+    );
+  });
+
+  it("answers 400 to a malformed row shape", async () => {
+    const request = new Request(`${URL_BASE}?since=0`, {
+      headers: { [ROW_SHAPE_HEADER]: "seven" },
+    });
+    const response = await handlers().GET(request);
+    expect(response.status).toBe(400);
   });
 });
 
