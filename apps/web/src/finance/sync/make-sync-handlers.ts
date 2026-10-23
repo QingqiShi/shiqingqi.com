@@ -10,14 +10,11 @@ import { readFinanceBody } from "../http/read-finance-body.ts";
 import { applyMutations } from "./apply-mutations.ts";
 import { pullChanges } from "./pull-changes.ts";
 import { pushRequestSchema } from "./push-request-schema.ts";
-import {
-  readRowShape,
-  REPLICA_ROW_SHAPE,
-  ROW_SHAPE_HEADER,
-  ROW_SHAPE_MISMATCH_STATUS,
-} from "./replica-row-shape.ts";
+import { refuseOtherRowShape } from "./refuse-other-row-shape.ts";
+import { REPLICA_ROW_SHAPE } from "./replica-row-shape.ts";
 import { streamBootstrap } from "./stream-bootstrap.ts";
 import type { PushEffect } from "./types.ts";
+import { withRowShape } from "./with-row-shape.ts";
 
 interface SyncHandlerDependencies extends FinanceRequestGuardDependencies {
   getDb: () => FinanceDb;
@@ -44,33 +41,13 @@ function parseSince(request: Request) {
 export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
   const rowShape = dependencies.rowShape ?? REPLICA_ROW_SHAPE;
 
-  function refuseOtherRowShape(request: Request) {
-    const clientShape = readRowShape(request.headers);
-    if (clientShape === undefined) {
-      return financeJson({ error: "invalid-row-shape" }, { status: 400 });
-    }
-    if (clientShape === rowShape) return null;
-    return financeJson(
-      { error: "row-shape", rowShape },
-      { status: ROW_SHAPE_MISMATCH_STATUS },
-    );
-  }
-
-  function withRowShape(handler: (request: Request) => Promise<Response>) {
-    return async (request: Request) => {
-      const response = await handler(request);
-      response.headers.set(ROW_SHAPE_HEADER, String(rowShape));
-      return response;
-    };
-  }
-
   return {
-    GET: withRowShape(async (request) => {
+    GET: withRowShape(rowShape, async (request) => {
       const session = await guardFinanceRequest(dependencies, request, {
         write: false,
       });
       if (session instanceof Response) return session;
-      const refused = refuseOtherRowShape(request);
+      const refused = refuseOtherRowShape(request, rowShape);
       if (refused) return refused;
       const since = parseSince(request);
       if (since === null) {
@@ -105,12 +82,12 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
       return financeJson(pull);
     }),
 
-    POST: withRowShape(async (request) => {
+    POST: withRowShape(rowShape, async (request) => {
       const session = await guardFinanceRequest(dependencies, request, {
         write: true,
       });
       if (session instanceof Response) return session;
-      const refused = refuseOtherRowShape(request);
+      const refused = refuseOtherRowShape(request, rowShape);
       if (refused) return refused;
       const push = await readFinanceBody(request, pushRequestSchema);
       if (push instanceof Response) return push;

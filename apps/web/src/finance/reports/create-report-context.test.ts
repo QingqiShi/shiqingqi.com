@@ -35,7 +35,7 @@ function source(
     groups: [{ id: "cash", name: "流动资产", side: "asset", position: 0 }],
     accounts,
     balanceDays,
-    fxRates: [],
+    exchangeRates: [],
     categories: [],
     payees: [],
     members: [],

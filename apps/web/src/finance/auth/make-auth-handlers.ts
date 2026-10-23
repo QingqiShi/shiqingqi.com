@@ -34,6 +34,7 @@ import { buildRecoveryEmailChangedEmail } from "../email/build-recovery-email-ch
 import { buildVerificationEmail } from "../email/build-verification-email.ts";
 import { normaliseEmail } from "../email/normalise-email.ts";
 import type { FinanceEmail, FinanceEmailSender } from "../email/types.ts";
+import { isSupportedCurrency } from "../exchange-rates/supported-currencies.ts";
 import { retryAfterSeconds } from "../http/check-rate-limit.ts";
 import { isSameOrigin } from "../http/is-same-origin.ts";
 import type {
@@ -173,9 +174,7 @@ const authenticationResponseSchema =
 const nameSchema = z.string().trim().min(1).max(100);
 
 const localeSchema = z.enum(["en", "zh"]).default("en");
-const currencySchema = z
-  .string()
-  .refine((code) => Intl.supportedValuesOf("currency").includes(code));
+const currencySchema = z.string().refine(isSupportedCurrency);
 
 function isTimeZone(timeZone: string): boolean {
   try {

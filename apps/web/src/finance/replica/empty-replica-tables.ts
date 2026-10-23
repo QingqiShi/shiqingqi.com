@@ -18,7 +18,6 @@ export function emptyReplicaTables(): ReplicaTables {
     transactionTags: EMPTY,
     accountBalanceDays: EMPTY,
     monthTotals: EMPTY,
-    fxRates: EMPTY,
     bankLinks: EMPTY,
   };
 }

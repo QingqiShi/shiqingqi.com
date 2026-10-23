@@ -87,28 +87,18 @@ describe("toRejection", () => {
 
 describe("pushes the database cannot store", () => {
   it("rejects them instead of failing the batch", async () => {
-    const huge = mutation("setFxRate", {
-      base: "USD",
-      quote: "GBP",
-      on: "2026-10-01",
-      rate: 1e300,
-    });
     const farPosition = mutation("upsertTag", {
       id: randomUUID(),
       name: "Far",
       position: 2 ** 40,
     });
     const nul = mutation("upsertTag", { id: randomUUID(), name: "a\0b" });
-    const entryRate = groceriesExpense();
-    entryRate.args.entries[0].fxRate = 12_345_678_901;
     const fine = groceriesExpense();
 
-    const result = await push([huge, farPosition, nul, entryRate, fine]);
+    const result = await push([farPosition, nul, fine]);
 
     expect(result.applied).toEqual([fine.id]);
     expect(result.rejected.map((rejection) => rejection.reason)).toEqual([
-      "invalid",
-      "invalid",
       "invalid",
       "invalid",
     ]);

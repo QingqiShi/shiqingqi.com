@@ -15,23 +15,18 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
-import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { formatPercentChange } from "../domain/money/format-percent-change.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { fillTemplate } from "../reports/fill-template.ts";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
-import { selectFxIndex } from "../store/select-fx-index.ts";
 import type { AccountRow, BankLinkRow } from "../sync/row-schemas.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
-import { buildFxRateMutations, fxRateText } from "./build-fx-rate-mutations.ts";
 import { buildValuationMutations } from "./build-valuation-mutations.ts";
 import { currencySymbol } from "./currency-symbol.ts";
 import { DayChips } from "./day-chips.tsx";
-import { useBaseCurrency } from "./use-base-currency.ts";
 import {
   valuationInputSign,
   valuationInputText,
@@ -96,7 +91,6 @@ function UpdateBalanceForm({
   const locale = useLocale();
   const showToast = useToast();
   const runUndoable = useUndoableMutations();
-  const baseCurrency = useBaseCurrency();
   const headingId = useId();
   const { account, bankLink } = target;
   const [day, setDay] = useState(today);
@@ -112,12 +106,6 @@ function UpdateBalanceForm({
   );
   const [error, setError] = useState<string | null>(null);
   const [reviewing, setReviewing] = useState(false);
-  const foreign = account.currency !== baseCurrency;
-  const currentRate = useReplica((snapshot) =>
-    selectFxIndex(snapshot).rateToBase(account.currency, toEpochDay(day)),
-  );
-  const [rateText, setRateText] = useState<string | null>(null);
-  const [rateError, setRateError] = useState<string | null>(null);
   const field = {
     accountId: account.id,
     kind: account.kind,
@@ -147,11 +135,6 @@ function UpdateBalanceForm({
     zh: "请输入金额，例如 1250.00",
   });
   const saved = t({ en: "Balance updated", zh: "余额已更新" });
-  const savedRate = t({ en: "Exchange rate updated", zh: "汇率已更新" });
-  const notRate = t({
-    en: "Enter a rate, such as 0.79",
-    zh: "请输入汇率，例如 0.79",
-  });
   const sentenceEnd = t({ en: ". ", zh: "。" });
   const failed = t({
     en: "The balance did not save. Try again.",
@@ -166,38 +149,19 @@ function UpdateBalanceForm({
       setError(notAmount);
       return;
     }
-    const rates = foreign
-      ? buildFxRateMutations(
-          [{ currency: account.currency, current: currentRate }],
-          new Map([[account.currency, rateText ?? ""]]),
-          baseCurrency,
-          day,
-        )
-      : { rates: [], invalid: [] };
-    if (rates.invalid.length > 0) {
-      setRateError(notRate);
-      return;
-    }
     if (pending.large.length > 0 && !reviewing) {
       setReviewing(true);
       return;
     }
-    const mutations: LocalMutationInput[] = [
-      ...rates.rates.map((args): LocalMutationInput => ({
-        name: "setFxRate",
-        args,
-      })),
-      ...pending.valuations.map((args): LocalMutationInput => ({
-        name: "putValuation",
-        args,
-      })),
-    ];
+    const mutations = pending.valuations.map((args): LocalMutationInput => ({
+      name: "putValuation",
+      args,
+    }));
     if (mutations.length === 0) {
       showToast({ message: unchanged, durationMs: 4000 });
     } else {
-      const message = pending.valuations.length > 0 ? saved : savedRate;
       try {
-        runUndoable(mutations, { message });
+        runUndoable(mutations, { message: saved });
       } catch {
         showToast({ message: failed });
         return;
@@ -274,32 +238,6 @@ function UpdateBalanceForm({
           </div>
         ) : null}
         <DayChips value={day} today={today} onChange={setDay} />
-        {foreign ? (
-          <TextField
-            size="sm"
-            label={fillTemplate(
-              t({
-                en: "1 {currency} in {base}",
-                zh: "1 {currency} 兑 {base}",
-              }),
-              { currency: account.currency, base: baseCurrency },
-            )}
-            description={t({
-              en: "The exchange rate on this day. Change it to keep net worth accurate.",
-              zh: "当天的汇率。修改后净资产会更准确。",
-            })}
-            error={rateError ?? undefined}
-            inputMode="decimal"
-            autoComplete="off"
-            trailing={baseCurrency}
-            value={rateText ?? fxRateText(currentRate)}
-            css={typeModifier.numeric}
-            onChange={(event) => {
-              setRateText(event.target.value);
-              setRateError(null);
-            }}
-          />
-        ) : null}
       </div>
       {reviewing && changeText !== null ? (
         <Callout

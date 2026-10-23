@@ -4,7 +4,6 @@ import type { RuleTemplate } from "./rule-template-schema.ts";
 interface EntryShape {
   accountId: string;
   amountMinor: number;
-  fxRate?: number | null;
 }
 
 /** True when both lists move the same amounts on the same accounts, in the same order. */
@@ -17,8 +16,7 @@ export function sameEntries(
     a.every(
       (entry, index) =>
         entry.accountId === b[index].accountId &&
-        entry.amountMinor === b[index].amountMinor &&
-        (entry.fxRate ?? null) === (b[index].fxRate ?? null),
+        entry.amountMinor === b[index].amountMinor,
     )
   );
 }

@@ -1,8 +1,14 @@
+import { z } from "zod";
+import {
+  exchangeRateKey,
+  type ExchangeRateRow,
+} from "../exchange-rates/exchange-rate-row-schema.ts";
 import { SYNC_TABLE_NAMES, type SyncTableName } from "../sync/row-schemas.ts";
 import { emptyReplicaTables } from "./empty-replica-tables.ts";
 import { rowKey } from "./row-key.ts";
 import type {
   OutboxEntry,
+  ReplicaExchangeRates,
   ReplicaMeta,
   ReplicaPersistence,
   ReplicaTables,
@@ -14,6 +20,10 @@ import type {
 const DB_VERSION = 1;
 const META_STORE = "meta";
 const OUTBOX_STORE = "outbox";
+// The global exchange rates use the store of the old synced table
+// "fxRates". Each database that a device has has this store, so a new
+// DB_VERSION is not necessary, and the upgrade does not delete the Outbox.
+const EXCHANGE_RATE_STORE = "fxRates";
 const META_KEY = "meta";
 
 export function replicaDbName(householdId: string) {
@@ -85,6 +95,7 @@ function openDb(name: string, onClose: () => void, onDeleted: () => void) {
       const db = request.result;
       for (const store of [...db.objectStoreNames]) db.deleteObjectStore(store);
       for (const table of SYNC_TABLE_NAMES) db.createObjectStore(table);
+      db.createObjectStore(EXCHANGE_RATE_STORE);
       db.createObjectStore(META_STORE);
       db.createObjectStore(OUTBOX_STORE, {
         keyPath: "mutation.id",
@@ -110,6 +121,7 @@ function openDb(name: string, onClose: () => void, onDeleted: () => void) {
 function scopeOf(batch: ReplicaWrite) {
   const stores: string[] = [];
   if (batch.clearTables || batch.tables) stores.push(...SYNC_TABLE_NAMES);
+  if (batch.exchangeRates) stores.push(EXCHANGE_RATE_STORE);
   if (batch.meta) stores.push(META_STORE);
   if (batch.outboxPut?.length || batch.outboxDelete?.length) {
     stores.push(OUTBOX_STORE);
@@ -127,6 +139,36 @@ function isStoredMeta(value: unknown): value is ReplicaMeta {
 
 function isStoredOutboxEntry(value: unknown): value is OutboxEntry {
   return typeof value === "object" && value !== null && "mutation" in value;
+}
+
+const storedExchangeRateSchema = z.object({
+  base: z.string(),
+  quote: z.string(),
+  on: z.string(),
+  rate: z.number().positive(),
+  source: z.unknown(),
+});
+
+/** A stored rate; rows from before the global rates came with another `source`, and count as the Household's own. */
+function storedExchangeRate(value: unknown): ExchangeRateRow | null {
+  const parsed = storedExchangeRateSchema.safeParse(value);
+  if (!parsed.success) return null;
+  const { source, ...rate } = parsed.data;
+  return { ...rate, source: source === "ecb" ? "ecb" : "household" };
+}
+
+async function readExchangeRates(
+  transaction: IDBTransaction,
+): Promise<ReplicaExchangeRates> {
+  const values = await promisify<unknown[]>(
+    transaction.objectStore(EXCHANGE_RATE_STORE).getAll(),
+  );
+  const rates = new Map<string, ExchangeRateRow>();
+  for (const value of values) {
+    const rate = storedExchangeRate(value);
+    if (rate) rates.set(exchangeRateKey(rate), rate);
+  }
+  return rates;
 }
 
 type WritableTables = {
@@ -155,7 +197,8 @@ async function readTable(
 
 /**
  * The Replica on disk: one IndexedDB database per Household, one object
- * store per synced table keyed by row key, plus `meta` and the `outbox`.
+ * store per synced table keyed by row key, plus the exchange rates, `meta`
+ * and the `outbox`.
  * Once the database is open, `write` starts its transaction before it
  * returns, so a write begun just before the page unloads still commits.
  * After `close`, or when something else deletes or upgrades the database
@@ -200,13 +243,14 @@ export function openReplicaDb(
     async load() {
       const handle = await db();
       const transaction = handle.transaction(
-        [...SYNC_TABLE_NAMES, META_STORE, OUTBOX_STORE],
+        [...SYNC_TABLE_NAMES, EXCHANGE_RATE_STORE, META_STORE, OUTBOX_STORE],
         "readonly",
       );
       const tables: WritableTables = emptyReplicaTables();
-      const [metaValue, outboxValues] = await Promise.all([
+      const [metaValue, outboxValues, exchangeRates] = await Promise.all([
         promisify<unknown>(transaction.objectStore(META_STORE).get(META_KEY)),
         promisify<unknown[]>(transaction.objectStore(OUTBOX_STORE).getAll()),
+        readExchangeRates(transaction),
         ...SYNC_TABLE_NAMES.map((table) =>
           readTable(transaction, table, tables),
         ),
@@ -214,6 +258,7 @@ export function openReplicaDb(
       return {
         meta: isStoredMeta(metaValue) ? metaValue : null,
         tables,
+        exchangeRates,
         outbox: outboxValues.filter(isStoredOutboxEntry),
       };
     },
@@ -249,6 +294,13 @@ export function openReplicaDb(
         const store = transaction.objectStore(table);
         for (const key of writes.delete) store.delete(key);
         for (const row of writes.put) store.put(row, rowKey(table, row));
+      }
+      if (batch.exchangeRates) {
+        const store = transaction.objectStore(EXCHANGE_RATE_STORE);
+        if (batch.exchangeRates.replace) store.clear();
+        for (const rate of batch.exchangeRates.put) {
+          store.put(rate, exchangeRateKey(rate));
+        }
       }
       if (batch.meta) {
         transaction.objectStore(META_STORE).put(batch.meta, META_KEY);

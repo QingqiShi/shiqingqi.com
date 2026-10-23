@@ -46,9 +46,6 @@ export async function applyMutation(context: WriteContext, mutation: Mutation) {
     case "upsertGroup": {
       return accountMutations.upsertGroup(context, mutation.args);
     }
-    case "setFxRate": {
-      return accountMutations.setFxRate(context, mutation.args);
-    }
     case "upsertCategory": {
       return taxonomyMutations.upsertCategory(context, mutation.args);
     }

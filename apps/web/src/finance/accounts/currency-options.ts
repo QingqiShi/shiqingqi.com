@@ -1,3 +1,8 @@
+import {
+  isSupportedCurrency,
+  SUPPORTED_CURRENCIES,
+} from "../exchange-rates/supported-currencies.ts";
+
 const COMMON_CURRENCIES = [
   "GBP",
   "EUR",
@@ -12,18 +17,20 @@ const COMMON_CURRENCIES = [
 ] as const;
 
 /**
- * The currencies an account can pick: the Household's base currency first,
- * then the ones its accounts already use, then common ones. `current` is kept
- * even when it is none of these.
+ * Each `kept` currency stays an option, also when it is not supported. Thus
+ * an account made before Finance limited the currencies still shows its own.
  */
 export function currencyOptions(
   base: string,
   used: Iterable<string>,
-  current?: string,
+  kept: Iterable<string | undefined> = [],
 ): string[] {
   const options = new Set([base]);
-  for (const code of [...used].sort()) options.add(code);
+  for (const code of [...used].sort()) {
+    if (isSupportedCurrency(code)) options.add(code);
+  }
   for (const code of COMMON_CURRENCIES) options.add(code);
-  if (current) options.add(current);
+  for (const code of SUPPORTED_CURRENCIES) options.add(code);
+  for (const code of kept) if (code) options.add(code);
   return [...options];
 }

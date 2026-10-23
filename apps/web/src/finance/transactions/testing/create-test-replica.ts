@@ -1,3 +1,4 @@
+import type { ExchangeRateRow } from "../../exchange-rates/exchange-rate-row-schema.ts";
 import { createFinanceRuntime } from "../../replica/create-finance-runtime.ts";
 import { createMemoryPersistence } from "../../replica/create-memory-persistence.ts";
 import type { ReplicaStore } from "../../replica/create-replica-store.ts";
@@ -155,7 +156,6 @@ export function testExpense(
       accountId: fields.accountId,
       date: fields.date,
       amountMinor: fields.amountMinor,
-      fxRate: null,
       position: 0,
       ...testStamps,
     },
@@ -271,19 +271,12 @@ export function testReplicaRows(): Partial<SyncRows> {
         deletedAt: null,
       },
     ],
-    fxRates: [
-      {
-        householdId: ids.household,
-        base: "GBP",
-        quote: "USD",
-        on: "2026-01-01",
-        rate: 1.25,
-        source: "test",
-        version: 1,
-      },
-    ],
   };
 }
+
+export const testExchangeRates: ExchangeRateRow[] = [
+  { base: "GBP", quote: "USD", on: "2026-01-01", rate: 1.25, source: "ecb" },
+];
 
 /**
  * A Finance runtime on memory persistence with `rows` bootstrapped and no
@@ -291,6 +284,7 @@ export function testReplicaRows(): Partial<SyncRows> {
  */
 export async function createTestReplica(
   rows: Partial<SyncRows> = testReplicaRows(),
+  exchangeRates: readonly ExchangeRateRow[] = testExchangeRates,
 ) {
   const runtime = createFinanceRuntime({
     householdId: ids.household,
@@ -302,6 +296,11 @@ export async function createTestReplica(
   await store.load();
   applyTestBootstrap(store, rows);
   store.finishBootstrap(10, new Set());
+  store.applyExchangeRates({
+    cursor: "test",
+    replace: true,
+    rates: [...exchangeRates],
+  });
   return runtime;
 }
 

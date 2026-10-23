@@ -15,6 +15,5 @@ export function rowKey<Table extends SyncTableName>(
   if ("month" in row) {
     return `${row.month}|${row.kind}|${row.categoryId}|${row.memberId ?? ""}`;
   }
-  if ("quote" in row) return `${row.base}|${row.quote}|${row.on}`;
   throw new Error(`No key for a row of ${table}`);
 }

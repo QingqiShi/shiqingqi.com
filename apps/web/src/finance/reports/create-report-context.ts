@@ -169,7 +169,7 @@ export function createReportContext(source: ReportSource): ReportContext {
 
   return {
     baseCurrency: source.baseCurrency,
-    fx: createFxIndex(source.fxRates, source.baseCurrency),
+    fx: createFxIndex(source.exchangeRates, source.baseCurrency),
     seriesByAccount,
     groups,
     accounts,

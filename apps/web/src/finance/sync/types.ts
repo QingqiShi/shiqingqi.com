@@ -26,14 +26,19 @@ export interface PushResponse {
  * What a committed mutation changed that work after the push must follow.
  * `institution-changed`: an account has a new institution name, website
  * domain or currency, so its institution icon must be worked out again.
+ * `currency-changed`: an account in a currency other than the Base currency
+ * is new, restored or has a new currency, so the Household may use a pair
+ * whose exchange rates are missing or old.
  */
-export type PushEffect = "institution-changed";
+export type PushEffect = "institution-changed" | "currency-changed";
 
 /** The answer to `GET /api/finance/sync?since=<clock>` when `since` is above 0. */
 export interface PullResponse {
   clock: number;
   household: HouseholdRow;
   tables: Partial<SyncRows>;
+  /** The `pairsId` of the exchange rate cursor the Household has now. Absent when the pull has no rows, or from an older server. */
+  exchangeRatePairsId?: string;
 }
 
 /**
@@ -41,7 +46,12 @@ export interface PullResponse {
  * when the `end` line arrives.
  */
 export type BootstrapLine =
-  | { type: "start"; clock: number; household: HouseholdRow }
+  | {
+      type: "start";
+      clock: number;
+      household: HouseholdRow;
+      exchangeRatePairsId?: string;
+    }
   | { type: "rows"; table: SyncTableName; rows: SyncRows[SyncTableName] }
   | { type: "end"; clock: number };
 

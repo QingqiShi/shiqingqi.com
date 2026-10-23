@@ -8,13 +8,13 @@ import type { LabellingContext } from "../ai/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
-import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
 import { labellingContextRepository } from "../db/repositories/labelling-context-repository.ts";
 import { transactionSearchRepository } from "../db/repositories/transaction-search-repository.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { createFxIndex } from "../domain/balance/create-fx-index.ts";
+import { listHouseholdExchangeRates } from "../exchange-rates/find-household-pairs.ts";
 import {
   runServerWrite,
   type ServerWriteContext,
@@ -152,7 +152,10 @@ async function writeBatch(
     dependencies.now,
     async (write) => {
       const fx = createFxIndex(
-        await fxRateRepository.list(write.scope),
+        await listHouseholdExchangeRates(
+          write.scope,
+          write.household.baseCurrency,
+        ),
         write.household.baseCurrency,
       );
       return writeLabelledRows(write, batch, labels, fx);

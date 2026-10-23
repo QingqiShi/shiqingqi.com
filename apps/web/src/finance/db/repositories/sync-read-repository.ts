@@ -1,4 +1,4 @@
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq, getTableColumns, gt, isNull } from "drizzle-orm";
 import type { AnyPgColumn, TableConfig } from "drizzle-orm/pg-core";
 import type { SyncTableName } from "../../sync/row-schemas.ts";
 import {
@@ -8,7 +8,7 @@ import {
   bankLinks,
   categories,
   entries,
-  fxRates,
+  liveEntryColumns,
   members,
   monthTotals,
   payees,
@@ -32,11 +32,17 @@ function changedSince(version: AnyPgColumn, since: number | null) {
  */
 function changedRows<C extends TableConfig>(
   table: HouseholdTable<C>,
-  { liveOnBootstrap }: { liveOnBootstrap?: AnyPgColumn } = {},
+  {
+    liveOnBootstrap,
+    columns = getTableColumns(table),
+  }: {
+    liveOnBootstrap?: AnyPgColumn;
+    columns?: Record<string, AnyPgColumn>;
+  } = {},
 ) {
   return (scope: RepositoryScope, since: number | null) =>
     scope.db
-      .select()
+      .select(columns)
       .from(table)
       .where(
         and(
@@ -69,7 +75,10 @@ export const syncReadRepository = {
     transactions: changedRows(transactions, {
       liveOnBootstrap: transactions.deletedAt,
     }),
-    entries: changedRows(entries, { liveOnBootstrap: entries.deletedAt }),
+    entries: changedRows(entries, {
+      liveOnBootstrap: entries.deletedAt,
+      columns: liveEntryColumns,
+    }),
     transactionTags: changedRows(transactionTags, {
       liveOnBootstrap: transactionTags.deletedAt,
     }),
@@ -79,7 +88,6 @@ export const syncReadRepository = {
     monthTotals: changedRows(monthTotals, {
       liveOnBootstrap: monthTotals.deletedAt,
     }),
-    fxRates: changedRows(fxRates),
     bankLinks: (scope, since) =>
       scope.db
         .select({

@@ -1,5 +1,10 @@
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
 import {
+  exchangeRateKey,
+  type ExchangeRateRow,
+  type ExchangeRatesResponse,
+} from "../exchange-rates/exchange-rate-row-schema.ts";
+import {
   mutationSchema,
   type Mutation,
   type MutationInput,
@@ -30,6 +35,7 @@ import type {
   OutboxEntry,
   PersistedReplica,
   ReplicaChanges,
+  ReplicaExchangeRates,
   ReplicaMeta,
   ReplicaPersistence,
   ReplicaRejection,
@@ -112,8 +118,12 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     rowShape: REPLICA_ROW_SHAPE,
     household: null,
     lastSyncedAt: null,
+    exchangeRateCursor: null,
   };
   let base: ReplicaTables = emptyReplicaTables();
+  let exchangeRates: ReplicaExchangeRates = new Map();
+  /** The rate cursor of the rates on disk: what the meta on disk may claim. */
+  let cursorOnDisk: string | null = null;
   /** Not acknowledged by the server yet. */
   let queued: OutboxEntry[] = [];
   /** Sent in the push now running. */
@@ -142,6 +152,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   let snapshot: ReplicaSnapshot = {
     household: null,
     tables: base,
+    exchangeRates,
     pendingKeys: new Set(),
     pendingAccounts: new Map(),
     outboxCount: 0,
@@ -182,24 +193,46 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     for (const listener of storageListeners) listener();
   }
 
-  /** Writes server rows and the meta, one batch after another; these can wait. */
+  /**
+   * Writes server rows and the meta, one batch after another; these can
+   * wait. The meta on disk keeps the rate cursor of the rates on disk, or
+   * `exchangeRateCursor` when the batch writes the rates it reaches.
+   */
   function persist(
     batch: ReplicaWrite,
-    { startsOver = false, forOtherTabs = true } = {},
+    {
+      startsOver = false,
+      forOtherTabs = true,
+      exchangeRateCursor,
+    }: {
+      startsOver?: boolean;
+      forOtherTabs?: boolean;
+      exchangeRateCursor?: string;
+    } = {},
   ) {
     if (forOtherTabs) diskRevision++;
     writes = writes
       .then(() => {
         if (startsOver) rowsBehind = false;
         return persistence.write(
-          rowsBehind && batch.meta
-            ? { ...batch, meta: { ...batch.meta, clock: 0 } }
+          batch.meta
+            ? {
+                ...batch,
+                meta: {
+                  ...batch.meta,
+                  clock: rowsBehind ? 0 : batch.meta.clock,
+                  exchangeRateCursor: exchangeRateCursor ?? cursorOnDisk,
+                },
+              }
             : batch,
         );
       })
       .then(
         () => {
           rowsFailed = false;
+          if (exchangeRateCursor === undefined) return;
+          cursorOnDisk = exchangeRateCursor;
+          meta = { ...meta, exchangeRateCursor };
         },
         () => {
           rowsBehind = true;
@@ -337,6 +370,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       {
         household: meta.household,
         tables: replay.tables,
+        exchangeRates,
         pendingKeys: pendingKeysOf(replay.changed),
         pendingAccounts: replay.accounts,
         outboxCount: queued.length,
@@ -384,6 +418,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   function adopt(persisted: PersistedReplica) {
     const previous = base;
     base = persisted.tables;
+    exchangeRates = persisted.exchangeRates;
     const outbox = new Map(
       persisted.outbox.map((entry) => [entry.mutation.id, entry]),
     );
@@ -410,6 +445,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       const persisted = await persistence.load();
       if (persisted.meta) {
         meta = withCurrentRowShape(persisted.meta);
+        cursorOnDisk = meta.exchangeRateCursor ?? null;
       } else {
         void persist({ meta });
       }
@@ -427,7 +463,10 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         updateStorageState();
         return;
       }
-      if (persisted.meta) meta = withCurrentRowShape(persisted.meta);
+      if (persisted.meta) {
+        meta = withCurrentRowShape(persisted.meta);
+        cursorOnDisk = meta.exchangeRateCursor ?? null;
+      }
       adopt(persisted);
     },
 
@@ -691,6 +730,36 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       };
       void persist({ meta, outboxDelete: confirm(confirmed) });
       rebuildView(changed);
+    },
+
+    /**
+     * Takes in an exchange rate download. The cursor for the next download
+     * moves only once the rates are on disk; until then the next download
+     * asks for them again.
+     */
+    applyExchangeRates(response: ExchangeRatesResponse) {
+      const { cursor } = response;
+      if (!response.replace && response.rates.length === 0) {
+        if (cursor === meta.exchangeRateCursor) return;
+        void persist(
+          { meta },
+          { forOtherTabs: false, exchangeRateCursor: cursor },
+        );
+        return;
+      }
+      const next = new Map<string, ExchangeRateRow>(
+        response.replace ? [] : exchangeRates,
+      );
+      for (const rate of response.rates) next.set(exchangeRateKey(rate), rate);
+      exchangeRates = next;
+      void persist(
+        {
+          exchangeRates: { replace: response.replace, put: response.rates },
+          meta,
+        },
+        { exchangeRateCursor: cursor },
+      );
+      publish({ ...snapshot, exchangeRates }, new Map());
     },
 
     /** The server's clock went backwards: forget the rows so the next sync bootstraps. */

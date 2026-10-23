@@ -9,7 +9,6 @@ import {
   accounts,
   categories,
   entries,
-  fxRates,
   households,
   payees,
   rules,
@@ -20,9 +19,14 @@ import {
   valuations,
 } from "../../db/schema.ts";
 import type { FinanceDb } from "../../db/types.ts";
-import { withHousehold, type HouseholdDb } from "../../db/with-household.ts";
+import {
+  asFinanceApp,
+  withHousehold,
+  type HouseholdDb,
+} from "../../db/with-household.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "../../domain/dates/default-household-time-zone.ts";
 import { todayInTimeZone } from "../../domain/dates/today-in-time-zone.ts";
+import { exchangeRateRepository } from "../../exchange-rates/exchange-rate-repository.ts";
 import { buildSyntheticRows } from "./build-synthetic-rows.ts";
 
 const INSERT_CHUNK = 500;
@@ -97,6 +101,10 @@ export async function seedSyntheticHousehold(
   });
   const { householdId, memberIds, uncategorised } = rows;
 
+  await asFinanceApp(db, (appDb) =>
+    exchangeRateRepository.insertNew(appDb, rows.exchangeRates),
+  );
+
   return withHousehold(db, householdId, async (scope) => {
     const { db: tx } = scope;
     const existing = await tx
@@ -161,7 +169,6 @@ export async function seedSyntheticHousehold(
     await insertRows(tx, transactions, rows.transactions);
     await insertRows(tx, entries, rows.entries);
     await insertRows(tx, transactionTags, rows.transactionTags);
-    await insertRows(tx, fxRates, rows.fxRates);
 
     await householdRepository.setClock(scope, version);
     await transactionRepository.refreshSearchText(write, undefined);

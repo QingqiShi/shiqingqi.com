@@ -11,7 +11,6 @@ import { payeeRepository } from "../db/repositories/payee-repository.ts";
 import { withSavepoint } from "../db/with-household.ts";
 import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
-import { fromMinorUnits } from "../domain/money/to-minor-units.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type { TransactionInput } from "../sync/mutation-schema.ts";
@@ -136,7 +135,6 @@ async function fallbackInput(
         id: entryIdOf(row),
         accountId: link.accountId,
         amountMinor,
-        fxRate: null,
       },
     ],
     tagIds: [],
@@ -163,27 +161,11 @@ async function otherSide(
       throw new Unusable("The pair is gone");
     }
     const partnerAmount = toEntryAmount(partner.row.amountMinor, partner.link);
-    const [out, into] =
-      amountMinor < 0
-        ? [
-            { amount: amountMinor, currency: link.currency },
-            { amount: partnerAmount, currency: partner.link.currency },
-          ]
-        : [
-            { amount: partnerAmount, currency: partner.link.currency },
-            { amount: amountMinor, currency: link.currency },
-          ];
-    const rate =
-      out.currency === into.currency
-        ? null
-        : fromMinorUnits(Math.abs(into.amount), into.currency) /
-          fromMinorUnits(Math.abs(out.amount), out.currency);
     return {
       entry: {
         id: entryIdOf(partner.row),
         accountId: partner.link.accountId,
         amountMinor: partnerAmount,
-        fxRate: partnerAmount > 0 ? rate : null,
       },
       partner,
       needsReview: false,
@@ -201,7 +183,6 @@ async function otherSide(
           id: entryIdOf(row, ":other"),
           accountId: transfer.accountId,
           amountMinor: -amountMinor,
-          fxRate: null,
         },
         partner: null,
         needsReview: false,
@@ -213,7 +194,6 @@ async function otherSide(
       id: entryIdOf(row, ":in-transit"),
       accountId: await ensureInTransitAccount(context, link.currency),
       amountMinor: -amountMinor,
-      fxRate: null,
     },
     partner: null,
     needsReview: transfer.type === "account",
@@ -259,7 +239,6 @@ async function labelledInput(
     id: entryIdOf(row),
     accountId: link.accountId,
     amountMinor,
-    fxRate: null,
   };
   if (label.kind === "transfer") {
     const other = await otherSide(writer, item, label, amountMinor);
@@ -284,7 +263,6 @@ async function labelledInput(
       id: entryIdOf(row, ":pays-down"),
       accountId: label.paysDownAccountId,
       amountMinor: -amountMinor,
-      fxRate: null,
     });
   }
   return {

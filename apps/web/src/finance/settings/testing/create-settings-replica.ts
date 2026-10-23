@@ -67,17 +67,6 @@ function rows(): Partial<SyncRows> {
         currency: "USD",
       }),
     ],
-    fxRates: [
-      {
-        householdId: ids.household,
-        base: "USD",
-        quote: "GBP",
-        on: "2026-09-01",
-        rate: 0.75,
-        source: "manual",
-        version: 1,
-      },
-    ],
     categories: [
       testCategory(ids.groceries, "Groceries", "expense", "", 0),
       testCategory(ids.dining, "Eating out", "expense", "", 0),
@@ -99,5 +88,13 @@ function rows(): Partial<SyncRows> {
 
 /** A Replica runtime in memory, loaded with a small synthetic Household and never started. */
 export function createSettingsReplica() {
-  return createTestReplica(rows());
+  return createTestReplica(rows(), [
+    {
+      base: "USD",
+      quote: "GBP",
+      on: "2026-09-01",
+      rate: 0.75,
+      source: "household",
+    },
+  ]);
 }

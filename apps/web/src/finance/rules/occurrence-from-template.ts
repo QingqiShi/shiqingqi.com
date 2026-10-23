@@ -19,7 +19,6 @@ export function occurrenceFromTemplate(
       id: entryId(position),
       accountId: entry.accountId,
       amountMinor: entry.amountMinor,
-      fxRate: null,
     })),
     tagIds: [...new Set(template.tagIds)],
   };

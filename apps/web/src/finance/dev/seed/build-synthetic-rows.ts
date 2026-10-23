@@ -3,7 +3,6 @@ import type {
   accounts,
   categories,
   entries,
-  fxRates,
   payees,
   rules,
   tags,
@@ -16,6 +15,7 @@ import { addMonths } from "../../domain/dates/add-months.ts";
 import { endOfMonth, startOfMonth } from "../../domain/dates/start-of-month.ts";
 import { startOfWeek } from "../../domain/dates/start-of-week.ts";
 import { daysInMonth, parseDay } from "../../domain/dates/to-epoch-day.ts";
+import type { ExchangeRateRow } from "../../exchange-rates/exchange-rate-row-schema.ts";
 import { nameBasedUuid } from "../../ids/name-based-uuid.ts";
 import { occurrenceId } from "../../rules/materialise-rules.ts";
 import {
@@ -62,7 +62,7 @@ interface SyntheticRows {
   transactions: Row<typeof transactions>[];
   entries: Row<typeof entries>[];
   transactionTags: Row<typeof transactionTags>[];
-  fxRates: Row<typeof fxRates>[];
+  exchangeRates: ExchangeRateRow[];
 }
 
 /** Keeps random spending within what the two salaries cover. */
@@ -799,7 +799,7 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
   }
 
   // exchange rates: one a week, a random walk around 0.78
-  const fxRows: SyntheticRows["fxRates"] = [];
+  const exchangeRateRows: ExchangeRateRow[] = [];
   let rate = 0.78;
   for (
     let on = startOfWeek(addDays(openingDay, -7));
@@ -807,14 +807,12 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     on = addDays(on, 7)
   ) {
     rate = clamp(rate + 0.006 * prng.normal(), 0.68, 0.88);
-    fxRows.push({
-      householdId,
+    exchangeRateRows.push({
       base: "USD",
       quote: "GBP",
       on,
       rate: Number(rate.toFixed(6)),
-      source: "manual",
-      version,
+      source: "household",
     });
   }
 
@@ -832,7 +830,7 @@ export function buildSyntheticRows(options: SyntheticOptions): SyntheticRows {
     transactions: transactionRows,
     entries: entryRows,
     transactionTags: transactionTagRows,
-    fxRates: fxRows,
+    exchangeRates: exchangeRateRows,
   };
 }
 

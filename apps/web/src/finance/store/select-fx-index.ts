@@ -2,17 +2,16 @@ import {
   createFxIndex,
   type FxIndex,
 } from "../domain/balance/create-fx-index.ts";
-import type { ReplicaSnapshot } from "../replica/types.ts";
-import type { FxRateRow } from "../sync/row-schemas.ts";
+import type {
+  ReplicaExchangeRates,
+  ReplicaSnapshot,
+} from "../replica/types.ts";
 
-const cache = new WeakMap<
-  ReadonlyMap<string, FxRateRow>,
-  Map<string, FxIndex>
->();
+const cache = new WeakMap<ReplicaExchangeRates, Map<string, FxIndex>>();
 
 /** Converts any currency to the Household's base currency on a day. */
 export function selectFxIndex(snapshot: ReplicaSnapshot): FxIndex {
-  const rates = snapshot.tables.fxRates;
+  const rates = snapshot.exchangeRates;
   const base = snapshot.household?.baseCurrency ?? "GBP";
   let byBase = cache.get(rates);
   const cached = byBase?.get(base);

@@ -27,12 +27,10 @@ import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
-import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { formatPercentChange } from "../domain/money/format-percent-change.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { fillTemplate } from "../reports/fill-template.ts";
 import {
   floatingAction,
   floatingActionTokens,
@@ -41,14 +39,8 @@ import { FloatingActions } from "../shell/floating-actions.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
-import { selectFxIndex } from "../store/select-fx-index.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
 import type { AccountLine } from "./build-balance-sheet.ts";
-import {
-  buildFxRateMutations,
-  fxRateText,
-  type FxRateField,
-} from "./build-fx-rate-mutations.ts";
 import {
   buildValuationMutations,
   type ValuationField,
@@ -57,7 +49,6 @@ import { currencySymbol } from "./currency-symbol.ts";
 import { DayChips } from "./day-chips.tsx";
 import { formatValuationAge } from "./format-valuation-age.ts";
 import { selectBalanceSheet } from "./select-balance-sheet.ts";
-import { useBaseCurrency } from "./use-base-currency.ts";
 import { useHouseholdToday } from "./use-household-today.ts";
 import { useStoredIds } from "./use-stored-ids.ts";
 import type { ValuationChange } from "./valuation-change.ts";
@@ -70,8 +61,7 @@ import { VALUATION_KINDS } from "./valuation-kinds.ts";
 
 /**
  * "Update balances": every valuation-driven account, and any other the person
- * adds, as one field each in one form, plus the exchange rate of each
- * foreign currency among them. Enter moves to the next field; each field
+ * adds, as one field each in one form. Enter moves to the next field; each field
  * shows its change as it is typed, a change of more than a quarter asks for
  * a second look, and "Save all" writes one Valuation per changed field with
  * one Undo for the lot.
@@ -84,16 +74,11 @@ export function UpdateValuesForm() {
   const runUndoable = useUndoableMutations();
   const isWide = useIsWideLayout();
   const today = useHouseholdToday();
-  const baseCurrency = useBaseCurrency();
   const [day, setDay] = useState(today);
   const sheet = useReplica((snapshot) => selectBalanceSheet(snapshot, today));
   const seriesByAccount = useReplica(selectBalanceSeriesByAccount);
-  const fx = useReplica(selectFxIndex);
   const [extraIds, setExtraIds] = useStoredIds("finance:update-values-extra");
   const [inputs, setInputs] = useState<ReadonlyMap<string, string>>(
-    () => new Map(),
-  );
-  const [rateInputs, setRateInputs] = useState<ReadonlyMap<string, string>>(
     () => new Map(),
   );
   const [invalid, setInvalid] = useState<ReadonlySet<string>>(() => new Set());
@@ -136,37 +121,14 @@ export function UpdateValuesForm() {
   const currentOf = new Map(
     fields.map((field) => [field.accountId, field.current]),
   );
-  const rateFields: FxRateField[] = [
-    ...new Set(
-      listed
-        .map((line) => line.account.currency)
-        .filter((currency) => currency !== baseCurrency),
-    ),
-  ]
-    .sort()
-    .map((currency) => ({
-      currency,
-      current: fx.rateToBase(currency, toEpochDay(day)),
-    }));
   const pending = buildValuationMutations(fields, inputs, day);
-  const pendingRates = buildFxRateMutations(
-    rateFields,
-    rateInputs,
-    baseCurrency,
-    day,
-  );
-  const changed = pending.valuations.length + pendingRates.rates.length;
+  const changed = pending.valuations.length;
   const nameOf = (accountId: string) =>
     listed.find((line) => line.account.id === accountId)?.account.name ?? "";
 
   const notAmount = t({ en: "Enter an amount", zh: "请输入金额" });
-  const notRate = t({
-    en: "Enter a rate, such as 0.79",
-    zh: "请输入汇率，例如 0.79",
-  });
   const savedOne = t({ en: "1 balance updated", zh: "1 个余额已更新" });
   const savedMany = t({ en: "balances updated", zh: "个余额已更新" });
-  const savedRates = t({ en: "Exchange rate updated", zh: "汇率已更新" });
   const nothing = t({ en: "No balance changed", zh: "没有余额变化" });
   const sentenceEnd = t({ en: ". ", zh: "。" });
   const listSeparator = t({ en: "; ", zh: "；" });
@@ -178,10 +140,6 @@ export function UpdateValuesForm() {
   const owedLabel = t({ en: "owed", zh: "欠款" });
   const removeLabel = t({ en: "Remove from this list:", zh: "从列表移除：" });
   const checkLabel = t({ en: "check this", zh: "请核对" });
-  const rateLabel = t({
-    en: "1 {currency} in {base}",
-    zh: "1 {currency} 兑 {base}",
-  });
 
   function moveFrom(accountId: string, event: KeyboardEvent<HTMLInputElement>) {
     if (event.key !== "Enter") return;
@@ -208,43 +166,27 @@ export function UpdateValuesForm() {
   function save(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = buildValuationMutations(fields, inputs, day);
-    const rates = buildFxRateMutations(
-      rateFields,
-      rateInputs,
-      baseCurrency,
-      day,
-    );
-    if (result.invalid.length > 0 || rates.invalid.length > 0) {
-      setInvalid(new Set([...result.invalid, ...rates.invalid]));
-      fieldsRef.current
-        .get(result.invalid.at(0) ?? rates.invalid.at(0) ?? "")
-        ?.focus();
+    if (result.invalid.length > 0) {
+      setInvalid(new Set(result.invalid));
+      fieldsRef.current.get(result.invalid.at(0) ?? "")?.focus();
       return;
     }
     if (result.large.length > 0 && !reviewing) {
       setReviewing(true);
       return;
     }
-    const mutations: LocalMutationInput[] = [
-      ...rates.rates.map((args): LocalMutationInput => ({
-        name: "setFxRate",
-        args,
-      })),
-      ...result.valuations.map((args): LocalMutationInput => ({
-        name: "putValuation",
-        args,
-      })),
-    ];
-    const count = result.valuations.length;
-    if (mutations.length === 0) {
+    const mutations = result.valuations.map((args): LocalMutationInput => ({
+      name: "putValuation",
+      args,
+    }));
+    const count = mutations.length;
+    if (count === 0) {
       showToast({ message: nothing, durationMs: 4000 });
     } else {
       const message =
-        count === 0
-          ? savedRates
-          : count === 1
-            ? savedOne
-            : `${new Intl.NumberFormat(locale).format(count)} ${savedMany}`;
+        count === 1
+          ? savedOne
+          : `${new Intl.NumberFormat(locale).format(count)} ${savedMany}`;
       try {
         runUndoable(mutations, { message });
       } catch {
@@ -400,45 +342,6 @@ export function UpdateValuesForm() {
           })}
         </fieldset>
       ))}
-      {rateFields.length > 0 ? (
-        <fieldset css={[stack.item, styles.fieldset]}>
-          <legend css={[typeRole.label, styles.legend]}>
-            {t({ en: "Exchange rates", zh: "汇率" })}
-          </legend>
-          {rateFields.map((field) => (
-            <div key={field.currency} css={styles.rate}>
-              <TextField
-                size="sm"
-                label={fillTemplate(rateLabel, {
-                  currency: field.currency,
-                  base: baseCurrency,
-                })}
-                error={invalid.has(field.currency) ? notRate : undefined}
-                inputMode="decimal"
-                autoComplete="off"
-                trailing={baseCurrency}
-                value={
-                  rateInputs.get(field.currency) ?? fxRateText(field.current)
-                }
-                css={typeModifier.numeric}
-                onFocus={(event) => {
-                  event.currentTarget.select();
-                }}
-                onChange={(event) => {
-                  const next = new Map(rateInputs);
-                  next.set(field.currency, event.target.value);
-                  setRateInputs(next);
-                  if (invalid.has(field.currency)) {
-                    const rest = new Set(invalid);
-                    rest.delete(field.currency);
-                    setInvalid(rest);
-                  }
-                }}
-              />
-            </div>
-          ))}
-        </fieldset>
-      ) : null}
       {addable.length > 0 ? (
         <Select
           size="sm"
@@ -580,9 +483,6 @@ const styles = stylex.create({
   },
   remove: {
     gridArea: "remove",
-  },
-  rate: {
-    maxInlineSize: "14rem",
   },
   actions: {
     position: "sticky",

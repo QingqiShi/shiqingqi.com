@@ -1,3 +1,7 @@
+import {
+  exchangeRateKey,
+  type ExchangeRateRow,
+} from "../exchange-rates/exchange-rate-row-schema.ts";
 import { SYNC_TABLE_NAMES, type SyncTableName } from "../sync/row-schemas.ts";
 import { createTablesDraft } from "./create-tables-draft.ts";
 import { emptyReplicaTables } from "./empty-replica-tables.ts";
@@ -17,6 +21,7 @@ import type {
 export function createMemoryPersistence(): ReplicaPersistence {
   let meta: ReplicaMeta | null = null;
   let tables: ReplicaTables = emptyReplicaTables();
+  let exchangeRates: ReadonlyMap<string, ExchangeRateRow> = new Map();
   const outbox = new Map<string, OutboxEntry>();
 
   return {
@@ -24,6 +29,7 @@ export function createMemoryPersistence(): ReplicaPersistence {
       return Promise.resolve({
         meta: meta && { ...meta },
         tables,
+        exchangeRates,
         outbox: [...outbox.values()],
       });
     },
@@ -45,6 +51,13 @@ export function createMemoryPersistence(): ReplicaPersistence {
       };
       for (const table of SYNC_TABLE_NAMES) visit(table, writes[table]);
       tables = draft.finish().tables;
+      if (batch.exchangeRates) {
+        const next = new Map(batch.exchangeRates.replace ? [] : exchangeRates);
+        for (const rate of batch.exchangeRates.put) {
+          next.set(exchangeRateKey(rate), rate);
+        }
+        exchangeRates = next;
+      }
       if (batch.meta) meta = { ...batch.meta };
       for (const entry of batch.outboxPut ?? []) {
         outbox.set(entry.mutation.id, entry);

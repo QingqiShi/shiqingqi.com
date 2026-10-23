@@ -59,7 +59,6 @@ beforeEach(async () => {
     accountId: home.cardId,
     date: purchase.date,
     amountMinor: -120_000,
-    fxRate: null,
     position: 0,
     ...STAMPS,
   };

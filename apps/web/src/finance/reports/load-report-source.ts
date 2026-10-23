@@ -1,7 +1,7 @@
-import { fxRateRepository } from "../db/repositories/fx-rate-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { reportSourceRepository } from "../db/repositories/report-source-repository.ts";
 import type { RepositoryScope } from "../db/repositories/types.ts";
+import { listHouseholdExchangeRates } from "../exchange-rates/find-household-pairs.ts";
 import { isInReview } from "../transactions/is-in-review.ts";
 import type { ReportSource } from "./types.ts";
 
@@ -22,7 +22,7 @@ export async function loadReportSource(
     groups,
     accounts,
     balanceDays,
-    fxRates,
+    exchangeRates,
     categories,
     payees,
     members,
@@ -32,7 +32,7 @@ export async function loadReportSource(
     reportSourceRepository.listGroups(scope),
     reportSourceRepository.listAccounts(scope),
     reportSourceRepository.listBalanceDays(scope),
-    fxRateRepository.list(scope),
+    listHouseholdExchangeRates(scope, household.baseCurrency),
     reportSourceRepository.listCategories(scope),
     reportSourceRepository.listPayees(scope),
     reportSourceRepository.listMembers(scope),
@@ -52,7 +52,7 @@ export async function loadReportSource(
     groups,
     accounts,
     balanceDays,
-    fxRates,
+    exchangeRates,
     categories,
     payees,
     members,

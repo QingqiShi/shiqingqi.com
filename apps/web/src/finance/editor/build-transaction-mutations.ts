@@ -1,7 +1,6 @@
 import type { FxIndex } from "../domain/balance/create-fx-index.ts";
 import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
-import { fromMinorUnits } from "../domain/money/to-minor-units.ts";
 import { sameSet } from "../domain/same-set.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import type { EntryInput, TransactionPatch } from "../sync/mutation-schema.ts";
@@ -50,7 +49,6 @@ type BuildMutationsResult =
 interface EntryDraft {
   accountId: string;
   amountMinor: number;
-  fxRate: number | null;
 }
 
 function readAmount(text: string, currency: string) {
@@ -93,19 +91,9 @@ function readDraft(draft: EditorDraft, context: BuildMutationsContext) {
       return { ok: false as const, errors };
     }
     const sent = amount.minor;
-    const received = toMinor ?? sent;
-    const rate =
-      toMinor === null
-        ? null
-        : fromMinorUnits(received, toAccount.currency) /
-          fromMinorUnits(sent, currency);
     const entries: EntryDraft[] = [
-      { accountId: draft.accountId ?? "", amountMinor: -sent, fxRate: null },
-      {
-        accountId: draft.toAccountId ?? "",
-        amountMinor: received,
-        fxRate: rate,
-      },
+      { accountId: draft.accountId ?? "", amountMinor: -sent },
+      { accountId: draft.toAccountId ?? "", amountMinor: toMinor ?? sent },
     ];
     return {
       ok: true as const,
@@ -146,22 +134,13 @@ function readDraft(draft: EditorDraft, context: BuildMutationsContext) {
   const signed = direction * amount.minor;
 
   const day = toEpochDay(draft.date);
-  const rateOf = (entryCurrency: string) =>
-    entryCurrency === context.baseCurrency
-      ? null
-      : context.fx.rateToBase(entryCurrency, day);
   const entries: EntryDraft[] = [
-    {
-      accountId: draft.accountId ?? "",
-      amountMinor: signed,
-      fxRate: rateOf(currency),
-    },
+    { accountId: draft.accountId ?? "", amountMinor: signed },
   ];
   if (paysDown) {
     entries.push({
       accountId: paysDown.accountId,
       amountMinor: paysDown.minor,
-      fxRate: rateOf(paysDown.currency),
     });
   }
   return {
@@ -196,26 +175,20 @@ function sameEntry(a: EntryDraft, b: EntryDraft) {
 }
 
 /**
- * The Entries the Transaction has after the save. An Entry keeps its id, and
- * its rate when its account and amount stay the same. For an expense or
- * income, Entries the editor does not show stay as they are, so a save never
- * drops the loan Entry of a mortgage payment.
+ * The Entries the Transaction has after the save. An Entry keeps its id. For
+ * an expense or income, Entries the editor does not show stay as they are, so
+ * a save never drops the loan Entry of a mortgage payment.
  */
 function mergeEntries(
   kind: TransactionKind,
   entries: readonly EntryRow[],
   nextEntries: readonly EntryDraft[],
-  sameDay: boolean,
   createId: () => string,
 ): EntryInput[] {
   const keep = (existing: EntryRow | undefined, next: EntryDraft) => ({
     id: existing?.id ?? createId(),
     accountId: next.accountId,
     amountMinor: next.amountMinor,
-    fxRate:
-      existing && sameDay && sameEntry(existing, next)
-        ? existing.fxRate
-        : next.fxRate,
   });
   if (kind === "transfer") {
     return nextEntries.map((next, index) => keep(entries.at(index), next));
@@ -230,7 +203,6 @@ function mergeEntries(
       id: entry.id,
       accountId: entry.accountId,
       amountMinor: entry.amountMinor,
-      fxRate: entry.fxRate,
     })),
   ];
 }
@@ -254,8 +226,7 @@ function patchOf(
       (entry, index) =>
         entries[index].id !== entry.id ||
         entries[index].accountId !== entry.accountId ||
-        entries[index].amountMinor !== entry.amountMinor ||
-        entries[index].fxRate !== entry.fxRate,
+        entries[index].amountMinor !== entry.amountMinor,
     );
   if (entriesChanged) patch.entries = [...nextEntries];
   if (!sameSet(tagIds, nextTagIds)) patch.tagIds = [...nextTagIds];
@@ -280,7 +251,6 @@ function reverseOf(
       id: entry.id,
       accountId: entry.accountId,
       amountMinor: entry.amountMinor,
-      fxRate: entry.fxRate,
     }));
   }
   if (patch.tagIds) reverse.tagIds = [...tagIds];
@@ -374,13 +344,7 @@ export function buildTransactionMutations(
     target.entries,
     target.tagIds,
     next,
-    mergeEntries(
-      draft.kind,
-      target.entries,
-      read.entries,
-      existing.date === draft.date,
-      context.createId,
-    ),
+    mergeEntries(draft.kind, target.entries, read.entries, context.createId),
     tagIds,
   );
   const { id } = existing;

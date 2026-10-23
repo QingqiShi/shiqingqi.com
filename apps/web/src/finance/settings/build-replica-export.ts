@@ -2,8 +2,9 @@ import type { ReplicaSnapshot } from "../replica/types.ts";
 import { SYNC_TABLE_NAMES } from "../sync/row-schemas.ts";
 
 /**
- * Everything the Replica holds as one JSON document: the Household and
- * every synced table's rows, unconfirmed local changes included.
+ * Everything the Replica holds as one JSON document: the Household, every
+ * synced table's rows, unconfirmed local changes included, and the
+ * exchange rates.
  */
 export function buildReplicaExport(
   snapshot: ReplicaSnapshot,
@@ -19,5 +20,6 @@ export function buildReplicaExport(
     exportedAt: exportedAt.toISOString(),
     household: snapshot.household,
     tables,
+    exchangeRates: [...snapshot.exchangeRates.values()],
   };
 }

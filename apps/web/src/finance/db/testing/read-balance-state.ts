@@ -4,13 +4,18 @@ import {
   type BalanceDayRow,
   type BalanceSeries,
 } from "../../domain/balance/compute-balance-days.ts";
-import { accountBalanceDays, accounts, fxRates } from "../schema.ts";
+import { listHouseholdExchangeRates } from "../../exchange-rates/find-household-pairs.ts";
+import { householdRepository } from "../repositories/household-repository.ts";
+import { accountBalanceDays, accounts } from "../schema.ts";
 import type { FinanceDb } from "../types.ts";
 import { withHousehold } from "../with-household.ts";
 
 /** The stored accounts, balance series and FX rates of a Household. */
 export function readBalanceState(db: FinanceDb, householdId: string) {
-  return withHousehold(db, householdId, async ({ db }) => {
+  return withHousehold(db, householdId, async (scope) => {
+    const { db } = scope;
+    const household = await householdRepository.find(scope);
+    if (!household) throw new Error("Household not found");
     const accountRows = await db
       .select({
         id: accounts.id,
@@ -35,15 +40,10 @@ export function readBalanceState(db: FinanceDb, householdId: string) {
           isNull(accountBalanceDays.deletedAt),
         ),
       );
-    const rateRows = await db
-      .select({
-        base: fxRates.base,
-        quote: fxRates.quote,
-        on: fxRates.on,
-        rate: fxRates.rate,
-      })
-      .from(fxRates)
-      .where(eq(fxRates.householdId, householdId));
+    const exchangeRates = await listHouseholdExchangeRates(
+      scope,
+      household.baseCurrency,
+    );
 
     const daysByAccount = new Map<string, BalanceDayRow[]>();
     for (const row of dayRows) {
@@ -55,6 +55,6 @@ export function readBalanceState(db: FinanceDb, householdId: string) {
     for (const [accountId, list] of daysByAccount) {
       seriesByAccount.set(accountId, balanceSeriesFromRows(list));
     }
-    return { accounts: accountRows, seriesByAccount, fxRates: rateRows };
+    return { accounts: accountRows, seriesByAccount, exchangeRates };
   });
 }

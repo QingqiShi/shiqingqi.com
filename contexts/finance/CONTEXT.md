@@ -128,6 +128,10 @@ _Avoid_: equity, home equity
 The one currency of the household's totals, net worth and statistics. An **exchange rate** (ZH: 汇率) converts another currency into it. ZH: 本位币.
 _Avoid_: home currency, default currency
 
+**Exchange rate**:
+A market rate for one pair of currencies on one day: how many units of one currency a unit of the other is worth. It is global, the same for every household, and an estimate used to count balances in another currency in the base currency. ZH: 汇率.
+_Avoid_: FX rate (in copy), conversion rate
+
 **Minor units**:
 An amount as an integer count of the currency's smallest unit (pence for GBP, fen for CNY). The currency's exponent is how many decimal places a major unit has.
 _Avoid_: cents (for every currency), decimal amount

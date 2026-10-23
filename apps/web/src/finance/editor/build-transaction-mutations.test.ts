@@ -122,13 +122,11 @@ describe("buildTransactionMutations on an existing Transaction", () => {
               id: PAYMENT_ENTRY,
               accountId: ids.current,
               amountMinor: -100_000,
-              fxRate: null,
             },
             {
               id: LOAN_ENTRY,
               accountId: MORTGAGE,
               amountMinor: 65_000,
-              fxRate: null,
             },
           ],
         },
@@ -207,14 +205,14 @@ describe("buildTransactionMutations and exchange rates", () => {
     amountMinor: -801,
     accountId: ids.dollars,
   });
-  const dollarEntry = { ...entry, amountMinor: -1_000, fxRate: 0.799 };
+  const dollarEntry = { ...entry, amountMinor: -1_000 };
   const draft = editorDraft("expense", "2026-03-01", {
     amountText: "10.00",
     accountId: ids.dollars,
     categoryId: ids.groceries,
   });
 
-  it("keeps the stats amount and the rate when the amount, account and date stay", () => {
+  it("keeps the stats amount when the amount, account and date stay", () => {
     const result = buildTransactionMutations(
       { ...draft, note: "Lunch" },
       context(transaction, [dollarEntry]),
@@ -235,13 +233,7 @@ describe("buildTransactionMutations and exchange rates", () => {
     );
     if (!result.ok) throw new Error("Expected a save");
     expect(result.mutations[0]).toMatchObject({
-      args: {
-        patch: {
-          date: "2026-09-02",
-          amountMinor: -625,
-          entries: [{ amountMinor: -1_000, fxRate: 0.625 }],
-        },
-      },
+      args: { patch: { date: "2026-09-02", amountMinor: -625 } },
     });
   });
 });

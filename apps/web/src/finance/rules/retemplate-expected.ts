@@ -18,7 +18,6 @@ interface RuleTransaction {
     id: string;
     accountId: string;
     amountMinor: number;
-    fxRate: number | null;
   }[];
   tagIds: readonly string[];
 }

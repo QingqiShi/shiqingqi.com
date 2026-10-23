@@ -14,10 +14,12 @@ import {
 import {
   categories,
   entries,
+  liveEntryColumns,
   payees,
   rules,
   transactions,
   transactionTags,
+  type LiveEntryRow,
 } from "../schema.ts";
 import { householdRows, stamped } from "./household-rows.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
@@ -34,7 +36,6 @@ interface EntryValues {
   id: string;
   accountId: string;
   amountMinor: number;
-  fxRate?: number | null;
 }
 
 /** The text a search matches: the Payee name, the note and the Category name, in lower case. */
@@ -67,10 +68,10 @@ export const transactionRepository = {
 
   /** The live Entries of these Transactions, in order, by Transaction id. */
   async findEntriesOf(scope: RepositoryScope, transactionIds: string[]) {
-    const byTransaction = new Map<string, (typeof entries.$inferSelect)[]>();
+    const byTransaction = new Map<string, LiveEntryRow[]>();
     if (transactionIds.length === 0) return byTransaction;
     const rows = await scope.db
-      .select()
+      .select(liveEntryColumns)
       .from(entries)
       .where(
         and(
@@ -140,7 +141,6 @@ export const transactionRepository = {
           accountId: entry.accountId,
           date,
           amountMinor: entry.amountMinor,
-          fxRate: entry.fxRate ?? null,
           position,
           version: scope.version,
         })),
@@ -151,7 +151,6 @@ export const transactionRepository = {
           accountId: sql`excluded.account_id`,
           date: sql`excluded.date`,
           amountMinor: sql`excluded.amount_minor`,
-          fxRate: sql`excluded.fx_rate`,
           position: sql`excluded.position`,
           version: scope.version,
           updatedAt: now,

@@ -128,7 +128,7 @@ describe("TransactionEditor", () => {
       payeeId: ids.tesco,
       memberId: ids.sam,
       refundOfId: null,
-      entries: [{ accountId: ids.card, amountMinor: -1_250, fxRate: null }],
+      entries: [{ accountId: ids.card, amountMinor: -1_250 }],
       tagIds: [ids.weeklyShop],
     });
     expect(args.entries[0].id).toMatch(UUID);
@@ -180,7 +180,7 @@ describe("TransactionEditor", () => {
       categoryId: null,
       entries: [
         { accountId: ids.current, amountMinor: -50_000 },
-        { accountId: ids.dollars, amountMinor: 62_500, fxRate: 1.25 },
+        { accountId: ids.dollars, amountMinor: 62_500 },
       ],
     });
   });
@@ -254,7 +254,6 @@ describe("TransactionEditor", () => {
             id: ids.tescoShopEntry,
             accountId: ids.card,
             amountMinor: -4_500,
-            fxRate: null,
           },
         ],
       },

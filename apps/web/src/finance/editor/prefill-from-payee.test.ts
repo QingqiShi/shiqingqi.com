@@ -51,7 +51,6 @@ function entry(transactionId: string, accountId: string): EntryRow {
     accountId,
     date: "2026-10-01",
     amountMinor: -1_000,
-    fxRate: null,
     position: 0,
     version: 1,
     createdAt: "2026-10-01T10:00:00.000Z",
