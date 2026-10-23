@@ -11,7 +11,6 @@ import {
   accountBalanceDays,
   accounts,
   entries,
-  monthTotals,
   transactions,
   valuations,
 } from "../schema.ts";
@@ -90,7 +89,6 @@ beforeAll(async () => {
       householdId,
       kind: transfer ? "transfer" : "expense",
       date,
-      amountMinor: transfer ? 0 : amountMinor,
       categoryId: transfer ? null : home.groceriesId,
       memberId: pick([home.memberId, home.partnerId, null]),
       version: 1,
@@ -230,7 +228,7 @@ async function recomputeFrom(fromByAccount: Record<string, string>) {
   const written = await withHousehold(db, home.householdId, (scope) =>
     recomputeDerived(
       { ...scope, version },
-      { accounts: new Map(Object.entries(fromByAccount)), months: new Set() },
+      { accounts: new Map(Object.entries(fromByAccount)) },
     ),
   );
   return { version, written: written.balanceDays };
@@ -245,10 +243,7 @@ async function expectSameAsFullRebuild(accountIds: readonly string[]) {
   const written = await withHousehold(db, home.householdId, (scope) =>
     recomputeDerived(
       { ...scope, version },
-      {
-        accounts: new Map(accountIds.map((id) => [id, "1900-01-01"])),
-        months: new Set(),
-      },
+      { accounts: new Map(accountIds.map((id) => [id, "1900-01-01"])) },
     ),
   );
   expect(written.balanceDays).toBe(0);
@@ -258,16 +253,12 @@ describe("recomputeDerived", () => {
   it("builds every derived row for an imported ledger in one pass", async () => {
     const started = performance.now();
     const written = await withHousehold(db, home.householdId, (scope) =>
-      recomputeDerived(
-        { ...scope, version: 1 },
-        { accounts: "all", months: "all" },
-      ),
+      recomputeDerived({ ...scope, version: 1 }, { accounts: "all" }),
     );
     const elapsed = performance.now() - started;
 
     expectWithinBudget(elapsed, 5_000);
     expect(written.balanceDays).toBeGreaterThan(7_000);
-    expect(written.monthTotals).toBeGreaterThan(100);
     for (const accountId of accountIds.slice(0, 25)) {
       expect(await storedRows(accountId)).toEqual(await engineRows(accountId));
     }
@@ -276,12 +267,9 @@ describe("recomputeDerived", () => {
   it("writes nothing when run again", async () => {
     expect(
       await withHousehold(db, home.householdId, (scope) =>
-        recomputeDerived(
-          { ...scope, version: 2 },
-          { accounts: "all", months: "all" },
-        ),
+        recomputeDerived({ ...scope, version: 2 }, { accounts: "all" }),
       ),
-    ).toEqual({ balanceDays: 0, monthTotals: 0 });
+    ).toEqual({ balanceDays: 0 });
   });
 
   it("from a day on, changes only the rows that moved", async () => {
@@ -299,7 +287,7 @@ describe("recomputeDerived", () => {
     const written = await withHousehold(db, home.householdId, (scope) =>
       recomputeDerived(
         { ...scope, version: 3 },
-        { accounts: new Map([[accountId, middle.day]]), months: new Set() },
+        { accounts: new Map([[accountId, middle.day]]) },
       ),
     );
 
@@ -310,7 +298,6 @@ describe("recomputeDerived", () => {
       .where(eq(accountBalanceDays.version, 3));
     expect(changed.length).toBe(written.balanceDays);
     expect(changed.every((row) => row.day >= middle.day)).toBe(true);
-    expect(await db.$count(monthTotals, eq(monthTotals.version, 3))).toBe(0);
   });
 
   it("from a day on, ends as a full rebuild would after many edits", async () => {

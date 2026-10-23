@@ -30,10 +30,7 @@ export function simpleTemplateAccounts(
   return { accountId: from.accountId, toAccountId: "" };
 }
 
-/** The size of a template's movement, always positive. */
+/** The size of a template's movement in its first account's currency, always positive. */
 export function templateAmount(template: RuleTemplate): number {
-  if (template.kind === "transfer") {
-    return Math.abs(template.entries[0]?.amountMinor ?? 0);
-  }
-  return Math.abs(template.amountMinor);
+  return Math.abs(template.entries[0]?.amountMinor ?? 0);
 }

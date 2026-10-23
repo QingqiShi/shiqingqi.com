@@ -4,7 +4,6 @@ import type { RuleTemplate } from "./rule-template-schema.ts";
 
 const before: RuleTemplate = {
   kind: "expense",
-  amountMinor: -1_000,
   categoryId: "groceries",
   payeeId: "grocer",
   memberId: null,
@@ -14,7 +13,6 @@ const before: RuleTemplate = {
 };
 const after: RuleTemplate = {
   ...before,
-  amountMinor: -1_500,
   categoryId: "dining",
   payeeId: "cafe",
   entries: [{ accountId: "card", amountMinor: -1_500 }],
@@ -27,7 +25,6 @@ function row(id: string, fields: Record<string, unknown> = {}) {
     id,
     date: "2026-10-15",
     kind: before.kind,
-    amountMinor: before.amountMinor,
     categoryId: before.categoryId,
     payeeId: before.payeeId,
     memberId: before.memberId,
@@ -50,7 +47,6 @@ describe("retemplateExpected", () => {
       {
         id: "a",
         patch: {
-          amountMinor: -1_500,
           categoryId: "dining",
           payeeId: "cafe",
           entries: [
@@ -70,7 +66,7 @@ describe("retemplateExpected", () => {
     const changes = retemplateExpected(
       before,
       payeeOnly,
-      [row("a", { note: "Birthday", amountMinor: -2_000 })],
+      [row("a", { note: "Birthday" })],
       newEntryId,
     );
     expect(changes).toEqual([{ id: "a", patch: { payeeId: "cafe" } }]);
@@ -86,7 +82,6 @@ describe("retemplateExpected", () => {
       accountOnly,
       [
         row("a", {
-          amountMinor: -2_000,
           entries: [
             {
               id: "a-entry",
@@ -99,7 +94,6 @@ describe("retemplateExpected", () => {
       newEntryId,
     );
     expect(changes[0].patch).toEqual({
-      amountMinor: -1_000,
       entries: [{ id: "a-entry", accountId: "card", amountMinor: -1_000 }],
     });
   });

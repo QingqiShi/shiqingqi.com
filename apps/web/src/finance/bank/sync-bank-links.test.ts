@@ -119,7 +119,6 @@ function expense(
       kind: "expense",
       status: extra.status,
       date,
-      amountMinor,
       categoryId: home.groceriesId,
       payeeId: home.grocerId,
       memberId: home.memberId,
@@ -250,7 +249,6 @@ describe("syncBankLinks", () => {
         id: transferId,
         kind: "transfer",
         date: "2026-10-08",
-        amountMinor: 0,
         entries: [
           { id: randomUUID(), accountId: home.currentId, amountMinor: -50_000 },
           { id: inTransitEntryId, accountId: inTransitId, amountMinor: 50_000 },
@@ -322,7 +320,7 @@ describe("syncBankLinks", () => {
     fixture.transactions["acc-current"] = [cafe, ...others];
     await syncAndProcess();
     const created = (await liveTransactions()).find(
-      (row) => row.amountMinor === -700,
+      (row) => row.date === "2026-10-05",
     );
     await push([
       mutation("updateTransaction", {
@@ -392,7 +390,7 @@ describe("syncBankLinks", () => {
     await sync({ now: THIRD_DAY });
 
     const cafe = (await liveTransactions()).find(
-      (row) => row.amountMinor === -700,
+      (row) => row.date === "2026-10-05",
     );
     expect(cafe?.needsReview).toBe(true);
   });
@@ -451,7 +449,6 @@ describe("syncBankLinks", () => {
     const [row] = await liveTransactions();
     expect(row).toMatchObject({
       kind: "expense",
-      amountMinor: -2000,
       categoryId: uncategorised.expense,
       needsReview: true,
     });

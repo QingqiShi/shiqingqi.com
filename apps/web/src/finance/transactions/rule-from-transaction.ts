@@ -59,7 +59,6 @@ export function ruleFromTransaction(
     paused: false,
     template: {
       kind: transaction.kind,
-      amountMinor: transaction.amountMinor,
       categoryId: transaction.categoryId,
       payeeId: transaction.payeeId,
       memberId: transaction.memberId,

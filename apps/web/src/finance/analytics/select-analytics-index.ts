@@ -1,4 +1,5 @@
 import type { ReplicaSnapshot } from "../replica/types.ts";
+import { selectTransactionAmounts } from "../store/select-transaction-amounts.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import { buildAnalyticsIndex } from "./build-analytics-index.ts";
 import type { AnalyticsIndex } from "./types.ts";
@@ -17,8 +18,10 @@ export function selectAnalyticsIndex(
 ): AnalyticsIndex {
   const { tables } = snapshot;
   const transactions = selectTransactionsByDateDesc(snapshot);
+  const amounts = selectTransactionAmounts(snapshot);
   const inputs = [
     transactions,
+    amounts,
     tables.transactionTags,
     tables.categories,
     tables.payees,
@@ -31,6 +34,7 @@ export function selectAnalyticsIndex(
   const started = performance.now();
   const index = buildAnalyticsIndex({
     transactions,
+    amounts,
     transactionTags: tables.transactionTags.values(),
     categories: [...tables.categories.values()],
     payees: tables.payees.values(),

@@ -12,8 +12,5 @@ export function rowKey<Table extends SyncTableName>(
   if ("id" in row) return row.id;
   if ("tagId" in row) return `${row.transactionId}|${row.tagId}`;
   if ("balanceMinor" in row) return `${row.accountId}|${row.day}`;
-  if ("month" in row) {
-    return `${row.month}|${row.kind}|${row.categoryId}|${row.memberId ?? ""}`;
-  }
   throw new Error(`No key for a row of ${table}`);
 }

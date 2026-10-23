@@ -30,7 +30,6 @@ import { normalisePayeeText } from "../editor/rank-payees.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { sameTemplate } from "../rules/same-template.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
-import { selectFxIndex } from "../store/select-fx-index.ts";
 import type { RuleRow } from "../sync/row-schemas.ts";
 import { buildNewRule } from "./build-new-rule.ts";
 import { editRuleTemplate } from "./edit-rule-template.ts";
@@ -88,7 +87,6 @@ export function RulesSettings() {
   const rules = useReplica(liveRowSelectors.rules);
   const payees = useReplica(liveRowSelectors.payees);
   const accounts = useReplica((snapshot) => snapshot.tables.accounts);
-  const fx = useReplica(selectFxIndex);
   const payeeRef = useRef<HTMLInputElement>(null);
   const baseCurrency = useBaseCurrency();
   const apply = useApplyMutations();
@@ -97,6 +95,9 @@ export function RulesSettings() {
   const [error, setError] = useState<string | undefined>();
   const isBase = (accountId: string) =>
     accounts.get(accountId)?.currency === baseCurrency;
+  const templateCurrency = (rule: RuleRow) =>
+    accounts.get(rule.template.entries[0]?.accountId ?? "")?.currency ??
+    baseCurrency;
 
   const unitLabels: Record<Unit, string> = {
     week: t({ en: "weeks", zh: "周" }),
@@ -153,7 +154,11 @@ export function RulesSettings() {
 
   function summary(rule: RuleRow) {
     return [
-      formatMoney(templateAmount(rule.template), baseCurrency, locale),
+      formatMoney(
+        templateAmount(rule.template),
+        templateCurrency(rule),
+        locale,
+      ),
       rule.pausedAt === null
         ? `${nextLabel} ${displayDay(rule.nextOn, locale, "day")}`
         : "",
@@ -253,7 +258,7 @@ export function RulesSettings() {
         autoPost: current.autoPost,
         today,
       },
-      { accountById: accounts, baseCurrency, fx },
+      { accountById: accounts },
     );
     if (!built.ok) {
       setError(messages[built.error]);
@@ -429,7 +434,7 @@ export function RulesSettings() {
                   name: rule.name,
                   amount: minorUnitsToDecimalString(
                     templateAmount(rule.template),
-                    baseCurrency,
+                    templateCurrency(rule),
                   ),
                   unit: rule.unit,
                   interval: String(rule.interval),

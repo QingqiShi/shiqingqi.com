@@ -23,7 +23,6 @@ function transaction(
     kind: "expense",
     status: "posted",
     date,
-    amountMinor: -1_000,
     categoryId: GROCERIES,
     payeeId: "p-tesco",
     memberId: "m-alex",
@@ -137,7 +136,7 @@ describe("prefillFromPayee", () => {
 
   it("copies the loan the last payment also paid down, else the Rule's", () => {
     const MORTGAGE = "a-mortgage";
-    const payment = transaction("t5", "2026-10-01", { amountMinor: -100_000 });
+    const payment = transaction("t5", "2026-10-01");
     const input = {
       kind: "expense" as const,
       payee: undefined,

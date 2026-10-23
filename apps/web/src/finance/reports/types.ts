@@ -25,6 +25,7 @@ export interface ReportSourceTransaction {
   kind: "expense" | "income" | "transfer";
   status: "posted" | "expected";
   date: string;
+  /** In the base currency: see `createTransactionAmount`. */
   amountMinor: number;
   categoryId: string | null;
   payeeId: string | null;

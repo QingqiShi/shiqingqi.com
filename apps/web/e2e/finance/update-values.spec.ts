@@ -161,7 +161,6 @@ test.describe("Bank balance at 390 px", () => {
         householdId: session.householdId,
         kind: "expense",
         date: today,
-        amountMinor: -8495,
         note: "Left out by the bank",
         version,
       });

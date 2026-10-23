@@ -62,10 +62,7 @@ interface ReplicaStoreOptions {
 }
 
 /** Derived tables: their deleted rows carry nothing a screen needs, so the Replica drops them. */
-const DROP_DELETED = new Set<SyncTableName>([
-  "accountBalanceDays",
-  "monthTotals",
-]);
+const DROP_DELETED = new Set<SyncTableName>(["accountBalanceDays"]);
 
 function writesOf(tables: TablesDraft, changed: ChangedKeys) {
   const writes: ReplicaTableWrites = {};

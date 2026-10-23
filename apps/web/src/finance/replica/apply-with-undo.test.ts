@@ -19,7 +19,6 @@ function transactionView(snapshot: ReplicaSnapshot, id: string) {
     kind: row.kind,
     status: row.status,
     date: row.date,
-    amountMinor: row.amountMinor,
     categoryId: row.categoryId,
     payeeId: row.payeeId,
     memberId: row.memberId,
@@ -51,7 +50,6 @@ describe("applyWithUndo", () => {
           args: {
             id: ids.tescoShop,
             patch: {
-              amountMinor: -999,
               note: "changed",
               needsReview: true,
               entries: [
@@ -88,7 +86,6 @@ describe("applyWithUndo", () => {
             id: created,
             kind: "expense",
             date: "2026-09-30",
-            amountMinor: -420,
             categoryId: ids.dining,
             entries: [
               {
@@ -129,7 +126,18 @@ describe("applyWithUndo", () => {
       [
         {
           name: "confirmExpected",
-          args: { id: bill.transaction.id, patch: { amountMinor: -1_299 } },
+          args: {
+            id: bill.transaction.id,
+            patch: {
+              entries: [
+                {
+                  id: bill.entry.id,
+                  accountId: bill.entry.accountId,
+                  amountMinor: -1_299,
+                },
+              ],
+            },
+          },
         },
       ],
       createId,
@@ -143,7 +151,7 @@ describe("applyWithUndo", () => {
         row.status === "expected" &&
         row.deletedAt === null,
     );
-    expect(again).toMatchObject({ date: "2026-10-02", amountMinor: -1_099 });
+    expect(again).toMatchObject({ date: "2026-10-02" });
   });
 
   it("puts back a balance update and a renamed, archived Category", async () => {

@@ -6,12 +6,15 @@ import {
 } from "../transactions/testing/create-test-replica.ts";
 import { buildAccountLedger } from "./build-account-ledger.ts";
 
+const amounts = new Map<string, number>();
+
 function tx(
   id: string,
   date: string,
   amountMinor: number,
   status: TransactionRow["status"] = "posted",
 ): TransactionRow {
+  amounts.set(id, amountMinor);
   return testExpense(id, `${id}-entry`, {
     date,
     amountMinor,
@@ -53,7 +56,7 @@ function build(
   return buildAccountLedger({
     valuations,
     transactions,
-    amountOf: (row) => row.amountMinor,
+    amountOf: (row) => amounts.get(row.id) ?? 0,
     today: "2026-10-15",
     limit,
     balanceAt: (day) => endOfDay[day] ?? 0,
@@ -145,6 +148,7 @@ describe("buildAccountLedger", () => {
       accountId: TEST_IDS.current,
       categoryId: TEST_IDS.salary,
     }).transaction;
+    amounts.set(salary.id, 50_000);
     const transfer: TransactionRow = {
       ...tx("move", "2026-10-15", -7_000),
       kind: "transfer",

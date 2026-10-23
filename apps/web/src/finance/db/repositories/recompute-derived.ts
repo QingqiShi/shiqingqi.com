@@ -1,16 +1,4 @@
-import {
-  and,
-  desc,
-  eq,
-  gte,
-  inArray,
-  isNotNull,
-  isNull,
-  lt,
-  or,
-  sql,
-  type SQL,
-} from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, or, sql, type SQL } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 import {
   balanceSeriesToRows,
@@ -18,11 +6,9 @@ import {
   type EntryInput,
   type ValuationInput,
 } from "../../domain/balance/compute-balance-days.ts";
-import { addMonths } from "../../domain/dates/add-months.ts";
 import {
   accountBalanceDays,
   entries,
-  monthTotals,
   transactions,
   valuations,
 } from "../schema.ts";
@@ -33,8 +19,6 @@ import type { WriteScope } from "./types.ts";
 export interface DerivedChanges {
   /** Each account whose balances may have changed, with the first day that may have changed. */
   accounts: ReadonlyMap<string, string> | "all";
-  /** The first day of each month whose totals may have changed. */
-  months: ReadonlySet<string> | "all";
 }
 
 const WRITE_CHUNK = 2000;
@@ -282,158 +266,9 @@ async function recomputeBalanceDays(
   return upserts.length + staleCount;
 }
 
-interface MonthTotal {
-  month: string;
-  kind: "expense" | "income" | "transfer";
-  categoryId: string;
-  memberId: string | null;
-  amountMinor: number;
-  count: number;
-}
-
-function monthTotalKey(row: Omit<MonthTotal, "amountMinor" | "count">) {
-  return `${row.month}|${row.kind}|${row.categoryId}|${row.memberId ?? ""}`;
-}
-
-function sameMonthTotal(row: MonthTotal) {
-  return and(
-    eq(monthTotals.month, row.month),
-    eq(monthTotals.kind, row.kind),
-    eq(monthTotals.categoryId, row.categoryId),
-    row.memberId === null
-      ? isNull(monthTotals.memberId)
-      : eq(monthTotals.memberId, row.memberId),
-  );
-}
-
-async function recomputeMonthTotals(
-  scope: WriteScope,
-  changed: DerivedChanges["months"],
-) {
-  const everything = changed === "all";
-  if (!everything && changed.size === 0) return 0;
-  const months = everything ? [] : [...changed];
-
-  const month = sql<string>`to_char(date_trunc('month', ${transactions.date}::timestamp), 'YYYY-MM-DD')`;
-  const freshRows = await scope.db
-    .select({
-      month,
-      kind: transactions.kind,
-      categoryId: transactions.categoryId,
-      memberId: transactions.memberId,
-      amountMinor: sql`sum(${transactions.amountMinor})::bigint`.mapWith(
-        Number,
-      ),
-      count: sql`count(*)::int`.mapWith(Number),
-    })
-    .from(transactions)
-    .where(
-      and(
-        eq(transactions.householdId, scope.householdId),
-        eq(transactions.status, "posted"),
-        isNull(transactions.deletedAt),
-        isNotNull(transactions.categoryId),
-        everything
-          ? undefined
-          : or(
-              ...months.map((first) =>
-                and(
-                  gte(transactions.date, first),
-                  lt(transactions.date, addMonths(first, 1)),
-                ),
-              ),
-            ),
-      ),
-    )
-    .groupBy(
-      month,
-      transactions.kind,
-      transactions.categoryId,
-      transactions.memberId,
-    );
-
-  const storedRows = await scope.db
-    .select({
-      month: monthTotals.month,
-      kind: monthTotals.kind,
-      categoryId: monthTotals.categoryId,
-      memberId: monthTotals.memberId,
-      amountMinor: monthTotals.amountMinor,
-      count: monthTotals.count,
-      deletedAt: monthTotals.deletedAt,
-    })
-    .from(monthTotals)
-    .where(
-      and(
-        eq(monthTotals.householdId, scope.householdId),
-        everything ? undefined : inArray(monthTotals.month, months),
-      ),
-    );
-  const stored = new Map(storedRows.map((row) => [monthTotalKey(row), row]));
-
-  const inserts: (typeof monthTotals.$inferInsert)[] = [];
-  const updates: MonthTotal[] = [];
-  for (const fresh of freshRows) {
-    const { categoryId } = fresh;
-    if (categoryId === null) continue;
-    const row: MonthTotal = { ...fresh, categoryId };
-    const key = monthTotalKey(row);
-    const previous = stored.get(key);
-    stored.delete(key);
-    if (!previous) {
-      inserts.push({
-        ...row,
-        householdId: scope.householdId,
-        version: scope.version,
-      });
-    } else if (
-      previous.deletedAt !== null ||
-      previous.amountMinor !== row.amountMinor ||
-      previous.count !== row.count
-    ) {
-      updates.push(row);
-    }
-  }
-
-  for (const chunk of chunks(inserts)) {
-    await scope.db.insert(monthTotals).values(chunk);
-  }
-  for (const row of updates) {
-    await scope.db
-      .update(monthTotals)
-      .set({
-        amountMinor: row.amountMinor,
-        count: row.count,
-        version: scope.version,
-        deletedAt: null,
-      })
-      .where(
-        and(
-          eq(monthTotals.householdId, scope.householdId),
-          sameMonthTotal(row),
-        ),
-      );
-  }
-  let staleCount = 0;
-  for (const row of stored.values()) {
-    if (row.deletedAt !== null) continue;
-    staleCount++;
-    await scope.db
-      .update(monthTotals)
-      .set({ deletedAt: sql`now()`, version: scope.version })
-      .where(
-        and(
-          eq(monthTotals.householdId, scope.householdId),
-          sameMonthTotal(row),
-        ),
-      );
-  }
-  return inserts.length + updates.length + staleCount;
-}
-
 /**
- * Brings `account_balance_days` and `month_totals` in step with the
- * Valuations, Entries and Transactions after a write. A derived row is never
+ * Brings `account_balance_days` in step with the Valuations, Entries and
+ * Transactions after a write. A derived row is never
  * removed: a stale one is soft-deleted so the removal reaches the Replica, and
  * only rows whose value changes get `version`. The importer passes `"all"` to
  * build every row in one pass.
@@ -443,6 +278,5 @@ export async function recomputeDerived(
   changes: DerivedChanges,
 ) {
   const balanceDays = await recomputeBalanceDays(scope, changes.accounts);
-  const totals = await recomputeMonthTotals(scope, changes.months);
-  return { balanceDays, monthTotals: totals };
+  return { balanceDays };
 }

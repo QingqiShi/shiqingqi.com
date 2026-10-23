@@ -91,7 +91,6 @@ function expenseMutation(date: string) {
       id: randomUUID(),
       kind: "expense",
       date,
-      amountMinor: -1_250,
       categoryId: home.groceriesId,
       payeeId: home.grocerId,
       entries: [
@@ -209,7 +208,6 @@ describe("makeSyncHandlers", () => {
     expect(tables.get("entries")).toHaveLength(1);
     expect(tables.get("transactionTags")).toHaveLength(1);
     expect(tables.get("accountBalanceDays")).toHaveLength(1);
-    expect(tables.get("monthTotals")).toHaveLength(1);
     for (const [table, rows] of tables) {
       expect(isSyncTableName(table)).toBe(true);
       if (isSyncTableName(table)) expectWireRows(table, rows);
@@ -261,7 +259,6 @@ describe("makeSyncHandlers", () => {
     expect(Object.keys(pull.tables).sort()).toEqual([
       "accountBalanceDays",
       "entries",
-      "monthTotals",
       "transactionTags",
       "transactions",
     ]);

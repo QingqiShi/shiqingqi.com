@@ -6,7 +6,6 @@ interface IndexTransaction {
   kind: string;
   status: string;
   date: string;
-  amountMinor: number;
   categoryId: string | null;
   payeeId: string | null;
   memberId: string | null;
@@ -16,6 +15,8 @@ interface IndexTransaction {
 export interface AnalyticsIndexSource {
   /** In any order; newest first is cheapest. */
   transactions: readonly IndexTransaction[];
+  /** The amount of each expense and income in the base currency, by Transaction id. */
+  amounts: ReadonlyMap<string, number>;
   transactionTags: Iterable<{
     transactionId: string;
     tagId: string;
@@ -125,7 +126,7 @@ export function buildAnalyticsIndex(
     days[i] = rowDays[at];
     tagOffsets[i] = tagList.length;
     const row = kept[at];
-    amounts[i] = row.amountMinor;
+    amounts[i] = source.amounts.get(row.id) ?? 0;
     kinds[i] = row.kind === "income" ? 1 : 0;
     payees[i] =
       row.payeeId === null ? -1 : (payeeIndex.map.get(row.payeeId) ?? -1);

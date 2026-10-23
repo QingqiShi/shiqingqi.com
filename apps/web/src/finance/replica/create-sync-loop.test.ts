@@ -24,7 +24,7 @@ import {
 } from "../sync/replica-row-shape.ts";
 import { createMemoryPersistence } from "./create-memory-persistence.ts";
 import { createReplicaStore } from "./create-replica-store.ts";
-import { createSyncLoop } from "./create-sync-loop.ts";
+import { createSyncLoop, type SyncLoop } from "./create-sync-loop.ts";
 import type { ReplicaPersistence, ReplicaRejection } from "./types.ts";
 
 const ORIGIN = "https://qingqi.dev";
@@ -34,6 +34,8 @@ const TODAY = "2026-10-10";
 
 let exchangeRateRequests: string[] = [];
 let exchangeRatesFail = false;
+let exchangeRatesHang = false;
+let loops: SyncLoop[] = [];
 let frankfurter: FakeFrankfurter;
 let afterPushWork: (() => Promise<unknown>)[] = [];
 
@@ -44,6 +46,8 @@ let session: FinanceSession | null;
 beforeEach(async () => {
   exchangeRateRequests = [];
   exchangeRatesFail = false;
+  exchangeRatesHang = false;
+  loops = [];
   frankfurter = createFakeFrankfurter();
   afterPushWork = [];
   db = await createTestDb();
@@ -58,6 +62,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  for (const loop of loops) loop.stop();
   await db.close();
 });
 
@@ -95,6 +100,7 @@ function routeToHandlers(
     const request = new Request(url, { method, headers, body: init?.body });
     if (url.startsWith(EXCHANGE_RATES_ENDPOINT)) {
       exchangeRateRequests.push(url);
+      if (exchangeRatesHang) return new Promise<Response>(() => undefined);
       return exchangeRatesFail
         ? new Response("", { status: 500 })
         : makeExchangeRatesHandler({
@@ -158,6 +164,7 @@ function createClient(
       unauthorised++;
     },
   });
+  loops.push(loop);
   return {
     store,
     loop,
@@ -186,7 +193,6 @@ function createExpense(
       id,
       kind: "expense",
       date,
-      amountMinor: -amount,
       categoryId: home.groceriesId,
       payeeId: home.grocerId,
       entries: [
@@ -215,7 +221,6 @@ function rowsOfRule(client: ReturnType<typeof createClient>, ruleId: string) {
       id: row.id,
       date: row.date,
       status: row.status,
-      amountMinor: row.amountMinor,
       categoryId: row.categoryId,
       payeeId: row.payeeId,
       memberId: row.memberId,
@@ -299,7 +304,6 @@ describe("sync loop against the real handlers", () => {
       args: {
         id,
         patch: {
-          amountMinor: -1_500,
           entries: [
             {
               id: entryId ?? "",
@@ -318,7 +322,6 @@ describe("sync loop against the real handlers", () => {
     for (const client of [first, second]) {
       const row = client.snapshot().tables.transactions.get(id);
       expect(row?.note).toBe("Weekly shop");
-      expect(row?.amountMinor).toBe(-1_500);
       expect(currentBalance(client)).toBe(-1_500);
       expect(client.snapshot().pendingKeys.size).toBe(0);
     }
@@ -369,7 +372,6 @@ describe("sync loop against the real handlers", () => {
         startsOn: "2026-10-08",
         template: {
           kind: "expense",
-          amountMinor: -1_000,
           categoryId: home.groceriesId,
           payeeId: home.grocerId,
           entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
@@ -390,7 +392,6 @@ describe("sync loop against the real handlers", () => {
           id: ruleId,
           template: {
             kind: "transfer",
-            amountMinor: 0,
             entries: [
               { accountId: home.currentId, amountMinor: -1_000 },
               { accountId: home.cardId, amountMinor: 1_000 },
@@ -407,7 +408,6 @@ describe("sync loop against the real handlers", () => {
         id: ruleId,
         template: {
           kind: "expense",
-          amountMinor: -2_500,
           categoryId: diningId,
           payeeId: home.employerId,
           entries: [{ accountId: home.cardId, amountMinor: -2_500 }],
@@ -421,11 +421,9 @@ describe("sync loop against the real handlers", () => {
     expect(client.snapshot().outboxCount).toBe(0);
     expect(ruleRows()).toEqual(local);
     expect(local[0]).toMatchObject({
-      amountMinor: -1_000,
       entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
     });
     expect(local[1]).toMatchObject({
-      amountMinor: -2_500,
       categoryId: diningId,
       payeeId: home.employerId,
       searchText: "employer dining",
@@ -447,7 +445,6 @@ describe("sync loop against the real handlers", () => {
         startsOn: "2026-10-08",
         template: {
           kind: "expense",
-          amountMinor: -1_000,
           categoryId: home.groceriesId,
           payeeId: home.grocerId,
           entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
@@ -470,7 +467,6 @@ describe("sync loop against the real handlers", () => {
         weekday: 4,
         template: {
           kind: "expense",
-          amountMinor: -2_500,
           categoryId: home.groceriesId,
           payeeId: home.grocerId,
           memberId: home.partnerId,
@@ -485,7 +481,6 @@ describe("sync loop against the real handlers", () => {
     expect(client.snapshot().outboxCount).toBe(0);
     expect(local[1]).toMatchObject({
       date: "2026-10-15",
-      amountMinor: -2_500,
       memberId: home.partnerId,
       entries: [{ accountId: home.cardId, amountMinor: -2_500 }],
     });
@@ -716,7 +711,7 @@ describe("sync loop across a deploy", () => {
       $$ LANGUAGE plpgsql
     `);
     await db.execute(sql`
-      CREATE TRIGGER refuse_transaction BEFORE INSERT ON transactions
+      CREATE TRIGGER refuse_transaction BEFORE INSERT ON entries
       FOR EACH ROW WHEN (NEW.amount_minor = -666)
       EXECUTE FUNCTION refuse_transaction()
     `);
@@ -890,6 +885,30 @@ describe("exchange rates", () => {
     );
   });
 
+  it("has the rates on a new device before its bootstrap finishes", async () => {
+    await moveSavingsToUsd();
+    await db.insert(exchangeRates).values({
+      base: "USD",
+      quote: "GBP",
+      on: "2026-10-08",
+      rate: 0.75,
+      source: "ecb",
+    });
+    const client = createClient({ now: () => 0 });
+    let ratesWhenBootstrapped: number | null = null;
+    client.store.subscribe(() => {
+      const snapshot = client.snapshot();
+      if (snapshot.bootstrapped && ratesWhenBootstrapped === null) {
+        ratesWhenBootstrapped = snapshot.exchangeRates.size;
+      }
+    });
+
+    await client.ready();
+
+    expect(ratesWhenBootstrapped).toBe(1);
+    expect(exchangeRateRequests).toHaveLength(1);
+  });
+
   it("tries again soon while a pair has no rate, doubling the wait, then waits 15 minutes", async () => {
     await moveSavingsToUsd();
     let time = 0;
@@ -1023,29 +1042,96 @@ describe("exchange rates", () => {
 
   it("tries a failed download again after 30 s, doubling the wait, and not before", async () => {
     let time = 0;
-    exchangeRatesFail = true;
     const client = createClient({ now: () => time });
     await client.ready();
-    expect(exchangeRateRequests).toHaveLength(1);
+    exchangeRatesFail = true;
+    const start = 15 * 60_000;
+    time = start;
+    await client.loop.sync();
+    expect(exchangeRateRequests).toHaveLength(2);
 
-    for (const [at, requests] of [
-      [29_000, 1],
-      [30_000, 2],
-      [89_000, 2],
-      [90_000, 3],
+    for (const [after, requests] of [
+      [29_000, 2],
+      [30_000, 3],
+      [89_000, 3],
+      [90_000, 4],
     ] as const) {
-      time = at;
+      time = start + after;
       await client.loop.sync();
-      expect(exchangeRateRequests, String(at)).toHaveLength(requests);
+      expect(exchangeRateRequests, String(after)).toHaveLength(requests);
     }
 
     exchangeRatesFail = false;
-    time = 210_000;
+    time = start + 210_000;
     await client.loop.sync();
-    expect(exchangeRateRequests).toHaveLength(4);
-    time = 211_000;
+    expect(exchangeRateRequests).toHaveLength(5);
+    time = start + 211_000;
     await client.loop.sync();
-    expect(exchangeRateRequests).toHaveLength(4);
+    expect(exchangeRateRequests).toHaveLength(5);
+  });
+
+  describe("on a new device", () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    async function untilRatesRequested(count: number) {
+      while (exchangeRateRequests.length < count) {
+        await new Promise((resolve) => setImmediate(resolve));
+      }
+    }
+
+    it("finishes the bootstrap when the first download fails, and tries again after 2 s, doubling, without waiting for a run", async () => {
+      await moveSavingsToUsd();
+      await db.insert(exchangeRates).values({
+        base: "USD",
+        quote: "GBP",
+        on: "2026-10-08",
+        rate: 0.75,
+        source: "ecb",
+      });
+      exchangeRatesFail = true;
+      const client = createClient({ now: () => Date.now() });
+      await client.ready();
+      expect(client.snapshot().bootstrapped).toBe(true);
+      expect(client.snapshot().exchangeRates.size).toBe(0);
+      expect(exchangeRateRequests).toHaveLength(1);
+
+      await vi.advanceTimersByTimeAsync(2_000);
+      await untilRatesRequested(2);
+      await client.loop.sync();
+      exchangeRatesFail = false;
+      await vi.advanceTimersByTimeAsync(3_999);
+      expect(exchangeRateRequests).toHaveLength(2);
+      await vi.advanceTimersByTimeAsync(1);
+      await untilRatesRequested(3);
+      await client.loop.sync();
+      expect(client.snapshot().exchangeRates.size).toBe(1);
+
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(exchangeRateRequests).toHaveLength(3);
+    });
+
+    it("finishes the bootstrap after 5 s when the first download does not answer", async () => {
+      exchangeRatesHang = true;
+      const client = createClient({ now: () => Date.now() });
+      await client.store.load();
+      const synced = client.loop.sync();
+      await untilRatesRequested(1);
+      await vi.advanceTimersByTimeAsync(4_999);
+      expect(client.snapshot().bootstrapped).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      await synced;
+      expect(client.snapshot().bootstrapped).toBe(true);
+      expect(client.loop.getStatus().problem).toBeNull();
+
+      exchangeRatesHang = false;
+      await vi.advanceTimersByTimeAsync(2_000);
+      await untilRatesRequested(2);
+    });
   });
 
   it.each([

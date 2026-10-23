@@ -19,7 +19,6 @@ const context = { accountById, isBaseCurrency: isBase };
 
 const expense: RuleTemplate = {
   kind: "expense",
-  amountMinor: -1_099,
   categoryId: "fun",
   payeeId: "netflix",
   memberId: "alex",
@@ -30,7 +29,6 @@ const expense: RuleTemplate = {
 const transfer: RuleTemplate = {
   ...expense,
   kind: "transfer",
-  amountMinor: 0,
   categoryId: null,
   entries: [
     { accountId: "current", amountMinor: -30_000 },
@@ -80,7 +78,6 @@ describe("editRuleTemplate", () => {
       ok: true,
       template: {
         kind: "expense",
-        amountMinor: -1_299,
         categoryId: "streaming",
         payeeId: "disney",
         memberId: "sam",
@@ -109,7 +106,6 @@ describe("editRuleTemplate", () => {
     expect(result).toMatchObject({
       ok: true,
       template: {
-        amountMinor: 0,
         categoryId: null,
         entries: [
           { accountId: "savings", amountMinor: -1_299 },

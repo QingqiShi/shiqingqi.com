@@ -13,7 +13,7 @@ import { buildTestIndex, postedRow } from "./testing/build-test-index.ts";
 import type { AnalyticsKind, Grouping } from "./types.ts";
 
 type Source = AnalyticsIndexSource;
-type Row = Source["transactions"][number];
+type Row = Source["transactions"][number] & { amountMinor: number };
 
 const START = "2023-01-01";
 
@@ -75,7 +75,15 @@ function randomSource(seed: number, count: number) {
       }
     }
   }
-  return { categories, payees, members, tags, transactions, transactionTags };
+  return {
+    categories,
+    payees,
+    members,
+    tags,
+    transactions,
+    amounts: new Map(transactions.map((row) => [row.id, row.amountMinor])),
+    transactionTags,
+  };
 }
 
 interface NaiveQuery {

@@ -172,7 +172,7 @@ export async function seedSyntheticHousehold(
 
     await householdRepository.setClock(scope, version);
     await transactionRepository.refreshSearchText(write, undefined);
-    await recomputeDerived(write, { accounts: "all", months: "all" });
+    await recomputeDerived(write, { accounts: "all" });
 
     return {
       householdId,

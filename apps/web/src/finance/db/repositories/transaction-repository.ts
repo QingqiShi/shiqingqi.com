@@ -15,6 +15,7 @@ import {
   categories,
   entries,
   liveEntryColumns,
+  liveTransactionColumns,
   payees,
   rules,
   transactions,
@@ -26,7 +27,7 @@ import type { RepositoryScope, WriteScope } from "./types.ts";
 
 type NewTransaction = Omit<
   typeof transactions.$inferInsert,
-  "householdId" | "version" | "searchText"
+  "householdId" | "version" | "searchText" | "amountMinor"
 >;
 type TransactionFields = Partial<
   Omit<NewTransaction, "id" | "createdAt" | "updatedAt" | "deletedAt">
@@ -50,7 +51,18 @@ const now = sql`now()`;
 const transactionRows = householdRows(transactions);
 
 export const transactionRepository = {
-  findById: transactionRows.findById,
+  async findById(scope: RepositoryScope, id: string) {
+    const rows = await scope.db
+      .select(liveTransactionColumns)
+      .from(transactions)
+      .where(
+        and(
+          eq(transactions.householdId, scope.householdId),
+          eq(transactions.id, id),
+        ),
+      );
+    return rows.at(0);
+  },
 
   /** The Entries of these Transactions, deleted ones included, for working out which balances changed. */
   async findEntryAccounts(scope: RepositoryScope, transactionIds: string[]) {
@@ -285,7 +297,7 @@ export const transactionRepository = {
   /** A Rule's Transactions dated on or after `from`, deleted ones included. */
   async findOfRuleFrom(scope: RepositoryScope, ruleId: string, from: string) {
     return scope.db
-      .select()
+      .select(liveTransactionColumns)
       .from(transactions)
       .where(
         and(

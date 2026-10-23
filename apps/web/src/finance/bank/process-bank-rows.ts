@@ -13,8 +13,6 @@ import { transactionSearchRepository } from "../db/repositories/transaction-sear
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
-import { createFxIndex } from "../domain/balance/create-fx-index.ts";
-import { listHouseholdExchangeRates } from "../exchange-rates/find-household-pairs.ts";
 import {
   runServerWrite,
   type ServerWriteContext,
@@ -150,16 +148,7 @@ async function writeBatch(
     dependencies.db,
     dependencies.householdId,
     dependencies.now,
-    async (write) => {
-      const fx = createFxIndex(
-        await listHouseholdExchangeRates(
-          write.scope,
-          write.household.baseCurrency,
-        ),
-        write.household.baseCurrency,
-      );
-      return writeLabelledRows(write, batch, labels, fx);
-    },
+    (write) => writeLabelledRows(write, batch, labels),
   );
   return result;
 }

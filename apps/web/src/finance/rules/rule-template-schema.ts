@@ -4,7 +4,6 @@ import { wireFields } from "../sync/wire-fields.ts";
 /** What a Rule writes into each Transaction it produces. */
 export const ruleTemplateSchema = z.object({
   kind: z.enum(["expense", "income", "transfer"]),
-  amountMinor: wireFields.minorUnits,
   categoryId: wireFields.id.nullable().default(null),
   payeeId: wireFields.id.nullable().default(null),
   memberId: wireFields.id.nullable().default(null),

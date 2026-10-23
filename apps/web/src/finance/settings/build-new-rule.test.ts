@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { testAccount } from "../transactions/testing/create-test-replica.ts";
 import { buildNewRule, type NewRuleInput } from "./build-new-rule.ts";
 
@@ -13,11 +12,6 @@ const context = {
     ["savings", account("savings", "GBP")],
     ["us", account("us", "USD")],
   ]),
-  baseCurrency: "GBP",
-  fx: createFxIndex(
-    [{ base: "USD", quote: "GBP", on: "2026-01-01", rate: 0.8 }],
-    "GBP",
-  ),
 };
 
 const input: NewRuleInput = {
@@ -60,7 +54,6 @@ describe("buildNewRule", () => {
         paused: false,
         template: {
           kind: "expense",
-          amountMinor: -1099,
           categoryId: "fun",
           payeeId: "netflix",
           memberId: "alex",
@@ -86,18 +79,20 @@ describe("buildNewRule", () => {
     ).toMatchObject({ ok: true, args: { nextOn: "2026-10-23" } });
   });
 
-  it("counts a foreign-currency income in the base currency", () => {
+  it("keeps a foreign-currency income in its account's currency", () => {
     const result = buildNewRule(
       { ...input, kind: "income", accountId: "us", amountMinor: 10_000 },
       context,
     );
-    expect(result.ok && result.args.template).toMatchObject({
-      amountMinor: 8000,
-      entries: [{ accountId: "us", amountMinor: 10_000 }],
-    });
+    expect(result.ok && result.args.template).toEqual(
+      expect.objectContaining({
+        entries: [{ accountId: "us", amountMinor: 10_000 }],
+      }),
+    );
+    expect(result.ok && result.args.template).not.toHaveProperty("amountMinor");
   });
 
-  it("makes a weekly transfer with no category and no stats amount", () => {
+  it("makes a weekly transfer with no category", () => {
     const result = buildNewRule(
       {
         ...input,
@@ -115,7 +110,6 @@ describe("buildNewRule", () => {
       nextOn: "2026-10-23",
       template: {
         kind: "transfer",
-        amountMinor: 0,
         categoryId: null,
         entries: [
           { accountId: "current", amountMinor: -1099 },

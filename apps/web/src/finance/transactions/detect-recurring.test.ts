@@ -3,11 +3,21 @@ import { detectRecurring } from "./detect-recurring.ts";
 import { ruleFromTransaction } from "./rule-from-transaction.ts";
 import { testExpense } from "./testing/create-test-replica.ts";
 
-function row(id: string, date: string, amountMinor = -1_099) {
+const shownAmounts = new Map<
+  string,
+  { amountMinor: number; currency: string }
+>();
+const shownAmountOf = ({ id }: { id: string }) => {
+  const shown = shownAmounts.get(id);
+  if (!shown) throw new Error(`No amount for ${id}`);
+  return shown;
+};
+
+function row(id: string, date: string, amountMinor = -1_099, currency = "GBP") {
+  shownAmounts.set(id, { amountMinor, currency });
   return {
     id,
     date,
-    amountMinor,
     kind: "expense" as const,
     status: "posted" as const,
     deletedAt: null,
@@ -23,7 +33,7 @@ describe("detectRecurring", () => {
       row("t2", "2026-01-01"),
       row("t1", "2025-12-02"),
     ];
-    expect(detectRecurring(latest, history)).toEqual({
+    expect(detectRecurring(latest, history, shownAmountOf)).toEqual({
       unit: "month",
       interval: 1,
       dayOfMonth: 1,
@@ -35,43 +45,75 @@ describe("detectRecurring", () => {
   it("finds weekly and yearly patterns", () => {
     const weekly = row("w4", "2026-10-07");
     expect(
-      detectRecurring(weekly, [
-        row("w3", "2026-09-30"),
-        row("w2", "2026-09-22"),
-        row("w1", "2026-09-16"),
-      ]),
+      detectRecurring(
+        weekly,
+        [
+          row("w3", "2026-09-30"),
+          row("w2", "2026-09-22"),
+          row("w1", "2026-09-16"),
+        ],
+        shownAmountOf,
+      ),
     ).toMatchObject({ unit: "week", weekday: 3 });
     const yearly = row("y4", "2026-04-06", -16_500);
     expect(
-      detectRecurring(yearly, [
-        row("y3", "2025-04-04", -16_500),
-        row("y2", "2024-04-06", -16_000),
-        row("y1", "2023-04-10", -16_500),
-      ]),
+      detectRecurring(
+        yearly,
+        [
+          row("y3", "2025-04-04", -16_500),
+          row("y2", "2024-04-06", -16_000),
+          row("y1", "2023-04-10", -16_500),
+        ],
+        shownAmountOf,
+      ),
     ).toMatchObject({ unit: "year", dayOfMonth: 6, monthOfYear: 4 });
   });
 
   it("needs three earlier near-equal amounts and a steady gap", () => {
     const latest = row("t4", "2026-03-01");
     expect(
-      detectRecurring(latest, [
-        row("t3", "2026-02-01"),
-        row("t2", "2026-01-01"),
-      ]),
+      detectRecurring(
+        latest,
+        [row("t3", "2026-02-01"), row("t2", "2026-01-01")],
+        shownAmountOf,
+      ),
     ).toBeNull();
     expect(
-      detectRecurring(latest, [
-        row("t3", "2026-02-01", -2_000),
-        row("t2", "2026-01-01"),
-        row("t1", "2025-12-01"),
-      ]),
+      detectRecurring(
+        latest,
+        [
+          row("t3", "2026-02-01", -2_000),
+          row("t2", "2026-01-01"),
+          row("t1", "2025-12-01"),
+        ],
+        shownAmountOf,
+      ),
     ).toBeNull();
     expect(
-      detectRecurring(latest, [
-        row("t3", "2026-02-01"),
-        row("t2", "2026-01-12"),
-        row("t1", "2025-12-01"),
-      ]),
+      detectRecurring(
+        latest,
+        [
+          row("t3", "2026-02-01"),
+          row("t2", "2026-01-12"),
+          row("t1", "2025-12-01"),
+        ],
+        shownAmountOf,
+      ),
+    ).toBeNull();
+  });
+
+  it("compares amounts only in the same currency", () => {
+    const latest = row("c4", "2026-03-01");
+    expect(
+      detectRecurring(
+        latest,
+        [
+          row("c3", "2026-02-01", -1_099, "USD"),
+          row("c2", "2026-01-01"),
+          row("c1", "2025-12-02"),
+        ],
+        shownAmountOf,
+      ),
     ).toBeNull();
   });
 });
@@ -99,7 +141,6 @@ describe("ruleFromTransaction", () => {
       nextOn: "2026-10-28",
       template: {
         kind: "expense",
-        amountMinor: -1_099,
         entries: [{ accountId: "a", amountMinor: -1_099 }],
         tagIds: ["tag"],
       },

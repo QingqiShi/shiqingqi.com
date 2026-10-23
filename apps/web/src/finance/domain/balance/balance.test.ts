@@ -227,6 +227,12 @@ describe("createFxIndex", () => {
     expect(fx.toBase(500, "EUR", day("2026-02-01"))).toBe(500);
   });
 
+  it("counts a currency with no rate at par in major units", () => {
+    const noRates = createFxIndex([], "GBP");
+    expect(noRates.toBase(10_000, "JPY", day("2026-02-01"))).toBe(1_000_000);
+    expect(noRates.toBase(1_000, "KWD", day("2026-02-01"))).toBe(100);
+  });
+
   it("converts minor units across currency exponents", () => {
     expect(fx.toBase(10000, "CNY", day("2026-02-01"))).toBeCloseTo(1000, 9);
     expect(fx.toBase(1000, "JPY", day("2026-02-01"))).toBeCloseTo(500, 9);

@@ -19,10 +19,11 @@ import type {
   EntryRow,
   TransactionRow,
 } from "../sync/row-schemas.ts";
-import { transferLegs } from "./describe-transaction.ts";
+import { countedLine } from "./counted-line.ts";
 import { isInReview } from "./is-in-review.ts";
 import { reviewReason, type ReviewReason } from "./review-reason.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
+import { shownAmount } from "./shown-amount.ts";
 import { TransactionFace } from "./transaction-face.tsx";
 import { TransactionMetaLine } from "./transaction-meta-line.tsx";
 import { useDescribeTransaction } from "./use-describe-transaction.ts";
@@ -40,6 +41,8 @@ export interface TransactionRowActions {
 interface TransactionListRowProps {
   row: TransactionRow;
   entries: readonly EntryRow[];
+  /** What the Transaction adds to its day's totals; see `selectTransactionAmounts`. */
+  countedMinor: number;
   tagIds: readonly string[];
   lookups: TransactionLookups;
   baseCurrency: string;
@@ -74,6 +77,7 @@ function isPlainClick(event: MouseEvent) {
 export function TransactionListRow({
   row,
   entries,
+  countedMinor,
   tagIds,
   lookups,
   baseCurrency,
@@ -92,26 +96,58 @@ export function TransactionListRow({
     accountId: null,
   });
   const isTransfer = row.kind === "transfer";
-  const from = isTransfer ? transferLegs(entries).from : entries.at(0);
   const categoryName = useCategoryDisplayName();
 
-  const fromAccount = from
-    ? lookups.accountById.get(from.accountId)
-    : undefined;
+  const shown = shownAmount(row, entries, lookups.accountById, baseCurrency);
   const amount = isTransfer
-    ? formatMoney(
-        Math.abs(from?.amountMinor ?? 0),
-        fromAccount?.currency ?? baseCurrency,
-        locale,
-      )
-    : formatMoney(
-        from && fromAccount && fromAccount.currency !== baseCurrency
-          ? from.amountMinor
-          : row.amountMinor,
-        fromAccount?.currency ?? baseCurrency,
-        locale,
-        { signDisplay: "exceptZero" },
-      );
+    ? formatMoney(Math.abs(shown.amountMinor), shown.currency, locale)
+    : formatMoney(shown.amountMinor, shown.currency, locale, {
+        signDisplay: "exceptZero",
+      });
+  const counted = countedLine(
+    row,
+    entries,
+    countedMinor,
+    shown,
+    lookups.accountById,
+    baseCurrency,
+  );
+  const shareText = t({ en: "Your share {amount}", zh: "你的份额 {amount}" });
+  const incomeAfterRepaymentText = t({
+    en: "Income {amount} · after repayment",
+    zh: "收入 {amount} · 已扣除还款",
+  });
+  const countsText = t({ en: "Counts {amount}", zh: "计入 {amount}" });
+  const notCountedText =
+    row.kind === "income"
+      ? t({ en: "Repayment · not income", zh: "还款 · 不计收入" })
+      : t({ en: "Owed back · not spending", zh: "待收回 · 不计支出" });
+  const size = (amountMinor: number) =>
+    formatMoney(Math.abs(amountMinor), baseCurrency, locale);
+  const countedText = (() => {
+    switch (counted?.type) {
+      case undefined:
+        return undefined;
+      case "notCounted":
+        return notCountedText;
+      case "share":
+        return shareText.replace("{amount}", size(counted.amountMinor));
+      case "incomeAfterRepayment":
+        return incomeAfterRepaymentText.replace(
+          "{amount}",
+          size(counted.amountMinor),
+        );
+      case "counts":
+        return countsText.replace(
+          "{amount}",
+          formatMoney(counted.amountMinor, baseCurrency, locale, {
+            signDisplay: "exceptZero",
+          }),
+        );
+      case "converted":
+        return `≈ ${size(counted.amountMinor)}`;
+    }
+  })();
   const isExpected = row.status === "expected";
   const inReview = isInReview(row, entries, lookups.accountById, today);
   const showReviewBadge = inReview && !reviewMode;
@@ -142,6 +178,7 @@ export function TransactionListRow({
           amount={amount}
           amountMuted={isExpected}
           subtitle={subtitle}
+          trailing={countedText}
         >
           {reason === null ? null : <ReviewReasonCaption reason={reason} />}
           <TransactionMetaLine

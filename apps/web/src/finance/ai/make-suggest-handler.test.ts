@@ -105,7 +105,6 @@ describe("makeSuggestHandler", () => {
       householdId: home.householdId,
       kind: "expense",
       date: "2026-10-09",
-      amountMinor: -1200,
       categoryId: home.groceriesId,
       version: 0,
     });

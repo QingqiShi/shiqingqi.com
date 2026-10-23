@@ -61,8 +61,12 @@ An account's list of Entries and Valuations, newest first, each with the balance
 _Avoid_: flow (流水), statement, history
 
 **Transaction**:
-Something that happened — an expense, an income, or a transfer — with its amount in the base currency. ZH: 交易.
+Something that happened — an expense, an income, or a transfer. ZH: 交易.
 _Avoid_: flow (流水), record
+
+**Spending** and **Income**:
+What the Household spent and received, net of money owed back to it. ZH: 支出, 收入.
+_Avoid_: stats amount, outflow, inflow
 
 **Entry**:
 The movement one transaction makes on one account, signed, in that account's currency. A transfer has two: one negative, one positive. ZH: 账户变动.

@@ -1,6 +1,8 @@
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { reportSourceRepository } from "../db/repositories/report-source-repository.ts";
 import type { RepositoryScope } from "../db/repositories/types.ts";
+import { createFxIndex } from "../domain/balance/create-fx-index.ts";
+import { createTransactionAmount } from "../domain/transactions/create-transaction-amount.ts";
 import { listHouseholdExchangeRates } from "../exchange-rates/find-household-pairs.ts";
 import { isInReview } from "../transactions/is-in-review.ts";
 import type { ReportSource } from "./types.ts";
@@ -20,13 +22,14 @@ export async function loadReportSource(
   if (!household) throw new Error("Household not found");
   const [
     groups,
-    accounts,
+    everyAccount,
     balanceDays,
     exchangeRates,
     categories,
     payees,
     members,
     transactions,
+    amountEntries,
     inTransitEntries,
   ] = await Promise.all([
     reportSourceRepository.listGroups(scope),
@@ -40,8 +43,26 @@ export async function loadReportSource(
       from: range.transactionsFrom,
       to: range.to,
     }),
+    reportSourceRepository.listAmountEntries(scope, {
+      from: range.transactionsFrom,
+      to: range.to,
+    }),
     reportSourceRepository.listInTransitEntries(scope),
   ]);
+  const everyAccountById = new Map(
+    everyAccount.map((account) => [account.id, account]),
+  );
+  const accounts = everyAccount
+    .filter((account) => account.deletedAt === null)
+    .map(({ deletedAt: _deletedAt, ...account }) => account);
+  const amountOf = createTransactionAmount(
+    createFxIndex(exchangeRates, household.baseCurrency),
+    (accountId) => everyAccountById.get(accountId),
+  );
+  const entriesByTransaction = Map.groupBy(
+    amountEntries,
+    (entry) => entry.transactionId,
+  );
   const accountById = new Map(accounts.map((account) => [account.id, account]));
   const inTransitByTransaction = Map.groupBy(
     inTransitEntries,
@@ -58,6 +79,7 @@ export async function loadReportSource(
     members,
     transactions: transactions.map(({ id, needsReview, ...transaction }) => ({
       ...transaction,
+      amountMinor: amountOf(transaction, entriesByTransaction.get(id) ?? []),
       inReview: isInReview(
         { needsReview },
         inTransitByTransaction.get(id) ?? [],

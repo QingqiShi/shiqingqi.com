@@ -16,7 +16,6 @@ import {
   bankLinks,
   bankTransactions,
   entries,
-  monthTotals,
   payees,
   transactions,
 } from "../db/schema.ts";
@@ -278,7 +277,6 @@ describe("processBankRows", () => {
     const grocer = await transactionById(transactionIdOf(currentLinkId, "t1"));
     expect(grocer).toMatchObject({
       kind: "expense",
-      amountMinor: -1234,
       categoryId: home.groceriesId,
       payeeId: home.grocerId,
       memberId: home.partnerId,
@@ -379,7 +377,6 @@ describe("processBankRows", () => {
     const mortgage = transactionIdOf(currentLinkId, "m1");
     expect(await transactionById(mortgage)).toMatchObject({
       kind: "expense",
-      amountMinor: -150_000,
     });
     expect(await entriesOf(mortgage)).toEqual([
       { accountId: home.currentId, amountMinor: -150_000 },
@@ -388,7 +385,6 @@ describe("processBankRows", () => {
     const repaid = transactionIdOf(currentLinkId, "s1");
     expect(await transactionById(repaid)).toMatchObject({
       kind: "income",
-      amountMinor: 3_000,
     });
     expect(await entriesOf(repaid)).toEqual([
       { accountId: receivableId, amountMinor: -3_000 },
@@ -406,7 +402,6 @@ describe("processBankRows", () => {
     const transfer = transactionIdOf(currentLinkId, "c1");
     expect(await transactionById(transfer)).toMatchObject({
       kind: "transfer",
-      amountMinor: 0,
       categoryId: null,
     });
     expect(await entriesOf(transfer)).toEqual([
@@ -485,7 +480,6 @@ describe("processBankRows", () => {
       { accountId: home.currentId, amountMinor: -50_000 },
       { accountId: inTransit.id, amountMinor: 50_000 },
     ]);
-    expect(await db.select().from(monthTotals)).toEqual([]);
     const total = (values: number[]) => values.reduce((a, b) => a + b, 0);
     const middle = await balances([
       home.currentId,
@@ -664,7 +658,6 @@ describe("processBankRows", () => {
         id: manualId,
         kind: "expense",
         date: "2026-10-04",
-        amountMinor: -900,
         categoryId: home.groceriesId,
         entries: [
           { id: randomUUID(), accountId: home.currentId, amountMinor: -900 },

@@ -56,7 +56,6 @@ function expense(id: string, date: string, amountMinor: number) {
     id,
     kind: "expense",
     date,
-    amountMinor,
     categoryId: home.groceriesId,
     entries: [{ id: randomUUID(), accountId: home.currentId, amountMinor }],
   });
@@ -83,10 +82,7 @@ async function repair(onDrift?: (drift: BalanceDrift) => Promise<void>) {
 /** How many rows a full rebuild changes: 0 when every stored balance is right. */
 async function fullRebuild() {
   const written = await withHousehold(db, home.householdId, (scope) =>
-    recomputeDerived(
-      { ...scope, version: 1_000_000 },
-      { accounts: "all", months: new Set() },
-    ),
+    recomputeDerived({ ...scope, version: 1_000_000 }, { accounts: "all" }),
   );
   return written.balanceDays;
 }
@@ -149,7 +145,6 @@ describe("repairBalanceDays", () => {
       mutation("updateTransaction", {
         id: EXPENSES.third,
         patch: {
-          amountMinor: -3_500,
           entries: [
             {
               id: randomUUID(),

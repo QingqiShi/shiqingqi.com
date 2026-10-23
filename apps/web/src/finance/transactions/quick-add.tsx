@@ -163,7 +163,6 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
       accountById: data.lookups.accountById,
       payees: data.payees,
       baseCurrency: data.baseCurrency,
-      fx: data.fx,
       createId: () => crypto.randomUUID(),
     });
     if (!result.ok) {

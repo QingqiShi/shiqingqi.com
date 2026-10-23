@@ -10,7 +10,6 @@ export function occurrenceFromTemplate(
 ) {
   return {
     kind: template.kind,
-    amountMinor: template.amountMinor,
     categoryId: template.categoryId,
     payeeId: template.payeeId,
     memberId: template.memberId,

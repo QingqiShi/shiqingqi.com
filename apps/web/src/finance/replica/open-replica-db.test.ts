@@ -82,7 +82,7 @@ describe("openReplicaDb", () => {
     reopened.close();
   });
 
-  it("opens a database that an older version made, keeps its Outbox, and reads its old rates as exchange rates", async () => {
+  it("opens a database that an older version made, keeps its Outbox, reads its old rates as exchange rates, and clears its month totals", async () => {
     const id = randomUUID();
     const oldStores = [
       "members",
@@ -129,10 +129,13 @@ describe("openReplicaDb", () => {
     });
     await new Promise<void>((resolve, reject) => {
       const transaction = old.transaction(
-        ["fxRates", "meta", "outbox"],
+        ["fxRates", "meta", "outbox", "monthTotals"],
         "readwrite",
       );
       transaction.objectStore("fxRates").put(oldRate, "USD|GBP|2026-09-01");
+      transaction
+        .objectStore("monthTotals")
+        .put({ month: "2026-09-01", spentMinor: -100 }, "2026-09-01");
       transaction.objectStore("meta").put({ ...meta, householdId: id }, "meta");
       transaction.objectStore("outbox").put(entry);
       transaction.oncomplete = () => {
@@ -172,6 +175,30 @@ describe("openReplicaDb", () => {
     expect([...replaced.exchangeRates.values()]).toEqual([rate]);
     expect(replaced.outbox).toEqual([entry]);
     db.close();
+
+    const reread = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(replicaDbName(id), 1);
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      request.onerror = () => {
+        reject(request.error ?? new Error("open failed"));
+      };
+    });
+    const monthTotals = await new Promise<number>((resolve, reject) => {
+      const request = reread
+        .transaction("monthTotals", "readonly")
+        .objectStore("monthTotals")
+        .count();
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      request.onerror = () => {
+        reject(request.error ?? new Error("count failed"));
+      };
+    });
+    expect(monthTotals).toBe(0);
+    reread.close();
   });
 
   it("makes the exchange rate store in a new database and adds rates to it", async () => {

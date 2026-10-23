@@ -26,6 +26,7 @@ export function draftOfTransaction(
   const row = data.transactionsTable.get(transactionId);
   if (!row) return null;
   const entries = data.entriesByTransaction.get(row.id) ?? [];
+  const { main, paysDown } = splitEntries(entries);
   const payee =
     row.payeeId === null ? undefined : data.lookups.payeeById.get(row.payeeId);
   const fields = {
@@ -35,7 +36,7 @@ export function draftOfTransaction(
     memberId: row.memberId,
     tagIds: data.tagIdsByTransaction.get(row.id) ?? [],
     note: row.note,
-    refund: row.kind === "expense" && row.amountMinor > 0,
+    refund: row.kind === "expense" && (main?.amountMinor ?? 0) > 0,
     refundOfId: row.refundOfId,
   };
   if (row.kind === "transfer") {
@@ -53,15 +54,13 @@ export function draftOfTransaction(
       toAccountId: to?.accountId ?? null,
     });
   }
-  const { main, paysDown } = splitEntries(entries);
   const accountId = main?.accountId ?? null;
   const paysDownAccountId = paysDown?.accountId ?? null;
   return editorDraft(row.kind, row.date, {
     ...fields,
-    amountText: decimal(
-      main?.amountMinor ?? row.amountMinor,
-      currencyOf(data, accountId),
-    ),
+    amountText: main
+      ? decimal(main.amountMinor, currencyOf(data, accountId))
+      : "",
     accountId,
     paysDownAccountId,
     paysDownAmountText: paysDown

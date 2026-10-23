@@ -89,8 +89,6 @@ export function InstalmentPanel({
       rule: (itemName || instalmentsWord).slice(0, 200),
       group: t({ en: "Loans", zh: "贷款" }),
     },
-    baseCurrency: data.baseCurrency,
-    fx: data.fx,
     createId: () => crypto.randomUUID(),
   });
 

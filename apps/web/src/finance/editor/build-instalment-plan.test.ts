@@ -7,7 +7,6 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
-import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { materialiseRules } from "../rules/materialise-rules.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
@@ -38,7 +37,6 @@ beforeEach(async () => {
     kind: "expense",
     status: "posted",
     date: "2026-10-10",
-    amountMinor: -120_000,
     categoryId: home.groceriesId,
     payeeId: home.grocerId,
     memberId: home.memberId,
@@ -121,8 +119,6 @@ function plan(overrides: Partial<InstalmentPlanInput> = {}) {
       rule: "Television",
       group: "Loans",
     },
-    baseCurrency: "GBP",
-    fx: createFxIndex([], "GBP"),
     createId: randomUUID,
     ...overrides,
   });
@@ -233,8 +229,6 @@ describe("buildInstalmentPlan", () => {
         accounts: [],
         groups: [],
         names: { account: "", rule: "", group: "" },
-        baseCurrency: "GBP",
-        fx: createFxIndex([], "GBP"),
         createId: randomUUID,
       }),
     ).toBeNull();

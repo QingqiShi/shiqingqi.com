@@ -41,7 +41,6 @@ function groceriesExpense(id = randomUUID()) {
     id,
     kind: "expense",
     date: "2026-10-09",
-    amountMinor: -1250,
     categoryId: home.groceriesId,
     payeeId: home.grocerId,
     memberId: home.memberId,

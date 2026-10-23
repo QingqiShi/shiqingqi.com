@@ -9,8 +9,6 @@ import { categoryRepository } from "../db/repositories/category-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import { payeeRepository } from "../db/repositories/payee-repository.ts";
 import { withSavepoint } from "../db/with-household.ts";
-import type { FxIndex } from "../domain/balance/create-fx-index.ts";
-import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type { TransactionInput } from "../sync/mutation-schema.ts";
@@ -84,22 +82,10 @@ async function resolvePayee(
 
 interface Writer {
   context: ServerWriteContext;
-  fx: FxIndex;
   /** The rows of the batch by ref, to find the other side of a pair. */
   byRef: Map<string, BatchRow>;
   /** Rows written or matched in this batch. */
   done: Set<string>;
-}
-
-function statsAmount(
-  writer: Writer,
-  amountMinor: number,
-  currency: string,
-  date: string,
-) {
-  return currency === writer.fx.baseCurrency
-    ? amountMinor
-    : Math.round(writer.fx.toBase(amountMinor, currency, toEpochDay(date)));
 }
 
 async function fallbackInput(
@@ -119,7 +105,6 @@ async function fallbackInput(
     kind,
     status: "posted",
     date: row.date,
-    amountMinor: statsAmount(writer, amountMinor, link.currency, row.date),
     categoryId,
     payeeId: null,
     memberId: await memberRepository.activeIdOrNull(
@@ -248,7 +233,6 @@ async function labelledInput(
       input: {
         ...common,
         kind: "transfer",
-        amountMinor: 0,
         categoryId: null,
         payeeId: null,
         needsReview: label.needsReview || other.needsReview,
@@ -269,7 +253,6 @@ async function labelledInput(
     input: {
       ...common,
       kind: label.kind,
-      amountMinor: statsAmount(writer, amountMinor, link.currency, row.date),
       categoryId: label.categoryId,
       payeeId: await resolvePayee(context, label.payee),
       needsReview: label.needsReview,
@@ -331,7 +314,6 @@ export async function writeLabelledRows(
   context: ServerWriteContext,
   batch: readonly BatchRow[],
   labels: Map<string, LabelResult> | null,
-  fx: FxIndex,
 ): Promise<WriteOutcome> {
   const outcome: WriteOutcome = {
     createdByAccount: new Map(),
@@ -348,7 +330,6 @@ export async function writeLabelledRows(
   );
   const writer: Writer = {
     context,
-    fx,
     byRef: new Map(batch.map((item) => [item.ref, item])),
     done: new Set(),
   };

@@ -30,7 +30,6 @@ export function unconfirmMutations({
         kind: transaction.kind,
         status: "expected",
         date: transaction.date,
-        amountMinor: transaction.amountMinor,
         categoryId: transaction.categoryId,
         payeeId: transaction.payeeId,
         memberId: transaction.memberId,

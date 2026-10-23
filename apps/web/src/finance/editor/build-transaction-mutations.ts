@@ -1,5 +1,3 @@
-import type { FxIndex } from "../domain/balance/create-fx-index.ts";
-import { toEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { sameSet } from "../domain/same-set.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
@@ -31,7 +29,6 @@ export interface BuildMutationsContext {
   /** Live Payees, to reuse one whose name the person typed again. */
   payees: readonly Pick<PayeeRow, "id" | "name">[];
   baseCurrency: string;
-  fx: FxIndex;
   createId: () => string;
 }
 
@@ -97,7 +94,7 @@ function readDraft(draft: EditorDraft, context: BuildMutationsContext) {
     ];
     return {
       ok: true as const,
-      fields: { amountMinor: 0, categoryId: null, refundOfId: null },
+      fields: { categoryId: null, refundOfId: null },
       entries,
     };
   }
@@ -133,7 +130,6 @@ function readDraft(draft: EditorDraft, context: BuildMutationsContext) {
   }
   const signed = direction * amount.minor;
 
-  const day = toEpochDay(draft.date);
   const entries: EntryDraft[] = [
     { accountId: draft.accountId ?? "", amountMinor: signed },
   ];
@@ -146,10 +142,6 @@ function readDraft(draft: EditorDraft, context: BuildMutationsContext) {
   return {
     ok: true as const,
     fields: {
-      amountMinor:
-        currency === context.baseCurrency
-          ? signed
-          : Math.round(context.fx.toBase(signed, currency, day)),
       categoryId: draft.categoryId,
       refundOfId:
         draft.kind === "expense" && draft.refund ? draft.refundOfId : null,
@@ -161,7 +153,6 @@ function readDraft(draft: EditorDraft, context: BuildMutationsContext) {
 const SCALAR_FIELDS = [
   "kind",
   "date",
-  "amountMinor",
   "categoryId",
   "payeeId",
   "memberId",
@@ -169,10 +160,6 @@ const SCALAR_FIELDS = [
   "note",
   "needsReview",
 ] as const;
-
-function sameEntry(a: EntryDraft, b: EntryDraft) {
-  return a.accountId === b.accountId && a.amountMinor === b.amountMinor;
-}
 
 /**
  * The Entries the Transaction has after the save. An Entry keeps its id. For
@@ -264,8 +251,7 @@ function reverseOf(
  * The sign of the amount follows the kind: an expense is negative, a refund
  * and an income positive, and a transfer moves the amount out of one account
  * and into the other. A pays-down Entry moves against the main one. An edit
- * keeps the Entries the editor does not show, and keeps the stats amount
- * while the main Entry and the date stay the same.
+ * keeps the Entries the editor does not show.
  */
 export function buildTransactionMutations(
   draft: EditorDraft,
@@ -328,17 +314,6 @@ export function buildTransactionMutations(
   }
 
   const { existing } = target;
-  const mainBefore = splitEntries(target.entries).main;
-  const mainAfter = read.entries[0];
-  if (
-    draft.kind !== "transfer" &&
-    existing.kind === draft.kind &&
-    existing.date === draft.date &&
-    mainBefore !== undefined &&
-    sameEntry(mainBefore, mainAfter)
-  ) {
-    next.amountMinor = existing.amountMinor;
-  }
   const patch = patchOf(
     existing,
     target.entries,

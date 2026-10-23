@@ -50,7 +50,6 @@ export function editRuleTemplate(
     ok: true,
     template: {
       ...template,
-      amountMinor: money.amountMinor,
       entries: money.entries,
       payeeId: edit.payeeId,
       categoryId: money.categoryId,
