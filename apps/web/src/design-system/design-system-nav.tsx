@@ -1,16 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { NavGroup } from "@tuja/ui/components/nav-group";
+import { NavLink } from "@tuja/ui/components/nav-link";
+import { NavList } from "@tuja/ui/components/nav-list";
 import { usePathname } from "next/navigation";
-import { useId } from "react";
+import { Fragment } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
@@ -40,86 +35,50 @@ export function DesignSystemNav({
   const locale = useLocale();
   const current = normalizePath(usePathname());
   const sections = getDesignSystemRouteSections();
-  const labelId = useId();
 
   const { sections: sectionLabels, categories: categoryLabels } = groupLabels;
 
+  const links = (paths: readonly DesignSystemPath[]) =>
+    paths.map((path) => (
+      <NavLink
+        key={path}
+        href={getLocalePath(path, locale)}
+        current={current === path}
+      >
+        {routeLabels[path]}
+      </NavLink>
+    ));
+
   return (
     <nav
-      css={[stack.section, styles.nav]}
+      css={styles.nav}
       aria-label={ariaLabel ?? t({ en: "Design system", zh: "设计系统" })}
     >
       {/* Two levels: what kind of thing a link is, then what job it does. Each
           is a labelled `role="group"` rather than a heading, so the structure
           reaches assistive tech without adding a second outline beside the
           page's own headings. */}
-      {sections.map((section) => {
-        const heading = sectionLabels[section.section];
-        const sectionLabelId = `${labelId}-${section.section}`;
-        return (
-          <div
+      <NavList linkComponent={Link}>
+        {sections.map((section) => (
+          <NavGroup
             key={section.section}
-            css={stack.item}
-            role={heading === null ? undefined : "group"}
-            aria-labelledby={heading === null ? undefined : sectionLabelId}
+            label={sectionLabels[section.section]}
           >
-            {heading !== null && (
-              <span
-                id={sectionLabelId}
-                css={[typeRole.overline, styles.sectionLabel]}
-              >
-                {heading}
-              </span>
+            {section.groups.map((group) =>
+              group.category === undefined ? (
+                <Fragment key={section.section}>{links(group.paths)}</Fragment>
+              ) : (
+                <NavGroup
+                  key={group.category}
+                  label={categoryLabels[group.category]}
+                >
+                  {links(group.paths)}
+                </NavGroup>
+              ),
             )}
-            <div css={stack.group}>
-              {section.groups.map((group) => {
-                const category = group.category;
-                const categoryLabelId =
-                  category === undefined ? undefined : `${labelId}-${category}`;
-                return (
-                  <div
-                    key={category ?? section.section}
-                    css={stack.tight}
-                    role={category === undefined ? undefined : "group"}
-                    aria-labelledby={categoryLabelId}
-                  >
-                    {category !== undefined && (
-                      <span
-                        id={categoryLabelId}
-                        css={[typeRole.caption, styles.categoryLabel]}
-                      >
-                        {categoryLabels[category]}
-                      </span>
-                    )}
-                    {group.paths.map((path) => {
-                      const active = current === path;
-                      return (
-                        <Link
-                          key={path}
-                          href={getLocalePath(path, locale)}
-                          aria-current={active ? "page" : undefined}
-                          // Inset ring: the rail scrolls the nav through a container
-                          // that clips inline overflow, which would crop an outward one.
-                          {...stylex.props(
-                            typeRole.label,
-                            transition.colors,
-                            corner.radius_round,
-                            styles.link,
-                            selected.quiet,
-                            a11y.focusRingInset,
-                          )}
-                        >
-                          {routeLabels[path]}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })}
+          </NavGroup>
+        ))}
+      </NavList>
     </nav>
   );
 }
@@ -130,33 +89,5 @@ const styles = stylex.create({
   nav: {
     minInlineSize: 0,
     maxInlineSize: "100%",
-  },
-  // The two labels carry the whole hierarchy, so they differ on every axis a
-  // small label has: the section is uppercase, tracked out and full-strength;
-  // the category is sentence case, untracked and subtle. Links stay flush with
-  // both rather than indenting under the category — indentation would only
-  // separate the component links from the foundation ones, which sit at the
-  // same rank.
-  sectionLabel: {
-    display: "block",
-    paddingInline: space._3,
-    color: color.fg,
-  },
-  categoryLabel: {
-    display: "block",
-    paddingInline: space._3,
-    fontWeight: font.weight_6,
-    color: color.fgMuted,
-  },
-  link: {
-    flexShrink: 0,
-    paddingBlock: space._1,
-    paddingInline: space._3,
-    color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
-    textDecoration: "none",
-    whiteSpace: "nowrap",
   },
 });

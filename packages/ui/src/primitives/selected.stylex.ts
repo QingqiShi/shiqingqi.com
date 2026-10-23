@@ -2,6 +2,8 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../tokens.stylex.ts";
 
+// StyleX cannot read a selector from another module. Keep this the same as
+// `selectedSelector` in selected-selector.ts.
 const SELECTED =
   ":is([aria-pressed=true], [aria-checked=true], [aria-selected=true], [aria-current]:not([aria-current=false], [aria-current='']))";
 

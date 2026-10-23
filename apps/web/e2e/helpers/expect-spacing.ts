@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test";
+import { selectedSelector } from "@tuja/ui/primitives/selected-selector";
 import { measureSpacing } from "./measure-spacing.ts";
 
 /**
@@ -6,11 +7,14 @@ import { measureSpacing } from "./measure-spacing.ts";
  */
 export async function expectSpacing(page: Page, root: string[]) {
   await page.evaluate(() => document.fonts.ready);
-  const report = await page.evaluate(measureSpacing, root);
+  const report = await page.evaluate(measureSpacing, {
+    roots: root,
+    selected: selectedSelector,
+  });
   expect
     .soft(
       report.headings,
-      "Each h2 and h3 has at least twice the space above it as below it",
+      "Each h2, h3 and group label has at least twice the space above it as below it",
     )
     .toEqual([]);
   expect.soft(report.stacks, "No two blocks in a stack touch").toEqual([]);
@@ -22,5 +26,8 @@ export async function expectSpacing(page: Page, root: string[]) {
       report.texts,
       "Lines of text in one item take no gap, and a heading at h2 size or larger takes rhythm.tight",
     )
+    .toEqual([]);
+  expect
+    .soft(report.paddedRows, "Rows that pad themselves take no gap")
     .toEqual([]);
 }

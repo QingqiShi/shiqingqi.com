@@ -37,7 +37,7 @@ export function ReportRankedList({
         )}
         {aside}
       </div>
-      <ol aria-labelledby={titleId} css={[stack.tight, styles.list]}>
+      <ol aria-labelledby={titleId} css={stack.rows}>
         {children}
       </ol>
     </div>
@@ -56,10 +56,5 @@ const styles = stylex.create({
   title: {
     margin: 0,
     color: color.fgMuted,
-  },
-  list: {
-    margin: 0,
-    padding: 0,
-    listStyle: "none",
   },
 });

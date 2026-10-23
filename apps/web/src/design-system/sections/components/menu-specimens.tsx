@@ -272,7 +272,6 @@ const styles = stylex.create({
     minBlockSize: { default: "16rem", [breakpoints.md]: "13.25rem" },
   },
   menu: {
-    gap: controlSize._1,
     padding: controlSize._1,
     inlineSize: space._13,
   },

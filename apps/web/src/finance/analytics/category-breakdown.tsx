@@ -213,7 +213,7 @@ export function CategoryBreakdown({
               zh: "按回车查看交易。",
             })}
           />
-          <ul css={[stack.tight, plainList.list]}>
+          <ul css={[stack.rows, plainList.list]}>
             {view.rows.map((item) => {
               const change =
                 item.previous === null || item.previous === 0

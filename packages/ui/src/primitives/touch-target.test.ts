@@ -16,8 +16,10 @@ describe("touch target copies", () => {
   it.each([
     ["primitives/reset.stylex.ts", "buttonReset", "base", 8],
     ["actions/chip.stylex.ts", "chipSurface", "interactive", 8],
-    // A card takes the tap highlight and `touch-action`, but no hit area.
+    // A card and a row take the tap highlight and `touch-action`, but no
+    // hit area.
     ["surfaces/card.stylex.ts", "cardSurface", "interactive", 2],
+    ["primitives/a11y.stylex.ts", "a11y", "touchRow", 2],
   ])(
     "%s %s.%s carries %i touch target declarations unchanged",
     (file, namespace, style, count) => {

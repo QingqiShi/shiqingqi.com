@@ -27,8 +27,8 @@ export function ListShowcase() {
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Do not use it for a long feed such as a list of transactions, which needs its own density and grouping, for a navigation rail, or for a menu. Those are other components.",
-            zh: "不要把它用于长信息流（例如交易列表，它需要自己的密度与分组）、导航栏或菜单。这些属于其他组件。",
+            en: "Do not use it for a long feed such as a list of transactions, which needs its own density and grouping, or for a menu. Those are other components. A navigation rail is a Nav list.",
+            zh: "不要把它用于长信息流（例如交易列表，它需要自己的密度与分组）或菜单。这些属于其他组件。导航栏请使用导航列表（NavList）。",
           })}
         </Text>
       </Showcase>

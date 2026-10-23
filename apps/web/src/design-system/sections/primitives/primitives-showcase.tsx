@@ -905,6 +905,14 @@ function A11ySection() {
         zh: "在触摸屏上，控件能在至少 44px 的范围内响应点按，且外观不变（WCAG 2.5.8）。buttonReset.base 与 chipSurface.interactive 已经带有它。裁切溢出内容的祖先元素也会裁切点按区域。",
       }),
     },
+    {
+      token: "a11y.touchRow",
+      meta: "min-block-size 44px · (pointer: coarse) · no tap flash",
+      description: t({
+        en: "The touch target for a control that abuts its neighbours, such as a nav link in a list of rows. A hit area past its box would cover the next row, so on a touch screen the control itself grows to at least 44px tall.",
+        zh: "用于与相邻控件紧挨着的控件的触摸目标，例如一列行中的导航链接。超出其边框的点按区域会盖住下一行，所以在触摸屏上控件本身会增高到至少 44px。",
+      }),
+    },
   ];
 
   return (

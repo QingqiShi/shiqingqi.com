@@ -65,9 +65,11 @@ export function AnalyticsSkeleton() {
             </div>
             <div css={stack.item}>
               <Skeleton width="7rem" height="1.3rem" />
-              {Array.from({ length: RANKED_ROWS }, (_, index) => (
-                <Skeleton key={index} width="100%" height="2.25rem" />
-              ))}
+              <div css={stack.tight}>
+                {Array.from({ length: RANKED_ROWS }, (_, index) => (
+                  <Skeleton key={index} width="100%" height="2.25rem" />
+                ))}
+              </div>
             </div>
           </div>
         </div>

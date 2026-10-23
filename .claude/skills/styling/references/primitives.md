@@ -76,19 +76,20 @@ import { flex, align, justify, grow } from "@tuja/ui/primitives/flex.stylex";
 
 A container that owns the space between its children at one `rhythm` step. Prefer it to `flex.col` / `flex.wrap` / `flex.row` plus a local gap; compose a modifier after it (`[stack.tight, align.center]`) for the one property that differs.
 
-| Export           | Properties                                                  |
-| ---------------- | ----------------------------------------------------------- |
-| `stack.text`     | flex column, no gap: lines of text in one item              |
-| `stack.tight`    | flex column + gap: `rhythm.tight`                           |
-| `stack.item`     | flex column + gap: `rhythm.item`                            |
-| `stack.group`    | flex column + gap: `rhythm.group`                           |
-| `stack.section`  | flex column + gap: `rhythm.section`                         |
-| `cluster.inline` | flex row + wrap + alignItems: center + gap: `rhythm.inline` |
-| `cluster.tight`  | flex row + wrap + alignItems: center + gap: `rhythm.tight`  |
-| `cluster.item`   | flex row + wrap + alignItems: center + gap: `rhythm.item`   |
-| `row.inline`     | flex row + alignItems: center + gap: `rhythm.inline`        |
-| `row.tight`      | flex row + alignItems: center + gap: `rhythm.tight`         |
-| `row.item`       | flex row + alignItems: center + gap: `rhythm.item`          |
+| Export           | Properties                                                            |
+| ---------------- | --------------------------------------------------------------------- |
+| `stack.text`     | flex column, no gap: lines of text in one item                        |
+| `stack.rows`     | flex column, no gap, list reset: rows that pad themselves (nav links) |
+| `stack.tight`    | flex column + gap: `rhythm.tight`                                     |
+| `stack.item`     | flex column + gap: `rhythm.item`                                      |
+| `stack.group`    | flex column + gap: `rhythm.group`                                     |
+| `stack.section`  | flex column + gap: `rhythm.section`                                   |
+| `cluster.inline` | flex row + wrap + alignItems: center + gap: `rhythm.inline`           |
+| `cluster.tight`  | flex row + wrap + alignItems: center + gap: `rhythm.tight`            |
+| `cluster.item`   | flex row + wrap + alignItems: center + gap: `rhythm.item`             |
+| `row.inline`     | flex row + alignItems: center + gap: `rhythm.inline`                  |
+| `row.tight`      | flex row + alignItems: center + gap: `rhythm.tight`                   |
+| `row.item`       | flex row + alignItems: center + gap: `rhythm.item`                    |
 
 `cluster.*` and `row.*` set `flexDirection: row`, so they win over a stack they are composed after. `Card` is a `stack.item`.
 
@@ -359,11 +360,13 @@ const styles = stylex.create({
 
 **Import**: `@tuja/ui/primitives/a11y.stylex`
 
-| Export                | Properties                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------------ |
-| `a11y.srOnly`         | Visually hidden, still announced — the canonical "visually hidden" clip recipe             |
-| `a11y.focusRing`      | Keyboard focus ring, outward, on `:focus-visible`                                          |
-| `a11y.focusRingInset` | Same ring pulled inside the box, for an ancestor (e.g. a rounded card) that clips overflow |
+| Export                | Properties                                                                                                                 |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `a11y.srOnly`         | Visually hidden, still announced — the canonical "visually hidden" clip recipe                                             |
+| `a11y.focusRing`      | Keyboard focus ring, outward, on `:focus-visible`                                                                          |
+| `a11y.focusRingInset` | Same ring pulled inside the box, for an ancestor (e.g. a rounded card) that clips overflow                                 |
+| `a11y.touchTarget`    | No tap flash, `touch-action: manipulation`, and a 44px `::after` hit area under a coarse pointer                           |
+| `a11y.touchRow`       | The touch feel of `touchTarget`, and a 44px min block size under a coarse pointer, for a control that abuts its neighbours |
 
 ### Example
 
@@ -384,6 +387,8 @@ Every control takes a tap across at least 44px under a coarse pointer, without c
 - An ancestor that clips overflow also clips the hit area. Give a control inside one 44px of its own under `pointer.coarse`, or move the clip to an inner element.
 - A small control closer to a field or another control than its hit area extends covers it and takes its taps. Make the gap larger under `pointer.coarse`.
 - Controls that touch, such as the options of `SegmentedControl`, cannot share the gap. Each one needs 44px of its own under `pointer.coarse`.
+
+A control that abuts its neighbours, such as a nav link in a list of rows, takes `a11y.touchRow` instead: the same touch feel, with no hit area past its box, and the control itself grows to at least 44px tall under a coarse pointer. `NavLink` carries it.
 
 ---
 

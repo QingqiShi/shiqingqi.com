@@ -103,6 +103,10 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "An app's top-level destinations in a pill of Glass, one tap or one drag apart.",
       zh: "把应用的顶层目标页收进一枚玻璃胶囊，轻触或拖动即可切换。",
     }),
+    "/design-system/components/nav-list": t({
+      en: "The links between the pages of one place, in one column, with optional labelled groups.",
+      zh: "同一处各页面之间的链接，排成一列，可分成带标签的组。",
+    }),
     "/design-system/components/badge": t({
       en: "Compact status and label indicators in the six Intents plus a default.",
       zh: "六种意图色加默认样式的紧凑状态与标签指示器。",
