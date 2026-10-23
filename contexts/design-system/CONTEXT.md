@@ -90,3 +90,19 @@ _Avoid_: glow, halo, shimmer, border animation, 光晕, 流光
 **Toast**:
 A short message about what an action did, on a capsule of Glass at the bottom of the screen, with up to two actions such as Undo. One shows at a time, and it goes by itself. `ToastProvider` shows it, `useToast` asks for it, and `Toast` is its surface. ZH: 轻提示.
 _Avoid_: snackbar, notification, flash message, banner (that is a Callout), 通知, 消息条
+
+**Tab view**:
+The frame of an app with a few top-level destinations, declared once: a narrow rail of them, each an icon over a small label, where the view is `md` wide or wider, and a floating Tab bar where it is narrower. `TabView` is the component. It holds the destinations, not the screens under them. ZH: 标签视图.
+_Avoid_: tab bar (that is the floating pill alone), sidebar layout (that is the wide text sidebar of the doc pages), nav rail, app shell, 底部导航
+
+**Navigation split view**:
+Up to three columns side by side, each with its own scroll: a sidebar, the content, and the detail of what is picked. It fits the columns to the width it gets: while the detail shows beside the content, the sidebar folds to the Collapsed sidebar. On a phone it is stacked: the content fills the view, and the detail opens in a sheet over it. What is picked comes from its consumer, normally the URL. `NavigationSplitView` is the component. ZH: 导航分栏视图.
+_Avoid_: master–detail, list–detail, split pane, columns layout, 主从布局
+
+**Collapsed sidebar**:
+The narrow form of a Navigation split view's sidebar, such as a strip of logos, which shows while the detail shows beside the content, and where the full sidebar does not fit. It is the same column as the sidebar, not a fourth one. ZH: 收起侧栏.
+_Avoid_: mini sidebar, icon rail, compact sidebar, 迷你侧栏
+
+**Column link**:
+A link in a column of a Navigation split view that opens or changes the column after it, such as a row of a list. A Column link that opens a deeper column adds a history entry, and one that changes a column already open replaces it. J and K move between the Column links of a column. `SplitViewLink` is the component. ZH: 栏内链接.
+_Avoid_: row link, drill link, nav link

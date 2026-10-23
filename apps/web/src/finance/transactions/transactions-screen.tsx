@@ -6,6 +6,7 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
+import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -14,8 +15,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { typeModifier } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -33,7 +34,8 @@ import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { MasterDetailColumns } from "../shell/master-detail-columns.tsx";
+import { ColumnLink, useColumnReplace } from "../shell/column-link.tsx";
+import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoToast } from "../shell/use-undo-toast.ts";
@@ -70,8 +72,10 @@ function focusRow(id: string) {
 
 /**
  * The Transactions screen: quick add, search and filters over a virtualised
- * day-grouped list, and the editor beside it at `lg` and wider or in a sheet
- * below. Every filter and the selection live in the URL.
+ * day-grouped list, and the open Transaction (`?id=`) in the column after
+ * it, which covers the list where the two do not fit side by side. A new
+ * Transaction (`?new=`) is a task, so it opens in a sheet. Every filter and
+ * the selection live in the URL.
  */
 export function TransactionsScreen() {
   const locale = useLocale();
@@ -80,6 +84,7 @@ export function TransactionsScreen() {
   const showUndoToast = useUndoToast();
   const isWide = useIsWideLayout();
   const teach = useTeachAi();
+  const replace = useColumnReplace();
 
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const rows = useReplica(selectTransactionsByDateDesc);
@@ -271,7 +276,7 @@ export function TransactionsScreen() {
         focusRow(row.id);
       },
     });
-    if (isWide && url.isOpen) url.open(row.id);
+    if (url.selectedId !== null) url.open(row.id);
   };
 
   const target = () => {
@@ -335,7 +340,7 @@ export function TransactionsScreen() {
   };
 
   const editorKey = `${url.selectedId ?? `new-${url.newKind ?? ""}-${url.refundOfId ?? ""}`}-${String(seed?.nonce ?? 0)}`;
-  const editor =
+  const editorFor = (showClose: boolean) =>
     url.isOpen && bootstrapped ? (
       <TransactionEditor
         key={editorKey}
@@ -353,7 +358,7 @@ export function TransactionsScreen() {
             : undefined)
         }
         focusTargetRef={focusTargetRef}
-        showClose={isWide}
+        showClose={showClose}
         onClose={closePane}
         onSaved={(_, andNew) => {
           if (!andNew) closePane();
@@ -372,7 +377,7 @@ export function TransactionsScreen() {
 
   const listLabel = t({ en: "Transactions by day", zh: "按日分组的交易" });
   const master = (
-    <div css={stack.group}>
+    <div css={[stack.group, styles.master]}>
       <header css={stack.item}>
         <div css={[flex.between, styles.titleRow]}>
           <div css={stack.text}>
@@ -509,79 +514,49 @@ export function TransactionsScreen() {
     </div>
   );
 
-  const detailLabel = t({ en: "Transaction", zh: "交易" });
-  if (isWide) {
-    return (
-      <>
-        <MasterDetailColumns
-          master={master}
-          detailLabel={detailLabel}
-          css={styles.columns}
-          paneScrollerCss={styles.paneScroller}
-        >
-          {editor ?? <EmptyPane />}
-        </MasterDetailColumns>
-        {teach.sheet}
-      </>
-    );
-  }
   return (
     <>
-      <div css={styles.master}>{master}</div>
+      <NavigationSplitView
+        linkComponent={ColumnLink}
+        replace={replace}
+        closeLabel={t({ en: "Close", zh: "关闭" })}
+        content={{
+          label: t({ en: "Transactions", zh: "交易" }),
+          accessory: <FinanceAddButton />,
+          node: master,
+        }}
+        detail={
+          url.selectedId !== null
+            ? {
+                label: t({ en: "Transaction", zh: "交易" }),
+                key: url.selectedId,
+                back: {
+                  href: url.hrefWithout(),
+                  label: t({ en: "Transactions", zh: "交易" }),
+                },
+                node: editorFor(true),
+              }
+            : null
+        }
+      />
       <PaneSheet
-        isOpen={url.isOpen}
+        isOpen={url.newKind !== null}
         onClose={closePane}
-        label={detailLabel}
+        label={t({ en: "New transaction", zh: "新建交易" })}
         initialFocusRef={focusTargetRef}
       >
-        {editor}
+        {url.newKind === null ? null : editorFor(false)}
       </PaneSheet>
       {teach.sheet}
     </>
   );
 }
 
-function EmptyPane() {
-  const keys: [string, string][] = [
-    ["N", t({ en: "New transaction", zh: "新建交易" })],
-    ["/", t({ en: "Search", zh: "搜索" })],
-    ["J / K", t({ en: "Next and previous", zh: "下一笔、上一笔" })],
-    ["Enter", t({ en: "Open", zh: "打开" })],
-    ["E", t({ en: "Edit the amount", zh: "编辑金额" })],
-    ["C", t({ en: "Change the category", zh: "更改分类" })],
-    ["D", t({ en: "Delete, with undo", zh: "删除（可撤销）" })],
-    ["Esc", t({ en: "Close", zh: "关闭" })],
-  ];
-  return (
-    <div css={stack.item}>
-      <Text tone="muted">
-        {t({
-          en: "Pick a transaction to see or change it.",
-          zh: "选择一笔交易以查看或修改。",
-        })}
-      </Text>
-      <dl css={[styles.keys, typeRole.bodySmall]}>
-        {keys.map(([key, label]) => (
-          <div key={key} css={styles.keyRow}>
-            <dt>
-              <kbd css={[typeRole.caption, corner.radius_1, styles.kbd]}>
-                {key}
-              </kbd>
-            </dt>
-            <dd css={styles.keyLabel}>{label}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  );
-}
-
 const styles = stylex.create({
-  columns: {
-    gridTemplateColumns: "minmax(0, 1fr) minmax(22rem, 26rem)",
-  },
+  // A row wider than this is hard to read across, from the payee to the
+  // amount.
   master: {
-    minInlineSize: 0,
+    maxInlineSize: "52rem",
   },
   titleRow: {
     gap: rhythm.item,
@@ -589,9 +564,6 @@ const styles = stylex.create({
   },
   wideOnly: {
     display: { default: "none", [breakpoints.lg]: "block" },
-  },
-  paneScroller: {
-    paddingBlockEnd: `calc(${space._7} + env(safe-area-inset-bottom))`,
   },
   skeletonRow: {
     gap: rhythm.item,
@@ -601,29 +573,6 @@ const styles = stylex.create({
   },
   empty: {
     padding: space._5,
-    backgroundColor: color.bgSurfaceSunken,
-  },
-  keys: {
-    display: "grid",
-    gap: rhythm.tight,
-    margin: 0,
-  },
-  keyRow: {
-    display: "grid",
-    gridTemplateColumns: "4.5rem 1fr",
-    alignItems: "center",
-    gap: rhythm.tight,
-  },
-  keyLabel: {
-    margin: 0,
-    color: color.fgMuted,
-  },
-  kbd: {
-    fontFamily: "inherit",
-    paddingInline: space._1,
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
     backgroundColor: color.bgSurfaceSunken,
   },
 });

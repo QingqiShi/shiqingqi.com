@@ -8,7 +8,7 @@ import {
 } from "@testing-library/react";
 import { useRef } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Sheet } from "./sheet.tsx";
+import { Sheet, SheetBoundary } from "./sheet.tsx";
 
 function SheetHarness({
   isOpen,
@@ -495,5 +495,20 @@ describe("Sheet", () => {
 
       expect(onClose).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe("Sheet in a SheetBoundary", () => {
+  it("opens in the boundary and leaves the scroll of the page alone", async () => {
+    render(
+      <SheetBoundary>
+        <p>Frame</p>
+        <SheetHarness isOpen onClose={() => {}} />
+      </SheetBoundary>,
+    );
+    const dialog = await screen.findByRole("dialog", { name: "Video player" });
+    const boundary = screen.getByText("Frame").parentElement;
+    expect(boundary?.contains(dialog)).toBe(true);
+    expect(document.body.style.overflow).not.toBe("hidden");
   });
 });

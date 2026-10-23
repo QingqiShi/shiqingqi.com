@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { ComponentProps, Ref } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
-import { useMasterScroller } from "../shell/master-detail-columns.tsx";
 import type { CategoryRow, EntryRow } from "../sync/row-schemas.ts";
 import type { TransactionListItem } from "./build-transaction-list.ts";
 import { DayHeader } from "./day-header.tsx";
@@ -77,7 +77,7 @@ export function TransactionList({
   listLabel,
   virtuosoRef,
 }: TransactionListProps) {
-  const scrollParent = useMasterScroller();
+  const scrollParent = useSplitViewColumn()?.scroller;
   if (scrollParent === null) return null;
   return (
     <div css={[plainList.list, styles.list]}>

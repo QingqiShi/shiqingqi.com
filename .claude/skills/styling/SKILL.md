@@ -82,6 +82,17 @@ const styles = stylex.create({
 });
 ```
 
+### A custom property under a condition
+
+StyleX writes a custom property set to a plain value outside its cascade layers, and one under a media or container query inside them. When one style on an element sets the plain value and another style sets the conditional value, the plain value always wins, whatever their order in `css`. Do not split a custom property over two styles on one element. Give it one property object, `{ default, [query] }`, or let the `defineVars` default or an ancestor give the plain value and give the element only the conditional value, with `default: null`.
+
+```tsx
+// The column sets only the value in the query; the token default applies elsewhere.
+stacked: {
+  [splitViewDisplay.stacked]: { default: null, [splitViewQueries.contentAlone]: "contents" },
+},
+```
+
 ## Hover
 
 A tap on a touch screen leaves `:hover` matching until the next tap elsewhere, so a Button or a Chip keeps its hover fill. Every hover style goes behind `pointer.canHover` (`@media (hover: hover) and (pointer: fine)`) from `@tuja/ui/breakpoints.stylex`. It lives beside `breakpoints` because the breakpoints Babel plugin inlines both, and an inlined media query is what StyleX ranks as one. The `@tuja/require-hover-media` ESLint rule enforces this for every key that contains `:hover`, including `:not(:hover)` and `stylex.when.*(":hover")`.

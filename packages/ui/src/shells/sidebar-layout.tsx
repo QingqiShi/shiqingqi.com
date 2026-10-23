@@ -17,7 +17,6 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import { Drawer } from "./drawer.tsx";
-import { sidebarLayoutTokens } from "./sidebar-layout.stylex.ts";
 
 // Default width of the navigation rail on wider viewports — wide enough for
 // nav labels to fit on one line, even with a scrollbar's gutter. `rem`-based,
@@ -326,8 +325,11 @@ const styles = stylex.create({
     minInlineSize: 0,
     // md+ owns its own padding; mobile insets come from the root frame. The
     // inline-start value is the gutter between rail and content.
-    paddingBlockStart: sidebarLayoutTokens.contentPaddingBlockStart,
-    paddingBlockEnd: sidebarLayoutTokens.contentPaddingBlockEnd,
+    paddingBlockStart: { default: 0, [breakpoints.md]: space._4 },
+    paddingBlockEnd: {
+      default: 0,
+      [breakpoints.md]: `calc(${space._8} + env(safe-area-inset-bottom))`,
+    },
     paddingInlineStart: { default: 0, [breakpoints.md]: space._8 },
     paddingInlineEnd: {
       default: 0,

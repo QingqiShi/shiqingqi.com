@@ -1,6 +1,5 @@
 "use client";
 
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
@@ -13,12 +12,15 @@ import type { AccountRow } from "../sync/row-schemas.ts";
 import { selectAccountChart } from "./select-account-chart.ts";
 import { useStoredRange } from "./use-stored-range.ts";
 
+/** The drawing's height in pixels, axis included: short, so the Ledger shows soon. */
+const CHART_HEIGHT = 150;
+
 interface AccountChartProps {
   account: AccountRow;
   today: string;
 }
 
-/** One account's balance over the picked range, in its own currency. */
+/** One account's balance over the picked range, in its own currency, with the range picker above it. */
 export function AccountChart({ account, today }: AccountChartProps) {
   const locale = useLocale();
   const accountName = useAccountDisplayName();
@@ -28,10 +30,7 @@ export function AccountChart({ account, today }: AccountChartProps) {
   );
   const start = series.days.length > 0 ? series.days[0] : today;
   return (
-    <section
-      css={stack.item}
-      aria-label={t({ en: "Balance history", zh: "余额走势" })}
-    >
+    <section aria-label={t({ en: "Balance history", zh: "余额走势" })}>
       <TimeSeriesChart
         series={series}
         label={`${accountName(account)} · ${t({ en: "Balance", zh: "余额" })}`}
@@ -42,9 +41,10 @@ export function AccountChart({ account, today }: AccountChartProps) {
         formatValue={(minor) => formatMoney(minor, account.currency, locale)}
         currency={account.currency}
         restReadout={`${displayDay(start, locale, "dayYear")} – ${displayDay(today, locale, "dayYear")}`}
-        height={180}
+        height={CHART_HEIGHT}
+        bleeds={false}
+        accessory={<ChartRangeChips value={range} onChange={setRange} />}
       />
-      <ChartRangeChips value={range} onChange={setRange} />
     </section>
   );
 }

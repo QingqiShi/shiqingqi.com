@@ -10,10 +10,12 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Chip } from "@tuja/ui/components/chip";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
+import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -30,6 +32,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type ReactNode,
   type RefObject,
 } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
@@ -95,8 +98,14 @@ interface TransactionEditorProps {
   focusRequest?: { target: EditorFocusTarget; nonce: number };
   /** Receives the element that takes focus, for a sheet that moves focus after it opens. */
   focusTargetRef?: RefObject<HTMLElement | null>;
-  /** Shows a close button; the sheet below `lg` has its own. */
+  /**
+   * Shows a close button, and closes on Esc; a sheet has its own button. In
+   * a column of a `NavigationSplitView`, the column's close button takes
+   * its place, and the column's close replaces `onClose`.
+   */
   showClose?: boolean;
+  /** A notice under the headline, such as one about the bank's records. */
+  notice?: ReactNode;
   onClose: () => void;
   /** After a save. `andNew` asks for a blank editor again. */
   onSaved?: (transactionId: string, andNew: boolean) => void;
@@ -201,6 +210,7 @@ function EditorForm({
   focusRequest,
   focusTargetRef,
   showClose,
+  notice,
   onClose,
   onSaved,
   onOpenTransaction,
@@ -225,6 +235,11 @@ function EditorForm({
   const [ruleOffer, setRuleOffer] = useState<"open" | "declined">("open");
   const [instalmentsOpen, setInstalmentsOpen] = useState(false);
   const footerSticky = useEffectSticky();
+  const column = useSplitViewColumn();
+  // In a column or in its sheet, the Transaction is a place to read, not a
+  // task: a headline names it and nothing takes focus on open.
+  const isPlace = column !== null && transactionId !== null;
+  const close = column?.close ?? onClose;
   const { ref: footerStickyRef, css: footerStickyCss } = footerSticky;
   const newIdRef = useRef<string | null>(null);
   const amountRef = useRef<HTMLInputElement>(null);
@@ -249,13 +264,14 @@ function EditorForm({
   const paidToday = isExpected && draft.date > data.today;
 
   useEffect(() => {
+    if (isPlace && focusRequest === undefined) return;
     const target = focusRequest?.target ?? "amount";
     const element =
       target === "amount" ? amountRef.current : categoryRef.current;
     if (focusTargetRef) focusTargetRef.current = element;
     element?.focus();
     if (target === "amount") amountRef.current?.select();
-  }, [focusRequest, focusTargetRef, isNew]);
+  }, [focusRequest, focusTargetRef, isNew, isPlace]);
 
   const account =
     draft.accountId === null
@@ -657,7 +673,7 @@ function EditorForm({
         { name: "restoreTransaction", args: { id: existing.id } },
       ]);
     }
-    onClose();
+    close();
   };
 
   const makeRule = () => {
@@ -758,7 +774,7 @@ function EditorForm({
       save(true);
     } else if (event.key === "Escape" && showClose && !event.defaultPrevented) {
       event.preventDefault();
-      onClose();
+      close();
     }
   };
 
@@ -781,6 +797,40 @@ function EditorForm({
       : inReview
         ? t({ en: "Review transaction", zh: "审核交易" })
         : t({ en: "Transaction", zh: "交易" });
+  const headlineMinor = parseMoney(draft.amountText, currency);
+  const headlineAmount =
+    headlineMinor === null
+      ? draft.amountText
+      : formatMoney(
+          draft.kind === "transfer"
+            ? Math.abs(headlineMinor)
+            : Math.abs(headlineMinor) *
+                (draft.kind === "income" || draft.refund ? 1 : -1),
+          currency,
+          locale,
+          { signDisplay: "exceptZero" },
+        );
+  const accountLabel = (accountId: string | null) =>
+    accountId === null
+      ? ""
+      : (data.lookups.accountLabelById.get(accountId) ?? "");
+  const draftCategory =
+    draft.categoryId === null
+      ? undefined
+      : data.lookups.categoryById.get(draft.categoryId);
+  const kindNames: Record<TransactionKind, string> = {
+    expense: t({ en: "Expense", zh: "支出" }),
+    income: t({ en: "Income", zh: "收入" }),
+    transfer: t({ en: "Transfer", zh: "转账" }),
+  };
+  const headlineName =
+    draft.kind === "transfer"
+      ? [accountLabel(draft.accountId), accountLabel(draft.toAccountId)]
+          .filter((part) => part !== "")
+          .join(" → ")
+      : draft.payeeName.trim() ||
+        draft.note.trim() ||
+        (draftCategory ? categoryName(draftCategory) : kindNames[draft.kind]);
   const saveLabel = paidToday
     ? t({ en: "Paid today", zh: "今天已付" })
     : isExpected
@@ -812,7 +862,8 @@ function EditorForm({
   return (
     <form
       noValidate
-      aria-labelledby="finance-editor-heading"
+      aria-label={isPlace ? heading : undefined}
+      aria-labelledby={isPlace ? undefined : "finance-editor-heading"}
       css={stack.group}
       onKeyDown={handleKeyDown}
       onSubmit={(event) => {
@@ -820,24 +871,48 @@ function EditorForm({
         save(false);
       }}
     >
-      <div css={[flex.between, styles.header]}>
+      {isPlace ? (
         <h2
           id="finance-editor-heading"
           tabIndex={-1}
-          css={[typeRole.h4, a11y.focusRing]}
+          css={[stack.tight, a11y.focusRing, styles.headline]}
         >
-          {heading}
+          <span
+            css={[typeRole.h1, typeModifier.numeric, styles.headlineAmount]}
+          >
+            {headlineAmount}
+          </span>
+          <span css={[cluster.tight, typeRole.body, styles.headlineName]}>
+            <span>{headlineName}</span>
+            {isExpected ? (
+              <Badge size="sm" intent="neutral">
+                {t({ en: "Expected", zh: "待确认" })}
+              </Badge>
+            ) : null}
+          </span>
         </h2>
-        {showClose ? (
-          <Button
-            look="ghost"
-            size="sm"
-            icon={<XIcon weight="bold" />}
-            aria-label={t({ en: "Close", zh: "关闭" })}
-            onClick={onClose}
-          />
-        ) : null}
-      </div>
+      ) : (
+        <div css={[flex.between, styles.header]}>
+          <h2
+            id="finance-editor-heading"
+            tabIndex={-1}
+            css={[typeRole.h4, a11y.focusRing]}
+          >
+            {heading}
+          </h2>
+          {showClose && column === null ? (
+            <Button
+              look="ghost"
+              size="sm"
+              icon={<XIcon weight="bold" />}
+              aria-label={t({ en: "Close", zh: "关闭" })}
+              onClick={close}
+            />
+          ) : null}
+        </div>
+      )}
+
+      {notice}
 
       {inReview ? (
         <Callout
@@ -1478,22 +1553,44 @@ function EditorForm({
         })}
       </p>
 
-      <FloatingActions
-        ref={footerStickyRef}
-        css={[styles.footer, footerStickyCss]}
-      >
-        <EffectCarrier value={footerSticky}>
-          {secondaryAction}
-          <Button
-            type="submit"
-            look="primary"
-            size={secondaryAction ? "md" : "lg"}
-            css={floatingAction.lift}
-          >
+      {column === null ? (
+        <FloatingActions
+          ref={footerStickyRef}
+          css={[styles.footer, footerStickyCss]}
+        >
+          <EffectCarrier value={footerSticky}>
+            {secondaryAction}
+            <Button
+              type="submit"
+              look="primary"
+              size={secondaryAction ? "md" : "lg"}
+              css={floatingAction.lift}
+            >
+              {saveLabel}
+            </Button>
+          </EffectCarrier>
+        </FloatingActions>
+      ) : (
+        <div css={[stack.tight, styles.inlineFooter]}>
+          <Button type="submit" look="primary" size="lg" css={styles.wide}>
             {saveLabel}
           </Button>
-        </EffectCarrier>
-      </FloatingActions>
+          {isNew ? (
+            <Button
+              css={styles.wide}
+              onClick={() => {
+                save(true);
+              }}
+            >
+              {t({ en: "Save and add another", zh: "保存并再记一笔" })}
+            </Button>
+          ) : isExpected ? (
+            <Button css={styles.wide} onClick={remove}>
+              {t({ en: "Skip", zh: "跳过" })}
+            </Button>
+          ) : null}
+        </div>
+      )}
     </form>
   );
 }
@@ -1545,6 +1642,22 @@ const styles = stylex.create({
     position: "sticky",
     insetBlockEnd: `calc(${space._3} - ${PANE_END_GAP})`,
     zIndex: layer.raised,
+  },
+  // In a column or its sheet, Save ends the form and covers no field.
+  inlineFooter: {
+    paddingBlockStart: space._1,
+  },
+  wide: {
+    inlineSize: "100%",
+  },
+  headline: {
+    margin: 0,
+  },
+  headlineAmount: {
+    fontWeight: font.weight_7,
+  },
+  headlineName: {
+    fontWeight: font.weight_5,
   },
   paysDownHeader: {
     gap: rhythm.tight,

@@ -62,8 +62,6 @@ import type {
 
 const MAX_PIXEL_RATIO = 2;
 const MAX_DELTA_SECONDS = 0.1;
-/** More Scroll regions than this with `<canvas>` elements use much memory. */
-const MANY_REGIONS = 3;
 const ALL_STAGES =
   GPU_SHADER_STAGE.VERTEX |
   GPU_SHADER_STAGE.FRAGMENT |
@@ -359,14 +357,6 @@ export function createEffectLayer(
     regions.delete(id);
     if (canvases !== null) {
       regions.set(id, { slots: configureSlots(canvases), size: null });
-      if (
-        process.env.NODE_ENV !== "production" &&
-        regions.size > MANY_REGIONS
-      ) {
-        console.warn(
-          `[effect layer] ${String(regions.size)} Scroll regions have <canvas> elements at one time. Each one holds two bands in memory. Show at most ${String(MANY_REGIONS)} Scroll regions with effects at one time.`,
-        );
-      }
     }
     requestFrame();
   }

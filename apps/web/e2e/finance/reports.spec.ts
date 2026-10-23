@@ -10,7 +10,13 @@ import {
   waitForServiceWorker,
 } from "./finance-test.ts";
 import { makeReport } from "./make-report.ts";
-import { DESKTOP, MOBILE, SYNC_TIMEOUT, toast } from "./transactions-page.ts";
+import {
+  clickSignOut,
+  DESKTOP,
+  MOBILE,
+  SYNC_TIMEOUT,
+  toast,
+} from "./transactions-page.ts";
 
 const MONEY = /^[−-]?£[\d,]+\.\d\d$/;
 
@@ -196,7 +202,7 @@ test.describe("Weekly reports without the server", () => {
     await expect(headline).toBeVisible();
     await page.context().setOffline(false);
 
-    await page.getByRole("button", { name: "Sign out" }).click();
+    await clickSignOut(page);
     await expect(page).toHaveURL("/finance/sign-in");
     expect(await storedReports(page)).toEqual([]);
   });

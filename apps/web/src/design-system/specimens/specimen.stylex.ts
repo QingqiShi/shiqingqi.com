@@ -77,9 +77,9 @@ export const specimenLayout = stylex.create({
 });
 
 /**
- * Chrome for the six specimens whose subject is a whole page and so cannot be
+ * Chrome for the specimens whose subject is a whole page and so cannot be
  * rendered live inside a tile — Sheet (portals to a fixed, focus-trapping
- * layer), the two page shells (they own the viewport and the `<main>` landmark),
+ * layer), the four page shells (they own the viewport and the `<main>` landmark),
  * the composed movie-details example (a whole screen is illegible at plate
  * size), Progressive blur (it paints nothing of its own, only what it does to a
  * page behind it), and Sticky controls (it holds at its offset only while a

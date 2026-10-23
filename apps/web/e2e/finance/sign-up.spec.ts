@@ -84,7 +84,9 @@ test.describe("Sign-up", () => {
     await editor.getByRole("textbox", { name: "Balance today" }).fill("100");
     await editor.getByRole("button", { name: "Save" }).click();
     await expect(toast(page, "Account saved")).toBeVisible();
-    await expect(page.getByRole("link", { name: /^Current/ })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /^Current/ }).first(),
+    ).toBeVisible();
 
     const inviteUrl = await inviteMember(page, "Sam");
 

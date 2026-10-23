@@ -2,7 +2,16 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import { useId, useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  createContext,
+  use,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
+import { createPortal } from "react-dom";
 import { RemoveScroll } from "react-remove-scroll";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
@@ -17,6 +26,7 @@ import { useVisualViewport } from "../hooks/use-visual-viewport.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
+import type { StyleProp } from "../types.ts";
 import { Portal } from "./portal.tsx";
 import { useSheetDrag } from "./use-sheet-drag.ts";
 import { useSheetMotion } from "./use-sheet-motion.ts";
@@ -128,34 +138,85 @@ export function Sheet(props: SheetProps) {
     setWasOpen(isOpen);
     setIsDismissed(false);
   }
+  const boundary = use(SheetBoundaryContext);
   const isShown = isOpen && !isDismissed;
   if (isShown && hasLeft) setHasLeft(false);
   if (hasLeft) return null;
+
+  const frame = (
+    <SheetFrame
+      {...props}
+      isShown={isShown}
+      isContained={boundary !== undefined}
+      onDismiss={() => {
+        setIsDismissed(true);
+        onClose();
+      }}
+      onLeft={() => {
+        setHasLeft(true);
+        setIsDismissed(false);
+      }}
+    />
+  );
+  if (boundary === null) return null;
+  // In a boundary, the sheet keeps the carrier of the boundary, so it moves
+  // with the frame and not with the viewport.
+  if (boundary !== undefined) return createPortal(frame, boundary);
 
   return (
     // Safari on iOS paints no fixed box below the top of its bottom toolbar,
     // so the box that dims the page and the card are in the document. Then nothing of the sheet
     // is in the boxes that Safari samples for the colour of its chrome.
-    <Portal target={undefined}>
-      <SheetFrame
-        {...props}
-        isShown={isShown}
-        onDismiss={() => {
-          setIsDismissed(true);
-          onClose();
-        }}
-        onLeft={() => {
-          setHasLeft(true);
-          setIsDismissed(false);
-        }}
-      />
-    </Portal>
+    <Portal target={undefined}>{frame}</Portal>
+  );
+}
+
+/**
+ * The boundary each `Sheet` inside it opens in, or `undefined` outside one.
+ * `null` while the boundary mounts.
+ */
+const SheetBoundaryContext = createContext<HTMLElement | null | undefined>(
+  undefined,
+);
+
+interface SheetBoundaryProps {
+  /**
+   * The content. Each `Sheet` in it opens over the boundary and not over the
+   * screen.
+   *
+   * @zh 内容。其中的每个 `Sheet` 都在边界上方打开，而不是在屏幕上方打开。
+   */
+  children: ReactNode;
+  /**
+   * Styles for the boundary box. Give it a height: the card fits its height
+   * to the boundary's.
+   *
+   * @zh 边界盒子的样式。请为它设定高度：卡片的高度随边界的高度而定。
+   */
+  css?: StyleProp;
+}
+
+/**
+ * A box that holds each `Sheet` inside it, such as a phone-sized frame of a
+ * live demo. The sheet dims the box and not the page, floats at the bottom
+ * of the box while the box is narrower than `md` and sits in its centre from
+ * `md` up, and does not lock the scroll of the page. Its motion still
+ * follows the width of the screen.
+ */
+export function SheetBoundary({ children, css }: SheetBoundaryProps) {
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  return (
+    <div ref={setElement} css={[styles.boundary, css]}>
+      <SheetBoundaryContext value={element}>{children}</SheetBoundaryContext>
+    </div>
   );
 }
 
 type SheetFrameProps = SheetProps & {
   /** Whether the card is in, or comes in. False while it leaves. */
   isShown: boolean;
+  /** Whether the sheet opens in a `SheetBoundary`. */
+  isContained: boolean;
   onDismiss: () => void;
   /** The card has left the screen. */
   onLeft: () => void;
@@ -170,6 +231,7 @@ function SheetFrame({
   children,
   isOpen,
   isShown,
+  isContained,
   onDismiss,
   onLeft,
   closeLabel,
@@ -219,18 +281,31 @@ function SheetFrame({
     <>
       <div
         ref={dimRef}
-        css={[styles.dim, !isShown && styles.dimLeaving]}
+        css={[
+          styles.dim,
+          isContained && styles.dimContained,
+          !isShown && styles.dimLeaving,
+        ]}
         onClick={onDismiss}
         aria-hidden="true"
       />
-      <div css={[styles.anchor, styles.anchorAt(visibleBottom, visibleHeight)]}>
+      <div
+        css={
+          isContained
+            ? styles.anchorContained
+            : [styles.anchor, styles.anchorAt(visibleBottom, visibleHeight)]
+        }
+      >
         {/* The anchor is in the document and not fixed. But the modal cover
             locks the page, and the anchor follows the visual viewport. Thus
             the card stays on the viewport carrier that the Portal gives. */}
         {/* The mover is what the motion moves and fades. The canvases of the
             Scroll region are inside it, so the effects of the content move
             and fade with the card. */}
-        <div ref={mergeRefs(moverRef, coverRef)} css={styles.mover}>
+        <div
+          ref={mergeRefs(moverRef, coverRef)}
+          css={isContained ? styles.moverContained : styles.mover}
+        >
           {/* forwardProps makes RemoveScroll clone its child and inject its
               own ref, which would clobber a ref placed directly on the card.
               Passing the ref through RemoveScroll keeps `cardRef` working
@@ -239,12 +314,15 @@ function SheetFrame({
             ref={mergeRefs(cardRef, container)}
             allowPinchZoom
             forwardProps
+            enabled={!isContained}
           >
             <div
               css={[
                 corner.radius_4,
                 styles.card,
-                styles.cardFit(visibleHeight),
+                isContained
+                  ? styles.cardContained
+                  : styles.cardFit(visibleHeight),
               ]}
               role="dialog"
               aria-modal="true"
@@ -307,8 +385,48 @@ const CLOSE_INSET = space._2;
 const CONTENT_INSET = space._3;
 // The close button is an md Button, so it is as tall as the md step.
 const CLOSE_SIZE = controlSize._9;
+const BOUNDARY = "sheet-boundary";
+const WIDE_BOUNDARY = `@container ${BOUNDARY} (width >= 768px)`;
 
 const styles = stylex.create({
+  boundary: {
+    position: "relative",
+    containerName: BOUNDARY,
+    containerType: "inline-size",
+  },
+  dimContained: {
+    insetBlockEnd: 0,
+    blockSize: "100%",
+  },
+  anchorContained: {
+    position: "absolute",
+    inset: 0,
+    zIndex: layer.overlay,
+    pointerEvents: "none",
+  },
+  // The mover is a flex column with a height cap, so the card shrinks to
+  // the boundary and its scroller scrolls.
+  moverContained: {
+    position: "absolute",
+    display: "flex",
+    flexDirection: "column",
+    insetBlockStart: { default: "auto", [WIDE_BOUNDARY]: "50%" },
+    insetBlockEnd: { default: EDGE_GAP, [WIDE_BOUNDARY]: "auto" },
+    insetInlineStart: { default: EDGE_GAP, [WIDE_BOUNDARY]: "50%" },
+    translate: { default: "none", [WIDE_BOUNDARY]: "-50% -50%" },
+    inlineSize: {
+      default: `calc(100% - 2 * ${EDGE_GAP})`,
+      [WIDE_BOUNDARY]: `min(100% - 2 * ${space._7}, ${space._16})`,
+    },
+    maxBlockSize: {
+      default: `calc(100% - ${space._7} - ${EDGE_GAP})`,
+      [WIDE_BOUNDARY]: `calc(100% - 2 * ${space._8})`,
+    },
+    transformOrigin: "50% 100%",
+  },
+  cardContained: {
+    minBlockSize: 0,
+  },
   // A 0 x 0 box in the document. Below `md` it is at the bottom of the
   // visible area, so it is on the keyboard while one is open. From `md` up
   // it is at the centre of the visible area.

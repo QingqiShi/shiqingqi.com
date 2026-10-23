@@ -7,7 +7,6 @@ import {
   motionConstants,
   motionKeyframes,
 } from "@tuja/ui/primitives/motion.stylex";
-import { pageColumnTokens } from "@tuja/ui/primitives/page-column.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { usePathname } from "next/navigation";
 import {
@@ -85,14 +84,12 @@ export function ShownScreenSkeleton() {
  */
 const SKELETON_DELAY_MS = 100;
 
-const NET_WORTH_PATH = "/finance";
-
 /**
- * The content area of Finance. Net worth takes the full width beside the
- * rail; every other screen is centred at the width of the page column. A switch
- * to another destination makes the new screen rise into place. While the
- * server renders the new screen, a skeleton shows in its place, and the
- * screen fades in over it.
+ * The content area of Finance. Each screen lays itself out: in columns, as
+ * a `NavigationSplitView`, or in a `FinancePageColumn`. A switch to another
+ * destination makes the new screen rise into place. While the server
+ * renders the new screen, a skeleton shows in its place, and the screen
+ * fades in over it.
  */
 export function FinanceScreenSlot({ children }: { children: ReactNode }) {
   const current = normalizePath(usePathname());
@@ -132,13 +129,12 @@ export function FinanceScreenSlot({ children }: { children: ReactNode }) {
 
   return (
     <div
-      css={[
-        shownPath !== NET_WORTH_PATH && styles.pageColumnWidth,
+      css={
         entry.count > 0 && [
           styles.enter,
           entry.count % 2 === 1 ? styles.riseOdd : styles.riseEven,
-        ],
-      ]}
+        ]
+      }
     >
       {skeletonPath !== null ? (
         <FinanceScreenSkeleton path={skeletonPath} />
@@ -167,10 +163,6 @@ const riseEven = stylex.keyframes({
 });
 
 const styles = stylex.create({
-  pageColumnWidth: {
-    maxInlineSize: pageColumnTokens.inlineSize,
-    marginInline: "auto",
-  },
   enter: {
     animationDuration: duration._500,
     animationTimingFunction: {

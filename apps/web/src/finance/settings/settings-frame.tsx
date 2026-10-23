@@ -19,6 +19,7 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
+import { FinancePageColumn } from "../shell/finance-page-column.tsx";
 import { SettingsFinanceLogo } from "./settings-finance-logo.tsx";
 import {
   isSettingsSection,
@@ -68,70 +69,72 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div css={styles.root}>
-      <nav
-        ref={ref}
-        aria-label={t({ en: "Settings", zh: "设置" })}
-        css={[styles.nav, current !== null && styles.navOnSection, css]}
-      >
-        <EffectCarrier value={sticky}>
-          <Heading level={1} look="h3">
-            {t({ en: "Settings", zh: "设置" })}
-          </Heading>
-          <NavList linkComponent={Link}>
-            {SETTINGS_SECTIONS.map((section) => (
-              <NavLink
-                key={section}
-                href={getLocalePath(`/finance/settings/${section}`, locale)}
-                current={section === (current ?? "household")}
-              >
-                {labels[section]}
-                {section === "members" && needsRecoveryEmail ? (
-                  <>
-                    <span
-                      css={[
-                        corner.radius_round,
-                        styles.dot,
-                        isOwner && styles.dotOwner,
-                      ]}
-                    />
-                    <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
-                  </>
-                ) : null}
-              </NavLink>
-            ))}
-          </NavList>
-        </EffectCarrier>
-      </nav>
-      {current === null ? (
-        <>
-          <SettingsSignedInMember />
-          <SettingsFinanceLogo />
-        </>
-      ) : null}
-      <div
-        css={[
-          stack.item,
-          styles.content,
-          current === null && styles.contentOnIndex,
-        ]}
-      >
-        {current === null ? null : (
-          <div css={styles.back}>
-            <AnchorButton
-              href={getLocalePath("/finance/settings", locale)}
-              linkComponent={Link}
-              look="ghost"
-              size="sm"
-              icon={<ArrowLeftIcon weight="bold" />}
-            >
+    <FinancePageColumn>
+      <div css={styles.root}>
+        <nav
+          ref={ref}
+          aria-label={t({ en: "Settings", zh: "设置" })}
+          css={[styles.nav, current !== null && styles.navOnSection, css]}
+        >
+          <EffectCarrier value={sticky}>
+            <Heading level={1} look="h3">
               {t({ en: "Settings", zh: "设置" })}
-            </AnchorButton>
-          </div>
-        )}
-        {children}
+            </Heading>
+            <NavList linkComponent={Link}>
+              {SETTINGS_SECTIONS.map((section) => (
+                <NavLink
+                  key={section}
+                  href={getLocalePath(`/finance/settings/${section}`, locale)}
+                  current={section === (current ?? "household")}
+                >
+                  {labels[section]}
+                  {section === "members" && needsRecoveryEmail ? (
+                    <>
+                      <span
+                        css={[
+                          corner.radius_round,
+                          styles.dot,
+                          isOwner && styles.dotOwner,
+                        ]}
+                      />
+                      <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
+                    </>
+                  ) : null}
+                </NavLink>
+              ))}
+            </NavList>
+          </EffectCarrier>
+        </nav>
+        {current === null ? (
+          <>
+            <SettingsSignedInMember />
+            <SettingsFinanceLogo />
+          </>
+        ) : null}
+        <div
+          css={[
+            stack.item,
+            styles.content,
+            current === null && styles.contentOnIndex,
+          ]}
+        >
+          {current === null ? null : (
+            <div css={styles.back}>
+              <AnchorButton
+                href={getLocalePath("/finance/settings", locale)}
+                linkComponent={Link}
+                look="ghost"
+                size="sm"
+                icon={<ArrowLeftIcon weight="bold" />}
+              >
+                {t({ en: "Settings", zh: "设置" })}
+              </AnchorButton>
+            </div>
+          )}
+          {children}
+        </div>
       </div>
-    </div>
+    </FinancePageColumn>
   );
 }
 

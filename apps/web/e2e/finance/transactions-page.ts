@@ -23,6 +23,17 @@ export function toast(page: Page, text: string | RegExp): Locator {
   return page.getByRole("status").filter({ hasText: text });
 }
 
+/**
+ * Signs out: from the signed-in Member at the bottom of the rail at `md` and
+ * wider, and from the Settings menu page below `md`, where the page must be.
+ */
+export async function clickSignOut(page: Page) {
+  if ((page.viewportSize()?.width ?? 0) >= 768) {
+    await page.getByRole("button", { name: /^Signed in as / }).click();
+  }
+  await page.getByRole("button", { name: "Sign out" }).click();
+}
+
 /** The sync status in the rail. Below `md` it is on the Settings menu page. */
 export function syncStatus(page: Page, text: string | RegExp): Locator {
   return page.getByRole("status").filter({ hasText: text }).first();

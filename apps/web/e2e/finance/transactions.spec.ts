@@ -242,9 +242,6 @@ test.describe("Transactions at 1440 px", () => {
     await quickAdd.press("Enter");
     await expect(rowsWith(page, "Tesco", "2.10")).toHaveCount(1);
     await quickAdd.blur();
-    await expect(
-      page.getByText("Pick a transaction to see or change it."),
-    ).toBeVisible();
     await page.keyboard.press("n");
     const editor = page.getByRole("form", { name: "New expense" });
     await expect(editor).toBeVisible();
@@ -274,15 +271,15 @@ test.describe("Transactions at 1440 px", () => {
     await expect(page).toHaveURL(new RegExp(`[?&]id=${firstId ?? ""}`));
     await expect(
       page
-        .getByRole("complementary", { name: "Transaction" })
+        .getByRole("region", { name: "Transaction", exact: true })
         .getByRole("form"),
     ).toBeVisible();
 
     await page.keyboard.press("Escape");
     await expect(page).not.toHaveURL(/[?&]id=/);
     await expect(
-      page.getByText("Pick a transaction to see or change it."),
-    ).toBeVisible();
+      page.getByRole("region", { name: "Transaction", exact: true }),
+    ).toHaveCount(0);
     await expect(rows.nth(0)).toBeFocused();
   });
 });

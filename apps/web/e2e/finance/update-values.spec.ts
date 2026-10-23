@@ -187,7 +187,7 @@ test.describe("Bank balance at 390 px", () => {
     await expect(page.getByText(/Bank says/)).toHaveCount(0);
 
     await summary.click();
-    await expect(page).toHaveURL(new RegExp(`/finance/accounts/${currentId}`));
+    await expect(page).toHaveURL(new RegExp(`/finance\\?account=${currentId}`));
     const notice = page.getByText(/Bank says £1,234\.56 · we say/).first();
     await expect(notice).toBeVisible({ timeout: SYNC_TIMEOUT });
     const keep = page.getByRole("button", { name: /^Keep .*[-−]£84\.95$/ });
@@ -201,7 +201,7 @@ test.describe("Bank balance at 390 px", () => {
           "The bank's transactions don't explain the difference: it is older than them, or the bank left a transaction out.",
         )
         .first(),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: SYNC_TIMEOUT });
 
     await toast(page, "Kept").getByRole("button", { name: "Undo" }).click();
     await expect(keep).toBeVisible({ timeout: SYNC_TIMEOUT });

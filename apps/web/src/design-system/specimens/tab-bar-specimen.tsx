@@ -13,7 +13,8 @@ import { specimenLayout } from "./specimen.stylex.ts";
  *
  * A client component, unlike most specimens: each icon is a component, and a
  * function can't cross the server boundary. The tile is `inert`, so the
- * placeholder `href` is never followed.
+ * placeholder `href`s are never followed; each differs, because the bar
+ * keys its tabs by `href`.
  */
 export function TabBarSpecimen() {
   return (
@@ -22,18 +23,18 @@ export function TabBarSpecimen() {
         label={t({ en: "Tab bar", zh: "标签栏" })}
         items={[
           {
-            href: "#",
+            href: "#home",
             label: t({ en: "Home", zh: "首页" }),
             icon: HouseIcon,
             current: true,
           },
           {
-            href: "#",
+            href: "#search",
             label: t({ en: "Search", zh: "搜索" }),
             icon: MagnifyingGlassIcon,
           },
           {
-            href: "#",
+            href: "#library",
             label: t({ en: "Library", zh: "书库" }),
             icon: BooksIcon,
           },

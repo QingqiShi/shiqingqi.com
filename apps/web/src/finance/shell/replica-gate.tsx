@@ -13,6 +13,7 @@ import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useSyncStatus } from "../replica/use-sync-status.ts";
+import { FinancePageColumn } from "./finance-page-column.tsx";
 import { ReloadButton } from "./reload-button.tsx";
 
 /** Failed downloads in a row before the screen stops waiting and says so. */
@@ -92,32 +93,34 @@ export function ReplicaGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <section
-      css={[stack.item, styles.notice]}
-      aria-labelledby="finance-download-heading"
-    >
-      <span
-        css={[
-          styles.icon,
-          offline || serverBehind ? styles.muted : styles.danger,
-        ]}
+    <FinancePageColumn>
+      <section
+        css={[stack.item, styles.notice]}
+        aria-labelledby="finance-download-heading"
       >
-        {offline ? (
-          <CloudSlashIcon weight="bold" role="presentation" />
-        ) : (
-          <WarningCircleIcon weight="bold" role="presentation" />
-        )}
-      </span>
-      <div css={stack.text}>
-        <Heading level={1} look="h3" id="finance-download-heading">
-          {heading}
-        </Heading>
-        <Text as="p" tone="muted">
-          {message}
-        </Text>
-      </div>
-      {action ? <div>{action}</div> : null}
-    </section>
+        <span
+          css={[
+            styles.icon,
+            offline || serverBehind ? styles.muted : styles.danger,
+          ]}
+        >
+          {offline ? (
+            <CloudSlashIcon weight="bold" role="presentation" />
+          ) : (
+            <WarningCircleIcon weight="bold" role="presentation" />
+          )}
+        </span>
+        <div css={stack.text}>
+          <Heading level={1} look="h3" id="finance-download-heading">
+            {heading}
+          </Heading>
+          <Text as="p" tone="muted">
+            {message}
+          </Text>
+        </div>
+        {action ? <div>{action}</div> : null}
+      </section>
+    </FinancePageColumn>
   );
 }
 
