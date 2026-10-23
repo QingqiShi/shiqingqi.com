@@ -12,11 +12,13 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
+import { ReloadButton } from "./reload-button.tsx";
 import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
 
 /**
  * Where the Replica stands against the server: synced, syncing, offline
- * with changes waiting, or a problem, with a retry once a retry can help.
+ * with changes waiting, or a problem, with a retry once a retry can help,
+ * or a reload when the server or another tab runs newer code.
  */
 export function SyncStatusIndicator() {
   const { status, tone, label, icon, spinning } = useSyncStatusSummary();
@@ -46,7 +48,9 @@ export function SyncStatusIndicator() {
         <span css={[styles.icon, spinning && styles.spin]}>{icon}</span>
         <span css={styles.label}>{label}</span>
       </span>
-      {canRetry ? (
+      {status.problem === "outdated" ? (
+        <ReloadButton size="sm" look="ghost" />
+      ) : canRetry ? (
         <Button
           size="sm"
           look="ghost"

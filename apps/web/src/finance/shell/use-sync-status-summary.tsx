@@ -32,7 +32,11 @@ function isToday(iso: string) {
 }
 
 function toneOf(status: SyncStatus): SyncTone {
-  if (status.problem === "offline" || status.problem === "busy") {
+  if (
+    status.problem === "offline" ||
+    status.problem === "busy" ||
+    status.problem === "server-behind"
+  ) {
     return "waiting";
   }
   if (status.problem) return "problem";
@@ -86,6 +90,15 @@ export function useSyncStatusSummary(): SyncStatusSummary {
   } else if (status.problem === "not-configured") {
     label = t({ en: "Sync is not set up", zh: "同步尚未配置" });
     icon = <WarningCircleIcon weight="bold" role="presentation" />;
+  } else if (status.problem === "outdated") {
+    label = t({ en: "New version ready", zh: "新版本已就绪" });
+    icon = <WarningCircleIcon weight="bold" role="presentation" />;
+  } else if (status.problem === "server-behind") {
+    label = t({
+      en: "Server updating · trying again soon",
+      zh: "服务器正在更新 · 稍后自动重试",
+    });
+    icon = <CloudArrowUpIcon weight="bold" role="presentation" />;
   } else if (status.problem === "storage") {
     label = t({ en: "Can't save on this device", zh: "无法保存到本设备" });
     icon = <WarningCircleIcon weight="bold" role="presentation" />;

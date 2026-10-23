@@ -4,6 +4,7 @@ import {
   type Mutation,
   type MutationInput,
 } from "../sync/mutation-schema.ts";
+import { REPLICA_ROW_SHAPE } from "../sync/replica-row-shape.ts";
 import {
   SYNC_TABLE_NAMES,
   type HouseholdRow,
@@ -84,13 +85,6 @@ function isDeletedRow(row: object) {
 function bySeq(a: OutboxEntry, b: OutboxEntry) {
   return a.seq - b.seq;
 }
-
-/**
- * Bump when a synced row gains or loses a field, so that every device
- * fetches its rows again in the new shape. The Outbox stays. Raising
- * `DB_VERSION` instead would delete the Outbox.
- */
-export const REPLICA_ROW_SHAPE = 7;
 
 /** Meta whose rows have an old shape must bootstrap again. */
 function withCurrentRowShape(meta: ReplicaMeta): ReplicaMeta {

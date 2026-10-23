@@ -10,6 +10,12 @@ import { readFinanceBody } from "../http/read-finance-body.ts";
 import { applyMutations } from "./apply-mutations.ts";
 import { pullChanges } from "./pull-changes.ts";
 import { pushRequestSchema } from "./push-request-schema.ts";
+import {
+  readRowShape,
+  REPLICA_ROW_SHAPE,
+  ROW_SHAPE_HEADER,
+  ROW_SHAPE_MISMATCH_STATUS,
+} from "./replica-row-shape.ts";
 import { streamBootstrap } from "./stream-bootstrap.ts";
 import type { PushEffect } from "./types.ts";
 
@@ -18,6 +24,7 @@ interface SyncHandlerDependencies extends FinanceRequestGuardDependencies {
   now: () => Date;
   /** Called after a push that committed a mutation with an effect, to start the work that follows it. */
   afterPush?: (householdId: string, effects: ReadonlySet<PushEffect>) => void;
+  rowShape?: number;
 }
 
 function parseSince(request: Request) {
@@ -28,15 +35,43 @@ function parseSince(request: Request) {
 
 /**
  * The pull (`GET`) and push (`POST`) handlers of `/api/finance/sync`. The
- * Household always comes from the session, never from the request.
+ * Household always comes from the session, never from the request. A
+ * request from code with another row shape gets
+ * `ROW_SHAPE_MISMATCH_STATUS` and changes nothing. Every response that a
+ * handler returns, a refusal included, says the server's row shape; an
+ * error that a handler throws goes on to Next.
  */
 export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
+  const rowShape = dependencies.rowShape ?? REPLICA_ROW_SHAPE;
+
+  function refuseOtherRowShape(request: Request) {
+    const clientShape = readRowShape(request.headers);
+    if (clientShape === undefined) {
+      return financeJson({ error: "invalid-row-shape" }, { status: 400 });
+    }
+    if (clientShape === rowShape) return null;
+    return financeJson(
+      { error: "row-shape", rowShape },
+      { status: ROW_SHAPE_MISMATCH_STATUS },
+    );
+  }
+
+  function withRowShape(handler: (request: Request) => Promise<Response>) {
+    return async (request: Request) => {
+      const response = await handler(request);
+      response.headers.set(ROW_SHAPE_HEADER, String(rowShape));
+      return response;
+    };
+  }
+
   return {
-    GET: async (request: Request) => {
+    GET: withRowShape(async (request) => {
       const session = await guardFinanceRequest(dependencies, request, {
         write: false,
       });
       if (session instanceof Response) return session;
+      const refused = refuseOtherRowShape(request);
+      if (refused) return refused;
       const since = parseSince(request);
       if (since === null) {
         return financeJson({ error: "invalid-since" }, { status: 400 });
@@ -68,13 +103,15 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
         );
       }
       return financeJson(pull);
-    },
+    }),
 
-    POST: async (request: Request) => {
+    POST: withRowShape(async (request) => {
       const session = await guardFinanceRequest(dependencies, request, {
         write: true,
       });
       if (session instanceof Response) return session;
+      const refused = refuseOtherRowShape(request);
+      if (refused) return refused;
       const push = await readFinanceBody(request, pushRequestSchema);
       if (push instanceof Response) return push;
       const { effects, ...response } = await applyMutations(
@@ -87,6 +124,6 @@ export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
         dependencies.afterPush?.(session.householdId, effects);
       }
       return financeJson(response);
-    },
+    }),
   };
 }

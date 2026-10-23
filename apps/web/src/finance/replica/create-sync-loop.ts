@@ -1,3 +1,9 @@
+import {
+  readRowShape,
+  REPLICA_ROW_SHAPE,
+  ROW_SHAPE_HEADER,
+  ROW_SHAPE_MISMATCH_STATUS,
+} from "../sync/replica-row-shape.ts";
 import type {
   BootstrapLine,
   PullResponse,
@@ -20,6 +26,8 @@ interface SyncLoopOptions {
   endpoint?: string;
   /** The server says the session is gone: send the visitor to sign-in. */
   onUnauthorised?: () => void;
+  /** Tests give another row shape to act as older or newer code. */
+  rowShape?: number;
   isOnline?: () => boolean;
   isVisible?: () => boolean;
 }
@@ -34,6 +42,20 @@ class SyncHttpError extends Error {
     this.name = "SyncHttpError";
     this.status = status;
     this.retryAfterMs = retryAfterMs;
+  }
+}
+
+class RowShapeError extends Error {
+  readonly serverRowShape: number;
+  readonly serverIsNewer: boolean;
+
+  constructor(serverRowShape: number, rowShape: number) {
+    super(
+      `The server has row shape ${String(serverRowShape)}, not ${String(rowShape)}`,
+    );
+    this.name = "RowShapeError";
+    this.serverRowShape = serverRowShape;
+    this.serverIsNewer = serverRowShape > rowShape;
   }
 }
 
@@ -54,6 +76,9 @@ function isUnauthorised(error: unknown) {
 
 function problemOf(error: unknown, online: boolean): SyncProblem {
   if (!online) return "offline";
+  if (error instanceof RowShapeError) {
+    return error.serverIsNewer ? "outdated" : "server-behind";
+  }
   if (error instanceof SyncHttpError) {
     if (error.status === 401) return "unauthorised";
     if (error.status === 503) return "not-configured";
@@ -68,10 +93,13 @@ function problemOf(error: unknown, online: boolean): SyncProblem {
  * A failed push does not stop the pull: the Outbox stays on this device and
  * the status shows it as not sent. One run at a time; a trigger during a
  * run starts one more run after it. A failed run retries after 1 s,
- * doubling up to 60 s.
+ * doubling up to 60 s. A server with another row shape gets nothing from
+ * this device and gives it nothing; while the server has a newer one, only
+ * coming online, focus or the tab showing tries again.
  */
 export function createSyncLoop(options: SyncLoopOptions) {
   const { store } = options;
+  const rowShape = options.rowShape ?? REPLICA_ROW_SHAPE;
   const request = options.fetch ?? ((input, init) => fetch(input, init));
   const endpoint = options.endpoint ?? SYNC_ENDPOINT;
   const isOnline = options.isOnline ?? (() => navigator.onLine);
@@ -88,9 +116,12 @@ export function createSyncLoop(options: SyncLoopOptions) {
     pushProblem: null,
     pushFailures: 0,
     leader: false,
+    newerRowShape: null,
   };
   /** This device can not write the Replica; it shows over every other problem. */
   let storageFailed = false;
+  /** The row shape of a newer tab. This tab then never syncs again. */
+  let newerTabRowShape: number | null = null;
   let shown = status;
   const statusListeners = new Set<() => void>();
   let running: Promise<void> | null = null;
@@ -103,9 +134,17 @@ export function createSyncLoop(options: SyncLoopOptions) {
 
   function setStatus(patch: Partial<SyncStatus>) {
     status = { ...status, ...patch };
-    const next: SyncStatus = storageFailed
-      ? { ...status, problem: "storage" }
-      : status;
+    let next = status;
+    if (newerTabRowShape !== null) {
+      next = {
+        ...next,
+        problem: "outdated",
+        activity: "idle",
+        leader: false,
+        newerRowShape: Math.max(newerTabRowShape, next.newerRowShape ?? 0),
+      };
+    }
+    if (storageFailed) next = { ...next, problem: "storage" };
     if (
       next.online === shown.online &&
       next.activity === shown.activity &&
@@ -115,7 +154,8 @@ export function createSyncLoop(options: SyncLoopOptions) {
       next.failures === shown.failures &&
       next.pushProblem === shown.pushProblem &&
       next.pushFailures === shown.pushFailures &&
-      next.leader === shown.leader
+      next.leader === shown.leader &&
+      next.newerRowShape === shown.newerRowShape
     ) {
       return;
     }
@@ -124,13 +164,22 @@ export function createSyncLoop(options: SyncLoopOptions) {
   }
 
   async function send(url: string, init?: RequestInit) {
+    const headers = new Headers(init?.headers);
+    headers.set(ROW_SHAPE_HEADER, String(rowShape));
     const response = await request(url, {
       credentials: "same-origin",
       cache: "no-store",
       ...init,
+      headers,
     });
     if (response.status === 401) {
       throw new SyncHttpError(401);
+    }
+    if (response.ok || response.status === ROW_SHAPE_MISMATCH_STATUS) {
+      const serverRowShape = readRowShape(response.headers);
+      if (serverRowShape !== undefined && serverRowShape !== rowShape) {
+        throw new RowShapeError(serverRowShape, rowShape);
+      }
     }
     return response;
   }
@@ -204,12 +253,17 @@ export function createSyncLoop(options: SyncLoopOptions) {
     store.applyPull((await response.json()) as PullResponse, confirmed);
   }
 
-  /** Pushes the Outbox, shows how that went, and returns the error of a failed push, or null. Only a lost session throws. */
+  /** Returns the error of a failed push, or null. A lost session or another row shape throws, because the download then fails too. */
   async function tryPush(): Promise<unknown> {
     try {
       await push();
     } catch (error) {
       if (isUnauthorised(error)) throw error;
+      if (error instanceof RowShapeError) {
+        pushFailures = 0;
+        setStatus({ pushProblem: null, pushFailures: 0 });
+        throw error;
+      }
       pushFailures++;
       setStatus({ pushProblem: problemOf(error, isOnline()), pushFailures });
       return error;
@@ -252,6 +306,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
 
   /** Runs one sync, or one more after the current one. Never rejects. */
   function sync(): Promise<void> {
+    if (newerTabRowShape !== null) return Promise.resolve();
     if (running) {
       runAgain = true;
       return running;
@@ -274,6 +329,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
             failures: 0,
             activity: "idle",
             lastSyncedAt: store.getMeta().lastSyncedAt,
+            newerRowShape: null,
           });
           if (pushError !== null) {
             retryAfterMs =
@@ -291,12 +347,17 @@ export function createSyncLoop(options: SyncLoopOptions) {
             problem,
             activity: "idle",
             failures,
+            newerRowShape:
+              problem === "outdated" && error instanceof RowShapeError
+                ? error.serverRowShape
+                : null,
           });
           if (problem === "unauthorised") {
             options.onUnauthorised?.();
             return;
           }
-          scheduleRetry();
+          if (problem === "outdated") clearTimeout(retryTimer);
+          else scheduleRetry();
           return;
         }
       } while (shouldRunAgain());
@@ -340,12 +401,15 @@ export function createSyncLoop(options: SyncLoopOptions) {
       };
     },
 
-    /** Starts the triggers: a local change, coming online, the tab showing, focus, and every 60 s while visible. */
+    /** Starts the triggers: a local change, coming online, the tab showing, focus, and every 60 s while visible and not outdated. */
     start() {
       stopped = false;
       setStatus({ leader: true });
       const onTrigger = () => {
         if (isVisible()) void sync();
+      };
+      const onPoll = () => {
+        if (status.problem !== "outdated") onTrigger();
       };
       const onOnline = () => {
         setStatus({ online: true });
@@ -356,7 +420,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
       const onOffline = () => {
         setStatus({ online: false, problem: "offline" });
       };
-      const interval = setInterval(onTrigger, PULL_INTERVAL_MS);
+      const interval = setInterval(onPoll, PULL_INTERVAL_MS);
       const unsubscribeLocal = store.onLocalMutation(() => {
         void sync();
       });
@@ -382,6 +446,13 @@ export function createSyncLoop(options: SyncLoopOptions) {
       clearTimeout(retryTimer);
       retryAfterMs = 0;
       return sync();
+    },
+
+    /** A tab with a newer row shape is open: stops for good and shows that this tab must reload. */
+    stopForNewerTab(newerRowShape: number) {
+      newerTabRowShape = Math.max(newerTabRowShape ?? 0, newerRowShape);
+      stop();
+      setStatus({});
     },
 
     /** Shows the status a leader tab sent, in a tab that does not sync. */

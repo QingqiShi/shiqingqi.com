@@ -13,6 +13,7 @@ import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useSyncStatus } from "../replica/use-sync-status.ts";
+import { ReloadButton } from "./reload-button.tsx";
 
 /** Failed downloads in a row before the screen stops waiting and says so. */
 const BOOTSTRAP_FAILURES_BEFORE_NOTICE = 2;
@@ -20,8 +21,8 @@ const BOOTSTRAP_FAILURES_BEFORE_NOTICE = 2;
 /**
  * Shows the screens once this device holds the Household's data. Before
  * that, the screens show skeletons; when the first download cannot happen
- * (offline) or keeps failing, a notice with Retry takes their place, so a
- * skeleton never waits forever.
+ * (offline, or the server or another tab runs other code) or keeps failing, a notice takes
+ * their place, so a skeleton never waits forever.
  */
 export function ReplicaGate({ children }: { children: ReactNode }) {
   const loaded = useReplica((snapshot) => snapshot.loaded);
@@ -30,19 +31,77 @@ export function ReplicaGate({ children }: { children: ReactNode }) {
   const { runtime } = useFinanceRuntime();
 
   const offline = status.problem === "offline";
+  const outdated = status.problem === "outdated";
+  const serverBehind = status.problem === "server-behind";
   const failing =
-    status.problem !== null &&
-    status.problem !== "unauthorised" &&
-    (status.failures >= BOOTSTRAP_FAILURES_BEFORE_NOTICE ||
-      status.problem === "not-configured");
+    outdated ||
+    (status.problem !== null &&
+      status.problem !== "unauthorised" &&
+      (status.failures >= BOOTSTRAP_FAILURES_BEFORE_NOTICE ||
+        status.problem === "not-configured"));
   if (!loaded || bootstrapped || !(offline || failing)) return children;
+
+  let heading: string;
+  let message: string;
+  if (offline) {
+    heading = t({ en: "You're offline", zh: "当前处于离线状态" });
+    message = t({
+      en: "This device has no copy of your data yet. It downloads as soon as you're back online.",
+      zh: "本设备还没有你的数据，恢复联网后会立即下载。",
+    });
+  } else if (outdated) {
+    heading = t({ en: "New version ready", zh: "新版本已就绪" });
+    message = t({
+      en: "Reload the page to download your data.",
+      zh: "刷新页面即可下载你的数据。",
+    });
+  } else if (serverBehind) {
+    heading = t({ en: "Server updating", zh: "服务器正在更新" });
+    message = t({
+      en: "Your data downloads as soon as the update is done.",
+      zh: "更新完成后会立即下载你的数据。",
+    });
+  } else {
+    heading = t({
+      en: "Couldn't download your data",
+      zh: "无法下载你的数据",
+    });
+    message = t({
+      en: "The server didn't answer. Your data is safe; try again in a moment.",
+      zh: "服务器没有响应。你的数据是安全的，请稍后重试。",
+    });
+  }
+
+  let action: ReactNode = null;
+  if (outdated) {
+    action = <ReloadButton look="primary" />;
+  } else if (!serverBehind) {
+    action = (
+      <Button
+        look="primary"
+        onClick={() => {
+          runtime.retry();
+        }}
+        disabled={status.activity !== "idle"}
+      >
+        {status.activity === "idle"
+          ? t({ en: "Try again", zh: "重试" })
+          : t({ en: "Downloading…", zh: "正在下载…" })}
+      </Button>
+    );
+  }
 
   return (
     <section
       css={[stack.item, styles.notice]}
       aria-labelledby="finance-download-heading"
     >
-      <span css={[styles.icon, offline ? styles.muted : styles.danger]}>
+      <span
+        css={[
+          styles.icon,
+          offline || serverBehind ? styles.muted : styles.danger,
+        ]}
+      >
         {offline ? (
           <CloudSlashIcon weight="bold" role="presentation" />
         ) : (
@@ -51,38 +110,13 @@ export function ReplicaGate({ children }: { children: ReactNode }) {
       </span>
       <div css={stack.text}>
         <Heading level={1} look="h3" id="finance-download-heading">
-          {offline
-            ? t({ en: "You're offline", zh: "当前处于离线状态" })
-            : t({
-                en: "Couldn't download your data",
-                zh: "无法下载你的数据",
-              })}
+          {heading}
         </Heading>
         <Text as="p" tone="muted">
-          {offline
-            ? t({
-                en: "This device has no copy of your data yet. It downloads as soon as you're back online.",
-                zh: "本设备还没有你的数据，恢复联网后会立即下载。",
-              })
-            : t({
-                en: "The server didn't answer. Your data is safe; try again in a moment.",
-                zh: "服务器没有响应。你的数据是安全的，请稍后重试。",
-              })}
+          {message}
         </Text>
       </div>
-      <div>
-        <Button
-          look="primary"
-          onClick={() => {
-            runtime.retry();
-          }}
-          disabled={status.activity !== "idle"}
-        >
-          {status.activity === "idle"
-            ? t({ en: "Try again", zh: "重试" })
-            : t({ en: "Downloading…", zh: "正在下载…" })}
-        </Button>
-      </div>
+      {action ? <div>{action}</div> : null}
     </section>
   );
 }

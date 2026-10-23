@@ -1,9 +1,12 @@
+import { REPLICA_ROW_SHAPE } from "../sync/replica-row-shape.ts";
 import { coordinateTabs } from "./coordinate-tabs.ts";
 import { createMemoryPersistence } from "./create-memory-persistence.ts";
 import { createReplicaStore } from "./create-replica-store.ts";
 import { createSyncLoop } from "./create-sync-loop.ts";
 import { guardUnsavedOutbox } from "./guard-unsaved-outbox.ts";
 import { openReplicaDb } from "./open-replica-db.ts";
+import { reloadForRowShape } from "./reload-for-row-shape.ts";
+import { reloadPage } from "./reload-page.ts";
 import type { ReplicaPersistence } from "./types.ts";
 
 interface FinanceRuntimeOptions {
@@ -11,19 +14,25 @@ interface FinanceRuntimeOptions {
   onUnauthorised: () => void;
   persistence?: ReplicaPersistence;
   fetch?: typeof fetch;
+  /** Tests give another row shape to act as older or newer code. */
+  rowShape?: number;
+  /** Tests replace the page reload. */
+  reload?: (confirm?: () => boolean) => Promise<boolean>;
 }
 
 /** IndexedDB when it opens; memory when it does not, such as in some private windows. Only the first load falls back: a later one must not swap the Replica for an empty one. */
-function fallbackPersistence(primary: ReplicaPersistence): ReplicaPersistence {
-  let active = primary;
+function fallbackPersistence(primary: ReplicaPersistence | null) {
+  let active = primary ?? createMemoryPersistence();
+  let inMemory = primary === null;
   let loadedOnce = false;
-  return {
+  const persistence: ReplicaPersistence = {
     async load() {
       try {
         return await active.load();
       } catch (error) {
         if (loadedOnce) throw error;
         active = createMemoryPersistence();
+        inMemory = true;
         return await active.load();
       } finally {
         loadedOnce = true;
@@ -35,32 +44,35 @@ function fallbackPersistence(primary: ReplicaPersistence): ReplicaPersistence {
       active.close();
     },
   };
+  return { persistence, inMemory: () => inMemory };
 }
 
 /**
  * The Replica, its sync loop and the tab coordination for one Household.
  * `start` loads the Replica from disk and elects the tab that syncs; the
- * others reload from disk when it writes.
+ * others reload from disk when it writes. A tab whose code is older than
+ * the server or another tab reloads by itself when that loses nothing.
  */
 export function createFinanceRuntime(options: FinanceRuntimeOptions) {
   const { householdId } = options;
+  const rowShape = options.rowShape ?? REPLICA_ROW_SHAPE;
+  const reload = options.reload ?? reloadPage;
   const deletedListeners = new Set<() => void>();
-  const store = createReplicaStore({
-    householdId,
-    persistence:
-      options.persistence ??
-      fallbackPersistence(
+  const { persistence, inMemory } = options.persistence
+    ? { persistence: options.persistence, inMemory: () => false }
+    : fallbackPersistence(
         typeof indexedDB === "undefined"
-          ? createMemoryPersistence()
+          ? null
           : openReplicaDb(householdId, () => {
               for (const listener of deletedListeners) listener();
             }),
-      ),
-  });
+      );
+  const store = createReplicaStore({ householdId, persistence });
   const loop = createSyncLoop({
     store,
     fetch: options.fetch,
     onUnauthorised: options.onUnauthorised,
+    rowShape,
   });
   let loading: Promise<void> | null = null;
   let session = 0;
@@ -69,6 +81,33 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
   let requestSync = () => {
     void loop.retryNow();
   };
+  let reloading = false;
+  let reloadTimer: ReturnType<typeof setTimeout> | undefined;
+  function reloadIfSafe() {
+    const { problem, newerRowShape } = loop.getStatus();
+    if (problem !== "outdated" || newerRowShape === null || reloading) return;
+    reloading = true;
+    clearTimeout(reloadTimer);
+    const current = session;
+    reloadForRowShape(store, newerRowShape, {
+      storage: () => sessionStorage,
+      reload,
+      isHidden: () => document.visibilityState === "hidden",
+      inMemory,
+      now: () => Date.now(),
+    })
+      .then(({ retryInMs }) => {
+        if (retryInMs !== undefined && current === session) {
+          reloadTimer = setTimeout(reloadIfSafe, retryInMs);
+        }
+      })
+      .catch((error: unknown) => {
+        console.error("Finance reload check failed", error);
+      })
+      .finally(() => {
+        reloading = false;
+      });
+  }
 
   function stop() {
     session++;
@@ -90,9 +129,14 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
       if (current !== session) return;
       const tabs = coordinateTabs({
         name: `finance-sync-${householdId}`,
+        rowShape,
         onLeader: () => {
           leader = true;
           loop.start();
+        },
+        onNewerTab: (newerRowShape) => {
+          leader = false;
+          loop.stopForNewerTab(newerRowShape);
         },
         onMessage: (message) => {
           if (message.type === "replica-changed" && !leader) {
@@ -110,6 +154,16 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
         tabs.close();
       });
       cleanups.push(guardUnsavedOutbox(store, loop));
+      const onVisibilityChange = () => {
+        if (document.visibilityState === "hidden") reloadIfSafe();
+      };
+      document.addEventListener("visibilitychange", onVisibilityChange);
+      cleanups.push(loop.subscribeStatus(reloadIfSafe));
+      cleanups.push(() => {
+        document.removeEventListener("visibilitychange", onVisibilityChange);
+        clearTimeout(reloadTimer);
+      });
+      reloadIfSafe();
       requestSync = () => {
         if (leader) void loop.retryNow();
         else tabs.broadcast({ type: "sync-requested" });
@@ -158,6 +212,11 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
     /** Syncs now, such as after Retry; a tab that does not sync asks the one that does. */
     retry() {
       requestSync();
+    },
+
+    /** Gets the newest code, such as after Reload: the same reload that a hidden outdated tab does by itself. */
+    reload() {
+      void reload();
     },
   };
 }

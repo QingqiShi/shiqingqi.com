@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
+import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
+import { transactions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -10,11 +12,12 @@ import { balanceAt } from "../domain/balance/balance-at.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import { makeSyncHandlers } from "../sync/make-sync-handlers.ts";
-import { createMemoryPersistence } from "./create-memory-persistence.ts";
 import {
-  createReplicaStore,
   REPLICA_ROW_SHAPE,
-} from "./create-replica-store.ts";
+  ROW_SHAPE_HEADER,
+} from "../sync/replica-row-shape.ts";
+import { createMemoryPersistence } from "./create-memory-persistence.ts";
+import { createReplicaStore } from "./create-replica-store.ts";
 import { createSyncLoop } from "./create-sync-loop.ts";
 import type { ReplicaPersistence, ReplicaRejection } from "./types.ts";
 
@@ -42,14 +45,15 @@ afterEach(async () => {
   await db.close();
 });
 
-function routeToHandlers() {
-  const handlers = makeSyncHandlers({
-    isConfigured: () => true,
-    getDb: () => db,
-    getSession: () => Promise.resolve(session),
-    now: () => new Date(`${TODAY}T12:00:00Z`),
-  });
+function routeToHandlers(serverRowShape: () => number) {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
+    const handlers = makeSyncHandlers({
+      isConfigured: () => true,
+      getDb: () => db,
+      getSession: () => Promise.resolve(session),
+      now: () => new Date(`${TODAY}T12:00:00Z`),
+      rowShape: serverRowShape(),
+    });
     const url =
       typeof input === "string"
         ? input
@@ -57,11 +61,10 @@ function routeToHandlers() {
           ? input.href
           : input.url;
     const method = init?.method ?? "GET";
-    const request = new Request(url, {
-      method,
-      headers: { "Content-Type": "application/json", Origin: ORIGIN },
-      body: init?.body,
-    });
+    const headers = new Headers(init?.headers);
+    headers.set("Content-Type", "application/json");
+    headers.set("Origin", ORIGIN);
+    const request = new Request(url, { method, headers, body: init?.body });
     return method === "POST" ? handlers.POST(request) : handlers.GET(request);
   };
 }
@@ -70,10 +73,13 @@ function createClient(
   options: {
     pushFails?: () => boolean;
     persistence?: ReplicaPersistence;
+    serverRowShape?: () => number;
   } = {},
 ) {
   let online = true;
-  const handlers = routeToHandlers();
+  const handlers = routeToHandlers(
+    options.serverRowShape ?? (() => REPLICA_ROW_SHAPE),
+  );
   const rejections: ReplicaRejection[] = [];
   let unauthorised = 0;
   const store = createReplicaStore({
@@ -524,6 +530,163 @@ describe("sync loop against the real handlers", () => {
   });
 });
 
+async function storedTransaction(id: string) {
+  const [row] = await db
+    .select({ id: transactions.id })
+    .from(transactions)
+    .where(eq(transactions.id, id));
+  return row;
+}
+
+describe("sync loop across a deploy", () => {
+  it("keeps the Outbox and asks to reload when the server has a newer row shape", async () => {
+    let serverRowShape = REPLICA_ROW_SHAPE;
+    const client = createClient({ serverRowShape: () => serverRowShape });
+    await client.ready();
+    const id = createExpense(client, 900);
+    await client.store.flush();
+    serverRowShape = REPLICA_ROW_SHAPE + 1;
+
+    await client.loop.sync();
+    client.loop.stop();
+    expect(client.loop.getStatus()).toMatchObject({
+      problem: "outdated",
+      newerRowShape: REPLICA_ROW_SHAPE + 1,
+    });
+    expect(client.rejections).toEqual([]);
+    expect(client.snapshot().outboxCount).toBe(1);
+    expect(await storedTransaction(id)).toBeUndefined();
+
+    serverRowShape = REPLICA_ROW_SHAPE;
+    await client.loop.sync();
+    expect(client.snapshot().outboxCount).toBe(0);
+    expect(await storedTransaction(id)).toBeDefined();
+  });
+
+  it("backs off without a reload, and applies no rows, when the server has an older row shape", async () => {
+    let serverRowShape = REPLICA_ROW_SHAPE;
+    const client = createClient({ serverRowShape: () => serverRowShape });
+    await client.ready();
+    const writer = createClient();
+    await writer.ready();
+    const written = createExpense(writer, 400);
+    await writer.loop.sync();
+    const queued = createExpense(client, 900);
+    await client.store.flush();
+    serverRowShape = REPLICA_ROW_SHAPE - 1;
+
+    await client.loop.sync();
+    client.loop.stop();
+    expect(client.loop.getStatus()).toMatchObject({
+      problem: "server-behind",
+      failures: 1,
+      newerRowShape: null,
+    });
+    expect(client.snapshot().tables.transactions.has(written)).toBe(false);
+    expect(client.snapshot().outboxCount).toBe(1);
+    expect(await storedTransaction(queued)).toBeUndefined();
+  });
+
+  it("drops an earlier push problem when the server turns out to have another row shape", async () => {
+    let pushFails = false;
+    let serverRowShape = REPLICA_ROW_SHAPE;
+    const client = createClient({
+      pushFails: () => pushFails,
+      serverRowShape: () => serverRowShape,
+    });
+    await client.ready();
+    createExpense(client, 900);
+    pushFails = true;
+    await client.loop.sync();
+    expect(client.loop.getStatus()).toMatchObject({
+      pushProblem: "server",
+      pushFailures: 1,
+    });
+
+    pushFails = false;
+    serverRowShape = REPLICA_ROW_SHAPE + 1;
+    await client.loop.sync();
+    client.loop.stop();
+    expect(client.loop.getStatus()).toMatchObject({
+      problem: "outdated",
+      pushProblem: null,
+      pushFailures: 0,
+    });
+  });
+
+  it("stops for good, and shows that it is outdated, when a tab with a newer row shape opens", async () => {
+    const client = createClient();
+    await client.ready();
+    const id = createExpense(client, 900);
+    const leaderStatus = client.loop.getStatus();
+
+    client.loop.stopForNewerTab(REPLICA_ROW_SHAPE + 1);
+    await client.loop.sync();
+    client.loop.followStatus(leaderStatus);
+    expect(client.loop.getStatus()).toMatchObject({
+      problem: "outdated",
+      newerRowShape: REPLICA_ROW_SHAPE + 1,
+    });
+    expect(client.snapshot().outboxCount).toBe(1);
+    expect(await storedTransaction(id)).toBeUndefined();
+  });
+
+  it("keeps a mutation in the Outbox while the schema lacks a column the server code writes, and sends it once they match", async () => {
+    const client = createClient();
+    await client.ready();
+    await db.execute(sql`ALTER TABLE transactions RENAME COLUMN note TO memo`);
+    const id = createExpense(client, 900);
+    await client.store.flush();
+
+    await client.loop.sync();
+    client.loop.stop();
+    expect(client.rejections).toEqual([]);
+    expect(client.loop.getStatus().pushProblem).toBe("server");
+    expect(client.snapshot().outboxCount).toBe(1);
+
+    await db.execute(sql`ALTER TABLE transactions RENAME COLUMN memo TO note`);
+    await client.loop.sync();
+    expect(client.rejections).toEqual([]);
+    expect(client.snapshot().outboxCount).toBe(0);
+    expect(await storedTransaction(id)).toBeDefined();
+  });
+
+  it("rejects a mutation the database refuses for good with a class 42 code, and sends the rest of the batch", async () => {
+    const client = createClient();
+    await client.ready();
+    await db.execute(sql`
+      CREATE FUNCTION refuse_transaction() RETURNS trigger AS $$
+      BEGIN
+        RAISE EXCEPTION 'permission denied' USING ERRCODE = '42501';
+      END;
+      $$ LANGUAGE plpgsql
+    `);
+    await db.execute(sql`
+      CREATE TRIGGER refuse_transaction BEFORE INSERT ON transactions
+      FOR EACH ROW WHEN (NEW.amount_minor = -666)
+      EXECUTE FUNCTION refuse_transaction()
+    `);
+    const refused = createExpense(client, 666);
+    const fine = createExpense(client, 900);
+    await client.store.flush();
+
+    await client.loop.sync();
+    client.loop.stop();
+    expect(
+      client.rejections.map((rejection) => ({
+        id:
+          rejection.mutation.name === "createTransaction"
+            ? rejection.mutation.args.id
+            : null,
+        reason: rejection.reason,
+      })),
+    ).toEqual([{ id: refused, reason: "invalid" }]);
+    expect(client.snapshot().outboxCount).toBe(0);
+    expect(await storedTransaction(refused)).toBeUndefined();
+    expect(await storedTransaction(fine)).toBeDefined();
+  });
+});
+
 describe("sync loop when the server fails", () => {
   function failingClient(response: () => Response) {
     let calls = 0;
@@ -575,6 +738,34 @@ describe("sync loop when the server fails", () => {
       await vi.advanceTimersByTimeAsync(60_000);
       expect(client.calls()).toBe(1);
       await vi.advanceTimersByTimeAsync(60_000);
+      expect(client.calls()).toBe(2);
+      client.loop.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("polls no more while the server has a newer row shape, and tries again on focus", async () => {
+    vi.useFakeTimers();
+    try {
+      const client = failingClient(
+        () =>
+          new Response(JSON.stringify({ error: "row-shape" }), {
+            status: 426,
+            headers: { [ROW_SHAPE_HEADER]: String(REPLICA_ROW_SHAPE + 1) },
+          }),
+      );
+      await client.store.load();
+      client.loop.start();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(client.loop.getStatus().problem).toBe("outdated");
+      expect(client.calls()).toBe(1);
+
+      await vi.advanceTimersByTimeAsync(10 * 60_000);
+      expect(client.calls()).toBe(1);
+
+      window.dispatchEvent(new Event("focus"));
+      await vi.advanceTimersByTimeAsync(0);
       expect(client.calls()).toBe(2);
       client.loop.stop();
     } finally {

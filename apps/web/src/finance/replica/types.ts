@@ -113,7 +113,9 @@ export type SyncProblem =
   | "busy"
   | "unauthorised"
   | "not-configured"
-  | "storage";
+  | "storage"
+  | "outdated"
+  | "server-behind";
 
 /** The Outbox writes this tab has not finished on disk. */
 export interface ReplicaStorageState {
@@ -140,4 +142,6 @@ export interface SyncStatus {
   pushFailures: number;
   /** True when this tab runs the network loop; other tabs follow it. */
   leader: boolean;
+  /** While `problem` is "outdated": the row shape of the newer code, on the server or in another tab. */
+  newerRowShape: number | null;
 }
