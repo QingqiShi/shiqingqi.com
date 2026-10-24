@@ -120,7 +120,7 @@
     "babel-plugin-react-compiler": "catalog:",
     "dotenv": "catalog:",
     "drizzle-kit": "^0.31.11",
-    "fake-indexeddb": "^6.2.5",
+    "fake-indexeddb": "^6.2.6",
     "jsdom": "catalog:",
     "modern-normalize": "^3.0.1",
     "msw": "^3.0.3",
