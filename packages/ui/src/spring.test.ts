@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { smoothstep, Spring } from "./spring.ts";
+import { Spring } from "./spring.ts";
 
 const FRAME = 1 / 60;
 
@@ -84,13 +84,5 @@ describe("Spring", () => {
     spring.step(0.5);
     expect(Number.isFinite(spring.value)).toBe(true);
     expect(Math.abs(spring.value - 1)).toBeLessThan(0.5);
-  });
-});
-
-describe("smoothstep", () => {
-  it("is 0 before its range, 1 after it, and smooth inside it", () => {
-    expect(smoothstep(0.2, 0.6, 0.1)).toBe(0);
-    expect(smoothstep(0.2, 0.6, 0.4)).toBeCloseTo(0.5);
-    expect(smoothstep(0.2, 0.6, 0.9)).toBe(1);
   });
 });

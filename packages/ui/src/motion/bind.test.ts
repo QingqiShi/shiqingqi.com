@@ -236,4 +236,33 @@ describe("bind, on Web Animations", () => {
       translateOf(String(animations.animations[1].keyframes[0].transform)),
     ).toBeCloseTo(value.get(), 1);
   });
+
+  it("keeps the styles of now other than transforms while it measures", async () => {
+    const { engine, value, element } = setUp();
+    bind(element, value, {
+      pose: (x) => ({ ...slide(x), visibility: x > 50 ? "visible" : "hidden" }),
+      renderer: "frame",
+    });
+    value.to(100);
+    await clock.advance(0.3);
+    const seen = engine.measure(() => ({
+      transform: element.style.transform,
+      visibility: element.style.visibility,
+    }));
+    expect(seen).toEqual({ transform: "", visibility: "visible" });
+    expect(translateOf(element.style.transform)).toBeCloseTo(value.get(), 1);
+  });
+
+  it("does not play again a binding that the measure took off", async () => {
+    const { engine, value, element } = setUp();
+    const binding = bind(element, value, { pose: slide, renderer: "frame" });
+    value.to(100);
+    await clock.advance(0.1);
+    engine.measure(() => {
+      binding.unbind();
+    });
+    expect(element.style.transform).toBe("");
+    await clock.advance(0.1);
+    expect(element.style.transform).toBe("");
+  });
 });

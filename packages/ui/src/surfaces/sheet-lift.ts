@@ -1,5 +1,6 @@
 import { parseCssColor } from "../effect-layer/parse-css-color.ts";
-import { mix, smoothstep, Spring, unit } from "../spring.ts";
+import { mix, smoothstep, unit } from "../motion/mix.ts";
+import { Spring } from "../spring.ts";
 
 const LIFT_SPRING = { response: 0.5, damping: 0.86 } as const;
 const TEXT_STYLES = [
