@@ -69,7 +69,7 @@ catalog:
   "@typescript/native": "npm:typescript@^7.0.2"
   typescript-eslint: ^8.71.2
   vite: ^8.3.4
-  vitest: ^5.0.4
+  vitest: ^5.0.5
   zod: "4"
 minimumReleaseAgeExclude:
   - "@typescript/typescript-aix-ppc64@7.0.2"
