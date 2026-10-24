@@ -235,6 +235,30 @@ export default defineConfig([
       ],
     },
   },
+  // The `MediaQueryList` interface makes the deprecated `addListener` and
+  // `removeListener` members necessary, so the jsdom stub must include them.
+  // For a property in an object literal, this rule matches `allow` against the
+  // type of the object, not against the name of the property.
+  {
+    files: ["packages/ui/src/test-support/install-jsdom-shims.ts"],
+    rules: {
+      "@typescript-eslint/no-deprecated": [
+        "error",
+        { allow: [{ from: "lib", name: "MediaQueryList" }] },
+      ],
+    },
+  },
+  // `UseSuspenseInfiniteQueryResult` makes the deprecated `isInitialLoading`
+  // member necessary, so the query-result stub in this test must include it.
+  // The `allow` option cannot permit only that member: for a property in an
+  // object literal, this rule matches `allow` against the type of the object,
+  // and this type has no name.
+  {
+    files: ["apps/web/src/movie-database/media-virtuoso-grid.test.tsx"],
+    rules: {
+      "@typescript-eslint/no-deprecated": "off",
+    },
+  },
   {
     files: ["packages/babel-plugins/**"],
     rules: {
