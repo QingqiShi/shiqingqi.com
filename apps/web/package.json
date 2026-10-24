@@ -115,7 +115,7 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "@vitest/coverage-v8": "^5.0.4",
-    "@vitest/ui": "^5.0.4",
+    "@vitest/ui": "^5.0.5",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-react-compiler": "catalog:",
     "dotenv": "catalog:",
