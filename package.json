@@ -30,7 +30,7 @@
     "@eslint-community/eslint-plugin-eslint-comments": "^4.8.1",
     "@eslint-react/eslint-plugin": "catalog:",
     "@eslint/js": "^10.0.1",
-    "@next/eslint-plugin-next": "16.4.1",
+    "@next/eslint-plugin-next": "16.4.2",
     "@stylexjs/eslint-plugin": "catalog:",
     "@tuja/eslint-plugin": "workspace:*",
     "@typescript/native": "catalog:",
