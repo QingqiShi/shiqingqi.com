@@ -1,11 +1,19 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRef } from "react";
+import { hrefWithParams } from "../shell/href-with-params.ts";
 import {
   isTransactionKind,
   transactionFilters,
   type TransactionFilters,
   type TransactionKind,
 } from "./transaction-filters.ts";
+
+/** Drops the open Transaction, or the blank editor, from the URL's params. */
+function clearSelection(params: URLSearchParams) {
+  params.delete("id");
+  params.delete("new");
+  params.delete("refund");
+}
 
 /**
  * The Transactions screen's state in the URL: the filters, `?id=` for the
@@ -31,8 +39,7 @@ export function useTransactionsUrl() {
   ) => {
     const params = new URLSearchParams(window.location.search);
     change(params);
-    const query = params.toString();
-    const url = query ? `${pathname}?${query}` : pathname;
+    const url = hrefWithParams(pathname, params);
     if (mode === "push") window.history.pushState(null, "", url);
     else window.history.replaceState(null, "", url);
   };
@@ -77,17 +84,20 @@ export function useTransactionsUrl() {
       }, mode);
     },
 
+    /** The URL with nothing open, for a link back to the list. */
+    hrefWithout() {
+      const params = new URLSearchParams(searchParams);
+      clearSelection(params);
+      return hrefWithParams(pathname, params);
+    },
+
     close() {
       if (pushedRef.current) {
         pushedRef.current = false;
         window.history.back();
         return;
       }
-      write((params) => {
-        params.delete("id");
-        params.delete("new");
-        params.delete("refund");
-      }, "replace");
+      write(clearSelection, "replace");
     },
   };
 }

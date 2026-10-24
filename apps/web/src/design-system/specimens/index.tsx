@@ -18,6 +18,7 @@ import { HeadingSpecimen } from "./heading-specimen.tsx";
 import { ListSpecimen } from "./list-specimen.tsx";
 import { MenuButtonSpecimen } from "./menu-button-specimen.tsx";
 import { MovieDetailSpecimen } from "./movie-detail-specimen.tsx";
+import { NavigationSplitViewSpecimen } from "./navigation-split-view-specimen.tsx";
 import { OptionCardSpecimen } from "./option-card-specimen.tsx";
 import { PopoverSpecimen } from "./popover-specimen.tsx";
 import { ProgressSpecimen } from "./progress-specimen.tsx";
@@ -34,6 +35,7 @@ import { SpinnerSpecimen } from "./spinner-specimen.tsx";
 import { StickyControlsSpecimen } from "./sticky-controls-specimen.tsx";
 import { SwitchSpecimen } from "./switch-specimen.tsx";
 import { TabBarSpecimen } from "./tab-bar-specimen.tsx";
+import { TabViewSpecimen } from "./tab-view-specimen.tsx";
 import { TableSpecimen } from "./table-specimen.tsx";
 import { TextFieldSpecimen } from "./text-field-specimen.tsx";
 import { TextSpecimen } from "./text-specimen.tsx";
@@ -43,7 +45,7 @@ interface ComponentSpecimen {
   element: ReactElement;
   /**
    * Fills the plate edge to edge instead of sitting on it as a scaled
-   * thumbnail. Set by the six miniatures whose subject is a whole page: a
+   * thumbnail. Set by the miniatures whose subject is a whole page: a
    * page reads as a page when it fills its frame and as a floating card when it
    * doesn't. They also need no scaling-down to say "not a working control" —
    * a wireframe already says that by being a wireframe, whereas a real `Button`
@@ -57,8 +59,8 @@ interface ComponentSpecimen {
  * shown in its overview tile. The counterpart to `foundation-illustrations/`:
  * foundations get abstract illustrations because a token has no rendered form,
  * whereas a component does — so these are the real components, rendered live,
- * and they cannot drift from the thing they advertise. The seven that cannot
- * render their real form inside a tile (Sheet, Menu button, the two page
+ * and they cannot drift from the thing they advertise. The ones that cannot
+ * render their real form inside a tile (Sheet, Menu button, the four page
  * shells, the movie-details example, Progressive blur and Sticky controls)
  * fall back to a miniature drawn from the same tokens; each specimen's own doc
  * comment says why.
@@ -131,6 +133,14 @@ const COMPONENT_SPECIMENS: Partial<
   },
   "/design-system/components/header-footer-layout": {
     element: <HeaderFooterLayoutSpecimen />,
+    fillsPlate: true,
+  },
+  "/design-system/components/tab-view": {
+    element: <TabViewSpecimen />,
+    fillsPlate: true,
+  },
+  "/design-system/components/navigation-split-view": {
+    element: <NavigationSplitViewSpecimen />,
     fillsPlate: true,
   },
   "/design-system/examples/movie-detail": {

@@ -50,6 +50,13 @@ describe("viewportFixedBox", () => {
     ).toBe(null);
   });
 
+  it("passes a query container, which does not hold a fixed box", () => {
+    const target = mount(
+      '<div style="container-type: inline-size"><div id="bar" style="position: fixed"><p data-target></p></div></div>',
+    );
+    expect(viewportFixedBox(target)?.id).toBe("bar");
+  });
+
   it("is the box that holds it when that box is fixed itself", () => {
     const target = mount(
       '<div id="outer" style="position: fixed; will-change: transform"><div style="position: fixed"><p data-target></p></div></div>',

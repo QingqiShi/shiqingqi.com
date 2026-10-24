@@ -37,6 +37,7 @@ import {
 } from "./build-account-ledger.ts";
 import { LedgerEntryLink } from "./ledger-entry-link.tsx";
 import { useDescribeLedgerEntry } from "./use-describe-ledger-entry.ts";
+import { useNetWorthUrl } from "./use-net-worth-url.ts";
 
 const PAGE = 30;
 
@@ -56,17 +57,13 @@ function valuationsOf(
 interface AccountLedgerProps {
   account: AccountRow;
   today: string;
-  dayHeadingLevel: 3 | 4;
 }
 
-export function AccountLedger({
-  account,
-  today,
-  dayHeadingLevel,
-}: AccountLedgerProps) {
+export function AccountLedger({ account, today }: AccountLedgerProps) {
   const locale = useLocale();
   const runUndoable = useUndoableMutations();
   const describe = useDescribeLedgerEntry();
+  const url = useNetWorthUrl();
   const [limit, setLimit] = useState(PAGE);
   const valuationRows = useReplica((snapshot) => snapshot.tables.valuations);
   const transactions = useReplica(
@@ -119,6 +116,8 @@ export function AccountLedger({
         amountMinor={item.amountMinor}
         currency={account.currency}
         trailing={trailing}
+        href={url.hrefOf({ account: account.id, tx: item.transaction.id })}
+        isSelected={url.tx === item.transaction.id}
       />
     </li>
   );
@@ -136,12 +135,7 @@ export function AccountLedger({
         <div>
           {ledger.days.map((day) => (
             <div key={day.day}>
-              <DayHeader
-                day={day.day}
-                today={today}
-                locale={locale}
-                level={dayHeadingLevel}
-              >
+              <DayHeader day={day.day} today={today} locale={locale} level={4}>
                 <DayTotals
                   expenseMinor={day.expenseMinor}
                   incomeMinor={day.incomeMinor}

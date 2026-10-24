@@ -69,9 +69,10 @@ function StickyRegionBar() {
 
 /**
  * A vertical Scroll mask whose rows each hold a Segmented control, with a
- * sticky bar after row 4, and a button that adds four more small Scroll regions with a Switch each, which
- * is more than the layer warns about. It mounts on a button press, so that
- * the other benches on the page keep their own elements.
+ * sticky bar after row 4, and a button that adds four more small Scroll
+ * regions with a Switch each, so that many regions draw at one time. It
+ * mounts on a button press, so that the other benches on the page keep their
+ * own elements.
  */
 export function ScrollRegionTestBench() {
   const [isShown, setIsShown] = useState(false);

@@ -8,6 +8,8 @@ import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
 import { FinanceQueryProvider } from "../queries/finance-query-provider.tsx";
+import { FinanceAddButton } from "../shell/finance-add-button.tsx";
+import { FinancePageColumn } from "../shell/finance-page-column.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { ReportList } from "./report-list.tsx";
 import { useReportList } from "./use-report-list.ts";
@@ -22,7 +24,9 @@ import { useReportList } from "./use-report-list.ts";
 export function ReportsFrame({ children }: { children: ReactNode }) {
   return (
     <FinanceQueryProvider>
-      <ReportsColumns>{children}</ReportsColumns>
+      <FinancePageColumn accessory={<FinanceAddButton />}>
+        <ReportsColumns>{children}</ReportsColumns>
+      </FinancePageColumn>
     </FinanceQueryProvider>
   );
 }

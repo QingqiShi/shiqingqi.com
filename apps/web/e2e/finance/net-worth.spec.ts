@@ -66,7 +66,7 @@ async function centreOf(locator: Locator) {
 test.describe("Net worth at 1440 px", () => {
   test.use({ viewport: DESKTOP });
 
-  test("the headline shows today's net worth with its changes, and the trend chart fills the pane", async ({
+  test("the headline shows today's net worth with its changes, and the Household shows its trend in a card", async ({
     page,
     session: _session,
   }) => {
@@ -76,66 +76,136 @@ test.describe("Net worth at 1440 px", () => {
     await expect(headline).not.toContainText(/£[\d,]+\.\d/);
     await expect(headline.getByText("1W", { exact: true })).toBeVisible();
     await expect(headline.getByText("YTD", { exact: true })).toBeVisible();
-    await expect(headline.getByText("Assets")).toBeVisible();
-    await expect(headline.getByText("Liabilities")).toBeVisible();
-
-    const pane = page.getByRole("complementary", { name: "Account" });
     await expect(
-      pane.getByRole("group", { name: /^Net worth\. Use the arrow keys/ }),
+      page.getByRole("link", { name: /Net worth today/ }),
+    ).toHaveAttribute("aria-current", "page");
+
+    const household = page.getByRole("region", { name: "Household" });
+    const trend = household.getByRole("region", { name: "Trend" });
+    await expect(
+      trend.getByRole("group", { name: /^Net worth\. Use the arrow keys/ }),
     ).toBeVisible();
-    const paneBox = await pane.boundingBox();
-    expect(paneBox?.height).toBeGreaterThan(DESKTOP.height * 0.9);
-    const yearChip = pane.getByRole("radio", { name: "1Y" });
+    const trendHeight = (await trend.boundingBox())?.height ?? 0;
+    expect(trendHeight).toBeGreaterThan(DESKTOP.height * 0.25);
+    expect(trendHeight).toBeLessThan(DESKTOP.height * 0.6);
+    const yearChip = trend.getByRole("radio", { name: "1Y" });
     await yearChip.click();
     await expect(yearChip).toBeChecked();
   });
 
-  test("an account opens beside the list with its ledger and balances after each line", async ({
+  test("the Household lists what moved this week and what needs a look, each leading on", async ({
     page,
     session: _session,
   }) => {
     await openNetWorth(page);
-    await page.getByRole("link", { name: /^Alex Current/ }).click();
-    await expect(page).toHaveURL(/[?&]account=/);
-    const pane = page.getByRole("complementary", { name: "Account" });
+    const household = page.getByRole("region", { name: "Household" });
+    const moved = household.getByRole("region", {
+      name: "What moved this week",
+    });
+    const movers = moved.getByRole("link");
+    await expect(movers.first()).toBeVisible();
+    const changes = await movers.evaluateAll((links) =>
+      links.map((link) =>
+        Math.abs(
+          Number(
+            (/[+-]£[\d,]+/.exec(link.textContent) ?? ["0"])[0].replace(
+              /[£,+]/g,
+              "",
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(changes.length).toBeLessThanOrEqual(5);
+    expect(changes).toEqual(changes.toSorted((a, b) => b - a));
+
+    const needsALook = household.getByRole("region", { name: "Needs a look" });
     await expect(
-      pane.getByRole("heading", { level: 2, name: "Alex Current" }),
+      needsALook.getByRole("link", { name: /transactions? to review$/ }),
+    ).toHaveAttribute("href", /\/finance\/transactions\?review=1$/);
+
+    const first = movers.first();
+    const name = (await first.locator("span").first().textContent()) ?? "";
+    await first.click();
+    await expect(page).toHaveURL(/[?&]account=/);
+    await expect(
+      page.getByRole("heading", { level: 2, name: name.trim() }),
+    ).toBeVisible();
+  });
+
+  test("while an account is open, the sidebar shows the trend under the headline, and a pick on it shows in the headline", async ({
+    page,
+    session: _session,
+  }) => {
+    await openNetWorth(page);
+    const headline = page.getByRole("region", { name: "Net worth today" });
+    const today = await headline.textContent();
+    const sidebar = page.getByRole("link", { name: /Net worth today/ });
+    await expect(sidebar).toBeVisible();
+    await page.getByRole("link", { name: /^Alex Current Northbank/ }).click();
+    await expect(page).toHaveURL(/[?&]account=/);
+
+    const trends = page.getByRole("group", {
+      name: /^Net worth\. Use the arrow keys/,
+    });
+    await expect(trends).toHaveCount(1);
+    const trend = trends.first();
+    await expect(trend).toBeVisible();
+    const headlineBox = await headline.boundingBox();
+    const trendBox = await trend.boundingBox();
+    expect(trendBox?.y).toBeGreaterThan(
+      (headlineBox?.y ?? 0) + (headlineBox?.height ?? 0) - 1,
+    );
+    expect(trendBox?.x ?? Infinity).toBeLessThan(
+      (headlineBox?.x ?? 0) + (headlineBox?.width ?? 0),
+    );
+
+    await trend.focus();
+    await page.keyboard.press("ArrowLeft");
+    await expect(headline).not.toHaveText(today ?? "");
+    await expect(page).toHaveURL(/[?&]account=/);
+  });
+
+  test("an account opens in the column after the list, a ledger entry opens in the column after it, and each closes back", async ({
+    page,
+    session: _session,
+  }) => {
+    await openNetWorth(page);
+    await page.getByRole("link", { name: /^Alex Current Northbank/ }).click();
+    await expect(page).toHaveURL(/[?&]account=/);
+    const account = page.getByRole("region", { name: "Alex Current" });
+    await expect(
+      account.getByRole("heading", { level: 2, name: "Alex Current" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: /^Alex Current/ }),
+      page.getByRole("link", { name: /^Alex Current Northbank/ }),
     ).toHaveAttribute("aria-current", "true");
-    const ledger = pane.getByRole("region", { name: "Ledger" });
+    const ledger = account.getByRole("region", { name: "Ledger" });
     await expect(ledger.getByText("Balance after:").first()).toBeAttached();
     await expect(
       ledger.getByRole("link", { name: "All transactions on this account" }),
     ).toBeVisible();
-  });
 
-  test("the trend moves to the list while an account is open, and Close brings it back to the pane", async ({
-    page,
-    session: _session,
-  }) => {
-    await openNetWorth(page);
-    const pane = page.getByRole("complementary", { name: "Account" });
-    const trend = page.getByRole("region", { name: "Trend" });
-    await expect(pane.getByRole("region", { name: "Trend" })).toBeVisible();
+    const entry = ledger.locator("a[href*='tx=']").first();
+    await entry.click();
+    await expect(page).toHaveURL(/[?&]tx=/);
+    const transaction = page.getByRole("region", { name: "Transaction" });
+    await expect(transaction.getByRole("form")).toBeVisible();
+    await expect(entry).toHaveAttribute("aria-current", "true");
+    await expect(account).toBeVisible();
 
-    await page.getByRole("link", { name: /^Alex Current/ }).click();
-    await expect(
-      pane.getByRole("heading", { level: 2, name: "Alex Current" }),
-    ).toBeVisible();
-    await expect(trend).toHaveCount(1);
-    await expect(pane.getByRole("region", { name: "Trend" })).toHaveCount(0);
-    const trendBox = await trend.boundingBox();
-    const rowBox = await page
-      .getByRole("link", { name: /^Alex Current/ })
-      .boundingBox();
-    expect(trendBox?.y).toBeLessThan(rowBox?.y ?? 0);
+    await transaction.getByRole("button", { name: "Close" }).click();
+    await expect(page).not.toHaveURL(/[?&]tx=/);
+    await expect(page).toHaveURL(/[?&]account=/);
+    await expect(transaction).toHaveCount(0);
 
-    await pane.getByRole("button", { name: "Close" }).click();
+    await page.getByRole("link", { name: /Net worth today/ }).click();
     await expect(page).not.toHaveURL(/[?&]account=/);
-    await expect(pane.getByRole("region", { name: "Trend" })).toBeVisible();
-    await expect(trend).toHaveCount(1);
+    await expect(
+      page
+        .getByRole("region", { name: "Household" })
+        .getByRole("region", { name: "Trend" }),
+    ).toBeVisible();
   });
 });
 
@@ -295,21 +365,35 @@ test.describe("Net worth at 390 px", () => {
     expect((await plot.boundingBox())?.y).toBe(restTop);
   });
 
-  test("an account opens on its own page and leads back to Net worth", async ({
+  test("an account covers Net worth, a ledger entry opens in a sheet over the account, and each leads back", async ({
     page,
     session: _session,
   }) => {
     await openNetWorth(page);
-    await page.getByRole("link", { name: /^Family Home/ }).click();
-    await expect(page).toHaveURL(/\/finance\/accounts\/[0-9a-f-]+$/, {
+    await page.getByRole("link", { name: /^Alex Current Northbank/ }).click();
+    await expect(page).toHaveURL(/\/finance\?account=[0-9a-f-]+$/, {
       timeout: 30_000,
     });
     await expect(
-      page.getByRole("heading", { level: 1, name: "Family Home" }),
+      page.getByRole("heading", { level: 2, name: "Alex Current" }),
     ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Ledger" })).toBeVisible();
     await expectNoSidewaysScroll(page);
-    await page.getByRole("link", { name: "Net worth" }).first().click();
+
+    await page.locator("a[href*='tx=']").first().click();
+    await expect(page).toHaveURL(/[?&]tx=/, { timeout: 30_000 });
+    const sheet = page.getByRole("dialog", { name: "Transaction" });
+    await expect(sheet.getByRole("form")).toBeVisible();
+    await expectNoSidewaysScroll(page);
+    await sheet.getByRole("button", { name: "Close" }).first().click();
+    await expect(page).not.toHaveURL(/[?&]tx=/, { timeout: 30_000 });
+    await expect(sheet).toBeHidden();
+    await expect(page.getByRole("heading", { name: "Ledger" })).toBeVisible();
+
+    await page
+      .getByRole("link", { name: "Net worth", exact: true })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/finance$/, { timeout: 30_000 });
   });
 });

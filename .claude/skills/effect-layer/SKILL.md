@@ -61,8 +61,8 @@ does not choose the `<canvas>` element.
 - The bands scroll on the block axis only. A scroller that scrolls only on
   the inline axis is not a Scroll region. The layer measures the elements in
   it again after each scroll, one frame late.
-- More than three Scroll regions with `<canvas>` elements at one time cause a
-  dev console warning. Each one holds two bands in memory.
+- Each Scroll region with `<canvas>` elements holds two bands in memory.
+  There is no limit on how many show at one time.
 
 ## Why
 

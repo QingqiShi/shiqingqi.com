@@ -1,5 +1,6 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { hrefWithParams } from "../shell/href-with-params.ts";
 import { analyticsParams } from "./analytics-params.ts";
 import type { AnalyticsState } from "./compute-analytics-view.ts";
 
@@ -44,11 +45,10 @@ export function useAnalyticsState() {
     const write = () => {
       pendingRef.current = null;
       if (window.location.pathname !== pathname) return;
-      const query = analyticsParams.write(next).toString();
       window.history.replaceState(
         null,
         "",
-        query ? `${pathname}?${query}` : pathname,
+        hrefWithParams(pathname, analyticsParams.write(next)),
       );
     };
     pendingRef.current = { timer: setTimeout(write, URL_DELAY_MS), write };
