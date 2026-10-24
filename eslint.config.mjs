@@ -141,6 +141,14 @@ export default defineConfig([
           message:
             "React Compiler memoizes components and hooks. Remove the manual `useMemo`, `useCallback`, or `memo`.",
         },
+        {
+          // `render` with JSX catches a class that does not extend a React
+          // class, and a base class that the name match misses.
+          selector:
+            ':matches(ClassDeclaration, ClassExpression):matches([superClass.name=/^(Pure)?Component$/], [superClass.property.name=/^(Pure)?Component$/], :has(MethodDefinition[key.name="render"] :matches(JSXElement, JSXFragment)))',
+          message:
+            "Write a function component and use hooks. A class component is not allowed. A React error boundary needs a class, so scope it in this config with a reason.",
+        },
       ],
       "restricted/type-assertion": [
         "error",
