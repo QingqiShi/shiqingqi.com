@@ -18,3 +18,16 @@ export const REDUCED_MOTION_QUERY = motionConstants.REDUCED_MOTION.replace(
 export function prefersReducedMotion(): boolean {
   return window.matchMedia(REDUCED_MOTION_QUERY).matches;
 }
+
+/**
+ * Calls `onChange` when the reduced motion setting changes.
+ *
+ * @internal
+ */
+export function subscribeReducedMotion(onChange: () => void): () => void {
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener("change", onChange);
+  return () => {
+    query.removeEventListener("change", onChange);
+  };
+}

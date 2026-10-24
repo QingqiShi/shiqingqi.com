@@ -1,0 +1,151 @@
+import { createFrameRenderer, type Renderer } from "./create-frame-renderer.ts";
+import { registryOf } from "./create-motion-engine.ts";
+import {
+  endOf,
+  internalsOf,
+  stateAt,
+  type MotionValue,
+} from "./create-motion-value.ts";
+import { createWaapiRenderer } from "./create-waapi-renderer.ts";
+import type { Styles } from "./px.ts";
+
+/** @internal */
+export interface BindOptions {
+  /** The styles at these values. It must be pure, because the engine samples it ahead of time. */
+  readonly pose: (...values: number[]) => Styles;
+  /** The pose of a motion that started under reduced motion. `pose` when it is left out. */
+  readonly reducedPose?: (...values: number[]) => Styles;
+  /** Inline styles that stay on while a value moves, and come off at rest. */
+  readonly hold?: Styles;
+  /**
+   * At the end of a motion: `"keep"` leaves the last pose inline, and
+   * `"clear"` takes off every style the binding wrote. `"keep"` when it is
+   * left out.
+   */
+  readonly rest?: "keep" | "clear";
+  /**
+   * `"auto"` plays on Web Animations where the element has them, and else
+   * writes once a frame. `"frame"` always writes once a frame.
+   */
+  readonly renderer?: "auto" | "frame";
+}
+
+/** @internal */
+export interface Binding {
+  /** Stops the motion and takes off every style the binding wrote. */
+  unbind(): void;
+}
+
+function listOf(values: MotionValue | readonly MotionValue[]) {
+  return "get" in values ? [values] : values;
+}
+
+/**
+ * Shows `values` on `element` through `pose`. Each new target of a value
+ * plans the motion again from the path of each value, and not from the
+ * styles on the element.
+ *
+ * @internal
+ */
+export function bind(
+  element: HTMLElement | SVGElement,
+  values: MotionValue | readonly MotionValue[],
+  {
+    pose,
+    reducedPose = pose,
+    hold = {},
+    rest = "keep",
+    renderer: kind = "auto",
+  }: BindOptions,
+): Binding {
+  const list = listOf(values);
+  if (list.length === 0) throw new Error("A binding needs a motion value.");
+  const planners = list.map(internalsOf);
+  const { engine } = planners[0];
+  const { loop } = engine;
+  const written = new Set<string>();
+  let isHeld = false;
+
+  function write(styles: Styles) {
+    for (const [property, style] of Object.entries(styles)) {
+      element.style.setProperty(property, style);
+      written.add(property);
+    }
+  }
+
+  function clear() {
+    for (const property of written) element.style.removeProperty(property);
+    written.clear();
+  }
+
+  function setHeld(next: boolean) {
+    if (next === isHeld) return;
+    isHeld = next;
+    for (const [property, style] of Object.entries(hold)) {
+      if (next) element.style.setProperty(property, style);
+      else element.style.removeProperty(property);
+    }
+  }
+
+  const renderer: Renderer =
+    kind === "auto" && typeof element.animate === "function"
+      ? createWaapiRenderer(element)
+      : createFrameRenderer(loop, write);
+
+  const plans = () => planners.map((planner) => planner.plan());
+
+  function stylesAt(time: number) {
+    const current = plans();
+    const show = current.some((plan) => plan.reduced) ? reducedPose : pose;
+    return show(...current.map((plan) => stateAt(plan, time).value));
+  }
+
+  function play() {
+    const now = loop.now();
+    const end = Math.max(...plans().map(endOf));
+    if (end <= now) {
+      renderer.stop();
+      write(stylesAt(now));
+      return;
+    }
+    setHeld(true);
+    renderer.play(stylesAt, now, end);
+  }
+
+  function finish() {
+    const now = loop.now();
+    if (plans().some((plan) => endOf(plan) > now)) return;
+    if (rest === "keep") write(stylesAt(now));
+    else clear();
+    renderer.stop();
+    setHeld(false);
+  }
+
+  const isMoving = () => list.some((value) => value.isMoving);
+  const unwatch = planners.map((planner) =>
+    planner.watch({ plan: play, rest: finish }),
+  );
+
+  function unbind() {
+    for (const stop of unwatch) stop();
+    removeBinding();
+    renderer.stop();
+    clear();
+    setHeld(false);
+  }
+
+  let wasPosed = false;
+  const removeBinding = registryOf(engine).addBinding({
+    suspend() {
+      wasPosed = written.size > 0;
+      renderer.stop();
+      clear();
+    },
+    resume() {
+      if (isMoving() || wasPosed) play();
+    },
+    unbind,
+  });
+  if (isMoving() || rest === "keep") play();
+  return { unbind };
+}
