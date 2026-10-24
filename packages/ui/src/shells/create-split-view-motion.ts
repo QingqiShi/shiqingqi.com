@@ -8,14 +8,23 @@ import {
   createMotionValue,
   type MotionValue,
 } from "../motion/create-motion-value.ts";
-import { mix, smoothstep, unit } from "../motion/mix.ts";
+import {
+  flyShared,
+  opaqueFillOf,
+  readSharedForm,
+  type Flight,
+  type FlightUnder,
+  type SharedElement,
+  type SharedForm,
+} from "../motion/fly-shared.ts";
+import { smoothstep, unit } from "../motion/mix.ts";
 import {
   captureLayout,
   playLayout,
   rectIn,
   type Rect,
 } from "../motion/play-layout.ts";
-import { px, type Styles } from "../motion/px.ts";
+import { px, writeStyles, type Styles } from "../motion/px.ts";
 import {
   springOf,
   springRoles,
@@ -37,30 +46,12 @@ const DIM = {
 const SCRIM_OPACITY = 0.7;
 /** How far, in px, the text of the folding sidebar drifts towards the strip. */
 const FOLD_DRIFT = 22;
-/** Shared elements whose shapes differ more than this keep their content's shape. */
-const CONTAIN_ASPECT = 1.6;
-/** How far a Shared element that dips fades out at the middle of its flight. */
-const DIP = 0.85;
 /** Where on its way the rest of a Shared element that holds others starts to show. */
 const LATE_FROM = 0.7;
 /** How long, in seconds, a Shared element that holds others waits for the new form to draw them. */
 const PART_WAIT = 0.25;
 /** How close to its target, in its own units, a value of the motion is at rest. */
 const REST = 2e-4;
-const SVG_NS = "http://www.w3.org/2000/svg";
-
-const TEXT_STYLES = [
-  "color",
-  "font-family",
-  "font-size",
-  "font-style",
-  "font-weight",
-  "font-variant-numeric",
-  "letter-spacing",
-  "line-height",
-  "text-transform",
-  "direction",
-] as const;
 
 /**
  * An element that a Shared element shows in: an HTML element, or a part of
@@ -68,7 +59,7 @@ const TEXT_STYLES = [
  *
  * @internal
  */
-export type SplitViewMarkElement = HTMLElement | SVGElement;
+export type SplitViewMarkElement = SharedElement;
 
 /**
  * How a Shared element flies.
@@ -109,25 +100,8 @@ export interface SplitViewSnapshot {
   readonly sidebar: "full" | "collapsed" | null;
 }
 
-interface ShownMark {
-  readonly element: SplitViewMarkElement;
-  readonly rect: Rect;
-  readonly text: readonly string[];
+interface ShownMark extends SharedForm {
   readonly options: SplitViewFlightOptions;
-  /** The box of a part of an SVG drawing, in the units of its drawing. */
-  readonly drawn: Rect | null;
-}
-
-/** The box of a part of an SVG drawing in the units of its drawing, or `null` for another element. */
-function drawnBoxOf(element: SplitViewMarkElement): Rect | null {
-  if (
-    !(element instanceof SVGGraphicsElement) ||
-    element instanceof SVGSVGElement
-  ) {
-    return null;
-  }
-  const { x, y, width, height } = element.getBBox();
-  return { x, y, width, height };
 }
 
 /** Where `element` shows now, as `ShownMark` keeps it. */
@@ -136,14 +110,7 @@ function markOf(
   rect: Rect,
   options: SplitViewFlightOptions,
 ): ShownMark {
-  const style = getComputedStyle(element);
-  return {
-    element,
-    rect,
-    text: TEXT_STYLES.map((property) => style.getPropertyValue(property)),
-    options,
-    drawn: drawnBoxOf(element),
-  };
+  return { ...readSharedForm(element, rect), options };
 }
 
 /**
@@ -177,15 +144,6 @@ interface Part {
   drop(): void;
 }
 
-function mixRect(from: Rect, to: Rect, t: number): Rect {
-  return {
-    x: mix(from.x, to.x, t),
-    y: mix(from.y, to.y, t),
-    width: mix(from.width, to.width, t),
-    height: mix(from.height, to.height, t),
-  };
-}
-
 function isShown(element: Element) {
   if (!element.isConnected) return false;
   if (element.closest("[data-split-view-leaving]") !== null) return false;
@@ -198,32 +156,12 @@ function isShown(element: Element) {
   return width > 0 && height > 0;
 }
 
-/** The first fill that is not see-through, from `element` out. */
-function backdropOf(element: Element) {
-  for (
-    let node: Element | null = element;
-    node !== null;
-    node = node.parentElement
-  ) {
-    const fill = getComputedStyle(node).backgroundColor;
-    const color = parseCssColor(fill);
-    if (color !== null && color[3] > 0.99) return fill;
-  }
-  return "Canvas";
-}
-
-/** Whether `fill`, a fill from `backdropOf`, is dark. */
+/** Whether `fill`, a fill from `opaqueFillOf`, is dark. */
 function isDark(fill: string) {
   const color = parseCssColor(fill);
   return isDarkBackground(
     color !== null && color[3] > 0.99 ? color : readPageBackdrop(),
   );
-}
-
-function setStyle(element: SplitViewMarkElement, styles: Styles) {
-  for (const [property, value] of Object.entries(styles)) {
-    element.style.setProperty(property, value);
-  }
 }
 
 function dimOf(page: HTMLElement) {
@@ -366,7 +304,7 @@ function createPush(
       const frozen = frontPoses(front);
       unbindAll(frontBindings);
       for (const { element, pose } of frozen) {
-        if (element !== null) setStyle(element, pose(now));
+        if (element !== null) writeStyles(element, pose(now));
       }
       front = next;
       frontBindings = showAll(progress, frontPoses(front));
@@ -510,244 +448,7 @@ function createFade(
     drop() {
       binding.unbind();
       shown.stop();
-      setStyle(element, { transform: "", "background-color": "" });
-    },
-  };
-}
-
-/**
- * A copy of an element in the layer over the view, which flies in place of
- * the element. Its box starts at `rect`.
- */
-function copyOf(mark: ShownMark, layer: HTMLElement) {
-  const holder = document.createElement("div");
-  setStyle(holder, {
-    position: "absolute",
-    left: px(mark.rect.x),
-    top: px(mark.rect.y),
-    width: px(mark.rect.width),
-    height: px(mark.rect.height),
-    "transform-origin": "0 0",
-    "will-change": "transform, opacity",
-  });
-  TEXT_STYLES.forEach((property, index) => {
-    holder.style.setProperty(property, mark.text[index] ?? "");
-  });
-  holder.append(copyElement(mark));
-  layer.append(holder);
-  return holder;
-}
-
-/** A copy of the element of `mark` as it is now, at the size of its box. */
-function copyElement(mark: ShownMark): Element {
-  const copy = mark.element.cloneNode(true);
-  if (!(copy instanceof HTMLElement || copy instanceof SVGElement)) {
-    throw new TypeError("No copy");
-  }
-  for (const node of [copy, ...copy.querySelectorAll("[style]")]) {
-    if (
-      (node instanceof HTMLElement || node instanceof SVGElement) &&
-      node.style.opacity === "0"
-    ) {
-      node.style.removeProperty("opacity");
-    }
-  }
-  if (copy instanceof SVGElement) {
-    copy.style.removeProperty("opacity");
-    return drawingOf(copy, mark.drawn);
-  }
-  setStyle(copy, {
-    margin: "0",
-    "box-sizing": "border-box",
-    width: px(mark.rect.width),
-    height: px(mark.rect.height),
-    transform: "none",
-    opacity: "1",
-  });
-  return copy;
-}
-
-/**
- * An SVG drawing that holds `part`, a copy of a part of another drawing, and
- * stretches the box `drawn` of it to its own size. The lines keep their
- * width while it stretches.
- */
-function drawingOf(part: SVGElement, drawn: Rect | null) {
-  const svg = document.createElementNS(SVG_NS, "svg");
-  if (drawn !== null) {
-    svg.setAttribute(
-      "viewBox",
-      `${String(drawn.x)} ${String(drawn.y)} ${String(Math.max(drawn.width, 1))} ${String(Math.max(drawn.height, 1))}`,
-    );
-  }
-  svg.setAttribute("preserveAspectRatio", "none");
-  setStyle(svg, {
-    display: "block",
-    width: "100%",
-    height: "100%",
-    overflow: "visible",
-  });
-  for (const node of [part, ...part.querySelectorAll("*")]) {
-    if (node instanceof SVGGeometryElement) {
-      node.style.setProperty("vector-effect", "non-scaling-stroke");
-    }
-  }
-  svg.append(part);
-  return svg;
-}
-
-function aspect({ width, height }: Rect) {
-  return width / Math.max(height, 1);
-}
-
-/** The live edge of a screen that the copies of a flight go under. */
-interface Under {
-  readonly progress: MotionValue;
-  readonly edgeAt: (progress: number) => number;
-}
-
-/**
- * A Shared element on its way from where it showed to where it shows now:
- * a copy of each end flies in the layer over the view, and the ends wait
- * out of sight. Ends of a like shape stretch with the box and cross-fade;
- * ends of unlike shapes keep the shape of their content, and the new one
- * shows late. A part of an SVG drawing stretches its drawing, and its
- * lines keep their width.
- */
-interface Flight extends Part {
-  readonly origin: ShownMark;
-  readonly destination: ShownMark;
-  readonly progress: MotionValue;
-  /** Where the element shows now. */
-  rect(): Rect;
-  /** Copies the new form again where it drew its content since. */
-  refresh(): void;
-}
-
-function createFlight(
-  engine: MotionEngine,
-  {
-    origin,
-    destination,
-    layer,
-    delay,
-    role,
-    under,
-    start = { value: 0, velocity: 0 },
-  }: {
-    origin: ShownMark;
-    destination: ShownMark;
-    layer: HTMLElement;
-    delay: number;
-    role: SpringRole;
-    under: Under | null;
-    start?: { value: number; velocity: number };
-  },
-): Flight {
-  const progress = springValue(engine, start.value, role);
-  progress.to(1, { delay, velocity: start.velocity });
-  const ratio = aspect(origin.rect) / aspect(destination.rect);
-  const contain =
-    destination.drawn === null && Math.max(ratio, 1 / ratio) > CONTAIN_ASPECT;
-  const dips = destination.options.fade === "dip";
-  const from = copyOf(origin, layer);
-  const to = copyOf(destination, layer);
-  origin.element.style.opacity = "0";
-  destination.element.style.opacity = "0";
-  // An element that has just mounted can still draw its content, such as
-  // a chart that measures its width first. The copy follows it.
-  let isStale = false;
-  const watcher = new MutationObserver(() => {
-    isStale = true;
-  });
-  watcher.observe(destination.element, {
-    subtree: true,
-    childList: true,
-    characterData: true,
-    attributes: true,
-    attributeFilter: ["d", "width", "height", "viewBox", "class"],
-  });
-
-  const opacities = (p: number): readonly [number, number] => {
-    if (dips) {
-      const shown = 1 - DIP * Math.sin(Math.PI * unit(p));
-      const across = smoothstep(0.4, 0.6, p);
-      return [shown * (1 - across), shown * across];
-    }
-    if (contain) {
-      return [1 - smoothstep(0.15, 0.55, p), smoothstep(0.5, 1, p)];
-    }
-    return [1 - smoothstep(0.05, 0.55, p), smoothstep(0, 0.3, p)];
-  };
-
-  const placeOf = (copy: HTMLElement, rest: Rect, end: 0 | 1) => {
-    const isDrawing = copy.firstElementChild instanceof SVGSVGElement;
-    return (p: number, underProgress = 0): Styles => {
-      const box = mixRect(origin.rect, destination.rect, p);
-      const opacity = opacities(p)[end].toFixed(3);
-      const edge = under === null ? null : under.edgeAt(underProgress);
-      // Cuts the copy off at the edge of the screen that it goes under. The
-      // copy starts at `left` in the view, and a px of it is `scale` px there.
-      const clip = (left: number, scale: number) =>
-        edge === null
-          ? ""
-          : `inset(-100vmax calc(100% - ${px(Math.max(0, (edge - left) / scale))}) -100vmax -100vmax)`;
-      if (isDrawing) {
-        return {
-          transform: `translate(${px(box.x - rest.x)}, ${px(box.y - rest.y)})`,
-          width: px(box.width),
-          height: px(box.height),
-          opacity,
-          "clip-path": clip(box.x, 1),
-        };
-      }
-      if (contain) {
-        const scale = Math.min(
-          box.width / rest.width,
-          box.height / rest.height,
-        );
-        const x = box.x + (box.width - rest.width * scale) / 2 - rest.x;
-        const y = box.y + (box.height - rest.height * scale) / 2 - rest.y;
-        return {
-          transform: `translate(${px(x)}, ${px(y)}) scale(${scale.toFixed(4)})`,
-          opacity,
-          "clip-path": clip(rest.x + x, scale),
-        };
-      }
-      const scale = box.width / rest.width;
-      return {
-        transform: `translate(${px(box.x - rest.x)}, ${px(box.y - rest.y)}) scale(${scale.toFixed(4)}, ${(box.height / rest.height).toFixed(4)})`,
-        opacity,
-        "clip-path": clip(box.x, scale),
-      };
-    };
-  };
-
-  const values = under === null ? [progress] : [progress, under.progress];
-  const bindings = [
-    show(from, values, placeOf(from, origin.rect, 0)),
-    show(to, values, placeOf(to, destination.rect, 1)),
-  ];
-
-  return {
-    origin,
-    destination,
-    progress,
-    rect: () => mixRect(origin.rect, destination.rect, progress.get()),
-    refresh() {
-      if (!isStale) return;
-      isStale = false;
-      to.replaceChildren(copyElement(destination));
-    },
-    isMoving: () => progress.isMoving,
-    drop() {
-      unbindAll(bindings);
-      progress.stop();
-      watcher.disconnect();
-      from.remove();
-      to.remove();
-      origin.element.style.removeProperty("opacity");
-      destination.element.style.removeProperty("opacity");
+      writeStyles(element, { transform: "", "background-color": "" });
     },
   };
 }
@@ -914,7 +615,7 @@ export function createSplitViewMotion(
   let offset: Offset | null = null;
   let fold: Fold | null = null;
   let fades: Part[] = [];
-  let flights = new Map<string, Flight>();
+  let flights = new Map<string, Flight<ShownMark>>();
   let holders: Holder[] = [];
   let stopTicking: (() => void) | null = null;
   let folding: "fold" | "unfold" | null = null;
@@ -967,11 +668,31 @@ export function createSplitViewMotion(
     }
   }
 
+  function fly({
+    role,
+    ...options
+  }: {
+    origin: ShownMark;
+    destination: ShownMark;
+    delay: number;
+    role: SpringRole;
+    under: FlightUnder | null;
+    start?: { value: number; velocity: number };
+  }) {
+    return flyShared(engine, {
+      ...options,
+      layer,
+      spring: springOf(role),
+      fade: options.destination.options.fade,
+      renderer: "frame",
+    });
+  }
+
   /**
    * The edge of the new screen, where a Shared element flies to or from the
    * screen under it, so that it flies under the new screen too.
    */
-  function underOf(from: ShownMark, to: ShownMark): Under | null {
+  function underOf(from: ShownMark, to: ShownMark): FlightUnder | null {
     const current = push;
     const back = current?.back;
     if (current == null || back == null) return null;
@@ -997,10 +718,9 @@ export function createSplitViewMotion(
         flights.get(name)?.drop();
         flights.set(
           name,
-          createFlight(engine, {
+          fly({
             origin: from,
             destination: to,
-            layer,
             delay: 0,
             role: springRoles.move,
             under: underOf(from, to),
@@ -1155,7 +875,7 @@ export function createSplitViewMotion(
     running?.drop();
     push = null;
     const rect = rectIn(content, view.getBoundingClientRect());
-    const fill = backdropOf(content);
+    const fill = opaqueFillOf(content);
     return () => {
       push = createPush(
         engine,
@@ -1192,7 +912,7 @@ export function createSplitViewMotion(
     running?.drop();
     detail = null;
     const width = column.getBoundingClientRect().width;
-    const fill = backdropOf(column);
+    const fill = opaqueFillOf(column);
     return () => {
       detail = createDetail(engine, column, width, fill, 1 - target);
       detail.progress.to(target);
@@ -1209,7 +929,7 @@ export function createSplitViewMotion(
     if (Math.abs(dx) < 0.5) return noStart;
     const styles = {
       "z-index": "1",
-      "background-color": backdropOf(content),
+      "background-color": opaqueFillOf(content),
       "box-shadow": events.seam,
     };
     return () => {
@@ -1288,7 +1008,7 @@ export function createSplitViewMotion(
       );
 
       const stagger = change === "fold" ? STAGGER.fold : STAGGER.other;
-      const next = new Map<string, Flight>();
+      const next = new Map<string, Flight<ShownMark>>();
       pairs.forEach((pair, index) => {
         const { name, from, to } = pair;
         const role = isPart(pair) ? springRoles.move : springRoles.flight;
@@ -1307,10 +1027,9 @@ export function createSplitViewMotion(
         flights.delete(name);
         next.set(
           name,
-          createFlight(engine, {
+          fly({
             origin: from,
             destination: reverses ? { ...to, rect: running.origin.rect } : to,
-            layer,
             delay: reverses ? 0 : index * stagger,
             role,
             under: underOf(from, to),
@@ -1401,7 +1120,7 @@ export function createSplitViewMotion(
           front,
           rectIn(content, view.getBoundingClientRect()),
           "stacked",
-          backdropOf(content),
+          opaqueFillOf(content),
           1,
         );
       }

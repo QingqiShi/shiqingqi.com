@@ -7,7 +7,9 @@ import {
   within,
 } from "@testing-library/react";
 import { useRef } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeMotionClock } from "../test-support/fake-motion-clock.ts";
+import { reduceMotion } from "../test-support/reduce-motion.ts";
 import { Sheet, SheetBoundary } from "./sheet.tsx";
 
 function SheetHarness({
@@ -56,6 +58,15 @@ function mover() {
   return element;
 }
 
+/** How far down, in px, the motion puts the mover, from its rest. */
+function offsetOf(element: HTMLElement) {
+  const { transform } = element.style;
+  if (transform === "none") return 0;
+  return Number.parseFloat(
+    /translateY\((-?[\d.]+)px\)/.exec(transform)?.[1] ?? "NaN",
+  );
+}
+
 function drag(
   target: HTMLElement,
   moves: readonly number[],
@@ -90,132 +101,10 @@ function layOut() {
   );
 }
 
-/** Asks for reduced motion, and for nothing else. */
-function reduceMotion() {
-  const real = window.matchMedia.bind(window);
-  vi.spyOn(window, "matchMedia").mockImplementation((query) => {
-    const list = real(query);
-    Object.defineProperty(list, "matches", { value: query.includes("reduce") });
-    return list;
-  });
-}
-
-/**
- * A Web Animation that runs until the test finishes it. jsdom has none.
- */
-class HeldAnimation extends EventTarget implements Animation {
-  currentTime = null;
-  effect = null;
-  id = "";
-  oncancel = null;
-  onfinish = null;
-  onremove = null;
-  overallProgress = null;
-  pending = false;
-  playState: AnimationPlayState = "running";
-  playbackRate = 1;
-  replaceState: AnimationReplaceState = "active";
-  startTime = null;
-  timeline = null;
-  readonly finished: Promise<Animation>;
-  readonly ready: Promise<Animation>;
-  readonly element: Element;
-  readonly #keyframes: Keyframe[];
-  readonly #resolve: (animation: Animation) => void;
-  readonly #onCancel: (animation: HeldAnimation) => void;
-
-  constructor(
-    element: Element,
-    keyframes: Keyframe[],
-    onCancel: (animation: HeldAnimation) => void,
-  ) {
-    super();
-    const { promise, resolve } = Promise.withResolvers<Animation>();
-    this.finished = promise;
-    this.ready = Promise.resolve(this);
-    this.element = element;
-    this.#keyframes = keyframes;
-    this.#resolve = resolve;
-    this.#onCancel = onCancel;
-  }
-
-  finish() {
-    this.playState = "finished";
-    this.#resolve(this);
-  }
-
-  cancel() {
-    this.playState = "idle";
-    this.#onCancel(this);
-  }
-
-  commitStyles() {
-    if (!(this.element instanceof HTMLElement)) return;
-    for (const [property, value] of Object.entries(
-      this.#keyframes.at(-1) ?? {},
-    )) {
-      this.element.style.setProperty(property, String(value));
-    }
-  }
-
-  pause() {
-    this.playState = "paused";
-  }
-
-  play() {
-    this.playState = "running";
-  }
-
-  persist() {
-    this.replaceState = "persisted";
-  }
-
-  reverse() {
-    this.playbackRate = -this.playbackRate;
-  }
-
-  updatePlaybackRate(playbackRate: number) {
-    this.playbackRate = playbackRate;
-  }
-}
-
-/**
- * Records every Web Animation the sheet starts. They never finish unless the
- * test calls `finishAll`, which puts each element where its animation ends.
- */
-function recordAnimations() {
-  const started: { element: Element; keyframes: Keyframe[] }[] = [];
-  const running = new Set<HeldAnimation>();
-  Element.prototype.animate = function (
-    this: Element,
-    keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
-  ) {
-    const frames = Array.isArray(keyframes) ? keyframes : [];
-    started.push({ element: this, keyframes: frames });
-    const animation = new HeldAnimation(this, frames, (cancelled) => {
-      running.delete(cancelled);
-    });
-    running.add(animation);
-    return animation;
-  };
-  Element.prototype.getAnimations = function (this: Element) {
-    return [...running].filter(({ element }) => element === this);
-  };
-  const finishAll = async () => {
-    started.length = 0;
-    for (const animation of running) animation.finish();
-    await act(async () => {
-      await Promise.resolve();
-    });
-  };
-  return Object.assign(started, { finishAll });
-}
-
 afterEach(() => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
-  Reflect.deleteProperty(Element.prototype, "animate");
-  Reflect.deleteProperty(Element.prototype, "getAnimations");
 });
 
 describe("Sheet", () => {
@@ -313,87 +202,270 @@ describe("Sheet", () => {
     expect(document.querySelector('[class*="styles.dim"]')).toBeNull();
   });
 
-  it("unmounts after isOpen turns false", () => {
+  it("unmounts after isOpen turns false and the card has left", async () => {
+    const clock = fakeMotionClock();
     const { rerender } = render(<SheetHarness isOpen onClose={vi.fn()} />);
 
     rerender(<SheetHarness isOpen={false} onClose={vi.fn()} />);
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await act(() => clock.advance(1));
 
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.querySelector('[class*="styles.dim"]')).toBeNull();
   });
 
-  it("locks the page's scroll while open", () => {
+  it("locks the page's scroll while open", async () => {
+    const clock = fakeMotionClock();
     const { rerender } = render(<SheetHarness isOpen onClose={vi.fn()} />);
     expect(document.body).toHaveAttribute("data-scroll-locked");
 
     rerender(<SheetHarness isOpen={false} onClose={vi.fn()} />);
+    await act(() => clock.advance(1));
     expect(document.body).not.toHaveAttribute("data-scroll-locked");
   });
 
   describe("motion", () => {
-    function cardMotion(started: ReturnType<typeof recordAnimations>) {
-      return started.filter(({ element }) => element === mover());
+    let clock: ReturnType<typeof fakeMotionClock>;
+
+    beforeEach(() => {
+      clock = fakeMotionClock();
+    });
+
+    const pointer = {
+      pointerId: 1,
+      pointerType: "mouse",
+      isPrimary: true,
+      button: 0,
+    };
+
+    async function open(onClose = vi.fn()) {
+      const view = render(<SheetHarness isOpen onClose={onClose} />);
+      await act(() => clock.advance(1));
+      return view;
     }
 
-    it("slides the card up from below the bottom of the screen, and fades the dim in", () => {
+    it("slides the card up from below the bottom of the screen, and fades the dim in", async () => {
       layOut();
-      const started = recordAnimations();
-
       render(<SheetHarness isOpen onClose={vi.fn()} />);
 
-      expect(mover().style.transform).toBe("translateY(444px)");
-      expect(cardMotion(started).map(({ keyframes }) => keyframes)).toEqual([
-        [{ transform: "none" }],
-      ]);
+      expect(offsetOf(mover())).toBe(444);
       expect(part("dim").style.opacity).toBe("0");
-      expect(started.filter(({ element }) => element === part("dim"))).toEqual([
-        { element: part("dim"), keyframes: [{ opacity: "1" }] },
-      ]);
+      await act(() => clock.advance(0.1));
+      expect(offsetOf(mover())).toBeGreaterThan(0);
+      expect(offsetOf(mover())).toBeLessThan(444);
+      expect(Number(part("dim").style.opacity)).toBeGreaterThan(0);
+      await act(() => clock.advance(1));
+      expect(mover().style.transform).toBe("none");
+      expect(part("dim").style.opacity).toBe("1");
     });
 
     it("slides the card back down off the screen to close, then unmounts", async () => {
       layOut();
-      const started = recordAnimations();
       const onClose = vi.fn();
-      const { rerender } = render(<SheetHarness isOpen onClose={onClose} />);
-      await started.finishAll();
-      expect(mover().style.transform).toBe("none");
+      const { rerender } = await open(onClose);
 
       fireEvent.click(screen.getByRole("button", { name: "Close video" }));
       rerender(<SheetHarness isOpen={false} onClose={onClose} />);
+      await act(() => clock.advance(0.1));
+      expect(offsetOf(mover())).toBeGreaterThan(0);
 
-      expect(cardMotion(started).map(({ keyframes }) => keyframes)).toEqual([
-        [{ transform: "translateY(444px)" }],
-      ]);
-      await started.finishAll();
+      await act(() => clock.advance(1));
       expect(screen.queryByRole("dialog")).toBeNull();
     });
 
     it("comes back when the consumer keeps it open after a close", async () => {
       layOut();
-      const started = recordAnimations();
-      render(<SheetHarness isOpen onClose={vi.fn()} />);
-      await started.finishAll();
+      await open();
 
       fireEvent.click(screen.getByRole("button", { name: "Close video" }));
-      await started.finishAll();
-
+      await act(() => clock.advance(1));
       expect(screen.getByRole("dialog")).toBeInTheDocument();
-      expect(cardMotion(started).map(({ keyframes }) => keyframes)).toEqual([
-        [{ transform: "none" }],
-      ]);
+      await act(() => clock.advance(1));
+
+      expect(mover().style.transform).toBe("none");
     });
 
-    it("fades the card in place under reduced motion", () => {
+    it("turns a close during the open from where the card is, at the speed it has", async () => {
+      layOut();
+      render(<SheetHarness isOpen onClose={vi.fn()} />);
+      await act(() => clock.advance(0.05));
+      const before = offsetOf(mover());
+      await act(() => clock.advance(0.016));
+      const last = offsetOf(mover());
+      const rising = before - last;
+      expect(rising).toBeGreaterThan(0);
+
+      fireEvent.click(screen.getByRole("button", { name: "Close video" }));
+      const turned = offsetOf(mover());
+      expect(Math.abs(turned - last)).toBeLessThan(rising);
+      await act(() => clock.advance(0.016));
+
+      expect(offsetOf(mover())).toBeLessThan(turned);
+    });
+
+    it("holds the card where it is when a drag takes it mid-motion", async () => {
+      layOut();
+      render(<SheetHarness isOpen onClose={vi.fn()} />);
+      await act(() => clock.advance(0.05));
+      const moving = offsetOf(mover());
+
+      fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
+      const held = offsetOf(mover());
+      const dimmed = Number(part("dim").style.opacity);
+      expect(Math.abs(held - moving)).toBeLessThan(20);
+      await act(() => clock.advance(0.1));
+
+      expect(offsetOf(mover())).toBe(held);
+      fireEvent.pointerMove(card(), { ...pointer, clientY: 10 });
+      expect(offsetOf(mover())).toBeCloseTo(held + 10, 1);
+      // The dim goes on with its fade, and the drag takes only its own share.
+      expect(Number(part("dim").style.opacity)).toBeGreaterThan(dimmed * 0.9);
+    });
+
+    it("carries the speed of a fast release into the close", async () => {
+      layOut();
+      await open();
+
+      fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
+      for (const y of [40, 80, 120, 160, 200]) {
+        await act(() => clock.advance(0.016));
+        fireEvent.pointerMove(card(), { ...pointer, clientY: y });
+      }
+      fireEvent.pointerUp(card(), { ...pointer, clientY: 200 });
+      await act(() => clock.advance(0.016));
+
+      // The finger moves 2.5px a ms, so the card goes on about 40px in a frame.
+      expect(offsetOf(mover())).toBeGreaterThan(220);
+    });
+
+    it("springs back from a release at the speed of the drag", async () => {
+      layOut();
+      await open();
+
+      fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
+      for (const y of [-10, -20, -30]) {
+        await act(() => clock.advance(0.016));
+        fireEvent.pointerMove(card(), { ...pointer, clientY: y });
+      }
+      const released = offsetOf(mover());
+      fireEvent.pointerUp(card(), { ...pointer, clientY: -30 });
+      await act(() => clock.advance(0.016));
+
+      expect(offsetOf(mover())).toBeLessThan(released);
+      await act(() => clock.advance(1));
+      expect(mover().style.transform).toBe("none");
+    });
+
+    it("fades the card in place under reduced motion", async () => {
       layOut();
       reduceMotion();
-      const started = recordAnimations();
-
       render(<SheetHarness isOpen onClose={vi.fn()} />);
 
-      expect(cardMotion(started).map(({ keyframes }) => keyframes)).toEqual([
-        [{ opacity: "1" }],
-      ]);
+      expect(mover().style.transform).toBe("none");
+      expect(mover().style.opacity).toBe("0");
+      await act(() => clock.advance(0.1));
+      expect(mover().style.transform).toBe("none");
+      expect(Number(mover().style.opacity)).toBeGreaterThan(0);
+      await act(() => clock.advance(0.2));
+      expect(mover().style.opacity).toBe("1");
+    });
+
+    it("reports how far the dimmed page is in, up as it opens and down as it closes", async () => {
+      layOut();
+      const progress: number[] = [];
+      render(
+        <Sheet
+          isOpen
+          onClose={vi.fn()}
+          closeLabel="Close"
+          aria-label="Note"
+          onProgress={(value) => progress.push(value)}
+        />,
+      );
+      await act(() => clock.advance(1));
+      expect(progress.at(-1)).toBe(1);
+      expect(progress.some((value) => value > 0 && value < 1)).toBe(true);
+
+      progress.length = 0;
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+      await act(() => clock.advance(1));
+      expect(progress.at(-1)).toBe(0);
+      expect(progress).toEqual([...progress].sort((a, b) => b - a));
+    });
+
+    describe("from an element on the page", () => {
+      function setUpLift(onRead?: () => void) {
+        layOut();
+        const row = document.createElement("div");
+        document.body.append(row);
+        row.getBoundingClientRect = () => {
+          onRead?.();
+          return DOMRect.fromRect({ x: 0, y: 100, width: 390, height: 60 });
+        };
+        return row;
+      }
+
+      function LiftHarness({
+        isOpen,
+        row,
+        onProgress,
+      }: {
+        isOpen: boolean;
+        row: HTMLElement;
+        onProgress?: (progress: number) => void;
+      }) {
+        return (
+          <Sheet
+            isOpen={isOpen}
+            onClose={vi.fn()}
+            closeLabel="Close"
+            aria-label="Row"
+            liftFrom={() => row}
+            onProgress={onProgress}
+          >
+            <p>Body</p>
+          </Sheet>
+        );
+      }
+
+      it("lifts the card out of the element, then lets go of its styles", async () => {
+        const row = setUpLift();
+        render(<LiftHarness isOpen row={row} />);
+
+        expect(mover().style.transform).toBe("translate(-12.00px, -300.00px)");
+        expect(card().style.clipPath).toContain("inset(0 0.00px 320.00px 0");
+        await act(() => clock.advance(1.5));
+        expect(mover().style.transform).toBe("none");
+        expect(card().style.clipPath).toBe("");
+        expect(card().querySelector("[inert]")).toBeNull();
+      });
+
+      it("shrinks the card back into the element to close, then unmounts", async () => {
+        const row = setUpLift();
+        const { rerender } = render(<LiftHarness isOpen row={row} />);
+        await act(() => clock.advance(1.5));
+
+        rerender(<LiftHarness isOpen={false} row={row} />);
+        await act(() => clock.advance(0.1));
+        expect(mover().style.transform).toMatch(/^translate\(/);
+        expect(card().style.clipPath).toContain("inset(");
+
+        await act(() => clock.advance(1.5));
+        expect(screen.queryByRole("dialog")).toBeNull();
+      });
+
+      it("moves the page under the card before it reads where the element is", async () => {
+        const log: string[] = [];
+        const row = setUpLift(() => log.push("read"));
+        render(
+          <LiftHarness isOpen row={row} onProgress={() => log.push("page")} />,
+        );
+        log.length = 0;
+        await act(() => clock.advance(0.1));
+
+        expect(log.length).toBeGreaterThan(2);
+        expect(log.join(" ")).toMatch(/^page read( page read)*$/);
+      });
     });
   });
 
@@ -404,19 +476,31 @@ describe("Sheet", () => {
       isPrimary: true,
       button: 0,
     };
+    let clock: ReturnType<typeof fakeMotionClock>;
 
-    it("moves the card with a drag down on the grabber", () => {
+    beforeEach(() => {
+      clock = fakeMotionClock();
+    });
+
+    /** Lets the motion of the open come to rest. */
+    async function settle() {
+      await act(() => clock.advance(1));
+    }
+
+    it("moves the card with a drag down on the grabber", async () => {
       render(<SheetHarness isOpen onClose={vi.fn()} />);
+      await settle();
 
       fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
       fireEvent.pointerMove(card(), { ...pointer, clientY: 30 });
 
-      expect(mover().style.transform).toBe("translateY(30px)");
+      expect(offsetOf(mover())).toBe(30);
     });
 
-    it("keeps the card opaque under the finger past the bottom of the screen, and fades the dim with the distance", () => {
+    it("keeps the card opaque under the finger past the bottom of the screen, and fades the dim with the distance", async () => {
       layOut();
       render(<SheetHarness isOpen onClose={vi.fn()} />);
+      await settle();
 
       fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
       fireEvent.pointerMove(card(), { ...pointer, clientY: 222 });
@@ -424,35 +508,42 @@ describe("Sheet", () => {
       expect(part("dim").style.opacity).toBe("0.5");
 
       fireEvent.pointerMove(card(), { ...pointer, clientY: 600 });
-      expect(mover().style.transform).toBe("translateY(600px)");
+      expect(offsetOf(mover())).toBe(600);
       expect(mover().style.opacity).toBe("1");
       expect(mover().style.getPropertyValue("mask-image")).toBe("");
       expect(part("dim").style.opacity).toBe("0");
     });
 
-    it("closes the sheet when a drag goes far enough", () => {
+    it("closes the sheet when a drag goes far enough", async () => {
       const onClose = vi.fn();
       render(<SheetHarness isOpen onClose={onClose} />);
+      await settle();
 
       drag(part("grabber"), [40, 120, 200]);
 
       expect(onClose).toHaveBeenCalledOnce();
     });
 
-    it("springs back when a slow drag stops short", () => {
-      let now = 0;
-      vi.spyOn(performance, "now").mockImplementation(() => (now += 500));
+    it("springs back when a slow drag stops short", async () => {
       const onClose = vi.fn();
       render(<SheetHarness isOpen onClose={onClose} />);
+      await settle();
 
-      drag(part("grabber"), [10, 20, 30]);
+      fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 0 });
+      for (const y of [10, 20, 30]) {
+        await act(() => clock.advance(0.5));
+        fireEvent.pointerMove(card(), { ...pointer, clientY: y });
+      }
+      fireEvent.pointerUp(card(), { ...pointer, clientY: 30 });
+      await act(() => clock.advance(1));
 
       expect(onClose).not.toHaveBeenCalled();
       expect(mover().style.transform).toBe("none");
     });
 
-    it("resists a drag up", () => {
+    it("resists a drag up", async () => {
       render(<SheetHarness isOpen onClose={vi.fn()} />);
+      await settle();
 
       fireEvent.pointerDown(part("grabber"), { ...pointer, clientY: 300 });
       fireEvent.pointerMove(card(), { ...pointer, clientY: 0 });
@@ -462,9 +553,10 @@ describe("Sheet", () => {
       expect(moved).toBeGreaterThan(-100);
     });
 
-    it("drags from the content with a touch while it is scrolled to the top", () => {
+    it("drags from the content with a touch while it is scrolled to the top", async () => {
       const onClose = vi.fn();
       render(<SheetHarness isOpen onClose={onClose} />);
+      await settle();
 
       drag(screen.getByRole("button", { name: "Play" }), [40, 120, 200], {
         pointerType: "touch",
@@ -473,9 +565,10 @@ describe("Sheet", () => {
       expect(onClose).toHaveBeenCalledOnce();
     });
 
-    it("leaves the content to a mouse, so it can still select text", () => {
+    it("leaves the content to a mouse, so it can still select text", async () => {
       const onClose = vi.fn();
       render(<SheetHarness isOpen onClose={onClose} />);
+      await settle();
 
       drag(screen.getByRole("button", { name: "Play" }), [40, 120, 200]);
 
@@ -483,9 +576,10 @@ describe("Sheet", () => {
       expect(mover().style.transform).toBe("none");
     });
 
-    it("leaves a pull to the scroll while the content is scrolled down", () => {
+    it("leaves a pull to the scroll while the content is scrolled down", async () => {
       const onClose = vi.fn();
       render(<SheetHarness isOpen onClose={onClose} />);
+      await settle();
       const play = screen.getByRole("button", { name: "Play" });
       const scroller = play.parentElement;
       if (!scroller) throw new Error("no scroller");

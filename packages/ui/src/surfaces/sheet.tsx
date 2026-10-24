@@ -267,56 +267,30 @@ function SheetFrame({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const grabberRef = useRef<HTMLDivElement>(null);
   const closeCornerRef = useRef<HTMLDivElement>(null);
-  const parts = { cardRef, moverRef, dimRef };
   const area = useVisualViewport();
-  const progressRef = useRef({ frame: 0, value: -1 });
-  const report = (progress: number) => {
-    if (progress === progressRef.current.value) return;
-    progressRef.current.value = progress;
-    onProgress?.(progress);
-  };
-  // The browser runs the motion of the card, so its progress is read back
-  // from the dimmed page once a frame while that motion runs.
-  const follow = () => {
-    const state = progressRef.current;
-    if (state.frame !== 0 || onProgress === undefined) return;
-    const read = () => {
-      const dim = dimRef.current;
-      state.frame = 0;
-      if (dim === null) return;
-      report(Number.parseFloat(getComputedStyle(dim).opacity) || 0);
-      if (dim.getAnimations().length > 0) {
-        state.frame = requestAnimationFrame(read);
-      }
-    };
-    state.frame = requestAnimationFrame(read);
-  };
-  useSheetMotion(parts, {
-    isShown,
-    onLeft: () => {
-      cancelAnimationFrame(progressRef.current.frame);
-      progressRef.current.frame = 0;
-      report(0);
-      onLeft();
+  const motionRef = useSheetMotion(
+    { cardRef, moverRef, dimRef },
+    {
+      isShown,
+      onLeft,
+      onProgress,
+      lift:
+        liftFrom === undefined
+          ? null
+          : {
+              from: liftFrom,
+              contentRefs: [grabberRef, closeCornerRef, scrollerRef],
+            },
     },
-    onMoved: follow,
-    lift:
-      liftFrom === undefined
-        ? null
-        : {
-            from: liftFrom,
-            contentRefs: [grabberRef, closeCornerRef, scrollerRef],
-            onProgress: report,
-          },
-  });
+  );
   const dragHandlers = useSheetDrag({
-    ...parts,
+    cardRef,
+    motionRef,
     scrollerRef,
     grabberRef,
     closeCornerRef,
     isEnabled: isShown,
     onDismiss,
-    onMoved: follow,
   });
   useDialogFocus({
     isOpen,

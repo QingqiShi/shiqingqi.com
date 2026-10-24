@@ -195,10 +195,13 @@ test.describe("Bank balance at 390 px", () => {
 
     await keep.click();
     await expect(keep).toHaveCount(0);
+    // The seeded household can have its own rows on today, such as the
+    // salary on the 25th. The bank does not show those rows either, so the
+    // line can tell about the rest of the difference.
     await expect(
       page
         .getByText(
-          "The bank's transactions don't explain the difference: it is older than them, or the bank left a transaction out.",
+          /^The bank's transactions don't explain the (difference|rest): it is older than them, or the bank left a transaction out\.$/,
         )
         .first(),
     ).toBeVisible({ timeout: SYNC_TIMEOUT });

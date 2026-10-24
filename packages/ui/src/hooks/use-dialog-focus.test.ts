@@ -358,4 +358,26 @@ describe("useDialogFocus", () => {
     expect(firstOnClose).not.toHaveBeenCalled();
     expect(secondOnClose).toHaveBeenCalledOnce();
   });
+  it("gives focus back to the element that opened it on close, with no scroll", () => {
+    const trigger = document.createElement("button");
+    trigger.textContent = "Open";
+    document.body.append(trigger);
+    trigger.focus();
+    const { dialog, button1 } = createFocusableDialog();
+    const dialogRef = { current: dialog };
+    const focus = vi.spyOn(trigger, "focus");
+
+    const { rerender } = renderHook(
+      ({ isOpen }) => {
+        useDialogFocus({ isOpen, dialogRef, onClose: vi.fn() });
+      },
+      { initialProps: { isOpen: true } },
+    );
+    expect(button1).toHaveFocus();
+
+    rerender({ isOpen: false });
+
+    expect(trigger).toHaveFocus();
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+  });
 });

@@ -3,6 +3,7 @@ import {
   pickSheetVariant,
   SHEET_LAB,
   sheetTrigger,
+  waitForSheetToSettle,
 } from "./helpers/sheet-lab.ts";
 
 const SHEET = '[role="dialog"][aria-modal="true"]';
@@ -55,9 +56,7 @@ async function openFormSheet(page: Page) {
     await sheetTrigger(page).click();
     await expect(dialog).toBeVisible({ timeout: 1000 });
   }).toPass();
-  await expect
-    .poll(() => page.evaluate(() => document.getAnimations().length))
-    .toBe(0);
+  await waitForSheetToSettle(page);
 }
 
 function readCard(page: Page) {
