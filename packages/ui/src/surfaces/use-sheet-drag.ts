@@ -56,6 +56,8 @@ interface SheetDragOptions extends SheetParts {
   readonly isEnabled: boolean;
   /** A drag let go far enough or fast enough to close the sheet. */
   readonly onDismiss: () => void;
+  /** The drag moved the card, or let go of it and it springs back. */
+  readonly onMoved?: () => void;
 }
 
 /**
@@ -103,6 +105,7 @@ export function useSheetDrag({
   closeCornerRef,
   isEnabled,
   onDismiss,
+  onMoved,
 }: SheetDragOptions) {
   const dragRef = useRef<Drag | null>(null);
 
@@ -204,6 +207,7 @@ export function useSheetDrag({
     drag.y = rubberBand(drag.base + event.clientY - drag.startY);
     mover.style.transform = `translateY(${String(drag.y)}px)`;
     dim.style.opacity = String(1 - clamp01(drag.y / drag.reach));
+    onMoved?.();
   };
 
   const release = (event: PointerEvent, canDismiss: boolean) => {
@@ -219,6 +223,7 @@ export function useSheetDrag({
       onDismiss();
     } else {
       settle(mover, dim);
+      onMoved?.();
     }
   };
 

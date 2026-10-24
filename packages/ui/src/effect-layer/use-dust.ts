@@ -8,7 +8,8 @@ export interface DustOptions {
   /**
    * How much dust the element sheds: particles a second along every 100 px
    * of its edge. It sheds more while an Extractor fan pulls at it or a
-   * pointer is near it.
+   * pointer is near it. At 0 it sheds nothing, and the element is an
+   * Effect boundary until the density goes up.
    *
    * @default 3
    * @zh 元素散出灰尘的多少：沿边缘每 100 px 每秒的粒子数。当抽风机在吸它、或指针靠近它时，散出的灰尘会更多。
@@ -29,5 +30,5 @@ export interface DustOptions {
 export function useDust({
   density = EFFECT_SETTING_DEFAULTS.dust.density,
 }: DustOptions = {}) {
-  return useEffectRegistration(DUST, { dust: { density } });
+  return useEffectRegistration(density > 0 ? DUST : 0, { dust: { density } });
 }

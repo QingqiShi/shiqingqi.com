@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { useSplitViewShared } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
@@ -9,7 +10,7 @@ import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { bisectCenter } from "d3-array";
-import { useId, type ReactNode } from "react";
+import { useId, type ReactNode, type Ref } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { displayDay, displayDayRange } from "../domain/dates/display-day.ts";
@@ -73,6 +74,13 @@ interface TimeSeriesChartProps {
   bleeds?: boolean;
   /** A control at the end of the readout row, such as the range picker. */
   accessory?: ReactNode;
+  /**
+   * In a Navigation split view, the name of the Shared element that the
+   * chart is a form of. Its line and the labels of its highest and lowest
+   * points fly on their own, as `<name>:line`, `<name>:max` and
+   * `<name>:min`.
+   */
+  shared?: string;
 }
 
 const TOP = 22;
@@ -128,7 +136,13 @@ export function TimeSeriesChart({
   onPick,
   bleeds = true,
   accessory,
+  shared,
 }: TimeSeriesChartProps) {
+  const sharedPart = (part: string) =>
+    shared === undefined ? null : `${shared}:${part}`;
+  const lineRef = useSplitViewShared(sharedPart("line"));
+  const maxRef = useSplitViewShared(sharedPart("max"), { fade: "dip" });
+  const minRef = useSplitViewShared(sharedPart("min"), { fade: "dip" });
   const locale = useLocale();
   const titleId = useId();
   const descriptionId = useId();
@@ -360,6 +374,7 @@ export function TimeSeriesChart({
                 textRight={textRight}
                 height={height}
                 dimmed={range !== null}
+                lineRef={lineRef}
               />
               {range ? (
                 <>
@@ -387,6 +402,7 @@ export function TimeSeriesChart({
               {marked.length === 0 ? (
                 <>
                   <text
+                    ref={maxRef}
                     x={maxLabel.x}
                     y={ys[summary.maxIndex] - 8}
                     textAnchor={maxLabel.anchor}
@@ -400,6 +416,7 @@ export function TimeSeriesChart({
                   </text>
                   {summary.minIndex === summary.maxIndex ? null : (
                     <text
+                      ref={minRef}
                       x={minLabel.x}
                       y={ys[summary.minIndex] + 8}
                       dy="0.8em"
@@ -513,6 +530,7 @@ function StaticPlot({
   textRight,
   height,
   dimmed,
+  lineRef,
 }: {
   geometry: TimeSeriesGeometry;
   width: number;
@@ -521,6 +539,8 @@ function StaticPlot({
   textRight: number;
   height: number;
   dimmed: boolean;
+  /** Marks the line and its area as a form of a Shared element. */
+  lineRef: Ref<SVGGElement>;
 }) {
   const locale = useLocale();
   const gradientId = useId();
@@ -552,7 +572,7 @@ function StaticPlot({
           css={chartMarks.zeroLine}
         />
       )}
-      <g css={[toneColor.flat, dimmed && styles.dimmed]}>
+      <g ref={lineRef} css={[toneColor.flat, dimmed && styles.dimmed]}>
         <path d={geometry.area} fill={`url(#${gradientId})`} />
         {geometry.trendLine ? (
           <path d={geometry.trendLine} css={chartMarks.trendLine} />

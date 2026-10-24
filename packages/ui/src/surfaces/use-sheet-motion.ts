@@ -1,7 +1,8 @@
-import { useEffectEvent, useLayoutEffect, type RefObject } from "react";
+import { useEffectEvent, useLayoutEffect, useRef, type RefObject } from "react";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
+import { SheetLift } from "./sheet-lift.ts";
 
 /**
  * The parts of a Sheet that move.
@@ -210,19 +211,56 @@ export function settle(mover: HTMLElement, dim: HTMLElement) {
 }
 
 /**
+ * How a Sheet's card lifts out of an element on the page below `md`.
+ *
+ * @internal
+ */
+export interface SheetLiftOptions {
+  /** The element the card lifts out of and goes back into, or `null` for the slide. */
+  readonly from: () => HTMLElement | null;
+  /** The parts of the card's content that fade in late as it lifts. */
+  readonly contentRefs: readonly RefObject<HTMLElement | null>[];
+  /** Each frame of a lift, with how far the card is in. */
+  readonly onProgress: (progress: number) => void;
+}
+
+/**
  * Brings a Sheet's card in while `isShown`, and takes it out when `isShown`
  * turns false, from wherever it is. Below `md` the card slides up from below
- * the bottom of the screen and slides back down to leave. From `md` up it
- * rises a little, grows and fades in. Under reduced motion it fades in and
- * out in place. The dimmed page fades in and out with it.
+ * the bottom of the screen and slides back down to leave, or, with a `lift`,
+ * grows out of the element that `lift.from` gives and shrinks back into it.
+ * From `md` up it rises a little, grows and fades in. Under reduced motion
+ * it fades in and out in place. The dimmed page fades in and out with it.
+ * `onMoved` follows each motion that the browser runs.
  *
  * @internal
  */
 export function useSheetMotion(
   { cardRef, moverRef, dimRef }: SheetParts,
-  { isShown, onLeft }: { isShown: boolean; onLeft: () => void },
+  {
+    isShown,
+    onLeft,
+    onMoved,
+    lift = null,
+  }: {
+    isShown: boolean;
+    onLeft: () => void;
+    onMoved: () => void;
+    lift?: SheetLiftOptions | null;
+  },
 ) {
   const handleLeft = useEffectEvent(onLeft);
+  const handleMoved = useEffectEvent(onMoved);
+  const findOrigin = useEffectEvent(() => lift?.from() ?? null);
+  const reportProgress = useEffectEvent((progress: number) => {
+    lift?.onProgress(progress);
+  });
+  const contentOf = useEffectEvent(() =>
+    (lift?.contentRefs ?? [])
+      .map((ref) => ref.current)
+      .filter((element) => element !== null),
+  );
+  const liftRef = useRef<SheetLift | null>(null);
 
   useLayoutEffect(() => {
     const card = cardRef.current;
@@ -241,14 +279,63 @@ export function useSheetMotion(
     const dim = dimRef.current;
     if (!card || !mover || !dim) return;
     const motion = motionNow();
+    const running = liftRef.current;
+    const startLift = () => {
+      if (motion !== "slide") return null;
+      if (running !== null) return running;
+      const origin = findOrigin();
+      if (origin === null || !origin.isConnected) return null;
+      hold(mover, dim);
+      return new SheetLift(
+        origin,
+        { card, mover, dim, content: contentOf() },
+        { onProgress: reportProgress },
+        isShown
+          ? { progress: 0, drop: 0, shown: 1 }
+          : {
+              progress: 1,
+              drop: offsetOf(mover),
+              shown: Number.parseFloat(getComputedStyle(dim).opacity) || 0,
+            },
+      );
+    };
     if (isShown) {
-      moveTo(mover, dim, REST, enterTimings(motion));
+      const lifting = startLift();
+      if (lifting !== null) {
+        liftRef.current = lifting;
+        lifting.go(1, () => {
+          if (liftRef.current === lifting) liftRef.current = null;
+        });
+      } else {
+        moveTo(mover, dim, REST, enterTimings(motion));
+        handleMoved();
+      }
     } else {
-      const away = awayPose(motion, reachOf(card, offsetOf(mover)));
-      moveTo(mover, dim, away, leaveTimings(motion), handleLeft);
+      const lifting = startLift();
+      if (lifting !== null) {
+        liftRef.current = lifting;
+        lifting.go(0, () => {
+          lifting.stop();
+          if (liftRef.current === lifting) liftRef.current = null;
+          handleLeft();
+        });
+      } else {
+        running?.stop();
+        liftRef.current = null;
+        const away = awayPose(motion, reachOf(card, offsetOf(mover)));
+        moveTo(mover, dim, away, leaveTimings(motion), handleLeft);
+        handleMoved();
+      }
     }
     return () => {
       hold(mover, dim);
     };
   }, [cardRef, moverRef, dimRef, isShown]);
+
+  useLayoutEffect(
+    () => () => {
+      liftRef.current?.stop();
+    },
+    [],
+  );
 }

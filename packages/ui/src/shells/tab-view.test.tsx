@@ -6,16 +6,20 @@ import { describe, expect, it } from "vitest";
 import type { TabBarLinkProps } from "../actions/tab-bar.tsx";
 import { TabView } from "./tab-view.tsx";
 
-function renderView(props?: Partial<ComponentProps<typeof TabView>>) {
-  return render(
+function view(
+  props?: Partial<ComponentProps<typeof TabView>>,
+  current: "/" | "/search" = "/",
+) {
+  return (
     <TabView
       label="App"
       items={[
-        { href: "/", label: "Home", icon: HouseIcon, current: true },
+        { href: "/", label: "Home", icon: HouseIcon, current: current === "/" },
         {
           href: "/search",
           label: "Search",
           icon: MagnifyingGlassIcon,
+          current: current === "/search",
           badge: <span data-testid="dot" />,
           status: "New results",
         },
@@ -23,7 +27,19 @@ function renderView(props?: Partial<ComponentProps<typeof TabView>>) {
       {...props}
     >
       Screen
-    </TabView>,
+    </TabView>
+  );
+}
+
+function renderView(props?: Partial<ComponentProps<typeof TabView>>) {
+  return render(view(props));
+}
+
+/** The keyframes the screen rises with now, or null while it stays still. */
+function rise() {
+  return (
+    /styles\.rise(Odd|Even)/.exec(screen.getByRole("main").className)?.[0] ??
+    null
   );
 }
 
@@ -72,5 +88,34 @@ describe("TabView", () => {
         .getAllByRole("link")
         .every((link) => link.hasAttribute("data-slot")),
     ).toBe(true);
+  });
+
+  it("does not move the screen on the first render", () => {
+    renderView();
+    expect(rise()).toBeNull();
+  });
+
+  it("makes the new screen rise when the current destination changes", () => {
+    const { rerender } = renderView();
+    rerender(view({}, "/search"));
+    const first = rise();
+    expect(first).not.toBeNull();
+    rerender(view({}, "/"));
+    expect(rise()).not.toBeNull();
+    expect(rise()).not.toBe(first);
+  });
+
+  it("keeps the screen still while the destination stays the same", () => {
+    const { rerender } = renderView();
+    rerender(view({ children: "Drilled screen" }));
+    expect(rise()).toBeNull();
+  });
+
+  it("follows the screen key, not the current item, when one is given", () => {
+    const { rerender } = renderView({ screenKey: 0 });
+    rerender(view({ screenKey: 0 }, "/search"));
+    expect(rise()).toBeNull();
+    rerender(view({ screenKey: 1 }, "/search"));
+    expect(rise()).not.toBeNull();
   });
 });

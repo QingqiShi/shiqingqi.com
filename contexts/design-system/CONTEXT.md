@@ -106,3 +106,7 @@ _Avoid_: mini sidebar, icon rail, compact sidebar, 迷你侧栏
 **Column link**:
 A link in a column of a Navigation split view that opens or changes the column after it, such as a row of a list. A Column link that opens a deeper column adds a history entry, and one that changes a column already open replaces it. J and K move between the Column links of a column. `SplitViewLink` is the component. ZH: 栏内链接.
 _Avoid_: row link, drill link, nav link
+
+**Shared element**:
+One thing that a Navigation split view shows in more than one form, such as an account's avatar in the sidebar and its tile in the Collapsed sidebar, or a chart in the content and its compact form in the sidebar. Each form takes the same name from `useSplitViewShared`. When a navigation hides one form and shows another, the view flies the one into the other. ZH: 共享元素.
+_Avoid_: hero element, matched geometry, morph target, 英雄元素

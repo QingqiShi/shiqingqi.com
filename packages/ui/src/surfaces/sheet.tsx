@@ -77,6 +77,23 @@ interface SheetBaseProps {
    * @zh 面板打开时聚焦的元素；回退到面板内第一个可聚焦元素（关闭按钮）。
    */
   initialFocusRef?: RefObject<HTMLElement | null>;
+  /**
+   * Below `md`, the element the card lifts out of, such as the row that
+   * opened it. The card grows out of it, and shrinks back into it to leave,
+   * where it still shows. The sheet calls it each time the card comes or
+   * goes. Without it, or where it gives `null`, the card slides.
+   *
+   * @zh 在 `md` 以下，卡片从中升起的元素，例如打开它的那一行。卡片从它长出，离场时缩回到它之中（若它仍可见）。每次卡片出现或离开时都会调用它。不传或返回 `null` 时，卡片滑入滑出。
+   */
+  liftFrom?: () => HTMLElement | null;
+  /**
+   * Called on each frame that the card or the dimmed page moves, with how
+   * far the card is in: 0 away and 1 at rest. Use it to move the page
+   * behind with the card.
+   *
+   * @zh 卡片或压暗的页面移动时每一帧调用，参数为卡片到位的程度：0 为离开，1 为静止到位。可用它让后方页面随卡片一起移动。
+   */
+  onProgress?: (progress: number) => void;
 }
 
 /**
@@ -237,6 +254,8 @@ function SheetFrame({
   closeLabel,
   closeIcon,
   initialFocusRef,
+  liftFrom,
+  onProgress,
   title,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
@@ -250,7 +269,46 @@ function SheetFrame({
   const closeCornerRef = useRef<HTMLDivElement>(null);
   const parts = { cardRef, moverRef, dimRef };
   const area = useVisualViewport();
-  useSheetMotion(parts, { isShown, onLeft });
+  const progressRef = useRef({ frame: 0, value: -1 });
+  const report = (progress: number) => {
+    if (progress === progressRef.current.value) return;
+    progressRef.current.value = progress;
+    onProgress?.(progress);
+  };
+  // The browser runs the motion of the card, so its progress is read back
+  // from the dimmed page once a frame while that motion runs.
+  const follow = () => {
+    const state = progressRef.current;
+    if (state.frame !== 0 || onProgress === undefined) return;
+    const read = () => {
+      const dim = dimRef.current;
+      state.frame = 0;
+      if (dim === null) return;
+      report(Number.parseFloat(getComputedStyle(dim).opacity) || 0);
+      if (dim.getAnimations().length > 0) {
+        state.frame = requestAnimationFrame(read);
+      }
+    };
+    state.frame = requestAnimationFrame(read);
+  };
+  useSheetMotion(parts, {
+    isShown,
+    onLeft: () => {
+      cancelAnimationFrame(progressRef.current.frame);
+      progressRef.current.frame = 0;
+      report(0);
+      onLeft();
+    },
+    onMoved: follow,
+    lift:
+      liftFrom === undefined
+        ? null
+        : {
+            from: liftFrom,
+            contentRefs: [grabberRef, closeCornerRef, scrollerRef],
+            onProgress: report,
+          },
+  });
   const dragHandlers = useSheetDrag({
     ...parts,
     scrollerRef,
@@ -258,6 +316,7 @@ function SheetFrame({
     closeCornerRef,
     isEnabled: isShown,
     onDismiss,
+    onMoved: follow,
   });
   useDialogFocus({
     isOpen,
@@ -401,6 +460,7 @@ const styles = stylex.create({
   anchorContained: {
     position: "absolute",
     inset: 0,
+    overflowX: "clip",
     zIndex: layer.overlay,
     pointerEvents: "none",
   },
@@ -427,14 +487,19 @@ const styles = stylex.create({
   cardContained: {
     minBlockSize: 0,
   },
-  // A 0 x 0 box in the document. Below `md` it is at the bottom of the
-  // visible area, so it is on the keyboard while one is open. From `md` up
-  // it is at the centre of the visible area.
+  // A box with no height in the document. Below `md` it is at the bottom of
+  // the visible area, so it is on the keyboard while one is open. From `md`
+  // up it is a point at the centre of the visible area.
   anchor: {
     position: "absolute",
     // Physical, so the centre is the same in either direction.
     left: { default: 0, [breakpoints.md]: "50%" },
-    inlineSize: 0,
+    // A lift moves the full card sideways and its clip path shows only a
+    // part. A clip path does not change the scroll area, thus the card can
+    // make the document wider than the screen. The anchor is as wide as the
+    // screen and clips sideways, so that the document stays in the screen.
+    inlineSize: { default: "100vw", [breakpoints.md]: 0 },
+    overflowX: { default: "clip", [breakpoints.md]: "visible" },
     blockSize: 0,
     zIndex: layer.overlay,
     // Nothing in the anchor takes a click except the card itself.
@@ -468,7 +533,7 @@ const styles = stylex.create({
   dimLeaving: {
     pointerEvents: "none",
   },
-  // The anchor has no size, so the mover takes its width from the viewport.
+  // The mover takes its width from the viewport, not from the anchor.
   // The card fills it.
   mover: {
     position: "absolute",

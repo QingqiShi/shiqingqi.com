@@ -12,41 +12,72 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  ViewTransition,
   type ComponentProps,
   type ComponentType,
   type MouseEvent,
   type ReactNode,
   type RefCallback,
+  type RefObject,
 } from "react";
 import { Button } from "../actions/button.tsx";
 import { PlainAnchor } from "../actions/tab-bar.tsx";
+import { breakpoints } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
+import { useDust } from "../effect-layer/use-dust.ts";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { useExtractorFan } from "../effect-layer/use-extractor-fan.ts";
 import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { findTwinElement } from "../focus/find-twin-element.ts";
 import { isRendered } from "../focus/is-rendered.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { Sheet } from "../surfaces/sheet.tsx";
 import {
+  releaseVelocity,
+  type DragSample,
+} from "../surfaces/should-dismiss.ts";
+import {
   border,
   color,
   controlHeight,
   layer,
   rhythm,
+  shadow,
   space,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import {
+  claimEdgeSwipe,
+  EDGE_SWIPE_ZONE,
+  shouldPop,
+} from "./claim-edge-swipe.ts";
+import {
+  followPage,
+  settlePages,
+  type SplitViewPage,
+  type SplitViewPages,
+} from "./follow-page.ts";
+import { liftOrigin } from "./lift-origin.ts";
 import {
   splitViewDisplay,
   splitViewQueries,
   splitViewWidths,
 } from "./navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "./navigation-split-view.stylex.ts";
+import { normalizeUrl } from "./normalize-url.ts";
+import { pendingSnapshotFate } from "./pending-snapshot-fate.ts";
+import {
+  addSplitViewMark,
+  SplitViewMotion,
+  type SplitViewChange,
+  type SplitViewMarkElement,
+  type SplitViewMarks,
+  type SplitViewSnapshot,
+} from "./split-view-motion.ts";
 import { tabViewTokens } from "./tab-view.stylex.ts";
 
 /**
@@ -55,6 +86,7 @@ import { tabViewTokens } from "./tab-view.stylex.ts";
  * width as `splitViewQueries.detailBeside`.
  */
 const DETAIL_BESIDE_MIN_REM = 48.75;
+const WIDE_QUERY = breakpoints.md.replace("@media ", "");
 
 /** The props that `NavigationSplitView` hands its `linkComponent`. */
 export interface SplitViewLinkProps extends ComponentProps<"a"> {
@@ -159,18 +191,84 @@ export function useSplitViewColumn() {
 }
 
 /**
+ * The elements of each Shared element of the view around, `null` outside a
+ * view.
+ */
+const SplitViewMarksContext = createContext<SplitViewMarks | null>(null);
+
+/**
+ * What the Column links of a sidebar form do with dust while the sidebar
+ * folds: the form that goes sheds it, and the form that comes pulls it in.
+ */
+const SplitViewDustContext = createContext<"shed" | "pull" | null>(null);
+
+/** How much dust a Column link of the sidebar form that goes sheds. */
+const FOLD_DUST_DENSITY = 60;
+/** How far a Column link of the sidebar form that comes pulls dust in, in px. */
+const FOLD_FAN_REACH = 360;
+
+/**
+ * Marks an element as one form of the Shared element `name`, such as an
+ * account's avatar in the sidebar, its tile in the Collapsed sidebar, or a
+ * chart in the content and its compact form in the sidebar. Attach the
+ * returned ref. When a navigation hides the form that showed and shows
+ * another, the view flies one into the other. When a navigation moves the
+ * one form, such as a list that a new chart above it pushes down, the view
+ * moves it there. A form can be a part of an SVG drawing, such as the line
+ * of a chart, which stretches as it flies. A Shared element can hold
+ * others, such as a chart that holds its line and its labels: they fly on
+ * their own, the form it leaves stays, and the rest of the form it goes to
+ * shows as they land. Give each form a box of its own, and give one name to
+ * at most one form that shows at a time. Outside a `NavigationSplitView`,
+ * and for a `null` name, the ref does nothing.
+ */
+export function useSplitViewShared(
+  name: string | null,
+  { fade = "cross" }: SplitViewSharedOptions = {},
+) {
+  const marks = use(SplitViewMarksContext);
+  return (element: SplitViewMarkElement | null) => {
+    if (element === null || marks === null || name === null) return undefined;
+    return addSplitViewMark(marks, name, element, { fade });
+  };
+}
+
+export interface SplitViewSharedOptions {
+  /**
+   * How the two forms of the Shared element change over while it flies:
+   * `"cross"` cross-fades them, and `"dip"` fades it out most of the way at
+   * the middle of its flight and back in as it lands. Use `"dip"` for a
+   * label that rides along with a part that changes shape, such as the
+   * value at the top of a chart.
+   *
+   * @default "cross"
+   * @zh 共享元素飞行时两种形态如何交替：`"cross"` 交叉淡化；`"dip"` 在飞行中途淡出大半，落地时再淡入。用于随一个改变形状的部分一起移动的标签，例如图表顶端的数值。
+   */
+  fade?: "cross" | "dip";
+}
+
+/**
  * A link in a column that opens or changes the column after it, such as a
  * row of a list. It renders the view's `linkComponent` and follows the
  * history rule of the view. J and K move focus between the column links of
  * one column. Pass it as the link component of a row, such as `ListRow`'s.
+ * While the sidebar folds, the links of the form that goes dissolve into
+ * dust that the links of the form that comes pull in, on the effect layer.
  */
-export function SplitViewLink({ onClick, ...props }: SplitViewLinkProps) {
+export function SplitViewLink({ onClick, ref, ...props }: SplitViewLinkProps) {
   const view = use(SplitViewContext);
   const column = use(SplitViewColumnContext);
+  const dust = use(SplitViewDustContext);
+  const dustRef = useDust({ density: dust === "shed" ? FOLD_DUST_DENSITY : 0 });
+  const fanRef = useExtractorFan({
+    reach: dust === "pull" ? FOLD_FAN_REACH : 0,
+  });
+  const linkRef = mergeRefs(ref, dustRef, fanRef);
   const LinkComponent = view?.linkComponent ?? PlainAnchor;
   return (
     <LinkComponent
       {...props}
+      ref={linkRef}
       data-split-view-link=""
       onClick={(event) => {
         onClick?.(event);
@@ -300,6 +398,18 @@ interface NavigationSplitViewProps {
  * Keys, unless focus is in a field, a sheet or a dialog: Esc and ← take the
  * deepest column off. J and K move focus to the next and the previous
  * column link in the column that has focus, and Enter and → follow it.
+ *
+ * Motion follows the URL, after the first paint. A deeper column page
+ * springs in over the page it leaves, which drifts back and dims, and a
+ * shallower one springs back out. A detail slides in beside the content
+ * while the sidebar folds, and the Shared elements (`useSplitViewShared`)
+ * fly between their forms. Where the content is stacked, a drag from the
+ * start edge of the content takes it off. A navigation in the middle of a
+ * motion starts from where the motion is. Under reduced motion, each change
+ * is a short cross-fade. The Shared elements fly only for a navigation that
+ * the view starts, such as from a column link or a back link, and for Back
+ * and Forward of the browser. Another navigation, such as a `router.push`
+ * after a form, moves the columns and the pages only.
  */
 export function NavigationSplitView({
   sidebar,
@@ -312,6 +422,8 @@ export function NavigationSplitView({
   css,
 }: NavigationSplitViewProps) {
   const [view, setView] = useState<HTMLElement | null>(null);
+  const [layer, setLayer] = useState<HTMLElement | null>(null);
+  const [marks] = useState<SplitViewMarks>(() => new Map());
   const detailBeside = useDetailBeside(view);
   const hasSidebar = sidebar != null;
   const hasCollapsed = hasSidebar && collapsedSidebar != null;
@@ -321,8 +433,154 @@ export function NavigationSplitView({
   const deepest = detail ?? content;
   const deepestBack = deepest.back ?? null;
 
+  // Each column keeps the pages that a motion still shows, and a change of
+  // the URL is a motion of the next number.
+  const [motion, setMotion] = useState<{ id: number; change: SplitViewChange }>(
+    { id: 0, change: { content: null, detail: null } },
+  );
+  const [settled, setSettled] = useState(0);
+  const nextMotion = motion.id + 1;
+  const [pages, setPages] = useState<SplitViewPages<NavigationSplitViewColumn>>(
+    () => ({ under: null, current: pageOf(content, 0), leaving: null }),
+  );
+  const [details, setDetails] =
+    useState<SplitViewPages<NavigationSplitViewDetail> | null>(() =>
+      detailColumn === null ? null : pagesOf(detailColumn),
+    );
+  const [goneDetail, setGoneDetail] =
+    useState<SplitViewPage<NavigationSplitViewDetail> | null>(null);
+
+  let nextPages = pages;
+  let contentChange: SplitViewChange["content"] = null;
+  if (pages.current.key !== (content.key ?? "")) {
+    const followed = followPage(pages, pageOf(content, nextMotion));
+    nextPages = followed.pages;
+    contentChange = followed.change;
+  } else if (pages.current.column !== content) {
+    nextPages = { ...pages, current: pageOf(content, 0) };
+  }
+  nextPages = settlePages(nextPages, settled);
+  if (nextPages !== pages) setPages(nextPages);
+
+  // A detail that moves out of the sheet, as when the view grows, is no
+  // motion.
+  const [hadDetail, setHadDetail] = useState(detail != null);
+  if (hadDetail !== (detail != null)) setHadDetail(detail != null);
+  let nextDetails = details;
+  let nextGone = goneDetail;
+  let detailChange: SplitViewChange["detail"] = null;
+  if (detailColumn !== null) {
+    if (details === null) {
+      if (!hadDetail) detailChange = "in";
+      nextDetails = pagesOf(detailColumn);
+      nextGone = null;
+    } else if (details.current.key !== (detailColumn.key ?? "")) {
+      detailChange = "swap";
+      nextDetails = followPage(details, pageOf(detailColumn, nextMotion)).pages;
+    } else if (details.current.column !== detailColumn) {
+      nextDetails = { ...details, current: pageOf(detailColumn, 0) };
+    }
+  } else if (details !== null) {
+    nextDetails = null;
+    // A detail that moves into the sheet goes at once.
+    if (detail == null) {
+      detailChange = "out";
+      nextGone = { ...details.current, motion: nextMotion };
+    }
+  }
+  if (nextDetails !== null) nextDetails = settlePages(nextDetails, settled);
+  if (nextGone !== null && nextGone.motion <= settled) nextGone = null;
+  if (nextDetails !== details) setDetails(nextDetails);
+  if (nextGone !== goneDetail) setGoneDetail(nextGone);
+
+  if (contentChange !== null || detailChange !== null) {
+    setMotion({
+      id: nextMotion,
+      change: { content: contentChange, detail: detailChange },
+    });
+  }
+
+  const engineRef = useRef<SplitViewMotion | null>(null);
+  // Where the Shared elements show before a navigation of the view, for the
+  // motion that the navigation brings. Until that motion, it is read again
+  // at each frame, scroll and commit, as the data can come much later.
+  const pendingRef = useRef<{ snapshot: SplitViewSnapshot; to: string } | null>(
+    null,
+  );
+  const capture = (to: string) => {
+    const engine = engineRef.current;
+    if (engine === null) return;
+    pendingRef.current = { snapshot: engine.capture(), to: normalizeUrl(to) };
+  };
+  const recapture = useEffectEvent(() => {
+    const pending = pendingRef.current;
+    const engine = engineRef.current;
+    if (pending === null || engine === null) return;
+    pendingRef.current = { ...pending, snapshot: engine.capture() };
+  });
+  const [folding, setFolding] = useState<"fold" | "unfold" | null>(null);
+  useLayoutEffect(() => {
+    if (view === null || layer === null) return;
+    const created = new SplitViewMotion(view, layer, marks, {
+      seam: `-1px 0 0 ${color.border}`,
+      onFold: setFolding,
+      onSettled: (id) => {
+        setSettled((current) => Math.max(current, id));
+      },
+      onFrame: () => {
+        recapture();
+      },
+    });
+    engineRef.current = created;
+    return () => {
+      created.destroy();
+      engineRef.current = null;
+    };
+  }, [view, layer, marks]);
+
+  useLayoutEffect(() => {
+    const engine = engineRef.current;
+    if (motion.id === 0 || engine === null) return;
+    const pending = pendingRef.current;
+    pendingRef.current = null;
+    const here = normalizeUrl(window.location.href);
+    const snapshot =
+      pending !== null && pendingSnapshotFate(pending.to, here, true) === "play"
+        ? pending.snapshot
+        : null;
+    engine.play(snapshot, motion.change, motion.id);
+  }, [motion]);
+
+  useLayoutEffect(() => {
+    const pending = pendingRef.current;
+    if (pending === null) return;
+    const here = normalizeUrl(window.location.href);
+    if (pendingSnapshotFate(pending.to, here, false) === "drop") {
+      pendingRef.current = null;
+    } else {
+      recapture();
+    }
+  });
+
+  const captureHistoryStep = useEffectEvent((to: string) => {
+    capture(to);
+  });
+  useEffect(() => {
+    if (view === null) return;
+    const onScroll = () => {
+      recapture();
+    };
+    view.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    const stopHistorySteps = onHistoryStep(captureHistoryStep);
+    return () => {
+      view.removeEventListener("scroll", onScroll, { capture: true });
+      stopHistorySteps();
+    };
+  }, [view]);
+
   const leavingRef = useRef<string | null>(null);
   const pushedRef = useRef<{ from: string; to: string } | null>(null);
+  const pressedRef = useRef<HTMLElement | null>(null);
   useLayoutEffect(() => {
     leavingRef.current = null;
   }, [deepest.key, deepestBack?.href]);
@@ -330,6 +588,7 @@ export function NavigationSplitView({
   const takeOff = (href: string) => {
     if (leavingRef.current === window.location.href) return;
     leavingRef.current = window.location.href;
+    capture(href);
     if (previousEntryUrl(pushedRef.current) === normalizeUrl(href)) {
       window.history.back();
     } else {
@@ -339,6 +598,7 @@ export function NavigationSplitView({
 
   const follow: SplitViewState["follow"] = (event, href, column) => {
     if (event.defaultPrevented || !isPlainClick(event)) return;
+    pressedRef.current = event.currentTarget;
     const target = normalizeUrl(href);
     if (target === normalizeUrl(window.location.href)) {
       event.preventDefault();
@@ -356,6 +616,7 @@ export function NavigationSplitView({
       column === "sidebar"
         ? content.back != null
         : column === "content" && detail != null;
+    capture(href);
     if (changesShownColumn) {
       event.preventDefault();
       replace(href);
@@ -373,6 +634,7 @@ export function NavigationSplitView({
     (hasDetailColumn ? detailColumn.key : content.key) ?? null,
   );
   useColumnKeys(view, deepestBack, takeOff);
+  useEdgeSwipe(view, engineRef, content.back ?? null, takeOff);
 
   const [lastSheet, setLastSheet] = useState<NavigationSplitViewDetail | null>(
     null,
@@ -381,6 +643,12 @@ export function NavigationSplitView({
     setLastSheet(detail);
   }
   const sheet = asSheet ? detail : lastSheet;
+  // A sheet can close after the URL changes, for example on Back. Then it
+  // goes back into the link to the URL that it showed.
+  const sheetHrefRef = useRef<string | null>(null);
+  useLayoutEffect(() => {
+    if (asSheet) sheetHrefRef.current = window.location.href;
+  });
 
   const viewState: SplitViewState = { linkComponent, follow };
   const closeOf = (back: SplitViewBackLink | null | undefined) =>
@@ -393,109 +661,227 @@ export function NavigationSplitView({
   const sidebarForms: readonly ("full" | "collapsed")[] = hasCollapsed
     ? ["full", "collapsed"]
     : ["full"];
+  const dustOf = (form: "full" | "collapsed") => {
+    if (folding === null) return null;
+    return (folding === "fold") === (form === "full") ? "shed" : "pull";
+  };
+  const contentPages: ColumnPage[] = [
+    ...(pages.under === null
+      ? []
+      : [{ ...pages.under, role: "under" as const }]),
+    { key: content.key ?? "", column: content, role: "current" },
+    ...(pages.leaving === null
+      ? []
+      : [{ ...pages.leaving, role: "leaving" as const }]),
+  ];
+  const shownDetail = detailColumn ?? goneDetail?.column ?? null;
+  const detailPages: ColumnPage[] =
+    shownDetail === null
+      ? []
+      : [
+          { key: shownDetail.key ?? "", column: shownDetail, role: "current" },
+          ...(details?.leaving == null
+            ? []
+            : [{ ...details.leaving, role: "leaving" as const }]),
+        ];
 
   return (
     <SplitViewContext value={viewState}>
-      <div ref={setView} css={[styles.view, css]}>
-        <div
-          css={[
-            styles.columns,
-            hasSidebar && !hasDetailColumn && styles.fullSidebarBesideContent,
-          ]}
-        >
-          {hasSidebar
-            ? sidebarForms.map((form) => (
-                <Column
-                  key={form}
-                  column="sidebar"
-                  label={sidebar.label}
-                  columnKey={sidebar.key}
-                  close={null}
-                  css={[
-                    sidebarStyles.base,
-                    form === "full"
-                      ? sidebarStyles.full
-                      : sidebarStyles.collapsed,
-                    sidebarShownStyle(form, hasDetailColumn),
-                  ]}
-                  contentCss={
-                    form === "full"
-                      ? sidebarStyles.fullContent
-                      : sidebarStyles.collapsedContent
-                  }
-                >
-                  {form === "full" ? sidebar.node : collapsedSidebar}
-                </Column>
-              ))
-            : null}
-          <Column
-            column="content"
-            label={content.label}
-            columnKey={content.key}
-            close={closeOf(content.back)}
-            accessory={content.accessory}
+      <SplitViewMarksContext value={marks}>
+        <div ref={setView} css={[styles.view, css]}>
+          <div
             css={[
-              contentStyles.base,
-              !hasDetailColumn &&
-                (hasCollapsed
-                  ? contentStyles.stackedBelowCollapsed
-                  : hasSidebar && contentStyles.stackedBelowSidebar),
+              styles.columns,
+              hasSidebar && !hasDetailColumn && styles.fullSidebarBesideContent,
             ]}
-            contentCss={contentStyles.content}
           >
-            {content.back == null ? null : (
-              <BackLink back={content.back} onTakeOff={takeOff} />
-            )}
-            {content.node}
-          </Column>
-          {detailColumn === null ? null : (
+            {hasSidebar
+              ? sidebarForms.map((form) => (
+                  <SplitViewDustContext key={form} value={dustOf(form)}>
+                    <Column
+                      column="sidebar"
+                      form={form}
+                      label={sidebar.label}
+                      pages={[
+                        {
+                          key: sidebar.key ?? "",
+                          role: "current",
+                          column: {
+                            ...sidebar,
+                            node:
+                              form === "full" ? sidebar.node : collapsedSidebar,
+                          },
+                        },
+                      ]}
+                      close={null}
+                      css={[
+                        sidebarStyles.base,
+                        form === "full"
+                          ? sidebarStyles.full
+                          : sidebarStyles.collapsed,
+                        sidebarShownStyle(form, hasDetailColumn),
+                      ]}
+                      contentCss={
+                        form === "full"
+                          ? sidebarStyles.fullContent
+                          : sidebarStyles.collapsedContent
+                      }
+                    />
+                  </SplitViewDustContext>
+                ))
+              : null}
             <Column
-              column="detail"
-              label={detailColumn.label}
-              columnKey={detailColumn.key}
-              close={closeOf(detailColumn.back)}
-              header={
-                <DetailHeader
-                  back={detailColumn.back}
-                  label={detailColumn.label}
-                  closeLabel={closeLabel}
-                  onClose={() => {
-                    takeOff(detailColumn.back.href);
-                  }}
-                />
+              column="content"
+              label={content.label}
+              pages={contentPages}
+              close={closeOf(content.back)}
+              css={[
+                contentStyles.base,
+                !hasDetailColumn &&
+                  (hasCollapsed
+                    ? contentStyles.stackedBelowCollapsed
+                    : hasSidebar && contentStyles.stackedBelowSidebar),
+              ]}
+              scrollerCss={content.back != null && contentStyles.swipes}
+              contentCss={contentStyles.content}
+              top={(column) =>
+                column.back == null ? null : (
+                  <BackLink back={column.back} onTakeOff={takeOff} />
+                )
               }
-              css={detailStyles.base}
-              contentCss={[contentStyles.content, detailStyles.content]}
-              fades
-            >
-              {detailColumn.node}
-            </Column>
-          )}
+            />
+            {shownDetail === null ? null : (
+              <Column
+                column="detail"
+                label={shownDetail.label}
+                isLeaving={detailColumn === null}
+                pages={detailPages}
+                close={detailColumn === null ? null : closeOf(shownDetail.back)}
+                header={
+                  <DetailHeader
+                    back={shownDetail.back}
+                    label={shownDetail.label}
+                    closeLabel={closeLabel}
+                    onClose={() => {
+                      takeOff(shownDetail.back.href);
+                    }}
+                  />
+                }
+                css={[
+                  detailStyles.base,
+                  detailColumn === null && detailStyles.leaving,
+                ]}
+                contentCss={[contentStyles.content, detailStyles.content]}
+              />
+            )}
+          </div>
+          <div ref={setLayer} aria-hidden inert css={styles.flights} />
         </div>
-      </div>
-      <Sheet
-        isOpen={asSheet}
-        onClose={() => {
-          if (sheet !== null) takeOff(sheet.back.href);
-        }}
-        closeLabel={closeLabel}
-        aria-label={sheet?.label ?? closeLabel}
-      >
-        {sheet === null ? null : (
-          <SplitViewColumnContext
-            value={{
-              column: "detail",
-              presentation: "sheet",
-              scroller: null,
-              close: closeOf(sheet.back),
-            }}
-          >
-            {sheet.node}
-          </SplitViewColumnContext>
-        )}
-      </Sheet>
+        <Sheet
+          isOpen={asSheet}
+          onClose={() => {
+            if (sheet !== null) takeOff(sheet.back.href);
+          }}
+          closeLabel={closeLabel}
+          aria-label={sheet?.label ?? closeLabel}
+          liftFrom={() => {
+            const pressed = pressedRef.current;
+            pressedRef.current = null;
+            const href = asSheet ? window.location.href : sheetHrefRef.current;
+            return view === null ? null : liftOrigin(view, pressed, href);
+          }}
+          onProgress={(progress) => {
+            recede(view, progress);
+          }}
+        >
+          {sheet === null ? null : (
+            <SplitViewColumnContext
+              value={{
+                column: "detail",
+                presentation: "sheet",
+                scroller: null,
+                close: closeOf(sheet.back),
+              }}
+            >
+              {sheet.node}
+            </SplitViewColumnContext>
+          )}
+        </Sheet>
+      </SplitViewMarksContext>
     </SplitViewContext>
   );
+}
+
+function pageOf<
+  Column extends NavigationSplitViewColumn | NavigationSplitViewDetail,
+>(column: Column, motion: number): SplitViewPage<Column> {
+  return { key: column.key ?? "", column, deep: column.back != null, motion };
+}
+
+function pagesOf<
+  Column extends NavigationSplitViewColumn | NavigationSplitViewDetail,
+>(column: Column): SplitViewPages<Column> {
+  return { under: null, current: pageOf(column, 0), leaving: null };
+}
+
+const RECEDE_SCALE = 0.065;
+const RECEDE_DROP = 10;
+
+/**
+ * Moves the view back while a sheet is over it below `md`, as the screen
+ * under a sheet on a phone: it shrinks a little, drops, and rounds its
+ * corners. `progress` is how far the sheet is in.
+ */
+function recede(view: HTMLElement | null, progress: number) {
+  if (view === null) return;
+  const shown = Math.min(1, Math.max(0, progress));
+  if (
+    shown < 0.001 ||
+    prefersReducedMotion() ||
+    window.matchMedia(WIDE_QUERY).matches
+  ) {
+    for (const property of [
+      "transform",
+      "transform-origin",
+      "border-radius",
+      "corner-shape",
+      "overflow",
+    ]) {
+      view.style.removeProperty(property);
+    }
+    return;
+  }
+  view.style.transformOrigin = "50% 0";
+  view.style.transform = `translateY(${(RECEDE_DROP * shown).toFixed(2)}px) scale(${(1 - RECEDE_SCALE * shown).toFixed(4)})`;
+  view.style.borderRadius = border.radius_4;
+  view.style.setProperty("corner-shape", "squircle");
+  view.style.overflow = "clip";
+}
+
+/**
+ * Calls `onStep` with the URL that Back or Forward of the browser goes to,
+ * before the router changes the DOM. Gives the cleanup.
+ */
+function onHistoryStep(onStep: (to: string) => void) {
+  // React commits the router's transition of a popstate event before the
+  // next popstate listener runs. The navigate event comes before popstate.
+  const navigation = "navigation" in window ? window.navigation : null;
+  if (navigation !== null) {
+    const onNavigate = (event: NavigateEvent) => {
+      if (event.navigationType === "traverse") onStep(event.destination.url);
+    };
+    navigation.addEventListener("navigate", onNavigate);
+    return () => {
+      navigation.removeEventListener("navigate", onNavigate);
+    };
+  }
+  const onPopState = () => {
+    onStep(window.location.href);
+  };
+  window.addEventListener("popstate", onPopState, { capture: true });
+  return () => {
+    window.removeEventListener("popstate", onPopState, { capture: true });
+  };
 }
 
 function replaceLocation(href: string) {
@@ -511,14 +897,6 @@ function isPlainClick(event: MouseEvent) {
     !event.shiftKey &&
     !event.altKey
   );
-}
-
-/** The URL without its fragment and with its params in order, to compare two URLs. */
-function normalizeUrl(href: string) {
-  const url = new URL(href, window.location.href);
-  url.hash = "";
-  url.searchParams.sort();
-  return url.href;
 }
 
 /**
@@ -722,80 +1100,248 @@ function useStackFocus(
   }, [view, column, key]);
 }
 
+/** One page of a column, and its part in the motion. */
+interface ColumnPage {
+  key: string;
+  role: "under" | "current" | "leaving";
+  column: NavigationSplitViewColumn | NavigationSplitViewDetail;
+}
+
 interface ColumnProps {
   column: SplitViewColumnState["column"];
+  /** The form of the sidebar, for a sidebar column. */
+  form?: "full" | "collapsed";
   label: string;
-  columnKey: string | null | undefined;
+  /**
+   * The pages of the column, by key: the page that shows, and the pages
+   * that a motion still shows. Each page keeps its scroll while it stays.
+   */
+  pages: readonly ColumnPage[];
   close: (() => void) | null;
+  /** Whether the column leaves the view, and shows only while it moves out. */
+  isLeaving?: boolean;
   header?: ReactNode;
-  accessory?: ReactNode;
+  /** What a page shows above its node, such as its back link. */
+  top?: (column: NavigationSplitViewColumn) => ReactNode;
   css: StyleProp;
+  scrollerCss?: StyleProp;
   contentCss: StyleProp;
-  /** Fades the old content out and the new content in when the key changes. */
-  fades?: boolean;
-  children: ReactNode;
 }
 
 function Column({
   column,
+  form,
   label,
-  columnKey,
+  pages,
   close,
+  isLeaving = false,
   header,
-  accessory,
+  top,
   css,
+  scrollerCss,
   contentCss,
-  fades = false,
-  children,
 }: ColumnProps) {
-  const [scroller, setScroller] = useState<HTMLElement | null>(null);
-  const key = columnKey ?? undefined;
-  const body = (
-    <>
-      {children}
-      {accessory == null ? null : <Accessory>{accessory}</Accessory>}
-    </>
-  );
   return (
     <section
       aria-label={label}
       tabIndex={-1}
+      inert={isLeaving}
       data-split-view-column={column}
+      data-split-view-sidebar={form}
       css={[styles.column, a11y.focusRingInset, css]}
     >
-      <SplitViewColumnContext
-        value={{ column, presentation: "column", scroller, close }}
-      >
-        {header}
-        {fades ? (
-          // The browser draws the snapshot of a view transition above the
-          // page. Thus the snapshot is of the scroller, which clips its own
-          // content, and not of the content.
-          <ViewTransition key={key} enter="auto" exit="auto" default="none">
-            <RegionScroller scrollerRef={setScroller} contentCss={contentCss}>
-              {body}
-            </RegionScroller>
-          </ViewTransition>
-        ) : (
-          <RegionScroller
-            key={key}
-            scrollerRef={setScroller}
+      {header}
+      <div data-split-view-pages="" css={styles.pages}>
+        {pages.map((page) => (
+          <ColumnPageView
+            key={page.key}
+            column={column}
+            page={page}
+            close={page.role === "current" ? close : null}
+            scrollerCss={scrollerCss}
             contentCss={contentCss}
-          >
-            {body}
-          </RegionScroller>
-        )}
-      </SplitViewColumnContext>
+            top={top}
+          />
+        ))}
+      </div>
+      {column === "sidebar" ? null : (
+        <span data-split-view-edge="" aria-hidden css={styles.edge} />
+      )}
     </section>
   );
 }
 
+function ColumnPageView({
+  column,
+  page,
+  close,
+  scrollerCss,
+  contentCss,
+  top,
+}: {
+  column: SplitViewColumnState["column"];
+  page: ColumnPage;
+  close: (() => void) | null;
+  scrollerCss?: StyleProp;
+  contentCss: StyleProp;
+  top?: (column: NavigationSplitViewColumn) => ReactNode;
+}) {
+  const [scroller, setScroller] = useState<HTMLElement | null>(null);
+  const isCurrent = page.role === "current";
+  const accessory = "accessory" in page.column ? page.column.accessory : null;
+  return (
+    <div
+      data-split-view-page={page.role}
+      inert={!isCurrent}
+      aria-hidden={isCurrent ? undefined : true}
+      css={[styles.page, !isCurrent && styles.pageAside]}
+    >
+      <SplitViewColumnContext
+        value={{ column, presentation: "column", scroller, close }}
+      >
+        <RegionScroller
+          scrollerRef={setScroller}
+          scrollerCss={scrollerCss}
+          contentCss={contentCss}
+        >
+          {top?.(page.column)}
+          {page.column.node}
+          {accessory == null ? null : <Accessory>{accessory}</Accessory>}
+        </RegionScroller>
+      </SplitViewColumnContext>
+      <span data-split-view-dim="" aria-hidden css={styles.dim} />
+      <span data-split-view-edge="" aria-hidden css={styles.edge} />
+    </div>
+  );
+}
+
+/**
+ * The swipe back from the inline-start edge of the content, where the
+ * content fills the view, as on a phone. The screen follows the finger, and
+ * the swipe goes back where it is let go far enough or fast enough. Else
+ * the screen springs back in.
+ */
+function useEdgeSwipe(
+  view: HTMLElement | null,
+  engineRef: RefObject<SplitViewMotion | null>,
+  back: SplitViewBackLink | null,
+  takeOff: (href: string) => void,
+) {
+  const goBack = useEffectEvent(() => {
+    if (back !== null) takeOff(back.href);
+  });
+  const canSwipe = useEffectEvent(() => back !== null);
+  useEffect(() => {
+    if (view === null) return;
+    let swipe: {
+      pointerId: number;
+      startX: number;
+      startY: number;
+      width: number;
+      isActive: boolean;
+      samples: DragSample[];
+    } | null = null;
+    const content = () =>
+      view.querySelector<HTMLElement>('[data-split-view-column="content"]');
+    const onDown = (event: PointerEvent) => {
+      if (swipe !== null || !event.isPrimary || event.button !== 0) return;
+      if (!canSwipe() || !isStacked(view)) return;
+      const column = content();
+      if (column === null || !(event.target instanceof Node)) return;
+      if (!column.contains(event.target)) return;
+      const box = column.getBoundingClientRect();
+      if (event.clientX - box.left > EDGE_SWIPE_ZONE) return;
+      swipe = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        width: box.width,
+        isActive: false,
+        samples: [],
+      };
+    };
+    const onMove = (event: PointerEvent) => {
+      if (swipe === null || event.pointerId !== swipe.pointerId) return;
+      const dx = event.clientX - swipe.startX;
+      if (!swipe.isActive) {
+        const decision = claimEdgeSwipe(dx, event.clientY - swipe.startY);
+        if (decision === "wait") return;
+        if (
+          decision === "release" ||
+          engineRef.current?.beginSwipe() !== true
+        ) {
+          swipe = null;
+          return;
+        }
+        swipe.isActive = true;
+        try {
+          view.setPointerCapture(event.pointerId);
+        } catch {
+          // A pointer that is gone cannot be captured, and the swipe goes on.
+        }
+      }
+      swipe.samples.push({ time: performance.now(), y: event.clientX });
+      if (swipe.samples.length > 12) swipe.samples.shift();
+      engineRef.current?.drag(1 - Math.min(1, Math.max(0, dx / swipe.width)));
+    };
+    const onUp = (event: PointerEvent, canPop: boolean) => {
+      if (swipe === null || event.pointerId !== swipe.pointerId) return;
+      const ended = swipe;
+      swipe = null;
+      if (!ended.isActive) return;
+      const velocity = releaseVelocity(ended.samples);
+      const pop =
+        canPop &&
+        shouldPop(event.clientX - ended.startX, velocity, ended.width);
+      engineRef.current?.release(pop, (-velocity * 1000) / ended.width);
+      swipedAt = performance.now();
+      if (pop) goBack();
+    };
+    // The click that ends a swipe must not follow the link under it.
+    let swipedAt = Number.NEGATIVE_INFINITY;
+    const onClick = (event: Event) => {
+      if (performance.now() - swipedAt > 300) return;
+      swipedAt = Number.NEGATIVE_INFINITY;
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    const onPointerUp = (event: PointerEvent) => {
+      onUp(event, true);
+    };
+    const onCancel = (event: PointerEvent) => {
+      onUp(event, false);
+    };
+    view.addEventListener("pointerdown", onDown);
+    view.addEventListener("pointermove", onMove);
+    view.addEventListener("pointerup", onPointerUp);
+    view.addEventListener("pointercancel", onCancel);
+    view.addEventListener("click", onClick, { capture: true });
+    return () => {
+      view.removeEventListener("click", onClick, { capture: true });
+      view.removeEventListener("pointerdown", onDown);
+      view.removeEventListener("pointermove", onMove);
+      view.removeEventListener("pointerup", onPointerUp);
+      view.removeEventListener("pointercancel", onCancel);
+    };
+  }, [view, engineRef]);
+}
+
+/** Whether the content fills the view, as on a phone. */
+function isStacked(view: HTMLElement) {
+  const rem =
+    Number.parseFloat(getComputedStyle(document.documentElement).fontSize) ||
+    16;
+  return view.getBoundingClientRect().width / rem < 30;
+}
+
 function RegionScroller({
   scrollerRef,
+  scrollerCss,
   contentCss,
   children,
 }: {
   scrollerRef: RefCallback<HTMLElement>;
+  scrollerCss?: StyleProp;
   contentCss: StyleProp;
   children: ReactNode;
 }) {
@@ -804,7 +1350,7 @@ function RegionScroller({
   return (
     <div
       ref={mergeRefs<HTMLDivElement>(scroller, scrollerRef)}
-      css={[styles.scroller, a11y.focusRingInset]}
+      css={[styles.scroller, a11y.focusRingInset, scrollerCss]}
     >
       <div ref={content} css={[styles.content, contentCss]}>
         <EffectCarrier value={region}>{children}</EffectCarrier>
@@ -900,9 +1446,18 @@ const styles = stylex.create({
   // each column keeps its content above the bar.
   view: {
     [splitViewTokens.columnInsetBlockEnd]: `max(${tabViewTokens.barClearance}, env(safe-area-inset-bottom))`,
+    position: "relative",
     containerType: "inline-size",
     blockSize: "100dvh",
     maxBlockSize: "100%",
+  },
+  // The copies of the Shared elements fly over the columns.
+  flights: {
+    position: "absolute",
+    inset: 0,
+    zIndex: layer.raised,
+    overflow: "clip",
+    pointerEvents: "none",
   },
   columns: {
     position: "relative",
@@ -923,6 +1478,46 @@ const styles = stylex.create({
     insetInlineStart: 0,
     minInlineSize: 0,
     blockSize: "100%",
+  },
+  // The pages of a column lie on top of each other, and a motion moves
+  // them inside the column.
+  pages: {
+    position: "relative",
+    flexGrow: 1,
+    minBlockSize: 0,
+    overflow: "clip",
+  },
+  page: {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    flexDirection: "column",
+    isolation: "isolate",
+  },
+  // A page under the one that shows, or one that leaves, keeps its scroll
+  // and shows only while a motion moves it.
+  pageAside: {
+    visibility: "hidden",
+    contentVisibility: "hidden",
+  },
+  dim: {
+    position: "absolute",
+    inset: 0,
+    zIndex: layer.overlay,
+    backgroundColor: color.bgScrim,
+    opacity: 0,
+    pointerEvents: "none",
+  },
+  // The shadow at the inline-start edge of a page or a column while it
+  // moves in over the one under it.
+  edge: {
+    position: "absolute",
+    inset: 0,
+    zIndex: layer.overlay,
+    boxShadow: shadow._5,
+    clipPath: "inset(-100% 0 -100% -100%)",
+    opacity: 0,
+    pointerEvents: "none",
   },
   scroller: {
     flexGrow: 1,
@@ -1092,6 +1687,14 @@ const contentStyles = stylex.create({
     paddingInlineStart: CONTENT_GUTTER_START,
     paddingInlineEnd: CONTENT_GUTTER_END,
   },
+  // A swipe from the inline-start edge goes back, so the browser takes only
+  // the scroll and the zoom of a touch.
+  swipes: {
+    touchAction: {
+      default: null,
+      [splitViewQueries.contentAlone]: "pan-y pinch-zoom",
+    },
+  },
 });
 
 const detailStyles = stylex.create({
@@ -1111,5 +1714,17 @@ const detailStyles = stylex.create({
   // The header above the scroller keeps clear of the safe area.
   content: {
     paddingBlockStart: rhythm.tight,
+  },
+  // The detail that goes leaves the flow at once, so the content takes its
+  // width, and it shows only while it moves out.
+  leaving: {
+    position: "absolute",
+    insetBlock: 0,
+    insetInlineStart: "auto",
+    insetInlineEnd: 0,
+    inlineSize: splitViewWidths.detail,
+    visibility: "hidden",
+    // Over the content, which takes a fill while it moves.
+    zIndex: 2,
   },
 });
