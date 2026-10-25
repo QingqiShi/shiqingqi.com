@@ -1,5 +1,5 @@
-import { vi } from "vitest";
-import { REDUCED_MOTION_QUERY } from "../prefers-reduced-motion.ts";
+import { REDUCED_MOTION_QUERY } from "../motion/prefers-reduced-motion.ts";
+import { stubMediaQueries } from "./stub-media-queries.ts";
 
 /**
  * Asks for reduced motion, and for nothing else. Call
@@ -8,12 +8,5 @@ import { REDUCED_MOTION_QUERY } from "../prefers-reduced-motion.ts";
  * @internal
  */
 export function reduceMotion() {
-  const real = window.matchMedia.bind(window);
-  vi.spyOn(window, "matchMedia").mockImplementation((query) => {
-    const list = real(query);
-    Object.defineProperty(list, "matches", {
-      value: query === REDUCED_MOTION_QUERY,
-    });
-    return list;
-  });
+  stubMediaQueries((query) => query === REDUCED_MOTION_QUERY);
 }

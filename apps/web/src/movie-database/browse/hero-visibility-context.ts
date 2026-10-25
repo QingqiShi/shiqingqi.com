@@ -4,11 +4,18 @@ import { createContext, use, type RefCallback } from "react";
 interface HeroVisibilityState {
   isHeroInputVisible: boolean;
   heroInputRef: RefCallback<HTMLDivElement>;
+  /**
+   * A box around the hero input that the morph does not move. It tells if the
+   * hero input is on the screen. If the observer looked at the hero input,
+   * the morph would change what it sees, and each would start the other again.
+   */
+  heroSlotRef: RefCallback<HTMLDivElement>;
 }
 
 export const HeroVisibilityContext = createContext<HeroVisibilityState>({
   isHeroInputVisible: true,
   heroInputRef: () => {},
+  heroSlotRef: () => {},
 });
 
 export function useHeroVisibility() {

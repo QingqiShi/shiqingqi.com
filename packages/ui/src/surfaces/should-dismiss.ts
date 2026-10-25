@@ -51,22 +51,23 @@ export function dismissDistance(height: number) {
 }
 
 /**
- * The velocity of a drag at its last sample, in px per ms, down positive,
- * read across the samples of the last `VELOCITY_WINDOW` ms. 0 with fewer
- * than two samples.
+ * The velocity of a drag let go at `now`, in px per ms, down positive, read
+ * across the samples of the `VELOCITY_WINDOW` ms before `now`. A pointer
+ * that stopped before it let go has a speed that falls to 0 over that span.
+ * 0 with no sample in the span.
  *
  * @internal
  */
-export function releaseVelocity(samples: readonly DragSample[]) {
+export function releaseVelocity(samples: readonly DragSample[], now: number) {
   const last = samples.at(-1);
   if (!last) return 0;
   let first = last;
   for (let index = samples.length - 2; index >= 0; index--) {
     const sample = samples[index];
-    if (last.time - sample.time > VELOCITY_WINDOW) break;
+    if (now - sample.time > VELOCITY_WINDOW) break;
     first = sample;
   }
-  const elapsed = last.time - first.time;
+  const elapsed = now - first.time;
   if (elapsed <= 0) return 0;
   return (last.y - first.y) / elapsed;
 }

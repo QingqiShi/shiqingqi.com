@@ -1,6 +1,12 @@
 "use client";
 
 import { ViewTransition, type ReactNode } from "react";
+import {
+  riseIn,
+  riseOut,
+  softFadeIn,
+  softFadeOut,
+} from "#src/view-transition-classes.stylex.ts";
 import { useInlineChat } from "./inline-chat-context";
 
 interface InlineChatSwitchProps {
@@ -18,12 +24,12 @@ export function InlineChatSwitch({
   return (
     <>
       {isChatActive ? (
-        <ViewTransition enter="soft-fade-in" exit="soft-fade-out">
+        <ViewTransition enter={softFadeIn} exit={softFadeOut}>
           {chatBackground}
         </ViewTransition>
       ) : null}
       {isChatActive ? (
-        <ViewTransition enter="rise-in" exit="rise-out">
+        <ViewTransition enter={riseIn} exit={riseOut}>
           {chatContent}
         </ViewTransition>
       ) : (

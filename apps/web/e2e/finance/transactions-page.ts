@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { waitForMotionToSettle } from "../helpers/motion.ts";
 
 /** A push and a pull wait behind the seeding of other workers, because the e2e database serves one session at a time. */
 export const SYNC_TIMEOUT = 20_000;
@@ -83,6 +84,7 @@ export async function openNewExpense(page: Page) {
   ).click();
   const editor = page.getByRole("form", { name: "New expense" });
   await expect(editor).toBeVisible();
+  await waitForMotionToSettle(page);
   return editor;
 }
 

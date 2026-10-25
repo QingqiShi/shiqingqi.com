@@ -10,6 +10,7 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -408,8 +409,7 @@ const styles = stylex.create({
     },
     paddingBlock: space._1,
     paddingInline: space._3,
-    transition:
-      "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
   },
   imageFallback: {
     display: "flex",

@@ -314,26 +314,26 @@ Each includes a reduced-motion override automatically.
 | `colors`       | color + background-color + border-color                |
 | `opacity`      | opacity 200ms ease                                     |
 | `shadow`       | box-shadow 200ms ease                                  |
-| `transform`    | transform 200ms ease (reduced-motion: none)            |
+| `transform`    | transform 500ms spring (reduced-motion: none)          |
 
 ### Animation Presets
 
-| `animate.*`             | Effect                                                |
-| ----------------------- | ----------------------------------------------------- |
-| `fadeIn` / `fadeOut`    | opacity transition, 200ms                             |
-| `slideUp` / `slideDown` | translateY entrance, 300ms (reduced-motion: disabled) |
-| `pulse`                 | opacity pulse, 2s infinite                            |
-| `bounce`                | scale + opacity bounce, 1.4s infinite                 |
-| `expand` / `collapse`   | grid-template-rows 0fr/1fr, 300ms                     |
+| `animate.*`             | Effect                                                       |
+| ----------------------- | ------------------------------------------------------------ |
+| `fadeIn` / `fadeOut`    | opacity transition, 200ms                                    |
+| `slideUp` / `slideDown` | translateY entrance, 500ms spring (reduced-motion: disabled) |
+| `pulse`                 | opacity pulse, 2s infinite                                   |
+| `bounce`                | scale + opacity bounce, 1.4s infinite                        |
+| `expand` / `collapse`   | grid-template-rows 0fr/1fr, 300ms                            |
 
 ### Constants
 
 For building custom transitions:
 
 - `duration` — `{ _75, _100, _150, _200, _300, _400, _500, _700, _800, _1000, _1400, _1600, _2000 }` (ms strings)
-- `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, entrance, spring, springFallback, pulse }`
+- `easing` — `{ linear, ease, easeIn, easeOut, easeInOut, spring, springFallback, pulse }`. A movement takes `spring`: the system spring of the motion engine at mass 1, sampled into `linear()` over 500ms (a test keeps the two the same). At 500ms it moves as the `surface` role (mass 1) does. A longer or shorter duration changes the speed as a different mass does: the bounce stays the same. It is at 95% at approximately a quarter of the duration, so use a duration that is approximately four times the time in which the movement must look complete. `springFallback` is a bezier near it, for a browser without `linear()`
 - `motionConstants.REDUCED_MOTION` — media query string (defined via `stylex.defineConsts`, works cross-module as computed keys in `stylex.create`)
-- `motionKeyframes` — `{ fadeIn, fadeOut }`, the keyframes of `animate.fadeIn`/`fadeOut`, for an `animationName` that changes with a condition such as reduced motion
+- `motionKeyframes` — `{ fadeIn }`, the keyframes of `animate.fadeIn`, for an `animationName` that changes with a condition such as reduced motion
 
 ### Custom Transition Example
 
@@ -347,12 +347,25 @@ import {
 const styles = stylex.create({
   animated: {
     transition: {
-      default: `transform ${duration._150} ${easing.easeOut}, filter ${duration._150} ${easing.easeOut}`,
+      default: `transform ${duration._500} ${easing.spring}, filter ${duration._150} ${easing.easeOut}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
 });
 ```
+
+### Motion engine
+
+CSS keeps only simple state changes (hover, press, focus, selected, colour, small cues) and loops. Motion that can be interrupted, follows a gesture, or is measured from layout runs on the one motion engine, `@tuja/ui/motion/*`:
+
+- `spring-roles` — `systemSpring` (one stiffness and one damping ratio for the whole system), `springRoles` (a mass per moving thing: `surface`, `columnPush`, `stackPush`, `fold`, `flight`, `move`, `lift`, `aim`, `switchFill`), `springOf(role)`. A heavier role moves slower with the same bounce. A spring has no duration.
+- `use-motion-engine` — `useMotionEngine()`, `useMotionValue(engine, initial, { spring, precision })`. A `MotionValue` has `get`, `getVelocity`, `target`, `isMoving`, `set(value, { velocity })`, `to(target, { spring, tween, from, velocity, delay, reduced })` → `{ finished }`, `stop`, `subscribe`.
+- `use-binding` — `useBinding(ref, values, { pose, reducedPose, hold, rest, renderer })` writes the values to the element through `pose`; `px` (from `px`) formats a length.
+- `play-layout` — `captureLayout` then `playLayout` moves elements to their new layout box (FLIP).
+- `create-motion-engine`, `create-motion-value`, `bind` — the same outside React.
+- `prefers-reduced-motion` (`prefersReducedMotion`, `subscribeReducedMotion`, `REDUCED_MOTION_QUERY`) and `use-reduced-motion` (`useReducedMotion`) — the one reduced-motion store.
+
+The spring is solved exactly and played as Web Animations on the compositor. A `to()` during a motion turns from where the value is, at its speed; `set(x, { velocity })` during a drag, then `to(end)` on release, keeps the speed of the release. Under reduced motion `to()` snaps, or takes `reduced: tween` (such as a short fade). See `/design-system/foundations/motion`.
 
 ---
 

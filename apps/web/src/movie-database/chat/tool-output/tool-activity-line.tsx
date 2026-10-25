@@ -7,7 +7,11 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -230,8 +234,8 @@ const styles = stylex.create({
       default: pulse,
       [motionConstants.REDUCED_MOTION]: pulseReduced,
     },
-    animationDuration: "1.4s",
-    animationTimingFunction: "ease-in-out",
+    animationDuration: duration._1400,
+    animationTimingFunction: easing.easeInOut,
     animationIterationCount: "infinite",
   },
   label: {

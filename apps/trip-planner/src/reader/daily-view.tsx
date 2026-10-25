@@ -41,13 +41,7 @@ export function DailyView({
   const jumpToMoment = (time: string) => {
     const target = document.getElementById(momentDomId(day.n, time));
     if (!target) return;
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    target.scrollIntoView({
-      block: "start",
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
+    target.scrollIntoView({ block: "start" });
   };
 
   return (

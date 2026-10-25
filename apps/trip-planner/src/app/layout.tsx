@@ -18,7 +18,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="zh" suppressHydrationWarning>
+    <html
+      lang="zh"
+      className="motion-safe:scroll-smooth"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body className="min-h-dvh antialiased">
         <SerwistProvider
           swUrl="/sw.js"

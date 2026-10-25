@@ -5,7 +5,11 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -149,8 +153,8 @@ const styles = stylex.create({
   },
   interactive: {
     transition: {
-      default: "transform 0.15s ease, background-color 0.15s ease",
-      [motionConstants.REDUCED_MOTION]: "background-color 0.15s ease",
+      default: `transform ${duration._400} ${easing.spring}, background-color ${duration._150} ${easing.ease}`,
+      [motionConstants.REDUCED_MOTION]: `background-color ${duration._150} ${easing.ease}`,
     },
     backgroundColor: {
       default: "transparent",

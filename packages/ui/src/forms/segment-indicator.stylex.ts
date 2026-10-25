@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { handBack } from "../effect-layer/hand-back.stylex.ts";
+import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import {
   duration,
   easing,
@@ -35,6 +36,8 @@ const SELECTED_ANCHOR = "--segment-selected";
 const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
 /** The effect layer sets this attribute on the track while it draws the indicator. */
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
+/** The motion engine sets this attribute on a box while it moves it. */
+const MOVED = ":is([data-moving])";
 
 /**
  * The indicator of a track of segments, which slides to the selected
@@ -90,8 +93,14 @@ export const segmentIndicator = stylex.create({
   dragged: {
     transition: "none",
   },
+  // WebKit moves a box on the main thread while an anchor is in it. Thus
+  // while a motion moves a box that holds the track, no segment is the
+  // anchor, and the selected segment paints its own surface.
   anchor: {
-    anchorName: SELECTED_ANCHOR,
+    anchorName: {
+      default: SELECTED_ANCHOR,
+      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
+    },
   },
   // On the segments while a press holds the indicator under the pointer, so
   // no hover fill covers it.

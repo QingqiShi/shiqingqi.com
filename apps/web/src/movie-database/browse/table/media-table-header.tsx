@@ -7,6 +7,7 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
@@ -131,8 +132,7 @@ const styles = stylex.create({
     // Kept visible but recessive: every sortable header advertises the
     // affordance without the column labels turning into a row of arrows.
     opacity: 0.35,
-    transitionProperty: "opacity",
-    transitionDuration: "150ms",
+    transition: `opacity ${duration._150} ${easing.ease}`,
   },
   headerIconActive: {
     opacity: 1,

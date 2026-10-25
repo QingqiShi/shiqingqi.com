@@ -1,4 +1,4 @@
-import { prefersReducedMotion } from "./prefers-reduced-motion.ts";
+import { prefersReducedMotion } from "./motion/prefers-reduced-motion.ts";
 
 /**
  * `"smooth"`, or `"instant"` when the user asks for reduced motion.
@@ -7,7 +7,5 @@ import { prefersReducedMotion } from "./prefers-reduced-motion.ts";
  * setting: the user can change it while the page is open.
  */
 export function getScrollBehavior(): ScrollBehavior {
-  return typeof window !== "undefined" && prefersReducedMotion()
-    ? "instant"
-    : "smooth";
+  return prefersReducedMotion() ? "instant" : "smooth";
 }

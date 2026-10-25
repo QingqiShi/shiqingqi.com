@@ -8,6 +8,7 @@ import {
   LIQUID_SEGMENT,
 } from "../effect-layer/liquid-indicator.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
+import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner, cornerTokens } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
@@ -345,6 +346,8 @@ export function SegmentedControl<TValue extends string>({
 const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
 /** The effect layer sets this attribute on the track while it draws the indicator. */
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
+/** The motion engine sets this attribute on a box while it moves it. */
+const MOVED = ":is([data-moving])";
 
 const styles = stylex.create({
   track: {
@@ -414,6 +417,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
           "transparent",
       },
+      [stylex.when.ancestor(MOVED, movingMarker)]: color.bgControlRaised,
     },
     color: color.fg,
     fontWeight: font.weight_6,
@@ -424,6 +428,12 @@ const styles = stylex.create({
         default: selectedSurface.edge,
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: "none",
       },
+      [stylex.when.ancestor(MOVED, movingMarker)]: selectedSurface.edge,
+    },
+    // The surface changes from the indicator to the segment at once.
+    transition: {
+      default: null,
+      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
     },
   },
   icon: {

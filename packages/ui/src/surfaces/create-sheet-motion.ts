@@ -1,16 +1,17 @@
-import { breakpoints } from "../breakpoints.stylex.ts";
+import { MD_QUERY } from "../md-query.ts";
 import { bind, type Binding } from "../motion/bind.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import { createMotionValue } from "../motion/create-motion-value.ts";
-import { cssEasing } from "../motion/css-easing.ts";
+import { cssTween } from "../motion/css-tween.ts";
 import { unit } from "../motion/mix.ts";
 import { px, writeStyles, type Styles } from "../motion/px.ts";
-import { springOf, springRoles, type Tween } from "../motion/spring-roles.ts";
+import { springOf, springRoles } from "../motion/spring-roles.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
 import {
   boxOf,
   createSheetLift,
   liftedPage,
+  type SheetClips,
   type SheetLift,
 } from "./create-sheet-lift.ts";
 import { RECEDE_SHAPE, recedePose } from "./sheet-recede-context.ts";
@@ -22,18 +23,10 @@ import { RECEDE_SHAPE, recedePose } from "./sheet-recede-context.ts";
  */
 type Look = "slide" | "rise" | "fade";
 
-const WIDE_QUERY = breakpoints.md.replace("@media ", "");
 /** How far down, in px, the card starts to rise, and how much smaller it starts. */
 const RISE = { drop: 16, shrink: 0.06 } as const;
-const seconds = (time: string) => Number.parseFloat(time) / 1000;
-const FADE: Tween = {
-  duration: seconds(duration._200),
-  easing: cssEasing(easing.easeOut),
-};
-const SLIDE_FADE_OUT: Tween = {
-  duration: seconds(duration._300),
-  easing: cssEasing(easing.entrance),
-};
+const FADE = cssTween(duration._200, easing.easeOut);
+const SLIDE_FADE_OUT = cssTween(duration._300, easing.easeOut);
 const LIFT_SPRING = springOf(springRoles.lift);
 
 /**
@@ -46,6 +39,8 @@ export interface SheetMotionParts {
   readonly card: HTMLElement;
   /** The box that holds the card and what rides with it. */
   readonly mover: HTMLElement;
+  /** The boxes between the mover and the card, which clip the card while it lifts. */
+  readonly clips: SheetClips;
   /** The box that dims the page. */
   readonly dim: HTMLElement;
   /** The element that moves back while the card slides over it, or `null`. */
@@ -86,7 +81,7 @@ export interface SheetMotion {
 
 function lookNow(engine: MotionEngine): Look {
   if (engine.reducedMotion) return "fade";
-  return window.matchMedia(WIDE_QUERY).matches ? "rise" : "slide";
+  return window.matchMedia(MD_QUERY).matches ? "rise" : "slide";
 }
 
 function opacityOf(value: number) {
@@ -122,7 +117,7 @@ function moverPose(look: Look) {
  */
 export function createSheetMotion(
   engine: MotionEngine,
-  { card, mover, dim, recede }: SheetMotionParts,
+  { card, mover, clips, dim, recede }: SheetMotionParts,
   events: SheetMotionEvents,
 ): SheetMotion {
   const y = createMotionValue(engine, 0, { precision: 0.5 });
@@ -228,7 +223,7 @@ export function createSheetMotion(
     const current = createSheetLift(
       engine,
       origin,
-      { card, mover, dim, content: events.liftContent(), recede },
+      { card, mover, clips, dim, content: events.liftContent(), recede },
       { progress, drop: y, shown, loss },
       rest,
     );

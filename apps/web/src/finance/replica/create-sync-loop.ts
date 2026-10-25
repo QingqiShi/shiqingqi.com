@@ -526,7 +526,9 @@ export function createSyncLoop(options: SyncLoopOptions) {
                 : null,
           });
           if (problem === "unauthorised") {
-            options.onUnauthorised?.();
+            // A sign-out stops the loop, then ends the session. A sync that
+            // was on its way then fails, and must not move the page.
+            if (!stopped) options.onUnauthorised?.();
             return;
           }
           if (problem === "outdated") clearTimeout(retryTimer);

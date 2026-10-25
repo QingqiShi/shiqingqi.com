@@ -4,16 +4,9 @@ import type { ComponentProps } from "react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { SidebarLayout } from "./sidebar-layout.tsx";
 
-// jsdom doesn't implement these APIs used by Button's press feedback or
-// the drawer's breakpoint watcher. Stub them so the tree can mount without
-// tripping on platform gaps.
+// jsdom has no `matchMedia`, which the drawer's motion reads. Stub it so
+// the tree can mount.
 beforeAll(() => {
-  HTMLElement.prototype.animate = vi.fn().mockReturnValue({
-    cancel: vi.fn(),
-    finish: vi.fn(),
-    onfinish: null,
-    oncancel: null,
-  });
   window.matchMedia = vi.fn().mockReturnValue({
     matches: false,
     media: "",

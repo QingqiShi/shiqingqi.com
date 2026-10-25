@@ -331,7 +331,14 @@ export function MenuButton({
             ref={frameRef}
             css={[styles.frame, !isMenuShown && styles.hidden]}
           >
-            <div ref={surfaceRef} css={[popoverSurface.base, styles.surface]} />
+            <div
+              ref={surfaceRef}
+              css={[
+                popoverSurface.base,
+                styles.surface,
+                isMenuShown && styles.surfaceShown,
+              ]}
+            />
             {/* The blur's fixed box lags the compositor by a frame, so the
                   page must not scroll under an open menu. This RemoveScroll
                   also sets the CSS var `HeaderFooterLayout` reads for its own
@@ -424,6 +431,9 @@ const styles = stylex.create({
     height: "100%",
     boxSizing: "border-box",
     opacity: 0,
+  },
+  surfaceShown: {
+    opacity: 1,
   },
   // Sits at its final size from the start and only fades, so the type never
   // scales. The margin puts it inside the surface's hairline, so a sticky title

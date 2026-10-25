@@ -2,7 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 
@@ -49,8 +53,8 @@ const styles = stylex.create({
   },
   containerExiting: {
     animationName: exitFade,
-    animationDuration: "200ms",
-    animationTimingFunction: "ease-in",
+    animationDuration: duration._200,
+    animationTimingFunction: easing.easeIn,
     animationFillMode: "forwards",
   },
   shimmerText: {
@@ -62,11 +66,8 @@ const styles = stylex.create({
       default: shimmer,
       [motionConstants.REDUCED_MOTION]: shimmerReduced,
     },
-    animationDuration: {
-      default: "3s",
-      [motionConstants.REDUCED_MOTION]: "2s",
-    },
-    animationTimingFunction: "linear",
+    animationDuration: duration._2000,
+    animationTimingFunction: easing.linear,
     animationIterationCount: "infinite",
   },
 });

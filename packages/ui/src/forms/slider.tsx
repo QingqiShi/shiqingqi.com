@@ -330,7 +330,7 @@ const DISABLED_FILL = `linear-gradient(to right, ${color.bgNeutral} ${sliderToke
 
 // WebKit stacks the thumb from the track's top edge instead of centring it.
 const THUMB_OFFSET = `calc((${sliderTokens.trackHeight} - ${sliderTokens.thumbSize}) / 2)`;
-const THUMB_LIFT = `transform ${duration._150} ${easing.easeOut}`;
+const THUMB_LIFT = `transform ${duration._500} ${easing.spring}`;
 
 const styles = stylex.create({
   labelRow: {

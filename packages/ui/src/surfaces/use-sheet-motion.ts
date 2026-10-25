@@ -12,6 +12,12 @@ export interface SheetParts {
   readonly cardRef: RefObject<HTMLElement | null>;
   /** The box that holds the card and what rides with it. */
   readonly moverRef: RefObject<HTMLElement | null>;
+  /** The three boxes between the mover and the card, outermost first. */
+  readonly clipRefs: readonly [
+    RefObject<HTMLElement | null>,
+    RefObject<HTMLElement | null>,
+    RefObject<HTMLElement | null>,
+  ];
   /** The box that dims the page. */
   readonly dimRef: RefObject<HTMLElement | null>;
   /** The element that moves back while the card slides over it, or `null`. */
@@ -38,7 +44,7 @@ export interface SheetLiftOptions {
  * @internal
  */
 export function useSheetMotion(
-  { cardRef, moverRef, dimRef, recede }: SheetParts,
+  { cardRef, moverRef, clipRefs, dimRef, recede }: SheetParts,
   {
     isShown,
     onLeft,
@@ -52,6 +58,7 @@ export function useSheetMotion(
   },
 ): RefObject<SheetMotion | null> {
   const engine = useMotionEngine();
+  const [outerClipRef, middleClipRef, innerClipRef] = clipRefs;
   const motionRef = useRef<SheetMotion | null>(null);
   const handleLeft = useEffectEvent(onLeft);
   const handleProgress = useEffectEvent((progress: number) => {
@@ -68,10 +75,13 @@ export function useSheetMotion(
     const card = cardRef.current;
     const mover = moverRef.current;
     const dim = dimRef.current;
-    if (!card || !mover || !dim) return;
+    const outer = outerClipRef.current;
+    const middle = middleClipRef.current;
+    const inner = innerClipRef.current;
+    if (!card || !mover || !dim || !outer || !middle || !inner) return;
     const motion = createSheetMotion(
       engine,
-      { card, mover, dim, recede },
+      { card, mover, clips: [outer, middle, inner], dim, recede },
       {
         liftFrom: findOrigin,
         liftContent: contentOf,
@@ -84,7 +94,16 @@ export function useSheetMotion(
       motion.destroy();
       if (motionRef.current === motion) motionRef.current = null;
     };
-  }, [engine, cardRef, moverRef, dimRef, recede]);
+  }, [
+    engine,
+    cardRef,
+    moverRef,
+    outerClipRef,
+    middleClipRef,
+    innerClipRef,
+    dimRef,
+    recede,
+  ]);
 
   useLayoutEffect(() => {
     motionRef.current?.show(isShown);

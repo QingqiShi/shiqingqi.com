@@ -35,7 +35,7 @@ export const popoverSurface = stylex.create({
       default: enterKeyframes,
       [motionConstants.REDUCED_MOTION]: "none",
     },
-    animationDuration: duration._150,
-    animationTimingFunction: easing.entrance,
+    animationDuration: duration._300,
+    animationTimingFunction: easing.spring,
   },
 });

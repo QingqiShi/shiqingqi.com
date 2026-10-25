@@ -5,7 +5,7 @@ import {
   type PointerEvent,
   type RefObject,
 } from "react";
-import { breakpoints } from "../breakpoints.stylex.ts";
+import { MD_QUERY } from "../md-query.ts";
 import type { SheetMotion } from "./create-sheet-motion.ts";
 import {
   claimGesture,
@@ -16,7 +16,6 @@ import {
   type DragStart,
 } from "./should-dismiss.ts";
 
-const WIDE_QUERY = breakpoints.md.replace("@media ", "");
 const MAX_SAMPLES = 12;
 const NO_DRAG = "input[type='range'], textarea, [contenteditable]";
 
@@ -147,7 +146,7 @@ export function useSheetDrag({
     const { target, currentTarget } = event;
     if (dragRef.current || !isEnabled) return;
     if (!event.isPrimary || event.button !== 0) return;
-    if (window.matchMedia(WIDE_QUERY).matches) return;
+    if (window.matchMedia(MD_QUERY).matches) return;
     // React also sends the events of a portal in the content, such as a
     // menu, which is not in the card.
     if (!(target instanceof Element) || !currentTarget.contains(target)) {
@@ -199,7 +198,7 @@ export function useSheetDrag({
     if (!drag || event.pointerId !== drag.pointerId) return;
     dragRef.current = null;
     if (!drag.isActive || !card || !motion) return;
-    const velocity = releaseVelocity(drag.samples);
+    const velocity = releaseVelocity(drag.samples, performance.now());
     motion.release(velocity * 1000);
     if (canDismiss && shouldDismiss(drag.y, velocity, card.offsetHeight)) {
       onDismiss();

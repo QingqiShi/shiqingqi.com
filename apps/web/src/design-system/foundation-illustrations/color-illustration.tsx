@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -188,7 +192,7 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default: "transform 550ms cubic-bezier(0.32, 0.72, 0, 1)",
+      default: `transform ${duration._1000} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -201,7 +205,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 420ms var(--ds-illo-ease)",
+      default: `transform ${duration._700} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -214,7 +218,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 260ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -227,7 +231,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 500ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   chroma: {
     opacity: {
@@ -238,7 +242,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 560ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   bloomChroma: {
     opacity: {
@@ -249,7 +253,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.95,
       },
     },
-    transition: "opacity 560ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   sheenWrap: {
     opacity: {
@@ -260,7 +264,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.9,
       },
     },
-    transition: "opacity 500ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   sheen: {
     transform: {
@@ -268,7 +272,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 220ms var(--ds-illo-ease)",
+      default: `transform ${duration._400} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },

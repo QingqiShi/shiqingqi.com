@@ -34,6 +34,9 @@ function measureRows() {
 
 async function expectStepHeights(page: Page, heights: Record<string, number>) {
   await page.goto(PATH);
+  // After the load event, React can still hold a streamed copy of the page
+  // in a hidden node. Measure only when that copy is gone.
+  await expect(page.locator("[data-control-step]")).toHaveCount(4);
   const rows = await page.evaluate(measureRows);
   expect(rows.map((row) => row.step)).toEqual(["xs", "sm", "md", "lg"]);
   for (const row of rows) {

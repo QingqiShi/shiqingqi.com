@@ -6,7 +6,11 @@ import { orange } from "@tuja/ui/palette/orange.stylex";
 import { pink } from "@tuja/ui/palette/pink.stylex";
 import { purple } from "@tuja/ui/palette/purple.stylex";
 import { red } from "@tuja/ui/palette/red.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import type { ChatMood } from "./types.ts";
@@ -41,7 +45,7 @@ const styles = stylex.create({
     backgroundRepeat: "repeat, no-repeat",
     opacity: 0.12,
     transition: {
-      default: "--chat-mood-wash 700ms ease-out",
+      default: `--chat-mood-wash ${duration._700} ${easing.easeOut}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },

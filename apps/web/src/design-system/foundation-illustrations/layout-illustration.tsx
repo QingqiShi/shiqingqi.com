@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -105,7 +109,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 560ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   // Shared skewY keeps the column verticals upright while the top edge recedes,
   // reading as a plane behind the ruler.
@@ -118,7 +122,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "skewY(-4deg)",
     },
     transition: {
-      default: "transform 260ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -151,7 +155,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.6,
       },
     },
-    transition: "fill 500ms ease, stroke 500ms ease, stroke-opacity 500ms ease",
+    transition: `fill ${duration._500} ${easing.ease}, stroke ${duration._500} ${easing.ease}, stroke-opacity ${duration._500} ${easing.ease}`,
   },
   colOdd: {
     fillOpacity: 0.16,
@@ -179,7 +183,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.75,
       },
     },
-    transition: "stroke 500ms ease, opacity 500ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   ratio: {
     fill: "none",
@@ -210,8 +214,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default:
-        "stroke 500ms ease, opacity 500ms ease, transform 260ms var(--ds-illo-ease)",
+      default: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}, transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -245,8 +248,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default:
-        "fill 500ms ease, opacity 500ms ease, transform 260ms var(--ds-illo-ease)",
+      default: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}, transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -264,7 +266,7 @@ const styles = stylex.create({
     strokeWidth: 1.2,
     strokeLinecap: "round",
     opacity: 0.85,
-    transition: "stroke 500ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}`,
   },
   tick: {
     stroke: {
@@ -278,7 +280,7 @@ const styles = stylex.create({
     },
     strokeWidth: 1.3,
     strokeLinecap: "round",
-    transition: "stroke 500ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}`,
   },
   bracket: {
     strokeWidth: 1.5,
@@ -305,7 +307,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.95,
       },
     },
-    transition: "fill 500ms ease, opacity 500ms ease",
+    transition: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   handle: {
     fill: {
@@ -332,8 +334,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "translate(75px, -4.3px)",
     },
     transition: {
-      default:
-        "transform 220ms var(--ds-illo-ease), fill 500ms ease, opacity 500ms ease",
+      default: `transform ${duration._400} ${easing.spring}, fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },

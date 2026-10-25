@@ -14,7 +14,8 @@ Terms are defined in `contexts/design-system/CONTEXT.md`. This file holds only t
 
 ## Motion
 
-- **Motion springs: it overshoots, then settles.** How far it overshoots is a brand value; the character is the same on a press, on a popover opening, and on a chip selecting.
+- **Motion springs on one system spring: one stiffness and one damping ratio for everything.** The mass belongs to what moves, so a heavier thing moves slower with the same bounce. The overshoot is the brand value: every motion, a full-screen surface too, has a visible bounce.
+- **One motion engine drives motion that can be interrupted, follows a gesture, or is measured from layout.** CSS keeps simple state changes, and a movement there takes `easing.spring`.
 - **A control springs on press.** One that grows under the finger has to sit above its neighbours, or the layout has to reserve the space.
 - **Motion marks a change of state, and nothing else.** A hover that only restyles gets a colour transition, not a movement.
 - **A component may hold colour or motion back until the pointer arrives.** A touch device cannot hover, so what the state adds decides what touch sees. Content or a control the visitor needs shows in full. Emphasis alone — a colour, a motion, an open cue such as "Details" — stays at rest, and a colour shows while a finger presses. A held-back state still meets its contrast floor.
@@ -44,5 +45,5 @@ Showcase sources are under `apps/web/src/design-system/sections/`.
 - Progressive blur and Scroll mask: `components/progressive-blur-showcase.tsx` and `components/scroll-mask-showcase.tsx`; the blur cap is in `packages/ui/src/surfaces/progressive-blur.tsx`.
 - The Measure, which caps a line of prose by its text size: the `measure` constants in `packages/ui/src/tokens.stylex.ts`, which `Text` takes for a paragraph by default, enforced by the `require-measure` lint rule, and shown in `foundations/layout-showcase.tsx`. The reading column of the doc pages is `apps/web/src/design-system/reading-column.stylex.ts`.
 - The page column, which centres a page's content at `layout.maxInlineSize` and keeps it one page gutter, safe area included, from the screen edge, so the content, the header controls and the footer line up on one edge: `packages/ui/src/primitives/page-column.stylex.ts`, which `HeaderFooterLayout` takes for its `pageColumn` content and its footer, enforced by the `require-page-column` lint rule, and shown in `foundations/layout-showcase.tsx`. A gallery of cards takes the wide page column, `pageColumn.wide`, which keeps only the page gutter, and its page passes `wideHeader` so that the header controls share its edges; prose stays in the page column.
-- Reduced motion: `packages/ui/src/primitives/motion.stylex.ts` and `foundations/motion-showcase.tsx`.
+- Motion and reduced motion: the motion engine and its spring roles in `packages/ui/src/motion/`, the CSS presets in `packages/ui/src/primitives/motion.stylex.ts`, and `foundations/motion-showcase.tsx`.
 - Voice, copy rules and copy budgets: `foundations/voice-showcase.tsx`; banned words are enforced by the `no-banned-copy-words` lint rule.

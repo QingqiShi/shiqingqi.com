@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import type { StaticImageData } from "next/image";
@@ -95,7 +96,7 @@ const styles = stylex.create({
     maxInlineSize: "100%",
     objectFit: "contain",
     filter: cardTokens.imageFilter,
-    transition: "filter .2s",
+    transition: `filter ${duration._200} ${easing.ease}`,
   },
   dates: {
     color: color.fgMuted,

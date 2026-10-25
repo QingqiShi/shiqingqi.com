@@ -282,13 +282,13 @@ export default defineConfig([
           selector:
             'CallExpression:matches([callee.name="matchMedia"], [callee.property.name="matchMedia"]) :matches(Literal[value=/prefers-reduced-motion/], TemplateElement[value.raw=/prefers-reduced-motion/])',
           message:
-            "Read reduced motion through `usePrefersReducedMotion()`, or through `prefersReducedMotion()` from `@tuja/ui/utils/prefers-reduced-motion` inside an effect.",
+            "Read reduced motion through `useReducedMotion()` from `@tuja/ui/motion/use-reduced-motion`, or through `prefersReducedMotion()` from `@tuja/ui/motion/prefers-reduced-motion` inside an effect.",
         },
         {
           selector:
             ":not(CallExpression) > Literal[value=/^\\(prefers-reduced-motion\\s*[:)]/]",
           message:
-            "Use `REDUCED_MOTION_QUERY` from `@tuja/ui/utils/prefers-reduced-motion`. It comes from the StyleX const, so the script side and the style side cannot drift.",
+            "Use `REDUCED_MOTION_QUERY` from `@tuja/ui/motion/prefers-reduced-motion`. It comes from the StyleX const, so the script side and the style side cannot drift.",
         },
         {
           selector:

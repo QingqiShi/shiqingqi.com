@@ -33,17 +33,31 @@ describe("dismissDistance", () => {
 describe("releaseVelocity", () => {
   it("reads the samples of the last 100ms", () => {
     expect(
-      releaseVelocity([
-        { time: 0, y: 0 },
-        { time: 400, y: 10 },
-        { time: 450, y: 20 },
-        { time: 500, y: 70 },
-      ]),
+      releaseVelocity(
+        [
+          { time: 0, y: 0 },
+          { time: 400, y: 10 },
+          { time: 450, y: 20 },
+          { time: 500, y: 70 },
+        ],
+        500,
+      ),
     ).toBe(0.6);
   });
 
+  it("falls while the pointer stays still before it lets go", () => {
+    const samples = [
+      { time: 0, y: 0 },
+      { time: 50, y: 30 },
+      { time: 100, y: 60 },
+    ];
+    expect(releaseVelocity(samples, 100)).toBe(0.6);
+    expect(releaseVelocity(samples, 150)).toBe(0.3);
+    expect(releaseVelocity(samples, 400)).toBe(0);
+  });
+
   it("is 0 with one sample", () => {
-    expect(releaseVelocity([{ time: 0, y: 10 }])).toBe(0);
+    expect(releaseVelocity([{ time: 0, y: 10 }], 0)).toBe(0);
   });
 });
 

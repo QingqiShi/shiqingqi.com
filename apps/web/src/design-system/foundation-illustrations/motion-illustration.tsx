@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -144,7 +148,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   bloomHue: {
     opacity: {
@@ -155,7 +159,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.6,
       },
     },
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   grid: {
     transformBox: "view-box",
@@ -165,8 +169,8 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 340ms var(--ds-illo-ease)",
-      [motionConstants.REDUCED_MOTION]: "opacity 520ms ease",
+      default: `transform ${duration._500} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._500} ${easing.ease}`,
     },
   },
   gridPath: {
@@ -182,7 +186,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.155,
       },
     },
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   curveGlowWide: {
     fill: "none",
@@ -198,7 +202,7 @@ const styles = stylex.create({
       },
     },
     filter: "blur(6px)",
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   curveGlow: {
     fill: "none",
@@ -214,7 +218,7 @@ const styles = stylex.create({
       },
     },
     filter: "blur(2.2px)",
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   curveInk: {
     fill: "none",
@@ -229,7 +233,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 460ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   curveHue: {
     fill: "none",
@@ -244,7 +248,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.95,
       },
     },
-    transition: "opacity 460ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   linear: {
     fill: "none",
@@ -267,14 +271,14 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "opacity 520ms ease, transform 320ms var(--ds-illo-ease)",
-      [motionConstants.REDUCED_MOTION]: "opacity 520ms ease",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._500} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._500} ${easing.ease}`,
     },
   },
   // Opacity gates off at rest and on via when.ancestor hover, but keeps the
   // --ds-illo-px pointer term so the lit endpoint tracks which way the cursor leans.
   endpointGlow: {
-    transition: "opacity 420ms ease",
+    transition: `opacity ${duration._400} ${easing.ease}`,
   },
   endpointStart: {
     opacity: {
@@ -310,7 +314,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 420ms ease",
+    transition: `opacity ${duration._400} ${easing.ease}`,
   },
   endpointLive: {
     fill: "#ffffff",
@@ -322,7 +326,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 420ms ease",
+    transition: `opacity ${duration._400} ${easing.ease}`,
   },
   // The dot scrubs the curve: cometCircle's offset-path traces it and offset-distance
   // maps the pointer --ds-illo-px (0->1) onto it; ghosts lag progressively into a tail.
@@ -335,7 +339,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 420ms ease",
+    transition: `opacity ${duration._400} ${easing.ease}`,
   },
   cometCircle: {
     offsetPath: 'path("M210,150 C258,150 252,60 300,60")',
@@ -347,35 +351,35 @@ const styles = stylex.create({
   },
   head: {
     transition: {
-      default: "offset-distance 170ms var(--ds-illo-ease)",
+      default: `offset-distance ${duration._300} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
   g1: {
     opacity: 0.8,
     transition: {
-      default: "offset-distance 240ms var(--ds-illo-ease)",
+      default: `offset-distance ${duration._400} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
   g2: {
     opacity: 0.6,
     transition: {
-      default: "offset-distance 320ms var(--ds-illo-ease)",
+      default: `offset-distance ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
   g3: {
     opacity: 0.42,
     transition: {
-      default: "offset-distance 410ms var(--ds-illo-ease)",
+      default: `offset-distance ${duration._700} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
   g4: {
     opacity: 0.28,
     transition: {
-      default: "offset-distance 520ms var(--ds-illo-ease)",
+      default: `offset-distance ${duration._1000} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },

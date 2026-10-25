@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -172,8 +173,7 @@ const styles = stylex.create({
     borderRadius: "8px",
     cornerShape: "squircle",
     paddingBlock: space._1,
-    transitionProperty: "background-color, transform",
-    transitionDuration: "120ms",
+    transition: `background-color ${duration._100} ${easing.ease}`,
     backgroundColor: {
       default: "transparent",
       ":hover": {

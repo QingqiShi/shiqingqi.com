@@ -1,7 +1,7 @@
 "use client";
 
+import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 
 /** Target reveal rate scales with buffer size (chars per 16.67ms at 60fps baseline) */
 const RATE_FACTOR = 0.08;
@@ -356,7 +356,7 @@ export function useSmoothedText(
   // should not restart the animation loop when it changes.
   const getTrailingBufferHint = useEffectEvent(() => trailingBufferHint);
 
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     // Reduced-motion: skip the animation loop entirely. The hook returns

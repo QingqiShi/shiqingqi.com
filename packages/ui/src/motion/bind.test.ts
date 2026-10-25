@@ -279,6 +279,22 @@ describe("bind, on Web Animations", () => {
     expect(element.hasAttribute(MOVING_ATTRIBUTE)).toBe(false);
   });
 
+  it("comes to rest where the browser never starts its animations, also after a turn while it waits", async () => {
+    animations.restore();
+    animations = stubAnimations({ startByHand: true });
+    const { value, element } = setUp();
+    bind(element, value, { pose: slide });
+    value.to(100);
+    await clock.advance(0.05);
+    value.to(0);
+    await clock.advance(0.05);
+    expect(element.hasAttribute(MOVING_ATTRIBUTE)).toBe(true);
+    await clock.advance(2);
+    expect(value.isMoving).toBe(false);
+    expect(element.hasAttribute(MOVING_ATTRIBUTE)).toBe(false);
+    expect(animations.running(element)).toEqual([]);
+  });
+
   it("starts the new animation before it cancels the old one, from the state of the model", async () => {
     const { value, element } = setUp();
     bind(element, value, { pose: slide });

@@ -2,6 +2,11 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -108,8 +113,10 @@ const styles = stylex.create({
       },
       ":focus-visible": color.bgControlHover,
     },
-    transitionProperty: "background-color, transform",
-    transitionDuration: "160ms",
+    transition: {
+      default: `background-color ${duration._150} ${easing.ease}, transform ${duration._400} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `background-color ${duration._150} ${easing.ease}`,
+    },
     transform: {
       default: null,
       ":hover": {

@@ -1,5 +1,6 @@
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { fakeMotionClock } from "../test-support/fake-motion-clock.ts";
 import { CodeBlock, type CodePart } from "./code-block.tsx";
 import type { CodeToken } from "./token-kinds.ts";
 
@@ -13,44 +14,9 @@ const SOURCE: readonly CodeToken[] = [
   ["comment", "// the quiet one"],
 ];
 
-/** One call the component made to the animation stub, for assertions below. */
-interface AnimateCall {
-  target: Element;
-  keyframes: Keyframe[];
-  options: KeyframeAnimationOptions;
-}
-
-/**
- * jsdom has no `Element.prototype.animate`, `getAnimations`, or
- * `ResizeObserver` — the three `parts` reads to animate a change. Stubbed
- * just enough to exercise the arrive/leave paths: an animation carries only
- * the fields CodeBlock reads back (id, cancel, finished).
- */
-function stubAnimationApis() {
-  const calls: AnimateCall[] = [];
-  const originalResizeObserver = globalThis.ResizeObserver;
-
-  Object.assign(Element.prototype, {
-    animate(
-      this: Element,
-      keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
-      options?: number | KeyframeAnimationOptions,
-    ) {
-      const resolved = typeof options === "object" ? options : {};
-      calls.push({
-        target: this,
-        keyframes: Array.isArray(keyframes) ? keyframes : [],
-        options: resolved,
-      });
-      return {
-        id: resolved.id ?? "",
-        cancel: vi.fn(),
-        finished: Promise.resolve(),
-      };
-    },
-    getAnimations: vi.fn(() => []),
-  });
-
+/** jsdom has no `ResizeObserver`, which the `parts` read to keep their places. */
+function stubResizeObserver() {
+  const original = globalThis.ResizeObserver;
   class StubResizeObserver {
     observe() {
       // No layout to report: every box measures at zero either way.
@@ -63,18 +29,19 @@ function stubAnimationApis() {
     }
   }
   globalThis.ResizeObserver = StubResizeObserver;
-
-  return {
-    calls,
-    restore() {
-      Reflect.deleteProperty(Element.prototype, "animate");
-      Reflect.deleteProperty(Element.prototype, "getAnimations");
-      globalThis.ResizeObserver = originalResizeObserver;
-    },
+  return () => {
+    globalThis.ResizeObserver = original;
   };
 }
 
-let stub: ReturnType<typeof stubAnimationApis>;
+let restoreResizeObserver: () => void;
+let clock: ReturnType<typeof fakeMotionClock>;
+
+function opacityOf(element: Element | null) {
+  if (!(element instanceof HTMLElement)) return null;
+  const { opacity } = element.style;
+  return opacity === "" ? null : Number(opacity);
+}
 
 describe("CodeBlock source", () => {
   it("draws the source exactly, whitespace included", () => {
@@ -113,11 +80,13 @@ describe("CodeBlock source", () => {
 
 describe("CodeBlock parts", () => {
   beforeEach(() => {
-    stub = stubAnimationApis();
+    restoreResizeObserver = stubResizeObserver();
+    clock = fakeMotionClock();
   });
 
   afterEach(() => {
-    stub.restore();
+    restoreResizeObserver();
+    vi.useRealTimers();
   });
 
   it("renders each part as a box carrying its id, with its lead outside the box", () => {
@@ -135,7 +104,7 @@ describe("CodeBlock parts", () => {
     expect(boxB?.previousSibling?.textContent).toBe("  ");
   });
 
-  it("fades a dropped part as a ghost holding its own tokens", () => {
+  it("fades a dropped part as a ghost holding its own tokens", async () => {
     const first: readonly CodePart[] = [
       { id: "a", lead: "", tokens: [["keyword", "const"]] },
       { id: "b", lead: " ", tokens: [["plain", "gone"]] },
@@ -146,15 +115,15 @@ describe("CodeBlock parts", () => {
 
     const ghost = container.querySelector('code [aria-hidden="true"]');
     expect(ghost?.textContent).toBe("gone");
-    expect(
-      stub.calls.some(
-        (call) =>
-          call.target === ghost && call.options.id === "code-block-fade",
-      ),
-    ).toBe(true);
+    await act(() => clock.advance(0.1));
+    expect(opacityOf(ghost)).toBeGreaterThan(0);
+    expect(opacityOf(ghost)).toBeLessThan(1);
+    await act(() => clock.advance(0.5));
+    expect(ghost?.isConnected).toBe(false);
+    expect(opacityOf(ghost)).toBeNull();
   });
 
-  it("rises a newly arrived part in with a fade from opacity 0", () => {
+  it("rises a newly arrived part in with a fade from opacity 0", async () => {
     const first: readonly CodePart[] = [
       { id: "a", lead: "", tokens: [["keyword", "const"]] },
     ];
@@ -162,16 +131,18 @@ describe("CodeBlock parts", () => {
       ...first,
       { id: "b", lead: " ", tokens: [["plain", "new"]] },
     ];
-    const { rerender } = render(<CodeBlock parts={first} />);
+    const { container, rerender } = render(<CodeBlock parts={first} />);
 
     rerender(<CodeBlock parts={second} />);
 
-    const arrival = stub.calls.find(
-      (call) =>
-        call.options.id === "code-block-fade" &&
-        call.target instanceof HTMLElement &&
-        call.target.dataset.box === "b",
+    const arrival = container.querySelector('[data-box="b"]');
+    await act(() => clock.advance(0.016));
+    expect(opacityOf(arrival)).toBeLessThan(0.5);
+    expect(arrival instanceof HTMLElement && arrival.style.transform).toMatch(
+      /^translateY\(0\.[1-5]\d*rem\)$/,
     );
-    expect(arrival?.keyframes[0]).toMatchObject({ opacity: 0 });
+    await act(() => clock.advance(1));
+    expect(opacityOf(arrival)).toBeNull();
+    expect(opacityOf(container.querySelector('[data-box="a"]'))).toBeNull();
   });
 });

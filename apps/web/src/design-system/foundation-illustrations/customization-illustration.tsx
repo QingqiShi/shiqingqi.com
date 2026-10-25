@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -137,15 +141,14 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default:
-        "opacity 560ms cubic-bezier(0.32, 0.72, 0, 1), transform 420ms var(--ds-illo-ease)",
-      [motionConstants.REDUCED_MOTION]: "opacity 560ms ease",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._700} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._500} ${easing.ease}`,
     },
   },
   layer: {
     transformBox: "view-box",
     transition: {
-      default: "transform 560ms cubic-bezier(0.32, 0.72, 0, 1)",
+      default: `transform ${duration._1000} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -191,7 +194,7 @@ const styles = stylex.create({
   plate: {
     strokeWidth: 1.4,
     strokeLinejoin: "round",
-    transition: "stroke 500ms ease, fill 500ms ease, opacity 500ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   configPlate: {
     fill: "var(--ds-illo-ink)",
@@ -273,7 +276,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.8,
       },
     },
-    transition: "fill 500ms ease, opacity 500ms ease",
+    transition: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   socket: {
     fill: "none",
@@ -297,7 +300,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.9,
       },
     },
-    transition: "stroke 500ms ease, opacity 500ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   partsRest: {
     fill: "url(#dsi-customization-parts-ink)",
@@ -309,7 +312,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 450ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   partsAlive: {
     fill: "url(#dsi-customization-parts-hue)",
@@ -321,6 +324,6 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 450ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
 });

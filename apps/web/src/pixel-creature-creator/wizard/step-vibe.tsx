@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -153,8 +154,7 @@ const styles = stylex.create({
     borderWidth: "2px",
     borderStyle: "solid",
     color: color.fg,
-    transitionProperty: "border-color, background-color",
-    transitionDuration: "120ms",
+    transition: `border-color ${duration._100} ${easing.ease}, background-color ${duration._100} ${easing.ease}`,
   },
 
   typeOption: {
@@ -169,8 +169,7 @@ const styles = stylex.create({
     borderWidth: "2px",
     borderStyle: "solid",
     color: color.fg,
-    transitionProperty: "border-color, background-color",
-    transitionDuration: "120ms",
+    transition: `border-color ${duration._100} ${easing.ease}, background-color ${duration._100} ${easing.ease}`,
     minWidth: "120px",
   },
 

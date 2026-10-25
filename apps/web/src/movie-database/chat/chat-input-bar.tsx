@@ -8,6 +8,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
@@ -170,6 +171,6 @@ const styles = stylex.create({
       },
     },
     color: color.fgMuted,
-    transition: "background-color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}`,
   },
 });

@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
-import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import {
   createFlowGradientRenderer,
@@ -45,7 +45,7 @@ function readCanvasBackground(
 
 export function FlowGradient() {
   const isDark = useResolvedTheme() === "dark";
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const prefersReducedMotion = useReducedMotion();
 
   const colorsRef = useRef<ColorOptions>(isDark ? DARK_COLORS : LIGHT_COLORS);
   const rendererRef =

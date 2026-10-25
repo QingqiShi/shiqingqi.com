@@ -1,52 +1,43 @@
 import { useLayoutEffect, useRef, type RefObject } from "react";
-import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
+import { cssSeconds, cssTween } from "../motion/css-tween.ts";
+import { mix, unit } from "../motion/mix.ts";
+import { px, type Styles } from "../motion/px.ts";
+import { useBinding } from "../motion/use-binding.ts";
+import {
+  useMotionEngine,
+  useMotionValue,
+} from "../motion/use-motion-engine.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
 
-// An empty value drops the inline override, returning the surface to the
-// stylesheet's full container box. It then keeps that box if the popup
-// resizes while open.
-const FULL_BOX = {
-  top: "",
-  left: "",
-  width: "",
-  height: "",
-  borderRadius: "",
-  cornerShape: "",
-};
-
-function morphTransition(time: string, timingFunction: string) {
-  // Physical properties, not logical: the morph writes measured viewport
-  // coordinates, which do not flip in RTL.
-  return ["top", "left", "width", "height", "border-radius"]
-    .map((property) => `${property} ${time} ${timingFunction}`)
-    .join(", ");
+/** A box relative to the frame, and its corner radius, in px. */
+interface Box {
+  readonly top: number;
+  readonly left: number;
+  readonly width: number;
+  readonly height: number;
+  readonly radius: number;
 }
 
-function setSurfaceBox(surface: HTMLElement, box: typeof FULL_BOX) {
-  Object.assign(surface.style, box);
-}
+/** The close fades the surface at its tail, so it stays visible until it is back over the trigger. */
+const CLOSE_FADE = cssTween(duration._100);
+const CLOSE_FADE_DELAY = cssSeconds(duration._200);
+const REDUCED_FADE = cssTween(duration._150, easing.easeInOut);
 
-// Reading layout flushes the pending style writes, so the next transition
-// starts from the box just set. A call survives React Compiler; a bare
-// property read does not.
-function forceReflow(element: HTMLElement) {
-  element.getBoundingClientRect();
+function boxIn(rect: DOMRect, frame: DOMRect, radius: number): Box {
+  return {
+    top: rect.top - frame.top,
+    left: rect.left - frame.left,
+    width: rect.width,
+    height: rect.height,
+    radius,
+  };
 }
-
-const OPEN_TRANSITION = morphTransition(duration._500, easing.spring);
-const OPEN_TRANSITION_FALLBACK = morphTransition(
-  duration._500,
-  easing.springFallback,
-);
-// The fade comes at the tail, so the surface stays visible until it is back
-// over the trigger.
-const CLOSE_TRANSITION = `${morphTransition(duration._300, easing.entrance)}, opacity ${duration._100} ${easing.linear} ${duration._200}`;
-const REDUCED_FADE = `opacity ${duration._150} ${easing.easeInOut}`;
 
 /**
  * Grows a childless surface from the trigger to the frame on open, and back on
  * close. The content stays at its final size and only fades, so a frame costs
- * the layout and the paint of one box.
+ * the layout and the paint of one box. A toggle during a morph turns it from
+ * where the surface is, at the speed it has.
  *
  * @internal
  */
@@ -61,59 +52,81 @@ export function useSurfaceMorph({
   targetId: string;
   isMenuShown: boolean;
 }) {
+  const engine = useMotionEngine();
+  const open = useMotionValue(engine, isMenuShown ? 1 : 0);
+  const shown = useMotionValue(engine, isMenuShown ? 1 : 0);
+  const boxesRef = useRef<{ trigger: Box; frame: Box } | null>(null);
+  const restRadiusRef = useRef<number | null>(null);
+
+  useBinding(surfaceRef, [open, shown], {
+    // Physical properties, not logical: the morph writes measured viewport
+    // coordinates, which do not flip in RTL.
+    pose: (at, opacity): Styles => {
+      const fade = { opacity: unit(opacity).toFixed(3) };
+      const boxes = boxesRef.current;
+      if (boxes === null) return fade;
+      const { trigger, frame } = boxes;
+      return {
+        ...fade,
+        top: px(mix(trigger.top, frame.top, at)),
+        left: px(mix(trigger.left, frame.left, at)),
+        width: px(mix(trigger.width, frame.width, at)),
+        height: px(mix(trigger.height, frame.height, at)),
+        "border-radius": px(Math.max(0, mix(trigger.radius, frame.radius, at))),
+      };
+    },
+    rest: "clear",
+  });
+
   const wasMenuShownRef = useRef(isMenuShown);
   useLayoutEffect(() => {
     if (wasMenuShownRef.current === isMenuShown) return;
     wasMenuShownRef.current = isMenuShown;
+    const target = isMenuShown ? 1 : 0;
 
     const surface = surfaceRef.current;
     const frame = frameRef.current;
     const trigger = document.getElementById(targetId);
-    if (!surface || !frame || !trigger) return;
-
-    // Reduced motion drops the geometry: the surface cross-fades in place.
-    if (prefersReducedMotion()) {
-      surface.style.transition = "none";
-      setSurfaceBox(surface, FULL_BOX);
-      forceReflow(surface);
-      surface.style.transition = REDUCED_FADE;
-      surface.style.opacity = isMenuShown ? "1" : "0";
+    if (!surface || !frame || !trigger || engine.reducedMotion) {
+      // Reduced motion drops the geometry: the surface cross-fades in place.
+      boxesRef.current = null;
+      open.set(target);
+      shown.to(target, { tween: REDUCED_FADE });
       return;
     }
 
+    // The stylesheet's radius, read while no morph writes over it.
+    if (!open.isMoving || restRadiusRef.current === null) {
+      restRadiusRef.current = Number.parseFloat(
+        getComputedStyle(surface).borderTopLeftRadius,
+      );
+    }
     const frameRect = frame.getBoundingClientRect();
     const triggerRect = trigger.getBoundingClientRect();
-    const triggerBox = {
-      top: `${String(triggerRect.top - frameRect.top)}px`,
-      left: `${String(triggerRect.left - frameRect.left)}px`,
-      width: `${String(triggerRect.width)}px`,
-      height: `${String(triggerRect.height)}px`,
+    boxesRef.current = {
       // A pill or circle carries `corner.radius_round`, the `1e5px` sentinel
       // for `border.radius_round`. Capping it avoids the spring swinging that
       // number through zero, squaring the corners mid-morph.
-      borderRadius: `min(${getComputedStyle(trigger).borderTopLeftRadius}, ${String(Math.min(triggerRect.width, triggerRect.height) / 2)}px)`,
-      // The radius alone, so the surface keeps the squircle shape that
-      // `popoverSurface.base` gives it.
-      cornerShape: "",
+      trigger: boxIn(
+        triggerRect,
+        frameRect,
+        Math.min(
+          Number.parseFloat(getComputedStyle(trigger).borderTopLeftRadius),
+          Math.min(triggerRect.width, triggerRect.height) / 2,
+        ),
+      ),
+      frame: boxIn(frameRect, frameRect, restRadiusRef.current),
     };
 
     if (isMenuShown) {
-      surface.style.transition = "none";
-      setSurfaceBox(surface, triggerBox);
-      surface.style.opacity = "1";
-      // Commit the trigger's box, so that the morph below starts from it.
-      forceReflow(surface);
-
-      // A browser without `linear()` rejects the second assignment, and the
-      // CSSOM keeps the bezier written by the first.
-      surface.style.transition = OPEN_TRANSITION_FALLBACK;
-      surface.style.transition = OPEN_TRANSITION;
-      setSurfaceBox(surface, FULL_BOX);
+      shown.set(1);
+      open.to(1);
       return;
     }
-
-    surface.style.transition = CLOSE_TRANSITION;
-    setSurfaceBox(surface, triggerBox);
-    surface.style.opacity = "0";
-  }, [frameRef, surfaceRef, isMenuShown, targetId]);
+    open.to(0);
+    shown.to(0, {
+      tween: CLOSE_FADE,
+      delay: CLOSE_FADE_DELAY,
+    });
+  }, [engine, frameRef, surfaceRef, isMenuShown, targetId, open, shown]);
 }

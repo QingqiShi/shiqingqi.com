@@ -1,7 +1,15 @@
 "use client";
 
-import { easing } from "@tuja/ui/primitives/motion.stylex";
-import { prefersReducedMotion } from "@tuja/ui/utils/prefers-reduced-motion";
+import { bind, type Binding } from "@tuja/ui/motion/bind";
+import {
+  createMotionValue,
+  type MotionValue,
+} from "@tuja/ui/motion/create-motion-value";
+import { mix, unit } from "@tuja/ui/motion/mix";
+import { playLayout, type Rect } from "@tuja/ui/motion/play-layout";
+import { px } from "@tuja/ui/motion/px";
+import { springOf, springRoles } from "@tuja/ui/motion/spring-roles";
+import { useMotionEngine } from "@tuja/ui/motion/use-motion-engine";
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import {
   DATA_HERO_COLLAPSED_BUTTON,
@@ -10,7 +18,12 @@ import {
 } from "./hero-visibility-context";
 import { useIsElementVisible } from "./use-is-element-visible";
 
-const MORPH_DURATION = 400;
+const MORPH_SPRING = springOf(springRoles.flight);
+/** The share of the morph over which the outgoing form fades and blurs out. */
+const HAND_OFF = 0.3;
+const BLUR_PX = 3;
+const handOff = (t: number) => unit(t / HAND_OFF);
+const unblur = (t: number) => unit((t - HAND_OFF) / (1 - HAND_OFF));
 
 function hasLayout(rect: DOMRect) {
   return rect.width > 0 && rect.height > 0;
@@ -24,45 +37,62 @@ function findVisibleElement(selector: string) {
   return null;
 }
 
+/** `rect` in the coordinates of the document, so a scroll does not move it. */
+function inDocument(rect: DOMRect): Rect {
+  return {
+    x: rect.left + window.scrollX,
+    y: rect.top + window.scrollY,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+interface Morph {
+  readonly progress: MotionValue;
+  readonly heroIsIncoming: boolean;
+  readonly bindings: readonly Binding[];
+}
+
+/**
+ * Plays `morph` to `target`: 1 shows the incoming form, 0 turns back to the
+ * outgoing one. A toggle during the morph turns it from where it is.
+ */
+function playMorph(morph: Morph, target: number) {
+  void morph.progress.to(target).finished.then((isDone) => {
+    if (!isDone) return;
+    for (const binding of morph.bindings) binding.unbind();
+  });
+}
+
 export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
   const heroElementRef = useRef<HTMLDivElement | null>(null);
-  const { isVisible: isHeroInputVisible, setRef: setVisibilityRef } =
+  const { isVisible: isHeroInputVisible, setRef: heroSlotRef } =
     useIsElementVisible();
   const heroInputRef = (el: HTMLDivElement | null) => {
     heroElementRef.current = el;
-    setVisibilityRef(el);
   };
+  const engine = useMotionEngine();
   const isFirstRenderRef = useRef(true);
-  const morphAnimationsRef = useRef<Animation[]>([]);
-  const refineAnimationRef = useRef<Animation | null>(null);
-  const refinePrevRectRef = useRef<DOMRect | null>(null);
+  const morphRef = useRef<Morph | null>(null);
+  const refinePrevRectRef = useRef<Rect | null>(null);
 
   useLayoutEffect(() => {
-    const isReducedMotion = prefersReducedMotion();
-
     const refineFound = findVisibleElement(`[${DATA_HERO_REFINE_BUTTON}]`);
     if (refineFound) {
-      const { el: refine, rect } = refineFound;
       const prev = refinePrevRectRef.current;
-      if (
-        prev &&
-        !isFirstRenderRef.current &&
-        !isReducedMotion &&
-        (Math.abs(prev.left - rect.left) > 0.5 ||
-          Math.abs(prev.top - rect.top) > 0.5)
-      ) {
-        refineAnimationRef.current?.cancel();
-        refineAnimationRef.current = refine.animate(
-          [
-            {
-              transform: `translate(${String(prev.left - rect.left)}px, ${String(prev.top - rect.top)}px)`,
-            },
-            { transform: "translate(0, 0)" },
-          ],
-          { duration: MORPH_DURATION, easing: easing.entrance },
+      refinePrevRectRef.current = engine.measure(() =>
+        inDocument(refineFound.el.getBoundingClientRect()),
+      );
+      if (prev && !isFirstRenderRef.current) {
+        // The refine button can be another element than the one before, so
+        // the move starts from the box on record whatever element it is.
+        playLayout(
+          engine,
+          { origin: document.documentElement, rectOf: () => prev },
+          [refineFound.el],
+          { spring: MORPH_SPRING },
         );
       }
-      refinePrevRectRef.current = rect;
     } else {
       refinePrevRectRef.current = null;
     }
@@ -74,77 +104,66 @@ export function HeroVisibilityProvider({ children }: { children: ReactNode }) {
 
     const hero = heroElementRef.current;
     if (!hero) return;
+    const collapsed = findVisibleElement(`[${DATA_HERO_COLLAPSED_BUTTON}]`);
+    if (!collapsed) return;
 
-    const collapsedFound = findVisibleElement(
-      `[${DATA_HERO_COLLAPSED_BUTTON}]`,
-    );
-    if (!collapsedFound) return;
-
-    for (const animation of morphAnimationsRef.current) {
-      animation.cancel();
+    const previous = morphRef.current;
+    if (previous?.progress.isMoving === true) {
+      playMorph(
+        previous,
+        previous.heroIsIncoming === isHeroInputVisible ? 1 : 0,
+      );
+      return;
     }
-    morphAnimationsRef.current = [];
+    if (previous) for (const binding of previous.bindings) binding.unbind();
+    morphRef.current = null;
 
-    if (isReducedMotion) return;
+    const [heroRect, collapsedRect] = engine.measure(() => [
+      hero.getBoundingClientRect(),
+      collapsed.el.getBoundingClientRect(),
+    ]);
+    if (!hasLayout(heroRect) || !hasLayout(collapsedRect)) return;
 
-    const heroRect = hero.getBoundingClientRect();
-    if (!hasLayout(heroRect)) return;
+    const incoming = isHeroInputVisible ? hero : collapsed.el;
+    const outgoing = isHeroInputVisible ? collapsed.el : hero;
+    const fromRect = isHeroInputVisible ? collapsedRect : heroRect;
+    const toRect = isHeroInputVisible ? heroRect : collapsedRect;
+    const dx = fromRect.left - toRect.left;
+    const dy = fromRect.top - toRect.top;
+    const sx = fromRect.width / toRect.width;
+    const sy = fromRect.height / toRect.height;
 
-    const incoming = isHeroInputVisible ? hero : collapsedFound.el;
-    const outgoing = isHeroInputVisible ? collapsedFound.el : hero;
-    const fromRect = isHeroInputVisible ? collapsedFound.rect : heroRect;
-    const toRect = isHeroInputVisible ? heroRect : collapsedFound.rect;
-
-    const deltaX = fromRect.left - toRect.left;
-    const deltaY = fromRect.top - toRect.top;
-    const scaleX = fromRect.width / toRect.width;
-    const scaleY = fromRect.height / toRect.height;
-
-    const incomingAnimation = incoming.animate(
-      [
-        {
-          transformOrigin: "top left",
-          transform: `translate(${String(deltaX)}px, ${String(deltaY)}px) scale(${String(scaleX)}, ${String(scaleY)})`,
-          opacity: 0,
-          filter: "blur(3px)",
-        },
-        {
-          offset: 0.3,
-          filter: "blur(3px)",
-        },
-        {
-          transformOrigin: "top left",
-          transform: "translate(0, 0) scale(1, 1)",
-          opacity: 1,
-          filter: "blur(0)",
-        },
+    const progress = createMotionValue(engine, 0, { spring: MORPH_SPRING });
+    const morph = {
+      progress,
+      heroIsIncoming: isHeroInputVisible,
+      bindings: [
+        bind(incoming, progress, {
+          pose: (t) => ({
+            transform: `translate(${px(dx * (1 - t))}, ${px(dy * (1 - t))}) scale(${mix(sx, 1, t).toFixed(4)}, ${mix(sy, 1, t).toFixed(4)})`,
+            opacity: unit(t).toFixed(3),
+            filter: `blur(${px(BLUR_PX * (1 - unblur(t)))})`,
+          }),
+          hold: { "transform-origin": "top left" },
+          rest: "clear",
+        }),
+        bind(outgoing, progress, {
+          pose: (t) => ({
+            opacity: (1 - handOff(t)).toFixed(3),
+            filter: `blur(${px(BLUR_PX * handOff(t))})`,
+          }),
+          rest: "clear",
+        }),
       ],
-      { duration: MORPH_DURATION, easing: easing.entrance },
-    );
-
-    const outgoingAnimation = outgoing.animate(
-      [
-        { opacity: 1, filter: "blur(0)" },
-        { offset: 0.3, opacity: 0, filter: "blur(3px)" },
-        { opacity: 0, filter: "blur(3px)" },
-      ],
-      { duration: MORPH_DURATION, easing: easing.entrance },
-    );
-
-    morphAnimationsRef.current = [incomingAnimation, outgoingAnimation];
-  }, [isHeroInputVisible]);
-
-  useLayoutEffect(() => {
-    return () => {
-      for (const animation of morphAnimationsRef.current) {
-        animation.cancel();
-      }
-      refineAnimationRef.current?.cancel();
     };
-  }, []);
+    morphRef.current = morph;
+    playMorph(morph, 1);
+  }, [engine, isHeroInputVisible]);
 
   return (
-    <HeroVisibilityContext value={{ isHeroInputVisible, heroInputRef }}>
+    <HeroVisibilityContext
+      value={{ isHeroInputVisible, heroInputRef, heroSlotRef }}
+    >
       {children}
     </HeroVisibilityContext>
   );

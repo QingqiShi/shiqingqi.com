@@ -9,6 +9,7 @@ import { SmileyWinkIcon } from "@phosphor-icons/react/dist/ssr/SmileyWink";
 import * as stylex from "@stylexjs/stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
@@ -251,8 +252,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: "transparent",
     color: color.fgMuted,
-    transition:
-      "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
   },
 
   selectedLabel: {

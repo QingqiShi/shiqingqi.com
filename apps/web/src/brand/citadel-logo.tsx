@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { brand } from "./brand.stylex.ts";
 import { svgTokens } from "./svg.stylex";
 
@@ -36,6 +37,6 @@ const styles = stylex.create({
     objectFit: "contain",
     width: "100%",
     height: "100%",
-    transition: "fill .2s",
+    transition: `fill ${duration._200} ${easing.ease}`,
   },
 });

@@ -21,6 +21,7 @@ import { Checkbox } from "@tuja/ui/components/checkbox";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { TextField } from "@tuja/ui/components/text-field";
+import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -35,7 +36,6 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
 import { downloadBlob } from "#src/browser/download-blob.ts";
-import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -309,7 +309,7 @@ export function MediaTable({
   const router = useRouter();
   const apiRef = useRef<Grid.API<MediaTableSpec> | null>(null);
   const [search, setSearch] = useState("");
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const prefersReducedMotion = useReducedMotion();
 
   const {
     data: items,

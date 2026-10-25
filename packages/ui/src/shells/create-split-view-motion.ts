@@ -219,6 +219,10 @@ function showAll(progress: MotionValue, poses: readonly Pose[]) {
  */
 interface Push extends Part {
   readonly progress: MotionValue;
+  /** Fades the new screen out where it is, in place of the move out, as under reduced motion. */
+  fadeOut(): void;
+  /** Whether `fadeOut` started. */
+  readonly isFadingOut: boolean;
   readonly front: HTMLElement;
   readonly back: HTMLElement | null;
   /** Where the inline-start edge of the new screen is at `progress`, from the view's. */
@@ -236,24 +240,30 @@ function createPush(
   presentation: "columns" | "stacked",
   fill: string,
   initial: number,
+  isReduced = false,
 ): Push {
   const progress = springValue(
     engine,
     initial,
     presentation === "columns" ? springRoles.columnPush : springRoles.stackPush,
   );
-  const strength = DIM[presentation][isDark(fill) ? "dark" : "light"];
-  const frontPoses = (front: HTMLElement): Pose[] => [
-    {
-      element: front,
-      pose: (p) => ({
-        transform: `translateX(${px(width * (1 - p))})`,
-        visibility: p <= 0.001 ? "hidden" : "visible",
-        "content-visibility": "visible",
-        "background-color": fill,
-      }),
-    },
-    { element: edgeOf(front), pose: (p) => ({ opacity: edgeOpacity(p) }) },
+  const faded = createMotionValue(engine, 0);
+  const strength = isReduced
+    ? 0
+    : DIM[presentation][isDark(fill) ? "dark" : "light"];
+  const parallax = isReduced ? 0 : PARALLAX[presentation];
+  const frontPose = (p: number, gone: number): Styles => ({
+    transform: `translateX(${px(width * (1 - p))})`,
+    visibility: p <= 0.001 ? "hidden" : "visible",
+    "content-visibility": "visible",
+    "background-color": fill,
+    opacity: gone > 0 ? (1 - unit(gone)).toFixed(3) : "",
+  });
+  const showFront = (front: HTMLElement) => [
+    show(front, [progress, faded], frontPose),
+    ...showAll(progress, [
+      { element: edgeOf(front), pose: (p) => ({ opacity: edgeOpacity(p) }) },
+    ]),
   ];
   const backPoses = (back: HTMLElement | null): Pose[] =>
     back === null
@@ -264,7 +274,7 @@ function createPush(
             pose: (p) => {
               const shown = unit(p);
               return {
-                transform: `translateX(${px(-PARALLAX[presentation] * width * shown)})`,
+                transform: `translateX(${px(-parallax * width * shown)})`,
                 visibility: shown >= 0.999 ? "" : "visible",
                 "content-visibility": shown >= 0.999 ? "" : "visible",
                 "background-color": fill,
@@ -283,7 +293,7 @@ function createPush(
         ];
   let front = initialFront;
   let back = initialBack;
-  let frontBindings = showAll(progress, frontPoses(front));
+  let frontBindings = showFront(front);
   let backBindings = showAll(progress, backPoses(back));
   return {
     progress,
@@ -294,7 +304,14 @@ function createPush(
       return back;
     },
     edgeAt: (p) => left + width * (1 - p),
-    isMoving: () => progress.isMoving,
+    isMoving: () => progress.isMoving || faded.isMoving,
+    fadeOut() {
+      progress.stop();
+      faded.to(1, { tween: { duration: CROSS_FADE } });
+    },
+    get isFadingOut() {
+      return faded.get() > 0 || faded.isMoving;
+    },
     setBack(next) {
       if (next === back) return;
       unbindAll(backBindings);
@@ -303,18 +320,18 @@ function createPush(
     },
     setFront(next) {
       const now = progress.get();
-      const frozen = frontPoses(front);
+      const edge = edgeOf(front);
       unbindAll(frontBindings);
-      for (const { element, pose } of frozen) {
-        if (element !== null) writeStyles(element, pose(now));
-      }
+      writeStyles(front, frontPose(now, faded.get()));
+      if (edge !== null) writeStyles(edge, { opacity: edgeOpacity(now) });
       front = next;
-      frontBindings = showAll(progress, frontPoses(front));
+      frontBindings = showFront(front);
     },
     drop() {
       unbindAll(frontBindings);
       unbindAll(backBindings);
       progress.stop();
+      faded.stop();
     },
   };
 }
@@ -323,6 +340,8 @@ function createPush(
 interface Detail extends Part {
   readonly progress: MotionValue;
   readonly column: HTMLElement;
+  /** How far, in px, the column is from its place at `progress`. */
+  readonly offsetAt: (progress: number) => number;
 }
 
 function createDetail(
@@ -347,6 +366,7 @@ function createDetail(
   return {
     progress,
     column,
+    offsetAt: (p) => width * (1 - p),
     isMoving: () => progress.isMoving,
     drop() {
       unbindAll(bindings);
@@ -357,28 +377,58 @@ function createDetail(
 
 /**
  * The content column, which springs from where it showed to its new place
- * beside the sidebar, over what is next to it.
+ * beside the sidebar, over what is next to it. While a detail column comes
+ * in or goes out at its inline end, the inline end of the content stays on
+ * the inline start of the detail column: the fill of the content reaches to
+ * the detail column, and the content is clipped where it goes under it. Thus
+ * no gap and no overlap shows while each moves on its own spring.
  */
 interface Offset extends Part {
   readonly x: MotionValue;
 }
+
+/** A detail column that moves at the inline end of the content. */
+interface Beside {
+  readonly detail: Detail;
+  /** How far, in px, the inline start of the column is from the inline end of the content, both at their places. */
+  readonly edge: number;
+}
+
+/** A clip inset that keeps what the content paints outside its box, such as the seam. */
+const UNCLIPPED = "-100vmax";
 
 function createOffset(
   engine: MotionEngine,
   content: HTMLElement,
   dx: number,
   velocity: number,
-  styles: Styles,
+  { seam, fill }: { seam: string; fill: string },
+  beside: Beside | null,
 ): Offset {
   const x = springValue(engine, dx, springRoles.fold);
   x.to(0, { velocity });
-  const binding = show(content, x, (at) => ({
-    ...styles,
+  const pose = (at: number): Styles => ({
+    "z-index": "1",
+    "background-color": fill,
+    "box-shadow": seam,
     transform: `translate(${px(at)}, ${px(0)})`,
-  }));
+  });
+  const binding =
+    beside === null
+      ? show(content, x, pose)
+      : show(content, [x, beside.detail.progress], (at, progress) => {
+          const gap = beside.edge + beside.detail.offsetAt(progress) - at;
+          const reach = `${px(gap)} 0 0 0 ${fill}`;
+          return {
+            ...pose(at),
+            "box-shadow":
+              gap <= 0 ? seam : seam === "none" ? reach : `${seam}, ${reach}`,
+            "clip-path": `inset(${UNCLIPPED} ${px(-gap)} ${UNCLIPPED} ${UNCLIPPED})`,
+          };
+        });
   return {
     x,
-    isMoving: () => x.isMoving,
+    isMoving: () => x.isMoving || beside?.detail.isMoving() === true,
     drop() {
       binding.unbind();
       x.stop();
@@ -790,15 +840,16 @@ export function createSplitViewMotion(
     stopTicking ??= engine.loop.every(frame);
   }
 
-  function stopAll() {
-    push?.drop();
+  /** Stops every part but `keep`, a swiped screen that fades out where the finger left it. */
+  function stopAll(keep: Push | null = null) {
+    if (push !== keep) push?.drop();
     detail?.drop();
     offset?.drop();
     fold?.drop();
     for (const part of [...fades, ...flights.values(), ...holders]) {
       part.drop();
     }
-    push = null;
+    push = keep;
     detail = null;
     offset = null;
     fold = null;
@@ -807,12 +858,14 @@ export function createSplitViewMotion(
     holders = [];
     stopTicking?.();
     stopTicking = null;
-    // This stops the moves of `playLayout` too.
-    engine.destroy();
+    // This stops the moves of `playLayout` too. It would also stop the fade
+    // of `keep`, and reduced motion plays no `playLayout`.
+    if (keep === null) engine.destroy();
     setFolding(null);
   }
 
-  function playReduced(change: SplitViewChange) {
+  /** Cross-fades `change`. Where `isSwiped`, the screen that leaves already fades where the swipe left it. */
+  function playReduced(change: SplitViewChange, isSwiped: boolean) {
     const content = view.querySelector<HTMLElement>(SELECTOR.content);
     const column = view.querySelector<HTMLElement>(SELECTOR.detail);
     const fadeOut = (element: HTMLElement | null | undefined) => {
@@ -820,7 +873,7 @@ export function createSplitViewMotion(
     };
     if (change.content === "push") {
       fadeOut(content?.querySelector<HTMLElement>(SELECTOR.page("under")));
-    } else if (change.content !== null) {
+    } else if (change.content !== null && !isSwiped) {
       fadeOut(content?.querySelector<HTMLElement>(SELECTOR.page("leaving")));
     }
     if (change.detail === "in" && column !== null) {
@@ -922,19 +975,23 @@ export function createSplitViewMotion(
 
   function planOffset(before: number | null) {
     const content = view.querySelector<HTMLElement>(SELECTOR.content);
-    if (content === null || before === null) return noStart;
-    const dx = before - content.getBoundingClientRect().left;
+    if (content === null) return noStart;
+    const box = content.getBoundingClientRect();
+    const dx = before === null ? 0 : before - box.left;
     const velocity = offset?.x.getVelocity() ?? 0;
     offset?.drop();
     offset = null;
-    if (Math.abs(dx) < 0.5) return noStart;
-    const styles = {
-      "z-index": "1",
-      "background-color": opaqueFillOf(content),
-      "box-shadow": events.seam,
-    };
+    const column = view.querySelector<HTMLElement>(SELECTOR.detail);
+    const edge =
+      column === null ? 0 : column.getBoundingClientRect().left - box.right;
+    const styles = { seam: events.seam, fill: opaqueFillOf(content) };
     return () => {
-      offset = createOffset(engine, content, dx, velocity, styles);
+      const beside =
+        column !== null && detail?.column === column && detail.isMoving()
+          ? { detail, edge }
+          : null;
+      if (beside === null && Math.abs(dx) < 0.5) return;
+      offset = createOffset(engine, content, dx, velocity, styles, beside);
     };
   }
 
@@ -1073,13 +1130,19 @@ export function createSplitViewMotion(
     play(snapshot, change, motion) {
       const before = snapshot ?? NOTHING_SHOWN;
       played = motion;
-      if (change.content !== null) stopAwaitingPop();
       if (engine.reducedMotion) {
-        stopAll();
-        playReduced(change);
+        const swiped =
+          change.content === "pop" && push?.isFadingOut === true ? push : null;
+        if (change.content !== null) {
+          clearTimeout(awaitingPop);
+          awaitingPop = undefined;
+        }
+        stopAll(swiped);
+        playReduced(change, swiped !== null);
         start();
         return;
       }
+      if (change.content !== null) stopAwaitingPop();
       const starts = engine.measure(() => {
         const origin = view.getBoundingClientRect();
         const rem =
@@ -1112,6 +1175,7 @@ export function createSplitViewMotion(
         SELECTOR.page("current"),
       );
       if (content == null || front == null) return false;
+      if (push?.isFadingOut === true) return false;
       const back = content.querySelector<HTMLElement>(SELECTOR.page("under"));
       if (push === null || push.front !== front) {
         push?.drop();
@@ -1123,6 +1187,7 @@ export function createSplitViewMotion(
           "stacked",
           opaqueFillOf(content),
           1,
+          engine.reducedMotion,
         );
       }
       push.progress.stop();
@@ -1136,11 +1201,13 @@ export function createSplitViewMotion(
 
     release(pop, velocity) {
       if (push === null) return;
-      if (engine.reducedMotion) {
-        push.progress.set(pop ? 0 : 1);
-        if (pop) fades.push(createFade(engine, push.front, "out"));
+      if (pop && engine.reducedMotion) {
+        push.fadeOut();
       } else {
-        push.progress.to(pop ? 0 : 1, { velocity });
+        push.progress.to(pop ? 0 : 1, {
+          velocity,
+          reduced: { duration: CROSS_FADE },
+        });
       }
       if (pop) {
         clearTimeout(awaitingPop);

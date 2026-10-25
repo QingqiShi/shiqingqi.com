@@ -1,11 +1,9 @@
-import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { createFrameLoop, type FrameLoop } from "./create-frame-loop.ts";
+import { prefersReducedMotion } from "./prefers-reduced-motion.ts";
 
 /**
  * The clock, the frame loop and the registry that the values and the
  * bindings of a group of motion share.
- *
- * @internal
  */
 export interface MotionEngine {
   readonly loop: FrameLoop;
@@ -53,7 +51,6 @@ export function registryOf(engine: MotionEngine): EngineRegistry {
   return registry;
 }
 
-/** @internal */
 export function createMotionEngine(): MotionEngine {
   const loop = createFrameLoop();
   const bindings = new Set<EngineBinding>();

@@ -57,14 +57,17 @@ export const easing = stylex.defineConsts({
   easeIn: "ease-in",
   easeOut: "ease-out",
   easeInOut: "ease-in-out",
-  entrance: "cubic-bezier(0.32, 0.72, 0, 1)",
-  // A damped spring (zeta 0.7) sampled into `linear()`: it overshoots by 5%,
-  // dips less than 1%, then settles. A cubic-bezier cannot cross 1 twice.
+  // The system spring of the motion engine (`springOf(springRoles.surface)`),
+  // sampled into `linear()` over 500ms. A test keeps the two the same. At
+  // 500ms, a transition moves as the surface role (mass 1) does. A longer or
+  // shorter duration changes the speed as a different mass does: the bounce
+  // stays the same. The curve is at 95% at approximately a quarter of the
+  // duration. Thus, use a duration that is approximately four times the time
+  // in which the movement must look complete.
   spring:
-    "linear(0, 0.116, 0.352, 0.594, 0.79, 0.924, 1.001, 1.037, 1.046, 1.041, 1.03, 1.019, 1.01, 1.004, 1, 0.998, 0.998, 0.998, 0.999, 0.999, 1)",
-  // An overshooting bezier that approximates `spring` where `linear()` is
-  // unsupported. It has no counter-dip, because a bezier cannot cross 1 twice.
-  springFallback: "cubic-bezier(0.34, 1.3, 0.35, 1)",
+    "linear(0, 0.116, 0.351, 0.594, 0.79, 0.924, 1.001, 1.037, 1.046, 1.041, 1.03, 1.019, 1.01, 1.004, 1, 0.998, 0.998, 0.998, 0.999, 0.999, 1)",
+  // The bezier nearest to `spring`, for a browser without `linear()`.
+  springFallback: "cubic-bezier(0.37, 1.14, 0, 1.04)",
   // Symmetric ease for looping attention states (pulse/shimmer), which need a
   // gentler hold at each end than `easeInOut` gives.
   pulse: "cubic-bezier(.4,0,.6,1)",
@@ -89,7 +92,7 @@ export const transition = stylex.create({
   },
   transform: {
     transition: {
-      default: `transform ${duration._200} ${easing.ease}`,
+      default: `transform ${duration._500} ${easing.spring}`,
       [REDUCED_MOTION]: "none",
     },
   },
@@ -114,12 +117,11 @@ const fadeOutKeyframes = stylex.keyframes({
 });
 
 /**
- * The keyframes of `animate.fadeIn` and `animate.fadeOut`, for an
+ * The keyframes of `animate.fadeIn`, for an
  * `animationName` that changes with a condition, such as reduced motion.
  */
 export const motionKeyframes = stylex.defineConsts({
   fadeIn: fadeInKeyframes,
-  fadeOut: fadeOutKeyframes,
 });
 
 const slideUpKeyframes = stylex.keyframes({
@@ -165,16 +167,16 @@ export const animate = stylex.create({
       default: slideUpKeyframes,
       [REDUCED_MOTION]: "none",
     },
-    animationDuration: duration._300,
-    animationTimingFunction: easing.entrance,
+    animationDuration: duration._500,
+    animationTimingFunction: easing.spring,
   },
   slideDown: {
     animationName: {
       default: slideDownKeyframes,
       [REDUCED_MOTION]: "none",
     },
-    animationDuration: duration._300,
-    animationTimingFunction: easing.entrance,
+    animationDuration: duration._500,
+    animationTimingFunction: easing.spring,
   },
   pulse: {
     // No infinite motion under reduced-motion (mirrors Skeleton's own guard),

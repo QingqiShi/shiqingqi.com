@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -257,7 +258,7 @@ export const chatTextareaStyles = stylex.create({
     backgroundColor: color.bgNeutralSubtle,
     color: color.fgMuted,
     opacity: { default: null, ":disabled": opacity.disabled },
-    transition: "background-color 0.15s ease, color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}`,
   },
   iconButtonActive: {
     backgroundColor: color.bgAccent,

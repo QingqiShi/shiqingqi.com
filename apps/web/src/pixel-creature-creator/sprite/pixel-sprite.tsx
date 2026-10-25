@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 import type {
   CreatureDef,
   Emotion,
@@ -59,7 +59,7 @@ export function PixelSprite({
 }: PixelSpriteProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const activeEmotion = emotion ?? def.defaultEmotion;
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const prefersReducedMotion = useReducedMotion();
 
   const speciesEntry = species[def.species];
   const elementEntry = elements[def.type];
