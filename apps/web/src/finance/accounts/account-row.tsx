@@ -1,12 +1,11 @@
 "use client";
 
-import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
+import { ListRow } from "@tuja/ui/components/list-row";
 import {
   SplitViewLink,
-  useSplitViewColumn,
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -26,7 +25,14 @@ import type { AccountLine } from "./build-balance-sheet.ts";
 import { institutionIconUrl } from "./institution-icon-url.ts";
 import { VALUATION_KINDS } from "./valuation-kinds.ts";
 
+export type AccountRowForm = "sidebar" | "card";
+
 interface AccountRowProps {
+  /**
+   * `"sidebar"` wraps the name and never cuts it. `"card"` is a row of a
+   * `List`.
+   */
+  form: AccountRowForm;
   line: AccountLine;
   baseCurrency: string;
   href: string;
@@ -39,9 +45,10 @@ interface AccountRowProps {
  * One account in the Net worth list: its institution's icon over its
  * initials, its name with the owner and institution that tell it apart, its
  * balance, and the facts that matter for its kind. The row opens the
- * account. The name wraps and is never cut.
+ * account.
  */
 export function AccountRow({
+  form,
   line,
   baseCurrency,
   href,
@@ -50,7 +57,6 @@ export function AccountRow({
 }: AccountRowProps) {
   const locale = useLocale();
   const accountName = useAccountDisplayName();
-  const isInSidebar = useSplitViewColumn()?.column === "sidebar";
   const { account } = line;
   const avatarRef = useSplitViewShared(`account:${account.id}`);
   const name = accountName(account);
@@ -75,6 +81,70 @@ export function AccountRow({
     );
   }
   const differs = account.currency !== baseCurrency;
+  const avatar = (
+    <span ref={avatarRef} css={styles.avatar}>
+      <Avatar
+        name={name}
+        initials={initials}
+        src={institutionIconUrl(account)}
+        shape="square"
+        aria-hidden
+      />
+    </span>
+  );
+  const factLine =
+    facts.length > 0 || line.hidden !== null ? (
+      <span
+        css={[
+          row.inline,
+          form === "sidebar" && typeRole.caption,
+          styles.facts,
+          form === "sidebar" && styles.muted,
+        ]}
+      >
+        {line.hidden === null ? null : (
+          <Badge size="sm" intent="neutral">
+            {line.hidden === "closed"
+              ? t({ en: "Closed", zh: "已关闭" })
+              : t({ en: "Not counted", zh: "不计入" })}
+          </Badge>
+        )}
+        <span css={styles.factText}>{facts.join(" · ")}</span>
+      </span>
+    ) : null;
+  const amounts = (
+    <span css={styles.amounts}>
+      <span
+        css={[
+          form === "sidebar" ? typeRole.bodySmall : typeRole.body,
+          typeModifier.numeric,
+          styles.balance,
+        ]}
+      >
+        {formatMoney(line.balance, account.currency, locale)}
+      </span>
+      {differs ? (
+        <span css={[typeRole.caption, typeModifier.numeric, styles.converted]}>
+          {`≈ ${formatMoney(line.baseBalance, baseCurrency, locale)}`}
+        </span>
+      ) : null}
+    </span>
+  );
+
+  if (form === "card") {
+    return (
+      <ListRow
+        href={href}
+        linkComponent={SplitViewLink}
+        aria-current={isSelected ? "true" : undefined}
+        leading={avatar}
+        detail={factLine}
+        trailing={amounts}
+      >
+        {name}
+      </ListRow>
+    );
+  }
 
   return (
     <li css={styles.item}>
@@ -89,49 +159,12 @@ export function AccountRow({
           styles.row,
         )}
       >
-        <span ref={avatarRef} css={styles.avatar}>
-          <Avatar
-            name={name}
-            initials={initials}
-            src={institutionIconUrl(account)}
-            shape="square"
-            aria-hidden
-          />
-        </span>
+        {avatar}
         <span css={styles.main}>
           <span css={[typeRole.bodySmall, styles.name]}>{name}</span>
-          {facts.length > 0 || line.hidden !== null ? (
-            <span css={[row.inline, typeRole.caption, styles.facts]}>
-              {line.hidden === null ? null : (
-                <Badge size="sm" intent="neutral">
-                  {line.hidden === "closed"
-                    ? t({ en: "Closed", zh: "已关闭" })
-                    : t({ en: "Not counted", zh: "不计入" })}
-                </Badge>
-              )}
-              <span css={styles.factText}>{facts.join(" · ")}</span>
-            </span>
-          ) : null}
+          {factLine}
         </span>
-        <span css={styles.amounts}>
-          <span
-            css={[typeRole.bodySmall, typeModifier.numeric, styles.balance]}
-          >
-            {formatMoney(line.balance, account.currency, locale)}
-          </span>
-          {differs ? (
-            <span
-              css={[typeRole.caption, typeModifier.numeric, styles.converted]}
-            >
-              {`≈ ${formatMoney(line.baseBalance, baseCurrency, locale)}`}
-            </span>
-          ) : null}
-        </span>
-        {isInSidebar ? null : (
-          <span aria-hidden css={styles.caret}>
-            <CaretRightIcon weight="bold" />
-          </span>
-        )}
+        {amounts}
       </SplitViewLink>
     </li>
   );
@@ -167,6 +200,8 @@ const styles = stylex.create({
   },
   facts: {
     minInlineSize: 0,
+  },
+  muted: {
     color: color.fgMuted,
   },
   factText: {
@@ -185,10 +220,5 @@ const styles = stylex.create({
   },
   balance: {
     fontWeight: font.weight_5,
-  },
-  caret: {
-    display: "inline-flex",
-    flexShrink: 0,
-    color: color.fgMuted,
   },
 });

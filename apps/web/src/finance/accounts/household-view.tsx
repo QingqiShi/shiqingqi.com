@@ -17,7 +17,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { row, stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect } from "react";
@@ -57,13 +57,17 @@ interface HouseholdViewProps {
   onCreateAccount: () => void;
 }
 
+const STACKED_TREND_HEIGHT = 200;
+
 /**
  * The Household in the content column of Net worth: the trend of its net
  * worth with the range to show, the accounts that moved most this week, and
  * what needs a look. Where the sidebar does not show in full, today's
  * figures and the actions come first. Where the column fills a stack, as on
- * a phone, the headline names the Household in place of the title, and the
- * accounts by Group follow, because no sidebar shows them.
+ * a phone, the page takes the title "Net worth" with the actions beside it,
+ * then today's figures, the trend at full width with the range under it,
+ * what needs a look, and the accounts by Group, because no sidebar shows
+ * them.
  */
 export function HouseholdView({
   sheet,
@@ -91,42 +95,78 @@ export function HouseholdView({
     );
   }
 
+  const actions = (
+    <NetWorthActions
+      updateHref={url.modeHref("update")}
+      onCreateAccount={onCreateAccount}
+      flush
+    />
+  );
+
   return (
     <div css={stack.group}>
-      <UnlessFullSidebar>
-        <div css={stack.item}>
-          <PickedHeadline sheet={sheet} today={today} currency={currency} />
-          <NetWorthActions
-            updateHref={url.modeHref("update")}
-            onCreateAccount={onCreateAccount}
-            flush
-          />
+      <StackedOnly>
+        <div css={stack.tight}>
+          <header css={[cluster.item, styles.header]}>
+            <Heading level={1} look="h3" css={styles.title}>
+              {t({ en: "Net worth", zh: "净资产" })}
+            </Heading>
+            {actions}
+          </header>
+          <div css={stack.item}>
+            <PickedHeadline
+              sheet={sheet}
+              today={today}
+              currency={currency}
+              form="page"
+            />
+            <section
+              css={stack.item}
+              aria-label={t({ en: "Trend", zh: "趋势" })}
+            >
+              <NetWorthTrend
+                range={range}
+                height={STACKED_TREND_HEIGHT}
+                onPick={setPick}
+                bleeds
+              />
+              <ChartRangeChips value={range} onChange={setRange} />
+            </section>
+          </div>
         </div>
-      </UnlessFullSidebar>
-      <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
-        <div css={styles.titleRow}>
-          <UnlessStacked>
+      </StackedOnly>
+      <UnlessStacked>
+        <UnlessFullSidebar>
+          <div css={stack.item}>
+            <PickedHeadline sheet={sheet} today={today} currency={currency} />
+            {actions}
+          </div>
+        </UnlessFullSidebar>
+        <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
+          <div css={styles.titleRow}>
             <Heading level={2} look="h3">
               {t({ en: "Household", zh: "家庭" })}
             </Heading>
-          </UnlessStacked>
-          <div css={styles.ranges}>
-            <ChartRangeChips value={range} onChange={setRange} />
+            <div css={styles.ranges}>
+              <ChartRangeChips value={range} onChange={setRange} />
+            </div>
           </div>
-        </div>
-        <Card css={styles.chartCard}>
-          <div ref={trendRef} css={styles.trend}>
-            <NetWorthTrend
-              range={range}
-              height="fill"
-              onPick={setPick}
-              shared={HOUSEHOLD_TREND}
-            />
-          </div>
-        </Card>
-      </section>
+          <Card css={styles.chartCard}>
+            <div ref={trendRef} css={styles.trend}>
+              <NetWorthTrend
+                range={range}
+                height="fill"
+                onPick={setPick}
+                shared={HOUSEHOLD_TREND}
+              />
+            </div>
+          </Card>
+        </section>
+      </UnlessStacked>
       <div css={styles.cards}>
-        <WhatMoved today={today} currency={currency} url={url} />
+        <UnlessStacked>
+          <WhatMoved today={today} currency={currency} url={url} />
+        </UnlessStacked>
         <NeedsALook sheet={sheet} url={url} />
       </div>
       <StackedOnly>
@@ -326,6 +366,13 @@ function CheckLink({ href, children }: { href: string; children: string }) {
 }
 
 const styles = stylex.create({
+  header: {
+    justifyContent: "space-between",
+    rowGap: rhythm.tight,
+  },
+  title: {
+    margin: 0,
+  },
   titleRow: {
     display: "flex",
     flexWrap: "wrap",

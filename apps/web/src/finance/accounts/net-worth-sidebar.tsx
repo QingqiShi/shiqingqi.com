@@ -23,7 +23,10 @@ import { Link } from "#src/links/link.tsx";
 import { AccountGroupList } from "./account-group-list.tsx";
 import { BankBalanceSummary } from "./bank-balance-notice.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
-import { NetWorthHeadline } from "./net-worth-headline.tsx";
+import {
+  NetWorthHeadline,
+  type NetWorthHeadlineForm,
+} from "./net-worth-headline.tsx";
 import {
   useNetWorthPick,
   useSetNetWorthPick,
@@ -214,7 +217,12 @@ export function bankDifferenceLines(sheet: BalanceSheet) {
  * Today's net worth, or what is picked on a trend. While it does not show,
  * such as in a hidden column, a pick does not draw it again.
  */
-export function PickedHeadline({ sheet, today, currency }: NetWorthSheetProps) {
+export function PickedHeadline({
+  sheet,
+  today,
+  currency,
+  form,
+}: NetWorthSheetProps & { form?: NetWorthHeadlineForm }) {
   const [element, setElement] = useState<HTMLElement | null>(null);
   const pick = useNetWorthPick(element);
   return (
@@ -224,6 +232,7 @@ export function PickedHeadline({ sheet, today, currency }: NetWorthSheetProps) {
         today={today}
         currency={currency}
         pick={pick}
+        form={form}
       />
     </div>
   );
