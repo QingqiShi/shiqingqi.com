@@ -23,7 +23,11 @@ import {
   type LiquidControl,
   type LiquidState,
 } from "./liquid-effect.ts";
-import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
+import {
+  LIQUID_INDICATOR,
+  LIQUID_SEGMENT,
+  LIQUID_VERTICAL,
+} from "./liquid-indicator.ts";
 import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
@@ -172,11 +176,14 @@ describe("createControlReader", () => {
    * A tracked segmented control with two segments, whose box reads are
    * counted in `segmentReads`.
    */
-  function setUp({ fixed = false } = {}) {
+  function setUp({ fixed = false, vertical = false } = {}) {
     const observers = stubObservers();
     const track = document.createElement("div");
     if (fixed) {
       track.style.position = "fixed";
+    }
+    if (vertical) {
+      track.setAttribute(LIQUID_VERTICAL, "");
     }
     const indicator = document.createElement("div");
     indicator.setAttribute(LIQUID_INDICATOR, "");
@@ -188,18 +195,30 @@ describe("createControlReader", () => {
     track.append(indicator, ...segments);
     document.body.append(track);
     const segmentReads: Element[] = [];
+    const turn = (box: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }) =>
+      vertical
+        ? { x: box.y, y: box.x, width: box.height, height: box.width }
+        : box;
     const layOutSegments = (widths: readonly [number, number]) => {
       layOut(
         segments[0],
-        { x: 0, y: 0, width: widths[0], height: 40 },
+        turn({ x: 0, y: 0, width: widths[0], height: 40 }),
         segmentReads,
       );
       layOut(
         segments[1],
-        { x: widths[0], y: 0, width: widths[1], height: 40 },
+        turn({ x: widths[0], y: 0, width: widths[1], height: 40 }),
         segmentReads,
       );
-      layOut(track, { x: 0, y: 0, width: widths[0] + widths[1], height: 40 });
+      layOut(
+        track,
+        turn({ x: 0, y: 0, width: widths[0] + widths[1], height: 40 }),
+      );
     };
     layOutSegments([100, 100]);
 
@@ -322,6 +341,16 @@ describe("createControlReader", () => {
     expect(segmentReads).toHaveLength(4);
   });
 
+  it("reads the stops of a vertical track down the page", () => {
+    const { frame } = setUp({ vertical: true });
+    const control = frame();
+    expect(control?.vertical).toBe(true);
+    expect(control?.radius).toBe(20);
+    expect(control?.originX).toBe(20);
+    expect(control?.originY).toBe(20);
+    expect(secondStart(control)).toBeCloseTo(100, 6);
+  });
+
   it("reads a fixed control again where a scroll moves it in the page", () => {
     const { segmentReads, frame } = setUp({ fixed: true });
     const before = frame();
@@ -426,6 +455,17 @@ describe("layoutLiquid", () => {
       ({ instance }) =>
         Math.abs(instance.centreX - instance.restX) <= instance.span,
     );
+
+  it("draws a vertical track in its own frame, over the page where the track has no fill", () => {
+    const run = createRun({
+      ...threeSegments(),
+      under: readFill("rgba(0, 0, 0, 0)"),
+      vertical: true,
+    });
+    const { instance } = run({ ...rest, position: 0 });
+    expect(instance.vertical).toBe(true);
+    expect(instance.off).toEqual(BACKDROP.slice(0, 3));
+  });
 
   it("lets the control draw the solid surface at rest, under a lit edge", () => {
     const { before } = move(threeSegments(), 0, 0, 0);

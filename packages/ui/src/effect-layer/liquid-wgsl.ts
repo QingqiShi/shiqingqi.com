@@ -16,6 +16,7 @@ const FIELD_THRESHOLD = 9.93;
 const FLAG_COVER = 1;
 const FLAG_SEE_THROUGH = 2;
 const FLAG_LIGHT_BODY = 4;
+const FLAG_VERTICAL = 8;
 
 /**
  * A ring inside the edge of a track: its colour off and on, sRGB-encoded with
@@ -31,7 +32,9 @@ export interface TrackRing {
 
 /**
  * One control's liquid as a frame draws it, in page coordinates and CSS px:
- * a Switch's thumb or a segmented control's indicator.
+ * a Switch's thumb or a segmented control's indicator. For a `vertical`
+ * track, the coordinates are in the track's frame: the page turned over the
+ * diagonal through the origin, so x runs down the track and y across it.
  *
  * @internal
  */
@@ -94,6 +97,11 @@ export interface LiquidInstance {
   readonly body: number;
   /** The way to the light, a unit vector. */
   readonly light: readonly [number, number];
+  /**
+   * The track runs down the page, as the rail of a TabView does, and not
+   * along it.
+   */
+  readonly vertical?: boolean;
   /** The control's own edge, which the effect draws round the solid surface: ring, two shadows, inset ring. */
   readonly edge: readonly [number, number, number, number];
   /** How much of the lit edge it draws, from 0 to 1. */
@@ -107,7 +115,8 @@ export interface LiquidInstance {
 }
 
 /**
- * One bead on the track, in page coordinates and CSS px.
+ * One bead on the track, in page coordinates and CSS px, or in the track's
+ * frame on a vertical track, as `LiquidInstance` gives them.
  *
  * @internal
  */
@@ -142,6 +151,7 @@ const FIELD_THRESHOLD = ${FIELD_THRESHOLD.toFixed(3)};
 const FLAG_COVER = ${String(FLAG_COVER)}u;
 const FLAG_SEE_THROUGH = ${String(FLAG_SEE_THROUGH)}u;
 const FLAG_LIGHT_BODY = ${String(FLAG_LIGHT_BODY)}u;
+const FLAG_VERTICAL = ${String(FLAG_VERTICAL)}u;
 const NECK_REACH = ${NECK_REACH.toFixed(4)};
 const BEAD_JOIN = 1.0;
 // The body's dome: a spherical cap this high, as a share of the radius.
@@ -234,6 +244,37 @@ struct Bead {
 @group(2) @binding(0) var<storage, read> liquids: array<LiquidInstance>;
 @group(2) @binding(1) var<storage, read> slots: array<LiquidSlot>;
 @group(2) @binding(2) var<storage, read> beads: array<Bead>;
+
+fn isVertical(liquid: LiquidInstance) -> bool {
+  return (liquid.flags & FLAG_VERTICAL) != 0u;
+}
+
+// A vertical track draws in its own frame: the page turned over the
+// diagonal through the origin, so that the liquid runs along x there as on
+// a horizontal track. The turn is its own inverse.
+fn toTrackFrame(liquid: LiquidInstance, page: vec2f) -> vec2f {
+  return select(page, liquid.origin + (page - liquid.origin).yx, isVertical(liquid));
+}
+
+fn trackInFrame(liquid: LiquidInstance, track: EffectElement) -> EffectElement {
+  if (!isVertical(liquid)) {
+    return track;
+  }
+  var turned = track;
+  turned.rect = vec4f(toTrackFrame(liquid, track.rect.xy), track.rect.wz);
+  turned.radii = track.radii.xwzy;
+  return turned;
+}
+
+// A direction on the page, such as the way to the light, in the track's frame.
+fn frameDir(liquid: LiquidInstance, page: vec3f) -> vec3f {
+  return select(page, page.yxz, isVertical(liquid));
+}
+
+// One CSS px up the page, in the track's frame.
+fn pageUp(liquid: LiquidInstance) -> vec2f {
+  return frameDir(liquid, vec3f(0.0, 1.0, 0.0)).xy;
+}
 
 struct LiquidVarying {
   @builtin(position) position: vec4f,
@@ -483,19 +524,19 @@ fn lens(
   let dome = domeAt(depth, radius, surface.outward);
   let normal = dome.normal;
   var behind = trackAt(liquid, track, page + dome.bend);
-  let away = saturate(-dot(surface.outward, TO_LIGHT_FLAT));
+  let away = saturate(-dot(surface.outward, frameDir(liquid, vec3f(TO_LIGHT_FLAT, 0.0)).xy));
   let band = (depth / radius - CAUSTIC_DEPTH) / CAUSTIC_WIDTH;
   // Water in front of the page does not darken it.
   let dry = (liquid.flags & FLAG_SEE_THROUGH) != 0u;
   behind *= select(WET, 1.0, dry) * (1.0 + away * exp(-band * band) * CAUSTIC);
-  var color = behind * (1.0 - saturate(-dot(normal.xy, TO_LIGHT.xy)) * select(SHADE, 0.0, dry));
+  var color = behind * (1.0 - saturate(-dot(normal.xy, frameDir(liquid, TO_LIGHT).xy)) * select(SHADE, 0.0, dry));
   color *= 1.0 - LIMB * (1.0 - smoothstep(0.0, LIMB_WIDTH, depth));
   color = mix(color, vec3f(1.0), dome.rim * RIM_LIGHT);
-  let lit = max(dot(normal, HALFWAY), 0.0);
+  let lit = max(dot(normal, frameDir(liquid, HALFWAY)), 0.0);
   let highlight = pow(lit, 120.0) + 0.05 * pow(lit, 16.0);
   color = mix(color, vec3f(1.0), saturate(highlight) * HIGHLIGHT);
   // A second, fainter gleam on the far side: the room reflected.
-  let gleam = pow(max(dot(normal, GLEAM_HALFWAY), 0.0), 40.0);
+  let gleam = pow(max(dot(normal, frameDir(liquid, GLEAM_HALFWAY)), 0.0), 40.0);
   color = mix(color, vec3f(1.0), gleam * GLEAM);
   if (solid <= 0.0) {
     return saturate(color);
@@ -509,8 +550,8 @@ fn restShadow(liquid: LiquidInstance, page: vec2f, distance: f32, spread: f32) -
   var near = 0.0;
   var far = 0.0;
   if (liquid.edge.y > 0.0) {
-    near = liquid.edge.y * (1.0 - smoothstep(-1.0, 2.0, liquidSurface(liquid, page - vec2f(0.0, 1.0), spread).surface.distance));
-    far = liquid.edge.z * (1.0 - smoothstep(-3.0, 7.0, liquidSurface(liquid, page - vec2f(0.0, 2.5), spread).surface.distance));
+    near = liquid.edge.y * (1.0 - smoothstep(-1.0, 2.0, liquidSurface(liquid, page - pageUp(liquid), spread).surface.distance));
+    far = liquid.edge.z * (1.0 - smoothstep(-3.0, 7.0, liquidSurface(liquid, page - 2.5 * pageUp(liquid), spread).surface.distance));
   }
   return 1.0 - (1.0 - ring) * (1.0 - near) * (1.0 - far);
 }
@@ -533,8 +574,9 @@ fn litEdge(acc: vec4f, d: f32, lit: f32, away: f32, lightBody: bool, extras: f32
 @fragment
 fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
   let liquid = liquids[input.instance];
-  let track = effectElements[liquid.element];
-  let page = fragmentToPage(input.position.xy);
+  let track = trackInFrame(liquid, effectElements[liquid.element]);
+  let onPage = fragmentToPage(input.position.xy);
+  let page = toTrackFrame(liquid, onPage);
   let pixel = effectTarget.pixelScale.x;
   let seeThrough = (liquid.flags & FLAG_SEE_THROUGH) != 0u;
   // A liquid in front of the page stays inside the track's padding box.
@@ -543,7 +585,7 @@ fn liquidFragment(input: LiquidVarying) -> @location(0) vec4f {
   if (onTrack <= 0.0) {
     return vec4f(0.0);
   }
-  let clip = onTrack * effectClip(track.scope, page);
+  let clip = onTrack * effectClip(track.scope, onPage);
 
   var acc = vec4f(0.0);
   if ((liquid.flags & FLAG_COVER) != 0u) {
@@ -586,7 +628,7 @@ fn drawBody(
     let coverage = saturate(0.5 - d * pixel);
     // A contact shadow under the water, deeper on the side away from the
     // light, and the control's own shadows under the solid surface.
-    let lee = 0.5 - 0.5 * dot(surface.outward, TO_LIGHT.xy);
+    let lee = 0.5 - 0.5 * dot(surface.outward, frameDir(liquid, TO_LIGHT).xy);
     let contact = (1.0 - smoothstep(0.0, SHADOW_REACH, d)) * lee * SHADOW * melted;
     var rest = 0.0;
     if (firm > 0.0) {
@@ -607,7 +649,7 @@ fn drawBody(
       let solid = solidAt(inward, firm);
       var above = 0.0;
       if (solid > 0.0 && liquid.edge.w > 0.0) {
-        above = liquidSurface(liquid, page - vec2f(0.0, 1.0), spread).surface.distance;
+        above = liquidSurface(liquid, page - pageUp(liquid), spread).surface.distance;
       }
       let body = lens(liquid, track, page, surface, found.radius, solid, solidBody(liquid, d, above));
       var layer = vec4f(body, 1.0);
@@ -664,7 +706,8 @@ export function packLiquidInstances(
     words[at + 5] =
       (liquid.cover ? FLAG_COVER : 0) |
       (liquid.seeThrough ? FLAG_SEE_THROUGH : 0) |
-      (liquid.lightBody ? FLAG_LIGHT_BODY : 0);
+      (liquid.lightBody ? FLAG_LIGHT_BODY : 0) |
+      (liquid.vertical === true ? FLAG_VERTICAL : 0);
     floats[at + 6] = liquid.radius;
     floats[at + 7] = liquid.calm;
     floats.set(

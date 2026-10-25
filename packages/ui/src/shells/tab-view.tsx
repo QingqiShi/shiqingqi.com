@@ -15,10 +15,20 @@ import {
   type TabBarItem,
   type TabBarLinkProps,
 } from "../actions/tab-bar.tsx";
+import { useTabPress } from "../actions/use-tab-press.ts";
 import { pointer } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
+import { LIQUID_INDICATOR } from "../effect-layer/liquid-indicator.ts";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
+import {
+  segmentIndicator,
+  segmentTrackMarker,
+} from "../forms/segment-indicator.stylex.ts";
+import { useScrollMask } from "../hooks/use-scroll-mask.ts";
+import { mergeRefs } from "../merge-refs.ts";
 import { bind } from "../motion/bind.ts";
+import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import type { Styles } from "../motion/px.ts";
 import { springOf, springRoles } from "../motion/spring-roles.ts";
 import {
@@ -94,6 +104,21 @@ interface TabViewProps {
    */
   screenKey?: string | number;
   /**
+   * An effect the effect layer draws on the indicator of the current
+   * destination, in the rail and in the tab bar. `"liquid"`, the default,
+   * draws it as `TabBar`'s `effect` describes, and in the rail the liquid
+   * pours up and down from one destination to the next. A press on a
+   * destination in the rail pours it there at once, and a drag from that
+   * press moves it with inertia along the rail. `"none"` keeps the plain
+   * indicator, which a press and a drag move in the same way. The effect
+   * draws only inside an `EffectLayerProvider` with WebGPU; elsewhere, and
+   * under forced colours, the view looks and works as it does with
+   * `"none"`.
+   *
+   * @zh 由效果层在当前目标页的指示块上绘制的效果，侧轨与标签栏都适用。默认的 `"liquid"` 按 `TabBar` 的 `effect` 所述绘制它；在侧轨中，液体从一个目标页向上或向下涌向下一个目标页。在侧轨中按下某个目标页时液体立即涌向那里，从这次按下开始拖动时它带着惯性沿侧轨移动。`"none"` 保留普通的指示块，按下与拖动以同样的方式移动它。效果只在带有 WebGPU 的 `EffectLayerProvider` 之内绘制；在其它情况下以及强制颜色模式下，视图的外观与行为与 `"none"` 相同。 @default "liquid"
+   */
+  effect?: "liquid" | "none";
+  /**
    * Landmark element for the content. Use `"main"` (the default) for the
    * page's primary content, or `"div"` when the shell is nested inside a
    * surface that already owns the `<main>` landmark.
@@ -106,7 +131,8 @@ interface TabViewProps {
 /**
  * The frame of an app with a few top-level destinations. Where the view is
  * `md` wide or wider, a narrow rail on the inline-start edge holds them, each
- * an icon over a small label, the current one raised on the canvas, with the
+ * an icon over a small label, the current one raised on the canvas under an
+ * indicator that a press can drag along the rail, as on a `TabBar`, with the
  * `header` at its top and the `footer` at its bottom. The rail has no fill
  * of its own, so the content beside it, such as the islands of a
  * `NavigationSplitView`, floats on the same canvas. Below that, a `TabBar`
@@ -124,6 +150,7 @@ export function TabView({
   footer,
   children,
   screenKey,
+  effect = "liquid",
   as = "main",
 }: TabViewProps) {
   const screen = screenKey ?? items.find((item) => item.current === true)?.href;
@@ -137,47 +164,12 @@ export function TabView({
         <div ref={ref} css={[styles.rail, css]}>
           <EffectCarrier value={sticky}>
             {header == null ? null : <div css={styles.slot}>{header}</div>}
-            <nav aria-label={label} css={styles.nav}>
-              {/* `role="list"` survives the marker reset, which otherwise drops
-                list semantics in Safari/VoiceOver. */}
-              <ul role="list" css={stack.rows}>
-                {items.map((item) => (
-                  <li key={item.href}>
-                    <LinkComponent
-                      href={item.href}
-                      aria-current={item.current === true ? "page" : undefined}
-                      {...stylex.props(
-                        typeRole.caption,
-                        a11y.touchRow,
-                        transition.colors,
-                        corner.radius_3,
-                        styles.link,
-                        item.current === true && styles.linkCurrent,
-                        a11y.focusRingInset,
-                      )}
-                    >
-                      <span css={styles.icon} aria-hidden>
-                        <item.icon
-                          weight={item.current === true ? "fill" : "bold"}
-                        />
-                        {item.badge ? (
-                          <span css={styles.badge}>{item.badge}</span>
-                        ) : null}
-                      </span>
-                      <span css={styles.label}>{item.label}</span>
-                      {item.status === undefined ? null : (
-                        <>
-                          {" "}
-                          <span css={a11y.srOnly} role="status">
-                            {item.status}
-                          </span>
-                        </>
-                      )}
-                    </LinkComponent>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <Rail
+              items={items}
+              label={label}
+              effect={effect}
+              linkComponent={LinkComponent}
+            />
             {footer == null ? null : (
               <div css={[styles.slot, styles.footer]}>{footer}</div>
             )}
@@ -196,11 +188,127 @@ export function TabView({
           <TabBar
             items={items}
             label={label}
+            effect={effect}
             linkComponent={LinkComponent}
             css={styles.bar}
           />
         </EffectCarrier>
       </div>
+    </div>
+  );
+}
+
+interface RailProps {
+  items: readonly TabBarItem[];
+  label: string;
+  effect: "liquid" | "none";
+  linkComponent: ComponentType<TabBarLinkProps>;
+}
+
+/**
+ * The destinations in the rail, in a Scroll region for a rail too short to
+ * hold them all.
+ */
+function Rail({ label, ...track }: RailProps) {
+  const region = useScrollRegion();
+  const { scroller, content } = region;
+  const navRef = useRef<HTMLElement>(null);
+  const { showStartMask, showEndMask } = useScrollMask(navRef, "vertical");
+  return (
+    <nav ref={mergeRefs(scroller, navRef)} aria-label={label} css={styles.nav}>
+      <div ref={content} css={styles.navContent}>
+        <EffectCarrier value={region}>
+          <RailTrack {...track} scrolls={showStartMask || showEndMask} />
+        </EffectCarrier>
+      </div>
+    </nav>
+  );
+}
+
+interface RailTrackProps extends Omit<RailProps, "label"> {
+  scrolls: boolean;
+}
+
+/**
+ * The current destination under an indicator that moves down and up the
+ * rail as the one on a `TabBar` moves across it.
+ */
+function RailTrack({
+  items,
+  effect,
+  linkComponent: LinkComponent,
+  scrolls,
+}: RailTrackProps) {
+  const current = items.findIndex((item) => item.current === true);
+  const { trackRef, shown, held, inset, dragging, trackProps, linkProps } =
+    useTabPress({ current, effect, orientation: "vertical" });
+  return (
+    <div
+      ref={trackRef}
+      css={[
+        segmentTrackMarker,
+        segmentIndicator.track,
+        // A drag down a rail that scrolls scrolls it, so that touch reaches
+        // each destination.
+        !scrolls && segmentIndicator.trackVertical,
+      ]}
+      {...trackProps}
+    >
+      {shown >= 0 ? (
+        <span
+          aria-hidden="true"
+          {...{ [LIQUID_INDICATOR]: "" }}
+          css={[
+            corner.radius_3,
+            segmentIndicator.base,
+            styles.indicator,
+            inset !== null && segmentIndicator.atBlock(inset.start, inset.end),
+            dragging && segmentIndicator.dragged,
+          ]}
+        />
+      ) : null}
+      {/* `role="list"` survives the marker reset, which otherwise drops
+            list semantics in Safari/VoiceOver. */}
+      <ul role="list" css={stack.rows}>
+        {items.map((item, index) => {
+          const isShown = index === shown;
+          return (
+            <li key={item.href}>
+              <LinkComponent
+                href={item.href}
+                aria-current={item.current === true ? "page" : undefined}
+                {...linkProps(index)}
+                {...stylex.props(
+                  typeRole.caption,
+                  a11y.touchRow,
+                  transition.colors,
+                  corner.radius_3,
+                  styles.link,
+                  held && segmentIndicator.held,
+                  isShown && [segmentIndicator.anchor, styles.linkShown],
+                  a11y.focusRingInset,
+                )}
+              >
+                <span css={styles.icon} aria-hidden>
+                  <item.icon weight={isShown ? "fill" : "bold"} />
+                  {item.badge ? (
+                    <span css={styles.badge}>{item.badge}</span>
+                  ) : null}
+                </span>
+                <span css={styles.label}>{item.label}</span>
+                {item.status === undefined ? null : (
+                  <>
+                    {" "}
+                    <span css={a11y.srOnly} role="status">
+                      {item.status}
+                    </span>
+                  </>
+                )}
+              </LinkComponent>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -238,6 +346,12 @@ function useRise(content: HTMLElement | null, screen: unknown) {
     rise.to(1);
   }, [engine, rise, screen]);
 }
+
+/** The motion engine sets this attribute on a box while it moves it. */
+const MOVED = ":is([data-moving])";
+const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
+/** The effect layer sets this attribute on the track while it draws the indicator. */
+const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 
 const styles = stylex.create({
   container: {
@@ -296,6 +410,9 @@ const styles = stylex.create({
     minBlockSize: 0,
     overflowY: "auto",
   },
+  navContent: {
+    position: "relative",
+  },
   link: {
     display: "flex",
     flexDirection: "column",
@@ -303,6 +420,9 @@ const styles = stylex.create({
     justifyContent: "center",
     gap: rhythm.inline,
     minInlineSize: 0,
+    // The liquid rests in a shape as wide as the link, with round ends, so
+    // it fits only in a link at least as tall as it is wide.
+    aspectRatio: 1,
     paddingBlock: space._1,
     paddingInline: 0,
     color: {
@@ -311,24 +431,39 @@ const styles = stylex.create({
     },
     backgroundColor: {
       default: "transparent",
-      [pointer.canHover]: {
-        default: null,
-        ":hover": color.bgControlHover,
-      },
-      ":is([aria-current=page])": {
-        default: color.bgControlRaised,
-        ":hover": {
-          default: null,
-          [pointer.canHover]: color.bgControlRaised,
-        },
-      },
+      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
     },
     fontWeight: font.weight_5,
     textDecoration: "none",
+    // A press on a destination can drag the indicator, so it does not
+    // select the label.
+    userSelect: "none",
   },
-  linkCurrent: {
+  indicator: {
+    backgroundColor: color.bgControlRaised,
+  },
+  // The indicator paints the surface of the shown destination, so the link
+  // gives up its own fill. Where there is no anchor positioning the link
+  // paints that surface itself, unless the effect draws the indicator over
+  // the rail. The colour and the filled icon stay in all of them, because
+  // they are the signal in forced colours.
+  linkShown: {
     color: color.fgControlSelected,
     fontWeight: font.weight_6,
+    backgroundColor: {
+      default: "transparent",
+      [NO_ANCHOR_POSITIONING]: {
+        default: color.bgControlRaised,
+        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
+          "transparent",
+      },
+      [stylex.when.ancestor(MOVED, movingMarker)]: color.bgControlRaised,
+    },
+    // The surface changes from the indicator to the link at once.
+    transition: {
+      default: null,
+      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
+    },
   },
   icon: {
     position: "relative",

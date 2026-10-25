@@ -22,7 +22,11 @@ import {
   packLiquidSteps,
   type LiquidStep,
 } from "./liquid-compute-wgsl.ts";
-import { LIQUID_INDICATOR, LIQUID_SEGMENT } from "./liquid-indicator.ts";
+import {
+  LIQUID_INDICATOR,
+  LIQUID_SEGMENT,
+  LIQUID_VERTICAL,
+} from "./liquid-indicator.ts";
 import {
   LIQUID_SLOT_BYTES,
   LIQUID_SLOT_WORDS,
@@ -129,6 +133,11 @@ export interface LiquidControl {
   readonly edge: Edge;
   /** How far the liquid's surface swells past its rest shape, in CSS px. */
   readonly spread: number;
+  /**
+   * The track runs down the page, as `LiquidInstance.vertical` describes.
+   * Else it runs along it.
+   */
+  readonly vertical?: boolean;
 }
 
 /**
@@ -284,7 +293,8 @@ function readThumb(record: EffectElementRecord): LiquidControl | null {
  * A segmented control: one stop over each segment marked with
  * `LIQUID_SEGMENT`, whose boxes are `segments`, in a pill as long as the
  * segment, and the indicator's look, from the element marked with
- * `LIQUID_INDICATOR`.
+ * `LIQUID_INDICATOR`. On a track marked with `LIQUID_VERTICAL` the stops go
+ * down the track, and the pill is as long as the segment is tall.
  */
 function readSegments(
   record: EffectElementRecord,
@@ -292,30 +302,52 @@ function readSegments(
 ): LiquidControl | null {
   const { element } = record;
   const indicator = element.querySelector(`[${LIQUID_INDICATOR}]`);
-  const radius = (segments.at(0)?.height ?? 0) / 2;
-  if (indicator === null || !(radius > 0)) {
+  const vertical = element.hasAttribute(LIQUID_VERTICAL);
+  // A vertical track is read in the frame that `LIQUID_WGSL` turns it to,
+  // mirrored over the diagonal, so the code below reads only the horizontal case.
+  const frame = vertical ? turn : (rect: Box) => rect;
+  const side = vertical ? TURNED_SIDES : SIDES;
+  const boxes = segments.map(frame);
+  const first = boxes.at(0);
+  const radius = (first?.height ?? 0) / 2;
+  if (first === undefined || indicator === null || !(radius > 0)) {
     return null;
   }
   const own = getComputedStyle(element);
   const look = getComputedStyle(indicator);
-  const box = element.getBoundingClientRect();
+  const page = element.getBoundingClientRect();
+  const box = frame(page);
+  const left =
+    box.left +
+    px(own[`border${side.left}Width`]) +
+    px(own[`padding${side.left}`]);
+  const right =
+    box.right -
+    px(own[`border${side.right}Width`]) -
+    px(own[`padding${side.right}`]);
+  // The top-right corner in the frame is the indicator's bottom-left.
+  const corners = vertical
+    ? ([
+        look.borderTopLeftRadius,
+        look.borderBottomLeftRadius,
+        look.borderBottomRightRadius,
+        look.borderTopRightRadius,
+      ] as const)
+    : ([
+        look.borderTopLeftRadius,
+        look.borderTopRightRadius,
+        look.borderBottomRightRadius,
+        look.borderBottomLeftRadius,
+      ] as const);
+  const along = left + radius;
+  const across = first.top + radius;
   // The rects are in the viewport, and the record in the page.
-  const toPageX = record.x - box.left;
-  const toPageY = record.y - box.top;
-  const left = box.left + px(own.borderLeftWidth) + px(own.paddingLeft);
-  const right = box.right - px(own.borderRightWidth) - px(own.paddingRight);
-  const corners = [
-    look.borderTopLeftRadius,
-    look.borderTopRightRadius,
-    look.borderBottomRightRadius,
-    look.borderBottomLeftRadius,
-  ] as const;
   return {
     radius,
-    originX: left + radius + toPageX,
-    originY: segments[0].top + radius + toPageY,
+    originX: (vertical ? across : along) + record.x - page.left,
+    originY: (vertical ? along : across) + record.y - page.top,
     travel: Math.max(0, (right - left) / radius - 2),
-    stops: segments.map((segment) => {
+    stops: boxes.map((segment) => {
       const start = (segment.left - left) / radius;
       const end = Math.max(start, (segment.right - left) / radius - 2);
       return { target: (start + end) / 2, span: (end - start) / 2 };
@@ -325,20 +357,38 @@ function readSegments(
     fill: null,
     ring: null,
     corner: {
-      radius: resolveCornerRadii(
-        segments[0].width,
-        segments[0].height,
-        corners,
-      )[0],
+      radius: resolveCornerRadii(first.width, first.height, corners)[0],
       exponent: readCornerExponent(
         look.getPropertyValue("corner-top-left-shape"),
       ),
     },
     thumb: false,
     edge: readEdge(look.boxShadow),
-    spread: px(own.paddingTop),
+    spread: px(own[`padding${side.top}`]),
+    vertical,
   };
 }
+
+type Box = Pick<
+  DOMRectReadOnly,
+  "left" | "right" | "top" | "bottom" | "width" | "height"
+>;
+
+/** `rect` mirrored over the diagonal through the origin. */
+function turn(rect: Box): Box {
+  return {
+    left: rect.top,
+    right: rect.bottom,
+    top: rect.left,
+    bottom: rect.right,
+    width: rect.height,
+    height: rect.width,
+  };
+}
+
+const SIDES = { left: "Left", right: "Right", top: "Top" } as const;
+/** The sides of the page that `turn` puts at each side of the frame. */
+const TURNED_SIDES = { left: "Top", right: "Bottom", top: "Left" } as const;
 
 /**
  * Reads each control from the page, and reads it again only when it can
@@ -547,8 +597,8 @@ function handAlpha(
 }
 
 /** The selected surface as it shows over the track: its fill over the track's. */
-function solidOf(control: LiquidControl) {
-  const { color, under } = control;
+function solidOf(control: LiquidControl, under: EffectColor) {
+  const { color } = control;
   const a = color[3];
   return [
     under[0] + (color[0] - under[0]) * a,
@@ -560,19 +610,23 @@ function solidOf(control: LiquidControl) {
 const palettes = new WeakMap<
   LiquidControl,
   {
+    readonly under: EffectColor;
     readonly solid: readonly [number, number, number];
     readonly lightBody: boolean;
   }
 >();
 
-/** The colour of a control's surface over its track, worked out once for each read of the control. */
-function paletteOf(control: LiquidControl) {
+/**
+ * The colour of a control's surface over its track, `under`, worked out
+ * once for each read of the control and each fill under it.
+ */
+function paletteOf(control: LiquidControl, under: EffectColor) {
   const cached = palettes.get(control);
-  if (cached !== undefined) {
+  if (cached?.under === under) {
     return cached;
   }
-  const solid = solidOf(control);
-  const palette = { solid, lightBody: srgbToOklab(solid)[0] > 0.7 };
+  const solid = solidOf(control, under);
+  const palette = { under, solid, lightBody: srgbToOklab(solid)[0] > 0.7 };
   palettes.set(control, palette);
   return palette;
 }
@@ -768,11 +822,14 @@ export function layoutLiquid(
     handFrom = null;
   }
 
+  const vertical = control.vertical === true;
   const centreX = mean(body.x);
   const lit = leanLight(
     context,
     state ?? { lean: 0, toPointer: [0, -1] },
-    { x: originX + centreX * radius, y: originY },
+    vertical
+      ? { x: originX, y: originY + centreX * radius }
+      : { x: originX + centreX * radius, y: originY },
     radius,
     delta,
     reduced,
@@ -786,7 +843,9 @@ export function layoutLiquid(
       radius: beadRadius(bead) * radius,
     });
   }
-  const { solid, lightBody } = paletteOf(control);
+  // A track with no fill of its own shows the page.
+  const under = control.under[3] > 0 ? control.under : backdrop;
+  const { solid, lightBody } = paletteOf(control, under);
   return {
     state: {
       body,
@@ -836,11 +895,11 @@ export function layoutLiquid(
       thumb: solid,
       set: body.set,
       lightBody,
-      off: rgb(fill?.off ?? control.under),
+      off: rgb(fill?.off ?? under),
       // The on fill is dim under the clear liquid, and brightens as it
       // sets.
       on: dim(
-        rgb(fill?.on ?? control.under),
+        rgb(fill?.on ?? under),
         THAWED_LIGHT + (1 - THAWED_LIGHT) * body.set,
       ),
       ring: control.ring ?? NO_RING,
@@ -851,7 +910,8 @@ export function layoutLiquid(
       corner: control.corner,
       backdrop: rgb(backdrop),
       body: handAlpha(control, active, handFrom, frame.time) * fadeIn,
-      light: lit.light,
+      light: vertical ? [lit.light[1], lit.light[0]] : lit.light,
+      vertical,
       edge: control.edge,
       // The lit edge is the solid surface's, so it shows only as the
       // liquid sets past the core it keeps while it lingers.

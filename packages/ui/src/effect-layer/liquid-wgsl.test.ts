@@ -109,6 +109,15 @@ describe("packLiquidInstances", () => {
     expect([...new Float32Array(buffer).slice(48, 50)]).toEqual([12, 4]);
   });
 
+  it("marks a track that runs down the page", () => {
+    const buffer = new ArrayBuffer(LIQUID_INSTANCE_BYTES);
+    packLiquidInstances(
+      [{ ...INSTANCE, cover: false, lightBody: false, vertical: true }],
+      buffer,
+    );
+    expect(new Uint32Array(buffer)[5]).toBe(8);
+  });
+
   it("keeps each instance a whole number of 16-byte rows, as WGSL lays the struct out", () => {
     expect(LIQUID_INSTANCE_BYTES % 16).toBe(0);
   });
