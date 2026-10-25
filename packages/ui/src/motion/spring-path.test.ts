@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { Spring as SteppedSpring } from "../spring.ts";
 import {
   afterDelay,
   restingPath,
@@ -77,22 +76,27 @@ describe("springPath", () => {
     ["critically damped", { response: 0.5, dampingRatio: 1 }],
     ["over damped", { response: 0.4, dampingRatio: 1.6 }],
   ])(
-    "follows the stepped spring it replaces, %s",
+    "solves the spring's equation of motion, %s",
     (_name, { response, dampingRatio }) => {
-      const stepped = new SteppedSpring(0.2, {
-        response,
-        damping: dampingRatio,
-      }).to(1, { velocity: 3 });
+      const stiffness = ((2 * Math.PI) / response) ** 2;
+      const friction = (4 * Math.PI * dampingRatio) / response;
+      const steps = 40;
+      const step = FRAME / steps;
+      let value = 0.2;
+      let velocity = 3;
       const path = springPath(
         { response, dampingRatio },
-        { value: 0.2, velocity: 3 },
+        { value, velocity },
         1,
         PRECISION,
       );
       for (let time = FRAME; time < 1; time += FRAME) {
-        stepped.step(FRAME);
-        expect(path.at(time).value).toBeCloseTo(stepped.value, 2);
-        expect(path.at(time).velocity).toBeCloseTo(stepped.velocity, 1);
+        for (let index = 0; index < steps; index++) {
+          velocity += (-stiffness * (value - 1) - friction * velocity) * step;
+          value += velocity * step;
+        }
+        expect(path.at(time).value).toBeCloseTo(value, 2);
+        expect(path.at(time).velocity).toBeCloseTo(velocity, 1);
       }
     },
   );

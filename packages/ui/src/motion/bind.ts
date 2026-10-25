@@ -7,7 +7,7 @@ import {
   type MotionValue,
 } from "./create-motion-value.ts";
 import { createWaapiRenderer } from "./create-waapi-renderer.ts";
-import type { Styles } from "./px.ts";
+import { writeStyles, type Styles } from "./px.ts";
 
 /** @internal */
 export interface BindOptions {
@@ -76,10 +76,8 @@ export function bind(
   let isHeld = false;
 
   function write(styles: Styles) {
-    for (const [property, style] of Object.entries(styles)) {
-      element.style.setProperty(property, style);
-      written.add(property);
-    }
+    writeStyles(element, styles);
+    for (const property of Object.keys(styles)) written.add(property);
   }
 
   function clear() {
@@ -96,10 +94,11 @@ export function bind(
     }
   }
 
-  const renderer: Renderer =
-    kind === "auto" && typeof element.animate === "function"
-      ? createWaapiRenderer(element)
-      : createFrameRenderer(loop, write);
+  const isOnCompositor =
+    kind === "auto" && typeof element.animate === "function";
+  const renderer: Renderer = isOnCompositor
+    ? createWaapiRenderer(element)
+    : createFrameRenderer(loop, write);
 
   const plans = () => planners.map((planner) => planner.plan());
 
@@ -132,7 +131,7 @@ export function bind(
 
   const isMoving = () => list.some((value) => value.isMoving);
   const unwatch = planners.map((planner) =>
-    planner.watch({ plan: play, rest: finish }),
+    planner.watch({ isOnCompositor, plan: play, rest: finish }),
   );
 
   function unbind() {

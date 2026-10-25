@@ -5,6 +5,7 @@ import {
   pickSheetVariant,
   SHEET_LAB,
   sheetTrigger,
+  waitForSheetToSettle,
 } from "./helpers/sheet-lab.ts";
 
 // The Tall Variant of the Sheet Lab ends in a sticky bar with a Segmented
@@ -30,9 +31,7 @@ async function openTallSheet(page: Page) {
   await pickSheetVariant(page, "Tall");
   await sheetTrigger(page).click();
   await expect(page.getByRole("dialog", { name: "A long read" })).toBeVisible();
-  await expect
-    .poll(() => page.evaluate(() => document.getAnimations().length))
-    .toBe(0);
+  await waitForSheetToSettle(page);
 }
 
 /**

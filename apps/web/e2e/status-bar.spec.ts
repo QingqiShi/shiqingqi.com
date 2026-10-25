@@ -3,6 +3,7 @@ import {
   pickSheetVariant,
   SHEET_LAB,
   sheetTrigger,
+  waitForSheetToSettle,
 } from "./helpers/sheet-lab.ts";
 import { findStatusBarCandidates } from "./helpers/status-bar.ts";
 
@@ -76,10 +77,8 @@ test.describe("an open Sheet on a phone", () => {
       open = sheetTrigger(page),
     }: { settle?: boolean; open?: Locator } = {},
   ) {
-    // The sheet gives the focus back to the trigger when it closes, which
-    // scrolls the trigger into view. So the trigger is in view first, as it
-    // is when a visitor taps it, and Enter opens the sheet without the
-    // scroll that a click can add.
+    // The trigger is in view first, as it is when a visitor taps it, and
+    // Enter opens the sheet without the scroll that a click can add.
     // Enter on the sheet's close button closes the sheet, so a retry presses
     // Enter only while no sheet is there.
     await expect(async () => {
@@ -94,36 +93,42 @@ test.describe("an open Sheet on a phone", () => {
     }).toPass();
     if (!settle) return;
     await expect(page.locator(SHEET)).toBeVisible();
-    await expect
-      .poll(() => page.evaluate(() => document.getAnimations().length))
-      .toBe(0);
+    await waitForSheetToSettle(page);
   }
 
   /**
-   * Holds every running animation at `time` ms and reads where the card is
-   * against the bottom of the screen.
+   * Plays the page's clock to `time` ms after `pauseClock` and reads where
+   * the card is against the bottom of the screen. The Sheet moves on the
+   * frames of the page, so the paused clock holds it still for the read.
    */
-  function readCardAt(page: Page, time: number) {
-    return page.evaluate(
-      ({ selector, at }) => {
-        for (const animation of document.getAnimations()) {
-          animation.pause();
-          animation.currentTime = at;
-        }
-        const card = document.querySelector(selector);
-        if (!card) throw new Error("No sheet");
-        const { top, bottom } = card.getBoundingClientRect();
-        const style = getComputedStyle(card);
-        return {
-          top,
-          bottom,
-          edge: window.innerHeight,
-          opacity: Number(style.opacity),
-          mask: style.maskImage,
-        };
-      },
-      { selector: SHEET, at: time },
-    );
+  async function readCardAt(page: Page, time: number) {
+    const played = clockPlayed.get(page) ?? 0;
+    if (time > played) await page.clock.runFor(time - played);
+    clockPlayed.set(page, Math.max(played, time));
+    return page.evaluate((selector) => {
+      const card = document.querySelector(selector);
+      if (!card) throw new Error("No sheet");
+      const { top, bottom } = card.getBoundingClientRect();
+      const style = getComputedStyle(card);
+      return {
+        top,
+        bottom,
+        edge: window.innerHeight,
+        opacity: Number(style.opacity),
+        mask: style.maskImage,
+      };
+    }, SHEET);
+  }
+
+  const clockPlayed = new WeakMap<Page, number>();
+
+  /** Stops the page's clock, so that `readCardAt` plays it on from here. */
+  async function pauseClock(page: Page) {
+    // The clock runs on while the time goes to the page and back, and it
+    // cannot pause at a time before its own.
+    const now = await page.evaluate(() => Date.now());
+    await page.clock.pauseAt(now + 1000);
+    clockPlayed.set(page, 0);
   }
 
   /**
@@ -148,11 +153,16 @@ test.describe("an open Sheet on a phone", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   }
 
-  async function openFormSheet(page: Page, options?: { settle?: boolean }) {
+  /** Opens the Form sheet. `beforeOpen` runs just before the press that opens it. */
+  async function openFormSheet(
+    page: Page,
+    { settle = true, beforeOpen = async () => {} } = {},
+  ) {
     await openPage(page, SHEET_LAB);
     await pickSheetVariant(page, "Form");
     candidatesBefore.set(page, await page.evaluate(findStatusBarCandidates));
-    await openSheet(page, options);
+    await beforeOpen();
+    await openSheet(page, { settle });
   }
 
   test("should keep every box of the sheet out of both sample points", async ({
@@ -165,7 +175,11 @@ test.describe("an open Sheet on a phone", () => {
   test("should slide the card up from below the bottom of the screen", async ({
     page,
   }) => {
-    await openFormSheet(page, { settle: false });
+    await page.clock.install();
+    await openFormSheet(page, {
+      settle: false,
+      beforeOpen: () => pauseClock(page),
+    });
 
     const start = await readCardAt(page, 0);
     expect(start.top).toBeGreaterThanOrEqual(start.edge - 1);
@@ -187,7 +201,9 @@ test.describe("an open Sheet on a phone", () => {
   test("should slide the card down off the screen as it leaves", async ({
     page,
   }) => {
+    await page.clock.install();
     await openFormSheet(page);
+    await pauseClock(page);
     await page.keyboard.press("Escape");
 
     const middle = await readCardAt(page, 60);
@@ -264,9 +280,7 @@ test.describe("an open Sheet on a phone", () => {
           if (button instanceof HTMLElement) button.click();
         });
         await expect(page.locator(SHEET)).toBeVisible();
-        await expect
-          .poll(() => page.evaluate(() => document.getAnimations().length))
-          .toBe(0);
+        await waitForSheetToSettle(page);
       }
 
       const dim = await page.evaluate(() => {

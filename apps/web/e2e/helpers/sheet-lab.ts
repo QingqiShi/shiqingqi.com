@@ -33,3 +33,43 @@ export async function pickSheetVariant(page: Page, name: string) {
 export function sheetTrigger(page: Page) {
   return page.getByRole("button", { name: "Open sheet", exact: true });
 }
+
+/**
+ * Waits until the open Sheet's card holds still: the same box and opacity
+ * over a few frames, with no animation running. The Sheet moves on the
+ * motion engine, which can write a style each frame instead of running an
+ * animation, so an empty list of animations does not mean that it holds still.
+ */
+export async function waitForSheetToSettle(page: Page) {
+  await expect
+    .poll(
+      () =>
+        page.evaluate(async () => {
+          const poses: string[] = [];
+          for (let frame = 0; frame < 4; frame++) {
+            await new Promise(requestAnimationFrame);
+            const card = document.querySelector('[role="dialog"]');
+            if (!card) return false;
+            const { top, left, width, height } = card.getBoundingClientRect();
+            const mover = card.parentElement ?? card;
+            poses.push(
+              [
+                top,
+                left,
+                width,
+                height,
+                getComputedStyle(mover).opacity,
+              ].join(),
+            );
+          }
+          return (
+            document.getAnimations().length === 0 &&
+            poses.every((pose) => pose === poses[0])
+          );
+        }),
+      // A slow page shows at most 1/30 s of motion in a frame, so the motion
+      // can take longer than the time of its curve.
+      { timeout: 15_000 },
+    )
+    .toBe(true);
+}

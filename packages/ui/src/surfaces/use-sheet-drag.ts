@@ -6,6 +6,7 @@ import {
   type RefObject,
 } from "react";
 import { breakpoints } from "../breakpoints.stylex.ts";
+import type { SheetMotion } from "./create-sheet-motion.ts";
 import {
   claimGesture,
   releaseVelocity,
@@ -14,13 +15,6 @@ import {
   type DragSample,
   type DragStart,
 } from "./should-dismiss.ts";
-import {
-  hold,
-  offsetOf,
-  reachOf,
-  settle,
-  type SheetParts,
-} from "./use-sheet-motion.ts";
 
 const WIDE_QUERY = breakpoints.md.replace("@media ", "");
 const MAX_SAMPLES = 12;
@@ -36,13 +30,15 @@ interface Drag {
   base: number;
   /** How far down the drag has taken the card. */
   y: number;
-  /** How far down the card goes before it is fully below the screen. */
-  reach: number;
   isActive: boolean;
   samples: DragSample[];
 }
 
-interface SheetDragOptions extends SheetParts {
+interface SheetDragOptions {
+  /** The card: the sheet's surface, which takes the pointer. */
+  readonly cardRef: RefObject<HTMLElement | null>;
+  /** The motion of the card, which the drag takes over. */
+  readonly motionRef: RefObject<SheetMotion | null>;
   /** The box the content scrolls in. */
   readonly scrollerRef: RefObject<HTMLElement | null>;
   /** The grabber, which starts a drag for any pointer. */
@@ -56,8 +52,6 @@ interface SheetDragOptions extends SheetParts {
   readonly isEnabled: boolean;
   /** A drag let go far enough or fast enough to close the sheet. */
   readonly onDismiss: () => void;
-  /** The drag moved the card, or let go of it and it springs back. */
-  readonly onMoved?: () => void;
 }
 
 /**
@@ -78,15 +72,12 @@ function scrolledBy(target: Element, scroller: Element | null) {
   return furthest;
 }
 
-function clamp01(value: number) {
-  return Math.min(Math.max(value, 0), 1);
-}
-
 /**
  * The drag that puts a Sheet's card away. Spread the returned handlers on
  * the card. The card follows the pointer 1:1, and the dimmed page gets
- * brighter with the distance the card has gone. A drag let go far enough or fast enough calls
- * `onDismiss`; any other drag springs the card back.
+ * brighter with the distance the card has gone. A drag let go far enough
+ * or fast enough calls `onDismiss`; any other drag springs the card back.
+ * Either way, the card moves on at the speed of the pointer.
  *
  * A drag starts below `md` only, where the card sits at the bottom of the
  * screen and a pull down reads as putting it away. Any pointer drags the
@@ -98,14 +89,12 @@ function clamp01(value: number) {
  */
 export function useSheetDrag({
   cardRef,
-  moverRef,
-  dimRef,
+  motionRef,
   scrollerRef,
   grabberRef,
   closeCornerRef,
   isEnabled,
   onDismiss,
-  onMoved,
 }: SheetDragOptions) {
   const dragRef = useRef<Drag | null>(null);
 
@@ -140,14 +129,12 @@ export function useSheetDrag({
 
   const begin = (drag: Drag, event: PointerEvent) => {
     const card = cardRef.current;
-    const mover = moverRef.current;
-    const dim = dimRef.current;
-    if (!card || !mover || !dim) return;
-    hold(mover, dim);
+    const motion = motionRef.current;
+    if (!card || !motion) return;
+    const y = motion.grab();
     drag.isActive = true;
-    drag.base = offsetOf(mover);
-    drag.y = drag.base;
-    drag.reach = reachOf(card, drag.base);
+    drag.base = y;
+    drag.y = y;
     drag.startY = event.clientY;
     try {
       card.setPointerCapture(event.pointerId);
@@ -177,7 +164,6 @@ export function useSheetDrag({
       startY: event.clientY,
       base: 0,
       y: 0,
-      reach: Number.POSITIVE_INFINITY,
       isActive: false,
       samples: [],
     };
@@ -190,9 +176,7 @@ export function useSheetDrag({
 
   const onPointerMove = (event: PointerEvent) => {
     const drag = dragRef.current;
-    const mover = moverRef.current;
-    const dim = dimRef.current;
-    if (!drag || event.pointerId !== drag.pointerId || !mover || !dim) return;
+    if (!drag || event.pointerId !== drag.pointerId) return;
     if (!drag.isActive) {
       const decision = claim(drag, event.clientX, event.clientY);
       if (decision === "wait") return;
@@ -205,25 +189,22 @@ export function useSheetDrag({
     drag.samples.push({ time: performance.now(), y: event.clientY });
     if (drag.samples.length > MAX_SAMPLES) drag.samples.shift();
     drag.y = rubberBand(drag.base + event.clientY - drag.startY);
-    mover.style.transform = `translateY(${String(drag.y)}px)`;
-    dim.style.opacity = String(1 - clamp01(drag.y / drag.reach));
-    onMoved?.();
+    motionRef.current?.drag(drag.y);
   };
 
   const release = (event: PointerEvent, canDismiss: boolean) => {
     const drag = dragRef.current;
     const card = cardRef.current;
-    const mover = moverRef.current;
-    const dim = dimRef.current;
+    const motion = motionRef.current;
     if (!drag || event.pointerId !== drag.pointerId) return;
     dragRef.current = null;
-    if (!drag.isActive || !card || !mover || !dim) return;
+    if (!drag.isActive || !card || !motion) return;
     const velocity = releaseVelocity(drag.samples);
+    motion.release(velocity * 1000);
     if (canDismiss && shouldDismiss(drag.y, velocity, card.offsetHeight)) {
       onDismiss();
     } else {
-      settle(mover, dim);
-      onMoved?.();
+      motion.settle();
     }
   };
 

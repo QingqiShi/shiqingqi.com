@@ -90,8 +90,10 @@ export function useDialogFocus({
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      // Restore focus to the element that opened the dialog
-      triggerRef.current?.focus();
+      // Restore focus to the element that opened the dialog. The dialog can
+      // still move back into that element, such as a sheet that shrinks into
+      // the row that opened it, so the page must not scroll to it.
+      triggerRef.current?.focus({ preventScroll: true });
     };
   }, [isOpen, dialogRef]);
 }
