@@ -161,9 +161,11 @@ describe("createMotionValue", () => {
     b.to(1);
     await clock.advance(1);
     expect(a.isMoving).toBe(false);
+    expect(engine.isMoving).toBe(true);
     expect(onRest).not.toHaveBeenCalled();
     await clock.advance(2);
     expect(onRest).toHaveBeenCalledTimes(1);
+    expect(engine.isMoving).toBe(false);
   });
 
   it("snaps under reduced motion, and finishes at once", async () => {
@@ -185,6 +187,20 @@ describe("createMotionValue", () => {
     expect(value.get()).toBeCloseTo(0.5, 1);
     await clock.advance(0.2);
     expect(value.get()).toBe(1);
+  });
+
+  it("takes a tween in place of its spring, also under reduced motion", async () => {
+    const engine = createMotionEngine();
+    const value = createMotionValue(engine, 0, { spring: FIRM });
+    value.to(1, { tween: { duration: 0.2 } });
+    await clock.advance(0.1);
+    expect(value.get()).toBeCloseTo(0.5, 1);
+    reduceMotion();
+    value.to(0, { tween: { duration: 0.2 } });
+    await clock.advance(0.1);
+    expect(value.get()).toBeCloseTo(0.25, 1);
+    await clock.advance(0.2);
+    expect(value.get()).toBe(0);
   });
 
   it("stops on destroy of its engine", async () => {

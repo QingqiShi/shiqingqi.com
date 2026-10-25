@@ -21,7 +21,12 @@ export interface LayoutSnapshot {
 /** A move shorter than this, in px, does not play. */
 const MIN_MOVE = 0.5;
 
-function rectIn(element: Element, origin: DOMRect): Rect {
+/**
+ * The box of `element` as the screen shows it now, relative to `origin`.
+ *
+ * @internal
+ */
+export function rectIn(element: Element, origin: DOMRect): Rect {
   const { left, top, width, height } = element.getBoundingClientRect();
   return { x: left - origin.left, y: top - origin.top, width, height };
 }
@@ -76,6 +81,26 @@ function createMove(
 }
 
 /**
+ * The move of `element` that still plays, or a new one. A move that a stop
+ * or `MotionEngine.destroy` ended has no binding, so it goes.
+ */
+function moveOf(
+  engine: MotionEngine,
+  element: HTMLElement | SVGElement,
+  spring: Spring,
+) {
+  const moves = movesIn(engine);
+  const running = moves.get(element);
+  if (running !== undefined && (running.x.isMoving || running.y.isMoving)) {
+    return running;
+  }
+  running?.binding.unbind();
+  const move = createMove(engine, element, spring);
+  moves.set(element, move);
+  return move;
+}
+
+/**
  * Springs each of `elements` from its box in `snapshot` to its box in the
  * layout now. An element inside another that moves takes only its own move.
  * An element that moves already turns from where it is, at the speed it has.
@@ -121,15 +146,14 @@ export function playLayout(
     const ownX = dx - outer.dx;
     const ownY = dy - outer.dy;
     if (Math.hypot(ownX, ownY) < MIN_MOVE) continue;
-    const move = moves.get(element) ?? createMove(engine, element, spring);
-    moves.set(element, move);
+    const move = moveOf(engine, element, spring);
     void Promise.all([
       move.x.to(0, { spring, from: ownX }).finished,
       move.y.to(0, { spring, from: ownY }).finished,
     ]).then(([landedX, landedY]) => {
       if (!landedX || !landedY) return;
       move.binding.unbind();
-      moves.delete(element);
+      if (moves.get(element) === move) moves.delete(element);
     });
   }
 }

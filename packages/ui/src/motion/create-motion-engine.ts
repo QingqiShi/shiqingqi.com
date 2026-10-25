@@ -11,10 +11,13 @@ export interface MotionEngine {
   readonly loop: FrameLoop;
   /** Whether the user asks for reduced motion now. */
   readonly reducedMotion: boolean;
+  /** Whether a value of the engine moves now. */
+  readonly isMoving: boolean;
   /**
    * Runs `read` with every binding of the engine at its layout pose: no
-   * style it wrote is on its element. Then each binding plans again from
-   * its values, in the same task, so nothing shows the change.
+   * transform it wrote is on its element, and its other styles show the
+   * pose of now. Then each binding that `read` did not take off plans again
+   * from its values, in the same task, so nothing shows the change.
    */
   measure<T>(read: () => T): T;
   /** Calls `listener` each time the last moving value of the engine comes to rest. */
@@ -62,13 +65,18 @@ export function createMotionEngine(): MotionEngine {
     get reducedMotion() {
       return prefersReducedMotion();
     },
+    get isMoving() {
+      return moving.size > 0;
+    },
     measure(read) {
       const suspended = [...bindings];
       for (const binding of suspended) binding.suspend();
       try {
         return read();
       } finally {
-        for (const binding of suspended) binding.resume();
+        for (const binding of suspended) {
+          if (bindings.has(binding)) binding.resume();
+        }
       }
     },
     onRest(listener) {

@@ -36,6 +36,15 @@ export interface Binding {
   unbind(): void;
 }
 
+/** The properties that move a box without a change to the layout. */
+const MOVES = new Set(["transform", "translate", "rotate", "scale"]);
+
+function withoutMoves(styles: Styles): Styles {
+  return Object.fromEntries(
+    Object.entries(styles).filter(([property]) => !MOVES.has(property)),
+  );
+}
+
 function listOf(values: MotionValue | readonly MotionValue[]) {
   return "get" in values ? [values] : values;
 }
@@ -138,8 +147,11 @@ export function bind(
   const removeBinding = registryOf(engine).addBinding({
     suspend() {
       wasPosed = written.size > 0;
+      const kept =
+        wasPosed || isMoving() ? withoutMoves(stylesAt(loop.now())) : {};
       renderer.stop();
       clear();
+      write(kept);
     },
     resume() {
       if (isMoving() || wasPosed) play();

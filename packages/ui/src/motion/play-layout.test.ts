@@ -105,4 +105,18 @@ describe("playLayout", () => {
     const [turned = 0] = translateOf(card) ?? [];
     expect(110 + midway).toBeCloseTo(10 + turned, 1);
   });
+
+  it("moves an element again after a destroy of its engine stopped its move", () => {
+    const engine = createMotionEngine();
+    const { origin, card } = setUp();
+    playLayout(engine, captureLayout([card], origin), [card]);
+    layOut(card, { x: 110, y: 10, width: 100, height: 40 });
+    const snapshot = captureLayout([card], origin);
+    playLayout(engine, snapshot, [card]);
+    engine.destroy();
+    expect(card.style.transform).toBe("");
+    layOut(card, { x: 10, y: 10, width: 100, height: 40 });
+    playLayout(engine, snapshot, [card]);
+    expect(translateOf(card)).toEqual([100, 0]);
+  });
 });

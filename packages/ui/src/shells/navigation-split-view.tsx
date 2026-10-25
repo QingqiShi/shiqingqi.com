@@ -30,6 +30,11 @@ import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { findTwinElement } from "../focus/find-twin-element.ts";
 import { isRendered } from "../focus/is-rendered.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import {
+  createPendingSnapshot,
+  type PendingSnapshot,
+} from "../motion/create-pending-snapshot.ts";
+import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -56,6 +61,15 @@ import {
   shouldPop,
 } from "./claim-edge-swipe.ts";
 import {
+  addSplitViewMark,
+  createSplitViewMotion,
+  type SplitViewChange,
+  type SplitViewMotion,
+  type SplitViewMarkElement,
+  type SplitViewMarks,
+  type SplitViewSnapshot,
+} from "./create-split-view-motion.ts";
+import {
   followPage,
   settlePages,
   type SplitViewPage,
@@ -69,15 +83,6 @@ import {
 } from "./navigation-split-view-layout.stylex.ts";
 import { splitViewTokens } from "./navigation-split-view.stylex.ts";
 import { normalizeUrl } from "./normalize-url.ts";
-import { pendingSnapshotFate } from "./pending-snapshot-fate.ts";
-import {
-  addSplitViewMark,
-  SplitViewMotion,
-  type SplitViewChange,
-  type SplitViewMarkElement,
-  type SplitViewMarks,
-  type SplitViewSnapshot,
-} from "./split-view-motion.ts";
 import { tabViewTokens } from "./tab-view.stylex.ts";
 
 /**
@@ -500,28 +505,22 @@ export function NavigationSplitView({
     });
   }
 
-  const engineRef = useRef<SplitViewMotion | null>(null);
+  const engine = useMotionEngine();
+  const motionRef = useRef<SplitViewMotion | null>(null);
   // Where the Shared elements show before a navigation of the view, for the
   // motion that the navigation brings. Until that motion, it is read again
   // at each frame, scroll and commit, as the data can come much later.
-  const pendingRef = useRef<{ snapshot: SplitViewSnapshot; to: string } | null>(
-    null,
-  );
+  const pendingRef = useRef<PendingSnapshot<SplitViewSnapshot> | null>(null);
   const capture = (to: string) => {
-    const engine = engineRef.current;
-    if (engine === null) return;
-    pendingRef.current = { snapshot: engine.capture(), to: normalizeUrl(to) };
+    pendingRef.current?.take(normalizeUrl(to));
   };
   const recapture = useEffectEvent(() => {
-    const pending = pendingRef.current;
-    const engine = engineRef.current;
-    if (pending === null || engine === null) return;
-    pendingRef.current = { ...pending, snapshot: engine.capture() };
+    pendingRef.current?.refresh();
   });
   const [folding, setFolding] = useState<"fold" | "unfold" | null>(null);
   useLayoutEffect(() => {
     if (view === null || layer === null) return;
-    const created = new SplitViewMotion(view, layer, marks, {
+    const created = createSplitViewMotion(engine, view, layer, marks, {
       seam: `-1px 0 0 ${color.border}`,
       onFold: setFolding,
       onSettled: (id) => {
@@ -531,35 +530,28 @@ export function NavigationSplitView({
         recapture();
       },
     });
-    engineRef.current = created;
+    motionRef.current = created;
+    pendingRef.current = createPendingSnapshot(() => created.capture());
     return () => {
       created.destroy();
-      engineRef.current = null;
+      motionRef.current = null;
+      pendingRef.current = null;
     };
-  }, [view, layer, marks]);
+  }, [engine, view, layer, marks]);
 
   useLayoutEffect(() => {
-    const engine = engineRef.current;
-    if (motion.id === 0 || engine === null) return;
-    const pending = pendingRef.current;
-    pendingRef.current = null;
+    const created = motionRef.current;
+    if (motion.id === 0 || created === null) return;
     const here = normalizeUrl(window.location.href);
-    const snapshot =
-      pending !== null && pendingSnapshotFate(pending.to, here, true) === "play"
-        ? pending.snapshot
-        : null;
-    engine.play(snapshot, motion.change, motion.id);
+    const snapshot = pendingRef.current?.claim(here, true) ?? null;
+    created.play(snapshot, motion.change, motion.id);
   }, [motion]);
 
   useLayoutEffect(() => {
     const pending = pendingRef.current;
     if (pending === null) return;
-    const here = normalizeUrl(window.location.href);
-    if (pendingSnapshotFate(pending.to, here, false) === "drop") {
-      pendingRef.current = null;
-    } else {
-      recapture();
-    }
+    pending.claim(normalizeUrl(window.location.href), false);
+    pending.refresh();
   });
 
   const captureHistoryStep = useEffectEvent((to: string) => {
@@ -634,7 +626,7 @@ export function NavigationSplitView({
     (hasDetailColumn ? detailColumn.key : content.key) ?? null,
   );
   useColumnKeys(view, deepestBack, takeOff);
-  useEdgeSwipe(view, engineRef, content.back ?? null, takeOff);
+  useEdgeSwipe(view, motionRef, content.back ?? null, takeOff);
 
   const [lastSheet, setLastSheet] = useState<NavigationSplitViewDetail | null>(
     null,
@@ -1223,7 +1215,7 @@ function ColumnPageView({
  */
 function useEdgeSwipe(
   view: HTMLElement | null,
-  engineRef: RefObject<SplitViewMotion | null>,
+  motionRef: RefObject<SplitViewMotion | null>,
   back: SplitViewBackLink | null,
   takeOff: (href: string) => void,
 ) {
@@ -1268,7 +1260,7 @@ function useEdgeSwipe(
         if (decision === "wait") return;
         if (
           decision === "release" ||
-          engineRef.current?.beginSwipe() !== true
+          motionRef.current?.beginSwipe() !== true
         ) {
           swipe = null;
           return;
@@ -1282,7 +1274,7 @@ function useEdgeSwipe(
       }
       swipe.samples.push({ time: performance.now(), y: event.clientX });
       if (swipe.samples.length > 12) swipe.samples.shift();
-      engineRef.current?.drag(1 - Math.min(1, Math.max(0, dx / swipe.width)));
+      motionRef.current?.drag(1 - Math.min(1, Math.max(0, dx / swipe.width)));
     };
     const onUp = (event: PointerEvent, canPop: boolean) => {
       if (swipe === null || event.pointerId !== swipe.pointerId) return;
@@ -1293,7 +1285,7 @@ function useEdgeSwipe(
       const pop =
         canPop &&
         shouldPop(event.clientX - ended.startX, velocity, ended.width);
-      engineRef.current?.release(pop, (-velocity * 1000) / ended.width);
+      motionRef.current?.release(pop, (-velocity * 1000) / ended.width);
       swipedAt = performance.now();
       if (pop) goBack();
     };
@@ -1323,7 +1315,7 @@ function useEdgeSwipe(
       view.removeEventListener("pointerup", onPointerUp);
       view.removeEventListener("pointercancel", onCancel);
     };
-  }, [view, engineRef]);
+  }, [view, motionRef]);
 }
 
 /** Whether the content fills the view, as on a phone. */
