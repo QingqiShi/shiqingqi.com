@@ -28,6 +28,7 @@ import { corner } from "../primitives/corner.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { Portal } from "./portal.tsx";
+import { SheetRecedeContext } from "./sheet-recede-context.ts";
 import { useSheetDrag } from "./use-sheet-drag.ts";
 import { useSheetMotion } from "./use-sheet-motion.ts";
 
@@ -268,8 +269,9 @@ function SheetFrame({
   const grabberRef = useRef<HTMLDivElement>(null);
   const closeCornerRef = useRef<HTMLDivElement>(null);
   const area = useVisualViewport();
+  const recede = use(SheetRecedeContext);
   const motionRef = useSheetMotion(
-    { cardRef, moverRef, dimRef },
+    { cardRef, moverRef, dimRef, recede: isContained ? null : recede },
     {
       isShown,
       onLeft,
@@ -398,7 +400,9 @@ function SheetFrame({
                           {title}
                         </Heading>
                       ) : null}
-                      {children}
+                      <SheetRecedeContext value={null}>
+                        {children}
+                      </SheetRecedeContext>
                     </EffectCarrier>
                   </div>
                 </div>

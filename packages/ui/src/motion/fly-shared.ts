@@ -248,7 +248,6 @@ export function flyShared<Form extends SharedForm>(
     fade = "cross",
     under = null,
     start = { value: 0, velocity: 0 },
-    renderer = "auto",
   }: {
     origin: Form;
     destination: Form;
@@ -258,7 +257,6 @@ export function flyShared<Form extends SharedForm>(
     fade?: "cross" | "dip";
     under?: FlightUnder | null;
     start?: { value: number; velocity: number };
-    renderer?: "auto" | "frame";
   },
 ): Flight<Form> {
   const progress = createMotionValue(engine, start.value, {
@@ -345,8 +343,8 @@ export function flyShared<Form extends SharedForm>(
 
   const values = under === null ? [progress] : [progress, under.progress];
   const bindings: Binding[] = [
-    bind(from, values, { pose: placeOf(from, origin.rect, 0), renderer }),
-    bind(to, values, { pose: placeOf(to, destination.rect, 1), renderer }),
+    bind(from, values, { pose: placeOf(from, origin.rect, 0) }),
+    bind(to, values, { pose: placeOf(to, destination.rect, 1) }),
   ];
 
   return {

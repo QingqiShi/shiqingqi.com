@@ -1,9 +1,11 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import type { ComponentProps } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TabBarLinkProps } from "../actions/tab-bar.tsx";
+import { fakeMotionClock } from "../test-support/fake-motion-clock.ts";
+import { reduceMotion } from "../test-support/reduce-motion.ts";
 import { TabView } from "./tab-view.tsx";
 
 function view(
@@ -35,13 +37,22 @@ function renderView(props?: Partial<ComponentProps<typeof TabView>>) {
   return render(view(props));
 }
 
-/** The keyframes the screen rises with now, or null while it stays still. */
+/** How far in the screen's rise is now, by its opacity, or null while it stays still. */
 function rise() {
-  return (
-    /styles\.rise(Odd|Even)/.exec(screen.getByRole("main").className)?.[0] ??
-    null
-  );
+  const { opacity } = screen.getByRole("main").style;
+  return opacity === "" ? null : Number(opacity);
 }
+
+let clock: ReturnType<typeof fakeMotionClock>;
+
+beforeEach(() => {
+  clock = fakeMotionClock();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 describe("TabView", () => {
   it("puts the destinations in the rail and in the tab bar", () => {
@@ -95,14 +106,22 @@ describe("TabView", () => {
     expect(rise()).toBeNull();
   });
 
-  it("makes the new screen rise when the current destination changes", () => {
+  it("makes the new screen rise when the current destination changes", async () => {
     const { rerender } = renderView();
     rerender(view({}, "/search"));
-    const first = rise();
-    expect(first).not.toBeNull();
+    expect(rise()).toBe(0);
+    expect(screen.getByRole("main").style.transform).toMatch(
+      /^translateY\(calc\(1\.0000 \* /,
+    );
+    await act(() => clock.advance(0.1));
+    expect(rise()).toBeGreaterThan(0.2);
+    expect(rise()).toBeLessThan(1);
+
     rerender(view({}, "/"));
-    expect(rise()).not.toBeNull();
-    expect(rise()).not.toBe(first);
+    expect(rise()).toBe(0);
+    await act(() => clock.advance(1));
+    expect(rise()).toBeNull();
+    expect(screen.getByRole("main").style.transform).toBe("");
   });
 
   it("keeps the screen still while the destination stays the same", () => {
@@ -116,6 +135,21 @@ describe("TabView", () => {
     rerender(view({ screenKey: 0 }, "/search"));
     expect(rise()).toBeNull();
     rerender(view({ screenKey: 1 }, "/search"));
-    expect(rise()).not.toBeNull();
+    expect(rise()).toBe(0);
+  });
+
+  it("makes the screen rise in the element that it renders as now", () => {
+    const { rerender } = renderView();
+    rerender(view({ as: "div" }));
+    rerender(view({ as: "div" }, "/search"));
+    expect(screen.queryByRole("main")).toBeNull();
+    expect(screen.getByText("Screen").style.opacity).toBe("0");
+  });
+
+  it("keeps the screen still under reduced motion", () => {
+    reduceMotion();
+    const { rerender } = renderView();
+    rerender(view({}, "/search"));
+    expect(rise()).toBeNull();
   });
 });

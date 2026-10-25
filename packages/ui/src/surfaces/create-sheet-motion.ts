@@ -4,10 +4,16 @@ import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import { createMotionValue } from "../motion/create-motion-value.ts";
 import { cssEasing } from "../motion/css-easing.ts";
 import { unit } from "../motion/mix.ts";
-import { px, type Styles } from "../motion/px.ts";
+import { px, writeStyles, type Styles } from "../motion/px.ts";
 import { springOf, springRoles, type Tween } from "../motion/spring-roles.ts";
 import { duration, easing } from "../primitives/motion.stylex.ts";
-import { boxOf, createSheetLift, type SheetLift } from "./create-sheet-lift.ts";
+import {
+  boxOf,
+  createSheetLift,
+  liftedPage,
+  type SheetLift,
+} from "./create-sheet-lift.ts";
+import { RECEDE_SHAPE, recedePose } from "./sheet-recede-context.ts";
 
 /**
  * How the card comes and goes: below `md` it slides from below the screen,
@@ -42,6 +48,8 @@ export interface SheetMotionParts {
   readonly mover: HTMLElement;
   /** The box that dims the page. */
   readonly dim: HTMLElement;
+  /** The element that moves back while the card slides over it, or `null`. */
+  readonly recede: HTMLElement | null;
 }
 
 /** @internal */
@@ -114,7 +122,7 @@ function moverPose(look: Look) {
  */
 export function createSheetMotion(
   engine: MotionEngine,
-  { card, mover, dim }: SheetMotionParts,
+  { card, mover, dim, recede }: SheetMotionParts,
   events: SheetMotionEvents,
 ): SheetMotion {
   const y = createMotionValue(engine, 0, { precision: 0.5 });
@@ -127,7 +135,6 @@ export function createSheetMotion(
   let look: Look | null = null;
   let plain: readonly Binding[] = [];
   let lift: SheetLift | null = null;
-  let released: number | undefined;
   let grabbed = { y: 0, loss: 0, reach: 0 };
   let reported = Number.NaN;
 
@@ -137,24 +144,42 @@ export function createSheetMotion(
     events.onProgress(page);
   }
 
-  const reportPlain = () => {
-    if (lift === null) report(unit(shown.get()) * (1 - unit(loss.get())));
+  const reportNow = () => {
+    report(
+      liftedPage(lift === null ? 1 : progress.get(), shown.get(), loss.get()),
+    );
   };
-  const stopReporting = [
-    shown.subscribe(reportPlain),
-    loss.subscribe(reportPlain),
-  ];
+  const stopReporting = [shown, loss, progress].map((value) =>
+    value.subscribe(reportNow),
+  );
+
+  let receding: Binding | null = null;
+
+  /**
+   * Moves the element that recedes back with the card, or stops. Where no
+   * lift plays, `progress` is 1, so one pose fits both.
+   */
+  function setReceding(isReceding: boolean) {
+    if (recede === null || isReceding === (receding !== null)) return;
+    if (receding === null) {
+      writeStyles(recede, RECEDE_SHAPE);
+      receding = bind(recede, [progress, shown, loss], {
+        pose: (at, faded, lost) => recedePose(liftedPage(at, faded, lost)),
+      });
+      return;
+    }
+    receding.unbind();
+    receding = null;
+    for (const property of Object.keys(RECEDE_SHAPE)) {
+      recede.style.removeProperty(property);
+    }
+  }
 
   /** A motion can end before the frame that shows its end, so this tells the page that the card is away. */
   function left() {
+    setReceding(false);
     report(0);
     events.onLeft();
-  }
-
-  function takeReleased() {
-    const velocity = released;
-    released = undefined;
-    return velocity;
   }
 
   /** The top of the card at its rest, in the viewport. */
@@ -179,20 +204,18 @@ export function createSheetMotion(
   }
 
   function showPlain(next: Look) {
+    setReceding(next === "slide");
     if (lift === null && look === next) return;
     lift?.stop();
     lift = null;
     unbindPlain();
     look = next;
-    // The sheet writes its motion once a frame, as the split view does: its
-    // use of Web Animations waits for checks in each browser.
     plain = [
-      bind(mover, [y, shown], { pose: moverPose(next), renderer: "frame" }),
+      bind(mover, [y, shown], { pose: moverPose(next) }),
       bind(dim, [shown, loss], {
         pose: (faded, lost) => ({
           opacity: opacityOf(unit(faded) * (1 - unit(lost))),
         }),
-        renderer: "frame",
       }),
     ];
   }
@@ -201,12 +224,13 @@ export function createSheetMotion(
     unbindPlain();
     const rest = boxOf(card);
     progress.set(from);
+    setReceding(true);
     const current = createSheetLift(
+      engine,
       origin,
-      { card, mover, dim, content: events.liftContent() },
+      { card, mover, dim, content: events.liftContent(), recede },
       { progress, drop: y, shown, loss },
       rest,
-      report,
     );
     lift = current;
     return current;
@@ -223,11 +247,11 @@ export function createSheetMotion(
     });
   }
 
-  function intoOrigin(velocity: number | undefined) {
+  function intoOrigin() {
     void progress.to(0).finished.then((done) => {
       if (done) left();
     });
-    y.to(0, { spring: LIFT_SPRING, velocity });
+    y.to(0, { spring: LIFT_SPRING });
   }
 
   /** Where the card is while it is away. */
@@ -237,10 +261,9 @@ export function createSheetMotion(
   }
 
   function enter() {
-    const velocity = takeReleased();
     if (lift !== null) {
       lifted(lift);
-      y.to(0, { spring: LIFT_SPRING, velocity });
+      y.to(0, { spring: LIFT_SPRING });
       shown.to(1, { tween: FADE });
       loss.to(0);
       return;
@@ -258,28 +281,27 @@ export function createSheetMotion(
       return;
     }
     showPlain(next);
-    y.to(0, { velocity, reduced: FADE });
+    y.to(0, { reduced: FADE });
     shown.to(1, { tween: FADE });
   }
 
   function leave() {
-    const velocity = takeReleased();
     if (lift !== null) {
-      intoOrigin(velocity);
+      intoOrigin();
       return;
     }
     const next = lookNow(engine);
     const origin = next === "slide" ? liftOrigin() : null;
     if (origin !== null) {
       startLift(origin, 1);
-      intoOrigin(velocity);
+      intoOrigin();
       return;
     }
     showPlain(next);
     const motions = [
       shown.to(0, { tween: next === "slide" ? SLIDE_FADE_OUT : FADE }),
     ];
-    if (next !== "fade") motions.push(y.to(awayOf(next), { velocity }));
+    if (next !== "fade") motions.push(y.to(awayOf(next)));
     void Promise.all(motions.map(({ finished }) => finished)).then((done) => {
       if (done.every(Boolean)) left();
     });
@@ -316,10 +338,10 @@ export function createSheetMotion(
       );
     },
     release(velocity) {
-      released = velocity;
+      y.set(y.get(), { velocity });
     },
     settle() {
-      y.to(0, { velocity: takeReleased(), reduced: FADE });
+      y.to(0, { reduced: FADE });
       loss.to(0, { reduced: FADE });
     },
     destroy() {
@@ -327,6 +349,7 @@ export function createSheetMotion(
       lift?.stop();
       lift = null;
       unbindPlain();
+      setReceding(false);
       for (const value of [y, shown, loss, progress]) value.stop();
     },
   };

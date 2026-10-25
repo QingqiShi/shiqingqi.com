@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fakeMotionClock } from "../test-support/fake-motion-clock.ts";
 import { reduceMotion } from "../test-support/reduce-motion.ts";
 import { stubAnimations } from "../test-support/stub-animations.ts";
-import { bind } from "./bind.ts";
+import { bind, MOVING_ATTRIBUTE } from "./bind.ts";
 import { createMotionEngine } from "./create-motion-engine.ts";
 import { createMotionValue } from "./create-motion-value.ts";
 import { px } from "./px.ts";
@@ -21,6 +21,9 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
 });
+
+/** Lets the task end, where a binding makes the Web Animations of its plays. */
+const endTask = () => Promise.resolve();
 
 function setUp(initial = 0) {
   const engine = createMotionEngine();
@@ -84,6 +87,15 @@ describe("bind, writing once a frame", () => {
     expect(element.style.transform).not.toBe("");
     await clock.advance(3);
     expect(element.style.transform).toBe("");
+    expect(element.style.zIndex).toBe("");
+  });
+
+  it("takes off its held styles when a set stops the motion", async () => {
+    const { value, element } = setUp();
+    bind(element, value, { pose: slide, hold: { "z-index": "1" } });
+    value.to(100);
+    await clock.advance(0.05);
+    value.set(30);
     expect(element.style.zIndex).toBe("");
   });
 
@@ -156,10 +168,16 @@ describe("bind, on Web Animations", () => {
     const { engine, value, element } = setUp();
     await clock.advance(0.5);
     bind(element, value, { pose: slide });
+    const start = engine.loop.now();
     value.to(100);
+    await endTask();
     const [animation] = animations.animations;
     expect(animation.options).toMatchObject({ easing: "linear", fill: "both" });
-    expect(animation.startTime).toBeCloseTo(engine.loop.now() * 1000);
+    await clock.advance(0.05);
+    expect(performance.now() - Number(animation.startTime)).toBeCloseTo(
+      (engine.loop.now() - start) * 1000,
+      3,
+    );
     expect(animation.options.duration).toBeGreaterThan(0);
     expect(animation.keyframes[0]).toMatchObject({
       offset: 0,
@@ -172,6 +190,95 @@ describe("bind, on Web Animations", () => {
     expect(element.style.transform).toBe("translateX(0.00px)");
   });
 
+  it("starts a motion on the first frame that shows it, and holds the clock at its start until then", async () => {
+    animations.restore();
+    animations = stubAnimations({ startByHand: true });
+    const { engine, value, element } = setUp();
+    bind(element, value, { pose: slide });
+    const start = engine.loop.now();
+    value.to(100);
+    await endTask();
+    const [animation] = animations.animations;
+    expect(animation.startTime).toBeNull();
+    expect(engine.loop.now()).toBe(start);
+    expect(value.get()).toBe(0);
+
+    animations.start(animation, performance.now() + 30);
+    await endTask();
+    await clock.advance(0.1);
+
+    const omega = (2 * Math.PI) / FIRM.response;
+    const at = 0.07;
+    expect(value.get()).toBeCloseTo(
+      100 * (1 - (1 + omega * at) * Math.exp(-omega * at)),
+      0,
+    );
+  });
+
+  it("gives a new animation the clock of the motion that plays", async () => {
+    const { engine, value, element } = setUp();
+    const other = document.createElement("div");
+    const second = createMotionValue(engine, 0, { spring: FIRM });
+    bind(element, value, { pose: slide });
+    bind(other, second, { pose: slide });
+    value.to(100);
+    await clock.advance(0.1);
+
+    second.to(50);
+    await endTask();
+
+    const started = animations.animations.at(-1);
+    expect(started?.target).toBe(other);
+    expect(started?.startTime).toBeCloseTo(engine.loop.now() * 1000, 3);
+  });
+
+  it("puts a style that keeps one value over the motion inline, and not in the keyframes", async () => {
+    const { value, element } = setUp();
+    bind(element, value, {
+      pose: (x) => ({ ...slide(x), "content-visibility": "visible" }),
+    });
+    value.to(100);
+    await endTask();
+    const [animation] = animations.animations;
+    expect(element.style.getPropertyValue("content-visibility")).toBe(
+      "visible",
+    );
+    expect(
+      animation.keyframes.some((keyframe) => "content-visibility" in keyframe),
+    ).toBe(false);
+    await clock.advance(3);
+    expect(element.style.getPropertyValue("content-visibility")).toBe(
+      "visible",
+    );
+  });
+
+  it("plays a property that the compositor cannot move in an animation of its own", async () => {
+    const { value, element } = setUp();
+    bind(element, value, {
+      pose: (x) => ({ ...slide(x), visibility: x > 50 ? "visible" : "hidden" }),
+    });
+    value.to(100);
+    await endTask();
+    const [moved, shown] = animations.animations.map(({ keyframes }) =>
+      Object.keys(keyframes[0]).sort(),
+    );
+    expect(moved).toEqual(["offset", "transform"]);
+    expect(shown).toEqual(["offset", "visibility"]);
+  });
+
+  it("marks the element while a motion moves it", async () => {
+    const { value, element } = setUp();
+    bind(element, value, { pose: slide });
+    expect(element.hasAttribute(MOVING_ATTRIBUTE)).toBe(false);
+    value.to(100);
+    expect(element.hasAttribute(MOVING_ATTRIBUTE)).toBe(true);
+    await clock.advance(3);
+    expect(element.hasAttribute(MOVING_ATTRIBUTE)).toBe(false);
+    value.to(0);
+    value.set(20);
+    expect(element.hasAttribute(MOVING_ATTRIBUTE)).toBe(false);
+  });
+
   it("starts the new animation before it cancels the old one, from the state of the model", async () => {
     const { value, element } = setUp();
     bind(element, value, { pose: slide });
@@ -179,12 +286,28 @@ describe("bind, on Web Animations", () => {
     await clock.advance(0.1);
     const at = value.get();
     value.to(0);
+    await endTask();
     expect(animations.log).toEqual(["play 0", "play 1", "cancel 0"]);
     const retarget = animations.animations[1];
     expect(translateOf(String(retarget.keyframes[0].transform))).toBeCloseTo(
       at,
       1,
     );
+  });
+
+  it("makes one animation of each play in one task", async () => {
+    const { engine, value, element } = setUp();
+    const other = createMotionValue(engine, 0, { spring: FIRM });
+    bind(element, [value, other], {
+      pose: (x, y) => ({ transform: `translate(${px(x)}, ${px(y)})` }),
+    });
+    value.to(100);
+    other.to(50);
+    await endTask();
+    expect(animations.log).toEqual(["play 0"]);
+    expect(animations.animations[0].keyframes.at(-1)).toMatchObject({
+      transform: "translate(100.00px, 50.00px)",
+    });
   });
 
   it("keeps its last pose inline at rest, and then cancels the animation", async () => {
@@ -203,6 +326,7 @@ describe("bind, on Web Animations", () => {
     bind(framed, value, { pose: slide, renderer: "frame" });
     const start = engine.loop.now();
     value.to(100);
+    await endTask();
     const [animation] = animations.animations;
     const length = Number(animation.options.duration) / 1000;
     for (let frame = 0; frame < 30; frame++) {
@@ -231,6 +355,7 @@ describe("bind, on Web Animations", () => {
     }));
     expect(seen).toEqual({ moving: 0, still: "" });
     expect(still.style.transform).toBe("translateX(30.00px)");
+    await endTask();
     expect(animations.log).toEqual(["play 0", "cancel 0", "play 1"]);
     expect(
       translateOf(String(animations.animations[1].keyframes[0].transform)),

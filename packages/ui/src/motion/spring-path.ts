@@ -20,9 +20,14 @@ export interface MotionPath {
   readonly target: number;
 }
 
-/** @internal */
-export function restingPath(value: number): MotionPath {
-  const state = { value, velocity: 0 };
+/**
+ * A value at rest at `value`. `velocity` is the speed that the next motion
+ * starts at, such as the speed of a drag at its last move.
+ *
+ * @internal
+ */
+export function restingPath(value: number, velocity = 0): MotionPath {
+  const state = { value, velocity };
   return { at: () => state, settleTime: 0, target: value };
 }
 

@@ -10,6 +10,7 @@ import { useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fakeMotionClock } from "../test-support/fake-motion-clock.ts";
 import { reduceMotion } from "../test-support/reduce-motion.ts";
+import { SheetRecedeContext } from "./sheet-recede-context.ts";
 import { Sheet, SheetBoundary } from "./sheet.tsx";
 
 function SheetHarness({
@@ -65,6 +66,15 @@ function offsetOf(element: HTMLElement) {
   return Number.parseFloat(
     /translateY\((-?[\d.]+)px\)/.exec(transform)?.[1] ?? "NaN",
   );
+}
+
+/** The move, in px, of a `translate(x, y)` transform. */
+function translateOf(transform: string) {
+  const [x, y] = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/
+    .exec(transform)
+    ?.slice(1)
+    .map(Number) ?? [Number.NaN, Number.NaN];
+  return { x, y };
 }
 
 function drag(
@@ -454,17 +464,91 @@ describe("Sheet", () => {
         expect(screen.queryByRole("dialog")).toBeNull();
       });
 
-      it("moves the page under the card before it reads where the element is", async () => {
-        const log: string[] = [];
-        const row = setUpLift(() => log.push("read"));
-        render(
-          <LiftHarness isOpen row={row} onProgress={() => log.push("page")} />,
-        );
-        log.length = 0;
-        await act(() => clock.advance(0.1));
+      it("follows the element where the page under the card moves it", async () => {
+        layOut();
+        const row = document.createElement("div");
+        document.body.append(row);
+        let top = 100;
+        row.getBoundingClientRect = () =>
+          DOMRect.fromRect({ x: 0, y: top, width: 390, height: 60 });
+        render(<LiftHarness isOpen row={row} />);
+        await act(() => clock.advance(0.032));
+        const before = translateOf(mover().style.transform);
 
-        expect(log.length).toBeGreaterThan(2);
-        expect(log.join(" ")).toMatch(/^page read( page read)*$/);
+        top = 160;
+        await act(() => clock.advance(0.032));
+
+        // The card is part of the way out of the element, so it takes part
+        // of the move of the element.
+        const after = translateOf(mover().style.transform);
+        expect(after.y - before.y).toBeGreaterThan(5);
+      });
+
+      it("moves the page under the card back with the card, and lets it go after the close", async () => {
+        layOut();
+        const view = document.createElement("div");
+        const row = document.createElement("div");
+        view.append(row);
+        document.body.append(view);
+        row.getBoundingClientRect = () =>
+          DOMRect.fromRect({ x: 0, y: 100, width: 390, height: 60 });
+        view.getBoundingClientRect = () =>
+          DOMRect.fromRect({ x: 0, y: 0, width: 390, height: 844 });
+        const harness = (isOpen: boolean) => (
+          <SheetRecedeContext value={view}>
+            <LiftHarness isOpen={isOpen} row={row} />
+          </SheetRecedeContext>
+        );
+        const { rerender } = render(harness(true));
+        await act(() => clock.advance(1.5));
+        expect(view.style.transform).toBe("translateY(10.00px) scale(0.9350)");
+        expect(view.style.transformOrigin).toBe("50% 0");
+        expect(view.style.overflow).toBe("clip");
+
+        rerender(harness(false));
+        await act(() => clock.advance(1.5));
+        expect(screen.queryByRole("dialog")).toBeNull();
+        expect(view.getAttribute("style") ?? "").toBe("");
+      });
+
+      it("leaves the page under the card to the outer Sheet when a Sheet in the card closes", async () => {
+        layOut();
+        const view = document.createElement("div");
+        const row = document.createElement("div");
+        view.append(row);
+        document.body.append(view);
+        row.getBoundingClientRect = () =>
+          DOMRect.fromRect({ x: 0, y: 100, width: 390, height: 60 });
+        view.getBoundingClientRect = () =>
+          DOMRect.fromRect({ x: 0, y: 0, width: 390, height: 844 });
+        const harness = (isInnerOpen: boolean) => (
+          <SheetRecedeContext value={view}>
+            <Sheet
+              isOpen
+              onClose={vi.fn()}
+              closeLabel="Close"
+              aria-label="Row"
+              liftFrom={() => row}
+            >
+              <Sheet
+                isOpen={isInnerOpen}
+                onClose={vi.fn()}
+                closeLabel="Close"
+                aria-label="Inner"
+              >
+                <p>Inner</p>
+              </Sheet>
+            </Sheet>
+          </SheetRecedeContext>
+        );
+        const { rerender } = render(harness(true));
+        await act(() => clock.advance(1.5));
+
+        rerender(harness(false));
+        await act(() => clock.advance(1.5));
+
+        expect(screen.queryByRole("dialog", { name: "Inner" })).toBeNull();
+        expect(view.style.transform).toBe("translateY(10.00px) scale(0.9350)");
       });
     });
   });
