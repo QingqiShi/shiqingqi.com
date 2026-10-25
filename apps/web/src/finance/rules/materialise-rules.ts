@@ -1,4 +1,9 @@
 import { eq } from "drizzle-orm";
+import {
+  MATCH_DAY_WINDOW,
+  planBankMatches,
+} from "../bank/plan-bank-matches.ts";
+import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
@@ -28,6 +33,9 @@ const MATERIALISE_DAYS_AHEAD = 7;
 const MAX_OCCURRENCES_PER_RUN = 400;
 
 type Rule = Awaited<ReturnType<typeof ruleRepository.findDue>>[number];
+type OccurrenceCandidate = Awaited<
+  ReturnType<typeof bankTransactionRepository.findOccurrenceCandidates>
+>[number];
 
 /** The id of a Rule's Transaction on a day; the same occurrence always gets the same id. */
 export function occurrenceId(ruleId: string, day: string) {
@@ -56,10 +64,11 @@ export async function withActiveMember(
 
 /**
  * The days among `days` that a Transaction of the Rule already stands for,
- * live or deleted, whatever its id. A Transaction stands for the day that
- * its id names, so a Transaction that Bank sync moved to the bank row's date
- * still stands for its first day. A Transaction with a different id, for
- * example an imported one, stands for its date.
+ * live or deleted, whatever its id, and the ids of those Transactions. A
+ * Transaction stands for the day that its id names, so a Transaction that
+ * Bank sync moved to the bank row's date still stands for its first day. A
+ * Transaction with a different id, for example an imported one, stands for
+ * its date.
  */
 async function takenDays(
   scope: RepositoryScope,
@@ -73,7 +82,59 @@ async function takenDays(
     days,
     [...dayById.keys()],
   );
-  return new Set(rows.map((row) => dayById.get(row.id) ?? row.date));
+  return {
+    days: new Set(rows.map((row) => dayById.get(row.id) ?? row.date)),
+    ids: new Set(rows.map((row) => row.id)),
+  };
+}
+
+/**
+ * The bank-backed Transaction that stands for each of `days`, paired as Bank
+ * sync pairs bank rows with the Rule's Expected Transactions: each within
+ * `MATCH_DAY_WINDOW` days of its day, as many days as possible, then the
+ * smallest day gaps. A Transaction in `takenIds` stands for another day
+ * already.
+ */
+async function bankBackedDays(
+  scope: RepositoryScope,
+  ruleId: string,
+  template: RuleTemplate,
+  days: string[],
+  takenIds: Set<string>,
+) {
+  const byDay = new Map<string, OccurrenceCandidate>();
+  if (days.length === 0) return byDay;
+  const candidates = (
+    await bankTransactionRepository.findOccurrenceCandidates(
+      scope,
+      ruleId,
+      template.entries,
+      {
+        from: addDays(days[0], -MATCH_DAY_WINDOW),
+        to: addDays(days[days.length - 1], MATCH_DAY_WINDOW),
+      },
+    )
+  ).filter((candidate) => !takenIds.has(candidate.transactionId));
+  const candidateById = new Map(
+    candidates.map((candidate) => [candidate.transactionId, candidate]),
+  );
+  // Each candidate has an amount of the template already. Thus all days and
+  // candidates get the same amount, and the plan pairs them by date only.
+  const plan = planBankMatches(
+    days.map((date) => ({ date, amountMinor: 0 })),
+    candidates.map((candidate) => ({
+      ...candidate,
+      amountMinor: 0,
+      inTransit: false,
+    })),
+  );
+  for (const [index, day] of days.entries()) {
+    const match = plan[index];
+    if (match.action === "create") continue;
+    const candidate = candidateById.get(match.transactionId);
+    if (candidate) byDay.set(day, candidate);
+  }
+  return byDay;
 }
 
 /** False when the template names a row that a Transaction cannot use, such as a deleted account. */
@@ -125,7 +186,11 @@ async function createOccurrence(
  * up to a week ahead, moves each Rule's `next_on` past them, and posts the
  * ones of `auto_post` Rules that are due. It creates no Transaction for a
  * day that the Rule has a Transaction for already, so running it twice
- * changes nothing. Returns how many rows it wrote.
+ * changes nothing. It also creates none for a day that a bank-backed
+ * Transaction stands for, for example one that Bank sync made before the
+ * Rule existed: it gives that Transaction the Rule instead and changes
+ * nothing else, as when Bank sync confirms an Expected Transaction. Returns
+ * how many rows it wrote.
  */
 export async function materialiseRulesInTransaction(context: WriteContext) {
   const { scope, today } = context;
@@ -143,9 +208,24 @@ export async function materialiseRulesInTransaction(context: WriteContext) {
       : null;
     if (days.length > 0 && template && (await isUsable(context, template))) {
       const taken = await takenDays(scope, rule.id, days);
-      for (const day of days) {
-        if (taken.has(day)) continue;
-        written += await createOccurrence(context, rule, template, day);
+      const free = days.filter((day) => !taken.days.has(day));
+      const backed = await bankBackedDays(
+        scope,
+        rule.id,
+        template,
+        free,
+        taken.ids,
+      );
+      for (const day of free) {
+        const transaction = backed.get(day);
+        if (!transaction) {
+          written += await createOccurrence(context, rule, template, day);
+        } else if (transaction.ruleId === null) {
+          await transactionRepository.patch(scope, transaction.transactionId, {
+            ruleId: rule.id,
+          });
+          written++;
+        }
       }
     }
     const nextOn = nextOccurrence(rule, addDays(days.at(-1) ?? horizon, 1));
