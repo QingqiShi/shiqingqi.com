@@ -12,6 +12,7 @@ import { ListRow } from "@tuja/ui/components/list-row";
 import {
   NavigationSplitView,
   SplitViewLink,
+  useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -227,7 +228,9 @@ function ProjectsView() {
                 linkComponent={SplitViewLink}
                 aria-current={project === null ? "page" : undefined}
                 caret={false}
-                leading={<ProjectMark icon={SquaresFourIcon} />}
+                leading={
+                  <ProjectMark icon={SquaresFourIcon} shared="overview" />
+                }
               >
                 {overviewLabel}
               </ListRow>
@@ -238,7 +241,12 @@ function ProjectsView() {
                   linkComponent={SplitViewLink}
                   aria-current={item === project ? "page" : undefined}
                   caret={false}
-                  leading={<ProjectMark icon={item.icon} />}
+                  leading={
+                    <ProjectMark
+                      icon={item.icon}
+                      shared={`project:${item.id}`}
+                    />
+                  }
                   trailing={<Count>{item.tasks.length}</Count>}
                 >
                   {item.name}
@@ -254,6 +262,7 @@ function ProjectsView() {
             href={hrefOf(null)}
             label={overviewLabel}
             icon={SquaresFourIcon}
+            shared="overview"
             current={project === null}
           />
           {projects.map((item) => (
@@ -262,6 +271,7 @@ function ProjectsView() {
               href={hrefOf(item.id)}
               label={item.name}
               icon={item.icon}
+              shared={`project:${item.id}`}
               current={item === project}
             />
           ))}
@@ -391,11 +401,13 @@ function StripLink({
   href,
   label,
   icon,
+  shared,
   current,
 }: {
   href: string;
   label: string;
   icon: Icon;
+  shared: string;
   current: boolean;
 }) {
   return (
@@ -414,15 +426,22 @@ function StripLink({
           styles.stripLink,
         )}
       >
-        <ProjectMark icon={icon} />
+        <ProjectMark icon={icon} shared={shared} />
       </SplitViewLink>
     </li>
   );
 }
 
-function ProjectMark({ icon: ProjectIcon }: { icon: Icon }) {
+function ProjectMark({
+  icon: ProjectIcon,
+  shared = null,
+}: {
+  icon: Icon;
+  shared?: string | null;
+}) {
+  const ref = useSplitViewShared(shared);
   return (
-    <span css={[corner.radius_2, styles.mark]} aria-hidden>
+    <span ref={ref} css={[corner.radius_2, styles.mark]} aria-hidden>
       <ProjectIcon weight="bold" />
     </span>
   );

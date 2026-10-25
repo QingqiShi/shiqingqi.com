@@ -7,6 +7,7 @@ import { Badge } from "@tuja/ui/components/badge";
 import {
   SplitViewLink,
   useSplitViewColumn,
+  useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -49,6 +50,7 @@ export function AccountRow({
   const accountName = useAccountDisplayName();
   const isInSidebar = useSplitViewColumn()?.column === "sidebar";
   const { account } = line;
+  const avatarRef = useSplitViewShared(`account:${account.id}`);
   const name = accountName(account);
   const facts: string[] = [];
   const detail = accountDetailLine(account, line.ownerName);
@@ -85,7 +87,9 @@ export function AccountRow({
           styles.row,
         )}
       >
-        <Avatar name={name} initials={initials} shape="square" aria-hidden />
+        <span ref={avatarRef} css={styles.avatar}>
+          <Avatar name={name} initials={initials} shape="square" aria-hidden />
+        </span>
         <span css={styles.main}>
           <span css={[typeRole.bodySmall, styles.name]}>{name}</span>
           {facts.length > 0 || line.hidden !== null ? (
@@ -139,6 +143,10 @@ const styles = stylex.create({
     paddingInline: space._2,
     color: color.fg,
     textDecoration: "none",
+  },
+  avatar: {
+    display: "flex",
+    flexShrink: 0,
   },
   main: {
     display: "flex",

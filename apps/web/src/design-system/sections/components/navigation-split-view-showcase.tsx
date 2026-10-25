@@ -82,6 +82,14 @@ const styles = stylex.create({
   },
 });`;
 
+  const shared = `import { useSplitViewShared } from "@tuja/ui/components/navigation-split-view";
+
+function ProjectIcon({ project }: { project: Project }) {
+  // The same name in the sidebar row and in the collapsed sidebar's tile.
+  const ref = useSplitViewShared(\`project:\${project.id}\`);
+  return <span ref={ref}>{project.icon}</span>;
+}`;
+
   return (
     <>
       <Showcase
@@ -141,6 +149,16 @@ const styles = stylex.create({
             })}
           </Text>
         </div>
+      </Showcase>
+
+      <Showcase label={t({ en: "Motion", zh: "动效" })}>
+        <UsageSnippet code={shared} label="tsx" />
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "Every motion follows the URL, and the first paint has none. A deeper page springs in over the page it leaves, which drifts back and dims, and Back springs it out again. A detail slides in beside the content as the sidebar folds. Give one name to each form of a Shared element, and the view flies one into the other, such as a project's icon into its tile in the collapsed sidebar. On a phone, a drag from the left edge of the content takes it off, and a sheet lifts out of the row that opened it. A pick in the middle of a motion starts from where the motion is. Under reduced motion, each change is a short cross-fade.",
+            zh: "每一个动效都跟随 URL，首次绘制没有动效。更深的一页以弹簧动效进入，盖在它离开的那一页上，那一页向后退并变暗；“返回”再把它弹出。详情栏在侧栏收起的同时从旁边滑入。为共享元素的每一种形态取同一个名字，视图就会把一种形态飞成另一种，例如项目的图标飞进收起侧栏中它的方块。在手机上，从内容栏左边缘拖动即可退出该栏，面板从打开它的那一行中升起。在动效进行中做出新的选择，会从动效当前的位置开始。在减少动态效果时，每次变化都是一次短暂的交叉淡入淡出。",
+          })}
+        </Text>
       </Showcase>
 
       <Showcase label={t({ en: "Usage", zh: "用法" })}>

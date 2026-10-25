@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import type { ComponentType, ReactNode } from "react";
+import { useState, type ComponentType, type ReactNode } from "react";
 import { tabBarTokens } from "../actions/tab-bar.stylex.ts";
 import {
   PlainAnchor,
@@ -14,7 +14,12 @@ import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
+import {
+  duration,
+  easing,
+  motionConstants,
+  transition,
+} from "../primitives/motion.stylex.ts";
 import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
@@ -80,6 +85,15 @@ interface TabViewProps {
    */
   children: ReactNode;
   /**
+   * Names the screen that shows now. When it changes, the new screen rises
+   * into place. Defaults to the `href` of the current item. Pass it when
+   * the current item changes before the new screen shows, such as when a
+   * link marks its destination current while the screen loads.
+   *
+   * @zh 当前显示的画面的标识。它改变时，新画面上升到位。默认为当前项的 `href`。如果当前项在新画面显示之前就改变（例如链接在画面加载时就把其目标页标为当前），请传入此值。
+   */
+  screenKey?: string | number;
+  /**
    * Landmark element for the content. Use `"main"` (the default) for the
    * page's primary content, or `"div"` when the shell is nested inside a
    * surface that already owns the `<main>` landmark.
@@ -97,7 +111,8 @@ interface TabViewProps {
  * floats over the bottom of the screen instead. A container query on the
  * view chooses, so the server paints the right one. The content goes under
  * the bar: `tabViewTokens.barClearance` is the strip the bar takes, and each
- * layout in the content keeps clear of it.
+ * layout in the content keeps clear of it. A switch to another screen makes
+ * the new screen rise into place.
  */
 export function TabView({
   items,
@@ -106,8 +121,21 @@ export function TabView({
   header,
   footer,
   children,
-  as: Content = "main",
+  screenKey,
+  as = "main",
 }: TabViewProps) {
+  const screen = screenKey ?? items.find((item) => item.current === true)?.href;
+  const [entry, setEntry] = useState({ screen, count: 0 });
+  if (screen !== entry.screen) {
+    setEntry({ screen, count: entry.count + 1 });
+  }
+  const contentCss = [
+    styles.content,
+    entry.count > 0 && [
+      styles.enter,
+      entry.count % 2 === 1 ? styles.riseOdd : styles.riseEven,
+    ],
+  ];
   const sticky = useEffectSticky();
   const { ref, css } = sticky;
   return (
@@ -162,7 +190,11 @@ export function TabView({
             )}
           </EffectCarrier>
         </div>
-        <Content css={styles.content}>{children}</Content>
+        {as === "main" ? (
+          <main css={contentCss}>{children}</main>
+        ) : (
+          <div css={contentCss}>{children}</div>
+        )}
         <EffectCarrier value="viewport-bottom">
           <TabBar
             items={items}
@@ -175,6 +207,17 @@ export function TabView({
     </div>
   );
 }
+
+// The animation starts again only when its name changes, so each switch
+// uses the other keyframes. StyleX makes the name from the frames, thus
+// `riseEven` has a `to` frame that does not change the motion.
+const riseOdd = stylex.keyframes({
+  from: { opacity: 0, transform: `translateY(${space._7})` },
+});
+const riseEven = stylex.keyframes({
+  from: { opacity: 0, transform: `translateY(${space._7})` },
+  to: { opacity: 1, transform: "none" },
+});
 
 const styles = stylex.create({
   container: {
@@ -296,6 +339,25 @@ const styles = stylex.create({
   },
   content: {
     minInlineSize: 0,
+  },
+  enter: {
+    animationDuration: duration._500,
+    animationTimingFunction: {
+      default: easing.springFallback,
+      "@supports (animation-timing-function: linear(0, 1))": easing.spring,
+    },
+  },
+  riseOdd: {
+    animationName: {
+      default: riseOdd,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
+  },
+  riseEven: {
+    animationName: {
+      default: riseEven,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
   },
   // The pill is nearly as wide as the screen, but it is at the bottom, so it
   // never covers the top-centre point that iOS Safari samples for the status

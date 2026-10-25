@@ -2,7 +2,10 @@
 
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
-import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
+import {
+  SplitViewLink,
+  useSplitViewShared,
+} from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -53,6 +56,7 @@ export function AccountStrip({
         href={url.hrefOf({ account: null })}
         label={t({ en: "Household", zh: "家庭" })}
         current={url.account === null}
+        shared="household"
         isIcon
       >
         <HouseIcon weight="bold" />
@@ -70,6 +74,7 @@ export function AccountStrip({
                 href={url.hrefOf({ account: line.account.id })}
                 label={accountName(line.account)}
                 current={url.account === line.account.id}
+                shared={`account:${line.account.id}`}
               >
                 {initials.get(line.account.id)}
               </StripLink>
@@ -85,17 +90,22 @@ function StripLink({
   href,
   label,
   current,
+  shared,
   isIcon = false,
   children,
 }: {
   href: string;
   label: string;
   current: boolean;
+  /** The Shared element that the link is the tile of, such as an account's. */
+  shared: string;
   isIcon?: boolean;
   children: ReactNode;
 }) {
+  const sharedRef = useSplitViewShared(shared);
   return (
     <SplitViewLink
+      ref={sharedRef}
       href={href}
       aria-label={label}
       title={label}
