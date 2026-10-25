@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
@@ -209,8 +213,7 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default:
-        "opacity 520ms cubic-bezier(0.32, 0.72, 0, 1), transform 520ms cubic-bezier(0.32, 0.72, 0, 1)",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._1000} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -228,7 +231,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 320ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -247,7 +250,7 @@ const styles = stylex.create({
     },
     strokeLinecap: "round",
     strokeLinejoin: "round",
-    transition: "stroke 520ms ease, opacity 520ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   // Fades out as the gold frame below draws in, so only one outline is ever lit.
   // That needs its own opacity timing: on `keyline`'s inherited 520ms it would
@@ -263,7 +266,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "stroke 520ms ease, opacity 180ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._200} ${easing.ease}`,
   },
   // One dash as long as the whole perimeter, wound off by the offset. A rect's
   // path starts at its top-left corner and runs clockwise, so the draw sweeps
@@ -294,8 +297,8 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default: "stroke-dashoffset 560ms linear, opacity 200ms ease",
-      [motionConstants.REDUCED_MOTION]: "opacity 400ms ease",
+      default: `stroke-dashoffset ${duration._500} ${easing.linear}, opacity ${duration._200} ${easing.ease}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._400} ${easing.ease}`,
     },
   },
   brackets: {
@@ -368,7 +371,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.8,
       },
     },
-    transition: "fill 520ms ease, opacity 520ms ease",
+    transition: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   icon: {
     transformBox: "view-box",
@@ -378,7 +381,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 260ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -392,7 +395,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.38,
       },
     },
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   // One copy that thickens, not two weights cross-fading: `stroke-width`
   // interpolates, so regular -> bold happens in the stroke itself, which is the
@@ -427,12 +430,11 @@ const styles = stylex.create({
     // `stroke-width` is geometry, not colour: reduced motion drops it from the
     // transition so the weight change lands as an instant swap, the way the
     // scales elsewhere in the file null their transforms. Without this the
-    // largest element in the illustration still swells 50% over 480ms on a decelerating
+    // largest element in the illustration still swells 50% over 800ms on a spring
     // curve for a reader who asked not to see movement.
     transition: {
-      default:
-        "stroke 480ms ease, stroke-width 480ms cubic-bezier(0.32, 0.72, 0, 1), opacity 480ms ease",
-      [motionConstants.REDUCED_MOTION]: "stroke 480ms ease, opacity 480ms ease",
+      default: `stroke ${duration._500} ${easing.ease}, stroke-width ${duration._800} ${easing.spring}, opacity ${duration._500} ${easing.ease}`,
+      [motionConstants.REDUCED_MOTION]: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
     },
   },
   // Vector anchors, the way an editor marks a path's extremes: absent while the
@@ -469,13 +471,13 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default: "opacity 220ms ease, transform 300ms var(--ds-illo-ease)",
-      [motionConstants.REDUCED_MOTION]: "opacity 220ms ease",
+      default: `opacity ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._200} ${easing.ease}`,
     },
   },
   // The stagger belongs to the hover branch alone. A bare `transitionDelay` also
   // delays the way back: an anchor caught part-lit when the pointer left would
-  // hold that opacity for up to 580ms before starting its 220ms fade, so sweeping
+  // hold that opacity for up to 580ms before starting its 200ms fade, so sweeping
   // across the overview grid left half-lit squares sitting on tiles behind the
   // cursor. Declared per state, the entrance staggers and the exit is immediate.
   // The last two steps tighten to 80 and 60ms because the handle is one stroke

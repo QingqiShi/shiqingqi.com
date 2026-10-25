@@ -281,6 +281,18 @@ describe("TransactionEditor", () => {
     expect(outbox(runtime)).toHaveLength(1);
   });
 
+  it("focuses the amount of a new Transaction without a scroll of the page", async () => {
+    const focus = vi.spyOn(HTMLElement.prototype, "focus");
+    await openEditor();
+    const amount = screen.getByRole("textbox", { name: "Amount" });
+    expect(amount).toHaveFocus();
+    const calls = focus.mock.contexts.flatMap((element, index) =>
+      element === amount ? [focus.mock.calls[index]] : [],
+    );
+    expect(calls).toEqual([[{ preventScroll: true }]]);
+    focus.mockRestore();
+  });
+
   it("focuses the amount of an existing Transaction", async () => {
     await openEditor({ transactionId: ids.tescoShop });
     expect(screen.getByRole("textbox", { name: "Amount" })).toHaveFocus();

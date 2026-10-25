@@ -2,20 +2,23 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
-import type { ReactNode, RefObject } from "react";
+import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { MD_QUERY } from "../md-query.ts";
 import { mergeRefs } from "../merge-refs.ts";
-import { scrollbar } from "../primitives/layout.stylex.ts";
+import { cssTween } from "../motion/css-tween.ts";
+import { unit } from "../motion/mix.ts";
+import { useBinding } from "../motion/use-binding.ts";
 import {
-  duration,
-  easing,
-  motionConstants,
-  transition,
-} from "../primitives/motion.stylex.ts";
+  useMotionEngine,
+  useMotionValue,
+} from "../motion/use-motion-engine.ts";
+import { scrollbar } from "../primitives/layout.stylex.ts";
+import { duration, easing, transition } from "../primitives/motion.stylex.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 import {
   border,
@@ -62,14 +65,18 @@ export function Drawer({
   const coverRef = useEffectCover({ modal: isOpen });
   const sticky = useEffectSticky();
   const { ref, css } = sticky;
-  const railRefs = mergeRefs(drawerRef, coverRef, ref);
+  const railRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const railRefs = mergeRefs(drawerRef, railRef, coverRef, ref);
+  useDrawerMotion(railRef, backdropRef, isOpen);
   return (
     <>
-      {/* Backdrop and drawer stay mounted, so the slide/fade transitions in
-          both directions; visibility drops the closed state from focus and
+      {/* Backdrop and drawer stay mounted, so they slide and fade in both
+          directions; visibility drops the closed state from focus and
           a11y. */}
       {hasDrawer ? (
         <div
+          ref={backdropRef}
           css={[styles.backdrop, isOpen && styles.backdropOpen]}
           onClick={onClose}
           aria-hidden="true"
@@ -151,13 +158,52 @@ export function Drawer({
 }
 
 const RAIL_INSET = space._2;
+const REDUCED_FADE = cssTween(duration._150, easing.ease);
+const fade = (at: number) => ({ opacity: unit(at).toFixed(3) });
+const slide = (at: number) => ({
+  ...fade(at),
+  transform: `translateX(${((1 - at) * 110).toFixed(2)}%)`,
+});
+/** Inline styles that keep the moving rail and backdrop seen and out of reach until they rest. */
+const MOVING = { visibility: "visible" } as const;
+
+/**
+ * Below `md`, slides the rail in from the end edge and fades the backdrop
+ * with it. A toggle during a slide turns it from where it is. Under reduced
+ * motion both only fade. At rest the stylesheet holds each state.
+ */
+function useDrawerMotion(
+  railRef: RefObject<HTMLDivElement | null>,
+  backdropRef: RefObject<HTMLDivElement | null>,
+  isOpen: boolean,
+) {
+  const engine = useMotionEngine();
+  const progress = useMotionValue(engine, isOpen ? 1 : 0);
+  // At `md` and up the rail is part of the page, and the stylesheet holds it.
+  const isNarrowRef = useRef(true);
+  useBinding(railRef, progress, {
+    pose: (at) => (isNarrowRef.current ? slide(at) : {}),
+    reducedPose: (at) => (isNarrowRef.current ? fade(at) : {}),
+    hold: MOVING,
+    rest: "clear",
+  });
+  useBinding(backdropRef, progress, {
+    pose: fade,
+    hold: MOVING,
+    rest: "clear",
+  });
+  const wasOpenRef = useRef(isOpen);
+  useLayoutEffect(() => {
+    if (wasOpenRef.current === isOpen) return;
+    wasOpenRef.current = isOpen;
+    isNarrowRef.current = !window.matchMedia(MD_QUERY).matches;
+    progress.to(isOpen ? 1 : 0, { reduced: REDUCED_FADE });
+  }, [isOpen, progress]);
+}
 
 const styles = stylex.create({
-  // Visibility transitions alongside opacity/transform, so CSS keeps the
-  // element visible until the transition ends, then drops it from focus and
-  // the a11y tree. Values are literal strings: interpolating `duration`/
-  // `easing` from another `.stylex.ts` module compiles to an undefined
-  // `var()`, unsetting the whole declaration.
+  // A closed backdrop and rail are hidden, which drops them from focus and
+  // the a11y tree. `useDrawerMotion` keeps them seen while they move.
   backdrop: {
     display: { default: "block", [breakpoints.md]: "none" },
     position: "fixed",
@@ -167,18 +213,14 @@ const styles = stylex.create({
     opacity: 0,
     visibility: "hidden",
     pointerEvents: "none",
-    transition: {
-      default: `opacity ${duration._300} ${easing.ease}, visibility ${duration._300}`,
-      [motionConstants.REDUCED_MOTION]: `opacity ${duration._150} ${easing.ease}, visibility ${duration._150}`,
-    },
   },
   backdropOpen: {
     opacity: 1,
     visibility: "visible",
     pointerEvents: "auto",
   },
-  // Reduced motion drops the slide and plays only the fade. Both supported
-  // locales are LTR, so the off-canvas translate needs no logical flip.
+  // Both supported locales are LTR, so the off-canvas translate needs no
+  // logical flip.
   rail: {
     display: "flex",
     flexDirection: "column",
@@ -229,18 +271,9 @@ const styles = stylex.create({
     borderEndEndRadius: { default: 0, [breakpoints.md]: border.radius_3 },
     cornerShape: "squircle",
     boxShadow: { default: shadow._6, [breakpoints.md]: shadow._2 },
-    transform: {
-      default: "translateX(110%)",
-      [motionConstants.REDUCED_MOTION]: "none",
-      [breakpoints.md]: "none",
-    },
+    transform: { default: "translateX(110%)", [breakpoints.md]: "none" },
     opacity: { default: 0, [breakpoints.md]: 1 },
     visibility: { default: "hidden", [breakpoints.md]: "visible" },
-    transition: {
-      default: `transform ${duration._300} ${easing.entrance}, opacity ${duration._300} ${easing.entrance}, visibility ${duration._300}`,
-      [motionConstants.REDUCED_MOTION]: `opacity ${duration._150} ${easing.ease}, visibility ${duration._150}`,
-      [breakpoints.md]: "none",
-    },
   },
   railOpen: {
     transform: "none",

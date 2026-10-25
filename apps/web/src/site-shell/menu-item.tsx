@@ -3,6 +3,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { color, font, controlSize } from "@tuja/ui/tokens.stylex";
 import type { MouseEventHandler, PropsWithChildren } from "react";
@@ -72,7 +73,7 @@ const styles = stylex.create({
     height: controlSize._9,
     padding: controlSize._3,
     textDecoration: "none",
-    transition: "background-color 0.2s",
+    transition: `background-color ${duration._200} ${easing.ease}`,
   },
   itemCurrent: {
     pointerEvents: "none",

@@ -211,7 +211,7 @@ export function TabView({
   );
 }
 
-const RISE_SPRING = springOf(springRoles.css);
+const RISE_SPRING = springOf(springRoles.surface);
 
 /** The new screen at `t` of its rise: it fades in as it rises `space._7` into place. */
 function risePose(t: number): Styles {

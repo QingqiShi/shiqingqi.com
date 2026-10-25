@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { duration, easing } from "../primitives/motion.stylex.ts";
+import { cssEasing } from "./css-easing.ts";
 import { springPath } from "./spring-path.ts";
 import { springOf, springRoles, systemSpring } from "./spring-roles.ts";
 
@@ -10,22 +11,48 @@ function pointsOf(linear: string) {
   return inside.split(",").map((point) => Number(point.trim()));
 }
 
-describe("springRoles.css", () => {
-  const spring = springOf(springRoles.css);
+const LENGTH = Number.parseFloat(duration._500) / 1000;
 
-  it("is the spring that easing.spring samples over 500ms", () => {
+function pathOf(role: keyof typeof springRoles, precision = 1e-6) {
+  return springPath(
+    springOf(springRoles[role]),
+    { value: 0, velocity: 0 },
+    1,
+    precision,
+  );
+}
+
+/** The time at which a 0 to 1 move from rest first gets 95% of the way. */
+function arrivalOf(role: keyof typeof springRoles) {
+  const path = pathOf(role);
+  let time = 0;
+  while (path.at(time).value < 0.95) time += 1e-4;
+  return time;
+}
+
+describe("easing.spring", () => {
+  it("is the surface spring sampled over 500ms", () => {
     const points = pointsOf(easing.spring);
-    const length = Number.parseFloat(duration._500) / 1000;
-    const path = springPath(spring, { value: 0, velocity: 0 }, 1, 1e-6);
+    const path = pathOf("surface");
     points.forEach((point, index) => {
-      const time = (index / (points.length - 1)) * length;
+      const time = (index / (points.length - 1)) * LENGTH;
       expect(Math.abs(path.at(time).value - point)).toBeLessThan(1e-3);
     });
   });
 
-  it("is at rest within the 500ms of a CSS transition that uses easing.spring", () => {
-    const path = springPath(spring, { value: 0, velocity: 0 }, 1, 1e-3);
-    expect(path.settleTime).toBeLessThanOrEqual(0.5);
+  it("is at rest within the 500ms of a CSS transition that uses it", () => {
+    expect(pathOf("surface", 1e-3).settleTime).toBeLessThanOrEqual(LENGTH);
+  });
+
+  it("has a fallback that stays near it", () => {
+    const fallback = cssEasing(easing.springFallback);
+    const path = pathOf("surface");
+    for (let step = 0; step <= 50; step++) {
+      const share = step / 50;
+      expect(
+        Math.abs(fallback(share) - path.at(share * LENGTH).value),
+      ).toBeLessThan(0.05);
+    }
   });
 });
 
@@ -38,19 +65,19 @@ describe("springOf", () => {
     expect(light.dampingRatio).toBe(systemSpring.dampingRatio);
   });
 
+  // In ms, the time each role took to get 95% of the way when each role
+  // had its own damping ratio.
   it.each([
-    ["columnPush", 0.56, 0.7],
-    ["stackPush", 0.5, 1],
-    ["fold", 0.5, 0.88],
-    ["flight", 0.46, 0.8],
-    ["move", 0.42, 0.9],
-    ["lift", 0.5, 0.86],
-  ] as const)(
-    "gives %s the spring it has today",
-    (role, response, dampingRatio) => {
-      const spring = springOf(springRoles[role]);
-      expect(spring.response).toBeCloseTo(response, 3);
-      expect(spring.dampingRatio).toBe(dampingRatio);
-    },
-  );
+    ["surface", 132],
+    ["columnPush", 258],
+    ["stackPush", 377],
+    ["fold", 309],
+    ["flight", 248],
+    ["move", 268],
+    ["lift", 298],
+    ["aim", 357],
+    ["switchFill", 264],
+  ] as const)("keeps the speed of %s", (role, arrival) => {
+    expect(Math.abs(arrivalOf(role) * 1000 - arrival)).toBeLessThan(4);
+  });
 });

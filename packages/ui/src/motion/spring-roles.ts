@@ -6,8 +6,6 @@
  *
  * A spring has no duration: how long a motion takes comes from the spring,
  * the distance and the start velocity.
- *
- * @internal
  */
 export interface Spring {
   readonly response: number;
@@ -15,11 +13,8 @@ export interface Spring {
 }
 
 /**
- * The one spring of the system. A role gives it a mass: a heavier role moves
- * slower, with the same bounce, because the damping ratio stays the
- * system's.
- *
- * @internal
+ * The one spring of the system. Its stiffness and its damping ratio are the
+ * same for every motion; only the mass of what moves changes.
  */
 export interface SystemSpring {
   readonly stiffness: number;
@@ -27,64 +22,57 @@ export interface SystemSpring {
 }
 
 /**
- * How heavy a role is, for the system spring. `dampingRatio` replaces the
- * system's, only so that each motion keeps the spring it has today until
- * the roles merge.
- *
- * @internal
+ * How heavy a thing that moves is, on the system spring. A heavier role
+ * moves slower, with the same bounce, because the damping ratio stays the
+ * system's.
  */
 export interface SpringRole {
   readonly mass: number;
-  readonly dampingRatio?: number;
 }
 
 /**
- * A move of a fixed length, for a motion under reduced motion only, such as
- * a short fade in place of a slide. `easing` maps the share of the time to
- * the share of the way, and is linear when it is left out.
- *
- * @internal
+ * A move of a fixed length, such as a fade, or a short fade in place of a
+ * slide under reduced motion. `easing` maps the share of the time to the
+ * share of the way, and is linear when it is left out.
  */
 export interface Tween {
   readonly duration: number;
   readonly easing?: (t: number) => number;
 }
 
-/**
- * At mass 1, the spring that `easing.spring` samples over 500ms.
- *
- * @internal
- */
+/** The spring of every motion in the system. `easing.spring` samples it at mass 1. */
 export const systemSpring: SystemSpring = {
   stiffness: 483.6,
   dampingRatio: 0.7,
 };
 
-/**
- * The roles of the package, with masses that give each motion the speed it
- * has today.
- *
- * @internal
- */
+/** The masses of the things that move in the package. */
 export const springRoles = {
-  css: { mass: 1 },
-  columnPush: { mass: 3.842 },
-  stackPush: { mass: 3.062, dampingRatio: 1 },
-  fold: { mass: 3.062, dampingRatio: 0.88 },
-  flight: { mass: 2.592, dampingRatio: 0.8 },
-  move: { mass: 2.161, dampingRatio: 0.9 },
-  lift: { mass: 3.062, dampingRatio: 0.86 },
+  /** A popover, a menu, a toast, a Sheet's card, a screen that rises, a control. */
+  surface: { mass: 1 },
+  /** A column that a split view pushes in beside the others. */
+  columnPush: { mass: 3.84 },
+  /** A page that a split view pushes over the one before it. */
+  stackPush: { mass: 8.2 },
+  /** A split view's sidebar as it folds to its strip or opens. */
+  fold: { mass: 5.48 },
+  /** A Shared element as it flies to its new form. */
+  flight: { mass: 3.53 },
+  /** An element that moves to its new place in the layout. */
+  move: { mass: 4.14 },
+  /** A Sheet's card as it grows out of a row and shrinks back into it. */
+  lift: { mass: 5.11 },
+  /** The beam of a Black hole as it turns to its aim. */
+  aim: { mass: 7.25 },
+  /** The on fill as it rises through a Switch's track. */
+  switchFill: { mass: 4 },
 } as const satisfies Record<string, SpringRole>;
 
-/**
- * The spring of `role` on the system spring.
- *
- * @internal
- */
+/** The spring of `role` on the system spring. */
 export function springOf(role: SpringRole): Spring {
   const omega = Math.sqrt(systemSpring.stiffness / role.mass);
   return {
     response: (2 * Math.PI) / omega,
-    dampingRatio: role.dampingRatio ?? systemSpring.dampingRatio,
+    dampingRatio: systemSpring.dampingRatio,
   };
 }

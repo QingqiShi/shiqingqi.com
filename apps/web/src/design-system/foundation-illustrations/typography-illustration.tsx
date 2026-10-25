@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -178,7 +182,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 280ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -205,8 +209,7 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default:
-        "opacity 520ms cubic-bezier(0.32, 0.72, 0, 1), transform 560ms cubic-bezier(0.32, 0.72, 0, 1)",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._1000} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -219,7 +222,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 480ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   metal: {
     opacity: {
@@ -230,7 +233,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 480ms cubic-bezier(0.32, 0.72, 0, 1)",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   orb: {
     opacity: {
@@ -249,8 +252,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default:
-        "opacity 560ms cubic-bezier(0.32, 0.72, 0, 1), transform 420ms var(--ds-illo-ease)",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._700} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -263,7 +265,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.6,
       },
     },
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   ruleLine: {
     stroke: {
@@ -277,7 +279,7 @@ const styles = stylex.create({
     },
     strokeWidth: 1.2,
     strokeLinecap: "round",
-    transition: "stroke 520ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}`,
   },
   nums: {
     opacity: {
@@ -288,7 +290,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.8,
       },
     },
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   numsText: {
     fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
@@ -305,7 +307,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
       },
     },
-    transition: "fill 520ms ease",
+    transition: `fill ${duration._500} ${easing.ease}`,
   },
   shimmerWrap: {
     opacity: {
@@ -316,7 +318,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.9,
       },
     },
-    transition: "opacity 520ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   shimmer: {
     transform: {
@@ -324,7 +326,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 220ms var(--ds-illo-ease)",
+      default: `transform ${duration._400} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -337,15 +339,15 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 420ms ease",
+    transition: `opacity ${duration._400} ${easing.ease}`,
   },
   caretBlink: {
     stroke: "var(--ds-illo-hue-soft)",
     strokeWidth: 2,
     strokeLinecap: "butt",
     animationName: { default: blink, [motionConstants.REDUCED_MOTION]: "none" },
-    animationDuration: "2.3s",
-    animationTimingFunction: "ease-in-out",
+    animationDuration: duration._2000,
+    animationTimingFunction: easing.easeInOut,
     animationIterationCount: "infinite",
   },
 });

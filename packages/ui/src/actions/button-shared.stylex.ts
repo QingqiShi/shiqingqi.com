@@ -18,8 +18,8 @@ import { buttonTokens } from "./button.stylex.ts";
 // Can't use a `transition.*` preset for a compound transform+filter
 // transition; the durations and easings still come from the shared motion
 // tokens, so it tracks the scale.
-const pressTransition = `background ${duration._200} ${easing.ease}, transform ${duration._150} ${easing.easeOut}, filter ${duration._150} ${easing.easeOut}`;
-const releaseTransition = `background ${duration._200} ${easing.ease}, transform ${duration._300} ${easing.easeOut}, filter ${duration._300} ${easing.easeOut}`;
+const pressTransition = `background ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}, filter ${duration._150} ${easing.easeOut}`;
+const releaseTransition = `background ${duration._200} ${easing.ease}, transform ${duration._1000} ${easing.spring}, filter ${duration._300} ${easing.easeOut}`;
 const reducedTransition = `background ${duration._200} ${easing.ease}`;
 
 export const sharedStyles = stylex.create({

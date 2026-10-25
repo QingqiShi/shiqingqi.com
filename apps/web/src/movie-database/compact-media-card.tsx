@@ -4,7 +4,11 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { ratio, shadow } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
@@ -85,8 +89,8 @@ const styles = stylex.create({
   },
   interactive: {
     transition: {
-      default: "transform 0.15s ease, box-shadow 0.15s ease",
-      [motionConstants.REDUCED_MOTION]: "box-shadow 0.15s ease",
+      default: `transform ${duration._400} ${easing.spring}, box-shadow ${duration._150} ${easing.ease}`,
+      [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._150} ${easing.ease}`,
     },
     transform: {
       default: null,

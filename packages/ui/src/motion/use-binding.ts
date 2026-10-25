@@ -6,8 +6,6 @@ import type { MotionValue } from "./create-motion-value.ts";
  * Binds `values` to the element in `ref` while the component is mounted.
  * It binds once, so `values`, `hold`, `rest` and `renderer` must not change;
  * `pose` and `reducedPose` come from the latest render.
- *
- * @internal
  */
 export function useBinding(
   ref: RefObject<HTMLElement | SVGElement | null>,

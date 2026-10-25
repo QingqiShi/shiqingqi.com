@@ -24,6 +24,7 @@ import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { useVisualViewport } from "../hooks/use-visual-viewport.ts";
 import { mergeRefs } from "../merge-refs.ts";
+import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -37,11 +38,12 @@ interface SheetBaseProps {
    * The sheet's content. The card pads it, fits its height up to the
    * viewport and scrolls it beyond that. With a `title`, the content starts
    * under the title; without one, it starts under the close button. A sticky
-   * box in the content sticks inside that padding. The content unmounts after
-   * the sheet closes and remounts on every open, so lift any state that has
-   * to survive the round trip.
+   * box in the content sticks inside that padding. While the card leaves, it
+   * keeps the content it had when it started to leave. The content unmounts
+   * after the sheet closes and remounts on every open, so lift any state that
+   * has to survive the round trip.
    *
-   * @zh 面板的内容。卡片为内容加上内边距，高度随内容而定，最高到视口，超出后在卡片内滚动。有 `title` 时内容从标题下方开始；没有时从关闭按钮下方开始。内容中的 sticky 盒子会停在这层内边距之内。面板关闭后内容卸载，每次打开都会重新挂载，需要跨越开合保留的状态请提升到外部。
+   * @zh 面板的内容。卡片为内容加上内边距，高度随内容而定，最高到视口，超出后在卡片内滚动。有 `title` 时内容从标题下方开始；没有时从关闭按钮下方开始。内容中的 sticky 盒子会停在这层内边距之内。卡片离场时保留开始离场那一刻的内容。面板关闭后内容卸载，每次打开都会重新挂载，需要跨越开合保留的状态请提升到外部。
    */
   children?: ReactNode;
   /**
@@ -158,6 +160,10 @@ export function Sheet(props: SheetProps) {
   }
   const boundary = use(SheetBoundaryContext);
   const isShown = isOpen && !isDismissed;
+  const [shownChildren, setShownChildren] = useState(props.children);
+  if (isShown && shownChildren !== props.children) {
+    setShownChildren(props.children);
+  }
   if (isShown && hasLeft) setHasLeft(false);
   if (hasLeft) return null;
 
@@ -174,7 +180,11 @@ export function Sheet(props: SheetProps) {
         setHasLeft(true);
         setIsDismissed(false);
       }}
-    />
+    >
+      {/* A consumer often renders no content once the sheet closes, but the
+          card stays on the screen until it has left. */}
+      {isShown ? props.children : shownChildren}
+    </SheetFrame>
   );
   if (boundary === null) return null;
   // In a boundary, the sheet keeps the carrier of the boundary, so it moves
@@ -264,6 +274,9 @@ function SheetFrame({
   const titleId = useId();
   const cardRef = useRef<HTMLDivElement>(null);
   const moverRef = useRef<HTMLDivElement>(null);
+  const outerClipRef = useRef<HTMLDivElement>(null);
+  const middleClipRef = useRef<HTMLDivElement>(null);
+  const innerClipRef = useRef<HTMLDivElement>(null);
   const dimRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const grabberRef = useRef<HTMLDivElement>(null);
@@ -271,7 +284,13 @@ function SheetFrame({
   const area = useVisualViewport();
   const recede = use(SheetRecedeContext);
   const motionRef = useSheetMotion(
-    { cardRef, moverRef, dimRef, recede: isContained ? null : recede },
+    {
+      cardRef,
+      moverRef,
+      clipRefs: [outerClipRef, middleClipRef, innerClipRef],
+      dimRef,
+      recede: isContained ? null : recede,
+    },
     {
       isShown,
       onLeft,
@@ -339,76 +358,92 @@ function SheetFrame({
             and fade with the card. */}
         <div
           ref={mergeRefs(moverRef, coverRef)}
-          css={isContained ? styles.moverContained : styles.mover}
+          css={[
+            isContained ? styles.moverContained : styles.mover,
+            movingMarker,
+          ]}
         >
-          {/* forwardProps makes RemoveScroll clone its child and inject its
-              own ref, which would clobber a ref placed directly on the card.
-              Passing the ref through RemoveScroll keeps `cardRef` working
-              for focus and the Tab trap. */}
-          <RemoveScroll
-            ref={mergeRefs(cardRef, container)}
-            allowPinchZoom
-            forwardProps
-            enabled={!isContained}
-          >
-            <div
-              css={[
-                corner.radius_4,
-                styles.card,
-                isContained
-                  ? styles.cardContained
-                  : styles.cardFit(visibleHeight),
-              ]}
-              role="dialog"
-              aria-modal="true"
-              aria-label={ariaLabel}
-              aria-labelledby={title === undefined ? ariaLabelledBy : titleId}
-              {...dragHandlers}
-            >
-              <EffectContainer value={container}>
-                <div ref={grabberRef} css={styles.grabber} aria-hidden="true">
-                  <span css={[corner.radius_round, styles.grabberBar]} />
-                </div>
-                {/* `Button` sets its own `position: relative` for its busy
-                    spinner, which a caller's `position: absolute` can't
-                    reliably outrank. Pin the corner from this wrapper
-                    instead. */}
-                <div ref={closeCornerRef} css={styles.closeCorner}>
-                  <Button
-                    look="ghost"
-                    icon={closeIcon ?? <XIcon weight="bold" />}
-                    aria-label={closeLabel}
-                    onClick={onDismiss}
-                  />
-                </div>
-                <div
-                  ref={mergeRefs(scrollerRef, scroller)}
-                  css={[
-                    styles.scroller,
-                    title !== undefined && styles.scrollerTitled,
-                  ]}
+          {/* A lift clips the card to a window with these boxes. */}
+          <div ref={outerClipRef} css={styles.clip}>
+            <div ref={middleClipRef} css={styles.clip}>
+              <div ref={innerClipRef} css={styles.clip}>
+                {/* forwardProps makes RemoveScroll clone its child and
+                    inject its own ref, which would clobber a ref placed
+                    directly on the card. Passing the ref through RemoveScroll
+                    keeps `cardRef` working for focus and the Tab trap. */}
+                <RemoveScroll
+                  ref={mergeRefs(cardRef, container)}
+                  allowPinchZoom
+                  forwardProps
+                  enabled={!isContained}
                 >
-                  <div ref={content} css={styles.content}>
-                    <EffectCarrier value={region}>
-                      {title !== undefined ? (
-                        <Heading
-                          level={2}
-                          look="h3"
-                          id={titleId}
-                          css={styles.title}
-                        >
-                          {title}
-                        </Heading>
-                      ) : null}
-                      <SheetRecedeContext value={null}>
-                        {children}
-                      </SheetRecedeContext>
-                    </EffectCarrier>
+                  <div
+                    css={[
+                      corner.radius_4,
+                      styles.card,
+                      isContained
+                        ? styles.cardContained
+                        : styles.cardFit(visibleHeight),
+                    ]}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={ariaLabel}
+                    aria-labelledby={
+                      title === undefined ? ariaLabelledBy : titleId
+                    }
+                    {...dragHandlers}
+                  >
+                    <EffectContainer value={container}>
+                      <div
+                        ref={grabberRef}
+                        css={styles.grabber}
+                        aria-hidden="true"
+                      >
+                        <span css={[corner.radius_round, styles.grabberBar]} />
+                      </div>
+                      {/* `Button` sets its own `position: relative` for its busy
+                          spinner, which a caller's `position: absolute` can't
+                          reliably outrank. Pin the corner from this wrapper
+                          instead. */}
+                      <div ref={closeCornerRef} css={styles.closeCorner}>
+                        <Button
+                          look="ghost"
+                          icon={closeIcon ?? <XIcon weight="bold" />}
+                          aria-label={closeLabel}
+                          onClick={onDismiss}
+                        />
+                      </div>
+                      <div
+                        ref={mergeRefs(scrollerRef, scroller)}
+                        css={[
+                          styles.scroller,
+                          title !== undefined && styles.scrollerTitled,
+                        ]}
+                      >
+                        <div ref={content} css={styles.content}>
+                          <EffectCarrier value={region}>
+                            {title !== undefined ? (
+                              <Heading
+                                level={2}
+                                look="h3"
+                                id={titleId}
+                                css={styles.title}
+                              >
+                                {title}
+                              </Heading>
+                            ) : null}
+                            <SheetRecedeContext value={null}>
+                              {children}
+                            </SheetRecedeContext>
+                          </EffectCarrier>
+                        </div>
+                      </div>
+                    </EffectContainer>
                   </div>
-                </div>
-              </EffectContainer>
+                </RemoveScroll>
+              </div>
             </div>
-          </RemoveScroll>
+          </div>
         </div>
       </div>
     </>
@@ -463,6 +498,12 @@ const styles = stylex.create({
     transformOrigin: "50% 100%",
   },
   cardContained: {
+    minBlockSize: 0,
+  },
+  // A box that the layout goes through as if it is not there.
+  clip: {
+    display: "flex",
+    flexDirection: "column",
     minBlockSize: 0,
   },
   // A box with no height in the document. Below `md` it is at the bottom of

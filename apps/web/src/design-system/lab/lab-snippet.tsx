@@ -11,6 +11,7 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { t } from "#src/i18n.ts";
+import { labLive } from "#src/view-transition-classes.stylex.ts";
 import type { LabSnippet as LabSnippetModel } from "./build-lab-snippet.ts";
 
 interface LabSnippetProps {
@@ -30,7 +31,7 @@ interface LabSnippetProps {
  */
 export function LabSnippet({ snippet }: LabSnippetProps) {
   return (
-    <ViewTransition name="lab-snippet" default="lab-live">
+    <ViewTransition name="lab-snippet" default={labLive}>
       <div css={[corner.radius_2, styles.card]}>
         <div css={[row.item, styles.head]}>
           <Text as="span" look="caption" tone="muted" css={typeRole.overline}>

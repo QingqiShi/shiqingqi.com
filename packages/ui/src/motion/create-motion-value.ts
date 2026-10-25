@@ -19,8 +19,6 @@ import {
  * A number that springs to its targets. It reads its value from the exact
  * path of its spring, so it is right at any time, also while a binding
  * plays it on the compositor.
- *
- * @internal
  */
 export interface MotionValue {
   get(): number;
@@ -60,7 +58,7 @@ export interface MotionValue {
   subscribe(listener: (value: number) => void): () => void;
 }
 
-/** @internal */
+/** A motion that `MotionValue.to` started. */
 export interface Motion {
   /** True when the motion comes to rest at its target, and false when a later motion or `set` replaces it. */
   readonly finished: Promise<boolean>;
@@ -122,14 +120,12 @@ const DEFAULT_PRECISION = 1e-3;
 /**
  * `precision` is how close to its target, in its own units, the value must
  * be to be at rest.
- *
- * @internal
  */
 export function createMotionValue(
   engine: MotionEngine,
   initial: number,
   {
-    spring = springOf(springRoles.css),
+    spring = springOf(springRoles.surface),
     precision = DEFAULT_PRECISION,
   }: { spring?: Spring; precision?: number } = {},
 ): MotionValue {

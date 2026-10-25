@@ -8,6 +8,7 @@ import { startTransition, useLayoutEffect, useReducer, useRef } from "react";
 import { ViewTransition } from "react";
 import { useMediaQuery } from "#src/browser/use-media-query.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
+import { labMorph } from "#src/view-transition-classes.stylex.ts";
 import { buildLabSnippet } from "./build-lab-snippet.ts";
 import { labBar } from "./lab-bar.stylex.ts";
 import { LabBar } from "./lab-bar.tsx";
@@ -107,7 +108,7 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     <div css={[texture.dot, styles.canvas]}>
       <div ref={stageRef} css={styles.stage}>
         <div css={styles.specimenArea}>
-          <ViewTransition name="lab-specimen" default="lab-morph">
+          <ViewTransition name="lab-specimen" default={labMorph}>
             <div css={styles.specimen}>
               {renderSpecimen(config, specimenProps)}
             </div>

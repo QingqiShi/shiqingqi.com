@@ -114,7 +114,7 @@ const styles = stylex.create({
       cornerShape: "round",
       backgroundColor: progressTokens.indicatorColor,
       transition: {
-        default: `inline-size ${duration._300} ${easing.easeOut}`,
+        default: `inline-size ${duration._1000} ${easing.spring}`,
         [motionConstants.REDUCED_MOTION]: "none",
       },
     },

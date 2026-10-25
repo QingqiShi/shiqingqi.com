@@ -10,6 +10,7 @@ import {
   valuations,
 } from "../../src/finance/db/schema.ts";
 import type { FinanceDb } from "../../src/finance/db/types.ts";
+import { addDays } from "../../src/finance/domain/dates/add-days.ts";
 import { todayInTimeZone } from "../../src/finance/domain/dates/today-in-time-zone.ts";
 import { expect, test } from "./finance-test.ts";
 import { DESKTOP, MOBILE, SYNC_TIMEOUT, toast } from "./transactions-page.ts";
@@ -25,6 +26,31 @@ async function accountId(db: FinanceDb, householdId: string, name: string) {
   ).at(0);
   if (!row) throw new Error(`No account named ${name}`);
   return row.id;
+}
+
+/**
+ * The latest day up to today with no live Entry on the account. The balance
+ * check lists the Entries on the bank's balance day, so on a day with none of
+ * the seeded Entries, only the Entries a test adds can be listed.
+ */
+async function quietDay(db: FinanceDb, householdId: string, id: string) {
+  const busy = new Set(
+    (
+      await db
+        .select({ on: entries.date })
+        .from(entries)
+        .where(
+          and(
+            eq(entries.householdId, householdId),
+            eq(entries.accountId, id),
+            isNull(entries.deletedAt),
+          ),
+        )
+    ).map(({ on }) => on),
+  );
+  let day = todayInTimeZone("Europe/London");
+  while (busy.has(day)) day = addDays(day, -1);
+  return day;
 }
 
 /** The live Valuations of an account, newest day first. */
@@ -111,7 +137,11 @@ test.describe("Bank balance at 390 px", () => {
       session.householdId,
       "Alex Current",
     );
-    const today = todayInTimeZone("Europe/London");
+    const balanceDay = await quietDay(
+      financeDb,
+      session.householdId,
+      currentId,
+    );
     await financeDb.transaction(async (tx) => {
       const household = (
         await tx
@@ -139,7 +169,7 @@ test.describe("Bank balance at 390 px", () => {
         providerName: "Current account",
         currency: "GBP",
         bankBalanceMinor: 123_456,
-        bankBalanceOn: today,
+        bankBalanceOn: balanceDay,
         balanceDifferenceMinor: 1,
         version,
       });
@@ -148,7 +178,7 @@ test.describe("Bank balance at 390 px", () => {
         householdId: session.householdId,
         linkId,
         providerTxId: "e2e-history",
-        date: today,
+        date: balanceDay,
         amountMinor: -100,
         currency: "GBP",
         raw: {},
@@ -160,7 +190,7 @@ test.describe("Bank balance at 390 px", () => {
         id: transactionId,
         householdId: session.householdId,
         kind: "expense",
-        date: today,
+        date: balanceDay,
         note: "Left out by the bank",
         version,
       });
@@ -169,7 +199,7 @@ test.describe("Bank balance at 390 px", () => {
         householdId: session.householdId,
         transactionId,
         accountId: currentId,
-        date: today,
+        date: balanceDay,
         amountMinor: -8495,
         version,
       });
@@ -195,13 +225,11 @@ test.describe("Bank balance at 390 px", () => {
 
     await keep.click();
     await expect(keep).toHaveCount(0);
-    // The seeded household can have its own rows on today, such as the
-    // salary on the 25th. The bank does not show those rows either, so the
-    // line can tell about the rest of the difference.
     await expect(
       page
         .getByText(
-          /^The bank's transactions don't explain the (difference|rest): it is older than them, or the bank left a transaction out\.$/,
+          "The bank's transactions don't explain the difference: it is older than them, or the bank left a transaction out.",
+          { exact: true },
         )
         .first(),
     ).toBeVisible({ timeout: SYNC_TIMEOUT });

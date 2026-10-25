@@ -386,7 +386,7 @@ function MotionSection() {
     },
     {
       token: "transition.transform",
-      meta: "transform 200ms · reduced:none",
+      meta: "transform 500ms · reduced:none",
       description: t({
         en: "Movement that is dropped entirely under reduced-motion.",
         zh: "在减少动态偏好下会被完全移除的位移过渡。",
@@ -420,7 +420,7 @@ function MotionSection() {
     },
     {
       token: "animate.slideUp / slideDown",
-      meta: "translateY 300ms · reduced:off",
+      meta: "translateY 500ms · reduced:off",
       description: t({
         en: "Sheet-style entrances, disabled under reduced-motion.",
         zh: "抽屉式入场，在减少动态偏好下禁用。",

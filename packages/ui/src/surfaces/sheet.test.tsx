@@ -54,9 +54,22 @@ function card() {
 
 /** The box around the card that the motion moves. */
 function mover() {
-  const element = card().parentElement;
+  const element = card().closest<HTMLElement>('[class*="styles.mover"]');
   if (!element) throw new Error("The card has no mover");
   return element;
+}
+
+/** The boxes between the mover and the card, outermost first. */
+function clips() {
+  const boxes: HTMLElement[] = [];
+  for (
+    let box = card().parentElement;
+    box !== null && box !== mover();
+    box = box.parentElement
+  ) {
+    boxes.unshift(box);
+  }
+  return boxes;
 }
 
 /** How far down, in px, the motion puts the mover, from its rest. */
@@ -222,6 +235,27 @@ describe("Sheet", () => {
 
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.querySelector('[class*="styles.dim"]')).toBeNull();
+  });
+
+  it("keeps its content while it leaves, after the consumer drops it", async () => {
+    const clock = fakeMotionClock();
+    const sheet = (isOpen: boolean) => (
+      <Sheet
+        isOpen={isOpen}
+        onClose={vi.fn()}
+        closeLabel="Close"
+        aria-label="New transaction"
+      >
+        {isOpen ? <p>Amount</p> : null}
+      </Sheet>
+    );
+    const { rerender } = render(sheet(true));
+
+    rerender(sheet(false));
+    expect(within(card()).getByText("Amount")).toBeInTheDocument();
+    await act(() => clock.advance(1));
+
+    expect(screen.queryByText("Amount")).toBeNull();
   });
 
   it("locks the page's scroll while open", async () => {
@@ -404,6 +438,21 @@ describe("Sheet", () => {
     });
 
     describe("from an element on the page", () => {
+      /** The elements at each point, from the top, as `document.elementsFromPoint` gives them. jsdom has no hit test. */
+      let hits: Element[] = [];
+
+      beforeEach(() => {
+        hits = [];
+        Object.defineProperty(document, "elementsFromPoint", {
+          configurable: true,
+          value: () => hits,
+        });
+      });
+
+      afterEach(() => {
+        Reflect.deleteProperty(document, "elementsFromPoint");
+      });
+
       function setUpLift(onRead?: () => void) {
         layOut();
         const row = document.createElement("div");
@@ -443,11 +492,84 @@ describe("Sheet", () => {
         render(<LiftHarness isOpen row={row} />);
 
         expect(mover().style.transform).toBe("translate(-12.00px, -300.00px)");
-        expect(card().style.clipPath).toContain("inset(0 0.00px 320.00px 0");
+        expect(clips().map((clip) => clip.style.transform)).toEqual([
+          "translate(0.00px, 0.00px)",
+          "translate(0.00px, -320.00px)",
+          "translate(0.00px, 0.00px)",
+        ]);
+        expect(card().style.transform).toBe("translate(0.00px, 320.00px)");
         await act(() => clock.advance(1.5));
         expect(mover().style.transform).toBe("none");
-        expect(card().style.clipPath).toBe("");
+        for (const clip of clips()) {
+          expect(clip.getAttribute("style") ?? "").toBe("");
+        }
+        expect(card().style.transform).toBe("");
         expect(card().querySelector("[inert]")).toBeNull();
+      });
+
+      it("keeps what floats over the element over the card, and fades it out as the card lifts", async () => {
+        const row = setUpLift();
+        const page = document.createElement("div");
+        const button = document.createElement("button");
+        button.textContent = "Add";
+        page.append(button);
+        document.body.append(page);
+        button.getBoundingClientRect = () =>
+          DOMRect.fromRect({ x: 290, y: 90, width: 90, height: 48 });
+        hits = [button, page, row, document.body];
+        render(<LiftHarness isOpen row={row} />);
+
+        const copy = () =>
+          [...(mover().parentElement?.children ?? [])].find(
+            (child): child is HTMLElement =>
+              child instanceof HTMLElement &&
+              child !== mover() &&
+              child.textContent === "Add",
+          );
+        const shown = copy();
+        expect(shown?.getAttribute("aria-hidden")).toBe("true");
+        expect(shown && card().contains(shown)).toBe(false);
+        expect(shown?.style.opacity).toBe("1");
+        await act(() => clock.advance(0.1));
+        expect(Number(copy()?.style.opacity)).toBeLessThan(1);
+        await act(() => clock.advance(1.5));
+        expect(copy()).toBeUndefined();
+      });
+
+      it("gives each clip box the corners of the card", () => {
+        const row = setUpLift();
+        const computed = window.getComputedStyle.bind(window);
+        vi.spyOn(window, "getComputedStyle").mockImplementation(
+          (element, pseudo) => {
+            const style = computed(element, pseudo);
+            if (element.getAttribute("role") !== "dialog") return style;
+            return new Proxy(style, {
+              get(target, key) {
+                if (key === "getPropertyValue") {
+                  return (name: string) => {
+                    if (name.endsWith("-radius")) return "32px";
+                    if (name.endsWith("-shape")) return "superellipse(2)";
+                    return target.getPropertyValue(name);
+                  };
+                }
+                const value: unknown = Reflect.get(target, key);
+                if (typeof value !== "function") return value;
+                const bound: unknown = value.bind(target);
+                return bound;
+              },
+            });
+          },
+        );
+        render(<LiftHarness isOpen row={row} />);
+
+        for (const clip of clips()) {
+          expect(clip.style.overflow).toBe("clip");
+          expect(clip.style.borderBottomRightRadius).toBe("32px");
+          expect(clip.style.getPropertyValue("corner-top-left-shape")).toBe(
+            "superellipse(2)",
+          );
+        }
+        expect(card().style.borderRadius).toBe("");
       });
 
       it("shrinks the card back into the element to close, then unmounts", async () => {
@@ -458,7 +580,7 @@ describe("Sheet", () => {
         rerender(<LiftHarness isOpen={false} row={row} />);
         await act(() => clock.advance(0.1));
         expect(mover().style.transform).toMatch(/^translate\(/);
-        expect(card().style.clipPath).toContain("inset(");
+        expect(card().style.transform).toMatch(/^translate\(0\.00px, [1-9]/);
 
         await act(() => clock.advance(1.5));
         expect(screen.queryByRole("dialog")).toBeNull();

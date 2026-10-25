@@ -6,7 +6,11 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
@@ -73,10 +77,8 @@ const styles = stylex.create({
     padding: space._3,
     overflow: "hidden",
     transition: {
-      default:
-        "box-shadow 0.2s, transform 0.2s, background-color 0.2s, fill 0.2s",
-      [motionConstants.REDUCED_MOTION]:
-        "box-shadow 0.2s, background-color 0.2s, fill 0.2s",
+      default: `box-shadow ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}, background-color ${duration._200} ${easing.ease}, fill ${duration._200} ${easing.ease}`,
+      [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._200} ${easing.ease}, background-color ${duration._200} ${easing.ease}, fill ${duration._200} ${easing.ease}`,
     },
     cursor: "pointer",
     position: "relative",
@@ -158,7 +160,7 @@ const styles = stylex.create({
     width: space._12,
     opacity: cardTokens.detailsIndicatorOpacity,
     pointerEvents: "none",
-    transition: "opacity 0.2s",
+    transition: `opacity ${duration._200} ${easing.ease}`,
   },
   detailsIndicator: {
     alignItems: "center",
@@ -172,8 +174,8 @@ const styles = stylex.create({
     top: space._1,
     transform: cardTokens.detailsIndicatorTransform,
     transition: {
-      default: "opacity 0.2s, transform 0.2s",
-      [motionConstants.REDUCED_MOTION]: "opacity 0.2s",
+      default: `opacity ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._200} ${easing.ease}`,
     },
     zIndex: layer.content,
   },

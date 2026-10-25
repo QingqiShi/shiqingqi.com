@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -167,8 +171,7 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default:
-        "opacity 520ms cubic-bezier(0.32, 0.72, 0, 1), transform 520ms cubic-bezier(0.32, 0.72, 0, 1)",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._1000} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -181,7 +184,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 300ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -195,7 +198,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.2,
       },
     },
-    transition: "opacity 480ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   plateKeyline: {
     stroke: "var(--ds-illo-ink)",
@@ -208,7 +211,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.6,
       },
     },
-    transition: "opacity 480ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   // Present at rest: an unfocused control still has a name.
   label: {
@@ -231,7 +234,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.7,
       },
     },
-    transition: "stroke 480ms ease, opacity 480ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   // At the offset the gold ring lands at, and fades as it draws in.
   ringRest: {
@@ -246,7 +249,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 200ms ease",
+    transition: `opacity ${duration._200} ${easing.ease}`,
   },
   // Linear, so it reads as a pen at constant speed. Under reduced motion the
   // offset is 0 in both states and the ring fades in already drawn.
@@ -273,8 +276,8 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default: "stroke-dashoffset 520ms linear, opacity 180ms ease",
-      [motionConstants.REDUCED_MOTION]: "opacity 400ms ease",
+      default: `stroke-dashoffset ${duration._500} ${easing.linear}, opacity ${duration._200} ${easing.ease}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._400} ${easing.ease}`,
     },
   },
   waves: {
@@ -308,20 +311,20 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default: "opacity 260ms ease, transform 420ms var(--ds-illo-ease)",
-      [motionConstants.REDUCED_MOTION]: "opacity 260ms ease",
+      default: `opacity ${duration._300} ${easing.ease}, transform ${duration._700} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._300} ${easing.ease}`,
     },
   },
   // Per state, so the fan-out staggers and the exit is immediate. Delays clear
-  // the ring's 520ms draw: focus lands, then the announcement.
+  // the ring's 500ms draw: focus lands, then the announcement.
   waveStagger1: {
     transitionDelay: {
       default: "0ms",
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "520ms",
+        duration._500,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "520ms",
+        [stylex.when.ancestor(":hover", tileMarker)]: duration._500,
       },
     },
   },
@@ -329,10 +332,10 @@ const styles = stylex.create({
     transitionDelay: {
       default: "0ms",
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "640ms",
+        duration._700,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "640ms",
+        [stylex.when.ancestor(":hover", tileMarker)]: duration._700,
       },
     },
   },
@@ -340,10 +343,10 @@ const styles = stylex.create({
     transitionDelay: {
       default: "0ms",
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "760ms",
+        duration._800,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "760ms",
+        [stylex.when.ancestor(":hover", tileMarker)]: duration._800,
       },
     },
   },

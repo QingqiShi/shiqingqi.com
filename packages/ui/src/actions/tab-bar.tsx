@@ -20,6 +20,7 @@ import {
   segmentTrackMarker,
 } from "../forms/segment-indicator.stylex.ts";
 import { useSegmentPress } from "../forms/use-segment-press.ts";
+import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
@@ -285,6 +286,8 @@ export function TabBar({
   );
 }
 
+/** The motion engine sets this attribute on a box while it moves it. */
+const MOVED = ":is([data-moving])";
 const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
 /** The effect layer sets this attribute on the track while it draws the indicator. */
 const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
@@ -362,6 +365,13 @@ const styles = stylex.create({
         [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
           "transparent",
       },
+      [stylex.when.ancestor(MOVED, movingMarker)]:
+        color.bgMaterialGlassSelected,
+    },
+    // The surface changes from the indicator to the tab at once.
+    transition: {
+      default: null,
+      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
     },
   },
   icon: {

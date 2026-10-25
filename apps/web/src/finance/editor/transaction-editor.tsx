@@ -269,7 +269,9 @@ function EditorForm({
     const element =
       target === "amount" ? amountRef.current : categoryRef.current;
     if (focusTargetRef) focusTargetRef.current = element;
-    element?.focus();
+    // In a sheet, the card can still be below the screen. A focus that
+    // scrolls would then move the page behind it.
+    element?.focus({ preventScroll: !isPlace });
     if (target === "amount") amountRef.current?.select();
   }, [focusRequest, focusTargetRef, isNew, isPlace]);
 

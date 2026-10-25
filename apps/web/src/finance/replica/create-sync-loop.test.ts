@@ -577,6 +577,16 @@ describe("sync loop against the real handlers", () => {
     expect(client.unauthorisedCount()).toBe(1);
     expect(client.loop.getStatus().problem).toBe("unauthorised");
   });
+
+  it("leaves the page alone when a sync from before a stop finds the session gone", async () => {
+    const client = createClient();
+    await client.ready();
+    session = null;
+    const syncing = client.loop.sync();
+    client.loop.stop();
+    await syncing;
+    expect(client.unauthorisedCount()).toBe(0);
+  });
 });
 
 async function storedTransaction(id: string) {

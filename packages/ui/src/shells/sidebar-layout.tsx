@@ -7,6 +7,7 @@ import { Button } from "../actions/button.tsx";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
+import { MD_QUERY } from "../md-query.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import {
   color,
@@ -23,11 +24,6 @@ import { Drawer } from "./drawer.tsx";
 // so the rail grows with the user's font size (WCAG 1.4.4) instead of
 // wrapping labels.
 const DEFAULT_SIDEBAR_INLINE_SIZE = space._13;
-
-// Derived from the breakpoint token so the JS check cannot drift from the CSS
-// one. `matchMedia` needs the bare condition, but the StyleX const carries the
-// `@media ` prefix.
-const MD_MEDIA_QUERY = breakpoints.md.replace("@media ", "");
 
 interface SidebarLayoutOwnProps {
   /**
@@ -166,7 +162,7 @@ export function SidebarLayout({
   // lock and focus trap keep acting on what is now a plain column.
   useEffect(() => {
     if (!isOpen) return;
-    const mediaQueryList = window.matchMedia(MD_MEDIA_QUERY);
+    const mediaQueryList = window.matchMedia(MD_QUERY);
     const closeOnDesktop = () => {
       if (mediaQueryList.matches) setIsOpen(false);
     };

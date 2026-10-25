@@ -33,6 +33,7 @@ import {
   createPendingSnapshot,
   type PendingSnapshot,
 } from "../motion/create-pending-snapshot.ts";
+import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -678,7 +679,7 @@ export function NavigationSplitView({
   return (
     <SplitViewContext value={viewState}>
       <SplitViewMarksContext value={marks}>
-        <div ref={setView} css={[styles.view, css]}>
+        <div ref={setView} css={[styles.view, movingMarker, css]}>
           <div
             css={[
               styles.columns,
@@ -1246,7 +1247,7 @@ function useEdgeSwipe(
       const ended = swipe;
       swipe = null;
       if (!ended.isActive) return;
-      const velocity = releaseVelocity(ended.samples);
+      const velocity = releaseVelocity(ended.samples, performance.now());
       const pop =
         canPop &&
         shouldPop(event.clientX - ended.startX, velocity, ended.width);

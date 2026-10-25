@@ -5,6 +5,7 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -18,6 +19,7 @@ import { ViewTransition } from "react";
 import { t } from "#src/i18n.ts";
 import { useHeroVisibility } from "#src/movie-database/browse/hero-visibility-context.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
+import { inlineChatInputMorph } from "#src/view-transition-classes.stylex.ts";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import { ChatTextarea } from "./chat-textarea.tsx";
 import { useInlineChat } from "./inline-chat-context";
@@ -38,7 +40,7 @@ export function HeroChatInput({
   suggestionsGroupLabel,
 }: HeroChatInputProps) {
   const { send, isLoading } = useAIChatSend();
-  const { heroInputRef, isHeroInputVisible } = useHeroVisibility();
+  const { heroInputRef, heroSlotRef, isHeroInputVisible } = useHeroVisibility();
   const { previousSessionId, continueSessionStatus } = useAIChatContext();
   const { openChatWithSession } = useInlineChat();
 
@@ -58,34 +60,33 @@ export function HeroChatInput({
 
   return (
     <>
-      <div
-        ref={heroInputRef}
-        css={isHeroInputVisible ? styles.visible : styles.hidden}
-        aria-hidden={!isHeroInputVisible || undefined}
-        inert={!isHeroInputVisible || undefined}
-      >
-        <ViewTransition
-          name="inline-chat-input"
-          share="inline-chat-input-morph"
+      <div ref={heroSlotRef}>
+        <div
+          ref={heroInputRef}
+          css={isHeroInputVisible ? styles.visible : styles.hidden}
+          aria-hidden={!isHeroInputVisible || undefined}
+          inert={!isHeroInputVisible || undefined}
         >
-          <div css={styles.inputShell}>
-            <ChatTextarea
-              placeholder={placeholder}
-              sendLabel={sendLabel}
-              onSubmit={send}
-              submitDisabled={isLoading}
-              // The hero is a full composer, not a toolbar field: a long
-              // prompt grows the box instead of scrolling out of view, and
-              // Shift+Enter still breaks a line.
-              multiline
-              beforeTextarea={
-                <span css={[flex.inlineCenter, styles.icon]}>
-                  <SparkleIcon weight="fill" role="presentation" />
-                </span>
-              }
-            />
-          </div>
-        </ViewTransition>
+          <ViewTransition name="inline-chat-input" share={inlineChatInputMorph}>
+            <div css={styles.inputShell}>
+              <ChatTextarea
+                placeholder={placeholder}
+                sendLabel={sendLabel}
+                onSubmit={send}
+                submitDisabled={isLoading}
+                // The hero is a full composer, not a toolbar field: a long
+                // prompt grows the box instead of scrolling out of view, and
+                // Shift+Enter still breaks a line.
+                multiline
+                beforeTextarea={
+                  <span css={[flex.inlineCenter, styles.icon]}>
+                    <SparkleIcon weight="fill" role="presentation" />
+                  </span>
+                }
+              />
+            </div>
+          </ViewTransition>
+        </div>
       </div>
       <div css={[flex.between, styles.meta]}>
         {hasPreviousSession ? (
@@ -163,7 +164,7 @@ const styles = stylex.create({
       default: "pointer",
       ":disabled": "progress",
     },
-    transition: "color 0.15s ease",
+    transition: `color ${duration._150} ${easing.ease}`,
   },
   restoreLabel: {
     borderBottomWidth: border.size_1,

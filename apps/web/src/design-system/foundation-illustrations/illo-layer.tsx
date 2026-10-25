@@ -1,8 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { type ReactNode, useEffect, useRef } from "react";
-import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 
 /**
  * While the card is hovered, writes the pointer position to `--ds-illo-px/py`
@@ -12,7 +12,7 @@ import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion
  */
 export function IlloLayer({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const layer = ref.current;

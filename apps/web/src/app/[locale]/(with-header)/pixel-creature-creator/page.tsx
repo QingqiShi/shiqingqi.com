@@ -1,6 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
@@ -129,7 +130,6 @@ const styles = stylex.create({
     borderRadius: "999px",
     cornerShape: "round",
     textDecoration: "none",
-    transitionProperty: "background-color, transform",
-    transitionDuration: "120ms",
+    transition: `background-color ${duration._100} ${easing.ease}`,
   },
 });

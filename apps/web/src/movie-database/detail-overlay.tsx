@@ -8,7 +8,12 @@ import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { viewportFill } from "@tuja/ui/primitives/layout.stylex";
-import { motionConstants, transition } from "@tuja/ui/primitives/motion.stylex";
+import {
+  duration,
+  easing,
+  motionConstants,
+  transition,
+} from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { color, controlSize, layer, space } from "@tuja/ui/tokens.stylex";
 import { mergeRefs } from "@tuja/ui/utils/merge-refs";
@@ -145,16 +150,14 @@ const slideUp = stylex.keyframes({
   from: { transform: "translateY(100%)" },
 });
 
-const easing = "cubic-bezier(0.32, 0.72, 0, 1)";
-
 const styles = stylex.create({
   backdrop: {
     backgroundColor: color.bgScrim,
     zIndex: layer.overlay,
     pointerEvents: "all",
     animationName: fadeIn,
-    animationDuration: "200ms",
-    animationTimingFunction: easing,
+    animationDuration: duration._200,
+    animationTimingFunction: easing.ease,
     animationFillMode: "backwards",
   },
   cardContainer: {
@@ -179,8 +182,8 @@ const styles = stylex.create({
       default: slideUp,
       [motionConstants.REDUCED_MOTION]: "none",
     },
-    animationDuration: "300ms",
-    animationTimingFunction: easing,
+    animationDuration: duration._500,
+    animationTimingFunction: easing.spring,
     animationFillMode: "backwards",
   },
   cardDefault: {

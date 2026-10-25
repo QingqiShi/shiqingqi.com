@@ -5,6 +5,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -105,7 +106,7 @@ const styles = stylex.create({
       default: "pointer",
       ":disabled": "not-allowed",
     },
-    transition: "color 0.15s ease",
+    transition: `color ${duration._150} ${easing.ease}`,
   },
   continueButton: {
     paddingBlock: space._1,
@@ -127,6 +128,6 @@ const styles = stylex.create({
       default: 1,
       ":disabled": opacity.disabled,
     },
-    transition: "background-color 0.15s ease, opacity 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}, opacity ${duration._150} ${easing.ease}`,
   },
 });

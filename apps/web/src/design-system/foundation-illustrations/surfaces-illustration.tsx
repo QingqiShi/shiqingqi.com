@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
@@ -127,7 +131,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0,
       },
     },
-    transition: "opacity 500ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   bloom: {
     opacity: {
@@ -146,8 +150,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default:
-        "opacity 550ms cubic-bezier(0.32, 0.72, 0, 1), transform 440ms var(--ds-illo-ease)",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._800} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -159,7 +162,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 280ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -183,7 +186,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.9,
       },
     },
-    transition: "stroke 450ms ease, opacity 450ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   panelGroup: {
     transformBox: "view-box",
@@ -193,7 +196,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 260ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -215,7 +218,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.18,
       },
     },
-    transition: "fill 500ms ease, opacity 500ms ease",
+    transition: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   row: {
     fill: "var(--ds-illo-ink)",
@@ -227,7 +230,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.45,
       },
     },
-    transition: "opacity 500ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   radiusGuide: {
     fill: "var(--ds-illo-hue)",
@@ -242,7 +245,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.95,
       },
     },
-    transition: "opacity 400ms ease 160ms",
+    transition: `opacity ${duration._400} ${easing.ease} ${duration._150}`,
   },
   float: {
     transformBox: "view-box",
@@ -260,7 +263,7 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default: "transform 520ms cubic-bezier(0.32, 0.72, 0, 1)",
+      default: `transform ${duration._1000} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -286,7 +289,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "stroke 450ms ease, stroke-opacity 450ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, stroke-opacity ${duration._500} ${easing.ease}`,
   },
   pillMark: {
     fill: {
@@ -306,7 +309,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "fill 450ms ease, opacity 450ms ease",
+    transition: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   pillLabel: {
     fill: {
@@ -326,6 +329,6 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.9,
       },
     },
-    transition: "fill 450ms ease, opacity 450ms ease",
+    transition: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
 });

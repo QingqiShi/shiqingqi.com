@@ -3,7 +3,11 @@
 import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 
 interface ScrollToBottomButtonProps {
@@ -36,8 +40,8 @@ const styles = stylex.create({
     left: "50%",
     transform: "translateX(-50%)",
     transition: {
-      default: "opacity 0.2s ease, transform 0.2s ease",
-      [motionConstants.REDUCED_MOTION]: "opacity 0.2s ease",
+      default: `opacity ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._200} ${easing.ease}`,
     },
   },
   visible: {

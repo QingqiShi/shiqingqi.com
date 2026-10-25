@@ -36,6 +36,7 @@ function buttonUnderContexts({
         value={{
           isHeroInputVisible,
           heroInputRef: () => {},
+          heroSlotRef: () => {},
         }}
       >
         <CollapsedChatButton ariaLabel="Ask AI about movies and TV shows" />

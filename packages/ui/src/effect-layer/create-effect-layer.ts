@@ -10,7 +10,10 @@
 // scroll to move their effects. That is one frame late.
 // While a modal Effect cover shows, the page and each Scroll region under
 // it have no <canvas> element. Their elements keep their state.
-import { REDUCED_MOTION_QUERY } from "../prefers-reduced-motion.ts";
+import {
+  prefersReducedMotion,
+  subscribeReducedMotion,
+} from "../motion/prefers-reduced-motion.ts";
 import {
   bandGeometry,
   bandScissorRect,
@@ -206,7 +209,6 @@ export function createEffectLayer(
   const startTime = performance.now();
   const clock = createFrameClock(MAX_DELTA_SECONDS);
 
-  const reducedMotionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
   let pixelRatioQuery = watchPixelRatio();
   const frames = createFrameScheduler();
   const readViewportBottom = () => bottomAnchor.getBoundingClientRect().bottom;
@@ -252,7 +254,11 @@ export function createEffectLayer(
   resizeObserver.observe(container);
   resizeObserver.observe(probe);
   window.addEventListener("scroll", requestFrame, { passive: true });
-  reducedMotionQuery.addEventListener("change", requestFrame);
+  let reducedMotion = prefersReducedMotion();
+  const stopReducedMotion = subscribeReducedMotion(() => {
+    reducedMotion = prefersReducedMotion();
+    requestFrame();
+  });
 
   /** Runs a frame next, which draws if the elements changed. */
   function requestElementsFrame() {
@@ -744,7 +750,7 @@ export function createEffectLayer(
     const frame: EffectFrame = {
       time: (now - startTime) / 1000,
       delta,
-      reducedMotion: reducedMotionQuery.matches,
+      reducedMotion,
       viewport: {
         x: scrollX,
         y: scrollY,
@@ -799,7 +805,7 @@ export function createEffectLayer(
     unsubscribeSettings();
     pointer.destroy();
     window.removeEventListener("scroll", requestFrame);
-    reducedMotionQuery.removeEventListener("change", requestFrame);
+    stopReducedMotion();
     pixelRatioQuery.removeEventListener("change", onPixelRatioChange);
     for (const { renderer } of renderers.values()) {
       renderer?.destroy();

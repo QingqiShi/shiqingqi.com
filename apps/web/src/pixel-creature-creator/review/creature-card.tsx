@@ -3,6 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -292,8 +297,10 @@ const styles = stylex.create({
     backgroundColor: `var(--pcc-accent, ${color.bgNeutral})`,
     backgroundImage:
       "linear-gradient(90deg, color-mix(in srgb, var(--pcc-accent, #888888) 70%, white) 0%, var(--pcc-accent, #888888) 100%)",
-    transitionProperty: "inline-size",
-    transitionDuration: "240ms",
+    transition: {
+      default: `inline-size ${duration._700} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: "none",
+    },
   },
   statValue: {
     color: color.fg,

@@ -10,6 +10,7 @@ import { MediaDetailProvider } from "#src/movie-database/details/media-detail-pr
 import { PersonDetailOverlay } from "#src/movie-database/details/person-detail-overlay.tsx";
 import { gutterBleed } from "#src/movie-database/gutter-bleed.stylex.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
+import { inlineChatInputMorph } from "#src/view-transition-classes.stylex.ts";
 import { useAIChatContext } from "./ai-chat-provider.tsx";
 import {
   ChatActionsContext,
@@ -129,7 +130,7 @@ export function InlineChatView({
             </div>
             <ViewTransition
               name="inline-chat-input"
-              share="inline-chat-input-morph"
+              share={inlineChatInputMorph}
             >
               <div css={styles.inputShell}>
                 <ChatInputBar

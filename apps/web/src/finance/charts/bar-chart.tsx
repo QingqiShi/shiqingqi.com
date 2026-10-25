@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -418,8 +419,7 @@ const styles = stylex.create({
     overflow: "visible",
   },
   bars: {
-    transitionProperty: "opacity",
-    transitionDuration: "120ms",
+    transition: `opacity ${duration._100} ${easing.ease}`,
   },
   faded: {
     opacity: 0.3,

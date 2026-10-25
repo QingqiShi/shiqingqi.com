@@ -3,6 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
+import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { animate, transition } from "@tuja/ui/primitives/motion.stylex";
@@ -10,7 +11,6 @@ import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import { usePrefersReducedMotion } from "#src/browser/use-prefers-reduced-motion.ts";
 import { t } from "#src/i18n.ts";
 
 /**
@@ -19,7 +19,7 @@ import { t } from "#src/i18n.ts";
  * is the point: change it and this updates in place.
  */
 export function ReducedMotionSpecimen() {
-  const reduced = usePrefersReducedMotion();
+  const reduced = useReducedMotion();
   const [moved, setMoved] = useState(false);
 
   const send = t({ en: "Send it across", zh: "让它移过去" });

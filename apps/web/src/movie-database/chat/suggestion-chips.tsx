@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -95,7 +96,6 @@ const styles = stylex.create({
       default: 1,
       ":disabled": opacity.disabled,
     },
-    transition:
-      "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}, opacity ${duration._150} ${easing.ease}`,
   },
 });

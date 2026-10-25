@@ -4,7 +4,7 @@ import { createMotionValue, type MotionValue } from "./create-motion-value.ts";
 import { px } from "./px.ts";
 import { springOf, springRoles, type Spring } from "./spring-roles.ts";
 
-/** @internal */
+/** A box in px, relative to the box of an origin element. */
 export interface Rect {
   readonly x: number;
   readonly y: number;
@@ -12,7 +12,7 @@ export interface Rect {
   readonly height: number;
 }
 
-/** @internal */
+/** The boxes of some elements at one time, from `captureLayout`. */
 export interface LayoutSnapshot {
   readonly origin: Element;
   rectOf(element: Element): Rect | undefined;
@@ -34,8 +34,6 @@ export function rectIn(element: Element, origin: DOMRect): Rect {
 /**
  * The boxes of `elements` as the screen shows them now, also mid motion,
  * relative to `origin`.
- *
- * @internal
  */
 export function captureLayout(
   elements: Iterable<Element>,
@@ -104,8 +102,6 @@ function moveOf(
  * Springs each of `elements` from its box in `snapshot` to its box in the
  * layout now. An element inside another that moves takes only its own move.
  * An element that moves already turns from where it is, at the speed it has.
- *
- * @internal
  */
 export function playLayout(
   engine: MotionEngine,

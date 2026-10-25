@@ -1,6 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 import { squirclePath } from "./squircle-path.ts";
@@ -135,9 +139,8 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default:
-        "opacity 560ms cubic-bezier(0.32, 0.72, 0, 1), transform 420ms var(--ds-illo-ease)",
-      [motionConstants.REDUCED_MOTION]: "opacity 560ms ease",
+      default: `opacity ${duration._500} ${easing.ease}, transform ${duration._700} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._500} ${easing.ease}`,
     },
   },
   // Pointer lean; mx/my are 0 until IlloLayer feeds a position, so this sits
@@ -150,7 +153,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 300ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -163,7 +166,7 @@ const styles = stylex.create({
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
-      default: "transform 260ms var(--ds-illo-ease)",
+      default: `transform ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
@@ -187,7 +190,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.8,
       },
     },
-    transition: "stroke 500ms ease, opacity 500ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   titleRule: {
     stroke: "var(--ds-illo-ink)",
@@ -204,7 +207,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.55,
       },
     },
-    transition: "opacity 500ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   prompt: {
     fill: "none",
@@ -228,7 +231,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "stroke 500ms ease, opacity 500ms ease",
+    transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   // Shows a quarter of the command at rest and grows from the start of the
   // line, so the command reads as typed rather than faded in.
@@ -264,9 +267,8 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default:
-        "fill 500ms ease, opacity 500ms ease, transform 640ms cubic-bezier(0.32, 0.72, 0, 1)",
-      [motionConstants.REDUCED_MOTION]: "fill 500ms ease, opacity 500ms ease",
+      default: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}, transform ${duration._1000} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `fill ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
     },
   },
   // Rides the end of the command: at rest it sits after the quarter of the
@@ -294,9 +296,8 @@ const styles = stylex.create({
       },
     },
     transition: {
-      default:
-        "opacity 400ms ease, transform 640ms cubic-bezier(0.32, 0.72, 0, 1)",
-      [motionConstants.REDUCED_MOTION]: "opacity 400ms ease",
+      default: `opacity ${duration._400} ${easing.ease}, transform ${duration._1000} ${easing.spring}`,
+      [motionConstants.REDUCED_MOTION]: `opacity ${duration._400} ${easing.ease}`,
     },
   },
   caretBlink: {
@@ -304,8 +305,8 @@ const styles = stylex.create({
     strokeWidth: 1.6,
     strokeLinecap: "butt",
     animationName: { default: blink, [motionConstants.REDUCED_MOTION]: "none" },
-    animationDuration: "2.1s",
-    animationTimingFunction: "ease-in-out",
+    animationDuration: duration._2000,
+    animationTimingFunction: easing.easeInOut,
     animationIterationCount: "infinite",
   },
   output: {
@@ -318,7 +319,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.45,
       },
     },
-    transition: "opacity 500ms ease",
+    transition: `opacity ${duration._500} ${easing.ease}`,
   },
   // Arrive once the command is typed.
   tick: {
@@ -335,7 +336,7 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 1,
       },
     },
-    transition: "opacity 300ms ease 420ms",
+    transition: `opacity ${duration._300} ${easing.ease} ${duration._400}`,
   },
   done: {
     fill: "var(--ds-illo-hue-soft)",
@@ -347,6 +348,6 @@ const styles = stylex.create({
         [stylex.when.ancestor(":hover", tileMarker)]: 0.85,
       },
     },
-    transition: "opacity 300ms ease 480ms",
+    transition: `opacity ${duration._300} ${easing.ease} ${duration._500}`,
   },
 });

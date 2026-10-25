@@ -37,13 +37,13 @@ describe("stepAim", () => {
     return { aim, frames: Number.POSITIVE_INFINITY, overshoot: furthest };
   }
 
-  it("comes to rest on the target, overshooting a little", () => {
+  it("comes to rest on the target, with the system's overshoot", () => {
     const { aim, frames, overshoot } = settle({ angle: 1, velocity: 0 }, 0);
     expect(aim).toEqual({ angle: 0, velocity: 0, settled: true });
     expect(frames).toBeLessThan(90);
     // Coming down from 1, an overshoot goes below the target.
-    expect(overshoot).toBeGreaterThan(0.01);
-    expect(overshoot).toBeLessThan(0.1);
+    expect(overshoot).toBeGreaterThan(0.04);
+    expect(overshoot).toBeLessThan(0.05);
   });
 
   it("turns the short way round", () => {

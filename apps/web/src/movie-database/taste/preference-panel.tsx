@@ -11,6 +11,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -119,7 +120,7 @@ const triggerStyles = stylex.create({
       },
     },
     cursor: "pointer",
-    transition: "background-color 0.15s ease, color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}`,
   },
   dot: {
     position: "absolute",
@@ -430,7 +431,7 @@ const styles = stylex.create({
         [pointer.canHover]: color.bgControlHover,
       },
     },
-    transition: "background-color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}`,
     cursor: "pointer",
   },
   infoBanner: {
@@ -481,7 +482,7 @@ const styles = stylex.create({
     paddingRight: space._1,
     borderWidth: border.size_1,
     borderStyle: "solid",
-    transition: "background-color 0.15s ease, border-color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}, border-color ${duration._150} ${easing.ease}`,
   },
   chipLike: {
     borderColor: `color-mix(in srgb, ${color.borderAccent} 30%, transparent)`,
@@ -526,7 +527,7 @@ const styles = stylex.create({
       },
     },
     opacity: 0.5,
-    transition: "opacity 0.15s ease, background-color 0.15s ease",
+    transition: `opacity ${duration._150} ${easing.ease}, background-color ${duration._150} ${easing.ease}`,
     cursor: "pointer",
   },
   footer: {
@@ -543,7 +544,7 @@ const styles = stylex.create({
       ":hover": { default: null, [pointer.canHover]: color.fg },
     },
     cursor: "pointer",
-    transition: "color 0.15s ease",
+    transition: `color ${duration._150} ${easing.ease}`,
   },
   confirmRow: {
     alignItems: "center",
@@ -564,7 +565,7 @@ const styles = stylex.create({
     },
     color: color.fgOnAccent,
     cursor: "pointer",
-    transition: "background-color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}`,
   },
   cancelButton: {
     paddingBlock: space._0,
@@ -578,6 +579,6 @@ const styles = stylex.create({
     },
     color: color.fgMuted,
     cursor: "pointer",
-    transition: "background-color 0.15s ease",
+    transition: `background-color ${duration._150} ${easing.ease}`,
   },
 });

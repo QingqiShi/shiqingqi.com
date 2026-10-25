@@ -416,7 +416,7 @@ const styles = stylex.create({
   animate: {
     "::before": {
       transition: {
-        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.ease}, box-shadow ${duration._400} ${easing.ease}, opacity ${handBack.duration} ${easing.linear}`,
+        default: `transform ${switchTokens.thumbTransitionDuration} ${easing.spring}, box-shadow ${duration._400} ${easing.ease}, opacity ${handBack.duration} ${easing.linear}`,
         [DRAWN_BY_EFFECT]: "none",
         [motionConstants.REDUCED_MOTION]: `box-shadow ${duration._400} ${easing.ease}`,
       },

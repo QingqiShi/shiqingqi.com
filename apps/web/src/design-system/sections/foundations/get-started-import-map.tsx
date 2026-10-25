@@ -70,11 +70,19 @@ export function GetStartedImportMap() {
           },
           {
             term: "@tuja/ui/utils/<name>",
-            value:
-              "contrast-ratio · merge-refs · prefers-reduced-motion · get-scroll-behavior",
+            value: "contrast-ratio · merge-refs · get-scroll-behavior",
             note: t({
               en: "Small helpers, such as mergeRefs to give one element two refs, and contrastRatio to check two colours.",
               zh: "小工具函数，例如让一个元素同时接收两个 ref 的 mergeRefs，以及检查两种颜色对比度的 contrastRatio。",
+            }),
+          },
+          {
+            term: "@tuja/ui/motion/<name>",
+            value:
+              "spring-roles · use-motion-engine · use-binding · play-layout · prefers-reduced-motion · use-reduced-motion",
+            note: t({
+              en: "The motion engine, for motion that can be interrupted, follows a gesture, or is measured from the layout, and the one reduced-motion setting that it and the components read.",
+              zh: "动效引擎，用于可被打断、跟随手势或由布局测量而来的动效；以及它与各组件共同读取的那一个减弱动效设置。",
             }),
           },
           {

@@ -5,6 +5,11 @@ import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "@tuja/ui/primitives/motion.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -243,7 +248,7 @@ const styles = stylex.create({
     touchAction: "pan-x",
     scrollSnapType: {
       default: "x mandatory",
-      "@media (prefers-reduced-motion: reduce)": "none",
+      [motionConstants.REDUCED_MOTION]: "none",
     },
   },
   cards: {
@@ -261,8 +266,7 @@ const styles = stylex.create({
     scrollSnapAlign: "center",
     backgroundColor: color.bgSurfaceSunken,
     boxShadow: HAIRLINE,
-    transition:
-      "box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease",
+    transition: `box-shadow ${duration._200} ${easing.ease}, background-color ${duration._200} ${easing.ease}, color ${duration._200} ${easing.ease}`,
   },
   cardActive: {
     backgroundColor: color.bgAccentSubtle,

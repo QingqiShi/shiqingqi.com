@@ -2,10 +2,17 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Fragment, useLayoutEffect, useRef } from "react";
-import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
+import { bind } from "../motion/bind.ts";
+import type { MotionEngine } from "../motion/create-motion-engine.ts";
+import { createMotionValue } from "../motion/create-motion-value.ts";
+import { cssTween } from "../motion/css-tween.ts";
+import { unit } from "../motion/mix.ts";
+import { playLayout, type Rect } from "../motion/play-layout.ts";
+import { springOf, springRoles } from "../motion/spring-roles.ts";
+import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
-import { easing, transition } from "../primitives/motion.stylex.ts";
+import { duration, easing, transition } from "../primitives/motion.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 import { font } from "../tokens.stylex.ts";
@@ -77,15 +84,11 @@ interface Place {
   top: number;
 }
 
-// A change that lands mid-move finds the move by its id, so the box starts
-// from where it is seen rather than from where it was laid out.
-const MOVE = "code-block-move";
-const FADE = "code-block-fade";
-const MOVE_MS = 260;
-const ARRIVE_MS = 320;
-const LEAVE_MS = 180;
-const REDUCED_ARRIVE_MS = 150;
-const RISE = "translateY(0.5rem)";
+const PART_SPRING = springOf(springRoles.surface);
+const LEAVE = cssTween(duration._200, easing.ease);
+const REDUCED_ARRIVE = cssTween(duration._150, easing.ease);
+/** How far below its place, in rem, a part starts to rise. */
+const RISE_REM = 0.5;
 
 function runs(tokens: readonly CodeToken[]) {
   return tokens.map(([kind, text], index) => (
@@ -114,35 +117,28 @@ function measure(code: HTMLElement, boxes: readonly HTMLElement[]) {
   return places;
 }
 
+const STILL: Place = { left: 0, top: 0 };
+
 function translationOf(box: HTMLElement): Place {
-  const matrix = new DOMMatrixReadOnly(getComputedStyle(box).transform);
+  const { transform } = getComputedStyle(box);
+  if (transform === "" || transform === "none") return STILL;
+  const matrix = new DOMMatrixReadOnly(transform);
   return { left: matrix.e, top: matrix.f };
 }
 
-function move(box: HTMLElement, dx: number, dy: number) {
-  box.animate(
-    [
-      { transform: `translate(${String(dx)}px, ${String(dy)}px)` },
-      { transform: "none" },
-    ],
-    { id: MOVE, duration: MOVE_MS, easing: easing.entrance },
-  );
-}
-
-function arrive(box: HTMLElement, isReduced: boolean) {
-  if (isReduced) {
-    box.animate([{ opacity: 0 }, { opacity: 1 }], {
-      id: FADE,
-      duration: REDUCED_ARRIVE_MS,
-      easing: easing.ease,
-    });
-    return;
-  }
-  const timing = { duration: ARRIVE_MS, easing: easing.entrance };
-  box.animate([{ opacity: 0 }, { opacity: 1 }], { id: FADE, ...timing });
-  box.animate([{ transform: RISE }, { transform: "none" }], {
-    id: MOVE,
-    ...timing,
+/** A part rises into its place as it fades in, or only fades in under reduced motion. */
+function arrive(engine: MotionEngine, box: HTMLElement) {
+  const shown = createMotionValue(engine, 0, { spring: PART_SPRING });
+  const binding = bind(box, shown, {
+    pose: (t) => ({
+      opacity: unit(t).toFixed(3),
+      transform: `translateY(${((1 - t) * RISE_REM).toFixed(4)}rem)`,
+    }),
+    reducedPose: (t) => ({ opacity: unit(t).toFixed(3) }),
+    rest: "clear",
+  });
+  void shown.to(1, { reduced: REDUCED_ARRIVE }).finished.then(() => {
+    binding.unbind();
   });
 }
 
@@ -152,6 +148,7 @@ function arrive(box: HTMLElement, isReduced: boolean) {
  * tree, in a container React renders empty.
  */
 function leave(
+  engine: MotionEngine,
   container: HTMLElement,
   tokens: readonly CodeToken[],
   place: Place,
@@ -172,16 +169,14 @@ function leave(
     ghost.append(run);
   }
   container.append(ghost);
-  const fade = ghost.animate([{ opacity: 1 }, { opacity: 0 }], {
-    id: FADE,
-    duration: LEAVE_MS,
-    easing: easing.ease,
-    fill: "forwards",
+  const shown = createMotionValue(engine, 1);
+  const binding = bind(ghost, shown, {
+    pose: (t) => ({ opacity: t.toFixed(3) }),
   });
-  const done = () => {
+  void shown.to(0, { tween: LEAVE }).finished.then(() => {
+    binding.unbind();
     ghost.remove();
-  };
-  fade.finished.then(done, done);
+  });
 }
 
 interface PartsCodeProps {
@@ -194,6 +189,7 @@ interface PartsCodeProps {
  * fades where it stood.
  */
 function PartsCode({ parts }: PartsCodeProps) {
+  const engine = useMotionEngine();
   const codeRef = useRef<HTMLElement>(null);
   const ghostsRef = useRef<HTMLSpanElement>(null);
   const placesRef = useRef<Map<string, Place>>(new Map());
@@ -206,38 +202,37 @@ function PartsCode({ parts }: PartsCodeProps) {
     const before = placesRef.current;
     const drawn = drawnRef.current;
 
-    // A change that lands mid-move starts from where the box is seen, not
-    // from where it was laid out.
-    const seen = new Map<HTMLElement, Place>();
+    // Where each box that stays shows now, mid-move included, in the places
+    // of the layout before the change.
+    const rects = new Map<Element, Rect>();
+    const isDrifting = engine.isMoving;
     for (const box of boxes) {
-      const inFlight = box
-        .getAnimations()
-        .find((animation) => animation.id === MOVE);
-      if (inFlight === undefined) continue;
-      seen.set(box, translationOf(box));
-      inFlight.cancel();
+      const key = box.dataset.box;
+      const from = key === undefined ? undefined : before.get(key);
+      if (from === undefined) continue;
+      const drift = isDrifting ? translationOf(box) : STILL;
+      rects.set(box, {
+        x: from.left + drift.left,
+        y: from.top + drift.top,
+        width: 0,
+        height: 0,
+      });
     }
 
-    const after = measure(code, boxes);
+    const after = engine.measure(() => measure(code, boxes));
     placesRef.current = after;
     drawnRef.current = parts;
     if (drawn.length === 0) return;
 
-    const isReduced = prefersReducedMotion();
+    playLayout(
+      engine,
+      { origin: code, rectOf: (element) => rects.get(element) },
+      boxes,
+      { spring: PART_SPRING },
+    );
     for (const box of boxes) {
       const key = box.dataset.box;
-      if (key === undefined) continue;
-      const to = after.get(key);
-      const from = before.get(key);
-      if (to === undefined) continue;
-      if (from === undefined) {
-        arrive(box, isReduced);
-        continue;
-      }
-      const drift = seen.get(box) ?? { left: 0, top: 0 };
-      const dx = from.left - to.left + drift.left;
-      const dy = from.top - to.top + drift.top;
-      if (!isReduced && (dx !== 0 || dy !== 0)) move(box, dx, dy);
+      if (key !== undefined && !before.has(key)) arrive(engine, box);
     }
 
     const ghosts = ghostsRef.current;
@@ -246,9 +241,9 @@ function PartsCode({ parts }: PartsCodeProps) {
     for (const part of drawn) {
       if (ids.has(part.id)) continue;
       const place = before.get(part.id);
-      if (place !== undefined) leave(ghosts, part.tokens, place);
+      if (place !== undefined) leave(engine, ghosts, part.tokens, place);
     }
-  }, [parts]);
+  }, [engine, parts]);
 
   // The places on record go stale when the code is laid out again without a
   // change of its own: the mono font arriving, or the viewport resizing.
@@ -256,14 +251,14 @@ function PartsCode({ parts }: PartsCodeProps) {
     const code = codeRef.current;
     if (code === null) return;
     const observer = new ResizeObserver(() => {
-      if (code.getAnimations({ subtree: true }).length > 0) return;
+      if (engine.isMoving) return;
       placesRef.current = measure(code, boxesIn(code));
     });
     observer.observe(code);
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [engine]);
 
   return (
     <code ref={codeRef} css={[typeRole.bodySmall, styles.code]}>

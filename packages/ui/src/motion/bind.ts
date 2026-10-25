@@ -9,7 +9,6 @@ import {
 import { createWaapiRenderer } from "./create-waapi-renderer.ts";
 import { writeStyles, type Styles } from "./px.ts";
 
-/** @internal */
 export interface BindOptions {
   /** The styles at these values. It must be pure, because the engine samples it ahead of time. */
   readonly pose: (...values: number[]) => Styles;
@@ -31,7 +30,6 @@ export interface BindOptions {
   readonly renderer?: "auto" | "frame";
 }
 
-/** @internal */
 export interface Binding {
   /** Stops the motion and takes off every style the binding wrote. */
   unbind(): void;
@@ -71,8 +69,6 @@ function listOf(values: MotionValue | readonly MotionValue[]) {
  * Shows `values` on `element` through `pose`. Each new target of a value
  * plans the motion again from the path of each value, and not from the
  * styles on the element.
- *
- * @internal
  */
 export function bind(
   element: HTMLElement | SVGElement,

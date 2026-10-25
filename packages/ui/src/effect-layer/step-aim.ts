@@ -1,3 +1,6 @@
+import { springPath } from "../motion/spring-path.ts";
+import { springOf, springRoles } from "../motion/spring-roles.ts";
+
 /**
  * Radians clockwise from pointing right, for a CSS angle: 0deg points up and
  * 90deg points right, as in `linear-gradient`.
@@ -30,13 +33,8 @@ export interface Aim {
   readonly velocity: number;
 }
 
-// The damping ratio of `easing.spring`, so that the beam overshoots by about
-// as much as the rest of the system's motion.
-const SPRING_DAMPING = 0.7;
-const SPRING_FREQUENCY = 2 * Math.PI * 1.3;
-const SPRING_STEP = 1 / 240;
+const AIM_SPRING = springOf(springRoles.aim);
 const SETTLED_ANGLE = 0.0005;
-const SETTLED_VELOCITY = 0.005;
 
 /**
  * Turns an aim towards `target` for `seconds`, and says whether it has come
@@ -45,20 +43,15 @@ const SETTLED_VELOCITY = 0.005;
  * @internal
  */
 export function stepAim(aim: Aim, target: number, seconds: number) {
-  let offset = angleBetween(target, aim.angle);
-  let { velocity } = aim;
-  const steps = Math.ceil(seconds / SPRING_STEP);
-  const step = steps > 0 ? seconds / steps : 0;
-  for (let index = 0; index < steps; index++) {
-    velocity +=
-      (-SPRING_FREQUENCY * SPRING_FREQUENCY * offset -
-        2 * SPRING_DAMPING * SPRING_FREQUENCY * velocity) *
-      step;
-    offset += velocity * step;
+  const path = springPath(
+    AIM_SPRING,
+    { value: angleBetween(target, aim.angle), velocity: aim.velocity },
+    0,
+    SETTLED_ANGLE,
+  );
+  if (seconds >= path.settleTime) {
+    return { angle: target, velocity: 0, settled: true };
   }
-  const settled =
-    Math.abs(offset) < SETTLED_ANGLE && Math.abs(velocity) < SETTLED_VELOCITY;
-  return settled
-    ? { angle: target, velocity: 0, settled }
-    : { angle: target + offset, velocity, settled };
+  const { value, velocity } = path.at(seconds);
+  return { angle: target + value, velocity, settled: false };
 }

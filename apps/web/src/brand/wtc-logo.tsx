@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
 import { brand } from "./brand.stylex.ts";
 import { svgTokens } from "./svg.stylex";
 
@@ -27,11 +28,11 @@ const styles = stylex.create({
   plusPath: {
     color: stylex.firstThatWorks(svgTokens.fill, brand.wtcPlus),
     fill: "currentColor",
-    transition: "fill .2s",
+    transition: `fill ${duration._200} ${easing.ease}`,
   },
   letterPath: {
     color: stylex.firstThatWorks(svgTokens.fill, brand.wtcLetter),
     fill: "currentColor",
-    transition: "fill .2s",
+    transition: `fill ${duration._200} ${easing.ease}`,
   },
 });

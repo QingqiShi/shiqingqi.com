@@ -9,8 +9,6 @@ import type { Spring } from "./spring-roles.ts";
 /**
  * An engine for the motion of one component. It stops each motion when the
  * component unmounts.
- *
- * @internal
  */
 export function useMotionEngine(): MotionEngine {
   const [engine] = useState(createMotionEngine);
@@ -25,8 +23,6 @@ export function useMotionEngine(): MotionEngine {
 
 /**
  * A motion value of `engine` for the life of the component.
- *
- * @internal
  */
 export function useMotionValue(
   engine: MotionEngine,

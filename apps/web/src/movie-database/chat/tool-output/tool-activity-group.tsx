@@ -4,7 +4,11 @@ import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
+import {
+  motionConstants,
+  duration,
+  easing,
+} from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
@@ -111,7 +115,7 @@ const styles = stylex.create({
   caret: {
     flexShrink: 0,
     transition: {
-      default: "transform 0.15s ease",
+      default: `transform ${duration._400} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },

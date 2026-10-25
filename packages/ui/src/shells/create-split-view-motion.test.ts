@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMotionEngine } from "../motion/create-motion-engine.ts";
 import { fakeMotionClock } from "../test-support/fake-motion-clock.ts";
 import { layOut } from "../test-support/lay-out.ts";
+import { reduceMotion } from "../test-support/reduce-motion.ts";
 import {
   addSplitViewMark,
   createSplitViewMotion,
@@ -16,6 +17,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.restoreAllMocks();
   document.body.replaceChildren();
 });
 
@@ -115,6 +117,101 @@ describe("createSplitViewMotion", () => {
     expect(current.style.transform).toBe("");
   });
 
+  it.each([
+    {
+      name: "comes in beside it",
+      detail: "in",
+      contentLeft: 300,
+      content: { x: 100, y: 0, width: 400, height: 600 },
+    },
+    {
+      name: "goes out over it",
+      detail: "out",
+      contentLeft: 0,
+      content: { x: 100, y: 0, width: 700, height: 600 },
+    },
+  ] as const)(
+    "keeps the inline end of the content on a detail column that $name",
+    async ({ detail, contentLeft, content: box }) => {
+      const { view, content, motion } = setUp();
+      const column = element(
+        { "data-split-view-column": "detail" },
+        element({ "data-split-view-edge": "" }),
+      );
+      view.append(column);
+      layOut(content, box);
+      layOut(column, { x: 500, y: 0, width: 300, height: 600 });
+      const lengthOf = (pattern: RegExp, style: string) =>
+        Number.parseFloat(pattern.exec(style)?.[1] ?? "0");
+      const shownEnd = () => {
+        const x = lengthOf(/translate\((-?[\d.]+)px/, content.style.transform);
+        const reach = lengthOf(
+          /(-?[\d.]+)px 0(?:px)? 0(?:px)? 0(?:px)? /,
+          content.style.boxShadow,
+        );
+        const inset = lengthOf(
+          /inset\(\S+ (-?[\d.]+)px/,
+          content.style.clipPath,
+        );
+        // The fill reaches as far as the clip lets the content show.
+        if (inset < 0) expect(reach).toBeCloseTo(-inset, 1);
+        return box.x + box.width + x - inset;
+      };
+      motion.play(
+        { marks: new Map(), contentLeft, sidebar: null },
+        { content: null, detail },
+        1,
+      );
+      for (let frame = 0; frame < 90; frame++) {
+        // The detail column that goes out shows only while it moves.
+        if (detail === "in" || column.style.visibility === "visible") {
+          const columnStart = 500 + (translateXOf(column) || 0);
+          expect(Math.abs(shownEnd() - columnStart)).toBeLessThan(0.1);
+        }
+        await clock.advance(1 / 60);
+      }
+      await clock.advance(3);
+      expect(content.style.boxShadow).toBe("");
+      expect(content.style.clipPath).toBe("");
+    },
+  );
+
+  it("under reduced motion, fades a swiped screen out where the finger left it", async () => {
+    reduceMotion();
+    const { under, current, motion } = setUp();
+    expect(motion.beginSwipe()).toBe(true);
+    motion.drag(0.25);
+    expect(translateXOf(current)).toBe(300);
+    expect(translateXOf(under)).toBe(0);
+    motion.release(true, -2);
+    await clock.advance(0.08);
+    expect(translateXOf(current)).toBe(300);
+    const opacity = Number(current.style.opacity);
+    expect(opacity).toBeGreaterThan(0);
+    expect(opacity).toBeLessThan(1);
+    current.setAttribute("data-split-view-page", "leaving");
+    under.setAttribute("data-split-view-page", "current");
+    motion.play(null, { ...NONE, content: "pop" }, 1);
+    expect(translateXOf(current)).toBe(300);
+    expect(Number(current.style.opacity)).toBeLessThanOrEqual(opacity);
+    await clock.advance(1);
+    expect(current.style.transform).toBe("");
+    expect(current.style.opacity).toBe("");
+  });
+
+  it("under reduced motion, takes a swiped screen back in a short tween", async () => {
+    reduceMotion();
+    const { current, motion } = setUp();
+    motion.beginSwipe();
+    motion.drag(0.25);
+    motion.release(false, 0);
+    await clock.advance(0.08);
+    expect(translateXOf(current)).toBeGreaterThan(0);
+    expect(translateXOf(current)).toBeLessThan(300);
+    await clock.advance(1);
+    expect(current.style.transform).toBe("");
+  });
+
   it("folds the sidebar, and stops its dust a moment after the motion", async () => {
     const { view, events, motion } = setUp();
     const full = element({ "data-split-view-sidebar": "full" });
@@ -134,7 +231,7 @@ describe("createSplitViewMotion", () => {
     expect(events.onFold).toHaveBeenLastCalledWith("fold");
     expect(full.hasAttribute("data-split-view-leaving")).toBe(true);
     expect(full.style.visibility).toBe("visible");
-    await clock.advance(1.2);
+    await clock.advance(1.4);
     expect(full.hasAttribute("data-split-view-leaving")).toBe(false);
     expect(full.style.visibility).toBe("");
     expect(events.onFold).toHaveBeenCalledTimes(1);
