@@ -1,10 +1,12 @@
 import {
   and,
   eq,
+  exists,
   gte,
   inArray,
   isNull,
   lte,
+  ne,
   notExists,
   or,
   sql,
@@ -12,7 +14,12 @@ import {
 import { alias } from "drizzle-orm/pg-core";
 import type { ProviderTransaction } from "../../bank/lunchflow/types.ts";
 import { nameBasedUuid } from "../../ids/name-based-uuid.ts";
-import { bankTransactions, entries, transactions } from "../schema.ts";
+import {
+  bankLinks,
+  bankTransactions,
+  entries,
+  transactions,
+} from "../schema.ts";
 import type { RepositoryScope, WriteScope } from "./types.ts";
 
 export type BankTransactionRecord = typeof bankTransactions.$inferSelect;
@@ -312,5 +319,79 @@ export const bankTransactionRepository = {
       ...row,
       inTransit: entryAccountId !== accountId,
     }));
+  },
+
+  /**
+   * Live Transactions that a bank row backs and that may stand for an
+   * occurrence of the Rule: each has a live Entry dated from `from` to `to`
+   * with one of the template's `entries` accounts and amounts, and a bank row
+   * of a Bank link on that account. Each one has no Rule, or has this Rule
+   * but was not made by it. One row per Transaction, at its earliest such
+   * Entry.
+   */
+  async findOccurrenceCandidates(
+    scope: RepositoryScope,
+    ruleId: string,
+    templateEntries: readonly { accountId: string; amountMinor: number }[],
+    range: { from: string; to: string },
+  ) {
+    if (templateEntries.length === 0) return [];
+    const rows = await scope.db
+      .select({
+        transactionId: transactions.id,
+        entryId: entries.id,
+        ruleId: transactions.ruleId,
+        status: transactions.status,
+        date: entries.date,
+        createdAt: transactions.createdAt,
+      })
+      .from(entries)
+      .innerJoin(transactions, eq(transactions.id, entries.transactionId))
+      .where(
+        and(
+          eq(entries.householdId, scope.householdId),
+          eq(transactions.householdId, scope.householdId),
+          isNull(entries.deletedAt),
+          isNull(transactions.deletedAt),
+          or(
+            isNull(transactions.ruleId),
+            and(
+              eq(transactions.ruleId, ruleId),
+              ne(transactions.source, "rule"),
+            ),
+          ),
+          or(
+            ...templateEntries.map((entry) =>
+              and(
+                eq(entries.accountId, entry.accountId),
+                eq(entries.amountMinor, entry.amountMinor),
+              ),
+            ),
+          ),
+          gte(entries.date, range.from),
+          lte(entries.date, range.to),
+          exists(
+            scope.db
+              .select({ id: bankTransactions.id })
+              .from(bankTransactions)
+              .innerJoin(bankLinks, eq(bankLinks.id, bankTransactions.linkId))
+              .where(
+                and(
+                  eq(bankTransactions.householdId, scope.householdId),
+                  eq(bankLinks.householdId, scope.householdId),
+                  eq(bankTransactions.transactionId, transactions.id),
+                  eq(bankLinks.accountId, entries.accountId),
+                ),
+              ),
+          ),
+        ),
+      )
+      .orderBy(entries.date, entries.id);
+    const seen = new Set<string>();
+    return rows.filter((row) => {
+      if (seen.has(row.transactionId)) return false;
+      seen.add(row.transactionId);
+      return true;
+    });
   },
 };

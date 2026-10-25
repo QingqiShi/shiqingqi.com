@@ -629,3 +629,231 @@ describe("a template change", () => {
     });
   });
 });
+
+describe("a bank-backed Transaction on an occurrence's day", () => {
+  const now = new Date("2026-01-25T12:00:00Z");
+  let linkId: string | undefined;
+
+  beforeEach(() => {
+    linkId = undefined;
+  });
+
+  async function currentAccountLink() {
+    if (linkId) return linkId;
+    const connectionId = randomUUID();
+    linkId = randomUUID();
+    await db.insert(connections).values({
+      id: connectionId,
+      householdId: home.householdId,
+      label: "Lunch Flow",
+      version: 1,
+    });
+    await db.insert(bankLinks).values({
+      id: linkId,
+      householdId: home.householdId,
+      connectionId,
+      accountId: home.currentId,
+      providerAccountId: "provider-current",
+      currency: "GBP",
+      version: 1,
+    });
+    return linkId;
+  }
+
+  /** A posted payment from the current account, matched to a bank row of it unless `backed` is false. */
+  async function recordPayment(
+    date: string,
+    { amountMinor = -120_000, backed = true } = {},
+  ) {
+    const id = randomUUID();
+    await push(
+      "createTransaction",
+      {
+        id,
+        kind: "expense",
+        date,
+        categoryId: home.groceriesId,
+        entries: [{ id: randomUUID(), accountId: home.currentId, amountMinor }],
+      },
+      now,
+    );
+    if (backed) {
+      await db.insert(bankTransactions).values({
+        id: randomUUID(),
+        householdId: home.householdId,
+        linkId: await currentAccountLink(),
+        providerTxId: randomUUID(),
+        date,
+        amountMinor,
+        currency: "GBP",
+        raw: {},
+        state: "matched",
+        transactionId: id,
+        version: 1,
+      });
+    }
+    return id;
+  }
+
+  async function transaction(id: string) {
+    const [row] = await db
+      .select({
+        ruleId: transactions.ruleId,
+        date: transactions.date,
+        status: transactions.status,
+        categoryId: transactions.categoryId,
+        payeeId: transactions.payeeId,
+        version: transactions.version,
+      })
+      .from(transactions)
+      .where(eq(transactions.id, id));
+    return row;
+  }
+
+  it("gives the Transaction the Rule and creates no occurrence", async () => {
+    const paymentId = await recordPayment("2026-01-31");
+    const before = await transaction(paymentId);
+
+    const ruleId = await createRule({}, now);
+
+    expect(await ruleTransactions(ruleId)).toEqual([
+      { id: paymentId, date: "2026-01-31", status: "posted" },
+    ]);
+    const [household] = await db.select().from(households);
+    expect(await transaction(paymentId)).toEqual({
+      ...before,
+      ruleId,
+      version: household.clock,
+    });
+  });
+
+  it.each(["2026-01-28", "2026-02-01", "2026-02-03"])(
+    "gives the Rule a Transaction dated %s, within three days",
+    async (date) => {
+      const paymentId = await recordPayment(date);
+
+      const ruleId = await createRule({}, now);
+
+      expect(await ruleTransactions(ruleId)).toEqual([
+        { id: paymentId, date, status: "posted" },
+      ]);
+    },
+  );
+
+  it.each([
+    { date: "2026-01-27", amountMinor: -120_000, backed: true },
+    { date: "2026-02-04", amountMinor: -120_000, backed: true },
+    { date: "2026-01-31", amountMinor: -119_999, backed: true },
+    { date: "2026-01-31", amountMinor: -120_000, backed: false },
+  ])(
+    "creates the occurrence next to $date, $amountMinor, backed: $backed",
+    async ({ date, ...fields }) => {
+      const paymentId = await recordPayment(date, fields);
+
+      const ruleId = await createRule({}, now);
+
+      expect(await ruleTransactions(ruleId)).toEqual([
+        {
+          id: occurrenceId(ruleId, "2026-01-31"),
+          date: "2026-01-31",
+          status: "expected",
+        },
+      ]);
+      expect((await transaction(paymentId)).ruleId).toBeNull();
+    },
+  );
+
+  it("posts nothing twice for a Rule that posts automatically", async () => {
+    const paymentId = await recordPayment("2026-01-31");
+    const ruleId = await createRule(
+      { autoPost: true, startsOn: "2026-02-01", dayOfMonth: 1 },
+      new Date("2026-01-31T12:00:00Z"),
+    );
+
+    await materialiseRules(
+      db,
+      home.householdId,
+      new Date("2026-02-01T08:00:00Z"),
+    );
+
+    expect(await ruleTransactions(ruleId)).toEqual([
+      { id: paymentId, date: "2026-01-31", status: "posted" },
+    ]);
+    expect(await balanceDays()).toEqual([
+      { day: "2026-01-31", balanceMinor: -120_000 },
+    ]);
+  });
+
+  it("gives one Transaction to one Rule only", async () => {
+    const paymentId = await recordPayment("2026-01-31");
+
+    const firstId = await createRule({}, now);
+    const secondId = await createRule({ name: "Rent again" }, now);
+
+    expect(await ruleTransactions(firstId)).toEqual([
+      { id: paymentId, date: "2026-01-31", status: "posted" },
+    ]);
+    expect(await ruleTransactions(secondId)).toEqual([
+      {
+        id: occurrenceId(secondId, "2026-01-31"),
+        date: "2026-01-31",
+        status: "expected",
+      },
+    ]);
+  });
+
+  it("gives each of two Rules with the same amount its own Transaction", async () => {
+    const paymentIds = [
+      await recordPayment("2026-01-31"),
+      await recordPayment("2026-01-31"),
+    ];
+
+    const ruleIds = [
+      await createRule({}, now),
+      await createRule({ name: "Rent again" }, now),
+    ];
+
+    const adopted = await db
+      .select({ id: transactions.id, ruleId: transactions.ruleId })
+      .from(transactions)
+      .where(isNull(transactions.deletedAt));
+    expect(adopted).toHaveLength(2);
+    expect(adopted.map((row) => row.id).sort()).toEqual(paymentIds.sort());
+    expect(adopted.map((row) => row.ruleId).sort()).toEqual(ruleIds.sort());
+  });
+
+  it("changes no Transaction when it looks at the day again", async () => {
+    await recordPayment("2026-02-01");
+    const ruleId = await createRule({}, now);
+    expect(await materialiseRules(db, home.householdId, now)).toMatchObject({
+      written: 0,
+    });
+    await db.update(rules).set({ nextOn: "2026-01-31" });
+    const before = await db.select().from(transactions);
+
+    await materialiseRules(db, home.householdId, now);
+
+    expect(await db.select().from(transactions)).toEqual(before);
+    expect(await ruleDays(ruleId)).toEqual(["2026-02-01"]);
+  });
+
+  it("adds no occurrence next to the Transaction when the schedule changes", async () => {
+    const paymentId = await recordPayment("2026-01-30");
+    const ruleId = await createRule({}, now);
+
+    await push(
+      "upsertRule",
+      { id: ruleId, nonBusinessDay: "next" },
+      new Date("2026-01-30T12:00:00Z"),
+    );
+    await push(
+      "upsertRule",
+      { id: ruleId, nonBusinessDay: "stay" },
+      new Date("2026-01-30T12:00:00Z"),
+    );
+
+    expect(await ruleTransactions(ruleId)).toEqual([
+      { id: paymentId, date: "2026-01-30", status: "posted" },
+    ]);
+  });
+});
