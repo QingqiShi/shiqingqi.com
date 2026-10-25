@@ -108,7 +108,9 @@ function ListSkeleton() {
 
 const styles = stylex.create({
   master: {
+    inlineSize: "100%",
     maxInlineSize: "52rem",
+    marginInline: "auto",
   },
   titleRow: {
     display: "flex",

@@ -556,7 +556,9 @@ const styles = stylex.create({
   // A row wider than this is hard to read across, from the payee to the
   // amount.
   master: {
+    inlineSize: "100%",
     maxInlineSize: "52rem",
+    marginInline: "auto",
   },
   titleRow: {
     gap: rhythm.item,
