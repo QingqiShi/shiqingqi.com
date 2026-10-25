@@ -2,98 +2,77 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
-import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
 import { FinanceQueryProvider } from "../queries/finance-query-provider.tsx";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
-import { FinancePageColumn } from "../shell/finance-page-column.tsx";
+import {
+  FinanceIsland,
+  FinanceIslands,
+} from "../shell/finance-page-column.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { ReportList } from "./report-list.tsx";
 import { useReportList } from "./use-report-list.ts";
 
 /**
- * Reports: the list of weeks beside the open Report at `lg` and wider. The
- * list is as wide as its widest week, so no locale cuts a week short, and
- * takes that width from the gap, so the Report never moves.
- * Below `lg` the list is its own page and a Report opens on its own with a
- * way back.
+ * Reports: the list of weeks beside the open Report at `lg` and wider, each
+ * in its own island. The list is as wide as its widest week, so no locale
+ * cuts a week short, up to a width that still leaves the Report the most
+ * room. Below `lg` the list is its own page and a Report opens on its own
+ * with a way back.
  */
 export function ReportsFrame({ children }: { children: ReactNode }) {
   return (
     <FinanceQueryProvider>
-      <FinancePageColumn accessory={<FinanceAddButton />}>
-        <ReportsColumns>{children}</ReportsColumns>
-      </FinancePageColumn>
+      <ReportsIslands>{children}</ReportsIslands>
     </FinanceQueryProvider>
   );
 }
 
-function ReportsColumns({ children }: { children: ReactNode }) {
+function ReportsIslands({ children }: { children: ReactNode }) {
   const segment = useSelectedLayoutSegment();
   const isWide = useIsWideLayout();
   const newestId = useReportList().data?.at(0)?.id ?? null;
   const isOnReport = segment !== null;
   const currentId = segment ?? (isWide ? newestId : null);
-  const sticky = useEffectSticky();
-  const { ref, css } = sticky;
 
   return (
-    <div css={styles.root}>
-      <div
-        ref={ref}
-        css={[styles.list, isOnReport && styles.listOnReport, css]}
+    <FinanceIslands>
+      <FinanceIsland
+        accessory={isOnReport ? null : <FinanceAddButton />}
+        css={[styles.list, isOnReport && styles.listOnReport]}
       >
-        <EffectCarrier value={sticky}>
-          <ReportList currentId={currentId} headingLevel={isOnReport ? 2 : 1} />
-        </EffectCarrier>
-      </div>
-      <div css={[styles.content, !isOnReport && styles.contentOnIndex]}>
-        {children}
-      </div>
-    </div>
+        <ReportList currentId={currentId} headingLevel={isOnReport ? 2 : 1} />
+      </FinanceIsland>
+      {/* A new key opens each Report at the top of its island. */}
+      <FinanceIsland
+        key={currentId}
+        accessory={isOnReport ? <FinanceAddButton /> : null}
+        css={!isOnReport && styles.reportOnIndex}
+      >
+        <div css={styles.report}>{children}</div>
+      </FinanceIsland>
+    </FinanceIslands>
   );
 }
 
 const styles = stylex.create({
-  root: {
-    display: "grid",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [breakpoints.lg]: `calc(16rem + ${rhythm.section}) minmax(0, 1fr)`,
-    },
-    rowGap: rhythm.section,
-    columnGap: { default: rhythm.section, [breakpoints.lg]: 0 },
-    alignItems: "start",
-  },
   list: {
-    justifySelf: { default: null, [breakpoints.lg]: "start" },
-    minInlineSize: { default: null, [breakpoints.lg]: "16rem" },
-    maxInlineSize: {
-      default: null,
-      [breakpoints.lg]: `calc(100% - ${rhythm.group})`,
-    },
-    position: { default: "static", [breakpoints.lg]: "sticky" },
-    insetBlockStart: space._4,
-    maxBlockSize: {
-      default: null,
-      [breakpoints.lg]: `calc(100dvh - ${space._8})`,
-    },
-    overflowY: { default: null, [breakpoints.lg]: "auto" },
-    scrollbarGutter: { default: null, [breakpoints.lg]: "stable" },
-    paddingInlineEnd: { default: null, [breakpoints.lg]: space._2 },
-    scrollbarColor: `${color.border} transparent`,
+    flexGrow: { default: 1, [breakpoints.lg]: 0 },
+    flexShrink: { default: 1, [breakpoints.lg]: 0 },
+    flexBasis: { default: 0, [breakpoints.lg]: "auto" },
+    inlineSize: { default: null, [breakpoints.lg]: "max-content" },
+    minInlineSize: { default: 0, [breakpoints.lg]: "19rem" },
+    maxInlineSize: { default: null, [breakpoints.lg]: "25rem" },
   },
   listOnReport: {
-    display: { default: "none", [breakpoints.lg]: "block" },
+    display: { default: "none", [breakpoints.lg]: "flex" },
   },
-  content: {
+  report: {
     minInlineSize: 0,
     maxInlineSize: "84rem",
   },
-  contentOnIndex: {
-    display: { default: "none", [breakpoints.lg]: "block" },
+  reportOnIndex: {
+    display: { default: "none", [breakpoints.lg]: "flex" },
   },
 });

@@ -1,11 +1,10 @@
 "use client";
 
 import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
-import { gray } from "@tuja/ui/palette/gray.stylex";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect } from "react";
 import { getDocumentClassName } from "./global-styles.ts";
-import { prePaintThemeColorId } from "./theme-hack.ts";
+import { getThemeColors, prePaintThemeColorAttribute } from "./theme-hack.ts";
 import { useResolvedTheme } from "./use-resolved-theme.ts";
 import { useTheme } from "./use-theme.ts";
 
@@ -21,18 +20,23 @@ export function ThemeApplier() {
     // `themeHack` already applied the stored theme, so wait for a client render.
     if (!isHydrated) return;
     document.documentElement.className = getDocumentClassName(theme, pathname);
-    document.getElementById(prePaintThemeColorId)?.remove();
+    for (const meta of document.querySelectorAll(
+      `[${prePaintThemeColorAttribute}]`,
+    )) {
+      meta.remove();
+    }
   }, [isHydrated, theme, pathname]);
 
   if (!isHydrated) return null;
 
-  // Mirror `color.bgCanvas` so the mobile browser chrome matches the page
-  // background: light canvas is `gray._97`, dark is `gray._0`. Keep this in
-  // sync with the pre-hydration `themeHack` script to avoid a color flash.
-  return (
+  // The same colours as the pre-hydration `themeHack`, so the chrome does
+  // not flash another colour.
+  return getThemeColors(pathname).map((themeColor) => (
     <meta
+      key={themeColor.media ?? ""}
       name="theme-color"
-      content={resolvedTheme === "dark" ? gray._0 : gray._97}
+      media={themeColor.media}
+      content={resolvedTheme === "dark" ? themeColor.dark : themeColor.light}
     />
-  );
+  ));
 }

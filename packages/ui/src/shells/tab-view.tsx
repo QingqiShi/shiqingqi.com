@@ -32,7 +32,6 @@ import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import {
-  border,
   color,
   controlSize,
   font,
@@ -40,14 +39,7 @@ import {
   rhythm,
   space,
 } from "../tokens.stylex.ts";
-import { tabViewTokens } from "./tab-view.stylex.ts";
-
-/**
- * Where the rail shows in place of the tab bar: where the view is as wide as
- * `breakpoints.md`. The view measures its own width, so a `TabView` in a
- * frame, such as a demo, takes the form that fits the frame.
- */
-const RAIL = "@container tab-view (width >= 768px)";
+import { tabViewQueries, tabViewTokens } from "./tab-view.stylex.ts";
 
 interface TabViewProps {
   /**
@@ -114,8 +106,10 @@ interface TabViewProps {
 /**
  * The frame of an app with a few top-level destinations. Where the view is
  * `md` wide or wider, a narrow rail on the inline-start edge holds them, each
- * an icon over a small label, the current one raised on the rail, with the
- * `header` at its top and the `footer` at its bottom. Below that, a `TabBar`
+ * an icon over a small label, the current one raised on the canvas, with the
+ * `header` at its top and the `footer` at its bottom. The rail has no fill
+ * of its own, so the content beside it, such as the islands of a
+ * `NavigationSplitView`, floats on the same canvas. Below that, a `TabBar`
  * floats over the bottom of the screen instead. A container query on the
  * view chooses, so the server paints the right one. The content goes under
  * the bar: `tabViewTokens.barClearance` is the strip the bar takes, and each
@@ -256,16 +250,16 @@ const styles = stylex.create({
     // the status bar.
     "--header-controls-clearance": {
       default: "env(safe-area-inset-top)",
-      [RAIL]: "0px",
+      [tabViewQueries.rail]: "0px",
     },
     [tabViewTokens.barClearance]: {
       default: `calc(${tabBarTokens.blockSize} + ${tabViewTokens.barInsetBlockEnd})`,
-      [RAIL]: "0px",
+      [tabViewQueries.rail]: "0px",
     },
     display: "grid",
     gridTemplateColumns: {
       default: "minmax(0, 1fr)",
-      [RAIL]: "auto minmax(0, 1fr)",
+      [tabViewQueries.rail]: "auto minmax(0, 1fr)",
     },
     gridTemplateRows: "minmax(0, 1fr)",
     blockSize: "100%",
@@ -273,7 +267,7 @@ const styles = stylex.create({
   // The rail is as tall as the screen, and as tall as its container where
   // that is shorter.
   rail: {
-    display: { default: "none", [RAIL]: "flex" },
+    display: { default: "none", [tabViewQueries.rail]: "flex" },
     flexDirection: "column",
     alignItems: "center",
     gap: rhythm.item,
@@ -288,12 +282,6 @@ const styles = stylex.create({
     paddingBlockEnd: `calc(${space._3} + env(safe-area-inset-bottom))`,
     paddingInlineStart: `calc(${space._0} + env(safe-area-inset-left))`,
     paddingInlineEnd: space._0,
-    borderInlineEndWidth: border.size_1,
-    borderInlineEndStyle: "solid",
-    borderInlineEndColor: color.border,
-    // The rail is the track of the destinations, and the current one is
-    // raised on it, as the options of a SegmentedControl are.
-    backgroundColor: color.bgControlSunken,
   },
   slot: {
     display: "flex",
@@ -370,7 +358,7 @@ const styles = stylex.create({
   // never covers the top-centre point that iOS Safari samples for the status
   // bar colour.
   bar: {
-    display: { default: "block", [RAIL]: "none" },
+    display: { default: "block", [tabViewQueries.rail]: "none" },
     position: "fixed",
     insetInlineStart: pageGutter.inlineStart,
     insetInlineEnd: pageGutter.inlineEnd,

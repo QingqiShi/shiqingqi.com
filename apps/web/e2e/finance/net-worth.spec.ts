@@ -303,15 +303,24 @@ test.describe("Reorder on a 390 px touch screen", () => {
       .poll(async () => (await handleNames(page)).slice(1, 4))
       .toEqual(SAVINGS_FIRST);
 
-    const scrolled = await page.evaluate(() => window.scrollY);
+    const scrollTop = () =>
+      page.getByText("Sam Current").evaluate((element) => {
+        let node = element.parentElement;
+        while (
+          node !== null &&
+          !["auto", "scroll"].includes(getComputedStyle(node).overflowY)
+        ) {
+          node = node.parentElement;
+        }
+        return node?.scrollTop ?? 0;
+      });
+    const scrolled = await scrollTop();
     const row = await centreOf(page.getByText("Sam Current"));
     for (const [index, y] of [row.y, row.y - 100, row.y - 200].entries()) {
       await touch(index === 0 ? "touchStart" : "touchMove", row.x, y);
     }
     await touch("touchEnd");
-    await expect
-      .poll(() => page.evaluate(() => window.scrollY))
-      .toBeGreaterThan(scrolled);
+    await expect.poll(scrollTop).toBeGreaterThan(scrolled);
     expect((await handleNames(page)).slice(1, 4)).toEqual(SAVINGS_FIRST);
   });
 });

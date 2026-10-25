@@ -18,9 +18,10 @@ export const splitViewWidths = stylex.defineConsts({
  * where the content keeps at least 24.75rem beside it, collapsed where the
  * view is wider than a phone, and not at all on a phone, where the content
  * fills the view. `detailBeside` is where the detail fits beside the
- * collapsed sidebar and at least 20rem of content. The view measures the
- * same width in script, `DETAIL_BESIDE_MIN_REM` in
- * `navigation-split-view.tsx`, and shows the detail in a sheet below it.
+ * collapsed sidebar and at least 20rem of content. Each width also holds
+ * the gaps around the islands, 0.5rem each. The view measures the same
+ * width in script, `DETAIL_BESIDE_MIN_REM` in `navigation-split-view.tsx`,
+ * and shows the detail in a sheet below it.
  *
  * @internal
  */
@@ -28,11 +29,11 @@ export const splitViewQueries = stylex.defineConsts({
   /** The content fills the view, as on a phone. */
   contentAlone: "@container (width < 30rem)",
   /** The collapsed sidebar and the content. */
-  contentBesideCollapsed: "@container (30rem <= width < 46rem)",
+  contentBesideCollapsed: "@container (30rem <= width < 47.5rem)",
   /** The full sidebar and the content. */
-  contentBesideSidebar: "@container (width >= 46rem)",
+  contentBesideSidebar: "@container (width >= 47.5rem)",
   /** The detail fits beside the collapsed sidebar and the content. */
-  detailBeside: "@container (width >= 48.75rem)",
+  detailBeside: "@container (width >= 50.75rem)",
 });
 
 /**

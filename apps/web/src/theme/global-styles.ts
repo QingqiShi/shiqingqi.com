@@ -8,7 +8,7 @@ import {
 // Every color token is a `light-dark()` pair, so theming is driven entirely by
 // `color-scheme`: the default follows the OS preference, and forcing a theme
 // just pins the scheme — no per-theme variable sets exist. A Finance page also
-// gets `financeTheme`, which changes the accent and nothing else.
+// gets `financeTheme`, which changes the accent and the canvas.
 export const globalStyles = stylex.create({
   forceLight: {
     colorScheme: "light",

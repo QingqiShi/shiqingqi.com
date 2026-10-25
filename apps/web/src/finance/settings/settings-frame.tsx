@@ -4,11 +4,9 @@ import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
-import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
-import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -19,7 +17,10 @@ import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
-import { FinancePageColumn } from "../shell/finance-page-column.tsx";
+import {
+  FinanceIsland,
+  FinanceIslands,
+} from "../shell/finance-page-column.tsx";
 import { SettingsFinanceLogo } from "./settings-finance-logo.tsx";
 import {
   isSettingsSection,
@@ -31,10 +32,10 @@ import { useIsOwner } from "./use-is-owner.ts";
 import { useRecoveryEmail } from "./use-recovery-email.ts";
 
 /**
- * Settings: the section menu beside the open section at `lg` and wider.
- * Below `lg` the menu is its own page and each section opens on its own
- * with a way back. Below `md` the menu page also shows the signed-in Member
- * and the Finance mark.
+ * Settings: the section menu beside the open section at `lg` and wider,
+ * each in its own island. Below `lg` the menu is its own page and each
+ * section opens on its own with a way back. Below `md` the menu page also
+ * shows the signed-in Member and the Finance mark.
  * A dot on Members says the signed-in user has no confirmed Recovery email;
  * it is stronger for the owner, whom nobody else can let back in.
  */
@@ -44,8 +45,6 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
   const isOwner = useIsOwner();
   const recoveryEmail = useRecoveryEmail();
   const needsRecoveryEmail = recoveryEmail?.verified === false;
-  const sticky = useEffectSticky();
-  const { ref, css } = sticky;
   const noRecoveryEmail = t({
     en: "No confirmed recovery email",
     zh: "没有已确认的恢复邮箱",
@@ -69,14 +68,12 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
   };
 
   return (
-    <FinancePageColumn>
-      <div css={styles.root}>
-        <nav
-          ref={ref}
-          aria-label={t({ en: "Settings", zh: "设置" })}
-          css={[styles.nav, current !== null && styles.navOnSection, css]}
-        >
-          <EffectCarrier value={sticky}>
+    <FinanceIslands>
+      <FinanceIsland
+        css={[styles.menu, current !== null && styles.menuOnSection]}
+      >
+        <div css={styles.menuStack}>
+          <nav aria-label={t({ en: "Settings", zh: "设置" })}>
             <Heading level={1} look="h3">
               {t({ en: "Settings", zh: "设置" })}
             </Heading>
@@ -103,21 +100,21 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
                 </NavLink>
               ))}
             </NavList>
-          </EffectCarrier>
-        </nav>
-        {current === null ? (
-          <>
-            <SettingsSignedInMember />
-            <SettingsFinanceLogo />
-          </>
-        ) : null}
-        <div
-          css={[
-            stack.item,
-            styles.content,
-            current === null && styles.contentOnIndex,
-          ]}
-        >
+          </nav>
+          {current === null ? (
+            <>
+              <SettingsSignedInMember />
+              <SettingsFinanceLogo />
+            </>
+          ) : null}
+        </div>
+      </FinanceIsland>
+      {/* A new key opens each section at the top of its island. */}
+      <FinanceIsland
+        key={current ?? "household"}
+        css={current === null && styles.sectionOnIndex}
+      >
+        <div css={[stack.item, styles.content]}>
           {current === null ? null : (
             <div css={styles.back}>
               <AnchorButton
@@ -133,27 +130,25 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
           )}
           {children}
         </div>
-      </div>
-    </FinancePageColumn>
+      </FinanceIsland>
+    </FinanceIslands>
   );
 }
 
 const styles = stylex.create({
-  root: {
+  // At `lg` the menu is as wide as its longest section.
+  menu: {
+    flexGrow: { default: 1, [breakpoints.lg]: 0 },
+    flexShrink: { default: 1, [breakpoints.lg]: 0 },
+    flexBasis: { default: 0, [breakpoints.lg]: "auto" },
+    inlineSize: { default: null, [breakpoints.lg]: "16rem" },
+  },
+  menuOnSection: {
+    display: { default: "none", [breakpoints.lg]: "flex" },
+  },
+  menuStack: {
     display: "grid",
-    gridTemplateColumns: {
-      default: "minmax(0, 1fr)",
-      [breakpoints.lg]: "12rem minmax(0, 1fr)",
-    },
     gap: rhythm.section,
-    alignItems: "start",
-  },
-  nav: {
-    position: { default: "static", [breakpoints.lg]: "sticky" },
-    insetBlockStart: space._4,
-  },
-  navOnSection: {
-    display: { default: "none", [breakpoints.lg]: "block" },
   },
   dot: {
     display: "inline-block",
@@ -170,7 +165,7 @@ const styles = stylex.create({
     minInlineSize: 0,
     maxInlineSize: "48rem",
   },
-  contentOnIndex: {
+  sectionOnIndex: {
     display: { default: "none", [breakpoints.lg]: "flex" },
   },
   back: {
