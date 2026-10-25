@@ -446,7 +446,8 @@ const ROUTES = [
     path: "/design-system/components/divider",
     keywords: ["separator", "rule", "hr", "line"],
   },
-  // The two Shells. Every page gets exactly one of them.
+  // The Shells. Every page gets exactly one of the first two, or a Tab view
+  // for an app with a few top-level destinations.
   {
     section: "components",
     category: "shells",
@@ -458,6 +459,35 @@ const ROUTES = [
     category: "shells",
     path: "/design-system/components/header-footer-layout",
     keywords: ["shell", "header", "footer", "page", "reading"],
+  },
+  {
+    section: "components",
+    category: "shells",
+    path: "/design-system/components/tab-view",
+    keywords: [
+      "shell",
+      "tabs",
+      "navigation rail",
+      "tab bar",
+      "app",
+      "TabView",
+      "SwiftUI",
+    ],
+  },
+  {
+    section: "components",
+    category: "shells",
+    path: "/design-system/components/navigation-split-view",
+    keywords: [
+      "master detail",
+      "list detail",
+      "columns",
+      "split view",
+      "sidebar",
+      "stack",
+      "NavigationSplitView",
+      "SwiftUI",
+    ],
   },
   // First in the section, ahead of the parts it is built from: the fastest
   // answer to "what does this add up to" is one screen that adds up.

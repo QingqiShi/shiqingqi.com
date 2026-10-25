@@ -2,6 +2,7 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import {
   duration,
   easing,
@@ -19,10 +20,29 @@ import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";
  * Where the Replica stands against the server: synced, syncing, offline
  * with changes waiting, or a problem, with a retry once a retry can help,
  * or a reload when the server or another tab runs newer code.
+ * `compact` shows the icon alone, for the rail, and keeps the words for
+ * assistive technology and the pointer.
  */
-export function SyncStatusIndicator() {
+export function SyncStatusIndicator({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
   const { status, tone, label, icon, spinning } = useSyncStatusSummary();
   const { runtime } = useFinanceRuntime();
+
+  if (compact) {
+    return (
+      <span
+        css={[typeRole.caption, styles.root, toneStyles[tone]]}
+        role="status"
+        title={label}
+      >
+        <span css={[styles.icon, spinning && styles.spin]}>{icon}</span>
+        <span css={a11y.srOnly}>{label}</span>
+      </span>
+    );
+  }
 
   const downloadFailing =
     (status.problem === "server" || status.problem === "busy") &&

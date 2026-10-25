@@ -5,6 +5,7 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -15,7 +16,6 @@ import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { Link } from "#src/links/link.tsx";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
@@ -23,6 +23,7 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
+import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import type {
   AccountRow,
@@ -32,6 +33,7 @@ import type {
 } from "../sync/row-schemas.ts";
 import { LedgerEntryLink } from "./ledger-entry-link.tsx";
 import { useDescribeLedgerEntry } from "./use-describe-ledger-entry.ts";
+import { useNetWorthUrl } from "./use-net-worth-url.ts";
 import { useUnbackedEntries } from "./use-unbacked-entries.ts";
 
 interface BankBalanceProps {
@@ -82,7 +84,7 @@ export function BankBalanceSummary({
 
   return (
     <div role="status">
-      <Link
+      <SplitViewLink
         href={href}
         {...stylex.props(
           row.tight,
@@ -100,7 +102,7 @@ export function BankBalanceSummary({
         <span aria-hidden css={styles.caret}>
           <CaretRightIcon weight="bold" />
         </span>
-      </Link>
+      </SplitViewLink>
     </div>
   );
 }
@@ -156,9 +158,8 @@ function UnbackedEntryList({
 }) {
   const locale = useLocale();
   const describe = useDescribeLedgerEntry();
+  const url = useNetWorthUrl();
   const runUndoable = useUndoableMutations();
-  const showToast = useToast();
-  const { runtime } = useFinanceRuntime();
   const [expanded, setExpanded] = useState(false);
   const [keptIds, setKeptIds] = useState<ReadonlySet<string>>(() => new Set());
   const unbacked = useUnbackedRows(link, accountId, ourExcess);
@@ -173,50 +174,15 @@ function UnbackedEntryList({
   const deleteLabel = t({ en: "Delete", zh: "删除" });
   const deletedLabel = t({ en: "Deleted", zh: "已删除" });
   const keepLabel = t({ en: "Keep", zh: "保留" });
-  const keptLabel = t({ en: "Kept", zh: "已保留" });
-  const undoLabel = t({ en: "Undo", zh: "撤销" });
-  const failedLabel = t({
-    en: "Couldn't save. Try again.",
-    zh: "保存失败，请重试。",
-  });
 
-  const setKept = (transactionId: string, kept: boolean) => {
+  const keep = useKeepTransaction(link, (transactionId, kept) => {
     setKeptIds((current) => {
       const next = new Set(current);
       if (kept) next.add(transactionId);
       else next.delete(transactionId);
       return next;
     });
-  };
-
-  const unkeep = async (transactionId: string) => {
-    try {
-      await bankApiClient.unkeepTransaction(link.id, transactionId);
-      await runtime.loop.sync();
-      setKept(transactionId, false);
-    } catch {
-      showToast({ message: failedLabel });
-    }
-  };
-
-  const keep = async (transactionId: string) => {
-    setKept(transactionId, true);
-    try {
-      await bankApiClient.keepTransaction(link.id, transactionId);
-    } catch {
-      setKept(transactionId, false);
-      showToast({ message: failedLabel });
-      return;
-    }
-    showToast({
-      message: keptLabel,
-      action: {
-        label: undoLabel,
-        onAction: () => void unkeep(transactionId),
-      },
-    });
-    await runtime.loop.sync();
-  };
+  });
 
   const showAllLabel = t({ en: "Show all {count}", zh: "显示全部 {count} 笔" });
 
@@ -250,6 +216,11 @@ function UnbackedEntryList({
                       amountMinor={entry.amountMinor}
                       currency={link.currency}
                       trailing={displayDay(entry.date, locale, "day")}
+                      href={url.hrefOf({
+                        account: accountId,
+                        tx: transaction.id,
+                      })}
+                      isSelected={url.tx === transaction.id}
                     />
                   </div>
                   <Button
@@ -306,6 +277,165 @@ function UnbackedEntryList({
         </p>
       )}
     </>
+  );
+}
+
+/**
+ * Keeps a Transaction that the bank left out, with an Undo on the toast.
+ * `setKept` marks it at once, and unmarks it when the keep fails or is
+ * undone.
+ */
+function useKeepTransaction(
+  link: BankLinkRow,
+  setKept: (transactionId: string, kept: boolean) => void,
+) {
+  const showToast = useToast();
+  const { runtime } = useFinanceRuntime();
+  const keptLabel = t({ en: "Kept", zh: "已保留" });
+  const undoLabel = t({ en: "Undo", zh: "撤销" });
+  const failedLabel = t({
+    en: "Couldn't save. Try again.",
+    zh: "保存失败，请重试。",
+  });
+
+  const unkeep = async (transactionId: string) => {
+    try {
+      await bankApiClient.unkeepTransaction(link.id, transactionId);
+      await runtime.loop.sync();
+      setKept(transactionId, false);
+    } catch {
+      showToast({ message: failedLabel });
+    }
+  };
+
+  return async (transactionId: string) => {
+    setKept(transactionId, true);
+    try {
+      await bankApiClient.keepTransaction(link.id, transactionId);
+    } catch {
+      setKept(transactionId, false);
+      showToast({ message: failedLabel });
+      return;
+    }
+    showToast({
+      message: keptLabel,
+      action: {
+        label: undoLabel,
+        onAction: () => void unkeep(transactionId),
+      },
+    });
+    await runtime.loop.sync();
+  };
+}
+
+/**
+ * The notice on one Transaction of a linked account's Ledger that the bank
+ * does not show, with "Keep it" for a real payment the bank left out and
+ * "Delete" for a duplicate. Nothing shows where the bank shows it, or where
+ * the account's balance agrees with the bank's.
+ */
+export function UnbackedTransactionNotice({
+  accountId,
+  transactionId,
+  onDeleted,
+}: {
+  accountId: string;
+  transactionId: string;
+  onDeleted: () => void;
+}) {
+  const link = useReplica(
+    (snapshot) =>
+      liveRowSelectors
+        .bankLinks(snapshot)
+        .find((candidate) => candidate.accountId === accountId) ?? null,
+  );
+  const account = useReplica((snapshot) =>
+    snapshot.tables.accounts.get(accountId),
+  );
+  if (link === null || account === undefined) return null;
+  return (
+    <UnbackedTransactionGap
+      link={link}
+      account={account}
+      transactionId={transactionId}
+      onDeleted={onDeleted}
+    />
+  );
+}
+
+function UnbackedTransactionGap({
+  link,
+  account,
+  transactionId,
+  onDeleted,
+}: BankBalanceProps & { transactionId: string; onDeleted: () => void }) {
+  const gap = useBalanceGap(link, account);
+  if (gap === null) return null;
+  return (
+    <UnbackedTransactionBanner
+      link={link}
+      accountId={account.id}
+      ourExcess={gap.ourExcess}
+      transactionId={transactionId}
+      onDeleted={onDeleted}
+    />
+  );
+}
+
+function UnbackedTransactionBanner({
+  link,
+  accountId,
+  ourExcess,
+  transactionId,
+  onDeleted,
+}: {
+  link: BankLinkRow;
+  accountId: string;
+  ourExcess: number;
+  transactionId: string;
+  onDeleted: () => void;
+}) {
+  const runUndoable = useUndoableMutations();
+  const [kept, setKept] = useState(false);
+  const unbacked = useUnbackedRows(link, accountId, ourExcess);
+  const keep = useKeepTransaction(link, (_, isKept) => {
+    setKept(isKept);
+  });
+  const deletedLabel = t({ en: "Deleted", zh: "已删除" });
+  if (
+    kept ||
+    !unbacked?.some(({ transaction }) => transaction.id === transactionId)
+  ) {
+    return null;
+  }
+  return (
+    <div role="status" css={[corner.radius_3, stack.tight, styles.notice]}>
+      <p css={[typeRole.bodySmall, styles.text]}>
+        {t({
+          en: "The bank did not show this entry. Keep it if it is real, or delete it if it is a duplicate.",
+          zh: "银行没有显示这笔交易。真实的请保留，重复的请删除。",
+        })}
+      </p>
+      <div css={row.tight}>
+        <Button size="sm" onClick={() => void keep(transactionId)}>
+          {t({ en: "Keep it", zh: "保留" })}
+        </Button>
+        <Button
+          size="sm"
+          look="ghost"
+          icon={<TrashIcon weight="bold" />}
+          onClick={() => {
+            runUndoable(
+              [{ name: "deleteTransaction", args: { id: transactionId } }],
+              { message: deletedLabel },
+            );
+            onDeleted();
+          }}
+        >
+          {t({ en: "Delete", zh: "删除" })}
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -377,6 +507,8 @@ const styles = stylex.create({
     backgroundColor: color.bgWarningSubtle,
   },
   summary: {
+    paddingBlock: space._1,
+    paddingInline: space._2,
     color: color.fg,
     textDecoration: "none",
     backgroundImage: {

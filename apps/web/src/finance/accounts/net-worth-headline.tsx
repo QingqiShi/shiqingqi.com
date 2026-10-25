@@ -26,10 +26,10 @@ interface NetWorthHeadlineProps {
 }
 
 /**
- * Today's net worth, its change since a week ago and since 1 January, and
- * the assets and liabilities it is made of, in whole currency units. While
- * a day or a range is picked on the trend chart, the figure and the line
- * under it show the pick instead.
+ * Today's net worth of the Household, the title of Net worth, and its
+ * change since a week ago and since 1 January, in whole currency units.
+ * While a day or a range is picked on a trend chart, the figure and the
+ * line under it show the pick instead.
  */
 export function NetWorthHeadline({
   sheet,
@@ -49,6 +49,9 @@ export function NetWorthHeadline({
       css={stack.tight}
       aria-label={t({ en: "Net worth today", zh: "今日净资产" })}
     >
+      <h1 css={[typeRole.label, styles.label]}>
+        {t({ en: "Net worth · household", zh: "净资产 · 家庭" })}
+      </h1>
       <span css={[typeRole.h1, typeModifier.numeric, styles.figure]}>
         {pick === null
           ? money(sheet.netWorth)
@@ -56,56 +59,41 @@ export function NetWorthHeadline({
             ? money(pick.value)
             : money(pick.to - pick.from, true)}
       </span>
-      <div css={stack.text}>
-        <div css={styles.layers}>
-          <TodayChanges
-            netWorth={sheet.netWorth}
-            today={today}
-            currency={currency}
-            hidden={pick !== null}
-          />
-          {pick === null ? null : (
-            <span
-              aria-hidden
-              css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
-            >
-              {pick.kind === "point" ? (
-                displayDay(pick.day, locale, "dayYear")
-              ) : (
-                <>
-                  <span
-                    css={[
-                      typeModifier.numeric,
-                      styles.value,
-                      pick.to > pick.from && styles.up,
-                      pick.to < pick.from && styles.down,
-                    ]}
-                  >
-                    {formatPercentChange(
-                      pick.to - pick.from,
-                      pick.from,
-                      locale,
-                      {
-                        short: true,
-                      },
-                    )}
-                  </span>
-                  <span>
-                    {displayDayRange(pick.startDay, pick.endDay, locale)}
-                  </span>
-                </>
-              )}
-            </span>
-          )}
-        </div>
-        <dl css={[cluster.item, typeRole.bodySmall, styles.facts]}>
-          <Fact label={t({ en: "Assets", zh: "资产" })}>
-            {money(sheet.assets)}
-          </Fact>
-          <Fact label={t({ en: "Liabilities", zh: "负债" })}>
-            {money(sheet.liabilities)}
-          </Fact>
-        </dl>
+      <div css={styles.layers}>
+        <TodayChanges
+          netWorth={sheet.netWorth}
+          today={today}
+          currency={currency}
+          hidden={pick !== null}
+        />
+        {pick === null ? null : (
+          <span
+            aria-hidden
+            css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
+          >
+            {pick.kind === "point" ? (
+              displayDay(pick.day, locale, "dayYear")
+            ) : (
+              <>
+                <span
+                  css={[
+                    typeModifier.numeric,
+                    styles.value,
+                    pick.to > pick.from && styles.up,
+                    pick.to < pick.from && styles.down,
+                  ]}
+                >
+                  {formatPercentChange(pick.to - pick.from, pick.from, locale, {
+                    short: true,
+                  })}
+                </span>
+                <span>
+                  {displayDayRange(pick.startDay, pick.endDay, locale)}
+                </span>
+              </>
+            )}
+          </span>
+        )}
       </div>
     </section>
   );
@@ -184,6 +172,10 @@ const styles = stylex.create({
   },
   hidden: {
     visibility: "hidden",
+  },
+  label: {
+    margin: 0,
+    color: color.fgMuted,
   },
   figure: {
     fontWeight: font.weight_7,

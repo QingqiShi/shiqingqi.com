@@ -30,7 +30,6 @@ export function holdsFixedDescendants(style: CSSStyleDeclaration) {
     style.transformStyle === "preserve-3d" ||
     style.contentVisibility === "auto" ||
     /\b(layout|paint|strict|content)\b/.test(style.contain) ||
-    /\b(size|inline-size)\b/.test(style.containerType) ||
     /\b(transform|translate|rotate|scale|perspective|filter|backdrop-filter)\b/.test(
       style.willChange,
     )

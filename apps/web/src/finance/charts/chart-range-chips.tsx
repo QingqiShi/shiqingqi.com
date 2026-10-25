@@ -1,5 +1,6 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { t } from "#src/i18n.ts";
 import { CHART_RANGES, type ChartRange } from "./chart-ranges.ts";
@@ -23,6 +24,14 @@ export function ChartRangeChips({ value, onChange }: ChartRangeChipsProps) {
       }))}
       value={value}
       onChange={onChange}
+      css={styles.track}
     />
   );
 }
+
+const styles = stylex.create({
+  // The eight ranges share a narrow column, so the chips touch.
+  track: {
+    gap: 0,
+  },
+});

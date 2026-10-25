@@ -1,23 +1,27 @@
 "use client";
 
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
-import { ListRow } from "@tuja/ui/components/list-row";
+import {
+  SplitViewLink,
+  useSplitViewColumn,
+} from "@tuja/ui/components/navigation-split-view";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { Link } from "#src/links/link.tsx";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { accountDetailLine } from "./account-detail-line.ts";
-import { AccountPaneLink } from "./account-pane-link.tsx";
 import type { AccountLine } from "./build-balance-sheet.ts";
-import { institutionIconUrl } from "./institution-icon-url.ts";
 import { VALUATION_KINDS } from "./valuation-kinds.ts";
 
 interface AccountRowProps {
@@ -25,22 +29,25 @@ interface AccountRowProps {
   baseCurrency: string;
   href: string;
   isSelected: boolean;
+  /** The initials that mark the account, the same as in the strip. */
+  initials: string;
 }
 
 /**
- * One account in the Net worth list: its institution's icon, its name with
- * the owner and institution that tell it apart, its balance, and the facts
- * that matter for its kind. The row opens the account.
+ * One account in the Net worth list: its initials, its name with the owner
+ * and institution that tell it apart, its balance, and the facts that matter
+ * for its kind. The row opens the account. The name wraps and is never cut.
  */
 export function AccountRow({
   line,
   baseCurrency,
   href,
   isSelected,
+  initials,
 }: AccountRowProps) {
   const locale = useLocale();
   const accountName = useAccountDisplayName();
-  const isWide = useIsWideLayout();
+  const isInSidebar = useSplitViewColumn()?.column === "sidebar";
   const { account } = line;
   const name = accountName(account);
   const facts: string[] = [];
@@ -66,36 +73,38 @@ export function AccountRow({
   const differs = account.currency !== baseCurrency;
 
   return (
-    <ListRow
-      href={href}
-      linkComponent={isWide ? AccountPaneLink : Link}
-      aria-current={isSelected ? "true" : undefined}
-      caret={!isWide}
-      leading={
-        <Avatar
-          name={account.institution.trim() || account.name}
-          src={institutionIconUrl(account)}
-          shape="square"
-          aria-hidden
-        />
-      }
-      detail={
-        facts.length > 0 || line.hidden !== null ? (
-          <span css={[row.inline, styles.facts]}>
-            {line.hidden === null ? null : (
-              <Badge size="sm" intent="neutral">
-                {line.hidden === "closed"
-                  ? t({ en: "Closed", zh: "已关闭" })
-                  : t({ en: "Not counted", zh: "不计入" })}
-              </Badge>
-            )}
-            <span css={styles.factText}>{facts.join(" · ")}</span>
-          </span>
-        ) : null
-      }
-      trailing={
+    <li css={styles.item}>
+      <SplitViewLink
+        href={href}
+        aria-current={isSelected ? "true" : undefined}
+        {...stylex.props(
+          corner.radius_3,
+          transition.colors,
+          selected.quiet,
+          a11y.focusRingInset,
+          styles.row,
+        )}
+      >
+        <Avatar name={name} initials={initials} shape="square" aria-hidden />
+        <span css={styles.main}>
+          <span css={[typeRole.bodySmall, styles.name]}>{name}</span>
+          {facts.length > 0 || line.hidden !== null ? (
+            <span css={[row.inline, typeRole.caption, styles.facts]}>
+              {line.hidden === null ? null : (
+                <Badge size="sm" intent="neutral">
+                  {line.hidden === "closed"
+                    ? t({ en: "Closed", zh: "已关闭" })
+                    : t({ en: "Not counted", zh: "不计入" })}
+                </Badge>
+              )}
+              <span css={styles.factText}>{facts.join(" · ")}</span>
+            </span>
+          ) : null}
+        </span>
         <span css={styles.amounts}>
-          <span css={[typeRole.body, typeModifier.numeric, styles.balance]}>
+          <span
+            css={[typeRole.bodySmall, typeModifier.numeric, styles.balance]}
+          >
             {formatMoney(line.balance, account.currency, locale)}
           </span>
           {differs ? (
@@ -106,16 +115,43 @@ export function AccountRow({
             </span>
           ) : null}
         </span>
-      }
-    >
-      {name}
-    </ListRow>
+        {isInSidebar ? null : (
+          <span aria-hidden css={styles.caret}>
+            <CaretRightIcon weight="bold" />
+          </span>
+        )}
+      </SplitViewLink>
+    </li>
   );
 }
 
 const styles = stylex.create({
+  item: {
+    display: "flex",
+  },
+  row: {
+    display: "flex",
+    alignItems: "center",
+    gap: rhythm.tight,
+    flexGrow: 1,
+    minInlineSize: 0,
+    paddingBlock: space._1,
+    paddingInline: space._2,
+    color: color.fg,
+    textDecoration: "none",
+  },
+  main: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minInlineSize: 0,
+  },
+  name: {
+    fontWeight: font.weight_5,
+  },
   facts: {
     minInlineSize: 0,
+    color: color.fgMuted,
   },
   factText: {
     overflow: "hidden",
@@ -133,5 +169,10 @@ const styles = stylex.create({
   },
   balance: {
     fontWeight: font.weight_5,
+  },
+  caret: {
+    display: "inline-flex",
+    flexShrink: 0,
+    color: color.fgMuted,
   },
 });

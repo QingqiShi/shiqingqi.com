@@ -1,6 +1,7 @@
 "use client";
 
 import { Sheet } from "@tuja/ui/components/sheet";
+import { findTwinElement } from "@tuja/ui/utils/find-twin-element";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { t } from "#src/i18n.ts";
 
@@ -14,29 +15,11 @@ interface PaneSheetProps {
   children: ReactNode;
 }
 
-/** Focuses the element that opened the sheet, or the one that took its place when a list drew its rows again. */
-function returnFocus(trigger: HTMLElement) {
-  if (trigger.isConnected) {
-    trigger.focus();
-    return;
-  }
-  const href = trigger.getAttribute("href");
-  const twin =
-    (trigger.id ? document.getElementById(trigger.id) : null) ??
-    (href
-      ? [...document.querySelectorAll<HTMLElement>("a[href]")].find(
-          (anchor) => anchor.getAttribute("href") === href,
-        )
-      : undefined);
-  twin?.focus();
-}
-
 /**
- * A detail pane in a `Sheet`, below `lg`. Drive
- * `isOpen` from the URL (`useUrlSelection`) so back closes it and a reload
- * opens it again; `MasterDetailLayout` does that wiring. When it closes,
- * focus goes back to the row that opened it, also when the list drew that
- * row again: give a row a stable `id` or `href`.
+ * A task in a `Sheet`, such as a new Transaction or an edit of an account,
+ * at every width. Drive `isOpen` from the URL where a reload should open it
+ * again. When it closes, focus goes back to the element that opened it, also
+ * when a list drew that element again: give a row a stable `id` or `href`.
  */
 export function PaneSheet({
   isOpen,
@@ -59,7 +42,7 @@ export function PaneSheet({
     if (!trigger) return;
     const frame = requestAnimationFrame(() => {
       if (document.activeElement !== document.body) return;
-      returnFocus(trigger);
+      findTwinElement(trigger)?.focus();
     });
     return () => {
       cancelAnimationFrame(frame);

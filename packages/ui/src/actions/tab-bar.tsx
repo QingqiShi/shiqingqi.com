@@ -48,7 +48,7 @@ export interface TabBarLinkProps extends ComponentProps<"a"> {
 }
 
 /** @internal */
-function PlainAnchor(props: TabBarLinkProps) {
+export function PlainAnchor(props: TabBarLinkProps) {
   return <a {...props} />;
 }
 

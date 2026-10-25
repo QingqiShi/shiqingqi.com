@@ -11,12 +11,12 @@ import {
   test,
   uniqueEmail,
 } from "./finance-test.ts";
-import { DESKTOP, SYNC_TIMEOUT } from "./transactions-page.ts";
+import { clickSignOut, DESKTOP, SYNC_TIMEOUT } from "./transactions-page.ts";
 
 test.use({ viewport: DESKTOP });
 
 async function signOut(page: Page) {
-  await page.getByRole("button", { name: "Sign out" }).click();
+  await clickSignOut(page);
   await expect(page).toHaveURL("/finance/sign-in");
 }
 

@@ -1,65 +1,228 @@
 "use client";
 
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import * as stylex from "@stylexjs/stylex";
+import { AnchorButton } from "@tuja/ui/components/anchor-button";
+import { Heading } from "@tuja/ui/components/heading";
+import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
-import { grow } from "@tuja/ui/primitives/flex.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { useSearchParams } from "next/navigation";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import { t } from "#src/i18n.ts";
+import { Link } from "#src/links/link.tsx";
 import { useReplica } from "../replica/use-replica.ts";
-import { MasterDetailLayout } from "../shell/master-detail-layout.tsx";
-import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
-import { useUrlSelection } from "../shell/use-url-selection.ts";
+import { ColumnLink, useColumnReplace } from "../shell/column-link.tsx";
+import { FinanceAddButton } from "../shell/finance-add-button.tsx";
+import { FinancePageColumn } from "../shell/finance-page-column.tsx";
+import { useAccountDisplayName } from "../store/use-account-display-name.ts";
+import { useTeachAi } from "../transactions/use-teach-ai.tsx";
 import { AccountDetail } from "./account-detail.tsx";
-import { NetWorthOverview } from "./net-worth-overview.tsx";
+import { AccountEditorSheet } from "./account-editor-sheet.tsx";
+import { AccountStrip } from "./account-strip.tsx";
+import type { BalanceSheet } from "./build-balance-sheet.ts";
+import { HouseholdView } from "./household-view.tsx";
+import { LedgerTransaction } from "./ledger-transaction.tsx";
+import { NetWorthPickProvider } from "./net-worth-pick-provider.tsx";
+import { NetWorthSidebar } from "./net-worth-sidebar.tsx";
 import { NetWorthSkeleton } from "./net-worth-skeleton.tsx";
-import { NetWorthTrend } from "./net-worth-trend.tsx";
+import { selectBalanceSheet } from "./select-balance-sheet.ts";
 import { UpdateValuesForm } from "./update-values-form.tsx";
+import { useBaseCurrency } from "./use-base-currency.ts";
+import { useHouseholdToday } from "./use-household-today.ts";
+import { useNetWorthUrl, type NetWorthUrl } from "./use-net-worth-url.ts";
 
-function SelectedAccount() {
-  const selection = useUrlSelection("account");
-  const isWide = useIsWideLayout();
-  return selection.value === null ? null : (
-    <AccountDetail
-      accountId={selection.value}
-      headingLevel={2}
-      onDeleted={selection.clear}
-      onClose={isWide ? selection.clear : undefined}
-    />
-  );
-}
+const ReorderAccounts = dynamic(() =>
+  import("./reorder-accounts.tsx").then((mod) => mod.ReorderAccounts),
+);
 
 /**
- * `/finance`: the Net worth list beside the selected account at `lg` and
- * wider (`?account=`), and the "Update balances" form (`?mode=update`). With
- * no account picked, the trend fills the pane; with one picked, the trend
- * moves to the top of the list.
+ * `/finance`: the Household and its accounts in columns. The sidebar lists
+ * today's net worth and every account by Group. The content column shows the
+ * Household (`/finance`) or one account (`?account=`), and the detail column
+ * a Transaction of that account's Ledger (`&tx=`). Also the "Update
+ * balances" form (`?mode=update`) and the reorder of the accounts
+ * (`?mode=reorder`), each on a screen of its own.
  */
 export function NetWorthScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
-  const mode = useSearchParams().get("mode");
-  const isAccountOpen = useUrlSelection("account").value !== null;
-  const isWide = useIsWideLayout();
+  const url = useNetWorthUrl();
 
   if (!bootstrapped) return <NetWorthSkeleton />;
-  if (mode === "update") return <UpdateValuesForm />;
+  if (url.mode === "update") {
+    return (
+      <FinancePageColumn>
+        <UpdateValuesForm />
+      </FinancePageColumn>
+    );
+  }
+  if (url.mode === "reorder") {
+    return (
+      <FinancePageColumn accessory={<FinanceAddButton />}>
+        <ReorderScreen url={url} />
+      </FinancePageColumn>
+    );
+  }
   return (
-    <MasterDetailLayout
-      param="account"
-      masterKey={mode ?? undefined}
-      master={<NetWorthOverview showTrend={!isWide || isAccountOpen} />}
-      detail={<SelectedAccount />}
-      empty={
-        <div css={[stack.item, grow._1]}>
-          <NetWorthTrend height="fill" />
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "Pick an account to see its history.",
-              zh: "选择一个账户查看其历史。",
-            })}
-          </Text>
-        </div>
-      }
-      detailLabel={t({ en: "Account", zh: "账户" })}
-    />
+    <NetWorthPickProvider>
+      <NetWorthColumns url={url} />
+    </NetWorthPickProvider>
   );
 }
+
+function NetWorthColumns({ url }: { url: NetWorthUrl }) {
+  const replace = useColumnReplace();
+  const today = useHouseholdToday();
+  const currency = useBaseCurrency();
+  const sheet = useReplica((snapshot) => selectBalanceSheet(snapshot, today));
+  const accountName = useAccountDisplayName();
+  const account = useReplica((snapshot) =>
+    url.account === null ? null : snapshot.tables.accounts.get(url.account),
+  );
+  const groupName = useReplica((snapshot) =>
+    account ? snapshot.tables.accountGroups.get(account.groupId)?.name : null,
+  );
+  const teach = useTeachAi();
+  const [creating, setCreating] = useState(false);
+  const createAccount = () => {
+    setCreating(true);
+  };
+  const householdLabel = t({ en: "Household", zh: "家庭" });
+  const householdHref = url.hrefOf({ account: null });
+  const netWorthLabel = t({ en: "Net worth", zh: "净资产" });
+
+  return (
+    <>
+      <NavigationSplitView
+        linkComponent={ColumnLink}
+        replace={replace}
+        closeLabel={t({ en: "Close", zh: "关闭" })}
+        sidebar={{
+          label: netWorthLabel,
+          node: (
+            <NetWorthSidebar
+              sheet={sheet}
+              today={today}
+              currency={currency}
+              url={url}
+              onCreateAccount={createAccount}
+            />
+          ),
+        }}
+        collapsedSidebar={<AccountStrip sheet={sheet} url={url} />}
+        content={{
+          label: account ? accountName(account) : householdLabel,
+          key: url.account ?? "household",
+          back:
+            url.account === null
+              ? null
+              : {
+                  href: householdHref,
+                  label: groupName
+                    ? `${netWorthLabel} · ${groupName}`
+                    : netWorthLabel,
+                },
+          accessory: <FinanceAddButton />,
+          node: (
+            <div css={styles.column}>
+              {url.account === null ? (
+                <HouseholdView
+                  sheet={sheet}
+                  today={today}
+                  currency={currency}
+                  url={url}
+                  onCreateAccount={createAccount}
+                />
+              ) : (
+                <AccountDetail
+                  accountId={url.account}
+                  onDeleted={() => {
+                    replace(householdHref);
+                  }}
+                />
+              )}
+            </div>
+          ),
+        }}
+        detail={
+          url.account !== null && url.tx !== null
+            ? {
+                label: t({ en: "Transaction", zh: "交易" }),
+                key: url.tx,
+                back: {
+                  href: url.hrefOf({ account: url.account }),
+                  label: account ? accountName(account) : "",
+                },
+                node: (
+                  <LedgerTransaction
+                    accountId={url.account}
+                    transactionId={url.tx}
+                    watchCorrection={teach.watch}
+                  />
+                ),
+              }
+            : null
+        }
+      />
+      <AccountEditorSheet
+        account={null}
+        isOpen={creating}
+        onClose={() => {
+          setCreating(false);
+        }}
+      />
+      {teach.sheet}
+    </>
+  );
+}
+
+/** `?mode=reorder`: every Group and account with a handle that moves it. */
+function ReorderScreen({ url }: { url: NetWorthUrl }) {
+  const today = useHouseholdToday();
+  const sheet: BalanceSheet = useReplica((snapshot) =>
+    selectBalanceSheet(snapshot, today),
+  );
+  return (
+    <div css={stack.group}>
+      <header css={stack.tight}>
+        <div css={[cluster.item, styles.header]}>
+          <Heading level={1} look="h3" css={styles.title}>
+            {t({ en: "Reorder accounts", zh: "调整账户顺序" })}
+          </Heading>
+          <AnchorButton
+            href={url.modeHref(null)}
+            linkComponent={Link}
+            size="sm"
+            look="primary"
+            icon={<CheckIcon weight="bold" />}
+          >
+            {t({ en: "Done", zh: "完成" })}
+          </AnchorButton>
+        </div>
+        <Text as="p" look="bodySmall" tone="muted">
+          {t({
+            en: "Drag a group or an account to move it. An account stays in its group.",
+            zh: "拖动分组或账户即可调整顺序。账户只能在所属分组内移动。",
+          })}
+        </Text>
+      </header>
+      <ReorderAccounts sheet={sheet} />
+    </div>
+  );
+}
+
+const styles = stylex.create({
+  column: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+  },
+  header: {
+    justifyContent: "space-between",
+    rowGap: rhythm.tight,
+  },
+  title: {
+    margin: 0,
+  },
+});

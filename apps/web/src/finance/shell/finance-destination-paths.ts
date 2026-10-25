@@ -9,8 +9,6 @@ export const FINANCE_DESTINATION_PATHS = [
 
 /** Whether `current` (a locale-free path) is inside the destination at `path`. */
 export function isCurrentDestination(current: string, path: string) {
-  if (path === "/finance") {
-    return current === "/finance" || current.startsWith("/finance/accounts");
-  }
+  if (path === "/finance") return current === "/finance";
   return current === path || current.startsWith(`${path}/`);
 }

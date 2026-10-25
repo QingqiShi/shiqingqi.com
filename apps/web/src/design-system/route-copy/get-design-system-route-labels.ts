@@ -136,6 +136,11 @@ export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
       en: "Header & footer layout",
       zh: "页头页脚布局",
     }),
+    "/design-system/components/tab-view": t({ en: "Tab view", zh: "标签视图" }),
+    "/design-system/components/navigation-split-view": t({
+      en: "Navigation split view",
+      zh: "导航分栏视图",
+    }),
     "/design-system/examples/movie-detail": t({
       en: "Movie details",
       zh: "影片详情",

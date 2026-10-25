@@ -219,6 +219,14 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "A reading-density page shell with floating header controls and an optional footer.",
       zh: "带悬浮页头控件与可选页脚的阅读密度页面骨架。",
     }),
+    "/design-system/components/tab-view": t({
+      en: "An app shell: a narrow rail of destinations on wide screens, a floating tab bar on small ones.",
+      zh: "应用骨架：宽屏上是一条窄的目标页侧轨，小屏上是一枚悬浮标签栏。",
+    }),
+    "/design-system/components/navigation-split-view": t({
+      en: "A sidebar, the content and the detail of what is picked, side by side, with the detail in a sheet on a phone.",
+      zh: "侧栏、内容与所选项的详情并排显示；在手机上，详情在面板中打开。",
+    }),
     "/design-system/examples/movie-detail": t({
       en: "A whole movie-details screen built from nothing but this system.",
       zh: "一整个影片详情页面，完全由本系统搭建。",

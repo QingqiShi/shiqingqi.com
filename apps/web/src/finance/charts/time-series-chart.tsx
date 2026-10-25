@@ -66,6 +66,13 @@ interface TimeSeriesChartProps {
    * row is kept for assistive technology only.
    */
   onPick?: (pick: ChartPick | null) => void;
+  /**
+   * Below `md`, the plot goes through the page gutter to the edges of the
+   * screen. False keeps it inside its parent, such as a card.
+   */
+  bleeds?: boolean;
+  /** A control at the end of the readout row, such as the range picker. */
+  accessory?: ReactNode;
 }
 
 const TOP = 22;
@@ -119,6 +126,8 @@ export function TimeSeriesChart({
   restReadout,
   height: heightProp = 200,
   onPick,
+  bleeds = true,
+  accessory,
 }: TimeSeriesChartProps) {
   const locale = useLocale();
   const titleId = useId();
@@ -234,62 +243,78 @@ export function TimeSeriesChart({
     extremeEdge,
   );
 
+  const readout = (
+    <div
+      id={readoutId}
+      aria-live="polite"
+      css={[
+        typeRole.caption,
+        styles.readout,
+        accessory != null && styles.readoutBesideAccessory,
+        onPick && a11y.srOnly,
+      ]}
+    >
+      <div
+        css={[
+          row.item,
+          styles.readoutLayer,
+          selection !== null && styles.readoutHidden,
+        ]}
+      >
+        {restReadout}
+      </div>
+      {selection === null ? null : (
+        <div css={[row.item, styles.readoutLayer]}>
+          {range ? (
+            <>
+              <span>
+                <span css={a11y.srOnly}>
+                  {t({ en: "Change: ", zh: "变化：" })}
+                </span>
+                <MoneyChange
+                  changeMinor={change}
+                  fromMinor={from}
+                  currency={currency}
+                  tone
+                />
+              </span>
+              <span>{rangeDays}</span>
+            </>
+          ) : active === null ? null : (
+            <>
+              <span css={[typeModifier.numeric, styles.readoutValue]}>
+                {formatValue(series.values[active])}
+              </span>
+              {activeTrend === null || trend === undefined ? null : (
+                <span css={[row.inline, typeModifier.numeric]}>
+                  <span
+                    aria-hidden
+                    css={[styles.readoutKey, chartMarks.trendKey]}
+                  />
+                  <span css={a11y.srOnly}>
+                    {`${trend.label}${t({ en: ": ", zh: "：" })}`}
+                  </span>
+                  {formatValue(Math.round(activeTrend))}
+                </span>
+              )}
+              <span>{day(active)}</span>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <figure css={[stack.tight, styles.figure, fills && styles.fill]}>
-      <div
-        id={readoutId}
-        aria-live="polite"
-        css={[typeRole.caption, styles.readout, onPick && a11y.srOnly]}
-      >
-        <div
-          css={[
-            row.item,
-            styles.readoutLayer,
-            selection !== null && styles.readoutHidden,
-          ]}
-        >
-          {restReadout}
+      {accessory == null ? (
+        readout
+      ) : (
+        <div css={styles.readoutRow}>
+          {readout}
+          <div css={styles.accessory}>{accessory}</div>
         </div>
-        {selection === null ? null : (
-          <div css={[row.item, styles.readoutLayer]}>
-            {range ? (
-              <>
-                <span>
-                  <span css={a11y.srOnly}>
-                    {t({ en: "Change: ", zh: "变化：" })}
-                  </span>
-                  <MoneyChange
-                    changeMinor={change}
-                    fromMinor={from}
-                    currency={currency}
-                    tone
-                  />
-                </span>
-                <span>{rangeDays}</span>
-              </>
-            ) : active === null ? null : (
-              <>
-                <span css={[typeModifier.numeric, styles.readoutValue]}>
-                  {formatValue(series.values[active])}
-                </span>
-                {activeTrend === null || trend === undefined ? null : (
-                  <span css={[row.inline, typeModifier.numeric]}>
-                    <span
-                      aria-hidden
-                      css={[styles.readoutKey, chartMarks.trendKey]}
-                    />
-                    <span css={a11y.srOnly}>
-                      {`${trend.label}${t({ en: ": ", zh: "：" })}`}
-                    </span>
-                    {formatValue(Math.round(activeTrend))}
-                  </span>
-                )}
-                <span>{day(active)}</span>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+      )}
       <div
         ref={ref}
         tabIndex={0}
@@ -303,6 +328,7 @@ export function TimeSeriesChart({
           corner.radius_2,
           a11y.focusRing,
           styles.plot,
+          bleeds && styles.plotBleeds,
           fills && styles.plotFill,
         ]}
         onPointerDown={pick.onPointerDown}
@@ -567,6 +593,25 @@ const styles = stylex.create({
     minBlockSize: space._5,
     color: color.fgMuted,
   },
+  readoutRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: rhythm.tight,
+  },
+  // Beside the readout where the row is wide enough, and a row of its own
+  // under it where it is not.
+  accessory: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: "18rem",
+    minInlineSize: 0,
+    maxInlineSize: "24rem",
+  },
+  readoutBesideAccessory: {
+    flexGrow: 1,
+  },
   readoutLayer: {
     gridArea: "1 / 1",
     flexWrap: "wrap",
@@ -584,10 +629,15 @@ const styles = stylex.create({
     inlineSize: space._2,
     blockSize: "2px",
   },
-  // Below `md`, the plot goes through the page gutter to the edges of the
-  // screen. The text in the plot stays out of the gutter.
   plot: {
     position: "relative",
+    touchAction: "pan-y",
+    userSelect: "none",
+    cursor: "crosshair",
+  },
+  // Below `md`, the plot goes through the page gutter to the edges of the
+  // screen. The text in the plot stays out of the gutter.
+  plotBleeds: {
     marginInlineStart: {
       default: `calc(-1 * ${pageGutter.inlineStart})`,
       [breakpoints.md]: 0,
@@ -596,13 +646,11 @@ const styles = stylex.create({
       default: `calc(-1 * ${pageGutter.inlineEnd})`,
       [breakpoints.md]: 0,
     },
-    touchAction: "pan-y",
-    userSelect: "none",
-    cursor: "crosshair",
   },
+  // As tall as the default drawing where the column has no height to spare.
   plotFill: {
     flexGrow: 1,
-    minBlockSize: space._14,
+    minBlockSize: "12.5rem",
   },
   svg: {
     display: "block",

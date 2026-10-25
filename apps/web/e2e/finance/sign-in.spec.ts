@@ -7,6 +7,7 @@ import {
   test,
   uniqueEmail,
 } from "./finance-test.ts";
+import { clickSignOut } from "./transactions-page.ts";
 
 test.describe("Finance sign-in", () => {
   test("a visit without a session goes to sign-in with the page as next", async ({
@@ -65,7 +66,7 @@ test.describe("Finance sign-in", () => {
         if (viewport.width < 768) {
           await page.getByRole("link", { name: "Settings" }).click();
         }
-        await page.getByRole("button", { name: "Sign out" }).click();
+        await clickSignOut(page);
         await expect(page).toHaveURL("/finance/sign-in");
         expect(
           (await getFinanceApi(page, "/api/finance/auth/session")).status(),

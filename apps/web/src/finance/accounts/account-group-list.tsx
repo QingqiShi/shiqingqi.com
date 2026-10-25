@@ -4,43 +4,43 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import * as stylex from "@stylexjs/stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
-import { List } from "@tuja/ui/components/list";
 import { Switch } from "@tuja/ui/components/switch";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
-import { useUrlSelection } from "../shell/use-url-selection.ts";
 import { AccountRow } from "./account-row.tsx";
-import { BankBalanceSummary } from "./bank-balance-notice.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
+import { useAccountInitials } from "./use-account-initials.ts";
 import { useCollapsedGroups } from "./use-collapsed-groups.ts";
 
 interface AccountGroupListProps {
   sheet: BalanceSheet;
   baseCurrency: string;
   reorderHref: string;
+  /** The URL that opens the account. */
+  accountHref: (accountId: string) => string;
+  /** The account open in the column after the list, if any. */
+  selectedAccountId: string | null;
 }
 
 /**
  * The accounts by Group, each Group a section that folds, with its subtotal.
- * Closed and excluded accounts wait behind "Show hidden". A Bank link whose
- * balance disagrees sits at the top of its Group.
+ * Closed and excluded accounts wait behind "Show hidden".
  */
 export function AccountGroupList({
   sheet,
   baseCurrency,
   reorderHref,
+  accountHref,
+  selectedAccountId,
 }: AccountGroupListProps) {
   const locale = useLocale();
-  const isWide = useIsWideLayout();
-  const selection = useUrlSelection("account");
+  const initials = useAccountInitials(sheet);
   const { collapsed, toggle } = useCollapsedGroups();
   const [showHidden, setShowHidden] = useState(false);
   const hiddenSwitchId = useId();
@@ -54,13 +54,8 @@ export function AccountGroupList({
     0,
   );
 
-  const hrefOf = (accountId: string) =>
-    isWide
-      ? selection.hrefWith(accountId)
-      : getLocalePath(`/finance/accounts/${accountId}`, locale);
-
   return (
-    <div css={stack.group}>
+    <div css={stack.item}>
       {sheet.sections.map((section) => {
         const lines = showHidden
           ? section.lines
@@ -68,9 +63,6 @@ export function AccountGroupList({
         if (lines.length === 0 && section.lines.length > 0 && !showHidden) {
           return null;
         }
-        const notices = lines.filter(
-          (line) => line.bankLink?.balanceDifferenceMinor != null,
-        );
         return (
           <section
             key={section.group.id}
@@ -79,6 +71,7 @@ export function AccountGroupList({
             css={styles.section}
           >
             <Disclosure
+              css={styles.group}
               open={!collapsed.has(section.group.id)}
               onOpenChange={(open) => {
                 toggle(section.group.id, open);
@@ -96,35 +89,22 @@ export function AccountGroupList({
                 </span>
               }
             >
-              <div css={[stack.tight, styles.body]}>
-                {notices.map((line) =>
-                  line.bankLink ? (
-                    <BankBalanceSummary
-                      key={line.bankLink.id}
-                      link={line.bankLink}
-                      account={line.account}
-                      href={hrefOf(line.account.id)}
+              {lines.length === 0 ? (
+                <p css={[typeRole.bodySmall, styles.empty]}>{emptyGroup}</p>
+              ) : (
+                <ul role="list" css={styles.rows}>
+                  {lines.map((line) => (
+                    <AccountRow
+                      key={line.account.id}
+                      line={line}
+                      baseCurrency={baseCurrency}
+                      href={accountHref(line.account.id)}
+                      isSelected={selectedAccountId === line.account.id}
+                      initials={initials.get(line.account.id) ?? ""}
                     />
-                  ) : null,
-                )}
-                {lines.length === 0 ? (
-                  <p css={[typeRole.bodySmall, styles.empty]}>{emptyGroup}</p>
-                ) : (
-                  <List>
-                    {lines.map((line) => (
-                      <AccountRow
-                        key={line.account.id}
-                        line={line}
-                        baseCurrency={baseCurrency}
-                        href={hrefOf(line.account.id)}
-                        isSelected={
-                          isWide && selection.value === line.account.id
-                        }
-                      />
-                    ))}
-                  </List>
-                )}
-              </div>
+                  ))}
+                </ul>
+              )}
             </Disclosure>
           </section>
         );
@@ -174,8 +154,18 @@ const styles = stylex.create({
     fontWeight: font.weight_6,
     color: color.fg,
   },
-  body: {
-    paddingBlockStart: space._1,
+  // The Group's name and subtotal line up with the text of its rows, and
+  // the rows take the full width for their selected background.
+  group: {
+    paddingInline: space._2,
+  },
+  rows: {
+    display: "flex",
+    flexDirection: "column",
+    marginBlock: 0,
+    marginInline: `calc(-1 * ${space._2})`,
+    padding: 0,
+    listStyle: "none",
   },
   empty: {
     margin: 0,
