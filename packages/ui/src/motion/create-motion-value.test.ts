@@ -69,6 +69,24 @@ describe("createMotionValue", () => {
     );
   });
 
+  it("starts the next motion at the velocity that a set gives", async () => {
+    const engine = createMotionEngine();
+    const thrown = createMotionValue(engine, 0, { spring: FIRM });
+    const still = createMotionValue(engine, 0, { spring: FIRM });
+    thrown.set(100, { velocity: 2000 });
+    still.set(100);
+    expect(thrown.isMoving).toBe(false);
+    expect(thrown.get()).toBe(100);
+    expect(thrown.getVelocity()).toBe(2000);
+
+    thrown.to(100);
+    still.to(100);
+    await clock.advance(0.05);
+
+    expect(thrown.get()).toBeGreaterThan(150);
+    expect(still.get()).toBe(100);
+  });
+
   it("starts at the velocity it is given", async () => {
     const engine = createMotionEngine();
     const slow = createMotionValue(engine, 300, {
@@ -311,11 +329,16 @@ describe("createMotionValue", () => {
       expect(value.get()).toBeGreaterThan(shown);
     });
 
-    it("keeps to the clock on the compositor, which runs on in a long task", () => {
+    it("keeps to the clock on the compositor, which runs on in a long task", async () => {
       const animations = stubAnimations();
       const { value, element, frame } = setUp();
       bind(element, value, { pose: (at) => ({ opacity: at.toFixed(4) }) });
       value.to(1);
+      // The binding makes the animation at the end of the task, and the
+      // browser starts it at once.
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
       frame(16);
       const plays = animations.animations.length;
 

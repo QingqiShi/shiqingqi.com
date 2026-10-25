@@ -10,24 +10,57 @@ const TOLERANCE: Readonly<Record<string, number>> = {
   "": 0.002,
 };
 const OTHER_TOLERANCE = 0.01;
-/** A number in a CSS value, with its unit. Not a digit of a hex colour or of a name such as `translate3d`. */
-const NUMBER = /(?<![\w#.])-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?([a-z%]*)/gi;
+/** The size of a length, in px, that a factor of an unknown length is taken to scale. */
+const UNKNOWN_LENGTH = 16;
+/**
+ * A number in a CSS value, with its unit, or with the custom property that
+ * it multiplies, as in `calc(0.5 * var(--space))`. Not a digit of a hex
+ * colour or of a name such as `translate3d`.
+ */
+const NUMBER =
+  /(?<![\w#.])-?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?([a-z%]*)(?=\s*\*\s*var\((--[\w-]+)\)|)/gi;
+
+/**
+ * Gives the length, in px, of the custom property `name`, or null where it
+ * is not a length.
+ *
+ * @internal
+ */
+export type LengthOf = (name: string) => number | null;
+
+const noLength: LengthOf = () => null;
 
 interface Parsed {
   readonly shape: string;
   readonly numbers: readonly number[];
-  readonly units: readonly string[];
+  readonly tolerances: readonly number[];
 }
 
-function parse(style: string): Parsed {
+function parse(style: string, lengthOf: LengthOf): Parsed {
   const numbers: number[] = [];
-  const units: string[] = [];
-  const shape = style.replace(NUMBER, (match, unit: string) => {
-    numbers.push(Number.parseFloat(match));
-    units.push(unit.toLowerCase());
-    return `\u0000${unit}`;
-  });
-  return { shape, numbers, units };
+  const tolerances: number[] = [];
+  const shape = style.replace(
+    NUMBER,
+    (match, unit: string, factorOf: string | undefined) => {
+      numbers.push(Number.parseFloat(match));
+      tolerances.push(toleranceOf(unit.toLowerCase(), factorOf, lengthOf));
+      return `\u0000${unit}`;
+    },
+  );
+  return { shape, numbers, tolerances };
+}
+
+/** The tolerance of a number with `unit`, or of a factor of the custom property `factorOf`. */
+function toleranceOf(
+  unit: string,
+  factorOf: string | undefined,
+  lengthOf: LengthOf,
+) {
+  if (unit === "" && factorOf !== undefined) {
+    const length = Math.abs(lengthOf(factorOf) ?? UNKNOWN_LENGTH);
+    return length > 0 ? TOLERANCE.px / length : OTHER_TOLERANCE;
+  }
+  return TOLERANCE[unit] ?? OTHER_TOLERANCE;
 }
 
 function format(value: number) {
@@ -41,8 +74,8 @@ function format(value: number) {
  * @internal
  */
 export function mixStyle(from: string, to: string, t: number): string | null {
-  const a = parse(from);
-  const b = parse(to);
+  const a = parse(from, noLength);
+  const b = parse(to, noLength);
   if (a.shape !== b.shape) return null;
   let index = 0;
   return from.replace(NUMBER, (_match, unit: string) => {
@@ -58,8 +91,7 @@ function reproduces(from: Parsed, to: Parsed, sample: Parsed, t: number) {
   return sample.numbers.every((number, index) => {
     const mixed =
       from.numbers[index] + (to.numbers[index] - from.numbers[index]) * t;
-    const unit = sample.units[index];
-    return Math.abs(mixed - number) <= (TOLERANCE[unit] ?? OTHER_TOLERANCE);
+    return Math.abs(mixed - number) <= sample.tolerances[index];
   });
 }
 
@@ -69,10 +101,10 @@ interface Sample {
   readonly parsed: ReadonlyMap<string, Parsed>;
 }
 
-function sampleOf(offset: number, styles: Styles): Sample {
+function sampleOf(offset: number, styles: Styles, lengthOf: LengthOf): Sample {
   const parsed = new Map<string, Parsed>();
   for (const [property, style] of Object.entries(styles)) {
-    parsed.set(property, parse(style));
+    parsed.set(property, parse(style, lengthOf));
   }
   return { offset, styles, parsed };
 }
@@ -100,17 +132,25 @@ function spans(samples: readonly Sample[], from: number, to: number) {
  * samples at 120Hz, and keeps a sample only where a straight line between
  * the samples it keeps does not give it within a tolerance, such as 0.25px.
  * A value that cannot mix, such as `visibility`, keeps the samples on each
- * side of its change.
+ * side of its change. A factor of a custom property, as in
+ * `calc(0.5 * var(--space))`, takes the tolerance of a px over the length
+ * that `lengthOf` gives the property.
  *
  * @internal
  */
 export function sampleKeyframes(
   styleAt: (seconds: number) => Styles,
   length: number,
+  lengthOf: LengthOf = noLength,
 ): { readonly offset: number; readonly styles: Styles }[] {
+  const lengths = new Map<string, number | null>();
+  const cachedLengthOf: LengthOf = (name) => {
+    if (!lengths.has(name)) lengths.set(name, lengthOf(name));
+    return lengths.get(name) ?? null;
+  };
   const count = Math.max(1, Math.ceil(length * RATE));
   const samples = Array.from({ length: count + 1 }, (_, index) =>
-    sampleOf(index / count, styleAt((index / count) * length)),
+    sampleOf(index / count, styleAt((index / count) * length), cachedLengthOf),
   );
   const kept = [samples[0]];
   let anchor = 0;

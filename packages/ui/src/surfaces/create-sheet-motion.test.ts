@@ -30,7 +30,7 @@ function setUp() {
   const onLeft = vi.fn(() => progress.at(-1));
   const motion = createSheetMotion(
     createMotionEngine(),
-    { card, mover, dim },
+    { card, mover, dim, recede: null },
     {
       liftFrom: () => null,
       liftContent: () => [],

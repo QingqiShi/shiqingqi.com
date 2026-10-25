@@ -14,6 +14,8 @@ export interface SheetParts {
   readonly moverRef: RefObject<HTMLElement | null>;
   /** The box that dims the page. */
   readonly dimRef: RefObject<HTMLElement | null>;
+  /** The element that moves back while the card slides over it, or `null`. */
+  readonly recede: HTMLElement | null;
 }
 
 /**
@@ -36,7 +38,7 @@ export interface SheetLiftOptions {
  * @internal
  */
 export function useSheetMotion(
-  { cardRef, moverRef, dimRef }: SheetParts,
+  { cardRef, moverRef, dimRef, recede }: SheetParts,
   {
     isShown,
     onLeft,
@@ -69,7 +71,7 @@ export function useSheetMotion(
     if (!card || !mover || !dim) return;
     const motion = createSheetMotion(
       engine,
-      { card, mover, dim },
+      { card, mover, dim, recede },
       {
         liftFrom: findOrigin,
         liftContent: contentOf,
@@ -82,11 +84,11 @@ export function useSheetMotion(
       motion.destroy();
       if (motionRef.current === motion) motionRef.current = null;
     };
-  }, [engine, cardRef, moverRef, dimRef]);
+  }, [engine, cardRef, moverRef, dimRef, recede]);
 
   useLayoutEffect(() => {
     motionRef.current?.show(isShown);
-  }, [isShown, engine, cardRef, moverRef, dimRef]);
+  }, [isShown, engine, cardRef, moverRef, dimRef, recede]);
 
   return motionRef;
 }

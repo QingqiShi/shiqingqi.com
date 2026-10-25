@@ -15,7 +15,7 @@ export interface BindOptions {
   readonly pose: (...values: number[]) => Styles;
   /** The pose of a motion that started under reduced motion. `pose` when it is left out. */
   readonly reducedPose?: (...values: number[]) => Styles;
-  /** Inline styles that stay on while a value moves, and come off at rest. */
+  /** Inline styles that stay on while a value moves, and come off at rest, where the pose does not write them. */
   readonly hold?: Styles;
   /**
    * At the end of a motion: `"keep"` leaves the last pose inline, and
@@ -25,7 +25,8 @@ export interface BindOptions {
   readonly rest?: "keep" | "clear";
   /**
    * `"auto"` plays on Web Animations where the element has them, and else
-   * writes once a frame. `"frame"` always writes once a frame.
+   * writes once a frame. `"frame"` always writes once a frame, for a pose
+   * that the compositor must not run on its own.
    */
   readonly renderer?: "auto" | "frame";
 }
@@ -34,6 +35,23 @@ export interface BindOptions {
 export interface Binding {
   /** Stops the motion and takes off every style the binding wrote. */
   unbind(): void;
+}
+
+/**
+ * The attribute that a bound element has while a motion moves it, so that
+ * a test can wait until each motion on the page is at rest.
+ *
+ * @internal
+ */
+export const MOVING_ATTRIBUTE = "data-moving";
+
+const movers = new WeakMap<Element, number>();
+
+/** Counts the bindings that move `element` now, as more than one binding can. */
+function markMoving(element: Element, isMoving: boolean) {
+  const count = (movers.get(element) ?? 0) + (isMoving ? 1 : -1);
+  movers.set(element, count);
+  element.toggleAttribute(MOVING_ATTRIBUTE, count > 0);
 }
 
 /** The properties that move a box without a change to the layout. */
@@ -74,6 +92,7 @@ export function bind(
   const { loop } = engine;
   const written = new Set<string>();
   let isHeld = false;
+  let isMarked = false;
 
   function write(styles: Styles) {
     writeStyles(element, styles);
@@ -90,15 +109,20 @@ export function bind(
     isHeld = next;
     for (const [property, style] of Object.entries(hold)) {
       if (next) element.style.setProperty(property, style);
-      else element.style.removeProperty(property);
+      else if (!written.has(property)) element.style.removeProperty(property);
     }
   }
 
-  const isOnCompositor =
-    kind === "auto" && typeof element.animate === "function";
-  const renderer: Renderer = isOnCompositor
-    ? createWaapiRenderer(element)
-    : createFrameRenderer(loop, write);
+  function setMarked(next: boolean) {
+    if (next === isMarked) return;
+    isMarked = next;
+    markMoving(element, next);
+  }
+
+  const renderer: Renderer =
+    kind === "auto" && typeof element.animate === "function"
+      ? createWaapiRenderer(element, loop, write)
+      : createFrameRenderer(loop, write);
 
   const plans = () => planners.map((planner) => planner.plan());
 
@@ -114,9 +138,12 @@ export function bind(
     if (end <= now) {
       renderer.stop();
       write(stylesAt(now));
+      setHeld(false);
+      setMarked(false);
       return;
     }
     setHeld(true);
+    setMarked(true);
     renderer.play(stylesAt, now, end);
   }
 
@@ -127,11 +154,12 @@ export function bind(
     else clear();
     renderer.stop();
     setHeld(false);
+    setMarked(false);
   }
 
   const isMoving = () => list.some((value) => value.isMoving);
   const unwatch = planners.map((planner) =>
-    planner.watch({ isOnCompositor, plan: play, rest: finish }),
+    planner.watch({ plan: play, rest: finish }),
   );
 
   function unbind() {
@@ -140,6 +168,7 @@ export function bind(
     renderer.stop();
     clear();
     setHeld(false);
+    setMarked(false);
   }
 
   let wasPosed = false;

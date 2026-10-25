@@ -97,38 +97,41 @@ test.describe("an open Sheet on a phone", () => {
   }
 
   /**
-   * Plays the page's clock to `time` ms after `pauseClock` and reads where
-   * the card is against the bottom of the screen. The Sheet moves on the
-   * frames of the page, so the paused clock holds it still for the read.
+   * Holds every running animation at `time` ms and reads where the card is
+   * against the bottom of the screen.
    */
-  async function readCardAt(page: Page, time: number) {
-    const played = clockPlayed.get(page) ?? 0;
-    if (time > played) await page.clock.runFor(time - played);
-    clockPlayed.set(page, Math.max(played, time));
-    return page.evaluate((selector) => {
-      const card = document.querySelector(selector);
-      if (!card) throw new Error("No sheet");
-      const { top, bottom } = card.getBoundingClientRect();
-      const style = getComputedStyle(card);
-      return {
-        top,
-        bottom,
-        edge: window.innerHeight,
-        opacity: Number(style.opacity),
-        mask: style.maskImage,
-      };
-    }, SHEET);
+  function readCardAt(page: Page, time: number) {
+    return page.evaluate(
+      ({ selector, at }) => {
+        for (const animation of document.getAnimations()) {
+          animation.pause();
+          animation.currentTime = at;
+        }
+        const card = document.querySelector(selector);
+        if (!card) throw new Error("No sheet");
+        const { top, bottom } = card.getBoundingClientRect();
+        const style = getComputedStyle(card);
+        return {
+          top,
+          bottom,
+          edge: window.innerHeight,
+          opacity: Number(style.opacity),
+          mask: style.maskImage,
+        };
+      },
+      { selector: SHEET, at: time },
+    );
   }
 
-  const clockPlayed = new WeakMap<Page, number>();
-
-  /** Stops the page's clock, so that `readCardAt` plays it on from here. */
+  /**
+   * Stops the page's clock, so that the motion engine does not end a
+   * motion while `readCardAt` holds its animation.
+   */
   async function pauseClock(page: Page) {
     // The clock runs on while the time goes to the page and back, and it
     // cannot pause at a time before its own.
     const now = await page.evaluate(() => Date.now());
     await page.clock.pauseAt(now + 1000);
-    clockPlayed.set(page, 0);
   }
 
   /**

@@ -26,6 +26,7 @@ import {
 } from "../../src/finance/dev/seed/seed-synthetic-household.ts";
 import { readOutbox } from "../../src/finance/email/make-outbox-email-sender.ts";
 import type { FinanceEmail } from "../../src/finance/email/types.ts";
+import { waitForMotionToSettle } from "../helpers/motion.ts";
 import { FINANCE_E2E_EMAIL_OUTBOX, financeE2eEnv } from "./finance-e2e-env.ts";
 import { SYNC_TIMEOUT } from "./transactions-page.ts";
 
@@ -264,6 +265,8 @@ export async function waitForServiceWorker(page: Page) {
 }
 
 export async function expectNoSidewaysScroll(page: Page) {
+  // A page that slides in is wider than the screen until it lands.
+  await waitForMotionToSettle(page);
   const overflow = await page.evaluate(
     () =>
       document.documentElement.scrollWidth -

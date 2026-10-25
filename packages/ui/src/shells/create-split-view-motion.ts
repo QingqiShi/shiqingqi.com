@@ -185,16 +185,14 @@ function springValue(engine: MotionEngine, initial: number, role: SpringRole) {
   });
 }
 
-/**
- * Shows `values` on `element` through `pose`. The view writes its motion
- * once a frame: its use of Web Animations waits for checks in each browser.
- */
+/** Shows `values` on `element` through `pose`, with `hold` on while they move. */
 function show(
   element: SplitViewMarkElement,
   values: MotionValue | readonly MotionValue[],
   pose: (...values: number[]) => Styles,
+  hold?: Styles,
 ): Binding {
-  return bind(element, values, { pose, renderer: "frame" });
+  return bind(element, values, { pose, hold });
 }
 
 function unbindAll(bindings: readonly Binding[]) {
@@ -205,11 +203,12 @@ function unbindAll(bindings: readonly Binding[]) {
 interface Pose {
   readonly element: HTMLElement | null;
   readonly pose: (progress: number) => Styles;
+  readonly hold?: Styles;
 }
 
 function showAll(progress: MotionValue, poses: readonly Pose[]) {
-  return poses.flatMap(({ element, pose }) =>
-    element === null ? [] : [show(element, progress, pose)],
+  return poses.flatMap(({ element, pose, hold }) =>
+    element === null ? [] : [show(element, progress, pose, hold)],
   );
 }
 
@@ -271,6 +270,9 @@ function createPush(
                 "background-color": fill,
               };
             },
+            // Not every browser animates `content-visibility`, so the page
+            // under also shows while it moves.
+            hold: { "content-visibility": "visible" },
           },
           {
             element: dimOf(back),
@@ -684,7 +686,6 @@ export function createSplitViewMotion(
       layer,
       spring: springOf(role),
       fade: options.destination.options.fade,
-      renderer: "frame",
     });
   }
 

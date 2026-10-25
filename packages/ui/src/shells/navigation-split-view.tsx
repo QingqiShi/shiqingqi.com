@@ -21,7 +21,6 @@ import {
 } from "react";
 import { Button } from "../actions/button.tsx";
 import { PlainAnchor } from "../actions/tab-bar.tsx";
-import { breakpoints } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useDust } from "../effect-layer/use-dust.ts";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
@@ -35,11 +34,11 @@ import {
   type PendingSnapshot,
 } from "../motion/create-pending-snapshot.ts";
 import { useMotionEngine } from "../motion/use-motion-engine.ts";
-import { prefersReducedMotion } from "../prefers-reduced-motion.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
+import { SheetRecedeContext } from "../surfaces/sheet-recede-context.ts";
 import { Sheet } from "../surfaces/sheet.tsx";
 import {
   releaseVelocity,
@@ -91,7 +90,6 @@ import { tabViewTokens } from "./tab-view.stylex.ts";
  * width as `splitViewQueries.detailBeside`.
  */
 const DETAIL_BESIDE_MIN_REM = 48.75;
-const WIDE_QUERY = breakpoints.md.replace("@media ", "");
 
 /** The props that `NavigationSplitView` hands its `linkComponent`. */
 export interface SplitViewLinkProps extends ComponentProps<"a"> {
@@ -769,36 +767,37 @@ export function NavigationSplitView({
           </div>
           <div ref={setLayer} aria-hidden inert css={styles.flights} />
         </div>
-        <Sheet
-          isOpen={asSheet}
-          onClose={() => {
-            if (sheet !== null) takeOff(sheet.back.href);
-          }}
-          closeLabel={closeLabel}
-          aria-label={sheet?.label ?? closeLabel}
-          liftFrom={() => {
-            const pressed = pressedRef.current;
-            pressedRef.current = null;
-            const href = asSheet ? window.location.href : sheetHrefRef.current;
-            return view === null ? null : liftOrigin(view, pressed, href);
-          }}
-          onProgress={(progress) => {
-            recede(view, progress);
-          }}
-        >
-          {sheet === null ? null : (
-            <SplitViewColumnContext
-              value={{
-                column: "detail",
-                presentation: "sheet",
-                scroller: null,
-                close: closeOf(sheet.back),
-              }}
-            >
-              {sheet.node}
-            </SplitViewColumnContext>
-          )}
-        </Sheet>
+        <SheetRecedeContext value={view}>
+          <Sheet
+            isOpen={asSheet}
+            onClose={() => {
+              if (sheet !== null) takeOff(sheet.back.href);
+            }}
+            closeLabel={closeLabel}
+            aria-label={sheet?.label ?? closeLabel}
+            liftFrom={() => {
+              const pressed = pressedRef.current;
+              pressedRef.current = null;
+              const href = asSheet
+                ? window.location.href
+                : sheetHrefRef.current;
+              return view === null ? null : liftOrigin(view, pressed, href);
+            }}
+          >
+            {sheet === null ? null : (
+              <SplitViewColumnContext
+                value={{
+                  column: "detail",
+                  presentation: "sheet",
+                  scroller: null,
+                  close: closeOf(sheet.back),
+                }}
+              >
+                {sheet.node}
+              </SplitViewColumnContext>
+            )}
+          </Sheet>
+        </SheetRecedeContext>
       </SplitViewMarksContext>
     </SplitViewContext>
   );
@@ -814,40 +813,6 @@ function pagesOf<
   Column extends NavigationSplitViewColumn | NavigationSplitViewDetail,
 >(column: Column): SplitViewPages<Column> {
   return { under: null, current: pageOf(column, 0), leaving: null };
-}
-
-const RECEDE_SCALE = 0.065;
-const RECEDE_DROP = 10;
-
-/**
- * Moves the view back while a sheet is over it below `md`, as the screen
- * under a sheet on a phone: it shrinks a little, drops, and rounds its
- * corners. `progress` is how far the sheet is in.
- */
-function recede(view: HTMLElement | null, progress: number) {
-  if (view === null) return;
-  const shown = Math.min(1, Math.max(0, progress));
-  if (
-    shown < 0.001 ||
-    prefersReducedMotion() ||
-    window.matchMedia(WIDE_QUERY).matches
-  ) {
-    for (const property of [
-      "transform",
-      "transform-origin",
-      "border-radius",
-      "corner-shape",
-      "overflow",
-    ]) {
-      view.style.removeProperty(property);
-    }
-    return;
-  }
-  view.style.transformOrigin = "50% 0";
-  view.style.transform = `translateY(${(RECEDE_DROP * shown).toFixed(2)}px) scale(${(1 - RECEDE_SCALE * shown).toFixed(4)})`;
-  view.style.borderRadius = border.radius_4;
-  view.style.setProperty("corner-shape", "squircle");
-  view.style.overflow = "clip";
 }
 
 /**

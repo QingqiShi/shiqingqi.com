@@ -20,7 +20,7 @@ export function stubFrames() {
   return {
     /** How many frames are requested. */
     pending: () => callbacks.size,
-    run(now = 0) {
+    run(now = performance.now()) {
       const current = callbacks;
       callbacks = new Map();
       for (const callback of current.values()) {

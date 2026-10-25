@@ -1,7 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { useState, type ComponentType, type ReactNode } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import { tabBarTokens } from "../actions/tab-bar.stylex.ts";
 import {
   PlainAnchor,
@@ -12,14 +18,16 @@ import {
 import { pointer } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { bind } from "../motion/bind.ts";
+import type { Styles } from "../motion/px.ts";
+import { springOf, springRoles } from "../motion/spring-roles.ts";
+import {
+  useMotionEngine,
+  useMotionValue,
+} from "../motion/use-motion-engine.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import {
-  duration,
-  easing,
-  motionConstants,
-  transition,
-} from "../primitives/motion.stylex.ts";
+import { transition } from "../primitives/motion.stylex.ts";
 import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
@@ -125,17 +133,8 @@ export function TabView({
   as = "main",
 }: TabViewProps) {
   const screen = screenKey ?? items.find((item) => item.current === true)?.href;
-  const [entry, setEntry] = useState({ screen, count: 0 });
-  if (screen !== entry.screen) {
-    setEntry({ screen, count: entry.count + 1 });
-  }
-  const contentCss = [
-    styles.content,
-    entry.count > 0 && [
-      styles.enter,
-      entry.count % 2 === 1 ? styles.riseOdd : styles.riseEven,
-    ],
-  ];
+  const [content, setContent] = useState<HTMLElement | null>(null);
+  useRise(content, screen);
   const sticky = useEffectSticky();
   const { ref, css } = sticky;
   return (
@@ -191,9 +190,13 @@ export function TabView({
           </EffectCarrier>
         </div>
         {as === "main" ? (
-          <main css={contentCss}>{children}</main>
+          <main ref={setContent} css={styles.content}>
+            {children}
+          </main>
         ) : (
-          <div css={contentCss}>{children}</div>
+          <div ref={setContent} css={styles.content}>
+            {children}
+          </div>
         )}
         <EffectCarrier value="viewport-bottom">
           <TabBar
@@ -208,16 +211,39 @@ export function TabView({
   );
 }
 
-// The animation starts again only when its name changes, so each switch
-// uses the other keyframes. StyleX makes the name from the frames, thus
-// `riseEven` has a `to` frame that does not change the motion.
-const riseOdd = stylex.keyframes({
-  from: { opacity: 0, transform: `translateY(${space._7})` },
-});
-const riseEven = stylex.keyframes({
-  from: { opacity: 0, transform: `translateY(${space._7})` },
-  to: { opacity: 1, transform: "none" },
-});
+const RISE_SPRING = springOf(springRoles.css);
+
+/** The new screen at `t` of its rise: it fades in as it rises `space._7` into place. */
+function risePose(t: number): Styles {
+  return {
+    opacity: t.toFixed(3),
+    transform: `translateY(calc(${(1 - t).toFixed(4)} * ${space._7}))`,
+  };
+}
+
+/**
+ * Makes the screen in `content` rise into place each time `screen` changes
+ * after the first render. Under reduced motion it stays still.
+ */
+function useRise(content: HTMLElement | null, screen: unknown) {
+  const engine = useMotionEngine();
+  const rise = useMotionValue(engine, 1, { spring: RISE_SPRING });
+  useLayoutEffect(() => {
+    if (content === null) return;
+    const binding = bind(content, rise, { pose: risePose, rest: "clear" });
+    return () => {
+      binding.unbind();
+    };
+  }, [content, rise]);
+  const shownRef = useRef(screen);
+  useLayoutEffect(() => {
+    if (shownRef.current === screen) return;
+    shownRef.current = screen;
+    if (engine.reducedMotion) return;
+    rise.set(0);
+    rise.to(1);
+  }, [engine, rise, screen]);
+}
 
 const styles = stylex.create({
   container: {
@@ -339,25 +365,6 @@ const styles = stylex.create({
   },
   content: {
     minInlineSize: 0,
-  },
-  enter: {
-    animationDuration: duration._500,
-    animationTimingFunction: {
-      default: easing.springFallback,
-      "@supports (animation-timing-function: linear(0, 1))": easing.spring,
-    },
-  },
-  riseOdd: {
-    animationName: {
-      default: riseOdd,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-  },
-  riseEven: {
-    animationName: {
-      default: riseEven,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
   },
   // The pill is nearly as wide as the screen, but it is at the bottom, so it
   // never covers the top-centre point that iOS Safari samples for the status

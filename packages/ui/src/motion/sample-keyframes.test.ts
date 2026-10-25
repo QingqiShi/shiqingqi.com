@@ -100,4 +100,32 @@ describe("sampleKeyframes", () => {
       1 / 120,
     );
   });
+
+  it("gives a factor of a custom property the tolerance of a px over its length", () => {
+    const rise = (seconds: number) => ({
+      transform: `translateY(calc(${(1 - path.at(seconds).value / 400).toFixed(4)} * var(--space)))`,
+    });
+    const inPx = (seconds: number) => ({
+      transform: `translateY(${px(32 * (1 - path.at(seconds).value / 400))})`,
+    });
+    const factored = sampleKeyframes(rise, path.settleTime, (name) =>
+      name === "--space" ? 32 : null,
+    );
+    const direct = sampleKeyframes(inPx, path.settleTime);
+    expect(Math.abs(factored.length - direct.length)).toBeLessThanOrEqual(2);
+    for (let time = 0; time <= path.settleTime; time += 1 / 240) {
+      const offset = time / path.settleTime;
+      const shown =
+        32 *
+        numberOf(
+          styleAt(factored, "transform", offset).replace(
+            "translateY(calc(",
+            "",
+          ),
+        );
+      const expected =
+        32 * numberOf(rise(time).transform.replace("translateY(calc(", ""));
+      expect(Math.abs(shown - expected)).toBeLessThan(0.6);
+    }
+  });
 });
