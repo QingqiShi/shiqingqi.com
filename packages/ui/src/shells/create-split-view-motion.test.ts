@@ -54,7 +54,6 @@ function setUp() {
   layOut(content, { x: 0, y: 0, width: 400, height: 600 });
   const marks: SplitViewMarks = new Map();
   const events = {
-    seam: "none",
     onSettled: vi.fn(),
     onFold: vi.fn(),
     onFrame: vi.fn(),
@@ -121,24 +120,41 @@ describe("createSplitViewMotion", () => {
     {
       name: "comes in beside it",
       detail: "in",
+      gap: 0,
       contentLeft: 300,
       content: { x: 100, y: 0, width: 400, height: 600 },
     },
     {
       name: "goes out over it",
       detail: "out",
+      gap: 0,
+      contentLeft: 0,
+      content: { x: 100, y: 0, width: 700, height: 600 },
+    },
+    {
+      name: "comes in a gap after it",
+      detail: "in",
+      gap: 8,
+      contentLeft: 300,
+      content: { x: 100, y: 0, width: 392, height: 600 },
+    },
+    {
+      name: "goes out a gap after it",
+      detail: "out",
+      gap: 8,
       contentLeft: 0,
       content: { x: 100, y: 0, width: 700, height: 600 },
     },
   ] as const)(
-    "keeps the inline end of the content on a detail column that $name",
-    async ({ detail, contentLeft, content: box }) => {
+    "keeps the inline end of the content its gap from a detail column that $name",
+    async ({ detail, gap, contentLeft, content: box }) => {
       const { view, content, motion } = setUp();
       const column = element(
         { "data-split-view-column": "detail" },
         element({ "data-split-view-edge": "" }),
       );
       view.append(column);
+      view.style.columnGap = `${String(gap)}px`;
       layOut(content, box);
       layOut(column, { x: 500, y: 0, width: 300, height: 600 });
       const lengthOf = (pattern: RegExp, style: string) =>
@@ -166,7 +182,7 @@ describe("createSplitViewMotion", () => {
         // The detail column that goes out shows only while it moves.
         if (detail === "in" || column.style.visibility === "visible") {
           const columnStart = 500 + (translateXOf(column) || 0);
-          expect(Math.abs(shownEnd() - columnStart)).toBeLessThan(0.1);
+          expect(Math.abs(shownEnd() + gap - columnStart)).toBeLessThan(0.1);
         }
         await clock.advance(1 / 60);
       }

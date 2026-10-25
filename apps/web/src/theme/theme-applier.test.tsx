@@ -2,6 +2,7 @@ import { render as renderWithoutProviders } from "@testing-library/react";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { renderToString } from "react-dom/server";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { FINANCE_LIGHT_CANVAS } from "#src/finance/theme/finance-theme.ts";
 import { act, fireEvent, render, screen } from "#src/testing/test-utils.tsx";
 import { getDocumentClassName } from "./global-styles.ts";
 import { ThemeApplier } from "./theme-applier.tsx";
@@ -86,7 +87,7 @@ describe("ThemeApplier", () => {
       getDocumentClassName("dark"),
     );
     expect(themeColorContents()).toEqual([gray._0]);
-    expect(document.getElementById("pre-paint-theme-color")).toBeNull();
+    expect(document.querySelector("[data-pre-paint-theme-color]")).toBeNull();
   });
 
   it("follows the Theme written by another tab", () => {
@@ -155,6 +156,23 @@ describe("themeHack on a Finance page", () => {
       expect(document.documentElement.className).not.toBe(
         getDocumentClassName("dark"),
       );
+    } finally {
+      window.history.pushState(null, "", "/");
+      localStorage.removeItem("theme");
+    }
+  });
+
+  it("tints the browser chrome with the island on a phone and the canvas elsewhere", () => {
+    localStorage.setItem("theme", "light");
+    window.history.pushState(null, "", "/finance");
+    try {
+      runThemeHack();
+      expect(themeColorContents()).toEqual([gray._100, FINANCE_LIGHT_CANVAS]);
+      expect(
+        [...document.querySelectorAll("meta[name=theme-color]")].map((meta) =>
+          meta.getAttribute("media"),
+        ),
+      ).toEqual(["(width < 768px)", null]);
     } finally {
       window.history.pushState(null, "", "/");
       localStorage.removeItem("theme");

@@ -127,9 +127,6 @@ export function FinanceScreenSlot({ children }: { children: ReactNode }) {
     setHadSkeleton(skeleton);
     setRevealing(!skeleton);
   }
-  useLayoutEffect(() => {
-    if (skeleton) window.scrollTo(0, 0);
-  }, [skeleton]);
 
   return (
     <>

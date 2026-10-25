@@ -120,8 +120,6 @@ function markOf(
  * @internal
  */
 export interface SplitViewMotionEvents {
-  /** The `box-shadow` that draws the seam at the content column's inline start while it moves. */
-  readonly seam: string;
   /** Every motion up to `motion`, the one that played last, has stopped, so the view can let go of what left. */
   onSettled: (motion: number) => void;
   /** The sidebar starts or stops folding: its links shed dust into the links of the other form. */
@@ -162,6 +160,22 @@ function isDark(fill: string) {
   return isDarkBackground(
     color !== null && color[3] > 0.99 ? color : readPageBackdrop(),
   );
+}
+
+/** Where, in px, the box that holds `column` ends inside its padding. */
+function innerEndOf(column: HTMLElement) {
+  const columns = column.parentElement;
+  if (columns === null) return column.getBoundingClientRect().right;
+  const paddingEnd =
+    Number.parseFloat(getComputedStyle(columns).paddingInlineEnd) || 0;
+  return columns.getBoundingClientRect().right - paddingEnd;
+}
+
+/** The gap, in px, between `column` and the column before it. */
+function gapBefore(column: HTMLElement) {
+  const columns = column.parentElement;
+  if (columns === null) return 0;
+  return Number.parseFloat(getComputedStyle(columns).columnGap) || 0;
 }
 
 function dimOf(page: HTMLElement) {
@@ -378,10 +392,11 @@ function createDetail(
 /**
  * The content column, which springs from where it showed to its new place
  * beside the sidebar, over what is next to it. While a detail column comes
- * in or goes out at its inline end, the inline end of the content stays on
- * the inline start of the detail column: the fill of the content reaches to
- * the detail column, and the content is clipped where it goes under it. Thus
- * no gap and no overlap shows while each moves on its own spring.
+ * in or goes out at its inline end, the inline end of the content stays the
+ * gap between the columns from the inline start of the detail column: the
+ * fill of the content reaches that far, and the content is clipped there.
+ * Thus the gap does not change and no overlap shows while each moves on its
+ * own spring.
  */
 interface Offset extends Part {
   readonly x: MotionValue;
@@ -390,11 +405,20 @@ interface Offset extends Part {
 /** A detail column that moves at the inline end of the content. */
 interface Beside {
   readonly detail: Detail;
-  /** How far, in px, the inline start of the column is from the inline end of the content, both at their places. */
+  /**
+   * How far, in px, the inline start of the column is from the inline end of
+   * the content, both at their places, less the gap between the columns.
+   */
   readonly edge: number;
+  /**
+   * How far, in px, the inline end of the content at its place is from the
+   * inline end of the box that holds the columns, inside its padding. The
+   * content never shows past that end, also while the column overshoots.
+   */
+  readonly room: number;
 }
 
-/** A clip inset that keeps what the content paints outside its box, such as the seam. */
+/** A clip inset that keeps what the content paints outside its box. */
 const UNCLIPPED = "-100vmax";
 
 function createOffset(
@@ -402,7 +426,7 @@ function createOffset(
   content: HTMLElement,
   dx: number,
   velocity: number,
-  { seam, fill }: { seam: string; fill: string },
+  fill: string,
   beside: Beside | null,
 ): Offset {
   const x = springValue(engine, dx, springRoles.fold);
@@ -410,19 +434,20 @@ function createOffset(
   const pose = (at: number): Styles => ({
     "z-index": "1",
     "background-color": fill,
-    "box-shadow": seam,
     transform: `translate(${px(at)}, ${px(0)})`,
   });
   const binding =
     beside === null
       ? show(content, x, pose)
       : show(content, [x, beside.detail.progress], (at, progress) => {
-          const gap = beside.edge + beside.detail.offsetAt(progress) - at;
+          const gap = Math.min(
+            beside.edge + beside.detail.offsetAt(progress) - at,
+            beside.room - at,
+          );
           const reach = `${px(gap)} 0 0 0 ${fill}`;
           return {
             ...pose(at),
-            "box-shadow":
-              gap <= 0 ? seam : seam === "none" ? reach : `${seam}, ${reach}`,
+            "box-shadow": gap <= 0 ? "none" : reach,
             "clip-path": `inset(${UNCLIPPED} ${px(-gap)} ${UNCLIPPED} ${UNCLIPPED})`,
           };
         });
@@ -965,7 +990,9 @@ export function createSplitViewMotion(
     }
     running?.drop();
     detail = null;
-    const width = column.getBoundingClientRect().width;
+    // The column moves its width and the gap before it, so that it leaves
+    // the view and the content keeps the gap.
+    const width = column.getBoundingClientRect().width + gapBefore(column);
     const fill = opaqueFillOf(column);
     return () => {
       detail = createDetail(engine, column, width, fill, 1 - target);
@@ -983,15 +1010,18 @@ export function createSplitViewMotion(
     offset = null;
     const column = view.querySelector<HTMLElement>(SELECTOR.detail);
     const edge =
-      column === null ? 0 : column.getBoundingClientRect().left - box.right;
-    const styles = { seam: events.seam, fill: opaqueFillOf(content) };
+      column === null
+        ? 0
+        : column.getBoundingClientRect().left - box.right - gapBefore(column);
+    const room = column === null ? 0 : innerEndOf(column) - box.right;
+    const fill = opaqueFillOf(content);
     return () => {
       const beside =
         column !== null && detail?.column === column && detail.isMoving()
-          ? { detail, edge }
+          ? { detail, edge, room }
           : null;
       if (beside === null && Math.abs(dx) < 0.5) return;
-      offset = createOffset(engine, content, dx, velocity, styles, beside);
+      offset = createOffset(engine, content, dx, velocity, fill, beside);
     };
   }
 

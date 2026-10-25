@@ -24,3 +24,15 @@ export const tabViewTokens = stylex.defineVars({
   /** The width of the rail at `md` and wider. */
   railInlineSize: "4rem",
 });
+
+/**
+ * Where the rail shows in place of the tab bar: where the view is as wide as
+ * `breakpoints.md`. The view measures its own width, so a `TabView` in a
+ * frame, such as a demo, takes the form that fits the frame. Content in the
+ * view can take the same forms, such as islands that fill the screen where
+ * the tab bar shows.
+ */
+export const tabViewQueries = stylex.defineConsts({
+  rail: "@container tab-view (width >= 768px)",
+  bar: "@container tab-view (width < 768px)",
+});

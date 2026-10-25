@@ -2,11 +2,17 @@ import * as stylex from "@stylexjs/stylex";
 import { gray, gray_rgb } from "@tuja/ui/palette/gray.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 
+/** The light `color.bgCanvas` of Finance. */
+export const FINANCE_LIGHT_CANVAS = gray._92;
+
 /**
  * Finance's accent is ink, not the design system's purple. The mark is green,
- * and green already means success and money that goes up.
+ * and green already means success and money that goes up. The light canvas
+ * is darker than the design system's, so that the white islands of the
+ * shell stand apart from it.
  */
 export const financeTheme = stylex.createTheme(color, {
+  bgCanvas: `light-dark(${FINANCE_LIGHT_CANVAS}, ${gray._0})`,
   fgControlSelected: `light-dark(${gray._13}, ${gray._92})`,
   // A white thumb sits on this track in both themes.
   bgControlStrongSelected: `light-dark(${gray._13}, ${gray._50})`,

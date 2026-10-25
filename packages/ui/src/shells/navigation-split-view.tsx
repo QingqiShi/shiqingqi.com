@@ -39,6 +39,7 @@ import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
+import { islandSurface, islandTokens } from "../surfaces/island.stylex.ts";
 import { SheetRecedeContext } from "../surfaces/sheet-recede-context.ts";
 import { Sheet } from "../surfaces/sheet.tsx";
 import {
@@ -46,7 +47,6 @@ import {
   type DragSample,
 } from "../surfaces/should-dismiss.ts";
 import {
-  border,
   color,
   controlHeight,
   layer,
@@ -87,10 +87,10 @@ import { tabViewTokens } from "./tab-view.stylex.ts";
 
 /**
  * The narrowest view, in rem, where the detail shows beside the content:
- * the collapsed sidebar, 20rem of content and the detail. It is the same
- * width as `splitViewQueries.detailBeside`.
+ * the collapsed sidebar, 20rem of content, the detail and the gaps around
+ * the islands. It is the same width as `splitViewQueries.detailBeside`.
  */
-const DETAIL_BESIDE_MIN_REM = 48.75;
+const DETAIL_BESIDE_MIN_REM = 50.75;
 
 /** The props that `NavigationSplitView` hands its `linkComponent`. */
 export interface SplitViewLinkProps extends ComponentProps<"a"> {
@@ -520,7 +520,6 @@ export function NavigationSplitView({
   useLayoutEffect(() => {
     if (view === null || layer === null) return;
     const created = createSplitViewMotion(engine, view, layer, marks, {
-      seam: `-1px 0 0 ${color.border}`,
       onFold: setFolding,
       onSettled: (id) => {
         setSettled((current) => Math.max(current, id));
@@ -682,6 +681,7 @@ export function NavigationSplitView({
         <div ref={setView} css={[styles.view, movingMarker, css]}>
           <div
             css={[
+              islandSurface.frame,
               styles.columns,
               hasSidebar && !hasDetailColumn && styles.fullSidebarBesideContent,
             ]}
@@ -1106,7 +1106,7 @@ function Column({
       inert={isLeaving}
       data-split-view-column={column}
       data-split-view-sidebar={form}
-      css={[styles.column, a11y.focusRingInset, css]}
+      css={[islandSurface.base, styles.column, a11y.focusRingInset, css]}
     >
       {header}
       <div data-split-view-pages="" css={styles.pages}>
@@ -1394,6 +1394,8 @@ function DetailHeader({
 
 const CONTENT_GUTTER_START = `max(${space._4}, env(safe-area-inset-left))`;
 const CONTENT_GUTTER_END = `max(${space._4}, env(safe-area-inset-right))`;
+/** The view keeps the islands clear of the status bar, except where the content fills it. */
+const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + max(0px, env(safe-area-inset-top) - ${islandTokens.insetBlockStart}))`;
 const CONTENT_PADDING_BLOCK_END = `calc(${space._6} + ${splitViewTokens.columnInsetBlockEnd})`;
 /** Above the tab bar below `md`, and above the safe area from `md` up. */
 const ACCESSORY_INSET_BLOCK_END = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
@@ -1403,7 +1405,6 @@ const styles = stylex.create({
   // `TabView` below `md`, the view goes under the floating tab bar, and
   // each column keeps its content above the bar.
   view: {
-    [splitViewTokens.columnInsetBlockEnd]: `max(${tabViewTokens.barClearance}, env(safe-area-inset-bottom))`,
     position: "relative",
     containerType: "inline-size",
     blockSize: "100dvh",
@@ -1417,9 +1418,33 @@ const styles = stylex.create({
     overflow: "clip",
     pointerEvents: "none",
   },
+  // Each column is an island on the canvas. Where the content fills the
+  // view, as on a phone, the islands have no gaps and no corners.
   columns: {
+    [islandTokens.radius]: {
+      default: null,
+      [splitViewQueries.contentAlone]: "0px",
+    },
+    [islandTokens.insetBlockStart]: {
+      default: null,
+      [splitViewQueries.contentAlone]: "0px",
+    },
+    [islandTokens.insetBlockEnd]: {
+      default: null,
+      [splitViewQueries.contentAlone]: "0px",
+    },
+    [islandTokens.insetInlineStart]: {
+      default: null,
+      [splitViewQueries.contentAlone]: "0px",
+    },
+    [islandTokens.insetInlineEnd]: {
+      default: null,
+      [splitViewQueries.contentAlone]: "0px",
+    },
+    // The part of the bar or of the safe area that the gap under the
+    // islands does not already clear.
+    [splitViewTokens.columnInsetBlockEnd]: `max(0px, max(${tabViewTokens.barClearance}, env(safe-area-inset-bottom)) - ${islandTokens.insetBlockEnd})`,
     position: "relative",
-    display: "flex",
     blockSize: "100%",
     overflow: "clip",
   },
@@ -1432,10 +1457,7 @@ const styles = stylex.create({
   column: {
     display: "flex",
     flexDirection: "column",
-    insetBlock: 0,
-    insetInlineStart: 0,
     minInlineSize: 0,
-    blockSize: "100%",
   },
   // The pages of a column lie on top of each other, and a motion moves
   // them inside the column.
@@ -1489,7 +1511,7 @@ const styles = stylex.create({
     flexDirection: "column",
     boxSizing: "border-box",
     minBlockSize: "100%",
-    paddingBlockStart: `calc(${space._4} + env(safe-area-inset-top))`,
+    paddingBlockStart: CONTENT_PADDING_BLOCK_START,
     paddingBlockEnd: CONTENT_PADDING_BLOCK_END,
   },
   stackedOnly: {
@@ -1517,7 +1539,7 @@ const styles = stylex.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: rhythm.tight,
-    paddingBlockStart: `calc(${space._4} + env(safe-area-inset-top))`,
+    paddingBlockStart: CONTENT_PADDING_BLOCK_START,
     paddingInlineStart: CONTENT_GUTTER_START,
     paddingInlineEnd: `max(${space._2}, env(safe-area-inset-right))`,
   },
@@ -1562,9 +1584,6 @@ const styles = stylex.create({
 const sidebarStyles = stylex.create({
   base: {
     flexShrink: 0,
-    borderInlineEndWidth: border.size_1,
-    borderInlineEndStyle: "solid",
-    borderInlineEndColor: color.border,
   },
   full: {
     inlineSize: splitViewWidths.sidebar,
@@ -1580,6 +1599,9 @@ const sidebarStyles = stylex.create({
   },
   hidden: {
     position: "absolute",
+    insetBlockStart: islandTokens.insetBlockStart,
+    insetBlockEnd: islandTokens.insetBlockEnd,
+    insetInlineStart: islandTokens.insetInlineStart,
     visibility: "hidden",
   },
   collapsedBesideDetail: {
@@ -1591,6 +1613,18 @@ const sidebarStyles = stylex.create({
       default: "absolute",
       [splitViewQueries.contentBesideSidebar]: "relative",
     },
+    insetBlockStart: {
+      default: islandTokens.insetBlockStart,
+      [splitViewQueries.contentBesideSidebar]: "auto",
+    },
+    insetBlockEnd: {
+      default: islandTokens.insetBlockEnd,
+      [splitViewQueries.contentBesideSidebar]: "auto",
+    },
+    insetInlineStart: {
+      default: islandTokens.insetInlineStart,
+      [splitViewQueries.contentBesideSidebar]: "auto",
+    },
     visibility: {
       default: "hidden",
       [splitViewQueries.contentBesideSidebar]: "visible",
@@ -1600,6 +1634,18 @@ const sidebarStyles = stylex.create({
     position: {
       default: "absolute",
       [splitViewQueries.contentBesideCollapsed]: "relative",
+    },
+    insetBlockStart: {
+      default: islandTokens.insetBlockStart,
+      [splitViewQueries.contentBesideCollapsed]: "auto",
+    },
+    insetBlockEnd: {
+      default: islandTokens.insetBlockEnd,
+      [splitViewQueries.contentBesideCollapsed]: "auto",
+    },
+    insetInlineStart: {
+      default: islandTokens.insetInlineStart,
+      [splitViewQueries.contentBesideCollapsed]: "auto",
     },
     visibility: {
       default: "hidden",
@@ -1665,9 +1711,6 @@ const detailStyles = stylex.create({
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: splitViewWidths.detail,
-    borderInlineStartWidth: border.size_1,
-    borderInlineStartStyle: "solid",
-    borderInlineStartColor: color.border,
   },
   // The header above the scroller keeps clear of the safe area.
   content: {
@@ -1677,9 +1720,10 @@ const detailStyles = stylex.create({
   // width, and it shows only while it moves out.
   leaving: {
     position: "absolute",
-    insetBlock: 0,
+    insetBlockStart: islandTokens.insetBlockStart,
+    insetBlockEnd: islandTokens.insetBlockEnd,
     insetInlineStart: "auto",
-    insetInlineEnd: 0,
+    insetInlineEnd: islandTokens.insetInlineEnd,
     inlineSize: splitViewWidths.detail,
     visibility: "hidden",
     // Over the content, which takes a fill while it moves.

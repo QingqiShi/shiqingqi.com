@@ -70,7 +70,8 @@ export interface SpacingOptions {
  * or has no box (`display: contents`), is seen as the union of what it holds.
  * A fixed element, such as a header control, floats over the page, so it is
  * not a block. A heading's distance stops at an element marked
- * `data-spacing-scope`, such as a Specimen's stage.
+ * `data-spacing-scope`, such as a Specimen's stage, and at a scroller, which
+ * frames its content as the screen does.
  */
 export function measureSpacing({
   roots,
@@ -373,8 +374,9 @@ export function measureSpacing({
       if (parent === null || parent.hasAttribute("data-spacing-scope")) {
         return null;
       }
-      // A rule on the far side of the heading is not an edge it sits against.
       const parentStyle = styleOf(parent);
+      if (["auto", "scroll"].includes(parentStyle.overflowY)) return null;
+      // A rule on the far side of the heading is not an edge it sits against.
       const ruledAway = isAbove
         ? hasRule(parentStyle, "bottom", "top")
         : hasRule(parentStyle, "top", "bottom");

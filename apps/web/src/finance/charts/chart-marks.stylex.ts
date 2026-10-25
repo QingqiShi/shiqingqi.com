@@ -49,7 +49,7 @@ export const chartMarks = stylex.create({
     shapeRendering: "crispEdges",
   },
   dotRing: {
-    stroke: color.bgCanvas,
+    stroke: color.bgSurface,
     strokeWidth: 2,
   },
   primaryKey: {
