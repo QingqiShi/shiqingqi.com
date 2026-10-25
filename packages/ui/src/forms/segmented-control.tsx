@@ -281,7 +281,7 @@ export function SegmentedControl<TValue extends string>({
             segmentIndicator.base,
             segmentSizeStyles[size],
             segmentIndicator.solid,
-            inset !== null && segmentIndicator.at(inset.left, inset.right),
+            inset !== null && segmentIndicator.at(inset.start, inset.end),
             dragging && segmentIndicator.dragged,
           ]}
         />

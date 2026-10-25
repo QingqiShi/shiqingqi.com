@@ -14,3 +14,12 @@ export const LIQUID_INDICATOR = "data-liquid-indicator";
  * @internal
  */
 export const LIQUID_SEGMENT = "data-liquid-segment";
+
+/**
+ * The attribute of a segmented control's track whose segments stand one
+ * over the next, such as the rail of a TabView: the liquid moves down the
+ * track, and the width of a segment is the height of its pill.
+ *
+ * @internal
+ */
+export const LIQUID_VERTICAL = "data-liquid-vertical";

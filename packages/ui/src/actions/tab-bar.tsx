@@ -2,24 +2,13 @@
 
 import type { Icon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
-import {
-  useRef,
-  useState,
-  type ComponentProps,
-  type ComponentType,
-  type MouseEvent,
-  type ReactNode,
-} from "react";
+import type { ComponentProps, ComponentType, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
-import {
-  LIQUID_INDICATOR,
-  LIQUID_SEGMENT,
-} from "../effect-layer/liquid-indicator.ts";
+import { LIQUID_INDICATOR } from "../effect-layer/liquid-indicator.ts";
 import {
   segmentIndicator,
   segmentTrackMarker,
 } from "../forms/segment-indicator.stylex.ts";
-import { useSegmentPress } from "../forms/use-segment-press.ts";
 import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
@@ -37,6 +26,7 @@ import {
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { tabBarTokens } from "./tab-bar.stylex.ts";
+import { useTabPress } from "./use-tab-press.ts";
 
 /**
  * The contract of the link Slot. Everything the bar hands the Slot has to
@@ -135,17 +125,6 @@ interface TabBarProps {
   css?: StyleProp;
 }
 
-/** Whether a click opens the link in place, with no key and no other button. */
-function isPlainClick(event: MouseEvent) {
-  return (
-    event.button === 0 &&
-    !event.metaKey &&
-    !event.ctrlKey &&
-    !event.shiftKey &&
-    !event.altKey
-  );
-}
-
 /**
  * The top-level destinations of an app in a pill of Glass, each tab an icon
  * over a label and all of them the same width. A Glass indicator marks the
@@ -162,34 +141,8 @@ export function TabBar({
   css,
 }: TabBarProps) {
   const current = items.findIndex((item) => item.current === true);
-  // The tab a click went to, held under the indicator until the page it
-  // opens is the current one.
-  const [followed, setFollowed] = useState<{
-    index: number;
-    from: number;
-  } | null>(null);
-  if (followed !== null && followed.from !== current) {
-    setFollowed(null);
-  }
-  // The tab that a tap released on. The indicator stays on it until the
-  // click that the release causes. In iOS Safari, this click can come many
-  // frames after the release.
-  const [tapped, setTapped] = useState<number | null>(null);
-  const resting = tapped ?? followed?.index ?? current;
-  const droppedRef = useRef(false);
-  const { trackRef, shown, held, inset, dragging, handlers } =
-    useSegmentPress<HTMLDivElement>({
-      selected: resting,
-      effect,
-      onDrop(drop) {
-        if (drop.dragged) {
-          droppedRef.current = true;
-          drop.element.click();
-        } else {
-          setTapped(drop.index);
-        }
-      },
-    });
+  const { trackRef, shown, held, inset, dragging, trackProps, linkProps } =
+    useTabPress({ current, effect });
 
   return (
     <nav aria-label={label} css={[corner.radius_round, styles.bar, css]}>
@@ -202,23 +155,7 @@ export function TabBar({
           segmentIndicator.track,
           styles.track,
         ]}
-        {...handlers}
-        onPointerDown={(event) => {
-          droppedRef.current = false;
-          setTapped(null);
-          handlers.onPointerDown(event);
-        }}
-        onClickCapture={(event) => {
-          setTapped(null);
-          // A drag follows the link under the indicator on release, so the
-          // click that the pointer makes after it goes nowhere. A click
-          // with no pointer has a detail of 0 and goes on to the link.
-          if (droppedRef.current && event.detail > 0) {
-            droppedRef.current = false;
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        }}
+        {...trackProps}
       >
         {shown >= 0 ? (
           <span
@@ -228,7 +165,7 @@ export function TabBar({
               corner.radius_round,
               segmentIndicator.base,
               segmentIndicator.tint,
-              inset !== null && segmentIndicator.at(inset.left, inset.right),
+              inset !== null && segmentIndicator.at(inset.start, inset.end),
               dragging && segmentIndicator.dragged,
             ]}
           />
@@ -243,13 +180,7 @@ export function TabBar({
                 <LinkComponent
                   href={item.href}
                   aria-current={item.current === true ? "page" : undefined}
-                  draggable={false}
-                  onClick={(event) => {
-                    if (isPlainClick(event)) {
-                      setFollowed({ index, from: current });
-                    }
-                  }}
-                  {...{ [LIQUID_SEGMENT]: "" }}
+                  {...linkProps(index)}
                   {...stylex.props(
                     typeRole.caption,
                     a11y.touchTarget,

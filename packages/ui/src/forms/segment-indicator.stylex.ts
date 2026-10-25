@@ -25,8 +25,8 @@ export const selectedSurface = stylex.defineVars({
 });
 
 /**
- * Marks the track of a SegmentedControl or a TabBar, so its parts can follow
- * its state.
+ * Marks the track of a SegmentedControl, a TabBar or the rail of a TabView,
+ * so its parts can follow its state.
  *
  * @internal
  */
@@ -84,11 +84,16 @@ export const segmentIndicator = stylex.create({
   tint: {
     backgroundColor: color.bgMaterialGlassSelected,
   },
-  // A press holds the indicator off its anchor. Its top and bottom stay on
-  // the anchor. On release it slides back to the anchor on the spring.
+  // A press holds the indicator off its anchor, along the track. Its sides
+  // across the track stay on the anchor. On release it slides back to the
+  // anchor on the spring.
   at: (left: number, right: number) => ({
     left: `${String(left)}px`,
     right: `${String(right)}px`,
+  }),
+  atBlock: (top: number, bottom: number) => ({
+    top: `${String(top)}px`,
+    bottom: `${String(bottom)}px`,
   }),
   dragged: {
     transition: "none",
@@ -115,5 +120,10 @@ export const segmentIndicator = stylex.create({
     position: "relative",
     isolation: "isolate",
     touchAction: "pan-y",
+  },
+  // With `track`, on a track whose segments stand one over the next: a drag
+  // down it moves the indicator, not the page.
+  trackVertical: {
+    touchAction: "pan-x",
   },
 });

@@ -1,9 +1,11 @@
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import { act, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TabBarLinkProps } from "../actions/tab-bar.tsx";
+import { createEffectRegistry } from "../effect-layer/create-effect-registry.ts";
+import { EffectLayerContext } from "../effect-layer/effect-layer-context.ts";
 import { fakeMotionClock } from "../test-support/fake-motion-clock.ts";
 import { reduceMotion } from "../test-support/reduce-motion.ts";
 import { TabView } from "./tab-view.tsx";
@@ -151,5 +153,100 @@ describe("TabView", () => {
     const { rerender } = renderView();
     rerender(view({}, "/search"));
     expect(rise()).toBeNull();
+  });
+});
+
+describe("TabView rail liquid effect and drag", () => {
+  // jsdom has no pointer capture. A real browser routes the pointer to the
+  // track; the events here go to the track already.
+  if (!("setPointerCapture" in HTMLElement.prototype)) {
+    Object.assign(HTMLElement.prototype, { setPointerCapture() {} });
+  }
+
+  /**
+   * The rail's two destinations, 56px tall each from y = 100 on a 56px
+   * wide track. jsdom lays nothing out, so each box is given.
+   */
+  function renderRail({
+    effect,
+    linkComponent,
+  }: Partial<ComponentProps<typeof TabView>> = {}) {
+    const registry = createEffectRegistry();
+    render(
+      <EffectLayerContext value={registry}>
+        {view({ effect, linkComponent })}
+      </EffectLayerContext>,
+    );
+    const [rail] = screen.getAllByRole("navigation", { name: "App" });
+    const track = within(rail).getByRole("list").parentElement;
+    if (track === null) {
+      throw new Error("The list has no track.");
+    }
+    vi.spyOn(track, "getBoundingClientRect").mockReturnValue(
+      DOMRect.fromRect({ x: 4, y: 100, width: 56, height: 112 }),
+    );
+    vi.spyOn(track, "clientHeight", "get").mockReturnValue(112);
+    const links = within(rail).getAllByRole("link");
+    links.forEach((link, index) => {
+      vi.spyOn(link, "getBoundingClientRect").mockReturnValue(
+        DOMRect.fromRect({ x: 4, y: 100 + index * 56, width: 56, height: 56 }),
+      );
+    });
+    const liquid = () => registry.elements().get(track)?.settings.liquid;
+    const at = (clientY: number) => ({
+      pointerId: 1,
+      clientX: 32,
+      clientY,
+      button: 0,
+      pointerType: "mouse",
+    });
+    return { track, links, liquid, at };
+  }
+
+  it("draws the rail's indicator as liquid down the rail, resting on the current destination", () => {
+    const { track, liquid } = renderRail();
+    expect(track).toHaveAttribute("data-liquid-vertical");
+    expect(liquid()).toMatchObject({ position: 0, drag: null, pressed: false });
+  });
+
+  it('draws no effect in the rail with effect="none"', () => {
+    const { liquid } = renderRail({ effect: "none" });
+    expect(liquid()).toBeUndefined();
+  });
+
+  it("drags the indicator down the rail and follows the link under it on release", () => {
+    const followed: string[] = [];
+    function Link({ onClick, ...props }: TabBarLinkProps) {
+      return (
+        <a
+          {...props}
+          onClick={(event) => {
+            onClick?.(event);
+            event.preventDefault();
+            followed.push(props.href);
+          }}
+        />
+      );
+    }
+    const { track, links, liquid, at } = renderRail({ linkComponent: Link });
+
+    fireEvent.pointerDown(links[0], at(128));
+    fireEvent.pointerMove(track, at(156));
+    expect(liquid()?.drag).toBeCloseTo(0.5);
+
+    fireEvent.pointerMove(track, at(180));
+    fireEvent.pointerUp(track, at(180));
+    expect(followed).toEqual(["/search"]);
+    expect(liquid()).toMatchObject({ position: 1, drag: null, pressed: false });
+  });
+
+  it('moves the plain indicator down the rail with a drag under effect="none"', () => {
+    const { track, links, at } = renderRail({ effect: "none" });
+    const indicator = within(track).getByRole("list").previousElementSibling;
+    const style = () => indicator?.getAttribute("style") ?? "";
+
+    fireEvent.pointerDown(links[0], at(128));
+    fireEvent.pointerMove(track, at(156));
+    expect(style()).toContain("28px");
   });
 });

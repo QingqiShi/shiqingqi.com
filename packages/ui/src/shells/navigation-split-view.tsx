@@ -21,6 +21,7 @@ import {
 } from "react";
 import { Button } from "../actions/button.tsx";
 import { PlainAnchor } from "../actions/tab-bar.tsx";
+import { isPlainClick } from "../actions/use-tab-press.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useDust } from "../effect-layer/use-dust.ts";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
@@ -844,17 +845,6 @@ function onHistoryStep(onStep: (to: string) => void) {
 
 function replaceLocation(href: string) {
   window.location.replace(href);
-}
-
-/** Whether a click opens the link in place, with no key and no other button. */
-function isPlainClick(event: MouseEvent) {
-  return (
-    event.button === 0 &&
-    !event.metaKey &&
-    !event.ctrlKey &&
-    !event.shiftKey &&
-    !event.altKey
-  );
 }
 
 /**
