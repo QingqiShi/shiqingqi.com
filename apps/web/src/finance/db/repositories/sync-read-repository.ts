@@ -1,6 +1,9 @@
 import { and, eq, getTableColumns, gt, isNull } from "drizzle-orm";
 import type { AnyPgColumn, TableConfig } from "drizzle-orm/pg-core";
-import type { SyncTableName } from "../../sync/row-schemas.ts";
+import {
+  LIVE_ON_BOOTSTRAP_TABLES,
+  type SyncTableName,
+} from "../../sync/row-schemas.ts";
 import {
   accountBalanceDays,
   accountGroups,
@@ -26,20 +29,17 @@ function changedSince(version: AnyPgColumn, since: number | null) {
 }
 
 /**
- * The reader of a synced table. `liveOnBootstrap` is the `deletedAt` of a
- * table that grows without bound: a bootstrap (null `since`) skips its
- * deleted rows.
+ * The reader of a synced table. A bootstrap (null `since`) skips the
+ * deleted rows of a table in `LIVE_ON_BOOTSTRAP_TABLES`.
  */
 function changedRows<C extends TableConfig>(
-  table: HouseholdTable<C>,
-  {
-    liveOnBootstrap,
-    columns = getTableColumns(table),
-  }: {
-    liveOnBootstrap?: AnyPgColumn;
-    columns?: Record<string, AnyPgColumn>;
-  } = {},
+  name: SyncTableName,
+  table: HouseholdTable<C> & { deletedAt: AnyPgColumn },
+  columns: Record<string, AnyPgColumn> = getTableColumns(table),
 ) {
+  const liveOnBootstrap = LIVE_ON_BOOTSTRAP_TABLES.has(name)
+    ? table.deletedAt
+    : undefined;
   return (scope: RepositoryScope, since: number | null) =>
     scope.db
       .select(columns)
@@ -62,30 +62,22 @@ function changedRows<C extends TableConfig>(
  */
 export const syncReadRepository = {
   tables: {
-    members: changedRows(members),
-    accountGroups: changedRows(accountGroups),
-    accounts: changedRows(accounts),
-    valuations: changedRows(valuations, {
-      liveOnBootstrap: valuations.deletedAt,
-    }),
-    categories: changedRows(categories),
-    payees: changedRows(payees),
-    tags: changedRows(tags),
-    rules: changedRows(rules),
-    transactions: changedRows(transactions, {
-      liveOnBootstrap: transactions.deletedAt,
-      columns: liveTransactionColumns,
-    }),
-    entries: changedRows(entries, {
-      liveOnBootstrap: entries.deletedAt,
-      columns: liveEntryColumns,
-    }),
-    transactionTags: changedRows(transactionTags, {
-      liveOnBootstrap: transactionTags.deletedAt,
-    }),
-    accountBalanceDays: changedRows(accountBalanceDays, {
-      liveOnBootstrap: accountBalanceDays.deletedAt,
-    }),
+    members: changedRows("members", members),
+    accountGroups: changedRows("accountGroups", accountGroups),
+    accounts: changedRows("accounts", accounts),
+    valuations: changedRows("valuations", valuations),
+    categories: changedRows("categories", categories),
+    payees: changedRows("payees", payees),
+    tags: changedRows("tags", tags),
+    rules: changedRows("rules", rules),
+    transactions: changedRows(
+      "transactions",
+      transactions,
+      liveTransactionColumns,
+    ),
+    entries: changedRows("entries", entries, liveEntryColumns),
+    transactionTags: changedRows("transactionTags", transactionTags),
+    accountBalanceDays: changedRows("accountBalanceDays", accountBalanceDays),
     bankLinks: (scope, since) =>
       scope.db
         .select({

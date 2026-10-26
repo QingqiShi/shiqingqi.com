@@ -1,4 +1,4 @@
-import { MutationError } from "./mutation-error.ts";
+import { invalid } from "../mutations/invalid.ts";
 
 export interface TransactionShape {
   id?: string;
@@ -10,10 +10,6 @@ export interface TransactionShape {
   ruleId?: string | null;
   entries: readonly { accountId: string; amountMinor: number }[];
   tagIds: readonly string[];
-}
-
-function invalid(message: string): never {
-  throw new MutationError("invalid", message);
 }
 
 /**

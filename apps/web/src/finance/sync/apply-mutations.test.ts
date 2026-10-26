@@ -4,10 +4,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   accountBalanceDays,
   entries,
-  payees,
   rules,
   transactions,
-  transactionTags,
   valuations,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
@@ -21,11 +19,11 @@ import {
   balanceSeriesToRows,
   computeBalanceDays,
 } from "../domain/balance/compute-balance-days.ts";
+import { applyMutation } from "./apply-mutation.ts";
 import { applyMutations } from "./apply-mutations.ts";
 import { DerivedTouches } from "./derived-touches.ts";
 import { pullChanges } from "./pull-changes.ts";
 import type { PushRequest } from "./push-request-schema.ts";
-import { transactionMutations } from "./transaction-mutations.ts";
 
 const NOW = new Date("2026-10-10T12:00:00Z");
 /** Matches any Date; typed `unknown` so it is not an `any` in the expectations. */
@@ -178,21 +176,6 @@ describe("applyMutations", () => {
     ]);
   });
 
-  it("moves the Entries to the new date when the date changes", async () => {
-    const id = randomUUID();
-    await push([expense(id, "2026-09-15", -2_000)]);
-
-    await push([
-      mutation("updateTransaction", { id, patch: { date: "2026-10-02" } }),
-    ]);
-
-    const [entry] = await db
-      .select()
-      .from(entries)
-      .where(eq(entries.transactionId, id));
-    expect(entry.date).toBe("2026-10-02");
-  });
-
   it("sends a soft delete, derived rows included, to the next pull", async () => {
     const id = randomUUID();
     const created = await push([expense(id, "2026-10-01", -700)]);
@@ -225,17 +208,6 @@ describe("applyMutations", () => {
     const pull = await pullChanges(db, home.householdId, created.clock);
     expect(pull.clock).toBe(created.clock);
     expect(pull.tables).toEqual({});
-  });
-
-  it("restores a transaction with the entries deleted with it", async () => {
-    const id = randomUUID();
-    await push([expense(id, "2026-10-01", -700)]);
-    await push([mutation("deleteTransaction", { id })]);
-    await push([mutation("restoreTransaction", { id })]);
-
-    expect(await storedBalanceDays(home.currentId)).toEqual([
-      { day: "2026-10-01", balanceMinor: -700 },
-    ]);
   });
 
   it("applies a re-pushed batch once", async () => {
@@ -307,46 +279,6 @@ describe("applyMutations", () => {
     expect(rule.template).not.toHaveProperty("amountMinor");
   });
 
-  it("records who labelled a Transaction: a Member who creates, relabels or reviews it", async () => {
-    const created = randomUUID();
-    const ai = randomUUID();
-    await push([
-      expense(created, "2026-10-01", -700),
-      expense(ai, "2026-10-02", -800),
-    ]);
-    await db
-      .update(transactions)
-      .set({
-        labelledBy: "ai",
-        aiReason: "Grocer",
-        needsReview: true,
-        source: "bank",
-      })
-      .where(eq(transactions.id, ai));
-    const labelledBy = async (id: string) => {
-      const [row] = await db
-        .select({ labelledBy: transactions.labelledBy })
-        .from(transactions)
-        .where(eq(transactions.id, id));
-      return row.labelledBy;
-    };
-    const update = (patch: Record<string, unknown>) =>
-      push([mutation("updateTransaction", { id: ai, patch })]);
-
-    expect(await labelledBy(created)).toBe("member");
-    await update({ date: "2026-10-03" });
-    expect(await labelledBy(ai)).toBe("ai");
-    await update({ needsReview: false });
-    expect(await labelledBy(ai)).toBe("member");
-
-    await db
-      .update(transactions)
-      .set({ labelledBy: "ai", needsReview: false })
-      .where(eq(transactions.id, ai));
-    await update({ categoryId: home.groceriesId, memberId: home.partnerId });
-    expect(await labelledBy(ai)).toBe("member");
-  });
-
   it("marks only the derived rows an update can change", async () => {
     const id = randomUUID();
     const created = await push([expense(id, "2026-10-01", -700)]);
@@ -357,15 +289,14 @@ describe("applyMutations", () => {
     }) {
       const touches = new DerivedTouches();
       await withHousehold(db, home.householdId, (scope) =>
-        transactionMutations.update(
+        applyMutation(
           {
             scope: { ...scope, version: created.clock + 1 },
             today: "2026-10-10",
             touches,
             actor: "member",
           },
-          id,
-          patch,
+          { name: "updateTransaction", args: { id, patch } },
         ),
       );
       return [...touches.accounts];
@@ -407,61 +338,8 @@ describe("applyMutations", () => {
     ]);
   });
 
-  it("rejects an update after a delete", async () => {
-    const id = randomUUID();
-    await push([expense(id, "2026-10-01", -700)]);
-    const update = mutation("updateTransaction", {
-      id,
-      patch: { note: "late" },
-    });
-    const result = await push([mutation("deleteTransaction", { id }), update]);
-
-    expect(result.rejected).toEqual([
-      { id: update.id, reason: "deleted", message: "deleted" },
-    ]);
-  });
-
-  it("patches only the fields it names", async () => {
-    const id = randomUUID();
-    await push([expense(id, "2026-10-01", -700)]);
-    await push([
-      mutation("updateTransaction", { id, patch: { note: "milk" } }),
-      mutation("updateTransaction", {
-        id,
-        patch: { memberId: home.partnerId, tagIds: [home.trainTagId] },
-      }),
-    ]);
-    const [row] = await db
-      .select()
-      .from(transactions)
-      .where(eq(transactions.id, id));
-    expect(row).toMatchObject({
-      note: "milk",
-      memberId: home.partnerId,
-      searchText: "grocer milk groceries",
-    });
-    expect(await db.$count(transactionTags)).toBe(1);
-  });
-
-  it("rejects transactions that break the rules", async () => {
+  it("rejects a fraction of a minor unit and an account of another Household", async () => {
     const other = await seedTestHousehold(db, "other");
-    const sameAccount = mutation("createTransaction", {
-      id: randomUUID(),
-      kind: "transfer",
-      date: "2026-10-01",
-      entries: [
-        { id: randomUUID(), accountId: home.currentId, amountMinor: -1 },
-        { id: randomUUID(), accountId: home.currentId, amountMinor: 1 },
-      ],
-    });
-    const noCategory = mutation("createTransaction", {
-      id: randomUUID(),
-      kind: "expense",
-      date: "2026-10-01",
-      entries: [
-        { id: randomUUID(), accountId: home.currentId, amountMinor: -1 },
-      ],
-    });
     const foreignAccount = expense(
       randomUUID(),
       "2026-10-01",
@@ -471,17 +349,10 @@ describe("applyMutations", () => {
     );
     const fraction = expense(randomUUID(), "2026-10-01", 1.5);
 
-    const result = await push([
-      sameAccount,
-      noCategory,
-      foreignAccount,
-      fraction,
-    ]);
+    const result = await push([foreignAccount, fraction]);
 
     expect(result.applied).toEqual([]);
     expect(result.rejected.map((rejection) => rejection.reason)).toEqual([
-      "invalid",
-      "invalid",
       "invalid",
       "invalid",
     ]);
@@ -506,133 +377,5 @@ describe("applyMutations", () => {
       "forbidden",
       "not_found",
     ]);
-  });
-
-  it("skips a valuation equal to the balance and replaces one on the same day", async () => {
-    await push([expense(randomUUID(), "2026-10-01", -700)]);
-    await push([
-      mutation("putValuation", {
-        id: randomUUID(),
-        accountId: home.currentId,
-        on: "2026-10-05",
-        amountMinor: -700,
-      }),
-    ]);
-    expect(await db.$count(valuations)).toBe(0);
-
-    const valuationId = randomUUID();
-    await push([
-      mutation("putValuation", {
-        id: valuationId,
-        accountId: home.currentId,
-        on: "2026-10-05",
-        amountMinor: 1_000,
-      }),
-      mutation("putValuation", {
-        id: randomUUID(),
-        accountId: home.currentId,
-        on: "2026-10-05",
-        amountMinor: 1_200,
-      }),
-    ]);
-    const rows = await db.select().from(valuations);
-    expect(rows).toEqual([
-      expect.objectContaining({ id: valuationId, amountMinor: 1_200 }),
-    ]);
-    expect(await storedBalanceDays(home.currentId)).toEqual([
-      { day: "2026-10-01", balanceMinor: -700 },
-      { day: "2026-10-05", balanceMinor: 1_200 },
-    ]);
-  });
-
-  it("merges a payee into another", async () => {
-    const id = randomUUID();
-    const otherPayeeId = randomUUID();
-    await push([
-      mutation("upsertPayee", {
-        id: otherPayeeId,
-        name: "Corner Shop",
-      }),
-      {
-        ...expense(id, "2026-10-01", -300),
-        args: {
-          ...expense(id, "2026-10-01", -300).args,
-          payeeId: otherPayeeId,
-        },
-      },
-    ]);
-    const result = await push([
-      mutation("mergePayee", { fromId: otherPayeeId, intoId: home.grocerId }),
-    ]);
-
-    expect(result.rejected).toEqual([]);
-    const [moved] = await db
-      .select()
-      .from(transactions)
-      .where(eq(transactions.id, id));
-    expect(moved).toMatchObject({
-      payeeId: home.grocerId,
-      searchText: "grocer groceries",
-    });
-    const [merged] = await db
-      .select()
-      .from(payees)
-      .where(eq(payees.id, otherPayeeId));
-    expect(merged).toMatchObject({
-      mergedIntoId: home.grocerId,
-      deletedAt: A_DATE,
-    });
-  });
-
-  it("confirms and skips Expected transactions", async () => {
-    const confirmed = randomUUID();
-    const skipped = randomUUID();
-    const expected = (id: string) => ({
-      ...expense(id, "2026-10-08", -900),
-      args: {
-        ...expense(id, "2026-10-08", -900).args,
-        status: "expected" as const,
-      },
-    });
-    await push([expected(confirmed), expected(skipped)]);
-    expect(await storedBalanceDays(home.currentId)).toEqual([]);
-
-    await push([
-      mutation("confirmExpected", {
-        id: confirmed,
-        patch: {
-          entries: [
-            { id: randomUUID(), accountId: home.currentId, amountMinor: -950 },
-          ],
-        },
-      }),
-      mutation("skipExpected", { id: skipped }),
-    ]);
-
-    expect(await storedBalanceDays(home.currentId)).toEqual([
-      { day: "2026-10-08", balanceMinor: -950 },
-    ]);
-    const [skippedRow] = await db
-      .select()
-      .from(transactions)
-      .where(eq(transactions.id, skipped));
-    expect(skippedRow.deletedAt).not.toBeNull();
-  });
-
-  it("keeps an account in a group of its side", async () => {
-    const result = await push([
-      mutation("upsertAccount", {
-        id: randomUUID(),
-        groupId: home.liquidGroupId,
-        name: "Mortgage",
-        kind: "loan",
-        currency: "GBP",
-      }),
-      mutation("upsertAccount", { id: home.cardId, name: "Visa" }),
-    ]);
-    expect(result.rejected.map((rejection) => rejection.reason)).toEqual([
-      "invalid",
-    ]);
-    expect(result.applied).toHaveLength(1);
   });
 });

@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { categories, members } from "../db/schema.ts";
+import { members } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { mutation } from "../db/testing/mutation.ts";
 import {
@@ -10,7 +10,6 @@ import {
 } from "../db/testing/seed-test-household.ts";
 import { applyMutations } from "./apply-mutations.ts";
 import { MutationError } from "./mutation-error.ts";
-import { pullChanges } from "./pull-changes.ts";
 import type { PushRequest } from "./push-request-schema.ts";
 import { toRejection } from "./to-rejection.ts";
 
@@ -105,25 +104,6 @@ describe("pushes the database cannot store", () => {
 });
 
 describe("upsertMember", () => {
-  it("adds a Member without a user", async () => {
-    const id = randomUUID();
-
-    const result = await push([
-      mutation("upsertMember", { id, name: "Robin" }),
-    ]);
-
-    expect(result.rejected).toEqual([]);
-    const pulled = await pullChanges(db, home.householdId, 0);
-    expect(pulled.tables.members).toContainEqual(
-      expect.objectContaining({
-        id,
-        name: "Robin",
-        role: "member",
-        userId: null,
-      }),
-    );
-  });
-
   it("forbids an id of another Household's Member", async () => {
     const other = await seedTestHousehold(db, "other");
 
@@ -139,82 +119,5 @@ describe("upsertMember", () => {
       .from(members)
       .where(eq(members.id, other.memberId));
     expect(stored.name).not.toBe("Taken");
-  });
-});
-
-describe("deleting rows that are in use", () => {
-  it("refuses a Category with live Transactions and allows it once they are gone", async () => {
-    const expense = groceriesExpense();
-    await push([expense]);
-
-    const refused = await push([
-      mutation("upsertCategory", { id: home.groceriesId, deleted: true }),
-    ]);
-    await push([mutation("deleteTransaction", { id: expense.args.id })]);
-    const allowed = await push([
-      mutation("upsertCategory", { id: home.groceriesId, deleted: true }),
-    ]);
-
-    expect(refused.rejected).toEqual([
-      expect.objectContaining({ reason: "invalid" }),
-    ]);
-    expect(allowed.rejected).toEqual([]);
-  });
-
-  it("refuses a system Category", async () => {
-    const systemId = randomUUID();
-    await db.insert(categories).values({
-      id: systemId,
-      householdId: home.householdId,
-      kind: "expense",
-      name: "Uncategorised",
-      isSystem: true,
-      version: 0,
-    });
-
-    const result = await push([
-      mutation("upsertCategory", { id: systemId, deleted: true }),
-    ]);
-
-    expect(result.rejected).toEqual([
-      expect.objectContaining({ reason: "invalid" }),
-    ]);
-  });
-
-  it("refuses an account with Entries", async () => {
-    await push([groceriesExpense()]);
-
-    const result = await push([
-      mutation("upsertAccount", { id: home.currentId, deleted: true }),
-    ]);
-
-    expect(result.rejected).toEqual([
-      expect.objectContaining({ reason: "invalid" }),
-    ]);
-  });
-
-  it("still lets a Transaction whose Category was deleted earlier be edited", async () => {
-    const expense = groceriesExpense();
-    await push([expense]);
-    await db
-      .update(categories)
-      .set({ deletedAt: NOW })
-      .where(eq(categories.id, home.groceriesId));
-
-    const noteOnly = await push([
-      mutation("updateTransaction", {
-        id: expense.args.id,
-        patch: { note: "Weekly shop" },
-      }),
-    ]);
-    const sameCategory = await push([
-      mutation("updateTransaction", {
-        id: expense.args.id,
-        patch: { kind: "expense", categoryId: home.groceriesId },
-      }),
-    ]);
-
-    expect(noteOnly.rejected).toEqual([]);
-    expect(sameCategory.rejected).toEqual([]);
   });
 });

@@ -1,0 +1,2 @@
+ALTER TABLE "valuations" DROP CONSTRAINT "valuations_account_on_key";--> statement-breakpoint
+CREATE UNIQUE INDEX "valuations_account_on_key" ON "valuations" USING btree ("account_id","on") WHERE "valuations"."deleted_at" is null;

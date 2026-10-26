@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { households } from "../schema.ts";
 import type { RepositoryScope } from "./types.ts";
 
@@ -46,6 +46,21 @@ export const householdRepository = {
       .update(households)
       .set(fields)
       .where(eq(households.id, scope.householdId));
+  },
+
+  /** The time the database transaction started: every `now()` in it gives this time. */
+  async transactionTime(scope: RepositoryScope) {
+    const rows = await scope.db
+      .select({
+        ms: sql<number>`floor(extract(epoch from now()) * 1000)`.mapWith(
+          Number,
+        ),
+      })
+      .from(households)
+      .where(eq(households.id, scope.householdId));
+    const ms = rows.at(0)?.ms;
+    if (ms === undefined) throw new Error("Household not found");
+    return new Date(ms).toISOString();
   },
 
   async setClock(scope: RepositoryScope, clock: number) {

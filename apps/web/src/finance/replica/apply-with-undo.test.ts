@@ -201,7 +201,7 @@ describe("applyWithUndo", () => {
           },
           {
             name: "updateTransaction",
-            args: { id: createId(), patch: { note: "missing" } },
+            args: { id: ids.tescoShop, patch: { categoryId: createId() } },
           },
         ],
         createId,

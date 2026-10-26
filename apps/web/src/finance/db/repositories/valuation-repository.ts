@@ -48,21 +48,6 @@ const valuationRows = householdRows(valuations);
 export const valuationRepository = {
   findById: valuationRows.findById,
 
-  /** The Valuation of an account on a day, a deleted one included. */
-  async findByAccountOn(scope: RepositoryScope, accountId: string, on: string) {
-    const rows = await scope.db
-      .select()
-      .from(valuations)
-      .where(
-        and(
-          eq(valuations.householdId, scope.householdId),
-          eq(valuations.accountId, accountId),
-          eq(valuations.on, on),
-        ),
-      );
-    return rows.at(0);
-  },
-
   insert: (
     scope: WriteScope,
     row: {

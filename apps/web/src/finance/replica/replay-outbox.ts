@@ -3,7 +3,7 @@ import {
   applyLocalMutation,
   type LocalMutationContext,
 } from "./apply-local-mutation.ts";
-import { createTablesDraft, type ChangedKeys } from "./create-tables-draft.ts";
+import type { ChangedKeys } from "./create-tables-draft.ts";
 import type { OutboxEntry, ReplicaTables } from "./types.ts";
 
 interface ReplayResult {
@@ -37,7 +37,7 @@ export function mergeAccountDays(
 /**
  * Applies the mutations no pull has confirmed yet on top of the server rows,
  * in order. Each one is all or nothing: a mutation the server would reject
- * is skipped and reported.
+ * is skipped and reported, and one only the server can decide is skipped.
  */
 export function replayOutbox(
   base: ReplicaTables,
@@ -49,17 +49,15 @@ export function replayOutbox(
   const accounts = new Map<string, string>();
   const failed: ReplayResult["failed"] = [];
   for (const entry of entries) {
-    const draft = createTablesDraft(tables);
     try {
-      const touched = applyLocalMutation(
-        draft,
+      const result = applyLocalMutation(
+        tables,
         entry.mutation,
         contextOf(entry),
       );
-      const result = draft.finish();
       tables = result.tables;
       mergeChangedKeys(changed, result.changed);
-      mergeAccountDays(accounts, touched);
+      mergeAccountDays(accounts, result.accounts);
     } catch (error) {
       if (!(error instanceof MutationError)) throw error;
       failed.push({ entry, error });

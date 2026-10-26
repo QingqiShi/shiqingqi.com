@@ -87,7 +87,7 @@ export async function applyMutations(
           );
           return result;
         });
-        for (const each of [effect ?? []].flat()) effects.add(each);
+        for (const each of effect) effects.add(each);
         alreadyApplied.add(raw.id);
         applied.push(raw.id);
         written = true;

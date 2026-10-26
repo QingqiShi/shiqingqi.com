@@ -170,6 +170,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
       householdId,
       now: entry.createdAt,
       today: todayInTimeZone(timezone, new Date(entry.createdAt)),
+      baseCurrency: meta.household?.baseCurrency,
     };
   }
 
@@ -491,7 +492,8 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
      * Checks a mutation, shows its result at once, and puts it in the
      * Outbox. Throws a `ZodError` for a malformed mutation and a
      * `MutationError` for one the server would reject; neither changes
-     * anything.
+     * anything. A mutation that only the server can decide goes in the
+     * Outbox and shows once the server answers.
      */
     applyLocal(input: LocalMutationInput): Mutation {
       const mutation = mutationSchema.parse({
@@ -505,9 +507,11 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
         seq: lastSeq,
         createdAt: time.toISOString(),
       };
-      const draft = createTablesDraft(snapshot.tables);
-      const accounts = applyLocalMutation(draft, mutation, contextOf(entry));
-      const { tables, changed } = draft.finish();
+      const { tables, changed, accounts } = applyLocalMutation(
+        snapshot.tables,
+        mutation,
+        contextOf(entry),
+      );
       queued.push(entry);
       unsaved.set(mutation.id, entry);
       void saveUnsavedOutbox().then(() => {
