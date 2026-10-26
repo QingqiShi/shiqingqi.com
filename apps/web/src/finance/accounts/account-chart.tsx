@@ -13,7 +13,7 @@ import { selectAccountChart } from "./select-account-chart.ts";
 import { useStoredRange } from "./use-stored-range.ts";
 
 /** The drawing's height in pixels, axis included: short, so the Ledger shows soon. */
-const CHART_HEIGHT = 150;
+export const CHART_HEIGHT = 150;
 
 interface AccountChartProps {
   account: AccountRow;

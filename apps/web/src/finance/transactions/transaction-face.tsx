@@ -4,16 +4,11 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList, truncate } from "@tuja/ui/primitives/layout.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import {
-  color,
-  controlSize,
-  font,
-  rhythm,
-  space,
-} from "@tuja/ui/tokens.stylex";
+import { color, controlSize, font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import type { TransactionLookups } from "./select-transaction-lookups.ts";
+import { transactionFaceTokens } from "./transaction-face.stylex.ts";
 
 interface TransactionFaceProps {
   icon: ReactNode;
@@ -110,13 +105,13 @@ const styles = stylex.create({
   face: {
     gap: rhythm.item,
     alignItems: "flex-start",
-    paddingBlock: space._1,
+    paddingBlock: transactionFaceTokens.paddingBlock,
     minInlineSize: 0,
   },
   icon: {
     flexShrink: 0,
-    inlineSize: "2.25rem",
-    blockSize: "2.25rem",
+    inlineSize: transactionFaceTokens.icon,
+    blockSize: transactionFaceTokens.icon,
     backgroundColor: color.bgSurfaceSunken,
     fontSize: controlSize._5,
   },
@@ -132,7 +127,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   second: {
-    minBlockSize: `calc(${font.uiBodySmall} * ${font.lineHeight_4})`,
+    minBlockSize: transactionFaceTokens.secondLine,
   },
   title: {
     fontWeight: font.weight_5,

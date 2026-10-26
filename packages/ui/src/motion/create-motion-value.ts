@@ -40,6 +40,7 @@ export interface MotionValue {
    * motion. Under reduced motion, it snaps to `target`, or takes `reduced`,
    * such as a short fade, in place of the spring. A `tween` replaces the
    * spring always, also under reduced motion, such as for a cross-fade.
+   * `precision` replaces the value's own for this motion.
    */
   to(
     target: number,
@@ -50,6 +51,7 @@ export interface MotionValue {
       velocity?: number;
       delay?: number;
       reduced?: "snap" | Tween;
+      precision?: number;
     },
   ): Motion;
   /** Stops it where it is. */
@@ -223,6 +225,7 @@ export function createMotionValue(
         velocity,
         delay = 0,
         reduced = "snap",
+        precision: near = precision,
       } = {},
     ) {
       const state = stateNow();
@@ -234,7 +237,7 @@ export function createMotionValue(
       const isReduced = engine.reducedMotion;
       const pathFrom = (start: MotionState) => {
         if (tween !== undefined) return tweenPath(tween, start.value, target);
-        if (!isReduced) return springPath(own, start, target, precision);
+        if (!isReduced) return springPath(own, start, target, near);
         return reduced === "snap"
           ? restingPath(target)
           : tweenPath(reduced, start.value, target);

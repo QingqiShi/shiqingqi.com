@@ -238,8 +238,8 @@ export function MotionShowcase() {
     {
       term: "NavigationSplitView",
       value: t({
-        en: "Engine · columnPush, stackPush, fold, flight, move",
-        zh: "引擎 · columnPush、stackPush、fold、flight、move",
+        en: "Engine · stackPush, move, flight, columnPush, fold",
+        zh: "引擎 · stackPush、move、flight、columnPush、fold",
       }),
       note: t({
         en: "A column or a page pushes in, the sidebar folds to the Collapsed sidebar, and each Shared element flies to its new form. A navigation during a push turns it from where it is. Reduced motion cross-fades over 170ms.",
@@ -428,37 +428,37 @@ export function MotionShowcase() {
       en: "A popover, a menu, a toast, a Sheet's card, a screen that rises, and a control.",
       zh: "弹出层、菜单、Toast、Sheet 的卡片、升起的屏幕，以及控件。",
     }),
-    columnPush: t({
-      en: "A column that a Navigation split view pushes in beside the others.",
-      zh: "导航分栏视图在其他栏旁推入的一栏。",
+    switchFill: t({
+      en: "The on fill as it rises through a Switch's track.",
+      zh: "开启时的填充色在 Switch 轨道中升起时。",
     }),
     stackPush: t({
       en: "A page that a Navigation split view pushes over the one before it.",
       zh: "导航分栏视图推到上一页之上的一页。",
     }),
-    fold: t({
-      en: "The sidebar of a Navigation split view as it folds to the Collapsed sidebar or opens.",
-      zh: "导航分栏视图的侧边栏折叠为收起侧栏或展开时。",
+    move: t({
+      en: "An element that moves to its new place in the layout. playLayout takes it when you give no spring.",
+      zh: "移到布局中新位置的元素。未指定弹簧时，playLayout 使用它。",
     }),
     flight: t({
       en: "A Shared element as it flies to its new form.",
       zh: "共享元素飞向新形态时。",
     }),
-    move: t({
-      en: "An element that moves to its new place in the layout. playLayout takes it when you give no spring.",
-      zh: "移到布局中新位置的元素。未指定弹簧时，playLayout 使用它。",
+    columnPush: t({
+      en: "A column that a Navigation split view pushes in beside the others.",
+      zh: "导航分栏视图在其他栏旁推入的一栏。",
     }),
     lift: t({
       en: "A Sheet's card as it grows out of a row and shrinks back into it.",
       zh: "Sheet 的卡片从某一行中长出、再缩回其中时。",
     }),
+    fold: t({
+      en: "The sidebar of a Navigation split view as it folds to the Collapsed sidebar or opens.",
+      zh: "导航分栏视图的侧边栏折叠为收起侧栏或展开时。",
+    }),
     aim: t({
       en: "The beam of a Black hole as it turns to its aim.",
       zh: "黑洞的光束转向目标时。",
-    }),
-    switchFill: t({
-      en: "The on fill as it rises through a Switch's track.",
-      zh: "开启时的填充色在 Switch 轨道中升起时。",
     }),
   };
   const notes = new Map(Object.entries(roleNotes));

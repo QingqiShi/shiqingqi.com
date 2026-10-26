@@ -6,6 +6,7 @@ import {
   createContext,
   use,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
@@ -28,6 +29,7 @@ import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { color, controlSize, layer, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { lockPageScroll } from "./lock-page-scroll.ts";
 import { Portal } from "./portal.tsx";
 import { SheetRecedeContext } from "./sheet-recede-context.ts";
 import { useSheetDrag } from "./use-sheet-drag.ts";
@@ -283,6 +285,16 @@ function SheetFrame({
   const closeCornerRef = useRef<HTMLDivElement>(null);
   const area = useVisualViewport();
   const recede = use(SheetRecedeContext);
+  // The page scrolls again as soon as it shows with no dim, also while the
+  // card still settles into its row.
+  const [isUndimmed, setIsUndimmed] = useState(false);
+  if (isShown && isUndimmed) setIsUndimmed(false);
+  const isLocked = !isContained && !isUndimmed;
+  // Before the motion measures the card, so one layout takes both.
+  useLayoutEffect(() => {
+    if (!isLocked) return;
+    return lockPageScroll();
+  }, [isLocked]);
   const motionRef = useSheetMotion(
     {
       cardRef,
@@ -294,7 +306,10 @@ function SheetFrame({
     {
       isShown,
       onLeft,
-      onProgress,
+      onProgress: (progress) => {
+        onProgress?.(progress);
+        if (!isShown && progress === 0) setIsUndimmed(true);
+      },
       lift:
         liftFrom === undefined
           ? null
@@ -324,10 +339,10 @@ function SheetFrame({
   const region = useScrollRegion();
   const { scroller, content } = region;
 
-  // RemoveScroll makes the body positioned, with no top margin, while the
-  // sheet is open. So the body is the containing block of the dim and the
-  // anchor, its top is the top of the document, and the area places the
-  // anchor as it is.
+  // The page scroll lock makes the body positioned, with no top margin,
+  // while the sheet is open. So the body is the containing block of the dim
+  // and the anchor. The top of the body is the top of the document. The area
+  // places the anchor as it is.
   const visibleBottom = area ? `${String(area.top + area.height)}px` : "100dvh";
   const visibleHeight = area ? `${String(area.height)}px` : "100dvh";
 
@@ -375,7 +390,8 @@ function SheetFrame({
                   ref={mergeRefs(cardRef, container)}
                   allowPinchZoom
                   forwardProps
-                  enabled={!isContained}
+                  removeScrollBar={false}
+                  enabled={isLocked}
                 >
                   <div
                     css={[

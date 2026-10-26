@@ -73,6 +73,13 @@ describe("liftOrigin", () => {
     expect(liftOrigin(view, pressed, TX)).toBe(row);
   });
 
+  it("takes a plain link in the content that opens the URL of the sheet", () => {
+    const row = link(TX);
+    row.removeAttribute("data-split-view-link");
+    const view = viewOf(column("content", "current", row));
+    expect(liftOrigin(view, null, TX)).toBe(row);
+  });
+
   it("does not take a link outside the content", () => {
     const view = viewOf(column("sidebar", null, link(TX)));
     expect(liftOrigin(view, null, TX)).toBeNull();

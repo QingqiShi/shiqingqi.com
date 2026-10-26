@@ -19,12 +19,15 @@ import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { DrawnAfterRest } from "../shell/drawn-after-rest.tsx";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
+import { AccountChartSkeleton } from "./account-chart-skeleton.tsx";
 import { AccountChart } from "./account-chart.tsx";
 import { accountDetailLine } from "./account-detail-line.ts";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
+import { AccountLedgerSkeleton } from "./account-ledger-skeleton.tsx";
 import { AccountLedger } from "./account-ledger.tsx";
 import { BankBalanceNotice } from "./bank-balance-notice.tsx";
 import { BankLinkStatus } from "./bank-link-status.tsx";
@@ -41,6 +44,9 @@ interface AccountDetailProps {
  * One account in the content column of Net worth: who and what it is, with
  * its balance and the actions on it beside that where the column is wide
  * enough, the bank's balance where it differs, its chart, and its Ledger.
+ * The chart and the Ledger take the most time to draw, so they draw after
+ * the rest, as skeletons first, and fade in. Thus a push to the account
+ * starts at once.
  */
 export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
   const locale = useLocale();
@@ -184,7 +190,12 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
         <BankBalanceNotice link={bankLink} account={account} />
       ) : null}
       <Card css={styles.card}>
-        <AccountChart account={account} today={today} />
+        <DrawnAfterRest
+          contentKey={account.id}
+          skeleton={<AccountChartSkeleton />}
+        >
+          <AccountChart account={account} today={today} />
+        </DrawnAfterRest>
       </Card>
       <div css={[stack.item, styles.creditFacts]}>
         {creditLimit === null ? null : (
@@ -218,7 +229,12 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
           {t({ en: "Ledger", zh: "明细" })}
         </Heading>
         <Card css={styles.ledgerCard}>
-          <AccountLedger account={account} today={today} />
+          <DrawnAfterRest
+            contentKey={account.id}
+            skeleton={<AccountLedgerSkeleton />}
+          >
+            <AccountLedger account={account} today={today} />
+          </DrawnAfterRest>
         </Card>
       </div>
       <UpdateBalanceSheet

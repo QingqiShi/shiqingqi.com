@@ -1,3 +1,4 @@
+import { overlaps } from "../motion/play-layout.ts";
 import type { CarrierClock, ElementTracker } from "./create-element-tracker.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
@@ -118,15 +119,6 @@ export interface RegisteredRegion {
  */
 export interface RegionWatch {
   destroy: () => void;
-}
-
-function overlaps(first: ElementBox, second: ElementBox) {
-  return (
-    first.x < second.x + second.width &&
-    second.x < first.x + first.width &&
-    first.y < second.y + second.height &&
-    second.y < first.y + first.height
-  );
 }
 
 function entriesEqual(

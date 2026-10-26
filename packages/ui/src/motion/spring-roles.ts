@@ -46,26 +46,30 @@ export const systemSpring: SystemSpring = {
   dampingRatio: 0.7,
 };
 
-/** The masses of the things that move in the package. */
+/**
+ * The masses of the things that move in the package, from the lightest. A
+ * small part moves faster than a big one, and each comes to rest soon after
+ * its bounce.
+ */
 export const springRoles = {
   /** A popover, a menu, a toast, a Sheet's card, a screen that rises, a control. */
   surface: { mass: 1 },
-  /** A column that a split view pushes in beside the others. */
-  columnPush: { mass: 3.84 },
-  /** A page that a split view pushes over the one before it. */
-  stackPush: { mass: 8.2 },
-  /** A split view's sidebar as it folds to its strip or opens. */
-  fold: { mass: 5.48 },
-  /** A Shared element as it flies to its new form. */
-  flight: { mass: 3.53 },
-  /** An element that moves to its new place in the layout. */
-  move: { mass: 4.14 },
-  /** A Sheet's card as it grows out of a row and shrinks back into it. */
-  lift: { mass: 5.11 },
-  /** The beam of a Black hole as it turns to its aim. */
-  aim: { mass: 7.25 },
   /** The on fill as it rises through a Switch's track. */
-  switchFill: { mass: 4 },
+  switchFill: { mass: 1.4 },
+  /** A page that a split view pushes over the one before it. */
+  stackPush: { mass: 1.6 },
+  /** An element that moves to its new place in the layout. */
+  move: { mass: 1.8 },
+  /** A Shared element as it flies to its new form. */
+  flight: { mass: 1.9 },
+  /** A column that a split view pushes in beside the others. */
+  columnPush: { mass: 2 },
+  /** A Sheet's card as it grows out of a row and shrinks back into it. */
+  lift: { mass: 2 },
+  /** A split view's sidebar as it folds to its strip or opens. */
+  fold: { mass: 2.2 },
+  /** The beam of a Black hole as it turns to its aim. */
+  aim: { mass: 2.4 },
 } as const satisfies Record<string, SpringRole>;
 
 /** The spring of `role` on the system spring. */

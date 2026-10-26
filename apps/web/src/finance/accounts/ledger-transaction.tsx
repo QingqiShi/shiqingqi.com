@@ -5,6 +5,7 @@ import type { ToastAction } from "@tuja/ui/components/toast";
 import { useRouter } from "next/navigation";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
+import { DetailEditor } from "../editor/detail-editor.tsx";
 import { TransactionEditor } from "../editor/transaction-editor.tsx";
 import { UnbackedTransactionNotice } from "./bank-balance-notice.tsx";
 import { useNetWorthUrl } from "./use-net-worth-url.ts";
@@ -35,41 +36,43 @@ export function LedgerTransaction({
   };
 
   return (
-    <TransactionEditor
-      key={transactionId}
-      transactionId={transactionId}
-      showClose
-      notice={
-        <UnbackedTransactionNotice
-          accountId={accountId}
-          transactionId={transactionId}
-          onDeleted={close}
-        />
-      }
-      onClose={close}
-      onSaved={(_, andNew) => {
-        if (andNew) {
-          router.push(
-            getLocalePath("/finance/transactions?new=expense", locale),
-          );
-        } else {
-          close();
+    <DetailEditor>
+      <TransactionEditor
+        key={transactionId}
+        transactionId={transactionId}
+        showClose
+        notice={
+          <UnbackedTransactionNotice
+            accountId={accountId}
+            transactionId={transactionId}
+            onDeleted={close}
+          />
         }
-      }}
-      onOpenTransaction={(id) => {
-        router.replace(url.hrefOf({ account: accountId, tx: id }), {
-          scroll: false,
-        });
-      }}
-      onRefund={(id) => {
-        router.push(
-          getLocalePath(
-            `/finance/transactions?new=expense&refund=${id}`,
-            locale,
-          ),
-        );
-      }}
-      watchCorrection={watchCorrection}
-    />
+        onClose={close}
+        onSaved={(_, andNew) => {
+          if (andNew) {
+            router.push(
+              getLocalePath("/finance/transactions?new=expense", locale),
+            );
+          } else {
+            close();
+          }
+        }}
+        onOpenTransaction={(id) => {
+          router.replace(url.hrefOf({ account: accountId, tx: id }), {
+            scroll: false,
+          });
+        }}
+        onRefund={(id) => {
+          router.push(
+            getLocalePath(
+              `/finance/transactions?new=expense&refund=${id}`,
+              locale,
+            ),
+          );
+        }}
+        watchCorrection={watchCorrection}
+      />
+    </DetailEditor>
   );
 }

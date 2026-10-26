@@ -24,6 +24,7 @@ import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { DetailEditor } from "../editor/detail-editor.tsx";
 import type { EditorDraft } from "../editor/editor-draft.ts";
 import {
   TransactionEditor,
@@ -534,7 +535,7 @@ export function TransactionsScreen() {
                   href: url.hrefWithout(),
                   label: t({ en: "Transactions", zh: "交易" }),
                 },
-                node: editorFor(true),
+                node: <DetailEditor>{editorFor(true)}</DetailEditor>,
               }
             : null
         }

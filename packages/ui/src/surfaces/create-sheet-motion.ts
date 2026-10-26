@@ -28,6 +28,12 @@ const RISE = { drop: 16, shrink: 0.06 } as const;
 const FADE = cssTween(duration._200, easing.easeOut);
 const SLIDE_FADE_OUT = cssTween(duration._300, easing.easeOut);
 const LIFT_SPRING = springOf(springRoles.lift);
+/**
+ * How near to the element, as a share of the way, the card is at rest as it
+ * goes back in. It is under 1px for a card of the screen's size, so the
+ * sheet goes, and lets the page scroll, as soon as the card shows at rest.
+ */
+const INTO_ORIGIN_PRECISION = 1e-3;
 
 /**
  * The parts of a Sheet that move.
@@ -131,6 +137,11 @@ export function createSheetMotion(
   let plain: readonly Binding[] = [];
   let lift: SheetLift | null = null;
   let grabbed = { y: 0, loss: 0, reach: 0 };
+  // What showed over the element that the card last lifted out of.
+  let lastCovers: {
+    origin: HTMLElement;
+    covers: readonly HTMLElement[];
+  } | null = null;
   let reported = Number.NaN;
 
   function report(page: number) {
@@ -228,7 +239,9 @@ export function createSheetMotion(
       { card, mover, clips, dim, content: events.liftContent(), recede },
       { progress, drop: y, shown, loss },
       rest,
+      lastCovers?.origin === origin ? lastCovers.covers : null,
     );
+    lastCovers = { origin, covers: current.covers };
     lift = current;
     return current;
   }
@@ -245,9 +258,11 @@ export function createSheetMotion(
   }
 
   function intoOrigin() {
-    void progress.to(0).finished.then((done) => {
-      if (done) left();
-    });
+    void progress
+      .to(0, { precision: INTO_ORIGIN_PRECISION })
+      .finished.then((done) => {
+        if (done) left();
+      });
     y.to(0, { spring: LIFT_SPRING });
   }
 

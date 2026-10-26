@@ -358,7 +358,7 @@ const styles = stylex.create({
 
 CSS keeps only simple state changes (hover, press, focus, selected, colour, small cues) and loops. Motion that can be interrupted, follows a gesture, or is measured from layout runs on the one motion engine, `@tuja/ui/motion/*`:
 
-- `spring-roles` — `systemSpring` (one stiffness and one damping ratio for the whole system), `springRoles` (a mass per moving thing: `surface`, `columnPush`, `stackPush`, `fold`, `flight`, `move`, `lift`, `aim`, `switchFill`), `springOf(role)`. A heavier role moves slower with the same bounce. A spring has no duration.
+- `spring-roles` — `systemSpring` (one stiffness and one damping ratio for the whole system), `springRoles` (a mass per moving thing, from the lightest: `surface`, `switchFill`, `stackPush`, `move`, `flight`, `columnPush`, `lift`, `fold`, `aim`), `springOf(role)`. A heavier role moves slower with the same bounce. A spring has no duration.
 - `use-motion-engine` — `useMotionEngine()`, `useMotionValue(engine, initial, { spring, precision })`. A `MotionValue` has `get`, `getVelocity`, `target`, `isMoving`, `set(value, { velocity })`, `to(target, { spring, tween, from, velocity, delay, reduced })` → `{ finished }`, `stop`, `subscribe`.
 - `use-binding` — `useBinding(ref, values, { pose, reducedPose, hold, rest, renderer })` writes the values to the element through `pose`; `px` (from `px`) formats a length.
 - `play-layout` — `captureLayout` then `playLayout` moves elements to their new layout box (FLIP).

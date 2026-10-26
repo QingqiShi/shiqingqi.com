@@ -2,10 +2,12 @@ import { isRendered } from "../focus/is-rendered.ts";
 import { normalizeUrl } from "./normalize-url.ts";
 
 /**
- * The column link that a sheet lifts out of and goes back into: the one
- * that was pressed, or else the one in the content that opens `href`, the
- * URL of the sheet. Only a link that shows on the screen counts, so the
- * sheet slides where its row scrolled away, went, or is under another page.
+ * The link that a sheet lifts out of and goes back into: the column link
+ * that was pressed, or else a link in the content that opens `href`, the
+ * URL of the sheet. That link can be a column link or a plain link, such as
+ * the row of a list that changes the URL itself. Only a link that shows on
+ * the screen counts, so the sheet slides where its row scrolled away, went,
+ * or is under another page.
  *
  * @internal
  */
@@ -22,7 +24,7 @@ export function liftOrigin(
     return pressed;
   }
   const links = view.querySelectorAll<HTMLAnchorElement>(
-    '[data-split-view-column="content"] [data-split-view-link]',
+    '[data-split-view-column="content"] a[href]',
   );
   for (const link of links) {
     if (opensHere(link) && isOnScreen(link)) return link;
