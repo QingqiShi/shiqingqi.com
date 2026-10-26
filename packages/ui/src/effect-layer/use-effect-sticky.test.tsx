@@ -51,7 +51,7 @@ function Region({ children }: { children: ReactNode }) {
   const region = useScrollRegion();
   const { scroller, content } = region;
   return (
-    <div ref={scroller} data-testid="scroller">
+    <div ref={scroller} data-testid="scroller" style={{ overflowY: "auto" }}>
       <div ref={content}>
         <EffectCarrier value={region}>{children}</EffectCarrier>
       </div>

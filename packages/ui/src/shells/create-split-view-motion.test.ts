@@ -174,7 +174,7 @@ describe("createSplitViewMotion", () => {
         return box.x + box.width + x - inset;
       };
       motion.play(
-        { marks: new Map(), contentLeft, sidebar: null },
+        { marks: new Map(), origin: null, contentLeft, sidebar: null },
         { content: null, detail },
         1,
       );
@@ -240,7 +240,7 @@ describe("createSplitViewMotion", () => {
     layOut(full, { x: 0, y: 0, width: 240, height: 600 });
     layOut(collapsed, { x: 0, y: 0, width: 60, height: 600 });
     motion.play(
-      { marks: new Map(), contentLeft: null, sidebar: "full" },
+      { marks: new Map(), origin: null, contentLeft: null, sidebar: "full" },
       NONE,
       1,
     );

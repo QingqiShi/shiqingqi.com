@@ -81,11 +81,24 @@ export function isAtViewportBottom(
   return isAuto(top) && !isAuto(bottom);
 }
 
+/** Whether a box with this computed `overflow` keyword scrolls on that axis. */
+const isScrollOverflow = (overflow: string) =>
+  overflow !== "visible" && overflow !== "clip";
+
 /** Whether a box with this computed style is a scroll container. */
 function scrolls(style: CSSStyleDeclaration) {
   return [style.overflow, style.overflowX, style.overflowY]
     .flatMap((overflow) => overflow.split(/\s+/).filter(Boolean))
-    .some((overflow) => overflow !== "visible" && overflow !== "clip");
+    .some(isScrollOverflow);
+}
+
+/**
+ * Whether `element` is a scroll container on the block axis now.
+ *
+ * @internal
+ */
+export function scrollsBlock(element: Element) {
+  return isScrollOverflow(getComputedStyle(element).overflowY);
 }
 
 /** Whether a scroller with this computed style lets a person scroll it. */

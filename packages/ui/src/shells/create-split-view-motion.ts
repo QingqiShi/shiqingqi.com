@@ -95,13 +95,37 @@ export interface SplitViewChange {
  * @internal
  */
 export interface SplitViewSnapshot {
+  /** The boxes of the Shared elements, from the top-left corner of the view at `origin`. */
   readonly marks: ReadonlyMap<string, ShownMark>;
+  /** Where the top-left corner of the view was in the viewport. */
+  readonly origin: { readonly x: number; readonly y: number } | null;
   readonly contentLeft: number | null;
   readonly sidebar: "full" | "collapsed" | null;
 }
 
 interface ShownMark extends SharedForm {
   readonly options: SplitViewFlightOptions;
+}
+
+/**
+ * `before` with its boxes from the top-left corner of the view at `origin`.
+ * Where the page scrolls the view, the view moves between a snapshot and
+ * its motion, but the page that leaves still shows where it showed.
+ */
+function fromOrigin(before: SplitViewSnapshot, origin: DOMRect) {
+  if (before.origin === null) return before;
+  const dx = before.origin.x - origin.left;
+  const dy = before.origin.y - origin.top;
+  if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return before;
+  const marks = new Map<string, ShownMark>();
+  for (const [name, mark] of before.marks) {
+    const { rect } = mark;
+    marks.set(name, {
+      ...mark,
+      rect: { ...rect, x: rect.x + dx, y: rect.y + dy },
+    });
+  }
+  return { ...before, marks };
 }
 
 /** Where `element` shows now, as `ShownMark` keeps it. */
@@ -130,6 +154,7 @@ export interface SplitViewMotionEvents {
 
 const NOTHING_SHOWN: SplitViewSnapshot = {
   marks: new Map(),
+  origin: null,
   contentLeft: null,
   sidebar: null,
 };
@@ -1149,8 +1174,10 @@ export function createSplitViewMotion(
         }
       }
       const content = view.querySelector(SELECTOR.content);
+      const { left, top } = view.getBoundingClientRect();
       return {
         marks: captured,
+        origin: { x: left, y: top },
         contentLeft:
           content === null ? null : content.getBoundingClientRect().left,
         sidebar: sidebarShown(),
@@ -1192,7 +1219,7 @@ export function createSplitViewMotion(
           planDetail(change.detail),
           planOffset(before.contentLeft),
           planFold(foldChange),
-          planMarks(before, origin, foldChange),
+          planMarks(fromOrigin(before, origin), origin, foldChange),
         ];
       });
       for (const startPart of starts) startPart();

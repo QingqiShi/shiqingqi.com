@@ -14,7 +14,7 @@ import {
   type SheetClips,
   type SheetLift,
 } from "./create-sheet-lift.ts";
-import { RECEDE_SHAPE, recedePose } from "./sheet-recede-context.ts";
+import { recedePose, recedeShapeOf } from "./sheet-recede-context.ts";
 
 /**
  * How the card comes and goes: below `md` it slides from below the screen,
@@ -149,6 +149,7 @@ export function createSheetMotion(
   );
 
   let receding: Binding | null = null;
+  let recedeShape: Styles = {};
 
   /**
    * Moves the element that recedes back with the card, or stops. Where no
@@ -157,7 +158,8 @@ export function createSheetMotion(
   function setReceding(isReceding: boolean) {
     if (recede === null || isReceding === (receding !== null)) return;
     if (receding === null) {
-      writeStyles(recede, RECEDE_SHAPE);
+      recedeShape = recedeShapeOf(recede);
+      writeStyles(recede, recedeShape);
       receding = bind(recede, [progress, shown, loss], {
         pose: (at, faded, lost) => recedePose(liftedPage(at, faded, lost)),
       });
@@ -165,7 +167,7 @@ export function createSheetMotion(
     }
     receding.unbind();
     receding = null;
-    for (const property of Object.keys(RECEDE_SHAPE)) {
+    for (const property of Object.keys(recedeShape)) {
       recede.style.removeProperty(property);
     }
   }

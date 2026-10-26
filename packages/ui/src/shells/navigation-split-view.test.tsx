@@ -1,6 +1,14 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { useEffect, type ComponentProps } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  onTestFinished,
+  vi,
+} from "vitest";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import {
   NavigationSplitView,
@@ -14,7 +22,12 @@ function Probe({ name }: { name: string }) {
   const state = useSplitViewColumn();
   return (
     <p>
-      {name}: {state?.column} {state?.scroller ? "scroller" : "none"}
+      {name}: {state?.column}{" "}
+      {state?.scroller
+        ? "scroller"
+        : state != null && state.scroller === undefined
+          ? "page"
+          : "none"}
     </p>
   );
 }
@@ -127,6 +140,15 @@ describe("NavigationSplitView", () => {
   });
 
   it("tells each column which it is and gives it its scroller", () => {
+    // jsdom applies no StyleX styles, so a rule gives the scrollers their
+    // overflow.
+    const style = document.createElement("style");
+    style.textContent =
+      "[data-split-view-page] > :first-child { overflow-y: auto; }";
+    document.head.append(style);
+    onTestFinished(() => {
+      style.remove();
+    });
     render(
       <NavigationSplitView
         closeLabel="Close"
@@ -142,6 +164,16 @@ describe("NavigationSplitView", () => {
     expect(screen.getByText("a: sidebar scroller")).toBeInTheDocument();
     expect(screen.getByText("b: content scroller")).toBeInTheDocument();
     expect(screen.getByText("c: detail scroller")).toBeInTheDocument();
+  });
+
+  it("tells a column whose box does not scroll that the page scrolls it", () => {
+    render(
+      <NavigationSplitView
+        closeLabel="Close"
+        content={{ node: <Probe name="b" />, label: "Ledger" }}
+      />,
+    );
+    expect(screen.getByText("b: content page")).toBeInTheDocument();
   });
 
   it("puts a column's back link before its node and its accessory after it", () => {

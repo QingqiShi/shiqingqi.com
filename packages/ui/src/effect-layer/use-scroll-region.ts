@@ -1,4 +1,5 @@
 import { use, useState, type RefCallback } from "react";
+import { scrollsBlock } from "./check-declared-carrier.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
 import {
   allocateRegion,
@@ -50,9 +51,12 @@ export interface ScrollRegionRef {
  * it: chrome in the scroller that must stay over the effects needs
  * `layer.raised`. The scroll is vertical; a region that scrolls only
  * horizontally keeps its elements on the parent carrier. The effect hooks of
- * the scroller itself are on the parent carrier. A sticky box in the region
- * sticks to the scroller, so `useEffectSticky` watches it against the
- * scroller. Inside `<EffectCarrier value="contained">`, the refs do
+ * the scroller itself are on the parent carrier. Where the scroller does not
+ * scroll on the block axis, such as where its `overflow` is `visible` at one
+ * width, so that the page scrolls its content, the region is not there: its
+ * elements and its sticky boxes are on the parent carrier. A sticky box in
+ * the region sticks to the scroller, so `useEffectSticky` watches it against
+ * the scroller. Inside `<EffectCarrier value="contained">`, the refs do
  * nothing. Outside an `EffectLayerProvider`, they give the scroller only to
  * that watch.
  */
@@ -87,11 +91,30 @@ function regionRefs(
     if (element === null) {
       return undefined;
     }
-    setRegionScroller(carrier.id, element);
-    const unregister = register("scroller", element);
-    return () => {
+    let unregister: (() => void) | null = null;
+    const leave = () => {
+      if (unregister === null) return;
       setRegionScroller(carrier.id, null);
-      unregister?.();
+      unregister();
+      unregister = null;
+    };
+    const follow = () => {
+      if (!scrollsBlock(element)) {
+        leave();
+      } else if (unregister === null) {
+        setRegionScroller(carrier.id, element);
+        unregister = register("scroller", element) ?? (() => {});
+      }
+    };
+    follow();
+    // A container query can change the overflow of the scroller, and that
+    // change also changes its size.
+    const observer =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(follow);
+    observer?.observe(element);
+    return () => {
+      observer?.disconnect();
+      leave();
     };
   };
   return { scroller: scrollerRef, content: contentRef, carrier };

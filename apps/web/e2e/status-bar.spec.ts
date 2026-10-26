@@ -1,4 +1,5 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
+import { wheelPage } from "./helpers/scroll.ts";
 import {
   pickSheetVariant,
   SHEET_LAB,
@@ -31,10 +32,7 @@ for (const { name, path } of [
     expect(await page.evaluate(findStatusBarCandidates)).toEqual([]);
 
     // Safari on iOS keeps sampling the top edge after a scroll.
-    await page.mouse.wheel(0, 400);
-    await expect
-      .poll(() => page.evaluate(() => window.scrollY))
-      .toBeGreaterThan(0);
+    await wheelPage(page, 400);
     expect(await page.evaluate(findStatusBarCandidates)).toEqual([]);
   });
 }
@@ -44,10 +42,7 @@ test("should keep an open Sheet and its dim out of the status bar", async ({
 }) => {
   await page.goto("/en/design-system/components/sheet");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await page.mouse.wheel(0, 400);
-  await expect
-    .poll(() => page.evaluate(() => window.scrollY))
-    .toBeGreaterThan(0);
+  await wheelPage(page, 400);
 
   const open = page.getByRole("button", { name: "Open a tall sheet" });
   const dialog = page.getByRole("dialog", { name: "Release notes" });

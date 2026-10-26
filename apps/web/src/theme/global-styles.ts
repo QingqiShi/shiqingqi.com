@@ -1,5 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { root } from "@tuja/ui/primitives/root.stylex";
+import { color } from "@tuja/ui/tokens.stylex";
 import {
   financeTheme,
   isFinancePath,
@@ -19,13 +21,24 @@ export const globalStyles = stylex.create({
   body: {
     position: "relative",
   },
+  // On a phone, an island fills the screen. Safari shows the page background
+  // at the status bar and in the overscroll, so it is the island fill.
+  financeHtml: {
+    backgroundColor: {
+      default: color.bgSurface,
+      [breakpoints.md]: color.bgCanvas,
+    },
+  },
 });
 
 export function getDocumentClassName(
   theme?: string | null,
   pathname: string | null = null,
 ) {
-  const appTheme = isFinancePath(pathname) && financeTheme;
+  const appTheme = isFinancePath(pathname) && [
+    financeTheme,
+    globalStyles.financeHtml,
+  ];
   switch (theme) {
     case "dark": {
       const rootProps = stylex.props(
