@@ -125,7 +125,7 @@
     "modern-normalize": "^3.0.1",
     "msw": "^3.0.3",
     "next-i18n-router": "^5.5.8",
-    "npm-run-all2": "^9.0.3",
+    "npm-run-all2": "^9.0.4",
     "openapi-typescript": "^7.13.0",
     "pg-connection-string": "^2.14.1",
     "postcss-flexbugs-fixes": "^5.0.2",
