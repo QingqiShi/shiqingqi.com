@@ -30,6 +30,7 @@ const restrictedPlugin = {
     "tmdb-query-fn": noRestrictedSyntax,
     "reduced-motion": noRestrictedSyntax,
     "type-assertion": noRestrictedSyntax,
+    "class-component": noRestrictedSyntax,
   },
 };
 
@@ -141,6 +142,9 @@ export default defineConfig([
           message:
             "React Compiler memoizes components and hooks. Remove the manual `useMemo`, `useCallback`, or `memo`.",
         },
+      ],
+      "restricted/class-component": [
+        "error",
         {
           // `render` with JSX catches a class that does not extend a React
           // class, and a base class that the name match misses.
@@ -241,6 +245,14 @@ export default defineConfig([
         "error",
         { allow: [{ from: "lib", name: "execCommand" }] },
       ],
+    },
+  },
+  // Only a class component can read the screen before React changes the DOM,
+  // in `getSnapshotBeforeUpdate`. This file holds only that component.
+  {
+    files: ["packages/ui/src/shells/before-commit.tsx"],
+    rules: {
+      "restricted/class-component": "off",
     },
   },
   {

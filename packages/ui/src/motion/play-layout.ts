@@ -22,14 +22,48 @@ export function overlaps(first: Rect, second: Rect) {
   );
 }
 
+/** The area that two boxes share, with no size where they share none. */
+export function intersect(first: Rect, second: Rect): Rect {
+  const x = Math.max(first.x, second.x);
+  const y = Math.max(first.y, second.y);
+  const right = Math.min(first.x + first.width, second.x + second.width);
+  const bottom = Math.min(first.y + first.height, second.y + second.height);
+  return {
+    x,
+    y,
+    width: Math.max(0, right - x),
+    height: Math.max(0, bottom - y),
+  };
+}
+
 /** The boxes of some elements at one time, from `captureLayout`. */
 export interface LayoutSnapshot {
   readonly origin: Element;
   rectOf(element: Element): Rect | undefined;
 }
 
+/** How far, in px, an element shows from its place. */
+export interface Offset {
+  readonly dx: number;
+  readonly dy: number;
+}
+
+const NO_OFFSETS: ReadonlyMap<Element, Offset> = new Map();
+
 /** A move shorter than this, in px, does not play. */
-const MIN_MOVE = 0.5;
+export const MIN_MOVE = 0.5;
+
+/**
+ * Whether a move can write the `translate` of `element`: no other style
+ * sets it. Read it with the motion at its layout pose.
+ *
+ * @internal
+ */
+export function canTranslate(element: HTMLElement | SVGElement) {
+  if (element.style.getPropertyValue("translate") !== "") return false;
+  const { translate } = getComputedStyle(element);
+  return translate === "" || translate === "none";
+}
 
 /**
  * The box of `element` as the screen shows it now, relative to `origin`.
@@ -82,7 +116,7 @@ function createMove(
   const x = offset();
   const y = offset();
   const binding = bind(element, [x, y], {
-    pose: (left, top) => ({ transform: `translate(${px(left)}, ${px(top)})` }),
+    pose: (left, top) => ({ translate: `${px(left)} ${px(top)}` }),
     rest: "clear",
   });
   return { x, y, binding };
@@ -110,38 +144,42 @@ function moveOf(
 
 /**
  * Springs each of `elements` from its box in `snapshot` to its box in the
- * layout now. An element inside another that moves takes only its own move.
- * An element that moves already turns from where it is, at the speed it has.
+ * layout now. An element inside another that moves takes only its own move,
+ * also inside one of `moving`, which moves on its own from the offset it
+ * has there. An element that moves already turns from where it is, at the
+ * speed it has. The move writes only `translate`, so it adds to the
+ * `transform` of the element, and an element that another style gives a
+ * `translate` does not move.
  */
 export function playLayout(
   engine: MotionEngine,
   snapshot: LayoutSnapshot,
   elements: Iterable<HTMLElement | SVGElement>,
-  { spring = springOf(springRoles.move) }: { spring?: Spring } = {},
+  {
+    spring = springOf(springRoles.move),
+    moving = NO_OFFSETS,
+  }: { spring?: Spring; moving?: ReadonlyMap<Element, Offset> } = {},
 ) {
   const moves = movesIn(engine);
   const offsets = engine.measure(() => {
     const box = snapshot.origin.getBoundingClientRect();
-    const found = new Map<
-      HTMLElement | SVGElement,
-      { dx: number; dy: number }
-    >();
+    const found = new Map<HTMLElement | SVGElement, Offset>();
     for (const element of elements) {
       const from = snapshot.rectOf(element);
-      if (from === undefined) continue;
+      if (from === undefined || !canTranslate(element)) continue;
       const to = rectIn(element, box);
       found.set(element, { dx: from.x - to.x, dy: from.y - to.y });
     }
     return found;
   });
 
-  const outerOf = (element: Element) => {
+  const outerOf = (element: Element): Offset => {
     for (
       let node = element.parentElement;
       node !== null;
       node = node.parentElement
     ) {
-      const outer = offsets.get(node);
+      const outer = offsets.get(node) ?? moving.get(node);
       if (outer !== undefined) return outer;
     }
     return { dx: 0, dy: 0 };

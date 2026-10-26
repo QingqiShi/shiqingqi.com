@@ -119,11 +119,12 @@ function measure(code: HTMLElement, boxes: readonly HTMLElement[]) {
 
 const STILL: Place = { left: 0, top: 0 };
 
+/** How far the move of `playLayout` shows `box` from its place now. */
 function translationOf(box: HTMLElement): Place {
-  const { transform } = getComputedStyle(box);
-  if (transform === "" || transform === "none") return STILL;
-  const matrix = new DOMMatrixReadOnly(transform);
-  return { left: matrix.e, top: matrix.f };
+  const { translate } = getComputedStyle(box);
+  if (translate === "" || translate === "none") return STILL;
+  const [left = 0, top = 0] = translate.split(" ").map(Number.parseFloat);
+  return { left, top };
 }
 
 /** A part rises into its place as it fades in, or only fades in under reduced motion. */

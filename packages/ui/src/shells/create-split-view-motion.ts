@@ -18,10 +18,13 @@ import {
   type SharedForm,
 } from "../motion/fly-shared.ts";
 import { smoothstep, unit } from "../motion/mix.ts";
+import { captureBoxes, pickBoxes } from "../motion/pick-boxes.ts";
 import {
   captureLayout,
+  intersect,
   playLayout,
   rectIn,
+  type LayoutSnapshot,
   type Rect,
 } from "../motion/play-layout.ts";
 import { px, writeStyles, type Styles } from "../motion/px.ts";
@@ -99,8 +102,19 @@ export interface SplitViewSnapshot {
   readonly marks: ReadonlyMap<string, ShownMark>;
   /** Where the top-left corner of the view was in the viewport. */
   readonly origin: { readonly x: number; readonly y: number } | null;
+}
+
+/**
+ * The columns before a change, read in its commit, before the DOM changes.
+ *
+ * @internal
+ */
+export interface SplitViewLayout {
+  /** Where the inline-start edge of the content column was in the viewport. */
   readonly contentLeft: number | null;
   readonly sidebar: "full" | "collapsed" | null;
+  /** The boxes of the content page, where the change can resize the content column. */
+  readonly boxes: LayoutSnapshot | null;
 }
 
 interface ShownMark extends SharedForm {
@@ -152,12 +166,7 @@ export interface SplitViewMotionEvents {
   onFrame: () => void;
 }
 
-const NOTHING_SHOWN: SplitViewSnapshot = {
-  marks: new Map(),
-  origin: null,
-  contentLeft: null,
-  sidebar: null,
-};
+const NOTHING_SHOWN: SplitViewSnapshot = { marks: new Map(), origin: null };
 
 /** A part of the motion, such as the push of a page or one flight. */
 interface Part {
@@ -671,10 +680,12 @@ const SELECTOR = {
 /**
  * The motion of a `NavigationSplitView`: the motion values, the bindings
  * that show them, and the Shared elements. The view reads a snapshot when a
- * navigation is about to change the composition, and plays the change after
+ * navigation is about to change the composition, reads the columns in the
+ * commit of the change, before the DOM changes, and plays the change after
  * it. A change that comes while a motion runs turns each part from where it
- * is, at the speed it has. The motion writes only `transform`, `opacity` and
- * `visibility`, once a frame, and reads the layout only when a change starts.
+ * is, at the speed it has. The motion writes only `transform`, `translate`,
+ * `opacity` and `visibility`, once a frame, and reads the layout only when
+ * a change starts.
  *
  * @internal
  */
@@ -682,13 +693,21 @@ export interface SplitViewMotion {
   /** Reads where each Shared element shows now, as the screen shows it. */
   capture(): SplitViewSnapshot;
   /**
-   * Plays the change from `before` to the composition in the DOM now, as
-   * motion number `motion`. Without a snapshot, the columns and the pages
-   * move, but no Shared element flies, the sidebar does not fold and the
-   * content does not slide to its new place.
+   * Reads the columns as the screen shows them now, for `play` of `change`.
+   * `null` under reduced motion.
+   */
+  readLayout(change: SplitViewChange): SplitViewLayout | null;
+  /**
+   * Plays the change from `snapshot` and `layout` to the composition in the
+   * DOM now, as motion number `motion`. Without a snapshot, the columns and
+   * the pages move, but no Shared element flies. Without a layout, the
+   * sidebar does not fold and the content column does not slide to its new
+   * place. The boxes of the content page in `layout` move from where they
+   * showed to their new places in the content: see `pickBoxes`.
    */
   play(
     snapshot: SplitViewSnapshot | null,
+    layout: SplitViewLayout | null,
     change: SplitViewChange,
     motion: number,
   ): void;
@@ -1025,11 +1044,12 @@ export function createSplitViewMotion(
     };
   }
 
-  function planOffset(before: number | null) {
-    const content = view.querySelector<HTMLElement>(SELECTOR.content);
-    if (content === null) return noStart;
-    const box = content.getBoundingClientRect();
-    const dx = before === null ? 0 : before - box.left;
+  function planOffset(
+    content: HTMLElement | null,
+    box: DOMRect | null,
+    dx: number,
+  ) {
+    if (content === null || box === null) return noStart;
     const velocity = offset?.x.getVelocity() ?? 0;
     offset?.drop();
     offset = null;
@@ -1106,19 +1126,13 @@ export function createSplitViewMotion(
           a.from.rect.y - b.from.rect.y || a.from.rect.x - b.from.rect.x,
       );
 
-    return () => {
+    const flying = paired.flatMap(({ from, to }) => [from.element, to.element]);
+
+    const start = () => {
       for (const holder of holders) holder.drop();
       holders = paired
         .filter(isHolder)
         .map((pair) => createHolder(engine, pair.to, waitingIn(pair)));
-
-      const movedFrom: ReadonlyMap<Element, Rect> = moved;
-      playLayout(
-        engine,
-        { origin: view, rectOf: (element) => movedFrom.get(element) },
-        moved.keys(),
-        { spring: springOf(springRoles.move) },
-      );
 
       const stagger = change === "fold" ? STAGGER.fold : STAGGER.other;
       const next = new Map<string, Flight<ShownMark>>();
@@ -1153,6 +1167,46 @@ export function createSplitViewMotion(
       for (const flight of flights.values()) flight.drop();
       flights = next;
     };
+    return { start, moved, flying };
+  }
+
+  /**
+   * Moves each Shared element in `moved` from its box there, and each box
+   * of the content page that `pickBoxes` picks from its box in `boxes`, in
+   * one `playLayout`, so that a box inside another that moves takes only its
+   * own move. The content column shows `shift` px from its place as the
+   * motion starts and springs back on its own, so a box in it moves `shift`
+   * px less.
+   */
+  function planMoves(
+    content: HTMLElement | null,
+    boxes: LayoutSnapshot | null,
+    moved: ReadonlyMap<SplitViewMarkElement, Rect>,
+    flying: readonly Element[],
+    shift: number,
+  ) {
+    const page =
+      content?.querySelector<HTMLElement>(SELECTOR.page("current")) ?? null;
+    const offset = { dx: shift, dy: 0 };
+    const from = new Map<HTMLElement | SVGElement, Rect>(
+      boxes === null || page === null
+        ? []
+        : pickBoxes(page, boxes, { avoid: flying, offset }),
+    );
+    for (const [element, rect] of moved) from.set(element, rect);
+    if (from.size === 0) return noStart;
+    const fromOf: ReadonlyMap<Element, Rect> = from;
+    const moving = new Map<Element, typeof offset>(
+      content === null ? [] : [[content, offset]],
+    );
+    return () => {
+      playLayout(
+        engine,
+        { origin: view, rectOf: (element) => fromOf.get(element) },
+        from.keys(),
+        { spring: springOf(springRoles.move), moving },
+      );
+    };
   }
 
   return {
@@ -1173,18 +1227,43 @@ export function createSplitViewMotion(
           captured.set(name, markOf(element, rect, options));
         }
       }
-      const content = view.querySelector(SELECTOR.content);
       const { left, top } = view.getBoundingClientRect();
+      return { marks: captured, origin: { x: left, y: top } };
+    },
+
+    readLayout(change) {
+      if (engine.reducedMotion) return null;
+      const content = view.querySelector<HTMLElement>(SELECTOR.content);
+      const page = content?.querySelector(SELECTOR.page("current")) ?? null;
+      const resizes =
+        change.content === null &&
+        (change.detail === "in" || change.detail === "out");
+      let boxes: LayoutSnapshot | null = null;
+      if (content !== null && page !== null && resizes) {
+        const origin = view.getBoundingClientRect();
+        const screen = {
+          x: -origin.left,
+          y: -origin.top,
+          width: innerWidth,
+          height: innerHeight,
+        };
+        // The pages clip what they hold to the column, and the screen clips
+        // the column.
+        boxes = captureBoxes(
+          page,
+          view,
+          intersect(rectIn(content, origin), screen),
+        );
+      }
       return {
-        marks: captured,
-        origin: { x: left, y: top },
         contentLeft:
           content === null ? null : content.getBoundingClientRect().left,
         sidebar: sidebarShown(),
+        boxes,
       };
     },
 
-    play(snapshot, change, motion) {
+    play(snapshot, layout, change, motion) {
       const before = snapshot ?? NOTHING_SHOWN;
       played = motion;
       if (engine.reducedMotion) {
@@ -1209,17 +1288,36 @@ export function createSplitViewMotion(
         const presentation = origin.width / rem < 30 ? "stacked" : "columns";
         const sidebar = sidebarShown();
         const foldChange =
-          before.sidebar === "full" && sidebar === "collapsed"
+          layout?.sidebar === "full" && sidebar === "collapsed"
             ? "fold"
-            : before.sidebar === "collapsed" && sidebar === "full"
+            : layout?.sidebar === "collapsed" && sidebar === "full"
               ? "unfold"
               : null;
+        const content = view.querySelector<HTMLElement>(SELECTOR.content);
+        const contentBox = content?.getBoundingClientRect() ?? null;
+        const contentLeft = layout?.contentLeft ?? null;
+        const shift =
+          contentBox === null || contentLeft === null
+            ? 0
+            : contentLeft - contentBox.left;
+        const marksPlan = planMarks(
+          fromOrigin(before, origin),
+          origin,
+          foldChange,
+        );
         return [
           planContent(change.content, presentation),
           planDetail(change.detail),
-          planOffset(before.contentLeft),
+          planOffset(content, contentBox, shift),
           planFold(foldChange),
-          planMarks(fromOrigin(before, origin), origin, foldChange),
+          marksPlan.start,
+          planMoves(
+            content,
+            layout?.boxes ?? null,
+            marksPlan.moved,
+            marksPlan.flying,
+            shift,
+          ),
         ];
       });
       for (const startPart of starts) startPart();

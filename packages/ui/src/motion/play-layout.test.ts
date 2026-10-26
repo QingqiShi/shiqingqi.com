@@ -15,9 +15,7 @@ afterEach(() => {
 });
 
 function translateOf(element: HTMLElement) {
-  const match = /translate\((-?[\d.]+)px, (-?[\d.]+)px\)/.exec(
-    element.style.transform,
-  );
+  const match = /^(-?[\d.]+)px (-?[\d.]+)px$/.exec(element.style.translate);
   return match === null ? null : [Number(match[1]), Number(match[2])];
 }
 
@@ -54,7 +52,7 @@ describe("captureLayout", () => {
 });
 
 describe("playLayout", () => {
-  it("springs an element from its old box to its new one, and clears its transform at rest", async () => {
+  it("springs an element from its old box to its new one, and clears its translate at rest", async () => {
     const engine = createMotionEngine();
     const { origin, card } = setUp();
     const snapshot = captureLayout([card], origin);
@@ -67,7 +65,49 @@ describe("playLayout", () => {
     expect(x).toBeLessThan(0);
     expect(y).toBeGreaterThan(-50);
     await clock.advance(3);
-    expect(card.style.transform).toBe("");
+    expect(card.style.translate).toBe("");
+  });
+
+  it("keeps the transform of an element that it moves, while it moves and at rest", async () => {
+    const engine = createMotionEngine();
+    const { origin, card } = setUp();
+    card.style.transform = "rotate(180deg)";
+    const snapshot = captureLayout([card], origin);
+    layOut(card, { x: 110, y: 10, width: 100, height: 40 });
+    playLayout(engine, snapshot, [card]);
+    expect(translateOf(card)).toEqual([-100, 0]);
+    expect(card.style.transform).toBe("rotate(180deg)");
+    await clock.advance(0.1);
+    expect(card.style.transform).toBe("rotate(180deg)");
+    await clock.advance(3);
+    expect(card.style.translate).toBe("");
+    expect(card.style.transform).toBe("rotate(180deg)");
+  });
+
+  it("does not move an element that another style gives a translate, and keeps that translate", async () => {
+    const engine = createMotionEngine();
+    const { origin, card, label } = setUp();
+    card.style.translate = "4px 0px";
+    const snapshot = captureLayout([card, label], origin);
+    layOut(card, { x: 110, y: 10, width: 100, height: 40 });
+    layOut(label, { x: 120, y: 20, width: 50, height: 10 });
+    playLayout(engine, snapshot, [card, label]);
+    expect(card.style.translate).toBe("4px 0px");
+    // The card does not move, so the label takes the whole move.
+    expect(translateOf(label)).toEqual([-100, 0]);
+    await clock.advance(3);
+    expect(card.style.translate).toBe("4px 0px");
+  });
+
+  it("gives an element inside one that moves on its own only its own move", () => {
+    const engine = createMotionEngine();
+    const { origin, card, label } = setUp();
+    const snapshot = captureLayout([label], origin);
+    layOut(label, { x: 120, y: 40, width: 50, height: 10 });
+    playLayout(engine, snapshot, [label], {
+      moving: new Map([[card, { dx: -100, dy: 0 }]]),
+    });
+    expect(translateOf(label)).toEqual([0, -20]);
   });
 
   it("gives an element inside another that moves only its own move", () => {
@@ -114,7 +154,7 @@ describe("playLayout", () => {
     const snapshot = captureLayout([card], origin);
     playLayout(engine, snapshot, [card]);
     engine.destroy();
-    expect(card.style.transform).toBe("");
+    expect(card.style.translate).toBe("");
     layOut(card, { x: 10, y: 10, width: 100, height: 40 });
     playLayout(engine, snapshot, [card]);
     expect(translateOf(card)).toEqual([100, 0]);
