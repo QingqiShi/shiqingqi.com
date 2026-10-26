@@ -415,7 +415,9 @@ interface NavigationSplitViewProps {
  * springs in over the page it leaves, which drifts back and dims, and a
  * shallower one springs back out. A detail slides in beside the content
  * while the sidebar folds, and the Shared elements (`useSplitViewShared`)
- * fly between their forms. Where the content is stacked, a drag from the
+ * fly between their forms. A detail in a sheet grows out of the link in the
+ * content that opens it, a column link or a plain one, and shrinks back
+ * into it. Where the content is stacked, a drag from the
  * start edge of the content takes it off. A navigation in the middle of a
  * motion starts from where the motion is. Under reduced motion, each change
  * is a short cross-fade. The Shared elements fly only for a navigation that

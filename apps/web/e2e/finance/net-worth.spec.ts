@@ -19,6 +19,18 @@ async function openNetWorth(page: Page, locale: "en" | "zh" = "en") {
   ).toBeVisible();
 }
 
+/** The URLs of the screen data that the router fetches for a navigation from now on, without its prefetches. */
+function watchScreenRequests(page: Page) {
+  const urls: string[] = [];
+  page.on("request", (request) => {
+    const headers = request.headers();
+    if (headers.rsc === "1" && !("next-router-prefetch" in headers)) {
+      urls.push(request.url());
+    }
+  });
+  return urls;
+}
+
 async function openReorder(page: Page) {
   const reorder = page.getByRole("link", { name: "Reorder" });
   await reorder.scrollIntoViewIfNeeded();
@@ -380,6 +392,7 @@ test.describe("Net worth at 390 px", () => {
     session: _session,
   }) => {
     await openNetWorth(page);
+    const screenRequests = watchScreenRequests(page);
     const scrolled = await wheelPage(page, 300);
     await page.getByRole("link", { name: /^Alex Current Northbank/ }).click();
     await expect(page).toHaveURL(/\/finance\?account=[0-9a-f-]+$/, {
@@ -409,5 +422,8 @@ test.describe("Net worth at 390 px", () => {
       .click();
     await expect(page).toHaveURL(/\/finance$/, { timeout: 30_000 });
     await expect.poll(() => readScrollY(page)).toBe(scrolled);
+    // Each step only changes the query, and the screen draws it from the
+    // Replica, so no step waits for the server.
+    expect(screenRequests).toEqual([]);
   });
 });

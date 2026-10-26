@@ -1,11 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import {
-  duration,
-  easing,
-  motionKeyframes,
-} from "@tuja/ui/primitives/motion.stylex";
 import { usePathname } from "next/navigation";
 import {
   createContext,
@@ -24,6 +19,7 @@ import {
   isCurrentDestination,
 } from "./finance-destination-paths.ts";
 import { FinanceScreenSkeleton } from "./finance-screen-skeleton.tsx";
+import { reveal } from "./reveal.stylex.ts";
 
 interface PendingScreen {
   /** The locale-free path of the screen that a link opens while the server renders it. */
@@ -134,7 +130,7 @@ export function FinanceScreenSlot({ children }: { children: ReactNode }) {
         <FinanceScreenSkeleton path={skeletonPath} />
       ) : null}
       <div
-        css={[skeleton && styles.hidden, revealing && styles.reveal]}
+        css={[skeleton && styles.hidden, revealing && reveal.fadeIn]}
         onAnimationEnd={(event) => {
           if (event.target === event.currentTarget) setRevealing(false);
         }}
@@ -146,11 +142,6 @@ export function FinanceScreenSlot({ children }: { children: ReactNode }) {
 }
 
 const styles = stylex.create({
-  reveal: {
-    animationName: motionKeyframes.fadeIn,
-    animationDuration: duration._300,
-    animationTimingFunction: easing.easeOut,
-  },
   hidden: {
     display: "none",
   },

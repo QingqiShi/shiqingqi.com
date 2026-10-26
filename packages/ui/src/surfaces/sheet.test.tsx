@@ -262,10 +262,41 @@ describe("Sheet", () => {
     const clock = fakeMotionClock();
     const { rerender } = render(<SheetHarness isOpen onClose={vi.fn()} />);
     expect(document.body).toHaveAttribute("data-scroll-locked");
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(document.body.style.position).toBe("relative");
 
     rerender(<SheetHarness isOpen={false} onClose={vi.fn()} />);
     await act(() => clock.advance(1));
     expect(document.body).not.toHaveAttribute("data-scroll-locked");
+    expect(document.body.style.overflow).toBe("");
+    expect(document.body.style.position).toBe("");
+  });
+
+  it("lets the page scroll as soon as it shows with no dim, while the card still leaves", async () => {
+    const clock = fakeMotionClock();
+    const { rerender } = render(<SheetHarness isOpen onClose={vi.fn()} />);
+    await act(() => clock.advance(1));
+
+    rerender(<SheetHarness isOpen={false} onClose={vi.fn()} />);
+    await act(() => clock.advance(0.1));
+    expect(document.body).toHaveAttribute("data-scroll-locked");
+    await act(() => clock.advance(0.25));
+    expect(card()).toBeInTheDocument();
+    expect(document.body).not.toHaveAttribute("data-scroll-locked");
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("locks the page again when it opens while it leaves", async () => {
+    const clock = fakeMotionClock();
+    const { rerender } = render(<SheetHarness isOpen onClose={vi.fn()} />);
+    await act(() => clock.advance(1));
+    rerender(<SheetHarness isOpen={false} onClose={vi.fn()} />);
+    await act(() => clock.advance(0.35));
+    expect(document.body).not.toHaveAttribute("data-scroll-locked");
+
+    rerender(<SheetHarness isOpen onClose={vi.fn()} />);
+    expect(document.body).toHaveAttribute("data-scroll-locked");
+    expect(document.body.style.overflow).toBe("hidden");
   });
 
   describe("motion", () => {
@@ -536,6 +567,30 @@ describe("Sheet", () => {
         expect(Number(copy()?.style.opacity)).toBeLessThan(1);
         await act(() => clock.advance(1.5));
         expect(copy()).toBeUndefined();
+      });
+
+      it("keeps what floated over the element as it lifted over the card as it goes back, with no new hit test", async () => {
+        const row = setUpLift();
+        const button = document.createElement("button");
+        button.textContent = "Add";
+        document.body.append(button);
+        button.getBoundingClientRect = () =>
+          DOMRect.fromRect({ x: 290, y: 90, width: 90, height: 48 });
+        hits = [button, row, document.body];
+        const { rerender } = render(<LiftHarness isOpen row={row} />);
+        await act(() => clock.advance(1.5));
+
+        const hitTest = vi.fn(() => []);
+        Object.defineProperty(document, "elementsFromPoint", {
+          configurable: true,
+          value: hitTest,
+        });
+        rerender(<LiftHarness isOpen={false} row={row} />);
+        const copy = [...(mover().parentElement?.children ?? [])].find(
+          (child) => child !== mover() && child.textContent === "Add",
+        );
+        expect(copy).toBeDefined();
+        expect(hitTest).not.toHaveBeenCalled();
       });
 
       it("gives each clip box the corners of the card", () => {

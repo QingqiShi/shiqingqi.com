@@ -12,6 +12,16 @@ export interface Rect {
   readonly height: number;
 }
 
+/** Whether two boxes share some area. Boxes that only touch do not. */
+export function overlaps(first: Rect, second: Rect) {
+  return (
+    first.x < second.x + second.width &&
+    second.x < first.x + first.width &&
+    first.y < second.y + second.height &&
+    second.y < first.y + first.height
+  );
+}
+
 /** The boxes of some elements at one time, from `captureLayout`. */
 export interface LayoutSnapshot {
   readonly origin: Element;

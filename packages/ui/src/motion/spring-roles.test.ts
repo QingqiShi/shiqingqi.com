@@ -65,18 +65,17 @@ describe("springOf", () => {
     expect(light.dampingRatio).toBe(systemSpring.dampingRatio);
   });
 
-  // In ms, the time each role took to get 95% of the way when each role
-  // had its own damping ratio.
+  // In ms, the time each role takes to get 95% of the way.
   it.each([
     ["surface", 132],
-    ["columnPush", 258],
-    ["stackPush", 377],
-    ["fold", 309],
-    ["flight", 248],
-    ["move", 268],
-    ["lift", 298],
-    ["aim", 357],
-    ["switchFill", 264],
+    ["switchFill", 156],
+    ["stackPush", 167],
+    ["move", 177],
+    ["flight", 182],
+    ["columnPush", 186],
+    ["lift", 186],
+    ["fold", 196],
+    ["aim", 204],
   ] as const)("keeps the speed of %s", (role, arrival) => {
     expect(Math.abs(arrivalOf(role) * 1000 - arrival)).toBeLessThan(4);
   });

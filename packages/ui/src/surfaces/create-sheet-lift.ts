@@ -7,7 +7,7 @@ import {
   readSharedForm,
 } from "../motion/fly-shared.ts";
 import { mix, smoothstep, unit } from "../motion/mix.ts";
-import type { Rect } from "../motion/play-layout.ts";
+import { overlaps, type Rect } from "../motion/play-layout.ts";
 import { px, writeStyles, type Styles } from "../motion/px.ts";
 import { recededRect } from "./sheet-recede-context.ts";
 
@@ -117,6 +117,8 @@ export interface SheetLiftValues {
 
 /** @internal */
 export interface SheetLift {
+  /** The elements that showed over `origin` as the lift started. */
+  readonly covers: readonly HTMLElement[];
   /** Takes off every style and the copy that the lift made. */
   stop(): void;
 }
@@ -147,7 +149,11 @@ export function liftedPage(at: number, faded: number, lost: number) {
  * `origin` is in the element that recedes, the window starts where
  * `origin` shows as that element moves back. Each frame that the lift
  * moves, it reads the box of `origin` again, before the frame writes, and
- * follows it where the page under the card moved it.
+ * follows it where the page under the card moved it. Where `knownCovers`
+ * gives what showed over `origin` before, such as when the card lifted out of
+ * it, the lift takes those of them that still show over it. To find them
+ * again, the browser must test each point through the card and its
+ * content, which takes long.
  *
  * @internal
  */
@@ -157,6 +163,7 @@ export function createSheetLift(
   { card, mover, clips, dim, content, recede }: SheetLiftParts,
   values: SheetLiftValues,
   rest: Rect,
+  knownCovers: readonly HTMLElement[] | null = null,
 ): SheetLift {
   const cardStyle = getComputedStyle(card);
   const clipShape = Object.fromEntries(
@@ -181,9 +188,14 @@ export function createSheetLift(
       backing === null ? null : boxOf(backing),
       originBox,
       boxOf(layer),
-      coversOf(origin, originBox, [layer, dim]).map(
-        (cover) => [cover, boxOf(cover)] as const,
-      ),
+      knownCovers === null
+        ? coversOf(origin, originBox, [layer, dim]).map(
+            (cover) => [cover, boxOf(cover)] as const,
+          )
+        : knownCovers
+            .filter((cover) => cover.isConnected)
+            .map((cover) => [cover, boxOf(cover)] as const)
+            .filter(([, coverBox]) => overlaps(coverBox, originBox)),
     ] as const;
   });
   let from = box;
@@ -328,6 +340,7 @@ export function createSheetLift(
   const stopFollowing = lifted.map((value) => value.subscribe(readNext));
 
   return {
+    covers: covers.map(([cover]) => cover),
     stop() {
       for (const stopOne of stopFollowing) stopOne();
       for (const binding of [...fromBindings, ...fades]) binding.unbind();

@@ -75,7 +75,7 @@ function guideY(value: number) {
  */
 export function MotionEngineSpecimen() {
   const reduced = useReducedMotion();
-  const [role, setRole] = useState<"surface" | "move" | "stackPush">("move");
+  const [role, setRole] = useState<"surface" | "stackPush" | "move">("move");
   const engine = useMotionEngine();
   const progress = useMotionValue(engine, 0);
   const laneRef = useRef<HTMLSpanElement>(null);
@@ -252,8 +252,8 @@ export function MotionEngineSpecimen() {
           onChange={setRole}
           options={[
             { value: "surface", label: "surface" },
-            { value: "move", label: "move" },
             { value: "stackPush", label: "stackPush" },
+            { value: "move", label: "move" },
           ]}
         />
         <dl css={[cluster.item, styles.readouts]}>

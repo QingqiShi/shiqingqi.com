@@ -8,9 +8,10 @@ import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { controlHeight, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
 import { t } from "#src/i18n.ts";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
+import { TransactionFaceSkeleton } from "./transaction-face-skeleton.tsx";
 
 const NARROW_FILTERS = ["5rem", "6rem", "4.25rem"];
 const WIDE_FILTERS = [
@@ -24,6 +25,12 @@ const WIDE_FILTERS = [
   "7.25rem",
 ];
 const ROWS = 8;
+const ROW_LINES = [
+  { width: "7rem", height: "1.25rem" },
+  { width: "11rem", height: "1rem" },
+  { width: "6rem", height: ".875rem" },
+];
+const ROW_TRAILING = [{ width: "4rem", height: "1.25rem" }];
 
 /** `/finance/transactions` before it can show: the same title, fields, filters and list, as blocks. */
 export function TransactionsSkeleton() {
@@ -87,19 +94,12 @@ function ListSkeleton() {
           <Skeleton width="7rem" height="1rem" />
         </div>
         {Array.from({ length: ROWS }, (_, index) => (
-          <div key={index} css={[plainList.row, styles.row]}>
-            <Skeleton
-              width="2.25rem"
-              height="2.25rem"
-              css={corner.radius_round}
-            />
-            <div css={[styles.lines, styles.grow]}>
-              <Skeleton width="7rem" height="1.25rem" />
-              <Skeleton width="11rem" height="1rem" />
-              <Skeleton width="6rem" height=".875rem" />
-            </div>
-            <Skeleton width="4rem" height="1.25rem" />
-          </div>
+          <TransactionFaceSkeleton
+            key={index}
+            lines={ROW_LINES}
+            trailing={ROW_TRAILING}
+            css={styles.row}
+          />
         ))}
       </div>
     </div>
@@ -143,19 +143,7 @@ const styles = stylex.create({
     blockSize: "2.75rem",
   },
   row: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: rhythm.item,
     blockSize: "4.75rem",
     marginBlockEnd: rhythm.inline,
-    paddingBlock: space._1,
-  },
-  lines: {
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.inline,
-  },
-  grow: {
-    flexGrow: 1,
   },
 });
