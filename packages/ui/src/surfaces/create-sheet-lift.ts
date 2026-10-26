@@ -3,6 +3,7 @@ import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import type { MotionValue } from "../motion/create-motion-value.ts";
 import {
   copyForMotion,
+  isOpaqueFill,
   opaqueFillOf,
   readSharedForm,
 } from "../motion/fly-shared.ts";
@@ -209,8 +210,16 @@ export function createSheetLift(
     card,
   );
   showOnTop(ghost);
-  if (ghost.firstElementChild instanceof HTMLElement) {
-    ghost.firstElementChild.style.backgroundColor = opaqueFillOf(origin);
+  const originCopy = ghost.firstElementChild;
+  if (originCopy instanceof HTMLElement) {
+    // While the card is open, `origin` can show as the current item. The
+    // copy must show `origin` as it was before the card opened.
+    originCopy.removeAttribute("aria-current");
+    originCopy.removeAttribute("aria-selected");
+    const fill = getComputedStyle(originCopy).backgroundColor;
+    originCopy.style.backgroundColor = isOpaqueFill(fill)
+      ? fill
+      : opaqueFillOf(origin.parentElement);
   }
   const coverCopies = covers.map(([cover, coverBox]) => {
     const copy = copyForMotion(

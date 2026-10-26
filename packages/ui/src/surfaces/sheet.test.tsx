@@ -643,6 +643,29 @@ describe("Sheet", () => {
         expect(screen.queryByRole("dialog")).toBeNull();
       });
 
+      it("shrinks back into the element as it was before the card opened, while the element shows as current", async () => {
+        const row = setUpLift();
+        row.dataset.row = "";
+        const list = document.createElement("div");
+        list.style.backgroundColor = "rgb(10, 20, 30)";
+        list.append(row);
+        document.body.append(list);
+        const rowStyle = document.createElement("style");
+        rowStyle.textContent =
+          "[aria-current=true] { background-color: rgb(200, 200, 200); }";
+        document.head.append(rowStyle);
+        const { rerender } = render(<LiftHarness isOpen row={row} />);
+        const copyOf = () => card().querySelector<HTMLElement>("[data-row]");
+        await act(() => clock.advance(1.5));
+        row.setAttribute("aria-current", "true");
+
+        rerender(<LiftHarness isOpen={false} row={row} />);
+
+        expect(copyOf()?.hasAttribute("aria-current")).toBe(false);
+        expect(copyOf()?.style.backgroundColor).toBe("rgb(10, 20, 30)");
+        rowStyle.remove();
+      });
+
       it("follows the element where the page under the card moves it", async () => {
         layOut();
         const row = document.createElement("div");
