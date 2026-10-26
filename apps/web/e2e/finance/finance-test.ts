@@ -20,6 +20,7 @@ import {
   asFinanceApp,
   withHousehold,
 } from "../../src/finance/db/with-household.ts";
+import { isPortOpen } from "../../src/finance/dev/is-port-open.ts";
 import {
   seedSyntheticHousehold,
   type SyntheticHousehold,
@@ -27,7 +28,11 @@ import {
 import { readOutbox } from "../../src/finance/email/make-outbox-email-sender.ts";
 import type { FinanceEmail } from "../../src/finance/email/types.ts";
 import { waitForMotionToSettle } from "../helpers/motion.ts";
-import { FINANCE_E2E_EMAIL_OUTBOX, financeE2eEnv } from "./finance-e2e-env.ts";
+import {
+  FINANCE_E2E_DB_PORT,
+  FINANCE_E2E_EMAIL_OUTBOX,
+  financeE2eEnv,
+} from "./finance-e2e-env.ts";
 import { SYNC_TIMEOUT } from "./transactions-page.ts";
 
 export { expect };
@@ -63,6 +68,9 @@ interface TestFixtures {
  */
 const SEED_OPTIONS = { years: 1, transactionsPerYear: 400 };
 
+const REUSED_SERVER_HINT =
+  "Playwright reused a server that was already up, such as `pnpm dev`, which uses its own database. Stop that server so that Playwright starts one with the e2e Finance settings, or start one with `pnpm test:e2e:serve`.";
+
 /**
  * Locally Playwright reuses a dev server that is already up, and that server
  * does not have the e2e Finance settings. Only a server on the e2e database
@@ -84,7 +92,7 @@ async function probeFinance(
     data: { token },
   });
   if (response.ok()) return null;
-  return `The server at ${baseURL} does not run Finance with the e2e database (sign-up answered ${String(response.status())} ${await response.text()}). Playwright reused a server that was already up, such as \`pnpm dev\`, which uses its own database. Stop that server so that Playwright starts one with the e2e Finance settings.`;
+  return `The server at ${baseURL} does not run Finance with the e2e database (sign-up answered ${String(response.status())} ${await response.text()}). ${REUSED_SERVER_HINT}`;
 }
 
 function seedHousehold(db: FinanceDb, ownerUserId?: string) {
@@ -302,6 +310,12 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   financeDb: [
     async ({}, provide) => {
+      await expect
+        .poll(() => isPortOpen(FINANCE_E2E_DB_PORT), {
+          message: `No Finance e2e database runs on port ${String(FINANCE_E2E_DB_PORT)}. ${REUSED_SERVER_HINT}`,
+          timeout: 60_000,
+        })
+        .toBe(true);
       const pool = new Pool({
         connectionString: financeE2eEnv.FINANCE_DATABASE_URL,
         max: 1,
@@ -309,7 +323,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       await provide(drizzle({ client: pool, schema }));
       await pool.end();
     },
-    { scope: "worker" },
+    { scope: "worker", timeout: 90_000 },
   ],
 
   passkeys: async ({ page }, provide) => {

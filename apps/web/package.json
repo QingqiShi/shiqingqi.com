@@ -28,6 +28,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:serve": "PORT=$(node ../../scripts/get-worktree-port.mjs) tsx e2e/serve-e2e.ts",
     "eval": "vitest run --config vitest.eval.config.mts",
     "eval:dev": "vitest --config vitest.eval.config.mts",
     "ingest:vector": "tsx ../../packages/vector-ingest/src/ingest.ts",
