@@ -59,7 +59,7 @@
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.39.0",
     "@upstash/vector": "catalog:",
-    "@vercel/functions": "^3.10.1",
+    "@vercel/functions": "^3.10.3",
     "ai": "^7.0.147",
     "d3-array": "^3.2.4",
     "d3-scale": "^4.0.2",
