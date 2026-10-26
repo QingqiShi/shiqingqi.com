@@ -23,7 +23,8 @@ import { floatingActionTokens } from "./floating-action.stylex.ts";
  * The frame of a Finance screen that is not in the columns of a
  * `NavigationSplitView`: as tall as the screen, with one `FinanceIsland` for
  * each pane. Where the tab bar shows, the islands fill the screen, so show
- * one at a time there.
+ * one at a time there. There, the page scrolls the island, so that its
+ * content goes under the status bar of the browser.
  */
 export function FinanceIslands({ children }: { children: ReactNode }) {
   return <div css={[islandSurface.frame, styles.frame]}>{children}</div>;
@@ -42,7 +43,7 @@ interface FinanceIslandProps {
 
 /**
  * One pane of `FinanceIslands`, with its content centred at the width of the
- * page column. It scrolls on its own.
+ * page column. It scrolls on its own, except where the tab bar shows.
  */
 export function FinanceIsland({
   accessory,
@@ -106,7 +107,7 @@ const PADDING_BLOCK_END = `calc(${space._8} + ${BOTTOM_BAR})`;
 
 const styles = stylex.create({
   // Where the tab bar shows, the islands fill the screen, with no gaps and
-  // no corners.
+  // no corners, and the page scrolls.
   frame: {
     [islandTokens.radius]: { default: null, [tabViewQueries.bar]: "0px" },
     [islandTokens.insetBlockStart]: {
@@ -125,8 +126,8 @@ const styles = stylex.create({
       default: null,
       [tabViewQueries.bar]: "0px",
     },
-    blockSize: "100dvh",
-    maxBlockSize: "100%",
+    blockSize: { default: "100dvh", [tabViewQueries.bar]: "auto" },
+    maxBlockSize: { default: "100%", [tabViewQueries.bar]: "none" },
   },
   island: {
     display: "flex",
@@ -137,7 +138,7 @@ const styles = stylex.create({
   scroller: {
     flexGrow: 1,
     minBlockSize: 0,
-    overflowY: "auto",
+    overflowY: { default: "auto", [tabViewQueries.bar]: "visible" },
     overscrollBehavior: "contain",
   },
   content: {
@@ -145,7 +146,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     boxSizing: "border-box",
-    minBlockSize: "100%",
+    minBlockSize: { default: "100%", [tabViewQueries.bar]: "100dvh" },
     paddingBlockStart: `calc(${space._4} + ${STATUS_BAR})`,
     paddingBlockEnd: PADDING_BLOCK_END,
     paddingInlineStart: {
@@ -162,9 +163,10 @@ const styles = stylex.create({
     maxInlineSize: pageColumnTokens.inlineSize,
     marginInline: "auto",
   },
-  // The accessory sticks to the bottom of the island. At the end of the
-  // content, its place in the flow is the room the island keeps for it, and
-  // the negative margin puts that place where the accessory sticks.
+  // The accessory sticks to the bottom of the island, or of the screen where
+  // the page scrolls. At the end of the content, its place in the flow is the
+  // room the island keeps for it, and the negative margin puts that place
+  // where the accessory sticks.
   accessory: {
     position: "sticky",
     insetBlockEnd: floatingActionTokens.insetBlockEnd,

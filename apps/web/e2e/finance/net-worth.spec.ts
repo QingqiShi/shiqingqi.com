@@ -1,4 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
+import { readScrollY, wheelPage } from "../helpers/scroll.ts";
 import { expect, expectNoSidewaysScroll, test } from "./finance-test.ts";
 import { DESKTOP, MOBILE } from "./transactions-page.ts";
 
@@ -312,7 +313,7 @@ test.describe("Reorder on a 390 px touch screen", () => {
         ) {
           node = node.parentElement;
         }
-        return node?.scrollTop ?? 0;
+        return (node ?? document.scrollingElement)?.scrollTop ?? 0;
       });
     const scrolled = await scrollTop();
     const row = await centreOf(page.getByText("Sam Current"));
@@ -379,10 +380,13 @@ test.describe("Net worth at 390 px", () => {
     session: _session,
   }) => {
     await openNetWorth(page);
+    const scrolled = await wheelPage(page, 300);
     await page.getByRole("link", { name: /^Alex Current Northbank/ }).click();
     await expect(page).toHaveURL(/\/finance\?account=[0-9a-f-]+$/, {
       timeout: 30_000,
     });
+    // The account starts at its top, and Net worth keeps its scroll under it.
+    await expect.poll(() => readScrollY(page)).toBe(0);
     await expect(
       page.getByRole("heading", { level: 2, name: "Alex Current" }),
     ).toBeVisible();
@@ -400,9 +404,10 @@ test.describe("Net worth at 390 px", () => {
     await expect(page.getByRole("heading", { name: "Ledger" })).toBeVisible();
 
     await page
-      .getByRole("link", { name: "Net worth", exact: true })
-      .first()
+      .getByRole("region", { name: "Alex Current" })
+      .getByRole("link", { name: /^Net worth/ })
       .click();
     await expect(page).toHaveURL(/\/finance$/, { timeout: 30_000 });
+    await expect.poll(() => readScrollY(page)).toBe(scrolled);
   });
 });

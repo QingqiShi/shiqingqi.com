@@ -1,10 +1,13 @@
 import type { Page } from "@playwright/test";
+import { wheelPage } from "../helpers/scroll.ts";
+import { findStatusBarCandidates } from "../helpers/status-bar.ts";
 import { expect, test, waitForServiceWorker } from "./finance-test.ts";
 import {
   DESKTOP,
   MOBILE,
   openTransactions,
   SYNC_TIMEOUT,
+  transactionRows,
 } from "./transactions-page.ts";
 
 async function screenshot(page: Page, name: string) {
@@ -61,6 +64,70 @@ test.describe("tab bar below md", () => {
       await expect(page).toHaveURL(`${prefix}/finance/analytics`);
       await expect(analytics).toHaveAttribute("aria-current", "page");
       await screenshot(page, `tab-bar-analytics-390-${locale}`);
+    });
+  }
+
+  // Safari on iOS shows the page under its status bar only where the page
+  // scrolls. Where nothing is under the status bar, as when the page bounces
+  // at its top, it fills it with the document background.
+  // The first content of each screen, and what shows once its data is in.
+  for (const { path, top, ready } of [
+    {
+      path: "/finance",
+      top: (page: Page) => page.getByRole("heading", { level: 1 }),
+      ready: (page: Page) =>
+        page.getByRole("link", { name: /^Alex Current Northbank/ }),
+    },
+    {
+      path: "/finance/transactions",
+      top: (page: Page) => page.getByRole("heading", { level: 1 }),
+      ready: (page: Page) => transactionRows(page).first(),
+    },
+    {
+      path: "/finance/analytics",
+      top: (page: Page) => page.getByRole("heading", { level: 1 }),
+      ready: (page: Page) => page.getByRole("heading", { name: "By category" }),
+    },
+    {
+      path: "/finance/settings/categories",
+      top: (page: Page) =>
+        page.getByRole("heading", { level: 2, name: "Categories" }),
+      ready: (page: Page) =>
+        page.getByRole("heading", { level: 2, name: "Categories" }),
+    },
+  ]) {
+    test(`scrolls the page under the status bar on ${path}`, async ({
+      page,
+      cookieSession: _cookieSession,
+    }) => {
+      await page.goto(path);
+      await expect(
+        page.getByRole("navigation", { name: "Finance" }),
+      ).toBeVisible();
+      const heading = top(page);
+      await expect(heading).toBeVisible();
+      await expect(ready(page)).toBeVisible();
+      const fills = await page.evaluate(() => {
+        let fill = "rgba(0, 0, 0, 0)";
+        for (
+          let element = document.elementFromPoint(innerWidth / 2, 4);
+          element && fill === "rgba(0, 0, 0, 0)";
+          element = element.parentElement
+        ) {
+          fill = getComputedStyle(element).backgroundColor;
+        }
+        return {
+          document: getComputedStyle(document.documentElement).backgroundColor,
+          top: fill,
+        };
+      });
+      expect(fills.document).toBe(fills.top);
+
+      await wheelPage(page, 400);
+      await expect
+        .poll(async () => (await heading.boundingBox())?.y ?? 0)
+        .toBeLessThan(0);
+      expect(await page.evaluate(findStatusBarCandidates)).toEqual([]);
     });
   }
 });

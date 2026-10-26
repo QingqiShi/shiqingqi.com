@@ -62,6 +62,7 @@ import {
   EDGE_SWIPE_ZONE,
   shouldPop,
 } from "./claim-edge-swipe.ts";
+import { createPageScroll, type PageScroll } from "./create-page-scroll.ts";
 import {
   addSplitViewMark,
   createSplitViewMotion,
@@ -163,10 +164,12 @@ export interface SplitViewColumnState {
    */
   presentation: "column" | "sheet";
   /**
-   * The box that scrolls the column, `null` until it mounts and in a sheet.
-   * Give it to a virtual list as its scroll parent.
+   * The box that scrolls the column, `null` until it mounts and in a sheet,
+   * and `undefined` where the page scrolls the column, as on a phone inside
+   * a `TabView`. Give it to a virtual list as its scroll parent, or the
+   * window where it is `undefined`.
    */
-  scroller: HTMLElement | null;
+  scroller: HTMLElement | null | undefined;
   /**
    * Takes this column off and goes back to the column under it, as its close
    * button does. `null` where the column has no `back`.
@@ -391,6 +394,9 @@ interface NavigationSplitViewProps {
  * where it does not, and not at all on a phone, where the content fills the
  * view. Where the detail does not fit beside the content, it shows in a
  * sheet over it. A change of the composition keeps each column and its
+ * scroll. Inside a `TabView` narrower than 30rem, as on a phone, the page
+ * scrolls the content instead of its scroll box, so that it goes under the
+ * status bar of the browser, and each page of the content keeps its own
  * scroll.
  *
  * History: a column link (`SplitViewLink`) that opens a column deeper than
@@ -512,7 +518,9 @@ export function NavigationSplitView({
   // motion that the navigation brings. Until that motion, it is read again
   // at each frame, scroll and commit, as the data can come much later.
   const pendingRef = useRef<PendingSnapshot<SplitViewSnapshot> | null>(null);
+  const pageScrollRef = useRef<PageScroll | null>(null);
   const capture = (to: string) => {
+    pageScrollRef.current?.remember();
     pendingRef.current?.take(normalizeUrl(to));
   };
   const recapture = useEffectEvent(() => {
@@ -539,9 +547,24 @@ export function NavigationSplitView({
     };
   }, [engine, view, layer, marks]);
 
+  const shownKey = useEffectEvent(() => content.key ?? "");
+  const [pageScrolls, setPageScrolls] = useState(false);
   useLayoutEffect(() => {
+    if (view === null) return;
+    const created = createPageScroll(view, shownKey(), setPageScrolls);
+    pageScrollRef.current = created;
+    return () => {
+      created.destroy();
+      pageScrollRef.current = null;
+    };
+  }, [view]);
+
+  useLayoutEffect(() => {
+    if (motion.id === 0) return;
+    // The page scrolls before the motion measures where the pages show.
+    pageScrollRef.current?.follow(shownKey(), motion.change.content);
     const created = motionRef.current;
-    if (motion.id === 0 || created === null) return;
+    if (created === null) return;
     const here = normalizeUrl(window.location.href);
     const snapshot = pendingRef.current?.claim(here, true) ?? null;
     created.play(snapshot, motion.change, motion.id);
@@ -563,9 +586,11 @@ export function NavigationSplitView({
       recapture();
     };
     view.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
     const stopHistorySteps = onHistoryStep(captureHistoryStep);
     return () => {
       view.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("scroll", onScroll);
       stopHistorySteps();
     };
   }, [view]);
@@ -626,7 +651,7 @@ export function NavigationSplitView({
     (hasDetailColumn ? detailColumn.key : content.key) ?? null,
   );
   useColumnKeys(view, deepestBack, takeOff);
-  useEdgeSwipe(view, motionRef, content.back ?? null, takeOff);
+  useEdgeSwipe(view, motionRef, pageScrollRef, content.back ?? null, takeOff);
 
   const [lastSheet, setLastSheet] = useState<NavigationSplitViewDetail | null>(
     null,
@@ -694,6 +719,7 @@ export function NavigationSplitView({
                     <Column
                       column="sidebar"
                       form={form}
+                      pageScrolls={pageScrolls}
                       label={sidebar.label}
                       pages={[
                         {
@@ -725,6 +751,7 @@ export function NavigationSplitView({
               : null}
             <Column
               column="content"
+              pageScrolls={pageScrolls}
               label={content.label}
               pages={contentPages}
               close={closeOf(content.back)}
@@ -746,6 +773,7 @@ export function NavigationSplitView({
             {shownDetail === null ? null : (
               <Column
                 column="detail"
+                pageScrolls={pageScrolls}
                 label={shownDetail.label}
                 isLeaving={detailColumn === null}
                 pages={detailPages}
@@ -1060,6 +1088,8 @@ interface ColumnProps {
   column: SplitViewColumnState["column"];
   /** The form of the sidebar, for a sidebar column. */
   form?: "full" | "collapsed";
+  /** Whether the page scrolls the column instead of its scroller. */
+  pageScrolls: boolean;
   label: string;
   /**
    * The pages of the column, by key: the page that shows, and the pages
@@ -1080,6 +1110,7 @@ interface ColumnProps {
 function Column({
   column,
   form,
+  pageScrolls,
   label,
   pages,
   close,
@@ -1105,6 +1136,7 @@ function Column({
           <ColumnPageView
             key={page.key}
             column={column}
+            pageScrolls={pageScrolls}
             page={page}
             close={page.role === "current" ? close : null}
             scrollerCss={scrollerCss}
@@ -1122,6 +1154,7 @@ function Column({
 
 function ColumnPageView({
   column,
+  pageScrolls,
   page,
   close,
   scrollerCss,
@@ -1129,18 +1162,21 @@ function ColumnPageView({
   top,
 }: {
   column: SplitViewColumnState["column"];
+  pageScrolls: boolean;
   page: ColumnPage;
   close: (() => void) | null;
   scrollerCss?: StyleProp;
   contentCss: StyleProp;
   top?: (column: NavigationSplitViewColumn) => ReactNode;
 }) {
-  const [scroller, setScroller] = useState<HTMLElement | null>(null);
+  const [box, setBox] = useState<HTMLElement | null>(null);
+  const scroller = pageScrolls ? undefined : box;
   const isCurrent = page.role === "current";
   const accessory = "accessory" in page.column ? page.column.accessory : null;
   return (
     <div
       data-split-view-page={page.role}
+      data-split-view-page-key={page.key}
       inert={!isCurrent}
       aria-hidden={isCurrent ? undefined : true}
       css={[styles.page, !isCurrent && styles.pageAside]}
@@ -1149,7 +1185,7 @@ function ColumnPageView({
         value={{ column, presentation: "column", scroller, close }}
       >
         <RegionScroller
-          scrollerRef={setScroller}
+          scrollerRef={setBox}
           scrollerCss={scrollerCss}
           contentCss={contentCss}
         >
@@ -1173,6 +1209,7 @@ function ColumnPageView({
 function useEdgeSwipe(
   view: HTMLElement | null,
   motionRef: RefObject<SplitViewMotion | null>,
+  pageScrollRef: RefObject<PageScroll | null>,
   back: SplitViewBackLink | null,
   takeOff: (href: string) => void,
 ) {
@@ -1215,6 +1252,7 @@ function useEdgeSwipe(
       if (!swipe.isActive) {
         const decision = claimEdgeSwipe(dx, event.clientY - swipe.startY);
         if (decision === "wait") return;
+        pageScrollRef.current?.align();
         if (
           decision === "release" ||
           motionRef.current?.beginSwipe() !== true
@@ -1272,7 +1310,7 @@ function useEdgeSwipe(
       view.removeEventListener("pointerup", onPointerUp);
       view.removeEventListener("pointercancel", onCancel);
     };
-  }, [view, motionRef]);
+  }, [view, motionRef, pageScrollRef]);
 }
 
 /** Whether the content fills the view, as on a phone. */
@@ -1392,14 +1430,15 @@ const CONTENT_PADDING_BLOCK_END = `calc(${space._6} + ${splitViewTokens.columnIn
 const ACCESSORY_INSET_BLOCK_END = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
 
 const styles = stylex.create({
-  // The view fills the screen and the page does not scroll. Inside a
-  // `TabView` below `md`, the view goes under the floating tab bar, and
-  // each column keeps its content above the bar.
+  // The view fills the screen and the page does not scroll, except inside a
+  // `TabView` narrower than 30rem. Inside a `TabView` below `md`, the view
+  // goes under the floating tab bar, and each column keeps its content above
+  // the bar.
   view: {
     position: "relative",
     containerType: "inline-size",
-    blockSize: "100dvh",
-    maxBlockSize: "100%",
+    blockSize: { default: "100dvh", [splitViewQueries.pageScrolls]: "auto" },
+    maxBlockSize: { default: "100%", [splitViewQueries.pageScrolls]: "none" },
   },
   // The copies of the Shared elements fly over the columns.
   flights: {
@@ -1436,7 +1475,7 @@ const styles = stylex.create({
     // islands does not already clear.
     [splitViewTokens.columnInsetBlockEnd]: `max(0px, max(${tabViewTokens.barClearance}, env(safe-area-inset-bottom)) - ${islandTokens.insetBlockEnd})`,
     position: "relative",
-    blockSize: "100%",
+    blockSize: { default: "100%", [splitViewQueries.pageScrolls]: "auto" },
     overflow: "clip",
   },
   fullSidebarBesideContent: {
@@ -1458,16 +1497,23 @@ const styles = stylex.create({
     minBlockSize: 0,
     overflow: "clip",
   },
+  // Where the page scrolls, the page that shows is in the flow.
   page: {
-    position: "absolute",
+    position: {
+      default: "absolute",
+      [splitViewQueries.pageScrolls]: "relative",
+    },
     inset: 0,
     display: "flex",
     flexDirection: "column",
     isolation: "isolate",
   },
   // A page under the one that shows, or one that leaves, keeps its scroll
-  // and shows only while a motion moves it.
+  // and shows only while a motion moves it. Where the page scrolls, it is as
+  // tall as its content, and `createPageScroll` moves it to show its scroll.
   pageAside: {
+    position: "absolute",
+    insetBlockEnd: { default: null, [splitViewQueries.pageScrolls]: "auto" },
     visibility: "hidden",
     contentVisibility: "hidden",
   },
@@ -1493,7 +1539,7 @@ const styles = stylex.create({
   scroller: {
     flexGrow: 1,
     minBlockSize: 0,
-    overflowY: "auto",
+    overflowY: { default: "auto", [splitViewQueries.pageScrolls]: "visible" },
     overscrollBehavior: "contain",
   },
   content: {
@@ -1501,7 +1547,7 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     boxSizing: "border-box",
-    minBlockSize: "100%",
+    minBlockSize: { default: "100%", [splitViewQueries.pageScrolls]: "100dvh" },
     paddingBlockStart: CONTENT_PADDING_BLOCK_START,
     paddingBlockEnd: CONTENT_PADDING_BLOCK_END,
   },
@@ -1551,9 +1597,10 @@ const styles = stylex.create({
   breadcrumbCurrent: {
     flexShrink: 0,
   },
-  // The accessory sticks to the bottom of the scroller. At the end of the
-  // content, its place in the flow is the room the column keeps for it, and
-  // the negative margin puts that place where the accessory sticks.
+  // The accessory sticks to the bottom of the scroller, or of the screen
+  // where the page scrolls. At the end of the content, its place in the flow
+  // is the room the column keeps for it, and the negative margin puts that
+  // place where the accessory sticks.
   accessory: {
     position: "sticky",
     insetBlockEnd: ACCESSORY_INSET_BLOCK_END,

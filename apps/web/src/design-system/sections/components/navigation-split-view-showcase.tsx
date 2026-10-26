@@ -165,8 +165,8 @@ function ProjectIcon({ project }: { project: Project }) {
         <UsageSnippet code={usage} label="tsx" />
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Pass detail only while something is picked, with the back that closes it. A row that opens the column after it renders through SplitViewLink, which follows the history rule and takes J and K. A key that changes starts its column at the top again, and in the detail the old content fades out as the new content fades in. Each column is a Scroll region of its own, and lays its node out as a flex column at least as tall as itself. The accessory floats at the bottom end of its column, above the floating tab bar of a Tab view, and the column keeps room for it after its content, so the last row scrolls clear of it.",
-            zh: "只在有选中项时传入 detail，并带上关闭它的 back。打开下一栏的行通过 SplitViewLink 渲染，它遵循历史规则，并响应 J 与 K。key 改变时，该栏回到顶部；在详情栏中，旧内容淡出，新内容淡入。每一栏都是一个独立的滚动区域，并把其 node 排成一个至少与该栏等高的弹性纵列。accessory 悬浮在其所在栏的底部末端、Tab view 悬浮标签栏之上；该栏在内容之后为它留出空间，因此最后一行可以滚动到它上方而不被遮住。",
+            en: "Pass detail only while something is picked, with the back that closes it. A row that opens the column after it renders through SplitViewLink, which follows the history rule and takes J and K. A key that changes starts its column at the top again, and in the detail the old content fades out as the new content fades in. Each column is a Scroll region of its own, and lays its node out as a flex column at least as tall as itself. Inside a Tab view narrower than 30rem, as on a phone, the page scrolls the content instead, so that it goes under the status bar of the browser. The accessory floats at the bottom end of its column, above the floating tab bar of a Tab view, and the column keeps room for it after its content, so the last row scrolls clear of it.",
+            zh: "只在有选中项时传入 detail，并带上关闭它的 back。打开下一栏的行通过 SplitViewLink 渲染，它遵循历史规则，并响应 J 与 K。key 改变时，该栏回到顶部；在详情栏中，旧内容淡出，新内容淡入。每一栏都是一个独立的滚动区域，并把其 node 排成一个至少与该栏等高的弹性纵列。在宽度小于 30rem 的 Tab view 中（例如在手机上），改由页面滚动内容栏，让内容能滚到浏览器状态栏下方。accessory 悬浮在其所在栏的底部末端、Tab view 悬浮标签栏之上；该栏在内容之后为它留出空间，因此最后一行可以滚动到它上方而不被遮住。",
           })}
         </Text>
       </Showcase>
@@ -175,8 +175,8 @@ function ProjectIcon({ project }: { project: Project }) {
         <UsageSnippet code={columnParts} label="tsx" />
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "StackedOnly shows its children only where the content fills the view, such as the list that the sidebar shows otherwise, and UnlessStacked only where it does not, such as a title that a stacked headline already names. UnlessFullSidebar shows its children only where the full sidebar does not, such as the screen's title. CSS decides all three, so the first paint is right. useSplitViewColumn tells a column which it is, whether it shows in a sheet, the box that scrolls it, and how to close it. A sticky footer in a column sticks splitViewTokens.columnInsetBlockEnd plus its own gap above the bottom.",
-            zh: "StackedOnly 只在内容栏占满视图时显示其子元素，例如侧栏本会显示的列表；UnlessStacked 只在内容栏不占满视图时显示其子元素，例如堆叠时标题已在上方给出的小标题。UnlessFullSidebar 只在完整侧栏不显示时显示其子元素，例如画面的标题。三者都由 CSS 决定，因此首次绘制就是正确的。useSplitViewColumn 告诉一栏它是哪一栏、是否显示在面板中、滚动它的盒子，以及如何关闭它。栏内的粘性页脚粘在距底部 splitViewTokens.columnInsetBlockEnd 再加上自身间距的位置。",
+            en: "StackedOnly shows its children only where the content fills the view, such as the list that the sidebar shows otherwise, and UnlessStacked only where it does not, such as a title that a stacked headline already names. UnlessFullSidebar shows its children only where the full sidebar does not, such as the screen's title. CSS decides all three, so the first paint is right. useSplitViewColumn tells a column which it is, whether it shows in a sheet, the box that scrolls it, undefined where the page does, and how to close it. A sticky footer in a column sticks splitViewTokens.columnInsetBlockEnd plus its own gap above the bottom.",
+            zh: "StackedOnly 只在内容栏占满视图时显示其子元素，例如侧栏本会显示的列表；UnlessStacked 只在内容栏不占满视图时显示其子元素，例如堆叠时标题已在上方给出的小标题。UnlessFullSidebar 只在完整侧栏不显示时显示其子元素，例如画面的标题。三者都由 CSS 决定，因此首次绘制就是正确的。useSplitViewColumn 告诉一栏它是哪一栏、是否显示在面板中、滚动它的盒子（由页面滚动时为 undefined），以及如何关闭它。栏内的粘性页脚粘在距底部 splitViewTokens.columnInsetBlockEnd 再加上自身间距的位置。",
           })}
         </Text>
       </Showcase>

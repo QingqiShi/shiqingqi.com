@@ -34,6 +34,12 @@ export const splitViewQueries = stylex.defineConsts({
   contentBesideSidebar: "@container (width >= 47.5rem)",
   /** The detail fits beside the collapsed sidebar and the content. */
   detailBeside: "@container (width >= 50.75rem)",
+  /**
+   * The view is in a `TabView` narrower than 30rem, as on a phone. There the
+   * page scrolls the content, so that it goes under the status bar of the
+   * browser. It queries the `TabView`, so the view itself can take it.
+   */
+  pageScrolls: "@container tab-view (width < 30rem)",
 });
 
 /**

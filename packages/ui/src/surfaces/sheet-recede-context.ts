@@ -29,6 +29,26 @@ export const RECEDE_SHAPE: Styles = {
   overflow: "clip",
 };
 
+/**
+ * `RECEDE_SHAPE` for `element` as it shows now. Where the element is taller
+ * than the viewport, as a view that the page scrolls, it shrinks from the
+ * middle of the top edge of the viewport, and it is clipped to the part of
+ * it in the viewport, so that it shows as one screen.
+ *
+ * @internal
+ */
+export function recedeShapeOf(element: HTMLElement): Styles {
+  const { top, bottom } = element.getBoundingClientRect();
+  const above = Math.max(0, -top);
+  const below = Math.max(0, bottom - window.innerHeight);
+  if (above < 0.5 && below < 0.5) return RECEDE_SHAPE;
+  return {
+    ...RECEDE_SHAPE,
+    "transform-origin": `50% ${px(above)}`,
+    "clip-path": `inset(${px(above)} 0 ${px(below)} 0 round ${border.radius_4})`,
+  };
+}
+
 const scaleOf = (page: number) => 1 - RECEDE.scale * page;
 
 /**
@@ -53,9 +73,12 @@ export function recedePose(page: number): Styles {
 export function recededRect(rect: Rect, element: Rect, page: number): Rect {
   const scale = scaleOf(page);
   const middle = element.x + element.width / 2;
+  // As `recedeShapeOf`, the element shrinks from the top of the viewport
+  // where its top is above it.
+  const top = Math.max(element.y, 0);
   return {
     x: mix(middle, rect.x, scale),
-    y: mix(element.y, rect.y, scale) + RECEDE.drop * page,
+    y: mix(top, rect.y, scale) + RECEDE.drop * page,
     width: rect.width * scale,
     height: rect.height * scale,
   };
