@@ -97,8 +97,8 @@ catalogs:
       specifier: 1.0.0
       version: 1.0.0
     dotenv:
-      specifier: ^18.0.8
-      version: 18.0.8
+      specifier: ^18.0.9
+      version: 18.0.9
     eslint:
       specifier: ^10.12.0
       version: 10.12.0
@@ -506,7 +506,7 @@ importers:
         version: 1.0.0
       dotenv:
         specifier: 'catalog:'
-        version: 18.0.8
+        version: 18.0.9
       drizzle-kit:
         specifier: ^0.31.11
         version: 0.31.11
@@ -906,7 +906,7 @@ importers:
         version: 1.2.3
       dotenv:
         specifier: 'catalog:'
-        version: 18.0.8
+        version: 18.0.9
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -4718,8 +4718,8 @@ packages:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
 
-  dotenv@18.0.8:
-    resolution: {integrity: sha512-2KDeoFoK/zRtcnbunCDlLG5VWVMcyqeQc6iK65o231nfNAcuGrKoqUQfJFUtBI+QlShk5HKIHxwebBtUl3rEfA==}
+  dotenv@18.0.9:
+    resolution: {integrity: sha512-3fVOW4cB02R066PUSwn8O4TJyz9NckQl7F81blIbaq9jKBm2tSmOKky7ZHIXzGvkVPXCSn6jkpziBPZdGFs8Tw==}
     engines: {node: '>=12'}
     hasBin: true
 
@@ -11601,7 +11601,7 @@ snapshots:
 
   dotenv@16.0.3: {}
 
-  dotenv@18.0.8: {}
+  dotenv@18.0.9: {}
 
   drizzle-kit@0.31.11:
     dependencies:
