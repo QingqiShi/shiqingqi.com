@@ -39,6 +39,7 @@ import { useMotionEngine } from "../motion/use-motion-engine.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
+import { pageGutter } from "../primitives/page-column.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { islandSurface, islandTokens } from "../surfaces/island.stylex.ts";
 import { SheetRecedeContext } from "../surfaces/sheet-recede-context.ts";
@@ -1678,8 +1679,14 @@ const contentStyles = stylex.create({
     },
   },
   content: {
-    paddingInlineStart: CONTENT_GUTTER_START,
-    paddingInlineEnd: CONTENT_GUTTER_END,
+    paddingInlineStart: {
+      default: CONTENT_GUTTER_START,
+      [splitViewQueries.contentAlone]: pageGutter.inlineStart,
+    },
+    paddingInlineEnd: {
+      default: CONTENT_GUTTER_END,
+      [splitViewQueries.contentAlone]: pageGutter.inlineEnd,
+    },
   },
   // A swipe from the inline-start edge goes back, so the browser takes only
   // the scroll and the zoom of a touch.

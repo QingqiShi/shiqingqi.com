@@ -37,19 +37,22 @@ interface NetWorthTrendProps {
   onPick?: (pick: ChartPick | null) => void;
   /** In a Navigation split view, the name of the Shared element that the chart is a form of. */
   shared?: string;
+  /** Below `md`, the plot goes through the gutter to the edges of the screen. */
+  bleeds?: boolean;
 }
 
 /**
  * The net-worth trend chart over `range`, and the change over the range
- * for assistive technology. It stays inside its parent, such as a card.
- * Only this part re-renders on a new range, so the switch costs one sample
- * of at most 400 days.
+ * for assistive technology. Unless it `bleeds`, it stays inside its
+ * parent, such as a card. Only this part re-renders on a new range, so the
+ * switch costs one sample of at most 400 days.
  */
 export function NetWorthTrend({
   range,
   height,
   onPick,
   shared,
+  bleeds = false,
 }: NetWorthTrendProps) {
   const locale = useLocale();
   const today = useHouseholdToday();
@@ -79,7 +82,7 @@ export function NetWorthTrend({
       formatValue={money}
       currency={currency}
       height={height}
-      bleeds={false}
+      bleeds={bleeds}
       onPick={onPick}
       shared={shared}
       restReadout={

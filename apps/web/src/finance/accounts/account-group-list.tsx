@@ -4,16 +4,18 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import * as stylex from "@stylexjs/stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Disclosure } from "@tuja/ui/components/disclosure";
+import { List } from "@tuja/ui/components/list";
+import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { Switch } from "@tuja/ui/components/switch";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, space } from "@tuja/ui/tokens.stylex";
+import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { AccountRow } from "./account-row.tsx";
+import { AccountRow, type AccountRowForm } from "./account-row.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { useAccountInitials } from "./use-account-initials.ts";
 import { useCollapsedGroups } from "./use-collapsed-groups.ts";
@@ -30,7 +32,8 @@ interface AccountGroupListProps {
 
 /**
  * The accounts by Group, each Group a section that folds, with its subtotal.
- * Closed and excluded accounts wait behind "Show hidden".
+ * Closed and excluded accounts wait behind "Show hidden". Outside the
+ * sidebar, each Group's accounts are one `List`.
  */
 export function AccountGroupList({
   sheet,
@@ -40,6 +43,8 @@ export function AccountGroupList({
   selectedAccountId,
 }: AccountGroupListProps) {
   const locale = useLocale();
+  const form: AccountRowForm =
+    useSplitViewColumn()?.column === "sidebar" ? "sidebar" : "card";
   const initials = useAccountInitials(sheet);
   const { collapsed, toggle } = useCollapsedGroups();
   const [showHidden, setShowHidden] = useState(false);
@@ -55,7 +60,7 @@ export function AccountGroupList({
   );
 
   return (
-    <div css={stack.item}>
+    <div css={form === "sidebar" ? stack.item : stack.group}>
       {sheet.sections.map((section) => {
         const lines = showHidden
           ? section.lines
@@ -63,6 +68,17 @@ export function AccountGroupList({
         if (lines.length === 0 && section.lines.length > 0 && !showHidden) {
           return null;
         }
+        const rows = lines.map((line) => (
+          <AccountRow
+            key={line.account.id}
+            form={form}
+            line={line}
+            baseCurrency={baseCurrency}
+            href={accountHref(line.account.id)}
+            isSelected={selectedAccountId === line.account.id}
+            initials={initials.get(line.account.id) ?? ""}
+          />
+        ));
         return (
           <section
             key={section.group.id}
@@ -71,7 +87,7 @@ export function AccountGroupList({
             css={styles.section}
           >
             <Disclosure
-              css={styles.group}
+              css={form === "sidebar" && styles.group}
               open={!collapsed.has(section.group.id)}
               onOpenChange={(open) => {
                 toggle(section.group.id, open);
@@ -90,20 +106,21 @@ export function AccountGroupList({
               }
             >
               {lines.length === 0 ? (
-                <p css={[typeRole.bodySmall, styles.empty]}>{emptyGroup}</p>
-              ) : (
+                <p
+                  css={[
+                    typeRole.bodySmall,
+                    styles.empty,
+                    form === "card" && styles.body,
+                  ]}
+                >
+                  {emptyGroup}
+                </p>
+              ) : form === "sidebar" ? (
                 <ul role="list" css={styles.rows}>
-                  {lines.map((line) => (
-                    <AccountRow
-                      key={line.account.id}
-                      line={line}
-                      baseCurrency={baseCurrency}
-                      href={accountHref(line.account.id)}
-                      isSelected={selectedAccountId === line.account.id}
-                      initials={initials.get(line.account.id) ?? ""}
-                    />
-                  ))}
+                  {rows}
                 </ul>
+              ) : (
+                <List css={styles.body}>{rows}</List>
               )}
             </Disclosure>
           </section>
@@ -158,6 +175,9 @@ const styles = stylex.create({
   // the rows take the full width for their selected background.
   group: {
     paddingInline: space._2,
+  },
+  body: {
+    marginBlockStart: rhythm.tight,
   },
   rows: {
     display: "flex",

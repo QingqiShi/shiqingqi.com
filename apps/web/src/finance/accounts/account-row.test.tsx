@@ -8,6 +8,7 @@ function renderRow(account: AccountRowData) {
   return render(
     <ul>
       <AccountRow
+        form="card"
         line={{
           account,
           balance: 0,

@@ -17,25 +17,34 @@ import { selectNetWorthAt } from "../store/select-net-worth-at.ts";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { netWorthComparisonDays } from "./net-worth-comparison-days.ts";
 
+export type NetWorthHeadlineForm = "label" | "page";
+
 interface NetWorthHeadlineProps {
   sheet: BalanceSheet;
   today: string;
   currency: string;
   /** What is picked on the trend chart, shown in place of today's figure. */
   pick: ChartPick | null;
+  /**
+   * `"label"` names the Household in a label over the figure. `"page"`,
+   * under a title that names the page, shows no label and adds the assets
+   * and liabilities under the changes.
+   */
+  form?: NetWorthHeadlineForm;
 }
 
 /**
- * Today's net worth of the Household, the title of Net worth, and its
- * change since a week ago and since 1 January, in whole currency units.
- * While a day or a range is picked on a trend chart, the figure and the
- * line under it show the pick instead.
+ * Today's net worth of the Household and its change since a week ago and
+ * since 1 January, in whole currency units. While a day or a range is
+ * picked on a trend chart, the figure and the line under it show the pick
+ * instead.
  */
 export function NetWorthHeadline({
   sheet,
   today,
   currency,
   pick,
+  form = "label",
 }: NetWorthHeadlineProps) {
   const locale = useLocale();
   const money = (minor: number, signed = false) =>
@@ -49,9 +58,11 @@ export function NetWorthHeadline({
       css={stack.tight}
       aria-label={t({ en: "Net worth today", zh: "今日净资产" })}
     >
-      <h1 css={[typeRole.label, styles.label]}>
-        {t({ en: "Net worth · household", zh: "净资产 · 家庭" })}
-      </h1>
+      {form === "label" ? (
+        <h1 css={[typeRole.label, styles.label]}>
+          {t({ en: "Net worth · household", zh: "净资产 · 家庭" })}
+        </h1>
+      ) : null}
       <span css={[typeRole.h1, typeModifier.numeric, styles.figure]}>
         {pick === null
           ? money(sheet.netWorth)
@@ -59,41 +70,58 @@ export function NetWorthHeadline({
             ? money(pick.value)
             : money(pick.to - pick.from, true)}
       </span>
-      <div css={styles.layers}>
-        <TodayChanges
-          netWorth={sheet.netWorth}
-          today={today}
-          currency={currency}
-          hidden={pick !== null}
-        />
-        {pick === null ? null : (
-          <span
-            aria-hidden
-            css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
-          >
-            {pick.kind === "point" ? (
-              displayDay(pick.day, locale, "dayYear")
-            ) : (
-              <>
-                <span
-                  css={[
-                    typeModifier.numeric,
-                    styles.value,
-                    pick.to > pick.from && styles.up,
-                    pick.to < pick.from && styles.down,
-                  ]}
-                >
-                  {formatPercentChange(pick.to - pick.from, pick.from, locale, {
-                    short: true,
-                  })}
-                </span>
-                <span>
-                  {displayDayRange(pick.startDay, pick.endDay, locale)}
-                </span>
-              </>
-            )}
-          </span>
-        )}
+      <div css={stack.text}>
+        <div css={styles.layers}>
+          <TodayChanges
+            netWorth={sheet.netWorth}
+            today={today}
+            currency={currency}
+            hidden={pick !== null}
+          />
+          {pick === null ? null : (
+            <span
+              aria-hidden
+              css={[row.tight, typeRole.bodySmall, styles.layer, styles.muted]}
+            >
+              {pick.kind === "point" ? (
+                displayDay(pick.day, locale, "dayYear")
+              ) : (
+                <>
+                  <span
+                    css={[
+                      typeModifier.numeric,
+                      styles.value,
+                      pick.to > pick.from && styles.up,
+                      pick.to < pick.from && styles.down,
+                    ]}
+                  >
+                    {formatPercentChange(
+                      pick.to - pick.from,
+                      pick.from,
+                      locale,
+                      {
+                        short: true,
+                      },
+                    )}
+                  </span>
+                  <span>
+                    {displayDayRange(pick.startDay, pick.endDay, locale)}
+                  </span>
+                </>
+              )}
+            </span>
+          )}
+        </div>
+        {form === "page" ? (
+          <dl css={[cluster.item, typeRole.bodySmall, styles.facts]}>
+            <Fact label={t({ en: "Assets", zh: "资产" })}>
+              {money(sheet.assets)}
+            </Fact>
+            <Fact label={t({ en: "Liabilities", zh: "负债" })}>
+              {money(sheet.liabilities)}
+            </Fact>
+          </dl>
+        ) : null}
       </div>
     </section>
   );
