@@ -513,12 +513,9 @@ const styles = stylex.create({
     position: "absolute",
     // Physical, so the centre is the same in either direction.
     left: { default: 0, [breakpoints.md]: "50%" },
-    // A lift moves the full card sideways and its clip path shows only a
-    // part. A clip path does not change the scroll area, thus the card can
-    // make the document wider than the screen. The anchor is as wide as the
-    // screen and clips sideways, so that the document stays in the screen.
+    // As wide as the screen, so that a lift can clip the card sideways to
+    // the screen.
     inlineSize: { default: "100vw", [breakpoints.md]: 0 },
-    overflowX: { default: "clip", [breakpoints.md]: "visible" },
     blockSize: 0,
     zIndex: layer.overlay,
     // Nothing in the anchor takes a click except the card itself.

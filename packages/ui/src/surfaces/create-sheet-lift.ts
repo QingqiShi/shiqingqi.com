@@ -169,6 +169,12 @@ export function createSheetLift(
     writeStyles(clip, { ...clipShape, overflow: "clip" });
   const backing = recede !== null && recede.contains(origin) ? recede : null;
   const layer = mover.parentElement ?? mover;
+  // The lift moves the full card sideways, and the clip boxes show only a
+  // part of it. The card can thus make the document wider than the screen,
+  // so the layer clips sideways. Do not keep this clip after the lift. When
+  // the layer has no height and clips on one axis only, Safari on iOS does
+  // not paint the card after its motion stops.
+  mover.parentElement?.style.setProperty("overflow-x", "clip");
   const [place, box, layerBox, covers] = engine.measure(() => {
     const originBox = boxOf(origin);
     return [
@@ -332,6 +338,7 @@ export function createSheetLift(
           clip.style.removeProperty(property);
         }
       }
+      mover.parentElement?.style.removeProperty("overflow-x");
     },
   };
 }

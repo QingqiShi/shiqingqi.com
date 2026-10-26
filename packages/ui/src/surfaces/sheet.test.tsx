@@ -498,8 +498,10 @@ describe("Sheet", () => {
           "translate(0.00px, 0.00px)",
         ]);
         expect(card().style.transform).toBe("translate(0.00px, 320.00px)");
+        expect(mover().parentElement?.style.overflowX).toBe("clip");
         await act(() => clock.advance(1.5));
         expect(mover().style.transform).toBe("none");
+        expect(mover().parentElement?.style.overflowX).toBe("");
         for (const clip of clips()) {
           expect(clip.getAttribute("style") ?? "").toBe("");
         }
