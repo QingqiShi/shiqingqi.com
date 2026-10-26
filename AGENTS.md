@@ -2,7 +2,7 @@
 
 # Gotchas
 
-- Tests are Vitest, one package at a time: `pnpm --filter @tuja/i18n-codegen test trace-client-files`. The pattern matches file paths; drop it to run the whole package.
+- Tests are Vitest, one package at a time. While you work, run only the area you changed: `pnpm --filter web exec vitest run src/finance/rules` (the pattern matches file paths). In `apps/web`, `pnpm --filter web test` first runs the `pretest` codegen, which takes 30–60 s each time: use it once in a fresh worktree, and again after you change translated text, the palette, or component props. Run a whole package only when the change reaches beyond one area; CI runs every suite anyway. A directory pattern is faster than `vitest --changed` or `vitest related`, which crawl the full module graph.
 - `pnpm build` neither type-checks nor lints; `pnpm build:tsc` is the type check.
 - `pnpm test:e2e` is Playwright. Locally it runs a full production build first, unless a dev server is already up on the worktree port, which it reuses.
 - Evals hit real LLM APIs. `pnpm eval <filter>` runs one file (e.g. `pnpm eval tmdb-search`); run a bare `pnpm eval` only when the full suite is needed.
@@ -12,6 +12,8 @@
 - The deployed Finance databases are the Neon project `finance` in the Vercel-managed org, not the personal one: branch `main` is production and branch `preview` is a daily copy of it. Neon `list_projects` without `org_id` searches only the personal org and returns nothing, so call `list_organizations` first.
 - `.env*` files are denied to the Read tool. `turbo.json` lists most environment variable names under `globalPassThroughEnv`; confirm a name there or in source before you use it.
 - Tests run against real implementations. `vi.mock` is a last resort at the store boundary — see `apps/web/src/app/api/ai-chat/route.test.ts`. Never mock `server-only`: Vitest aliases it to a stub.
+- For a one-off look at a page (a screenshot, the DOM, layout, a short recording), use playwright-cli against the running dev server: `open --device` emulates a phone and `cookie-set` signs in to Finance. A throwaway Playwright script costs a write-and-debug loop, and a throwaway e2e spec also costs a production build.
+- Parallel sessions share this machine, so every build, suite, and server slows the others. Stop the servers and databases you start before you finish. When you wait on a background job, give the wait a time limit and check that the job still runs: a wait whose condition never comes true sits until the 10-minute Bash timeout.
 
 # Before a task is done
 
