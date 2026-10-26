@@ -1,24 +1,16 @@
 import { execFileSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { buildLocalFinanceEnv } from "../../src/finance/dev/build-local-finance-env.ts";
 
-function findFreePort(): string {
-  return execFileSync(
-    process.execPath,
-    [
-      "-e",
-      'const s = require("node:net").createServer(); s.listen(0, "127.0.0.1", () => { process.stdout.write(String(s.address().port)); s.close(); });',
-    ],
-    { encoding: "utf8" },
-  ).trim();
-}
-
-/* Playwright loads the config in the runner and again in each worker.
- * Workers inherit the runner's environment, so all of them use the port
- * and the outbox that the runner chose. */
-process.env.FINANCE_E2E_DB_PORT ??= findFreePort();
+/* The port is fixed per worktree, so that a later run can reuse a web server
+ * that still runs on this database. The dev database uses offset 2433. The
+ * relative path is from apps/web, as in playwright.config.ts. */
+process.env.FINANCE_E2E_DB_PORT ??= execFileSync(
+  "node",
+  ["../../scripts/get-worktree-port.mjs", "3433"],
+  { encoding: "utf8" },
+).trim();
 
 export const FINANCE_E2E_DB_PORT = Number(process.env.FINANCE_E2E_DB_PORT);
 
@@ -26,10 +18,10 @@ export const FINANCE_E2E_DB_PORT = Number(process.env.FINANCE_E2E_DB_PORT);
 export const FINANCE_E2E_EMAIL_OUTBOX: string =
   (process.env.FINANCE_E2E_EMAIL_OUTBOX ??= path.join(
     tmpdir(),
-    `finance-e2e-outbox-${randomUUID()}`,
+    `finance-e2e-outbox-${String(FINANCE_E2E_DB_PORT)}`,
   ));
 
-/** The Finance settings of the web server that Playwright starts. */
+/** The Finance settings of the web server that the e2e tests use. */
 export const financeE2eEnv = {
   ...buildLocalFinanceEnv({
     databasePort: FINANCE_E2E_DB_PORT,

@@ -1,5 +1,4 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { connect } from "node:net";
 import { parseArgs } from "node:util";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -7,24 +6,12 @@ import { DEV_DB_DIR, startDevDb, type DevDb } from "../db/dev/start-dev-db.ts";
 import { lookups } from "../db/lookups.ts";
 import { schema } from "../db/schema.ts";
 import { asFinanceApp } from "../db/with-household.ts";
+import { isPortOpen } from "./is-port-open.ts";
 import { readPortOption } from "./read-cli-options.ts";
 import { readDevFinanceEnv } from "./read-dev-finance-env.ts";
 import { seedDevDatabase } from "./seed/seed-dev-database.ts";
 
 const STOP_SIGNALS = ["SIGINT", "SIGTERM", "SIGHUP"] as const;
-
-function isPortOpen(port: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    const socket = connect({ host: "127.0.0.1", port });
-    socket.once("connect", () => {
-      socket.destroy();
-      resolve(true);
-    });
-    socket.once("error", () => {
-      resolve(false);
-    });
-  });
-}
 
 function waitForExit(child: ChildProcess): Promise<number> {
   return new Promise((resolve) => {
