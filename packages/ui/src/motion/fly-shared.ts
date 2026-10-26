@@ -90,19 +90,24 @@ function mixRect(from: Rect, to: Rect, t: number): Rect {
 }
 
 /**
+ * Whether `fill`, a computed background colour, is not see-through.
+ *
+ * @internal
+ */
+export function isOpaqueFill(fill: string) {
+  const color = parseCssColor(fill);
+  return color !== null && color[3] > 0.99;
+}
+
+/**
  * The first fill that is not see-through, from `element` out.
  *
  * @internal
  */
-export function opaqueFillOf(element: Element) {
-  for (
-    let node: Element | null = element;
-    node !== null;
-    node = node.parentElement
-  ) {
+export function opaqueFillOf(element: Element | null) {
+  for (let node = element; node !== null; node = node.parentElement) {
     const fill = getComputedStyle(node).backgroundColor;
-    const color = parseCssColor(fill);
-    if (color !== null && color[3] > 0.99) return fill;
+    if (isOpaqueFill(fill)) return fill;
   }
   return "Canvas";
 }
@@ -158,6 +163,7 @@ function copyFormElement(form: SharedForm): Element {
     height: px(form.rect.height),
     transform: "none",
     opacity: "1",
+    transition: "none",
   });
   return copy;
 }
