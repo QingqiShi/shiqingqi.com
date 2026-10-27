@@ -7,8 +7,9 @@ import { createEffectLayer } from "./create-effect-layer.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
 import { debugEffect } from "./debug-effect.ts";
 import { effectsForRoles } from "./effects-for-roles.ts";
-import type { EffectCanvasNeeds } from "./plan-scopes.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
+import type { CarrierKey } from "./resolve-carrier.ts";
+import type { CanvasNeed } from "./types.ts";
 
 interface EffectLayerCanvasesProps {
   gpu: EffectDevice;
@@ -18,58 +19,67 @@ interface EffectLayerCanvasesProps {
   debug: boolean;
 }
 
-const NO_CANVASES: EffectCanvasNeeds = {
-  page: false,
-  fixed: false,
-  fixedBottom: false,
-  regions: [],
-};
+const NO_CANVASES: readonly CanvasNeed[] = [];
 
 type EffectLayer = ReturnType<typeof createEffectLayer>;
 
-interface RegionCanvasesProps {
-  id: number;
-  onCanvases: (id: number, canvases: HTMLCanvasElement[] | null) => void;
+type OnCanvases = (
+  carrier: CarrierKey,
+  canvases: HTMLCanvasElement[] | null,
+) => void;
+
+interface CarrierCanvasesProps {
+  carrier: CarrierKey;
+  /** Two scroll `<canvas>` elements, or one for the viewport. */
+  count: 1 | 2;
+  /** The value of `data-effect-layer` on each `<canvas>` element. */
+  name: string;
+  /** Holds the `<canvas>` element at the bottom edge of its box. */
+  bottom?: boolean;
+  onCanvases: OnCanvases;
 }
 
-/**
- * The two scroll `<canvas>` elements of one Scroll region. A portal puts
- * them at the end of the region's content box, so they scroll with it, and
- * they cover that box and no more.
- */
-function RegionCanvases({ id, onCanvases }: RegionCanvasesProps) {
+/** The `<canvas>` elements of one carrier, which it gives to `onCanvases`. */
+function CarrierCanvases({
+  carrier,
+  count,
+  name,
+  bottom = false,
+  onCanvases,
+}: CarrierCanvasesProps) {
   const firstRef = useRef<HTMLCanvasElement>(null);
   const secondRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    const first = firstRef.current;
-    const second = secondRef.current;
-    if (first === null || second === null) {
-      return;
-    }
-    onCanvases(id, [first, second]);
+    onCanvases(
+      carrier,
+      [firstRef.current, secondRef.current].filter((canvas) => canvas !== null),
+    );
     return () => {
-      onCanvases(id, null);
+      onCanvases(carrier, null);
     };
-  }, [id, onCanvases]);
+  }, [carrier, onCanvases]);
+  const css = bottom ? styles.bottomCanvas : styles.canvas;
   return (
-    <div aria-hidden inert css={[absoluteFill.all, styles.document]}>
-      <canvas ref={firstRef} data-effect-layer="region" css={styles.canvas} />
-      <canvas ref={secondRef} data-effect-layer="region" css={styles.canvas} />
-    </div>
+    <>
+      <canvas ref={firstRef} data-effect-layer={name} css={css} />
+      {count === 2 && (
+        <canvas ref={secondRef} data-effect-layer={name} css={css} />
+      )}
+    </>
   );
 }
 
 /**
  * The `<canvas>` elements of the effect layer: two on the effect plane over
  * the page's content, which take turns to cover the document while it
- * scrolls; two in the content box of each Scroll region, which take turns
- * to cover that box while the region scrolls; and two fixed to the viewport
- * over every other plane: one from its top edge, and one from its bottom
- * edge, for elements fixed to that edge, which a mobile toolbar moves. They
- * are inert, so every pointer, hit test and text selection goes through to
- * the content under them. Each group mounts only while a registered element
- * with a role needs it; the debug view needs all of the page and the
- * viewport.
+ * scrolls; two in the content box of each Scroll region, which a portal puts
+ * at the end of that box, so that they scroll with it and take turns to
+ * cover it; and two fixed to the viewport over every other plane: one from
+ * its top edge, and one from its bottom edge, for elements fixed to that
+ * edge, which a mobile toolbar moves. They are inert, so every pointer, hit
+ * test and text selection goes through to the content under them. Each
+ * group mounts only while a registered element with a role needs it; the
+ * debug view needs all of the page and the viewport.
  *
  * @internal
  */
@@ -81,19 +91,12 @@ export function EffectLayerCanvases({
 }: EffectLayerCanvasesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
-  const firstRef = useRef<HTMLCanvasElement>(null);
-  const secondRef = useRef<HTMLCanvasElement>(null);
-  const fixedRef = useRef<HTMLCanvasElement>(null);
   const bottomAnchorRef = useRef<HTMLDivElement>(null);
-  const fixedBottomRef = useRef<HTMLCanvasElement>(null);
   const layerRef = useRef<EffectLayer>(null);
-  const [regionCanvases] = useState(
-    () => new Map<number, HTMLCanvasElement[]>(),
-  );
+  const [mounted] = useState(() => new Map<CarrierKey, HTMLCanvasElement[]>());
   const [needs, setNeeds] = useState(NO_CANVASES);
-  const hasPage = debug || needs.page;
-  const hasFixed = debug || needs.fixed;
-  const hasFixedBottom = debug || needs.fixedBottom;
+  const has = (key: CarrierKey) =>
+    debug || needs.some((need) => need.key === key);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -110,26 +113,16 @@ export function EffectLayerCanvases({
       onCanvasNeedsChange: setNeeds,
     });
     layerRef.current = effectLayer;
-    // The region canvases mount before this effect runs, so give them to
-    // each new layer here.
-    for (const [id, canvases] of regionCanvases) {
-      effectLayer.setRegionCanvases(id, canvases);
+    // The canvases mount before this effect runs, so give them to each new
+    // layer here.
+    for (const [key, canvases] of mounted) {
+      effectLayer.setCanvases(key, canvases);
     }
     return () => {
       effectLayer.destroy();
       layerRef.current = null;
     };
-  }, [gpu, registry, regionCanvases]);
-
-  useEffect(() => {
-    const first = firstRef.current;
-    const second = secondRef.current;
-    layerRef.current?.setCanvases({
-      page: first && second ? [first, second] : [],
-      fixed: fixedRef.current,
-      fixedBottom: fixedBottomRef.current,
-    });
-  }, [gpu, registry, hasPage, hasFixed, hasFixedBottom]);
+  }, [gpu, registry, mounted]);
 
   useEffect(() => {
     layerRef.current?.setEffects([
@@ -138,16 +131,14 @@ export function EffectLayerCanvases({
     ]);
   }, [gpu, registry, debug, roles]);
 
-  const [onRegionCanvases] = useState(
-    () => (id: number, canvases: HTMLCanvasElement[] | null) => {
-      if (canvases === null) {
-        regionCanvases.delete(id);
-      } else {
-        regionCanvases.set(id, canvases);
-      }
-      layerRef.current?.setRegionCanvases(id, canvases);
-    },
-  );
+  const [onCanvases] = useState((): OnCanvases => (key, canvases) => {
+    if (canvases === null) {
+      mounted.delete(key);
+    } else {
+      mounted.set(key, canvases);
+    }
+    layerRef.current?.setCanvases(key, canvases);
+  });
 
   return (
     <>
@@ -158,34 +149,44 @@ export function EffectLayerCanvases({
         css={[absoluteFill.all, styles.document]}
       >
         <div ref={probeRef} css={styles.probe} />
-        {hasPage && (
-          <>
-            <canvas
-              ref={firstRef}
-              data-effect-layer="scroll"
-              css={styles.canvas}
-            />
-            <canvas
-              ref={secondRef}
-              data-effect-layer="scroll"
-              css={styles.canvas}
-            />
-          </>
+        {has("page") && (
+          <CarrierCanvases
+            carrier="page"
+            count={2}
+            name="scroll"
+            onCanvases={onCanvases}
+          />
         )}
       </div>
-      {needs.regions.map(({ id, content }) =>
-        createPortal(
-          <RegionCanvases id={id} onCanvases={onRegionCanvases} />,
-          content,
-          String(id),
-        ),
+      {needs.flatMap(({ key, content }) =>
+        content === null
+          ? []
+          : [
+              createPortal(
+                <div
+                  aria-hidden
+                  inert
+                  css={[absoluteFill.all, styles.document]}
+                >
+                  <CarrierCanvases
+                    carrier={key}
+                    count={2}
+                    name="region"
+                    onCanvases={onCanvases}
+                  />
+                </div>,
+                content,
+                String(key),
+              ),
+            ],
       )}
-      {hasFixed && (
+      {has("fixed") && (
         <div aria-hidden inert css={[viewportAnchor.fixed, styles.plane]}>
-          <canvas
-            ref={fixedRef}
-            data-effect-layer="fixed"
-            css={styles.canvas}
+          <CarrierCanvases
+            carrier="fixed"
+            count={1}
+            name="fixed"
+            onCanvases={onCanvases}
           />
         </div>
       )}
@@ -195,11 +196,13 @@ export function EffectLayerCanvases({
         inert
         css={[viewportAnchor.fixed, styles.bottomAnchor, styles.plane]}
       >
-        {hasFixedBottom && (
-          <canvas
-            ref={fixedBottomRef}
-            data-effect-layer="fixed-bottom"
-            css={styles.bottomCanvas}
+        {has("fixedBottom") && (
+          <CarrierCanvases
+            carrier="fixedBottom"
+            count={1}
+            name="fixed-bottom"
+            bottom
+            onCanvases={onCanvases}
           />
         )}
       </div>

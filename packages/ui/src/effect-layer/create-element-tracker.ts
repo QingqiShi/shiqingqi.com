@@ -1,34 +1,26 @@
+import { carrierOf } from "./carrier-of.ts";
 import { checkDeclaredCarrier } from "./check-declared-carrier.ts";
 import type {
   RegisteredRegion,
   RegisteredSticky,
 } from "./create-effect-registry.ts";
 import { observeMove, type Edges, type MoveWatch } from "./observe-move.ts";
-import {
-  readElementBox,
-  type CornerRadii,
-  type ElementBox,
-} from "./read-element-box.ts";
+import { readElementBox, type ElementBox } from "./read-element-box.ts";
 import {
   PAGE_CARRIER,
   resolveCarrier,
-  type CarrierKey,
   type CarrierState,
   type EffectCarrierRef,
 } from "./resolve-carrier.ts";
+import type { Carrier } from "./types.ts";
 
 /** The last measurement of a registered element. */
 interface MeasuredElement {
   /** In viewport coordinates, as it was measured. */
   readonly box: ElementBox;
   /** The carrier it was measured on, which tells how its box moves. */
-  readonly carrier: CarrierKey;
-  /**
-   * The box in the coordinates of its carrier: page coordinates on the
-   * page, viewport coordinates on the viewport, the distance from the
-   * viewport's bottom edge on that edge, or the coordinates of the content
-   * box of a Scroll region, without the scale of a transform around it.
-   */
+  readonly carrier: Carrier;
+  /** The box in the coordinates of its carrier, as `Carrier.toLocal` gives it. */
   readonly local: ElementBox;
 }
 
@@ -235,49 +227,6 @@ function edgesOf({ x, y, width, height }: ElementBox): Edges {
   return { left: x, top: y, right: x + width, bottom: y + height };
 }
 
-function scaleRadii(radii: CornerRadii, scale: number): CornerRadii {
-  return [
-    radii[0] / scale,
-    radii[1] / scale,
-    radii[2] / scale,
-    radii[3] / scale,
-  ];
-}
-
-/**
- * The box in the coordinates of its carrier, or `null` when the content
- * box of its Scroll region cannot be read.
- */
-function toCarrier(
-  box: ElementBox,
-  carrier: CarrierKey,
-  context: MeasureContext,
-): ElementBox | null {
-  switch (carrier) {
-    case "page":
-      return { ...box, x: box.x + context.scrollX, y: box.y + context.scrollY };
-    case "fixed":
-      return box;
-    case "fixedBottom":
-      return { ...box, y: box.y - context.viewportBottom() };
-    default: {
-      const frame = context.contentFrame(carrier);
-      if (frame === null) {
-        return null;
-      }
-      const { left, top, scale } = frame;
-      return {
-        ...box,
-        x: (box.x - left) / scale,
-        y: (box.y - top) / scale,
-        width: box.width / scale,
-        height: box.height / scale,
-        radii: scaleRadii(box.radii, scale),
-      };
-    }
-  }
-}
-
 /**
  * Tracks one registered element: it keeps the element's last measurement
  * and the observers that tell when it can have changed, its own
@@ -318,38 +267,13 @@ export function createElementTracker(
   });
   resizeObserver.observe(element, { box: "border-box" });
 
-  /**
-   * The box that a move watch of the element watches against: one that
-   * moves with the element's carrier, so that a scroll does not move the
-   * element in it. `null` is the viewport.
-   */
-  function rootOf(carrier: CarrierKey, context: MeasureContext) {
-    const page = element.ownerDocument.documentElement;
-    if (carrier === "page") {
-      return page;
-    }
-    if (carrier === "fixed" || carrier === "fixedBottom") {
-      return null;
-    }
-    const region = context.region(carrier);
-    if (region === undefined) {
-      return page;
-    }
-    // An observer reads a root only when the element is inside it.
-    return region.content.contains(element)
-      ? region.content
-      : region.scroller.contains(element)
-        ? region.scroller
-        : page;
-  }
-
   function rewatch(context: MeasureContext) {
     if (measured === null || animationSources.size > 0) {
       watch?.disconnect();
       watch = null;
       return;
     }
-    const rootElement = rootOf(measured.carrier, context);
+    const rootElement = measured.carrier.watchRoot(element, context);
     const area = {
       rect: edgesOf(measured.box),
       rootElement,
@@ -374,41 +298,14 @@ export function createElementTracker(
       return measurement;
     },
     /**
-     * The last measured box in page coordinates at the time of `clock`,
-     * from the carrier it was measured on: an element on the page keeps its
-     * page position, an element on the viewport keeps its viewport
-     * position, an element on the viewport's bottom edge keeps its distance
-     * from that edge, and an element in a Scroll region keeps its place in
-     * the region's content box. `null` while it has no box, or while its
-     * region has no place.
+     * The last measured box in page coordinates at the time of `clock`:
+     * the element keeps its place on the carrier it was measured on. `null`
+     * while it has no box, or while its carrier has no place.
      */
     boxAt(clock: CarrierClock): ElementBox | null {
-      if (measured === null) {
-        return null;
-      }
-      const { local, carrier } = measured;
-      switch (carrier) {
-        case "page":
-          return local;
-        case "fixed":
-          return {
-            ...local,
-            x: local.x + clock.scrollX,
-            y: local.y + clock.scrollY,
-          };
-        case "fixedBottom":
-          return {
-            ...local,
-            x: local.x + clock.scrollX,
-            y: local.y + clock.scrollY + clock.viewportBottom(),
-          };
-        default: {
-          const origin = clock.regionOrigin(carrier);
-          return origin === null
-            ? null
-            : { ...local, x: local.x + origin.x, y: local.y + origin.y };
-        }
-      }
+      return measured === null
+        ? null
+        : measured.carrier.toPage(measured.local, clock);
     },
     signal,
     /**
@@ -436,11 +333,11 @@ export function createElementTracker(
       measured = null;
       if (box !== null) {
         const ref = declared ?? context.carrierOf(element);
-        const carrier = resolveCarrier(ref, context);
+        const carrier = carrierOf(resolveCarrier(ref, context));
         if (process.env.NODE_ENV !== "production") {
           checkDeclaredCarrier(element, ref, context);
         }
-        const local = toCarrier(box, carrier, context);
+        const local = carrier.toLocal(box, context);
         if (local !== null) {
           measured = { box, carrier, local };
         }

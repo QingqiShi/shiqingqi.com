@@ -1,18 +1,10 @@
-import type { Band } from "./compute-bands.ts";
+import type { Band, ScissorRect } from "./compute-bands.ts";
+import type { RegisteredRegion } from "./create-effect-registry.ts";
+import type { CarrierClock, MeasureContext } from "./create-element-tracker.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import type { ElementBox } from "./read-element-box.ts";
 import type { CarrierKey } from "./resolve-carrier.ts";
-
-/**
- * The kind of `<canvas>` element that a target is part of: one of the two
- * scroll ones of the page, which take turns to cover the document; the
- * fixed one, which covers the viewport; the bottom one, which covers the
- * viewport from its bottom edge and moves with it; or one of the two scroll
- * ones of a Scroll region, which take turns to cover its content.
- *
- * @internal
- */
-export type EffectCanvasKind = "page" | "fixed" | "fixedBottom" | "region";
+import type { FrameClock } from "./track-elements.ts";
 
 /**
  * The settings of one registration, one entry for each effect hook that has
@@ -178,8 +170,10 @@ export interface EffectSetup {
  * @internal
  */
 export interface EffectTarget {
-  readonly kind: EffectCanvasKind;
-  /** The index in `EffectFrame.carriers` of its carrier. */
+  /**
+   * The index in `EffectFrame.carriers` of its carrier, which tells which
+   * `<canvas>` element it is part of.
+   */
   readonly carrier: number;
   /**
    * The band this pass draws, with the part drawn this frame, or `null` on
@@ -198,6 +192,8 @@ export interface EffectTarget {
   /** The CSS size of the `<canvas>` element. */
   readonly width: number;
   readonly height: number;
+  /** The top and the bottom page y of the part this pass draws. */
+  readonly drawnPageRange: readonly [number, number];
   /**
    * The elements that draw on this `<canvas>` element, as a range of
    * `EffectFrame.elements`: the ones on its carrier, of every scope. Pass it to an instanced draw as
@@ -317,4 +313,149 @@ export interface EffectRenderer {
  */
 export interface Effect {
   setup: (setup: EffectSetup) => EffectRenderer | Promise<EffectRenderer>;
+}
+
+/**
+ * A `<canvas>` element that the effect layer configured, as a carrier sees
+ * it.
+ *
+ * @internal
+ */
+export interface CarrierSurface {
+  readonly canvas: HTMLCanvasElement;
+  /** Group 1 of each pass on it, laid out as `targetLayout`. */
+  readonly bindGroup: GPUBindGroup;
+}
+
+/**
+ * What the `<canvas>` elements of a carrier take from the effect layer.
+ *
+ * @internal
+ */
+export interface CanvasKit<Surface extends CarrierSurface> {
+  /** `null` when the `<canvas>` element has no WebGPU context. */
+  readonly configure: (canvas: HTMLCanvasElement) => Surface | null;
+  readonly release: (surface: Surface) => void;
+  /** Gives the `<canvas>` element a CSS size and a backing store for it. */
+  readonly size: (
+    canvas: HTMLCanvasElement,
+    cssWidth: number,
+    cssHeight: number,
+  ) => void;
+}
+
+/**
+ * What a frame tells each carrier: the clock of the frame, the document
+ * that the page's bands cover, in page coordinates, the large viewport
+ * height, and the device pixel ratio.
+ *
+ * @internal
+ */
+export interface CarrierFrame {
+  readonly clock: FrameClock;
+  readonly document: {
+    readonly left: number;
+    readonly top: number;
+    readonly width: number;
+    readonly height: number;
+  };
+  readonly viewportHeight: number;
+  readonly pixelRatio: number;
+}
+
+/**
+ * One render pass on one `<canvas>` element of a carrier.
+ *
+ * @internal
+ */
+export interface CarrierPass<Surface extends CarrierSurface> {
+  readonly surface: Surface;
+  readonly target: EffectTarget;
+  readonly scissor: ScissorRect;
+}
+
+/**
+ * The `<canvas>` elements of one carrier, which it places, sizes and draws.
+ *
+ * @internal
+ */
+export interface CarrierCanvases<Surface extends CarrierSurface> {
+  /** The `<canvas>` elements it was given. */
+  readonly canvases: readonly HTMLCanvasElement[];
+  /** Sizes the `<canvas>` elements again when the size they need changes. */
+  readonly size: (frame: CarrierFrame) => void;
+  /**
+   * Places the `<canvas>` elements and lists the passes of this frame.
+   * `carrier` is the index of the carrier in `EffectFrame.carriers`, and
+   * `range` its elements.
+   */
+  readonly passes: (
+    frame: CarrierFrame,
+    carrier: number,
+    range: ElementRange,
+  ) => CarrierPass<Surface>[];
+  readonly release: () => void;
+}
+
+/**
+ * The `<canvas>` elements that a carrier needs, and `content`, the content
+ * box of the Scroll region that holds them, or `null` when the effect layer
+ * holds them.
+ *
+ * @internal
+ */
+export interface CanvasNeed {
+  readonly key: CarrierKey;
+  readonly content: Element | null;
+}
+
+/** @internal */
+export type RegionLookup = (id: number) => RegisteredRegion | undefined;
+
+/**
+ * An Effect carrier: how a box moves on it, and its `<canvas>` elements.
+ * `carrierOf` gives the carrier of a `CarrierKey`.
+ *
+ * @internal
+ */
+export interface Carrier {
+  readonly key: CarrierKey;
+  /**
+   * The box, measured in viewport coordinates, in the coordinates of the
+   * carrier, or `null` when they cannot be read.
+   */
+  readonly toLocal: (
+    box: ElementBox,
+    context: MeasureContext,
+  ) => ElementBox | null;
+  /**
+   * A box in the coordinates of the carrier, in page coordinates at the
+   * time of `clock`, or `null` while the carrier has no place.
+   */
+  readonly toPage: (
+    local: ElementBox,
+    clock: CarrierClock,
+  ) => ElementBox | null;
+  /**
+   * The box that a move watch of `element` watches against: one that moves
+   * with the carrier, so that a scroll does not move the element in it.
+   * `null` is the viewport.
+   */
+  readonly watchRoot: (
+    element: Element,
+    context: MeasureContext,
+  ) => Element | null;
+  /**
+   * The `<canvas>` elements that an element with a role on the carrier
+   * needs, or `null` while the modal Effect covers in `modalCovers` hide the
+   * carrier, or while it has no content box.
+   */
+  readonly need: (
+    modalCovers: readonly Element[],
+    region: RegionLookup,
+  ) => CanvasNeed | null;
+  readonly createCanvases: <Surface extends CarrierSurface>(
+    canvases: readonly HTMLCanvasElement[],
+    kit: CanvasKit<Surface>,
+  ) => CarrierCanvases<Surface>;
 }

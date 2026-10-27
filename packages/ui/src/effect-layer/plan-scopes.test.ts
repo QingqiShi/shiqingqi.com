@@ -278,6 +278,7 @@ describe("planCanvasNeeds", () => {
       },
     ],
   ]);
+  const region = (id: number) => regions.get(id);
   const plan = planScopes(
     [
       record(1, { roles: 1 }),
@@ -290,27 +291,25 @@ describe("planCanvasNeeds", () => {
   );
 
   it("needs the canvases of each carrier with a role", () => {
-    expect(planCanvasNeeds(plan, [], (id) => regions.get(id))).toEqual({
-      page: true,
-      fixed: true,
-      fixedBottom: false,
-      regions: [
-        { id: 4, content },
-        { id: 9, content: sheetContent },
-      ],
-    });
+    expect(planCanvasNeeds(plan, [], region)).toEqual([
+      { key: "page", content: null },
+      { key: "fixed", content: null },
+      { key: 4, content },
+      { key: 9, content: sheetContent },
+    ]);
   });
 
   it("releases the page and each region outside a modal cover while the cover shows", () => {
-    expect(planCanvasNeeds(plan, [sheet], (id) => regions.get(id))).toEqual({
-      page: false,
-      fixed: true,
-      fixedBottom: false,
-      regions: [{ id: 9, content: sheetContent }],
-    });
+    expect(planCanvasNeeds(plan, [sheet], region)).toEqual([
+      { key: "fixed", content: null },
+      { key: 9, content: sheetContent },
+    ]);
   });
 
   it("needs no canvases for a region with no scroller or content box", () => {
-    expect(planCanvasNeeds(plan, [], () => undefined).regions).toEqual([]);
+    expect(planCanvasNeeds(plan, [], () => undefined)).toEqual([
+      { key: "page", content: null },
+      { key: "fixed", content: null },
+    ]);
   });
 });

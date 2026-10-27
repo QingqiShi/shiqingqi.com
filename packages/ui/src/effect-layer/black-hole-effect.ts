@@ -43,16 +43,12 @@ interface ShaderBeam {
 }
 
 /** The part of the page a target draws this frame. */
-function drawnRect(target: EffectTarget): PageRect {
-  const { band } = target;
-  return band === null
-    ? { x: target.x, y: target.y, width: target.width, height: target.height }
-    : {
-        x: target.x,
-        y: target.y + band.drawnTop,
-        width: target.width,
-        height: band.drawnHeight,
-      };
+function drawnRect({
+  x,
+  width,
+  drawnPageRange: [top, bottom],
+}: EffectTarget): PageRect {
+  return { x, y: top, width, height: bottom - top };
 }
 
 /**

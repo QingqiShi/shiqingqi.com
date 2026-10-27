@@ -525,7 +525,7 @@ export function createEffectRegistry() {
       ] of elements) {
         const tracker = uses.get(element)?.tracker;
         const box = tracker?.boxAt(clock);
-        const measured = tracker?.measured?.carrier;
+        const measured = tracker?.measured?.carrier.key;
         if (tracker == null || box == null || measured === undefined) {
           continue;
         }

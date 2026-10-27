@@ -268,8 +268,8 @@ function writeMinimap(
       write(trackLeft, band.top, 12, band.height, SLOT_COLORS[band.slot], 0.35);
     }
   }
-  for (const { kind, band } of frame.targets) {
-    if (kind === "page" && band !== null) {
+  for (const { carrier, band } of frame.targets) {
+    if (frame.carriers[carrier] === "page" && band !== null) {
       write(
         trackLeft + 3,
         band.top + band.drawnTop,
@@ -375,8 +375,8 @@ export const debugEffect: Effect = {
     return {
       followsPointer: true,
       update(_encoder, frame) {
-        for (const { kind, band, y } of frame.targets) {
-          if (kind === "page" && band !== null) {
+        for (const { carrier, band, y } of frame.targets) {
+          if (frame.carriers[carrier] === "page" && band !== null) {
             placed[band.slot] = band;
             layerTop = y - band.top;
           }
@@ -398,7 +398,7 @@ export const debugEffect: Effect = {
         if (target.band !== null) {
           pass.setPipeline(bandPipeline);
           pass.draw(3, 1, 0, target.band.index);
-        } else if (target.kind === "fixed") {
+        } else if (frame.carriers[target.carrier] === "fixed") {
           const count = writeMinimap(rects, frame, layerTop, placed);
           device.queue.writeBuffer(rectBuffer, 0, rects);
           pass.setPipeline(rectPipeline);
@@ -409,7 +409,10 @@ export const debugEffect: Effect = {
           pass.setPipeline(elementPipeline);
           pass.draw(4, target.elementCount, 0, target.firstElement);
         }
-        if (target.kind === "fixed" && frame.pointer.present) {
+        if (
+          frame.carriers[target.carrier] === "fixed" &&
+          frame.pointer.present
+        ) {
           pass.setPipeline(pointerPipeline);
           pass.draw(4);
         }
