@@ -197,6 +197,41 @@ describe("TransactionEditor", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps the account it starts on when the Payee last used another", async () => {
+    const { runtime } = await openEditor({ initialAccountId: ids.current });
+    expect(screen.getByRole("combobox", { name: "Account" })).toHaveValue(
+      ids.current,
+    );
+    await userEvent.keyboard("12.50");
+    await userEvent.click(screen.getByRole("combobox", { name: "Payee" }));
+    await userEvent.keyboard("tes{Enter}");
+    await userEvent.keyboard("{Enter}");
+
+    expect(created(runtime).args).toMatchObject({
+      categoryId: ids.groceries,
+      payeeId: ids.tesco,
+      entries: [{ accountId: ids.current, amountMinor: -1_250 }],
+    });
+  });
+
+  it("starts on the usual account when the given one is closed", async () => {
+    const rows = testReplicaRows();
+    await openEditor(
+      { initialAccountId: ids.isa },
+      {
+        ...rows,
+        accounts: rows.accounts?.map((account) =>
+          account.id === ids.isa
+            ? { ...account, closedOn: "2026-01-01" }
+            : account,
+        ),
+      },
+    );
+    expect(screen.getByRole("combobox", { name: "Account" })).toHaveValue(
+      ids.current,
+    );
+  });
+
   it("saves a refund linked to the original expense", async () => {
     const { runtime } = await openEditor();
     await userEvent.keyboard("5");

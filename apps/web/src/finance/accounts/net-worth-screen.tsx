@@ -16,6 +16,7 @@ import { useReplica } from "../replica/use-replica.ts";
 import { ColumnLink, useColumnReplace } from "../shell/column-link.tsx";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import { FinancePageColumn } from "../shell/finance-page-column.tsx";
+import { NewTransactionSheet } from "../shell/new-transaction-sheet.tsx";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import { useTeachAi } from "../transactions/use-teach-ai.tsx";
 import { AccountDetail } from "./account-detail.tsx";
@@ -57,17 +58,20 @@ export function NetWorthScreen() {
       </FinancePageColumn>
     );
   }
-  if (url.mode === "reorder") {
-    return (
-      <FinancePageColumn accessory={<FinanceAddButton />}>
-        <ReorderScreen url={url} />
-      </FinancePageColumn>
-    );
-  }
+  const isReorder = url.mode === "reorder";
   return (
-    <NetWorthPickProvider>
-      <NetWorthColumns url={url} />
-    </NetWorthPickProvider>
+    <>
+      {isReorder ? (
+        <FinancePageColumn accessory={<FinanceAddButton />}>
+          <ReorderScreen url={url} />
+        </FinancePageColumn>
+      ) : (
+        <NetWorthPickProvider>
+          <NetWorthColumns url={url} />
+        </NetWorthPickProvider>
+      )}
+      <NewTransactionSheet accountId={isReorder ? null : url.account} />
+    </>
   );
 }
 

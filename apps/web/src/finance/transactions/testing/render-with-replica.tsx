@@ -16,8 +16,8 @@ import { TEST_IDS } from "./create-test-replica.ts";
 
 /**
  * Renders `ui` inside the Finance providers, signed in as Alex unless
- * `memberId` says otherwise, and at `pathname` when it is given; `pushed`
- * records navigations.
+ * `memberId` says otherwise, and at `pathname` with the query `search` when
+ * it is given; `pushed` records navigations.
  */
 export function renderWithReplica(
   runtime: FinanceRuntime,
@@ -25,7 +25,8 @@ export function renderWithReplica(
   {
     memberId = TEST_IDS.alex,
     pathname,
-  }: { memberId?: string; pathname?: string } = {},
+    search = "",
+  }: { memberId?: string; pathname?: string; search?: string } = {},
 ) {
   const pushed: string[] = [];
   const record = (href: string) => {
@@ -55,7 +56,7 @@ export function renderWithReplica(
         providers
       ) : (
         <PathnameContext value={pathname}>
-          <SearchParamsContext value={new URLSearchParams()}>
+          <SearchParamsContext value={new URLSearchParams(search)}>
             {providers}
           </SearchParamsContext>
         </PathnameContext>
