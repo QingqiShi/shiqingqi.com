@@ -35,7 +35,7 @@ const INSTANCE: LiquidInstance = {
   seeThrough: false,
   backdrop: [1, 1, 1],
   body: 0.25,
-  light: [0.6, -0.8],
+  glint: -0.5,
   edge: [0.08, 0.06, 0.06, 0],
   edgeLit: 0.5,
   leaving: [96, 4, 0.25],
@@ -62,12 +62,7 @@ describe("packLiquidInstances", () => {
     ]);
     expect([...floats.slice(24, 28)]).toEqual([1, 1, 1, 2]);
     expect([...floats.slice(28, 32)]).toEqual([48, 47, 0.5, 0]);
-    expect([...floats.slice(32, 36)]).toEqual([
-      expect.closeTo(0.6),
-      expect.closeTo(-0.8),
-      1.25,
-      1,
-    ]);
+    expect([...floats.slice(32, 36)]).toEqual([-0.5, 1.25, 1, 0]);
     expect([...floats.slice(36, 40)]).toEqual([
       expect.closeTo(0.08),
       expect.closeTo(0.06),
