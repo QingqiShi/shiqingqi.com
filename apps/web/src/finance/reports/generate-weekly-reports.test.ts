@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, gte, isNull, lte } from "drizzle-orm";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   accounts,
   entries,
@@ -331,6 +331,10 @@ describe("generateWeeklyReports data", () => {
 });
 
 describe("generateWeeklyReports", () => {
+  beforeEach(async () => {
+    await db.delete(reports);
+  });
+
   it(
     "backfills every week once and writes nothing on a second run",
     async () => {

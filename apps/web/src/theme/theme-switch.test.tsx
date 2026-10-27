@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "#src/testing/test-utils.tsx";
+import { resetTheme } from "./testing/reset-theme.ts";
 import { ThemeSwitch } from "./theme-switch";
 
 const LABELS: [string, string] = ["Switch to light", "Switch to dark"];
@@ -11,19 +12,13 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  // Start each test without a persisted theme so the component reads
-  // `"system"` by default (the storage path the hook relies on).
-  localStorage.removeItem("theme");
+  resetTheme();
 });
 
 function renderThemeSwitch() {
   render(<ThemeSwitch labels={LABELS} />);
 }
 
-// Placed near the end because the dispatched `storage` event mutates the
-// module-level `themeSingleton` in `use-theme.ts`. The final assertion
-// leaves it set to "light" so the resilience block below can still start
-// from a light theme.
 describe("ThemeSwitch cross-tab sync", () => {
   it("re-renders with the theme written by another tab via a storage event", () => {
     localStorage.setItem("theme", "light");
@@ -51,20 +46,6 @@ describe("ThemeSwitch cross-tab sync", () => {
     // which only happens if the storage listener updated the singleton and
     // notified subscribers.
     expect(toggle).toHaveAttribute("aria-label", "Switch to light");
-
-    // Reset to "light" (both storage and singleton) so the resilience test
-    // below starts from the theme it expects.
-    act(() => {
-      localStorage.setItem("theme", "light");
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: "theme",
-          newValue: "light",
-          oldValue: "dark",
-          storageArea: localStorage,
-        }),
-      );
-    });
   });
 
   it("ignores storage events for unrelated keys", () => {
@@ -90,9 +71,6 @@ describe("ThemeSwitch cross-tab sync", () => {
   });
 });
 
-// Placed after the blocks above because it presses the button, which updates the module-level `themeSingleton` in `use-theme.ts`, and
-// this block has no reset hook of its own. The "press semantics" group below
-// resets the singleton itself, so it can safely run after this one.
 describe("ThemeSwitch localStorage resilience", () => {
   it("still reflects the new theme when localStorage.setItem throws", () => {
     // Safari private mode / lockdown / quota-exceeded all surface as a
@@ -143,28 +121,6 @@ function setSystemPrefersDark(prefersDark: boolean) {
 }
 
 describe("ThemeSwitch press semantics", () => {
-  // `useTheme`'s snapshot prefers the in-memory `themeSingleton` in
-  // `use-theme.ts` over localStorage once a prior test has set it, and only
-  // a dispatched "storage" event clears it back. Mount and unmount a throwaway
-  // instance to force that clear, so each test below can seed its starting
-  // Preference with a plain `localStorage.setItem`/`removeItem` and know a
-  // fresh render will actually read it.
-  beforeEach(() => {
-    const { unmount } = render(<ThemeSwitch labels={LABELS} />);
-    act(() => {
-      localStorage.removeItem("theme");
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: "theme",
-          newValue: null,
-          oldValue: null,
-          storageArea: localStorage,
-        }),
-      );
-    });
-    unmount();
-  });
-
   it("stores dark on the first press when nothing is stored and the system Theme is light", () => {
     renderThemeSwitch();
 
