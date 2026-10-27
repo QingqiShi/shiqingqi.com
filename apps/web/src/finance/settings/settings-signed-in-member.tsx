@@ -2,12 +2,13 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { SignedInMember } from "../shell/signed-in-member.tsx";
 
-/** The signed-in Member under the Settings menu below `md`, where the rail that shows it is hidden. */
+/** The signed-in Member on a surface of its own under the Settings menu below `md`, where the rail that shows it is hidden. */
 export function SettingsSignedInMember() {
   const { memberId } = useFinanceRuntime();
   const memberName = useReplica(
@@ -21,7 +22,7 @@ export function SettingsSignedInMember() {
     <SignedInMember
       memberName={memberName}
       householdName={householdName}
-      css={styles.root}
+      css={[cardSurface.base, styles.root]}
     />
   );
 }
@@ -29,6 +30,8 @@ export function SettingsSignedInMember() {
 const styles = stylex.create({
   root: {
     display: { default: "flex", [breakpoints.md]: "none" },
-    paddingInline: space._2,
+    paddingBlockStart: space._2,
+    paddingBlockEnd: space._2,
+    paddingInline: space._3,
   },
 });

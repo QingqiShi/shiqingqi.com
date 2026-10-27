@@ -1,5 +1,6 @@
 "use client";
 
+import * as stylex from "@stylexjs/stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -116,7 +117,7 @@ export function RecoveryEmailSettings() {
         </Callout>
       )}
       <form
-        css={stack.tight}
+        css={[stack.tight, styles.form]}
         onSubmit={(event) => {
           event.preventDefault();
           void send(draft, "save");
@@ -152,3 +153,9 @@ export function RecoveryEmailSettings() {
     </section>
   );
 }
+
+const styles = stylex.create({
+  form: {
+    maxInlineSize: "32rem",
+  },
+});

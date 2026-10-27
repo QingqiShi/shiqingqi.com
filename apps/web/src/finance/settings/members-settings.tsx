@@ -129,6 +129,9 @@ export function MembersSettings() {
     });
   }
 
+  const invitedName =
+    invite && members.find((member) => member.id === invite.memberId)?.name;
+
   const removable =
     isOwner && editing?.member && editing.member.id !== memberId
       ? editing.member
@@ -228,70 +231,70 @@ export function MembersSettings() {
         </>
       }
     >
-      <List>
-        {members.map((member) => (
-          <ListRow
-            key={member.id}
-            detail={
+      <div css={stack.item}>
+        <List>
+          {members.map((member) => {
+            const invitable =
+              member.userId === null || (isOwner && member.id !== memberId);
+            const inviteLabel =
               member.userId === null
-                ? labels.notSignedIn
-                : member.role === "owner"
-                  ? labels.owner
-                  : labels.signsIn
-            }
-            trailing={
-              member.id === memberId ? (
-                <Badge size="sm" intent="neutral">
-                  {labels.you}
-                </Badge>
-              ) : null
-            }
-            onClick={() => {
-              setEditing({ member });
-              setName(member.name);
-              setNameError(undefined);
-            }}
-          >
-            {member.name}
-          </ListRow>
-        ))}
-      </List>
-      {members
-        .filter(
-          (member) =>
-            member.userId === null || (isOwner && member.id !== memberId),
-        )
-        .map((member) => (
-          <div key={member.id} css={stack.tight}>
-            <div css={cluster.tight}>
-              <Text look="bodySmall">{member.name}</Text>
-              <Button
-                size="sm"
-                look="outline"
-                loading={busy === `invite:${member.id}`}
-                aria-label={`${member.userId === null ? labels.createInvite : labels.recoveryLink}: ${member.name}`}
-                onClick={() => void createInvite(member)}
-              >
-                {member.userId === null
-                  ? labels.createInvite
-                  : labels.recoveryLink}
-              </Button>
-            </div>
-            {invite?.memberId === member.id ? (
-              <InviteLink
-                invite={invite}
-                memberName={member.name}
-                onShare={() => void share(invite.url)}
-                onCopy={() => {
-                  void copyTextToClipboard(invite.url).then((ok) => {
-                    if (ok)
-                      showToast({ message: messages.copied, durationMs: 4000 });
-                  });
+                ? labels.createInvite
+                : labels.recoveryLink;
+            return (
+              <ListRow
+                key={member.id}
+                detail={
+                  member.userId === null
+                    ? labels.notSignedIn
+                    : member.role === "owner"
+                      ? labels.owner
+                      : labels.signsIn
+                }
+                trailing={
+                  member.id === memberId ? (
+                    <Badge size="sm" intent="neutral">
+                      {labels.you}
+                    </Badge>
+                  ) : null
+                }
+                actions={
+                  invitable ? (
+                    <Button
+                      size="sm"
+                      look="outline"
+                      loading={busy === `invite:${member.id}`}
+                      aria-label={`${inviteLabel}: ${member.name}`}
+                      onClick={() => void createInvite(member)}
+                    >
+                      {inviteLabel}
+                    </Button>
+                  ) : null
+                }
+                onClick={() => {
+                  setEditing({ member });
+                  setName(member.name);
+                  setNameError(undefined);
                 }}
-              />
-            ) : null}
-          </div>
-        ))}
+              >
+                {member.name}
+              </ListRow>
+            );
+          })}
+        </List>
+        {invite && invitedName ? (
+          <InviteLink
+            invite={invite}
+            memberName={invitedName}
+            onShare={() => void share(invite.url)}
+            onCopy={() => {
+              void copyTextToClipboard(invite.url).then((ok) => {
+                if (ok)
+                  showToast({ message: messages.copied, durationMs: 4000 });
+              });
+            }}
+          />
+        ) : null}
+      </div>
       <RecoveryEmailSettings />
       <EditSheet
         isOpen={editing !== null}
