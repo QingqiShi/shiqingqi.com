@@ -19,7 +19,7 @@ import {
 } from "../db/testing/seed-test-household.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { materialiseRules } from "./materialise-rules.ts";
-import { occurrenceEntryId, occurrenceId } from "./rule-occurrences.ts";
+import { occurrenceEntryId, occurrenceId } from "./occurrence-id.ts";
 
 let db: TestDb;
 let home: SeededHousehold;
@@ -707,42 +707,6 @@ describe("a bank-backed Transaction on an occurrence's day", () => {
       version: household.clock,
     });
   });
-
-  it.each(["2026-01-28", "2026-02-01", "2026-02-03"])(
-    "gives the Rule a Transaction dated %s, within three days",
-    async (date) => {
-      const paymentId = await recordPayment(date);
-
-      const ruleId = await createRule({}, now);
-
-      expect(await ruleTransactions(ruleId)).toEqual([
-        { id: paymentId, date, status: "posted" },
-      ]);
-    },
-  );
-
-  it.each([
-    { date: "2026-01-27", amountMinor: -120_000, backed: true },
-    { date: "2026-02-04", amountMinor: -120_000, backed: true },
-    { date: "2026-01-31", amountMinor: -119_999, backed: true },
-    { date: "2026-01-31", amountMinor: -120_000, backed: false },
-  ])(
-    "creates the occurrence next to $date, $amountMinor, backed: $backed",
-    async ({ date, ...fields }) => {
-      const paymentId = await recordPayment(date, fields);
-
-      const ruleId = await createRule({}, now);
-
-      expect(await ruleTransactions(ruleId)).toEqual([
-        {
-          id: occurrenceId(ruleId, "2026-01-31"),
-          date: "2026-01-31",
-          status: "expected",
-        },
-      ]);
-      expect((await transaction(paymentId)).ruleId).toBeNull();
-    },
-  );
 
   it("posts nothing twice for a Rule that posts automatically from before the Bank link", async () => {
     const paymentId = await recordPayment("2026-01-31");

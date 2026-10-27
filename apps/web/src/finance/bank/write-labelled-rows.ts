@@ -10,13 +10,14 @@ import { memberRepository } from "../db/repositories/member-repository.ts";
 import { payeeRepository } from "../db/repositories/payee-repository.ts";
 import { withSavepoint } from "../db/with-household.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
+import type { MatchLink } from "../reconciliation/reconciliation.ts";
 import { applyMutation } from "../sync/apply-mutation.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type { TransactionInput } from "../sync/mutation-schema.ts";
 import type { ServerWriteContext } from "../sync/run-server-write.ts";
 import { MAX_NOTE_LENGTH } from "../sync/wire-fields.ts";
 import { ensureInTransitAccount } from "./ensure-in-transit-account.ts";
-import { matchBankRows, type MatchLink } from "./match-bank-rows.ts";
+import { matchBankRows } from "./match-bank-rows.ts";
 import { toEntryAmount } from "./to-entry-amount.ts";
 
 /** After this many failed tries, a row is written as Uncategorised for a person to label. */

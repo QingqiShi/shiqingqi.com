@@ -1,4 +1,4 @@
-import type { RuleTemplate } from "./rule-template-schema.ts";
+import type { RuleTemplate } from "../rules/rule-template-schema.ts";
 
 /**
  * Whether a Rule with these template Entries may post automatically. Bank

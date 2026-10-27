@@ -20,7 +20,7 @@ import { applyLocalMutation } from "../replica/apply-local-mutation.ts";
 import { emptyReplicaTables } from "../replica/empty-replica-tables.ts";
 import { rowKey } from "../replica/row-key.ts";
 import type { ReplicaRow, ReplicaTables } from "../replica/types.ts";
-import { occurrenceId } from "../rules/rule-occurrences.ts";
+import { occurrenceId } from "../rules/occurrence-id.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import {
   createStrictDraft,

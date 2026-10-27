@@ -1,5 +1,5 @@
 import { SCHEDULE_FIELDS } from "../domain/rules/schedule-fields.ts";
-import { mayAutoPost } from "../rules/may-auto-post.ts";
+import { mayAutoPost } from "../reconciliation/may-auto-post.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
 import {
   ruleTemplateSchema,

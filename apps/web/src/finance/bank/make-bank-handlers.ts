@@ -5,7 +5,6 @@ import type { FinanceSession } from "../auth/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
-import { ruleRepository } from "../db/repositories/rule-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
@@ -17,6 +16,7 @@ import {
 } from "../http/guard-finance-request.ts";
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
+import { reconciliation } from "../reconciliation/reconciliation.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { BalanceCheckNotFoundError, balanceCheck } from "./balance-check.ts";
 import { credentialCipher } from "./credential-cipher.ts";
@@ -349,7 +349,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
                 ...fields,
               });
             }
-            await ruleRepository.stopAutoPostOnAccount(write, account.id);
+            await reconciliation.onAccountLinked(write, account.id);
             context.markWritten();
             const link = await bankLinkRepository.findById(write, linkId);
             if (!link) throw new Error("The Bank link was not written");

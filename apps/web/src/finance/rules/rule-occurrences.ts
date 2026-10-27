@@ -1,18 +1,12 @@
-import {
-  MATCH_DAY_WINDOW,
-  planBankMatches,
-} from "../bank/plan-bank-matches.ts";
-import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { memberRepository } from "../db/repositories/member-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
 import type { RepositoryScope } from "../db/repositories/types.ts";
-import { addDays } from "../domain/dates/add-days.ts";
 import { sameSet } from "../domain/same-set.ts";
-import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import {
   checkTransactionRows,
   namedRowReads,
 } from "../mutations/transaction-mutations.ts";
+import { reconciliation } from "../reconciliation/reconciliation.ts";
 import { applyMutation } from "../sync/apply-mutation.ts";
 import { createStrictDraft } from "../sync/create-strict-draft.ts";
 import { loadReads } from "../sync/load-mutation-rows.ts";
@@ -20,22 +14,9 @@ import { MutationError } from "../sync/mutation-error.ts";
 import type { TransactionPatch } from "../sync/mutation-schema.ts";
 import type { WriteContext } from "../sync/types.ts";
 import { nextOccurrence, type RuleSchedule } from "./next-occurrence.ts";
+import { occurrenceEntryId } from "./occurrence-id.ts";
 import type { RuleTemplate } from "./rule-template-schema.ts";
 import { sameEntries } from "./same-template.ts";
-
-/** The id of a Rule's Transaction on a day; the same occurrence always gets the same id. */
-export function occurrenceId(ruleId: string, day: string) {
-  return nameBasedUuid(`rule:${ruleId}:${day}`);
-}
-
-/** The id of the Entry at `position` of a Rule's Transaction on a day. */
-export function occurrenceEntryId(
-  ruleId: string,
-  day: string,
-  position: number,
-) {
-  return nameBasedUuid(`rule:${ruleId}:${day}:${String(position)}`);
-}
 
 /**
  * The fields, Entries and Tags of a Rule's Transaction made from `template`.
@@ -82,112 +63,6 @@ async function isUsable(scope: RepositoryScope, template: RuleTemplate) {
     if (error instanceof MutationError) return false;
     throw error;
   }
-}
-
-/**
- * What holds a day of a Rule: a Transaction of the Rule, or a bank-backed
- * one it may take. A Transaction the Rule made
- * holds the day its id names, so one that Bank sync moved to the bank row's
- * date still holds its first day. Another Transaction of the Rule, for
- * example an imported one, holds its date. A bank-backed Transaction with
- * no Rule holds a day within `MATCH_DAY_WINDOW` of its date, paired as Bank
- * sync pairs bank rows with Expected Transactions, and so does one the Rule
- * took that way before.
- */
-export type OccurrenceHolder =
-  | { kind: "rule"; transactionId: string }
-  | { kind: "bank"; transactionId: string; ruleId: string | null };
-
-/**
- * The Transaction of the Rule, live or deleted, that holds each of `days`.
- * A deleted one holds its day too, so a skipped occurrence stays skipped.
- */
-async function ruleHolders(
-  scope: RepositoryScope,
-  ruleId: string,
-  days: readonly string[],
-) {
-  const dayById = new Map(days.map((day) => [occurrenceId(ruleId, day), day]));
-  const rows = await transactionRepository.findOfRuleOnDaysOrIds(
-    scope,
-    ruleId,
-    [...days],
-    [...dayById.keys()],
-  );
-  const holders = new Map<string, OccurrenceHolder>();
-  for (const row of rows) {
-    const day = dayById.get(row.id) ?? row.date;
-    if (!holders.has(day)) {
-      holders.set(day, { kind: "rule", transactionId: row.id });
-    }
-  }
-  return { holders, ids: new Set(rows.map((row) => row.id)) };
-}
-
-/** The bank-backed Transaction that holds each of `days`, none of them in `taken`. */
-async function bankHolders(
-  scope: RepositoryScope,
-  ruleId: string,
-  template: RuleTemplate,
-  days: readonly string[],
-  taken: ReadonlySet<string>,
-) {
-  const holders = new Map<string, OccurrenceHolder>();
-  if (days.length === 0) return holders;
-  const candidates = (
-    await bankTransactionRepository.findBankBacked(scope, template.entries, {
-      from: addDays(days[0], -MATCH_DAY_WINDOW),
-      to: addDays(days[days.length - 1], MATCH_DAY_WINDOW),
-    })
-  ).filter(
-    (candidate) =>
-      !taken.has(candidate.transactionId) &&
-      (candidate.ruleId === null ||
-        (candidate.ruleId === ruleId && candidate.source !== "rule")),
-  );
-  const candidateById = new Map(
-    candidates.map((candidate) => [candidate.transactionId, candidate]),
-  );
-  // Each candidate has an amount of the template already. Thus all days and
-  // candidates get the same amount, and the plan pairs them by date only.
-  const plan = planBankMatches(
-    days.map((date) => ({ date, amountMinor: 0 })),
-    candidates.map((candidate) => ({
-      ...candidate,
-      amountMinor: 0,
-      inTransit: false,
-    })),
-  );
-  for (const [index, day] of days.entries()) {
-    const match = plan[index];
-    if (match.action === "create") continue;
-    const candidate = candidateById.get(match.transactionId);
-    if (candidate) {
-      holders.set(day, {
-        kind: "bank",
-        transactionId: candidate.transactionId,
-        ruleId: candidate.ruleId,
-      });
-    }
-  }
-  return holders;
-}
-
-/** What holds each of `days`, in date order, of the Rule; a day without a holder is free. */
-async function findOccurrenceHolders(
-  scope: RepositoryScope,
-  rule: { id: string; template: RuleTemplate },
-  days: readonly string[],
-): Promise<Map<string, OccurrenceHolder>> {
-  const byRule = await ruleHolders(scope, rule.id, days);
-  const byBank = await bankHolders(
-    scope,
-    rule.id,
-    rule.template,
-    days.filter((day) => !byRule.holders.has(day)),
-    byRule.ids,
-  );
-  return new Map([...byRule.holders, ...byBank]);
 }
 
 interface RuleTransaction {
@@ -355,7 +230,7 @@ async function rewriteExpected(
   const ids = [...restore, ...kept].map((row) => row.id);
   if (ids.length === 0) return;
   const [bankBacked, entriesOf, tagIdsOf, before, after] = await Promise.all([
-    bankTransactionRepository.findLinkedTransactionIds(scope, ids),
+    reconciliation.bankBackedIds(scope, ids),
     transactionRepository.findEntriesOf(scope, ids),
     transactionRepository.findTagIdsOf(scope, ids),
     previousTemplate && withActiveMember(scope, previousTemplate),
@@ -394,6 +269,5 @@ async function rewriteExpected(
 
 export const ruleOccurrences = {
   isUsable,
-  findOccurrenceHolders,
   rewriteExpected,
 };

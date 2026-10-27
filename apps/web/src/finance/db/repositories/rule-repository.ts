@@ -59,20 +59,6 @@ export const ruleRepository = {
       deleted,
     ),
 
-  /** Bank sync imports the real Transactions of an account with a Bank link. */
-  async stopAutoPostOnAccount(scope: WriteScope, accountId: string) {
-    await scope.db
-      .update(rules)
-      .set({ autoPost: false, version: scope.version, updatedAt: sql`now()` })
-      .where(
-        and(
-          eq(rules.householdId, scope.householdId),
-          eq(rules.autoPost, true),
-          sql`${rules.template} -> 'entries' @> ${JSON.stringify([{ accountId }])}::jsonb`,
-        ),
-      );
-  },
-
   /** Points every Rule template that names one Payee at another. */
   async repointTemplatePayee(
     scope: WriteScope,

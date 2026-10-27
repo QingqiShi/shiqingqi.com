@@ -22,7 +22,7 @@ import {
   occurrencesBetween,
   type RuleSchedule,
 } from "../../rules/next-occurrence.ts";
-import { occurrenceId } from "../../rules/rule-occurrences.ts";
+import { occurrenceId } from "../../rules/occurrence-id.ts";
 import type { RuleTemplate } from "../../rules/rule-template-schema.ts";
 import { createPrng } from "./create-prng.ts";
 import {

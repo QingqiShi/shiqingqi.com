@@ -13,6 +13,7 @@ import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
+import type { MatchLink } from "../reconciliation/reconciliation.ts";
 import {
   runServerWrite,
   type ServerWriteContext,
@@ -27,7 +28,7 @@ import type {
   ProviderBalance,
   ProviderTransaction,
 } from "./lunchflow/types.ts";
-import { matchBankRows, type MatchLink } from "./match-bank-rows.ts";
+import { matchBankRows } from "./match-bank-rows.ts";
 import type { BankLinkSyncSummary } from "./types.ts";
 
 /** How far back the first sync of a link reads. */
