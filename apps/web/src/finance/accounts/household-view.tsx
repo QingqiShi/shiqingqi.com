@@ -20,7 +20,7 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useEffect } from "react";
+import { type Ref, useEffect } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
@@ -29,10 +29,12 @@ import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
+import type { AccountRow } from "../sync/row-schemas.ts";
 import { selectQueueCounts } from "../transactions/select-queue-counts.ts";
 import { AccountGroupList } from "./account-group-list.tsx";
 import { BankBalanceSummary } from "./bank-balance-notice.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
+import type { WeekMover } from "./build-week-movers.ts";
 import { useSetNetWorthPick } from "./net-worth-pick-provider.tsx";
 import {
   bankDifferenceLines,
@@ -47,6 +49,7 @@ import {
   useNetWorthRange,
 } from "./net-worth-trend.tsx";
 import { selectWeekMovers } from "./select-week-movers.ts";
+import { useMoverRows } from "./use-mover-rows.ts";
 import type { NetWorthUrl } from "./use-net-worth-url.ts";
 
 interface HouseholdViewProps {
@@ -59,15 +62,22 @@ interface HouseholdViewProps {
 
 const STACKED_TREND_HEIGHT = 200;
 
+/** Where the column has room for the cards in a column beside the trend. */
+const BESIDE = "@container (min-width: 64rem)";
+
 /**
  * The Household in the content column of Net worth: the trend of its net
- * worth with the range to show, the accounts that moved most this week, and
- * what needs a look. Where the sidebar does not show in full, today's
- * figures and the actions come first. Where the column fills a stack, as on
- * a phone, the page takes the title "Net worth" with the actions beside it,
- * then today's figures, the trend at full width with the range under it,
- * what needs a look when something does, and the accounts by Group,
- * because no sidebar shows them.
+ * worth with the range to show, what needs a look, and the accounts that
+ * moved most this week. Where the sidebar does not show in full, today's
+ * figures and the actions come first. The trend fills the height of the
+ * column that the rest leaves. Where the column is wide, the two cards make
+ * a column beside the trend, and "What moved this week" lists as many
+ * accounts as fit beside it. Elsewhere the cards go under the trend, each
+ * as tall as its content, and "Needs a look" takes the narrower part. Where
+ * the column fills a stack, as on a phone, the page takes the title "Net
+ * worth" with the actions beside it, then today's figures, the trend at full
+ * width with the range under it, what needs a look when something does,
+ * and the accounts by Group, because no sidebar shows them.
  */
 export function HouseholdView({
   sheet,
@@ -100,12 +110,13 @@ export function HouseholdView({
   const nothingNeedsALook =
     differences.length === 0 && queue.review === 0 && queue.expected === 0;
   const cards = (
-    <div css={styles.cards}>
-      <UnlessStacked>
-        <WhatMoved today={today} currency={currency} url={url} />
-      </UnlessStacked>
-      <NeedsALook differences={differences} queue={queue} url={url} />
-    </div>
+    <HouseholdCards
+      differences={differences}
+      queue={queue}
+      today={today}
+      currency={currency}
+      url={url}
+    />
   );
 
   const actions = (
@@ -117,7 +128,7 @@ export function HouseholdView({
   );
 
   return (
-    <div css={stack.group}>
+    <div css={[stack.group, styles.view]}>
       <StackedOnly>
         <div css={stack.tight}>
           <header css={[cluster.item, styles.header]}>
@@ -155,37 +166,89 @@ export function HouseholdView({
             {actions}
           </div>
         </UnlessFullSidebar>
-        <section css={stack.item} aria-label={t({ en: "Trend", zh: "趋势" })}>
-          <div css={styles.titleRow}>
-            <Heading level={2} look="h3">
-              {t({ en: "Household", zh: "家庭" })}
-            </Heading>
-            <div css={styles.ranges}>
-              <ChartRangeChips value={range} onChange={setRange} />
-            </div>
-          </div>
-          <Card css={styles.chartCard}>
-            <div ref={trendRef} css={styles.trend}>
-              <NetWorthTrend
-                range={range}
-                height="fill"
-                onPick={setPick}
-                shared={HOUSEHOLD_TREND}
-              />
-            </div>
-          </Card>
-        </section>
       </UnlessStacked>
-      {nothingNeedsALook ? <UnlessStacked>{cards}</UnlessStacked> : cards}
-      <StackedOnly>
-        <AccountGroupList
-          sheet={sheet}
-          baseCurrency={currency}
-          reorderHref={url.modeHref("reorder")}
-          accountHref={(accountId) => url.hrefOf({ account: accountId })}
-          selectedAccountId={url.account}
+      <div css={styles.body}>
+        <UnlessStacked>
+          <section
+            css={[stack.item, styles.trendSection]}
+            aria-label={t({ en: "Trend", zh: "趋势" })}
+          >
+            <div css={styles.titleRow}>
+              <Heading level={2} look="h3">
+                {t({ en: "Household", zh: "家庭" })}
+              </Heading>
+              <div css={styles.ranges}>
+                <ChartRangeChips value={range} onChange={setRange} />
+              </div>
+            </div>
+            <Card css={styles.chartCard}>
+              <div ref={trendRef} css={styles.trend}>
+                <NetWorthTrend
+                  range={range}
+                  height="fill"
+                  onPick={setPick}
+                  shared={HOUSEHOLD_TREND}
+                />
+              </div>
+            </Card>
+          </section>
+        </UnlessStacked>
+        {nothingNeedsALook ? <UnlessStacked>{cards}</UnlessStacked> : cards}
+        <StackedOnly>
+          <AccountGroupList
+            sheet={sheet}
+            baseCurrency={currency}
+            reorderHref={url.modeHref("reorder")}
+            accountHref={(accountId) => url.hrefOf({ account: accountId })}
+            selectedAccountId={url.account}
+          />
+        </StackedOnly>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * "Needs a look" and, unless stacked, "What moved this week", with as many
+ * movers as `useMoverRows` finds room for. It is a component of its own, so
+ * that a new measure does not render the trend again.
+ */
+function HouseholdCards({
+  differences,
+  queue,
+  today,
+  currency,
+  url,
+}: {
+  differences: ReturnType<typeof bankDifferenceLines>;
+  queue: ReturnType<typeof selectQueueCounts>;
+  today: string;
+  currency: string;
+  url: NetWorthUrl;
+}) {
+  const movers = useReplica((snapshot) => selectWeekMovers(snapshot, today));
+  const { shown, floor, rowHeight, setColumn, setCard } = useMoverRows(
+    movers.length,
+  );
+
+  return (
+    <div
+      ref={setColumn}
+      css={[
+        styles.cards,
+        floor != null && styles.cardsFloor(`${String(floor)}px`),
+      ]}
+    >
+      <NeedsALook differences={differences} queue={queue} url={url} />
+      <UnlessStacked>
+        <WhatMoved
+          movers={movers.slice(0, shown)}
+          currency={currency}
+          url={url}
+          rowHeight={rowHeight}
+          cardRef={setCard}
         />
-      </StackedOnly>
+      </UnlessStacked>
     </div>
   );
 }
@@ -193,18 +256,21 @@ export function HouseholdView({
 /**
  * The accounts that moved net worth most since a week ago, each with a bar
  * from the middle: to the right for a gain, to the left for a loss, and the
- * signed change beside it. Each opens its account.
+ * signed change beside it, in rows of `rowHeight`. Each opens its account.
  */
 function WhatMoved({
-  today,
+  movers,
   currency,
   url,
+  rowHeight,
+  cardRef,
 }: {
-  today: string;
+  movers: readonly WeekMover<AccountRow>[];
   currency: string;
   url: NetWorthUrl;
+  rowHeight: number | null;
+  cardRef: Ref<HTMLDivElement>;
 }) {
-  const movers = useReplica((snapshot) => selectWeekMovers(snapshot, today));
   const accountName = useAccountDisplayName();
   const largest = movers.reduce(
     (most, mover) => Math.max(most, Math.abs(mover.changeMinor)),
@@ -213,7 +279,12 @@ function WhatMoved({
   const titleId = "household-what-moved";
 
   return (
-    <Card css={stack.tight} aria-labelledby={titleId} role="region">
+    <Card
+      ref={cardRef}
+      css={[stack.tight, styles.wideCard]}
+      aria-labelledby={titleId}
+      role="region"
+    >
       <Heading level={3} look="h4" id={titleId}>
         {t({ en: "What moved this week", zh: "本周变动" })}
       </Heading>
@@ -225,7 +296,13 @@ function WhatMoved({
           })}
         </p>
       ) : (
-        <ul role="list" css={styles.movers}>
+        <ul
+          role="list"
+          css={[
+            styles.movers,
+            rowHeight != null && styles.moverRows(`${String(rowHeight)}px`),
+          ]}
+        >
           {movers.map((mover) => {
             const share = `${String((Math.abs(mover.changeMinor) / largest) * 50)}%`;
             const gain = mover.changeMinor > 0;
@@ -316,7 +393,11 @@ function NeedsALook({
 
   if (differences.length === 0 && reviewCount === 0 && expectedCount === 0) {
     return (
-      <Card css={stack.tight} aria-labelledby={titleId} role="region">
+      <Card
+        css={[stack.tight, styles.narrowCard]}
+        aria-labelledby={titleId}
+        role="region"
+      >
         {title}
         <p css={[row.tight, typeRole.bodySmall, styles.muted]}>
           <CheckCircleIcon weight="bold" aria-hidden />
@@ -330,7 +411,11 @@ function NeedsALook({
   }
 
   return (
-    <Card css={stack.tight} aria-labelledby={titleId} role="region">
+    <Card
+      css={[stack.tight, styles.narrowCard]}
+      aria-labelledby={titleId}
+      role="region"
+    >
       {title}
       <div css={stack.tight}>
         {differences.map((line) =>
@@ -408,10 +493,26 @@ const styles = stylex.create({
     flexBasis: "18rem",
     maxInlineSize: "24rem",
   },
+  view: {
+    flexGrow: 1,
+    containerType: "inline-size",
+  },
+  body: {
+    display: "flex",
+    flexDirection: { default: "column", [BESIDE]: "row" },
+    flexGrow: 1,
+    gap: { default: rhythm.group, [BESIDE]: rhythm.item },
+  },
+  trendSection: {
+    flexGrow: 1,
+    flexBasis: 0,
+    minInlineSize: 0,
+  },
   chartCard: {
     display: "flex",
     flexDirection: "column",
-    blockSize: { default: "15rem", [breakpoints.md]: "18.75rem" },
+    flexGrow: 1,
+    minBlockSize: { default: "15rem", [breakpoints.md]: "18.75rem" },
     padding: space._3,
   },
   trend: {
@@ -420,10 +521,32 @@ const styles = stylex.create({
     flexGrow: 1,
     minBlockSize: 0,
   },
+  // Beside the trend, the column takes its height from the trend, and the
+  // list of movers fills it. So its content must not set its height.
   cards: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))",
+    display: "flex",
+    flexDirection: { default: "row", [BESIDE]: "column" },
+    flexWrap: { default: "wrap", [BESIDE]: "nowrap" },
+    alignItems: { default: "flex-start", [BESIDE]: "stretch" },
+    flexShrink: 0,
+    inlineSize: { default: "auto", [BESIDE]: "24rem" },
+    contain: { default: null, [BESIDE]: "size" },
     gap: rhythm.item,
+  },
+  cardsFloor: (minBlockSize: string) => ({
+    minBlockSize,
+  }),
+  narrowCard: {
+    flexGrow: { default: 2, [BESIDE]: 0 },
+    flexBasis: { default: 0, [BESIDE]: "auto" },
+    minInlineSize: "min(100%, 18rem)",
+  },
+  // The bars of the movers need the width, so the card goes under "Needs a
+  // look" before they get short.
+  wideCard: {
+    flexGrow: { default: 3, [BESIDE]: 1 },
+    flexBasis: { default: 0, [BESIDE]: "auto" },
+    minInlineSize: "min(100%, 22rem)",
   },
   muted: {
     margin: 0,
@@ -437,6 +560,9 @@ const styles = stylex.create({
     padding: 0,
     listStyle: "none",
   },
+  moverRows: (gridAutoRows: string) => ({
+    gridAutoRows,
+  }),
   mover: {
     display: "grid",
     gridColumn: "1 / -1",

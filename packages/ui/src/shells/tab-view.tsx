@@ -335,15 +335,20 @@ const styles = stylex.create({
     containerType: "inline-size",
     blockSize: "100%",
   },
+  // StyleX writes a plain custom property outside its cascade layers, but a
+  // custom property in a container query inside them. Thus a plain default
+  // wins over the container query, and each form must set its own value.
   root: {
     // No bar floats over the top of the page, so sticky chrome parks under
     // the status bar.
     "--header-controls-clearance": {
-      default: "env(safe-area-inset-top)",
+      default: null,
+      [tabViewQueries.bar]: "env(safe-area-inset-top)",
       [tabViewQueries.rail]: "0px",
     },
     [tabViewTokens.barClearance]: {
-      default: `calc(${tabBarTokens.blockSize} + ${tabViewTokens.barInsetBlockEnd})`,
+      default: null,
+      [tabViewQueries.bar]: `calc(${tabBarTokens.blockSize} + ${tabViewTokens.barInsetBlockEnd})`,
       [tabViewQueries.rail]: "0px",
     },
     display: "grid",
