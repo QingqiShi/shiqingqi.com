@@ -1015,6 +1015,85 @@ describe("upsertRule", () => {
     ]);
   });
 
+  async function linkAccount(accountId: string, deletedAt: Date | null = null) {
+    const connectionId = randomUUID();
+    await db.insert(connections).values({
+      id: connectionId,
+      householdId: home.householdId,
+      label: "Lunch Flow",
+      version: 1,
+    });
+    await db.insert(bankLinks).values({
+      id: randomUUID(),
+      householdId: home.householdId,
+      connectionId,
+      accountId,
+      providerAccountId: `provider-${randomUUID()}`,
+      currency: "GBP",
+      version: 1,
+      deletedAt,
+    });
+  }
+
+  async function expectAutoPost(input: Input, autoPost: boolean) {
+    const { browser, server } = await onBothSides(input);
+    for (const outcome of [browser, server]) {
+      expect(rowsOf(outcome).rules).toEqual([
+        expect.objectContaining({ autoPost }),
+      ]);
+    }
+  }
+
+  it("makes a new Rule on an account with a Bank link make Expected Transactions, though it asks to post automatically", async () => {
+    await linkAccount(home.cardId);
+    await expectAutoPost(
+      mutation("upsertRule", { ...newRule(randomUUID()).args, autoPost: true }),
+      false,
+    );
+  });
+
+  it("does not post automatically when the stored template has an account with a Bank link", async () => {
+    const ruleId = randomUUID();
+    await push(newRule(ruleId));
+    await linkAccount(home.currentId);
+    await expectAutoPost(
+      mutation("upsertRule", { id: ruleId, autoPost: true }),
+      false,
+    );
+  });
+
+  it("stops a Rule that posts automatically when a change comes after its account got a Bank link", async () => {
+    const ruleId = randomUUID();
+    await push(
+      mutation("upsertRule", {
+        ...newRule(ruleId).args,
+        autoPost: true,
+        template: {
+          ...splitTemplate(),
+          entries: [{ accountId: home.savingsId, amountMinor: -1_000 }],
+        },
+      }),
+    );
+    await linkAccount(home.currentId);
+    await expectAutoPost(
+      mutation("upsertRule", { id: ruleId, template: splitTemplate() }),
+      false,
+    );
+    await linkAccount(home.savingsId);
+    await expectAutoPost(
+      mutation("upsertRule", { id: ruleId, name: "Big shop" }),
+      false,
+    );
+  });
+
+  it("posts automatically on an account whose Bank link is deleted", async () => {
+    await linkAccount(home.currentId, NOW);
+    await expectAutoPost(
+      mutation("upsertRule", { ...newRule(randomUUID()).args, autoPost: true }),
+      true,
+    );
+  });
+
   it("refuses another kind and an unknown Category in the template", async () => {
     const ruleId = randomUUID();
     await push(newRule(ruleId));

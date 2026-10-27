@@ -87,8 +87,8 @@ function rows(): Partial<SyncRows> {
 }
 
 /** A Replica runtime in memory, loaded with a small synthetic Household and never started. */
-export function createSettingsReplica() {
-  return createTestReplica(rows(), [
+export function createSettingsReplica(more: Partial<SyncRows> = {}) {
+  return createTestReplica({ ...rows(), ...more }, [
     {
       base: "USD",
       quote: "GBP",

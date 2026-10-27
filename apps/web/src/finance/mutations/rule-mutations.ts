@@ -1,4 +1,5 @@
 import { SCHEDULE_FIELDS } from "../domain/rules/schedule-fields.ts";
+import { mayAutoPost } from "../rules/may-auto-post.ts";
 import { nextOccurrence } from "../rules/next-occurrence.ts";
 import {
   ruleTemplateSchema,
@@ -15,7 +16,7 @@ import {
   checkTransactionRows,
   softDeleteTransaction,
 } from "./transaction-mutations.ts";
-import type { MutationArgs, MutationScope } from "./types.ts";
+import type { MutationArgs, MutationDraft, MutationScope } from "./types.ts";
 
 type UpsertRuleArgs = MutationArgs<"upsertRule">;
 type RuleFields = Omit<UpsertRuleArgs, "id" | "deleted" | "paused">;
@@ -29,14 +30,18 @@ export interface RuleChange {
   templateChanged: boolean;
 }
 
+function storedTemplateOf(rule: RuleRow): RuleTemplate | null {
+  const parsed = ruleTemplateSchema.safeParse(rule.template);
+  return parsed.success ? parsed.data : null;
+}
+
 export function ruleChangeOf(
   existing: RuleRow,
   fields: RuleFields,
   paused: boolean | undefined,
   today: string,
 ): RuleChange {
-  const parsed = ruleTemplateSchema.safeParse(existing.template);
-  const before = parsed.success ? parsed.data : null;
+  const before = storedTemplateOf(existing);
   const scheduleChanged = SCHEDULE_FIELDS.some(
     (field) => fields[field] !== undefined && fields[field] !== existing[field],
   );
@@ -60,12 +65,43 @@ export function ruleChangeOf(
 }
 
 /**
+ * The template Entries whose accounts decide if a Rule may post
+ * automatically after an upsert: none when it then does not post
+ * automatically. The server loads the Bank links of these accounts.
+ */
+export function autoPostEntriesOf(
+  existing: RuleRow | undefined,
+  args: Pick<UpsertRuleArgs, "autoPost" | "template">,
+): RuleTemplate["entries"] {
+  if (!(args.autoPost ?? existing?.autoPost)) return [];
+  const template =
+    args.template ?? (existing ? storedTemplateOf(existing) : null);
+  return template?.entries ?? [];
+}
+
+function autoPostAfter(
+  draft: MutationDraft,
+  existing: RuleRow | undefined,
+  args: UpsertRuleArgs,
+  autoPost: boolean,
+) {
+  return (
+    autoPost &&
+    mayAutoPost(autoPostEntriesOf(existing, args), (accountId) =>
+      draft.hasLive("bankLinks", { accountId }),
+    )
+  );
+}
+
+/**
  * Creates or changes a Rule. When its schedule changes or it is resumed, the
  * next occurrence is worked out again from today, so no missed occurrence
- * comes back. A Rule keeps its kind. Deleting a Rule deletes its Expected
- * Transactions too. What a schedule or template change does to the
- * Expected Transactions is for the server to work out; see
- * `rewriteExpected`.
+ * comes back. A Rule keeps its kind. A Rule on an account with a Bank link
+ * does not post automatically, even when the upsert asks for it, so that a
+ * Replica that does not know of the link yet loses no other change. Deleting
+ * a Rule deletes its Expected Transactions too. What a schedule or template
+ * change does to the Expected Transactions is for the server to work out;
+ * see `rewriteExpected`.
  */
 function upsertRule(scope: MutationScope, args: UpsertRuleArgs) {
   const { draft, context } = scope;
@@ -97,6 +133,7 @@ function upsertRule(scope: MutationScope, args: UpsertRuleArgs) {
       id,
       householdId: context.householdId,
       ...schedule,
+      autoPost: autoPostAfter(draft, undefined, args, schedule.autoPost),
       nextOn: row.nextOn ?? nextOccurrence(schedule, schedule.startsOn),
       pausedAt: pausedAt(null),
       version: 0,
@@ -120,6 +157,7 @@ function upsertRule(scope: MutationScope, args: UpsertRuleArgs) {
   }
   draft.put("rules", id, {
     ...merged,
+    autoPost: autoPostAfter(draft, existing, args, merged.autoPost),
     pausedAt: pausedAt(existing.pausedAt),
     updatedAt: context.now,
     deletedAt: stampAfter(deleted, existing.deletedAt, scope.context.now),

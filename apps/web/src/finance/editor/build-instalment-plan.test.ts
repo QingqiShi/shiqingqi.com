@@ -1,7 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { accounts, entries, transactions, valuations } from "../db/schema.ts";
+import {
+  accounts,
+  bankLinks,
+  connections,
+  entries,
+  rules,
+  transactions,
+  valuations,
+} from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -189,6 +197,37 @@ describe("buildInstalmentPlan", () => {
     expect(spent.reduce((sum, entry) => sum + entry.amountMinor, 0)).toBe(
       -121_205,
     );
+  });
+
+  it("applies in full when the paying account got a Bank link after the plan was made, with a Rule that makes Expected payments", async () => {
+    const result = plan();
+    const connectionId = randomUUID();
+    await db.insert(connections).values({
+      id: connectionId,
+      householdId: home.householdId,
+      label: "Lunch Flow",
+      version: 1,
+    });
+    await db.insert(bankLinks).values({
+      id: randomUUID(),
+      householdId: home.householdId,
+      connectionId,
+      accountId: home.cardId,
+      providerAccountId: "provider-card",
+      currency: "GBP",
+      version: 1,
+    });
+
+    await push(result.mutations);
+
+    expect(await db.select({ autoPost: rules.autoPost }).from(rules)).toEqual([
+      { autoPost: false },
+    ]);
+    const [loan] = await db
+      .select({ id: accounts.id })
+      .from(accounts)
+      .where(eq(accounts.id, result.loanAccountId));
+    expect(loan).toBeDefined();
   });
 
   it("is undone by its Undo mutations", async () => {

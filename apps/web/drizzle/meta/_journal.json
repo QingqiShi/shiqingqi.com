@@ -127,6 +127,13 @@
       "when": 1793094811392,
       "tag": "0017_bank_rows_waiting",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793129777893,
+      "tag": "0018_no_auto_post_on_bank_link",
+      "breakpoints": true
     }
   ]
 }
