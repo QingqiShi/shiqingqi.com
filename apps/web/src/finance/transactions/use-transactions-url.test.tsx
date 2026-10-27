@@ -46,15 +46,4 @@ describe("useTransactionsUrl", () => {
     await popped;
     expect(window.location.search).toBe("?q=tesco");
   });
-
-  it("changes an open pane in place, so one close leaves it", async () => {
-    renderUrl().open("t1");
-    renderUrl().openNew("expense", "t1");
-    expect(window.location.search).toBe("?q=tesco&new=expense&refund=t1");
-
-    const popped = nextPopState();
-    renderUrl().close();
-    await popped;
-    expect(window.location.search).toBe("?q=tesco");
-  });
 });

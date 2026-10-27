@@ -85,6 +85,30 @@ import { useEditorData, type EditorData } from "./use-editor-data.ts";
 
 export type EditorFocusTarget = "amount" | "category";
 
+/**
+ * What the host of the editor does for it. `useTransactionTask` gives each
+ * one from where the editor shows and where the visitor came from.
+ */
+export interface EditorHost {
+  /** Where focus goes when the editor opens; a new `nonce` asks again. */
+  focusRequest?: { target: EditorFocusTarget; nonce: number };
+  /** Receives the element that takes focus, for a sheet that moves focus after it opens. */
+  focusTargetRef?: RefObject<HTMLElement | null>;
+  close: () => void;
+  /** After a save. `andNew` asks for a new Transaction; a new one starts again in place. */
+  afterSave: (transactionId: string, andNew: boolean) => void;
+  /** Opens another Transaction, such as the one a new Transaction duplicates. */
+  openTransaction: (transactionId: string) => void;
+  /** Starts a new refund of the Transaction. */
+  refund: (transactionId: string) => void;
+  /**
+   * Reads a Transaction's labels before a save. The function it returns
+   * gives the "Teach the AI" action for the toast after the save, when the
+   * save corrected the AI's labels.
+   */
+  watchCorrection: (transactionId: string) => () => ToastAction | undefined;
+}
+
 interface TransactionEditorProps {
   /** The Transaction to edit, or null for a new one. */
   transactionId: string | null;
@@ -99,29 +123,9 @@ interface TransactionEditorProps {
   initialAccountId?: string | null;
   /** The fields of a new Transaction filled in already, such as from quick add. */
   seedDraft?: EditorDraft | null;
-  /** Where focus goes when the editor opens; `nonce` lets the list ask again. */
-  focusRequest?: { target: EditorFocusTarget; nonce: number };
-  /** Receives the element that takes focus, for a sheet that moves focus after it opens. */
-  focusTargetRef?: RefObject<HTMLElement | null>;
-  /**
-   * Shows a close button, and closes on Esc; a sheet has its own button. In
-   * a column of a `NavigationSplitView`, the column's close button takes
-   * its place, and the column's close replaces `onClose`.
-   */
-  showClose?: boolean;
   /** A notice under the headline, such as one about the bank's records. */
   notice?: ReactNode;
-  onClose: () => void;
-  /** After a save. `andNew` asks for a blank editor again. */
-  onSaved?: (transactionId: string, andNew: boolean) => void;
-  onOpenTransaction: (transactionId: string) => void;
-  onRefund?: (transactionId: string) => void;
-  /**
-   * Reads a Transaction's labels before a save. The function it returns
-   * gives the "Teach the AI" action for the toast after the save, when the
-   * save corrected the AI's labels.
-   */
-  watchCorrection?: (transactionId: string) => () => ToastAction | undefined;
+  host: EditorHost;
 }
 
 const NO_ENTRIES: readonly EntryRow[] = [];
@@ -191,7 +195,7 @@ export function TransactionEditor(props: TransactionEditorProps) {
               })}
         </p>
         <div>
-          <Button onClick={props.onClose}>
+          <Button onClick={props.host.close}>
             {t({ en: "Close", zh: "关闭" })}
           </Button>
         </div>
@@ -215,15 +219,8 @@ function EditorForm({
   setDraft,
   transactionId,
   initialAccountId,
-  focusRequest,
-  focusTargetRef,
-  showClose,
   notice,
-  onClose,
-  onSaved,
-  onOpenTransaction,
-  onRefund,
-  watchCorrection,
+  host,
 }: EditorFormProps) {
   const locale = useLocale();
   const store = useReplicaStore();
@@ -255,7 +252,7 @@ function EditorForm({
   // In a column or in its sheet, the Transaction is a place to read, not a
   // task: a headline names it and nothing takes focus on open.
   const isPlace = column !== null && transactionId !== null;
-  const close = column?.close ?? onClose;
+  const { focusRequest, focusTargetRef, close } = host;
   const { ref: footerStickyRef, css: footerStickyCss } = footerSticky;
   const newIdRef = useRef<string | null>(null);
   const amountRef = useRef<HTMLInputElement>(null);
@@ -647,7 +644,7 @@ function EditorForm({
         return;
       }
     }
-    const offerTeach = existing ? watchCorrection?.(existing.id) : undefined;
+    const offerTeach = existing ? host.watchCorrection(existing.id) : undefined;
     try {
       applyAll(store, result.mutations);
     } catch {
@@ -660,7 +657,7 @@ function EditorForm({
       offerTeach?.(),
     );
     newIdRef.current = null;
-    if (andNew) {
+    if (andNew && isNew) {
       setDraft({
         ...draftOfNew(data, draft.kind),
         date: draft.date,
@@ -672,7 +669,7 @@ function EditorForm({
       setDuplicate(null);
       amountRef.current?.focus();
     }
-    onSaved?.(result.transactionId, andNew);
+    host.afterSave(result.transactionId, andNew);
   };
 
   const remove = () => {
@@ -790,7 +787,11 @@ function EditorForm({
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
       event.preventDefault();
       save(true);
-    } else if (event.key === "Escape" && showClose && !event.defaultPrevented) {
+    } else if (
+      event.key === "Escape" &&
+      column !== null &&
+      !event.defaultPrevented
+    ) {
       event.preventDefault();
       close();
     }
@@ -910,24 +911,13 @@ function EditorForm({
           </span>
         </h2>
       ) : (
-        <div css={[flex.between, styles.header]}>
-          <h2
-            id="finance-editor-heading"
-            tabIndex={-1}
-            css={[typeRole.h4, a11y.focusRing]}
-          >
-            {heading}
-          </h2>
-          {showClose && column === null ? (
-            <Button
-              look="ghost"
-              size="sm"
-              icon={<XIcon weight="bold" />}
-              aria-label={t({ en: "Close", zh: "关闭" })}
-              onClick={close}
-            />
-          ) : null}
-        </div>
+        <h2
+          id="finance-editor-heading"
+          tabIndex={-1}
+          css={[typeRole.h4, a11y.focusRing]}
+        >
+          {heading}
+        </h2>
       )}
 
       {notice}
@@ -1476,7 +1466,7 @@ function EditorForm({
               <Button
                 size="sm"
                 onClick={() => {
-                  onOpenTransaction(duplicate.id);
+                  host.openTransaction(duplicate.id);
                 }}
               >
                 {t({ en: "Open existing", zh: "打开已有交易" })}
@@ -1495,14 +1485,13 @@ function EditorForm({
       {existing && !isExpected ? (
         <div css={cluster.tight}>
           {existing.kind === "expense" &&
-          (existingEntries.at(0)?.amountMinor ?? 0) < 0 &&
-          onRefund ? (
+          (existingEntries.at(0)?.amountMinor ?? 0) < 0 ? (
             <Button
               size="sm"
               look="outline"
               icon={<ArrowUUpLeftIcon weight="bold" />}
               onClick={() => {
-                onRefund(existing.id);
+                host.refund(existing.id);
               }}
             >
               {t({ en: "Refund", zh: "退款" })}
@@ -1644,9 +1633,6 @@ function TagPickerSlot({
 }
 
 const styles = stylex.create({
-  header: {
-    gap: rhythm.tight,
-  },
   amount: {
     fontWeight: font.weight_6,
   },

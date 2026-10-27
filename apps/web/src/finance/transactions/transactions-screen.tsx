@@ -24,20 +24,15 @@ import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { DetailEditor } from "../editor/detail-editor.tsx";
-import type { EditorDraft } from "../editor/editor-draft.ts";
-import {
-  TransactionEditor,
-  type EditorFocusTarget,
-} from "../editor/transaction-editor.tsx";
+import type { EditorFocusTarget } from "../editor/transaction-editor.tsx";
 import { unconfirmMutations } from "../editor/unconfirm-mutations.ts";
+import { useTransactionTask } from "../editor/use-transaction-task.tsx";
 import { ColumnLink, useColumnReplace } from "../navigation/column-link.tsx";
 import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
-import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
@@ -47,6 +42,7 @@ import { selectTransactionAmounts } from "../store/select-transaction-amounts.ts
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import { buildTransactionList } from "./build-transaction-list.ts";
+import { focusRow } from "./focus-row.ts";
 import { QuickAdd } from "./quick-add.tsx";
 import { selectQueueCounts } from "./select-queue-counts.ts";
 import { selectReviewIds } from "./select-review-ids.ts";
@@ -63,14 +59,6 @@ import { useTeachAi } from "./use-teach-ai.tsx";
 import { useTransactionLookups } from "./use-transaction-lookups.ts";
 import { useTransactionsUrl } from "./use-transactions-url.ts";
 
-function focusRow(id: string) {
-  requestAnimationFrame(() => {
-    document
-      .querySelector<HTMLElement>(`[data-transaction-id="${CSS.escape(id)}"]`)
-      ?.focus();
-  });
-}
-
 /**
  * The Transactions screen: quick add, search and filters over a virtualised
  * day-grouped list, and the open Transaction (`?id=`) in the column after
@@ -86,6 +74,7 @@ export function TransactionsScreen() {
   const isWide = useIsWideLayout();
   const teach = useTeachAi();
   const replace = useColumnReplace();
+  const task = useTransactionTask({ screen: "transactions" });
 
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const rows = useReplica(selectTransactionsByDateDesc);
@@ -148,17 +137,9 @@ export function TransactionsScreen() {
     ),
   };
 
-  const [seed, setSeed] = useState<{
-    draft: EditorDraft;
-    nonce: number;
-  } | null>(null);
-  const [focusRequest, setFocusRequest] = useState<
-    { target: EditorFocusTarget; nonce: number } | undefined
-  >(undefined);
   const [cursorId, setCursorId] = useState<string | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const focusTargetRef = useRef<HTMLElement | null>(null);
 
   const toastConfirmed = t({ en: "Confirmed", zh: "已确认" });
   const toastSkipped = t({ en: "Skipped", zh: "已跳过" });
@@ -203,8 +184,7 @@ export function TransactionsScreen() {
     hrefFor: (id) => url.hrefOf(id),
     onOpen: (id) => {
       setCursorId(id);
-      setFocusRequest(undefined);
-      url.open(id);
+      task.open(id);
     },
     onConfirm: (row) => {
       applyWithUndo(
@@ -236,17 +216,8 @@ export function TransactionsScreen() {
     },
   };
 
-  const closePane = () => {
-    const previous = url.selectedId;
-    url.close();
-    setSeed(null);
-    if (previous) focusRow(previous);
-  };
-
   const openNew = () => {
-    setSeed(null);
-    setFocusRequest(undefined);
-    url.openNew("expense");
+    task.openNew();
   };
 
   const cursorIndex = () => {
@@ -283,12 +254,7 @@ export function TransactionsScreen() {
 
   const openWithFocus = (focus: EditorFocusTarget) => {
     const row = target();
-    if (!row) return;
-    setFocusRequest((previous) => ({
-      target: focus,
-      nonce: (previous?.nonce ?? 0) + 1,
-    }));
-    if (url.selectedId !== row.id) url.open(row.id);
+    if (row) task.open(row.id, focus);
   };
 
   useListShortcuts({
@@ -326,49 +292,13 @@ export function TransactionsScreen() {
       }
     },
     onClose: () => {
-      if (url.isOpen) closePane();
+      if (url.isOpen) task.close();
     },
   });
 
   const setFilters = (next: TransactionFilters) => {
     url.setFilters(next);
   };
-
-  const editorKey = `${url.selectedId ?? `new-${url.newKind ?? ""}-${url.refundOfId ?? ""}`}-${String(seed?.nonce ?? 0)}`;
-  const editorFor = (showClose: boolean) =>
-    url.isOpen && bootstrapped ? (
-      <TransactionEditor
-        key={editorKey}
-        transactionId={url.selectedId}
-        initialKind={url.newKind ?? "expense"}
-        refundOfId={url.refundOfId}
-        seedDraft={url.selectedId === null ? seed?.draft : null}
-        focusRequest={
-          focusRequest ??
-          (seed && url.selectedId === null
-            ? {
-                target: seed.draft.amountText === "" ? "amount" : "category",
-                nonce: seed.nonce,
-              }
-            : undefined)
-        }
-        focusTargetRef={focusTargetRef}
-        showClose={showClose}
-        onClose={closePane}
-        onSaved={(_, andNew) => {
-          if (!andNew) closePane();
-        }}
-        onOpenTransaction={(id) => {
-          setSeed(null);
-          url.open(id);
-        }}
-        onRefund={(id) => {
-          setSeed(null);
-          url.openNew("expense", id);
-        }}
-        watchCorrection={teach.watch}
-      />
-    ) : null;
 
   const listLabel = t({ en: "Transactions by day", zh: "按日分组的交易" });
   const master = (
@@ -401,15 +331,7 @@ export function TransactionsScreen() {
             </Button>
           </div>
         </div>
-        {bootstrapped ? (
-          <QuickAdd
-            onNeedsEditor={(draft) => {
-              setFocusRequest(undefined);
-              setSeed({ draft, nonce: Date.now() });
-              url.openNew(draft.kind);
-            }}
-          />
-        ) : null}
+        {bootstrapped ? <QuickAdd onNeedsEditor={task.openNew} /> : null}
         <search css={stack.tight}>
           <TextField
             ref={searchRef}
@@ -529,19 +451,12 @@ export function TransactionsScreen() {
                   href: url.hrefWithout(),
                   label: t({ en: "Transactions", zh: "交易" }),
                 },
-                node: <DetailEditor>{editorFor(true)}</DetailEditor>,
+                node: task.detail(url.selectedId),
               }
             : null
         }
       />
-      <PaneSheet
-        isOpen={url.newKind !== null}
-        onClose={closePane}
-        label={t({ en: "New transaction", zh: "新建交易" })}
-        initialFocusRef={focusTargetRef}
-      >
-        {url.newKind === null ? null : editorFor(false)}
-      </PaneSheet>
+      {task.sheet}
       {teach.sheet}
     </>
   );

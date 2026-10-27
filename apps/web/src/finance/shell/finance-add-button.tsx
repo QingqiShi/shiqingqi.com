@@ -27,11 +27,11 @@ function NewTransactionLink(props: AnchorButtonLinkProps) {
 
 /**
  * The floating Add action below `lg`. It opens a blank expense
- * (`?new=expense`) in a sheet over the screen it is on, which hosts a
- * `NewTransactionSheet`; at `lg` and wider the transactions header holds
- * the action instead. A screen floats it over its content: the `accessory`
- * of a column of a `NavigationSplitView`, or of a `FinancePageColumn`.
- * In the skeleton of a screen that still opens, it opens that screen.
+ * (`?new=expense`) in a sheet over the screen it is on, which hosts the
+ * sheet of `useTransactionTask`; at `lg` and wider the transactions header
+ * holds the action instead. A screen floats it over its content: the
+ * `accessory` of a column of a `NavigationSplitView`, or of a
+ * `FinancePageColumn`. In the skeleton of a screen that still opens, it opens that screen.
  */
 export function FinanceAddButton() {
   const locale = useLocale();
