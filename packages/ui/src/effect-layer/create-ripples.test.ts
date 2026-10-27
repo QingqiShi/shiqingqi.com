@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { instanceRange } from "./create-instanced-draw.ts";
 import {
   aimAt,
   boxGap,
@@ -17,7 +18,6 @@ import {
   type RippleStep,
   type RippleStepInput,
 } from "./create-ripples.ts";
-import { instanceRange } from "./instance-range.ts";
 import type { EffectElementRecord, EffectScope } from "./types.ts";
 
 const RIPPLE = 0b01;

@@ -1,8 +1,7 @@
-import { GPU_SHADER_STAGE, PREMULTIPLIED_BLEND } from "./constants.ts";
 import { createBinding } from "./create-binding.ts";
+import { createInstancedDraw } from "./create-instanced-draw.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
 import { roleBits } from "./effect-roles.ts";
-import { instanceRange } from "./instance-range.ts";
 import { lastResultOf } from "./last-result-of.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { readFill } from "./read-element-box.ts";
@@ -67,62 +66,24 @@ function lapFrom(record: EffectElementRecord, time: number): ElementLap {
  * @internal
  */
 export const ringLightEffect: Effect = {
-  async setup({ device, format, pageLayout, targetLayout, requestFrame }) {
-    const layout = device.createBindGroupLayout({
-      entries: [
-        {
-          binding: 0,
-          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
-          buffer: { type: "read-only-storage" },
-        },
-      ],
-    });
-    const module = device.createShaderModule({ code: RING_LIGHT_WGSL });
+  async setup(setup) {
+    const { device } = setup;
     // A lap starts on the first frame its element is seen, so it waits for
     // the pipeline: otherwise the start of the lap would not show.
-    const pipeline = await device.createRenderPipelineAsync({
-      layout: device.createPipelineLayout({
-        bindGroupLayouts: [pageLayout, targetLayout, layout],
-      }),
-      vertex: { module, entryPoint: "ringLightVertex" },
-      fragment: {
-        module,
-        entryPoint: "ringLightFragment",
-        targets: [{ format, blend: PREMULTIPLIED_BLEND }],
-      },
-      primitive: { topology: "triangle-strip" },
-    });
+    const ringLight = await createInstancedDraw(
+      setup,
+      RING_LIGHT_WGSL,
+      "ringLight",
+    );
     const buffer = createPackedBuffer(
       device,
       RING_LIGHT_INSTANCE_BYTES,
       packRingLightInstances,
     );
-    const binding = createBinding(device, layout, [buffer]);
+    const binding = createBinding(device, ringLight.layout, [buffer]);
     /** Each element's lap, kept after it is over so that it runs once. */
     const laps = new Map<number, ElementLap>();
     let rings: readonly RingLightInstance[] = [];
-    let endTimer: ReturnType<typeof setTimeout> | undefined;
-    let scheduledEnd: number | null = null;
-
-    // Under reduced motion no frame follows on its own, so the frame that
-    // takes a still glow away is asked for when it is due.
-    function scheduleEnd(nextEnd: number | null, time: number) {
-      if (nextEnd === scheduledEnd) {
-        return;
-      }
-      clearTimeout(endTimer);
-      scheduledEnd = nextEnd;
-      if (nextEnd !== null) {
-        endTimer = setTimeout(
-          () => {
-            scheduledEnd = null;
-            requestFrame();
-          },
-          Math.max(0, (nextEnd - time) * 1000) + 16,
-        );
-      }
-    }
-
     return {
       update(_encoder, frame: EffectFrame) {
         const instances: RingLightInstance[] = [];
@@ -158,28 +119,19 @@ export const ringLightEffect: Effect = {
             laps.delete(id);
           }
         }
-        scheduleEnd(
-          frame.reducedMotion && instances.length > 0 ? nextEnd : null,
-          frame.time,
-        );
         rings = instances;
         buffer.write(instances);
-        return instances.length > 0 && !frame.reducedMotion;
+        if (instances.length === 0) {
+          return false;
+        }
+        // Under reduced motion no frame follows on its own, so ask for the
+        // frame that takes a still glow away when it is due.
+        return frame.reducedMotion ? nextEnd : true;
       },
       draw(pass, target) {
-        const [first, count] = instanceRange(
-          rings,
-          target.firstElement,
-          target.elementCount,
-        );
-        if (count > 0) {
-          pass.setPipeline(pipeline);
-          pass.setBindGroup(2, binding());
-          pass.draw(4, count, 0, first);
-        }
+        ringLight.draw(pass, target, rings, binding);
       },
       destroy() {
-        clearTimeout(endTimer);
         buffer.destroy();
       },
     };

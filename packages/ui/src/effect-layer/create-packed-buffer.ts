@@ -8,10 +8,10 @@ const MIN_CAPACITY = 16;
  *
  * @internal
  */
-export function createPackedBuffer<Item>(
+export function createPackedBuffer<Item, Context = void>(
   device: GPUDevice,
   itemBytes: number,
-  pack: (items: readonly Item[], buffer: ArrayBuffer) => void,
+  pack: (items: readonly Item[], buffer: ArrayBuffer, context: Context) => void,
 ) {
   const create = (capacity: number) => ({
     capacity,
@@ -32,7 +32,7 @@ export function createPackedBuffer<Item>(
      * Packs the items, and uploads them when they differ from the last
      * upload. Returns whether they did.
      */
-    write(items: readonly Item[]) {
+    write(items: readonly Item[], context: Context) {
       const capacity = Math.max(
         MIN_CAPACITY,
         2 ** Math.ceil(Math.log2(items.length)),
@@ -42,7 +42,7 @@ export function createPackedBuffer<Item>(
         state = create(capacity);
       }
       [state.packed, state.previous] = [state.previous, state.packed];
-      pack(items, state.packed);
+      pack(items, state.packed, context);
       const words = new Uint32Array(
         state.packed,
         0,

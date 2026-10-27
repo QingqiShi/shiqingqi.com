@@ -1,25 +1,21 @@
-import {
-  GPU_BUFFER_USAGE,
-  GPU_SHADER_STAGE,
-  PREMULTIPLIED_BLEND,
-} from "./constants.ts";
+import { createBinding } from "./create-binding.ts";
+import { createInstancedDraw } from "./create-instanced-draw.ts";
+import { createPackedBuffer } from "./create-packed-buffer.ts";
 import {
   createRipples,
   type RippleCause,
-  type RippleStep,
+  type RippleInstance,
 } from "./create-ripples.ts";
 import { roleBits } from "./effect-roles.ts";
-import { instanceRange } from "./instance-range.ts";
 import {
   packRippleInstances,
   RIPPLE_INSTANCE_BYTES,
   RIPPLE_WGSL,
 } from "./ripple-wgsl.ts";
-import type { Effect } from "./types.ts";
+import type { Effect, EffectFrame } from "./types.ts";
 
 const RIPPLE_BIT = roleBits(["ripple"]);
 const AMBIENT_BIT = roleBits(["rippleAmbient"]);
-const MIN_CAPACITY = 8;
 /** The still ring under reduced motion: while pressed, and while hovered or focused. */
 const HELD_STRENGTH = { press: 0.8, hover: 0.45 } as const;
 
@@ -42,57 +38,22 @@ const isNode = (target: EventTarget | null): target is Node =>
  * @internal
  */
 export const rippleEffect: Effect = {
-  async setup({ device, format, pageLayout, targetLayout, requestFrame }) {
-    const rippleLayout = device.createBindGroupLayout({
-      entries: [
-        {
-          binding: 0,
-          visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
-          buffer: { type: "read-only-storage" },
-        },
-      ],
-    });
-    const module = device.createShaderModule({ code: RIPPLE_WGSL });
-    const pipeline = await device.createRenderPipelineAsync({
-      layout: device.createPipelineLayout({
-        bindGroupLayouts: [pageLayout, targetLayout, rippleLayout],
-      }),
-      vertex: { module, entryPoint: "rippleVertex" },
-      fragment: {
-        module,
-        entryPoint: "rippleFragment",
-        targets: [{ format, blend: PREMULTIPLIED_BLEND }],
+  async setup(setup) {
+    const { device, requestFrame } = setup;
+    const ripple = await createInstancedDraw(setup, RIPPLE_WGSL, "ripple");
+    const buffer = createPackedBuffer(
+      device,
+      RIPPLE_INSTANCE_BYTES,
+      (instances: readonly RippleInstance[], packed, frame: EffectFrame) => {
+        packRippleInstances(instances, frame, packed);
       },
-      primitive: { topology: "triangle-strip" },
-    });
-
-    let capacity = 0;
-    let buffer: GPUBuffer | null = null;
-    let bindGroup: GPUBindGroup | null = null;
-    let packed = new ArrayBuffer(0);
-    function ensureCapacity(count: number) {
-      if (count <= capacity) {
-        return;
-      }
-      capacity = Math.max(MIN_CAPACITY, 2 ** Math.ceil(Math.log2(count)));
-      buffer?.destroy();
-      buffer = device.createBuffer({
-        size: capacity * RIPPLE_INSTANCE_BYTES,
-        usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST,
-      });
-      bindGroup = device.createBindGroup({
-        layout: rippleLayout,
-        entries: [{ binding: 0, resource: { buffer } }],
-      });
-      packed = new ArrayBuffer(capacity * RIPPLE_INSTANCE_BYTES);
-    }
+    );
+    const binding = createBinding(device, ripple.layout, [buffer]);
 
     const ripples = createRipples();
     let rippling: readonly Element[] = [];
     let reducedMotion = false;
-    let step: RippleStep | null = null;
-    let beatTimer: ReturnType<typeof setTimeout> | undefined;
-    let scheduledBeat: number | null = null;
+    let instances: readonly RippleInstance[] = [];
 
     /** The rippling elements that hold `target`. */
     const holding = (target: EventTarget | null) =>
@@ -158,23 +119,6 @@ export const rippleEffect: Effect = {
       });
     }
 
-    function scheduleBeat(nextBeat: number | null, time: number) {
-      if (nextBeat === scheduledBeat) {
-        return;
-      }
-      clearTimeout(beatTimer);
-      scheduledBeat = nextBeat;
-      if (nextBeat !== null) {
-        beatTimer = setTimeout(
-          () => {
-            scheduledBeat = null;
-            requestFrame();
-          },
-          Math.max(0, (nextBeat - time) * 1000),
-        );
-      }
-    }
-
     return {
       update(_encoder, frame) {
         rippling = frame.elements.flatMap((record) =>
@@ -182,7 +126,7 @@ export const rippleEffect: Effect = {
         );
         reducedMotion = frame.reducedMotion;
         const { velocityX, velocityY } = frame.pointer;
-        step = ripples.step({
+        const step = ripples.step({
           time: frame.time,
           elements: frame.elements,
           scopes: frame.scopes,
@@ -193,44 +137,16 @@ export const rippleEffect: Effect = {
           reducedMotion,
           held: heldStrength,
         });
-        scheduleBeat(step.nextBeat, frame.time);
-
-        const { instances } = step;
-        if (instances.length > 0) {
-          ensureCapacity(instances.length);
-          packRippleInstances(instances, frame, packed);
-          if (buffer !== null) {
-            device.queue.writeBuffer(
-              buffer,
-              0,
-              packed,
-              0,
-              instances.length * RIPPLE_INSTANCE_BYTES,
-            );
-          }
-        }
-        return step.animating;
+        instances = step.instances;
+        buffer.write(instances, frame);
+        return step.animating || (step.nextBeat ?? false);
       },
       draw(pass, target) {
-        if (step === null || bindGroup === null) {
-          return;
-        }
-        const [first, count] = instanceRange(
-          step.instances,
-          target.firstElement,
-          target.elementCount,
-        );
-        if (count === 0) {
-          return;
-        }
-        pass.setPipeline(pipeline);
-        pass.setBindGroup(2, bindGroup);
-        pass.draw(4, count, 0, first);
+        ripple.draw(pass, target, instances, binding);
       },
       destroy() {
-        clearTimeout(beatTimer);
         listeners.abort();
-        buffer?.destroy();
+        buffer.destroy();
       },
     };
   },

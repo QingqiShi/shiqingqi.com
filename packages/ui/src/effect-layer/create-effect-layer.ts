@@ -210,7 +210,7 @@ export function createEffectLayer(
   const clock = createFrameClock(MAX_DELTA_SECONDS);
 
   let pixelRatioQuery = watchPixelRatio();
-  const frames = createFrameScheduler();
+  const frames = createFrameScheduler(requestFrame);
   const readViewportBottom = () => bottomAnchor.getBoundingClientRect().bottom;
   const tracking = trackElements(
     registry,
@@ -782,11 +782,16 @@ export function createEffectLayer(
 
     const encoder = device.createCommandEncoder();
     let animating = false;
+    let wakeTime = Infinity;
     for (const renderer of ready) {
-      if (renderer.update?.(encoder, frame) === true) {
+      const next = renderer.update?.(encoder, frame);
+      if (next === true) {
         animating = true;
+      } else if (typeof next === "number") {
+        wakeTime = Math.min(wakeTime, next);
       }
     }
+    frames.wake(startTime + wakeTime * 1000);
     for (const pass of passes) {
       encodePass(encoder, pass, frame);
     }
