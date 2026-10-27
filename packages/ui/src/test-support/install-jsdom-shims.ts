@@ -75,6 +75,8 @@ function createMediaQueryList(query: string): MediaQueryList {
  *   all, answered from the HTML spec's editing-host rules.
  * - `window.matchMedia`, defined only when missing so a test can still stub
  *   its own, returning a minimal, always non-matching `MediaQueryList`.
+ * - `Element.prototype.getAnimations`, which lists no animation, because
+ *   jsdom runs none. A test defines it on an element to run one there.
  */
 export function installJsdomShims() {
   Element.prototype.checkVisibility = function checkVisibility(
@@ -91,6 +93,8 @@ export function installJsdomShims() {
       return isEditingHostOrEditable(this);
     },
   });
+
+  Element.prototype.getAnimations = () => [];
 
   if (typeof window.matchMedia === "undefined") {
     window.matchMedia = createMediaQueryList;

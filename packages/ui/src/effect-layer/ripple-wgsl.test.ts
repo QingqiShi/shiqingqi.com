@@ -7,7 +7,7 @@ function record(fill: EffectElementRecord["fill"]): EffectElementRecord {
   return {
     id: 1,
     element: document.createElement("div"),
-    measurement: 0,
+    readings: {},
     roles: 1,
     settings: {},
     x: 0,

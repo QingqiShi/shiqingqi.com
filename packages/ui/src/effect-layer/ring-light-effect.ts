@@ -5,6 +5,7 @@ import { roleBits } from "./effect-roles.ts";
 import { lastResultOf } from "./last-result-of.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { readFill } from "./read-element-box.ts";
+import type { RoleReader } from "./read-roles.ts";
 import { ringLapAt, ringLapEnd, type RingLap } from "./ring-lap-at.ts";
 import { ringLightColors } from "./ring-light-colors.ts";
 import {
@@ -31,6 +32,25 @@ function ringLightPaint(fill: EffectColor, backdrop: EffectColor) {
   };
 }
 
+/**
+ * What the ring light reads of an element: whether it reads right to left,
+ * and its `color`.
+ *
+ * @internal
+ */
+export interface RingLightReading {
+  readonly rtl: boolean;
+  readonly color: EffectColor;
+}
+
+/** @internal */
+export const ringLightReader: RoleReader<RingLightReading> = {
+  read: (element, _box, { styleOf }) => {
+    const style = styleOf(element);
+    return { rtl: style.direction === "rtl", color: readFill(style.color) };
+  },
+};
+
 /** A lap on one element, with the colour it takes. */
 interface ElementLap extends RingLap {
   /** The element's `color` when the lap started. */
@@ -44,15 +64,17 @@ interface ElementLap extends RingLap {
  * clockwise in a left-to-right element and anticlockwise in a right-to-left
  * one, so that it sets off over the top the way the text reads.
  */
-function lapFrom(record: EffectElementRecord, time: number): ElementLap {
-  const style = getComputedStyle(record.element);
-  const rtl = style.direction === "rtl";
+function lapFrom(
+  record: EffectElementRecord,
+  { rtl, color }: RingLightReading,
+  time: number,
+): ElementLap {
   return {
     start: time,
     x: rtl ? record.x + record.width : record.x,
     y: record.y + record.height / 2,
     direction: rtl ? -1 : 1,
-    fill: readFill(style.color),
+    fill: color,
     paint: lastResultOf(ringLightPaint),
   };
 }
@@ -90,11 +112,13 @@ export const ringLightEffect: Effect = {
         let nextEnd = Infinity;
         const kept = new Set<number>();
         for (const [index, record] of frame.elements.entries()) {
-          if ((record.roles & RING_LIGHT) === 0) {
+          const reading = record.readings.ringLight;
+          if ((record.roles & RING_LIGHT) === 0 || reading === undefined) {
             continue;
           }
           kept.add(record.id);
-          const lap = laps.get(record.id) ?? lapFrom(record, frame.time);
+          const lap =
+            laps.get(record.id) ?? lapFrom(record, reading, frame.time);
           laps.set(record.id, lap);
           const box = {
             x: record.x,

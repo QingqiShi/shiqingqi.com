@@ -19,7 +19,7 @@ function record(
   return {
     id: 7,
     element: document.createElement("div"),
-    measurement: 0,
+    readings: {},
     roles: 0b101,
     settings: {},
     x: 10,

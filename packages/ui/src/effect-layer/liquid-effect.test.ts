@@ -3,34 +3,24 @@ import { fileURLToPath } from "node:url";
 import { compileStylexCss } from "@tuja/stylex-testing";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clockAt } from "../test-support/clock-at.ts";
-import { layOut } from "../test-support/lay-out.ts";
+import { mountSegmentTrack } from "../test-support/mount-segment-track.ts";
+import { stubFrames } from "../test-support/stub-frames.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
-import {
-  createElementTracker,
-  createMeasureContext,
-  type ElementTracker,
-} from "./create-element-tracker.ts";
+import { createFrameScheduler } from "./create-frame-scheduler.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
-  createControlReader,
   HAND_SECONDS,
   layoutLiquid,
   pillAt,
-  readEdge,
-  readInsetRing,
-  type LiquidControl,
   type LiquidState,
 } from "./liquid-effect.ts";
-import {
-  LIQUID_INDICATOR,
-  LIQUID_SEGMENT,
-  LIQUID_VERTICAL,
-} from "./liquid-indicator.ts";
+import type { LiquidControl } from "./liquid-reader.ts";
 import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
+import { markEffectDrawn } from "./mark-effect-drawn.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
 import { readFill } from "./read-element-box.ts";
-import { PAGE_CARRIER, VIEWPORT_CARRIER } from "./resolve-carrier.ts";
+import { PAGE_CARRIER } from "./resolve-carrier.ts";
 import {
   liquidStep,
   mean,
@@ -38,6 +28,7 @@ import {
   type LiquidParticles,
   type LiquidSnapshot,
 } from "./step-liquid.ts";
+import { trackElements } from "./track-elements.ts";
 import type { EffectSettings } from "./types.ts";
 
 type Liquid = NonNullable<EffectSettings["liquid"]>;
@@ -122,243 +113,6 @@ describe("HAND_SECONDS", () => {
   });
 });
 
-describe("readEdge", () => {
-  it("reads a ring and two shadows outside, and a ring inside", () => {
-    expect(
-      readEdge(
-        "rgba(0, 0, 0, 0.08) 0px 0px 0px 0.5px, rgba(0, 0, 0, 0.06) 0px 1px 2px 0px, rgba(0, 0, 0, 0.06) 0px 2px 8px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0) 0px 1px 0px 0px inset",
-      ),
-    ).toEqual([0.08, 0.06, 0.06, 0]);
-    expect(
-      readEdge(
-        "rgba(0, 0, 0, 0) 0px 0px 0px 0.5px, rgba(0, 0, 0, 0) 0px 1px 2px 0px, rgba(0, 0, 0, 0) 0px 2px 8px 0px, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.06) 0px 1px 0px 0px inset",
-      ),
-    ).toEqual([0, 0, 0, 0.1]);
-  });
-
-  it("reads no edge from no shadow", () => {
-    expect(readEdge("none")).toEqual([0, 0, 0, 0]);
-  });
-});
-
-describe("readInsetRing", () => {
-  it("reads the colour and the width of a ring inside", () => {
-    expect(
-      readInsetRing(
-        "rgb(121, 120, 117) 0px 0px 0px 1px inset, rgba(0, 0, 0, 0.03) 0px 3px 5px -2px, rgba(0, 0, 0, 0.05) 0px 7px 14px -5px",
-      ),
-    ).toEqual({ color: readFill("rgb(121, 120, 117)"), width: 1 });
-  });
-
-  it("reads no ring from an inset shadow that is offset or blurred, or from no inset shadow", () => {
-    expect(readInsetRing("rgba(0, 0, 0, 0.1) 0px 1px 0px 0px inset")).toBe(
-      null,
-    );
-    expect(readInsetRing("rgba(0, 0, 0, 0.1) 0px 0px 2px 1px inset")).toBe(
-      null,
-    );
-    expect(readInsetRing("rgba(0, 0, 0, 0.03) 0px 3px 5px -2px")).toBe(null);
-    expect(readInsetRing("none")).toBe(null);
-  });
-});
-
-describe("createControlReader", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    document.body.innerHTML = "";
-  });
-
-  const LIQUID = roleBits(["liquid"]);
-  const AT_REST = { drag: null, pressed: false };
-
-  /**
-   * A tracked segmented control with two segments, whose box reads are
-   * counted in `segmentReads`.
-   */
-  function setUp({ fixed = false, vertical = false } = {}) {
-    const observers = stubObservers();
-    const track = document.createElement("div");
-    if (fixed) {
-      track.style.position = "fixed";
-    }
-    if (vertical) {
-      track.setAttribute(LIQUID_VERTICAL, "");
-    }
-    const indicator = document.createElement("div");
-    indicator.setAttribute(LIQUID_INDICATOR, "");
-    const segments = [0, 1].map(() => {
-      const segment = document.createElement("div");
-      segment.setAttribute(LIQUID_SEGMENT, "");
-      return segment;
-    });
-    track.append(indicator, ...segments);
-    document.body.append(track);
-    const segmentReads: Element[] = [];
-    const turn = (box: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }) =>
-      vertical
-        ? { x: box.y, y: box.x, width: box.height, height: box.width }
-        : box;
-    const layOutSegments = (widths: readonly [number, number]) => {
-      layOut(
-        segments[0],
-        turn({ x: 0, y: 0, width: widths[0], height: 40 }),
-        segmentReads,
-      );
-      layOut(
-        segments[1],
-        turn({ x: widths[0], y: 0, width: widths[1], height: 40 }),
-        segmentReads,
-      );
-      layOut(
-        track,
-        turn({ x: 0, y: 0, width: widths[0] + widths[1], height: 40 }),
-      );
-    };
-    layOutSegments([100, 100]);
-
-    const registry = createEffectRegistry();
-    let tracker: ElementTracker | null = null;
-    registry.track((element) => {
-      tracker = createElementTracker(element, () => {});
-      return tracker;
-    });
-    const registration = registry.register(
-      track,
-      LIQUID,
-      { liquid: { position: 0, ...AT_REST } },
-      {
-        scope: PAGE_SCOPE,
-        holds: null,
-        carrier: fixed ? VIEWPORT_CARRIER : PAGE_CARRIER,
-      },
-    );
-    const measure = () => {
-      tracker?.measure(createMeasureContext(() => 0, registry));
-    };
-    measure();
-    const changes: null[] = [];
-    const controls = createControlReader(() => {
-      changes.push(null);
-    });
-    const frame = (scrollY = 0) => {
-      const [record] = registry.records(clockAt(0, scrollY));
-      const control = controls.read({
-        ...record,
-        scopeIndex: 0,
-        carrierIndex: 0,
-      });
-      controls.sweep();
-      return control;
-    };
-    return {
-      observers,
-      segments,
-      segmentReads,
-      layOutSegments,
-      registration,
-      measure,
-      frame,
-      changes,
-      controls,
-    };
-  }
-
-  /** Where the second segment starts, in px from the start of the track. */
-  const secondStart = (control: LiquidControl | null) =>
-    control === null
-      ? Number.NaN
-      : (control.stops[1].target - control.stops[1].span) * control.radius;
-
-  it("reads a control from the DOM once, and not again on frames where nothing changed", () => {
-    const { segmentReads, frame } = setUp();
-    const control = frame();
-    expect(control?.stops).toHaveLength(2);
-    expect(segmentReads).toHaveLength(2);
-    expect(frame()).toBe(control);
-    expect(frame()).toBe(control);
-    expect(segmentReads).toHaveLength(2);
-  });
-
-  it("reads a segment that grows once its control is measured again", () => {
-    const { segmentReads, layOutSegments, measure, frame } = setUp();
-    const before = frame();
-    layOutSegments([160, 100]);
-    expect(frame()).toBe(before);
-    measure();
-    const after = frame();
-    expect(segmentReads).toHaveLength(4);
-    expect(after?.stops[0].span).toBeGreaterThan(before?.stops[0].span ?? 0);
-    expect(secondStart(after)).toBeCloseTo(160, 6);
-  });
-
-  it("reads the control again after a segment changes size in a track that keeps its own", () => {
-    const {
-      observers,
-      segments,
-      segmentReads,
-      layOutSegments,
-      frame,
-      changes,
-    } = setUp();
-    const before = frame();
-    observers.resize(segments[0], 100, 40);
-    observers.resize(segments[1], 100, 40);
-    expect(changes).toHaveLength(0);
-    expect(frame()).toBe(before);
-
-    layOutSegments([140, 60]);
-    observers.resize(segments[0], 140, 40);
-    expect(changes).toHaveLength(1);
-    const after = frame();
-    expect(segmentReads).toHaveLength(4);
-    expect(secondStart(after)).toBeCloseTo(140, 6);
-  });
-
-  it("stops watching the segments of a control that is no longer read", () => {
-    const { observers, segments, frame, controls } = setUp();
-    frame();
-    expect(observers.resizeObserversOf(segments[0])).toBe(1);
-    controls.sweep();
-    expect(observers.resizeObserversOf(segments[0])).toBe(0);
-  });
-
-  it("reads the control again for a new position", () => {
-    const { segmentReads, registration, frame } = setUp();
-    frame();
-    registration.update(
-      LIQUID,
-      { liquid: { position: 1, ...AT_REST } },
-      PAGE_SCOPE,
-      PAGE_CARRIER,
-    );
-    frame();
-    expect(segmentReads).toHaveLength(4);
-  });
-
-  it("reads the stops of a vertical track down the page", () => {
-    const { frame } = setUp({ vertical: true });
-    const control = frame();
-    expect(control?.vertical).toBe(true);
-    expect(control?.radius).toBe(20);
-    expect(control?.originX).toBe(20);
-    expect(control?.originY).toBe(20);
-    expect(secondStart(control)).toBeCloseTo(100, 6);
-  });
-
-  it("reads a fixed control again where a scroll moves it in the page", () => {
-    const { segmentReads, frame } = setUp({ fixed: true });
-    const before = frame();
-    const after = frame(300);
-    expect(segmentReads).toHaveLength(4);
-    expect((after?.originY ?? 0) - (before?.originY ?? 0)).toBe(300);
-  });
-});
-
 /**
  * Lays one control's liquid out frame by frame, 60 a second, with the CPU
  * reference in the GPU's place: it runs each step the layout asks for, and
@@ -440,6 +194,30 @@ describe("layoutLiquid", () => {
       ({ instance }) =>
         Math.abs(instance.centreX - instance.restX) <= instance.span,
     );
+
+  it("places the liquid at the control's box in the page", () => {
+    const control = threeSegments();
+    const { instance } = layoutLiquid(
+      control,
+      {
+        id: 1,
+        settings: { liquid: { ...rest, position: 0 } },
+        x: 50,
+        y: 500,
+        width: 300,
+        height: 32,
+      },
+      0,
+      SLOT,
+      undefined,
+      { time: 0, delta: 1 / 60, reducedMotion: false },
+      BACKDROP,
+      null,
+      [],
+    );
+    expect(instance.originX).toBe(50 + control.originX);
+    expect(instance.originY).toBe(500 + control.originY);
+  });
 
   it("draws a vertical track in its own frame, over the page where the track has no fill", () => {
     const run = createRun({
@@ -648,5 +426,73 @@ describe("layoutLiquid's step", () => {
   it("takes the whole of a frame that took twice a 30 Hz interval", () => {
     expect(pourAfter(1 / 15)).toBe(liquidStep(1 / 15));
     expect(pourAfter(1 / 15)).toBeCloseTo(2 * liquidStep(1 / 30), 10);
+  });
+});
+
+describe("the liquid's frames", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    document.body.innerHTML = "";
+  });
+
+  it("reads the segments of a clicked control only when the tracker measures it, and not in the frames of the pour", async () => {
+    const frames = stubFrames();
+    stubObservers();
+    const { track, segments, segmentReads } = mountSegmentTrack();
+    const registry = createEffectRegistry();
+    const LIQUID = roleBits(["liquid"]);
+    const settings = (position: number, pressed: boolean) => ({
+      liquid: { position, drag: null, pressed },
+    });
+    const registration = registry.register(track, LIQUID, settings(0, false), {
+      scope: PAGE_SCOPE,
+      holds: null,
+    });
+    trackElements(registry, createFrameScheduler(vi.fn()), vi.fn(), () => 0);
+    let state: LiquidState | undefined;
+    let time = 0;
+    let drawnFrames = 0;
+    /** Runs a frame: the tracker's reads, then what the liquid's update does with the records. */
+    const frame = async () => {
+      frames.run();
+      const [record] = registry.records(clockAt());
+      const control = record.readings.liquid;
+      if (control == null) {
+        throw new Error("The control has no reading.");
+      }
+      const laid = layoutLiquid(
+        control,
+        record,
+        0,
+        SLOT,
+        state,
+        { time, delta: 1 / 60, reducedMotion: false },
+        BACKDROP,
+        null,
+        [],
+      );
+      state = laid.state;
+      time += 1 / 60;
+      markEffectDrawn(track, laid.drawn);
+      drawnFrames += laid.drawn ? 1 : 0;
+      // The mark reaches the trackers in a microtask.
+      await Promise.resolve();
+    };
+    await frame();
+    expect(segmentReads).toHaveLength(2);
+
+    segments[1].dispatchEvent(new MouseEvent("pointerdown", { bubbles: true }));
+    registration.update(LIQUID, settings(0, true), PAGE_SCOPE, PAGE_CARRIER);
+    await frame();
+    segments[1].dispatchEvent(new MouseEvent("pointerup", { bubbles: true }));
+    registration.update(LIQUID, settings(1, false), PAGE_SCOPE, PAGE_CARRIER);
+    await frame();
+    expect(segmentReads).toHaveLength(6);
+
+    for (let i = 0; i < 120; i++) {
+      await frame();
+    }
+    expect(drawnFrames).toBeGreaterThan(0);
+    expect(segmentReads).toHaveLength(6);
   });
 });

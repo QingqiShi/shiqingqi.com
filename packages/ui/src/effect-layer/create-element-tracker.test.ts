@@ -44,6 +44,7 @@ function context(
           : undefined,
       region: (id) => (id === region?.id ? region : undefined),
       isInModalCover: () => false,
+      rolesOf: () => 0,
     }),
     scrollX,
     scrollY,
@@ -172,14 +173,14 @@ describe("createElementTracker", () => {
     const onCanvas = (scrollY: number, viewportBottom: number) =>
       (tracker.boxAt(clockAt(0, scrollY, viewportBottom))?.y ?? Number.NaN) -
       fixedBottomTop(scrollY, viewportBottom, canvasHeight);
-    const measurement = tracker.measurement;
+    const measured = tracker.measured;
     const places = [
       [0, 800],
       [0, 760],
       [0, 860],
       [1200, 731.5],
     ].map(([scrollY, viewportBottom]) => onCanvas(scrollY, viewportBottom));
-    expect(tracker.measurement).toBe(measurement);
+    expect(tracker.measured).toBe(measured);
     expect(places).toEqual([836, 836, 836, 836]);
   });
 

@@ -31,9 +31,11 @@ const WHITE: EffectColor = [1, 1, 1, 1];
  *
  * @internal
  */
-export function readPageBackdrop(): EffectColor {
+export function readPageBackdrop(
+  styleOf: (element: Element) => CSSStyleDeclaration = getComputedStyle,
+): EffectColor {
   for (const element of [document.documentElement, document.body]) {
-    const fill = readFill(getComputedStyle(element).backgroundColor);
+    const fill = readFill(styleOf(element).backgroundColor);
     if (fill[3] >= OPAQUE_BACKDROP) {
       return fill;
     }

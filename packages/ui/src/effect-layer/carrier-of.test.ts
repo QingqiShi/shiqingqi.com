@@ -284,6 +284,7 @@ describe("the place of a box on a carrier", () => {
       sticky: () => undefined,
       region: (id) => (id === 4 ? region : undefined),
       isInModalCover: () => false,
+      rolesOf: () => 0,
     }),
     scrollX: 0,
     scrollY: 900,

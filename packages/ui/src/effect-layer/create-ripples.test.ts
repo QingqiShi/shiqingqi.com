@@ -30,7 +30,7 @@ function record(
   return {
     id,
     element: document.createElement("div"),
-    measurement: 0,
+    readings: {},
     roles: RIPPLE,
     settings: {},
     x: 0,

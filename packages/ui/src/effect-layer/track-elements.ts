@@ -15,6 +15,9 @@ import {
   type RegionPlace,
   type ScrollRegionWatch,
 } from "./create-scroll-region.ts";
+import { EFFECT_DRAWN_ATTRIBUTE } from "./mark-effect-drawn.ts";
+import type { EffectColor } from "./parse-css-color.ts";
+import { readPageBackdrop } from "./plan-scopes.ts";
 import {
   regionsOf,
   stickiesOf,
@@ -96,6 +99,15 @@ export interface FrameClock extends CarrierClock {
  * - the colour scheme changes, or a style sheet loads, which can change any
  *   of them.
  *
+ * An effect that draws in an element's place marks it with
+ * `markEffectDrawn`. That mark is not a signal.
+ *
+ * It measures the page's backdrop the same way: after the colour scheme
+ * changes, a style sheet loads, the window resizes, or an attribute of the
+ * root element or the body changes, and each frame while a transition or an
+ * animation runs on one of them, also one that ran before the tracking
+ * started.
+ *
  * A signalled tracker waits in a queue, and the next frame of `frames`
  * measures the queued ones together before it draws, then calls `onChange`.
  * A window scroll measures nothing: the registry keeps elements on the page
@@ -120,6 +132,20 @@ export function trackElements(
   let queued = new Set<Measurable>();
   const root = document.documentElement;
   const regions = new Map<number, ScrollRegionWatch>();
+  let pageBackdrop: EffectColor = readPageBackdrop();
+  let followBackdrop = true;
+  const isPageBox = (element: Element) =>
+    element === root || element === document.body;
+  const backdrop: Measurable = {
+    measure(context) {
+      pageBackdrop = readPageBackdrop(context.styleOf);
+      followBackdrop &&=
+        context.isAnimating(root) || context.isAnimating(document.body);
+      if (followBackdrop) {
+        queue(backdrop);
+      }
+    },
+  };
 
   /** The tracker of each element, then the scroller of each region. */
   function* allTrackers() {
@@ -158,8 +184,16 @@ export function trackElements(
     }
   }
   const signalAll = () => {
+    queue(backdrop);
     signalWhere(() => true);
   };
+
+  function followBackdropOf(source: Element) {
+    if (isPageBox(source)) {
+      followBackdrop = true;
+      queue(backdrop);
+    }
+  }
 
   /** Follows the animations of `source` on the trackers `test` accepts. */
   function followWhere(
@@ -188,9 +222,13 @@ export function trackElements(
         styleAdded ||= [...record.addedNodes].some(
           (node) => node instanceof HTMLStyleElement,
         );
-      } else if (target instanceof Element) {
+      } else if (
+        target instanceof Element &&
+        record.attributeName !== EFFECT_DRAWN_ATTRIBUTE
+      ) {
         // The change can start a transition before an event tells about it.
         followWhere(target, ({ element }) => target.contains(element));
+        followBackdropOf(target);
       }
     }
     if (styleAdded) {
@@ -232,12 +270,14 @@ export function trackElements(
     const { target } = event;
     if (target instanceof Element && event.pseudoElement === "") {
       followWhere(target, ({ element }) => isRelated(target, element));
+      followBackdropOf(target);
     }
   }
 
   // A resize can move the viewport's edges, and a breakpoint can change the
   // sticky offsets or make a sticky box fixed.
   function onResize() {
+    queue(backdrop);
     signalWhere(
       (tracker) =>
         (tracker.measured !== null &&
@@ -303,6 +343,7 @@ export function trackElements(
     };
   }
 
+  queue(backdrop);
   const untrack = registry.track(
     (element) => createElementTracker(element, queue),
     (id) => {
@@ -312,6 +353,8 @@ export function trackElements(
   );
 
   return {
+    /** What the page's effects draw over, as it was last measured. */
+    pageBackdrop: () => pageBackdrop,
     /**
      * A clock at this scroll, which reads the viewport's bottom edge and the
      * place of each Scroll region at most once.
