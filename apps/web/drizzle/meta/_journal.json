@@ -120,6 +120,13 @@
       "when": 1793087492511,
       "tag": "0016_live_valuation_per_day",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793094811392,
+      "tag": "0017_bank_rows_waiting",
+      "breakpoints": true
     }
   ]
 }

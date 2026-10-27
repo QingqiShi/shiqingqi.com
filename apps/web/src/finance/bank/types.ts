@@ -57,7 +57,7 @@ export interface PutBankLinkRequest {
   signMultiplier?: 1 | -1;
 }
 
-/** `GET /api/finance/bank/unbacked-entries`: the Entries behind a balance difference, newest first. */
+/** `GET /api/finance/bank/unbacked-entries`: the Entries behind a balance difference, oldest first. */
 export interface UnbackedEntriesResponse {
   entryIds: string[];
 }
@@ -68,11 +68,10 @@ export interface BankLinkSyncSummary {
   accountId: string;
   error: BankErrorKind | "failed" | null;
   /** Rows that matched nothing and wait for the AI to label them. */
-  pending: number;
+  waiting: number;
   linked: number;
   confirmed: number;
   missing: number;
-  balanceDifferenceMinor: number | null;
 }
 
 /** `POST /api/finance/bank/sync-now`. */

@@ -93,7 +93,7 @@ export const syncReadRepository = {
           status: bankLinks.status,
           bankBalanceMinor: bankLinks.bankBalanceMinor,
           bankBalanceOn: bankLinks.bankBalanceOn,
-          balanceDifferenceMinor: bankLinks.balanceDifferenceMinor,
+          bankRowsWaiting: bankLinks.bankRowsWaiting,
           version: bankLinks.version,
           deletedAt: bankLinks.deletedAt,
         })

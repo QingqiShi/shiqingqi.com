@@ -1,13 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { BalanceDrift } from "../db/repositories/balance-check-repository.ts";
+import type { BalanceDrift } from "../db/repositories/balance-drift-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
 import {
   accountBalanceDays,
   accounts,
-  balanceCheckDays,
+  balanceDriftDays,
   entries,
   transactions,
   valuations,
@@ -90,7 +90,7 @@ async function fullRebuild() {
 async function queued() {
   const rows = await db
     .select({ count: sql<number>`count(*)::int` })
-    .from(balanceCheckDays);
+    .from(balanceDriftDays);
   return rows[0]?.count ?? 0;
 }
 

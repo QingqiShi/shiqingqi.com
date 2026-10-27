@@ -1,5 +1,5 @@
 import { and, asc, eq, inArray, lte, max, sql } from "drizzle-orm";
-import { balanceCheckDays } from "../schema.ts";
+import { balanceDriftDays } from "../schema.ts";
 import type { RepositoryScope } from "./types.ts";
 
 /** The first wrong stored balance of an account among the checked days. */
@@ -18,24 +18,24 @@ export interface BalanceDrift {
 /** The newest queued id of the Household, or 0 when the queue is empty. */
 async function latestId(scope: RepositoryScope) {
   const rows = await scope.db
-    .select({ id: max(balanceCheckDays.id) })
-    .from(balanceCheckDays)
-    .where(eq(balanceCheckDays.householdId, scope.householdId));
+    .select({ id: max(balanceDriftDays.id) })
+    .from(balanceDriftDays)
+    .where(eq(balanceDriftDays.householdId, scope.householdId));
   return rows.at(0)?.id ?? 0;
 }
 
 /** The oldest `limit` queued ids up to `upToId`. */
 async function nextIds(scope: RepositoryScope, upToId: number, limit: number) {
   const rows = await scope.db
-    .select({ id: balanceCheckDays.id })
-    .from(balanceCheckDays)
+    .select({ id: balanceDriftDays.id })
+    .from(balanceDriftDays)
     .where(
       and(
-        eq(balanceCheckDays.householdId, scope.householdId),
-        lte(balanceCheckDays.id, upToId),
+        eq(balanceDriftDays.householdId, scope.householdId),
+        lte(balanceDriftDays.id, upToId),
       ),
     )
-    .orderBy(asc(balanceCheckDays.id))
+    .orderBy(asc(balanceDriftDays.id))
     .limit(limit);
   return rows.map((row) => row.id);
 }
@@ -56,9 +56,9 @@ async function findDrift(
   const household = scope.householdId;
   const queued = sql`(
     select distinct account_id, day
-    from balance_check_days
+    from balance_drift_days
     where household_id = ${household}
-      and ${inArray(balanceCheckDays.id, [...ids])}
+      and ${inArray(balanceDriftDays.id, [...ids])}
   )`;
   const candidates = sql`(
     select account_id, day from ${queued} as queued
@@ -126,13 +126,13 @@ async function findDrift(
 async function remove(scope: RepositoryScope, ids: readonly number[]) {
   if (ids.length === 0) return;
   await scope.db
-    .delete(balanceCheckDays)
+    .delete(balanceDriftDays)
     .where(
       and(
-        eq(balanceCheckDays.householdId, scope.householdId),
-        inArray(balanceCheckDays.id, [...ids]),
+        eq(balanceDriftDays.householdId, scope.householdId),
+        inArray(balanceDriftDays.id, [...ids]),
       ),
     );
 }
 
-export const balanceCheckRepository = { latestId, nextIds, findDrift, remove };
+export const balanceDriftRepository = { latestId, nextIds, findDrift, remove };

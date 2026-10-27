@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
 import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { netWorthAt } from "../domain/balance/net-worth-at.ts";
-import type { AccountGroupRow, AccountRow } from "../sync/row-schemas.ts";
+import type {
+  AccountGroupRow,
+  AccountRow,
+  BankLinkRow,
+} from "../sync/row-schemas.ts";
 import {
   testAccount,
   testStamps,
@@ -159,5 +163,68 @@ describe("buildBalanceSheet with In transit", () => {
     expect(sheet.sections[0].lines.map((line) => line.account.id)).toEqual([
       "current",
     ]);
+  });
+});
+
+describe("buildBalanceSheet with a Bank link", () => {
+  const groups = [group("cash", "asset", 0)];
+  const fx = createFxIndex([], "GBP");
+  const accounts = [
+    account("current", "cash", "cash"),
+    account("savings", "cash", "cash"),
+  ];
+  const series = new Map([
+    [
+      "current",
+      computeBalanceDays(
+        [{ on: "2026-09-01", amountMinor: 100_000 }],
+        [{ date: "2026-10-09", amountMinor: -2_500 }],
+      ),
+    ],
+    [
+      "savings",
+      computeBalanceDays([{ on: "2026-09-01", amountMinor: 5_000 }], []),
+    ],
+  ]);
+
+  function bankLink(accountId: string, bankBalanceMinor: number): BankLinkRow {
+    return {
+      id: `link-${accountId}`,
+      householdId: "h",
+      accountId,
+      providerName: "",
+      providerInstitution: "",
+      currency: "GBP",
+      lastSyncedOn: "2026-10-08",
+      lastSyncAt: null,
+      lastError: null,
+      status: "active",
+      bankBalanceMinor,
+      bankBalanceOn: "2026-10-08",
+      bankRowsWaiting: false,
+      version: 1,
+      deletedAt: null,
+    };
+  }
+
+  it("checks each linked account against the bank on the day the bank gave its balance", () => {
+    const sheet = buildBalanceSheet({
+      groups,
+      accounts,
+      members: [],
+      latestValuations: new Map(),
+      bankLinks: [bankLink("current", 99_000), bankLink("savings", 5_000)],
+      seriesByAccount: series,
+      fx,
+      day: "2026-10-10",
+    });
+    const [current, savings] = sheet.sections[0].lines;
+    expect(current.balanceCheck).toEqual({
+      on: "2026-10-08",
+      bankMinor: 99_000,
+      oursMinor: 100_000,
+      ourExcessMinor: 1_000,
+    });
+    expect(savings.balanceCheck).toBeNull();
   });
 });

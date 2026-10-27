@@ -170,7 +170,6 @@ test.describe("Bank balance at 390 px", () => {
         currency: "GBP",
         bankBalanceMinor: 123_456,
         bankBalanceOn: balanceDay,
-        balanceDifferenceMinor: 1,
         version,
       });
       await tx.insert(bankTransactions).values({

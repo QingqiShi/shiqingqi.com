@@ -8,7 +8,7 @@ type NewBankLink = Omit<
   typeof bankLinks.$inferInsert,
   "householdId" | "version" | "createdAt" | "updatedAt"
 >;
-type BankLinkPatch = Partial<Omit<NewBankLink, "id">>;
+export type BankLinkPatch = Partial<Omit<NewBankLink, "id">>;
 
 const now = sql`now()`;
 

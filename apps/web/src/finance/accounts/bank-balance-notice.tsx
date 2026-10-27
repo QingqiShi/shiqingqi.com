@@ -6,7 +6,6 @@ import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
-import { useToast } from "@tuja/ui/components/toast-provider";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -16,30 +15,16 @@ import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { bankApiClient } from "../bank/bank-api-client.ts";
-import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
-import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
-import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
-import type {
-  AccountRow,
-  BankLinkRow,
-  EntryRow,
-  TransactionRow,
-} from "../sync/row-schemas.ts";
+import type { AccountRow, BankLinkRow } from "../sync/row-schemas.ts";
 import { LedgerEntryLink } from "./ledger-entry-link.tsx";
+import { useBalanceCheck, type BalanceCheckView } from "./use-balance-check.ts";
 import { useDescribeLedgerEntry } from "./use-describe-ledger-entry.ts";
 import { useNetWorthUrl } from "./use-net-worth-url.ts";
-import { useUnbackedEntries } from "./use-unbacked-entries.ts";
-
-interface BankBalanceProps {
-  link: BankLinkRow;
-  account: AccountRow;
-}
 
 /**
  * One line on Net worth for a Bank link whose balance disagrees: the account,
@@ -50,10 +35,13 @@ export function BankBalanceSummary({
   link,
   account,
   href,
-}: BankBalanceProps & { href: string }) {
+}: {
+  link: BankLinkRow;
+  account: AccountRow;
+  href: string;
+}) {
   const locale = useLocale();
-  const gap = useBalanceGap(link, account);
-  const unbacked = useUnbackedRows(link, account.id, gap?.ourExcess ?? 0);
+  const view = useBalanceCheck(link);
   const offLabel = t({
     en: "{amount} off the bank",
     zh: "与银行相差 {amount}",
@@ -66,13 +54,13 @@ export function BankBalanceSummary({
     en: "{count} transactions the bank doesn't show",
     zh: "银行未显示 {count} 笔交易",
   });
-  if (gap === null) return null;
-  const count = unbacked?.length ?? 0;
+  if (view === null) return null;
+  const count = view.unbacked?.length ?? 0;
   const parts = [
     account.name,
     offLabel.replace(
       "{amount}",
-      formatMoney(Math.abs(gap.ourExcess), link.currency, locale),
+      formatMoney(Math.abs(view.check.ourExcessMinor), link.currency, locale),
     ),
   ];
   if (count === 1) parts.push(oneLabel);
@@ -112,35 +100,27 @@ export function BankBalanceSummary({
  * first: each is a payment the bank has not posted yet, a duplicate to
  * delete here, or a real payment the bank left out, to keep here. What they
  * do not explain is older than the bank's records, or the bank left it out.
- * Our balance comes from the Replica, so the notice goes once the Member
- * deletes the duplicate.
  */
-export function BankBalanceNotice({ link, account }: BankBalanceProps) {
+export function BankBalanceNotice({ link }: { link: BankLinkRow }) {
   const locale = useLocale();
-  const gap = useBalanceGap(link, account);
-  if (gap === null) return null;
+  const view = useBalanceCheck(link);
+  const bankSaysLabel = t({ en: "Bank says", zh: "银行显示" });
+  const weSayLabel = t({ en: "we say", zh: "账本显示" });
+  if (view === null) return null;
+  const { check } = view;
   const money = (minor: number) => formatMoney(minor, link.currency, locale);
 
   return (
     <div role="status" css={[corner.radius_3, stack.tight, styles.notice]}>
       <p css={[typeRole.bodySmall, styles.text]}>
         <span css={typeModifier.numeric}>
-          {`${t({ en: "Bank says", zh: "银行显示" })} ${money(gap.bank)} · ${t({
-            en: "we say",
-            zh: "账本显示",
-          })} ${money(gap.ours)}`}
+          {`${bankSaysLabel} ${money(check.bankMinor)} · ${weSayLabel} ${money(check.oursMinor)}`}
         </span>
-        {link.bankBalanceOn === null ? null : (
-          <span css={styles.muted}>
-            {` · ${displayDay(link.bankBalanceOn, locale, "day")}`}
-          </span>
-        )}
+        <span css={styles.muted}>
+          {` · ${displayDay(check.on, locale, "day")}`}
+        </span>
       </p>
-      <UnbackedEntryList
-        link={link}
-        accountId={account.id}
-        ourExcess={gap.ourExcess}
-      />
+      <UnbackedEntryList link={link} view={view} />
     </div>
   );
 }
@@ -148,21 +128,16 @@ export function BankBalanceNotice({ link, account }: BankBalanceProps) {
 /** The Entries behind the difference, each deletable or keepable here, and what they do not explain. */
 function UnbackedEntryList({
   link,
-  accountId,
-  ourExcess,
+  view,
 }: {
   link: BankLinkRow;
-  accountId: string;
-  /** Our balance minus the bank's. */
-  ourExcess: number;
+  view: BalanceCheckView;
 }) {
   const locale = useLocale();
   const describe = useDescribeLedgerEntry();
   const url = useNetWorthUrl();
   const runUndoable = useUndoableMutations();
   const [expanded, setExpanded] = useState(false);
-  const [keptIds, setKeptIds] = useState<ReadonlySet<string>>(() => new Set());
-  const unbacked = useUnbackedRows(link, accountId, ourExcess);
   const olderLabel = t({
     en: "The bank's transactions don't explain the difference: it is older than them, or the bank left a transaction out.",
     zh: "银行的交易记录解释不了这个差额：可能早于银行记录，也可能银行漏了交易。",
@@ -175,22 +150,11 @@ function UnbackedEntryList({
   const deletedLabel = t({ en: "Deleted", zh: "已删除" });
   const keepLabel = t({ en: "Keep", zh: "保留" });
 
-  const keep = useKeepTransaction(link, (transactionId, kept) => {
-    setKeptIds((current) => {
-      const next = new Set(current);
-      if (kept) next.add(transactionId);
-      else next.delete(transactionId);
-      return next;
-    });
-  });
-
   const showAllLabel = t({ en: "Show all {count}", zh: "显示全部 {count} 笔" });
 
-  if (unbacked === null) return null;
-  const rows = unbacked.filter(
-    ({ transaction }) => !keptIds.has(transaction.id),
-  );
-  const explained = rows.reduce((sum, row) => sum + row.entry.amountMinor, 0);
+  const rows = view.unbacked;
+  if (rows === null) return null;
+  const accountId = link.accountId;
   const shown = expanded ? rows : rows.slice(0, 5);
 
   return (
@@ -228,7 +192,7 @@ function UnbackedEntryList({
                     look="ghost"
                     css={styles.keep}
                     aria-label={`${keepLabel} ${title}, ${displayDay(entry.date, locale, "dayYear")}, ${formatMoney(entry.amountMinor, link.currency, locale, { signDisplay: "exceptZero" })}`}
-                    onClick={() => void keep(transaction.id)}
+                    onClick={() => void view.keep(transaction.id)}
                   >
                     {keepLabel}
                   </Button>
@@ -271,61 +235,13 @@ function UnbackedEntryList({
           ) : null}
         </>
       ) : null}
-      {explained === ourExcess ? null : (
+      {view.unexplainedMinor === 0 ? null : (
         <p css={[typeRole.bodySmall, styles.muted]}>
           {rows.length > 0 ? restOlderLabel : olderLabel}
         </p>
       )}
     </>
   );
-}
-
-/**
- * Keeps a Transaction that the bank left out, with an Undo on the toast.
- * `setKept` marks it at once, and unmarks it when the keep fails or is
- * undone.
- */
-function useKeepTransaction(
-  link: BankLinkRow,
-  setKept: (transactionId: string, kept: boolean) => void,
-) {
-  const showToast = useToast();
-  const { runtime } = useFinanceRuntime();
-  const keptLabel = t({ en: "Kept", zh: "已保留" });
-  const undoLabel = t({ en: "Undo", zh: "撤销" });
-  const failedLabel = t({
-    en: "Couldn't save. Try again.",
-    zh: "保存失败，请重试。",
-  });
-
-  const unkeep = async (transactionId: string) => {
-    try {
-      await bankApiClient.unkeepTransaction(link.id, transactionId);
-      await runtime.loop.sync();
-      setKept(transactionId, false);
-    } catch {
-      showToast({ message: failedLabel });
-    }
-  };
-
-  return async (transactionId: string) => {
-    setKept(transactionId, true);
-    try {
-      await bankApiClient.keepTransaction(link.id, transactionId);
-    } catch {
-      setKept(transactionId, false);
-      showToast({ message: failedLabel });
-      return;
-    }
-    showToast({
-      message: keptLabel,
-      action: {
-        label: undoLabel,
-        onAction: () => void unkeep(transactionId),
-      },
-    });
-    await runtime.loop.sync();
-  };
 }
 
 /**
@@ -349,33 +265,10 @@ export function UnbackedTransactionNotice({
         .bankLinks(snapshot)
         .find((candidate) => candidate.accountId === accountId) ?? null,
   );
-  const account = useReplica((snapshot) =>
-    snapshot.tables.accounts.get(accountId),
-  );
-  if (link === null || account === undefined) return null;
-  return (
-    <UnbackedTransactionGap
-      link={link}
-      account={account}
-      transactionId={transactionId}
-      onDeleted={onDeleted}
-    />
-  );
-}
-
-function UnbackedTransactionGap({
-  link,
-  account,
-  transactionId,
-  onDeleted,
-}: BankBalanceProps & { transactionId: string; onDeleted: () => void }) {
-  const gap = useBalanceGap(link, account);
-  if (gap === null) return null;
+  if (link === null) return null;
   return (
     <UnbackedTransactionBanner
       link={link}
-      accountId={account.id}
-      ourExcess={gap.ourExcess}
       transactionId={transactionId}
       onDeleted={onDeleted}
     />
@@ -384,27 +277,18 @@ function UnbackedTransactionGap({
 
 function UnbackedTransactionBanner({
   link,
-  accountId,
-  ourExcess,
   transactionId,
   onDeleted,
 }: {
   link: BankLinkRow;
-  accountId: string;
-  ourExcess: number;
   transactionId: string;
   onDeleted: () => void;
 }) {
   const runUndoable = useUndoableMutations();
-  const [kept, setKept] = useState(false);
-  const unbacked = useUnbackedRows(link, accountId, ourExcess);
-  const keep = useKeepTransaction(link, (_, isKept) => {
-    setKept(isKept);
-  });
+  const view = useBalanceCheck(link);
   const deletedLabel = t({ en: "Deleted", zh: "已删除" });
   if (
-    kept ||
-    !unbacked?.some(({ transaction }) => transaction.id === transactionId)
+    !view?.unbacked?.some(({ transaction }) => transaction.id === transactionId)
   ) {
     return null;
   }
@@ -417,7 +301,7 @@ function UnbackedTransactionBanner({
         })}
       </p>
       <div css={row.tight}>
-        <Button size="sm" onClick={() => void keep(transactionId)}>
+        <Button size="sm" onClick={() => void view.keep(transactionId)}>
           {t({ en: "Keep it", zh: "保留" })}
         </Button>
         <Button
@@ -436,65 +320,6 @@ function UnbackedTransactionBanner({
         </Button>
       </div>
     </div>
-  );
-}
-
-/** The bank's balance and ours on the day the bank gave it, or null when they agree. */
-function useBalanceGap(link: BankLinkRow, account: AccountRow) {
-  const ours = useReplica((snapshot) =>
-    link.bankBalanceOn === null
-      ? 0
-      : accountBalanceAt(
-          account,
-          selectBalanceSeriesByAccount(snapshot).get(account.id),
-          link.bankBalanceOn,
-        ),
-  );
-  const bank = link.bankBalanceMinor;
-  if (link.balanceDifferenceMinor === null || bank === null || bank === ours) {
-    return null;
-  }
-  return { bank, ours, ourExcess: ours - bank };
-}
-
-/** The Entries behind the difference that are still in the account's posted Ledger; null while the server reads them. */
-function useUnbackedRows(
-  link: BankLinkRow,
-  accountId: string,
-  ourExcess: number,
-) {
-  const entryRows = useReplica((snapshot) => snapshot.tables.entries);
-  const transactionRows = useReplica(
-    (snapshot) => snapshot.tables.transactions,
-  );
-  const unbacked = useUnbackedEntries(
-    link.id,
-    `${String(link.version)}:${String(ourExcess)}`,
-  );
-  if (unbacked.state !== "ready") return null;
-  const rows = unbacked.entryIds.flatMap((id) => {
-    const entry = entryRows.get(id);
-    const transaction = entry && transactionRows.get(entry.transactionId);
-    return entry &&
-      transaction &&
-      isUnbackedStill(entry, transaction, accountId)
-      ? [{ entry, transaction }]
-      : [];
-  });
-  return rows;
-}
-
-/** The server read the list before the last local change: an Entry that left the account's posted Ledger since is no longer behind the difference. */
-function isUnbackedStill(
-  entry: EntryRow,
-  transaction: TransactionRow,
-  accountId: string,
-) {
-  return (
-    entry.deletedAt === null &&
-    entry.accountId === accountId &&
-    transaction.deletedAt === null &&
-    transaction.status === "posted"
   );
 }
 

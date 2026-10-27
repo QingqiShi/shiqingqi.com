@@ -286,12 +286,12 @@ function ConnectedSettings({
     const parts =
       locale === "zh"
         ? [
-            `${labels.newCount} ${numbers.format(line.pending)}`,
+            `${labels.newCount} ${numbers.format(line.waiting)}`,
             `${labels.matchedCount} ${numbers.format(line.matched)}`,
             `${labels.reviewCount} ${numbers.format(line.review)}`,
           ]
         : [
-            `${numbers.format(line.pending)} ${labels.newCount}`,
+            `${numbers.format(line.waiting)} ${labels.newCount}`,
             `${numbers.format(line.matched)} ${labels.matchedCount}`,
             `${numbers.format(line.review)} ${labels.reviewCount}`,
           ];

@@ -3,15 +3,8 @@ import { z } from "zod";
 import type { LabellingModel } from "../ai/label-bank-rows.ts";
 import type { FinanceSession } from "../auth/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
-import { bankKeptTransactionRepository } from "../db/repositories/bank-kept-transaction-repository.ts";
-import {
-  bankLinkRepository,
-  type BankLinkRecord,
-} from "../db/repositories/bank-link-repository.ts";
-import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
+import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
-import type { RepositoryScope } from "../db/repositories/types.ts";
-import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
@@ -24,10 +17,10 @@ import {
 import { readFinanceBody } from "../http/read-finance-body.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
+import { BalanceCheckNotFoundError, balanceCheck } from "./balance-check.ts";
 import { credentialCipher } from "./credential-cipher.ts";
 import { BankError } from "./lunchflow/bank-error.ts";
 import { processBankRows } from "./process-bank-rows.ts";
-import { selectUnbackedEntries } from "./select-unbacked-entries.ts";
 import { syncBankLinks } from "./sync-bank-links.ts";
 import type {
   BankApiErrorCode,
@@ -106,32 +99,6 @@ function toView(link: {
   };
 }
 
-async function findLiveLink(scope: RepositoryScope, linkId: string) {
-  const link = await bankLinkRepository.findById(scope, linkId);
-  if (!link || link.deletedAt) throw new BankRequestError("not-found", 404);
-  return link;
-}
-
-/** The Entries behind the link's balance difference, which no bank row backs and no Member kept. */
-async function unbackedEntriesOf(scope: RepositoryScope, link: BankLinkRecord) {
-  if (link.bankBalanceOn === null) return [];
-  const latest = await valuationRepository.latestOnOrBefore(
-    scope,
-    link.accountId,
-    link.bankBalanceOn,
-  );
-  return selectUnbackedEntries(
-    await valuationRepository.postedEntriesAfter(
-      scope,
-      link.accountId,
-      latest?.on ?? null,
-      link.bankBalanceOn,
-    ),
-    await bankTransactionRepository.listBacking(scope, link.id),
-    await bankKeptTransactionRepository.listIds(scope, link.id),
-  );
-}
-
 /**
  * The Connections settings and Review routes under `/api/finance/bank/`.
  * Every route needs a session; every write also needs a same-origin
@@ -163,6 +130,9 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
       } catch (error) {
         if (error instanceof BankRequestError) {
           return failure(error.code, error.status);
+        }
+        if (error instanceof BalanceCheckNotFoundError) {
+          return failure("not-found", 404);
         }
         if (error instanceof BankError) return failure(error.kind, 502);
         throw error;
@@ -366,7 +336,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
                       lastSyncedOn: null,
                       bankBalanceMinor: null,
                       bankBalanceOn: null,
-                      balanceDifferenceMinor: null,
+                      bankRowsWaiting: false,
                     }
                   : {}),
               });
@@ -480,15 +450,12 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
           linkId: new URL(request.url).searchParams.get("linkId"),
         });
         if (!parsed.success) return failure("invalid-body", 400);
-        const entryIds = await withHousehold(
+        const unbacked = await withHousehold(
           scope.db,
           scope.householdId,
-          async (read) => {
-            const link = await findLiveLink(read, parsed.data.linkId);
-            const unbacked = await unbackedEntriesOf(read, link);
-            return unbacked.map((entry) => entry.id);
-          },
+          (read) => balanceCheck.unbackedEntries(read, parsed.data.linkId),
         );
+        const entryIds = unbacked.map((entry) => entry.id);
         return financeJson({ entryIds } satisfies UnbackedEntriesResponse);
       },
       { write: false },
@@ -509,22 +476,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
           scope.db,
           scope.householdId,
           dependencies.now(),
-          async (context) => {
-            const link = await findLiveLink(context.scope, linkId);
-            const unbacked = await unbackedEntriesOf(context.scope, link);
-            if (
-              !unbacked.some((entry) => entry.transactionId === transactionId)
-            ) {
-              throw new BankRequestError("not-found", 404);
-            }
-            await bankKeptTransactionRepository.keep(
-              context.scope,
-              linkId,
-              transactionId,
-            );
-            await bankLinkRepository.patch(context.scope, linkId, {});
-            context.markWritten();
-          },
+          (context) => balanceCheck.keep(context, linkId, transactionId),
         );
         return financeNoContent();
       },
@@ -545,16 +497,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
           scope.db,
           scope.householdId,
           dependencies.now(),
-          async (context) => {
-            await findLiveLink(context.scope, linkId);
-            await bankKeptTransactionRepository.unkeep(
-              context.scope,
-              linkId,
-              transactionId,
-            );
-            await bankLinkRepository.patch(context.scope, linkId, {});
-            context.markWritten();
-          },
+          (context) => balanceCheck.unkeep(context, linkId, transactionId),
         );
         return financeNoContent();
       },

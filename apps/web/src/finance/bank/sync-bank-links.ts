@@ -9,7 +9,6 @@ import {
 } from "../db/repositories/bank-transaction-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
-import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { addDays } from "../domain/dates/add-days.ts";
@@ -18,7 +17,7 @@ import {
   runServerWrite,
   type ServerWriteContext,
 } from "../sync/run-server-write.ts";
-import { balanceDifferenceOf } from "./balance-difference-of.ts";
+import { balanceCheck } from "./balance-check.ts";
 import { byBankDate } from "./by-bank-date.ts";
 import { isUsableBankRow } from "./is-usable-bank-row.ts";
 import { BankError } from "./lunchflow/bank-error.ts";
@@ -29,7 +28,6 @@ import type {
   ProviderTransaction,
 } from "./lunchflow/types.ts";
 import { matchBankRows, type MatchLink } from "./match-bank-rows.ts";
-import { toEntryAmount } from "./to-entry-amount.ts";
 import type { BankLinkSyncSummary } from "./types.ts";
 
 /** How far back the first sync of a link reads. */
@@ -180,44 +178,24 @@ async function writeLink(
       (row) => row.state === "new" && isUsableBankRow(row, link),
     ),
   );
-  const { matchedIds, linked, confirmed } = await matchBankRows(
-    context,
-    link,
-    open,
-  );
-  const pending = open.length - matchedIds.size;
-
-  const bankBalance = toEntryAmount(fetched.balance.amountMinor, link);
-  await bankLinkRepository.recordBalance(scope, {
+  const { linked, confirmed } = await matchBankRows(context, link, open);
+  const waitingByLink = await balanceCheck.refresh(context, {
     linkId: link.id,
     fetchedAt: now,
-    amountMinor: fetched.balance.amountMinor,
-    currency: fetched.balance.currency,
+    balance: fetched.balance,
   });
-  const balanceDifferenceMinor =
-    pending === 0 && fetched.balance.currency === link.currency
-      ? balanceDifferenceOf(
-          bankBalance,
-          await valuationRepository.balanceAt(scope, link.accountId, today),
-        )
-      : null;
   await bankLinkRepository.patch(scope, link.id, {
     lastSyncedOn: today,
     lastSyncAt: now,
     lastError: null,
     status: "active",
-    bankBalanceMinor:
-      fetched.balance.currency === link.currency ? bankBalance : null,
-    bankBalanceOn: today,
-    balanceDifferenceMinor,
   });
   context.markWritten();
   return {
-    pending,
+    waiting: waitingByLink.get(link.id) ?? 0,
     linked,
     confirmed,
     missing,
-    balanceDifferenceMinor,
   };
 }
 
@@ -272,10 +250,11 @@ async function syncLink(
  * Syncs every live Bank link of a Household (design §7.3): reads the bank
  * rows since the last sync day less ten days (the first time, the last 90
  * days), stores them, flags rows the bank no longer returns, matches new
- * rows to Transactions already in the ledger, and compares the balances
- * when no row of the link waits for the AI step. A row without a match
- * stays `new` for `processBankRows` to label. A failing link records its error and the others go
- * on. Running it again with the same bank data changes no Transaction.
+ * rows to Transactions already in the ledger, and stores the bank balance
+ * for the balance check. A row without a match stays `new` for
+ * `processBankRows` to label. A failing link records its error and the
+ * others go on. Running it again with the same bank data changes no
+ * Transaction.
  */
 export async function syncBankLinks(
   dependencies: SyncBankLinksDependencies,
@@ -317,11 +296,10 @@ export async function syncBankLinks(
         linkId: link.id,
         accountId: link.accountId,
         error: kind,
-        pending: 0,
+        waiting: 0,
         linked: 0,
         confirmed: 0,
         missing: 0,
-        balanceDifferenceMinor: link.balanceDifferenceMinor,
       });
     }
   }

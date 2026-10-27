@@ -1,7 +1,7 @@
 import {
-  balanceCheckRepository,
+  balanceDriftRepository,
   type BalanceDrift,
-} from "../db/repositories/balance-check-repository.ts";
+} from "../db/repositories/balance-drift-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
@@ -24,7 +24,7 @@ export async function repairBalanceDays(
   onDrift: (drift: BalanceDrift) => void,
 ) {
   const upToId = await withHousehold(db, householdId, (scope) =>
-    balanceCheckRepository.latestId(scope),
+    balanceDriftRepository.latestId(scope),
   );
   if (upToId === 0) return { checked: 0, drifts: 0 };
   let checked = 0;
@@ -34,8 +34,8 @@ export async function repairBalanceDays(
       db,
       householdId,
       async (scope) => {
-        const ids = await balanceCheckRepository.nextIds(scope, upToId, BATCH);
-        const found = await balanceCheckRepository.findDrift(scope, ids);
+        const ids = await balanceDriftRepository.nextIds(scope, upToId, BATCH);
+        const found = await balanceDriftRepository.findDrift(scope, ids);
         return { ids, found };
       },
       { isolationLevel: "repeatable read", accessMode: "read only" },
@@ -43,14 +43,14 @@ export async function repairBalanceDays(
     if (batch.ids.length === 0) break;
     if (batch.found.length === 0) {
       await withHousehold(db, householdId, (scope) =>
-        balanceCheckRepository.remove(scope, batch.ids),
+        balanceDriftRepository.remove(scope, batch.ids),
       );
     } else {
       await runServerWrite(db, householdId, now, async (context) => {
         for (const drift of batch.found) {
           context.touches.account(drift.accountId, drift.day);
         }
-        await balanceCheckRepository.remove(context.scope, batch.ids);
+        await balanceDriftRepository.remove(context.scope, batch.ids);
       });
       for (const drift of batch.found) onDrift(drift);
     }

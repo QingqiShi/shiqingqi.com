@@ -154,7 +154,7 @@ describe("buildFakeBankFixture", () => {
         (row) => !row.id.startsWith("fake-unknown-") || row.amountMinor < 0,
       ),
     ).toBe(true);
-    expect(results).toMatchObject([{ error: null, linked: 1, pending: 4 }]);
+    expect(results).toMatchObject([{ error: null, linked: 1, waiting: 4 }]);
     const cardEntries = await db
       .select({ amountMinor: entries.amountMinor, kind: transactions.kind })
       .from(entries)

@@ -1,3 +1,8 @@
+import {
+  balanceCheckOf,
+  ledgerBalanceAt,
+  type BalanceCheck,
+} from "../bank/balance-check-of.ts";
 import { isIdleSystemAccount } from "../domain/accounts/is-idle-system-account.ts";
 import type { BalanceSeries } from "../domain/balance/compute-balance-days.ts";
 import type { FxIndex } from "../domain/balance/create-fx-index.ts";
@@ -26,6 +31,8 @@ export interface AccountLine {
   /** What is left to spend on a credit account with a limit, or null. */
   available: number | null;
   bankLink: BankLinkRow | null;
+  /** The Bank link's balance check when it found a difference, or null. */
+  balanceCheck: BalanceCheck | null;
 }
 
 interface GroupSection {
@@ -70,13 +77,11 @@ export function buildBalanceSheet(input: BalanceSheetInput): BalanceSheet {
 
   for (const account of input.accounts) {
     const closed = account.closedOn !== null && input.day >= account.closedOn;
-    const balance = accountBalanceAt(
-      account,
-      input.seriesByAccount.get(account.id),
-      input.day,
-    );
+    const series = input.seriesByAccount.get(account.id);
+    const balance = accountBalanceAt(account, series, input.day);
     if (isIdleSystemAccount(account, balance)) continue;
     const rawBase = input.fx.toBase(balance, account.currency, epochDay);
+    const bankLink = linkByAccount.get(account.id) ?? null;
     const hidden = closed
       ? "closed"
       : account.excludedFromNetWorth
@@ -96,7 +101,10 @@ export function buildBalanceSheet(input: BalanceSheetInput): BalanceSheet {
         account.kind === "credit" && account.creditLimitMinor !== null
           ? account.creditLimitMinor + balance
           : null,
-      bankLink: linkByAccount.get(account.id) ?? null,
+      bankLink,
+      balanceCheck:
+        bankLink &&
+        balanceCheckOf(bankLink, (day) => ledgerBalanceAt(series, day)),
     };
     const lines = linesByGroup.get(account.groupId) ?? [];
     lines.push(line);

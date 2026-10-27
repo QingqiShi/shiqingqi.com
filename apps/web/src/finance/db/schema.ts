@@ -661,8 +661,8 @@ export const accountBalanceDays = pgTable(
  * `account_balance_days`. The daily balance repair checks each one and
  * deletes it. Server-only, never synced.
  */
-export const balanceCheckDays = pgTable(
-  "balance_check_days",
+export const balanceDriftDays = pgTable(
+  "balance_drift_days",
   {
     id: bigint("id", { mode: "number" })
       .primaryKey()
@@ -672,7 +672,7 @@ export const balanceCheckDays = pgTable(
     day: date("day", { mode: "string" }).notNull(),
     createdAt: createdAt(),
   },
-  (t) => [index("balance_check_days_household_idx").on(t.householdId, t.id)],
+  (t) => [index("balance_drift_days_household_idx").on(t.householdId, t.id)],
 );
 
 /** Retired. Only older deployments use it. A later migration removes it. */
@@ -855,7 +855,7 @@ export const bankLinks = pgTable(
     status: text("status").notNull().default("active"),
     bankBalanceMinor: minor("bank_balance_minor"),
     bankBalanceOn: date("bank_balance_on", { mode: "string" }),
-    balanceDifferenceMinor: minor("balance_difference_minor"),
+    bankRowsWaiting: boolean("bank_rows_waiting").notNull().default(false),
     version: version(),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -1007,7 +1007,7 @@ export const schema = {
   entries,
   transactionTags,
   accountBalanceDays,
-  balanceCheckDays,
+  balanceDriftDays,
   exchangeRates,
   appliedMutations,
   connections,

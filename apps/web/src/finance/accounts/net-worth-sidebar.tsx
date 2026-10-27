@@ -203,12 +203,11 @@ export function BankDifferences({
   );
 }
 
-/** The shown accounts whose Bank link reports a balance that differs from ours. */
+/** The shown accounts whose balance check found a difference. */
 export function bankDifferenceLines(sheet: BalanceSheet) {
   return sheet.sections.flatMap((section) =>
     section.lines.filter(
-      (line) =>
-        line.hidden === null && line.bankLink?.balanceDifferenceMinor != null,
+      (line) => line.hidden === null && line.balanceCheck !== null,
     ),
   );
 }

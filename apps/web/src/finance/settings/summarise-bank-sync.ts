@@ -4,7 +4,7 @@ import type { SyncNowResponse } from "../bank/types.ts";
 export interface BankSyncLine {
   name: string;
   /** New bank rows the AI labels after the sync. */
-  pending: number;
+  waiting: number;
   /** Bank rows matched to a recorded or an Expected transaction. */
   matched: number;
   /** The account's transactions that wait in Review after the sync. */
@@ -21,13 +21,13 @@ export function summariseBankSync(
   return response.links
     .map((link) => ({
       name: nameOf(link.accountId),
-      pending: link.pending,
+      waiting: link.waiting,
       matched: link.linked + link.confirmed,
       review: reviewCountOf(link.accountId),
       failed: link.error !== null,
     }))
     .filter(
       (line) =>
-        line.failed || line.pending > 0 || line.matched > 0 || line.review > 0,
+        line.failed || line.waiting > 0 || line.matched > 0 || line.review > 0,
     );
 }
