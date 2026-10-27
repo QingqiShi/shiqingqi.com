@@ -1,11 +1,22 @@
-import { useState, type PointerEvent, type Ref } from "react";
 import {
+  useState,
+  type DOMAttributes,
+  type PointerEvent,
+  type Ref,
+} from "react";
+import {
+  LIQUID_INDICATOR,
   LIQUID_SEGMENT,
   LIQUID_VERTICAL,
 } from "../effect-layer/liquid-indicator.ts";
 import { useLiquid } from "../effect-layer/use-liquid.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
+import {
+  segmentSurfaces,
+  segmentTrack,
+  segmentTrackMarker,
+} from "./segment-track.stylex.ts";
 
 /** The segments of `track`, in the order of the options. */
 function segmentsOf(track: HTMLElement) {
@@ -15,10 +26,8 @@ function segmentsOf(track: HTMLElement) {
 /**
  * The way the segments of a track follow each other: side by side, or one
  * over the next.
- *
- * @internal
  */
-export type SegmentOrientation = "horizontal" | "vertical";
+type SegmentOrientation = "horizontal" | "vertical";
 
 /** Where a span starts and ends along the track, in the viewport. */
 interface Span {
@@ -196,11 +205,17 @@ function useSegmentDrag(orientation: SegmentOrientation) {
   };
 }
 
-interface SegmentPressOptions<T extends HTMLElement> {
+const INDICATOR = { "aria-hidden": "true", [LIQUID_INDICATOR]: "" } as const;
+const SEGMENT = { [LIQUID_SEGMENT]: "" };
+
+/** @internal */
+export interface SegmentTrackOptions<T extends HTMLElement> {
   /** The segment the indicator rests on, or -1 for none. */
   selected: number;
   /** Draws the indicator as liquid on the effect layer, or not at all. */
   effect: "liquid" | "none";
+  /** The selected surface that the indicator paints. */
+  surface: keyof typeof segmentSurfaces;
   /**
    * How the segments follow each other, and so the axis a drag moves the
    * indicator on.
@@ -208,32 +223,42 @@ interface SegmentPressOptions<T extends HTMLElement> {
    * @default "horizontal"
    */
   orientation?: SegmentOrientation | undefined;
+  /**
+   * The track scrolls, so a drag down a vertical track scrolls it and touch
+   * reaches each segment.
+   */
+  scrolls?: boolean | undefined;
   /** A ref for the track, merged with the effect's. */
   ref?: Ref<T> | undefined;
+  /** The caller's own handlers. Its pointer handlers run before the track's. */
+  handlers?: DOMAttributes<T> | undefined;
   /** Called when a press ends on a segment, by a release and not a cancel. */
   onDrop: (drop: SegmentDrop) => void;
 }
 
 /**
- * The press, the drag and the liquid indicator of a track of segments,
- * shared by `SegmentedControl`, `TabBar` and the rail of `TabView`. Spread
- * `handlers` on the track, which also marks a vertical track with
- * `LIQUID_VERTICAL`, and attach `trackRef` to it. Each segment carries
- * `LIQUID_SEGMENT`, and the indicator carries `LIQUID_INDICATOR`. `shown`
- * is the segment that looks selected: the selected one, or while a press is
- * on, the one under the indicator. `inset` places the plain indicator while
- * a press holds it off its anchor: its distance from the start and from the
- * end of the track's padding box, along the track.
+ * A Segment track: the press, the drag, the indicator and the liquid
+ * effect of a track of segments, shared by `SegmentedControl`, `TabBar` and
+ * the rail of `TabView`. It writes the attributes that the liquid effect
+ * reads. Spread `props` on the track with `css`, render the indicator with
+ * `indicator` and `indicatorCss` as the first child of the track, and give
+ * each segment `segment(index)` and `segmentCss(index)`. `shown` is the
+ * segment that looks selected: the selected one, or while a press is on,
+ * the one under the indicator.
  *
  * @internal
  */
-export function useSegmentPress<T extends HTMLElement>({
+export function useSegmentTrack<T extends HTMLElement>({
   selected,
   effect,
+  surface,
   orientation = "horizontal",
+  scrolls = false,
   ref,
+  handlers = {},
   onDrop,
-}: SegmentPressOptions<T>) {
+}: SegmentTrackOptions<T>) {
+  const vertical = orientation === "vertical";
   const [pressed, setPressed] = useState(false);
   const drag = useSegmentDrag(orientation);
   const liquidRef = useLiquid({
@@ -241,44 +266,65 @@ export function useSegmentPress<T extends HTMLElement>({
     drag: drag.index,
     pressed,
   });
-  const effectRef = effect === "liquid" ? liquidRef : undefined;
-  const trackRef = mergeRefs<T>(ref, effectRef);
+  const shown = drag.segment ?? selected;
+  const { inset } = drag;
 
   return {
-    trackRef,
-    shown: drag.segment ?? selected,
-    /** A press is on a segment, so no hover fill should cover the indicator. */
-    held: drag.pressed !== null,
-    inset: drag.inset,
-    dragging: drag.index !== null,
-    handlers: {
-      ...(orientation === "vertical" ? { [LIQUID_VERTICAL]: "" } : {}),
-      onPointerDown: (event: PointerEvent<HTMLElement>) => {
+    shown,
+    props: {
+      ref: mergeRefs<T>(ref, effect === "liquid" ? liquidRef : undefined),
+      ...(vertical ? { [LIQUID_VERTICAL]: "" } : {}),
+      onPointerDown: (event: PointerEvent<T>) => {
+        handlers.onPointerDown?.(event);
         if (event.pointerType !== "mouse" || event.button === 0) {
           setPressed(true);
           drag.start(event);
         }
       },
-      onPointerMove: (event: PointerEvent<HTMLElement>) => {
+      onPointerMove: (event: PointerEvent<T>) => {
+        handlers.onPointerMove?.(event);
         drag.move(event);
       },
-      onPointerUp: (event: PointerEvent<HTMLElement>) => {
+      onPointerUp: (event: PointerEvent<T>) => {
+        handlers.onPointerUp?.(event);
         setPressed(false);
         const drop = drag.end(event);
         if (drop !== null) {
           onDrop(drop);
         }
       },
-      onPointerCancel: () => {
+      onPointerCancel: (event: PointerEvent<T>) => {
+        handlers.onPointerCancel?.(event);
         setPressed(false);
         drag.cancel();
       },
-      onPointerLeave: () => {
+      onPointerLeave: (event: PointerEvent<T>) => {
+        handlers.onPointerLeave?.(event);
         if (drag.index === null) {
           setPressed(false);
           drag.cancel();
         }
       },
     },
+    css: [
+      segmentTrackMarker,
+      segmentTrack.track,
+      vertical && !scrolls && segmentTrack.trackVertical,
+      segmentSurfaces[surface],
+    ],
+    indicator: INDICATOR,
+    indicatorCss: [
+      segmentTrack.indicator,
+      inset !== null &&
+        (vertical
+          ? segmentTrack.atBlock(inset.start, inset.end)
+          : segmentTrack.at(inset.start, inset.end)),
+      drag.index !== null && segmentTrack.dragged,
+    ],
+    segment: (_index: number) => SEGMENT,
+    segmentCss: (index: number) => [
+      drag.pressed !== null && segmentTrack.held,
+      index === shown && segmentTrack.shown,
+    ],
   };
 }

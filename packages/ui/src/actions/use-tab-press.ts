@@ -1,9 +1,8 @@
-import { useRef, useState, type MouseEvent, type PointerEvent } from "react";
-import { LIQUID_SEGMENT } from "../effect-layer/liquid-indicator.ts";
+import { useRef, useState, type MouseEvent } from "react";
 import {
-  useSegmentPress,
-  type SegmentOrientation,
-} from "../forms/use-segment-press.ts";
+  useSegmentTrack,
+  type SegmentTrackOptions,
+} from "../forms/use-segment-track.ts";
 
 /**
  * Whether a click opens the link in place, with no key and no other button.
@@ -20,13 +19,12 @@ export function isPlainClick(event: MouseEvent) {
   );
 }
 
-interface TabPressOptions {
+interface TabPressOptions extends Pick<
+  SegmentTrackOptions<HTMLDivElement>,
+  "effect" | "surface" | "orientation" | "scrolls"
+> {
   /** The tab of the page the visitor is on, or -1 for none. */
   current: number;
-  /** Draws the indicator as liquid on the effect layer, or not at all. */
-  effect: "liquid" | "none";
-  /** How the tabs follow each other on the track. */
-  orientation?: SegmentOrientation | undefined;
 }
 
 /**
@@ -36,12 +34,12 @@ interface TabPressOptions {
  * moves the indicator across the tabs. A release after a drag follows the
  * link under the indicator; a tap follows the tab's own link, as a click
  * does. The indicator stays on the tab a click went to until its page is
- * the current one. Spread `trackProps` on the track, a `<div>`, and attach
- * `trackRef` to it, and spread `linkProps(index)` on each link.
+ * the current one. It returns what `useSegmentTrack` returns, with the
+ * track a `<div>` and each segment a link.
  *
  * @internal
  */
-export function useTabPress({ current, effect, orientation }: TabPressOptions) {
+export function useTabPress({ current, ...options }: TabPressOptions) {
   // The tab a click went to, held under the indicator until the page it
   // opens is the current one.
   const [followed, setFollowed] = useState<{
@@ -57,36 +55,29 @@ export function useTabPress({ current, effect, orientation }: TabPressOptions) {
   const [tapped, setTapped] = useState<number | null>(null);
   const resting = tapped ?? followed?.index ?? current;
   const droppedRef = useRef(false);
-  const { trackRef, shown, held, inset, dragging, handlers } =
-    useSegmentPress<HTMLDivElement>({
-      selected: resting,
-      effect,
-      orientation,
-      onDrop(drop) {
-        if (drop.dragged) {
-          droppedRef.current = true;
-          drop.element.click();
-        } else {
-          setTapped(drop.index);
-        }
-      },
-    });
-
-  return {
-    trackRef,
-    /** The tab that looks current: under the indicator, or where it rests. */
-    shown,
-    /** A press is on a tab, so no hover fill should cover the indicator. */
-    held,
-    inset,
-    dragging,
-    trackProps: {
-      ...handlers,
-      onPointerDown: (event: PointerEvent<HTMLElement>) => {
+  const track = useSegmentTrack<HTMLDivElement>({
+    ...options,
+    selected: resting,
+    handlers: {
+      onPointerDown() {
         droppedRef.current = false;
         setTapped(null);
-        handlers.onPointerDown(event);
       },
+    },
+    onDrop(drop) {
+      if (drop.dragged) {
+        droppedRef.current = true;
+        drop.element.click();
+      } else {
+        setTapped(drop.index);
+      }
+    },
+  });
+
+  return {
+    ...track,
+    props: {
+      ...track.props,
       onClickCapture: (event: MouseEvent<HTMLElement>) => {
         setTapped(null);
         // A drag follows the link under the indicator on release, so the
@@ -99,14 +90,14 @@ export function useTabPress({ current, effect, orientation }: TabPressOptions) {
         }
       },
     },
-    linkProps: (index: number) => ({
+    segment: (index: number) => ({
+      ...track.segment(index),
       draggable: false,
       onClick: (event: MouseEvent<HTMLAnchorElement>) => {
         if (isPlainClick(event)) {
           setFollowed({ index, from: current });
         }
       },
-      [LIQUID_SEGMENT]: "",
     }),
   };
 }

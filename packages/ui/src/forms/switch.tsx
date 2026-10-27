@@ -25,7 +25,7 @@ import {
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { DRAG_THRESHOLD, indexAt } from "./index-at.ts";
-import { selectedSurface } from "./segment-indicator.stylex.ts";
+import { selectedSurface } from "./segment-track.stylex.ts";
 import { switchTokens } from "./switch.stylex.ts";
 
 export type SwitchState = "off" | "on" | "indeterminate";

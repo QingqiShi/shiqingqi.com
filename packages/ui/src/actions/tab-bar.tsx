@@ -4,12 +4,6 @@ import type { Icon } from "@phosphor-icons/react";
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ComponentType, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
-import { LIQUID_INDICATOR } from "../effect-layer/liquid-indicator.ts";
-import {
-  segmentIndicator,
-  segmentTrackMarker,
-} from "../forms/segment-indicator.stylex.ts";
-import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
@@ -25,7 +19,7 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { tabBarTokens } from "./tab-bar.stylex.ts";
+import { tabBarTokens, tabLink } from "./tab-bar.stylex.ts";
 import { useTabPress } from "./use-tab-press.ts";
 
 /**
@@ -141,54 +135,39 @@ export function TabBar({
   css,
 }: TabBarProps) {
   const current = items.findIndex((item) => item.current === true);
-  const { trackRef, shown, held, inset, dragging, trackProps, linkProps } =
-    useTabPress({ current, effect });
+  const track = useTabPress({ current, effect, surface: "tint" });
 
   return (
     <nav aria-label={label} css={[corner.radius_round, styles.bar, css]}>
       <div
-        ref={trackRef}
-        css={[
-          glassSurface.base,
-          corner.radius_round,
-          segmentTrackMarker,
-          segmentIndicator.track,
-          styles.track,
-        ]}
-        {...trackProps}
+        {...track.props}
+        css={[glassSurface.base, corner.radius_round, track.css, styles.track]}
       >
-        {shown >= 0 ? (
+        {track.shown >= 0 ? (
           <span
-            aria-hidden="true"
-            {...{ [LIQUID_INDICATOR]: "" }}
-            css={[
-              corner.radius_round,
-              segmentIndicator.base,
-              segmentIndicator.tint,
-              inset !== null && segmentIndicator.at(inset.start, inset.end),
-              dragging && segmentIndicator.dragged,
-            ]}
+            {...track.indicator}
+            css={[corner.radius_round, track.indicatorCss]}
           />
         ) : null}
         {/* `role="list"` survives the marker reset, which otherwise drops
             list semantics in Safari/VoiceOver. */}
         <ul role="list" css={styles.list}>
           {items.map((item, index) => {
-            const isShown = index === shown;
+            const isShown = index === track.shown;
             return (
               <li key={item.href} css={styles.item}>
                 <LinkComponent
                   href={item.href}
                   aria-current={item.current === true ? "page" : undefined}
-                  {...linkProps(index)}
+                  {...track.segment(index)}
                   {...stylex.props(
                     typeRole.caption,
                     a11y.touchTarget,
                     transition.colors,
                     corner.radius_round,
                     styles.link,
-                    held && segmentIndicator.held,
-                    isShown && [segmentIndicator.anchor, styles.linkShown],
+                    track.segmentCss(index),
+                    isShown && tabLink.shown,
                     a11y.focusRingInset,
                   )}
                 >
@@ -216,12 +195,6 @@ export function TabBar({
     </nav>
   );
 }
-
-/** The motion engine sets this attribute on a box while it moves it. */
-const MOVED = ":is([data-moving])";
-const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
-/** The effect layer sets this attribute on the track while it draws the indicator. */
-const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 
 const styles = stylex.create({
   // The Glass casts only a small shadow. A bar that floats over the content
@@ -280,30 +253,6 @@ const styles = stylex.create({
     // A press on a tab can drag the indicator, so it does not select the
     // label.
     userSelect: "none",
-  },
-  // The indicator paints the surface of the shown tab, so the tab gives up
-  // its own fill. Where there is no anchor positioning the tab paints that
-  // surface itself, unless the effect draws the indicator over the bar. The
-  // colour and the filled icon stay in all of them, because they are the
-  // signal in forced colours.
-  linkShown: {
-    color: color.fgControlSelected,
-    fontWeight: font.weight_6,
-    backgroundColor: {
-      default: "transparent",
-      [NO_ANCHOR_POSITIONING]: {
-        default: color.bgMaterialGlassSelected,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
-          "transparent",
-      },
-      [stylex.when.ancestor(MOVED, movingMarker)]:
-        color.bgMaterialGlassSelected,
-    },
-    // The surface changes from the indicator to the tab at once.
-    transition: {
-      default: null,
-      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
-    },
   },
   icon: {
     position: "relative",

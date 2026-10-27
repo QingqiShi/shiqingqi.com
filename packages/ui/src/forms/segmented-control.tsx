@@ -3,12 +3,7 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ComponentProps, ReactNode } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
-import {
-  LIQUID_INDICATOR,
-  LIQUID_SEGMENT,
-} from "../effect-layer/liquid-indicator.ts";
 import { useRadioGroup } from "../hooks/use-radio-group.ts";
-import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner, cornerTokens } from "../primitives/corner.stylex.ts";
 import { truncate } from "../primitives/layout.stylex.ts";
@@ -28,12 +23,7 @@ import {
   font,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import {
-  segmentIndicator,
-  segmentTrackMarker,
-  selectedSurface,
-} from "./segment-indicator.stylex.ts";
-import { useSegmentPress } from "./use-segment-press.ts";
+import { useSegmentTrack } from "./use-segment-track.ts";
 
 interface SegmentedControlOption<TValue extends string> {
   /** The value this segment selects. Must be unique within the group. */
@@ -196,11 +186,6 @@ export function SegmentedControl<TValue extends string>({
   ref,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledBy,
-  onPointerDown,
-  onPointerMove,
-  onPointerUp,
-  onPointerCancel,
-  onPointerLeave,
   onClickCapture,
   ...restProps
 }: SegmentedControlProps<TValue>) {
@@ -211,10 +196,12 @@ export function SegmentedControl<TValue extends string>({
     onChange,
   });
   const selected = values.indexOf(value);
-  const { trackRef, shown, held, inset, dragging, handlers } = useSegmentPress({
+  const track = useSegmentTrack({
     selected,
     effect,
+    surface: "solid",
     ref,
+    handlers: restProps,
     onDrop(drop) {
       if (!drop.dragged || drop.index !== selected) {
         onChange(values[drop.index]);
@@ -225,39 +212,18 @@ export function SegmentedControl<TValue extends string>({
   return (
     <div
       {...restProps}
-      ref={trackRef}
+      {...track.props}
       role="radiogroup"
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
       css={[
         corner.squircle_round,
-        segmentTrackMarker,
-        segmentIndicator.track,
+        track.css,
         styles.track,
         trackSizeStyles[size],
         fullWidth && styles.trackFullWidth,
         css,
       ]}
-      onPointerDown={(event) => {
-        onPointerDown?.(event);
-        handlers.onPointerDown(event);
-      }}
-      onPointerMove={(event) => {
-        onPointerMove?.(event);
-        handlers.onPointerMove(event);
-      }}
-      onPointerUp={(event) => {
-        onPointerUp?.(event);
-        handlers.onPointerUp(event);
-      }}
-      onPointerCancel={(event) => {
-        onPointerCancel?.(event);
-        handlers.onPointerCancel();
-      }}
-      onPointerLeave={(event) => {
-        onPointerLeave?.(event);
-        handlers.onPointerLeave();
-      }}
       onClickCapture={(event) => {
         onClickCapture?.(event);
         // The pointer handlers select on the release. A click with no
@@ -274,15 +240,11 @@ export function SegmentedControl<TValue extends string>({
           rendered at all. */}
       {hasSelection ? (
         <span
-          aria-hidden="true"
-          {...{ [LIQUID_INDICATOR]: "" }}
+          {...track.indicator}
           css={[
             corner.squircle_round,
-            segmentIndicator.base,
             segmentSizeStyles[size],
-            segmentIndicator.solid,
-            inset !== null && segmentIndicator.at(inset.start, inset.end),
-            dragging && segmentIndicator.dragged,
+            track.indicatorCss,
           ]}
         />
       ) : null}
@@ -294,7 +256,7 @@ export function SegmentedControl<TValue extends string>({
           // enclosing form instead of switching the view.
           type="button"
           aria-label={option["aria-label"]}
-          {...{ [LIQUID_SEGMENT]: "" }}
+          {...track.segment(index)}
           {...getOptionProps(option.value)}
           css={[
             sizeRoles[size],
@@ -306,8 +268,8 @@ export function SegmentedControl<TValue extends string>({
             segmentSizeStyles[size],
             sizeStyles[size],
             fullWidth && styles.optionFullWidth,
-            held && segmentIndicator.held,
-            index === shown && [segmentIndicator.anchor, styles.optionSelected],
+            track.segmentCss(index),
+            index === track.shown && styles.optionSelected,
           ]}
         >
           {option.icon ? (
@@ -342,12 +304,6 @@ export function SegmentedControl<TValue extends string>({
     </div>
   );
 }
-
-const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
-/** The effect layer sets this attribute on the track while it draws the indicator. */
-const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
-/** The motion engine sets this attribute on a box while it moves it. */
-const MOVED = ":is([data-moving])";
 
 const styles = stylex.create({
   track: {
@@ -404,37 +360,11 @@ const styles = stylex.create({
     // The padding only makes the label truncate sooner.
     paddingInline: controlSize._0,
   },
-  // The indicator paints the selected surface, so the option names the anchor
-  // and gives up its own fill, edge and shadow. Where there is no anchor
-  // positioning the option paints that surface itself, unless the effect
-  // draws the indicator over the track. The weight and the colour stay in
-  // all of them, because they are the selection signal in forced colours.
+  // The weight and the colour are the selection signal in forced colours.
   optionSelected: {
-    backgroundColor: {
-      default: "transparent",
-      [NO_ANCHOR_POSITIONING]: {
-        default: color.bgControlRaised,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
-          "transparent",
-      },
-      [stylex.when.ancestor(MOVED, movingMarker)]: color.bgControlRaised,
-    },
     color: color.fg,
     fontWeight: font.weight_6,
     borderColor: "transparent",
-    boxShadow: {
-      default: "none",
-      [NO_ANCHOR_POSITIONING]: {
-        default: selectedSurface.edge,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: "none",
-      },
-      [stylex.when.ancestor(MOVED, movingMarker)]: selectedSurface.edge,
-    },
-    // The surface changes from the indicator to the segment at once.
-    transition: {
-      default: null,
-      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
-    },
   },
   icon: {
     display: "inline-flex",
