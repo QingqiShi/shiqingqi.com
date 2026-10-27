@@ -11,6 +11,8 @@ import { formatRuntime } from "#src/movie-database/details/format-runtime.ts";
 import { MediaDetailHero } from "#src/movie-database/details/media-detail-hero.tsx";
 import { SimilarMedia } from "#src/movie-database/details/similar-media.tsx";
 import { Trailer } from "#src/movie-database/details/trailer.tsx";
+import { noop } from "#src/movie-database/noop.ts";
+import { detailsOrNotFound } from "./details-or-not-found";
 import type { PageProps } from "./types";
 
 export default async function Page({ params }: PageProps) {
@@ -22,7 +24,7 @@ export default async function Page({ params }: PageProps) {
   }
 
   // Pre-fetch configuration
-  void getConfiguration();
+  getConfiguration().catch(noop);
 
   if (type === "movie") {
     // Start the most important fetch before pre-fetch requests
@@ -32,9 +34,9 @@ export default async function Page({ params }: PageProps) {
     });
 
     // Pre-fetch (hardcode to English — trailers are often only available in English)
-    void getMovieVideos({ movie_id: id, language: "en" });
+    getMovieVideos({ movie_id: id, language: "en" }).catch(noop);
 
-    const movie = await movieDetailsPromise;
+    const movie = await detailsOrNotFound(movieDetailsPromise);
 
     const title =
       movie.title ?? movie.original_title ?? t({ en: "Untitled", zh: "佚名" });
@@ -73,9 +75,9 @@ export default async function Page({ params }: PageProps) {
     });
 
     // Pre-fetch (hardcode to English — trailers are often only available in English)
-    void getTvShowVideos({ series_id: id, language: "en" });
+    getTvShowVideos({ series_id: id, language: "en" }).catch(noop);
 
-    const tvShow = await tvShowDetailsPromise;
+    const tvShow = await detailsOrNotFound(tvShowDetailsPromise);
 
     const title =
       tvShow.name ?? tvShow.original_name ?? t({ en: "Untitled", zh: "佚名" });

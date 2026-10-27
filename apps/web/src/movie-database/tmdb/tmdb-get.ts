@@ -58,6 +58,13 @@ export type ResponseType<
   ? R
   : unknown;
 
+export class TmdbNotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TmdbNotFoundError";
+  }
+}
+
 /** Shared TMDB API fetch utility */
 async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
   const response = await fetch(url, {
@@ -72,9 +79,10 @@ async function tmdbFetch<T>(url: string, errorMessage: string): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `${errorMessage} (${String(response.status)}:${response.statusText})`,
-    );
+    const message = `${errorMessage} (${String(response.status)}:${response.statusText})`;
+    throw response.status === 404
+      ? new TmdbNotFoundError(message)
+      : new Error(message);
   }
 
   // Allowed by the JSON-parse carve-out in eslint.config.mjs — a trust boundary the type system can't check.
