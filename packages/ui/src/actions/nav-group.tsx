@@ -89,12 +89,14 @@ const styles = stylex.create({
     marginBlockStart: { default: rhythm.item, ":first-child": 0 },
   },
   innerUnderLabel: {
-    marginBlockStart: rhythm.item,
+    // The outer label adds rhythm.tight below it. Together they make rhythm.item.
+    marginBlockStart: rhythm.tight,
   },
   label: {
     display: "block",
   },
   outerLabel: {
+    marginBlockEnd: rhythm.tight,
     color: color.fg,
   },
   innerLabel: {

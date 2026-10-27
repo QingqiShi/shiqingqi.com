@@ -39,8 +39,8 @@ export function NavListShowcase() {
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "NavGroup sets links apart, and its label names the group for a screen reader too. Groups nest one level: a group in the list shows its label as an overline, a group in a group as a muted caption. The space follows the depth, so a label sits closer to its own links than to the group above it: no gap under a label, the item step between groups in a group, and the group step between groups in the list.",
-            zh: "NavGroup 把链接分开，其 label 同时为读屏软件命名该分组。分组可以嵌套一层：直接位于列表中的分组以上标文字显示标签，位于分组中的分组以弱化的说明文字显示。间距随层级变化，使标签离自己的链接比离上方分组更近：标签下方不留间距，分组内的分组之间用条目间距，列表中的分组之间用分组间距。",
+            en: "NavGroup sets links apart, and its label names the group for a screen reader too. Groups nest one level: a group in the list shows its label as an overline, a group in a group as a muted caption. The space follows the depth, so a label sits closer to its own links than to the group above it: a short step under a label, so the current link's pill clears it, the item step between groups in a group, and the group step between groups in the list.",
+            zh: "NavGroup 把链接分开，其 label 同时为读屏软件命名该分组。分组可以嵌套一层：直接位于列表中的分组以上标文字显示标签，位于分组中的分组以弱化的说明文字显示。间距随层级变化，使标签离自己的链接比离上方分组更近：标签下方留出小间距，使当前链接的胶囊背景不贴住标签，分组内的分组之间用条目间距，列表中的分组之间用分组间距。",
           })}
         </Text>
       </Showcase>

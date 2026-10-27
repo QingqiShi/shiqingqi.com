@@ -41,11 +41,11 @@ const FIELDS = 3;
 export function SettingsSkeleton() {
   return (
     <div css={styles.root} aria-busy>
-      <div css={styles.menu}>
+      <div css={stack.group}>
         <Heading level={1} look="h3" css={styles.title}>
           {t({ en: "Settings", zh: "设置" })}
         </Heading>
-        <div css={styles.menu}>
+        <div css={stack.group}>
           {SETTINGS_GROUPS.map((group) => (
             <div key={group.id} css={stack.tight}>
               <div css={styles.groupLabel}>
@@ -107,11 +107,6 @@ const styles = stylex.create({
   },
   title: {
     margin: 0,
-  },
-  menu: {
-    display: "flex",
-    flexDirection: "column",
-    gap: { default: rhythm.group, [breakpoints.lg]: rhythm.item },
   },
   groupLabel: {
     paddingInline: space._3,
