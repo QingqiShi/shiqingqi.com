@@ -160,6 +160,8 @@ export default defineConfig({
     // it, so CI's TMDB/OpenAI vars still reach the spawned server.
     env: { PORT: port },
     reuseExistingServer: !process.env.CI,
-    timeout: 300 * 1000, // 5 minutes for build + server to start
+    // Locally the timer also runs during the build, which can take 8
+    // minutes on a loaded laptop. CI only starts a prebuilt app.
+    timeout: (process.env.CI ? 5 : 15) * 60 * 1000,
   },
 });
