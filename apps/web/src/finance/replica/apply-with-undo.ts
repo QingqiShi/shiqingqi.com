@@ -1,9 +1,9 @@
+import { bindMutation } from "../mutations/bind-mutation.ts";
 import type { Mutation } from "../sync/mutation-schema.ts";
 import type {
   LocalMutationInput,
   ReplicaStore,
 } from "./create-replica-store.ts";
-import { inverseMutations } from "./inverse-mutations.ts";
 
 interface UndoableResult {
   mutations: Mutation[];
@@ -37,7 +37,7 @@ export function applyWithUndo(
       const before = store.getSnapshot();
       const mutation = store.applyLocal(input);
       mutations.push(mutation);
-      const inverse = inverseMutations(before, mutation, createId);
+      const inverse = bindMutation(mutation).inverse(before, createId);
       if (inverse) undo.unshift(...inverse);
       else undoable = false;
     }

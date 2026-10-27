@@ -4,6 +4,7 @@ import {
 } from "../domain/accounts/institution-fields-after.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { isSupportedCurrency } from "../exchange-rates/supported-currencies.ts";
+import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import {
   checkSystemAccountPatch,
   checkSystemAccountValuation,
@@ -12,13 +13,22 @@ import { MutationError } from "../sync/mutation-error.ts";
 import {
   accountFieldsSchema,
   accountGroupFieldsSchema,
+  upsertAccountArgsSchema,
+  upsertAccountGroupArgsSchema,
 } from "../sync/mutation-schema.ts";
 import { parseNewRow } from "../sync/parse-new-row.ts";
-import type { AccountRow } from "../sync/row-schemas.ts";
+import type { AccountRow, ValuationRow } from "../sync/row-schemas.ts";
 import { invalid } from "./invalid.ts";
+import { previousUpsertArgs } from "./previous-upsert-args.ts";
+import { read } from "./read.ts";
 import { stampAfter } from "./stamp-after.ts";
 import { touchAccount } from "./touch-account.ts";
-import type { MutationArgs, MutationScope } from "./types.ts";
+import type {
+  MutationArgs,
+  MutationDraft,
+  MutationScope,
+  MutationSpecs,
+} from "./types.ts";
 import { absent } from "./wait-for-server.ts";
 
 function isLiveAccount(scope: MutationScope, id: string) {
@@ -185,6 +195,27 @@ function upsertGroup(scope: MutationScope, args: MutationArgs<"upsertGroup">) {
   });
 }
 
+/** The Valuation of the account on the day that is not deleted. */
+function liveValuationOn(draft: MutationDraft, accountId: string, on: string) {
+  return draft
+    .where("valuations", { accountId, on })
+    .find((row) => !row.deletedAt);
+}
+
+/** The mutation that puts the Valuation back as `row` holds it. */
+function restoreValuation(row: ValuationRow): LocalMutationInput {
+  return {
+    name: "putValuation",
+    args: {
+      id: row.id,
+      accountId: row.accountId,
+      on: row.on,
+      amountMinor: row.amountMinor,
+      note: row.note,
+    },
+  };
+}
+
 /**
  * Sets the balance of an account at the end of a day. A Valuation already on
  * that day is replaced. A value equal to the balance the account already has
@@ -199,9 +230,7 @@ function putValuation(
   if (!account || account.deletedAt !== null) invalid("Unknown account");
   checkSystemAccountValuation(account);
 
-  const existing = draft
-    .where("valuations", { accountId: args.accountId, on: args.on })
-    .find((row) => !row.deletedAt);
+  const existing = liveValuationOn(draft, args.accountId, args.on);
   if (existing) {
     if (
       existing.amountMinor === args.amountMinor &&
@@ -256,8 +285,95 @@ function deleteValuation(scope: MutationScope, id: string) {
 }
 
 export const accountMutations = {
-  upsertAccount,
-  upsertGroup,
-  putValuation,
-  deleteValuation,
-};
+  upsertAccount: {
+    reads: [
+      (args) => [
+        read.get("accounts", [args.id, args.defaultPaymentAccountId]),
+        read.get("members", [args.ownerMemberId]),
+      ],
+      (args, draft) => {
+        const existing = draft.get("accounts", args.id);
+        return [
+          read.institutionIconVersion([
+            args.institutionDomain,
+            existing?.institutionDomain,
+            existing?.guessedInstitutionDomain,
+          ]),
+          read.get("accountGroups", [args.groupId ?? existing?.groupId]),
+          ...(existing && args.deleted
+            ? (["entries", "valuations", "bankLinks"] as const).map((table) =>
+                read.hasLive(table, { accountId: args.id }),
+              )
+            : []),
+        ];
+      },
+    ],
+    apply: upsertAccount,
+    inverse: (snapshot, args) => [
+      {
+        name: "upsertAccount",
+        args: previousUpsertArgs(
+          snapshot.tables.accounts.get(args.id),
+          args,
+          upsertAccountArgsSchema,
+        ),
+      },
+    ],
+  },
+  upsertGroup: {
+    reads: [
+      ({ id, side, deleted }) => [
+        read.get("accountGroups", [id]),
+        side !== undefined || deleted
+          ? read.where("accounts", { groupId: id })
+          : undefined,
+      ],
+    ],
+    apply: upsertGroup,
+    inverse: (snapshot, args) => [
+      {
+        name: "upsertGroup",
+        args: previousUpsertArgs(
+          snapshot.tables.accountGroups.get(args.id),
+          args,
+          upsertAccountGroupArgsSchema,
+        ),
+      },
+    ],
+  },
+  putValuation: {
+    reads: [
+      ({ id, accountId, on }) => [
+        read.get("accounts", [accountId]),
+        read.get("valuations", [id]),
+        read.where("valuations", { accountId, on }),
+      ],
+      ({ accountId, on }, draft) =>
+        liveValuationOn(draft, accountId, on)
+          ? []
+          : [read.balanceAt(accountId, on)],
+    ],
+    apply: putValuation,
+    inverse: (snapshot, { id, accountId, on }) => {
+      const existing = [...snapshot.tables.valuations.values()].find(
+        (row) =>
+          row.accountId === accountId &&
+          row.on === on &&
+          row.deletedAt === null,
+      );
+      if (!existing) return [{ name: "deleteValuation", args: { id } }];
+      return [restoreValuation(existing)];
+    },
+  },
+  deleteValuation: {
+    reads: [({ id }) => [read.get("valuations", [id])]],
+    apply: (scope, { id }) => {
+      deleteValuation(scope, id);
+    },
+    inverse: (snapshot, { id }) => {
+      const row = snapshot.tables.valuations.get(id);
+      if (!row || row.deletedAt !== null) return [];
+      return [restoreValuation(row)];
+    },
+  },
+} satisfies Partial<MutationSpecs>;

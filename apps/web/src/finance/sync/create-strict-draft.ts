@@ -4,7 +4,7 @@ import { rowKey } from "../replica/row-key.ts";
 import type { ReplicaRow } from "../replica/types.ts";
 import type { SyncTableName } from "./row-schemas.ts";
 
-/** The server ran a mutation on a row or a set that its load step did not load. */
+/** The server ran a mutation on a row or a set that the mutation did not declare it reads. */
 export class NotLoadedError extends Error {
   constructor(what: string) {
     super(`The mutation reads ${what}, which was not loaded`);
@@ -55,9 +55,9 @@ interface DraftChange<Table extends SyncTableName> {
 
 /**
  * The rows of one mutation on the server, held in memory in the wire shape.
- * The load step adds rows, sets of rows and facts; a read or a write of
- * anything it did not load throws `NotLoadedError`, so a gap in a load list
- * fails loudly.
+ * The load step adds the rows, sets of rows and facts that the mutation
+ * declares it reads; a read or a write of anything else throws
+ * `NotLoadedError`, so an undeclared read fails loudly.
  */
 export function createStrictDraft() {
   const rows = emptyRows();

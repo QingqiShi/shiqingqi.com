@@ -1,7 +1,9 @@
-import type { ReplicaRow } from "../replica/types.ts";
+import type { LocalMutationInput } from "../replica/create-replica-store.ts";
+import type { ReplicaRow, ReplicaSnapshot } from "../replica/types.ts";
 import type { LabelledBy, WriteActor } from "../sync/labelled-by-after.ts";
 import type { Mutation, MutationName } from "../sync/mutation-schema.ts";
 import type { SyncTableName } from "../sync/row-schemas.ts";
+import type { Read } from "./read.ts";
 
 /**
  * The rows a mutation reads and writes, in the wire shape. The Replica gives
@@ -68,3 +70,35 @@ export type MutationArgs<Name extends MutationName> = Extract<
   Mutation,
   { name: Name }
 >["args"];
+
+/**
+ * The reads of one stage. A stage may read through `draft` the rows that
+ * the stages before it declared.
+ */
+export type ReadStage<Name extends MutationName> = (
+  args: MutationArgs<Name>,
+  draft: MutationDraft,
+) => readonly (Read | undefined)[];
+
+/**
+ * One mutation: what it reads, what it does, and how to undo it. The server
+ * loads the `reads` before `apply` runs, and `apply` reads nothing else.
+ */
+export interface MutationSpec<Name extends MutationName> {
+  reads: readonly ReadStage<Name>[];
+  apply(scope: MutationScope, args: MutationArgs<Name>): void;
+  /**
+   * The mutations that put the Replica back as `snapshot` holds it; read
+   * `snapshot` before the mutation is applied. Null when the change cannot
+   * be undone.
+   */
+  inverse(
+    snapshot: ReplicaSnapshot,
+    args: MutationArgs<Name>,
+    createId: () => string,
+  ): LocalMutationInput[] | null;
+}
+
+export type MutationSpecs = {
+  [Name in MutationName]: MutationSpec<Name>;
+};

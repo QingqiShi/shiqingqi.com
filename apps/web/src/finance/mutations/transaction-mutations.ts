@@ -1,3 +1,7 @@
+import type { LocalMutationInput } from "../replica/create-replica-store.ts";
+import type { ReplicaSnapshot } from "../replica/types.ts";
+import { selectEntriesByTransaction } from "../store/select-entries-by-transaction.ts";
+import { selectTagIdsByTransaction } from "../store/select-tag-ids-by-transaction.ts";
 import {
   checkTransactionShape,
   type TransactionShape,
@@ -10,8 +14,14 @@ import type {
 } from "../sync/mutation-schema.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import { invalid } from "./invalid.ts";
+import { read } from "./read.ts";
 import { touchAccount } from "./touch-account.ts";
-import type { MutationDraft, MutationScope, Provenance } from "./types.ts";
+import type {
+  MutationDraft,
+  MutationScope,
+  MutationSpecs,
+  Provenance,
+} from "./types.ts";
 import { absent } from "./wait-for-server.ts";
 
 const MEMBER_PROVENANCE: Provenance = {
@@ -372,11 +382,211 @@ function skipExpected(scope: MutationScope, id: string) {
   softDeleteTransaction(scope, existing);
 }
 
+/** A Transaction with its Entries and Tag links, deleted ones included. */
+function transactionReads(id: string) {
+  return [
+    read.get("transactions", [id]),
+    read.where("entries", { transactionId: id }),
+    read.where("transactionTags", { transactionId: id }),
+  ];
+}
+
+/** The rows that `checkTransactionRows` may read for a Transaction of this shape. */
+export function namedRowReads(shape: {
+  categoryId?: string | null;
+  payeeId?: string | null;
+  memberId?: string | null;
+  refundOfId?: string | null;
+  ruleId?: string | null;
+  entries: readonly { id?: string; accountId: string }[];
+  tagIds: readonly string[];
+}) {
+  return [
+    read.get("categories", [shape.categoryId]),
+    read.get(
+      "accounts",
+      shape.entries.map((entry) => entry.accountId),
+    ),
+    read.get(
+      "entries",
+      shape.entries.map((entry) => entry.id),
+    ),
+    read.get("tags", shape.tagIds),
+    read.get("payees", [shape.payeeId]),
+    read.get("members", [shape.memberId]),
+    read.get("transactions", [shape.refundOfId]),
+    read.get("rules", [shape.ruleId]),
+  ];
+}
+
+const patchReads = [
+  ({ id }: { id: string }) => transactionReads(id),
+  (
+    { id, patch }: { id: string; patch?: TransactionPatch },
+    draft: MutationDraft,
+  ) => {
+    const existing = draft.get("transactions", id);
+    if (!existing || !patch) return [];
+    return namedRowReads({
+      ...existing,
+      ...patch,
+      entries: patch.entries ?? [],
+      tagIds: patch.tagIds ?? [],
+    });
+  },
+];
+
+function previousPatch(
+  snapshot: ReplicaSnapshot,
+  row: TransactionRow,
+  patch: TransactionPatch,
+): TransactionPatch {
+  const previous: TransactionPatch = {};
+  for (const key of Object.keys(patch)) {
+    switch (key) {
+      case "entries": {
+        previous.entries = (
+          selectEntriesByTransaction(snapshot).get(row.id) ?? []
+        ).map((entry) => ({
+          id: entry.id,
+          accountId: entry.accountId,
+          amountMinor: entry.amountMinor,
+        }));
+        break;
+      }
+      case "tagIds": {
+        previous.tagIds = [
+          ...(selectTagIdsByTransaction(snapshot).get(row.id) ?? []),
+        ];
+        break;
+      }
+      case "kind":
+      case "date":
+      case "categoryId":
+      case "payeeId":
+      case "memberId":
+      case "refundOfId":
+      case "note":
+      case "needsReview": {
+        Object.assign(previous, { [key]: row[key] });
+        break;
+      }
+    }
+  }
+  return previous;
+}
+
+function undoPatch(
+  snapshot: ReplicaSnapshot,
+  row: TransactionRow,
+  patch: TransactionPatch,
+): LocalMutationInput[] {
+  return [
+    {
+      name: "updateTransaction",
+      args: { id: row.id, patch: previousPatch(snapshot, row, patch) },
+    },
+  ];
+}
+
+/** Deletes the confirmed row and adds the Expected one again under a new id, because no mutation sets a Transaction back to Expected. */
+function unconfirm(
+  snapshot: ReplicaSnapshot,
+  row: TransactionRow,
+  createId: () => string,
+): LocalMutationInput[] {
+  const entries = selectEntriesByTransaction(snapshot).get(row.id) ?? [];
+  return [
+    { name: "deleteTransaction", args: { id: row.id } },
+    {
+      name: "createTransaction",
+      args: {
+        id: createId(),
+        kind: row.kind,
+        status: "expected",
+        date: row.date,
+        categoryId: row.categoryId,
+        payeeId: row.payeeId,
+        memberId: row.memberId,
+        ruleId: row.ruleId,
+        refundOfId: row.refundOfId,
+        note: row.note,
+        needsReview: row.needsReview,
+        entries: entries.map((entry) => ({
+          id: createId(),
+          accountId: entry.accountId,
+          amountMinor: entry.amountMinor,
+        })),
+        tagIds: [...(selectTagIdsByTransaction(snapshot).get(row.id) ?? [])],
+      },
+    },
+  ];
+}
+
+function undoDelete(
+  snapshot: ReplicaSnapshot,
+  id: string,
+): LocalMutationInput[] {
+  const row = snapshot.tables.transactions.get(id);
+  if (!row || row.deletedAt !== null) return [];
+  return [{ name: "restoreTransaction", args: { id: row.id } }];
+}
+
 export const transactionMutations = {
-  createTransaction,
-  updateTransaction,
-  deleteTransaction,
-  restoreTransaction,
-  confirmExpected,
-  skipExpected,
-};
+  createTransaction: {
+    reads: [
+      (input) => [...transactionReads(input.id), ...namedRowReads(input)],
+    ],
+    apply: createTransaction,
+    inverse: (_snapshot, { id }) => [
+      { name: "deleteTransaction", args: { id } },
+    ],
+  },
+  updateTransaction: {
+    reads: patchReads,
+    apply: (scope, { id, patch }) => {
+      updateTransaction(scope, id, patch);
+    },
+    inverse: (snapshot, { id, patch }) => {
+      const row = snapshot.tables.transactions.get(id);
+      return row ? undoPatch(snapshot, row, patch) : null;
+    },
+  },
+  deleteTransaction: {
+    reads: [({ id }) => transactionReads(id)],
+    apply: (scope, { id }) => {
+      deleteTransaction(scope, id);
+    },
+    inverse: (snapshot, { id }) => undoDelete(snapshot, id),
+  },
+  restoreTransaction: {
+    reads: [({ id }) => transactionReads(id)],
+    apply: (scope, { id }) => {
+      restoreTransaction(scope, id);
+    },
+    inverse: (snapshot, { id }) => {
+      const row = snapshot.tables.transactions.get(id);
+      if (!row || row.deletedAt === null) return [];
+      return [{ name: "deleteTransaction", args: { id: row.id } }];
+    },
+  },
+  confirmExpected: {
+    reads: patchReads,
+    apply: (scope, { id, patch }) => {
+      confirmExpected(scope, id, patch);
+    },
+    inverse: (snapshot, { id, patch }, createId) => {
+      const row = snapshot.tables.transactions.get(id);
+      if (!row) return null;
+      if (row.status === "expected") return unconfirm(snapshot, row, createId);
+      return patch ? undoPatch(snapshot, row, patch) : [];
+    },
+  },
+  skipExpected: {
+    reads: [({ id }) => transactionReads(id)],
+    apply: (scope, { id }) => {
+      skipExpected(scope, id);
+    },
+    inverse: (snapshot, { id }) => undoDelete(snapshot, id),
+  },
+} satisfies Partial<MutationSpecs>;
