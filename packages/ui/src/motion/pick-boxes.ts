@@ -64,7 +64,10 @@ function canMove(element: Element): element is HTMLElement | SVGSVGElement {
  * screen shows them now, also mid motion, relative to `origin`. A box that
  * does not show in `bounds` is not read, and nor are the boxes in it, so a
  * long list costs only the rows that show. A box with no size, such as one
- * with `display: contents`, is not kept, but the boxes in it are.
+ * with `display: contents`, is not kept, but the boxes in it are. A box in
+ * `moving`, such as one that a move of `playLayout` still moves, is read
+ * also where it does not show, and so are the boxes that hold it, so that
+ * the next move turns it from where it is.
  *
  * @internal
  */
@@ -72,14 +75,26 @@ export function captureBoxes(
   root: Element,
   origin: Element,
   bounds: Rect,
+  { moving = [] }: { moving?: Iterable<Element> } = {},
 ): LayoutSnapshot {
   const box = origin.getBoundingClientRect();
+  const kept = new Set<Element>();
+  for (const element of moving) {
+    if (!root.contains(element)) continue;
+    for (
+      let node: Element | null = element;
+      node !== null && node !== root && !kept.has(node);
+      node = node.parentElement
+    ) {
+      kept.add(node);
+    }
+  }
   const rects = new Map<Element, Rect>();
   walk(root, (element) => {
     if (rects.size >= MAX_BOXES) return false;
     const rect = rectIn(element, box);
     if (isEmpty(rect)) return true;
-    if (!overlaps(rect, bounds)) return false;
+    if (!overlaps(rect, bounds) && !kept.has(element)) return false;
     rects.set(element, rect);
     return true;
   });

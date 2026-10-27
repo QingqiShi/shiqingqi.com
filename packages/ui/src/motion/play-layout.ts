@@ -143,6 +143,17 @@ function moveOf(
 }
 
 /**
+ * The elements that a move of `playLayout` in `engine` still moves.
+ *
+ * @internal
+ */
+export function movingElements(engine: MotionEngine): Element[] {
+  return [...(movesOf.get(engine) ?? [])]
+    .filter(([, { x, y }]) => x.isMoving || y.isMoving)
+    .map(([element]) => element);
+}
+
+/**
  * Springs each of `elements` from its box in `snapshot` to its box in the
  * layout now. An element inside another that moves takes only its own move,
  * also inside one of `moving`, which moves on its own from the offset it
