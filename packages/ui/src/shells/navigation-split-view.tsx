@@ -57,7 +57,6 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
-import { BeforeCommit } from "./before-commit.tsx";
 import {
   claimEdgeSwipe,
   EDGE_SWIPE_ZONE,
@@ -71,7 +70,6 @@ import {
   type SplitViewMotion,
   type SplitViewMarkElement,
   type SplitViewMarks,
-  type SplitViewLayout,
   type SplitViewSnapshot,
 } from "./create-split-view-motion.ts";
 import {
@@ -526,9 +524,6 @@ export function NavigationSplitView({
   // motion that the navigation brings. Until that motion, it is read again
   // at each frame, scroll and commit, as the data can come much later.
   const pendingRef = useRef<PendingSnapshot<SplitViewSnapshot> | null>(null);
-  // The columns in the commit of a motion, before the DOM changes, whatever
-  // started the navigation.
-  const layoutRef = useRef<SplitViewLayout | null>(null);
   const pageScrollRef = useRef<PageScroll | null>(null);
   const capture = (to: string) => {
     pageScrollRef.current?.remember();
@@ -575,12 +570,10 @@ export function NavigationSplitView({
     // The page scrolls before the motion measures where the pages show.
     pageScrollRef.current?.follow(shownKey(), motion.change.content);
     const created = motionRef.current;
-    const layout = layoutRef.current;
-    layoutRef.current = null;
     if (created === null) return;
     const here = normalizeUrl(window.location.href);
     const snapshot = pendingRef.current?.claim(here, true) ?? null;
-    created.play(snapshot, layout, motion.change, motion.id);
+    created.play(snapshot, motion.change, motion.id);
   }, [motion]);
 
   useLayoutEffect(() => {
@@ -717,13 +710,6 @@ export function NavigationSplitView({
 
   return (
     <SplitViewContext value={viewState}>
-      <BeforeCommit
-        when={motion.id}
-        read={() => {
-          layoutRef.current =
-            motionRef.current?.readLayout(motion.change) ?? null;
-        }}
-      />
       <SplitViewMarksContext value={marks}>
         <div ref={setView} css={[styles.view, movingMarker, css]}>
           <div
