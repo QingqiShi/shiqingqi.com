@@ -1,7 +1,7 @@
 import type { Locator, Page } from "@playwright/test";
 import { readScrollY, wheelPage } from "../helpers/scroll.ts";
 import { expect, expectNoSidewaysScroll, test } from "./finance-test.ts";
-import { DESKTOP, MOBILE } from "./transactions-page.ts";
+import { DESKTOP, MOBILE, SYNC_TIMEOUT } from "./transactions-page.ts";
 
 async function openNetWorth(page: Page, locale: "en" | "zh" = "en") {
   await page.goto(locale === "zh" ? "/zh/finance" : "/finance");
@@ -16,7 +16,7 @@ async function openNetWorth(page: Page, locale: "en" | "zh" = "en") {
     page.getByRole("region", {
       name: locale === "zh" ? "今日净资产" : "Net worth today",
     }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: SYNC_TIMEOUT });
 }
 
 /** The URLs of the screen data that the router fetches for a navigation from now on, without its prefetches. */
@@ -259,6 +259,10 @@ test.describe("Reorder at 1440 px", () => {
     await credit.focus();
     await page.keyboard.press("Space");
     await expect(credit).toHaveAttribute("aria-pressed", "true");
+    // dnd-kit starts to listen for the arrow keys in a timer after the pick-up.
+    // Chromium can send a key before that timer, and then the key is lost.
+    // Timers run in order, so this timer runs after the timer of dnd-kit.
+    await page.evaluate(() => new Promise((resolve) => setTimeout(resolve)));
     for (const name of passed) {
       await page.keyboard.press("ArrowUp");
       await expect(
