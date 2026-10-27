@@ -8,8 +8,8 @@ export const FINANCE_LIGHT_CANVAS = gray._92;
 /**
  * Finance's accent is ink, not the design system's purple. The mark is green,
  * and green already means success and money that goes up. The light canvas
- * is darker than the design system's, so that the white islands of the
- * shell stand apart from it.
+ * is darker than the design system's, so that the islands of the shell
+ * stand apart from it.
  */
 export const financeTheme = stylex.createTheme(color, {
   bgCanvas: `light-dark(${FINANCE_LIGHT_CANVAS}, ${gray._0})`,

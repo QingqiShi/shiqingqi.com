@@ -25,7 +25,7 @@ export const globalStyles = stylex.create({
   // at the status bar and in the overscroll, so it is the island fill.
   financeHtml: {
     backgroundColor: {
-      default: color.bgSurface,
+      default: color.bgSurfaceSunken,
       [breakpoints.md]: color.bgCanvas,
     },
   },

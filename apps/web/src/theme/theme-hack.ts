@@ -24,14 +24,14 @@ interface ThemeColor {
  * The mobile browser-chrome tint of a page, as `<meta name="theme-color">`
  * tags in order: the first that matches wins. It is the colour at the top
  * edge of the page: `color.bgCanvas`, which `financeTheme` changes on a
- * Finance page, or `color.bgSurface` where a Finance island fills the
+ * Finance page, or `color.bgSurfaceSunken` where a Finance island fills the
  * screen. `gray` is a `defineConsts` palette, so these bake in as literal
  * hex in `themeHack`.
  */
 export function getThemeColors(pathname: string | null): ThemeColor[] {
   if (!isFinancePath(pathname)) return [{ dark: gray._0, light: gray._97 }];
   return [
-    { media: "(width < 768px)", dark: gray._5, light: gray._100 },
+    { media: "(width < 768px)", dark: gray._2, light: gray._98 },
     { dark: gray._0, light: FINANCE_LIGHT_CANVAS },
   ];
 }
