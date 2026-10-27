@@ -6,8 +6,8 @@ import type { AccountRow } from "../sync/row-schemas.ts";
 import { buildWeekMovers, type WeekMover } from "./build-week-movers.ts";
 import { netWorthComparisonDays } from "./net-worth-comparison-days.ts";
 
-/** How many accounts "What moved this week" shows. */
-const MOVER_LIMIT = 5;
+/** The most accounts "What moved this week" can show. */
+const MOVER_LIMIT = 15;
 
 let lastMovers: {
   accounts: readonly AccountRow[];

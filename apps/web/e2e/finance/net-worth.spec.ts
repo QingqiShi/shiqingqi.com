@@ -1,5 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
-import { readScrollY, wheelPage } from "../helpers/scroll.ts";
+import { boxOf, readScrollY, wheelPage } from "../helpers/scroll.ts";
 import { expect, expectNoSidewaysScroll, test } from "./finance-test.ts";
 import { DESKTOP, MOBILE, SYNC_TIMEOUT } from "./transactions-page.ts";
 
@@ -70,6 +70,10 @@ function dragPath(from: number, to: number, steps = 15) {
   );
 }
 
+function bottomOf(box: { y: number; height: number }) {
+  return box.y + box.height;
+}
+
 async function centreOf(locator: Locator) {
   const box = await locator.boundingBox();
   if (!box) throw new Error("The element has no box");
@@ -100,7 +104,14 @@ test.describe("Net worth at 1440 px", () => {
     ).toBeVisible();
     const trendHeight = (await trend.boundingBox())?.height ?? 0;
     expect(trendHeight).toBeGreaterThan(DESKTOP.height * 0.25);
-    expect(trendHeight).toBeLessThan(DESKTOP.height * 0.6);
+    // The trend takes the height that the cards under it leave, so only the
+    // padding of the island is under the cards.
+    const moved = household.getByRole("region", {
+      name: "What moved this week",
+    });
+    expect(
+      bottomOf(await boxOf(household)) - bottomOf(await boxOf(moved)),
+    ).toBeLessThan(64);
     const yearChip = trend.getByRole("radio", { name: "1Y" });
     await yearChip.click();
     await expect(yearChip).toBeChecked();
@@ -133,6 +144,10 @@ test.describe("Net worth at 1440 px", () => {
     expect(changes).toEqual(changes.toSorted((a, b) => b - a));
 
     const needsALook = household.getByRole("region", { name: "Needs a look" });
+    // Each card is as tall as its content, and "Needs a look" holds less.
+    expect(bottomOf(await boxOf(needsALook))).toBeLessThan(
+      bottomOf(await boxOf(moved)),
+    );
     await expect(
       needsALook.getByRole("link", { name: /transactions? to review$/ }),
     ).toHaveAttribute("href", /\/finance\/transactions\?review=1$/);
@@ -219,6 +234,32 @@ test.describe("Net worth at 1440 px", () => {
         .getByRole("region", { name: "Household" })
         .getByRole("region", { name: "Trend" }),
     ).toBeVisible();
+  });
+});
+
+test.describe("Net worth at 2000 px", () => {
+  test.use({ viewport: { width: 2000, height: 890 } });
+
+  test("the cards make a column beside the trend, and what moved lists more accounts to fill it", async ({
+    page,
+    session: _session,
+  }) => {
+    await openNetWorth(page);
+    const household = page.getByRole("region", { name: "Household" });
+    const trend = household.getByRole("region", { name: "Trend" });
+    const moved = household.getByRole("region", {
+      name: "What moved this week",
+    });
+    await expect.poll(() => moved.getByRole("link").count()).toBeGreaterThan(5);
+    const trendBox = await boxOf(trend);
+    const movedBox = await boxOf(moved);
+    expect(movedBox.x).toBeGreaterThanOrEqual(trendBox.x + trendBox.width);
+    expect(
+      Math.abs(bottomOf(movedBox) - bottomOf(trendBox)),
+    ).toBeLessThanOrEqual(1);
+    expect(bottomOf(await boxOf(household)) - bottomOf(trendBox)).toBeLessThan(
+      64,
+    );
   });
 });
 
