@@ -11,6 +11,7 @@ import type { SupportedLocale } from "#src/i18n/types.ts";
 import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Footer } from "#src/site-shell/footer.tsx";
+import { detailsOrNotFound } from "./details-or-not-found";
 import { truncateMetadataDescription } from "./truncate-metadata-description";
 import type { PageProps } from "./types";
 
@@ -51,10 +52,9 @@ export async function generateMetadata({
   let backdropPath: string | null | undefined;
 
   if (type === "movie") {
-    const details = await getMovieDetails({
-      movie_id: id,
-      language: validatedLocale,
-    });
+    const details = await detailsOrNotFound(
+      getMovieDetails({ movie_id: id, language: validatedLocale }),
+    );
     title =
       details.title ??
       details.original_title ??
@@ -62,10 +62,9 @@ export async function generateMetadata({
     description = details.overview || details.tagline;
     backdropPath = details.backdrop_path;
   } else {
-    const details = await getTvShowDetails({
-      series_id: id,
-      language: validatedLocale,
-    });
+    const details = await detailsOrNotFound(
+      getTvShowDetails({ series_id: id, language: validatedLocale }),
+    );
     title =
       details.name ??
       details.original_name ??
