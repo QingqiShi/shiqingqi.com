@@ -242,7 +242,7 @@ function RailTrack({
     scrolls,
   });
   return (
-    <div {...track.props} css={track.css}>
+    <div {...track.props} css={[track.css, styles.track]}>
       {track.shown >= 0 ? (
         <span
           {...track.indicator}
@@ -388,6 +388,12 @@ const styles = stylex.create({
   },
   navContent: {
     position: "relative",
+  },
+  // The spring moves the indicator past the first and the last link. The
+  // nav clips it there, but it also makes the nav scroll for a moment, so
+  // the track clips it first.
+  track: {
+    overflow: "clip",
   },
   link: {
     display: "flex",
