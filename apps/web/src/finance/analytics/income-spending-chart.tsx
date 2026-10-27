@@ -5,15 +5,14 @@ import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
-import { useRouter } from "next/navigation";
 import { useId } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
@@ -21,7 +20,7 @@ import type {
 import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { formatPeriod } from "./format-period.ts";
 import { isMajorPeriod } from "./is-major-period.ts";
-import { transactionsHref } from "./transactions-href.ts";
+import { transactionsBehind } from "./transactions-behind.ts";
 import { usePeriodLabel } from "./use-period-label.ts";
 
 /** Income beside spending for each period, every Category, with the net in the readout. */
@@ -35,7 +34,7 @@ export function IncomeSpendingChart({
   currency: string;
 }) {
   const locale = useLocale();
-  const router = useRouter();
+  const navigator = useFinanceNavigator();
   const headingId = useId();
   const periodLabel = usePeriodLabel(view);
   const incomeLabel = t({ en: "Income", zh: "收入" });
@@ -101,21 +100,18 @@ export function IncomeSpendingChart({
           netReadout(view.incomeByPeriod[index] - view.spendingByPeriod[index])
         }
         onActivate={(index, key) => {
-          router.push(
-            getLocalePath(
-              transactionsHref({
-                from: fromEpochDay(view.boundaries[index]),
-                to: fromEpochDay(view.boundaries[index + 1] - 1),
-                kind:
-                  key === "income"
-                    ? "income"
-                    : key === "spending"
-                      ? "spending"
-                      : "net",
-                member: state.member,
-              }),
-              locale,
-            ),
+          navigator.push(
+            transactionsBehind({
+              from: fromEpochDay(view.boundaries[index]),
+              to: fromEpochDay(view.boundaries[index + 1] - 1),
+              kind:
+                key === "income"
+                  ? "income"
+                  : key === "spending"
+                    ? "spending"
+                    : "net",
+              member: state.member,
+            }),
           );
         }}
         activateHint={t({

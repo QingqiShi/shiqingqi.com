@@ -7,7 +7,6 @@ import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
@@ -16,6 +15,8 @@ import { ChartLegend } from "../charts/chart-legend.tsx";
 import { chartMarks } from "../charts/chart-marks.stylex.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
+import { financeHref } from "../navigation/finance-href.ts";
+import type { TransactionFilters } from "../transactions/transaction-filters.ts";
 import { fillTemplate } from "./fill-template.ts";
 import { reportColumns } from "./report-columns.stylex.ts";
 import { ReportRankedList } from "./report-ranked-list.tsx";
@@ -46,13 +47,12 @@ export function ReportSpending({
   const money = (minor: number) => formatMoney(minor, currency, locale);
   const count = new Intl.NumberFormat(locale);
   const listLevel = headingLevel === 2 ? 3 : 4;
-  const transactionsHref = (params: Record<string, string>) =>
-    getLocalePath(
-      `/finance/transactions?${new URLSearchParams({
-        ...params,
-        from: data.periodStart,
-        to: data.periodEnd,
-      }).toString()}`,
+  const transactionsHref = (filters: Partial<TransactionFilters>) =>
+    financeHref(
+      {
+        screen: "transactions",
+        filters: { ...filters, from: data.periodStart, to: data.periodEnd },
+      },
       locale,
     );
   const categoryName = useCategoryLineName();
@@ -78,7 +78,13 @@ export function ReportSpending({
               : line.name
         }
         href={
-          line.id === null ? undefined : transactionsHref({ [param]: line.id })
+          line.id === null
+            ? undefined
+            : transactionsHref(
+                param === "category"
+                  ? { categoryIds: [line.id] }
+                  : { memberIds: [line.id] },
+              )
         }
         value={money(line.amountMinor)}
         magnitude={line.amountMinor / largest}
@@ -178,7 +184,7 @@ export function ReportSpending({
             </p>
             {data.reviewCount > 0 ? (
               <AnchorButton
-                href={transactionsHref({ review: "1" })}
+                href={transactionsHref({ review: true })}
                 linkComponent={Link}
                 size="sm"
                 icon={<ArrowRightIcon weight="bold" />}
@@ -226,7 +232,7 @@ export function ReportSpending({
                   <RankedRow
                     key={payee.id}
                     label={payee.name}
-                    href={transactionsHref({ payee: payee.id })}
+                    href={transactionsHref({ payeeIds: [payee.id] })}
                     value={money(payee.amountMinor)}
                     magnitude={payee.amountMinor / largestPayee}
                     detail={payeeCount(payee.count)}

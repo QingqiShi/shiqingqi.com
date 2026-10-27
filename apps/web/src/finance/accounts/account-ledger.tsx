@@ -15,13 +15,13 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { type ReactNode, useState } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { financeHref } from "../navigation/finance-href.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useUndoableMutations } from "../shell/use-undoable-mutations.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
@@ -204,8 +204,8 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
           </Button>
         ) : null}
         <Link
-          href={getLocalePath(
-            `/finance/transactions?account=${account.id}`,
+          href={financeHref(
+            { screen: "transactions", filters: { accountIds: [account.id] } },
             locale,
           )}
           {...stylex.props(

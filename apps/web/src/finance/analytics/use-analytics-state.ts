@@ -1,6 +1,6 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { hrefWithParams } from "../shell/href-with-params.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import { analyticsParams } from "./analytics-params.ts";
 import type { AnalyticsState } from "./compute-analytics-view.ts";
 
@@ -8,12 +8,13 @@ const URL_DELAY_MS = 400;
 
 /**
  * The Analytics screen's state, read from the URL once and written back
- * with `history.replaceState`. React state leads and the URL follows a
- * moment later, so a new range draws before the router re-renders.
+ * in place. React state leads and the URL follows a moment later, so a new
+ * range draws before the router re-renders.
  */
 export function useAnalyticsState() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const navigator = useFinanceNavigator();
   const [state, setState] = useState(() => analyticsParams.parse(searchParams));
   const pendingRef = useRef<{
     timer: ReturnType<typeof setTimeout>;
@@ -45,11 +46,7 @@ export function useAnalyticsState() {
     const write = () => {
       pendingRef.current = null;
       if (window.location.pathname !== pathname) return;
-      window.history.replaceState(
-        null,
-        "",
-        hrefWithParams(pathname, analyticsParams.write(next)),
-      );
+      navigator.replace({ screen: "analytics", state: next });
     };
     pendingRef.current = { timer: setTimeout(write, URL_DELAY_MS), write };
   };

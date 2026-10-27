@@ -8,24 +8,21 @@ import {
   type AnchorButtonLinkProps,
 } from "@tuja/ui/components/anchor-button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { normalizePath } from "#src/i18n/normalize-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { ColumnLink } from "./column-link.tsx";
+import { ColumnLink } from "../navigation/column-link.tsx";
+import { financeHref } from "../navigation/finance-href.ts";
 import { useShownFinancePath } from "./finance-screen-slot.tsx";
 import {
   floatingAction,
   floatingActionTokens,
 } from "./floating-action.stylex.ts";
-import {
-  pushOpenedEntry,
-  useNewTransactionUrl,
-} from "./use-new-transaction-url.ts";
 
 function NewTransactionLink(props: AnchorButtonLinkProps) {
-  return <ColumnLink {...props} push={pushOpenedEntry} />;
+  return <ColumnLink {...props} opens />;
 }
 
 /**
@@ -39,12 +36,17 @@ function NewTransactionLink(props: AnchorButtonLinkProps) {
 export function FinanceAddButton() {
   const locale = useLocale();
   const pathname = usePathname();
-  const url = useNewTransactionUrl();
+  const searchParams = useSearchParams();
   const shownPath = useShownFinancePath();
-  const href =
-    shownPath === normalizePath(pathname)
-      ? url.hrefOf({})
-      : getLocalePath(`${shownPath}?new=expense`, locale);
+  const opening = shownPath !== normalizePath(pathname);
+  const href = financeHref(
+    { screen: "current", newTransaction: { kind: "expense" } },
+    locale,
+    opening
+      ? { pathname: getLocalePath(shownPath, locale), search: "" }
+      : { pathname, search: searchParams.toString() },
+  );
+
   return (
     <div css={styles.narrowOnly}>
       <AnchorButton

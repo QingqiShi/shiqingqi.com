@@ -10,9 +10,7 @@ import { Text } from "@tuja/ui/components/text";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
-import { useRouter } from "next/navigation";
 import { useId } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
@@ -20,6 +18,8 @@ import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
+import { financeHref } from "../navigation/finance-href.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
@@ -28,7 +28,7 @@ import type {
 import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { formatPeriod } from "./format-period.ts";
 import { isMajorPeriod } from "./is-major-period.ts";
-import { transactionsHref } from "./transactions-href.ts";
+import { transactionsBehind } from "./transactions-behind.ts";
 import type { AnalyticsIndex } from "./types.ts";
 import { useAnalyticsNames } from "./use-analytics-names.ts";
 import { usePeriodLabel } from "./use-period-label.ts";
@@ -56,7 +56,7 @@ export function CategoryTrend({
   onChange,
 }: CategoryTrendProps) {
   const locale = useLocale();
-  const router = useRouter();
+  const navigator = useFinanceNavigator();
   const names = useAnalyticsNames();
   const datePeriodLabel = usePeriodLabel(view);
   const headingId = useId();
@@ -80,8 +80,8 @@ export function CategoryTrend({
         year: t({ en: "years", zh: "年" }),
       }[view.grouping];
   const averageLabel = t({ en: "Average", zh: "平均" });
-  const listHref = getLocalePath(
-    transactionsHref({
+  const listHref = financeHref(
+    transactionsBehind({
       from: view.range.from,
       to: view.range.to,
       kind: state.kind,
@@ -115,20 +115,17 @@ export function CategoryTrend({
   const open = (at: number) => {
     if (byTransaction) {
       const id = index.transactionIds[trend.rows[at]];
-      router.push(getLocalePath(`/finance/transactions?id=${id}`, locale));
+      navigator.push({ screen: "transactions", id });
       return;
     }
-    router.push(
-      getLocalePath(
-        transactionsHref({
-          from: fromEpochDay(view.boundaries[at]),
-          to: fromEpochDay(view.boundaries[at + 1] - 1),
-          kind: state.kind,
-          member: state.member,
-          categoryIds: [trend.categoryId],
-        }),
-        locale,
-      ),
+    navigator.push(
+      transactionsBehind({
+        from: fromEpochDay(view.boundaries[at]),
+        to: fromEpochDay(view.boundaries[at + 1] - 1),
+        kind: state.kind,
+        member: state.member,
+        categoryIds: [trend.categoryId],
+      }),
     );
   };
 
