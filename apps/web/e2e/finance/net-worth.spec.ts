@@ -430,4 +430,45 @@ test.describe("Net worth at 390 px", () => {
     // Replica, so no step waits for the server.
     expect(screenRequests).toEqual([]);
   });
+
+  test("Add opens a new expense over Net worth and over an account, on that account, and each close leads back", async ({
+    page,
+    session: _session,
+  }) => {
+    await openNetWorth(page);
+    const screenRequests = watchScreenRequests(page);
+    const sheet = page.getByRole("dialog", { name: "New transaction" });
+
+    await page.getByRole("link", { name: "Add", exact: true }).click();
+    await expect(page).toHaveURL(/\/finance\?new=expense$/);
+    await expect(
+      sheet.getByRole("form", { name: "New expense" }),
+    ).toBeVisible();
+    await sheet.getByRole("button", { name: "Close" }).first().click();
+    await expect(sheet).toBeHidden();
+    await expect(page).toHaveURL(/\/finance$/);
+
+    await page.getByRole("link", { name: /^Alex Current Northbank/ }).click();
+    await expect(page).toHaveURL(/\/finance\?account=[0-9a-f-]+$/, {
+      timeout: 30_000,
+    });
+    const accountUrl = page.url();
+    const account = page.getByRole("region", { name: "Alex Current" });
+    await expect(
+      account.getByRole("heading", { level: 2, name: "Alex Current" }),
+    ).toBeVisible();
+    // The Household column keeps its own Add while it moves out.
+    await account.getByRole("link", { name: "Add", exact: true }).click();
+    await expect(page).toHaveURL(/[?&]new=expense/);
+    await expect(sheet.getByRole("combobox", { name: "Account" })).toHaveValue(
+      new URL(accountUrl).searchParams.get("account") ?? "",
+    );
+    await page.goBack();
+    await expect(sheet).toBeHidden();
+    await expect(page).toHaveURL(accountUrl);
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Alex Current" }),
+    ).toBeVisible();
+    expect(screenRequests).toEqual([]);
+  });
 });

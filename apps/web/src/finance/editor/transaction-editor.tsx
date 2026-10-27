@@ -92,6 +92,11 @@ interface TransactionEditorProps {
   initialKind?: TransactionKind;
   /** A new refund of this Transaction. */
   refundOfId?: string | null;
+  /**
+   * The account of a new Transaction, such as the account whose page is
+   * open. A Payee's last account does not replace it.
+   */
+  initialAccountId?: string | null;
   /** The fields of a new Transaction filled in already, such as from quick add. */
   seedDraft?: EditorDraft | null;
   /** Where focus goes when the editor opens; `nonce` lets the list ask again. */
@@ -138,6 +143,7 @@ function initialDraft(
   kind: TransactionKind,
   refundOfId: string | null,
   seedDraft: EditorDraft | null,
+  accountId: string | null,
 ) {
   if (transactionId !== null) return draftOfTransaction(data, transactionId);
   if (seedDraft) return seedDraft;
@@ -145,7 +151,7 @@ function initialDraft(
     const refund = draftOfRefund(data, refundOfId);
     if (refund) return refund;
   }
-  return draftOfNew(data, kind);
+  return draftOfNew(data, kind, accountId);
 }
 
 /**
@@ -164,6 +170,7 @@ export function TransactionEditor(props: TransactionEditorProps) {
       props.initialKind ?? "expense",
       props.refundOfId ?? null,
       props.seedDraft ?? null,
+      props.initialAccountId ?? null,
     ),
   );
   const deleted =
@@ -207,6 +214,7 @@ function EditorForm({
   draft,
   setDraft,
   transactionId,
+  initialAccountId,
   focusRequest,
   focusTargetRef,
   showClose,
@@ -220,7 +228,15 @@ function EditorForm({
   const locale = useLocale();
   const store = useReplicaStore();
   const undoable = useUndoToast();
-  const [touched, setTouched] = useState<ReadonlySet<string>>(() => new Set());
+  const presetTouched = (): ReadonlySet<string> =>
+    new Set(
+      transactionId === null &&
+        initialAccountId != null &&
+        draft.accountId === initialAccountId
+        ? ["account"]
+        : [],
+    );
+  const [touched, setTouched] = useState(presetTouched);
   const [fromLast, setFromLast] = useState<ReadonlySet<PrefillField>>(
     () => new Set(),
   );
@@ -651,7 +667,7 @@ function EditorForm({
         accountId: draft.accountId,
         memberId: draft.memberId,
       });
-      setTouched(new Set());
+      setTouched(presetTouched());
       setFromLast(new Set());
       setDuplicate(null);
       amountRef.current?.focus();

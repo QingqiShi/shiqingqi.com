@@ -10,6 +10,7 @@ import {
   FinanceIsland,
   FinanceIslands,
 } from "../shell/finance-page-column.tsx";
+import { NewTransactionSheet } from "../shell/new-transaction-sheet.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { ReportList } from "./report-list.tsx";
 import { useReportList } from "./use-report-list.ts";
@@ -25,6 +26,7 @@ export function ReportsFrame({ children }: { children: ReactNode }) {
   return (
     <FinanceQueryProvider>
       <ReportsIslands>{children}</ReportsIslands>
+      <NewTransactionSheet />
     </FinanceQueryProvider>
   );
 }

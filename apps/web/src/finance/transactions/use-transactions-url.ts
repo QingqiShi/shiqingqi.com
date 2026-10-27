@@ -1,8 +1,14 @@
 import { usePathname, useSearchParams } from "next/navigation";
-import { useRef } from "react";
 import { hrefWithParams } from "../shell/href-with-params.ts";
 import {
-  isTransactionKind,
+  closeEntry,
+  deleteNewTransaction,
+  pushOpenedEntry,
+  readNewTransaction,
+  replaceEntry,
+  setNewTransaction,
+} from "../shell/use-new-transaction-url.ts";
+import {
   transactionFilters,
   type TransactionFilters,
   type TransactionKind,
@@ -11,8 +17,7 @@ import {
 /** Drops the open Transaction, or the blank editor, from the URL's params. */
 function clearSelection(params: URLSearchParams) {
   params.delete("id");
-  params.delete("new");
-  params.delete("refund");
+  deleteNewTransaction(params);
 }
 
 /**
@@ -24,14 +29,10 @@ function clearSelection(params: URLSearchParams) {
 export function useTransactionsUrl() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const pushedRef = useRef(false);
 
   const filters = transactionFilters.parse(searchParams);
   const selectedId = searchParams.get("id");
-  const newParam = searchParams.get("new");
-  const newKind =
-    newParam !== null && isTransactionKind(newParam) ? newParam : null;
-  const refundOfId = searchParams.get("refund");
+  const { kind: newKind, refundOfId } = readNewTransaction(searchParams);
 
   const write = (
     change: (params: URLSearchParams) => void,
@@ -40,8 +41,8 @@ export function useTransactionsUrl() {
     const params = new URLSearchParams(window.location.search);
     change(params);
     const url = hrefWithParams(pathname, params);
-    if (mode === "push") window.history.pushState(null, "", url);
-    else window.history.replaceState(null, "", url);
+    if (mode === "push") pushOpenedEntry(url);
+    else replaceEntry(url);
   };
 
   const isOpen = selectedId !== null || newKind !== null;
@@ -63,25 +64,24 @@ export function useTransactionsUrl() {
 
     /** Selects a Transaction. A pane already open changes in place, so back still closes it. */
     open(id: string) {
-      const mode = isOpen ? "replace" : "push";
-      if (mode === "push") pushedRef.current = true;
-      write((params) => {
-        params.delete("new");
-        params.delete("refund");
-        params.set("id", id);
-      }, mode);
+      write(
+        (params) => {
+          deleteNewTransaction(params);
+          params.set("id", id);
+        },
+        isOpen ? "replace" : "push",
+      );
     },
 
     /** Opens a blank editor, or a refund of `refundOf`. */
     openNew(kind: TransactionKind, refundOf?: string) {
-      const mode = isOpen ? "replace" : "push";
-      if (mode === "push") pushedRef.current = true;
-      write((params) => {
-        params.delete("id");
-        params.set("new", kind);
-        if (refundOf) params.set("refund", refundOf);
-        else params.delete("refund");
-      }, mode);
+      write(
+        (params) => {
+          params.delete("id");
+          setNewTransaction(params, kind, refundOf);
+        },
+        isOpen ? "replace" : "push",
+      );
     },
 
     /** The URL with nothing open, for a link back to the list. */
@@ -92,12 +92,9 @@ export function useTransactionsUrl() {
     },
 
     close() {
-      if (pushedRef.current) {
-        pushedRef.current = false;
-        window.history.back();
-        return;
-      }
-      write(clearSelection, "replace");
+      const params = new URLSearchParams(window.location.search);
+      clearSelection(params);
+      closeEntry(hrefWithParams(pathname, params));
     },
   };
 }

@@ -11,6 +11,7 @@ import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import { FinancePageColumn } from "../shell/finance-page-column.tsx";
+import { NewTransactionSheet } from "../shell/new-transaction-sheet.tsx";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { AnalyticsControls } from "./analytics-controls.tsx";
 import { AnalyticsSkeleton } from "./analytics-skeleton.tsx";
@@ -118,18 +119,21 @@ function AnalyticsContent() {
 export function AnalyticsScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   return (
-    <FinancePageColumn accessory={<FinanceAddButton />}>
-      {bootstrapped ? (
-        <div css={stack.group}>
-          <Heading level={1} look="h3" css={styles.title}>
-            {t({ en: "Analytics", zh: "分析" })}
-          </Heading>
-          <AnalyticsContent />
-        </div>
-      ) : (
-        <AnalyticsSkeleton />
-      )}
-    </FinancePageColumn>
+    <>
+      <FinancePageColumn accessory={<FinanceAddButton />}>
+        {bootstrapped ? (
+          <div css={stack.group}>
+            <Heading level={1} look="h3" css={styles.title}>
+              {t({ en: "Analytics", zh: "分析" })}
+            </Heading>
+            <AnalyticsContent />
+          </div>
+        ) : (
+          <AnalyticsSkeleton />
+        )}
+      </FinancePageColumn>
+      <NewTransactionSheet />
+    </>
   );
 }
 

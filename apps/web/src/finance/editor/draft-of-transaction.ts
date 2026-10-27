@@ -93,12 +93,20 @@ export function usualTransferSource(data: EditorData) {
   return best;
 }
 
-/** The draft for a new Transaction: today, the signed-in Member and their usual account. */
+/**
+ * The draft for a new Transaction: today, the signed-in Member and their
+ * usual account, or `accountId` when a new Transaction can use it.
+ */
 export function draftOfNew(
   data: EditorData,
   kind: TransactionKind,
+  accountId: string | null = null,
 ): EditorDraft {
-  const accountId =
+  const chosen = data.openAccounts.some((account) => account.id === accountId)
+    ? accountId
+    : null;
+  const start =
+    chosen ??
     (kind === "transfer" ? usualTransferSource(data) : null) ??
     pickDefaultAccount({
       memberId: data.memberId,
@@ -107,14 +115,14 @@ export function draftOfNew(
       entriesByTransaction: data.entriesByTransaction,
     });
   const owner =
-    accountId === null
+    start === null
       ? null
-      : (data.lookups.accountById.get(accountId)?.ownerMemberId ?? null);
+      : (data.lookups.accountById.get(start)?.ownerMemberId ?? null);
   const activeOwner = data.members.some((member) => member.id === owner)
     ? owner
     : null;
   return editorDraft(kind, data.today, {
-    accountId,
+    accountId: start,
     memberId: activeOwner ?? data.memberId,
   });
 }

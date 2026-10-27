@@ -16,6 +16,10 @@ function sameScreenUrl(href: string) {
     : null;
 }
 
+function pushEntry(url: string) {
+  window.history.pushState(null, "", url);
+}
+
 /**
  * The link of a `NavigationSplitView`: it opens a column, or goes back to
  * one. It keeps the page and the other columns where they are, because it
@@ -23,7 +27,14 @@ function sameScreenUrl(href: string) {
  * screen changes the URL in the browser, with no request to the server,
  * because the Finance screens draw their columns from the Replica.
  */
-export function ColumnLink(props: ComponentProps<"a"> & { href: string }) {
+export function ColumnLink({
+  push = pushEntry,
+  ...props
+}: ComponentProps<"a"> & {
+  href: string;
+  /** Pushes the URL of a link that only changes the query. */
+  push?: (url: string) => void;
+}) {
   return (
     <Link
       {...props}
@@ -32,7 +43,7 @@ export function ColumnLink(props: ComponentProps<"a"> & { href: string }) {
         const url = sameScreenUrl(props.href);
         if (url === null) return;
         event.preventDefault();
-        window.history.pushState(null, "", url);
+        push(url);
       }}
     />
   );
