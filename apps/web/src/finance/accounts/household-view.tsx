@@ -66,8 +66,8 @@ const STACKED_TREND_HEIGHT = 200;
  * figures and the actions come first. Where the column fills a stack, as on
  * a phone, the page takes the title "Net worth" with the actions beside it,
  * then today's figures, the trend at full width with the range under it,
- * what needs a look, and the accounts by Group, because no sidebar shows
- * them.
+ * what needs a look when something does, and the accounts by Group,
+ * because no sidebar shows them.
  */
 export function HouseholdView({
   sheet,
@@ -79,6 +79,7 @@ export function HouseholdView({
   const setPick = useSetNetWorthPick();
   const [range, setRange] = useNetWorthRange();
   const trendRef = useSplitViewShared(HOUSEHOLD_TREND);
+  const queue = useReplica(selectQueueCounts);
 
   useEffect(
     () => () => {
@@ -94,6 +95,18 @@ export function HouseholdView({
       </UnlessFullSidebar>
     );
   }
+
+  const differences = bankDifferenceLines(sheet);
+  const nothingNeedsALook =
+    differences.length === 0 && queue.review === 0 && queue.expected === 0;
+  const cards = (
+    <div css={styles.cards}>
+      <UnlessStacked>
+        <WhatMoved today={today} currency={currency} url={url} />
+      </UnlessStacked>
+      <NeedsALook differences={differences} queue={queue} url={url} />
+    </div>
+  );
 
   const actions = (
     <NetWorthActions
@@ -163,12 +176,7 @@ export function HouseholdView({
           </Card>
         </section>
       </UnlessStacked>
-      <div css={styles.cards}>
-        <UnlessStacked>
-          <WhatMoved today={today} currency={currency} url={url} />
-        </UnlessStacked>
-        <NeedsALook sheet={sheet} url={url} />
-      </div>
+      {nothingNeedsALook ? <UnlessStacked>{cards}</UnlessStacked> : cards}
       <StackedOnly>
         <AccountGroupList
           sheet={sheet}
@@ -268,14 +276,19 @@ function WhatMoved({
  * What waits for a member: each account whose bank balance differs, the
  * Transactions in Review, and the Expected Transactions dated today or
  * earlier.
- * Each line opens where to deal with it, and a line with nothing to do
- * does not show.
+ * Each line opens where to deal with it. A line with nothing to do does not
+ * show, and the card says so when no line shows.
  */
-function NeedsALook({ sheet, url }: { sheet: BalanceSheet; url: NetWorthUrl }) {
+function NeedsALook({
+  differences,
+  queue: { review: reviewCount, expected: expectedCount },
+  url,
+}: {
+  differences: ReturnType<typeof bankDifferenceLines>;
+  queue: ReturnType<typeof selectQueueCounts>;
+  url: NetWorthUrl;
+}) {
   const locale = useLocale();
-  const { review: reviewCount, expected: expectedCount } =
-    useReplica(selectQueueCounts);
-  const differences = bankDifferenceLines(sheet);
   const count = (value: number) => new Intl.NumberFormat(locale).format(value);
   const oneReview = t({
     en: "1 transaction to review",
@@ -294,15 +307,17 @@ function NeedsALook({ sheet, url }: { sheet: BalanceSheet; url: NetWorthUrl }) {
     zh: "{count} 笔待确认交易",
   });
   const titleId = "household-needs-a-look";
-  const isEmpty =
-    differences.length === 0 && reviewCount === 0 && expectedCount === 0;
 
-  return (
-    <Card css={stack.tight} aria-labelledby={titleId} role="region">
-      <Heading level={3} look="h4" id={titleId}>
-        {t({ en: "Needs a look", zh: "需要核对" })}
-      </Heading>
-      {isEmpty ? (
+  const title = (
+    <Heading level={3} look="h4" id={titleId}>
+      {t({ en: "Needs a look", zh: "需要核对" })}
+    </Heading>
+  );
+
+  if (differences.length === 0 && reviewCount === 0 && expectedCount === 0) {
+    return (
+      <Card css={stack.tight} aria-labelledby={titleId} role="region">
+        {title}
         <p css={[row.tight, typeRole.bodySmall, styles.muted]}>
           <CheckCircleIcon weight="bold" aria-hidden />
           {t({
@@ -310,38 +325,43 @@ function NeedsALook({ sheet, url }: { sheet: BalanceSheet; url: NetWorthUrl }) {
             zh: "暂时没有需要核对的。",
           })}
         </p>
-      ) : (
-        <div css={stack.tight}>
-          {differences.map((line) =>
-            line.bankLink ? (
-              <BankBalanceSummary
-                key={line.bankLink.id}
-                link={line.bankLink}
-                account={line.account}
-                href={url.hrefOf({ account: line.account.id })}
-              />
-            ) : null,
-          )}
-          {reviewCount === 0 ? null : (
-            <CheckLink
-              href={getLocalePath("/finance/transactions?review=1", locale)}
-            >
-              {reviewCount === 1
-                ? oneReview
-                : manyReview.replace("{count}", count(reviewCount))}
-            </CheckLink>
-          )}
-          {expectedCount === 0 ? null : (
-            <CheckLink
-              href={getLocalePath("/finance/transactions?expected=1", locale)}
-            >
-              {expectedCount === 1
-                ? oneExpected
-                : manyExpected.replace("{count}", count(expectedCount))}
-            </CheckLink>
-          )}
-        </div>
-      )}
+      </Card>
+    );
+  }
+
+  return (
+    <Card css={stack.tight} aria-labelledby={titleId} role="region">
+      {title}
+      <div css={stack.tight}>
+        {differences.map((line) =>
+          line.bankLink ? (
+            <BankBalanceSummary
+              key={line.bankLink.id}
+              link={line.bankLink}
+              account={line.account}
+              href={url.hrefOf({ account: line.account.id })}
+            />
+          ) : null,
+        )}
+        {reviewCount === 0 ? null : (
+          <CheckLink
+            href={getLocalePath("/finance/transactions?review=1", locale)}
+          >
+            {reviewCount === 1
+              ? oneReview
+              : manyReview.replace("{count}", count(reviewCount))}
+          </CheckLink>
+        )}
+        {expectedCount === 0 ? null : (
+          <CheckLink
+            href={getLocalePath("/finance/transactions?expected=1", locale)}
+          >
+            {expectedCount === 1
+              ? oneExpected
+              : manyExpected.replace("{count}", count(expectedCount))}
+          </CheckLink>
+        )}
+      </div>
     </Card>
   );
 }
