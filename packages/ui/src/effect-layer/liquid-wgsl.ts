@@ -655,12 +655,17 @@ fn drawBody(
       var layer = vec4f(body, 1.0);
       if (seeThrough) {
         // The liquid shows over the track as it is, and lets as much of the
-        // page through as it can. Where it is lighter than the track it only
-        // adds light, so a label under it keeps its contrast.
+        // page through as it can: the least alpha that gives the body over
+        // the track's fill. Where it is lighter than the track, that alpha
+        // keeps a white label under it white. The colour stays at or below
+        // the alpha: Chrome drops the light of a premultiplied colour above
+        // its alpha when it converts the canvas for a wide-gamut display.
         let under = trackAt(liquid, track, page);
-        let ratio = body / max(under, vec3f(1e-3));
-        let through = min(1.0, min(ratio.x, min(ratio.y, ratio.z)));
-        layer = vec4f(body - under * through, 1.0 - through);
+        let darker = 1.0 - body / max(under, vec3f(1e-3));
+        let lighter = (body - under) / max(1.0 - under, vec3f(1e-3));
+        let needed = max(darker, lighter);
+        let alpha = saturate(max(needed.x, max(needed.y, needed.z)));
+        layer = vec4f(clamp(body - under * (1.0 - alpha), vec3f(0.0), vec3f(alpha)), alpha);
       }
       acc = over(layer * coverage * shown, acc);
     }
