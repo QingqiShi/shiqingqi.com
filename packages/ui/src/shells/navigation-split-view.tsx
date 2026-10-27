@@ -57,6 +57,7 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { BeforeCommit } from "./before-commit.tsx";
 import {
   claimEdgeSwipe,
   EDGE_SWIPE_ZONE,
@@ -70,6 +71,7 @@ import {
   type SplitViewMotion,
   type SplitViewMarkElement,
   type SplitViewMarks,
+  type SplitViewLayout,
   type SplitViewSnapshot,
 } from "./create-split-view-motion.ts";
 import {
@@ -415,15 +417,19 @@ interface NavigationSplitViewProps {
  * springs in over the page it leaves, which drifts back and dims, and a
  * shallower one springs back out. A detail slides in beside the content
  * while the sidebar folds, and the Shared elements (`useSplitViewShared`)
- * fly between their forms. A detail in a sheet grows out of the link in the
- * content that opens it, a column link or a plain one, and shrinks back
- * into it. Where the content is stacked, a drag from the
+ * fly between their forms. What the content shows moves to its new place
+ * in the narrower or wider column: a box that keeps its size moves as one,
+ * the boxes in a box that changes its size move by the same rule, and text
+ * that wraps again changes at once. A detail in a sheet grows out of the
+ * link in the content that opens it, a column link or a plain one, and
+ * shrinks back into it. Where the content is stacked, a drag from the
  * start edge of the content takes it off. A navigation in the middle of a
  * motion starts from where the motion is. Under reduced motion, each change
  * is a short cross-fade. The Shared elements fly only for a navigation that
  * the view starts, such as from a column link or a back link, and for Back
  * and Forward of the browser. Another navigation, such as a `router.push`
- * after a form, moves the columns and the pages only.
+ * after a form, moves the columns, the sidebar, the pages and the boxes of
+ * the content only.
  */
 export function NavigationSplitView({
   sidebar,
@@ -520,6 +526,9 @@ export function NavigationSplitView({
   // motion that the navigation brings. Until that motion, it is read again
   // at each frame, scroll and commit, as the data can come much later.
   const pendingRef = useRef<PendingSnapshot<SplitViewSnapshot> | null>(null);
+  // The columns in the commit of a motion, before the DOM changes, whatever
+  // started the navigation.
+  const layoutRef = useRef<SplitViewLayout | null>(null);
   const pageScrollRef = useRef<PageScroll | null>(null);
   const capture = (to: string) => {
     pageScrollRef.current?.remember();
@@ -566,10 +575,12 @@ export function NavigationSplitView({
     // The page scrolls before the motion measures where the pages show.
     pageScrollRef.current?.follow(shownKey(), motion.change.content);
     const created = motionRef.current;
+    const layout = layoutRef.current;
+    layoutRef.current = null;
     if (created === null) return;
     const here = normalizeUrl(window.location.href);
     const snapshot = pendingRef.current?.claim(here, true) ?? null;
-    created.play(snapshot, motion.change, motion.id);
+    created.play(snapshot, layout, motion.change, motion.id);
   }, [motion]);
 
   useLayoutEffect(() => {
@@ -706,6 +717,13 @@ export function NavigationSplitView({
 
   return (
     <SplitViewContext value={viewState}>
+      <BeforeCommit
+        when={motion.id}
+        read={() => {
+          layoutRef.current =
+            motionRef.current?.readLayout(motion.change) ?? null;
+        }}
+      />
       <SplitViewMarksContext value={marks}>
         <div ref={setView} css={[styles.view, movingMarker, css]}>
           <div

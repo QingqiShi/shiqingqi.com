@@ -22,6 +22,7 @@ afterEach(() => {
 });
 
 const NONE = { content: null, detail: null } as const;
+const IN = { content: null, detail: "in" } as const;
 
 function element(attributes: Record<string, string>, ...children: Element[]) {
   const node = document.createElement("div");
@@ -72,7 +73,7 @@ function translateXOf(node: HTMLElement) {
 describe("createSplitViewMotion", () => {
   it("pushes a page in from the inline end, and lets go of its styles at rest", async () => {
     const { under, current, events, motion } = setUp();
-    motion.play(null, { ...NONE, content: "push" }, 1);
+    motion.play(null, null, { ...NONE, content: "push" }, 1);
     expect(translateXOf(current)).toBe(400);
     expect(current.style.visibility).toBe("hidden");
     await clock.advance(0.15);
@@ -88,13 +89,13 @@ describe("createSplitViewMotion", () => {
 
   it("turns a push that a pop cuts off from where it is, at the speed it has", async () => {
     const { under, current, motion } = setUp();
-    motion.play(null, { ...NONE, content: "push" }, 1);
+    motion.play(null, null, { ...NONE, content: "push" }, 1);
     // On a frame, so that the page shows where the model is.
     await clock.advance(0.096);
     const before = translateXOf(current);
     current.setAttribute("data-split-view-page", "leaving");
     under.setAttribute("data-split-view-page", "current");
-    motion.play(null, { ...NONE, content: "pop" }, 2);
+    motion.play(null, null, { ...NONE, content: "pop" }, 2);
     expect(translateXOf(current)).toBeCloseTo(before, 0);
     await clock.advance(0.016);
     expect(translateXOf(current)).toBeLessThan(before);
@@ -174,7 +175,8 @@ describe("createSplitViewMotion", () => {
         return box.x + box.width + x - inset;
       };
       motion.play(
-        { marks: new Map(), origin: null, contentLeft, sidebar: null },
+        null,
+        { contentLeft, sidebar: null, boxes: null },
         { content: null, detail },
         1,
       );
@@ -192,6 +194,68 @@ describe("createSplitViewMotion", () => {
     },
   );
 
+  it("moves the boxes of the content page to their new places, less the slide of the column", async () => {
+    const { view, content, current, motion } = setUp();
+    const amount = element({});
+    const list = element({}, amount);
+    current.append(list);
+    layOut(list, { x: 0, y: 100, width: 400, height: 40 });
+    layOut(amount, { x: 300, y: 100, width: 100, height: 40 });
+    const layout = motion.readLayout(IN);
+
+    layOut(content, { x: 100, y: 0, width: 300, height: 600 });
+    layOut(list, { x: 100, y: 100, width: 300, height: 40 });
+    layOut(amount, { x: 300, y: 100, width: 100, height: 40 });
+    motion.play(null, layout, IN, 1);
+    // The column shows 100px to the inline start of its place, and the
+    // amount shows where it showed.
+    expect(content.style.transform).toBe("translate(-100.00px, 0.00px)");
+    expect(amount.style.translate).toBe("100.00px 0.00px");
+    expect(list.style.translate).toBe("");
+    await clock.advance(3);
+    expect(amount.style.translate).toBe("");
+    expect(view.querySelectorAll("[style*=translate]")).toHaveLength(0);
+  });
+
+  it.each([
+    { name: "pushes a page", change: { content: "push", detail: null } },
+    { name: "swaps the detail", change: { content: null, detail: "swap" } },
+  ] as const)(
+    "does not read the boxes of the content page for a change that $name",
+    ({ change }) => {
+      const { current, motion } = setUp();
+      const row = element({});
+      current.append(row);
+      layOut(row, { x: 0, y: 100, width: 400, height: 40 });
+      expect(motion.readLayout(change)).toEqual({
+        contentLeft: 0,
+        sidebar: null,
+        boxes: null,
+      });
+    },
+  );
+
+  it("does not move a box of the content page that is a Shared element that flies", () => {
+    const { view, current, marks, motion } = setUp();
+    const row = element({});
+    current.append(row);
+    layOut(row, { x: 0, y: 100, width: 400, height: 40 });
+    addSplitViewMark(marks, "row", row);
+    const snapshot = motion.capture();
+    const layout = motion.readLayout(IN);
+
+    // The row moves down, and its Shared element flies into the detail.
+    layOut(row, { x: 0, y: 200, width: 400, height: 40 });
+    const twin = element({});
+    view.append(twin);
+    layOut(twin, { x: 500, y: 0, width: 200, height: 40 });
+    marks.clear();
+    addSplitViewMark(marks, "row", twin);
+    motion.play(snapshot, layout, IN, 1);
+    expect(row.style.opacity).toBe("0");
+    expect(row.style.translate).toBe("");
+  });
+
   it("under reduced motion, fades a swiped screen out where the finger left it", async () => {
     reduceMotion();
     const { under, current, motion } = setUp();
@@ -207,7 +271,7 @@ describe("createSplitViewMotion", () => {
     expect(opacity).toBeLessThan(1);
     current.setAttribute("data-split-view-page", "leaving");
     under.setAttribute("data-split-view-page", "current");
-    motion.play(null, { ...NONE, content: "pop" }, 1);
+    motion.play(null, null, { ...NONE, content: "pop" }, 1);
     expect(translateXOf(current)).toBe(300);
     expect(Number(current.style.opacity)).toBeLessThanOrEqual(opacity);
     await clock.advance(1);
@@ -240,7 +304,8 @@ describe("createSplitViewMotion", () => {
     layOut(full, { x: 0, y: 0, width: 240, height: 600 });
     layOut(collapsed, { x: 0, y: 0, width: 60, height: 600 });
     motion.play(
-      { marks: new Map(), origin: null, contentLeft: null, sidebar: "full" },
+      null,
+      { contentLeft: null, sidebar: "full", boxes: null },
       NONE,
       1,
     );
@@ -273,7 +338,7 @@ describe("createSplitViewMotion", () => {
     view.append(next);
     layOut(next, { x: 400, y: 0, width: 400, height: 200 });
     addSplitViewMark(marks, "chart", next);
-    motion.play(snapshot, NONE, 1);
+    motion.play(snapshot, null, NONE, 1);
     expect(next.style.opacity).toBe("0");
     expect(layer.childElementCount).toBe(0);
 
