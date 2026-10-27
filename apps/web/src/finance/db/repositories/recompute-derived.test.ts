@@ -250,7 +250,8 @@ async function expectSameAsFullRebuild(accountIds: readonly string[]) {
 }
 
 describe("recomputeDerived", () => {
-  it("builds every derived row for an imported ledger in one pass", async () => {
+  it("builds every derived row for an imported ledger in one pass, and writes nothing when run again", async () => {
+    await db.delete(accountBalanceDays);
     const started = performance.now();
     const written = await withHousehold(db, home.householdId, (scope) =>
       recomputeDerived({ ...scope, version: 1 }, { accounts: "all" }),
@@ -262,9 +263,7 @@ describe("recomputeDerived", () => {
     for (const accountId of accountIds.slice(0, 25)) {
       expect(await storedRows(accountId)).toEqual(await engineRows(accountId));
     }
-  });
 
-  it("writes nothing when run again", async () => {
     expect(
       await withHousehold(db, home.householdId, (scope) =>
         recomputeDerived({ ...scope, version: 2 }, { accounts: "all" }),
@@ -274,6 +273,7 @@ describe("recomputeDerived", () => {
 
   it("from a day on, changes only the rows that moved", async () => {
     const accountId = accountIds[1] ?? "";
+    await recomputeFrom({ [accountId]: "1900-01-01" });
     const before = await storedRows(accountId);
     const middle = before.at(Math.floor(before.length / 2));
     if (!middle) throw new Error("The account has no balances");

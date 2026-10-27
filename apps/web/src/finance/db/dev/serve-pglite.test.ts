@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { connect } from "node:net";
 import { PGlite } from "@electric-sql/pglite";
 import { Pool } from "pg";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { servePglite, type PgliteServer } from "./serve-pglite.ts";
 
 function frontendMessage(type: string, ...fields: (string | number[])[]) {
@@ -44,7 +44,9 @@ async function backendMessageTypes(
       while (buffer.length >= 5 && buffer.length >= 1 + buffer.readInt32BE(1)) {
         const type = String.fromCharCode(buffer[0]);
         buffer = buffer.subarray(1 + buffer.readInt32BE(1));
-        if (ready > 0) types.push(type);
+        // A server can send ParameterStatus at any time. A new PGlite
+        // database sends some in its first query cycle.
+        if (ready > 0 && type !== "S") types.push(type);
         if (type !== "Z") continue;
         ready += 1;
         if (ready === 1) socket.write(Buffer.concat(messages));
@@ -73,6 +75,10 @@ describe("servePglite", () => {
       connectionString: `postgres://postgres:postgres@127.0.0.1:${String(port)}/postgres`,
       max: 8,
     });
+  });
+
+  beforeEach(async () => {
+    await pool.query("update counters set value = 0 where id = 1");
   });
 
   afterAll(async () => {
@@ -170,7 +176,7 @@ describe("servePglite", () => {
     const { rows } = await pool.query<{ value: number }>(
       "select value from counters where id = 1",
     );
-    expect(rows[0].value).toBe(10);
+    expect(rows[0].value).toBe(0);
   });
 
   it("sends one ReadyForQuery for a failed extended query", async () => {

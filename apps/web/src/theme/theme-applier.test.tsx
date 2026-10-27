@@ -5,6 +5,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { FINANCE_LIGHT_CANVAS } from "#src/finance/theme/finance-theme.ts";
 import { act, fireEvent, render, screen } from "#src/testing/test-utils.tsx";
 import { getDocumentClassName } from "./global-styles.ts";
+import { resetTheme } from "./testing/reset-theme.ts";
 import { ThemeApplier } from "./theme-applier.tsx";
 import { themeHack } from "./theme-hack.ts";
 import { ThemeSwitch } from "./theme-switch.tsx";
@@ -20,6 +21,7 @@ beforeAll(() => {
 beforeEach(() => {
   document.head.innerHTML = "";
   document.documentElement.className = "";
+  resetTheme();
 });
 
 function runThemeHack() {
@@ -34,8 +36,6 @@ function themeColorContents() {
   );
 }
 
-// Each block below changes the module-level `themeSingleton` in
-// `use-theme.ts` in its own way, so keep this order.
 describe("ThemeApplier hydration", () => {
   it("never applies the system theme class while hydrating with a stored light theme", async () => {
     localStorage.setItem("theme", "light");
@@ -116,6 +116,7 @@ describe("ThemeApplier", () => {
   it("follows a ThemeSwitch press when localStorage.setItem throws", () => {
     // Safari private mode / lockdown / quota-exceeded all surface as a
     // throw from setItem.
+    localStorage.setItem("theme", "dark");
     const setItemSpy = vi
       .spyOn(Storage.prototype, "setItem")
       .mockImplementation(() => {
@@ -130,8 +131,8 @@ describe("ThemeApplier", () => {
         </>,
       );
 
-      // The previous test left the Theme dark. The system Theme is light, so
-      // the press goes back to "system".
+      // The system Theme is light, so the press from dark goes back to
+      // "system".
       fireEvent.click(screen.getByRole("button"));
 
       expect(document.documentElement.className).toBe(
@@ -158,7 +159,6 @@ describe("themeHack on a Finance page", () => {
       );
     } finally {
       window.history.pushState(null, "", "/");
-      localStorage.removeItem("theme");
     }
   });
 
@@ -175,7 +175,6 @@ describe("themeHack on a Finance page", () => {
       ).toEqual(["(width < 768px)", null]);
     } finally {
       window.history.pushState(null, "", "/");
-      localStorage.removeItem("theme");
     }
   });
 });
