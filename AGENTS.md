@@ -3,6 +3,7 @@
 # Gotchas
 
 - Tests are Vitest, one package at a time. While you work, run only the area you changed: `pnpm --filter web exec vitest run src/finance/rules` (the pattern matches file paths). In `apps/web`, `pnpm --filter web test` first runs the `pretest` codegen, which takes 30–60 s each time: use it once in a fresh worktree, and again after you change translated text, the palette, or component props. Run a whole package only when the change reaches beyond one area; CI runs every suite anyway. A directory pattern is faster than `vitest --changed` or `vitest related`, which crawl the full module graph.
+- In `apps/web`, only `*.test.tsx` and `*.dom.test.ts` files get jsdom; other `*.test.ts` files run in Node. If a `.test.ts` file fails with `document is not defined`, rename it to `.dom.test.ts`.
 - `pnpm build` neither type-checks nor lints; `pnpm build:tsc` is the type check.
 - `pnpm test:e2e` is Playwright. Locally it reuses a server already up on the worktree port; otherwise it starts the production build, and rebuilds only when a source other than e2e and test files changed since the last build. `pnpm test:e2e:serve` in `apps/web` keeps such a server up between runs, Finance included; restart it after you change app code.
 - Evals hit real LLM APIs. `pnpm eval <filter>` runs one file (e.g. `pnpm eval tmdb-search`); run a bare `pnpm eval` only when the full suite is needed.
