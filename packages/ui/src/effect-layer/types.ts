@@ -289,9 +289,11 @@ export interface EffectPass {
 export interface EffectRenderer {
   /**
    * Runs once per frame before any draw: encode compute passes here. Return
-   * `true` to ask for the next frame; the loop stops when no effect asks.
+   * `true` to ask for the next frame, or an `EffectFrame.time` to ask for a
+   * frame at that time, also under reduced motion; the loop stops when no
+   * effect asks.
    */
-  update?: (encoder: GPUCommandEncoder, frame: EffectFrame) => boolean;
+  update?: (encoder: GPUCommandEncoder, frame: EffectFrame) => boolean | number;
   /**
    * Draws into every target of the frame, with groups 0 and 1 set; the
    * effect skips what it does not own.

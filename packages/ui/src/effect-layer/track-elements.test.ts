@@ -89,7 +89,7 @@ describe("trackElements", () => {
     const onChange = vi.fn();
     const tracking = trackElements(
       registry,
-      createFrameScheduler(),
+      createFrameScheduler(vi.fn()),
       onChange,
       () => 0,
     );
@@ -109,7 +109,7 @@ describe("trackElements", () => {
     const registry = createEffectRegistry();
     registry.register(button, 0, NO_SETTINGS, ON_PAGE);
     const onChange = vi.fn();
-    trackElements(registry, createFrameScheduler(), onChange, () => 0);
+    trackElements(registry, createFrameScheduler(vi.fn()), onChange, () => 0);
     registry.register(other, 0, NO_SETTINGS, ON_PAGE);
     expect(reads).toEqual([]);
 
@@ -159,7 +159,7 @@ describe("trackElements", () => {
     const onScroll = vi.fn();
     const tracking = trackElements(
       registry,
-      createFrameScheduler(),
+      createFrameScheduler(vi.fn()),
       () => {},
       () => 0,
       onScroll,
@@ -223,7 +223,7 @@ describe("trackElements", () => {
     registry.register(other, 0, NO_SETTINGS, ON_PAGE);
     trackElements(
       registry,
-      createFrameScheduler(),
+      createFrameScheduler(vi.fn()),
       () => {},
       () => 0,
     );

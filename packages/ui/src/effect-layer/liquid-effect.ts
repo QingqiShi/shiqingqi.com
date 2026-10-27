@@ -3,9 +3,9 @@ import {
   GPU_BUFFER_USAGE,
   GPU_MAP_MODE,
   GPU_SHADER_STAGE,
-  PREMULTIPLIED_BLEND,
 } from "./constants.ts";
 import { createBinding } from "./create-binding.ts";
+import { createInstancedDraw } from "./create-instanced-draw.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
 import { isInView } from "./create-ripples.ts";
 import { roleBits } from "./effect-roles.ts";
@@ -14,7 +14,6 @@ import {
   finiteOr,
 } from "./effect-setting-defaults.ts";
 import { handBack } from "./hand-back.stylex.ts";
-import { instanceRange } from "./instance-range.ts";
 import { leanLight, pointerLights, type LightContext } from "./lean-light.ts";
 import {
   LIQUID_COMPUTE_WGSL,
@@ -960,14 +959,7 @@ interface Stepped {
  */
 export const liquidEffect: Effect = {
   async setup(setup: EffectSetup) {
-    const { device, format, pageLayout, targetLayout } = setup;
-    const liquidLayout = device.createBindGroupLayout({
-      entries: [0, 1, 2].map((binding) => ({
-        binding,
-        visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
-        buffer: { type: "read-only-storage" as const },
-      })),
-    });
+    const { device } = setup;
     const computeLayout = device.createBindGroupLayout({
       entries: (["read-only-storage", "storage"] as const).map(
         (type, binding) => ({
@@ -977,23 +969,11 @@ export const liquidEffect: Effect = {
         }),
       ),
     });
-    const liquidModule = device.createShaderModule({ code: LIQUID_WGSL });
     const computeModule = device.createShaderModule({
       code: LIQUID_COMPUTE_WGSL,
     });
-    const [liquidPipeline, simulatePipeline] = await Promise.all([
-      device.createRenderPipelineAsync({
-        layout: device.createPipelineLayout({
-          bindGroupLayouts: [pageLayout, targetLayout, liquidLayout],
-        }),
-        vertex: { module: liquidModule, entryPoint: "liquidVertex" },
-        fragment: {
-          module: liquidModule,
-          entryPoint: "liquidFragment",
-          targets: [{ format, blend: PREMULTIPLIED_BLEND }],
-        },
-        primitive: { topology: "triangle-strip" },
-      }),
+    const [liquid, simulatePipeline] = await Promise.all([
+      createInstancedDraw(setup, LIQUID_WGSL, "liquid", 3),
       device.createComputePipelineAsync({
         layout: device.createPipelineLayout({
           bindGroupLayouts: [computeLayout],
@@ -1147,7 +1127,7 @@ export const liquidEffect: Effect = {
       stepBuffer,
       slotBinding,
     ]);
-    const liquidBinding = createBinding(device, liquidLayout, [
+    const liquidBinding = createBinding(device, liquid.layout, [
       instanceBuffer,
       slotBinding,
       beadBuffer,
@@ -1265,16 +1245,7 @@ export const liquidEffect: Effect = {
         return animating;
       },
       draw(pass, target) {
-        const [first, count] = instanceRange(
-          instances,
-          target.firstElement,
-          target.elementCount,
-        );
-        if (count > 0) {
-          pass.setPipeline(liquidPipeline);
-          pass.setBindGroup(2, liquidBinding());
-          pass.draw(4, count, 0, first);
-        }
+        liquid.draw(pass, target, instances, liquidBinding);
       },
       destroy() {
         destroyed = true;
