@@ -104,17 +104,27 @@ export interface SplitViewSnapshot {
   readonly origin: { readonly x: number; readonly y: number } | null;
 }
 
+type SidebarForm = "full" | "collapsed" | null;
+
 /**
- * The columns before a change, read in its commit, before the DOM changes.
- *
- * @internal
+ * The content column and the sidebar as the screen showed them last. A
+ * `ResizeObserver` keeps them, and each motion keeps the layout it plays to.
  */
-export interface SplitViewLayout {
-  /** Where the inline-start edge of the content column was in the viewport. */
-  readonly contentLeft: number | null;
-  readonly sidebar: "full" | "collapsed" | null;
-  /** The boxes of the content page, where the change can resize the content column. */
-  readonly boxes: LayoutSnapshot | null;
+interface ShownColumns {
+  /** Where the inline-start edge of the content is at its place, from the view's. */
+  readonly x: number;
+  readonly width: number;
+  readonly sidebar: SidebarForm;
+}
+
+/** The columns from `box`, the box of the content column `slide` px from its place, in the view at `origin`. */
+function columnsOf(
+  box: DOMRect,
+  origin: DOMRect,
+  slide: number,
+  sidebar: SidebarForm,
+): ShownColumns {
+  return { x: box.left - origin.left - slide, width: box.width, sidebar };
 }
 
 interface ShownMark extends SharedForm {
@@ -680,12 +690,12 @@ const SELECTOR = {
 /**
  * The motion of a `NavigationSplitView`: the motion values, the bindings
  * that show them, and the Shared elements. The view reads a snapshot when a
- * navigation is about to change the composition, reads the columns in the
- * commit of the change, before the DOM changes, and plays the change after
- * it. A change that comes while a motion runs turns each part from where it
- * is, at the speed it has. The motion writes only `transform`, `translate`,
- * `opacity` and `visibility`, once a frame, and reads the layout only when
- * a change starts.
+ * navigation is about to change the composition, and plays the change after
+ * the DOM changes. A change that comes while a motion runs turns each part
+ * from where it is, at the speed it has. The motion writes only `transform`,
+ * `translate`, `opacity` and `visibility`, once a frame. It reads the
+ * layout only when a change starts, and the box of the content column each
+ * time its size changes.
  *
  * @internal
  */
@@ -693,21 +703,16 @@ export interface SplitViewMotion {
   /** Reads where each Shared element shows now, as the screen shows it. */
   capture(): SplitViewSnapshot;
   /**
-   * Reads the columns as the screen shows them now, for `play` of `change`.
-   * `null` under reduced motion.
-   */
-  readLayout(change: SplitViewChange): SplitViewLayout | null;
-  /**
-   * Plays the change from `snapshot` and `layout` to the composition in the
-   * DOM now, as motion number `motion`. Without a snapshot, the columns and
-   * the pages move, but no Shared element flies. Without a layout, the
-   * sidebar does not fold and the content column does not slide to its new
-   * place. The boxes of the content page in `layout` move from where they
-   * showed to their new places in the content: see `pickBoxes`.
+   * Plays the change from `snapshot` to the composition in the DOM now, as
+   * motion number `motion`. Without a snapshot, the columns and the pages
+   * move, but no Shared element flies. The sidebar folds and the content
+   * column slides from where the screen showed them last. Where a detail
+   * column comes or goes, the content column takes its last width again for
+   * a moment, and the boxes of the content page move from their boxes there
+   * to their new places in the content: see `pickBoxes`.
    */
   play(
     snapshot: SplitViewSnapshot | null,
-    layout: SplitViewLayout | null,
     change: SplitViewChange,
     motion: number,
   ): void;
@@ -744,6 +749,52 @@ export function createSplitViewMotion(
   let played = 0;
   /** A swipe let go to go back holds the screen out until the view pops it. */
   let awaitingPop: ReturnType<typeof setTimeout> | undefined;
+  let shown: ShownColumns | null = null;
+  let watched: HTMLElement | null = null;
+  // A `ResizeObserver` runs after the layout of each frame, so a read of
+  // the layout in it costs nothing. In the commit of a change, the box that
+  // it kept is still the box that the screen showed.
+  const observer =
+    typeof ResizeObserver === "undefined"
+      ? null
+      : new ResizeObserver(() => {
+          remember();
+        });
+  watch(view.querySelector<HTMLElement>(SELECTOR.content));
+
+  /** How far, in px, the content column shows from its place now. `ShownColumns` keeps the place without this distance. */
+  function slideNow() {
+    return offset?.x.get() ?? 0;
+  }
+
+  function remember() {
+    const content = watched;
+    if (content === null) return;
+    if (!content.isConnected) {
+      watch(view.querySelector<HTMLElement>(SELECTOR.content));
+      return;
+    }
+    const last = shown;
+    const columns = columnsOf(
+      content.getBoundingClientRect(),
+      view.getBoundingClientRect(),
+      slideNow(),
+      last?.sidebar ?? null,
+    );
+    // The observer runs at each frame while the view changes size. The
+    // sidebar shows at the inline start of the content, so another form of
+    // the sidebar moves the content. Only then read the sidebar again.
+    const isSameSidebar = last !== null && Math.abs(columns.x - last.x) < 0.5;
+    shown = isSameSidebar ? columns : { ...columns, sidebar: sidebarShown() };
+  }
+
+  function watch(content: HTMLElement | null) {
+    if (content === watched) return;
+    if (watched !== null) observer?.unobserve(watched);
+    watched = content;
+    shown = null;
+    if (content !== null) observer?.observe(content);
+  }
 
   /** The one element of the Shared element `name` that shows, in `within` where given, with its options. */
   function shownMark(name: string, within?: Element) {
@@ -1209,15 +1260,67 @@ export function createSplitViewMotion(
     };
   }
 
+  /**
+   * The boxes of the content page as the screen showed them, from `x`,
+   * where the inline-start edge of `content` showed, from the view's, and
+   * `width`, the width it had. The content column takes that width for the
+   * read and lets go of it in the same task. The page shows the DOM of now,
+   * which can differ from what showed, such as a row that is now selected.
+   */
+  function boxesAt(
+    content: HTMLElement,
+    x: number,
+    width: number,
+  ): LayoutSnapshot | null {
+    const page = content.querySelector(SELECTOR.page("current"));
+    if (page === null || width <= 0) return null;
+    const style = content.style.cssText;
+    const given = `${String(width)}px`;
+    writeStyles(content, {
+      "box-sizing": "border-box",
+      "flex-grow": "0",
+      "flex-shrink": "0",
+      "flex-basis": "auto",
+      width: given,
+      "min-width": given,
+      "max-width": given,
+    });
+    // Read with the poses of the motion on, so that a box that still moves
+    // shows where it is.
+    try {
+      const origin = view.getBoundingClientRect();
+      const column = rectIn(content, origin);
+      const dx = x - column.x;
+      const screen = {
+        x: -origin.left - dx,
+        y: -origin.top,
+        width: innerWidth,
+        height: innerHeight,
+      };
+      // The pages clip what they hold to the column, and the screen clips
+      // the column.
+      const boxes = captureBoxes(page, view, intersect(column, screen));
+      return {
+        origin: view,
+        rectOf: (element) => {
+          const rect = boxes.rectOf(element);
+          return rect === undefined ? undefined : { ...rect, x: rect.x + dx };
+        },
+      };
+    } finally {
+      content.style.cssText = style;
+    }
+  }
+
   return {
     capture() {
-      const shown = shownMarks();
+      const showing = shownMarks();
       const layout = captureLayout(
-        shown.map(({ element }) => element),
+        showing.map(({ element }) => element),
         view,
       );
       const captured = new Map<string, ShownMark>();
-      for (const { name, element, options } of shown) {
+      for (const { name, element, options } of showing) {
         const flight = flights.get(name);
         const rect =
           flight !== undefined && flight.destination.element === element
@@ -1231,39 +1334,7 @@ export function createSplitViewMotion(
       return { marks: captured, origin: { x: left, y: top } };
     },
 
-    readLayout(change) {
-      if (engine.reducedMotion) return null;
-      const content = view.querySelector<HTMLElement>(SELECTOR.content);
-      const page = content?.querySelector(SELECTOR.page("current")) ?? null;
-      const resizes =
-        change.content === null &&
-        (change.detail === "in" || change.detail === "out");
-      let boxes: LayoutSnapshot | null = null;
-      if (content !== null && page !== null && resizes) {
-        const origin = view.getBoundingClientRect();
-        const screen = {
-          x: -origin.left,
-          y: -origin.top,
-          width: innerWidth,
-          height: innerHeight,
-        };
-        // The pages clip what they hold to the column, and the screen clips
-        // the column.
-        boxes = captureBoxes(
-          page,
-          view,
-          intersect(rectIn(content, origin), screen),
-        );
-      }
-      return {
-        contentLeft:
-          content === null ? null : content.getBoundingClientRect().left,
-        sidebar: sidebarShown(),
-        boxes,
-      };
-    },
-
-    play(snapshot, layout, change, motion) {
+    play(snapshot, change, motion) {
       const before = snapshot ?? NOTHING_SHOWN;
       played = motion;
       if (engine.reducedMotion) {
@@ -1279,6 +1350,17 @@ export function createSplitViewMotion(
         return;
       }
       if (change.content !== null) stopAwaitingPop();
+      const content = view.querySelector<HTMLElement>(SELECTOR.content);
+      watch(content);
+      const last = shown;
+      const slide = slideNow();
+      const resizes =
+        change.content === null &&
+        (change.detail === "in" || change.detail === "out");
+      const boxes =
+        content === null || last === null || !resizes
+          ? null
+          : boxesAt(content, last.x + slide, last.width);
       const starts = engine.measure(() => {
         const origin = view.getBoundingClientRect();
         const rem =
@@ -1288,18 +1370,18 @@ export function createSplitViewMotion(
         const presentation = origin.width / rem < 30 ? "stacked" : "columns";
         const sidebar = sidebarShown();
         const foldChange =
-          layout?.sidebar === "full" && sidebar === "collapsed"
+          last?.sidebar === "full" && sidebar === "collapsed"
             ? "fold"
-            : layout?.sidebar === "collapsed" && sidebar === "full"
+            : last?.sidebar === "collapsed" && sidebar === "full"
               ? "unfold"
               : null;
-        const content = view.querySelector<HTMLElement>(SELECTOR.content);
         const contentBox = content?.getBoundingClientRect() ?? null;
-        const contentLeft = layout?.contentLeft ?? null;
-        const shift =
-          contentBox === null || contentLeft === null
-            ? 0
-            : contentLeft - contentBox.left;
+        let shift = 0;
+        if (contentBox !== null) {
+          // The next change can come before the observer runs.
+          shown = columnsOf(contentBox, origin, 0, sidebar);
+          if (last !== null) shift = last.x + slide - shown.x;
+        }
         const marksPlan = planMarks(
           fromOrigin(before, origin),
           origin,
@@ -1311,13 +1393,7 @@ export function createSplitViewMotion(
           planOffset(content, contentBox, shift),
           planFold(foldChange),
           marksPlan.start,
-          planMoves(
-            content,
-            layout?.boxes ?? null,
-            marksPlan.moved,
-            marksPlan.flying,
-            shift,
-          ),
+          planMoves(content, boxes, marksPlan.moved, marksPlan.flying, shift),
         ];
       });
       for (const startPart of starts) startPart();
@@ -1376,6 +1452,7 @@ export function createSplitViewMotion(
     destroy() {
       clearTimeout(foldTimer);
       clearTimeout(awaitingPop);
+      observer?.disconnect();
       stopAll();
     },
   };

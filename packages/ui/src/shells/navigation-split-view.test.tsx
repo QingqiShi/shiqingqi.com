@@ -9,6 +9,7 @@ import {
   onTestFinished,
   vi,
 } from "vitest";
+import { layOutInColumn } from "../test-support/lay-out.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import {
   NavigationSplitView,
@@ -534,5 +535,57 @@ describe("NavigationSplitView Shared elements", () => {
     rerender(flyingView(false));
     rerender(flyingView(true));
     expect(sharedCount(container)).toBe(1);
+  });
+});
+
+/** A ledger with an amount at the inline end of the content, and the detail open where `isOpen`. */
+function amountView(isOpen: boolean) {
+  return (
+    <NavigationSplitView
+      closeLabel="Close"
+      content={{ label: "Everyday", node: <div data-amount="">4.20</div> }}
+      detail={
+        isOpen
+          ? {
+              label: "Transaction",
+              key: "1",
+              back: { href: "/", label: "Everyday" },
+              node: "Bakery",
+            }
+          : null
+      }
+    />
+  );
+}
+
+describe("NavigationSplitView motion", () => {
+  it("moves what the content shows to its place in the narrower column for a navigation it did not start", () => {
+    const observers = stubObservers();
+    const { container, rerender } = render(amountView(false));
+    const content = screen.getByRole("region", { name: "Everyday" });
+    const amount = container.querySelector<HTMLElement>("[data-amount]");
+    if (amount === null) throw new Error("No amount");
+    // jsdom has no layout. The content is 800px wide, and 400px beside a
+    // detail.
+    const layOutAt = layOutInColumn(content, () =>
+      container.querySelector('[data-split-view-column="detail"]') === null
+        ? 800
+        : 400,
+    );
+    layOutAt(content, (width) => ({ x: 0, y: 0, width, height: 600 }));
+    layOutAt(amount, (width) => ({
+      x: width - 100,
+      y: 100,
+      width: 100,
+      height: 20,
+    }));
+    act(() => {
+      observers.resize(content, 800, 600);
+    });
+    window.history.pushState(null, "", "/?tx=1");
+    rerender(amountView(true));
+    // The amount shows where it showed, 400px from its new place.
+    expect(Number.parseFloat(amount.style.translate)).toBeCloseTo(400, 0);
+    expect(content.style.width).toBe("");
   });
 });
