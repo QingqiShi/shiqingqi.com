@@ -31,8 +31,9 @@ export const islandTokens = stylex.defineVars({
  * - `base` is one island. It clips what it holds to its corners, so its
  *   scroller goes inside it.
  *
- * A card in an island takes `cardSurface`: the fill of the island and a
- * hairline edge, so that it reads one level down, not as another island.
+ * A card in an island takes `cardSurface`: a fill one step lighter than
+ * the island and a hairline edge, so that it reads as a card, not as another
+ * island.
  */
 export const islandSurface = stylex.create({
   frame: {
@@ -45,7 +46,7 @@ export const islandSurface = stylex.create({
     paddingInlineEnd: islandTokens.insetInlineEnd,
   },
   base: {
-    backgroundColor: color.bgSurface,
+    backgroundColor: color.bgSurfaceSunken,
     borderRadius: islandTokens.radius,
     cornerShape: "squircle",
     overflow: "clip",

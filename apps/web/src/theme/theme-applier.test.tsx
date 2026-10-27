@@ -167,7 +167,7 @@ describe("themeHack on a Finance page", () => {
     window.history.pushState(null, "", "/finance");
     try {
       runThemeHack();
-      expect(themeColorContents()).toEqual([gray._100, FINANCE_LIGHT_CANVAS]);
+      expect(themeColorContents()).toEqual([gray._98, FINANCE_LIGHT_CANVAS]);
       expect(
         [...document.querySelectorAll("meta[name=theme-color]")].map((meta) =>
           meta.getAttribute("media"),
