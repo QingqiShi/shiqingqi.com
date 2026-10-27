@@ -12,7 +12,6 @@ import {
   type ElementTracker,
 } from "./create-element-tracker.ts";
 import { roleBits } from "./effect-roles.ts";
-import type { LightContext } from "./lean-light.ts";
 import {
   createControlReader,
   HAND_SECONDS,
@@ -360,19 +359,6 @@ describe("createControlReader", () => {
   });
 });
 
-const CONTEXT: LightContext = {
-  pointer: {
-    x: 0,
-    y: 0,
-    velocityX: 0,
-    velocityY: 0,
-    pressed: false,
-    present: false,
-    pointerType: "mouse",
-  },
-  viewport: { x: 0, y: 0, width: 800, height: 600 },
-};
-
 /**
  * Lays one control's liquid out frame by frame, 60 a second, with the CPU
  * reference in the GPU's place: it runs each step the layout asks for, and
@@ -398,7 +384,6 @@ function createRun(control: LiquidControl, reducedMotion = false) {
       state,
       { time, delta: 1 / 60, reducedMotion },
       BACKDROP,
-      CONTEXT,
       latest,
       beads,
     );
@@ -505,10 +490,26 @@ describe("layoutLiquid", () => {
     expect(handed.instance.edgeLit).toBe(1);
     expect(handed.instance.body).toBe(1);
 
+    const given = frames.find(({ instance }) => instance.body === 0);
+    expect((given?.time ?? 0) - handed.time).toBeCloseTo(HAND_SECONDS, 1);
     const last = frames.at(-1);
     expect(last?.animating).toBe(false);
     expect(last?.instance.body).toBe(0);
-    expect((last?.time ?? 0) - handed.time).toBeCloseTo(HAND_SECONDS, 1);
+  });
+
+  it("lifts the glint as the lit edge comes back after a move, and fades it to the rest look", () => {
+    const { frames } = move(threeSegments(), 0, 2);
+    const glints = frames.map(({ instance }) => instance.glint);
+    const peak = Math.max(...glints);
+    expect(glints[0]).toBe(0);
+    expect(peak).toBeGreaterThan(0.5);
+    const melted = frames.findIndex(({ instance }) => instance.edgeLit === 0);
+    const back = frames
+      .slice(melted)
+      .find(({ instance }) => instance.edgeLit > 0.5);
+    expect(back?.instance.glint).toBe(peak);
+    expect(glints.at(-1)).toBe(0);
+    expect(frames.at(-1)?.animating).toBe(false);
   });
 
   it("toggles a Switch's thumb across, covers the track while it pours, and hands both back", () => {
@@ -564,6 +565,7 @@ describe("layoutLiquid", () => {
       for (let i = 0; i < 30 && (frames.at(-1)?.fading ?? false); i++) {
         frames.push(run({ ...rest, position: 1 }));
       }
+      expect(frames.every(({ instance }) => instance.glint === 0)).toBe(true);
       const midway = frames[Math.floor(HAND_SECONDS * 30)];
       expect(midway.instance.body).toBeGreaterThan(0.2);
       expect(midway.instance.leaving[2]).toBeGreaterThan(0.2);
@@ -633,7 +635,6 @@ describe("layoutLiquid's step", () => {
       state,
       { time: 1, delta, reducedMotion: false },
       BACKDROP,
-      CONTEXT,
       null,
       [],
     );

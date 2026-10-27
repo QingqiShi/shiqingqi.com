@@ -95,8 +95,11 @@ export interface LiquidInstance {
   readonly backdrop: readonly [number, number, number];
   /** How much of the liquid the effect draws: 1 in motion, 0 at rest, where the control draws it. */
   readonly body: number;
-  /** The way to the light, a unit vector. */
-  readonly light: readonly [number, number];
+  /**
+   * How much the last move lifts the glint on the lit edge, from -1 to 1:
+   * positive after a move along the track, and negative after a move back.
+   */
+  readonly glint: number;
   /**
    * The track runs down the page, as the rail of a TabView does, and not
    * along it.
@@ -189,6 +192,30 @@ const RISE_REACH = vec2f(1.9, 1.3);
 const RISE_LEAD = 0.6;
 // The track's edge as it shows through the liquid, darker than the fill.
 const EDGE_SHADE = 0.3;
+// The lit edge: how bright its hairline is where the edge faces the light,
+// and how fast it dims as the edge turns away. Then how bright its glint is
+// where the rim faces the light, and where it faces straight away, and how
+// small the glint is.
+const HAIRLINE = 0.12;
+const HAIRLINE_SHINE = 1.5;
+const GLINT = 0.7;
+const COUNTER_GLINT = 0.22;
+const GLINT_SHINE = 40.0;
+// At its full lift, the glint is this much brighter, and it slides this far
+// along the rim, in radians.
+const GLINT_LIFT = 1.0;
+const GLINT_SLIDE = 0.5;
+// The glint's halo on the track: how bright it starts and how far it reaches,
+// in CSS px.
+const BLOOM = 0.45;
+const BLOOM_REACH = 0.8;
+// On a light surface, the sheen starts this far outside the edge, past the
+// ring. It fades over this many CSS px. These are its brightness for the
+// hairline and for the glint.
+const RING_CLEAR = 0.75;
+const SHEEN_REACH = 2.0;
+const SHEEN_HAIRLINE = 2.5;
+const SHEEN_GLINT = 0.9;
 const TO_LIGHT = normalize(vec3f(-0.42, -0.66, 0.62));
 const TO_LIGHT_FLAT = normalize(TO_LIGHT.xy);
 const HALFWAY = normalize(TO_LIGHT + vec3f(0.0, 0.0, 1.0));
@@ -220,9 +247,11 @@ struct LiquidInstance {
   // Where the liquid rests, along the track, the centre of its mass, and
   // half the length of the rest shape's straight part.
   rest: vec4f,
-  // The way to the light, the reach of the particles, and the width of the
-  // ring inside the track's edge.
-  light: vec4f,
+  // How much the last move lifts the glint, the reach of the particles, and
+  // the width of the ring inside the track's edge.
+  glint: f32,
+  scale: f32,
+  ringWidth: f32,
   edge: vec4f,
   // The ring inside the track's edge, off and on, with straight alpha.
   ringOff: vec4f,
@@ -314,7 +343,7 @@ fn over(top: vec4f, under: vec4f) -> vec4f {
 fn coverAt(liquid: LiquidInstance, track: EffectElement, page: vec2f) -> vec3f {
   let risen = risenAt(liquid, page);
   let fill = mix(liquid.off.rgb, liquid.on.rgb, risen);
-  let width = liquid.light.w;
+  let width = liquid.ringWidth;
   if (width <= 0.0) {
     return fill;
   }
@@ -335,7 +364,7 @@ fn trackAt(liquid: LiquidInstance, track: EffectElement, page: vec2f) -> vec3f {
 // The particles' field at a page point, with its gradient. The particles
 // are in track space: rest radii from the origin.
 fn fieldAt(liquid: LiquidInstance, page: vec2f) -> vec3f {
-  let reach = FIELD_REACH * liquid.radius * liquid.light.z;
+  let reach = FIELD_REACH * liquid.radius * liquid.scale;
   let reachSquared = reach * reach;
   var value = 0.0;
   var gradient = vec2f(0.0);
@@ -556,19 +585,44 @@ fn restShadow(liquid: LiquidInstance, page: vec2f, distance: f32, spread: f32) -
   return 1.0 - (1.0 - ring) * (1.0 - near) * (1.0 - far);
 }
 
-// A lit bevel: a specular hairline on the lit side, which spills a little
-// onto the track, a faint inner shade on the far side, and a glint where a
-// corner turns to face the light.
-fn litEdge(acc: vec4f, d: f32, lit: f32, away: f32, lightBody: bool, extras: f32) -> vec4f {
+// A direction turned by an angle, in radians.
+fn turned(direction: vec2f, angle: f32) -> vec2f {
+  let c = cos(angle);
+  let s = sin(angle);
+  return vec2f(c * direction.x - s * direction.y, s * direction.x + c * direction.y);
+}
+
+// A glass bevel in the fixed light: a quiet hairline on the sides that face
+// the light, which spills a little onto the track, a small glint where the
+// rim turns to face it, a faint glint where the rim faces straight away, and
+// a faint inner shade on the far side. The last move lifts both glints, and
+// slides them along the rim against the way the liquid moved, but only round
+// their own end of the body: a pill's long sides are straight, and a glint
+// that turned to one would light all along it. On a light surface a white
+// hairline would hide the ring round it, so there the light is only a soft
+// sheen on the track, outside the ring.
+fn litEdge(acc: vec4f, d: f32, outward: vec2f, liquid: LiquidInstance, extras: f32) -> vec4f {
+  let toLight = frameDir(liquid, vec3f(TO_LIGHT_FLAT, 0.0)).xy;
+  let facing = dot(outward, toLight);
+  let slide = GLINT_SLIDE * liquid.glint;
+  let near = dot(outward, turned(toLight, -max(slide, 0.0)));
+  let far = dot(outward, -turned(toLight, min(slide, 0.0)));
+  let lift = 1.0 + GLINT_LIFT * abs(liquid.glint);
   let inner = saturate(1.0 + d / 1.25) * step(d, 0.0);
   let edgeBand = select(saturate(1.0 - d / 0.75), inner, d < 0.0);
-  let spec = pow(lit, 2.5) * edgeBand;
-  let bloom = select(0.0, 0.6 * exp(-d / 1.2), d > 0.0);
-  let glint = pow(lit, 48.0) * (edgeBand + bloom);
-  let shade = pow(away, 1.5) * inner;
+  let bloom = select(0.0, BLOOM * exp(-d / BLOOM_REACH), d > 0.0);
+  let hairline = HAIRLINE * pow(saturate(facing), HAIRLINE_SHINE);
+  let glint = (GLINT * pow(saturate(near), GLINT_SHINE) + COUNTER_GLINT * pow(saturate(far), GLINT_SHINE)) * lift;
+  let shade = pow(saturate(-facing), 1.5) * inner;
+  let lightBody = (liquid.flags & FLAG_LIGHT_BODY) != 0u;
   let dark = select(0.32, 0.16, lightBody) * shade * extras;
-  let light = saturate((select(0.32, 0.85, lightBody) * spec + select(0.75, 1.0, lightBody) * glint) * extras);
-  return over(vec4f(vec3f(light), light), over(vec4f(0.0, 0.0, 0.0, dark), acc));
+  var shine = hairline * edgeBand + glint * (edgeBand + bloom);
+  if (lightBody) {
+    let sheen = smoothstep(RING_CLEAR, RING_CLEAR + 1.0, d) * exp(-(d - RING_CLEAR) / SHEEN_REACH);
+    shine = (SHEEN_HAIRLINE * hairline + SHEEN_GLINT * glint) * sheen;
+  }
+  shine = saturate(shine * extras);
+  return over(vec4f(vec3f(shine), shine), over(vec4f(0.0, 0.0, 0.0, dark), acc));
 }
 
 @fragment
@@ -672,8 +726,7 @@ fn drawBody(
   }
 
   if (edgeLit > 0.0 && d < 4.0) {
-    let facing = dot(surface.outward, liquid.light.xy);
-    acc = litEdge(acc, d, saturate(facing), saturate(-facing), (liquid.flags & FLAG_LIGHT_BODY) != 0u, edgeLit);
+    acc = litEdge(acc, d, surface.outward, liquid, edgeLit);
   }
   return acc;
 }
@@ -727,7 +780,7 @@ export function packLiquidInstances(
       [liquid.restX, liquid.centreX, liquid.centreY, liquid.span],
       at + 28,
     );
-    floats.set([...liquid.light, liquid.scale, liquid.ring.width], at + 32);
+    floats.set([liquid.glint, liquid.scale, liquid.ring.width], at + 32);
     floats.set(liquid.edge, at + 36);
     floats.set(liquid.ring.off, at + 40);
     floats.set(liquid.ring.on, at + 44);
