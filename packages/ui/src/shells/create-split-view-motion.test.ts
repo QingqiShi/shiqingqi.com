@@ -244,6 +244,38 @@ describe("createSplitViewMotion", () => {
     expect(view.querySelectorAll("[style*=translate]")).toHaveLength(0);
   });
 
+  it("turns a box of the content page that moves already from where it is, also where it shows outside the column", async () => {
+    const { content, current, motion, show } = setUp();
+    const amount = element({});
+    const list = element({}, amount);
+    current.append(list);
+    let width = 400;
+    const layOutAt = layOutInColumn(content, () => width);
+    const shownX = () => Number.parseFloat(amount.style.translate) || 0;
+    layOutAt(content, (w) => ({ x: 0, y: 0, width: w, height: 600 }));
+    layOutAt(list, (w) => ({ x: 0, y: 100, width: w, height: 40 }));
+    layOutAt(amount, (w) => ({
+      x: w - 100 + shownX(),
+      y: 100,
+      width: 100,
+      height: 40,
+    }));
+    show();
+
+    width = 200;
+    motion.play(null, IN, 1);
+    await clock.advance(0.05);
+    const shown = amount.getBoundingClientRect().left;
+    // The amount shows past the inline end of the narrow column.
+    expect(shown).toBeGreaterThan(200);
+
+    width = 400;
+    motion.play(null, OUT, 2);
+    expect(amount.getBoundingClientRect().left).toBeCloseTo(shown, 1);
+    await clock.advance(3);
+    expect(amount.style.translate).toBe("");
+  });
+
   it.each([
     { name: "pushes a page", change: { content: "push", detail: null } },
     { name: "swaps the detail", change: { content: null, detail: "swap" } },

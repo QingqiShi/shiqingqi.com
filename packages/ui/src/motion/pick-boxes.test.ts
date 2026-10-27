@@ -80,6 +80,18 @@ describe("captureBoxes", () => {
     expect(snapshot.rectOf(contents)).toBeUndefined();
     expect(snapshot.rectOf(amount)).toBeDefined();
   });
+
+  it("reads a box that moves, and the boxes that hold it, also where they do not show", () => {
+    const { origin, page, row, title, amount } = setUp();
+    layOut(row, { x: 0, y: 900, width: 800, height: 40 });
+    layOut(title, { x: 0, y: 900, width: 600, height: 40 });
+    layOut(amount, { x: 700, y: 900, width: 100, height: 40 });
+    const bounds = { x: 0, y: 0, width: 800, height: 800 };
+    const snapshot = captureBoxes(page, origin, bounds, { moving: [amount] });
+    expect(snapshot.rectOf(row)).toBeDefined();
+    expect(snapshot.rectOf(amount)).toBeDefined();
+    expect(snapshot.rectOf(title)).toBeUndefined();
+  });
 });
 
 describe("pickBoxes", () => {

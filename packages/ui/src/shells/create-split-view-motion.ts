@@ -22,6 +22,7 @@ import { captureBoxes, pickBoxes } from "../motion/pick-boxes.ts";
 import {
   captureLayout,
   intersect,
+  movingElements,
   playLayout,
   rectIn,
   type LayoutSnapshot,
@@ -1299,7 +1300,9 @@ export function createSplitViewMotion(
       };
       // The pages clip what they hold to the column, and the screen clips
       // the column.
-      const boxes = captureBoxes(page, view, intersect(column, screen));
+      const boxes = captureBoxes(page, view, intersect(column, screen), {
+        moving: movingElements(engine),
+      });
       return {
         origin: view,
         rectOf: (element) => {
