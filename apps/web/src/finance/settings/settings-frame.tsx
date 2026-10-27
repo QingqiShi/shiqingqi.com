@@ -5,12 +5,8 @@ import * as stylex from "@stylexjs/stylex";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Heading } from "@tuja/ui/components/heading";
-import { NavLink } from "@tuja/ui/components/nav-link";
-import { NavList } from "@tuja/ui/components/nav-list";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
@@ -22,84 +18,40 @@ import {
   FinanceIslands,
 } from "../shell/finance-page-column.tsx";
 import { SettingsFinanceLogo } from "./settings-finance-logo.tsx";
+import { SettingsMenu } from "./settings-menu.tsx";
 import {
   isSettingsSection,
-  SETTINGS_SECTIONS,
   type SettingsSection,
 } from "./settings-sections.ts";
 import { SettingsSignedInMember } from "./settings-signed-in-member.tsx";
-import { useIsOwner } from "./use-is-owner.ts";
-import { useRecoveryEmail } from "./use-recovery-email.ts";
 
 /**
  * Settings: the section menu beside the open section at `lg` and wider,
  * each in its own island. Below `lg` the menu is its own page and each
  * section opens on its own with a way back. Below `md` the menu page also
  * shows the signed-in Member and the Finance mark.
- * A dot on Members says the signed-in user has no confirmed Recovery email;
- * it is stronger for the owner, whom nobody else can let back in.
  */
 export function SettingsFrame({ children }: { children: ReactNode }) {
   const locale = useLocale();
   const segment = useSelectedLayoutSegment();
-  const isOwner = useIsOwner();
-  const recoveryEmail = useRecoveryEmail();
-  const needsRecoveryEmail = recoveryEmail?.verified === false;
-  const noRecoveryEmail = t({
-    en: "No confirmed recovery email",
-    zh: "没有已确认的恢复邮箱",
-  });
   const current: SettingsSection | null = isSettingsSection(segment)
     ? segment
     : null;
-  const labels: Record<SettingsSection, string> = {
-    household: t({ en: "Household", zh: "家庭" }),
-    "exchange-rates": t({ en: "Exchange rates", zh: "汇率" }),
-    members: t({ en: "Members", zh: "成员" }),
-    groups: t({ en: "Groups", zh: "分组" }),
-    categories: t({ en: "Categories", zh: "分类" }),
-    payees: t({ en: "Payees", zh: "商家" }),
-    tags: t({ en: "Tags", zh: "标签" }),
-    rules: t({ en: "Recurring rules", zh: "周期规则" }),
-    ai: t({ en: "AI labelling", zh: "智能标注" }),
-    connections: t({ en: "Connections", zh: "银行连接" }),
-    data: t({ en: "Data", zh: "数据" }),
-    preferences: t({ en: "Preferences", zh: "偏好设置" }),
-  };
 
   return (
     <FinanceIslands>
       <FinanceIsland
         css={[styles.menu, current !== null && styles.menuOnSection]}
       >
-        <div css={styles.menuStack}>
-          <nav aria-label={t({ en: "Settings", zh: "设置" })}>
+        <div css={[stack.group, styles.width]}>
+          <nav
+            aria-label={t({ en: "Settings", zh: "设置" })}
+            css={[stack.group, styles.nav]}
+          >
             <Heading level={1} look="h3">
               {t({ en: "Settings", zh: "设置" })}
             </Heading>
-            <NavList linkComponent={Link}>
-              {SETTINGS_SECTIONS.map((section) => (
-                <NavLink
-                  key={section}
-                  href={getLocalePath(`/finance/settings/${section}`, locale)}
-                  current={section === (current ?? "household")}
-                >
-                  {labels[section]}
-                  {section === "members" && needsRecoveryEmail ? (
-                    <>
-                      <span
-                        css={[
-                          corner.radius_round,
-                          styles.dot,
-                          isOwner && styles.dotOwner,
-                        ]}
-                      />
-                      <span css={a11y.srOnly}>{` · ${noRecoveryEmail}`}</span>
-                    </>
-                  ) : null}
-                </NavLink>
-              ))}
-            </NavList>
+            <SettingsMenu current={current} />
           </nav>
           {current === null ? (
             <>
@@ -114,7 +66,7 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
         key={current ?? "household"}
         css={current === null && styles.sectionOnIndex}
       >
-        <div css={[stack.item, styles.content]}>
+        <div css={[stack.item, styles.width, styles.content]}>
           {current === null ? null : (
             <div css={styles.back}>
               <AnchorButton
@@ -143,27 +95,17 @@ const styles = stylex.create({
     flexBasis: { default: 0, [breakpoints.lg]: "auto" },
     inlineSize: { default: null, [breakpoints.lg]: "16rem" },
   },
+  nav: {
+    gap: { default: rhythm.group, [breakpoints.lg]: rhythm.item },
+  },
   menuOnSection: {
     display: { default: "none", [breakpoints.lg]: "flex" },
   },
-  menuStack: {
-    display: "grid",
-    gap: rhythm.section,
-  },
-  dot: {
-    display: "inline-block",
-    inlineSize: space._1,
-    blockSize: space._1,
-    marginInlineStart: rhythm.inline,
-    verticalAlign: "middle",
-    backgroundColor: color.fgMuted,
-  },
-  dotOwner: {
-    backgroundColor: color.fgWarning,
+  width: {
+    maxInlineSize: "48rem",
   },
   content: {
     minInlineSize: 0,
-    maxInlineSize: "48rem",
   },
   sectionOnIndex: {
     display: { default: "none", [breakpoints.lg]: "flex" },
