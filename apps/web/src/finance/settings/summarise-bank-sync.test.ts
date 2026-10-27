@@ -4,11 +4,10 @@ import { summariseBankSync } from "./summarise-bank-sync.ts";
 const link = {
   linkId: "l",
   error: null,
-  pending: 0,
+  waiting: 0,
   linked: 0,
   confirmed: 0,
   missing: 0,
-  balanceDifferenceMinor: null,
 };
 
 describe("summariseBankSync", () => {
@@ -17,7 +16,7 @@ describe("summariseBankSync", () => {
       {
         clock: 1,
         links: [
-          { ...link, accountId: "visa", pending: 12, linked: 28, confirmed: 2 },
+          { ...link, accountId: "visa", waiting: 12, linked: 28, confirmed: 2 },
           { ...link, accountId: "quiet" },
           { ...link, accountId: "broken", error: "rate_limited" },
         ],
@@ -29,14 +28,14 @@ describe("summariseBankSync", () => {
     expect(lines).toEqual([
       {
         name: "Alex Visa",
-        pending: 12,
+        waiting: 12,
         matched: 30,
         review: 2,
         failed: false,
       },
       {
         name: "Sam Current",
-        pending: 0,
+        waiting: 0,
         matched: 0,
         review: 0,
         failed: true,

@@ -10,14 +10,10 @@ import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { labellingContextRepository } from "../db/repositories/labelling-context-repository.ts";
 import { transactionSearchRepository } from "../db/repositories/transaction-search-repository.ts";
-import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
-import {
-  runServerWrite,
-  type ServerWriteContext,
-} from "../sync/run-server-write.ts";
-import { balanceDifferenceOf } from "./balance-difference-of.ts";
+import { runServerWrite } from "../sync/run-server-write.ts";
+import { balanceCheck } from "./balance-check.ts";
 import { isUsableBankRow } from "./is-usable-bank-row.ts";
 import { matchBankRows } from "./match-bank-rows.ts";
 import { toEntryAmount } from "./to-entry-amount.ts";
@@ -105,10 +101,7 @@ async function matchFirst(
       return matched;
     },
   );
-  return {
-    open: batch.filter((item) => !result.has(item.row.id)),
-    matched: result.size,
-  };
+  return batch.filter((item) => !result.has(item.row.id));
 }
 
 async function label(
@@ -153,39 +146,6 @@ async function writeBatch(
   return result;
 }
 
-/**
- * Compares each link's last bank balance with the ledger again, now that the
- * ledger has the new rows. A link with rows still waiting for the AI step
- * shows no difference, as its ledger is not complete.
- */
-async function refreshBalanceDifferences(context: ServerWriteContext) {
-  const { scope } = context;
-  const links = await bankLinkRepository.listLive(scope);
-  const open = await bankTransactionRepository.listOpen(
-    scope,
-    links.map((link) => link.id),
-  );
-  for (const link of links) {
-    if (link.bankBalanceMinor === null || link.bankBalanceOn === null) continue;
-    const waiting = open.some(
-      (row) => row.linkId === link.id && isUsableBankRow(row, link),
-    );
-    const balanceDifferenceMinor = waiting
-      ? null
-      : balanceDifferenceOf(
-          link.bankBalanceMinor,
-          await valuationRepository.balanceAt(
-            scope,
-            link.accountId,
-            link.bankBalanceOn,
-          ),
-        );
-    if (balanceDifferenceMinor === link.balanceDifferenceMinor) continue;
-    await bankLinkRepository.patch(scope, link.id, { balanceDifferenceMinor });
-    context.markWritten();
-  }
-}
-
 function logUnusableAnswer(problem: string) {
   console.warn("Finance labelling answer refused", problem);
 }
@@ -213,8 +173,8 @@ function addOutcome(
  * next run tries again. A row without a usable answer goes back in the
  * queue. A row with three failed tries is written as Uncategorised for
  * Review. The labeller reads the Household as it was when the run began.
- * No batch starts after the deadline. At the end, when the
- * ledger changed, each link's bank balance is compared with it again.
+ * No batch starts after the deadline. At the end, the balance check
+ * marks again which links have bank rows that wait.
  */
 export async function processBankRows(
   dependencies: ProcessBankRowsDependencies,
@@ -233,15 +193,11 @@ export async function processBankRows(
   const summary: ProcessSummary = { createdByAccount: new Map() };
   let queue = await loadQueue(db, householdId);
   let context: LabellingContext | null = null;
-  let matched = 0;
 
   while (queue.length > 0 && clock() < deadline) {
-    const first = await matchFirst(
-      dependencies,
-      queue.slice(0, LABEL_BATCH_SIZE),
+    const batch = withRefs(
+      await matchFirst(dependencies, queue.slice(0, LABEL_BATCH_SIZE)),
     );
-    matched += first.matched;
-    const batch = withRefs(first.open);
     queue = queue.slice(LABEL_BATCH_SIZE);
     if (batch.length === 0) continue;
 
@@ -281,8 +237,8 @@ export async function processBankRows(
     queue.push(...outcome.retry);
   }
 
-  if (matched > 0 || summary.createdByAccount.size > 0) {
-    await runServerWrite(db, householdId, now, refreshBalanceDifferences);
-  }
+  await runServerWrite(db, householdId, now, (write) =>
+    balanceCheck.refresh(write),
+  );
   return summary;
 }

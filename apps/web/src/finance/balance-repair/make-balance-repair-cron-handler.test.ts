@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { BalanceDrift } from "../db/repositories/balance-check-repository.ts";
+import type { BalanceDrift } from "../db/repositories/balance-drift-repository.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { insertTestExpense } from "../db/testing/insert-test-expense.ts";
 import {

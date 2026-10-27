@@ -168,8 +168,8 @@ describe("syncBankLinks", () => {
 
     const [current, card] = await sync();
 
-    expect(current).toMatchObject({ error: null, pending: 2, linked: 0 });
-    expect(card).toMatchObject({ error: null, pending: 0 });
+    expect(current).toMatchObject({ error: null, waiting: 2, linked: 0 });
+    expect(card).toMatchObject({ error: null, waiting: 0 });
     expect(await liveTransactions()).toEqual([]);
     const stored = await bankRows();
     expect(
@@ -192,7 +192,7 @@ describe("syncBankLinks", () => {
 
     const [second] = await sync({ now: NEXT_DAY });
 
-    expect(second).toMatchObject({ pending: 0, linked: 0, confirmed: 0 });
+    expect(second).toMatchObject({ waiting: 0, linked: 0, confirmed: 0 });
     expect(await liveTransactions()).toEqual(before);
     expect(await db.select().from(entries)).toEqual(entriesBefore);
   });
@@ -206,7 +206,7 @@ describe("syncBankLinks", () => {
 
     const [result] = await sync();
 
-    expect(result).toMatchObject({ confirmed: 1, pending: 0 });
+    expect(result).toMatchObject({ confirmed: 1, waiting: 0 });
     const [row] = await liveTransactions();
     expect(row).toMatchObject({
       id: expected.id,
@@ -225,7 +225,7 @@ describe("syncBankLinks", () => {
 
     const [result] = await sync();
 
-    expect(result).toMatchObject({ linked: 1, pending: 0 });
+    expect(result).toMatchObject({ linked: 1, waiting: 0 });
     const rows = await liveTransactions();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ id: manual.id, source: "manual" });
@@ -273,7 +273,7 @@ describe("syncBankLinks", () => {
 
     const [, card] = await sync();
 
-    expect(card).toMatchObject({ linked: 1, pending: 0 });
+    expect(card).toMatchObject({ linked: 1, waiting: 0 });
     const rows = await liveTransactions();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ id: transferId, kind: "transfer" });
@@ -305,7 +305,7 @@ describe("syncBankLinks", () => {
     );
     const [, card] = await sync();
 
-    expect(card).toMatchObject({ error: null, linked: 4, pending: 0 });
+    expect(card).toMatchObject({ error: null, linked: 4, waiting: 0 });
     expect(
       (await bankRows(cardLinkId)).map((row) => row.transactionId),
     ).toEqual(manual.map((transaction) => transaction.id));
@@ -414,7 +414,7 @@ describe("syncBankLinks", () => {
     });
     const [result] = await sync();
 
-    expect(result.pending).toBe(1);
+    expect(result.waiting).toBe(1);
     expect((await bankRows())[0].state).toBe("new");
   });
 
@@ -468,7 +468,7 @@ describe("syncBankLinks", () => {
     const [current, card] = await sync();
 
     expect(current.error).toBe("reconnect");
-    expect(card).toMatchObject({ error: null, pending: 1 });
+    expect(card).toMatchObject({ error: null, waiting: 1 });
     expect(await link(currentLinkId)).toMatchObject({
       status: "reconnect",
       lastError: "reconnect",
@@ -477,45 +477,25 @@ describe("syncBankLinks", () => {
     expect((await link(cardLinkId)).lastSyncedOn).toBe("2026-10-10");
   });
 
-  it("notes a bank balance that differs from ours", async () => {
+  it("stores each bank balance and counts the rows that wait for the AI step", async () => {
+    fixture.transactions["acc-current"] = [
+      providerRow("t1", "2026-10-08", -1000, "SHOP"),
+    ];
+    fixture.balances["acc-current"] = { amountMinor: -900, currency: "GBP" };
     fixture.balances["acc-card"] = { amountMinor: -500, currency: "GBP" };
 
     const [current, card] = await sync();
 
-    expect(current.balanceDifferenceMinor).toBeNull();
-    expect(card.balanceDifferenceMinor).toBe(-500);
-    expect(await link(cardLinkId)).toMatchObject({
-      bankBalanceMinor: -500,
-      balanceDifferenceMinor: -500,
-    });
-  });
-
-  it("notes no balance difference while rows wait for the AI step, and compares once they are written", async () => {
-    fixture.transactions["acc-current"] = [
-      providerRow("t1", "2026-10-08", -1000, "SHOP"),
-    ];
-    fixture.transactions["acc-card"] = [
-      providerRow("c1", "2026-10-08", -300, "CAFE"),
-    ];
-    fixture.balances["acc-current"] = { amountMinor: -900, currency: "GBP" };
-    fixture.balances["acc-card"] = { amountMinor: -300, currency: "GBP" };
-
-    const [current, card] = await sync();
-
-    expect(current).toMatchObject({ pending: 1, balanceDifferenceMinor: null });
-    expect(card).toMatchObject({ pending: 1, balanceDifferenceMinor: null });
+    expect(current.waiting).toBe(1);
+    expect(card.waiting).toBe(0);
     expect(await link(currentLinkId)).toMatchObject({
       bankBalanceMinor: -900,
       bankBalanceOn: "2026-10-10",
-      balanceDifferenceMinor: null,
-    });
-    await process();
-    expect(await link(currentLinkId)).toMatchObject({
-      balanceDifferenceMinor: 100,
+      bankRowsWaiting: true,
     });
     expect(await link(cardLinkId)).toMatchObject({
-      bankBalanceMinor: -300,
-      balanceDifferenceMinor: null,
+      bankBalanceMinor: -500,
+      bankRowsWaiting: false,
     });
   });
 });

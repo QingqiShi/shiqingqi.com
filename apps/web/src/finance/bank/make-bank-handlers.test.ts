@@ -312,16 +312,17 @@ describe("makeBankHandlers", () => {
       request("sync-now", { method: "POST", body: {} }),
     );
     const result = (await response.json()) as SyncNowResponse;
-    expect(result.links).toMatchObject([
-      { error: null, pending: 1, balanceDifferenceMinor: null },
-    ]);
+    expect(result.links).toMatchObject([{ error: null, waiting: 1 }]);
     expect(result.clock).toBeGreaterThan(0);
     expect(await db.$count(transactions)).toBe(0);
 
     for (const task of afterTasks.splice(0)) await task();
     expect(await db.$count(transactions)).toBe(1);
     const [link] = await db.select().from(bankLinks);
-    expect(link.balanceDifferenceMinor).toBe(600);
+    expect(link).toMatchObject({
+      bankBalanceMinor: -400,
+      bankRowsWaiting: false,
+    });
 
     const duplicateEntryId = randomUUID();
     await applyMutations(
@@ -383,8 +384,6 @@ describe("makeBankHandlers", () => {
 
     expect((await keep(realId)).status).toBe(204);
     expect(await listUnbacked()).toEqual({ entryIds: [] });
-    const [keptLink] = await db.select().from(bankLinks);
-    expect(keptLink.version).toBeGreaterThan(link.version);
 
     const undone = await handlers().unkeepTransaction(
       request(`kept-transactions?linkId=${link.id}&transactionId=${realId}`, {

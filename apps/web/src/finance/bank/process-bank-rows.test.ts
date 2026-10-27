@@ -492,7 +492,7 @@ describe("processBankRows", () => {
       { id: "s1", date: "2026-10-06", amountMinor: 50_000 },
     ]);
 
-    expect(savings).toMatchObject({ linked: 1, pending: 0 });
+    expect(savings).toMatchObject({ linked: 1, waiting: 0 });
     expect(await entriesOf(transfer)).toEqual([
       { accountId: home.currentId, amountMinor: -50_000 },
       { accountId: home.savingsId, amountMinor: 50_000 },
@@ -577,7 +577,7 @@ describe("processBankRows", () => {
     expect(await db.$count(transactions)).toBe(0);
   });
 
-  it("notes no balance difference for a link whose rows still wait after the run, and compares once they are written", async () => {
+  it("marks a link whose rows still wait after the run, and clears it once they are written", async () => {
     const tried = await addBankRow(
       currentLinkId,
       "c1",
@@ -590,29 +590,16 @@ describe("processBankRows", () => {
       .set({ labelAttempts: 3 })
       .where(eq(bankTransactions.id, tried));
     await addBankRow(currentLinkId, "c2", "2026-10-06", -700, "WAITING");
-    await db
-      .update(bankLinks)
-      .set({ bankBalanceMinor: -1700, bankBalanceOn: "2026-10-10" })
-      .where(eq(bankLinks.id, currentLinkId));
+
     await process(createFailingLabellingModel());
 
     expect(await db.$count(transactions)).toBe(1);
     expect(await linkById(currentLinkId)).toMatchObject({
-      balanceDifferenceMinor: null,
+      bankRowsWaiting: true,
     });
     await process(null);
     expect(await linkById(currentLinkId)).toMatchObject({
-      balanceDifferenceMinor: null,
-    });
-    await db
-      .update(bankLinks)
-      .set({ bankBalanceMinor: -1500 })
-      .where(eq(bankLinks.id, currentLinkId));
-    await addBankRow(currentLinkId, "c3", "2026-10-07", 0, "ZERO");
-    await addBankRow(currentLinkId, "c4", "2026-10-07", -100, "LAST");
-    await process(null);
-    expect(await linkById(currentLinkId)).toMatchObject({
-      balanceDifferenceMinor: 300,
+      bankRowsWaiting: false,
     });
   });
 

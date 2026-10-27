@@ -1,4 +1,4 @@
-import type { BalanceDrift } from "../db/repositories/balance-check-repository.ts";
+import type { BalanceDrift } from "../db/repositories/balance-drift-repository.ts";
 import {
   makeHouseholdCronHandler,
   type HouseholdCronDependencies,

@@ -18,6 +18,7 @@ function renderRow(account: AccountRowData) {
           lastValuationOn: null,
           available: null,
           bankLink: null,
+          balanceCheck: null,
         }}
         baseCurrency="GBP"
         href="/finance?account=current"

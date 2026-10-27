@@ -186,9 +186,7 @@ export function AccountDetail({ accountId, onDeleted }: AccountDetailProps) {
           })}
         </Text>
       ) : null}
-      {bankLink ? (
-        <BankBalanceNotice link={bankLink} account={account} />
-      ) : null}
+      {bankLink ? <BankBalanceNotice link={bankLink} /> : null}
       <Card css={styles.card}>
         <DrawnAfterRest
           contentKey={account.id}
