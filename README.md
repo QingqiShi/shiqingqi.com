@@ -14,5 +14,4 @@ A pnpm monorepo built with Turborepo.
 ## Where to look next
 
 - `AGENTS.md` — monorepo conventions, gotchas, and the commands to run before a change is done.
-- `CONTEXT-MAP.md` — points at a `CONTEXT.md` per domain; use those terms in code, comments, and copy.
 - `DESIGN.md` — design-system principles for UI, component APIs, and user-facing copy.
