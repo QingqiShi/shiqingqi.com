@@ -1,490 +1,39 @@
-import {
-  institutionDomainOf,
-  institutionFieldsAfter,
-} from "../domain/accounts/institution-fields-after.ts";
-import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { balanceAt } from "../domain/balance/balance-at.ts";
 import { computeBalanceDays } from "../domain/balance/compute-balance-days.ts";
-import { SCHEDULE_FIELDS } from "../domain/rules/schedule-fields.ts";
-import { nextOccurrence } from "../rules/next-occurrence.ts";
-import { rescheduleExpected } from "../rules/reschedule-expected.ts";
+import { applyToDraft } from "../mutations/apply-to-draft.ts";
+import { rowMatcher } from "../mutations/row-matcher.ts";
+import type { MutationContext, MutationDraft } from "../mutations/types.ts";
+import { WaitForServer } from "../mutations/wait-for-server.ts";
+import type { Mutation } from "../sync/mutation-schema.ts";
 import {
-  retemplateExpected,
-  templatePatch,
-} from "../rules/retemplate-expected.ts";
-import type { RuleTemplate } from "../rules/rule-template-schema.ts";
-import { sameTemplate } from "../rules/same-template.ts";
-import {
-  checkSystemAccountPatch,
-  checkSystemAccountValuation,
-} from "../sync/check-system-account-patch.ts";
-import { checkTransactionShape } from "../sync/check-transaction-shape.ts";
-import { labelledByAfter } from "../sync/labelled-by-after.ts";
-import { MutationError } from "../sync/mutation-error.ts";
-import type {
-  Mutation,
-  TransactionInput,
-  TransactionPatch,
-} from "../sync/mutation-schema.ts";
-import type {
-  AccountRow,
-  CategoryRow,
-  EntryRow,
-  RuleRow,
-  TransactionRow,
+  LIVE_ON_BOOTSTRAP_TABLES,
+  type SyncTableName,
+  type TransactionRow,
 } from "../sync/row-schemas.ts";
-import type { TablesDraft } from "./create-tables-draft.ts";
+import {
+  createTablesDraft,
+  type ChangedKeys,
+  type TablesDraft,
+} from "./create-tables-draft.ts";
+import type { ReplicaRow, ReplicaTables } from "./types.ts";
 
-export interface LocalMutationContext {
-  householdId: string;
-  /** ISO timestamp written into `createdAt`, `updatedAt` and `deletedAt`. */
-  now: string;
-  /** Today in the Household's time zone. */
-  today: string;
-}
-
-type Args<Name extends Mutation["name"]> = Extract<
-  Mutation,
-  { name: Name }
->["args"];
-
-interface Scope {
-  draft: TablesDraft;
-  context: LocalMutationContext;
-  /** Account id → first day whose balance may change. */
-  accounts: Map<string, string>;
-}
-
-function invalid(message: string): never {
-  throw new MutationError("invalid", message);
-}
-
-function touchAccount(scope: Scope, accountId: string, day: string) {
-  const previous = scope.accounts.get(accountId);
-  if (previous === undefined || day < previous) {
-    scope.accounts.set(accountId, day);
-  }
-}
-
-function entriesOf(scope: Scope, transactionId: string) {
-  const found: EntryRow[] = [];
-  for (const entry of scope.draft.values("entries")) {
-    if (entry.transactionId === transactionId) found.push(entry);
-  }
-  return found;
-}
-
-function liveEntriesOf(scope: Scope, transactionId: string) {
-  return entriesOf(scope, transactionId)
-    .filter((entry) => entry.deletedAt === null)
-    .sort((a, b) => a.position - b.position);
-}
-
-function liveTagIdsOf(scope: Scope, transactionId: string) {
-  const tagIds: string[] = [];
-  for (const link of scope.draft.values("transactionTags")) {
-    if (link.transactionId === transactionId && link.deletedAt === null) {
-      tagIds.push(link.tagId);
-    }
-  }
-  return tagIds;
-}
-
-/** Same rule as the server: an Entry moves the balance of its account from its own day and from the Transaction's day. */
-function touchEntries(
-  scope: Scope,
-  entries: readonly { accountId: string; date?: string }[],
-  date: string,
-) {
-  for (const entry of entries) {
-    touchAccount(
-      scope,
-      entry.accountId,
-      entry.date !== undefined && entry.date < date ? entry.date : date,
-    );
-  }
-}
-
-function touchTransaction(scope: Scope, transactionId: string, date: string) {
-  touchEntries(scope, liveEntriesOf(scope, transactionId), date);
-}
-
-function findLive(scope: Scope, id: string) {
-  const existing = scope.draft.get("transactions", id);
-  if (!existing) throw new MutationError("not_found");
-  if (existing.deletedAt) throw new MutationError("deleted");
-  return existing;
-}
-
-function isLiveAccount(scope: Scope, id: string) {
-  const account = scope.draft.get("accounts", id);
-  return account !== undefined && account.deletedAt === null;
-}
-
-type TransactionShape = Parameters<typeof checkTransactionShape>[0];
-
-/** Same rule as the server: with `previous`, rows the Transaction named before are not checked again. */
-function checkTransactionRows(
-  scope: Scope,
-  transaction: TransactionShape,
-  previous?: TransactionShape,
-) {
-  checkTransactionShape(transaction);
-  const { draft } = scope;
-  const changed = (key: keyof TransactionShape) =>
-    previous === undefined || previous[key] !== transaction[key];
-  if (
-    transaction.categoryId !== null &&
-    (changed("categoryId") || changed("kind"))
-  ) {
-    const category = draft.get("categories", transaction.categoryId);
-    if (!category || category.deletedAt) invalid("Unknown category");
-    if (category.kind !== transaction.kind) {
-      invalid(`The category is not an ${transaction.kind} category`);
-    }
-  }
-  const previousAccounts = new Set(
-    previous?.entries.map((entry) => entry.accountId),
-  );
-  if (
-    transaction.entries.some(
-      (entry) =>
-        !previousAccounts.has(entry.accountId) &&
-        !isLiveAccount(scope, entry.accountId),
-    )
-  ) {
-    invalid("Unknown account");
-  }
-  const previousTags = new Set(previous?.tagIds);
-  for (const tagId of transaction.tagIds) {
-    if (previousTags.has(tagId)) continue;
-    const tag = draft.get("tags", tagId);
-    if (!tag || tag.deletedAt) invalid("Unknown tag");
-  }
-  if (transaction.payeeId !== null && changed("payeeId")) {
-    const payee = draft.get("payees", transaction.payeeId);
-    if (!payee || payee.deletedAt) invalid("Unknown payee");
-  }
-  if (
-    transaction.memberId !== null &&
-    changed("memberId") &&
-    !draft.get("members", transaction.memberId)
-  ) {
-    invalid("Unknown member");
-  }
-  if (
-    transaction.refundOfId &&
-    changed("refundOfId") &&
-    !draft.get("transactions", transaction.refundOfId)
-  ) {
-    invalid("Unknown refunded transaction");
-  }
-  if (
-    transaction.ruleId &&
-    changed("ruleId") &&
-    !draft.get("rules", transaction.ruleId)
-  ) {
-    invalid("Unknown rule");
-  }
-}
-
-/** Same rule as the server: a live Transaction or child Category keeps a Category from deletion. */
-function isCategoryInUse(scope: Scope, id: string) {
-  for (const row of scope.draft.values("transactions")) {
-    if (row.categoryId === id && row.deletedAt === null) return true;
-  }
-  for (const row of scope.draft.values("categories")) {
-    if (row.parentId === id && row.deletedAt === null) return true;
-  }
-  return false;
-}
-
-/** Same rule as the server: a live Entry, Valuation or Bank link keeps an account from deletion. */
-function isAccountInUse(scope: Scope, id: string) {
-  for (const row of scope.draft.values("entries")) {
-    if (row.accountId === id && row.deletedAt === null) return true;
-  }
-  for (const row of scope.draft.values("valuations")) {
-    if (row.accountId === id && row.deletedAt === null) return true;
-  }
-  for (const row of scope.draft.values("bankLinks")) {
-    if (row.accountId === id && row.deletedAt === null) return true;
-  }
-  return false;
-}
-
-/** The server's `search_text`: payee name, note and category name, lowercased. */
-function searchTextOf(scope: Scope, transaction: TransactionRow) {
-  const payee =
-    transaction.payeeId === null
-      ? undefined
-      : scope.draft.get("payees", transaction.payeeId)?.name;
-  const category =
-    transaction.categoryId === null
-      ? undefined
-      : scope.draft.get("categories", transaction.categoryId)?.name;
-  return [payee, transaction.note || undefined, category]
-    .filter((part) => part !== undefined)
-    .join(" ")
-    .toLowerCase();
-}
-
-function putTransaction(scope: Scope, row: TransactionRow) {
-  const searchText = searchTextOf(scope, row);
-  const next =
-    searchText === row.searchText
-      ? row
-      : { ...row, searchText, updatedAt: scope.context.now };
-  scope.draft.put("transactions", next.id, next);
-}
-
-function refreshSearchText(
-  scope: Scope,
-  matches: (transaction: TransactionRow) => boolean,
-) {
-  for (const transaction of [...scope.draft.values("transactions")]) {
-    if (matches(transaction)) putTransaction(scope, transaction);
-  }
-}
-
-function replaceEntries(
-  scope: Scope,
-  transactionId: string,
-  date: string,
-  inputs: TransactionInput["entries"],
-) {
-  const { draft, context } = scope;
-  const keep = new Set(inputs.map((input) => input.id));
-  inputs.forEach((input, position) => {
-    const existing = draft.get("entries", input.id);
-    if (existing && existing.transactionId !== transactionId) {
-      throw new MutationError("forbidden", "An entry id belongs elsewhere");
-    }
-    draft.put("entries", input.id, {
-      id: input.id,
-      householdId: context.householdId,
-      transactionId,
-      accountId: input.accountId,
-      date,
-      amountMinor: input.amountMinor,
-      position,
-      version: existing?.version ?? 0,
-      createdAt: existing?.createdAt ?? context.now,
-      updatedAt: context.now,
-      deletedAt: null,
-    });
-  });
-  for (const entry of entriesOf(scope, transactionId)) {
-    if (entry.deletedAt === null && !keep.has(entry.id)) {
-      draft.put("entries", entry.id, {
-        ...entry,
-        deletedAt: context.now,
-        updatedAt: context.now,
-      });
-    }
-  }
-}
-
-function replaceTags(
-  scope: Scope,
-  transactionId: string,
-  tagIds: readonly string[],
-) {
-  const { draft, context } = scope;
-  const keep = new Set(tagIds);
-  for (const tagId of keep) {
-    const key = `${transactionId}|${tagId}`;
-    const existing = draft.get("transactionTags", key);
-    if (existing && existing.deletedAt === null) continue;
-    draft.put("transactionTags", key, {
-      transactionId,
-      tagId,
-      householdId: context.householdId,
-      version: existing?.version ?? 0,
-      deletedAt: null,
-    });
-  }
-  for (const link of [...draft.values("transactionTags")]) {
-    if (
-      link.transactionId === transactionId &&
-      link.deletedAt === null &&
-      !keep.has(link.tagId)
-    ) {
-      draft.put("transactionTags", `${transactionId}|${link.tagId}`, {
-        ...link,
-        deletedAt: context.now,
-      });
-    }
-  }
-}
-
-function softDeleteTransaction(scope: Scope, existing: TransactionRow) {
-  const { draft, context } = scope;
-  for (const entry of entriesOf(scope, existing.id)) {
-    if (entry.deletedAt !== null) continue;
-    draft.put("entries", entry.id, {
-      ...entry,
-      deletedAt: context.now,
-      updatedAt: context.now,
-    });
-  }
-  draft.put("transactions", existing.id, {
-    ...existing,
-    deletedAt: context.now,
-    updatedAt: context.now,
-  });
-}
-
-function createTransaction(scope: Scope, input: TransactionInput) {
-  const { draft, context } = scope;
-  checkTransactionRows(scope, input);
-  if (draft.get("transactions", input.id)) {
-    invalid("The transaction already exists");
-  }
-  putTransaction(scope, {
-    id: input.id,
-    householdId: context.householdId,
-    kind: input.kind,
-    status: input.status,
-    date: input.date,
-    categoryId: input.categoryId,
-    payeeId: input.payeeId,
-    memberId: input.memberId,
-    ruleId: input.ruleId,
-    refundOfId: input.refundOfId,
-    note: input.note,
-    source: "manual",
-    needsReview: input.needsReview,
-    labelledBy: "member",
-    aiReason: null,
-    searchText: "",
-    version: 0,
-    createdAt: context.now,
-    updatedAt: context.now,
-    deletedAt: null,
-  });
-  replaceEntries(scope, input.id, input.date, input.entries);
-  replaceTags(scope, input.id, input.tagIds);
-  touchEntries(scope, input.entries, input.date);
-}
-
-function updateTransaction(scope: Scope, id: string, patch: TransactionPatch) {
-  const { draft, context } = scope;
-  const existing = findLive(scope, id);
-  const { entries: patchEntries, tagIds: patchTagIds, ...fields } = patch;
-  const currentEntries = liveEntriesOf(scope, id);
-  const currentTagIds = liveTagIdsOf(scope, id);
-  const merged = {
-    ...existing,
-    ...fields,
-    entries: patchEntries ?? currentEntries,
-    tagIds: patchTagIds ?? currentTagIds,
-  };
-  checkTransactionRows(scope, merged, {
-    ...existing,
-    entries: currentEntries,
-    tagIds: currentTagIds,
-  });
-
-  if (patchEntries !== undefined || merged.date !== existing.date) {
-    touchEntries(scope, currentEntries, existing.date);
-    touchEntries(scope, merged.entries, merged.date);
-  }
-  putTransaction(scope, {
-    ...existing,
-    ...fields,
-    labelledBy: labelledByAfter(
-      "member",
-      { ...existing, entries: currentEntries, tagIds: currentTagIds },
-      merged,
-    ),
-    updatedAt: context.now,
-  });
-  if (patchEntries) {
-    replaceEntries(scope, id, merged.date, patchEntries);
-  } else if (merged.date !== existing.date) {
-    for (const entry of liveEntriesOf(scope, id)) {
-      draft.put("entries", entry.id, {
-        ...entry,
-        date: merged.date,
-        updatedAt: context.now,
-      });
-    }
-  }
-  if (patchTagIds) replaceTags(scope, id, patchTagIds);
-}
-
-function deleteTransaction(scope: Scope, id: string) {
-  const existing = scope.draft.get("transactions", id);
-  if (!existing) throw new MutationError("not_found");
-  if (existing.deletedAt) return;
-  touchTransaction(scope, id, existing.date);
-  softDeleteTransaction(scope, existing);
-}
-
-function restoreTransaction(scope: Scope, id: string) {
-  const { draft, context } = scope;
-  const existing = draft.get("transactions", id);
-  if (!existing) throw new MutationError("not_found");
-  if (!existing.deletedAt) return;
-  for (const entry of entriesOf(scope, id)) {
-    if (entry.deletedAt !== existing.deletedAt) continue;
-    draft.put("entries", entry.id, {
-      ...entry,
-      deletedAt: null,
-      updatedAt: context.now,
-    });
-  }
-  draft.put("transactions", id, {
-    ...existing,
-    deletedAt: null,
-    updatedAt: context.now,
-  });
-  touchTransaction(scope, id, existing.date);
-}
-
-function confirmExpected(
-  scope: Scope,
-  id: string,
-  patch: TransactionPatch | undefined,
-) {
-  const existing = findLive(scope, id);
-  if (patch && Object.keys(patch).length > 0) {
-    updateTransaction(scope, id, patch);
-  }
-  if (existing.status === "expected") {
-    const current = findLive(scope, id);
-    scope.draft.put("transactions", id, {
-      ...current,
-      status: "posted",
-      updatedAt: scope.context.now,
-    });
-    touchTransaction(scope, id, current.date);
-  }
-}
-
-function skipExpected(scope: Scope, id: string) {
-  const existing = scope.draft.get("transactions", id);
-  if (!existing) throw new MutationError("not_found");
-  if (existing.deletedAt) return;
-  if (existing.status !== "expected") {
-    invalid("The transaction is confirmed already");
-  }
-  softDeleteTransaction(scope, existing);
-}
+export type LocalMutationContext = Omit<
+  MutationContext,
+  "actor" | "provenance"
+>;
 
 /** The account's balance at the end of `day` from the rows the Replica holds. */
-function localBalanceAt(scope: Scope, accountId: string, day: string) {
+function localBalanceAt(draft: TablesDraft, accountId: string, day: string) {
   const valuations = [];
-  for (const valuation of scope.draft.values("valuations")) {
+  for (const valuation of draft.values("valuations")) {
     if (valuation.accountId === accountId && valuation.deletedAt === null) {
       valuations.push(valuation);
     }
   }
   const entries = [];
-  for (const entry of scope.draft.values("entries")) {
+  for (const entry of draft.values("entries")) {
     if (entry.accountId !== accountId || entry.deletedAt !== null) continue;
-    const transaction = scope.draft.get("transactions", entry.transactionId);
+    const transaction = draft.get("transactions", entry.transactionId);
     if (transaction?.deletedAt === null && transaction.status === "posted") {
       entries.push(entry);
     }
@@ -492,675 +41,143 @@ function localBalanceAt(scope: Scope, accountId: string, day: string) {
   return balanceAt(computeBalanceDays(valuations, entries), day);
 }
 
-function putValuation(scope: Scope, args: Args<"putValuation">) {
-  const { draft, context } = scope;
-  const account = draft.get("accounts", args.accountId);
-  if (!account || account.deletedAt !== null) invalid("Unknown account");
-  checkSystemAccountValuation(account);
-
-  let existing;
-  for (const valuation of draft.values("valuations")) {
-    if (valuation.accountId === args.accountId && valuation.on === args.on) {
-      existing = valuation;
-      break;
-    }
-  }
-  if (existing && !existing.deletedAt) {
-    if (
-      existing.amountMinor === args.amountMinor &&
-      (args.note === undefined || args.note === existing.note)
-    ) {
-      return;
-    }
-    draft.put("valuations", existing.id, {
-      ...existing,
-      amountMinor: args.amountMinor,
-      note: args.note ?? existing.note,
-      updatedAt: context.now,
-    });
-  } else {
-    if (localBalanceAt(scope, args.accountId, args.on) === args.amountMinor) {
-      return;
-    }
-    if (existing) {
-      draft.put("valuations", existing.id, {
-        ...existing,
-        amountMinor: args.amountMinor,
-        note: args.note ?? "",
-        deletedAt: null,
-        updatedAt: context.now,
-      });
-    } else {
-      if (draft.get("valuations", args.id)) {
-        invalid("The valuation id is in use");
-      }
-      draft.put("valuations", args.id, {
-        id: args.id,
-        householdId: context.householdId,
-        accountId: args.accountId,
-        on: args.on,
-        amountMinor: args.amountMinor,
-        source: "manual",
-        note: args.note ?? "",
-        version: 0,
-        createdAt: context.now,
-        updatedAt: context.now,
-        deletedAt: null,
-      });
-    }
-  }
-  touchAccount(scope, args.accountId, args.on);
+/** What a mutation wrote that the search text follows. */
+interface Written {
+  transactionIds: Set<string>;
+  /** Payees and Categories whose name changed. */
+  renamedPayeeIds: Set<string>;
+  renamedCategoryIds: Set<string>;
 }
 
-function deleteValuation(scope: Scope, id: string) {
-  const existing = scope.draft.get("valuations", id);
-  if (!existing) throw new MutationError("not_found");
-  if (existing.deletedAt) return;
-  scope.draft.put("valuations", id, {
-    ...existing,
-    deletedAt: scope.context.now,
-    updatedAt: scope.context.now,
-  });
-  touchAccount(scope, existing.accountId, existing.on);
-}
-
-function deletedAtFor(
-  scope: Scope,
-  deleted: boolean | undefined,
-  current: string | null,
-) {
-  if (deleted === undefined) return current;
-  return deleted ? scope.context.now : null;
-}
-
-function upsertAccount(scope: Scope, args: Args<"upsertAccount">) {
-  const { draft, context } = scope;
-  const { id, deleted, ...fields } = args;
-  const existing = draft.get("accounts", id);
-  if (existing?.isSystem) checkSystemAccountPatch(fields, deleted);
-  let row: AccountRow;
-  if (
-    existing &&
-    deleted &&
-    existing.deletedAt === null &&
-    isAccountInUse(scope, id)
-  ) {
-    invalid(
-      "Transactions, valuations or a Bank link still use the account; close it",
-    );
-  }
-  if (existing) {
-    const changed = {
-      ...existing,
-      ...fields,
-      ...institutionFieldsAfter(existing, fields),
-    };
-    row = {
-      ...changed,
-      institutionIconVersion:
-        institutionDomainOf(changed) === institutionDomainOf(existing)
-          ? existing.institutionIconVersion
-          : null,
-      updatedAt: context.now,
-      deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
-    };
-  } else {
-    const { groupId, name, kind, currency } = fields;
-    if (!groupId || !name || !kind || !currency) {
-      invalid("A new account needs a group, name, kind and currency");
-    }
-    row = {
-      id,
-      householdId: context.householdId,
-      groupId,
-      ownerMemberId: fields.ownerMemberId ?? null,
-      name,
-      institution: fields.institution ?? "",
-      institutionDomain: fields.institutionDomain ?? null,
-      guessedInstitutionDomain: null,
-      institutionIconVersion: null,
-      kind,
-      currency,
-      excludedFromNetWorth: fields.excludedFromNetWorth ?? false,
-      closedOn: fields.closedOn ?? null,
-      position: fields.position ?? 0,
-      creditLimitMinor: fields.creditLimitMinor ?? null,
-      statementDay: fields.statementDay ?? null,
-      paymentDueDay: fields.paymentDueDay ?? null,
-      defaultPaymentAccountId: fields.defaultPaymentAccountId ?? null,
-      isSystem: false,
-      version: 0,
-      createdAt: context.now,
-      updatedAt: context.now,
-      deletedAt: deleted ? context.now : null,
-    };
-  }
-  if (!existing || fields.groupId !== undefined || fields.kind !== undefined) {
-    const group = draft.get("accountGroups", row.groupId);
-    if (!group || group.deletedAt) invalid("Unknown group");
-    if (group.side !== sideOfKind(row.kind)) {
-      invalid(`A ${row.kind} account cannot go in a ${group.side} group`);
-    }
-  }
-  if (fields.ownerMemberId && !draft.get("members", fields.ownerMemberId)) {
-    invalid("Unknown member");
-  }
-  if (
-    fields.defaultPaymentAccountId &&
-    !isLiveAccount(scope, fields.defaultPaymentAccountId)
-  ) {
-    invalid("Unknown account");
-  }
-  draft.put("accounts", id, row);
-}
-
-function upsertGroup(scope: Scope, args: Args<"upsertGroup">) {
-  const { draft, context } = scope;
-  const { id, deleted, ...fields } = args;
-  const existing = draft.get("accountGroups", id);
-  if (existing) {
-    const kinds: AccountRow["kind"][] = [];
-    for (const account of draft.values("accounts")) {
-      if (account.groupId === id && account.deletedAt === null) {
-        kinds.push(account.kind);
-      }
-    }
-    if (deleted && kinds.length > 0) {
-      invalid("The group still holds accounts");
-    }
-    if (fields.side && kinds.some((kind) => sideOfKind(kind) !== fields.side)) {
-      invalid("The group holds accounts of the other side");
-    }
-    draft.put("accountGroups", id, {
-      ...existing,
-      ...fields,
-      updatedAt: context.now,
-      deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
-    });
-    return;
-  }
-  if (!fields.name || !fields.side)
-    invalid("A new group needs a name and side");
-  draft.put("accountGroups", id, {
-    id,
-    householdId: context.householdId,
-    name: fields.name,
-    side: fields.side,
-    position: fields.position ?? 0,
-    version: 0,
-    createdAt: context.now,
-    updatedAt: context.now,
-    deletedAt: deleted ? context.now : null,
-  });
-}
-
-function checkParent(
-  scope: Scope,
-  id: string,
-  kind: "expense" | "income",
-  parentId: string,
-) {
-  let cursor: string | null = parentId;
-  for (let depth = 0; cursor !== null; depth++) {
-    if (cursor === id || depth > 32) {
-      invalid("A category cannot be its own parent");
-    }
-    const parent: CategoryRow | undefined = scope.draft.get(
-      "categories",
-      cursor,
-    );
-    if (!parent || parent.deletedAt) invalid("Unknown parent category");
-    if (parent.kind !== kind) invalid("The parent is of the other kind");
-    cursor = parent.parentId;
-  }
-}
-
-function upsertCategory(scope: Scope, args: Args<"upsertCategory">) {
-  const { draft, context } = scope;
-  const { id, deleted, archived, ...fields } = args;
-  const existing = draft.get("categories", id);
-  const archivedAt = (current: string | null) =>
-    archived === undefined ? current : archived ? context.now : null;
-  if (existing) {
-    if (fields.kind !== undefined && fields.kind !== existing.kind) {
-      invalid("A category keeps its kind");
-    }
-    if (fields.parentId) checkParent(scope, id, existing.kind, fields.parentId);
-    if (deleted && existing.deletedAt === null) {
-      if (existing.isSystem) invalid("A system category stays");
-      if (isCategoryInUse(scope, id)) {
-        invalid(
-          "Transactions or subcategories still use the category; archive it",
-        );
-      }
-    }
-    draft.put("categories", id, {
-      ...existing,
-      ...fields,
-      archivedAt: archivedAt(existing.archivedAt),
-      updatedAt: context.now,
-      deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
-    });
-    if (fields.name !== undefined && fields.name !== existing.name) {
-      refreshSearchText(scope, (row) => row.categoryId === id);
-    }
-    return;
-  }
-  if (!fields.kind || !fields.name)
-    invalid("A new category needs a kind and name");
-  if (fields.parentId) checkParent(scope, id, fields.kind, fields.parentId);
-  draft.put("categories", id, {
-    id,
-    householdId: context.householdId,
-    parentId: fields.parentId ?? null,
-    kind: fields.kind,
-    name: fields.name,
-    emoji: fields.emoji ?? "",
-    color: fields.color ?? "",
-    position: fields.position ?? 0,
-    isSystem: false,
-    archivedAt: archivedAt(null),
-    version: 0,
-    createdAt: context.now,
-    updatedAt: context.now,
-    deletedAt: deleted ? context.now : null,
-  });
-}
-
-function upsertPayee(scope: Scope, args: Args<"upsertPayee">) {
-  const { draft, context } = scope;
-  const { id, deleted, ...fields } = args;
-  if (fields.defaultCategoryId) {
-    const category = draft.get("categories", fields.defaultCategoryId);
-    if (!category || category.deletedAt) invalid("Unknown category");
-  }
-  if (
-    fields.defaultAccountId &&
-    !isLiveAccount(scope, fields.defaultAccountId)
-  ) {
-    invalid("Unknown account");
-  }
-  const existing = draft.get("payees", id);
-  if (existing) {
-    if (existing.mergedIntoId) {
-      throw new MutationError("deleted", "The payee was merged");
-    }
-    draft.put("payees", id, {
-      ...existing,
-      ...fields,
-      updatedAt: context.now,
-      deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
-    });
-    if (fields.name !== undefined && fields.name !== existing.name) {
-      refreshSearchText(scope, (row) => row.payeeId === id);
-    }
-  } else {
-    if (!fields.name) invalid("A new payee needs a name");
-    draft.put("payees", id, {
-      id,
-      householdId: context.householdId,
-      name: fields.name,
-      note: fields.note ?? "",
-      defaultCategoryId: fields.defaultCategoryId ?? null,
-      defaultAccountId: fields.defaultAccountId ?? null,
-      mergedIntoId: null,
-      version: 0,
-      createdAt: context.now,
-      updatedAt: context.now,
-      deletedAt: deleted ? context.now : null,
-    });
-  }
-}
-
-function mergePayee(scope: Scope, args: Args<"mergePayee">) {
-  const { draft, context } = scope;
-  const from = draft.get("payees", args.fromId);
-  const into = draft.get("payees", args.intoId);
-  if (!from || !into) throw new MutationError("not_found");
-  if (from.deletedAt || into.deletedAt) throw new MutationError("deleted");
-
-  for (const transaction of [...draft.values("transactions")]) {
-    if (transaction.payeeId !== from.id) continue;
-    draft.put("transactions", transaction.id, {
-      ...transaction,
-      payeeId: into.id,
-      updatedAt: context.now,
-    });
-  }
-  for (const rule of [...draft.values("rules")]) {
-    if (rule.template.payeeId !== from.id) continue;
-    draft.put("rules", rule.id, {
-      ...rule,
-      template: { ...rule.template, payeeId: into.id },
-      updatedAt: context.now,
-    });
-  }
-  draft.put("payees", from.id, {
-    ...from,
-    mergedIntoId: into.id,
-    deletedAt: context.now,
-    updatedAt: context.now,
-  });
-  refreshSearchText(scope, (row) => row.payeeId === into.id);
-}
-
-function upsertTag(scope: Scope, args: Args<"upsertTag">) {
-  const { draft, context } = scope;
-  const { id, deleted, ...fields } = args;
-  const existing = draft.get("tags", id);
-  if (existing) {
-    draft.put("tags", id, {
-      ...existing,
-      ...fields,
-      updatedAt: context.now,
-      deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
-    });
-    return;
-  }
-  if (!fields.name) invalid("A new tag needs a name");
-  draft.put("tags", id, {
-    id,
-    householdId: context.householdId,
-    name: fields.name,
-    position: fields.position ?? 0,
-    version: 0,
-    createdAt: context.now,
-    updatedAt: context.now,
-    deletedAt: deleted ? context.now : null,
-  });
-}
-
-function upsertMember(scope: Scope, args: Args<"upsertMember">) {
-  const { context } = scope;
-  const existing = scope.draft.get("members", args.id);
-  if (!existing) {
-    scope.draft.put("members", args.id, {
-      id: args.id,
-      householdId: context.householdId,
-      userId: null,
-      name: args.name,
-      role: "member",
-      version: 0,
-      createdAt: context.now,
-      updatedAt: context.now,
-      deletedAt: null,
-    });
-    return;
-  }
-  if (existing.name === args.name) return;
-  scope.draft.put("members", args.id, {
-    ...existing,
-    name: args.name,
-    updatedAt: scope.context.now,
-  });
-}
-
-function withActiveMember(scope: Scope, template: RuleTemplate) {
-  const member =
-    template.memberId === null
-      ? undefined
-      : scope.draft.get("members", template.memberId);
+/** The Replica's tables as a `MutationDraft`. */
+function replicaDraft(draft: TablesDraft, written: Written): MutationDraft {
   return {
-    ...template,
-    memberId: member && member.deletedAt === null ? member.id : null,
+    get: (table, key) => draft.get(table, key),
+    where<Table extends SyncTableName>(
+      table: Table,
+      match: Partial<ReplicaRow<Table>>,
+    ) {
+      const isMatch = rowMatcher(match);
+      const found: ReplicaRow<Table>[] = [];
+      for (const row of draft.values(table)) if (isMatch(row)) found.push(row);
+      return found;
+    },
+    hasLive: (table, match) => {
+      const isMatch = rowMatcher(match);
+      for (const row of draft.values(table)) {
+        if (row.deletedAt === null && isMatch(row)) return true;
+      }
+      return false;
+    },
+    balanceAt: (accountId, day) => localBalanceAt(draft, accountId, day),
+    institutionIconVersion: () => undefined,
+    mayLack: (table) => LIVE_ON_BOOTSTRAP_TABLES.has(table),
+    put: (table, key, row) => {
+      if (table === "transactions") written.transactionIds.add(key);
+      if (table === "payees" || table === "categories") {
+        const previous = draft.get(table, key);
+        if (
+          previous &&
+          "name" in previous &&
+          "name" in row &&
+          previous.name !== row.name
+        ) {
+          (table === "payees"
+            ? written.renamedPayeeIds
+            : written.renamedCategoryIds
+          ).add(key);
+        }
+      }
+      draft.put(table, key, row);
+    },
   };
 }
 
-function isUsable(scope: Scope, template: RuleTemplate) {
-  try {
-    checkTransactionRows(scope, template);
-    return true;
-  } catch (error) {
-    if (error instanceof MutationError) return false;
-    throw error;
-  }
-}
-
-/** The live Entries and Tag ids of these Transactions, by Transaction id. */
-function detailsOf(scope: Scope, transactionIds: readonly string[]) {
-  const entries = new Map<string, EntryRow[]>(
-    transactionIds.map((transactionId) => [transactionId, []]),
-  );
-  const tagIds = new Map<string, string[]>(
-    transactionIds.map((transactionId) => [transactionId, []]),
-  );
-  for (const entry of scope.draft.values("entries")) {
-    if (entry.deletedAt === null) entries.get(entry.transactionId)?.push(entry);
-  }
-  for (const list of entries.values()) {
-    list.sort((a, b) => a.position - b.position);
-  }
-  for (const link of scope.draft.values("transactionTags")) {
-    if (link.deletedAt === null) {
-      tagIds.get(link.transactionId)?.push(link.tagId);
-    }
-  }
-  return { entries, tagIds };
+/** The server's `search_text`: payee name, note and category name, lowercased. */
+function searchTextOf(draft: TablesDraft, transaction: TransactionRow) {
+  const payee =
+    transaction.payeeId === null
+      ? undefined
+      : draft.get("payees", transaction.payeeId)?.name;
+  const category =
+    transaction.categoryId === null
+      ? undefined
+      : draft.get("categories", transaction.categoryId)?.name;
+  return [payee, transaction.note || undefined, category]
+    .filter((part) => part !== undefined)
+    .join(" ")
+    .toLowerCase();
 }
 
 /**
- * Same rule as the server: makes the Rule's Expected Transactions from today
- * on follow its template. The Replica does not know which Transactions a
- * bank row is matched to, so it changes those too until the server answers.
+ * Brings `searchText` up to date as the server does after a write: on every
+ * Transaction the mutation wrote, and on every Transaction of a Payee or
+ * Category it renamed.
  */
-function rewriteExpected(
-  scope: Scope,
-  templates: { before: RuleTemplate; after: RuleTemplate },
-  rows: { kept: TransactionRow[]; restored: TransactionRow[] },
-) {
-  const before = withActiveMember(scope, templates.before);
-  const after = withActiveMember(scope, templates.after);
-  const restored = isUsable(scope, after) ? rows.restored : [];
-  const details = detailsOf(
-    scope,
-    [...rows.kept, ...restored].map((row) => row.id),
-  );
-  const detailed = (list: TransactionRow[]) =>
-    list.map((row) => ({
-      ...row,
-      entries: details.entries.get(row.id) ?? [],
-      tagIds: details.tagIds.get(row.id) ?? [],
-    }));
-  const newEntryId = () => crypto.randomUUID();
-  for (const row of detailed(restored)) {
-    updateTransaction(scope, row.id, templatePatch(after, row, newEntryId));
-  }
-  for (const { id, patch } of retemplateExpected(
-    before,
-    after,
-    detailed(rows.kept),
-    newEntryId,
-  )) {
-    updateTransaction(scope, id, patch);
-  }
-}
-
-function upsertRule(scope: Scope, args: Args<"upsertRule">) {
-  const { draft, context } = scope;
-  const { id, deleted, paused, ...fields } = args;
-  if (fields.template) checkTransactionRows(scope, fields.template);
-  const pausedAt = (current: string | null) =>
-    paused === undefined ? current : paused ? context.now : null;
-
-  const existing = draft.get("rules", id);
-  if (!existing) {
-    const { name, unit, startsOn, template } = fields;
-    if (!name || !unit || !startsOn || !template) {
-      invalid("A new rule needs a name, unit, start and template");
-    }
-    const row: RuleRow = {
-      id,
-      householdId: context.householdId,
-      name,
-      unit,
-      interval: fields.interval ?? 1,
-      dayOfMonth: fields.dayOfMonth ?? null,
-      weekday: fields.weekday ?? null,
-      monthOfYear: fields.monthOfYear ?? null,
-      nonBusinessDay: fields.nonBusinessDay ?? "stay",
-      startsOn,
-      endsOn: fields.endsOn ?? null,
-      nextOn: startsOn,
-      autoPost: fields.autoPost ?? false,
-      template,
-      pausedAt: pausedAt(null),
-      version: 0,
-      createdAt: context.now,
-      updatedAt: context.now,
-      deletedAt: deleted ? context.now : null,
-    };
-    draft.put("rules", id, {
-      ...row,
-      nextOn: fields.nextOn ?? nextOccurrence(row, startsOn),
-    });
-    return;
-  }
-  if (existing.deletedAt && deleted !== false) {
-    throw new MutationError("deleted");
-  }
-  if (fields.template && fields.template.kind !== existing.template.kind) {
-    invalid("A rule keeps its kind");
-  }
-  const merged = { ...existing, ...fields };
-  const scheduleChanged = SCHEDULE_FIELDS.some(
-    (field) => fields[field] !== undefined && fields[field] !== existing[field],
-  );
-  const templateChanged =
-    fields.template !== undefined &&
-    !sameTemplate(existing.template, fields.template);
-  const resumed = paused === false && existing.pausedAt !== null;
-  const nextOn =
-    fields.nextOn ??
-    (scheduleChanged || resumed
-      ? nextOccurrence(merged, context.today)
-      : existing.nextOn);
-  draft.put("rules", id, {
-    ...merged,
-    nextOn,
-    pausedAt: pausedAt(existing.pausedAt),
-    updatedAt: context.now,
-    deletedAt: deletedAtFor(scope, deleted, existing.deletedAt),
-  });
-  if (deleted) {
-    for (const transaction of [...draft.values("transactions")]) {
+function refreshSearchText(draft: TablesDraft, written: Written, now: string) {
+  const ids = new Set(written.transactionIds);
+  if (written.renamedPayeeIds.size > 0 || written.renamedCategoryIds.size > 0) {
+    for (const row of draft.values("transactions")) {
       if (
-        transaction.ruleId === id &&
-        transaction.status === "expected" &&
-        transaction.deletedAt === null
+        (row.payeeId !== null && written.renamedPayeeIds.has(row.payeeId)) ||
+        (row.categoryId !== null &&
+          written.renamedCategoryIds.has(row.categoryId))
       ) {
-        softDeleteTransaction(scope, transaction);
+        ids.add(row.id);
       }
     }
-    return;
   }
-  if (!scheduleChanged && !templateChanged) return;
-  const ofRule = [...draft.values("transactions")].filter(
-    (transaction) =>
-      transaction.ruleId === id && transaction.date >= context.today,
-  );
-  const { remove, restore } = scheduleChanged
-    ? rescheduleExpected(existing, merged, ofRule)
-    : { remove: [], restore: [] };
-  for (const transaction of remove) softDeleteTransaction(scope, transaction);
-  for (const transaction of restore) restoreTransaction(scope, transaction.id);
-  const removed = new Set(remove.map((row) => row.id));
-  const kept = templateChanged
-    ? ofRule.filter(
-        (row) =>
-          row.deletedAt === null &&
-          row.status === "expected" &&
-          !removed.has(row.id),
-      )
-    : [];
-  rewriteExpected(
-    scope,
-    { before: existing.template, after: merged.template },
-    { kept, restored: restore },
-  );
+  for (const id of ids) {
+    const row = draft.get("transactions", id);
+    if (!row) continue;
+    const searchText = searchTextOf(draft, row);
+    if (searchText !== row.searchText) {
+      draft.put("transactions", id, { ...row, searchText, updatedAt: now });
+    }
+  }
 }
 
-function applyTo(scope: Scope, mutation: Mutation) {
-  switch (mutation.name) {
-    case "createTransaction": {
-      createTransaction(scope, mutation.args);
-      return;
-    }
-    case "updateTransaction": {
-      updateTransaction(scope, mutation.args.id, mutation.args.patch);
-      return;
-    }
-    case "deleteTransaction": {
-      deleteTransaction(scope, mutation.args.id);
-      return;
-    }
-    case "restoreTransaction": {
-      restoreTransaction(scope, mutation.args.id);
-      return;
-    }
-    case "confirmExpected": {
-      confirmExpected(scope, mutation.args.id, mutation.args.patch);
-      return;
-    }
-    case "skipExpected": {
-      skipExpected(scope, mutation.args.id);
-      return;
-    }
-    case "putValuation": {
-      putValuation(scope, mutation.args);
-      return;
-    }
-    case "deleteValuation": {
-      deleteValuation(scope, mutation.args.id);
-      return;
-    }
-    case "upsertAccount": {
-      upsertAccount(scope, mutation.args);
-      return;
-    }
-    case "upsertGroup": {
-      upsertGroup(scope, mutation.args);
-      return;
-    }
-    case "upsertCategory": {
-      upsertCategory(scope, mutation.args);
-      return;
-    }
-    case "upsertPayee": {
-      upsertPayee(scope, mutation.args);
-      return;
-    }
-    case "mergePayee": {
-      mergePayee(scope, mutation.args);
-      return;
-    }
-    case "upsertTag": {
-      upsertTag(scope, mutation.args);
-      return;
-    }
-    case "upsertMember": {
-      upsertMember(scope, mutation.args);
-      return;
-    }
-    case "upsertRule": {
-      upsertRule(scope, mutation.args);
-      return;
-    }
-  }
+/** The Replica after a local mutation. */
+export interface LocalResult {
+  tables: ReplicaTables;
+  changed: ChangedKeys;
+  /** Accounts whose balances change, with the first day that changes. */
+  accounts: Map<string, string>;
+  /** The Replica lacks the rows to decide; the tables are unchanged, and the server answers. */
+  waits: boolean;
 }
 
 /**
  * Applies one mutation to the Replica the way the server will, so the UI
  * shows the result before the push. Throws `MutationError` when the server
- * would reject it; the draft may then hold part of the change, so the caller
- * discards it. Returns the accounts whose balances change, with the first
- * day that changes.
+ * would reject it. When the Replica lacks the rows to decide, it changes
+ * nothing and reports that the mutation waits for the server.
  */
 export function applyLocalMutation(
-  draft: TablesDraft,
+  base: ReplicaTables,
   mutation: Mutation,
   context: LocalMutationContext,
-): Map<string, string> {
-  const scope: Scope = { draft, context, accounts: new Map() };
-  applyTo(scope, mutation);
-  return scope.accounts;
+): LocalResult {
+  const draft = createTablesDraft(base);
+  const written: Written = {
+    transactionIds: new Set(),
+    renamedPayeeIds: new Set(),
+    renamedCategoryIds: new Set(),
+  };
+  try {
+    const accounts = applyToDraft(replicaDraft(draft, written), mutation, {
+      ...context,
+      actor: "member",
+    });
+    refreshSearchText(draft, written, context.now);
+    return { ...draft.finish(), accounts, waits: false };
+  } catch (error) {
+    if (!(error instanceof WaitForServer)) throw error;
+    return {
+      tables: base,
+      changed: new Map(),
+      accounts: new Map(),
+      waits: true,
+    };
+  }
 }

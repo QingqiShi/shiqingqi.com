@@ -262,6 +262,18 @@ export function isSyncTableName(name: string): name is SyncTableName {
 /** Every synced table, in the order the server sends them. */
 export const SYNC_TABLE_NAMES: readonly SyncTableName[] =
   Object.keys(rowSchemas).filter(isSyncTableName);
+/**
+ * The tables that grow without bound. A bootstrap skips their deleted rows,
+ * so the Replica can lack a deleted row of them.
+ */
+export const LIVE_ON_BOOTSTRAP_TABLES: ReadonlySet<SyncTableName> = new Set([
+  "valuations",
+  "transactions",
+  "entries",
+  "transactionTags",
+  "accountBalanceDays",
+]);
+
 export type SyncRows = {
   [Table in SyncTableName]: z.infer<(typeof rowSchemas)[Table]>[];
 };

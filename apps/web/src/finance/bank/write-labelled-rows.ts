@@ -10,10 +10,10 @@ import { memberRepository } from "../db/repositories/member-repository.ts";
 import { payeeRepository } from "../db/repositories/payee-repository.ts";
 import { withSavepoint } from "../db/with-household.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
+import { applyMutation } from "../sync/apply-mutation.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type { TransactionInput } from "../sync/mutation-schema.ts";
 import type { ServerWriteContext } from "../sync/run-server-write.ts";
-import { transactionMutations } from "../sync/transaction-mutations.ts";
 import { MAX_NOTE_LENGTH } from "../sync/wire-fields.ts";
 import { ensureInTransitAccount } from "./ensure-in-transit-account.ts";
 import { matchBankRows, type MatchLink } from "./match-bank-rows.ts";
@@ -282,11 +282,17 @@ async function create(
             partner: null,
           }
         : await labelledInput(nestedWriter, item, answer, amountMinor);
-    await transactionMutations.create(nested, input, {
-      labelledBy: "ai",
-      aiReason: answer?.reason || null,
-      source: "bank",
-    });
+    await applyMutation(
+      nested,
+      { name: "createTransaction", args: input },
+      {
+        provenance: {
+          labelledBy: "ai",
+          aiReason: answer?.reason || null,
+          source: "bank",
+        },
+      },
+    );
     await bankTransactionRepository.setMatched(nested.scope, [
       { id: row.id, transactionId: input.id },
       ...(partner ? [{ id: partner.row.id, transactionId: input.id }] : []),

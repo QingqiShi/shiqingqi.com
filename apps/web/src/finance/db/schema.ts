@@ -355,7 +355,9 @@ export const valuations = pgTable(
       "valuations_source_check",
       sql`${t.source} in ('manual', 'import', 'bank')`,
     ),
-    unique("valuations_account_on_key").on(t.accountId, t.on),
+    uniqueIndex("valuations_account_on_key")
+      .on(t.accountId, t.on)
+      .where(sql`${t.deletedAt} is null`),
     index("valuations_account_on_idx").on(t.householdId, t.accountId, t.on),
     index("valuations_version_idx").on(t.householdId, t.version),
     householdReference("valuations_account_fk", t, t.accountId, accounts),

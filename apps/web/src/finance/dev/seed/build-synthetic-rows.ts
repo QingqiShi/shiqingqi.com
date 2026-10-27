@@ -17,12 +17,12 @@ import { startOfWeek } from "../../domain/dates/start-of-week.ts";
 import { daysInMonth, parseDay } from "../../domain/dates/to-epoch-day.ts";
 import type { ExchangeRateRow } from "../../exchange-rates/exchange-rate-row-schema.ts";
 import { nameBasedUuid } from "../../ids/name-based-uuid.ts";
-import { occurrenceId } from "../../rules/materialise-rules.ts";
 import {
   nextOccurrence,
   occurrencesBetween,
   type RuleSchedule,
 } from "../../rules/next-occurrence.ts";
+import { occurrenceId } from "../../rules/rule-occurrences.ts";
 import type { RuleTemplate } from "../../rules/rule-template-schema.ts";
 import { createPrng } from "./create-prng.ts";
 import {

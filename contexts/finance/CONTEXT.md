@@ -83,6 +83,10 @@ _Avoid_: pending (that is the bank's word for an unsettled card payment), schedu
 A schedule plus a transaction template that produces Expected transactions. A rule that "posts automatically" (ZH: 自动入账) makes a confirmed transaction on the day instead. ZH: 周期规则.
 _Avoid_: crontab, template, one-touch, subscription
 
+**Occurrence** (of a Rule):
+One day that a Rule's schedule names, and the Transaction that stands for it: the Expected transaction the Rule made, or a bank-backed Transaction that took its place.
+_Avoid_: instance, recurrence
+
 **Instalment plan**:
 A purchase paid in monthly payments, with a `loan` account for what is still owed. ZH: 分期.
 _Avoid_: BNPL, installment (US spelling), split payment

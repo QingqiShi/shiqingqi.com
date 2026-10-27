@@ -1,8 +1,8 @@
 import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
 import { addDays } from "../domain/dates/add-days.ts";
+import { applyMutation } from "../sync/apply-mutation.ts";
 import type { ServerWriteContext } from "../sync/run-server-write.ts";
-import { transactionMutations } from "../sync/transaction-mutations.ts";
 import { MATCH_DAY_WINDOW, planBankMatches } from "./plan-bank-matches.ts";
 import { toEntryAmount } from "./to-entry-amount.ts";
 
@@ -45,12 +45,18 @@ async function settle(
     (
       await transactionRepository.findEntriesOf(context.scope, [transactionId])
     ).get(transactionId) ?? [];
-  await transactionMutations.update(context, transactionId, {
-    entries: current.map((entry) => ({
-      id: entry.id,
-      accountId: entry.id === entryId ? link.accountId : entry.accountId,
-      amountMinor: entry.amountMinor,
-    })),
+  await applyMutation(context, {
+    name: "updateTransaction",
+    args: {
+      id: transactionId,
+      patch: {
+        entries: current.map((entry) => ({
+          id: entry.id,
+          accountId: entry.id === entryId ? link.accountId : entry.accountId,
+          amountMinor: entry.amountMinor,
+        })),
+      },
+    },
   });
 }
 
@@ -95,11 +101,16 @@ export async function matchBankRows(
       await settle(context, link, match.transactionId, match.entryId);
       result.linked++;
     } else if (match.action === "confirm") {
-      await transactionMutations.confirmExpected(
-        context,
-        candidate.transactionId,
-        candidate.transactionDate === row.date ? undefined : { date: row.date },
-      );
+      await applyMutation(context, {
+        name: "confirmExpected",
+        args: {
+          id: candidate.transactionId,
+          patch:
+            candidate.transactionDate === row.date
+              ? undefined
+              : { date: row.date },
+        },
+      });
       result.confirmed++;
     } else {
       result.linked++;

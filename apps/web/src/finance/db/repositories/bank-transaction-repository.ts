@@ -6,7 +6,6 @@ import {
   inArray,
   isNull,
   lte,
-  ne,
   notExists,
   or,
   sql,
@@ -322,16 +321,13 @@ export const bankTransactionRepository = {
   },
 
   /**
-   * Live Transactions that a bank row backs and that may stand for an
-   * occurrence of the Rule: each has a live Entry dated from `from` to `to`
-   * with one of the template's `entries` accounts and amounts, and a bank row
-   * of a Bank link on that account. Each one has no Rule, or has this Rule
-   * but was not made by it. One row per Transaction, at its earliest such
-   * Entry.
+   * Live Transactions that a bank row backs: each has a live Entry dated
+   * from `from` to `to` with one of `entries`' accounts and amounts, and a
+   * bank row of a Bank link on that account. One row per Transaction, at its
+   * earliest such Entry.
    */
-  async findOccurrenceCandidates(
+  async findBankBacked(
     scope: RepositoryScope,
-    ruleId: string,
     templateEntries: readonly { accountId: string; amountMinor: number }[],
     range: { from: string; to: string },
   ) {
@@ -341,6 +337,7 @@ export const bankTransactionRepository = {
         transactionId: transactions.id,
         entryId: entries.id,
         ruleId: transactions.ruleId,
+        source: transactions.source,
         status: transactions.status,
         date: entries.date,
         createdAt: transactions.createdAt,
@@ -353,13 +350,6 @@ export const bankTransactionRepository = {
           eq(transactions.householdId, scope.householdId),
           isNull(entries.deletedAt),
           isNull(transactions.deletedAt),
-          or(
-            isNull(transactions.ruleId),
-            and(
-              eq(transactions.ruleId, ruleId),
-              ne(transactions.source, "rule"),
-            ),
-          ),
           or(
             ...templateEntries.map((entry) =>
               and(

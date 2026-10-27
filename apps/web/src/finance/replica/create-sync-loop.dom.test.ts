@@ -354,7 +354,7 @@ describe("sync loop against the real handlers", () => {
     expect(currentBalance(second)).toBe(0);
   });
 
-  it("moves a Rule's Expected transactions offline the way the server does", async () => {
+  it("saves a Rule's new template offline and leaves its Expected transactions to the server", async () => {
     const client = createClient();
     await client.ready();
     const ruleId = randomUUID();
@@ -401,6 +401,7 @@ describe("sync loop against the real handlers", () => {
       }),
     ).toThrow(/keeps its kind/);
 
+    const before = ruleRows();
     client.setOnline(false);
     client.store.applyLocal({
       name: "upsertRule",
@@ -414,16 +415,20 @@ describe("sync loop against the real handlers", () => {
         },
       },
     });
-    const local = ruleRows();
+    expect(ruleRows()).toEqual(before);
+    expect(client.snapshot().tables.rules.get(ruleId)?.template).toMatchObject({
+      categoryId: diningId,
+      payeeId: home.employerId,
+    });
     client.setOnline(true);
     await client.loop.sync();
 
     expect(client.snapshot().outboxCount).toBe(0);
-    expect(ruleRows()).toEqual(local);
-    expect(local[0]).toMatchObject({
+    const synced = ruleRows();
+    expect(synced[0]).toMatchObject({
       entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
     });
-    expect(local[1]).toMatchObject({
+    expect(synced[1]).toMatchObject({
       categoryId: diningId,
       payeeId: home.employerId,
       searchText: "employer dining",
@@ -431,7 +436,7 @@ describe("sync loop against the real handlers", () => {
     });
   });
 
-  it("gives an occurrence that a schedule change restores offline the new template, as the server does", async () => {
+  it("gives an occurrence that a schedule change restores the new template once the server answers", async () => {
     const client = createClient();
     await client.ready();
     const ruleId = randomUUID();
@@ -455,6 +460,7 @@ describe("sync loop against the real handlers", () => {
     const live = () => rowsOfRule(client, ruleId).filter((row) => !row.deleted);
     expect(live().map((row) => row.date)).toEqual(["2026-10-08", "2026-10-15"]);
 
+    const before = live();
     client.setOnline(false);
     client.store.applyLocal({
       name: "upsertRule",
@@ -474,17 +480,17 @@ describe("sync loop against the real handlers", () => {
         },
       },
     });
-    const local = live();
+    expect(live()).toEqual(before);
     client.setOnline(true);
     await client.loop.sync();
 
     expect(client.snapshot().outboxCount).toBe(0);
-    expect(local[1]).toMatchObject({
+    expect(live().map((row) => row.date)).toEqual(["2026-10-08", "2026-10-15"]);
+    expect(live()[1]).toMatchObject({
       date: "2026-10-15",
       memberId: home.partnerId,
       entries: [{ accountId: home.cardId, amountMinor: -2_500 }],
     });
-    expect(live()).toEqual(local);
   });
 
   it("bootstraps again when the server clock is behind the replica", async () => {
