@@ -8,7 +8,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
-import { tabBarTokens } from "../actions/tab-bar.stylex.ts";
+import { tabBarTokens, tabLink } from "../actions/tab-bar.stylex.ts";
 import {
   PlainAnchor,
   TabBar,
@@ -18,17 +18,11 @@ import {
 import { useTabPress } from "../actions/use-tab-press.ts";
 import { pointer } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
-import { LIQUID_INDICATOR } from "../effect-layer/liquid-indicator.ts";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
-import {
-  segmentIndicator,
-  segmentTrackMarker,
-} from "../forms/segment-indicator.stylex.ts";
 import { useScrollMask } from "../hooks/use-scroll-mask.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { bind } from "../motion/bind.ts";
-import { movingMarker } from "../motion/moving-marker.stylex.ts";
 import type { Styles } from "../motion/px.ts";
 import { springOf, springRoles } from "../motion/spring-roles.ts";
 import {
@@ -240,52 +234,40 @@ function RailTrack({
   scrolls,
 }: RailTrackProps) {
   const current = items.findIndex((item) => item.current === true);
-  const { trackRef, shown, held, inset, dragging, trackProps, linkProps } =
-    useTabPress({ current, effect, orientation: "vertical" });
+  const track = useTabPress({
+    current,
+    effect,
+    surface: "flat",
+    orientation: "vertical",
+    scrolls,
+  });
   return (
-    <div
-      ref={trackRef}
-      css={[
-        segmentTrackMarker,
-        segmentIndicator.track,
-        // A drag down a rail that scrolls scrolls it, so that touch reaches
-        // each destination.
-        !scrolls && segmentIndicator.trackVertical,
-      ]}
-      {...trackProps}
-    >
-      {shown >= 0 ? (
+    <div {...track.props} css={track.css}>
+      {track.shown >= 0 ? (
         <span
-          aria-hidden="true"
-          {...{ [LIQUID_INDICATOR]: "" }}
-          css={[
-            corner.radius_3,
-            segmentIndicator.base,
-            styles.indicator,
-            inset !== null && segmentIndicator.atBlock(inset.start, inset.end),
-            dragging && segmentIndicator.dragged,
-          ]}
+          {...track.indicator}
+          css={[corner.radius_3, track.indicatorCss]}
         />
       ) : null}
       {/* `role="list"` survives the marker reset, which otherwise drops
             list semantics in Safari/VoiceOver. */}
       <ul role="list" css={stack.rows}>
         {items.map((item, index) => {
-          const isShown = index === shown;
+          const isShown = index === track.shown;
           return (
             <li key={item.href}>
               <LinkComponent
                 href={item.href}
                 aria-current={item.current === true ? "page" : undefined}
-                {...linkProps(index)}
+                {...track.segment(index)}
                 {...stylex.props(
                   typeRole.caption,
                   a11y.touchRow,
                   transition.colors,
                   corner.radius_3,
                   styles.link,
-                  held && segmentIndicator.held,
-                  isShown && [segmentIndicator.anchor, styles.linkShown],
+                  track.segmentCss(index),
+                  isShown && tabLink.shown,
                   a11y.focusRingInset,
                 )}
               >
@@ -346,12 +328,6 @@ function useRise(content: HTMLElement | null, screen: unknown) {
     rise.to(1);
   }, [engine, rise, screen]);
 }
-
-/** The motion engine sets this attribute on a box while it moves it. */
-const MOVED = ":is([data-moving])";
-const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
-/** The effect layer sets this attribute on the track while it draws the indicator. */
-const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 
 const styles = stylex.create({
   container: {
@@ -438,32 +414,6 @@ const styles = stylex.create({
     // A press on a destination can drag the indicator, so it does not
     // select the label.
     userSelect: "none",
-  },
-  indicator: {
-    backgroundColor: color.bgControlRaised,
-  },
-  // The indicator paints the surface of the shown destination, so the link
-  // gives up its own fill. Where there is no anchor positioning the link
-  // paints that surface itself, unless the effect draws the indicator over
-  // the rail. The colour and the filled icon stay in all of them, because
-  // they are the signal in forced colours.
-  linkShown: {
-    color: color.fgControlSelected,
-    fontWeight: font.weight_6,
-    backgroundColor: {
-      default: "transparent",
-      [NO_ANCHOR_POSITIONING]: {
-        default: color.bgControlRaised,
-        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
-          "transparent",
-      },
-      [stylex.when.ancestor(MOVED, movingMarker)]: color.bgControlRaised,
-    },
-    // The surface changes from the indicator to the link at once.
-    transition: {
-      default: null,
-      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
-    },
   },
   icon: {
     position: "relative",

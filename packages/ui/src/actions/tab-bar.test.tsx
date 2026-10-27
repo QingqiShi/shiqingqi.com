@@ -102,7 +102,6 @@ describe("TabBar", () => {
     const list = screen.getByRole("list");
     const indicator = list.previousElementSibling;
     expect(indicator).toHaveAttribute("aria-hidden", "true");
-    expect(indicator).toHaveAttribute("data-liquid-indicator");
   });
 
   it("renders no indicator when no item is current", () => {
@@ -356,21 +355,6 @@ describe("TabBar liquid effect and drag", () => {
     fireEvent.pointerCancel(track, at(350));
     expect(liquid()).toMatchObject({ position: 0, drag: null, pressed: false });
     expect(followed).toEqual([]);
-  });
-
-  it('moves the plain indicator with a drag under effect="none"', () => {
-    const { track, links, at } = renderBar({ effect: "none" });
-    const indicator = screen.getByRole("list").previousElementSibling;
-    const style = () => indicator?.getAttribute("style") ?? "";
-    const before = style();
-
-    fireEvent.pointerDown(links[0], at(150));
-    fireEvent.pointerMove(track, at(200));
-    expect(style()).toContain("50px");
-    expect(style()).toContain("150px");
-
-    fireEvent.pointerUp(track, at(200));
-    expect(style()).toBe(before);
   });
 
   it("moves to the tab that the keyboard follows, with no press", async () => {

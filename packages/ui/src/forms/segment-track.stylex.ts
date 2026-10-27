@@ -32,6 +32,18 @@ export const selectedSurface = stylex.defineVars({
  */
 export const segmentTrackMarker = stylex.defineMarker();
 
+/**
+ * The selected surface of a Segment track: the fill and the edge that the
+ * indicator paints, and that the shown segment paints where the indicator
+ * cannot show.
+ *
+ * @internal
+ */
+export const segmentSurface = stylex.defineVars({
+  fill: "transparent",
+  edge: "none",
+});
+
 const SELECTED_ANCHOR = "--segment-selected";
 const NO_ANCHOR_POSITIONING = "@supports not (anchor-name: --x)";
 /** The effect layer sets this attribute on the track while it draws the indicator. */
@@ -40,17 +52,39 @@ const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
 const MOVED = ":is([data-moving])";
 
 /**
- * The indicator of a track of segments, which slides to the selected
- * segment: `base` on the indicator, `anchor` on the selected segment and
- * `track` on the track, so only its own segments can be the anchor. Where there is no anchor positioning, the indicator does
- * not show, so the selected segment paints its own surface there.
+ * The selected surface of each kind of Segment track, set on the track.
  *
  * @internal
  */
-export const segmentIndicator = stylex.create({
+export const segmentSurfaces = stylex.create({
+  // A SegmentedControl: the raised surface on the sunken track.
+  solid: {
+    [segmentSurface.fill]: color.bgControlRaised,
+    [segmentSurface.edge]: selectedSurface.edge,
+  },
+  // A TabBar: a tint of the bar's own Glass.
+  tint: {
+    [segmentSurface.fill]: color.bgMaterialGlassSelected,
+  },
+  // The rail of a TabView, which sits on the canvas.
+  flat: {
+    [segmentSurface.fill]: color.bgControlRaised,
+  },
+});
+
+/**
+ * The parts of a Segment track, whose indicator slides to the selected
+ * segment: `indicator` on the indicator, `shown` on the segment that looks
+ * selected and `track` on the track, so only its own segments can be the
+ * anchor. Where there is no anchor positioning, the indicator does not show,
+ * so the shown segment paints the surface itself there.
+ *
+ * @internal
+ */
+export const segmentTrack = stylex.create({
   // The one element that carries the selected segment's surface. It follows
   // the anchor, so nothing measures a segment in JS.
-  base: {
+  indicator: {
     position: "absolute",
     positionAnchor: SELECTED_ANCHOR,
     top: "anchor(top)",
@@ -60,6 +94,8 @@ export const segmentIndicator = stylex.create({
     zIndex: -1,
     pointerEvents: "none",
     display: { default: null, [NO_ANCHOR_POSITIONING]: "none" },
+    backgroundColor: segmentSurface.fill,
+    boxShadow: segmentSurface.edge,
     transition: {
       default: `top ${duration._300} ${easing.spring}, right ${duration._300} ${easing.spring}, bottom ${duration._300} ${easing.spring}, left ${duration._300} ${easing.spring}, opacity ${handBack.duration} ${easing.linear}`,
       [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
@@ -75,15 +111,6 @@ export const segmentIndicator = stylex.create({
       [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: 0,
     },
   },
-  // The selected surface of a SegmentedControl.
-  solid: {
-    backgroundColor: color.bgControlRaised,
-    boxShadow: selectedSurface.edge,
-  },
-  // The selected surface of a TabBar: a tint of the bar's own Glass.
-  tint: {
-    backgroundColor: color.bgMaterialGlassSelected,
-  },
   // A press holds the indicator off its anchor, along the track. Its sides
   // across the track stay on the anchor. On release it slides back to the
   // anchor on the spring.
@@ -98,12 +125,36 @@ export const segmentIndicator = stylex.create({
   dragged: {
     transition: "none",
   },
-  // WebKit moves a box on the main thread while an anchor is in it. Thus
-  // while a motion moves a box that holds the track, no segment is the
-  // anchor, and the selected segment paints its own surface.
-  anchor: {
+  // The segment that looks selected names the anchor and gives up its own
+  // fill. Where there is no anchor positioning it paints the surface itself,
+  // unless the effect draws the indicator over the track. WebKit moves a box
+  // on the main thread while an anchor is in it. Thus while a motion moves a
+  // box that holds the track, no segment is the anchor, and the shown segment
+  // paints the surface at once.
+  shown: {
     anchorName: {
       default: SELECTED_ANCHOR,
+      [stylex.when.ancestor(MOVED, movingMarker)]: "none",
+    },
+    backgroundColor: {
+      default: "transparent",
+      [NO_ANCHOR_POSITIONING]: {
+        default: segmentSurface.fill,
+        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]:
+          "transparent",
+      },
+      [stylex.when.ancestor(MOVED, movingMarker)]: segmentSurface.fill,
+    },
+    boxShadow: {
+      default: "none",
+      [NO_ANCHOR_POSITIONING]: {
+        default: segmentSurface.edge,
+        [stylex.when.ancestor(DRAWN_BY_EFFECT, segmentTrackMarker)]: "none",
+      },
+      [stylex.when.ancestor(MOVED, movingMarker)]: segmentSurface.edge,
+    },
+    transition: {
+      default: null,
       [stylex.when.ancestor(MOVED, movingMarker)]: "none",
     },
   },
@@ -112,10 +163,10 @@ export const segmentIndicator = stylex.create({
   held: {
     backgroundColor: "transparent",
   },
-  // On the track. `relative` makes it the indicator's containing block, so
-  // only its own segments can be the anchor, and `isolate` keeps the
-  // indicator's negative z-index inside it. A drag along the track moves the
-  // indicator, and a swipe across it still scrolls the page.
+  // `relative` makes the track the indicator's containing block, so only its
+  // own segments can be the anchor, and `isolate` keeps the indicator's
+  // negative z-index inside it. A drag along the track moves the indicator,
+  // and a swipe across it still scrolls the page.
   track: {
     position: "relative",
     isolation: "isolate",

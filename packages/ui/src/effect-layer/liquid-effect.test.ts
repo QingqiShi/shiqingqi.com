@@ -114,7 +114,7 @@ describe("HAND_SECONDS", () => {
     const here = path.dirname(fileURLToPath(import.meta.url));
     const css = compileStylexCss([
       path.join(here, "hand-back.stylex.ts"),
-      path.join(here, "../forms/segment-indicator.stylex.ts"),
+      path.join(here, "../forms/segment-track.stylex.ts"),
     ]);
     const fades = [...css.matchAll(/opacity (\d*\.?\d+)(ms|s)\b/g)].map(
       ([, value, unit]) => Number(value) / (unit === "ms" ? 1000 : 1),
