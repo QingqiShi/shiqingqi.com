@@ -42,6 +42,8 @@ export default defineConfig({
   ],
   test: {
     environment: "jsdom",
+    // A new VM context for each file starts jsdom faster than a new worker.
+    pool: "vmThreads",
     globals: true,
     setupFiles: ["./src/test-setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
