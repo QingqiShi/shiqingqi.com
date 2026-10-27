@@ -28,8 +28,10 @@ import { parseMoney } from "../domain/money/parse-money.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import { normalisePayeeText } from "../editor/rank-payees.ts";
 import { useReplica } from "../replica/use-replica.ts";
+import { mayAutoPost } from "../rules/may-auto-post.ts";
 import { sameTemplate } from "../rules/same-template.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
+import { selectBankLinkedAccountIds } from "../store/select-bank-linked-account-ids.ts";
 import type { RuleRow } from "../sync/row-schemas.ts";
 import { buildNewRule } from "./build-new-rule.ts";
 import { editRuleTemplate } from "./edit-rule-template.ts";
@@ -71,6 +73,17 @@ function scheduleDay(rule: RuleRow) {
   return String(rule.dayOfMonth ?? "");
 }
 
+/** The accounts the template Entries made from these fields go on. */
+function templateFieldsAccounts({
+  kind,
+  accountId,
+  toAccountId,
+}: RuleTemplateFieldsDraft) {
+  return kind === "transfer"
+    ? [{ accountId }, { accountId: toAccountId }]
+    : [{ accountId }];
+}
+
 const EMPTY_FIELDS: RuleTemplateFieldsDraft = {
   kind: "expense",
   payeeText: "",
@@ -87,6 +100,7 @@ export function RulesSettings() {
   const rules = useReplica(liveRowSelectors.rules);
   const payees = useReplica(liveRowSelectors.payees);
   const accounts = useReplica((snapshot) => snapshot.tables.accounts);
+  const bankLinkedAccountIds = useReplica(selectBankLinkedAccountIds);
   const payeeRef = useRef<HTMLInputElement>(null);
   const baseCurrency = useBaseCurrency();
   const apply = useApplyMutations();
@@ -188,6 +202,15 @@ export function RulesSettings() {
     (draft.rule === null ||
       simpleTemplateAccounts(draft.rule.template, isBase) !== null);
 
+  const autoPostBlocked =
+    draft !== null &&
+    !mayAutoPost(
+      draft.rule !== null && !templateEditable
+        ? draft.rule.template.entries
+        : templateFieldsAccounts(draft.fields),
+      (accountId) => bankLinkedAccountIds.has(accountId),
+    );
+
   /** The Payee the text names, and a new one to add when no Payee has that name. */
   function resolvePayee(fields: RuleTemplateFieldsDraft) {
     if (fields.payeeId !== null) {
@@ -255,7 +278,7 @@ export function RulesSettings() {
         nonBusinessDay: current.nonBusinessDay,
         startsOn: current.startsOn,
         endsOn: isValidDay(current.endsOn) ? current.endsOn : null,
-        autoPost: current.autoPost,
+        autoPost: current.autoPost && !autoPostBlocked,
         today,
       },
       { accountById: accounts },
@@ -321,7 +344,7 @@ export function RulesSettings() {
             dayOfMonth: draft.unit === "week" ? null : day,
             nonBusinessDay: draft.nonBusinessDay,
             endsOn: isValidDay(draft.endsOn) ? draft.endsOn : null,
-            autoPost: draft.autoPost,
+            autoPost: draft.autoPost && !autoPostBlocked,
             paused: draft.paused,
             ...(sameTemplate(template, rule.template) ? {} : { template }),
           },
@@ -633,7 +656,16 @@ export function RulesSettings() {
                 en: "Post on the day without asking",
                 zh: "到期自动入账，无需确认",
               })}
-              checked={draft.autoPost}
+              description={
+                autoPostBlocked
+                  ? t({
+                      en: "Bank sync brings in this account's transactions.",
+                      zh: "该账户的交易由银行同步导入。",
+                    })
+                  : undefined
+              }
+              disabled={autoPostBlocked}
+              checked={draft.autoPost && !autoPostBlocked}
               onChange={(event) => {
                 setDraft({ ...draft, autoPost: event.target.checked });
               }}

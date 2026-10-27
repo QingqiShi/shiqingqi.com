@@ -744,12 +744,13 @@ describe("a bank-backed Transaction on an occurrence's day", () => {
     },
   );
 
-  it("posts nothing twice for a Rule that posts automatically", async () => {
+  it("posts nothing twice for a Rule that posts automatically from before the Bank link", async () => {
     const paymentId = await recordPayment("2026-01-31");
     const ruleId = await createRule(
-      { autoPost: true, startsOn: "2026-02-01", dayOfMonth: 1 },
+      { startsOn: "2026-02-01", dayOfMonth: 1 },
       new Date("2026-01-31T12:00:00Z"),
     );
+    await db.update(rules).set({ autoPost: true }).where(eq(rules.id, ruleId));
 
     await materialiseRules(
       db,

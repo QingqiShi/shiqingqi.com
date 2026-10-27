@@ -5,6 +5,7 @@ import type { FinanceSession } from "../auth/types.ts";
 import { accountRepository } from "../db/repositories/account-repository.ts";
 import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import { householdRepository } from "../db/repositories/household-repository.ts";
+import { ruleRepository } from "../db/repositories/rule-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
@@ -348,6 +349,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
                 ...fields,
               });
             }
+            await ruleRepository.stopAutoPostOnAccount(write, account.id);
             context.markWritten();
             const link = await bankLinkRepository.findById(write, linkId);
             if (!link) throw new Error("The Bank link was not written");

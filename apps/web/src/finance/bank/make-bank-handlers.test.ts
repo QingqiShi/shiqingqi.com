@@ -1,5 +1,6 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
 import {
   accounts,
@@ -303,6 +304,98 @@ describe("makeBankHandlers", () => {
       await putLink({ accountId: home.currentId, providerAccountId: "p2" })
     ).json()) as BankLinkView;
     expect(relinked.id).toBe(first.id);
+  });
+
+  it("stops each Rule on the account it links from posting automatically, and sends the change to each Replica", async () => {
+    const rule = (
+      id: string,
+      entries: { accountId: string; amountMinor: number }[],
+    ) => ({
+      id: randomUUID(),
+      name: "upsertRule" as const,
+      args: {
+        id,
+        name: "Rent",
+        unit: "month" as const,
+        startsOn: "2026-11-01",
+        autoPost: true,
+        template: {
+          kind:
+            entries.length > 1 ? ("transfer" as const) : ("expense" as const),
+          categoryId: entries.length > 1 ? null : home.groceriesId,
+          entries,
+        },
+      },
+    });
+    const ruleIds = {
+      current: randomUUID(),
+      transfer: randomUUID(),
+      savings: randomUUID(),
+    };
+    const pushed = await applyMutations(
+      db,
+      home.householdId,
+      {
+        clientId: CLIENT,
+        mutations: [
+          rule(ruleIds.current, [
+            { accountId: home.currentId, amountMinor: -500 },
+          ]),
+          rule(ruleIds.transfer, [
+            { accountId: home.savingsId, amountMinor: -500 },
+            { accountId: home.currentId, amountMinor: 500 },
+          ]),
+          rule(ruleIds.savings, [
+            { accountId: home.savingsId, amountMinor: -500 },
+          ]),
+        ],
+      },
+      NOW,
+    );
+    expect(pushed.rejected).toEqual([]);
+
+    const autoPostPulledAfter = async (clock: number) => {
+      const pulled = await pullChanges(db, home.householdId, clock);
+      const rows = z
+        .array(z.object({ id: z.string(), autoPost: z.boolean() }))
+        .parse(pulled.tables.rules ?? []);
+      return new Map(rows.map((row) => [row.id, row.autoPost]));
+    };
+    const { clock } = await pullChanges(db, home.householdId, 0);
+    const link = (await (
+      await putLink({ accountId: home.currentId, providerAccountId: "p1" })
+    ).json()) as BankLinkView;
+    expect(await autoPostPulledAfter(clock)).toEqual(
+      new Map([
+        [ruleIds.current, false],
+        [ruleIds.transfer, false],
+      ]),
+    );
+
+    await handlers().removeLink(
+      request(`links?linkId=${link.id}`, { method: "DELETE" }),
+    );
+    const again = await applyMutations(
+      db,
+      home.householdId,
+      {
+        clientId: CLIENT,
+        mutations: [
+          {
+            id: randomUUID(),
+            name: "upsertRule",
+            args: { id: ruleIds.current, autoPost: true },
+          },
+        ],
+      },
+      NOW,
+    );
+    expect(again.rejected).toEqual([]);
+    const { clock: unlinkedClock } = await pullChanges(db, home.householdId, 0);
+    await putLink({ accountId: home.currentId, providerAccountId: "p1" });
+    expect(await autoPostPulledAfter(unlinkedClock)).toEqual(
+      new Map([[ruleIds.current, false]]),
+    );
   });
 
   it("syncs now, labels the new rows after the response, and lists the Entries no bank row backs", async () => {

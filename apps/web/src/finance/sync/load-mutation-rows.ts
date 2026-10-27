@@ -7,6 +7,7 @@ import type { RepositoryScope } from "../db/repositories/types.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import { institutionCacheRepository } from "../institutions/institution-cache-repository.ts";
 import type { MutationCall } from "../mutations/apply-to-draft.ts";
+import { autoPostEntriesOf } from "../mutations/rule-mutations.ts";
 import type { MutationArgs } from "../mutations/types.ts";
 import type { ReplicaRow } from "../replica/types.ts";
 import type { StrictDraft } from "./create-strict-draft.ts";
@@ -289,6 +290,15 @@ export async function loadMutationRows(
           ? loadSet(loader, "transactions", { ruleId: id, status: "expected" })
           : undefined,
       ]);
+      const entries = autoPostEntriesOf(
+        strict.draft.get("rules", id),
+        mutation.args,
+      );
+      await Promise.all(
+        present(entries.map((entry) => entry.accountId)).map((accountId) =>
+          loadHasLive(loader, "bankLinks", { accountId }),
+        ),
+      );
       if (deleted) {
         const expected = strict.draft.where("transactions", {
           ruleId: id,

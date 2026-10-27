@@ -497,6 +497,68 @@ describe("Settings", () => {
     ).toBeNull();
   });
 
+  it("does not post automatically on an account with a Bank link", async () => {
+    const runtime = await createSettingsReplica({
+      bankLinks: [
+        {
+          id: "00000000-0000-4000-8000-0000000000f9",
+          householdId: ids.household,
+          accountId: ids.current,
+          providerName: "Current account",
+          providerInstitution: "Monzo",
+          currency: "GBP",
+          lastSyncedOn: null,
+          lastSyncAt: null,
+          lastError: null,
+          status: "active",
+          bankBalanceMinor: null,
+          bankBalanceOn: null,
+          bankRowsWaiting: false,
+          version: 1,
+          deletedAt: null,
+        },
+      ],
+    });
+    renderWithReplica(runtime, <RulesSettings />);
+    await openSheet(screen.getByRole("button", { name: "New rule" }));
+    await userEvent.type(screen.getByRole("combobox", { name: "Payee" }), "Tf");
+    await userEvent.click(screen.getByRole("option", { name: /TfL/ }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Amount" }), "42");
+    await userEvent.selectOptions(
+      screen.getByRole("combobox", { name: "Category" }),
+      ids.groceries,
+    );
+    const autoPost = screen.getByRole("checkbox", {
+      name: "Post on the day without asking",
+    });
+    await userEvent.selectOptions(
+      screen.getByRole("combobox", { name: "Account" }),
+      ids.visa,
+    );
+    await userEvent.click(autoPost);
+    expect(autoPost).toBeChecked();
+
+    await userEvent.selectOptions(
+      screen.getByRole("combobox", { name: "Account" }),
+      ids.current,
+    );
+    expect(autoPost).toBeDisabled();
+    expect(autoPost).not.toBeChecked();
+    expect(autoPost).toHaveAccessibleDescription(
+      "Bank sync brings in this account's transactions.",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const [mutation] = runtime.store.takeOutbox();
+    expect(mutation).toMatchObject({
+      name: "upsertRule",
+      args: {
+        autoPost: false,
+        template: { entries: [{ accountId: ids.current }] },
+      },
+    });
+  });
+
   it("moves an existing rule to another account and category", async () => {
     const runtime = await createSettingsReplica();
     runtime.store.applyLocal({
