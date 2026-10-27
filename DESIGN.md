@@ -1,6 +1,6 @@
 # Design system principles
 
-Terms are defined in `contexts/design-system/CONTEXT.md`. This file holds only the design decisions that go against common practice and that the code does not enforce; the last section points to the rest.
+This file holds only the design decisions that go against common practice and that the code does not enforce; the last section points to the rest.
 
 ## Visual language
 

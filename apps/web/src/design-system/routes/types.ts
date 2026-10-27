@@ -33,8 +33,8 @@ export interface DesignSystemRoute {
   /**
    * Extra words the search matches, beyond the route's own name. Never
    * rendered, so they need no `t()` and no translation: they are the industry
-   * names a visitor arrives with, deliberately including the ones the glossary
-   * rules out — searching "tag" or "pill" should land on Chip and teach the
+   * names a visitor arrives with, deliberately including the ones the system
+   * does not use — searching "tag" or "pill" should land on Chip and teach the
    * word the system actually uses.
    */
   keywords?: readonly string[];

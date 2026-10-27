@@ -23,7 +23,7 @@ describe("matchesDesignSystemQuery", () => {
   });
 
   // The point of `keywords`: a visitor searches with the word they arrived
-  // with, including the ones the glossary rules out.
+  // with, including the ones the system does not use.
   it("finds a route by the word a visitor arrives with", () => {
     expect(
       matchesDesignSystemQuery(
