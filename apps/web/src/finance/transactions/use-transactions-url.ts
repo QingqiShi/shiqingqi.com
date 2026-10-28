@@ -5,7 +5,6 @@ import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import {
   transactionFilters,
   type TransactionFilters,
-  type TransactionKind,
 } from "./transaction-filters.ts";
 
 function paramsNow() {
@@ -18,9 +17,9 @@ function filtersNow() {
 }
 
 /**
- * The Transactions screen's state in the URL: the filters, `?id=` for the
- * selected Transaction, and a new Transaction (`?new=<kind>`) for a blank
- * editor. A selection stays in the browser, so it works offline.
+ * The Transactions screen's state in the URL: the filters, and `?id=` for
+ * the selected Transaction. A new Transaction (`?new=<kind>`) also counts
+ * as open. A selection stays in the browser, so it works offline.
  */
 export function useTransactionsUrl() {
   const searchParams = useSearchParams();
@@ -29,15 +28,13 @@ export function useTransactionsUrl() {
 
   const filters = transactionFilters.parse(searchParams);
   const selectedId = searchParams.get("id");
-  const newTransaction = readNewTransaction(searchParams);
-  const isOpen = selectedId !== null || newTransaction !== null;
+  const isOpen =
+    selectedId !== null || readNewTransaction(searchParams) !== null;
   const openOrReplace = isOpen ? navigator.replace : navigator.open;
 
   return {
     filters,
     selectedId,
-    newKind: newTransaction?.kind ?? null,
-    refundOfId: newTransaction?.refundOf ?? null,
     isOpen,
 
     /** Changes the filters. What is open stays open, so an edit in it is kept. */
@@ -54,15 +51,6 @@ export function useTransactionsUrl() {
     /** Selects a Transaction. A pane already open changes in place, so back still closes it. */
     open(id: string) {
       openOrReplace({ screen: "transactions", filters: filtersNow(), id });
-    },
-
-    /** Opens a blank editor, or a refund of `refundOf`. */
-    openNew(kind: TransactionKind, refundOf?: string) {
-      openOrReplace({
-        screen: "transactions",
-        filters: filtersNow(),
-        newTransaction: { kind, refundOf },
-      });
     },
 
     /** The URL with the Transaction `id` open, for its row. */

@@ -12,19 +12,20 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
+import {
+  useTransactionTask,
+  type TransactionTask,
+} from "../editor/use-transaction-task.tsx";
 import { ColumnLink, useColumnReplace } from "../navigation/column-link.tsx";
 import { useReplica } from "../replica/use-replica.ts";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import { FinancePageColumn } from "../shell/finance-page-column.tsx";
-import { NewTransactionSheet } from "../shell/new-transaction-sheet.tsx";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
-import { useTeachAi } from "../transactions/use-teach-ai.tsx";
 import { AccountDetail } from "./account-detail.tsx";
 import { AccountEditorSheet } from "./account-editor-sheet.tsx";
 import { AccountStrip } from "./account-strip.tsx";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { HouseholdView } from "./household-view.tsx";
-import { LedgerTransaction } from "./ledger-transaction.tsx";
 import { NetWorthPickProvider } from "./net-worth-pick-provider.tsx";
 import { NetWorthSidebar } from "./net-worth-sidebar.tsx";
 import { NetWorthSkeleton } from "./net-worth-skeleton.tsx";
@@ -49,6 +50,11 @@ const ReorderAccounts = dynamic(() =>
 export function NetWorthScreen() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const url = useNetWorthUrl();
+  const isReorder = url.mode === "reorder";
+  const task = useTransactionTask({
+    screen: "netWorth",
+    account: isReorder ? null : url.account,
+  });
 
   if (!bootstrapped) return <NetWorthSkeleton />;
   if (url.mode === "update") {
@@ -58,7 +64,6 @@ export function NetWorthScreen() {
       </FinancePageColumn>
     );
   }
-  const isReorder = url.mode === "reorder";
   return (
     <>
       {isReorder ? (
@@ -67,15 +72,21 @@ export function NetWorthScreen() {
         </FinancePageColumn>
       ) : (
         <NetWorthPickProvider>
-          <NetWorthColumns url={url} />
+          <NetWorthColumns url={url} task={task} />
         </NetWorthPickProvider>
       )}
-      <NewTransactionSheet accountId={isReorder ? null : url.account} />
+      {task.sheet}
     </>
   );
 }
 
-function NetWorthColumns({ url }: { url: NetWorthUrl }) {
+function NetWorthColumns({
+  url,
+  task,
+}: {
+  url: NetWorthUrl;
+  task: TransactionTask;
+}) {
   const replace = useColumnReplace();
   const today = useHouseholdToday();
   const currency = useBaseCurrency();
@@ -87,7 +98,6 @@ function NetWorthColumns({ url }: { url: NetWorthUrl }) {
   const groupName = useReplica((snapshot) =>
     account ? snapshot.tables.accountGroups.get(account.groupId)?.name : null,
   );
-  const teach = useTeachAi();
   const [creating, setCreating] = useState(false);
   const createAccount = () => {
     setCreating(true);
@@ -158,13 +168,7 @@ function NetWorthColumns({ url }: { url: NetWorthUrl }) {
                   href: url.hrefOf({ account: url.account }),
                   label: account ? accountName(account) : "",
                 },
-                node: (
-                  <LedgerTransaction
-                    accountId={url.account}
-                    transactionId={url.tx}
-                    watchCorrection={teach.watch}
-                  />
-                ),
+                node: task.detail(url.tx),
               }
             : null
         }
@@ -176,7 +180,6 @@ function NetWorthColumns({ url }: { url: NetWorthUrl }) {
           setCreating(false);
         }}
       />
-      {teach.sheet}
     </>
   );
 }

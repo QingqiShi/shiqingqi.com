@@ -69,18 +69,22 @@ async function openEditor(
   rows?: Partial<SyncRows>,
 ) {
   const runtime = await createTestReplica(rows);
-  const onSaved = vi.fn();
+  const afterSave = vi.fn();
   renderWithReplica(
     runtime,
     <TransactionEditor
       transactionId={null}
-      onClose={() => undefined}
-      onOpenTransaction={() => undefined}
-      onSaved={onSaved}
+      host={{
+        close: () => undefined,
+        afterSave,
+        openTransaction: () => undefined,
+        refund: () => undefined,
+        watchCorrection: () => () => undefined,
+      }}
       {...props}
     />,
   );
-  return { runtime, onSaved };
+  return { runtime, afterSave };
 }
 
 function outbox(runtime: FinanceRuntime) {
@@ -106,7 +110,7 @@ beforeAll(() => {
 
 describe("TransactionEditor", () => {
   it("saves an expense with everything from the Payee's last time", async () => {
-    const { runtime, onSaved } = await openEditor();
+    const { runtime, afterSave } = await openEditor();
     expect(screen.getByRole("textbox", { name: "Amount" })).toHaveFocus();
     await userEvent.keyboard("12.50");
     await userEvent.click(screen.getByRole("combobox", { name: "Payee" }));
@@ -131,7 +135,7 @@ describe("TransactionEditor", () => {
       tagIds: [ids.weeklyShop],
     });
     expect(args.entries[0].id).toMatch(UUID);
-    expect(onSaved).toHaveBeenCalledWith(args.id, false);
+    expect(afterSave).toHaveBeenCalledWith(args.id, false);
     expect(screen.getByRole("status")).toHaveTextContent("Added");
   });
 

@@ -21,9 +21,13 @@ function Screen({ transactionId }: { transactionId: string }) {
     <>
       <TransactionEditor
         transactionId={transactionId}
-        onClose={() => undefined}
-        onOpenTransaction={() => undefined}
-        watchCorrection={teach.watch}
+        host={{
+          close: () => undefined,
+          afterSave: () => undefined,
+          openTransaction: () => undefined,
+          refund: () => undefined,
+          watchCorrection: teach.watch,
+        }}
       />
       {teach.sheet}
     </>

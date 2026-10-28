@@ -12,7 +12,8 @@ const OPENED_KEY = "financeOpened";
  */
 type EntryWrite = "push" | "open" | "replace";
 
-function isOpenedEntry() {
+/** Whether `open` made this history entry, so that a close goes back from it. */
+export function isOpenedEntry() {
   const state: unknown = window.history.state;
   return typeof state === "object" && state !== null && OPENED_KEY in state;
 }
