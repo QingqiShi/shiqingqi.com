@@ -30,7 +30,7 @@ catalog:
   "@babel/traverse": 8.0.7
   "@babel/types": 8.0.6
   "@eslint-react/eslint-plugin": ^5.27.0
-  "@next/env": 16.4.0
+  "@next/env": 16.4.3
   "@phosphor-icons/react": ^2.1.10
   "@rolldown/plugin-babel": ^0.2.4
   "@serwist/cli": ^9.5.13
