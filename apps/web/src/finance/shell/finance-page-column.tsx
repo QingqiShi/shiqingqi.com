@@ -1,23 +1,23 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { Accessory } from "@tuja/ui/components/accessory";
+import { accessoryTokens } from "@tuja/ui/components/accessory.stylex";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { islandSurface, islandTokens } from "@tuja/ui/components/island.stylex";
 import {
   tabViewQueries,
   tabViewTokens,
 } from "@tuja/ui/components/tab-view.stylex";
-import { useEffectSticky } from "@tuja/ui/hooks/use-effect-sticky";
 import { useScrollRegion } from "@tuja/ui/hooks/use-scroll-region";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import {
   pageColumnTokens,
   pageGutter,
 } from "@tuja/ui/primitives/page-column.stylex";
-import { layer, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
-import { floatingActionTokens } from "./floating-action.stylex.ts";
 
 /**
  * The frame of a Finance screen that is not in the columns of a
@@ -87,18 +87,6 @@ export function FinancePageColumn({
   );
 }
 
-function Accessory({ children }: { children: ReactNode }) {
-  const sticky = useEffectSticky();
-  const { ref, css } = sticky;
-  return (
-    <div ref={ref} css={[styles.accessory, css]}>
-      <EffectCarrier value={sticky}>
-        <div css={styles.accessoryControl}>{children}</div>
-      </EffectCarrier>
-    </div>
-  );
-}
-
 /** The status bar, where the island goes under it. */
 const STATUS_BAR = `max(0px, env(safe-area-inset-top) - ${islandTokens.insetBlockStart})`;
 /** The tab bar or the safe area, where the island goes under it. */
@@ -149,6 +137,7 @@ const styles = stylex.create({
     minBlockSize: { default: "100%", [tabViewQueries.bar]: "100dvh" },
     paddingBlockStart: `calc(${space._4} + ${STATUS_BAR})`,
     paddingBlockEnd: PADDING_BLOCK_END,
+    [accessoryTokens.contentPaddingBlockEnd]: PADDING_BLOCK_END,
     paddingInlineStart: {
       default: space._5,
       [tabViewQueries.bar]: pageGutter.inlineStart,
@@ -162,23 +151,5 @@ const styles = stylex.create({
     inlineSize: "100%",
     maxInlineSize: pageColumnTokens.inlineSize,
     marginInline: "auto",
-  },
-  // The accessory sticks to the bottom of the island, or of the screen where
-  // the page scrolls. At the end of the content, its place in the flow is the
-  // room the island keeps for it, and the negative margin puts that place
-  // where the accessory sticks.
-  accessory: {
-    position: "sticky",
-    insetBlockEnd: floatingActionTokens.insetBlockEnd,
-    zIndex: layer.raised,
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBlockStart: "auto",
-    marginBlockEnd: `calc(${floatingActionTokens.insetBlockEnd} - ${PADDING_BLOCK_END})`,
-    paddingBlockStart: rhythm.item,
-    pointerEvents: "none",
-  },
-  accessoryControl: {
-    pointerEvents: "auto",
   },
 });

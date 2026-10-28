@@ -14,3 +14,13 @@ export const pointer = stylex.defineConsts({
   canHover: "@media (hover: hover) and (pointer: fine)",
   coarse: "@media (pointer: coarse)",
 });
+
+/**
+ * How the page shows. `standalone` is an app opened from the Home Screen,
+ * which draws no browser controls over the page. In a browser tab, the
+ * browser can draw its own controls in the safe area, as Safari does in the
+ * side column of a screen with its status bar at the side.
+ */
+export const displayMode = stylex.defineConsts({
+  standalone: "@media (display-mode: standalone)",
+});

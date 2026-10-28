@@ -35,7 +35,8 @@ function sameBox(a: ElementBox, b: ElementBox) {
 
 /**
  * The content width and height of the element `ref` points at, and how far
- * it bleeds past its parent, kept current with a `ResizeObserver`. Both are 0
+ * it bleeds past its parent, kept current with a `ResizeObserver` on the
+ * element and on its parent. Both are 0
  * until the first measure.
  */
 export function useElementSize<Element extends HTMLElement>() {
@@ -55,13 +56,14 @@ export function useElementSize<Element extends HTMLElement>() {
     };
     update(element.clientWidth, element.clientHeight);
     if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(([entry]) => {
-      update(
-        Math.round(entry.contentRect.width),
-        Math.round(entry.contentRect.height),
-      );
+    const observer = new ResizeObserver(() => {
+      update(element.clientWidth, element.clientHeight);
     });
     observer.observe(element);
+    // A change of the safe area changes the padding of the parent and the
+    // bleed together, so the element can keep its size while its bleed
+    // changes.
+    if (element.parentElement) observer.observe(element.parentElement);
     return () => {
       observer.disconnect();
     };

@@ -24,7 +24,6 @@ import { PlainAnchor } from "../actions/tab-bar.tsx";
 import { isPlainClick } from "../actions/use-tab-press.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useDust } from "../effect-layer/use-dust.ts";
-import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import { useExtractorFan } from "../effect-layer/use-extractor-fan.ts";
 import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { findTwinElement } from "../focus/find-twin-element.ts";
@@ -57,6 +56,8 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { accessoryTokens } from "./accessory.stylex.ts";
+import { Accessory } from "./accessory.tsx";
 import {
   claimEdgeSwipe,
   EDGE_SWIPE_ZONE,
@@ -137,7 +138,10 @@ export interface NavigationSplitViewColumn {
    * A control that floats at the bottom end of the column, such as an Add
    * action, over the content that scrolls under it. It stays above the
    * floating tab bar of a `TabView`, and the column keeps room for it after
-   * its content, so the last row scrolls clear of it.
+   * its content, so the last row scrolls clear of it. In an app opened from
+   * the Home Screen, where the content fills the view and the safe area at
+   * the inline end is wide enough, it sits in that safe area instead, as
+   * `Accessory` describes.
    */
   accessory?: ReactNode;
 }
@@ -1352,18 +1356,6 @@ function RegionScroller({
   );
 }
 
-function Accessory({ children }: { children: ReactNode }) {
-  const sticky = useEffectSticky();
-  const { ref, css } = sticky;
-  return (
-    <div ref={ref} css={[styles.accessory, css]}>
-      <EffectCarrier value={sticky}>
-        <div css={styles.accessoryControl}>{children}</div>
-      </EffectCarrier>
-    </div>
-  );
-}
-
 function BackLink({
   back,
   onTakeOff,
@@ -1432,8 +1424,6 @@ const CONTENT_GUTTER_END = `max(${space._4}, env(safe-area-inset-right))`;
 /** The view keeps the islands clear of the status bar, except where the content fills it. */
 const CONTENT_PADDING_BLOCK_START = `calc(${space._4} + max(0px, env(safe-area-inset-top) - ${islandTokens.insetBlockStart}))`;
 const CONTENT_PADDING_BLOCK_END = `calc(${space._6} + ${splitViewTokens.columnInsetBlockEnd})`;
-/** Above the tab bar below `md`, and above the safe area from `md` up. */
-const ACCESSORY_INSET_BLOCK_END = `max(calc(${space._3} + ${tabViewTokens.barClearance}), calc(${space._5} + env(safe-area-inset-bottom)))`;
 
 const styles = stylex.create({
   // The view fills the screen and the page does not scroll, except inside a
@@ -1556,6 +1546,7 @@ const styles = stylex.create({
     minBlockSize: { default: "100%", [splitViewQueries.pageScrolls]: "100dvh" },
     paddingBlockStart: CONTENT_PADDING_BLOCK_START,
     paddingBlockEnd: CONTENT_PADDING_BLOCK_END,
+    [accessoryTokens.contentPaddingBlockEnd]: CONTENT_PADDING_BLOCK_END,
   },
   stackedOnly: {
     display: splitViewDisplay.stacked,
@@ -1602,24 +1593,6 @@ const styles = stylex.create({
   },
   breadcrumbCurrent: {
     flexShrink: 0,
-  },
-  // The accessory sticks to the bottom of the scroller, or of the screen
-  // where the page scrolls. At the end of the content, its place in the flow
-  // is the room the column keeps for it, and the negative margin puts that
-  // place where the accessory sticks.
-  accessory: {
-    position: "sticky",
-    insetBlockEnd: ACCESSORY_INSET_BLOCK_END,
-    zIndex: layer.raised,
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBlockStart: "auto",
-    marginBlockEnd: `calc(${ACCESSORY_INSET_BLOCK_END} - ${CONTENT_PADDING_BLOCK_END})`,
-    paddingBlockStart: rhythm.item,
-    pointerEvents: "none",
-  },
-  accessoryControl: {
-    pointerEvents: "auto",
   },
 });
 

@@ -99,6 +99,8 @@
     "./primitives/texture.stylex": "./src/primitives/texture.stylex.ts",
     "./primitives/type.stylex": "./src/primitives/type.stylex.ts",
     "./primitives/wash.stylex": "./src/primitives/wash.stylex.ts",
+    "./components/accessory": "./src/shells/accessory.tsx",
+    "./components/accessory.stylex": "./src/shells/accessory.stylex.ts",
     "./components/anchor-button": "./src/actions/anchor-button.tsx",
     "./components/anchor.stylex": "./src/actions/anchor.stylex.ts",
     "./components/avatar": "./src/data-display/avatar.tsx",
