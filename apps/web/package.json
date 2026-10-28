@@ -69,7 +69,7 @@
     "drizzle-orm": "^0.45.4",
     "next": "catalog:",
     "pg": "^8.23.1",
-    "posthog-js": "^1.438.9",
+    "posthog-js": "^1.438.21",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-error-boundary": "^6.1.6",
