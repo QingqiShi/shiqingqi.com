@@ -7,16 +7,27 @@ import {
 } from "../rules/rule-template-schema.ts";
 import { sameTemplate } from "../rules/same-template.ts";
 import { MutationError } from "../sync/mutation-error.ts";
-import { ruleFieldsSchema } from "../sync/mutation-schema.ts";
+import {
+  ruleFieldsSchema,
+  upsertRuleArgsSchema,
+} from "../sync/mutation-schema.ts";
 import { parseNewRow } from "../sync/parse-new-row.ts";
 import type { RuleRow } from "../sync/row-schemas.ts";
 import { invalid } from "./invalid.ts";
+import { previousUpsertArgs } from "./previous-upsert-args.ts";
+import { read } from "./read.ts";
 import { stampAfter } from "./stamp-after.ts";
 import {
   checkTransactionRows,
+  namedRowReads,
   softDeleteTransaction,
 } from "./transaction-mutations.ts";
-import type { MutationArgs, MutationDraft, MutationScope } from "./types.ts";
+import type {
+  MutationArgs,
+  MutationDraft,
+  MutationScope,
+  MutationSpecs,
+} from "./types.ts";
 
 type UpsertRuleArgs = MutationArgs<"upsertRule">;
 type RuleFields = Omit<UpsertRuleArgs, "id" | "deleted" | "paused">;
@@ -67,9 +78,9 @@ export function ruleChangeOf(
 /**
  * The template Entries whose accounts decide if a Rule may post
  * automatically after an upsert: none when it then does not post
- * automatically. The server loads the Bank links of these accounts.
+ * automatically.
  */
-export function autoPostEntriesOf(
+function autoPostEntriesOf(
   existing: RuleRow | undefined,
   args: Pick<UpsertRuleArgs, "autoPost" | "template">,
 ): RuleTemplate["entries"] {
@@ -174,5 +185,44 @@ function upsertRule(scope: MutationScope, args: UpsertRuleArgs) {
 }
 
 export const ruleMutations = {
-  upsertRule,
-};
+  upsertRule: {
+    reads: [
+      ({ id, template, deleted }) => [
+        read.get("rules", [id]),
+        ...(template ? namedRowReads(template) : []),
+        deleted
+          ? read.where("transactions", { ruleId: id, status: "expected" })
+          : undefined,
+      ],
+      (args, draft) => {
+        const accountIds = new Set(
+          autoPostEntriesOf(draft.get("rules", args.id), args).map(
+            (entry) => entry.accountId,
+          ),
+        );
+        const expected = args.deleted
+          ? draft.where("transactions", { ruleId: args.id, status: "expected" })
+          : [];
+        return [
+          ...[...accountIds].map((accountId) =>
+            read.hasLive("bankLinks", { accountId }),
+          ),
+          ...expected.map((transaction) =>
+            read.where("entries", { transactionId: transaction.id }),
+          ),
+        ];
+      },
+    ],
+    apply: upsertRule,
+    inverse: (snapshot, args) => [
+      {
+        name: "upsertRule",
+        args: previousUpsertArgs(
+          snapshot.tables.rules.get(args.id),
+          args,
+          upsertRuleArgsSchema,
+        ),
+      },
+    ],
+  },
+} satisfies Partial<MutationSpecs>;

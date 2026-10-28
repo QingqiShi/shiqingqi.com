@@ -3,12 +3,17 @@ import {
   categoryFieldsSchema,
   payeeFieldsSchema,
   tagFieldsSchema,
+  upsertCategoryArgsSchema,
+  upsertPayeeArgsSchema,
+  upsertTagArgsSchema,
 } from "../sync/mutation-schema.ts";
 import { parseNewRow } from "../sync/parse-new-row.ts";
 import type { CategoryRow } from "../sync/row-schemas.ts";
 import { invalid } from "./invalid.ts";
+import { previousUpsertArgs } from "./previous-upsert-args.ts";
+import { read } from "./read.ts";
 import { stampAfter } from "./stamp-after.ts";
-import type { MutationArgs, MutationScope } from "./types.ts";
+import type { MutationArgs, MutationScope, MutationSpecs } from "./types.ts";
 
 const MAX_CATEGORY_DEPTH = 32;
 
@@ -249,9 +254,79 @@ function upsertMember(
 }
 
 export const taxonomyMutations = {
-  upsertCategory,
-  upsertPayee,
-  mergePayee,
-  upsertTag,
-  upsertMember,
-};
+  upsertCategory: {
+    reads: [
+      ({ id, deleted }) => [
+        read.where("categories", {}),
+        deleted ? read.hasLive("transactions", { categoryId: id }) : undefined,
+      ],
+    ],
+    apply: upsertCategory,
+    inverse: (snapshot, args) => [
+      {
+        name: "upsertCategory",
+        args: previousUpsertArgs(
+          snapshot.tables.categories.get(args.id),
+          args,
+          upsertCategoryArgsSchema,
+        ),
+      },
+    ],
+  },
+  upsertPayee: {
+    reads: [
+      ({ id, defaultCategoryId, defaultAccountId }) => [
+        read.get("payees", [id]),
+        read.get("categories", [defaultCategoryId]),
+        read.get("accounts", [defaultAccountId]),
+      ],
+    ],
+    apply: upsertPayee,
+    inverse: (snapshot, args) => [
+      {
+        name: "upsertPayee",
+        args: previousUpsertArgs(
+          snapshot.tables.payees.get(args.id),
+          args,
+          upsertPayeeArgsSchema,
+        ),
+      },
+    ],
+  },
+  mergePayee: {
+    reads: [
+      ({ fromId, intoId }) => [
+        read.get("payees", [fromId, intoId]),
+        read.where("transactions", { payeeId: fromId }),
+        read.where("rules", {}),
+      ],
+    ],
+    apply: mergePayee,
+    inverse: () => null,
+  },
+  upsertTag: {
+    reads: [({ id }) => [read.get("tags", [id])]],
+    apply: upsertTag,
+    inverse: (snapshot, args) => [
+      {
+        name: "upsertTag",
+        args: previousUpsertArgs(
+          snapshot.tables.tags.get(args.id),
+          args,
+          upsertTagArgsSchema,
+        ),
+      },
+    ],
+  },
+  upsertMember: {
+    reads: [({ id }) => [read.get("members", [id])]],
+    apply: upsertMember,
+    inverse: (snapshot, { id }) => {
+      const member = snapshot.tables.members.get(id);
+      if (!member) return null;
+      return [
+        { name: "upsertMember", args: { id: member.id, name: member.name } },
+      ];
+    },
+  },
+} satisfies Partial<MutationSpecs>;

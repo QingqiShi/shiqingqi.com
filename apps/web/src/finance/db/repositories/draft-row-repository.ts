@@ -114,6 +114,30 @@ function matching(of: Source, match: Readonly<Record<string, unknown>>) {
   );
 }
 
+/** The condition that the row's fields equal those of one of `matches`; none when a match has no fields. */
+function matchingAny(
+  of: Source,
+  matches: readonly Readonly<Record<string, unknown>>[],
+) {
+  if (matches.some((match) => Object.keys(match).length === 0)) {
+    return undefined;
+  }
+  const fields = new Set(matches.flatMap((match) => Object.keys(match)));
+  const [field] = fields;
+  if (
+    fields.size === 1 &&
+    matches.every(
+      (match) => Object.keys(match).length === 1 && match[field] !== null,
+    )
+  ) {
+    return inArray(
+      column(of, field),
+      matches.map((match) => match[field]),
+    );
+  }
+  return or(...matches.map((match) => and(...matching(of, match))));
+}
+
 /** The value a column stores for a wire value: a timestamp column takes a `Date`. */
 /** The fields as column values: a timestamp column takes a `Date`, not the wire shape's ISO string. */
 function toColumnValues(of: Source, fields: Readonly<Record<string, unknown>>) {
@@ -145,25 +169,22 @@ function byKeys(of: Source, keys: readonly string[]) {
  * Replica's shape, which the strict draft of `applyMutation` holds.
  */
 export const draftRowRepository = {
-  /** The Household's rows of `table` with these keys, whose fields equal those of `match`, or whose `field` is one of `in`. */
+  /** The Household's rows of `table` with these keys, or whose fields equal those of one of `matches`. */
   async select<Table extends DraftTableName>(
     scope: RepositoryScope,
     table: Table,
     where:
       | { keys: readonly string[] }
-      | { match: Partial<ReplicaRow<Table>> }
-      | { field: keyof ReplicaRow<Table> & string; in: readonly string[] },
+      | { matches: readonly Partial<ReplicaRow<Table>>[] },
   ): Promise<ReplicaRow<Table>[]> {
     const of = SOURCES[table];
     let condition: SQL | undefined;
     if ("keys" in where) {
       if (where.keys.length === 0) return [];
       condition = byKeys(of, where.keys);
-    } else if ("in" in where) {
-      if (where.in.length === 0) return [];
-      condition = inArray(column(of, where.field), [...where.in]);
     } else {
-      condition = and(...matching(of, where.match));
+      if (where.matches.length === 0) return [];
+      condition = matchingAny(of, where.matches);
     }
     const rows = await scope.db
       .select(of.columns)

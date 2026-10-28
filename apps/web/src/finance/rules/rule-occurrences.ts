@@ -9,10 +9,13 @@ import type { RepositoryScope } from "../db/repositories/types.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { sameSet } from "../domain/same-set.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
-import { checkTransactionRows } from "../mutations/transaction-mutations.ts";
+import {
+  checkTransactionRows,
+  namedRowReads,
+} from "../mutations/transaction-mutations.ts";
 import { applyMutation } from "../sync/apply-mutation.ts";
 import { createStrictDraft } from "../sync/create-strict-draft.ts";
-import { loadNamedRows } from "../sync/load-mutation-rows.ts";
+import { loadReads } from "../sync/load-mutation-rows.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type { TransactionPatch } from "../sync/mutation-schema.ts";
 import type { WriteContext } from "../sync/types.ts";
@@ -71,7 +74,7 @@ export async function withActiveMember(
 /** False when the template names a row that a Transaction cannot use, such as a deleted account. */
 async function isUsable(scope: RepositoryScope, template: RuleTemplate) {
   const strict = createStrictDraft();
-  await loadNamedRows({ scope, strict }, template);
+  await loadReads(scope, strict, namedRowReads(template));
   try {
     checkTransactionRows(strict.draft, template);
     return true;

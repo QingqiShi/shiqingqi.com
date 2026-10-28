@@ -1,22 +1,18 @@
 import {
   draftRowRepository,
   type DraftTableName,
-  type LiveTableName,
 } from "../db/repositories/draft-row-repository.ts";
 import type { RepositoryScope } from "../db/repositories/types.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import { institutionCacheRepository } from "../institutions/institution-cache-repository.ts";
 import type { MutationCall } from "../mutations/apply-to-draft.ts";
-import { autoPostEntriesOf } from "../mutations/rule-mutations.ts";
-import type { MutationArgs } from "../mutations/types.ts";
+import { bindMutation } from "../mutations/bind-mutation.ts";
+import type { Read } from "../mutations/read.ts";
+import { rowMatcher } from "../mutations/row-matcher.ts";
 import type { ReplicaRow } from "../replica/types.ts";
 import type { StrictDraft } from "./create-strict-draft.ts";
-import type { TransactionInput, TransactionPatch } from "./mutation-schema.ts";
 
-interface Loader {
-  scope: RepositoryScope;
-  strict: StrictDraft;
-}
+type Fact = Extract<Read, { kind: "hasLive" | "balanceAt" }>;
 
 function present(values: readonly (string | null | undefined)[]) {
   return [
@@ -24,8 +20,19 @@ function present(values: readonly (string | null | undefined)[]) {
   ];
 }
 
+function append<Key, Value>(
+  map: Map<Key, Value[]>,
+  key: Key,
+  values: readonly Value[],
+) {
+  const list = map.get(key) ?? [];
+  list.push(...values);
+  map.set(key, list);
+}
+
 async function loadKeys(
-  { scope, strict }: Loader,
+  scope: RepositoryScope,
+  strict: StrictDraft,
   table: DraftTableName,
   wanted: readonly (string | null | undefined)[],
 ) {
@@ -38,278 +45,112 @@ async function loadKeys(
   );
 }
 
-async function loadSet<Table extends DraftTableName>(
-  { scope, strict }: Loader,
-  table: Table,
-  match: Partial<ReplicaRow<Table>>,
+async function loadSets(
+  scope: RepositoryScope,
+  strict: StrictDraft,
+  table: DraftTableName,
+  matches: readonly Partial<ReplicaRow<DraftTableName>>[],
 ) {
-  strict.addSet(
-    table,
-    match,
-    await draftRowRepository.select(scope, table, { match }),
-  );
-}
-
-/** The Entries of each of these Transactions, in one query. */
-async function loadEntriesOf(
-  { scope, strict }: Loader,
-  transactionIds: readonly string[],
-) {
-  const found = await draftRowRepository.select(scope, "entries", {
-    field: "transactionId",
-    in: transactionIds,
-  });
-  for (const transactionId of transactionIds) {
-    strict.addSet(
-      "entries",
-      { transactionId },
-      found.filter((row) => row.transactionId === transactionId),
-    );
+  const found = await draftRowRepository.select(scope, table, { matches });
+  for (const match of matches) {
+    strict.addSet(table, match, found.filter(rowMatcher(match)));
   }
 }
 
-async function loadHasLive(
-  { scope, strict }: Loader,
-  table: LiveTableName,
-  match: Readonly<Record<string, unknown>>,
+async function loadIconVersions(
+  scope: RepositoryScope,
+  strict: StrictDraft,
+  wanted: readonly (string | null | undefined)[],
 ) {
-  strict.addHasLive(
-    table,
-    match,
-    await draftRowRepository.hasLive(scope, table, match),
+  const domains = present(wanted);
+  if (domains.length === 0) return;
+  const versions = await institutionCacheRepository.findIconVersions(
+    scope.db,
+    domains,
   );
-}
-
-/** A Transaction with its Entries and Tag links, deleted ones included. */
-async function loadTransaction(loader: Loader, id: string) {
-  await Promise.all([
-    loadKeys(loader, "transactions", [id]),
-    loadSet(loader, "entries", { transactionId: id }),
-    loadSet(loader, "transactionTags", { transactionId: id }),
-  ]);
-}
-
-/** The rows that `checkTransactionRows` may look up for a Transaction of this shape. */
-export async function loadNamedRows(
-  loader: Loader,
-  shape: {
-    categoryId?: string | null;
-    payeeId?: string | null;
-    memberId?: string | null;
-    refundOfId?: string | null;
-    ruleId?: string | null;
-    entries: readonly { id?: string; accountId: string }[];
-    tagIds: readonly string[];
-  },
-) {
-  await Promise.all([
-    loadKeys(loader, "categories", [shape.categoryId]),
-    loadKeys(
-      loader,
-      "accounts",
-      shape.entries.map((entry) => entry.accountId),
-    ),
-    loadKeys(
-      loader,
-      "entries",
-      shape.entries.map((entry) => entry.id),
-    ),
-    loadKeys(loader, "tags", shape.tagIds),
-    loadKeys(loader, "payees", [shape.payeeId]),
-    loadKeys(loader, "members", [shape.memberId]),
-    loadKeys(loader, "transactions", [shape.refundOfId]),
-    loadKeys(loader, "rules", [shape.ruleId]),
-  ]);
-}
-
-async function loadCreate(loader: Loader, input: TransactionInput) {
-  await Promise.all([
-    loadTransaction(loader, input.id),
-    loadNamedRows(loader, input),
-  ]);
-}
-
-async function loadUpdate(
-  loader: Loader,
-  id: string,
-  patch: TransactionPatch | undefined,
-) {
-  await loadTransaction(loader, id);
-  const existing = loader.strict.draft.get("transactions", id);
-  if (!existing || !patch) return;
-  await loadNamedRows(loader, {
-    ...existing,
-    ...patch,
-    entries: patch.entries ?? [],
-    tagIds: patch.tagIds ?? [],
-  });
-}
-
-async function loadPutValuation(
-  loader: Loader,
-  args: MutationArgs<"putValuation">,
-) {
-  const { accountId, on } = args;
-  await Promise.all([
-    loadKeys(loader, "accounts", [accountId]),
-    loadKeys(loader, "valuations", [args.id]),
-    loadSet(loader, "valuations", { accountId, on }),
-  ]);
-  const { draft } = loader.strict;
-  if (
-    draft.where("valuations", { accountId, on }).some((row) => !row.deletedAt)
-  ) {
-    return;
-  }
-  loader.strict.addBalanceAt(
-    accountId,
-    on,
-    await valuationRepository.balanceAt(loader.scope, accountId, on),
-  );
-}
-
-async function loadUpsertAccount(
-  loader: Loader,
-  args: MutationArgs<"upsertAccount">,
-) {
-  const { scope, strict } = loader;
-  await Promise.all([
-    loadKeys(loader, "accounts", [args.id, args.defaultPaymentAccountId]),
-    loadKeys(loader, "members", [args.ownerMemberId]),
-  ]);
-  const existing = strict.draft.get("accounts", args.id);
-  const domains = present([
-    args.institutionDomain,
-    existing?.institutionDomain,
-    existing?.guessedInstitutionDomain,
-  ]);
-  const [versions] = await Promise.all([
-    institutionCacheRepository.findIconVersions(scope.db, domains),
-    loadKeys(loader, "accountGroups", [args.groupId ?? existing?.groupId]),
-    ...(existing && args.deleted
-      ? (["entries", "valuations", "bankLinks"] as const).map((table) =>
-          loadHasLive(loader, table, { accountId: args.id }),
-        )
-      : []),
-  ]);
   for (const domain of domains) {
     strict.addInstitutionIconVersion(domain, versions.get(domain) ?? null);
   }
 }
 
-/** Loads the rows `mutation` reads into `strict`, and the context it needs. */
+async function loadFact(
+  scope: RepositoryScope,
+  strict: StrictDraft,
+  fact: Fact,
+) {
+  if (fact.kind === "hasLive") {
+    strict.addHasLive(
+      fact.table,
+      fact.match,
+      await draftRowRepository.hasLive(scope, fact.table, fact.match),
+    );
+    return;
+  }
+  strict.addBalanceAt(
+    fact.accountId,
+    fact.day,
+    await valuationRepository.balanceAt(scope, fact.accountId, fact.day),
+  );
+}
+
+/**
+ * Loads `reads` into `strict` at once: one query for each table's rows by
+ * key, one for each table's rows by fields, one for the icon versions, and
+ * one for each fact.
+ */
+export async function loadReads(
+  scope: RepositoryScope,
+  strict: StrictDraft,
+  reads: readonly (Read | undefined)[],
+): Promise<void> {
+  const keys = new Map<DraftTableName, (string | null | undefined)[]>();
+  const matches = new Map<
+    DraftTableName,
+    Partial<ReplicaRow<DraftTableName>>[]
+  >();
+  const domains: (string | null | undefined)[] = [];
+  const facts: Fact[] = [];
+  for (const each of reads) {
+    if (!each) continue;
+    switch (each.kind) {
+      case "get": {
+        append(keys, each.table, each.keys);
+        break;
+      }
+      case "where": {
+        append(matches, each.table, [each.match]);
+        break;
+      }
+      case "institutionIconVersion": {
+        domains.push(...each.domains);
+        break;
+      }
+      case "hasLive":
+      case "balanceAt": {
+        facts.push(each);
+        break;
+      }
+    }
+  }
+  await Promise.all([
+    ...[...keys].map(([table, wanted]) =>
+      loadKeys(scope, strict, table, wanted),
+    ),
+    ...[...matches].map(([table, sought]) =>
+      loadSets(scope, strict, table, sought),
+    ),
+    loadIconVersions(scope, strict, domains),
+    ...facts.map((fact) => loadFact(scope, strict, fact)),
+  ]);
+}
+
+/** Loads into `strict` the rows that `mutation` declares it reads, stage by stage. */
 export async function loadMutationRows(
   scope: RepositoryScope,
   strict: StrictDraft,
   mutation: MutationCall,
 ): Promise<void> {
-  const loader: Loader = { scope, strict };
-  switch (mutation.name) {
-    case "createTransaction": {
-      await loadCreate(loader, mutation.args);
-      return;
-    }
-    case "updateTransaction": {
-      await loadUpdate(loader, mutation.args.id, mutation.args.patch);
-      return;
-    }
-    case "confirmExpected": {
-      await loadUpdate(loader, mutation.args.id, mutation.args.patch);
-      return;
-    }
-    case "deleteTransaction":
-    case "restoreTransaction":
-    case "skipExpected": {
-      await loadTransaction(loader, mutation.args.id);
-      return;
-    }
-    case "putValuation": {
-      await loadPutValuation(loader, mutation.args);
-      return;
-    }
-    case "deleteValuation": {
-      await loadKeys(loader, "valuations", [mutation.args.id]);
-      return;
-    }
-    case "upsertAccount": {
-      await loadUpsertAccount(loader, mutation.args);
-      return;
-    }
-    case "upsertGroup": {
-      const { id, side, deleted } = mutation.args;
-      await Promise.all([
-        loadKeys(loader, "accountGroups", [id]),
-        side !== undefined || deleted
-          ? loadSet(loader, "accounts", { groupId: id })
-          : undefined,
-      ]);
-      return;
-    }
-    case "upsertCategory": {
-      const { id, deleted } = mutation.args;
-      await Promise.all([
-        loadSet(loader, "categories", {}),
-        deleted
-          ? loadHasLive(loader, "transactions", { categoryId: id })
-          : undefined,
-      ]);
-      return;
-    }
-    case "upsertPayee": {
-      const { id, defaultCategoryId, defaultAccountId } = mutation.args;
-      await Promise.all([
-        loadKeys(loader, "payees", [id]),
-        loadKeys(loader, "categories", [defaultCategoryId]),
-        loadKeys(loader, "accounts", [defaultAccountId]),
-      ]);
-      return;
-    }
-    case "mergePayee": {
-      const { fromId, intoId } = mutation.args;
-      await Promise.all([
-        loadKeys(loader, "payees", [fromId, intoId]),
-        loadSet(loader, "transactions", { payeeId: fromId }),
-        loadSet(loader, "rules", {}),
-      ]);
-      return;
-    }
-    case "upsertTag": {
-      await loadKeys(loader, "tags", [mutation.args.id]);
-      return;
-    }
-    case "upsertMember": {
-      await loadKeys(loader, "members", [mutation.args.id]);
-      return;
-    }
-    case "upsertRule": {
-      const { id, template, deleted } = mutation.args;
-      await Promise.all([
-        loadKeys(loader, "rules", [id]),
-        template ? loadNamedRows(loader, template) : undefined,
-        deleted
-          ? loadSet(loader, "transactions", { ruleId: id, status: "expected" })
-          : undefined,
-      ]);
-      const entries = autoPostEntriesOf(
-        strict.draft.get("rules", id),
-        mutation.args,
-      );
-      await Promise.all(
-        present(entries.map((entry) => entry.accountId)).map((accountId) =>
-          loadHasLive(loader, "bankLinks", { accountId }),
-        ),
-      );
-      if (deleted) {
-        const expected = strict.draft.where("transactions", {
-          ruleId: id,
-          status: "expected",
-        });
-        await loadEntriesOf(
-          loader,
-          expected.map((row) => row.id),
-        );
-      }
-      return;
-    }
+  for (const stage of bindMutation(mutation).reads) {
+    await loadReads(scope, strict, stage(strict.draft));
   }
 }
