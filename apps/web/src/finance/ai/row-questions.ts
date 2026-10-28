@@ -44,7 +44,7 @@ export function pairLabel(accountName: string, date: string) {
 
 /** The question whether a Tag applies. */
 export function tagInstructions(tagName: string) {
-  return `Does the household put the tag "${tagName}" on transactions like \`bank_row\`? Yes only when past transactions like it carry this tag, or the household's instructions ask for it.`;
+  return `Does the tag "${tagName}" apply to \`bank_row\`? Yes only when the household's instructions or past transactions like it say so.`;
 }
 
 export type Kind = "expense" | "income" | "transfer";
@@ -94,6 +94,7 @@ export interface HouseholdQuestions {
   pathOf: (categoryId: string) => string;
   accounts: ReadonlyMap<string, LabellingAccount>;
   described: ReadonlyMap<string, Record<string, ContentValue>>;
+  accountList: Record<string, ContentValue>[];
   payeeKeys: ReadonlyMap<string, string>;
   expenseCategory?: Options<string>;
   incomeCategory?: Options<string>;
@@ -139,8 +140,10 @@ function amountOf(amountMinor: number, currency: string) {
   return `${minorUnitsToDecimalString(amountMinor, currency)} ${currency}`;
 }
 
-function describeAccounts(context: LabellingContext) {
-  const names = new Map(context.accounts.map((each) => [each.id, each.name]));
+function describeAccounts(
+  context: LabellingContext,
+  names: ReadonlyMap<string, string>,
+) {
   const members = new Map(context.members.map((each) => [each.id, each.name]));
   return new Map(
     context.accounts.map((account): [string, Record<string, ContentValue>] => [
@@ -164,6 +167,22 @@ function describeAccounts(context: LabellingContext) {
       },
     ]),
   );
+}
+
+function listAccounts(
+  context: LabellingContext,
+  names: ReadonlyMap<string, string>,
+): Record<string, ContentValue>[] {
+  return context.accounts
+    .filter((each) => !each.isSystem)
+    .map((each) => ({
+      name: each.name,
+      kind: each.kind,
+      ...(each.institution ? { institution: each.institution } : {}),
+      ...(each.defaultPaymentAccountId
+        ? { paid_from: names.get(each.defaultPaymentAccountId) ?? "?" }
+        : {}),
+    }));
 }
 
 function describePast(
@@ -191,7 +210,7 @@ function describePast(
 }
 
 const EVIDENCE =
-  "Follow `household_instructions` first: they override everything else. Then copy the labels of `past_transactions_with_similar_bank_text`: when they disagree, a label a member gave beats a label the AI gave, and a recent label beats an old one. Use common knowledge of merchants only when neither says.";
+  "`household_instructions` override everything. Next, copy `past_transactions_with_similar_bank_text`: a member's label beats the AI's, and a recent label beats an old one. Use common knowledge only when neither decides.";
 
 function categoryOptions(
   context: LabellingContext,
@@ -206,8 +225,8 @@ function categoryOptions(
   if (categories.length === 0) return undefined;
   const premise =
     kind === "expense"
-      ? "Suppose `bank_row` is an expense: money spent, or a refund of a purchase."
-      : "Suppose `bank_row` is an income: money earned or received.";
+      ? "Suppose `bank_row` is an expense, or the refund of one."
+      : "Suppose `bank_row` is an income.";
   return optionsOf(
     `${premise} Which of the household's ${kind} categories does it belong to? ${EVIDENCE}`,
     categories.map((category) => ({
@@ -224,7 +243,7 @@ function categoryOptions(
 function memberOptions(context: LabellingContext) {
   if (context.members.length < 2) return undefined;
   return optionsOf(
-    "Which member of the household made the transaction of `bank_row`? Choose a member only when past transactions like this one or the household's instructions show it; else unknown.",
+    "Whose transaction is `bank_row`? Choose a member only when the household's instructions or past transactions like it show it.",
     [
       ...context.members.map((member) => ({
         label: member.name,
@@ -233,7 +252,7 @@ function memberOptions(context: LabellingContext) {
       })),
       {
         label: UNKNOWN_MEMBER,
-        description: "Nothing shows which member it was",
+        description: "Nothing shows whose it is",
         value: null,
       },
     ],
@@ -256,11 +275,15 @@ export function householdQuestions(
     ]),
   );
   const pathOf = (categoryId: string) => paths.get(categoryId) ?? "?";
+  const accountNames = new Map(
+    context.accounts.map((each) => [each.id, each.name]),
+  );
   return {
     context,
     pathOf,
     accounts: new Map(context.accounts.map((each) => [each.id, each])),
-    described: describeAccounts(context),
+    described: describeAccounts(context, accountNames),
+    accountList: listAccounts(context, accountNames),
     payeeKeys: new Map(
       context.payees.map((payee) => [payee.id, payeeNameKey(payee.name)]),
     ),
@@ -294,6 +317,7 @@ export function rowState(
       merchant: row.merchant || "-",
       description: row.description || "-",
     },
+    household_accounts: household.accountList,
     past_transactions_with_similar_bank_text:
       past.length > 0
         ? past.map((found) => describePast(found, household.pathOf))
@@ -306,7 +330,7 @@ function kindOptions(row: RowToLabel) {
     {
       label: "expense",
       description:
-        "Money spent: a purchase, a bill, a fee, or a payment to another person. Money back from a shop (a refund) is an expense too.",
+        "Someone outside the household, whom the household pays or who refunds the household",
       value: "expense",
     },
   ];
@@ -314,18 +338,17 @@ function kindOptions(row: RowToLabel) {
     options.push({
       label: "income",
       description:
-        "Money earned or received from outside the household: salary, interest, a gift, a tax refund, money from another person.",
+        "Someone outside the household, who pays the household for anything but a refund",
       value: "income",
     });
   }
   options.push({
     label: "transfer",
-    description:
-      "Money moved between two accounts of the household itself: to or from savings, a pot or an ISA, a credit card repayment, an own account at another bank. A payment to another person is not a transfer.",
+    description: "An account in `household_accounts`",
     value: "transfer",
   });
   return optionsOf(
-    `What kind of movement of money is \`bank_row\`? ${EVIDENCE}`,
+    `Who is on the other side of the money in \`bank_row\`? ${EVIDENCE}`,
     options,
   );
 }
@@ -374,19 +397,18 @@ function payeeOptions(
     if (isKnown(name)) continue;
     options.push({
       label: newPayeeLabel(name),
-      description: "A new payee: this name is cut from the bank text",
+      description: "A new payee, named from the bank text",
       value: { name },
       outcome: "new payee",
     });
   }
   options.push({
     label: NO_PAYEE,
-    description:
-      "The bank text names no merchant or person, such as a bare reference number",
+    description: "The bank text names no merchant or person",
     value: null,
   });
   return optionsOf(
-    `Who is the payee of \`bank_row\`: the merchant or person the money went to or came from? Prefer a payee the household already has, also when the bank text writes its name differently ("AMZN MKTP" is Amazon). Never choose a new payee for a merchant or person the household already has. Else choose the new payee whose name is the shortest full name of the merchant or person, without store numbers, towns, card words or reference codes. For a delivery platform or marketplace, choose the platform. ${EVIDENCE}`,
+    `Who is the payee of \`bank_row\`: the merchant or person on the other side of the money? When the household already has that payee, choose it, however the bank text writes its name. Else choose the new payee with the shortest full name of that merchant or person. When a platform takes the payment for a seller, the payee is the platform. ${EVIDENCE}`,
     options,
   );
 }
@@ -425,8 +447,7 @@ function transferOptions(
     return {
       label: pairLabel(account?.name ?? "?", other.date),
       description: {
-        about:
-          "Another bank row that arrived with this one: the other side of the same transfer",
+        about: "A bank row that arrived with this one",
         account: account?.name ?? "?",
         date: other.date,
         amount: amountOf(other.amountMinor, currency),
@@ -457,11 +478,11 @@ function transferOptions(
   options.push({
     label: UNKNOWN_ACCOUNT,
     description:
-      "An account of the household that is not in this list, or that the bank text does not identify",
+      "An account of the household that is not listed, or that the bank text does not identify",
     value: { type: "unknown" },
   });
   return optionsOf(
-    `Suppose \`bank_row\` is a transfer between two of the household's own accounts. Where is the other side? When another bank row that arrived with it is the other side, choose that bank row. A credit card repayment goes from the card's payment account to the card, usually near its payment due day. ${EVIDENCE}`,
+    `Suppose \`bank_row\` is a transfer between two of the household's own accounts. Which is the other side? When a bank row that arrived with it is the other side, choose that bank row. ${EVIDENCE}`,
     options,
   );
 }
@@ -477,7 +498,7 @@ function paysDownOptions(household: HouseholdQuestions, row: RowToLabel) {
   );
   if (accounts.length === 0) return undefined;
   return optionsOf(
-    "Suppose `bank_row` is an expense or an income. Does it also pay down a loan, or change money that someone owes the household, such as a mortgage payment, an instalment, or a friend paying back? Choose that account only when past transactions like this one have an extra entry on it, or the household's instructions say so.",
+    "Suppose `bank_row` is an expense or an income. Does it also change the balance of one of these loan or receivable accounts? Choose an account only when the household's instructions say so or past transactions like it have an entry on it.",
     [
       ...accounts.map((account) => ({
         label: account.name,
@@ -486,7 +507,7 @@ function paysDownOptions(household: HouseholdQuestions, row: RowToLabel) {
       })),
       {
         label: NO_LOAN,
-        description: "It changes no loan and no money owed",
+        description: "It changes none of them",
         value: null,
       },
     ],
