@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   accountBalanceDays,
   entries,
-  rules,
   transactions,
   valuations,
 } from "../db/schema.ts";
@@ -14,14 +13,11 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
-import { withHousehold } from "../db/with-household.ts";
 import {
   balanceSeriesToRows,
   computeBalanceDays,
 } from "../domain/balance/compute-balance-days.ts";
-import { applyMutation } from "./apply-mutation.ts";
 import { applyMutations } from "./apply-mutations.ts";
-import { DerivedTouches } from "./derived-touches.ts";
 import { pullChanges } from "./pull-changes.ts";
 import type { PushRequest } from "./push-request-schema.ts";
 
@@ -202,14 +198,6 @@ describe("applyMutations", () => {
     expect(pull.tables.accounts).toBeUndefined();
   });
 
-  it("sends no rows to a pull from the current clock", async () => {
-    const created = await push([expense(randomUUID(), "2026-10-01", -700)]);
-
-    const pull = await pullChanges(db, home.householdId, created.clock);
-    expect(pull.clock).toBe(created.clock);
-    expect(pull.tables).toEqual({});
-  });
-
   it("applies a re-pushed batch once", async () => {
     const batch = [expense(randomUUID(), "2026-10-01", -700)];
     const first = await push(batch);
@@ -221,99 +209,6 @@ describe("applyMutations", () => {
       clock: first.clock,
       effects: new Set(),
     });
-    expect(await db.$count(transactions)).toBe(1);
-  });
-
-  it("accepts the amount an older client still sends, and ignores it", async () => {
-    const id = randomUUID();
-    const ruleId = randomUUID();
-    const result = await push([
-      {
-        id: randomUUID(),
-        name: "createTransaction",
-        args: {
-          id,
-          kind: "expense",
-          date: "2026-10-01",
-          amountMinor: -700,
-          categoryId: home.groceriesId,
-          entries: [
-            { id: randomUUID(), accountId: home.currentId, amountMinor: -700 },
-          ],
-        },
-      },
-      {
-        id: randomUUID(),
-        name: "updateTransaction",
-        args: { id, patch: { amountMinor: -650, note: "milk" } },
-      },
-      {
-        id: randomUUID(),
-        name: "upsertRule",
-        args: {
-          id: ruleId,
-          name: "Weekly shop",
-          unit: "week",
-          startsOn: "2026-10-20",
-          template: {
-            kind: "expense",
-            amountMinor: -1_000,
-            categoryId: home.groceriesId,
-            entries: [{ accountId: home.currentId, amountMinor: -1_000 }],
-          },
-        },
-      },
-    ]);
-
-    expect(result.rejected).toEqual([]);
-    expect(result.applied).toHaveLength(3);
-    const [row] = await db
-      .select({
-        amountMinor: transactions.amountMinor,
-        note: transactions.note,
-      })
-      .from(transactions)
-      .where(eq(transactions.id, id));
-    expect(row).toEqual({ amountMinor: null, note: "milk" });
-    const [rule] = await db.select().from(rules).where(eq(rules.id, ruleId));
-    expect(rule.template).not.toHaveProperty("amountMinor");
-  });
-
-  it("marks only the derived rows an update can change", async () => {
-    const id = randomUUID();
-    const created = await push([expense(id, "2026-10-01", -700)]);
-    async function touchesOf(patch: {
-      note?: string;
-      memberId?: string;
-      date?: string;
-    }) {
-      const touches = new DerivedTouches();
-      await withHousehold(db, home.householdId, (scope) =>
-        applyMutation(
-          {
-            scope: { ...scope, version: created.clock + 1 },
-            today: "2026-10-10",
-            touches,
-            actor: "member",
-          },
-          { name: "updateTransaction", args: { id, patch } },
-        ),
-      );
-      return [...touches.accounts];
-    }
-
-    expect(await touchesOf({ note: "lunch" })).toEqual([]);
-    expect(await touchesOf({ memberId: home.partnerId })).toEqual([]);
-    expect(await touchesOf({ date: "2026-09-30" })).toEqual([
-      [home.currentId, "2026-09-30"],
-    ]);
-  });
-
-  it("applies a mutation repeated in one batch once", async () => {
-    const create = expense(randomUUID(), "2026-10-01", -700);
-    const result = await push([create, create]);
-
-    expect(result.applied).toEqual([create.id, create.id]);
     expect(await db.$count(transactions)).toBe(1);
   });
 

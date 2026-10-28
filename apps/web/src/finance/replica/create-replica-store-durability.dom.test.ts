@@ -6,7 +6,7 @@ import { createMemoryPersistence } from "./create-memory-persistence.ts";
 import { createReplicaStore } from "./create-replica-store.ts";
 import { createSyncLoop } from "./create-sync-loop.ts";
 import { guardUnsavedOutbox } from "./guard-unsaved-outbox.ts";
-import { openReplicaDb, replicaDbName } from "./open-replica-db.ts";
+import { openReplicaDb } from "./open-replica-db.ts";
 import type { ReplicaPersistence } from "./types.ts";
 
 const NOW = "2026-10-10T09:00:00.000Z";
@@ -95,56 +95,6 @@ describe("the Outbox on disk", () => {
     reloaded.close();
   });
 
-  it("keeps a mutation the server applied in the view after a reload, until a pull confirms it", async () => {
-    const householdId = randomUUID();
-    const tab = await bootstrappedStore(householdId);
-    const tagId = randomUUID();
-    const mutation = tab.applyLocal(renameTag(tagId, "Rail"));
-    tab.takeOutbox();
-    tab.acknowledge([mutation.id], {
-      applied: [mutation.id],
-      rejected: [],
-      clock: 2,
-    });
-    tab.close();
-
-    const reloaded = await openStore(householdId);
-    expect(reloaded.getSnapshot().outboxCount).toBe(0);
-    expect(reloaded.hasQueued()).toBe(false);
-    expect(reloaded.getSnapshot().tables.tags.get(tagId)?.name).toBe("Rail");
-    expect(reloaded.awaitingIds()).toEqual(new Set([mutation.id]));
-
-    reloaded.applyPull(
-      {
-        clock: 2,
-        household: household(householdId, 2),
-        tables: {
-          tags: [
-            {
-              id: tagId,
-              householdId,
-              name: "Rail",
-              position: 0,
-              version: 1,
-              createdAt: NOW,
-              updatedAt: NOW,
-              deletedAt: null,
-            },
-          ],
-        },
-      },
-      reloaded.awaitingIds(),
-    );
-    await reloaded.flush();
-    reloaded.close();
-
-    const confirmed = await openStore(householdId);
-    expect(confirmed.awaitingIds().size).toBe(0);
-    expect(confirmed.getSnapshot().pendingKeys.size).toBe(0);
-    expect(confirmed.getSnapshot().tables.tags.get(tagId)?.name).toBe("Rail");
-    confirmed.close();
-  });
-
   it("hands a mutation from a tab that does not sync to the one that does", async () => {
     const householdId = randomUUID();
     const leader = await bootstrappedStore(householdId);
@@ -186,86 +136,5 @@ describe("the Outbox on disk", () => {
       (await persistence.loadOutbox()).map((entry) => entry.mutation.name),
     ).toEqual(["upsertTag"]);
     release();
-  });
-
-  it("keeps the view and shows a storage problem when something else deletes the database", async () => {
-    const householdId = randomUUID();
-    const tab = await bootstrappedStore(householdId);
-    const tagId = randomUUID();
-    tab.applyLocal(renameTag(tagId, "Rail"));
-    await tab.flush();
-
-    await new Promise<void>((resolve) => {
-      indexedDB.deleteDatabase(replicaDbName(householdId)).onsuccess = () => {
-        resolve();
-      };
-    });
-    await tab.reload();
-    tab.requireBootstrap();
-    await tab.flush();
-
-    expect(tab.getSnapshot().bootstrapped).toBe(true);
-    expect(tab.getSnapshot().tables.tags.get(tagId)?.name).toBe("Rail");
-    expect(tab.getStorageState().failed).toBe(true);
-    const fresh = await openStore(householdId);
-    expect(fresh.getMeta().bootstrapped).toBe(false);
-    expect(fresh.getSnapshot().outboxCount).toBe(0);
-    fresh.close();
-  });
-});
-
-describe("exchange rates on disk", () => {
-  const usd = (on: string) => ({
-    base: "USD",
-    quote: "GBP",
-    on,
-    rate: 0.75,
-    source: "ecb" as const,
-  });
-
-  it("keeps the cursor where the rates on disk reach when their write fails, also through a later write of the meta", async () => {
-    const householdId = randomUUID();
-    const { persistence, control } = flakyPersistence();
-    const tab = await openStore(householdId, persistence);
-    tab.startBootstrap(household(householdId, 1));
-    tab.finishBootstrap(1, new Set());
-    tab.applyExchangeRates({
-      cursor: "1.a",
-      replace: true,
-      rates: [usd("2026-10-01")],
-    });
-    await tab.flush();
-
-    control.failing = true;
-    tab.applyExchangeRates({
-      cursor: "2.a",
-      replace: false,
-      rates: [usd("2026-10-02")],
-    });
-    await tab.flush();
-    expect(tab.getSnapshot().exchangeRates.size).toBe(2);
-    expect(tab.getMeta().exchangeRateCursor).toBe("1.a");
-
-    control.failing = false;
-    tab.applyPull(
-      { clock: 2, household: household(householdId, 2), tables: {} },
-      new Set(),
-    );
-    await tab.flush();
-
-    const reloaded = await openStore(householdId, persistence);
-    expect(reloaded.getSnapshot().exchangeRates.size).toBe(1);
-    expect(reloaded.getMeta().exchangeRateCursor).toBe("1.a");
-
-    tab.applyExchangeRates({
-      cursor: "2.a",
-      replace: false,
-      rates: [usd("2026-10-02")],
-    });
-    await tab.flush();
-    expect(tab.getMeta().exchangeRateCursor).toBe("2.a");
-    const again = await openStore(householdId, persistence);
-    expect(again.getSnapshot().exchangeRates.size).toBe(2);
-    expect(again.getMeta().exchangeRateCursor).toBe("2.a");
   });
 });

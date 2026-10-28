@@ -1,8 +1,3 @@
-interface PromptMessage {
-  role: string;
-  content: string | readonly { type: string; text?: string }[];
-}
-
 /** The token usage every mock model reports. */
 export const MOCK_USAGE = {
   inputTokens: {
@@ -13,15 +8,3 @@ export const MOCK_USAGE = {
   },
   outputTokens: { total: 10, text: 10, reasoning: undefined },
 };
-
-/** The text of the user messages of a prompt. */
-export function userText(prompt: readonly PromptMessage[]) {
-  return prompt
-    .filter((message) => message.role === "user")
-    .flatMap((message) =>
-      typeof message.content === "string"
-        ? [message.content]
-        : message.content.map((part) => part.text ?? ""),
-    )
-    .join("\n");
-}

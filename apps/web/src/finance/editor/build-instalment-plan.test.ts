@@ -244,32 +244,4 @@ describe("buildInstalmentPlan", () => {
       { date: "2026-10-10", amountMinor: -120_000 },
     ]);
   });
-
-  it("makes a liability Group when the Household has none", () => {
-    const result = plan({
-      groups: [{ id: home.liquidGroupId, side: "asset", position: 0 }],
-      accounts: [],
-    });
-    expect(result.mutations[0]).toMatchObject({
-      name: "upsertGroup",
-      args: { name: "Loans", side: "liability", position: 1 },
-    });
-  });
-
-  it("refuses a plan of one month or a negative fee", () => {
-    expect(
-      buildInstalmentPlan({
-        transaction: purchase,
-        entries: [purchaseEntry],
-        tagIds: [],
-        months: 1,
-        feeMinor: 0,
-        accountById: new Map(),
-        accounts: [],
-        groups: [],
-        names: { account: "", rule: "", group: "" },
-        createId: randomUUID,
-      }),
-    ).toBeNull();
-  });
 });

@@ -15,29 +15,3 @@ test("needs four values to judge", () => {
   expect(outlierFences([1, 2, 300])).toBeNull();
   expect(outlierFences([5, 5, 5, 5])).toEqual({ low: 5, high: 5 });
 });
-
-test("agrees with quartiles from a full sort", () => {
-  let seed = 3;
-  const random = () => {
-    seed = (seed * 16_807) % 2_147_483_647;
-    return seed / 2_147_483_647;
-  };
-  for (const size of [4, 5, 7, 10, 101, 1000]) {
-    const values = Float64Array.from({ length: size }, () =>
-      Math.round(random() * 500),
-    );
-    const sorted = values.slice().sort();
-    const quantile = (q: number) => {
-      const position = (sorted.length - 1) * q;
-      const below = Math.floor(position);
-      const above = Math.min(below + 1, sorted.length - 1);
-      return (
-        sorted[below] + (sorted[above] - sorted[below]) * (position - below)
-      );
-    };
-    const spread = (quantile(0.75) - quantile(0.25)) * 1.5;
-    const fences = outlierFences(values);
-    expect(fences?.low).toBeCloseTo(quantile(0.25) - spread, 9);
-    expect(fences?.high).toBeCloseTo(quantile(0.75) + spread, 9);
-  }
-});

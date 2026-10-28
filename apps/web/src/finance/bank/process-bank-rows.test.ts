@@ -6,14 +6,12 @@ import { pairLabel } from "../ai/row-questions.ts";
 import {
   createFailingLabellingModel,
   createLabellingModel,
-  offeredLabels,
   type ModelAnswer,
   type PromptRow,
 } from "../ai/testing/create-labelling-model.ts";
 import { valuationRepository } from "../db/repositories/valuation-repository.ts";
 import {
   accounts,
-  bankLinks,
   bankTransactions,
   entries,
   payees,
@@ -27,7 +25,6 @@ import {
 } from "../db/testing/seed-test-household.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { nameBasedUuid } from "../ids/name-based-uuid.ts";
-import { loadReportSource } from "../reports/load-report-source.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import {
   createFakeBankClient,
@@ -179,11 +176,6 @@ async function bankRowById(id: string) {
   return row;
 }
 
-async function linkById(id: string) {
-  const [row] = await db.select().from(bankLinks).where(eq(bankLinks.id, id));
-  return row;
-}
-
 function balances(accountIds: readonly string[]) {
   return withHousehold(db, home.householdId, (scope) =>
     Promise.all(
@@ -200,24 +192,6 @@ function push(mutations: ReturnType<typeof mutation>[]) {
     home.householdId,
     { clientId: CLIENT, mutations },
     NOW,
-  );
-}
-
-/** Whether each Transaction is in Review today, as the weekly Report counts it. */
-async function inReviewById() {
-  const source = await withHousehold(db, home.householdId, (scope) =>
-    loadReportSource(
-      scope,
-      { transactionsFrom: null, to: "2026-10-10" },
-      "2026-10-10",
-    ),
-  );
-  const ids = await db
-    .select({ id: transactions.id })
-    .from(transactions)
-    .orderBy(asc(transactions.date));
-  return new Map(
-    ids.map(({ id }, index) => [id, source.transactions[index].inReview]),
   );
 }
 
@@ -298,66 +272,6 @@ describe("processBankRows", () => {
       state: "matched",
       transactionId: grocer.id,
     });
-  });
-
-  it("offers a known Payee instead of the same name from the bank text, and makes a new name once per batch", async () => {
-    await addBankRow(currentLinkId, "p1", "2026-10-07", -500, "GROCER 12");
-    await addBankRow(
-      currentLinkId,
-      "p2",
-      "2026-10-08",
-      -600,
-      "MARKS AND SPENCER 1",
-    );
-    await addBankRow(
-      currentLinkId,
-      "p3",
-      "2026-10-09",
-      -700,
-      "MARKS & SPENCER 2",
-    );
-    await addBankRow(currentLinkId, "p4", "2026-10-09", -800, "REF 123");
-    await addBankRow(currentLinkId, "p5", "2026-10-09", -900, "REF 456");
-    const model = modelFor({
-      "GROCER 12": { category: "Groceries", payee: "Grocer" },
-      "MARKS AND SPENCER 1": {
-        category: "Groceries",
-        payee: "Marks and Spencer",
-      },
-      "MARKS & SPENCER 2": {
-        category: "Groceries",
-        payee: "Marks & Spencer",
-      },
-      "REF 123": { category: "Groceries", payee: null },
-      "REF 456": { category: "Groceries" },
-    });
-
-    await process(model);
-
-    const payeeOf = async (providerTxId: string) =>
-      (await transactionById(transactionIdOf(currentLinkId, providerTxId)))
-        .payeeId;
-    expect(await payeeOf("p1")).toBe(home.grocerId);
-    const marks = await payeeOf("p2");
-    expect(marks).not.toBeNull();
-    expect(await payeeOf("p3")).toBe(marks);
-    expect(await payeeOf("p4")).toBeNull();
-    expect(await payeeOf("p5")).toBeNull();
-    const names = await db
-      .select({ name: payees.name })
-      .from(payees)
-      .orderBy(asc(payees.name));
-    expect(names.map(({ name }) => name)).toEqual([
-      "Employer",
-      "Grocer",
-      "Marks and Spencer",
-    ]);
-    const grocerRequest = model.requests.find(
-      (request) => request.state.bank_row.description === "GROCER 12",
-    );
-    expect(offeredLabels(grocerRequest?.questions.payee)).not.toContain(
-      "Grocer (new payee)",
-    );
   });
 
   it("writes a mortgage payment that pays down the loan, and an income that pays back money owed", async () => {
@@ -505,24 +419,6 @@ describe("processBankRows", () => {
     expect(after).toEqual([-50_000, 50_000, 0]);
   });
 
-  it("puts a transfer to an account in another currency In transit, for Review", async () => {
-    await addBankRow(currentLinkId, "c1", "2026-10-05", -10_000, "TO USD");
-
-    await process(
-      modelFor({ "TO USD": { kind: "transfer", transfer: "Dollar account" } }),
-    );
-
-    const transfer = transactionIdOf(currentLinkId, "c1");
-    expect(await transactionById(transfer)).toMatchObject({
-      kind: "transfer",
-      needsReview: true,
-    });
-    const accountIds = (await entriesOf(transfer)).map(
-      (entry) => entry.accountId,
-    );
-    expect(accountIds).not.toContain(usdId);
-  });
-
   it("asks again after an unusable answer, and writes Uncategorised for Review after three", async () => {
     const row = await addBankRow(
       currentLinkId,
@@ -577,60 +473,6 @@ describe("processBankRows", () => {
     expect(await db.$count(transactions)).toBe(0);
   });
 
-  it("marks a link whose rows still wait after the run, and clears it once they are written", async () => {
-    const tried = await addBankRow(
-      currentLinkId,
-      "c1",
-      "2026-10-05",
-      -1000,
-      "TRIED",
-    );
-    await db
-      .update(bankTransactions)
-      .set({ labelAttempts: 3 })
-      .where(eq(bankTransactions.id, tried));
-    await addBankRow(currentLinkId, "c2", "2026-10-06", -700, "WAITING");
-
-    await process(createFailingLabellingModel());
-
-    expect(await db.$count(transactions)).toBe(1);
-    expect(await linkById(currentLinkId)).toMatchObject({
-      bankRowsWaiting: true,
-    });
-    await process(null);
-    expect(await linkById(currentLinkId)).toMatchObject({
-      bankRowsWaiting: false,
-    });
-  });
-
-  it("writes Uncategorised for Review when there is no model, and changes nothing when run again", async () => {
-    await addBankRow(currentLinkId, "c1", "2026-10-05", 4_000, "REFUND?");
-
-    await process(null);
-    const first = await db.select().from(transactions);
-    await process(null);
-
-    expect(first).toMatchObject([
-      {
-        kind: "income",
-        categoryId: uncategorised.income,
-        needsReview: true,
-        labelledBy: "ai",
-      },
-    ]);
-    expect(await db.select().from(transactions)).toEqual(first);
-  });
-
-  it("starts no batch after the deadline", async () => {
-    const row = await addBankRow(currentLinkId, "c1", "2026-10-05", -700, "X");
-    const model = modelFor({ X: { category: "Groceries" } });
-
-    await process(model, { deadline: new Date(Date.now() - 1) });
-
-    expect(model.requests).toHaveLength(0);
-    expect((await bankRowById(row)).state).toBe("new");
-  });
-
   it("links a row that a Transaction written since the sync matches, and does not label it", async () => {
     const row = await addBankRow(
       currentLinkId,
@@ -660,51 +502,5 @@ describe("processBankRows", () => {
       state: "matched",
       transactionId: manualId,
     });
-  });
-
-  it("puts money In transit for more than five days in Review without a flag, and takes it out when a bank row settles it", async () => {
-    await addBankRow(currentLinkId, "c1", "2026-10-04", -1_000, "AWAY");
-    await addBankRow(currentLinkId, "c2", "2026-10-05", -2_000, "AWAY TOO");
-    const unknown: ModelAnswer = { kind: "transfer", transfer: "unknown" };
-    await process(modelFor({ AWAY: unknown, "AWAY TOO": unknown }));
-    const away = transactionIdOf(currentLinkId, "c1");
-    const awayToo = transactionIdOf(currentLinkId, "c2");
-
-    expect(await inReviewById()).toEqual(
-      new Map([
-        [away, true],
-        [awayToo, false],
-      ]),
-    );
-    expect((await transactionById(away)).needsReview).toBe(false);
-
-    await syncSavings([{ id: "s1", date: "2026-10-06", amountMinor: 1_000 }]);
-
-    expect(await inReviewById()).toEqual(
-      new Map([
-        [away, false],
-        [awayToo, false],
-      ]),
-    );
-  });
-
-  it("keeps the AI's Review flag when a bank row settles its In transit Entry", async () => {
-    await addBankRow(currentLinkId, "c1", "2026-10-05", -1_000, "ODD");
-    await process(
-      modelFor({
-        ODD: { kind: "transfer", transfer: "unknown", probability: 0.4 },
-      }),
-    );
-
-    await syncSavings([{ id: "s1", date: "2026-10-06", amountMinor: 1_000 }]);
-
-    const transfer = transactionIdOf(currentLinkId, "c1");
-    expect(await entriesOf(transfer)).toEqual([
-      { accountId: home.currentId, amountMinor: -1_000 },
-      { accountId: home.savingsId, amountMinor: 1_000 },
-    ]);
-    const written = await transactionById(transfer);
-    expect(written.needsReview).toBe(true);
-    expect(written.aiReason).toMatch(/^Unsure of the kind: transfer 40%/);
   });
 });

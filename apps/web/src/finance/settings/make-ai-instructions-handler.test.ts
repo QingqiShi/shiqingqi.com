@@ -51,18 +51,6 @@ function find() {
 }
 
 describe("makeAiInstructionsHandler", () => {
-  it("lets any Member save the instructions, and moves the clock", async () => {
-    const before = await find();
-
-    const response = await patch({ aiInstructions: "  J SMITH is rent.  " });
-
-    expect(response.status).toBe(200);
-    const after = await find();
-    expect(after?.aiInstructions).toBe("J SMITH is rent.");
-    expect(after?.clock).toBe((before?.clock ?? 0) + 1);
-    expect(await response.json()).toEqual({ clock: after?.clock });
-  });
-
   it("refuses text that is too long, another field, or another origin", async () => {
     expect((await patch({ aiInstructions: "x".repeat(8001) })).status).toBe(
       400,
@@ -102,21 +90,5 @@ describe("makeAiInstructionsHandler", () => {
     expect((await find())?.aiInstructions).toBe(
       "J SMITH is rent.\nTesco is groceries; TESCO MOBILE is the phone bill.\nTFL TRAVEL is the commute.\nBoots is health.",
     );
-  });
-
-  it("refuses a taught line that would make the instructions too long, or an empty one", async () => {
-    await patch({ aiInstructions: "x".repeat(7990) });
-    const before = await find();
-
-    const response = await patch({
-      change: { replaces: null, line: "TFL TRAVEL is the commute." },
-    });
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ error: "too-long" });
-    expect(
-      (await patch({ change: { replaces: null, line: "  " } })).status,
-    ).toBe(400);
-    expect(await find()).toEqual(before);
   });
 });

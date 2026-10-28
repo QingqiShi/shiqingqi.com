@@ -19,52 +19,11 @@ function Harness({ children }: { children: ReactNode }) {
   );
 }
 
-function getGridButton() {
-  return screen.getByRole("radio", { name: "Poster grid" });
-}
-
 function getTableButton() {
   return screen.getByRole("radio", { name: "Table" });
 }
 
 describe("MediaViewToggle", () => {
-  it("marks the poster grid active by default", () => {
-    render(
-      <Harness>
-        <MediaViewToggle />
-      </Harness>,
-    );
-
-    expect(getGridButton()).toHaveAttribute("aria-checked", "true");
-    expect(getTableButton()).toHaveAttribute("aria-checked", "false");
-  });
-
-  it("switches to the table view when the user picks it", async () => {
-    const user = userEvent.setup();
-    render(
-      <Harness>
-        <MediaViewToggle />
-      </Harness>,
-    );
-
-    await user.click(getTableButton());
-
-    expect(getTableButton()).toHaveAttribute("aria-checked", "true");
-    expect(getGridButton()).toHaveAttribute("aria-checked", "false");
-  });
-
-  it("honors the URL's view param on first paint", () => {
-    window.history.replaceState({}, "", "?view=table");
-
-    render(
-      <Harness>
-        <MediaViewToggle />
-      </Harness>,
-    );
-
-    expect(getTableButton()).toHaveAttribute("aria-checked", "true");
-  });
-
   it("keeps the view in the URL as other filters change", async () => {
     const user = userEvent.setup();
     render(

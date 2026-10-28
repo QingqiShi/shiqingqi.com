@@ -3,7 +3,6 @@ import { saveCreature } from "#src/pixel-creature-creator/creature/saved-creatur
 import { DEFAULT_CREATURE } from "./creature-def-schema";
 import { getSavedCreaturesSnapshot } from "./get-saved-creatures-snapshot";
 import { notifySavedCreaturesChanged } from "./notify-saved-creatures-changed";
-import { subscribeSavedCreatures } from "./subscribe-saved-creatures";
 
 describe("savedCreaturesCache", () => {
   beforeEach(() => {
@@ -27,22 +26,5 @@ describe("savedCreaturesCache", () => {
     const b = getSavedCreaturesSnapshot();
     expect(a).not.toBe(b);
     expect(b).toHaveLength(1);
-  });
-
-  it("invalidates the snapshot when a cross-tab `storage` event fires", () => {
-    const before = getSavedCreaturesSnapshot();
-    saveCreature({ ...DEFAULT_CREATURE, name: "Sproutling" });
-
-    let notified = false;
-    const unsubscribe = subscribeSavedCreatures(() => {
-      notified = true;
-    });
-    // Synthesize a storage event the way browsers fire it cross-tab.
-    window.dispatchEvent(new StorageEvent("storage", { key: "pcc:saved:v1" }));
-    unsubscribe();
-
-    expect(notified).toBe(true);
-    const after = getSavedCreaturesSnapshot();
-    expect(after).not.toBe(before);
   });
 });

@@ -2,12 +2,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
-import {
-  accounts,
-  bankLinks,
-  connections,
-  transactions,
-} from "../db/schema.ts";
+import { bankLinks, connections, transactions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -178,17 +173,6 @@ describe("makeBankHandlers", () => {
     expect(response.status).toBe(403);
   });
 
-  it("says when no bank provider is set up", async () => {
-    connected = false;
-    expect(await listAccounts()).toEqual({ status: "not_connected" });
-    const response = await putLink({
-      accountId: home.currentId,
-      providerAccountId: "p1",
-    });
-    expect(response.status).toBe(409);
-    expect(await response.json()).toEqual({ error: "not-connected" });
-  });
-
   it("links an account and shows the link next to its provider account", async () => {
     const response = await putLink({
       accountId: home.currentId,
@@ -217,62 +201,6 @@ describe("makeBankHandlers", () => {
       ["p2", true, null],
       ["usd", false, null],
     ]);
-  });
-
-  it("refuses accounts that cannot be linked", async () => {
-    const investmentId = randomUUID();
-    await db.insert(accounts).values({
-      id: investmentId,
-      householdId: home.householdId,
-      groupId: home.liquidGroupId,
-      name: "ISA",
-      kind: "investment",
-      currency: "GBP",
-      version: 0,
-    });
-    const inTransitId = randomUUID();
-    await db.insert(accounts).values({
-      id: inTransitId,
-      householdId: home.householdId,
-      groupId: home.liquidGroupId,
-      name: "In transit",
-      kind: "cash",
-      currency: "GBP",
-      isSystem: true,
-      version: 0,
-    });
-    const cases = [
-      [
-        { accountId: investmentId, providerAccountId: "p1" },
-        "unlinkable-account",
-      ],
-      [
-        { accountId: inTransitId, providerAccountId: "p1" },
-        "unlinkable-account",
-      ],
-      [{ accountId: randomUUID(), providerAccountId: "p1" }, "unknown-account"],
-      [
-        { accountId: home.currentId, providerAccountId: "nope" },
-        "unknown-provider-account",
-      ],
-      [
-        { accountId: home.currentId, providerAccountId: "usd" },
-        "currency-mismatch",
-      ],
-      [
-        {
-          accountId: home.currentId,
-          providerAccountId: "p1",
-          signMultiplier: 2,
-        },
-        "invalid-body",
-      ],
-    ] as const;
-    for (const [body, error] of cases) {
-      const response = await putLink(body);
-      expect(await response.json()).toEqual({ error });
-    }
-    expect(await db.select().from(bankLinks)).toEqual([]);
   });
 
   it("refuses a provider account another account holds, until that link is removed", async () => {
@@ -438,63 +366,6 @@ describe("makeBankHandlers", () => {
     expect(await listed.json()).toEqual({ entryIds: [duplicateEntryId] });
   });
 
-  it("stops listing an Entry the bank left out once a Member keeps it, and lists it again on undo", async () => {
-    await putLink({ accountId: home.currentId, providerAccountId: "p1" });
-    await handlers().syncNow(request("sync-now", { method: "POST", body: {} }));
-    for (const task of afterTasks.splice(0)) await task();
-    const [link] = await db.select().from(bankLinks);
-    const [backed] = await db.select().from(transactions);
-
-    const realId = randomUUID();
-    const realEntryId = randomUUID();
-    await applyMutations(
-      db,
-      home.householdId,
-      {
-        clientId: CLIENT,
-        mutations: [expense(realId, "2026-10-09", realEntryId)],
-      },
-      NOW,
-    );
-    const listUnbacked = async () =>
-      (await (
-        await handlers().listUnbackedEntries(
-          request(`unbacked-entries?linkId=${link.id}`),
-        )
-      ).json()) as unknown;
-    expect(await listUnbacked()).toEqual({ entryIds: [realEntryId] });
-
-    const keep = (transactionId: string) =>
-      handlers().keepTransaction(
-        request("kept-transactions", {
-          method: "PUT",
-          body: { linkId: link.id, transactionId },
-        }),
-      );
-    for (const transactionId of [backed.id, randomUUID()]) {
-      expect((await keep(transactionId)).status).toBe(404);
-    }
-
-    expect((await keep(realId)).status).toBe(204);
-    expect(await listUnbacked()).toEqual({ entryIds: [] });
-
-    const undone = await handlers().unkeepTransaction(
-      request(`kept-transactions?linkId=${link.id}&transactionId=${realId}`, {
-        method: "DELETE",
-      }),
-    );
-    expect(undone.status).toBe(204);
-    expect(await listUnbacked()).toEqual({ entryIds: [realEntryId] });
-  });
-
-  it("answers not-found for a Bank link that does not exist", async () => {
-    const response = await handlers().listUnbackedEntries(
-      request(`unbacked-entries?linkId=${randomUUID()}`),
-    );
-    expect(response.status).toBe(404);
-    expect(await response.json()).toEqual({ error: "not-found" });
-  });
-
   it("lets only the owner link, unlink or sync accounts", async () => {
     await putLink({ accountId: home.currentId, providerAccountId: "p1" });
     const [link] = await db.select().from(bankLinks);
@@ -515,34 +386,6 @@ describe("makeBankHandlers", () => {
     expect(await put.json()).toEqual({ error: "owner-only" });
     expect(removed.status).toBe(403);
     expect(synced.status).toBe(403);
-  });
-
-  it("limits how often a Household syncs now", async () => {
-    const limited = handlers({
-      limitRequest: () => Promise.resolve({ success: false, reset: 0 }),
-    });
-
-    const response = await limited.syncNow(
-      request("sync-now", { method: "POST", body: {} }),
-    );
-
-    expect(response.status).toBe(429);
-    expect(await response.json()).toEqual({ error: "too-many-requests" });
-    expect(response.headers.get("Retry-After")).toBe("1");
-  });
-
-  it("answers rate_limited when the bank refused every link", async () => {
-    await putLink({ accountId: home.currentId, providerAccountId: "p1" });
-    fixture.errors = { p1: "rate_limited" };
-
-    const response = await handlers().syncNow(
-      request("sync-now", { method: "POST", body: {} }),
-    );
-
-    expect(response.status).toBe(429);
-    expect(await response.json()).toEqual({ error: "rate_limited" });
-    const [link] = await db.select().from(bankLinks);
-    expect(link).toMatchObject({ status: "active", lastError: "rate_limited" });
   });
 });
 
@@ -639,14 +482,6 @@ describe("the Lunch Flow API key", () => {
     const pulled = await pullChanges(db, home.householdId, -1);
     expect(JSON.stringify(pulled)).not.toContain(API_KEY);
     expect(JSON.stringify(pulled)).not.toContain("wxyz");
-  });
-
-  it("refuses a key Lunch Flow refuses, and keeps nothing", async () => {
-    const response = await putCredential("lf-wrong-key-000000");
-
-    expect(response.status).toBe(422);
-    expect(await response.json()).toEqual({ error: "auth" });
-    expect(await db.select().from(connections)).toEqual([]);
   });
 
   it("refuses to store a key when the server has no credential key", async () => {

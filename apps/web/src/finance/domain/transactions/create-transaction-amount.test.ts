@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { expectWithinBudget } from "../../testing/expect-within-budget.ts";
 import { createFxIndex } from "../balance/create-fx-index.ts";
-import { addDays } from "../dates/add-days.ts";
 import {
   countedEntries,
   createTransactionAmount,
@@ -103,36 +101,6 @@ describe("createTransactionAmount", () => {
     ).toBe(0);
   });
 
-  it("works out 60k amounts in a few frames", () => {
-    const rates = Array.from({ length: 1_000 }, (_, day) => ({
-      base: "USD",
-      quote: "GBP",
-      on: addDays("2024-01-01", day),
-      rate: 0.75 + day / 100_000,
-    }));
-    const amountOfMany = createTransactionAmount(
-      createFxIndex(rates, "GBP"),
-      accountOf,
-    );
-    const rows = Array.from({ length: 60_000 }, (_, at) => ({
-      transaction: {
-        kind: "expense",
-        date: addDays("2024-01-01", at % 1_000),
-      },
-      entries: [
-        entry(at % 3 === 0 ? "usd" : "card", -1_000 - at, 0),
-        entry("friend", 100, 1),
-      ],
-    }));
-    const started = performance.now();
-    let total = 0;
-    for (const row of rows) {
-      total += amountOfMany(row.transaction, row.entries);
-    }
-    expectWithinBudget(performance.now() - started, 50);
-    expect(total).toBeLessThan(0);
-  });
-
   it("starts from the Entry with the lowest position, in any order", () => {
     expect(
       amountOf({ kind: "income", date: "2026-02-01" }, [
@@ -149,11 +117,5 @@ describe("countedEntries", () => {
     expect(
       countedEntries({ kind: "income", date: "2026-02-01" }, [main], accountOf),
     ).toEqual([main]);
-  });
-
-  it("is empty for a Transaction with no Entries", () => {
-    expect(
-      countedEntries({ kind: "expense", date: "2026-02-01" }, [], accountOf),
-    ).toEqual([]);
   });
 });

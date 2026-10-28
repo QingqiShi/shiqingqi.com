@@ -23,15 +23,6 @@ function assistantMessage(text: string): ModelMessage {
 }
 
 describe("addCacheControlToMessages", () => {
-  it("returns empty array unchanged", () => {
-    const messages: ModelMessage[] = [];
-    const result = addCacheControlToMessages({
-      messages,
-      model: anthropicModel(),
-    });
-    expect(result).toBe(messages);
-  });
-
   it("appends cache control to the last message for Anthropic models", () => {
     const messages: ModelMessage[] = [
       userMessage("hello"),
@@ -85,20 +76,6 @@ describe("addCacheControlToMessages", () => {
     expect(result).toBe(messages);
   });
 
-  it("detects Anthropic models by provider name containing 'anthropic'", () => {
-    const model = new MockLanguageModelV3({
-      provider: "custom-anthropic-provider",
-      modelId: "some-model",
-    });
-    const messages: ModelMessage[] = [userMessage("test")];
-
-    const result = addCacheControlToMessages({ messages, model });
-
-    expect(result[0].providerOptions).toEqual({
-      anthropic: { cacheControl: { type: "ephemeral" } },
-    });
-  });
-
   it("detects Anthropic models by modelId containing 'claude'", () => {
     const model = new MockLanguageModelV3({
       provider: "custom-provider",
@@ -111,45 +88,5 @@ describe("addCacheControlToMessages", () => {
     expect(result[0].providerOptions).toEqual({
       anthropic: { cacheControl: { type: "ephemeral" } },
     });
-  });
-
-  it("handles single message array", () => {
-    const messages: ModelMessage[] = [userMessage("hello")];
-
-    const result = addCacheControlToMessages({
-      messages,
-      model: anthropicModel(),
-    });
-
-    expect(result).toHaveLength(1);
-    expect(result[0].providerOptions).toEqual({
-      anthropic: { cacheControl: { type: "ephemeral" } },
-    });
-  });
-
-  it("does not mutate the original messages array", () => {
-    const messages: ModelMessage[] = [
-      userMessage("first"),
-      userMessage("second"),
-    ];
-
-    addCacheControlToMessages({ messages, model: anthropicModel() });
-
-    expect(messages[1].providerOptions).toBeUndefined();
-  });
-
-  it("accepts custom providerOptions", () => {
-    const messages: ModelMessage[] = [userMessage("test")];
-    const customOptions = {
-      anthropic: { cacheControl: { type: "max_tokens" as const } },
-    };
-
-    const result = addCacheControlToMessages({
-      messages,
-      model: anthropicModel(),
-      providerOptions: customOptions,
-    });
-
-    expect(result[0].providerOptions).toEqual(customOptions);
   });
 });

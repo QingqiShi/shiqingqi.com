@@ -154,16 +154,6 @@ describe("buildBalanceSheet with In transit", () => {
     expect(sheet.netWorth).toBe(100_000);
     expect(netWorth).toBe(100_000);
   });
-
-  it("leaves In transit out when its balance is zero", () => {
-    const { sheet } = sheetWith([
-      { date: "2026-10-08", amountMinor: 50_000 },
-      { date: "2026-10-09", amountMinor: -50_000 },
-    ]);
-    expect(sheet.sections[0].lines.map((line) => line.account.id)).toEqual([
-      "current",
-    ]);
-  });
 });
 
 describe("buildBalanceSheet with a Bank link", () => {

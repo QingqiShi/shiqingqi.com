@@ -2,7 +2,7 @@ import type { AuthHandlers } from "../make-auth-handlers.ts";
 
 export const TEST_ORIGIN = "http://localhost:3000";
 
-export interface TestResponse<T> {
+interface TestResponse<T> {
   status: number;
   body: T;
   setCookies: string[];

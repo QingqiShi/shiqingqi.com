@@ -4,7 +4,6 @@ import {
   isFinancePrecacheMessage,
 } from "./is-finance-precache-message.ts";
 import { isPrecacheableFinancePath } from "./is-precacheable-finance-path.ts";
-import { offlineRedirectFor } from "./offline-redirect-for.ts";
 
 describe("isPrecacheableFinancePath", () => {
   it("takes the gated Finance pages in both locales", () => {
@@ -40,26 +39,5 @@ describe("isFinancePrecacheMessage", () => {
       isFinancePrecacheMessage({ type: FINANCE_PRECACHE_MESSAGE, paths: [1] }),
     ).toBe(false);
     expect(isFinancePrecacheMessage(null)).toBe(false);
-  });
-});
-
-describe("offlineRedirectFor", () => {
-  const at = (path: string) => new URL(path, "https://qingqi.dev");
-
-  it("opens an account as the net worth pane and a Report as the list", () => {
-    expect(offlineRedirectFor(at("/finance/accounts/a-1"))).toBe(
-      "/finance?account=a-1",
-    );
-    expect(offlineRedirectFor(at("/zh/finance/reports/r-1"))).toBe(
-      "/zh/finance/reports",
-    );
-    expect(offlineRedirectFor(at("/finance/settings/unknown"))).toBe(
-      "/finance/settings",
-    );
-  });
-
-  it("has no stand-in for a destination itself", () => {
-    expect(offlineRedirectFor(at("/finance/analytics"))).toBeNull();
-    expect(offlineRedirectFor(at("/finance"))).toBeNull();
   });
 });

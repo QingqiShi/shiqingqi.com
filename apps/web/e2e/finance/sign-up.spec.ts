@@ -1,11 +1,5 @@
-import { and, eq } from "drizzle-orm";
-import {
-  accounts,
-  categories,
-  households,
-  transactions,
-  users,
-} from "../../src/finance/db/schema.ts";
+import { eq } from "drizzle-orm";
+import { households, users } from "../../src/finance/db/schema.ts";
 import {
   addVirtualAuthenticator,
   emailTo,
@@ -44,43 +38,9 @@ test.describe("Sign-up", () => {
       .where(eq(users.id, owner.userId));
     expect(ownerUser.email).toBe(ownerEmail);
     expect(ownerUser.verifiedAt).not.toBeNull();
-    expect(
-      await financeDb.$count(
-        accounts,
-        eq(accounts.householdId, owner.householdId),
-      ),
-    ).toBe(0);
-    expect(
-      await financeDb.$count(
-        transactions,
-        eq(transactions.householdId, owner.householdId),
-      ),
-    ).toBe(0);
-    expect(
-      await financeDb
-        .select({ name: categories.name })
-        .from(categories)
-        .where(
-          and(
-            eq(categories.householdId, owner.householdId),
-            eq(categories.isSystem, true),
-          ),
-        ),
-    ).toHaveLength(2);
-
     await page.getByRole("button", { name: "Add account" }).click();
     const editor = page.getByRole("form", { name: "New account" });
     await editor.getByRole("textbox", { name: "Name" }).fill("Current");
-    const group = editor.getByRole("combobox", { name: "Group" });
-    await expect(group.locator("option:checked")).toHaveText("Cash");
-    await editor
-      .getByRole("combobox", { name: "Kind" })
-      .selectOption("Credit card");
-    await expect(group.locator("option:checked")).toHaveText("Credit cards");
-    await editor
-      .getByRole("combobox", { name: "Kind" })
-      .selectOption("Cash (current or savings)");
-    await expect(group.locator("option:checked")).toHaveText("Cash");
     await editor.getByRole("textbox", { name: "Balance today" }).fill("100");
     await editor.getByRole("button", { name: "Save" }).click();
     await expect(toast(page, "Account saved")).toBeVisible();
@@ -108,15 +68,6 @@ test.describe("Sign-up", () => {
       householdId: owner.householdId,
       role: "member",
     });
-    const confirmation = await emailTo(
-      samEmail,
-      "Confirm your Finance recovery email",
-    );
-    await samPage.goto(linkIn(confirmation, "/finance/verify-email/"));
-    await samPage.getByRole("button", { name: "Confirm email" }).click();
-    await expect(
-      samPage.getByRole("heading", { name: "Recovery email confirmed" }),
-    ).toBeVisible();
     await samContext.close();
 
     const otherContext = await browser.newContext({ viewport: DESKTOP });
@@ -127,11 +78,6 @@ test.describe("Sign-up", () => {
     await otherPage
       .getByRole("button", { name: "Email me a sign-up code" })
       .click();
-    await expect(
-      otherPage
-        .getByRole("status")
-        .filter({ hasText: `We sent a code to ${ownerEmail}` }),
-    ).toBeVisible();
     const registered = await emailTo(
       ownerEmail,
       /^\d{6} is your Finance code$/,

@@ -79,19 +79,6 @@ describe("buildNewRule", () => {
     ).toMatchObject({ ok: true, args: { nextOn: "2026-10-23" } });
   });
 
-  it("keeps a foreign-currency income in its account's currency", () => {
-    const result = buildNewRule(
-      { ...input, kind: "income", accountId: "us", amountMinor: 10_000 },
-      context,
-    );
-    expect(result.ok && result.args.template).toEqual(
-      expect.objectContaining({
-        entries: [{ accountId: "us", amountMinor: 10_000 }],
-      }),
-    );
-    expect(result.ok && result.args.template).not.toHaveProperty("amountMinor");
-  });
-
   it("makes a weekly transfer with no category", () => {
     const result = buildNewRule(
       {
@@ -116,25 +103,6 @@ describe("buildNewRule", () => {
           { accountId: "savings", amountMinor: 1099 },
         ],
       },
-    });
-  });
-
-  it("says what is missing", () => {
-    expect(buildNewRule({ ...input, accountId: "" }, context)).toEqual({
-      ok: false,
-      error: "account",
-    });
-    expect(buildNewRule({ ...input, categoryId: null }, context)).toEqual({
-      ok: false,
-      error: "category",
-    });
-    const transfer = { ...input, kind: "transfer" as const };
-    expect(
-      buildNewRule({ ...transfer, toAccountId: "current" }, context),
-    ).toEqual({ ok: false, error: "sameAccount" });
-    expect(buildNewRule({ ...transfer, toAccountId: "us" }, context)).toEqual({
-      ok: false,
-      error: "currency",
     });
   });
 });

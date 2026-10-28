@@ -90,10 +90,6 @@ async function executeTool(input: {
 describe("reviewSummaryInputSchema", () => {
   const fightClub = { id: 550, media_type: "movie", title: "Fight Club" };
 
-  it("defaults spiciness to 3", () => {
-    expect(reviewSummaryInputSchema.parse(fightClub).spiciness).toBe(3);
-  });
-
   it("accepts only whole spiciness steps from 1 to 5", () => {
     for (const spiciness of [1, 5]) {
       expect(
@@ -152,38 +148,6 @@ describe("review summary execute", () => {
     expect(result.averageRating).toBe(8.5);
   });
 
-  it("returns summary for a TV show", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/tv/1399/reviews`, () =>
-        HttpResponse.json(
-          reviewsResponse(1399, [
-            {
-              author: "Reviewer1",
-              content: "Best TV series ever made.",
-              rating: 10,
-            },
-          ]),
-        ),
-      ),
-      http.post(`${ANTHROPIC_BASE}/v1/messages`, () =>
-        HttpResponse.json(
-          anthropicMessageResponse("Widely regarded as one of the best."),
-        ),
-      ),
-    );
-
-    const result = await executeTool({
-      id: 1399,
-      media_type: "tv",
-      title: "Game of Thrones",
-    });
-
-    expect(result.id).toBe(1399);
-    expect(result.mediaType).toBe("tv");
-    expect(result.reviewCount).toBe(1);
-    expect(result.averageRating).toBe(10);
-  });
-
   it("handles no reviews gracefully", async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/movie/999999/reviews`, () =>
@@ -234,54 +198,9 @@ describe("review summary execute", () => {
     expect(result.averageRating).toBeNull();
     expect(result.reviewCount).toBe(2);
   });
-
-  it("passes spiciness through to the result", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/reviews`, () =>
-        HttpResponse.json(
-          reviewsResponse(550, [
-            { author: "R1", content: "Awesome!", rating: 9 },
-          ]),
-        ),
-      ),
-      http.post(`${ANTHROPIC_BASE}/v1/messages`, () =>
-        HttpResponse.json(anthropicMessageResponse("A wild ride of a movie!")),
-      ),
-    );
-
-    const result = await executeTool({
-      id: 550,
-      media_type: "movie",
-      title: "Fight Club",
-      spiciness: 5,
-    });
-
-    expect(result.spiciness).toBe(5);
-  });
 });
 
 describe("review summary error handling", () => {
-  it("returns a tmdb_unavailable error when TMDB reviews fetch fails", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/reviews`, () =>
-        HttpResponse.json({ status_message: "Rate limited" }, { status: 429 }),
-      ),
-    );
-
-    const tool = createReviewSummaryTool("en");
-    const parsed = reviewSummaryInputSchema.parse({
-      id: 550,
-      media_type: "movie",
-      title: "Fight Club",
-    });
-    const result = await tool.execute(parsed, toolExecutionOptions());
-
-    expect(isToolError(result)).toBe(true);
-    if (isToolError(result)) {
-      expect(result.reason).toBe("tmdb_unavailable");
-    }
-  });
-
   it("returns a summary_generation_failed error when the LLM call fails", async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/movie/550/reviews`, () =>

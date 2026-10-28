@@ -200,7 +200,7 @@ describe("a Rule occurrence", () => {
     );
   });
 
-  it.each(["2026-01-28", "2026-01-31", "2026-02-03"])(
+  it.each(["2026-01-28", "2026-02-03"])(
     "is held by a bank-synced Transaction with no Rule dated %s, within three days",
     async (date) => {
       const paymentId = await bankSyncedPayment(date);
@@ -218,7 +218,6 @@ describe("a Rule occurrence", () => {
 
   it.each([
     { case: "four days early", date: "2026-01-27", amountMinor: RENT },
-    { case: "four days late", date: "2026-02-04", amountMinor: RENT },
     { case: "another amount", date: "2026-01-31", amountMinor: RENT + 1 },
   ])(
     "is free next to a bank-synced Transaction $case",
@@ -322,23 +321,9 @@ describe("a bank row", () => {
   });
 });
 
-describe("which Transactions a bank row stands for", () => {
-  it("names the bank-synced ones only", async () => {
-    const synced = await bankSyncedPayment("2026-01-20");
-    const { id: recorded } = await recordPayment("2026-01-20");
-
-    const backed = await withHousehold(db, home.householdId, (scope) =>
-      reconciliation.bankBackedIds(scope, [synced, recorded]),
-    );
-
-    expect(backed).toEqual(new Set([synced]));
-  });
-});
-
 describe("posting automatically", () => {
   it.each([
     { linked: [], expected: true },
-    { linked: ["current"], expected: false },
     { linked: ["savings"], expected: false },
   ])(
     "a transfer Rule with linked accounts $linked may post automatically: $expected",

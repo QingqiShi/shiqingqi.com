@@ -6,8 +6,8 @@ import {
 import { t } from "#src/i18n.ts";
 
 /**
- * The contrast floors the colour tokens hold, as `tokens.contrast.test.ts`
- * checks them, and the short reason they hold. The last section on the page.
+ * The contrast floors the colour tokens hold, and the short reason they hold.
+ * The last section on the page.
  */
 export function ContrastShowcase() {
   return (

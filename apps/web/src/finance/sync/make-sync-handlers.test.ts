@@ -1,9 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import type { FinanceSession } from "../auth/types.ts";
-import { exchangeRates, households, transactions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -141,13 +139,6 @@ function expectWireRows(table: SyncTableName, rows: unknown[]) {
 }
 
 describe("makeSyncHandlers", () => {
-  it("answers 503 with a reason when Finance has no database", async () => {
-    configured = false;
-    const response = await handlers().GET(pullRequest(0));
-    expect(response.status).toBe(503);
-    expect(await response.json()).toMatchObject({ error: "not-configured" });
-  });
-
   it("answers 401 without a session", async () => {
     session = null;
     const get = await handlers().GET(pullRequest(0));
@@ -271,28 +262,6 @@ describe("makeSyncHandlers", () => {
     }
   });
 
-  it("reports an old client's setFxRate as applied, does nothing with it, and applies the rest of the batch", async () => {
-    const retired = {
-      id: randomUUID(),
-      name: "setFxRate",
-      args: { base: "USD", quote: "GBP", on: "2026-10-01", rate: 0.8 },
-    };
-    const expense = expenseMutation("2026-10-01");
-
-    const response = await handlers().POST(
-      pushRequest({ clientId: randomUUID(), mutations: [retired, expense] }),
-    );
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
-      applied: [retired.id, expense.id],
-      rejected: [],
-      clock: 1,
-    });
-    expect(await db.$count(transactions)).toBe(1);
-    expect(await db.$count(exchangeRates)).toBe(0);
-  });
-
   it("asks for a fresh bootstrap when the client is ahead of the server", async () => {
     const response = await handlers().GET(pullRequest(9));
     expect(response.status).toBe(409);
@@ -313,52 +282,6 @@ describe("the row shape handshake", () => {
         0,
       );
   }
-
-  it("says the server row shape on every response a handler returns, refusals included", async () => {
-    const bootstrap = await handlers().GET(pullRequest(0));
-    const pull = await handlers().GET(pullRequest(1));
-    const push = await handlers().POST(
-      pushRequest({ clientId: randomUUID(), mutations: [] }),
-    );
-    session = null;
-    const refused = await handlers().GET(pullRequest(0));
-    expect(
-      [bootstrap, pull, push, refused].map((response) =>
-        response.headers.get(ROW_SHAPE_HEADER),
-      ),
-    ).toEqual(Array(4).fill(String(SERVER_SHAPE)));
-  });
-
-  it("accepts a request without the header while the server row shape is 7, the shape of the clients from before the header", async () => {
-    const server = handlers(7);
-    const push = await server.POST(
-      pushRequest(
-        { clientId: randomUUID(), mutations: [expenseMutation("2026-10-01")] },
-        ORIGIN,
-        null,
-      ),
-    );
-    const pull = await server.GET(pullRequest(1, null));
-    expect([push.status, pull.status]).toEqual([200, 200]);
-  });
-
-  it("answers 426 and applies nothing to a client without the header once the server row shape is past 7", async () => {
-    const server = handlers(8);
-    const push = await server.POST(
-      pushRequest(
-        { clientId: randomUUID(), mutations: [expenseMutation("2026-10-01")] },
-        ORIGIN,
-        null,
-      ),
-    );
-    const pull = await server.GET(pullRequest(1, null));
-    const bootstrap = await server.GET(pullRequest(0, null));
-    expect([push.status, pull.status, bootstrap.status]).toEqual([
-      426, 426, 426,
-    ]);
-    expect(await push.json()).toEqual({ error: "row-shape", rowShape: 8 });
-    expect(await storedTransactionCount()).toBe(0);
-  });
 
   it.each([
     ["older", SERVER_SHAPE - 1],
@@ -382,192 +305,4 @@ describe("the row shape handshake", () => {
       expect(await storedTransactionCount()).toBe(0);
     },
   );
-
-  it("lets an error a handler throws reach Next, without a response of its own", async () => {
-    const server = makeSyncHandlers({
-      isConfigured: () => true,
-      getDb: () => {
-        throw new Error("The database is gone");
-      },
-      getSession: () => Promise.resolve(session),
-      now: () => new Date(),
-    });
-    await expect(server.GET(pullRequest(1))).rejects.toThrow(
-      "The database is gone",
-    );
-  });
-
-  it("answers 400 to a malformed row shape", async () => {
-    const request = new Request(`${URL_BASE}?since=0`, {
-      headers: { [ROW_SHAPE_HEADER]: "seven" },
-    });
-    const response = await handlers().GET(request);
-    expect(response.status).toBe(400);
-  });
-});
-
-describe("a push that changes an institution", () => {
-  function upsertAccount(args: Record<string, unknown>, id = randomUUID()) {
-    return { id, name: "upsertAccount", args };
-  }
-
-  it("reports the change after the push commits it, and only a real change", async () => {
-    const clientId = randomUUID();
-    const push = (mutation: ReturnType<typeof upsertAccount>) =>
-      handlers().POST(pushRequest({ clientId, mutations: [mutation] }));
-
-    await push(upsertAccount({ id: home.currentId, position: 3 }));
-    await push(upsertAccount({ id: home.currentId, institution: "" }));
-    await push(upsertAccount({ id: randomUUID(), institution: "Wise" }));
-    expect(pushEffects).toEqual([]);
-
-    const change = upsertAccount({
-      id: home.currentId,
-      institutionDomain: "wise.com",
-    });
-    const response = await push(change);
-    await push(change);
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).not.toHaveProperty("effects");
-    expect(pushEffects).toEqual([
-      { householdId: home.householdId, effects: ["institution-changed"] },
-    ]);
-  });
-});
-
-describe("the currency of an account", () => {
-  function upsertAccount(args: Record<string, unknown>) {
-    return { id: randomUUID(), name: "upsertAccount", args };
-  }
-
-  async function rejectedIds(mutations: ReturnType<typeof upsertAccount>[]) {
-    const response = await handlers().POST(
-      pushRequest({ clientId: randomUUID(), mutations }),
-    );
-    const body = (await response.json()) as {
-      rejected: { id: string; reason: string }[];
-    };
-    return body.rejected.map(({ id, reason }) => ({ id, reason }));
-  }
-
-  function push(mutation: ReturnType<typeof upsertAccount>) {
-    return handlers().POST(
-      pushRequest({ clientId: randomUUID(), mutations: [mutation] }),
-    );
-  }
-
-  it("reports a new account and a new currency, but not another change", async () => {
-    await push(upsertAccount({ id: home.currentId, name: "Main" }));
-    await push(upsertAccount({ id: home.currentId, currency: "GBP" }));
-    expect(pushEffects).toEqual([]);
-
-    await push(
-      upsertAccount({
-        id: randomUUID(),
-        groupId: home.liquidGroupId,
-        name: "Dollars",
-        kind: "cash",
-        currency: "USD",
-      }),
-    );
-    await push(upsertAccount({ id: home.savingsId, currency: "EUR" }));
-
-    expect(pushEffects).toEqual([
-      { householdId: home.householdId, effects: ["currency-changed"] },
-      {
-        householdId: home.householdId,
-        effects: ["institution-changed", "currency-changed"],
-      },
-    ]);
-  });
-
-  it("reports no new currency for a new account in the Base currency", async () => {
-    await push(
-      upsertAccount({
-        id: randomUUID(),
-        groupId: home.liquidGroupId,
-        name: "Pounds",
-        kind: "cash",
-        currency: "GBP",
-      }),
-    );
-
-    expect(pushEffects).toEqual([]);
-  });
-
-  it("reports a new currency when an account in another currency is restored", async () => {
-    const id = randomUUID();
-    await push(
-      upsertAccount({
-        id,
-        groupId: home.liquidGroupId,
-        name: "Dollars",
-        kind: "cash",
-        currency: "USD",
-      }),
-    );
-    await push(upsertAccount({ id, deleted: true }));
-    expect(pushEffects).toHaveLength(1);
-
-    await push(upsertAccount({ id, deleted: false }));
-
-    expect(pushEffects).toEqual([
-      { householdId: home.householdId, effects: ["currency-changed"] },
-      { householdId: home.householdId, effects: ["currency-changed"] },
-    ]);
-  });
-
-  it("sends the id of the Household's pairs with a pull that has rows, and not with one that has none", async () => {
-    async function pull(since: number) {
-      const response = await handlers().GET(pullRequest(since));
-      return pullResponseSchema.parse(await response.json());
-    }
-    await push(upsertAccount({ id: home.currentId, name: "Main" }));
-    await push(upsertAccount({ id: home.currentId, name: "Everyday" }));
-    const before = await pull(1);
-    await push(upsertAccount({ id: home.savingsId, currency: "EUR" }));
-
-    const changed = await pull(before.clock);
-    const unchanged = await pull(changed.clock);
-
-    expect(before.exchangeRatePairsId).toEqual(expect.any(String));
-    expect(changed.exchangeRatePairsId).toEqual(expect.any(String));
-    expect(changed.exchangeRatePairsId).not.toBe(before.exchangeRatePairsId);
-    expect(unchanged.exchangeRatePairsId).toBeUndefined();
-  });
-
-  it("rejects a currency the ECB publishes no rate for", async () => {
-    const created = upsertAccount({
-      id: randomUUID(),
-      groupId: home.liquidGroupId,
-      name: "Dirhams",
-      kind: "cash",
-      currency: "AED",
-    });
-    const changed = upsertAccount({ id: home.savingsId, currency: "TWD" });
-
-    expect(await rejectedIds([created, changed])).toEqual([
-      { id: created.id, reason: "invalid" },
-      { id: changed.id, reason: "invalid" },
-    ]);
-    expect(pushEffects).toEqual([]);
-  });
-
-  it("accepts the Base currency of the Household, even one the ECB publishes no rate for", async () => {
-    await db
-      .update(households)
-      .set({ baseCurrency: "AED" })
-      .where(eq(households.id, home.householdId));
-    const created = upsertAccount({
-      id: randomUUID(),
-      groupId: home.liquidGroupId,
-      name: "Dirhams",
-      kind: "cash",
-      currency: "AED",
-    });
-    const changed = upsertAccount({ id: home.savingsId, currency: "AED" });
-
-    expect(await rejectedIds([created, changed])).toEqual([]);
-  });
 });

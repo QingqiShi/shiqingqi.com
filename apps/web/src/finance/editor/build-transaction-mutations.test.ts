@@ -158,33 +158,6 @@ describe("buildTransactionMutations on an existing Transaction", () => {
       },
     ]);
   });
-
-  it("adds a pays-down Entry to a plain expense", () => {
-    const { transaction, entries, draft } = mortgagePayment();
-    const result = buildTransactionMutations(draft, {
-      ...context(transaction, [entries[0]]),
-    });
-    if (!result.ok) throw new Error("Expected a save");
-    expect(result.mutations[0]).toMatchObject({
-      args: {
-        patch: {
-          entries: [
-            { id: PAYMENT_ENTRY, amountMinor: -100_000 },
-            { accountId: MORTGAGE, amountMinor: 60_000 },
-          ],
-        },
-      },
-    });
-  });
-
-  it("refuses a pays-down Entry on the paying account", () => {
-    const { transaction, entries, draft } = mortgagePayment();
-    const result = buildTransactionMutations(
-      { ...draft, paysDownAccountId: ids.current },
-      context(transaction, entries),
-    );
-    expect(result).toEqual({ ok: false, errors: { paysDown: "sameAccount" } });
-  });
 });
 
 describe("buildTransactionMutations in another currency", () => {

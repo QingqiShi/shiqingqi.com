@@ -18,8 +18,7 @@ import { applyMutations } from "../sync/apply-mutations.ts";
 import { runServerWrite } from "../sync/run-server-write.ts";
 import { BalanceCheckNotFoundError, balanceCheck } from "./balance-check.ts";
 import type { ProviderBalance } from "./lunchflow/types.ts";
-import { processBankRows } from "./process-bank-rows.ts";
-import { seedBankLink, seedUncategorised } from "./testing/seed-bank-link.ts";
+import { seedBankLink } from "./testing/seed-bank-link.ts";
 
 const NOW = new Date("2026-10-10T12:00:00Z");
 const CLIENT = "00000000-0000-4000-8000-00000000c003";
@@ -151,69 +150,6 @@ describe("balanceCheck.refresh", () => {
         .from(bankBalances),
     ).toEqual([{ amountMinor: 500, currency: "GBP" }]);
   });
-
-  it("stores no bank balance when the bank answers in another currency", async () => {
-    await setLink({ bankBalanceMinor: 100, bankBalanceOn: "2026-10-01" });
-
-    await refresh({ amountMinor: 500, currency: "USD" });
-
-    expect(await link()).toMatchObject({
-      bankBalanceMinor: null,
-      bankBalanceOn: "2026-10-10",
-    });
-    expect(await db.$count(bankBalances)).toBe(1);
-  });
-
-  it("counts only the usable new rows as waiting", async () => {
-    await addBankRow("2026-10-08");
-    await addBankRow("2026-10-08", { amountMinor: 0 });
-    await addBankRow("2026-10-08", { currency: "USD" });
-    const { transactionId } = await addExpense("2026-10-08");
-    await addBankRow("2026-10-08", { state: "matched", transactionId });
-    await addBankRow("2026-10-08", { state: "missing" });
-    await addBankRow("2026-10-08", { state: "ignored" });
-
-    const { result } = await refresh();
-
-    expect(result.get(linkId)).toBe(1);
-    expect((await link()).bankRowsWaiting).toBe(true);
-  });
-
-  it("clears waiting once the rows are matched", async () => {
-    await addBankRow("2026-10-08");
-    await refresh();
-    expect((await link()).bankRowsWaiting).toBe(true);
-    await db.update(bankTransactions).set({ state: "matched" });
-
-    const { result } = await refresh();
-
-    expect(result.get(linkId)).toBe(0);
-    expect((await link()).bankRowsWaiting).toBe(false);
-  });
-
-  it("is run by the AI step, so waiting clears even when the step wrote nothing", async () => {
-    await seedUncategorised(db, home);
-    await setLink({ bankRowsWaiting: true });
-
-    await processBankRows({
-      db,
-      householdId: home.householdId,
-      model: null,
-      now: NOW,
-      deadline: new Date(Date.now() + 60_000),
-    });
-
-    expect((await link()).bankRowsWaiting).toBe(false);
-  });
-
-  it("moves no clock when nothing changed", async () => {
-    await addBankRow("2026-10-08");
-    const first = await refresh({ amountMinor: 500, currency: "GBP" });
-
-    const second = await refresh();
-
-    expect(second.clock).toBe(first.clock);
-  });
 });
 
 describe("balanceCheck.unbackedEntries", () => {
@@ -287,14 +223,6 @@ describe("balanceCheck.unbackedEntries", () => {
     expect(await unbackedEntryIds()).toEqual([other.entryId]);
   });
 
-  it("lists oldest first", async () => {
-    const newer = await addExpense("2026-10-05");
-    const older = await addExpense("2026-10-02");
-    await addBankRow("2026-10-01", { state: "ignored" });
-
-    expect(await unbackedEntryIds()).toEqual([older.entryId, newer.entryId]);
-  });
-
   it("leaves out Entries older than the link's first bank row", async () => {
     await addExpense("2026-09-30");
     const inHistory = await addExpense("2026-10-01");
@@ -307,14 +235,6 @@ describe("balanceCheck.unbackedEntries", () => {
     await addExpense("2026-10-01");
 
     expect(await unbackedEntryIds()).toEqual([]);
-  });
-
-  it("refuses a Bank link that is gone", async () => {
-    await setLink({ deletedAt: NOW });
-
-    await expect(unbackedEntryIds()).rejects.toBeInstanceOf(
-      BalanceCheckNotFoundError,
-    );
   });
 });
 

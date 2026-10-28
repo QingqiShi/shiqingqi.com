@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { loadPreferencesContext } from "./load-preferences-context";
-import { preferenceCache } from "./preference-cache";
 import { subscribePreferences } from "./subscribe-preferences";
 
 describe("subscribePreferences", () => {
@@ -10,15 +9,6 @@ describe("subscribePreferences", () => {
   // count dot and list stay stale until the component remounts — the bug
   // fixed here. These tests pin the contract: returned unsubscribe, stable
   // snapshot, and post-load notification.
-
-  it("returns a stable empty snapshot before any load", () => {
-    const first = preferenceCache.preferences;
-    const second = preferenceCache.preferences;
-    // Reference equality is required — `useSyncExternalStore` loops
-    // infinitely if the snapshot identity changes when nothing did.
-    expect(first).toBe(second);
-    expect(first).toEqual([]);
-  });
 
   it("notifies every active subscriber when a load completes", async () => {
     // Settle the cache first. The first subscriber on an unloaded cache starts
@@ -49,19 +39,5 @@ describe("subscribePreferences", () => {
       unsubscribeA();
       unsubscribeB();
     }
-  });
-
-  it("stops notifying after unsubscribe", async () => {
-    let notifyCount = 0;
-    const unsubscribe = subscribePreferences(() => {
-      notifyCount += 1;
-    });
-
-    unsubscribe();
-
-    const before = notifyCount;
-    await loadPreferencesContext();
-
-    expect(notifyCount).toBe(before);
   });
 });

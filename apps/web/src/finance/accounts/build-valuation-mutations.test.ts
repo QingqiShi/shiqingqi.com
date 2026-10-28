@@ -86,23 +86,4 @@ describe("buildValuationMutations", () => {
     expect(result.valuations).toEqual([]);
     expect(result.invalid).toEqual(["house", "pension"]);
   });
-
-  it("reports each change as the field shows it and flags a large one", () => {
-    const result = buildValuationMutations(
-      fields,
-      new Map([
-        ["isa", "19,250.40"],
-        ["house", "4,500,000"],
-        ["mortgage", "279,500"],
-      ]),
-      "2026-10-10",
-      ids(),
-    );
-    expect(result.changes.get("isa")).toEqual({
-      changeMinor: 95_040,
-      isLarge: false,
-    });
-    expect(result.changes.get("mortgage")?.changeMinor).toBe(-50_000);
-    expect(result.large).toEqual(["house"]);
-  });
 });

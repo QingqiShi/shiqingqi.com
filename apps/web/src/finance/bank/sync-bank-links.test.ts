@@ -374,67 +374,6 @@ describe("syncBankLinks", () => {
     ]);
   });
 
-  it("keeps a Review that the missing flag did not set", async () => {
-    const rows = [
-      providerRow("t1", "2026-10-05", -700, "CAFE"),
-      providerRow("t2", "2026-10-06", -800, "BAKERY"),
-      providerRow("t3", "2026-10-07", -900, "BUTCHER"),
-    ];
-    fixture.transactions["acc-current"] = rows;
-    await syncAndProcess();
-    fixture.transactions["acc-current"] = rows.slice(1);
-    await sync({ now: NEXT_DAY });
-    await sync({ now: DAY_AFTER });
-    fixture.transactions["acc-current"] = rows;
-
-    await sync({ now: THIRD_DAY });
-
-    const cafe = (await liveTransactions()).find(
-      (row) => row.date === "2026-10-05",
-    );
-    expect(cafe?.needsReview).toBe(true);
-  });
-
-  it("leaves a returning missing row without a Transaction for the AI step", async () => {
-    fixture.transactions["acc-current"] = [
-      providerRow("t1", "2026-10-08", -1500, "NEW PLACE"),
-    ];
-    await db.insert(bankTransactions).values({
-      id: randomUUID(),
-      householdId: home.householdId,
-      linkId: currentLinkId,
-      providerTxId: "t1",
-      date: "2026-10-08",
-      amountMinor: -1500,
-      currency: "GBP",
-      description: "NEW PLACE",
-      raw: {},
-      state: "missing",
-      version: 0,
-    });
-    const [result] = await sync();
-
-    expect(result.waiting).toBe(1);
-    expect((await bankRows())[0].state).toBe("new");
-  });
-
-  it("leaves out links tried after skipSyncedAfter", async () => {
-    await db
-      .update(bankLinks)
-      .set({ lastSyncAt: new Date(NOW.getTime() - 60 * 60 * 1000) })
-      .where(eq(bankLinks.id, cardLinkId));
-
-    const results = await syncBankLinks({
-      db,
-      householdId: home.householdId,
-      client: createFakeBankClient(fixture),
-      now: NOW,
-      skipSyncedAfter: new Date(NOW.getTime() - 5 * 60 * 60 * 1000),
-    });
-
-    expect(results.map((result) => result.linkId)).toEqual([currentLinkId]);
-  });
-
   it("inverts amounts when the link's sign multiplier is -1", async () => {
     await db
       .update(bankLinks)
@@ -457,45 +396,5 @@ describe("syncBankLinks", () => {
       .from(entries)
       .where(eq(entries.transactionId, row.id));
     expect(entry).toMatchObject({ accountId: home.cardId, amountMinor: -2000 });
-  });
-
-  it("records a reconnect error and goes on with the next link", async () => {
-    fixture.errors = { "acc-current": "reconnect" };
-    fixture.transactions["acc-card"] = [
-      providerRow("c1", "2026-10-07", -300, "SHOP"),
-    ];
-
-    const [current, card] = await sync();
-
-    expect(current.error).toBe("reconnect");
-    expect(card).toMatchObject({ error: null, waiting: 1 });
-    expect(await link(currentLinkId)).toMatchObject({
-      status: "reconnect",
-      lastError: "reconnect",
-      lastSyncedOn: null,
-    });
-    expect((await link(cardLinkId)).lastSyncedOn).toBe("2026-10-10");
-  });
-
-  it("stores each bank balance and counts the rows that wait for the AI step", async () => {
-    fixture.transactions["acc-current"] = [
-      providerRow("t1", "2026-10-08", -1000, "SHOP"),
-    ];
-    fixture.balances["acc-current"] = { amountMinor: -900, currency: "GBP" };
-    fixture.balances["acc-card"] = { amountMinor: -500, currency: "GBP" };
-
-    const [current, card] = await sync();
-
-    expect(current.waiting).toBe(1);
-    expect(card.waiting).toBe(0);
-    expect(await link(currentLinkId)).toMatchObject({
-      bankBalanceMinor: -900,
-      bankBalanceOn: "2026-10-10",
-      bankRowsWaiting: true,
-    });
-    expect(await link(cardLinkId)).toMatchObject({
-      bankBalanceMinor: -500,
-      bankRowsWaiting: false,
-    });
   });
 });

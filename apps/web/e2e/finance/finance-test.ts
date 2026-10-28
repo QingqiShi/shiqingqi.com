@@ -27,7 +27,6 @@ import {
 } from "../../src/finance/dev/seed/seed-synthetic-household.ts";
 import { readOutbox } from "../../src/finance/email/make-outbox-email-sender.ts";
 import type { FinanceEmail } from "../../src/finance/email/types.ts";
-import { waitForMotionToSettle } from "../helpers/motion.ts";
 import {
   FINANCE_E2E_DB_PORT,
   FINANCE_E2E_EMAIL_OUTBOX,
@@ -270,17 +269,6 @@ export async function waitForServiceWorker(page: Page) {
       { timeout: SYNC_TIMEOUT },
     )
     .toBe(true);
-}
-
-export async function expectNoSidewaysScroll(page: Page) {
-  // A page that slides in is wider than the screen until it lands.
-  await waitForMotionToSettle(page);
-  const overflow = await page.evaluate(
-    () =>
-      document.documentElement.scrollWidth -
-      document.documentElement.clientWidth,
-  );
-  expect(overflow).toBe(0);
 }
 
 /** The proxy refuses an API call without a same-site Referer, and `page.request` sends none. */

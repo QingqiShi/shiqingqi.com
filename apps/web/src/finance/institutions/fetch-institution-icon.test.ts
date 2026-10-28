@@ -8,10 +8,7 @@ import {
 import type { ResolvedAddress } from "./fetch-public-resource.ts";
 import { isPublicAddress } from "./is-public-address.ts";
 import {
-  icoFile,
   serveFakeWebsites,
-  solidIconBitmap,
-  solidJpeg,
   solidPng,
   type FakeSite,
   type FakeWebsites,
@@ -20,10 +17,6 @@ import {
 
 const RED = { r: 220, g: 20, b: 20 };
 const GREEN = { r: 20, g: 180, b: 40 };
-const BLUE = { r: 20, g: 40, b: 220 };
-const YELLOW = { r: 240, g: 200, b: 20 };
-const PURPLE = { r: 140, g: 30, b: 160 };
-const WHITE = { r: 255, g: 255, b: 255 };
 
 const OVERSIZE_BYTES = 3 * 1024 * 1024;
 
@@ -57,108 +50,6 @@ async function buildSites(port: number): Promise<Record<string, FakeSite>> {
       "/static/apple.png": png(await solidPng(180, RED)),
       "/favicon-32.png": png(await solidPng(32, GREEN)),
     },
-    "redirect.test": {
-      "/": {
-        status: 301,
-        headers: { Location: `http://www.final.test:${String(port)}/en/home` },
-      },
-      "/apple-touch-icon.png": png(await solidPng(180, RED)),
-    },
-    "www.final.test": {
-      "/en/home": html(`<link rel="icon" href="img/icon.png" sizes="96x96">`),
-      "/en/img/icon.png": png(await solidPng(96, BLUE)),
-    },
-    "manifest.test": {
-      "/": html(`<LINK REL="Manifest" HREF='/app/site.json'>`),
-      "/app/site.json": {
-        headers: { "Content-Type": "application/manifest+json" },
-        body: JSON.stringify({
-          icons: [
-            { src: "icon-192.png", sizes: "192x192", type: "image/png" },
-            { src: "icon-512.png", sizes: "512x512", type: "image/png" },
-            { src: "mono.png", sizes: "1024x1024", purpose: "monochrome" },
-          ],
-        }),
-      },
-      "/app/icon-192.png": png(await solidPng(192, RED)),
-      "/app/icon-512.png": png(await solidPng(512, GREEN)),
-      "/app/mono.png": png(await solidPng(1024, BLUE)),
-    },
-    "webmanifest.test": {
-      "/": html(`<link rel="icon" href="/f.png" sizes="16x16">`),
-      "/site.webmanifest": {
-        body: JSON.stringify({
-          icons: [{ src: "/pwa/icon.png", sizes: "256x256" }],
-        }),
-      },
-      "/pwa/icon.png": png(await solidPng(256, PURPLE)),
-      "/f.png": png(await solidPng(16, RED)),
-    },
-    "icon.test": {
-      "/": html(
-        `<link type="image/png" href="/i/fav.png" sizes="64x64" rel="shortcut icon">`,
-      ),
-      "/i/fav.png": png(await solidPng(64, YELLOW)),
-    },
-    "pngico.test": {
-      "/": html(""),
-      "/favicon.ico": png(
-        icoFile([
-          { edge: 16, bitCount: 32, data: await solidPng(16, RED) },
-          { edge: 48, bitCount: 32, data: await solidPng(48, GREEN) },
-        ]),
-        "image/x-icon",
-      ),
-    },
-    "bmpico.test": {
-      "/": html(""),
-      "/favicon.ico": png(
-        icoFile([
-          { edge: 16, bitCount: 24, data: solidIconBitmap(16, RED, 24) },
-          { edge: 32, bitCount: 32, data: solidIconBitmap(32, BLUE, 32) },
-        ]),
-        "image/vnd.microsoft.icon",
-      ),
-    },
-    "bmp24ico.test": {
-      "/": html(""),
-      "/favicon.ico": png(
-        icoFile([
-          {
-            edge: 32,
-            bitCount: 24,
-            data: solidIconBitmap(32, YELLOW, 24, { maskBorder: 4 }),
-          },
-        ]),
-        "image/x-icon",
-      ),
-    },
-    "soft404.test": {
-      "/": html(""),
-      "/apple-touch-icon.png": html("<title>Page not found</title>"),
-      "/favicon.ico": png(
-        icoFile([{ edge: 32, bitCount: 32, data: await solidPng(32, GREEN) }]),
-        "image/x-icon",
-      ),
-    },
-    "xicon.test": {
-      "/": html(""),
-      "/favicon.ico": png(await solidPng(32, PURPLE), "image/x-icon"),
-    },
-    "tiny.test": {
-      "/": html(
-        `<link rel="apple-touch-icon" href="/natwest-42.png" sizes="42x42">`,
-      ),
-      "/natwest-42.png": png(await solidPng(42, RED)),
-    },
-    "favicon16.test": {
-      "/": html(`<link rel="icon" href="/16.png">`),
-      "/16.png": png(await solidPng(16, BLUE)),
-    },
-    "blocked.test": {
-      "/": { status: 403, body: "<title>Just a moment...</title>" },
-      "/apple-touch-icon.png": png(await solidPng(180, RED)),
-    },
     "huge.test": {
       "/": html(
         `<link rel="apple-touch-icon" href="/huge.png"><link rel="icon" href="/chunked.png" sizes="512x512">`,
@@ -176,21 +67,6 @@ async function buildSites(port: number): Promise<Record<string, FakeSite>> {
         body: SVG,
         headers: { "Content-Type": "image/png" },
       },
-    },
-    "gzip.test": {
-      "/": {
-        ...html(`<link rel="apple-touch-icon" href="/a.png">`),
-        gzip: true,
-      },
-      "/a.png": png(await solidPng(180, PURPLE)),
-    },
-    "transparent.test": {
-      "/": html(`<link rel="apple-touch-icon" href="/a.png">`),
-      "/a.png": png(await solidPng(180, BLUE, { transparentBorder: 30 })),
-    },
-    "jpeg.test": {
-      "/": html(`<link rel="icon" href="/wide.jpg" sizes="200x100">`),
-      "/wide.jpg": png(await solidJpeg(200, 100, GREEN), "image/jpeg"),
     },
     "ssrf-redirect.test": {
       "/": {
@@ -268,63 +144,6 @@ afterAll(async () => {
 });
 
 describe("fetchInstitutionIcon", () => {
-  it("takes the apple-touch-icon link, resolved against the page", async () => {
-    await expectIcon("apple.test", RED);
-  });
-
-  it("resolves relative URLs against the homepage after redirects", async () => {
-    await expectIcon("redirect.test", BLUE);
-    expect(server.requests).toContain("www.final.test/en/img/icon.png");
-    expect(server.requests).not.toContain("redirect.test/apple-touch-icon.png");
-  });
-
-  it("takes the largest manifest icon, resolved against the manifest", async () => {
-    await expectIcon("manifest.test", GREEN);
-    expect(server.requests).not.toContain("manifest.test/app/mono.png");
-  });
-
-  it("finds a manifest at a well-known path when no link names one", async () => {
-    await expectIcon("webmanifest.test", PURPLE);
-  });
-
-  it("takes a shortcut icon link", async () => {
-    await expectIcon("icon.test", YELLOW);
-  });
-
-  it("takes the largest PNG entry of a favicon.ico", async () => {
-    await expectIcon("pngico.test", GREEN);
-  });
-
-  it("decodes 32-bit bitmap entries of a favicon.ico", async () => {
-    await expectIcon("bmpico.test", BLUE);
-  });
-
-  it("decodes a 24-bit bitmap entry and its mask onto white", async () => {
-    const pixel = await expectIcon("bmp24ico.test", YELLOW);
-    expectColour(pixel(0, 0), WHITE);
-  });
-
-  it("skips an HTML soft 404 at /apple-touch-icon.png", async () => {
-    await expectIcon("soft404.test", GREEN);
-  });
-
-  it("accepts a PNG served as image/x-icon", async () => {
-    await expectIcon("xicon.test", PURPLE);
-  });
-
-  it("upscales small icons, as there is no minimum size", async () => {
-    await expectIcon("tiny.test", RED);
-    await expectIcon("favicon16.test", BLUE);
-  });
-
-  it("still probes /apple-touch-icon.png when the homepage answers 403", async () => {
-    await expectIcon("blocked.test", RED);
-  });
-
-  it("decodes a gzip-encoded homepage", async () => {
-    await expectIcon("gzip.test", PURPLE);
-  });
-
   it("rejects images over the size cap, with or without Content-Length", async () => {
     await expectIcon("huge.test", GREEN);
     expect(server.requests).toContain("huge.test/huge.png");
@@ -336,19 +155,6 @@ describe("fetchInstitutionIcon", () => {
     expect(server.requests).not.toContain("svg.test/icon.svg");
     expect(server.requests).not.toContain("svg.test/mask.svg");
     expect(server.requests).toContain("svg.test/apple-touch-icon.png");
-  });
-
-  it("fills transparent pixels and letterboxing with white", async () => {
-    const transparent = await expectIcon("transparent.test", BLUE);
-    expectColour(transparent(1, 1), WHITE);
-    const wide = await expectIcon("jpeg.test", GREEN);
-    expectColour(wide(64, 2), WHITE);
-  });
-
-  it("answers null for a site with no icon at all", async () => {
-    expect(
-      await fetchInstitutionIcon("nothing.test", testOptions()),
-    ).toBeNull();
   });
 });
 

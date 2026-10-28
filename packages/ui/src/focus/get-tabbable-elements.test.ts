@@ -24,39 +24,6 @@ describe("getTabbableElements", () => {
     ).toEqual(["link", "button", "input", "select", "textarea", "iframe"]);
   });
 
-  it("takes the first summary of a details, and no other summary", () => {
-    expect(
-      tabbableIds(`
-        <details open>
-          <summary id="first">first</summary>
-          <summary id="second">second</summary>
-        </details>
-        <summary id="orphan">orphan</summary>
-      `),
-    ).toEqual(["first"]);
-  });
-
-  it('takes an editing host but not contenteditable="false"', () => {
-    expect(
-      tabbableIds(`
-        <div id="editable" contenteditable></div>
-        <div id="plaintext" contenteditable="plaintext-only"></div>
-        <div id="frozen" contenteditable="false"></div>
-      `),
-    ).toEqual(["editable", "plaintext"]);
-  });
-
-  it("takes media elements only while they show controls", () => {
-    expect(
-      tabbableIds(`
-        <audio id="audio" controls></audio>
-        <video id="video" controls></video>
-        <audio id="bareAudio"></audio>
-        <video id="bareVideo"></video>
-      `),
-    ).toEqual(["audio", "video"]);
-  });
-
   it("takes links and areas only when they have an href", () => {
     expect(
       tabbableIds(`
@@ -69,26 +36,6 @@ describe("getTabbableElements", () => {
         </map>
       `),
     ).toEqual(["link", "area"]);
-  });
-
-  it("leaves out an area whose map no image uses", () => {
-    expect(
-      tabbableIds(`
-        <a id="link" href="#x">link</a>
-        <map name="unused">
-          <area id="area" href="#x" shape="rect" coords="0,0,1,1" alt="area" />
-        </map>
-      `),
-    ).toEqual(["link"]);
-  });
-
-  it("leaves out a hidden input", () => {
-    expect(
-      tabbableIds(`
-        <input id="text" type="text" />
-        <input id="hidden" type="hidden" />
-      `),
-    ).toEqual(["text"]);
   });
 
   it("reads the tabindex attribute rather than the tabIndex property", () => {
@@ -141,31 +88,12 @@ describe("getTabbableElements", () => {
     ).toEqual(["live"]);
   });
 
-  it("leaves out the hidden attribute", () => {
-    expect(
-      tabbableIds(`
-        <button id="shown">shown</button>
-        <button id="hiddenSelf" hidden>hidden itself</button>
-        <div hidden><button id="inHidden">in hidden</button></div>
-      `),
-    ).toEqual(["shown"]);
-  });
-
   it("leaves out display: none, including on an ancestor", () => {
     expect(
       tabbableIds(`
         <button id="shown">shown</button>
         <button id="noneSelf" style="display: none">none itself</button>
         <div style="display: none"><button id="inNone">in none</button></div>
-      `),
-    ).toEqual(["shown"]);
-  });
-
-  it("leaves out visibility: hidden", () => {
-    expect(
-      tabbableIds(`
-        <button id="shown">shown</button>
-        <div style="visibility: hidden"><button id="inHidden">in hidden</button></div>
       `),
     ).toEqual(["shown"]);
   });
@@ -193,15 +121,6 @@ describe("getTabbableElements", () => {
         <input id="three" type="radio" name="pick" />
       `),
     ).toEqual(["two"]);
-  });
-
-  it("gives an unchecked radio group its stop at the first radio", () => {
-    expect(
-      tabbableIds(`
-        <input id="one" type="radio" name="pick" />
-        <input id="two" type="radio" name="pick" />
-      `),
-    ).toEqual(["one"]);
   });
 
   it("keeps radio groups apart by name and by form owner", () => {

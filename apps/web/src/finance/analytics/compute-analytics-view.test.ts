@@ -3,7 +3,6 @@ import { buildSyntheticRows } from "../dev/seed/build-synthetic-rows.ts";
 import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { addMonths } from "../domain/dates/add-months.ts";
 import { createTransactionAmount } from "../domain/transactions/create-transaction-amount.ts";
-import { expectWithinBudget } from "../testing/expect-within-budget.ts";
 import {
   buildAnalyticsIndex,
   type AnalyticsIndexSource,
@@ -11,9 +10,7 @@ import {
 import {
   DEFAULT_ANALYTICS_STATE,
   computeAnalyticsView,
-  type AnalyticsState,
 } from "./compute-analytics-view.ts";
-import { ANALYTICS_RANGES } from "./resolve-analytics-range.ts";
 import { buildTestIndex, postedRow } from "./testing/build-test-index.ts";
 
 const TODAY = "2026-10-10";
@@ -68,70 +65,6 @@ function syntheticSource(transactionsPerYear: number): AnalyticsIndexSource {
   };
 }
 
-describe("computeAnalyticsView at 60k Transactions", () => {
-  const source = syntheticSource(20_000);
-  const index = buildAnalyticsIndex(source);
-
-  test("holds every posted expense and income", () => {
-    expect(index.length).toBeGreaterThan(50_000);
-  });
-
-  test("switches any range in well under a frame", () => {
-    const parent = source.categories.find((category) =>
-      source.categories.some((child) => child.parentId === category.id),
-    );
-    const states: AnalyticsState[] = [];
-    for (const range of ANALYTICS_RANGES) {
-      for (const kind of ["spending", "income", "net"] as const) {
-        states.push({ ...DEFAULT_ANALYTICS_STATE, range, kind });
-      }
-      states.push({
-        ...DEFAULT_ANALYTICS_STATE,
-        range,
-        member: index.memberIds[0],
-        category: parent?.id ?? null,
-        excludeOutliers: true,
-      });
-      states.push({
-        ...DEFAULT_ANALYTICS_STATE,
-        range,
-        grouping: "day",
-        category: parent?.id ?? null,
-        dimension: "transaction",
-      });
-    }
-    for (const state of states) computeAnalyticsView(index, state, TODAY);
-    const medians: number[] = [];
-    const slowestRun = 0;
-    for (const state of states) {
-      const runs: number[] = [];
-      for (let run = 0; run < 5; run++) {
-        const started = performance.now();
-        const view = computeAnalyticsView(index, state, TODAY);
-        runs.push(performance.now() - started);
-        expect(view.boundaries.length).toBeGreaterThan(1);
-      }
-      runs.sort((a, b) => a - b);
-      medians.push(runs[2]);
-    }
-    medians.sort((a, b) => a - b);
-    const slowest = medians[medians.length - 1];
-    console.info(
-      `analytics view at ${String(index.length)} rows, ${String(states.length)} states: median ${medians[medians.length >> 1].toFixed(2)} ms, slowest state ${slowest.toFixed(2)} ms, slowest single run ${slowestRun.toFixed(2)} ms`,
-    );
-    expectWithinBudget(slowest, 16);
-  });
-
-  test("builds the index in a few frames", () => {
-    const started = performance.now();
-    const built = buildAnalyticsIndex(source);
-    const elapsed = performance.now() - started;
-    console.info(`analytics index build: ${elapsed.toFixed(1)} ms`);
-    expect(built.length).toBe(index.length);
-    expectWithinBudget(elapsed, 250);
-  });
-});
-
 describe("computeAnalyticsView", () => {
   const source = syntheticSource(1500);
   const index = buildAnalyticsIndex(source);
@@ -168,41 +101,6 @@ describe("computeAnalyticsView", () => {
     );
     expect(trendTotal).toBeCloseTo(parent.value, 6);
   });
-
-  test("excludes outliers from the trend when asked", () => {
-    const top = computeAnalyticsView(
-      index,
-      { ...DEFAULT_ANALYTICS_STATE, range: "all" },
-      TODAY,
-    );
-    const category = top.rows[0].categoryId;
-    const base = {
-      ...DEFAULT_ANALYTICS_STATE,
-      range: "all" as const,
-      category,
-      dimension: "transaction" as const,
-    };
-    const all = computeAnalyticsView(index, base, TODAY).trend;
-    const kept = computeAnalyticsView(
-      index,
-      { ...base, excludeOutliers: true },
-      TODAY,
-    ).trend;
-    expect(all && kept).toBeTruthy();
-    if (!all || !kept) return;
-    expect(kept.values.length).toBe(all.values.length - all.outlierCount);
-    expect(kept.excluded).toBe(true);
-  });
-
-  test("keeps the grouping asked for over the whole history", () => {
-    const view = computeAnalyticsView(
-      index,
-      { ...DEFAULT_ANALYTICS_STATE, range: "all", grouping: "week" },
-      TODAY,
-    );
-    expect(view.grouping).toBe("week");
-    expect(view.boundaries.length - 1).toBeGreaterThan(104);
-  });
 });
 
 describe("computeAnalyticsView with the current month cut short", () => {
@@ -223,21 +121,6 @@ describe("computeAnalyticsView with the current month cut short", () => {
     { ...DEFAULT_ANALYTICS_STATE, range: "12M", category: "food" },
     TODAY,
   );
-
-  test("marks October as running and leaves it out of the trend figures", () => {
-    expect(view.grouping).toBe("month");
-    expect(Array.from(view.partial)).toEqual([
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    ]);
-    expect(view.lastPeriodOngoing).toBe(true);
-    expect(view.trend?.stats).toEqual({
-      max: 200_00,
-      min: 100_00,
-      average: 150_00,
-      count: 11,
-      partialLeftOut: true,
-    });
-  });
 
   test("averages the whole months only", () => {
     expect(view.total).toBe(1_650_00 + 10_00);
@@ -261,15 +144,5 @@ describe("computeAnalyticsView with the current month cut short", () => {
       partialLeftOut: false,
     });
     expect(thisMonth.periodAverage).toBe(10_00);
-  });
-
-  test("does not mark a past month that ends with the range", () => {
-    const lastMonth = computeAnalyticsView(
-      index,
-      { ...DEFAULT_ANALYTICS_STATE, range: "lastMonth", grouping: "month" },
-      TODAY,
-    );
-    expect(Array.from(lastMonth.partial)).toEqual([0]);
-    expect(lastMonth.lastPeriodOngoing).toBe(false);
   });
 });

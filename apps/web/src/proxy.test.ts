@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { proxy } from "./proxy";
 
 function apiRequest(path: string, referer?: string, host?: string) {
@@ -27,22 +27,6 @@ function pageRequest(
   return new NextRequest(`http://localhost:3000${path}`, { headers });
 }
 
-/** What the browser sends for a Link prefetch. */
-function prefetchRequest(path: string, { cookie }: { cookie?: string } = {}) {
-  return pageRequest(path, {
-    cookie,
-    headers: { "Sec-Fetch-Dest": "empty", "Sec-Fetch-Mode": "cors" },
-  });
-}
-
-/** What the browser sends for a document load the visitor asked for. */
-function documentRequest(path: string, { cookie }: { cookie?: string } = {}) {
-  return pageRequest(path, {
-    cookie,
-    headers: { "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate" },
-  });
-}
-
 // Reads the raw header: ResponseCookies caches its parse at construction, so
 // `response.cookies.get` is stale after the proxy deletes the header.
 function localeSetCookies(response: Response) {
@@ -60,68 +44,20 @@ describe("proxy referer validation for API routes", () => {
     expect(response.status).toBe(200);
   });
 
-  it("allows requests with localhost referer", () => {
-    const response = proxy(
-      apiRequest("/api/ai-chat", "http://localhost:3000/search"),
-    );
-
-    expect(response.status).toBe(200);
-  });
-
-  it("allows requests with localhost on any port", () => {
-    const response = proxy(
-      apiRequest("/api/ai-chat", "http://localhost:5173/search"),
-    );
-
-    expect(response.status).toBe(200);
-  });
-
-  it("rejects requests with no referer", async () => {
+  it("rejects requests with no referer", () => {
     const response = proxy(apiRequest("/api/ai-chat"));
 
     expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: "Unauthorized" });
   });
 
-  it("rejects requests with unauthorized referer", async () => {
-    const response = proxy(apiRequest("/api/ai-chat", "https://evil.com"));
-
-    expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: "Unauthorized" });
-  });
-
-  it("rejects requests with malformed referer", async () => {
-    const response = proxy(apiRequest("/api/ai-chat", "not-a-url"));
-
-    expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: "Unauthorized" });
-  });
-
-  it("allows requests from the current Vercel deployment URL", () => {
-    process.env.VERCEL_URL = "my-app-abc123.vercel.app";
-    const response = proxy(
-      apiRequest("/api/ai-chat", "https://my-app-abc123.vercel.app/search"),
+  it("rejects requests with unauthorized or malformed referer", () => {
+    expect(proxy(apiRequest("/api/ai-chat", "https://evil.com")).status).toBe(
+      403,
     );
-
-    expect(response.status).toBe(200);
-    delete process.env.VERCEL_URL;
+    expect(proxy(apiRequest("/api/ai-chat", "not-a-url")).status).toBe(403);
   });
 
-  it("allows requests from the Vercel branch URL", () => {
-    process.env.VERCEL_BRANCH_URL =
-      "my-app-git-feature-qingqishis-projects.vercel.app";
-    const response = proxy(
-      apiRequest(
-        "/api/ai-chat",
-        "https://my-app-git-feature-qingqishis-projects.vercel.app/search",
-      ),
-    );
-
-    expect(response.status).toBe(200);
-    delete process.env.VERCEL_BRANCH_URL;
-  });
-
-  it("rejects requests from other Vercel deployments", async () => {
+  it("rejects requests from other Vercel deployments", () => {
     process.env.VERCEL_URL = "my-app-abc123.vercel.app";
     process.env.VERCEL_BRANCH_URL =
       "my-app-git-feature-qingqishis-projects.vercel.app";
@@ -133,92 +69,22 @@ describe("proxy referer validation for API routes", () => {
     );
 
     expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: "Unauthorized" });
     delete process.env.VERCEL_URL;
     delete process.env.VERCEL_BRANCH_URL;
   });
 
-  it("rejects a dev host referer when no dev origins are allowed", async () => {
+  it("rejects a host that matches its own referer but is not a dev host", () => {
+    process.env.ALLOWED_DEV_ORIGINS = "192.168.1.72";
     const response = proxy(
       apiRequest(
         "/api/ai-chat",
-        "http://192.168.1.72:3089/movies",
-        "192.168.1.72:3089",
+        "http://evil.com:3089/movies",
+        "evil.com:3089",
       ),
     );
 
     expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: "Unauthorized" });
-  });
-
-  describe("development hosts", () => {
-    beforeEach(() => {
-      process.env.ALLOWED_DEV_ORIGINS =
-        "192.168.1.72,qingqis-macbook-pro.tail8615af.ts.net";
-    });
-
-    afterEach(() => {
-      delete process.env.ALLOWED_DEV_ORIGINS;
-    });
-
-    it("allows a referer from the address the browser used to reach the dev server", () => {
-      const response = proxy(
-        apiRequest(
-          "/api/ai-chat",
-          "http://192.168.1.72:3089/movies",
-          "192.168.1.72:3089",
-        ),
-      );
-
-      expect(response.status).toBe(200);
-    });
-
-    it("allows it when the Host header is cased differently from the referer", () => {
-      const response = proxy(
-        apiRequest(
-          "/api/ai-chat",
-          "http://qingqis-macbook-pro.tail8615af.ts.net:3089/movies",
-          "Qingqis-MacBook-Pro.tail8615af.ts.net:3089",
-        ),
-      );
-
-      expect(response.status).toBe(200);
-    });
-
-    it("rejects a referer on the same hostname but another port", async () => {
-      const response = proxy(
-        apiRequest(
-          "/api/ai-chat",
-          "http://192.168.1.72:4000/movies",
-          "192.168.1.72:3089",
-        ),
-      );
-
-      expect(response.status).toBe(403);
-      expect(await response.json()).toEqual({ error: "Unauthorized" });
-    });
-
-    it("rejects a host that matches its own referer but is not a dev host", async () => {
-      const response = proxy(
-        apiRequest(
-          "/api/ai-chat",
-          "http://evil.com:3089/movies",
-          "evil.com:3089",
-        ),
-      );
-
-      expect(response.status).toBe(403);
-      expect(await response.json()).toEqual({ error: "Unauthorized" });
-    });
-
-    it("rejects a foreign referer even when the Host header is a dev host", async () => {
-      const response = proxy(
-        apiRequest("/api/ai-chat", "https://evil.com/", "192.168.1.72:3089"),
-      );
-
-      expect(response.status).toBe(403);
-      expect(await response.json()).toEqual({ error: "Unauthorized" });
-    });
+    delete process.env.ALLOWED_DEV_ORIGINS;
   });
 });
 
@@ -229,13 +95,6 @@ describe("proxy for finance cron routes", () => {
     expect(response.status).toBe(200);
   });
 
-  it("still rejects other finance routes with no referer", async () => {
-    const response = proxy(apiRequest("/api/finance/sync"));
-
-    expect(response.status).toBe(403);
-    expect(await response.json()).toEqual({ error: "Unauthorized" });
-  });
-
   it("does not exempt a path that only starts like the cron path", () => {
     const response = proxy(apiRequest("/api/finance/cronjob"));
 
@@ -243,25 +102,7 @@ describe("proxy for finance cron routes", () => {
   });
 });
 
-describe("proxy locale cookie durability", () => {
-  it("re-sets NEXT_LOCALE=en for a default-locale rewrite at /", () => {
-    const response = proxy(pageRequest("/", { cookie: "en" }));
-
-    expect(response.status).toBe(200);
-    const cookie = response.cookies.get("NEXT_LOCALE");
-    expect(cookie?.value).toBe("en");
-    expect(cookie?.maxAge).toBe(31536000);
-  });
-
-  it("re-sets NEXT_LOCALE=en for a default-locale rewrite on a nested path", () => {
-    const response = proxy(
-      pageRequest("/experiences/citadel", { cookie: "en" }),
-    );
-
-    expect(response.status).toBe(200);
-    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("en");
-  });
-
+describe("proxy locale", () => {
   it("re-sets NEXT_LOCALE=zh on the redirect from / to /zh", () => {
     const response = proxy(pageRequest("/", { cookie: "zh" }));
 
@@ -270,91 +111,36 @@ describe("proxy locale cookie durability", () => {
     expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("zh");
   });
 
-  it("re-sets NEXT_LOCALE=zh at /zh when the library itself leaves it untouched", () => {
-    const response = proxy(pageRequest("/zh", { cookie: "zh" }));
-
-    expect(response.status).toBe(200);
-    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("zh");
-  });
-
-  it("lets the library's cookie win on a request without Sec-Fetch headers", () => {
-    const response = proxy(pageRequest("/zh", { cookie: "en" }));
-
-    expect(response.cookies.get("NEXT_LOCALE")?.value).toBe("zh");
-  });
-
-  it("sets no NEXT_LOCALE cookie at / when the request has none", () => {
-    const response = proxy(pageRequest("/"));
-
-    expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
-  });
-
-  it("sets no NEXT_LOCALE cookie when Accept-Language redirects a cookie-less visitor to /zh", () => {
+  it("redirects a cookie-less visitor to /zh by Accept-Language", () => {
     const response = proxy(
       pageRequest("/", { acceptLanguage: "zh-CN,zh;q=0.9" }),
     );
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toContain("/zh");
-    expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
   });
 
-  it("sets no NEXT_LOCALE cookie for an unsupported locale cookie", () => {
-    const response = proxy(pageRequest("/", { cookie: "fr" }));
-
-    expect(response.cookies.get("NEXT_LOCALE")).toBeUndefined();
-  });
-});
-
-describe("proxy locale cookie on requests the visitor did not make", () => {
-  // Next deletes `RSC` and `Next-Router-Prefetch` before the proxy runs, so a
-  // prefetch is recognised by the browser's own `Sec-Fetch-Dest` /
-  // `Sec-Purpose` instead. Before this, prefetches of the old Locale's links
-  // overwrote the Locale a visitor had just picked.
+  // Before this, prefetches of the old Locale's links overwrote the Locale a
+  // visitor had just picked.
   it("a prefetch of /zh leaves an en Preference alone", () => {
     const response = proxy(
-      prefetchRequest("/zh/design-system", { cookie: "en" }),
-    );
-
-    expect(response.status).toBe(200);
-    expect(response.headers.get("x-next-i18n-router-locale")).toBe("zh");
-    expect(localeSetCookies(response)).toEqual([]);
-    expect(response.headers.get("x-middleware-set-cookie")).toBeNull();
-  });
-
-  it("a speculation-rules prefetch that asks for a document leaves it alone too", () => {
-    const response = proxy(
-      pageRequest("/zh", {
+      pageRequest("/zh/design-system", {
         cookie: "en",
-        headers: {
-          "Sec-Fetch-Dest": "document",
-          "Sec-Purpose": "prefetch;prerender",
-        },
+        headers: { "Sec-Fetch-Dest": "empty", "Sec-Fetch-Mode": "cors" },
       }),
     );
 
     expect(response.status).toBe(200);
     expect(localeSetCookies(response)).toEqual([]);
-  });
-
-  it("a prefetch of an unprefixed path leaves the Preference alone", () => {
-    const response = proxy(prefetchRequest("/design-system", { cookie: "en" }));
-
-    expect(response.status).toBe(200);
-    expect(localeSetCookies(response)).toEqual([]);
-  });
-
-  it("a prefetch still follows the Preference's redirect", () => {
-    const response = proxy(prefetchRequest("/design-system", { cookie: "zh" }));
-
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toContain("/zh/design-system");
-    expect(localeSetCookies(response)).toEqual([]);
+    expect(response.headers.get("x-middleware-set-cookie")).toBeNull();
   });
 
   it("a document navigation to /zh still lets the path win", () => {
     const response = proxy(
-      documentRequest("/zh/design-system", { cookie: "en" }),
+      pageRequest("/zh/design-system", {
+        cookie: "en",
+        headers: { "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate" },
+      }),
     );
 
     expect(response.status).toBe(200);

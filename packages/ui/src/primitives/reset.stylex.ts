@@ -17,8 +17,7 @@ export const buttonReset = stylex.create({
     padding: 0,
     cursor: "pointer",
     // A primitive cannot compose another primitive, so this is a copy of
-    // `a11y.focusRing`. `focus-ring.test.ts` keeps the copy the same as the
-    // original.
+    // `a11y.focusRing`. Keep the copy the same as the original.
     outlineWidth: border.size_2,
     outlineStyle: "solid",
     outlineColor: {
@@ -26,7 +25,7 @@ export const buttonReset = stylex.create({
       ":focus-visible": color.borderAccent,
     },
     outlineOffset: border.size_2,
-    // A copy of `a11y.touchTarget`, kept the same by `touch-target.test.ts`.
+    // A copy of `a11y.touchTarget`. Keep it the same as the original.
     WebkitTapHighlightColor: "transparent",
     touchAction: "manipulation",
     position: { default: null, [pointer.coarse]: "relative" },

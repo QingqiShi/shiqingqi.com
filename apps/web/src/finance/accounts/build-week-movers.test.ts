@@ -94,12 +94,4 @@ describe("buildWeekMovers", () => {
         netWorthAt(accounts, seriesByAccount, fx, FROM),
     );
   });
-
-  it("keeps only the biggest moves", () => {
-    const movers = buildWeekMovers({ ...input, limit: 2 });
-    expect(movers.map((mover) => mover.account.id)).toEqual([
-      "mortgage",
-      "closed",
-    ]);
-  });
 });

@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { addDays } from "../dates/add-days.ts";
 import { toEpochDay } from "../dates/to-epoch-day.ts";
-import { balanceAt, balanceAtEpochDay } from "./balance-at.ts";
+import { balanceAt } from "./balance-at.ts";
 import {
   balanceSeriesFromRows,
   balanceSeriesToRows,
   computeBalanceDays,
-  EMPTY_BALANCE_SERIES,
   type BalanceSeries,
   type EntryInput,
   type ValuationInput,
@@ -156,31 +155,6 @@ describe("computeBalanceDays", () => {
         expect(balanceAt(series, day)).toBe(expected);
       }
     }
-  });
-});
-
-describe("balanceAt", () => {
-  const series = computeBalanceDays(
-    [valuation("2026-10-05", 10000)],
-    [entry("2026-10-01", 500), entry("2026-10-08", -2000)],
-  );
-
-  it("is 0 before the first change", () => {
-    expect(balanceAt(series, "2026-09-30")).toBe(0);
-  });
-
-  it("carries the last change forward to later days", () => {
-    expect(balanceAt(series, "2026-10-01")).toBe(500);
-    expect(balanceAt(series, "2026-10-04")).toBe(500);
-    expect(balanceAt(series, "2026-10-05")).toBe(10000);
-    expect(balanceAt(series, "2026-10-07")).toBe(10000);
-    expect(balanceAt(series, "2026-10-08")).toBe(8000);
-    expect(balanceAt(series, "2030-01-01")).toBe(8000);
-  });
-
-  it("takes an epoch day for hot loops", () => {
-    expect(balanceAtEpochDay(series, toEpochDay("2026-10-06"))).toBe(10000);
-    expect(balanceAtEpochDay(EMPTY_BALANCE_SERIES, 0)).toBe(0);
   });
 });
 

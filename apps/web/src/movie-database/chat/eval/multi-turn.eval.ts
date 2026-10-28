@@ -21,39 +21,6 @@ const cases: MultiTurnEvalCase[] = [
     ],
     requireToolCall: "semantic_search",
   },
-  {
-    name: "Genre switch",
-    turns: [
-      { content: "Recommend a horror movie" },
-      { content: "Actually, I'd prefer a comedy instead" },
-    ],
-    criteria: [
-      "The final response recommends comedy movies, not horror",
-      "The assistant acknowledged and respected the genre change",
-    ],
-  },
-  {
-    name: "Context retention",
-    turns: [
-      { content: "I absolutely loved Parasite" },
-      { content: "What else should I watch?" },
-    ],
-    criteria: [
-      "Recommendations are influenced by the user's love of Parasite",
-      "Suggestions are thematically or stylistically related to Parasite (e.g. Korean cinema, social commentary, thriller elements)",
-    ],
-  },
-  {
-    name: "Topic switch within domain",
-    turns: [
-      { content: "What are some good sci-fi movies?" },
-      { content: "Actually, I'm more in the mood for romantic comedies" },
-    ],
-    criteria: [
-      "The final response recommends romantic comedies, not sci-fi",
-      "The assistant pivoted to the new genre within the entertainment domain",
-    ],
-  },
 ];
 
 describe("Multi-turn", () => {

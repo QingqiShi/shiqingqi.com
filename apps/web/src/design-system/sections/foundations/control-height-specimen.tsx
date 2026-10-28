@@ -16,7 +16,7 @@ import { t } from "#src/i18n.ts";
 
 /**
  * One row for each `controlHeight` step, holding every control that takes
- * that step. `e2e/design-system-control-height.spec.ts` measures these rows.
+ * that step.
  */
 export function ControlHeightSpecimen() {
   const [range, setRange] = useState("week");

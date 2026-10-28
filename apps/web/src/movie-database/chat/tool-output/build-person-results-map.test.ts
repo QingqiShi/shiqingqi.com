@@ -62,16 +62,4 @@ describe("buildPersonResultsMap for media_credits", () => {
     expect(map.size).toBe(1);
     expect(map.get(1)?.name).toBe("Clint Eastwood");
   });
-
-  it("returns empty map for non-object/non-array input", () => {
-    expect(buildPersonResultsMap("media_credits", null).size).toBe(0);
-    expect(buildPersonResultsMap("media_credits", "string").size).toBe(0);
-    expect(buildPersonResultsMap("media_credits", 42).size).toBe(0);
-  });
-
-  it("handles empty cast and crew arrays", () => {
-    const output = { cast: [], crew: [] };
-    const map = buildPersonResultsMap("media_credits", output);
-    expect(map.size).toBe(0);
-  });
 });

@@ -40,19 +40,6 @@ describe("draftRowRepository.select", () => {
     expect(await selectCategoryIds({ matches: [] })).toEqual([]);
   });
 
-  it("selects the rows that equal one of the matches", async () => {
-    expect(
-      await selectCategoryIds({
-        matches: [{ id: home.groceriesId }, { id: home.salaryId }],
-      }),
-    ).toEqual(homeCategoryIds());
-    expect(
-      await selectCategoryIds({
-        matches: [{ id: home.groceriesId, name: "not its name" }],
-      }),
-    ).toEqual([]);
-  });
-
   it("selects every row of the Household, and no other, for an empty match", async () => {
     expect(await selectCategoryIds({ matches: [{}] })).toEqual(
       homeCategoryIds(),

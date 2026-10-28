@@ -3,11 +3,7 @@ import {
   type LanguageModel,
   type LanguageModelMiddleware,
 } from "ai";
-import {
-  getInstitutionDomainModel,
-  getFinanceModel,
-  getTeachingModel,
-} from "../get-finance-model.ts";
+import { getFinanceModel, getTeachingModel } from "../get-finance-model.ts";
 import type { LabellingModel } from "../label-bank-rows.ts";
 
 interface Price {
@@ -24,15 +20,6 @@ const SONNET_PRICE: Price = {
   cacheWrite: 2.5,
   cacheRead: 0.2,
   output: 10,
-  search: 0.01,
-};
-
-/** Claude Haiku 5.5, in the units of {@link SONNET_PRICE}. */
-const HAIKU_PRICE: Price = {
-  input: 0.1,
-  cacheWrite: 0.125,
-  cacheRead: 0.01,
-  output: 0.5,
   search: 0.01,
 };
 
@@ -72,11 +59,6 @@ export function meterFinanceModel() {
 /** The teaching model, wrapped to count its calls, tokens and web searches for an eval's report. */
 export function meterTeachingModel(onGenerate?: (result: Generated) => void) {
   return meterModel(getTeachingModel(), SONNET_PRICE, onGenerate);
-}
-
-/** The institution domain model, metered as {@link meterTeachingModel} meters its model. */
-export function meterInstitutionDomainModel() {
-  return meterModel(getInstitutionDomainModel(), HAIKU_PRICE);
 }
 
 function meterModel(

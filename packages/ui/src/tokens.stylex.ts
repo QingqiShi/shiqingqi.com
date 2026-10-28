@@ -62,7 +62,7 @@ const darkIntentTone = {
 
 const light = {
   // Foreground — two levels, measured with APCA against every surface they
-  // can land on (`tokens.contrast.test.ts`). `fg` clears the Lc 75 body floor,
+  // can land on. `fg` clears the Lc 75 body floor,
   // `fgMuted` the Lc 60 non-body floor. Worst case in light is
   // `bgControlSelected` (gray._90): fg 86, muted 65.
   //

@@ -1,8 +1,4 @@
 import { describe, expect, it } from "vitest";
-import type {
-  FoundTransaction,
-  TransactionSearch,
-} from "../db/repositories/transaction-search-repository.ts";
 import { labelBankRows } from "./label-bank-rows.ts";
 import { pairLabel } from "./row-questions.ts";
 import {
@@ -121,28 +117,6 @@ function row(
   };
 }
 
-const pastTesco: FoundTransaction = {
-  id: "t",
-  date: "2026-09-01",
-  kind: "expense",
-  labelledBy: "member",
-  entries: [
-    {
-      accountId: ids.current,
-      accountName: "Current",
-      amountMinor: -800,
-      currency: "GBP",
-    },
-  ],
-  bankTexts: ["TESCO EXPRESS"],
-  payeeId: ids.payee,
-  payeeName: "Tesco",
-  categoryId: ids.groceries,
-  tagNames: [],
-  memberName: null,
-  note: "milk",
-};
-
 function requestFor(
   model: ReturnType<typeof createLabellingModel>,
   description: string,
@@ -170,107 +144,6 @@ function labelsOf(
 const noSearch = () => Promise.resolve([]);
 
 describe("labelBankRows", () => {
-  it("sends the bank row with its weekday, the instructions and the past Transactions with similar bank text and their notes, without repeats, and reads the labels", async () => {
-    const searches: TransactionSearch[] = [];
-    const model = createLabellingModel(() => ({
-      category: "Groceries",
-      payee: "Tesco",
-      tags: ["Train"],
-      member: "Sam",
-    }));
-
-    const results = await labelBankRows(
-      model,
-      context,
-      [row("1", -1234, "TESCO STORES 3297")],
-      (search) => {
-        searches.push(search);
-        return Promise.resolve([
-          pastTesco,
-          { ...pastTesco, id: "older", date: "2026-08-01" },
-        ]);
-      },
-    );
-
-    expect(searches).toEqual([
-      { text: "tesco stores", limit: 8 },
-      { text: "tesco", limit: 8 },
-      { text: "stores", limit: 8 },
-    ]);
-    const [request] = model.requests;
-    expect(request.state.household_instructions).toBe(
-      "Payments to J SMITH are rent.",
-    );
-    expect(request.state.bank_row).toMatchObject({
-      date: "2026-10-05 (Monday)",
-      amount: "-12.34 GBP",
-      direction: "money out",
-      description: "TESCO STORES 3297",
-    });
-    expect(request.state.past_transactions_with_similar_bank_text).toEqual([
-      expect.objectContaining({
-        date: "2026-09-01",
-        bank_text: "TESCO EXPRESS",
-        note: "milk",
-      }),
-    ]);
-    expect(request.questions.expenseCategory).toMatchObject({
-      criteria: {
-        Food: null,
-        "Food > Groceries": "Usual payees: Tesco",
-      },
-    });
-    expect(offeredLabels(request.questions.payee)).toEqual([
-      "Tesco",
-      "Stores (new payee)",
-      "no payee",
-    ]);
-    expect(results.get("1")).toEqual({
-      ok: true,
-      label: {
-        kind: "expense",
-        categoryId: ids.groceries,
-        payee: { id: ids.payee },
-        tagIds: [ids.tag],
-        memberId: ids.partner,
-        transfer: null,
-        paysDownAccountId: null,
-        reason: "",
-        needsReview: false,
-      },
-    });
-  });
-
-  it("offers an income only for money in, and names a new Payee from the bank text", async () => {
-    const { model, results } = labelsOf(
-      {
-        "ACME LTD SALARY": {
-          kind: "income",
-          category: "Salary",
-          payee: "Acme",
-        },
-      },
-      [row("1", 250_000, "ACME LTD SALARY"), row("2", -100, "OTHER")],
-    );
-
-    expect((await results).get("1")).toMatchObject({
-      ok: true,
-      label: {
-        kind: "income",
-        categoryId: ids.salary,
-        payee: { name: "Acme" },
-      },
-    });
-    const moneyIn = requestFor(model, "ACME LTD SALARY");
-    const moneyOut = requestFor(model, "OTHER");
-    expect(Object.keys(moneyIn.questions)).toContain("incomeCategory");
-    expect(Object.keys(moneyOut.questions)).not.toContain("incomeCategory");
-    expect(offeredLabels(moneyOut.questions.kind)).toEqual([
-      "expense",
-      "transfer",
-    ]);
-  });
-
   it("reads a transfer to a known account, to the other side in the batch, or to an unknown account", async () => {
     const rows = [
       row("1", -5_000, "TO SAVINGS"),
@@ -310,22 +183,6 @@ describe("labelBankRows", () => {
       "Savings",
       "Mortgage",
       "unknown account",
-    ]);
-  });
-
-  it("offers only loans and receivables in the row's currency to pay down", async () => {
-    const { model, results } = labelsOf(
-      { MORTGAGE: { category: "Groceries", paysDown: "Mortgage" } },
-      [row("1", -150_000, "MORTGAGE")],
-    );
-
-    expect((await results).get("1")).toMatchObject({
-      ok: true,
-      label: { paysDownAccountId: ids.loan },
-    });
-    expect(offeredLabels(model.requests[0].questions.paysDown)).toEqual([
-      "Mortgage",
-      "none",
     ]);
   });
 

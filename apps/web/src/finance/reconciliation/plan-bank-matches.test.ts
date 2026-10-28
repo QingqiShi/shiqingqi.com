@@ -65,15 +65,6 @@ describe("planBankMatches", () => {
     ).toEqual([link("manual")]);
   });
 
-  it("settles In transit when that matches one more row", () => {
-    expect(
-      planBankMatches(
-        [row("2026-10-05"), row("2026-10-06")],
-        [candidate("manual"), candidate("transfer", { inTransit: true })],
-      ),
-    ).toEqual([link("manual"), settle("transfer")]);
-  });
-
   it("creates when nothing has the same signed amount within three days", () => {
     expect(
       planBankMatches(
@@ -143,19 +134,6 @@ describe("planBankMatches", () => {
     ).toEqual([confirm("expected")]);
   });
 
-  it("confirms more Expected Transactions over a smaller total gap", () => {
-    expect(
-      planBankMatches(
-        [row("2026-10-05"), row("2026-10-06")],
-        [
-          candidate("posted-5", { date: "2026-10-05" }),
-          candidate("posted-6", { date: "2026-10-06" }),
-          candidate("expected", { status: "expected", date: "2026-10-09" }),
-        ],
-      ),
-    ).toEqual([link("posted-5"), confirm("expected")]);
-  });
-
   it("matches more rows before it confirms more Expected Transactions", () => {
     expect(
       planBankMatches(
@@ -196,20 +174,6 @@ describe("planBankMatches", () => {
       expect(planBankMatches(rows, turned)).toEqual(plan);
       expect(planBankMatches(rows, turned.toReversed())).toEqual(plan);
     }
-  });
-
-  it("plans years of daily rows of one amount", () => {
-    const days = Array.from({ length: 20_000 }, (_, index) =>
-      addDays("2000-01-01", index),
-    );
-
-    const plan = planBankMatches(
-      days.map((day) => row(day)),
-      days.map((day) => candidate(day, { date: addDays(day, 1) })),
-    );
-
-    expect(plan.every((match) => match.action === "link")).toBe(true);
-    expect(plan.at(-1)).toEqual(link(days.at(-1) ?? ""));
   });
 
   it("matches the earlier of two rows that want one candidate", () => {

@@ -1,9 +1,9 @@
-export type Clock = {
+type Clock = {
   now: () => number;
   sleep: (ms: number) => Promise<void>;
 };
 
-export type TokenThrottle = {
+type TokenThrottle = {
   record: (tokens: number) => void;
   waitIfNeeded: () => Promise<void>;
 };
@@ -17,7 +17,7 @@ const WINDOW_MS = 60_000;
 const TOKEN_LIMIT = 30_000;
 const BUFFER = 5_000;
 
-export function createThrottle(clock: Clock = defaultClock): TokenThrottle {
+function createThrottle(clock: Clock = defaultClock): TokenThrottle {
   let entries: Array<{ tokens: number; timestamp: number }> = [];
 
   function pruneWindow(): number {

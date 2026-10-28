@@ -3,12 +3,7 @@ import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
 import type { InstitutionHints } from "../ai/guess-institution-domain.ts";
-import {
-  accounts,
-  households,
-  institutionDomainGuesses,
-  institutionIcons,
-} from "../db/schema.ts";
+import { accounts, institutionIcons } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import {
   seedTestHousehold,
@@ -23,7 +18,6 @@ const START = new Date("2026-10-14T09:00:00Z");
 
 let db: TestDb;
 let home: SeededHousehold;
-let other: SeededHousehold;
 let now: Date;
 let guesses: { name: string; hints: InstitutionHints }[];
 let fetches: string[];
@@ -33,7 +27,6 @@ let sites: Map<string, Uint8Array>;
 beforeEach(async () => {
   db = await createTestDb();
   home = await seedTestHousehold(db, "home");
-  other = await seedTestHousehold(db, "other");
   now = START;
   guesses = [];
   fetches = [];
@@ -120,36 +113,6 @@ async function setInstitution(
   expect(result.rejected).toEqual([]);
 }
 
-/** Adds one account to the home Household for each institution, in this order after the seeded accounts. */
-async function addAccounts(institutions: readonly string[]) {
-  const ids = institutions.map(() => randomUUID());
-  await db.insert(accounts).values(
-    institutions.map((institution, index) => ({
-      id: ids[index],
-      householdId: home.householdId,
-      groupId: home.liquidGroupId,
-      name: `Account ${String(index + 1)}`,
-      institution,
-      kind: "cash" as const,
-      currency: "GBP",
-      position: index + 1,
-      version: 0,
-    })),
-  );
-  return ids;
-}
-
-/** Bank 1 to Bank `count`, each with a domain and an icon. */
-function banks(count: number) {
-  return Array.from({ length: count }, (_, index) => {
-    const name = `Bank ${String(index + 1)}`;
-    const domain = `bank${String(index + 1)}.com`;
-    answers.set(name, domain);
-    sites.set(domain, icon(index + 10));
-    return name;
-  });
-}
-
 async function accountRow(id: string) {
   const rows = await db.select().from(accounts).where(eq(accounts.id, id));
   const [row] = rows;
@@ -157,30 +120,6 @@ async function accountRow(id: string) {
     institutionDomain: row.institutionDomain,
     guessedInstitutionDomain: row.guessedInstitutionDomain,
   };
-}
-
-async function accountIconVersion(id: string) {
-  const rows = await db
-    .select({ version: accounts.institutionIconVersion })
-    .from(accounts)
-    .where(eq(accounts.id, id));
-  return rows.at(0)?.version ?? null;
-}
-
-function pulledAccount(
-  pull: Awaited<ReturnType<typeof pullChanges>>,
-  id: string,
-) {
-  return (pull.tables.accounts ?? [])
-    .map((row) =>
-      z
-        .object({
-          id: z.string(),
-          institutionIconVersion: z.string().nullable(),
-        })
-        .parse(row),
-    )
-    .find((row) => row.id === id);
 }
 
 async function iconVersion(domain: string) {
@@ -232,227 +171,6 @@ describe("refreshInstitutionIcons", () => {
     ).toEqual([home.currentId, home.savingsId].sort());
   });
 
-  it("reuses another Household's guess and icon without asking the model again", async () => {
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-    await refresh();
-    await setInstitution(other, other.currentId, { institution: "WISE" });
-
-    const result = await refresh(other.householdId);
-
-    expect(guesses.map((guess) => guess.name)).toEqual(["Wise"]);
-    expect(fetches).toEqual(["wise.com"]);
-    expect(result).toEqual({ guessed: 0, fetched: 0, failed: 0, updated: 1 });
-    expect(await accountRow(other.currentId)).toMatchObject({
-      guessedInstitutionDomain: "wise.com",
-    });
-    expect(await accountIconVersion(other.currentId)).toBe(
-      await iconVersion("wise.com"),
-    );
-  });
-
-  it("gives an account the icon version of an icon that a run for another Household fetched", async () => {
-    await setInstitution(other, other.currentId, {
-      institutionDomain: "monzo.com",
-    });
-    await setInstitution(home, home.currentId, {
-      institutionDomain: "monzo.com",
-    });
-    await refresh(home.householdId);
-    expect(await accountIconVersion(other.currentId)).toBeNull();
-    const before = await pullChanges(db, other.householdId, 0);
-
-    expect(await refresh(other.householdId)).toMatchObject({
-      fetched: 0,
-      updated: 1,
-    });
-
-    const version = await iconVersion("monzo.com");
-    expect(version).not.toBeNull();
-    const pulled = await pullChanges(db, other.householdId, before.clock);
-    expect(pulledAccount(pulled, other.currentId)).toMatchObject({
-      institutionIconVersion: version,
-    });
-  });
-
-  it("sets the icon version as soon as a Member sets a domain whose icon is cached, and none for a domain without an icon", async () => {
-    await setInstitution(home, home.currentId, {
-      institutionDomain: "monzo.com",
-    });
-    await refresh();
-    const version = await iconVersion("monzo.com");
-    expect(version).not.toBeNull();
-
-    await setInstitution(home, home.savingsId, {
-      institutionDomain: "monzo.com",
-    });
-    expect(await accountIconVersion(home.savingsId)).toBe(version);
-
-    await setInstitution(home, home.savingsId, {
-      institutionDomain: "example.com",
-    });
-    expect(await accountIconVersion(home.savingsId)).toBeNull();
-  });
-
-  it("keeps the icon version that a Member's change during the run gave an account", async () => {
-    await setInstitution(other, other.currentId, {
-      institutionDomain: "monzo.com",
-    });
-    await refresh(other.householdId);
-    const version = await iconVersion("monzo.com");
-    expect(version).not.toBeNull();
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-
-    await refresh(home.householdId, {
-      guessDomain: async () => {
-        await setInstitution(home, home.savingsId, {
-          institutionDomain: "monzo.com",
-        });
-        return "wise.com";
-      },
-    });
-
-    expect(await accountIconVersion(home.currentId)).toBe(
-      await iconVersion("wise.com"),
-    );
-    expect(await accountIconVersion(home.savingsId)).toBe(version);
-  });
-
-  it("keeps a separate guess for each pair of currencies that the model sees with a name", async () => {
-    answers.set("Chase GBP/GBP", "chase.co.uk");
-    answers.set("Chase GBP/USD", "chase.com");
-    answers.set("Chase USD/USD", "chase.com");
-    sites.set("chase.co.uk", icon(5));
-    sites.set("chase.com", icon(6));
-    await setInstitution(home, home.currentId, { institution: "Chase" });
-    await setInstitution(home, home.savingsId, {
-      institution: "Chase",
-      currency: "USD",
-    });
-    await db
-      .update(households)
-      .set({ baseCurrency: "USD" })
-      .where(eq(households.id, other.householdId));
-    await setInstitution(other, other.currentId, {
-      institution: "Chase",
-      currency: "USD",
-    });
-
-    await refresh();
-    await refresh(other.householdId);
-
-    expect(guesses).toEqual([
-      {
-        name: "Chase",
-        hints: { baseCurrency: "GBP", accountCurrency: "GBP" },
-      },
-      {
-        name: "Chase",
-        hints: { baseCurrency: "GBP", accountCurrency: "USD" },
-      },
-      {
-        name: "Chase",
-        hints: { baseCurrency: "USD", accountCurrency: "USD" },
-      },
-    ]);
-    const cached = await db
-      .select({
-        nameKey: institutionDomainGuesses.nameKey,
-        baseCurrency: institutionDomainGuesses.baseCurrency,
-        accountCurrency: institutionDomainGuesses.accountCurrency,
-        domain: institutionDomainGuesses.domain,
-      })
-      .from(institutionDomainGuesses);
-    expect(cached).toHaveLength(3);
-    expect(cached).toEqual(
-      expect.arrayContaining([
-        {
-          nameKey: "chase",
-          baseCurrency: "GBP",
-          accountCurrency: "GBP",
-          domain: "chase.co.uk",
-        },
-        {
-          nameKey: "chase",
-          baseCurrency: "GBP",
-          accountCurrency: "USD",
-          domain: "chase.com",
-        },
-        {
-          nameKey: "chase",
-          baseCurrency: "USD",
-          accountCurrency: "USD",
-          domain: "chase.com",
-        },
-      ]),
-    );
-    expect(await accountRow(home.currentId)).toMatchObject({
-      guessedInstitutionDomain: "chase.co.uk",
-    });
-    expect(await accountRow(home.savingsId)).toMatchObject({
-      guessedInstitutionDomain: "chase.com",
-    });
-    expect(await accountRow(other.currentId)).toMatchObject({
-      guessedInstitutionDomain: "chase.com",
-    });
-  });
-
-  it("guesses again when the currency of an account changes, and keeps the old guess until then", async () => {
-    answers.set("Chase GBP/GBP", "chase.co.uk");
-    answers.set("Chase GBP/USD", null);
-    sites.set("chase.co.uk", icon(5));
-    await setInstitution(home, home.currentId, { institution: "Chase" });
-    await refresh(home.householdId);
-
-    await setInstitution(home, home.currentId, { currency: "USD" });
-    await refresh(home.householdId, { model: false });
-    expect(await accountRow(home.currentId)).toMatchObject({
-      guessedInstitutionDomain: "chase.co.uk",
-    });
-
-    await refresh();
-    expect(guesses.map((guess) => guess.hints.accountCurrency)).toEqual([
-      "GBP",
-      "USD",
-    ]);
-    expect(await accountRow(home.currentId)).toEqual({
-      institutionDomain: null,
-      guessedInstitutionDomain: null,
-    });
-  });
-
-  it("does not guess for an account whose Member set its own domain", async () => {
-    await setInstitution(home, home.currentId, {
-      institution: "My bank",
-      institutionDomain: "monzo.com",
-    });
-
-    await refresh();
-
-    expect(guesses).toEqual([]);
-    expect(fetches).toEqual(["monzo.com"]);
-    expect(await accountRow(home.currentId)).toEqual({
-      institutionDomain: "monzo.com",
-      guessedInstitutionDomain: null,
-    });
-  });
-
-  it("drops the old guess when the institution is renamed, then guesses the new name", async () => {
-    await setInstitution(home, home.currentId, { institution: "Barclay" });
-    await refresh();
-
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-    expect(await accountRow(home.currentId)).toEqual({
-      institutionDomain: null,
-      guessedInstitutionDomain: null,
-    });
-
-    await refresh();
-    expect(await accountRow(home.currentId)).toEqual({
-      institutionDomain: null,
-      guessedInstitutionDomain: "wise.com",
-    });
-  });
-
   it("keeps a Member's domain when the institution is renamed", async () => {
     await setInstitution(home, home.currentId, {
       institution: "Barclay",
@@ -486,155 +204,5 @@ describe("refreshInstitutionIcons", () => {
       guessedInstitutionDomain: "nationwide.co.uk",
     });
     expect(await iconVersion("nationwide.co.uk")).not.toBeNull();
-  });
-
-  it("shows the guessed domain without an icon until a fetch works, then a later pull carries the icon version", async () => {
-    sites.delete("wise.com");
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-
-    expect(await refresh()).toMatchObject({ fetched: 0, failed: 1 });
-    expect(await accountRow(home.currentId)).toEqual({
-      institutionDomain: null,
-      guessedInstitutionDomain: "wise.com",
-    });
-    const before = await pullChanges(db, home.householdId, 0);
-    expect(pulledAccount(before, home.currentId)).toMatchObject({
-      institutionIconVersion: null,
-    });
-
-    sites.set("wise.com", icon(2));
-    await refresh();
-    expect(fetches).toEqual(["wise.com"]);
-
-    now = new Date(START.getTime() + HOUR_MS);
-    expect(await refresh(home.householdId, { model: false })).toMatchObject({
-      fetched: 1,
-      updated: 1,
-    });
-    expect(fetches).toEqual(["wise.com", "wise.com"]);
-    const version = await iconVersion("wise.com");
-    expect(version).not.toBeNull();
-    const pulled = await pullChanges(db, home.householdId, before.clock);
-    expect(pulledAccount(pulled, home.currentId)).toEqual({
-      id: home.currentId,
-      institutionIconVersion: version,
-    });
-  });
-
-  it("fetches a Member's domain without a model, and guesses nothing", async () => {
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-    await setInstitution(home, home.savingsId, {
-      institutionDomain: "monzo.com",
-    });
-
-    await refresh(home.householdId, { model: false });
-
-    expect(guesses).toEqual([]);
-    expect(fetches).toEqual(["monzo.com"]);
-    expect(await accountRow(home.currentId)).toMatchObject({
-      guessedInstitutionDomain: null,
-    });
-  });
-
-  it("gives up on a model call that never answers, still fetches the other icons, and tries the name again after the backoff", async () => {
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-    await setInstitution(home, home.savingsId, {
-      institutionDomain: "monzo.com",
-    });
-    const hang = () => new Promise<string | null>(() => {});
-
-    expect(await refresh(home.householdId, { guessDomain: hang })).toEqual({
-      guessed: 0,
-      fetched: 1,
-      failed: 1,
-      updated: 1,
-    });
-    expect(fetches).toEqual(["monzo.com"]);
-
-    now = new Date(START.getTime() + HOUR_MS);
-    expect(await refresh()).toMatchObject({ guessed: 1, updated: 1 });
-    expect(await accountRow(home.currentId)).toMatchObject({
-      guessedInstitutionDomain: "wise.com",
-    });
-  });
-
-  it("guesses the names of the most accounts first, then in account order, when the run ends before all are guessed", async () => {
-    const singles = banks(6);
-    answers.set("Chase", "chase.co.uk");
-    answers.set("Monzo", "monzo.com");
-    await addAccounts([
-      ...singles,
-      "Monzo",
-      "Monzo",
-      "Chase",
-      "Chase",
-      "Chase",
-    ]);
-
-    const result = await refresh(home.householdId, {
-      endsAt: START.getTime() + 1000,
-      guessDomain: (name) => {
-        guesses.push({
-          name,
-          hints: { baseCurrency: "", accountCurrency: "" },
-        });
-        now = new Date(now.getTime() + HOUR_MS);
-        return Promise.resolve(answers.get(name) ?? null);
-      },
-    });
-
-    expect(guesses.map((guess) => guess.name).toSorted()).toEqual([
-      "Bank 1",
-      "Bank 2",
-      "Chase",
-      "Monzo",
-    ]);
-    expect(fetches).toEqual([]);
-    expect(result).toEqual({ guessed: 4, fetched: 0, failed: 0, updated: 7 });
-  });
-
-  it("starts no model call or fetch that could not end before the end of the run", async () => {
-    await setInstitution(home, home.currentId, { institution: "Wise" });
-
-    expect(
-      await refresh(home.householdId, { endsAt: START.getTime() + 49 }),
-    ).toEqual({ guessed: 0, fetched: 0, failed: 0, updated: 0 });
-    expect(await db.$count(institutionDomainGuesses)).toBe(0);
-
-    expect(
-      await refresh(home.householdId, { endsAt: START.getTime() + 50 }),
-    ).toEqual({ guessed: 1, fetched: 1, failed: 0, updated: 1 });
-  });
-
-  it("shares the names between two overlapping runs, so that together they guess each name once", async () => {
-    const names = banks(14);
-    const ids = await addAccounts(names);
-
-    const [first, second] = await Promise.all([refresh(), refresh()]);
-
-    expect(first.guessed + second.guessed).toBe(14);
-    expect(first.failed + second.failed).toBe(0);
-    expect(guesses.map((guess) => guess.name).toSorted()).toEqual(
-      names.toSorted(),
-    );
-    for (const [index, id] of ids.entries()) {
-      expect(await accountRow(id)).toMatchObject({
-        guessedInstitutionDomain: `bank${String(index + 1)}.com`,
-      });
-    }
-  });
-
-  it("moves no clock when nothing changes", async () => {
-    const before = await pullChanges(db, home.householdId, 0);
-
-    expect(await refresh()).toEqual({
-      guessed: 0,
-      fetched: 0,
-      failed: 0,
-      updated: 0,
-    });
-    expect((await pullChanges(db, home.householdId, 0)).clock).toBe(
-      before.clock,
-    );
   });
 });

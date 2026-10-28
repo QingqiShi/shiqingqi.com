@@ -84,7 +84,7 @@ export function testAccount(
   };
 }
 
-export function testCategory(
+function testCategory(
   id: string,
   name: string,
   kind: "expense" | "income",
@@ -273,7 +273,7 @@ export function testReplicaRows(): Partial<SyncRows> {
   };
 }
 
-export const testExchangeRates: ExchangeRateRow[] = [
+const testExchangeRates: ExchangeRateRow[] = [
   { base: "GBP", quote: "USD", on: "2026-01-01", rate: 1.25, source: "ecb" },
 ];
 

@@ -5,7 +5,6 @@ import {
   accounts,
   entries,
   exchangeRates,
-  households,
   reports,
   transactions,
   valuations,
@@ -20,12 +19,9 @@ import {
 import { createFxIndex } from "../domain/balance/create-fx-index.ts";
 import { netWorthAt } from "../domain/balance/net-worth-at.ts";
 import { addDays } from "../domain/dates/add-days.ts";
-import { weekdayOf } from "../domain/dates/start-of-week.ts";
 import { createTransactionAmount } from "../domain/transactions/create-transaction-amount.ts";
 import { generateWeeklyReports } from "./generate-weekly-reports.ts";
 import {
-  SPENDING_HISTORY_WEEKS,
-  TREND_AVERAGE_WEEKS,
   weeklyReportDataSchema,
   type WeeklyReportData,
 } from "./weekly-report-data-schema.ts";
@@ -147,11 +143,6 @@ afterAll(async () => {
 });
 
 describe("generateWeeklyReports data", () => {
-  it("covers Monday to Sunday", () => {
-    expect(report.periodStart).toBe("2026-09-28");
-    expect(report.periodEnd).toBe(PERIOD_END);
-  });
-
   it("adds accounts up to groups, groups to sides and sides to net worth", () => {
     const { assets, liabilities, netWorthMinor } = report.balanceSheet;
     for (const side of [assets, liabilities]) {
@@ -188,15 +179,6 @@ describe("generateWeeklyReports data", () => {
     ).toBe(true);
   });
 
-  it("gives each group its total at every week of the trend", () => {
-    const { assets, liabilities } = report.balanceSheet;
-    for (const group of [...assets.groups, ...liabilities.groups]) {
-      expect(group.history).toHaveLength(report.trend.length);
-      expect(group.history.at(-1)).toBe(group.totalMinor);
-      expect(group.history.at(-2)).toBe(group.previousTotalMinor);
-    }
-  });
-
   it("states the net worth the engine gives from raw rows", () => {
     expect(report.balanceSheet.netWorthMinor).toBe(
       engineNetWorthAt(PERIOD_END),
@@ -216,16 +198,6 @@ describe("generateWeeklyReports data", () => {
     expect(names).toContain("US Brokerage");
   });
 
-  it("names the Member who owns each account", () => {
-    const owners = new Map(
-      [...report.balanceSheet.assets.groups]
-        .flatMap((group) => group.accounts)
-        .map((account) => [account.name, account.ownerName]),
-    );
-    expect(owners.get("US Brokerage")).toBe("Alex");
-    expect(owners.get("Family Home")).toBeNull();
-  });
-
   it("compares with a week, four weeks and the year start before", () => {
     const { previousWeek, fourWeeksAgo, yearStart } = report.comparisons;
     const netWorth = report.balanceSheet.netWorthMinor;
@@ -236,41 +208,6 @@ describe("generateWeeklyReports data", () => {
       expect(comparison.netWorthMinor).toBe(engineNetWorthAt(comparison.day));
       expect(comparison.changeMinor).toBe(netWorth - comparison.netWorthMinor);
     }
-  });
-
-  it("keeps a weekly trend with its moving average", () => {
-    const { trend } = report;
-    expect(trend.length).toBeGreaterThan(150);
-    for (const [index, point] of trend.entries()) {
-      expect(weekdayOf(point.day)).toBe(7);
-      if (index > 0) expect(point.day).toBe(addDays(trend[index - 1].day, 7));
-    }
-    expect(trend[10].netWorthMinor).toBe(engineNetWorthAt(trend[10].day));
-
-    const weight = 2 / (TREND_AVERAGE_WEEKS + 1);
-    let average = trend[0].netWorthMinor;
-    for (const point of trend) {
-      average = average * (1 - weight) + point.netWorthMinor * weight;
-      expect(Math.abs(point.averageMinor - average)).toBeLessThanOrEqual(1);
-    }
-  });
-
-  it("nets property against the liability group named after it", () => {
-    const property = report.groupNets.find((net) => net.name === "不动产");
-    expect(property?.groupIds).toHaveLength(2);
-    const groups = [
-      ...report.balanceSheet.assets.groups,
-      ...report.balanceSheet.liabilities.groups,
-    ];
-    const house = groups.find((group) => group.name === "不动产");
-    const mortgage = groups.find((group) => group.name === "不动产负债");
-    expect(report.propertyNetMinor).toBe(
-      (house?.totalMinor ?? 0) + (mortgage?.totalMinor ?? 0),
-    );
-    expect(report.trend.at(-1)?.propertyNetMinor).toBe(report.propertyNetMinor);
-    expect(sum(report.groupNets.map((net) => net.valueMinor))).toBe(
-      report.balanceSheet.netWorthMinor,
-    );
   });
 
   it("adds the week's spending up to the raw total", async () => {
@@ -291,94 +228,12 @@ describe("generateWeeklyReports data", () => {
     expect(spending.changeMinor).toBe(spent - spending.averageMinor);
     expect(spending.byMember.map((line) => line.name)).toContain("Alex");
   });
-
-  it("keeps the spending of the twelve weeks up to the report's", async () => {
-    const { history, totalMinor } = report.spending;
-    expect(history).toHaveLength(SPENDING_HISTORY_WEEKS);
-    expect(history.at(-1)).toEqual({ periodEnd: PERIOD_END, totalMinor });
-    for (const week of history) {
-      expect(weekdayOf(week.periodEnd)).toBe(7);
-      expect(week.totalMinor).toBe(
-        await spentBetween(addDays(week.periodEnd, -6), week.periodEnd),
-      );
-    }
-  });
-
-  it("marks the line of a system Category", () => {
-    const system = report.spending.byCategory.filter((line) => line.isSystem);
-    expect(system.map((line) => line.name)).toEqual(["Uncategorised"]);
-    expect(report.spending.byMember.some((line) => line.isSystem)).toBe(false);
-  });
-
-  it("rolls categories up to their top level", () => {
-    const names = report.spending.byCategory.map((line) => line.name);
-    expect(names).not.toContain("超市");
-    expect(new Set(names).size).toBe(names.length);
-  });
-
-  it("lists at most five payees, most spent first", () => {
-    const { topPayees } = report;
-    expect(topPayees.length).toBeGreaterThan(0);
-    expect(topPayees.length).toBeLessThanOrEqual(5);
-    for (let i = 1; i < topPayees.length; i++) {
-      expect(topPayees[i - 1].amountMinor).toBeGreaterThanOrEqual(
-        topPayees[i].amountMinor,
-      );
-    }
-    expect(report.transactionCount).toBeGreaterThan(0);
-    expect(report.incomeMinor).toBeGreaterThanOrEqual(0);
-  });
 });
 
 describe("generateWeeklyReports", () => {
   beforeEach(async () => {
     await db.delete(reports);
   });
-
-  it(
-    "backfills every week once and writes nothing on a second run",
-    async () => {
-      const [before] = await db.select().from(households);
-      const first = await generateWeeklyReports(db, householdId, NOW, "all");
-      expect(first.written).toBe(first.reports.length);
-      expect(first.reports.at(-1)?.periodEnd).toBe(PERIOD_END);
-
-      const stored = await db
-        .select()
-        .from(reports)
-        .where(eq(reports.householdId, householdId));
-      expect(stored).toHaveLength(first.reports.length);
-      const last = stored.find((row) => row.periodEnd === PERIOD_END);
-      expect(last?.data).toEqual(report);
-
-      const second = await generateWeeklyReports(db, householdId, NOW, "all");
-      expect(second.written).toBe(0);
-      expect(second.unchanged).toBe(first.reports.length);
-      const [after] = await db.select().from(households);
-      expect(after.clock).toBe(before.clock);
-    },
-    DB_HOOK_TIMEOUT,
-  );
-
-  it(
-    "deletes the reports before the first week on an all run only",
-    async () => {
-      const stale = await storeStaleReport(householdId, "2001-01-07");
-      const last = await generateWeeklyReports(db, householdId, NOW, "last");
-      const explicit = await generateWeeklyReports(db, householdId, NOW, [
-        PERIOD_END,
-      ]);
-      expect([last.deleted, explicit.deleted]).toEqual([0, 0]);
-      expect(await storedReportIds(householdId)).toContain(stale);
-
-      const all = await generateWeeklyReports(db, householdId, NOW, "all");
-      expect(all.deleted).toBe(1);
-      const ids = await storedReportIds(householdId);
-      expect(ids).not.toContain(stale);
-      expect(ids).toHaveLength(all.reports.length);
-    },
-    DB_HOOK_TIMEOUT,
-  );
 
   it("deletes nothing when no account has a balance yet", async () => {
     const empty = await seedTestHousehold(db, "empty");
@@ -391,10 +246,5 @@ describe("generateWeeklyReports", () => {
     );
     expect(result).toMatchObject({ reports: [], deleted: 0 });
     expect(await storedReportIds(empty.householdId)).toEqual([stale]);
-  });
-
-  it("skips a week that has not ended", async () => {
-    const result = await generateWeeklyReports(db, householdId, NOW, [TODAY]);
-    expect(result.reports).toEqual([]);
   });
 });

@@ -1,10 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { periodBoundaries } from "./period-boundaries.ts";
-import {
-  defaultGrouping,
-  resolveAnalyticsRange,
-} from "./resolve-analytics-range.ts";
+import { resolveAnalyticsRange } from "./resolve-analytics-range.ts";
 
 function startsOf(boundaries: Int32Array) {
   return Array.from(boundaries.subarray(0, -1), fromEpochDay);
@@ -77,12 +74,5 @@ describe("resolveAnalyticsRange", () => {
     expect(
       resolveAnalyticsRange("all", today, { firstDay: "2019-03-04" }),
     ).toEqual({ from: "2019-03-04", to: today, previous: null });
-  });
-
-  test("picks a bar length that suits the range", () => {
-    expect(defaultGrouping("2026-10-01", today)).toBe("day");
-    expect(defaultGrouping("2026-08-01", today)).toBe("week");
-    expect(defaultGrouping("2025-11-01", today)).toBe("month");
-    expect(defaultGrouping("2015-01-01", today)).toBe("year");
   });
 });

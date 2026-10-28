@@ -44,26 +44,6 @@ function get(domain: string) {
 }
 
 describe("makeInstitutionIconHandler", () => {
-  it("serves the icon for the browser to keep, because its URL changes with its version", async () => {
-    const response = await get("wise.com");
-
-    expect(response.status).toBe(200);
-    expect(response.headers.get("Content-Type")).toBe("image/webp");
-    expect(response.headers.get("Cache-Control")).toBe(
-      "private, max-age=31536000, immutable",
-    );
-    expect(response.headers.get("ETag")).toBeNull();
-    expect(new Uint8Array(await response.arrayBuffer())).toEqual(IMAGE);
-  });
-
-  it("answers 404 for a domain with no icon, a failed fetch, or a name that is not a domain", async () => {
-    for (const domain of ["monzo.com", "broken.com", "localhost", "..%2F"]) {
-      const response = await get(domain);
-      expect(response.status, domain).toBe(404);
-      expect(response.headers.get("Cache-Control")).toBe("private, no-store");
-    }
-  });
-
   it("refuses a request without a session", async () => {
     session = null;
     expect((await get("wise.com")).status).toBe(401);

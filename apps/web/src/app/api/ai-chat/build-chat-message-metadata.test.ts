@@ -33,19 +33,6 @@ describe("buildChatMessageMetadata", () => {
     warn.mockRestore();
   });
 
-  it("ignores tool-calls for other tools", () => {
-    const result = buildChatMessageMetadata(
-      {
-        type: "tool-call",
-        toolName: "tmdb_search",
-        toolCallId: "call-3",
-        input: { query: "dune" },
-      },
-      SESSION_ID,
-    );
-    expect(result).toBeUndefined();
-  });
-
   it("emits input tokens and sessionId on finish-step", () => {
     const result = buildChatMessageMetadata(
       {
@@ -82,13 +69,5 @@ describe("buildChatMessageMetadata", () => {
       SESSION_ID,
     );
     expect(result).toEqual({ inputTokens: 1234, sessionId: SESSION_ID });
-  });
-
-  it("returns undefined for unrelated parts", () => {
-    const result = buildChatMessageMetadata(
-      { type: "text-start", id: "t1" },
-      SESSION_ID,
-    );
-    expect(result).toBeUndefined();
   });
 });

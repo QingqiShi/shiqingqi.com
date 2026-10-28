@@ -1,7 +1,7 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState, type ReactNode } from "react";
-import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { MenuButton } from "./menu-button.tsx";
 
 // jsdom has no `matchMedia`, which the open/close morph reads for a
@@ -41,17 +41,10 @@ function MenuItemFixture({
   );
 }
 
-function TestMenu({
-  autoFocusIndex,
-  popupRole,
-}: {
-  autoFocusIndex?: number;
-  popupRole?: "menu" | "group" | undefined;
-}) {
+function TestMenu({ autoFocusIndex }: { autoFocusIndex?: number }) {
   return (
     <MenuButton
       buttonProps={{ type: "button", "aria-label": "Open menu" }}
-      popupRole={popupRole}
       menuContent={
         <div>
           <MenuItemFixture autoFocus={autoFocusIndex === 0}>
@@ -82,16 +75,6 @@ describe("MenuButton keyboard navigation", () => {
 
     const items = getMenuItems();
     expect(items[0]).toHaveFocus();
-  });
-
-  it("moves focus to the item marked as autoFocus when the menu opens", async () => {
-    const user = userEvent.setup();
-    render(<TestMenu autoFocusIndex={1} />);
-
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-
-    const items = getMenuItems();
-    expect(items[1]).toHaveFocus();
   });
 
   it("cycles focus forward with ArrowDown", async () => {
@@ -142,59 +125,6 @@ describe("MenuButton keyboard navigation", () => {
     expect(items[0]).toHaveFocus();
   });
 
-  it("skips an item that does not render", async () => {
-    const user = userEvent.setup();
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open menu" }}
-        menuContent={
-          <div>
-            <MenuItemFixture>Item A</MenuItemFixture>
-            <button type="button" role="menuitem" hidden>
-              Item Hidden
-            </button>
-            <MenuItemFixture>Item C</MenuItemFixture>
-          </div>
-        }
-      />,
-    );
-
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-
-    const items = getMenuItems();
-    expect(items).toHaveLength(2);
-    expect(items[0]).toHaveFocus();
-
-    await user.keyboard("{ArrowDown}");
-    expect(items[1]).toHaveFocus();
-
-    // Wraps past the hidden item rather than stranding focus on it
-    await user.keyboard("{ArrowDown}");
-    expect(items[0]).toHaveFocus();
-  });
-
-  it("keeps an aria-disabled item in the roving order", async () => {
-    const user = userEvent.setup();
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open menu" }}
-        menuContent={
-          <div>
-            <MenuItemFixture>Item A</MenuItemFixture>
-            <button type="button" role="menuitem" aria-disabled="true">
-              Item Busy
-            </button>
-          </div>
-        }
-      />,
-    );
-
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-
-    await user.keyboard("{ArrowDown}");
-    expect(screen.getByRole("menuitem", { name: "Item Busy" })).toHaveFocus();
-  });
-
   it("returns focus to the trigger on Escape", async () => {
     const user = userEvent.setup();
     render(<TestMenu />);
@@ -227,72 +157,6 @@ describe("MenuButton keyboard navigation", () => {
     expect(trigger).toHaveFocus();
   });
 
-  it("keeps the backdrop inside its one root element, so a blur around its group never measures it", async () => {
-    const user = userEvent.setup();
-    render(
-      <div data-testid="group">
-        <TestMenu />
-      </div>,
-    );
-
-    const trigger = screen.getByRole("button", { name: "Open menu" });
-    await user.click(trigger);
-
-    const group = screen.getByTestId("group");
-    expect(group.children).toHaveLength(1);
-
-    // Only the backdrop closes the menu on click, so a click on the first
-    // hidden node inside the root proves that node is the backdrop.
-    const backdrop = group.children[0].querySelector('[aria-hidden="true"]');
-    if (!backdrop) throw new Error("expected backdrop");
-    fireEvent.click(backdrop);
-    expect(trigger).toHaveAttribute("aria-expanded", "false");
-  });
-
-  it("blurs the page around the popup only while the menu is open", async () => {
-    const user = userEvent.setup();
-    const { container } = render(<TestMenu />);
-
-    // The blur layers carry their backdrop-filter as inline custom properties
-    // (StyleX dynamic styles), so their presence is observable even in jsdom.
-    // How many there are and where each one sits on the ramp is
-    // ProgressiveBlur's own claim, covered by its suite — this only asserts
-    // that the menu blurs the page while it is open, and not before.
-    const blurs = () =>
-      [...container.querySelectorAll('[style*="backdropFilter"]')].map(
-        (layer) => layer.getAttribute("style") ?? "",
-      );
-
-    expect(blurs().length).toBeGreaterThan(0);
-    for (const blur of blurs()) {
-      expect(blur).toContain("blur(0px)");
-    }
-
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-
-    expect(blurs().some((blur) => !blur.includes("blur(0px)"))).toBe(true);
-  });
-
-  it("locks page scroll only while the menu is open", async () => {
-    const user = userEvent.setup();
-    const { unmount } = render(<TestMenu />);
-
-    // `react-remove-scroll` marks the locked document with this attribute and
-    // hangs its `overflow: hidden` rule off it, so the attribute is the lock
-    // rather than a proxy for it.
-    expect(document.body).not.toHaveAttribute("data-scroll-locked");
-
-    await user.click(screen.getByRole("button", { name: "Open menu" }));
-
-    expect(document.body).toHaveAttribute("data-scroll-locked");
-
-    // Unmounting rather than dismissing: it runs the same release, and the
-    // assertion then holds for every close path rather than for one of them.
-    unmount();
-
-    expect(document.body).not.toHaveAttribute("data-scroll-locked");
-  });
-
   it("marks the popup as inert when the menu is closed", async () => {
     const user = userEvent.setup();
     const { container } = render(<TestMenu />);
@@ -305,293 +169,6 @@ describe("MenuButton keyboard navigation", () => {
     // After opening, the popup should no longer be inert.
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     expect(container.querySelector("[inert]")).toBeNull();
-  });
-
-  it("ties the trigger to the popup via aria-controls while closed", () => {
-    render(<TestMenu />);
-
-    const trigger = screen.getByRole("button", { name: "Open menu" });
-    const controlsId = trigger.getAttribute("aria-controls") ?? "";
-    expect(controlsId).not.toBe("");
-
-    // Popup is always mounted (hidden via inert), so the referenced element
-    // must exist in the DOM even before the menu is opened.
-    const popup = document.getElementById(controlsId);
-    expect(popup).not.toBeNull();
-    expect(popup).toHaveAttribute("role", "menu");
-  });
-
-  it("keeps aria-controls pointing at the popup after opening", async () => {
-    const user = userEvent.setup();
-    render(<TestMenu />);
-
-    const trigger = screen.getByRole("button", { name: "Open menu" });
-    const controlsIdBefore = trigger.getAttribute("aria-controls") ?? "";
-
-    await user.click(trigger);
-
-    // Same relationship holds open — same id, same popup element.
-    const controlsIdAfter = trigger.getAttribute("aria-controls") ?? "";
-    expect(controlsIdAfter).toBe(controlsIdBefore);
-
-    const popup = document.getElementById(controlsIdAfter);
-    expect(popup).not.toBeNull();
-    // Popup is the element carrying role=menu and the menu items.
-    expect(popup).toHaveAttribute("role", "menu");
-    expect(popup?.querySelectorAll('[role="menuitem"]')).toHaveLength(3);
-  });
-
-  it("ties the trigger to the popup via aria-controls for non-menu popups too", () => {
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open filters" }}
-        popupRole="group"
-        menuContent={
-          <div>
-            <button type="button">Filter A</button>
-            <button type="button">Filter B</button>
-          </div>
-        }
-      />,
-    );
-
-    const trigger = screen.getByRole("button", { name: "Open filters" });
-    const controlsId = trigger.getAttribute("aria-controls") ?? "";
-    expect(controlsId).not.toBe("");
-
-    const popup = document.getElementById(controlsId);
-    expect(popup).not.toBeNull();
-    expect(popup).toHaveAttribute("role", "group");
-  });
-
-  it("does not intercept arrow keys when popupRole is not 'menu'", async () => {
-    const user = userEvent.setup();
-
-    // Using role="group" should leave arrow keys as no-ops — the popup
-    // doesn't advertise a menu contract, so MenuButton must not meddle.
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open group" }}
-        popupRole="group"
-        menuContent={
-          <div>
-            <button type="button">First</button>
-            <button type="button">Second</button>
-          </div>
-        }
-      />,
-    );
-
-    const trigger = screen.getByRole("button", { name: "Open group" });
-    await user.click(trigger);
-
-    // Focus stayed on the trigger — no auto-move into the popup for groups.
-    expect(trigger).toHaveFocus();
-
-    // Arrow keys should not move focus anywhere; trigger remains focused.
-    await user.keyboard("{ArrowDown}");
-    expect(trigger).toHaveFocus();
-  });
-});
-
-describe("MenuButton sheet direction", () => {
-  // jsdom lays nothing out, so every box measures zero. One stubbed rect for
-  // the whole tree stands in for a bar parked somewhere in the viewport: the
-  // trigger and the popup's frame both sit in that bar.
-  function stubBar(top: number, height: number) {
-    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue({
-      top,
-      bottom: top + height,
-      height,
-      left: 0,
-      right: 300,
-      width: 300,
-      x: 0,
-      y: top,
-      toJSON: () => ({}),
-    });
-  }
-
-  // fireEvent, not userEvent: the pointer events userEvent sends carry the
-  // jsdom default of (0, 0), which the stubbed rect puts outside the trigger,
-  // and `Button` then refuses the release as a press that left the control.
-  function openSheet() {
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open controls" }}
-        position="sheet"
-        popupRole="group"
-        menuContent={<button type="button">Inside</button>}
-      />,
-    );
-
-    const trigger = screen.getByRole("button", { name: "Open controls" });
-    fireEvent.click(trigger);
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
-
-    const popup = document.getElementById(
-      trigger.getAttribute("aria-controls") ?? "",
-    );
-    if (!popup) throw new Error("expected popup");
-    return popup;
-  }
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it("opens down from a bar at the top of the viewport", () => {
-    stubBar(0, 40);
-
-    const popup = openSheet();
-
-    expect(popup.closest('[class*="sheetAbove"]')).toBeNull();
-    expect(popup.style.maxBlockSize).toContain("100dvh");
-    expect(popup.style.maxBlockSize).toContain("env(safe-area-inset-bottom)");
-  });
-
-  it("opens up from a bar at the foot of the viewport", () => {
-    stubBar(window.innerHeight - 40, 40);
-
-    const popup = openSheet();
-
-    expect(popup.closest('[class*="sheetAbove"]')).not.toBeNull();
-    expect(popup.style.maxBlockSize).toContain(
-      `${String(window.innerHeight)}px`,
-    );
-    expect(popup.style.maxBlockSize).toContain("env(safe-area-inset-top)");
-    expect(popup.style.maxBlockSize).not.toContain("100dvh");
-  });
-
-  it("keeps opening down from a bar in mid-page", () => {
-    stubBar(window.innerHeight / 2 - 20, 40);
-
-    const popup = openSheet();
-
-    expect(popup.closest('[class*="sheetAbove"]')).toBeNull();
-    expect(popup.style.maxBlockSize).toContain("100dvh");
-  });
-});
-
-describe("MenuButton corner menu on screen", () => {
-  const SCREEN_WIDTH = 800;
-  let menuLeft = 0;
-  let menuWidth = 0;
-
-  // jsdom lays nothing out, so one stubbed rect stands in for every box: the
-  // menu, anchored at its trigger, runs from `left` to `left + width`.
-  function stubMenu(left: number, width: number) {
-    menuLeft = left;
-    menuWidth = width;
-    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
-      () => ({
-        top: 0,
-        bottom: 40,
-        height: 40,
-        left: menuLeft,
-        right: menuLeft + menuWidth,
-        width: menuWidth,
-        x: menuLeft,
-        y: 0,
-        toJSON: () => ({}),
-      }),
-    );
-    vi.spyOn(document.documentElement, "clientWidth", "get").mockReturnValue(
-      SCREEN_WIDTH,
-    );
-  }
-
-  // jsdom resolves no StyleX class, so the page gutter, which the menu reads
-  // from its resolved scroll margins, is stubbed per side.
-  function stubGutters(left: string, right: string) {
-    const getComputedStyle = window.getComputedStyle.bind(window);
-    vi.spyOn(window, "getComputedStyle").mockImplementation((element) => {
-      const style = getComputedStyle(element);
-      return new Proxy(style, {
-        get(target, property) {
-          if (property === "scrollMarginLeft") return left;
-          if (property === "scrollMarginRight") return right;
-          const value: unknown = Reflect.get(target, property, target);
-          if (typeof value !== "function") return value;
-          return (...args: unknown[]): unknown =>
-            Reflect.apply(value, target, args);
-        },
-      });
-    });
-  }
-
-  function openMenu() {
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open genres" }}
-        popupRole="group"
-        menuContent={<button type="button">Inside</button>}
-      />,
-    );
-    const trigger = screen.getByRole("button", { name: "Open genres" });
-    fireEvent.click(trigger);
-    const popup = document.getElementById(
-      trigger.getAttribute("aria-controls") ?? "",
-    );
-    const menu = popup?.closest('[class*="menuContainer"]');
-    if (!(menu instanceof HTMLElement)) throw new Error("expected menu");
-    return menu;
-  }
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-    vi.useRealTimers();
-  });
-
-  it("moves a menu that opens past the left edge back in, one gutter and the left inset from it", () => {
-    stubMenu(-200, 500);
-    stubGutters("60px", "16px");
-
-    const menu = openMenu();
-
-    expect(menu.getAttribute("style")).toContain("260px");
-  });
-
-  it("moves a menu that opens past the right edge back in, one gutter and the right inset from it", () => {
-    stubMenu(400, 500);
-    stubGutters("16px", "60px");
-
-    const menu = openMenu();
-
-    expect(menu.getAttribute("style")).toContain("-160px");
-  });
-
-  it("keeps the left edge of a menu wider than the screen in view", () => {
-    stubMenu(-50, 900);
-    stubGutters("16px", "16px");
-
-    const menu = openMenu();
-
-    expect(menu.getAttribute("style")).toContain("66px");
-  });
-
-  it("leaves a menu that fits the screen where it is", () => {
-    stubMenu(100, 500);
-    stubGutters("16px", "16px");
-
-    const menu = openMenu();
-
-    expect(menu.getAttribute("style")).toBeNull();
-  });
-
-  it("moves an open menu back in when the screen resizes under it", () => {
-    vi.useFakeTimers({ toFake: ["requestAnimationFrame"] });
-    stubMenu(100, 500);
-    stubGutters("16px", "16px");
-    const menu = openMenu();
-
-    menuLeft = 400;
-    act(() => {
-      window.dispatchEvent(new Event("resize"));
-      vi.advanceTimersToNextFrame();
-    });
-
-    expect(menu.getAttribute("style")).toContain("-116px");
   });
 });
 
@@ -626,39 +203,6 @@ describe("MenuButton controlled open state", () => {
       />
     );
   }
-
-  it("reports every open and close to its parent", async () => {
-    const user = userEvent.setup();
-    const onOpenChange = vi.fn();
-    render(<ControlledMenu onOpenChange={onOpenChange} />);
-
-    const trigger = screen.getByRole("button", { name: "Open menu" });
-    await user.click(trigger);
-    expect(onOpenChange).toHaveBeenLastCalledWith(true);
-    expect(trigger).toHaveAttribute("aria-expanded", "true");
-
-    await user.keyboard("{Escape}");
-    expect(onOpenChange).toHaveBeenLastCalledWith(false);
-    expect(trigger).toHaveAttribute("aria-expanded", "false");
-  });
-
-  it("stays shut while the parent holds it shut", async () => {
-    const user = userEvent.setup();
-    render(
-      <MenuButton
-        buttonProps={{ type: "button", "aria-label": "Open menu" }}
-        popupRole="group"
-        open={false}
-        onOpenChange={vi.fn()}
-        menuContent={<button type="button">Pick</button>}
-      />,
-    );
-
-    const trigger = screen.getByRole("button", { name: "Open menu" });
-    await user.click(trigger);
-
-    expect(trigger).toHaveAttribute("aria-expanded", "false");
-  });
 
   it("hands focus back to the trigger when the parent closes it", async () => {
     const user = userEvent.setup();

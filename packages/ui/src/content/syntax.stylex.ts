@@ -5,8 +5,7 @@ import { green } from "../_generated/palette/hues/green.stylex.ts";
 import { purple } from "../_generated/palette/hues/purple.stylex.ts";
 
 // Code sits on `bgSurfaceRaised` — gray._100 in light, gray._7 in dark. Every
-// colour below clears WCAG AA (4.5:1) there; `syntax.contrast.test.ts` measures
-// it.
+// colour below clears WCAG AA (4.5:1) there.
 //
 // Three hues, not nine. `plain` matches `color.fg`, so a snippet reads as
 // part of the page; `punct` then `comment` step down from it, at gray._30 and _40

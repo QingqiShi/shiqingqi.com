@@ -295,7 +295,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 | `root.html` | colorScheme: light dark + backgroundColor: `color.bgCanvas` + textSizeAdjust: 100%                                            |
 | `root.body` | color: `color.fg` + fontFamily: `font.family` + lineHeight: `font.lineHeight_4` + textWrap: pretty + overflowWrap: break-word |
 
-Goes once on the document: `root.html` on `<html>` (in apps/web, through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class) and `root.body` on `<body>`. Everything inherits the body's leading, `text-wrap: pretty` and `overflow-wrap: break-word`, so text needs no `lineHeight`, `textWrap` or `overflowWrap` of its own unless it differs. `break-word` leaves the min-content size alone, so a flex or grid item that must shrink below its longest word still needs `overflowWrap: "anywhere"` or a zero minimum size. Never set a `fontSize` on the root: it overrides the visitor's browser font size, which every `rem` token follows. Every heading type role balances its lines, so `Heading` and any element that takes a heading role balance by default. StyleX cannot select by tag, so `apps/web/src/app/global.css` also balances raw `<h1>`–`<h6>` in the `normalize` layer, for a heading without a role. `apps/web/e2e/design-system-root-defaults.spec.ts` guards all of this.
+Goes once on the document: `root.html` on `<html>` (in apps/web, through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class) and `root.body` on `<body>`. Everything inherits the body's leading, `text-wrap: pretty` and `overflow-wrap: break-word`, so text needs no `lineHeight`, `textWrap` or `overflowWrap` of its own unless it differs. `break-word` leaves the min-content size alone, so a flex or grid item that must shrink below its longest word still needs `overflowWrap: "anywhere"` or a zero minimum size. Never set a `fontSize` on the root: it overrides the visitor's browser font size, which every `rem` token follows. Every heading type role balances its lines, so `Heading` and any element that takes a heading role balance by default. StyleX cannot select by tag, so `apps/web/src/app/global.css` also balances raw `<h1>`–`<h6>` in the `normalize` layer, for a heading without a role.
 
 ---
 
@@ -393,9 +393,9 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 <Link {...stylex.props(a11y.focusRing, styles.cta)} href={href}>
 ```
 
-Every element that takes focus draws the system ring: a component, `buttonReset.base`, `chipSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does. `apps/web/e2e/design-system-focus-ring.spec.ts` tabs through each page and fails on a tab stop with no ring or a clipped one.
+Every element that takes focus draws the system ring: a component, `buttonReset.base`, `chipSurface.interactive` and `cardSurface.interactive` carry it, and anything else (a link, a native `<input>`, a scroller) composes `a11y.focusRing`. Never set `outline: none` or `outlineWidth: 0` to hide it. A text field with no frame of its own leaves the ring to its frame: compose `a11y.focusRingWithin` on the frame and `stylex.defaultMarker()` on the field, as `chat-textarea.tsx` does.
 
-Every control takes a tap across at least 44px under a coarse pointer, without changing how it looks: `a11y.touchTarget` adds an `::after` hit area that extends past a smaller box, and drops the tap flash and the double-tap zoom. `buttonReset.base`, `chipSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; compose `a11y.touchTarget` on any other control, before any style that sets `position`. Under a coarse pointer the control becomes `position: relative` and `isolation: isolate`. Three things take the hit area away, and `apps/web/e2e/design-system-touch-target.spec.ts` fails on each at a phone viewport:
+Every control takes a tap across at least 44px under a coarse pointer, without changing how it looks: `a11y.touchTarget` adds an `::after` hit area that extends past a smaller box, and drops the tap flash and the double-tap zoom. `buttonReset.base`, `chipSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; compose `a11y.touchTarget` on any other control, before any style that sets `position`. Under a coarse pointer the control becomes `position: relative` and `isolation: isolate`. Three things take the hit area away:
 
 - An ancestor that clips overflow also clips the hit area. Give a control inside one 44px of its own under `pointer.coarse`, or move the clip to an inner element.
 - A small control closer to a field or another control than its hit area extends covers it and takes its taps. Make the gap larger under `pointer.coarse`.
@@ -427,8 +427,6 @@ const styles = stylex.create({
 });
 <button {...getOptionProps(value)} css={[styles.option, selected.marked]}>
 ```
-
-`apps/web/e2e/design-system-selected.spec.ts` checks that each ARIA state, and only those, paints the look.
 
 ---
 

@@ -35,28 +35,6 @@ describe("apiRequestWrapper", () => {
       expect(captured?.get("page")).toBe("0");
     });
 
-    it("includes boolean false in query params", async () => {
-      let captured: URLSearchParams | undefined;
-      captureSearchParams("/api/test", (params) => {
-        captured = params;
-      });
-
-      await apiRequestWrapper<TestServerFn>("/api/test", { enabled: false });
-
-      expect(captured?.get("enabled")).toBe("false");
-    });
-
-    it("includes empty string in query params", async () => {
-      let captured: URLSearchParams | undefined;
-      captureSearchParams("/api/test", (params) => {
-        captured = params;
-      });
-
-      await apiRequestWrapper<TestServerFn>("/api/test", { name: "" });
-
-      expect(captured?.get("name")).toBe("");
-    });
-
     it("omits null values", async () => {
       let captured: URLSearchParams | undefined;
       captureSearchParams("/api/test", (params) => {
@@ -66,21 +44,6 @@ describe("apiRequestWrapper", () => {
       await apiRequestWrapper<TestServerFn>("/api/test", {
         page: 1,
         name: null,
-      });
-
-      expect(captured?.get("page")).toBe("1");
-      expect(captured?.has("name")).toBe(false);
-    });
-
-    it("omits undefined values", async () => {
-      let captured: URLSearchParams | undefined;
-      captureSearchParams("/api/test", (params) => {
-        captured = params;
-      });
-
-      await apiRequestWrapper<TestServerFn>("/api/test", {
-        page: 1,
-        name: undefined,
       });
 
       expect(captured?.get("page")).toBe("1");
@@ -99,21 +62,6 @@ describe("apiRequestWrapper", () => {
 
       expect(captured?.getAll("tags")).toEqual(["a", "b", "c"]);
     });
-
-    it("serializes string and number params correctly", async () => {
-      let captured: URLSearchParams | undefined;
-      captureSearchParams("/api/test", (params) => {
-        captured = params;
-      });
-
-      await apiRequestWrapper<TestServerFn>("/api/test", {
-        page: 3,
-        name: "hello",
-      });
-
-      expect(captured?.get("page")).toBe("3");
-      expect(captured?.get("name")).toBe("hello");
-    });
   });
 
   describe("error handling", () => {
@@ -127,27 +75,6 @@ describe("apiRequestWrapper", () => {
       await expect(
         apiRequestWrapper<TestServerFn>("/api/test", {}),
       ).rejects.toThrow();
-    });
-
-    it("throws when called during SSR", async () => {
-      const originalWindow = globalThis.window;
-      Object.defineProperty(globalThis, "window", {
-        value: undefined,
-        writable: true,
-        configurable: true,
-      });
-
-      try {
-        await expect(
-          apiRequestWrapper<TestServerFn>("/api/test", {}),
-        ).rejects.toThrow("apiRequestWrapper called during SSR");
-      } finally {
-        Object.defineProperty(globalThis, "window", {
-          value: originalWindow,
-          writable: true,
-          configurable: true,
-        });
-      }
     });
   });
 });

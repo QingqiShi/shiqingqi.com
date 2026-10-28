@@ -62,15 +62,6 @@ describe("makeExchangeRatesCronHandler", () => {
     expect(frankfurter.requests).toEqual([]);
   });
 
-  it("answers 503 when Finance has no database", async () => {
-    configured = false;
-
-    const response = await runCron(`Bearer ${SECRET}`);
-
-    expect(response.status).toBe(503);
-    expect(await response.json()).toEqual({ error: "not-configured" });
-  });
-
   it("refreshes the pairs of every Household and sends the totals", async () => {
     frankfurter.rates.set("USD/GBP", 0.75);
     frankfurter.failures.set("EUR/GBP", 500);

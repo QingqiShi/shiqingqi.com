@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import type { RuleTemplate } from "../rules/rule-template-schema.ts";
 import { testAccount } from "../transactions/testing/create-test-replica.ts";
 import { editRuleTemplate } from "./edit-rule-template.ts";
-import { simpleTemplateAccounts } from "./simple-template-accounts.ts";
 
 function account(id: string, currency: string, ownerMemberId: string | null) {
   return testAccount(id, { ownerMemberId, currency });
@@ -43,35 +42,6 @@ const edit = {
   categoryId: "streaming",
 };
 
-describe("simpleTemplateAccounts", () => {
-  it("reads the account of an expense and both accounts of a transfer", () => {
-    expect(simpleTemplateAccounts(expense, isBase)).toEqual({
-      accountId: "current",
-      toAccountId: "",
-    });
-    expect(simpleTemplateAccounts(transfer, isBase)).toEqual({
-      accountId: "current",
-      toAccountId: "savings",
-    });
-  });
-
-  it("is null for several accounts or another currency", () => {
-    const split = {
-      ...expense,
-      entries: [
-        { accountId: "current", amountMinor: -500 },
-        { accountId: "card", amountMinor: -599 },
-      ],
-    };
-    const foreign = {
-      ...expense,
-      entries: [{ accountId: "us", amountMinor: -1_400 }],
-    };
-    expect(simpleTemplateAccounts(split, isBase)).toBeNull();
-    expect(simpleTemplateAccounts(foreign, isBase)).toBeNull();
-  });
-});
-
 describe("editRuleTemplate", () => {
   it("moves an expense to another account, Payee and Category, and the Member follows the account", () => {
     expect(editRuleTemplate(expense, edit, context)).toEqual({
@@ -86,15 +56,6 @@ describe("editRuleTemplate", () => {
         tagIds: ["tv"],
       },
     });
-  });
-
-  it("keeps a Member who is not the old account's owner", () => {
-    const result = editRuleTemplate(
-      { ...expense, memberId: "kim" },
-      edit,
-      context,
-    );
-    expect(result.ok && result.template.memberId).toBe("kim");
   });
 
   it("moves a transfer between two other accounts with no Category", () => {

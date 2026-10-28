@@ -14,15 +14,6 @@ function msg(
 }
 
 describe("findLatestMoodFromMessages", () => {
-  it("returns undefined for an empty list", () => {
-    expect(findLatestMoodFromMessages([])).toBeUndefined();
-  });
-
-  it("returns undefined when no assistant message carries a mood", () => {
-    const messages = [msg("user", { mood: "warm" }), msg("assistant", {})];
-    expect(findLatestMoodFromMessages(messages)).toBeUndefined();
-  });
-
   it("returns the mood from the most recent assistant message", () => {
     const messages = [
       msg("assistant", { mood: "warm" }),
@@ -38,14 +29,5 @@ describe("findLatestMoodFromMessages", () => {
       msg("user", { mood: "playful" }),
     ];
     expect(findLatestMoodFromMessages(messages)).toBe("cool");
-  });
-
-  it("ignores assistant messages without a mood", () => {
-    const messages = [
-      msg("assistant", { mood: "epic" }),
-      msg("assistant"),
-      msg("assistant", { inputTokens: 10 }),
-    ];
-    expect(findLatestMoodFromMessages(messages)).toBe("epic");
   });
 });

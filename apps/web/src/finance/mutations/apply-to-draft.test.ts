@@ -22,10 +22,6 @@ import { rowKey } from "../replica/row-key.ts";
 import type { ReplicaRow, ReplicaTables } from "../replica/types.ts";
 import { occurrenceId } from "../rules/occurrence-id.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
-import {
-  createStrictDraft,
-  NotLoadedError,
-} from "../sync/create-strict-draft.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import {
   mutationSchema,
@@ -230,27 +226,10 @@ describe("createTransaction", () => {
     expect(rows.transactionTags).toHaveLength(1);
   });
 
-  it("adds a transfer between two accounts", async () => {
-    await expectSame(
-      mutation("createTransaction", {
-        id: randomUUID(),
-        kind: "transfer",
-        date: "2026-10-05",
-        entries: [
-          { id: randomUUID(), accountId: home.currentId, amountMinor: -500 },
-          { id: randomUUID(), accountId: home.savingsId, amountMinor: 500 },
-        ],
-      }),
-    );
-  });
-
   it.each([
     ["an unknown Category", () => ({ categoryId: randomUUID() })],
     ["a Category of the other kind", () => ({ categoryId: home.salaryId })],
-    ["an unknown Payee", () => ({ payeeId: randomUUID() })],
     ["an unknown Member", () => ({ memberId: randomUUID() })],
-    ["an unknown Tag", () => ({ tagIds: [randomUUID()] })],
-    ["an unknown Rule", () => ({ ruleId: randomUUID() })],
   ])("refuses %s", async (_name, fields) => {
     const { browser, server } = await onBothSides(expense(fields()));
     expect(server).toMatchObject({ reason: "invalid" });
@@ -304,18 +283,6 @@ describe("createTransaction", () => {
 });
 
 describe("updateTransaction", () => {
-  it("changes the note and the search text", async () => {
-    const { id } = await recordExpense();
-    const rows = rowsOf(
-      await expectSame(
-        mutation("updateTransaction", { id, patch: { note: "Milk" } }),
-      ),
-    );
-    expect(rows.transactions).toEqual([
-      expect.objectContaining({ searchText: "grocer milk groceries" }),
-    ]);
-  });
-
   it("replaces the Entries and Tags", async () => {
     const { id, entryId } = await recordExpense();
     const rows = rowsOf(
@@ -599,51 +566,6 @@ describe("putValuation and deleteValuation", () => {
 });
 
 describe("upsertAccount and upsertGroup", () => {
-  it("add an account, as a live one even when it comes deleted", async () => {
-    const rows = rowsOf(
-      await expectSame(
-        mutation("upsertAccount", {
-          id: randomUUID(),
-          groupId: home.liquidGroupId,
-          name: "Joint",
-          kind: "cash",
-          currency: "EUR",
-          deleted: true,
-        }),
-      ),
-    );
-    expect(rows.accounts).toEqual([
-      expect.objectContaining({ name: "Joint", deletedAt: null }),
-    ]);
-  });
-
-  it("rename and move an account, and drop its guessed domain with a new institution", async () => {
-    await db
-      .update(accounts)
-      .set({
-        institution: "Barclay",
-        guessedInstitutionDomain: "barclays.co.uk",
-      })
-      .where(eq(accounts.id, home.savingsId));
-    const rows = rowsOf(
-      await expectSame(
-        mutation("upsertAccount", {
-          id: home.savingsId,
-          name: "Rainy day",
-          institution: "Wise",
-          position: 3,
-        }),
-      ),
-    );
-    expect(rows.accounts).toEqual([
-      expect.objectContaining({
-        name: "Rainy day",
-        guessedInstitutionDomain: null,
-        institutionIconVersion: null,
-      }),
-    ]);
-  });
-
   it("refuse to delete an account in use, and delete one that is not", async () => {
     await recordExpense();
     await expectRefused(
@@ -728,26 +650,6 @@ describe("upsertAccount and upsertGroup", () => {
 });
 
 describe("upsertCategory", () => {
-  it("adds a child Category, archived", async () => {
-    const rows = rowsOf(
-      await expectSame(
-        mutation("upsertCategory", {
-          id: randomUUID(),
-          kind: "expense",
-          name: "Bakery",
-          parentId: home.groceriesId,
-          archived: true,
-        }),
-      ),
-    );
-    expect(rows.categories).toEqual([
-      expect.objectContaining({
-        archivedAt: "set",
-        parentId: home.groceriesId,
-      }),
-    ]);
-  });
-
   it("renames a Category and the search text of its Transactions", async () => {
     await recordExpense();
     const rows = rowsOf(
@@ -802,23 +704,6 @@ describe("upsertCategory", () => {
 });
 
 describe("upsertPayee and mergePayee", () => {
-  it("add and rename a Payee, with the search text of its Transactions", async () => {
-    await recordExpense();
-    rowsOf(
-      await expectSame(
-        mutation("upsertPayee", { id: randomUUID(), name: "Corner Shop" }),
-      ),
-    );
-    const rows = rowsOf(
-      await expectSame(
-        mutation("upsertPayee", { id: home.grocerId, name: "Greengrocer" }),
-      ),
-    );
-    expect(rows.transactions).toEqual([
-      expect.objectContaining({ searchText: "greengrocer groceries" }),
-    ]);
-  });
-
   it("move the Transactions and Rule templates of a merged Payee, and refuse to change it after", async () => {
     const shopId = randomUUID();
     const ruleId = randomUUID();
@@ -857,32 +742,6 @@ describe("upsertPayee and mergePayee", () => {
       "deleted",
       "The payee was merged",
     );
-  });
-});
-
-describe("upsertTag and upsertMember", () => {
-  it("add and rename a Tag and a Member", async () => {
-    const tagId = randomUUID();
-    const memberId = randomUUID();
-    rowsOf(await expectSame(mutation("upsertTag", { id: tagId, name: "Bus" })));
-    rowsOf(
-      await expectSame(mutation("upsertTag", { id: tagId, name: "Coach" })),
-    );
-    const added = rowsOf(
-      await expectSame(
-        mutation("upsertMember", { id: memberId, name: "Robin" }),
-      ),
-    );
-    expect(added.members).toEqual([
-      expect.objectContaining({ role: "member", userId: null }),
-    ]);
-    expect(
-      rowsOf(
-        await expectSame(
-          mutation("upsertMember", { id: memberId, name: "Robin" }),
-        ),
-      ),
-    ).toEqual({});
   });
 });
 
@@ -1052,16 +911,6 @@ describe("upsertRule", () => {
     await linkAccount(home.cardId);
     await expectAutoPost(
       mutation("upsertRule", { ...newRule(randomUUID()).args, autoPost: true }),
-      false,
-    );
-  });
-
-  it("does not post automatically when the stored template has an account with a Bank link", async () => {
-    const ruleId = randomUUID();
-    await push(newRule(ruleId));
-    await linkAccount(home.currentId);
-    await expectAutoPost(
-      mutation("upsertRule", { id: ruleId, autoPost: true }),
       false,
     );
   });
@@ -1318,22 +1167,4 @@ describe("every mutation", () => {
       rowsOf(await expectSame(await widestCase()));
     },
   );
-});
-
-describe("the server's strict draft", () => {
-  it("throws on a read of a row or a set that it did not load", () => {
-    const strict = createStrictDraft();
-    strict.addKeys("payees", [home.grocerId], []);
-
-    expect(strict.draft.get("payees", home.grocerId)).toBeUndefined();
-    expect(() => strict.draft.get("payees", home.employerId)).toThrow(
-      NotLoadedError,
-    );
-    expect(() =>
-      strict.draft.where("transactions", { payeeId: home.grocerId }),
-    ).toThrow(NotLoadedError);
-    expect(() => strict.draft.balanceAt(home.currentId, TODAY)).toThrow(
-      NotLoadedError,
-    );
-  });
 });

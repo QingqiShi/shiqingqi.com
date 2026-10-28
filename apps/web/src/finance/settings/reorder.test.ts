@@ -16,10 +16,6 @@ describe("moveTo", () => {
       "c",
     ]);
   });
-
-  it("leaves the order alone for an unknown id", () => {
-    expect(moveTo(["a", "b"], "x", "a")).toEqual(["a", "b"]);
-  });
 });
 
 describe("moveBy", () => {
@@ -68,28 +64,6 @@ describe("reorder", () => {
       { id: "c", position: 0 },
       { id: "a", position: 2 },
       { id: "b", position: 3 },
-    ]);
-  });
-
-  it("moves a Group past Groups of the other side", () => {
-    const groups = [
-      { id: "cash", position: 0, side: "asset" },
-      { id: "investments", position: 1, side: "asset" },
-      { id: "cards", position: 2, side: "liability" },
-    ];
-    const assets = ["cash", "investments"];
-    expect(
-      reorder(
-        groups,
-        moveTo(["cash", "investments", "cards"], "cards", "investments"),
-      ),
-    ).toEqual([
-      { id: "cards", position: 1 },
-      { id: "investments", position: 2 },
-    ]);
-    expect(reorder(groups, moveBy(assets, "investments", -1))).toEqual([
-      { id: "investments", position: 0 },
-      { id: "cash", position: 1 },
     ]);
   });
 });

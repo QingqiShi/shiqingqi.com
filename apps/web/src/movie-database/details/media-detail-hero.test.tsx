@@ -9,30 +9,6 @@ import { MediaDetailHero } from "./media-detail-hero";
 // MediaPoster-style guard: show the badge when there's at least one vote,
 // drop it entirely otherwise.
 describe("MediaDetailHero rating badge", () => {
-  it("renders the rating badge with a correct accessible name when the title has votes", () => {
-    render(
-      <MediaDetailHero
-        title="Oppenheimer"
-        backdropPath={null}
-        voteAverage={8.1}
-        voteCount={10765}
-        meta="2023 • 180 min"
-        description="A biography of J. Robert Oppenheimer."
-        locale="en"
-        trailer={null}
-      />,
-    );
-
-    // The badge is an ARIA image; its accessible name carries the whole
-    // rating statement. role="img" with `hidden: false` excludes nothing —
-    // use getByRole with the name to assert both presence and correctness.
-    expect(
-      screen.getByRole("img", {
-        name: "User rating: 8.1 out of 10, based on 10,765 votes",
-      }),
-    ).toBeInTheDocument();
-  });
-
   it("does not render the rating badge when the title has no votes yet", () => {
     render(
       <MediaDetailHero

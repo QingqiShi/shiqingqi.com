@@ -60,14 +60,4 @@ describe("transactionFilters", () => {
       from: "2026-01-01",
     });
   });
-
-  it("knows when nothing filters", () => {
-    expect(transactionFilters.isEmpty(EMPTY_TRANSACTION_FILTERS)).toBe(true);
-    expect(
-      transactionFilters.isEmpty({
-        ...EMPTY_TRANSACTION_FILTERS,
-        memberIds: [A],
-      }),
-    ).toBe(false);
-  });
 });

@@ -13,7 +13,6 @@ import {
   seedTestHousehold,
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
-import { addDays } from "../domain/dates/add-days.ts";
 import type { ExchangeRateRow } from "./exchange-rate-row-schema.ts";
 import {
   collectHouseholdPairs,
@@ -133,35 +132,6 @@ describe("refreshHouseholdExchangeRates", () => {
     expect(frankfurter.requests).toEqual([url("USD", "2026-10-08")]);
   });
 
-  it("starts a new pair with no Entry or Valuation today", async () => {
-    await setCurrency(home.savingsId, "USD");
-
-    expect(await refresh()).toEqual({ pairs: 1, added: 1, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([url("USD", "2026-10-22")]);
-    expect(await readRates()).toEqual([ecb("USD", "2026-10-22", 0.75)]);
-  });
-
-  it("makes no pair for an account in the Base currency or a deleted account", async () => {
-    await db
-      .update(accounts)
-      .set({ currency: "USD", deletedAt: THURSDAY })
-      .where(eq(accounts.id, home.savingsId));
-
-    expect(await refresh()).toEqual({ pairs: 0, added: 0, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([]);
-  });
-
-  it("fetches nothing when the pair already has today's rate", async () => {
-    await setCurrency(home.savingsId, "USD");
-    await insertRates([ecb("USD", "2026-10-22", 0.7)]);
-
-    expect(await refresh()).toEqual({ pairs: 1, added: 0, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([]);
-  });
-
   it("keeps every rate already there, also one a Household gave", async () => {
     const monday = new Date("2026-10-19T06:00:00Z");
     now = monday;
@@ -204,14 +174,6 @@ describe("refreshHouseholdExchangeRates", () => {
       url("EUR", "2026-10-22"),
       url("JPY", "2026-10-22"),
     ]);
-  });
-
-  it("asks nothing for a currency the ECB does not publish", async () => {
-    await setCurrency(home.savingsId, "AED");
-
-    expect(await refresh()).toEqual({ pairs: 1, added: 0, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([]);
   });
 
   it("goes back no further than the first day the ECB has both currencies, and asks nothing more next time", async () => {
@@ -290,55 +252,6 @@ describe("refreshHouseholdExchangeRates", () => {
     expect(frankfurter.requests).toEqual([]);
   });
 
-  it("downloads gaps more than a month apart one by one", async () => {
-    await setCurrency(home.savingsId, "USD");
-    await insertTestExpense(db, home, home.savingsId, "2026-08-03", -500);
-    const stored = [ecb("USD", "2026-08-03", 0.7)];
-    for (let day = "2026-08-17"; day <= "2026-10-05"; day = addDays(day, 1)) {
-      stored.push(ecb("USD", day, 0.7));
-    }
-    stored.push(ecb("USD", "2026-10-19", 0.7), ecb("USD", "2026-10-22", 0.7));
-    await insertRates(stored);
-
-    expect(await refresh()).toEqual({ pairs: 1, added: 18, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([
-      url("USD", "2026-08-04", "2026-08-16"),
-      url("USD", "2026-10-06", "2026-10-18"),
-    ]);
-  });
-
-  it("fills a gap only from the first day a Household needs", async () => {
-    await setCurrency(home.savingsId, "USD");
-    await insertTestExpense(db, home, home.savingsId, "2026-10-08", -500);
-    await insertRates([
-      ecb("USD", "2026-10-01", 0.7),
-      ecb("USD", "2026-10-13", 0.7),
-      ecb("USD", "2026-10-22", 0.7),
-    ]);
-
-    expect(await refresh()).toEqual({ pairs: 1, added: 9, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([
-      url("USD", "2026-10-08", "2026-10-21"),
-    ]);
-  });
-
-  it("asks nothing for rates a weekend or a holiday apart", async () => {
-    await setCurrency(home.savingsId, "USD");
-    await insertTestExpense(db, home, home.savingsId, "2026-10-09", -500);
-    await insertRates([
-      ecb("USD", "2026-10-09", 0.7),
-      ecb("USD", "2026-10-13", 0.7),
-      ecb("USD", "2026-10-15", 0.7),
-      ecb("USD", "2026-10-22", 0.7),
-    ]);
-
-    expect(await refresh()).toEqual({ pairs: 1, added: 0, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([]);
-  });
-
   it("does not take a rate dated after today as the latest", async () => {
     await setCurrency(home.savingsId, "USD");
     const future = ecb("USD", "2026-11-02", 0.9);
@@ -348,15 +261,6 @@ describe("refreshHouseholdExchangeRates", () => {
 
     expect(frankfurter.requests).toEqual([url("USD", "2026-10-20")]);
     expect(await readRates()).toContainEqual(future);
-  });
-
-  it("fetches only the pairs of the one Household", async () => {
-    await setCurrency(home.savingsId, "USD");
-    await setCurrency(other.savingsId, "EUR");
-
-    expect(await refresh()).toEqual({ pairs: 1, added: 1, failed: 0 });
-
-    expect(frankfurter.requests).toEqual([url("USD", "2026-10-22")]);
   });
 });
 

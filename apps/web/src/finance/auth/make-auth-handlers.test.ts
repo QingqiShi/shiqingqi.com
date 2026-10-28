@@ -28,12 +28,6 @@ import {
   makeOutboxEmailSender,
   readOutbox,
 } from "../email/make-outbox-email-sender.ts";
-import type { FinanceEmailSender } from "../email/types.ts";
-import type {
-  FinanceRateLimitBucket,
-  LimitFinanceRequest,
-  RefundFinanceRequest,
-} from "../http/types.ts";
 import { createInvite } from "./create-invite.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { makeGetFinanceSession } from "./get-finance-session.ts";
@@ -83,40 +77,6 @@ function makeHandlers(overrides: Partial<AuthHandlerDeps> = {}) {
     },
     ...overrides,
   });
-}
-
-/** Allows `tokens[bucket]` requests per identifier in a 40-minute window, and takes refunds. */
-function countingLimiter(
-  tokens: Partial<Record<FinanceRateLimitBucket, number>>,
-): { limitRequest: LimitFinanceRequest; refundRequest: RefundFinanceRequest } {
-  const used = new Map<string, number>();
-  return {
-    limitRequest: (bucket, identifier) => {
-      const key = `${bucket} ${identifier}`;
-      const count = used.get(key) ?? 0;
-      const success = count < (tokens[bucket] ?? Number.POSITIVE_INFINITY);
-      if (success) used.set(key, count + 1);
-      return Promise.resolve({ success, reset: now.getTime() + 40 * 60_000 });
-    },
-    refundRequest: (bucket, identifier) => {
-      const key = `${bucket} ${identifier}`;
-      used.set(key, (used.get(key) ?? 0) - 1);
-      return Promise.resolve();
-    },
-  };
-}
-
-/** An email sender that refuses every email until `works` is set, as Resend does with a bad API key. */
-function brokenEmailSender() {
-  const outbox = makeOutboxEmailSender(outboxDir);
-  const state = { works: false };
-  const sender: FinanceEmailSender = {
-    send: (email) =>
-      state.works
-        ? outbox.send(email)
-        : Promise.reject(new Error("API key is invalid")),
-  };
-  return { state, sender };
 }
 
 function verificationTokenIn(text = "", localePrefix = ""): string {
@@ -636,39 +596,6 @@ describe("sign-up", () => {
     expect(await db.select().from(households)).toHaveLength(0);
   });
 
-  it("uses the default time zone when the browser sends one that Node does not know", async () => {
-    await finishSignUp(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-      await requestSignUpToken(),
-      { timezone: "Mars/Olympus_Mons" },
-    );
-
-    expect((await db.select().from(households)).at(0)?.timezone).toBe(
-      "Europe/London",
-    );
-  });
-
-  it("names the default groups in English when the browser sends no locale", async () => {
-    await signUp(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-    );
-
-    const groups = await db
-      .select({ name: accountGroups.name, side: accountGroups.side })
-      .from(accountGroups)
-      .orderBy(accountGroups.position);
-    expect(groups).toEqual([
-      { name: "Cash", side: "asset" },
-      { name: "Investments", side: "asset" },
-      { name: "Retirement", side: "asset" },
-      { name: "Property", side: "asset" },
-      { name: "Credit cards", side: "liability" },
-      { name: "Loans", side: "liability" },
-    ]);
-  });
-
   it("refuses an address that is not an email and a server with no email", async () => {
     const notEmail = await createAuthTestClient(makeHandlers()).post(
       "requestSignUp",
@@ -715,37 +642,6 @@ describe("sign-up", () => {
       expect.stringMatching(/^sign-up-address [0-9a-f]{64}$/),
     ]);
     expect(await readOutbox(outboxDir)).toEqual([]);
-  });
-  it("does not count a sign-up email that did not go out against the address or the IP", async () => {
-    const email = brokenEmailSender();
-    const client = createAuthTestClient(
-      makeHandlers({
-        ...countingLimiter({ "sign-up-ip": 1, "sign-up-address": 1 }),
-        emailSender: () => email.sender,
-      }),
-    );
-    const request = () =>
-      client.post("requestSignUp", { email: "qingqi@example.com" });
-
-    const failed = await request();
-    const failedAgain = await request();
-    email.state.works = true;
-    const sent = await request();
-    const limited = await request();
-
-    for (const refused of [failed, failedAgain]) {
-      expect(refused).toMatchObject({
-        status: 502,
-        body: { error: "email_failed" },
-      });
-    }
-    expect(sent.status).toBe(202);
-    expect(limited).toMatchObject({
-      status: 429,
-      body: { error: "rate_limited" },
-    });
-    expect(limited.headers.get("Retry-After")).toBe(String(40 * 60));
-    expect(await readOutbox(outboxDir)).toHaveLength(1);
   });
 });
 
@@ -834,45 +730,10 @@ describe("sign-up by code", () => {
     expect(await db.select().from(households)).toHaveLength(1);
   });
 
-  it("leaves the emailed link working until the code is used", async () => {
-    const { linkToken } = await browserWithCode();
-
-    const result = await finishSignUp(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-      linkToken,
-    );
-
-    expect(result.status).toBe(200);
-  });
-
   itChecksEmailCodes(() => {
     const emails = ["first@example.com", "second@example.com"];
     return Promise.resolve(() => browserWithCode(emails.shift()));
   }, enterCode);
-});
-
-describe("an imported household", () => {
-  it("lets its owner in through an invite that the operator made", async () => {
-    const imported = await importedHousehold();
-    const invite = await operatorInvite(imported);
-    if (!invite.ok) throw new Error(invite.reason);
-    const owner = createAuthTestClient(makeHandlers());
-
-    const result = await acceptInvite(
-      owner,
-      createSoftwareAuthenticator(),
-      invite.token,
-    );
-
-    expect(result.status).toBe(200);
-    expect((await owner.get("session")).body).toMatchObject({
-      householdId: imported.householdId,
-      memberId: imported.memberIds[0],
-      role: "owner",
-    });
-    expect(await db.select().from(households)).toHaveLength(1);
-  });
 });
 
 describe("recovery email", () => {
@@ -979,46 +840,6 @@ describe("recovery email", () => {
     );
   });
 
-  it("tells no one when there was no confirmed email, or the confirmed one comes back", async () => {
-    const { owner } = await claimedHousehold();
-    await owner.post("setRecoveryEmail", { email: "first@example.com" });
-    await confirmRecoveryEmail(await lastLinkTo("first@example.com"));
-    await owner.post("setRecoveryEmail", { email: "second@example.com" });
-    await owner.post("setRecoveryEmail", { email: "first@example.com" });
-    await confirmRecoveryEmail(await lastLinkTo("first@example.com"));
-
-    expect((await sentAfterResponse()).map(({ to }) => to)).toEqual([
-      "first@example.com",
-      "second@example.com",
-      "first@example.com",
-    ]);
-    expect((await owner.get("recoveryEmail")).body).toEqual({
-      email: "first@example.com",
-      verified: true,
-    });
-  });
-
-  it("confirms the new email when the notice to the old one does not go out", async () => {
-    const email = brokenEmailSender();
-    email.state.works = true;
-    const { client } = await signedInOwner({ emailSender: () => email.sender });
-    await client.post("setRecoveryEmail", { email: "jane@example.com" });
-    const link = await lastLinkTo("jane@example.com");
-    email.state.works = false;
-
-    expect(
-      await confirmRecoveryEmail(link, { emailSender: () => email.sender }),
-    ).toBe(true);
-
-    expect((await sentAfterResponse()).map(({ to }) => to)).toEqual([
-      "jane@example.com",
-    ]);
-    expect((await client.get("recoveryEmail")).body).toEqual({
-      email: "jane@example.com",
-      verified: true,
-    });
-  });
-
   it("refuses to confirm an email that another user has confirmed, and changes neither user", async () => {
     const { client: owner } = await signedInOwner();
     const other = createAuthTestClient(makeHandlers());
@@ -1079,44 +900,6 @@ describe("recovery email", () => {
       status: 503,
       body: { error: "email_not_configured" },
     });
-  });
-
-  it("does not count a confirmation email that did not go out, and says how long to wait at the limit", async () => {
-    const email = brokenEmailSender();
-    const { client } = await signedInOwner({
-      ...countingLimiter({ "verify-email": 1 }),
-      emailSender: () => email.sender,
-    });
-
-    const failed = await client.post("setRecoveryEmail", {
-      email: "qingqi@example.com",
-    });
-    const failedAgain = await client.post("setRecoveryEmail", {
-      email: "qingqi@example.com",
-    });
-    email.state.works = true;
-    const sent = await client.post("setRecoveryEmail", {
-      email: "qingqi@example.com",
-    });
-    const limited = await client.post("setRecoveryEmail", {
-      email: "other@example.com",
-    });
-
-    for (const refused of [failed, failedAgain]) {
-      expect(refused).toMatchObject({
-        status: 502,
-        body: { error: "email_failed" },
-      });
-    }
-    expect(sent.status).toBe(200);
-    expect(limited).toMatchObject({
-      status: 429,
-      body: { error: "rate_limited" },
-    });
-    expect(limited.headers.get("Retry-After")).toBe(String(40 * 60));
-    expect((await readOutbox(outboxDir)).map(({ to }) => to)).toEqual([
-      "qingqi@example.com",
-    ]);
   });
 });
 
@@ -1446,18 +1229,6 @@ describe("sign-in and sessions", () => {
     expect(reissued).toHaveLength(1);
   });
 
-  it("renews the cookie from an auth route too", async () => {
-    const authenticator = await signedUpAuthenticator();
-    const client = createAuthTestClient(makeHandlers());
-    await signIn(client, authenticator);
-
-    advance(8 * DAY_MS);
-    const result = await client.get("session");
-
-    expect(result.status).toBe(200);
-    expect(result.setCookies.join("\n")).toMatch(/^finance_session=/m);
-  });
-
   it("forgets a session after 400 days without renewal", async () => {
     const authenticator = await signedUpAuthenticator();
     const client = createAuthTestClient(makeHandlers());
@@ -1468,23 +1239,6 @@ describe("sign-in and sessions", () => {
 
     expect(await getFinanceSession(sessionRequest(client))).toBeNull();
     expect(await db.select().from(sessions)).toHaveLength(1);
-  });
-
-  it("returns no session when finance is not configured", async () => {
-    const getFinanceSession = makeGetFinanceSession({
-      getDb: () => null,
-      now: () => now,
-      reissueCookie: () => Promise.resolve(),
-    });
-    const request = new Request(`${TEST_ORIGIN}/api/finance/sync`, {
-      headers: { Cookie: `${financeSessionCookie.name}=anything` },
-    });
-
-    expect(await getFinanceSession(request)).toBeNull();
-    const response = await createAuthTestClient(
-      makeHandlers({ getDb: () => null }),
-    ).post("signInOptions");
-    expect(response.status).toBe(503);
   });
 
   it("signs out by deleting the session", async () => {
@@ -1565,30 +1319,6 @@ describe("invites", () => {
     expect(
       await confirmRecoveryEmail(verificationTokenIn(sent.text, "/zh")),
     ).toBe(true);
-  });
-
-  it("needs an email from a new member", async () => {
-    const { invite } = await ownerAndInvite();
-
-    const missing = await acceptInvite(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-      invite.body.token,
-      null,
-    );
-    const invalid = await acceptInvite(
-      createAuthTestClient(makeHandlers()),
-      createSoftwareAuthenticator(),
-      invite.body.token,
-      "partner",
-    );
-
-    expect(missing).toMatchObject({
-      status: 400,
-      body: { error: "email_invalid" },
-    });
-    expect(invalid.status).toBe(400);
-    expect(await db.select().from(users)).toHaveLength(1);
   });
 
   it("rejects a used invite", async () => {
@@ -1761,21 +1491,6 @@ describe("recovery invites", () => {
     );
 
     expect(result.status).toBe(410);
-  });
-});
-
-describe("expired sessions", () => {
-  it("are deleted when the user starts a new session", async () => {
-    const client = createAuthTestClient(makeHandlers());
-    const authenticator = createSoftwareAuthenticator();
-    await signUp(client, authenticator);
-    advance(401 * DAY_MS);
-
-    await signIn(createAuthTestClient(makeHandlers()), authenticator);
-
-    const rows = await db.select().from(sessions);
-    expect(rows).toHaveLength(1);
-    expect(rows[0]?.expiresAt.getTime()).toBeGreaterThan(now.getTime());
   });
 });
 

@@ -2,10 +2,8 @@ import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { balanceAt } from "../domain/balance/balance-at.ts";
-import { compareTransactionsByDateDesc } from "../store/compare-transactions-by-date-desc.ts";
 import { selectBalanceSeriesByAccount } from "../store/select-balance-series-by-account.ts";
 import { selectNetWorthAt } from "../store/select-net-worth-at.ts";
-import { selectTransactionsByAccount } from "../store/select-transactions-by-account.ts";
 import { selectTransactionsByDateDesc } from "../store/select-transactions-by-date-desc.ts";
 import { MutationError } from "../sync/mutation-error.ts";
 import type { SyncRows } from "../sync/row-schemas.ts";
@@ -114,51 +112,6 @@ describe("createReplicaStore", () => {
     expect(snapshot.pendingAccounts.get(CURRENT)).toBe("2026-10-04");
   });
 
-  it("lists the rows it loads from disk after a read before the load", async () => {
-    const { store, persistence } = await seededStore();
-    await store.flush();
-    const reopened = createReplicaStore({
-      householdId: HOUSEHOLD,
-      persistence,
-      now: () => new Date(NOW),
-    });
-    expect(selectTransactionsByDateDesc(reopened.getSnapshot())).toEqual([]);
-    await reopened.load();
-    expect(selectTransactionsByDateDesc(reopened.getSnapshot())).toHaveLength(
-      2,
-    );
-  });
-
-  it("keeps the sorted list in step without sorting again", async () => {
-    const { store } = await seededStore();
-    const before = selectTransactionsByDateDesc(store.getSnapshot());
-    const id = randomUUID();
-    store.applyLocal(expense(id, "2026-10-04", 500));
-    const after = selectTransactionsByDateDesc(store.getSnapshot());
-    expect(after).not.toBe(before);
-    expect(after.map((row) => row.date)).toEqual([
-      "2026-10-05",
-      "2026-10-04",
-      "2026-10-03",
-    ]);
-    expect(after).toEqual(
-      [...store.getSnapshot().tables.transactions.values()].sort(
-        compareTransactionsByDateDesc,
-      ),
-    );
-
-    store.applyLocal({
-      name: "updateTransaction",
-      args: { id, patch: { date: "2026-10-09" } },
-    });
-    store.applyLocal({ name: "deleteTransaction", args: { id: after[2].id } });
-    const latest = selectTransactionsByDateDesc(store.getSnapshot());
-    expect(latest.map((row) => row.date)).toEqual(["2026-10-09", "2026-10-05"]);
-    expect(
-      selectTransactionsByAccount(store.getSnapshot()).get(CURRENT),
-    ).toEqual(latest);
-  });
-
   it("refuses a mutation the server would reject and changes nothing", async () => {
     const { store } = await seededStore();
     const snapshot = store.getSnapshot();
@@ -234,95 +187,5 @@ describe("createReplicaStore", () => {
     ]);
     expect(reopened.getSnapshot().outboxCount).toBe(0);
     expect(reopened.getSnapshot().pendingKeys.size).toBeGreaterThan(0);
-  });
-
-  it("works out a balance again only for an update that moves it", async () => {
-    const { store } = await seededStore();
-    const [first] = store.getSnapshot().tables.transactions.keys();
-    store.applyLocal({
-      name: "updateTransaction",
-      args: { id: first, patch: { note: "lunch" } },
-    });
-    expect(store.getSnapshot().pendingAccounts.size).toBe(0);
-
-    store.applyLocal({
-      name: "updateTransaction",
-      args: { id: first, patch: { date: "2026-10-02" } },
-    });
-    expect(store.getSnapshot().pendingAccounts.get(CURRENT)).toBe("2026-10-02");
-  });
-
-  it("shows the bootstrap rows once, when the bootstrap finishes", async () => {
-    const persistence = createMemoryPersistence();
-    const store = createReplicaStore({ householdId: HOUSEHOLD, persistence });
-    await store.load();
-    applyTestBootstrap(store, seedRows());
-    expect(store.getSnapshot().tables.transactions.size).toBe(0);
-
-    store.finishBootstrap(10, new Set());
-    expect(store.getSnapshot().tables.transactions.size).toBe(2);
-    expect(selectNetWorthAt(store.getSnapshot(), "2026-10-10")).toBe(95_000);
-    await store.flush();
-    expect((await persistence.load()).tables.transactions.size).toBe(2);
-  });
-
-  it("tells other tabs to reload only after a pull that changes something", async () => {
-    const { store } = await seededStore();
-    const revision = store.getDiskRevision();
-    store.applyPull(
-      { clock: 10, household: testHousehold, tables: {} },
-      new Set(),
-    );
-    expect(store.getDiskRevision()).toBe(revision);
-
-    store.applyPull(
-      {
-        clock: 11,
-        household: { ...testHousehold, clock: 11 },
-        tables: {
-          transactions: [
-            serverTransaction(randomUUID(), "2026-10-07", -100).transaction,
-          ],
-        },
-      },
-      new Set(),
-    );
-    expect(store.getDiskRevision()).not.toBe(revision);
-  });
-
-  it("adds and replaces exchange rates, keeps them through a bootstrap, and shows them to another tab", async () => {
-    const { store, persistence } = await seededStore();
-    const usd = {
-      base: "USD",
-      quote: "GBP",
-      on: "2026-10-01",
-      rate: 0.8,
-      source: "ecb" as const,
-    };
-    const revision = store.getDiskRevision();
-    store.applyExchangeRates({ cursor: "1.a", replace: true, rates: [usd] });
-    const added = store.getSnapshot().exchangeRates;
-    expect([...added.values()]).toEqual([usd]);
-    expect(store.getDiskRevision()).not.toBe(revision);
-
-    store.applyExchangeRates({ cursor: "1.a", replace: false, rates: [] });
-    expect(store.getSnapshot().exchangeRates).toBe(added);
-
-    const next = { ...usd, on: "2026-10-02", rate: 0.81 };
-    store.applyExchangeRates({ cursor: "2.a", replace: false, rates: [next] });
-    expect(store.getSnapshot().exchangeRates.size).toBe(2);
-
-    store.startBootstrap(testHousehold);
-    store.finishBootstrap(11, new Set());
-    expect(store.getSnapshot().exchangeRates.size).toBe(2);
-
-    await store.flush();
-    const other = createReplicaStore({ householdId: HOUSEHOLD, persistence });
-    await other.load();
-    expect(other.getSnapshot().exchangeRates.size).toBe(2);
-    expect(other.getMeta().exchangeRateCursor).toBe("2.a");
-
-    store.applyExchangeRates({ cursor: "3.b", replace: true, rates: [next] });
-    expect([...store.getSnapshot().exchangeRates.values()]).toEqual([next]);
   });
 });

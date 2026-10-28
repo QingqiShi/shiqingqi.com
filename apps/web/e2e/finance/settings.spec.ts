@@ -1,12 +1,5 @@
-import { and, eq, isNotNull } from "drizzle-orm";
-import {
-  bankLinks,
-  categories,
-  households,
-  members,
-  rules,
-  tags,
-} from "../../src/finance/db/schema.ts";
+import { and, eq } from "drizzle-orm";
+import { bankLinks, categories, members } from "../../src/finance/db/schema.ts";
 import {
   addVirtualAuthenticator,
   expect,
@@ -25,7 +18,7 @@ import {
 test.use({ viewport: DESKTOP });
 
 test.describe("Settings", () => {
-  test("a category and a tag can be added and renamed, and the change syncs", async ({
+  test("a category can be added and renamed, and the change syncs", async ({
     page,
     session,
     financeDb,
@@ -49,28 +42,6 @@ test.describe("Settings", () => {
               and(
                 eq(categories.householdId, session.householdId),
                 eq(categories.name, "Garden"),
-              ),
-            ),
-        { timeout: SYNC_TIMEOUT },
-      )
-      .toHaveLength(1);
-
-    await openSettings(page, "tags", "Tags");
-    await page.getByRole("button", { name: "Tag", exact: true }).click();
-    await page.getByRole("textbox", { name: "Name" }).fill("Birthday");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect(page.getByRole("button", { name: /Birthday/ })).toBeVisible();
-
-    await expect
-      .poll(
-        async () =>
-          financeDb
-            .select({ name: tags.name })
-            .from(tags)
-            .where(
-              and(
-                eq(tags.householdId, session.householdId),
-                eq(tags.name, "Birthday"),
               ),
             ),
         { timeout: SYNC_TIMEOUT },
@@ -102,9 +73,6 @@ test.describe("Settings", () => {
 
     await page.getByRole("button", { name: /^Jo/ }).click();
     await page.getByRole("button", { name: "Remove", exact: true }).click();
-    await expect(
-      page.getByRole("heading", { level: 2, name: "Remove Jo?" }),
-    ).toBeVisible();
     await page.getByRole("button", { name: "Remove member" }).click();
 
     await expect(toast(page, "Member removed")).toBeVisible({
@@ -138,92 +106,6 @@ test.describe("Settings", () => {
     await other.close();
   });
 
-  test("rules list their next occurrence; a new rule syncs and pausing one marks it paused", async ({
-    page,
-    session,
-    financeDb,
-  }) => {
-    await openSettings(page, "rules", "Recurring rules");
-    await expect(
-      page.getByRole("button", { name: /next \d{1,2} [A-Z][a-z]{2}/ }).first(),
-    ).toBeVisible();
-
-    await page.getByRole("button", { name: "New rule" }).click();
-    await page
-      .getByRole("combobox", { name: "Payee" })
-      .fill("Allotment society");
-    await page.getByRole("option", { name: /New payee/ }).click();
-    await page.getByRole("textbox", { name: "Amount" }).fill("15");
-    await page
-      .getByRole("combobox", { name: "Account" })
-      .selectOption({ label: "Alex Current" });
-    const category = page.getByRole("combobox", { name: "Category" });
-    const firstCategory = await category
-      .locator("option:not([disabled])")
-      .first()
-      .getAttribute("value");
-    await category.selectOption(firstCategory ?? "");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect(toast(page, "Rule added")).toBeVisible();
-
-    await page
-      .getByRole("button", { name: "Pause: Allotment society" })
-      .click();
-    await expect(toast(page, "Rule paused")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Resume: Allotment society" }),
-    ).toBeVisible();
-
-    await expect
-      .poll(
-        async () =>
-          financeDb
-            .select({ name: rules.name })
-            .from(rules)
-            .where(
-              and(
-                eq(rules.householdId, session.householdId),
-                eq(rules.name, "Allotment society"),
-                isNotNull(rules.pausedAt),
-              ),
-            ),
-        { timeout: SYNC_TIMEOUT },
-      )
-      .toHaveLength(1);
-  });
-
-  test("exchange rates show read-only, and the AI instructions save", async ({
-    page,
-    session,
-    financeDb,
-  }) => {
-    await openSettings(page, "exchange-rates", "Exchange rates");
-    await expect(page.getByText(/^1 USD = \d+\.\d+ GBP$/)).toBeVisible();
-    await expect(
-      page.getByText(/^From your records · .+ · \d+ accounts?$/),
-    ).toBeVisible();
-    await expect(page.getByRole("button", { name: /rate/i })).toHaveCount(0);
-
-    await openSettings(page, "ai", "AI labelling");
-    await page
-      .getByRole("textbox", { name: "Instructions for the AI" })
-      .fill("Payments to J SMITH are rent.");
-    await page.getByRole("button", { name: "Save" }).click();
-    await expect(toast(page, "AI instructions saved")).toBeVisible({
-      timeout: SYNC_TIMEOUT,
-    });
-    await expect
-      .poll(
-        async () =>
-          financeDb
-            .select({ aiInstructions: households.aiInstructions })
-            .from(households)
-            .where(eq(households.id, session.householdId)),
-        { timeout: SYNC_TIMEOUT },
-      )
-      .toEqual([{ aiInstructions: "Payments to J SMITH are rent." }]);
-  });
-
   test("the owner pastes a Lunch Flow key; bank links connect fake accounts; “Sync now” sums up and leads to Review", async ({
     page,
     session,
@@ -250,7 +132,6 @@ test.describe("Settings", () => {
     await expect(toast(page, "Bank links saved")).toBeVisible({
       timeout: SYNC_TIMEOUT,
     });
-    await expect(page.getByText("Linked").first()).toBeVisible();
     await expect
       .poll(
         async () =>

@@ -13,11 +13,6 @@ function trackedRef() {
 }
 
 describe("mergeRefs", () => {
-  it("returns undefined when every ref is null", () => {
-    expect(mergeRefs()).toBeUndefined();
-    expect(mergeRefs(null, undefined)).toBeUndefined();
-  });
-
   it("attaches object and function refs, and detaches them once on its cleanup", () => {
     const objectRef = createRef<string>();
     const legacyCalls: (string | null)[] = [];

@@ -22,7 +22,6 @@ Fixed product decisions:
 ```
 packages/component-tinker/
   package.json             @tuja/component-tinker
-  vitest.config.mjs
   scripts/build.mjs        <config.tsx> -> <config-dir>/<name>.html
   scripts/tinker-vite-config.mjs   the Vite config build.mjs runs
   src/core/                config API, style resolution, edit scope, export serialisation
@@ -36,7 +35,7 @@ packages/component-tinker/
 .claude/skills/component-tinker-workspace/   gitignored; agent-written configs and built html
 ```
 
-The package is covered like every other package in the monorepo: the root `pnpm verify` lints, formats, and type-checks it, and it has its own tests and runs in CI the same way. Its `tinker` script is deliberately not named `build`, so turbo's `build` pipeline — which chains packages by their `build` script — skips this one.
+The root `pnpm verify` lints, formats, and type-checks it. Its `tinker` script is deliberately not named `build`, so turbo's `build` pipeline — which chains packages by their `build` script — skips this one.
 
 ## Config API (what the agent writes)
 

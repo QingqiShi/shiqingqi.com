@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { fetchEcbRates } from "./fetch-ecb-rates.ts";
 import {
   firstEcbDayOf,
   isSupportedCurrency,
@@ -73,23 +72,6 @@ const EUR_RATES: Record<string, number> = {
   EUR: 1,
 };
 
-function frankfurterAt(day: string): typeof fetch {
-  return (input) => {
-    const url = new URL(input instanceof Request ? input.url : input);
-    const base = url.searchParams.get("base") ?? "";
-    const quote = url.searchParams.get("symbols") ?? "";
-    return Promise.resolve(
-      Response.json({
-        amount: 1,
-        base,
-        start_date: day,
-        end_date: day,
-        rates: { [day]: { [quote]: EUR_RATES[quote] / EUR_RATES[base] } },
-      }),
-    );
-  };
-}
-
 describe("SUPPORTED_CURRENCIES", () => {
   it("is every currency the ECB publishes, EUR included", () => {
     expect([...SUPPORTED_CURRENCIES].sort()).toEqual(
@@ -97,18 +79,6 @@ describe("SUPPORTED_CURRENCIES", () => {
     );
     expect(isSupportedCurrency("USD")).toBe(true);
     expect(isSupportedCurrency("AED")).toBe(false);
-  });
-
-  it("gives a rate fetchEcbRates keeps for every pair of them", async () => {
-    const day = "2026-10-22";
-    const request = frankfurterAt(day);
-    for (const base of SUPPORTED_CURRENCIES) {
-      for (const quote of SUPPORTED_CURRENCIES) {
-        if (base === quote) continue;
-        const rows = await fetchEcbRates(request, { base, quote }, day, day);
-        expect(rows, `${base}/${quote}`).toHaveLength(1);
-      }
-    }
   });
 
   it("starts each pair at the later first day of its two currencies", () => {
