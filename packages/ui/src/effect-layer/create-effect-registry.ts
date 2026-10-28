@@ -301,7 +301,8 @@ export function createEffectRegistry() {
       settings: EffectSettings,
       placement: EffectPlacement,
     ): EffectRegistration => {
-      const use = uses.get(element) ?? {
+      const known = uses.get(element);
+      const use = known ?? {
         id: nextId++,
         registrations: new Set(),
         tracker: createTracker?.(element) ?? null,
@@ -316,6 +317,9 @@ export function createEffectRegistry() {
       };
       registrations.add(registration);
       notify();
+      if (known !== undefined) {
+        use.tracker?.signal();
+      }
       return {
         update: (nextRoles, nextSettings, nextScope, nextCarrier) => {
           if (
@@ -327,13 +331,15 @@ export function createEffectRegistry() {
           ) {
             return;
           }
-          const carrierChanged = registration.carrier !== nextCarrier;
+          const remeasure =
+            registration.carrier !== nextCarrier ||
+            registration.roles !== nextRoles;
           registration.roles = nextRoles;
           registration.settings = nextSettings;
           registration.scope = nextScope;
           registration.carrier = nextCarrier;
           notify();
-          if (carrierChanged) {
+          if (remeasure) {
             use.tracker?.signal();
           }
         },
@@ -446,6 +452,8 @@ export function createEffectRegistry() {
     /** The carrier of a registered element, or the page. */
     carrierOf: (element: Element) =>
       elements.get(element)?.ownCarrier ?? PAGE_CARRIER,
+    /** The roles of a registered element, or 0. */
+    rolesOf: (element: Element) => elements.get(element)?.roles ?? 0,
     subscribe: (listener: () => void) => {
       listeners.add(listener);
       return () => {
@@ -525,8 +533,8 @@ export function createEffectRegistry() {
       ] of elements) {
         const tracker = uses.get(element)?.tracker;
         const box = tracker?.boxAt(clock);
-        const measured = tracker?.measured?.carrier.key;
-        if (tracker == null || box == null || measured === undefined) {
+        const measured = tracker?.measured;
+        if (box == null || measured == null) {
           continue;
         }
         if (isCover === true) {
@@ -537,15 +545,15 @@ export function createEffectRegistry() {
           ...box,
           id,
           element,
-          measurement: tracker.measurement,
+          readings: measured.readings,
           roles,
           settings,
           scope,
           holds,
-          carrier: measured,
-          carriers: carriers.includes(measured)
+          carrier: measured.carrier.key,
+          carriers: carriers.includes(measured.carrier.key)
             ? carriers
-            : [...carriers, measured],
+            : [...carriers, measured.carrier.key],
         });
       }
       return records.filter((record) =>

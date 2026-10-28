@@ -1,9 +1,11 @@
 import type { Band, ScissorRect } from "./compute-bands.ts";
 import type { RegisteredRegion } from "./create-effect-registry.ts";
 import type { CarrierClock, MeasureContext } from "./create-element-tracker.ts";
+import type { LiquidControl } from "./liquid-reader.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import type { ElementBox } from "./read-element-box.ts";
 import type { CarrierKey } from "./resolve-carrier.ts";
+import type { RingLightReading } from "./ring-light-effect.ts";
 import type { FrameClock } from "./track-elements.ts";
 
 /**
@@ -28,6 +30,19 @@ export interface EffectSettings {
 }
 
 /**
+ * What the element tracker reads of an element for each role that has a
+ * `RoleReader`, beyond its box. Effects read them from
+ * `EffectElementRecord.readings`.
+ *
+ * @internal
+ */
+export interface EffectReadings {
+  /** The control, or `null` when the liquid can draw in none. */
+  readonly liquid?: LiquidControl | null;
+  readonly ringLight?: RingLightReading;
+}
+
+/**
  * One registered element as it was last measured, before the frame places
  * it in `EffectFrame.elements`.
  *
@@ -38,12 +53,11 @@ export interface MeasuredElement extends ElementBox {
   readonly id: number;
   readonly element: Element;
   /**
-   * Changes each time the element is measured again, which happens only
-   * after a signal that it can have changed. An effect that reads more of
-   * the element than its box can keep what it read while this stays the
-   * same.
+   * What the effects of its roles read of it beyond its box, as their
+   * `RoleReader` reads it each time the element is measured: a new object
+   * for each measurement.
    */
-  readonly measurement: number;
+  readonly readings: EffectReadings;
   /** One bit per role, as `EFFECT_ROLES` orders them; 0 for none. */
   readonly roles: number;
   /** The settings its effect hooks gave it. */

@@ -38,7 +38,6 @@ import {
   PAGE_SCOPE,
   planCanvasNeeds,
   planScopes,
-  readPageBackdrop,
   type ScopePlan,
 } from "./plan-scopes.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
@@ -483,7 +482,10 @@ export function createEffectLayer(
       : null;
     const bottomNow = () => (viewportBottom ??= readViewportBottom());
     const carrierClock = tracking.clock(scrollX, scrollY, bottomNow);
-    const plan = planScopes(registry.records(carrierClock), readPageBackdrop());
+    const plan = planScopes(
+      registry.records(carrierClock),
+      tracking.pageBackdrop(),
+    );
     const records = plan.elements;
     const pageChanged = writePage(plan);
     reportCanvasNeeds(plan);

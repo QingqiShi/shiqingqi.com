@@ -6,13 +6,19 @@ import type {
 } from "./create-effect-registry.ts";
 import { observeMove, type Edges, type MoveWatch } from "./observe-move.ts";
 import { readElementBox, type ElementBox } from "./read-element-box.ts";
+import { readRoles } from "./read-roles.ts";
 import {
   PAGE_CARRIER,
   resolveCarrier,
   type CarrierState,
   type EffectCarrierRef,
 } from "./resolve-carrier.ts";
-import type { Carrier } from "./types.ts";
+import type { Carrier, EffectReadings } from "./types.ts";
+
+interface Size {
+  readonly width: number;
+  readonly height: number;
+}
 
 /** The last measurement of a registered element. */
 interface MeasuredElement {
@@ -22,6 +28,8 @@ interface MeasuredElement {
   readonly carrier: Carrier;
   /** The box in the coordinates of its carrier, as `Carrier.toLocal` gives it. */
   readonly local: ElementBox;
+  /** What the effects of its roles read of it, as `readRoles` gives it. */
+  readonly readings: EffectReadings;
 }
 
 /**
@@ -46,25 +54,27 @@ export interface CarrierClock {
 }
 
 /**
- * Where the carriers of the elements come from: the carrier that each
+ * What a measurement takes from the registry: the carrier that each
  * element declares, each sticky carrier with whether it is stuck, each
- * Scroll region with its scroller and its content box, and whether an
- * element is in a modal Effect cover.
+ * Scroll region with its scroller and its content box, whether an element
+ * is in a modal Effect cover, and the roles of each element.
  *
  * @internal
  */
-export interface CarrierLookup {
+export interface RegistryLookup {
   readonly carrierOf: (element: Element) => EffectCarrierRef;
   readonly sticky: (id: number) => RegisteredSticky | undefined;
   readonly region: (id: number) => RegisteredRegion | undefined;
   readonly isInModalCover: (element: Element) => boolean;
+  readonly rolesOf: (element: Element) => number;
 }
 
-const PAGE_ONLY: CarrierLookup = {
+const PAGE_ONLY: RegistryLookup = {
   carrierOf: () => PAGE_CARRIER,
   sticky: () => undefined,
   region: () => undefined,
   isInModalCover: () => false,
+  rolesOf: () => 0,
 };
 
 /**
@@ -114,6 +124,8 @@ export interface MeasureContext extends CarrierState {
   readonly contentFrame: (id: number) => ContentFrame | null;
   /** Whether the element is in a registered modal Effect cover. */
   readonly isInModalCover: (element: Element) => boolean;
+  /** The roles of a registered element, or 0. */
+  readonly rolesOf: (element: Element) => number;
 }
 
 function isRunning(animation: Animation) {
@@ -129,7 +141,13 @@ function isRunning(animation: Animation) {
  */
 export function createMeasureContext(
   readViewportBottom: () => number,
-  { carrierOf, sticky, region, isInModalCover }: CarrierLookup = PAGE_ONLY,
+  {
+    carrierOf,
+    sticky,
+    region,
+    isInModalCover,
+    rolesOf,
+  }: RegistryLookup = PAGE_ONLY,
 ): MeasureContext {
   const styles = new Map<Element, CSSStyleDeclaration>();
   const rects = new Map<Element, DOMRect>();
@@ -194,6 +212,7 @@ export function createMeasureContext(
     regionScroller: (id) => region(id)?.scroller ?? null,
     hasRegion,
     isInModalCover,
+    rolesOf,
     contentFrame: (id) => {
       if (contentFrames.has(id)) {
         return contentFrames.get(id) ?? null;
@@ -230,7 +249,8 @@ function edgesOf({ x, y, width, height }: ElementBox): Edges {
 /**
  * Tracks one registered element: it keeps the element's last measurement
  * and the observers that tell when it can have changed, its own
- * `ResizeObserver` and a move watch from `observeMove`. On each signal it
+ * `ResizeObserver`, also on the other elements that its readings use, and
+ * a move watch from `observeMove`. On each signal it
  * calls `onSignal`, which queues it to measure again before the next paint.
  * A new tracker is queued at once. `declared` is its carrier, for an
  * element that is not registered; else the carrier comes from the context.
@@ -243,7 +263,8 @@ export function createElementTracker(
   declared: EffectCarrierRef | null = null,
 ) {
   let measured: MeasuredElement | null = null;
-  let measurement = 0;
+  /** The size of each observed element when it was last measured. */
+  let sizes = new Map<Element, Size>();
   let watch: MoveWatch | null = null;
   let destroyed = false;
   const animationSources = new Set<Element>();
@@ -252,20 +273,42 @@ export function createElementTracker(
       onSignal(tracker);
     }
   };
-  // The first notice comes after the first measurement, with the size that
-  // it read. Thus, measure again only for a size that is new.
+  // The first notice for each element comes after the measurement that
+  // observed it, with the size that it read. Thus, measure again only for a
+  // size that is new.
   const resizeObserver = new ResizeObserver((entries) => {
-    const size = entries.at(-1)?.borderBoxSize.at(0);
-    const known =
-      measured !== null &&
-      size !== undefined &&
-      size.inlineSize === measured.box.width &&
-      size.blockSize === measured.box.height;
-    if (!known) {
+    const resized = entries.some(({ target, borderBoxSize }) => {
+      const size = borderBoxSize.at(0);
+      const known = sizes.get(target);
+      return (
+        size?.inlineSize !== known?.width || size?.blockSize !== known?.height
+      );
+    });
+    if (resized) {
       signal();
     }
   });
   resizeObserver.observe(element, { box: "border-box" });
+  let observed: readonly Element[] = [];
+
+  /** Observes `next` besides the element itself, and keeps the size of each. */
+  function observe(next: readonly Element[], context: MeasureContext) {
+    for (const part of observed) {
+      if (!next.includes(part)) {
+        resizeObserver.unobserve(part);
+      }
+    }
+    for (const part of next) {
+      if (!observed.includes(part)) {
+        resizeObserver.observe(part, { box: "border-box" });
+      }
+    }
+    observed = next;
+    sizes = new Map(next.map((part) => [part, context.rectOf(part)]));
+    if (measured !== null) {
+      sizes.set(element, measured.box);
+    }
+  }
 
   function rewatch(context: MeasureContext) {
     if (measured === null || animationSources.size > 0) {
@@ -293,10 +336,6 @@ export function createElementTracker(
     get measured() {
       return measured;
     },
-    /** How many times it has measured the element. */
-    get measurement() {
-      return measurement;
-    },
     /**
      * The last measured box in page coordinates at the time of `clock`:
      * the element keeps its place on the carrier it was measured on. `null`
@@ -318,9 +357,9 @@ export function createElementTracker(
       signal();
     },
     /**
-     * Reads the element's box now, on the carrier that it declares, and
-     * watches it from there. While an animation it follows still runs, it
-     * queues itself again instead.
+     * Reads the element's box and the readings of its roles now, on the
+     * carrier that it declares, and watches it from there. While an
+     * animation it follows still runs, it queues itself again instead.
      */
     measure(context: MeasureContext) {
       if (destroyed) {
@@ -329,8 +368,8 @@ export function createElementTracker(
       const box = element.isConnected
         ? readElementBox(element, context.styleOf)
         : null;
-      measurement += 1;
       measured = null;
+      let parts: Element[] = [];
       if (box !== null) {
         const ref = declared ?? context.carrierOf(element);
         const carrier = carrierOf(resolveCarrier(ref, context));
@@ -339,9 +378,17 @@ export function createElementTracker(
         }
         const local = carrier.toLocal(box, context);
         if (local !== null) {
-          measured = { box, carrier, local };
+          const { readings, observed: used } = readRoles(
+            element,
+            context.rolesOf(element),
+            box,
+            context,
+          );
+          measured = { box, carrier, local, readings };
+          parts = used;
         }
       }
+      observe(parts, context);
       for (const source of animationSources) {
         if (!context.isAnimating(source)) {
           animationSources.delete(source);
@@ -355,6 +402,7 @@ export function createElementTracker(
     destroy() {
       destroyed = true;
       resizeObserver.disconnect();
+      observed = [];
       watch?.disconnect();
       watch = null;
       animationSources.clear();

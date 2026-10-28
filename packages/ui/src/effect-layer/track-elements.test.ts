@@ -1,11 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { clockAt } from "../test-support/clock-at.ts";
 import { layOut } from "../test-support/lay-out.ts";
 import { stubFrames } from "../test-support/stub-frames.ts";
 import { stubObservers } from "../test-support/stub-observers.ts";
 import { createEffectRegistry } from "./create-effect-registry.ts";
 import { createFrameScheduler } from "./create-frame-scheduler.ts";
+import { roleBits } from "./effect-roles.ts";
 import { NO_SETTINGS } from "./effect-setting-defaults.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
+import { readFill } from "./read-element-box.ts";
 import { PAGE_CARRIER } from "./resolve-carrier.ts";
 import { changedScope, trackElements } from "./track-elements.ts";
 
@@ -303,6 +306,78 @@ describe("trackElements", () => {
     await Promise.resolve();
     frames.run();
     expect(boxOf()).toMatchObject({ width: 100, height: 40 });
+  });
+
+  it("puts what the effects of an element's roles read of it on its record", () => {
+    const { button, frames, registry } = track();
+    button.style.direction = "rtl";
+    button.style.color = "rgb(255, 0, 0)";
+    registry.register(button, roleBits(["ringLight"]), NO_SETTINGS, ON_PAGE);
+    frames.run();
+    const [record] = registry.records(clockAt());
+    expect(record.readings.ringLight).toEqual({
+      rtl: true,
+      color: readFill("rgb(255, 0, 0)"),
+    });
+  });
+
+  /** Makes the root element and the body run a CSS animation while `running()` is true. */
+  function animatePage(running: () => boolean) {
+    for (const element of [document.documentElement, document.body]) {
+      // jsdom has no Web Animations API.
+      Object.defineProperty(element, "getAnimations", {
+        configurable: true,
+        value: () =>
+          running() ? [{ pending: false, playState: "running" }] : [],
+      });
+    }
+  }
+
+  it("measures the page's backdrop again after an attribute of the body changes", async () => {
+    const { frames, tracking } = track();
+    const before = tracking.pageBackdrop();
+    document.body.style.backgroundColor = "rgb(20, 20, 20)";
+    expect(tracking.pageBackdrop()).toBe(before);
+    // The attribute change reaches the trackers in a microtask.
+    await Promise.resolve();
+    frames.run();
+    expect(tracking.pageBackdrop()).toEqual(readFill("rgb(20, 20, 20)"));
+    document.body.style.backgroundColor = "";
+  });
+
+  it("measures the page's backdrop each frame while a transition runs on the root element, and once more after it ends", () => {
+    const { frames, tracking } = track();
+    const root = document.documentElement;
+    let running = true;
+    animatePage(() => running);
+    root.dispatchEvent(
+      Object.assign(new Event("transitionrun"), { pseudoElement: "" }),
+    );
+    root.style.backgroundColor = "rgb(40, 40, 40)";
+    frames.run();
+    expect(tracking.pageBackdrop()).toEqual(readFill("rgb(40, 40, 40)"));
+    root.style.backgroundColor = "rgb(60, 60, 60)";
+    frames.run();
+    expect(tracking.pageBackdrop()).toEqual(readFill("rgb(60, 60, 60)"));
+
+    running = false;
+    frames.run();
+    expect(frames.pending()).toBe(0);
+    root.style.backgroundColor = "";
+  });
+
+  it("follows a transition on the body that runs before the tracking starts", () => {
+    let running = true;
+    animatePage(() => running);
+    const { frames, tracking } = track();
+    document.body.style.backgroundColor = "rgb(80, 80, 80)";
+    frames.run();
+    expect(tracking.pageBackdrop()).toEqual(readFill("rgb(80, 80, 80)"));
+
+    running = false;
+    frames.run();
+    expect(frames.pending()).toBe(0);
+    document.body.style.backgroundColor = "";
   });
 
   it("removes every tracker and listener when it is destroyed", () => {
