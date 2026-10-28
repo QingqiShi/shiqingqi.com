@@ -176,7 +176,7 @@ export function trackElements(
   // The root element's box is the root of each move watch in the document.
   // When its size changes, each of these watches is wrong.
   const rootObserver = new ResizeObserver(() => {
-    signalWhere(({ measured }) => measured?.carrier === "page");
+    signalWhere(({ measured }) => measured?.carrier.key === "page");
   });
   rootObserver.observe(root);
 
@@ -240,7 +240,8 @@ export function trackElements(
   function onResize() {
     signalWhere(
       (tracker) =>
-        (tracker.measured !== null && tracker.measured.carrier !== "page") ||
+        (tracker.measured !== null &&
+          tracker.measured.carrier.key !== "page") ||
         stickiesOf(chainOf(tracker)).length > 0,
     );
   }

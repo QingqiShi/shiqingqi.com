@@ -1,13 +1,15 @@
-import type { RegisteredRegion } from "./create-effect-registry.ts";
+import { carrierOf } from "./carrier-of.ts";
 import { isDarkBackground } from "./dust-color.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { readFill } from "./read-element-box.ts";
 import { FIXED_CARRIER_KEYS, type CarrierKey } from "./resolve-carrier.ts";
 import type {
+  CanvasNeed,
   EffectElementRecord,
   EffectScope,
   ElementRange,
   MeasuredElement,
+  RegionLookup,
 } from "./types.ts";
 
 /**
@@ -248,73 +250,23 @@ export function planScopes(
 }
 
 /**
- * Which `<canvas>` elements the registered elements with a role need: the
- * scroll ones of the page for elements on the page, the fixed one for
- * elements on the viewport, the bottom one for elements on the viewport's
- * bottom edge, and the scroll ones of each Scroll region, in its content
- * box, for the elements on it.
- *
- * @internal
- */
-export interface EffectCanvasNeeds {
-  readonly page: boolean;
-  readonly fixed: boolean;
-  readonly fixedBottom: boolean;
-  readonly regions: readonly {
-    readonly id: number;
-    readonly content: Element;
-  }[];
-}
-
-/**
- * The `<canvas>` elements that a plan needs. While a modal Effect cover in
- * `modalCovers` shows, the page and each Scroll region outside every modal
- * cover need none: nothing on them can show or move. Their elements stay in
- * the plan, so the effects keep their state. `region` gives each Scroll
- * region with its scroller and its content box.
+ * The `<canvas>` elements that a plan needs: those of each carrier with an
+ * element with a role, as `Carrier.need` gives them. While a modal Effect
+ * cover in `modalCovers` shows, the page and each Scroll region outside
+ * every modal cover need none: nothing on them can show or move. Their
+ * elements stay in the plan, so the effects keep their state.
  *
  * @internal
  */
 export function planCanvasNeeds(
   plan: Pick<ScopePlan, "carriers" | "ranges">,
   modalCovers: readonly Element[],
-  region: (id: number) => RegisteredRegion | undefined,
-): EffectCanvasNeeds {
-  const shows = (scroller: Element) =>
-    modalCovers.length === 0 ||
-    modalCovers.some((cover) => cover.contains(scroller));
-  const hasRole = (key: CarrierKey) => {
-    const index = plan.carriers.indexOf(key);
-    return index !== -1 && plan.ranges[index].hasRole;
-  };
-  return {
-    page: modalCovers.length === 0 && hasRole("page"),
-    fixed: hasRole("fixed"),
-    fixedBottom: hasRole("fixedBottom"),
-    regions: plan.carriers.flatMap((key) => {
-      const found =
-        typeof key === "number" && hasRole(key) ? region(key) : undefined;
-      return found !== undefined && shows(found.scroller)
-        ? [{ id: found.id, content: found.content }]
-        : [];
-    }),
-  };
-}
-
-/** @internal */
-export function canvasNeedsEqual(
-  first: EffectCanvasNeeds,
-  second: EffectCanvasNeeds,
-) {
-  return (
-    first.page === second.page &&
-    first.fixed === second.fixed &&
-    first.fixedBottom === second.fixedBottom &&
-    first.regions.length === second.regions.length &&
-    first.regions.every(
-      ({ id, content }, index) =>
-        second.regions[index].id === id &&
-        second.regions[index].content === content,
-    )
-  );
+  region: RegionLookup,
+): CanvasNeed[] {
+  return plan.carriers.flatMap((key, index) => {
+    const need = plan.ranges[index].hasRole
+      ? carrierOf(key).need(modalCovers, region)
+      : null;
+    return need === null ? [] : [need];
+  });
 }

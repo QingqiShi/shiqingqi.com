@@ -88,7 +88,7 @@ describe("createElementTracker", () => {
     tracker.measure(context(0, 500));
     expect(tracker.measured).toMatchObject({
       box: { x: 10, y: 20, width: 100, height: 40 },
-      carrier: "page",
+      carrier: { key: "page" },
     });
     expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 520 });
   });
@@ -98,7 +98,7 @@ describe("createElementTracker", () => {
     element.style.position = "fixed";
     vi.spyOn(console, "warn").mockImplementation(() => {});
     tracker.measure(context(0, 500));
-    expect(tracker.measured?.carrier).toBe("page");
+    expect(tracker.measured?.carrier.key).toBe("page");
     expect(console.warn).toHaveBeenCalledOnce();
     vi.restoreAllMocks();
   });
@@ -128,12 +128,12 @@ describe("createElementTracker", () => {
     };
     layOut(bar, { x: 0, y: 0, width: 300, height: 60 });
     tracker.measure(context(0, 500, carrier, bar, 0, undefined, true));
-    expect(tracker.measured?.carrier).toBe("fixed");
+    expect(tracker.measured?.carrier.key).toBe("fixed");
     expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 920 });
 
     layOut(bar, { x: 0, y: -40, width: 300, height: 60 });
     tracker.measure(context(0, 500, carrier, bar, 0, undefined, false));
-    expect(tracker.measured?.carrier).toBe("page");
+    expect(tracker.measured?.carrier.key).toBe("page");
     expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 520 });
   });
 
@@ -141,7 +141,7 @@ describe("createElementTracker", () => {
     const { element, tracker } = setUp();
     element.style.position = "fixed";
     tracker.measure(context(0, 500, VIEWPORT_CARRIER));
-    expect(tracker.measured?.carrier).toBe("fixed");
+    expect(tracker.measured?.carrier.key).toBe("fixed");
     expect(tracker.boxAt(clockAt(0, 900, 0))).toMatchObject({ x: 10, y: 920 });
   });
 
@@ -151,7 +151,7 @@ describe("createElementTracker", () => {
     element.style.bottom = "16px";
     layOut(element, { x: 16, y: 736, width: 300, height: 48 });
     tracker.measure(context(0, 500, VIEWPORT_BOTTOM_CARRIER, null, 800));
-    expect(tracker.measured?.carrier).toBe("fixedBottom");
+    expect(tracker.measured?.carrier.key).toBe("fixedBottom");
     expect(tracker.boxAt(clockAt(0, 900, 800))).toMatchObject({
       x: 16,
       y: 1636,
@@ -199,7 +199,7 @@ describe("createElementTracker", () => {
     };
     tracker.measure(context(0, 500, carrier, null, 0, region));
     expect(tracker.measured).toMatchObject({
-      carrier: 4,
+      carrier: { key: 4 },
       local: { x: 10, y: 320, width: 100, height: 40 },
     });
     expect(

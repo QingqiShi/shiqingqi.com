@@ -87,6 +87,15 @@ test.describe("carrier records", () => {
     await expect
       .poll(() => controlRecord(page))
       .toMatchObject({ carrier: "fixed", offset: 0 });
+    // The bar can get its stuck plane after the layer measures the control on
+    // the fixed canvas. Then the class change measures the control one more
+    // time, and no frame draws to tell it. Thus, wait for the plane and for
+    // a frame that draws after it.
+    await expect.poll(async () => (await readBar(page)).zIndex).toBe("200");
+    await scrollWithin(page, top + 61);
+    await page.waitForFunction(
+      () => window.lastEffectLayerFrame?.scrollY === window.scrollY,
+    );
     const stuck = await controlRecord(page);
 
     for (const y of [top + 120, top + 180, top + 90]) {

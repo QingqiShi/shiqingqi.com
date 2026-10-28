@@ -231,7 +231,7 @@ describe("trackElements", () => {
     reads.length = 0;
     const carrierOf = (element: Element) =>
       [...registry.trackers()].find((tracker) => tracker.element === element)
-        ?.measured?.carrier;
+        ?.measured?.carrier.key;
     return { ...elements, frames, observers, reads, carrierOf, setStuck };
   }
 

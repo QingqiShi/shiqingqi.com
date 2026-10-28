@@ -14,13 +14,8 @@ import {
   prefersReducedMotion,
   subscribeReducedMotion,
 } from "../motion/prefers-reduced-motion.ts";
-import {
-  bandGeometry,
-  bandScissorRect,
-  computeBands,
-  fixedBottomTop,
-  type ScissorRect,
-} from "./compute-bands.ts";
+import { carrierOf } from "./carrier-of.ts";
+import { bandGeometry } from "./compute-bands.ts";
 import { GPU_BUFFER_USAGE, GPU_SHADER_STAGE } from "./constants.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
 import { createFrameClock } from "./create-frame-clock.ts";
@@ -40,27 +35,28 @@ import {
 } from "./page-wgsl.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import {
-  canvasNeedsEqual,
   PAGE_SCOPE,
   planCanvasNeeds,
   planScopes,
   readPageBackdrop,
-  type CarrierRange,
-  type EffectCanvasNeeds,
   type ScopePlan,
 } from "./plan-scopes.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
 import type { CarrierKey } from "./resolve-carrier.ts";
 import { packTargetUniform, TARGET_UNIFORM_BYTES } from "./target-wgsl.ts";
-import { trackElements, type FrameClock } from "./track-elements.ts";
+import { trackElements } from "./track-elements.ts";
 import { trackPointer } from "./track-pointer.ts";
 import type {
+  CanvasKit,
+  CanvasNeed,
+  CarrierCanvases,
+  CarrierFrame,
+  CarrierPass,
+  CarrierSurface,
   Effect,
-  EffectCanvasKind,
   EffectFrame,
   EffectRenderer,
   EffectSetup,
-  EffectTarget,
 } from "./types.ts";
 
 const MAX_PIXEL_RATIO = 2;
@@ -70,45 +66,11 @@ const ALL_STAGES =
   GPU_SHADER_STAGE.FRAGMENT |
   GPU_SHADER_STAGE.COMPUTE;
 
-interface ConfiguredCanvas {
-  readonly canvas: HTMLCanvasElement;
+interface ConfiguredCanvas extends CarrierSurface {
   readonly context: GPUCanvasContext;
   readonly uniform: GPUBuffer;
-  readonly bindGroup: GPUBindGroup;
   /** The last pass drew something, so the `<canvas>` element shows it. */
   shown: boolean;
-}
-
-interface ScrollCanvas extends ConfiguredCanvas {
-  /** The band the `<canvas>` element sits on, kept while it is out of range. */
-  bandIndex: number | null;
-}
-
-/** The two scroll `<canvas>` elements of a Scroll region, and their size. */
-interface RegionCanvases {
-  readonly slots: ScrollCanvas[];
-  /** The CSS size they were last given, or `null` before the first frame. */
-  size: { readonly width: number; readonly bandHeight: number } | null;
-}
-
-interface Pass {
-  readonly configured: ConfiguredCanvas;
-  readonly target: EffectTarget;
-  readonly scissor: ScissorRect;
-  readonly drawnPageRange: readonly [number, number];
-}
-
-/**
- * The `<canvas>` elements of the viewport and of the page that the effect
- * layer draws into: the two scroll ones of the page or none, the fixed one
- * or `null`, and the bottom one or `null`.
- *
- * @internal
- */
-export interface EffectLayerCanvases {
-  readonly page: readonly HTMLCanvasElement[];
-  readonly fixed: HTMLCanvasElement | null;
-  readonly fixedBottom: HTMLCanvasElement | null;
 }
 
 interface EffectLayerOptions {
@@ -122,7 +84,7 @@ interface EffectLayerOptions {
    * `<canvas>` element.
    */
   readonly bottomAnchor: HTMLElement;
-  readonly onCanvasNeedsChange: (needs: EffectCanvasNeeds) => void;
+  readonly onCanvasNeedsChange: (needs: readonly CanvasNeed[]) => void;
 }
 
 /**
@@ -177,10 +139,7 @@ export function createEffectLayer(
   let pointerFollowers: readonly NonNullable<
     EffectRenderer["followsPointer"]
   >[] = [];
-  let page: ScrollCanvas[] = [];
-  let fixed: ConfiguredCanvas | null = null;
-  let fixedBottom: ConfiguredCanvas | null = null;
-  const regions = new Map<number, RegionCanvases>();
+  const carriers = new Map<CarrierKey, CarrierCanvases<ConfiguredCanvas>>();
 
   const pageUniform = device.createBuffer({
     size: PAGE_UNIFORM_BYTES,
@@ -196,14 +155,13 @@ export function createEffectLayer(
   ];
   let pageBindGroup = createPageBindGroup();
   let pageBackdrop: EffectColor | null = null;
-  let canvasNeeds: EffectCanvasNeeds | null = null;
+  let canvasNeeds: readonly CanvasNeed[] | null = null;
 
   let pageLeft = 0;
   let pageTop = 0;
   let documentWidth = 0;
   let documentHeight = 0;
   let viewportHeight = 0;
-  let sizesChanged = true;
   let drawRequested = true;
   let destroyed = false;
   const startTime = performance.now();
@@ -238,13 +196,11 @@ export function createEffectLayer(
   const resizeObserver = new ResizeObserver((entries) => {
     for (const { target, contentRect } of entries) {
       if (target === probe) {
-        sizesChanged ||= viewportHeight !== contentRect.height;
         viewportHeight = contentRect.height;
       } else {
         const rect = container.getBoundingClientRect();
         pageLeft = rect.left + window.scrollX;
         pageTop = rect.top + window.scrollY;
-        sizesChanged ||= documentWidth !== contentRect.width;
         documentWidth = contentRect.width;
         documentHeight = contentRect.height;
       }
@@ -283,7 +239,6 @@ export function createEffectLayer(
 
   function onPixelRatioChange() {
     pixelRatioQuery = watchPixelRatio();
-    sizesChanged = true;
     requestFrame();
   }
 
@@ -315,54 +270,52 @@ export function createEffectLayer(
     }
   }
 
-  function configureSlots(canvases: readonly HTMLCanvasElement[]) {
-    return canvases.flatMap((canvas): ScrollCanvas[] => {
-      const configured = configure(canvas);
-      return configured === null ? [] : [{ ...configured, bandIndex: null }];
-    });
+  function sizeCanvas(
+    canvas: HTMLCanvasElement,
+    cssWidth: number,
+    cssHeight: number,
+  ) {
+    const limit = device.limits.maxTextureDimension2D;
+    const ratio = Math.min(
+      window.devicePixelRatio,
+      MAX_PIXEL_RATIO,
+      limit / cssWidth,
+      limit / cssHeight,
+    );
+    canvas.style.width = `${String(cssWidth)}px`;
+    canvas.style.height = `${String(cssHeight)}px`;
+    const backingWidth = Math.max(1, Math.round(cssWidth * ratio));
+    const backingHeight = Math.max(1, Math.round(cssHeight * ratio));
+    if (canvas.width !== backingWidth) {
+      canvas.width = backingWidth;
+    }
+    if (canvas.height !== backingHeight) {
+      canvas.height = backingHeight;
+    }
   }
 
-  function setCanvases(canvases: EffectLayerCanvases) {
-    if (page[0]?.canvas !== canvases.page[0]) {
-      for (const slot of page) {
-        release(slot);
-      }
-      page = configureSlots(canvases.page);
-    }
-    if (fixed?.canvas !== canvases.fixed) {
-      if (fixed !== null) {
-        release(fixed);
-      }
-      fixed = canvases.fixed && configure(canvases.fixed);
-    }
-    if (fixedBottom?.canvas !== canvases.fixedBottom) {
-      if (fixedBottom !== null) {
-        release(fixedBottom);
-      }
-      fixedBottom = canvases.fixedBottom && configure(canvases.fixedBottom);
-    }
-    sizesChanged = true;
-    requestFrame();
-  }
+  const kit: CanvasKit<ConfiguredCanvas> = {
+    configure,
+    release,
+    size: sizeCanvas,
+  };
 
   /**
-   * Gives the Scroll region `id` its two scroll `<canvas>` elements, or
-   * takes them away with `null`.
+   * Gives the carrier `key` its `<canvas>` elements, or takes them away
+   * with `null`.
    */
-  function setRegionCanvases(
-    id: number,
+  function setCanvases(
+    key: CarrierKey,
     canvases: readonly HTMLCanvasElement[] | null,
   ) {
-    const known = regions.get(id);
-    if (known !== undefined && known.slots[0]?.canvas === canvases?.[0]) {
+    const known = carriers.get(key);
+    if (known !== undefined && known.canvases[0] === canvases?.[0]) {
       return;
     }
-    for (const slot of known?.slots ?? []) {
-      release(slot);
-    }
-    regions.delete(id);
+    known?.release();
+    carriers.delete(key);
     if (canvases !== null) {
-      regions.set(id, { slots: configureSlots(canvases), size: null });
+      carriers.set(key, carrierOf(key).createCanvases(canvases, kit));
     }
     requestFrame();
   }
@@ -450,235 +403,36 @@ export function createEffectLayer(
       registry.modalCovers(),
       registry.region,
     );
-    if (canvasNeeds === null || !canvasNeedsEqual(needs, canvasNeeds)) {
+    const known = canvasNeeds;
+    const same =
+      known?.length === needs.length &&
+      needs.every(
+        ({ key, content }, index) =>
+          known[index].key === key && known[index].content === content,
+      );
+    if (!same) {
       canvasNeeds = needs;
       onCanvasNeedsChange(needs);
     }
   }
 
-  function sizeCanvas(
-    canvas: HTMLCanvasElement,
-    cssWidth: number,
-    cssHeight: number,
-  ) {
-    const limit = device.limits.maxTextureDimension2D;
-    const ratio = Math.min(
-      window.devicePixelRatio,
-      MAX_PIXEL_RATIO,
-      limit / cssWidth,
-      limit / cssHeight,
-    );
-    canvas.style.width = `${String(cssWidth)}px`;
-    canvas.style.height = `${String(cssHeight)}px`;
-    const backingWidth = Math.max(1, Math.round(cssWidth * ratio));
-    const backingHeight = Math.max(1, Math.round(cssHeight * ratio));
-    if (canvas.width !== backingWidth) {
-      canvas.width = backingWidth;
-    }
-    if (canvas.height !== backingHeight) {
-      canvas.height = backingHeight;
-    }
-  }
-
-  function applySizes() {
-    const { viewport, bandHeight } = bandGeometry(viewportHeight);
-    for (const slot of page) {
-      sizeCanvas(slot.canvas, documentWidth, bandHeight);
-      slot.bandIndex = null;
-    }
-    for (const plane of [fixed, fixedBottom]) {
-      if (plane !== null) {
-        sizeCanvas(plane.canvas, documentWidth, viewport);
-      }
-    }
-  }
-
   /**
-   * The passes of the bands of one scrolled box: the page, or the content
-   * box of a Scroll region. It places the two scroll `<canvas>` elements on
-   * the bands that `scrollTop` shows. `left` and `top` are the page position
-   * of the box.
-   */
-  function bandPasses(
-    slots: readonly ScrollCanvas[],
-    kind: EffectCanvasKind,
-    carrier: number,
-    range: CarrierRange,
-    box: {
-      left: number;
-      top: number;
-      width: number;
-      height: number;
-      scrollTop: number;
-      viewportHeight: number;
-    },
-  ): Pass[] {
-    if (slots.length !== 2) {
-      return [];
-    }
-    const { bandHeight } = bandGeometry(box.viewportHeight);
-    return computeBands({
-      scrollTop: box.scrollTop,
-      viewportHeight: box.viewportHeight,
-      documentHeight: box.height,
-    }).map((band) => {
-      const slot = slots[band.slot];
-      if (slot.bandIndex !== band.index) {
-        slot.bandIndex = band.index;
-        slot.canvas.style.transform = `translateY(${String(band.top)}px)`;
-      }
-      const y = box.top + band.top;
-      return {
-        configured: slot,
-        scissor: bandScissorRect(
-          band,
-          slot.canvas.width,
-          slot.canvas.height,
-          bandHeight,
-        ),
-        drawnPageRange: [
-          y + band.drawnTop,
-          y + band.drawnTop + band.drawnHeight,
-        ],
-        target: {
-          kind,
-          carrier,
-          band,
-          x: box.left,
-          y,
-          width: box.width,
-          height: bandHeight,
-          firstElement: range.firstElement,
-          elementCount: range.elementCount,
-          bindGroup: slot.bindGroup,
-        },
-      };
-    });
-  }
-
-  /**
-   * Gives the scroll `<canvas>` elements of each Scroll region the size of
-   * its content box and of its scrollport, when they change.
-   */
-  function sizeRegions(clock: FrameClock) {
-    for (const [id, canvases] of regions) {
-      const place = clock.regionPlace(id);
-      if (place === null) {
-        continue;
-      }
-      const width = Math.round(place.width);
-      const { bandHeight } = bandGeometry(place.viewportHeight);
-      if (
-        !sizesChanged &&
-        canvases.size?.width === width &&
-        canvases.size.bandHeight === bandHeight
-      ) {
-        continue;
-      }
-      canvases.size = { width, bandHeight };
-      for (const slot of canvases.slots) {
-        sizeCanvas(slot.canvas, Math.max(1, width), bandHeight);
-        slot.bandIndex = null;
-      }
-    }
-  }
-
-  /**
-   * Places the scroll `<canvas>` elements and lists this frame's passes.
-   * `viewportBottom` is the viewport's bottom edge in viewport coordinates,
-   * from which the records fixed to the bottom are placed. A band of a
-   * Scroll region outside the viewport and its overscan margin has no pass:
-   * it keeps its last pixels, which no one sees, until it comes near again.
+   * Places the `<canvas>` elements of each carrier and lists this frame's
+   * passes, in the order of `plan.carriers`.
    */
   function planPasses(
-    clock: FrameClock,
-    viewportBottom: number,
+    frame: CarrierFrame,
     plan: ScopePlan,
-  ): Pass[] {
-    const { scrollX, scrollY } = clock;
-    const { viewport, margin } = bandGeometry(viewportHeight);
-    const isNearViewport = ({ drawnPageRange: [top, bottom] }: Pass) =>
-      bottom > scrollY - margin && top < scrollY + viewport + margin;
-    const carrierOf = (key: CarrierKey) => plan.carriers.indexOf(key);
-    const passes: Pass[] = bandPasses(
-      page,
-      "page",
-      carrierOf("page"),
-      plan.ranges[carrierOf("page")],
-      {
-        left: pageLeft,
-        top: pageTop,
-        width: documentWidth,
-        height: documentHeight,
-        scrollTop: scrollY - pageTop,
-        viewportHeight,
-      },
+  ): CarrierPass<ConfiguredCanvas>[] {
+    return plan.carriers.flatMap(
+      (key, index) =>
+        carriers.get(key)?.passes(frame, index, plan.ranges[index]) ?? [],
     );
-    for (const [id, { slots }] of regions) {
-      const carrier = carrierOf(id);
-      const place = clock.regionPlace(id);
-      if (carrier === -1 || place === null) {
-        continue;
-      }
-      passes.push(
-        ...bandPasses(slots, "region", carrier, plan.ranges[carrier], {
-          left: place.origin.x,
-          top: place.origin.y,
-          width: Math.max(1, Math.round(place.width)),
-          height: place.height,
-          scrollTop: place.scrollTop,
-          viewportHeight: place.viewportHeight,
-        }).filter(isNearViewport),
-      );
-    }
-    function viewportPass(
-      configured: ConfiguredCanvas,
-      kind: "fixed" | "fixedBottom",
-      y: number,
-    ): Pass {
-      const carrier = carrierOf(kind);
-      const range = plan.ranges[carrier];
-      return {
-        configured,
-        scissor: {
-          x: 0,
-          y: 0,
-          width: configured.canvas.width,
-          height: configured.canvas.height,
-        },
-        drawnPageRange: [y, y + viewport],
-        target: {
-          kind,
-          carrier,
-          band: null,
-          x: scrollX,
-          y,
-          width: documentWidth,
-          height: viewport,
-          firstElement: range.firstElement,
-          elementCount: range.elementCount,
-          bindGroup: configured.bindGroup,
-        },
-      };
-    }
-    if (fixed !== null) {
-      passes.push(viewportPass(fixed, "fixed", scrollY));
-    }
-    if (fixedBottom !== null) {
-      passes.push(
-        viewportPass(
-          fixedBottom,
-          "fixedBottom",
-          fixedBottomTop(scrollY, viewportBottom, viewport),
-        ),
-      );
-    }
-    return passes;
   }
 
   function encodePass(
     encoder: GPUCommandEncoder,
-    { configured, target, scissor, drawnPageRange }: Pass,
+    { surface: configured, target, scissor }: CarrierPass<ConfiguredCanvas>,
     frame: EffectFrame,
   ) {
     const { canvas, context, uniform } = configured;
@@ -692,7 +446,7 @@ export function createEffectLayer(
           canvas.width / target.width,
           canvas.height / target.height,
         ],
-        drawnPageRange,
+        drawnPageRange: target.drawnPageRange,
         seconds: frame.time,
       }),
     );
@@ -724,7 +478,9 @@ export function createEffectLayer(
     const { scrollX, scrollY } = window;
     // Read the bottom edge before this frame writes a style, so that the
     // read does not cause one more layout.
-    let viewportBottom = fixedBottom === null ? null : readViewportBottom();
+    let viewportBottom = carriers.has("fixedBottom")
+      ? readViewportBottom()
+      : null;
     const bottomNow = () => (viewportBottom ??= readViewportBottom());
     const carrierClock = tracking.clock(scrollX, scrollY, bottomNow);
     const plan = planScopes(registry.records(carrierClock), readPageBackdrop());
@@ -736,16 +492,25 @@ export function createEffectLayer(
     }
     drawRequested = false;
 
-    sizeRegions(carrierClock);
-    if (sizesChanged) {
-      sizesChanged = false;
-      applySizes();
+    const carrierFrame: CarrierFrame = {
+      clock: carrierClock,
+      document: {
+        left: pageLeft,
+        top: pageTop,
+        width: documentWidth,
+        height: documentHeight,
+      },
+      viewportHeight,
+      pixelRatio: window.devicePixelRatio,
+    };
+    for (const canvases of carriers.values()) {
+      canvases.size(carrierFrame);
     }
     if (documentWidth === 0 || viewportHeight === 0) {
       return;
     }
 
-    const passes = planPasses(carrierClock, viewportBottom ?? 0, plan);
+    const passes = planPasses(carrierFrame, plan);
     const viewport = bandGeometry(viewportHeight).viewport;
     const frame: EffectFrame = {
       time: (now - startTime) / 1000,
@@ -817,26 +582,15 @@ export function createEffectLayer(
     }
     renderers.clear();
     ready = [];
-    for (const slot of [
-      ...page,
-      ...[...regions.values()].flatMap(({ slots }) => slots),
-    ]) {
-      release(slot);
+    for (const canvases of carriers.values()) {
+      canvases.release();
     }
-    for (const plane of [fixed, fixedBottom]) {
-      if (plane !== null) {
-        release(plane);
-      }
-    }
-    page = [];
-    regions.clear();
-    fixed = null;
-    fixedBottom = null;
+    carriers.clear();
     pageUniform.destroy();
     elementBuffer.destroy();
     scopeBuffer.destroy();
     rangeBuffer.destroy();
   }
 
-  return { setCanvases, setRegionCanvases, setEffects, destroy };
+  return { setCanvases, setEffects, destroy };
 }
