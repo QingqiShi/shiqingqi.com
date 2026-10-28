@@ -1,13 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { categoriseFixture, type EvalCase } from "./eval/categorise-fixture.ts";
+import {
+  categoriseFixture,
+  type EvalCase,
+  type LabelCase,
+} from "./eval/categorise-fixture.ts";
 import { meterFinanceModel } from "./eval/meter-finance-model.ts";
 import { labelBankRows } from "./label-bank-rows.ts";
 
-const { context, categoryPaths, withPast, withInstruction } = categoriseFixture;
+const {
+  context,
+  categoryPaths,
+  withPast,
+  withInstruction,
+  cardPurchaseAfterDueDay,
+  kindCases,
+} = categoriseFixture;
 const tagNames = new Map(context.tags.map((tag) => [tag.id, tag.name]));
 
-/** Asks Jev for the labels of the case's bank row, with the case's past Transactions. */
-async function categoryAndTagsOf(evalCase: EvalCase) {
+/** Asks Jev for the label of the case's bank row alone, with the case's past Transactions. */
+async function labelOf(evalCase: LabelCase) {
   const results = await labelBankRows(
     meterFinanceModel().model,
     context,
@@ -16,7 +27,11 @@ async function categoryAndTagsOf(evalCase: EvalCase) {
   );
   const result = results.get(evalCase.row.ref);
   if (!result?.ok) throw new Error(result?.problem ?? "No result");
-  const { label } = result;
+  return result.label;
+}
+
+async function categoryAndTagsOf(evalCase: EvalCase) {
+  const label = await labelOf(evalCase);
   return {
     labels: {
       category: categoryPaths.get(label.categoryId ?? "") ?? label.kind,
@@ -44,4 +59,26 @@ describe("Finance labelling (real model)", () => {
       tags: withInstruction.tags,
     });
   });
+
+  it("is sure that a large card purchase after the payment due day is an expense like its past Transactions", async () => {
+    const label = await labelOf(cardPurchaseAfterDueDay);
+
+    expect(label.kind).toBe("expense");
+    expect(label.reason).not.toMatch(/Unsure of the kind/);
+  });
+
+  it.each(kindCases)(
+    "gives the bank row $row.ref its kind",
+    async (evalCase) => {
+      const label = await labelOf(evalCase);
+
+      const transfer =
+        label.transfer?.type === "account" ? label.transfer.accountId : null;
+
+      expect({ kind: label.kind, transfer }, label.reason).toEqual({
+        kind: evalCase.kind,
+        transfer: evalCase.transferAccountId ?? null,
+      });
+    },
+  );
 });
