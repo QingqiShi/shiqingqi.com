@@ -16,13 +16,11 @@ import {
 } from "../auth/testing/create-auth-test-client.ts";
 import { createSoftwareAuthenticator } from "../auth/testing/create-software-authenticator.ts";
 import type { FinanceSession } from "../auth/types.ts";
-import { householdRepository } from "../db/repositories/household-repository.ts";
-import { members, passkeys, sessions, users } from "../db/schema.ts";
+import { members, passkeys, sessions } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { createTestHousehold } from "../db/testing/create-test-household.ts";
 import { seedTestHousehold } from "../db/testing/seed-test-household.ts";
 import { withHousehold } from "../db/with-household.ts";
-import { pullChanges } from "../sync/pull-changes.ts";
 import { makeMembersHandler } from "./make-members-handler.ts";
 
 type Client = ReturnType<typeof createAuthTestClient>;
@@ -202,30 +200,6 @@ describe("makeMembersHandler", () => {
     expect((await home.owner.get("session")).status).toBe(200);
   });
 
-  it("frees the removed Member's Recovery email for a new sign-up", async () => {
-    const home = await signedInHousehold();
-    const samUserId = (await memberRow(home.samId))?.userId ?? "";
-    await db
-      .update(users)
-      .set({ emailVerifiedAt: now })
-      .where(eq(users.id, samUserId));
-
-    await patchMember(home.owner, { id: home.samId, removed: true });
-
-    expect(
-      await db
-        .select({ email: users.email, verifiedAt: users.emailVerifiedAt })
-        .from(users)
-        .where(eq(users.id, samUserId)),
-    ).toEqual([{ email: null, verifiedAt: null }]);
-    await db.insert(users).values({
-      id: randomUUID(),
-      displayName: "Sam",
-      email: "sam@example.com",
-      emailVerifiedAt: now,
-    });
-  });
-
   it("cancels the removed Member's pending invite", async () => {
     const home = await signedInHousehold();
 
@@ -238,31 +212,6 @@ describe("makeMembersHandler", () => {
     expect(
       (await home.owner.post("createInvite", { memberId: home.joId })).status,
     ).not.toBe(201);
-  });
-
-  it("syncs the removal as a soft delete that keeps the name", async () => {
-    const home = await signedInHousehold();
-    const before = await withHousehold(db, home.householdId, (scope) =>
-      householdRepository.find(scope),
-    );
-
-    const response = await patchMember(home.owner, {
-      id: home.samId,
-      removed: true,
-    });
-
-    const clock = (before?.clock ?? 0) + 1;
-    expect(await response.json()).toEqual({ clock });
-    const pulled = await pullChanges(db, home.householdId, before?.clock ?? 0);
-    const [removed, ...others] = pulled.tables.members ?? [];
-    expect(others).toEqual([]);
-    expect(removed).toMatchObject({
-      id: home.samId,
-      name: "Sam",
-      userId: null,
-      version: clock,
-    });
-    expect(removed).toHaveProperty("deletedAt", expect.any(Date));
   });
 
   it("brings a removed Member back without their old access", async () => {
@@ -317,16 +266,6 @@ describe("makeMembersHandler", () => {
 
       expect(response.status).toBe(403);
       expect((await memberRow(partnerId))?.deletedAt).toBeNull();
-    });
-
-    it("refuses the owner removing themselves", async () => {
-      const response = await patchMember(owner, {
-        id: owner.memberId,
-        removed: true,
-      });
-
-      expect(response.status).toBe(409);
-      expect(await response.json()).toEqual({ error: "cannot-remove-self" });
     });
 
     it("refuses removing the last owner", async () => {

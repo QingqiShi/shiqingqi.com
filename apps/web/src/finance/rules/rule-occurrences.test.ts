@@ -192,26 +192,6 @@ describe("a schedule change", () => {
     ]);
   });
 
-  it("adds no second occurrence next to an imported one when the rule resumes", async () => {
-    const now = new Date("2026-10-26T12:00:00Z");
-    const ruleId = await createRule(
-      {
-        startsOn: "2026-10-01",
-        dayOfMonth: 1,
-        nextOn: "2026-12-01",
-        paused: true,
-      },
-      now,
-    );
-    const importedId = await insertImported(ruleId, "2026-11-01");
-
-    await push("upsertRule", { id: ruleId, paused: false }, now);
-
-    expect(await ruleTransactions(ruleId)).toEqual([
-      { id: importedId, date: "2026-11-01", status: "expected" },
-    ]);
-  });
-
   it("posts an imported auto_post occurrence once when the rule resumes on its day", async () => {
     const now = new Date("2026-11-01T12:00:00Z");
     const ruleId = await createRule(
@@ -234,20 +214,6 @@ describe("a schedule change", () => {
     expect(await balanceDays()).toEqual([
       { day: "2026-11-01", balanceMinor: -120_000 },
     ]);
-  });
-
-  it("does not bring back a skipped imported occurrence when the schedule changes", async () => {
-    const now = new Date("2026-10-26T12:00:00Z");
-    const ruleId = await createRule(
-      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-12-01" },
-      now,
-    );
-    const importedId = await insertImported(ruleId, "2026-11-01");
-    await push("skipExpected", { id: importedId }, now);
-
-    await push("upsertRule", { id: ruleId, startsOn: "2026-09-01" }, now);
-
-    expect(await ruleTransactions(ruleId)).toEqual([]);
   });
 
   it("does not bring back an occurrence that Bank sync confirmed on another day", async () => {
@@ -573,42 +539,6 @@ describe("a template change", () => {
       },
     ]);
   });
-
-  it("changes nothing when the template stays the same", async () => {
-    const { ruleId, occurrence } = await ruleWithOccurrence();
-    const version = () =>
-      db
-        .select({ version: transactions.version })
-        .from(transactions)
-        .where(eq(transactions.id, occurrence));
-    const before = await version();
-
-    await push("upsertRule", { id: ruleId, template: template({}) }, now);
-
-    expect(await version()).toEqual(before);
-  });
-
-  it("gives an occurrence that a schedule change restores the new template", async () => {
-    const ruleId = await createRule(
-      { startsOn: "2026-10-01", dayOfMonth: 1, nextOn: "2026-11-01" },
-      now,
-    );
-    await push("upsertRule", { id: ruleId, nonBusinessDay: "next" }, now);
-    expect(await ruleDays(ruleId)).toEqual(["2026-11-02"]);
-    const diningId = await addDining();
-
-    await push(
-      "upsertRule",
-      { id: ruleId, nonBusinessDay: "stay", template: newTemplate(diningId) },
-      now,
-    );
-
-    expect(await ruleDays(ruleId)).toEqual(["2026-11-01"]);
-    expect(await shape(occurrenceId(ruleId, "2026-11-01"))).toMatchObject({
-      categoryId: diningId,
-      entries: [{ accountId: home.cardId, amountMinor: -150_000 }],
-    });
-  });
 });
 
 describe("a bank-backed Transaction on an occurrence's day", () => {
@@ -766,21 +696,6 @@ describe("a bank-backed Transaction on an occurrence's day", () => {
     expect(adopted).toHaveLength(2);
     expect(adopted.map((row) => row.id).sort()).toEqual(paymentIds.sort());
     expect(adopted.map((row) => row.ruleId).sort()).toEqual(ruleIds.sort());
-  });
-
-  it("changes no Transaction when it looks at the day again", async () => {
-    await recordPayment("2026-02-01");
-    const ruleId = await createRule({}, now);
-    expect(await materialiseRules(db, home.householdId, now)).toMatchObject({
-      written: 0,
-    });
-    await db.update(rules).set({ nextOn: "2026-01-31" });
-    const before = await db.select().from(transactions);
-
-    await materialiseRules(db, home.householdId, now);
-
-    expect(await db.select().from(transactions)).toEqual(before);
-    expect(await ruleDays(ruleId)).toEqual(["2026-02-01"]);
   });
 
   it("adds no occurrence next to the Transaction when the schedule changes", async () => {

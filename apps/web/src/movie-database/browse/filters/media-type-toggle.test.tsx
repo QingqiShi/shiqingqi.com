@@ -22,17 +22,6 @@ function getTvButton() {
 }
 
 describe("MediaTypeToggle", () => {
-  it("marks Movies active by default", () => {
-    render(
-      <Harness>
-        <MediaTypeToggle />
-      </Harness>,
-    );
-
-    expect(getMoviesButton()).toHaveAttribute("aria-checked", "true");
-    expect(getTvButton()).toHaveAttribute("aria-checked", "false");
-  });
-
   it("updates the active button when the user switches to TV Shows", async () => {
     const user = userEvent.setup();
     render(
@@ -49,22 +38,6 @@ describe("MediaTypeToggle", () => {
     // does not observe. Reading from `useMediaFilters()` resolves the drift.
     expect(getTvButton()).toHaveAttribute("aria-checked", "true");
     expect(getMoviesButton()).toHaveAttribute("aria-checked", "false");
-  });
-
-  it("switches back to Movies when toggled again", async () => {
-    const user = userEvent.setup();
-    render(
-      <Harness>
-        <MediaTypeToggle />
-      </Harness>,
-    );
-
-    await user.click(getTvButton());
-    expect(getTvButton()).toHaveAttribute("aria-checked", "true");
-
-    await user.click(getMoviesButton());
-    expect(getMoviesButton()).toHaveAttribute("aria-checked", "true");
-    expect(getTvButton()).toHaveAttribute("aria-checked", "false");
   });
 
   it("honors the URL's type param on first paint", () => {

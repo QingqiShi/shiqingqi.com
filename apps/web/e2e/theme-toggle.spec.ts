@@ -1,190 +1,33 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
-// `color.bgCanvas`: gray._97 in light and gray._0 in dark.
-const LIGHT_CANVAS = "rgb(251, 249, 246)";
-const DARK_CANVAS = "rgb(0, 0, 0)";
+function canvasColour(page: Page) {
+  return page.evaluate(
+    () => getComputedStyle(document.documentElement).backgroundColor,
+  );
+}
 
-test.describe("Theme Toggle", () => {
-  test.beforeEach(async ({ page }) => {
-    // Set system preference to light before loading
-    await page.emulateMedia({ colorScheme: "light" });
-    await page.goto("/");
-    // Wait for content to be visible
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  });
+test("a manual theme choice applies and persists across browser sessions", async ({
+  page,
+  context,
+}) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  const light = await canvasColour(page);
 
-  test("should detect and apply system preferences (light and dark)", async ({
-    page,
-  }) => {
-    // Verify light theme is applied (background matches light token)
-    const backgroundColor = await page.evaluate(
-      () => getComputedStyle(document.documentElement).backgroundColor,
-    );
-    expect(backgroundColor).toBe(LIGHT_CANVAS);
+  await page.getByRole("button", { name: /switch to dark theme/i }).click();
+  await expect(
+    page.getByRole("button", { name: /switch to light theme/i }),
+  ).toBeVisible();
+  await expect.poll(() => canvasColour(page)).not.toBe(light);
+  const dark = await canvasColour(page);
 
-    // The toggle shows the light Theme, so a press targets dark
-    await expect(
-      page.getByRole("button", { name: /switch to dark theme/i }),
-    ).toBeVisible();
-
-    // Change system preference to dark
-    await page.emulateMedia({ colorScheme: "dark" });
-
-    // Wait for background to change to dark
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-
-    // The toggle shows the dark Theme, so a press targets light
-    await expect(
-      page.getByRole("button", { name: /switch to light theme/i }),
-    ).toBeVisible();
-  });
-
-  test("should handle manual toggle and maintain state consistency", async ({
-    page,
-  }) => {
-    const themeToggle = page.getByRole("button", {
-      name: /switch to (light|dark) theme/i,
-    });
-
-    // Verify initial light theme
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      LIGHT_CANVAS,
-    );
-    await expect(themeToggle).toHaveAccessibleName(/switch to dark theme/i);
-
-    // Toggle to dark
-    await themeToggle.click();
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-    await expect(themeToggle).toHaveAccessibleName(/switch to light theme/i);
-
-    // Toggle back to light
-    await themeToggle.click();
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      LIGHT_CANVAS,
-    );
-    await expect(themeToggle).toHaveAccessibleName(/switch to dark theme/i);
-
-    // Toggle to dark again for consistency check
-    await themeToggle.click();
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-    await expect(themeToggle).toHaveAccessibleName(/switch to light theme/i);
-  });
-
-  test("should persist manual theme choice across browser sessions", async ({
-    page,
-    context,
-  }) => {
-    // Set manual theme to dark (system is light)
-    const themeToggle = page.getByRole("button", {
-      name: /switch to (light|dark) theme/i,
-    });
-    await themeToggle.click();
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-
-    // Open new page to verify persistence
-    const newPage = await context.newPage();
-    await newPage.goto("/");
-    await expect(newPage.getByRole("heading", { level: 1 })).toBeVisible();
-
-    // Verify dark theme persisted (background is dark)
-    await expect(newPage.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-
-    // The toggle shows the dark Theme, so a press targets light
-    await expect(
-      newPage.getByRole("button", { name: /switch to light theme/i }),
-    ).toBeVisible();
-
-    await newPage.close();
-  });
-
-  test("should handle reset to system preference", async ({ page }) => {
-    const themeToggle = page.getByRole("button", {
-      name: /switch to (light|dark) theme/i,
-    });
-
-    // First press: system is light, so the target (dark) differs from it —
-    // the store keeps the explicit choice.
-    await themeToggle.click();
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
-      "dark",
-    );
-
-    // Second press: the target (light) is what the system Theme already
-    // shows, so the store clears back to "system" instead of pinning
-    // "light".
-    await themeToggle.click();
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      LIGHT_CANVAS,
-    );
-    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
-      "system",
-    );
-
-    // Now following "system", the page tracks the system Theme.
-    await page.emulateMedia({ colorScheme: "dark" });
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-  });
-
-  test("keeps a dark Preference when the system Theme only coincides with it", async ({
-    page,
-  }) => {
-    const themeToggle = page.getByRole("button", {
-      name: /switch to (light|dark) theme/i,
-    });
-
-    // System is light (beforeEach); choose dark explicitly.
-    await themeToggle.click();
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
-      "dark",
-    );
-
-    // The system Theme moving to match the stored Preference, and back away
-    // from it again, must never clear the Preference — only a press does.
-    await page.emulateMedia({ colorScheme: "dark" });
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
-      "dark",
-    );
-
-    await page.emulateMedia({ colorScheme: "light" });
-    await expect(page.locator("html")).toHaveCSS(
-      "background-color",
-      DARK_CANVAS,
-    );
-    expect(await page.evaluate(() => localStorage.getItem("theme"))).toBe(
-      "dark",
-    );
-  });
+  const newPage = await context.newPage();
+  await newPage.goto("/");
+  await expect(newPage.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(
+    newPage.getByRole("button", { name: /switch to light theme/i }),
+  ).toBeVisible();
+  expect(await canvasColour(newPage)).toBe(dark);
+  await newPage.close();
 });

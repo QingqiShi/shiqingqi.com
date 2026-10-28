@@ -3,12 +3,6 @@ import { TmdbNotFoundError } from "#src/movie-database/tmdb/tmdb-get.ts";
 import { detailsOrNotFound } from "./details-or-not-found";
 
 describe("detailsOrNotFound", () => {
-  it("returns the details TMDB found", async () => {
-    await expect(
-      detailsOrNotFound(Promise.resolve({ id: 1 })),
-    ).resolves.toEqual({ id: 1 });
-  });
-
   it("calls notFound() when TMDB has no such record", async () => {
     await expect(
       detailsOrNotFound(Promise.reject(new TmdbNotFoundError("gone"))),

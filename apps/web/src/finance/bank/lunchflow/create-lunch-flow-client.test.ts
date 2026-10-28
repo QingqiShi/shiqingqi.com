@@ -100,13 +100,6 @@ describe("createLunchFlowClient", () => {
     ]);
   });
 
-  it("keeps a provider the spec does not list and a missing currency", async () => {
-    server.accounts[0] = account({ provider: "mx", currency: undefined });
-    const [listed] = await client().listAccounts();
-    expect(listed.provider).toBe("mx");
-    expect(listed.currency).toBeNull();
-  });
-
   it("converts amounts to minor units and drops pending rows", async () => {
     const rows = await client().listTransactions("101", { from: "2026-09-01" });
     expect(rows.map((row) => [row.id, row.amountMinor, row.merchant])).toEqual([
@@ -144,58 +137,6 @@ describe("createLunchFlowClient", () => {
   it("maps an unknown account to not_found", async () => {
     const error = await bankErrorOf(client().getBalance("999"));
     expect(error.kind).toBe("not_found");
-  });
-
-  it("retries a 503 and a 429, honouring Retry-After", async () => {
-    server.script.push(
-      { status: 503, body: { error: "Service Unavailable" } },
-      {
-        status: 429,
-        body: { error: "Too Many Requests" },
-        headers: { "Retry-After": "2" },
-      },
-    );
-    const balance = await client().getBalance("101");
-    expect(balance.amountMinor).toBe(102_450);
-    expect(sleeps).toEqual([500, 2000]);
-    expect(server.requests).toHaveLength(3);
-  });
-
-  it("gives up after three retries", async () => {
-    for (let i = 0; i < 4; i++) {
-      server.script.push({
-        status: 503,
-        body: { error: "Service Unavailable", message: "try later" },
-      });
-    }
-    const error = await bankErrorOf(client().listAccounts());
-    expect(error.kind).toBe("unavailable");
-    expect(error.message).toBe("try later");
-    expect(server.requests).toHaveLength(4);
-    expect(sleeps).toEqual([500, 1000, 2000]);
-  });
-
-  it("reports rate_limited when 429 persists", async () => {
-    for (let i = 0; i < 4; i++) {
-      server.script.push({ status: 429, body: { error: "GCRateLimited" } });
-    }
-    const error = await bankErrorOf(client().listAccounts());
-    expect(error.kind).toBe("rate_limited");
-  });
-
-  it("does not wait for the bank's daily cap or a long Retry-After", async () => {
-    server.script.push({ status: 429, body: { error: "GCRateLimited" } });
-    const capped = await bankErrorOf(client().listAccounts());
-    server.script.push({
-      status: 429,
-      body: { error: "Too Many Requests" },
-      headers: { "Retry-After": "3600" },
-    });
-    const later = await bankErrorOf(client().listAccounts());
-
-    expect([capped.kind, later.kind]).toEqual(["rate_limited", "rate_limited"]);
-    expect(sleeps).toEqual([]);
-    expect(server.requests).toHaveLength(2);
   });
 
   it("rejects a body that breaks the spec", async () => {

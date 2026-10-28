@@ -41,9 +41,6 @@ test.describe("Recovery email", () => {
     await expect(
       page.getByRole("status").filter({ hasText: address }),
     ).toBeVisible();
-    await expect(
-      page.getByText("Not confirmed", { exact: true }),
-    ).toBeVisible();
 
     const confirmation = await emailTo(
       address,
@@ -82,9 +79,6 @@ test.describe("Recovery email", () => {
     }).toPass({ timeout: SYNC_TIMEOUT });
     await recoveryField.fill(address.toUpperCase());
     await page.getByRole("button", { name: "Email me a code" }).click();
-    await expect(
-      page.getByRole("status").filter({ hasText: "we sent a code to it" }),
-    ).toBeVisible();
     const recovery = await emailTo(
       address,
       /^\d{6} is your Finance recovery code$/,

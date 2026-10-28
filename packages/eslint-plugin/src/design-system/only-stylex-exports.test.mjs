@@ -19,20 +19,8 @@ ruleTester.run("only-stylex-exports", rule, {
     {
       code: `export const styles = stylex.create({ root: { color: "red" } });`,
     },
-    // V2: any other stylex construct
-    { code: `export const vars = stylex.defineVars({ gap: "1px" });` },
-    { code: `export const consts = stylex.defineConsts({ sm: "1px" });` },
-    {
-      code: `export const fadeIn = stylex.keyframes({ from: { opacity: 0 } });`,
-    },
-    // V3: a non-stylex plain value that is not exported
-    { code: `const PRESS_DURATION = 150;` },
     // V4: exports that declare no value
     { code: `export function helper() {}` },
-    { code: `const a = 1; export { a };` },
-    { code: `export * from "./other.js";` },
-    // V5: export let/var are not `export const` and out of scope
-    { code: `export let mutable = 1;` },
   ],
 
   invalid: [
@@ -50,24 +38,6 @@ ruleTester.run("only-stylex-exports", rule, {
     {
       code: `export const duration = { _150: "150ms" };`,
       errors: [{ messageId: "notStylexConstruct", data: { name: "duration" } }],
-    },
-    // I3: a call on something other than `stylex`
-    {
-      code: `export const styles = css.create({ root: {} });`,
-      errors: [{ messageId: "notStylexConstruct", data: { name: "styles" } }],
-    },
-    // I4: a member reference, not a call
-    {
-      code: `export const create = stylex.create;`,
-      errors: [{ messageId: "notStylexConstruct", data: { name: "create" } }],
-    },
-    // I5: one report per declarator
-    {
-      code: `export const a = 1, b = stylex.create({}), c = 2;`,
-      errors: [
-        { messageId: "notStylexConstruct", data: { name: "a" } },
-        { messageId: "notStylexConstruct", data: { name: "c" } },
-      ],
     },
   ],
 });

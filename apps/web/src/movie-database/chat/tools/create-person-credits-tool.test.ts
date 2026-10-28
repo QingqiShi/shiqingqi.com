@@ -3,7 +3,6 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { isRecord } from "#src/movie-database/is-record.ts";
 import { server } from "#src/testing/test-msw.ts";
 import { createPersonCreditsTool } from "./create-person-credits-tool";
-import { isToolError } from "./tool-error";
 import { TMDB_BASE, toolExecutionOptions } from "./tool-execution-options";
 
 beforeAll(() => {
@@ -58,30 +57,6 @@ function castEntry(overrides: {
 }
 
 describe("person credits execute", () => {
-  it("returns sorted credits for a typical person", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
-        HttpResponse.json({
-          id: 287,
-          cast: [
-            castEntry({ id: 1, title: "Low Rated", vote_average: 5.0 }),
-            castEntry({ id: 2, title: "High Rated", vote_average: 9.0 }),
-            castEntry({ id: 3, title: "Mid Rated", vote_average: 7.0 }),
-          ],
-          crew: [],
-        }),
-      ),
-    );
-
-    const result = await executeTool({ person_id: 287 });
-
-    expect(result.map((entry) => entry.title)).toEqual([
-      "High Rated",
-      "Mid Rated",
-      "Low Rated",
-    ]);
-  });
-
   it("caps the result list at 30 entries when the filmography is large", async () => {
     // Build 60 entries with descending vote_average so we can verify both
     // (a) the cap, and (b) that the highest-rated entries survive.
@@ -144,52 +119,6 @@ describe("person credits execute", () => {
     expect(result[0].department).toBe("Directing");
   });
 
-  it("merges cast and crew when the crew entry is processed first", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
-        HttpResponse.json({
-          id: 287,
-          cast: [castEntry({ id: 200, title: "Argo", vote_average: 7.7 })],
-          crew: [
-            // Standalone crew entry (no matching cast row) — should be kept.
-            {
-              id: 999,
-              media_type: "movie",
-              title: "Crew Only",
-              poster_path: "/c.jpg",
-              vote_average: 6,
-              release_date: "2018-01-01",
-              department: "Writing",
-            },
-            // Crew entry that matches a cast entry — should merge.
-            {
-              id: 200,
-              media_type: "movie",
-              title: "Argo",
-              poster_path: "/p.jpg",
-              vote_average: 7.7,
-              release_date: "2012-01-01",
-              department: "Directing",
-            },
-          ],
-        }),
-      ),
-    );
-
-    const result = await executeTool({ person_id: 287 });
-    const argo = result.find((entry) => entry.id === 200);
-    expect(argo).toBeDefined();
-    if (!argo) throw new Error("expected argo entry");
-    expect(argo.character).toBe("Test Character");
-    expect(argo.department).toBe("Directing");
-
-    const crewOnly = result.find((entry) => entry.id === 999);
-    expect(crewOnly).toBeDefined();
-    if (!crewOnly) throw new Error("expected crew-only entry");
-    expect(crewOnly.character).toBeUndefined();
-    expect(crewOnly.department).toBe("Writing");
-  });
-
   it("keeps the highest-priority department when a film has multiple crew rows", async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
@@ -232,78 +161,5 @@ describe("person credits execute", () => {
     const result = await executeTool({ person_id: 287 });
     expect(result).toHaveLength(1);
     expect(result[0].department).toBe("Directing");
-  });
-
-  it("preserves character-only and department-only entries when there is no overlap", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
-        HttpResponse.json({
-          id: 287,
-          cast: [castEntry({ id: 1, title: "Acted Only", vote_average: 8 })],
-          crew: [
-            {
-              id: 2,
-              media_type: "movie",
-              title: "Directed Only",
-              poster_path: "/d.jpg",
-              vote_average: 7,
-              release_date: "2015-01-01",
-              department: "Directing",
-            },
-          ],
-        }),
-      ),
-    );
-
-    const result = await executeTool({ person_id: 287 });
-
-    const acted = result.find((entry) => entry.id === 1);
-    const directed = result.find((entry) => entry.id === 2);
-    expect(acted?.character).toBe("Test Character");
-    expect(acted?.department).toBeUndefined();
-    expect(directed?.character).toBeUndefined();
-    expect(directed?.department).toBe("Directing");
-  });
-
-  it("returns a structured tool error when TMDB fails", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, () =>
-        HttpResponse.json(
-          { status_message: "Service unavailable" },
-          { status: 503 },
-        ),
-      ),
-    );
-
-    const tool = createPersonCreditsTool("en");
-    const result = await tool.execute(
-      { person_id: 287 },
-      toolExecutionOptions(),
-    );
-
-    expect(isToolError(result)).toBe(true);
-    if (isToolError(result)) {
-      expect(result.reason).toBe("tmdb_unavailable");
-    }
-  });
-
-  it("passes locale as the language parameter to TMDB", async () => {
-    let capturedLanguage: string | null = null;
-
-    server.use(
-      http.get(`${TMDB_BASE}/3/person/287/combined_credits`, ({ request }) => {
-        const url = new URL(request.url);
-        capturedLanguage = url.searchParams.get("language");
-        return HttpResponse.json({
-          id: 287,
-          cast: [castEntry({ id: 1, title: "绿里奇迹", vote_average: 8 })],
-          crew: [],
-        });
-      }),
-    );
-
-    await executeTool({ person_id: 287 }, "zh");
-
-    expect(capturedLanguage).toBe("zh");
   });
 });

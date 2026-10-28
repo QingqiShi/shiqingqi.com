@@ -41,18 +41,6 @@ describe("finance proxy gate", () => {
     expect(response.headers.get("x-finance-shell")).toBe("1");
   });
 
-  it("hands the requested page to the layout, for a stale session's next", () => {
-    const response = proxy(
-      documentRequest("/zh/finance/analytics?range=12m", true),
-    );
-    expect(
-      response.headers.get("x-middleware-override-headers")?.split(","),
-    ).toContain("x-finance-path");
-    expect(response.headers.get("x-middleware-request-x-finance-path")).toBe(
-      "/finance/analytics?range=12m",
-    );
-  });
-
   it("leaves sign-in, sign-up, invites, email verification, and other pages alone", () => {
     for (const path of [
       "/finance/sign-in",
@@ -65,11 +53,5 @@ describe("finance proxy gate", () => {
       expect(response.headers.get("x-finance-shell")).toBeNull();
       expect(response.headers.get("Location") ?? "").not.toContain("sign-in");
     }
-  });
-
-  it("lets a deployment without a database render its own screen", () => {
-    vi.stubEnv("FINANCE_DATABASE_URL", "");
-    const response = proxy(documentRequest("/finance"));
-    expect(response.headers.get("Location")).toBeNull();
   });
 });

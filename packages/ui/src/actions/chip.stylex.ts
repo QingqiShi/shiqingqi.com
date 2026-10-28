@@ -18,8 +18,8 @@ import {
  *
  * `interactive` inlines its focus ring and its touch target instead of
  * composing `a11y.focusRing` and `a11y.touchTarget`, since a primitive can't
- * compose another at definition time. `primitives/focus-ring.test.ts` and
- * `primitives/touch-target.test.ts` keep the copies the same as the originals.
+ * compose another at definition time. Keep the copies the same as the
+ * originals.
  */
 export const chipSurface = stylex.create({
   base: {

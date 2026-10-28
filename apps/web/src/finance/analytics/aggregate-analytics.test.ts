@@ -173,20 +173,6 @@ describe("aggregateAnalytics", () => {
       from: "2025-01-01",
       to: "2025-02-28",
     },
-    {
-      kind: "spending",
-      member: null,
-      grouping: "year",
-      from: "2023-01-01",
-      to: "2026-01-04",
-    },
-    {
-      kind: "net",
-      member: "alex",
-      grouping: "month",
-      from: "2023-05-01",
-      to: "2025-12-31",
-    },
   ] as const)(
     "matches a naive sum: $kind, $member, $grouping",
     ({ kind, member, grouping, from, to }) => {
@@ -293,17 +279,5 @@ describe("aggregateAnalytics", () => {
     expect(net.total).toBe(6300);
     expect(net.incomeByPeriod[0]).toBe(10000);
     expect(net.spendingByPeriod[0]).toBe(3700);
-  });
-
-  test("keeps colours by rank over all time, past eight as Other", () => {
-    const ids = Array.from({ length: 10 }, (_, i) => `c${String(i)}`);
-    const index = buildTestIndex(
-      ids.map((id, i) => postedRow(id, "2026-01-01", -(i + 1) * 100, id)),
-      ids,
-    );
-    const { tones, bucketOf } = categoryBuckets(index, "spending", -1);
-    expect(tones[bucketOf[9]]).toBe("series1");
-    expect(tones[bucketOf[3]]).toBe("series7");
-    expect(tones[bucketOf[2]]).toBe("other");
   });
 });

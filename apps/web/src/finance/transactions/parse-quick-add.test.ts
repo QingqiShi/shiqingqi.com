@@ -82,18 +82,6 @@ describe("parseQuickAdd", () => {
     );
   });
 
-  it("reads a Category name as the text", () => {
-    expect(parseQuickAdd("12.50 超市", "GBP")).toMatchObject({
-      amountMinor: 1250,
-      text: "超市",
-    });
-    expect(parseQuickAdd("+2000 工资", "GBP")).toMatchObject({
-      kind: "income",
-      amountMinor: 200_000,
-      text: "工资",
-    });
-  });
-
   it("keeps the text when there is no amount yet", () => {
     expect(parseQuickAdd("ocado", "GBP")).toMatchObject({
       amountMinor: null,

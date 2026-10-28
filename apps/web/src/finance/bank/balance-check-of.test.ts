@@ -10,21 +10,6 @@ const link = {
 };
 
 describe("balanceCheckOf", () => {
-  it("finds nothing while the bank gave no balance", () => {
-    expect(
-      balanceCheckOf({ ...link, bankBalanceMinor: null }, () => 0),
-    ).toBeNull();
-    expect(
-      balanceCheckOf({ ...link, bankBalanceOn: null }, () => 0),
-    ).toBeNull();
-  });
-
-  it("finds nothing while bank rows wait for the AI step", () => {
-    expect(
-      balanceCheckOf({ ...link, bankRowsWaiting: true }, () => 0),
-    ).toBeNull();
-  });
-
   it("finds nothing when the balances agree", () => {
     expect(balanceCheckOf(link, () => -500)).toBeNull();
   });

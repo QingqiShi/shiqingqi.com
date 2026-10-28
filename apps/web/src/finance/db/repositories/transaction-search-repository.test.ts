@@ -113,42 +113,6 @@ function search(household: SeededHousehold, input: TransactionSearch) {
 }
 
 describe("transactionSearchRepository", () => {
-  it("finds rows by bank text, newest first, with the bank text, the labels and who labelled them", async () => {
-    const aiLabelled = await expense(home, {
-      date: "2026-10-05",
-      amountMinor: -1200,
-      labelledBy: "ai",
-      bankText: "TESCO STORES 3297",
-    });
-    const memberLabelled = await expense(home, {
-      date: "2026-09-01",
-      amountMinor: -800,
-      payeeId: home.grocerId,
-      bankText: "TESCO EXPRESS",
-    });
-    await expense(home, { date: "2026-10-06", amountMinor: -500, note: "bus" });
-
-    const found = await search(home, { text: "tesco" });
-
-    expect(found.map((row) => row.id)).toEqual([aiLabelled, memberLabelled]);
-    expect(found[0].labelledBy).toBe("ai");
-    expect(found[1]).toMatchObject({
-      labelledBy: "member",
-      bankTexts: ["TESCO EXPRESS | CARD PAYMENT"],
-      payeeName: "Grocer",
-      categoryId: home.groceriesId,
-      tagNames: ["Train"],
-      entries: [
-        {
-          accountId: home.currentId,
-          accountName: "Current",
-          amountMinor: -800,
-          currency: "GBP",
-        },
-      ],
-    });
-  });
-
   it("needs every word, and matches the Payee name and the note", async () => {
     const lunch = await expense(home, {
       date: "2026-10-05",

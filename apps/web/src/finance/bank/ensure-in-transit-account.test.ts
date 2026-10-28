@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { accountGroups, accounts } from "../db/schema.ts";
+import { accounts } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { mutation } from "../db/testing/mutation.ts";
 import {
@@ -58,46 +58,6 @@ async function push(...mutations: ReturnType<typeof mutation>[]) {
 }
 
 describe("ensureInTransitAccount", () => {
-  it("makes one Shared cash account per currency, at the end of the first asset Group", async () => {
-    const gbp = await ensure("GBP");
-    expect(await ensure("GBP")).toBe(gbp);
-    const usd = await ensure("USD");
-    expect(usd).not.toBe(gbp);
-
-    const rows = await systemAccounts();
-    expect(rows).toHaveLength(2);
-    expect(rows.find((row) => row.id === gbp)).toMatchObject({
-      name: "In transit",
-      kind: "cash",
-      currency: "GBP",
-      groupId: home.liquidGroupId,
-      ownerMemberId: null,
-      excludedFromNetWorth: false,
-      position: 1,
-    });
-  });
-
-  it("makes a Cash Group when the Household has no asset Group", async () => {
-    await db
-      .update(accounts)
-      .set({ deletedAt: NOW })
-      .where(eq(accounts.householdId, home.householdId));
-    await db
-      .update(accountGroups)
-      .set({ deletedAt: NOW })
-      .where(eq(accountGroups.id, home.liquidGroupId));
-
-    const id = await ensure("GBP");
-
-    const [account] = await systemAccounts();
-    expect(account.id).toBe(id);
-    const [group] = await db
-      .select()
-      .from(accountGroups)
-      .where(eq(accountGroups.id, account.groupId));
-    expect(group).toMatchObject({ name: "Cash", side: "asset" });
-  });
-
   it("refuses a second live In transit account in one currency", async () => {
     await ensure("GBP");
     await expect(

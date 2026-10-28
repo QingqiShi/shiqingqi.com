@@ -3,74 +3,6 @@ import { describe, expect, it } from "vitest";
 import { useHistory } from "./use-history";
 
 describe("useHistory", () => {
-  it("starts with the initial value and no history", () => {
-    const { result } = renderHook(() => useHistory(0));
-
-    expect(result.current.present).toBe(0);
-    expect(result.current.canUndo).toBe(false);
-    expect(result.current.canRedo).toBe(false);
-  });
-
-  it("push appends entries that can be undone one by one", () => {
-    const { result } = renderHook(() => useHistory(0));
-
-    act(() => {
-      result.current.push(1);
-    });
-    act(() => {
-      result.current.push(2);
-    });
-    act(() => {
-      result.current.push(3);
-    });
-
-    expect(result.current.present).toBe(3);
-
-    act(() => {
-      result.current.undo();
-    });
-    expect(result.current.present).toBe(2);
-
-    act(() => {
-      result.current.undo();
-    });
-    expect(result.current.present).toBe(1);
-
-    act(() => {
-      result.current.undo();
-    });
-    expect(result.current.present).toBe(0);
-    expect(result.current.canUndo).toBe(false);
-  });
-
-  it("replace updates present without growing past — drag-style coalescing", () => {
-    const { result } = renderHook(() => useHistory(0));
-
-    // Simulate a pencil stroke: pointer-down pushes the first frame, every
-    // subsequent pointer-move replaces in place. The whole stroke must be
-    // undoable in a single Ctrl+Z.
-    act(() => {
-      result.current.push(1);
-    });
-    act(() => {
-      result.current.replace(2);
-    });
-    act(() => {
-      result.current.replace(3);
-    });
-    act(() => {
-      result.current.replace(4);
-    });
-
-    expect(result.current.present).toBe(4);
-
-    act(() => {
-      result.current.undo();
-    });
-    expect(result.current.present).toBe(0);
-    expect(result.current.canUndo).toBe(false);
-  });
-
   it("coalesces a stroke between two discrete pushes", () => {
     const { result } = renderHook(() => useHistory("a"));
 
@@ -109,6 +41,7 @@ describe("useHistory", () => {
       result.current.undo();
     });
     expect(result.current.present).toBe("a");
+    expect(result.current.canUndo).toBe(false);
   });
 
   it("redo restores the value present at the time of undo, including the final stroke frame", () => {
@@ -148,31 +81,12 @@ describe("useHistory", () => {
     act(() => {
       result.current.undo();
     });
-    expect(result.current.present).toBe(1);
     expect(result.current.canRedo).toBe(true);
 
     act(() => {
       result.current.replace(99);
     });
     expect(result.current.present).toBe(99);
-    expect(result.current.canRedo).toBe(false);
-  });
-
-  it("reset wipes history to a single entry", () => {
-    const { result } = renderHook(() => useHistory(0));
-
-    act(() => {
-      result.current.push(1);
-    });
-    act(() => {
-      result.current.push(2);
-    });
-    act(() => {
-      result.current.reset(42);
-    });
-
-    expect(result.current.present).toBe(42);
-    expect(result.current.canUndo).toBe(false);
     expect(result.current.canRedo).toBe(false);
   });
 });

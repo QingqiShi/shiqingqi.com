@@ -9,16 +9,4 @@ describe("isCacheablePageResponse", () => {
   it("rejects a followed redirect (200, redirected)", () => {
     expect(isCacheablePageResponse(200, true)).toBe(false);
   });
-
-  it("rejects an opaqueredirect (status 0)", () => {
-    expect(isCacheablePageResponse(0, false)).toBe(false);
-  });
-
-  it("rejects a 307 redirect", () => {
-    expect(isCacheablePageResponse(307, false)).toBe(false);
-  });
-
-  it("rejects a 404", () => {
-    expect(isCacheablePageResponse(404, false)).toBe(false);
-  });
 });

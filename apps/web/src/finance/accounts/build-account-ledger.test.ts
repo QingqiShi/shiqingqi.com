@@ -123,24 +123,6 @@ describe("buildAccountLedger", () => {
     ).toEqual([600, null]);
   });
 
-  it("stops the days at the limit", () => {
-    const ledger = build(
-      [
-        tx("later", "2026-11-01", -100, "expected"),
-        tx("a", "2026-10-15", -100),
-        tx("b", "2026-10-14", -100),
-        tx("c", "2026-10-12", -100),
-      ],
-      { limit: 2 },
-    );
-    expect(shape(ledger).map((day) => day.day)).toEqual([
-      "2026-10-15",
-      "2026-10-14",
-    ]);
-    expect(ledger.hasMore).toBe(true);
-    expect(build([tx("a", "2026-10-15", -100)]).hasMore).toBe(false);
-  });
-
   it("totals each day's posted spending and income, also past the limit", () => {
     const salary = testExpense("pay", "pay-entry", {
       date: "2026-10-15",

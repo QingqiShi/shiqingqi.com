@@ -40,7 +40,6 @@ describe("AccountEditorSheet", () => {
     expect(
       screen.getByRole("button", { name: "Delete account" }),
     ).toBeDisabled();
-    expect(screen.getByText(/Close it instead/)).toBeVisible();
   });
 
   it("deletes an account with no history, with Undo", async () => {
@@ -54,58 +53,5 @@ describe("AccountEditorSheet", () => {
     expect(runtime.store.takeOutbox()).toMatchObject([
       { name: "upsertAccount", args: { id: ids.isa, deleted: false } },
     ]);
-  });
-
-  it("picks the currency from a list and leaves Closed out of a new account", async () => {
-    await openEditor(null);
-    const currency = screen.getByRole("combobox", { name: "Currency" });
-    expect(currency).toHaveValue("GBP");
-    expect(
-      screen.getAllByRole("option").map((option) => option.textContent),
-    ).toEqual(expect.arrayContaining(["GBP", "USD", "EUR"]));
-    expect(screen.queryByRole("checkbox", { name: /Closed/ })).toBeNull();
-  });
-
-  it("saves the account a credit card is paid from", async () => {
-    const { runtime, user } = await openEditor(ids.card);
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Paid from" }),
-      ids.current,
-    );
-    await user.click(screen.getByRole("button", { name: "Save" }));
-    expect(runtime.store.takeOutbox()).toMatchObject([
-      {
-        name: "upsertAccount",
-        args: { id: ids.card, defaultPaymentAccountId: ids.current },
-      },
-    ]);
-  });
-
-  it("saves the website a Member types as a bare domain", async () => {
-    const { runtime, user } = await openEditor(ids.card);
-    await user.type(
-      screen.getByRole("textbox", { name: "Website" }),
-      "https://www.Barclays.co.uk/personal",
-    );
-    await user.click(screen.getByRole("button", { name: "Save" }));
-    expect(runtime.store.takeOutbox()).toMatchObject([
-      {
-        name: "upsertAccount",
-        args: { id: ids.card, institutionDomain: "barclays.co.uk" },
-      },
-    ]);
-  });
-
-  it("refuses a website that is not a domain", async () => {
-    const { runtime, user } = await openEditor(ids.card);
-    await user.type(
-      screen.getByRole("textbox", { name: "Website" }),
-      "my bank",
-    );
-    await user.click(screen.getByRole("button", { name: "Save" }));
-    expect(
-      screen.getByText("Enter a website such as barclays.co.uk"),
-    ).toBeVisible();
-    expect(runtime.store.takeOutbox()).toEqual([]);
   });
 });

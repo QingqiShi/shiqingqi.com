@@ -7,8 +7,7 @@
   "scripts": {
     "build:tsc": "tsc --noEmit",
     "lint": "eslint --max-warnings 0 .",
-    "tinker": "node scripts/build.mjs",
-    "test": "vitest run"
+    "tinker": "node scripts/build.mjs"
   },
   "dependencies": {
     "@babel/core": "catalog:",

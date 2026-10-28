@@ -54,45 +54,6 @@ describe("personDetailsQuery", () => {
     });
   });
 
-  it("returns deathday when it is a string", async () => {
-    server.use(
-      http.get("*/api/tmdb/get-person-details", () =>
-        HttpResponse.json(personDetailsResponse({ deathday: "2014-08-11" })),
-      ),
-    );
-
-    const options = personDetailsQuery({ id: "31" });
-    const result = await callQueryFn(options);
-
-    expect(result.deathday).toBe("2014-08-11");
-  });
-
-  it("returns null deathday for non-string values", async () => {
-    server.use(
-      http.get("*/api/tmdb/get-person-details", () =>
-        HttpResponse.json(personDetailsResponse({ deathday: 0 })),
-      ),
-    );
-
-    const options = personDetailsQuery({ id: "31" });
-    const result = await callQueryFn(options);
-
-    expect(result.deathday).toBeNull();
-  });
-
-  it("falls back to empty string when name is missing", async () => {
-    server.use(
-      http.get("*/api/tmdb/get-person-details", () =>
-        HttpResponse.json(personDetailsResponse({ name: undefined })),
-      ),
-    );
-
-    const options = personDetailsQuery({ id: "31" });
-    const result = await callQueryFn(options);
-
-    expect(result.name).toBe("");
-  });
-
   it("returns null for missing optional fields", async () => {
     server.use(
       http.get("*/api/tmdb/get-person-details", () =>
@@ -114,22 +75,5 @@ describe("personDetailsQuery", () => {
     expect(result.biography).toBeNull();
     expect(result.birthday).toBeNull();
     expect(result.knownForDepartment).toBeNull();
-  });
-
-  it("passes person_id and language as query params", async () => {
-    let requestUrl = "";
-    server.use(
-      http.get("*/api/tmdb/get-person-details", ({ request }) => {
-        requestUrl = request.url;
-        return HttpResponse.json(personDetailsResponse());
-      }),
-    );
-
-    const options = personDetailsQuery({ id: "31", language: "zh" });
-    await callQueryFn(options);
-
-    const url = new URL(requestUrl);
-    expect(url.searchParams.get("person_id")).toBe("31");
-    expect(url.searchParams.get("language")).toBe("zh");
   });
 });

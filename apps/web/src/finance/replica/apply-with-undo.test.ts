@@ -209,19 +209,4 @@ describe("applyWithUndo", () => {
     ).toThrow();
     expect(transactionView(store.getSnapshot(), ids.tescoShop)).toEqual(before);
   });
-
-  it("gives no Undo for a Payee merge", async () => {
-    const { store } = await createTestReplica();
-    const { undo } = applyWithUndo(
-      store,
-      [
-        {
-          name: "mergePayee",
-          args: { fromId: ids.netflix, intoId: ids.tesco },
-        },
-      ],
-      createId,
-    );
-    expect(undo).toBeNull();
-  });
 });

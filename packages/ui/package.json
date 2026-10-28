@@ -211,7 +211,6 @@
     "@testing-library/react": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@tuja/babel-plugins": "workspace:*",
-    "@tuja/stylex-testing": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

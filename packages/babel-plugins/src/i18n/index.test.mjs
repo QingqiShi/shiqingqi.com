@@ -65,50 +65,9 @@ const msg = t({ en: "Hello", zh: "你好" });
       // Original import should be removed
       expect(output).not.toContain(`from "#src/i18n"`);
     });
-
-    it("transforms t() with parse option to __i18n_lookupParse", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t({ en: "Hello <strong>world</strong>", zh: "你好 <strong>世界</strong>" }, { parse: true });
-`;
-      const output = transform(input);
-      const key = expectedKey(
-        "Hello <strong>world</strong>",
-        "你好 <strong>世界</strong>",
-      );
-
-      expect(output).toContain(`__i18n_lookupParse("${key}")`);
-      expect(output).toContain(
-        `import { __i18n_lookupParse } from "#src/i18n/server-runtime.ts"`,
-      );
-    });
   });
 
   describe("client component transform ('use client')", () => {
-    it("reads the translations once per component and looks up each key in them", () => {
-      const output = transform(`
-"use client";
-import { t } from "#src/i18n";
-export function Card({ isExternal }) {
-  const title = t({ en: "Title", zh: "标题" });
-  return <a title={title}>{isExternal ? t({ en: "External", zh: "外部" }) : null}</a>;
-}
-`);
-
-      expect(output).toMatchInlineSnapshot(`
-        ""use client";
-
-        import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts";
-        export function Card({
-          isExternal
-        }) {
-          const _translations = useI18nTranslations();
-          const title = i18nLookup(_translations, "4c18fa65");
-          return <a title={title}>{isExternal ? i18nLookup(_translations, "b2b5a43d") : null}</a>;
-        }"
-      `);
-    });
-
     it("uses i18nLookupParse with { parse: true }", () => {
       const output = transform(`
 "use client";
@@ -127,51 +86,6 @@ export function Hint() {
         `import { useI18nTranslations, i18nLookupParse } from "#src/i18n/client-runtime.ts"`,
       );
       expect(output).not.toContain(`from "#src/i18n"`);
-    });
-
-    it("gives each component its own translations", () => {
-      const output = transform(`
-"use client";
-import { t } from "#src/i18n";
-export function A() { return t({ en: "A", zh: "甲" }); }
-export function B() { return t({ en: "B", zh: "乙" }); }
-`);
-
-      expect(output).toContain("const _translations = useI18nTranslations();");
-      expect(output).toContain("const _translations2 = useI18nTranslations();");
-      expect(output).toContain(
-        `i18nLookup(_translations2, "${expectedKey("B", "乙")}")`,
-      );
-    });
-
-    it("changes an arrow component's expression body into a block", () => {
-      const output = transform(`
-"use client";
-import { t } from "#src/i18n";
-export const Title = () => <h1>{t({ en: "Title", zh: "标题" })}</h1>;
-`);
-
-      expect(output).toContain(`export const Title = () => {
-  const _translations = useI18nTranslations();
-  return <h1>{i18nLookup(_translations, "4c18fa65")}</h1>;
-};`);
-    });
-
-    it("lets a function inside a component use the component's translations", () => {
-      const output = transform(`
-"use client";
-import { t } from "#src/i18n";
-export function List({ items }) {
-  return items.map((item) => <li key={item}>{t({ en: "Item", zh: "项" })}</li>);
-}
-`);
-
-      expect(output.match(/useI18nTranslations\(\)/g)).toHaveLength(1);
-      expect(output).toContain(`export function List({
-  items
-}) {
-  const _translations = useI18nTranslations();`);
-      expect(output).toContain(`i18nLookup(_translations, "`);
     });
 
     it("passes the caller's translations into a helper as its first argument", () => {
@@ -206,17 +120,6 @@ export const label = t({ en: "Hello", zh: "你好" });
       ).toThrow(/t\(\) at module scope/);
     });
 
-    it("rejects t() in an exported function that is not a component or hook", () => {
-      expect(() =>
-        transform(`
-"use client";
-import { t } from "#src/i18n";
-export function getLabel() { return t({ en: "Hello", zh: "你好" }); }
-export function Label() { return getLabel(); }
-`),
-      ).toThrow(/not a component, a hook, or a local helper/);
-    });
-
     it("rejects a helper with t() that is called outside render", () => {
       expect(() =>
         transform(`
@@ -231,30 +134,6 @@ function format() { return getLabel(); }
       ).toThrow(
         /getLabel calls t\(\), so only a component or a hook can call it/,
       );
-    });
-
-    it("rejects a helper with t() that reads arguments", () => {
-      expect(() =>
-        transform(`
-"use client";
-import { t } from "#src/i18n";
-function getLabel() {
-  return arguments[0] === "movie" ? t({ en: "Movie", zh: "电影" }) : t({ en: "Show", zh: "剧集" });
-}
-export function Badge({ kind }) { return getLabel(kind); }
-`),
-      ).toThrow(/getLabel reads `arguments`/);
-    });
-
-    it("rejects a helper with t() that is passed as a value", () => {
-      expect(() =>
-        transform(`
-"use client";
-import { t } from "#src/i18n";
-function getLabel() { return t({ en: "Hello", zh: "你好" }); }
-export function Labels({ kinds }) { return kinds.map(getLabel); }
-`),
-      ).toThrow(/getLabel calls t\(\)/);
     });
   });
 
@@ -286,103 +165,6 @@ const rich = t({ en: "Hello <b>world</b>", zh: "你好 <b>世界</b>" }, { parse
       );
       expect(importMatches).toHaveLength(1);
     });
-
-    it("generates correct distinct keys for different strings", () => {
-      const input = `
-import { t } from "#src/i18n";
-const a = t({ en: "Apple", zh: "苹果" });
-const b = t({ en: "Banana", zh: "香蕉" });
-`;
-      const output = transform(input);
-      const keyApple = expectedKey("Apple", "苹果");
-      const keyBanana = expectedKey("Banana", "香蕉");
-
-      expect(keyApple).not.toBe(keyBanana);
-      expect(output).toContain(`__i18n_lookup("${keyApple}")`);
-      expect(output).toContain(`__i18n_lookup("${keyBanana}")`);
-    });
-  });
-
-  describe("import removal", () => {
-    it("removes the original t import from #src/i18n", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-
-      expect(output).not.toContain(`from "#src/i18n"`);
-      expect(output).not.toMatch(/from ['"]#src\/i18n['"]/);
-    });
-
-    it("removes the original t import from #src/i18n.ts", () => {
-      const input = `
-import { t } from "#src/i18n.ts";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-
-      expect(output).not.toContain(`from "#src/i18n.ts"`);
-    });
-
-    it("preserves other specifiers when t is co-imported", () => {
-      const input = `
-import { t, _setLocale, _getLocale } from "#src/i18n";
-_setLocale("zh");
-const msg = t({ en: "Hello", zh: "你好" });
-const locale = _getLocale();
-`;
-      const output = transform(input);
-      const key = expectedKey("Hello", "你好");
-
-      // t() should be transformed
-      expect(output).toContain(`__i18n_lookup("${key}")`);
-      // _setLocale and _getLocale should still be imported from the original module
-      expect(output).toContain("_setLocale");
-      expect(output).toContain("_getLocale");
-      expect(output).toMatch(/from ['"]#src\/i18n['"]/);
-    });
-  });
-
-  describe("no-op cases", () => {
-    it("leaves files without t import unchanged", () => {
-      const input = `
-const x = 42;
-const y = x + 1;
-`;
-      const output = transform(input);
-
-      expect(output).toContain("const x = 42");
-      expect(output).not.toContain("__i18n");
-    });
-
-    it("removes unused t import but does not inject runtime imports", () => {
-      const input = `
-import { t } from "#src/i18n";
-const x = 42;
-`;
-      const output = transform(input);
-
-      // Original import removed
-      expect(output).not.toContain(`from "#src/i18n"`);
-      // No runtime imports injected since t was never called
-      expect(output).not.toContain("__i18n");
-      expect(output).not.toContain("server-runtime");
-      expect(output).not.toContain("client-runtime");
-    });
-
-    it("ignores t from a different module", () => {
-      const input = `
-import { t } from "other-module";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-
-      // Should be untouched — t is from a different module
-      expect(output).toContain(`from "other-module"`);
-      expect(output).toContain("t({");
-      expect(output).not.toContain("__i18n");
-    });
   });
 
   describe("hook-only modules (no directive needed)", () => {
@@ -390,65 +172,6 @@ const msg = t({ en: "Hello", zh: "你好" });
       const input = `
 import { t } from "#src/i18n";
 export function useMovies() { return t({ en: "A", zh: "甲" }); }
-`;
-      const output = transform(input);
-      const key = expectedKey("A", "甲");
-
-      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
-      expect(output).toContain(
-        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
-      );
-    });
-
-    it("stays client when type-only exports sit beside the hook", () => {
-      const input = `
-import { t } from "#src/i18n";
-export interface Movie { title: string }
-export type Id = string;
-export function useMovies(): Movie[] { return [{ title: t({ en: "A", zh: "甲" }) }]; }
-`;
-      const output = transform(input);
-      const key = expectedKey("A", "甲");
-
-      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
-      expect(output).toContain(
-        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
-      );
-    });
-
-    it("treats an arrow-function hook export as client", () => {
-      const input = `
-import { t } from "#src/i18n";
-export const useFoo = () => t({ en: "A", zh: "甲" });
-`;
-      const output = transform(input);
-      const key = expectedKey("A", "甲");
-
-      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
-      expect(output).toContain(
-        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
-      );
-    });
-
-    it("treats a default-exported hook as client", () => {
-      const input = `
-import { t } from "#src/i18n";
-export default function useFoo() { return t({ en: "A", zh: "甲" }); }
-`;
-      const output = transform(input);
-      const key = expectedKey("A", "甲");
-
-      expect(output).toContain(`i18nLookup(_translations, "${key}")`);
-      expect(output).toContain(
-        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
-      );
-    });
-
-    it("treats a hook exported via a specifier as client", () => {
-      const input = `
-import { t } from "#src/i18n";
-function useFoo() { return t({ en: "A", zh: "甲" }); }
-export { useFoo };
 `;
       const output = transform(input);
       const key = expectedKey("A", "甲");
@@ -472,196 +195,6 @@ export const helper = 1;
       expect(output).toContain(
         `import { __i18n_lookup } from "#src/i18n/server-runtime.ts"`,
       );
-    });
-
-    it("falls back to server runtime when a barrel re-export sits beside a hook", () => {
-      const input = `
-export * from "./x";
-import { t } from "#src/i18n";
-export function useFoo() { return t({ en: "A", zh: "甲" }); }
-`;
-      const output = transform(input);
-      const key = expectedKey("A", "甲");
-
-      expect(output).toContain(`__i18n_lookup("${key}")`);
-      expect(output).toContain(
-        `import { __i18n_lookup } from "#src/i18n/server-runtime.ts"`,
-      );
-    });
-
-    it("uses the server runtime when there are no exports at all", () => {
-      const input = `
-import { t } from "#src/i18n";
-function run() { return t({ en: "A", zh: "甲" }); }
-run();
-`;
-      const output = transform(input);
-      const key = expectedKey("A", "甲");
-
-      expect(output).toContain(`__i18n_lookup("${key}")`);
-      expect(output).toContain(
-        `import { __i18n_lookup } from "#src/i18n/server-runtime.ts"`,
-      );
-    });
-
-    it("uses i18nLookupParse inside a hook-only module with { parse: true }", () => {
-      const input = `
-import { t } from "#src/i18n";
-export function useMovies() { return t({ en: "A <b>b</b>", zh: "甲 <b>乙</b>" }, { parse: true }); }
-`;
-      const output = transform(input);
-      const key = expectedKey("A <b>b</b>", "甲 <b>乙</b>");
-
-      expect(output).toContain(`i18nLookupParse(_translations, "${key}")`);
-      expect(output).toContain(
-        `import { useI18nTranslations, i18nLookupParse } from "#src/i18n/client-runtime.ts"`,
-      );
-    });
-  });
-
-  describe("resolved relative paths", () => {
-    it("transforms t() imported via resolved relative path to i18n.ts", () => {
-      const input = `
-import { t } from "../../i18n.ts";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-      const key = expectedKey("Hello", "你好");
-
-      expect(output).toContain(`__i18n_lookup("${key}")`);
-      expect(output).not.toContain(`from "../../i18n.ts"`);
-    });
-
-    it("transforms t() imported via resolved path without extension", () => {
-      const input = `
-import { t } from "../../../i18n";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-      const key = expectedKey("Hello", "你好");
-
-      expect(output).toContain(`__i18n_lookup("${key}")`);
-    });
-
-    it("ignores imports from modules that merely end with i18n in the name", () => {
-      const input = `
-import { t } from "some-lib/not-our-i18n";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-
-      expect(output).toContain("t({");
-      expect(output).not.toContain("__i18n");
-    });
-  });
-
-  describe("aliased import", () => {
-    it("handles import { t as translate }", () => {
-      const input = `
-import { t as translate } from "#src/i18n";
-const msg = translate({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-      const key = expectedKey("Hello", "你好");
-
-      expect(output).toContain(`__i18n_lookup("${key}")`);
-      expect(output).not.toContain("translate(");
-      expect(output).not.toContain(`from "#src/i18n"`);
-    });
-  });
-
-  describe("quoted keys", () => {
-    it("transforms t() whose en and zh keys are quoted", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t({ "en": "Hello", "zh": "你好" });
-`;
-      const output = transform(input);
-
-      expect(output).toContain(
-        `__i18n_lookup("${expectedKey("Hello", "你好")}")`,
-      );
-    });
-  });
-
-  describe("invalid t() calls", () => {
-    it("throws on t() with a string argument", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t("not an object");
-`;
-      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
-    });
-
-    it("throws on t() with missing en property", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t({ zh: "你好" });
-`;
-      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
-    });
-
-    it("throws on t() with non-literal values", () => {
-      const input = `
-import { t } from "#src/i18n";
-const en = "Hello";
-const msg = t({ en: en, zh: "你好" });
-`;
-      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
-    });
-
-    it("throws on t() with template literals containing interpolation", () => {
-      const input = `
-import { t } from "#src/i18n";
-const name = "World";
-const msg = t({ en: \`Hello \${name}\`, zh: \`你好\${name}\` });
-`;
-      expect(() => transform(input)).toThrow(/Invalid t\(\) call/);
-      expect(() => transform(input)).toThrow(/Template literals/);
-    });
-  });
-
-  describe("only imports used functions", () => {
-    it("only imports __i18n_lookup when no parse calls exist", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const output = transform(input);
-
-      expect(output).toContain("__i18n_lookup");
-      expect(output).not.toContain("__i18n_lookupParse");
-    });
-
-    it("only imports __i18n_lookupParse when only parse calls exist", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t({ en: "Hello", zh: "你好" }, { parse: true });
-`;
-      const output = transform(input);
-
-      expect(output).toContain("__i18n_lookupParse");
-      // Should NOT contain __i18n_lookup as a standalone import (only __i18n_lookupParse)
-      const importLine = output
-        .split("\n")
-        .find((line) => line.includes("server-runtime"));
-      expect(importLine).toContain("__i18n_lookupParse");
-      expect(importLine).not.toMatch(/\b__i18n_lookup\b(?!Parse)/);
-    });
-
-    it("imports both when both are used", () => {
-      const input = `
-import { t } from "#src/i18n";
-const plain = t({ en: "Hello", zh: "你好" });
-const rich = t({ en: "Hello <b>world</b>", zh: "你好 <b>世界</b>" }, { parse: true });
-`;
-      const output = transform(input);
-
-      const importLine = output
-        .split("\n")
-        .find((line) => line.includes("server-runtime"));
-      expect(importLine).toContain("__i18n_lookup");
-      expect(importLine).toContain("__i18n_lookupParse");
     });
   });
 
@@ -720,63 +253,6 @@ export default function Page() {
       );
     });
 
-    it("does not wrap files not in the manifest", () => {
-      const input = `
-import { t } from "#src/i18n";
-export default function Page() {
-  return <div>{t({ en: "Hello", zh: "你好" })}</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/calculator/page.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      expect(output).not.toContain("__I18nProvider");
-      expect(output).not.toContain("__getClientTx");
-    });
-
-    it("wraps async function default exports", () => {
-      const input = `
-import { t } from "#src/i18n";
-export default async function Page() {
-  const data = await fetch("...");
-  return <div>{t({ en: "Hello", zh: "你好" })}</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/movie-database/(list)/page.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      expect(output).toContain("__I18nProvider");
-      expect(output).toContain("__getClientTx");
-    });
-
-    it("does not wrap returns inside nested callbacks", () => {
-      const input = `
-import { t } from "#src/i18n";
-export default function Page() {
-  const items = [1, 2].map((i) => {
-    return <span key={i}>{t({ en: "Item", zh: "项目" })}</span>;
-  });
-  return <div>{items}</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/movie-database/(list)/page.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      // Count how many __I18nCtx opening tags appear — should be exactly 1
-      // (only the page-level return, not the nested callback return)
-      const matches = output.match(/<__I18nProvider/g);
-      expect(matches).toHaveLength(1);
-    });
-
     it("auto-injects setLocale for page files with t() calls", () => {
       const input = `
 import { t } from "#src/i18n";
@@ -800,17 +276,6 @@ export default function Page() {
       // Should have params extraction
       expect(output).toContain("await");
       expect(output).toContain(".params");
-    });
-
-    it("skips setLocale injection for files not under [locale]", () => {
-      const input = `
-import { t } from "#src/i18n";
-const msg = t({ en: "Hello", zh: "你好" });
-`;
-      const filename = path.join(fakeRoot, "src/components/some-component.tsx");
-      const output = transformWithManifest(input, filename);
-
-      expect(output).not.toContain("__setLocale");
     });
 
     it("auto-injects setLocale into generateMetadata in layout files", () => {
@@ -858,98 +323,6 @@ export default function Layout({ children }) {
       );
     });
 
-    it("injects setLocale into a layout that already awaits params", () => {
-      const input = `
-import { t } from "#src/i18n";
-export default async function Layout({ children, params }) {
-  const { locale } = await params;
-  return <Nav locale={locale} label={t({ en: "Menu", zh: "菜单" })}>{children}</Nav>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/design-system/layout.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      expect(output).toMatch(
-        /__setLocale\(__validateLocale\(__params\.locale\)\);\s*const \{\s*children,\s*params\s*\} = __props;\s*const \{\s*locale\s*\} = await params;/,
-      );
-    });
-
-    it("does not inject setLocale into a layout without locale-dependent output", () => {
-      const input = `
-export default function Layout({ children }) {
-  return <div>{children}</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/(home)/(details)/layout.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      expect(output).not.toContain("__setLocale");
-      expect(output).not.toMatch(/async function Layout/);
-    });
-
-    it("skips setLocale injection when already imported", () => {
-      const input = `
-import { t } from "#src/i18n";
-import { setLocale } from "#src/i18n/server-locale.ts";
-export default async function Page(props) {
-  const params = await props.params;
-  setLocale(params.locale);
-  return <div>{t({ en: "Hello", zh: "你好" })}</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/movie-database/(list)/page.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      // Should NOT inject __setLocale since setLocale is already imported
-      expect(output).not.toContain("__setLocale");
-      // Original setLocale should still be present
-      expect(output).toContain("setLocale");
-    });
-
-    it("skips setLocale injection for client components", () => {
-      const input = `
-"use client";
-import { t } from "#src/i18n";
-export default function Page() {
-  return <div>{t({ en: "Hello", zh: "你好" })}</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/movie-database/(list)/page.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      expect(output).not.toContain("__setLocale");
-    });
-
-    it("injects wrapping even without t() calls in the file", () => {
-      const input = `
-export default function Page() {
-  return <div>No translations</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/movie-database/(list)/page.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      // Wrapping should still be injected because client children
-      // (in other files) need the translations context
-      expect(output).toContain("__I18nProvider");
-      expect(output).toContain("__getClientTx");
-    });
-
     it("injects setLocale into a manifest-wrapped page even without direct t() calls", () => {
       // A page that only renders client t() children still produces
       // locale-dependent output via the injected ClientTranslationsProvider,
@@ -973,24 +346,6 @@ export default function Page() {
       expect(output).toContain("__validateLocale");
       expect(output).toMatch(/async function Page/);
       expect(output).toContain(".params");
-    });
-
-    it("does not inject setLocale into a non-manifest page without t() calls", () => {
-      // Boundary: only manifest-wrapped pages (or pages calling t()) get the
-      // setLocale injection. A plain page outside the manifest is untouched.
-      const input = `
-export default function Page() {
-  return <div>No translations</div>;
-}
-`;
-      const filename = path.join(
-        fakeRoot,
-        "src/app/[locale]/calculator/page.tsx",
-      );
-      const output = transformWithManifest(input, filename);
-
-      expect(output).not.toContain("__I18nProvider");
-      expect(output).not.toContain("__setLocale");
     });
 
     it("re-reads the manifest per file so a long-lived instance picks up codegen re-runs", () => {

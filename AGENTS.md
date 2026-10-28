@@ -12,9 +12,25 @@
 - To sign in to Finance as an agent, run `pnpm --filter web finance:session` while `pnpm dev` runs, and set the cookie it prints. Use `http://localhost`: on a LAN host the cookie must be Secure. Playwright e2e cannot reuse this dev server for Finance specs; stop it first, or use `pnpm test:e2e:serve`.
 - The deployed Finance databases are the Neon project `finance` in the Vercel-managed org, not the personal one: branch `main` is production and branch `preview` is a daily copy of it. Neon `list_projects` without `org_id` searches only the personal org and returns nothing, so call `list_organizations` first.
 - `.env*` files are denied to the Read tool. `turbo.json` lists most environment variable names under `globalPassThroughEnv`; confirm a name there or in source before you use it.
-- Tests run against real implementations. `vi.mock` is a last resort at the store boundary — see `apps/web/src/app/api/ai-chat/route.test.ts`. Never mock `server-only`: Vitest aliases it to a stub.
+- Never mock `server-only`: Vitest aliases it to a stub.
 - For a one-off look at a page (a screenshot, the DOM, layout, a short recording), use playwright-cli against the running dev server: `open --device` emulates a phone and `cookie-set` signs in to Finance. A throwaway Playwright script costs a write-and-debug loop, and a throwaway e2e spec also costs a production build.
 - Parallel sessions share this machine, so every build, suite, and server slows the others. Stop the servers and databases you start before you finish. When you wait on a background job, give the wait a time limit and check that the job still runs: a wait whose condition never comes true sits until the 10-minute Bash timeout.
+
+# Tests
+
+Agents write most tests here, and an agent's test tends to freeze a choice no human reviewed, such as a pixel value, a copy string or a call order. Such a test then breaks on harmless refactors and blocks them.
+
+A test earns its place when it fails because something a user or the owner would notice broke, and keeps passing through a refactor a human would call harmless. In practice that means:
+
+- pure logic with a spec you can state in one sentence: money, dates, parsers, rule matching;
+- security and data integrity;
+- a regression test for a bug that really happened;
+- a contract with an external system;
+- one Playwright happy path per user journey.
+
+Copy, styling, tokens, sizes, timing, DOM structure, which helper a module calls, and a design choice you just made are not worth a test. Review approves a choice; a test only freezes it. Cover distinct branches with a few cases, not a table of near-duplicates. A change does not need a new test by default.
+
+Tests run against real implementations. `vi.mock` is a last resort at the store boundary — see `apps/web/src/app/api/ai-chat/route.test.ts`.
 
 # Before a task is done
 

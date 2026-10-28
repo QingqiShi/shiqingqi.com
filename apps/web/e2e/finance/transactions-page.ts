@@ -5,7 +5,6 @@ import { waitForMotionToSettle } from "../helpers/motion.ts";
 export const SYNC_TIMEOUT = 20_000;
 
 export const DESKTOP = { width: 1440, height: 900 };
-export const MOBILE = { width: 390, height: 844 };
 
 /** The links of the Transactions list; each one opens its Transaction. */
 export function transactionRows(page: Page): Locator {

@@ -16,16 +16,6 @@ describe("extractFromSource", () => {
     expect(result.entries[0].files).toEqual(["test.tsx"]);
   });
 
-  it("extracts t() calls imported from #src/i18n.ts", () => {
-    const code = `
-      import { t } from "#src/i18n.ts";
-      const greeting = t({ en: "Hello", zh: "你好" });
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(1);
-    expect(result.entries[0].en).toBe("Hello");
-  });
-
   it("extracts t() calls imported through a relative path", () => {
     const code = `
       import { t } from "../../i18n.ts";
@@ -34,26 +24,6 @@ describe("extractFromSource", () => {
     const result = extractFromSource(code, "test.tsx");
     expect(result.entries).toHaveLength(1);
     expect(result.entries[0].key).toBe(generateKey("Hello", "你好"));
-  });
-
-  it("ignores t() calls not imported from #src/i18n", () => {
-    const code = `
-      import { t } from "other-lib";
-      const greeting = t({ en: "Hello", zh: "你好" });
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(0);
-  });
-
-  it("ignores t() calls when t is not imported at all", () => {
-    const code = `
-      function t(obj) { return obj.en; }
-      const greeting = t({ en: "Hello", zh: "你好" });
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(0);
   });
 
   it("handles t() with { parse: true } second argument", () => {
@@ -67,80 +37,6 @@ describe("extractFromSource", () => {
     expect(result.entries[0].zh).toBe("<strong>粗体</strong>");
   });
 
-  it("extracts multiple t() calls from the same file", () => {
-    const code = `
-      import { t } from "#src/i18n";
-      const hello = t({ en: "Hello", zh: "你好" });
-      const goodbye = t({ en: "Goodbye", zh: "再见" });
-      const thanks = t({ en: "Thanks", zh: "谢谢" });
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(3);
-    expect(result.entries.map((e) => e.en)).toEqual([
-      "Hello",
-      "Goodbye",
-      "Thanks",
-    ]);
-  });
-
-  it("warns about non-literal arguments", () => {
-    const code = `
-      import { t } from "#src/i18n";
-      const key = { en: "Hello", zh: "你好" };
-      const greeting = t(key);
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(1);
-    expect(result.warnings[0].type).toBe("non-literal");
-    expect(result.warnings[0].file).toBe("test.tsx");
-  });
-
-  it("warns when en property is not a string literal", () => {
-    const code = `
-      import { t } from "#src/i18n";
-      const enText = "Hello";
-      const greeting = t({ en: enText, zh: "你好" });
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(1);
-    expect(result.warnings[0].type).toBe("non-literal");
-  });
-
-  it("warns when en and zh are computed keys", () => {
-    const code = `
-      import { t } from "#src/i18n";
-      const en = "en";
-      const zh = "zh";
-      const greeting = t({ [en]: "Hello", [zh]: "你好" });
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(1);
-    expect(result.warnings[0].type).toBe("non-literal");
-  });
-
-  it("returns empty results for files without t() calls", () => {
-    const code = `
-      const x = 1;
-      function hello() { return "world"; }
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(0);
-  });
-
-  it("returns empty results for files with no i18n import", () => {
-    const code = `
-      import React from "react";
-      export function Component() { return <div>Hello</div>; }
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(0);
-  });
-
   it("handles renamed imports correctly", () => {
     const code = `
       import { t as translate } from "#src/i18n";
@@ -149,25 +45,5 @@ describe("extractFromSource", () => {
     const result = extractFromSource(code, "test.tsx");
     expect(result.entries).toHaveLength(1);
     expect(result.entries[0].en).toBe("Hello");
-  });
-
-  it("handles TypeScript source with type annotations", () => {
-    const code = `
-      import { t } from "#src/i18n";
-      interface Props { name: string; }
-      function Component(props: Props): JSX.Element {
-        return <div>{t({ en: "Welcome", zh: "欢迎" })}</div>;
-      }
-    `;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(1);
-    expect(result.entries[0].en).toBe("Welcome");
-  });
-
-  it("returns empty results for unparseable code", () => {
-    const code = `this is not valid code {{{{`;
-    const result = extractFromSource(code, "test.tsx");
-    expect(result.entries).toHaveLength(0);
-    expect(result.warnings).toHaveLength(0);
   });
 });

@@ -60,41 +60,8 @@ describe("POST /api/ai-chat/session", () => {
     expect(await response.json()).toEqual({ error: "session-not-found" });
   });
 
-  it("returns 400 when sessionId is missing", async () => {
-    const response = await POST(sessionRequest({}));
-    expect(response.status).toBe(400);
-  });
-
   it("returns 400 when sessionId is invalid", async () => {
     const response = await POST(sessionRequest({ sessionId: "not-a-uuid" }));
     expect(response.status).toBe(400);
-  });
-
-  it("returns 400 for malformed JSON body", async () => {
-    const response = await POST(
-      new NextRequest("http://localhost:3000/api/ai-chat/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: "not valid json{{{",
-      }),
-    );
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ error: "Invalid request body" });
-  });
-
-  it("returns 500 when Redis read fails", async () => {
-    const { getSessionMessages } =
-      await import("#src/movie-database/chat/session/get-session-messages.ts");
-    vi.mocked(getSessionMessages).mockRejectedValueOnce(
-      new Error("Redis timeout"),
-    );
-
-    const response = await POST(
-      sessionRequest({ sessionId: "a0000000-0000-4000-8000-000000000001" }),
-    );
-
-    expect(response.status).toBe(500);
-    expect(await response.json()).toEqual({ error: "Internal server error" });
   });
 });

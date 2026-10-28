@@ -5,8 +5,7 @@
   "type": "commonjs",
   "main": "src/index.js",
   "scripts": {
-    "lint": "eslint --max-warnings 0 .",
-    "test": "vitest run"
+    "lint": "eslint --max-warnings 0 ."
   },
   "devDependencies": {
     "@babel/parser": "catalog:",

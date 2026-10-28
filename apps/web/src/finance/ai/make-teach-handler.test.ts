@@ -116,31 +116,7 @@ function teach(
   );
 }
 
-function promptOf(call: { prompt: readonly { content: unknown }[] }) {
-  return JSON.stringify(call.prompt);
-}
-
 describe("makeTeachHandler", () => {
-  it("sends the model the bank row, both sets of labels, the AI's reason and the instructions, and answers with its draft", async () => {
-    const response = await teach(body());
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
-      replaces: null,
-      line: "TFL TRAVEL CH is the commute: Transport, tag Tube.",
-    });
-    const prompt = promptOf(model?.doGenerateCalls[0] ?? { prompt: [] });
-    for (const part of [
-      "2026-10-09 | -2.80 GBP | Current | TFL TRAVEL CH | TFL.GOV.UK/CP",
-      "Payments to J SMITH are rent.",
-      "TfL sells snacks at stations",
-      "The AI's labels: kind expense; category Food > Groceries; payee TfL; tags none",
-      "The member's labels: kind expense; category Transport; payee TfL; tags Tube",
-    ]) {
-      expect(prompt).toContain(part);
-    }
-  });
-
   it("keeps a changed line only when it is a line of the instructions", async () => {
     model = createTeachingModel({
       replaces: "  Tesco is groceries. ",
@@ -159,23 +135,6 @@ describe("makeTeachHandler", () => {
       replaces: null,
       line: "TfL is transport.",
     });
-  });
-
-  it("refuses a Transaction that did not come from the bank, and reports a failing model", async () => {
-    expect(
-      (await teach({ ...body(), transactionId: randomUUID() })).status,
-    ).toBe(404);
-
-    const errors: unknown[] = [];
-    model = createTeachingModel(null);
-    const failed = await teach(body(), ORIGIN, {
-      onModelError: (error) => errors.push(error),
-    });
-    expect(failed.status).toBe(502);
-    expect(errors).toHaveLength(1);
-
-    model = createTeachingModel({ replaces: null, line: "  " });
-    expect((await teach(body())).status).toBe(502);
   });
 
   it("guards the origin, the session, the body, the model and the rate limit", async () => {

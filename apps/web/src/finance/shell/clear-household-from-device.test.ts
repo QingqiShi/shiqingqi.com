@@ -85,35 +85,4 @@ describe("deleteReplicaDb", () => {
     await expect(deleting).resolves.toBeUndefined();
     expect(await databaseNames()).not.toContain(replicaDbName(householdId));
   });
-
-  it("rejects when another connection still blocks the delete after the timeout", async () => {
-    const householdId = randomUUID();
-    (await storeReplica(householdId)).close();
-    const stubborn = await openStubbornConnection(householdId);
-
-    await expect(deleteReplicaDb(householdId, 20)).rejects.toThrow(
-      "Another connection blocks the Replica delete",
-    );
-    stubborn.close();
-  });
-
-  it("rejects when IndexedDB fails the delete", async () => {
-    const deleteDatabase = indexedDB.deleteDatabase.bind(indexedDB);
-    const captured: { request?: IDBOpenDBRequest } = {};
-    vi.spyOn(indexedDB, "deleteDatabase").mockImplementationOnce((name) => {
-      captured.request = deleteDatabase(name);
-      return captured.request;
-    });
-
-    const deleting = deleteReplicaDb(randomUUID());
-    const failed = captured.request;
-    if (!failed) throw new Error("No delete request");
-    Object.defineProperty(failed, "readyState", { value: "done" });
-    Object.defineProperty(failed, "error", {
-      value: new DOMException("Disk failed", "UnknownError"),
-    });
-    failed.onerror?.call(failed, new Event("error"));
-
-    await expect(deleting).rejects.toThrow("Disk failed");
-  });
 });

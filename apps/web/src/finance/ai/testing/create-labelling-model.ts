@@ -39,7 +39,7 @@ export interface ModelAnswer {
 }
 
 /** A request as the fake received it. */
-export interface LabellingRequest {
+interface LabellingRequest {
   state: {
     household_instructions: string;
     bank_row: Record<string, unknown> & PromptRow;

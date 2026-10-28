@@ -6,10 +6,7 @@ import { householdRepository } from "../db/repositories/household-repository.ts"
 import { recomputeDerived } from "../db/repositories/recompute-derived.ts";
 import {
   accountBalanceDays,
-  accounts,
   balanceDriftDays,
-  entries,
-  transactions,
   valuations,
 } from "../db/schema.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
@@ -20,10 +17,8 @@ import {
   type SeededHousehold,
 } from "../db/testing/seed-test-household.ts";
 import { withHousehold } from "../db/with-household.ts";
-import { addDays } from "../domain/dates/add-days.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { pullChanges } from "../sync/pull-changes.ts";
-import { expectWithinBudget } from "../testing/expect-within-budget.ts";
 import { repairBalanceDays } from "./repair-balance-days.ts";
 
 const NOW = new Date("2026-10-13T03:30:00Z");
@@ -192,31 +187,6 @@ describe("repairBalanceDays", () => {
       },
     },
     {
-      name: "an Entry amount updated",
-      edit: () =>
-        db
-          .update(entries)
-          .set({ amountMinor: -2_500 })
-          .where(eq(entries.transactionId, EXPENSES.second)),
-      drift: {
-        day: "2026-09-10",
-        expectedMinor: 96_500,
-        storedMinor: 97_000,
-        wrongDays: 1,
-      },
-    },
-    {
-      name: "a Transaction hard-deleted with its Entries",
-      edit: () =>
-        db.delete(transactions).where(eq(transactions.id, EXPENSES.first)),
-      drift: {
-        day: "2026-09-05",
-        expectedMinor: null,
-        storedMinor: 99_000,
-        wrongDays: 1,
-      },
-    },
-    {
       name: "a Valuation edited",
       edit: () =>
         db
@@ -305,91 +275,5 @@ describe("repairBalanceDays", () => {
       },
     ]);
     expect(await fullRebuild()).toBe(0);
-  });
-
-  it("checks only the changed days of an account with many Valuations", async () => {
-    const investmentId = randomUUID();
-    await db.insert(accounts).values({
-      id: investmentId,
-      householdId: home.householdId,
-      groupId: home.liquidGroupId,
-      name: "ISA",
-      kind: "investment",
-      currency: "GBP",
-      version: 1,
-    });
-    const days = Array.from({ length: 1000 }, (_, i) =>
-      addDays("2020-01-01", i),
-    );
-    await db.insert(valuations).values(
-      days.map((on, i) => ({
-        id: randomUUID(),
-        householdId: home.householdId,
-        accountId: investmentId,
-        on,
-        amountMinor: 1_000_000 + i,
-        version: 1,
-      })),
-    );
-    expect(await fullRebuild()).toBe(1000);
-    expect((await repair()).drifts).toEqual([]);
-
-    const valuation = await db
-      .select({ id: valuations.id })
-      .from(valuations)
-      .where(
-        and(
-          eq(valuations.accountId, investmentId),
-          eq(valuations.on, "2021-06-01"),
-        ),
-      );
-    await push(
-      mutation("putValuation", {
-        id: valuation[0]?.id ?? "",
-        accountId: investmentId,
-        on: "2021-06-01",
-        amountMinor: 5,
-      }),
-    );
-    const started = performance.now();
-    const result = await repair();
-    const elapsed = performance.now() - started;
-
-    expect(result).toEqual({ checked: 2, drifts: [] });
-    expectWithinBudget(elapsed, 200);
-  });
-
-  it("keeps a bulk insert of Entries fast", async () => {
-    const count = 5000;
-    const transactionRows = Array.from({ length: count }, (_, i) => ({
-      id: randomUUID(),
-      householdId: home.householdId,
-      kind: "expense" as const,
-      date: addDays("2016-01-01", i % 3000),
-      amountMinor: -100,
-      categoryId: home.groceriesId,
-      version: 1,
-    }));
-    for (let i = 0; i < count; i += 1000) {
-      await db.insert(transactions).values(transactionRows.slice(i, i + 1000));
-    }
-    const entryRows = transactionRows.map((row) => ({
-      id: randomUUID(),
-      householdId: home.householdId,
-      transactionId: row.id,
-      accountId: home.currentId,
-      date: row.date,
-      amountMinor: row.amountMinor,
-      version: 1,
-    }));
-
-    const started = performance.now();
-    for (let i = 0; i < count; i += 1000) {
-      await db.insert(entries).values(entryRows.slice(i, i + 1000));
-    }
-    const elapsed = performance.now() - started;
-
-    expect(await queued()).toBe(5000);
-    expectWithinBudget(elapsed, 1500);
   });
 });

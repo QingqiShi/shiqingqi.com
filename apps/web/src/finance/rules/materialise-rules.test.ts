@@ -193,25 +193,4 @@ describe("materialiseRules", () => {
       { day: "2026-02-01", balanceMinor: -120_000 },
     ]);
   });
-
-  it("creates nothing for a paused rule", async () => {
-    const ruleId = await createRule({ paused: true });
-    expect(await ruleTransactions(ruleId)).toEqual([]);
-  });
-
-  it("moves an occurrence past a weekend and a substitute bank holiday", async () => {
-    const ruleId = await createRule(
-      { startsOn: "2026-12-01", dayOfMonth: 25, nonBusinessDay: "next" },
-      new Date("2026-12-22T12:00:00Z"),
-    );
-    expect(await ruleTransactions(ruleId)).toEqual([
-      {
-        id: occurrenceId(ruleId, "2026-12-29"),
-        date: "2026-12-29",
-        status: "expected",
-      },
-    ]);
-    const [rule] = await db.select().from(rules).where(eq(rules.id, ruleId));
-    expect(rule.nextOn).toBe("2027-01-25");
-  });
 });

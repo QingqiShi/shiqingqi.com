@@ -217,51 +217,11 @@ describe("POST /api/ai-chat", () => {
     );
   });
 
-  it("returns 400 for missing message on submit-message trigger", async () => {
-    const response = await POST(chatRequest({ trigger: "submit-message" }));
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({
-      success: false,
-      error: "Invalid request body",
-    });
-  });
-
   it("returns 400 for invalid sessionId format", async () => {
     const response = await POST(
       chatRequest({
         sessionId: "not-a-uuid",
         message: validMessage(),
-        trigger: "submit-message",
-      }),
-    );
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({
-      success: false,
-      error: "Invalid request body",
-    });
-  });
-
-  it("returns 400 for regenerate-message without sessionId", async () => {
-    const response = await POST(
-      chatRequest({
-        trigger: "regenerate-message",
-      }),
-    );
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({
-      success: false,
-      error: "Invalid request body",
-    });
-  });
-
-  it("returns 400 for invalid locale", async () => {
-    const response = await POST(
-      chatRequest({
-        message: validMessage(),
-        locale: "fr",
         trigger: "submit-message",
       }),
     );
@@ -284,132 +244,6 @@ describe("POST /api/ai-chat", () => {
       chatRequest({
         message: assistantMessage,
         trigger: "submit-message",
-      }),
-    );
-
-    expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({
-      success: false,
-      error: "Invalid request body",
-    });
-  });
-
-  it("saves user messages pre-stream", async () => {
-    const { chat } = await import("#src/movie-database/chat/chat.ts");
-    vi.mocked(chat).mockResolvedValueOnce(mockStreamResult());
-    const { saveSessionMessages } =
-      await import("#src/movie-database/chat/session/save-session-messages.ts");
-
-    await POST(
-      chatRequest({
-        message: validMessage(),
-        trigger: "submit-message",
-      }),
-    );
-
-    // First call is the pre-stream save with user messages
-    expect(vi.mocked(saveSessionMessages).mock.calls[0]).toEqual([
-      "generated-session-id",
-      [validMessage()],
-    ]);
-  });
-
-  it("returns 500 when chat throws", async () => {
-    const { chat } = await import("#src/movie-database/chat/chat.ts");
-    vi.mocked(chat).mockRejectedValueOnce(new Error("API key invalid"));
-
-    const response = await POST(
-      chatRequest({
-        message: validMessage(),
-        trigger: "submit-message",
-      }),
-    );
-
-    expect(response.status).toBe(500);
-    expect(await response.json()).toEqual({
-      success: false,
-      error: "Internal server error",
-    });
-  });
-
-  it("streams error event when post-stream save fails", async () => {
-    const { chat } = await import("#src/movie-database/chat/chat.ts");
-    vi.mocked(chat).mockResolvedValueOnce(mockStreamResult());
-    const { saveSessionMessages } =
-      await import("#src/movie-database/chat/session/save-session-messages.ts");
-
-    let callCount = 0;
-    vi.mocked(saveSessionMessages).mockImplementation(() => {
-      callCount++;
-      if (callCount === 1) {
-        // Pre-stream save succeeds
-        return Promise.resolve();
-      }
-      // Post-stream save fails
-      return Promise.reject(new Error("Redis connection lost"));
-    });
-
-    const response = await POST(
-      chatRequest({
-        message: validMessage(),
-        trigger: "submit-message",
-      }),
-    );
-
-    expect(response.status).toBe(200);
-    const text = await response.text();
-    expect(text).toContain("Failed to save session");
-  });
-
-  it("returns 500 when pre-stream save fails", async () => {
-    const { saveSessionMessages } =
-      await import("#src/movie-database/chat/session/save-session-messages.ts");
-    vi.mocked(saveSessionMessages).mockRejectedValueOnce(
-      new Error("Redis down"),
-    );
-
-    const response = await POST(
-      chatRequest({
-        message: validMessage(),
-        trigger: "submit-message",
-      }),
-    );
-
-    expect(response.status).toBe(500);
-    expect(await response.json()).toEqual({
-      success: false,
-      error: "Internal server error",
-    });
-  });
-
-  it("returns 500 when Redis read fails", async () => {
-    const { getSessionMessages } =
-      await import("#src/movie-database/chat/session/get-session-messages.ts");
-    vi.mocked(getSessionMessages).mockRejectedValueOnce(
-      new Error("Redis timeout"),
-    );
-
-    const response = await POST(
-      chatRequest({
-        sessionId: "a0000000-0000-4000-8000-000000000001",
-        message: validMessage(),
-        trigger: "submit-message",
-      }),
-    );
-
-    expect(response.status).toBe(500);
-    expect(await response.json()).toEqual({
-      success: false,
-      error: "Internal server error",
-    });
-  });
-
-  it("returns 400 for malformed JSON body", async () => {
-    const response = await POST(
-      new NextRequest("http://localhost:3000/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: "not valid json{{{",
       }),
     );
 

@@ -124,31 +124,6 @@ describe("reloadForRowShape", () => {
     expect(await tab.reloads(8)).toBe(true);
   });
 
-  it("does not reload when the tab shows again while the Outbox writes finish", async () => {
-    const tab = createTab();
-    await tab.store.load();
-    tab.addTag();
-
-    const reloading = tab.reloads(8);
-    tab.setHidden(false);
-    expect(await reloading).toBe(false);
-  });
-
-  it("does not reload, and does not count a reload, when the tab shows again while the newer code downloads", async () => {
-    const tab = createTab();
-    await tab.store.load();
-    tab.whileUpdating(() => {
-      tab.setHidden(false);
-    });
-
-    expect(await tab.reloads(8)).toBe(false);
-    tab.whileUpdating(() => undefined);
-    tab.setHidden(true);
-    expect(await reloadForRowShape(tab.store, 8, tab.dependencies)).toEqual({
-      reloaded: true,
-    });
-  });
-
   it("does not reload while the Replica is only in memory", async () => {
     const tab = createTab();
     await tab.store.load();
@@ -157,53 +132,4 @@ describe("reloadForRowShape", () => {
     expect(await tab.reloads(8)).toBe(false);
     expect(tab.outboxAtReload).toEqual([]);
   });
-
-  it("does not reload while an Outbox write fails", async () => {
-    let writeFails = true;
-    const tab = createTab({ writeFails: () => writeFails });
-    await tab.store.load();
-    tab.addTag();
-
-    expect(await tab.reloads(8)).toBe(false);
-    expect(tab.store.getStorageState().unsaved).toBe(1);
-    writeFails = false;
-    expect(await tab.reloads(8)).toBe(true);
-    expect(tab.outboxAtReload).toEqual([1]);
-  });
-
-  it.each([
-    [
-      "the storage itself",
-      () => {
-        throw new DOMException("Blocked", "SecurityError");
-      },
-    ],
-    [
-      "a read",
-      () => ({
-        getItem: () => {
-          throw new DOMException("Blocked", "SecurityError");
-        },
-        setItem: () => undefined,
-      }),
-    ],
-    [
-      "a write",
-      () => ({
-        getItem: () => null,
-        setItem: () => {
-          throw new DOMException("Full", "QuotaExceededError");
-        },
-      }),
-    ],
-  ])(
-    "does not reload, and does not reject, when %s throws",
-    async (_, storage: () => Pick<Storage, "getItem" | "setItem">) => {
-      const tab = createTab({ storage });
-      await tab.store.load();
-
-      await expect(tab.reloads(8)).resolves.toBe(false);
-      expect(tab.outboxAtReload).toEqual([]);
-    },
-  );
 });

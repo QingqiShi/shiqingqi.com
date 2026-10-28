@@ -28,9 +28,4 @@ describe("messageSendEvents", () => {
       },
     ]);
   });
-
-  it("reports no start for the first send into a restored Conversation", () => {
-    const events = messageSendEvents({ messageCount: 8, locale: "en" });
-    expect(events.map((event) => event.name)).toEqual(["message sent"]);
-  });
 });

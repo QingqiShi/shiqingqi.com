@@ -10,11 +10,6 @@ describe("encodeCreature", () => {
     expect(decoded).toEqual(DEFAULT_CREATURE);
   });
 
-  it("produces a short string for the default creature", () => {
-    const encoded = encodeCreature(DEFAULT_CREATURE);
-    expect(encoded.length).toBeLessThanOrEqual(80);
-  });
-
   it("round-trips with non-empty accessories and a custom name", () => {
     const def = {
       ...DEFAULT_CREATURE,

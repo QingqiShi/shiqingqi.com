@@ -21,8 +21,6 @@ const port = execFileSync("node", ["../../scripts/get-worktree-port.mjs"], {
 }).trim();
 const baseURL = process.env.BASE_URL ?? `http://localhost:${port}`;
 
-/* Specs that need a WebGPU adapter. */
-const webgpuSpecs = /\.webgpu\.spec\.ts$/;
 /* Specs that run in WebKit, the engine of Safari on iPhone. */
 const webkitSpecs = /\.webkit\.spec\.ts$/;
 
@@ -31,14 +29,6 @@ const webkitSpecs = /\.webkit\.spec\.ts$/;
  */
 export default defineConfig({
   testDir: "./e2e",
-  /* Drop the default `-{platform}` suffix — pixel-art screenshots are
-   * deterministic enough that one baseline covers macOS dev and the
-   * Linux CI container. `{snapshotDir}` must stay as the prefix:
-   * `{testFileDir}` is empty for specs sitting directly under
-   * `testDir`, so dropping it would leave a leading `/` that Playwright
-   * resolves against the filesystem root. */
-  snapshotPathTemplate:
-    "{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}",
   /* Increase timeout for slow navigation */
   timeout: 60000,
   /* Run tests in files in parallel */
@@ -80,52 +70,13 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testIgnore: [webgpuSpecs, webkitSpecs],
+      testIgnore: webkitSpecs,
     },
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
       testMatch: webkitSpecs,
     },
-    /* Chromium has no WebGPU adapter without a GPU. These flags give it the
-     * SwiftShader adapter, for the WebGPU specs only. On Linux, only the
-     * headless shell with SwiftShader Vulkan shows a WebGPU <canvas> element
-     * in a screenshot. On macOS, that setup loses the device after a few
-     * frames, so the specs use the full Chromium build there.
-     * SwiftShader draws on the CPU. Two of these browsers on one CI runner
-     * slow each other down until a frame takes seconds, and the specs that
-     * wait for an animation then time out. Thus they run one at a time. */
-    {
-      name: "chromium-webgpu",
-      workers: 1,
-      use: {
-        ...devices["Desktop Chrome"],
-        ...(process.platform === "linux"
-          ? {
-              launchOptions: {
-                args: [
-                  "--enable-unsafe-webgpu",
-                  "--use-webgpu-adapter=swiftshader",
-                  "--enable-features=Vulkan",
-                  "--use-vulkan=swiftshader",
-                  "--use-angle=swiftshader",
-                  "--disable-vulkan-surface",
-                ],
-              },
-            }
-          : {
-              channel: "chromium",
-              launchOptions: {
-                args: [
-                  "--enable-unsafe-webgpu",
-                  "--use-webgpu-adapter=swiftshader",
-                ],
-              },
-            }),
-      },
-      testMatch: webgpuSpecs,
-    },
-
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',

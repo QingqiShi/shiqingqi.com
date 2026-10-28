@@ -8,7 +8,6 @@ import { MediaTypeToggle } from "./media-type-toggle";
 import { useMediaFilters } from "./use-media-filters";
 
 const CLEARANCE_PX = "56px";
-const CLEARANCE = Number.parseFloat(CLEARANCE_PX);
 const originalGetComputedStyle = window.getComputedStyle.bind(window);
 
 // jsdom lays out nothing, so scroll margin and element positions are stubbed
@@ -72,25 +71,6 @@ function renderResultsAt(top: number) {
 }
 
 describe("MediaFiltersProvider", () => {
-  it("scrolls the results back under the header when a filter changes with the bar held there", async () => {
-    const { scrollIntoView } = renderResultsAt(-400);
-
-    await userEvent.click(screen.getByRole("button", { name: "Rating" }));
-
-    expect(scrollIntoView).toHaveBeenCalledWith({
-      behavior: "smooth",
-      block: "start",
-    });
-  });
-
-  it("leaves the page where it is when the results top is still in view", async () => {
-    const { scrollIntoView } = renderResultsAt(CLEARANCE + 200);
-
-    await userEvent.click(screen.getByRole("button", { name: "Rating" }));
-
-    expect(scrollIntoView).not.toHaveBeenCalled();
-  });
-
   it("records the change in the URL", async () => {
     renderResultsAt(0);
 

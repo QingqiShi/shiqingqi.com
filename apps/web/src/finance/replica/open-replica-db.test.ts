@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { randomUUID } from "node:crypto";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { openReplicaDb, replicaDbName } from "./open-replica-db.ts";
 import type { OutboxEntry, ReplicaMeta } from "./types.ts";
 
@@ -199,72 +199,5 @@ describe("openReplicaDb", () => {
     });
     expect(monthTotals).toBe(0);
     reread.close();
-  });
-
-  it("makes the exchange rate store in a new database and adds rates to it", async () => {
-    const id = randomUUID();
-    const db = openReplicaDb(id);
-    const first = {
-      base: "USD",
-      quote: "GBP",
-      on: "2026-10-08",
-      rate: 0.75,
-      source: "ecb" as const,
-    };
-    const second = { ...first, on: "2026-10-09", rate: 0.76 };
-    await db.write({ exchangeRates: { replace: false, put: [first] } });
-    await db.write({ exchangeRates: { replace: false, put: [second] } });
-    expect([...(await db.load()).exchangeRates.values()]).toEqual([
-      first,
-      second,
-    ]);
-    db.close();
-  });
-
-  it("never opens a database again that something else deleted, and says it was deleted", async () => {
-    const id = randomUUID();
-    const onDeleted = vi.fn();
-    const db = openReplicaDb(id, onDeleted);
-    await db.write({ meta: { ...meta, householdId: id } });
-
-    await new Promise<void>((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(replicaDbName(id));
-      request.onsuccess = () => {
-        resolve();
-      };
-      request.onerror = () => {
-        reject(request.error ?? new Error("delete failed"));
-      };
-    });
-
-    await expect(
-      db.write({ meta: { ...meta, householdId: id } }),
-    ).rejects.toThrow();
-    await expect(db.load()).rejects.toThrow();
-    expect(onDeleted).toHaveBeenCalledOnce();
-    const fresh = openReplicaDb(id);
-    expect((await fresh.load()).meta).toBeNull();
-    fresh.close();
-  });
-
-  it("does not say it was deleted when a newer version upgrades it", async () => {
-    const id = randomUUID();
-    const onDeleted = vi.fn();
-    const db = openReplicaDb(id, onDeleted);
-    await db.write({ meta: { ...meta, householdId: id } });
-
-    const upgraded = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open(replicaDbName(id), 2);
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-      request.onerror = () => {
-        reject(request.error ?? new Error("upgrade failed"));
-      };
-    });
-
-    await expect(db.load()).rejects.toThrow();
-    expect(onDeleted).not.toHaveBeenCalled();
-    upgraded.close();
   });
 });

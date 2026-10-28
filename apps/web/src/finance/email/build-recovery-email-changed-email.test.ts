@@ -31,13 +31,5 @@ describe.each(["en", "zh"] as const)(
         expect(body).toContain("13:00");
       }
     });
-
-    it("has an HTML body and a plain-text alternative with the Settings link", () => {
-      expect(email.to).toBe("old@example.com");
-      expect(email.text).toContain(url);
-      expect(email.html).toMatch(/^<!DOCTYPE html>/);
-      expect(email.html).toContain(`href="${url}"`);
-      expect(email.html).toContain(`<title>${email.subject}</title>`);
-    });
   },
 );

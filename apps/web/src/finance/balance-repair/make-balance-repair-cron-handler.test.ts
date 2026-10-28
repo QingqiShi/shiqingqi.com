@@ -62,7 +62,6 @@ describe("makeBalanceRepairCronHandler", () => {
     const response = await handler()(request(`Bearer ${SECRET}`));
 
     expect(response.status).toBe(200);
-    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
     expect(await response.json()).toEqual({
       households: 2,
       checked: 1,

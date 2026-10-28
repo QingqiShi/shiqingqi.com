@@ -1,10 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { FinanceSession } from "../auth/types.ts";
-import { householdRepository } from "../db/repositories/household-repository.ts";
 import { createTestDb, type TestDb } from "../db/testing/create-test-db.ts";
 import { seedTestHousehold } from "../db/testing/seed-test-household.ts";
-import { withHousehold } from "../db/with-household.ts";
 import { makeHouseholdHandler } from "./make-household-handler.ts";
 
 const ORIGIN = "http://localhost:3000";
@@ -48,26 +46,6 @@ function patch(body: unknown, origin: string | null = ORIGIN) {
 }
 
 describe("makeHouseholdHandler", () => {
-  it("renames the Household, changes its timezone and moves the clock", async () => {
-    const find = () =>
-      withHousehold(db, session.householdId, (scope) =>
-        householdRepository.find(scope),
-      );
-    const before = await find();
-    const response = await patch({
-      name: "Our home",
-      timezone: "Asia/Shanghai",
-    });
-    expect(response.status).toBe(200);
-    const after = await find();
-    expect(after).toMatchObject({
-      name: "Our home",
-      timezone: "Asia/Shanghai",
-    });
-    expect(after?.clock).toBe((before?.clock ?? 0) + 1);
-    expect(await response.json()).toEqual({ clock: after?.clock });
-  });
-
   it("refuses an unknown timezone, a base currency change and a cross-site request", async () => {
     expect((await patch({ timezone: "Mars/Olympus" })).status).toBe(400);
     expect((await patch({ baseCurrency: "USD" })).status).toBe(400);

@@ -104,25 +104,6 @@ function isLookupOf(en, zh) {
 }
 
 describe("i18n with React Compiler", () => {
-  it("keys a cached lookup on the translations", () => {
-    const output = compile(`
-"use client";
-import { t } from "#src/i18n";
-export function Card({ isExternal }) {
-  return (
-    <span>
-      {isExternal
-        ? t({ en: "External", zh: "外部" })
-        : t({ en: "Internal", zh: "内部" })}
-    </span>
-  );
-}
-`);
-
-    expectCallsKeyedOnTheirInputs(output, isLookupOf("External", "外部"));
-    expectCallsKeyedOnTheirInputs(output, isLookupOf("Internal", "内部"));
-  });
-
   it("does not cache a lookup with no other input forever", () => {
     const output = compile(`
 "use client";

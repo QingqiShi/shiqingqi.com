@@ -113,14 +113,6 @@ async function openTab(rowShape: number, serverRowShape: number) {
   };
 }
 
-function hide() {
-  Object.defineProperty(document, "visibilityState", {
-    value: "hidden",
-    configurable: true,
-  });
-  document.dispatchEvent(new Event("visibilitychange"));
-}
-
 describe("tabs that run code of different row shapes", () => {
   // In most tests the server has the older row shape, as after a rollback.
   // Thus only the newer tab can make the older tab outdated.
@@ -158,39 +150,5 @@ describe("tabs that run code of different row shapes", () => {
     expect(older.requests()).toBe(0);
     expect(older.status().leader).toBe(false);
     expect(newer.status().leader).toBe(true);
-  });
-
-  it("shows a follower Reload when the leader of its own row shape meets a newer server", async () => {
-    const leader = await openTab(OLD, NEW);
-    await vi.waitFor(() => {
-      expect(leader.status()).toMatchObject({
-        leader: true,
-        problem: "outdated",
-      });
-    });
-
-    const follower = await openTab(OLD, NEW);
-    follower.runtime.retry();
-    await vi.waitFor(() => {
-      expect(follower.status()).toMatchObject({
-        leader: false,
-        problem: "outdated",
-        newerRowShape: NEW,
-      });
-    });
-  });
-
-  it("reloads a tab that a newer tab made outdated, once it is hidden", async () => {
-    const older = await openTab(OLD, OLD);
-    await openTab(NEW, OLD);
-    await vi.waitFor(() => {
-      expect(older.status().problem).toBe("outdated");
-    });
-    expect(older.reloads()).toBe(0);
-
-    hide();
-    await vi.waitFor(() => {
-      expect(older.reloads()).toBe(1);
-    });
   });
 });

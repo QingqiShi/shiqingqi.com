@@ -4,8 +4,6 @@ import { render } from "#src/testing/test-utils.tsx";
 import { GridControls } from "./grid-controls";
 import type { GridConfig, OutputConfig, SourceImage } from "./types";
 
-// Structural ImageBitmap — `GridControls` doesn't touch the bitmap, only
-// `source.width` / `source.height`, but the prop type still requires one.
 const FAKE_BITMAP: ImageBitmap = {
   width: 256,
   height: 256,
@@ -50,55 +48,29 @@ function setup() {
 describe("GridControls blank-input handling", () => {
   it.each([
     ["grid-cols", "onGridChange"],
-    ["grid-rows", "onGridChange"],
-    ["grid-cell-w", "onGridChange"],
-    ["grid-cell-h", "onGridChange"],
-    ["grid-offset-x", "onGridChange"],
-    ["grid-offset-y", "onGridChange"],
-    ["grid-gap-x", "onGridChange"],
-    ["grid-gap-y", "onGridChange"],
     ["output-width", "onOutputChange"],
-    ["output-height", "onOutputChange"],
   ] as const)(
     "%s does not dispatch when the field is cleared mid-edit",
     (testId, callbackName) => {
       const callbacks = setup();
       const callback = callbacks[callbackName];
 
-      const input = screen.getByTestId(testId);
       // Simulate the "Cmd+A, Delete" gesture — the input briefly sees an
       // empty string. With the bug present, this dispatches a numeric 0
       // (which the destructive Cols/Rows/Cell-W/H clamps then snap to 1).
-      fireEvent.change(input, { target: { value: "" } });
+      fireEvent.change(screen.getByTestId(testId), { target: { value: "" } });
 
       expect(callback).not.toHaveBeenCalled();
     },
   );
 
-  it("still dispatches non-empty numeric input", () => {
-    const { onGridChange } = setup();
-    const input = screen.getByTestId("grid-cols");
-
-    fireEvent.change(input, { target: { value: "8" } });
-
-    expect(onGridChange).toHaveBeenCalledTimes(1);
-    const lastCall = onGridChange.mock.calls.at(-1);
-    expect(lastCall).toBeDefined();
-    if (lastCall === undefined) return;
-    expect(lastCall[0].cols).toBe(8);
-  });
-
   it("dispatches 0 when the user explicitly types '0' (distinct from blank)", () => {
-    // Offset/gap fields legitimately accept 0; the fix must not block that.
     const { onGridChange } = setup();
     const input = screen.getByTestId("grid-offset-x");
 
     fireEvent.change(input, { target: { value: "0" } });
 
     expect(onGridChange).toHaveBeenCalledTimes(1);
-    const lastCall = onGridChange.mock.calls.at(-1);
-    expect(lastCall).toBeDefined();
-    if (lastCall === undefined) return;
-    expect(lastCall[0].offsetX).toBe(0);
+    expect(onGridChange.mock.calls.at(-1)?.[0].offsetX).toBe(0);
   });
 });

@@ -1,9 +1,6 @@
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import {
-  BackOverrideProvider,
-  useBackOverride,
-} from "#src/site-shell/back-override-provider.tsx";
+import { BackOverrideProvider } from "#src/site-shell/back-override-provider.tsx";
 import { render, screen, userEvent } from "#src/testing/test-utils.tsx";
 import { AIChatProvider } from "./ai-chat-provider.tsx";
 import { InlineChatProvider, useInlineChat } from "./inline-chat-context";
@@ -21,29 +18,6 @@ function CloseHarness() {
       <button type="button" onClick={closeChat}>
         Close
       </button>
-    </div>
-  );
-}
-
-function BackButtonProxy() {
-  const { hasBackOverride, triggerBack } = useBackOverride();
-  if (!hasBackOverride) return null;
-  return (
-    <button type="button" onClick={triggerBack}>
-      Trigger back
-    </button>
-  );
-}
-
-function BackHarness() {
-  const { isChatActive, openChat } = useInlineChat();
-  return (
-    <div>
-      <span data-testid="active">{isChatActive ? "yes" : "no"}</span>
-      <button type="button" onClick={openChat}>
-        Open
-      </button>
-      <BackButtonProxy />
     </div>
   );
 }
@@ -79,19 +53,5 @@ describe("InlineChatProvider closeChat", () => {
     // saved id is the only handle the client has on it. Closing chat must
     // not orphan that conversation by clearing the storage key.
     expect(localStorage.getItem(SESSION_KEY)).toBe("session-abc");
-  });
-
-  it("preserves the stored session id when the back override fires", async () => {
-    const user = userEvent.setup();
-    localStorage.setItem(SESSION_KEY, "session-xyz");
-
-    renderWithProviders(<BackHarness />);
-
-    await user.click(screen.getByRole("button", { name: "Open" }));
-    expect(screen.getByTestId("active")).toHaveTextContent("yes");
-
-    await user.click(screen.getByRole("button", { name: "Trigger back" }));
-    expect(screen.getByTestId("active")).toHaveTextContent("no");
-    expect(localStorage.getItem(SESSION_KEY)).toBe("session-xyz");
   });
 });

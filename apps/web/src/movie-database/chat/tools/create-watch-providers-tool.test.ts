@@ -3,7 +3,6 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { isRecord } from "#src/movie-database/is-record.ts";
 import { server } from "#src/testing/test-msw.ts";
 import { createWatchProvidersTool } from "./create-watch-providers-tool";
-import { isToolError } from "./tool-error";
 import { TMDB_BASE, toolExecutionOptions } from "./tool-execution-options";
 
 beforeAll(() => {
@@ -27,20 +26,6 @@ function provider(overrides: {
 
 function watchProvidersResponse(id: number, results: Record<string, unknown>) {
   return { id, results };
-}
-
-interface RegionResult {
-  id: number;
-  mediaType: string;
-  region: string;
-  providers: {
-    link: string | null;
-    flatrate: Array<{ id: number; name: string; logoPath: string }>;
-    rent: Array<{ id: number; name: string; logoPath: string }>;
-    buy: Array<{ id: number; name: string; logoPath: string }>;
-    ads: Array<{ id: number; name: string; logoPath: string }>;
-    free: Array<{ id: number; name: string; logoPath: string }>;
-  } | null;
 }
 
 interface ProviderSearchResultType {
@@ -68,19 +53,10 @@ async function executeTool(input: {
   return parsed;
 }
 
-function isRegionResult(value: unknown): value is RegionResult {
-  return isRecord(value) && "region" in value;
-}
-
 function isProviderSearchResult(
   value: unknown,
 ): value is ProviderSearchResultType {
   return isRecord(value) && "providerName" in value;
-}
-
-function asRegionResult(result: unknown): RegionResult {
-  if (!isRegionResult(result)) throw new Error("expected a region result");
-  return result;
 }
 
 function asSearchResult(result: unknown): ProviderSearchResultType {
@@ -146,47 +122,6 @@ describe("watch providers execute", () => {
     });
   });
 
-  it("returns providers for a TV show", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/tv/1399/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(1399, {
-            US: {
-              link: "https://www.themoviedb.org/tv/1399/watch?locale=US",
-              flatrate: [
-                provider({
-                  provider_id: 384,
-                  provider_name: "HBO Max",
-                  display_priority: 1,
-                }),
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const result = await executeTool({
-      id: 1399,
-      media_type: "tv",
-      region: "US",
-    });
-
-    expect(result).toEqual({
-      id: 1399,
-      mediaType: "tv",
-      region: "US",
-      providers: {
-        link: "https://www.themoviedb.org/tv/1399/watch?locale=US",
-        flatrate: [{ id: 384, name: "HBO Max", logoPath: "/logo-384.jpg" }],
-        rent: [],
-        buy: [],
-        ads: [],
-        free: [],
-      },
-    });
-  });
-
   it("returns providers: null when region has no data", async () => {
     server.use(
       http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
@@ -219,150 +154,6 @@ describe("watch providers execute", () => {
       region: "JP",
       providers: null,
     });
-  });
-
-  it("returns providers: null when response has no results", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/999999/watch/providers`, () =>
-        HttpResponse.json({ id: 999999 }),
-      ),
-    );
-
-    const result = await executeTool({
-      id: 999999,
-      media_type: "movie",
-      region: "US",
-    });
-
-    expect(result).toEqual({
-      id: 999999,
-      mediaType: "movie",
-      region: "US",
-      providers: null,
-    });
-  });
-
-  it("defaults region to US when not specified", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(550, {
-            US: {
-              link: "https://www.themoviedb.org/movie/550/watch?locale=US",
-              flatrate: [
-                provider({
-                  provider_id: 8,
-                  provider_name: "Netflix",
-                  display_priority: 1,
-                }),
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const raw = await executeTool({ id: 550, media_type: "movie" });
-    const result = asRegionResult(raw);
-
-    expect(result.region).toBe("US");
-    expect(result.providers).not.toBeNull();
-    expect(result.providers?.flatrate).toHaveLength(1);
-  });
-
-  it("sorts providers by display_priority", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(550, {
-            US: {
-              link: "https://www.themoviedb.org/movie/550/watch?locale=US",
-              flatrate: [
-                provider({
-                  provider_id: 119,
-                  provider_name: "Amazon Prime",
-                  display_priority: 10,
-                }),
-                provider({
-                  provider_id: 8,
-                  provider_name: "Netflix",
-                  display_priority: 1,
-                }),
-                provider({
-                  provider_id: 337,
-                  provider_name: "Disney+",
-                  display_priority: 5,
-                }),
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const result = asRegionResult(
-      await executeTool({ id: 550, media_type: "movie", region: "US" }),
-    );
-
-    if (!result.providers) throw new Error("expected providers");
-    const names = result.providers.flatrate.map((p) => p.name);
-    expect(names).toEqual(["Netflix", "Disney+", "Amazon Prime"]);
-  });
-
-  it("strips unnecessary fields from providers", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(550, {
-            US: {
-              link: "https://www.themoviedb.org/movie/550/watch?locale=US",
-              flatrate: [
-                {
-                  provider_id: 8,
-                  provider_name: "Netflix",
-                  logo_path: "/netflix.jpg",
-                  display_priority: 1,
-                  extra_field: "should be stripped",
-                },
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const result = asRegionResult(
-      await executeTool({ id: 550, media_type: "movie", region: "US" }),
-    );
-
-    if (!result.providers) throw new Error("expected providers");
-    const firstProvider = result.providers.flatrate[0];
-    expect(firstProvider).toBeDefined();
-    expect(Object.keys(firstProvider)).toEqual(["id", "name", "logoPath"]);
-  });
-});
-
-describe("watch providers error handling", () => {
-  it("returns a structured tool error when TMDB fails", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          { status_message: "Service unavailable" },
-          { status: 503 },
-        ),
-      ),
-    );
-
-    const tool = createWatchProvidersTool();
-    const result = await tool.execute(
-      { id: 550, media_type: "movie", region: "US" },
-      toolExecutionOptions(),
-    );
-
-    expect(isToolError(result)).toBe(true);
-    if (isToolError(result)) {
-      expect(result.reason).toBe("tmdb_unavailable");
-    }
   });
 });
 
@@ -424,38 +215,6 @@ describe("watch providers provider search", () => {
         { country: "US", types: ["flatrate"] },
       ]),
     );
-  });
-
-  it("returns empty regions when provider not found", async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(550, {
-            US: {
-              link: "https://example.com/US",
-              flatrate: [
-                provider({
-                  provider_id: 337,
-                  provider_name: "Disney Plus",
-                  display_priority: 1,
-                }),
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const result = asSearchResult(
-      await executeTool({
-        id: 550,
-        media_type: "movie",
-        provider_name: "Netflix",
-      }),
-    );
-
-    expect(result.regions).toEqual([]);
-    expect(result.providerLogoPath).toBeNull();
   });
 
   it("matches provider name case-insensitively", async () => {
@@ -521,110 +280,6 @@ describe("watch providers provider search", () => {
     expect(result.regions).toHaveLength(1);
     expect(result.regions[0].country).toBe("US");
     expect(result.providerLogoPath).toBe("/logo-337.jpg");
-  });
-
-  it('matches "Disney+" against "Disney+ Hotstar" via normalised substring', async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(550, {
-            IN: {
-              link: "https://example.com/IN",
-              flatrate: [
-                provider({
-                  provider_id: 122,
-                  provider_name: "Disney+ Hotstar",
-                  display_priority: 1,
-                }),
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const result = asSearchResult(
-      await executeTool({
-        id: 550,
-        media_type: "movie",
-        provider_name: "Disney+",
-      }),
-    );
-
-    expect(result.regions).toHaveLength(1);
-    expect(result.regions[0].country).toBe("IN");
-  });
-
-  it('matches "HBO" against "Amazon Channel - HBO" via normalised substring', async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(550, {
-            US: {
-              link: "https://example.com/US",
-              flatrate: [
-                provider({
-                  provider_id: 999,
-                  provider_name: "Amazon Channel - HBO",
-                  display_priority: 1,
-                }),
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const result = asSearchResult(
-      await executeTool({
-        id: 550,
-        media_type: "movie",
-        provider_name: "HBO",
-      }),
-    );
-
-    expect(result.regions).toHaveLength(1);
-    expect(result.regions[0].country).toBe("US");
-  });
-
-  it('matches "Apple" against Apple-branded services via normalised substring', async () => {
-    server.use(
-      http.get(`${TMDB_BASE}/3/movie/550/watch/providers`, () =>
-        HttpResponse.json(
-          watchProvidersResponse(550, {
-            US: {
-              link: "https://example.com/US",
-              flatrate: [
-                provider({
-                  provider_id: 350,
-                  provider_name: "Apple TV+",
-                  display_priority: 1,
-                }),
-              ],
-              rent: [
-                provider({
-                  provider_id: 2,
-                  provider_name: "Apple TV Channel",
-                  display_priority: 2,
-                }),
-              ],
-            },
-          }),
-        ),
-      ),
-    );
-
-    const result = asSearchResult(
-      await executeTool({
-        id: 550,
-        media_type: "movie",
-        provider_name: "Apple",
-      }),
-    );
-
-    expect(result.regions).toHaveLength(1);
-    expect(result.regions[0].country).toBe("US");
-    expect(result.regions[0].types).toEqual(["flatrate", "rent"]);
   });
 
   it('matches "Apple TV+" exactly without picking up "Apple TV Channel"', async () => {

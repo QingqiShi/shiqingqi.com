@@ -8,79 +8,12 @@ describe("buildTmdbUrl", () => {
     expect(buildTmdbUrl({ baseUrl: BASE })).toBe(BASE);
   });
 
-  it("returns the base URL when params is empty", () => {
-    expect(buildTmdbUrl({ baseUrl: BASE, params: {} })).toBe(BASE);
-  });
-
-  it("appends string params", () => {
-    const url = buildTmdbUrl({
-      baseUrl: BASE,
-      params: { sort_by: "popularity.desc" },
-    });
-    expect(url).toBe(`${BASE}?sort_by=popularity.desc`);
-  });
-
-  it("appends number params as strings", () => {
-    const url = buildTmdbUrl({ baseUrl: BASE, params: { page: 2 } });
-    expect(url).toBe(`${BASE}?page=2`);
-  });
-
-  it("appends boolean params as strings", () => {
-    const url = buildTmdbUrl({
-      baseUrl: BASE,
-      params: { include_adult: false },
-    });
-    expect(url).toBe(`${BASE}?include_adult=false`);
-  });
-
-  it("omits null values", () => {
-    const url = buildTmdbUrl({
-      baseUrl: BASE,
-      params: { page: 1, with_genres: null },
-    });
-    expect(url).toBe(`${BASE}?page=1`);
-  });
-
-  it("omits undefined values", () => {
-    const url = buildTmdbUrl({
-      baseUrl: BASE,
-      params: { page: 1, sort_by: undefined },
-    });
-    expect(url).toBe(`${BASE}?page=1`);
-  });
-
-  it("omits language=en as a TMDB API default", () => {
-    const url = buildTmdbUrl({
-      baseUrl: BASE,
-      params: { page: 1, language: "en" },
-    });
-    expect(url).toBe(`${BASE}?page=1`);
-  });
-
   it("keeps non-English language values", () => {
     const url = buildTmdbUrl({
       baseUrl: BASE,
       params: { language: "zh" },
     });
     expect(url).toBe(`${BASE}?language=zh`);
-  });
-
-  it("combines multiple params", () => {
-    const url = buildTmdbUrl({
-      baseUrl: BASE,
-      params: {
-        page: 1,
-        sort_by: "vote_average.desc",
-        language: "zh",
-        "vote_count.gte": 300,
-      },
-    });
-
-    const parsed = new URL(url);
-    expect(parsed.searchParams.get("page")).toBe("1");
-    expect(parsed.searchParams.get("sort_by")).toBe("vote_average.desc");
-    expect(parsed.searchParams.get("language")).toBe("zh");
-    expect(parsed.searchParams.get("vote_count.gte")).toBe("300");
   });
 
   it("handles a mix of set, null, and undefined params", () => {

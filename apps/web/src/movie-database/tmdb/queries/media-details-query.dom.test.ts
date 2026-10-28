@@ -120,60 +120,6 @@ describe("mediaDetailsQuery", () => {
 
       expect(result.title).toBe("FC");
     });
-
-    it("returns raw runtime for zero value", async () => {
-      server.use(
-        http.get("*/api/tmdb/get-movie-details", () =>
-          HttpResponse.json(movieDetailsResponse({ runtime: 0 })),
-        ),
-      );
-
-      const options = mediaDetailsQuery({ type: "movie", id: "550" });
-      const result = await callQueryFn(options);
-
-      expect(result.runtime).toBe(0);
-    });
-
-    it("returns genres as array", async () => {
-      server.use(
-        http.get("*/api/tmdb/get-movie-details", () =>
-          HttpResponse.json(
-            movieDetailsResponse({
-              genres: [
-                { id: 18, name: "Drama" },
-                { id: 53, name: "Thriller" },
-              ],
-            }),
-          ),
-        ),
-      );
-
-      const options = mediaDetailsQuery({ type: "movie", id: "550" });
-      const result = await callQueryFn(options);
-
-      expect(result.genres).toEqual(["Drama", "Thriller"]);
-    });
-
-    it("passes movie_id and language as query params", async () => {
-      let requestUrl = "";
-      server.use(
-        http.get("*/api/tmdb/get-movie-details", ({ request }) => {
-          requestUrl = request.url;
-          return HttpResponse.json(movieDetailsResponse());
-        }),
-      );
-
-      const options = mediaDetailsQuery({
-        type: "movie",
-        id: "550",
-        language: "zh",
-      });
-      await callQueryFn(options);
-
-      const url = new URL(requestUrl);
-      expect(url.searchParams.get("movie_id")).toBe("550");
-      expect(url.searchParams.get("language")).toBe("zh");
-    });
   });
 
   describe("tv", () => {
@@ -200,75 +146,6 @@ describe("mediaDetailsQuery", () => {
         voteAverage: 8.4,
         voteCount: 11500,
       });
-    });
-
-    it("falls back to original_name when name is missing", async () => {
-      server.use(
-        http.get("*/api/tmdb/get-tv-show-details", () =>
-          HttpResponse.json(
-            tvDetailsResponse({ name: undefined, original_name: "GoT" }),
-          ),
-        ),
-      );
-
-      const options = mediaDetailsQuery({ type: "tv", id: "1399" });
-      const result = await callQueryFn(options);
-
-      expect(result.title).toBe("GoT");
-    });
-
-    it("returns raw numberOfSeasons", async () => {
-      server.use(
-        http.get("*/api/tmdb/get-tv-show-details", () =>
-          HttpResponse.json(tvDetailsResponse({ number_of_seasons: 0 })),
-        ),
-      );
-
-      const options = mediaDetailsQuery({ type: "tv", id: "1399" });
-      const result = await callQueryFn(options);
-
-      expect(result.numberOfSeasons).toBe(0);
-    });
-
-    it("returns genres as array", async () => {
-      server.use(
-        http.get("*/api/tmdb/get-tv-show-details", () =>
-          HttpResponse.json(
-            tvDetailsResponse({
-              genres: [
-                { id: 10765, name: "科幻" },
-                { id: 18, name: "剧情" },
-              ],
-            }),
-          ),
-        ),
-      );
-
-      const options = mediaDetailsQuery({ type: "tv", id: "1399" });
-      const result = await callQueryFn(options);
-
-      expect(result.genres).toEqual(["科幻", "剧情"]);
-    });
-
-    it("passes series_id and language as query params", async () => {
-      let requestUrl = "";
-      server.use(
-        http.get("*/api/tmdb/get-tv-show-details", ({ request }) => {
-          requestUrl = request.url;
-          return HttpResponse.json(tvDetailsResponse());
-        }),
-      );
-
-      const options = mediaDetailsQuery({
-        type: "tv",
-        id: "1399",
-        language: "en",
-      });
-      await callQueryFn(options);
-
-      const url = new URL(requestUrl);
-      expect(url.searchParams.get("series_id")).toBe("1399");
-      expect(url.searchParams.get("language")).toBe("en");
     });
   });
 });

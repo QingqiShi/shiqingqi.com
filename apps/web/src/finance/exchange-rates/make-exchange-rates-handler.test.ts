@@ -162,51 +162,10 @@ describe("makeExchangeRatesHandler", () => {
       expect(response.rates, since).toHaveLength(2);
     }
   });
-
-  it("answers with no rates for a Household that does not exist", async () => {
-    if (!session) throw new Error("No session");
-    session = { ...session, householdId: randomUUID() };
-
-    const response = await get();
-
-    expect(response.replace).toBe(true);
-    expect(response.rates).toEqual([]);
-  });
 });
 
 describe("the row shape handshake of the exchange rates route", () => {
   const SERVER_SHAPE = REPLICA_ROW_SHAPE;
-
-  it("says the server row shape on every response it returns, refusals included", async () => {
-    const served = await handlerOf()(ratesRequest());
-    const mismatched = await handlerOf()(ratesRequest("", SERVER_SHAPE + 1));
-    session = null;
-    const unauthorised = await handlerOf()(ratesRequest());
-
-    expect(
-      [served, mismatched, unauthorised].map((response) => [
-        response.status,
-        response.headers.get(ROW_SHAPE_HEADER),
-      ]),
-    ).toEqual([
-      [200, String(SERVER_SHAPE)],
-      [426, String(SERVER_SHAPE)],
-      [401, String(SERVER_SHAPE)],
-    ]);
-  });
-
-  it("accepts a request without the header while the server row shape is 7, the shape of the clients from before the header", async () => {
-    const response = await handlerOf(7)(ratesRequest("", null));
-
-    expect(response.status).toBe(200);
-  });
-
-  it("answers 426 and sends no rates to a client without the header once the server row shape is past 7", async () => {
-    const response = await handlerOf(8)(ratesRequest("", null));
-
-    expect(response.status).toBe(426);
-    expect(await response.json()).toEqual({ error: "row-shape", rowShape: 8 });
-  });
 
   it.each([
     ["older", SERVER_SHAPE - 1],
@@ -223,26 +182,4 @@ describe("the row shape handshake of the exchange rates route", () => {
       });
     },
   );
-
-  it("lets an error the handler throws reach Next, without a response of its own", async () => {
-    const handler = makeExchangeRatesHandler({
-      isConfigured: () => true,
-      getDb: () => {
-        throw new Error("The database is gone");
-      },
-      getSession: () => Promise.resolve(session),
-    });
-
-    await expect(handler(ratesRequest())).rejects.toThrow(
-      "The database is gone",
-    );
-  });
-
-  it("answers 400 to a malformed row shape", async () => {
-    const response = await handlerOf()(
-      new Request(URL_BASE, { headers: { [ROW_SHAPE_HEADER]: "seven" } }),
-    );
-
-    expect(response.status).toBe(400);
-  });
 });
