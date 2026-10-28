@@ -1,15 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
-import { transactionsHref } from "../analytics/transactions-href.ts";
+import { transactionsBehind } from "../analytics/transactions-behind.ts";
 import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import type { WeeklyReportData } from "./weekly-report-data-schema.ts";
 
@@ -20,7 +19,7 @@ import type { WeeklyReportData } from "./weekly-report-data-schema.ts";
  */
 export function ReportSpendingWeeks({ data }: { data: WeeklyReportData }) {
   const locale = useLocale();
-  const router = useRouter();
+  const navigator = useFinanceNavigator();
   const { history, averageMinor } = data.spending;
   if (history.length < 2) return null;
   const currency = data.baseCurrency;
@@ -64,16 +63,13 @@ export function ReportSpendingWeeks({ data }: { data: WeeklyReportData }) {
         label: `${t({ en: "4-week average", zh: "4 周平均" })} ${formatMoney(averageMinor, currency, locale)}`,
       }}
       onActivate={(index) => {
-        router.push(
-          getLocalePath(
-            transactionsHref({
-              from: weekStart(index),
-              to: history[index].periodEnd,
-              kind: "spending",
-              member: null,
-            }),
-            locale,
-          ),
+        navigator.push(
+          transactionsBehind({
+            from: weekStart(index),
+            to: history[index].periodEnd,
+            kind: "spending",
+            member: null,
+          }),
         );
       }}
       activateHint={t({

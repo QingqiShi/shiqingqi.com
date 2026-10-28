@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { screen, userEvent, waitFor } from "#src/testing/test-utils.tsx";
+import { financeNavigator } from "../navigation/finance-navigator.ts";
 import {
   createTestReplica,
   TEST_IDS,
@@ -7,7 +8,6 @@ import {
 import { renderWithReplica } from "../transactions/testing/render-with-replica.tsx";
 import { FinanceAddButton } from "./finance-add-button.tsx";
 import { NewTransactionSheet } from "./new-transaction-sheet.tsx";
-import { isOpenedEntry, pushOpenedEntry } from "./use-new-transaction-url.ts";
 
 const ids = TEST_IDS;
 
@@ -75,8 +75,15 @@ describe("NewTransactionSheet", () => {
   });
 
   it("goes back when the Add action opened it", async () => {
-    pushOpenedEntry(`/finance?account=${ids.card}&new=expense`);
-    expect(isOpenedEntry()).toBe(true);
+    const navigator = financeNavigator(
+      { push: () => undefined, replace: () => undefined },
+      "en",
+    );
+    navigator.open({
+      screen: "netWorth",
+      account: ids.card,
+      newTransaction: { kind: "expense" },
+    });
     await openSheet(`account=${ids.card}&new=expense`, ids.card);
 
     await userEvent.click(screen.getByRole("button", { name: "Close" }));

@@ -31,11 +31,11 @@ import {
   type EditorFocusTarget,
 } from "../editor/transaction-editor.tsx";
 import { unconfirmMutations } from "../editor/unconfirm-mutations.ts";
+import { ColumnLink, useColumnReplace } from "../navigation/column-link.tsx";
 import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
-import { ColumnLink, useColumnReplace } from "../shell/column-link.tsx";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
@@ -200,13 +200,7 @@ export function TransactionsScreen() {
   });
 
   const rowActions: TransactionRowActions = {
-    hrefFor: (id) => {
-      const params = new URLSearchParams(window.location.search);
-      params.delete("new");
-      params.delete("refund");
-      params.set("id", id);
-      return `?${params.toString()}`;
-    },
+    hrefFor: (id) => url.hrefOf(id),
     onOpen: (id) => {
       setCursorId(id);
       setFocusRequest(undefined);

@@ -1,14 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useRef } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { readNewTransaction } from "../navigation/finance-href.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { PaneSheet } from "./pane-sheet.tsx";
-import { useNewTransactionUrl } from "./use-new-transaction-url.ts";
 
 const TransactionEditor = dynamic(() =>
   import("../editor/transaction-editor.tsx").then(
@@ -30,38 +29,35 @@ interface NewTransactionSheetProps {
 export function NewTransactionSheet({
   accountId = null,
 }: NewTransactionSheetProps) {
-  const locale = useLocale();
-  const router = useRouter();
-  const url = useNewTransactionUrl();
+  const navigator = useFinanceNavigator();
+  const newTransaction = readNewTransaction(useSearchParams());
+  const close = () => {
+    navigator.close({ screen: "current" });
+  };
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const focusTargetRef = useRef<HTMLElement | null>(null);
 
   return (
     <PaneSheet
-      isOpen={url.kind !== null}
-      onClose={url.close}
+      isOpen={newTransaction !== null}
+      onClose={close}
       label={t({ en: "New transaction", zh: "新建交易" })}
       initialFocusRef={focusTargetRef}
     >
-      {url.kind !== null && bootstrapped ? (
+      {newTransaction !== null && bootstrapped ? (
         <TransactionEditor
-          key={`${url.kind}-${url.refundOfId ?? ""}-${accountId ?? ""}`}
+          key={`${newTransaction.kind}-${newTransaction.refundOf ?? ""}-${accountId ?? ""}`}
           transactionId={null}
-          initialKind={url.kind}
-          refundOfId={url.refundOfId}
+          initialKind={newTransaction.kind}
+          refundOfId={newTransaction.refundOf}
           initialAccountId={accountId}
           focusTargetRef={focusTargetRef}
-          onClose={url.close}
+          onClose={close}
           onSaved={(_, andNew) => {
-            if (!andNew) url.close();
+            if (!andNew) close();
           }}
           onOpenTransaction={(id) => {
-            router.replace(
-              getLocalePath(
-                `/finance/transactions?id=${encodeURIComponent(id)}`,
-                locale,
-              ),
-            );
+            navigator.replace({ screen: "transactions", id });
           }}
         />
       ) : null}

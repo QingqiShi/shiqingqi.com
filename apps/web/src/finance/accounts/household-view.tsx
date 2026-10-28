@@ -21,12 +21,12 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { type Ref, useEffect } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { MoneyChange } from "../domain/money/money-change.tsx";
+import { financeHref } from "../navigation/finance-href.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import type { AccountRow } from "../sync/row-schemas.ts";
@@ -430,7 +430,10 @@ function NeedsALook({
         )}
         {reviewCount === 0 ? null : (
           <CheckLink
-            href={getLocalePath("/finance/transactions?review=1", locale)}
+            href={financeHref(
+              { screen: "transactions", filters: { review: true } },
+              locale,
+            )}
           >
             {reviewCount === 1
               ? oneReview
@@ -439,7 +442,10 @@ function NeedsALook({
         )}
         {expectedCount === 0 ? null : (
           <CheckLink
-            href={getLocalePath("/finance/transactions?expected=1", locale)}
+            href={financeHref(
+              { screen: "transactions", filters: { expected: true } },
+              locale,
+            )}
           >
             {expectedCount === 1
               ? oneExpected

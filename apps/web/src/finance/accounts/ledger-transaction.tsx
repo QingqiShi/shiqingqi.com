@@ -2,12 +2,11 @@
 
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import type { ToastAction } from "@tuja/ui/components/toast";
-import { useRouter } from "next/navigation";
 import { DetailEditor } from "../editor/detail-editor.tsx";
 import { TransactionEditor } from "../editor/transaction-editor.tsx";
-import { useNewTransactionUrl } from "../shell/use-new-transaction-url.ts";
+import type { NetWorthDestination } from "../navigation/finance-href.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import { UnbackedTransactionNotice } from "./bank-balance-notice.tsx";
-import { useNetWorthUrl } from "./use-net-worth-url.ts";
 
 interface LedgerTransactionProps {
   accountId: string;
@@ -27,14 +26,15 @@ export function LedgerTransaction({
   transactionId,
   watchCorrection,
 }: LedgerTransactionProps) {
-  const router = useRouter();
-  const url = useNetWorthUrl();
-  const newTransaction = useNewTransactionUrl();
+  const navigator = useFinanceNavigator();
   const column = useSplitViewColumn();
-  const accountHref = url.hrefOf({ account: accountId });
+  const account: NetWorthDestination = {
+    screen: "netWorth",
+    account: accountId,
+  };
   const close = () => {
     if (column?.close) column.close();
-    else router.replace(accountHref, { scroll: false });
+    else navigator.replace(account);
   };
 
   return (
@@ -53,18 +53,19 @@ export function LedgerTransaction({
         onClose={close}
         onSaved={(_, andNew) => {
           if (andNew) {
-            newTransaction.open({ from: accountHref });
+            navigator.open({ ...account, newTransaction: { kind: "expense" } });
           } else {
             close();
           }
         }}
         onOpenTransaction={(id) => {
-          router.replace(url.hrefOf({ account: accountId, tx: id }), {
-            scroll: false,
-          });
+          navigator.replace({ ...account, tx: id });
         }}
         onRefund={(id) => {
-          newTransaction.open({ refundOf: id, from: accountHref });
+          navigator.open({
+            ...account,
+            newTransaction: { kind: "expense", refundOf: id },
+          });
         }}
         watchCorrection={watchCorrection}
       />

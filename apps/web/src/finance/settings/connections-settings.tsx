@@ -18,9 +18,7 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
-import { useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { accountFullName } from "../accounts/account-full-name.ts";
@@ -33,6 +31,7 @@ import type {
 import { isLinkableAccount } from "../domain/accounts/is-linkable-account.ts";
 import { displayMoment } from "../domain/dates/display-moment.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { withPending } from "../shell/with-pending.ts";
@@ -220,7 +219,7 @@ function ConnectedSettings({
   onReload,
 }: ConnectedSettingsProps) {
   const locale = useLocale();
-  const router = useRouter();
+  const navigator = useFinanceNavigator();
   const { runtime } = useFinanceRuntime();
   const isOwner = useIsOwner();
   const showToast = useToast();
@@ -370,9 +369,10 @@ function ConnectedSettings({
                   action: {
                     label: labels.view,
                     onAction: () => {
-                      router.push(
-                        getLocalePath("/finance/transactions?review=1", locale),
-                      );
+                      navigator.push({
+                        screen: "transactions",
+                        filters: { review: true },
+                      });
                     },
                   },
                 }

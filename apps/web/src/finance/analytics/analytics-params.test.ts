@@ -1,8 +1,9 @@
 import { expect, test } from "vitest";
+import { financeHref } from "../navigation/finance-href.ts";
 import { transactionFilters } from "../transactions/transaction-filters.ts";
 import { analyticsParams } from "./analytics-params.ts";
 import { DEFAULT_ANALYTICS_STATE } from "./compute-analytics-view.ts";
-import { transactionsHref } from "./transactions-href.ts";
+import { transactionsBehind } from "./transactions-behind.ts";
 
 const CATEGORY = "00000000-0000-4000-8000-0000000000d1";
 const MEMBER = "00000000-0000-4000-8000-0000000000a1";
@@ -32,13 +33,16 @@ test("reads back what it writes, and leaves defaults out of the URL", () => {
 });
 
 test("links to the Transactions list through its filter contract", () => {
-  const href = transactionsHref({
-    from: "2026-09-01",
-    to: "2026-09-30",
-    kind: "spending",
-    member: MEMBER,
-    categoryIds: [CATEGORY],
-  });
+  const href = financeHref(
+    transactionsBehind({
+      from: "2026-09-01",
+      to: "2026-09-30",
+      kind: "spending",
+      member: MEMBER,
+      categoryIds: [CATEGORY],
+    }),
+    "en",
+  );
   const [path, query] = href.split("?");
   expect(path).toBe("/finance/transactions");
   expect(transactionFilters.parse(new URLSearchParams(query))).toMatchObject({

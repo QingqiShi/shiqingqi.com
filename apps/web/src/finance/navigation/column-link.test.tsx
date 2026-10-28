@@ -4,8 +4,10 @@ import {
 } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it } from "vitest";
+import { nextPopState } from "#src/testing/next-pop-state.ts";
 import { render, screen, userEvent } from "#src/testing/test-utils.tsx";
 import { useColumnReplace } from "./column-link.tsx";
+import { financeNavigator } from "./finance-navigator.ts";
 
 function withRouter(children: ReactNode) {
   const navigations: { kind: "push" | "replace"; href: string }[] = [];
@@ -68,5 +70,21 @@ describe("useColumnReplace", () => {
       { kind: "replace", href: "/finance/transactions?account=a1" },
     ]);
     expect(window.location.pathname).toBe("/finance");
+  });
+
+  it("keeps an entry that a close goes back from", async () => {
+    const navigator = financeNavigator(
+      { push: () => undefined, replace: () => undefined },
+      "en",
+    );
+    navigator.open({ screen: "netWorth", account: "a1", tx: "t1" });
+    withRouter(<ReplaceButton href="/finance?account=a1&tx=t2" />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Replace" }));
+    const popped = nextPopState();
+    navigator.close({ screen: "netWorth", account: "a1" });
+    await popped;
+
+    expect(window.location.search).toBe("");
   });
 });

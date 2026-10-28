@@ -1,5 +1,10 @@
-import { usePathname, useSearchParams } from "next/navigation";
-import { hrefWithParams } from "../shell/href-with-params.ts";
+import { useSearchParams } from "next/navigation";
+import { useLocale } from "#src/i18n/use-locale.ts";
+import {
+  financeHref,
+  readNetWorth,
+  type NetWorthMode,
+} from "../navigation/finance-href.ts";
 
 interface NetWorthPick {
   /** The account in the content column, or null for the Household. */
@@ -18,36 +23,30 @@ export type NetWorthUrl = ReturnType<typeof useNetWorthUrl>;
  * each row its link and whether it is picked.
  */
 export function useNetWorthUrl() {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const account = searchParams.get("account");
-  const tx = account === null ? null : searchParams.get("tx");
+  const locale = useLocale();
+  const { account, tx, mode } = readNetWorth(useSearchParams());
 
   return {
     account,
     tx,
-    mode: searchParams.get("mode"),
+    mode,
     /** The URL of the screen with this account and Transaction picked. */
-    hrefOf({ account: nextAccount, tx: nextTx = null }: NetWorthPick) {
-      const params = new URLSearchParams(searchParams);
-      params.delete("mode");
-      if (nextAccount === null) params.delete("account");
-      else params.set("account", nextAccount);
-      if (nextAccount === null || nextTx === null) params.delete("tx");
-      else params.set("tx", nextTx);
-      return hrefWithParams(pathname, params);
+    hrefOf(pick: NetWorthPick) {
+      return financeHref({ screen: "netWorth", ...pick }, locale);
     },
     /**
-     * The URL of the screen in a mode, `"update"` or `"reorder"`, or back in
-     * none. "Update balances" is for every account, so it drops the account.
+     * The URL of the screen in a mode, or back in none. "Update balances" is
+     * for every account, so it drops the account.
      */
-    modeHref(mode: "update" | "reorder" | null) {
-      const params = new URLSearchParams(searchParams);
-      params.delete("tx");
-      if (mode === "update") params.delete("account");
-      if (mode === null) params.delete("mode");
-      else params.set("mode", mode);
-      return hrefWithParams(pathname, params);
+    modeHref(nextMode: NetWorthMode | null) {
+      return financeHref(
+        {
+          screen: "netWorth",
+          account: nextMode === "update" ? null : account,
+          mode: nextMode,
+        },
+        locale,
+      );
     },
   };
 }

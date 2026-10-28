@@ -7,16 +7,16 @@ import { Text } from "@tuja/ui/components/text";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
+import { financeHref } from "../navigation/finance-href.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
 } from "./compute-analytics-view.ts";
 import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { RankedRow } from "./ranked-row.tsx";
-import { transactionsHref } from "./transactions-href.ts";
+import { transactionsBehind } from "./transactions-behind.ts";
 import { useScopeLabel } from "./use-scope-label.ts";
 
 const COLLAPSED_ROWS = 10;
@@ -86,8 +86,8 @@ export function RankedBreakdown({
                 state.kind,
               )}
               magnitude={largest === 0 ? 0 : Math.abs(item.value) / largest}
-              href={getLocalePath(
-                transactionsHref({
+              href={financeHref(
+                transactionsBehind({
                   from: view.range.from,
                   to: view.range.to,
                   kind: state.kind,

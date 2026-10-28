@@ -9,9 +9,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
-import { useRouter } from "next/navigation";
 import { useId } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { BarChart, type BarSeries } from "../charts/bar-chart.tsx";
@@ -19,6 +17,7 @@ import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { displayDayRange } from "../domain/dates/display-day.ts";
 import { fromEpochDay } from "../domain/dates/to-epoch-day.ts";
 import { formatPercent } from "../domain/money/format-percent.ts";
+import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import type {
   AnalyticsState,
   AnalyticsView,
@@ -28,7 +27,7 @@ import { formatAnalyticsMoney } from "./format-analytics-money.ts";
 import { formatPeriod } from "./format-period.ts";
 import { isMajorPeriod } from "./is-major-period.ts";
 import { RankedRow } from "./ranked-row.tsx";
-import { transactionsHref } from "./transactions-href.ts";
+import { transactionsBehind } from "./transactions-behind.ts";
 import { useAnalyticsNames } from "./use-analytics-names.ts";
 import { usePeriodLabel } from "./use-period-label.ts";
 
@@ -52,7 +51,7 @@ export function CategoryBreakdown({
   onChange,
 }: CategoryBreakdownProps) {
   const locale = useLocale();
-  const router = useRouter();
+  const navigator = useFinanceNavigator();
   const names = useAnalyticsNames();
   const periodLabel = usePeriodLabel(view);
   const headingId = useId();
@@ -107,17 +106,14 @@ export function CategoryBreakdown({
     const categoryIds = match?.categoryIds ?? (opened === null ? [] : [opened]);
     const from = fromEpochDay(view.boundaries[index]);
     const to = fromEpochDay(view.boundaries[index + 1] - 1);
-    router.push(
-      getLocalePath(
-        transactionsHref({
-          from,
-          to,
-          kind: state.kind,
-          member: state.member,
-          categoryIds,
-        }),
-        locale,
-      ),
+    navigator.push(
+      transactionsBehind({
+        from,
+        to,
+        kind: state.kind,
+        member: state.member,
+        categoryIds,
+      }),
     );
   };
 
