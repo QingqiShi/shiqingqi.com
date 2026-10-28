@@ -297,6 +297,17 @@ function RailTrack({
 
 const RISE_SPRING = springOf(springRoles.surface);
 
+const RAIL_PADDING_BLOCK_START = `calc(${space._3} + env(safe-area-inset-top))`;
+const RAIL_PADDING_BLOCK_END = `calc(${space._3} + env(safe-area-inset-bottom))`;
+// CSS cannot read the radius of a rounded display corner. These values
+// assume a radius of 55px, as on an iPhone Pro. With them, a 40px mark at
+// the top of the rail and a 32px avatar at the bottom are about 11px from
+// the curve, which is almost their distance from the side of the screen. A
+// touch screen can have rounded corners and give no safe area at a corner,
+// such as the inner screen of a foldable phone.
+const DISPLAY_CORNER_CLEARANCE_BLOCK_START = "2.5rem";
+const DISPLAY_CORNER_CLEARANCE_BLOCK_END = space._5;
+
 /** The new screen at `t` of its rise: it fades in as it rises `space._7` into place. */
 function risePose(t: number): Styles {
   return {
@@ -373,8 +384,14 @@ const styles = stylex.create({
     inlineSize: `calc(${tabViewTokens.railInlineSize} + env(safe-area-inset-left))`,
     blockSize: "100dvh",
     maxBlockSize: "100%",
-    paddingBlockStart: `calc(${space._3} + env(safe-area-inset-top))`,
-    paddingBlockEnd: `calc(${space._3} + env(safe-area-inset-bottom))`,
+    paddingBlockStart: {
+      default: RAIL_PADDING_BLOCK_START,
+      [pointer.coarse]: `max(${RAIL_PADDING_BLOCK_START}, ${DISPLAY_CORNER_CLEARANCE_BLOCK_START})`,
+    },
+    paddingBlockEnd: {
+      default: RAIL_PADDING_BLOCK_END,
+      [pointer.coarse]: `max(${RAIL_PADDING_BLOCK_END}, ${DISPLAY_CORNER_CLEARANCE_BLOCK_END})`,
+    },
     paddingInlineStart: `calc(${space._0} + env(safe-area-inset-left))`,
     paddingInlineEnd: space._0,
   },
