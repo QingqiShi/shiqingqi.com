@@ -1,34 +1,12 @@
 import { bankTransactionRepository } from "../db/repositories/bank-transaction-repository.ts";
 import { transactionRepository } from "../db/repositories/transaction-repository.ts";
-import { addDays } from "../domain/dates/add-days.ts";
+import {
+  reconciliation,
+  type MatchLink,
+  type OpenBankRow,
+} from "../reconciliation/reconciliation.ts";
 import { applyMutation } from "../sync/apply-mutation.ts";
 import type { ServerWriteContext } from "../sync/run-server-write.ts";
-import { MATCH_DAY_WINDOW, planBankMatches } from "./plan-bank-matches.ts";
-import { toEntryAmount } from "./to-entry-amount.ts";
-
-/** A Bank link as the matcher needs it. */
-export interface MatchLink {
-  id: string;
-  accountId: string;
-  signMultiplier: number;
-  /** The In transit account in the link's currency, when there is one. */
-  inTransitAccountId: string | null;
-}
-
-interface OpenRow {
-  id: string;
-  date: string;
-  /** As the bank sent it, before the link's sign multiplier. */
-  amountMinor: number;
-}
-
-function candidateRange(rows: readonly { date: string }[]) {
-  const dates = rows.map((row) => row.date).sort();
-  return {
-    from: addDays(dates[0], -MATCH_DAY_WINDOW),
-    to: addDays(dates[dates.length - 1], MATCH_DAY_WINDOW),
-  };
-}
 
 /**
  * Moves the In transit Entry of a Transaction to the linked account: the
@@ -68,57 +46,34 @@ async function settle(
 export async function matchBankRows(
   context: ServerWriteContext,
   link: MatchLink,
-  rows: readonly OpenRow[],
+  rows: readonly OpenBankRow[],
 ): Promise<{ matchedIds: Set<string>; linked: number; confirmed: number }> {
   const result = { matchedIds: new Set<string>(), linked: 0, confirmed: 0 };
-  if (rows.length === 0) return result;
-  const { scope } = context;
-  const candidates = await bankTransactionRepository.findMatchCandidates(
-    scope,
-    link.id,
-    link.accountId,
-    candidateRange(rows),
-    link.inTransitAccountId,
-  );
-  if (candidates.length === 0) return result;
-  const candidateById = new Map(
-    candidates.map((candidate) => [candidate.transactionId, candidate]),
-  );
-  const plan = planBankMatches(
-    rows.map((row) => ({
-      date: row.date,
-      amountMinor: toEntryAmount(row.amountMinor, link),
-    })),
-    candidates,
-  );
+  const pairs = await reconciliation.pairBankRows(context.scope, link, rows);
   const matched: { id: string; transactionId: string }[] = [];
-  for (const [index, row] of rows.entries()) {
-    const match = plan[index];
-    if (match.action === "create") continue;
-    const candidate = candidateById.get(match.transactionId);
-    if (!candidate) continue;
-    if (match.action === "settle") {
-      await settle(context, link, match.transactionId, match.entryId);
+  for (const row of rows) {
+    const pair = pairs.get(row.id);
+    if (!pair) continue;
+    if (pair.action === "settle") {
+      await settle(context, link, pair.transactionId, pair.entryId);
       result.linked++;
-    } else if (match.action === "confirm") {
+    } else if (pair.action === "confirm") {
       await applyMutation(context, {
         name: "confirmExpected",
         args: {
-          id: candidate.transactionId,
+          id: pair.transactionId,
           patch:
-            candidate.transactionDate === row.date
-              ? undefined
-              : { date: row.date },
+            pair.transactionDate === row.date ? undefined : { date: row.date },
         },
       });
       result.confirmed++;
     } else {
       result.linked++;
     }
-    matched.push({ id: row.id, transactionId: candidate.transactionId });
+    matched.push({ id: row.id, transactionId: pair.transactionId });
     result.matchedIds.add(row.id);
   }
-  await bankTransactionRepository.setMatched(scope, matched);
+  await bankTransactionRepository.setMatched(context.scope, matched);
   if (matched.length > 0) context.markWritten();
   return result;
 }

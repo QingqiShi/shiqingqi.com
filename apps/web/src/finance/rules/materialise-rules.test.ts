@@ -15,7 +15,7 @@ import {
 } from "../db/testing/seed-test-household.ts";
 import { applyMutations } from "../sync/apply-mutations.ts";
 import { materialiseRules } from "./materialise-rules.ts";
-import { occurrenceId } from "./rule-occurrences.ts";
+import { occurrenceId } from "./occurrence-id.ts";
 
 let db: TestDb;
 let home: SeededHousehold;

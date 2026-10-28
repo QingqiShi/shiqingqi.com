@@ -9,13 +9,13 @@ import type { FinanceDb } from "../db/types.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { todayInTimeZone } from "../domain/dates/today-in-time-zone.ts";
+import { reconciliation } from "../reconciliation/reconciliation.ts";
 import { DerivedTouches } from "../sync/derived-touches.ts";
 import type { WriteContext } from "../sync/types.ts";
 import { nextOccurrence, occurrencesBetween } from "./next-occurrence.ts";
+import { occurrenceEntryId, occurrenceId } from "./occurrence-id.ts";
 import {
-  occurrenceEntryId,
   occurrenceFromTemplate,
-  occurrenceId,
   ruleOccurrences,
   withActiveMember,
 } from "./rule-occurrences.ts";
@@ -93,7 +93,7 @@ export async function materialiseRulesInTransaction(context: WriteContext) {
       template &&
       (await ruleOccurrences.isUsable(scope, template))
     ) {
-      const holders = await ruleOccurrences.findOccurrenceHolders(
+      const holders = await reconciliation.occurrenceHolders(
         scope,
         { id: rule.id, template },
         days,

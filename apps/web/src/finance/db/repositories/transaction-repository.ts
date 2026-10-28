@@ -7,7 +7,6 @@ import {
   isNull,
   lte,
   notInArray,
-  or,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -304,25 +303,6 @@ export const transactionRepository = {
           eq(transactions.householdId, scope.householdId),
           eq(transactions.ruleId, ruleId),
           gte(transactions.date, from),
-        ),
-      );
-  },
-
-  /** A Rule's Transactions, deleted ones included, dated on one of `days` or with one of `ids`. */
-  async findOfRuleOnDaysOrIds(
-    scope: RepositoryScope,
-    ruleId: string,
-    days: string[],
-    ids: string[],
-  ) {
-    return scope.db
-      .select({ id: transactions.id, date: transactions.date })
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.householdId, scope.householdId),
-          eq(transactions.ruleId, ruleId),
-          or(inArray(transactions.date, days), inArray(transactions.id, ids)),
         ),
       );
   },
