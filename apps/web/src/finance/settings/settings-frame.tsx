@@ -6,7 +6,6 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
 import { getLocalePath } from "#src/i18n/get-locale-path.ts";
@@ -44,10 +43,7 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
         css={[styles.menu, current !== null && styles.menuOnSection]}
       >
         <div css={[stack.group, styles.width]}>
-          <nav
-            aria-label={t({ en: "Settings", zh: "设置" })}
-            css={[stack.group, styles.nav]}
-          >
+          <nav aria-label={t({ en: "Settings", zh: "设置" })} css={stack.group}>
             <Heading level={1} look="h3">
               {t({ en: "Settings", zh: "设置" })}
             </Heading>
@@ -94,9 +90,6 @@ const styles = stylex.create({
     flexShrink: { default: 1, [breakpoints.lg]: 0 },
     flexBasis: { default: 0, [breakpoints.lg]: "auto" },
     inlineSize: { default: null, [breakpoints.lg]: "16rem" },
-  },
-  nav: {
-    gap: { default: rhythm.group, [breakpoints.lg]: rhythm.item },
   },
   menuOnSection: {
     display: { default: "none", [breakpoints.lg]: "flex" },
