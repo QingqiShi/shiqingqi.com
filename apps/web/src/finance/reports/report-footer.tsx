@@ -7,6 +7,7 @@ import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { displayMoment } from "../domain/dates/display-moment.ts";
+import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { fillTemplate } from "./fill-template.ts";
 import type { WeeklyReportResponse } from "./report-api-schemas.ts";
 import { useRegenerateReport } from "./use-regenerate-report.ts";
@@ -15,6 +16,7 @@ import { useRegenerateReport } from "./use-regenerate-report.ts";
 export function ReportFooter({ report }: { report: WeeklyReportResponse }) {
   const locale = useLocale();
   const { regenerate, pending } = useRegenerateReport();
+  const { readOnly } = useFinanceRuntime();
   const madeAt = displayMoment(report.generatedAt, locale);
 
   return (
@@ -24,17 +26,19 @@ export function ReportFooter({ report }: { report: WeeklyReportResponse }) {
           time: madeAt,
         })}
       </Text>
-      <Button
-        size="sm"
-        look="ghost"
-        icon={<ArrowClockwiseIcon weight="bold" />}
-        loading={pending}
-        onClick={() => {
-          void regenerate(report.periodEnd);
-        }}
-      >
-        {t({ en: "Make again", zh: "重新生成" })}
-      </Button>
+      {readOnly ? null : (
+        <Button
+          size="sm"
+          look="ghost"
+          icon={<ArrowClockwiseIcon weight="bold" />}
+          loading={pending}
+          onClick={() => {
+            void regenerate(report.periodEnd);
+          }}
+        >
+          {t({ en: "Make again", zh: "重新生成" })}
+        </Button>
+      )}
     </footer>
   );
 }

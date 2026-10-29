@@ -1,5 +1,6 @@
 "use client";
 
+import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
 import { FingerprintIcon } from "@phosphor-icons/react/dist/ssr/Fingerprint";
 import * as stylex from "@stylexjs/stylex";
 import { Button } from "@tuja/ui/components/button";
@@ -29,7 +30,8 @@ interface SignInPanelProps {
 
 /**
  * Passkey sign-in, a Recovery link by email for a user who lost every
- * passkey, and a sign-up code for a person who has no User yet.
+ * passkey, a sign-up code for a person who has no User yet, and the
+ * read-only demo.
  */
 export function SignInPanel({ next }: SignInPanelProps) {
   const locale = useLocale();
@@ -91,6 +93,59 @@ export function SignInPanel({ next }: SignInPanelProps) {
       </div>
       <Divider />
       <SignUpRequestForm />
+      <Divider />
+      <DemoEntry />
+    </div>
+  );
+}
+
+/** Opens the demo Household: made-up data that a visitor can change in this tab only. */
+function DemoEntry() {
+  const locale = useLocale();
+  const messageOf = useAuthErrorMessage();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<FinanceApiError | null>(null);
+
+  return (
+    <div css={stack.item}>
+      <div css={stack.text}>
+        <Heading level={2} look="h3">
+          {t({ en: "Look around first", zh: "先随便看看" })}
+        </Heading>
+        <Text tone="muted" look="bodySmall">
+          {t({
+            en: "Open a made-up household. You can change anything, but nothing is saved.",
+            zh: "打开一个虚构的家庭。你可以随意修改，但不会保存任何更改。",
+          })}
+        </Text>
+      </div>
+      {error ? (
+        <Callout intent="danger" role="alert">
+          {messageOf(error)}
+        </Callout>
+      ) : null}
+      <Button
+        look="outline"
+        icon={<EyeIcon weight="bold" />}
+        loading={busy}
+        disabled={busy}
+        css={styles.wide}
+        onClick={() => {
+          setBusy(true);
+          setError(null);
+          financePasskeyClient
+            .startDemo()
+            .then(() => {
+              window.location.assign(getLocalePath("/finance", locale));
+            })
+            .catch((caught: unknown) => {
+              setError(toFinanceApiError(caught));
+              setBusy(false);
+            });
+        }}
+      >
+        {t({ en: "Try the demo", zh: "试用演示" })}
+      </Button>
     </div>
   );
 }

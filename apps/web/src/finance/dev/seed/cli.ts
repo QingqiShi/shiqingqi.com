@@ -11,6 +11,7 @@ async function main() {
     transactions: { type: "string" },
     seed: { type: "string" },
     today: { type: "string" },
+    demo: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
   });
   const years = readIntegerOption("years", values.years);
@@ -29,6 +30,8 @@ async function main() {
   const pool = new Pool({ connectionString });
   try {
     await seedDevDatabase(pool, {
+      synthetic: !values.demo,
+      demo: values.demo,
       years,
       transactionsPerYear,
       seed: readIntegerOption("seed", values.seed),

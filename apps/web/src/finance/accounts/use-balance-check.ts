@@ -141,8 +141,8 @@ function useKeepTransaction(
  * The balance check of a Bank link as the Replica has it now: the bank's
  * balance against ours, and the Entries no bank row backs. Our balance comes
  * from the Replica, so the check goes once a Member deletes a duplicate.
- * Null when the balances agree, while bank rows wait, or when the bank gave
- * no balance.
+ * Null when the balances agree, while bank rows wait, when the bank gave
+ * no balance, or in the demo, which cannot keep a Transaction.
  */
 export function useBalanceCheck(link: BankLinkRow): BalanceCheckView | null {
   const oursMinor = useReplica((snapshot) =>
@@ -164,6 +164,7 @@ export function useBalanceCheck(link: BankLinkRow): BalanceCheckView | null {
       ? null
       : `${String(link.version)}:${String(check.ourExcessMinor)}`,
   );
+  const { readOnly } = useFinanceRuntime();
   const [keptIds, setKeptIds] = useState<ReadonlySet<string>>(() => new Set());
   const keep = useKeepTransaction(link.id, (transactionId, kept) => {
     setKeptIds((current) => {
@@ -174,7 +175,7 @@ export function useBalanceCheck(link: BankLinkRow): BalanceCheckView | null {
     });
   });
 
-  if (check === null) return null;
+  if (check === null || readOnly) return null;
   const unbacked =
     unbackedIds?.flatMap((id) => {
       const entry = entryRows.get(id);

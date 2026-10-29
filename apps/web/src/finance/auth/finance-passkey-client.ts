@@ -161,4 +161,8 @@ export const financePasskeyClient = {
   async signOut(): Promise<void> {
     await post("/sign-out");
   },
+
+  async startDemo(): Promise<void> {
+    await post("/demo");
+  },
 };

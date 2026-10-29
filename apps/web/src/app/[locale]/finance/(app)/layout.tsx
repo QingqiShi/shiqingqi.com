@@ -44,6 +44,7 @@ export default async function Layout({
     <FinanceProvider
       householdId={session.householdId}
       memberId={session.memberId}
+      readOnly={session.readOnly}
     >
       <FinanceShell
         locale={locale}

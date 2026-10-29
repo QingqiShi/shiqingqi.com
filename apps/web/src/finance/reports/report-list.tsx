@@ -21,6 +21,7 @@ import { useLocale } from "#src/i18n/use-locale.ts";
 import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
+import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { formatReportWeek } from "./format-report-week.ts";
 import { groupReportsByYear } from "./group-reports-by-year.ts";
@@ -48,6 +49,7 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
     (report) => report.periodEnd === lastWeekEnd,
   );
   const { regenerate, pending } = useRegenerateReport();
+  const { readOnly } = useFinanceRuntime();
   const isWide = useIsWideLayout();
   const currentRef = useRef<HTMLElement>(null);
   const lastWeekLabel = t({ en: "Last week", zh: "上周" });
@@ -63,7 +65,7 @@ export function ReportList({ currentId, headingLevel }: ReportListProps) {
     }
   }
 
-  const generateButton = (
+  const generateButton = readOnly ? null : (
     <Button
       size="sm"
       look={reports.length === 0 ? "primary" : undefined}

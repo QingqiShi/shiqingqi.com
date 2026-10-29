@@ -48,6 +48,7 @@ import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import { applyAll } from "../replica/apply-with-undo.ts";
+import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { floatingAction } from "../shell/floating-action.stylex.ts";
 import { FloatingActions } from "../shell/floating-actions.tsx";
@@ -242,6 +243,7 @@ function EditorForm({
   >({});
   const [duplicate, setDuplicate] = useState<TransactionRow | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
+  const { readOnly } = useFinanceRuntime();
   const [suggestState, setSuggestState] = useState<"idle" | "busy" | "failed">(
     "idle",
   );
@@ -1160,7 +1162,9 @@ function EditorForm({
                 choosePayee(option.id, option.label);
               }}
             />
-            {draft.payeeId === null && draft.payeeName.trim() !== "" ? (
+            {!readOnly &&
+            draft.payeeId === null &&
+            draft.payeeName.trim() !== "" ? (
               <div css={cluster.tight}>
                 <Button
                   size="sm"

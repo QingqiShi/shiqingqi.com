@@ -24,8 +24,20 @@ export const lookups = {
         householdId: sql<string>`memberships.household_id`,
         memberId: sql<string>`memberships.member_id`,
         role: sql<"owner" | "member">`memberships.role`,
+        demo: sql<boolean>`memberships.demo`,
       })
       .from(sql`finance_auth.memberships_of_user(${userId}) as memberships`);
+  },
+
+  /** The demo Household and the user of its owner, or null when there is no demo. */
+  async demoOwner(db: FinanceAppDb) {
+    const rows = await db
+      .select({
+        householdId: sql<string>`demo.household_id`,
+        userId: sql<string>`demo.user_id`,
+      })
+      .from(sql`finance_auth.demo_owner() as demo`);
+    return rows.at(0) ?? null;
   },
 
   /**

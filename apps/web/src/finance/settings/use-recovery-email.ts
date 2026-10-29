@@ -3,6 +3,7 @@ import {
   financePasskeyClient,
   type RecoveryEmail,
 } from "../auth/finance-passkey-client.ts";
+import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 
 let current: RecoveryEmail | null = null;
 let loading: Promise<void> | null = null;
@@ -35,13 +36,16 @@ function load() {
 /** Writes what the server answered, so every screen that reads the Recovery email shows it. */
 export const publishRecoveryEmail = publish;
 
-/** The signed-in user's Recovery email, read from the server on mount. Null until it loads, or offline. */
+/** The signed-in user's Recovery email, read from the server on mount. Null until it loads, offline, or in the demo. */
 export function useRecoveryEmail(): RecoveryEmail | null {
+  const { readOnly } = useFinanceRuntime();
   const value = useSyncExternalStore(
     subscribe,
     () => current,
     () => null,
   );
-  useEffect(load, []);
+  useEffect(() => {
+    if (!readOnly) load();
+  }, [readOnly]);
   return value;
 }

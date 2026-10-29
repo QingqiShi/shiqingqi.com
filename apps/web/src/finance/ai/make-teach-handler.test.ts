@@ -35,6 +35,7 @@ beforeEach(async () => {
     householdId: home.householdId,
     memberId: home.partnerId,
     role: "member",
+    readOnly: false,
   };
   model = createTeachingModel({
     replaces: null,

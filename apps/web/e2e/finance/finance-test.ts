@@ -14,6 +14,7 @@ import { createInvite } from "../../src/finance/auth/create-invite.ts";
 import { createSession } from "../../src/finance/auth/create-session.ts";
 import { financeSessionCookie } from "../../src/finance/auth/finance-session-cookie.ts";
 import { startSignUp } from "../../src/finance/auth/start-sign-up.ts";
+import { lookups } from "../../src/finance/db/lookups.ts";
 import { schema } from "../../src/finance/db/schema.ts";
 import type { FinanceDb } from "../../src/finance/db/types.ts";
 import {
@@ -21,6 +22,7 @@ import {
   withHousehold,
 } from "../../src/finance/db/with-household.ts";
 import { isPortOpen } from "../../src/finance/dev/is-port-open.ts";
+import { seedDemoHousehold } from "../../src/finance/dev/seed/seed-demo-household.ts";
 import {
   seedSyntheticHousehold,
   type SyntheticHousehold,
@@ -59,6 +61,8 @@ interface TestFixtures {
   session: FinanceSession;
   /** The test's page, signed in as the owner of `household` with a session cookie. Unlike `session`, it needs no passkey, so it works outside Chromium. */
   cookieSession: undefined;
+  /** The demo Household, seeded when the database has none yet. */
+  demo: undefined;
 }
 
 /**
@@ -320,6 +324,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   household: async ({ financeDb }, provide) => {
     await provide(await seedClaimedHousehold(financeDb));
+  },
+
+  demo: async ({ financeDb }, provide) => {
+    const existing = await asFinanceApp(financeDb, (tx) =>
+      lookups.demoOwner(tx),
+    );
+    if (!existing) await seedDemoHousehold(financeDb, SEED_OPTIONS);
+    await provide(undefined);
   },
 
   cookieSession: async ({ page, household, financeDb, baseURL }, provide) => {

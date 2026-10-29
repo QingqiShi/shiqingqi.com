@@ -10,12 +10,18 @@ interface CreateSessionInput {
   userId: string;
   userAgent: string;
   now: Date;
+  maxAgeSeconds?: number;
 }
 
 /** Returns the raw token. Only its hash is stored. Also deletes the user's expired sessions. */
 export async function createSession(
   db: FinanceAppDb,
-  { userId, userAgent, now }: CreateSessionInput,
+  {
+    userId,
+    userAgent,
+    now,
+    maxAgeSeconds = financeSessionCookie.maxAgeSeconds,
+  }: CreateSessionInput,
 ): Promise<string> {
   const token = generateToken();
   await db
@@ -28,9 +34,7 @@ export async function createSession(
     createdAt: now,
     refreshedAt: now,
     lastSeenAt: now,
-    expiresAt: new Date(
-      now.getTime() + financeSessionCookie.maxAgeSeconds * 1000,
-    ),
+    expiresAt: new Date(now.getTime() + maxAgeSeconds * 1000),
     userAgent: userAgent.slice(0, 512),
   });
   return token;

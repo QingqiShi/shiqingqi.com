@@ -18,6 +18,7 @@ beforeEach(async () => {
     householdId: randomUUID(),
     memberId: randomUUID(),
     role: "member",
+    readOnly: false,
   };
   await db.insert(institutionIcons).values([
     { domain: "wise.com", image: IMAGE, version: "v1" },

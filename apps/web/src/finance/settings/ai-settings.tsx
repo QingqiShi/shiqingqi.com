@@ -19,7 +19,7 @@ import { SettingsPanel } from "./settings-panel.tsx";
 export function AiSettings() {
   const locale = useLocale();
   const household = useReplica((snapshot) => snapshot.household);
-  const { runtime } = useFinanceRuntime();
+  const { runtime, readOnly } = useFinanceRuntime();
   const showToast = useToast();
   const [text, setText] = useState(household?.aiInstructions ?? "");
   const [saving, setSaving] = useState(false);
@@ -69,6 +69,7 @@ export function AiSettings() {
             zh: "转给 J SMITH 的钱是房租。Waitrose 算买菜，圣诞节除外。用中文写理由。",
           })}
           value={text}
+          readOnly={readOnly}
           maxLength={MAX_AI_INSTRUCTIONS_LENGTH}
           rows={8}
           autoGrow
@@ -76,16 +77,18 @@ export function AiSettings() {
             setText(event.target.value);
           }}
         />
-        <div>
-          <Button
-            type="submit"
-            look="primary"
-            disabled={!changed}
-            loading={saving}
-          >
-            {t({ en: "Save", zh: "保存" })}
-          </Button>
-        </div>
+        {readOnly ? null : (
+          <div>
+            <Button
+              type="submit"
+              look="primary"
+              disabled={!changed}
+              loading={saving}
+            >
+              {t({ en: "Save", zh: "保存" })}
+            </Button>
+          </div>
+        )}
       </form>
     </SettingsPanel>
   );

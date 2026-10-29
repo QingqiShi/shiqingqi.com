@@ -92,7 +92,12 @@ export function renderWithReplica(
   };
   const providers = (
     <FinanceRuntimeContext
-      value={{ runtime, householdId: TEST_IDS.household, memberId }}
+      value={{
+        runtime,
+        householdId: TEST_IDS.household,
+        memberId,
+        readOnly: false,
+      }}
     >
       <PortalTargetProvider>
         <FinanceToastProvider>{ui}</FinanceToastProvider>

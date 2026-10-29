@@ -114,6 +114,7 @@ export interface AuthHandlers {
   recoveryCode: Handler;
   signOut: Handler;
   session: Handler;
+  startDemo: Handler;
 }
 
 const RP_NAME = "Finance";
@@ -224,11 +225,13 @@ function openSession(
   request: Request,
   userId: string,
   now: Date,
+  maxAgeSeconds?: number,
 ) {
   return createSession(db, {
     userId,
     userAgent: request.headers.get("User-Agent") ?? "",
     now,
+    maxAgeSeconds,
   });
 }
 
@@ -363,9 +366,11 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     };
   }
 
+  /** The session of the request. A `write` refuses the read-only demo. */
   async function requireSession(
     request: Request,
     context: Context,
+    { write }: { write: boolean },
   ): Promise<FinanceSession> {
     const token = readRequestCookie(request, financeSessionCookie.name);
     const resolved = token
@@ -379,6 +384,9 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       context.setCookies.push(
         financeSessionCookie.serialize(token, context.secure),
       );
+    }
+    if (write && resolved.session.readOnly) {
+      throw new HttpError(403, "read_only");
     }
     return resolved.session;
   }
@@ -452,9 +460,13 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     return result.email;
   }
 
-  function startSession(context: Context, token: string) {
+  function startSession(
+    context: Context,
+    token: string,
+    maxAgeSeconds?: number,
+  ) {
     context.setCookies.push(
-      financeSessionCookie.serialize(token, context.secure),
+      financeSessionCookie.serialize(token, context.secure, maxAgeSeconds),
     );
   }
 
@@ -949,7 +961,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     }),
 
     createInvite: handle(async (request, context) => {
-      const session = await requireSession(request, context);
+      const session = await requireSession(request, context, { write: true });
       const { memberId } = await readBody(request, createInviteBody);
       const result = await withHousehold(
         context.db,
@@ -983,7 +995,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     }),
 
     passkeyOptions: handle(async (request, context) => {
-      const session = await requireSession(request, context);
+      const session = await requireSession(request, context, { write: true });
       const { member, existing } = await withHousehold(
         context.db,
         session.householdId,
@@ -1010,7 +1022,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     }),
 
     passkeyVerify: handle(async (request, context) => {
-      const session = await requireSession(request, context);
+      const session = await requireSession(request, context, { write: true });
       const { response } = await readBody(request, registrationVerifyBody);
       const { challenge, userId } = takeChallenge(
         request,
@@ -1029,7 +1041,9 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
 
     recoveryEmail: handle(
       async (request, context) => {
-        const session = await requireSession(request, context);
+        const session = await requireSession(request, context, {
+          write: false,
+        });
         return json(
           context,
           await asFinanceApp(context.db, (db) =>
@@ -1041,7 +1055,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     ),
 
     setRecoveryEmail: handle(async (request, context) => {
-      const session = await requireSession(request, context);
+      const session = await requireSession(request, context, { write: true });
       const { email, locale } = await readEmail(request);
       const current = await asFinanceApp(context.db, (db) =>
         readRecoveryEmail(db, session.userId),
@@ -1165,7 +1179,9 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
 
     session: handle(
       async (request, context) => {
-        const session = await requireSession(request, context);
+        const session = await requireSession(request, context, {
+          write: false,
+        });
         return json(context, {
           userId: session.userId,
           householdId: session.householdId,
@@ -1175,5 +1191,22 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       },
       { method: "GET" },
     ),
+
+    /** Signs the visitor in to the read-only demo Household as its owner. */
+    startDemo: handle(async (request, context) => {
+      const token = await asFinanceApp(context.db, async (db) => {
+        const demo = await lookups.demoOwner(db);
+        if (!demo) throw new HttpError(404, "demo_not_found");
+        return openSession(
+          db,
+          request,
+          demo.userId,
+          context.now,
+          financeSessionCookie.demoMaxAgeSeconds,
+        );
+      });
+      startSession(context, token, financeSessionCookie.demoMaxAgeSeconds);
+      return json(context, { ok: true });
+    }),
   };
 }

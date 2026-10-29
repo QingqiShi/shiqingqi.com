@@ -11,6 +11,12 @@ import type { ReplicaPersistence } from "./types.ts";
 
 interface FinanceRuntimeOptions {
   householdId: string;
+  /**
+   * The demo: the server refuses every write, so the Replica stays in this
+   * tab's memory and the Outbox is never sent. A reload drops every change,
+   * and nothing stays on the device.
+   */
+  readOnly?: boolean;
   onUnauthorised: () => void;
   persistence?: ReplicaPersistence;
   fetch?: typeof fetch;
@@ -54,25 +60,28 @@ function fallbackPersistence(primary: ReplicaPersistence | null) {
  * the server or another tab reloads by itself when that loses nothing.
  */
 export function createFinanceRuntime(options: FinanceRuntimeOptions) {
-  const { householdId } = options;
+  const { householdId, readOnly = false } = options;
   const rowShape = options.rowShape ?? REPLICA_ROW_SHAPE;
   const reload = options.reload ?? reloadPage;
   const deletedListeners = new Set<() => void>();
   const { persistence, inMemory } = options.persistence
     ? { persistence: options.persistence, inMemory: () => false }
-    : fallbackPersistence(
-        typeof indexedDB === "undefined"
-          ? null
-          : openReplicaDb(householdId, () => {
-              for (const listener of deletedListeners) listener();
-            }),
-      );
+    : readOnly
+      ? { persistence: createMemoryPersistence(), inMemory: () => true }
+      : fallbackPersistence(
+          typeof indexedDB === "undefined"
+            ? null
+            : openReplicaDb(householdId, () => {
+                for (const listener of deletedListeners) listener();
+              }),
+        );
   const store = createReplicaStore({ householdId, persistence });
   const loop = createSyncLoop({
     store,
     fetch: options.fetch,
     onUnauthorised: options.onUnauthorised,
     rowShape,
+    sendOutbox: !readOnly,
   });
   let loading: Promise<void> | null = null;
   let session = 0;
@@ -128,7 +137,12 @@ export function createFinanceRuntime(options: FinanceRuntimeOptions) {
       await loading;
       if (current !== session) return;
       const tabs = coordinateTabs({
-        name: `finance-sync-${householdId}`,
+        // A tab that keeps its Replica in memory cannot share it with another
+        // tab: it reloads only from its own store, and no other tab can read
+        // its Outbox. A name of its own makes the tab sync alone.
+        name: inMemory()
+          ? `finance-sync-${householdId}-${crypto.randomUUID()}`
+          : `finance-sync-${householdId}`,
         rowShape,
         onLeader: () => {
           leader = true;

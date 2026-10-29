@@ -18,16 +18,16 @@ import {
 } from "../http/finance-api-error.ts";
 import { withPendingKey } from "../shell/with-pending.ts";
 import { useAuthErrorMessage } from "../sign-in/use-auth-error-message.ts";
-import { useIsOwner } from "./use-is-owner.ts";
+import { useHouseholdAccess } from "./use-household-access.ts";
 import {
   publishRecoveryEmail,
   useRecoveryEmail,
 } from "./use-recovery-email.ts";
 
-/** The signed-in user's Recovery email: add or change it, and send the confirmation link. */
+/** The signed-in user's Recovery email: add or change it, and send the confirmation link. Nothing in the demo. */
 export function RecoveryEmailSettings() {
   const locale = useLocale();
-  const isOwner = useIsOwner();
+  const access = useHouseholdAccess();
   const recoveryEmail = useRecoveryEmail();
   const messageOf = useAuthErrorMessage();
   const [draft, setDraft] = useState("");
@@ -56,6 +56,8 @@ export function RecoveryEmailSettings() {
     });
   }
 
+  if (access === "viewer") return null;
+
   return (
     <section css={stack.item}>
       <div css={stack.text}>
@@ -68,7 +70,7 @@ export function RecoveryEmailSettings() {
                 en: "If you lose every passkey, ask for a recovery link on the sign-in page. It goes to this address.",
                 zh: "如果你丢失了全部通行密钥，可以在登录页申请恢复链接，链接会发到此邮箱。",
               })
-            : isOwner
+            : access === "owner"
               ? t({
                   en: "Add an email to get back in if you lose every passkey. As the owner, nobody else can make a recovery link for you.",
                   zh: "添加邮箱，以便在丢失全部通行密钥后重新进入。你是所有者，没有其他人能为你生成恢复链接。",
