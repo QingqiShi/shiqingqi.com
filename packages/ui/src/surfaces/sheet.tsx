@@ -293,7 +293,23 @@ function SheetFrame({
   // Before the motion measures the card, so one layout takes both.
   useLayoutEffect(() => {
     if (!isLocked) return;
-    return lockPageScroll();
+    const unlock = lockPageScroll();
+    // The dim goes one screen past the end of the page, so the browser does
+    // not pull the scroll back where the page gets shorter, as where a split
+    // view stops scrolling the page on a wider screen. Then the page shows
+    // above the screen.
+    const keepPageOnScreen = () => {
+      if (window.scrollY === 0) return;
+      const end = Math.max(0, document.body.offsetHeight - window.innerHeight);
+      if (window.scrollY > end) {
+        window.scrollTo({ top: end, behavior: "instant" });
+      }
+    };
+    window.addEventListener("resize", keepPageOnScreen);
+    return () => {
+      window.removeEventListener("resize", keepPageOnScreen);
+      unlock();
+    };
   }, [isLocked]);
   const motionRef = useSheetMotion(
     {

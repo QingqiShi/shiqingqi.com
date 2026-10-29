@@ -85,11 +85,6 @@ export interface SheetMotion {
   destroy(): void;
 }
 
-function lookNow(engine: MotionEngine): Look {
-  if (engine.reducedMotion) return "fade";
-  return window.matchMedia(MD_QUERY).matches ? "rise" : "slide";
-}
-
 function opacityOf(value: number) {
   return String(Number(unit(value).toFixed(3)));
 }
@@ -159,8 +154,27 @@ export function createSheetMotion(
     value.subscribe(reportNow),
   );
 
+  const md = window.matchMedia(MD_QUERY);
+
+  function lookNow(): Look {
+    if (engine.reducedMotion) return "fade";
+    return md.matches ? "rise" : "slide";
+  }
+
   let receding: Binding | null = null;
   let recedeShape: Styles = {};
+  const recedeObserver =
+    recede === null || typeof ResizeObserver === "undefined"
+      ? null
+      : new ResizeObserver(reshape);
+
+  function shapeRecede(element: HTMLElement, next: Styles) {
+    for (const property of Object.keys(recedeShape)) {
+      if (!(property in next)) element.style.removeProperty(property);
+    }
+    recedeShape = next;
+    writeStyles(element, next);
+  }
 
   /**
    * Moves the element that recedes back with the card, or stops. Where no
@@ -169,18 +183,49 @@ export function createSheetMotion(
   function setReceding(isReceding: boolean) {
     if (recede === null || isReceding === (receding !== null)) return;
     if (receding === null) {
-      recedeShape = recedeShapeOf(recede);
-      writeStyles(recede, recedeShape);
+      shapeRecede(recede, recedeShapeOf(recede));
       receding = bind(recede, [progress, shown, loss], {
         pose: (at, faded, lost) => recedePose(liftedPage(at, faded, lost)),
       });
+      recedeObserver?.observe(recede);
+      window.addEventListener("resize", reshape);
+      window.addEventListener("scroll", reshape, { passive: true });
       return;
     }
+    recedeObserver?.disconnect();
+    window.removeEventListener("resize", reshape);
+    window.removeEventListener("scroll", reshape);
     receding.unbind();
     receding = null;
-    for (const property of Object.keys(recedeShape)) {
-      recede.style.removeProperty(property);
-    }
+    shapeRecede(recede, {});
+  }
+
+  /**
+   * A card at rest takes the look of a viewport that crosses `md`, such as
+   * when a foldable phone folds or unfolds. A card that moves takes it when
+   * it comes to rest.
+   */
+  function relook() {
+    const isAtRest =
+      lift === null &&
+      shown.get() === 1 &&
+      [y, shown, loss].every((value) => !value.isMoving);
+    if (isAtRest) showPlain(lookNow());
+  }
+  md.addEventListener("change", relook);
+  const stopRelookAtRest = engine.onRest(relook);
+
+  /**
+   * Clips the element that recedes again where the part of it on the screen
+   * changes, such as where a split view stops scrolling the page on a wider
+   * screen.
+   */
+  function reshape() {
+    if (recede === null || receding === null) return;
+    shapeRecede(
+      recede,
+      engine.measure(() => recedeShapeOf(recede)),
+    );
   }
 
   /** A motion can end before the frame that shows its end, so this tells the page that the card is away. */
@@ -253,7 +298,7 @@ export function createSheetMotion(
 
   function lifted(current: SheetLift) {
     void progress.to(1).finished.then((done) => {
-      if (done && lift === current) showPlain("slide");
+      if (done && lift === current) showPlain(lookNow());
     });
   }
 
@@ -280,7 +325,7 @@ export function createSheetMotion(
       loss.to(0);
       return;
     }
-    const next = lookNow(engine);
+    const next = lookNow();
     const isAway = !y.isMoving && !shown.isMoving && shown.get() === 0;
     if (isAway) loss.set(0);
     else loss.to(0, { reduced: FADE });
@@ -302,7 +347,7 @@ export function createSheetMotion(
       intoOrigin();
       return;
     }
-    const next = lookNow(engine);
+    const next = lookNow();
     const origin = next === "slide" ? liftOrigin() : null;
     if (origin !== null) {
       startLift(origin, 1);
@@ -319,7 +364,7 @@ export function createSheetMotion(
     });
   }
 
-  const initial = lookNow(engine);
+  const initial = lookNow();
   y.set(awayOf(initial));
   showPlain(initial);
 
@@ -357,6 +402,8 @@ export function createSheetMotion(
       loss.to(0, { reduced: FADE });
     },
     destroy() {
+      md.removeEventListener("change", relook);
+      stopRelookAtRest();
       for (const stop of stopReporting) stop();
       lift?.stop();
       lift = null;
