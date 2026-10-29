@@ -34,19 +34,27 @@ export const credentialCipher = {
     return new Uint8Array(Buffer.concat([iv, cipher.getAuthTag(), ciphertext]));
   },
 
-  /** Throws when the key, the Household or the sealed bytes do not match. */
-  open(sealed: Uint8Array, key: Uint8Array, householdId: string): string {
+  /** Null when the key, the Household or the sealed bytes do not match. */
+  open(
+    sealed: Uint8Array,
+    key: Uint8Array,
+    householdId: string,
+  ): string | null {
     const bytes = Buffer.from(sealed);
-    const decipher = createDecipheriv(
-      ALGORITHM,
-      key,
-      bytes.subarray(0, IV_BYTES),
-    );
-    decipher.setAAD(Buffer.from(householdId));
-    decipher.setAuthTag(bytes.subarray(IV_BYTES, IV_BYTES + TAG_BYTES));
-    return Buffer.concat([
-      decipher.update(bytes.subarray(IV_BYTES + TAG_BYTES)),
-      decipher.final(),
-    ]).toString("utf8");
+    try {
+      const decipher = createDecipheriv(
+        ALGORITHM,
+        key,
+        bytes.subarray(0, IV_BYTES),
+      );
+      decipher.setAAD(Buffer.from(householdId));
+      decipher.setAuthTag(bytes.subarray(IV_BYTES, IV_BYTES + TAG_BYTES));
+      return Buffer.concat([
+        decipher.update(bytes.subarray(IV_BYTES + TAG_BYTES)),
+        decipher.final(),
+      ]).toString("utf8");
+    } catch {
+      return null;
+    }
   },
 };

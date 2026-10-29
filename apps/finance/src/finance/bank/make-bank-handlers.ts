@@ -167,9 +167,7 @@ export function makeBankHandlers(dependencies: BankHandlerDependencies) {
           dependencies.now(),
         );
         if (connection.status !== "connected") {
-          return financeJson({
-            status: "not_connected",
-          } satisfies ProviderAccountsResponse);
+          return financeJson(connection satisfies ProviderAccountsResponse);
         }
         const [accounts, { connectionId, liveLinks }] = await Promise.all([
           connection.client.listAccounts(),

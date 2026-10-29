@@ -6,6 +6,13 @@ export interface CredentialView {
   savedAt: string;
 }
 
+/** No key is stored, or the stored key no longer opens. */
+interface NotConnected {
+  status: "not_connected";
+  /** A key is stored but does not open with `FINANCE_CREDENTIAL_KEY`, so the owner must enter it again. */
+  keyUnreadable?: true;
+}
+
 /** Whether the Household can reach a bank provider, and with which client. */
 export type BankConnection =
   | {
@@ -14,7 +21,7 @@ export type BankConnection =
       credential: CredentialView;
       client: BankClient;
     }
-  | { status: "not_connected" };
+  | NotConnected;
 
 /** A Bank link as the Connections settings show it. */
 export interface BankLinkView {
@@ -48,7 +55,7 @@ export type ProviderAccountsResponse =
       credential: CredentialView;
       accounts: ProviderAccountView[];
     }
-  | { status: "not_connected" };
+  | NotConnected;
 
 /** `PUT /api/bank/links`. */
 export interface PutBankLinkRequest {

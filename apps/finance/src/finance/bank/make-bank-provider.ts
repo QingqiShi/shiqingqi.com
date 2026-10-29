@@ -20,8 +20,9 @@ interface BankProviderSource {
 
 /**
  * Each Household reaches Lunch Flow with the API key its owner stored on its
- * Connection. A Household without one is not connected. In fake mode any
- * stored key gives the fake bank, and every key is taken without a check.
+ * Connection. A Household without one, or with one that no longer opens, is
+ * not connected. In fake mode any stored key gives the fake bank, and every
+ * key is taken without a check.
  */
 export function makeBankProvider(source: BankProviderSource) {
   return {
@@ -63,13 +64,15 @@ export function makeBankProvider(source: BankProviderSource) {
       if (!key) {
         throw new Error("FINANCE_CREDENTIAL_KEY is not 32 bytes in base64");
       }
+      const apiKey = credentialCipher.open(credential.sealed, key, householdId);
+      if (apiKey === null) {
+        return { status: "not_connected", keyUnreadable: true };
+      }
       return {
         status: "connected",
         mode: "real",
         credential: view,
-        client: source.createClient(
-          credentialCipher.open(credential.sealed, key, householdId),
-        ),
+        client: source.createClient(apiKey),
       };
     },
 

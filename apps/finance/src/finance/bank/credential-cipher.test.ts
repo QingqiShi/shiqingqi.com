@@ -27,17 +27,17 @@ describe("credentialCipher", () => {
     const changed = new Uint8Array(sealed);
     changed[changed.length - 1] ^= 1;
 
-    expect(() =>
+    expect(
       credentialCipher.open(sealed, new Uint8Array(randomBytes(32)), HOUSEHOLD),
-    ).toThrow();
-    expect(() =>
+    ).toBeNull();
+    expect(
       credentialCipher.open(
         sealed,
         KEY,
         "00000000-0000-4000-8000-000000000002",
       ),
-    ).toThrow();
-    expect(() => credentialCipher.open(changed, KEY, HOUSEHOLD)).toThrow();
+    ).toBeNull();
+    expect(credentialCipher.open(changed, KEY, HOUSEHOLD)).toBeNull();
   });
 });
 
