@@ -1,5 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -14,7 +15,6 @@ import {
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 /**
  * The foreground tokens: which one carries which text, the two levels drawn

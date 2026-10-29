@@ -1,3 +1,5 @@
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
@@ -5,8 +7,6 @@ import type {
   DesignSystemPath,
   DesignSystemView,
 } from "#src/design-system/routes/types.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 
 /**
  * Metadata for a design-system sub-route: a self-canonical plus en/zh hreflang

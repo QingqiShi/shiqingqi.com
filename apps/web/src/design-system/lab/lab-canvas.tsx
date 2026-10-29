@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { startTransition, useLayoutEffect, useReducer, useRef } from "react";
 import { ViewTransition } from "react";
-import { useMediaQuery } from "#src/browser/use-media-query.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { labMorph } from "#src/view-transition-classes.stylex.ts";
 import { buildLabSnippet } from "./build-lab-snippet.ts";
 import { labBar } from "./lab-bar.stylex.ts";

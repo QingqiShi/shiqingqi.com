@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -23,7 +24,6 @@ import {
 } from "#src/design-system/guide/guide-section.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { LayoutBreakpointBands } from "./layout-breakpoint-bands.tsx";
 
 export function LayoutShowcase() {

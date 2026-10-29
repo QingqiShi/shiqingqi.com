@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useDeferredValue, useState, type SubmitEvent } from "react";
-import { t } from "#src/i18n.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "../domain/dates/default-household-time-zone.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";

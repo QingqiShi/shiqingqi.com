@@ -1,4 +1,4 @@
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import type { CategoryRow } from "../sync/row-schemas.ts";
 import {
   categoryDisplayName,

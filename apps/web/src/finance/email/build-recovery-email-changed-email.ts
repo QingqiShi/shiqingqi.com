@@ -1,5 +1,5 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { displayLocale } from "#src/finance/domain/dates/display-day.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { renderFinanceEmail } from "./render-finance-email.ts";
 import type { FinanceEmail } from "./types.ts";
 

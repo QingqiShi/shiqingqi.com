@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";

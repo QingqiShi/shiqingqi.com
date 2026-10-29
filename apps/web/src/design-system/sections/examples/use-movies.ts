@@ -1,4 +1,4 @@
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 export interface Credit {
   name: string;

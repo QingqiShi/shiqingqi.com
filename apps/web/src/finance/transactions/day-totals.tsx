@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 
 /** What a day spent and received, for the end of its DayHeader. */

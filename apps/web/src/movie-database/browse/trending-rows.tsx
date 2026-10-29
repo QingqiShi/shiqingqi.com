@@ -1,5 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { HydrationBoundary } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
@@ -7,9 +10,6 @@ import {
   getTrendingMovies,
   getTrendingTvShows,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { t } from "#src/i18n.ts";
 import { getConfigurationDehydratedState } from "#src/movie-database/tmdb/get-configuration-dehydrated-state.ts";
 import type { MediaType } from "#src/movie-database/types.ts";
 import { MediaRowSkeleton } from "./media-row-skeleton.tsx";

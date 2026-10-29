@@ -1,7 +1,7 @@
 import { fireEvent } from "@testing-library/react";
+import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { PortalTargetProvider } from "#src/site-shell/portal-target-provider.tsx";
 import { render, screen, userEvent } from "#src/testing/test-utils.tsx";
 import { DetailOverlay } from "./detail-overlay";
 

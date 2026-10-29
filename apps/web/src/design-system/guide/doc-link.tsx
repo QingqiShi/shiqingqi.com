@@ -1,7 +1,7 @@
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
 import { Anchor } from "#src/links/anchor.tsx";
 
 /** An inline link to another design-system page, named by that page's label. */

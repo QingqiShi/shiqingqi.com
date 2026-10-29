@@ -1,8 +1,8 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import type { ComponentProps } from "react";
-import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 
 /** Gets the newest code when this tab runs older code than the server or another tab. */

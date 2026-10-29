@@ -1,7 +1,7 @@
+import { t } from "@tuja/i18n";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { ReportScreen } from "#src/finance/reports/report-screen.tsx";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 
 interface ReportPageProps {
   params: Promise<{ locale: string; id: string }>;

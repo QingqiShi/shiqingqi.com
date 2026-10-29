@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
@@ -15,7 +16,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import { WireframeBar } from "#src/design-system/specimens/wireframe-bar.tsx";
-import { t } from "#src/i18n.ts";
 import { BlurredDialogMock, MeltDemo } from "./progressive-blur-specimens.tsx";
 
 export function ProgressiveBlurShowcase() {

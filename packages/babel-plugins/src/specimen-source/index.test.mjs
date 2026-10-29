@@ -77,7 +77,7 @@ function sourceOf(code, element = "Specimen") {
 }
 
 const IMPORTS = `import { Button } from "@tuja/ui/components/button";
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import { Showcase } from "../../showcase.tsx";
 import { Specimen } from "../../specimen.tsx";
 `;
@@ -140,7 +140,7 @@ export function ButtonShowcase() {
   describe("local components", () => {
     it("appends a component the module declares, with its comment", () => {
       const code = `import { Text } from "@tuja/ui/components/text";
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import { Specimen } from "../../specimen.tsx";
 
 /** A captioned cell. */

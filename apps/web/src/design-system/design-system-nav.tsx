@@ -1,6 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { normalizePath } from "@tuja/i18n/normalize-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { NavGroup } from "@tuja/ui/components/nav-group";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList } from "@tuja/ui/components/nav-list";
@@ -9,10 +13,6 @@ import { Fragment } from "react";
 import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { normalizePath } from "#src/i18n/normalize-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 
 interface DesignSystemNavProps {

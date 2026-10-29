@@ -2,6 +2,8 @@
 
 import { ListIcon } from "@phosphor-icons/react/dist/ssr/List";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Heading } from "@tuja/ui/components/heading";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
@@ -11,8 +13,6 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { BarChart } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";

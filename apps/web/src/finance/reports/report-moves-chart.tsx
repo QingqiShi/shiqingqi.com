@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import { fillTemplate } from "./fill-template.ts";

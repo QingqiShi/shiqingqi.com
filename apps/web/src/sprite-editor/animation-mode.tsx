@@ -8,6 +8,7 @@ import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -26,9 +27,8 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
+import { downloadBlob } from "@tuja/ui/utils/download-blob";
 import { useEffect, useRef, useState } from "react";
-import { downloadBlob } from "#src/browser/download-blob.ts";
-import { t } from "#src/i18n.ts";
 import { drawCellCentered } from "./draw-cell-centered";
 import { exportSpriteSheet } from "./export-sprite-sheet";
 import { prepareCanvas } from "./prepare-canvas";

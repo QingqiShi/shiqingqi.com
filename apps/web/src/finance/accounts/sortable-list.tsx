@@ -21,6 +21,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { DotsSixVerticalIcon } from "@phosphor-icons/react/dist/ssr/DotsSixVertical";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -40,7 +41,6 @@ import {
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode, Ref } from "react";
 import { createPortal } from "react-dom";
-import { t } from "#src/i18n.ts";
 
 const verticalOnly: Modifier = ({ transform }) => ({ ...transform, x: 0 });
 

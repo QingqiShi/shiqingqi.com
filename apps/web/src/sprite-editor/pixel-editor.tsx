@@ -17,6 +17,7 @@ import { SelectionIcon } from "@phosphor-icons/react/dist/ssr/Selection";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { purple } from "@tuja/ui/palette/purple.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -40,7 +41,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import { t } from "#src/i18n.ts";
 import { parseHex } from "#src/pixel-art/parse-hex.ts";
 import { cloneCell } from "#src/sprite-editor/pixel-ops/clone-cell.ts";
 import { cropCell } from "#src/sprite-editor/pixel-ops/crop-cell.ts";

@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { buildQaSamples } from "#src/pixel-creature-creator/creature/build-qa-samples.ts";
 import {
   type CreatureDef,

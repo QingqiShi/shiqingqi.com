@@ -1,4 +1,4 @@
-import { useMediaQuery } from "#src/browser/use-media-query.ts";
+import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 import { useTheme } from "./use-theme.ts";
 
 export type ResolvedTheme = "light" | "dark";

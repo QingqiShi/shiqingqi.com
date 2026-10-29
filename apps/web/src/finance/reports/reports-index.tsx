@@ -1,7 +1,7 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
-import { t } from "#src/i18n.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { ReportScreen } from "./report-screen.tsx";
 import { useReportList } from "./use-report-list.ts";

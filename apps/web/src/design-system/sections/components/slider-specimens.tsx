@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Slider } from "@tuja/ui/components/slider";
 import { Text } from "@tuja/ui/components/text";
@@ -10,8 +12,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 
 /** A money readout — the figure a budget slider exists to name. */
 export function BudgetSlider() {

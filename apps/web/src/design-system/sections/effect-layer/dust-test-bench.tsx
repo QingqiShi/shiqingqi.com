@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { useDust } from "@tuja/ui/hooks/use-dust";
 import { useEffectBoundary } from "@tuja/ui/hooks/use-effect-boundary";
@@ -12,7 +13,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 
 // Each fan reaches its own dust and no other case's: the cases sit further
 // apart than the longest reach next to them.

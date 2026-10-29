@@ -3,6 +3,7 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -15,7 +16,6 @@ import type { DesignSystemGroupLabels } from "#src/design-system/route-copy/get-
 import { getDesignSystemRouteSections } from "#src/design-system/routes/get-design-system-route-sections.ts";
 import { matchesDesignSystemQuery } from "#src/design-system/routes/matches-design-system-query.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
-import { t } from "#src/i18n.ts";
 
 export interface OverviewEntry {
   path: DesignSystemPath;

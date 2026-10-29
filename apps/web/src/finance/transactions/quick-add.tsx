@@ -1,10 +1,10 @@
 "use client";
 
 import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";

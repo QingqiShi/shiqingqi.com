@@ -1,6 +1,6 @@
+import { t } from "@tuja/i18n";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { useEffect, useState } from "react";
-import { t } from "#src/i18n.ts";
 import {
   balanceCheckOf,
   ledgerBalanceAt,

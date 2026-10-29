@@ -2,6 +2,8 @@
 
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
@@ -10,8 +12,6 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { BarChart, type BarSeries } from "../charts/bar-chart.tsx";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";
 import { displayDayRange } from "../domain/dates/display-day.ts";

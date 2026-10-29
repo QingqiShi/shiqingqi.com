@@ -1,4 +1,4 @@
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import type { AccountRow } from "../sync/row-schemas.ts";
 
 /** The words a screen shows for the system accounts, from `t()` in render. */

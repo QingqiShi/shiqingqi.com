@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { FinanceLogo } from "../pwa/finance-logo.tsx";
 
 /** The Finance mark at the end of the Settings menu below `md`, where the rail that shows it is hidden. */

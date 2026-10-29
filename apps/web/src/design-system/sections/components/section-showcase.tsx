@@ -1,5 +1,6 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
+import { t } from "@tuja/i18n";
 import { Chip } from "@tuja/ui/components/chip";
 import { Heading } from "@tuja/ui/components/heading";
 import { Section } from "@tuja/ui/components/section";
@@ -10,7 +11,6 @@ import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 
 export function SectionShowcase() {
   const castBody = t({

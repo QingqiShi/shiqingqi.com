@@ -1,6 +1,6 @@
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { MetadataRoute } from "next";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { FINANCE_LIGHT_CANVAS } from "../theme/finance-theme.ts";
 import icon192 from "./finance-icon-192.png";
 import icon512 from "./finance-icon-512.png";

@@ -1,4 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { Heading } from "@tuja/ui/components/heading";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
@@ -18,8 +20,6 @@ import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 
 export function SidebarLayoutShowcase() {
   const locale = getLocale();

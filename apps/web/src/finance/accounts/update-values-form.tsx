@@ -2,6 +2,8 @@
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
@@ -22,8 +24,6 @@ import {
   type KeyboardEvent,
   type SubmitEvent,
 } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";

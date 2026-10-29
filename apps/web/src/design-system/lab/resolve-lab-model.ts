@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { LabConfig, LabControlModel, LabVariantChoice } from "./types.ts";
 
 /** The configuration with every word picked for the locale in front of the visitor. */

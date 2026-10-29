@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { t } from "#src/i18n.ts";
 import type { CellPixels } from "./types";
 
 interface OnionSkinPickerProps {

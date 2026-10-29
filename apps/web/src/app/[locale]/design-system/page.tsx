@@ -1,4 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, measure } from "@tuja/ui/tokens.stylex";
@@ -11,9 +14,6 @@ import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-de
 import { getDesignSystemRouteDescriptions } from "#src/design-system/route-copy/get-design-system-route-descriptions.ts";
 import { getDesignSystemRouteLabels } from "#src/design-system/route-copy/get-design-system-route-labels.ts";
 import { DESIGN_SYSTEM_ROUTES } from "#src/design-system/routes/design-system-routes.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 
 export default function DesignSystemOverview() {
   const locale = getLocale();

@@ -3,6 +3,7 @@
 import { EyeIcon } from "@phosphor-icons/react/dist/ssr/Eye";
 import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Chip } from "@tuja/ui/components/chip";
@@ -12,7 +13,6 @@ import { Text } from "@tuja/ui/components/text";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, layer } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import {
   floatingAction,

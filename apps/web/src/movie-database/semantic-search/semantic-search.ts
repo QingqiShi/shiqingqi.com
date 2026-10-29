@@ -1,8 +1,8 @@
 import "server-only";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { MediaMetadata, VectorSearchResult } from "@tuja/tmdb-types/types";
 import type { VectorSearchFilters } from "@tuja/tmdb-types/vector-search-filters-schema";
 import type { QueryResult } from "@upstash/vector";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { getVectorIndex } from "./get-vector-index";
 
 const DEFAULT_TOP_K = 10;

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Callout } from "@tuja/ui/components/callout";
 import {
   Card,
@@ -13,7 +14,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { MovieDetailExemplar } from "./movie-detail-exemplar.tsx";
 
 interface LayerCardProps {

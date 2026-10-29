@@ -1,10 +1,10 @@
 "use client";
 
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
+import { t } from "@tuja/i18n";
 import { Chip } from "@tuja/ui/components/chip";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState } from "react";
-import { t } from "#src/i18n.ts";
 import type { TagRow } from "../sync/row-schemas.ts";
 import { Combobox } from "./combobox.tsx";
 import { FieldLabel } from "./field-label.tsx";

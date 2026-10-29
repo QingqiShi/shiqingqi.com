@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useEffect, useState } from "react";
-import { t } from "#src/i18n.ts";
 
 interface LayoutWindowWidthReadoutProps {
   /** The breakpoint bands, from narrowest to widest. */

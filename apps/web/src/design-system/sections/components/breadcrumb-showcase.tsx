@@ -1,4 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import {
   Breadcrumb,
   type BreadcrumbLinkProps,
@@ -12,9 +15,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 
 /** The link Slot's contract: forward `className` and `style` onto the anchor. */

@@ -1,10 +1,10 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Switch, type SwitchState } from "@tuja/ui/components/switch";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { useState, type ComponentProps } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
-import { t } from "#src/i18n.ts";
 
 export function SpecimenSwitch({
   initial = "off",

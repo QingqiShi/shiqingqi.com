@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -6,7 +7,6 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { HeldLoop } from "./held-loop.tsx";
 
 /** A Spinner and a Skeleton, both held by one declaration on their ancestor. */

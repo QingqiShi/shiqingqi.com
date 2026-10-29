@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
@@ -16,7 +17,6 @@ import { border, color, font, layer, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { t } from "#src/i18n.ts";
 
 function Swatch({
   token,

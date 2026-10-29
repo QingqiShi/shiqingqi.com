@@ -2,9 +2,9 @@
 
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
+import { t } from "@tuja/i18n";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { t } from "#src/i18n.ts";
 import { useMediaFilters } from "./use-media-filters";
 
 interface MediaViewToggleProps {

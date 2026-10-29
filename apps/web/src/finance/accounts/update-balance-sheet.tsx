@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
@@ -11,8 +13,6 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { measure } from "@tuja/ui/tokens.stylex";
 import { useId, useRef, useState, type SubmitEvent } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { sideOfKind } from "../domain/accounts/side-of-kind.ts";
 import { accountBalanceAt } from "../domain/balance/net-worth-at.ts";
 import { formatMoney } from "../domain/money/format-money.ts";

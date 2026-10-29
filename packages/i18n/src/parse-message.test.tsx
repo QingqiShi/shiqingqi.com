@@ -1,5 +1,5 @@
+import { render } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import { render } from "#src/testing/test-utils.tsx";
 import { parseMessage } from "./parse-message";
 
 describe("parseMessage", () => {

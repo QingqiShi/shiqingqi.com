@@ -3,6 +3,8 @@
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowsClockwise";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
@@ -19,8 +21,6 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { accountFullName } from "../accounts/account-full-name.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import type {

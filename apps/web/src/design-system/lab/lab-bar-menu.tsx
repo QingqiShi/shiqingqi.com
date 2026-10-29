@@ -2,6 +2,7 @@
 
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -12,7 +13,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, font, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
-import { t } from "#src/i18n.ts";
 import { LabVariantSection } from "./lab-variant-section.tsx";
 import type { LabControlModel, LabProps, LabVariantChoice } from "./types.ts";
 import { unquote } from "./unquote.ts";

@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Checkbox } from "@tuja/ui/components/checkbox";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 
 interface PageTitleProps {
   type: "experience" | "education";

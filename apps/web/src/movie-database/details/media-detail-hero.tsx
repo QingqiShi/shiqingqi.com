@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { skeletonTokens } from "@tuja/ui/components/skeleton.stylex";
@@ -15,7 +16,6 @@ import {
 } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
-import { t } from "#src/i18n.ts";
 import { BackdropImage } from "./backdrop-image.tsx";
 
 interface MediaDetailHeroProps {

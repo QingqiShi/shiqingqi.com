@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useRef } from "react";
-import { t } from "#src/i18n.ts";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import type { MemberRow } from "../sync/row-schemas.ts";
 

@@ -2,6 +2,10 @@
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { normalizePath } from "@tuja/i18n/normalize-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import {
   AnchorButton,
@@ -9,10 +13,6 @@ import {
 } from "@tuja/ui/components/anchor-button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { normalizePath } from "#src/i18n/normalize-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { ColumnLink } from "../navigation/column-link.tsx";
 import { financeHref } from "../navigation/finance-href.ts";
 import { useShownFinancePath } from "./finance-screen-slot.tsx";

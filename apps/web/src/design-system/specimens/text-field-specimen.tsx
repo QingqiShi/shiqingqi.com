@@ -1,6 +1,6 @@
 import { EnvelopeIcon } from "@phosphor-icons/react/dist/ssr/Envelope";
+import { t } from "@tuja/i18n";
 import { TextField } from "@tuja/ui/components/text-field";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

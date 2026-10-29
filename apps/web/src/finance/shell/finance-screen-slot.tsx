@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { normalizePath } from "@tuja/i18n/normalize-path";
 import { usePathname } from "next/navigation";
 import {
   createContext,
@@ -12,7 +13,6 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { normalizePath } from "#src/i18n/normalize-path.ts";
 import { useLinkStatus } from "#src/links/link.tsx";
 import {
   FINANCE_DESTINATION_PATHS,

@@ -7,9 +7,9 @@ import {
   type AuthenticationResponseJSON,
   type RegistrationResponseJSON,
 } from "@simplewebauthn/server";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { and, asc, eq, gt, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { resolveClientIp } from "#src/app/api/pixel-creature-creator/lore/resolve-client-ip.ts";
 import { findPostgresError } from "#src/finance/db/find-postgres-error.ts";
 import { lookups } from "#src/finance/db/lookups.ts";
 import { householdRepository } from "#src/finance/db/repositories/household-repository.ts";
@@ -28,7 +28,7 @@ import {
   type FinanceAppDb,
 } from "#src/finance/db/with-household.ts";
 import { DEFAULT_HOUSEHOLD_TIME_ZONE } from "#src/finance/domain/dates/default-household-time-zone.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import { resolveClientIp } from "#src/http/resolve-client-ip.ts";
 import { buildCodeEmail } from "../email/build-code-email.ts";
 import { buildRecoveryEmailChangedEmail } from "../email/build-recovery-email-changed-email.ts";
 import { buildVerificationEmail } from "../email/build-verification-email.ts";

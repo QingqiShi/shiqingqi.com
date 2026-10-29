@@ -1,12 +1,12 @@
 import { AirplaneTakeoffIcon } from "@phosphor-icons/react/dist/ssr/AirplaneTakeoff";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { t } from "@tuja/i18n";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Text } from "@tuja/ui/components/text";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 
 /**
  * A drawn stand-in rather than a photograph: the page needs to show what a

@@ -1,6 +1,6 @@
-import { setLocale } from "#src/i18n/server-locale.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
+import { setLocale } from "@tuja/i18n/server-locale";
+import type { SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { SiteHeaderFooterLayout } from "#src/site-shell/site-header-footer-layout.tsx";
 
 /**

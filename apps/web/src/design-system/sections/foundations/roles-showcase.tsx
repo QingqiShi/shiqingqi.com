@@ -1,5 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
@@ -14,7 +15,6 @@ import {
 import { RoleColumn } from "#src/design-system/role-column.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 type Intent = "neutral" | "accent" | "info" | "success" | "warning" | "danger";
 

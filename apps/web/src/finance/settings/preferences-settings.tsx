@@ -3,16 +3,16 @@
 import { DesktopIcon } from "@phosphor-icons/react/dist/ssr/Desktop";
 import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
 import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { setLocaleCookie } from "@tuja/i18n/set-locale-cookie";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
 import { align } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { usePathname } from "next/navigation";
 import { useId } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { setLocaleCookie } from "#src/i18n/set-locale-cookie.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { useTheme } from "#src/theme/use-theme.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
 

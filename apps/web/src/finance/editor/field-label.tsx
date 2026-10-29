@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 
 interface FieldLabelProps {
   id?: string;

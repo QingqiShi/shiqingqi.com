@@ -1,12 +1,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { ratio, rhythm } from "@tuja/ui/tokens.stylex";
 import { Suspense } from "react";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { t } from "#src/i18n.ts";
 import { Grid } from "#src/movie-database/grid.tsx";
 import { noop } from "#src/movie-database/noop.ts";
 import { getQueryClient } from "#src/movie-database/tmdb/get-query-client.ts";

@@ -1,9 +1,9 @@
 "use client";
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
+import { t } from "@tuja/i18n";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import type { MouseEvent } from "react";
-import { t } from "#src/i18n.ts";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { useMediaFilters } from "./use-media-filters";
 

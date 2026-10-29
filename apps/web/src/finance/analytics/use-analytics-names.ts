@@ -1,4 +1,4 @@
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import { useReplica } from "../replica/use-replica.ts";
 import { categoryDisplayName } from "../store/category-display-name.ts";
 import { useSystemCategoryNames } from "../store/use-category-display-name.ts";

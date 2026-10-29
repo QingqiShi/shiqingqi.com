@@ -1,5 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -11,7 +12,6 @@ import {
   GuideNote,
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
-import { t } from "#src/i18n.ts";
 
 interface TokenRow {
   token: string;

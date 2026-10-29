@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Chip } from "@tuja/ui/components/chip";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
@@ -12,7 +13,6 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 
 /**
  * One row for each `controlHeight` step, holding every control that takes

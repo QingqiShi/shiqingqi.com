@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 
 /** Shown where Finance has no database, such as a preview deployment. */
 export function FinanceNotConfigured() {

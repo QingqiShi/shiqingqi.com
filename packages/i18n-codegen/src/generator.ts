@@ -109,11 +109,11 @@ function generateLoaderSource(name: string): string {
   return [
     `import "server-only";`,
     ``,
-    `import type { SupportedLocale } from "#src/i18n/types.ts";`,
+    `import type { SupportedLocale } from "@tuja/i18n/types";`,
     ``,
     `import en from "#src/_generated/i18n/client/${name}.en.json";`,
     `import zh from "#src/_generated/i18n/client/${name}.zh.json";`,
-    `import { getLocale } from "#src/i18n/server-locale.ts";`,
+    `import { getLocale } from "@tuja/i18n/server-locale";`,
     ``,
     `const bundles: Record<SupportedLocale, Record<string, string>> = {`,
     `  en,`,

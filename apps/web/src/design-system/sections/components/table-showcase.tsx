@@ -1,4 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocale } from "@tuja/i18n/server-locale";
 import {
   Table,
   TableBody,
@@ -14,8 +16,6 @@ import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 
 /** Every figure on this page is formatted for the active locale. */
 function getFigureFormats() {

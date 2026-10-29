@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -15,7 +16,6 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { useEffect, useRef, useState } from "react";
-import { t } from "#src/i18n.ts";
 import { centerInScrollX, offsetFromScrollCenterX } from "./center-in-scroll-x";
 
 // font.cqTitle's container formula, in its parts. Inside the clamp the size

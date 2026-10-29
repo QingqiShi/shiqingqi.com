@@ -1,4 +1,4 @@
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 /** Turns a Bank link's `lastError` code into a sentence for the household; null stays null. */
 export function useBankErrorMessage(): (code: string | null) => string | null {

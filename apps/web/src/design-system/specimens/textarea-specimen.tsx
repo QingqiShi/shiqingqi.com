@@ -1,5 +1,5 @@
+import { t } from "@tuja/i18n";
 import { Textarea } from "@tuja/ui/components/textarea";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /** A two-row textarea carrying a value, so the multi-line shape is obvious. */

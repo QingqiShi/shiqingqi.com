@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { isToolError } from "#src/movie-database/chat/tools/tool-error.ts";
 import type {
   MediaListItem,

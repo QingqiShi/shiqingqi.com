@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
@@ -7,7 +8,6 @@ import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { ThemeFramePair } from "#src/design-system/theme-frame.tsx";
-import { t } from "#src/i18n.ts";
 import { hardCodedType } from "./hard-coded-type.stylex.ts";
 
 export function TextShowcase() {

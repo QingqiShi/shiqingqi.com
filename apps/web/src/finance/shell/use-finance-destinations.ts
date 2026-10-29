@@ -4,7 +4,7 @@ import { ChartPieSliceIcon } from "@phosphor-icons/react/dist/ssr/ChartPieSlice"
 import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
 import { NewspaperIcon } from "@phosphor-icons/react/dist/ssr/Newspaper";
 import { ReceiptIcon } from "@phosphor-icons/react/dist/ssr/Receipt";
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import { FINANCE_DESTINATION_PATHS } from "./finance-destination-paths.ts";
 
 interface FinanceDestination {

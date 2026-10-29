@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 
 // The one place that declares a custom event. Every name and property shape
 // lives here, so no call site can invent or reshape an event.

@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
@@ -19,8 +21,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import {
   STAT_KEYS,
   type CreatureStats,

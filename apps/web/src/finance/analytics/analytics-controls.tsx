@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Chip } from "@tuja/ui/components/chip";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { DayInput } from "../transactions/day-input.tsx";
 import type {
   AnalyticsState,

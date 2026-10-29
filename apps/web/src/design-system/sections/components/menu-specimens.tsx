@@ -2,6 +2,7 @@
 
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/ssr/DotsThree";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Text } from "@tuja/ui/components/text";
@@ -24,7 +25,6 @@ import { definitionRows } from "#src/design-system/definition-rows.stylex.ts";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 
 interface DemoMenuItemProps {
   /** Sets `aria-current` on the chosen item, which `selected.quiet` paints. */

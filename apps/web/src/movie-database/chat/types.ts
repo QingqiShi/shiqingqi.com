@@ -1,5 +1,5 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { UIMessage } from "ai";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import type { MOOD_VALUES } from "#src/movie-database/chat/tools/classify-mood-tool.ts";
 
 export type ChatMood = (typeof MOOD_VALUES)[number];

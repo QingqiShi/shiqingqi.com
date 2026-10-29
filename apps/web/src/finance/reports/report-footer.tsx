@@ -1,11 +1,11 @@
 "use client";
 
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { displayMoment } from "../domain/dates/display-moment.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { fillTemplate } from "./fill-template.ts";

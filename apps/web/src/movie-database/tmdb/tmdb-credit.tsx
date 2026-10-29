@@ -2,6 +2,7 @@
 
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr/Info";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
@@ -9,7 +10,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import type { ComponentProps } from "react";
-import { t } from "#src/i18n.ts";
 
 interface TmdbCreditProps {
   position: ComponentProps<typeof MenuButton>["position"];

@@ -1,6 +1,6 @@
 import { BookmarkIcon } from "@phosphor-icons/react/dist/ssr/Bookmark";
+import { t } from "@tuja/i18n";
 import { Chip } from "@tuja/ui/components/chip";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

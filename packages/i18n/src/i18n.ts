@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "./types.ts";
 
 /**
  * Translate inline locale strings.

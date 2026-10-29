@@ -2,11 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { imageCover } from "@tuja/ui/primitives/layout.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 import { TmdbImage } from "#src/movie-database/tmdb/tmdb-image.tsx";
 

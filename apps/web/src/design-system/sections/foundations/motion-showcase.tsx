@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { springRoles, systemSpring } from "@tuja/ui/motion/spring-roles";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -15,7 +16,6 @@ import { Showcase } from "#src/design-system/showcase.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { MotionEngineSpecimen } from "./motion-engine-specimen.tsx";
 import { MotionHoldBackSpecimen } from "./motion-hold-back-specimen.tsx";
 import { MotionKeyframePresets } from "./motion-keyframe-presets.tsx";

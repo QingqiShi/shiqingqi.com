@@ -1,4 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import type { PageProps, SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -15,9 +18,6 @@ import {
   DESIGN_SYSTEM_CONTENT_ID,
   SkipToContent,
 } from "#src/design-system/skip-to-content.tsx";
-import type { PageProps, SupportedLocale } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;

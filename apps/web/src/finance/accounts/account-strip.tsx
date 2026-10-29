@@ -2,6 +2,7 @@
 
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import {
   SplitViewLink,
   useSplitViewShared,
@@ -18,7 +19,6 @@ import {
   rhythm,
 } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";
 import type { BalanceSheet } from "./build-balance-sheet.ts";
 import { useAccountInitials } from "./use-account-initials.ts";

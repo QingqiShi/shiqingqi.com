@@ -2,6 +2,9 @@
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import { ShareNetworkIcon } from "@phosphor-icons/react/dist/ssr/ShareNetwork";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -11,11 +14,8 @@ import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
 import { useRef, useState } from "react";
-import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";

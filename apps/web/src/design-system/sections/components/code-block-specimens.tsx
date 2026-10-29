@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import {
   CodeBlock,
   type CodePart,
@@ -13,7 +14,6 @@ import {
   importLine,
   textOf,
 } from "#src/design-system/lab/build-lab-snippet.ts";
-import { t } from "#src/i18n.ts";
 
 const IMPORT: CodePart = {
   id: "import",

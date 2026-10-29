@@ -1,7 +1,7 @@
 /**
  * ESLint rule: no-t-outside-render
  *
- * Prevents t() calls (from #src/i18n) outside React render scope.
+ * Prevents t() calls (from @tuja/i18n) outside React render scope.
  *
  * The i18n Babel plugin transforms client-side t() into a lookup in the
  * translations from a useI18nTranslations() hook call in the enclosing

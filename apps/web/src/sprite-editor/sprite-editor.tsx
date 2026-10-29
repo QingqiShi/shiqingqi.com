@@ -5,6 +5,7 @@ import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimpl
 import { FilmStripIcon } from "@phosphor-icons/react/dist/ssr/FilmStrip";
 import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Divider } from "@tuja/ui/components/divider";
@@ -12,9 +13,8 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { downloadBlob } from "@tuja/ui/utils/download-blob";
 import { useState } from "react";
-import { downloadBlob } from "#src/browser/download-blob.ts";
-import { t } from "#src/i18n.ts";
 import type { AnimationFrame } from "./animation-mode";
 import { AnimationMode } from "./animation-mode";
 import { CellStrip } from "./cell-strip";

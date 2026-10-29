@@ -7,6 +7,8 @@ import { ThumbsUpIcon } from "@phosphor-icons/react/dist/ssr/ThumbsUp";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -24,8 +26,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { DetailOverlay } from "#src/movie-database/detail-overlay.tsx";
 import type { StoredPreference } from "./types.ts";
 import { usePreferences } from "./use-preferences.ts";

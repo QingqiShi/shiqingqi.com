@@ -1,9 +1,9 @@
 import "server-only";
+import { t } from "@tuja/i18n";
 import type {
   DesignSystemCategoryId,
   DesignSystemSectionId,
 } from "#src/design-system/routes/types.ts";
-import { t } from "#src/i18n.ts";
 
 export interface DesignSystemGroupLabels {
   /** `null` for `overview`, which is a single unheaded link rather than a group. */

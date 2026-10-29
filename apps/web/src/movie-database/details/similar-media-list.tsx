@@ -1,8 +1,8 @@
 "use client";
 
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { useState } from "react";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { MediaVirtuosoGrid } from "#src/movie-database/media-virtuoso-grid.tsx";
 import { similarMediaQuery } from "#src/movie-database/tmdb/queries/similar-media-query.ts";
 

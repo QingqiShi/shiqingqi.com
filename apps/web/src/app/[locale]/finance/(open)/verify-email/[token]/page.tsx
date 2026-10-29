@@ -1,12 +1,12 @@
+import { t } from "@tuja/i18n";
+import type { SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { connection } from "next/server";
 import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
 import { VerifyEmailPanel } from "#src/finance/sign-in/verify-email-panel.tsx";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: SupportedLocale }>;

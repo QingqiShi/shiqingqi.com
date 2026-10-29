@@ -1,8 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { t } from "#src/i18n.ts";
 import { CompactMediaCard } from "#src/movie-database/compact-media-card.tsx";
 import { useMediaDetail } from "#src/movie-database/details/media-detail-provider.tsx";
 import { HorizontalScrollRow } from "#src/movie-database/horizontal-scroll-row.tsx";

@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { buildReportImageDrawing } from "../reports/build-report-image-drawing.ts";
 import { paintReportImage } from "../reports/paint-report-image.ts";
 import type { WeeklyReportResponse } from "../reports/report-api-schemas.ts";

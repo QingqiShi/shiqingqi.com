@@ -1,8 +1,8 @@
 "use client";
 
 import { SignOutIcon } from "@phosphor-icons/react/dist/ssr/SignOut";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
-import { t } from "#src/i18n.ts";
 import { useSignOut } from "./use-sign-out.ts";
 
 /** Signs out and removes the Household's data from this device. */

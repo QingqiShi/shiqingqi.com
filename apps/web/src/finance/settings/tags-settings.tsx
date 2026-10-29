@@ -1,13 +1,13 @@
 "use client";
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useRef, useState } from "react";
-import { t } from "#src/i18n.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import type { TagRow } from "../sync/row-schemas.ts";

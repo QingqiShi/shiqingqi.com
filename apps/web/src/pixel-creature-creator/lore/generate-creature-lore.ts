@@ -1,6 +1,6 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { generateText, Output, type LanguageModel } from "ai";
 import "server-only";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import type { CreatureDef } from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
 import { species } from "#src/pixel-creature-creator/sprite/species/index.ts";
 import { loreOutputSchema, type LoreOutput } from "./lore-output-schema";

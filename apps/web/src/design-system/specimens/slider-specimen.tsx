@@ -1,5 +1,5 @@
+import { t } from "@tuja/i18n";
 import { Slider } from "@tuja/ui/components/slider";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

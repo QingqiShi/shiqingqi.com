@@ -1,6 +1,6 @@
 "use client";
 
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import { DetailOverlay } from "#src/movie-database/detail-overlay.tsx";
 import { MediaDetailContent } from "./media-detail-content";
 import { useMediaDetail, type FocusedMedia } from "./media-detail-provider";

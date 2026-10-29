@@ -3,6 +3,7 @@
 import { FunnelSimpleIcon } from "@phosphor-icons/react/dist/ssr/FunnelSimple";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Chip } from "@tuja/ui/components/chip";
@@ -12,7 +13,6 @@ import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useId, useState, type ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 import { addMonths } from "../domain/dates/add-months.ts";
 import {
   endOfMonth,

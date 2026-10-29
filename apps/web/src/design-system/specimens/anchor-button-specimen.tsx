@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { t } from "@tuja/i18n";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

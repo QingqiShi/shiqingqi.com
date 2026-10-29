@@ -1,0 +1,45 @@
+{
+  "name": "@tuja/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The locale runtime behind the site's inline t() calls: the t() signature, the server and client lookups, locale context and helpers.",
+  "license": "MIT",
+  "author": "Qingqi Shi <hi@qingqi.dev>",
+  "type": "module",
+  "exports": {
+    ".": "./src/i18n.ts",
+    "./client-runtime": "./src/client-runtime.ts",
+    "./client-translations-provider": "./src/client-translations-provider.tsx",
+    "./constants": "./src/constants.ts",
+    "./get-locale-path": "./src/get-locale-path.ts",
+    "./i18n-context": "./src/i18n-context.ts",
+    "./i18n-provider": "./src/i18n-provider.tsx",
+    "./locale-context": "./src/locale-context.ts",
+    "./normalize-path": "./src/normalize-path.ts",
+    "./parse-message": "./src/parse-message.tsx",
+    "./server-locale": "./src/server-locale.ts",
+    "./set-locale-cookie": "./src/set-locale-cookie.ts",
+    "./types": "./src/types.ts",
+    "./use-locale": "./src/use-locale.ts",
+    "./validate-locale": "./src/validate-locale.ts"
+  },
+  "scripts": {
+    "build:tsc": "tsc --noEmit",
+    "lint": "eslint --max-warnings 0 .",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": ">=19.3.0 <20"
+  },
+  "devDependencies": {
+    "@testing-library/react": "catalog:",
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "jsdom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "vitest": "catalog:"
+  }
+}

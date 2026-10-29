@@ -1,5 +1,5 @@
+import { t } from "@tuja/i18n";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { t } from "#src/i18n.ts";
 import { SpriteEditor } from "#src/sprite-editor/sprite-editor.tsx";
 
 export default function Page() {

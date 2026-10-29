@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
@@ -12,7 +13,6 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, layer, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
-import { t } from "#src/i18n.ts";
 
 const ROWS = Array.from({ length: 12 }, (_, index) => index + 1);
 const EXTRA_REGIONS = [1, 2, 3, 4];

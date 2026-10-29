@@ -2,9 +2,9 @@
 
 import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
+import { t } from "@tuja/i18n";
 import { MenuLabel } from "@tuja/ui/components/menu-label";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { t } from "#src/i18n.ts";
 import type { Sort } from "#src/movie-database/types.ts";
 import { useMediaFilters } from "./use-media-filters";
 

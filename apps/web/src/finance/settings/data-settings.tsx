@@ -1,11 +1,11 @@
 "use client";
 
 import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { downloadBlob } from "#src/browser/download-blob.ts";
-import { t } from "#src/i18n.ts";
+import { downloadBlob } from "@tuja/ui/utils/download-blob";
 import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { buildReplicaExport } from "./build-replica-export.ts";

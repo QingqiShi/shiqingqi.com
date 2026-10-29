@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 

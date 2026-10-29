@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState, type SubmitEvent } from "react";
-import { t } from "#src/i18n.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { withPending } from "../shell/with-pending.ts";

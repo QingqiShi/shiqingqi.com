@@ -4,9 +4,9 @@ import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { GridFourIcon } from "@phosphor-icons/react/dist/ssr/GridFour";
 import { RowsIcon } from "@phosphor-icons/react/dist/ssr/Rows";
+import { t } from "@tuja/i18n";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { useState, type ComponentProps, type ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 
 /** The movie database's own sort switch: the selected field carries the arrow. */
 export function SortControl() {

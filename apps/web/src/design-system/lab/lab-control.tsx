@@ -1,11 +1,11 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Select } from "@tuja/ui/components/select";
 import { Slider } from "@tuja/ui/components/slider";
 import { Switch } from "@tuja/ui/components/switch";
 import { TextField } from "@tuja/ui/components/text-field";
-import { t } from "#src/i18n.ts";
 import type { LabControlModel, LabProps } from "./types.ts";
 import { unquote } from "./unquote.ts";
 

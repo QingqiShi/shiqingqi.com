@@ -3,6 +3,9 @@ import { GhostIcon } from "@phosphor-icons/react/dist/ssr/Ghost";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { PackageIcon } from "@phosphor-icons/react/dist/ssr/Package";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { CardDescription, CardTitle } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
@@ -19,9 +22,6 @@ import {
   rhythm,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { Link } from "#src/links/link.tsx";
 import { SiteHeaderFooterLayout } from "./site-header-footer-layout.tsx";

@@ -1,4 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import { Heading } from "@tuja/ui/components/heading";
@@ -12,8 +14,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 import { BackButton } from "#src/site-shell/back-button.tsx";
 import { Footer } from "#src/site-shell/footer.tsx";
 import { LocaleSelector } from "#src/site-shell/locale-selector.tsx";

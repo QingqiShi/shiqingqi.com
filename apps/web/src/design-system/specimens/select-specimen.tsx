@@ -1,5 +1,5 @@
+import { t } from "@tuja/i18n";
 import { Select } from "@tuja/ui/components/select";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /** The options-array form, which is how most callsites use it. */

@@ -2,6 +2,7 @@
 
 import { FunnelXIcon } from "@phosphor-icons/react/dist/ssr/FunnelX";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import {
@@ -13,7 +14,6 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, ratio, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 /**
  * The shape the movie database builds its filter bar in: a media type toggle

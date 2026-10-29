@@ -1,9 +1,9 @@
 import { type UseChatHelpers, useChat } from "@ai-sdk/react";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { UIMessage } from "ai";
 import { DefaultChatTransport } from "ai";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { z } from "zod";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { accumulateToolOutputs } from "#src/movie-database/chat/tool-output/accumulate-tool-outputs.ts";
 import { toolOutputsFingerprint } from "#src/movie-database/chat/tool-output/tool-outputs-fingerprint.ts";
 import { getPreferencesContextReady } from "#src/movie-database/taste/get-preferences-context-ready.ts";

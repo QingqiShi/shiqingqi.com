@@ -1,5 +1,7 @@
 "use client";
 
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { Select } from "@tuja/ui/components/select";
@@ -7,8 +9,6 @@ import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { useDeferredValue, useRef, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";

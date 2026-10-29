@@ -1,10 +1,10 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 
-import { t } from "#src/i18n.ts";
 import { LabVariantChips } from "./lab-variant-chips.tsx";
 import type { LabVariantChoice } from "./types.ts";
 

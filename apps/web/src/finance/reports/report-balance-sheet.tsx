@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Table } from "@tuja/ui/components/table";
 import { TableBody } from "@tuja/ui/components/table-body";
@@ -11,8 +13,6 @@ import { TableHeaderCell } from "@tuja/ui/components/table-header-cell";
 import { TableRow } from "@tuja/ui/components/table-row";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { accountDetailLine } from "../accounts/account-detail-line.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { useAccountDisplayName } from "../store/use-account-display-name.ts";

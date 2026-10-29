@@ -1,7 +1,8 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { getAnthropicModel } from "#src/anthropic/get-anthropic-model.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import { resolveClientIp } from "#src/http/resolve-client-ip.ts";
 import {
   creatureDefSchema,
   type CreatureDef,
@@ -12,7 +13,6 @@ import {
   limitLoreRequest,
   type LoreRateLimitResult,
 } from "./limit-lore-request";
-import { resolveClientIp } from "./resolve-client-ip";
 
 const requestSchema = z.object({
   def: creatureDefSchema,

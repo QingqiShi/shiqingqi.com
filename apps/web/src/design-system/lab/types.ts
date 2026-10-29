@@ -1,6 +1,6 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { PropDoc } from "@tuja/props-codegen/types";
 import type { ReactNode } from "react";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 
 /**
  * The props a Lab holds for its Specimen. Loosely typed because a control only

@@ -2,15 +2,15 @@
 
 import { TranslateIcon } from "@phosphor-icons/react/dist/ssr/Translate";
 import * as stylex from "@stylexjs/stylex";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { setLocaleCookie } from "@tuja/i18n/set-locale-cookie";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, type ComponentProps } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { setLocaleCookie } from "#src/i18n/set-locale-cookie.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { MenuItem } from "./menu-item";
 
 interface LocaleSelectorProps {

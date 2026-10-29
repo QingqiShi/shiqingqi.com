@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Text } from "@tuja/ui/components/text";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import type { Credit } from "./use-movies.ts";
 
 /** The cast half of the Credits, as Avatar monograms — the exemplar has no portraits. */

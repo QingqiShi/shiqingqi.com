@@ -1,10 +1,10 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { tool } from "ai";
 import { z } from "zod";
 import {
   getMovieCredits,
   getTvShowCredits,
 } from "#src/_generated/tmdb-server-functions.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { toolError } from "./tool-error";
 
 export const mediaCreditsInputSchema = z.object({

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -10,7 +11,6 @@ import {
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
 import { Identifier } from "#src/design-system/identifier.tsx";
-import { t } from "#src/i18n.ts";
 
 export function FamiliesShowcase() {
   return (

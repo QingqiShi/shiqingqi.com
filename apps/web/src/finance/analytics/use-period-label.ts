@@ -1,5 +1,5 @@
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import type { AnalyticsView } from "./compute-analytics-view.ts";
 import { formatPeriod } from "./format-period.ts";
 

@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { CollapsedChatButton } from "#src/movie-database/chat/collapsed-chat-button.tsx";
 import { CollapsedChatInput } from "#src/movie-database/chat/collapsed-chat-input.tsx";
 import {

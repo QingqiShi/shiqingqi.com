@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -11,7 +12,6 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { ratio, shadow } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { Anchor } from "#src/links/anchor.tsx";
 import { MediaPoster } from "./media-poster";
 import type { MediaListItem } from "./types.ts";

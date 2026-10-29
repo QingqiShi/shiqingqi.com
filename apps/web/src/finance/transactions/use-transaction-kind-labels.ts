@@ -1,4 +1,4 @@
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 
 export function useTransactionKindLabels(): Record<

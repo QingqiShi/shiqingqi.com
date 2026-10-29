@@ -1,4 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import type { PageProps } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
@@ -8,9 +11,6 @@ import { color, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { brand } from "#src/brand/brand.stylex.ts";
 import { BASE_URL } from "#src/constants.ts";
-import type { PageProps } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { FeaturedRow } from "#src/pixel-creature-creator/landing/featured-row.tsx";
 import { YourCreations } from "#src/pixel-creature-creator/landing/your-creations.tsx";

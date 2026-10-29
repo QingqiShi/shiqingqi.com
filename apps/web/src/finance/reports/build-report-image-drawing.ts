@@ -1,10 +1,10 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { gray } from "@tuja/ui/palette/gray.stylex";
 import { green } from "@tuja/ui/palette/green.stylex";
 import { red } from "@tuja/ui/palette/red.stylex";
 import { range, tickStep } from "d3-array";
 import { scaleLinear } from "d3-scale";
 import { area, line } from "d3-shape";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { barPath } from "../charts/bar-path.ts";
 import { dateTicks } from "../charts/date-ticks.ts";
 import { formatAxisMoney } from "../charts/format-axis-money.ts";

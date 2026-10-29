@@ -1,7 +1,7 @@
+import { t } from "@tuja/i18n";
 import { Divider } from "@tuja/ui/components/divider";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

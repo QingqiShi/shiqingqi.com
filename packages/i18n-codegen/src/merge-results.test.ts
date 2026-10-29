@@ -6,7 +6,7 @@ describe("mergeResults", () => {
   it("deduplicates identical translations across files but tracks every source file", () => {
     const result1 = extractFromSource(
       `
-      import { t } from "#src/i18n";
+      import { t } from "@tuja/i18n";
       t({ en: "Hello", zh: "你好" });
     `,
       "file1.tsx",
@@ -14,7 +14,7 @@ describe("mergeResults", () => {
 
     const result2 = extractFromSource(
       `
-      import { t } from "#src/i18n";
+      import { t } from "@tuja/i18n";
       t({ en: "Hello", zh: "你好" });
     `,
       "file2.tsx",
@@ -29,7 +29,7 @@ describe("mergeResults", () => {
   it("keeps both entries when same English has different Chinese translations", () => {
     const result1 = extractFromSource(
       `
-      import { t } from "#src/i18n";
+      import { t } from "@tuja/i18n";
       t({ en: "Hello", zh: "你好" });
     `,
       "file1.tsx",
@@ -37,7 +37,7 @@ describe("mergeResults", () => {
 
     const result2 = extractFromSource(
       `
-      import { t } from "#src/i18n";
+      import { t } from "@tuja/i18n";
       t({ en: "Hello", zh: "嗨" });
     `,
       "file2.tsx",

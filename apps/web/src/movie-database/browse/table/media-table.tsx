@@ -15,6 +15,9 @@ import {
   useQuery,
   type UseSuspenseInfiniteQueryResult,
 } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
@@ -32,13 +35,10 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
+import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
+import { downloadBlob } from "@tuja/ui/utils/download-blob";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
-import { downloadBlob } from "#src/browser/download-blob.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 import { genresQuery } from "#src/movie-database/tmdb/queries/genres-query.ts";
 import type { MediaListItem, MediaType } from "#src/movie-database/types.ts";

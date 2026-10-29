@@ -1,9 +1,9 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { findTwinElement } from "@tuja/ui/utils/find-twin-element";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
-import { t } from "#src/i18n.ts";
 
 interface PaneSheetProps {
   isOpen: boolean;

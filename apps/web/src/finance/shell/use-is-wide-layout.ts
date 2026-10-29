@@ -1,5 +1,5 @@
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { useMediaQuery } from "#src/browser/use-media-query.ts";
+import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 
 const LG_QUERY = breakpoints.lg.replace("@media ", "");
 

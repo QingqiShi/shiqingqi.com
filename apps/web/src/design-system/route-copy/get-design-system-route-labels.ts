@@ -17,8 +17,8 @@
  */
 
 import "server-only";
+import { t } from "@tuja/i18n";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
-import { t } from "#src/i18n.ts";
 
 /**
  * The name of every registered route, in registry order. Total over

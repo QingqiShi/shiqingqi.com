@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { t } from "#src/i18n.ts";
 import { LocaleSelector } from "#src/site-shell/locale-selector.tsx";
 import { ThemeSwitch } from "#src/theme/theme-switch.tsx";
 

@@ -1,9 +1,9 @@
+import { t } from "@tuja/i18n";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
   GuideNote,
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
-import { t } from "#src/i18n.ts";
 
 /**
  * The contrast floors the colour tokens hold, and the short reason they hold.

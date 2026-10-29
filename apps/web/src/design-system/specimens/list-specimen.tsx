@@ -1,6 +1,6 @@
+import { t } from "@tuja/i18n";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

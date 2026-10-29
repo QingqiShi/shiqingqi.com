@@ -1,10 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { t } from "#src/i18n.ts";
 import { useMediaFilters } from "./use-media-filters";
 
 export function MediaTypeToggle() {

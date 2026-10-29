@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
@@ -13,7 +14,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { t } from "#src/i18n.ts";
 import type { GuideOptions } from "./types";
 
 interface GuideControlsProps {

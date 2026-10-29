@@ -1,7 +1,7 @@
 "use client";
 
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { createContext, use, type ReactNode } from "react";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { useAIChat } from "./use-ai-chat";
 
 type AIChatState = ReturnType<typeof useAIChat>;

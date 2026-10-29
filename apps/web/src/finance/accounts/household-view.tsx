@@ -3,6 +3,8 @@
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { Heading } from "@tuja/ui/components/heading";
@@ -21,8 +23,6 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { type Ref, useEffect } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import { MoneyChange } from "../domain/money/money-change.tsx";

@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { ToastProvider } from "@tuja/ui/components/toast-provider";
 import { toastTokens } from "@tuja/ui/components/toast.stylex";
+import { usePortalTarget } from "@tuja/ui/hooks/use-portal-target";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
-import { usePortalTarget } from "#src/site-shell/portal-context.tsx";
 import { floatingActionTokens } from "./floating-action.stylex.ts";
 
 /**

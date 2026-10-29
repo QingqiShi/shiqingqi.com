@@ -4,6 +4,7 @@ import { ChartBarIcon } from "@phosphor-icons/react/dist/ssr/ChartBar";
 import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { NavGroup } from "@tuja/ui/components/nav-group";
 import { NavLink } from "@tuja/ui/components/nav-link";
 import { NavList, type NavListLinkProps } from "@tuja/ui/components/nav-list";
@@ -16,7 +17,6 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { t } from "#src/i18n.ts";
 
 const CurrentContext = createContext<
   [string, Dispatch<SetStateAction<string>>]

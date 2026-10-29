@@ -107,7 +107,7 @@ describe("i18n with React Compiler", () => {
   it("does not cache a lookup with no other input forever", () => {
     const output = compile(`
 "use client";
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export function Title() {
   return <h1>{t({ en: "Title", zh: "标题" })}</h1>;
 }
@@ -119,7 +119,7 @@ export function Title() {
   it("keys a cached helper call on the translations", () => {
     const output = compile(`
 "use client";
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 function getLabel(kind) {
   return kind === "movie"
     ? t({ en: "Movie", zh: "电影" })

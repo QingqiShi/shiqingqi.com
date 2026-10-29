@@ -1,3 +1,6 @@
+import { t } from "@tuja/i18n";
+import type { PageProps } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
@@ -10,9 +13,6 @@ import { CustomizationBuiltExample } from "#src/design-system/sections/foundatio
 import { CustomizationContentExample } from "#src/design-system/sections/foundations/customization-content-example.tsx";
 import { CustomizationPropsExample } from "#src/design-system/sections/foundations/customization-props-example.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import type { PageProps } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 const LINK_COMPONENT = `import { AnchorButton } from "@tuja/ui/components/anchor-button";

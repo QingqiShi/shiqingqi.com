@@ -1,5 +1,5 @@
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { displayDay, displayWeekday } from "../domain/dates/display-day.ts";
 import { weekdayOf } from "../domain/dates/start-of-week.ts";
 import {

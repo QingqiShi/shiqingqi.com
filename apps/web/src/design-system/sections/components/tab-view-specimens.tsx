@@ -6,6 +6,7 @@ import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
@@ -19,7 +20,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { DeviceFrame, DeviceFramePlaceholder } from "./device-frame.tsx";
 

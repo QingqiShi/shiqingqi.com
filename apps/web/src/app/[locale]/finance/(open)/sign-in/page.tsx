@@ -1,3 +1,7 @@
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import type { PageProps } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
@@ -7,10 +11,6 @@ import { isFinanceConfigured } from "#src/finance/db/is-finance-configured.ts";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { FinanceAuthFrame } from "#src/finance/sign-in/finance-auth-frame.tsx";
 import { SignInPanel } from "#src/finance/sign-in/sign-in-panel.tsx";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import type { PageProps } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);

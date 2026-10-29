@@ -1,5 +1,6 @@
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
@@ -16,7 +17,6 @@ import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { MenuPopupShowcase } from "./menu-specimens.tsx";
 
 const MENU_USAGE = `import { MenuButton } from "@tuja/ui/components/menu-button";

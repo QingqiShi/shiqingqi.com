@@ -2,11 +2,11 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import dynamic from "next/dynamic";
 import { Suspense, useDeferredValue, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { useMediaFilters } from "#src/movie-database/browse/filters/use-media-filters.ts";
 import { MediaVirtuosoGrid } from "#src/movie-database/media-virtuoso-grid.tsx";
 import { mediaListQuery } from "#src/movie-database/tmdb/queries/media-list-query.ts";

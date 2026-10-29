@@ -1,4 +1,5 @@
 import { SuitcaseIcon } from "@phosphor-icons/react/dist/ssr/Suitcase";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Text } from "@tuja/ui/components/text";
@@ -9,7 +10,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { DisclosureHeadlessSpecimen } from "./disclosure-specimens.tsx";
 
 export function DisclosureShowcase() {

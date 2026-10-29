@@ -1,5 +1,5 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { ReactNode } from "react";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { InstallSheet } from "../pwa/install-sheet.tsx";
 import { DemoNotice } from "./demo-notice.tsx";
 import { FinanceRailHeader } from "./finance-rail-header.tsx";

@@ -1,8 +1,8 @@
+import { t } from "@tuja/i18n";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { FixedContainerContent } from "@tuja/ui/components/fixed-container-content";
 import { HeaderFooterLayout } from "@tuja/ui/components/header-footer-layout";
 import type { ReactNode } from "react";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { t } from "#src/i18n.ts";
 import { ThemeSwitch } from "#src/theme/theme-switch.tsx";
 import { BackButton } from "./back-button.tsx";
 import { LocaleSelector } from "./locale-selector.tsx";

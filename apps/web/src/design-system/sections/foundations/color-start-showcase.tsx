@@ -1,3 +1,4 @@
+import { t } from "@tuja/i18n";
 import { DocLink } from "#src/design-system/guide/doc-link.tsx";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -5,7 +6,6 @@ import {
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 /**
  * The opening section of the Colour page: the props through which a

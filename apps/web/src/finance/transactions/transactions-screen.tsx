@@ -3,6 +3,8 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
@@ -19,8 +21,6 @@ import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import type { VirtuosoHandle } from "react-virtuoso";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { formatMoney } from "../domain/money/format-money.ts";

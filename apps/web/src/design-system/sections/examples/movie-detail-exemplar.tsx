@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, measure, rhythm } from "@tuja/ui/tokens.stylex";
 import { useId, useState } from "react";
-import { t } from "#src/i18n.ts";
 import { MovieDetailScreen } from "./movie-detail-screen.tsx";
 
 /**

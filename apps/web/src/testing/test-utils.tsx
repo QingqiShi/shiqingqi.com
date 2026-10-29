@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { RenderOptions } from "@testing-library/react";
 import { render } from "@testing-library/react";
+import { I18nContext } from "@tuja/i18n/i18n-context";
 import type { ReactElement } from "react";
 import React, { Suspense } from "react";
 import translations from "#src/_generated/i18n/translations.en.json";
-import { I18nContext } from "#src/i18n/i18n-context.ts";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";
 
 const createTestQueryClient = () => {

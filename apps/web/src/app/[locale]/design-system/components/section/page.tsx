@@ -1,9 +1,9 @@
+import { t } from "@tuja/i18n";
+import type { PageProps } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
 import { SectionShowcase } from "#src/design-system/sections/components/section-showcase.tsx";
-import type { PageProps } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {

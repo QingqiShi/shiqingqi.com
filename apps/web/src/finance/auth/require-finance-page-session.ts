@@ -1,6 +1,6 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { redirect } from "next/navigation";
 import "server-only";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { financeSignInPath } from "./finance-sign-in-path.ts";
 import { getFinancePageSession } from "./get-finance-page-session.ts";
 import type { FinanceSession } from "./types.ts";
