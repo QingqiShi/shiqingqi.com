@@ -3,6 +3,8 @@ import { blurLayerSteps, LAYER_COUNT } from "./blur-layer-steps.ts";
 /**
  * The blur's own box and the floating element's rect within it, in px,
  * measured relative to the box's top-left corner.
+ *
+ * @internal
  */
 export interface BlurGeometry {
   width: number;
@@ -84,6 +86,8 @@ function layerMask(
  * The stack of blurred layers, weakest first, as the `backdrop-filter` and
  * `mask-image` each one carries. Unmeasured, every layer masks to `none` — the
  * uniform blur across the whole box that the server renders.
+ *
+ * @internal
  */
 export function buildBlurLayers({
   geometry,

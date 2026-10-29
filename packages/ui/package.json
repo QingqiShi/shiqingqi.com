@@ -105,8 +105,6 @@
     "./components/badge": "./src/data-display/badge.tsx",
     "./components/blur-plane-provider": "./src/surfaces/blur-plane-provider.tsx",
     "./components/breadcrumb": "./src/actions/breadcrumb.tsx",
-    "./components/build-blur-layers": "./src/surfaces/build-blur-layers.ts",
-    "./components/build-edge-blur-layers": "./src/surfaces/build-edge-blur-layers.ts",
     "./components/button": "./src/actions/button.tsx",
     "./components/button-shared.stylex": "./src/actions/button-shared.stylex.ts",
     "./components/button.stylex": "./src/actions/button.stylex.ts",

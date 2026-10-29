@@ -2,9 +2,9 @@
 
 /**
  * The options React Compiler runs with wherever the repo compiles React: the
- * Next apps' `reactCompiler` setting, the Vitest configs, and the
- * `@tuja/component-tinker` build. The code has no manual memoization, so a
- * component or hook the compiler skips loses its memoization without a trace.
+ * Next apps' `reactCompiler` setting and the Vitest configs. The code has no
+ * manual memoization, so a component or hook the compiler skips loses its
+ * memoization without a trace.
  * `all_errors` makes such a skip fail the build instead.
  */
 const reactCompilerOptions = Object.freeze({
