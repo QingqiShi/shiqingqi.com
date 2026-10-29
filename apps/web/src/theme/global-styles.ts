@@ -1,16 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { root } from "@tuja/ui/primitives/root.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
-import {
-  financeTheme,
-  isFinancePath,
-} from "#src/finance/theme/finance-theme.ts";
 
 // Every color token is a `light-dark()` pair, so theming is driven entirely by
 // `color-scheme`: the default follows the OS preference, and forcing a theme
-// just pins the scheme — no per-theme variable sets exist. A Finance page also
-// gets `financeTheme`, which changes the accent and the canvas.
+// just pins the scheme — no per-theme variable sets exist.
 export const globalStyles = stylex.create({
   forceLight: {
     colorScheme: "light",
@@ -21,43 +14,20 @@ export const globalStyles = stylex.create({
   body: {
     position: "relative",
   },
-  // On a phone, an island fills the screen. Safari shows the page background
-  // at the status bar and in the overscroll, so it is the island fill.
-  financeHtml: {
-    backgroundColor: {
-      default: color.bgSurfaceSunken,
-      [breakpoints.md]: color.bgCanvas,
-    },
-  },
 });
 
-export function getDocumentClassName(
-  theme?: string | null,
-  pathname: string | null = null,
-) {
-  const appTheme = isFinancePath(pathname) && [
-    financeTheme,
-    globalStyles.financeHtml,
-  ];
+export function getDocumentClassName(theme?: string | null) {
   switch (theme) {
     case "dark": {
-      const rootProps = stylex.props(
-        root.html,
-        globalStyles.forceDark,
-        appTheme,
-      );
+      const rootProps = stylex.props(root.html, globalStyles.forceDark);
       return rootProps.className ?? "";
     }
     case "light": {
-      const rootProps = stylex.props(
-        root.html,
-        globalStyles.forceLight,
-        appTheme,
-      );
+      const rootProps = stylex.props(root.html, globalStyles.forceLight);
       return rootProps.className ?? "";
     }
     default: {
-      const rootProps = stylex.props(root.html, appTheme);
+      const rootProps = stylex.props(root.html);
       return rootProps.className ?? "";
     }
   }

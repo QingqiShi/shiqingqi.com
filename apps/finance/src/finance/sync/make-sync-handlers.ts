@@ -1,0 +1,106 @@
+import { householdRepository } from "../db/repositories/household-repository.ts";
+import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
+import { FINANCE_NO_STORE, financeJson } from "../http/finance-json.ts";
+import {
+  guardFinanceRequest,
+  type FinanceRequestGuardDependencies,
+} from "../http/guard-finance-request.ts";
+import { readFinanceBody } from "../http/read-finance-body.ts";
+import { applyMutations } from "./apply-mutations.ts";
+import { pullChanges } from "./pull-changes.ts";
+import { pushRequestSchema } from "./push-request-schema.ts";
+import { refuseOtherRowShape } from "./refuse-other-row-shape.ts";
+import { REPLICA_ROW_SHAPE } from "./replica-row-shape.ts";
+import { streamBootstrap } from "./stream-bootstrap.ts";
+import type { PushEffect } from "./types.ts";
+import { withRowShape } from "./with-row-shape.ts";
+
+interface SyncHandlerDependencies extends FinanceRequestGuardDependencies {
+  getDb: () => FinanceDb;
+  now: () => Date;
+  /** Called after a push that committed a mutation with an effect, to start the work that follows it. */
+  afterPush?: (householdId: string, effects: ReadonlySet<PushEffect>) => void;
+  rowShape?: number;
+}
+
+function parseSince(request: Request) {
+  const value = new URL(request.url).searchParams.get("since") ?? "0";
+  if (!/^\d{1,15}$/.test(value)) return null;
+  return Number(value);
+}
+
+/**
+ * The pull (`GET`) and push (`POST`) handlers of `/api/sync`. The
+ * Household always comes from the session, never from the request. A
+ * request from code with another row shape gets
+ * `ROW_SHAPE_MISMATCH_STATUS` and changes nothing. Every response that a
+ * handler returns, a refusal included, says the server's row shape; an
+ * error that a handler throws goes on to Next.
+ */
+export function makeSyncHandlers(dependencies: SyncHandlerDependencies) {
+  const rowShape = dependencies.rowShape ?? REPLICA_ROW_SHAPE;
+
+  return {
+    GET: withRowShape(rowShape, async (request) => {
+      const session = await guardFinanceRequest(dependencies, request, {
+        write: false,
+      });
+      if (session instanceof Response) return session;
+      const refused = refuseOtherRowShape(request, rowShape);
+      if (refused) return refused;
+      const since = parseSince(request);
+      if (since === null) {
+        return financeJson({ error: "invalid-since" }, { status: 400 });
+      }
+
+      const db = dependencies.getDb();
+      if (since === 0) {
+        const household = await withHousehold(
+          db,
+          session.householdId,
+          (scope) => householdRepository.find(scope),
+        );
+        if (!household) {
+          return financeJson({ error: "unauthorised" }, { status: 401 });
+        }
+        return new Response(streamBootstrap(db, session.householdId), {
+          headers: {
+            "Content-Type": "application/x-ndjson; charset=utf-8",
+            "Cache-Control": FINANCE_NO_STORE,
+          },
+        });
+      }
+
+      const pull = await pullChanges(db, session.householdId, since);
+      if (since > pull.clock) {
+        return financeJson(
+          { error: "resync", clock: pull.clock },
+          { status: 409 },
+        );
+      }
+      return financeJson(pull);
+    }),
+
+    POST: withRowShape(rowShape, async (request) => {
+      const session = await guardFinanceRequest(dependencies, request, {
+        write: true,
+      });
+      if (session instanceof Response) return session;
+      const refused = refuseOtherRowShape(request, rowShape);
+      if (refused) return refused;
+      const push = await readFinanceBody(request, pushRequestSchema);
+      if (push instanceof Response) return push;
+      const { effects, ...response } = await applyMutations(
+        dependencies.getDb(),
+        session.householdId,
+        push,
+        dependencies.now(),
+      );
+      if (effects.size > 0) {
+        dependencies.afterPush?.(session.householdId, effects);
+      }
+      return financeJson(response);
+    }),
+  };
+}

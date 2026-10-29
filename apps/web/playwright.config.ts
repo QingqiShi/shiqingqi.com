@@ -101,10 +101,7 @@ export default defineConfig({
   webServer: {
     // On CI the app is built once in a dedicated job and its output is
     // downloaded into each shard, so the script only starts it. Locally it
-    // builds when the build is stale. It also serves the in-memory Finance
-    // database, which starts empty, and each Finance spec seeds the household
-    // it uses. A reused server, such as `pnpm test:e2e:serve`, runs Finance
-    // only when it has the e2e Finance settings; `pnpm dev` does not.
+    // builds when the build is stale.
     command: "tsx e2e/serve-e2e.ts",
     url: baseURL,
     // Playwright merges this object onto process.env rather than replacing

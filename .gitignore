@@ -38,8 +38,8 @@ next-env.d.ts
 **/src/app/manifest.json
 
 # Finance local dev database (PGlite data directory) and email outbox
-apps/web/.finance-db/
-apps/web/.finance-outbox/
+apps/finance/.finance-db/
+apps/finance/.finance-outbox/
 
 # Generated i18n bundles
 **/src/_generated/i18n/
@@ -54,7 +54,7 @@ blob-report/
 playwright/.cache/
 playwright/.auth/
 .playwright-cli
-apps/web/e2e/.web-server-errors.log
+apps/*/e2e/.web-server-errors.log
 
 # Evalite
 .evalite/

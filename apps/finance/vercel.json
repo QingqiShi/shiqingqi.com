@@ -1,4 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "npx turbo-ignore finance"
+  "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] || [ \"$VERCEL_ENV\" = production ]; then pnpm finance:migrate; fi && turbo run build",
+  "ignoreCommand": "npx turbo-ignore finance",
+  "crons": [
+    { "path": "/api/cron/bank-sync", "schedule": "0 */6 * * *" },
+    { "path": "/api/cron/materialise", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/balance-repair", "schedule": "30 3 * * *" },
+    { "path": "/api/cron/institution-icons", "schedule": "0 4 * * *" },
+    { "path": "/api/cron/exchange-rates", "schedule": "0 16 * * *" },
+    { "path": "/api/cron/weekly-report", "schedule": "0 7 * * 1" }
+  ]
 }

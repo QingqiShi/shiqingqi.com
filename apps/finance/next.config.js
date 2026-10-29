@@ -13,6 +13,8 @@ module.exports = async (phase) => {
   const nextConfig = {
     reactStrictMode: true,
     allowedDevOrigins,
+    // `src/proxy.ts` reads this to trust a same-host Referer in development.
+    env: { ALLOWED_DEV_ORIGINS: allowedDevOrigins.join(",") },
     reactCompiler: { ...reactCompilerOptions },
     // The CI `tsc` job does the type check, so `next build` does not.
     typescript: { ignoreBuildErrors: true },

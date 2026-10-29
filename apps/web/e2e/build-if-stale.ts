@@ -18,6 +18,7 @@ const sourcePathspec = [
   ":(exclude,glob)**/*.test.mjs",
   ":(exclude,glob)**/*.eval.ts",
   ":(exclude,glob)*.md",
+  ":(exclude)apps/finance",
   ":(exclude)apps/trip-planner",
   ":(exclude).claude",
   ":(exclude).github",

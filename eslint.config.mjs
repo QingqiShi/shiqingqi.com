@@ -59,7 +59,7 @@ export default defineConfig([
       "apps/*/.next/**/*",
       "apps/*/next-env.d.ts",
       "apps/*/public/sw.js",
-      "apps/web/playwright-report/**/*",
+      "apps/*/playwright-report/**/*",
       ".claude/**/*",
       "**/node_modules/**/*",
     ],
@@ -275,10 +275,7 @@ export default defineConfig([
   },
   {
     files: ["apps/web/src/**"],
-    ignores: [
-      "apps/web/src/movie-database/tmdb/queries/**",
-      "apps/web/src/finance/queries/**",
-    ],
+    ignores: ["apps/web/src/movie-database/tmdb/queries/**"],
     rules: {
       "restricted/tmdb-query-fn": [
         "error",
@@ -292,10 +289,11 @@ export default defineConfig([
     },
   },
   {
-    files: ["apps/web/src/**", "packages/ui/src/**"],
+    files: ["apps/web/src/**", "apps/finance/src/**", "packages/ui/src/**"],
     ignores: [
       "**/*.{test,spec}.{ts,tsx}",
       "apps/web/src/testing/**",
+      "apps/finance/src/testing/**",
       "packages/ui/src/test-setup.ts",
       "packages/ui/src/test-support/**",
     ],
@@ -327,7 +325,11 @@ export default defineConfig([
   // The app consumes the same radius tokens, which carry the no-corner-shape
   // fallback, so an unpaired radius there drifts by browser too.
   {
-    files: ["packages/ui/src/**/*.{ts,tsx}", "apps/web/src/**/*.{ts,tsx}"],
+    files: [
+      "packages/ui/src/**/*.{ts,tsx}",
+      "apps/web/src/**/*.{ts,tsx}",
+      "apps/finance/src/**/*.{ts,tsx}",
+    ],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
       "@tuja/require-corner-shape": "error",
@@ -461,7 +463,11 @@ export default defineConfig([
     },
   },
   {
-    files: ["packages/ui/src/**/*.stylex.ts", "apps/web/src/**/*.stylex.ts"],
+    files: [
+      "packages/ui/src/**/*.stylex.ts",
+      "apps/web/src/**/*.stylex.ts",
+      "apps/finance/src/**/*.stylex.ts",
+    ],
     rules: {
       "@tuja/only-stylex-exports": "error",
     },
@@ -492,7 +498,11 @@ export default defineConfig([
   // Every link goes through an app's `Link`, which sets `prefetch={false}`.
   {
     files: ["apps/**", "packages/**"],
-    ignores: ["apps/*/src/link.tsx", "apps/web/src/links/link.tsx"],
+    ignores: [
+      "apps/*/src/link.tsx",
+      "apps/web/src/links/link.tsx",
+      "apps/finance/src/links/link.tsx",
+    ],
     rules: {
       "no-restricted-imports": [
         "error",

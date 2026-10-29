@@ -9,6 +9,9 @@ import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { PostHogInit } from "#src/analytics/posthog-init.tsx";
+import { financeWebAppMetadata } from "#src/finance/pwa/finance-web-app-metadata.ts";
+import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
 import { globalStyles } from "#src/theme/global-styles.ts";
 import { ThemeApplier } from "#src/theme/theme-applier.tsx";
 import { themeHack } from "#src/theme/theme-hack.ts";
@@ -28,10 +31,18 @@ export function generateStaticParams() {
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const params = await props.params;
-  setLocale(validateLocale(params.locale));
+  const locale = validateLocale(params.locale);
+  setLocale(locale);
   return {
-    title: t({ en: "Finance", zh: "家庭账本" }),
+    title: {
+      default: t({ en: "Finance | Qingqi Shi", zh: "家庭账本 | 石清琪" }),
+      template: t({
+        en: "%s | Finance | Qingqi Shi",
+        zh: "%s | 家庭账本 | 石清琪",
+      }),
+    },
     robots: { index: false, follow: false },
+    ...financeWebAppMetadata(locale),
   };
 }
 
@@ -61,13 +72,16 @@ export default async function RootLayout({
           crossOrigin="anonymous"
         />
         <I18nProvider locale={locale}>
-          <script>{themeHack}</script>
-          <ThemeApplier />
-          <EffectLayerProvider>
-            <PortalTargetProvider>
-              <Suspense fallback={null}>{children}</Suspense>
-            </PortalTargetProvider>
-          </EffectLayerProvider>
+          <SerwistProvider>
+            <script>{themeHack}</script>
+            <ThemeApplier />
+            <EffectLayerProvider>
+              <PortalTargetProvider>
+                <Suspense fallback={null}>{children}</Suspense>
+              </PortalTargetProvider>
+            </EffectLayerProvider>
+            <PostHogInit />
+          </SerwistProvider>
         </I18nProvider>
       </body>
     </html>
