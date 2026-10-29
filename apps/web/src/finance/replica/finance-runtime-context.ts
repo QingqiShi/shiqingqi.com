@@ -6,6 +6,7 @@ interface FinanceRuntimeContextValue {
   householdId: string;
   /** The signed-in Member. */
   memberId: string;
+  readOnly: boolean;
 }
 
 export const FinanceRuntimeContext =

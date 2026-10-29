@@ -60,6 +60,7 @@ beforeEach(async () => {
     householdId: home.householdId,
     memberId: home.memberId,
     role: "owner",
+    readOnly: false,
   };
   connected = true;
   fixture = {
@@ -162,6 +163,7 @@ describe("makeBankHandlers", () => {
       householdId: home.householdId,
       memberId: home.memberId,
       role: "owner",
+      readOnly: false,
     };
     const response = await handlers().putLink(
       request("links", {

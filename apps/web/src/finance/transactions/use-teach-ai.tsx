@@ -36,10 +36,11 @@ type Draft =
  *
  * `watch(id)` before a save reads the labels; the function it returns, after
  * the save, gives the toast action that opens `sheet`, or nothing when the
- * save did not correct the AI.
+ * save did not correct the AI, or in the demo, which cannot reach the AI.
  */
 export function useTeachAi() {
   const store = useReplicaStore();
+  const { readOnly } = useFinanceRuntime();
   const lookups = useTransactionLookups();
   const categoryNames = useSystemCategoryNames();
   const [open, setOpen] = useState(false);
@@ -70,7 +71,7 @@ export function useTeachAi() {
 
   const watch = (transactionId: string) => {
     const before = labelledTransactionIn(store.getSnapshot(), transactionId);
-    if (before?.labelledBy !== "ai") return () => undefined;
+    if (readOnly || before?.labelledBy !== "ai") return () => undefined;
     return (): ToastAction | undefined => {
       const request = aiCorrection(
         before,

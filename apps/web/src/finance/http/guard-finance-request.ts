@@ -21,8 +21,9 @@ export interface FinanceRequestGuardOptions {
 /**
  * The checks every session route of the Finance API runs first, in order:
  * the database is set up, a write comes from the same origin, there is a
- * session, an owner-only route has the owner, and the rate limit allows the
- * request. Returns the session, or the response that refuses the request.
+ * session, a write does not come from the read-only demo, an owner-only
+ * route has the owner, and the rate limit allows the request. Returns the
+ * session, or the response that refuses the request.
  */
 export async function guardFinanceRequest(
   dependencies: FinanceRequestGuardDependencies,
@@ -37,6 +38,9 @@ export async function guardFinanceRequest(
   }
   const session = await dependencies.getSession(request);
   if (!session) return financeJson({ error: "unauthorised" }, { status: 401 });
+  if (options.write && session.readOnly) {
+    return financeJson({ error: "read-only" }, { status: 403 });
+  }
   if (options.owner && session.role !== "owner") {
     return financeJson({ error: "owner-only" }, { status: 403 });
   }

@@ -29,6 +29,7 @@ import {
   type ReactNode,
 } from "react";
 import { t } from "#src/i18n.ts";
+import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { deferredInstallPrompt } from "./deferred-install-prompt.ts";
 import { readInstallPlatform } from "./detect-install-platform.ts";
@@ -64,6 +65,7 @@ function markOffered() {
  */
 export function InstallSheet() {
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
+  const { readOnly } = useFinanceRuntime();
   const prompt = useSyncExternalStore(
     deferredInstallPrompt.subscribe,
     deferredInstallPrompt.get,
@@ -73,7 +75,8 @@ export function InstallSheet() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (!bootstrapped || offer !== null) return;
+    // The app on the Home Screen asks for a passkey. The demo has no passkey.
+    if (!bootstrapped || readOnly || offer !== null) return;
     // A browser that is not on iOS and has the app already does not fire
     // `beforeinstallprompt`.
     const next: Offer | null = prompt
@@ -90,7 +93,7 @@ export function InstallSheet() {
     return () => {
       clearTimeout(timer);
     };
-  }, [bootstrapped, prompt, offer]);
+  }, [bootstrapped, readOnly, prompt, offer]);
 
   const titleId = useId();
   // The sheet opens without a request from the visitor. Thus focus goes to

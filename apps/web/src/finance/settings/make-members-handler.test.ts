@@ -249,6 +249,7 @@ describe("makeMembersHandler", () => {
         householdId: seeded.householdId,
         memberId: seeded.memberId,
         role: "owner",
+        readOnly: false,
       };
     });
 

@@ -67,6 +67,10 @@ export function useAuthErrorMessage() {
       en: "That code no longer works. Ask for a new one.",
       zh: "该验证码已失效。请重新获取。",
     }),
+    demo_not_found: t({
+      en: "The demo is not available right now.",
+      zh: "演示暂时无法使用。",
+    }),
     not_configured: t({
       en: "Finance is not set up on this server.",
       zh: "此服务器尚未配置家庭账本。",

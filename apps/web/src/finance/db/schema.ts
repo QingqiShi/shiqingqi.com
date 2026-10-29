@@ -165,15 +165,24 @@ export const sessions = pgTable(
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
 
-export const households = pgTable("households", {
-  id: uuid("id").primaryKey(),
-  name: text("name").notNull(),
-  baseCurrency: currency("base_currency").notNull().default("GBP"),
-  timezone: text("timezone").notNull().default(DEFAULT_HOUSEHOLD_TIME_ZONE),
-  aiInstructions: text("ai_instructions").notNull().default(""),
-  clock: minor("clock").notNull().default(0),
-  createdAt: createdAt(),
-});
+export const households = pgTable(
+  "households",
+  {
+    id: uuid("id").primaryKey(),
+    name: text("name").notNull(),
+    baseCurrency: currency("base_currency").notNull().default("GBP"),
+    timezone: text("timezone").notNull().default(DEFAULT_HOUSEHOLD_TIME_ZONE),
+    aiInstructions: text("ai_instructions").notNull().default(""),
+    clock: minor("clock").notNull().default(0),
+    demo: boolean("demo").notNull().default(false),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex("households_one_demo")
+      .on(table.demo)
+      .where(sql`${table.demo}`),
+  ],
+);
 
 function householdId() {
   return uuid("household_id")

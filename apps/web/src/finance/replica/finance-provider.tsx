@@ -10,6 +10,7 @@ import { FinanceRuntimeContext } from "./finance-runtime-context.ts";
 interface FinanceProviderProps {
   householdId: string;
   memberId: string;
+  readOnly: boolean;
   children: ReactNode;
 }
 
@@ -20,12 +21,14 @@ interface FinanceProviderProps {
 export function FinanceProvider({
   householdId,
   memberId,
+  readOnly,
   children,
 }: FinanceProviderProps) {
   const locale = useLocale();
   const [runtime] = useState(() =>
     createFinanceRuntime({
       householdId,
+      readOnly,
       onUnauthorised: () => {
         const here = `${normalizePath(window.location.pathname)}${window.location.search}`;
         window.location.assign(financeSignInPath(locale, here));
@@ -41,7 +44,7 @@ export function FinanceProvider({
   }, [runtime]);
 
   return (
-    <FinanceRuntimeContext value={{ runtime, householdId, memberId }}>
+    <FinanceRuntimeContext value={{ runtime, householdId, memberId, readOnly }}>
       {children}
     </FinanceRuntimeContext>
   );

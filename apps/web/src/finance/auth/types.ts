@@ -4,4 +4,5 @@ export interface FinanceSession {
   householdId: string;
   memberId: string;
   role: "owner" | "member";
+  readOnly: boolean;
 }

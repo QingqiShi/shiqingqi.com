@@ -52,7 +52,7 @@ import {
 import { SettingsPanel } from "./settings-panel.tsx";
 import { summariseBankSync, type BankSyncLine } from "./summarise-bank-sync.ts";
 import { useBankErrorMessage } from "./use-bank-error-message.ts";
-import { useIsOwner } from "./use-is-owner.ts";
+import { useHouseholdAccess } from "./use-household-access.ts";
 
 type Load =
   | { state: "loading" }
@@ -73,7 +73,8 @@ type ConnectedResponse = Extract<
  * owner for one.
  */
 export function ConnectionsSettings() {
-  const isOwner = useIsOwner();
+  const access = useHouseholdAccess();
+  const isOwner = access === "owner";
   const [load, setLoad] = useState<Load>({ state: "loading" });
   const [attempt, setAttempt] = useState(0);
 
@@ -106,6 +107,7 @@ export function ConnectionsSettings() {
     zh: "Lunch Flow 每六小时读取一次银行交易，并与已记录的交易匹配。",
   });
   const title = t({ en: "Connections", zh: "银行连接" });
+  const notConnected = t({ en: "Not connected", zh: "尚未连接" });
 
   if (load.state === "ready" && load.response.status === "connected") {
     return (
@@ -188,11 +190,10 @@ export function ConnectionsSettings() {
           </Text>
           <CredentialForm onSaved={reload} />
         </div>
+      ) : access === "viewer" ? (
+        <Callout intent="info">{notConnected}</Callout>
       ) : (
-        <Callout
-          intent="info"
-          title={t({ en: "Not connected", zh: "尚未连接" })}
-        >
+        <Callout intent="info" title={notConnected}>
           <Text look="bodySmall">
             {t({
               en: "The owner connects Lunch Flow with an API key.",
@@ -221,7 +222,8 @@ function ConnectedSettings({
   const locale = useLocale();
   const navigator = useFinanceNavigator();
   const { runtime } = useFinanceRuntime();
-  const isOwner = useIsOwner();
+  const access = useHouseholdAccess();
+  const isOwner = access === "owner";
   const showToast = useToast();
   const bankErrorMessage = useBankErrorMessage();
   const accounts = useReplica(liveRowSelectors.accounts);
@@ -433,11 +435,11 @@ function ConnectedSettings({
             })}
           </Text>
         ) : null}
-        {isOwner ? null : (
+        {access === "member" ? (
           <Text look="bodySmall" tone="muted">
             {labels.ownerOnly}
           </Text>
-        )}
+        ) : null}
         {isOwner && changed.length > 0 ? (
           <div css={[cluster.tight, styles.saveBar]}>
             <Button

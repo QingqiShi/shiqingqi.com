@@ -31,7 +31,7 @@ import { RecoveryEmailSettings } from "./recovery-email-settings.tsx";
 import { RemoveMemberSheet } from "./remove-member-sheet.tsx";
 import { SettingsPanel } from "./settings-panel.tsx";
 import { useApplyMutations } from "./use-apply-mutations.ts";
-import { useIsOwner } from "./use-is-owner.ts";
+import { useHouseholdAccess } from "./use-household-access.ts";
 
 interface Invite {
   memberId: string;
@@ -49,7 +49,7 @@ interface Editing {
 export function MembersSettings() {
   const locale = useLocale();
   const { memberId, runtime } = useFinanceRuntime();
-  const isOwner = useIsOwner();
+  const access = useHouseholdAccess();
   const members = useReplica(liveRowSelectors.members);
   const apply = useApplyMutations();
   const showToast = useToast();
@@ -133,7 +133,7 @@ export function MembersSettings() {
     invite && members.find((member) => member.id === invite.memberId)?.name;
 
   const removable =
-    isOwner && editing?.member && editing.member.id !== memberId
+    access === "owner" && editing?.member && editing.member.id !== memberId
       ? editing.member
       : null;
 
@@ -217,17 +217,19 @@ export function MembersSettings() {
           >
             {t({ en: "Member", zh: "成员" })}
           </Button>
-          <Button
-            size="sm"
-            look="ghost"
-            loading={busy === "passkey"}
-            onClick={() => void addPasskey()}
-          >
-            {t({
-              en: "Add a passkey on this device",
-              zh: "在此设备添加通行密钥",
-            })}
-          </Button>
+          {access === "viewer" ? null : (
+            <Button
+              size="sm"
+              look="ghost"
+              loading={busy === "passkey"}
+              onClick={() => void addPasskey()}
+            >
+              {t({
+                en: "Add a passkey on this device",
+                zh: "在此设备添加通行密钥",
+              })}
+            </Button>
+          )}
         </>
       }
     >
@@ -235,7 +237,9 @@ export function MembersSettings() {
         <List>
           {members.map((member) => {
             const invitable =
-              member.userId === null || (isOwner && member.id !== memberId);
+              access !== "viewer" &&
+              (member.userId === null ||
+                (access === "owner" && member.id !== memberId));
             const inviteLabel =
               member.userId === null
                 ? labels.createInvite

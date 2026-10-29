@@ -29,8 +29,8 @@ async function seedWhenEmpty(connectionString: string) {
       (db) => lookups.householdIds(db),
     );
     if (householdIds.length > 0) return;
-    console.log("Finance: seeding a synthetic Household…");
-    await seedDevDatabase(pool);
+    console.log("Finance: seeding a synthetic Household and the demo…");
+    await seedDevDatabase(pool, { demo: true });
   } finally {
     await pool.end();
   }

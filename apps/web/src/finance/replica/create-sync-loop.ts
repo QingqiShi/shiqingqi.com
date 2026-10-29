@@ -39,6 +39,8 @@ interface SyncLoopOptions {
   onUnauthorised?: () => void;
   /** Tests give another row shape to act as older or newer code. */
   rowShape?: number;
+  /** False keeps the Outbox in this tab and out of the changes that wait to sync. */
+  sendOutbox?: boolean;
   isOnline?: () => boolean;
   isVisible?: () => boolean;
 }
@@ -136,6 +138,9 @@ export function createSyncLoop(options: SyncLoopOptions) {
   const exchangeRatesEndpoint =
     options.exchangeRatesEndpoint ?? EXCHANGE_RATES_ENDPOINT;
   const now = options.now ?? (() => Date.now());
+  const sendsOutbox = options.sendOutbox ?? true;
+  const pendingCount = () =>
+    sendsOutbox ? store.getSnapshot().outboxCount : 0;
   const isOnline = options.isOnline ?? (() => navigator.onLine);
   const isVisible =
     options.isVisible ?? (() => document.visibilityState === "visible");
@@ -143,7 +148,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
   let status: SyncStatus = {
     online: true,
     activity: "idle",
-    pendingCount: store.getSnapshot().outboxCount,
+    pendingCount: pendingCount(),
     lastSyncedAt: store.getMeta().lastSyncedAt,
     problem: null,
     failures: 0,
@@ -227,6 +232,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
   }
 
   async function push() {
+    if (!sendsOutbox) return;
     while (store.hasQueued()) {
       const mutations = store.takeOutbox(PUSH_BATCH);
       const ids = mutations.map((mutation) => mutation.id);
@@ -543,7 +549,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
   }
 
   store.subscribe(() => {
-    setStatus({ pendingCount: store.getSnapshot().outboxCount });
+    setStatus({ pendingCount: pendingCount() });
   });
 
   let detach: (() => void) | null = null;
@@ -636,7 +642,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
       setStatus({
         ...leaderStatus,
         leader: false,
-        pendingCount: store.getSnapshot().outboxCount,
+        pendingCount: pendingCount(),
       });
     },
   };

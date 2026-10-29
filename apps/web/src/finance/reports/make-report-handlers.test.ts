@@ -56,6 +56,7 @@ beforeEach(async () => {
     householdId: home.householdId,
     memberId: home.memberId,
     role: "owner",
+    readOnly: false,
   };
 });
 

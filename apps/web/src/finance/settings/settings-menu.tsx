@@ -35,7 +35,7 @@ import {
   type SettingsGroup,
   type SettingsSection,
 } from "./settings-sections.ts";
-import { useIsOwner } from "./use-is-owner.ts";
+import { useHouseholdAccess } from "./use-household-access.ts";
 import { useRecoveryEmail } from "./use-recovery-email.ts";
 
 const ICONS: Record<SettingsSection, Icon> = {
@@ -63,7 +63,7 @@ const ICONS: Record<SettingsSection, Icon> = {
 export function SettingsMenu({ current }: { current: SettingsSection | null }) {
   const locale = useLocale();
   const id = useId();
-  const isOwner = useIsOwner();
+  const isOwner = useHouseholdAccess() === "owner";
   const recoveryEmail = useRecoveryEmail();
   const groupLabels: Record<SettingsGroup, string> = {
     general: t({ en: "General", zh: "通用" }),

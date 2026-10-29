@@ -52,6 +52,7 @@ function serverWithRowShape(rowShape: number) {
     householdId,
     memberId: randomUUID(),
     role: "owner",
+    readOnly: false,
   };
   const handlers = makeSyncHandlers({
     isConfigured: () => true,

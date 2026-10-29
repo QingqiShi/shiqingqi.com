@@ -63,6 +63,7 @@ async function resolveSessionIn(
 
   const refreshed =
     allowRefresh &&
+    !membership.demo &&
     now.getTime() - row.refreshedAt.getTime() >= REFRESH_AFTER_MS;
   if (refreshed) {
     await db
@@ -92,6 +93,7 @@ async function resolveSessionIn(
       householdId: membership.householdId,
       memberId: membership.memberId,
       role: membership.role,
+      readOnly: membership.demo,
     },
     refreshed,
   };

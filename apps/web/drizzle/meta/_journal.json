@@ -134,6 +134,13 @@
       "when": 1793129777893,
       "tag": "0018_no_auto_post_on_bank_link",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793235539543,
+      "tag": "0019_demo_household",
+      "breakpoints": true
     }
   ]
 }

@@ -17,13 +17,14 @@ import { householdApiClient } from "./household-api-client.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
 import { supportedTimeZones } from "./supported-time-zones.ts";
 import { timeZoneOptions } from "./time-zone-options.ts";
-import { useIsOwner } from "./use-is-owner.ts";
+import { useHouseholdAccess } from "./use-household-access.ts";
 
 /** The Household's name and timezone; the base currency is fixed in v1. */
 export function HouseholdSettings() {
   const household = useReplica((snapshot) => snapshot.household);
   const { runtime } = useFinanceRuntime();
-  const isOwner = useIsOwner();
+  const access = useHouseholdAccess();
+  const isOwner = access === "owner";
   const showToast = useToast();
   const [name, setName] = useState(household?.name ?? "");
   const [timezone, setTimezone] = useState(
@@ -88,7 +89,9 @@ export function HouseholdSettings() {
               en: "Saving needs you to be online. Each device gets the change on its next sync.",
               zh: "保存需要联网；每台设备会在下次同步时收到修改。",
             })
-          : messages.ownerOnly
+          : access === "member"
+            ? messages.ownerOnly
+            : undefined
       }
     >
       <form

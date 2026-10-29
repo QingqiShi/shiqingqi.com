@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -28,6 +29,7 @@ import {
   makeOutboxEmailSender,
   readOutbox,
 } from "../email/make-outbox-email-sender.ts";
+import { guardFinanceRequest } from "../http/guard-finance-request.ts";
 import { createInvite } from "./create-invite.ts";
 import { financeSessionCookie } from "./finance-session-cookie.ts";
 import { makeGetFinanceSession } from "./get-finance-session.ts";
@@ -1546,5 +1548,103 @@ describe("request guards", () => {
 
     expect(result.status).toBe(429);
     expect(result.headers.get("Retry-After")).toBe("1");
+  });
+});
+
+describe("demo", () => {
+  async function demoHousehold() {
+    const userId = randomUUID();
+    await db.insert(users).values({ id: userId, displayName: "Alex" });
+    const demo = await createTestHousehold(db, {
+      name: "Home",
+      members: [
+        { name: "Alex", role: "owner", userId },
+        { name: "Sam", role: "member" },
+      ],
+    });
+    await withHousehold(db, demo.householdId, (scope) =>
+      scope.db.update(households).set({ demo: true }),
+    );
+    return demo;
+  }
+
+  function guard(client: Client, write: boolean) {
+    const token = client.jar.get(financeSessionCookie.name) ?? "";
+    const request = new Request(`${TEST_ORIGIN}/api/finance/sync`, {
+      method: write ? "POST" : "GET",
+      headers: {
+        Cookie: `${financeSessionCookie.name}=${token}`,
+        Origin: TEST_ORIGIN,
+      },
+    });
+    return guardFinanceRequest(
+      {
+        isConfigured: () => true,
+        getSession: makeGetFinanceSession({
+          getDb: () => db,
+          now: () => now,
+          reissueCookie: () => Promise.resolve(),
+        }),
+      },
+      request,
+      { write },
+    );
+  }
+
+  it("is not found until a Household is the demo", async () => {
+    await importedHousehold();
+    const result = await createAuthTestClient(makeHandlers()).post("startDemo");
+
+    expect(result).toMatchObject({
+      status: 404,
+      body: { error: "demo_not_found" },
+    });
+  });
+
+  it("lets a visitor read the demo as its owner, and refuses every write", async () => {
+    const demo = await demoHousehold();
+    const visitor = createAuthTestClient(makeHandlers());
+
+    expect((await visitor.post("startDemo")).status).toBe(200);
+    expect(await visitor.get("session")).toMatchObject({
+      status: 200,
+      body: { householdId: demo.householdId, role: "owner" },
+    });
+    expect(await guard(visitor, false)).toMatchObject({
+      householdId: demo.householdId,
+      readOnly: true,
+    });
+
+    expect(await guard(visitor, true)).toMatchObject({ status: 403 });
+    expect(
+      await visitor.post("createInvite", { memberId: demo.memberIds[1] }),
+    ).toMatchObject({ status: 403, body: { error: "read_only" } });
+    expect(await visitor.post("passkeyOptions")).toMatchObject({
+      status: 403,
+      body: { error: "read_only" },
+    });
+    expect(
+      await visitor.post("setRecoveryEmail", { email: "demo@example.com" }),
+    ).toMatchObject({ status: 403, body: { error: "read_only" } });
+    expect((await visitor.post("signOut")).status).toBe(200);
+  });
+
+  it("signs a visitor in for one day without renewal, and a later visitor clears the expired session", async () => {
+    await demoHousehold();
+    const first = createAuthTestClient(makeHandlers());
+
+    const started = await first.post("startDemo");
+
+    expect(started.setCookies.join("\n")).toMatch(
+      /finance_session=[^;]+; Max-Age=86400;/,
+    );
+    advance(DAY_MS - 60 * 1000);
+    expect(await guard(first, false)).toMatchObject({ readOnly: true });
+
+    advance(2 * 60 * 1000);
+    await createAuthTestClient(makeHandlers()).post("startDemo");
+
+    expect(await db.select().from(sessions)).toHaveLength(1);
+    expect(await guard(first, false)).toMatchObject({ status: 401 });
   });
 });
