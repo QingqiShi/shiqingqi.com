@@ -1,6 +1,5 @@
+import { setBindGroup } from "./set-bind-group.ts";
 import type { EffectPass } from "./types.ts";
-
-type RenderPass = EffectPass & Pick<GPURenderPassEncoder, "end">;
 
 /**
  * Runs `draw` on the render pass of one `<canvas>` element, which `begin`
@@ -14,44 +13,27 @@ type RenderPass = EffectPass & Pick<GPURenderPassEncoder, "end">;
  * @internal
  */
 export function encodeCanvasPass(
-  begin: () => RenderPass,
+  begin: () => GPURenderPassEncoder,
   shown: boolean,
   draw: (pass: EffectPass) => void,
 ) {
-  const queued: ((pass: RenderPass) => void)[] = [];
-  const begun: { pass: RenderPass | null } = { pass: null };
-  const run = (call: (pass: RenderPass) => void) => {
-    if (begun.pass === null) {
-      queued.push(call);
-    } else {
-      call(begun.pass);
-    }
-  };
+  const begun: { pass: GPURenderPassEncoder | null } = { pass: null };
   draw({
-    setPipeline(pipeline) {
-      run((pass) => {
-        pass.setPipeline(pipeline);
-      });
-    },
-    setBindGroup(index, bindGroup) {
-      run((pass) => {
-        pass.setBindGroup(index, bindGroup);
-      });
-    },
-    setVertexBuffer(slot, buffer) {
-      run((pass) => {
-        pass.setVertexBuffer(slot, buffer);
-      });
-    },
-    draw(vertexCount, instanceCount = 1, firstVertex = 0, firstInstance = 0) {
+    draw(
+      pipeline,
+      group,
+      vertexCount,
+      instanceCount = 1,
+      firstVertex = 0,
+      firstInstance = 0,
+    ) {
       if (vertexCount === 0 || instanceCount === 0) {
         return;
       }
-      if (begun.pass === null) {
-        begun.pass = begin();
-        for (const call of queued) {
-          call(begun.pass);
-        }
+      begun.pass ??= begin();
+      begun.pass.setPipeline(pipeline);
+      if (group !== null) {
+        setBindGroup(begun.pass, group);
       }
       begun.pass.draw(vertexCount, instanceCount, firstVertex, firstInstance);
     },

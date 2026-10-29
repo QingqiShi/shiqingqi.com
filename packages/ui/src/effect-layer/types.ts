@@ -1,4 +1,6 @@
+import type { d } from "typegpu";
 import type { Band, ScissorRect } from "./compute-bands.ts";
+import type { EffectBindGroup } from "./create-binding.ts";
 import type { RegisteredRegion } from "./create-effect-registry.ts";
 import type { CarrierClock, MeasureContext } from "./create-element-tracker.ts";
 import type { LiquidControl } from "./liquid-reader.ts";
@@ -92,8 +94,8 @@ export interface MeasuredElement extends ElementBox {
 }
 
 /**
- * One registered element as it was last measured. Its
- * index in `EffectFrame.elements` is its index in WGSL's `effectElements`.
+ * One registered element as it was last measured. Its index in
+ * `EffectFrame.elements` is its index in `effectElements` of `pageLayout`.
  *
  * @internal
  */
@@ -164,19 +166,19 @@ export interface EffectPointer {
  * @internal
  */
 export interface EffectSetup {
+  /**
+   * The shared device. A pipeline takes `pageLayout` in group 0 and, for a
+   * render pipeline, `targetLayout` in group 1.
+   */
   readonly device: GPUDevice;
-  /** The colour format of every `<canvas>` element, for a render pipeline's target. */
-  readonly format: GPUTextureFormat;
   /**
-   * Group 0 of every pipeline, render or compute: the page and every
-   * registered element, declared in WGSL as `PAGE_WGSL`.
+   * A render pipeline's colour target: the format of every `<canvas>`
+   * element, and `PREMULTIPLIED_BLEND`.
    */
-  readonly pageLayout: GPUBindGroupLayout;
-  /**
-   * Group 1 of every render pipeline: the target being drawn, declared in
-   * WGSL as `TARGET_WGSL`.
-   */
-  readonly targetLayout: GPUBindGroupLayout;
+  readonly colorTarget: {
+    readonly format: GPUTextureFormat;
+    readonly blend: GPUBlendState;
+  };
   /** Draws one more frame, for a change the effect layer cannot see. */
   readonly requestFrame: () => void;
 }
@@ -222,8 +224,6 @@ export interface EffectTarget {
    */
   readonly firstElement: number;
   readonly elementCount: number;
-  /** Group 1, laid out as `targetLayout`. */
-  readonly bindGroup: GPUBindGroup;
 }
 
 /**
@@ -266,31 +266,35 @@ export interface EffectFrame {
   readonly elements: readonly EffectElementRecord[];
   /**
    * The page first, at `PAGE_SCOPE`, then the scope of each Effect container
-   * with a box. In WGSL, `effectScopes` has them in the same order.
+   * with a box. `effectScopes` of `pageLayout` has them in the same order.
    */
   readonly scopes: readonly EffectScope[];
   readonly pointer: EffectPointer;
   /**
-   * Group 0, laid out as `pageLayout`. Each render pass has it set already; a
-   * compute pass sets it itself. It changes when the element buffer grows.
+   * Group 0, laid out as `pageLayout`. Each render pass has it set already;
+   * a compute pass takes it through `dispatch`. It changes when a buffer of
+   * the page grows.
    */
-  readonly pageBindGroup: GPUBindGroup;
+  readonly pageBindGroup: EffectBindGroup;
   /** Every pass of this frame. */
   readonly targets: readonly EffectTarget[];
 }
 
 /**
- * The calls of a render pass that an effect's `draw` can make. The pass of
- * a `<canvas>` element begins only once something draws on it, so a draw
- * with no vertices or no instances draws nothing.
+ * The render pass that an effect's `draw` draws in, with groups 0 and 1
+ * set. The pass of a `<canvas>` element begins only once something draws on
+ * it, so a draw with no vertices or no instances draws nothing.
  *
  * @internal
  */
 export interface EffectPass {
-  setPipeline: (pipeline: GPURenderPipeline) => void;
-  setBindGroup: (index: number, bindGroup: GPUBindGroup | null) => void;
-  setVertexBuffer: (slot: number, buffer: GPUBuffer | null) => void;
+  /**
+   * Draws with `pipeline`, and with `group`, the effect's own group, in
+   * `EFFECT_GROUP`, or none.
+   */
   draw: (
+    pipeline: GPURenderPipeline,
+    group: EffectBindGroup | null,
     vertexCount: number,
     instanceCount?: number,
     firstVertex?: number,
@@ -311,10 +315,7 @@ export interface EffectRenderer {
    * effect asks.
    */
   update?: (encoder: GPUCommandEncoder, frame: EffectFrame) => boolean | number;
-  /**
-   * Draws into every target of the frame, with groups 0 and 1 set; the
-   * effect skips what it does not own.
-   */
+  /** Draws into every target of the frame; the effect skips what it does not own. */
   draw: (pass: EffectPass, target: EffectTarget, frame: EffectFrame) => void;
   /**
    * Draw a frame each time the pointer moves, or only for the moves this
@@ -349,8 +350,6 @@ export interface Effect {
  */
 export interface CarrierSurface {
   readonly canvas: HTMLCanvasElement;
-  /** Group 1 of each pass on it, laid out as `targetLayout`. */
-  readonly bindGroup: GPUBindGroup;
 }
 
 /**
@@ -484,4 +483,60 @@ export interface Carrier {
     canvases: readonly HTMLCanvasElement[],
     kit: CanvasKit<Surface>,
   ) => CarrierCanvases<Surface>;
+}
+
+declare const schemaOf: unique symbol;
+
+/**
+ * How a schema of a `*-layout.ts` module lays out in a buffer, as
+ * `codegen/generate-wgsl.ts` resolves it, so that the browser writes the
+ * values without TypeGPU.
+ *
+ * @internal
+ */
+export interface EffectData<Schema extends d.AnyWgslData> {
+  readonly label: string;
+  /** The bytes that one value takes. */
+  readonly size: number;
+  /** The bytes from one value to the next in an array of them. */
+  readonly stride: number;
+  /** The byte offset of each field of a struct. */
+  readonly offsets: Schema extends d.WgslStruct<infer Props>
+    ? { readonly [Key in keyof Props]: number }
+    : Readonly<Record<string, never>>;
+  /** Writes `value` at `offset`, as WGSL reads it. */
+  readonly write: (
+    view: DataView,
+    offset: number,
+    value: EffectInput<Schema>,
+  ) => void;
+}
+
+/**
+ * A value that an `EffectData` of `Schema` writes. It is `d.InferInput`, but
+ * an array is an array of values, not a typed array of their words.
+ *
+ * @internal
+ */
+export type EffectInput<Schema> =
+  Schema extends d.WgslArray<infer Element>
+    ? readonly EffectInput<Element>[]
+    : Schema extends d.WgslStruct<infer Props>
+      ? { [Key in keyof Props]: EffectInput<Props[Key]> }
+      : d.InferInput<Schema>;
+
+/**
+ * A buffer that holds a value of `Schema`, bound as `Usage`. A bind group
+ * layout takes only a buffer of the schema and the usage of its entry.
+ *
+ * @internal
+ */
+export interface EffectBuffer<
+  Schema extends d.AnyWgslData,
+  Usage extends "uniform" | "storage",
+> {
+  readonly buffer: GPUBuffer;
+  readonly usage: Usage;
+  /** Only a type: the schema of the buffer. */
+  readonly [schemaOf]?: Schema;
 }

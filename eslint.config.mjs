@@ -20,9 +20,9 @@ const anchorNameLimit = {
 };
 
 // A ban with a narrower scope than the base config is a copy of
-// `no-restricted-syntax` under its own name. Flat config does not merge the
-// options of one rule from two config objects, so one shared rule needs an
-// object for each mix of scopes.
+// `no-restricted-syntax` or `no-restricted-imports` under its own name. Flat
+// config does not merge the options of one rule from two config objects, so
+// one shared rule needs an object for each mix of scopes.
 const noRestrictedSyntax = builtinRules.get("no-restricted-syntax");
 const restrictedPlugin = {
   rules: {
@@ -30,8 +30,50 @@ const restrictedPlugin = {
     "tmdb-query-fn": noRestrictedSyntax,
     "reduced-motion": noRestrictedSyntax,
     "type-assertion": noRestrictedSyntax,
+    "browser-typegpu": builtinRules.get("no-restricted-imports"),
   },
 };
+
+// The modules of the effect layer that run TypeGPU. Only
+// `packages/ui/codegen/generate-wgsl.ts` loads them, and it resolves them to
+// the WGSL and the plain layouts of `src/_generated/wgsl`.
+const effectLayerTypegpuModules = [
+  "*-layout",
+  "*-simulation",
+  "black-hole-shader",
+  "debug-shader",
+  "dust-shader",
+  "liquid-shader",
+  "ring-light-shader",
+  "ripple-shader",
+  "dust-page-position",
+  "edge-point",
+  "effect-clip",
+  "effect-element-distance",
+  "element-quad",
+  "pcg",
+];
+const browserTypegpuRule = (directory) => [
+  "error",
+  {
+    patterns: [
+      {
+        regex: "^typegpu(/|$)",
+        allowTypeImports: true,
+        message:
+          "The browser loads no TypeGPU. Import only its types, with `import type`. A new module that runs TypeGPU goes in `effectLayerTypegpuModules`.",
+      },
+      {
+        regex: `${directory}(${effectLayerTypegpuModules
+          .map((name) => name.replaceAll("*", "[a-z-]+"))
+          .join("|")})\\.ts$`,
+        allowTypeImports: true,
+        message:
+          "This module runs TypeGPU, which the browser does not load. Import only its types, or import the resolved layout from `_generated/wgsl/layouts.ts`. A new module that runs TypeGPU goes in `effectLayerTypegpuModules`.",
+      },
+    ],
+  },
+];
 
 const noUnusedVarsOptions = {
   args: "all",
@@ -517,6 +559,28 @@ export default defineConfig([
         },
       ],
     },
+  },
+  // The browser loads no TypeGPU: it reads the layouts that codegen resolves.
+  // Outside the effect layer, an import names the `effect-layer` directory.
+  {
+    files: ["packages/ui/src/**/*.{ts,tsx}"],
+    ignores: [
+      "packages/ui/src/effect-layer/**",
+      "packages/ui/src/**/*.test.{ts,tsx}",
+    ],
+    rules: {
+      "restricted/browser-typegpu": browserTypegpuRule("/effect-layer/"),
+    },
+  },
+  {
+    files: ["packages/ui/src/effect-layer/**/*.{ts,tsx}"],
+    ignores: [
+      ...effectLayerTypegpuModules.map(
+        (name) => `packages/ui/src/effect-layer/${name}.ts`,
+      ),
+      "packages/ui/src/**/*.test.{ts,tsx}",
+    ],
+    rules: { "restricted/browser-typegpu": browserTypegpuRule("^\\./") },
   },
   // Test files may call t() outside render scope for unit testing purposes.
   {

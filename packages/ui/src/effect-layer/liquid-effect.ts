@@ -1,12 +1,20 @@
-import { clamp } from "../clamp.ts";
 import {
-  GPU_BUFFER_USAGE,
-  GPU_MAP_MODE,
-  GPU_SHADER_STAGE,
-} from "./constants.ts";
+  LiquidBead,
+  LiquidInstance,
+  liquidLayout,
+  liquidSimulationLayout,
+  LiquidSlot,
+  LiquidStep,
+} from "../_generated/wgsl/layouts.ts";
+import { liquidSimulationWgsl } from "../_generated/wgsl/liquid-simulation.ts";
+import { liquidWgsl } from "../_generated/wgsl/liquid.ts";
+import { clamp } from "../clamp.ts";
+import { compileEffectShader } from "./compile-effect-shader.ts";
+import { GPU_BUFFER_USAGE, GPU_MAP_MODE } from "./constants.ts";
 import { createBinding } from "./create-binding.ts";
 import { createInstancedDraw } from "./create-instanced-draw.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
+import { createStorageBuffer } from "./create-storage-buffer.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
   EFFECT_SETTING_DEFAULTS,
@@ -14,30 +22,19 @@ import {
 } from "./effect-setting-defaults.ts";
 import { handBack } from "./hand-back.stylex.ts";
 import {
-  LIQUID_COMPUTE_WGSL,
-  LIQUID_STEP_BYTES,
-  packLiquidSteps,
-  type LiquidStep,
-} from "./liquid-compute-wgsl.ts";
-import type { LiquidControl, Pill } from "./liquid-reader.ts";
-import {
-  LIQUID_SLOT_BYTES,
-  LIQUID_SLOT_WORDS,
-  packLiquidSlot,
-  readLiquidSlot,
-} from "./liquid-shared-wgsl.ts";
-import {
-  LIQUID_INSTANCE_BYTES,
-  LIQUID_WGSL,
-  packLiquidBeads,
-  packLiquidInstances,
-  type LiquidBeadInstance,
-  type LiquidInstance,
+  liquidInstanceValue,
+  type LiquidInstanceRecord,
   type TrackRing,
-} from "./liquid-wgsl.ts";
+} from "./liquid-instance-value.ts";
+import type {
+  LiquidBead as LiquidBeadSchema,
+  LiquidStep as LiquidStepSchema,
+} from "./liquid-layout.ts";
+import type { LiquidControl, Pill } from "./liquid-reader.ts";
 import { markEffectDrawn } from "./mark-effect-drawn.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import { srgbToOklab } from "./ripple-color.ts";
+import { dispatch } from "./set-bind-group.ts";
 import { stepGlint } from "./step-glint.ts";
 import {
   beadRadius,
@@ -56,11 +53,13 @@ import type {
   Effect,
   EffectElementRecord,
   EffectFrame,
+  EffectInput,
   EffectSetup,
 } from "./types.ts";
+import { readLiquidSlot, writeLiquidSlot } from "./write-liquid-slot.ts";
 
 const LIQUID = roleBits(["liquid"]);
-const BEAD_BYTES = 16;
+const SLOT_BYTES = LiquidSlot.size;
 const MIN_SLOT_CAPACITY = 4;
 /**
  * How many copies of the simulation buffer can be on their way back to
@@ -258,16 +257,16 @@ export function layoutLiquid(
   frame: Pick<EffectFrame, "time" | "delta" | "reducedMotion">,
   backdrop: EffectColor,
   moved: LiquidSnapshot | null,
-  beads: LiquidBeadInstance[],
+  beads: EffectInput<typeof LiquidBeadSchema>[],
 ): {
   state: LiquidState;
-  instance: LiquidInstance;
+  instance: LiquidInstanceRecord;
   /** The effect draws the surface, so the control hides its own. */
   drawn: boolean;
   /** Something moves, so the next frame must follow. */
   animating: boolean;
   /** The step for the GPU to run on the body's slot this frame, or `null`. */
-  step: LiquidStep | null;
+  step: EffectInput<typeof LiquidStepSchema> | null;
   /** Put the body's particles into its slot before the step. */
   seed: boolean;
   /** A fade under reduced motion needs the next frame, though reduced motion asks for none. */
@@ -337,7 +336,7 @@ export function layoutLiquid(
   let simulated = state?.simulated ?? 0;
   let particlesAt = state?.particlesAt ?? 0;
   let seed = state === undefined || relaid;
-  let step: LiquidStep | null = null;
+  let step: EffectInput<typeof LiquidStepSchema> | null = null;
   if (!resting && reduced) {
     body = frozenLiquid(body, input);
     seed = true;
@@ -358,15 +357,14 @@ export function layoutLiquid(
       seed = true;
     } else {
       step = {
-        slot,
-        count: body.x.length,
-        target,
+        goal: target,
         span,
         aim: 0,
         scale: body.scale,
-        from: input.from,
-        to: input.to,
-        step: liquidStep(delta),
+        walls: [input.from, input.to],
+        seconds: liquidStep(delta),
+        count: body.x.length,
+        slot,
       };
     }
   }
@@ -374,7 +372,7 @@ export function layoutLiquid(
     particlesAt = simulated;
   }
   if (step !== null) {
-    simulated += step.step;
+    simulated += step.seconds;
   }
 
   // The track is all one fill, which goes from off to on as the on fill
@@ -436,8 +434,7 @@ export function layoutLiquid(
   const firstBead = beads.length;
   for (const bead of body.beads) {
     beads.push({
-      x: originX + bead.x * radius,
-      y: originY + bead.y * radius,
+      centre: [originX + bead.x * radius, originY + bead.y * radius],
       radius: beadRadius(bead) * radius,
     });
   }
@@ -490,7 +487,7 @@ export function layoutLiquid(
       centreX: centreX * radius,
       centreY: mean(body.y) * radius,
       thumb: solid,
-      set: body.set,
+      firm: body.set,
       lightBody,
       off: rgb(fill?.off ?? under),
       // The on fill is dim under the clear liquid, and brightens as it
@@ -528,7 +525,7 @@ interface Readback {
 /** A body the GPU stepped this frame, whose slot the readback carries. */
 interface Stepped {
   readonly id: number;
-  readonly step: LiquidStep;
+  readonly step: EffectInput<typeof LiquidStepSchema>;
   /** The time on the liquid's clock that the step takes the body to. */
   readonly time: number;
 }
@@ -554,41 +551,18 @@ interface Stepped {
  */
 export const liquidEffect: Effect = {
   async setup(setup: EffectSetup) {
-    const { device } = setup;
-    const computeLayout = device.createBindGroupLayout({
-      entries: (["read-only-storage", "storage"] as const).map(
-        (type, binding) => ({
-          binding,
-          visibility: GPU_SHADER_STAGE.COMPUTE,
-          buffer: { type },
-        }),
-      ),
-    });
-    const computeModule = device.createShaderModule({
-      code: LIQUID_COMPUTE_WGSL,
-    });
-    const [liquid, simulatePipeline] = await Promise.all([
-      createInstancedDraw(setup, LIQUID_WGSL, "liquid", 3),
-      device.createComputePipelineAsync({
-        layout: device.createPipelineLayout({
-          bindGroupLayouts: [computeLayout],
-        }),
-        compute: { module: computeModule, entryPoint: "simulate" },
-      }),
+    const { device, colorTarget } = setup;
+    const [liquid, simulation] = await Promise.all([
+      createInstancedDraw(device, liquidWgsl, colorTarget),
+      compileEffectShader(device, liquidSimulationWgsl).compute(),
     ]);
 
-    const instanceBuffer = createPackedBuffer(
-      device,
-      LIQUID_INSTANCE_BYTES,
-      packLiquidInstances,
+    const instanceBuffer = createPackedBuffer(device, LiquidInstance);
+    const beadBuffer = createPackedBuffer(device, LiquidBead);
+    const stepBuffer = createPackedBuffer(device, LiquidStep);
+    const slotFloats = new Float32Array(
+      SLOT_BYTES / Float32Array.BYTES_PER_ELEMENT,
     );
-    const beadBuffer = createPackedBuffer(device, BEAD_BYTES, packLiquidBeads);
-    const stepBuffer = createPackedBuffer(
-      device,
-      LIQUID_STEP_BYTES,
-      packLiquidSteps,
-    );
-    const slotFloats = new Float32Array(LIQUID_SLOT_WORDS);
     const slots = new Map<number, number>();
     const freeSlots: number[] = [];
     let readbacks: Readback[] = [];
@@ -598,13 +572,7 @@ export const liquidEffect: Effect = {
     function createSlotBuffer(capacity: number) {
       return {
         capacity,
-        buffer: device.createBuffer({
-          size: capacity * LIQUID_SLOT_BYTES,
-          usage:
-            GPU_BUFFER_USAGE.STORAGE |
-            GPU_BUFFER_USAGE.COPY_DST |
-            GPU_BUFFER_USAGE.COPY_SRC,
-        }),
+        buffer: createStorageBuffer(device, LiquidSlot, capacity),
       };
     }
 
@@ -621,10 +589,11 @@ export const liquidEffect: Effect = {
       }
       const { buffer } = slotBuffer;
       slotBuffer = createSlotBuffer(2 ** Math.ceil(Math.log2(count)));
+      const from = buffer.buffer;
       // The copy must occur before this frame writes to the new buffer.
       // Thus the copy goes to the queue now, and not in the frame's encoder.
       const copy = device.createCommandEncoder();
-      copy.copyBufferToBuffer(buffer, 0, slotBuffer.buffer, 0, buffer.size);
+      copy.copyBufferToBuffer(from, 0, slotBuffer.buffer.buffer, 0, from.size);
       device.queue.submit([copy.finish()]);
       buffer.destroy();
     }
@@ -639,10 +608,10 @@ export const liquidEffect: Effect = {
     }
 
     function writeSlot(slot: number, body: LiquidBody) {
-      packLiquidSlot(body, slotFloats);
+      writeLiquidSlot(slotFloats, body);
       device.queue.writeBuffer(
-        slotBuffer.buffer,
-        slot * LIQUID_SLOT_BYTES,
+        slotBuffer.buffer.buffer,
+        slot * SLOT_BYTES,
         slotFloats,
       );
     }
@@ -653,7 +622,7 @@ export const liquidEffect: Effect = {
      * the particles wait for the next frame.
      */
     function readBack(encoder: GPUCommandEncoder, stepped: readonly Stepped[]) {
-      const { buffer } = slotBuffer;
+      const buffer = slotBuffer.buffer.buffer;
       readbacks = readbacks.filter((candidate) => {
         const stale = !candidate.busy && candidate.buffer.size !== buffer.size;
         if (stale) {
@@ -678,8 +647,8 @@ export const liquidEffect: Effect = {
       const { buffer: target } = readback;
       readback.busy = true;
       const slotsRead = stepped.map(({ step }) => step.slot);
-      const start = Math.min(...slotsRead) * LIQUID_SLOT_BYTES;
-      const size = (Math.max(...slotsRead) + 1) * LIQUID_SLOT_BYTES - start;
+      const start = Math.min(...slotsRead) * SLOT_BYTES;
+      const size = (Math.max(...slotsRead) + 1) * SLOT_BYTES - start;
       encoder.copyBufferToBuffer(buffer, start, target, start, size);
       // The effect layer submits this encoder right after the update, in
       // the same task. A map requested before that submit would not wait
@@ -696,7 +665,7 @@ export const liquidEffect: Effect = {
                 latest.set(id, {
                   particles: readLiquidSlot(
                     floats,
-                    step.slot * LIQUID_SLOT_WORDS - start / 4,
+                    step.slot * SLOT_BYTES - start,
                     step.count,
                   ),
                   time,
@@ -713,24 +682,20 @@ export const liquidEffect: Effect = {
       });
     }
 
-    const slotBinding = {
-      get buffer() {
-        return slotBuffer.buffer;
-      },
-    };
-    const computeBinding = createBinding(device, computeLayout, [
-      stepBuffer,
-      slotBinding,
-    ]);
-    const liquidBinding = createBinding(device, liquid.layout, [
-      instanceBuffer,
-      slotBinding,
-      beadBuffer,
-    ]);
+    const simulationBinding = createBinding(
+      device,
+      liquidSimulationLayout,
+      () => ({ steps: stepBuffer.buffer, slots: slotBuffer.buffer }),
+    );
+    const liquidBinding = createBinding(device, liquidLayout, () => ({
+      liquids: instanceBuffer.buffer,
+      slots: slotBuffer.buffer,
+      beads: beadBuffer.buffer,
+    }));
 
     const states = new Map<number, LiquidState>();
     const drawn = new Set<Element>();
-    let instances: readonly LiquidInstance[] = [];
+    let instances: readonly LiquidInstanceRecord[] = [];
 
     return {
       update(encoder, frame) {
@@ -744,9 +709,9 @@ export const liquidEffect: Effect = {
             : [{ index, record, control, slot: slotOf(record.id) }];
         });
         ensureSlotCapacity(slots.size);
-        const nextInstances: LiquidInstance[] = [];
-        const beads: LiquidBeadInstance[] = [];
-        const steps: LiquidStep[] = [];
+        const nextInstances: LiquidInstanceRecord[] = [];
+        const beads: EffectInput<typeof LiquidBeadSchema>[] = [];
+        const steps: EffectInput<typeof LiquidStepSchema>[] = [];
         const stepped: Stepped[] = [];
         const seen = new Set<Element>();
         const kept = new Set<number>();
@@ -799,15 +764,11 @@ export const liquidEffect: Effect = {
           }
         }
         instances = nextInstances;
-        instanceBuffer.write(nextInstances);
+        instanceBuffer.write(nextInstances.map(liquidInstanceValue));
         beadBuffer.write(beads);
         stepBuffer.write(steps);
         if (steps.length > 0) {
-          const pass = encoder.beginComputePass();
-          pass.setPipeline(simulatePipeline);
-          pass.setBindGroup(0, computeBinding());
-          pass.dispatchWorkgroups(steps.length);
-          pass.end();
+          dispatch(encoder, simulation, [simulationBinding()], steps.length);
           readBack(encoder, stepped);
         }
         for (const element of seen) {

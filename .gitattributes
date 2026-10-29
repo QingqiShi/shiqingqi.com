@@ -1,1 +1,2 @@
 apps/finance/drizzle/meta/*_snapshot.json linguist-generated=true
+packages/ui/src/_generated/wgsl/*.ts linguist-generated=true

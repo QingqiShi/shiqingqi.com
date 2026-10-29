@@ -1,9 +1,5 @@
 import { clamp } from "../clamp.ts";
-import {
-  outlineLength,
-  outlineParam,
-  type OutlineBox,
-} from "./outline-param.ts";
+import { cornerRadius, outlineLength, outlineParam } from "./outline-param.ts";
 
 /**
  * Seconds a lap runs, from where it starts until it has died out.
@@ -25,10 +21,16 @@ const RISE = 0.08;
 /** How sharply a comet slows to its stop. */
 const COURSE_EASE = 3;
 
-/** The box a ring light runs around, in page coordinates. */
-interface RingLightBox extends OutlineBox {
+/**
+ * The box a ring light runs around, in page coordinates, with round corners
+ * of one radius. Lengths are CSS px.
+ */
+interface RingLightBox {
   readonly x: number;
   readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly radius: number;
 }
 
 /** The comet of a lap, as a frame draws it. */
@@ -119,8 +121,11 @@ export function ringLapAt(
   if (progress < 0) {
     return { comet: null, even: 0 };
   }
-  const length = Math.max(outlineLength(box), 1);
-  const origin = outlineParam(box, lap.x - box.x, lap.y - box.y) / length;
+  const radius = cornerRadius(box.width, box.height, box.radius);
+  const length = Math.max(outlineLength(box.width, box.height, radius), 1);
+  const origin =
+    outlineParam(box.width, box.height, radius, lap.x - box.x, lap.y - box.y) /
+    length;
   const course = cometCourse(progress);
   return {
     comet: {

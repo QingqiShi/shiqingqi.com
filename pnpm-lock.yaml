@@ -129,12 +129,18 @@ catalogs:
     tsx:
       specifier: ^4.23.15
       version: 4.23.15
+    typegpu:
+      specifier: ^0.12.9
+      version: 0.12.9
     typescript:
       specifier: npm:@typescript/typescript6@^6.0.2
       version: 6.0.2
     typescript-eslint:
       specifier: ^8.72.0
       version: 8.72.1
+    unplugin-typegpu:
+      specifier: ^0.12.7
+      version: 0.12.7
     vite:
       specifier: ^8.3.5
       version: 8.3.5
@@ -929,6 +935,9 @@ importers:
       react-remove-scroll:
         specifier: 'catalog:'
         version: 2.7.2(@types/react@19.3.0)(react@19.3.1)
+      typegpu:
+        specifier: 'catalog:'
+        version: 0.12.9
     devDependencies:
       '@babel/core':
         specifier: 'catalog:'
@@ -957,6 +966,9 @@ importers:
       '@tuja/babel-plugins':
         specifier: workspace:*
         version: link:../babel-plugins
+      '@tuja/codegen-fs':
+        specifier: workspace:*
+        version: link:../codegen-fs
       '@tuja/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
@@ -975,6 +987,9 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 30.1.3
+      prettier:
+        specifier: 'catalog:'
+        version: 3.9.10
       publint:
         specifier: 'catalog:'
         version: 0.3.25
@@ -984,6 +999,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.3.1(react@19.3.1)
+      unplugin-typegpu:
+        specifier: 'catalog:'
+        version: 0.12.7(acorn@8.18.0)(esbuild@0.28.2)(rolldown@1.2.15)(typegpu@0.12.9)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.97.1(esbuild@0.28.2))
       vite:
         specifier: 'catalog:'
         version: 8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)
@@ -4395,6 +4413,10 @@ packages:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
     engines: {node: '>=12'}
 
+  ast-kit@2.2.0:
+    resolution: {integrity: sha512-m1Q/RaVOnTp9JxPX+F+Zn7IcLYMzM8kZofDImfsKZd8MbR+ikdOzTeztStWqfrqIxZnYWryyI9ePm3NGjnZgGw==}
+    engines: {node: '>=20.19.0'}
+
   ast-v8-to-istanbul@1.0.7:
     resolution: {integrity: sha512-kFL68AG6ajd8fg248zwM9GQrUWEp79gsmjum34OEXjs4yHuUMZfYKwOLW9GMmB4oNvVrj+EAGxsP7ye2UR9UlA==}
 
@@ -4759,6 +4781,9 @@ packages:
   define-properties@1.2.1:
     resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
     engines: {node: '>= 0.4'}
+
+  defu@6.1.7:
+    resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
 
   dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
@@ -7351,6 +7376,22 @@ packages:
     resolution: {integrity: sha512-nIZ2N2dFpjBsg2hgitKu7mA+FvsIJuGJOwysRngmVRRmWgR/UyPjwJj8c/fT/dhm8EkHnF5EOogRf+0Z2qrimA==}
     engines: {node: '>=20.0.0'}
 
+  tinyest-for-wgsl@0.4.3:
+    resolution: {integrity: sha512-MInBuIJjtxYtoTWibcY3afI27hYLHtAPzxShlyuG0Mudgic95SNNhuadDZ5tB9dvRL8TsXydRCl3dgQU0h+Cmw==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@babel/types': ^7.29.0
+      acorn: ^8.14.1
+    peerDependenciesMeta:
+      '@babel/types':
+        optional: true
+      acorn:
+        optional: true
+
+  tinyest@0.3.4:
+    resolution: {integrity: sha512-81EcMHTCQ2IPweOGk9SpMgjbenR9ZJRsAE84btEv0DhvVKwhe7qBy28hWgatoXa9ppWzmtpHiJ+e86SiaAtY6w==}
+    engines: {node: '>=12.20.0'}
+
   tinyexec@1.3.1:
     resolution: {integrity: sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==}
     engines: {node: '>=18'}
@@ -7407,6 +7448,9 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  tsover-runtime@0.0.7:
+    resolution: {integrity: sha512-FHHwMJzZbnP23+fU1PxXljy7j0RRRosL2r1/CRUNTqfW+l7m35JsUkM615x/cAzw4GqRdXPIl3axKMj9qzpZtQ==}
+
   tsx@4.23.15:
     resolution: {integrity: sha512-Yiex1Ovn8z2xPpOWckIiysV1SSyRMY9BkLF++q0yKiDxCqRhosKfMg3janKkiLBwZ5c/YryloKwGZcrEmtwxKw==}
     engines: {node: '>=18.0.0'}
@@ -7453,6 +7497,14 @@ packages:
   typed-array-length@1.0.8:
     resolution: {integrity: sha512-phPGCwqr2+Qo0fwniCE8e4pKnGu/yFb5nD5Y8bf0EEeiI5GklnACYA9GFy/DrAeRrKHXvHn+1SUsOWgJp6RO+g==}
     engines: {node: '>= 0.4'}
+
+  typed-binary@4.3.5:
+    resolution: {integrity: sha512-irziT9zxcyZs8TawuZBab1kQTACM3Q6wGWDh/a5IB2iWbueu+jbkN5ofoSvp28Em1w4ZEa7y44Jx7pHmgBGZdw==}
+
+  typegpu@0.12.9:
+    resolution: {integrity: sha512-Li2L4XRWabARzB9CaCqd0bTdFk88uu6dZiU03OPDksmLJmHaQztZW592y/TQJ9TjGiJmVcsx+UB9OtmEIMRp9w==}
+    engines: {node: '>=12.20.0'}
+    hasBin: true
 
   typescript-eslint@8.72.1:
     resolution: {integrity: sha512-3Li9FfPmQp45nxEtFD1ZCrYFI3cYK5kpyNtmm1H7lMagm8u9sy6PTjy3ytwQZs7KNukOyKFHAZ6z6GjYFeaeXw==}
@@ -7518,6 +7570,47 @@ packages:
 
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
+
+  unplugin-typegpu@0.12.7:
+    resolution: {integrity: sha512-qwR4ZkQ4DTs3wWLow+BrK+vkv+0f4lT43C4dwqJxxJWt9yzEtemMebOGA9MKc89+OoBixrPhAF4GSFoxJYFRgQ==}
+    peerDependencies:
+      typegpu: ^0.12.9
+
+  unplugin@3.7.0:
+    resolution: {integrity: sha512-GrM2uq3DQo3hvLU2FjeYhooJ8BY9N6j1Fbzgx7Pta3VVJevsD3VP4dPjZkZOS0mLvN8w9zzr9OlP+31bSMyuLw==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    peerDependencies:
+      '@farmfe/core': '*'
+      '@rsbuild/core': '*'
+      '@rspack/core': '*'
+      bun-types-no-globals: '*'
+      esbuild: '*'
+      rolldown: '*'
+      rollup: '*'
+      unloader: '*'
+      vite: '*'
+      webpack: '*'
+    peerDependenciesMeta:
+      '@farmfe/core':
+        optional: true
+      '@rsbuild/core':
+        optional: true
+      '@rspack/core':
+        optional: true
+      bun-types-no-globals:
+        optional: true
+      esbuild:
+        optional: true
+      rolldown:
+        optional: true
+      rollup:
+        optional: true
+      unloader:
+        optional: true
+      vite:
+        optional: true
+      webpack:
+        optional: true
 
   unrs-resolver@1.12.2:
     resolution: {integrity: sha512-dmlRxBJJayXjqTwC+JtF1HhJmgf3ftQ3YejFcZrf4+KKtJv0qDsK1pjqaaVjG7wJ5NJ6UVP1OqRMQ71Z4C3rxQ==}
@@ -7687,6 +7780,9 @@ packages:
   webpack-sources@3.5.0:
     resolution: {integrity: sha512-HPuy+uuoTCaaoEoI1LQ3JN9+vrPBvEesnnX1jADHy728cHSMlq4wUc4afYqahq2B1mhQVZxCXOkNTnXltr+2vQ==}
     engines: {node: '>=10.13.0'}
+
+  webpack-virtual-modules@0.6.2:
+    resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
 
   webpack@5.97.1:
     resolution: {integrity: sha512-EksG6gFY3L1eFMROS/7Wzgrii5mBAFe4rIr3r2BTfo7bcc+DWwFZ4OJ/miOuHJO/A85HwyI4eQ0F6IKXesO7Fg==}
@@ -11192,6 +11288,11 @@ snapshots:
 
   assertion-error@2.0.1: {}
 
+  ast-kit@2.2.0:
+    dependencies:
+      '@babel/parser': 7.29.9
+      pathe: 2.0.3
+
   ast-v8-to-istanbul@1.0.7:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
@@ -11546,6 +11647,8 @@ snapshots:
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
     optional: true
+
+  defu@6.1.7: {}
 
   dequal@2.0.3: {}
 
@@ -14736,6 +14839,15 @@ snapshots:
 
   tinybench@6.2.2: {}
 
+  tinyest-for-wgsl@0.4.3(@babel/types@7.29.8)(acorn@8.18.0):
+    dependencies:
+      tinyest: 0.3.4
+    optionalDependencies:
+      '@babel/types': 7.29.8
+      acorn: 8.18.0
+
+  tinyest@0.3.4: {}
+
   tinyexec@1.3.1: {}
 
   tinyglobby@0.2.17:
@@ -14778,6 +14890,8 @@ snapshots:
   tslib@1.14.1: {}
 
   tslib@2.8.1: {}
+
+  tsover-runtime@0.0.7: {}
 
   tsx@4.23.15:
     dependencies:
@@ -14848,6 +14962,14 @@ snapshots:
       possible-typed-array-names: 1.1.0
       reflect.getprototypeof: 1.0.10
     optional: true
+
+  typed-binary@4.3.5: {}
+
+  typegpu@0.12.9:
+    dependencies:
+      tinyest: 0.3.4
+      tsover-runtime: 0.0.7
+      typed-binary: 4.3.5
 
   typescript-eslint@8.72.1(@typescript/typescript6@6.0.2)(eslint@10.13.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2):
     dependencies:
@@ -14953,6 +15075,47 @@ snapshots:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
+
+  unplugin-typegpu@0.12.7(acorn@8.18.0)(esbuild@0.28.2)(rolldown@1.2.15)(typegpu@0.12.9)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.97.1(esbuild@0.28.2)):
+    dependencies:
+      '@babel/parser': 7.29.9
+      '@babel/traverse': 7.29.8
+      '@babel/types': 7.29.8
+      '@jridgewell/remapping': 2.3.5
+      ast-kit: 2.2.0
+      defu: 6.1.7
+      magic-string: 0.30.21
+      pathe: 2.0.3
+      picomatch: 4.0.7
+      tinyest: 0.3.4
+      tinyest-for-wgsl: 0.4.3(@babel/types@7.29.8)(acorn@8.18.0)
+      typegpu: 0.12.9
+      unplugin: 3.7.0(esbuild@0.28.2)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.97.1(esbuild@0.28.2))
+    transitivePeerDependencies:
+      - '@farmfe/core'
+      - '@rsbuild/core'
+      - '@rspack/core'
+      - acorn
+      - bun-types-no-globals
+      - esbuild
+      - rolldown
+      - rollup
+      - supports-color
+      - unloader
+      - vite
+      - webpack
+
+  unplugin@3.7.0(esbuild@0.28.2)(rolldown@1.2.15)(vite@8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.97.1(esbuild@0.28.2)):
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      '@rolldown/pluginutils': 1.0.1
+      picomatch: 4.0.7
+      webpack-virtual-modules: 0.6.2
+    optionalDependencies:
+      esbuild: 0.28.2
+      rolldown: 1.2.15
+      vite: 8.3.5(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(tsx@4.23.15)(yaml@2.9.1)
+      webpack: 5.97.1(esbuild@0.28.2)
 
   unrs-resolver@1.12.2:
     dependencies:
@@ -15124,6 +15287,8 @@ snapshots:
   webidl-conversions@8.0.1: {}
 
   webpack-sources@3.5.0: {}
+
+  webpack-virtual-modules@0.6.2: {}
 
   webpack@5.97.1(esbuild@0.28.2):
     dependencies:

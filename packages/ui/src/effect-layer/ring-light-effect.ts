@@ -1,3 +1,8 @@
+import {
+  RingLightInstance,
+  ringLightLayout,
+} from "../_generated/wgsl/layouts.ts";
+import { ringLightWgsl } from "../_generated/wgsl/ring-light.ts";
 import { createBinding } from "./create-binding.ts";
 import { createInstancedDraw } from "./create-instanced-draw.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
@@ -9,12 +14,10 @@ import type { RoleReader } from "./read-roles.ts";
 import { ringLapAt, ringLapEnd, type RingLap } from "./ring-lap-at.ts";
 import { ringLightColors } from "./ring-light-colors.ts";
 import {
-  packRingLightInstances,
   PAGE_TINT,
-  RING_LIGHT_INSTANCE_BYTES,
-  RING_LIGHT_WGSL,
-  type RingLightInstance,
-} from "./ring-light-wgsl.ts";
+  ringLightInstanceValue,
+  type RingLightInstanceRecord,
+} from "./ring-light-instance-value.ts";
 import { isLightBackdrop } from "./ripple-color.ts";
 import type { Effect, EffectElementRecord, EffectFrame } from "./types.ts";
 
@@ -22,7 +25,7 @@ const RING_LIGHT = roleBits(["ringLight"]);
 
 /**
  * The colours of a ring light in `fill` over `backdrop`: every field of a
- * `RingLightInstance` except its element and its state.
+ * `RingLightInstanceRecord` except its element and its state.
  */
 function ringLightPaint(fill: EffectColor, backdrop: EffectColor) {
   return {
@@ -89,26 +92,24 @@ function lapFrom(
  */
 export const ringLightEffect: Effect = {
   async setup(setup) {
-    const { device } = setup;
+    const { device, colorTarget } = setup;
     // A lap starts on the first frame its element is seen, so it waits for
     // the pipeline: otherwise the start of the lap would not show.
     const ringLight = await createInstancedDraw(
-      setup,
-      RING_LIGHT_WGSL,
-      "ringLight",
-    );
-    const buffer = createPackedBuffer(
       device,
-      RING_LIGHT_INSTANCE_BYTES,
-      packRingLightInstances,
+      ringLightWgsl,
+      colorTarget,
     );
-    const binding = createBinding(device, ringLight.layout, [buffer]);
+    const buffer = createPackedBuffer(device, RingLightInstance);
+    const binding = createBinding(device, ringLightLayout, () => ({
+      ringLights: buffer.buffer,
+    }));
     /** Each element's lap, kept after it is over so that it runs once. */
     const laps = new Map<number, ElementLap>();
-    let rings: readonly RingLightInstance[] = [];
+    let rings: readonly RingLightInstanceRecord[] = [];
     return {
       update(_encoder, frame: EffectFrame) {
-        const instances: RingLightInstance[] = [];
+        const instances: RingLightInstanceRecord[] = [];
         let nextEnd = Infinity;
         const kept = new Set<number>();
         for (const [index, record] of frame.elements.entries()) {
@@ -144,7 +145,9 @@ export const ringLightEffect: Effect = {
           }
         }
         rings = instances;
-        buffer.write(instances);
+        buffer.write(
+          instances.map((instance) => ringLightInstanceValue(instance)),
+        );
         if (instances.length === 0) {
           return false;
         }

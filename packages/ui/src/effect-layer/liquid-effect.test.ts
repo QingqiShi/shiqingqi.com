@@ -1,7 +1,8 @@
+import type { d } from "typegpu";
 import { describe, expect, it } from "vitest";
 import { layoutLiquid, type LiquidState } from "./liquid-effect.ts";
+import type { LiquidBead } from "./liquid-layout.ts";
 import type { LiquidControl } from "./liquid-reader.ts";
-import type { LiquidBeadInstance } from "./liquid-wgsl.ts";
 import { readFill } from "./read-element-box.ts";
 import {
   mean,
@@ -55,7 +56,7 @@ function createRun(control: LiquidControl, reducedMotion = false) {
     time += 1 / 60;
     latest = moved ?? pending ?? latest;
     pending = null;
-    const beads: LiquidBeadInstance[] = [];
+    const beads: d.InferInput<typeof LiquidBead>[] = [];
     const laid = layoutLiquid(
       control,
       { id: 1, settings: { liquid }, ...box },
@@ -74,14 +75,22 @@ function createRun(control: LiquidControl, reducedMotion = false) {
       if (slot === null) {
         throw new Error("The step has no particles to move.");
       }
-      const { target, span, aim, from, to, scale, step } = laid.step;
+      const { goal, span, aim, walls, scale, seconds } = laid.step;
       expect(laid.step.slot).toBe(SLOT);
       expect(laid.step.count).toBe(slot.x.length);
       slot = simulateLiquid(
         slot,
-        { target, span, aim, from, to, pressed: false, reducedMotion: false },
+        {
+          target: goal,
+          span,
+          aim,
+          from: walls[0],
+          to: walls[1],
+          pressed: false,
+          reducedMotion: false,
+        },
         scale,
-        step,
+        seconds,
       );
       pending = { particles: slot, time: laid.state.simulated };
     }
@@ -123,7 +132,7 @@ describe("layoutLiquid", () => {
       1,
     );
     expect(recovered.instance.calm).toBe(1);
-    expect(recovered.instance.set).toBe(1);
+    expect(recovered.instance.firm).toBe(1);
   });
 
   it("keeps the control's own surface when a resize moves the pill under a liquid at rest", () => {

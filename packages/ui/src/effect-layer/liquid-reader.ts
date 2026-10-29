@@ -5,7 +5,7 @@ import {
   LIQUID_SEGMENT,
   LIQUID_VERTICAL,
 } from "./liquid-indicator.ts";
-import type { TrackRing } from "./liquid-wgsl.ts";
+import type { TrackRing } from "./liquid-instance-value.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import {
   readCornerExponent,
@@ -61,12 +61,12 @@ export interface LiquidControl {
    * the track shows through.
    */
   readonly thumb: boolean;
-  /** The selected surface's own edge, as `LiquidInstance.edge` takes it. */
+  /** The selected surface's own edge, as `LiquidInstanceRecord.edge` takes it. */
   readonly edge: Edge;
   /** How far the liquid's surface swells past its rest shape, in CSS px. */
   readonly spread: number;
   /**
-   * The track runs down the page, as `LiquidInstance.vertical` describes.
+   * The track runs down the page, as `LiquidInstanceRecord.vertical` describes.
    * Else it runs along it.
    */
   readonly vertical?: boolean;
@@ -216,7 +216,7 @@ function readSegments(
 ): LiquidControl | null {
   const indicator = element.querySelector(`[${LIQUID_INDICATOR}]`);
   const vertical = element.hasAttribute(LIQUID_VERTICAL);
-  // A vertical track is read in the frame that `LIQUID_WGSL` turns it to,
+  // A vertical track is read in the frame that `liquidShader` turns it to,
   // mirrored over the diagonal, so the code below reads only the horizontal case.
   const frame = vertical ? turn : (rect: Box) => rect;
   const side = vertical ? TURNED_SIDES : SIDES;

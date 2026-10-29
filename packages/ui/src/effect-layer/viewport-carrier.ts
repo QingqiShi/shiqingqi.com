@@ -64,7 +64,6 @@ function createViewportCanvases<Surface extends CarrierSurface>(
             drawnPageRange: [y, y + height],
             firstElement: range.firstElement,
             elementCount: range.elementCount,
-            bindGroup: surface.bindGroup,
           },
         },
       ];

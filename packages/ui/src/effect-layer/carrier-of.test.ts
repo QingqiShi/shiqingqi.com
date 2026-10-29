@@ -21,10 +21,7 @@ function fakeKit(broken: readonly HTMLCanvasElement[] = []) {
     [];
   const released: HTMLCanvasElement[] = [];
   const kit: CanvasKit<CarrierSurface> = {
-    configure: (canvas) =>
-      broken.includes(canvas)
-        ? null
-        : { canvas, bindGroup: { label: canvas.id } },
+    configure: (canvas) => (broken.includes(canvas) ? null : { canvas }),
     release: ({ canvas }) => {
       released.push(canvas);
     },
@@ -112,8 +109,8 @@ describe("a banded carrier", () => {
       drawnPageRange: [1400, 2400],
       firstElement: 3,
       elementCount: 2,
-      bindGroup: { label: "canvas-1" },
     });
+    expect(passes[0].surface.canvas.id).toBe("canvas-1");
     expect(passes[1].target.drawnPageRange).toEqual([2400, 2600]);
   });
 

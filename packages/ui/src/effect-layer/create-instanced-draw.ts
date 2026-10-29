@@ -1,7 +1,18 @@
-import { GPU_SHADER_STAGE, PREMULTIPLIED_BLEND } from "./constants.ts";
-import type { EffectPass, EffectSetup, EffectTarget } from "./types.ts";
+import {
+  compileEffectShader,
+  type EffectShader,
+} from "./compile-effect-shader.ts";
+import type { EffectBindGroup } from "./create-binding.ts";
+import type { EffectPass, EffectTarget } from "./types.ts";
 
 type Instances = readonly { readonly elementIndex: number }[];
+
+/**
+ * The primitive of a pipeline that draws quads of 4 vertices.
+ *
+ * @internal
+ */
+export const QUAD_STRIP = { topology: "triangle-strip" } as const;
 
 /**
  * The range of `instances` whose elements are in a target's range of
@@ -25,47 +36,27 @@ export function instanceRange(
 }
 
 /**
- * The render pipeline of an effect that draws one quad for each instance,
- * from the entry points `${entryPrefix}Vertex` and `${entryPrefix}Fragment`
- * of `code`, with `storageBuffers` read-only storage buffers in group 2.
+ * Draws one quad of 4 vertices for each instance with `shader`, as a
+ * `QUAD_STRIP`, and the effect's own group.
  *
  * @internal
  */
 export async function createInstancedDraw(
-  { device, format, pageLayout, targetLayout }: EffectSetup,
-  code: string,
-  entryPrefix: string,
-  storageBuffers = 1,
+  device: GPUDevice,
+  shader: EffectShader,
+  target: GPUColorTargetState,
 ) {
-  const layout = device.createBindGroupLayout({
-    entries: Array.from({ length: storageBuffers }, (_, binding) => ({
-      binding,
-      visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
-      buffer: { type: "read-only-storage" as const },
-    })),
-  });
-  const module = device.createShaderModule({ code });
-  const pipeline = await device.createRenderPipelineAsync({
-    layout: device.createPipelineLayout({
-      bindGroupLayouts: [pageLayout, targetLayout, layout],
-    }),
-    vertex: { module, entryPoint: `${entryPrefix}Vertex` },
-    fragment: {
-      module,
-      entryPoint: `${entryPrefix}Fragment`,
-      targets: [{ format, blend: PREMULTIPLIED_BLEND }],
-    },
-    primitive: { topology: "triangle-strip" },
-  });
+  const pipeline = await compileEffectShader(device, shader).render(
+    target,
+    QUAD_STRIP,
+  );
   return {
-    /** Group 2, which holds the storage buffers. */
-    layout,
     /** Draws the instances whose elements are on `target`. */
     draw(
       pass: EffectPass,
       target: EffectTarget,
       instances: Instances,
-      binding: () => GPUBindGroup,
+      group: () => EffectBindGroup,
     ) {
       const [first, count] = instanceRange(
         instances,
@@ -73,9 +64,7 @@ export async function createInstancedDraw(
         target.elementCount,
       );
       if (count > 0) {
-        pass.setPipeline(pipeline);
-        pass.setBindGroup(2, binding());
-        pass.draw(4, count, 0, first);
+        pass.draw(pipeline, group(), 4, count, 0, first);
       }
     },
   };

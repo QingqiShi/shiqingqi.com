@@ -1,6 +1,6 @@
 /**
  * The particles of a liquid and the walls that hold them: what a step
- * moves. In production the compute shader of `LIQUID_COMPUTE_WGSL` keeps
+ * moves. In production the compute shader of `liquidSimulation` keeps
  * them on the GPU, and `simulateLiquid` runs the same physics on the CPU.
  *
  * @internal
@@ -147,7 +147,8 @@ export const KERNEL_REACH = 0.42;
 
 /** The disk the particles fill at rest, inside the wall by one particle. */
 const PARTICLE_SPACING = Math.sqrt(Math.PI / PARTICLE_COUNT) * 0.93;
-const PARTICLE_RADIUS = PARTICLE_SPACING / 2;
+/** @internal */
+export const PARTICLE_RADIUS = PARTICLE_SPACING / 2;
 /** A low-discrepancy sequence in two dimensions, which fills a box evenly. */
 const PLASTIC = [0.7548776662466927, 0.5698402909980532] as const;
 const SUBSTEP = 1 / 240;
@@ -180,19 +181,33 @@ export const MAX_SUBSTEPS = 96;
 const PACE = 1.5;
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
-const STIFFNESS = 150;
-const NEAR_STIFFNESS = 500;
-const VISCOSITY = 3;
-const VISCOSITY_QUADRATIC = 0.25;
-/** Per second, on every particle: the liquid's loss to the track. */
-const DRAG = 2.5;
+/** @internal */
+export const STIFFNESS = 150;
+/** @internal */
+export const NEAR_STIFFNESS = 500;
+/** @internal */
+export const VISCOSITY = 3;
+/** @internal */
+export const VISCOSITY_QUADRATIC = 0.25;
+/**
+ * Per second, on every particle: the liquid's loss to the track.
+ *
+ * @internal
+ */
+export const DRAG = 2.5;
 /**
  * Per second, more loss once the body has come to its target, so that the
  * slosh after it lands dies away over the time it lingers.
+ *
+ * @internal
  */
-const SETTLE_DRAG = 2.5;
-/** The tilt towards the target, in rest radii per second squared. */
-const TILT = 56;
+export const SETTLE_DRAG = 2.5;
+/**
+ * The tilt towards the target, in rest radii per second squared.
+ *
+ * @internal
+ */
+export const TILT = 56;
 /** Within this reach of the target the tilt eases off. */
 const TILT_REACH = 0.4;
 /**
@@ -217,10 +232,16 @@ const TILT_BOOST_MAX = 3.25;
  * The tilt across the track at a full `aim`, in rest radii per second
  * squared, while the liquid pours. It moves the body only a little across,
  * but enough that it lands well off the middle of the far end.
+ *
+ * @internal
  */
-const AIM_TILT = 6;
-/** A weak pull to the centre line, so the body sits on it at rest. */
-const CENTRE_PULL = 4;
+export const AIM_TILT = 6;
+/**
+ * A weak pull to the centre line, so the body sits on it at rest.
+ *
+ * @internal
+ */
+export const CENTRE_PULL = 4;
 /**
  * The liquid wets the wall it touches: per second, how fast a particle
  * within `WALL_GRIP_REACH` of the wall loses its speed, so that the front
@@ -229,10 +250,14 @@ const CENTRE_PULL = 4;
  * only at its poles, so the sides share this grip over `SIDE_GRIP_SHARE`
  * times the pill's span: else they drag the pill out into a long slab
  * with a tail.
+ *
+ * @internal
  */
-const WALL_GRIP = 12;
-const WALL_GRIP_REACH = 0.08;
-const SIDE_GRIP_SHARE = 8;
+export const WALL_GRIP = 12;
+/** @internal */
+export const WALL_GRIP_REACH = 0.08;
+/** @internal */
+export const SIDE_GRIP_SHARE = 8;
 
 /** Below this mean speed, in rest radii per second, the liquid is still. */
 const STILL_SPEED = 0.3;
@@ -416,39 +441,8 @@ function restPositions(
   return [x, y];
 }
 
-const REST_DENSITY = restDensity();
-
-/**
- * The numbers of a substep, which `LIQUID_COMPUTE_WGSL` bakes in as
- * constants of the same names, so that the GPU runs the physics of
- * `simulateLiquid`.
- *
- * @internal
- */
-export const LIQUID_PHYSICS = {
-  KERNEL_REACH,
-  PARTICLE_RADIUS,
-  REST_DENSITY,
-  SUBSTEP,
-  SUBSTEP_MOVE,
-  STIFFNESS,
-  NEAR_STIFFNESS,
-  VISCOSITY,
-  VISCOSITY_QUADRATIC,
-  DRAG,
-  SETTLE_DRAG,
-  TILT,
-  TILT_REACH,
-  LEAN_LIMIT,
-  TILT_BOOST_REACH,
-  TILT_BOOST_POWER,
-  TILT_BOOST_MAX,
-  AIM_TILT,
-  CENTRE_PULL,
-  WALL_GRIP,
-  WALL_GRIP_REACH,
-  SIDE_GRIP_SHARE,
-} as const;
+/** @internal */
+export const REST_DENSITY = restDensity();
 
 /**
  * How far a frame of `delta` seconds moves the liquid's clock, in seconds
@@ -467,6 +461,7 @@ export function liquidStep(delta: number) {
  * @internal
  */
 export function substepCount(step: number, fastest: number) {
+  "use gpu";
   return Math.min(
     MAX_SUBSTEPS,
     Math.max(
@@ -563,10 +558,22 @@ interface Walls {
   readonly to: number;
 }
 
-/** How far a particle of `radius` is from the wall. */
-function wallGap(x: number, y: number, radius: number, { from, to }: Walls) {
-  const nearX = clamp(x, from, to);
-  return 1 - radius - Math.hypot(x - nearX, y);
+/**
+ * How far a particle of `radius` at `(x, y)` is from the wall of a track
+ * that holds the liquid between `from` and `to`.
+ *
+ * @internal
+ */
+export function wallGap(
+  x: number,
+  y: number,
+  radius: number,
+  from: number,
+  to: number,
+) {
+  "use gpu";
+  const outside = x - Math.min(to, Math.max(from, x));
+  return 1 - radius - Math.sqrt(outside * outside + y * y);
 }
 
 /** The nearest point to `(x, y)` that a disk of `radius` fits in the track. */
@@ -635,12 +642,16 @@ function findPairs(x: Float32Array, y: Float32Array, reach: number) {
 
 /**
  * How far the track leans towards a target `away` off: from -1 to 1, flat
- * within `TILT_REACH` of it. `LIQUID_COMPUTE_WGSL` has the same function.
+ * within `TILT_REACH` of it. The limit keeps `tanh` in the range where the
+ * GPU's relaxed maths is finite.
  *
  * @internal
  */
 export function leanTo(away: number) {
-  return Math.tanh(clamp(away / TILT_REACH, -LEAN_LIMIT, LEAN_LIMIT));
+  "use gpu";
+  return Math.tanh(
+    Math.min(LEAN_LIMIT, Math.max(-LEAN_LIMIT, away / TILT_REACH)),
+  );
 }
 
 /**
@@ -663,8 +674,11 @@ export function finiteParticles({ x, y, vx, vy }: LiquidParticles) {
 /**
  * How much steeper the tilt is at `away` from the target: 1 near it, and
  * in proportion to the distance far from it.
+ *
+ * @internal
  */
-function tiltBoost(away: number) {
+export function tiltBoost(away: number) {
+  "use gpu";
   return Math.min(
     TILT_BOOST_MAX,
     Math.max(1, Math.abs(away) / TILT_BOOST_REACH) ** TILT_BOOST_POWER,
@@ -709,7 +723,10 @@ function substep(
   for (let i = 0; i < count; i++) {
     vx[i] = (vx[i] + tiltX) * damping;
     vy[i] = (vy[i] + tiltY) * damping;
-    if (wallGap(x[i], y[i], particleRadius, walls) < WALL_GRIP_REACH) {
+    if (
+      wallGap(x[i], y[i], particleRadius, walls.from, walls.to) <
+      WALL_GRIP_REACH
+    ) {
       const onSide = x[i] > walls.from && x[i] < walls.to;
       vx[i] *= onSide ? sideDamping : wallDamping;
       vy[i] *= onSide ? sideDamping : wallDamping;
@@ -947,7 +964,7 @@ export function scaleAfter(
  * The substeps of one step of `step` seconds on the liquid's clock, as
  * the compute shader runs them: the walls move in behind the liquid, and
  * the particles tilt, slow, press and slide along the walls. Production
- * runs `LIQUID_COMPUTE_WGSL` instead. That shader sums the pairs of each
+ * runs `liquidSimulation` instead. That shader sums the pairs of each
  * particle from the positions at the start of a pass, but this applies each
  * pair in turn, so the two agree in their physics but not bit for bit.
  *

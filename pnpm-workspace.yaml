@@ -68,6 +68,8 @@ catalog:
   typescript: "npm:@typescript/typescript6@^6.0.2"
   "@typescript/native": "npm:typescript@^7.0.2"
   typescript-eslint: ^8.72.0
+  typegpu: ^0.12.9
+  unplugin-typegpu: ^0.12.7
   vite: ^8.3.5
   vitest: ^5.0.5
   zod: "4"

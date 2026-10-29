@@ -1,18 +1,16 @@
+import { RippleInstance, rippleLayout } from "../_generated/wgsl/layouts.ts";
+import { rippleWgsl } from "../_generated/wgsl/ripple.ts";
 import { createBinding } from "./create-binding.ts";
 import { createInstancedDraw } from "./create-instanced-draw.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
 import {
   createRipples,
   type RippleCause,
-  type RippleInstance,
+  type RippleInstanceRecord,
 } from "./create-ripples.ts";
 import { roleBits } from "./effect-roles.ts";
-import {
-  packRippleInstances,
-  RIPPLE_INSTANCE_BYTES,
-  RIPPLE_WGSL,
-} from "./ripple-wgsl.ts";
-import type { Effect, EffectFrame } from "./types.ts";
+import { rippleInstanceValue } from "./ripple-instance-value.ts";
+import type { Effect } from "./types.ts";
 
 const RIPPLE_BIT = roleBits(["ripple"]);
 const AMBIENT_BIT = roleBits(["rippleAmbient"]);
@@ -39,21 +37,17 @@ const isNode = (target: EventTarget | null): target is Node =>
  */
 export const rippleEffect: Effect = {
   async setup(setup) {
-    const { device, requestFrame } = setup;
-    const ripple = await createInstancedDraw(setup, RIPPLE_WGSL, "ripple");
-    const buffer = createPackedBuffer(
-      device,
-      RIPPLE_INSTANCE_BYTES,
-      (instances: readonly RippleInstance[], packed, frame: EffectFrame) => {
-        packRippleInstances(instances, frame, packed);
-      },
-    );
-    const binding = createBinding(device, ripple.layout, [buffer]);
+    const { device, colorTarget, requestFrame } = setup;
+    const ripple = await createInstancedDraw(device, rippleWgsl, colorTarget);
+    const buffer = createPackedBuffer(device, RippleInstance);
+    const binding = createBinding(device, rippleLayout, () => ({
+      ripples: buffer.buffer,
+    }));
 
     const ripples = createRipples();
     let rippling: readonly Element[] = [];
     let reducedMotion = false;
-    let instances: readonly RippleInstance[] = [];
+    let instances: readonly RippleInstanceRecord[] = [];
 
     /** The rippling elements that hold `target`. */
     const holding = (target: EventTarget | null) =>
@@ -138,7 +132,9 @@ export const rippleEffect: Effect = {
           held: heldStrength,
         });
         instances = step.instances;
-        buffer.write(instances, frame);
+        buffer.write(
+          instances.map((instance) => rippleInstanceValue(instance, frame)),
+        );
         return step.animating || (step.nextBeat ?? false);
       },
       draw(pass, target) {
