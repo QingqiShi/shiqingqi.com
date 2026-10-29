@@ -1,12 +1,12 @@
 "use client";
 
 import { useIsHydrated } from "@tuja/ui/hooks/use-is-hydrated";
+import { useResolvedTheme } from "@tuja/ui/hooks/use-resolved-theme";
+import { useTheme } from "@tuja/ui/hooks/use-theme";
 import { usePathname } from "next/navigation";
 import { useLayoutEffect } from "react";
 import { getDocumentClassName } from "./global-styles.ts";
 import { getThemeColors, prePaintThemeColorAttribute } from "./theme-hack.ts";
-import { useResolvedTheme } from "./use-resolved-theme.ts";
-import { useTheme } from "./use-theme.ts";
 
 /** Puts the stored Theme on the document and tints the mobile browser chrome to match. */
 export function ThemeApplier() {

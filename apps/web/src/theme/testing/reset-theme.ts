@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { useTheme } from "../use-theme.ts";
+import { useTheme } from "@tuja/ui/hooks/use-theme";
 
 /**
  * Removes the stored Theme, and the copy that `useTheme` keeps in memory, as

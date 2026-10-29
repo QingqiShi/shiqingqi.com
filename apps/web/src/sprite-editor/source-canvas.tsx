@@ -2,12 +2,12 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
+import { useResolvedTheme } from "@tuja/ui/hooks/use-resolved-theme";
 import { purple } from "@tuja/ui/palette/purple.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { border, color, shadow } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
-import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import { prepareCanvas } from "./prepare-canvas";
 import type { GridConfig, SourceImage } from "./types";
 

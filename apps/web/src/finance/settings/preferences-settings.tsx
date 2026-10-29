@@ -9,11 +9,11 @@ import { setLocaleCookie } from "@tuja/i18n/set-locale-cookie";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { Text } from "@tuja/ui/components/text";
+import { useTheme } from "@tuja/ui/hooks/use-theme";
 import { align } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { usePathname } from "next/navigation";
 import { useId } from "react";
-import { useTheme } from "#src/theme/use-theme.ts";
 import { SettingsPanel } from "./settings-panel.tsx";
 
 /** The Language and Theme this device shows Finance in. */

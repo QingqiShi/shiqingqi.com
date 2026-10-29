@@ -3,8 +3,11 @@
 import { MoonIcon } from "@phosphor-icons/react/dist/ssr/Moon";
 import { SunIcon } from "@phosphor-icons/react/dist/ssr/Sun";
 import { Button } from "@tuja/ui/components/button";
-import { useResolvedTheme, useSystemTheme } from "./use-resolved-theme.ts";
-import { useTheme } from "./use-theme.ts";
+import {
+  useResolvedTheme,
+  useSystemTheme,
+} from "@tuja/ui/hooks/use-resolved-theme";
+import { useTheme } from "@tuja/ui/hooks/use-theme";
 
 interface ThemeSwitchProps {
   /** [switchToLight, switchToDark] */

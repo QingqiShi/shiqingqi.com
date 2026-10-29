@@ -1,0 +1,106 @@
+@import "modern-normalize/modern-normalize.css" layer(normalize);
+
+@font-face {
+  font-family: "Inter";
+  src: url("/InterVariableOptimized.woff2");
+  font-style: oblique 0deg 10deg;
+  font-weight: 100 900;
+  font-display: fallback;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "Inter-fallback";
+  size-adjust: 107%;
+  ascent-override: 90%;
+  src:
+    local("Segoe UI"), local("Roboto"), local("Helvetica Neue"),
+    local("Helvetica"), local("Arial");
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/IBMPlexMono-Regular-Latin1.woff2");
+  font-weight: 400;
+  font-display: fallback;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/IBMPlexMono-Medium-Latin1.woff2");
+  font-weight: 500;
+  font-display: fallback;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/IBMPlexMono-SemiBold-Latin1.woff2");
+  font-weight: 600;
+  font-display: fallback;
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono-fallback";
+  size-adjust: 99.67%;
+  src: local("Menlo"), local("Consolas"), local("Liberation Mono");
+  unicode-range:
+    U+0000, U+0020-007E, U+00A0-00AC, U+00AE-00FF, U+0131, U+0152-0153,
+    U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-200B, U+2010-2027, U+202F-2055,
+    U+2057, U+205F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+FEFF;
+}
+
+@layer normalize {
+  html {
+    min-height: 100dvh;
+  }
+
+  body {
+    min-height: 100dvh;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  input[type="checkbox"] {
+    width: unset;
+    height: unset;
+  }
+
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+}
+
+/**
+ * The @stylex directive is used by the @stylexjs/postcss-plugin.
+ * It is automatically replaced with generated CSS during builds.
+ */
+@stylex;

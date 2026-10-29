@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useResolvedTheme } from "@tuja/ui/hooks/use-resolved-theme";
 import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { motionConstants } from "@tuja/ui/primitives/motion.stylex";
 import { color, layer } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
-import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import {
   createFlowGradientRenderer,
   type ColorOptions,
