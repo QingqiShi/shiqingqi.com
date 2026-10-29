@@ -291,7 +291,18 @@ export function layoutLiquid(
   if (state !== undefined && position !== state.position) {
     heading = headingTo(position, state.drag ?? state.position, last);
   }
-  if (state !== undefined && (target !== state.target || span !== state.span)) {
+  const pillMoved =
+    state !== undefined && (target !== state.target || span !== state.span);
+  // A layout change, such as a resize, moves the pill of a liquid at rest
+  // while nothing selects or presses it. The liquid then rests in the new
+  // pill at once, and the control keeps its own surface.
+  const relaid =
+    pillMoved &&
+    !state.active &&
+    position === state.position &&
+    drag === state.drag &&
+    pressed === state.pressed;
+  if (pillMoved && !relaid) {
     // The drawn surface settles into the rest pill as the body calms. A new
     // target moves that pill at once, so the body is not calm until it has
     // arrived there.
@@ -310,18 +321,22 @@ export function layoutLiquid(
     reducedMotion: reduced,
     aim: 0,
   };
+  if (relaid) {
+    body = frozenLiquid(body, input);
+  }
   // A new body rests as laid out: a step would move the particles towards
   // their own spacing and melt the surface for no reason.
   const resting =
     body.settled &&
     (state === undefined ||
+      relaid ||
       (target === state.target &&
         span === state.span &&
         pressed === state.pressed));
   const delta = frame.delta > 0 ? frame.delta : FIRST_STEP;
   let simulated = state?.simulated ?? 0;
   let particlesAt = state?.particlesAt ?? 0;
-  let seed = state === undefined;
+  let seed = state === undefined || relaid;
   let step: LiquidStep | null = null;
   if (!resting && reduced) {
     body = frozenLiquid(body, input);
@@ -378,12 +393,7 @@ export function layoutLiquid(
       : stepRise(state.rise, riseGoal, delta, reduced);
 
   let fade = reduced ? (state?.fade ?? null) : null;
-  if (
-    reduced &&
-    state !== undefined &&
-    !held &&
-    (target !== state.target || span !== state.span)
-  ) {
+  if (reduced && pillMoved && !relaid && !held) {
     fade = { target: state.target, span: state.span, start: frame.time };
   }
   if (fade !== null && frame.time - fade.start >= HAND_SECONDS) {

@@ -16,17 +16,17 @@ type Liquid = NonNullable<EffectSettings["liquid"]>;
 const SLOT = 2;
 const BACKDROP = readFill("rgb(250, 250, 250)");
 
-/** A segmented control of three segments, each 100 wide. */
-function threeSegments(): LiquidControl {
+/** A segmented control of three segments, each `width` wide. */
+function threeSegments(width = 100): LiquidControl {
   const radius = 16;
   return {
     radius,
     originX: radius,
     originY: radius,
-    travel: 300 / radius - 2,
-    stops: [0, 100, 200].map((left) => {
+    travel: (3 * width) / radius - 2,
+    stops: [0, width, 2 * width].map((left) => {
       const start = left / radius;
-      const end = (left + 100) / radius - 2;
+      const end = (left + width) / radius - 2;
       return { target: (start + end) / 2, span: (end - start) / 2 };
     }),
     color: readFill("rgb(255, 255, 255)"),
@@ -124,5 +124,20 @@ describe("layoutLiquid", () => {
     );
     expect(recovered.instance.calm).toBe(1);
     expect(recovered.instance.set).toBe(1);
+  });
+
+  it("keeps the control's own surface when a resize moves the pill under a liquid at rest", () => {
+    const control = threeSegments();
+    const run = createRun(control);
+    run({ ...rest, position: 1 });
+    const wider = threeSegments(120);
+    Object.assign(control, { travel: wider.travel, stops: wider.stops });
+
+    const relaid = run({ ...rest, position: 1 });
+
+    expect(relaid.drawn).toBe(false);
+    expect(relaid.step).toBeNull();
+    expect(relaid.seed).toBe(true);
+    expect(mean(relaid.state.body.x)).toBeCloseTo(wider.stops[1].target, 1);
   });
 });

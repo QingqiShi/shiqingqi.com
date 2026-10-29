@@ -179,6 +179,9 @@ const CAUSTIC_WIDTH = 0.08;
 // The track seen through the body: a wet surface is a little darker.
 const WET = 0.95;
 const SHADE = 0.05;
+// The most of the page that the set part of a body in front of it covers,
+// so the labels under it stay legible.
+const SEE_THROUGH_COVER = 0.5;
 const SHADOW_REACH = 3.0;
 const SHADOW = 0.18;
 // The surface melts from the rim inward and sets from the centre out, with
@@ -711,14 +714,19 @@ fn drawBody(
         // The liquid shows over the track as it is, and lets as much of the
         // page through as it can: the least alpha that gives the body over
         // the track's fill. Where it is lighter than the track, that alpha
-        // keeps a white label under it white. The colour stays at or below
-        // the alpha: Chrome drops the light of a premultiplied colour above
-        // its alpha when it converts the canvas for a wide-gamut display.
+        // keeps a white label under it white. A set body much lighter than
+        // a light track needs an alpha near one, which hides a dark label
+        // under it, so where the body is set the alpha stops at
+        // SEE_THROUGH_COVER, and the body shows a little nearer the track's
+        // fill. The colour stays at or below the alpha: Chrome drops the
+        // light of a premultiplied colour above its alpha when it converts
+        // the canvas for a wide-gamut display.
         let under = trackAt(liquid, track, page);
         let darker = 1.0 - body / max(under, vec3f(1e-3));
         let lighter = (body - under) / max(1.0 - under, vec3f(1e-3));
         let needed = max(darker, lighter);
-        let alpha = saturate(max(needed.x, max(needed.y, needed.z)));
+        let cover = mix(1.0, SEE_THROUGH_COVER, solid);
+        let alpha = min(saturate(max(needed.x, max(needed.y, needed.z))), cover);
         layer = vec4f(clamp(body - under * (1.0 - alpha), vec3f(0.0), vec3f(alpha)), alpha);
       }
       acc = over(layer * coverage * shown, acc);
