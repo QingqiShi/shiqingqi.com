@@ -22,8 +22,8 @@ updates:
       - "QingqiShi"
     open-pull-requests-limit: 10
     versioning-strategy: increase
-    # These aliases keep Babel 7 for the React Compiler pass in Vitest and
-    # the tinker build. The compiler fails on Babel 8. Do not move them to 8.
+    # These aliases keep Babel 7 for the React Compiler pass in Vitest.
+    # The compiler fails on Babel 8. Do not move them to 8.
     ignore:
       - dependency-name: "@babel/core-7"
         update-types: ["version-update:semver-major"]

@@ -274,9 +274,7 @@ does not contain a `stylex.defineConsts({ ... })` call.
 
 The options `@stylexjs/babel-plugin` runs with, in one place. A different
 option set yields different class names and a different rule order, so every
-build that has to produce the app's CSS reads them from here: the app's own
-`babel.config.js`, and the `@tuja/component-tinker` adapter, which recompiles
-the design system against the CSS the app ships.
+build that has to produce the app's CSS reads them from here.
 
 ```js
 // babel.config.js
@@ -326,16 +324,6 @@ module.exports = {
 `breakpointsRootDir` is the package that owns `src/breakpoints.stylex.ts`. Each
 plugin comes back as a resolved path, so the chain works from any working
 directory.
-
-A build that runs Babel itself, instead of through a bundler plugin, turns the
-rules the StyleX plugin collects into CSS with `processStylexRules`, from the
-ES module `@tuja/babel-plugins/stylex-plugins/process-stylex-rules`:
-
-```js
-import { processStylexRules } from "@tuja/babel-plugins/stylex-plugins/process-stylex-rules";
-
-const css = processStylexRules(rules, { useLayers: true });
-```
 
 ## @tuja/babel-plugins/react-compiler
 

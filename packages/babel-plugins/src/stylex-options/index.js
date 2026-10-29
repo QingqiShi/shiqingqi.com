@@ -2,10 +2,8 @@
 
 /**
  * The options `@stylexjs/babel-plugin` runs with wherever the site's StyleX is
- * compiled: the app's Babel config, and the `@tuja/component-tinker` adapter.
- * They belong together, because a different option set yields different class
- * names and a different rule order, and that adapter must reproduce the app's
- * CSS exactly.
+ * compiled. They live in one place, because a different option set yields
+ * different class names and a different rule order.
  *
  * @param {object} options
  * @param {string} options.rootDir - The directory `unstable_moduleResolution`
