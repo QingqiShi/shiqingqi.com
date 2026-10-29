@@ -10,9 +10,54 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.affected.outputs.web }}
+      finance: ${{ steps.affected.outputs.finance }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Find affected apps
+        id: affected
+        # On a pull request, HEAD is the merge commit, so HEAD^1 is the base
+        # branch. turbo marks an app as affected when the app or a package it
+        # uses changes. turbo does not mark the apps for most files outside
+        # apps and packages, such as this workflow or the scripts that the
+        # Playwright configs use. Thus a change to such a file tests all apps.
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != pull_request ]; then
+            echo "web=true" >> "$GITHUB_OUTPUT"
+            echo "finance=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          turbo=$(node -p 'require("./package.json").devDependencies.turbo')
+          affected=$(TURBO_SCM_BASE=HEAD^1 TURBO_SCM_HEAD=HEAD pnpm dlx "turbo@$turbo" ls --affected --output=json \
+            | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));console.log(d.packages.items.map((p)=>p.name).join(" "))')
+          echo "turbo affected: $affected"
+          outside=$(git diff --name-only HEAD^1 HEAD -- . ':!apps' ':!packages')
+          echo "Changed outside apps and packages: ${outside:-none}"
+          for app in web finance; do
+            if [ -n "$outside" ] || [[ " $affected " == *" $app "* ]]; then
+              echo "$app=true" | tee -a "$GITHUB_OUTPUT"
+            else
+              echo "$app=false" | tee -a "$GITHUB_OUTPUT"
+            fi
+          done
+
   # Build the web app once and share the output with every test shard, instead
   # of rebuilding it inside each shard's Playwright webServer.
   build:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.web != 'false' }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -59,6 +104,8 @@ jobs:
     # *while* the app builds, then wait for the build artifact below. Overlapping
     # shard setup with the build removes the serial "build gate" without going
     # back to rebuilding the app inside every shard.
+    needs: [changes]
+    if: ${{ needs.changes.outputs.web != 'false' }}
     permissions:
       contents: read
       # Needed to poll the run's artifacts/jobs API while waiting for the build.
@@ -140,6 +187,23 @@ jobs:
           path: apps/web/blob-report
           retention-days: 1
 
+  # Branch protection requires each shard check by its name. A matrix job that
+  # its `if` skips gives one check without the matrix values, so this job gives
+  # the shard checks when the change does not reach the app. Keep its matrix
+  # the same as the matrix of `test`.
+  test-skipped:
+    name: test
+    needs: [changes]
+    if: ${{ needs.changes.outputs.web == 'false' }}
+    permissions: {}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shardIndex: [1, 2, 3, 4, 5, 6, 7]
+        shardTotal: [7]
+    steps:
+      - run: echo "This change does not reach the web app."
+
   merge-reports:
     permissions:
       contents: read
@@ -181,6 +245,8 @@ jobs:
           retention-days: 30
 
   finance-build:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.finance != 'false' }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -211,6 +277,8 @@ jobs:
           retention-days: 1
 
   finance-test:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.finance != 'false' }}
     permissions:
       contents: read
       actions: read
@@ -273,6 +341,21 @@ jobs:
           name: finance-blob-report-${{ matrix.shardIndex }}
           path: apps/finance/blob-report
           retention-days: 1
+
+  # Gives the required shard checks when the change does not reach Finance. See
+  # `test-skipped`.
+  finance-test-skipped:
+    name: finance-test
+    needs: [changes]
+    if: ${{ needs.changes.outputs.finance == 'false' }}
+    permissions: {}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
+    steps:
+      - run: echo "This change does not reach Finance."
 
   finance-merge-reports:
     permissions:
