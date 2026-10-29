@@ -80,7 +80,10 @@ module.exports = async (phase) => {
       // Finance moved to its own origin, where it is at the root.
       const financeMoved = [
         ["/finance/:path*", "/:path*"],
-        ["/en/finance/:path*", "/en/:path*"],
+        // Finance does not add the default locale to a path with a dot, so
+        // the manifest must keep its "/en" prefix.
+        ["/en/finance/manifest.webmanifest", "/en/manifest.webmanifest"],
+        ["/en/finance/:path*", "/:path*"],
         ["/zh/finance/:path*", "/zh/:path*"],
         ["/api/finance/:path*", "/api/:path*"],
       ];
