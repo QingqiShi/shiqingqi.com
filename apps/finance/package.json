@@ -1,0 +1,49 @@
+{
+  "name": "finance",
+  "version": "0.1.0",
+  "private": true,
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "codegen": "npm-run-all codegen:*",
+    "codegen:i18n": "tsx ../../packages/i18n-codegen/src/generator.ts --root .",
+    "watch:i18n": "tsx ../../packages/i18n-codegen/src/generator.ts --root . --watch",
+    "prebuild": "npm-run-all codegen:i18n",
+    "predev": "npm-run-all codegen:i18n",
+    "dev": "run-p watch:i18n dev:next",
+    "dev:next": "next dev --turbopack -p $(node ../../scripts/get-worktree-port.mjs 200)",
+    "build": "next build",
+    "build:tsc": "next typegen && tsc --noEmit",
+    "start": "next start",
+    "lint": "eslint --max-warnings 0 ."
+  },
+  "dependencies": {
+    "@stylexjs/stylex": "catalog:",
+    "@tuja/i18n": "workspace:*",
+    "@tuja/ui": "workspace:*",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@stylexjs/postcss-plugin": "^0.19.1",
+    "@tuja/babel-plugins": "workspace:*",
+    "@tuja/i18n-codegen": "workspace:*",
+    "@tuja/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-module-resolver": "^5.0.3",
+    "babel-plugin-react-compiler": "catalog:",
+    "modern-normalize": "^3.0.1",
+    "next-i18n-router": "^5.5.8",
+    "npm-run-all2": "^9.0.4",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-import": "^17.0.1",
+    "postcss-preset-env": "^11.6.1",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

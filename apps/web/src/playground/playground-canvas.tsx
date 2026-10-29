@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useResolvedTheme } from "@tuja/ui/hooks/use-resolved-theme";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { font, layer, rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
-import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import { createPathtracerLoop } from "./create-pathtracer-loop";
 import displayFs from "./display-fs.glsl";
 import { fullScreenCanvas } from "./full-screen-canvas.stylex.ts";

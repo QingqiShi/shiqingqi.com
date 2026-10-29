@@ -566,7 +566,7 @@ export default defineConfig([
       // cannot change to match their exports.
       "packages/i18n/src/i18n.ts",
       "packages/i18n/src/{client-runtime,server-locale}.ts",
-      "apps/web/src/i18n/server-runtime.ts",
+      "apps/*/src/i18n/server-runtime.ts",
     ],
     rules: {
       "@tuja/export-matches-filename": "error",

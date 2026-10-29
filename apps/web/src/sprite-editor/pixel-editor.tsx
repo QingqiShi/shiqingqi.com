@@ -19,6 +19,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { useResolvedTheme } from "@tuja/ui/hooks/use-resolved-theme";
 import { purple } from "@tuja/ui/palette/purple.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -54,7 +55,6 @@ import { pasteCellScaled } from "#src/sprite-editor/pixel-ops/paste-cell-scaled.
 import { rgbaToHex } from "#src/sprite-editor/pixel-ops/rgba-to-hex.ts";
 import { setPixel } from "#src/sprite-editor/pixel-ops/set-pixel.ts";
 import type { Rect } from "#src/sprite-editor/pixel-ops/types.ts";
-import { useResolvedTheme } from "#src/theme/use-resolved-theme.ts";
 import { computeGuideFractions } from "./compute-guide-fractions";
 import { isEditableTarget } from "./is-editable-target";
 import { prepareCanvas } from "./prepare-canvas";
