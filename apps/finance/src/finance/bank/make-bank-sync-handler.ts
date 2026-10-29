@@ -1,5 +1,7 @@
 import type { LabellingModel } from "../ai/label-bank-rows.ts";
+import { bankLinkRepository } from "../db/repositories/bank-link-repository.ts";
 import type { FinanceDb } from "../db/types.ts";
+import { withHousehold } from "../db/with-household.ts";
 import {
   makeHouseholdCronHandler,
   type HouseholdCronDependencies,
@@ -30,7 +32,18 @@ export function makeBankSyncHandler(dependencies: BankSyncCronDependencies) {
     start: () => ({ households: 0, links: 0, failed: 0, created: 0 }),
     runHousehold: async (db, householdId, now, totals) => {
       const connection = await dependencies.getBankClient(db, householdId, now);
-      if (connection.status !== "connected") return;
+      if (connection.status !== "connected") {
+        if (connection.keyUnreadable) {
+          const connectionId = await withHousehold(db, householdId, (read) =>
+            bankLinkRepository.findConnectionId(read),
+          );
+          console.warn(
+            "Bank sync skipped a household: its stored Lunch Flow key does not open with FINANCE_CREDENTIAL_KEY",
+            { householdId, connectionId },
+          );
+        }
+        return;
+      }
       const results = await syncBankLinks({
         db,
         householdId,

@@ -420,10 +420,10 @@ describe("the Lunch Flow API key", () => {
   });
 
   /** The handlers as production wires them, with Lunch Flow on a local server. */
-  function realHandlers() {
+  function realHandlers(credentialKey = CREDENTIAL_KEY) {
     const provider = makeBankProvider({
       fake: () => false,
-      credentialKey: () => CREDENTIAL_KEY,
+      credentialKey: () => credentialKey,
       createClient: (apiKey) =>
         createLunchFlowClient({
           apiKey,
@@ -434,6 +434,7 @@ describe("the Lunch Flow API key", () => {
     return handlers({
       getBankClient: provider.getBankClient,
       verifyApiKey: provider.verifyApiKey,
+      credentialKey: provider.credentialKey,
     });
   }
 
@@ -484,6 +485,31 @@ describe("the Lunch Flow API key", () => {
     const pulled = await pullChanges(db, home.householdId, -1);
     expect(JSON.stringify(pulled)).not.toContain(API_KEY);
     expect(JSON.stringify(pulled)).not.toContain("wxyz");
+  });
+
+  it("asks for the key again when the stored key no longer opens, and syncs once it is entered", async () => {
+    await realHandlers(new Uint8Array(randomBytes(32))).putCredential(
+      request("credential", { method: "PUT", body: { apiKey: API_KEY } }),
+    );
+
+    const listed = await listedAccounts();
+    const synced = await realHandlers().syncNow(
+      request("sync-now", { method: "POST", body: {} }),
+    );
+
+    expect(listed.status).toBe(200);
+    expect(JSON.parse(listed.text)).toEqual({
+      status: "not_connected",
+      keyUnreadable: true,
+    } satisfies ProviderAccountsResponse);
+    expect(await synced.json()).toEqual({ error: "not-connected" });
+
+    await putCredential(API_KEY);
+
+    expect(JSON.parse((await listedAccounts()).text)).toMatchObject({
+      status: "connected",
+      credential: { lastFour: "wxyz" },
+    });
   });
 
   it("refuses to store a key when the server has no credential key", async () => {

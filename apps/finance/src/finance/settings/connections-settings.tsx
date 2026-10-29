@@ -69,8 +69,8 @@ type ConnectedResponse = Extract<
  * Lunch Flow: each provider account, under its Bank login, beside the
  * finance account it feeds, and the last sync. The owner saves every
  * changed link at once; "Sync now" runs every link and says what came in.
- * Until the owner stores the Household's Lunch Flow API key, it asks the
- * owner for one.
+ * Until the owner stores the Household's Lunch Flow API key, or when the
+ * stored key no longer opens, it asks the owner for one.
  */
 export function ConnectionsSettings() {
   const access = useHouseholdAccess();
@@ -108,6 +108,10 @@ export function ConnectionsSettings() {
   });
   const title = t({ en: "Connections", zh: "银行连接" });
   const notConnected = t({ en: "Not connected", zh: "尚未连接" });
+  const keyUnreadable =
+    load.state === "ready" &&
+    load.response.status === "not_connected" &&
+    load.response.keyUnreadable === true;
 
   if (load.state === "ready" && load.response.status === "connected") {
     return (
@@ -182,12 +186,29 @@ export function ConnectionsSettings() {
         </div>
       ) : isOwner ? (
         <div css={stack.item}>
-          <Text look="bodySmall">
-            {t({
-              en: "Connect Lunch Flow with an API key. The bank accounts you connected in Lunch Flow then appear in this list to link.",
-              zh: "用 API 密钥连接 Lunch Flow。之后你在 Lunch Flow 连接的银行账户会显示在这里以供关联。",
-            })}
-          </Text>
+          {keyUnreadable ? (
+            <Callout
+              intent="warning"
+              title={t({
+                en: "Enter the Lunch Flow API key again",
+                zh: "重新输入 Lunch Flow API 密钥",
+              })}
+            >
+              <Text look="bodySmall">
+                {t({
+                  en: "The saved key can no longer be read. Paste it again to resume syncing. Your bank links are kept.",
+                  zh: "已保存的密钥无法再读取。重新粘贴即可恢复同步，银行关联会保留。",
+                })}
+              </Text>
+            </Callout>
+          ) : (
+            <Text look="bodySmall">
+              {t({
+                en: "Connect Lunch Flow with an API key. The bank accounts you connected in Lunch Flow then appear in this list to link.",
+                zh: "用 API 密钥连接 Lunch Flow。之后你在 Lunch Flow 连接的银行账户会显示在这里以供关联。",
+              })}
+            </Text>
+          )}
           <CredentialForm onSaved={reload} />
         </div>
       ) : access === "viewer" ? (
