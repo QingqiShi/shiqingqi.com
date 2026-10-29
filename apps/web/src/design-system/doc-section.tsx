@@ -1,9 +1,12 @@
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
-interface DocSectionProps {
+interface DocSectionProps extends Omit<
+  ComponentProps<"section">,
+  "className" | "style" | "title"
+> {
   /** The h2. Without one, or with an empty one, the section is its examples alone. */
   title?: ReactNode;
   /** The h2's type and column. Its spacing stays here. */
@@ -32,12 +35,20 @@ export function DocSection({
   css,
   leadsWithText = false,
   children,
+  ...sectionProps
 }: DocSectionProps) {
   if (title == null || title === "") {
-    return <section css={[stack.item, css]}>{children}</section>;
+    return (
+      <section {...sectionProps} css={[stack.item, css]}>
+        {children}
+      </section>
+    );
   }
   return (
-    <section css={[leadsWithText ? stack.text : stack.tight, css]}>
+    <section
+      {...sectionProps}
+      css={[leadsWithText ? stack.text : stack.tight, css]}
+    >
       <Heading level={2} css={titleCss}>
         {title}
       </Heading>

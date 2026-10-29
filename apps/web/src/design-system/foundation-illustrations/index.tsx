@@ -11,6 +11,7 @@ import { IconographyIllustration } from "./iconography-illustration.tsx";
 import { LayoutIllustration } from "./layout-illustration.tsx";
 import { MaterialIllustration } from "./material-illustration.tsx";
 import { MotionIllustration } from "./motion-illustration.tsx";
+import { PrinciplesIllustration } from "./principles-illustration.tsx";
 import { SurfacesIllustration } from "./surfaces-illustration.tsx";
 import { TypographyIllustration } from "./typography-illustration.tsx";
 
@@ -23,6 +24,7 @@ const FOUNDATION_ILLUSTRATIONS: Record<
   DesignSystemFoundationPath,
   ReactElement
 > = {
+  "/design-system/foundations/principles": <PrinciplesIllustration />,
   "/design-system/foundations/get-started": <GetStartedIllustration />,
   "/design-system/foundations/customization": <CustomizationIllustration />,
   "/design-system/foundations/color": <ColorIllustration />,
