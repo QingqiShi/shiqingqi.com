@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
@@ -10,7 +11,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import Image from "next/image";
 import { useId } from "react";
-import { t } from "#src/i18n.ts";
 import type { CreatureDef } from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
 import { species } from "#src/pixel-creature-creator/sprite/species/index.ts";
 

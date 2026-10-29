@@ -1,9 +1,9 @@
 import { fireEvent } from "@testing-library/react";
+import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider";
 import { describe, expect, it, vi } from "vitest";
 import { ChatActionsContext } from "#src/movie-database/chat/chat-actions-context.tsx";
 import { ToolMediaCards } from "#src/movie-database/chat/tool-output/tool-media-cards.tsx";
 import type { MediaListItem } from "#src/movie-database/types.ts";
-import { PortalTargetProvider } from "#src/site-shell/portal-target-provider.tsx";
 import { render, screen, userEvent } from "#src/testing/test-utils.tsx";
 import { MediaDetailOverlay } from "./media-detail-overlay";
 import { MediaDetailProvider } from "./media-detail-provider";

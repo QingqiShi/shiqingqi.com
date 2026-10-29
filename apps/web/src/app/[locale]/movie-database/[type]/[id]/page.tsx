@@ -1,3 +1,4 @@
+import { t } from "@tuja/i18n";
 import { notFound } from "next/navigation";
 import {
   getConfiguration,
@@ -6,7 +7,6 @@ import {
   getTvShowDetails,
   getTvShowVideos,
 } from "#src/_generated/tmdb-server-functions.ts";
-import { t } from "#src/i18n.ts";
 import { formatRuntime } from "#src/movie-database/details/format-runtime.ts";
 import { MediaDetailHero } from "#src/movie-database/details/media-detail-hero.tsx";
 import { SimilarMedia } from "#src/movie-database/details/similar-media.tsx";

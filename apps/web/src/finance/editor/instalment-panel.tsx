@@ -1,14 +1,14 @@
 "use client";
 
 import { CalendarDotsIcon } from "@phosphor-icons/react/dist/ssr/CalendarDots";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { TextField } from "@tuja/ui/components/text-field";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { currencySymbol } from "../accounts/currency-symbol.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { formatMoney } from "../domain/money/format-money.ts";

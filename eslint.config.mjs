@@ -235,7 +235,7 @@ export default defineConfig([
   // `document.execCommand("copy")` is deprecated, but it is the only copy
   // method in a non-secure context (HTTP on a LAN address, some webviews).
   {
-    files: ["apps/web/src/browser/copy-text-to-clipboard.ts"],
+    files: ["packages/ui/src/browser/copy-text-to-clipboard.ts"],
     rules: {
       "@typescript-eslint/no-deprecated": [
         "error",
@@ -564,8 +564,9 @@ export default defineConfig([
       "**/constants.ts",
       // The i18n Babel plugin imports these files by path, so their names
       // cannot change to match their exports.
-      "apps/web/src/i18n.ts",
-      "apps/web/src/i18n/{client-runtime,server-locale,server-runtime}.ts",
+      "packages/i18n/src/i18n.ts",
+      "packages/i18n/src/{client-runtime,server-locale}.ts",
+      "apps/web/src/i18n/server-runtime.ts",
     ],
     rules: {
       "@tuja/export-matches-filename": "error",

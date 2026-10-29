@@ -1,4 +1,4 @@
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 import { useSystemCategoryNames } from "../store/use-category-display-name.ts";
 
 /** The words of the share image in the reader's language. */

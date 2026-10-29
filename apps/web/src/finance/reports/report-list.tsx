@@ -2,6 +2,9 @@
 
 import { ArrowClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowClockwise";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -16,9 +19,6 @@ import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";

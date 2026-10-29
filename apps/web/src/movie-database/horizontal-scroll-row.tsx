@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
-import { t } from "#src/i18n.ts";
 
 interface HorizontalScrollRowProps {
   children: React.ReactNode;

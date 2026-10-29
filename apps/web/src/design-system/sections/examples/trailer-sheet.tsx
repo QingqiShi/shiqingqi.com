@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
@@ -17,7 +18,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { t } from "#src/i18n.ts";
 
 interface TrailerSheetProps {
   /** The Movie's localized title, set as the card the player would open on. */

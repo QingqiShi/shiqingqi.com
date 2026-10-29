@@ -1,11 +1,11 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 
 export function BadgeShowcase() {
   return (

@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import type { ChatStatus, UIMessage } from "ai";
 import { type ReactNode, useEffect, useEffectEvent, useRef } from "react";
-import { t } from "#src/i18n.ts";
 import type { ToolOutputMaps } from "#src/movie-database/chat/tool-output/accumulate-tool-outputs.ts";
 import { usePreferencePersistence } from "#src/movie-database/taste/use-preference-persistence.ts";
 import { ChatMessage } from "./chat-message";

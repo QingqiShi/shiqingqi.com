@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -12,7 +13,6 @@ import {
 } from "#src/design-system/guide/guide-section.tsx";
 import { ThemeFramePair } from "#src/design-system/theme-frame.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 /**
  * The opening section of the Colour page: how a token name says its job, the

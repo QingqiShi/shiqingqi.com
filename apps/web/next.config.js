@@ -41,7 +41,7 @@ module.exports = async (phase) => {
       // hidden inputs.
       turbopackFileSystemCacheForBuild: false,
     },
-    transpilePackages: ["@tuja/ui"],
+    transpilePackages: ["@tuja/i18n", "@tuja/ui"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
     turbopack: {
       rules: {

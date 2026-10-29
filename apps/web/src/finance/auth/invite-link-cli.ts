@@ -1,9 +1,9 @@
 import { parseArgs } from "node:util";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { BASE_URL } from "../../constants.ts";
-import { getLocalePath } from "../../i18n/get-locale-path.ts";
 import { members, schema } from "../db/schema.ts";
 import { withHousehold } from "../db/with-household.ts";
 import { assertLocalDatabaseUrl } from "../dev/assert-local-database-url.ts";

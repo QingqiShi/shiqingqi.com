@@ -11,7 +11,7 @@ const domTests = ["src/**/*.test.tsx", "src/**/*.dom.test.ts"];
 export default defineConfig({
   plugins: [
     ...reactCompilerVitePlugins({
-      include: /(?:apps\/web\/src|packages\/ui\/src)\/.*\.tsx?$/,
+      include: /(?:apps\/web|packages\/(?:i18n|ui))\/src\/.*\.tsx?$/,
       sourcePlugins,
       babel: {
         presets: [

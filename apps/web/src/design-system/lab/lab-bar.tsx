@@ -3,6 +3,7 @@
 import { SlidersHorizontalIcon } from "@phosphor-icons/react/dist/ssr/SlidersHorizontal";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
@@ -17,7 +18,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef, useState } from "react";
 import { Identifier } from "#src/design-system/identifier.tsx";
-import { t } from "#src/i18n.ts";
 import { LabBarMenu } from "./lab-bar-menu.tsx";
 import { labBar } from "./lab-bar.stylex.ts";
 import { LabControl } from "./lab-control.tsx";

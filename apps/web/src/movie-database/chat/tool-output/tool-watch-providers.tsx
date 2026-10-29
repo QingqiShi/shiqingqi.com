@@ -2,6 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -12,8 +14,6 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { ExternalLinkIndicator } from "#src/links/external-link-indicator.tsx";
 import { isRecord } from "#src/movie-database/is-record.ts";
 import { buildTmdbSrcSet } from "#src/movie-database/tmdb/build-tmdb-src-set.ts";

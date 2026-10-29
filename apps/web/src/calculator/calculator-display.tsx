@@ -1,9 +1,9 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { t } from "#src/i18n.ts";
 import type { Token } from "./types.ts";
 
 interface CalculatorDisplayProps {

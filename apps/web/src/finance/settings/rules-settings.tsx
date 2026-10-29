@@ -1,6 +1,8 @@
 "use client";
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -13,8 +15,6 @@ import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { useRef, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { useHouseholdToday } from "../accounts/use-household-today.ts";
 import { displayDay } from "../domain/dates/display-day.ts";

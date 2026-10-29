@@ -1,3 +1,5 @@
+import { t } from "@tuja/i18n";
+import { getLocale } from "@tuja/i18n/server-locale";
 import {
   Table,
   TableBody,
@@ -6,8 +8,6 @@ import {
   TableHeaderCell,
   TableRow,
 } from "@tuja/ui/components/table";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 
 /**
  * Three rows and one numeric column — the least that still shows what the

@@ -4,7 +4,7 @@ import {
   type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/browser";
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { FinanceApiError } from "../http/finance-api-error.ts";
 import { financeFetch } from "../http/finance-fetch.ts";
 

@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { TypesetPoster } from "./typeset-poster.tsx";
 import type { Movie } from "./use-movies.ts";
 

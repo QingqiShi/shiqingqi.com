@@ -1,3 +1,4 @@
+import { PortalTargetProvider } from "@tuja/ui/components/portal-target-provider";
 import {
   AppRouterContext,
   type AppRouterInstance,
@@ -7,7 +8,6 @@ import {
   SearchParamsContext,
 } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { useEffect, useState, type ReactElement, type ReactNode } from "react";
-import { PortalTargetProvider } from "#src/site-shell/portal-target-provider.tsx";
 import { render } from "#src/testing/test-utils.tsx";
 import type { FinanceRuntime } from "../../replica/create-finance-runtime.ts";
 import { FinanceRuntimeContext } from "../../replica/finance-runtime-context.ts";

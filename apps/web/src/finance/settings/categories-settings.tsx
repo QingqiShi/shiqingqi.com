@@ -2,6 +2,7 @@
 
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
@@ -12,7 +13,6 @@ import { Select } from "@tuja/ui/components/select";
 import { TextField } from "@tuja/ui/components/text-field";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useRef, useState } from "react";
-import { t } from "#src/i18n.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";

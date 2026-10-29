@@ -1,7 +1,7 @@
+import { setLocale } from "@tuja/i18n/server-locale";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { ReactNode } from "react";
 import { ReportsFrame } from "#src/finance/reports/reports-frame.tsx";
-import { setLocale } from "#src/i18n/server-locale.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
 
 export default async function Layout({
   children,

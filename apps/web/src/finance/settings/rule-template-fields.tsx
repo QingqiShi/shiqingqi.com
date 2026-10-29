@@ -1,8 +1,8 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Select } from "@tuja/ui/components/select";
 import type { Ref } from "react";
-import { t } from "#src/i18n.ts";
 import { useBaseCurrency } from "../accounts/use-base-currency.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { Combobox } from "../editor/combobox.tsx";

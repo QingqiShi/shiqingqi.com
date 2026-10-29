@@ -3,5 +3,6 @@
  * renders into.
  *
  * @see PortalTargetProvider
+ * @internal
  */
 export const PORTAL_TARGET_ID = "portal-target";

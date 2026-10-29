@@ -3,12 +3,12 @@
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import * as stylex from "@stylexjs/stylex";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { normalizePath } from "@tuja/i18n/normalize-path";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { usePathname } from "next/navigation";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { normalizePath } from "#src/i18n/normalize-path.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
 import { useBackOverride } from "./back-override-provider.tsx";
 

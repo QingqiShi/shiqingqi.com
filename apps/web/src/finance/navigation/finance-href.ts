@@ -1,5 +1,5 @@
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { analyticsParams } from "../analytics/analytics-params.ts";
 import type { AnalyticsState } from "../analytics/compute-analytics-view.ts";
 import { FINANCE_DESTINATION_PATHS } from "../shell/finance-destination-paths.ts";

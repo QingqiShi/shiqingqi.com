@@ -1,8 +1,8 @@
 import { CloudCheckIcon } from "@phosphor-icons/react/dist/ssr/CloudCheck";
+import { t } from "@tuja/i18n";
 import { Callout } from "@tuja/ui/components/callout";
 import { GuideNote } from "#src/design-system/guide/guide-section.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 
 export function CustomizationContentExample() {
   return (

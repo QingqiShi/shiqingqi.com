@@ -4,6 +4,7 @@ import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowsDownUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowsDownUp";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
@@ -12,7 +13,6 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
 import { useEffect, useRef } from "react";
-import { t } from "#src/i18n.ts";
 import { useMediaTable } from "./media-table-context";
 import type { MediaHeaderParams } from "./types";
 

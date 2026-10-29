@@ -366,8 +366,8 @@ export default defineConfig({
 
 ## @tuja/babel-plugins/i18n
 
-The site's private `t()` transform. It compiles the inline `t()` calls used
-across `apps/web` into locale bundles at build time. It is documented in
+The site's private `t()` transform. It compiles the inline `t()` calls that
+`apps/web` imports from `@tuja/i18n` into locale bundles at build time. It is documented in
 `.claude/skills/i18n-patterns/SKILL.md`. It is not meant for use outside `apps/web`.
 
 `@tuja/babel-plugins/i18n/generate-key` and

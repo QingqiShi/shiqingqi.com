@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Progress } from "@tuja/ui/components/progress";
 import { progressTokens } from "@tuja/ui/components/progress.stylex";
 import { Text } from "@tuja/ui/components/text";
@@ -9,7 +10,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { ProgressStepper } from "./progress-specimens.tsx";
 
 const renderedMarkup = `<Progress label="Checkout" value={3} max={5} aria-valuetext="Step 3 of 5" />

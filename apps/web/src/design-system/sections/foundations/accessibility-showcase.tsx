@@ -2,6 +2,9 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
@@ -28,9 +31,6 @@ import {
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Anchor } from "#src/links/anchor.tsx";
 import { CopyBudgetSpecimen } from "./copy-budget-specimen.tsx";
 import { KeyboardModelSpecimen } from "./keyboard-model-specimen.tsx";

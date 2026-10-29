@@ -1,7 +1,7 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { vectorSearchFiltersSchema } from "@tuja/tmdb-types/vector-search-filters-schema";
 import { tool } from "ai";
 import { z } from "zod";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { semanticSearch } from "#src/movie-database/semantic-search/semantic-search.ts";
 import { toolError } from "./tool-error";
 

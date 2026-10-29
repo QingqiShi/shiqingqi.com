@@ -1,7 +1,7 @@
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import { financeSignInPath } from "../auth/finance-sign-in-path.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";

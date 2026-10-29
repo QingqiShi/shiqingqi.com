@@ -1,3 +1,4 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { generateText, tool } from "ai";
 import { z } from "zod";
 import {
@@ -5,7 +6,6 @@ import {
   getTvShowReviews,
 } from "#src/_generated/tmdb-server-functions.ts";
 import { getAnthropicModel } from "#src/anthropic/get-anthropic-model.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { isRecord } from "#src/movie-database/is-record.ts";
 import { toolError } from "./tool-error";
 

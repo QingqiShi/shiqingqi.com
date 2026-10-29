@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Card } from "@tuja/ui/components/card";
 import { Text } from "@tuja/ui/components/text";
@@ -10,7 +11,6 @@ import {
 } from "#src/design-system/guide/guide-section.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 export function LayoutRhythmGuide() {
   const steps = [

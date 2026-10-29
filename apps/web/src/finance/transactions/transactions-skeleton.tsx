@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
@@ -9,7 +10,6 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, rhythm } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import { TransactionFaceSkeleton } from "./transaction-face-skeleton.tsx";
 

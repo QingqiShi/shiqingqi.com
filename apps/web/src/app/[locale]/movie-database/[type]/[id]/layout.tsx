@@ -1,3 +1,7 @@
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import type { SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -6,10 +10,6 @@ import {
   getTvShowDetails,
 } from "#src/_generated/tmdb-server-functions.ts";
 import { BASE_URL } from "#src/constants.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Footer } from "#src/site-shell/footer.tsx";
 import { detailsOrNotFound } from "./details-or-not-found";
 import { truncateMetadataDescription } from "./truncate-metadata-description";

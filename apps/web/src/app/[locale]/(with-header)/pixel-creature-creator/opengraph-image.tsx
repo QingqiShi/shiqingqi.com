@@ -1,6 +1,6 @@
+import type { PageProps } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { ImageResponse } from "next/og";
-import type { PageProps } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { FEATURED_CREATURES } from "#src/pixel-creature-creator/featured-creatures.ts";
 import { elements } from "#src/pixel-creature-creator/sprite/sprites/index.ts";
 

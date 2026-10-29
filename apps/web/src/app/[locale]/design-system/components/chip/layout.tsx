@@ -1,6 +1,6 @@
+import { t } from "@tuja/i18n";
 import type { ReactNode } from "react";
 import { DocArticle } from "#src/design-system/doc-article.tsx";
-import { t } from "#src/i18n.ts";
 
 export default function ChipLayout({ children }: { children: ReactNode }) {
   return (

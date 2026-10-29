@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { Chip } from "@tuja/ui/components/chip";
@@ -12,7 +13,6 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 /**
  * One label drives a badge, a chip and a button inside a narrow card, so a

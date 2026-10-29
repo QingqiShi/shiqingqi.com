@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Progress } from "@tuja/ui/components/progress";
 import { progressTokens } from "@tuja/ui/components/progress.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm } from "@tuja/ui/tokens.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 
 interface CreditUsageMeterProps {

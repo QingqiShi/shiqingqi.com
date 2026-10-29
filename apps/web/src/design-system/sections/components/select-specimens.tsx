@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Select } from "@tuja/ui/components/select";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
-import { t } from "#src/i18n.ts";
 
 export function LiveSelect() {
   const genres = [

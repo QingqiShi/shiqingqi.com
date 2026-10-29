@@ -1,10 +1,10 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Chip } from "@tuja/ui/components/chip";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 
-import { t } from "#src/i18n.ts";
 import type { LabVariantChoice } from "./types.ts";
 
 interface LabVariantChipsProps {

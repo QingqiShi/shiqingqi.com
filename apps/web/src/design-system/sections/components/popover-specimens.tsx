@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Popover } from "@tuja/ui/components/popover";
 import { Text } from "@tuja/ui/components/text";
@@ -11,7 +12,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, measure, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
 import { StateReadout } from "#src/design-system/showcase.tsx";
-import { t } from "#src/i18n.ts";
 
 /** The trigger and its panel, illustrating a Popover with arbitrary content. */
 export function AnchoredPanelDemo() {

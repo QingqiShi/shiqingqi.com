@@ -1,8 +1,8 @@
 "use client";
 
+import { normalizePath } from "@tuja/i18n/normalize-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { useEffect, useState, type ReactNode } from "react";
-import { normalizePath } from "#src/i18n/normalize-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { financeSignInPath } from "../auth/finance-sign-in-path.ts";
 import { createFinanceRuntime } from "./create-finance-runtime.ts";
 import { FinanceRuntimeContext } from "./finance-runtime-context.ts";

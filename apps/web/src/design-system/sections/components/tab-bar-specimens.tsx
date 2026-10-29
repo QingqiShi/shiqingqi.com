@@ -5,6 +5,7 @@ import { GearSixIcon } from "@phosphor-icons/react/dist/ssr/GearSix";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import {
   TabBar,
   type TabBarItem,
@@ -13,7 +14,6 @@ import {
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import { createContext, use, useState, type ComponentProps } from "react";
-import { t } from "#src/i18n.ts";
 
 const FollowContext = createContext<(href: string) => void>(() => undefined);
 

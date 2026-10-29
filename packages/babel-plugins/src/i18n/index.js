@@ -175,7 +175,7 @@ function injectRuntimeImports(t, path, state) {
   if (state.usedLookupParse) names.push(lookupParse);
 
   const source = state.isClientModule
-    ? "#src/i18n/client-runtime.ts"
+    ? "@tuja/i18n/client-runtime"
     : "#src/i18n/server-runtime.ts";
 
   // Directives ("use client") live in path.node.directives, separate
@@ -269,7 +269,7 @@ function injectSetLocaleForPages(t, path, state, projectRoot) {
             t.identifier("setLocale"),
           ),
         ],
-        t.stringLiteral("#src/i18n/server-locale.ts"),
+        t.stringLiteral("@tuja/i18n/server-locale"),
       ),
       t.importDeclaration(
         [
@@ -278,7 +278,7 @@ function injectSetLocaleForPages(t, path, state, projectRoot) {
             t.identifier("validateLocale"),
           ),
         ],
-        t.stringLiteral("#src/i18n/validate-locale.ts"),
+        t.stringLiteral("@tuja/i18n/validate-locale"),
       ),
     );
   }
@@ -304,7 +304,7 @@ function wrapWithI18nContext(t, path, state) {
           t.identifier("ClientTranslationsProvider"),
         ),
       ],
-      t.stringLiteral("#src/i18n/client-translations-provider.tsx"),
+      t.stringLiteral("@tuja/i18n/client-translations-provider"),
     ),
     t.importDeclaration(
       [
@@ -347,12 +347,7 @@ function wrapWithI18nContext(t, path, state) {
  * @param {PluginPass & I18nPluginState} state
  */
 function trackSetLocaleImport(t, path, state) {
-  if (
-    path.node.source.value !== "#src/i18n/server-locale.ts" &&
-    path.node.source.value !== "#src/i18n/server-locale"
-  ) {
-    return;
-  }
+  if (path.node.source.value !== "@tuja/i18n/server-locale") return;
 
   for (const specifier of path.node.specifiers) {
     if (
@@ -365,7 +360,7 @@ function trackSetLocaleImport(t, path, state) {
 }
 
 /**
- * Track the `t` import from #src/i18n.
+ * Track the `t` import from @tuja/i18n.
  * @param {BabelTypes} t
  * @param {import('@babel/traverse').NodePath<import('@babel/types').ImportDeclaration>} path
  * @param {PluginPass & I18nPluginState} state

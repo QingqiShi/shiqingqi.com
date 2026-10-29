@@ -1,12 +1,12 @@
 import "server-only";
 
+import { parseMessage } from "@tuja/i18n/parse-message";
+import { getLocale } from "@tuja/i18n/server-locale";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { ReactNode } from "react";
 
 import translationsEn from "#src/_generated/i18n/translations.en.json";
 import translationsZh from "#src/_generated/i18n/translations.zh.json";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { parseMessage } from "./parse-message.tsx";
-import type { SupportedLocale } from "./types.ts";
 
 const bundles: Record<SupportedLocale, Record<string, string>> = {
   en: translationsEn,

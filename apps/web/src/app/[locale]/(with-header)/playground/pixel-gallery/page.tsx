@@ -1,5 +1,5 @@
+import { t } from "@tuja/i18n";
 import type { Metadata } from "next";
-import { t } from "#src/i18n.ts";
 import { PixelGallery } from "#src/pixel-creature-creator/pixel-gallery.tsx";
 
 // Unlinked playground route — keep crawlers and AI scrapers out.

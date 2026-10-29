@@ -1,5 +1,5 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { Metadata } from "next";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { buildFinanceManifest } from "./build-finance-manifest.ts";
 import icon16 from "./finance-icon-16.png";
 import appleIcon from "./finance-icon-180.png";

@@ -23,14 +23,14 @@ Client: i18nLookup(_translations, "a8cfb50c")   — reads the translations that
 - `en` — English
 - `zh` — Chinese
 
-Defined as `SupportedLocale` in `apps/web/src/i18n/types.ts`. Pages live under `apps/web/src/app/[locale]/`. `en` is the default and has no URL prefix (`/design-system`); `zh` has one (`/zh/design-system`).
+Defined as `SupportedLocale` in `packages/i18n/src/types.ts` (`@tuja/i18n/types`). Pages live under `apps/web/src/app/[locale]/`. `en` is the default and has no URL prefix (`/design-system`); `zh` has one (`/zh/design-system`).
 
 ## The `t()` Function
 
-Import from `#src/i18n.ts`. Pass an object with `en` and `zh` string literal properties:
+Import from `@tuja/i18n`. Pass an object with `en` and `zh` string literal properties:
 
 ```tsx
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 // Plain text
 t({ en: "Hello", zh: "你好" });
@@ -51,7 +51,7 @@ Supported HTML tags in `{ parse: true }` mode: `<strong>`, `<em>`, `<b>`, `<i>`,
 Use `t()` directly. No special setup needed — the Babel plugin handles everything:
 
 ```tsx
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 export default function Page() {
   return <h1>{t({ en: "Welcome", zh: "欢迎" })}</h1>;
@@ -69,7 +69,7 @@ Use `t()` identically — the Babel plugin detects `"use client"` and swaps in c
 ```tsx
 "use client";
 
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 export function SearchButton() {
   return <button>{t({ en: "Search", zh: "搜索" })}</button>;
@@ -85,7 +85,7 @@ Use the `useLocale()` hook when you need the locale value itself (not for transl
 ```tsx
 "use client";
 
-import { useLocale } from "#src/i18n/use-locale.ts";
+import { useLocale } from "@tuja/i18n/use-locale";
 
 export function LocaleAwareComponent() {
   const locale = useLocale();
@@ -97,7 +97,7 @@ export function LocaleAwareComponent() {
 ## Generating Localized URLs
 
 ```tsx
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
 
 getLocalePath("/design-system", locale); // → "/design-system" (en) or "/zh/design-system" (zh)
 ```
@@ -108,7 +108,7 @@ getLocalePath("/design-system", locale); // → "/design-system" (en) or "/zh/de
 
 The codegen script in `packages/i18n-codegen/` does:
 
-1. **Extracts** all `t()` calls from source files via AST parsing
+1. **Extracts** all `t()` calls from the app's source files (`apps/web/src`) via AST parsing
 2. **Generates** global JSON bundles: `apps/web/src/_generated/i18n/translations.{en,zh}.json`
 3. **Traces** client component imports from each page/layout entry point
 4. **Generates** per-page client bundles: `apps/web/src/_generated/i18n/client/{name}.{en,zh}.json`
@@ -127,13 +127,15 @@ Runs at compile time (both dev and build). Transforms:
 - Auto-injects `setLocale` for page and layout files with `t()` calls or a manifest entry
 - Auto-wraps returns with `<ClientTranslationsProvider>` for manifest entries
 
+The lookups it injects come from `@tuja/i18n/client-runtime` (client) and the app's own `#src/i18n/server-runtime.ts` (server), which imports the app's generated bundles. Everything else (`t()`, locale context, `setLocale`, `getLocalePath`) is in `packages/i18n` as `@tuja/i18n`.
+
 ## Common Patterns
 
 ### Adding Translations to a New Page
 
 ```tsx
 // apps/web/src/app/[locale]/my-page/page.tsx
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 export default function Page() {
   return (
@@ -153,7 +155,7 @@ Then run `pnpm --filter web codegen:i18n` to regenerate bundles.
 // apps/web/src/<area>/my-component.tsx
 "use client";
 
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 export function MyComponent() {
   return <span>{t({ en: "Click me", zh: "点击我" })}</span>;
@@ -183,4 +185,5 @@ The parent page/layout must be in the manifest for client translations to work. 
 - Manually adding `setLocale` to page or layout files that call `t()` — the Babel plugin does this automatically
 - A layout under `[locale]` that renders translated server components without calling `t()` itself and without calling `setLocale` — it can render with the `"en"` default on a `/zh` route
 - Creating separate `translations.json` files — translations live inline in the component
+- Calling `t()` in a workspace package such as `@tuja/ui` — the codegen scans only the app's source, so a package has no translation keys. A package component takes its copy as props, and the app passes the `t()` result in, often from a thin wrapper such as `apps/web/src/links/anchor.tsx`
 - Calling `t()` outside render scope — `t()` must be called directly in a React component body, custom hook, or `generateMetadata()`. It cannot be used in `useEffect`, event handlers, callbacks (`.map()`, `.then()`), `setTimeout`, module scope, or exported non-component functions. The ESLint rule `@tuja/no-t-outside-render` enforces this. Non-exported helper functions are allowed only if every call site is in render scope.

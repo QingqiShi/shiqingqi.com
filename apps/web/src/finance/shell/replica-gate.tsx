@@ -3,13 +3,13 @@
 import { CloudSlashIcon } from "@phosphor-icons/react/dist/ssr/CloudSlash";
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { useSyncStatus } from "../replica/use-sync-status.ts";

@@ -1,5 +1,6 @@
 import type { StyleXStyles } from "@stylexjs/stylex";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { scrollbar } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
@@ -7,7 +8,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
-import { t } from "#src/i18n.ts";
 
 interface SpaceStep {
   member: string;

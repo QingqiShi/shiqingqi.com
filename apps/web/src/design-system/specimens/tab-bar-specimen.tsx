@@ -3,8 +3,8 @@
 import { BooksIcon } from "@phosphor-icons/react/dist/ssr/Books";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
+import { t } from "@tuja/i18n";
 import { TabBar } from "@tuja/ui/components/tab-bar";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

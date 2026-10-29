@@ -1,11 +1,11 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, controlSize, rhythm } from "@tuja/ui/tokens.stylex";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { ControlHeightSpecimen } from "./control-height-specimen.tsx";
 
 export function ControlSizeShowcase() {

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -10,7 +11,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 
 export function SpinnerShowcase() {
   const loadingLabel = t({ en: "Loading", zh: "加载中" });

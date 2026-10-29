@@ -1,10 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import type { PageProps, SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { BASE_URL } from "#src/constants.ts";
-import type { PageProps, SupportedLocale } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { AIChatProvider } from "#src/movie-database/chat/ai-chat-provider.tsx";
 import { InlineChatProvider } from "#src/movie-database/chat/inline-chat-context.tsx";
 import { Providers } from "#src/movie-database/tmdb/providers.tsx";

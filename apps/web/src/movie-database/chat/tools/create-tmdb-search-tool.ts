@@ -1,7 +1,7 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { tool } from "ai";
 import { z } from "zod";
 import { searchMulti } from "#src/_generated/tmdb-server-functions.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import type { ResponseType } from "#src/movie-database/tmdb/tmdb-get.ts";
 import { toolError } from "./tool-error";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -8,7 +9,6 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
 import { TransactionFace } from "../transactions/transaction-face.tsx";

@@ -2,6 +2,8 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -10,8 +12,6 @@ import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, layer, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useId, useRef, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { CompactMediaCard } from "#src/movie-database/compact-media-card.tsx";
 import { DepartmentLabel } from "#src/movie-database/department-label.ts";
 import { HorizontalScrollRow } from "#src/movie-database/horizontal-scroll-row.tsx";

@@ -14,6 +14,9 @@ import { TagIcon } from "@phosphor-icons/react/dist/ssr/Tag";
 import { TreeStructureIcon } from "@phosphor-icons/react/dist/ssr/TreeStructure";
 import { UsersIcon } from "@phosphor-icons/react/dist/ssr/Users";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
@@ -26,9 +29,6 @@ import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, controlSize, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import {
   SETTINGS_GROUPS,

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Heading } from "@tuja/ui/components/heading";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -7,7 +8,6 @@ import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { onReadingColumn } from "#src/design-system/reading-column.stylex.ts";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
-import { t } from "#src/i18n.ts";
 import { BlackHoleTestBench } from "./black-hole-test-bench.tsx";
 import { DustTestBench } from "./dust-test-bench.tsx";
 import { EffectContainerTestBench } from "./effect-container-test-bench.tsx";

@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import {
   type SystemHuePalette,
   SYSTEM_PALETTE_TONES,
@@ -13,7 +14,6 @@ import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import { GuideSection } from "#src/design-system/guide/guide-section.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 // Cell widths taper smoothly from a wide centre to narrow ends, so each ramp
 // reads like a lens over its mid-tones. Raising the sine to the fourth power

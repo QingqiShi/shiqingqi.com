@@ -3,14 +3,14 @@
 import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
 import { useRef, useState } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { liveRowSelectors } from "../store/live-row-selectors.ts";
 import type { AccountGroupRow } from "../sync/row-schemas.ts";

@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { FinanceEmail } from "./types.ts";
 
 /** A button that opens `url`, under an optional heading and an optional line that says what to do there. */

@@ -1,3 +1,4 @@
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
@@ -7,7 +8,6 @@ import {
 } from "#src/design-system/guide/guide-section.tsx";
 import { ThemeFramePair } from "#src/design-system/theme-frame.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 const PIN_SCHEME = `import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";

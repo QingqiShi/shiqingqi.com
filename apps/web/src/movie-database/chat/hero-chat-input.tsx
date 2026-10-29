@@ -3,6 +3,7 @@
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
 import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
@@ -16,7 +17,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
-import { t } from "#src/i18n.ts";
 import { useHeroVisibility } from "#src/movie-database/browse/hero-visibility-context.ts";
 import { PreferenceManager } from "#src/movie-database/taste/preference-panel.tsx";
 import { inlineChatInputMorph } from "#src/view-transition-classes.stylex.ts";

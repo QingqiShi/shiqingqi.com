@@ -1,9 +1,9 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState, type ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 import { UnbackedTransactionNotice } from "../accounts/bank-balance-notice.tsx";
 import {
   readNewTransaction,

@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Heading } from "@tuja/ui/components/heading";
@@ -8,7 +9,6 @@ import { listSurface } from "@tuja/ui/components/list.stylex";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { controlHeight, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import {
   SETTINGS_GROUPS,
   type SettingsGroup,

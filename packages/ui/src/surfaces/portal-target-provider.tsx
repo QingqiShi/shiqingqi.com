@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { viewportAnchor } from "@tuja/ui/primitives/layout.stylex";
-import { layer } from "@tuja/ui/tokens.stylex";
 import { useState, type ReactNode } from "react";
+import { viewportAnchor } from "../primitives/layout.stylex.ts";
+import { layer } from "../tokens.stylex.ts";
 import { PortalContext } from "./portal-context.tsx";
 import { PORTAL_TARGET_ID } from "./portal-target-id.ts";
 

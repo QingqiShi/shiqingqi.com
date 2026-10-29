@@ -2,6 +2,7 @@
 
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { Heading } from "@tuja/ui/components/heading";
@@ -12,7 +13,6 @@ import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId, useRef, useState, type SubmitEvent } from "react";
-import { t } from "#src/i18n.ts";
 import { institutionFieldsAfter } from "../domain/accounts/institution-fields-after.ts";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { parseInstitutionDomain } from "../domain/accounts/parse-institution-domain.ts";

@@ -1,10 +1,10 @@
+import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { Suspense } from "react";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { TabViewDemo, TabViewDemoPlaceholder } from "./tab-view-specimens.tsx";
 
 export function TabViewShowcase() {

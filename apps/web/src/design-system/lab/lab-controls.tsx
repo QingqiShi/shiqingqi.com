@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { glassSurface } from "@tuja/ui/components/glass-surface.stylex";
@@ -12,7 +13,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Identifier } from "#src/design-system/identifier.tsx";
-import { t } from "#src/i18n.ts";
 import { LabControl } from "./lab-control.tsx";
 import type { LabAction, LabState } from "./lab-reducer.ts";
 import { LabVariantSection } from "./lab-variant-section.tsx";

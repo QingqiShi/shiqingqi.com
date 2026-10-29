@@ -52,7 +52,7 @@ describe("i18n", () => {
   describe("server component transform (no 'use client')", () => {
     it("transforms t() call to __i18n_lookup with correct key", () => {
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 const msg = t({ en: "Hello", zh: "你好" });
 `;
       const output = transform(input);
@@ -63,7 +63,7 @@ const msg = t({ en: "Hello", zh: "你好" });
         `import { __i18n_lookup } from "#src/i18n/server-runtime.ts"`,
       );
       // Original import should be removed
-      expect(output).not.toContain(`from "#src/i18n"`);
+      expect(output).not.toContain(`from "@tuja/i18n"`);
     });
   });
 
@@ -71,7 +71,7 @@ const msg = t({ en: "Hello", zh: "你好" });
     it("uses i18nLookupParse with { parse: true }", () => {
       const output = transform(`
 "use client";
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export function Hint() {
   return t({ en: "Click <strong>here</strong>", zh: "点击 <strong>这里</strong>" }, { parse: true });
 }
@@ -83,15 +83,15 @@ export function Hint() {
 
       expect(output).toContain(`i18nLookupParse(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nTranslations, i18nLookupParse } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookupParse } from "@tuja/i18n/client-runtime"`,
       );
-      expect(output).not.toContain(`from "#src/i18n"`);
+      expect(output).not.toContain(`from "@tuja/i18n"`);
     });
 
     it("passes the caller's translations into a helper as its first argument", () => {
       const output = transform(`
 "use client";
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 function getLabel(kind, ...rest) {
   return kind === "movie" ? t({ en: "Movie", zh: "电影" }) : t({ en: "Show", zh: "剧集" });
 }
@@ -114,7 +114,7 @@ export function Badge({ kind, open }) {
       expect(() =>
         transform(`
 "use client";
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export const label = t({ en: "Hello", zh: "你好" });
 `),
       ).toThrow(/t\(\) at module scope/);
@@ -124,7 +124,7 @@ export const label = t({ en: "Hello", zh: "你好" });
       expect(() =>
         transform(`
 "use client";
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 function getLabel() { return t({ en: "Hello", zh: "你好" }); }
 export function Label() {
   return <button onClick={() => alert(getLabel())} />;
@@ -140,7 +140,7 @@ function format() { return getLabel(); }
   describe("multiple t() calls", () => {
     it("generates one import statement with all needed functions", () => {
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 const greeting = t({ en: "Hello", zh: "你好" });
 const farewell = t({ en: "Goodbye", zh: "再见" });
 const rich = t({ en: "Hello <b>world</b>", zh: "你好 <b>世界</b>" }, { parse: true });
@@ -170,7 +170,7 @@ const rich = t({ en: "Hello <b>world</b>", zh: "你好 <b>世界</b>" }, { parse
   describe("hook-only modules (no directive needed)", () => {
     it("treats a hook-only module as client, even with no directive", () => {
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export function useMovies() { return t({ en: "A", zh: "甲" }); }
 `;
       const output = transform(input);
@@ -178,13 +178,13 @@ export function useMovies() { return t({ en: "A", zh: "甲" }); }
 
       expect(output).toContain(`i18nLookup(_translations, "${key}")`);
       expect(output).toContain(
-        `import { useI18nTranslations, i18nLookup } from "#src/i18n/client-runtime.ts"`,
+        `import { useI18nTranslations, i18nLookup } from "@tuja/i18n/client-runtime"`,
       );
     });
 
     it("falls back to server runtime when a non-hook value export sits beside a hook", () => {
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export function useFoo() { return t({ en: "A", zh: "甲" }); }
 export const helper = 1;
 `;
@@ -234,7 +234,7 @@ export const helper = 1;
 
     it("wraps default export return with I18nContext for manifest-matched page", () => {
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export default function Page() {
   return <div>{t({ en: "Hello", zh: "你好" })}</div>;
 }
@@ -247,7 +247,7 @@ export default function Page() {
 
       expect(output).toContain("__I18nProvider");
       expect(output).toContain("__getClientTx");
-      expect(output).toContain("#src/i18n/client-translations-provider.tsx");
+      expect(output).toContain("@tuja/i18n/client-translations-provider");
       expect(output).toContain(
         "#src/_generated/i18n/client-loaders/movie-database-list-page.ts",
       );
@@ -255,7 +255,7 @@ export default function Page() {
 
     it("auto-injects setLocale for page files with t() calls", () => {
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export default function Page() {
   return <div>{t({ en: "Hello", zh: "你好" })}</div>;
 }
@@ -269,8 +269,8 @@ export default function Page() {
       // Should inject setLocale and validateLocale
       expect(output).toContain("__setLocale");
       expect(output).toContain("__validateLocale");
-      expect(output).toContain("#src/i18n/server-locale.ts");
-      expect(output).toContain("#src/i18n/validate-locale.ts");
+      expect(output).toContain("@tuja/i18n/server-locale");
+      expect(output).toContain("@tuja/i18n/validate-locale");
       // Function should be made async
       expect(output).toMatch(/async function Page/);
       // Should have params extraction
@@ -280,7 +280,7 @@ export default function Page() {
 
     it("auto-injects setLocale into generateMetadata in layout files", () => {
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export function generateMetadata(_props) {
   return { title: t({ en: "Hello", zh: "你好" }) };
 }
@@ -307,7 +307,7 @@ export default function Layout({ children }) {
       // layout that reads the locale before the root layout sets it renders
       // English on a /zh route.
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export default function Layout({ children }) {
   return <Article description={t({ en: "Hello", zh: "你好" })}>{children}</Article>;
 }
@@ -365,7 +365,7 @@ export default function Page() {
         "src/app/[locale]/movie-database/(list)/page.tsx",
       );
       const input = `
-import { t } from "#src/i18n";
+import { t } from "@tuja/i18n";
 export default function Page() {
   return <div>{t({ en: "Hello", zh: "你好" })}</div>;
 }

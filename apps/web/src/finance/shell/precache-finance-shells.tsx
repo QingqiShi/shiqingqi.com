@@ -1,8 +1,8 @@
 "use client";
 
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { useEffect } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import {
   FINANCE_PRECACHE_MESSAGE,
   type FinancePrecacheMessage,

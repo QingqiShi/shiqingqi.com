@@ -1,8 +1,8 @@
+import { setLocale } from "@tuja/i18n/server-locale";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { root } from "@tuja/ui/primitives/root.stylex";
 import type { Metadata, Viewport } from "next";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
-import { setLocale } from "#src/i18n/server-locale.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
 import { InlineScript } from "#src/site-shell/inline-script.tsx";
 import { NotFoundScreen } from "#src/site-shell/not-found-screen.tsx";
 import { globalStyles } from "#src/theme/global-styles.ts";

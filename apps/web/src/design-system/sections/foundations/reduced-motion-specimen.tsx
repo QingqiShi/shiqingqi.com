@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
@@ -11,7 +12,6 @@ import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, measure, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 /**
  * Two presets running live, named against whichever branch the visitor's own

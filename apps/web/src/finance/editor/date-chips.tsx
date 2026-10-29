@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Chip } from "@tuja/ui/components/chip";
 import { fieldStyles } from "@tuja/ui/components/field-shared.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -9,7 +10,6 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { t } from "#src/i18n.ts";
 import { addDays } from "../domain/dates/add-days.ts";
 import { isValidDay } from "../domain/dates/to-epoch-day.ts";
 import { FieldLabel } from "./field-label.tsx";

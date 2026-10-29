@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Divider } from "@tuja/ui/components/divider";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -13,7 +14,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
-import { t } from "#src/i18n.ts";
 import type { GridConfig, OutputConfig, SourceImage } from "./types";
 
 interface GridControlsProps {

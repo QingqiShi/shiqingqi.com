@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { makeCanvas } from "#src/pixel-art/make-canvas.ts";
 import type {
   CreatureDef,

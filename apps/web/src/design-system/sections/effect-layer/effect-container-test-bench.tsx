@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { EffectContainer } from "@tuja/ui/components/effect-container";
 import { Text } from "@tuja/ui/components/text";
 import { useEffectContainer } from "@tuja/ui/hooks/use-effect-container";
@@ -10,7 +11,6 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { border, color, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 import { DustTile, Fan as SharedFan, Token } from "./dust-tile.tsx";
 
 // Each fan reaches well past the container beside it, so a pull across the

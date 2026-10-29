@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ErrorBoundary } from "react-error-boundary";
 import { captureException } from "#src/analytics/capture-exception.ts";
-import { t } from "#src/i18n.ts";
 
 function ErrorFallback({
   resetErrorBoundary,

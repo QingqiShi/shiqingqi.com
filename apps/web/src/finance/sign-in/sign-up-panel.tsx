@@ -2,6 +2,9 @@
 
 import { FingerprintIcon } from "@phosphor-icons/react/dist/ssr/Fingerprint";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { Heading } from "@tuja/ui/components/heading";
@@ -10,9 +13,6 @@ import { Text } from "@tuja/ui/components/text";
 import { TextField } from "@tuja/ui/components/text-field";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { currencyOptions } from "../accounts/currency-options.ts";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import {

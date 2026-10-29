@@ -1,6 +1,6 @@
 import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

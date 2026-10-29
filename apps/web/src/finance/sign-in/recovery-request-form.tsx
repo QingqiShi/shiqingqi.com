@@ -1,9 +1,9 @@
 "use client";
 
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Text } from "@tuja/ui/components/text";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { financePasskeyClient } from "../auth/finance-passkey-client.ts";
 import { EmailCodeForm } from "./email-code-form.tsx";
 

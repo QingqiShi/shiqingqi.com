@@ -1,11 +1,15 @@
+import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import { render, screen } from "#src/testing/test-utils.tsx";
-import { Anchor } from "./anchor";
+import { Anchor } from "./anchor.tsx";
 
 describe("Anchor", () => {
   it("adds rel='noopener noreferrer' when target is _blank", () => {
     render(
-      <Anchor href="https://example.com" target="_blank">
+      <Anchor
+        href="https://example.com"
+        target="_blank"
+        newTabLabel="(opens in new tab)"
+      >
         External
       </Anchor>,
     );
@@ -18,7 +22,12 @@ describe("Anchor", () => {
 
   it("merges noopener noreferrer into existing rel for _blank links", () => {
     render(
-      <Anchor href="https://example.com" target="_blank" rel="nofollow me">
+      <Anchor
+        href="https://example.com"
+        target="_blank"
+        rel="nofollow me"
+        newTabLabel="(opens in new tab)"
+      >
         External
       </Anchor>,
     );

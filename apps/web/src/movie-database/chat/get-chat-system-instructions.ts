@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import "server-only";
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 
 let template: string | null = null;
 

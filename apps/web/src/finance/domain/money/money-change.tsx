@@ -1,9 +1,9 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
 import { color, font } from "@tuja/ui/tokens.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { formatMoney } from "./format-money.ts";
 import { formatPercentChange } from "./format-percent-change.ts";
 

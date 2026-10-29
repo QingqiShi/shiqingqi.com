@@ -1,5 +1,5 @@
+import { t } from "@tuja/i18n";
 import { Progress } from "@tuja/ui/components/progress";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

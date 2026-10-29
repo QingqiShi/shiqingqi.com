@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { use } from "react";
-import { I18nContext } from "#src/i18n/i18n-context.ts";
+import { I18nContext } from "./i18n-context.ts";
 import { parseMessage } from "./parse-message.tsx";
 
 type Translations = Record<string, string>;

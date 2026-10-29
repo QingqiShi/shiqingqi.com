@@ -1,9 +1,9 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Callout } from "@tuja/ui/components/callout";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 /**
  * A dismissible callout that can be brought back, so the control can be tried

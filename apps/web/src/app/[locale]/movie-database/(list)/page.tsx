@@ -1,5 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import type { PageProps, SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Skeleton } from "@tuja/ui/components/skeleton";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
@@ -8,9 +11,6 @@ import { ratio } from "@tuja/ui/tokens.stylex";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import * as tmdbServerFunctions from "#src/_generated/tmdb-server-functions.ts";
-import type { PageProps, SupportedLocale } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { FiltersSkeleton } from "#src/movie-database/browse/filters/filters-skeleton.tsx";
 import { Filters } from "#src/movie-database/browse/filters/filters.tsx";
 import { MediaFiltersProvider } from "#src/movie-database/browse/filters/media-filters-provider.tsx";

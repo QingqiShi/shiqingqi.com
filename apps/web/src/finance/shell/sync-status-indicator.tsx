@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import {
@@ -11,7 +12,6 @@ import {
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, rhythm } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { ReloadButton } from "./reload-button.tsx";
 import { useSyncStatusSummary } from "./use-sync-status-summary.tsx";

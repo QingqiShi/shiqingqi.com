@@ -1,6 +1,6 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { UIMessage } from "ai";
 import { throttle } from "#src/eval/throttle.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 import { chat } from "#src/movie-database/chat/chat.ts";
 import type { ChatResponse, ToolCallSummary } from "./types";
 

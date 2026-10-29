@@ -14,6 +14,9 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
 import { TextField } from "@tuja/ui/components/text-field";
@@ -38,9 +41,6 @@ import { Showcase } from "#src/design-system/showcase.tsx";
 import { SpecCard } from "#src/design-system/spec-card.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Anchor } from "#src/links/anchor.tsx";
 
 // Phosphor's own Pascal names, used verbatim in the import path.

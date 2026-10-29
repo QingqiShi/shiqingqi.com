@@ -1,7 +1,7 @@
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
+import { t } from "@tuja/i18n";
 import { Section } from "@tuja/ui/components/section";
 import { Text } from "@tuja/ui/components/text";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

@@ -1,7 +1,7 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

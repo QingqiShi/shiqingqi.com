@@ -1,8 +1,8 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 /**
  * Holds the selected segment — `SegmentedControl` is controlled by contract.

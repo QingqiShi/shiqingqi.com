@@ -1,6 +1,6 @@
+import { t } from "@tuja/i18n";
 import { Disclosure } from "@tuja/ui/components/disclosure";
 import { Text } from "@tuja/ui/components/text";
-import { t } from "#src/i18n.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
 
 /**

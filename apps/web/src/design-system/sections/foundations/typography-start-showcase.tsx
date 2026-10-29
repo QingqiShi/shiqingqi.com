@@ -1,3 +1,4 @@
+import { t } from "@tuja/i18n";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
   GuideNote,
@@ -6,7 +7,6 @@ import {
 import { RouteLinkCards } from "#src/design-system/guide/route-link-cards.tsx";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 const COMPONENT_LINKS: readonly { path: DesignSystemPath }[] = [
   { path: "/design-system/components/text" },

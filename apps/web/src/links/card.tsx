@@ -3,6 +3,7 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -21,7 +22,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import { svgTokens } from "#src/brand/svg.stylex.ts";
-import { t } from "#src/i18n.ts";
 import { Anchor } from "./anchor";
 import { cardTokens } from "./card.stylex";
 

@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 export function SelectAllGroup() {
   const options = [

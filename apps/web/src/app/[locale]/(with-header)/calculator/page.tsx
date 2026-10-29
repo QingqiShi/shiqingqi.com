@@ -1,6 +1,6 @@
+import { t } from "@tuja/i18n";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { Calculator } from "#src/calculator/calculator.tsx";
-import { t } from "#src/i18n.ts";
 
 export default function Page() {
   return (

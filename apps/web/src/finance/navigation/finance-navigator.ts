@@ -1,7 +1,7 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
+import { useLocale } from "@tuja/i18n/use-locale";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { financeHref, type FinanceDestination } from "./finance-href.ts";
 
 const OPENED_KEY = "financeOpened";

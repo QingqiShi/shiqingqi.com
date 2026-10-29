@@ -1,8 +1,8 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Chip } from "@tuja/ui/components/chip";
 import { pageGutter } from "@tuja/ui/primitives/page-column.stylex";
 import { layer, shadow, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 
 /** Fragment target the skip link jumps to. The shell owns the matching markup. */
 export const DESIGN_SYSTEM_CONTENT_ID = "design-system-content";

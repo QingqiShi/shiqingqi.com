@@ -4,14 +4,14 @@ import { CopyIcon } from "@phosphor-icons/react/dist/ssr/Copy";
 import { DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
 import { ShareNetworkIcon } from "@phosphor-icons/react/dist/ssr/ShareNetwork";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { Button } from "@tuja/ui/components/button";
 import { useToast } from "@tuja/ui/components/toast-provider";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
+import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
+import { downloadBlob } from "@tuja/ui/utils/download-blob";
 import { useEffect, useState } from "react";
-import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
-import { downloadBlob } from "#src/browser/download-blob.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { reportImageQuery } from "../queries/report-image-query.ts";
 import { withPendingKey } from "../shell/with-pending.ts";
 import {

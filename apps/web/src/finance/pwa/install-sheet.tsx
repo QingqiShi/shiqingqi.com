@@ -4,6 +4,7 @@ import { ExportIcon } from "@phosphor-icons/react/dist/ssr/Export";
 import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
 import { PlusSquareIcon } from "@phosphor-icons/react/dist/ssr/PlusSquare";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { listSurface } from "@tuja/ui/components/list.stylex";
@@ -28,7 +29,6 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { t } from "#src/i18n.ts";
 import { useFinanceRuntime } from "../replica/use-finance-runtime.ts";
 import { useReplica } from "../replica/use-replica.ts";
 import { deferredInstallPrompt } from "./deferred-install-prompt.ts";

@@ -2,14 +2,14 @@
 
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { Button } from "@tuja/ui/components/button";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { ratio } from "@tuja/ui/tokens.stylex";
 import type { PropsWithChildren } from "react";
 import { useState } from "react";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { t } from "#src/i18n.ts";
 
 interface TrailerButtonProps {
   trailerId: string;

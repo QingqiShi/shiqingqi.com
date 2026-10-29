@@ -1,6 +1,9 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { CaretLeftIcon } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
 import { Button } from "@tuja/ui/components/button";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
@@ -14,9 +17,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 import { AnchorButton as RouterAnchorButton } from "#src/links/anchor-button.tsx";
 
 /** A placeholder destination: the specimens illustrate, they don't navigate. */

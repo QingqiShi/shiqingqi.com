@@ -1,3 +1,4 @@
+import { t } from "@tuja/i18n";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { GuideList } from "#src/design-system/guide/guide-list.tsx";
 import {
@@ -9,7 +10,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 import { CodeBlockPartsControl } from "./code-block-specimens.tsx";
 
 /**

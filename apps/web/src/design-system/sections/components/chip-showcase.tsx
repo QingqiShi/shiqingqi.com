@@ -1,6 +1,7 @@
 import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import { BookmarkIcon } from "@phosphor-icons/react/dist/ssr/Bookmark";
 import { FunnelIcon } from "@phosphor-icons/react/dist/ssr/Funnel";
+import { t } from "@tuja/i18n";
 import { Badge } from "@tuja/ui/components/badge";
 import { Chip } from "@tuja/ui/components/chip";
 import { Text } from "@tuja/ui/components/text";
@@ -9,7 +10,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 export function ChipShowcase() {
   return (

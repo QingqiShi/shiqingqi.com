@@ -1,6 +1,6 @@
+import { t } from "@tuja/i18n";
+import { setLocale } from "@tuja/i18n/server-locale";
 import { describe, it, expect, beforeEach } from "vitest";
-import { setLocale } from "#src/i18n/server-locale.ts";
-import { t } from "#src/i18n.ts";
 
 describe("t()", () => {
   beforeEach(() => {

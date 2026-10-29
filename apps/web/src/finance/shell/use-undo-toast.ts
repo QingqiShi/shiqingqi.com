@@ -1,6 +1,6 @@
+import { t } from "@tuja/i18n";
 import type { ToastAction } from "@tuja/ui/components/toast";
 import { useToast } from "@tuja/ui/components/toast-provider";
-import { t } from "#src/i18n.ts";
 import { applyAll } from "../replica/apply-with-undo.ts";
 import type { LocalMutationInput } from "../replica/create-replica-store.ts";
 import { useReplicaStore } from "../replica/use-replica-store.ts";

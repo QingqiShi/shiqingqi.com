@@ -1,11 +1,11 @@
 "use client";
 
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Sheet } from "@tuja/ui/components/sheet";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 /** The consumer owns `isOpen`, so a specimen has to own it too. */
 export function ShortSheetDemo() {

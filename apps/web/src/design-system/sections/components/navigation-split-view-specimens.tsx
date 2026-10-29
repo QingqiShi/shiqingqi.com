@@ -6,6 +6,7 @@ import { CookingPotIcon } from "@phosphor-icons/react/dist/ssr/CookingPot";
 import { PlantIcon } from "@phosphor-icons/react/dist/ssr/Plant";
 import { SquaresFourIcon } from "@phosphor-icons/react/dist/ssr/SquaresFour";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { List } from "@tuja/ui/components/list";
 import { ListRow } from "@tuja/ui/components/list-row";
@@ -24,7 +25,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ComponentProps } from "react";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { DeviceFrame, DeviceFramePlaceholder } from "./device-frame.tsx";
 

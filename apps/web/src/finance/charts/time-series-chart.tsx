@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { useSplitViewShared } from "@tuja/ui/components/navigation-split-view";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
@@ -11,8 +13,6 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { bisectCenter } from "d3-array";
 import { useId, type ReactNode, type Ref } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { displayDay, displayDayRange } from "../domain/dates/display-day.ts";
 import { MoneyChange } from "../domain/money/money-change.tsx";
 import type { ChartSeries } from "./build-chart-series.ts";

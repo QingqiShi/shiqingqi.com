@@ -1,4 +1,4 @@
-import type { SupportedLocale } from "#src/i18n/types.ts";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { sendConversation } from "./send-conversation";
 import type { ChatResponse } from "./types";
 

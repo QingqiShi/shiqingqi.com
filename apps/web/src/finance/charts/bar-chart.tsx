@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
@@ -13,7 +14,6 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
-import { t } from "#src/i18n.ts";
 import { buildBarGeometry, type BarLayout } from "./build-bar-geometry.ts";
 import { ChartDataTable } from "./chart-data-table.tsx";
 import { ChartLegend } from "./chart-legend.tsx";

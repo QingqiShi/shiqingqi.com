@@ -4,6 +4,8 @@ import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play";
 import * as stylex from "@stylexjs/stylex";
 import { useQueries } from "@tanstack/react-query";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { Skeleton } from "@tuja/ui/components/skeleton";
@@ -23,8 +25,6 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { ExternalLinkIndicator } from "#src/links/external-link-indicator.tsx";
 import { useChatActions } from "#src/movie-database/chat/chat-actions-context.tsx";
 import { configurationQuery } from "#src/movie-database/tmdb/queries/configuration-query.ts";

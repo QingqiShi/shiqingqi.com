@@ -1,8 +1,8 @@
 /**
  * Shared `t` import detection for i18n lint rules.
  *
- * Recognizes `import { t } from "#src/i18n"` (and its `.ts`-suffixed and
- * relative-path source forms) and tracks the local name `t` is imported as,
+ * Recognizes `import { t } from "@tuja/i18n"` (and its relative-path
+ * source forms) and tracks the local name `t` is imported as,
  * so a rule can recognize `t()` calls even when the import is aliased.
  */
 

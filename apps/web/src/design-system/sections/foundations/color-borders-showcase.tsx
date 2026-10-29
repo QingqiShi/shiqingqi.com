@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -10,7 +11,6 @@ import {
 } from "#src/design-system/guide/guide-section.tsx";
 import { Identifier } from "#src/design-system/identifier.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 
 /** The border colour tokens, each drawn as the 1px edge it is meant to be. */
 export function ColorBordersShowcase() {

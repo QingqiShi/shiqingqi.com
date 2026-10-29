@@ -1,4 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { getLocale } from "@tuja/i18n/server-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { CardDescription, CardTitle } from "@tuja/ui/components/card";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
@@ -8,8 +10,6 @@ import { rhythm, space } from "@tuja/ui/tokens.stylex";
 import { getDesignSystemRouteDescriptions } from "#src/design-system/route-copy/get-design-system-route-descriptions.ts";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
 import { Link } from "#src/links/link.tsx";
 
 interface RouteLink {

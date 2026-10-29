@@ -1,5 +1,6 @@
 "use client";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import {
@@ -15,7 +16,6 @@ import { brand } from "#src/brand/brand.stylex.ts";
 import { evaluateExpression } from "#src/calculator/calculator-logic/evaluate-expression.ts";
 import { isBinaryOperator } from "#src/calculator/calculator-logic/is-binary-operator.ts";
 import { isUnaryOperator } from "#src/calculator/calculator-logic/is-unary-operator.ts";
-import { t } from "#src/i18n.ts";
 import { CalculatorButton } from "./calculator-button.tsx";
 import { CalculatorDisplay } from "./calculator-display.tsx";
 import {

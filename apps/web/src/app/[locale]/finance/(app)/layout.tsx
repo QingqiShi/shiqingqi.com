@@ -1,3 +1,5 @@
+import { setLocale } from "@tuja/i18n/server-locale";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { headers } from "next/headers";
 import { connection } from "next/server";
 import { safeFinanceNextPath } from "#src/finance/auth/finance-sign-in-path.ts";
@@ -11,8 +13,6 @@ import { FINANCE_PATH_HEADER } from "#src/finance/http/constants.ts";
 import { FinanceProvider } from "#src/finance/replica/finance-provider.tsx";
 import { FinanceNotConfigured } from "#src/finance/shell/finance-not-configured.tsx";
 import { FinanceShell } from "#src/finance/shell/finance-shell.tsx";
-import { setLocale } from "#src/i18n/server-locale.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
 
 export default async function Layout({
   children,

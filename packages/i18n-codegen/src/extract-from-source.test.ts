@@ -3,9 +3,9 @@ import { describe, it, expect } from "vitest";
 import { extractFromSource } from "./extract-from-source.ts";
 
 describe("extractFromSource", () => {
-  it("extracts t() calls imported from #src/i18n", () => {
+  it("extracts t() calls imported from @tuja/i18n", () => {
     const code = `
-      import { t } from "#src/i18n";
+      import { t } from "@tuja/i18n";
       const greeting = t({ en: "Hello", zh: "你好" });
     `;
     const result = extractFromSource(code, "test.tsx");
@@ -28,7 +28,7 @@ describe("extractFromSource", () => {
 
   it("handles t() with { parse: true } second argument", () => {
     const code = `
-      import { t } from "#src/i18n";
+      import { t } from "@tuja/i18n";
       const bold = t({ en: "<strong>Bold</strong>", zh: "<strong>粗体</strong>" }, { parse: true });
     `;
     const result = extractFromSource(code, "test.tsx");
@@ -39,7 +39,7 @@ describe("extractFromSource", () => {
 
   it("handles renamed imports correctly", () => {
     const code = `
-      import { t as translate } from "#src/i18n";
+      import { t as translate } from "@tuja/i18n";
       const greeting = translate({ en: "Hello", zh: "你好" });
     `;
     const result = extractFromSource(code, "test.tsx");

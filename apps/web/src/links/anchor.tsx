@@ -1,74 +1,23 @@
 "use client";
 
-import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
-import { anchorTokens } from "@tuja/ui/components/anchor.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { border } from "@tuja/ui/tokens.stylex";
-import type { StyleProp } from "@tuja/ui/types";
-import { ExternalLinkIndicator } from "./external-link-indicator";
-import { Link } from "./link.tsx";
+import { t } from "@tuja/i18n";
+import { Anchor as UiAnchor } from "@tuja/ui/components/anchor";
+import type { ComponentProps } from "react";
+import { RouterLink, type RoutingProps } from "./router-link.tsx";
 
-interface AnchorExtraProps {
-  /**
-   * Show the external-link icon and screen-reader "opens in new tab" label
-   * when `target="_blank"`. Defaults to true. Opt out for wrappers that
-   * already render their own external-link affordance (e.g. `Card`, or
-   * icon-slot-driven buttons).
-   */
-  indicateExternal?: boolean;
-  css?: StyleProp;
-}
+type AnchorProps = Omit<
+  ComponentProps<typeof UiAnchor>,
+  "linkComponent" | "newTabLabel"
+> &
+  RoutingProps;
 
-export function Anchor({
-  css,
-  rel,
-  target,
-  ref,
-  children,
-  indicateExternal = true,
-  ...props
-}: Omit<React.ComponentProps<typeof Link>, "className" | "style"> &
-  AnchorExtraProps) {
-  // Automatically ensure noopener and noreferrer are present for _blank links
-  const resolvedRel =
-    target === "_blank" ? mergeRel(rel, "noopener noreferrer") : rel;
-
-  const showIndicator = indicateExternal && target === "_blank";
-
+/** `@tuja/ui`'s `Anchor`, routed through next/link, with translated copy. */
+export function Anchor(props: AnchorProps) {
   return (
-    <Link
+    <UiAnchor
       {...props}
-      target={target}
-      rel={resolvedRel}
-      ref={ref}
-      {...stylex.props(styles.a, a11y.focusRing, css)}
-    >
-      {children}
-      {showIndicator && <ExternalLinkIndicator />}
-    </Link>
+      linkComponent={RouterLink}
+      newTabLabel={t({ en: "(opens in new tab)", zh: "(在新标签页中打开)" })}
+    />
   );
 }
-
-/**
- * Merges rel tokens, deduplicating any that already exist.
- */
-function mergeRel(existing: string | undefined, required: string): string {
-  if (!existing) return required;
-  const tokens = new Set(existing.split(/\s+/));
-  for (const token of required.split(/\s+/)) {
-    tokens.add(token);
-  }
-  return [...tokens].join(" ");
-}
-
-const styles = stylex.create({
-  a: {
-    color: anchorTokens.color,
-    fontWeight: anchorTokens.fontWeight,
-    textDecorationThickness: {
-      default: null,
-      ":hover": { default: null, [pointer.canHover]: border.size_2 },
-    },
-  },
-});

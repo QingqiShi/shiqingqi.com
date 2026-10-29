@@ -1,6 +1,6 @@
+import type { SupportedLocale } from "@tuja/i18n/types";
 import { captureEvent } from "#src/analytics/capture-event.ts";
 import type { AnalyticsEvent } from "#src/analytics/types.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
 
 interface MessageSend {
   /** Messages in the Conversation before this one. */

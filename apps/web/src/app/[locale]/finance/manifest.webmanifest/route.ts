@@ -1,5 +1,5 @@
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { buildFinanceManifest } from "#src/finance/pwa/build-finance-manifest.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
 
 export async function GET(
   _request: Request,

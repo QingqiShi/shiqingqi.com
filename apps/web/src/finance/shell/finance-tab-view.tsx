@@ -1,14 +1,14 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import type { TabBarLinkProps } from "@tuja/ui/components/tab-bar";
 import { TabView } from "@tuja/ui/components/tab-view";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Link } from "#src/links/link.tsx";
 import { isCurrentDestination } from "./finance-destination-paths.ts";
 import {

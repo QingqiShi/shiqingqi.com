@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -13,7 +14,6 @@ import {
   space,
 } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 
 interface DoDontProps {
   /** The recommended example. */

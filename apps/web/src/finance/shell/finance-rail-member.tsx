@@ -1,12 +1,12 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Avatar } from "@tuja/ui/components/avatar";
 import { Popover } from "@tuja/ui/components/popover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
-import { t } from "#src/i18n.ts";
 import { SignedInMember } from "./signed-in-member.tsx";
 import { SyncStatusIndicator } from "./sync-status-indicator.tsx";
 

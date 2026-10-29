@@ -1,10 +1,10 @@
+import { t } from "@tuja/i18n";
+import type { PageProps } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SettingsSectionView } from "#src/finance/settings/settings-section-view.tsx";
 import { isSettingsSection } from "#src/finance/settings/settings-sections.ts";
-import type { PageProps } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 
 export const unstable_dynamicStaleTime = 300;
 

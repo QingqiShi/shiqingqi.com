@@ -1,5 +1,6 @@
 import { MegaphoneIcon } from "@phosphor-icons/react/dist/ssr/Megaphone";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Callout } from "@tuja/ui/components/callout";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -9,7 +10,6 @@ import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 import { CalloutDismissSpecimen } from "./callout-specimens.tsx";
 
 export function CalloutShowcase() {

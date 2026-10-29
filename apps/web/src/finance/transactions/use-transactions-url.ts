@@ -1,5 +1,5 @@
+import { useLocale } from "@tuja/i18n/use-locale";
 import { useSearchParams } from "next/navigation";
-import { useLocale } from "#src/i18n/use-locale.ts";
 import { financeHref, readNewTransaction } from "../navigation/finance-href.ts";
 import { useFinanceNavigator } from "../navigation/finance-navigator.ts";
 import {

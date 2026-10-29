@@ -1,13 +1,13 @@
+import {
+  LOCALE_COOKIE_MAX_AGE_SECONDS,
+  LOCALE_COOKIE_NAME,
+} from "@tuja/i18n/constants";
+import { isValidLocale } from "@tuja/i18n/validate-locale";
 import { NextResponse, type NextRequest } from "next/server";
 import { i18nRouter } from "next-i18n-router";
 import { ALLOWED_REFERER } from "#src/constants.ts";
 import { financeProxy } from "#src/finance/http/finance-proxy.ts";
-import {
-  LOCALE_COOKIE_MAX_AGE_SECONDS,
-  LOCALE_COOKIE_NAME,
-} from "#src/i18n/constants.ts";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
-import { isValidLocale } from "#src/i18n/validate-locale.ts";
 
 function isAllowedDevHost(request: NextRequest, refererUrl: URL): boolean {
   // Next inlines this from `env` in next.config.js; it is empty outside

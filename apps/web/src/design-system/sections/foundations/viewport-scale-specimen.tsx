@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { ScrollMask } from "@tuja/ui/components/scroll-mask";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align } from "@tuja/ui/primitives/flex.stylex";
@@ -9,7 +10,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { t } from "#src/i18n.ts";
 import { centerInScrollX } from "./center-in-scroll-x";
 
 // Breakpoint pixel thresholds. These mirror breakpoints.stylex.ts (sm/md/lg);

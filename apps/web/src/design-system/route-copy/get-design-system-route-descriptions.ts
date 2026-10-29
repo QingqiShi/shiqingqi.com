@@ -10,8 +10,8 @@
  */
 
 import "server-only";
+import { t } from "@tuja/i18n";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
-import { t } from "#src/i18n.ts";
 
 /**
  * One sentence about every registered route, in registry order. Total over

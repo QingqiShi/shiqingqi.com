@@ -1,8 +1,8 @@
 "use client";
 
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { typeModifier } from "@tuja/ui/primitives/type.stylex";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { ChartRangeChips } from "../charts/chart-range-chips.tsx";
 import type { ChartRange } from "../charts/chart-ranges.ts";
 import { TimeSeriesChart } from "../charts/time-series-chart.tsx";

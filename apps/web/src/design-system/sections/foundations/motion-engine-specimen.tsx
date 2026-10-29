@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { unit } from "@tuja/ui/motion/mix";
 import { springOf, springRoles } from "@tuja/ui/motion/spring-roles";
@@ -22,7 +23,6 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import { t } from "#src/i18n.ts";
 
 const PUCK = "2.5rem";
 /** A pointer must move this far, in px, before a press becomes a drag. */

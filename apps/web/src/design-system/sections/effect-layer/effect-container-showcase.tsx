@@ -1,9 +1,9 @@
+import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
-import { t } from "#src/i18n.ts";
 import { EffectContainerSpecimen } from "./effect-container-specimen.tsx";
 
 const USAGE = `"use client";

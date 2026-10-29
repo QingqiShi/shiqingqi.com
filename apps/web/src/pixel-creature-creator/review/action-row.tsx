@@ -1,6 +1,8 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Textarea } from "@tuja/ui/components/textarea";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -17,11 +19,9 @@ import {
   shadow,
   space,
 } from "@tuja/ui/tokens.stylex";
+import { copyTextToClipboard } from "@tuja/ui/utils/copy-text-to-clipboard";
+import { downloadBlob } from "@tuja/ui/utils/download-blob";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { copyTextToClipboard } from "#src/browser/copy-text-to-clipboard.ts";
-import { downloadBlob } from "#src/browser/download-blob.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import type {
   CreatureDef,
   Emotion,

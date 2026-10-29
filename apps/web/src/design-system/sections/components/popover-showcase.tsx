@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
@@ -13,7 +14,6 @@ import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 import { WireframeBar } from "#src/design-system/specimens/wireframe-bar.tsx";
-import { t } from "#src/i18n.ts";
 import {
   AnchoredPanelDemo,
   DismissalDemo,

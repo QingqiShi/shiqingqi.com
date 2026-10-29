@@ -1,6 +1,7 @@
 "use client";
 import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Chip } from "@tuja/ui/components/chip";
@@ -10,7 +11,6 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { fill } from "@tuja/ui/primitives/layout.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { t } from "#src/i18n.ts";
 
 /**
  * The case the component can't cover: the header holds a link, so it cannot

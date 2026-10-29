@@ -1,6 +1,6 @@
 "use client";
 
-import { t } from "#src/i18n.ts";
+import { t } from "@tuja/i18n";
 
 export function DepartmentLabel({ department }: { department: string }) {
   switch (department) {

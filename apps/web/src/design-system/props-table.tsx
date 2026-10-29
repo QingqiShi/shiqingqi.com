@@ -1,4 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocale } from "@tuja/i18n/server-locale";
+import type { SupportedLocale } from "@tuja/i18n/types";
 import type { PropDoc } from "@tuja/props-codegen/types";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
@@ -16,9 +19,6 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { Fragment, type ReactNode } from "react";
 import { PROPS_DOCS } from "#src/_generated/props/index.ts";
-import { getLocale } from "#src/i18n/server-locale.ts";
-import type { SupportedLocale } from "#src/i18n/types.ts";
-import { t } from "#src/i18n.ts";
 import { definitionRows } from "./definition-rows.stylex.ts";
 import { Identifier } from "./identifier.tsx";
 import { Showcase } from "./showcase.tsx";

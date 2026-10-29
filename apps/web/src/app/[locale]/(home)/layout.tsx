@@ -1,4 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import type { PageProps, SupportedLocale } from "@tuja/i18n/types";
+import { validateLocale } from "@tuja/i18n/validate-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { color, layer, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
@@ -7,9 +10,6 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { BASE_URL } from "#src/constants.ts";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
-import type { PageProps, SupportedLocale } from "#src/i18n/types.ts";
-import { validateLocale } from "#src/i18n/validate-locale.ts";
-import { t } from "#src/i18n.ts";
 import { BackgroundLines } from "#src/portfolio/background-lines.tsx";
 import { FlowGradient } from "#src/portfolio/flow-gradient/flow-gradient.tsx";
 import { Footer } from "#src/site-shell/footer.tsx";

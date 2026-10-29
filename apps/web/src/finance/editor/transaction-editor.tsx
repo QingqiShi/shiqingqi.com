@@ -9,6 +9,8 @@ import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
 import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Badge } from "@tuja/ui/components/badge";
 import { Button } from "@tuja/ui/components/button";
@@ -35,8 +37,6 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { currencySymbol } from "../accounts/currency-symbol.ts";
 import type { SuggestResponse } from "../ai/types.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";

@@ -1,3 +1,4 @@
+import { t } from "@tuja/i18n";
 import { Checkbox } from "@tuja/ui/components/checkbox";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -5,7 +6,6 @@ import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
-import { t } from "#src/i18n.ts";
 import { SelectAllGroup } from "./checkbox-specimens.tsx";
 
 export function CheckboxShowcase() {

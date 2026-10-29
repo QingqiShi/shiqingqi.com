@@ -1,4 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { Spinner } from "@tuja/ui/components/spinner";
@@ -10,7 +11,6 @@ import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { useId, useRef, useState, type SubmitEvent } from "react";
-import { t } from "#src/i18n.ts";
 import type { InstructionChange, TeachRequest } from "../ai/types.ts";
 import { bankApiClient } from "../bank/bank-api-client.ts";
 import { FinanceApiError } from "../http/finance-api-error.ts";

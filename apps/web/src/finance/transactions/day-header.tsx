@@ -1,13 +1,13 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Heading } from "@tuja/ui/components/heading";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { font, rhythm } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
-import { t } from "#src/i18n.ts";
 import { displayDay } from "../domain/dates/display-day.ts";
 import { dayHeader } from "./day-header.stylex.ts";
 

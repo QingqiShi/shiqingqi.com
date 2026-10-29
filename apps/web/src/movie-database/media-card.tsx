@@ -1,11 +1,11 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
+import { useLocale } from "@tuja/i18n/use-locale";
 import { absoluteFill } from "@tuja/ui/primitives/layout.stylex";
 import { layer, ratio } from "@tuja/ui/tokens.stylex";
-import { getLocalePath } from "#src/i18n/get-locale-path.ts";
-import { useLocale } from "#src/i18n/use-locale.ts";
-import { t } from "#src/i18n.ts";
 import { Card } from "#src/links/card.tsx";
 import { MediaPoster } from "./media-poster";
 import type { MediaListItem } from "./types.ts";

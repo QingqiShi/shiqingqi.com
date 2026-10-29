@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { ProgressiveBlur } from "@tuja/ui/components/progressive-blur";
@@ -10,7 +11,6 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
-import { t } from "#src/i18n.ts";
 
 /**
  * A bounded mock page with a centred dialog floating over it — the case the
