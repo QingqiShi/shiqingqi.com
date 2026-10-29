@@ -179,3 +179,128 @@ jobs:
           name: playwright-report
           path: apps/web/playwright-report
           retention-days: 30
+
+  finance-build:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build finance app
+        working-directory: apps/finance
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder"
+          NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid"
+      - name: Pack build output
+        run: tar --exclude=apps/finance/.next/cache -cf finance-build.tar apps/finance/.next apps/finance/public
+      - name: Upload build output
+        uses: actions/upload-artifact@v7
+        with:
+          name: finance-build
+          path: finance-build.tar
+          include-hidden-files: true
+          retention-days: 1
+
+  finance-test:
+    permissions:
+      contents: read
+      actions: read
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.0-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Wait for prebuilt finance app
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          auth="Authorization: Bearer $GH_TOKEN"
+          accept="Accept: application/vnd.github+json"
+          for _ in $(seq 1 60); do
+            if curl -sf -H "$auth" -H "$accept" "$run/artifacts" \
+                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));process.exit((d.artifacts||[]).some((a)=>a.name==="finance-build")?0:1)'; then
+              echo "Build artifact is ready."
+              exit 0
+            fi
+            conclusion=$(curl -sf -H "$auth" -H "$accept" "$run/jobs" \
+                 | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));const b=(d.jobs||[]).find((j)=>j.name==="finance-build");process.stdout.write((b&&b.conclusion)||"")' || true)
+            if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ]; then
+              echo "Build job $conclusion — aborting shard." >&2
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Timed out waiting for the build artifact." >&2
+          exit 1
+      - name: Download prebuilt finance app
+        uses: actions/download-artifact@v8
+        with:
+          name: finance-build
+      - name: Unpack prebuilt finance app
+        run: tar -xf finance-build.tar
+      - name: Run Playwright tests
+        working-directory: apps/finance
+        run: pnpm exec playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+      - name: Upload blob report to GitHub Actions Artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: finance-blob-report-${{ matrix.shardIndex }}
+          path: apps/finance/blob-report
+          retention-days: 1
+
+  finance-merge-reports:
+    permissions:
+      contents: read
+    if: ${{ needs.finance-test.result == 'failure' }}
+    needs: [finance-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: finance-blob-reports
+          pattern: finance-blob-report-*
+          merge-multiple: true
+      - name: Merge into HTML Report
+        working-directory: apps/finance
+        run: pnpm exec playwright merge-reports --reporter html ../../finance-blob-reports
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v7
+        with:
+          name: finance-playwright-report
+          path: apps/finance/playwright-report
+          retention-days: 30

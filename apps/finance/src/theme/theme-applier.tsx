@@ -27,5 +27,14 @@ export function ThemeApplier() {
 
   if (!isHydrated) return null;
 
-  return <meta name="theme-color" content={themeColors[resolvedTheme]} />;
+  // The same colours as the pre-hydration `themeHack`, so the chrome does
+  // not flash another colour.
+  return themeColors.map((themeColor) => (
+    <meta
+      key={themeColor.media ?? ""}
+      name="theme-color"
+      media={themeColor.media}
+      content={resolvedTheme === "dark" ? themeColor.dark : themeColor.light}
+    />
+  ));
 }

@@ -46,8 +46,7 @@ export function SerwistProvider({ children }: { children: ReactNode }) {
       // message can reject uncaught.
       cacheOnNavigation={false}
       // A reload when the device comes online discards what is on the
-      // screen, also a page load that is in progress. Finance syncs on
-      // `online` by itself.
+      // screen, also a page load that is in progress.
       reloadOnOnline={false}
     >
       <ServiceWorkerRegistrar />

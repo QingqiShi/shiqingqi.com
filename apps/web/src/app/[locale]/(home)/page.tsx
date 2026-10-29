@@ -20,6 +20,7 @@ import CitadelLogo from "#src/brand/citadel-logo.tsx";
 import NottinghamLogo from "#src/brand/nottingham-logo.tsx";
 import SpotifyLogo from "#src/brand/spotify-logo.tsx";
 import WtcLogo from "#src/brand/wtc-logo.tsx";
+import { FINANCE_ORIGIN } from "#src/finance-origin.mjs";
 import { EducationCard } from "#src/portfolio/education-card.tsx";
 import { ExperienceCard } from "#src/portfolio/experience-card.tsx";
 import { projectCardTokens } from "#src/portfolio/project-card.stylex.ts";
@@ -101,7 +102,7 @@ export default async function Home(props: PageProps) {
             />
             <ProjectCard
               icon={PiggyBankIcon}
-              href={getLocalePath("/finance", locale)}
+              href={`${FINANCE_ORIGIN}${getLocalePath("/", locale)}`}
               css={[styles.card, styles.finance]}
               name={t({ en: "Finance", zh: "家庭账本" })}
               description={t({

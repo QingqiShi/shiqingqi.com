@@ -88,20 +88,6 @@ describe("proxy referer validation for API routes", () => {
   });
 });
 
-describe("proxy for finance cron routes", () => {
-  it("lets a cron request with no referer through to its handler", () => {
-    const response = proxy(apiRequest("/api/finance/cron/bank-sync"));
-
-    expect(response.status).toBe(200);
-  });
-
-  it("does not exempt a path that only starts like the cron path", () => {
-    const response = proxy(apiRequest("/api/finance/cronjob"));
-
-    expect(response.status).toBe(403);
-  });
-});
-
 describe("proxy locale", () => {
   it("re-sets NEXT_LOCALE=zh on the redirect from / to /zh", () => {
     const response = proxy(pageRequest("/", { cookie: "zh" }));

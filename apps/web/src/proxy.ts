@@ -6,7 +6,6 @@ import { isValidLocale } from "@tuja/i18n/validate-locale";
 import { NextResponse, type NextRequest } from "next/server";
 import { i18nRouter } from "next-i18n-router";
 import { ALLOWED_REFERER } from "#src/constants.ts";
-import { financeProxy } from "#src/finance/http/finance-proxy.ts";
 import { i18nConfig } from "#src/i18n/i18n-config.ts";
 
 function isAllowedDevHost(request: NextRequest, refererUrl: URL): boolean {
@@ -74,20 +73,13 @@ function isDocumentRequest(request: NextRequest): boolean {
   return destination === null || destination === "document";
 }
 
-// Vercel Cron sends no Referer. Each handler under this path must check the
-// `CRON_SECRET` bearer token instead.
-const CRON_PATH_PREFIX = "/api/finance/cron/";
-
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith(CRON_PATH_PREFIX)) {
-    return NextResponse.next();
-  }
   if (pathname.startsWith("/api/")) {
     return validateReferer(request) ?? NextResponse.next();
   }
 
-  const response = financeProxy(request, i18nRouter(request, i18nConfig));
+  const response = i18nRouter(request, i18nConfig);
 
   // Only a document load may change the Preference: it is the one URL the
   // visitor chose. next-i18n-router writes NEXT_LOCALE on every locale-prefixed

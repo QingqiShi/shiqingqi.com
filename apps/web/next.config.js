@@ -9,6 +9,7 @@ module.exports = async (phase) => {
           await import("../../scripts/get-local-dev-origins.mjs")
         ).getLocalDevOrigins()
       : [];
+  const { FINANCE_ORIGIN } = await import("./src/finance-origin.mjs");
   /** @type {import('next').NextConfig} */
   const nextConfig = {
     reactStrictMode: true,
@@ -76,14 +77,28 @@ module.exports = async (phase) => {
           "/design-system/foundations/accessibility",
         ],
       ];
-      return moved.flatMap(([source, destination]) => [
-        { source, destination, permanent: true },
-        {
-          source: `/zh${source}`,
-          destination: `/zh${destination}`,
+      // Finance moved to its own origin, where it is at the root.
+      const financeMoved = [
+        ["/finance/:path*", "/:path*"],
+        ["/en/finance/:path*", "/en/:path*"],
+        ["/zh/finance/:path*", "/zh/:path*"],
+        ["/api/finance/:path*", "/api/:path*"],
+      ];
+      return [
+        ...moved.flatMap(([source, destination]) => [
+          { source, destination, permanent: true },
+          {
+            source: `/zh${source}`,
+            destination: `/zh${destination}`,
+            permanent: true,
+          },
+        ]),
+        ...financeMoved.map(([source, destination]) => ({
+          source,
+          destination: `${FINANCE_ORIGIN}${destination}`,
           permanent: true,
-        },
-      ]);
+        })),
+      ];
     },
     async headers() {
       // https://nextjs.org/docs/app/api-reference/config/next-config-js/headers#options

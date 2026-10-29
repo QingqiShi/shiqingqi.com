@@ -5,7 +5,7 @@ A pnpm monorepo built with Turborepo.
 ## Apps
 
 - `apps/web` — ships [qingqi.dev](https://qingqi.dev): a portfolio and Projects site, including an AI-assisted movie and TV database.
-- `apps/finance` — the household Finance app, moving out of `apps/web` into its own deployment. For now an empty shell; Finance still runs in `apps/web`.
+- `apps/finance` — ships the household Finance app at [finance.qingqi.dev](https://finance.qingqi.dev). The old `qingqi.dev/finance` paths redirect there.
 - `apps/trip-planner` — a private, password-gated reader for pre-written road-trip itineraries.
 
 ## Packages
