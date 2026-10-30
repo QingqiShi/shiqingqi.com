@@ -15,4 +15,3 @@ A pnpm monorepo built with Turborepo.
 ## Where to look next
 
 - `AGENTS.md` — monorepo conventions, gotchas, and the commands to run before a change is done.
-- `DESIGN.md` — design-system principles for UI, component APIs, and user-facing copy.
