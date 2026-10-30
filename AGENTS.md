@@ -1,4 +1,4 @@
-`shiqingqi.com` is a pnpm monorepo: `apps/web` ships qingqi.dev, `apps/finance` ships Finance at finance.qingqi.dev, `apps/trip-planner` is a private trip reader, and `packages/*` are the `@tuja/*` internals. Design-system principles are in `DESIGN.md` — read it before designing or changing UI, component APIs, or user-facing copy.
+`shiqingqi.com` is a pnpm monorepo: `apps/web` ships qingqi.dev, `apps/finance` ships Finance at finance.qingqi.dev, `apps/trip-planner` is a private trip reader, and `packages/*` are the `@tuja/*` internals. The design system is `@tuja/ui` in `packages/ui`.
 
 # Gotchas
 
