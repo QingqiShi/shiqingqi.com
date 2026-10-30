@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
@@ -39,6 +40,7 @@ export function DocBreadcrumb({ path }: DocBreadcrumbProps) {
     <Breadcrumb
       label={t({ en: "Breadcrumb", zh: "面包屑导航" })}
       linkComponent={RouterLink}
+      css={styles.breadcrumb}
       items={[
         {
           label: t({ en: "Design system", zh: "设计系统" }),
@@ -50,3 +52,9 @@ export function DocBreadcrumb({ path }: DocBreadcrumbProps) {
     />
   );
 }
+
+const styles = stylex.create({
+  breadcrumb: {
+    paddingInlineEnd: "var(--header-controls-inline-end-clearance, 0px)",
+  },
+});

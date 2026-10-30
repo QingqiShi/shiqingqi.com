@@ -37,18 +37,13 @@ const styles = stylex.create({
     // block, so no percentage of the pill's own height is involved and it clears
     // the edge whatever the label wraps to.
     insetBlockEnd: { default: `calc(100% + ${space._8})`, ":focus": "auto" },
-    // Focused, it takes the same corner inset as `SidebarLayout`'s mobile pill
-    // bar (`styles.mobileBar` in `sidebar-layout.tsx`), so below `md` it lands
-    // squarely on top of that bar rather than beside it. Retune the shell's
-    // inset and this wants the same edit.
     insetBlockStart: {
       default: "auto",
       ":focus": `calc(${space._2} + env(safe-area-inset-top))`,
     },
     insetInlineStart: pageGutter.inlineStart,
-    // Which is why it sits over both that bar (`layer.header`) and the drawer
-    // (`layer.tooltip`): a revealed skip link must never be painted underneath
-    // the chrome it covers.
+    // Above the menu button (`layer.header`) and the drawer (`layer.overlay`),
+    // because a revealed skip link must never be under the chrome.
     zIndex: layer.toaster,
     // Lifts the pill off what it covers — the chip skin alone reads as in-flow
     // chrome rather than as an overlay.

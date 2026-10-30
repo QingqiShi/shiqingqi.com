@@ -50,8 +50,8 @@ export function LayoutShowcase() {
     {
       term: "layer.header",
       note: t({
-        en: "Page chrome: HeaderFooterLayout's floating header controls, and SidebarLayout's rail and mobile bar.",
-        zh: "页面框架：HeaderFooterLayout 的悬浮页头控件，以及 SidebarLayout 的侧栏与移动端底栏。",
+        en: "Page chrome: HeaderFooterLayout's floating header controls, and SidebarLayout's rail and mobile menu button.",
+        zh: "页面框架：HeaderFooterLayout 的悬浮页头控件，以及 SidebarLayout 的侧栏与移动端菜单按钮。",
       }),
     },
     {

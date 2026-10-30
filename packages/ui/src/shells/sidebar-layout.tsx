@@ -8,20 +8,15 @@ import { breakpoints } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useDialogFocus } from "../hooks/use-dialog-focus.ts";
 import { MD_QUERY } from "../md-query.ts";
-import { corner } from "../primitives/corner.stylex.ts";
 import {
-  color,
+  controlHeight,
   layer,
   layout,
   rhythm,
-  shadow,
   space,
 } from "../tokens.stylex.ts";
 import { Drawer } from "./drawer.tsx";
-import {
-  sidebarLayoutStyles,
-  sidebarLayoutTokens,
-} from "./sidebar-layout.stylex.ts";
+import { sidebarLayoutTokens } from "./sidebar-layout.stylex.ts";
 
 // Default width of the navigation rail on wider viewports — wide enough for
 // nav labels to fit on one line, even with a scrollbar's gutter. `rem`-based,
@@ -38,13 +33,13 @@ interface SidebarLayoutOwnProps {
    */
   sidebar: ReactNode;
   /**
-   * Title region — rendered at the top of the rail, in the collapsed mobile
-   * bar, and at the top of the drawer. With `mobileSidebar="hidden"` there is
-   * no mobile bar or drawer, so it shows only in the rail. It starts on the
-   * text edge of the nav, so an icon tile in it lines up with the icons of
-   * the rows. Put controls such as a home link in `sidebarFooter`.
+   * Title region — rendered at the top of the rail and at the top of the
+   * drawer. With `mobileSidebar="hidden"` there is no drawer, so it shows
+   * only in the rail. It starts on the text edge of the nav, so an icon tile
+   * in it lines up with the icons of the rows. Put controls such as a home
+   * link in `sidebarFooter`.
    *
-   * @zh 标题区域——显示在侧栏顶部、收起的移动端悬浮条中，以及抽屉顶部。当 `mobileSidebar` 为 `"hidden"` 时没有移动端悬浮条和抽屉，因此只显示在侧栏中。它从导航的文字边缘开始，因此其中的图标方块与各行的图标对齐。首页链接等控件请放在 `sidebarFooter` 中。
+   * @zh 标题区域——显示在侧栏顶部与抽屉顶部。当 `mobileSidebar` 为 `"hidden"` 时没有抽屉，因此只显示在侧栏中。它从导航的文字边缘开始，因此其中的图标方块与各行的图标对齐。首页链接等控件请放在 `sidebarFooter` 中。
    */
   sidebarHeader?: ReactNode;
   /**
@@ -87,12 +82,13 @@ type SidebarLayoutMobileProps =
   | {
       /**
        * Where the rail goes below `md`. `"drawer"` puts it behind a menu
-       * button in a floating bar at the top. `"hidden"` removes the bar and
-       * the drawer, so the content starts at the top of the screen, below the
-       * safe area. Use it for an app whose own mobile navigation, such as a
-       * tab bar, already holds the rail's content.
+       * button that floats at the top-end corner of the screen. `"hidden"`
+       * removes the button and the drawer. Either way the content starts at
+       * the top of the screen, below the safe area. Use `"hidden"` for an app
+       * whose own mobile navigation, such as a tab bar, already holds the
+       * rail's content.
        *
-       * @zh `md` 以下侧栏的去向。`"drawer"` 将其收进顶部悬浮条的菜单按钮之后；`"hidden"` 去掉悬浮条与抽屉，内容从屏幕顶部（安全区域之下）开始。适用于已有自己移动端导航（例如标签栏）承载侧栏内容的应用。 @default "drawer"
+       * @zh `md` 以下侧栏的去向。`"drawer"` 将其收进悬浮在屏幕顶部末端角落的菜单按钮之后；`"hidden"` 去掉该按钮与抽屉。两种情况下内容都从屏幕顶部（安全区域之下）开始。已有自己移动端导航（例如标签栏）承载侧栏内容的应用使用 `"hidden"`。 @default "drawer"
        */
       mobileSidebar?: "drawer";
       /**
@@ -121,11 +117,17 @@ type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
 
 /**
  * App-density page shell: a persistent navigation rail beside a centered
- * content column on wider viewports, collapsing on mobile into a top bar whose
- * menu button opens the rail as a drawer (focus-trapped, scroll-locked,
- * dismissed by Escape, backdrop, or following a link). With
- * `mobileSidebar="hidden"` there is no mobile bar or drawer, and the rail
- * shows from `md` up.
+ * content column on wider viewports, collapsing on mobile into a floating
+ * menu button at the top-end corner that opens the rail as a drawer
+ * (focus-trapped, scroll-locked, dismissed by Escape, backdrop, or following
+ * a link). With `mobileSidebar="hidden"` there is no menu button or drawer,
+ * and the rail shows from `md` up.
+ *
+ * The menu button floats over the inline-end corner of the content's first
+ * row. The shell publishes the width it takes as
+ * `--header-controls-inline-end-clearance`, so that a first row, such as a
+ * page title or a breadcrumb, can keep clear of it. It is `0px` where no
+ * button floats.
  *
  * The rail sets the spaces of the nav, and the gaps and edges around the
  * header and the footer. The caller sets only the space inside the header and
@@ -138,7 +140,7 @@ type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
  * The rail fills the viewport's height (capped at its container's), so the
  * shell works in any bounded box, not just the page root. Such a box must be
  * the containing block for fixed descendants (for example with `transform` or
- * `contain: layout`), because the mobile bar, the drawer, and the rail's
+ * `contain: layout`), because the menu button, the drawer, and the rail's
  * footer from `md` up are fixed. Otherwise they go to the viewport's edges.
  * A box that is not at the edges of the screen also sets the safe-area
  * insets of `sidebarLayoutTokens` to `0px`, so the chrome does not keep clear
@@ -220,18 +222,14 @@ export function SidebarLayout({
     <div
       css={[
         styles.root,
-        !drawer.hasDrawer && styles.rootWithoutMobileBar,
+        !drawer.hasDrawer && styles.rootWithoutMenu,
         dynamicStyles.columns(railColumnSize),
       ]}
     >
       {drawer.hasDrawer ? (
-        <div css={[corner.radius_round, styles.mobileBar]}>
+        <div css={styles.menu}>
           <EffectCarrier value="viewport">
-            <div css={styles.mobileBarTitle}>{sidebarHeader}</div>
             <Button
-              size="sm"
-              look="ghost"
-              css={sidebarLayoutStyles.headerControl}
               icon={<ListIcon weight="bold" />}
               aria-label={drawer.menuLabel}
               aria-haspopup="dialog"
@@ -267,20 +265,22 @@ export function SidebarLayout({
 
 const styles = stylex.create({
   root: {
-    // The strip the mobile pill bar occupies, published so sticky chrome
-    // parks under it. Nothing floats over the page at `md`+, where the rail
-    // sits beside the content instead.
+    // The strip of the menu button, published so sticky chrome parks under
+    // it. Nothing floats over the page at `md`+, where the rail sits beside
+    // the content instead.
     "--header-controls-clearance": {
-      default: `calc(${space._10} + ${sidebarLayoutTokens.safeAreaTop})`,
+      default: `calc(${controlHeight.md} + 2 * ${space._3} + ${sidebarLayoutTokens.safeAreaTop})`,
+      [breakpoints.md]: "0px",
+    },
+    "--header-controls-inline-end-clearance": {
+      default: `calc(${controlHeight.md} + ${rhythm.tight})`,
       [breakpoints.md]: "0px",
     },
     display: "grid",
     alignItems: { default: "start", [breakpoints.md]: "stretch" },
     gap: { default: rhythm.group, [breakpoints.md]: 0 },
-    // Mobile top padding clears the fixed pill bar, and then sets the content
-    // `rhythm.item` below it.
     paddingBlockStart: {
-      default: `calc(${space._10} + ${rhythm.item} + ${sidebarLayoutTokens.safeAreaTop})`,
+      default: `calc(${space._4} + ${sidebarLayoutTokens.safeAreaTop})`,
       [breakpoints.md]: 0,
     },
     paddingBlockEnd: {
@@ -303,37 +303,24 @@ const styles = stylex.create({
     minBlockSize: { [breakpoints.md]: 0 },
     gridTemplateRows: { [breakpoints.md]: "minmax(0, 1fr)" },
   },
-  // No bar floats over the page, so sticky chrome parks under the status
-  // bar, and the content starts the md+ content gap below it.
-  rootWithoutMobileBar: {
+  // Nothing floats over the page, so sticky chrome parks under the status
+  // bar.
+  rootWithoutMenu: {
     "--header-controls-clearance": {
       default: sidebarLayoutTokens.safeAreaTop,
       [breakpoints.md]: "0px",
     },
-    paddingBlockStart: {
-      default: `calc(${space._4} + ${sidebarLayoutTokens.safeAreaTop})`,
-      [breakpoints.md]: 0,
-    },
+    "--header-controls-inline-end-clearance": "0px",
   },
   // Fixed, not sticky, since a sticky grid item cannot escape its own-height
-  // row. The shell's mobile block-start padding is sized to clear this bar.
-  mobileBar: {
+  // row. The box is only as large as the button, thus it is smaller than the
+  // screen on both axes, and iOS Safari does not tint its status bar from it.
+  menu: {
     display: { default: "flex", [breakpoints.md]: "none" },
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: rhythm.tight,
     position: "fixed",
-    insetBlockStart: `calc(${space._2} + ${sidebarLayoutTokens.safeAreaTop})`,
-    insetInlineStart: `calc(${space._3} + ${sidebarLayoutTokens.safeAreaLeft})`,
+    insetBlockStart: `calc(${space._3} + ${sidebarLayoutTokens.safeAreaTop})`,
     insetInlineEnd: `calc(${space._3} + ${sidebarLayoutTokens.safeAreaRight})`,
     zIndex: layer.header,
-    padding: space._1,
-    backgroundColor: color.bgSurface,
-    boxShadow: shadow._2,
-    minInlineSize: 0,
-  },
-  mobileBarTitle: {
-    minInlineSize: 0,
   },
   contentArea: {
     minInlineSize: 0,

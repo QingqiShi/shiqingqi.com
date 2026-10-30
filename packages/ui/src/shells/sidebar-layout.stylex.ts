@@ -22,7 +22,7 @@ export const sidebarLayoutTokens = stylex.defineVars({
  */
 export const sidebarLayoutStyles = stylex.create({
   /**
-   * The menu and close buttons, ghost icon `Button`s beside the header. The
+   * The drawer's close button, a ghost icon `Button` beside the header. The
    * glyph is muted at rest, also on touch, so that it does not compete with
    * the title, and full strength on hover.
    */
