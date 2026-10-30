@@ -166,6 +166,7 @@
     "./components/select": "./src/forms/select.tsx",
     "./components/sheet": "./src/surfaces/sheet.tsx",
     "./components/sidebar-layout": "./src/shells/sidebar-layout.tsx",
+    "./components/sidebar-layout.stylex": "./src/shells/sidebar-layout.stylex.ts",
     "./components/skeleton": "./src/feedback/skeleton.tsx",
     "./components/skeleton.stylex": "./src/feedback/skeleton.stylex.ts",
     "./components/slider": "./src/forms/slider.tsx",

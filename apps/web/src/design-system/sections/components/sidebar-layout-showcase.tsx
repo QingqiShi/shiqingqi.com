@@ -4,6 +4,7 @@ import { getLocale } from "@tuja/i18n/server-locale";
 import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { Heading } from "@tuja/ui/components/heading";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
+import { sidebarLayoutTokens } from "@tuja/ui/components/sidebar-layout.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -163,6 +164,10 @@ const styles = stylex.create({
     // Containing block for the shell's fixed chrome (see comment at the
     // callsite).
     transform: "translateZ(0)",
+    [sidebarLayoutTokens.safeAreaTop]: "0px",
+    [sidebarLayoutTokens.safeAreaRight]: "0px",
+    [sidebarLayoutTokens.safeAreaBottom]: "0px",
+    [sidebarLayoutTokens.safeAreaLeft]: "0px",
   },
   cardGrid: {
     display: "grid",

@@ -18,7 +18,10 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import { Drawer } from "./drawer.tsx";
-import { sidebarLayoutStyles } from "./sidebar-layout.stylex.ts";
+import {
+  sidebarLayoutStyles,
+  sidebarLayoutTokens,
+} from "./sidebar-layout.stylex.ts";
 
 // Default width of the navigation rail on wider viewports — wide enough for
 // nav labels to fit on one line, even with a scrollbar's gutter. `rem`-based,
@@ -137,6 +140,9 @@ type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
  * the containing block for fixed descendants (for example with `transform` or
  * `contain: layout`), because the mobile bar, the drawer, and the rail's
  * footer from `md` up are fixed. Otherwise they go to the viewport's edges.
+ * A box that is not at the edges of the screen also sets the safe-area
+ * insets of `sidebarLayoutTokens` to `0px`, so the chrome does not keep clear
+ * of a notch or a home indicator that is not there.
  */
 export function SidebarLayout({
   sidebar,
@@ -265,7 +271,7 @@ const styles = stylex.create({
     // parks under it. Nothing floats over the page at `md`+, where the rail
     // sits beside the content instead.
     "--header-controls-clearance": {
-      default: `calc(${space._10} + env(safe-area-inset-top))`,
+      default: `calc(${space._10} + ${sidebarLayoutTokens.safeAreaTop})`,
       [breakpoints.md]: "0px",
     },
     display: "grid",
@@ -274,19 +280,19 @@ const styles = stylex.create({
     // Mobile top padding clears the fixed pill bar, and then sets the content
     // `rhythm.item` below it.
     paddingBlockStart: {
-      default: `calc(${space._10} + ${rhythm.item} + env(safe-area-inset-top))`,
+      default: `calc(${space._10} + ${rhythm.item} + ${sidebarLayoutTokens.safeAreaTop})`,
       [breakpoints.md]: 0,
     },
     paddingBlockEnd: {
-      default: `calc(${space._8} + env(safe-area-inset-bottom))`,
+      default: `calc(${space._8} + ${sidebarLayoutTokens.safeAreaBottom})`,
       [breakpoints.md]: 0,
     },
     paddingInlineStart: {
-      default: `calc(${space._3} + env(safe-area-inset-left))`,
+      default: `calc(${space._3} + ${sidebarLayoutTokens.safeAreaLeft})`,
       [breakpoints.md]: 0,
     },
     paddingInlineEnd: {
-      default: `calc(${space._3} + env(safe-area-inset-right))`,
+      default: `calc(${space._3} + ${sidebarLayoutTokens.safeAreaRight})`,
       [breakpoints.md]: 0,
     },
     // md+ fills the container's height, so the rail and its footer track a
@@ -301,11 +307,11 @@ const styles = stylex.create({
   // bar, and the content starts the md+ content gap below it.
   rootWithoutMobileBar: {
     "--header-controls-clearance": {
-      default: "env(safe-area-inset-top)",
+      default: sidebarLayoutTokens.safeAreaTop,
       [breakpoints.md]: "0px",
     },
     paddingBlockStart: {
-      default: `calc(${space._4} + env(safe-area-inset-top))`,
+      default: `calc(${space._4} + ${sidebarLayoutTokens.safeAreaTop})`,
       [breakpoints.md]: 0,
     },
   },
@@ -317,9 +323,9 @@ const styles = stylex.create({
     justifyContent: "space-between",
     gap: rhythm.tight,
     position: "fixed",
-    insetBlockStart: `calc(${space._2} + env(safe-area-inset-top))`,
-    insetInlineStart: `calc(${space._3} + env(safe-area-inset-left))`,
-    insetInlineEnd: `calc(${space._3} + env(safe-area-inset-right))`,
+    insetBlockStart: `calc(${space._2} + ${sidebarLayoutTokens.safeAreaTop})`,
+    insetInlineStart: `calc(${space._3} + ${sidebarLayoutTokens.safeAreaLeft})`,
+    insetInlineEnd: `calc(${space._3} + ${sidebarLayoutTokens.safeAreaRight})`,
     zIndex: layer.header,
     padding: space._1,
     backgroundColor: color.bgSurface,
@@ -336,12 +342,12 @@ const styles = stylex.create({
     paddingBlockStart: { default: 0, [breakpoints.md]: space._4 },
     paddingBlockEnd: {
       default: 0,
-      [breakpoints.md]: `calc(${space._8} + env(safe-area-inset-bottom))`,
+      [breakpoints.md]: `calc(${space._8} + ${sidebarLayoutTokens.safeAreaBottom})`,
     },
     paddingInlineStart: { default: 0, [breakpoints.md]: space._8 },
     paddingInlineEnd: {
       default: 0,
-      [breakpoints.md]: `calc(${space._6} + env(safe-area-inset-right))`,
+      [breakpoints.md]: `calc(${space._6} + ${sidebarLayoutTokens.safeAreaRight})`,
     },
   },
   content: {

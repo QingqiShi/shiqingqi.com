@@ -29,7 +29,10 @@ import {
   shadow,
   space,
 } from "../tokens.stylex.ts";
-import { sidebarLayoutStyles } from "./sidebar-layout.stylex.ts";
+import {
+  sidebarLayoutStyles,
+  sidebarLayoutTokens,
+} from "./sidebar-layout.stylex.ts";
 
 type DrawerProps = {
   isOpen: boolean;
@@ -298,7 +301,7 @@ const styles = stylex.create({
     gap: rhythm.tight,
     minInlineSize: 0,
     paddingBlockStart: {
-      default: `calc(${BOX_INSET} + env(safe-area-inset-top))`,
+      default: `calc(${BOX_INSET} + ${sidebarLayoutTokens.safeAreaTop})`,
       [breakpoints.md]: BOX_INSET,
     },
     paddingBlockEnd: rhythm.item,
@@ -327,10 +330,10 @@ const styles = stylex.create({
     // against the rail's edge while the content moves in.
     paddingInlineStart: {
       default: BOX_INSET,
-      [breakpoints.md]: `calc(${BOX_INSET} + env(safe-area-inset-left))`,
+      [breakpoints.md]: `calc(${BOX_INSET} + ${sidebarLayoutTokens.safeAreaLeft})`,
     },
     paddingInlineEnd: {
-      default: `calc(${BOX_INSET} + env(safe-area-inset-right))`,
+      default: `calc(${BOX_INSET} + ${sidebarLayoutTokens.safeAreaRight})`,
       [breakpoints.md]: BOX_INSET,
     },
   },
@@ -339,7 +342,7 @@ const styles = stylex.create({
   // below it.
   railFooter: {
     paddingBlockStart: rhythm.item,
-    paddingBlockEnd: `calc(${BOX_INSET} + env(safe-area-inset-bottom))`,
+    paddingBlockEnd: `calc(${BOX_INSET} + ${sidebarLayoutTokens.safeAreaBottom})`,
   },
   // md+: the footer is fixed to the bottom edge of the viewport, at the
   // card's bottom edge. It is not sticky in the card. On iPad, the Safari
@@ -358,7 +361,7 @@ const styles = stylex.create({
     },
     paddingInlineStart: {
       default: null,
-      [breakpoints.md]: `calc(${BOX_INSET} + env(safe-area-inset-left))`,
+      [breakpoints.md]: `calc(${BOX_INSET} + ${sidebarLayoutTokens.safeAreaLeft})`,
     },
     paddingInlineEnd: { default: null, [breakpoints.md]: BOX_INSET },
   },
@@ -390,7 +393,7 @@ const styles = stylex.create({
   // Without a footer slot, no chrome carries the block-end inset, so the
   // scroller pads its own end and the band sits at the card edge.
   railNavContentNoFooter: {
-    paddingBlockEnd: `calc(${BOX_INSET} + env(safe-area-inset-bottom))`,
+    paddingBlockEnd: `calc(${BOX_INSET} + ${sidebarLayoutTokens.safeAreaBottom})`,
   },
 });
 
