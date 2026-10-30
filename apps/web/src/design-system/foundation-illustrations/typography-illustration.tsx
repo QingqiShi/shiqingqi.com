@@ -5,13 +5,14 @@ import {
   duration,
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
 /**
- * Typography foundation-card illustration: a metallic "Aa" in Inter over a
- * type-scale ruler (72 / 48 / 24 / 16), dim silver at rest and warming towards
- * the cursor on hover.
+ * Typography foundation-card illustration: a metallic "Aa" in font.family over
+ * a type-scale ruler (72 / 48 / 24 / 16), dim silver at rest and warming
+ * towards the cursor on hover.
  */
 export function TypographyIllustration() {
   return (
@@ -166,7 +167,7 @@ const blink = stylex.keyframes({
 
 const styles = stylex.create({
   glyph: {
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+    fontFamily: font.family,
     fontSize: "100px",
     fontWeight: 600,
     letterSpacing: "-5px",
@@ -293,7 +294,7 @@ const styles = stylex.create({
     transition: `opacity ${duration._500} ${easing.ease}`,
   },
   numsText: {
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+    fontFamily: font.family,
     fontSize: "11px",
     fontWeight: 500,
     textAnchor: "end",

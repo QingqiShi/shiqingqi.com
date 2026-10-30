@@ -17,10 +17,11 @@ export const globalStyles = stylex.create({
   },
 });
 
-// The punctuation face comes before Inter, so that the quotes, dashes and
-// ellipses in Chinese text get their full-width forms.
+// The punctuation face comes before the Latin face, so that the quotes,
+// dashes and ellipses in Chinese text get their full-width forms.
 export const chineseType = stylex.createTheme(font, {
-  family: '"Noto Sans SC Punctuation",Inter,Inter-fallback,sans-serif',
+  family:
+    '"Noto Sans SC Punctuation","Instrument Sans Q","Instrument Sans Q-fallback",sans-serif',
   lineHeightBody: stylex.types.number(1.7),
 });
 

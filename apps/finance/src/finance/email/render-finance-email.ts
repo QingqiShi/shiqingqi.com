@@ -44,7 +44,6 @@ const DARK: typeof LIGHT = {
 };
 
 const FONT_FAMILY = [
-  "Inter",
   "-apple-system",
   "BlinkMacSystemFont",
   '"Segoe UI"',

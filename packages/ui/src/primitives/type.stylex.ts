@@ -154,8 +154,8 @@ export const typeRole = stylex.create({
  * Changes that go on top of any type role.
  *
  * - `numeric` — figures of one width, so numbers line up in a column and a
- *   value that changes does not move. Inter already uses lining figures, so
- *   only `tabular-nums` is set.
+ *   value that changes does not move. Instrument Sans Q already uses lining
+ *   figures, so only `tabular-nums` is set.
  */
 export const typeModifier = stylex.create({
   numeric: {

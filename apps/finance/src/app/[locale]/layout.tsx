@@ -66,7 +66,7 @@ export default async function RootLayout({
       <body css={[root.body, globalStyles.body]}>
         <link
           rel="preload"
-          href="/InterVariableOptimized.woff2"
+          href="/InstrumentSansQ-Variable.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

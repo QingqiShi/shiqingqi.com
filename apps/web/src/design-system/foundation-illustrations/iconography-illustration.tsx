@@ -5,7 +5,7 @@ import {
   duration,
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { color, font } from "@tuja/ui/tokens.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -349,7 +349,7 @@ const styles = stylex.create({
     },
   },
   railLabel: {
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+    fontFamily: font.family,
     fontSize: "11px",
     fontWeight: 500,
     textAnchor: "end",

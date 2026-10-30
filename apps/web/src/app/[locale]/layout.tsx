@@ -50,16 +50,16 @@ export default async function RootLayout({
     <html lang={htmlLang[locale]} suppressHydrationWarning>
       <body css={[root.body, globalStyles.body, isChinese && chineseType]}>
         {/*
-          Both locales render Latin text in Inter (names, dates, brand
-          wordmarks, numbers), so both locales benefit from preloading it.
-          The `@font-face` `unicode-range` limits Inter to Latin glyphs, so
+          Both locales render Latin text in Instrument Sans Q (names, dates,
+          brand wordmarks, numbers), so both locales benefit from preloading
+          it. The `@font-face` `unicode-range` limits it to Latin glyphs, so
           CJK-only text still falls through to system fonts — the preload
           warms the cache for the mixed-content case without wasting bytes
           on pure-CJK runs.
         */}
         <link
           rel="preload"
-          href="/InterVariableOptimized.woff2"
+          href="/InstrumentSansQ-Variable.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

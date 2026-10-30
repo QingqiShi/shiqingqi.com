@@ -210,7 +210,7 @@ The sizes below are the steps the type roles in `primitives/type.stylex.ts` are 
 
 ### Family
 
-`font.family` — `Inter,Inter-fallback,sans-serif`
+`font.family` — `"Instrument Sans Q","Instrument Sans Q-fallback",sans-serif`
 
 `font.familyMono` — IBM Plex Mono, then the platform monospace fonts
 
@@ -257,7 +257,7 @@ Scales across breakpoints (sm → md → lg):
 
 ### Weights
 
-`font.weight_1` (100) through `font.weight_9` (900) — maps to CSS font-weight integers.
+`font.weight_1` (100) through `font.weight_9` (900) — maps to CSS font-weight integers. Instrument Sans Q covers 400–700, so Latin text draws 100–300 as 400 and 800–900 as 700; Chinese text, in the device's font, can show the other weights.
 
 ### Line Heights
 

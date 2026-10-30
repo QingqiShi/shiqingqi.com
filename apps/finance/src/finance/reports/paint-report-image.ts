@@ -9,9 +9,9 @@ import type {
 /** The largest canvas iOS Safari draws, in pixels; a larger one stays blank. */
 const MAX_CANVAS_AREA = 4096 * 4096;
 
-/** Inter is the page's font; its `@font-face` covers Latin only, so other text falls back to the device's sans-serif. */
+/** Instrument Sans Q is the page's font; its `@font-face` covers Latin only, so other text falls back to the device's sans-serif. */
 function fontOf({ size, weight }: ReportImageFont) {
-  return `${String(weight)} ${String(size)}px Inter, sans-serif`;
+  return `${String(weight)} ${String(size)}px "Instrument Sans Q", sans-serif`;
 }
 
 function paintOf(
@@ -88,8 +88,8 @@ function toPng(canvas: HTMLCanvasElement): Promise<Blob> {
 
 /**
  * Draws the share image on a canvas and returns it as a PNG. `draw` gets a
- * `measureText` with Inter loaded, so it can fit names to their columns. An
- * image too tall for the canvas limit is drawn smaller, not cut.
+ * `measureText` with Instrument Sans Q loaded, so it can fit names to their
+ * columns. An image too tall for the canvas limit is drawn smaller, not cut.
  */
 export async function paintReportImage(
   draw: (measureText: MeasureText) => ReportImageDrawing,

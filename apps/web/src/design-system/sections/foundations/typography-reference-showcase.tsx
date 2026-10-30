@@ -26,9 +26,10 @@ interface TokenTableProps {
   /** The name of the column that says what already uses each token. */
   usedByColumn: string;
   rows: readonly TokenRow[];
+  note?: string;
 }
 
-function TokenTable({ title, usedByColumn, rows }: TokenTableProps) {
+function TokenTable({ title, usedByColumn, rows, note }: TokenTableProps) {
   const columns = [
     t({ en: "Token", zh: "令牌" }),
     t({ en: "Value", zh: "值" }),
@@ -82,6 +83,7 @@ function TokenTable({ title, usedByColumn, rows }: TokenTableProps) {
           </tbody>
         </table>
       </div>
+      {note && <GuideNote>{note}</GuideNote>}
     </section>
   );
 }
@@ -96,7 +98,11 @@ function Lines({ lineHeight }: { lineHeight: StyleXStyles }) {
 }
 
 function W({ s }: { s: StyleXStyles }) {
-  return <span css={[typeRole.h2, styles.weightSample, s]}>Ag</span>;
+  return (
+    <span css={[typeRole.h2, styles.weightSample, s]}>
+      Ag <span lang="zh-Hans">永</span>
+    </span>
+  );
 }
 
 function Track({ s }: { s: StyleXStyles }) {
@@ -253,6 +259,10 @@ export function TypographyReferenceShowcase() {
           title={t({ en: "Weights", zh: "字重" })}
           usedByColumn={prop}
           rows={weights}
+          note={t({
+            en: "The Latin face has weights 400 to 700, so Latin text at 100–300 draws as 400 and at 800–900 as 700. Chinese text takes the device's font, which shows as many of the weights as it has.",
+            zh: "拉丁字体只有 400 到 700 的字重，因此拉丁文字在 100–300 时显示为 400，在 800–900 时显示为 700。中文使用设备自带的字体，能显示几级字重取决于该字体。",
+          })}
         />
         <TokenTable
           title={t({ en: "Line heights", zh: "行高" })}

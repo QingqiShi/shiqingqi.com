@@ -5,6 +5,7 @@ import {
   duration,
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
 import { illoBase } from "./illustration.stylex.ts";
 
@@ -219,7 +220,7 @@ const styles = stylex.create({
     },
   },
   ratioLabel: {
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+    fontFamily: font.family,
     fontSize: "11px",
     fontWeight: 500,
     textAnchor: "middle",
@@ -286,7 +287,7 @@ const styles = stylex.create({
     strokeWidth: 1.5,
   },
   rlabel: {
-    fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+    fontFamily: font.family,
     fontSize: "11px",
     fontWeight: 500,
     textAnchor: "middle",

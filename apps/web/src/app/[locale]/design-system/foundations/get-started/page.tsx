@@ -80,16 +80,18 @@ const CSS_PROP_TYPES = `// css-prop.d.ts
 
 const GLOBAL_CSS = `/* src/app/global.css */
 @font-face {
-  font-family: "Inter";
-  src: url("/fonts/InterVariable.woff2");
-  font-weight: 100 900;
+  font-family: "Instrument Sans Q";
+  src: url("/fonts/InstrumentSansQ-Variable.woff2");
+  font-weight: 400 700;
   font-display: fallback;
 }
 
 @font-face {
-  font-family: "Inter-fallback";
-  size-adjust: 107%;
-  ascent-override: 90%;
+  font-family: "Instrument Sans Q-fallback";
+  size-adjust: 102.03%;
+  ascent-override: 95.07%;
+  descent-override: 24.5%;
+  line-gap-override: 0%;
   src: local("Segoe UI"), local("Roboto"), local("Helvetica Neue"),
     local("Arial");
 }
@@ -336,8 +338,8 @@ export default function GetStartedPage() {
               term: t({ en: "The typeface", zh: "字体" }),
               value: "font.family",
               note: t({
-                en: 'Only controls such as Button and the form fields set a font family; all other text inherits the root\'s. font.family asks for "Inter", then "Inter-fallback", then the platform sans-serif. The package ships no font files: serve Inter yourself, or text renders in the fallback. Code blocks use font.familyMono, which asks for "IBM Plex Mono" first.',
-                zh: "只有 Button 与表单字段这样的控件会设置字体族；其余文字都继承根元素的字体。font.family 先请求 “Inter”，再请求 “Inter-fallback”，最后是平台的无衬线字体。这个包不附带字体文件：请自行提供 Inter，否则文字会以后备字体渲染。代码块使用 font.familyMono，它优先请求 “IBM Plex Mono”。",
+                en: 'Only controls such as Button and the form fields set a font family; all other text inherits the root\'s. font.family asks for "Instrument Sans Q", then "Instrument Sans Q-fallback", then the platform sans-serif. The package ships no font files: serve Instrument Sans Q yourself, or text renders in the fallback. It is Instrument Sans with the curved-tail y and Medium as its regular weight, and scripts/build-latin-font.py builds it. Code blocks use font.familyMono, which asks for "IBM Plex Mono" first.',
+                zh: "只有 Button 与表单字段这样的控件会设置字体族；其余文字都继承根元素的字体。font.family 先请求 “Instrument Sans Q”，再请求 “Instrument Sans Q-fallback”，最后是平台的无衬线字体。这个包不附带字体文件：请自行提供 Instrument Sans Q，否则文字会以后备字体渲染。它是采用弯尾 y、以 Medium 作为常规字重的 Instrument Sans，由 scripts/build-latin-font.py 生成。代码块使用 font.familyMono，它优先请求 “IBM Plex Mono”。",
               }),
             },
           ]}

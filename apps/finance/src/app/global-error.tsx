@@ -54,7 +54,7 @@ export default function GlobalError({
           padding: "1rem",
           textAlign: "center",
           fontFamily:
-            "Inter, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+            "'Instrument Sans Q', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           backgroundColor: `light-dark(${FINANCE_LIGHT_CANVAS}, ${gray._0})`,
           color: `light-dark(${gray._13}, ${gray._92})`,
         }}

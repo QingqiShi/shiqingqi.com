@@ -388,7 +388,7 @@ export const color = stylex.defineVars({
 });
 
 export const font = stylex.defineVars({
-  family: "Inter,Inter-fallback,sans-serif",
+  family: '"Instrument Sans Q","Instrument Sans Q-fallback",sans-serif',
   familyMono:
     '"IBM Plex Mono","IBM Plex Mono-fallback",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace',
 
