@@ -6,7 +6,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
 
 /**
  * Layout foundation-card illustration: a tilted breakpoint ruler (320 / 768 /
@@ -117,8 +117,7 @@ const styles = stylex.create({
     transformBox: "view-box",
     transformOrigin: "234px 120px",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 6px), calc(var(--ds-illo-my) * 5px)) skewY(-4deg)",
+      default: `translate(calc(${illoVars.mx} * 6px), calc(${illoVars.my} * 5px)) skewY(-4deg)`,
       [motionConstants.REDUCED_MOTION]: "skewY(-4deg)",
     },
     transition: {
@@ -128,22 +127,22 @@ const styles = stylex.create({
   },
   col: {
     fill: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) 15%)",
+        `color-mix(in oklab, ${illoVars.ink}, ${illoVars.hue} 15%)`,
       [pointer.canHover]: {
         default: null,
         [stylex.when.ancestor(":hover", tileMarker)]:
-          "color-mix(in oklab, var(--ds-illo-ink), var(--ds-illo-hue) 15%)",
+          `color-mix(in oklab, ${illoVars.ink}, ${illoVars.hue} 15%)`,
       },
     },
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     strokeWidth: 0.75,
@@ -166,12 +165,12 @@ const styles = stylex.create({
   frame: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     strokeWidth: 1.2,
@@ -188,12 +187,12 @@ const styles = stylex.create({
   ratio: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     strokeWidth: 1.2,
@@ -209,8 +208,7 @@ const styles = stylex.create({
     },
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 3px), calc(var(--ds-illo-my) * 2.5px))",
+      default: `translate(calc(${illoVars.mx} * 3px), calc(${illoVars.my} * 2.5px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -225,12 +223,12 @@ const styles = stylex.create({
     textAnchor: "middle",
     dominantBaseline: "middle",
     fill: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     opacity: {
@@ -243,8 +241,7 @@ const styles = stylex.create({
     },
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 9px), calc(var(--ds-illo-my) * 7.5px))",
+      default: `translate(calc(${illoVars.mx} * 9px), calc(${illoVars.my} * 7.5px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -255,12 +252,12 @@ const styles = stylex.create({
   rline: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     strokeWidth: 1.2,
@@ -270,12 +267,12 @@ const styles = stylex.create({
   },
   tick: {
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     strokeWidth: 1.3,
@@ -291,12 +288,12 @@ const styles = stylex.create({
     fontWeight: 500,
     textAnchor: "middle",
     fill: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     opacity: {
@@ -311,12 +308,12 @@ const styles = stylex.create({
   },
   handle: {
     fill: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     opacity: {
@@ -329,8 +326,7 @@ const styles = stylex.create({
     },
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-px, 0.5) * 150px), calc(var(--ds-illo-px, 0.5) * -8.6px))",
+      default: `translate(calc(${illoVars.px} * 150px), calc(${illoVars.px} * -8.6px))`,
       [motionConstants.REDUCED_MOTION]: "translate(75px, -4.3px)",
     },
     transition: {

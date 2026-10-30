@@ -2,6 +2,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
+import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, measure } from "@tuja/ui/tokens.stylex";
@@ -70,7 +71,7 @@ export default function DesignSystemOverview() {
 const styles = stylex.create({
   heading: {
     margin: 0,
-    paddingInlineEnd: "var(--header-controls-inline-end-clearance, 0px)",
+    paddingInlineEnd: headerControlsTokens.inlineEndClearance,
   },
   intro: {
     margin: 0,

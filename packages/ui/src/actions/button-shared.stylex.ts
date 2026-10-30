@@ -22,6 +22,16 @@ const pressTransition = `background ${duration._200} ${easing.ease}, transform $
 const releaseTransition = `background ${duration._200} ${easing.ease}, transform ${duration._1000} ${easing.spring}, filter ${duration._300} ${easing.easeOut}`;
 const reducedTransition = `background ${duration._200} ${easing.ease}`;
 
+/**
+ * How far a pressed control follows a pointer that drifts off it.
+ * `usePressHandlers` sets both on the pressed element through `pressedCss`.
+ * A style that wears the press reads them in its `translate`.
+ */
+export const pressNudgeTokens = stylex.defineVars({
+  x: "0px",
+  y: "0px",
+});
+
 export const sharedStyles = stylex.create({
   base: {
     // Anchors a button's busy spinner overlay outside the flow, so it doesn't
@@ -126,8 +136,7 @@ export const sharedStyles = stylex.create({
   },
   pressed: {
     transform: {
-      default:
-        "scale(1.05) translate(var(--button-nudge-x, 0), var(--button-nudge-y, 0))",
+      default: `scale(1.05) translate(${pressNudgeTokens.x}, ${pressNudgeTokens.y})`,
       [motionConstants.REDUCED_MOTION]: "scale(1) translate(0, 0)",
     },
     filter: {

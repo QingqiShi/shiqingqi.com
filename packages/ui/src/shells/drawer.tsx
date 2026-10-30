@@ -20,6 +20,7 @@ import {
 } from "../motion/use-motion-engine.ts";
 import { scrollbar } from "../primitives/layout.stylex.ts";
 import { duration, easing, transition } from "../primitives/motion.stylex.ts";
+import { scrollMaskTokens } from "../surfaces/scroll-mask.stylex.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
 import {
   border,
@@ -30,6 +31,7 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import {
+  railTokens,
   sidebarLayoutStyles,
   sidebarLayoutTokens,
 } from "./sidebar-layout.stylex.ts";
@@ -164,7 +166,7 @@ export function Drawer({
 
 const RAIL_INSET = space._2;
 // The box edge of the nav is this far in from the edge of the card.
-const BOX_INSET = "var(--rail-box-inset)";
+const BOX_INSET = railTokens.boxInset;
 const REDUCED_FADE = cssTween(duration._150, easing.ease);
 const fade = (at: number) => ({ opacity: unit(at).toFixed(3) });
 const slide = (at: number) => ({
@@ -229,7 +231,6 @@ const styles = stylex.create({
   // Both supported locales are LTR, so the off-canvas translate needs no
   // logical flip.
   rail: {
-    "--rail-box-inset": { default: space._3, [breakpoints.md]: space._2 },
     display: "flex",
     flexDirection: "column",
     minInlineSize: 0,
@@ -357,7 +358,7 @@ const styles = stylex.create({
     insetInlineStart: { default: null, [breakpoints.md]: RAIL_INSET },
     inlineSize: {
       default: null,
-      [breakpoints.md]: "var(--rail-card-inline-size)",
+      [breakpoints.md]: railTokens.cardInlineSize,
     },
     paddingInlineStart: {
       default: null,
@@ -373,15 +374,15 @@ const styles = stylex.create({
   railNavContentFixedFooter: {
     paddingBlockEnd: {
       default: null,
-      [breakpoints.md]: "var(--scroll-mask-end-chrome, 0px)",
+      [breakpoints.md]: scrollMaskTokens.endChrome,
     },
     "::after": {
       content: { default: null, [breakpoints.md]: '""' },
       position: "fixed",
       insetBlockEnd: RAIL_INSET,
       insetInlineStart: RAIL_INSET,
-      inlineSize: "var(--rail-card-inline-size)",
-      blockSize: "var(--scroll-mask-end-chrome, 0px)",
+      inlineSize: railTokens.cardInlineSize,
+      blockSize: scrollMaskTokens.endChrome,
       zIndex: -1,
       pointerEvents: "none",
       backgroundColor: color.bgSurface,
@@ -399,6 +400,6 @@ const styles = stylex.create({
 
 const dynamicStyles = stylex.create({
   railCardInlineSize: (railColumnSize: string) => ({
-    "--rail-card-inline-size": `calc(${railColumnSize} - ${RAIL_INSET})`,
+    [railTokens.cardInlineSize]: `calc(${railColumnSize} - ${RAIL_INSET})`,
   }),
 });

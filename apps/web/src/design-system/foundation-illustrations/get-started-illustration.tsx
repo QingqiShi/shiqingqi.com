@@ -6,7 +6,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
 import { squirclePath } from "./squircle-path.ts";
 
 const WINDOW = squirclePath(176, 70, 190, 130, 22);
@@ -36,17 +36,9 @@ export function GetStartedIllustration() {
     >
       <defs>
         <radialGradient id="dsi-get-started-orb" cx="50%" cy="50%" r="60%">
-          <stop
-            offset="0%"
-            stopColor="var(--ds-illo-hue-soft)"
-            stopOpacity="0.75"
-          />
-          <stop
-            offset="55%"
-            stopColor="var(--ds-illo-hue)"
-            stopOpacity="0.18"
-          />
-          <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.hueSoft} stopOpacity="0.75" />
+          <stop offset="55%" stopColor={illoVars.hue} stopOpacity="0.18" />
+          <stop offset="100%" stopColor={illoVars.hue} stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -134,8 +126,7 @@ const styles = stylex.create({
     transformBox: "view-box",
     transformOrigin: "258px 128px",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 24px), calc(var(--ds-illo-my) * 18px))",
+      default: `translate(calc(${illoVars.mx} * 24px), calc(${illoVars.my} * 18px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -148,8 +139,7 @@ const styles = stylex.create({
   window: {
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 5px), calc(var(--ds-illo-my) * 4px))",
+      default: `translate(calc(${illoVars.mx} * 5px), calc(${illoVars.my} * 4px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -161,8 +151,7 @@ const styles = stylex.create({
   content: {
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 3px), calc(var(--ds-illo-my) * 2.5px))",
+      default: `translate(calc(${illoVars.mx} * 3px), calc(${illoVars.my} * 2.5px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -173,12 +162,12 @@ const styles = stylex.create({
   frame: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     strokeWidth: 1.4,
@@ -193,12 +182,12 @@ const styles = stylex.create({
     transition: `stroke ${duration._500} ${easing.ease}, opacity ${duration._500} ${easing.ease}`,
   },
   titleRule: {
-    stroke: "var(--ds-illo-ink)",
+    stroke: illoVars.ink,
     strokeWidth: 1,
     opacity: 0.3,
   },
   light: {
-    fill: "var(--ds-illo-ink)",
+    fill: illoVars.ink,
     opacity: {
       default: 0.35,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0.55,
@@ -212,12 +201,12 @@ const styles = stylex.create({
   prompt: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     strokeWidth: 1.8,
@@ -237,12 +226,12 @@ const styles = stylex.create({
   // line, so the command reads as typed rather than faded in.
   command: {
     fill: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     opacity: {
@@ -301,7 +290,7 @@ const styles = stylex.create({
     },
   },
   caretBlink: {
-    stroke: "var(--ds-illo-hue-soft)",
+    stroke: illoVars.hueSoft,
     strokeWidth: 1.6,
     strokeLinecap: "butt",
     animationName: { default: blink, [motionConstants.REDUCED_MOTION]: "none" },
@@ -310,7 +299,7 @@ const styles = stylex.create({
     animationIterationCount: "infinite",
   },
   output: {
-    fill: "var(--ds-illo-ink)",
+    fill: illoVars.ink,
     opacity: {
       default: 0.28,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0.45,
@@ -324,7 +313,7 @@ const styles = stylex.create({
   // Arrive once the command is typed.
   tick: {
     fill: "none",
-    stroke: "var(--ds-illo-hue)",
+    stroke: illoVars.hue,
     strokeWidth: 1.8,
     strokeLinecap: "round",
     strokeLinejoin: "round",
@@ -339,7 +328,7 @@ const styles = stylex.create({
     transition: `opacity ${duration._300} ${easing.ease} ${duration._400}`,
   },
   done: {
-    fill: "var(--ds-illo-hue-soft)",
+    fill: illoVars.hueSoft,
     opacity: {
       default: 0,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0.85,

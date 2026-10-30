@@ -6,7 +6,8 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
+import { materialIlloVars } from "./material-illustration.stylex.ts";
 import { squirclePath } from "./squircle-path.ts";
 
 const LENS = squirclePath(180, 76, 132, 84, 30);
@@ -40,7 +41,7 @@ function Field() {
 export function MaterialIllustration() {
   return (
     <svg
-      css={[illoBase.svg, styles.svg]}
+      css={illoBase.svg}
       viewBox="0 0 320 176"
       preserveAspectRatio="xMaxYMax meet"
       aria-hidden="true"
@@ -54,19 +55,15 @@ export function MaterialIllustration() {
           height="10"
           patternUnits="userSpaceOnUse"
         >
-          <circle cx="5" cy="5" r="0.9" fill="var(--ds-illo-ink)" />
+          <circle cx="5" cy="5" r="0.9" fill={illoVars.ink} />
         </pattern>
         <linearGradient id="dsi-material-washInk" x1="0" y1="0" x2="1" y2="0.4">
-          <stop offset="0%" stopColor="var(--ds-illo-ink)" stopOpacity="0.36" />
-          <stop offset="100%" stopColor="var(--ds-illo-ink)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.ink} stopOpacity="0.36" />
+          <stop offset="100%" stopColor={illoVars.ink} stopOpacity="0" />
         </linearGradient>
         <linearGradient id="dsi-material-washHue" x1="0" y1="0" x2="1" y2="0.4">
-          <stop offset="0%" stopColor="var(--ds-illo-hue)" stopOpacity="0.46" />
-          <stop
-            offset="100%"
-            stopColor="var(--ds-illo-hue-soft)"
-            stopOpacity="0"
-          />
+          <stop offset="0%" stopColor={illoVars.hue} stopOpacity="0.46" />
+          <stop offset="100%" stopColor={illoVars.hueSoft} stopOpacity="0" />
         </linearGradient>
         <radialGradient id="dsi-material-fade" cx="66%" cy="66%" r="74%">
           <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
@@ -75,8 +72,8 @@ export function MaterialIllustration() {
         </radialGradient>
         <linearGradient id="dsi-material-rim" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-          <stop offset="34%" stopColor="var(--ds-illo-rim)" />
-          <stop offset="66%" stopColor="var(--ds-illo-rim)" />
+          <stop offset="34%" stopColor={materialIlloVars.rim} />
+          <stop offset="66%" stopColor={materialIlloVars.rim} />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0.55" />
         </linearGradient>
         <mask id="dsi-material-fieldMask">
@@ -113,12 +110,6 @@ export function MaterialIllustration() {
 }
 
 const styles = stylex.create({
-  // The rim's own colour, under the light on it: a dark edge against a light
-  // page, clear against a dark one — the reading `color.borderMaterialGlass` gives.
-  svg: {
-    "--ds-illo-rim":
-      "light-dark(rgba(26, 26, 28, 0.38), rgba(255, 255, 255, 0))",
-  },
   washRest: {
     opacity: {
       default: 1,
@@ -144,8 +135,7 @@ const styles = stylex.create({
   lens: {
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 7px), calc(var(--ds-illo-my) * 5px))",
+      default: `translate(calc(${illoVars.mx} * 7px), calc(${illoVars.my} * 5px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -157,8 +147,7 @@ const styles = stylex.create({
     filter: "blur(2px)",
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * -7px), calc(var(--ds-illo-my) * -5px))",
+      default: `translate(calc(${illoVars.mx} * -7px), calc(${illoVars.my} * -5px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {

@@ -31,6 +31,7 @@ import type {
 } from "#src/pixel-creature-creator/creature/creature-def-schema.ts";
 import { PixelSprite } from "#src/pixel-creature-creator/sprite/pixel-sprite.tsx";
 import { elements } from "#src/pixel-creature-creator/sprite/sprites/index.ts";
+import { creatureCardVars } from "./creature-card.stylex.ts";
 
 /**
  * Lore payload rendered in the card. It comes from the AI route or from the
@@ -60,13 +61,6 @@ type StatKey = keyof CreatureStats;
  * Stats are accepted as a prop rather than recomputed here so the parent
  * (review screen) can memoize the seed-stats result alongside its other
  * derived data.
- *
- * Why CSS custom property over inline `style`: the accent colour is a
- * runtime value that needs to flow into multiple stylesheet rules
- * (`color-mix`, gradient stops, the header background). React's
- * `CSSProperties` type does not include arbitrary `--*` keys, so we set
- * the variable via a ref-effect instead of inlining the style object —
- * keeping this component free of `as` assertions.
  */
 export function CreatureCard({
   def,
@@ -75,7 +69,6 @@ export function CreatureCard({
   lore,
   paused = false,
 }: CreatureCardProps) {
-  const cardRef = useRef<HTMLElement>(null);
   const element = elements[def.type];
   // The schema validates `def.type` against the live registry so this
   // lookup should always succeed in production. Fall back to a neutral
@@ -107,16 +100,9 @@ export function CreatureCard({
     hustle: t({ en: "Hustle", zh: "干劲" }),
   };
 
-  useEffect(() => {
-    const card = cardRef.current;
-    if (card === null) return;
-    card.style.setProperty("--pcc-accent", accentColor);
-  }, [accentColor]);
-
   return (
     <article
-      ref={cardRef}
-      css={[corner.radius_3, styles.card]}
+      css={[corner.radius_3, styles.card, styles.accent(accentColor)]}
       data-testid="creature-card"
       data-type={def.type}
     >
@@ -202,14 +188,13 @@ interface StatBarProps {
 }
 
 function StatBar({ percent }: StatBarProps) {
-  // Same trick as the card-level CSS variable: thread the runtime fill
-  // percentage into a CSS custom property via a ref so the stylesheet
-  // rule can pick it up without `as` assertions.
+  // Write the width after mount, so that the bar grows from zero when the
+  // card opens. A width set in render shows at full length immediately.
   const fillRef = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const fill = fillRef.current;
     if (fill === null) return;
-    fill.style.setProperty("--pcc-fill", `${String(percent)}%`);
+    fill.style.inlineSize = `${String(percent)}%`;
   }, [percent]);
 
   return (
@@ -220,6 +205,9 @@ function StatBar({ percent }: StatBarProps) {
 }
 
 const styles = stylex.create({
+  accent: (accent: string) => ({
+    [creatureCardVars.accent]: accent,
+  }),
   card: {
     display: "flex",
     flexDirection: "column",
@@ -239,7 +227,7 @@ const styles = stylex.create({
     gap: rhythm.tight,
     paddingBlock: space._3,
     paddingInline: space._4,
-    backgroundColor: `var(--pcc-accent, ${color.bgNeutral})`,
+    backgroundColor: creatureCardVars.accent,
     color: color.fgOnScrim,
     // A subtle sheen across the header makes the type colour read more
     // like a printed card and less like a flat block.
@@ -261,7 +249,7 @@ const styles = stylex.create({
     justifyContent: "center",
     padding: space._3,
     minHeight: "260px",
-    backgroundColor: `color-mix(in srgb, var(--pcc-accent, ${color.bgNeutral}) 14%, ${color.bgSurface})`,
+    backgroundColor: `color-mix(in srgb, ${creatureCardVars.accent} 14%, ${color.bgSurface})`,
     boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.12)",
   },
   body: {
@@ -293,10 +281,9 @@ const styles = stylex.create({
     position: "absolute",
     insetBlock: 0,
     insetInlineStart: 0,
-    inlineSize: "var(--pcc-fill, 0%)",
-    backgroundColor: `var(--pcc-accent, ${color.bgNeutral})`,
-    backgroundImage:
-      "linear-gradient(90deg, color-mix(in srgb, var(--pcc-accent, #888888) 70%, white) 0%, var(--pcc-accent, #888888) 100%)",
+    inlineSize: "0%",
+    backgroundColor: creatureCardVars.accent,
+    backgroundImage: `linear-gradient(90deg, color-mix(in srgb, ${creatureCardVars.accent} 70%, white) 0%, ${creatureCardVars.accent} 100%)`,
     transition: {
       default: `inline-size ${duration._700} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: "none",

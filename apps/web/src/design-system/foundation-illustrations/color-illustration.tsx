@@ -6,7 +6,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
 
 /**
  * Color foundation-card illustration: a row of tonal swatch squares (dark ->
@@ -23,9 +23,9 @@ export function ColorIllustration() {
     >
       <defs>
         <radialGradient id="dsi-color-bloomInk" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="var(--ds-illo-ink)" stopOpacity="0.3" />
-          <stop offset="55%" stopColor="var(--ds-illo-ink)" stopOpacity="0.1" />
-          <stop offset="100%" stopColor="var(--ds-illo-ink)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.ink} stopOpacity="0.3" />
+          <stop offset="55%" stopColor={illoVars.ink} stopOpacity="0.1" />
+          <stop offset="100%" stopColor={illoVars.ink} stopOpacity="0" />
         </radialGradient>
         <radialGradient id="dsi-color-bloomChroma" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#c58b52" stopOpacity="0.4" />
@@ -172,10 +172,10 @@ export function ColorIllustration() {
 }
 
 const styles = stylex.create({
-  // Purple hue override: illoBase ships the gold hue pair; this replaces it.
+  // Purple hue override: `illoVars` defaults to the gold hue pair; this replaces it.
   svg: {
-    "--ds-illo-hue": "light-dark(#8f31be, #cc6dfb)",
-    "--ds-illo-hue-soft": "light-dark(#b154e0, #e8b2ff)",
+    [illoVars.hue]: "light-dark(#8f31be, #cc6dfb)",
+    [illoVars.hueSoft]: "light-dark(#b154e0, #e8b2ff)",
   },
   illustration: {
     transformBox: "fill-box",
@@ -200,8 +200,7 @@ const styles = stylex.create({
     transformBox: "view-box",
     transformOrigin: "250px 128px",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 24px), calc(var(--ds-illo-my) * 20px))",
+      default: `translate(calc(${illoVars.mx} * 24px), calc(${illoVars.my} * 20px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -213,8 +212,7 @@ const styles = stylex.create({
     transformBox: "view-box",
     transformOrigin: "232px 116px",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 5px), calc(var(--ds-illo-my) * 4px)) rotate(calc(var(--ds-illo-mx) * 1deg))",
+      default: `translate(calc(${illoVars.mx} * 5px), calc(${illoVars.my} * 4px)) rotate(calc(${illoVars.mx} * 1deg))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -268,7 +266,7 @@ const styles = stylex.create({
   },
   sheen: {
     transform: {
-      default: "translateX(calc(var(--ds-illo-mx) * 70px))",
+      default: `translateX(calc(${illoVars.mx} * 70px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {

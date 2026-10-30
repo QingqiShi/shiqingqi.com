@@ -16,6 +16,7 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import { Drawer } from "./drawer.tsx";
+import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { sidebarLayoutTokens } from "./sidebar-layout.stylex.ts";
 
 // Default width of the navigation rail on wider viewports — wide enough for
@@ -125,7 +126,7 @@ type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
  *
  * The menu button floats over the inline-end corner of the content's first
  * row. The shell publishes the width it takes as
- * `--header-controls-inline-end-clearance`, so that a first row, such as a
+ * `headerControlsTokens.inlineEndClearance`, so that a first row, such as a
  * page title or a breadcrumb, can keep clear of it. It is `0px` where no
  * button floats.
  *
@@ -268,11 +269,11 @@ const styles = stylex.create({
     // The strip of the menu button, published so sticky chrome parks under
     // it. Nothing floats over the page at `md`+, where the rail sits beside
     // the content instead.
-    "--header-controls-clearance": {
+    [headerControlsTokens.clearance]: {
       default: `calc(${controlHeight.md} + 2 * ${space._3} + ${sidebarLayoutTokens.safeAreaTop})`,
       [breakpoints.md]: "0px",
     },
-    "--header-controls-inline-end-clearance": {
+    [headerControlsTokens.inlineEndClearance]: {
       default: `calc(${controlHeight.md} + ${rhythm.tight})`,
       [breakpoints.md]: "0px",
     },
@@ -306,11 +307,11 @@ const styles = stylex.create({
   // Nothing floats over the page, so sticky chrome parks under the status
   // bar.
   rootWithoutMenu: {
-    "--header-controls-clearance": {
+    [headerControlsTokens.clearance]: {
       default: sidebarLayoutTokens.safeAreaTop,
       [breakpoints.md]: "0px",
     },
-    "--header-controls-inline-end-clearance": "0px",
+    [headerControlsTokens.inlineEndClearance]: "0px",
   },
   // Fixed, not sticky, since a sticky grid item cannot escape its own-height
   // row. The box is only as large as the button, thus it is smaller than the

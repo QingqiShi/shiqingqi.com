@@ -514,6 +514,31 @@ export default defineConfig([
       "@tuja/only-stylex-exports": "error",
     },
   },
+  // A custom property takes its name from `stylex.defineVars`, so that the
+  // places that set it and read it cannot drift apart.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/ui/src/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
+    rules: {
+      "@tuja/no-custom-properties": [
+        "error",
+        {
+          allow: [
+            {
+              pattern: "^--ln-",
+              reason:
+                "LyteNyte Grid reads its theme from these names, so StyleX cannot hash them.",
+            },
+            {
+              pattern: "^--removed-body-scroll-bar-size$",
+              reason:
+                "react-remove-scroll sets this name on the body while it locks the page scroll.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // A Playwright fixture names the fixtures it needs in the pattern of its
   // first parameter. A fixture that needs no fixture has an empty pattern.
   {

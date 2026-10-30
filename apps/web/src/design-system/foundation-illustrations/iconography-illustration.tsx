@@ -7,7 +7,7 @@ import {
 } from "@tuja/ui/primitives/motion.stylex";
 import { color } from "@tuja/ui/tokens.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
 
 /**
  * Iconography foundation-card illustration: one Phosphor icon on the drafting
@@ -63,13 +63,9 @@ export function IconographyIllustration() {
     >
       <defs>
         <radialGradient id="dsi-iconography-ico-glow" cx="50%" cy="50%" r="50%">
-          <stop
-            offset="0%"
-            stopColor="var(--ds-illo-hue-soft)"
-            stopOpacity="0.8"
-          />
-          <stop offset="45%" stopColor="var(--ds-illo-hue)" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.hueSoft} stopOpacity="0.8" />
+          <stop offset="45%" stopColor={illoVars.hue} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={illoVars.hue} stopOpacity="0" />
         </radialGradient>
         <filter
           id="dsi-iconography-ico-blur"
@@ -226,8 +222,7 @@ const styles = stylex.create({
   board: {
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 3.5px), calc(var(--ds-illo-my) * 3px))",
+      default: `translate(calc(${illoVars.mx} * 3.5px), calc(${illoVars.my} * 3px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -240,12 +235,12 @@ const styles = stylex.create({
   keyline: {
     fill: "none",
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     strokeLinecap: "round",
@@ -275,7 +270,7 @@ const styles = stylex.create({
   // frame simply fades in already drawn.
   boxDraw: {
     fill: "none",
-    stroke: "var(--ds-illo-hue-soft)",
+    stroke: illoVars.hueSoft,
     strokeWidth: 1.3,
     strokeDasharray: PERIMETER,
     strokeDashoffset: {
@@ -355,12 +350,12 @@ const styles = stylex.create({
     textAnchor: "end",
     dominantBaseline: "middle",
     fill: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     opacity: {
@@ -376,8 +371,7 @@ const styles = stylex.create({
   icon: {
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 5px), calc(var(--ds-illo-my) * 4px))",
+      default: `translate(calc(${illoVars.mx} * 5px), calc(${illoVars.my} * 4px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -386,7 +380,7 @@ const styles = stylex.create({
     },
   },
   iconGlow: {
-    stroke: "var(--ds-illo-hue-soft)",
+    stroke: illoVars.hueSoft,
     opacity: {
       default: 0,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0.38,
@@ -403,12 +397,12 @@ const styles = stylex.create({
   // at this size.
   iconStroke: {
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue)",
+        illoVars.hue,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hue,
       },
     },
     strokeWidth: {

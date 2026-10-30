@@ -8,6 +8,7 @@ import {
   type MouseEvent,
   type MouseEventHandler,
 } from "react";
+import { pressNudgeTokens } from "../actions/button-shared.stylex.ts";
 import { usePressAnimation } from "./use-press-animation.ts";
 
 interface UsePressHandlersOptions<T extends HTMLElement> {
@@ -121,7 +122,7 @@ export function usePressHandlers<T extends HTMLElement>({
 
 const styles = stylex.create({
   nudge: (x: string, y: string) => ({
-    "--button-nudge-x": x,
-    "--button-nudge-y": y,
+    [pressNudgeTokens.x]: x,
+    [pressNudgeTokens.y]: y,
   }),
 });

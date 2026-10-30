@@ -6,6 +6,7 @@ import {
   Breadcrumb,
   type BreadcrumbLinkProps,
 } from "@tuja/ui/components/breadcrumb";
+import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { getDesignSystemGroupLabels } from "#src/design-system/route-copy/get-design-system-group-labels.ts";
 import { getDesignSystemRouteLabel } from "#src/design-system/route-copy/get-design-system-route-label.ts";
 import { getDesignSystemRouteSection } from "#src/design-system/routes/get-design-system-route-section.ts";
@@ -55,6 +56,6 @@ export function DocBreadcrumb({ path }: DocBreadcrumbProps) {
 
 const styles = stylex.create({
   breadcrumb: {
-    paddingInlineEnd: "var(--header-controls-inline-end-clearance, 0px)",
+    paddingInlineEnd: headerControlsTokens.inlineEndClearance,
   },
 });

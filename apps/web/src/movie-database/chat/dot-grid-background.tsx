@@ -40,16 +40,18 @@ const styles = stylex.create({
     inset: 0,
     zIndex: layer.background,
     pointerEvents: "none",
-    backgroundImage: `radial-gradient(circle, ${color.bgNeutral} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, var(--chat-mood-wash) 0%, transparent 70%)`,
+    // The wash is `currentColor`, so that a transition of `color` fades it
+    // from one mood to the next.
+    backgroundImage: `radial-gradient(circle, ${color.bgNeutral} 1px, transparent 1px), radial-gradient(ellipse at 80% 20%, currentColor 0%, transparent 70%)`,
     backgroundSize: "24px 24px, 100% 100%",
     backgroundRepeat: "repeat, no-repeat",
     opacity: 0.12,
     transition: {
-      default: `--chat-mood-wash ${duration._700} ${easing.easeOut}`,
+      default: `color ${duration._700} ${easing.easeOut}`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
   },
   moodWash: (wash: string) => ({
-    "--chat-mood-wash": wash,
+    color: wash,
   }),
 });
