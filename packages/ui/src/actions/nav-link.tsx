@@ -1,15 +1,16 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { createElement, use, type ReactNode } from "react";
-import { pointer } from "../breakpoints.stylex.ts";
+import { createElement, use, useLayoutEffect, type ReactNode } from "react";
+import { LIQUID_SEGMENT } from "../effect-layer/liquid-indicator.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
-import { selected, selectedTokens } from "../primitives/selected.stylex.ts";
+import { selected } from "../primitives/selected.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
-import { color, controlSize, rhythm, space } from "../tokens.stylex.ts";
+import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
+import { NAV_ROW } from "./create-nav-list-motion.ts";
 import { NavListContext, navListStyles } from "./nav-list-context.tsx";
 
 interface NavLinkProps {
@@ -21,17 +22,19 @@ interface NavLinkProps {
   href: string;
   /**
    * Marks the page being read. It sets `aria-current="page"`, and the
-   * selected look follows it.
+   * list's marker moves to the link.
    *
-   * @zh 标记当前正在阅读的页面。它设置 `aria-current="page"`，选中样式随之变化。
+   * @zh 标记当前正在阅读的页面。它设置 `aria-current="page"`，列表的标记随之移到该链接。
    */
   current?: boolean;
   /**
-   * Shown before the name, such as an icon. It takes its size from the link.
+   * An icon at the start of the row, in the muted colour. It takes its size
+   * from the row. Give one to each row of a list, or to none, so that the text
+   * of the rows starts on one edge.
    *
-   * @zh 显示在名称之前，例如图标。其尺寸由链接决定。
+   * @zh 行首的图标，以弱化颜色显示，尺寸由行决定。一个列表中的各行要么都给图标，要么都不给，使各行文字从同一边缘开始。
    */
-  leading?: ReactNode;
+  icon?: ReactNode;
   /**
    * The link's name, on one line.
    *
@@ -47,43 +50,50 @@ interface NavLinkProps {
 }
 
 /**
- * One row of a `NavList`: a link across the row, muted until it is hovered
- * or current, with a pill behind the current page. It pads itself, and that
- * padding is the space to the next row. Under a coarse pointer the row is at
- * least 44px tall.
+ * One row of a `NavList`: a link across the row, in the full text colour.
+ * The current page takes a medium weight, and the list's marker moves under
+ * it. A hovered row takes the list's lighter hover fill. The fill is the box of the row: it starts on the box edge of
+ * the list, and the content starts on the text edge, `navListTokens.rowInset`
+ * after it. Under a fine pointer the row is the height of a `sm` control.
+ * Under a coarse pointer it is at least 44px tall.
  */
 export function NavLink({
   href,
   current = false,
-  leading,
+  icon,
   children,
   css,
 }: NavLinkProps) {
-  const { linkComponent } = use(NavListContext);
+  const { linkComponent, motion } = use(NavListContext);
+  useLayoutEffect(() => {
+    motion?.refresh();
+  }, [current, motion]);
   // The link component comes from the context and does not change between
   // renders. In JSX, the static-components rule cannot see this, so use
   // createElement.
   return (
-    <li>
+    <li css={navListStyles.row}>
       {createElement(
         linkComponent,
         {
           href,
           "aria-current": current ? "page" : undefined,
+          ...{ [NAV_ROW]: "", [LIQUID_SEGMENT]: "" },
           ...stylex.props(
             typeRole.label,
             a11y.touchRow,
             transition.colors,
-            corner.radius_round,
+            corner.radius_2,
             navListStyles.rowInset,
+            navListStyles.rowControl,
             styles.link,
             selected.quiet,
             a11y.focusRingInset,
             css,
           ),
         },
-        leading === undefined ? null : (
-          <span css={styles.leading}>{leading}</span>
+        icon === undefined ? null : (
+          <span css={navListStyles.icon}>{icon}</span>
         ),
         children,
       )}
@@ -93,25 +103,9 @@ export function NavLink({
 
 const styles = stylex.create({
   link: {
-    display: "flex",
-    alignItems: "center",
-    paddingBlock: space._1,
-    [selectedTokens.rest]: {
-      default: "transparent",
-      ":active": color.bgControlPressed,
+    fontWeight: {
+      default: font.weight_4,
+      ":is([aria-current=page])": font.weight_5,
     },
-    color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
-      ":is([aria-current=page])": color.fg,
-    },
-    textDecoration: "none",
-    whiteSpace: "nowrap",
-  },
-  leading: {
-    display: "inline-flex",
-    flexShrink: 0,
-    marginInlineEnd: rhythm.tight,
-    fontSize: controlSize._4,
   },
 });

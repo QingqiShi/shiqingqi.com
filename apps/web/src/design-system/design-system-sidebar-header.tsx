@@ -1,23 +1,24 @@
-import { HouseIcon } from "@phosphor-icons/react/dist/ssr/House";
+import { ShapesIcon } from "@phosphor-icons/react/dist/ssr/Shapes";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { row } from "@tuja/ui/primitives/stack.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, controlSize } from "@tuja/ui/tokens.stylex";
+import {
+  color,
+  controlSize,
+  font,
+  rhythm,
+  space,
+} from "@tuja/ui/tokens.stylex";
 import { Link } from "#src/links/link.tsx";
 
 /**
- * Title region of the design-system sidebar: a home escape hatch (the shell
- * has no global header, so this is the only route back out) next to the
- * section title, which links to the design-system overview. The home link is
- * a quiet icon sized to match the shell's own icon buttons so the mobile pill
- * reads as one row of equal controls.
+ * Title region of the design-system sidebar: a tile with the design-system
+ * glyph, then the title. The whole block links to the overview.
  */
 export function DesignSystemSidebarHeader({
   locale,
@@ -25,56 +26,39 @@ export function DesignSystemSidebarHeader({
   locale: SupportedLocale;
 }) {
   return (
-    <div css={[row.tight, styles.header]}>
-      <Link
-        href={getLocalePath("/", locale)}
-        aria-label={t({ en: "Home", zh: "首页" })}
-        {...stylex.props(
-          transition.colors,
-          corner.radius_round,
-          styles.homeLink,
-          a11y.focusRing,
-        )}
-      >
-        <HouseIcon weight="bold" role="presentation" />
-      </Link>
-      <Link
-        href={getLocalePath("/design-system", locale)}
-        {...stylex.props(typeRole.h4, styles.title, a11y.focusRing)}
-      >
+    <Link
+      href={getLocalePath("/design-system", locale)}
+      {...stylex.props(flex.row, corner.radius_2, styles.block, a11y.focusRing)}
+    >
+      <span css={[flex.center, corner.radius_2, styles.tile]} aria-hidden>
+        <ShapesIcon weight="bold" />
+      </span>
+      <span css={[typeRole.body, styles.title]}>
         {t({ en: "Design system", zh: "设计系统" })}
-      </Link>
-    </div>
+      </span>
+    </Link>
   );
 }
 
 const styles = stylex.create({
-  header: {
+  block: {
+    gap: rhythm.tight,
     minInlineSize: 0,
-  },
-  homeLink: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    inlineSize: controlSize._9,
-    blockSize: controlSize._9,
-    fontSize: controlSize._4,
-    color: {
-      default: color.fgMuted,
-      ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
-  },
-  title: {
     color: color.fg,
     textDecoration: "none",
+  },
+  tile: {
+    flexShrink: 0,
+    inlineSize: space._7,
+    blockSize: space._7,
+    fontSize: controlSize._4,
+    color: color.bgSurface,
+    backgroundColor: color.fg,
+  },
+  title: {
+    minInlineSize: 0,
+    fontWeight: font.weight_6,
+    lineHeight: font.lineHeight_3,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",

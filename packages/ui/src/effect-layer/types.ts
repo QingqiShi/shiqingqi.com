@@ -33,6 +33,7 @@ export interface EffectSettings {
     readonly position: number;
     readonly drag: number | null;
     readonly pressed: boolean;
+    readonly pour: boolean;
   };
 }
 

@@ -23,3 +23,13 @@ export const LIQUID_SEGMENT = "data-liquid-segment";
  * @internal
  */
 export const LIQUID_VERTICAL = "data-liquid-vertical";
+
+/**
+ * The attribute of a Segment track whose segments are boxes of any size,
+ * such as the rows of a list: the liquid rests in the box of each segment,
+ * a rectangle with the indicator's corners, and the effect draws nothing
+ * while the indicator rests.
+ *
+ * @internal
+ */
+export const LIQUID_BOX = "data-liquid-box";

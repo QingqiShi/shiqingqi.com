@@ -65,7 +65,7 @@ describe("liquidReader", () => {
   });
 
   const LIQUID = roleBits(["liquid"]);
-  const AT_REST = { position: 0, drag: null, pressed: false };
+  const AT_REST = { position: 0, drag: null, pressed: false, pour: true };
 
   /**
    * A tracked segmented control with two segments, whose signals are

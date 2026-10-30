@@ -1,6 +1,7 @@
 import type { MeasureContext } from "./create-element-tracker.ts";
 import { finiteOr } from "./effect-setting-defaults.ts";
 import {
+  LIQUID_BOX,
   LIQUID_INDICATOR,
   LIQUID_SEGMENT,
   LIQUID_VERTICAL,
@@ -19,13 +20,16 @@ const px = (value: string) => finiteOr(Number.parseFloat(value), 0);
 
 /**
  * Where the liquid rests: a pill round `target`, with a straight part
- * `2 × span` long, in rest radii.
+ * `2 × span` long, in rest radii. A box with rounded corners is also
+ * straight across, from `low` to `high`.
  *
  * @internal
  */
 export interface Pill {
   readonly target: number;
   readonly span: number;
+  readonly low?: number;
+  readonly high?: number;
 }
 
 /**
@@ -70,6 +74,11 @@ export interface LiquidControl {
    * Else it runs along it.
    */
   readonly vertical?: boolean;
+  /**
+   * The liquid rests in the box of each segment, as `LIQUID_BOX` describes,
+   * and the effect draws nothing once the control has its surface back.
+   */
+  readonly box?: boolean;
 }
 
 /**
@@ -207,7 +216,9 @@ const segmentsOf = (element: Element) =>
  * `LIQUID_SEGMENT`, in a pill as long as the segment, and the indicator's
  * look, from the element marked with `LIQUID_INDICATOR`. On a track marked
  * with `LIQUID_VERTICAL` the stops go down the track, and the pill is as
- * long as the segment is tall.
+ * long as the segment is tall. On a track marked with `LIQUID_BOX` each
+ * stop is the box of its segment, and the rest radius is half the shortest
+ * side of a segment that shows.
  */
 function readSegments(
   element: Element,
@@ -216,6 +227,7 @@ function readSegments(
 ): LiquidControl | null {
   const indicator = element.querySelector(`[${LIQUID_INDICATOR}]`);
   const vertical = element.hasAttribute(LIQUID_VERTICAL);
+  const inBox = element.hasAttribute(LIQUID_BOX);
   // A vertical track is read in the frame that `liquidShader` turns it to,
   // mirrored over the diagonal, so the code below reads only the horizontal case.
   const frame = vertical ? turn : (rect: Box) => rect;
@@ -223,8 +235,17 @@ function readSegments(
   const boxes = [...segmentsOf(element)].map((segment) =>
     frame(rectOf(segment)),
   );
-  const first = boxes.at(0);
-  const radius = (first?.height ?? 0) / 2;
+  // A segment that does not show, such as a row of a closed group, has no
+  // box.
+  const shown = inBox
+    ? boxes.filter((segment) => segment.width > 0 && segment.height > 0)
+    : boxes;
+  const first = shown.at(0);
+  const radius = inBox
+    ? Math.min(
+        ...shown.map((segment) => Math.min(segment.width, segment.height)),
+      ) / 2
+    : (first?.height ?? 0) / 2;
   if (first === undefined || indicator === null || !(radius > 0)) {
     return null;
   }
@@ -261,7 +282,7 @@ function readSegments(
         look.borderBottomLeftRadius,
       ] as const);
   const along = left + radius;
-  const across = first.top + radius;
+  const across = inBox ? (track.top + track.bottom) / 2 : first.top + radius;
   return {
     radius,
     originX: (vertical ? across : along) - box.x,
@@ -270,7 +291,13 @@ function readSegments(
     stops: boxes.map((segment) => {
       const start = (segment.left - left) / radius;
       const end = Math.max(start, (segment.right - left) / radius - 2);
-      return { target: (start + end) / 2, span: (end - start) / 2 };
+      const pill = { target: (start + end) / 2, span: (end - start) / 2 };
+      if (!inBox) {
+        return pill;
+      }
+      const middle = ((segment.top + segment.bottom) / 2 - across) / radius;
+      const girth = Math.max(0, segment.height / radius / 2 - 1);
+      return { ...pill, low: middle - girth, high: middle + girth };
     }),
     color: readFill(look.backgroundColor),
     under: readFill(own.backgroundColor),
@@ -286,6 +313,7 @@ function readSegments(
     edge: readEdge(look.boxShadow),
     spread: px(own[`padding${side.top}`]),
     vertical,
+    box: inBox,
   };
 }
 

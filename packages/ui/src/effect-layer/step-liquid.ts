@@ -14,6 +14,9 @@ export interface LiquidParticles {
   /** The walls that hold the liquid now, as `LiquidInput` gives them. */
   readonly from: number;
   readonly to: number;
+  /** The walls across the track that hold the liquid now, as `LiquidInput` gives them. */
+  readonly low: number;
+  readonly high: number;
 }
 
 /**
@@ -25,6 +28,8 @@ export interface LiquidParticles {
  * its padding, between two walls: every point within 1 of the segment from
  * `(from, 0)` to `(to, 0)`. At rest the liquid fills a pill, every point
  * within 1 of a segment `2 × span` long, which for a thumb is a circle.
+ * Where the rest shape is a box with rounded corners, the segment is a box
+ * from `low` to `high` across, and so is the track.
  *
  * The fluid is Clavet, Beaudoin and Poulin's double density relaxation: each
  * step moves the particles, then pushes them apart where they are denser
@@ -108,6 +113,17 @@ export interface LiquidInput {
    */
   readonly from: number;
   readonly to: number;
+  /**
+   * The straight part of the rest shape across the track, from `low` to
+   * `high` on `y`, which is also the room the track has across: 0 and 0
+   * for a pill. A box with rounded corners, such as a row of a list, has a
+   * straight part on both axes. A wall across that moves in follows the
+   * liquid in, as `from` and `to` do.
+   *
+   * @default 0
+   */
+  readonly low?: number;
+  readonly high?: number;
   /** A pointer is down on the control, so the liquid stays melted. */
   readonly pressed: boolean;
   readonly reducedMotion: boolean;
@@ -362,9 +378,14 @@ export function mean(values: ArrayLike<number>) {
   return sum / values.length;
 }
 
-/** The area of a pill of radius 1 with a straight part `2 × span` long. */
-function pillArea(span: number) {
-  return Math.PI + 4 * Math.max(0, span);
+/**
+ * The area of a pill of radius 1 with a straight part `2 × span` long, or
+ * of a box with corners of radius 1 that is also `2 × girth` longer across.
+ */
+function pillArea(span: number, girth: number) {
+  const along = Math.max(0, span);
+  const across = Math.max(0, girth);
+  return Math.PI + 4 * along + 4 * across + 4 * along * across;
 }
 
 /**
@@ -374,12 +395,12 @@ function pillArea(span: number) {
  *
  * @internal
  */
-export function particleCountFor(span: number) {
+export function particleCountFor(span: number, girth = 0) {
   return Math.min(
     MAX_PARTICLE_COUNT,
     Math.max(
       PARTICLE_COUNT,
-      Math.round((PARTICLE_COUNT * pillArea(span)) / Math.PI),
+      Math.round((PARTICLE_COUNT * pillArea(span, girth)) / Math.PI),
     ),
   );
 }
@@ -390,8 +411,10 @@ export function particleCountFor(span: number) {
  *
  * @internal
  */
-export function scaleFor(span: number, count: number) {
-  return Math.sqrt((pillArea(span) / Math.PI) * (PARTICLE_COUNT / count));
+export function scaleFor(span: number, count: number, girth = 0) {
+  return Math.sqrt(
+    (pillArea(span, girth) / Math.PI) * (PARTICLE_COUNT / count),
+  );
 }
 
 /** The density at the centre of a thumb's rest disk. */
@@ -410,33 +433,51 @@ function restDensity() {
 
 /**
  * The particles laid out evenly over the rest pill, centred at `centre`:
- * a disk split into two halves at the ends, and a box between them.
+ * a disk split into two halves at the ends, and a box between them. A rest
+ * shape with a straight part across, from `low` to `high`, splits the disk
+ * into its four corners, and has a second box between the corners at each
+ * end.
  */
 function restPositions(
   centre: number,
   span: number,
   count: number,
   scale: number,
+  low = 0,
+  high = 0,
 ): [Float32Array, Float32Array] {
   const x = new Float32Array(count);
   const y = new Float32Array(count);
   const radius = 1 - PARTICLE_RADIUS * scale;
+  const girth = (high - low) / 2;
+  const middle = (low + high) / 2;
   const disk = Math.PI * radius * radius;
-  const box = 4 * span * radius;
-  const inBox = span > 0 ? Math.round((count * box) / (disk + box)) : 0;
-  const inDisk = count - inBox;
+  const box = 4 * span * (radius + girth);
+  const ends = 4 * girth * radius;
+  const all = disk + box + ends;
+  const inBox = span > 0 ? Math.round((count * box) / all) : 0;
+  const inEnds = girth > 0 ? Math.round((count * ends) / all) : 0;
+  const inDisk = count - inBox - inEnds;
   for (let i = 0; i < inDisk; i++) {
     const distance = radius * Math.sqrt((i + 0.5) / inDisk);
     const angle = i * GOLDEN_ANGLE;
     const along = distance * Math.cos(angle);
+    const across = distance * Math.sin(angle);
     x[i] = centre + along + Math.sign(along) * span;
-    y[i] = distance * Math.sin(angle);
+    y[i] = girth > 0 ? middle + across + Math.sign(across) * girth : across;
   }
   for (let i = 0; i < inBox; i++) {
     const u = (0.5 + (i + 1) * PLASTIC[0]) % 1;
     const v = (0.5 + (i + 1) * PLASTIC[1]) % 1;
     x[inDisk + i] = centre + (2 * u - 1) * span;
-    y[inDisk + i] = (2 * v - 1) * radius;
+    y[inDisk + i] = middle + (2 * v - 1) * (radius + girth);
+  }
+  for (let i = 0; i < inEnds; i++) {
+    const u = (0.5 + (i + 1) * PLASTIC[0]) % 1;
+    const v = (0.5 + (i + 1) * PLASTIC[1]) % 1;
+    const along = (2 * u - 1) * radius;
+    x[inDisk + inBox + i] = centre + along + Math.sign(along) * span;
+    y[inDisk + inBox + i] = middle + (2 * v - 1) * girth;
   }
   return [x, y];
 }
@@ -484,19 +525,23 @@ export function restingLiquid(
   {
     seed = 1,
     span = 0,
-    count = particleCountFor(span),
+    low = 0,
+    high = 0,
+    count = particleCountFor(span, (high - low) / 2),
     from = target - span,
     to = target + span,
   }: {
     seed?: number;
     span?: number;
+    low?: number;
+    high?: number;
     count?: number;
     from?: number;
     to?: number;
   } = {},
 ): LiquidBody {
-  const scale = scaleFor(span, count);
-  const [x, y] = restPositions(target, span, count, scale);
+  const scale = scaleFor(span, count, (high - low) / 2);
+  const [x, y] = restPositions(target, span, count, scale, low, high);
   return {
     x,
     y,
@@ -508,6 +553,8 @@ export function restingLiquid(
     scale,
     from,
     to,
+    low,
+    high,
     beads: [],
     shedAt: target,
     seed,
@@ -556,11 +603,14 @@ export function impactOn(body: LiquidBody, end: number, direction: 1 | -1 = 1) {
 interface Walls {
   readonly from: number;
   readonly to: number;
+  readonly low: number;
+  readonly high: number;
 }
 
 /**
  * How far a particle of `radius` at `(x, y)` is from the wall of a track
- * that holds the liquid between `from` and `to`.
+ * that holds the liquid between `from` and `to`, and across between `low`
+ * and `high`.
  *
  * @internal
  */
@@ -570,10 +620,13 @@ export function wallGap(
   radius: number,
   from: number,
   to: number,
+  low: number,
+  high: number,
 ) {
   "use gpu";
   const outside = x - Math.min(to, Math.max(from, x));
-  return 1 - radius - Math.sqrt(outside * outside + y * y);
+  const beside = y - Math.min(high, Math.max(low, y));
+  return 1 - radius - Math.sqrt(outside * outside + beside * beside);
 }
 
 /** The nearest point to `(x, y)` that a disk of `radius` fits in the track. */
@@ -581,35 +634,54 @@ function insideTrack(
   x: number,
   y: number,
   radius: number,
-  { from, to }: Walls,
+  { from, to, low, high }: Walls,
 ) {
   const nearX = clamp(x, from, to);
+  const nearY = clamp(y, low, high);
   const dx = x - nearX;
-  const distance = Math.hypot(dx, y);
+  const dy = y - nearY;
+  const distance = Math.hypot(dx, dy);
   const limit = 1 - radius;
   if (distance <= limit) {
     return { x, y };
   }
   const scale = limit / distance;
-  return { x: nearX + dx * scale, y: y * scale };
+  return { x: nearX + dx * scale, y: nearY + dy * scale };
 }
 
 /**
  * The walls for this step: the input's, but a wall that moves in stops
  * where it would push a particle, and moves in only as the liquid leaves.
  */
-function wallsFor(body: LiquidParticles, input: Walls, scale: number): Walls {
+function wallsFor(
+  body: LiquidParticles,
+  input: LiquidInput,
+  scale: number,
+): Walls {
   const reach = 1 - PARTICLE_RADIUS * scale;
   let leftmost = Number.POSITIVE_INFINITY;
   let rightmost = Number.NEGATIVE_INFINITY;
+  let lowest = Number.POSITIVE_INFINITY;
+  let highest = Number.NEGATIVE_INFINITY;
   for (let i = 0; i < body.x.length; i++) {
-    const across = Math.sqrt(Math.max(0, reach * reach - body.y[i] ** 2));
-    leftmost = Math.min(leftmost, body.x[i] + across);
-    rightmost = Math.max(rightmost, body.x[i] - across);
+    const x = body.x[i];
+    const y = body.y[i];
+    const beside = y - clamp(y, body.low, body.high);
+    const outside = x - clamp(x, body.from, body.to);
+    const across = Math.sqrt(Math.max(0, reach * reach - beside ** 2));
+    const along = Math.sqrt(Math.max(0, reach * reach - outside ** 2));
+    leftmost = Math.min(leftmost, x + across);
+    rightmost = Math.max(rightmost, x - across);
+    lowest = Math.min(lowest, y + along);
+    highest = Math.max(highest, y - along);
   }
+  const low = input.low ?? 0;
+  const high = input.high ?? 0;
   return {
     from: input.from <= body.from ? input.from : Math.min(input.from, leftmost),
     to: input.to >= body.to ? input.to : Math.max(input.to, rightmost),
+    low: low <= body.low ? low : Math.min(low, lowest),
+    high: high >= body.high ? high : Math.max(high, highest),
   };
 }
 
@@ -690,7 +762,7 @@ function substep(
   y: Float32Array,
   vx: Float32Array,
   vy: Float32Array,
-  { target, span, aim }: LiquidInput,
+  { target, span, aim, low = 0, high = 0 }: LiquidInput,
   walls: Walls,
   scale: number,
   dt: number,
@@ -719,13 +791,23 @@ function substep(
   const arrived = 1 - Math.abs(lean);
   const damping = Math.exp(-(DRAG + SETTLE_DRAG * arrived) * dt);
   const tiltX = TILT * tiltBoost(target - centreX) * lean * dt;
-  const tiltY = (AIM_TILT * aim * Math.abs(lean) - CENTRE_PULL * centreY) * dt;
+  const tiltY =
+    (AIM_TILT * aim * Math.abs(lean) -
+      CENTRE_PULL * (centreY - (low + high) / 2)) *
+    dt;
   for (let i = 0; i < count; i++) {
     vx[i] = (vx[i] + tiltX) * damping;
     vy[i] = (vy[i] + tiltY) * damping;
     if (
-      wallGap(x[i], y[i], particleRadius, walls.from, walls.to) <
-      WALL_GRIP_REACH
+      wallGap(
+        x[i],
+        y[i],
+        particleRadius,
+        walls.from,
+        walls.to,
+        walls.low,
+        walls.high,
+      ) < WALL_GRIP_REACH
     ) {
       const onSide = x[i] > walls.from && x[i] < walls.to;
       vx[i] *= onSide ? sideDamping : wallDamping;
@@ -848,7 +930,7 @@ function moveBeads(
   beads: readonly LiquidBead[],
   body: { x: Float32Array; y: Float32Array },
   delta: number,
-  { target, span }: LiquidInput,
+  { target, span, low = 0, high = 0 }: LiquidInput,
   walls: Walls,
   scale: number,
   boost: number,
@@ -873,8 +955,9 @@ function moveBeads(
     const free =
       bead.free || (age > BEAD_GROW && gap > (NECK_REACH * drawn) / 2);
     const restX = clamp(x, target - span, target + span);
+    const restY = clamp(y, low, high);
     const absorbed = settling
-      ? Math.hypot(x - restX, y) + drawn < 1
+      ? Math.hypot(x - restX, y - restY) + drawn < 1
       : free && nearest < PARTICLE_SPACING * scale;
     const radius = absorbed
       ? bead.radius * Math.exp(-ABSORB * delta)
@@ -900,6 +983,8 @@ function shed(
   moved: number,
   step: number,
   spacing: number,
+  low: number,
+  high: number,
 ): Shedding {
   const trailing = moved > 0 ? Math.min(...x) : Math.max(...x);
   if (moved === 0 || Math.abs(trailing - last.shedAt) < spacing) {
@@ -915,7 +1000,7 @@ function shed(
   }
   const radius = between(draw(), BEAD_RADIUS);
   const life = between(draw(), BEAD_LIFE);
-  const height = (draw() - 0.5) * 0.9;
+  const height = (low + high) / 2 + (draw() - 0.5) * (0.9 + high - low);
   const direction = Math.sign(moved);
   let at = -1;
   let ahead = Number.POSITIVE_INFINITY;
@@ -955,8 +1040,9 @@ export function scaleAfter(
   span: number,
   count: number,
   step: number,
+  girth = 0,
 ) {
-  const goal = scaleFor(span, count);
+  const goal = scaleFor(span, count, girth);
   return goal + (scale - goal) * Math.exp(-SCALE_RATE * step);
 }
 
@@ -990,7 +1076,16 @@ export function simulateLiquid(
   for (let n = 0; n < substeps; n++) {
     substep(x, y, vx, vy, input, walls, scale, step / substeps);
   }
-  return { x, y, vx, vy, from: walls.from, to: walls.to };
+  return {
+    x,
+    y,
+    vx,
+    vy,
+    from: walls.from,
+    to: walls.to,
+    low: walls.low,
+    high: walls.high,
+  };
 }
 
 /**
@@ -1010,15 +1105,16 @@ export function settleLiquid(
   delta: number,
   elapsed = liquidStep(delta),
 ): LiquidBody {
-  const { target, span, pressed } = input;
+  const { target, span, pressed, low = 0, high = 0 } = input;
   const count = body.x.length;
   const step = liquidStep(delta);
-  const goal = scaleFor(span, count);
-  const scale = scaleAfter(body.scale, span, count, step);
+  const girth = (high - low) / 2;
+  const goal = scaleFor(span, count, girth);
+  const scale = scaleAfter(body.scale, span, count, step, girth);
   const { x, y, from, to } = moved;
   const vx = new Float32Array(moved.vx);
   const vy = new Float32Array(moved.vy);
-  const walls = { from, to };
+  const walls = { from, to, low: moved.low, high: moved.high };
   let speedSum = 0;
   for (let i = 0; i < count; i++) {
     speedSum += Math.hypot(vx[i], vy[i]);
@@ -1060,6 +1156,8 @@ export function settleLiquid(
           centre - mean(body.x),
           elapsed,
           Math.max(SHED_SPACING, (input.to - input.from) / SHED_BUDGET),
+          low,
+          high,
         );
   const settled =
     calm >= 1 &&
@@ -1082,6 +1180,8 @@ export function settleLiquid(
     scale: settled ? goal : scale,
     from,
     to,
+    low: moved.low,
+    high: moved.high,
     beads,
     shedAt,
     seed,
@@ -1138,6 +1238,8 @@ export function frozenLiquid(body: LiquidBody, input: LiquidInput) {
   return restingLiquid(input.target, {
     seed: body.seed,
     span: input.span,
+    low: input.low,
+    high: input.high,
     count: body.x.length,
     from: input.from,
     to: input.to,
@@ -1160,7 +1262,13 @@ export function stepLiquid(
     return frozenLiquid(body, input);
   }
   const step = liquidStep(delta);
-  const scale = scaleAfter(body.scale, input.span, body.x.length, step);
+  const scale = scaleAfter(
+    body.scale,
+    input.span,
+    body.x.length,
+    step,
+    ((input.high ?? 0) - (input.low ?? 0)) / 2,
+  );
   return settleLiquid(
     body,
     simulateLiquid(body, input, scale, step),
