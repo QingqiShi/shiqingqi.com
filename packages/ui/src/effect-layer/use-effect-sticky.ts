@@ -29,8 +29,9 @@ export interface EffectSticky {
   /**
    * Styles for the sticky box, after its own. While the box is not stuck,
    * they put it on the plane right under the scroll `<canvas>` elements, so
-   * the effects of its controls show. While it is stuck, they are empty, and
-   * the box's own `zIndex` applies: `layer.raised` for sticky chrome.
+   * the effects of its controls show. While it is stuck, and inside
+   * `<EffectCarrier value="contained">`, they are empty, and the box's own
+   * `zIndex` applies: `layer.raised` for sticky chrome.
    */
   readonly css: StyleProp;
   /** @internal */
@@ -65,8 +66,8 @@ export interface EffectSticky {
  * another can use it too:
  * while it is fixed, it counts as stuck. The effect hooks of the box itself
  * are on its sticky carrier too. The stuck watch and the plane work also
- * without an `EffectLayerProvider`, and inside
- * `<EffectCarrier value="contained">`, where the box is not a carrier.
+ * without an `EffectLayerProvider`. Inside `<EffectCarrier value="contained">`,
+ * the box is not a carrier, and it always has its own plane.
  */
 export function useEffectSticky(): EffectSticky {
   const registry = use(EffectLayerContext);
@@ -88,7 +89,15 @@ export function useEffectSticky(): EffectSticky {
   // A box that holds its sticky descendants makes this box stick to it, not
   // to the page. Thus, the box is not a carrier there.
   const ref = stickyRef(isContained ? null : registry, carrier, setIsStuck);
-  return { ref, isStuck, css: isStuck ? null : styles.unstuck, carrier };
+  // A contained box is a stacking context, so a plane in it cannot go under
+  // the effects. The box keeps its own plane, as its fixed and sticky
+  // neighbours in the box do.
+  return {
+    ref,
+    isStuck,
+    css: isStuck || isContained ? null : styles.unstuck,
+    carrier,
+  };
 }
 
 function stickyRef(

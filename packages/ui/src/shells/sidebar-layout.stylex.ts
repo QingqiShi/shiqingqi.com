@@ -4,6 +4,18 @@ import { pointer } from "../breakpoints.stylex.ts";
 import { color } from "../tokens.stylex.ts";
 
 /**
+ * The safe-area insets that `SidebarLayout` keeps its chrome and content
+ * clear of. They are the screen's, because the shell fills the screen. A box
+ * that holds the shell away from the edges of the screen sets each to `0px`.
+ */
+export const sidebarLayoutTokens = stylex.defineVars({
+  safeAreaTop: "env(safe-area-inset-top)",
+  safeAreaRight: "env(safe-area-inset-right)",
+  safeAreaBottom: "env(safe-area-inset-bottom)",
+  safeAreaLeft: "env(safe-area-inset-left)",
+});
+
+/**
  * Styles that the shell's own chrome shares.
  *
  * @internal
