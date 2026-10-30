@@ -14,6 +14,7 @@ export const DUST_MOTES_PER_ELEMENT = 28;
  * speeds up, and under reduced motion still motes around each element that
  * sheds dust, each clipped to its Effect container. The first instance of a
  * draw picks the dust that draws over a light backdrop, 0, or a dark one, 1.
+ * For particles, 2 more picks the dust that stays on the viewport.
  *
  * @internal
  */
@@ -26,16 +27,19 @@ ${DUST_SHARED_WGSL}
 const MOTES_PER_ELEMENT = ${String(DUST_MOTES_PER_ELEMENT)}u;
 const RADIUS_MIN = 0.6;
 const RADIUS_MAX = 1.5;
+// A burst sheds larger particles, so the few of them read at a glance.
+const BURST_RADIUS_SCALE = 1.6;
 // How far a particle's streak reaches back, as the seconds it travels.
 const STREAK_SECONDS = 0.035;
 const STREAK_MAX = 22.0;
 const FADE_IN = 0.9;
+const BURST_FADE_IN = 0.08;
 const FADE_OUT = 1.6;
 const FLICKER = 0.25;
 const MOTE_SPREAD = 26.0;
 // The longest streak and the widest dot, so a particle just past the drawn
 // part of a band still draws the part of it inside.
-const DRAWN_MARGIN = STREAK_MAX + RADIUS_MAX + 1.0;
+const DRAWN_MARGIN = STREAK_MAX + RADIUS_MAX * BURST_RADIUS_SCALE + 1.0;
 
 struct DustVarying {
   @builtin(position) position: vec4f,
@@ -71,27 +75,32 @@ fn shade(packed: u32, grayscale: f32, opacity: f32) -> vec4f {
 @vertex
 fn particleVertex(
   @builtin(vertex_index) vertex: u32,
-  @builtin(instance_index) dark: u32,
+  @builtin(instance_index) instance: u32,
 ) -> DustVarying {
   let particle = particles[vertex / 6u];
   let drawn = effectTarget.drawnPageRange;
-  let y = particle.position.y;
-  if (particle.age >= particle.life || particle.dark != dark
+  let head = dustPagePosition(particle);
+  let y = head.y;
+  let onViewport = (particle.flags & DUST_ON_VIEWPORT) != 0u;
+  if (particle.age >= particle.life || particle.dark != (instance & 1u)
+      || onViewport != ((instance & 2u) != 0u)
       || y < drawn.x - DRAWN_MARGIN || y > drawn.y + DRAWN_MARGIN) {
     return HIDDEN;
   }
   let speed = length(particle.velocity);
   let direction = select(vec2f(1.0, 0.0), particle.velocity / speed, speed > 1e-3);
-  let radius = mix(RADIUS_MIN, RADIUS_MAX, particle.seed * particle.seed);
+  let isBurst = (particle.flags & DUST_BURST) != 0u;
+  let radius = mix(RADIUS_MIN, RADIUS_MAX, particle.seed * particle.seed)
+    * select(1.0, BURST_RADIUS_SCALE, isBurst);
   let streak = min(speed * STREAK_SECONDS, STREAK_MAX);
   let flicker = 1.0 - FLICKER * (0.5 + 0.5 * sin(effectPage.seconds * 1.7 + particle.seed * 40.0));
-  let opacity = smoothstep(0.0, FADE_IN, particle.age)
+  let opacity = smoothstep(0.0, select(FADE_IN, BURST_FADE_IN, isBurst), particle.age)
     * smoothstep(0.0, FADE_OUT, particle.life - particle.age)
     * particle.intake
     * flicker
     * mix(0.55, 1.0, fract(particle.seed * 7.31))
     * (radius + 1.0) / (radius + 1.0 + streak * 0.08);
-  return quad(vertex, particle.position, direction, radius, streak, shade(particle.color, particle.grayscale, opacity), particle.scopeIndex);
+  return quad(vertex, head, direction, radius, streak, shade(particle.color, particle.grayscale, opacity), particle.scopeIndex);
 }
 
 @vertex

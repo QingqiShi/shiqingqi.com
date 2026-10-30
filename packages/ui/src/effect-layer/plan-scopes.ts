@@ -253,7 +253,7 @@ export function planScopes(
 
 /**
  * The `<canvas>` elements that a plan needs: those of each carrier with an
- * element with a role, as `Carrier.need` gives them. While a modal Effect
+ * element with a role or in `held`, as `Carrier.need` gives them. While a modal Effect
  * cover in `modalCovers` shows, the page and each Scroll region outside
  * every modal cover need none: nothing on them can show or move. Their
  * elements stay in the plan, so the effects keep their state.
@@ -264,11 +264,13 @@ export function planCanvasNeeds(
   plan: Pick<ScopePlan, "carriers" | "ranges">,
   modalCovers: readonly Element[],
   region: RegionLookup,
+  held: ReadonlySet<CarrierKey> = new Set(),
 ): CanvasNeed[] {
   return plan.carriers.flatMap((key, index) => {
-    const need = plan.ranges[index].hasRole
-      ? carrierOf(key).need(modalCovers, region)
-      : null;
+    const need =
+      plan.ranges[index].hasRole || held.has(key)
+        ? carrierOf(key).need(modalCovers, region)
+        : null;
     return need === null ? [] : [need];
   });
 }

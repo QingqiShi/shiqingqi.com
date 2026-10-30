@@ -44,6 +44,16 @@ does not choose the `<canvas>` element.
   (`const { ref, isStuck, css } = sticky`) and pass the whole result to
   `EffectCarrier`: the React Compiler refuses a read of `sticky.ref`,
   because it sees the object as a ref.
+- Dust from an element on the viewport stays in its place on the screen
+  while the page scrolls, and a fan on the page still pulls it in. The
+  layer keeps the viewport's `<canvas>` element while the dust lives, so
+  an element that only bursts can go in the `onShed` of `useDust`. Do not
+  keep a clear box on the screen after that: the dust of other elements
+  flows round it.
+- An effect that must show at once when its first element joins, such as a
+  burst on a press, needs `usePrepareEffects` higher up. The first role
+  otherwise starts the GPU device and builds the pipelines, which takes
+  about 250 ms.
 - `Portal` already puts its children on the viewport. `HeaderControls`,
   `SidebarLayout`, `Drawer`, `StickyControls`, a vertical `ScrollMask`, a
   `Table` with `stickyHeader`, `TableHead` and the sheet of `MenuButton`

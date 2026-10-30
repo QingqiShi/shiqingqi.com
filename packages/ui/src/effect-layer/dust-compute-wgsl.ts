@@ -1,6 +1,6 @@
 import { DUST_SHARED_WGSL } from "./dust-shared-wgsl.ts";
 import { PAGE_WGSL } from "./page-wgsl.ts";
-import { DUST_MAX_LIFE } from "./schedule-dust-spawns.ts";
+import { DUST_BURST_SPAWN, DUST_MAX_LIFE } from "./schedule-dust-spawns.ts";
 
 /**
  * The byte size of the uniform buffer behind `simulation`.
@@ -22,7 +22,13 @@ export const DUST_WORKGROUP_SIZE = 64;
  * - After a few seconds the air of every extractor fan in reach takes it: a
  *   sink flow, faster closer to the fan's edge, so it accelerates on the way
  *   in. It dies at the edge.
- * - Every other registered element is an obstacle that it slides around.
+ * - A particle of a burst flies off the edge fast and slows down soon, the
+ *   fans take it at once and pull it in faster, and it dies sooner.
+ * - A particle of an element on the viewport moves in viewport coordinates,
+ *   so a scroll does not move it on the screen. It meets the elements at its
+ *   page position, and the air's noise stays with the screen.
+ * - Every other registered element is an obstacle that it slides around,
+ *   and so is its own element unless it is a particle of a burst.
  * - A moving pointer drags the air near it.
  * - Only the elements of the particle's own scope act on it. In an Effect
  *   container's scope it dies once it leaves the container's border box,
@@ -56,6 +62,15 @@ const LIFE_MAX = 7.0;
 const DRIFT_MIN = 0.6;
 const DRIFT_MAX = 1.8;
 const ENTRAIN_SECONDS = 1.4;
+const BURST_SPEED = 170.0;
+const BURST_LIFE_MIN = 1.4;
+const BURST_LIFE_MAX = 2.4;
+const BURST_ENTRAIN_SECONDS = 0.3;
+// How fast a burst particle slows to the speed of the air, per second.
+const COUPLING_BURST = 3.5;
+// How much faster a fan pulls a burst particle in.
+const BURST_PULL = 1.8;
+const BURST_SPAWN = ${String(DUST_BURST_SPAWN)}u;
 const NOISE_SCALE = 220.0;
 const DRIFT_SPEED = 20.0;
 const RISE_SPEED = 3.0;
@@ -142,8 +157,10 @@ fn scopeIndexOf(id: u32) -> u32 {
   return NO_SCOPE;
 }
 
-fn spawn(elementIndex: u32, particleIndex: u32) -> DustParticle {
+fn spawn(entry: u32, particleIndex: u32) -> DustParticle {
   var state = pcg(particleIndex ^ pcg(simulation.frame));
+  let elementIndex = entry & ~BURST_SPAWN;
+  let isBurst = (entry & BURST_SPAWN) != 0u;
   let element = effectElements[elementIndex];
   let scope = element.scope;
   // Of two points on the edge, shed from the one a fan pulls harder, so the
@@ -154,24 +171,38 @@ fn spawn(elementIndex: u32, particleIndex: u32) -> DustParticle {
     edge = other;
   }
   let tangent = vec2f(-edge.normal.y, edge.normal.x);
-  let position = edge.position + edge.normal * (0.5 + random(&state) * 2.0);
+  var position = edge.position + edge.normal * (0.5 + random(&state) * 2.0);
   let speed = random(&state);
-  let velocity = edge.normal * BIRTH_SPEED * (0.2 + 1.4 * speed * speed)
-    + tangent * BIRTH_SPEED * (random(&state) - 0.5);
+  let birthSpeed = select(BIRTH_SPEED, BURST_SPEED, isBurst);
+  let velocity = edge.normal * birthSpeed * (0.2 + 1.4 * speed * speed)
+    + tangent * birthSpeed * (random(&state) - 0.5);
+  let life = select(
+    mix(LIFE_MIN, LIFE_MAX, random(&state)),
+    mix(BURST_LIFE_MIN, BURST_LIFE_MAX, random(&state)),
+    isBurst,
+  );
+  let seed = random(&state);
+  let drift = select(mix(DRIFT_MIN, DRIFT_MAX, random(&state)), 0.0, isBurst);
+  var flags = select(0u, DUST_BURST, isBurst);
+  if ((element.flags & EFFECT_ELEMENT_FIXED) != 0u) {
+    flags |= DUST_ON_VIEWPORT;
+    position -= effectPage.viewport.xy;
+  }
   return DustParticle(
     position,
     velocity,
     0.0,
-    mix(LIFE_MIN, LIFE_MAX, random(&state)),
-    random(&state),
+    life,
+    seed,
     dustElements[elementIndex].color,
     element.id,
-    mix(DRIFT_MIN, DRIFT_MAX, random(&state)),
+    drift,
     1.0,
     effectScopes[scope].id,
     scope,
     dustElements[elementIndex].dark,
     element.grayscale,
+    flags,
   );
 }
 
@@ -190,9 +221,10 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
   }
 
   let dt = effectPage.delta;
-  let position = particle.position;
+  let isBurst = (particle.flags & DUST_BURST) != 0u;
+  let position = dustPagePosition(particle);
   let time = effectPage.seconds;
-  let air = curlNoise(position / NOISE_SCALE + vec2f(time * 0.03, time * -0.02)) * DRIFT_SPEED
+  let air = curlNoise(particle.position / NOISE_SCALE + vec2f(time * 0.03, time * -0.02)) * DRIFT_SPEED
     + vec2f(0.0, -RISE_SPEED);
 
   var pull = vec2f(0.0);
@@ -235,7 +267,7 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
         let speed = falloff * INTAKE_SPEED * radius / (max(distance, 0.0) + radius);
         pull -= (normal + vec2f(-normal.y, normal.x) * SWIRL) * speed;
         intake = min(intake, smoothstep(ABSORB_DISTANCE, INTAKE_FADE, distance));
-      } else if (distance < contactDistance) {
+      } else if (distance < contactDistance && !(isBurst && element.id == particle.emitter)) {
         contactDistance = distance;
         contactNormal = normal;
         contactCenter = element.rect.xy + element.rect.zw * 0.5;
@@ -246,9 +278,10 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
     }
   }
 
-  let entrained = smoothstep(particle.drift, particle.drift + ENTRAIN_SECONDS, particle.age);
-  let coupling = mix(COUPLING_FLOATING, COUPLING_PULLED, entrained);
-  var wanted = air + pull * entrained;
+  let entrainSeconds = select(ENTRAIN_SECONDS, BURST_ENTRAIN_SECONDS, isBurst);
+  let entrained = smoothstep(particle.drift, particle.drift + entrainSeconds, particle.age);
+  let coupling = mix(select(COUPLING_FLOATING, COUPLING_BURST, isBurst), COUPLING_PULLED, entrained);
+  var wanted = air + pull * entrained * select(1.0, BURST_PULL, isBurst);
   let closeness = 1.0 - clamp(contactDistance / OBSTACLE_RANGE, 0.0, 1.0);
   // Air that heads into an obstacle turns along its edge instead, away from
   // the middle of the obstacle and more so the way it leans, so it parts
@@ -274,13 +307,14 @@ fn simulate(@builtin(global_invocation_id) id: vec3u) {
     particle.life = min(max(particle.life, particle.age + 1.0), MAX_LIFE);
   }
   particle.velocity = velocity;
-  particle.position = position + velocity * dt;
+  particle.position += velocity * dt;
   particle.age += dt;
   particle.intake = intake;
   particle.scopeIndex = scope;
   let documentSize = effectPage.documentSize;
-  let inDocument = all(particle.position > vec2f(-DOCUMENT_MARGIN))
-    && all(particle.position < documentSize + DOCUMENT_MARGIN);
+  let page = dustPagePosition(particle);
+  let inDocument = all(page > vec2f(-DOCUMENT_MARGIN))
+    && all(page < documentSize + DOCUMENT_MARGIN);
   if (intake <= 0.0 || !inDocument || !inScope) {
     particle.life = particle.age;
   }

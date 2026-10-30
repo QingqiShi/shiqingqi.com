@@ -15,7 +15,12 @@ import type { FrameClock } from "./track-elements.ts";
  * @internal
  */
 export interface EffectSettings {
-  readonly dust?: { readonly density: number };
+  readonly dust?: {
+    readonly density: number;
+    readonly burst: number;
+    readonly colorFrom: "fill" | "text";
+    readonly onShed?: () => void;
+  };
   readonly extractorFan?: { readonly reach: number };
   readonly blackHole?: { readonly mass: number };
   readonly lightBeam?: {
@@ -40,6 +45,8 @@ export interface EffectReadings {
   /** The control, or `null` when the liquid can draw in none. */
   readonly liquid?: LiquidControl | null;
   readonly ringLight?: RingLightReading;
+  /** The element's CSS `color`, for dust that takes it. */
+  readonly dust?: EffectColor;
 }
 
 /**
@@ -314,6 +321,11 @@ export interface EffectRenderer {
    * function returns `true` for.
    */
   followsPointer?: boolean | ((pointer: EffectPointer) => boolean);
+  /**
+   * The carriers whose `<canvas>` elements the effect still draws on after
+   * the last element with a role has left them, as of its last `update`.
+   */
+  holds?: () => readonly CarrierKey[];
   destroy: () => void;
 }
 

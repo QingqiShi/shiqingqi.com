@@ -12,14 +12,18 @@ const STOP_EVENTS = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
  */
 const OVERSHOOT_ROOM = 0.1;
 
+/** The share of the distance left when the page is near its target. */
+const NEAR = 0.15;
+
 /**
  * Springs the page on the system spring until `target` is at the top of the
  * screen, less its scroll margin, or until the page ends. Under reduced
  * motion, it jumps. `finished` is true when the page comes to rest there,
  * and false when the visitor scrolls, presses or types first, or `stop` is
- * called.
+ * called. `onNear` runs once, when the page has gone most of the way, or
+ * when it jumps there.
  */
-export function springScrollTo(target: Element) {
+export function springScrollTo(target: Element, onNear?: () => void) {
   const root = document.documentElement;
   const from = window.scrollY;
   const end = root.scrollHeight - window.innerHeight;
@@ -34,8 +38,17 @@ export function springScrollTo(target: Element) {
     spring: springOf(springRoles.move),
     precision: 1,
   });
+  let isNear = false;
+  const reachNear = () => {
+    if (!isNear) {
+      isNear = true;
+      onNear?.();
+    }
+  };
+  const near = Math.abs(to - from) * NEAR;
   const unsubscribe = scroll.subscribe((top) => {
     window.scrollTo({ top, behavior: "instant" });
+    if (Math.abs(to - top) <= near) reachNear();
   });
 
   // The page cannot scroll past its end, so the spring would stop hard there.
@@ -60,14 +73,20 @@ export function springScrollTo(target: Element) {
     window.addEventListener(type, stop, { capture: true, passive: true });
   }
 
-  const finished = scroll.to(to).finished.finally(() => {
-    for (const type of STOP_EVENTS) {
-      window.removeEventListener(type, stop, { capture: true });
-    }
-    unsubscribe();
-    engine.destroy();
-    if (hasRoom) roomBox.style.removeProperty("padding-block-end");
-  });
+  const finished = scroll
+    .to(to)
+    .finished.finally(() => {
+      for (const type of STOP_EVENTS) {
+        window.removeEventListener(type, stop, { capture: true });
+      }
+      unsubscribe();
+      engine.destroy();
+      if (hasRoom) roomBox.style.removeProperty("padding-block-end");
+    })
+    .then((isThere) => {
+      if (isThere) reachNear();
+      return isThere;
+    });
 
   return { finished, stop };
 }

@@ -191,6 +191,8 @@ export function createEffectRegistry() {
   const listeners = new Set<() => void>();
   let elements: ReadonlyMap<Element, RegisteredElement> = new Map();
   let modalElements: Element[] = [];
+  /** The roles that `prepare` holds ready, one entry for each call. */
+  const prepared = new Set<{ readonly roles: number }>();
   let roles = 0;
   let nextId = 1;
 
@@ -235,6 +237,9 @@ export function createEffectRegistry() {
     const next = new Map<Element, RegisteredElement>();
     modalElements = [];
     roles = 0;
+    for (const entry of prepared) {
+      roles |= entry.roles;
+    }
     for (const [element, { id, registrations }] of uses) {
       let elementRoles = 0;
       let settings = NO_SETTINGS;
@@ -460,7 +465,21 @@ export function createEffectRegistry() {
         listeners.delete(listener);
       };
     },
-    /** Every role that some registered element has. */
+    /**
+     * Holds `preparedRoles` among the roles until the returned function
+     * runs, so that the layer gets their effects ready before an element
+     * has them.
+     */
+    prepare: (preparedRoles: number) => {
+      const entry = { roles: preparedRoles };
+      prepared.add(entry);
+      notify();
+      return () => {
+        prepared.delete(entry);
+        notify();
+      };
+    },
+    /** Every role that some registered element has or `prepare` holds. */
     getRoles: () => roles,
     /** Every registered element, in the order they first registered. */
     elements: () => elements,

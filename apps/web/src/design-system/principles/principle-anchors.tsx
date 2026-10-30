@@ -3,7 +3,12 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
+import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
+import { useDust } from "@tuja/ui/hooks/use-dust";
+import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
+import { usePrepareEffects } from "@tuja/ui/hooks/use-prepare-effects";
 import { useRingLight } from "@tuja/ui/hooks/use-ring-light";
+import { prefersReducedMotion } from "@tuja/ui/motion/prefers-reduced-motion";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
@@ -21,7 +26,13 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { springScrollTo } from "./spring-scroll-to.ts";
+
+/** One dust particle for each length of a card's edge, in px. */
+const BURST_SPACING = 10;
+/** How long the mark pulls the dust in once the page is near, in ms. */
+const PULL_MS = 1800;
 
 /** The section the visitor last came to through a link, and how many times they came. */
 interface Arrival {
@@ -29,9 +40,26 @@ interface Arrival {
   count: number;
 }
 
+/** The dust of one press, on its way from a card to the section `id`. */
+interface Flight extends Arrival {
+  /**
+   * How far the section's mark pulls the dust in: 0 until the page is near,
+   * and then across the whole screen.
+   */
+  reach: number;
+}
+
 interface PrincipleAnchorsState {
+  /** Under reduced motion, the last arrival. */
   arrival: Arrival | null;
-  goTo: (id: string) => void;
+  flight: Flight | null;
+  goTo: (id: string, card: Element) => void;
+}
+
+/** The box of the card that press `count` shakes dust off, on the screen. */
+interface Burst {
+  count: number;
+  card: DOMRect;
 }
 
 const PrincipleAnchorsContext = createContext<PrincipleAnchorsState | null>(
@@ -48,21 +76,29 @@ function usePrincipleAnchors() {
 
 /**
  * Holds the links to the principle sections and the marks in their titles.
- * A link springs the page to its section, and the section's mark lights up
- * when the page comes to rest there.
+ * A press on a link shakes dust off its card, which stays on the screen while
+ * the page springs to the section, and the section's mark pulls the dust in
+ * as the page gets there. Under reduced motion, the page jumps and the mark
+ * lights up.
  */
 export function PrincipleAnchors({ children }: { children: ReactNode }) {
   const [arrival, setArrival] = useState<Arrival | null>(null);
+  const [flight, setFlight] = useState<Flight | null>(null);
+  const [burst, setBurst] = useState<Burst | null>(null);
   const stopRef = useRef<(() => void) | null>(null);
+  const flightTimerRef = useRef<number | undefined>(undefined);
+  const pressCountRef = useRef(0);
+  usePrepareEffects(["dust"]);
 
   useEffect(
     () => () => {
       stopRef.current?.();
+      window.clearTimeout(flightTimerRef.current);
     },
     [],
   );
 
-  const goTo = (id: string) => {
+  const goTo = (id: string, card: Element) => {
     const section = document.getElementById(id);
     if (section === null) return;
     stopRef.current?.();
@@ -70,20 +106,80 @@ export function PrincipleAnchors({ children }: { children: ReactNode }) {
       window.history.pushState(null, "", `#${id}`);
     }
     section.focus({ preventScroll: true });
-    const { finished, stop } = springScrollTo(section);
+    pressCountRef.current += 1;
+    const count = pressCountRef.current;
+    const reduced = prefersReducedMotion();
+    const endFlight = () => {
+      setFlight((last) => (last?.count === count ? null : last));
+      setBurst((last) => (last?.count === count ? null : last));
+    };
+    if (!reduced) {
+      setFlight({ id, count, reach: 0 });
+      setBurst({ count, card: card.getBoundingClientRect() });
+    }
+    const onNear = reduced
+      ? undefined
+      : () => {
+          const reach = Math.hypot(window.innerWidth, window.innerHeight);
+          setFlight((last) =>
+            last?.count === count ? { ...last, reach } : last,
+          );
+          window.clearTimeout(flightTimerRef.current);
+          flightTimerRef.current = window.setTimeout(endFlight, PULL_MS);
+        };
+    const { finished, stop } = springScrollTo(section, onNear);
     stopRef.current = stop;
     void finished.then((isThere) => {
       if (stopRef.current === stop) stopRef.current = null;
-      if (isThere) {
-        setArrival((last) => ({ id, count: (last?.count ?? 0) + 1 }));
-      }
+      if (!isThere) endFlight();
+      if (isThere && reduced) setArrival({ id, count });
     });
   };
 
   return (
-    <PrincipleAnchorsContext value={{ arrival, goTo }}>
+    <PrincipleAnchorsContext value={{ arrival, flight, goTo }}>
       {children}
+      {burst === null
+        ? null
+        : createPortal(
+            <EffectCarrier value="viewport">
+              <CardDust
+                key={burst.count}
+                box={burst.card}
+                onShed={() => {
+                  setBurst((last) => (last === burst ? null : last));
+                }}
+              />
+            </EffectCarrier>,
+            document.body,
+          )}
     </PrincipleAnchorsContext>
+  );
+}
+
+/**
+ * A clear box over a pressed card that shakes dust off the card's edge once,
+ * and goes as soon as it has. The box is on the viewport, so its dust stays
+ * on the screen while the page springs away, and takes the accent from its
+ * `color`.
+ */
+function CardDust({ box, onShed }: { box: DOMRect; onShed: () => void }) {
+  const ref = useDust({
+    density: 0,
+    colorFrom: "text",
+    burst: Math.round((2 * (box.width + box.height)) / BURST_SPACING),
+    onShed,
+  });
+  return (
+    <span
+      ref={ref}
+      aria-hidden
+      css={[
+        corner.radius_3,
+        styles.cardDust,
+        styles.screenBox(box.x, box.y, box.width, box.height),
+      ]}
+    />
   );
 }
 
@@ -106,7 +202,7 @@ export function PrincipleLink({
       event.altKey;
     if (opensElsewhere) return;
     event.preventDefault();
-    goTo(id);
+    goTo(id, event.currentTarget);
   };
 
   return (
@@ -121,8 +217,9 @@ export function PrincipleLink({
 }
 
 /**
- * The icon in the title of the section `id`. A Ring light runs once round it
- * each time the visitor arrives at the section through a link.
+ * The icon in the title of the section `id`. It pulls in the dust of a press
+ * on the section's link each time the visitor arrives through the link, and
+ * under reduced motion a Ring light runs once round it instead.
  */
 export function PrincipleMark({
   id,
@@ -131,13 +228,21 @@ export function PrincipleMark({
   id: string;
   children: ReactNode;
 }) {
-  const { arrival } = usePrincipleAnchors();
+  const { arrival, flight } = usePrincipleAnchors();
   return (
     <span css={styles.mark}>
       {children}
+      {flight?.id === id ? (
+        <ArrivalFan key={flight.count} reach={flight.reach} />
+      ) : null}
       {arrival?.id === id ? <ArrivalLight key={arrival.count} /> : null}
     </span>
   );
+}
+
+function ArrivalFan({ reach }: { reach: number }) {
+  const ref = useExtractorFan({ reach });
+  return <span ref={ref} aria-hidden css={styles.fan} />;
 }
 
 function ArrivalLight() {
@@ -179,6 +284,22 @@ const styles = stylex.create({
     display: "inline-flex",
     flexShrink: 0,
     color: color.fg,
+  },
+  cardDust: {
+    position: "fixed",
+    color: color.bgAccent,
+    pointerEvents: "none",
+  },
+  screenBox: (x: number, y: number, width: number, height: number) => ({
+    insetInlineStart: x,
+    insetBlockStart: y,
+    inlineSize: width,
+    blockSize: height,
+  }),
+  fan: {
+    position: "absolute",
+    inset: 0,
+    pointerEvents: "none",
   },
   light: {
     position: "absolute",

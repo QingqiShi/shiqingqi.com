@@ -1,5 +1,5 @@
 import { bandedCarrier } from "./banded-carrier.ts";
-import type { CarrierKey } from "./resolve-carrier.ts";
+import { type CarrierKey, isViewportCarrier } from "./resolve-carrier.ts";
 import type { Carrier } from "./types.ts";
 import { viewportCarrier } from "./viewport-carrier.ts";
 
@@ -10,7 +10,5 @@ import { viewportCarrier } from "./viewport-carrier.ts";
  * @internal
  */
 export function carrierOf(key: CarrierKey): Carrier {
-  return key === "fixed" || key === "fixedBottom"
-    ? viewportCarrier(key)
-    : bandedCarrier(key);
+  return isViewportCarrier(key) ? viewportCarrier(key) : bandedCarrier(key);
 }

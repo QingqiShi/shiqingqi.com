@@ -1,5 +1,6 @@
 import { EFFECT_ROLES, roleConstantsWgsl } from "./effect-roles.ts";
 import { PAGE_SCOPE } from "./plan-scopes.ts";
+import { isViewportCarrier } from "./resolve-carrier.ts";
 import type {
   EffectElementRecord,
   EffectPointer,
@@ -158,10 +159,7 @@ export function packElements(
     floats.set(element.radii, at + 4);
     floats.set(element.fill, at + 8);
     words[at + 12] = element.roles;
-    words[at + 13] =
-      element.carrier === "fixed" || element.carrier === "fixedBottom"
-        ? ELEMENT_FIXED
-        : 0;
+    words[at + 13] = isViewportCarrier(element.carrier) ? ELEMENT_FIXED : 0;
     floats[at + 14] = element.cornerExponent;
     words[at + 15] = element.id;
     words[at + 16] = element.scopeIndex;

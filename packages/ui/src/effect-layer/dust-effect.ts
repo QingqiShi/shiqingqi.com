@@ -19,8 +19,14 @@ import {
   EFFECT_SETTING_DEFAULTS,
   finiteOr,
 } from "./effect-setting-defaults.ts";
+import type { EffectColor } from "./parse-css-color.ts";
+import { readFill } from "./read-element-box.ts";
+import type { RoleReader } from "./read-roles.ts";
+import { type CarrierKey, isViewportCarrier } from "./resolve-carrier.ts";
 import {
+  createDustBursts,
   createLiveSlots,
+  DUST_BURST_SPAWN,
   DUST_MAX_LIFE,
   DUST_MAX_SPAWNS_PER_FRAME,
   DUST_PARTICLE_BUDGET,
@@ -46,11 +52,59 @@ const SCREEN: GPUBlendState = {
   alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
 };
 
+/**
+ * What the dust reads of an element: its CSS `color`, for dust that takes
+ * it in place of the fill.
+ *
+ * @internal
+ */
+export const dustReader: RoleReader<EffectColor> = {
+  read: (element, _box, { styleOf }) => readFill(styleOf(element).color),
+};
+
+/**
+ * An element that sheds dust, whether its scope draws over a dark backdrop,
+ * whether it is on the viewport, and what to call when its burst ends.
+ */
+interface ScopeEmitter extends DustEmitter {
+  readonly dark: boolean;
+  readonly onViewport: boolean;
+  readonly onShed: (() => void) | undefined;
+}
+
+/** Tells an emitter's hook that its burst has ended, out of the frame. */
+const announceShed = ({ onShed }: ScopeEmitter) => {
+  if (onShed !== undefined) {
+    queueMicrotask(onShed);
+  }
+};
+
+/** The particle instance bit of the dust that stays on the viewport. */
+const ON_VIEWPORT_INSTANCE = 2;
+const HOLDS_VIEWPORT: readonly CarrierKey[] = ["fixed"];
+
 /** The elements of one scope that shed dust and the ones that pull it in. */
 interface ScopeDust {
   readonly dark: boolean;
-  readonly emitters: DustEmitter[];
+  readonly emitters: ScopeEmitter[];
   readonly fans: DustFan[];
+}
+
+/**
+ * The first instance of a particle draw: bit 0 picks the dust that draws over
+ * a dark backdrop, and bit 1 the dust that stays on the viewport.
+ */
+const particleInstance = (dark: boolean, onViewport: boolean) =>
+  (dark ? 1 : 0) + (onViewport ? ON_VIEWPORT_INSTANCE : 0);
+
+/**
+ * The target that draws the dust that stays on the viewport: the viewport's
+ * `<canvas>` element from its top edge, or else from its bottom edge.
+ */
+function viewportTargetOf(frame: EffectFrame) {
+  const on = (key: string) =>
+    frame.targets.find(({ carrier }) => frame.carriers[carrier] === key);
+  return on("fixed") ?? on("fixedBottom");
 }
 
 /**
@@ -58,7 +112,13 @@ interface ScopeDust {
  * their fill colour that float off their edge, and elements with the
  * extractor fan role pull them in. The particles live once, on the GPU, in
  * page coordinates, so they cross band edges and draw on whichever scroll
- * `<canvas>` element they are over. Each particle keeps the scope of the
+ * `<canvas>` element they are over. The particles of an element on the
+ * viewport live in viewport coordinates instead, so they keep their place on
+ * the screen while the page scrolls, and draw on the viewport's `<canvas>`
+ * element, which the effect holds while they can live, also after the
+ * element has gone. An element's burst sheds its particles in one go, fast
+ * and short lived, and the fans pull them at once. Its `onShed` runs when
+ * the burst ends. Each particle keeps the scope of the
  * element that shed it: only the fans and obstacles of that scope act on it,
  * it draws only inside its Effect container, and it dies once it leaves the
  * container's box. While no element that sheds dust is near
@@ -103,18 +163,20 @@ export const dustEffect: Effect = {
     /** Seconds the simulation has run. */
     let simulated = 0;
     /**
-     * When an element last shed dust over a light backdrop, and over a dark
-     * one, on the simulation's clock.
+     * When an element last shed dust of each `particleInstance`, on the
+     * simulation's clock.
      */
-    const lastShed = new Map<boolean, number>();
+    const lastShed = new Map<number, number>();
+    const bursts = createDustBursts();
     /** Whether the motes of this frame draw over a light backdrop, a dark one. */
     const moteDarkness = new Set<boolean>();
     const drawPipelines = new Map<string, GPURenderPipeline | null>();
     /**
      * The pipeline that draws particles or motes over a light or a dark
      * backdrop, or `null` while it compiles; a frame follows once it is
-     * ready. A page needs one or two of the four, so the others never
-     * compile.
+     * ready. The particle pipelines compile at setup, so that the first
+     * particles of a burst draw in the frame that sheds them. The mote
+     * pipelines compile only when reduced motion needs them.
      */
     function drawPipeline(
       vertex: "particleVertex" | "moteVertex",
@@ -146,6 +208,8 @@ export const dustEffect: Effect = {
       }
       return drawPipelines.get(key) ?? null;
     }
+    drawPipeline("particleVertex", false);
+    drawPipeline("particleVertex", true);
     const simulatePipeline = await device.createComputePipelineAsync({
       layout: device.createPipelineLayout({
         bindGroupLayouts: [pageLayout, computeLayout],
@@ -229,9 +293,6 @@ export const dustEffect: Effect = {
         let color = 0;
         let reach = 0;
         if ((record.roles & DUST) !== 0) {
-          moteDarkness.add(dark);
-          const opacity = dark ? PARTICLE_OPACITY.dark : PARTICLE_OPACITY.light;
-          color = packColor([...dustColor(record.fill, dark), opacity]);
           const density = Math.max(
             0,
             finiteOr(
@@ -239,7 +300,37 @@ export const dustEffect: Effect = {
               EFFECT_SETTING_DEFAULTS.dust.density,
             ),
           );
-          emitters.push({ id, index, x, y, width, height, density });
+          const burst = Math.max(
+            0,
+            finiteOr(settings.dust?.burst, EFFECT_SETTING_DEFAULTS.dust.burst),
+          );
+          // Under reduced motion, an element that sheds only bursts shows
+          // no motes, so its dust has no colour.
+          if (!frame.reducedMotion || density > 0) {
+            moteDarkness.add(dark);
+            const opacity = dark
+              ? PARTICLE_OPACITY.dark
+              : PARTICLE_OPACITY.light;
+            const source =
+              settings.dust?.colorFrom === "text"
+                ? (record.readings.dust ?? record.fill)
+                : record.fill;
+            color = packColor([...dustColor(source, dark), opacity]);
+          }
+          const onViewport = isViewportCarrier(record.carrier);
+          emitters.push({
+            id,
+            index,
+            x,
+            y,
+            width,
+            height,
+            density,
+            burst,
+            dark,
+            onViewport,
+            onShed: settings.dust?.onShed,
+          });
         }
         if ((record.roles & EXTRACTOR_FAN) !== 0) {
           reach = Math.max(
@@ -271,7 +362,9 @@ export const dustEffect: Effect = {
     return {
       update(encoder, frame) {
         const scopes = writeElements(frame);
+        const allEmitters = scopes.flatMap(({ emitters }) => emitters);
         if (frame.reducedMotion) {
+          bursts.take(allEmitters, 0, false, announceShed);
           carried.clear();
           liveSlots.clear();
           lastShed.clear();
@@ -281,12 +374,11 @@ export const dustEffect: Effect = {
         simulated += frame.delta;
         const shedding: DustEmitter[] = [];
         const rates: number[] = [];
-        for (const { dark, emitters, fans } of scopes) {
+        for (const { emitters, fans } of scopes) {
           for (const emitter of emitters) {
             if (isShedding(emitter, fans, frame.viewport)) {
               shedding.push(emitter);
               rates.push(emissionRate(emitter, fans, frame.pointer));
-              lastShed.set(dark, simulated);
             }
           }
         }
@@ -296,6 +388,24 @@ export const dustEffect: Effect = {
           frame.delta,
           carried,
         );
+        spawns.push(
+          ...bursts.take(
+            allEmitters,
+            DUST_MAX_SPAWNS_PER_FRAME - spawns.length,
+            true,
+            announceShed,
+          ),
+        );
+        if (spawns.length > 0) {
+          const shedNow = new Set(
+            spawns.map((spawn) => spawn % DUST_BURST_SPAWN),
+          );
+          for (const { index, dark, onViewport } of allEmitters) {
+            if (shedNow.has(index)) {
+              lastShed.set(particleInstance(dark, onViewport), simulated);
+            }
+          }
+        }
         live = liveSlots.advance(frame.delta, spawns.length);
         if (live.length === 0) {
           return rates.some((rate) => rate > 0);
@@ -334,21 +444,26 @@ export const dustEffect: Effect = {
           }
           return;
         }
-        // Particles live in the page, so they draw on the bands. A frame
-        // with no band draws them on its first <canvas> element.
-        const hasBands = frame.targets.some(({ band }) => band !== null);
-        if (
-          live.length === 0 ||
-          (target.band === null && (hasBands || target !== frame.targets[0]))
-        ) {
+        if (live.length === 0) {
           return;
         }
-        for (const [dark, shedAt] of lastShed) {
-          const pipeline = drawPipeline("particleVertex", dark);
-          if (pipeline === null || simulated - shedAt >= DUST_MAX_LIFE) {
+        // Particles of the page draw on the bands, and a frame with no band
+        // draws them on its first <canvas> element. Particles of the
+        // viewport draw on the viewport's <canvas> element.
+        const hasBands = frame.targets.some(({ band }) => band !== null);
+        const drawsPage =
+          target.band !== null || (!hasBands && target === frame.targets[0]);
+        const drawsViewport = target === viewportTargetOf(frame);
+        for (const [instance, shedAt] of lastShed) {
+          const onViewport = (instance & ON_VIEWPORT_INSTANCE) !== 0;
+          const pipeline = drawPipeline("particleVertex", (instance & 1) !== 0);
+          if (
+            (onViewport ? !drawsViewport : !drawsPage) ||
+            pipeline === null ||
+            simulated - shedAt >= DUST_MAX_LIFE
+          ) {
             continue;
           }
-          const instance = dark ? 1 : 0;
           pass.setPipeline(pipeline);
           pass.setBindGroup(2, renderGroup);
           const beforeWrap = Math.min(
@@ -370,6 +485,17 @@ export const dustEffect: Effect = {
             );
           }
         }
+      },
+      holds() {
+        for (const [instance, shedAt] of lastShed) {
+          if (
+            (instance & ON_VIEWPORT_INSTANCE) !== 0 &&
+            simulated - shedAt < DUST_MAX_LIFE
+          ) {
+            return HOLDS_VIEWPORT;
+          }
+        }
+        return [];
       },
       destroy() {
         simulationBuffer.destroy();
