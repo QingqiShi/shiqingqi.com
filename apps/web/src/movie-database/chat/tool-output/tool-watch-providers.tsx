@@ -306,7 +306,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
           >
             {t({
               en: "Data provided by JustWatch",
-              zh: "数据由 JustWatch 提供",
+              zh: "数据由JustWatch提供",
             })}
             <ExternalLinkIndicator />
           </a>
@@ -314,7 +314,7 @@ function RegionWatchProviders({ data }: { data: WatchProviderData }) {
           <span>
             {t({
               en: "Data provided by JustWatch",
-              zh: "数据由 JustWatch 提供",
+              zh: "数据由JustWatch提供",
             })}
           </span>
         )}
@@ -406,7 +406,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
         </div>
         <Badge intent="neutral">
           {regions.length === 1
-            ? t({ en: "1 region", zh: "1 个地区" })
+            ? t({ en: "1 region", zh: "1个地区" })
             : `${String(regions.length)} ${t({ en: "regions", zh: "个地区" })}`}
         </Badge>
       </div>
@@ -444,7 +444,7 @@ function ProviderSearchResults({ data }: { data: ProviderSearchData }) {
         <span>
           {t({
             en: "Data provided by JustWatch",
-            zh: "数据由 JustWatch 提供",
+            zh: "数据由JustWatch提供",
           })}
         </span>
       </div>

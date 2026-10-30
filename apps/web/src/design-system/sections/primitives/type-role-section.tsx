@@ -22,7 +22,7 @@ export function TypeRoleSection() {
       meta: "1.5rem … 1rem · 800 … 700",
       description: t({
         en: "Headings by rank. h4 is the title of one item, such as a card or a row.",
-        zh: "按层级排列的标题。h4 是单个条目的标题，例如一张卡片或一行。",
+        zh: "按层级排列的标题。h4是单个条目的标题，例如一张卡片或一行。",
       }),
     },
     {
@@ -30,7 +30,7 @@ export function TypeRoleSection() {
       meta: "1rem · 0.85rem · 400 · 1.5",
       description: t({
         en: "Running text. bodySmall is for text that supports the main copy.",
-        zh: "连续的正文。bodySmall 用于辅助主文案的文字。",
+        zh: "连续的正文。bodySmall用于辅助主文案的文字。",
       }),
     },
     {
@@ -46,7 +46,7 @@ export function TypeRoleSection() {
       meta: "0.75rem · 0.7rem",
       description: t({
         en: "The smallest text. overline is uppercase with wide tracking, for an eyebrow above a title.",
-        zh: "最小的文字。overline 为大写、字距宽，用作标题上方的眉标。",
+        zh: "最小的文字。overline为大写、字距宽，用作标题上方的眉标。",
       }),
     },
     {
@@ -54,7 +54,7 @@ export function TypeRoleSection() {
       meta: "1.2rem → 1rem ≥ md",
       description: t({
         en: "Text inside a control. It steps down at md together with controlSize.",
-        zh: "控件内的文字。它与 controlSize 一起在 md 处变小。",
+        zh: "控件内的文字。它与controlSize一起在md处变小。",
       }),
     },
     {
@@ -62,7 +62,7 @@ export function TypeRoleSection() {
       meta: "vp* · cq*",
       description: t({
         en: "fluidDisplay, fluidH1 to fluidH3 and fluidLead grow with the viewport, for a landing page. cardTitle grows with its container.",
-        zh: "fluidDisplay、fluidH1 至 fluidH3 与 fluidLead 随视口变大，用于落地页。cardTitle 随其容器变大。",
+        zh: "fluidDisplay、fluidH1至fluidH3与fluidLead随视口变大，用于落地页。cardTitle随其容器变大。",
       }),
     },
     {
@@ -80,7 +80,7 @@ export function TypeRoleSection() {
       <ShowcaseHelper>
         {t({
           en: "The job a piece of text does. Each type role sets the size, line height, weight and tracking together, so text you style yourself matches Text and Heading. Compose it first, so a later style can still change the weight. Never set a font size on its own.",
-          zh: "一段文字所承担的工作。每个字体角色同时设定字号、行高、字重与字距，因此你自己设置样式的文字也与 Text 和 Heading 一致。把它放在最前面组合，后面的样式仍可改变字重。不要单独设置字号。",
+          zh: "一段文字所承担的工作。每个字体角色同时设定字号、行高、字重与字距，因此你自己设置样式的文字也与Text和Heading一致。把它放在最前面组合，后面的样式仍可改变字重。不要单独设置字号。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid>

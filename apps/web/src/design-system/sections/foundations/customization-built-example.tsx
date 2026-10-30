@@ -64,7 +64,7 @@ export function CustomizationBuiltExample() {
       <Specimen
         caption={t({
           en: "A notice built from Tokens, Primitives and Button",
-          zh: "由令牌、原语与 Button 搭成的通知",
+          zh: "由令牌、原语与Button搭成的通知",
         })}
       >
         <OfflineNotice />
@@ -76,7 +76,7 @@ export function CustomizationBuiltExample() {
       <GuideNote>
         {t({
           en: "Callout has no place for an action beside its message, only a dismiss button, so this notice is built. The colour Tokens keep it right in both schemes, corner gives it the same corner as Callout, and Button brings its own focus ring, keyboard handling and press. The live role, the layout and the words are now yours to get right.",
-          zh: "Callout 在消息旁边没有放置操作的位置，只有一个关闭按钮，因此这条通知是自行搭建的。颜色令牌让它在两种配色下都正确，corner 让它的圆角与 Callout 一致，Button 自带焦点环、键盘处理与按压反馈。live 角色、布局与文字则改由你来保证正确。",
+          zh: "Callout在消息旁边没有放置操作的位置，只有一个关闭按钮，因此这条通知是自行搭建的。颜色令牌让它在两种配色下都正确，corner让它的圆角与Callout一致，Button自带焦点环、键盘处理与按压反馈。live角色、布局与文字则改由你来保证正确。",
         })}
       </GuideNote>
     </>

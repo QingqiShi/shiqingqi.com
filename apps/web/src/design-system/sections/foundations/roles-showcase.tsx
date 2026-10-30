@@ -236,7 +236,7 @@ export function RolesShowcase() {
       title={t({ en: "Intents", zh: "意图色" })}
       lead={t({
         en: "Six Intents carry meaning: accent, info, success, warning, danger and neutral. Pick the one whose job matches yours. The components use them for these jobs and no others, so a custom element that does the same keeps the same meaning.",
-        zh: "六种意图色承载含义：accent、info、success、warning、danger 与 neutral。选择用途与你的用途相符的那一种。组件只把它们用于下面这些用途，因此做同样事情的自建元素也保持同样的含义。",
+        zh: "六种意图色承载含义：accent、info、success、warning、danger与neutral。选择用途与你的用途相符的那一种。组件只把它们用于下面这些用途，因此做同样事情的自建元素也保持同样的含义。",
       })}
     >
       <GuideList
@@ -249,7 +249,7 @@ export function RolesShowcase() {
             }),
             note: t({
               en: "A checked Checkbox or Switch, the primary Button, an active Chip, a selected OptionCard, the current TableRow, the focus ring, and the fill of Progress and Slider.",
-              zh: "已勾选的 Checkbox 或开启的 Switch、主按钮、激活的 Chip、选中的 OptionCard、当前的 TableRow、焦点环，以及 Progress 与 Slider 的填充。",
+              zh: "已勾选的Checkbox或开启的Switch、主按钮、激活的Chip、选中的OptionCard、当前的TableRow、焦点环，以及Progress与Slider的填充。",
             }),
           },
           {
@@ -260,7 +260,7 @@ export function RolesShowcase() {
             }),
             note: t({
               en: 'Button look="danger", the edge of a field, Checkbox or Slider with an error, and a field\'s error message.',
-              zh: 'Button look="danger"，出错的输入框、Checkbox 或 Slider 的边缘，以及输入框的错误信息。',
+              zh: 'Button look="danger"，出错的输入框、Checkbox或Slider的边缘，以及输入框的错误信息。',
             }),
           },
           {
@@ -268,7 +268,7 @@ export function RolesShowcase() {
             value: t({ en: "Status only", zh: "仅用于状态" }),
             note: t({
               en: "A Badge or a Callout, together with danger. No control takes these, so a control painted in success or warning means something no component means.",
-              zh: "与 danger 一起用于 Badge 或 Callout。没有任何控件使用它们，因此涂成 success 或 warning 的控件，表达的是组件中不存在的含义。",
+              zh: "与danger一起用于Badge或Callout。没有任何控件使用它们，因此涂成success或warning的控件，表达的是组件中不存在的含义。",
             }),
           },
           {
@@ -279,7 +279,7 @@ export function RolesShowcase() {
             }),
             note: t({
               en: "The tracks of Progress and Slider, Skeleton, the scrollbar thumb, an unchecked Switch, the subtle Avatar and the neutral Badge.",
-              zh: "Progress 与 Slider 的轨道、Skeleton、滚动条滑块、关闭状态的 Switch、subtle 样式的 Avatar，以及中性的 Badge。",
+              zh: "Progress与Slider的轨道、Skeleton、滚动条滑块、关闭状态的Switch、subtle样式的Avatar，以及中性的Badge。",
             }),
           },
         ]}
@@ -300,7 +300,7 @@ export function RolesShowcase() {
             value: "bg<Intent>Subtle + fg<Intent>",
             note: t({
               en: "A Callout, a tinted Badge, the selected OptionCard. Text that carries the Intent, such as a Badge's label or a Callout's title, takes fg<Intent>. Longer copy on the tint, such as a Callout's body, stays color.fg.",
-              zh: "提示框、淡色徽章、选中的 OptionCard。承载意图的文字，例如徽章的标签或提示框的标题，使用 fg<Intent>。淡色上较长的文字，例如提示框的正文，仍用 color.fg。",
+              zh: "提示框、淡色徽章、选中的OptionCard。承载意图的文字，例如徽章的标签或提示框的标题，使用fg<Intent>。淡色上较长的文字，例如提示框的正文，仍用color.fg。",
             }),
           },
           {
@@ -308,7 +308,7 @@ export function RolesShowcase() {
             value: t({ en: "The default Intent", zh: "默认的意图色" }),
             note: t({
               en: "It has a fill, a hover and a tint like the rest, but its text and edge are the plain color.fg and color.border.",
-              zh: "它和其他意图色一样有填充、悬停与淡色，但它的文字与边缘就是普通的 color.fg 与 color.border。",
+              zh: "它和其他意图色一样有填充、悬停与淡色，但它的文字与边缘就是普通的color.fg与color.border。",
             }),
           },
         ]}
@@ -340,7 +340,7 @@ export function RolesShowcase() {
         }
         doCaption={t({
           en: "fgOnAccent on the fill, fgAccent on the tint.",
-          zh: "填充上用 fgOnAccent，淡色上用 fgAccent。",
+          zh: "填充上用fgOnAccent，淡色上用fgAccent。",
         })}
         dont={
           <div css={cluster.tight}>
@@ -388,7 +388,7 @@ const styles = stylex.create({
       <GuideNote>
         {t({
           en: "Badge and Callout take an intent prop and pair these for you. Write the tokens yourself only when you build your own element.",
-          zh: "Badge 与 Callout 接受 intent 属性，会替你完成搭配。只有自行构建元素时才需要自己写这些令牌。",
+          zh: "Badge与Callout接受intent属性，会替你完成搭配。只有自行构建元素时才需要自己写这些令牌。",
         })}
       </GuideNote>
 

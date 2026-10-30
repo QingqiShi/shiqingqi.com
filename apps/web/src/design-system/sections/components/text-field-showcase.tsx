@@ -64,7 +64,7 @@ export function TextFieldShowcase() {
               defaultValue="12.50 Tesco"
               status={t({
                 en: "Expense · £12.50 · Groceries · Enter saves",
-                zh: "支出 · £12.50 · 日用杂货 · 按 Enter 保存",
+                zh: "支出 · £12.50 · 日用杂货 · 按Enter保存",
               })}
             />
           </div>
@@ -123,7 +123,7 @@ export function TextFieldShowcase() {
           <Specimen caption="disabled">
             <TextField
               disabled
-              label={t({ en: "Account ID", zh: "账户 ID" })}
+              label={t({ en: "Account ID", zh: "账户ID" })}
               defaultValue="usr_8f3a21"
             />
           </Specimen>

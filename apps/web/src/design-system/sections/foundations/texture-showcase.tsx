@@ -18,7 +18,7 @@ export function TextureShowcase() {
       <ShowcaseHelper>
         {t({
           en: "A dot 1px across, drawn with a gradient and repeated on a square grid. The dot keeps one size; you set how far apart the dots are and what colour they take, through two Tokens in a local stylex.create.",
-          zh: "一个 1px 宽的点，用渐变绘制，在方形网格上重复。点只有一种尺寸；点与点相距多远、取什么颜色，由你在本地 stylex.create 中通过两个令牌设定。",
+          zh: "一个1px宽的点，用渐变绘制，在方形网格上重复。点只有一种尺寸；点与点相距多远、取什么颜色，由你在本地stylex.create中通过两个令牌设定。",
         })}
       </ShowcaseHelper>
 
@@ -83,7 +83,7 @@ export function TextureShowcase() {
           <Text look="caption" tone="muted">
             {t({
               en: "The distance between dots. Take it from space._0 or a larger step. The grid is offset by half a pitch, and half of those steps is a whole pixel at a 16px root, which keeps each dot on the centre of a pixel. With space._00 it is not, and the dots blur.",
-              zh: "点与点之间的距离。取 space._0 或更大的一级。网格偏移半个间距，在 16px 根字号下，这些步长的一半都是整像素，每个点因此落在像素中心。space._00 做不到，点就会糊。",
+              zh: "点与点之间的距离。取space._0或更大的一级。网格偏移半个间距，在16px根字号下，这些步长的一半都是整像素，每个点因此落在像素中心。space._00做不到，点就会糊。",
             })}
           </Text>
         </SpecCard>
@@ -91,7 +91,7 @@ export function TextureShowcase() {
           <Text look="caption" tone="muted">
             {t({
               en: "The dot's colour. The default mixes color.fg into transparent, so it follows the colour scheme like every colour Token.",
-              zh: "点的颜色。默认值把 color.fg 与透明混合，因此像所有颜色令牌一样随配色方案变化。",
+              zh: "点的颜色。默认值把color.fg与透明混合，因此像所有颜色令牌一样随配色方案变化。",
             })}
           </Text>
         </SpecCard>

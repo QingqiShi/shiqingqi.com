@@ -24,7 +24,7 @@ export default function IconographyPage() {
       path="/design-system/foundations/iconography"
       description={t({
         en: "The components draw their icons with Phosphor and take yours through icon slots. This page covers installing it, what a slot does with your icon, and the weight that matches the package's own.",
-        zh: "组件用 Phosphor 绘制自带图标，并通过图标插槽接收你的图标。本页介绍如何安装、插槽会如何处理你的图标，以及与本包自带图标一致的字重。",
+        zh: "组件用Phosphor绘制自带图标，并通过图标插槽接收你的图标。本页介绍如何安装、插槽会如何处理你的图标，以及与本包自带图标一致的字重。",
       })}
     >
       <IconographyShowcase />

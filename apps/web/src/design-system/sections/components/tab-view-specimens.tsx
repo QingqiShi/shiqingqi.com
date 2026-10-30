@@ -91,15 +91,15 @@ function ReadingApp() {
       rows: [
         {
           title: t({ en: "The Lighthouse Keeper", zh: "守灯人" }),
-          detail: t({ en: "Chapter 11 of 13", zh: "第 11 章，共 13 章" }),
+          detail: t({ en: "Chapter 11 of 13", zh: "第11章，共13章" }),
         },
         {
           title: t({ en: "A Year of Bread", zh: "面包的一年" }),
-          detail: t({ en: "Chapter 4 of 20", zh: "第 4 章，共 20 章" }),
+          detail: t({ en: "Chapter 4 of 20", zh: "第4章，共20章" }),
         },
         {
           title: t({ en: "Rivers of the North", zh: "北方的河" }),
-          detail: t({ en: "Chapter 2 of 9", zh: "第 2 章，共 9 章" }),
+          detail: t({ en: "Chapter 2 of 9", zh: "第2章，共9章" }),
         },
         {
           title: t({ en: "Small Gardens", zh: "小花园" }),
@@ -124,11 +124,11 @@ function ReadingApp() {
       rows: [
         {
           title: t({ en: "Lighthouses", zh: "灯塔" }),
-          detail: t({ en: "4 books", zh: "4 本书" }),
+          detail: t({ en: "4 books", zh: "4本书" }),
         },
         {
           title: t({ en: "Sourdough", zh: "酸面包" }),
-          detail: t({ en: "2 books", zh: "2 本书" }),
+          detail: t({ en: "2 books", zh: "2本书" }),
         },
         {
           title: t({ en: "Mary Oliver", zh: "玛丽·奥利弗" }),
@@ -186,7 +186,7 @@ function ReadingApp() {
         },
         {
           title: t({ en: "Sync", zh: "同步" }),
-          detail: t({ en: "On Wi-Fi only", zh: "仅限 Wi-Fi" }),
+          detail: t({ en: "On Wi-Fi only", zh: "仅限Wi-Fi" }),
         },
       ],
     },

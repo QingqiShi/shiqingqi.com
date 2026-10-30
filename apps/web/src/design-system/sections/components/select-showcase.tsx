@@ -24,7 +24,7 @@ export function SelectShowcase() {
   ];
   return (
     <>
-      <Showcase label={t({ en: "From options", zh: "使用 options" })}>
+      <Showcase label={t({ en: "From options", zh: "使用options" })}>
         <SpecimenGrid>
           <Specimen caption={t({ en: "label and options", zh: "标签与选项" })}>
             <Select
@@ -109,7 +109,7 @@ export function SelectShowcase() {
               label={t({ en: "Timezone", zh: "时区" })}
               description={t({
                 en: "Pass <option> children for optgroups — the escape hatch.",
-                zh: "传入 <option> 子元素以使用 optgroup——逃生舱口。",
+                zh: "传入 <option> 子元素以使用optgroup——逃生舱口。",
               })}
               defaultValue="gmt"
             >
@@ -162,7 +162,7 @@ export function SelectShowcase() {
         }
         dontCaption={t({
           en: "Don't use a Select for a simple two-state toggle — reach for a Switch or Checkbox.",
-          zh: "不要用下拉选择表示简单的两态开关——请改用 Switch 或复选框。",
+          zh: "不要用下拉选择表示简单的两态开关——请改用Switch或复选框。",
         })}
       />
     </>

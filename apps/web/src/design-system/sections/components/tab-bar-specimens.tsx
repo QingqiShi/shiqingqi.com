@@ -82,7 +82,7 @@ export function DemoTabBar({
   /** Sets the bar in a phone-wide frame. */
   narrow?: boolean;
 }) {
-  const unread = t({ en: "3 new books", zh: "3 本新书" });
+  const unread = t({ en: "3 new books", zh: "3本新书" });
   return (
     <DemoBar
       label={t({ en: "Demo app", zh: "示例应用" })}

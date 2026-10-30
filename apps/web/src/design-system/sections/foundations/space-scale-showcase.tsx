@@ -45,7 +45,7 @@ export function SpaceScaleShowcase() {
       title={t({ en: "Space scale", zh: "间距阶梯" })}
       lead={t({
         en: "Eighteen steps in rem. The px values are at the default 16px root. The low steps sit a quarter rem apart for padding and offsets; from space._8 the steps widen, and the top ones size things such as SidebarLayout's 15rem rail (space._13). Each bar is drawn at its true size.",
-        zh: "十八级，以 rem 为单位。px 值按默认的 16px 根字号计算。低端各级相差四分之一 rem，用于内边距与偏移量；从 space._8 起步长变大，最上面几级用来定尺寸，比如 SidebarLayout 15rem 宽的侧栏（space._13）。每根条都按真实尺寸绘制。",
+        zh: "十八级，以rem为单位。px值按默认的16px根字号计算。低端各级相差四分之一rem，用于内边距与偏移量；从space._8起步长变大，最上面几级用来定尺寸，比如SidebarLayout 15rem宽的侧栏（space._13）。每根条都按真实尺寸绘制。",
       })}
     >
       <div css={styles.ruler}>

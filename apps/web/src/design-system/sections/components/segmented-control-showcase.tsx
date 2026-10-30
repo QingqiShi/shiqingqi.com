@@ -83,7 +83,7 @@ export function SegmentedControlShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "selectedIcon rides on the selected segment alone — in this control the sort direction, which a second activation flips. Its spot grows in and shrinks away, so the segments beside it never jump. The selected segment's aria-label carries the direction too, because an arrow says nothing to a screen reader.",
-            zh: "selectedIcon 只出现在选中的分段上——在这个控件里是排序方向，再次点击即可翻转。它的位置会展开、也会收起，因此旁边的分段不会跳动。选中分段的 aria-label 同样带上方向，因为箭头对屏幕阅读器什么也没说。",
+            zh: "selectedIcon只出现在选中的分段上——在这个控件里是排序方向，再次点击即可翻转。它的位置会展开、也会收起，因此旁边的分段不会跳动。选中分段的aria-label同样带上方向，因为箭头对屏幕阅读器什么也没说。",
           })}
         </Text>
       </Showcase>
@@ -95,7 +95,7 @@ export function SegmentedControlShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "hideLabels collapses every segment to its icon for a tight bar — each label still names its segment in the accessibility tree, so every option needs an icon too. This is the movie database's own poster grid / table switch.",
-            zh: "hideLabels 会将每个分段收起为图标，用于紧凑的控件条——每个 label 仍在无障碍树中为其分段命名，因此每个选项也都需要提供 icon。这正是影视数据库自身的海报网格／表格切换控件。",
+            zh: "hideLabels会将每个分段收起为图标，用于紧凑的控件条——每个label仍在无障碍树中为其分段命名，因此每个选项也都需要提供icon。这正是影视数据库自身的海报网格／表格切换控件。",
           })}
         </Text>
       </Showcase>
@@ -133,7 +133,7 @@ export function SegmentedControlShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "A full WAI-ARIA radiogroup: Tab reaches the selected segment only, arrow keys move and select, Home and End jump to the ends, and focus follows selection so each choice announces as you land on it.",
-            zh: "完整的 WAI-ARIA 单选组：Tab 只会进入已选中的分段，方向键移动并选择，Home 与 End 跳到两端，焦点跟随选择，因此每次落点都会被朗读。",
+            zh: "完整的WAI-ARIA单选组：Tab只会进入已选中的分段，方向键移动并选择，Home与End跳到两端，焦点跟随选择，因此每次落点都会被朗读。",
           })}
         </Text>
       </Showcase>
@@ -150,7 +150,7 @@ export function SegmentedControlShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'By default the indicator is solid with a lit edge. When you select a segment, by pointer or by arrow key, it melts into water, pours there, flows on for a moment after it arrives and sets solid again, as the effect prop below describes. The labels stay over it. effect="none" keeps the plain Glass indicator, and so does a control without an EffectLayerProvider or WebGPU.',
-            zh: '默认情况下，指示块是边缘带光的实心块。你用指针或方向键选择分段时，它会融化成水并涌向该分段，到位后继续流动片刻，再重新凝固，详见下方的 effect 属性。标签始终位于其上。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
+            zh: '默认情况下，指示块是边缘带光的实心块。你用指针或方向键选择分段时，它会融化成水并涌向该分段，到位后继续流动片刻，再重新凝固，详见下方的effect属性。标签始终位于其上。设置effect="none" 会保留普通的玻璃指示块；没有EffectLayerProvider或WebGPU时也是如此。',
           })}
         </Text>
       </Showcase>

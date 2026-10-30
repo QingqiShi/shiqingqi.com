@@ -382,7 +382,7 @@ export function PixelGallery({
           <div css={[typeRole.caption, styles.cardLabel]}>
             {t({
               en: "(behaviour with prefers-reduced-motion)",
-              zh: "(prefers-reduced-motion 表现)",
+              zh: "(prefers-reduced-motion表现)",
             })}
           </div>
         </div>

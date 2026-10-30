@@ -18,7 +18,7 @@ export function CardSpecimen() {
   return (
     <Card css={[specimenLayout.fill, styles.card]}>
       <Text look="bodySmall" weight="semibold">
-        {t({ en: "Blade Runner 2049", zh: "银翼杀手 2049" })}
+        {t({ en: "Blade Runner 2049", zh: "银翼杀手2049" })}
       </Text>
       <Text look="caption" tone="muted">
         {t({ en: "2017 · Science fiction", zh: "2017 · 科幻" })}

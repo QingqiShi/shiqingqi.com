@@ -245,7 +245,7 @@ export function TypographyReferenceShowcase() {
       })}
       lead={t({
         en: "A type role already pairs its size with a line height, a weight and a tracking, so you never pair them yourself. On top of a type role, your style may change the weight with a font.weight_* token, and the line height only as a layout trick, such as lineHeight_0 on a one-line number in a tight box. The tables list each token and what already uses it.",
-        zh: "字体角色已经把字号与行高、字重、字距配好，因此你无需自己搭配。在字体角色之上，你的样式可以用 font.weight_* 令牌改字重；行高只在布局需要时才改，例如在紧凑的框里给单行数字用 lineHeight_0。下表列出每个令牌，以及已经用到它的地方。",
+        zh: "字体角色已经把字号与行高、字重、字距配好，因此你无需自己搭配。在字体角色之上，你的样式可以用font.weight_* 令牌改字重；行高只在布局需要时才改，例如在紧凑的框里给单行数字用lineHeight_0。下表列出每个令牌，以及已经用到它的地方。",
       })}
     >
       <div css={stack.group}>
@@ -268,7 +268,7 @@ export function TypographyReferenceShowcase() {
       <GuideNote>
         {t({
           en: "The @tuja/require-type-role lint rule holds this. It reports a fontSize outside a type role, a fontVariantNumeric set by hand, and a raw value for the weight, line height, tracking or family. A fontSize of inherit is allowed, and so is a controlSize token that sizes a glyph inside a control.",
-          zh: "@tuja/require-type-role 检查规则负责落实这一点。它会报告字体角色之外的 fontSize、手动设置的 fontVariantNumeric，以及字重、行高、字距或字体族的原始值。fontSize 设为 inherit 是允许的，用 controlSize 令牌为控件里的字形设定尺寸也是允许的。",
+          zh: "@tuja/require-type-role检查规则负责落实这一点。它会报告字体角色之外的fontSize、手动设置的fontVariantNumeric，以及字重、行高、字距或字体族的原始值。fontSize设为inherit是允许的，用controlSize令牌为控件里的字形设定尺寸也是允许的。",
         })}
       </GuideNote>
     </GuideSection>

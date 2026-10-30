@@ -25,7 +25,7 @@ export default function SurfacesPage() {
       path="/design-system/foundations/surfaces"
       description={t({
         en: "A surface is the box that holds content: a card, a panel, a menu. Its edge, its corners and its shadow come from @tuja/ui/tokens.stylex and the corner Primitive. Use the same steps as the components beside it, and your surfaces match theirs.",
-        zh: "表面是承载内容的盒子：卡片、面板、菜单。它的边框、圆角与阴影来自 @tuja/ui/tokens.stylex 与 corner 原语。使用与相邻组件相同的步长，你的表面就与它们一致。",
+        zh: "表面是承载内容的盒子：卡片、面板、菜单。它的边框、圆角与阴影来自 @tuja/ui/tokens.stylex与corner原语。使用与相邻组件相同的步长，你的表面就与它们一致。",
       })}
     >
       <SurfacesShowcase />

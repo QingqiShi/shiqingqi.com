@@ -118,7 +118,7 @@ export function DismissalDemo() {
           <Text look="bodySmall">
             {t({
               en: "Tab through these two controls, then once more — focus leaves the panel instead of cycling back to the first.",
-              zh: "用 Tab 走过这两个控件，再按一次——焦点会离开面板，而不会绕回第一个。",
+              zh: "用Tab走过这两个控件，再按一次——焦点会离开面板，而不会绕回第一个。",
             })}
           </Text>
           <div css={cluster.tight}>
@@ -166,7 +166,7 @@ export function PortalTargetDemo() {
         <Text look="bodySmall" tone="muted" css={styles.narrowPanel}>
           {t({
             en: "In the DOM this panel is a child of the dashed box. On screen it is still placed against the viewport, which is why nothing about it looks different.",
-            zh: "在 DOM 中，这个面板是虚线方框的子节点。在屏幕上它依然相对视口定位，所以外观没有任何变化。",
+            zh: "在DOM中，这个面板是虚线方框的子节点。在屏幕上它依然相对视口定位，所以外观没有任何变化。",
           })}
         </Text>
       </Popover>

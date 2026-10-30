@@ -116,7 +116,7 @@ export function HeaderFooterLayoutShowcase() {
         }
         doCaption={t({
           en: "Put page decoration in the background slot — it bleeds full-bleed beneath the header controls and content, exactly where a hero gradient belongs.",
-          zh: "把页面装饰放进 background 插槽——它会在页头控件与内容下方满幅铺开，正是主视觉渐变该在的位置。",
+          zh: "把页面装饰放进background插槽——它会在页头控件与内容下方满幅铺开，正是主视觉渐变该在的位置。",
         })}
         dont={
           <code css={[typeRole.bodySmall, styles.code]}>
@@ -125,7 +125,7 @@ export function HeaderFooterLayoutShowcase() {
         }
         dontCaption={t({
           en: "Don't reach for it on dense, app-like surfaces with their own navigation — that's SidebarLayout's job, and a page should use one shell or the other, never both.",
-          zh: "不要在拥有自身导航的高密度应用型页面上使用——那是 SidebarLayout 的职责，且一个页面只应使用一种骨架，绝不能同时使用两种。",
+          zh: "不要在拥有自身导航的高密度应用型页面上使用——那是SidebarLayout的职责，且一个页面只应使用一种骨架，绝不能同时使用两种。",
         })}
       />
     </>

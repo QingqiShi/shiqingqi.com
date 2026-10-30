@@ -46,7 +46,7 @@ export function StepFeatures({ def, onChange }: StepFeaturesProps) {
         <h3 css={[typeRole.h3, styles.heading]}>
           {t({
             en: "Pick up to 2 features",
-            zh: "选择最多 2 件特征",
+            zh: "选择最多2件特征",
           })}
         </h3>
         <p css={[typeRole.bodySmall, styles.hint]}>

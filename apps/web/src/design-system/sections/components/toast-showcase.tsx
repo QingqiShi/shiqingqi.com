@@ -59,7 +59,7 @@ export function ToastShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Delete the row. A toast says what happened and offers Undo, which brings the row back. It stays for 10 seconds, and for as long as the pointer or the focus is on it.",
-            zh: "删除这一行。提示会说明发生了什么，并提供撤销，撤销后这一行会回来。它停留 10 秒；指针或焦点在它上面时会一直停留。",
+            zh: "删除这一行。提示会说明发生了什么，并提供撤销，撤销后这一行会回来。它停留10秒；指针或焦点在它上面时会一直停留。",
           })}
         </ShowcaseHelper>
         <ToastDemo />
@@ -89,7 +89,7 @@ export function ToastShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Once it has arrived, a Ring light runs once round its edge in the accent colour, drawn on the effect layer. The light marks the arrival and carries no meaning of its own: without WebGPU, with ?effects=off, under forced colours or under reduced motion, the toast is the same toast without it.",
-            zh: "提示到位后，环形光会以强调色沿它的边缘跑一圈，绘制在效果层上。这道光只标示出现，本身不承载任何含义：没有 WebGPU、使用 ?effects=off、处于强制颜色模式或减少动态效果时，提示没有它也完全一样。",
+            zh: "提示到位后，环形光会以强调色沿它的边缘跑一圈，绘制在效果层上。这道光只标示出现，本身不承载任何含义：没有WebGPU、使用 ?effects=off、处于强制颜色模式或减少动态效果时，提示没有它也完全一样。",
           })}
         </Text>
       </Showcase>
@@ -98,7 +98,7 @@ export function ToastShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Toasts sit centred at the bottom of the screen, a gap above the safe area. Where an app has chrome along the bottom, such as a tab bar, set toastTokens.clearance to the chrome's height, safe area included. The provider adds the gap above it.",
-            zh: "提示居中显示在屏幕底部，与安全区域隔开一段间距。如果应用底部有界面元素（例如标签栏），把 toastTokens.clearance 设为它的高度（含安全区域）。提供者会在其上方加上间距。",
+            zh: "提示居中显示在屏幕底部，与安全区域隔开一段间距。如果应用底部有界面元素（例如标签栏），把toastTokens.clearance设为它的高度（含安全区域）。提供者会在其上方加上间距。",
           })}
         </Text>
         <UsageSnippet code={CLEARANCE} />

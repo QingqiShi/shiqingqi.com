@@ -41,19 +41,19 @@ export function AccessibilityShowcase() {
   const guaranteed = [
     t({
       en: "A focus ring on every interactive component, shown on :focus-visible",
-      zh: "每个可交互组件都有焦点环，在 :focus-visible 时显示",
+      zh: "每个可交互组件都有焦点环，在 :focus-visible时显示",
     }),
     t({
       en: "On a touch screen, every interactive component takes a tap across at least 44px and shows no tap flash",
-      zh: "在触摸屏上，每个可交互组件都能在至少 44px 的范围内响应点按，且没有点按闪烁",
+      zh: "在触摸屏上，每个可交互组件都能在至少44px的范围内响应点按，且没有点按闪烁",
     }),
     t({
       en: "Arrow keys, Home and End in SegmentedControl, single-choice OptionCardGroup and MenuButton menus",
-      zh: "SegmentedControl、单选 OptionCardGroup 与 MenuButton 菜单支持方向键、Home 与 End",
+      zh: "SegmentedControl、单选OptionCardGroup与MenuButton菜单支持方向键、Home与End",
     }),
     t({
       en: "Sheet and the SidebarLayout drawer move focus in, trap Tab, close on Escape and give focus back",
-      zh: "Sheet 与 SidebarLayout 的抽屉会移入焦点、捕获 Tab、按 Escape 关闭并交还焦点",
+      zh: "Sheet与SidebarLayout的抽屉会移入焦点、捕获Tab、按Escape关闭并交还焦点",
     }),
     t({
       en: "Label, description and error wired to the control on every field",
@@ -61,7 +61,7 @@ export function AccessibilityShowcase() {
     }),
     t({
       en: "Errors, Callouts, Spinners and busy Buttons announced",
-      zh: "错误、Callout、Spinner 与繁忙状态的 Button 会被播报",
+      zh: "错误、Callout、Spinner与繁忙状态的Button会被播报",
     }),
     t({
       en: "A type error when a required name is missing",
@@ -69,7 +69,7 @@ export function AccessibilityShowcase() {
     }),
     t({
       en: "Native inputs under Checkbox, Select, Slider and Switch",
-      zh: "Checkbox、Select、Slider 与 Switch 底层使用原生输入元素",
+      zh: "Checkbox、Select、Slider与Switch底层使用原生输入元素",
     }),
   ];
 
@@ -80,11 +80,11 @@ export function AccessibilityShowcase() {
     }),
     t({
       en: "A name for each Switch, which the types do not check",
-      zh: "为每个 Switch 命名，类型检查不会提醒你",
+      zh: "为每个Switch命名，类型检查不会提醒你",
     }),
     t({
       en: 'role="menuitem" on each item you put in a MenuButton menu',
-      zh: '为放进 MenuButton 菜单的每一项加上 role="menuitem"',
+      zh: '为放进MenuButton菜单的每一项加上role="menuitem"',
     }),
     t({
       en: "Heading levels in document order",
@@ -102,18 +102,18 @@ export function AccessibilityShowcase() {
       value: "label",
       note: t({
         en: "Always required. labelHidden hides it from view and keeps it as the name.",
-        zh: "始终必填。labelHidden 在视觉上隐藏它，但仍保留为名称。",
+        zh: "始终必填。labelHidden在视觉上隐藏它，但仍保留为名称。",
       }),
     },
     {
       term: "Button · AnchorButton",
       value: t({
         en: "children, or aria-label / aria-labelledby",
-        zh: "children，或 aria-label / aria-labelledby",
+        zh: "children，或aria-label / aria-labelledby",
       }),
       note: t({
         en: "With no visible label, one of the two ARIA props is required.",
-        zh: "没有可见标签时，必须提供这两个 ARIA 属性之一。",
+        zh: "没有可见标签时，必须提供这两个ARIA属性之一。",
       }),
     },
     {
@@ -121,7 +121,7 @@ export function AccessibilityShowcase() {
       value: "aria-label / aria-labelledby",
       note: t({
         en: "Names the group. Each option's label names only that option.",
-        zh: "为整组命名。每个选项的 label 只命名该选项。",
+        zh: "为整组命名。每个选项的label只命名该选项。",
       }),
     },
     {
@@ -145,15 +145,15 @@ export function AccessibilityShowcase() {
       value: "dismissLabel",
       note: t({
         en: "Required when onDismiss is set, and not allowed otherwise.",
-        zh: "设置 onDismiss 时必填，否则不可传入。",
+        zh: "设置onDismiss时必填，否则不可传入。",
       }),
     },
     {
       term: "Spinner",
-      value: t({ en: "label, or aria-hidden", zh: "label，或 aria-hidden" }),
+      value: t({ en: "label, or aria-hidden", zh: "label，或aria-hidden" }),
       note: t({
         en: "Pass aria-hidden only inside something that already announces the busy state.",
-        zh: "只有在已自行播报繁忙状态的元素内部，才传入 aria-hidden。",
+        zh: "只有在已自行播报繁忙状态的元素内部，才传入aria-hidden。",
       }),
     },
     {
@@ -169,7 +169,7 @@ export function AccessibilityShowcase() {
       value: "caption",
       note: t({
         en: "Names the table and its scroll region. Screen-reader only unless captionVisible is set.",
-        zh: "为表格及其滚动区域命名。除非设置 captionVisible，否则只供读屏软件使用。",
+        zh: "为表格及其滚动区域命名。除非设置captionVisible，否则只供读屏软件使用。",
       }),
     },
     {
@@ -185,7 +185,7 @@ export function AccessibilityShowcase() {
       value: "name · badgeLabel",
       note: t({
         en: "name is the person. When you set badge, badgeLabel says what it means and is added to the name.",
-        zh: "name 只写这个人。设置 badge 时，badgeLabel 说明它的含义，并追加到名称之后。",
+        zh: "name只写这个人。设置badge时，badgeLabel说明它的含义，并追加到名称之后。",
       }),
     },
     {
@@ -211,7 +211,7 @@ export function AccessibilityShowcase() {
 
   const announced = [
     {
-      term: t({ en: "A field's error", zh: "字段的 error" }),
+      term: t({ en: "A field's error", zh: "字段的error" }),
       value: 'role="alert"',
       note: t({
         en: "Announced as soon as it appears, interrupting what is being read. Write it so it makes sense heard on its own.",
@@ -223,7 +223,7 @@ export function AccessibilityShowcase() {
       value: 'role="alert" · role="status"',
       note: t({
         en: "The whole box is a live region: alert for danger and warning, status for the other intents, which waits for a pause. Override it with role.",
-        zh: "整个提示框就是实时区域：danger 与 warning 为 alert，其他意图色为 status，会等到停顿时再播报。可用 role 覆盖。",
+        zh: "整个提示框就是实时区域：danger与warning为alert，其他意图色为status，会等到停顿时再播报。可用role覆盖。",
       }),
     },
     {
@@ -235,11 +235,11 @@ export function AccessibilityShowcase() {
       }),
     },
     {
-      term: t({ en: "A loading Button", zh: "加载中的 Button" }),
+      term: t({ en: "A loading Button", zh: "加载中的Button" }),
       value: "aria-busy",
       note: t({
         en: "Keeps its width and its focus, and announces that it is busy. With an icon, the spinner takes the icon's place and the label stays. Without one, the spinner covers the label, which also leaves the accessibility tree. It blocks the click with aria-disabled, because the native disabled attribute would drop focus.",
-        zh: "保留宽度与焦点，并播报繁忙状态。带图标时，加载指示器取代图标，标签保留；不带图标时，加载指示器遮住标签，标签也会离开无障碍树。它用 aria-disabled 阻止点击，因为原生 disabled 属性会让按钮失去焦点。",
+        zh: "保留宽度与焦点，并播报繁忙状态。带图标时，加载指示器取代图标，标签保留；不带图标时，加载指示器遮住标签，标签也会离开无障碍树。它用aria-disabled阻止点击，因为原生disabled属性会让按钮失去焦点。",
       }),
     },
     {
@@ -306,7 +306,7 @@ export function AccessibilityShowcase() {
       value: t({ en: "Wraps", zh: "换行" }),
       note: t({
         en: 'Text wraps pretty and a Heading balances its lines. wrap="nowrap" keeps a run on one line.',
-        zh: 'Text 以 pretty 方式换行，Heading 让各行长度均衡。wrap="nowrap" 让一段文字保持单行。',
+        zh: 'Text以pretty方式换行，Heading让各行长度均衡。wrap="nowrap" 让一段文字保持单行。',
       }),
     },
   ];
@@ -317,7 +317,7 @@ export function AccessibilityShowcase() {
       value: "@tuja/ui/hooks/use-radio-group",
       note: t({
         en: 'A single choice among buttons: roving tab stop, arrows move and select, Home and End, wraps at the ends. You add role="radiogroup" and a name on the wrapper.',
-        zh: '在一组按钮中单选：漫游式 Tab 停靠点，方向键移动并选中，支持 Home 与 End，到头后循环。你需要在外层加上 role="radiogroup" 与名称。',
+        zh: '在一组按钮中单选：漫游式Tab停靠点，方向键移动并选中，支持Home与End，到头后循环。你需要在外层加上role="radiogroup" 与名称。',
       }),
     },
     {
@@ -325,7 +325,7 @@ export function AccessibilityShowcase() {
       value: "@tuja/ui/hooks/use-disclosure",
       note: t({
         en: "Show and hide: aria-expanded and aria-controls on the trigger, hidden on the panel. Keep the panel mounted so aria-controls always points at something.",
-        zh: "显示与隐藏：在触发器上设置 aria-expanded 与 aria-controls，在面板上设置 hidden。请让面板始终挂载，使 aria-controls 始终有指向。",
+        zh: "显示与隐藏：在触发器上设置aria-expanded与aria-controls，在面板上设置hidden。请让面板始终挂载，使aria-controls始终有指向。",
       }),
     },
     {
@@ -333,7 +333,7 @@ export function AccessibilityShowcase() {
       value: "@tuja/ui/hooks/use-popover",
       note: t({
         en: "An anchored popup: moves focus in on open, and back to the trigger on close if the popup still has it. Closes on Escape, an outside press or focus leaving. It does not trap focus.",
-        zh: "锚定弹出层：打开时移入焦点；关闭时若焦点仍在弹出层内，则交还给触发元素。按 Escape、点击外部或焦点离开时关闭。它不会捕获焦点。",
+        zh: "锚定弹出层：打开时移入焦点；关闭时若焦点仍在弹出层内，则交还给触发元素。按Escape、点击外部或焦点离开时关闭。它不会捕获焦点。",
       }),
     },
     {
@@ -341,7 +341,7 @@ export function AccessibilityShowcase() {
       value: "@tuja/ui/hooks/use-dialog-focus",
       note: t({
         en: 'A modal: moves focus in, traps Tab, calls onClose on Escape, and gives focus back to the trigger. You render role="dialog" and its name.',
-        zh: '模态层：移入焦点、捕获 Tab、按 Escape 时调用 onClose，并把焦点交还给触发元素。role="dialog" 及其名称由你渲染。',
+        zh: '模态层：移入焦点、捕获Tab、按Escape时调用onClose，并把焦点交还给触发元素。role="dialog" 及其名称由你渲染。',
       }),
     },
   ];
@@ -352,7 +352,7 @@ export function AccessibilityShowcase() {
       value: "<main>",
       note: t({
         en: 'The content region is the main landmark. Pass as="div" when the layout sits inside something that already has one.',
-        zh: '内容区就是 main 地标。当布局位于已有该地标的结构内时，传入 as="div"。',
+        zh: '内容区就是main地标。当布局位于已有该地标的结构内时，传入as="div"。',
       }),
     },
     {
@@ -360,7 +360,7 @@ export function AccessibilityShowcase() {
       value: "level · look",
       note: t({
         en: "level sets the rank in the outline and look sets the size, so you can keep the outline in order and still choose the size.",
-        zh: "level 决定大纲中的层级，look 决定字号，因此你可以保持大纲有序，同时自由选择字号。",
+        zh: "level决定大纲中的层级，look决定字号，因此你可以保持大纲有序，同时自由选择字号。",
       }),
     },
     {
@@ -368,7 +368,7 @@ export function AccessibilityShowcase() {
       value: 'look="decorative"',
       note: t({
         en: "The subtle and bold looks are separators that assistive technology reports. The decorative look is an ornament and leaves the accessibility tree.",
-        zh: "subtle 与 bold 外观是会被辅助技术报告的分隔符。decorative 外观只是装饰，会退出无障碍树。",
+        zh: "subtle与bold外观是会被辅助技术报告的分隔符。decorative外观只是装饰，会退出无障碍树。",
       }),
     },
   ];
@@ -428,7 +428,7 @@ export function AccessibilityShowcase() {
         })}
         lead={t({
           en: "@tuja/ui contains no copy and no translations. Every word a component shows or announces comes from a prop you pass, already in the reader's language. Where a component needs a name, leaving it out is a type error.",
-          zh: "@tuja/ui 不包含任何文案，也不做翻译。组件显示或播报的每个词都来自你传入的属性，并且要已是读者的语言。组件需要名称时，不提供就会报类型错误。",
+          zh: "@tuja/ui不包含任何文案，也不做翻译。组件显示或播报的每个词都来自你传入的属性，并且要已是读者的语言。组件需要名称时，不提供就会报类型错误。",
         })}
       >
         <div css={cluster.item}>
@@ -454,7 +454,7 @@ export function AccessibilityShowcase() {
         title={t({ en: "Fields", zh: "表单字段" })}
         lead={t({
           en: "TextField, Textarea, Checkbox, Select and Slider wire the label to the control, and the description and error to aria-describedby. An error also sets aria-invalid, so a field cannot show an error and stay valid.",
-          zh: "TextField、Textarea、Checkbox、Select 与 Slider 会把标签关联到控件，并把描述与错误关联到 aria-describedby。错误还会设置 aria-invalid，因此字段不可能显示错误却仍处于有效状态。",
+          zh: "TextField、Textarea、Checkbox、Select与Slider会把标签关联到控件，并把描述与错误关联到aria-describedby。错误还会设置aria-invalid，因此字段不可能显示错误却仍处于有效状态。",
         })}
       >
         <div css={[styles.grid, styles.gridAlignStart]}>
@@ -492,7 +492,7 @@ export function AccessibilityShowcase() {
           }
           doCaption={t({
             en: "labelHidden keeps the name for screen readers, and the placeholder only adds a hint.",
-            zh: "labelHidden 为读屏软件保留名称，占位文字只作补充提示。",
+            zh: "labelHidden为读屏软件保留名称，占位文字只作补充提示。",
           })}
           dont={
             // A drawing of the mistake, not the mistake itself: a real unnamed
@@ -525,7 +525,7 @@ export function AccessibilityShowcase() {
           <Callout intent="success">
             {t({
               en: "Saved. Your list now has 12 films.",
-              zh: "已保存。你的片单现在有 12 部电影。",
+              zh: "已保存。你的片单现在有12部电影。",
             })}
           </Callout>
           <div css={cluster.item}>
@@ -559,7 +559,7 @@ export function AccessibilityShowcase() {
         })}
         lead={t({
           en: "A control you build from primitives starts with the focus ring and the touch target, and nothing else; the other guarantees above are yours to add. The ring is the one the components use: a 2px accent outline at a 2px offset, on :focus-visible only. The touch target takes a tap across at least 44px on a touch screen without changing how the control looks, and drops the tap flash. buttonReset.base already carries both; a11y.focusRing and a11y.touchTarget give them to any other element, such as a link. a11y.srOnly hides a name from view and keeps it in the accessibility tree. Tab into the row below.",
-          zh: "用原语自建的控件，一开始只带有焦点环和触摸目标；上述其他保障需要你自己补上。这个焦点环与组件所用的相同：2px 强调色描边、2px 外偏移，只在 :focus-visible 时出现。触摸目标让控件在触摸屏上能在至少 44px 的范围内响应点按，却不改变它的外观，并去掉点按闪烁。buttonReset.base 已经带有这两者；a11y.focusRing 与 a11y.touchTarget 则把它们加到其他元素上，例如链接。a11y.srOnly 在视觉上隐藏名称，但将其保留在无障碍树中。按 Tab 进入下面这一行。",
+          zh: "用原语自建的控件，一开始只带有焦点环和触摸目标；上述其他保障需要你自己补上。这个焦点环与组件所用的相同：2px强调色描边、2px外偏移，只在 :focus-visible时出现。触摸目标让控件在触摸屏上能在至少44px的范围内响应点按，却不改变它的外观，并去掉点按闪烁。buttonReset.base已经带有这两者；a11y.focusRing与a11y.touchTarget则把它们加到其他元素上，例如链接。a11y.srOnly在视觉上隐藏名称，但将其保留在无障碍树中。按Tab进入下面这一行。",
         })}
       >
         <div css={cluster.item}>
@@ -603,7 +603,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
         <GuideNote>
           {t({
             en: "Where an ancestor clips overflow, the outer ring is cut off. a11y.focusRingInset draws the same ring inside the box; Disclosure, SegmentedControl and an interactive Card use it. The ancestor clips the touch target too, so on a touch screen a control inside it needs 44px of its own, as the Inset ring chip has.",
-            zh: "祖先元素裁切溢出内容时，外侧的焦点环会被截掉。a11y.focusRingInset 把同一个环画在盒内；Disclosure、SegmentedControl 与可交互的 Card 都使用它。这个祖先元素也会裁切触摸目标，因此在触摸屏上，它里面的控件自身需要 44px，就像「内嵌焦点环」这个标签一样。",
+            zh: "祖先元素裁切溢出内容时，外侧的焦点环会被截掉。a11y.focusRingInset把同一个环画在盒内；Disclosure、SegmentedControl与可交互的Card都使用它。这个祖先元素也会裁切触摸目标，因此在触摸屏上，它里面的控件自身需要44px，就像「内嵌焦点环」这个标签一样。",
           })}
         </GuideNote>
       </GuideSection>
@@ -615,7 +615,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
         })}
         lead={t({
           en: "The hooks behind the components are exported, so a custom control can have the same keyboard model. Focus the control below and press the arrow keys: SegmentedControl is built on useRadioGroup.",
-          zh: "组件背后的钩子都已导出，因此自建控件也能有相同的键盘模型。聚焦下面的控件并按方向键：SegmentedControl 就是基于 useRadioGroup 构建的。",
+          zh: "组件背后的钩子都已导出，因此自建控件也能有相同的键盘模型。聚焦下面的控件并按方向键：SegmentedControl就是基于useRadioGroup构建的。",
         })}
       >
         <div css={cluster.item}>
@@ -636,7 +636,7 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
         title={t({ en: "Page structure", zh: "页面结构" })}
         lead={t({
           en: "The layouts give you the main landmark, and the content components keep rank and look apart.",
-          zh: "布局组件为你提供 main 地标，内容组件则把层级与外观分开。",
+          zh: "布局组件为你提供main地标，内容组件则把层级与外观分开。",
         })}
       >
         <GuideList items={structure} />

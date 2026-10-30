@@ -173,7 +173,7 @@ export function FieldContractSliders() {
   const riskLabel = t({ en: "Risk tolerance", zh: "风险承受度" });
   const depositError = t({
     en: "A deposit under 5% is outside this lender's range.",
-    zh: "首付低于 5% 超出了这家放贷方的范围。",
+    zh: "首付低于5% 超出了这家放贷方的范围。",
   });
   return (
     <div css={stack.item}>

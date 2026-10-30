@@ -224,14 +224,14 @@ function UseDialogFocusSection() {
       <ShowcaseHelper>
         {t({
           en: "The full focus lifecycle for a modal in one call: it moves focus into the dialog on open, traps Tab and Shift+Tab inside it, closes on Escape, and restores focus to the trigger on unmount. Use it for any dialog, sheet, or popover that must not leak focus.",
-          zh: "一次调用即处理模态的完整焦点生命周期：打开时将焦点移入对话框，把 Tab 与 Shift+Tab 困在其中，按 Escape 关闭，并在卸载时把焦点还给触发元素。适用于任何不得泄漏焦点的对话框、抽屉或弹出层。",
+          zh: "一次调用即处理模态的完整焦点生命周期：打开时将焦点移入对话框，把Tab与Shift+Tab困在其中，按Escape关闭，并在卸载时把焦点还给触发元素。适用于任何不得泄漏焦点的对话框、抽屉或弹出层。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
         <Specimen
           caption={t({
             en: "Open, then Tab and Escape — focus stays trapped and restores",
-            zh: "打开后按 Tab 和 Escape——焦点被困住并会恢复",
+            zh: "打开后按Tab和Escape——焦点被困住并会恢复",
           })}
         >
           <DialogSpecimen />
@@ -394,7 +394,7 @@ function UsePopoverSection() {
       <ShowcaseHelper>
         {t({
           en: "The headless layer beneath `Popover`, which is this hook plus a portal and the shared surface skin: it owns the open state, the placement, the dismissal rules, and the ARIA wiring, then hands back `triggerProps` and `contentProps` to spread onto your own elements. Placement is measured against the viewport rather than the trigger's corner — the side flips when it would overflow, both axes shift to stay on screen, and it re-places on scroll, on window resize, and whenever the trigger or the popup itself changes size. It moves focus into the popup on open and gives it back to the trigger on close, but it never traps focus and never locks scroll. Reach for it when the popup has to be something other than a padded surface — the element is yours to render, and it must be `position: fixed`, because the hook writes `top`/`left` straight to the node.",
-          zh: "`Popover` 之下的无头层——`Popover` 就是这个钩子加上 portal 与共享的表面皮肤：它负责开合状态、定位、关闭时机与 ARIA 关联，再把 `triggerProps` 与 `contentProps` 交还给你，由你铺到自己的元素上。定位以视口为准，而非贴着触发元素的角落——放不下时会翻到对侧，两个轴向都会平移以留在屏幕内，并在滚动、窗口尺寸变化，以及触发元素或弹出层自身尺寸变化时重新定位。打开时它把焦点移入弹出层，关闭时再交还给触发元素，但它既不困陷焦点，也不锁定滚动。当弹出层需要的不是一块带内边距的表面时就用它——元素由你渲染，并且必须是 `position: fixed`，因为钩子会把 `top`/`left` 直接写到节点上。",
+          zh: "`Popover` 之下的无头层——`Popover` 就是这个钩子加上portal与共享的表面皮肤：它负责开合状态、定位、关闭时机与ARIA关联，再把 `triggerProps` 与 `contentProps` 交还给你，由你铺到自己的元素上。定位以视口为准，而非贴着触发元素的角落——放不下时会翻到对侧，两个轴向都会平移以留在屏幕内，并在滚动、窗口尺寸变化，以及触发元素或弹出层自身尺寸变化时重新定位。打开时它把焦点移入弹出层，关闭时再交还给触发元素，但它既不困陷焦点，也不锁定滚动。当弹出层需要的不是一块带内边距的表面时就用它——元素由你渲染，并且必须是 `position: fixed`，因为钩子会把 `top`/`left` 直接写到节点上。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -466,7 +466,7 @@ function UsePressSection() {
       <ShowcaseHelper>
         {t({
           en: "The tactile press from Button — a spring scale, brightness lift, and directional nudge when the pointer drifts off — packaged for any element. `usePressAnimation` is the low-level state machine; `usePressHandlers` layers on click-cancel and the CSS custom properties. Reach for it to make a bespoke control feel like the rest of the system.",
-          zh: "把 Button 的触感按压——弹性缩放、亮度提升，以及指针移开时的方向性偏移——封装给任意元素。`usePressAnimation` 是底层状态机；`usePressHandlers` 在其上叠加点击取消与 CSS 自定义属性。让自定义控件拥有与系统一致的手感时使用。",
+          zh: "把Button的触感按压——弹性缩放、亮度提升，以及指针移开时的方向性偏移——封装给任意元素。`usePressAnimation` 是底层状态机；`usePressHandlers` 在其上叠加点击取消与CSS自定义属性。让自定义控件拥有与系统一致的手感时使用。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -556,14 +556,14 @@ function UseRadioGroupSection() {
       <ShowcaseHelper>
         {t({
           en: 'Headless single-select semantics: the hook returns a `getOptionProps(value)` factory that supplies `role="radio"`, `aria-checked`, roving `tabIndex`, and the full WAI-ARIA keyboard model — arrows move and select, Home/End jump, focus follows selection. You render the markup and the styling; it owns the accessibility.',
-          zh: '无头单选语义：钩子返回 `getOptionProps(value)` 工厂，提供 `role="radio"`、`aria-checked`、roving `tabIndex` 以及完整的 WAI-ARIA 键盘模型——方向键移动并选中，Home/End 跳转，焦点跟随选择。你负责标记与样式，它负责无障碍。',
+          zh: '无头单选语义：钩子返回 `getOptionProps(value)` 工厂，提供 `role="radio"`、`aria-checked`、roving `tabIndex` 以及完整的WAI-ARIA键盘模型——方向键移动并选中，Home/End跳转，焦点跟随选择。你负责标记与样式，它负责无障碍。',
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
         <Specimen
           caption={t({
             en: "Focus a segment, then use ← → and Home / End",
-            zh: "聚焦某段后，使用 ← → 与 Home / End",
+            zh: "聚焦某段后，使用 ← → 与Home / End",
           })}
         >
           <DensityRadioGroup />

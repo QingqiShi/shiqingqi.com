@@ -45,7 +45,7 @@ export function getDesignSystemRouteDescriptions(): Record<
     }),
     "/design-system/foundations/typography": t({
       en: "Text and Heading, font families, and the type roles for text you style yourself.",
-      zh: "Text 与 Heading、字体族，以及你自己设置样式的文字所用的字体角色。",
+      zh: "Text与Heading、字体族，以及你自己设置样式的文字所用的字体角色。",
     }),
     "/design-system/foundations/layout": t({
       en: "The space scale, control sizes, breakpoints, content width, layers and aspect ratios.",
@@ -61,7 +61,7 @@ export function getDesignSystemRouteDescriptions(): Record<
     }),
     "/design-system/foundations/iconography": t({
       en: "Adding Phosphor, icon slots, sizing, colour and weight.",
-      zh: "加入 Phosphor、图标插槽、尺寸、颜色与字重。",
+      zh: "加入Phosphor、图标插槽、尺寸、颜色与字重。",
     }),
     "/design-system/foundations/motion": t({
       en: "Motion presets, duration and easing constants, reduced motion, and pausing loops.",
@@ -81,7 +81,7 @@ export function getDesignSystemRouteDescriptions(): Record<
     }),
     "/design-system/components/code-block": t({
       en: "Source drawn as coloured runs, each part a box of its own, so a change slides, rises in, or fades where it stood.",
-      zh: "以彩色片段绘制的源码，每个 part 各占一格，改动时会滑动、升起或原地淡出。",
+      zh: "以彩色片段绘制的源码，每个part各占一格，改动时会滑动、升起或原地淡出。",
     }),
     "/design-system/components/button": t({
       en: "The primary action control, with looks and a press animation.",
@@ -237,15 +237,15 @@ export function getDesignSystemRouteDescriptions(): Record<
     }),
     "/design-system/primitives": t({
       en: "Composable StyleX primitives — flex, layout, motion, reset, and accessibility.",
-      zh: "可组合的 StyleX 原语——flex、布局、动效、重置与无障碍。",
+      zh: "可组合的StyleX原语——flex、布局、动效、重置与无障碍。",
     }),
     "/design-system/hooks": t({
       en: "Headless React hooks — controlled state, dialog focus, tactile press, and radiogroups.",
-      zh: "无头 React 钩子——受控状态、对话框焦点、触感按压与单选组。",
+      zh: "无头React钩子——受控状态、对话框焦点、触感按压与单选组。",
     }),
     "/design-system/effect-layer": t({
       en: "Effects drawn with WebGPU over the page, around the elements that register for them. Experimental.",
-      zh: "用 WebGPU 绘制在页面之上、环绕为效果登记的元素的效果。仍在实验中。",
+      zh: "用WebGPU绘制在页面之上、环绕为效果登记的元素的效果。仍在实验中。",
     }),
   };
 }

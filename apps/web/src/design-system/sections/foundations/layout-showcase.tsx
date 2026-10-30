@@ -44,28 +44,28 @@ export function LayoutShowcase() {
       term: "layer.raised",
       note: t({
         en: "Above the content, under the header, so it scrolls away beneath the header. MenuButton's menu and a stuck StickyControls use it. Use it for your own sticky bar while it is stuck, or a menu that opens in the page.",
-        zh: "高于内容、低于页头，因此会从页头下方滚走。MenuButton 的菜单与吸附中的 StickyControls 位于这一层。你自己的吸顶栏在吸附时，或在页面中展开的菜单，用这一层。",
+        zh: "高于内容、低于页头，因此会从页头下方滚走。MenuButton的菜单与吸附中的StickyControls位于这一层。你自己的吸顶栏在吸附时，或在页面中展开的菜单，用这一层。",
       }),
     },
     {
       term: "layer.header",
       note: t({
         en: "Page chrome: HeaderFooterLayout's floating header controls, and SidebarLayout's rail and mobile bar.",
-        zh: "页面框架：HeaderFooterLayout 的悬浮页头控件，以及 SidebarLayout 的侧栏与移动端底栏。",
+        zh: "页面框架：HeaderFooterLayout的悬浮页头控件，以及SidebarLayout的侧栏与移动端底栏。",
       }),
     },
     {
       term: "layer.overlay",
       note: t({
         en: "A surface that owns the viewport while it is open, above the chrome: Sheet, and SidebarLayout's drawer on a phone.",
-        zh: "打开期间占据整个视口、压在框架之上的表面：Sheet，以及 SidebarLayout 在手机上的抽屉。",
+        zh: "打开期间占据整个视口、压在框架之上的表面：Sheet，以及SidebarLayout在手机上的抽屉。",
       }),
     },
     {
       term: "layer.tooltip",
       note: t({
         en: "Above an open sheet. Popover renders into document.body at this plane, so it shows over a Sheet that holds its trigger.",
-        zh: "高于打开的弹出面板。Popover 渲染到 document.body，位于这一层，所以当它的触发元素在 Sheet 里时，它也显示在 Sheet 之上。",
+        zh: "高于打开的弹出面板。Popover渲染到document.body，位于这一层，所以当它的触发元素在Sheet里时，它也显示在Sheet之上。",
       }),
     },
     {
@@ -82,7 +82,7 @@ export function LayoutShowcase() {
       value: "41em",
       note: t({
         en: "Running prose: a paragraph, a lead, a note. 41 Chinese characters at any size, around 88 Latin.",
-        zh: "连续的正文：段落、导语、说明。任何字号下都是 41 个汉字，约 88 个拉丁字符。",
+        zh: "连续的正文：段落、导语、说明。任何字号下都是41个汉字，约88个拉丁字符。",
       }),
     },
     {
@@ -131,13 +131,13 @@ const styles = stylex.create({
         <GuideNote>
           {t({
             en: "The components change at md and at no other breakpoint: controlSize and font.uiControl step down, SidebarLayout moves its rail beside the content, Sheet moves from the bottom of the screen to the centre, and a Button with hideLabelOnMobile shows its label. Make your own main layout change at md too, so the page changes in one step.",
-            zh: "组件只在 md 处变化，不在其他断点变化：controlSize 与 font.uiControl 缩小一级，SidebarLayout 把侧栏移到内容旁边，Sheet 从屏幕底部移到中央，启用 hideLabelOnMobile 的 Button 显示出标签。你自己的主要布局变化也放在 md，页面就在同一步里一起变化。",
+            zh: "组件只在md处变化，不在其他断点变化：controlSize与font.uiControl缩小一级，SidebarLayout把侧栏移到内容旁边，Sheet从屏幕底部移到中央，启用hideLabelOnMobile的Button显示出标签。你自己的主要布局变化也放在md，页面就在同一步里一起变化。",
           })}
         </GuideNote>
         <GuideNote>
           {t({
             en: "A breakpoint key compiles to a media query only through the stylex-breakpoints Babel plugin, which ",
-            zh: "断点键只有经过 stylex-breakpoints Babel 插件才会编译成媒体查询，配置方法见",
+            zh: "断点键只有经过stylex-breakpoints Babel插件才会编译成媒体查询，配置方法见",
           })}
           <DocLink path="/design-system/foundations/get-started" />
           {t({ en: " sets up.", zh: "。" })}
@@ -148,7 +148,7 @@ const styles = stylex.create({
         title={t({ en: "Page column", zh: "页面栏" })}
         lead={t({
           en: "The page column is where a page's content sits: centred, at most 1140px wide with its gutters, and never closer to the screen edge than the page gutter, which includes the safe area. HeaderFooterLayout with pageColumn sets its content there, and its header controls and footer are on the same edges.",
-          zh: "页面栏是页面内容所在的位置：居中，连同边距最宽 1140px，离屏幕边缘至少一个页面边距，页面边距包含安全区域。启用 pageColumn 的 HeaderFooterLayout 把内容放在这里，它的页头控件和页脚也在同样的边缘上。",
+          zh: "页面栏是页面内容所在的位置：居中，连同边距最宽1140px，离屏幕边缘至少一个页面边距，页面边距包含安全区域。启用pageColumn的HeaderFooterLayout把内容放在这里，它的页头控件和页脚也在同样的边缘上。",
         })}
       >
         <div css={[corner.radius_2, styles.viewport]} aria-hidden="true">
@@ -185,19 +185,19 @@ const styles = stylex.create({
         <GuideNote>
           {t({
             en: "The page column is padding, not a capped box, so put it on a box that spans the page. For one gutter, take pageGutter.inlineStart or pageGutter.inlineEnd: a control fixed at the screen edge, or a bar that steps out of the column by one gutter.",
-            zh: "页面栏是内边距，不是限宽的盒子，所以把它放在横跨整个页面的盒子上。只需要一个边距时，取 pageGutter.inlineStart 或 pageGutter.inlineEnd：固定在屏幕边缘的控件，或比页面栏多伸出一个边距的栏。",
+            zh: "页面栏是内边距，不是限宽的盒子，所以把它放在横跨整个页面的盒子上。只需要一个边距时，取pageGutter.inlineStart或pageGutter.inlineEnd：固定在屏幕边缘的控件，或比页面栏多伸出一个边距的栏。",
           })}
         </GuideNote>
         <GuideNote>
           {t({
             en: "A gallery of cards, such as a poster grid, takes the wide page column: add pageColumn.wide to pageColumn.base or pageColumn.scroller, and the content keeps only the page gutter, so a wide screen fits more columns. Prose stays in the page column. On such a page, HeaderFooterLayout takes wideHeader, so its header controls share the gallery's edges.",
-            zh: "卡片画廊（例如海报网格）使用宽页面栏：给 pageColumn.base 或 pageColumn.scroller 加上 pageColumn.wide，内容只保留页面边距，宽屏就能放下更多列。正文仍留在页面栏内。这样的页面给 HeaderFooterLayout 传入 wideHeader，让页头控件与画廊对齐同一边缘。",
+            zh: "卡片画廊（例如海报网格）使用宽页面栏：给pageColumn.base或pageColumn.scroller加上pageColumn.wide，内容只保留页面边距，宽屏就能放下更多列。正文仍留在页面栏内。这样的页面给HeaderFooterLayout传入wideHeader，让页头控件与画廊对齐同一边缘。",
           })}
         </GuideNote>
         <GuideNote>
           {t({
             en: "layout.maxInlineSize is only the width of the column. Outside @tuja/ui, the require-page-column lint rule refuses it, and refuses a left or right safe-area inset, so every page lines up on the same edge. For a narrower page, HeaderFooterLayout and SidebarLayout take contentMaxInlineSize.",
-            zh: "layout.maxInlineSize 只是页面栏的宽度。在 @tuja/ui 之外，require-page-column 检查规则会拒绝它，也会拒绝左右两侧的安全区域，所以每个页面都对齐同一条边。要让页面更窄，HeaderFooterLayout 与 SidebarLayout 都接受 contentMaxInlineSize。",
+            zh: "layout.maxInlineSize只是页面栏的宽度。在 @tuja/ui之外，require-page-column检查规则会拒绝它，也会拒绝左右两侧的安全区域，所以每个页面都对齐同一条边。要让页面更窄，HeaderFooterLayout与SidebarLayout都接受contentMaxInlineSize。",
           })}
         </GuideNote>
       </GuideSection>
@@ -206,7 +206,7 @@ const styles = stylex.create({
         title={t({ en: "Measure", zh: "行长" })}
         lead={t({
           en: "The Measure caps the length of a line of prose, so the eye finds the next line. It is in em, so a larger text size gets a wider cap and keeps the same number of characters.",
-          zh: "行长限制一行正文的长度，让视线能找到下一行。它以 em 为单位，所以字号越大上限越宽，每行的字数不变。",
+          zh: "行长限制一行正文的长度，让视线能找到下一行。它以em为单位，所以字号越大上限越宽，每行的字数不变。",
         })}
       >
         <div css={[typeRole.body, stack.item]} aria-hidden="true">
@@ -242,13 +242,13 @@ const styles = stylex.create({
         <GuideNote>
           {t({
             en: 'Text caps itself at measure.prose when it renders a paragraph: as="p" at body or bodySmall. A span, a div, a caption and an overline are not capped, so a label in a row or a table cell keeps its width. To let a paragraph run the full width, pass css with maxInlineSize: "none".',
-            zh: 'Text 渲染段落时（body 或 bodySmall 字号的 as="p"）会把自己限制在 measure.prose。span、div、caption 与 overline 不受限制，所以行内或表格单元格里的标签保持原有宽度。要让段落占满整个宽度，传入带 maxInlineSize: "none" 的 css。',
+            zh: 'Text渲染段落时（body或bodySmall字号的as="p"）会把自己限制在measure.prose。span、div、caption与overline不受限制，所以行内或表格单元格里的标签保持原有宽度。要让段落占满整个宽度，传入带maxInlineSize: "none" 的css。',
           })}
         </GuideNote>
         <GuideNote>
           {t({
             en: "The Measure caps a line; the page column places the page. A cap in ch is a line length picked by hand, so the require-measure lint rule refuses one.",
-            zh: "行长限制的是一行，页面栏安放的是页面。以 ch 写的上限是手选的行长，所以 require-measure 检查规则会拒绝它。",
+            zh: "行长限制的是一行，页面栏安放的是页面。以ch写的上限是手选的行长，所以require-measure检查规则会拒绝它。",
           })}
         </GuideNote>
       </GuideSection>
@@ -257,7 +257,7 @@ const styles = stylex.create({
         title={t({ en: "Layers", zh: "层级" })}
         lead={t({
           en: "Take a z-index from layer, never a number. The planes are a hundred apart, so the order between your surfaces and the components' is set by the name you pick.",
-          zh: "z-index 从 layer 取，绝不写数字。各层相隔一百，你的表面与组件之间的先后顺序，由你选的名字决定。",
+          zh: "z-index从layer取，绝不写数字。各层相隔一百，你的表面与组件之间的先后顺序，由你选的名字决定。",
         })}
       >
         <ScrollMask
@@ -304,13 +304,13 @@ const styles = stylex.create({
         <GuideNote>
           {t({
             en: "A z-index only orders siblings inside one stacking context. position: fixed, position: sticky and isolation: isolate each open one, and a child's z-index never gets out of it. Put the plane on the outermost element of the surface, or it cannot rise above the components' planes.",
-            zh: "z-index 只在同一个层叠上下文里为兄弟元素排序。position: fixed、position: sticky 与 isolation: isolate 都会开启一个层叠上下文，子元素的 z-index 永远出不去。把层级放在表面最外层的元素上，否则它无法压过组件所在的层。",
+            zh: "z-index只在同一个层叠上下文里为兄弟元素排序。position: fixed、position: sticky与isolation: isolate都会开启一个层叠上下文，子元素的z-index永远出不去。把层级放在表面最外层的元素上，否则它无法压过组件所在的层。",
           })}
         </GuideNote>
         <GuideNote>
           {t({
             en: "The planes below raised belong to the system: content holds the page in HeaderFooterLayout, effect holds the effect layer's canvases, and blur holds the page's Progressive blurs.",
-            zh: "raised 以下的各层属于系统：content 承载 HeaderFooterLayout 里的页面，effect 承载效果层的画布，blur 承载页面的渐进虚化。",
+            zh: "raised以下的各层属于系统：content承载HeaderFooterLayout里的页面，effect承载效果层的画布，blur承载页面的渐进虚化。",
           })}
         </GuideNote>
       </GuideSection>
@@ -319,7 +319,7 @@ const styles = stylex.create({
         title={t({ en: "Aspect ratios", zh: "宽高比" })}
         lead={t({
           en: "Give a media frame an aspectRatio from ratio, so the frame holds its shape while the image loads.",
-          zh: "给媒体框一个取自 ratio 的 aspectRatio，图片加载时框也能保持形状。",
+          zh: "给媒体框一个取自ratio的aspectRatio，图片加载时框也能保持形状。",
         })}
       >
         <UsageSnippet

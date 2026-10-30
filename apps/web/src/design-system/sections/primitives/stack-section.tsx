@@ -41,7 +41,7 @@ export function StackSection() {
       meta: "column · gap rhythm.group",
       description: t({
         en: "Between groups, such as h3 sub-sections.",
-        zh: "组与组之间，例如 h3 子小节。",
+        zh: "组与组之间，例如h3子小节。",
       }),
     },
     {
@@ -49,7 +49,7 @@ export function StackSection() {
       meta: "column · gap rhythm.section",
       description: t({
         en: "Between h2 sections. It grows at md.",
-        zh: "h2 小节之间。在 md 断点处变大。",
+        zh: "h2小节之间。在md断点处变大。",
       }),
     },
     {
@@ -107,7 +107,7 @@ export function StackSection() {
       <ShowcaseHelper>
         {t({
           en: "A container that owns the space between its children, at one Rhythm step: stack for a column, cluster for a row that wraps, row for a row that does not. Pick the step by how the children relate, not by the size you want. The children set no margin to push their neighbours away.",
-          zh: "由容器负责子元素之间的间距，取一个节奏档位：stack 用于一列，cluster 用于可换行的一行，row 用于不换行的一行。按子元素之间的关系选择档位，而不是按想要的尺寸。子元素不设置外边距去推开相邻元素。",
+          zh: "由容器负责子元素之间的间距，取一个节奏档位：stack用于一列，cluster用于可换行的一行，row用于不换行的一行。按子元素之间的关系选择档位，而不是按想要的尺寸。子元素不设置外边距去推开相邻元素。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid>

@@ -138,7 +138,7 @@ function MenuDemo() {
     { id: "details", label: t({ en: "Details", zh: "详情" }) },
     { id: "credits", label: t({ en: "Cast & crew", zh: "演职人员" }) },
     { id: "similar", label: t({ en: "Similar", zh: "相似作品" }) },
-    { id: "ask", label: t({ en: "Ask the AI", zh: "询问 AI" }) },
+    { id: "ask", label: t({ en: "Ask the AI", zh: "询问AI" }) },
   ];
   const [openedId, setOpenedId] = useState<string | null>(null);
   const opened = items.find((item) => item.id === openedId);
@@ -184,7 +184,7 @@ function MenuDemo() {
         <ShowcaseHelper>
           {t({
             en: "Opening the menu moves focus inside it — onto the item marked data-menu-autofocus=\"true\", otherwise the first menuitem. Activation is the item's own business: the site's real menu items navigate, and the route change ends the popup.",
-            zh: '打开菜单会把焦点移入弹层——优先落在标记了 data-menu-autofocus="true" 的项，否则落在第一个 menuitem。激活做什么由该项自己决定：站点里真正的菜单项会跳转，路由切换随之结束弹层。',
+            zh: '打开菜单会把焦点移入弹层——优先落在标记了data-menu-autofocus="true" 的项，否则落在第一个menuitem。激活做什么由该项自己决定：站点里真正的菜单项会跳转，路由切换随之结束弹层。',
           })}
         </ShowcaseHelper>
         <ShowcaseHelper>

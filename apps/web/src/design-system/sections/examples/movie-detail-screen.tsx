@@ -99,7 +99,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
     },
     {
       icon: <SparkleIcon weight="bold" />,
-      label: t({ en: "Ask the AI about it", zh: "向 AI 询问" }),
+      label: t({ en: "Ask the AI about it", zh: "向AI询问" }),
     },
     {
       icon: <MonitorPlayIcon weight="bold" />,
@@ -387,7 +387,7 @@ export function MovieDetailScreen({ annotated }: MovieDetailScreenProps) {
                 <Text look="caption" tone="muted">
                   {t({
                     en: "Generated from viewer reviews. Spiciness sets how opinionated the summary is, from 1 to 5.",
-                    zh: "根据观众评论生成。辛辣度（1 至 5）决定摘要的观点鲜明程度。",
+                    zh: "根据观众评论生成。辛辣度（1至5）决定摘要的观点鲜明程度。",
                   })}
                 </Text>
               </div>

@@ -39,7 +39,7 @@ export function StepName({ def, onChange }: StepNameProps) {
         <p id={hintId} css={[typeRole.bodySmall, styles.hint]}>
           {t({
             en: "1–20 characters. We will auto-trim leading and trailing spaces when you finish.",
-            zh: "1–20 个字符。完成时会自动去除首尾空格。",
+            zh: "1–20个字符。完成时会自动去除首尾空格。",
           })}
         </p>
       </div>

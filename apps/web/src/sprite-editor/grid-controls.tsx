@@ -160,7 +160,7 @@ export function GridControls({
             </p>
             <div css={styles.fieldGrid}>
               <NumberField
-                label={t({ en: "Offset X", zh: "X 偏移" })}
+                label={t({ en: "Offset X", zh: "X偏移" })}
                 value={grid.offsetX}
                 min={0}
                 max={source.width}
@@ -170,7 +170,7 @@ export function GridControls({
                 testId="grid-offset-x"
               />
               <NumberField
-                label={t({ en: "Offset Y", zh: "Y 偏移" })}
+                label={t({ en: "Offset Y", zh: "Y偏移" })}
                 value={grid.offsetY}
                 min={0}
                 max={source.height}
@@ -201,7 +201,7 @@ export function GridControls({
                 testId="grid-cell-h"
               />
               <NumberField
-                label={t({ en: "Gap X", zh: "X 间距" })}
+                label={t({ en: "Gap X", zh: "X间距" })}
                 value={grid.gapX}
                 min={0}
                 max={source.width}
@@ -211,7 +211,7 @@ export function GridControls({
                 testId="grid-gap-x"
               />
               <NumberField
-                label={t({ en: "Gap Y", zh: "Y 间距" })}
+                label={t({ en: "Gap Y", zh: "Y间距" })}
                 value={grid.gapY}
                 min={0}
                 max={source.height}

@@ -127,7 +127,7 @@ export function TileDemo() {
     {
       value: "standard",
       label: t({ en: "Standard", zh: "标准" }),
-      description: t({ en: "3–5 days", zh: "3–5 天" }),
+      description: t({ en: "3–5 days", zh: "3–5天" }),
       icon: <PackageIcon weight="bold" />,
     },
     {
@@ -139,7 +139,7 @@ export function TileDemo() {
     {
       value: "sameDay",
       label: t({ en: "Same day", zh: "当日达" }),
-      description: t({ en: "Before 18:00", zh: "18:00 前送达" }),
+      description: t({ en: "Before 18:00", zh: "18:00前送达" }),
       icon: <RocketLaunchIcon weight="bold" />,
     },
   ];

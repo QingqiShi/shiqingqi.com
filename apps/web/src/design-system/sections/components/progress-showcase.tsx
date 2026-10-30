@@ -61,7 +61,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "value is clamped to 0–max before anything reaches ARIA, and a non-finite number falls back to 0 — a bad reading can never announce a figure a screen reader is unable to interpret.",
-            zh: "value 在进入 ARIA 之前会被限制在 0 到 max 之间，非有限数值则回退为 0——错误的读数不会让屏幕阅读器播报出无法解释的数字。",
+            zh: "value在进入ARIA之前会被限制在0到max之间，非有限数值则回退为0——错误的读数不会让屏幕阅读器播报出无法解释的数字。",
           })}
         </Text>
       </Showcase>
@@ -93,7 +93,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The three steps map to rem, so the track thickens with the user's font size instead of staying pinned to a pixel height (WCAG 1.4.4).",
-            zh: "三个尺寸阶梯以 rem 表示，因此轨道厚度随用户字号变化，而不是固定在某个像素高度（WCAG 1.4.4）。",
+            zh: "三个尺寸阶梯以rem表示，因此轨道厚度随用户字号变化，而不是固定在某个像素高度（WCAG 1.4.4）。",
           })}
         </Text>
       </Showcase>
@@ -105,7 +105,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'Set max when you are counting things: the bar then reports aria-valuenow="3" against aria-valuemax="5". A screen reader still computes "60%" from that pair, so pass aria-valuetext whenever the count is what the reader is following.',
-            zh: '当你计的是件数时请设置 max：进度条会以 aria-valuenow="3" 对照 aria-valuemax="5" 报告。屏幕阅读器仍会由这对数值算出“60%”，因此当用户关心的是件数时，请传入 aria-valuetext。',
+            zh: '当你计的是件数时请设置max：进度条会以aria-valuenow="3" 对照aria-valuemax="5" 报告。屏幕阅读器仍会由这对数值算出“60%”，因此当用户关心的是件数时，请传入aria-valuetext。',
           })}
         </Text>
         <Specimen caption="aria-valuetext">
@@ -114,7 +114,7 @@ export function ProgressShowcase() {
             max={5}
             size="lg"
             label={t({ en: "Checkout", zh: "结账流程" })}
-            aria-valuetext={t({ en: "Step 3 of 5", zh: "第 3 步，共 5 步" })}
+            aria-valuetext={t({ en: "Step 3 of 5", zh: "第3步，共5步" })}
           />
         </Specimen>
       </Showcase>
@@ -126,7 +126,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "label is required and becomes the accessible name. The component writes role, the name and every aria-value* attribute after the caller's props, so a stray aria-label or aria-valuenow at the callsite cannot replace what the bar actually reports.",
-            zh: "label 为必填，并成为可访问名称。组件在调用方属性之后才写入 role、名称以及全部 aria-value* 属性，因此调用处误传的 aria-label 或 aria-valuenow 无法替换进度条真正报告的内容。",
+            zh: "label为必填，并成为可访问名称。组件在调用方属性之后才写入role、名称以及全部aria-value* 属性，因此调用处误传的aria-label或aria-valuenow无法替换进度条真正报告的内容。",
           })}
         </Text>
         <UsageSnippet
@@ -139,7 +139,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Step the value and watch aria-valuenow follow it. The indicator eases between widths; under prefers-reduced-motion it jumps straight to the new width instead.",
-            zh: "调整数值，观察 aria-valuenow 随之变化。指示条会在宽度之间缓动；在 prefers-reduced-motion 下则直接跳到新宽度。",
+            zh: "调整数值，观察aria-valuenow随之变化。指示条会在宽度之间缓动；在prefers-reduced-motion下则直接跳到新宽度。",
           })}
         </Text>
         <Specimen caption={t({ en: "stepped value", zh: "步进数值" })}>
@@ -176,7 +176,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The indicator is a ::before pseudo-element, so css cannot reach it. progressTokens.indicatorColor is the way in — the same escape hatch, one level down. Retinting by threshold like this needs a second signal too: colour alone is not a status (WCAG 1.4.1).",
-            zh: "指示条是 ::before 伪元素，css 无法触及。progressTokens.indicatorColor 就是入口——同一个逃生舱，只是下沉一层。像这样按阈值改色时还需要第二个信号：仅靠颜色不足以表达状态（WCAG 1.4.1）。",
+            zh: "指示条是 ::before伪元素，css无法触及。progressTokens.indicatorColor就是入口——同一个逃生舱，只是下沉一层。像这样按阈值改色时还需要第二个信号：仅靠颜色不足以表达状态（WCAG 1.4.1）。",
           })}
         </Text>
       </Showcase>
@@ -187,7 +187,7 @@ export function ProgressShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Progress has no indeterminate state, by design: a bar that cannot finish is a Spinner in the wrong clothes. Pick between the two by what you know, not by which one looks better.",
-            zh: "进度条刻意不提供不确定状态：一条走不完的进度条，只是穿错衣服的 Spinner。在两者之间选择，依据是你知道什么，而不是哪个更好看。",
+            zh: "进度条刻意不提供不确定状态：一条走不完的进度条，只是穿错衣服的Spinner。在两者之间选择，依据是你知道什么，而不是哪个更好看。",
           })}
         </Text>
         <DoDont
@@ -209,7 +209,7 @@ export function ProgressShowcase() {
           }
           dontCaption={t({
             en: "Don't park a bar at a made-up value for work with no measurable end — a wait of unknown length is Spinner's job.",
-            zh: "不要为没有明确终点的工作把进度条停在随手编出的数值上——长度未知的等待应交给 Spinner。",
+            zh: "不要为没有明确终点的工作把进度条停在随手编出的数值上——长度未知的等待应交给Spinner。",
           })}
         />
       </Showcase>

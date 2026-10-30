@@ -173,14 +173,14 @@ export default function GetStartedPage() {
       path="/design-system/foundations/get-started"
       description={t({
         en: "@tuja/ui ships TypeScript source and no stylesheet. Your build compiles its styles together with yours, so you set the build up once before the first component renders with its styles. The steps are for Next.js; another bundler needs the same Babel and PostCSS plugins.",
-        zh: "@tuja/ui 以 TypeScript 源码发布，不附带样式表。它的样式由你的构建与你自己的样式一起编译，因此在第一个组件带着样式渲染出来之前，你需要先配置一次构建。以下步骤以 Next.js 为例；其他打包工具需要同样的 Babel 与 PostCSS 插件。",
+        zh: "@tuja/ui以TypeScript源码发布，不附带样式表。它的样式由你的构建与你自己的样式一起编译，因此在第一个组件带着样式渲染出来之前，你需要先配置一次构建。以下步骤以Next.js为例；其他打包工具需要同样的Babel与PostCSS插件。",
       })}
     >
       <GuideSection
         title={t({ en: "Install", zh: "安装" })}
         lead={t({
           en: "Add the package, its StyleX runtime, and the plugins that compile it.",
-          zh: "添加这个包、它所需的 StyleX 运行时，以及编译它的插件。",
+          zh: "添加这个包、它所需的StyleX运行时，以及编译它的插件。",
         })}
       >
         <UsageSnippet
@@ -202,14 +202,14 @@ export default function GetStartedPage() {
               term: "@phosphor-icons/react",
               note: t({
                 en: "The default icons inside components come from Phosphor. @tuja/ui does not re-export it, so install it to import an icon of your own.",
-                zh: "组件内的默认图标来自 Phosphor。@tuja/ui 不会重新导出它，因此要导入自己的图标，请另行安装。",
+                zh: "组件内的默认图标来自Phosphor。@tuja/ui不会重新导出它，因此要导入自己的图标，请另行安装。",
               }),
             },
             {
               term: "@babel/parser · @babel/traverse",
               note: t({
                 en: "The stylex-breakpoints plugin below needs them.",
-                zh: "下文的 stylex-breakpoints 插件需要它们。",
+                zh: "下文的stylex-breakpoints插件需要它们。",
               }),
             },
           ]}
@@ -220,7 +220,7 @@ export default function GetStartedPage() {
         title={t({ en: "Set up the build", zh: "配置构建" })}
         lead={t({
           en: "Next.js transpiles the package, Babel compiles every StyleX call in it and in your code, and PostCSS writes the stylesheet. Run next dev --webpack and next build --webpack: Turbopack, the default since Next.js 16, does not run Babel on files in node_modules, so it leaves @tuja/ui uncompiled.",
-          zh: "Next.js 转译这个包，Babel 编译包内与你代码中的每个 StyleX 调用，PostCSS 写出样式表。请运行 next dev --webpack 与 next build --webpack：Next.js 16 起默认使用的 Turbopack 不会对 node_modules 中的文件运行 Babel，会让 @tuja/ui 未经编译。",
+          zh: "Next.js转译这个包，Babel编译包内与你代码中的每个StyleX调用，PostCSS写出样式表。请运行next dev --webpack与next build --webpack：Next.js 16起默认使用的Turbopack不会对node_modules中的文件运行Babel，会让 @tuja/ui未经编译。",
         })}
       >
         <UsageSnippet code={NEXT_CONFIG} label="next.config.js" />
@@ -231,28 +231,28 @@ export default function GetStartedPage() {
               term: "stylex-breakpoints",
               note: t({
                 en: "@tuja/ui writes responsive styles with breakpoints.md and its siblings as keys. StyleX alone compiles those keys into CSS that no browser applies, so this plugin replaces them with media queries first. Without it, no breakpoint style in the package applies, including the responsive sizes of the font Tokens.",
-                zh: "@tuja/ui 以 breakpoints.md 等常量作为键来编写响应式样式。仅靠 StyleX，这些键会被编译成浏览器不会应用的 CSS，因此这个插件先把它们替换成媒体查询。没有它，包内任何按断点设置的样式都不会生效，包括 font 令牌的响应式尺寸。",
+                zh: "@tuja/ui以breakpoints.md等常量作为键来编写响应式样式。仅靠StyleX，这些键会被编译成浏览器不会应用的CSS，因此这个插件先把它们替换成媒体查询。没有它，包内任何按断点设置的样式都不会生效，包括font令牌的响应式尺寸。",
               }),
             },
             {
               term: t({ en: "Where to get it", zh: "从哪里获取" }),
               note: t({
                 en: "The plugin lives in @tuja/babel-plugins, which is not published. Copy packages/babel-plugins/src/stylex-breakpoints/index.js from the repository into your project as stylex-breakpoints.js. Its rootDir is the @tuja/ui package, because it reads the shipped src/breakpoints.stylex.ts.",
-                zh: "这个插件位于 @tuja/babel-plugins，而该包尚未发布。请把仓库中的 packages/babel-plugins/src/stylex-breakpoints/index.js 复制到你的项目，命名为 stylex-breakpoints.js。它的 rootDir 指向 @tuja/ui 包，因为它要读取随包发布的 src/breakpoints.stylex.ts。",
+                zh: "这个插件位于 @tuja/babel-plugins，而该包尚未发布。请把仓库中的packages/babel-plugins/src/stylex-breakpoints/index.js复制到你的项目，命名为stylex-breakpoints.js。它的rootDir指向 @tuja/ui包，因为它要读取随包发布的src/breakpoints.stylex.ts。",
               }),
             },
             {
               term: 'sxPropName: "css"',
               note: t({
                 en: "Required. The components write css on their own elements, and this option turns it into class names.",
-                zh: "必需。组件在自己的元素上使用 css，这个选项把它转换为类名。",
+                zh: "必需。组件在自己的元素上使用css，这个选项把它转换为类名。",
               }),
             },
             {
               term: 'styleResolution: "property-specificity"',
               note: t({
                 en: "The rule that decides which style wins when your css meets a component's own. The override advice on Customisation assumes it.",
-                zh: "当你的 css 与组件自身的样式相遇时，由这条规则决定谁胜出。“定制”页面中关于覆盖样式的说明都以它为前提。",
+                zh: "当你的css与组件自身的样式相遇时，由这条规则决定谁胜出。“定制”页面中关于覆盖样式的说明都以它为前提。",
               }),
             },
           ]}
@@ -261,16 +261,16 @@ export default function GetStartedPage() {
         <GuideNote>
           {t({
             en: "The include globs must reach the @tuja/ui source as well as your own, or its components render unstyled. useCSSLayers puts every StyleX rule in a cascade layer; the next section says what that means for your own global CSS.",
-            zh: "include 匹配规则既要覆盖你自己的源码，也要覆盖 @tuja/ui 的源码，否则它的组件会没有样式。useCSSLayers 把每条 StyleX 规则放进一个级联层；下一节会说明这对你自己的全局 CSS 意味着什么。",
+            zh: "include匹配规则既要覆盖你自己的源码，也要覆盖 @tuja/ui的源码，否则它的组件会没有样式。useCSSLayers把每条StyleX规则放进一个级联层；下一节会说明这对你自己的全局CSS意味着什么。",
           })}
         </GuideNote>
       </GuideSection>
 
       <GuideSection
-        title={t({ en: "Set up TypeScript", zh: "配置 TypeScript" })}
+        title={t({ en: "Set up TypeScript", zh: "配置TypeScript" })}
         lead={t({
           en: "Your type check reads the package source too. It imports its own files with a .ts extension and writes css on elements, so your project has to allow both.",
-          zh: "你的类型检查也会读取这个包的源码。它以 .ts 扩展名导入自己的文件，并在元素上使用 css，因此你的项目必须同时允许这两点。",
+          zh: "你的类型检查也会读取这个包的源码。它以 .ts扩展名导入自己的文件，并在元素上使用css，因此你的项目必须同时允许这两点。",
         })}
       >
         <UsageSnippet
@@ -282,7 +282,7 @@ export default function GetStartedPage() {
         <GuideNote>
           {t({
             en: "Put css-prop.d.ts anywhere your tsconfig.json includes. Without it, the type check fails inside @tuja/ui itself, even if your own code never writes css on an element. Without allowImportingTsExtensions, it fails on every import inside the package.",
-            zh: "把 css-prop.d.ts 放在 tsconfig.json 所包含的任意位置。没有它，类型检查会在 @tuja/ui 内部失败，哪怕你自己的代码从未在元素上写过 css。没有 allowImportingTsExtensions，包内的每一条导入都会报错。",
+            zh: "把css-prop.d.ts放在tsconfig.json所包含的任意位置。没有它，类型检查会在 @tuja/ui内部失败，哪怕你自己的代码从未在元素上写过css。没有allowImportingTsExtensions，包内的每一条导入都会报错。",
           })}
         </GuideNote>
       </GuideSection>
@@ -291,7 +291,7 @@ export default function GetStartedPage() {
         title={t({ en: "Prepare the root", zh: "准备根元素" })}
         lead={t({
           en: "The components paint themselves. The page around them comes from the root primitive: the colour scheme, the canvas, and the text that every element inherits.",
-          zh: "组件会绘制自身。它们周围的页面来自 root 原语：配色方案、画布，以及每个元素继承的文字样式。",
+          zh: "组件会绘制自身。它们周围的页面来自root原语：配色方案、画布，以及每个元素继承的文字样式。",
         })}
       >
         <UsageSnippet
@@ -306,14 +306,14 @@ export default function GetStartedPage() {
               term: "@stylex",
               note: t({
                 en: "The PostCSS plugin replaces this line with the compiled stylesheet. Without it, no StyleX rule reaches the page.",
-                zh: "PostCSS 插件会把这一行替换为编译后的样式表。没有它，任何 StyleX 规则都到不了页面上。",
+                zh: "PostCSS插件会把这一行替换为编译后的样式表。没有它，任何StyleX规则都到不了页面上。",
               }),
             },
             {
-              term: t({ en: "Your own global CSS", zh: "你自己的全局 CSS" }),
+              term: t({ en: "Your own global CSS", zh: "你自己的全局CSS" }),
               note: t({
                 en: "Put it in a cascade layer, such as a reset imported with layer(normalize). StyleX writes into layers, and a rule outside every layer beats all of them, whatever its specificity.",
-                zh: "把它放进一个级联层，例如用 layer(normalize) 导入的重置样式。StyleX 把规则写进各个层，而不在任何层中的规则会压过它们全部，与选择器优先级无关。",
+                zh: "把它放进一个级联层，例如用layer(normalize) 导入的重置样式。StyleX把规则写进各个层，而不在任何层中的规则会压过它们全部，与选择器优先级无关。",
               }),
             },
             {
@@ -321,7 +321,7 @@ export default function GetStartedPage() {
               value: "root.html · root.body",
               note: t({
                 en: "root.html turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token; never set one on the root. root.body sets the text colour, the typeface, a line height of 1.5, text-wrap: pretty and overflow-wrap: break-word, and every element inherits them.",
-                zh: "root.html 开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌；不要在根元素上设置字号。root.body 设置文字颜色、字体、1.5 的行高、text-wrap: pretty 与 overflow-wrap: break-word，每个元素都会继承它们。",
+                zh: "root.html开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个rem令牌；不要在根元素上设置字号。root.body设置文字颜色、字体、1.5的行高、text-wrap: pretty与overflow-wrap: break-word，每个元素都会继承它们。",
               }),
             },
             {
@@ -329,7 +329,7 @@ export default function GetStartedPage() {
               value: "text-wrap: balance",
               note: t({
                 en: "A StyleX rule cannot select an element by its tag, so the rule in global.css balances the lines of a heading you write yourself without a type role. Heading and every heading type role balance their lines without it.",
-                zh: "StyleX 规则无法按标签选择元素，因此由 global.css 中的规则让你自己编写、且没有字体角色的标题各行长度均衡。Heading 与每个标题字体角色不需要这条规则也会均衡各行。",
+                zh: "StyleX规则无法按标签选择元素，因此由global.css中的规则让你自己编写、且没有字体角色的标题各行长度均衡。Heading与每个标题字体角色不需要这条规则也会均衡各行。",
               }),
             },
             {
@@ -337,7 +337,7 @@ export default function GetStartedPage() {
               value: "font.family",
               note: t({
                 en: 'Only controls such as Button and the form fields set a font family; all other text inherits the root\'s. font.family asks for "Inter", then "Inter-fallback", then the platform sans-serif. The package ships no font files: serve Inter yourself, or text renders in the fallback. Code blocks use font.familyMono, which asks for "IBM Plex Mono" first.',
-                zh: "只有 Button 与表单字段这样的控件会设置字体族；其余文字都继承根元素的字体。font.family 先请求 “Inter”，再请求 “Inter-fallback”，最后是平台的无衬线字体。这个包不附带字体文件：请自行提供 Inter，否则文字会以后备字体渲染。代码块使用 font.familyMono，它优先请求 “IBM Plex Mono”。",
+                zh: "只有Button与表单字段这样的控件会设置字体族；其余文字都继承根元素的字体。font.family先请求 “Inter”，再请求 “Inter-fallback”，最后是平台的无衬线字体。这个包不附带字体文件：请自行提供Inter，否则文字会以后备字体渲染。代码块使用font.familyMono，它优先请求 “IBM Plex Mono”。",
               }),
             },
           ]}
@@ -347,10 +347,10 @@ export default function GetStartedPage() {
       <GetStartedFirstComponent />
 
       <GuideSection
-        title={t({ en: "Style with the css prop", zh: "用 css 属性设置样式" })}
+        title={t({ en: "Style with the css prop", zh: "用css属性设置样式" })}
         lead={t({
           en: "css is how you style an element and how you pass styles to a @tuja/ui component. It takes what stylex.create returns, an array of those, and false or null to leave one out.",
-          zh: "css 既用于给元素设置样式，也用于把样式传给 @tuja/ui 组件。它接收 stylex.create 的返回值、由这些值组成的数组，以及用来略去某项的 false 或 null。",
+          zh: "css既用于给元素设置样式，也用于把样式传给 @tuja/ui组件。它接收stylex.create的返回值、由这些值组成的数组，以及用来略去某项的false或null。",
         })}
       >
         <UsageSnippet code={CSS_PROP} />
@@ -360,17 +360,17 @@ export default function GetStartedPage() {
               term: t({ en: "On an element", zh: "在元素上" }),
               note: t({
                 en: "The Babel plugin turns css on a lowercase element, such as div or svg, into class names at build time.",
-                zh: "Babel 插件在构建时把小写元素（如 div 或 svg）上的 css 转换为类名。",
+                zh: "Babel插件在构建时把小写元素（如div或svg）上的css转换为类名。",
               }),
             },
             {
               term: t({
                 en: "On a @tuja/ui component",
-                zh: "在 @tuja/ui 组件上",
+                zh: "在 @tuja/ui组件上",
               }),
               note: t({
                 en: "css is an ordinary prop that the component adds after its own styles. No component takes className or style. Give your own components a css prop typed StyleProp from @tuja/ui/types, added last, as above.",
-                zh: "css 是一个普通属性，组件把它加在自身样式之后。没有一个组件接收 className 或 style。你自己的组件也可以提供一个用 @tuja/ui/types 中的 StyleProp 标注类型的 css 属性，并像上面那样放在最后。",
+                zh: "css是一个普通属性，组件把它加在自身样式之后。没有一个组件接收className或style。你自己的组件也可以提供一个用 @tuja/ui/types中的StyleProp标注类型的css属性，并像上面那样放在最后。",
               }),
             },
             {
@@ -380,14 +380,14 @@ export default function GetStartedPage() {
               }),
               note: t({
                 en: "next/link or a Phosphor icon does not know css. Spread stylex.props onto it instead.",
-                zh: "next/link 或 Phosphor 图标并不认识 css。请改为把 stylex.props 展开到它上面。",
+                zh: "next/link或Phosphor图标并不认识css。请改为把stylex.props展开到它上面。",
               }),
             },
           ]}
         />
         <UsageSnippet
           code={THIRD_PARTY}
-          label={t({ en: "On next/link", zh: "在 next/link 上" })}
+          label={t({ en: "On next/link", zh: "在next/link上" })}
         />
         <UsageSnippet
           code={RUNTIME_VALUE}
@@ -399,7 +399,7 @@ export default function GetStartedPage() {
         <GuideNote>
           {t({
             en: "A style written as a function has its properties fixed at build time and takes its value when you call it, so a runtime value also goes through css.",
-            zh: "写成函数的样式在构建时就固定了要设置的属性，在调用时才取值，因此运行时的值同样通过 css 传入。",
+            zh: "写成函数的样式在构建时就固定了要设置的属性，在调用时才取值，因此运行时的值同样通过css传入。",
           })}
         </GuideNote>
       </GuideSection>

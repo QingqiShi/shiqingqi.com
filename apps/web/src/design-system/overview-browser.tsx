@@ -137,7 +137,7 @@ export function OverviewBrowser({
   const arrangementLabel = t({ en: "Arrangement", zh: "排列方式" });
   const byJobLabel = t({ en: "By job", zh: "按用途" });
   const byNameLabel = t({ en: "A–Z", zh: "按名称" });
-  const oneResultLabel = t({ en: "1 result", zh: "1 个结果" });
+  const oneResultLabel = t({ en: "1 result", zh: "1个结果" });
   const manyResultsLabel = t({ en: "results", zh: "个结果" });
   // No "nothing found" heading: the result count above already says so, and an
   // empty state that repeats it spends its one line saying nothing new.

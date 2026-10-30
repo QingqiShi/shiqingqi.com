@@ -56,7 +56,7 @@ export function NotFoundScreen() {
       name: t({ en: "Movie Database", zh: "电影数据库" }),
       description: t({
         en: "Chat with AI to find your next watch, or browse what's trending.",
-        zh: "让 AI 帮你找下一部佳片，或浏览当下热门。",
+        zh: "让AI帮你找下一部佳片，或浏览当下热门。",
       }),
     },
     {

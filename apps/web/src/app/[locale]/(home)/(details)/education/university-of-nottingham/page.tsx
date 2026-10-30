@@ -76,7 +76,7 @@ export default function Page() {
       <p>
         {t({
           en: "Extra: Chinese Students and Scholars Association, IT Officer",
-          zh: "社团：中国学生学者联谊会 IT 部长",
+          zh: "社团：中国学生学者联谊会IT部长",
         })}
       </p>
     </>

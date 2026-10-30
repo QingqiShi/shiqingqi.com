@@ -24,7 +24,7 @@ export default function PrimitivesPage() {
       path="/design-system/primitives"
       description={t({
         en: "Building blocks for your own elements: multi-property StyleX primitives you compose directly when no component fits. Each bundles a common cluster of properties — flex layouts, position fills, motion presets, resets, and accessibility helpers — so a bespoke surface still inherits the system's defaults instead of hand-rolling CSS.",
-        zh: "自行构建元素时的构建块：当没有组件契合时，你可以直接组合的多属性 StyleX 原语。每个都封装了一组常见属性——flex 布局、定位填充、动效预设、重置与无障碍辅助——让定制表面仍能继承系统默认值，而无需手写 CSS。",
+        zh: "自行构建元素时的构建块：当没有组件契合时，你可以直接组合的多属性StyleX原语。每个都封装了一组常见属性——flex布局、定位填充、动效预设、重置与无障碍辅助——让定制表面仍能继承系统默认值，而无需手写CSS。",
       })}
     >
       <PrimitivesShowcase />

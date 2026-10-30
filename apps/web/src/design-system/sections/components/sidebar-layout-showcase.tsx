@@ -42,7 +42,7 @@ export function SidebarLayoutShowcase() {
         <ShowcaseHelper>
           {t({
             en: "A live miniature of the shell you're looking at: the slots hold this site's real sidebar chrome — the title with its home link, the design-system navigation, and the theme and language controls pinned at the bottom. Every control works. Below the md breakpoint the rail collapses into a floating bar whose menu button opens the same content as a drawer. An app with its own mobile navigation, such as a tab bar, sets mobileSidebar to \"hidden\": then there is no bar and no drawer, the content starts at the top of the screen below the safe area, and the app gives the header's and the footer's content another place below md.",
-            zh: '你正在使用的骨架的实时缩影：插槽中是本站真实的侧栏组件——带首页链接的标题、设计系统导航，以及固定在底部的主题与语言控件。所有控件都可交互。在 md 断点以下，侧栏收起为悬浮条，其菜单按钮会以抽屉形式打开相同内容。若应用已有自己的移动端导航（例如标签栏），可将 mobileSidebar 设为 "hidden"：悬浮条与抽屉随之去掉，内容从屏幕顶部（安全区域之下）开始，应用需在 md 以下为标题与底部内容另找位置。',
+            zh: '你正在使用的骨架的实时缩影：插槽中是本站真实的侧栏组件——带首页链接的标题、设计系统导航，以及固定在底部的主题与语言控件。所有控件都可交互。在md断点以下，侧栏收起为悬浮条，其菜单按钮会以抽屉形式打开相同内容。若应用已有自己的移动端导航（例如标签栏），可将mobileSidebar设为 "hidden"：悬浮条与抽屉随之去掉，内容从屏幕顶部（安全区域之下）开始，应用需在md以下为标题与底部内容另找位置。',
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "rail and content", zh: "侧栏与内容列" })}>
@@ -123,7 +123,7 @@ export function SidebarLayoutShowcase() {
         }
         doCaption={t({
           en: "Put app-level utilities (theme, language) in sidebarFooter — they stay reachable on every viewport, pinned in the rail and inside the drawer.",
-          zh: "将应用级实用控件（主题、语言）放在 sidebarFooter 中——它们固定在侧栏和抽屉内，任何视口都可触达。",
+          zh: "将应用级实用控件（主题、语言）放在sidebarFooter中——它们固定在侧栏和抽屉内，任何视口都可触达。",
         })}
         dont={
           <code css={[typeRole.bodySmall, styles.code]}>
@@ -132,7 +132,7 @@ export function SidebarLayoutShowcase() {
         }
         dontCaption={t({
           en: "Don't hard-code untranslated labels. menuLabel and closeLabel name the drawer dialog for assistive tech — supply localised strings.",
-          zh: "不要硬编码未翻译的标签。menuLabel 与 closeLabel 是抽屉对话框的无障碍名称——请提供本地化文案。",
+          zh: "不要硬编码未翻译的标签。menuLabel与closeLabel是抽屉对话框的无障碍名称——请提供本地化文案。",
         })}
       />
     </>

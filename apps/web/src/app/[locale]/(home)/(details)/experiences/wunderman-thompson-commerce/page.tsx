@@ -71,7 +71,7 @@ export default function Page() {
       <p>
         {t({
           en: "At Wunderman Thompson Commerce, I played a crucial role in improving three high-traffic e-commerce websites for a variety of clients. My work in re-platforming and redesigning projects contributed to increased conversion rates. I seamlessly integrated with multiple scrum teams and even took on the responsibility of a front-end tech lead at one point. My primary tech stack during this time included:",
-          zh: "在 Wunderman Thompson Commerce，我在改进三个高流量电子商务网站方面发挥了关键作用，这些网站服务于不同的客户。我的重平台和重新设计项目工作有助于提高转化率。我与多个敏捷团队无缝合作，甚至在某个时候担任了前端技术负责人的职责。那时我主要使用的技术栈包括：",
+          zh: "在Wunderman Thompson Commerce，我在改进三个高流量电子商务网站方面发挥了关键作用，这些网站服务于不同的客户。我的重平台和重新设计项目工作有助于提高转化率。我与多个敏捷团队无缝合作，甚至在某个时候担任了前端技术负责人的职责。那时我主要使用的技术栈包括：",
         })}
       </p>
       <ul>

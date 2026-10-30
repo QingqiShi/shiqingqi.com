@@ -40,7 +40,7 @@ export function ToastDemo() {
 function TransactionRow() {
   const show = useToast();
   const [deleted, setDeleted] = useState(false);
-  const payee = t({ en: "Coffee with Sam", zh: "和 Sam 喝咖啡" });
+  const payee = t({ en: "Coffee with Sam", zh: "和Sam喝咖啡" });
   const amount = t({ en: "£3.20", zh: "£3.20" });
   const deletedMessage = t({ en: "Transaction deleted", zh: "交易已删除" });
   const undoLabel = t({ en: "Undo", zh: "撤销" });
@@ -120,7 +120,7 @@ export function WrappingToastSpecimen() {
       css={styles.narrow}
       message={t({
         en: "3 transactions moved to Groceries",
-        zh: "3 笔交易已移到“日用杂货”",
+        zh: "3笔交易已移到“日用杂货”",
       })}
       action={{ label: t({ en: "Undo", zh: "撤销" }), onAction: noop }}
       onDismiss={noop}

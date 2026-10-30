@@ -53,7 +53,7 @@ export function MovieDetailExemplar() {
         >
           {t({
             en: "Outlines each region and names the @tuja/ui entry points it composes.",
-            zh: "为每个区域勾出轮廓，并列出它所组合的 @tuja/ui 入口。",
+            zh: "为每个区域勾出轮廓，并列出它所组合的 @tuja/ui入口。",
           })}
         </Text>
       </div>

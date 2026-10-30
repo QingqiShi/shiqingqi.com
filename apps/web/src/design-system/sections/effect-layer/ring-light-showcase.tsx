@@ -21,13 +21,13 @@ export function RingLightShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Ring light runs one comet of light round an element's outline, once, when the element arrives on the effect layer. It sets off from the middle of the inline-start edge, runs over the top and all the way round, and slows and fades as it comes back. Attach the ref from useRingLight to the element, and mount it when the light should run.",
-            zh: "环形光在元素出现在效果层上时，让一颗光点沿元素的轮廓跑一圈，只跑一次。它从行首一侧边缘的中点出发，越过顶部绕完一整圈，回到起点时逐渐减速并淡去。把 useRingLight 返回的 ref 挂到元素上，并在需要光跑动时挂载该元素。",
+            zh: "环形光在元素出现在效果层上时，让一颗光点沿元素的轮廓跑一圈，只跑一次。它从行首一侧边缘的中点出发，越过顶部绕完一整圈，回到起点时逐渐减速并淡去。把useRingLight返回的ref挂到元素上，并在需要光跑动时挂载该元素。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The light takes the element's color, and follows its border box and corner radius. Toast uses it once it has arrived.",
-            zh: "光取元素的 color，并沿着它的边框盒与圆角运行。轻提示在到位后使用它。",
+            zh: "光取元素的color，并沿着它的边框盒与圆角运行。轻提示在到位后使用它。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">

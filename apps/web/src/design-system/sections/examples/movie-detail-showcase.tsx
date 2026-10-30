@@ -64,7 +64,7 @@ export function MovieDetailShowcase() {
       >
         {t({
           en: "Every value on the screen below is invented and hard-coded. It makes no TMDB request, needs no API key, and renders the same offline. Nothing on it navigates, so nothing on it is dressed as a link: the Similar cards load their Movie into the screen, and the values that would take you elsewhere in a real app are Badges.",
-          zh: "下方页面上的每个数据都是虚构并硬编码的。它不会请求 TMDB，不需要 API 密钥，离线也照样渲染。页面上没有任何跳转，因此也没有任何东西伪装成链接：相似影片卡片会把该影片载入本页面，而在真实应用中会把你带往别处的数据则一律是徽章。",
+          zh: "下方页面上的每个数据都是虚构并硬编码的。它不会请求TMDB，不需要API密钥，离线也照样渲染。页面上没有任何跳转，因此也没有任何东西伪装成链接：相似影片卡片会把该影片载入本页面，而在真实应用中会把你带往别处的数据则一律是徽章。",
         })}
       </Callout>
 
@@ -129,7 +129,7 @@ export function MovieDetailShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Three absences are worth as much as the list. No close button appears anywhere in the source — Callout supplies its own dismiss and Sheet its own close, so both arrive carrying the system's focus ring and hover easing without this file naming either. No Chip appears either: a Chip is a control, and the system's own rule is that a label which can't be clicked is a Badge, so on a screen with nothing to navigate to the Genres and the providers are Badges. And the movie database has no accounts, so the screen has no review form and therefore no TextField, Textarea, or Checkbox. A composed screen shows what a surface needs, not everything the system owns.",
-            zh: "有三处「缺席」与上面的清单同样重要。源码中没有出现任何关闭按钮——Callout 自带关闭，Sheet 也自带关闭，两者都自然携带系统的焦点环与悬停缓动，而本文件从未提及它们。也没有出现 Chip：Chip 是控件，而系统自己的规则是「不能点击的标签就该用 Badge」，因此在这个无处可跳转的页面上，类型与观看渠道一律是徽章。此外，影视数据库没有账号体系，因此页面没有评论表单，也就没有 TextField、Textarea 或 Checkbox。一个组合页面呈现的是该界面所需要的东西，而非系统所拥有的全部。",
+            zh: "有三处「缺席」与上面的清单同样重要。源码中没有出现任何关闭按钮——Callout自带关闭，Sheet也自带关闭，两者都自然携带系统的焦点环与悬停缓动，而本文件从未提及它们。也没有出现Chip：Chip是控件，而系统自己的规则是「不能点击的标签就该用Badge」，因此在这个无处可跳转的页面上，类型与观看渠道一律是徽章。此外，影视数据库没有账号体系，因此页面没有评论表单，也就没有TextField、Textarea或Checkbox。一个组合页面呈现的是该界面所需要的东西，而非系统所拥有的全部。",
           })}
         </Text>
       </Showcase>

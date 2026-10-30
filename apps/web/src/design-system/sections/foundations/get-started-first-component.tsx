@@ -29,7 +29,7 @@ export function GetStartedFirstComponent() {
           >
             {t({
               en: "Kyoto, 5 days, opens without a connection.",
-              zh: "京都 5 日行程可离线打开。",
+              zh: "京都5日行程可离线打开。",
             })}
           </Callout>
           <Button look="primary" css={styles.action}>

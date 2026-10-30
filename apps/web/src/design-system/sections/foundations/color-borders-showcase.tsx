@@ -51,7 +51,7 @@ export function ColorBordersShowcase() {
             }),
             note: t({
               en: "A selected option's edge, a Callout's edge, a field with an error in borderDanger. The focus ring of a11y.focusRing is borderAccent. Each shares its tone with bg<Intent>, so a fill and its edge never drift apart.",
-              zh: "选中选项的边缘、Callout 的边缘、出错输入框的 borderDanger。a11y.focusRing 的焦点环是 borderAccent。每一种都与 bg<Intent> 共用色调，因此填充与边缘不会彼此偏离。",
+              zh: "选中选项的边缘、Callout的边缘、出错输入框的borderDanger。a11y.focusRing的焦点环是borderAccent。每一种都与bg<Intent> 共用色调，因此填充与边缘不会彼此偏离。",
             }),
           },
           {
@@ -59,7 +59,7 @@ export function ColorBordersShowcase() {
             value: t({ en: "Glass's rim", zh: "玻璃的边缘" }),
             note: t({
               en: "borderMaterialGlass and borderMaterialGlassHighlight belong to glassSurface. Change them through glassTokens, which the Material page documents.",
-              zh: "borderMaterialGlass 与 borderMaterialGlassHighlight 属于 glassSurface。请通过 glassTokens 调整，详见“质感”页。",
+              zh: "borderMaterialGlass与borderMaterialGlassHighlight属于glassSurface。请通过glassTokens调整，详见“质感”页。",
             }),
           },
         ]}

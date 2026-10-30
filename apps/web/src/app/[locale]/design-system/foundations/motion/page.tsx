@@ -24,7 +24,7 @@ export default function MotionPage() {
       path="/design-system/foundations/motion"
       description={t({
         en: "The components animate themselves and handle reduced motion. This page is for the motion you write yourself: in CSS with the presets and constants from @tuja/ui/primitives/motion.stylex, and on the motion engine from @tuja/ui/motion.",
-        zh: "组件会自行处理动效与减弱动效。本页讲的是你自己编写的动效：在 CSS 中使用 @tuja/ui/primitives/motion.stylex 的预设与常量，在动效引擎上使用 @tuja/ui/motion。",
+        zh: "组件会自行处理动效与减弱动效。本页讲的是你自己编写的动效：在CSS中使用 @tuja/ui/primitives/motion.stylex的预设与常量，在动效引擎上使用 @tuja/ui/motion。",
       })}
     >
       <MotionShowcase />

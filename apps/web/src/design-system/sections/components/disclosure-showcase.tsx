@@ -74,7 +74,7 @@ export function DisclosureShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Both slots render inside the trigger, so neither may be interactive — a count or a status badge, never a button. The icon is hidden from assistive tech but trailing is not: a count is content, and the trigger announces as “Packing list 2/5”. defaultOpen starts this one expanded.",
-            zh: "两个插槽都渲染在触发器内部，因此都不能是可交互元素——只能是计数或状态标记，绝不能是按钮。图标对辅助技术隐藏，但 trailing 不隐藏：计数属于内容，触发器会被朗读为「Packing list 2/5」。defaultOpen 让该示例默认展开。",
+            zh: "两个插槽都渲染在触发器内部，因此都不能是可交互元素——只能是计数或状态标记，绝不能是按钮。图标对辅助技术隐藏，但trailing不隐藏：计数属于内容，触发器会被朗读为「Packing list 2/5」。defaultOpen让该示例默认展开。",
           })}
         </Text>
       </Showcase>
@@ -86,7 +86,7 @@ export function DisclosureShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "When the header holds its own link, the whole row can't be a button. useDisclosure hands the same aria-expanded and aria-controls wiring to a separate toggle beside it.",
-            zh: "当标题行自身包含链接时，整行不能是按钮。useDisclosure 会把同样的 aria-expanded 与 aria-controls 关联交给旁边独立的开关按钮。",
+            zh: "当标题行自身包含链接时，整行不能是按钮。useDisclosure会把同样的aria-expanded与aria-controls关联交给旁边独立的开关按钮。",
           })}
         </Text>
       </Showcase>
@@ -114,7 +114,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
           do={<DisclosureHeadlessSpecimen />}
           doCaption={t({
             en: "When the header already holds a link, use useDisclosure and give the toggle its own button beside it.",
-            zh: "当标题行已包含链接时，使用 useDisclosure，并在旁边为开关设置独立按钮。",
+            zh: "当标题行已包含链接时，使用useDisclosure，并在旁边为开关设置独立按钮。",
           })}
           dont={
             <Disclosure
@@ -129,7 +129,7 @@ const { open, triggerProps, panelProps } = useDisclosure();
           }
           dontCaption={t({
             en: "Don't put a link or a button into summary — the whole header is already a button, and nesting controls breaks the markup, so screen readers announce it as one confused control.",
-            zh: "不要把链接或按钮放进 summary——整个标题行本身就是按钮，嵌套控件是无效标记，读屏软件会将其读作一个混乱的控件。",
+            zh: "不要把链接或按钮放进summary——整个标题行本身就是按钮，嵌套控件是无效标记，读屏软件会将其读作一个混乱的控件。",
           })}
         />
       </Showcase>

@@ -49,25 +49,25 @@ export function TypeRolesShowcase() {
       name: "h1",
       meta: "1.5rem · 1.2 · 800 · −0.01em",
       use: 'Heading look="h1"',
-      sample: t({ en: "Heading 1", zh: "标题 1" }),
+      sample: t({ en: "Heading 1", zh: "标题1" }),
     },
     {
       name: "h2",
       meta: "1.25rem · 1.2 · 700 · 0",
       use: 'Heading look="h2"',
-      sample: t({ en: "Heading 2", zh: "标题 2" }),
+      sample: t({ en: "Heading 2", zh: "标题2" }),
     },
     {
       name: "h3",
       meta: "1.1rem · 1.2 · 700 · 0",
       use: 'Heading look="h3"',
-      sample: t({ en: "Heading 3", zh: "标题 3" }),
+      sample: t({ en: "Heading 3", zh: "标题3" }),
     },
     {
       name: "h4",
       meta: "1rem · 1.3 · 700 · 0",
       use: 'Heading look="h4"',
-      sample: t({ en: "Heading 4", zh: "标题 4" }),
+      sample: t({ en: "Heading 4", zh: "标题4" }),
     },
     {
       name: "body",
@@ -120,17 +120,17 @@ export function TypeRolesShowcase() {
     {
       name: "fluidH1",
       meta: "1.3 → 2rem · 1.2 · 700 · 0",
-      sample: t({ en: "Heading 1", zh: "标题 1" }),
+      sample: t({ en: "Heading 1", zh: "标题1" }),
     },
     {
       name: "fluidH2",
       meta: "1.2 → 1.8rem · 1.2 · 700 · 0",
-      sample: t({ en: "Heading 2", zh: "标题 2" }),
+      sample: t({ en: "Heading 2", zh: "标题2" }),
     },
     {
       name: "fluidH3",
       meta: "1 → 1.3rem · 1.3 · 700 · 0",
-      sample: t({ en: "Heading 3", zh: "标题 3" }),
+      sample: t({ en: "Heading 3", zh: "标题3" }),
     },
     {
       name: "fluidLead",
@@ -171,7 +171,7 @@ export function TypeRolesShowcase() {
           label={t({ en: "Static", zh: "固定" })}
           description={t({
             en: "For everything inside an interface: headings, body, labels and captions. Text and Heading take their looks from these. control and controlCaption are the two that change: they step down at md together with controlSize, so a label in control fits a control sized with controlSize. Button, the fields, Checkbox and Switch set their labels in control, and menu section titles use controlCaption.",
-            zh: "用于界面内的一切：标题、正文、标签与说明。Text 与 Heading 的 look 都取自这些。control 与 controlCaption 是其中会变化的两个：它们与 controlSize 一起在 md 处变小，因此用 control 的标签能与用 controlSize 设定尺寸的控件吻合。Button、各类输入框、Checkbox 与 Switch 的标签都用 control，菜单分组标题用 controlCaption。",
+            zh: "用于界面内的一切：标题、正文、标签与说明。Text与Heading的look都取自这些。control与controlCaption是其中会变化的两个：它们与controlSize一起在md处变小，因此用control的标签能与用controlSize设定尺寸的控件吻合。Button、各类输入框、Checkbox与Switch的标签都用control，菜单分组标题用controlCaption。",
           })}
           snippet={
             <UsageSnippet
@@ -200,7 +200,7 @@ const styles = stylex.create({
           label={t({ en: "Fluid to the viewport", zh: "随视口变化" })}
           description={t({
             en: "These step up at sm, md and lg. They are for the top of a landing page, where a title should grow on a wide screen. No component uses them. The lit column below is the step your window is on, and it moves as you resize.",
-            zh: "它们在 sm、md 与 lg 处逐级增大，用于落地页顶部、应在宽屏上变大的标题。没有任何组件使用它们。下方高亮的一列是你的窗口当前所在的档位，会随缩放移动。",
+            zh: "它们在sm、md与lg处逐级增大，用于落地页顶部、应在宽屏上变大的标题。没有任何组件使用它们。下方高亮的一列是你的窗口当前所在的档位，会随缩放移动。",
           })}
           snippet={
             <UsageSnippet
@@ -217,7 +217,7 @@ const styles = stylex.create({
           label={t({ en: "Fluid to a container", zh: "随容器变化" })}
           description={t({
             en: 'cardTitle follows the width of the container it sits in, for a title in a card that appears at many widths. Make the card a container with containerType "inline-size"; the title has to be inside it, because a container sizes what it holds, not itself. From lg up the type role stops following and sets at 1.5rem. It measures with cqmin, and an inline-size container has no height to give, so on a short, wide screen the viewport\'s height can cap it.',
-            zh: 'cardTitle 跟随其所在容器的宽度，用于会以多种宽度出现的卡片里的标题。用 containerType "inline-size" 把卡片设为容器；标题必须在容器内部，因为容器决定的是它所包含内容的尺寸，而不是它自己的。从 lg 起，这个字体角色不再跟随容器，固定为 1.5rem。它以 cqmin 计算，而 inline-size 容器不提供高度，因此在又矮又宽的屏幕上，视口高度可能会限制它。',
+            zh: 'cardTitle跟随其所在容器的宽度，用于会以多种宽度出现的卡片里的标题。用containerType "inline-size" 把卡片设为容器；标题必须在容器内部，因为容器决定的是它所包含内容的尺寸，而不是它自己的。从lg起，这个字体角色不再跟随容器，固定为1.5rem。它以cqmin计算，而inline-size容器不提供高度，因此在又矮又宽的屏幕上，视口高度可能会限制它。',
           })}
           snippet={
             <UsageSnippet
@@ -238,7 +238,7 @@ const styles = stylex.create({
       <GuideNote>
         {t({
           en: "Every size is in rem, so it grows with the font size the reader sets in the browser. A px font-size on the root element fixes all of them; leave it unset, or give it in %.",
-          zh: "所有字号都以 rem 为单位，因此会随读者在浏览器中设置的字号变大。在根元素上用 px 设定 font-size 会把它们全部固定；请不要设置，或用 % 设置。",
+          zh: "所有字号都以rem为单位，因此会随读者在浏览器中设置的字号变大。在根元素上用px设定font-size会把它们全部固定；请不要设置，或用 % 设置。",
         })}
       </GuideNote>
     </GuideSection>

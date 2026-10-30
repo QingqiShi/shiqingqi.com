@@ -535,7 +535,7 @@ export function MediaTable({
     zh: "没有匹配的结果，换个关键词试试。",
   });
   const columnsLabel = t({ en: "Columns", zh: "列" });
-  const exportLabel = t({ en: "Export CSV", zh: "导出 CSV" });
+  const exportLabel = t({ en: "Export CSV", zh: "导出CSV" });
   const loadMoreLabel = t({ en: "Load more", zh: "加载更多" });
   const loadingLabel = t({ en: "Loading more titles", zh: "正在加载更多" });
   const shownLabel = t({ en: "Shown", zh: "显示" });
@@ -543,7 +543,7 @@ export function MediaTable({
   const endLabel = t({ en: "Everything loaded", zh: "已全部加载" });
   const hintLabel = t({
     en: "Drag to select cells, ⌘/Ctrl+C to copy, double-click a row to open it.",
-    zh: "拖拽选择单元格，⌘/Ctrl+C 复制，双击行可打开详情。",
+    zh: "拖拽选择单元格，⌘/Ctrl+C复制，双击行可打开详情。",
   });
   const tableLabel =
     mediaType === "tv"

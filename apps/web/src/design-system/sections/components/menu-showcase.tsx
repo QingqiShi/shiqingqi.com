@@ -58,7 +58,7 @@ export function MenuShowcase() {
         label={t({ en: "Contrast: group popup", zh: "对照：分组弹层" })}
       >
         <div css={styles.demoLayout}>
-          <Specimen caption={t({ en: "Tab moves focus", zh: "Tab 移动焦点" })}>
+          <Specimen caption={t({ en: "Tab moves focus", zh: "Tab移动焦点" })}>
             <div css={[flex.row, align.start, styles.groupStage]}>
               <MenuButton
                 buttonProps={{ icon: <FunnelIcon weight="bold" /> }}
@@ -84,7 +84,7 @@ export function MenuShowcase() {
             <ShowcaseHelper>
               {t({
                 en: 'The same component with popupRole="group". This popup holds controls, not commands, so it is announced as a group, focus stays on the trigger when it opens, and the arrow keys are left to the browser — Tab moves between the controls and Escape still closes. That is the group contract, not a menu that stopped working.',
-                zh: '同一个组件改用 popupRole="group"。这个弹层装的是控件而非命令，因此会被宣读为分组，打开时焦点留在触发按钮上，方向键交还浏览器——用 Tab 在控件间移动，Escape 依然可关闭。这是分组契约，而非菜单失灵。',
+                zh: '同一个组件改用popupRole="group"。这个弹层装的是控件而非命令，因此会被宣读为分组，打开时焦点留在触发按钮上，方向键交还浏览器——用Tab在控件间移动，Escape依然可关闭。这是分组契约，而非菜单失灵。',
               })}
             </ShowcaseHelper>
           </div>
@@ -103,7 +103,7 @@ export function MenuShowcase() {
         <ShowcaseHelper>
           {t({
             en: 'Two conventions live inside menuContent rather than on a prop: caption a group of controls with MenuLabel, and mark one role="menuitem" child with data-menu-autofocus="true" to choose where focus lands when a menu opens.',
-            zh: 'menuContent 内部有两项约定，而非通过属性表达：用 MenuLabel 为一组控件添加标题；给某个 role="menuitem" 子元素标上 data-menu-autofocus="true"，以决定菜单打开时焦点落在哪里。',
+            zh: 'menuContent内部有两项约定，而非通过属性表达：用MenuLabel为一组控件添加标题；给某个role="menuitem" 子元素标上data-menu-autofocus="true"，以决定菜单打开时焦点落在哪里。',
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -120,7 +120,7 @@ export function MenuShowcase() {
           }
           doCaption={t({
             en: 'A popup of toggle buttons is a group — set popupRole="group" so it is not announced as a menuitem list.',
-            zh: '一组切换按钮属于 group——设置 popupRole="group"，避免被宣读为菜单项列表。',
+            zh: '一组切换按钮属于group——设置popupRole="group"，避免被宣读为菜单项列表。',
           })}
           dont={
             <div css={[stack.tight, styles.guideExample]}>

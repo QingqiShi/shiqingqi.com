@@ -34,7 +34,7 @@ export function ShortSheetDemo() {
           <Text tone="muted">
             {t({
               en: "The card is as tall as this text. Drag it down by its grabber, press Escape, or click the dimmed page to close it.",
-              zh: "卡片的高度与这段文字相同。按住拖动条向下拖、按 Escape 或点击压暗的页面都可以关闭它。",
+              zh: "卡片的高度与这段文字相同。按住拖动条向下拖、按Escape或点击压暗的页面都可以关闭它。",
             })}
           </Text>
           <Button look="primary" onClick={close}>

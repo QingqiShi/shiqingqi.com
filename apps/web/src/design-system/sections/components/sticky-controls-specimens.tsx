@@ -28,7 +28,7 @@ export function FilterBar() {
   const [mediaType, setMediaType] = useState<"movie" | "tv">("movie");
   const films = [
     {
-      title: t({ en: "Blade Runner 2049", zh: "银翼杀手 2049" }),
+      title: t({ en: "Blade Runner 2049", zh: "银翼杀手2049" }),
       year: "2017",
     },
     { title: t({ en: "Arrival", zh: "降临" }), year: "2016" },

@@ -44,7 +44,7 @@ export function SettingsList() {
     {
       id: "accounts",
       name: t({ en: "Accounts", zh: "账户" }),
-      detail: t({ en: "4 connected", zh: "已连接 4 个" }),
+      detail: t({ en: "4 connected", zh: "已连接4个" }),
       badge: null,
     },
     {
@@ -52,7 +52,7 @@ export function SettingsList() {
       name: t({ en: "Categories", zh: "分类" }),
       detail: t({
         en: "18 categories in 5 groups",
-        zh: "5 个分组中的 18 个分类",
+        zh: "5个分组中的18个分类",
       }),
       badge: null,
     },
@@ -62,7 +62,7 @@ export function SettingsList() {
       detail: t({ en: "Sort new transactions", zh: "整理新交易" }),
       badge: (
         <Badge intent="warning" size="sm">
-          {t({ en: "2 to review", zh: "2 条待查看" })}
+          {t({ en: "2 to review", zh: "2条待查看" })}
         </Badge>
       ),
     },
@@ -255,7 +255,7 @@ export function ListDetailList() {
     {
       id: "credit",
       name: t({ en: "Credit card", zh: "信用卡" }),
-      detail: t({ en: "Updated 3 days ago", zh: "3 天前已更新" }),
+      detail: t({ en: "Updated 3 days ago", zh: "3天前已更新" }),
     },
   ];
   const [openId, setOpenId] = useState(accounts[0]?.id);

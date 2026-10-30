@@ -114,7 +114,7 @@ export function ButtonShowcase() {
         <ShowcaseHelper>
           {t({
             en: "With no children the button renders icon-only: a square of its own height, at the corner radius half that height gives — named by aria-label or aria-labelledby, since the icon itself is decorative.",
-            zh: "没有 children 时，按钮渲染为纯图标：一个与自身高度相等的正方形，圆角为该高度的一半——由 aria-label 或 aria-labelledby 命名，因为图标本身是装饰性的。",
+            zh: "没有children时，按钮渲染为纯图标：一个与自身高度相等的正方形，圆角为该高度的一半——由aria-label或aria-labelledby命名，因为图标本身是装饰性的。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>
@@ -181,7 +181,7 @@ export function ButtonShowcase() {
           do={<Button icon={<XIcon weight="bold" />} aria-label={closeLabel} />}
           doCaption={t({
             en: "Name an icon-only button with aria-label — required at the type level, so it cannot ship silent.",
-            zh: "为纯图标按钮提供 aria-label——类型层面强制要求，因此它不可能在无名状态下发布。",
+            zh: "为纯图标按钮提供aria-label——类型层面强制要求，因此它不可能在无名状态下发布。",
           })}
           dont={
             <div css={cluster.tight}>
@@ -198,7 +198,7 @@ export function ButtonShowcase() {
           }
           dontCaption={t({
             en: "Don't rely on nearby visible text as the only name — a screen reader never associates it with the button the way aria-label or aria-labelledby does.",
-            zh: "不要仅依赖旁边的可见文字充当唯一名称——屏幕阅读器不会像 aria-label 或 aria-labelledby 那样把它与按钮关联起来。",
+            zh: "不要仅依赖旁边的可见文字充当唯一名称——屏幕阅读器不会像aria-label或aria-labelledby那样把它与按钮关联起来。",
           })}
         />
       </Showcase>
@@ -236,7 +236,7 @@ export function ButtonShowcase() {
           }
           doCaption={t({
             en: "One primary action per screen, with everything beside it on the default raised look.",
-            zh: "每个页面只留一个 primary 操作，旁边的其他操作都使用默认的凸起外观。",
+            zh: "每个页面只留一个primary操作，旁边的其他操作都使用默认的凸起外观。",
           })}
           dont={
             <>
@@ -250,7 +250,7 @@ export function ButtonShowcase() {
           }
           dontCaption={t({
             en: "Don't give two actions the same weight — a screen with two primary buttons has none.",
-            zh: "不要让两个操作同等醒目——一个页面出现两个 primary 按钮，等于一个都没有。",
+            zh: "不要让两个操作同等醒目——一个页面出现两个primary按钮，等于一个都没有。",
           })}
         />
         <DoDont
@@ -261,7 +261,7 @@ export function ButtonShowcase() {
           }
           doCaption={t({
             en: "danger is for the action that destroys something.",
-            zh: "danger 用于真正具有破坏性的操作。",
+            zh: "danger用于真正具有破坏性的操作。",
           })}
           dont={
             <Button look="danger" icon={<FloppyDiskIcon weight="bold" />}>
@@ -308,18 +308,18 @@ export function ButtonShowcase() {
               value: 'look="primary"',
               note: t({
                 en: "The highlight that marks the page's main action. It shares isActive's highlight without emitting aria-pressed, so it stays a one-shot action rather than a state.",
-                zh: "用高亮标出页面的主操作。它与 isActive 共用同一种高亮，但不会发出 aria-pressed，因此它始终是一次性操作而不是一种状态。",
+                zh: "用高亮标出页面的主操作。它与isActive共用同一种高亮，但不会发出aria-pressed，因此它始终是一次性操作而不是一种状态。",
               }),
             },
             {
               term: t({
                 en: "A second action beside a primary one",
-                zh: "primary 操作旁边的次要操作",
+                zh: "primary操作旁边的次要操作",
               }),
-              value: t({ en: "no look", zh: "不设 look" }),
+              value: t({ en: "no look", zh: "不设look" }),
               note: t({
                 en: "The default raised surface. Quieter than primary, and still a full control.",
-                zh: "默认的凸起表面。比 primary 克制，但仍是一个完整的控件。",
+                zh: "默认的凸起表面。比primary克制，但仍是一个完整的控件。",
               }),
             },
             {
@@ -360,7 +360,7 @@ export function ButtonShowcase() {
         <GuideNote>
           {t({
             en: "bright is not a Look: it lifts the button onto a bright surface and overrides the fill, so pairing it with outline or ghost cancels their chrome.",
-            zh: "bright 不是一种外观：它把按钮置于明亮表面并覆盖填充，因此与 outline 或 ghost 同用会抵消二者的外框处理。",
+            zh: "bright不是一种外观：它把按钮置于明亮表面并覆盖填充，因此与outline或ghost同用会抵消二者的外框处理。",
           })}
         </GuideNote>
       </GuideSection>
@@ -379,7 +379,7 @@ export function ButtonShowcase() {
               value: "aria-label",
               note: t({
                 en: "With no children, aria-label or aria-labelledby is required at the type level, so an unnamed icon-only button does not compile.",
-                zh: "没有 children 时，类型层面强制要求 aria-label 或 aria-labelledby，因此无名的纯图标按钮无法通过编译。",
+                zh: "没有children时，类型层面强制要求aria-label或aria-labelledby，因此无名的纯图标按钮无法通过编译。",
               }),
             },
             {
@@ -387,7 +387,7 @@ export function ButtonShowcase() {
               value: "loading",
               note: t({
                 en: "loading sets aria-busy and blocks activation through aria-disabled rather than the native disabled attribute, so the button keeps focus and the busy state is announced.",
-                zh: "loading 会设置 aria-busy，并以 aria-disabled 而非原生 disabled 属性阻止触发，因此按钮保留焦点，忙碌状态也能被读出。",
+                zh: "loading会设置aria-busy，并以aria-disabled而非原生disabled属性阻止触发，因此按钮保留焦点，忙碌状态也能被读出。",
               }),
             },
             {
@@ -395,7 +395,7 @@ export function ButtonShowcase() {
               value: "isActive",
               note: t({
                 en: 'isActive emits aria-pressed. look="primary" carries the same highlight with no state, so a toggle belongs to isActive alone.',
-                zh: 'isActive 会发出 aria-pressed。look="primary" 只有同样的高亮而没有状态，因此切换状态只交给 isActive。',
+                zh: 'isActive会发出aria-pressed。look="primary" 只有同样的高亮而没有状态，因此切换状态只交给isActive。',
               }),
             },
           ]}
@@ -409,7 +409,7 @@ export function ButtonShowcase() {
           }
           doCaption={t({
             en: "Pass the icon through icon and name an icon-only button with aria-label.",
-            zh: "通过 icon 传入图标，并用 aria-label 为纯图标按钮命名。",
+            zh: "通过icon传入图标，并用aria-label为纯图标按钮命名。",
           })}
           dont={
             <Button>
@@ -418,7 +418,7 @@ export function ButtonShowcase() {
           }
           dontCaption={t({
             en: "Don't put a bare icon in children — the button then ships with no accessible name.",
-            zh: "不要把裸图标直接放进 children——这样按钮会缺少可访问名称。",
+            zh: "不要把裸图标直接放进children——这样按钮会缺少可访问名称。",
           })}
         />
       </GuideSection>

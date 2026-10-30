@@ -126,7 +126,7 @@ export function AvatarShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Without a portrait the monogram comes from the first and last words of the name. A single word — including an unspaced CJK name — yields one character rather than two unrelated ones; initials overrides the derivation entirely.",
-            zh: "没有头像时，字母缩写取自姓名的首词与末词。单个词——包括没有空格的中日韩姓名——只取一个字符，而非两个不相关的字符；initials 可完全覆盖该推导。",
+            zh: "没有头像时，字母缩写取自姓名的首词与末词。单个词——包括没有空格的中日韩姓名——只取一个字符，而非两个不相关的字符；initials可完全覆盖该推导。",
           })}
         </Text>
       </Showcase>
@@ -164,7 +164,7 @@ export function AvatarShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The badge is drawn, so it says nothing on its own — badgeLabel carries its meaning and is required whenever a badge is set. Keeping it out of name is also what stops the label from corrupting the monogram.",
-            zh: "角标只是图形，本身不表达任何信息——badgeLabel 承载其含义，且在设置角标时必填。把它与 name 分开，也避免了标签污染字母缩写。",
+            zh: "角标只是图形，本身不表达任何信息——badgeLabel承载其含义，且在设置角标时必填。把它与name分开，也避免了标签污染字母缩写。",
           })}
         </Text>
       </Showcase>
@@ -184,7 +184,7 @@ export function AvatarShowcase() {
           }
           doCaption={t({
             en: "Keep name to the person and let badgeLabel say what the badge means. The avatar still announces as one object, and the monogram derives from her name alone.",
-            zh: "让 name 只表示这个人，由 badgeLabel 说明角标的含义。头像仍作为一个整体被朗读，字母缩写也只由姓名推导。",
+            zh: "让name只表示这个人，由badgeLabel说明角标的含义。头像仍作为一个整体被朗读，字母缩写也只由姓名推导。",
           })}
           dont={
             <Avatar
@@ -200,7 +200,7 @@ export function AvatarShowcase() {
           }
           dontCaption={t({
             en: "Don't fold the status into name — it is announced twice, and since the monogram takes the first and last words, it picks up a word that isn't part of her name.",
-            zh: "不要把状态写进 name——它会被朗读两次；而且字母缩写取自首词与末词，会取到并不属于姓名的词。",
+            zh: "不要把状态写进name——它会被朗读两次；而且字母缩写取自首词与末词，会取到并不属于姓名的词。",
           })}
         />
       </Showcase>

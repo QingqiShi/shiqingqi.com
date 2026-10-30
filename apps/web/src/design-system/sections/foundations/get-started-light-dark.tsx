@@ -26,7 +26,7 @@ export function GetStartedLightDark() {
       title={t({ en: "Light and dark", zh: "浅色与深色" })}
       lead={t({
         en: "Every colour Token is a light-dark() pair, and the color-scheme of the element it paints decides which half it uses. There is no second set of Tokens: set color-scheme and every component follows.",
-        zh: "每个颜色令牌都是一对 light-dark() 值，由它所绘制元素的 color-scheme 决定取哪一半。没有第二套令牌：设置 color-scheme，每个组件都会随之变化。",
+        zh: "每个颜色令牌都是一对light-dark() 值，由它所绘制元素的color-scheme决定取哪一半。没有第二套令牌：设置color-scheme，每个组件都会随之变化。",
       })}
     >
       <ThemeFramePair>
@@ -36,7 +36,7 @@ export function GetStartedLightDark() {
         >
           {t({
             en: "Kyoto, 5 days, opens without a connection.",
-            zh: "京都 5 日行程可离线打开。",
+            zh: "京都5日行程可离线打开。",
           })}
         </Callout>
         <Button look="primary">
@@ -75,7 +75,7 @@ export function GetStartedLightDark() {
       <GuideNote>
         {t({
           en: "light-dark() sets the browser floor: Chrome 123, Safari 17.5 and Firefox 120. constants.DARK in @tuja/ui/tokens.stylex is a media query on the system setting, so it ignores a pinned scheme; a colour Token does not.",
-          zh: "light-dark() 决定了浏览器的最低版本：Chrome 123、Safari 17.5 与 Firefox 120。@tuja/ui/tokens.stylex 中的 constants.DARK 是针对系统设置的媒体查询，因此会忽略被固定的配色；颜色令牌则不会。",
+          zh: "light-dark() 决定了浏览器的最低版本：Chrome 123、Safari 17.5与Firefox 120。@tuja/ui/tokens.stylex中的constants.DARK是针对系统设置的媒体查询，因此会忽略被固定的配色；颜色令牌则不会。",
         })}
       </GuideNote>
     </GuideSection>

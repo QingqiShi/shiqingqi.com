@@ -10,7 +10,7 @@ export function CustomizationContentExample() {
       <Specimen
         caption={t({
           en: "The same Callout with its own icon",
-          zh: "同一个 Callout，换上自己的图标",
+          zh: "同一个Callout，换上自己的图标",
         })}
       >
         <Callout
@@ -27,7 +27,7 @@ export function CustomizationContentExample() {
       <GuideNote>
         {t({
           en: "The default icon says success; this one says where the trip went. Callout still tints it, hides it from screen readers and lines it up with the title. icon={null} removes it.",
-          zh: "默认图标表示成功；这个图标则说明行程去了哪里。Callout 依然为它着色、对屏幕阅读器隐藏它，并让它与标题对齐。icon={null} 会移除图标。",
+          zh: "默认图标表示成功；这个图标则说明行程去了哪里。Callout依然为它着色、对屏幕阅读器隐藏它，并让它与标题对齐。icon={null} 会移除图标。",
         })}
       </GuideNote>
     </>

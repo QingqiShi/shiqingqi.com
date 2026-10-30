@@ -30,7 +30,7 @@ export function EffectContainerShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Attach the ref from useEffectContainer to an element and wrap its content in EffectContainer, and the effects inside act only on each other. Each effect hook belongs to the nearest EffectContainer above it in the React tree, or else to the page. Dust in a card goes only to the Extractor fans in that card, and a fan on the page cannot reach in. Nothing crosses the edge in either direction.",
-            zh: "把 useEffectContainer 返回的 ref 挂到一个元素上，再用 EffectContainer 包住它的内容，里面的效果就只会彼此作用。每个效果 hook 都属于 React 树中在它之上最近的 EffectContainer，没有时则属于页面。卡片里的灰尘只会被同一张卡片里的抽风机吸走，页面上的抽风机也伸不进来。任何东西都不会从任一方向越过边缘。",
+            zh: "把useEffectContainer返回的ref挂到一个元素上，再用EffectContainer包住它的内容，里面的效果就只会彼此作用。每个效果hook都属于React树中在它之上最近的EffectContainer，没有时则属于页面。卡片里的灰尘只会被同一张卡片里的抽风机吸走，页面上的抽风机也伸不进来。任何东西都不会从任一方向越过边缘。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">
@@ -50,13 +50,13 @@ export function EffectContainerShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The scope follows the React tree, not the DOM: content portalled out of the container stays in its scope, and is still clipped to the container's box. Until the container element is attached and measured, the effects of its scope do not draw.",
-            zh: "作用域跟随 React 树而不是 DOM：传送到容器之外的内容仍属于它的作用域，也仍被裁剪在容器的盒子之内。在容器元素挂载并测量好之前，它作用域里的效果不会绘制。",
+            zh: "作用域跟随React树而不是DOM：传送到容器之外的内容仍属于它的作用域，也仍被裁剪在容器的盒子之内。在容器元素挂载并测量好之前，它作用域里的效果不会绘制。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "A container that scrolls its own content, or that sits under a CSS transform or scale, does not draw its effects in the right place yet.",
-            zh: "自身内容会滚动的容器，或位于 CSS transform、scale 之下的容器，目前还无法把效果绘制在正确的位置。",
+            zh: "自身内容会滚动的容器，或位于CSS transform、scale之下的容器，目前还无法把效果绘制在正确的位置。",
           })}
         </Text>
       </Showcase>

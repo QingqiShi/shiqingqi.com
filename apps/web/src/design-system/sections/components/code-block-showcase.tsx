@@ -73,7 +73,7 @@ export function CodeBlockShowcase() {
         <ShowcaseHelper>
           {t({
             en: "A part whose id stays keeps its box across a change: what stays slides to its new place, what arrives rises in, and what leaves fades where it stood. With reduced motion the slide and the rise go; the fade stays.",
-            zh: "id 保持不变的 part 会在改动前后保留同一个盒子：保留的部分滑动到新位置，新增的部分升起淡入，离开的部分原地淡出。开启减弱动效后，滑动与升起会消失，淡出则保留。",
+            zh: "id保持不变的part会在改动前后保留同一个盒子：保留的部分滑动到新位置，新增的部分升起淡入，离开的部分原地淡出。开启减弱动效后，滑动与升起会消失，淡出则保留。",
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "operable", zh: "可操作" })}>
@@ -82,10 +82,10 @@ export function CodeBlockShowcase() {
       </Showcase>
 
       <GuideSection
-        title={t({ en: "Building parts", zh: "构建 parts" })}
+        title={t({ en: "Building parts", zh: "构建parts" })}
         lead={t({
           en: "A part is the unit CodeBlock animates. A few conventions keep a change reading as one continuous slide rather than a redraw.",
-          zh: "part 是 CodeBlock 动画的单位。遵循几条约定，能让改动始终读作一段连续的幻灯片，而不是整段重绘。",
+          zh: "part是CodeBlock动画的单位。遵循几条约定，能让改动始终读作一段连续的幻灯片，而不是整段重绘。",
         })}
       >
         <GuideList
@@ -93,28 +93,28 @@ export function CodeBlockShowcase() {
             {
               term: t({
                 en: "An id that survives the change",
-                zh: "在改动中存续的 id",
+                zh: "在改动中存续的id",
               }),
               note: t({
                 en: "Give a part an id that stays the same across states, so CodeBlock slides its box to the new place instead of fading it out and back in.",
-                zh: "让 part 的 id 在各状态间保持不变，CodeBlock 就会把它的盒子滑动到新位置，而不是先淡出、再淡入。",
+                zh: "让part的id在各状态间保持不变，CodeBlock就会把它的盒子滑动到新位置，而不是先淡出、再淡入。",
               }),
             },
             {
               term: t({
                 en: "A value keyed by its text",
-                zh: "按文本取 key 的值",
+                zh: "按文本取key的值",
               }),
               note: t({
                 en: "Key a value's id by its own text, so a changed value plays as the old value leaving while the new one arrives.",
-                zh: "按值本身的文本生成 id，改动的值就会播放为旧值离开、新值到达。",
+                zh: "按值本身的文本生成id，改动的值就会播放为旧值离开、新值到达。",
               }),
             },
             {
-              term: t({ en: "Line breaks in lead", zh: "换行留在 lead 中" }),
+              term: t({ en: "Line breaks in lead", zh: "换行留在lead中" }),
               note: t({
                 en: "Keep every line break in a part's lead, never inside its tokens — a box that holds a line break has no one place to measure.",
-                zh: "把每个换行都留在 part 的 lead 里，绝不放进它的 tokens——容纳换行的盒子没有单一可测量的位置。",
+                zh: "把每个换行都留在part的lead里，绝不放进它的tokens——容纳换行的盒子没有单一可测量的位置。",
               }),
             },
             {
@@ -129,7 +129,7 @@ export function CodeBlockShowcase() {
         <GuideNote>
           {t({
             en: "source is for a snippet that never changes: the block draws it as plain runs and skips the animation.",
-            zh: "source 用于永不改动的代码片段：代码块把它绘制为普通片段，不带动画。",
+            zh: "source用于永不改动的代码片段：代码块把它绘制为普通片段，不带动画。",
           })}
         </GuideNote>
       </GuideSection>

@@ -64,7 +64,7 @@ export function StepSpecies({ def, onChange }: StepSpeciesProps) {
         <p css={[typeRole.bodySmall, styles.hint]}>
           {t({
             en: "16 hand-painted shapes. Each one has its own eyes and silhouette baked in.",
-            zh: "16 种手绘造型。每一种都自带独特的眼神与轮廓。",
+            zh: "16种手绘造型。每一种都自带独特的眼神与轮廓。",
           })}
         </p>
       </div>

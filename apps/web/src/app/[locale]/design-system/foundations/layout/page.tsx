@@ -28,7 +28,7 @@ export default function LayoutPage() {
       path="/design-system/foundations/layout"
       description={t({
         en: "The components take their spacing, control sizes, breakpoints and z-indexes from @tuja/ui/tokens.stylex and @tuja/ui/breakpoints.stylex. Take yours from the same place, and what you build lines up with the components and changes with the screen when they do.",
-        zh: "组件的间距、控件尺寸、断点与 z-index 都取自 @tuja/ui/tokens.stylex 与 @tuja/ui/breakpoints.stylex。你的也从这里取，你搭建的东西就能与组件对齐，并与它们在同一时刻随屏幕变化。",
+        zh: "组件的间距、控件尺寸、断点与z-index都取自 @tuja/ui/tokens.stylex与 @tuja/ui/breakpoints.stylex。你的也从这里取，你搭建的东西就能与组件对齐，并与它们在同一时刻随屏幕变化。",
       })}
     >
       <LayoutSpaceGuide />

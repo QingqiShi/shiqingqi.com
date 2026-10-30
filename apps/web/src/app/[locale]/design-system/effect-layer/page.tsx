@@ -30,7 +30,7 @@ export default function EffectLayerPage() {
       path="/design-system/effect-layer"
       description={t({
         en: "Effects that CSS cannot draw well, such as particles and light, drawn with WebGPU on <canvas> elements over the page and around the elements that register for them. This is experimental: Ripple, Dust and Black hole are the first effects, and the names on this page may change.",
-        zh: "用 WebGPU 在页面之上的 <canvas> 元素上、围绕为效果登记的元素，绘制 CSS 难以画好的效果，例如粒子与光线。它仍在实验中：涟漪、灰尘和黑洞是最先的几个效果，本页的名称也可能改变。",
+        zh: "用WebGPU在页面之上的 <canvas> 元素上、围绕为效果登记的元素，绘制CSS难以画好的效果，例如粒子与光线。它仍在实验中：涟漪、灰尘和黑洞是最先的几个效果，本页的名称也可能改变。",
       })}
     >
       <EffectLayerShowcase />

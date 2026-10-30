@@ -49,7 +49,7 @@ export function DisclosureHeadlessSpecimen() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The panel stays mounted and flips hidden, so aria-controls always resolves.",
-            zh: "面板始终挂载并切换 hidden，因此 aria-controls 始终能解析到元素。",
+            zh: "面板始终挂载并切换hidden，因此aria-controls始终能解析到元素。",
           })}
         </Text>
       </div>

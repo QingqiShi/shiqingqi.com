@@ -19,7 +19,7 @@ export function TextShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Five looks, each a type role that sets the size, line height, weight and tracking together. Pick the look by the job of the text, not by eyeballing a pixel size.",
-            zh: "五种 look，每种都是一个字体角色，同时设定字号、行高、字重与字距。按文字的用途选择 look，而不是靠肉眼估算像素大小。",
+            zh: "五种look，每种都是一个字体角色，同时设定字号、行高、字重与字距。按文字的用途选择look，而不是靠肉眼估算像素大小。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -35,7 +35,7 @@ export function TextShowcase() {
             <Text look="bodySmall">
               {t({
                 en: "2h 08m · Crime, Drama · Directed by Ana Reyes",
-                zh: "2小时08分 · 犯罪、剧情 · 导演 Ana Reyes",
+                zh: "2小时08分 · 犯罪、剧情 · 导演Ana Reyes",
               })}
             </Text>
           </Specimen>
@@ -48,7 +48,7 @@ export function TextShowcase() {
             <Text look="caption">
               {t({
                 en: "Added to your list 3 hours ago",
-                zh: "3 小时前加入你的清单",
+                zh: "3小时前加入你的清单",
               })}
             </Text>
           </Specimen>
@@ -126,7 +126,7 @@ export function TextShowcase() {
         <ShowcaseHelper>
           {t({
             en: "as picks the semantic element; look picks the size. They stay decoupled, so a span can still read at body size inline. A p at body or bodySmall is a paragraph, so its lines stop at the Measure.",
-            zh: "as 决定语义元素，look 决定字号，二者相互独立——因此 span 仍可在行内保持正文字号。body 或 bodySmall 字号的 p 是段落，所以每行到行长上限为止。",
+            zh: "as决定语义元素，look决定字号，二者相互独立——因此span仍可在行内保持正文字号。body或bodySmall字号的p是段落，所以每行到行长上限为止。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>
@@ -149,7 +149,7 @@ export function TextShowcase() {
         <ShowcaseHelper>
           {t({
             en: "transform sets the letter case independently of look — e.g. an uppercase eyebrow at caption size.",
-            zh: "transform 独立于 look 设定字母大小写——例如以 caption 字号呈现的大写眉标。",
+            zh: "transform独立于look设定字母大小写——例如以caption字号呈现的大写眉标。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -254,16 +254,16 @@ export function TextShowcase() {
       <DoDont
         do={
           <Text look="caption" tone="muted">
-            {t({ en: "Added 3 hours ago", zh: "3 小时前添加" })}
+            {t({ en: "Added 3 hours ago", zh: "3小时前添加" })}
           </Text>
         }
         doCaption={t({
           en: "Pick a look and tone so the type role and theme own the size and colour.",
-          zh: "选择 look 与 tone，让字体角色与主题掌控字号和颜色。",
+          zh: "选择look与tone，让字体角色与主题掌控字号和颜色。",
         })}
         dont={
           <Text css={hardCodedType.base}>
-            {t({ en: "Added 3 hours ago", zh: "3 小时前添加" })}
+            {t({ en: "Added 3 hours ago", zh: "3小时前添加" })}
           </Text>
         }
         dontCaption={t({

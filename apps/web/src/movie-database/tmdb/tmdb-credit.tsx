@@ -21,7 +21,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
       position={position}
       buttonProps={{
         icon: <InfoIcon weight="bold" aria-hidden="true" />,
-        "aria-label": t({ en: "TMDB attribution info", zh: "TMDB 版权信息" }),
+        "aria-label": t({ en: "TMDB attribution info", zh: "TMDB版权信息" }),
       }}
       popupRole="group"
       menuContent={
@@ -37,7 +37,7 @@ export function TmdbCredit({ position }: TmdbCreditProps) {
           <span>
             {t({
               en: "This product uses the TMDB API but is not endorsed or certified by TMDB.",
-              zh: "本产品使用了 TMDB 提供的 API，但并未获得 TMDB 的官方认可或认证。",
+              zh: "本产品使用了TMDB提供的API，但并未获得TMDB的官方认可或认证。",
             })}
           </span>
         </div>
@@ -60,7 +60,7 @@ export function TmdbCreditInline() {
       <span>
         {t({
           en: "This product uses the TMDB API but is not endorsed or certified by TMDB.",
-          zh: "本产品使用了 TMDB 提供的 API，但并未获得 TMDB 的官方认可或认证。",
+          zh: "本产品使用了TMDB提供的API，但并未获得TMDB的官方认可或认证。",
         })}
       </span>
     </div>

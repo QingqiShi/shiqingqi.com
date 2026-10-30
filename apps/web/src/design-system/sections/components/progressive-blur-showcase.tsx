@@ -27,7 +27,7 @@ export function ProgressiveBlurShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "A stack of blurred layers radiating from the floating element on every side, strongest against it and easing to sharp further out. The floating element is passed in, so the ramp runs out of its rect — measured, or reach in from the box's edges — and no callsite states a direction. Each layer is masked by a rounded rect around that element, so the field stays round the whole way out. Each also carries a share of a faint Wash of the page colour, so anything glaring behind the element is washed out rather than left at full contrast, and the Wash eases away with the blur. The layers are aria-hidden and ignore pointer events, so a dismissal click outside the element passes straight through to whatever sits behind it.",
-            zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，坡度自它的矩形向外展开——或由测量得出，或由 reach 从虚化框边缘内推——因此调用处无需指定方向。每一层都由环绕该元素的圆角矩形遮罩，因此虚化范围由内到外始终是圆的。每一层还各自带有一份淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比，淡彩也随虚化一同向外淡出。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
+            zh: "一组虚化图层从悬浮元素向四周辐射，紧贴元素处最强，越向外越清晰。悬浮元素作为子元素传入，坡度自它的矩形向外展开——或由测量得出，或由reach从虚化框边缘内推——因此调用处无需指定方向。每一层都由环绕该元素的圆角矩形遮罩，因此虚化范围由内到外始终是圆的。每一层还各自带有一份淡淡的页面底色淡彩，元素背后过于刺眼的内容会被冲淡，而不是保持原有的强对比，淡彩也随虚化一同向外淡出。这些图层对无障碍隐藏且不响应指针事件，元素之外的关闭点击会直接穿透到后方内容。",
           })}
         </Text>
         <Specimen caption={t({ en: "around a dialog", zh: "对话框周围" })}>

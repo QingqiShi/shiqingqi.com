@@ -46,12 +46,12 @@ export function EffectContainerSpecimen() {
   return (
     <div css={styles.frame}>
       <div css={styles.specimen}>
-        <Card title={t({ en: "Card A", zh: "卡片 A" })} />
+        <Card title={t({ en: "Card A", zh: "卡片A" })} />
         <div css={[stack.item, styles.page]}>
           <DustTile density={5} css={[styles.tile, styles.info]} />
           <Fan reach={PAGE_REACH} />
         </div>
-        <Card title={t({ en: "Card B", zh: "卡片 B" })} dust={styles.success} />
+        <Card title={t({ en: "Card B", zh: "卡片B" })} dust={styles.success} />
       </div>
     </div>
   );

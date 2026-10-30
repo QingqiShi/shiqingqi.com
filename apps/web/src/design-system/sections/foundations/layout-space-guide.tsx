@@ -16,7 +16,7 @@ export function LayoutSpaceGuide() {
       value: t({ en: "Between things", zh: "事物之间" }),
       note: t({
         en: "The gap in a stack, the space between groups, the space between sections. Its five steps are named for how two things relate. It is in rem, and its section step grows at md.",
-        zh: "堆叠里的间隙、组与组之间、区块与区块之间的间距。它的五级以两件事物之间的关系命名。它以 rem 为单位，其中 section 一级在 md 处变大。",
+        zh: "堆叠里的间隙、组与组之间、区块与区块之间的间距。它的五级以两件事物之间的关系命名。它以rem为单位，其中section一级在md处变大。",
       }),
     },
     {
@@ -24,7 +24,7 @@ export function LayoutSpaceGuide() {
       value: t({ en: "Around things", zh: "事物的周围" }),
       note: t({
         en: "The padding of a surface, an offset, a fixed size. Card, Popover, Callout, Section and the page shells all take their padding from space. It is in rem, so it grows when the reader sets a larger text size, and it does not change with the screen.",
-        zh: "表面的内边距、偏移量、固定尺寸。Card、Popover、Callout、Section 与页面骨架都从 space 取内边距。它以 rem 为单位，读者调大文字时它随之变大，但它不随屏幕变化。",
+        zh: "表面的内边距、偏移量、固定尺寸。Card、Popover、Callout、Section与页面骨架都从space取内边距。它以rem为单位，读者调大文字时它随之变大，但它不随屏幕变化。",
       }),
     },
     {
@@ -32,7 +32,7 @@ export function LayoutSpaceGuide() {
       value: t({ en: "Inside a control", zh: "控件的内部" }),
       note: t({
         en: "The height of a control, its padding, the gap between its icon and its label. Button, TextField, Select, Chip, Switch, Slider, Checkbox and SegmentedControl take these from controlSize. It is 20% larger below the md breakpoint.",
-        zh: "控件的高度、内边距，以及图标与标签之间的间隙。Button、TextField、Select、Chip、Switch、Slider、Checkbox 与 SegmentedControl 都从 controlSize 取这些值。在 md 断点以下，它大 20%。",
+        zh: "控件的高度、内边距，以及图标与标签之间的间隙。Button、TextField、Select、Chip、Switch、Slider、Checkbox与SegmentedControl都从controlSize取这些值。在md断点以下，它大20%。",
       }),
     },
   ];
@@ -43,29 +43,29 @@ export function LayoutSpaceGuide() {
       value: "space._5",
       note: t({
         en: "cardSurface carries no padding. Add this when you put it on your own element, so it matches a Card.",
-        zh: "cardSurface 不带内边距。把它用在自己的元素上时加上这一组，就与 Card 一致。",
+        zh: "cardSurface不带内边距。把它用在自己的元素上时加上这一组，就与Card一致。",
       }),
     },
     {
       term: t({ en: "Compact surfaces", zh: "紧凑的表面" }),
       value: t({
         en: "space._2 block · space._3 inline",
-        zh: "块向 space._2 · 行向 space._3",
+        zh: "块向space._2 · 行向space._3",
       }),
       note: t({
         en: "Popover content, a table cell, and the trigger and panel of a Disclosure with the card look.",
-        zh: "Popover 的内容、表格单元格，以及卡片外观的 Disclosure 的触发区与面板。",
+        zh: "Popover的内容、表格单元格，以及卡片外观的Disclosure的触发区与面板。",
       }),
     },
     {
       term: "Callout",
       value: t({
         en: "space._3 block · space._4 inline",
-        zh: "块向 space._3 · 行向 space._4",
+        zh: "块向space._3 · 行向space._4",
       }),
       note: t({
         en: "A Callout holds a title and its text, so it takes more padding than a compact surface.",
-        zh: "Callout 包含标题及其正文，因此它的内边距比紧凑的表面更大。",
+        zh: "Callout包含标题及其正文，因此它的内边距比紧凑的表面更大。",
       }),
     },
     {
@@ -76,18 +76,18 @@ export function LayoutSpaceGuide() {
       }),
       note: t({
         en: "The inline padding of HeaderFooterLayout's reading column, and of SidebarLayout below md. On a phone with a notch, the inset keeps content out from under it.",
-        zh: "HeaderFooterLayout 阅读栏的行向内边距，以及 SidebarLayout 在 md 以下的行向内边距。在有刘海的手机上，安全区内缩让内容不被遮住。",
+        zh: "HeaderFooterLayout阅读栏的行向内边距，以及SidebarLayout在md以下的行向内边距。在有刘海的手机上，安全区内缩让内容不被遮住。",
       }),
     },
     {
       term: "Section",
       value: t({
         en: "rhythm.tight · rhythm.item · space._5 under a divider",
-        zh: "rhythm.tight · rhythm.item · 分隔线下方 space._5",
+        zh: "rhythm.tight · rhythm.item · 分隔线下方space._5",
       }),
       note: t({
         en: "A Section binds its heading to its content at rhythm.tight, and stacks the blocks of its content rhythm.item apart. With divider, it draws a border.size_1 rule above and pads space._5 below it.",
-        zh: "Section 以 rhythm.tight 将标题与内容相连，内容中的各块之间相隔 rhythm.item。启用 divider 时，它在上方画一条 border.size_1 的分隔线，并在线下留 space._5。",
+        zh: "Section以rhythm.tight将标题与内容相连，内容中的各块之间相隔rhythm.item。启用divider时，它在上方画一条border.size_1的分隔线，并在线下留space._5。",
       }),
     },
   ];
@@ -97,18 +97,18 @@ export function LayoutSpaceGuide() {
       <GuideSection
         title={t({
           en: "rhythm, space or controlSize",
-          zh: "rhythm、space 还是 controlSize",
+          zh: "rhythm、space还是controlSize",
         })}
         lead={t({
           en: "There are three scales of length. Use rhythm between things, controlSize inside a control, and space for the rest: padding, offsets and sizes. The components split them the same way, so what you build lines up with theirs.",
-          zh: "长度有三套阶梯。事物之间用 rhythm，控件内部用 controlSize，其余的内边距、偏移量与尺寸用 space。组件也是这样划分的，所以你搭建的东西能与它们对齐。",
+          zh: "长度有三套阶梯。事物之间用rhythm，控件内部用controlSize，其余的内边距、偏移量与尺寸用space。组件也是这样划分的，所以你搭建的东西能与它们对齐。",
         })}
       >
         <GuideList items={scales} />
         <Specimen
           caption={t({
             en: "The Card pads with space; the Button inside it is sized with controlSize",
-            zh: "Card 用 space 留内边距；里面的 Button 用 controlSize 定尺寸",
+            zh: "Card用space留内边距；里面的Button用controlSize定尺寸",
           })}
         >
           <Card css={styles.card}>
@@ -117,7 +117,7 @@ export function LayoutSpaceGuide() {
                 {t({ en: "Watchlist", zh: "待看清单" })}
               </Text>
               <Text look="caption" tone="muted">
-                {t({ en: "12 titles", zh: "12 部" })}
+                {t({ en: "12 titles", zh: "12部" })}
               </Text>
             </div>
             <Button size="sm" css={styles.action}>

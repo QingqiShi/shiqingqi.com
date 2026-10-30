@@ -28,7 +28,7 @@ export function Filters({ mobileButtonLabel }: FiltersProps) {
       trailingContent={
         <>
           <CollapsedChatInput
-            placeholder={t({ en: "Ask AI...", zh: "向 AI 提问..." })}
+            placeholder={t({ en: "Ask AI...", zh: "向AI提问..." })}
             sendLabel={t({ en: "Send message", zh: "发送消息" })}
           />
           <CollapsedChatButton

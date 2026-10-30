@@ -59,26 +59,26 @@ export function GlassShowcase() {
       value: 'position: "relative"',
       note: t({
         en: "The rim is an absolute ::before with inset 0. On an element that is not positioned, it covers the nearest positioned ancestor instead.",
-        zh: "边缘是一个 inset 为 0 的绝对定位 ::before。元素若没有定位，它就会盖住最近的已定位祖先元素。",
+        zh: "边缘是一个inset为0的绝对定位 ::before。元素若没有定位，它就会盖住最近的已定位祖先元素。",
       }),
     },
     {
-      term: t({ en: "Round it with corner", zh: "用 corner 做圆角" }),
+      term: t({ en: "Round it with corner", zh: "用corner做圆角" }),
       value: "corner.*",
       note: t({
         en: "glassSurface sets no radius. The rim inherits the element's borderRadius and cornerShape, so a corner.* member shapes both.",
-        zh: "glassSurface 不设圆角。边缘继承元素的 borderRadius 与 cornerShape，所以一个 corner.* 成员就能同时决定两者的形状。",
+        zh: "glassSurface不设圆角。边缘继承元素的borderRadius与cornerShape，所以一个corner.* 成员就能同时决定两者的形状。",
       }),
     },
     {
       term: t({
         en: "Tune it through glassTokens",
-        zh: "通过 glassTokens 调节",
+        zh: "通过glassTokens调节",
       }),
       value: "glassTokens.*",
       note: t({
         en: "A backgroundColor, backdropFilter or boxShadow later in css replaces the glass's own, and a ::before of yours collides with the rim. Change the fill, rim and blur through the Tokens below instead.",
-        zh: "css 中靠后的 backgroundColor、backdropFilter 或 boxShadow 会取代玻璃自己的值，你自己的 ::before 会与边缘冲突。改为通过下面的令牌调节填充、边缘与模糊。",
+        zh: "css中靠后的backgroundColor、backdropFilter或boxShadow会取代玻璃自己的值，你自己的 ::before会与边缘冲突。改为通过下面的令牌调节填充、边缘与模糊。",
       }),
     },
     {
@@ -89,7 +89,7 @@ export function GlassShowcase() {
       value: 'backdropFilter: "none"',
       note: t({
         en: "A backdrop blur repaints whenever the element or what is behind it moves. Over an opaque, plain ground it blurs nothing, so SegmentedControl turns it off for its sliding segment. Do the same.",
-        zh: "背景模糊在元素或其背后的内容移动时都要重绘。在不透明的纯色底面上它什么也虚化不了，所以 SegmentedControl 为滑动的分段关掉了它。你也这样做。",
+        zh: "背景模糊在元素或其背后的内容移动时都要重绘。在不透明的纯色底面上它什么也虚化不了，所以SegmentedControl为滑动的分段关掉了它。你也这样做。",
       }),
     },
   ];
@@ -99,7 +99,7 @@ export function GlassShowcase() {
       <ShowcaseHelper>
         {t({
           en: "A translucent fill over a blur of whatever is behind the element, a hairline rim that is brighter along the top and bottom edges, and shadow._2. In light mode the fill is white at 80%, so little shows through; in dark mode it is white at 12%.",
-          zh: "一层半透明的填充，叠在元素背后内容的虚化之上；一圈发丝细的边缘，顶边与底边更亮；再加上 shadow._2。浅色模式下填充是 80% 的白色，透出的不多；深色模式下是 12% 的白色。",
+          zh: "一层半透明的填充，叠在元素背后内容的虚化之上；一圈发丝细的边缘，顶边与底边更亮；再加上shadow._2。浅色模式下填充是80% 的白色，透出的不多；深色模式下是12% 的白色。",
         })}
       </ShowcaseHelper>
       <GuideList items={requirements} />
@@ -208,7 +208,7 @@ const styles = stylex.create({
       <Specimen
         caption={t({
           en: "glassTokens.blur, turned — the same fill over the same ground",
-          zh: "调节 glassTokens.blur——同样的填充落在同样的底面上",
+          zh: "调节glassTokens.blur——同样的填充落在同样的底面上",
         })}
       >
         <BusyGround>
@@ -241,7 +241,7 @@ const styles = stylex.create({
       <Specimen
         caption={t({
           en: "glassTokens.fill, turned — how see-through the glass is, and what colour it carries",
-          zh: "调节 glassTokens.fill——玻璃有多透，以及它带着什么颜色",
+          zh: "调节glassTokens.fill——玻璃有多透，以及它带着什么颜色",
         })}
       >
         <BusyGround>

@@ -118,18 +118,18 @@ export function MotionShowcase() {
       term: "transition.colors",
       value: t({
         en: "Text, background and border colour · 200ms · ease",
-        zh: "文字、背景与边框颜色 · 200 毫秒 · ease",
+        zh: "文字、背景与边框颜色 · 200毫秒 · ease",
       }),
       note: t({
         en: "Kept under reduced motion. The fields, Chip, Callout, Breadcrumb and an interactive Card use it for hover and state.",
-        zh: "减弱动效时保留。各表单字段、Chip、Callout、Breadcrumb 与可交互的 Card 都用它表现悬停与状态变化。",
+        zh: "减弱动效时保留。各表单字段、Chip、Callout、Breadcrumb与可交互的Card都用它表现悬停与状态变化。",
       }),
     },
     {
       term: "transition.opacity",
       value: t({
         en: "Opacity · 200ms · ease",
-        zh: "不透明度 · 200 毫秒 · ease",
+        zh: "不透明度 · 200毫秒 · ease",
       }),
       note: t({
         en: "Kept under reduced motion.",
@@ -140,18 +140,18 @@ export function MotionShowcase() {
       term: "transition.transform",
       value: t({
         en: "Transform · 500ms · spring",
-        zh: "transform · 500 毫秒 · spring",
+        zh: "transform · 500毫秒 · spring",
       }),
       note: t({
         en: "Removed under reduced motion: the element takes its new transform at once. Disclosure turns its caret with it.",
-        zh: "减弱动效时移除：元素立即变为新的 transform。Disclosure 用它旋转箭头。",
+        zh: "减弱动效时移除：元素立即变为新的transform。Disclosure用它旋转箭头。",
       }),
     },
     {
       term: "transition.all",
       value: t({
         en: "Every property · 200ms · ease",
-        zh: "所有属性 · 200 毫秒 · ease",
+        zh: "所有属性 · 200毫秒 · ease",
       }),
       note: t({
         en: "Under reduced motion it keeps only colour, background colour and opacity.",
@@ -162,7 +162,7 @@ export function MotionShowcase() {
       term: "transition.shadow",
       value: t({
         en: "Box shadow · 200ms · ease",
-        zh: "box-shadow · 200 毫秒 · ease",
+        zh: "box-shadow · 200毫秒 · ease",
       }),
       note: t({
         en: "Kept under reduced motion.",
@@ -173,11 +173,11 @@ export function MotionShowcase() {
       term: "transition.scrollbarColor",
       value: t({
         en: "Scrollbar colour · 200ms · ease-out",
-        zh: "滚动条颜色 · 200 毫秒 · ease-out",
+        zh: "滚动条颜色 · 200毫秒 · ease-out",
       }),
       note: t({
         en: "Pairs with scrollbar.autoHide from the layout primitive. Only Chromium animates it; other browsers and reduced motion swap at once.",
-        zh: "与 layout 原语中的 scrollbar.autoHide 搭配。只有 Chromium 会为其做动画；其他浏览器以及减弱动效时立即切换。",
+        zh: "与layout原语中的scrollbar.autoHide搭配。只有Chromium会为其做动画；其他浏览器以及减弱动效时立即切换。",
       }),
     },
     {
@@ -192,18 +192,18 @@ export function MotionShowcase() {
       term: "animate.fadeIn · animate.fadeOut",
       value: t({
         en: "Opacity on mount · 200ms · ease",
-        zh: "挂载时的不透明度 · 200 毫秒 · ease",
+        zh: "挂载时的不透明度 · 200毫秒 · ease",
       }),
       note: t({
         en: "Kept under reduced motion. fadeOut does not hold its end state, so add animationFillMode: forwards or remove the element when it ends.",
-        zh: "减弱动效时保留。fadeOut 不会停在结束状态，因此请加上 animationFillMode: forwards，或在结束时移除该元素。",
+        zh: "减弱动效时保留。fadeOut不会停在结束状态，因此请加上animationFillMode: forwards，或在结束时移除该元素。",
       }),
     },
     {
       term: "animate.slideUp · animate.slideDown",
       value: t({
         en: "Arrives from below or above, by its own height · 500ms · spring",
-        zh: "从下方或上方移入，距离为自身高度 · 500 毫秒 · spring",
+        zh: "从下方或上方移入，距离为自身高度 · 500毫秒 · spring",
       }),
       note: t({
         en: "Removed under reduced motion: the element appears in place. Clip the parent, or the element is visible outside it while it travels.",
@@ -214,22 +214,22 @@ export function MotionShowcase() {
       term: "animate.expand · animate.collapse",
       value: t({
         en: "Grid rows from 0fr to 1fr, or back · 300ms · ease-out",
-        zh: "网格行从 0fr 到 1fr，或反向 · 300 毫秒 · ease-out",
+        zh: "网格行从0fr到1fr，或反向 · 300毫秒 · ease-out",
       }),
       note: t({
         en: "Not handled under reduced motion. The preset sets display: grid; put the content in one child with minBlockSize: 0 and overflow: hidden.",
-        zh: "减弱动效时未作处理。该预设会设置 display: grid；把内容放进一个设有 minBlockSize: 0 与 overflow: hidden 的子元素中。",
+        zh: "减弱动效时未作处理。该预设会设置display: grid；把内容放进一个设有minBlockSize: 0与overflow: hidden的子元素中。",
       }),
     },
     {
       term: "animate.pulse · animate.bounce",
       value: t({
         en: "Endless loops · 2000ms and 1400ms",
-        zh: "无限循环 · 2000 毫秒与 1400 毫秒",
+        zh: "无限循环 · 2000毫秒与1400毫秒",
       }),
       note: t({
         en: "Stopped under reduced motion. They do not read motionTokens.playState.",
-        zh: "减弱动效时停止。它们不读取 motionTokens.playState。",
+        zh: "减弱动效时停止。它们不读取motionTokens.playState。",
       }),
     },
   ];
@@ -243,7 +243,7 @@ export function MotionShowcase() {
       }),
       note: t({
         en: "A column or a page pushes in, the sidebar folds to the Collapsed sidebar, and each Shared element flies to its new form. A navigation during a push turns it from where it is. Reduced motion cross-fades over 170ms.",
-        zh: "一栏或一页推入，侧边栏折叠为收起侧栏，每个共享元素飞向它的新形态。推入途中再次导航，会从当前位置掉头。减弱动效时以 170 毫秒交叉淡入淡出。",
+        zh: "一栏或一页推入，侧边栏折叠为收起侧栏，每个共享元素飞向它的新形态。推入途中再次导航，会从当前位置掉头。减弱动效时以170毫秒交叉淡入淡出。",
       }),
     },
     {
@@ -254,7 +254,7 @@ export function MotionShowcase() {
       }),
       note: t({
         en: "Below md the card slides up from the screen edge, or lifts out of the row that opened it; from md up it rises a little as it grows. A drag that lets go keeps its speed. Reduced motion fades it in place over 200ms.",
-        zh: "md 以下，卡片从屏幕边缘滑上来，或从打开它的那一行中升起；md 及以上，它在变大的同时略微升起。拖动后松手，卡片保持松手时的速度。减弱动效时在原位以 200 毫秒淡入淡出。",
+        zh: "md以下，卡片从屏幕边缘滑上来，或从打开它的那一行中升起；md及以上，它在变大的同时略微升起。拖动后松手，卡片保持松手时的速度。减弱动效时在原位以200毫秒淡入淡出。",
       }),
     },
     {
@@ -262,7 +262,7 @@ export function MotionShowcase() {
       value: t({ en: "Engine · surface", zh: "引擎 · surface" }),
       note: t({
         en: "The surface grows out of the trigger and shrinks back into it. A toggle during the morph turns it from where it is. Reduced motion cross-fades it in place over 150ms.",
-        zh: "弹层从触发按钮长出，再缩回其中。变形途中再次切换，会从当前位置掉头。减弱动效时在原位以 150 毫秒交叉淡入淡出。",
+        zh: "弹层从触发按钮长出，再缩回其中。变形途中再次切换，会从当前位置掉头。减弱动效时在原位以150毫秒交叉淡入淡出。",
       }),
     },
     {
@@ -270,7 +270,7 @@ export function MotionShowcase() {
       value: t({ en: "Engine · surface", zh: "引擎 · surface" }),
       note: t({
         en: "Below md the drawer slides in over a fading scrim, and a toggle during the slide turns it. Reduced motion fades both over 150ms.",
-        zh: "md 以下，抽屉在渐显的遮罩上滑入；滑动途中再次切换会让它掉头。减弱动效时两者都以 150 毫秒淡入淡出。",
+        zh: "md以下，抽屉在渐显的遮罩上滑入；滑动途中再次切换会让它掉头。减弱动效时两者都以150毫秒淡入淡出。",
       }),
     },
     {
@@ -286,7 +286,7 @@ export function MotionShowcase() {
       value: t({ en: "Engine · surface", zh: "引擎 · surface" }),
       note: t({
         en: "When the source changes, the parts that stay move to their new place, new parts rise in, and parts that go fade out over 200ms. Reduced motion fades new parts in over 150ms.",
-        zh: "源码变化时，保留的部分移到新位置，新部分升入，离开的部分以 200 毫秒淡出。减弱动效时新部分以 150 毫秒淡入。",
+        zh: "源码变化时，保留的部分移到新位置，新部分升入，离开的部分以200毫秒淡出。减弱动效时新部分以150毫秒淡入。",
       }),
     },
   ];
@@ -296,40 +296,40 @@ export function MotionShowcase() {
       term: "Button · AnchorButton",
       value: t({
         en: "Press: easing.spring, 500ms · release: 1000ms",
-        zh: "按下：easing.spring，500 毫秒 · 松开：1000 毫秒",
+        zh: "按下：easing.spring，500毫秒 · 松开：1000毫秒",
       }),
       note: t({
         en: "Grows to 1.05 and leans up to 4px towards the pointer. Reduced motion keeps only the background change.",
-        zh: "放大到 1.05，并向指针方向偏移最多 4px。减弱动效时只保留背景变化。",
+        zh: "放大到1.05，并向指针方向偏移最多4px。减弱动效时只保留背景变化。",
       }),
     },
     {
       term: "SegmentedControl · TabBar",
-      value: t({ en: "easing.spring, 300ms", zh: "easing.spring，300 毫秒" }),
+      value: t({ en: "easing.spring, 300ms", zh: "easing.spring，300毫秒" }),
       note: t({
         en: "The plain indicator springs to the selected option. The liquid effect pours it there instead, as water that flows on for about 0.8 s after it arrives and then sets in the segment's shape. Reduced motion moves it at once, or crossfades it with the effect.",
-        zh: "普通指示块以弹簧曲线移到选中项。液态效果则让它化作水涌过去，到位后继续流动约 0.8 秒，再按分段的形状凝固。减弱动效时立即移过去；有效果时以交叉淡入淡出到位。",
+        zh: "普通指示块以弹簧曲线移到选中项。液态效果则让它化作水涌过去，到位后继续流动约0.8秒，再按分段的形状凝固。减弱动效时立即移过去；有效果时以交叉淡入淡出到位。",
       }),
     },
     {
       term: "Switch",
-      value: t({ en: "easing.spring, 500ms", zh: "easing.spring，500 毫秒" }),
+      value: t({ en: "easing.spring, 500ms", zh: "easing.spring，500毫秒" }),
       note: t({
         en: "The plain thumb springs across. The liquid effect pours it across instead, as a drop of water that flows on for about 0.8 s after it arrives and then sets at the other end. Reduced motion moves it at once, or crossfades it with the effect.",
-        zh: "普通滑块以弹簧曲线移到另一侧。液态效果则让它化作一滴水涌到另一侧，到位后继续流动约 0.8 秒，再凝固。减弱动效时立即移过去；有效果时以交叉淡入淡出到位。",
+        zh: "普通滑块以弹簧曲线移到另一侧。液态效果则让它化作一滴水涌到另一侧，到位后继续流动约0.8秒，再凝固。减弱动效时立即移过去；有效果时以交叉淡入淡出到位。",
       }),
     },
     {
       term: "Slider",
-      value: t({ en: "easing.spring, 500ms", zh: "easing.spring，500 毫秒" }),
+      value: t({ en: "easing.spring, 500ms", zh: "easing.spring，500毫秒" }),
       note: t({
         en: "The thumb grows to 1.12 on hover. Reduced motion grows it at once.",
-        zh: "悬停时滑块放大到 1.12。减弱动效时立即放大。",
+        zh: "悬停时滑块放大到1.12。减弱动效时立即放大。",
       }),
     },
     {
       term: "Progress",
-      value: t({ en: "easing.spring, 1000ms", zh: "easing.spring，1000 毫秒" }),
+      value: t({ en: "easing.spring, 1000ms", zh: "easing.spring，1000毫秒" }),
       note: t({
         en: "The bar grows to the new value. Reduced motion jumps to it.",
         zh: "进度条增长到新数值。减弱动效时直接跳到该值。",
@@ -339,7 +339,7 @@ export function MotionShowcase() {
       term: "Disclosure",
       value: t({
         en: "transition.transform: easing.spring, 500ms",
-        zh: "transition.transform：easing.spring，500 毫秒",
+        zh: "transition.transform：easing.spring，500毫秒",
       }),
       note: t({
         en: "The caret turns as the panel opens and closes. Reduced motion turns it at once.",
@@ -348,31 +348,31 @@ export function MotionShowcase() {
     },
     {
       term: "Popover",
-      value: t({ en: "easing.spring, 300ms", zh: "easing.spring，300 毫秒" }),
+      value: t({ en: "easing.spring, 300ms", zh: "easing.spring，300毫秒" }),
       note: t({
         en: "Fades in from 0.98 scale. Reduced motion shows it at once.",
-        zh: "从 0.98 的缩放淡入。减弱动效时直接出现。",
+        zh: "从0.98的缩放淡入。减弱动效时直接出现。",
       }),
     },
     {
       term: "Toast",
-      value: t({ en: "easing.spring, 500ms", zh: "easing.spring，500 毫秒" }),
+      value: t({ en: "easing.spring, 500ms", zh: "easing.spring，500毫秒" }),
       note: t({
         en: "Arrives with a spring; a browser without linear() takes easing.springFallback. Reduced motion fades it in over 200ms.",
-        zh: "以弹簧曲线进场；不支持 linear() 的浏览器改用 easing.springFallback。减弱动效时以 200 毫秒淡入。",
+        zh: "以弹簧曲线进场；不支持linear() 的浏览器改用easing.springFallback。减弱动效时以200毫秒淡入。",
       }),
     },
     {
       term: "Spinner",
-      value: t({ en: "easing.linear, 800ms", zh: "easing.linear，800 毫秒" }),
+      value: t({ en: "easing.linear, 800ms", zh: "easing.linear，800毫秒" }),
       note: t({
         en: "Turns without end. Reduced motion swaps the turn for a slow opacity pulse, 1600ms, so it still reads as busy.",
-        zh: "持续旋转。减弱动效时改为 1600 毫秒的缓慢明暗变化，使其仍能表示正在忙。",
+        zh: "持续旋转。减弱动效时改为1600毫秒的缓慢明暗变化，使其仍能表示正在忙。",
       }),
     },
     {
       term: "Skeleton",
-      value: t({ en: "easing.pulse, 2000ms", zh: "easing.pulse，2000 毫秒" }),
+      value: t({ en: "easing.pulse, 2000ms", zh: "easing.pulse，2000毫秒" }),
       note: t({
         en: "Pulses without end. Reduced motion holds it still.",
         zh: "持续明暗变化。减弱动效时保持静止。",
@@ -411,14 +411,14 @@ export function MotionShowcase() {
       term: t({ en: "An interrupt keeps its speed", zh: "打断时保持速度" }),
       note: t({
         en: "The engine solves the spring exactly, so it knows where a value is and how fast it moves at any time. A to() during a motion starts from there at that speed, and the motion turns without a jolt. A drag writes each move with set(x, { velocity }), and the to() at its release keeps that speed.",
-        zh: "引擎精确求解弹簧，因此任何时刻都知道值在哪里、移动多快。动效途中调用 to()，会从该处以该速度开始，动效平滑掉头，不会突兀。拖动时用 set(x, { velocity }) 写入每一步，松手时的 to() 会保持这个速度。",
+        zh: "引擎精确求解弹簧，因此任何时刻都知道值在哪里、移动多快。动效途中调用to()，会从该处以该速度开始，动效平滑掉头，不会突兀。拖动时用set(x, { velocity }) 写入每一步，松手时的to() 会保持这个速度。",
       }),
     },
     {
       term: t({ en: "On the compositor", zh: "在合成器上运行" }),
       note: t({
         en: "The engine samples the spring into keyframes and plays them as Web Animations, so a busy main thread does not stop a motion.",
-        zh: "引擎把弹簧采样为关键帧，并以 Web Animations 播放，因此主线程繁忙时动效也不会停顿。",
+        zh: "引擎把弹簧采样为关键帧，并以Web Animations播放，因此主线程繁忙时动效也不会停顿。",
       }),
     },
   ];
@@ -426,11 +426,11 @@ export function MotionShowcase() {
   const roleNotes: Record<keyof typeof springRoles, string> = {
     surface: t({
       en: "A popover, a menu, a toast, a Sheet's card, a screen that rises, and a control.",
-      zh: "弹出层、菜单、Toast、Sheet 的卡片、升起的屏幕，以及控件。",
+      zh: "弹出层、菜单、Toast、Sheet的卡片、升起的屏幕，以及控件。",
     }),
     switchFill: t({
       en: "The on fill as it rises through a Switch's track.",
-      zh: "开启时的填充色在 Switch 轨道中升起时。",
+      zh: "开启时的填充色在Switch轨道中升起时。",
     }),
     stackPush: t({
       en: "A page that a Navigation split view pushes over the one before it.",
@@ -438,7 +438,7 @@ export function MotionShowcase() {
     }),
     move: t({
       en: "An element that moves to its new place in the layout. playLayout takes it when you give no spring.",
-      zh: "移到布局中新位置的元素。未指定弹簧时，playLayout 使用它。",
+      zh: "移到布局中新位置的元素。未指定弹簧时，playLayout使用它。",
     }),
     flight: t({
       en: "A Shared element as it flies to its new form.",
@@ -450,7 +450,7 @@ export function MotionShowcase() {
     }),
     lift: t({
       en: "A Sheet's card as it grows out of a row and shrinks back into it.",
-      zh: "Sheet 的卡片从某一行中长出、再缩回其中时。",
+      zh: "Sheet的卡片从某一行中长出、再缩回其中时。",
     }),
     fold: t({
       en: "The sidebar of a Navigation split view as it folds to the Collapsed sidebar or opens.",
@@ -493,7 +493,7 @@ export function MotionShowcase() {
         })}
         lead={t({
           en: "When no preset covers the change, build the transition from duration and easing. They are StyleX constants: the compiler writes each value into your CSS, so a theme cannot override them and nothing changes them at runtime.",
-          zh: "没有预设能覆盖某个变化时，用 duration 与 easing 自行组合过渡。它们是 StyleX 常量：编译器会把每个值直接写进你的 CSS，因此主题无法覆盖它们，运行时也无法改变。",
+          zh: "没有预设能覆盖某个变化时，用duration与easing自行组合过渡。它们是StyleX常量：编译器会把每个值直接写进你的CSS，因此主题无法覆盖它们，运行时也无法改变。",
         })}
       >
         <UsageSnippet
@@ -515,7 +515,7 @@ const styles = stylex.create({
         <GuideNote>
           {t({
             en: "The transitions use 75ms to 1000ms; 800ms and up is for loops. A movement in CSS takes easing.spring: the system spring of the motion engine at mass 1, sampled into a linear() curve over 500ms. At 500ms, a transition moves as the surface role does. A longer or shorter duration changes the speed as a different mass does: the bounce stays the same. The curve is at 95% at approximately a quarter of the duration, so use a duration that is approximately four times the time in which the movement must look complete. A browser without linear() ignores the whole declaration; easing.springFallback is a cubic-bezier that comes close, for those browsers.",
-            zh: "过渡使用 75 至 1000 毫秒；800 毫秒及以上用于循环。CSS 中的移动使用 easing.spring：它是动效引擎的系统弹簧在质量为 1 时以 500 毫秒采样写成的一条 linear() 曲线。时长为 500 毫秒时，过渡与 surface 角色的移动一致。时长更长或更短，速度就像质量变化时一样变慢或变快，回弹不变。曲线在约四分之一时长处达到 95%，因此请把时长设为移动看起来完成所需时间的约四倍。不支持 linear() 的浏览器会忽略整条声明；easing.springFallback 是一条与之接近的 cubic-bezier，供这些浏览器使用。",
+            zh: "过渡使用75至1000毫秒；800毫秒及以上用于循环。CSS中的移动使用easing.spring：它是动效引擎的系统弹簧在质量为1时以500毫秒采样写成的一条linear() 曲线。时长为500毫秒时，过渡与surface角色的移动一致。时长更长或更短，速度就像质量变化时一样变慢或变快，回弹不变。曲线在约四分之一时长处达到95%，因此请把时长设为移动看起来完成所需时间的约四倍。不支持linear() 的浏览器会忽略整条声明；easing.springFallback是一条与之接近的cubic-bezier，供这些浏览器使用。",
           })}
         </GuideNote>
       </GuideSection>
@@ -524,7 +524,7 @@ const styles = stylex.create({
         title={t({ en: "Motion engine", zh: "动效引擎" })}
         lead={t({
           en: "One engine drives every motion that can be interrupted, follows a gesture, or is measured from the layout. Use it for that kind of motion. A simple change of state, such as a hover, a press or a selection, stays a CSS transition.",
-          zh: "一个引擎驱动所有可被打断、跟随手势或由布局测量而来的动效。这类动效请用引擎。简单的状态变化，例如悬停、按下或选中，仍用 CSS 过渡。",
+          zh: "一个引擎驱动所有可被打断、跟随手势或由布局测量而来的动效。这类动效请用引擎。简单的状态变化，例如悬停、按下或选中，仍用CSS过渡。",
         })}
       >
         <GuideList items={model} />
@@ -556,7 +556,7 @@ x.to(end);`}
         <GuideNote>
           {t({
             en: "Outside React, createMotionEngine, createMotionValue and bind do the same. To move elements to their new place in the layout, take their boxes with captureLayout, change the layout, then call playLayout.",
-            zh: "在 React 之外，createMotionEngine、createMotionValue 与 bind 起同样的作用。要把元素移到布局中的新位置，先用 captureLayout 记下它们的方框，再改变布局，然后调用 playLayout。",
+            zh: "在React之外，createMotionEngine、createMotionValue与bind起同样的作用。要把元素移到布局中的新位置，先用captureLayout记下它们的方框，再改变布局，然后调用playLayout。",
           })}
         </GuideNote>
       </GuideSection>
@@ -585,7 +585,7 @@ x.to(end);`}
         <GuideNote>
           {t({
             en: "These move in CSS, with a duration and easing.spring for a movement.",
-            zh: "下列组件在 CSS 中运行，移动时使用某个时长与 easing.spring。",
+            zh: "下列组件在CSS中运行，移动时使用某个时长与easing.spring。",
           })}
         </GuideNote>
         <GuideList items={cssComponents} />
@@ -595,7 +595,7 @@ x.to(end);`}
         title={t({ en: "Reduced motion", zh: "减弱动效" })}
         lead={t({
           en: "Under prefers-reduced-motion, the components and presets remove movement and keep changes of colour and opacity. Loops stop, except Spinner. On the motion engine, to() snaps to its target, or takes the tween you give as reduced, such as a short fade. Your own CSS motion needs the same branch, written in the style that defines the motion, so every element that composes it gets the branch too.",
-          zh: "在 prefers-reduced-motion 下，组件与预设会去掉移动，保留颜色与不透明度的变化。循环会停止，Spinner 除外。在动效引擎上，to() 会直接跳到目标，或改用你通过 reduced 指定的补间，例如一次短暂的淡入淡出。你自己的 CSS 动效也需要同样的分支，并写在定义该动效的样式中，这样每个组合它的元素都会一并得到这个分支。",
+          zh: "在prefers-reduced-motion下，组件与预设会去掉移动，保留颜色与不透明度的变化。循环会停止，Spinner除外。在动效引擎上，to() 会直接跳到目标，或改用你通过reduced指定的补间，例如一次短暂的淡入淡出。你自己的CSS动效也需要同样的分支，并写在定义该动效的样式中，这样每个组合它的元素都会一并得到这个分支。",
         })}
       >
         <ReducedMotionSpecimen />
@@ -628,7 +628,7 @@ const reduced = useReducedMotion();`}
         <GuideNote>
           {t({
             en: "animate.expand and animate.collapse have no reduced-motion branch. If you use them, add animationName: none under motionConstants.REDUCED_MOTION in your own style.",
-            zh: "animate.expand 与 animate.collapse 没有减弱动效分支。若使用它们，请在你自己的样式中，于 motionConstants.REDUCED_MOTION 下加上 animationName: none。",
+            zh: "animate.expand与animate.collapse没有减弱动效分支。若使用它们，请在你自己的样式中，于motionConstants.REDUCED_MOTION下加上animationName: none。",
           })}
         </GuideNote>
       </GuideSection>
@@ -637,7 +637,7 @@ const reduced = useReducedMotion();`}
         title={t({ en: "Hold a loop still", zh: "让循环静止" })}
         lead={t({
           en: "Spinner and Skeleton loop on an inner element that css cannot reach, so they read their play state from motionTokens.playState. It is a custom property, so it inherits: set it once on an ancestor and every loop inside pauses. Hover or focus the tile.",
-          zh: "Spinner 与 Skeleton 在 css 无法触及的内部元素上循环，因此它们从 motionTokens.playState 读取播放状态。它是一个自定义属性，会被继承：在祖先元素上设置一次，其中所有循环都会暂停。将指针悬停在方块上，或让它获得焦点。",
+          zh: "Spinner与Skeleton在css无法触及的内部元素上循环，因此它们从motionTokens.playState读取播放状态。它是一个自定义属性，会被继承：在祖先元素上设置一次，其中所有循环都会暂停。将指针悬停在方块上，或让它获得焦点。",
         })}
       >
         <Specimen
@@ -675,7 +675,7 @@ const styles = stylex.create({
         <ShowcaseHelper>
           {t({
             en: "Hover a tile. Each runs for 200ms, and transition.transform for 500ms.",
-            zh: "将指针悬停在方块上。每个持续 200 毫秒，transition.transform 持续 500 毫秒。",
+            zh: "将指针悬停在方块上。每个持续200毫秒，transition.transform持续500毫秒。",
           })}
         </ShowcaseHelper>
         <SpecimenGrid>
@@ -770,7 +770,7 @@ const styles = stylex.create({
         <ShowcaseHelper>
           {t({
             en: "Progress against time. spring is the system spring at mass 1, and it leaves the box because it overshoots; springFallback comes close to it. pulse is for loops.",
-            zh: "纵轴为进度，横轴为时间。spring 是质量为 1 时的系统弹簧，它会越过目标，因此越出方框；springFallback 与之接近。pulse 用于循环。",
+            zh: "纵轴为进度，横轴为时间。spring是质量为1时的系统弹簧，它会越过目标，因此越出方框；springFallback与之接近。pulse用于循环。",
           })}
         </ShowcaseHelper>
         <div css={styles.grid}>

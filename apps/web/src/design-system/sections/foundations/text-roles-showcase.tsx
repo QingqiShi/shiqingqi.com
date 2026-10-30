@@ -26,7 +26,7 @@ export function TextRolesShowcase() {
       title={t({ en: "Foregrounds", zh: "前景色" })}
       lead={t({
         en: "Two levels carry every word on a canvas, a surface or a control. A ground that needs a foreground of its own names it with fgOn.",
-        zh: "画布、表面与控件上的所有文字由两个层级承担。需要专属前景色的底面，用 fgOn 指明它。",
+        zh: "画布、表面与控件上的所有文字由两个层级承担。需要专属前景色的底面，用fgOn指明它。",
       })}
     >
       <GuideList
@@ -50,7 +50,7 @@ export function TextRolesShowcase() {
             }),
             note: t({
               en: "Captions, field hints, table headers, metadata. Still held to a contrast floor, so it is safe for text a reader needs. A quiet control, such as a ghost Button or a Breadcrumb link, rests at fgMuted and turns fg on hover.",
-              zh: "说明、字段提示、表头、元信息。它同样遵守对比度下限，因此读者需要读的文字也可以用它。安静的控件，例如 ghost 样式的 Button 或 Breadcrumb 链接，静止时为 fgMuted，悬停时变为 fg。",
+              zh: "说明、字段提示、表头、元信息。它同样遵守对比度下限，因此读者需要读的文字也可以用它。安静的控件，例如ghost样式的Button或Breadcrumb链接，静止时为fgMuted，悬停时变为fg。",
             }),
           },
           {
@@ -61,7 +61,7 @@ export function TextRolesShowcase() {
             }),
             note: t({
               en: "On the page or on that Intent's tint: a field error in fgDanger, a tinted Badge's label.",
-              zh: "用于页面上或该意图色的淡色底上：fgDanger 的字段错误、淡色徽章的标签。",
+              zh: "用于页面上或该意图色的淡色底上：fgDanger的字段错误、淡色徽章的标签。",
             }),
           },
           {
@@ -72,7 +72,7 @@ export function TextRolesShowcase() {
             }),
             note: t({
               en: "On bgControlBright, bgInverse, bgScrim, and every solid Intent fill. Never fg or fgMuted there.",
-              zh: "用于 bgControlBright、bgInverse、bgScrim 与每一种实心意图色填充之上。这些底面上不要用 fg 或 fgMuted。",
+              zh: "用于bgControlBright、bgInverse、bgScrim与每一种实心意图色填充之上。这些底面上不要用fg或fgMuted。",
             }),
           },
         ]}
@@ -98,7 +98,7 @@ const styles = stylex.create({
       <GuideNote>
         {t({
           en: 'With a component you name none of these: Text takes tone="muted" or tone="accent", and a Badge or Callout pairs the tokens for its intent.',
-          zh: '使用组件时无需指明这些令牌：Text 接受 tone="muted" 或 tone="accent"，Badge 与 Callout 会按其 intent 自行搭配令牌。',
+          zh: '使用组件时无需指明这些令牌：Text接受tone="muted" 或tone="accent"，Badge与Callout会按其intent自行搭配令牌。',
         })}
       </GuideNote>
     </GuideSection>
@@ -123,7 +123,7 @@ function GroundCell({ name, fill }: { name: string; fill: StyleXStyles }) {
           levelStyle={styles.levelMuted}
           sample={t({
             en: "2016 · 116 min · Denis Villeneuve",
-            zh: "2016 · 116 分钟 · 丹尼斯·维伦纽瓦",
+            zh: "2016 · 116分钟 · 丹尼斯·维伦纽瓦",
           })}
         />
       </div>

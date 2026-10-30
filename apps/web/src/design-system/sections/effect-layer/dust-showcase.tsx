@@ -43,7 +43,7 @@ export function DustShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Attach the ref from useDust to an element and it sheds particles in its own fill colour. They float off its edge like dust in still air. After a moment, any element with the ref from useExtractorFan within reach pulls them in: they speed up as they near it and vanish at its edge. With no fan in reach, they drift and fade.",
-            zh: "把 useDust 返回的 ref 挂到一个元素上，它就会散出与自身填充色相同的粒子。粒子像静止空气中的灰尘一样从边缘飘开。片刻之后，范围内任何挂着 useExtractorFan 返回的 ref 的元素都会把它们吸过去：越靠近越快，到了边缘就消失。范围内没有抽风机时，它们会四处飘散，然后淡去。",
+            zh: "把useDust返回的ref挂到一个元素上，它就会散出与自身填充色相同的粒子。粒子像静止空气中的灰尘一样从边缘飘开。片刻之后，范围内任何挂着useExtractorFan返回的ref的元素都会把它们吸过去：越靠近越快，到了边缘就消失。范围内没有抽风机时，它们会四处飘散，然后淡去。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">
@@ -55,7 +55,7 @@ export function DustShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Give useDust a burst, and the element shakes off that many particles at once when it mounts. The fans in reach pull them in at once. The dust of an element on the viewport keeps its place on the screen while the page scrolls, so a clear box over a pressed card can carry the press to wherever the page goes.",
-            zh: "给 useDust 设置 burst，元素挂载时就会一次性抖落这么多粒子，范围内的抽风机会立即把它们吸走。视口上元素的灰尘在页面滚动时停留在屏幕上的原位，因此盖在被按下卡片上的透明盒子，能把这次按下带到页面去往的地方。",
+            zh: "给useDust设置burst，元素挂载时就会一次性抖落这么多粒子，范围内的抽风机会立即把它们吸走。视口上元素的灰尘在页面滚动时停留在屏幕上的原位，因此盖在被按下卡片上的透明盒子，能把这次按下带到页面去往的地方。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">

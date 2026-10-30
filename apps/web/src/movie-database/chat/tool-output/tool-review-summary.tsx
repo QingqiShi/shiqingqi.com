@@ -149,7 +149,7 @@ export function ToolReviewSummary({
           )}
           <span css={[typeRole.label, corner.radius_1, styles.countBadge]}>
             {data.reviewCount === 1
-              ? t({ en: "1 review", zh: "1 条评论" })
+              ? t({ en: "1 review", zh: "1条评论" })
               : `${String(data.reviewCount)} ${t({ en: "reviews", zh: "条评论" })}`}
           </span>
         </div>

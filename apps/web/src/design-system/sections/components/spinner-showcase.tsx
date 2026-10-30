@@ -36,7 +36,7 @@ export function SpinnerShowcase() {
         <ShowcaseHelper>
           {t({
             en: "sm, md and lg are fixed rem diameters. inline is 1em, so it takes the size of the text around it — that is what Button's loading state uses, so the spinner occupies exactly the box the icon it replaces did.",
-            zh: "sm、md、lg 为固定的 rem 直径。inline 为 1em，会取周围文字的字号——按钮的加载态正是使用它，因此加载指示器所占空间与被替换的图标完全一致。",
+            zh: "sm、md、lg为固定的rem直径。inline为1em，会取周围文字的字号——按钮的加载态正是使用它，因此加载指示器所占空间与被替换的图标完全一致。",
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -78,7 +78,7 @@ export function SpinnerShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Inside a control that already announces its busy state (aria-busy), mark the spinner aria-hidden so it isn't announced twice.",
-            zh: "在已通过 aria-busy 宣告繁忙状态的控件中，将 spinner 标记为 aria-hidden，避免被重复播报。",
+            zh: "在已通过aria-busy宣告繁忙状态的控件中，将spinner标记为aria-hidden，避免被重复播报。",
           })}
         </ShowcaseHelper>
         <Specimen caption="aria-hidden">
@@ -95,7 +95,7 @@ export function SpinnerShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Under prefers-reduced-motion the rotation is replaced by a gentle opacity pulse — never an infinite spin — so the busy affordance stays visible without vestibular motion.",
-            zh: "在 prefers-reduced-motion 下，旋转会被柔和的透明度脉动取代——绝不无限旋转——使繁忙提示在不引发前庭不适的情况下保持可见。",
+            zh: "在prefers-reduced-motion下，旋转会被柔和的透明度脉动取代——绝不无限旋转——使繁忙提示在不引发前庭不适的情况下保持可见。",
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -110,7 +110,7 @@ export function SpinnerShowcase() {
         }
         doCaption={t({
           en: "Hide the spinner (aria-hidden) when the control's aria-busy already announces the busy state.",
-          zh: "当控件的 aria-busy 已宣告繁忙状态时，隐藏 spinner（aria-hidden）。",
+          zh: "当控件的aria-busy已宣告繁忙状态时，隐藏spinner（aria-hidden）。",
         })}
         dont={
           <Button
@@ -123,7 +123,7 @@ export function SpinnerShowcase() {
         }
         dontCaption={t({
           en: "Don't give a spinner its own label inside a busy control — screen readers announce the state twice.",
-          zh: "不要在繁忙控件内为 spinner 单独设置 label——屏幕阅读器会重复播报状态。",
+          zh: "不要在繁忙控件内为spinner单独设置label——屏幕阅读器会重复播报状态。",
         })}
       />
     </>

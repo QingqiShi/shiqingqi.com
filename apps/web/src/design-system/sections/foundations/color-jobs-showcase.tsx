@@ -24,7 +24,7 @@ export function ColorJobsShowcase() {
       title={t({ en: "Read a token by its name", zh: "从名称读懂令牌" })}
       lead={t({
         en: "When you build your own element, every colour comes from the color group in @tuja/ui/tokens.stylex. A token's name says the property it paints, then its Token Role: what the box is. Decide what the box is — the canvas, a surface, a control, or an Intent — and the name follows.",
-        zh: "自行构建元素时，所有颜色都来自 @tuja/ui/tokens.stylex 中的 color 组。令牌名称先说它绘制的属性，再说它的令牌角色，也就是这个盒子是什么。先确定盒子是什么——画布、表面、控件，还是某种意图色——名称随之而定。",
+        zh: "自行构建元素时，所有颜色都来自 @tuja/ui/tokens.stylex中的color组。令牌名称先说它绘制的属性，再说它的令牌角色，也就是这个盒子是什么。先确定盒子是什么——画布、表面、控件，还是某种意图色——名称随之而定。",
       })}
     >
       <GuideList
@@ -34,7 +34,7 @@ export function ColorJobsShowcase() {
             value: t({ en: "What fills a box", zh: "填充盒子的颜色" }),
             note: t({
               en: "bgCanvas, bgSurface, bgControl, bgAccent and the rest. The subject after bg says what the box is.",
-              zh: "bgCanvas、bgSurface、bgControl、bgAccent 等。bg 之后的部分说明这个盒子是什么。",
+              zh: "bgCanvas、bgSurface、bgControl、bgAccent等。bg之后的部分说明这个盒子是什么。",
             }),
           },
           {
@@ -45,7 +45,7 @@ export function ColorJobsShowcase() {
             }),
             note: t({
               en: "fg and fgMuted on canvas, surface and control. fgOn<X> is the foreground for bg<X>, wherever bg<X> needs one of its own.",
-              zh: "画布、表面与控件上用 fg 与 fgMuted。fgOn<X> 是 bg<X> 的前景色，用于需要专属前景色的 bg<X>。",
+              zh: "画布、表面与控件上用fg与fgMuted。fgOn<X> 是bg<X> 的前景色，用于需要专属前景色的bg<X>。",
             }),
           },
           {
@@ -53,7 +53,7 @@ export function ColorJobsShowcase() {
             value: t({ en: "Its edge", zh: "它的边缘" }),
             note: t({
               en: "border is the quiet default. border<Intent> is an Intent's edge, in the same tone as its fill.",
-              zh: "border 是安静的默认边框。border<Intent> 是意图色的边缘，与其填充同一色调。",
+              zh: "border是安静的默认边框。border<Intent> 是意图色的边缘，与其填充同一色调。",
             }),
           },
           {
@@ -61,7 +61,7 @@ export function ColorJobsShowcase() {
             value: t({ en: "A state or a variant", zh: "状态或变体" }),
             note: t({
               en: "A suffix names a state — Hover, Pressed, Selected, Disabled — or a variant: Subtle for an Intent's tint, Sunken and Raised for a surface's elevation. No suffix is the rest state.",
-              zh: "后缀表示一种状态——Hover、Pressed、Selected、Disabled——或一种变体：Subtle 是意图色的淡色，Sunken 与 Raised 是表面的高低层次。没有后缀即为静止状态。",
+              zh: "后缀表示一种状态——Hover、Pressed、Selected、Disabled——或一种变体：Subtle是意图色的淡色，Sunken与Raised是表面的高低层次。没有后缀即为静止状态。",
             }),
           },
         ]}
@@ -108,7 +108,7 @@ const styles = stylex.create({
       <GuideNote>
         {t({
           en: "The same code paints both frames. Every colour token is one light-dark() value, so the colour-scheme on the element picks the value and there is no dark stylesheet to write. How to set the scheme on the root, or pin it on one subtree, is on ",
-          zh: "两个画框出自同一段代码。每个颜色令牌都是一个 light-dark() 值，由元素上的 color-scheme 决定取哪一个，因此无需另写深色样式表。如何在根元素上设置配色方案、或在某个子树上固定它，见",
+          zh: "两个画框出自同一段代码。每个颜色令牌都是一个light-dark() 值，由元素上的color-scheme决定取哪一个，因此无需另写深色样式表。如何在根元素上设置配色方案、或在某个子树上固定它，见",
         })}
         <DocLink path="/design-system/foundations/get-started" />
         {t({ en: ".", zh: "。" })}

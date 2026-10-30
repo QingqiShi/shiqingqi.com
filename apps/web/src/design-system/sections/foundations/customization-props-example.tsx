@@ -9,7 +9,7 @@ export function CustomizationPropsExample() {
       <Specimen
         caption={t({
           en: "Callout with intent and title",
-          zh: "设置了 intent 与 title 的 Callout",
+          zh: "设置了intent与title的Callout",
         })}
       >
         <Callout
@@ -25,7 +25,7 @@ export function CustomizationPropsExample() {
       <GuideNote>
         {t({
           en: "intent chooses the tint, the border, the icon and the live role: alert for warning and danger, status for the rest. You pass the words and write no style.",
-          zh: "intent 决定了浅色背景、边框、图标与 live 角色：warning 与 danger 为 alert，其余为 status。你只传入文字，不写任何样式。",
+          zh: "intent决定了浅色背景、边框、图标与live角色：warning与danger为alert，其余为status。你只传入文字，不写任何样式。",
         })}
       </GuideNote>
     </>

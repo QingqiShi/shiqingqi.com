@@ -73,13 +73,13 @@ export function ChipShowcase() {
             rel="noreferrer noopener"
             trailing={<ArrowSquareOutIcon weight="bold" />}
           >
-            {t({ en: "Open on TMDB", zh: "在 TMDB 打开" })}
+            {t({ en: "Open on TMDB", zh: "在TMDB打开" })}
           </Chip>
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Passing href renders a real anchor, so the chip is announced as a link and forwards target and rel. A link is not a toggle — mark the current one with aria-current rather than isActive.",
-            zh: "传入 href 会渲染真实的锚点元素，因此该标签按钮会被识别为链接，并可转发 target 与 rel。链接不是开关——请用 aria-current 标记当前项，而非 isActive。",
+            zh: "传入href会渲染真实的锚点元素，因此该标签按钮会被识别为链接，并可转发target与rel。链接不是开关——请用aria-current标记当前项，而非isActive。",
           })}
         </Text>
       </Showcase>
@@ -132,7 +132,7 @@ import { typeRole } from "@tuja/ui/primitives/type.stylex";
           }
           dontCaption={t({
             en: "Don't wire a click handler onto a Badge to fake a filter — a span isn't focusable and screen readers won't announce it as a control.",
-            zh: "不要给徽章挂上点击事件来伪装筛选器——span 无法获得焦点，读屏软件也不会将其识别为控件。",
+            zh: "不要给徽章挂上点击事件来伪装筛选器——span无法获得焦点，读屏软件也不会将其识别为控件。",
           })}
         />
       </Showcase>

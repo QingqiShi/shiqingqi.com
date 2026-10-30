@@ -26,7 +26,7 @@ export function EffectLayerRipple() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Ripple pulses an element's background colour out from its edge in rings that slow down and fade as they spread. Attach the ref from useRipple to one element.",
-            zh: "涟漪让元素的背景色从边缘向外脉动，形成逐渐减速、边扩散边淡去的圆环。把 useRipple 返回的 ref 挂到一个元素上即可。",
+            zh: "涟漪让元素的背景色从边缘向外脉动，形成逐渐减速、边扩散边淡去的圆环。把useRipple返回的ref挂到一个元素上即可。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">

@@ -60,7 +60,7 @@ export function BreadcrumbShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Items run root first and the last one is the page you are on. label names the <nav> landmark and is required — the package ships no copy of its own, so the localised name comes from the consumer.",
-            zh: "各项从根开始排列，最后一项就是当前所在页面。label 为 <nav> 地标命名，且为必填——该包不自带任何文案，本地化名称由使用方提供。",
+            zh: "各项从根开始排列，最后一项就是当前所在页面。label为 <nav> 地标命名，且为必填——该包不自带任何文案，本地化名称由使用方提供。",
           })}
         </Text>
       </Showcase>
@@ -92,7 +92,7 @@ export function BreadcrumbShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'The trailing crumb is always the current page: it renders as text carrying aria-current="page", and an href on it is ignored — the first trail above has one. An earlier crumb without an href reads as plain muted text, which is what a grouping level with no page of its own should look like.',
-            zh: '最后一项始终是当前页面：它渲染为带 aria-current="page" 的文本，其上的 href 会被忽略——上面第一条路径就带着 href。靠前的层级项若没有 href，则显示为弱化的纯文本，这正适合表示没有独立页面的分组层级。',
+            zh: '最后一项始终是当前页面：它渲染为带aria-current="page" 的文本，其上的href会被忽略——上面第一条路径就带着href。靠前的层级项若没有href，则显示为弱化的纯文本，这正适合表示没有独立页面的分组层级。',
           })}
         </Text>
       </Showcase>
@@ -126,7 +126,7 @@ export function BreadcrumbShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Separators are decorative: each renders aria-hidden, so the trail is announced as its crumbs and never as the punctuation between them. Any node works — a character, a slash, an icon.",
-            zh: "分隔符是装饰性的：每个都以 aria-hidden 渲染，因此朗读时只会读出层级项，不会读出其间的标点。可传入任意节点——字符、斜杠或图标。",
+            zh: "分隔符是装饰性的：每个都以aria-hidden渲染，因此朗读时只会读出层级项，不会读出其间的标点。可传入任意节点——字符、斜杠或图标。",
           })}
         </Text>
       </Showcase>
@@ -149,7 +149,7 @@ export function BreadcrumbShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "There is no overflow menu and no ellipsis crumb. A trail too wide for its container wraps onto another line, so every ancestor stays reachable at 400% zoom. When a trail only reads well collapsed, shorten the hierarchy rather than the component.",
-            zh: "组件没有折叠菜单，也没有省略号层级项。当路径宽度超出容器时会换行排列，因此在 400% 缩放下每个上级层级依然可达。若某条路径只有折叠后才好读，应当精简层级本身，而不是精简组件。",
+            zh: "组件没有折叠菜单，也没有省略号层级项。当路径宽度超出容器时会换行排列，因此在400% 缩放下每个上级层级依然可达。若某条路径只有折叠后才好读，应当精简层级本身，而不是精简组件。",
           })}
         </Text>
       </Showcase>
@@ -165,7 +165,7 @@ export function BreadcrumbShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Every navigable crumb goes through linkComponent. The default is a plain <a>, which reloads the page; pass the framework's link — this example uses next/link — to keep navigation client-side. The Slot receives the crumb's className and style and has to forward both onto its anchor, or the crumb loses its colour and its focus ring.",
-            zh: "每个可导航的层级项都经由 linkComponent 渲染。默认是原生 <a>，会触发整页刷新；传入框架自带的链接组件——这里是 next/link——即可保留客户端导航。该插槽会收到层级项的 className 与 style，必须把两者都转发到锚点上，否则层级项会失去配色与聚焦轮廓。",
+            zh: "每个可导航的层级项都经由linkComponent渲染。默认是原生 <a>，会触发整页刷新；传入框架自带的链接组件——这里是next/link——即可保留客户端导航。该插槽会收到层级项的className与style，必须把两者都转发到锚点上，否则层级项会失去配色与聚焦轮廓。",
           })}
         </Text>
       </Showcase>
@@ -183,7 +183,7 @@ export function BreadcrumbShowcase() {
           }
           doCaption={t({
             en: "List the page's real ancestors, root first. The last crumb is the current page, so it is announced with aria-current and never linked back to where the visitor already stands.",
-            zh: "按层级列出当前页面真实的上级路径，从根开始。最后一项是当前页面，因此带有 aria-current，也绝不会链接到访客已经身处的位置。",
+            zh: "按层级列出当前页面真实的上级路径，从根开始。最后一项是当前页面，因此带有aria-current，也绝不会链接到访客已经身处的位置。",
           })}
           dont={
             <Breadcrumb
@@ -220,7 +220,7 @@ export function BreadcrumbShowcase() {
         <ShowcaseHelper>
           {t({
             en: "BreadcrumbItem is { label: string; href?: string } — the visible text, plus the destination that a level with no page of its own leaves out.",
-            zh: "BreadcrumbItem 的形状是 { label: string; href?: string }——可见文本，加上目标地址；没有独立页面的层级可省略后者。",
+            zh: "BreadcrumbItem的形状是 { label: string; href?: string }——可见文本，加上目标地址；没有独立页面的层级可省略后者。",
           })}
         </ShowcaseHelper>
       </Showcase>

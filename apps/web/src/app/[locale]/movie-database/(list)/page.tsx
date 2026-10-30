@@ -204,7 +204,7 @@ export default async function Page(
                 })}
                 typingIndicatorLabel={t({
                   en: "AI is thinking…",
-                  zh: "AI 正在思考…",
+                  zh: "AI正在思考…",
                 })}
                 scrollToBottomLabel={t({
                   en: "Scroll to bottom",

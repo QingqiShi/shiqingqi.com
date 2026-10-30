@@ -65,7 +65,7 @@ export function AnchorButtonShowcase() {
         <ShowcaseHelper>
           {t({
             en: 'The looks are Button\'s own, drawn from the same styles rather than copied. isActive marks the destination the visitor is already on and emits aria-current="true"; a link is a destination, not a toggle, so it never emits aria-pressed.',
-            zh: '这些外观就是 Button 的外观，源自同一套样式而非复制而来。isActive 标记访客当前所在的目标，并发出 aria-current="true"；链接是目标而不是切换控件，因此它绝不会发出 aria-pressed。',
+            zh: '这些外观就是Button的外观，源自同一套样式而非复制而来。isActive标记访客当前所在的目标，并发出aria-current="true"；链接是目标而不是切换控件，因此它绝不会发出aria-pressed。',
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -100,7 +100,7 @@ export function AnchorButtonShowcase() {
         <ShowcaseHelper>
           {t({
             en: "One size scale, shared with Button: at the same size the two stand the same height, so a link and a button sit level in the same row of controls.",
-            zh: "与 Button 共用同一套尺寸阶梯：同一尺寸下两者高度相同，因此同一行控件中的链接与按钮能够对齐。",
+            zh: "与Button共用同一套尺寸阶梯：同一尺寸下两者高度相同，因此同一行控件中的链接与按钮能够对齐。",
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -132,7 +132,7 @@ export function AnchorButtonShowcase() {
         <ShowcaseHelper>
           {t({
             en: "With no children the link renders icon-only: a square of its own height, named by aria-label or aria-labelledby, since the icon itself is decorative. hideLabelOnMobile keeps the label from md up and collapses to the same square below it.",
-            zh: "没有 children 时，链接渲染为纯图标：一个与自身高度相等的正方形，由 aria-label 或 aria-labelledby 命名，因为图标本身是装饰性的。hideLabelOnMobile 会在 md 及以上保留标签，并在其以下收起为同样的正方形。",
+            zh: "没有children时，链接渲染为纯图标：一个与自身高度相等的正方形，由aria-label或aria-labelledby命名，因为图标本身是装饰性的。hideLabelOnMobile会在md及以上保留标签，并在其以下收起为同样的正方形。",
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -146,7 +146,7 @@ export function AnchorButtonShowcase() {
         <ShowcaseHelper>
           {t({
             en: "The package depends on no framework, so the anchor itself is a Slot. The default is a plain <a>, which reloads the page; pass the framework's link — this example uses next/link — to keep navigation client-side. The Slot has to forward everything it is handed onto its anchor: className and style carry the look, and the ref and the event handlers carry the press animation.",
-            zh: "该包不依赖任何框架，因此锚点本身就是一个插槽。默认是原生 <a>，会触发整页刷新；传入框架自带的链接组件——这里是 next/link——即可保留客户端导航。插槽必须把收到的一切都转发到锚点上：className 与 style 承载外观，ref 与事件处理函数承载按压动画。",
+            zh: "该包不依赖任何框架，因此锚点本身就是一个插槽。默认是原生 <a>，会触发整页刷新；传入框架自带的链接组件——这里是next/link——即可保留客户端导航。插槽必须把收到的一切都转发到锚点上：className与style承载外观，ref与事件处理函数承载按压动画。",
           })}
         </ShowcaseHelper>
       </Showcase>
@@ -157,7 +157,7 @@ export function AnchorButtonShowcase() {
         title={t({ en: "When to use", zh: "何时使用" })}
         lead={t({
           en: "Reach for it when the action is going somewhere. Everything else on the page that acts on the page itself is a Button.",
-          zh: "当这个操作的结果是跳转到别处时使用它。页面上其他作用于页面自身的操作，一律用 Button。",
+          zh: "当这个操作的结果是跳转到别处时使用它。页面上其他作用于页面自身的操作，一律用Button。",
         })}
       >
         <DoDont
@@ -177,13 +177,13 @@ export function AnchorButtonShowcase() {
           }
           dontCaption={t({
             en: "Don't send a visitor somewhere with a Button — it renders a <button>, and the destination loses all three.",
-            zh: "不要用 Button 把访客送往别处——它渲染的是 <button>，上述三样都会失去。",
+            zh: "不要用Button把访客送往别处——它渲染的是 <button>，上述三样都会失去。",
           })}
         />
         <GuideNote>
           {t({
             en: "There is no loading and no disabled. A link either has a destination or it is not a link; an action that can be busy or blocked is a Button.",
-            zh: "它没有 loading，也没有 disabled。链接要么有目标地址，要么就不是链接；会进入忙碌或被阻止的操作属于 Button。",
+            zh: "它没有loading，也没有disabled。链接要么有目标地址，要么就不是链接；会进入忙碌或被阻止的操作属于Button。",
           })}
         </GuideNote>
       </GuideSection>
@@ -202,7 +202,7 @@ export function AnchorButtonShowcase() {
               value: "aria-label",
               note: t({
                 en: "With no children, aria-label or aria-labelledby is required at the type level, so an unnamed icon-only link does not compile.",
-                zh: "没有 children 时，类型层面强制要求 aria-label 或 aria-labelledby，因此无名的纯图标链接无法通过编译。",
+                zh: "没有children时，类型层面强制要求aria-label或aria-labelledby，因此无名的纯图标链接无法通过编译。",
               }),
             },
             {
@@ -210,7 +210,7 @@ export function AnchorButtonShowcase() {
               value: "isActive",
               note: t({
                 en: 'isActive emits aria-current="true" and paints the highlight. For a link that only wants the highlight, use look="primary".',
-                zh: 'isActive 会发出 aria-current="true" 并绘制高亮。若只需要高亮，改用 look="primary"。',
+                zh: 'isActive会发出aria-current="true" 并绘制高亮。若只需要高亮，改用look="primary"。',
               }),
             },
             {

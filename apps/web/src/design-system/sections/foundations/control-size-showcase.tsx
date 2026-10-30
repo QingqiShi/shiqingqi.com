@@ -15,7 +15,7 @@ export function ControlSizeShowcase() {
       value: "controlHeight",
       note: t({
         en: "A size names one height in every control: controlHeight.sm, md and lg are controlSize._8, _9 and _10, and xs, which only Chip takes, is _6. Button, TextField, Select, SegmentedControl, Switch and Chip all take their height from it, and so does the first line of a Textarea. Build your control on the same step and it lines up with them in a row.",
-        zh: "同一个尺寸在每个控件里都是同一个高度：controlHeight.sm、md、lg 分别是 controlSize._8、_9、_10，只有 Chip 使用的 xs 是 _6。Button、TextField、Select、SegmentedControl、Switch 与 Chip 都从这里取高度，Textarea 的第一行也是。你的控件取同一级，就能与它们排成一行。",
+        zh: "同一个尺寸在每个控件里都是同一个高度：controlHeight.sm、md、lg分别是controlSize._8、_9、_10，只有Chip使用的xs是 _6。Button、TextField、Select、SegmentedControl、Switch与Chip都从这里取高度，Textarea的第一行也是。你的控件取同一级，就能与它们排成一行。",
       }),
     },
     {
@@ -23,15 +23,15 @@ export function ControlSizeShowcase() {
       value: "minBlockSize",
       note: t({
         en: "The steps are in px, but control labels use font.uiControl, which is in rem. Button and the fields set minBlockSize, so a control grows when the reader sets a larger text size instead of clipping its label. Do the same.",
-        zh: "这些步长以 px 为单位，而控件标签用的 font.uiControl 以 rem 为单位。Button 与输入框设的是 minBlockSize，读者调大文字时控件随之变高，标签不会被截断。你也这样做。",
+        zh: "这些步长以px为单位，而控件标签用的font.uiControl以rem为单位。Button与输入框设的是minBlockSize，读者调大文字时控件随之变高，标签不会被截断。你也这样做。",
       }),
     },
     {
-      term: t({ en: "Larger below md", zh: "md 以下更大" }),
+      term: t({ en: "Larger below md", zh: "md以下更大" }),
       value: "×1.2",
       note: t({
         en: "Below the md breakpoint every step is 20% larger, and so is font.uiControl, so a control is a larger target on a phone. The change needs the stylex-breakpoints Babel plugin that Get started sets up.",
-        zh: "在 md 断点以下，每一级都大 20%，font.uiControl 也一样，控件在手机上因此是更大的点按目标。这一变化需要「快速开始」中配置的 stylex-breakpoints Babel 插件。",
+        zh: "在md断点以下，每一级都大20%，font.uiControl也一样，控件在手机上因此是更大的点按目标。这一变化需要「快速开始」中配置的stylex-breakpoints Babel插件。",
       }),
     },
     {
@@ -39,7 +39,7 @@ export function ControlSizeShowcase() {
       value: "cornerTokens.height",
       note: t({
         en: "corner.squircle_round closes its corners at half of cornerTokens.height, which is controlHeight.md by default. Set it to your control's height, as Button and SegmentedControl do.",
-        zh: "corner.squircle_round 在 cornerTokens.height 的一半处闭合角，默认是 controlHeight.md。把它设成你控件的高度，Button 与 SegmentedControl 就是这样做的。",
+        zh: "corner.squircle_round在cornerTokens.height的一半处闭合角，默认是controlHeight.md。把它设成你控件的高度，Button与SegmentedControl就是这样做的。",
       }),
     },
   ];
@@ -65,7 +65,7 @@ export function ControlSizeShowcase() {
       title={t({ en: "Control size", zh: "控件尺寸" })}
       lead={t({
         en: "Build your own control on controlSize, so it matches the components in height and in how it changes with the screen. Each card below gives the value below md, then from md up.",
-        zh: "用 controlSize 搭建你自己的控件，它在高度以及随屏幕变化的方式上就与组件一致。下面每张卡片先给出 md 以下的值，再给出 md 及以上的值。",
+        zh: "用controlSize搭建你自己的控件，它在高度以及随屏幕变化的方式上就与组件一致。下面每张卡片先给出md以下的值，再给出md及以上的值。",
       })}
     >
       <GuideList items={guidance} />

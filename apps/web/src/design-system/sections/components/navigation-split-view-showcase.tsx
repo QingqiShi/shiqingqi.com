@@ -99,7 +99,7 @@ function ProjectIcon({ project }: { project: Project }) {
         <ShowcaseHelper>
           {t({
             en: "Pick a project, then a task, and pick a width for the frame. Wide shows the sidebar beside the content, and folds it to the collapsed sidebar when the task opens. Medium keeps the collapsed sidebar, and has no room for the task beside the content, so the task opens in a sheet. Phone shows one column, and the task opens in a sheet too. Esc or ← closes the task, J and K move between the rows of a column, and the URL holds every pick.",
-            zh: "选一个项目，再选一个任务，并为框选一个宽度。“宽”时侧栏在内容栏旁边，任务打开时侧栏收起。“中”时保持收起侧栏，内容栏旁边放不下任务，因此任务在面板中打开。“手机”时只显示一栏，任务同样在面板中打开。Esc 或 ← 关闭任务，J 与 K 在一栏的各行之间移动，每一次选择都写在 URL 里。",
+            zh: "选一个项目，再选一个任务，并为框选一个宽度。“宽”时侧栏在内容栏旁边，任务打开时侧栏收起。“中”时保持收起侧栏，内容栏旁边放不下任务，因此任务在面板中打开。“手机”时只显示一栏，任务同样在面板中打开。Esc或 ← 关闭任务，J与K在一栏的各行之间移动，每一次选择都写在URL里。",
           })}
         </ShowcaseHelper>
         <Suspense fallback={<NavigationSplitViewDemoPlaceholder />}>
@@ -123,7 +123,7 @@ function ProjectIcon({ project }: { project: Project }) {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "A container query lays out the columns, so the server paints them right. A column that does not show keeps its place in the DOM and its scroll.",
-            zh: "各栏由容器查询排布，因此服务器直接绘制正确的结果。不显示的栏仍留在 DOM 中并保留滚动位置。",
+            zh: "各栏由容器查询排布，因此服务器直接绘制正确的结果。不显示的栏仍留在DOM中并保留滚动位置。",
           })}
         </Text>
       </Showcase>
@@ -141,7 +141,7 @@ function ProjectIcon({ project }: { project: Project }) {
         <Text look="bodySmall">
           {t({
             en: "Esc and ← close the deepest column. J and K move focus to the next and the previous row of the column that has focus, and Enter and → open it. The keys leave fields, controls that use the arrow keys, sheets and dialogs alone.",
-            zh: "Esc 与 ← 关闭最深的一栏。J 与 K 把焦点移到当前栏的下一行与上一行，Enter 与 → 打开它。这些按键不会干扰输入框、使用方向键的控件、面板与对话框。",
+            zh: "Esc与 ← 关闭最深的一栏。J与K把焦点移到当前栏的下一行与上一行，Enter与 → 打开它。这些按键不会干扰输入框、使用方向键的控件、面板与对话框。",
           })}
         </Text>
       </Showcase>
@@ -151,7 +151,7 @@ function ProjectIcon({ project }: { project: Project }) {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Every motion follows the URL, and the first paint has none. A deeper page springs in over the page it leaves, which drifts back and dims, and Back springs it out again. A detail slides in beside the content as the sidebar folds. Give one name to each form of a Shared element, and the view flies one into the other, such as a project's icon into its tile in the collapsed sidebar. On a phone, a drag from the left edge of the content takes it off, and a sheet lifts out of the row that opened it. A pick in the middle of a motion starts from where the motion is. Under reduced motion, each change is a short cross-fade.",
-            zh: "每一个动效都跟随 URL，首次绘制没有动效。更深的一页以弹簧动效进入，盖在它离开的那一页上，那一页向后退并变暗；“返回”再把它弹出。详情栏在侧栏收起的同时从旁边滑入。为共享元素的每一种形态取同一个名字，视图就会把一种形态飞成另一种，例如项目的图标飞进收起侧栏中它的方块。在手机上，从内容栏左边缘拖动即可退出该栏，面板从打开它的那一行中升起。在动效进行中做出新的选择，会从动效当前的位置开始。在减少动态效果时，每次变化都是一次短暂的交叉淡入淡出。",
+            zh: "每一个动效都跟随URL，首次绘制没有动效。更深的一页以弹簧动效进入，盖在它离开的那一页上，那一页向后退并变暗；“返回”再把它弹出。详情栏在侧栏收起的同时从旁边滑入。为共享元素的每一种形态取同一个名字，视图就会把一种形态飞成另一种，例如项目的图标飞进收起侧栏中它的方块。在手机上，从内容栏左边缘拖动即可退出该栏，面板从打开它的那一行中升起。在动效进行中做出新的选择，会从动效当前的位置开始。在减少动态效果时，每次变化都是一次短暂的交叉淡入淡出。",
           })}
         </Text>
       </Showcase>
@@ -161,7 +161,7 @@ function ProjectIcon({ project }: { project: Project }) {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Pass detail only while something is picked, with the back that closes it. A row that opens the column after it renders through SplitViewLink, which follows the history rule and takes J and K. A key that changes starts its column at the top again, and in the detail the old content fades out as the new content fades in. Each column is a Scroll region of its own, and lays its node out as a flex column at least as tall as itself. Inside a Tab view narrower than 30rem, as on a phone, the page scrolls the content instead, so that it goes under the status bar of the browser. The accessory floats at the bottom end of its column, above the floating tab bar of a Tab view, and the column keeps room for it after its content, so the last row scrolls clear of it.",
-            zh: "只在有选中项时传入 detail，并带上关闭它的 back。打开下一栏的行通过 SplitViewLink 渲染，它遵循历史规则，并响应 J 与 K。key 改变时，该栏回到顶部；在详情栏中，旧内容淡出，新内容淡入。每一栏都是一个独立的滚动区域，并把其 node 排成一个至少与该栏等高的弹性纵列。在宽度小于 30rem 的 Tab view 中（例如在手机上），改由页面滚动内容栏，让内容能滚到浏览器状态栏下方。accessory 悬浮在其所在栏的底部末端、Tab view 悬浮标签栏之上；该栏在内容之后为它留出空间，因此最后一行可以滚动到它上方而不被遮住。",
+            zh: "只在有选中项时传入detail，并带上关闭它的back。打开下一栏的行通过SplitViewLink渲染，它遵循历史规则，并响应J与K。key改变时，该栏回到顶部；在详情栏中，旧内容淡出，新内容淡入。每一栏都是一个独立的滚动区域，并把其node排成一个至少与该栏等高的弹性纵列。在宽度小于30rem的Tab view中（例如在手机上），改由页面滚动内容栏，让内容能滚到浏览器状态栏下方。accessory悬浮在其所在栏的底部末端、Tab view悬浮标签栏之上；该栏在内容之后为它留出空间，因此最后一行可以滚动到它上方而不被遮住。",
           })}
         </Text>
       </Showcase>
@@ -171,7 +171,7 @@ function ProjectIcon({ project }: { project: Project }) {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "StackedOnly shows its children only where the content fills the view, such as the list that the sidebar shows otherwise, and UnlessStacked only where it does not, such as a title that a stacked headline already names. UnlessFullSidebar shows its children only where the full sidebar does not, such as the screen's title. CSS decides all three, so the first paint is right. useSplitViewColumn tells a column which it is, whether it shows in a sheet, the box that scrolls it, undefined where the page does, and how to close it. A sticky footer in a column sticks splitViewTokens.columnInsetBlockEnd plus its own gap above the bottom.",
-            zh: "StackedOnly 只在内容栏占满视图时显示其子元素，例如侧栏本会显示的列表；UnlessStacked 只在内容栏不占满视图时显示其子元素，例如堆叠时标题已在上方给出的小标题。UnlessFullSidebar 只在完整侧栏不显示时显示其子元素，例如画面的标题。三者都由 CSS 决定，因此首次绘制就是正确的。useSplitViewColumn 告诉一栏它是哪一栏、是否显示在面板中、滚动它的盒子（由页面滚动时为 undefined），以及如何关闭它。栏内的粘性页脚粘在距底部 splitViewTokens.columnInsetBlockEnd 再加上自身间距的位置。",
+            zh: "StackedOnly只在内容栏占满视图时显示其子元素，例如侧栏本会显示的列表；UnlessStacked只在内容栏不占满视图时显示其子元素，例如堆叠时标题已在上方给出的小标题。UnlessFullSidebar只在完整侧栏不显示时显示其子元素，例如画面的标题。三者都由CSS决定，因此首次绘制就是正确的。useSplitViewColumn告诉一栏它是哪一栏、是否显示在面板中、滚动它的盒子（由页面滚动时为undefined），以及如何关闭它。栏内的粘性页脚粘在距底部splitViewTokens.columnInsetBlockEnd再加上自身间距的位置。",
           })}
         </Text>
       </Showcase>

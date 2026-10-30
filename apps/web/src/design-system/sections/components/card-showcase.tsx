@@ -84,7 +84,7 @@ export function CardShowcase() {
               <Text look="bodySmall" tone="muted">
                 {t({
                   en: "Card is a stack, so it puts an item gap between its blocks. The blocks set no margin of their own: a bare element that composes cardSurface sets its own gap, with a stack.",
-                  zh: "Card 本身是一个堆叠，会在各区块之间留出 item 间距。区块自身不设外边距：仅组合 cardSurface 的裸元素需用 stack 自行设置间距。",
+                  zh: "Card本身是一个堆叠，会在各区块之间留出item间距。区块自身不设外边距：仅组合cardSurface的裸元素需用stack自行设置间距。",
                 })}
               </Text>
             </CardContent>
@@ -99,7 +99,7 @@ export function CardShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "CardTitle renders a real heading — its visual size is fixed while level moves the rank, so a card stays reachable by heading navigation without distorting the outline.",
-            zh: "CardTitle 渲染为真实的标题元素——视觉字号固定，由 level 调整层级，因此卡片既可通过标题导航访问，又不会破坏文档大纲。",
+            zh: "CardTitle渲染为真实的标题元素——视觉字号固定，由level调整层级，因此卡片既可通过标题导航访问，又不会破坏文档大纲。",
           })}
         </Text>
       </Showcase>
@@ -129,7 +129,7 @@ export function CardShowcase() {
           }
           doCaption={t({
             en: "For a clickable card, render a real anchor or button and compose cardSurface — it stays focusable and is announced as a link.",
-            zh: "可点击的卡片应渲染真实的链接或按钮并组合 cardSurface——它可获得焦点并被读屏识别为链接。",
+            zh: "可点击的卡片应渲染真实的链接或按钮并组合cardSurface——它可获得焦点并被读屏识别为链接。",
           })}
           dont={
             <Card interactive css={[styles.fill, styles.lines]}>
@@ -139,7 +139,7 @@ export function CardShowcase() {
           }
           dontCaption={t({
             en: "Don't use a bare interactive Card (a div) as a link — it isn't keyboard-focusable and screen readers won't announce it.",
-            zh: "不要把可交互的 Card（一个 div）当作链接使用——它无法通过键盘聚焦，读屏软件也不会识别它。",
+            zh: "不要把可交互的Card（一个div）当作链接使用——它无法通过键盘聚焦，读屏软件也不会识别它。",
           })}
         />
       </Showcase>

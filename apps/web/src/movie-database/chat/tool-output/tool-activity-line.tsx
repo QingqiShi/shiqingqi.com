@@ -79,7 +79,7 @@ export function ToolActivityLine({
   let label: string;
   switch (toolName) {
     case "tmdb_search":
-      label = t({ en: "TMDB Search", zh: "TMDB 搜索" });
+      label = t({ en: "TMDB Search", zh: "TMDB搜索" });
       break;
     case "semantic_search":
       label = t({ en: "Semantic Search", zh: "语义搜索" });

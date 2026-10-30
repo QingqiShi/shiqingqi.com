@@ -33,7 +33,7 @@ export function TextareaShowcase() {
               defaultValue={longReview}
               description={t({
                 en: "autoGrow expands to fit the content and hides the resize handle.",
-                zh: "autoGrow 会自动增高以适应内容，并隐藏调整手柄。",
+                zh: "autoGrow会自动增高以适应内容，并隐藏调整手柄。",
               })}
             />
           </Specimen>
@@ -48,7 +48,7 @@ export function TextareaShowcase() {
               rows={5}
               description={t({
                 en: "rows sets the initial visible height in the fixed mode.",
-                zh: "rows 决定固定模式下初始可见高度。",
+                zh: "rows决定固定模式下初始可见高度。",
               })}
             />
           </Specimen>
@@ -58,7 +58,7 @@ export function TextareaShowcase() {
               defaultValue={t({ en: "Too short", zh: "太短" })}
               error={t({
                 en: "Feedback needs at least 20 characters.",
-                zh: "反馈内容至少需要 20 个字符。",
+                zh: "反馈内容至少需要20个字符。",
               })}
             />
           </Specimen>
@@ -101,7 +101,7 @@ export function TextareaShowcase() {
         }
         doCaption={t({
           en: "Use autoGrow (or a generous rows) for open-ended text so the writer sees their whole entry.",
-          zh: "对开放式文本使用 autoGrow（或较大的 rows），让作者看到完整内容。",
+          zh: "对开放式文本使用autoGrow（或较大的rows），让作者看到完整内容。",
         })}
         dont={
           <div css={fill.inline}>

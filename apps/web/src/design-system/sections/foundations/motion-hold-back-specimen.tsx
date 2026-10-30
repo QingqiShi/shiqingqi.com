@@ -18,7 +18,7 @@ export function MotionHoldBackSpecimen() {
       >
         <Spinner size="sm" aria-hidden />
         <div css={stack.tight}>
-          <span>{t({ en: "Syncing 3 lists", zh: "正在同步 3 个清单" })}</span>
+          <span>{t({ en: "Syncing 3 lists", zh: "正在同步3个清单" })}</span>
           <Skeleton width="8rem" height="0.5rem" />
         </div>
       </div>

@@ -39,7 +39,7 @@ export function SheetShowcase() {
         <ShowcaseHelper>
           {t({
             en: "On a phone, a drag down on the grabber moves the card with the pointer. A touch on the content does the same while the content is scrolled to its top. The card stays opaque under the pointer, past the bottom edge of the screen too, and the dimming fades with the distance. Let go past 30% of the card's height (160px at most), or with a flick down, and it slides off the screen; otherwise it springs back. A drag up resists. On a tablet or a desktop the card is in the centre, so it has no grabber, and only Escape, a click on the dimmed page and the close button close it.",
-            zh: "在手机上，按住拖动条向下拖，卡片会跟随指针移动；当内容已滚动到顶部时，在内容上触摸拖动也一样。卡片在指针下始终不透明，越过屏幕底边后也是如此，压暗随距离逐渐减弱。松手时若超过卡片高度的 30%（最多 160px），或快速向下一甩，卡片会滑出屏幕；否则弹回原位。向上拖会遇到阻力。在平板和桌面上卡片居中，没有拖动条，只能用 Escape、点击压暗的页面或关闭按钮关闭。",
+            zh: "在手机上，按住拖动条向下拖，卡片会跟随指针移动；当内容已滚动到顶部时，在内容上触摸拖动也一样。卡片在指针下始终不透明，越过屏幕底边后也是如此，压暗随距离逐渐减弱。松手时若超过卡片高度的30%（最多160px），或快速向下一甩，卡片会滑出屏幕；否则弹回原位。向上拖会遇到阻力。在平板和桌面上卡片居中，没有拖动条，只能用Escape、点击压暗的页面或关闭按钮关闭。",
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "on a phone", zh: "手机上" })}>
@@ -67,7 +67,7 @@ export function SheetShowcase() {
           }
           doCaption={t({
             en: "Always name the dialog with aria-label or aria-labelledby so it's announced on open.",
-            zh: "始终用 aria-label 或 aria-labelledby 为对话框命名，以便打开时被宣读。",
+            zh: "始终用aria-label或aria-labelledby为对话框命名，以便打开时被宣读。",
           })}
           dont={
             <div css={[corner.radius_3, styles.dialogSample]}>

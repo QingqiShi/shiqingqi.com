@@ -27,19 +27,19 @@ export function ScrollMaskShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "It renders as a root that holds the region's place in the layout and a scroller inside it that owns the overflow, so css and contentCss each reach one of them. The ref and any native div attributes land on the scroller, which is what lets a consumer name the region, measure it, or scroll it imperatively while the region keeps its bands.",
-            zh: "组件渲染为两层：外层根元素在布局中占位，内层滚动元素负责溢出滚动，因此 css 与 contentCss 各自作用于其中一层。ref 与原生 div 属性都落在滚动元素上，调用方由此可以为区域命名、测量它或以编程方式滚动它，而虚化带仍由组件自己维护。",
+            zh: "组件渲染为两层：外层根元素在布局中占位，内层滚动元素负责溢出滚动，因此css与contentCss各自作用于其中一层。ref与原生div属性都落在滚动元素上，调用方由此可以为区域命名、测量它或以编程方式滚动它，而虚化带仍由组件自己维护。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "startChrome and endChrome pin non-content furniture over an edge — a header row, a pinned action bar. Every band is a sibling of the scroller, against the region's own edge; on a slotted edge it grows to the chrome's measured box plus depth, so scrolled-away content blurs progressively across the whole chrome — strongest at the outer edge, back to sharp one depth past the inner one — while the chrome paints above the band and stays crisp and interactive. The content between the slots grows to fill the region, so end chrome stays pinned to the edge even while the content is too short to scroll.",
-            zh: "startChrome 与 endChrome 插槽将页眉行、固定操作栏这类非内容界面元素固定在区域边缘上。每条虚化带都是滚动元素的同级元素，紧贴区域自身的边缘；带插槽的那条边，虚化带会扩展到该元素实测的盒子加一个深度，因此已滚过的内容会在整个元素的范围内渐进虚化——外缘最强，越过内缘一个深度后恢复清晰——而元素绘制在虚化带之上，保持清晰且可交互。插槽之间的内容会撑满区域，所以即使内容不足以滚动，endChrome 也始终固定在边缘。",
+            zh: "startChrome与endChrome插槽将页眉行、固定操作栏这类非内容界面元素固定在区域边缘上。每条虚化带都是滚动元素的同级元素，紧贴区域自身的边缘；带插槽的那条边，虚化带会扩展到该元素实测的盒子加一个深度，因此已滚过的内容会在整个元素的范围内渐进虚化——外缘最强，越过内缘一个深度后恢复清晰——而元素绘制在虚化带之上，保持清晰且可交互。插槽之间的内容会撑满区域，所以即使内容不足以滚动，endChrome也始终固定在边缘。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "scrollButtons adds a button per edge that scrolls one page towards it, on a non-touch device and only while that edge masks. clipMargin lets the content grow past the region's own box on the axis that does not scroll, so a card scaling up on hover paints out over its neighbours instead of being cut at the edge, and the region still takes no more room.",
-            zh: "scrollButtons 为每条边各加一个按钮，点击后向该边翻一页；按钮只在非触控设备上、且只在该边带虚化时出现。clipMargin 让内容可以在非滚动轴上越过区域自身的盒子，因此悬停放大的卡片会绘制到邻近元素之上，而不是在边缘被切断，同时区域在布局中仍不多占空间。",
+            zh: "scrollButtons为每条边各加一个按钮，点击后向该边翻一页；按钮只在非触控设备上、且只在该边带虚化时出现。clipMargin让内容可以在非滚动轴上越过区域自身的盒子，因此悬停放大的卡片会绘制到邻近元素之上，而不是在边缘被切断，同时区域在布局中仍不多占空间。",
           })}
         </Text>
         <Specimen caption={t({ en: "vertical", zh: "纵向" })}>
@@ -137,7 +137,7 @@ function VerticalRegion() {
 function HorizontalRegion() {
   const films = [
     {
-      title: t({ en: "Blade Runner 2049", zh: "银翼杀手 2049" }),
+      title: t({ en: "Blade Runner 2049", zh: "银翼杀手2049" }),
       year: "2017",
     },
     { title: t({ en: "Arrival", zh: "降临" }), year: "2016" },
@@ -245,13 +245,13 @@ function FittingRegion() {
       <Text look="bodySmall">
         {t({
           en: "Denis Villeneuve, 2017. Roger Deakins shot it, and won for it.",
-          zh: "丹尼斯·维伦纽瓦，2017 年。罗杰·迪金斯掌镜，并凭此获奖。",
+          zh: "丹尼斯·维伦纽瓦，2017年。罗杰·迪金斯掌镜，并凭此获奖。",
         })}
       </Text>
       <Text look="bodySmall" tone="muted">
         {t({
           en: "163 minutes, and none of them hurried.",
-          zh: "163 分钟，没有一分钟是赶出来的。",
+          zh: "163分钟，没有一分钟是赶出来的。",
         })}
       </Text>
     </ScrollMask>

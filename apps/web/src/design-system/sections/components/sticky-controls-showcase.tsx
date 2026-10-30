@@ -48,7 +48,7 @@ export function StickyControlsShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "A blur per group rather than one across the row: a row with filters at the start and a prompt at the end leaves the page between them sharp, the way the header's own groups leave the middle of the page alone. Inside HeaderFooterLayout every group's blur is painted on the page's Blur plane — the one plane that shell keeps under every floating control — so the header's groups never blur this row and this row never blurs them. Anywhere else, this page included, there is no plane and each blur paints beside its group, under the group's own controls.",
-            zh: "每个控件组各有一片虚化，而非整行一片：筛选控件在行首、提示框在行尾的一行，两者之间的页面保持清晰，正如页头自身的控件组不会触及页面中部。在 HeaderFooterLayout 内，每组的虚化都绘制在页面的虚化平面上——该骨架在全部悬浮控件之下保留的那一层——因此页头的控件组不会虚化这一行，这一行也不会虚化它们。在其他地方（包括本页）没有虚化平面，每片虚化便绘制在各自控件组旁边，位于该组控件之下。",
+            zh: "每个控件组各有一片虚化，而非整行一片：筛选控件在行首、提示框在行尾的一行，两者之间的页面保持清晰，正如页头自身的控件组不会触及页面中部。在HeaderFooterLayout内，每组的虚化都绘制在页面的虚化平面上——该骨架在全部悬浮控件之下保留的那一层——因此页头的控件组不会虚化这一行，这一行也不会虚化它们。在其他地方（包括本页）没有虚化平面，每片虚化便绘制在各自控件组旁边，位于该组控件之下。",
           })}
         </Text>
         <Specimen
@@ -76,7 +76,7 @@ export function StickyControlsShowcase() {
         }
         doCaption={t({
           en: "Park a filter bar with StickyControls, a group per cluster of controls — one clearance and one blur, shared with the header's own control groups.",
-          zh: "用 StickyControls 停放筛选栏，每簇控件一个组——与页头自身的控件组共用同一段间距和同一套虚化。",
+          zh: "用StickyControls停放筛选栏，每簇控件一个组——与页头自身的控件组共用同一段间距和同一套虚化。",
         })}
         dont={
           <code css={[typeRole.bodySmall, styles.code]}>

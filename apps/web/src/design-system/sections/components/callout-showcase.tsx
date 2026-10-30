@@ -42,7 +42,7 @@ export function CalloutShowcase() {
             >
               {t({
                 en: "You're using 92% of your plan's space.",
-                zh: "你已使用套餐 92% 的空间。",
+                zh: "你已使用套餐92% 的空间。",
               })}
             </Callout>
           </Specimen>
@@ -53,14 +53,14 @@ export function CalloutShowcase() {
             >
               {t({
                 en: "We couldn't charge the card ending in 4242. Update it to keep your subscription.",
-                zh: "无法向尾号 4242 的卡扣款。请更新卡片以保留订阅。",
+                zh: "无法向尾号4242的卡扣款。请更新卡片以保留订阅。",
               })}
             </Callout>
           </Specimen>
           <Specimen caption="accent">
             <Callout
               intent="accent"
-              title={t({ en: "New in 2.0", zh: "2.0 新功能" })}
+              title={t({ en: "New in 2.0", zh: "2.0新功能" })}
             >
               {t({
                 en: "Segmented button groups now support leading icons.",
@@ -97,14 +97,14 @@ export function CalloutShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Override the built-in icon with any node, or pass icon={null} to drop it entirely.",
-            zh: "可用任意节点覆盖内置图标，或传入 icon={null} 完全移除。",
+            zh: "可用任意节点覆盖内置图标，或传入icon={null} 完全移除。",
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "custom icon", zh: "自定义图标" })}>
           <Callout intent="accent" icon={<MegaphoneIcon weight="fill" />}>
             {t({
               en: "Swap in a Phosphor icon when an intent's default icon isn't specific enough.",
-              zh: "当意图色的默认图标不够贴切时，可换用 Phosphor 图标。",
+              zh: "当意图色的默认图标不够贴切时，可换用Phosphor图标。",
             })}
           </Callout>
         </Specimen>
@@ -122,7 +122,7 @@ export function CalloutShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Pair onDismiss with a required dismissLabel to add an accessible inline close button.",
-            zh: "将 onDismiss 与必填的 dismissLabel 搭配，即可添加带无障碍名称的行内关闭按钮。",
+            zh: "将onDismiss与必填的dismissLabel搭配，即可添加带无障碍名称的行内关闭按钮。",
           })}
         </ShowcaseHelper>
         <Specimen caption="onDismiss">
@@ -140,7 +140,7 @@ export function CalloutShowcase() {
           >
             {t({
               en: "The file is larger than 25 MB. Compress it and try again.",
-              zh: "文件大于 25 MB。请压缩后重试。",
+              zh: "文件大于25 MB。请压缩后重试。",
             })}
           </Callout>
         }

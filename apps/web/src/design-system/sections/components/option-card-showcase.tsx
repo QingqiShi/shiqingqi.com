@@ -50,7 +50,7 @@ function KeyboardNotes() {
       keys: ["Tab"],
       effect: t({
         en: "Enters the group at the selected card, not at the first one — the group is one tab stop, not three.",
-        zh: "进入该组时直接落在已选中的卡片上，而不是第一张——整组只占一个 Tab 停靠点，而非三个。",
+        zh: "进入该组时直接落在已选中的卡片上，而不是第一张——整组只占一个Tab停靠点，而非三个。",
       }),
     },
     {
@@ -80,7 +80,7 @@ function KeyboardNotes() {
       <Text look="bodySmall" tone="muted">
         {t({
           en: "Click a card, then press the keys below. Focus follows selection, so each card announces as you land on it — the WAI-ARIA radiogroup model, exactly as a native radio behaves.",
-          zh: "先点击一张卡片，然后按下方的按键。焦点跟随选择，因此每次落点都会被朗读——这就是 WAI-ARIA 单选组的模型，与原生单选按钮的行为一致。",
+          zh: "先点击一张卡片，然后按下方的按键。焦点跟随选择，因此每次落点都会被朗读——这就是WAI-ARIA单选组的模型，与原生单选按钮的行为一致。",
         })}
       </Text>
       <dl css={styles.keyList}>
@@ -106,7 +106,7 @@ export function OptionCardShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "The default. The group is a WAI-ARIA radiogroup, each card a radio, and the group needs a name of its own — one of aria-label or aria-labelledby is required at the type level, so an unnamed group cannot ship.",
-            zh: "这是默认形态。该组为 WAI-ARIA 单选组，每张卡片是一个单选项，并且整组必须有自己的名称——类型层面要求 aria-label 与 aria-labelledby 二选一，因此无名称的组根本无法交付。",
+            zh: "这是默认形态。该组为WAI-ARIA单选组，每张卡片是一个单选项，并且整组必须有自己的名称——类型层面要求aria-label与aria-labelledby二选一，因此无名称的组根本无法交付。",
           })}
         </Text>
       </Showcase>
@@ -118,7 +118,7 @@ export function OptionCardShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'selection="multiple" makes every card a checkbox with its own tab stop, and the arrow keys stay out of it — that is what the checkbox pattern asks for, since each card is an independent answer rather than one of a set.',
-            zh: 'selection="multiple" 会把每张卡片变成复选框，各自占一个 Tab 停靠点，方向键不再介入——复选框模式本就如此，因为每张卡片都是独立的答案，而不是一组中的其中之一。',
+            zh: 'selection="multiple" 会把每张卡片变成复选框，各自占一个Tab停靠点，方向键不再介入——复选框模式本就如此，因为每张卡片都是独立的答案，而不是一组中的其中之一。',
           })}
         </Text>
       </Showcase>
@@ -156,21 +156,21 @@ export function OptionCardShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "Only the label names the card. The description is attached with aria-describedby and the icon is hidden, so a card never announces a paragraph. The indicator is a slot: replace the tick with anything that still changes when the card is chosen.",
-            zh: "只有标签为卡片命名。说明通过 aria-describedby 关联，图标则被隐藏，因此卡片不会朗读出一整段文字。指示符是一个插槽：可以用任何在卡片被选中时同样会变化的内容取代默认勾选标记。",
+            zh: "只有标签为卡片命名。说明通过aria-describedby关联，图标则被隐藏，因此卡片不会朗读出一整段文字。指示符是一个插槽：可以用任何在卡片被选中时同样会变化的内容取代默认勾选标记。",
           })}
         </Text>
       </Showcase>
 
       <Showcase label={t({ en: "Bespoke content", zh: "自定义内容" })}>
         <Specimen
-          caption={t({ en: "price as children", zh: "价格作为 children" })}
+          caption={t({ en: "price as children", zh: "价格作为children" })}
         >
           <BespokeDemo />
         </Specimen>
         <Text look="bodySmall" tone="muted">
           {t({
             en: "When a card needs to carry more than an options array can express, drop a layer: render OptionCard yourself, pass the extra content as children, and spread useRadioGroup's getOptionProps() to keep the same keyboard model. Children sit under the description and stay out of the accessible name.",
-            zh: "当卡片需要承载 options 数组表达不了的内容时，就下沉一层：自行渲染 OptionCard，把额外内容作为 children 传入，并展开 useRadioGroup 的 getOptionProps() 以保持相同的键盘模型。children 位于说明下方，且不会进入可访问名称。",
+            zh: "当卡片需要承载options数组表达不了的内容时，就下沉一层：自行渲染OptionCard，把额外内容作为children传入，并展开useRadioGroup的getOptionProps() 以保持相同的键盘模型。children位于说明下方，且不会进入可访问名称。",
           })}
         </Text>
       </Showcase>
@@ -201,7 +201,7 @@ export function OptionCardShowcase() {
           dont={<GuidelineCard withIndicator={false} />}
           dontCaption={t({
             en: "Don't pass indicator={null} on a selectable card — the accent border becomes the only thing saying it is chosen. Reserve it for cards that merely act when pressed.",
-            zh: "不要在可选择的卡片上传入 indicator={null}——那样就只剩强调色边框在表示它被选中了。这种用法只留给按下即执行动作的卡片。",
+            zh: "不要在可选择的卡片上传入indicator={null}——那样就只剩强调色边框在表示它被选中了。这种用法只留给按下即执行动作的卡片。",
           })}
         />
       </Showcase>

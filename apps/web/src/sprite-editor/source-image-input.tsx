@@ -183,7 +183,7 @@ export function SourceImageInput({
           <p css={[typeRole.body, styles.heroHint]}>
             {t({
               en: "Drag and drop a file, or pick one. PNG, JPG and WebP are supported.",
-              zh: "将文件拖到此处，或选择一个。支持 PNG、JPG 和 WebP。",
+              zh: "将文件拖到此处，或选择一个。支持PNG、JPG和WebP。",
             })}
           </p>
         </div>

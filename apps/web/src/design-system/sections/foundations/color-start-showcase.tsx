@@ -30,18 +30,18 @@ export function ColorStartShowcase() {
             value: '"primary" · "danger"',
             note: t({
               en: "primary fills the button with the accent, danger with the danger colour. Leave look out for the neutral button. isActive gives a toggle the same accent fill as primary.",
-              zh: "primary 用强调色填充按钮，danger 用危险色填充。省略 look 即为中性按钮。isActive 让切换按钮得到与 primary 相同的强调色填充。",
+              zh: "primary用强调色填充按钮，danger用危险色填充。省略look即为中性按钮。isActive让切换按钮得到与primary相同的强调色填充。",
             }),
           },
           {
             term: "Badge intent",
             value: t({
               en: "Any Intent, or default",
-              zh: "任一意图色，或 default",
+              zh: "任一意图色，或default",
             }),
             note: t({
               en: "An Intent puts its tint behind the label and its own foreground on it. default is the one with a border and no tint.",
-              zh: "意图色会在标签后铺上它的淡色，并让标签使用它自己的前景色。default 是唯一带边框、没有淡色的样式。",
+              zh: "意图色会在标签后铺上它的淡色，并让标签使用它自己的前景色。default是唯一带边框、没有淡色的样式。",
             }),
           },
           {
@@ -49,7 +49,7 @@ export function ColorStartShowcase() {
             value: t({ en: "Any Intent", zh: "任一意图色" }),
             note: t({
               en: "The tint, a border in the Intent's colour, and the icon and title in its foreground. danger and warning also announce the Callout as an alert.",
-              zh: "淡色背景、意图色的边框，以及使用其前景色的图标与标题。danger 与 warning 还会把提示框作为警报播报。",
+              zh: "淡色背景、意图色的边框，以及使用其前景色的图标与标题。danger与warning还会把提示框作为警报播报。",
             }),
           },
           {
@@ -57,7 +57,7 @@ export function ColorStartShowcase() {
             value: '"default" · "muted" · "accent"',
             note: t({
               en: "The text colour: color.fg, color.fgMuted or color.fgAccent. Heading has no tone and is always color.fg.",
-              zh: "文字颜色：color.fg、color.fgMuted 或 color.fgAccent。Heading 没有 tone，始终为 color.fg。",
+              zh: "文字颜色：color.fg、color.fgMuted或color.fgAccent。Heading没有tone，始终为color.fg。",
             }),
           },
           {
@@ -65,7 +65,7 @@ export function ColorStartShowcase() {
             value: '"current" · "accent"',
             note: t({
               en: "current, the default, takes the colour of the text around it, so the Spinner a busy Button shows matches its label.",
-              zh: "默认值 current 沿用周围文字的颜色，因此忙碌状态的 Button 所显示的 Spinner 与按钮标签同色。",
+              zh: "默认值current沿用周围文字的颜色，因此忙碌状态的Button所显示的Spinner与按钮标签同色。",
             }),
           },
         ]}
@@ -82,7 +82,7 @@ import { Text } from "@tuja/ui/components/text";
       <GuideNote>
         {t({
           en: "To change one colour in one component, set the property through its css prop, or through the component's own Tokens where it has them. Both are on ",
-          zh: "要改动某个组件里的某一种颜色，可通过它的 css 属性设置该属性；组件有自身令牌时，也可以通过这些令牌设置。两种做法见",
+          zh: "要改动某个组件里的某一种颜色，可通过它的css属性设置该属性；组件有自身令牌时，也可以通过这些令牌设置。两种做法见",
         })}
         <DocLink path="/design-system/foundations/customization" />
         {t({ en: ".", zh: "。" })}

@@ -140,7 +140,7 @@ export function ActionRow({
     reroll: t({ en: "Re-roll lore", zh: "重抽传说" }),
     conjuring: t({ en: "Conjuring…", zh: "召唤中…" }),
     copy: t({ en: "Copy link", zh: "复制链接" }),
-    download: t({ en: "Download PNG", zh: "下载 PNG" }),
+    download: t({ en: "Download PNG", zh: "下载PNG" }),
     downloadSprite: t({ en: "Sprite", zh: "精灵" }),
     downloadCard: t({ en: "Card", zh: "卡牌" }),
     save: t({ en: "Save", zh: "保存" }),

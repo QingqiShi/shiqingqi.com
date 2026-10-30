@@ -42,7 +42,7 @@ export function PaletteShowcase() {
       })}
       lead={t({
         en: "A brand's own colour or a series in a chart has no Token Role. Take it from the system palette rather than writing a hex: thirteen Hues, each at twenty-one Tones from 0, black, to 100, white. Where a Token Role fits, use the token instead, because a Tone does not follow the scheme and holds no contrast floor.",
-        zh: "品牌自身的颜色或图表中的一组数据，没有对应的令牌角色。请从系统调色板中取色，而不是手写十六进制值：十三种色相，各有从 0（黑）到 100（白）的二十一级色调。只要有合适的令牌角色，就改用令牌，因为色调不会跟随配色方案，也没有对比度下限。",
+        zh: "品牌自身的颜色或图表中的一组数据，没有对应的令牌角色。请从系统调色板中取色，而不是手写十六进制值：十三种色相，各有从0（黑）到100（白）的二十一级色调。只要有合适的令牌角色，就改用令牌，因为色调不会跟随配色方案，也没有对比度下限。",
       })}
     >
       <GuideList
@@ -52,7 +52,7 @@ export function PaletteShowcase() {
             value: t({ en: "One Hue's Tones", zh: "一种色相的全部色调" }),
             note: t({
               en: "StyleX constants such as cyan._40, each one fixed hex. cyan_rgb._40 holds the same Tone as channels, for an rgba() with an alpha of your own.",
-              zh: "StyleX 常量，例如 cyan._40，每个都是一个固定的十六进制值。cyan_rgb._40 以通道形式给出同一色调，用于自定透明度的 rgba()。",
+              zh: "StyleX常量，例如cyan._40，每个都是一个固定的十六进制值。cyan_rgb._40以通道形式给出同一色调，用于自定透明度的rgba()。",
             }),
           },
           {
@@ -60,7 +60,7 @@ export function PaletteShowcase() {
             value: "light-dark()",
             note: t({
               en: "A Tone is the same in both schemes. Pair a light Tone with a dark one in a var of your own, in a .stylex.ts file, so the colour follows the scheme the way a token does.",
-              zh: "色调在两种配色方案下都一样。请在你自己的 .stylex.ts 文件中，把一个浅色色调与一个深色色调配对成一个变量，使这个颜色像令牌一样跟随配色方案。",
+              zh: "色调在两种配色方案下都一样。请在你自己的 .stylex.ts文件中，把一个浅色色调与一个深色色调配对成一个变量，使这个颜色像令牌一样跟随配色方案。",
             }),
           },
           {
@@ -71,7 +71,7 @@ export function PaletteShowcase() {
             value: t({ en: "Across every Hue", zh: "跨所有色相" }),
             note: t({
               en: "Each Hue is generated so that a Tone looks as bright as gray at the same number. Pick the Tone for the lightness you need, then change the Hue and keep the Tone. Every Intent fill sits at Tone 40 in light and 70 in dark.",
-              zh: "每种色相在生成时都让每一级色调看起来与灰色同一编号一样亮。先按所需的明度选色调，再更换色相，色调保持不变。所有意图色填充都位于浅色下的色调 40 与深色下的色调 70。",
+              zh: "每种色相在生成时都让每一级色调看起来与灰色同一编号一样亮。先按所需的明度选色调，再更换色相，色调保持不变。所有意图色填充都位于浅色下的色调40与深色下的色调70。",
             }),
           },
           {
@@ -79,7 +79,7 @@ export function PaletteShowcase() {
             value: t({ en: "The Tones as data", zh: "以数据形式给出的色调" }),
             note: t({
               en: "systemPalette lists every Hue and Tone with a black or white foreground, for tooling such as a swatch picker. That foreground is whichever has the higher WCAG 2 ratio, not a Token pairing with a floor.",
-              zh: "systemPalette 列出每种色相与色调，并为每一格给出黑色或白色前景，用于色板选择器之类的工具。这个前景只是 WCAG 2 对比度更高的那一个，并不是有下限保障的令牌搭配。",
+              zh: "systemPalette列出每种色相与色调，并为每一格给出黑色或白色前景，用于色板选择器之类的工具。这个前景只是WCAG 2对比度更高的那一个，并不是有下限保障的令牌搭配。",
             }),
           },
         ]}

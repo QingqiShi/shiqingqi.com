@@ -23,7 +23,7 @@ export default function TypographyPage() {
       path="/design-system/foundations/typography"
       description={t({
         en: "Most text needs only Text and Heading. When you style text yourself, compose a type role, which sets the size, line height, weight and tracking together. This page lists the type roles, the two families, and the tokens a style may change on top of a type role.",
-        zh: "大多数文字只需要 Text 与 Heading。当你自己为文字设置样式时，请组合一个字体角色，它会同时设定字号、行高、字重与字距。本页列出所有字体角色、两种字体族，以及在字体角色之上样式可以改动的令牌。",
+        zh: "大多数文字只需要Text与Heading。当你自己为文字设置样式时，请组合一个字体角色，它会同时设定字号、行高、字重与字距。本页列出所有字体角色、两种字体族，以及在字体角色之上样式可以改动的令牌。",
       })}
     >
       <TypographyStartShowcase />

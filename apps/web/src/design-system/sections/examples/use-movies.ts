@@ -59,7 +59,7 @@ export function useMovies(): Movie[] {
     rating: "7.8",
     ratingLabel: t({
       en: "7.8 out of 10, from 2,431 votes",
-      zh: "10 分制 7.8 分，共 2,431 票",
+      zh: "10分制7.8分，共2,431票",
     }),
     overview: t({
       en: "A marine surveyor returns to the fjord town she left at seventeen, to sign off on a bridge her father spent his life opposing. The paperwork takes an afternoon. Working out what the town owes her, and what she owes it, takes the rest of the winter.",
@@ -115,7 +115,7 @@ export function useMovies(): Movie[] {
     rating: "7.2",
     ratingLabel: t({
       en: "7.2 out of 10, from 1,190 votes",
-      zh: "10 分制 7.2 分，共 1,190 票",
+      zh: "10分制7.2分，共1,190票",
     }),
     overview: t({
       en: "Two sisters inherit a salt works and the ledger that goes with it. One wants to sell before the season turns. The other reads the ledger.",
@@ -159,7 +159,7 @@ export function useMovies(): Movie[] {
     rating: "7.5",
     ratingLabel: t({
       en: "7.5 out of 10, from 3,004 votes",
-      zh: "10 分制 7.5 分，共 3,004 票",
+      zh: "10分制7.5分，共3,004票",
     }),
     overview: t({
       en: "A night crossing, eleven passengers, and a crew of four. The ferry docks on time with everyone aboard, which is the part nobody can explain.",
@@ -206,7 +206,7 @@ export function useMovies(): Movie[] {
     rating: "6.9",
     ratingLabel: t({
       en: "6.9 out of 10, from 812 votes",
-      zh: "10 分制 6.9 分，共 812 票",
+      zh: "10分制6.9分，共812票",
     }),
     overview: t({
       en: "A harbour master logs every light on the water for thirty years. The year he retires, the log stops matching the water.",

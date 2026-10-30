@@ -78,7 +78,7 @@ export function EffectLayerTestBenches() {
           title={t({ en: "Effect container", zh: "效果容器" })}
           helper={t({
             en: "Dust in a container beside a fan on the page; dust on the page beside a container that holds a fan; and an element with rings close to its container's edge. The dust stays in its own box, no fan pulls across an edge, and the rings stop at the container's edge. The debug view outlines each container in violet and labels it with the id of its scope.",
-            zh: "容器中的灰尘旁边是页面上的抽风机；页面上的灰尘旁边是装着抽风机的容器；还有一个靠近容器边缘、会泛起涟漪的元素。灰尘应留在自己的盒子里，抽风机不会跨过边缘去吸，涟漪止于容器的边缘。调试视图会用紫色勾出每个容器，并标出它作用域的 id。",
+            zh: "容器中的灰尘旁边是页面上的抽风机；页面上的灰尘旁边是装着抽风机的容器；还有一个靠近容器边缘、会泛起涟漪的元素。灰尘应留在自己的盒子里，抽风机不会跨过边缘去吸，涟漪止于容器的边缘。调试视图会用紫色勾出每个容器，并标出它作用域的id。",
           })}
         >
           <EffectContainerTestBench />
@@ -90,7 +90,7 @@ export function EffectLayerTestBenches() {
           title={t({ en: "Ripple", zh: "涟漪" })}
           helper={t({
             en: "Move the pointer over each tile from different sides, fast and slow, then press one: its neighbours answer, and the rings fade before the dashed tile. Tab to the button for focus. Switch the theme, scroll while a ring spreads, and turn on reduced motion in your system settings.",
-            zh: "从不同方向、以不同速度把指针移到各个方块上，再按下其中一个：相邻的方块会回应，圆环会在虚线方块之前淡去。用 Tab 键聚焦到按钮上查看聚焦效果。切换主题，在圆环扩散时滚动页面，并在系统设置中打开减少动态效果。",
+            zh: "从不同方向、以不同速度把指针移到各个方块上，再按下其中一个：相邻的方块会回应，圆环会在虚线方块之前淡去。用Tab键聚焦到按钮上查看聚焦效果。切换主题，在圆环扩散时滚动页面，并在系统设置中打开减少动态效果。",
           })}
         >
           <EffectLayerRippleBench />

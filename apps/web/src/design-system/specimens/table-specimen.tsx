@@ -45,19 +45,19 @@ export function TableSpecimen() {
       <TableBody>
         <TableRow>
           <TableHeaderCell scope="row">
-            {t({ en: "Plan 1", zh: "计划 1" })}
+            {t({ en: "Plan 1", zh: "计划1" })}
           </TableHeaderCell>
           <TableCell numeric>{money.format(26065)}</TableCell>
         </TableRow>
         <TableRow>
           <TableHeaderCell scope="row">
-            {t({ en: "Plan 2", zh: "计划 2" })}
+            {t({ en: "Plan 2", zh: "计划2" })}
           </TableHeaderCell>
           <TableCell numeric>{money.format(28470)}</TableCell>
         </TableRow>
         <TableRow>
           <TableHeaderCell scope="row">
-            {t({ en: "Plan 5", zh: "计划 5" })}
+            {t({ en: "Plan 5", zh: "计划5" })}
           </TableHeaderCell>
           <TableCell numeric>{money.format(25000)}</TableCell>
         </TableRow>

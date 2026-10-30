@@ -27,7 +27,7 @@ export function GetStartedImportMap() {
             value: "breakpoints",
             note: t({
               en: "sm, md, lg and xl as min-width media queries, used as keys.",
-              zh: "sm、md、lg 与 xl，均为 min-width 媒体查询，用作键。",
+              zh: "sm、md、lg与xl，均为min-width媒体查询，用作键。",
             }),
           },
           {
@@ -36,7 +36,7 @@ export function GetStartedImportMap() {
               "flex · stack · layout · corner · motion · a11y · reset · root · texture · wash",
             note: t({
               en: "Style objects that set several properties at once, such as flex.row or a11y.focusRing.",
-              zh: "一次设置多个属性的样式对象，例如 flex.row 或 a11y.focusRing。",
+              zh: "一次设置多个属性的样式对象，例如flex.row或a11y.focusRing。",
             }),
           },
           {
@@ -50,14 +50,14 @@ export function GetStartedImportMap() {
             term: "@tuja/ui/components/<name>.stylex",
             note: t({
               en: "A component's own Tokens and its look as a style object, such as buttonTokens or cardSurface.",
-              zh: "组件自身的令牌，以及以样式对象形式提供的组件外观，例如 buttonTokens 或 cardSurface。",
+              zh: "组件自身的令牌，以及以样式对象形式提供的组件外观，例如buttonTokens或cardSurface。",
             }),
           },
           {
             term: "@tuja/ui/hooks/<name>",
             note: t({
               en: "A component's behaviour without its markup, such as use-disclosure, and the effect layer hooks.",
-              zh: "不带标记结构的组件行为，例如 use-disclosure，以及效果层的钩子。",
+              zh: "不带标记结构的组件行为，例如use-disclosure，以及效果层的钩子。",
             }),
           },
           {
@@ -65,7 +65,7 @@ export function GetStartedImportMap() {
             value: "StyleProp",
             note: t({
               en: "The type of every css prop.",
-              zh: "所有 css 属性的类型。",
+              zh: "所有css属性的类型。",
             }),
           },
           {
@@ -73,7 +73,7 @@ export function GetStartedImportMap() {
             value: "contrast-ratio · merge-refs · get-scroll-behavior",
             note: t({
               en: "Small helpers, such as mergeRefs to give one element two refs, and contrastRatio to check two colours.",
-              zh: "小工具函数，例如让一个元素同时接收两个 ref 的 mergeRefs，以及检查两种颜色对比度的 contrastRatio。",
+              zh: "小工具函数，例如让一个元素同时接收两个ref的mergeRefs，以及检查两种颜色对比度的contrastRatio。",
             }),
           },
           {
@@ -90,7 +90,7 @@ export function GetStartedImportMap() {
             value: "installJsdomShims",
             note: t({
               en: "Call it once from a Vitest setup file before you test components in jsdom. It adds the DOM members the components read and jsdom leaves out.",
-              zh: "在 jsdom 中测试组件之前，从 Vitest 的 setup 文件中调用一次。它补上组件会读取、而 jsdom 缺少的 DOM 成员。",
+              zh: "在jsdom中测试组件之前，从Vitest的setup文件中调用一次。它补上组件会读取、而jsdom缺少的DOM成员。",
             }),
           },
           {

@@ -17,7 +17,7 @@ export function TabBarShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'Each item is a link with an icon over its label. The current one carries aria-current="page" and draws its icon filled; the others draw it bold. Tab reaches every tab in turn and Enter follows it — these are links to pages, not a radiogroup, so there are no arrow keys.',
-            zh: '每一项都是一个链接，图标在上、标签在下。当前项带有 aria-current="page"，图标以填充样式绘制；其余项以粗线绘制。Tab 依次进入每个标签页，Enter 打开它——这些是通往页面的链接，而不是单选组，因此没有方向键操作。',
+            zh: '每一项都是一个链接，图标在上、标签在下。当前项带有aria-current="page"，图标以填充样式绘制；其余项以粗线绘制。Tab依次进入每个标签页，Enter打开它——这些是通往页面的链接，而不是单选组，因此没有方向键操作。',
           })}
         </Text>
       </Showcase>
@@ -53,7 +53,7 @@ export function TabBarShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: "badge puts a small mark at the icon's top-end corner. It is decorative, so status says what it means: visually hidden text in a status region inside the link, announced when it changes and read as part of the tab's name. Pass null while there is nothing to say, so the region is in place before the text arrives.",
-            zh: "badge 在图标右上角放置一个小标记。它是装饰性的，因此由 status 说明其含义：链接内状态区域中视觉上隐藏的文本，变化时会被朗读，并作为标签页名称的一部分读出。没有内容时传入 null，使该区域在文本到来之前就已存在。",
+            zh: "badge在图标右上角放置一个小标记。它是装饰性的，因此由status说明其含义：链接内状态区域中视觉上隐藏的文本，变化时会被朗读，并作为标签页名称的一部分读出。没有内容时传入null，使该区域在文本到来之前就已存在。",
           })}
         </Text>
       </Showcase>
@@ -70,7 +70,7 @@ export function TabBarShowcase() {
         <Text look="bodySmall" tone="muted">
           {t({
             en: 'By default the indicator is the Segmented control\'s liquid: it melts into water, pours to the tab you press, flows on for a moment after it arrives, and follows a drag with inertia. effect="none" keeps the plain Glass indicator, and so does a bar without an EffectLayerProvider or WebGPU, or under forced colours, where the filled icon marks the current tab.',
-            zh: '默认情况下，指示块就是分段控件的液体：它融化成水后涌向你按下的标签页，到位后继续流动片刻，并带着惯性跟随拖动。设置 effect="none" 会保留普通的玻璃指示块；没有 EffectLayerProvider 或 WebGPU，或处于强制颜色模式时也是如此，此时由填充样式的图标标记当前标签页。',
+            zh: '默认情况下，指示块就是分段控件的液体：它融化成水后涌向你按下的标签页，到位后继续流动片刻，并带着惯性跟随拖动。设置effect="none" 会保留普通的玻璃指示块；没有EffectLayerProvider或WebGPU，或处于强制颜色模式时也是如此，此时由填充样式的图标标记当前标签页。',
           })}
         </Text>
       </Showcase>
@@ -110,7 +110,7 @@ const styles = stylex.create({
         <Text look="bodySmall" tone="muted">
           {t({
             en: "tabBarTokens.blockSize is the height of the pill, for the padding that keeps a page's last content above a bar that floats over it. linkComponent takes the framework's link, as AnchorButton's does, so following a tab stays client-side.",
-            zh: "tabBarTokens.blockSize 是胶囊的高度，用于设置内边距，使页面末尾的内容不被浮在其上的标签栏遮住。linkComponent 与 AnchorButton 的同名属性一样接收框架自带的链接组件，使切换标签页保持客户端导航。",
+            zh: "tabBarTokens.blockSize是胶囊的高度，用于设置内边距，使页面末尾的内容不被浮在其上的标签栏遮住。linkComponent与AnchorButton的同名属性一样接收框架自带的链接组件，使切换标签页保持客户端导航。",
           })}
         </Text>
       </Showcase>
@@ -120,7 +120,7 @@ const styles = stylex.create({
         <ShowcaseHelper>
           {t({
             en: "TabBarItem is { href: string; label: ReactNode; icon: Icon; current?: boolean; badge?: ReactNode; status?: ReactNode } — icon is a Phosphor icon component, which the bar draws filled when the tab is current and bold otherwise.",
-            zh: "TabBarItem 的形状是 { href: string; label: ReactNode; icon: Icon; current?: boolean; badge?: ReactNode; status?: ReactNode }——icon 是一个 Phosphor 图标组件，标签页为当前项时以填充样式绘制，否则以粗线绘制。",
+            zh: "TabBarItem的形状是 { href: string; label: ReactNode; icon: Icon; current?: boolean; badge?: ReactNode; status?: ReactNode }——icon是一个Phosphor图标组件，标签页为当前项时以填充样式绘制，否则以粗线绘制。",
           })}
         </ShowcaseHelper>
       </Showcase>

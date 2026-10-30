@@ -76,7 +76,7 @@ export function IconographyShowcase() {
       value: "icon",
       note: t({
         en: "Before the label, at the label's font size and colour. A Button with an icon and no children is icon-only.",
-        zh: "位于标签之前，与标签同字号、同颜色。只有 icon 而没有 children 的 Button 即为纯图标按钮。",
+        zh: "位于标签之前，与标签同字号、同颜色。只有icon而没有children的Button即为纯图标按钮。",
       }),
     },
     {
@@ -92,7 +92,7 @@ export function IconographyShowcase() {
       value: "icon",
       note: t({
         en: "Each intent has a default. Pass another icon to replace it, or null to remove it.",
-        zh: "每种意图色都有默认图标。传入其他图标即可替换，传入 null 则移除。",
+        zh: "每种意图色都有默认图标。传入其他图标即可替换，传入null则移除。",
       }),
     },
     {
@@ -100,7 +100,7 @@ export function IconographyShowcase() {
       value: "icon · selectedIcon",
       note: t({
         en: "Per option. selectedIcon shows only on the selected option. With hideLabels, every option needs an icon.",
-        zh: "按选项设置。selectedIcon 只在选中项上显示。设置 hideLabels 时，每个选项都需要 icon。",
+        zh: "按选项设置。selectedIcon只在选中项上显示。设置hideLabels时，每个选项都需要icon。",
       }),
     },
     {
@@ -108,7 +108,7 @@ export function IconographyShowcase() {
       value: "icon · indicator",
       note: t({
         en: "icon leads the summary. indicator replaces the turning caret, or null removes it.",
-        zh: "icon 位于摘要之前。indicator 替换会旋转的箭头，传入 null 则移除。",
+        zh: "icon位于摘要之前。indicator替换会旋转的箭头，传入null则移除。",
       }),
     },
     {
@@ -116,7 +116,7 @@ export function IconographyShowcase() {
       value: "icon",
       note: t({
         en: "Beside the title, in the muted text colour. OptionCard turns it to the accent colour when the card is selected.",
-        zh: "位于标题旁，使用次要文字颜色。OptionCard 在卡片被选中时将其变为强调色。",
+        zh: "位于标题旁，使用次要文字颜色。OptionCard在卡片被选中时将其变为强调色。",
       }),
     },
     {
@@ -146,7 +146,7 @@ export function IconographyShowcase() {
       value: "Callout",
       note: t({
         en: "The default icons for info, success, warning and danger.",
-        zh: "info、success、warning 与 danger 的默认图标。",
+        zh: "info、success、warning与danger的默认图标。",
       }),
     },
     {
@@ -154,7 +154,7 @@ export function IconographyShowcase() {
       value: "Callout",
       note: t({
         en: "The default icons for accent and neutral.",
-        zh: "accent 与 neutral 的默认图标。",
+        zh: "accent与neutral的默认图标。",
       }),
     },
   ];
@@ -164,11 +164,11 @@ export function IconographyShowcase() {
       <GuideSection
         title={t({
           en: "Add Phosphor to your app",
-          zh: "把 Phosphor 加入你的应用",
+          zh: "把Phosphor加入你的应用",
         })}
         lead={t({
           en: "The components draw their own icons with @phosphor-icons/react, which installs with @tuja/ui. The package does not re-export it, so to use an icon in your own code, add Phosphor to your app.",
-          zh: "组件用 @phosphor-icons/react 绘制自带的图标，它会随 @tuja/ui 一起安装。本包不会转出它，因此要在自己的代码中使用图标，请把 Phosphor 加入你的应用。",
+          zh: "组件用 @phosphor-icons/react绘制自带的图标，它会随 @tuja/ui一起安装。本包不会转出它，因此要在自己的代码中使用图标，请把Phosphor加入你的应用。",
         })}
       >
         <UsageSnippet
@@ -179,7 +179,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         <GuideNote>
           {t({
             en: "Import each icon from dist/ssr/<Name>, the entry the package uses. It renders in a Server Component, ships only the icons you import, and shares one copy of Phosphor with the package when your version is in the same range. This entry does not read Phosphor's IconContext, so a context provider changes neither your icons nor the package's.",
-            zh: "从 dist/ssr/<Name> 逐个导入图标，这也是本包使用的入口。它能在服务端组件中渲染，只打包你导入的图标；只要你的版本在相同范围内，就会与本包共用同一份 Phosphor。这个入口不读取 Phosphor 的 IconContext，因此上下文提供者既不会改变你的图标，也不会改变本包的图标。",
+            zh: "从dist/ssr/<Name> 逐个导入图标，这也是本包使用的入口。它能在服务端组件中渲染，只打包你导入的图标；只要你的版本在相同范围内，就会与本包共用同一份Phosphor。这个入口不读取Phosphor的IconContext，因此上下文提供者既不会改变你的图标，也不会改变本包的图标。",
           })}
         </GuideNote>
       </GuideSection>
@@ -188,7 +188,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         title={t({ en: "Pass icons to a slot", zh: "把图标传给插槽" })}
         lead={t({
           en: "Components take icons through props. The slot sets the icon's size, colour and spacing, and hides it from assistive technology, so you pass the bare icon with nothing but its weight.",
-          zh: "组件通过属性接收图标。插槽会设定图标的尺寸、颜色与间距，并对辅助技术隐藏它，因此你只需传入图标本身，最多加上 weight。",
+          zh: "组件通过属性接收图标。插槽会设定图标的尺寸、颜色与间距，并对辅助技术隐藏它，因此你只需传入图标本身，最多加上weight。",
         })}
       >
         <SpecimenGrid>
@@ -215,7 +215,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         <GuideNote>
           {t({
             en: "A slot takes any React node. Another icon set works if its icons are 1em square and fill with currentColor.",
-            zh: "插槽接受任意 React 节点。只要图标为 1em 见方并以 currentColor 填充，其他图标库同样适用。",
+            zh: "插槽接受任意React节点。只要图标为1em见方并以currentColor填充，其他图标库同样适用。",
           })}
         </GuideNote>
       </GuideSection>
@@ -227,7 +227,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         })}
         lead={t({
           en: "A Phosphor icon is 1em square and fills with currentColor. The slots rely on this: they set a font size and a colour, and the icon follows. Outside a slot, do the same: give the parent a type role or a controlSize font size, and a colour. Beside text, it needs neither: it takes the size and colour of the text.",
-          zh: "Phosphor 图标为 1em 见方，并以 currentColor 填充。插槽正依赖这一点：它们设定字号与颜色，图标随之变化。在插槽之外也这样做：给父元素一个字体角色或 controlSize 字号，再设定颜色。图标紧挨文字时两者都不需要：它会沿用文字的字号与颜色。",
+          zh: "Phosphor图标为1em见方，并以currentColor填充。插槽正依赖这一点：它们设定字号与颜色，图标随之变化。在插槽之外也这样做：给父元素一个字体角色或controlSize字号，再设定颜色。图标紧挨文字时两者都不需要：它会沿用文字的字号与颜色。",
         })}
       >
         <div css={[corner.radius_2, styles.sizeRow]}>
@@ -258,7 +258,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         <GuideNote>
           {t({
             en: "A Phosphor icon has no css prop. Style the element around it.",
-            zh: "Phosphor 图标不接受 css 属性。请为包裹它的元素设置样式。",
+            zh: "Phosphor图标不接受css属性。请为包裹它的元素设置样式。",
           })}
         </GuideNote>
       </GuideSection>
@@ -267,7 +267,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         title={t({ en: "Weight", zh: "字重" })}
         lead={t({
           en: "Phosphor's default weight is regular. The package draws the glyphs inside its controls in bold, so an icon you put in a Button, Chip or field matches them at bold.",
-          zh: "Phosphor 的默认字重是 regular。本包把控件内的图形都画成 bold，因此你放进 Button、Chip 或输入框的图标用 bold 才能与之一致。",
+          zh: "Phosphor的默认字重是regular。本包把控件内的图形都画成bold，因此你放进Button、Chip或输入框的图标用bold才能与之一致。",
         })}
       >
         <DoDont
@@ -287,14 +287,14 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
           }
           dontCaption={t({
             en: "No weight, so Phosphor's regular: lighter than every caret and close icon the package draws.",
-            zh: "未传 weight，即 Phosphor 的 regular：比本包绘制的所有箭头与关闭图标都细。",
+            zh: "未传weight，即Phosphor的regular：比本包绘制的所有箭头与关闭图标都细。",
           })}
         />
         <GuideList items={ownWeights} />
         <GuideNote>
           {t({
             en: "The require-icon-sizing lint rule holds both rules: it refuses the size and color props on a Phosphor icon, and it asks every icon for a weight.",
-            zh: "require-icon-sizing 检查规则负责落实这两条：它拒绝 Phosphor 图标上的 size 与 color 属性，并要求每个图标都写明 weight。",
+            zh: "require-icon-sizing检查规则负责落实这两条：它拒绝Phosphor图标上的size与color属性，并要求每个图标都写明weight。",
           })}
         </GuideNote>
       </GuideSection>
@@ -306,7 +306,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         })}
         lead={t({
           en: "Every slot renders its icon with aria-hidden, so an icon never names anything. The words beside it do, or an aria-label on an icon-only control. An icon you place in your own markup takes aria-hidden too.",
-          zh: "每个插槽都以 aria-hidden 渲染图标，因此图标从不为任何东西命名。命名的是旁边的文字，或纯图标控件上的 aria-label。你在自己的标记中放置的图标同样要加上 aria-hidden。",
+          zh: "每个插槽都以aria-hidden渲染图标，因此图标从不为任何东西命名。命名的是旁边的文字，或纯图标控件上的aria-label。你在自己的标记中放置的图标同样要加上aria-hidden。",
         })}
       >
         <SpecimenGrid>
@@ -346,7 +346,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
           <Anchor href="https://phosphoricons.com" target="_blank">
             {t({
               en: "Browse every icon at phosphoricons.com",
-              zh: "在 phosphoricons.com 浏览全部图标",
+              zh: "在phosphoricons.com浏览全部图标",
             })}
           </Anchor>
         </ShowcaseHelper>
@@ -368,7 +368,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
         <ShowcaseHelper>
           {t({
             en: "These are Phosphor's props, not @tuja/ui's.",
-            zh: "这些是 Phosphor 的属性，而非 @tuja/ui 的。",
+            zh: "这些是Phosphor的属性，而非 @tuja/ui的。",
           })}
         </ShowcaseHelper>
         <div css={styles.propGrid}>
@@ -387,7 +387,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             <p css={[typeRole.bodySmall, styles.propNote]}>
               {t({
                 en: "Leave it at 1em and set the font size on the parent.",
-                zh: "保持 1em，在父元素上设置字号。",
+                zh: "保持1em，在父元素上设置字号。",
               })}
             </p>
           </SpecCard>
@@ -395,7 +395,7 @@ import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";`}
             <p css={[typeRole.bodySmall, styles.propNote]}>
               {t({
                 en: "Leave it at currentColor and set the colour on the parent.",
-                zh: "保持 currentColor，在父元素上设置颜色。",
+                zh: "保持currentColor，在父元素上设置颜色。",
               })}
             </p>
           </SpecCard>

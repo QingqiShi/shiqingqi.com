@@ -113,7 +113,7 @@ function FlexSection() {
       meta: "start · center · end · …",
       description: t({
         en: "Single-property modifiers that override a flex primitive's defaults.",
-        zh: "单属性修饰符，用于覆盖 flex 原语的默认对齐方式。",
+        zh: "单属性修饰符，用于覆盖flex原语的默认对齐方式。",
       }),
     },
     {
@@ -121,17 +121,17 @@ function FlexSection() {
       meta: "_0 · _1",
       description: t({
         en: "Toggle flex-grow / flex-shrink to fill or hold remaining space.",
-        zh: "切换 flex-grow / flex-shrink，用于占满或保持剩余空间。",
+        zh: "切换flex-grow / flex-shrink，用于占满或保持剩余空间。",
       }),
     },
   ];
 
   return (
-    <Showcase label={t({ en: "Flex", zh: "Flex 布局" })}>
+    <Showcase label={t({ en: "Flex", zh: "Flex布局" })}>
       <ShowcaseHelper>
         {t({
           en: "Multi-property flex primitives. Drop to them when composing a bespoke layout the component library doesn't cover — they encode the alignment defaults so a callsite reads as intent, not CSS plumbing.",
-          zh: "多属性 flex 原语。当组件库未覆盖某个自定义布局时下沉到它们——它们封装了对齐默认值，让调用处读起来是意图而非 CSS 细节。",
+          zh: "多属性flex原语。当组件库未覆盖某个自定义布局时下沉到它们——它们封装了对齐默认值，让调用处读起来是意图而非CSS细节。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -208,7 +208,7 @@ function LayoutSection() {
   const sampleImage = `data:image/svg+xml,${encodeURIComponent(
     "<svg xmlns='http://www.w3.org/2000/svg' width='320' height='180'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#7c5cff'/><stop offset='1' stop-color='#22d3ee'/></linearGradient></defs><rect width='320' height='180' fill='url(#g)'/><circle cx='160' cy='90' r='52' fill='#ffffff' fill-opacity='0.92'/></svg>",
   )}`;
-  const imageAlt = t({ en: "Sample 16:9 artwork", zh: "示例 16:9 图像" });
+  const imageAlt = t({ en: "Sample 16:9 artwork", zh: "示例16:9图像" });
 
   const api: ApiEntry[] = [
     {
@@ -224,7 +224,7 @@ function LayoutSection() {
       meta: "position:fixed · 0 × 0",
       description: t({
         en: "Anchor an overlay to the viewport origin. The layers inside it bring their own size, which keeps Safari on iOS from flattening the status bar.",
-        zh: "将覆盖层锚定到视口原点。其中的图层各自携带尺寸，避免 iOS Safari 把状态栏涂成纯色。",
+        zh: "将覆盖层锚定到视口原点。其中的图层各自携带尺寸，避免iOS Safari把状态栏涂成纯色。",
       }),
     },
     {
@@ -248,7 +248,7 @@ function LayoutSection() {
       meta: "overflow-x:auto · scrollbar:none",
       description: t({
         en: "Horizontal scroller; add a11y.focusRing for a keyboard-navigable strip.",
-        zh: "水平滚动容器；加上 a11y.focusRing 即可用键盘导航。",
+        zh: "水平滚动容器；加上a11y.focusRing即可用键盘导航。",
       }),
     },
     {
@@ -349,7 +349,7 @@ function LayoutSection() {
         <Specimen
           caption={t({
             en: "imageCover vs imageContain",
-            zh: "imageCover 与 imageContain",
+            zh: "imageCover与imageContain",
           })}
         >
           <div css={[flex.row, styles.imagePair]}>
@@ -431,7 +431,7 @@ function MotionSection() {
       meta: "infinite",
       description: t({
         en: "Loading affordances — pulse for skeletons, bounce for dots.",
-        zh: "加载提示——pulse 用于骨架屏，bounce 用于圆点。",
+        zh: "加载提示——pulse用于骨架屏，bounce用于圆点。",
       }),
     },
     {
@@ -561,7 +561,7 @@ function ResetSection() {
       <ShowcaseHelper>
         {t({
           en: "Neutralise browser defaults without abandoning semantics. Reach for buttonReset when a distinctive control needs full styling control but must stay a keyboard- and screen-reader-friendly <button>.",
-          zh: "在不放弃语义的前提下抹平浏览器默认样式。当某个独特控件需要完全掌控样式、又必须保持对键盘和屏幕阅读器友好的 <button> 时，使用 buttonReset。",
+          zh: "在不放弃语义的前提下抹平浏览器默认样式。当某个独特控件需要完全掌控样式、又必须保持对键盘和屏幕阅读器友好的 <button> 时，使用buttonReset。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -608,7 +608,7 @@ function RootSection() {
       meta: "color-scheme · bg · text-size-adjust",
       description: t({
         en: "Turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token.",
-        zh: "开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌。",
+        zh: "开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个rem令牌。",
       }),
     },
     {
@@ -616,7 +616,7 @@ function RootSection() {
       meta: "color · font-family · line-height · text-wrap · overflow-wrap",
       description: t({
         en: "The text every element inherits: the default colour, the typeface, a line height of 1.5, text-wrap: pretty, and overflow-wrap: break-word, which breaks a word too long for its line.",
-        zh: "每个元素继承的文字样式：默认颜色、字体、1.5 的行高、text-wrap: pretty，以及 overflow-wrap: break-word，它会断开一行放不下的长词。",
+        zh: "每个元素继承的文字样式：默认颜色、字体、1.5的行高、text-wrap: pretty，以及overflow-wrap: break-word，它会断开一行放不下的长词。",
       }),
     },
   ];
@@ -648,7 +648,7 @@ function CornerSection() {
       meta: "_1 · _2 · _3 · _4 · _5",
       description: t({
         en: "Squircle corner at each border.radius step — borderRadius and cornerShape in one declaration.",
-        zh: "在每一级 border.radius 上配对的超椭圆角——borderRadius 与 cornerShape 写在同一条声明里。",
+        zh: "在每一级border.radius上配对的超椭圆角——borderRadius与cornerShape写在同一条声明里。",
       }),
     },
     {
@@ -664,7 +664,7 @@ function CornerSection() {
       meta: "cornerShape:squircle",
       description: t({
         en: "The full-round squircle, closing at half a control's height — a Button's shape, falling back to a rounded box rather than a pill.",
-        zh: "全圆角超椭圆，在半个控件高度处闭合——Button 的形状，不支持时回退为圆角矩形而非胶囊形。",
+        zh: "全圆角超椭圆，在半个控件高度处闭合——Button的形状，不支持时回退为圆角矩形而非胶囊形。",
       }),
     },
   ];
@@ -674,7 +674,7 @@ function CornerSection() {
       <ShowcaseHelper>
         {t({
           en: "Pairs each border.radius step with its corner shape in one declaration — squircle on the fixed steps, circular caps on radius_round — so corners ship shaped without a global corner-shape rule. A browser without corner-shape support keeps circular corners.",
-          zh: "在同一条声明中为每一级 border.radius 配对角形——固定阶梯用超椭圆角，radius_round 用圆弧端帽——无需全局 corner-shape 规则。不支持 corner-shape 的浏览器会回退为圆弧。",
+          zh: "在同一条声明中为每一级border.radius配对角形——固定阶梯用超椭圆角，radius_round用圆弧端帽——无需全局corner-shape规则。不支持corner-shape的浏览器会回退为圆弧。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -711,7 +711,7 @@ function TextureSection() {
       meta: "radial-gradient · 1px dot",
       description: t({
         en: "A dot of 1px or less, repeated at the pitch.",
-        zh: "不超过 1px 的点，按间距重复。",
+        zh: "不超过1px的点，按间距重复。",
       }),
     },
     {
@@ -719,7 +719,7 @@ function TextureSection() {
       meta: "default: space._1",
       description: t({
         en: "The distance between dots. Take it from space._0 or a larger step.",
-        zh: "点与点之间的距离。取 space._0 或更大的一级。",
+        zh: "点与点之间的距离。取space._0或更大的一级。",
       }),
     },
     {
@@ -727,7 +727,7 @@ function TextureSection() {
       meta: "default: color.fg at 20%",
       description: t({
         en: "The dot's colour. The default mixes color.fg into transparent, so it follows the colour scheme.",
-        zh: "点的颜色。默认值把 color.fg 混入透明色，因此会随配色方案变化。",
+        zh: "点的颜色。默认值把color.fg混入透明色，因此会随配色方案变化。",
       }),
     },
   ];
@@ -737,7 +737,7 @@ function TextureSection() {
       <ShowcaseHelper>
         {t({
           en: "A dot 1px across, repeated on a square grid over the element's background colour. Set the pitch and the ink per surface through the Tokens in a local style. When to use it is on the Material page.",
-          zh: "一个 1px 的点，在元素背景色之上按方格重复。通过局部样式中的令牌，为每个表面设定间距与墨色。何时使用见质感页。",
+          zh: "一个1px的点，在元素背景色之上按方格重复。通过局部样式中的令牌，为每个表面设定间距与墨色。何时使用见质感页。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
@@ -878,7 +878,7 @@ function A11ySection() {
       meta: "2px accent · offset 2px · :focus-visible",
       description: t({
         en: "The shared keyboard focus indicator (WCAG 2.4.7), for any element that takes focus. buttonReset.base already carries it.",
-        zh: "共享的键盘焦点指示器（WCAG 2.4.7），用于任何可获得焦点的元素。buttonReset.base 已经带有它。",
+        zh: "共享的键盘焦点指示器（WCAG 2.4.7），用于任何可获得焦点的元素。buttonReset.base已经带有它。",
       }),
     },
     {
@@ -902,7 +902,7 @@ function A11ySection() {
       meta: "≥44px hit area · (pointer: coarse) · no tap flash",
       description: t({
         en: "On a touch screen, a tap across at least 44px without a change in how the control looks (WCAG 2.5.8). buttonReset.base and chipSurface.interactive already carry it. An ancestor that clips overflow clips the hit area too.",
-        zh: "在触摸屏上，控件能在至少 44px 的范围内响应点按，且外观不变（WCAG 2.5.8）。buttonReset.base 与 chipSurface.interactive 已经带有它。裁切溢出内容的祖先元素也会裁切点按区域。",
+        zh: "在触摸屏上，控件能在至少44px的范围内响应点按，且外观不变（WCAG 2.5.8）。buttonReset.base与chipSurface.interactive已经带有它。裁切溢出内容的祖先元素也会裁切点按区域。",
       }),
     },
     {
@@ -910,7 +910,7 @@ function A11ySection() {
       meta: "min-block-size 44px · (pointer: coarse) · no tap flash",
       description: t({
         en: "The touch target for a control that abuts its neighbours, such as a nav link in a list of rows. A hit area past its box would cover the next row, so on a touch screen the control itself grows to at least 44px tall.",
-        zh: "用于与相邻控件紧挨着的控件的触摸目标，例如一列行中的导航链接。超出其边框的点按区域会盖住下一行，所以在触摸屏上控件本身会增高到至少 44px。",
+        zh: "用于与相邻控件紧挨着的控件的触摸目标，例如一列行中的导航链接。超出其边框的点按区域会盖住下一行，所以在触摸屏上控件本身会增高到至少44px。",
       }),
     },
   ];
@@ -927,7 +927,7 @@ function A11ySection() {
         <Specimen
           caption={t({
             en: "srOnly names an icon-only control",
-            zh: "srOnly 为纯图标控件提供名称",
+            zh: "srOnly为纯图标控件提供名称",
           })}
         >
           <button
@@ -950,7 +950,7 @@ function A11ySection() {
         <Specimen
           caption={t({
             en: "focusRing — Tab to reveal",
-            zh: "focusRing —— 按 Tab 显示",
+            zh: "focusRing —— 按Tab显示",
           })}
         >
           <button
@@ -1026,7 +1026,7 @@ function SelectedSection() {
       meta: "default: transparent",
       description: t({
         en: "The background while the item is not selected. Each strength sets backgroundColor, so set the rest colour through this token, not on the element.",
-        zh: "条目未选中时的背景。每种强度都会设置 backgroundColor，因此请通过这个令牌设置静态颜色，而不是在元素上设置。",
+        zh: "条目未选中时的背景。每种强度都会设置backgroundColor，因此请通过这个令牌设置静态颜色，而不是在元素上设置。",
       }),
     },
   ];
@@ -1036,7 +1036,7 @@ function SelectedSection() {
       <ShowcaseHelper>
         {t({
           en: "One selected state, read from the ARIA state the item already carries: aria-pressed, aria-checked or aria-selected set to true, or any aria-current. Set the attribute and the look follows, so what a screen reader announces is what everyone sees.",
-          zh: "统一的选中态，读取条目本身已有的 ARIA 状态：值为 true 的 aria-pressed、aria-checked 或 aria-selected，或任何 aria-current。设置属性，外观随之改变，因此屏幕阅读器读出的状态，就是所有人看到的状态。",
+          zh: "统一的选中态，读取条目本身已有的ARIA状态：值为true的aria-pressed、aria-checked或aria-selected，或任何aria-current。设置属性，外观随之改变，因此屏幕阅读器读出的状态，就是所有人看到的状态。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>

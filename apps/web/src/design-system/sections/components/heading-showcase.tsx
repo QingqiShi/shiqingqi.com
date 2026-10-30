@@ -15,7 +15,7 @@ export function HeadingShowcase() {
         <ShowcaseHelper>
           {t({
             en: "Five looks, each a type role, from the hero display down to a body-size section label.",
-            zh: "五种 look，每种都是一个字体角色，从主视觉 display 一直到正文大小的分区标签。",
+            zh: "五种look，每种都是一个字体角色，从主视觉display一直到正文大小的分区标签。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -57,7 +57,7 @@ export function HeadingShowcase() {
         <ShowcaseHelper>
           {t({
             en: "level sets the semantic rank for the document outline; look sets the visual step. Decoupling lets an <h2> read as a display heading without breaking the outline.",
-            zh: "level 决定文档大纲中的语义层级，look 决定外观。二者解耦，让 <h2> 能以 display 大小呈现而不破坏大纲。",
+            zh: "level决定文档大纲中的语义层级，look决定外观。二者解耦，让 <h2> 能以display大小呈现而不破坏大纲。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -88,7 +88,7 @@ export function HeadingShowcase() {
         <ShowcaseHelper>
           {t({
             en: "weight overrides the weight the look sets, so a display heading can read light or extra-heavy without touching its size.",
-            zh: "weight 会覆盖 look 设定的字重，因此 display 标题可以变轻或加重，而无需改动字号。",
+            zh: "weight会覆盖look设定的字重，因此display标题可以变轻或加重，而无需改动字号。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -139,7 +139,7 @@ export function HeadingShowcase() {
         <ShowcaseHelper>
           {t({
             en: 'A heading balances by default: the lines are evened, so a two-line title doesn\'t leave one word stranded. The browser\'s line cap is no constraint at heading length. Pass wrap="pretty" or wrap="nowrap" only where a heading must break differently.',
-            zh: '标题默认使用 balance：各行长度均衡，使两行的标题不会在第二行只剩一个词。在标题长度下浏览器的行数上限不构成限制。只有在标题必须以其他方式换行时，才传入 wrap="pretty" 或 wrap="nowrap"。',
+            zh: '标题默认使用balance：各行长度均衡，使两行的标题不会在第二行只剩一个词。在标题长度下浏览器的行数上限不构成限制。只有在标题必须以其他方式换行时，才传入wrap="pretty" 或wrap="nowrap"。',
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -176,7 +176,7 @@ export function HeadingShowcase() {
         }
         doCaption={t({
           en: "Keep ranks in document order (h1 → h2 …), then pick any look for the size you want.",
-          zh: "让层级遵循文档顺序（h1 → h2 …），再自由选择所需字号的 look。",
+          zh: "让层级遵循文档顺序（h1 → h2 …），再自由选择所需字号的look。",
         })}
         dont={
           <Heading level={1} look="h4">
@@ -185,7 +185,7 @@ export function HeadingShowcase() {
         }
         dontCaption={t({
           en: "Don't add a second h1 or pick the level by how big you want the text — set level by rank, look by size.",
-          zh: "不要新增第二个 h1，也不要按想要的字号来选层级——层级按等级定，字号按 look 定。",
+          zh: "不要新增第二个h1，也不要按想要的字号来选层级——层级按等级定，字号按look定。",
         })}
       />
     </>

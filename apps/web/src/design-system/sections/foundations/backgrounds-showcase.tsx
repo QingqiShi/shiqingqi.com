@@ -83,7 +83,7 @@ export function BackgroundsShowcase() {
       title={t({ en: "Backgrounds", zh: "背景" })}
       lead={t({
         en: "A bg token is named for what the box is, not for how light it is. Pick the band by the job, then the token in it by elevation or state.",
-        zh: "bg 令牌以盒子是什么命名，而不是以它有多亮命名。先按用途选组，再在组内按层级或状态选令牌。",
+        zh: "bg令牌以盒子是什么命名，而不是以它有多亮命名。先按用途选组，再在组内按层级或状态选令牌。",
       })}
     >
       <div css={stack.group}>
@@ -91,7 +91,7 @@ export function BackgroundsShowcase() {
           name={t({ en: "Canvas", zh: "画布" })}
           use={t({
             en: "The page itself, behind everything. The root already paints it, so you set it again only on a full-bleed region that has to match the page. Fade is the colour a gradient on the canvas runs toward.",
-            zh: "页面本身，位于一切之后。根元素已经绘制了它，只有需要与页面一致的通栏区域才要再设一次。Fade 是画布上的渐变所淡向的颜色。",
+            zh: "页面本身，位于一切之后。根元素已经绘制了它，只有需要与页面一致的通栏区域才要再设一次。Fade是画布上的渐变所淡向的颜色。",
           })}
           columns={2}
           snippet={
@@ -123,7 +123,7 @@ const styles = stylex.create({
           name={t({ en: "Surface", zh: "表面" })}
           use={t({
             en: "Anything that holds content of its own: a card, a panel, a dialog body. Sunken sits below its surface, like the track behind SegmentedControl's options. Raised floats above it, like Popover and the MenuButton menu. In light, Raised and the default are the same white, so a floating surface also needs its edge: popoverSurface from @tuja/ui/components/popover-surface.stylex carries both.",
-            zh: "任何承载自身内容的东西：卡片、面板、对话框主体。Sunken 位于所在表面之下，例如 SegmentedControl 选项背后的轨道。Raised 悬浮在表面之上，例如 Popover 与 MenuButton 的菜单。浅色下 Raised 与默认表面是同一种白色，因此悬浮表面还需要边缘：@tuja/ui/components/popover-surface.stylex 中的 popoverSurface 两者兼备。",
+            zh: "任何承载自身内容的东西：卡片、面板、对话框主体。Sunken位于所在表面之下，例如SegmentedControl选项背后的轨道。Raised悬浮在表面之上，例如Popover与MenuButton的菜单。浅色下Raised与默认表面是同一种白色，因此悬浮表面还需要边缘：@tuja/ui/components/popover-surface.stylex中的popoverSurface两者兼备。",
           })}
           columns={4}
           mdColumns={2}
@@ -163,7 +163,7 @@ const styles = stylex.create({
           name={t({ en: "Control", zh: "控件" })}
           use={t({
             en: "Anything a person presses or types into: a button, a field, a row that opens something. Hover lifts it to bgControlHover. Disabled, it keeps its rest fill on hover and fades as a whole with opacity.disabled; fields and Checkbox also switch to bgControlDisabled. A selected item takes bgControlSelected from the selected primitive, which reads the item's ARIA state. ListRow takes bgControlPressed while it is pressed.",
-            zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到 bgControlHover。禁用时，悬停也保持静止填充，并通过 opacity.disabled 整体变淡；输入框与 Checkbox 还会换成 bgControlDisabled。选中项从 selected 原语取得 bgControlSelected，该原语读取元素的 ARIA 状态。ListRow 在被按下时使用 bgControlPressed。",
+            zh: "任何被按下或输入的东西：按钮、输入框、点开后进入别处的行。悬停时升到bgControlHover。禁用时，悬停也保持静止填充，并通过opacity.disabled整体变淡；输入框与Checkbox还会换成bgControlDisabled。选中项从selected原语取得bgControlSelected，该原语读取元素的ARIA状态。ListRow在被按下时使用bgControlPressed。",
           })}
           columns={5}
           snippet={
@@ -213,7 +213,7 @@ const styles = stylex.create({
           name={t({ en: "Bright, inverse and scrim", zh: "明亮、反相与遮罩" })}
           use={t({
             en: 'Grounds that take a foreground of their own, so each pairs with its fgOn token. Bright stays light in both schemes: the Slider thumb, and Button with bright. Inverse is dark in light and light in dark: Avatar with look="solid". Scrim is the same translucent black in both, and dims the page behind a modal surface.',
-            zh: '需要专属前景色的底面，因此每一种都搭配自己的 fgOn 令牌。Bright 在两种配色方案下都保持浅色：Slider 的手柄，以及设置了 bright 的 Button。Inverse 在浅色下是深色、在深色下是浅色：look="solid" 的 Avatar。Scrim 在两种方案下是同一种半透明黑色，用于压暗模态表面背后的页面。',
+            zh: '需要专属前景色的底面，因此每一种都搭配自己的fgOn令牌。Bright在两种配色方案下都保持浅色：Slider的手柄，以及设置了bright的Button。Inverse在浅色下是深色、在深色下是浅色：look="solid" 的Avatar。Scrim在两种方案下是同一种半透明黑色，用于压暗模态表面背后的页面。',
           })}
           columns={3}
           snippet={

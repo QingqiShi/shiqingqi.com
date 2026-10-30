@@ -225,7 +225,7 @@ export function PreferencePanel({
         <p css={[typeRole.bodySmall, styles.infoText]}>
           {t({
             en: "Preferences are stored locally in your browser. When you chat with the AI, they're included as context to personalise its replies.",
-            zh: "偏好仅存储在你的浏览器中。当你与 AI 对话时，它们会作为上下文一起发送，以便个性化回复。",
+            zh: "偏好仅存储在你的浏览器中。当你与AI对话时，它们会作为上下文一起发送，以便个性化回复。",
           })}
         </p>
       </div>
@@ -236,7 +236,7 @@ export function PreferencePanel({
             <p css={[typeRole.body, styles.emptyText]}>
               {t({
                 en: "No preferences yet. Chat with the AI and it will learn what you like.",
-                zh: "还没有偏好记录。和 AI 聊天，它会了解你的喜好。",
+                zh: "还没有偏好记录。和AI聊天，它会了解你的喜好。",
               })}
             </p>
           </div>
