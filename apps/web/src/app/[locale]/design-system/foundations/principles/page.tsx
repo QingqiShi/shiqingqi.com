@@ -9,6 +9,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
+import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
@@ -357,7 +358,7 @@ const styles = stylex.create({
   },
   section: {
     // Below `md`, the menu button floats over the top of the page.
-    scrollMarginBlockStart: `calc(var(--header-controls-clearance, 0px) + ${rhythm.item})`,
+    scrollMarginBlockStart: `calc(${headerControlsTokens.clearance} + ${rhythm.item})`,
   },
   title: {
     display: "flex",

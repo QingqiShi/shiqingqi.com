@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
+import { headerControlsTokens } from "../shells/header-controls.stylex.ts";
 import { layer, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { StuckContext } from "./sticky-control-group.tsx";
@@ -60,7 +61,7 @@ const styles = stylex.create({
   // groups reading as one cluster rather than spanning the row.
   sticky: {
     position: "sticky",
-    insetBlockStart: "var(--header-controls-clearance, 0px)",
+    insetBlockStart: headerControlsTokens.clearance,
     zIndex: layer.raised,
     display: "flex",
     gap: rhythm.item,

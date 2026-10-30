@@ -36,16 +36,16 @@ const ACCESSORY_TILE_PX = 32;
 
 /**
  * Composite pixel sprite (species PNG + optional accessory tiles) with a
- * requestAnimationFrame loop that updates CSS variables on the wrapper.
+ * requestAnimationFrame loop that moves the rig holding every layer.
  *
- * Why CSS variables over React state: the rAF runs every frame; state
+ * Why a direct style write over React state: the rAF runs every frame; state
  * updates would re-render every layer at 60Hz. Writing
- * `wrapper.style.setProperty(...)` is a direct DOM mutation that reaches
- * the layout engine without involving React reconciliation. The mutation
- * lives inside an effect's rAF callback, never inside render — the
- * component itself stays pure.
+ * `rig.style.transform` is a direct DOM mutation that reaches the
+ * compositor without involving React reconciliation. The mutation lives
+ * inside an effect's rAF callback, never inside render — the component
+ * itself stays pure.
  *
- * The CSS values are *already-scaled CSS pixels*: motion-math returns
+ * The offsets are *already-scaled CSS pixels*: motion-math returns
  * art-pixels, we snap with `snapToArtPixel` then multiply by `scale`.
  * That ordering keeps each frame on whole-art-pixel boundaries regardless
  * of the chosen scale.
@@ -57,7 +57,7 @@ export function PixelSprite({
   paused = false,
   "aria-label": ariaLabel,
 }: PixelSpriteProps) {
-  const stageRef = useRef<HTMLDivElement>(null);
+  const rigRef = useRef<HTMLDivElement>(null);
   const activeEmotion = emotion ?? def.defaultEmotion;
   const prefersReducedMotion = useReducedMotion();
 
@@ -70,14 +70,13 @@ export function PixelSprite({
     .filter((tile): tile is NonNullable<typeof tile> => tile !== undefined);
 
   useEffect(() => {
-    const stage = stageRef.current;
-    if (stage === null) return;
+    const rig = rigRef.current;
+    if (rig === null) return;
 
     const writeMotion = (motion: EmotionMotion) => {
       const dxCss = artPxToCssPx(snapToArtPixel(motion.body.dx), scale);
       const dyCss = artPxToCssPx(snapToArtPixel(motion.body.dy), scale);
-      stage.style.setProperty("--pcc-body-dx", `${String(dxCss)}px`);
-      stage.style.setProperty("--pcc-body-dy", `${String(dyCss)}px`);
+      rig.style.transform = `translate3d(${String(dxCss)}px, ${String(dyCss)}px, 0)`;
     };
 
     if (paused) {
@@ -127,7 +126,6 @@ export function PixelSprite({
 
   return (
     <div
-      ref={stageRef}
       role={ariaLabel === undefined ? undefined : "img"}
       aria-label={ariaLabel}
       data-paused={paused ? "true" : undefined}
@@ -137,40 +135,42 @@ export function PixelSprite({
         filter !== undefined && styles.stageFilter(filter),
       ]}
     >
-      <div css={[styles.layer, styles.bodyLayer]}>
-        <Image
-          src={speciesEntry.idle}
-          alt=""
-          width={stagePx}
-          height={stagePx}
-          unoptimized
-          style={{
-            width: `${String(stagePx)}px`,
-            height: `${String(stagePx)}px`,
-            imageRendering: "pixelated",
-            display: "block",
-          }}
-        />
-      </div>
-      {accessoryTiles.map((accessory) => (
-        <div
-          key={accessory.id}
-          css={[
-            styles.layer,
-            styles.accessoryLayer,
-            styles.accessoryLayerRect(
-              `${String(accessoryOffsetCss)}px`,
-              `${String(accessorySizePx)}px`,
-            ),
-          ]}
-        >
-          <PixelLayer
-            tile={accessory.tile}
-            palette={ACCESSORY_PALETTE}
-            scale={scale}
+      {/* Accessories ride along with the body so a hat doesn't lag behind a bob. */}
+      <div ref={rigRef} css={styles.rig}>
+        <div css={styles.layer}>
+          <Image
+            src={speciesEntry.idle}
+            alt=""
+            width={stagePx}
+            height={stagePx}
+            unoptimized
+            style={{
+              width: `${String(stagePx)}px`,
+              height: `${String(stagePx)}px`,
+              imageRendering: "pixelated",
+              display: "block",
+            }}
           />
         </div>
-      ))}
+        {accessoryTiles.map((accessory) => (
+          <div
+            key={accessory.id}
+            css={[
+              styles.layer,
+              styles.accessoryLayerRect(
+                `${String(accessoryOffsetCss)}px`,
+                `${String(accessorySizePx)}px`,
+              ),
+            ]}
+          >
+            <PixelLayer
+              tile={accessory.tile}
+              palette={ACCESSORY_PALETTE}
+              scale={scale}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -187,21 +187,18 @@ const styles = stylex.create({
   stageFilter: (filter: string) => ({
     filter,
   }),
+  rig: {
+    position: "absolute",
+    inset: 0,
+    pointerEvents: "none",
+    willChange: "transform",
+    transform: "translate3d(0, 0, 0)",
+  },
   layer: {
     position: "absolute",
     top: 0,
     left: 0,
     pointerEvents: "none",
-    willChange: "transform",
-  },
-  bodyLayer: {
-    transform:
-      "translate3d(var(--pcc-body-dx, 0px), var(--pcc-body-dy, 0px), 0)",
-  },
-  accessoryLayer: {
-    // Accessories ride along with the body so a hat doesn't lag behind a bob.
-    transform:
-      "translate3d(var(--pcc-body-dx, 0px), var(--pcc-body-dy, 0px), 0)",
   },
   accessoryLayerRect: (offset: string, size: string) => ({
     left: offset,

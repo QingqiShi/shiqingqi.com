@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
+import { pressNudgeTokens } from "@tuja/ui/components/button-shared.stylex";
 import { Heading } from "@tuja/ui/components/heading";
 import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
 import { Text } from "@tuja/ui/components/text";
@@ -756,8 +757,7 @@ const styles = stylex.create({
   },
   pressTilePressed: {
     transform: {
-      default:
-        "scale(1.05) translate(var(--button-nudge-x, 0), var(--button-nudge-y, 0))",
+      default: `scale(1.05) translate(${pressNudgeTokens.x}, ${pressNudgeTokens.y})`,
       [motionConstants.REDUCED_MOTION]: "scale(1) translate(0, 0)",
     },
     filter: {

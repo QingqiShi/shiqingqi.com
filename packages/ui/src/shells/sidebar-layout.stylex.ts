@@ -1,7 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { buttonTokens } from "../actions/button.stylex.ts";
-import { pointer } from "../breakpoints.stylex.ts";
-import { color } from "../tokens.stylex.ts";
+import { breakpoints, pointer } from "../breakpoints.stylex.ts";
+import { color, space } from "../tokens.stylex.ts";
 
 /**
  * The safe-area insets that `SidebarLayout` keeps its chrome and content
@@ -13,6 +13,18 @@ export const sidebarLayoutTokens = stylex.defineVars({
   safeAreaRight: "env(safe-area-inset-right)",
   safeAreaBottom: "env(safe-area-inset-bottom)",
   safeAreaLeft: "env(safe-area-inset-left)",
+});
+
+/**
+ * The rail's own sizes, which its header, nav and footer share.
+ *
+ * @internal
+ */
+export const railTokens = stylex.defineVars({
+  /** How far the box edge of the nav is in from the edge of the card. */
+  boxInset: { default: space._3, [breakpoints.md]: space._2 },
+  /** The width of the card at `md` and wider, set from the rail column. */
+  cardInlineSize: "auto",
 });
 
 /**

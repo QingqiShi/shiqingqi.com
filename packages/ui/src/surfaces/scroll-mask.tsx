@@ -23,6 +23,7 @@ import { layer, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { MaskBand } from "./mask-band.tsx";
 import { ScrollButton } from "./scroll-button.tsx";
+import { scrollMaskTokens } from "./scroll-mask.stylex.ts";
 
 interface ScrollMaskProps extends Omit<
   ComponentProps<"div">,
@@ -87,10 +88,10 @@ interface ScrollMaskProps extends Omit<
    * against the end edge — for chrome that sits somewhere else, such as a
    * footer fixed to the viewport. A slot taken out of flow no longer holds
    * its room in the scroller, so pad the scroller's end in `contentCss` with
-   * `var(--scroll-mask-end-chrome)`, the slot's measured size. The band and
+   * `scrollMaskTokens.endChrome`, the slot's measured size. The band and
    * the scroll padding follow that size wherever the slot sits.
    *
-   * @zh 与 endChrome 插槽自身样式合并的 StyleX 样式。插槽默认粘附在结束边上；这组样式用于放在别处的界面元素，例如固定在视口上的页脚。脱离文档流的插槽不再在滚动元素中占位，因此请在 contentCss 中用 `var(--scroll-mask-end-chrome)`（插槽的实测尺寸）为滚动元素的结束端补上内边距。无论插槽在哪里，虚化带与滚动内边距都随这个尺寸变化。
+   * @zh 与 endChrome 插槽自身样式合并的 StyleX 样式。插槽默认粘附在结束边上；这组样式用于放在别处的界面元素，例如固定在视口上的页脚。脱离文档流的插槽不再在滚动元素中占位，因此请在 contentCss 中用 `scrollMaskTokens.endChrome`（插槽的实测尺寸）为滚动元素的结束端补上内边距。无论插槽在哪里，虚化带与滚动内边距都随这个尺寸变化。
    */
   endChromeCss?: StyleProp;
   /**
@@ -584,7 +585,7 @@ const dynamicStyles = stylex.create({
     scrollPaddingBlockEnd: `${String(end)}px`,
   }),
   endChromeSize: (end: number) => ({
-    "--scroll-mask-end-chrome": `${String(end)}px`,
+    [scrollMaskTokens.endChrome]: `${String(end)}px`,
   }),
   scrollPaddingInline: (start: number, end: number) => ({
     scrollPaddingInlineStart: `${String(start)}px`,

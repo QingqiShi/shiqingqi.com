@@ -23,15 +23,15 @@ export function MediaMeter({ percent, fillCss, children }: MediaMeterProps) {
   return (
     <div css={styles.cell}>
       {children}
-      <span
-        aria-hidden="true"
-        css={[
-          corner.radius_round,
-          styles.track,
-          styles.trackFill(`${String(percent)}%`),
-        ]}
-      >
-        <span css={[corner.radius_round, styles.fill, fillCss]} />
+      <span aria-hidden="true" css={[corner.radius_round, styles.track]}>
+        <span
+          css={[
+            corner.radius_round,
+            styles.fill,
+            styles.fillSize(`${String(percent)}%`),
+            fillCss,
+          ]}
+        />
       </span>
     </div>
   );
@@ -52,13 +52,12 @@ const styles = stylex.create({
     overflow: "hidden",
     backgroundColor: color.bgNeutralSubtle,
   },
-  trackFill: (percent: string) => ({
-    "--media-meter": percent,
-  }),
   fill: {
     display: "block",
-    inlineSize: "var(--media-meter, 0%)",
     blockSize: "100%",
     backgroundColor: color.bgWarning,
   },
+  fillSize: (percent: string) => ({
+    inlineSize: percent,
+  }),
 });

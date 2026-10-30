@@ -6,7 +6,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
 
 /**
  * Motion foundation-card illustration: an ease-in-out easing curve with a dot
@@ -23,27 +23,19 @@ export function MotionIllustration() {
     >
       <defs>
         <radialGradient id="dsi-motion-mo-bloom-ink" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="var(--ds-illo-ink)" stopOpacity="0.8" />
-          <stop offset="55%" stopColor="var(--ds-illo-ink)" stopOpacity="0.1" />
-          <stop offset="100%" stopColor="var(--ds-illo-ink)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.ink} stopOpacity="0.8" />
+          <stop offset="55%" stopColor={illoVars.ink} stopOpacity="0.1" />
+          <stop offset="100%" stopColor={illoVars.ink} stopOpacity="0" />
         </radialGradient>
         <radialGradient id="dsi-motion-mo-bloom-hue" cx="50%" cy="50%" r="50%">
-          <stop
-            offset="0%"
-            stopColor="var(--ds-illo-hue-soft)"
-            stopOpacity="0.42"
-          />
-          <stop offset="40%" stopColor="var(--ds-illo-hue)" stopOpacity="0.1" />
-          <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.hueSoft} stopOpacity="0.42" />
+          <stop offset="40%" stopColor={illoVars.hue} stopOpacity="0.1" />
+          <stop offset="100%" stopColor={illoVars.hue} stopOpacity="0" />
         </radialGradient>
         <radialGradient id="dsi-motion-mo-orb" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-          <stop
-            offset="34%"
-            stopColor="var(--ds-illo-hue-soft)"
-            stopOpacity="0.95"
-          />
-          <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
+          <stop offset="34%" stopColor={illoVars.hueSoft} stopOpacity="0.95" />
+          <stop offset="100%" stopColor={illoVars.hue} stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -164,8 +156,7 @@ const styles = stylex.create({
   grid: {
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 5px), calc(var(--ds-illo-my) * 4px))",
+      default: `translate(calc(${illoVars.mx} * 5px), calc(${illoVars.my} * 4px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -175,7 +166,7 @@ const styles = stylex.create({
   },
   gridPath: {
     fill: "none",
-    stroke: "var(--ds-illo-ink)",
+    stroke: illoVars.ink,
     strokeWidth: 1,
     strokeLinecap: "round",
     opacity: {
@@ -190,7 +181,7 @@ const styles = stylex.create({
   },
   curveGlowWide: {
     fill: "none",
-    stroke: "var(--ds-illo-hue-soft)",
+    stroke: illoVars.hueSoft,
     strokeWidth: 13,
     strokeLinecap: "round",
     opacity: {
@@ -206,7 +197,7 @@ const styles = stylex.create({
   },
   curveGlow: {
     fill: "none",
-    stroke: "var(--ds-illo-hue-soft)",
+    stroke: illoVars.hueSoft,
     strokeWidth: 5,
     strokeLinecap: "round",
     opacity: {
@@ -222,7 +213,7 @@ const styles = stylex.create({
   },
   curveInk: {
     fill: "none",
-    stroke: "var(--ds-illo-ink)",
+    stroke: illoVars.ink,
     strokeWidth: 2,
     strokeLinecap: "round",
     opacity: {
@@ -237,7 +228,7 @@ const styles = stylex.create({
   },
   curveHue: {
     fill: "none",
-    stroke: "var(--ds-illo-hue)",
+    stroke: illoVars.hue,
     strokeWidth: 2,
     strokeLinecap: "round",
     opacity: {
@@ -252,7 +243,7 @@ const styles = stylex.create({
   },
   linear: {
     fill: "none",
-    stroke: "var(--ds-illo-ink)",
+    stroke: illoVars.ink,
     strokeWidth: 1.6,
     strokeLinecap: "round",
     strokeDasharray: "3 4.5",
@@ -266,8 +257,7 @@ const styles = stylex.create({
     },
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 9px), calc(var(--ds-illo-my) * 6px))",
+      default: `translate(calc(${illoVars.mx} * 9px), calc(${illoVars.my} * 6px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -276,7 +266,7 @@ const styles = stylex.create({
     },
   },
   // Opacity gates off at rest and on via when.ancestor hover, but keeps the
-  // --ds-illo-px pointer term so the lit endpoint tracks which way the cursor leans.
+  // `illoVars.px` pointer term so the lit endpoint tracks which way the cursor leans.
   endpointGlow: {
     transition: `opacity ${duration._400} ${easing.ease}`,
   },
@@ -284,11 +274,11 @@ const styles = stylex.create({
     opacity: {
       default: 0,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "calc(0.35 + 0.55 * (1 - var(--ds-illo-px, 0.5)))",
+        `calc(0.35 + 0.55 * (1 - ${illoVars.px}))`,
       [pointer.canHover]: {
         default: null,
         [stylex.when.ancestor(":hover", tileMarker)]:
-          "calc(0.35 + 0.55 * (1 - var(--ds-illo-px, 0.5)))",
+          `calc(0.35 + 0.55 * (1 - ${illoVars.px}))`,
       },
     },
   },
@@ -296,16 +286,16 @@ const styles = stylex.create({
     opacity: {
       default: 0,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "calc(0.35 + 0.55 * var(--ds-illo-px, 0.5))",
+        `calc(0.35 + 0.55 * ${illoVars.px})`,
       [pointer.canHover]: {
         default: null,
         [stylex.when.ancestor(":hover", tileMarker)]:
-          "calc(0.35 + 0.55 * var(--ds-illo-px, 0.5))",
+          `calc(0.35 + 0.55 * ${illoVars.px})`,
       },
     },
   },
   endpointRest: {
-    fill: "var(--ds-illo-ink)",
+    fill: illoVars.ink,
     opacity: {
       default: 0.55,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0,
@@ -329,7 +319,7 @@ const styles = stylex.create({
     transition: `opacity ${duration._400} ${easing.ease}`,
   },
   // The dot scrubs the curve: cometCircle's offset-path traces it and offset-distance
-  // maps the pointer --ds-illo-px (0->1) onto it; ghosts lag progressively into a tail.
+  // maps the pointer `illoVars.px` (0->1) onto it; ghosts lag progressively into a tail.
   comet: {
     opacity: {
       default: 0,
@@ -345,7 +335,7 @@ const styles = stylex.create({
     offsetPath: 'path("M210,150 C258,150 252,60 300,60")',
     offsetRotate: "0deg",
     offsetDistance: {
-      default: "calc(var(--ds-illo-px, 0.5) * 100%)",
+      default: `calc(${illoVars.px} * 100%)`,
       [motionConstants.REDUCED_MOTION]: "50%",
     },
   },

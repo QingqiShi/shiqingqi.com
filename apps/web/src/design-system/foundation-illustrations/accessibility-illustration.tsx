@@ -6,7 +6,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
 
 /**
  * Accessibility foundation-card illustration: a control taking focus, then being
@@ -62,17 +62,9 @@ export function AccessibilityIllustration() {
     >
       <defs>
         <radialGradient id="dsi-a11y-glow" cx="50%" cy="50%" r="50%">
-          <stop
-            offset="0%"
-            stopColor="var(--ds-illo-hue-soft)"
-            stopOpacity="0.7"
-          />
-          <stop
-            offset="45%"
-            stopColor="var(--ds-illo-hue)"
-            stopOpacity="0.28"
-          />
-          <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.hueSoft} stopOpacity="0.7" />
+          <stop offset="45%" stopColor={illoVars.hue} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={illoVars.hue} stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -179,8 +171,7 @@ const styles = stylex.create({
   scene: {
     transformBox: "view-box",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 5px), calc(var(--ds-illo-my) * 4px))",
+      default: `translate(calc(${illoVars.mx} * 5px), calc(${illoVars.my} * 4px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -189,7 +180,7 @@ const styles = stylex.create({
     },
   },
   plate: {
-    fill: "var(--ds-illo-ink)",
+    fill: illoVars.ink,
     opacity: {
       default: 0.14,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]: 0.2,
@@ -201,7 +192,7 @@ const styles = stylex.create({
     transition: `opacity ${duration._500} ${easing.ease}`,
   },
   plateKeyline: {
-    stroke: "var(--ds-illo-ink)",
+    stroke: illoVars.ink,
     strokeWidth: 1.2,
     opacity: {
       default: 0.42,
@@ -216,12 +207,12 @@ const styles = stylex.create({
   // Present at rest: an unfocused control still has a name.
   label: {
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     strokeWidth: 4,
@@ -238,7 +229,7 @@ const styles = stylex.create({
   },
   // At the offset the gold ring lands at, and fades as it draws in.
   ringRest: {
-    stroke: "var(--ds-illo-ink)",
+    stroke: illoVars.ink,
     strokeWidth: 1,
     strokeDasharray: "2 6",
     opacity: {
@@ -254,7 +245,7 @@ const styles = stylex.create({
   // Linear, so it reads as a pen at constant speed. Under reduced motion the
   // offset is 0 in both states and the ring fades in already drawn.
   ringDraw: {
-    stroke: "var(--ds-illo-hue)",
+    stroke: illoVars.hue,
     strokeWidth: 2.5,
     strokeDasharray: RING_PATH_LENGTH,
     strokeDashoffset: {
@@ -282,7 +273,7 @@ const styles = stylex.create({
   },
   waves: {
     fill: "none",
-    stroke: "var(--ds-illo-hue-soft)",
+    stroke: illoVars.hueSoft,
     strokeLinecap: "round",
   },
   // Scaled about the control's edge, so each arc grows out of it. Every arc is

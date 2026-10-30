@@ -1,6 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
+import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { getScrollBehavior } from "@tuja/ui/utils/get-scroll-behavior";
 import { usePathname } from "next/navigation";
 import { useRef, useState, type PropsWithChildren } from "react";
@@ -194,6 +195,6 @@ const styles = stylex.create({
   // Scrolls to the line the filter bar holds at, so the bar lands under the
   // header rather than behind it.
   results: {
-    scrollMarginBlockStart: "var(--header-controls-clearance, 0px)",
+    scrollMarginBlockStart: headerControlsTokens.clearance,
   },
 });

@@ -3,12 +3,14 @@
 import * as stylex from "@stylexjs/stylex";
 import { useReducedMotion } from "@tuja/ui/motion/use-reduced-motion";
 import { type ReactNode, useEffect, useRef } from "react";
+import { illoVars } from "./illustration.stylex.ts";
 
 /**
- * While the card is hovered, writes the pointer position to `--ds-illo-px/py`
- * (0 -> 1 across the tile, 0.5 = centre) on the enclosing tile; the illustrations read
- * the derived, centred `--ds-illo-mx/my` to lean towards the cursor. Skipped under
- * reduced motion — the illustration still blooms to colour, just without the lean.
+ * While the card is hovered, writes the pointer position over the enclosing
+ * tile to `illoVars.px/py` (0 -> 1 across the tile, 0.5 = centre); the
+ * illustrations read the derived, centred `illoVars.mx/my` to lean towards the
+ * cursor. Skipped under reduced motion — the illustration still blooms to
+ * colour, just without the lean.
  */
 export function IlloLayer({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -17,9 +19,18 @@ export function IlloLayer({ children }: { children: ReactNode }) {
   useEffect(() => {
     const layer = ref.current;
     const tile = layer?.closest("[data-illo-tile]");
-    if (!(tile instanceof HTMLElement)) {
+    if (!layer || !(tile instanceof HTMLElement)) {
       return;
     }
+
+    // Write the inline values of the `pointer` style directly, so a pointer
+    // move does not cause a React render.
+    const writePointer = (px: string, py: string) => {
+      const { style } = stylex.props(styles.pointer(px, py));
+      for (const [property, value] of Object.entries(style ?? {})) {
+        layer.style.setProperty(property, String(value));
+      }
+    };
 
     // Coalesce pointer-move to one write per frame: store the latest position
     // and flush it inside rAF so a busy pointer never outruns the compositor.
@@ -34,8 +45,7 @@ export function IlloLayer({ children }: { children: ReactNode }) {
       const rect = tile.getBoundingClientRect();
       const px = clamp01((pending.x - rect.left) / rect.width);
       const py = clamp01((pending.y - rect.top) / rect.height);
-      tile.style.setProperty("--ds-illo-px", px.toFixed(4));
-      tile.style.setProperty("--ds-illo-py", py.toFixed(4));
+      writePointer(px.toFixed(4), py.toFixed(4));
     };
 
     const handleMove = (event: PointerEvent) => {
@@ -49,8 +59,7 @@ export function IlloLayer({ children }: { children: ReactNode }) {
         cancelAnimationFrame(frame);
         frame = 0;
       }
-      tile.style.setProperty("--ds-illo-px", "0.5");
-      tile.style.setProperty("--ds-illo-py", "0.5");
+      writePointer(CENTRE, CENTRE);
     };
 
     if (prefersReducedMotion) {
@@ -70,11 +79,13 @@ export function IlloLayer({ children }: { children: ReactNode }) {
   }, [prefersReducedMotion]);
 
   return (
-    <span ref={ref} css={styles.illoLayer}>
+    <span ref={ref} css={[styles.illoLayer, styles.pointer(CENTRE, CENTRE)]}>
       {children}
     </span>
   );
 }
+
+const CENTRE = "0.5";
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
@@ -95,13 +106,15 @@ const styles = stylex.create({
     overflow: "hidden",
     borderRadius: "inherit",
     cornerShape: "inherit",
-    // `, 0.5` fallback centres these before the first pointer event, so the
-    // default needs no `@property` registration.
-    "--ds-illo-mx": "calc((var(--ds-illo-px, 0.5) - 0.5) * 2)",
-    "--ds-illo-my": "calc((var(--ds-illo-py, 0.5) - 0.5) * 2)",
+    [illoVars.mx]: `calc((${illoVars.px} - 0.5) * 2)`,
+    [illoVars.my]: `calc((${illoVars.py} - 0.5) * 2)`,
     maskImage:
       "radial-gradient(125% 140% at 100% 100%, #000 44%, rgba(0, 0, 0, 0.5) 66%, transparent 85%)",
     WebkitMaskImage:
       "radial-gradient(125% 140% at 100% 100%, #000 44%, rgba(0, 0, 0, 0.5) 66%, transparent 85%)",
   },
+  pointer: (px: string, py: string) => ({
+    [illoVars.px]: px,
+    [illoVars.py]: py,
+  }),
 });

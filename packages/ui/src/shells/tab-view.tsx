@@ -43,6 +43,7 @@ import {
   rhythm,
   space,
 } from "../tokens.stylex.ts";
+import { headerControlsTokens } from "./header-controls.stylex.ts";
 import { tabViewQueries, tabViewTokens } from "./tab-view.stylex.ts";
 
 interface TabViewProps {
@@ -352,7 +353,7 @@ const styles = stylex.create({
   root: {
     // No bar floats over the top of the page, so sticky chrome parks under
     // the status bar.
-    "--header-controls-clearance": {
+    [headerControlsTokens.clearance]: {
       default: null,
       [tabViewQueries.bar]: "env(safe-area-inset-top)",
       [tabViewQueries.rail]: "0px",

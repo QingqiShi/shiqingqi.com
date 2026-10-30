@@ -6,7 +6,13 @@ import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { useMediaQuery } from "@tuja/ui/hooks/use-media-query";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { rhythm, space } from "@tuja/ui/tokens.stylex";
-import { startTransition, useLayoutEffect, useReducer, useRef } from "react";
+import {
+  startTransition,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { ViewTransition } from "react";
 import { labMorph } from "#src/view-transition-classes.stylex.ts";
 import { buildLabSnippet } from "./build-lab-snippet.ts";
@@ -15,6 +21,7 @@ import { LabBar } from "./lab-bar.tsx";
 import { LabControls } from "./lab-controls.tsx";
 import { type LabAction, labReducer } from "./lab-reducer.ts";
 import { LabSnippet } from "./lab-snippet.tsx";
+import { labStage } from "./lab-stage.stylex.ts";
 import { renderSpecimen } from "./render-specimen.ts";
 import { resolveLabModel } from "./resolve-lab-model.ts";
 import type { LabConfig, LabProps } from "./types.ts";
@@ -31,9 +38,6 @@ const PANEL_INLINE_SIZE = "18rem";
 // the `@media ` prefix.
 const MD_MEDIA_QUERY = breakpoints.md.replace("@media ", "");
 
-/** How far the stage stands from the top of the page, measured at runtime. */
-const STAGE_BLOCK_START = "--lab-stage-block-start";
-
 /**
  * The Lab's main region: the page body itself, carrying a Texture, with the
  * Specimen centred on it and its code beneath. It owns the Lab's state, so the
@@ -45,6 +49,7 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
   // the client has measured a viewport narrower than `md`.
   const isCompact = !useMediaQuery(MD_MEDIA_QUERY, true);
   const stageRef = useRef<HTMLDivElement>(null);
+  const [stageBlockStart, setStageBlockStart] = useState<number | null>(null);
   const model = resolveLabModel(config, locale);
 
   const reduce = labReducer(config.variants);
@@ -72,7 +77,7 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
     const measure = () => {
       if (isStale) return;
       const blockStart = stage.getBoundingClientRect().top + window.scrollY;
-      stage.style.setProperty(STAGE_BLOCK_START, `${String(blockStart)}px`);
+      setStageBlockStart(blockStart);
     };
     measure();
     window.addEventListener("resize", measure);
@@ -106,7 +111,14 @@ export function LabCanvas<P>({ config }: LabCanvasProps<P>) {
 
   return (
     <div css={[texture.dot, styles.canvas]}>
-      <div ref={stageRef} css={styles.stage}>
+      <div
+        ref={stageRef}
+        css={[
+          styles.stage,
+          stageBlockStart !== null &&
+            styles.stageBlockStart(`${String(stageBlockStart)}px`),
+        ]}
+      >
         <div css={styles.specimenArea}>
           <ViewTransition name="lab-specimen" default={labMorph}>
             <div css={styles.specimen}>
@@ -172,10 +184,13 @@ const styles = stylex.create({
     // the snippet shows without a scroll and the Specimen centres in the room
     // it leaves.
     minBlockSize: {
-      default: `calc(100dvh - var(${STAGE_BLOCK_START}, 0px) - ${labBar.clearance} - ${space._4})`,
+      default: `calc(100dvh - ${labStage.blockStart} - ${labBar.clearance} - ${space._4})`,
       [breakpoints.md]: null,
     },
   },
+  stageBlockStart: (blockStart: string) => ({
+    [labStage.blockStart]: blockStart,
+  }),
   specimenArea: {
     display: "flex",
     alignItems: "center",

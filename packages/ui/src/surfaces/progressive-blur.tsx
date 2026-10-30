@@ -31,6 +31,7 @@ import {
 import { observeChildren } from "./observe-children.ts";
 import { observeViewport } from "./observe-viewport.ts";
 import { placeFixedBox, type BoxOffset } from "./place-fixed-box.ts";
+import { blurBoxTokens } from "./progressive-blur.stylex.ts";
 
 interface ProgressiveBlurProps {
   /**
@@ -314,7 +315,7 @@ const styles = stylex.create({
   },
   // Fixed, not absolute: absolute would grow scrollable ancestors by the
   // `reach` overhang and sit under a squircle clip that strips the masks.
-  // Kept at 0×0 with size passed via custom properties, so Safari on iOS
+  // Kept at 0×0 with size passed via `blurBoxTokens`, so Safari on iOS
   // walks past it instead of flattening the status bar — see
   // `.claude/skills/ios-safari-edge-tint/SKILL.md`.
   reachLayers: {
@@ -325,8 +326,8 @@ const styles = stylex.create({
     zIndex: -1,
   },
   reachLayer: {
-    inlineSize: "var(--blur-box-inline-size, 0px)",
-    blockSize: "var(--blur-box-block-size, 0px)",
+    inlineSize: blurBoxTokens.inlineSize,
+    blockSize: blurBoxTokens.blockSize,
     insetInlineEnd: "auto",
     insetBlockEnd: "auto",
   },
@@ -374,7 +375,7 @@ const dynamicStyles = stylex.create({
     maskImage: mask,
   }),
   boxSize: (width: number, height: number) => ({
-    "--blur-box-inline-size": `${String(width)}px`,
-    "--blur-box-block-size": `${String(height)}px`,
+    [blurBoxTokens.inlineSize]: `${String(width)}px`,
+    [blurBoxTokens.blockSize]: `${String(height)}px`,
   }),
 });

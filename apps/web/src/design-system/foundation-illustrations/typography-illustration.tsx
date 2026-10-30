@@ -6,7 +6,7 @@ import {
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
 import { tileMarker } from "#src/design-system/overview-tile.stylex.ts";
-import { illoBase } from "./illustration.stylex.ts";
+import { illoBase, illoVars } from "./illustration.stylex.ts";
 
 /**
  * Typography foundation-card illustration: a metallic "Aa" in Inter over a
@@ -23,13 +23,9 @@ export function TypographyIllustration() {
     >
       <defs>
         <radialGradient id="dsi-typography-ty-orb" cx="50%" cy="54%" r="58%">
-          <stop
-            offset="0%"
-            stopColor="var(--ds-illo-hue-soft)"
-            stopOpacity="0.8"
-          />
-          <stop offset="55%" stopColor="var(--ds-illo-hue)" stopOpacity="0.2" />
-          <stop offset="100%" stopColor="var(--ds-illo-hue)" stopOpacity="0" />
+          <stop offset="0%" stopColor={illoVars.hueSoft} stopOpacity="0.8" />
+          <stop offset="55%" stopColor={illoVars.hue} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={illoVars.hue} stopOpacity="0" />
         </radialGradient>
         <linearGradient
           id="dsi-typography-ty-metal"
@@ -119,7 +115,7 @@ export function TypographyIllustration() {
           x="194"
           y="156"
           filter="url(#dsi-typography-ty-blur)"
-          fill="var(--ds-illo-hue-soft)"
+          fill={illoVars.hueSoft}
         >
           Aa
         </text>
@@ -171,14 +167,13 @@ const styles = stylex.create({
     fontWeight: 600,
     letterSpacing: "-5px",
   },
-  // Pointer lean; mx/my are 0 at rest, so this (and every --ds-illo-mx/my
+  // Pointer lean; mx/my are 0 at rest, so this (and every `illoVars.mx/my`
   // transform below) sits home until IlloLayer feeds a pointer position.
   letters: {
     transformBox: "view-box",
     transformOrigin: "238px 120px",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 6px), calc(var(--ds-illo-my) * 5px)) rotate(calc(var(--ds-illo-mx) * 1.4deg))",
+      default: `translate(calc(${illoVars.mx} * 6px), calc(${illoVars.my} * 5px)) rotate(calc(${illoVars.mx} * 1.4deg))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -247,8 +242,7 @@ const styles = stylex.create({
     transformBox: "view-box",
     transformOrigin: "256px 118px",
     transform: {
-      default:
-        "translate(calc(var(--ds-illo-mx) * 26px), calc(var(--ds-illo-my) * 20px))",
+      default: `translate(calc(${illoVars.mx} * 26px), calc(${illoVars.my} * 20px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -269,12 +263,12 @@ const styles = stylex.create({
   },
   ruleLine: {
     stroke: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     strokeWidth: 1.2,
@@ -299,12 +293,12 @@ const styles = stylex.create({
     textAnchor: "end",
     dominantBaseline: "middle",
     fill: {
-      default: "var(--ds-illo-ink)",
+      default: illoVars.ink,
       [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
-        "var(--ds-illo-hue-soft)",
+        illoVars.hueSoft,
       [pointer.canHover]: {
         default: null,
-        [stylex.when.ancestor(":hover", tileMarker)]: "var(--ds-illo-hue-soft)",
+        [stylex.when.ancestor(":hover", tileMarker)]: illoVars.hueSoft,
       },
     },
     transition: `fill ${duration._500} ${easing.ease}`,
@@ -322,7 +316,7 @@ const styles = stylex.create({
   },
   shimmer: {
     transform: {
-      default: "translateX(calc(var(--ds-illo-mx) * 34px))",
+      default: `translateX(calc(${illoVars.mx} * 34px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
     transition: {
@@ -342,7 +336,7 @@ const styles = stylex.create({
     transition: `opacity ${duration._400} ${easing.ease}`,
   },
   caretBlink: {
-    stroke: "var(--ds-illo-hue-soft)",
+    stroke: illoVars.hueSoft,
     strokeWidth: 2,
     strokeLinecap: "butt",
     animationName: { default: blink, [motionConstants.REDUCED_MOTION]: "none" },
