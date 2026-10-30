@@ -4,6 +4,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { Button } from "../actions/button.tsx";
+import { navListTokens } from "../actions/nav-list.stylex.ts";
 import { breakpoints } from "../breakpoints.stylex.ts";
 import { EffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectCover } from "../effect-layer/use-effect-cover.ts";
@@ -28,6 +29,7 @@ import {
   shadow,
   space,
 } from "../tokens.stylex.ts";
+import { sidebarLayoutStyles } from "./sidebar-layout.stylex.ts";
 
 type DrawerProps = {
   isOpen: boolean;
@@ -130,7 +132,7 @@ export function Drawer({
                   <Button
                     size="sm"
                     look="ghost"
-                    css={styles.railClose}
+                    css={[sidebarLayoutStyles.headerControl, styles.railClose]}
                     icon={<XIcon weight="bold" />}
                     aria-label={closeLabel}
                     onClick={onClose}
@@ -158,6 +160,8 @@ export function Drawer({
 }
 
 const RAIL_INSET = space._2;
+// The box edge of the nav is this far in from the edge of the card.
+const BOX_INSET = "var(--rail-box-inset)";
 const REDUCED_FADE = cssTween(duration._150, easing.ease);
 const fade = (at: number) => ({ opacity: unit(at).toFixed(3) });
 const slide = (at: number) => ({
@@ -222,6 +226,7 @@ const styles = stylex.create({
   // Both supported locales are LTR, so the off-canvas translate needs no
   // logical flip.
   rail: {
+    "--rail-box-inset": { default: space._3, [breakpoints.md]: space._2 },
     display: "flex",
     flexDirection: "column",
     minInlineSize: 0,
@@ -283,8 +288,9 @@ const styles = stylex.create({
   railWithoutDrawer: {
     display: { default: "none", [breakpoints.md]: "flex" },
   },
-  // These slots reproduce the rail's old block padding and gap, so the chrome
-  // and nav still sit where the flex column used to place them.
+  // The rail inset is above the header, and `rhythm.item` is between the
+  // header and the nav. The header starts on the text edge, and the close
+  // button ends on the box edge.
   railHeader: {
     display: "flex",
     alignItems: "center",
@@ -292,10 +298,11 @@ const styles = stylex.create({
     gap: rhythm.tight,
     minInlineSize: 0,
     paddingBlockStart: {
-      default: `calc(${space._3} + env(safe-area-inset-top))`,
-      [breakpoints.md]: space._2,
+      default: `calc(${BOX_INSET} + env(safe-area-inset-top))`,
+      [breakpoints.md]: BOX_INSET,
     },
-    paddingBlockEnd: space._2,
+    paddingBlockEnd: rhythm.item,
+    paddingInlineStart: navListTokens.rowInset,
   },
   railTitle: {
     minInlineSize: 0,
@@ -319,20 +326,20 @@ const styles = stylex.create({
     // Padding stays inside the scrollport, so the scrollbar sits flush
     // against the rail's edge while the content moves in.
     paddingInlineStart: {
-      default: space._3,
-      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-left))`,
+      default: BOX_INSET,
+      [breakpoints.md]: `calc(${BOX_INSET} + env(safe-area-inset-left))`,
     },
     paddingInlineEnd: {
-      default: `calc(${space._3} + env(safe-area-inset-right))`,
-      [breakpoints.md]: space._2,
+      default: `calc(${BOX_INSET} + env(safe-area-inset-right))`,
+      [breakpoints.md]: BOX_INSET,
     },
   },
+  // The footer controls show a box at rest, so they stay on the box edge.
+  // `rhythm.item` is between the nav and the footer, and the rail inset is
+  // below it.
   railFooter: {
-    paddingBlockStart: space._2,
-    paddingBlockEnd: {
-      default: `calc(${space._3} + env(safe-area-inset-bottom))`,
-      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
-    },
+    paddingBlockStart: rhythm.item,
+    paddingBlockEnd: `calc(${BOX_INSET} + env(safe-area-inset-bottom))`,
   },
   // md+: the footer is fixed to the bottom edge of the viewport, at the
   // card's bottom edge. It is not sticky in the card. On iPad, the Safari
@@ -351,9 +358,9 @@ const styles = stylex.create({
     },
     paddingInlineStart: {
       default: null,
-      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-left))`,
+      [breakpoints.md]: `calc(${BOX_INSET} + env(safe-area-inset-left))`,
     },
-    paddingInlineEnd: { default: null, [breakpoints.md]: space._2 },
+    paddingInlineEnd: { default: null, [breakpoints.md]: BOX_INSET },
   },
   // md+: the fixed footer holds no room in the scroller, so the scroller
   // pads its end by the footer's size, and the last link scrolls clear of it.
@@ -383,10 +390,7 @@ const styles = stylex.create({
   // Without a footer slot, no chrome carries the block-end inset, so the
   // scroller pads its own end and the band sits at the card edge.
   railNavContentNoFooter: {
-    paddingBlockEnd: {
-      default: `calc(${space._3} + env(safe-area-inset-bottom))`,
-      [breakpoints.md]: `calc(${space._2} + env(safe-area-inset-bottom))`,
-    },
+    paddingBlockEnd: `calc(${BOX_INSET} + env(safe-area-inset-bottom))`,
   },
 });
 

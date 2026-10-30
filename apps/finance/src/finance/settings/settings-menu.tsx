@@ -120,7 +120,7 @@ export function SettingsMenu({ current }: { current: SettingsSection | null }) {
                 key={section}
                 href={href}
                 current={section === (current ?? "household")}
-                leading={<Icon weight="bold" />}
+                icon={<Icon weight="bold" />}
               >
                 {label}
                 {badge}

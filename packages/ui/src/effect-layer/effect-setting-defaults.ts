@@ -12,7 +12,7 @@ export const EFFECT_SETTING_DEFAULTS = {
   extractorFan: { reach: 400 },
   blackHole: { mass: 1 },
   lightBeam: { angle: undefined, followsPointer: true },
-  liquid: { position: 0, drag: null, pressed: false },
+  liquid: { position: 0, drag: null, pressed: false, pour: true },
 } as const satisfies Required<EffectSettings>;
 
 /**

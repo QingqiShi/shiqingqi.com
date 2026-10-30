@@ -18,6 +18,7 @@ import {
   space,
 } from "../tokens.stylex.ts";
 import { Drawer } from "./drawer.tsx";
+import { sidebarLayoutStyles } from "./sidebar-layout.stylex.ts";
 
 // Default width of the navigation rail on wider viewports — wide enough for
 // nav labels to fit on one line, even with a scrollbar's gutter. `rem`-based,
@@ -36,9 +37,11 @@ interface SidebarLayoutOwnProps {
   /**
    * Title region — rendered at the top of the rail, in the collapsed mobile
    * bar, and at the top of the drawer. With `mobileSidebar="hidden"` there is
-   * no mobile bar or drawer, so it shows only in the rail.
+   * no mobile bar or drawer, so it shows only in the rail. It starts on the
+   * text edge of the nav, so an icon tile in it lines up with the icons of
+   * the rows. Put controls such as a home link in `sidebarFooter`.
    *
-   * @zh 标题区域——显示在侧栏顶部、收起的移动端悬浮条中，以及抽屉顶部。当 `mobileSidebar` 为 `"hidden"` 时没有移动端悬浮条和抽屉，因此只显示在侧栏中。
+   * @zh 标题区域——显示在侧栏顶部、收起的移动端悬浮条中，以及抽屉顶部。当 `mobileSidebar` 为 `"hidden"` 时没有移动端悬浮条和抽屉，因此只显示在侧栏中。它从导航的文字边缘开始，因此其中的图标方块与各行的图标对齐。首页链接等控件请放在 `sidebarFooter` 中。
    */
   sidebarHeader?: ReactNode;
   /**
@@ -120,6 +123,14 @@ type SidebarLayoutProps = SidebarLayoutOwnProps & SidebarLayoutMobileProps;
  * dismissed by Escape, backdrop, or following a link). With
  * `mobileSidebar="hidden"` there is no mobile bar or drawer, and the rail
  * shows from `md` up.
+ *
+ * The rail sets the spaces of the nav, and the gaps and edges around the
+ * header and the footer. The caller sets only the space inside the header and
+ * the footer. Put a `NavList` in `sidebar`. The header and the footer are
+ * `rhythm.item` from the nav, and the rail inset from the edges of the rail.
+ * The fills of the nav and the boxes of the footer controls start on one box
+ * edge. The header, the section labels and the content of the rows start on
+ * one text edge, the inline padding of a `NavLink` after it.
  *
  * The rail fills the viewport's height (capped at its container's), so the
  * shell works in any bounded box, not just the page root. Such a box must be
@@ -214,6 +225,7 @@ export function SidebarLayout({
             <Button
               size="sm"
               look="ghost"
+              css={sidebarLayoutStyles.headerControl}
               icon={<ListIcon weight="bold" />}
               aria-label={drawer.menuLabel}
               aria-haspopup="dialog"

@@ -40,17 +40,28 @@ const centreShare = tgpu.workgroupVar(
   d.arrayOf(d.vec2f, LIQUID_WORKGROUP_SIZE),
 );
 
-/** The nearest point to `point` that a disk of `radius` fits in the track. */
-const insideTrack = (point: d.v2f, radius: number, walls: d.v2f) => {
+/**
+ * The nearest point to `point` that a disk of `radius` fits in the track,
+ * which `walls` bound along and `band` across.
+ */
+const insideTrack = (
+  point: d.v2f,
+  radius: number,
+  walls: d.v2f,
+  band: d.v2f,
+) => {
   "use gpu";
-  const nearX = std.clamp(point.x, walls.x, walls.y);
-  const offset = d.vec2f(point.x - nearX, point.y);
+  const near = d.vec2f(
+    std.clamp(point.x, walls.x, walls.y),
+    std.clamp(point.y, band.x, band.y),
+  );
+  const offset = point.sub(near);
   const distance = std.length(offset);
   const limit = 1 - radius;
   if (distance <= limit) {
     return d.vec2f(point);
   }
-  return d.vec2f(nearX, 0).add(offset.mul(limit / distance));
+  return near.add(offset.mul(limit / distance));
 };
 
 const centreOf = (i: number, count: number) => {
@@ -79,6 +90,7 @@ const substep = (
   count: number,
   step: d.Infer<typeof LiquidStep>,
   walls: d.v2f,
+  band: d.v2f,
   dt: number,
 ) => {
   "use gpu";
@@ -106,15 +118,23 @@ const substep = (
   const tilt = d
     .vec2f(
       TILT * tiltBoost(goal - centre.x) * lean,
-      AIM_TILT * aim * std.abs(lean) - CENTRE_PULL * centre.y,
+      AIM_TILT * aim * std.abs(lean) -
+        CENTRE_PULL * (centre.y - (step.band.x + step.band.y) / 2),
     )
     .mul(dt);
   if (moving) {
     const point = position.$[i];
     let v = velocity.$[i].add(tilt).mul(damping);
     if (
-      wallGap(point.x, point.y, particleRadius, walls.x, walls.y) <
-      WALL_GRIP_REACH
+      wallGap(
+        point.x,
+        point.y,
+        particleRadius,
+        walls.x,
+        walls.y,
+        band.x,
+        band.y,
+      ) < WALL_GRIP_REACH
     ) {
       const onSide = point.x > walls.x && point.x < walls.y;
       v = v.mul(std.select(wallDamping, sideDamping, onSide));
@@ -206,7 +226,12 @@ const substep = (
   std.workgroupBarrier();
 
   if (moving) {
-    const point = insideTrack(position.$[i].add(push), particleRadius, walls);
+    const point = insideTrack(
+      position.$[i].add(push),
+      particleRadius,
+      walls,
+      band,
+    );
     position.$[i] = d.vec2f(point);
     velocity.$[i] = point.sub(previous).div(dt);
   }
@@ -249,21 +274,42 @@ export const liquidSimulation = tgpu.computeFn({
   // The walls for this step: the control's, but a wall that moves in stops
   // where it would push a particle, and moves in only as the liquid leaves.
   const reach = 1 - PARTICLE_RADIUS * step.scale;
+  const held = liquidSimulationLayout.$.slots[slot].walls;
+  const heldBand = liquidSimulationLayout.$.slots[slot].band;
   let leftmost = d.f32(1e30);
   let rightmost = d.f32(-1e30);
+  let lowest = d.f32(1e30);
+  let highest = d.f32(-1e30);
   let fastest = d.f32(0);
   for (let j = d.u32(0); j < count; j += 1) {
     const point = position.$[j];
-    const across = std.sqrt(std.max(0, reach * reach - point.y * point.y));
+    const beside = point.y - std.clamp(point.y, heldBand.x, heldBand.y);
+    const outside = point.x - std.clamp(point.x, held.x, held.y);
+    const across = std.sqrt(std.max(0, reach * reach - beside * beside));
+    const along = std.sqrt(std.max(0, reach * reach - outside * outside));
     leftmost = std.min(leftmost, point.x + across);
     rightmost = std.max(rightmost, point.x - across);
+    lowest = std.min(lowest, point.y + along);
+    highest = std.max(highest, point.y - along);
     fastest = std.max(fastest, std.length(velocity.$[j]));
   }
-  const held = liquidSimulationLayout.$.slots[slot].walls;
   const room = step.walls;
   const walls = d.vec2f(
     std.select(std.min(room.x, leftmost), room.x, room.x <= held.x),
     std.select(std.max(room.y, rightmost), room.y, room.y >= held.y),
+  );
+  const roomBand = step.band;
+  const band = d.vec2f(
+    std.select(
+      std.min(roomBand.x, lowest),
+      roomBand.x,
+      roomBand.x <= heldBand.x,
+    ),
+    std.select(
+      std.max(roomBand.y, highest),
+      roomBand.y,
+      roomBand.y >= heldBand.y,
+    ),
   );
   const seconds = step.seconds;
   if (i === 0) {
@@ -273,7 +319,7 @@ export const liquidSimulation = tgpu.computeFn({
   const n = std.workgroupUniformLoad(substeps.$);
   const dt = seconds / d.f32(n);
   for (let k = d.u32(0); k < n; k += 1) {
-    substep(i, count, step, walls, dt);
+    substep(i, count, step, walls, band, dt);
   }
 
   if (moving) {
@@ -290,6 +336,7 @@ export const liquidSimulation = tgpu.computeFn({
       greatest = std.max(greatest, position.$[j].x);
     }
     liquidSimulationLayout.$.slots[slot].walls = d.vec2f(walls);
+    liquidSimulationLayout.$.slots[slot].band = d.vec2f(band);
     liquidSimulationLayout.$.slots[slot].extent = d.vec2f(least, greatest);
   }
 });
