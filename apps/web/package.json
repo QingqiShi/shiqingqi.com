@@ -50,7 +50,7 @@
     "@upstash/vector": "catalog:",
     "ai": "^7.0.153",
     "next": "catalog:",
-    "posthog-js": "^1.438.21",
+    "posthog-js": "^1.438.24",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-error-boundary": "^6.1.6",
