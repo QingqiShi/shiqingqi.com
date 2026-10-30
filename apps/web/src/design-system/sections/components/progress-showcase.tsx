@@ -102,55 +102,49 @@ export function ProgressShowcase() {
         label={t({ en: "Counting, not percent", zh: "计数而非百分比" })}
         leadsWithText
       >
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: 'Set max when you are counting things: the bar then reports aria-valuenow="3" against aria-valuemax="5". A screen reader still computes "60%" from that pair, so pass aria-valuetext whenever the count is what the reader is following.',
-              zh: '当你计的是件数时请设置 max：进度条会以 aria-valuenow="3" 对照 aria-valuemax="5" 报告。屏幕阅读器仍会由这对数值算出“60%”，因此当用户关心的是件数时，请传入 aria-valuetext。',
-            })}
-          </Text>
-          <Specimen caption="aria-valuetext">
-            <Progress
-              value={3}
-              max={5}
-              size="lg"
-              label={t({ en: "Checkout", zh: "结账流程" })}
-              aria-valuetext={t({ en: "Step 3 of 5", zh: "第 3 步，共 5 步" })}
-            />
-          </Specimen>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: 'Set max when you are counting things: the bar then reports aria-valuenow="3" against aria-valuemax="5". A screen reader still computes "60%" from that pair, so pass aria-valuetext whenever the count is what the reader is following.',
+            zh: '当你计的是件数时请设置 max：进度条会以 aria-valuenow="3" 对照 aria-valuemax="5" 报告。屏幕阅读器仍会由这对数值算出“60%”，因此当用户关心的是件数时，请传入 aria-valuetext。',
+          })}
+        </Text>
+        <Specimen caption="aria-valuetext">
+          <Progress
+            value={3}
+            max={5}
+            size="lg"
+            label={t({ en: "Checkout", zh: "结账流程" })}
+            aria-valuetext={t({ en: "Step 3 of 5", zh: "第 3 步，共 5 步" })}
+          />
+        </Specimen>
       </Showcase>
 
       <Showcase
         label={t({ en: "What a screen reader gets", zh: "屏幕阅读器读到什么" })}
         leadsWithText
       >
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "label is required and becomes the accessible name. The component writes role, the name and every aria-value* attribute after the caller's props, so a stray aria-label or aria-valuenow at the callsite cannot replace what the bar actually reports.",
-              zh: "label 为必填，并成为可访问名称。组件在调用方属性之后才写入 role、名称以及全部 aria-value* 属性，因此调用处误传的 aria-label 或 aria-valuenow 无法替换进度条真正报告的内容。",
-            })}
-          </Text>
-          <UsageSnippet
-            code={renderedMarkup}
-            label={t({ en: "Rendered markup", zh: "渲染结果" })}
-          />
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "label is required and becomes the accessible name. The component writes role, the name and every aria-value* attribute after the caller's props, so a stray aria-label or aria-valuenow at the callsite cannot replace what the bar actually reports.",
+            zh: "label 为必填，并成为可访问名称。组件在调用方属性之后才写入 role、名称以及全部 aria-value* 属性，因此调用处误传的 aria-label 或 aria-valuenow 无法替换进度条真正报告的内容。",
+          })}
+        </Text>
+        <UsageSnippet
+          code={renderedMarkup}
+          label={t({ en: "Rendered markup", zh: "渲染结果" })}
+        />
       </Showcase>
 
       <Showcase label={t({ en: "Interactive", zh: "交互" })} leadsWithText>
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "Step the value and watch aria-valuenow follow it. The indicator eases between widths; under prefers-reduced-motion it jumps straight to the new width instead.",
-              zh: "调整数值，观察 aria-valuenow 随之变化。指示条会在宽度之间缓动；在 prefers-reduced-motion 下则直接跳到新宽度。",
-            })}
-          </Text>
-          <Specimen caption={t({ en: "stepped value", zh: "步进数值" })}>
-            <ProgressStepper />
-          </Specimen>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "Step the value and watch aria-valuenow follow it. The indicator eases between widths; under prefers-reduced-motion it jumps straight to the new width instead.",
+            zh: "调整数值，观察 aria-valuenow 随之变化。指示条会在宽度之间缓动；在 prefers-reduced-motion 下则直接跳到新宽度。",
+          })}
+        </Text>
+        <Specimen caption={t({ en: "stepped value", zh: "步进数值" })}>
+          <ProgressStepper />
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Indicator colour", zh: "指示条颜色" })}>
@@ -190,36 +184,34 @@ export function ProgressShowcase() {
       <PropsTable component="progress" />
 
       <Showcase label={t({ en: "Guidelines", zh: "使用准则" })} leadsWithText>
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "Progress has no indeterminate state, by design: a bar that cannot finish is a Spinner in the wrong clothes. Pick between the two by what you know, not by which one looks better.",
-              zh: "进度条刻意不提供不确定状态：一条走不完的进度条，只是穿错衣服的 Spinner。在两者之间选择，依据是你知道什么，而不是哪个更好看。",
-            })}
-          </Text>
-          <DoDont
-            do={
-              <div css={[stack.tight, styles.fill]}>
-                <Text look="bodySmall">{uploadingLabel}</Text>
-                <Progress value={62} label={uploadingLabel} />
-              </div>
-            }
-            doCaption={t({
-              en: "Use Progress when the total is known — the value tells the reader how much is left, and the bar announces that number.",
-              zh: "当总量已知时使用进度条——数值告诉用户还剩多少，它也会把这个数字播报出来。",
-            })}
-            dont={
-              <div css={[stack.tight, styles.fill]}>
-                <Text look="bodySmall">{connectingLabel}</Text>
-                <Progress value={80} label={connectingLabel} />
-              </div>
-            }
-            dontCaption={t({
-              en: "Don't park a bar at a made-up value for work with no measurable end — a wait of unknown length is Spinner's job.",
-              zh: "不要为没有明确终点的工作把进度条停在随手编出的数值上——长度未知的等待应交给 Spinner。",
-            })}
-          />
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "Progress has no indeterminate state, by design: a bar that cannot finish is a Spinner in the wrong clothes. Pick between the two by what you know, not by which one looks better.",
+            zh: "进度条刻意不提供不确定状态：一条走不完的进度条，只是穿错衣服的 Spinner。在两者之间选择，依据是你知道什么，而不是哪个更好看。",
+          })}
+        </Text>
+        <DoDont
+          do={
+            <div css={[stack.tight, styles.fill]}>
+              <Text look="bodySmall">{uploadingLabel}</Text>
+              <Progress value={62} label={uploadingLabel} />
+            </div>
+          }
+          doCaption={t({
+            en: "Use Progress when the total is known — the value tells the reader how much is left, and the bar announces that number.",
+            zh: "当总量已知时使用进度条——数值告诉用户还剩多少，它也会把这个数字播报出来。",
+          })}
+          dont={
+            <div css={[stack.tight, styles.fill]}>
+              <Text look="bodySmall">{connectingLabel}</Text>
+              <Progress value={80} label={connectingLabel} />
+            </div>
+          }
+          dontCaption={t({
+            en: "Don't park a bar at a made-up value for work with no measurable end — a wait of unknown length is Spinner's job.",
+            zh: "不要为没有明确终点的工作把进度条停在随手编出的数值上——长度未知的等待应交给 Spinner。",
+          })}
+        />
       </Showcase>
     </>
   );

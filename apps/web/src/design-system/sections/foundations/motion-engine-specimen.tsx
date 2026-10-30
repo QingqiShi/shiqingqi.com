@@ -195,7 +195,7 @@ export function MotionEngineSpecimen() {
   }
 
   return (
-    <div css={[stack.item, corner.radius_2, styles.panel]}>
+    <div data-prose css={[stack.item, corner.radius_2, styles.panel]}>
       <button
         type="button"
         aria-label={t({

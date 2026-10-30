@@ -1,6 +1,5 @@
 import { t } from "@tuja/i18n";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { Suspense } from "react";
 import { PropsTable } from "#src/design-system/props-table.tsx";
 import { ShowcaseHelper } from "#src/design-system/showcase-helper.tsx";
@@ -109,46 +108,42 @@ function ProjectIcon({ project }: { project: Project }) {
       </Showcase>
 
       <Showcase label={t({ en: "Composition", zh: "构成" })} leadsWithText>
-        <div css={stack.item}>
-          <Text look="bodySmall">
-            {t({
-              en: "The view fits its columns to its own width, not to the screen's. While the detail shows beside the content, the sidebar folds to the collapsed sidebar, at every width, so the content keeps its room. Without a detail, the full sidebar shows where it fits, and the collapsed sidebar where it does not.",
-              zh: "视图按自身的宽度而不是屏幕的宽度安排各栏。详情栏显示在内容栏旁边时，侧栏在任何宽度下都收起为收起侧栏，让内容栏保有空间。没有详情栏时，完整侧栏放得下就显示，放不下就显示收起侧栏。",
-            })}
-          </Text>
-          <Text look="bodySmall">
-            {t({
-              en: "On a phone the view stacks: the content fills it, and its back link leads to the column under it. The detail then opens in a sheet over the content and the tab bar, and closing the sheet goes back to the content.",
-              zh: "在手机上视图会堆叠：内容栏占满视图，其返回链接通往下面一栏。此时详情在覆盖内容栏与标签栏的面板中打开，关闭面板即回到内容栏。",
-            })}
-          </Text>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "A container query lays out the columns, so the server paints them right. A column that does not show keeps its place in the DOM and its scroll.",
-              zh: "各栏由容器查询排布，因此服务器直接绘制正确的结果。不显示的栏仍留在 DOM 中并保留滚动位置。",
-            })}
-          </Text>
-        </div>
+        <Text look="bodySmall">
+          {t({
+            en: "The view fits its columns to its own width, not to the screen's. While the detail shows beside the content, the sidebar folds to the collapsed sidebar, at every width, so the content keeps its room. Without a detail, the full sidebar shows where it fits, and the collapsed sidebar where it does not.",
+            zh: "视图按自身的宽度而不是屏幕的宽度安排各栏。详情栏显示在内容栏旁边时，侧栏在任何宽度下都收起为收起侧栏，让内容栏保有空间。没有详情栏时，完整侧栏放得下就显示，放不下就显示收起侧栏。",
+          })}
+        </Text>
+        <Text look="bodySmall">
+          {t({
+            en: "On a phone the view stacks: the content fills it, and its back link leads to the column under it. The detail then opens in a sheet over the content and the tab bar, and closing the sheet goes back to the content.",
+            zh: "在手机上视图会堆叠：内容栏占满视图，其返回链接通往下面一栏。此时详情在覆盖内容栏与标签栏的面板中打开，关闭面板即回到内容栏。",
+          })}
+        </Text>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "A container query lays out the columns, so the server paints them right. A column that does not show keeps its place in the DOM and its scroll.",
+            zh: "各栏由容器查询排布，因此服务器直接绘制正确的结果。不显示的栏仍留在 DOM 中并保留滚动位置。",
+          })}
+        </Text>
       </Showcase>
 
       <Showcase
         label={t({ en: "History and keys", zh: "历史记录与按键" })}
         leadsWithText
       >
-        <div css={stack.item}>
-          <Text look="bodySmall">
-            {t({
-              en: "A column link that opens a deeper column adds a history entry. One that changes what an open column shows replaces the entry. Closing a column goes back one entry where that entry is the column under it, and else replaces the entry. Thus Back takes off one column at a time, and never shows a column that was closed.",
-              zh: "打开更深一栏的栏内链接会新增一条历史记录；改变已打开的栏所显示内容的链接则替换当前记录。关闭一栏时，如果上一条记录正是下面那一栏，就后退一条，否则替换当前记录。因此“返回”每次只退出一栏，也不会再显示已关闭的栏。",
-            })}
-          </Text>
-          <Text look="bodySmall">
-            {t({
-              en: "Esc and ← close the deepest column. J and K move focus to the next and the previous row of the column that has focus, and Enter and → open it. The keys leave fields, controls that use the arrow keys, sheets and dialogs alone.",
-              zh: "Esc 与 ← 关闭最深的一栏。J 与 K 把焦点移到当前栏的下一行与上一行，Enter 与 → 打开它。这些按键不会干扰输入框、使用方向键的控件、面板与对话框。",
-            })}
-          </Text>
-        </div>
+        <Text look="bodySmall">
+          {t({
+            en: "A column link that opens a deeper column adds a history entry. One that changes what an open column shows replaces the entry. Closing a column goes back one entry where that entry is the column under it, and else replaces the entry. Thus Back takes off one column at a time, and never shows a column that was closed.",
+            zh: "打开更深一栏的栏内链接会新增一条历史记录；改变已打开的栏所显示内容的链接则替换当前记录。关闭一栏时，如果上一条记录正是下面那一栏，就后退一条，否则替换当前记录。因此“返回”每次只退出一栏，也不会再显示已关闭的栏。",
+          })}
+        </Text>
+        <Text look="bodySmall">
+          {t({
+            en: "Esc and ← close the deepest column. J and K move focus to the next and the previous row of the column that has focus, and Enter and → open it. The keys leave fields, controls that use the arrow keys, sheets and dialogs alone.",
+            zh: "Esc 与 ← 关闭最深的一栏。J 与 K 把焦点移到当前栏的下一行与上一行，Enter 与 → 打开它。这些按键不会干扰输入框、使用方向键的控件、面板与对话框。",
+          })}
+        </Text>
       </Showcase>
 
       <Showcase label={t({ en: "Motion", zh: "动效" })}>

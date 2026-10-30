@@ -256,7 +256,7 @@ function Movement({ label, description, snippet, children }: MovementProps) {
   return (
     <section css={stack.item}>
       <div css={[corner.radius_3, stack.item, styles.movement]}>
-        <header css={stack.text}>
+        <header data-prose css={stack.text}>
           <Heading level={3}>{label}</Heading>
           <p css={[typeRole.bodySmall, styles.movementDesc]}>{description}</p>
         </header>

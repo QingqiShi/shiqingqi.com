@@ -2,7 +2,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Switch } from "@tuja/ui/components/switch";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -68,43 +67,39 @@ export function SwitchShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Interactive", zh: "交互" })} leadsWithText>
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "Click, drag the thumb, or focus and press Space or Enter. The switch reports each change through `onChange`.",
-              zh: "点击、拖动滑块，或聚焦后按空格或回车。开关会通过 `onChange` 报告每次变化。",
-            })}
-          </Text>
-          <Specimen caption={t({ en: "live", zh: "实时" })}>
-            <LiveSwitch />
-          </Specimen>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "Click, drag the thumb, or focus and press Space or Enter. The switch reports each change through `onChange`.",
+            zh: "点击、拖动滑块，或聚焦后按空格或回车。开关会通过 `onChange` 报告每次变化。",
+          })}
+        </Text>
+        <Specimen caption={t({ en: "live", zh: "实时" })}>
+          <LiveSwitch />
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Effect", zh: "效果" })} leadsWithText>
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: 'By default the thumb is solid with a lit edge. When it is pressed or toggled, it melts into water, pours across the track, flows on for a moment after it arrives and sets solid again, as the effect prop below describes. effect="none" keeps the plain thumb and track, and so does a switch without an EffectLayerProvider or WebGPU.',
-              zh: '默认情况下，滑块是边缘带光的实心块。按下或切换时，它融化成水并涌过轨道，到位后继续流动片刻，再重新凝固，详见下方的 effect 属性。设置 effect="none" 会保留普通的滑块与轨道；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
-            })}
-          </Text>
-          <SpecimenGrid>
-            <Specimen caption="liquid">
-              <SpecimenSwitch
-                initial="off"
-                label={t({ en: "Liquid", zh: "液态" })}
-              />
-            </Specimen>
-            <Specimen caption="none">
-              <SpecimenSwitch
-                initial="off"
-                effect="none"
-                label={t({ en: "No effect", zh: "无效果" })}
-              />
-            </Specimen>
-          </SpecimenGrid>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: 'By default the thumb is solid with a lit edge. When it is pressed or toggled, it melts into water, pours across the track, flows on for a moment after it arrives and sets solid again, as the effect prop below describes. effect="none" keeps the plain thumb and track, and so does a switch without an EffectLayerProvider or WebGPU.',
+            zh: '默认情况下，滑块是边缘带光的实心块。按下或切换时，它融化成水并涌过轨道，到位后继续流动片刻，再重新凝固，详见下方的 effect 属性。设置 effect="none" 会保留普通的滑块与轨道；没有 EffectLayerProvider 或 WebGPU 时也是如此。',
+          })}
+        </Text>
+        <SpecimenGrid>
+          <Specimen caption="liquid">
+            <SpecimenSwitch
+              initial="off"
+              label={t({ en: "Liquid", zh: "液态" })}
+            />
+          </Specimen>
+          <Specimen caption="none">
+            <SpecimenSwitch
+              initial="off"
+              effect="none"
+              label={t({ en: "No effect", zh: "无效果" })}
+            />
+          </Specimen>
+        </SpecimenGrid>
       </Showcase>
 
       <PropsTable component="switch" />

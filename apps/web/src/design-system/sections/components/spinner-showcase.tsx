@@ -3,7 +3,7 @@ import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { Spinner } from "@tuja/ui/components/spinner";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
@@ -42,34 +42,32 @@ export function SpinnerShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Tone", zh: "色调" })} leadsWithText>
-        <div css={stack.item}>
-          <ShowcaseHelper>
-            {t({
-              en: 'tone="current" inherits the surrounding text colour; tone="accent" pins the brand accent regardless of context.',
-              zh: 'tone="current" 继承周围文本颜色；tone="accent" 无论上下文如何都固定使用品牌强调色。',
+        <ShowcaseHelper>
+          {t({
+            en: 'tone="current" inherits the surrounding text colour; tone="accent" pins the brand accent regardless of context.',
+            zh: 'tone="current" 继承周围文本颜色；tone="accent" 无论上下文如何都固定使用品牌强调色。',
+          })}
+        </ShowcaseHelper>
+        <div css={[cluster.item, styles.toneRow]}>
+          <Specimen caption="accent">
+            <Spinner tone="accent" label={loadingLabel} />
+          </Specimen>
+          <Specimen caption="current">
+            <Spinner tone="current" label={loadingLabel} />
+          </Specimen>
+          <Specimen
+            caption={t({
+              en: "current · on accent",
+              zh: "current · 强调色上",
             })}
-          </ShowcaseHelper>
-          <div css={[cluster.item, styles.toneRow]}>
-            <Specimen caption="accent">
-              <Spinner tone="accent" label={loadingLabel} />
-            </Specimen>
-            <Specimen caption="current">
-              <Spinner tone="current" label={loadingLabel} />
-            </Specimen>
-            <Specimen
-              caption={t({
-                en: "current · on accent",
-                zh: "current · 强调色上",
-              })}
+          >
+            <span
+              css={[typeRole.label, corner.radius_round, styles.accentPill]}
             >
-              <span
-                css={[typeRole.label, corner.radius_round, styles.accentPill]}
-              >
-                <Spinner tone="current" aria-hidden />
-                <span>{t({ en: "Loading", zh: "加载中" })}</span>
-              </span>
-            </Specimen>
-          </div>
+              <Spinner tone="current" aria-hidden />
+              <span>{t({ en: "Loading", zh: "加载中" })}</span>
+            </span>
+          </Specimen>
         </div>
       </Showcase>
 
@@ -77,19 +75,17 @@ export function SpinnerShowcase() {
         label={t({ en: "In a busy control", zh: "用于繁忙控件" })}
         leadsWithText
       >
-        <div css={stack.item}>
-          <ShowcaseHelper>
-            {t({
-              en: "Inside a control that already announces its busy state (aria-busy), mark the spinner aria-hidden so it isn't announced twice.",
-              zh: "在已通过 aria-busy 宣告繁忙状态的控件中，将 spinner 标记为 aria-hidden，避免被重复播报。",
-            })}
-          </ShowcaseHelper>
-          <Specimen caption="aria-hidden">
-            <Button aria-busy icon={<Spinner size="sm" aria-hidden />} disabled>
-              {savingLabel}
-            </Button>
-          </Specimen>
-        </div>
+        <ShowcaseHelper>
+          {t({
+            en: "Inside a control that already announces its busy state (aria-busy), mark the spinner aria-hidden so it isn't announced twice.",
+            zh: "在已通过 aria-busy 宣告繁忙状态的控件中，将 spinner 标记为 aria-hidden，避免被重复播报。",
+          })}
+        </ShowcaseHelper>
+        <Specimen caption="aria-hidden">
+          <Button aria-busy icon={<Spinner size="sm" aria-hidden />} disabled>
+            {savingLabel}
+          </Button>
+        </Specimen>
       </Showcase>
 
       <Showcase

@@ -42,7 +42,7 @@ test.describe("Language Toggle and client-router fetches", () => {
 
     await page.goto("/design-system");
     await expect(page).toHaveURL(/\/zh\/design-system$/);
-    await expect(page.locator("html")).toHaveAttribute("lang", "zh");
+    await expect(page.locator("html")).toHaveAttribute("lang", "zh-Hans");
 
     await page.getByRole("button", { name: "选择语言" }).click();
     await page.getByRole("menuitem", { name: "Switch to English" }).click();

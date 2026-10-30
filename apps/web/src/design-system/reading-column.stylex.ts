@@ -8,6 +8,14 @@ import * as stylex from "@stylexjs/stylex";
 export const readingColumn = stylex.defineConsts({ inlineSize: "48rem" });
 
 /**
+ * The inline size of the doc page, which a breakout Showcase spans. The
+ * reading column measures the page and gives the length to all its content.
+ */
+export const docPageVars = stylex.defineVars({
+  inlineSize: stylex.types.length("0px"),
+});
+
+/**
  * Keeps a heading or a helper on the reading column inside a breakout. The
  * margin is zero when the parent is not wider than the column, so the style
  * is inert everywhere else.

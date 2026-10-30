@@ -261,17 +261,18 @@ Scales across breakpoints (sm → md → lg):
 
 ### Line Heights
 
-| Token                | Value  |
-| -------------------- | ------ |
-| `font.lineHeight_00` | `0.95` |
-| `font.lineHeight_0`  | `1`    |
-| `font.lineHeight_1`  | `1.1`  |
-| `font.lineHeight_2`  | `1.2`  |
-| `font.lineHeight_3`  | `1.3`  |
-| `font.lineHeight_4`  | `1.5`  |
-| `font.lineHeight_5`  | `2`    |
+| Token                 | Value                   |
+| --------------------- | ----------------------- |
+| `font.lineHeight_00`  | `0.95`                  |
+| `font.lineHeight_0`   | `1`                     |
+| `font.lineHeight_1`   | `1.1`                   |
+| `font.lineHeight_2`   | `1.2`                   |
+| `font.lineHeight_3`   | `1.3`                   |
+| `font.lineHeight_4`   | `1.5`                   |
+| `font.lineHeight_5`   | `2`                     |
+| `font.lineHeightBody` | `1.5`, `1.7` in Chinese |
 
-`root.body` sets `font.lineHeight_4` on `<body>`, so text inherits it.
+`font.lineHeightBody` is the leading of running text: `root.body` sets it on `<body>`, so text inherits it, and `body`, `bodySmall` and `fluidLead` take it. Chinese pages override it, with the font stack, in `apps/web/src/theme/global-styles.ts`.
 
 ### Letter Spacing
 

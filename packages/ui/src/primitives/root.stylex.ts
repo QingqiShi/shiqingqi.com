@@ -24,7 +24,7 @@ export const root = stylex.create({
   body: {
     color: color.fg,
     fontFamily: font.family,
-    lineHeight: font.lineHeight_4,
+    lineHeight: font.lineHeightBody,
     textWrap: "pretty",
     overflowWrap: "break-word",
   },

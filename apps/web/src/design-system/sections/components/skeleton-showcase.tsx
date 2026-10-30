@@ -28,37 +28,33 @@ export function SkeletonShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Fill", zh: "填充" })} leadsWithText>
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "With `fill`, the skeleton stretches to its container — hand it the shape of whatever it stands in for.",
-              zh: "使用 `fill` 时，骨架会填满其容器——让它呈现所替代内容的形状。",
-            })}
-          </Text>
-          <Specimen caption={t({ en: "box", zh: "容器" })}>
-            <div css={[corner.radius_2, styles.fillBox]}>
-              <Skeleton fill />
-            </div>
-          </Specimen>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "With `fill`, the skeleton stretches to its container — hand it the shape of whatever it stands in for.",
+            zh: "使用 `fill` 时，骨架会填满其容器——让它呈现所替代内容的形状。",
+          })}
+        </Text>
+        <Specimen caption={t({ en: "box", zh: "容器" })}>
+          <div css={[corner.radius_2, styles.fillBox]}>
+            <Skeleton fill />
+          </div>
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Staggered", zh: "错峰" })} leadsWithText>
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "A rising `delay` offsets each pulse, so a group shimmers in sequence rather than in unison.",
-              zh: "递增的 `delay` 会让每次脉动错开，使一组骨架依次闪烁，而非同步。",
-            })}
-          </Text>
-          <Specimen caption="delay">
-            <div css={styles.staggerRow}>
-              {[0, 120, 240, 360, 480].map((delay) => (
-                <Skeleton key={delay} height={56} delay={delay} />
-              ))}
-            </div>
-          </Specimen>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "A rising `delay` offsets each pulse, so a group shimmers in sequence rather than in unison.",
+            zh: "递增的 `delay` 会让每次脉动错开，使一组骨架依次闪烁，而非同步。",
+          })}
+        </Text>
+        <Specimen caption="delay">
+          <div css={styles.staggerRow}>
+            {[0, 120, 240, 360, 480].map((delay) => (
+              <Skeleton key={delay} height={56} delay={delay} />
+            ))}
+          </div>
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Composition", zh: "组合" })}>

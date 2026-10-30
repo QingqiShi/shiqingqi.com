@@ -11,6 +11,7 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { controlSize } from "@tuja/ui/tokens.stylex";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, type ComponentProps } from "react";
+import { htmlLang } from "#src/i18n/i18n-config.ts";
 import { MenuItem } from "./menu-item";
 
 interface LocaleSelectorProps {
@@ -93,7 +94,7 @@ function LocaleSelectorMenu({
             href={`${getLocalePath(pathname, "en")}${searchString}`}
             isActive={locale === "en"}
             autoFocus={locale !== "en"}
-            lang="en"
+            lang={htmlLang.en}
             onClick={() => {
               // The server reads the Preference from this cookie, so write it
               // before the browser follows the link.
@@ -108,7 +109,7 @@ function LocaleSelectorMenu({
             href={`${getLocalePath(pathname, "zh")}${searchString}`}
             isActive={locale === "zh"}
             autoFocus={locale === "en"}
-            lang="zh"
+            lang={htmlLang.zh}
             onClick={() => {
               setLocaleCookie("zh");
             }}

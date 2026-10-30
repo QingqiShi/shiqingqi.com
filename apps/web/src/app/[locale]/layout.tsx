@@ -8,11 +8,12 @@ import type { Viewport } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { PostHogInit } from "#src/analytics/posthog-init.tsx";
+import { htmlLang } from "#src/i18n/i18n-config.ts";
 import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
 import { BackOverrideProvider } from "#src/site-shell/back-override-provider.tsx";
 import { InlineScript } from "#src/site-shell/inline-script.tsx";
 import { ReactGrab } from "#src/site-shell/react-grab.tsx";
-import { globalStyles } from "#src/theme/global-styles.ts";
+import { chineseType, globalStyles } from "#src/theme/global-styles.ts";
 import { ThemeApplier } from "#src/theme/theme-applier.tsx";
 import { themeHack } from "#src/theme/theme-hack.ts";
 
@@ -43,10 +44,11 @@ export default async function RootLayout({
   }
 
   setLocale(locale);
+  const isChinese = locale === "zh";
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body css={[root.body, globalStyles.body]}>
+    <html lang={htmlLang[locale]} suppressHydrationWarning>
+      <body css={[root.body, globalStyles.body, isChinese && chineseType]}>
         {/*
           Both locales render Latin text in Inter (names, dates, brand
           wordmarks, numbers), so both locales benefit from preloading it.
@@ -62,6 +64,15 @@ export default async function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        {isChinese && (
+          <link
+            rel="preload"
+            href="/NotoSansSC-Punctuation.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+        )}
         <I18nProvider locale={locale}>
           <SerwistProvider>
             <InlineScript>{themeHack}</InlineScript>

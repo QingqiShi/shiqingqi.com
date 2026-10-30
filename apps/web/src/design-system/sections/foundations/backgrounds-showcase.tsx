@@ -57,7 +57,7 @@ function Band({
 }: BandProps) {
   return (
     <section css={stack.item}>
-      <header css={[stack.text, styles.bandHeader]}>
+      <header data-prose css={[stack.text, styles.bandHeader]}>
         <Heading level={3}>{name}</Heading>
         <p css={[typeRole.bodySmall, styles.bandUse]}>{use}</p>
       </header>

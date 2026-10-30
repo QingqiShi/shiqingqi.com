@@ -182,13 +182,18 @@ export function TypographyReferenceShowcase() {
     {
       token: "font.lineHeight_4",
       value: "1.5",
-      usedBy: "body, bodySmall, fluidLead",
       sample: <Lines lineHeight={styles.lh4} />,
     },
     {
       token: "font.lineHeight_5",
       value: "2",
       sample: <Lines lineHeight={styles.lh5} />,
+    },
+    {
+      token: "font.lineHeightBody",
+      value: t({ en: "1.5; 1.7 in Chinese", zh: "1.5；中文为1.7" }),
+      usedBy: "body, bodySmall, fluidLead",
+      sample: <Lines lineHeight={styles.lhBody} />,
     },
   ];
 
@@ -341,6 +346,7 @@ const styles = stylex.create({
   lh3: { lineHeight: font.lineHeight_3 },
   lh4: { lineHeight: font.lineHeight_4 },
   lh5: { lineHeight: font.lineHeight_5 },
+  lhBody: { lineHeight: font.lineHeightBody },
   trackSample: {
     fontWeight: font.weight_6,
   },

@@ -6,7 +6,7 @@ import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { DocSection } from "./doc-section.tsx";
-import { onReadingColumn } from "./reading-column.stylex.ts";
+import { docPageVars, onReadingColumn } from "./reading-column.stylex.ts";
 
 interface ShowcaseProps {
   label?: string;
@@ -115,14 +115,13 @@ const styles = stylex.create({
   card: {
     padding: space._7,
   },
-  // The article is the container. 50% is half the reading column; 50cqi is
-  // half the article. So the section overhangs the column by the same amount
-  // on each side. `boxSizing` is needed: the app sets no global border-box
-  // rule.
+  // 50% is half the reading column, and the variable is the page. So the
+  // section overhangs the column by the same amount on each side. `boxSizing`
+  // is needed: the app sets no global border-box rule.
   breakout: {
     boxSizing: "border-box",
-    inlineSize: "100cqi",
-    marginInlineStart: "calc(50% - 50cqi)",
+    inlineSize: docPageVars.inlineSize,
+    marginInlineStart: `calc(50% - ${docPageVars.inlineSize} / 2)`,
   },
   label: {
     color: color.fgMuted,
