@@ -401,6 +401,7 @@ export function createEffectLayer(
       plan,
       registry.modalCovers(),
       registry.region,
+      new Set(ready.flatMap(({ holds }) => holds?.() ?? [])),
     );
     const known = canvasNeeds;
     const same =
@@ -559,6 +560,9 @@ export function createEffectLayer(
       }
     }
     frames.wake(startTime + wakeTime * 1000);
+    // Report again after the updates. An effect can stop to hold a carrier
+    // in this frame, and this frame can be the last one.
+    reportCanvasNeeds(plan);
     for (const pass of passes) {
       encodePass(encoder, pass, frame);
     }

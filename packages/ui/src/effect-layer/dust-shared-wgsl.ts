@@ -43,6 +43,23 @@ struct DustParticle {
   dark: u32,
   // The grayscale of the element that shed it, which each frame reads again.
   grayscale: f32,
+  // DUST_ON_VIEWPORT and DUST_BURST, fixed at birth.
+  flags: u32,
+}
+
+// The particle's position is in viewport coordinates, so it keeps its place
+// on the screen while the page scrolls.
+const DUST_ON_VIEWPORT = 1u;
+// A burst shed the particle.
+const DUST_BURST = 2u;
+
+// Where the particle is, in page coordinates.
+fn dustPagePosition(particle: DustParticle) -> vec2f {
+  return select(
+    particle.position,
+    particle.position + effectPage.viewport.xy,
+    (particle.flags & DUST_ON_VIEWPORT) != 0u,
+  );
 }
 
 // One per entry of effectElements, at the same index.

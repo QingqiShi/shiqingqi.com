@@ -22,6 +22,21 @@ export const DUST_MAX_LIFE = 10;
 export const DUST_MAX_SPAWNS_PER_FRAME = 64;
 
 /**
+ * The most particles one burst sheds.
+ *
+ * @internal
+ */
+export const DUST_MAX_BURST = 256;
+
+/**
+ * The bit of a spawn list entry that marks a particle of a burst, above the
+ * bits of the emitter's index.
+ *
+ * @internal
+ */
+export const DUST_BURST_SPAWN = 0x80_00_00_00;
+
+/**
  * The most particles all elements shed in a second together, so that none is
  * reused while it lives.
  */
@@ -62,6 +77,8 @@ export interface DustEmitter extends DustBox {
   readonly index: number;
   /** Particles a second along every 100 CSS px of its edge. */
   readonly density: number;
+  /** Particles it sheds at once when it first shows. */
+  readonly burst: number;
 }
 
 /**
@@ -258,6 +275,69 @@ export function createLiveSlots() {
     clear() {
       shed.length = 0;
       length = 0;
+    },
+  };
+}
+
+/**
+ * Follows the bursts of dust: each emitter sheds its burst once, the first
+ * frame it shows, while it stays registered.
+ *
+ * @internal
+ */
+export function createDustBursts() {
+  /**
+   * The particles each emitter that has burst still owes of its burst, by
+   * `id`.
+   */
+  const owed = new Map<number, number>();
+  return {
+    /**
+     * The burst particles to shed this frame, as spawn list entries, at most
+     * `room` of them. What does not fit waits for the next frame. With
+     * `shed` false, as under reduced motion, a new burst is dropped.
+     * `onDone` gets each emitter whose burst ends this frame.
+     */
+    take<Emitter extends DustEmitter>(
+      emitters: readonly Emitter[],
+      room: number,
+      shed: boolean,
+      onDone?: (emitter: Emitter) => void,
+    ) {
+      const spawns: number[] = [];
+      if (owed.size === 0 && emitters.every(({ burst }) => burst <= 0)) {
+        return spawns;
+      }
+      const present = new Set<number>();
+      for (const emitter of emitters) {
+        const { id, index, burst } = emitter;
+        present.add(id);
+        let left = owed.get(id);
+        if (left === undefined && burst > 0) {
+          left = shed ? Math.min(Math.round(burst), DUST_MAX_BURST) : 0;
+          owed.set(id, left);
+          if (left === 0) {
+            onDone?.(emitter);
+          }
+        }
+        const count = Math.min(left ?? 0, room - spawns.length);
+        if (left === undefined || count <= 0) {
+          continue;
+        }
+        for (let spawn = 0; spawn < count; spawn++) {
+          spawns.push(index + DUST_BURST_SPAWN);
+        }
+        owed.set(id, left - count);
+        if (count === left) {
+          onDone?.(emitter);
+        }
+      }
+      for (const id of owed.keys()) {
+        if (!present.has(id)) {
+          owed.delete(id);
+        }
+      }
+      return spawns;
     },
   };
 }

@@ -21,6 +21,12 @@ function ClearButton() {
   return <Button ref={ref}>Clear</Button>;
 }
 
+// Shake dust off once, when the element mounts, then remove it.
+function PressDust({ onShed }) {
+  const ref = useDust({ density: 0, burst: 80, onShed });
+  return <div ref={ref} />;
+}
+
 // One element can shed dust and pull it in: merge the two refs.
 function Vent() {
   const dust = useDust();
@@ -46,6 +52,12 @@ export function DustShowcase() {
             {t({
               en: "The dust flows around every other registered element, and a moving pointer stirs it. A pointer near an element that sheds dust stirs up more.",
               zh: "灰尘会绕开其他所有已登记的元素，移动的指针会搅动它。指针靠近散出灰尘的元素时，会扬起更多灰尘。",
+            })}
+          </Text>
+          <Text look="bodySmall" tone="muted">
+            {t({
+              en: "Give useDust a burst, and the element shakes off that many particles at once when it mounts. The fans in reach pull them in at once. The dust of an element on the viewport keeps its place on the screen while the page scrolls, so a clear box over a pressed card can carry the press to wherever the page goes.",
+              zh: "给 useDust 设置 burst，元素挂载时就会一次性抖落这么多粒子，范围内的抽风机会立即把它们吸走。视口上元素的灰尘在页面滚动时停留在屏幕上的原位，因此盖在被按下卡片上的透明盒子，能把这次按下带到页面去往的地方。",
             })}
           </Text>
           <Text look="bodySmall" tone="muted">

@@ -34,6 +34,15 @@ export type EffectCarrierRef =
 export type CarrierKey = "page" | "fixed" | "fixedBottom" | number;
 
 /**
+ * Whether `key` names the viewport, from its top edge or its bottom edge.
+ *
+ * @internal
+ */
+export const isViewportCarrier = (
+  key: CarrierKey,
+): key is "fixed" | "fixedBottom" => key === "fixed" || key === "fixedBottom";
+
+/**
  * The carriers that every frame has, in this order before its Scroll
  * regions.
  *

@@ -64,6 +64,7 @@
     "./hooks/use-media-query": "./src/hooks/use-media-query.ts",
     "./hooks/use-popover": "./src/hooks/use-popover.ts",
     "./hooks/use-portal-target": "./src/surfaces/portal-context.tsx",
+    "./hooks/use-prepare-effects": "./src/effect-layer/use-prepare-effects.ts",
     "./hooks/use-press-animation": "./src/hooks/use-press-animation.ts",
     "./hooks/use-press-handlers": "./src/hooks/use-press-handlers.ts",
     "./hooks/use-radio-group": "./src/hooks/use-radio-group.ts",

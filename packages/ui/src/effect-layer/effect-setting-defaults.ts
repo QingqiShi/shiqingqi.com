@@ -8,7 +8,7 @@ import type { EffectSettings } from "./types.ts";
  * @internal
  */
 export const EFFECT_SETTING_DEFAULTS = {
-  dust: { density: 3 },
+  dust: { density: 3, burst: 0, colorFrom: "fill" },
   extractorFan: { reach: 400 },
   blackHole: { mass: 1 },
   lightBeam: { angle: undefined, followsPointer: true },
