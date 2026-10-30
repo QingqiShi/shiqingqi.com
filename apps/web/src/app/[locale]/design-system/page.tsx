@@ -70,6 +70,7 @@ export default function DesignSystemOverview() {
 const styles = stylex.create({
   heading: {
     margin: 0,
+    paddingInlineEnd: "var(--header-controls-inline-end-clearance, 0px)",
   },
   intro: {
     margin: 0,

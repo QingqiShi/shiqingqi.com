@@ -158,8 +158,8 @@ export function SurfacesShowcase() {
       token: "shadow._2",
       swatch: shadowStyles.s2,
       use: t({
-        en: "Button's filled looks, the Switch track, the Slider thumb, glassSurface, SidebarLayout's mobile bar",
-        zh: "Button 的实心外观、Switch 轨道、Slider 滑块、glassSurface、SidebarLayout 的移动端底栏",
+        en: "Button's filled looks, the Switch track, the Slider thumb, glassSurface",
+        zh: "Button 的实心外观、Switch 轨道、Slider 滑块、glassSurface",
       }),
     },
     {

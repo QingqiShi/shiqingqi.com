@@ -4,6 +4,7 @@ import type { PageProps, SupportedLocale } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { SidebarLayout } from "@tuja/ui/components/sidebar-layout";
+import { sidebarLayoutTokens } from "@tuja/ui/components/sidebar-layout.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { space } from "@tuja/ui/tokens.stylex";
@@ -126,12 +127,12 @@ const styles = stylex.create({
   page: {
     paddingBlockStart: { default: space._3, [breakpoints.md]: space._7 },
     // The skip link's fragment jump scrolls this element's block-start edge to
-    // the viewport's, and below `md` the shell's fixed pill bar is sitting
-    // there. Reserve its height so the page title lands in view instead of
-    // behind the bar; the value mirrors the mobile `paddingBlockStart` that
-    // `SidebarLayout`'s own `styles.root` uses to clear the same bar.
+    // the viewport's. Below `md`, keep the gap that the mobile
+    // `paddingBlockStart` of `SidebarLayout`'s `styles.root` gives at the top
+    // of the page, so that the breadcrumb stays beside the menu button and
+    // the title stays below it.
     scrollMarginBlockStart: {
-      default: `calc(${space._10} + env(safe-area-inset-top))`,
+      default: `calc(${space._4} + ${sidebarLayoutTokens.safeAreaTop})`,
       [breakpoints.md]: 0,
     },
   },

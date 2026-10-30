@@ -259,7 +259,7 @@ const styles = stylex.create({
       [breakpoints.md]: "auto",
     },
     // Mobile: the drawer is an overlay, so it takes that plane and covers the
-    // pill bar (`layer.header`). md+: the stuck rail is sticky page chrome, so
+    // menu button (`layer.header`). md+: the stuck rail is sticky page chrome, so
     // it takes the header plane over content and the effect layer, which
     // leaves an open overlay above it.
     zIndex: { default: layer.overlay, [breakpoints.md]: layer.header },

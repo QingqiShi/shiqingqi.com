@@ -356,7 +356,7 @@ const styles = stylex.create({
     color: color.fg,
   },
   section: {
-    // Below `md`, the pill bar floats over the top of the page.
+    // Below `md`, the menu button floats over the top of the page.
     scrollMarginBlockStart: `calc(var(--header-controls-clearance, 0px) + ${rhythm.item})`,
   },
   title: {
