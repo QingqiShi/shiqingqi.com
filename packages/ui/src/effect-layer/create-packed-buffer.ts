@@ -1,62 +1,65 @@
-import { GPU_BUFFER_USAGE } from "./constants.ts";
+import type { d } from "typegpu";
+import { createStorageBuffer } from "./create-storage-buffer.ts";
+import type { EffectData, EffectInput } from "./types.ts";
 
 const MIN_CAPACITY = 16;
 
 /**
- * A storage buffer that holds packed items, grows as they need, and uploads
- * only when they change.
+ * A storage buffer that holds an array of `item`, grows as it needs, and
+ * uploads only when its values change.
  *
  * @internal
  */
-export function createPackedBuffer<Item, Context = void>(
+export function createPackedBuffer<Item extends d.AnyWgslData>(
   device: GPUDevice,
-  itemBytes: number,
-  pack: (items: readonly Item[], buffer: ArrayBuffer, context: Context) => void,
+  item: EffectData<Item>,
 ) {
-  const create = (capacity: number) => ({
+  const { stride } = item;
+  const allocate = (capacity: number) => ({
     capacity,
-    buffer: device.createBuffer({
-      size: capacity * itemBytes,
-      usage: GPU_BUFFER_USAGE.STORAGE | GPU_BUFFER_USAGE.COPY_DST,
-    }),
-    packed: new ArrayBuffer(capacity * itemBytes),
-    previous: new ArrayBuffer(capacity * itemBytes),
+    buffer: createStorageBuffer(device, item, capacity),
+    packed: new ArrayBuffer(capacity * stride),
+    previous: new ArrayBuffer(capacity * stride),
     previousCount: -1,
   });
-  let state = create(MIN_CAPACITY);
+  let state = allocate(MIN_CAPACITY);
   return {
+    /** Replaced when the buffer grows. */
     get buffer() {
       return state.buffer;
     },
     /**
-     * Packs the items, and uploads them when they differ from the last
+     * Packs the values, and uploads them when they differ from the last
      * upload. Returns whether they did.
      */
-    write(items: readonly Item[], context: Context) {
+    write(values: readonly EffectInput<Item>[]) {
       const capacity = Math.max(
         MIN_CAPACITY,
-        2 ** Math.ceil(Math.log2(items.length)),
+        2 ** Math.ceil(Math.log2(values.length)),
       );
       if (capacity !== state.capacity) {
         state.buffer.destroy();
-        state = create(capacity);
+        state = allocate(capacity);
       }
       [state.packed, state.previous] = [state.previous, state.packed];
-      pack(items, state.packed, context);
+      const view = new DataView(state.packed);
+      for (const [index, value] of values.entries()) {
+        item.write(view, index * stride, value);
+      }
       const words = new Uint32Array(
         state.packed,
         0,
-        (items.length * itemBytes) / 4,
+        (values.length * stride) / 4,
       );
       const previous = new Uint32Array(state.previous, 0, words.length);
       if (
-        items.length === state.previousCount &&
+        values.length === state.previousCount &&
         words.every((word, index) => word === previous[index])
       ) {
         return false;
       }
-      state.previousCount = items.length;
-      device.queue.writeBuffer(state.buffer, 0, words);
+      state.previousCount = values.length;
+      device.queue.writeBuffer(state.buffer.buffer, 0, words);
       return true;
     },
     destroy() {

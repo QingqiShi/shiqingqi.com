@@ -1,11 +1,10 @@
+import { blackHoleWgsl } from "../_generated/wgsl/black-hole.ts";
+import { blackHoleLayout, Scene } from "../_generated/wgsl/layouts.ts";
 import { beamColor } from "./beam-color.ts";
-import { beamMeetsRect, distanceToEdge, type Beam } from "./beam-meets-rect.ts";
-import { BLACK_HOLE_WGSL, SCENE_LAYOUT } from "./black-hole-wgsl.ts";
-import {
-  GPU_BUFFER_USAGE,
-  GPU_SHADER_STAGE,
-  PREMULTIPLIED_BLEND,
-} from "./constants.ts";
+import { beamMeetsRect, distanceToEdge } from "./beam-meets-rect.ts";
+import { compileEffectShader } from "./compile-effect-shader.ts";
+import { createBindGroup } from "./create-binding.ts";
+import { createUniformBuffer } from "./create-uniform-buffer.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
   EFFECT_SETTING_DEFAULTS,
@@ -19,8 +18,9 @@ import {
   type Lens,
   type PageRect,
 } from "./lens-from-box.ts";
-import { lensesOfScope, type ShaderLens } from "./lenses-of-scope.ts";
+import { lensesOfScope } from "./lenses-of-scope.ts";
 import { indicesIn } from "./plan-scopes.ts";
+import { sceneValue, type ShaderBeam } from "./scene-value.ts";
 import { cssAngleToRadians, stepAim, type Aim } from "./step-aim.ts";
 import type {
   Effect,
@@ -35,12 +35,6 @@ const LIGHT_BEAM = roleBits(["lightBeam"]);
 const REACH_SCALE = 1.1;
 /** Inside its element and this far out, the pointer does not turn a beam. */
 const AIM_DEAD_ZONE = 8;
-
-/** A beam with the index of its element in `effectElements`. */
-interface ShaderBeam {
-  readonly beam: Beam;
-  readonly element: number;
-}
 
 /** The part of the page a target draws this frame. */
 function drawnRect({
@@ -67,50 +61,22 @@ function drawnRect({
  * @internal
  */
 export const blackHoleEffect: Effect = {
-  async setup({ device, format, pageLayout, targetLayout }) {
-    const sceneLayout = device.createBindGroupLayout({
-      entries: [
-        {
-          binding: 0,
-          visibility: GPU_SHADER_STAGE.FRAGMENT,
-          buffer: { type: "uniform" },
-        },
-      ],
-    });
-    const module = device.createShaderModule({ code: BLACK_HOLE_WGSL });
-    const pipeline = await device.createRenderPipelineAsync({
-      layout: device.createPipelineLayout({
-        bindGroupLayouts: [pageLayout, targetLayout, sceneLayout],
-      }),
-      vertex: { module, entryPoint: "vertexMain" },
-      fragment: {
-        module,
-        entryPoint: "fragmentMain",
-        targets: [{ format, blend: PREMULTIPLIED_BLEND }],
-      },
-    });
+  async setup({ device, colorTarget }) {
+    const pipeline = await compileEffectShader(device, blackHoleWgsl).render(
+      colorTarget,
+    );
 
     function createScene() {
-      const buffer = device.createBuffer({
-        size: SCENE_LAYOUT.bytes,
-        usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST,
-      });
-      const data = new ArrayBuffer(SCENE_LAYOUT.bytes);
+      const buffer = createUniformBuffer(device, Scene);
       return {
         buffer,
-        bindGroup: device.createBindGroup({
-          layout: sceneLayout,
-          entries: [{ binding: 0, resource: { buffer } }],
-        }),
-        data,
-        floats: new Float32Array(data),
-        words: new Uint32Array(data),
+        bindGroup: createBindGroup(device, blackHoleLayout, { scene: buffer }),
       };
     }
-    type Scene = ReturnType<typeof createScene>;
+    type DrawnScene = ReturnType<typeof createScene>;
     // One scene for each scope with Light beams on each kind of target, by
     // the scope's id and the kind of target.
-    const scenes = new Map<string, Scene>();
+    const scenes = new Map<string, DrawnScene>();
     function sceneFor(key: string) {
       let scene = scenes.get(key);
       if (scene === undefined) {
@@ -122,7 +88,7 @@ export const blackHoleEffect: Effect = {
 
     let aims = new Map<number, Aim>();
     /** The scenes each target draws this frame. */
-    const drawn = new Map<EffectTarget, Scene[]>();
+    const drawn = new Map<EffectTarget, DrawnScene[]>();
 
     function aimBeam(
       record: EffectElementRecord,
@@ -169,52 +135,6 @@ export const blackHoleEffect: Effect = {
           : stepAim(previous, target, frame.delta);
       nextAims.set(record.id, next);
       return { ...origin, angle: next.angle, settled: next.settled };
-    }
-
-    function writeScene(
-      scene: Scene,
-      lenses: readonly ShaderLens[],
-      beams: readonly ShaderBeam[],
-      dark: boolean,
-      scopeIndex: number,
-    ) {
-      scene.words[0] = lenses.length;
-      scene.words[1] = beams.length;
-      scene.floats[2] = dark ? 1 : 0;
-      scene.words[3] = scopeIndex;
-      for (const [index, { lens, element }] of lenses.entries()) {
-        const at = SCENE_LAYOUT.lensOffset + index * SCENE_LAYOUT.lensFloats;
-        scene.floats.set(
-          [
-            lens.x,
-            lens.y,
-            lens.halfWidth,
-            lens.halfHeight,
-            lens.cornerRadius,
-            lens.mass,
-            lens.falloff,
-          ],
-          at,
-        );
-        scene.words[at + 7] = element;
-      }
-      for (const [index, { beam, element }] of beams.entries()) {
-        const at = SCENE_LAYOUT.beamOffset + index * SCENE_LAYOUT.beamFloats;
-        scene.floats.set(
-          [
-            beam.x,
-            beam.y,
-            Math.cos(beam.angle),
-            Math.sin(beam.angle),
-            ...beam.color,
-            beam.reach,
-            beam.start,
-          ],
-          at,
-        );
-        scene.words[at + 9] = element;
-      }
-      device.queue.writeBuffer(scene.buffer, 0, scene.data);
     }
 
     return {
@@ -291,12 +211,8 @@ export const blackHoleEffect: Effect = {
               }
             }
             if (shown.size > 0) {
-              writeScene(
-                sceneFor(key),
-                shaderLenses,
-                [...shown].slice(0, SCENE_LAYOUT.maxBeams),
-                scope.dark,
-                scopeIndex,
+              sceneFor(key).buffer.write(
+                sceneValue(shaderLenses, [...shown], scope.dark, scopeIndex),
               );
             }
           }
@@ -312,9 +228,7 @@ export const blackHoleEffect: Effect = {
       },
       draw(pass, target) {
         for (const scene of drawn.get(target) ?? []) {
-          pass.setPipeline(pipeline);
-          pass.setBindGroup(2, scene.bindGroup);
-          pass.draw(3);
+          pass.draw(pipeline, scene.bindGroup, 3);
         }
       },
       destroy() {

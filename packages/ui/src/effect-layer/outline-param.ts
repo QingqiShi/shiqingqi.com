@@ -1,103 +1,118 @@
+// The ring light runs round this outline on the CPU and on the GPU, so both
+// use these functions. Lengths are CSS px.
+
 /**
- * A box with round corners of one radius. Lengths are CSS px.
+ * The radius the corners of a box of `width` by `height` can have: at most
+ * half the shorter side.
  *
  * @internal
  */
-export interface OutlineBox {
-  readonly width: number;
-  readonly height: number;
-  readonly radius: number;
-}
-
-/** The radius the corners can have: at most half the shorter side. */
-function cornerRadius({ width, height, radius }: OutlineBox) {
-  return Math.max(0, Math.min(radius, width / 2, height / 2));
-}
+export const cornerRadius = (width: number, height: number, radius: number) => {
+  "use gpu";
+  return Math.max(0, Math.min(radius, Math.min(width, height) * 0.5));
+};
 
 /**
- * The length of the box's outline.
+ * The length of the outline of a box of `width` by `height` with corners
+ * of `radius`, as `cornerRadius` gives it.
  *
  * @internal
  */
-export function outlineLength(box: OutlineBox) {
-  const radius = cornerRadius(box);
+export const outlineLength = (
+  width: number,
+  height: number,
+  radius: number,
+) => {
+  "use gpu";
   return (
-    2 * (box.width - 2 * radius) +
-    2 * (box.height - 2 * radius) +
-    2 * Math.PI * radius
+    2 * (width - 2 * radius) + 2 * (height - 2 * radius) + 2 * Math.PI * radius
   );
-}
+};
 
 /**
- * How far along the outline the point of it nearest to `(x, y)` is, in CSS
- * px from the middle of the top edge, clockwise. The point is in the box's
- * own space, from its top-left corner. `ring-light-wgsl.ts` has the same
- * parametrisation in WGSL.
+ * How far along the outline the point of it nearest to `(x, y)` is, from the
+ * middle of the top edge, clockwise, on the outline of `outlineLength`. The
+ * point is in the box's own space, from its top-left corner.
  *
  * @internal
  */
-export function outlineParam(box: OutlineBox, x: number, y: number) {
-  const radius = cornerRadius(box);
-  const halfWidth = box.width / 2;
-  const halfHeight = box.height / 2;
+export const outlineParam = (
+  width: number,
+  height: number,
+  radius: number,
+  x: number,
+  y: number,
+) => {
+  "use gpu";
+  const halfWidth = width * 0.5;
+  const halfHeight = height * 0.5;
   const a = halfWidth - radius;
   const b = halfHeight - radius;
   const localX = x - halfWidth;
   const localY = y - halfHeight;
-  const quarter = (Math.PI / 2) * radius;
-  // Where each piece of the outline starts: the top edge's right half, the
-  // top-right arc, the right edge, the bottom-right arc, the bottom edge,
-  // the bottom-left arc, the left edge, the top-left arc, the top edge's
-  // left half.
-  const starts = {
-    arcTopRight: a,
-    right: a + quarter,
-    arcBottomRight: a + quarter + 2 * b,
-    bottom: a + 2 * quarter + 2 * b,
-    arcBottomLeft: 3 * a + 2 * quarter + 2 * b,
-    left: 3 * a + 3 * quarter + 2 * b,
-    arcTopLeft: 3 * a + 3 * quarter + 4 * b,
-    topLeft: 3 * a + 4 * quarter + 4 * b,
-  };
+  const quarter = Math.PI * 0.5 * radius;
+  const startRight = a + quarter;
+  const startBottom = a + 2 * quarter + 2 * b;
+  const startLeft = 3 * a + 3 * quarter + 2 * b;
+  const startTopLeft = 3 * a + 4 * quarter + 4 * b;
 
-  const onTop = () => (localX >= 0 ? localX : starts.topLeft + localX + a);
-  const onBottom = () => starts.bottom + (a - localX);
-  const onRight = () => starts.right + (localY + b);
-  const onLeft = () => starts.left + (b - localY);
+  let onTop = startTopLeft + localX + a;
+  if (localX >= 0) {
+    onTop = localX;
+  }
+  const onBottom = startBottom + (a - localX);
+  const onRight = startRight + (localY + b);
+  const onLeft = startLeft + (b - localY);
 
   if (Math.abs(localX) <= a && Math.abs(localY) <= b) {
     const toTop = localY + halfHeight;
     const toBottom = halfHeight - localY;
     const toLeft = localX + halfWidth;
     const toRight = halfWidth - localX;
-    if (Math.min(toLeft, toRight) <= Math.min(toTop, toBottom)) {
-      return toLeft <= toRight ? onLeft() : onRight();
+    const nearest = Math.min(
+      Math.min(toTop, toBottom),
+      Math.min(toLeft, toRight),
+    );
+    if (nearest === toTop) {
+      return onTop;
     }
-    return toTop <= toBottom ? onTop() : onBottom();
+    if (nearest === toBottom) {
+      return onBottom;
+    }
+    if (nearest === toLeft) {
+      return onLeft;
+    }
+    return onRight;
   }
   if (Math.abs(localX) <= a) {
-    return localY < 0 ? onTop() : onBottom();
+    if (localY < 0) {
+      return onTop;
+    }
+    return onBottom;
   }
   if (Math.abs(localY) <= b) {
-    return localX < 0 ? onLeft() : onRight();
+    if (localX < 0) {
+      return onLeft;
+    }
+    return onRight;
   }
-  const angle = Math.atan2(
+  let angle = Math.atan2(
     localY - Math.sign(localY) * b,
     localX - Math.sign(localX) * a,
   );
   if (localX > 0 && localY < 0) {
-    return starts.arcTopRight + (angle + Math.PI / 2) * radius;
+    return a + (angle + Math.PI * 0.5) * radius;
   }
   if (localX > 0) {
-    return starts.arcBottomRight + angle * radius;
+    return a + quarter + 2 * b + angle * radius;
   }
   if (localY > 0) {
-    return starts.arcBottomLeft + (angle - Math.PI / 2) * radius;
+    return 3 * a + 2 * quarter + 2 * b + (angle - Math.PI * 0.5) * radius;
   }
-  // The top-left arc runs from -π to -π/2; a point level with its centre
+  // The top-left arc runs from -π to -π/2. A point level with its centre
   // measures +π.
-  return (
-    starts.arcTopLeft +
-    ((angle > 0 ? angle - 2 * Math.PI : angle) + Math.PI) * radius
-  );
-}
+  if (angle > 0) {
+    angle -= 2 * Math.PI;
+  }
+  return 3 * a + 3 * quarter + 4 * b + (angle + Math.PI) * radius;
+};

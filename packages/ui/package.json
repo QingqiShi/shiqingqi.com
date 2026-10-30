@@ -197,12 +197,16 @@
   },
   "scripts": {
     "build:tsc": "tsc --noEmit",
+    "codegen": "node --experimental-strip-types --no-warnings codegen/generate-wgsl.ts",
     "lint": "eslint --max-warnings 0 . && publint --strict",
+    "prepack": "pnpm run codegen",
+    "pretest": "pnpm run codegen",
     "test": "vitest run"
   },
   "dependencies": {
     "@phosphor-icons/react": "catalog:",
-    "react-remove-scroll": "catalog:"
+    "react-remove-scroll": "catalog:",
+    "typegpu": "catalog:"
   },
   "peerDependencies": {
     "@stylexjs/stylex": "^0.19.0",
@@ -219,15 +223,18 @@
     "@testing-library/react": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@tuja/babel-plugins": "workspace:*",
+    "@tuja/codegen-fs": "workspace:*",
     "@tuja/tsconfig": "workspace:*",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "jsdom": "catalog:",
+    "prettier": "catalog:",
     "publint": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "unplugin-typegpu": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
   }

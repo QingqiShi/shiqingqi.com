@@ -31,7 +31,7 @@ export interface ElementBox {
   /**
    * How far CSS `filter: grayscale()` on the element and its ancestors takes
    * the colour out of what it paints: 0 for full colour, 1 for grey. Effects
-   * pass it to WGSL's `effectGrayscale`.
+   * pass it to `effectGrayscale` on the GPU.
    */
   readonly grayscale: number;
 }

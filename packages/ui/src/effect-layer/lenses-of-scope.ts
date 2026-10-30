@@ -1,4 +1,3 @@
-import { SCENE_LAYOUT } from "./black-hole-wgsl.ts";
 import { roleBits } from "./effect-roles.ts";
 import {
   EFFECT_SETTING_DEFAULTS,
@@ -11,6 +10,7 @@ import {
   type PageRect,
 } from "./lens-from-box.ts";
 import { indicesIn } from "./plan-scopes.ts";
+import { MAX_LENSES } from "./scene-value.ts";
 import type { EffectElementRecord, EffectScope } from "./types.ts";
 
 const BLACK_HOLE = roleBits(["blackHole"]);
@@ -27,7 +27,7 @@ export interface ShaderLens {
 
 /**
  * The Black holes of one scope, on any carrier, the ones that
- * bend light most in `viewport` first, at most `SCENE_LAYOUT.maxLenses`. A
+ * bend light most in `viewport` first, at most `MAX_LENSES`. A
  * lens bends only the light of its own scope.
  *
  * @internal
@@ -57,5 +57,5 @@ export function lensesOfScope(
         largestBendIn(second.lens, viewport) -
         largestBendIn(first.lens, viewport),
     )
-    .slice(0, SCENE_LAYOUT.maxLenses);
+    .slice(0, MAX_LENSES);
 }

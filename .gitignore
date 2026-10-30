@@ -47,6 +47,9 @@ apps/finance/.finance-outbox/
 # Generated component props documents
 **/src/_generated/props/
 
+# Generated effect-layer WGSL
+**/src/_generated/wgsl/
+
 # Playwright
 test-results/
 playwright-report/

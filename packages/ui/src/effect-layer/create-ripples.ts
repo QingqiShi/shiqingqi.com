@@ -111,8 +111,8 @@ export interface RippleRing extends RippleAim {
  *
  * @internal
  */
-export interface RippleInstance {
-  /** Its index in `EffectFrame.elements` and in WGSL's `effectElements`. */
+export interface RippleInstanceRecord {
+  /** Its index in `EffectFrame.elements` and in `effectElements`. */
   readonly elementIndex: number;
   /** One ring per pulse, or the still ring under reduced motion. */
   readonly rings: readonly RippleRing[];
@@ -342,7 +342,7 @@ export interface RippleStep {
    * In the order of `EffectFrame.elements`, so the instances of each target
    * are one range.
    */
-  readonly instances: readonly RippleInstance[];
+  readonly instances: readonly RippleInstanceRecord[];
   /** Whether a ring still travels, so the next frame must draw. */
   readonly animating: boolean;
   /**
@@ -514,7 +514,7 @@ export function createRipples() {
       echo(rippling, input);
 
       const live = new Map<number, RipplePulse[]>();
-      const instances: RippleInstance[] = [];
+      const instances: RippleInstanceRecord[] = [];
       for (const { index, record, reach } of rippling) {
         const pulses = (pulsesById.get(record.id) ?? []).filter(
           (pulse) => time - pulse.start < pulseDuration(reach),

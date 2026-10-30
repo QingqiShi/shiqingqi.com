@@ -118,7 +118,6 @@ function createBandedCanvases<Surface extends CarrierSurface>(
               ],
               firstElement,
               elementCount,
-              bindGroup: surface.bindGroup,
             },
           };
         })

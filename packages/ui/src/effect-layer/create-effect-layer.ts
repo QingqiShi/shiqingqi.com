@@ -11,28 +11,41 @@
 // While a modal Effect cover shows, the page and each Scroll region under
 // it have no <canvas> element. Their elements keep their state.
 import {
+  EffectElement,
+  EffectPage,
+  EffectRange,
+  EffectScope,
+  EffectTarget,
+  pageLayout,
+  targetLayout,
+} from "../_generated/wgsl/layouts.ts";
+import {
   prefersReducedMotion,
   subscribeReducedMotion,
 } from "../motion/prefers-reduced-motion.ts";
 import { carrierOf } from "./carrier-of.ts";
 import { bandGeometry } from "./compute-bands.ts";
-import { GPU_BUFFER_USAGE, GPU_SHADER_STAGE } from "./constants.ts";
+import { PREMULTIPLIED_BLEND } from "./constants.ts";
+import {
+  createBindGroup,
+  createBinding,
+  type EffectBindGroup,
+} from "./create-binding.ts";
 import type { EffectRegistry } from "./create-effect-registry.ts";
 import { createFrameClock } from "./create-frame-clock.ts";
 import { createFrameScheduler } from "./create-frame-scheduler.ts";
 import { createPackedBuffer } from "./create-packed-buffer.ts";
-import { encodeCanvasPass } from "./encode-canvas-pass.ts";
 import {
-  ELEMENT_BYTES,
-  packElements,
-  packPageUniform,
-  packRanges,
-  packScopes,
-  PAGE_UNIFORM_BYTES,
-  RANGE_BYTES,
-  rangesOf,
-  SCOPE_BYTES,
-} from "./page-wgsl.ts";
+  createUniformBuffer,
+  type EffectUniform,
+} from "./create-uniform-buffer.ts";
+import {
+  effectElementValue,
+  effectPageValue,
+  effectRangeValues,
+  effectScopeValue,
+} from "./effect-page-value.ts";
+import { encodeCanvasPass } from "./encode-canvas-pass.ts";
 import type { EffectColor } from "./parse-css-color.ts";
 import {
   PAGE_SCOPE,
@@ -42,7 +55,8 @@ import {
 } from "./plan-scopes.ts";
 import type { EffectDevice } from "./request-effect-device.ts";
 import type { CarrierKey } from "./resolve-carrier.ts";
-import { packTargetUniform, TARGET_UNIFORM_BYTES } from "./target-wgsl.ts";
+import { setBindGroup } from "./set-bind-group.ts";
+import type { EffectTarget as EffectTargetSchema } from "./target-layout.ts";
 import { trackElements } from "./track-elements.ts";
 import { trackPointer } from "./track-pointer.ts";
 import type {
@@ -60,14 +74,11 @@ import type {
 
 const MAX_PIXEL_RATIO = 2;
 const MAX_DELTA_SECONDS = 0.1;
-const ALL_STAGES =
-  GPU_SHADER_STAGE.VERTEX |
-  GPU_SHADER_STAGE.FRAGMENT |
-  GPU_SHADER_STAGE.COMPUTE;
 
 interface ConfiguredCanvas extends CarrierSurface {
   readonly context: GPUCanvasContext;
-  readonly uniform: GPUBuffer;
+  readonly uniform: EffectUniform<typeof EffectTargetSchema>;
+  readonly bindGroup: EffectBindGroup;
   /** The last pass drew something, so the `<canvas>` element shows it. */
   shown: boolean;
 }
@@ -107,30 +118,9 @@ export function createEffectLayer(
     onCanvasNeedsChange,
   }: EffectLayerOptions,
 ) {
-  const pageLayout = device.createBindGroupLayout({
-    entries: [
-      { binding: 0, visibility: ALL_STAGES, buffer: { type: "uniform" } },
-      ...[1, 2, 3].map((binding) => ({
-        binding,
-        visibility: ALL_STAGES,
-        buffer: { type: "read-only-storage" as const },
-      })),
-    ],
-  });
-  const targetLayout = device.createBindGroupLayout({
-    entries: [
-      {
-        binding: 0,
-        visibility: GPU_SHADER_STAGE.VERTEX | GPU_SHADER_STAGE.FRAGMENT,
-        buffer: { type: "uniform" },
-      },
-    ],
-  });
   const setup: EffectSetup = {
     device,
-    format,
-    pageLayout,
-    targetLayout,
+    colorTarget: { format, blend: PREMULTIPLIED_BLEND },
     requestFrame,
   };
   const renderers = new Map<Effect, { renderer: EffectRenderer | null }>();
@@ -140,19 +130,16 @@ export function createEffectLayer(
   >[] = [];
   const carriers = new Map<CarrierKey, CarrierCanvases<ConfiguredCanvas>>();
 
-  const pageUniform = device.createBuffer({
-    size: PAGE_UNIFORM_BYTES,
-    usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST,
-  });
-  const elementBuffer = createPackedBuffer(device, ELEMENT_BYTES, packElements);
-  const scopeBuffer = createPackedBuffer(device, SCOPE_BYTES, packScopes);
-  const rangeBuffer = createPackedBuffer(device, RANGE_BYTES, packRanges);
-  let pageBuffers = [
-    elementBuffer.buffer,
-    scopeBuffer.buffer,
-    rangeBuffer.buffer,
-  ];
-  let pageBindGroup = createPageBindGroup();
+  const pageUniform = createUniformBuffer(device, EffectPage);
+  const elementBuffer = createPackedBuffer(device, EffectElement);
+  const scopeBuffer = createPackedBuffer(device, EffectScope);
+  const rangeBuffer = createPackedBuffer(device, EffectRange);
+  const pageBinding = createBinding(device, pageLayout, () => ({
+    effectPage: pageUniform,
+    effectElements: elementBuffer.buffer,
+    effectScopes: scopeBuffer.buffer,
+    effectRanges: rangeBuffer.buffer,
+  }));
   let pageBackdrop: EffectColor | null = null;
   let canvasNeeds: readonly CanvasNeed[] | null = null;
 
@@ -247,13 +234,9 @@ export function createEffectLayer(
       return null;
     }
     context.configure({ device, format, alphaMode: "premultiplied" });
-    const uniform = device.createBuffer({
-      size: TARGET_UNIFORM_BYTES,
-      usage: GPU_BUFFER_USAGE.UNIFORM | GPU_BUFFER_USAGE.COPY_DST,
-    });
-    const bindGroup = device.createBindGroup({
-      layout: targetLayout,
-      entries: [{ binding: 0, resource: { buffer: uniform } }],
+    const uniform = createUniformBuffer(device, EffectTarget);
+    const bindGroup = createBindGroup(device, targetLayout, {
+      effectTarget: uniform,
     });
     return { canvas, context, uniform, bindGroup, shown: true };
   }
@@ -361,33 +344,16 @@ export function createEffectLayer(
     collectReady();
   }
 
-  function createPageBindGroup() {
-    return device.createBindGroup({
-      layout: pageLayout,
-      entries: [pageUniform, ...pageBuffers].map((buffer, binding) => ({
-        binding,
-        resource: { buffer },
-      })),
-    });
-  }
-
   /**
    * Uploads the elements and the scopes, and returns whether they, or the
    * page's backdrop, changed since the last frame.
    */
   function writePage(plan: ScopePlan) {
-    const elementsChanged = elementBuffer.write(plan.elements);
-    const scopesChanged = scopeBuffer.write(plan.scopes);
-    const rangesChanged = rangeBuffer.write(rangesOf(plan.scopes));
-    const buffers = [
-      elementBuffer.buffer,
-      scopeBuffer.buffer,
-      rangeBuffer.buffer,
-    ];
-    if (buffers.some((buffer, index) => buffer !== pageBuffers[index])) {
-      pageBuffers = buffers;
-      pageBindGroup = createPageBindGroup();
-    }
+    const elementsChanged = elementBuffer.write(
+      plan.elements.map(effectElementValue),
+    );
+    const scopesChanged = scopeBuffer.write(plan.scopes.map(effectScopeValue));
+    const rangesChanged = rangeBuffer.write(effectRangeValues(plan.scopes));
     const backdrop = plan.scopes[PAGE_SCOPE].backdrop;
     const backdropChanged =
       pageBackdrop === null ||
@@ -435,21 +401,14 @@ export function createEffectLayer(
     { surface: configured, target, scissor }: CarrierPass<ConfiguredCanvas>,
     frame: EffectFrame,
   ) {
-    const { canvas, context, uniform } = configured;
-    device.queue.writeBuffer(
-      uniform,
-      0,
-      packTargetUniform({
-        pageOffset: [target.x, target.y],
-        cssSize: [target.width, target.height],
-        pixelScale: [
-          canvas.width / target.width,
-          canvas.height / target.height,
-        ],
-        drawnPageRange: target.drawnPageRange,
-        seconds: frame.time,
-      }),
-    );
+    const { canvas, context, uniform, bindGroup } = configured;
+    uniform.write({
+      pageOffset: [target.x, target.y],
+      cssSize: [target.width, target.height],
+      pixelScale: [canvas.width / target.width, canvas.height / target.height],
+      drawnPageRange: target.drawnPageRange,
+      seconds: frame.time,
+    });
     const begin = () => {
       const pass = encoder.beginRenderPass({
         colorAttachments: [
@@ -462,12 +421,12 @@ export function createEffectLayer(
         ],
       });
       pass.setScissorRect(scissor.x, scissor.y, scissor.width, scissor.height);
+      setBindGroup(pass, frame.pageBindGroup);
+      setBindGroup(pass, bindGroup);
       return pass;
     };
     configured.shown = encodeCanvasPass(begin, configured.shown, (pass) => {
       for (const renderer of ready) {
-        pass.setBindGroup(0, frame.pageBindGroup);
-        pass.setBindGroup(1, target.bindGroup);
         renderer.draw(pass, target, frame);
       }
     });
@@ -530,13 +489,11 @@ export function createEffectLayer(
       elements: records,
       scopes: plan.scopes,
       pointer: pointer.read(scrollX, scrollY, now),
-      pageBindGroup,
+      pageBindGroup: pageBinding(),
       targets: passes.map(({ target }) => target),
     };
-    device.queue.writeBuffer(
-      pageUniform,
-      0,
-      packPageUniform({
+    pageUniform.write(
+      effectPageValue({
         viewport: [scrollX, scrollY, documentWidth, viewport],
         pointer: frame.pointer,
         documentSize: [documentWidth, documentHeight],
