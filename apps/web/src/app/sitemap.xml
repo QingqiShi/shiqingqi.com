@@ -180,6 +180,16 @@
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/typography" />
   </url>
   <url>
+    <loc>https://qingqi.dev/design-system/foundations/principles</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/principles" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/principles" />
+  </url>
+  <url>
+    <loc>https://qingqi.dev/zh/design-system/foundations/principles</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/principles" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/principles" />
+  </url>
+  <url>
     <loc>https://qingqi.dev/design-system/foundations/get-started</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://qingqi.dev/design-system/foundations/get-started" />
     <xhtml:link rel="alternate" hreflang="zh" href="https://qingqi.dev/zh/design-system/foundations/get-started" />

@@ -30,6 +30,20 @@ const ROUTES = [
   {
     section: "foundations",
     category: "basics",
+    path: "/design-system/foundations/principles",
+    keywords: [
+      "principles",
+      "philosophy",
+      "values",
+      "guidelines",
+      "tenets",
+      "原则",
+      "理念",
+    ],
+  },
+  {
+    section: "foundations",
+    category: "basics",
     path: "/design-system/foundations/get-started",
     keywords: [
       "install",
