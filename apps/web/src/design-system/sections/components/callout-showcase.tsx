@@ -3,7 +3,6 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Callout } from "@tuja/ui/components/callout";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
@@ -95,44 +94,40 @@ export function CalloutShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Icon", zh: "图标" })} leadsWithText>
-        <div css={stack.item}>
-          <ShowcaseHelper>
+        <ShowcaseHelper>
+          {t({
+            en: "Override the built-in icon with any node, or pass icon={null} to drop it entirely.",
+            zh: "可用任意节点覆盖内置图标，或传入 icon={null} 完全移除。",
+          })}
+        </ShowcaseHelper>
+        <Specimen caption={t({ en: "custom icon", zh: "自定义图标" })}>
+          <Callout intent="accent" icon={<MegaphoneIcon weight="fill" />}>
             {t({
-              en: "Override the built-in icon with any node, or pass icon={null} to drop it entirely.",
-              zh: "可用任意节点覆盖内置图标，或传入 icon={null} 完全移除。",
+              en: "Swap in a Phosphor icon when an intent's default icon isn't specific enough.",
+              zh: "当意图色的默认图标不够贴切时，可换用 Phosphor 图标。",
             })}
-          </ShowcaseHelper>
-          <Specimen caption={t({ en: "custom icon", zh: "自定义图标" })}>
-            <Callout intent="accent" icon={<MegaphoneIcon weight="fill" />}>
-              {t({
-                en: "Swap in a Phosphor icon when an intent's default icon isn't specific enough.",
-                zh: "当意图色的默认图标不够贴切时，可换用 Phosphor 图标。",
-              })}
-            </Callout>
-          </Specimen>
-          <Specimen caption={t({ en: "no icon", zh: "无图标" })}>
-            <Callout intent="neutral" icon={null}>
-              {t({
-                en: "Drop the icon for a dense, text-first note where an icon would only add noise.",
-                zh: "在以文字为主的紧凑提示中移除图标，避免图标造成干扰。",
-              })}
-            </Callout>
-          </Specimen>
-        </div>
+          </Callout>
+        </Specimen>
+        <Specimen caption={t({ en: "no icon", zh: "无图标" })}>
+          <Callout intent="neutral" icon={null}>
+            {t({
+              en: "Drop the icon for a dense, text-first note where an icon would only add noise.",
+              zh: "在以文字为主的紧凑提示中移除图标，避免图标造成干扰。",
+            })}
+          </Callout>
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Dismissible", zh: "可关闭" })} leadsWithText>
-        <div css={stack.item}>
-          <ShowcaseHelper>
-            {t({
-              en: "Pair onDismiss with a required dismissLabel to add an accessible inline close button.",
-              zh: "将 onDismiss 与必填的 dismissLabel 搭配，即可添加带无障碍名称的行内关闭按钮。",
-            })}
-          </ShowcaseHelper>
-          <Specimen caption="onDismiss">
-            <CalloutDismissSpecimen />
-          </Specimen>
-        </div>
+        <ShowcaseHelper>
+          {t({
+            en: "Pair onDismiss with a required dismissLabel to add an accessible inline close button.",
+            zh: "将 onDismiss 与必填的 dismissLabel 搭配，即可添加带无障碍名称的行内关闭按钮。",
+          })}
+        </ShowcaseHelper>
+        <Specimen caption="onDismiss">
+          <CalloutDismissSpecimen />
+        </Specimen>
       </Showcase>
 
       <PropsTable component="callout" />

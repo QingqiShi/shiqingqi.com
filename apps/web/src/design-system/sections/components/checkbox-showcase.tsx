@@ -38,68 +38,62 @@ export function CheckboxShowcase() {
       </Showcase>
 
       <Showcase label={t({ en: "Label and description", zh: "标签与说明" })}>
-        <div css={stack.item}>
-          <Specimen caption={t({ en: "with description", zh: "带说明文字" })}>
-            <Checkbox
-              label={t({
-                en: "Email me about product updates",
-                zh: "向我发送产品更新邮件",
-              })}
-              description={t({
-                en: "Roughly one message a month. Unsubscribe anytime.",
-                zh: "大约每月一封，可随时退订。",
-              })}
-              defaultChecked
-            />
-          </Specimen>
-          <Specimen caption={t({ en: "with error", zh: "带错误提示" })}>
-            <Checkbox
-              label={t({ en: "Accept the terms", zh: "接受条款" })}
-              error={t({
-                en: "You must accept the terms to continue.",
-                zh: "必须接受条款才能继续。",
-              })}
-            />
-          </Specimen>
-        </div>
+        <Specimen caption={t({ en: "with description", zh: "带说明文字" })}>
+          <Checkbox
+            label={t({
+              en: "Email me about product updates",
+              zh: "向我发送产品更新邮件",
+            })}
+            description={t({
+              en: "Roughly one message a month. Unsubscribe anytime.",
+              zh: "大约每月一封，可随时退订。",
+            })}
+            defaultChecked
+          />
+        </Specimen>
+        <Specimen caption={t({ en: "with error", zh: "带错误提示" })}>
+          <Checkbox
+            label={t({ en: "Accept the terms", zh: "接受条款" })}
+            error={t({
+              en: "You must accept the terms to continue.",
+              zh: "必须接受条款才能继续。",
+            })}
+          />
+        </Specimen>
       </Showcase>
 
       <Showcase label={t({ en: "Sizes", zh: "尺寸" })}>
-        <div css={stack.item}>
-          <Specimen caption="sm">
-            <Checkbox
-              size="sm"
-              label={t({ en: "Small checkbox", zh: "小号复选框" })}
-              defaultChecked
-            />
-          </Specimen>
-          <Specimen caption="md">
-            <Checkbox
-              size="md"
-              label={t({ en: "Medium checkbox", zh: "中号复选框" })}
-              defaultChecked
-            />
-          </Specimen>
-        </div>
+        <Specimen caption="sm">
+          <Checkbox
+            size="sm"
+            label={t({ en: "Small checkbox", zh: "小号复选框" })}
+            defaultChecked
+          />
+        </Specimen>
+        <Specimen caption="md">
+          <Checkbox
+            size="md"
+            label={t({ en: "Medium checkbox", zh: "中号复选框" })}
+            defaultChecked
+          />
+        </Specimen>
       </Showcase>
 
       <Showcase
         label={t({ en: "Controlled select-all", zh: "受控的全选" })}
         leadsWithText
       >
-        <div css={stack.item}>
-          <Text look="bodySmall" tone="muted">
-            {t({
-              en: "A parent checkbox reflects its children: checked when all are on, indeterminate when only some are.",
-              zh: "父级复选框反映其子项：全部选中时为已选，部分选中时为中间态。",
-            })}
-          </Text>
-          <Specimen
-            caption={t({ en: "indeterminate parent", zh: "父项半选状态" })}
-          >
-            <SelectAllGroup />
-          </Specimen>
-        </div>
+        <Text look="bodySmall" tone="muted">
+          {t({
+            en: "A parent checkbox reflects its children: checked when all are on, indeterminate when only some are.",
+            zh: "父级复选框反映其子项：全部选中时为已选，部分选中时为中间态。",
+          })}
+        </Text>
+        <Specimen
+          caption={t({ en: "indeterminate parent", zh: "父项半选状态" })}
+        >
+          <SelectAllGroup />
+        </Specimen>
       </Showcase>
 
       <PropsTable component="checkbox" />

@@ -66,13 +66,13 @@ export const typeRole = stylex.create({
   },
   body: {
     fontSize: font.uiBody,
-    lineHeight: font.lineHeight_4,
+    lineHeight: font.lineHeightBody,
     fontWeight: font.weight_4,
     letterSpacing: font.trackingNormal,
   },
   bodySmall: {
     fontSize: font.uiBodySmall,
-    lineHeight: font.lineHeight_4,
+    lineHeight: font.lineHeightBody,
     fontWeight: font.weight_4,
     letterSpacing: font.trackingNormal,
   },
@@ -137,7 +137,7 @@ export const typeRole = stylex.create({
   },
   fluidLead: {
     fontSize: font.vpSubDisplay,
-    lineHeight: font.lineHeight_4,
+    lineHeight: font.lineHeightBody,
     fontWeight: font.weight_4,
     letterSpacing: font.trackingNormal,
   },

@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { root } from "@tuja/ui/primitives/root.stylex";
+import { font } from "@tuja/ui/tokens.stylex";
 
 // Every color token is a `light-dark()` pair, so theming is driven entirely by
 // `color-scheme`: the default follows the OS preference, and forcing a theme
@@ -14,6 +15,13 @@ export const globalStyles = stylex.create({
   body: {
     position: "relative",
   },
+});
+
+// The punctuation face comes before Inter, so that the quotes, dashes and
+// ellipses in Chinese text get their full-width forms.
+export const chineseType = stylex.createTheme(font, {
+  family: '"Noto Sans SC Punctuation",Inter,Inter-fallback,sans-serif',
+  lineHeightBody: stylex.types.number(1.7),
 });
 
 export function getDocumentClassName(theme?: string | null) {

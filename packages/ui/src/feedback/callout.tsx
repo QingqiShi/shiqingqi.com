@@ -172,9 +172,9 @@ export function Callout({
   );
 }
 
-// Sized to the title's line box (`uiBody × lineHeight_4`), so the icon
+// Sized to the title's line box (`uiBody × lineHeightBody`), so the icon
 // centres on the first line and the box top-aligns with the content.
-const controlLineBox = `calc(${font.uiBody} * ${font.lineHeight_4})`;
+const controlLineBox = `calc(${font.uiBody} * ${font.lineHeightBody})`;
 
 const styles = stylex.create({
   base: {
@@ -200,7 +200,7 @@ const styles = stylex.create({
     minInlineSize: 0,
   },
   title: {
-    lineHeight: font.lineHeight_4,
+    lineHeight: font.lineHeightBody,
   },
   body: {
     color: color.fg,

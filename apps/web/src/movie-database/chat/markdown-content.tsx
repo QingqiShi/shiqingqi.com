@@ -67,6 +67,9 @@ const styles = stylex.create({
   },
   codeBlock: {
     fontFamily: font.familyMono,
+    // Code is not running text, so it does not take the taller leading of
+    // Chinese body text.
+    lineHeight: font.lineHeight_4,
   },
   codeInline: {
     fontFamily: font.familyMono,

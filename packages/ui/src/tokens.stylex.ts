@@ -477,6 +477,8 @@ export const font = stylex.defineVars({
   lineHeight_3: stylex.types.number(1.3),
   lineHeight_4: stylex.types.number(1.5),
   lineHeight_5: stylex.types.number(2),
+  // The leading of running text. Chinese text takes a taller one.
+  lineHeightBody: stylex.types.number(1.5),
 
   trackingTight: "-0.025em",
   trackingSnug: "-0.01em",

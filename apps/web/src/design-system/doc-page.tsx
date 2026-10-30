@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { hasDesignSystemLab } from "#src/design-system/routes/has-design-system-lab.ts";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 import { DocArticle } from "./doc-article.tsx";
-import { readingColumn } from "./reading-column.stylex.ts";
+import { docPageVars, readingColumn } from "./reading-column.stylex.ts";
 
 interface DocPageProps {
   /**
@@ -31,7 +31,9 @@ interface DocPageProps {
 export function DocPage({ path, description, children }: DocPageProps) {
   const view = (
     <div css={styles.page}>
-      <div css={[stack.section, styles.readingColumn]}>{children}</div>
+      <div data-prose css={[stack.section, styles.readingColumn]}>
+        {children}
+      </div>
     </div>
   );
 
@@ -56,5 +58,8 @@ const styles = stylex.create({
   readingColumn: {
     maxInlineSize: readingColumn.inlineSize,
     marginInline: "auto",
+    // The type of this variable is a length, so `cqi` changes to pixels here.
+    // A container in the column, such as a prose flow, thus does not change it.
+    [docPageVars.inlineSize]: "100cqi",
   },
 });

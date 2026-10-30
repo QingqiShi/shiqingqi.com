@@ -24,15 +24,13 @@ interface BenchProps {
 function Bench({ title, helper, children }: BenchProps) {
   return (
     <Showcase frame="plain" breakout>
-      <div css={stack.item}>
-        <div css={stack.text}>
-          <Heading level={3} css={onReadingColumn.base}>
-            {title}
-          </Heading>
-          <ShowcaseHelper>{helper}</ShowcaseHelper>
-        </div>
-        {children}
+      <div data-prose css={stack.text}>
+        <Heading level={3} css={onReadingColumn.base}>
+          {title}
+        </Heading>
+        <ShowcaseHelper>{helper}</ShowcaseHelper>
       </div>
+      {children}
     </Showcase>
   );
 }

@@ -39,7 +39,7 @@ export function DocSection({
 }: DocSectionProps) {
   if (title == null || title === "") {
     return (
-      <section {...sectionProps} css={[stack.item, css]}>
+      <section {...sectionProps} data-prose css={[stack.item, css]}>
         {children}
       </section>
     );
@@ -52,7 +52,9 @@ export function DocSection({
       <Heading level={2} css={titleCss}>
         {title}
       </Heading>
-      <div css={stack.item}>{children}</div>
+      <div data-prose css={stack.item}>
+        {children}
+      </div>
     </section>
   );
 }

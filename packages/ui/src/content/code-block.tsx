@@ -313,6 +313,9 @@ const styles = stylex.create({
     display: "block",
     position: "relative",
     fontFamily: font.familyMono,
+    // Code is not running text, so it does not take the taller leading of
+    // Chinese body text.
+    lineHeight: font.lineHeight_4,
     color: syntax.plain,
     whiteSpace: "pre",
   },
