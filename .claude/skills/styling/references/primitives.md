@@ -142,30 +142,30 @@ A gallery of cards, such as a poster grid, takes the wide page column so that a 
 
 The job a piece of text does. Each role sets `fontSize`, `lineHeight`, `fontWeight` and `letterSpacing` together. Compose it first, so a later style can change the weight with a `font.weight_*` token. `Text` and `Heading` take the same roles as their `look`.
 
-| Export                    | Size                    | Leading | Weight | Tracking               |
-| ------------------------- | ----------------------- | ------- | ------ | ---------------------- |
-| `typeRole.display`        | `font.uiDisplay`        | 1.1     | 800    | tight                  |
-| `typeRole.subDisplay`     | `font.uiSubDisplay`     | 1.1     | 800    | tight                  |
-| `typeRole.h1`             | `font.uiHeading1`       | 1.2     | 800    | snug                   |
-| `typeRole.h2`             | `font.uiHeading2`       | 1.2     | 700    | normal                 |
-| `typeRole.h3`             | `font.uiHeading3`       | 1.2     | 700    | normal                 |
-| `typeRole.h4`             | `font.uiBody`           | 1.3     | 700    | normal                 |
-| `typeRole.body`           | `font.uiBody`           | 1.5     | 400    | normal                 |
-| `typeRole.bodySmall`      | `font.uiBodySmall`      | 1.5     | 400    | normal                 |
-| `typeRole.label`          | `font.uiBodySmall`      | 1.3     | 500    | normal                 |
-| `typeRole.caption`        | `font.uiCaption`        | 1.3     | 400    | normal                 |
-| `typeRole.overline`       | `font.uiOverline`       | 1.3     | 600    | widest + uppercase     |
-| `typeRole.control`        | `font.uiControl`        | 1.3     | 500    | normal                 |
-| `typeRole.controlCaption` | `font.uiControlCaption` | 1.3     | 400    | normal                 |
-| `typeRole.fluidDisplay`   | `font.vpDisplay`        | 1.1     | 800    | tight                  |
-| `typeRole.fluidH1`        | `font.vpHeading1`       | 1.2     | 700    | normal                 |
-| `typeRole.fluidH2`        | `font.vpHeading2`       | 1.2     | 700    | normal                 |
-| `typeRole.fluidH3`        | `font.vpHeading3`       | 1.3     | 700    | normal                 |
-| `typeRole.fluidLead`      | `font.vpSubDisplay`     | 1.5     | 400    | normal                 |
-| `typeRole.cardTitle`      | `font.cqTitle`          | 1.2     | 700    | normal                 |
-| `typeModifier.numeric`    | —                       | —       | —      | `tabular-nums` figures |
+| Export                    | Size                    | Leading | Weight | Tracking |
+| ------------------------- | ----------------------- | ------- | ------ | -------- |
+| `typeRole.display`        | `font.uiDisplay`        | 0.98    | 600    | display  |
+| `typeRole.subDisplay`     | `font.uiSubDisplay`     | 0.98    | 600    | display  |
+| `typeRole.h1`             | `font.uiHeading1`       | 1.24    | 600    | heading  |
+| `typeRole.h2`             | `font.uiHeading2`       | 1.24    | 600    | heading  |
+| `typeRole.h3`             | `font.uiHeading3`       | 1.24    | 600    | heading  |
+| `typeRole.h4`             | `font.uiBody`           | 1.24    | 600    | heading  |
+| `typeRole.body`           | `font.uiBody`           | 1.5     | 400    | body     |
+| `typeRole.bodySmall`      | `font.uiBodySmall`      | 1.5     | 400    | body     |
+| `typeRole.label`          | `font.uiBodySmall`      | 1.3     | 400    | body     |
+| `typeRole.caption`        | `font.uiCaption`        | 1.3     | 400    | body     |
+| `typeRole.overline`       | `font.uiOverline`       | 1.3     | 400    | normal   |
+| `typeRole.control`        | `font.uiControl`        | 1.3     | 400    | body     |
+| `typeRole.controlCaption` | `font.uiControlCaption` | 1.3     | 400    | body     |
+| `typeRole.fluidDisplay`   | `font.vpDisplay`        | 0.98    | 600    | display  |
+| `typeRole.fluidH1`        | `font.vpHeading1`       | 1.24    | 600    | heading  |
+| `typeRole.fluidH2`        | `font.vpHeading2`       | 1.24    | 600    | heading  |
+| `typeRole.fluidH3`        | `font.vpHeading3`       | 1.24    | 600    | heading  |
+| `typeRole.fluidLead`      | `font.vpSubDisplay`     | 1.5     | 400    | body     |
+| `typeRole.cardTitle`      | `font.cqTitle`          | 1.24    | 600    | heading  |
+| `typeModifier.numeric`    | —                       | —       | —      | tabular  |
 
-`control` and `controlCaption` step down at `md` together with `controlSize`. The `fluid*` roles are for a landing page and grow with the viewport. `cardTitle` grows with the nearest `inline-size` container, so put it inside one.
+The heading and display leading and the display, heading and body tracking are `latinType` tokens (see `tokens.md`): Chinese text takes no tracking, a heading leading of 1.2 and a display leading of 1.1. The overline is in sentence case. `control` and `controlCaption` step down at `md` together with `controlSize`. The `fluid*` roles are for a landing page and grow with the viewport. `cardTitle` grows with the nearest `inline-size` container, so put it inside one.
 
 ```tsx
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -290,10 +290,10 @@ import { flex } from "@tuja/ui/primitives/flex.stylex";
 
 **Import**: `@tuja/ui/primitives/root.stylex`
 
-| Export      | Properties                                                                                                                      |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `root.html` | colorScheme: light dark + backgroundColor: `color.bgCanvas` + textSizeAdjust: 100%                                              |
-| `root.body` | color: `color.fg` + fontFamily: `font.family` + lineHeight: `font.lineHeightBody` + textWrap: pretty + overflowWrap: break-word |
+| Export      | Properties                                                                                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `root.html` | colorScheme: light dark + backgroundColor: `color.bgCanvas` + textSizeAdjust: 100% + the `latinType` tokens set back to plain values under `:lang(zh)`                    |
+| `root.body` | color: `color.fg` + fontFamily: `font.family` + lineHeight: `font.lineHeightBody` + letterSpacing: `latinType.trackingBody` + textWrap: pretty + overflowWrap: break-word |
 
 Goes once on the document: `root.html` on `<html>` (in apps/web, through `getDocumentClassName` in `apps/web/src/theme/global-styles.ts`, because the Theme script sets the class) and `root.body` on `<body>`. Everything inherits the body's leading, `text-wrap: pretty` and `overflow-wrap: break-word`, so text needs no `lineHeight`, `textWrap` or `overflowWrap` of its own unless it differs. `break-word` leaves the min-content size alone, so a flex or grid item that must shrink below its longest word still needs `overflowWrap: "anywhere"` or a zero minimum size. Never set a `fontSize` on the root: it overrides the visitor's browser font size, which every `rem` token follows. Every heading type role balances its lines, so `Heading` and any element that takes a heading role balance by default. StyleX cannot select by tag, so `apps/web/src/app/global.css` also balances raw `<h1>`–`<h6>` in the `normalize` layer, for a heading without a role.
 

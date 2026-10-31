@@ -6,7 +6,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, font, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, latinType, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import {
   GuideNote,
@@ -164,19 +164,17 @@ export function TypographyReferenceShowcase() {
     {
       token: "font.lineHeight_1",
       value: "1.1",
-      usedBy: "display, subDisplay, fluidDisplay",
       sample: <Lines lineHeight={styles.lh1} />,
     },
     {
       token: "font.lineHeight_2",
       value: "1.2",
-      usedBy: "h1–h3, fluidH1, fluidH2, cardTitle",
       sample: <Lines lineHeight={styles.lh2} />,
     },
     {
       token: "font.lineHeight_3",
       value: "1.3",
-      usedBy: "h4, label, caption, overline, control, controlCaption, fluidH3",
+      usedBy: "label, caption, overline, control, controlCaption",
       sample: <Lines lineHeight={styles.lh3} />,
     },
     {
@@ -195,25 +193,56 @@ export function TypographyReferenceShowcase() {
       usedBy: "body, bodySmall, fluidLead",
       sample: <Lines lineHeight={styles.lhBody} />,
     },
+    {
+      token: "latinType.lineHeightHeading",
+      value: t({ en: "1.24; 1.2 in Chinese", zh: "1.24；中文为1.2" }),
+      usedBy: "h1–h4, fluidH1–fluidH3, cardTitle",
+      sample: <Lines lineHeight={styles.lhHeading} />,
+    },
+    {
+      token: "latinType.lineHeightDisplay",
+      value: t({ en: "0.98; 1.1 in Chinese", zh: "0.98；中文为1.1" }),
+      usedBy: "display, subDisplay, fluidDisplay",
+      sample: <Lines lineHeight={styles.lhDisplay} />,
+    },
   ];
 
   const tracking: TokenRow[] = [
     {
+      token: "latinType.trackingDisplay",
+      value: t({ en: "-0.02em; 0 in Chinese", zh: "-0.02em；中文为0" }),
+      usedBy: "display, subDisplay, fluidDisplay",
+      sample: <Track s={styles.display} />,
+    },
+    {
+      token: "latinType.trackingHeading",
+      value: t({ en: "-0.015em; 0 in Chinese", zh: "-0.015em；中文为0" }),
+      usedBy: "h1–h4, fluidH1–fluidH3, cardTitle",
+      sample: <Track s={styles.heading} />,
+    },
+    {
+      token: "latinType.trackingBody",
+      value: t({ en: "0.02em; 0 in Chinese", zh: "0.02em；中文为0" }),
+      usedBy: t({
+        en: "every other type role but overline",
+        zh: "除 overline 外的其余字体角色",
+      }),
+      sample: <Track s={styles.body} />,
+    },
+    {
       token: "font.trackingTight",
       value: "-0.025em",
-      usedBy: "display, subDisplay, fluidDisplay",
       sample: <Track s={styles.tight} />,
     },
     {
       token: "font.trackingSnug",
       value: "-0.01em",
-      usedBy: "h1",
       sample: <Track s={styles.snug} />,
     },
     {
       token: "font.trackingNormal",
       value: "0",
-      usedBy: t({ en: "every other type role", zh: "其余所有字体角色" }),
+      usedBy: "overline",
       sample: <Track s={styles.normal} />,
     },
     {
@@ -229,7 +258,6 @@ export function TypographyReferenceShowcase() {
     {
       token: "font.trackingWidest",
       value: "0.12em",
-      usedBy: "overline",
       sample: <Track s={styles.widest} />,
     },
   ];
@@ -244,8 +272,8 @@ export function TypographyReferenceShowcase() {
         zh: "只改字重，其余不动",
       })}
       lead={t({
-        en: "A type role already pairs its size with a line height, a weight and a tracking, so you never pair them yourself. On top of a type role, your style may change the weight with a font.weight_* token, and the line height only as a layout trick, such as lineHeight_0 on a one-line number in a tight box. The tables list each token and what already uses it.",
-        zh: "字体角色已经把字号与行高、字重、字距配好，因此你无需自己搭配。在字体角色之上，你的样式可以用 font.weight_* 令牌改字重；行高只在布局需要时才改，例如在紧凑的框里给单行数字用 lineHeight_0。下表列出每个令牌，以及已经用到它的地方。",
+        en: "A type role already pairs its size with a line height, a weight and a tracking, so you never pair them yourself. On top of a type role, your style may change the weight with a font.weight_* token, and the line height only as a layout trick, such as lineHeight_0 on a one-line number in a tight box. The tables list each token and what already uses it. Haffer has a 400 and a 600 face, so a weight of 500 or less shows at 400, and a heavier weight shows at 600.",
+        zh: "字体角色已经把字号与行高、字重、字距配好，因此你无需自己搭配。在字体角色之上，你的样式可以用 font.weight_* 令牌改字重；行高只在布局需要时才改，例如在紧凑的框里给单行数字用 lineHeight_0。下表列出每个令牌，以及已经用到它的地方。Haffer 只有 400 与 600 两个字重，因此 500 及以下的字重显示为 400，更粗的字重显示为 600。",
       })}
     >
       <div css={stack.group}>
@@ -347,9 +375,14 @@ const styles = stylex.create({
   lh4: { lineHeight: font.lineHeight_4 },
   lh5: { lineHeight: font.lineHeight_5 },
   lhBody: { lineHeight: font.lineHeightBody },
+  lhHeading: { lineHeight: latinType.lineHeightHeading },
+  lhDisplay: { lineHeight: latinType.lineHeightDisplay },
   trackSample: {
     fontWeight: font.weight_6,
   },
+  display: { letterSpacing: latinType.trackingDisplay },
+  heading: { letterSpacing: latinType.trackingHeading },
+  body: { letterSpacing: latinType.trackingBody },
   tight: { letterSpacing: font.trackingTight },
   snug: { letterSpacing: font.trackingSnug },
   normal: { letterSpacing: font.trackingNormal },

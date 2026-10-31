@@ -33,6 +33,9 @@ next-env.d.ts
 **/public/sw*
 **/public/swe-worker*
 
+# Licensed fonts, downloaded by scripts/fetch-licensed-fonts.mjs
+**/public/fonts/haffer-*/
+
 # Generated PWA icons and manifest
 **/public/pwa-*.png
 **/src/app/manifest.json

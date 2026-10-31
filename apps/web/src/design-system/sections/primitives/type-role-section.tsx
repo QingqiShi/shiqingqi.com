@@ -43,10 +43,10 @@ export function TypeRoleSection() {
     },
     {
       token: "typeRole.caption · overline",
-      meta: "0.75rem · 0.7rem",
+      meta: "0.75rem · 0.85rem",
       description: t({
-        en: "The smallest text. overline is uppercase with wide tracking, for an eyebrow above a title.",
-        zh: "最小的文字。overline 为大写、字距宽，用作标题上方的眉标。",
+        en: "The smallest text. overline is set in sentence case, for an eyebrow above a title.",
+        zh: "最小的文字。overline 按句首大写书写，用作标题上方的眉标。",
       }),
     },
     {

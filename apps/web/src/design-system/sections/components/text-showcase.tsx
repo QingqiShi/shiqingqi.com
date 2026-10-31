@@ -52,7 +52,7 @@ export function TextShowcase() {
               })}
             </Text>
           </Specimen>
-          <Specimen caption="overline · .7rem">
+          <Specimen caption="overline · .85rem">
             <Text look="overline">
               {t({ en: "Now streaming", zh: "正在热播" })}
             </Text>

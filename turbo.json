@@ -32,7 +32,8 @@
     "FINANCE_EMAIL_FROM",
     "RESEND_API_KEY",
     "FINANCE_PERF",
-    "CRON_SECRET"
+    "CRON_SECRET",
+    "LICENSED_FONTS_READ_WRITE_TOKEN"
   ],
   "tasks": {
     "transit": {
@@ -50,11 +51,13 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": ["LICENSED_FONTS_READ_WRITE_TOKEN"],
       "outputs": [
         ".next/**",
         "!.next/cache/**",
         "public/sw.js",
-        "public/pwa-*.png"
+        "public/pwa-*.png",
+        "public/fonts/haffer-*/**"
       ]
     },
     "build:tsc": {
