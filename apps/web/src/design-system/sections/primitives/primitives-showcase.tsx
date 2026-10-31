@@ -605,18 +605,18 @@ function RootSection() {
   const api: ApiEntry[] = [
     {
       token: "root.html",
-      meta: "color-scheme · bg · text-size-adjust",
+      meta: "color-scheme · bg · text-size-adjust · latinType",
       description: t({
-        en: "Turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token.",
-        zh: "开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌。",
+        en: "Turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token. On a Chinese page it sets the latinType tokens back to plain values: no tracking, and the heading and display leading for Han characters.",
+        zh: "开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌。在中文页面上，它把 latinType 令牌恢复为普通值：不加字距，标题与展示文字使用适合汉字的行高。",
       }),
     },
     {
       token: "root.body",
-      meta: "color · font-family · line-height · text-wrap · overflow-wrap",
+      meta: "color · font-family · line-height · letter-spacing · text-wrap · overflow-wrap",
       description: t({
-        en: "The text every element inherits: the default colour, the typeface, a line height of 1.5, text-wrap: pretty, and overflow-wrap: break-word, which breaks a word too long for its line.",
-        zh: "每个元素继承的文字样式：默认颜色、字体、1.5 的行高、text-wrap: pretty，以及 overflow-wrap: break-word，它会断开一行放不下的长词。",
+        en: "The text every element inherits: the default colour, the typeface, a line height of 1.5, a tracking of 0.02em, text-wrap: pretty, and overflow-wrap: break-word, which breaks a word too long for its line.",
+        zh: "每个元素继承的文字样式：默认颜色、字体、1.5 的行高、0.02em 的字距、text-wrap: pretty，以及 overflow-wrap: break-word，它会断开一行放不下的长词。",
       }),
     },
   ];

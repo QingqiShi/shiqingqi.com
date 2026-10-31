@@ -51,7 +51,7 @@ interface NavLinkProps {
 
 /**
  * One row of a `NavList`: a link across the row, in the full text colour.
- * The current page takes a medium weight, and the list's marker moves under
+ * The current page takes a semibold weight, and the list's marker moves under
  * it. A hovered row takes the list's lighter hover fill. The fill is the box of the row: it starts on the box edge of
  * the list, and the content starts on the text edge, `navListTokens.rowInset`
  * after it. Under a fine pointer the row is the height of a `sm` control.
@@ -105,7 +105,7 @@ const styles = stylex.create({
   link: {
     fontWeight: {
       default: font.weight_4,
-      ":is([aria-current=page])": font.weight_5,
+      ":is([aria-current=page])": font.weight_6,
     },
   },
 });

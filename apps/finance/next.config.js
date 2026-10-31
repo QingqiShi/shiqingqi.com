@@ -69,6 +69,15 @@ module.exports = async (phase) => {
           source: "/(.*)",
           headers: securityHeaders,
         },
+        {
+          source: "/fonts/haffer-1/:file*",
+          headers: [
+            {
+              key: "Cache-Control",
+              value: "public, max-age=31536000, immutable",
+            },
+          ],
+        },
       ];
     },
   };

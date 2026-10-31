@@ -45,6 +45,7 @@
     "./types": "./src/types.ts",
     "./tokens.stylex": "./src/tokens.stylex.ts",
     "./breakpoints.stylex": "./src/breakpoints.stylex.ts",
+    "./fonts.css": "./src/fonts.css",
     "./palette/*.stylex": "./src/_generated/palette/hues/*.stylex.ts",
     "./palette-table": "./src/_generated/palette/palette-table.ts",
     "./test-support/install-jsdom-shims": "./src/test-support/install-jsdom-shims.ts",

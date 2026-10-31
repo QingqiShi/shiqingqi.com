@@ -50,16 +50,20 @@ export default async function RootLayout({
     <html lang={htmlLang[locale]} suppressHydrationWarning>
       <body css={[root.body, globalStyles.body, isChinese && chineseType]}>
         {/*
-          Both locales render Latin text in Inter (names, dates, brand
-          wordmarks, numbers), so both locales benefit from preloading it.
-          The `@font-face` `unicode-range` limits Inter to Latin glyphs, so
-          CJK-only text still falls through to system fonts — the preload
-          warms the cache for the mixed-content case without wasting bytes
-          on pure-CJK runs.
+          Both locales render Latin text in Haffer (names, dates, brand
+          wordmarks, numbers), so both locales preload the regular face and
+          the semibold face of the headings.
         */}
         <link
           rel="preload"
-          href="/InterVariableOptimized.woff2"
+          href="/fonts/haffer-1/Haffer-Regular.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/haffer-1/Haffer-SemiBold.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

@@ -32,7 +32,7 @@ export default function GlobalError({
           justifyContent: "center",
           minHeight: "100dvh",
           fontFamily:
-            "Inter, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+            "Haffer, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
           textAlign: "center",
           padding: "1rem",
           margin: 0,

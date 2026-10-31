@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { font } from "../tokens.stylex.ts";
+import { font, latinType } from "../tokens.stylex.ts";
 
 /**
  * Type roles: each one names a job for a piece of text and sets the four
@@ -13,7 +13,8 @@ import { font } from "../tokens.stylex.ts";
  * - `display` … `h4` — headings, from the largest to an item's title.
  * - `body`, `bodySmall` — running text; `bodySmall` for secondary text.
  * - `label` — a short line that names something: a field, a group, a meta row.
- * - `caption`, `overline` — the smallest text; `overline` is uppercase.
+ * - `caption`, `overline` — the smallest text; `overline` sits above a title
+ *   or a group, in sentence case.
  * - `control`, `controlCaption` — text inside a control. They step down at
  *   `md` together with `controlSize`.
  * - `fluid*` — headings and the lead of a landing page, which grow with the
@@ -24,128 +25,127 @@ import { font } from "../tokens.stylex.ts";
 export const typeRole = stylex.create({
   display: {
     fontSize: font.uiDisplay,
-    lineHeight: font.lineHeight_1,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
+    lineHeight: latinType.lineHeightDisplay,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingDisplay,
     textWrap: "balance",
   },
   subDisplay: {
     fontSize: font.uiSubDisplay,
-    lineHeight: font.lineHeight_1,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
+    lineHeight: latinType.lineHeightDisplay,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingDisplay,
     textWrap: "balance",
   },
   h1: {
     fontSize: font.uiHeading1,
-    lineHeight: font.lineHeight_2,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingSnug,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
   h2: {
     fontSize: font.uiHeading2,
-    lineHeight: font.lineHeight_2,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingNormal,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
   h3: {
     fontSize: font.uiHeading3,
-    lineHeight: font.lineHeight_2,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingNormal,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
   h4: {
     fontSize: font.uiBody,
-    lineHeight: font.lineHeight_3,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingNormal,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
   body: {
     fontSize: font.uiBody,
     lineHeight: font.lineHeightBody,
     fontWeight: font.weight_4,
-    letterSpacing: font.trackingNormal,
+    letterSpacing: latinType.trackingBody,
   },
   bodySmall: {
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeightBody,
     fontWeight: font.weight_4,
-    letterSpacing: font.trackingNormal,
+    letterSpacing: latinType.trackingBody,
   },
   label: {
     fontSize: font.uiBodySmall,
     lineHeight: font.lineHeight_3,
-    fontWeight: font.weight_5,
-    letterSpacing: font.trackingNormal,
+    fontWeight: font.weight_4,
+    letterSpacing: latinType.trackingBody,
   },
   caption: {
     fontSize: font.uiCaption,
     lineHeight: font.lineHeight_3,
     fontWeight: font.weight_4,
-    letterSpacing: font.trackingNormal,
+    letterSpacing: latinType.trackingBody,
   },
   overline: {
     fontSize: font.uiOverline,
     lineHeight: font.lineHeight_3,
-    fontWeight: font.weight_6,
-    letterSpacing: font.trackingWidest,
-    textTransform: "uppercase",
+    fontWeight: font.weight_4,
+    letterSpacing: font.trackingNormal,
   },
   control: {
     fontSize: font.uiControl,
     lineHeight: font.lineHeight_3,
-    fontWeight: font.weight_5,
-    letterSpacing: font.trackingNormal,
+    fontWeight: font.weight_4,
+    letterSpacing: latinType.trackingBody,
   },
   controlCaption: {
     fontSize: font.uiControlCaption,
     lineHeight: font.lineHeight_3,
     fontWeight: font.weight_4,
-    letterSpacing: font.trackingNormal,
+    letterSpacing: latinType.trackingBody,
   },
   fluidDisplay: {
     fontSize: font.vpDisplay,
-    lineHeight: font.lineHeight_1,
-    fontWeight: font.weight_8,
-    letterSpacing: font.trackingTight,
+    lineHeight: latinType.lineHeightDisplay,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingDisplay,
     textWrap: "balance",
   },
   fluidH1: {
     fontSize: font.vpHeading1,
-    lineHeight: font.lineHeight_2,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingNormal,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
   fluidH2: {
     fontSize: font.vpHeading2,
-    lineHeight: font.lineHeight_2,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingNormal,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
   fluidH3: {
     fontSize: font.vpHeading3,
-    lineHeight: font.lineHeight_3,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingNormal,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
   fluidLead: {
     fontSize: font.vpSubDisplay,
     lineHeight: font.lineHeightBody,
     fontWeight: font.weight_4,
-    letterSpacing: font.trackingNormal,
+    letterSpacing: latinType.trackingBody,
   },
   cardTitle: {
     fontSize: font.cqTitle,
-    lineHeight: font.lineHeight_2,
-    fontWeight: font.weight_7,
-    letterSpacing: font.trackingNormal,
+    lineHeight: latinType.lineHeightHeading,
+    fontWeight: font.weight_6,
+    letterSpacing: latinType.trackingHeading,
     textWrap: "balance",
   },
 });
@@ -154,7 +154,7 @@ export const typeRole = stylex.create({
  * Changes that go on top of any type role.
  *
  * - `numeric` — figures of one width, so numbers line up in a column and a
- *   value that changes does not move. Inter already uses lining figures, so
+ *   value that changes does not move. Haffer already uses lining figures, so
  *   only `tabular-nums` is set.
  */
 export const typeModifier = stylex.create({

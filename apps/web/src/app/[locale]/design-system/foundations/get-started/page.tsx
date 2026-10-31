@@ -79,20 +79,7 @@ const CSS_PROP_TYPES = `// css-prop.d.ts
 /// <reference types="@tuja/ui/css-prop" />`;
 
 const GLOBAL_CSS = `/* src/app/global.css */
-@font-face {
-  font-family: "Inter";
-  src: url("/fonts/InterVariable.woff2");
-  font-weight: 100 900;
-  font-display: fallback;
-}
-
-@font-face {
-  font-family: "Inter-fallback";
-  size-adjust: 107%;
-  ascent-override: 90%;
-  src: local("Segoe UI"), local("Roboto"), local("Helvetica Neue"),
-    local("Arial");
-}
+@import "@tuja/ui/fonts.css";
 
 @layer normalize {
   h1,
@@ -320,8 +307,8 @@ export default function GetStartedPage() {
               term: "root",
               value: "root.html · root.body",
               note: t({
-                en: "root.html turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token; never set one on the root. root.body sets the text colour, the typeface, a line height of 1.5, text-wrap: pretty and overflow-wrap: break-word, and every element inherits them.",
-                zh: "root.html 开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌；不要在根元素上设置字号。root.body 设置文字颜色、字体、1.5 的行高、text-wrap: pretty 与 overflow-wrap: break-word，每个元素都会继承它们。",
+                en: "root.html turns on both colour schemes, paints the canvas and stops a phone from enlarging text. It sets no font size, so the visitor's own font size reaches every rem token; never set one on the root. root.body sets the text colour, the typeface, a line height of 1.5, a tracking of 0.02em, text-wrap: pretty and overflow-wrap: break-word, and every element inherits them.",
+                zh: "root.html 开启两种配色方案、绘制画布，并阻止手机自动放大文字。它不设置字号，因此访客自己的字号设置能作用于每个 rem 令牌；不要在根元素上设置字号。root.body 设置文字颜色、字体、1.5 的行高、0.02em 的字距、text-wrap: pretty 与 overflow-wrap: break-word，每个元素都会继承它们。",
               }),
             },
             {
@@ -336,8 +323,8 @@ export default function GetStartedPage() {
               term: t({ en: "The typeface", zh: "字体" }),
               value: "font.family",
               note: t({
-                en: 'Only controls such as Button and the form fields set a font family; all other text inherits the root\'s. font.family asks for "Inter", then "Inter-fallback", then the platform sans-serif. The package ships no font files: serve Inter yourself, or text renders in the fallback. Code blocks use font.familyMono, which asks for "IBM Plex Mono" first.',
-                zh: "只有 Button 与表单字段这样的控件会设置字体族；其余文字都继承根元素的字体。font.family 先请求 “Inter”，再请求 “Inter-fallback”，最后是平台的无衬线字体。这个包不附带字体文件：请自行提供 Inter，否则文字会以后备字体渲染。代码块使用 font.familyMono，它优先请求 “IBM Plex Mono”。",
+                en: 'Only controls such as Button and the form fields set a font family; all other text inherits the root\'s. font.family asks for "Haffer", then "Haffer-fallback", then the platform sans-serif. @tuja/ui/fonts.css declares the Haffer faces and their fallback faces, and expects the files at /fonts/haffer-1/. The package ships no font files: Haffer needs a licence from Displaay, and you serve the files yourself, or text renders in the fallback. Haffer comes as separate static faces, so fonts.css turns off font-synthesis: a weight between two faces takes the nearer face, not a made-up one. Code blocks use font.familyMono, which asks for "IBM Plex Mono" first.',
+                zh: "只有 Button 与表单字段这样的控件会设置字体族；其余文字都继承根元素的字体。font.family 先请求 “Haffer”，再请求 “Haffer-fallback”，最后是平台的无衬线字体。@tuja/ui/fonts.css 声明了 Haffer 的各个字重及其后备字体，并要求字体文件位于 /fonts/haffer-1/。这个包不附带字体文件：Haffer 需要向 Displaay 购买授权，并由你自行提供这些文件，否则文字会以后备字体渲染。Haffer 是若干独立的静态字重，因此 fonts.css 关闭了 font-synthesis：介于两个字重之间的字重会取较近的那个，而不是由浏览器合成。代码块使用 font.familyMono，它优先请求 “IBM Plex Mono”。",
               }),
             },
           ]}

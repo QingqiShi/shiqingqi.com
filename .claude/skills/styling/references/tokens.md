@@ -210,7 +210,7 @@ The sizes below are the steps the type roles in `primitives/type.stylex.ts` are 
 
 ### Family
 
-`font.family` — `Inter,Inter-fallback,sans-serif`
+`font.family` — `Haffer,Haffer-fallback,sans-serif`. Haffer is a licensed font with three static faces: 400, 600 and 400 italic. The repository must not hold its files: `scripts/fetch-licensed-fonts.mjs` downloads them before `dev` and `build`, and without the token the apps show `Haffer-fallback`. `@tuja/ui/fonts.css` declares the faces, which both apps' `global.css` import: each Haffer face has `size-adjust: 103%`, because Haffer looks small for its size, and a `unicode-range` of its own characters, so a Chinese page does not download it for Han text. It turns off `font-synthesis` (code may synthesize an oblique, for IBM Plex Mono), so a weight of 500 or less shows at 400 and a heavier one at 600.
 
 `font.familyMono` — IBM Plex Mono, then the platform monospace fonts
 
@@ -226,7 +226,7 @@ The sizes below are the steps the type roles in `primitives/type.stylex.ts` are 
 | `font.uiBody`       | `1rem`    |
 | `font.uiBodySmall`  | `0.85rem` |
 | `font.uiCaption`    | `0.75rem` |
-| `font.uiOverline`   | `0.7rem`  |
+| `font.uiOverline`   | `0.85rem` |
 
 ### Sizes — Controls
 
@@ -284,6 +284,18 @@ Scales across breakpoints (sm → md → lg):
 | `font.trackingWide`   | `0.025em`  |
 | `font.trackingWider`  | `0.05em`   |
 | `font.trackingWidest` | `0.12em`   |
+
+### Latin type
+
+`latinType` holds the values set for Haffer. `root.html` sets them back to plain values on a Chinese page (`:lang(zh)`), in both apps.
+
+| Token                         | Value      | Chinese |
+| ----------------------------- | ---------- | ------- |
+| `latinType.trackingBody`      | `0.02em`   | `0`     |
+| `latinType.trackingHeading`   | `-0.015em` | `0`     |
+| `latinType.trackingDisplay`   | `-0.02em`  | `0`     |
+| `latinType.lineHeightHeading` | `1.24`     | `1.2`   |
+| `latinType.lineHeightDisplay` | `0.98`     | `1.1`   |
 
 ---
 
