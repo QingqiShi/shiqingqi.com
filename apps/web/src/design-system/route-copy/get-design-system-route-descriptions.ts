@@ -64,8 +64,8 @@ export function getDesignSystemRouteDescriptions(): Record<
       zh: "加入 Phosphor、图标插槽、尺寸、颜色与字重。",
     }),
     "/design-system/foundations/motion": t({
-      en: "Motion presets, duration and easing constants, reduced motion, and pausing loops.",
-      zh: "动效预设、时长与缓动常量、减弱动效，以及暂停循环。",
+      en: "Transition presets, the spring and its roles, the motion engine, and reduced motion.",
+      zh: "过渡预设、弹簧及其角色、动效引擎，以及减弱动效。",
     }),
     "/design-system/foundations/accessibility": t({
       en: "What the components guarantee, and the names and copy you supply.",
