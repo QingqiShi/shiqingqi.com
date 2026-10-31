@@ -186,8 +186,6 @@ export function MenuButton({
   const isSheet = position === "sheet";
   const region = useScrollRegion();
   const { scroller: sheetScroller, content: sheetContent } = region;
-  const titleSticky = useEffectSticky();
-  const { ref: titleStickyRef, css: titleStickyCss } = titleSticky;
   const popupRefs = mergeRefs(
     popupRef,
     coverRef,
@@ -369,22 +367,7 @@ export function MenuButton({
                           a bare node here would be invalid inside
                           role="menu". */}
                     {children && (
-                      <div
-                        ref={isSheet ? titleStickyRef : undefined}
-                        css={[
-                          typeRole.controlCaption,
-                          styles.menuTitle,
-                          isSheet && styles.stickyMenuTitle,
-                          isSheet && titleStickyCss,
-                        ]}
-                        aria-hidden
-                      >
-                        <OptionalEffectCarrier
-                          value={isSheet ? titleSticky : null}
-                        >
-                          {children}
-                        </OptionalEffectCarrier>
-                      </div>
+                      <MenuTitle isSheet={isSheet}>{children}</MenuTitle>
                     )}
                     {menuContent}
                   </OptionalEffectCarrier>
@@ -394,6 +377,37 @@ export function MenuButton({
           </div>
         </ProgressiveBlur>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The title is in the carrier of the sheet, so in a sheet it sticks to the
+ * sheet and not to the page.
+ */
+function MenuTitle({
+  isSheet,
+  children,
+}: {
+  isSheet: boolean;
+  children: ReactNode;
+}) {
+  const sticky = useEffectSticky();
+  const { ref, css } = sticky;
+  return (
+    <div
+      ref={isSheet ? ref : undefined}
+      css={[
+        typeRole.controlCaption,
+        styles.menuTitle,
+        isSheet && styles.stickyMenuTitle,
+        isSheet && css,
+      ]}
+      aria-hidden
+    >
+      <OptionalEffectCarrier value={isSheet ? sticky : null}>
+        {children}
+      </OptionalEffectCarrier>
     </div>
   );
 }

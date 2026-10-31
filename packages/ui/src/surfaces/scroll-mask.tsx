@@ -8,6 +8,7 @@ import {
   useState,
   type ComponentProps,
   type ReactNode,
+  type Ref,
 } from "react";
 import { OptionalEffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
@@ -179,10 +180,6 @@ export function ScrollMask({
   // region is a Scroll region.
   const region = useScrollRegion();
   const { scroller: regionScroller, content: regionContent } = region;
-  const startSticky = useEffectSticky();
-  const { ref: startStickyRef, css: startStickyCss } = startSticky;
-  const endSticky = useEffectSticky();
-  const { ref: endStickyRef, css: endStickyCss } = endSticky;
   const isRegion = !isHorizontal;
   const hasStartChrome = startChrome != null;
   const hasEndChrome = endChrome != null;
@@ -350,24 +347,17 @@ export function ScrollMask({
       >
         <OptionalEffectCarrier value={isRegion ? region : null}>
           {hasStartChrome && (
-            <div
-              ref={mergeRefs(
-                startChromeRef,
-                isRegion ? startStickyRef : undefined,
-              )}
-              css={[
-                styles.chrome,
-                isRegion && styles.chromeOverEffects,
+            <ChromeSlot
+              ref={startChromeRef}
+              isRegion={isRegion}
+              css={
                 isHorizontal
                   ? styles.chromeInlineStart
-                  : styles.chromeBlockStart,
-                isRegion && startStickyCss,
-              ]}
+                  : styles.chromeBlockStart
+              }
             >
-              <OptionalEffectCarrier value={isRegion ? startSticky : null}>
-                {startChrome}
-              </OptionalEffectCarrier>
-            </div>
+              {startChrome}
+            </ChromeSlot>
           )}
           {hasChrome || isRegion ? (
             <div
@@ -383,20 +373,16 @@ export function ScrollMask({
             children
           )}
           {hasEndChrome && (
-            <div
-              ref={mergeRefs(endChromeRef, isRegion ? endStickyRef : undefined)}
+            <ChromeSlot
+              ref={endChromeRef}
+              isRegion={isRegion}
               css={[
-                styles.chrome,
-                isRegion && styles.chromeOverEffects,
                 isHorizontal ? styles.chromeInlineEnd : styles.chromeBlockEnd,
                 endChromeCss,
-                isRegion && endStickyCss,
               ]}
             >
-              <OptionalEffectCarrier value={isRegion ? endSticky : null}>
-                {endChrome}
-              </OptionalEffectCarrier>
-            </div>
+              {endChrome}
+            </ChromeSlot>
           )}
         </OptionalEffectCarrier>
       </div>
@@ -444,6 +430,37 @@ export function ScrollMask({
           />
         </>
       )}
+    </div>
+  );
+}
+
+interface ChromeSlotProps {
+  ref: Ref<HTMLDivElement>;
+  isRegion: boolean;
+  css: StyleProp;
+  children: ReactNode;
+}
+
+/**
+ * The slot is in the carrier of the region, so in a Scroll region it sticks
+ * to the region's scroller and not to the page.
+ */
+function ChromeSlot({ ref, isRegion, css, children }: ChromeSlotProps) {
+  const sticky = useEffectSticky();
+  const { ref: stickyRef, css: stickyCss } = sticky;
+  return (
+    <div
+      ref={mergeRefs(ref, isRegion ? stickyRef : undefined)}
+      css={[
+        styles.chrome,
+        isRegion && styles.chromeOverEffects,
+        css,
+        isRegion && stickyCss,
+      ]}
+    >
+      <OptionalEffectCarrier value={isRegion ? sticky : null}>
+        {children}
+      </OptionalEffectCarrier>
     </div>
   );
 }
