@@ -27,9 +27,6 @@ import {
   EFFECT_SETTING_DEFAULTS,
   finiteOr,
 } from "./effect-setting-defaults.ts";
-import type { EffectColor } from "./parse-css-color.ts";
-import { readFill } from "./read-element-box.ts";
-import type { RoleReader } from "./read-roles.ts";
 import { type CarrierKey, isViewportCarrier } from "./resolve-carrier.ts";
 import {
   createDustBursts,
@@ -55,31 +52,13 @@ const SCREEN: GPUBlendState = {
 };
 
 /**
- * What the dust reads of an element: its CSS `color`, for dust that takes
- * it in place of the fill.
- *
- * @internal
- */
-export const dustReader: RoleReader<EffectColor> = {
-  read: (element, _box, { styleOf }) => readFill(styleOf(element).color),
-};
-
-/**
  * An element that sheds dust, whether its scope draws over a dark backdrop,
- * whether it is on the viewport, and what to call when its burst ends.
+ * and whether its dust stays on the viewport.
  */
 interface ScopeEmitter extends DustEmitter {
   readonly dark: boolean;
   readonly onViewport: boolean;
-  readonly onShed: (() => void) | undefined;
 }
-
-/** Tells an emitter's hook that its burst has ended, out of the frame. */
-const announceShed = ({ onShed }: ScopeEmitter) => {
-  if (onShed !== undefined) {
-    queueMicrotask(onShed);
-  }
-};
 
 /** The particle instance bit of the dust that stays on the viewport. */
 const ON_VIEWPORT_INSTANCE = 2;
@@ -115,12 +94,12 @@ function viewportTargetOf(frame: EffectFrame) {
  * extractor fan role pull them in. The particles live once, on the GPU, in
  * page coordinates, so they cross band edges and draw on whichever scroll
  * `<canvas>` element they are over. The particles of an element on the
- * viewport live in viewport coordinates instead, so they keep their place on
- * the screen while the page scrolls, and draw on the viewport's `<canvas>`
- * element, which the effect holds while they can live, also after the
- * element has gone. An element's burst sheds its particles in one go, fast
- * and short lived, and the fans pull them at once. Its `onShed` runs when
- * the burst ends. Each particle keeps the scope of the
+ * viewport, or of one whose dust is on the viewport, live in viewport
+ * coordinates instead, so they keep their place on the screen while the page
+ * scrolls, and draw on the viewport's `<canvas>` element, which the effect
+ * holds while they can live, also after the element has gone. A click on an
+ * element sheds its burst in one go, fast and short lived, and the fans pull
+ * those particles at once. Each particle keeps the scope of the
  * element that shed it: only the fans and obstacles of that scope act on it,
  * it draws only inside its Effect container, and it dies once it leaves the
  * container's box. While no element that sheds dust is near
@@ -230,6 +209,7 @@ export const dustEffect: Effect = {
         const { id, x, y, width, height, roles, settings } = record;
         const { dark, emitters, fans } = scopes[record.scopeIndex];
         let colored = false;
+        let onViewport = false;
         if ((roles & DUST) !== 0) {
           const density = Math.max(
             0,
@@ -248,7 +228,9 @@ export const dustEffect: Effect = {
           if (colored) {
             moteDarkness.add(dark);
           }
-          const onViewport = isViewportCarrier(record.carrier);
+          onViewport =
+            isViewportCarrier(record.carrier) ||
+            settings.dust?.carrier === "viewport";
           emitters.push({
             id,
             index,
@@ -258,12 +240,12 @@ export const dustEffect: Effect = {
             height,
             density,
             burst,
+            clicks: record.clicks,
             dark,
             onViewport,
-            onShed: settings.dust?.onShed,
           });
         }
-        const value = dustElementValue(record, dark, colored);
+        const value = dustElementValue(record, dark, colored, onViewport);
         values.push(value);
         if ((roles & EXTRACTOR_FAN) !== 0) {
           fans.push({ id, x, y, width, height, reach: value.reach });
@@ -281,7 +263,7 @@ export const dustEffect: Effect = {
         const scopes = writeElements(frame);
         const allEmitters = scopes.flatMap(({ emitters }) => emitters);
         if (frame.reducedMotion) {
-          bursts.take(allEmitters, 0, false, announceShed);
+          bursts.take(allEmitters, 0, false);
           carried.clear();
           liveSlots.clear();
           lastShed.clear();
@@ -310,7 +292,6 @@ export const dustEffect: Effect = {
             allEmitters,
             DUST_MAX_SPAWNS_PER_FRAME - spawns.length,
             true,
-            announceShed,
           ),
         );
         if (spawns.length > 0) {

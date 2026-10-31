@@ -12,11 +12,7 @@ import {
   effectElementDistance,
   effectRange,
 } from "./effect-element-distance.ts";
-import {
-  ELEMENT_FIXED,
-  NO_INDEX,
-  POINTER_PRESENT,
-} from "./effect-page-value.ts";
+import { NO_INDEX, POINTER_PRESENT } from "./effect-page-value.ts";
 import { pageLayout } from "./page-layout.ts";
 import { pcg, random, U32_MAX } from "./pcg.ts";
 import {
@@ -233,11 +229,11 @@ const spawn = tgpu.fn(
     isBurst,
   );
   let flags = std.select(d.u32(0), d.u32(DUST_BURST), isBurst);
-  if ((element.flags & ELEMENT_FIXED) !== 0) {
+  const dust = dustSimulationLayout.$.dustElements[elementIndex];
+  if (dust.onViewport !== 0) {
     flags |= DUST_ON_VIEWPORT;
     position = position.sub(pageLayout.$.effectPage.viewport.xy);
   }
-  const dust = dustSimulationLayout.$.dustElements[elementIndex];
   return DustParticle({
     position,
     velocity,
@@ -268,8 +264,8 @@ const spawn = tgpu.fn(
  *   in. It dies at the edge.
  * - A particle of a burst flies off the edge fast and slows down soon, the
  *   fans take it at once and pull it in faster, and it dies sooner.
- * - A particle of an element on the viewport moves in viewport coordinates,
- *   so a scroll does not move it on the screen. It meets the elements at its
+ * - A particle of an element whose dust is on the viewport moves in
+ *   viewport coordinates, so a scroll does not move it on the screen. It meets the elements at its
  *   page position, and the air's noise stays with the screen.
  * - Every other registered element is an obstacle that it slides around,
  *   and so is its own element unless it is a particle of a burst.

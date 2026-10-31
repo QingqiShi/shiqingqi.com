@@ -20,10 +20,15 @@ function ClearButton() {
   return <Button ref={ref}>Clear</Button>;
 }
 
-// Shake dust off once, when the element mounts, then remove it.
-function PressDust({ onShed }) {
-  const ref = useDust({ density: 0, burst: 80, onShed });
-  return <div ref={ref} />;
+// Shake dust off on each click, and keep it on the screen while the page
+// scrolls to the link's target.
+function SectionLink({ href, children }) {
+  const ref = useDust({ density: 0, burst: 10, carrier: "viewport" });
+  return (
+    <a ref={ref} href={href}>
+      {children}
+    </a>
+  );
 }
 
 // One element can shed dust and pull it in: merge the two refs.
@@ -54,8 +59,8 @@ export function DustShowcase() {
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Give useDust a burst, and the element shakes off that many particles at once when it mounts. The fans in reach pull them in at once. The dust of an element on the viewport keeps its place on the screen while the page scrolls, so a clear box over a pressed card can carry the press to wherever the page goes.",
-            zh: "给 useDust 设置 burst，元素挂载时就会一次性抖落这么多粒子，范围内的抽风机会立即把它们吸走。视口上元素的灰尘在页面滚动时停留在屏幕上的原位，因此盖在被按下卡片上的透明盒子，能把这次按下带到页面去往的地方。",
+            en: "Give useDust a burst, and each click on the element shakes off that much dust at once: particles along every 100 px of its edge. The fans in reach pull them in at once. With the carrier set to viewport, the dust keeps its place on the screen while the page scrolls, so a click on a link carries its dust to wherever the page goes.",
+            zh: "给 useDust 设置 burst，每次点击元素都会一次性抖落这么多灰尘：沿边缘每 100 px 的粒子数。范围内的抽风机会立即把它们吸走。把 carrier 设为 viewport 后，灰尘在页面滚动时停留在屏幕上的原位，因此点击链接抖落的灰尘会被带到页面去往的地方。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">

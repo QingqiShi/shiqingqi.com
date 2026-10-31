@@ -46,14 +46,11 @@ does not choose the `<canvas>` element.
   because it sees the object as a ref.
 - Dust from an element on the viewport stays in its place on the screen
   while the page scrolls, and a fan on the page still pulls it in. The
-  layer keeps the viewport's `<canvas>` element while the dust lives, so
-  an element that only bursts can go in the `onShed` of `useDust`. Do not
-  keep a clear box on the screen after that: the dust of other elements
-  flows round it.
-- An effect that must show at once when its first element joins, such as a
-  burst on a press, needs `usePrepareEffects` higher up. The first role
-  otherwise starts the GPU device and builds the pipelines, which takes
-  about 250 ms.
+  layer keeps the viewport's `<canvas>` element while the dust lives. To
+  put only the dust of an element on the page there, such as the burst of
+  a link that scrolls the page, give `useDust` the option
+  `carrier: "viewport"`. Do not declare a carrier for this, and do not put
+  a clear box over the element.
 - `Portal` already puts its children on the viewport. `HeaderControls`,
   `SidebarLayout`, `Drawer`, `StickyControls`, a vertical `ScrollMask`, a
   `Table` with `stickyHeader`, `TableHead` and the sheet of `MenuButton`

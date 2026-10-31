@@ -1,5 +1,4 @@
 import type { MeasureContext } from "./create-element-tracker.ts";
-import { dustReader } from "./dust-effect.ts";
 import { roleBits, type EffectRole } from "./effect-roles.ts";
 import { liquidReader } from "./liquid-reader.ts";
 import type { ElementBox } from "./read-element-box.ts";
@@ -56,7 +55,6 @@ export function readRoles(
   const readings = {
     liquid: read("liquid", liquidReader),
     ringLight: read("ringLight", ringLightReader),
-    dust: read("dust", dustReader),
   } satisfies Record<keyof EffectReadings, unknown>;
   return { readings, observed };
 }
