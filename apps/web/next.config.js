@@ -76,6 +76,10 @@ module.exports = async (phase) => {
           "/design-system/foundations/voice",
           "/design-system/foundations/accessibility",
         ],
+        [
+          "/design-system/foundations/get-started",
+          "/design-system/get-started",
+        ],
       ];
       // Finance moved to its own origin, where it is at the root.
       const financeMoved = [

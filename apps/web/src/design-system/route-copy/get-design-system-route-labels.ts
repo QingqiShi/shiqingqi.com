@@ -28,13 +28,13 @@ import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
 export function getDesignSystemRouteLabels(): Record<DesignSystemPath, string> {
   return {
     "/design-system": t({ en: "Overview", zh: "概览" }),
+    "/design-system/get-started": t({
+      en: "Get started",
+      zh: "快速开始",
+    }),
     "/design-system/foundations/principles": t({
       en: "Principles",
       zh: "设计原则",
-    }),
-    "/design-system/foundations/get-started": t({
-      en: "Get started",
-      zh: "快速开始",
     }),
     "/design-system/foundations/customization": t({
       en: "Customisation",

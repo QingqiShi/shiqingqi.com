@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import type { DesignSystemPath } from "#src/design-system/routes/types.ts";
+import { DocsViewOnly } from "./doc-header-column.tsx";
 import { DocHeader } from "./doc-header.tsx";
+import { DocPager } from "./doc-pager.tsx";
 
 interface DocArticleProps {
   /**
@@ -16,16 +18,20 @@ interface DocArticleProps {
 }
 
 /**
- * A design-system entry: the header both of a route's views share, then the
- * view. A route with a Lab renders it from its `layout.tsx`. The header then
- * stays mounted while the view switches, and the switch's indicator slides
- * between the two. A route with one view renders it from `DocPage`.
+ * A design-system entry: the header both of a route's views share, the view,
+ * then, over the documentation only, the pager to the routes on each side of
+ * it. A route with a Lab renders the article from its `layout.tsx`. The header
+ * then stays mounted while the view switches, and the switch's indicator
+ * slides between the two. A route with one view renders it from `DocPage`.
  */
 export function DocArticle({ path, description, children }: DocArticleProps) {
   return (
     <article>
       <DocHeader path={path} description={description} />
       {children}
+      <DocsViewOnly docsPath={path}>
+        <DocPager path={path} />
+      </DocsViewOnly>
     </article>
   );
 }

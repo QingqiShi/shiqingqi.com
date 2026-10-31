@@ -27,13 +27,13 @@ export function getDesignSystemRouteDescriptions(): Record<
       en: "The design system overview and index.",
       zh: "设计系统概览与索引。",
     }),
+    "/design-system/get-started": t({
+      en: "What @tuja/ui is, how it is organised, and where to go for what you want.",
+      zh: "@tuja/ui 是什么、如何组织，以及想要什么该去哪里。",
+    }),
     "/design-system/foundations/principles": t({
       en: "The ideas behind every decision in the system.",
       zh: "系统中每个决定背后的理念。",
-    }),
-    "/design-system/foundations/get-started": t({
-      en: "Install @tuja/ui, set up the build, and render a component.",
-      zh: "安装 @tuja/ui、配置构建，并渲染一个组件。",
     }),
     "/design-system/foundations/customization": t({
       en: "Every way to change a component, and what each leaves to you.",

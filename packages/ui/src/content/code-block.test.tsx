@@ -15,7 +15,7 @@ const SOURCE: readonly CodeToken[] = [
 
 describe("CodeBlock source", () => {
   it("draws the source exactly, whitespace included", () => {
-    const { container } = render(<CodeBlock source={SOURCE} />);
+    const { container } = render(<CodeBlock source={SOURCE} label="Code" />);
 
     expect(container.textContent).toBe(
       'const tone = "muted"\n// the quiet one',

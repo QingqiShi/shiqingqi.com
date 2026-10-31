@@ -10,6 +10,8 @@ const { tokenise } = require("./tokenise");
  * @typedef {import("@babel/types").JSXOpeningElement} JSXOpeningElement
  * @typedef {import("@babel/types").JSXAttribute} JSXAttribute
  * @typedef {import("@babel/types").Node} Node
+ * @typedef {import("@babel/types").Expression} Expression
+ * @typedef {import("@babel/types").ObjectExpression} ObjectExpression
  * @typedef {import("@babel/types").Program} Program
  * @typedef {import("@babel/types").Statement} Statement
  * @typedef {import("@babel/traverse").NodePath<Program>} ProgramPath
@@ -64,6 +66,7 @@ const { tokenise } = require("./tokenise");
 const CHROME = new Set([
   "ApiGrid",
   "DoDont",
+  "Example",
   "GuideNote",
   "PropsTable",
   "ShowcaseHelper",
@@ -75,10 +78,17 @@ const CHROME = new Set([
 const PRINT_WIDTH = 80;
 
 /**
+ * Marks the place of a translated text in a snippet until the tokeniser has
+ * split the snippet. The site source does not use private-use characters.
+ */
+const HOLE = /\uE000(\d+)\uE001/;
+
+/**
  * A Babel plugin that reveals the source of a design-system specimen.
  *
- * It gives every `<Specimen>` a `source` prop holding the token array for its
- * children, and every `<UsageSnippet code={…}>` the token array for its code.
+ * It gives every `<Specimen>` and `<Example>` a `source` prop holding the
+ * token array for its children, and every `<UsageSnippet code={…}>` the token
+ * array for its code. The children show each `t()` in the reader's locale.
  * The text comes from the original file rather than from the AST, so it must
  * run first: a later plugin that rewrites `t()` would otherwise decide what the
  * reader sees.
@@ -95,11 +105,15 @@ module.exports = function specimenSourcePlugin({ types: t }) {
     pre(file) {
       const code = file.code;
       if (!code) return;
-      // Most of the app holds neither element. Both are matched by their
-      // literal JSX name below, so a file whose text lacks both cannot
+      // Most of the app holds none of these elements. Each is matched by its
+      // literal JSX name below, so a file whose text lacks all of them cannot
       // produce a match — skip the walk rather than collect facts nothing
       // will read.
-      if (!code.includes("<Specimen") && !code.includes("<UsageSnippet")) {
+      if (
+        !code.includes("<Specimen") &&
+        !code.includes("<UsageSnippet") &&
+        !code.includes("<Example")
+      ) {
         return;
       }
       const path = file.path;
@@ -113,9 +127,9 @@ module.exports = function specimenSourcePlugin({ types: t }) {
 
           const element = opening.name.name;
 
-          if (element === "Specimen") {
-            const tokens = buildSpecimenSource(t, elementPath, code, facts);
-            if (tokens) opening.attributes.push(sourceAttribute(t, tokens));
+          if (element === "Specimen" || element === "Example") {
+            const attribute = buildSpecimenSource(t, elementPath, code, facts);
+            if (attribute) opening.attributes.push(attribute);
             return;
           }
 
@@ -123,7 +137,7 @@ module.exports = function specimenSourcePlugin({ types: t }) {
             const snippet = resolveSnippet(t, opening, facts);
             if (snippet === null) return;
             opening.attributes.push(
-              sourceAttribute(t, tokeniseAt(snippet, elementPath)),
+              sourceAttribute(t, tokeniseAt(snippet, elementPath), []),
             );
           }
         },
@@ -283,13 +297,13 @@ function tokeniseAt(source, elementPath) {
 }
 
 /**
- * Build the token array for one specimen.
+ * Build the `source` prop for one specimen or example.
  *
  * @param {BabelTypes} t
  * @param {import("@babel/traverse").NodePath<JSXElement>} elementPath
  * @param {string} code
  * @param {ModuleFacts} facts
- * @returns {CodeToken[] | null}
+ * @returns {JSXAttribute | null}
  */
 function buildSpecimenSource(t, elementPath, code, facts) {
   const element = elementPath.node;
@@ -301,13 +315,15 @@ function buildSpecimenSource(t, elementPath, code, facts) {
   const edits = [];
   /** @type {Set<string>} */
   const names = new Set();
+  /** @type {Expression[]} */
+  const holes = [];
   for (const child of elementPath.get("children")) {
     if (t.isJSXElement(child.node) && isChrome(t, child.node)) {
       const edit = dropLines(code, child.node);
       if (edit) edits.push(edit);
       continue;
     }
-    scan(t, child, code, facts, edits, names);
+    scan(t, child, code, facts, edits, names, holes);
   }
 
   const body = dedent(applyEdits(code, from, to, edits));
@@ -319,6 +335,7 @@ function buildSpecimenSource(t, elementPath, code, facts) {
     facts,
     edits,
     names,
+    holes,
   );
 
   const parts = [];
@@ -328,7 +345,7 @@ function buildSpecimenSource(t, elementPath, code, facts) {
   for (const component of components) {
     parts.push(applyEdits(code, component.start, component.end, edits));
   }
-  return tokeniseAt(parts.join("\n\n"), elementPath);
+  return sourceAttribute(t, tokeniseAt(parts.join("\n\n"), elementPath), holes);
 }
 
 /**
@@ -341,9 +358,10 @@ function buildSpecimenSource(t, elementPath, code, facts) {
  * @param {ModuleFacts} facts
  * @param {Edit[]} edits
  * @param {Set<string>} names The names the specimen itself references.
+ * @param {Expression[]} holes
  * @returns {{ components: LocalComponent[], imported: Set<string> }}
  */
-function reachableComponents(t, code, facts, edits, names) {
+function reachableComponents(t, code, facts, edits, names, holes) {
   const imported = new Set(names);
   /** @type {Map<string, LocalComponent>} */
   const found = new Map();
@@ -359,7 +377,7 @@ function reachableComponents(t, code, facts, edits, names) {
 
     /** @type {Set<string>} */
     const reached = new Set();
-    scan(t, component.path, code, facts, edits, reached);
+    scan(t, component.path, code, facts, edits, reached, holes);
     for (const next of reached) {
       imported.add(next);
       if (!found.has(next)) queue.push(next);
@@ -382,8 +400,10 @@ function reachableComponents(t, code, facts, edits, names) {
  * @param {ModuleFacts} facts
  * @param {Edit[]} edits
  * @param {Set<string>} names
+ * @param {Expression[]} holes Where to keep the `t()` calls to show in the
+ *   reader's locale.
  */
-function scan(t, path, code, facts, edits, names) {
+function scan(t, path, code, facts, edits, names, holes) {
   path.traverse({
     JSXElement(inner) {
       if (!isChrome(t, inner.node)) return;
@@ -392,7 +412,7 @@ function scan(t, path, code, facts, edits, names) {
       inner.skip();
     },
     CallExpression(inner) {
-      const edit = unwrapTranslation(t, inner, code, facts);
+      const edit = unwrapTranslation(t, inner, code, facts, holes);
       if (!edit) return;
       edits.push(edit);
       inner.skip();
@@ -415,15 +435,18 @@ function isChrome(t, element) {
 }
 
 /**
- * Rewrite `t({ en: "Primary", zh: "主要" })` as the English it stands for.
+ * Rewrite `t({ en: "Primary", zh: "主要" })` as the text it stands for: a hole
+ * that a copy of the call fills in the reader's locale. When the i18n
+ * transform cannot compile that copy, the text is the English.
  *
  * @param {BabelTypes} t
  * @param {import("@babel/traverse").NodePath<import("@babel/types").CallExpression>} path
  * @param {string} code
  * @param {ModuleFacts} facts
+ * @param {Expression[]} holes
  * @returns {Edit | null}
  */
-function unwrapTranslation(t, path, code, facts) {
+function unwrapTranslation(t, path, code, facts, holes) {
   const call = path.node;
   if (!t.isIdentifier(call.callee, { name: facts.translateName })) return null;
 
@@ -441,6 +464,17 @@ function unwrapTranslation(t, path, code, facts) {
   if (plain === null || quoted === null) return null;
   if (call.start == null || call.end == null) return null;
 
+  const texts = readTranslations(t, first, facts);
+  let prose = plain;
+  let literal = quoted;
+  if (texts) {
+    prose = `\uE000${holes.length}\uE001`;
+    literal = quoted[0] + prose + quoted[0];
+    holes.push(
+      t.callExpression(t.identifier(facts.translateName), [t.cloneNode(first)]),
+    );
+  }
+
   const container = path.parentPath;
   if (
     container.isJSXExpressionContainer() &&
@@ -450,14 +484,37 @@ function unwrapTranslation(t, path, code, facts) {
   ) {
     const holder = container.parentPath;
     const isChild = holder.isJSXElement() || holder.isJSXFragment();
+    const isProse = (texts ?? [plain]).every(isPlainProse);
     return {
       start: container.node.start,
       end: container.node.end,
-      text: isChild && isPlainProse(plain) ? plain : quoted,
+      text: isChild && isProse ? prose : literal,
     };
   }
 
-  return { start: call.start, end: call.end, text: quoted };
+  return { start: call.start, end: call.end, text: literal };
+}
+
+/**
+ * Every text of a `t()` argument, when the i18n transform can compile a copy
+ * of the call.
+ *
+ * @param {BabelTypes} t
+ * @param {ObjectExpression} argument
+ * @param {ModuleFacts} facts
+ * @returns {string[] | null}
+ */
+function readTranslations(t, argument, facts) {
+  if (!facts.imports.has(facts.translateName)) return null;
+  /** @type {string[]} */
+  const texts = [];
+  for (const property of argument.properties) {
+    if (!t.isObjectProperty(property)) return null;
+    const text = readStringValue(t, property.value);
+    if (text === null) return null;
+    texts.push(text);
+  }
+  return texts;
 }
 
 /**
@@ -726,17 +783,38 @@ function resolveSnippet(t, opening, facts) {
 /**
  * @param {BabelTypes} t
  * @param {CodeToken[]} tokens
+ * @param {Expression[]} holes The `t()` calls that fill the holes in `tokens`.
  * @returns {JSXAttribute}
  */
-function sourceAttribute(t, tokens) {
+function sourceAttribute(t, tokens, holes) {
   return t.jsxAttribute(
     t.jsxIdentifier("source"),
     t.jsxExpressionContainer(
       t.arrayExpression(
         tokens.map(([kind, text]) =>
-          t.arrayExpression([t.stringLiteral(kind), t.stringLiteral(text)]),
+          t.arrayExpression([t.stringLiteral(kind), tokenText(t, text, holes)]),
         ),
       ),
     ),
   );
+}
+
+/**
+ * The text of one token, with each hole filled by its `t()` call.
+ *
+ * @param {BabelTypes} t
+ * @param {string} text
+ * @param {Expression[]} holes
+ * @returns {Expression}
+ */
+function tokenText(t, text, holes) {
+  const pieces = text.split(new RegExp(HOLE.source, "g"));
+  /** @type {Expression[]} */
+  const parts = [];
+  pieces.forEach((piece, index) => {
+    if (index % 2 === 1) parts.push(t.cloneNode(holes[Number(piece)]));
+    else if (piece !== "") parts.push(t.stringLiteral(piece));
+  });
+  if (parts.length === 0) return t.stringLiteral("");
+  return parts.reduce((left, right) => t.binaryExpression("+", left, right));
 }

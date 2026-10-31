@@ -117,7 +117,10 @@ export function CodeBlockPartsControl() {
           },
         ]}
       />
-      <CodeBlock parts={STATES[stateId]} />
+      <CodeBlock
+        parts={STATES[stateId]}
+        label={t({ en: "Code", zh: "代码" })}
+      />
     </div>
   );
 }

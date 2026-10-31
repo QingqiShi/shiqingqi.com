@@ -65,7 +65,7 @@ export function CodeBlockShowcase() {
           })}
         </ShowcaseHelper>
         <Specimen caption={t({ en: "every kind", zh: "全部类型" })}>
-          <CodeBlock source={RUNS} />
+          <CodeBlock source={RUNS} label={t({ en: "Code", zh: "代码" })} />
         </Specimen>
       </Showcase>
 

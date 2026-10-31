@@ -139,7 +139,7 @@ const styles = stylex.create({
             en: "A breakpoint key compiles to a media query only through the stylex-breakpoints Babel plugin, which ",
             zh: "断点键只有经过 stylex-breakpoints Babel 插件才会编译成媒体查询，配置方法见",
           })}
-          <DocLink path="/design-system/foundations/get-started" />
+          <DocLink path="/design-system/get-started" />
           {t({ en: " sets up.", zh: "。" })}
         </GuideNote>
       </GuideSection>

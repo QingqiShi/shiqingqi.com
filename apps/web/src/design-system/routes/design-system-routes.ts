@@ -23,8 +23,28 @@ import type { DesignSystemRoute } from "./types.ts";
 
 const ROUTES = [
   { section: "overview", path: "/design-system" },
+  // In the overview section, not in Foundations: it is the first page to
+  // read, about the whole system, so the rail lists it right under Overview.
+  {
+    section: "overview",
+    path: "/design-system/get-started",
+    keywords: [
+      "start",
+      "begin",
+      "intro",
+      "layers",
+      "install",
+      "setup",
+      "package",
+      "publish",
+      "coming soon",
+      "开始",
+      "入门",
+      "安装",
+    ],
+  },
   // Foundations splits the same way Components does, and for the same reason:
-  // eleven in a row is past what a visitor can scan. Basics is where a reader
+  // ten in a row is past what a visitor can scan. Basics is where a reader
   // starts; Visual decides what a surface looks like; Behaviour decides how it
   // treats the person in front of it.
   {
@@ -39,21 +59,6 @@ const ROUTES = [
       "tenets",
       "原则",
       "理念",
-    ],
-  },
-  {
-    section: "foundations",
-    category: "basics",
-    path: "/design-system/foundations/get-started",
-    keywords: [
-      "install",
-      "setup",
-      "stylex",
-      "babel",
-      "postcss",
-      "import",
-      "dark mode",
-      "安装",
     ],
   },
   {

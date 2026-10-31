@@ -4,6 +4,7 @@ import type { Icon } from "@phosphor-icons/react";
 import { BellIcon } from "@phosphor-icons/react/dist/ssr/Bell";
 import { BookOpenIcon } from "@phosphor-icons/react/dist/ssr/BookOpen";
 import { CardsIcon } from "@phosphor-icons/react/dist/ssr/Cards";
+import { CompassIcon } from "@phosphor-icons/react/dist/ssr/Compass";
 import { CubeIcon } from "@phosphor-icons/react/dist/ssr/Cube";
 import { CursorClickIcon } from "@phosphor-icons/react/dist/ssr/CursorClick";
 import { FilmSlateIcon } from "@phosphor-icons/react/dist/ssr/FilmSlate";
@@ -50,6 +51,7 @@ const CATEGORY_ICONS: Record<DesignSystemCategoryId, Icon> = {
 /** The links that sit in a section directly, not in a category. */
 const LINK_ICONS: Partial<Record<DesignSystemPath, Icon>> = {
   "/design-system": SquaresFourIcon,
+  "/design-system/get-started": CompassIcon,
   "/design-system/examples/movie-detail": FilmSlateIcon,
   "/design-system/primitives": CubeIcon,
   "/design-system/hooks": PlugsIcon,

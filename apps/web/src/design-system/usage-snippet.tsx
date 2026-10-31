@@ -36,7 +36,7 @@ export function UsageSnippet({ code, label, source }: UsageSnippetProps) {
       <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
         {resolvedLabel}
       </Text>
-      <CodeBlock source={runs} />
+      <CodeBlock source={runs} label={t({ en: "Code", zh: "代码" })} />
     </div>
   );
 }

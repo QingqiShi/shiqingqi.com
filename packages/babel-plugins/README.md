@@ -2,10 +2,10 @@
 
 `@tuja/babel-plugins` collects the Babel plugins that build qingqi.dev:
 `@tuja/babel-plugins/specimen-source` reads the original source of every
-`<Specimen>` and `<UsageSnippet>` and injects it back as a syntax-highlighted
-token array, `@tuja/babel-plugins/stylex-breakpoints` inlines StyleX
-breakpoint constants into media-query keys, and `@tuja/babel-plugins/i18n`
-compiles the site's `t()` calls. `@tuja/babel-plugins/stylex-options` is not a
+`<Specimen>`, `<Example>` and `<UsageSnippet>` and injects it back as a
+syntax-highlighted token array, `@tuja/babel-plugins/stylex-breakpoints`
+inlines StyleX breakpoint constants into media-query keys, and
+`@tuja/babel-plugins/i18n` compiles the site's `t()` calls. `@tuja/babel-plugins/stylex-options` is not a
 plugin: it is the one option set every StyleX build in the repo hands
 `@stylexjs/babel-plugin`. `@tuja/babel-plugins/stylex-plugins` puts the two
 together: the breakpoints plugin, then `@stylexjs/babel-plugin` with those
@@ -16,7 +16,7 @@ outside Next.
 ## @tuja/babel-plugins/specimen-source
 
 A Babel plugin that lets a design-system page reveal the code behind a
-specimen. It reads the original text of every `<Specimen>` and
+specimen. It reads the original text of every `<Specimen>`, `<Example>` and
 `<UsageSnippet>`, turns it into a syntax-highlighting token array, and injects
 that back as a `source` prop:
 
@@ -80,13 +80,15 @@ module.exports = {
 
 ### What it builds
 
-For a `<Specimen>`, from its children:
+For a `<Specimen>` or an `<Example>`, from its children:
 
 1. The children, printed from the original text.
-2. Documentation chrome dropped: `ApiGrid`, `DoDont`, `GuideNote`,
+2. Documentation chrome dropped: `ApiGrid`, `DoDont`, `Example`, `GuideNote`,
    `PropsTable`, `ShowcaseHelper`, `UsageSnippet`.
 3. `t({ en: "Primary", zh: "主要" })` unwrapped to the English it stands for —
-   `Primary` as a JSX child, `"Primary"` anywhere else.
+   `Primary` as a JSX child, `"Primary"` anywhere else. In an `<Example>`, the
+   text is in the reader's locale instead: the token that holds it gets a
+   copy of the `t()` call, which `@tuja/babel-plugins/i18n` then compiles.
 4. A common left edge stripped, and the blank lines at either end.
 5. An import header: one declaration for every imported name the code
    references, grouped by source and ordered the way `import-x/order` orders

@@ -1,3 +1,4 @@
+import { t } from "@tuja/i18n";
 import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { importLine } from "#src/design-system/lab/build-lab-snippet.ts";
 import { specimenLayout } from "./specimen.stylex.ts";
@@ -13,5 +14,11 @@ const SOURCE: readonly CodeToken[] = [
 
 /** An import line and a self-closing element — the smallest real snippet. */
 export function CodeBlockSpecimen() {
-  return <CodeBlock source={SOURCE} css={specimenLayout.fill} />;
+  return (
+    <CodeBlock
+      source={SOURCE}
+      label={t({ en: "Code", zh: "代码" })}
+      css={specimenLayout.fill}
+    />
+  );
 }
