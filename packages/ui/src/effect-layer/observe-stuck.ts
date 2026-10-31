@@ -218,7 +218,9 @@ export function watchStuck(
   let frame = 0;
 
   function readScrollport() {
-    return scroller === null
+    // A fixed box in a Scroll region is fixed to the viewport, not to the
+    // region's scroller.
+    return scroller === null || getComputedStyle(box).position === "fixed"
       ? { left: 0, top: 0, right: root.clientWidth, bottom: root.clientHeight }
       : stickyViewOf(scroller);
   }

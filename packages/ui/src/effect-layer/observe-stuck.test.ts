@@ -47,4 +47,21 @@ describe("watchStuck", () => {
     window.dispatchEvent(new Event("resize"));
     expect(changes).toEqual([true]);
   });
+
+  it("reads a fixed box in a Scroll region against the viewport", () => {
+    stubObservers();
+    const scroller = document.createElement("div");
+    const box = document.createElement("div");
+    box.style.position = "fixed";
+    box.style.top = "12px";
+    scroller.append(box);
+    document.body.append(scroller);
+    layOut(scroller, { x: 0, y: 12, width: 300, height: 400 });
+    layOut(box, { x: 0, y: 12, ...SIZE });
+
+    const watch = watchStuck(box, () => {}, scroller);
+
+    expect(watch.isStuck()).toBe(true);
+    watch.disconnect();
+  });
 });

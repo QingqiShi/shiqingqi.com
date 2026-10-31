@@ -1,5 +1,9 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { createEffectRegistry } from "../effect-layer/create-effect-registry.ts";
+import { scrollerOf } from "../effect-layer/effect-carrier-context.ts";
+import { EffectLayerContext } from "../effect-layer/effect-layer-context.ts";
+import { useEffectBoundary } from "../effect-layer/use-effect-boundary.ts";
 import { ScrollMask } from "./scroll-mask.tsx";
 
 // jsdom lays nothing out, so no region ever overflows. This gives the
@@ -60,5 +64,30 @@ describe("ScrollMask scroll buttons", () => {
       left: -200,
       behavior: "smooth",
     });
+  });
+});
+
+describe("ScrollMask chrome", () => {
+  it("sticks to the scroller of its own Scroll region", () => {
+    function Control() {
+      return <button ref={useEffectBoundary()} type="button" />;
+    }
+    // jsdom has no StyleX CSS, so the scroller gets its overflow here.
+    const overflow = document.createElement("style");
+    overflow.textContent = "[data-testid=scroller] { overflow-y: auto; }";
+    document.head.append(overflow);
+    const registry = createEffectRegistry();
+    render(
+      <EffectLayerContext value={registry}>
+        <ScrollMask data-testid="scroller" startChrome={<Control />}>
+          <span>content</span>
+        </ScrollMask>
+      </EffectLayerContext>,
+    );
+
+    expect(scrollerOf(registry.carrierOf(screen.getByRole("button")))).toBe(
+      screen.getByTestId("scroller"),
+    );
+    overflow.remove();
   });
 });
