@@ -28,7 +28,7 @@ interface OverviewTileProps {
 
 /**
  * One card in the design-system overview grid: copy, a stretched link, and
- * either an abstract illustration for a foundation route or a live specimen for
+ * either a generated picture for a foundation route or a live specimen for
  * a component route — nothing for the rest.
  *
  * It owns the whole tile rather than leaving the markup inline on the overview
