@@ -12,8 +12,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/foundations/iconography",
     description: t({
-      en: "Adding Phosphor beside @tuja/ui, the icon slots components take, sizing and colouring from the parent, and which weight matches the package.",
-      zh: "在 @tuja/ui 旁加入 Phosphor、组件提供的图标插槽、由父元素决定尺寸与颜色，以及与本包一致的字重。",
+      en: "Where the icons come from, how a slot takes one, how text sizes it, the weight that matches the package, and how to name an icon-only control.",
+      zh: "图标从哪里来、插槽如何接收图标、文字如何决定图标大小、与本包一致的字重，以及如何为纯图标控件命名。",
     }),
   });
 }
@@ -23,8 +23,8 @@ export default function IconographyPage() {
     <DocPage
       path="/design-system/foundations/iconography"
       description={t({
-        en: "The components draw their icons with Phosphor and take yours through icon slots. This page covers installing it, what a slot does with your icon, and the weight that matches the package's own.",
-        zh: "组件用 Phosphor 绘制自带图标，并通过图标插槽接收你的图标。本页介绍如何安装、插槽会如何处理你的图标，以及与本包自带图标一致的字重。",
+        en: "@tuja/ui draws its icons with Phosphor and takes yours through icon slots: props such as a Button's icon.",
+        zh: "@tuja/ui 用 Phosphor 绘制图标，并通过图标插槽接收你的图标，插槽就是 Button 的 icon 这类属性。",
       })}
     >
       <IconographyShowcase />
