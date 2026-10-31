@@ -277,6 +277,16 @@ const testExchangeRates: ExchangeRateRow[] = [
   { base: "GBP", quote: "USD", on: "2026-01-01", rate: 1.25, source: "ecb" },
 ];
 
+/** A Finance runtime on memory persistence and no network, before it loads the Replica. */
+export function createUnloadedTestRuntime() {
+  return createFinanceRuntime({
+    householdId: ids.household,
+    persistence: createMemoryPersistence(),
+    onUnauthorised: () => undefined,
+    fetch: () => Promise.reject(new Error("No network in tests")),
+  });
+}
+
 /**
  * A Finance runtime on memory persistence with `rows` bootstrapped and no
  * network: tests read the Outbox with `runtime.store.takeOutbox()`.
@@ -285,12 +295,7 @@ export async function createTestReplica(
   rows: Partial<SyncRows> = testReplicaRows(),
   exchangeRates: readonly ExchangeRateRow[] = testExchangeRates,
 ) {
-  const runtime = createFinanceRuntime({
-    householdId: ids.household,
-    persistence: createMemoryPersistence(),
-    onUnauthorised: () => undefined,
-    fetch: () => Promise.reject(new Error("No network in tests")),
-  });
+  const runtime = createUnloadedTestRuntime();
   const { store } = runtime;
   await store.load();
   applyTestBootstrap(store, rows);

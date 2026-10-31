@@ -8,6 +8,6 @@ export function useSyncStatus(): SyncStatus {
   return useSyncExternalStore(
     loop.subscribeStatus,
     loop.getStatus,
-    loop.getStatus,
+    loop.getServerStatus,
   );
 }

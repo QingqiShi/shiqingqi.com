@@ -10,9 +10,8 @@ import {
 import { useEffect, useState, type ReactElement, type ReactNode } from "react";
 import { render } from "#src/testing/test-utils.tsx";
 import type { FinanceRuntime } from "../../replica/create-finance-runtime.ts";
-import { FinanceRuntimeContext } from "../../replica/finance-runtime-context.ts";
 import { FinanceToastProvider } from "../../shell/finance-toast-provider.tsx";
-import { TEST_IDS } from "./create-test-replica.ts";
+import { FinanceRuntimeTestProvider } from "./finance-runtime-test-provider.tsx";
 
 /**
  * Gives `children` the path and the query of `window.location`, and follows
@@ -66,7 +65,7 @@ export function renderWithReplica(
   runtime: FinanceRuntime,
   ui: ReactElement,
   {
-    memberId = TEST_IDS.alex,
+    memberId,
     pathname,
     search = "",
     followsHistory = false,
@@ -91,18 +90,11 @@ export function renderWithReplica(
     bfcacheId: "test",
   };
   const providers = (
-    <FinanceRuntimeContext
-      value={{
-        runtime,
-        householdId: TEST_IDS.household,
-        memberId,
-        readOnly: false,
-      }}
-    >
+    <FinanceRuntimeTestProvider runtime={runtime} memberId={memberId}>
       <PortalTargetProvider>
         <FinanceToastProvider>{ui}</FinanceToastProvider>
       </PortalTargetProvider>
-    </FinanceRuntimeContext>
+    </FinanceRuntimeTestProvider>
   );
   const result = render(
     <AppRouterContext value={router}>
