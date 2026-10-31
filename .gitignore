@@ -73,7 +73,3 @@ apps/*/e2e/.web-server-errors.log
 
 # Agent skills installed on demand (posthog-cli api skill install)
 .agents/
-
-# Impeccable live-mode runtime state (keep the committed config)
-.impeccable/live/*
-!.impeccable/live/config.json
