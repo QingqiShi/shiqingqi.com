@@ -387,8 +387,26 @@ export const color = stylex.defineVars({
   bgMaterialGlassSelected: `light-dark(${light.bgMaterialGlassSelected}, ${dark.bgMaterialGlassSelected})`,
 });
 
+/**
+ * The type values set for Haffer, the Latin face. Chinese text does not use
+ * Haffer, so `root.html` sets them back to plain values on a Chinese page.
+ *
+ * - `trackingBody`, `trackingHeading`, `trackingDisplay` — the tracking of
+ *   the text roles, the heading roles and the display roles.
+ * - `lineHeightHeading`, `lineHeightDisplay` — the leading of the heading
+ *   roles and the display roles. Han characters fill the em box, so Chinese
+ *   text takes a taller display leading.
+ */
+export const latinType = stylex.defineVars({
+  trackingBody: "0.02em",
+  trackingHeading: "-0.015em",
+  trackingDisplay: "-0.02em",
+  lineHeightHeading: stylex.types.number(1.24),
+  lineHeightDisplay: stylex.types.number(0.98),
+});
+
 export const font = stylex.defineVars({
-  family: "Inter,Inter-fallback,sans-serif",
+  family: "Haffer,Haffer-fallback,sans-serif",
   familyMono:
     '"IBM Plex Mono","IBM Plex Mono-fallback",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace',
 
@@ -401,7 +419,7 @@ export const font = stylex.defineVars({
   uiBody: "1rem",
   uiBodySmall: ".85rem",
   uiCaption: ".75rem",
-  uiOverline: ".7rem",
+  uiOverline: ".85rem",
 
   // Responsive UI control label size. `rem`-based so it honours the user's
   // browser font size (WCAG 1.4.4), while resolving to the same computed px as

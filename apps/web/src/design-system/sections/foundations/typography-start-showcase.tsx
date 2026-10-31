@@ -43,8 +43,8 @@ export function TypographyStartShowcase() {
             term: "Text look · as",
             value: '"body" · "bodySmall" · "label" · "caption" · "overline"',
             note: t({
-              en: 'as picks p, span or div and leaves the size alone. label is a short line that names something: a field, a group, a meta row. overline is small uppercase with wide tracking and a semibold weight; transform="uppercase" gives the same case at any other look.',
-              zh: 'as 选择 p、span 或 div，不影响字号。label 是为某样东西命名的一行短文字：一个字段、一个分组、一行元信息。overline 是小号大写、字距宽、半粗；transform="uppercase" 可在其他任何 look 下得到同样的大写。',
+              en: 'as picks p, span or div and leaves the size alone. label is a short line that names something: a field, a group, a meta row. overline is the smallest text, in sentence case, for an eyebrow above a title; transform="uppercase" sets any look in capitals.',
+              zh: 'as 选择 p、span 或 div，不影响字号。label 是为某样东西命名的一行短文字：一个字段、一个分组、一行元信息。overline 是最小的文字，按句首大写书写，用作标题上方的眉标；transform="uppercase" 可让任何 look 显示为大写。',
             }),
           },
           {

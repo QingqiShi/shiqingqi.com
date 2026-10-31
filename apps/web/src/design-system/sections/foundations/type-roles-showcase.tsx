@@ -36,77 +36,77 @@ export function TypeRolesShowcase() {
   const staticRows: RoleRow[] = [
     {
       name: "display",
-      meta: "3rem · 1.1 · 800 · −0.025em",
+      meta: "3rem · 0.98 · 600 · −0.02em",
       use: 'Heading look="display"',
       sample: t({ en: "Display", zh: "展示" }),
     },
     {
       name: "subDisplay",
-      meta: "2rem · 1.1 · 800 · −0.025em",
+      meta: "2rem · 0.98 · 600 · −0.02em",
       sample: t({ en: "Sub-display", zh: "副展示" }),
     },
     {
       name: "h1",
-      meta: "1.5rem · 1.2 · 800 · −0.01em",
+      meta: "1.5rem · 1.24 · 600 · −0.015em",
       use: 'Heading look="h1"',
       sample: t({ en: "Heading 1", zh: "标题 1" }),
     },
     {
       name: "h2",
-      meta: "1.25rem · 1.2 · 700 · 0",
+      meta: "1.25rem · 1.24 · 600 · −0.015em",
       use: 'Heading look="h2"',
       sample: t({ en: "Heading 2", zh: "标题 2" }),
     },
     {
       name: "h3",
-      meta: "1.1rem · 1.2 · 700 · 0",
+      meta: "1.1rem · 1.24 · 600 · −0.015em",
       use: 'Heading look="h3"',
       sample: t({ en: "Heading 3", zh: "标题 3" }),
     },
     {
       name: "h4",
-      meta: "1rem · 1.3 · 700 · 0",
+      meta: "1rem · 1.24 · 600 · −0.015em",
       use: 'Heading look="h4"',
       sample: t({ en: "Heading 4", zh: "标题 4" }),
     },
     {
       name: "body",
-      meta: "1rem · 1.5 · 400 · 0",
+      meta: "1rem · 1.5 · 400 · 0.02em",
       use: 'Text look="body"',
       sample: pangram,
     },
     {
       name: "bodySmall",
-      meta: "0.85rem · 1.5 · 400 · 0",
+      meta: "0.85rem · 1.5 · 400 · 0.02em",
       use: 'Text look="bodySmall"',
       sample: pangram,
     },
     {
       name: "label",
-      meta: "0.85rem · 1.3 · 500 · 0",
+      meta: "0.85rem · 1.3 · 400 · 0.02em",
       use: 'Text look="label"',
       sample: t({ en: "Original language", zh: "原始语言" }),
     },
     {
       name: "caption",
-      meta: "0.75rem · 1.3 · 400 · 0",
+      meta: "0.75rem · 1.3 · 400 · 0.02em",
       use: 'Text look="caption"',
       sample: t({ en: "Caption text", zh: "说明文字" }),
     },
     {
       name: "overline",
-      meta: "0.7rem · 1.3 · 600 · 0.12em",
+      meta: "0.85rem · 1.3 · 400 · 0",
       use: 'Text look="overline"',
       sample: t({ en: "Overline label", zh: "上标签" }),
     },
     {
       name: "control",
-      meta: "1.2rem → 1rem ≥ md · 1.3 · 500 · 0",
+      meta: "1.2rem → 1rem ≥ md · 1.3 · 400 · 0.02em",
       sample: t({ en: "Control label", zh: "控件标签" }),
     },
     {
       name: "controlCaption",
-      meta: "0.9rem → 0.75rem ≥ md · 1.3 · 400 · 0",
+      meta: "0.9rem → 0.75rem ≥ md · 1.3 · 400 · 0.02em",
       sample: t({ en: "Control caption", zh: "控件说明" }),
     },
   ];
@@ -114,27 +114,27 @@ export function TypeRolesShowcase() {
   const viewportRows: RoleRow[] = [
     {
       name: "fluidDisplay",
-      meta: "2 → 5.25rem · 1.1 · 800 · −0.025em",
+      meta: "2 → 5.25rem · 0.98 · 600 · −0.02em",
       sample: t({ en: "Kyoto", zh: "京都" }),
     },
     {
       name: "fluidH1",
-      meta: "1.3 → 2rem · 1.2 · 700 · 0",
+      meta: "1.3 → 2rem · 1.24 · 600 · −0.015em",
       sample: t({ en: "Heading 1", zh: "标题 1" }),
     },
     {
       name: "fluidH2",
-      meta: "1.2 → 1.8rem · 1.2 · 700 · 0",
+      meta: "1.2 → 1.8rem · 1.24 · 600 · −0.015em",
       sample: t({ en: "Heading 2", zh: "标题 2" }),
     },
     {
       name: "fluidH3",
-      meta: "1 → 1.3rem · 1.3 · 700 · 0",
+      meta: "1 → 1.3rem · 1.24 · 600 · −0.015em",
       sample: t({ en: "Heading 3", zh: "标题 3" }),
     },
     {
       name: "fluidLead",
-      meta: "1 → 1.6rem · 1.5 · 400 · 0",
+      meta: "1 → 1.6rem · 1.5 · 400 · 0.02em",
       sample: t({
         en: "Four days, two cities, one rail pass.",
         zh: "四天，两座城市，一张铁路通票。",
@@ -145,7 +145,7 @@ export function TypeRolesShowcase() {
   const containerRows: RoleRow[] = [
     {
       name: "cardTitle",
-      meta: "1.1 → 1.4rem, 1.5rem ≥ lg · 1.2 · 700 · 0",
+      meta: "1.1 → 1.4rem, 1.5rem ≥ lg · 1.24 · 600 · −0.015em",
       sample: t({ en: "Kyoto in four days", zh: "京都四日" }),
     },
   ];
@@ -162,8 +162,8 @@ export function TypeRolesShowcase() {
         zh: "按文字的用途选字体角色",
       })}
       lead={t({
-        en: "A type role is named by what the text is, not by how big it is, and it sets the size, line height, weight and tracking together. The static type roles hold one size. The fluid ones grow with the viewport or with a container, for type of your own that should grow with the space it has. Every component uses a static type role.",
-        zh: "字体角色以文字是什么来命名，而不是以它有多大，并同时设定字号、行高、字重与字距。固定的字体角色只有一个字号。流式的字体角色随视口或容器变大，用于你自建的、应随可用空间变大的文字。所有组件都使用固定的字体角色。",
+        en: "A type role is named by what the text is, not by how big it is, and it sets the size, line height, weight and tracking together. Haffer looks small for its size, so its @font-face draws it 3% larger than the size the role names; Chinese text takes no tracking. The static type roles hold one size. The fluid ones grow with the viewport or with a container, for type of your own that should grow with the space it has. Every component uses a static type role.",
+        zh: "字体角色以文字是什么来命名，而不是以它有多大，并同时设定字号、行高、字重与字距。由于 Haffer 在同一字号下显得偏小，它的 @font-face 把它绘制得比角色所标字号大 3%；中文文字不加字距。固定的字体角色只有一个字号。流式的字体角色随视口或容器变大，用于你自建的、应随可用空间变大的文字。所有组件都使用固定的字体角色。",
       })}
     >
       <div css={stack.group}>

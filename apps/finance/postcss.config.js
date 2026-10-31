@@ -1,8 +1,19 @@
+const { createRequire } = require("node:module");
 const { stylexExtractionPlugins } = require("./babel-plugins.mjs");
+
+const nodeRequire = createRequire(__filename);
 
 module.exports = {
   plugins: {
-    "postcss-import": {},
+    "postcss-import": {
+      // postcss-import does not read the `exports` map of a package, and
+      // `@tuja/ui` maps its CSS to a file in `src`. Node's resolver reads the
+      // map. For every other id, the default resolver applies.
+      resolve: (id, basedir) =>
+        id.startsWith("@tuja/")
+          ? nodeRequire.resolve(id, { paths: [basedir] })
+          : id,
+    },
     "@stylexjs/postcss-plugin": {
       include: [
         "src/**/*.{js,jsx,ts,tsx}",

@@ -87,8 +87,8 @@ export function HeadingShowcase() {
       <Showcase label={t({ en: "Weight", zh: "字重" })} leadsWithText>
         <ShowcaseHelper>
           {t({
-            en: "weight overrides the weight the look sets, so a display heading can read light or extra-heavy without touching its size.",
-            zh: "weight 会覆盖 look 设定的字重，因此 display 标题可以变轻或加重，而无需改动字号。",
+            en: "weight overrides the weight the look sets, so a display heading can read light without touching its size. Haffer has a 400 and a 600 face, so a weight of 500 or less shows at 400 and a heavier one at 600.",
+            zh: "weight 会覆盖 look 设定的字重，因此 display 标题可以变轻，而无需改动字号。Haffer 只有 400 与 600 两个字重，因此 500 及以下的字重显示为 400，更粗的字重显示为 600。",
           })}
         </ShowcaseHelper>
         <div css={stack.item}>
@@ -99,16 +99,11 @@ export function HeadingShowcase() {
           </Specimen>
           <Specimen
             caption={t({
-              en: 'look="display" · extrabold (default)',
-              zh: 'look="display" · extrabold（默认）',
+              en: 'look="display" · semibold (default)',
+              zh: 'look="display" · semibold（默认）',
             })}
           >
             <Heading level={2} look="display">
-              {t({ en: "Featured this week", zh: "本周精选" })}
-            </Heading>
-          </Specimen>
-          <Specimen caption='look="display" · black'>
-            <Heading level={2} look="display" weight="black">
               {t({ en: "Featured this week", zh: "本周精选" })}
             </Heading>
           </Specimen>

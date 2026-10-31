@@ -66,7 +66,14 @@ export default async function RootLayout({
       <body css={[root.body, globalStyles.body]}>
         <link
           rel="preload"
-          href="/InterVariableOptimized.woff2"
+          href="/fonts/haffer-1/Haffer-Regular.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/haffer-1/Haffer-SemiBold.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

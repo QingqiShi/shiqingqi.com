@@ -9,7 +9,11 @@ import type {
 /** The largest canvas iOS Safari draws, in pixels; a larger one stays blank. */
 const MAX_CANVAS_AREA = 4096 * 4096;
 
-/** Inter is the page's font; its `@font-face` covers Latin only, so other text falls back to the device's sans-serif. */
+/**
+ * The image is drawn in Inter, not in the page's Haffer: the Haffer licence
+ * covers web pages, not images. Inter's `@font-face` covers Latin only, so
+ * other text falls back to the device's sans-serif.
+ */
 function fontOf({ size, weight }: ReportImageFont) {
   return `${String(weight)} ${String(size)}px Inter, sans-serif`;
 }
