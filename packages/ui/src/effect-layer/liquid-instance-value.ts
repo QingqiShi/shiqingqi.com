@@ -87,12 +87,6 @@ export interface LiquidInstanceRecord {
   readonly seeThrough: boolean;
   /** The corners of the rest shape, or none for a pill. */
   readonly corner?: { readonly radius: number; readonly exponent: number };
-  /**
-   * The straight part of the rest shape across the track: its middle from
-   * the centre line, and half its length. None for a pill, which is straight
-   * only along the track.
-   */
-  readonly across?: readonly [number, number];
   /** What the page shows around the track. */
   readonly backdrop: readonly [number, number, number];
   /** How much of the liquid the effect draws: 1 in motion, 0 at rest, where the control draws it. */
@@ -166,7 +160,6 @@ export function liquidInstanceValue(
       liquid.corner === undefined
         ? [0, 0]
         : [liquid.corner.radius, liquid.corner.exponent],
-    across: liquid.across ?? [0, 0],
     leaving: liquid.leaving,
   };
 }

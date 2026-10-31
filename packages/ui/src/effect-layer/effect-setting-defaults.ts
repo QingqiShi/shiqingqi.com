@@ -8,11 +8,11 @@ import type { EffectSettings } from "./types.ts";
  * @internal
  */
 export const EFFECT_SETTING_DEFAULTS = {
-  dust: { density: 3, burst: 0 },
-  extractorFan: { reach: 400 },
+  dust: { density: 3, burst: 0, shakes: 0 },
+  extractorFan: { reach: 400, strength: 1 },
   blackHole: { mass: 1 },
   lightBeam: { angle: undefined, followsPointer: true },
-  liquid: { position: 0, drag: null, pressed: false, pour: true },
+  liquid: { position: 0, drag: null, pressed: false },
 } as const satisfies Required<EffectSettings>;
 
 /**

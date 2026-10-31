@@ -313,6 +313,10 @@ export function createEffectRegistry() {
         : (watchRegion?.(region.complete) ?? null);
   }
 
+  function isMeasured(element: Element) {
+    return uses.get(element)?.tracker?.measured != null;
+  }
+
   return {
     /**
      * Adds an element and returns the registration that changes or removes
@@ -474,6 +478,11 @@ export function createEffectRegistry() {
     /** The carrier of a registered element, or the page. */
     carrierOf: (element: Element) =>
       elements.get(element)?.ownCarrier ?? PAGE_CARRIER,
+    /**
+     * Whether a running layer has measured `element` with a box, so an
+     * effect can draw for it now.
+     */
+    isMeasured,
     /** The roles of a registered element, or 0. */
     rolesOf: (element: Element) => elements.get(element)?.roles ?? 0,
     subscribe: (listener: () => void) => {
@@ -532,10 +541,7 @@ export function createEffectRegistry() {
     /**
      * Each modal Effect cover that has a box now, as it was last measured.
      */
-    modalCovers: (): Element[] =>
-      modalElements.filter(
-        (element) => uses.get(element)?.tracker?.measured != null,
-      ),
+    modalCovers: (): Element[] => modalElements.filter(isMeasured),
     /** Whether `element` is in a registered modal Effect cover, or is one. */
     isInModalCover: (element: Element) =>
       modalElements.some((cover) => cover.contains(element)),

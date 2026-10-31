@@ -2,7 +2,6 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { createElement, use, useLayoutEffect, type ReactNode } from "react";
-import { LIQUID_SEGMENT } from "../effect-layer/liquid-indicator.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
 import { transition } from "../primitives/motion.stylex.ts";
@@ -78,7 +77,7 @@ export function NavLink({
         {
           href,
           "aria-current": current ? "page" : undefined,
-          ...{ [NAV_ROW]: "", [LIQUID_SEGMENT]: "" },
+          ...{ [NAV_ROW]: "" },
           ...stylex.props(
             typeRole.label,
             a11y.touchRow,

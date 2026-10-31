@@ -33,16 +33,6 @@ export interface LiquidOptions {
    * @zh 指针正按在控件上。按住时液体融化，松开并静止后重新凝固。
    */
   pressed?: boolean;
-  /**
-   * A new position pours the liquid there. With `false`, the liquid goes
-   * there at rest, and the control keeps its own surface: for a surface
-   * that shows in its new place without a move, such as one that grows in
-   * there.
-   *
-   * @default true
-   * @zh 位置一变，液体就涌向新的位置。设为 `false` 时，液体直接静止在新位置，控件保留自己的表面：适用于不经移动就出现在新位置的表面，例如在那里渐显的表面。
-   */
-  pour?: boolean;
 }
 
 /**
@@ -55,9 +45,7 @@ export interface LiquidOptions {
  * indicator, attach it to the track: each segment marked with
  * `data-liquid-segment` gives the liquid a pill to rest in, and the element
  * marked with `data-liquid-indicator` gives its colour, its corners and its
- * edge. On a track marked with `data-liquid-box`, such as the rows of a
- * `NavList`, each segment gives the liquid its own box to rest in, with the
- * indicator's corners.
+ * edge.
  * While the effect draws, the element has the `data-effect-drawn`
  * attribute, so the control hides its own thumb or indicator then and at
  * no other time. Outside an `EffectLayerProvider`, or where the effect
@@ -67,9 +55,8 @@ export function useLiquid({
   position,
   drag = EFFECT_SETTING_DEFAULTS.liquid.drag,
   pressed = EFFECT_SETTING_DEFAULTS.liquid.pressed,
-  pour = EFFECT_SETTING_DEFAULTS.liquid.pour,
 }: LiquidOptions) {
   return useEffectRegistration(LIQUID, {
-    liquid: { position, drag, pressed, pour },
+    liquid: { position, drag, pressed },
   });
 }

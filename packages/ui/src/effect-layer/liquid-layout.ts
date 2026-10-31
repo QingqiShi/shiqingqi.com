@@ -16,25 +16,22 @@ export const LiquidParticle = d.struct({
 /**
  * What the liquid's simulation and its drawing share: a slot of the
  * simulation buffer, which holds one body's particles, the walls that held
- * them at the last step, along the track and across it, and how far along
- * the track they reach, from the least x to the greatest. The simulation
- * keeps each body's slot across frames, and the drawing reads the
- * particles from it.
+ * them at the last step, and how far along the track they reach, from the
+ * least x to the greatest. The simulation keeps each body's slot across
+ * frames, and the drawing reads the particles from it.
  *
  * @internal
  */
 export const LiquidSlot = d.struct({
   walls: d.vec2f,
-  band: d.vec2f,
   extent: d.vec2f,
   particles: d.arrayOf(LiquidParticle, MAX_PARTICLE_COUNT),
 });
 
 /**
  * One control's liquid on the GPU, as `LiquidInstanceRecord` describes it,
- * with its booleans as `flags`, the corners as their radius and their
- * exponent, or zero for a pill, and the straight part across as its middle
- * and half its length.
+ * with its booleans as `flags`, and the corners as their radius and their
+ * exponent, or zero for a pill.
  *
  * @internal
  */
@@ -68,7 +65,6 @@ export const LiquidInstance = d.struct({
   ringOff: d.vec4f,
   ringOn: d.vec4f,
   corner: d.vec2f,
-  across: d.vec2f,
   leaving: d.vec3f,
 });
 
@@ -100,10 +96,8 @@ export const liquidLayout = tgpu
 /**
  * One body's step on the GPU: the pill the liquid is pulled to, its goal
  * and its span, the aim across the track, the reach of the particles, the
- * walls the control gives along the track and across it, where the
- * straight part of the rest shape across is `band`, the step on the
- * liquid's clock, and the slot of the simulation buffer with the number of
- * particles in it.
+ * walls the control gives, the step on the liquid's clock, and the slot of
+ * the simulation buffer with the number of particles in it.
  *
  * @internal
  */
@@ -113,7 +107,6 @@ export const LiquidStep = d.struct({
   aim: d.f32,
   scale: d.f32,
   walls: d.vec2f,
-  band: d.vec2f,
   seconds: d.f32,
   count: d.u32,
   slot: d.u32,

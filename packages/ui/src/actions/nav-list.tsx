@@ -7,25 +7,17 @@ import {
   useState,
   type ComponentType,
   type ReactNode,
+  type Ref,
 } from "react";
-import { handBack } from "../effect-layer/hand-back.stylex.ts";
-import {
-  LIQUID_BOX,
-  LIQUID_INDICATOR,
-  LIQUID_SEGMENT,
-  LIQUID_VERTICAL,
-} from "../effect-layer/liquid-indicator.ts";
-import { useLiquid } from "../effect-layer/use-liquid.ts";
-import { selectedSurface } from "../forms/segment-track.stylex.ts";
+import { EffectContainer } from "../effect-layer/effect-container.tsx";
+import { useDust } from "../effect-layer/use-dust.ts";
+import { useEffectContainer } from "../effect-layer/use-effect-container.ts";
+import { useExtractorFan } from "../effect-layer/use-extractor-fan.ts";
+import { useIsEffectMeasured } from "../effect-layer/use-is-effect-measured.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import { useMotionEngine } from "../motion/use-motion-engine.ts";
-import { useReducedMotion } from "../motion/use-reduced-motion.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import {
-  easing,
-  motionConstants,
-  transition,
-} from "../primitives/motion.stylex.ts";
+import { transition } from "../primitives/motion.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { color, rhythm } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -35,15 +27,12 @@ import {
   PlainAnchor,
   type NavListLinkProps,
 } from "./nav-list-context.tsx";
-import { navListMarker, navListTokens } from "./nav-list.stylex.ts";
+import { navListTokens } from "./nav-list.stylex.ts";
 
-const TRACK = { [LIQUID_VERTICAL]: "", [LIQUID_BOX]: "" };
-const INDICATOR = { [LIQUID_INDICATOR]: "" };
-
-/** The rows of `box` that the liquid can rest in, in order. */
-function rowsOf(box: HTMLElement) {
-  return Array.from(box.querySelectorAll(`[${LIQUID_SEGMENT}]`));
-}
+/** The dust particles the old marker sheds every 100 px of its edge. */
+const SHED_BURST = 6;
+/** How fast the new marker pulls dust in, as `useExtractorFan` takes it. */
+const PULL_STRENGTH = 3;
 
 export type { NavListLinkProps } from "./nav-list-context.tsx";
 
@@ -77,18 +66,22 @@ interface NavListProps {
  * strongest text in it. Labels and icons are muted. The structure sets every
  * space in it, so a caller writes none (see `NavGroup`).
  *
- * One raised marker shows the current page. When the current page changes,
- * the marker springs from the old row to the new row, and inside an
- * `EffectLayerProvider` with WebGPU the effect layer draws it as liquid on
- * its way, as the indicator of a `SegmentedControl` moves: it melts as it
- * leaves the old row, flows to the new row and sets into the marker there.
- * When the old row is not on the screen, the marker grows in at the new row.
- * While a group in a group is closed, the marker is on the row of the group
- * that holds the current page. When a group opens or closes, the marker
- * springs with the rows, with no liquid. Under a fine pointer, one hover
- * fill glides from row to row under the pointer and fades out when the
- * pointer leaves the list. Under reduced motion, the marker and the fill
- * move at once, with no liquid.
+ * A marker, in the look of the hover fill, and a bold label show the current
+ * page. When the current page changes, the marker springs from the old row
+ * to the new row. Inside an `EffectLayerProvider` with WebGPU, the old
+ * marker instead shrinks and fades as it sheds its dust, and the dust goes
+ * into the new row. There the hover fill of the clicked row becomes the
+ * marker, or, with no hover fill, the marker forms from the dust as it
+ * lands. When the old row is not on the screen, the marker grows in at the
+ * new row, or the hover fill there becomes the marker. When the new row is
+ * not on the screen, the marker springs there with no dust. While a group
+ * in a group is closed, the marker is on the row of the group that holds
+ * the current page. When a group opens or closes, the marker springs with
+ * the rows, with no dust. Under a fine pointer, one hover fill glides from
+ * row to row under the pointer and fades out when the pointer leaves the
+ * list. It does not show on the marker's row, where a press shows on the
+ * marker. Under reduced motion, the marker and the fill move at once, with
+ * no dust.
  */
 export function NavList({
   children,
@@ -98,47 +91,48 @@ export function NavList({
   const engine = useMotionEngine();
   const [motion] = useState(() => createNavListMotion(engine));
   const [isReady, setIsReady] = useState(false);
-  const [liquid, setLiquid] = useState({ position: 0, pour: false });
-  const isReduced = useReducedMotion();
-  const liquidRef = useLiquid({
-    position: liquid.position,
-    pour: liquid.pour && !isReduced,
-  });
+  const [dust, setDust] = useState({ shakes: 0, reach: 0 });
+  const container = useEffectContainer();
+  const isMeasured = useIsEffectMeasured();
   const boxRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const markerRef = useRef<HTMLSpanElement>(null);
+  const shedRef = useRef<HTMLSpanElement>(null);
   const hoverRef = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
-    const [box, list, marker, hover] = [
+    const [box, list, marker, shed, hover] = [
       boxRef.current,
       listRef.current,
       markerRef.current,
+      shedRef.current,
       hoverRef.current,
     ];
-    if (!box || !list || !marker || !hover) return;
+    if (!box || !list || !marker || !shed || !hover) return;
     const detach = motion.attach({
       box,
       list,
       marker,
+      shed,
       hover,
-      onMarkerMove: (row, isNavigation) => {
-        setLiquid({
-          position: Math.max(0, rowsOf(box).indexOf(row)),
-          pour: isNavigation,
-        });
+      canShed: () => isMeasured(shed),
+      onPull: (reach, shake) => {
+        setDust((last) =>
+          !shake && reach === last.reach
+            ? last
+            : { shakes: last.shakes + (shake ? 1 : 0), reach },
+        );
       },
     });
     setIsReady(true);
     return detach;
-  }, [motion]);
+  }, [motion, isMeasured]);
 
   return (
     <NavListContext value={{ nested: false, linkComponent, motion }}>
       <div
-        ref={mergeRefs(boxRef, liquidRef)}
-        {...TRACK}
-        css={[navListMarker, styles.box, css]}
+        ref={mergeRefs(boxRef, container)}
+        css={[styles.box, css]}
         onPointerOver={(event) => {
           motion.hoverOver(event.target, event.pointerType);
         }}
@@ -158,14 +152,16 @@ export function NavList({
         <span
           ref={hoverRef}
           aria-hidden
-          css={[corner.radius_2, transition.colors, styles.fill, styles.hover]}
+          css={[corner.radius_2, transition.colors, styles.fill, styles.look]}
         />
-        <span
-          ref={markerRef}
-          aria-hidden
-          {...INDICATOR}
-          css={[corner.radius_2, styles.fill, styles.marker]}
-        />
+        <EffectContainer value={container}>
+          <MarkerFills
+            markerRef={markerRef}
+            shedRef={shedRef}
+            shakes={dust.shakes}
+            reach={dust.reach}
+          />
+        </EffectContainer>
         <ul
           ref={listRef}
           css={[stack.rows, styles.list, isReady && styles.drawnByFills]}
@@ -177,8 +173,39 @@ export function NavList({
   );
 }
 
-/** The effect layer sets this attribute on the box while it draws the marker. */
-const DRAWN_BY_EFFECT = ":is([data-effect-drawn])";
+/**
+ * The marker of the current page, which pulls dust in while it forms, and
+ * the old marker, which sheds dust where it was. Their effect hooks are in
+ * the scope of the list, so the pull takes no dust from the page around it.
+ */
+function MarkerFills({
+  markerRef,
+  shedRef,
+  shakes,
+  reach,
+}: {
+  markerRef: Ref<HTMLSpanElement>;
+  shedRef: Ref<HTMLSpanElement>;
+  shakes: number;
+  reach: number;
+}) {
+  const fanRef = useExtractorFan({ reach, strength: PULL_STRENGTH });
+  const dustRef = useDust({ density: 0, burst: SHED_BURST, shakes });
+  const fill = [corner.radius_2, transition.colors, styles.fill, styles.look];
+  return (
+    <>
+      <span ref={mergeRefs(shedRef, dustRef)} aria-hidden css={fill} />
+      <span ref={mergeRefs(markerRef, fanRef)} aria-hidden css={fill} />
+    </>
+  );
+}
+
+/**
+ * The look of the marker and of the hover fill. In light it is one step over
+ * the hover of a control, so it shows on the white rail. In dark it is a
+ * tint of that hover, so it stays quiet.
+ */
+const LOOK = `light-dark(${color.bgSurfaceFade}, color-mix(in srgb, ${color.bgControlHover} 55%, transparent))`;
 
 const styles = stylex.create({
   // `isolate` keeps the fills under the rows and over the surface behind
@@ -189,6 +216,7 @@ const styles = stylex.create({
   },
   list: {
     [navListTokens.step]: rhythm.item,
+    [color.bgControlSelected]: LOOK,
   },
   fill: {
     position: "absolute",
@@ -196,31 +224,11 @@ const styles = stylex.create({
     insetInlineStart: 0,
     zIndex: -1,
     pointerEvents: "none",
-    opacity: 0,
+    filter: "opacity(0)",
   },
-  // While the effect layer draws the marker as liquid, the marker keeps its
-  // box and its colours for the effect to read, and hides. It hides at once,
-  // and fades back in as the effect hands it back. The motion writes its
-  // opacity, so it hides through a filter.
-  marker: {
-    backgroundColor: color.bgControlRaised,
-    boxShadow: selectedSurface.edge,
-    filter: {
-      default: null,
-      [stylex.when.ancestor(DRAWN_BY_EFFECT, navListMarker)]: "opacity(0)",
-    },
-    transition: {
-      default: `filter ${handBack.duration} ${easing.linear}`,
-      [stylex.when.ancestor(DRAWN_BY_EFFECT, navListMarker)]: "none",
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
-  },
-  // In light the hover fill is one step over the hover of a control, so it
-  // shows on the white rail. In dark it is the fill of the marker, so it is
-  // fainter there.
-  hover: {
+  look: {
     backgroundColor: {
-      default: `light-dark(${color.bgSurfaceFade}, color-mix(in srgb, ${color.bgControlHover} 55%, transparent))`,
+      default: LOOK,
       ":is([data-pressed])": color.bgControlPressed,
     },
   },

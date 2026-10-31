@@ -240,7 +240,17 @@ export const dustEffect: Effect = {
             height,
             density,
             burst,
-            clicks: record.clicks,
+            shakes:
+              record.clicks +
+              Math.max(
+                0,
+                Math.floor(
+                  finiteOr(
+                    settings.dust?.shakes,
+                    EFFECT_SETTING_DEFAULTS.dust.shakes,
+                  ),
+                ),
+              ),
             dark,
             onViewport,
           });
