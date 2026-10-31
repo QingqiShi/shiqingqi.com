@@ -145,7 +145,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
   const isVisible =
     options.isVisible ?? (() => document.visibilityState === "visible");
 
-  let status: SyncStatus = {
+  const initialStatus: SyncStatus = {
     online: true,
     activity: "idle",
     pendingCount: pendingCount(),
@@ -157,6 +157,7 @@ export function createSyncLoop(options: SyncLoopOptions) {
     leader: false,
     newerRowShape: null,
   };
+  let status = initialStatus;
   /** This device can not write the Replica; it shows over every other problem. */
   let storageFailed = false;
   /** The row shape of a newer tab. This tab then never syncs again. */
@@ -568,6 +569,11 @@ export function createSyncLoop(options: SyncLoopOptions) {
 
     getStatus: (): SyncStatus => {
       return shown;
+    },
+
+    /** The status before the first sync. The server renders this status because it does not sync. */
+    getServerStatus: (): SyncStatus => {
+      return initialStatus;
     },
 
     /** Shows that the Replica can not write to disk, until a write works again. */

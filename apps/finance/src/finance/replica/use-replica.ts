@@ -9,6 +9,9 @@ import { useFinanceRuntime } from "./use-finance-runtime.ts";
  */
 export function useReplica<T>(selector: (snapshot: ReplicaSnapshot) => T): T {
   const { store } = useFinanceRuntime().runtime;
-  const read = () => selector(store.getSnapshot());
-  return useSyncExternalStore(store.subscribe, read, read);
+  return useSyncExternalStore(
+    store.subscribe,
+    () => selector(store.getSnapshot()),
+    () => selector(store.getServerSnapshot()),
+  );
 }

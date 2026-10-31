@@ -146,7 +146,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
   /** The server rows of the bootstrap now running, shown only when it finishes. */
   let bootstrapDraft: TablesDraft | null = null;
 
-  let snapshot: ReplicaSnapshot = {
+  const initialSnapshot: ReplicaSnapshot = {
     household: null,
     tables: base,
     exchangeRates,
@@ -157,6 +157,7 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
     bootstrapped: false,
     changes: {},
   };
+  let snapshot = initialSnapshot;
 
   const listeners = new Set<() => void>();
   const localListeners = new Set<() => void>();
@@ -470,6 +471,11 @@ export function createReplicaStore(options: ReplicaStoreOptions) {
 
     getSnapshot: (): ReplicaSnapshot => {
       return snapshot;
+    },
+
+    /** The snapshot before the load. The server renders this snapshot because it does not load the Replica. */
+    getServerSnapshot: (): ReplicaSnapshot => {
+      return initialSnapshot;
     },
 
     subscribe: (listener: () => void) => {
