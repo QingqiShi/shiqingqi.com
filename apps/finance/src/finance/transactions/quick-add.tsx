@@ -4,7 +4,7 @@ import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { TextField } from "@tuja/ui/components/text-field";
-import { useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
@@ -23,6 +23,13 @@ import { useTransactionKindLabels } from "./use-transaction-kind-labels.ts";
 interface QuickAddProps {
   /** Opens the full editor with what the line gave, when the line is not enough to save. */
   onNeedsEditor: (draft: EditorDraft) => void;
+  /** After the line saves a Transaction, such as to close the sheet that holds it. */
+  onSaved?: () => void;
+  /**
+   * Asks for focus when the line mounts, and receives the field that takes
+   * it, for a sheet that moves focus after it opens.
+   */
+  focusTargetRef?: RefObject<HTMLElement | null>;
 }
 
 /** Words from the Household's own data, so each placeholder example saves as it reads. */
@@ -63,9 +70,14 @@ function placeholderWords({
  * One line for the common case (design §9.1): `12.5 tesco`, `+2000 salary`
  * or `500 > isa`. Enter saves at once with the rest from the Payee's last
  * Transaction; when something is missing, the full editor opens with what
- * the line gave.
+ * the line gave. It is not a form of its own, so it can also go in the
+ * editor's form, and Enter in it does not submit that form.
  */
-export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
+export function QuickAdd({
+  onNeedsEditor,
+  onSaved,
+  focusTargetRef,
+}: QuickAddProps) {
   const locale = useLocale();
   const data = useEditorData();
   const isWide = useIsWideLayout();
@@ -79,6 +91,13 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
   const showUndoToast = useUndoToast();
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!focusTargetRef) return;
+    focusTargetRef.current = inputRef.current;
+    inputRef.current?.focus({ preventScroll: true });
+  }, [focusTargetRef]);
 
   const parsed = parseQuickAdd(text, data.baseCurrency);
   const preview = parsed ? quickAddDraft(data, parsed) : null;
@@ -183,31 +202,31 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
       result.undo,
     );
     setText("");
+    onSaved?.();
   };
 
   return (
-    <form
-      aria-label={t({ en: "Quick add", zh: "快速记账" })}
-      onSubmit={(event) => {
+    <TextField
+      ref={inputRef}
+      label={t({ en: "Quick add", zh: "快速记账" })}
+      labelHidden
+      placeholder={placeholder}
+      leading={<LightningIcon weight="bold" />}
+      autoComplete="off"
+      enterKeyHint="done"
+      status={error === null ? (describe() ?? "") : ""}
+      error={error ?? undefined}
+      value={text}
+      onChange={(event) => {
+        setText(event.target.value);
+        setError(null);
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
         event.preventDefault();
+        event.stopPropagation();
         submit();
       }}
-    >
-      <TextField
-        label={t({ en: "Quick add", zh: "快速记账" })}
-        labelHidden
-        placeholder={placeholder}
-        leading={<LightningIcon weight="bold" />}
-        autoComplete="off"
-        enterKeyHint="done"
-        status={error === null ? (describe() ?? "") : ""}
-        error={error ?? undefined}
-        value={text}
-        onChange={(event) => {
-          setText(event.target.value);
-          setError(null);
-        }}
-      />
-    </form>
+    />
   );
 }

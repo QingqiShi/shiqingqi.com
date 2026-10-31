@@ -91,8 +91,11 @@ export type EditorFocusTarget = "amount" | "category";
  * one from where the editor shows and where the visitor came from.
  */
 export interface EditorHost {
-  /** Where focus goes when the editor opens; a new `nonce` asks again. */
-  focusRequest?: { target: EditorFocusTarget; nonce: number };
+  /**
+   * Where focus goes when the editor opens; a new `nonce` asks again. Null
+   * leaves focus to the host, such as to a quick add line above the editor.
+   */
+  focusRequest?: { target: EditorFocusTarget; nonce: number } | null;
   /** Receives the element that takes focus, for a sheet that moves focus after it opens. */
   focusTargetRef?: RefObject<HTMLElement | null>;
   close: () => void;
@@ -126,6 +129,8 @@ interface TransactionEditorProps {
   seedDraft?: EditorDraft | null;
   /** A notice under the headline, such as one about the bank's records. */
   notice?: ReactNode;
+  /** What the form starts with under its heading, such as a quick add line. */
+  lead?: ReactNode;
   host: EditorHost;
 }
 
@@ -221,6 +226,7 @@ function EditorForm({
   transactionId,
   initialAccountId,
   notice,
+  lead,
   host,
 }: EditorFormProps) {
   const locale = useLocale();
@@ -279,7 +285,9 @@ function EditorForm({
   const paidToday = isExpected && draft.date > data.today;
 
   useEffect(() => {
-    if (isPlace && focusRequest === undefined) return;
+    if (focusRequest === null || (isPlace && focusRequest === undefined)) {
+      return;
+    }
     const target = focusRequest?.target ?? "amount";
     const element =
       target === "amount" ? amountRef.current : categoryRef.current;
@@ -921,6 +929,8 @@ function EditorForm({
           {heading}
         </h2>
       )}
+
+      {lead}
 
       {notice}
 
