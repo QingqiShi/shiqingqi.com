@@ -175,14 +175,15 @@ export function createEffectRegistry() {
     complete: RegisteredRegion | undefined;
     watch: RegionWatch | null;
   }
-  const uses = new Map<
-    Element,
-    {
-      id: number;
-      registrations: Set<Registration>;
-      tracker: ElementTracker | null;
-    }
-  >();
+  interface Use {
+    id: number;
+    registrations: Set<Registration>;
+    tracker: ElementTracker | null;
+    /** How many `click` events the element has had since it registered. */
+    clicks: number;
+    stopClicks: () => void;
+  }
+  const uses = new Map<Element, Use>();
   const stickies = new Map<number, RegisteredSticky>();
   const regions = new Map<number, Region>();
   let createTracker: ((element: Element) => ElementTracker) | null = null;
@@ -191,8 +192,6 @@ export function createEffectRegistry() {
   const listeners = new Set<() => void>();
   let elements: ReadonlyMap<Element, RegisteredElement> = new Map();
   let modalElements: Element[] = [];
-  /** The roles that `prepare` holds ready, one entry for each call. */
-  const prepared = new Set<{ readonly roles: number }>();
   let roles = 0;
   let nextId = 1;
 
@@ -237,9 +236,6 @@ export function createEffectRegistry() {
     const next = new Map<Element, RegisteredElement>();
     modalElements = [];
     roles = 0;
-    for (const entry of prepared) {
-      roles |= entry.roles;
-    }
     for (const [element, { id, registrations }] of uses) {
       let elementRoles = 0;
       let settings = NO_SETTINGS;
@@ -284,6 +280,30 @@ export function createEffectRegistry() {
     }
   }
 
+  /**
+   * A new entry for `element`, which counts its `click` events and asks for
+   * a frame after each one.
+   */
+  function countClicks(element: Element): Use {
+    const onClick = () => {
+      use.clicks += 1;
+      for (const listener of listeners) {
+        listener();
+      }
+    };
+    const use: Use = {
+      id: nextId++,
+      registrations: new Set(),
+      tracker: createTracker?.(element) ?? null,
+      clicks: 0,
+      stopClicks: () => {
+        element.removeEventListener("click", onClick);
+      },
+    };
+    element.addEventListener("click", onClick);
+    return use;
+  }
+
   /** Starts or stops the watch of a region as it gains or loses a part. */
   function rewatchRegion(region: Region) {
     region.watch?.destroy();
@@ -307,11 +327,7 @@ export function createEffectRegistry() {
       placement: EffectPlacement,
     ): EffectRegistration => {
       const known = uses.get(element);
-      const use = known ?? {
-        id: nextId++,
-        registrations: new Set(),
-        tracker: createTracker?.(element) ?? null,
-      };
+      const use = known ?? countClicks(element);
       uses.set(element, use);
       const { registrations } = use;
       const registration: Registration = {
@@ -354,6 +370,7 @@ export function createEffectRegistry() {
           }
           if (registrations.size === 0) {
             use.tracker?.destroy();
+            use.stopClicks();
             uses.delete(element);
           }
           notify();
@@ -465,21 +482,7 @@ export function createEffectRegistry() {
         listeners.delete(listener);
       };
     },
-    /**
-     * Holds `preparedRoles` among the roles until the returned function
-     * runs, so that the layer gets their effects ready before an element
-     * has them.
-     */
-    prepare: (preparedRoles: number) => {
-      const entry = { roles: preparedRoles };
-      prepared.add(entry);
-      notify();
-      return () => {
-        prepared.delete(entry);
-        notify();
-      };
-    },
-    /** Every role that some registered element has or `prepare` holds. */
+    /** Every role that some registered element has. */
     getRoles: () => roles,
     /** Every registered element, in the order they first registered. */
     elements: () => elements,
@@ -550,10 +553,10 @@ export function createEffectRegistry() {
         element,
         { id, roles, settings, scope, holds, covers: isCover, carriers },
       ] of elements) {
-        const tracker = uses.get(element)?.tracker;
-        const box = tracker?.boxAt(clock);
-        const measured = tracker?.measured;
-        if (box == null || measured == null) {
+        const use = uses.get(element);
+        const box = use?.tracker?.boxAt(clock);
+        const measured = use?.tracker?.measured;
+        if (use === undefined || box == null || measured == null) {
           continue;
         }
         if (isCover === true) {
@@ -567,6 +570,7 @@ export function createEffectRegistry() {
           readings: measured.readings,
           roles,
           settings,
+          clicks: use.clicks,
           scope,
           holds,
           carrier: measured.carrier.key,

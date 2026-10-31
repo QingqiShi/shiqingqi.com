@@ -22,7 +22,7 @@ export const DUST_MAX_LIFE = 10;
 export const DUST_MAX_SPAWNS_PER_FRAME = 64;
 
 /**
- * The most particles one burst sheds.
+ * The most particles one element owes of its bursts at once.
  *
  * @internal
  */
@@ -77,8 +77,13 @@ export interface DustEmitter extends DustBox {
   readonly index: number;
   /** Particles a second along every 100 CSS px of its edge. */
   readonly density: number;
-  /** Particles it sheds at once when it first shows. */
+  /**
+   * Particles along every 100 CSS px of its edge that it sheds at once each
+   * time it is clicked.
+   */
   readonly burst: number;
+  /** How many times it has been clicked since it registered. */
+  readonly clicks: number;
 }
 
 /**
@@ -280,60 +285,65 @@ export function createLiveSlots() {
 }
 
 /**
- * Follows the bursts of dust: each emitter sheds its burst once, the first
- * frame it shows, while it stays registered.
+ * The particles that one burst of an emitter sheds: `burst` along every
+ * 100 CSS px of its edge, at most `DUST_MAX_BURST`.
+ *
+ * @internal
+ */
+export function burstSize({ burst, width, height }: DustEmitter) {
+  return Math.min(
+    Math.round((burst * 2 * (width + height)) / 100),
+    DUST_MAX_BURST,
+  );
+}
+
+/**
+ * Follows the bursts of dust: each emitter sheds a burst each time it is
+ * clicked, while it stays registered. The clicks before the first frame
+ * that sees an emitter shed nothing.
  *
  * @internal
  */
 export function createDustBursts() {
-  /**
-   * The particles each emitter that has burst still owes of its burst, by
-   * `id`.
-   */
+  /** The clicks of each emitter that the bursts have counted, by `id`. */
+  const counted = new Map<number, number>();
+  /** The particles each emitter still owes of its bursts, by `id`. */
   const owed = new Map<number, number>();
   return {
     /**
      * The burst particles to shed this frame, as spawn list entries, at most
      * `room` of them. What does not fit waits for the next frame. With
-     * `shed` false, as under reduced motion, a new burst is dropped.
-     * `onDone` gets each emitter whose burst ends this frame.
+     * `shed` false, as under reduced motion, every burst is dropped.
      */
-    take<Emitter extends DustEmitter>(
-      emitters: readonly Emitter[],
-      room: number,
-      shed: boolean,
-      onDone?: (emitter: Emitter) => void,
-    ) {
+    take(emitters: readonly DustEmitter[], room: number, shed: boolean) {
       const spawns: number[] = [];
-      if (owed.size === 0 && emitters.every(({ burst }) => burst <= 0)) {
-        return spawns;
-      }
       const present = new Set<number>();
       for (const emitter of emitters) {
-        const { id, index, burst } = emitter;
+        const { id, index, clicks } = emitter;
         present.add(id);
-        let left = owed.get(id);
-        if (left === undefined && burst > 0) {
-          left = shed ? Math.min(Math.round(burst), DUST_MAX_BURST) : 0;
-          owed.set(id, left);
-          if (left === 0) {
-            onDone?.(emitter);
-          }
+        const newClicks = clicks - (counted.get(id) ?? clicks);
+        counted.set(id, clicks);
+        let left = shed ? (owed.get(id) ?? 0) : 0;
+        if (newClicks > 0 && shed) {
+          left = Math.min(
+            left + newClicks * burstSize(emitter),
+            DUST_MAX_BURST,
+          );
         }
-        const count = Math.min(left ?? 0, room - spawns.length);
-        if (left === undefined || count <= 0) {
-          continue;
-        }
+        const count = Math.min(left, room - spawns.length);
         for (let spawn = 0; spawn < count; spawn++) {
           spawns.push(index + DUST_BURST_SPAWN);
         }
-        owed.set(id, left - count);
-        if (count === left) {
-          onDone?.(emitter);
+        left -= count;
+        if (left > 0) {
+          owed.set(id, left);
+        } else {
+          owed.delete(id);
         }
       }
-      for (const id of owed.keys()) {
+      for (const id of counted.keys()) {
         if (!present.has(id)) {
+          counted.delete(id);
           owed.delete(id);
         }
       }

@@ -20,8 +20,7 @@ export interface EffectSettings {
   readonly dust?: {
     readonly density: number;
     readonly burst: number;
-    readonly colorFrom: "fill" | "text";
-    readonly onShed?: () => void;
+    readonly carrier?: "viewport";
   };
   readonly extractorFan?: { readonly reach: number };
   readonly blackHole?: { readonly mass: number };
@@ -48,8 +47,6 @@ export interface EffectReadings {
   /** The control, or `null` when the liquid can draw in none. */
   readonly liquid?: LiquidControl | null;
   readonly ringLight?: RingLightReading;
-  /** The element's CSS `color`, for dust that takes it. */
-  readonly dust?: EffectColor;
 }
 
 /**
@@ -72,6 +69,8 @@ export interface MeasuredElement extends ElementBox {
   readonly roles: number;
   /** The settings its effect hooks gave it. */
   readonly settings: EffectSettings;
+  /** How many `click` events it has had since it registered. */
+  readonly clicks: number;
   /**
    * The scope it is in: the scope of the nearest `EffectContainer` above its
    * effect hooks in the React tree, or `PAGE_SCOPE`. Effects act only between

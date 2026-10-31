@@ -110,7 +110,7 @@ interface EffectLayerProviderProps {
  * stacking context that sits below `layer.effect`, or the effects draw over
  * it. It mounts no `<canvas>`
  * element and requests no GPU device until an element registers with an
- * effect or `usePrepareEffects` asks for one. Without WebGPU, under forced colours, with `?effects=off` or with
+ * effect. Without WebGPU, under forced colours, with `?effects=off` or with
  * the `effect-layer` localStorage key set to `off`, it renders only its
  * children. `?effects=debug` shows the bands the scroll `<canvas>` elements
  * cover, every registered element as measured, each Effect container with

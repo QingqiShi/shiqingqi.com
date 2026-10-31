@@ -20,23 +20,22 @@ const PARTICLE_OPACITY = { light: 0.9, dark: 1 } as const;
 /**
  * `dustElements[index]` for an element of `EffectFrame.elements`, in a scope
  * that draws over a dark backdrop or a light one. With `colored` false, its
- * dust has no colour.
+ * dust has no colour. With `onViewport`, its dust stays on the viewport.
  *
  * @internal
  */
 export function dustElementValue(
-  { roles, fill, settings, readings }: EffectElementRecord,
+  { roles, fill, settings }: EffectElementRecord,
   dark: boolean,
   colored: boolean,
+  onViewport: boolean,
 ): EffectInput<typeof DustElement> {
   const opacity = dark ? PARTICLE_OPACITY.dark : PARTICLE_OPACITY.light;
-  const source =
-    settings.dust?.colorFrom === "text" ? (readings.dust ?? fill) : fill;
   return {
     color:
       (roles & DUST) === 0 || !colored
         ? 0
-        : packColor([...dustColor(source, dark), opacity]),
+        : packColor([...dustColor(fill, dark), opacity]),
     reach:
       (roles & EXTRACTOR_FAN) === 0
         ? 0
@@ -48,6 +47,7 @@ export function dustElementValue(
             ),
           ),
     dark: dark ? 1 : 0,
+    onViewport: onViewport ? 1 : 0,
   };
 }
 

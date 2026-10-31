@@ -3,10 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { EffectCarrier } from "@tuja/ui/components/effect-carrier";
 import { useDust } from "@tuja/ui/hooks/use-dust";
 import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
-import { usePrepareEffects } from "@tuja/ui/hooks/use-prepare-effects";
 import { useRingLight } from "@tuja/ui/hooks/use-ring-light";
 import { prefersReducedMotion } from "@tuja/ui/motion/prefers-reduced-motion";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -26,11 +24,10 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
-import { createPortal } from "react-dom";
 import { springScrollTo } from "./spring-scroll-to.ts";
 
-/** One dust particle for each length of a card's edge, in px. */
-const BURST_SPACING = 10;
+/** The dust particles that a press shakes off every 100 px of a card's edge. */
+const CARD_BURST = 10;
 /** How long the mark pulls the dust in once the page is near, in ms. */
 const PULL_MS = 1800;
 
@@ -53,13 +50,7 @@ interface PrincipleAnchorsState {
   /** Under reduced motion, the last arrival. */
   arrival: Arrival | null;
   flight: Flight | null;
-  goTo: (id: string, card: Element) => void;
-}
-
-/** The box of the card that press `count` shakes dust off, on the screen. */
-interface Burst {
-  count: number;
-  card: DOMRect;
+  goTo: (id: string) => void;
 }
 
 const PrincipleAnchorsContext = createContext<PrincipleAnchorsState | null>(
@@ -84,11 +75,9 @@ function usePrincipleAnchors() {
 export function PrincipleAnchors({ children }: { children: ReactNode }) {
   const [arrival, setArrival] = useState<Arrival | null>(null);
   const [flight, setFlight] = useState<Flight | null>(null);
-  const [burst, setBurst] = useState<Burst | null>(null);
   const stopRef = useRef<(() => void) | null>(null);
   const flightTimerRef = useRef<number | undefined>(undefined);
   const pressCountRef = useRef(0);
-  usePrepareEffects(["dust"]);
 
   useEffect(
     () => () => {
@@ -98,7 +87,7 @@ export function PrincipleAnchors({ children }: { children: ReactNode }) {
     [],
   );
 
-  const goTo = (id: string, card: Element) => {
+  const goTo = (id: string) => {
     const section = document.getElementById(id);
     if (section === null) return;
     stopRef.current?.();
@@ -111,11 +100,9 @@ export function PrincipleAnchors({ children }: { children: ReactNode }) {
     const reduced = prefersReducedMotion();
     const endFlight = () => {
       setFlight((last) => (last?.count === count ? null : last));
-      setBurst((last) => (last?.count === count ? null : last));
     };
     if (!reduced) {
       setFlight({ id, count, reach: 0 });
-      setBurst({ count, card: card.getBoundingClientRect() });
     }
     const onNear = reduced
       ? undefined
@@ -139,47 +126,7 @@ export function PrincipleAnchors({ children }: { children: ReactNode }) {
   return (
     <PrincipleAnchorsContext value={{ arrival, flight, goTo }}>
       {children}
-      {burst === null
-        ? null
-        : createPortal(
-            <EffectCarrier value="viewport">
-              <CardDust
-                key={burst.count}
-                box={burst.card}
-                onShed={() => {
-                  setBurst((last) => (last === burst ? null : last));
-                }}
-              />
-            </EffectCarrier>,
-            document.body,
-          )}
     </PrincipleAnchorsContext>
-  );
-}
-
-/**
- * A clear box over a pressed card that shakes dust off the card's edge once,
- * and goes as soon as it has. The box is on the viewport, so its dust stays
- * on the screen while the page springs away, and takes the accent from its
- * `color`.
- */
-function CardDust({ box, onShed }: { box: DOMRect; onShed: () => void }) {
-  const ref = useDust({
-    density: 0,
-    colorFrom: "text",
-    burst: Math.round((2 * (box.width + box.height)) / BURST_SPACING),
-    onShed,
-  });
-  return (
-    <span
-      ref={ref}
-      aria-hidden
-      css={[
-        corner.radius_3,
-        styles.cardDust,
-        styles.screenBox(box.x, box.y, box.width, box.height),
-      ]}
-    />
   );
 }
 
@@ -192,6 +139,11 @@ export function PrincipleLink({
   children: ReactNode;
 }) {
   const { goTo } = usePrincipleAnchors();
+  const dustRef = useDust({
+    density: 0,
+    burst: CARD_BURST,
+    carrier: "viewport",
+  });
 
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
     const opensElsewhere =
@@ -202,11 +154,12 @@ export function PrincipleLink({
       event.altKey;
     if (opensElsewhere) return;
     event.preventDefault();
-    goTo(id, event.currentTarget);
+    goTo(id);
   };
 
   return (
     <a
+      ref={dustRef}
       href={`#${id}`}
       onClick={onClick}
       css={[stack.item, cardSurface.base, cardSurface.interactive, styles.card]}
@@ -285,17 +238,6 @@ const styles = stylex.create({
     flexShrink: 0,
     color: color.fg,
   },
-  cardDust: {
-    position: "fixed",
-    color: color.bgAccent,
-    pointerEvents: "none",
-  },
-  screenBox: (x: number, y: number, width: number, height: number) => ({
-    insetInlineStart: x,
-    insetBlockStart: y,
-    inlineSize: width,
-    blockSize: height,
-  }),
   fan: {
     position: "absolute",
     inset: 0,
