@@ -98,6 +98,7 @@ const styles = stylex.create({
     inset: 0,
     zIndex: 0,
     pointerEvents: "none",
+    containerType: "inline-size",
     // The illustration is cut to the tile's corner here rather than by the
     // tile, which cannot clip: a squircle-cornered clip above a Scroll mask or
     // a Progressive blur makes Chrome drop their masks, and the tiles host both.

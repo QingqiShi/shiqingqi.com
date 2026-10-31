@@ -57,7 +57,7 @@ interface ComponentSpecimen {
 /**
  * Maps each components route — plus the one composed example — to the specimen
  * shown in its overview tile. The counterpart to `foundation-illustrations/`:
- * foundations get abstract illustrations because a token has no rendered form,
+ * foundations get a generated picture because a token has no rendered form,
  * whereas a component does — so these are the real components, rendered live,
  * and they cannot drift from the thing they advertise. The ones that cannot
  * render their real form inside a tile (Sheet, Menu button, the four page
@@ -65,9 +65,9 @@ interface ComponentSpecimen {
  * fall back to a miniature drawn from the same tokens; each specimen's own doc
  * comment says why.
  *
- * Values are ready-made elements, matching how the illustrations map works. The
- * overview renders them inside an `inert` plate, so a specimen must never depend
- * on interaction or hold state of its own.
+ * Values are ready-made elements. The overview renders them inside an `inert`
+ * plate, so a specimen must never depend on interaction or hold state of its
+ * own.
  *
  * `fillsPlate` rides along on the entry rather than living in a second map
  * keyed by the same routes: two structures over one key space have to be edited

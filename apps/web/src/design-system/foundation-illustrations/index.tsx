@@ -3,17 +3,21 @@ import type {
   DesignSystemFoundationPath,
   DesignSystemPath,
 } from "#src/design-system/routes/types.ts";
-import { AccessibilityIllustration } from "./accessibility-illustration.tsx";
-import { ColorIllustration } from "./color-illustration.tsx";
-import { CustomizationIllustration } from "./customization-illustration.tsx";
-import { GetStartedIllustration } from "./get-started-illustration.tsx";
-import { IconographyIllustration } from "./iconography-illustration.tsx";
-import { LayoutIllustration } from "./layout-illustration.tsx";
-import { MaterialIllustration } from "./material-illustration.tsx";
-import { MotionIllustration } from "./motion-illustration.tsx";
-import { PrinciplesIllustration } from "./principles-illustration.tsx";
-import { SurfacesIllustration } from "./surfaces-illustration.tsx";
-import { TypographyIllustration } from "./typography-illustration.tsx";
+import accessibility from "./accessibility.png";
+import color from "./color.png";
+import customization from "./customization.png";
+import {
+  FoundationIllustration,
+  type FoundationIllustrationArt,
+} from "./foundation-illustration.tsx";
+import getStarted from "./get-started.png";
+import iconography from "./iconography.png";
+import layout from "./layout.png";
+import material from "./material.png";
+import motion from "./motion.png";
+import principles from "./principles.png";
+import surfaces from "./surfaces.png";
+import typography from "./typography.png";
 
 /**
  * Each foundations route's card illustration; other overview cards render without
@@ -22,30 +26,40 @@ import { TypographyIllustration } from "./typography-illustration.tsx";
  */
 const FOUNDATION_ILLUSTRATIONS: Record<
   DesignSystemFoundationPath,
-  ReactElement
+  FoundationIllustrationArt
 > = {
-  "/design-system/foundations/principles": <PrinciplesIllustration />,
-  "/design-system/foundations/get-started": <GetStartedIllustration />,
-  "/design-system/foundations/customization": <CustomizationIllustration />,
-  "/design-system/foundations/color": <ColorIllustration />,
-  "/design-system/foundations/typography": <TypographyIllustration />,
-  "/design-system/foundations/layout": <LayoutIllustration />,
-  "/design-system/foundations/surfaces": <SurfacesIllustration />,
-  "/design-system/foundations/material": <MaterialIllustration />,
-  "/design-system/foundations/iconography": <IconographyIllustration />,
-  "/design-system/foundations/motion": <MotionIllustration />,
-  "/design-system/foundations/accessibility": <AccessibilityIllustration />,
+  "/design-system/foundations/principles": {
+    src: principles,
+    bleeds: "inline-end",
+  },
+  "/design-system/foundations/get-started": {
+    src: getStarted,
+    bleeds: "inline-end",
+  },
+  "/design-system/foundations/customization": { src: customization },
+  "/design-system/foundations/color": { src: color, bleeds: "block-end" },
+  "/design-system/foundations/typography": { src: typography },
+  "/design-system/foundations/layout": { src: layout, bleeds: "inline-end" },
+  "/design-system/foundations/surfaces": {
+    src: surfaces,
+    bleeds: "inline-end",
+  },
+  "/design-system/foundations/material": { src: material },
+  "/design-system/foundations/iconography": { src: iconography },
+  "/design-system/foundations/motion": { src: motion },
+  "/design-system/foundations/accessibility": { src: accessibility },
 };
 
 /**
  * The same map widened, so the overview can ask about any route. Sound without an
  * assertion because the narrow keys are a subset of the wide ones.
  */
-const BY_PATH: Partial<Record<DesignSystemPath, ReactElement>> =
+const BY_PATH: Partial<Record<DesignSystemPath, FoundationIllustrationArt>> =
   FOUNDATION_ILLUSTRATIONS;
 
 export function getFoundationIllustration(
   path: DesignSystemPath,
 ): ReactElement | undefined {
-  return BY_PATH[path];
+  const art = BY_PATH[path];
+  return art ? <FoundationIllustration {...art} /> : undefined;
 }
