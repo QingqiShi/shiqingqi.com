@@ -17,6 +17,8 @@ const MAX_INLINE_SIZE = 128;
  */
 const BLOCK_SIZE = { narrow: 72, wide: 86 };
 const WIDE_TILE = "@container (min-width: 340px)";
+const LEAN = { x: 6, y: 3 };
+const ENGAGED_SCALE = 1.12;
 
 export type FoundationIllustrationArt = {
   src: StaticImageData;
@@ -88,28 +90,32 @@ const styles = stylex.create({
       },
     },
     transform: {
-      default: `translate(calc(${illoVars.mx} * 6px), calc(${illoVars.my} * 3px))`,
+      default: `translate(calc(${illoVars.mx} * ${String(LEAN.x)}px), calc(${illoVars.my} * ${String(LEAN.y)}px))`,
       [motionConstants.REDUCED_MOTION]: "none",
     },
+    transformOrigin: "right bottom",
+    scale: {
+      default: 1,
+      [stylex.when.ancestor(":is(:focus-within, :active)", tileMarker)]:
+        ENGAGED_SCALE,
+      [pointer.canHover]: {
+        default: null,
+        [stylex.when.ancestor(":hover", tileMarker)]: ENGAGED_SCALE,
+      },
+      [motionConstants.REDUCED_MOTION]: 1,
+    },
     transition: {
-      default: `opacity ${duration._500} ${easing.ease}, filter ${duration._500} ${easing.ease}, transform ${duration._500} ${easing.spring}`,
+      default: `opacity ${duration._500} ${easing.ease}, filter ${duration._500} ${easing.ease}, transform ${duration._500} ${easing.spring}, scale ${duration._500} ${easing.spring}`,
       [motionConstants.REDUCED_MOTION]: `opacity ${duration._500} ${easing.ease}, filter ${duration._500} ${easing.ease}`,
     },
   },
-  // The lean stops along the edge that the art bleeds off. Without this, the
-  // lean opens a gap between the cut edge and the card edge.
+  // The art starts past the edge it bleeds off by the lean distance, and the
+  // layer clips that part. Thus the lean cannot open a gap between the cut edge
+  // and the card edge.
   bleedsInlineEnd: {
-    insetInlineEnd: 0,
-    transform: {
-      default: `translate(0, calc(${illoVars.my} * 3px))`,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
+    insetInlineEnd: `-${String(LEAN.x)}px`,
   },
   bleedsBlockEnd: {
-    insetBlockEnd: 0,
-    transform: {
-      default: `translate(calc(${illoVars.mx} * 6px), 0)`,
-      [motionConstants.REDUCED_MOTION]: "none",
-    },
+    insetBlockEnd: `-${String(LEAN.y)}px`,
   },
 });
