@@ -15,10 +15,6 @@ apps/finance/drizzle/meta/
 # Vendored third-party code (preserve upstream formatting)
 packages/system-palette-codegen/src/vendor/
 
-# Vendored agent skill installed via the `impeccable` CLI
-# (preserve upstream formatting)
-.claude/skills/impeccable/
-
 # Lock files
 pnpm-lock.yaml
 skills-lock.json
