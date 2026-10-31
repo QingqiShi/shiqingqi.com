@@ -41,7 +41,7 @@ export function LayoutWindowWidthReadout({
       : bands.findLast((band) => viewport >= band.min);
 
   return (
-    <p css={[stack.text, styles.marker]} aria-live="polite">
+    <p css={[stack.text, styles.marker]}>
       <span css={[typeRole.overline, styles.markerLabel]}>
         {t({ en: "your window", zh: "你的窗口" })}
       </span>
@@ -74,7 +74,6 @@ const styles = stylex.create({
     color: color.fg,
   },
   markerBand: {
-    color: color.fgAccent,
     fontWeight: font.weight_6,
   },
 });
