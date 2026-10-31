@@ -75,22 +75,18 @@ const FIRST_STEP = 1 / 60;
 
 /**
  * The pill at `index`, a stop index that can be fractional: between two
- * stops, the target, the span and the straight part across go from one to
- * the other.
+ * stops, the target and the span go from one to the other.
  *
  * @internal
  */
-export function pillAt(stops: readonly Pill[], index: number): Required<Pill> {
+export function pillAt(stops: readonly Pill[], index: number): Pill {
   const i = clamp(Math.floor(index), 0, Math.max(0, stops.length - 2));
   const from = stops[i];
   const to = stops.at(i + 1) ?? from;
   const t = clamp(index - i, 0, 1);
-  const between = (a = 0, b = 0) => a + (b - a) * t;
   return {
     target: from.target + (to.target - from.target) * t,
     span: from.span + (to.span - from.span) * t,
-    low: between(from.low, to.low),
-    high: between(from.high, to.high),
   };
 }
 
@@ -131,8 +127,6 @@ export interface LiquidState {
   /** The pill of the last step, in rest radii. */
   readonly target: number;
   readonly span: number;
-  readonly low: number;
-  readonly high: number;
   /** A pointer was down on the control at the last step. */
   readonly pressed: boolean;
   /** Which way the liquid last poured: 1 along the track, -1 back. */
@@ -289,34 +283,24 @@ export function layoutLiquid(
   const pressed = settings.pressed;
   const held = drag !== null;
   const reduced = frame.reducedMotion;
-  const { target, span, low, high } = pillAt(stops, drag ?? position);
+  const { target, span } = pillAt(stops, drag ?? position);
 
-  let body =
-    state?.body ?? restingLiquid(target, { seed: record.id, span, low, high });
+  let body = state?.body ?? restingLiquid(target, { seed: record.id, span });
   let heading = state?.heading ?? headingTo(position, position, last);
   if (state !== undefined && position !== state.position) {
     heading = headingTo(position, state.drag ?? state.position, last);
   }
   const pillMoved =
-    state !== undefined &&
-    (target !== state.target ||
-      span !== state.span ||
-      low !== state.low ||
-      high !== state.high);
-  // A new position that does not pour puts the liquid there at rest, and
-  // hands the surface back to the control at once.
-  const jumped =
-    state !== undefined && !settings.pour && position !== state.position;
+    state !== undefined && (target !== state.target || span !== state.span);
   // A layout change, such as a resize, moves the pill of a liquid at rest
   // while nothing selects or presses it. The liquid then rests in the new
   // pill at once, and the control keeps its own surface.
   const relaid =
-    jumped ||
-    (pillMoved &&
-      !state.active &&
-      position === state.position &&
-      drag === state.drag &&
-      pressed === state.pressed);
+    pillMoved &&
+    !state.active &&
+    position === state.position &&
+    drag === state.drag &&
+    pressed === state.pressed;
   if (pillMoved && !relaid) {
     // The drawn surface settles into the rest pill as the body calms. A new
     // target moves that pill at once, so the body is not calm until it has
@@ -327,16 +311,11 @@ export function layoutLiquid(
     heading > 0
       ? pillAt(stops, Math.ceil(position))
       : pillAt(stops, Math.floor(position));
-  // On a box the wall behind the liquid follows it in too, so the liquid
-  // does not run back over the rows and the labels it has left.
-  const boxed = control.box === true;
   const input = {
     target,
     span,
-    low,
-    high,
-    from: held || (heading > 0 && !boxed) ? 0 : ahead.target - ahead.span,
-    to: held || (heading < 0 && !boxed) ? travel : ahead.target + ahead.span,
+    from: held || heading > 0 ? 0 : ahead.target - ahead.span,
+    to: held || heading < 0 ? travel : ahead.target + ahead.span,
     pressed,
     reducedMotion: reduced,
     aim: 0,
@@ -350,7 +329,9 @@ export function layoutLiquid(
     body.settled &&
     (state === undefined ||
       relaid ||
-      (!pillMoved && pressed === state.pressed));
+      (target === state.target &&
+        span === state.span &&
+        pressed === state.pressed));
   const delta = frame.delta > 0 ? frame.delta : FIRST_STEP;
   let simulated = state?.simulated ?? 0;
   let particlesAt = state?.particlesAt ?? 0;
@@ -381,7 +362,6 @@ export function layoutLiquid(
         aim: 0,
         scale: body.scale,
         walls: [input.from, input.to],
-        band: [low, high],
         seconds: liquidStep(delta),
         count: body.x.length,
         slot,
@@ -428,8 +408,8 @@ export function layoutLiquid(
     body.settled &&
     body.set >= 1 &&
     Math.abs(rise.level - riseGoal) < RISE_SEEN;
-  let active = (state?.active ?? false) && !jumped;
-  let handFrom = jumped ? null : (state?.handFrom ?? null);
+  let active = state?.active ?? false;
+  let handFrom = state?.handFrom ?? null;
   if (reduced) {
     active = fade !== null || !atRest;
     handFrom = null;
@@ -446,13 +426,10 @@ export function layoutLiquid(
   const vertical = control.vertical === true;
   const centreX = mean(body.x);
   const glint = stepGlint(state?.glint ?? 0, body, delta, reduced);
-  const shown = handAlpha(control, active, handFrom, frame.time) * fadeIn;
   // The lit edge is the solid surface's, so it shows only as the liquid sets
-  // past the core it keeps while it lingers. On a box, it goes with the
-  // liquid as the control takes its surface back.
+  // past the core it keeps while it lingers.
   const edgeLit =
-    clamp((body.set - LINGER_SET) / (1 - LINGER_SET), 0, 1) *
-    (control.box === true ? shown : fadeIn);
+    clamp((body.set - LINGER_SET) / (1 - LINGER_SET), 0, 1) * fadeIn;
 
   const firstBead = beads.length;
   for (const bead of body.beads) {
@@ -472,8 +449,6 @@ export function layoutLiquid(
       drag,
       target,
       span,
-      low,
-      high,
       pressed,
       heading,
       active,
@@ -527,9 +502,8 @@ export function layoutLiquid(
       cover: fill !== null && active,
       seeThrough: !control.thumb,
       corner: control.corner,
-      across: [((low + high) / 2) * radius, ((high - low) / 2) * radius],
       backdrop: rgb(backdrop),
-      body: shown,
+      body: handAlpha(control, active, handFrom, frame.time) * fadeIn,
       glint,
       vertical,
       edge: control.edge,

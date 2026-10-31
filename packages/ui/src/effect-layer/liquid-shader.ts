@@ -296,29 +296,21 @@ const fieldAt = (liquid: Liquid, page: d.v2f) => {
 };
 
 /**
- * From `local`, a point against the centre of the rest shape, to the
- * straight part of the rest shape: a segment along the track, or a box
- * where the shape is straight across too.
- */
-const toStraight = (liquid: Liquid, local: d.v2f) => {
-  "use gpu";
-  const half = d.vec2f(liquid.span, liquid.across.y);
-  return local.sub(std.clamp(local, half.mul(-1), half));
-};
-
-/**
  * The distance from the rest shape: a pill, or a box with the corners of
  * the control's own indicator.
  */
 const restDistance = (liquid: Liquid, page: d.v2f) => {
   "use gpu";
-  const centre = liquid.origin.add(d.vec2f(liquid.restX, liquid.across.x));
+  const centre = liquid.origin.add(d.vec2f(liquid.restX, 0));
   const local = page.sub(centre);
   if (liquid.corner.y === 0) {
-    return std.length(toStraight(liquid, local)) - liquid.radius;
+    const toRest = local.sub(
+      d.vec2f(std.clamp(local.x, -liquid.span, liquid.span), 0),
+    );
+    return std.length(toRest) - liquid.radius;
   }
   const shape = EffectElement(pageLayout.$.effectElements[liquid.element]);
-  const half = d.vec2f(liquid.span, liquid.across.y).add(liquid.radius);
+  const half = d.vec2f(liquid.span + liquid.radius, liquid.radius);
   shape.rect = d.vec4f(centre.sub(half), half.mul(2));
   shape.radii = d.vec4f(std.min(liquid.corner.x, liquid.radius));
   shape.cornerExponent = liquid.corner.y;
@@ -348,10 +340,10 @@ const bodySurface = (liquid: Liquid, page: d.v2f) => {
       outward: restOutward(liquid, page),
     });
   }
-  const local = page.sub(
-    liquid.origin.add(d.vec2f(liquid.restX, liquid.across.x)),
+  const local = page.sub(liquid.origin.add(d.vec2f(liquid.restX, 0)));
+  const toRest = local.sub(
+    d.vec2f(std.clamp(local.x, -liquid.span, liquid.span), 0),
   );
-  const toRest = toStraight(liquid, local);
   const restNormal = toRest.div(std.max(std.length(toRest), 1e-4));
   const field = fieldAt(liquid, page);
   const slope = std.max(std.length(field.yz), 1e-4);
@@ -671,11 +663,14 @@ const drawBody = (
       // it.
       const solidCentre = std.mix(
         liquid.centre,
-        d.vec2f(liquid.restX, liquid.across.x),
+        d.vec2f(liquid.restX, 0),
         liquid.calm,
       );
       const toCentre = page.sub(liquid.origin.add(solidCentre));
-      const toCore = toStraight(liquid, toCentre);
+      const toCore = d.vec2f(
+        std.max(std.abs(toCentre.x) - liquid.span, 0),
+        toCentre.y,
+      );
       const inward = std.saturate(
         1 - std.length(toCore) / (liquid.radius + spread),
       );
@@ -768,11 +763,7 @@ const liquidFragment = tgpu.fragmentFn({
   // A liquid in front of the page stays inside the track's padding box.
   const inset = std.select(
     d.f32(0),
-    track.rect.w * 0.5 -
-      liquid.radius -
-      liquid.spread -
-      std.abs(liquid.across.x) -
-      liquid.across.y,
+    track.rect.w * 0.5 - liquid.radius - liquid.spread,
     seeThrough,
   );
   const onTrack = std.saturate(

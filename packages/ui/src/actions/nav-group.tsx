@@ -11,7 +11,6 @@ import {
   type ReactNode,
 } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
-import { LIQUID_SEGMENT } from "../effect-layer/liquid-indicator.ts";
 import { cssTween } from "../motion/css-tween.ts";
 import { unit } from "../motion/mix.ts";
 import { px } from "../motion/px.ts";
@@ -210,7 +209,7 @@ function OpeningGroup({
         id={labelId}
         aria-expanded={isOpen}
         aria-controls={rowsId}
-        {...{ [NAV_ROW]: "", [LIQUID_SEGMENT]: "" }}
+        {...{ [NAV_ROW]: "" }}
         onClick={() => {
           setIsOpen((open) => !open);
         }}

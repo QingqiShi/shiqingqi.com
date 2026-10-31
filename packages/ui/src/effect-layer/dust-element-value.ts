@@ -15,6 +15,13 @@ import type { EffectElementRecord, EffectInput } from "./types.ts";
 export const DUST = roleBits(["dust"]);
 /** @internal */
 export const EXTRACTOR_FAN = roleBits(["extractorFan"]);
+/**
+ * The pull of an extractor fan starts to fade at this share of its reach,
+ * and stops at its reach.
+ *
+ * @internal
+ */
+export const EXTRACTOR_FAN_FALLOFF = 0.55;
 const PARTICLE_OPACITY = { light: 0.9, dark: 1 } as const;
 
 /**
@@ -31,21 +38,28 @@ export function dustElementValue(
   onViewport: boolean,
 ): EffectInput<typeof DustElement> {
   const opacity = dark ? PARTICLE_OPACITY.dark : PARTICLE_OPACITY.light;
+  const isFan = (roles & EXTRACTOR_FAN) !== 0;
+  const fan = settings.extractorFan;
   return {
     color:
       (roles & DUST) === 0 || !colored
         ? 0
         : packColor([...dustColor(fill, dark), opacity]),
-    reach:
-      (roles & EXTRACTOR_FAN) === 0
-        ? 0
-        : Math.max(
-            0,
-            finiteOr(
-              settings.extractorFan?.reach,
-              EFFECT_SETTING_DEFAULTS.extractorFan.reach,
-            ),
+    reach: isFan
+      ? Math.max(
+          0,
+          finiteOr(fan?.reach, EFFECT_SETTING_DEFAULTS.extractorFan.reach),
+        )
+      : 0,
+    pull: isFan
+      ? Math.max(
+          0,
+          finiteOr(
+            fan?.strength,
+            EFFECT_SETTING_DEFAULTS.extractorFan.strength,
           ),
+        )
+      : 0,
     dark: dark ? 1 : 0,
     onViewport: onViewport ? 1 : 0,
   };

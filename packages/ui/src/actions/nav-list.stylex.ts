@@ -17,11 +17,3 @@ export const navListTokens = stylex.defineVars({
    */
   step: rhythm.item,
 });
-
-/**
- * Marks the box of a `NavList`, so the marker can follow the effect layer
- * that draws it.
- *
- * @internal
- */
-export const navListMarker = stylex.defineMarker();

@@ -15,6 +15,14 @@ export interface ExtractorFanOptions {
    * @zh 元素从多远的地方把灰尘吸进来，以 CSS px 计，从边缘量起。吸力在边缘处最强，到这个距离时逐渐消失。
    */
   reach?: number;
+  /**
+   * How fast the element pulls dust in, as a multiple of the usual speed,
+   * such as 2 for dust that must arrive from far away in a short time.
+   *
+   * @default 1
+   * @zh 元素吸入灰尘的快慢，以常规速度的倍数表示，例如灰尘必须在短时间内从远处到达时设为 2。
+   */
+  strength?: number;
 }
 
 /**
@@ -27,8 +35,9 @@ export interface ExtractorFanOptions {
  */
 export function useExtractorFan({
   reach = EFFECT_SETTING_DEFAULTS.extractorFan.reach,
+  strength = EFFECT_SETTING_DEFAULTS.extractorFan.strength,
 }: ExtractorFanOptions = {}) {
   return useEffectRegistration(reach > 0 ? EXTRACTOR_FAN : 0, {
-    extractorFan: { reach },
+    extractorFan: { reach, strength },
   });
 }

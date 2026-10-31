@@ -79,11 +79,14 @@ export interface DustEmitter extends DustBox {
   readonly density: number;
   /**
    * Particles along every 100 CSS px of its edge that it sheds at once each
-   * time it is clicked.
+   * time it shakes.
    */
   readonly burst: number;
-  /** How many times it has been clicked since it registered. */
-  readonly clicks: number;
+  /**
+   * How many times it has shaken since it registered: once for each click,
+   * and once for each step up of its `shakes` setting.
+   */
+  readonly shakes: number;
 }
 
 /**
@@ -298,14 +301,14 @@ export function burstSize({ burst, width, height }: DustEmitter) {
 }
 
 /**
- * Follows the bursts of dust: each emitter sheds a burst each time it is
- * clicked, while it stays registered. The clicks before the first frame
- * that sees an emitter shed nothing.
+ * Follows the bursts of dust: each emitter sheds a burst each time it
+ * shakes, while it stays registered. The shakes before the first frame that
+ * sees an emitter shed nothing.
  *
  * @internal
  */
 export function createDustBursts() {
-  /** The clicks of each emitter that the bursts have counted, by `id`. */
+  /** The shakes of each emitter that the bursts have counted, by `id`. */
   const counted = new Map<number, number>();
   /** The particles each emitter still owes of its bursts, by `id`. */
   const owed = new Map<number, number>();
@@ -319,14 +322,14 @@ export function createDustBursts() {
       const spawns: number[] = [];
       const present = new Set<number>();
       for (const emitter of emitters) {
-        const { id, index, clicks } = emitter;
+        const { id, index, shakes } = emitter;
         present.add(id);
-        const newClicks = clicks - (counted.get(id) ?? clicks);
-        counted.set(id, clicks);
+        const newShakes = shakes - (counted.get(id) ?? shakes);
+        counted.set(id, shakes);
         let left = shed ? (owed.get(id) ?? 0) : 0;
-        if (newClicks > 0 && shed) {
+        if (newShakes > 0 && shed) {
           left = Math.min(
-            left + newClicks * burstSize(emitter),
+            left + newShakes * burstSize(emitter),
             DUST_MAX_BURST,
           );
         }

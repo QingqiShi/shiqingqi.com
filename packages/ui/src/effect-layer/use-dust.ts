@@ -27,6 +27,18 @@ export interface DustOptions {
    */
   burst?: number;
   /**
+   * A count of the bursts the element shakes off without a click. Each time
+   * the count goes up, the element sheds one more burst of `burst` size from
+   * where it is now, as a click does. The layer must already see the
+   * element: a step up before the layer first measures it, or while it has
+   * `opacity: 0` or `visibility: hidden`, sheds nothing. To shed from an
+   * element that does not show, hide it with `filter: opacity(0)`.
+   *
+   * @default 0
+   * @zh 不经点击而抖落的灰尘次数计数。计数每增加一次，元素就从当前位置再抖落一次大小为 `burst` 的灰尘，与一次点击相同。效果层必须已经看到该元素：在效果层首次测量它之前，或它为 `opacity: 0`、`visibility: hidden` 时增加计数，不会抖落灰尘。若要从不可见的元素抖落灰尘，请用 `filter: opacity(0)` 隐藏它。
+   */
+  shakes?: number;
+  /**
    * Where the dust goes once shed. `"viewport"` keeps it in its place on the
    * screen while the page scrolls, so it lives on wherever the element
    * scrolls to, such as when a click on a link scrolls the page. Without
@@ -54,9 +66,10 @@ export interface DustOptions {
 export function useDust({
   density = EFFECT_SETTING_DEFAULTS.dust.density,
   burst = EFFECT_SETTING_DEFAULTS.dust.burst,
+  shakes = EFFECT_SETTING_DEFAULTS.dust.shakes,
   carrier,
 }: DustOptions = {}) {
   return useEffectRegistration(density > 0 || burst > 0 ? DUST : 0, {
-    dust: { density, burst, carrier },
+    dust: { density, burst, shakes, carrier },
   });
 }

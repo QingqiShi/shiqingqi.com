@@ -59,8 +59,8 @@ export function DustShowcase() {
         </Text>
         <Text look="bodySmall" tone="muted">
           {t({
-            en: "Give useDust a burst, and each click on the element shakes off that much dust at once: particles along every 100 px of its edge. The fans in reach pull them in at once. With the carrier set to viewport, the dust keeps its place on the screen while the page scrolls, so a click on a link carries its dust to wherever the page goes.",
-            zh: "给 useDust 设置 burst，每次点击元素都会一次性抖落这么多灰尘：沿边缘每 100 px 的粒子数。范围内的抽风机会立即把它们吸走。把 carrier 设为 viewport 后，灰尘在页面滚动时停留在屏幕上的原位，因此点击链接抖落的灰尘会被带到页面去往的地方。",
+            en: "Give useDust a burst, and each click on the element shakes off that much dust at once: particles along every 100 px of its edge. The fans in reach pull them in at once. To shake off a burst without a click, raise shakes by one, as a NavList does with its old marker when the current page changes. With the carrier set to viewport, the dust keeps its place on the screen while the page scrolls, so a click on a link carries its dust to wherever the page goes.",
+            zh: "给 useDust 设置 burst，每次点击元素都会一次性抖落这么多灰尘：沿边缘每 100 px 的粒子数。范围内的抽风机会立即把它们吸走。若要不经点击抖落一次灰尘，把 shakes 加一，就像 NavList 在当前页面变化时对旧标记所做的那样。把 carrier 设为 viewport 后，灰尘在页面滚动时停留在屏幕上的原位，因此点击链接抖落的灰尘会被带到页面去往的地方。",
           })}
         </Text>
         <Text look="bodySmall" tone="muted">

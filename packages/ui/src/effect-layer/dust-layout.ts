@@ -63,6 +63,8 @@ export const DUST_BURST = 2;
  * - `color` is the colour of the dust it sheds, packed like
  *   `DustParticle.color`.
  * - `reach` is how far from its edge an extractor fan pulls, in CSS px.
+ * - `pull` is how fast an extractor fan pulls, as a multiple of the usual
+ *   speed.
  * - `dark` is 1 when what its scope draws over is dark.
  * - `onViewport` is 1 when the dust it sheds stays on the viewport.
  *
@@ -71,6 +73,7 @@ export const DUST_BURST = 2;
 export const DustElement = d.struct({
   color: d.u32,
   reach: d.f32,
+  pull: d.f32,
   dark: d.u32,
   onViewport: d.u32,
 });

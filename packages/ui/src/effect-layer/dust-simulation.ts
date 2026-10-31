@@ -1,5 +1,9 @@
 import { d, std, tgpu } from "typegpu";
-import { DUST_WORKGROUP_SIZE, EXTRACTOR_FAN } from "./dust-element-value.ts";
+import {
+  DUST_WORKGROUP_SIZE,
+  EXTRACTOR_FAN,
+  EXTRACTOR_FAN_FALLOFF,
+} from "./dust-element-value.ts";
 import {
   DUST_BURST,
   DUST_ON_VIEWPORT,
@@ -333,7 +337,8 @@ export const dustSimulation = tgpu.computeFn({
       const isFan =
         (element.roles & EXTRACTOR_FAN) !== 0 &&
         element.id !== particle.emitter;
-      const reach = dustSimulationLayout.$.dustElements[k].reach;
+      const dust = dustSimulationLayout.$.dustElements[k];
+      const reach = dust.reach;
       const range = std.select(
         d.f32(OBSTACLE_RANGE),
         std.max(reach, OBSTACLE_RANGE),
@@ -354,10 +359,12 @@ export const dustSimulation = tgpu.computeFn({
       }
       const normal = elementNormal(element, position);
       if (isFan) {
-        const falloff = 1 - std.smoothstep(reach * 0.55, reach, distance);
+        const falloff =
+          1 - std.smoothstep(reach * EXTRACTOR_FAN_FALLOFF, reach, distance);
         const radius = reach * INTAKE_RADIUS;
         const speed =
-          (falloff * INTAKE_SPEED * radius) / (std.max(distance, 0) + radius);
+          (falloff * INTAKE_SPEED * dust.pull * radius) /
+          (std.max(distance, 0) + radius);
         pull = pull.sub(
           normal.add(d.vec2f(-normal.y, normal.x).mul(SWIRL)).mul(speed),
         );

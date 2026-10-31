@@ -20,9 +20,13 @@ export interface EffectSettings {
   readonly dust?: {
     readonly density: number;
     readonly burst: number;
+    readonly shakes: number;
     readonly carrier?: "viewport";
   };
-  readonly extractorFan?: { readonly reach: number };
+  readonly extractorFan?: {
+    readonly reach: number;
+    readonly strength: number;
+  };
   readonly blackHole?: { readonly mass: number };
   readonly lightBeam?: {
     readonly angle: number | undefined;
@@ -32,7 +36,6 @@ export interface EffectSettings {
     readonly position: number;
     readonly drag: number | null;
     readonly pressed: boolean;
-    readonly pour: boolean;
   };
 }
 

@@ -75,7 +75,7 @@ function createRun(control: LiquidControl, reducedMotion = false) {
       if (slot === null) {
         throw new Error("The step has no particles to move.");
       }
-      const { goal, span, aim, walls, band, scale, seconds } = laid.step;
+      const { goal, span, aim, walls, scale, seconds } = laid.step;
       expect(laid.step.slot).toBe(SLOT);
       expect(laid.step.count).toBe(slot.x.length);
       slot = simulateLiquid(
@@ -86,8 +86,6 @@ function createRun(control: LiquidControl, reducedMotion = false) {
           aim,
           from: walls[0],
           to: walls[1],
-          low: band[0],
-          high: band[1],
           pressed: false,
           reducedMotion: false,
         },
@@ -102,7 +100,7 @@ function createRun(control: LiquidControl, reducedMotion = false) {
 }
 
 describe("layoutLiquid", () => {
-  const rest = { drag: null, pressed: false, pour: true } as const;
+  const rest = { drag: null, pressed: false } as const;
 
   it("puts a body back on the GPU at rest when its particles came back non-finite", () => {
     const control = threeSegments();
@@ -119,8 +117,6 @@ describe("layoutLiquid", () => {
         vy: new Float32Array(count).fill(Number.NaN),
         from: 0,
         to: control.travel,
-        low: 0,
-        high: 0,
       },
       time: poured.state.simulated + 1,
     };
@@ -152,18 +148,5 @@ describe("layoutLiquid", () => {
     expect(relaid.step).toBeNull();
     expect(relaid.seed).toBe(true);
     expect(mean(relaid.state.body.x)).toBeCloseTo(wider.stops[1].target, 1);
-  });
-
-  it("puts the liquid at a new position at rest when it does not pour", () => {
-    const control = threeSegments();
-    const run = createRun(control);
-    run({ ...rest, position: 0 });
-
-    const jumped = run({ ...rest, position: 2, pour: false });
-
-    expect(jumped.drawn).toBe(false);
-    expect(jumped.step).toBeNull();
-    expect(jumped.seed).toBe(true);
-    expect(mean(jumped.state.body.x)).toBeCloseTo(control.stops[2].target, 1);
   });
 });
