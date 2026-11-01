@@ -470,11 +470,12 @@ export default defineConfig([
       "packages/ui/src/primitives/**",
       "packages/ui/src/tokens.stylex.ts",
       // These drawings and specimens set type at a drawn size: a page at
-      // thumbnail scale, a poster title as artwork, one glyph of a family, or
-      // each step of a fluid scale side by side.
+      // thumbnail scale, a poster title as artwork, one glyph of a family,
+      // each step of a fluid scale side by side, or a token name that must
+      // fit on one line.
       "apps/web/src/design-system/foundation-illustrations/**",
       "apps/web/src/design-system/sections/examples/typeset-poster.tsx",
-      "apps/web/src/design-system/sections/foundations/{families-showcase,viewport-scale-specimen,container-scale-specimen}.tsx",
+      "apps/web/src/design-system/sections/foundations/{families-showcase,viewport-scale-specimen,container-scale-specimen,color-names-showcase}.tsx",
       // The calculator sizes its keys and its readout to its container.
       "apps/web/src/calculator/calculator-{button,display}.tsx",
       // The "don't" specimen of `Text` shows a raw pixel size on purpose.
