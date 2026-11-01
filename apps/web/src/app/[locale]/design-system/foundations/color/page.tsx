@@ -3,14 +3,10 @@ import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
-import { BackgroundsShowcase } from "#src/design-system/sections/foundations/backgrounds-showcase.tsx";
-import { ColorBordersShowcase } from "#src/design-system/sections/foundations/color-borders-showcase.tsx";
-import { ColorJobsShowcase } from "#src/design-system/sections/foundations/color-jobs-showcase.tsx";
+import { ColorIntentsShowcase } from "#src/design-system/sections/foundations/color-intents-showcase.tsx";
+import { ColorNamesShowcase } from "#src/design-system/sections/foundations/color-names-showcase.tsx";
 import { ColorStartShowcase } from "#src/design-system/sections/foundations/color-start-showcase.tsx";
-import { ContrastShowcase } from "#src/design-system/sections/foundations/contrast-showcase.tsx";
 import { PaletteShowcase } from "#src/design-system/sections/foundations/palette-showcase.tsx";
-import { RolesShowcase } from "#src/design-system/sections/foundations/roles-showcase.tsx";
-import { TextRolesShowcase } from "#src/design-system/sections/foundations/text-roles-showcase.tsx";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -26,17 +22,13 @@ export default function ColorPage() {
     <DocPage
       path="/design-system/foundations/color"
       description={t({
-        en: "Which colour token to use when you build your own element, which Intent fits a job, which pairings keep their contrast, and where to get a colour no token covers.",
-        zh: "自行构建元素时该用哪个颜色令牌、哪种意图色适合哪种用途、哪些搭配能保持对比度，以及令牌未涵盖的颜色从哪里取。",
+        en: "How @tuja/ui gives colour a meaning, and how to pick the right colour for your own element.",
+        zh: "@tuja/ui 如何让颜色有含义，以及如何为你自己的元素选对颜色。",
       })}
     >
       <ColorStartShowcase />
-      <ColorJobsShowcase />
-      <BackgroundsShowcase />
-      <TextRolesShowcase />
-      <ColorBordersShowcase />
-      <RolesShowcase />
-      <ContrastShowcase />
+      <ColorNamesShowcase />
+      <ColorIntentsShowcase />
       <PaletteShowcase />
     </DocPage>
   );
