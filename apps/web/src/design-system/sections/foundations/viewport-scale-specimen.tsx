@@ -2,96 +2,80 @@
 
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { ScrollMask } from "@tuja/ui/components/scroll-mask";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { align } from "@tuja/ui/primitives/flex.stylex";
-import { scrollX } from "@tuja/ui/primitives/layout.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
-import { Fragment, useEffect, useRef, useState } from "react";
-import { centerInScrollX } from "./center-in-scroll-x";
+import { useEffect, useState } from "react";
+import { gridlineTokens } from "#src/design-system/gridline-ground.stylex.ts";
 
-// Breakpoint pixel thresholds. These mirror breakpoints.stylex.ts (sm/md/lg);
-// declaring them once here lets both the band cutoffs and the threshold labels
-// derive from the same numbers, so they can't drift apart within this file.
-const SM = 320;
-const MD = 768;
-const LG = 1080;
-
+// The thresholds come from breakpoints.stylex.ts, and the sizes from
+// typeRole.fluidDisplay and the font.vp* tokens. The page shows all four steps
+// at once, but the computed style gives only the step of the live viewport,
+// so the values are copied here. Keep them in sync.
 const STEPS = [
-  { label: "base", min: 0, threshold: `< ${SM.toString()}px`, device: "watch" },
-  { label: "sm", min: SM, threshold: `≥ ${SM.toString()}px`, device: "phone" },
-  { label: "md", min: MD, threshold: `≥ ${MD.toString()}px`, device: "tablet" },
-  { label: "lg", min: LG, threshold: `≥ ${LG.toString()}px`, device: "laptop" },
-];
+  { label: "base", min: 0, threshold: "< 320", size: 2 },
+  { label: "sm", min: 320, threshold: "≥ 320", size: 2.8 },
+  { label: "md", min: 768, threshold: "≥ 768", size: 3.75 },
+  { label: "lg", min: 1080, threshold: "≥ 1080", size: 5.25 },
+] as const;
 
-// The rem values and weights of the fluid type roles at each band. They can't
-// be derived at runtime — getComputedStyle only exposes the ONE band matching
-// the live viewport, while the grid shows all four at once. Keep in sync with
-// typeRole.fluid* and the font.vp* tokens if one is retuned.
-const ROWS = [
-  { role: "fluidDisplay", sizes: [2, 2.8, 3.75, 5.25], weight: 800 },
-  { role: "fluidH1", sizes: [1.3, 1.4, 1.6, 2], weight: 700 },
-  { role: "fluidH2", sizes: [1.2, 1.3, 1.5, 1.8], weight: 700 },
-  { role: "fluidH3", sizes: [1, 1.1, 1.2, 1.3], weight: 700 },
-  { role: "fluidLead", sizes: [1, 1.1, 1.3, 1.6], weight: 400 },
-];
+const FLUID_DISPLAY_WEIGHT = 600;
 
-function bandOf(width: number) {
-  return STEPS.findLastIndex((step) => width >= step.min);
-}
-
-function DeviceIcon({ device }: { device: string }) {
-  switch (device) {
-    case "watch":
-      return (
-        <svg css={styles.icon} viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="7.5" y="7.5" width="9" height="9" rx="2.5" />
-          <path d="M10 7.5V4.5M14 7.5V4.5M10 16.5v3M14 16.5v3" />
-        </svg>
-      );
-    case "phone":
-      return (
-        <svg css={styles.icon} viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="7" y="3" width="10" height="18" rx="2.5" />
-          <path d="M10.5 18h3" />
-        </svg>
-      );
-    case "tablet":
-      return (
-        <svg css={styles.icon} viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="4" y="3.5" width="16" height="17" rx="2" />
-          <path d="M11 17.5h2" />
-        </svg>
-      );
-    default:
-      return (
-        <svg css={styles.icon} viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="4" y="4.5" width="16" height="10" rx="1" />
-          <rect x="2.5" y="16.5" width="19" height="2.5" rx="1.25" />
-        </svg>
-      );
-  }
-}
-
+/** fluidDisplay at each breakpoint, with the step of the window lit. */
 export function ViewportScaleSpecimen() {
-  // documentElement.clientWidth is the layout-viewport width (scrollbar
-  // excluded). It matches the media-query width on overlay-scrollbar platforms
-  // (macOS, mobile); with classic scrollbars the two can differ by the gutter
-  // within a breakpoint of the boundary, so the lit band may briefly lag the
-  // real title there.
+  return (
+    <div css={stack.item}>
+      <div css={styles.strip}>
+        {STEPS.map((step) => (
+          <div key={step.label} css={[stack.tight, styles.cell]}>
+            <span
+              aria-hidden="true"
+              css={[
+                styles.glyph,
+                textLit[step.label],
+                styles.glyphSize(
+                  `${step.size.toString()}rem`,
+                  FLUID_DISPLAY_WEIGHT,
+                ),
+              ]}
+            >
+              Ag
+            </span>
+            <span css={[typeRole.caption, typeModifier.numeric, styles.mono]}>
+              {`${step.size.toString()}rem`}
+            </span>
+          </div>
+        ))}
+        <div css={[corner.radius_2, styles.bandRow]}>
+          {STEPS.map((step) => (
+            <div key={step.label} css={[styles.band, bandLit[step.label]]}>
+              <span
+                css={[typeRole.caption, styles.bandLabel, textLit[step.label]]}
+              >
+                {step.label}
+              </span>
+              <span css={[typeRole.caption, typeModifier.numeric, styles.mono]}>
+                {step.threshold}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <WindowWidthReadout />
+    </div>
+  );
+}
+
+function WindowWidthReadout() {
   const [viewport, setViewport] = useState<number | undefined>(undefined);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const colRef = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
     let frame = 0;
     const measure = () => {
-      setViewport(document.documentElement.clientWidth);
+      setViewport(window.innerWidth);
     };
-    // Coalesce a resize burst into one read + render per frame, matching the
-    // container specimen's scroll handler.
     const onResize = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(measure);
@@ -104,206 +88,158 @@ export function ViewportScaleSpecimen() {
     };
   }, []);
 
-  const band = viewport === undefined ? -1 : bandOf(viewport);
-
-  // Keep the lit column on screen — on a phone the active band sits off the
-  // right edge of the scrollable grid otherwise. Re-runs on every viewport
-  // change (not just band changes) so an in-band resize re-centres it too.
-  // Instant on purpose: this follows layout, it isn't a user gesture.
-  useEffect(() => {
-    if (viewport === undefined) return;
-    const scroll = scrollRef.current;
-    const col = colRef.current[band];
-    if (!scroll || !col) return;
-    centerInScrollX(scroll, col, "auto");
-  }, [band, viewport]);
+  const active =
+    viewport === undefined
+      ? undefined
+      : STEPS.findLast((step) => viewport >= step.min);
 
   return (
-    <div css={stack.item}>
-      <ScrollMask
-        ref={scrollRef}
-        orientation="horizontal"
-        css={styles.scrollRoot}
-        contentCss={[scrollX.base, styles.scroll]}
+    <p css={[stack.text, styles.marker]}>
+      <span css={[typeRole.overline, styles.mono]}>
+        {t({ en: "your window", zh: "你的窗口" })}
+      </span>
+      <span
+        css={[typeRole.bodySmall, typeModifier.numeric, styles.markerValue]}
       >
-        <div css={styles.matrix}>
-          <span aria-hidden="true" />
-          {STEPS.map((step, c) => {
-            const active = c === band;
-            return (
-              <div
-                key={step.label}
-                ref={(node) => {
-                  colRef.current[c] = node;
-                }}
-                css={[styles.colHead, active && styles.colHeadActive]}
-              >
-                <span css={[styles.iconWrap, active && styles.iconWrapActive]}>
-                  <DeviceIcon device={step.device} />
-                </span>
-                <span css={[stack.text, align.center]}>
-                  <span
-                    css={[
-                      typeRole.caption,
-                      styles.colBand,
-                      active && styles.colBandActive,
-                    ]}
-                  >
-                    {step.label}
-                  </span>
-                  <span
-                    css={[
-                      typeRole.caption,
-                      typeModifier.numeric,
-                      styles.colThreshold,
-                    ]}
-                  >
-                    {step.threshold}
-                  </span>
-                </span>
-              </div>
-            );
-          })}
-
-          {ROWS.map((row) => (
-            <Fragment key={row.role}>
-              <span css={[typeRole.caption, styles.rowToken]}>{row.role}</span>
-              {row.sizes.map((size, c) => (
-                <div
-                  key={STEPS[c].label}
-                  css={[
-                    corner.radius_1,
-                    styles.cell,
-                    c === band && styles.cellActive,
-                  ]}
-                >
-                  <span
-                    css={[
-                      styles.glyph,
-                      styles.glyphSize(`${size.toString()}rem`, row.weight),
-                    ]}
-                  >
-                    Ag
-                  </span>
-                </div>
-              ))}
-            </Fragment>
-          ))}
-        </div>
-      </ScrollMask>
-
-      <p css={[stack.text, styles.marker]} aria-live="polite">
-        <span css={[typeRole.overline, styles.markerLabel]}>
-          {t({ en: "your window", zh: "你的窗口" })}
-        </span>
-        <span
-          css={[typeRole.bodySmall, typeModifier.numeric, styles.markerValue]}
-        >
-          {viewport === undefined ? (
-            "\u00A0"
-          ) : (
-            <>
-              {`${viewport.toString()}px → `}
-              <span css={styles.markerBand}>{STEPS[band].label}</span>
-            </>
-          )}
-        </span>
-      </p>
-    </div>
+        {viewport === undefined ? (
+          " "
+        ) : (
+          <>
+            {`${viewport.toString()}px → `}
+            <span css={styles.markerBand}>{active?.label}</span>
+          </>
+        )}
+      </span>
+    </p>
   );
 }
 
 const styles = stylex.create({
-  scrollRoot: {
-    marginInline: `calc(-1 * ${space._1})`,
-  },
-  scroll: {
-    touchAction: "pan-x",
-    paddingInline: space._1,
-  },
-  matrix: {
+  strip: {
     display: "grid",
-    gridTemplateColumns: "auto repeat(4, minmax(72px, 1fr))",
-    gap: rhythm.item,
-    alignItems: "end",
-    minInlineSize: "max-content",
-  },
-  colHead: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: rhythm.tight,
-    paddingBlockEnd: space._1,
-    boxShadow: `inset 0 -1px 0 0 ${color.border}`,
-  },
-  colHeadActive: {
-    boxShadow: `inset 0 -2px 0 0 ${color.bgAccent}`,
-  },
-  iconWrap: {
-    display: "flex",
-    color: color.fgMuted,
-  },
-  iconWrapActive: {
-    color: color.bgAccent,
-  },
-  icon: {
-    inlineSize: "1.5rem",
-    blockSize: "1.5rem",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.5,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-  },
-  colBand: {
-    fontFamily: font.familyMono,
-    fontWeight: font.weight_6,
-    color: color.fgMuted,
-  },
-  colBandActive: {
-    color: color.fgAccent,
-  },
-  colThreshold: {
-    fontFamily: font.familyMono,
-    color: color.fgMuted,
-  },
-  rowToken: {
-    alignSelf: "center",
-    paddingInlineEnd: space._2,
-    fontFamily: font.familyMono,
-    color: color.fgMuted,
-    whiteSpace: "nowrap",
+    gridTemplateColumns: "repeat(4, minmax(min-content, 1fr))",
+    columnGap: rhythm.inline,
+    rowGap: rhythm.tight,
   },
   cell: {
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    paddingBlock: space._1,
-  },
-  cellActive: {
-    backgroundColor: color.bgAccentSubtle,
+    alignItems: "center",
+    justifyContent: "flex-end",
   },
   glyph: {
     lineHeight: font.lineHeight_0,
-    color: color.fg,
   },
   glyphSize: (fontSize: string, fontWeight: number) => ({
     fontSize,
     fontWeight,
   }),
-  marker: {
-    margin: 0,
-  },
-  markerLabel: {
+  mono: {
     fontFamily: font.familyMono,
     color: color.fgMuted,
+  },
+  bandRow: {
+    display: "grid",
+    gridColumn: "1 / -1",
+    gridTemplateColumns: "subgrid",
+    columnGap: gridlineTokens.width,
+    overflow: "hidden",
+    boxShadow: `inset 0 0 0 1px ${color.border}`,
+    backgroundColor: color.bgCanvas,
+  },
+  band: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    paddingBlock: space._2,
+    paddingInline: space._1,
+  },
+  bandLabel: {
+    fontFamily: font.familyMono,
+    fontWeight: font.weight_6,
+  },
+  marker: {
+    margin: 0,
   },
   markerValue: {
     fontFamily: font.familyMono,
     color: color.fg,
   },
   markerBand: {
-    color: color.fgAccent,
     fontWeight: font.weight_6,
+  },
+});
+
+const bandLit = stylex.create({
+  base: {
+    backgroundColor: {
+      default: color.bgNeutralSubtle,
+      [breakpoints.sm]: color.bgSurface,
+    },
+    boxShadow: {
+      default: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.sm]: "inset 0 -2px 0 0 transparent",
+    },
+  },
+  sm: {
+    backgroundColor: {
+      default: color.bgSurface,
+      [breakpoints.sm]: color.bgNeutralSubtle,
+      [breakpoints.md]: color.bgSurface,
+    },
+    boxShadow: {
+      default: "inset 0 -2px 0 0 transparent",
+      [breakpoints.sm]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.md]: "inset 0 -2px 0 0 transparent",
+    },
+  },
+  md: {
+    backgroundColor: {
+      default: color.bgSurface,
+      [breakpoints.md]: color.bgNeutralSubtle,
+      [breakpoints.lg]: color.bgSurface,
+    },
+    boxShadow: {
+      default: "inset 0 -2px 0 0 transparent",
+      [breakpoints.md]: `inset 0 -2px 0 0 ${color.fg}`,
+      [breakpoints.lg]: "inset 0 -2px 0 0 transparent",
+    },
+  },
+  lg: {
+    backgroundColor: {
+      default: color.bgSurface,
+      [breakpoints.lg]: color.bgNeutralSubtle,
+    },
+    boxShadow: {
+      default: "inset 0 -2px 0 0 transparent",
+      [breakpoints.lg]: `inset 0 -2px 0 0 ${color.fg}`,
+    },
+  },
+});
+
+const textLit = stylex.create({
+  base: {
+    color: {
+      default: color.fg,
+      [breakpoints.sm]: color.fgMuted,
+    },
+  },
+  sm: {
+    color: {
+      default: color.fgMuted,
+      [breakpoints.sm]: color.fg,
+      [breakpoints.md]: color.fgMuted,
+    },
+  },
+  md: {
+    color: {
+      default: color.fgMuted,
+      [breakpoints.md]: color.fg,
+      [breakpoints.lg]: color.fgMuted,
+    },
+  },
+  lg: {
+    color: {
+      default: color.fgMuted,
+      [breakpoints.lg]: color.fg,
+    },
   },
 });
