@@ -4,7 +4,7 @@ export const maxDuration = 90;
 
 export async function POST(
   request: Request,
-  { params }: RouteContext<"/api/accounts/[accountId]/sync">,
+  { params }: RouteContext<"/api/accounts/[accountId]/check">,
 ) {
-  return accountHandlers.syncNow(request, (await params).accountId);
+  return accountHandlers.checkNow(request, (await params).accountId);
 }

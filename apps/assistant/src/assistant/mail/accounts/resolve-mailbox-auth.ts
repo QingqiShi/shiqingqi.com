@@ -41,15 +41,17 @@ export class OAuthNotConfiguredError extends Error {
 }
 
 /**
- * The IMAP login of an account. An OAuth access token near its expiry is
- * refreshed, and the new tokens are stored before they are used: Microsoft
- * makes the old refresh token stop working.
+ * The IMAP login of an account. An OAuth access token near its expiry, or
+ * any OAuth access token with `forceRefresh`, is refreshed, and the new
+ * tokens are stored before they are used: Microsoft makes the old refresh
+ * token stop working.
  */
 export async function resolveMailboxAuth(
   db: AssistantDb,
   userId: string,
   account: StoredAccount,
   deps: MailboxAuthDeps,
+  { forceRefresh = false }: { forceRefresh?: boolean } = {},
 ): Promise<MailboxAuth> {
   const owner = { userId, accountId: account.id };
   const credential = accountCredential.open(
@@ -62,7 +64,10 @@ export async function resolveMailboxAuth(
     return { user: account.address, pass: credential.password };
   }
   const now = deps.now();
-  if (credential.accessTokenExpiresAt - now.getTime() > REFRESH_MARGIN_MS) {
+  if (
+    !forceRefresh &&
+    credential.accessTokenExpiresAt - now.getTime() > REFRESH_MARGIN_MS
+  ) {
     return { user: account.address, accessToken: credential.accessToken };
   }
   if (account.provider === "icloud") throw new CredentialUnreadableError();

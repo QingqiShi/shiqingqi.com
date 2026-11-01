@@ -10,23 +10,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 
-/** Lets the app write the events it is sure about to the user's iCloud Calendar. On by default. */
-export function CalendarToggle({
-  initial,
-  address,
-}: {
-  initial: boolean;
-  /** The iCloud account whose calendar the app writes to. */
-  address: string;
-}) {
+/** Lets the app file inbox mail into folders. Off until the user turns it on. */
+export function OrganiseToggle({ initial }: { initial: boolean }) {
   const router = useRouter();
   const [enabled, setEnabled] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
-  const label = t({
-    en: "Add events to my calendar",
-    zh: "把安排加入我的日历",
-  });
+  const label = t({ en: "Organise my inbox", zh: "整理我的收件箱" });
 
   return (
     <div css={stack.tight}>
@@ -35,9 +25,9 @@ export function CalendarToggle({
           <Text weight="medium">{label}</Text>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "Appointments, trips and deadlines from new mail go into the “Mail Assistant” calendar of {address}, with alarms. A later mail in the same thread moves or removes the event. Events the assistant is unsure about wait in the digest for you to add.",
-              zh: "新邮件里的预约、行程和截止日期会写入 {address} 的“邮件助手”日历，并设置提醒。同一封邮件往来中后续的改期或取消会更新或删除这个安排。助手拿不准的安排会留在摘要里，由你决定是否加入。",
-            }).replace("{address}", address)}
+              en: "Every 15 minutes the assistant files each inbox mail into a folder and marks it read. The first runs work through your whole existing inbox. It never deletes mail.",
+              zh: "助手每 15 分钟把收件箱里的每封邮件归入一个文件夹并标为已读。最初几次会处理你现有的整个收件箱。它从不删除邮件。",
+            })}
           </Text>
         </div>
         <Switch
@@ -48,7 +38,7 @@ export function CalendarToggle({
             const wanted = next === "on";
             setBusy(true);
             setFailed(false);
-            assistantFetch("/api/settings/calendar", {
+            assistantFetch("/api/settings/organise", {
               method: "PUT",
               body: JSON.stringify({ enabled: wanted }),
             })
@@ -75,12 +65,6 @@ export function CalendarToggle({
           </Text>
         ) : null}
       </div>
-      <Text as="p" look="bodySmall" tone="muted">
-        {t({
-          en: "The assistant reads your other calendars only to skip events that are there already, such as invitations you accepted. It never changes them.",
-          zh: "助手读取你的其他日历，只是为了跳过已经存在的安排（比如你已接受的邀请），从不改动它们。",
-        })}
-      </Text>
     </div>
   );
 }

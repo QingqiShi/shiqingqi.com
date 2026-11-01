@@ -7,11 +7,10 @@ import {
   assistantNoContent,
 } from "#src/assistant/http/assistant-json.ts";
 import { guardRequest } from "#src/assistant/http/guard-request.ts";
-import { FIRST_SYNC_BUDGET_MS } from "#src/assistant/mail/constants.ts";
 import { MAIL_SERVERS } from "#src/assistant/mail/imap/mail-servers.ts";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
 import type { MailHandlerDeps } from "#src/assistant/mail/types.ts";
-import { syncUserMail } from "../sync/sync-user-mail.ts";
+import { checkAccount } from "./check-account.ts";
 import { saveAccount } from "./save-account.ts";
 
 const passwordBody = z.object({
@@ -71,18 +70,7 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
           now: deps.now(),
         }),
       );
-      deps.runAfter(() =>
-        syncUserMail(
-          {
-            db,
-            userId,
-            accountIds: [accountId],
-            endsAt: deps.now().getTime() + FIRST_SYNC_BUDGET_MS,
-            now: deps.now,
-          },
-          mail,
-        ),
-      );
+      deps.runAfter(() => checkAccount(db, userId, accountId, mail));
       return assistantJson({ accountId }, { status: 201 });
     };
   }
@@ -110,8 +98,11 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
         : assistantJson({ error: "not-found" }, { status: 404 });
     },
 
-    /** Syncs one account now, also one that waits for a new connect. */
-    syncNow: async (request: Request, accountId: string): Promise<Response> => {
+    /** Logs in to one account now and reads its folders, also for one that waits for a new connect. */
+    checkNow: async (
+      request: Request,
+      accountId: string,
+    ): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
       const mail = deps.getMailDeps();
@@ -120,17 +111,13 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
       if (!z.uuid().safeParse(accountId).success) {
         return assistantJson({ error: "not-found" }, { status: 404 });
       }
-      const result = await syncUserMail(
-        {
-          db: deps.getDb(),
-          userId: session.userId,
-          accountIds: [accountId],
-          endsAt: deps.now().getTime() + FIRST_SYNC_BUDGET_MS,
-          now: deps.now,
-        },
+      const result = await checkAccount(
+        deps.getDb(),
+        session.userId,
+        accountId,
         mail,
       );
-      if (result.accounts === 0) {
+      if (!result) {
         return assistantJson({ error: "not-found" }, { status: 404 });
       }
       return assistantJson(result);

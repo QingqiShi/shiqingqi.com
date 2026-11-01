@@ -1,0 +1,1 @@
+export const ORGANISE_NOTES_MAX_CHARS = 2000;

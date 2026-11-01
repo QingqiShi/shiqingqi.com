@@ -1,6 +1,7 @@
 import {
   ImapFlow,
   type FetchMessageObject,
+  type ImapFlowError,
   type MessageAddressObject,
 } from "imapflow";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
@@ -49,6 +50,27 @@ function toFetchedMessage(message: FetchMessageObject): FetchedMessage {
   };
 }
 
+function isAuthenticationFailure(error: unknown): error is ImapFlowError {
+  return (
+    error instanceof Error &&
+    "authenticationFailed" in error &&
+    error.authenticationFailed === true
+  );
+}
+
+/** The server's own words, such as Outlook's "AUTHENTICATE failed.", so that the account shows why. */
+function refusalMessage(error: ImapFlowError) {
+  const text =
+    error.responseText ??
+    (typeof error.response === "string" ? error.response : null);
+  const detail = [error.serverResponseCode, text]
+    .filter((part) => typeof part === "string" && part.trim() !== "")
+    .join(" ");
+  return detail === ""
+    ? undefined
+    : `The mail server refused the login: ${detail}`;
+}
+
 function ascending(uids: number[] | false | undefined): number[] {
   return [...(uids || [])].sort((a, b) => a - b);
 }
@@ -71,22 +93,19 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
   try {
     await client.connect();
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "authenticationFailed" in error &&
-      error.authenticationFailed
-    ) {
-      throw new MailboxAuthError();
+    if (isAuthenticationFailure(error)) {
+      throw new MailboxAuthError(refusalMessage(error));
     }
     throw error;
   }
 
   const session: MailboxSession = {
-    async listFolders() {
-      const listed = await client.list({
-        statusQuery: { messages: true, unseen: true },
-      });
+    async listFolders(options) {
+      const listed = await client.list(
+        options?.counts === false
+          ? {}
+          : { statusQuery: { messages: true, unseen: true } },
+      );
       return listed.map((folder): MailboxFolder => ({
         path: folder.path,
         name: folder.name,
@@ -96,6 +115,13 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
         messages: folder.status?.messages ?? null,
         unseen: folder.status?.unseen ?? null,
       }));
+    },
+    async createFolder(path) {
+      await client.mailboxCreate(path);
+      await client.mailboxSubscribe(path);
+    },
+    supportsMove() {
+      return client.capabilities.has("MOVE");
     },
     async openFolder(path, options) {
       const opened = await client.mailboxOpen(path, {

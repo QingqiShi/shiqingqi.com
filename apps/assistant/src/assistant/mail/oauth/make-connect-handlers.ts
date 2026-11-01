@@ -8,7 +8,6 @@ import { readRequestCookie } from "#src/assistant/auth/read-request-cookie.ts";
 import { signInPath } from "#src/assistant/auth/sign-in-path.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
 import { assistantJson, NO_STORE } from "#src/assistant/http/assistant-json.ts";
-import { FIRST_SYNC_BUDGET_MS } from "#src/assistant/mail/constants.ts";
 import { MAIL_SERVERS } from "#src/assistant/mail/imap/mail-servers.ts";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
 import { buildAuthorizeUrl } from "#src/assistant/mail/oauth/build-authorize-url.ts";
@@ -18,8 +17,8 @@ import { exchangeCode } from "#src/assistant/mail/oauth/exchange-code.ts";
 import { OAuthTokenError } from "#src/assistant/mail/oauth/oauth-token-error.ts";
 import type { Fetch } from "#src/assistant/mail/oauth/types.ts";
 import type { MailHandlerDeps } from "#src/assistant/mail/types.ts";
+import { checkAccount } from "../accounts/check-account.ts";
 import { saveAccount } from "../accounts/save-account.ts";
-import { syncUserMail } from "../sync/sync-user-mail.ts";
 import { connectCookie } from "./connect-cookie.ts";
 import {
   connectCallbackPath,
@@ -215,18 +214,7 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
           now: deps.now(),
         }),
       );
-      deps.runAfter(() =>
-        syncUserMail(
-          {
-            db,
-            userId,
-            accountIds: [accountId],
-            endsAt: deps.now().getTime() + FIRST_SYNC_BUDGET_MS,
-            now: deps.now,
-          },
-          mail,
-        ),
-      );
+      deps.runAfter(() => checkAccount(db, userId, accountId, mail));
       return redirect(
         accountsUrl(origin, locale, { connected: provider }),
         clear,

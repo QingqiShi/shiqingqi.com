@@ -1,13 +1,13 @@
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { isAssistantConfigured } from "#src/assistant/db/is-assistant-configured.ts";
-import { getMailDeps } from "#src/assistant/mail/get-mail-deps.ts";
-import { makeMailSyncCron } from "#src/assistant/mail/sync/make-mail-sync-cron.ts";
+import { getOrganiseDeps } from "#src/assistant/organise/get-organise-deps.ts";
+import { makeOrganiseCron } from "#src/assistant/organise/make-organise-cron.ts";
 
 export const maxDuration = 300;
 
-export const GET = makeMailSyncCron({
+export const GET = makeOrganiseCron({
   isConfigured: isAssistantConfigured,
   getDb: getAssistantDb,
   now: () => new Date(),
-  getMailDeps,
+  getOrganiseDeps,
 });
