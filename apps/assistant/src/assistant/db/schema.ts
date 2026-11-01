@@ -126,6 +126,12 @@ export const userSettings = pgTable(
     mailboxWritesSince: timestamp("mailbox_writes_since", {
       withTimezone: true,
     }),
+    /** On by default: with an iCloud account, the app writes the events it is sure about to the user's calendar. */
+    calendarEvents: boolean("calendar_events").notNull().default(true),
+    /** When `calendar_events` was last turned on: mail classified before it gets no event. */
+    calendarEventsSince: timestamp("calendar_events_since", {
+      withTimezone: true,
+    }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -165,6 +171,12 @@ export const mailAccounts = pgTable(
     writeErrorCode: text("write_error_code"),
     writeErrorMessage: text("write_error_message"),
     writeErrorAt: timestamp("write_error_at", { withTimezone: true }),
+    /** iCloud only: the app's own calendar, which it found or made. */
+    calendarUrl: text("calendar_url"),
+    /** The last failed calendar write; cleared by a calendar run without failures. */
+    calendarErrorCode: text("calendar_error_code"),
+    calendarErrorMessage: text("calendar_error_message"),
+    calendarErrorAt: timestamp("calendar_error_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -483,6 +495,72 @@ export const mailWriteStates = pgTable(
   ],
 );
 
+/**
+ * An event that the app wrote to its own calendar. `thread_ids` holds the
+ * Message-IDs of the thread, so that later mail in the thread finds the
+ * event to change or delete.
+ */
+export const calendarEvents = pgTable(
+  "calendar_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    /** The iCloud account whose calendar holds the event. */
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => mailAccounts.id, { onDelete: "cascade" }),
+    /** The iCalendar UID. */
+    uid: text("uid").notNull(),
+    /** The CalDAV resource, inside `mail_accounts.calendar_url`. */
+    url: text("url").notNull(),
+    threadIds: text("thread_ids").array().notNull(),
+    /** The event as the app last wrote it. */
+    event: jsonb("event").$type<MailEvent>().notNull(),
+    sequence: integer("sequence").notNull().default(0),
+    /** Set when a later mail cancelled the event and the app deleted it. */
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    unique("calendar_events_uid_key").on(t.userId, t.uid),
+    index("calendar_events_thread_idx").using("gin", t.threadIds),
+  ],
+);
+
+export const CALENDAR_WRITE_RESULTS = [
+  "created",
+  "updated",
+  "cancelled",
+  /** The user's calendars have the event already. */
+  "duplicate",
+  /** A change or cancel found no event of the app in the thread. */
+  "unmatched",
+  /** The event was over when the app came to it. */
+  "past",
+] as const;
+export type CalendarWriteResult = (typeof CALENDAR_WRITE_RESULTS)[number];
+
+/**
+ * What the app did with the event of one classified mail. A row without
+ * `result` holds failed attempts; at the limit the app stops trying.
+ */
+export const calendarWrites = pgTable("calendar_writes", {
+  classificationId: uuid("classification_id")
+    .primaryKey()
+    .references(() => mailClassifications.id, { onDelete: "cascade" }),
+  userId: userId(),
+  result: text("result", { enum: CALENDAR_WRITE_RESULTS }),
+  eventId: uuid("event_id").references(() => calendarEvents.id, {
+    onDelete: "set null",
+  }),
+  failures: smallint("failures").notNull().default(0),
+  lastError: text("last_error"),
+  writtenAt: timestamp("written_at", { withTimezone: true }),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
 /** One device that gets the digest notification. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
@@ -514,5 +592,7 @@ export const schema = {
   mailDigests,
   mailCorrections,
   mailWriteStates,
+  calendarEvents,
+  calendarWrites,
   pushSubscriptions,
 };

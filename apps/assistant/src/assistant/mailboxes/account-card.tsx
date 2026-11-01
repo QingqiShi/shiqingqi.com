@@ -7,6 +7,7 @@ import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { PROVIDER_NAMES } from "#src/assistant/mailboxes/provider-names.ts";
+import type { CalendarErrorCode } from "../calendar/write-calendar-events.ts";
 import type { AccountSummary } from "../mail/accounts/list-accounts.ts";
 import type { SyncErrorCode } from "../mail/sync/describe-sync-error.ts";
 import type { WriteErrorCode } from "../mail/tidy/write-mailboxes.ts";
@@ -88,6 +89,25 @@ function WriteErrorText({ code }: { code: string }) {
   );
 }
 
+function CalendarErrorText({ code }: { code: string }) {
+  const messages: Record<CalendarErrorCode, string> = {
+    calendar_login_refused: t({
+      en: "iCloud Calendar refused the login, so no events were written. Make a new app-specific password and connect this mailbox again.",
+      zh: "iCloud 日历拒绝了登录，所以没有写入任何安排。请生成新的 App 专用密码并重新连接这个邮箱。",
+    }),
+    calendar_failed: t({
+      en: "The assistant could not write some events to iCloud Calendar. The next sync tries again.",
+      zh: "助手没能把部分安排写入 iCloud 日历，下次同步会再试。",
+    }),
+  };
+  return (
+    <Text as="p" look="bodySmall">
+      {new Map<string, string>(Object.entries(messages)).get(code) ??
+        messages.calendar_failed}
+    </Text>
+  );
+}
+
 /** One connected mailbox: its sync state, the last error, and what to do about it. */
 export function AccountCard({
   account,
@@ -145,6 +165,19 @@ export function AccountCard({
                   ? `${formatDate(account.writeErrorAt)} · `
                   : null}
                 {account.writeErrorMessage}
+              </Text>
+            ) : null}
+          </div>
+        ) : null}
+        {account.calendarErrorCode ? (
+          <div css={stack.text}>
+            <CalendarErrorText code={account.calendarErrorCode} />
+            {account.calendarErrorMessage ? (
+              <Text look="caption" tone="muted">
+                {account.calendarErrorAt
+                  ? `${formatDate(account.calendarErrorAt)} · `
+                  : null}
+                {account.calendarErrorMessage}
               </Text>
             ) : null}
           </div>

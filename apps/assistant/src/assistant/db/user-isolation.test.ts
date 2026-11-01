@@ -16,6 +16,8 @@ import { z } from "zod";
 import { ASSISTANT_MIGRATIONS_FOLDER } from "./assistant-migrations-folder.ts";
 import { listUserIds } from "./list-user-ids.ts";
 import {
+  calendarEvents,
+  calendarWrites,
   invites,
   mailAccounts,
   mailCategories,
@@ -107,14 +109,45 @@ async function seedEveryUserTable(db: AssistantDb, userId: string) {
       sourceMessageId: message.id,
     })
     .returning();
-  await db.insert(mailClassifications).values({
+  const [classification] = await db
+    .insert(mailClassifications)
+    .values({
+      userId,
+      messageId: message.id,
+      bucket: "filed",
+      categoryId: category.id,
+      decidedBy: "sender_rule",
+      reason: "sender-rule",
+      senderRuleId: rule.id,
+    })
+    .returning();
+  const [event] = await db
+    .insert(calendarEvents)
+    .values({
+      userId,
+      accountId: account.id,
+      uid: `${userId}@assistant.qingqi.dev`,
+      url: `https://caldav.icloud.com/${userId}/calendars/assistant/event.ics`,
+      threadIds: [message.messageId],
+      event: {
+        kind: "appointment",
+        change: "new",
+        title: "Dentist",
+        start: "2026-11-05T14:30",
+        end: null,
+        allDay: false,
+        timeZone: "Europe/London",
+        location: null,
+        certainty: "sure",
+      },
+    })
+    .returning();
+  await db.insert(calendarWrites).values({
     userId,
-    messageId: message.id,
-    bucket: "filed",
-    categoryId: category.id,
-    decidedBy: "sender_rule",
-    reason: "sender-rule",
-    senderRuleId: rule.id,
+    classificationId: classification.id,
+    result: "created",
+    eventId: event.id,
+    writtenAt: new Date(),
   });
   await db.insert(mailCorrections).values({
     userId,
