@@ -10,7 +10,7 @@ import { color, rhythm } from "@tuja/ui/tokens.stylex";
 import { useId, useState, type Ref } from "react";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type { CategoryRow } from "../sync/row-schemas.ts";
-import { FieldLabel } from "./field-label.tsx";
+import { FieldLabel, type LabelMark } from "./field-label.tsx";
 
 interface CategoryPickerProps {
   /** Live Categories of the Transaction's kind, in tree order. */
@@ -20,7 +20,7 @@ interface CategoryPickerProps {
   topIds: readonly string[];
   value: string | null;
   onChange: (categoryId: string) => void;
-  fromLastTime: boolean;
+  mark?: LabelMark;
   error?: string;
   firstChipRef?: Ref<HTMLButtonElement>;
 }
@@ -62,7 +62,7 @@ export function CategoryPicker({
   topIds,
   value,
   onChange,
-  fromLastTime,
+  mark,
   error,
   firstChipRef,
 }: CategoryPickerProps) {
@@ -90,7 +90,7 @@ export function CategoryPicker({
       aria-describedby={error ? errorId : undefined}
       css={stack.tight}
     >
-      <FieldLabel id={labelId} fromLastTime={fromLastTime}>
+      <FieldLabel id={labelId} mark={mark}>
         {t({ en: "Category", zh: "分类" })}
       </FieldLabel>
       <div css={cluster.tight}>

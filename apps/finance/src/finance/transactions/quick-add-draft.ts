@@ -1,3 +1,4 @@
+import { currencyExponent } from "../domain/money/currency-exponent.ts";
 import { minorUnitsToDecimalString } from "../domain/money/to-minor-units.ts";
 import { draftOfNew } from "../editor/draft-of-transaction.ts";
 import type { EditorDraft } from "../editor/editor-draft.ts";
@@ -6,12 +7,33 @@ import { normalisePayeeText, rankPayees } from "../editor/rank-payees.ts";
 import type { EditorData } from "../editor/use-editor-data.ts";
 import type { QuickAdd } from "./parse-quick-add.ts";
 
-interface QuickAddDraft {
-  draft: EditorDraft;
-  /** The Payee the text names, when one does. */
-  payeeName: string | null;
-  /** True when every field has a value, so Enter saves without the form. */
-  complete: boolean;
+/**
+ * The amount text of `minor`, read from the text in `writtenIn`'s minor
+ * units, for an account in `currency`: the number keeps the value the text
+ * wrote, so 1200 read as GBP is "1200" for a JPY account. A number with more
+ * decimals than `currency` has stays as written, and the editor asks for a
+ * readable amount.
+ */
+export function amountTextFor(
+  minor: number,
+  writtenIn: string,
+  currency: string,
+) {
+  const gap = currencyExponent(currency) - currencyExponent(writtenIn);
+  if (gap >= 0) return minorUnitsToDecimalString(minor * 10 ** gap, currency);
+  const scale = 10 ** -gap;
+  return minor % scale === 0
+    ? minorUnitsToDecimalString(minor / scale, currency)
+    : minorUnitsToDecimalString(minor, writtenIn);
+}
+
+/** The currency of `accountId`, or the base currency without one. */
+export function currencyOfAccount(data: EditorData, accountId: string | null) {
+  return (
+    (accountId === null
+      ? undefined
+      : data.lookups.accountById.get(accountId)?.currency) ?? data.baseCurrency
+  );
 }
 
 /** The account whose name, institution or label best fits `text`. */
@@ -82,38 +104,32 @@ function lastAccountOfCategory(data: EditorData, categoryId: string) {
  * The editor draft a quick-add line describes: the Payee it names (an exact
  * name first, then a Category by name, else the best Payee prefix match),
  * and everything else from that Payee's last Transaction, today and the
- * signed-in Member. A word after an amount in the middle names the account.
+ * signed-in Member. A word after an amount in the middle names the account;
+ * when no account fits it, the account is left empty.
  */
-export function quickAddDraft(
-  data: EditorData,
-  parsed: QuickAdd,
-): QuickAddDraft {
+export function quickAddDraft(data: EditorData, parsed: QuickAdd): EditorDraft {
+  const draft = draftWithoutAmount(data, parsed);
+  return {
+    ...draft,
+    amountText:
+      parsed.amountMinor === null
+        ? ""
+        : amountTextFor(
+            parsed.amountMinor,
+            data.baseCurrency,
+            currencyOfAccount(data, draft.accountId),
+          ),
+  };
+}
+
+function draftWithoutAmount(data: EditorData, parsed: QuickAdd): EditorDraft {
   const base = draftOfNew(data, parsed.kind);
-  const currency =
-    (base.accountId === null
-      ? undefined
-      : data.lookups.accountById.get(base.accountId)?.currency) ??
-    data.baseCurrency;
-  const amountText =
-    parsed.amountMinor === null
-      ? ""
-      : minorUnitsToDecimalString(parsed.amountMinor, currency);
 
   if (parsed.kind === "transfer") {
     const accountId =
       parsed.text === "" ? base.accountId : matchAccount(data, parsed.text);
     const toAccountId = matchAccount(data, parsed.toText);
-    return {
-      draft: { ...base, amountText, accountId, toAccountId },
-      payeeName: null,
-      complete:
-        amountText !== "" &&
-        accountId !== null &&
-        toAccountId !== null &&
-        accountId !== toAccountId &&
-        data.lookups.accountById.get(accountId)?.currency ===
-          data.lookups.accountById.get(toAccountId)?.currency,
-    };
+    return { ...base, accountId, toAccountId };
   }
 
   const text = parsed.text.trim();
@@ -129,21 +145,15 @@ export function quickAddDraft(
   const category = exactPayee ? undefined : matchCategory(data, text, parsed);
 
   if (category) {
-    const draft: EditorDraft = {
+    return {
       ...base,
       kind: category.kind,
-      amountText,
       categoryId: category.id,
-      accountId:
-        hintedAccountId ??
-        lastAccountOfCategory(data, category.id) ??
-        base.accountId,
-    };
-    return {
-      draft,
-      payeeName: null,
-      complete:
-        amountText !== "" && draft.accountId !== null && !accountHintFailed,
+      accountId: accountHintFailed
+        ? null
+        : (hintedAccountId ??
+          lastAccountOfCategory(data, category.id) ??
+          base.accountId),
     };
   }
 
@@ -156,7 +166,7 @@ export function quickAddDraft(
           limit: 1,
         }).find((payee) => normalisePayeeText(payee.name).startsWith(wanted)));
 
-  const draft: EditorDraft = { ...base, amountText, payeeName: text };
+  const draft: EditorDraft = { ...base, payeeName: text };
   if (best) {
     const prefill = prefillFromPayee({
       kind: parsed.kind,
@@ -178,28 +188,18 @@ export function quickAddDraft(
     draft.memberId = prefill.memberId ?? draft.memberId;
     draft.tagIds = prefill.tagIds;
     if (prefill.paysDown) {
-      const loanCurrency =
-        data.lookups.accountById.get(prefill.paysDown.accountId)?.currency ??
-        data.baseCurrency;
       draft.paysDownAccountId = prefill.paysDown.accountId;
       draft.paysDownAmountText = minorUnitsToDecimalString(
         prefill.paysDown.amountMinor,
-        loanCurrency,
+        currencyOfAccount(data, prefill.paysDown.accountId),
       );
     }
   }
   if (hintedAccountId !== null) draft.accountId = hintedAccountId;
+  if (accountHintFailed) draft.accountId = null;
   if (draft.paysDownAccountId === draft.accountId) {
     draft.paysDownAccountId = null;
     draft.paysDownAmountText = "";
   }
-  return {
-    draft,
-    payeeName: best?.name ?? (text === "" ? null : text),
-    complete:
-      amountText !== "" &&
-      draft.categoryId !== null &&
-      draft.accountId !== null &&
-      !accountHintFailed,
-  };
+  return draft;
 }

@@ -12,16 +12,17 @@ import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { useId } from "react";
 import { addDays } from "../domain/dates/add-days.ts";
 import { isValidDay } from "../domain/dates/to-epoch-day.ts";
-import { FieldLabel } from "./field-label.tsx";
+import { FieldLabel, type LabelMark } from "./field-label.tsx";
 
 interface DateChipsProps {
   value: string;
   today: string;
   onChange: (day: string) => void;
+  mark?: LabelMark;
 }
 
 /** The date as Today · Yesterday · 2 days ago chips, with the native date input for any other day. */
-export function DateChips({ value, today, onChange }: DateChipsProps) {
+export function DateChips({ value, today, onChange, mark }: DateChipsProps) {
   const labelId = useId();
   const inputId = useId();
   const choices = [
@@ -31,7 +32,9 @@ export function DateChips({ value, today, onChange }: DateChipsProps) {
   ];
   return (
     <div role="group" aria-labelledby={labelId} css={stack.tight}>
-      <FieldLabel id={labelId}>{t({ en: "Date", zh: "日期" })}</FieldLabel>
+      <FieldLabel id={labelId} mark={mark}>
+        {t({ en: "Date", zh: "日期" })}
+      </FieldLabel>
       <div css={cluster.tight}>
         {choices.map((choice) => (
           <Chip

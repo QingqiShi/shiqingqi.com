@@ -5,6 +5,7 @@ import {
   openNewExpense,
   openTransactions,
   optionValue,
+  quickAddLine,
   rowsWith,
   toast,
 } from "./transactions-page.ts";
@@ -24,6 +25,7 @@ test.describe("Transactions at 1440 px", () => {
 
     await quickAdd.click();
     await quickAdd.fill("12.5 tesco");
+    await expect(quickAdd).toHaveAttribute("aria-busy", "false");
     await quickAdd.press("Enter");
 
     await expect(added).toHaveCount(before + 1);
@@ -107,9 +109,7 @@ test.describe("Transactions at 1440 px", () => {
     session: _session,
   }) => {
     await openTransactions(page, dayListPath(household.today));
-    const quickAdd = page.getByRole("textbox", { name: "Quick add" });
-    await quickAdd.fill("3.21 tesco");
-    await quickAdd.press("Enter");
+    await quickAddLine(page, "3.21 tesco");
     const original = rowsWith(page, "Tesco", "3.21");
     await expect(original).toHaveCount(1);
 
