@@ -1,449 +1,184 @@
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check";
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { Card } from "@tuja/ui/components/card";
-import { popoverSurface } from "@tuja/ui/components/popover-surface.stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { Text } from "@tuja/ui/components/text";
-import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
-import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { border, color, rhythm, shadow, space } from "@tuja/ui/tokens.stylex";
-import { DocLink } from "#src/design-system/guide/doc-link.tsx";
-import { GuideList } from "#src/design-system/guide/guide-list.tsx";
+import {
+  border,
+  color,
+  controlHeight,
+  controlSize,
+  font,
+  rhythm,
+  shadow,
+  space,
+} from "@tuja/ui/tokens.stylex";
+import type { ReactNode } from "react";
+import { Example } from "#src/design-system/example.tsx";
 import {
   GuideNote,
   GuideSection,
 } from "#src/design-system/guide/guide-section.tsx";
-import { SpecCard } from "#src/design-system/spec-card.tsx";
-import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 import { UsageSnippet } from "#src/design-system/usage-snippet.tsx";
 
 export function SurfacesShowcase() {
-  const skins = [
-    {
-      term: "cardSurface.base",
-      value: "@tuja/ui/components/card.stylex",
-      note: t({
-        en: "What Card paints: a border.size_1 edge in color.border, color.bgSurface, and corner radius_3. It has no padding: add space._3 on the block axis and space._4 on the inline axis to match a Card.",
-        zh: "Card 所画的表面：color.border 颜色的 border.size_1 边框、color.bgSurface，以及 radius_3 圆角。它不带内边距：块向加 space._3、行向加 space._4，就与 Card 一致。",
-      }),
-    },
-    {
-      term: "cardSurface.interactive",
-      value: "@tuja/ui/components/card.stylex",
-      note: t({
-        en: "Add it to a card that is a link or a button. It sets the pointer cursor, an accent edge and a control fill on hover, and a focus ring drawn inside the edge, so overflow: hidden on the card does not clip it.",
-        zh: "用在本身就是链接或按钮的卡片上。它设置指针光标、悬停时的强调色边框与控件填充，以及画在边框内侧的焦点环，卡片设了 overflow: hidden 也不会把它裁掉。",
-      }),
-    },
-    {
-      term: "popoverSurface.base",
-      value: "@tuja/ui/components/popover-surface.stylex",
-      note: t({
-        en: "What Popover and MenuButton's menu paint: color.bgSurfaceRaised, a border.size_1 edge and radius_2. It leaves padding and clipping to you, and casts no shadow.",
-        zh: "Popover 与 MenuButton 菜单所画的表面：color.bgSurfaceRaised、border.size_1 边框与 radius_2 圆角。内边距与裁剪留给你，它也不投阴影。",
-      }),
-    },
-  ];
-
-  const widths = [
-    {
-      token: "border.size_1",
-      px: "1px",
-      swatch: styles.w1,
-      use: t({
-        en: "Every edge: Card, Popover, the fields, table rows, Callout, Section and Divider",
-        zh: "所有边框：Card、Popover、输入框、表格行、Callout、Section 与 Divider",
-      }),
-    },
-    {
-      token: "border.size_2",
-      px: "2px",
-      swatch: styles.w2,
-      use: t({
-        en: "Focus rings, the edge of a Checkbox and a Slider thumb, and a bold Divider",
-        zh: "焦点环、Checkbox 与 Slider 滑块的边框，以及加粗的 Divider",
-      }),
-    },
-    {
-      token: "border.size_3",
-      px: "5px",
-      swatch: styles.w3,
-      use: t({ en: "No component uses it", zh: "没有组件使用" }),
-    },
-    {
-      token: "border.size_4",
-      px: "10px",
-      swatch: styles.w4,
-      use: t({ en: "No component uses it", zh: "没有组件使用" }),
-    },
-    {
-      token: "border.size_5",
-      px: "25px",
-      swatch: styles.w5,
-      use: t({ en: "No component uses it", zh: "没有组件使用" }),
-    },
-  ];
-
-  const radii = [
-    {
-      token: "corner.radius_1",
-      meta: ".3rem",
-      swatch: radiusStyles.r1,
-      use: t({
-        en: "Checkbox, a Breadcrumb link, Callout's dismiss button",
-        zh: "Checkbox、Breadcrumb 链接、Callout 的关闭按钮",
-      }),
-    },
-    {
-      token: "corner.radius_2",
-      meta: ".5rem",
-      swatch: radiusStyles.r2,
-      use: t({
-        en: "The fields, Popover, Table, CodeBlock, Skeleton, Disclosure",
-        zh: "输入框、Popover、Table、CodeBlock、Skeleton、Disclosure",
-      }),
-    },
-    {
-      token: "corner.radius_3",
-      meta: "1rem",
-      swatch: radiusStyles.r3,
-      use: t({
-        en: "Card, Callout, and SidebarLayout's rail from md up",
-        zh: "Card、Callout，以及 md 及以上 SidebarLayout 的侧栏",
-      }),
-    },
-    {
-      token: "corner.radius_4",
-      meta: "2rem",
-      swatch: radiusStyles.r4,
-      use: t({ en: "Sheet", zh: "Sheet" }),
-    },
-    {
-      token: "corner.radius_5",
-      meta: "3rem",
-      swatch: radiusStyles.r5,
-      use: t({ en: "No component uses it", zh: "没有组件使用" }),
-    },
-    {
-      token: "corner.squircle_round",
-      meta: t({
-        en: "half of cornerTokens.height",
-        zh: "cornerTokens.height 的一半",
-      }),
-      swatch: radiusStyles.rSquircleRound,
-      use: t({
-        en: "Button, AnchorButton, SegmentedControl",
-        zh: "Button、AnchorButton、SegmentedControl",
-      }),
-    },
-    {
-      token: "corner.radius_round",
-      meta: t({ en: "circular caps", zh: "圆弧端帽" }),
-      swatch: radiusStyles.rRound,
-      use: t({
-        en: "A pill or a circle: Chip, Switch, Slider, Avatar, Progress",
-        zh: "胶囊或圆形：Chip、Switch、Slider、Avatar、Progress",
-      }),
-    },
-  ];
-
-  const shadows = [
-    {
-      token: "shadow._1",
-      swatch: shadowStyles.s1,
-      use: t({ en: "Avatar", zh: "Avatar" }),
-    },
-    {
-      token: "shadow._2",
-      swatch: shadowStyles.s2,
-      use: t({
-        en: "Button's filled looks, the Switch track, the Slider thumb, glassSurface",
-        zh: "Button 的实心外观、Switch 轨道、Slider 滑块、glassSurface",
-      }),
-    },
-    {
-      token: "shadow._3",
-      swatch: shadowStyles.s3,
-      use: t({ en: "The Switch thumb on hover", zh: "悬停时的 Switch 滑块" }),
-    },
-    {
-      token: "shadow._4",
-      swatch: shadowStyles.s4,
-      use: t({ en: "No component uses it", zh: "没有组件使用" }),
-    },
-    {
-      token: "shadow._5",
-      swatch: shadowStyles.s5,
-      use: t({ en: "No component uses it", zh: "没有组件使用" }),
-    },
-    {
-      token: "shadow._6",
-      swatch: shadowStyles.s6,
-      use: t({
-        en: "SidebarLayout's drawer below md, where it covers the page",
-        zh: "md 以下 SidebarLayout 的抽屉，此时它盖住页面",
-      }),
-    },
-    {
-      token: "shadow.inset",
-      swatch: shadowStyles.inset,
-      use: t({ en: "No component uses it", zh: "没有组件使用" }),
-    },
-  ];
-
   return (
     <>
       <GuideSection
-        title={t({ en: "Start from a skin", zh: "从现成的外观开始" })}
+        title={t({ en: "Paint it with a skin.", zh: "给它披上一层外观。" })}
         lead={t({
-          en: "Two style objects paint the surfaces the components use. Compose one onto your own element when it has to look like a Card or a popover, but Card itself does not fit: a link, a list item, a menu you build.",
-          zh: "有两个样式对象画出组件所用的表面。当你自己的元素必须看起来像 Card 或弹出层、而 Card 本身又用不上时——链接、列表项、自己搭的菜单——把其中一个组合上去。",
+          en: "Card wears cardSurface, and Popover and MenuButton wear popoverSurface. On an element that cannot be the component, compose the same style object.",
+          zh: "Card 披的是 cardSurface，Popover 与 MenuButton 披的是 popoverSurface。在不能换成该组件的元素上，就组合同一个样式对象。",
         })}
       >
-        <SpecimenGrid>
-          <Specimen
-            caption={t({
-              en: "cardSurface, through Card",
-              zh: "cardSurface，经由 Card",
-            })}
-          >
-            <Card css={[stack.text, styles.card]}>
-              <Text look="bodySmall" weight="semibold">
-                {t({ en: "Watchlist", zh: "待看清单" })}
-              </Text>
-              <Text look="caption" tone="muted">
-                {t({ en: "12 titles", zh: "12 部" })}
-              </Text>
-            </Card>
-          </Specimen>
-          <Specimen
-            caption={t({
-              en: "popoverSurface on a list you build",
-              zh: "你自己搭的列表上的 popoverSurface",
-            })}
-          >
-            <ul css={[popoverSurface.base, styles.menu]}>
-              <li css={[typeRole.label, corner.radius_1, styles.row]}>
-                {t({ en: "Newest first", zh: "最新的在前" })}
-              </li>
-              <li
-                aria-current="true"
-                css={[
-                  typeRole.label,
-                  corner.radius_1,
-                  styles.row,
-                  styles.rowSelected,
-                ]}
-              >
-                {t({ en: "Highest rated", zh: "评分最高" })}
-              </li>
-              <li css={[typeRole.label, corner.radius_1, styles.row]}>
-                {t({ en: "A to Z", zh: "按名称" })}
-              </li>
-            </ul>
-          </Specimen>
-        </SpecimenGrid>
-        <GuideList items={skins} />
-        <UsageSnippet
-          code={`import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { space } from "@tuja/ui/tokens.stylex";
-import { Link } from "#src/links/link.tsx";
-
-// Link is not a host element, so spread the compiled props.
-<Link
-  href="/watchlist"
-  {...stylex.props(cardSurface.base, cardSurface.interactive, styles.card)}
-/>
-
-const styles = stylex.create({
-  card: { paddingBlock: space._3, paddingInline: space._4 },
-});`}
-        />
-      </GuideSection>
-
-      <GuideSection
-        title={t({ en: "Border width", zh: "描边粗细" })}
-        lead={t({
-          en: "To draw an edge yourself, use border.size_1 in color.border, as every component edge does. border.size_2 is for focus rings and for a few control parts.",
-          zh: "自己画边框时，用 color.border 颜色的 border.size_1，组件的每条边框都是这样。border.size_2 用于焦点环和少数控件部件。",
-        })}
-      >
-        <UsageSnippet
-          code={`import { border, color } from "@tuja/ui/tokens.stylex";
-
-const styles = stylex.create({
-  panel: {
-    borderWidth: border.size_1,
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.bgSurface,
-  },
-});`}
-        />
-        <div css={styles.grid}>
-          {widths.map((step) => (
-            <SpecCard key={step.token} token={step.token} meta={step.px}>
-              <div css={[stack.tight, styles.underLabel]}>
-                <div css={[corner.radius_2, styles.widthSwatch, step.swatch]} />
-                <Text look="caption" tone="muted">
-                  {step.use}
-                </Text>
-              </div>
-            </SpecCard>
-          ))}
-        </div>
+        <Example>
+          <article css={[cardSurface.base, styles.padding]}>
+            <Text>{t({ en: "Watchlist", zh: "待看清单" })}</Text>
+          </article>
+        </Example>
         <GuideNote>
           {t({
-            en: "Which background and border colour a surface takes is on ",
-            zh: "表面该用哪种背景色与边框色，见",
+            en: "Neither skin pads its content, so add your own. Card adds space._5.",
+            zh: "两种外观都不带内边距，要自己加。Card 加的是 space._5。",
           })}
-          <DocLink path="/design-system/foundations/color" />
-          {t({ en: ".", zh: "。" })}
         </GuideNote>
       </GuideSection>
 
       <GuideSection
-        title={t({ en: "Corner radius", zh: "圆角" })}
+        title={t({
+          en: "Give a larger surface a larger corner.",
+          zh: "表面越大，圆角越大。",
+        })}
         lead={t({
-          en: "Round a corner with the corner Primitive. Each member sets a radius and the corner shape that goes with it: a squircle for radius_1 to radius_5, circular caps for radius_round. Pick the step of the component your surface sits beside.",
-          zh: "用 corner 原语做圆角。每个成员同时设定圆角半径与对应的角形：radius_1 到 radius_5 是超椭圆角，radius_round 是圆弧端帽。选择与你的表面相邻的组件所用的那一级。",
+          en: "Round a corner with the corner primitive, which sets the radius and its squircle shape together. Take the step of the component your surface sits beside.",
+          zh: "用 corner 原语做圆角，它同时设定半径与超椭圆角形。选用与你的表面相邻的组件所用的那一级。",
         })}
       >
-        <UsageSnippet
-          code={`import { corner, cornerTokens } from "@tuja/ui/primitives/corner.stylex";
-import { controlHeight } from "@tuja/ui/tokens.stylex";
-
-<article css={[corner.radius_3, styles.card]} />
-<span css={corner.radius_round} />
-<button css={[corner.squircle_round, styles.control]} />
-
-const styles = stylex.create({
-  // squircle_round closes at half this height. The default is controlHeight.md.
-  control: {
-    [cornerTokens.height]: controlHeight.sm,
-    minBlockSize: cornerTokens.height,
-  },
-});`}
-        />
-        <div css={styles.grid}>
-          {radii.map((step) => (
-            <SpecCard key={step.token} token={step.token} meta={step.meta}>
-              <div css={[stack.tight, styles.underLabel]}>
-                <div css={[styles.radiusSwatch, step.swatch]} />
-                <Text look="caption" tone="muted">
-                  {step.use}
-                </Text>
-              </div>
-            </SpecCard>
-          ))}
-        </div>
-        <GuideList
-          items={[
-            {
-              term: t({
-                en: "Without corner-shape",
-                zh: "不支持 corner-shape 时",
-              }),
-              note: t({
-                en: "A browser without corner-shape draws a circular arc. There, border.radius_1 to radius_5 fall back to 0.6 of their value, so the corner cuts about the same area. squircle_round falls back to 0.3 of cornerTokens.height, so a Button stays a rounded rectangle and does not turn into a pill.",
-                zh: "不支持 corner-shape 的浏览器画的是圆弧。在这种浏览器里，border.radius_1 到 radius_5 回退为原值的 0.6，角切掉的面积大致相同。squircle_round 回退为 cornerTokens.height 的 0.3，Button 因此仍是圆角矩形，不会变成胶囊。",
-              }),
-            },
-            {
-              term: t({
-                en: "A radius the Primitive cannot set",
-                zh: "原语设不了的圆角",
-              }),
-              note: t({
-                en: 'For a pseudo-element, a single corner or a calculated radius, write borderRadius from border.radius_* and put cornerShape: "squircle" beside it in the same style. Without it the corner is a circular arc at the full value, which is larger than the other corners.',
-                zh: '伪元素、单个角或计算出的圆角，用 border.radius_* 写 borderRadius，并在同一个样式里把 cornerShape: "squircle" 写在旁边。少了它，角就是按完整数值画的圆弧，比其他角更大。',
-              }),
-            },
-          ]}
-        />
+        <ul role="list" aria-hidden="true" css={styles.scale}>
+          <Step
+            token="radius_1"
+            name={t({ en: "Checkbox", zh: "复选框" })}
+            shape={<div css={[corner.radius_1, styles.panel, styles.mark]} />}
+          />
+          <Step
+            token="radius_2"
+            name={t({ en: "Field", zh: "输入框" })}
+            shape={<div css={[corner.radius_2, styles.panel, styles.field]} />}
+          />
+          <Step
+            token="radius_3"
+            name={t({ en: "Card", zh: "卡片" })}
+            shape={<div css={[corner.radius_3, styles.panel, styles.card]} />}
+          />
+          <Step
+            token="radius_4"
+            name={t({ en: "Sheet", zh: "底部面板" })}
+            shape={<div css={[corner.radius_4, styles.panel, styles.sheet]} />}
+          />
+          <Step
+            token="squircle_round"
+            name={t({ en: "Button", zh: "按钮" })}
+            shape={
+              <div css={[corner.squircle_round, styles.panel, styles.button]} />
+            }
+          />
+          <Step
+            token="radius_round"
+            name={t({ en: "Chip", zh: "标签" })}
+            shape={
+              <div css={[corner.radius_round, styles.panel, styles.pill]} />
+            }
+          />
+        </ul>
+        <GuideNote>
+          {t({
+            en: 'A bare borderRadius needs cornerShape: "squircle", or the corner looks too large.',
+            zh: '单独写的 borderRadius 要配上 cornerShape: "squircle"，否则角会显得过大。',
+          })}
+        </GuideNote>
       </GuideSection>
 
       <GuideSection
-        title={t({ en: "Nested radius", zh: "嵌套圆角" })}
+        title={t({
+          en: "Take the inset off a nested corner.",
+          zh: "嵌套的圆角要减去内缩。",
+        })}
         lead={t({
-          en: "A surface inside another one's corner takes the outer radius less the inset between their edges: inner = outer − inset. Then the two corners stay parallel.",
-          zh: "位于另一个表面角落里的表面，圆角取外层圆角减去两者边缘之间的内缩：inner = outer − inset。这样两个角保持平行。",
+          en: "Give a surface inside another one's corner the outer radius less the inset between them. With the same radius, the gap widens at the corner.",
+          zh: "位于另一个表面角落里的表面，圆角取外层圆角减去两者之间的内缩。若取相同的圆角，角上的间隙就会变宽。",
         })}
       >
-        <Specimen
-          caption={t({
-            en: "corner.radius_4 outside, inset space._2, radius_4 − space._2 inside",
-            zh: "外层 corner.radius_4，内缩 space._2，内层 radius_4 − space._2",
-          })}
-        >
-          <div css={[corner.radius_4, styles.outer]}>
-            <div css={[flex.center, styles.inner]}>
-              <Text look="caption" tone="muted">
-                {t({ en: "Nested surface", zh: "嵌套表面" })}
-              </Text>
-            </div>
+        <div css={stack.tight}>
+          <div css={styles.pair}>
+            <NestedSide
+              mark={<CheckIcon weight="bold" aria-hidden />}
+              verdict={t({
+                en: "Outer radius less the inset: the gap stays even.",
+                zh: "外圆角减去内缩：间隙处处一致。",
+              })}
+            >
+              <div css={[corner.radius_4, nested.outer]}>
+                <div css={nested.inner} />
+              </div>
+            </NestedSide>
+            <NestedSide
+              mark={<XIcon weight="bold" aria-hidden />}
+              verdict={t({
+                en: "The same radius: the gap widens at the corner.",
+                zh: "相同圆角：拐角处间隙变宽。",
+              })}
+            >
+              <div css={[corner.radius_4, nested.outer]}>
+                <div css={[nested.inner, corner.radius_4]} />
+              </div>
+            </NestedSide>
           </div>
-        </Specimen>
-        <UsageSnippet
-          code={`import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { border, space } from "@tuja/ui/tokens.stylex";
-
-<div css={[corner.radius_4, styles.outer]}>
-  <div css={styles.inner} />
-</div>
-
-const styles = stylex.create({
-  outer: { padding: space._2 },
-  // inner = outer − inset
-  inner: {
-    borderRadius: \`calc(\${border.radius_4} - \${space._2})\`,
-    cornerShape: "squircle",
-  },
-});`}
-        />
-        <GuideNote>
-          {t({
-            en: "popoverSurface.inner is this rule for a box flush with a popover's edge, such as a scrolling content area, where the inset is the border. MenuButton puts it on its menu's content.",
-            zh: "popoverSurface.inner 就是这条规则，用于紧贴弹出层边缘的盒子，比如可滚动的内容区，此时内缩就是边框宽度。MenuButton 把它用在菜单内容上。",
-          })}
-        </GuideNote>
+          <UsageSnippet
+            label={t({ en: "Styles", zh: "样式" })}
+            code={NESTED_STYLES}
+          />
+        </div>
       </GuideSection>
 
       <GuideSection
-        title={t({ en: "Shadow", zh: "阴影" })}
+        title={t({
+          en: "Cast a shadow only from what sits on top.",
+          zh: "只有压在上面的东西才投阴影。",
+        })}
         lead={t({
-          en: "Card, Popover, Callout and Table cast no shadow: they hold content, and a border and a background set them apart. Shadows are on things that sit on top of what is below them: a Button you press, a thumb you drag, glass, a drawer over the page. Follow the same split.",
-          zh: "Card、Popover、Callout 与 Table 不投阴影：它们承载内容，靠边框与背景来区分。阴影用在压在下方之上的东西上：按下的 Button、拖动的滑块、玻璃、盖在页面上的抽屉。照同样的方式划分。",
+          en: "Card, Popover and Table hold content, so they take an edge and a fill, not a shadow. What sits over the content casts one, and the higher it sits, the deeper the step.",
+          zh: "Card、Popover 与 Table 承载内容，所以用边框与填充，而不是阴影。压在内容之上的东西才投阴影，浮得越高，级别越深。",
         })}
       >
-        <UsageSnippet
-          code={`import { shadow } from "@tuja/ui/tokens.stylex";
-
-const styles = stylex.create({
-  handle: { boxShadow: shadow._2 },
-});`}
-        />
-        <div css={styles.grid}>
-          {shadows.map((step) => (
-            <SpecCard key={step.token} token={step.token} meta="">
-              <div css={[stack.tight, styles.underLabel]}>
-                <div css={styles.shadowFloor}>
-                  <div
-                    css={[corner.radius_2, styles.shadowSwatch, step.swatch]}
-                  />
-                </div>
-                <Text look="caption" tone="muted">
-                  {step.use}
-                </Text>
-              </div>
-            </SpecCard>
+        <ul
+          role="list"
+          aria-hidden="true"
+          css={[corner.radius_3, styles.floor]}
+        >
+          {SHADOW_STEPS.map((step) => (
+            <li
+              key={step.token}
+              css={[corner.radius_3, styles.lifted, step.style]}
+            >
+              <span css={[typeRole.caption, styles.token]}>{step.token}</span>
+            </li>
           ))}
-        </div>
+        </ul>
         <GuideNote>
           {t({
-            en: "Each shadow is a light-dark() pair like the colour Tokens: a faint grey in light, a deep near-black in dark, where a shadow has to be darker to show on a dark ground.",
-            zh: "每个阴影都像颜色令牌一样是一对 light-dark() 值：浅色下是淡灰，深色下是接近黑的深色，因为在深色底上阴影必须更深才看得见。",
+            en: "A default Button takes shadow._2, and a TabBar over the content takes shadow._4.",
+            zh: "默认的 Button 用 shadow._2，浮在内容之上的 TabBar 用 shadow._4。",
+          })}
+        </GuideNote>
+        <GuideNote>
+          {t({
+            en: "Each step is deeper in dark mode, yet on the dark page itself it barely shows.",
+            zh: "深色模式下每一级都更深，但在深色页面上依然几乎看不见。",
           })}
         </GuideNote>
       </GuideSection>
@@ -451,100 +186,177 @@ const styles = stylex.create({
   );
 }
 
+interface StepProps {
+  token: string;
+  name: string;
+  shape: ReactNode;
+}
+
+function Step({ token, name, shape }: StepProps) {
+  return (
+    <li css={[stack.tight, styles.step]}>
+      {shape}
+      <span css={stack.text}>
+        <span css={[typeRole.caption, styles.token]}>{token}</span>
+        <span css={[typeRole.caption, styles.name]}>{name}</span>
+      </span>
+    </li>
+  );
+}
+
+interface NestedSideProps {
+  mark: ReactNode;
+  verdict: string;
+  children: ReactNode;
+}
+
+function NestedSide({ mark, verdict, children }: NestedSideProps) {
+  return (
+    <figure css={[stack.tight, styles.side]}>
+      {children}
+      <figcaption css={[typeRole.bodySmall, styles.verdict]}>
+        <span css={styles.glyph}>{mark}</span> {verdict}
+      </figcaption>
+    </figure>
+  );
+}
+
 const styles = stylex.create({
-  // A swatch is a box, so it keeps a gap under the label of its card.
-  underLabel: {
-    marginBlockStart: rhythm.tight,
-  },
-  grid: {
+  pair: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    gap: rhythm.item,
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: rhythm.group,
   },
-  card: {
-    inlineSize: "100%",
-    maxInlineSize: "16rem",
+  side: {
+    margin: 0,
+    minInlineSize: 0,
   },
-  menu: {
+  verdict: {
+    color: color.fgMuted,
+  },
+  glyph: {
+    display: "inline-block",
+    verticalAlign: "-0.125em",
+  },
+  padding: {
+    padding: space._5,
+  },
+  scale: {
     listStyle: "none",
     margin: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: rhythm.inline,
-    padding: space._0,
-    inlineSize: "100%",
-    maxInlineSize: "16rem",
+    padding: 0,
+    display: "grid",
+    gridTemplateColumns: {
+      default: "repeat(3, minmax(0, 1fr))",
+      [breakpoints.md]: "repeat(6, auto)",
+    },
+    justifyContent: "start",
+    alignItems: "end",
+    columnGap: rhythm.item,
+    rowGap: rhythm.group,
   },
-  row: {
-    paddingBlock: space._1,
-    paddingInline: space._2,
+  step: {
+    alignItems: "flex-start",
+  },
+  token: {
+    fontFamily: font.familyMono,
     color: color.fg,
   },
-  rowSelected: {
-    backgroundColor: color.bgControlSelected,
+  name: {
+    color: color.fgMuted,
   },
-  // Border-width specimen: a real border at the token thickness, in the default
-  // border colour, on a surface fill so the rule reads against its ground.
-  widthSwatch: {
-    blockSize: "56px",
-    borderStyle: "solid",
-    borderColor: color.border,
-    backgroundColor: color.bgSurface,
-  },
-  w1: { borderWidth: border.size_1 },
-  w2: { borderWidth: border.size_2 },
-  w3: { borderWidth: border.size_3 },
-  w4: { borderWidth: border.size_4 },
-  w5: { borderWidth: border.size_5 },
-  radiusSwatch: {
-    blockSize: "80px",
-    backgroundColor: color.bgAccentSubtle,
-    boxShadow: `inset 0 0 0 1px ${color.borderAccent}`,
-  },
-  // The fallback of squircle_round uses cornerTokens.height. Thus the swatch
-  // must have this height.
-  squircleSwatch: {
-    blockSize: cornerTokens.height,
-  },
-  // Do not add a border to the outer surface. A border increases the inset.
-  outer: {
-    inlineSize: "100%",
-    maxInlineSize: "18rem",
-    padding: space._2,
-    backgroundColor: color.bgSurfaceSunken,
-  },
-  inner: {
-    blockSize: "96px",
-    borderRadius: `calc(${border.radius_4} - ${space._2})`,
-    cornerShape: "squircle",
-    backgroundColor: color.bgSurface,
+  panel: {
+    flexShrink: 0,
+    maxInlineSize: "100%",
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
+    backgroundColor: color.bgSurface,
   },
-  shadowFloor: {
+  mark: {
+    inlineSize: controlSize._5,
+    blockSize: controlSize._5,
+  },
+  field: {
+    inlineSize: "6rem",
+    blockSize: controlHeight.md,
+  },
+  card: {
+    inlineSize: "7rem",
+    blockSize: "5rem",
+  },
+  sheet: {
+    inlineSize: "9rem",
+    blockSize: "7rem",
+  },
+  button: {
+    inlineSize: "5rem",
+    blockSize: controlHeight.md,
+  },
+  pill: {
+    inlineSize: "4rem",
+    blockSize: controlHeight.sm,
+  },
+  floor: {
+    listStyle: "none",
+    margin: 0,
+    paddingBlockStart: { default: space._5, [breakpoints.md]: space._7 },
+    paddingBlockEnd: space._10,
+    paddingInline: { default: space._5, [breakpoints.md]: space._7 },
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
+    backgroundColor: color.bgControlRaised,
+    overflow: "clip",
+    display: "grid",
+    gridTemplateColumns: {
+      default: "repeat(3, minmax(0, 1fr))",
+      [breakpoints.md]: "repeat(6, minmax(0, 1fr))",
+    },
+    columnGap: rhythm.item,
+    rowGap: rhythm.group,
+  },
+  lifted: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingBlock: space._5,
-    backgroundColor: color.bgCanvas,
+    alignItems: "flex-end",
+    aspectRatio: "1",
+    padding: space._2,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.borderControlSunken,
+    backgroundColor: color.bgControlRaised,
   },
-  shadowSwatch: {
-    inlineSize: "64px",
-    blockSize: "40px",
+});
+
+const nested = stylex.create({
+  outer: {
+    maxInlineSize: "16rem",
+    padding: space._4,
+    backgroundColor: color.bgNeutralSubtle,
+  },
+  inner: {
+    blockSize: "4.5rem",
+    borderRadius: `calc(${border.radius_4} - ${space._4})`,
+    cornerShape: "squircle",
     backgroundColor: color.bgSurface,
   },
 });
 
-const radiusStyles = {
-  r1: corner.radius_1,
-  r2: corner.radius_2,
-  r3: corner.radius_3,
-  r4: corner.radius_4,
-  r5: corner.radius_5,
-  rRound: corner.radius_round,
-  rSquircleRound: [corner.squircle_round, styles.squircleSwatch],
-};
+const NESTED_STYLES = `import { border, color, space } from "@tuja/ui/tokens.stylex";
+
+const nested = stylex.create({
+  outer: {
+    maxInlineSize: "16rem",
+    padding: space._4,
+    backgroundColor: color.bgNeutralSubtle,
+  },
+  inner: {
+    blockSize: "4.5rem",
+    borderRadius: \`calc(\${border.radius_4} - \${space._4})\`,
+    cornerShape: "squircle",
+    backgroundColor: color.bgSurface,
+  },
+});`;
 
 const shadowStyles = stylex.create({
   s1: { boxShadow: shadow._1 },
@@ -553,5 +365,13 @@ const shadowStyles = stylex.create({
   s4: { boxShadow: shadow._4 },
   s5: { boxShadow: shadow._5 },
   s6: { boxShadow: shadow._6 },
-  inset: { boxShadow: shadow.inset },
 });
+
+const SHADOW_STEPS = [
+  { token: "shadow._1", style: shadowStyles.s1 },
+  { token: "shadow._2", style: shadowStyles.s2 },
+  { token: "shadow._3", style: shadowStyles.s3 },
+  { token: "shadow._4", style: shadowStyles.s4 },
+  { token: "shadow._5", style: shadowStyles.s5 },
+  { token: "shadow._6", style: shadowStyles.s6 },
+];
