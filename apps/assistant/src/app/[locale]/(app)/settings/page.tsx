@@ -5,11 +5,11 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { Section } from "@tuja/ui/components/section";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { userSettings } from "#src/assistant/db/schema.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import { OrganiseNotesForm } from "#src/assistant/settings/organise-notes-form.tsx";
 import { OrganiseToggle } from "#src/assistant/settings/organise-toggle.tsx";
@@ -27,21 +27,17 @@ export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/settings");
   const db = getAssistantDb();
-  const { settings, organise } = await withUser(
-    db,
-    session.userId,
-    async (scope) => ({
-      settings: await readReportSettings(scope),
-      organise: (
-        await scope.db
-          .select({
-            enabled: userSettings.organiseEnabled,
-            notes: userSettings.organiseNotes,
-          })
-          .from(userSettings)
-      ).at(0),
-    }),
-  );
+  const [settings, organise] = await Promise.all([
+    readReportSettings({ db, userId: session.userId }),
+    db
+      .select({
+        enabled: userSettings.organiseEnabled,
+        notes: userSettings.organiseNotes,
+      })
+      .from(userSettings)
+      .where(eq(userSettings.userId, session.userId))
+      .then((rows) => rows.at(0)),
+  ]);
   const timeZones = Intl.supportedValuesOf("timeZone");
   if (!timeZones.includes(settings.timeZone)) timeZones.push(settings.timeZone);
 

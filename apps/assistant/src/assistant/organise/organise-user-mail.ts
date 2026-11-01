@@ -1,7 +1,6 @@
-import { ne, sql } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { mailAccounts, userSettings } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   organiseAccount,
   type OrganiseAccountResult,
@@ -29,27 +28,31 @@ export async function organiseUserMail(
   { db, userId, endsAt }: { db: AssistantDb; userId: string; endsAt: number },
   deps: OrganiseDeps,
 ): Promise<OrganiseUserResult> {
-  const { settings, accounts } = await withUser(db, userId, async ({ db }) => ({
-    settings: (
-      await db
-        .select({
-          enabled: userSettings.organiseEnabled,
-          notes: userSettings.organiseNotes,
-          locale: userSettings.locale,
-        })
-        .from(userSettings)
-    ).at(0),
-    accounts: await db
+  const settings = (
+    await db
       .select({
-        id: mailAccounts.id,
-        provider: mailAccounts.provider,
-        address: mailAccounts.address,
-        credential: mailAccounts.credential,
+        enabled: userSettings.organiseEnabled,
+        notes: userSettings.organiseNotes,
+        locale: userSettings.locale,
       })
-      .from(mailAccounts)
-      .where(ne(mailAccounts.status, "reconnect"))
-      .orderBy(sql`${mailAccounts.lastSyncedAt} asc nulls first`),
-  }));
+      .from(userSettings)
+      .where(eq(userSettings.userId, userId))
+  ).at(0);
+  const accounts = await db
+    .select({
+      id: mailAccounts.id,
+      provider: mailAccounts.provider,
+      address: mailAccounts.address,
+      credential: mailAccounts.credential,
+    })
+    .from(mailAccounts)
+    .where(
+      and(
+        eq(mailAccounts.userId, userId),
+        ne(mailAccounts.status, "reconnect"),
+      ),
+    )
+    .orderBy(sql`${mailAccounts.lastSyncedAt} asc nulls first`);
   const result: OrganiseUserResult = {
     enabled: settings?.enabled === true,
     accounts: 0,

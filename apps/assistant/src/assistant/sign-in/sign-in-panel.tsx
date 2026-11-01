@@ -18,7 +18,7 @@ import {
 } from "../http/assistant-api-error.ts";
 import { useAuthErrorMessage } from "./use-auth-error-message.ts";
 
-/** Passkey sign-in. A person without a user joins by an invite link. */
+/** Passkey sign-in with a passkey the owner saved already. */
 export function SignInPanel({ next }: { next: string }) {
   const locale = useLocale();
   const messageOf = useAuthErrorMessage();
@@ -33,8 +33,8 @@ export function SignInPanel({ next }: { next: string }) {
         </Heading>
         <Text tone="muted">
           {t({
-            en: "Use the passkey saved on this device or your phone. First time? Ask for an invite link.",
-            zh: "使用保存在本设备或手机上的通行密钥。第一次使用？请先申请邀请链接。",
+            en: "Use the passkey saved on this device or your phone.",
+            zh: "使用保存在本设备或手机上的通行密钥。",
           })}
         </Text>
       </div>

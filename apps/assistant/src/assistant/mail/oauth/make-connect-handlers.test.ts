@@ -5,7 +5,6 @@ import {
   createTestDb,
   type TestDb,
 } from "#src/assistant/db/testing/create-test-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { createFakeMailServer } from "#src/assistant/mail/testing/create-fake-mail-server.ts";
 import {
   insertUser,
@@ -128,9 +127,7 @@ describe("the OAuth connect flow", () => {
     expect(createHash("sha256").update(verifier).digest("base64url")).toBe(
       location.searchParams.get("code_challenge"),
     );
-    const [account] = await withUser(db, userId, ({ db }) =>
-      db.select().from(mailAccounts),
-    );
+    const [account] = await db.select().from(mailAccounts);
     expect(account).toMatchObject({
       provider: "gmail",
       address: "me@gmail.com",
@@ -157,9 +154,7 @@ describe("the OAuth connect flow", () => {
         `${ORIGIN}/zh/accounts?error=state`,
       );
       expect(tokenRequests).toEqual([]);
-      expect(
-        await withUser(db, userId, ({ db }) => db.$count(mailAccounts)),
-      ).toBe(0);
+      expect(await db.$count(mailAccounts)).toBe(0);
     },
   );
 });

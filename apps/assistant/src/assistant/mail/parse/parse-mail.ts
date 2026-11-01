@@ -7,7 +7,7 @@ import type {
 import { cleanSnippet } from "./clean-snippet.ts";
 import { htmlToText } from "./html-to-text.ts";
 
-/** What sync stores of one mail. */
+/** One mail as the app reads it from IMAP. It lives in memory only. */
 export interface ParsedMail {
   uid: number;
   /** In angle brackets. A mail without one gets an id made from its headers. */

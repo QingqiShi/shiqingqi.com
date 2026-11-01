@@ -1,15 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { mailAccounts, type MailProvider } from "#src/assistant/db/schema.ts";
-import type { UserScope } from "#src/assistant/db/with-user.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import {
   accountCredential,
   type AccountCredential,
 } from "#src/assistant/mail/accounts/account-credential.ts";
+import { ownAccount } from "./own-account.ts";
 
 /**
  * Stores a login that the mail server accepted. Connecting an address again
- * replaces its login and clears its error; the folders and mail stay.
+ * replaces its login and clears its error.
  */
 export async function saveAccount(
   { db, userId }: UserScope,
@@ -34,6 +35,7 @@ export async function saveAccount(
       .from(mailAccounts)
       .where(
         and(
+          eq(mailAccounts.userId, userId),
           eq(mailAccounts.provider, provider),
           eq(mailAccounts.address, normalised),
         ),
@@ -55,7 +57,7 @@ export async function saveAccount(
         lastErrorAt: null,
         updatedAt: now,
       })
-      .where(eq(mailAccounts.id, accountId));
+      .where(ownAccount(userId, accountId));
   } else {
     await db.insert(mailAccounts).values({
       id: accountId,

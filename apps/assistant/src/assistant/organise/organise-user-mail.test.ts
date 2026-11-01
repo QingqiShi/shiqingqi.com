@@ -1,11 +1,10 @@
 import { MockLanguageModelV3 } from "ai/test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mailMessages, userSettings } from "#src/assistant/db/schema.ts";
+import { userSettings } from "#src/assistant/db/schema.ts";
 import {
   createTestDb,
   type TestDb,
 } from "#src/assistant/db/testing/create-test-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   createFakeMailServer,
   rawMail,
@@ -84,15 +83,13 @@ afterEach(async () => {
 });
 
 async function setOrganise(enabled: boolean) {
-  await withUser(db, userId, ({ db }) =>
-    db
-      .insert(userSettings)
-      .values({ userId, organiseEnabled: enabled })
-      .onConflictDoUpdate({
-        target: userSettings.userId,
-        set: { organiseEnabled: enabled },
-      }),
-  );
+  await db
+    .insert(userSettings)
+    .values({ userId, organiseEnabled: enabled })
+    .onConflictDoUpdate({
+      target: userSettings.userId,
+      set: { organiseEnabled: enabled },
+    });
 }
 
 function deliver(subject: string) {
@@ -161,8 +158,5 @@ describe("organising the inbox", () => {
     expect(server.log.createdFolders).toEqual(["Travel"]);
     expect(server.locate(sent)).toMatchObject([{ path: "INBOX", flags: [] }]);
     expect(server.locate(failed)).toMatchObject([{ path: "INBOX", flags: [] }]);
-    expect(
-      await withUser(db, userId, ({ db }) => db.$count(mailMessages)),
-    ).toBe(0);
   });
 });

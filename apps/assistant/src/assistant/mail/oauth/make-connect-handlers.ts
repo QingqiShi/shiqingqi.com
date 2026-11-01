@@ -6,7 +6,6 @@ import { getRequestOrigin } from "#src/assistant/auth/get-request-origin.ts";
 import { needsSecureCookie } from "#src/assistant/auth/needs-secure-cookie.ts";
 import { readRequestCookie } from "#src/assistant/auth/read-request-cookie.ts";
 import { signInPath } from "#src/assistant/auth/sign-in-path.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { assistantJson, NO_STORE } from "#src/assistant/http/assistant-json.ts";
 import { MAIL_SERVERS } from "#src/assistant/mail/imap/mail-servers.ts";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
@@ -200,8 +199,9 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
 
       const db = deps.getDb();
       const { userId } = session;
-      const { accountId } = await withUser(db, userId, (scope) =>
-        saveAccount(scope, {
+      const { accountId } = await saveAccount(
+        { db, userId },
+        {
           provider,
           address,
           credential: {
@@ -212,7 +212,7 @@ export function makeConnectHandlers(deps: ConnectHandlerDeps) {
           },
           credentialKey: mail.auth.credentialKey,
           now: deps.now(),
-        }),
+        },
       );
       deps.runAfter(() => checkAccount(db, userId, accountId, mail));
       return redirect(

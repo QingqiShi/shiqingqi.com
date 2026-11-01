@@ -4,7 +4,7 @@ import { isPushServiceEndpoint } from "./is-push-service-endpoint.ts";
 import type { DevicePushSubscription } from "./push-devices.ts";
 
 const VAPID_SUBJECT = "https://assistant.qingqi.dev";
-/** A push that waits longer than this at the push service is dropped: the next digest replaces it. */
+/** A push that waits longer than this at the push service is dropped: the next report replaces it. */
 const TIME_TO_LIVE_SECONDS = 12 * 60 * 60;
 
 /** What the service worker shows. */

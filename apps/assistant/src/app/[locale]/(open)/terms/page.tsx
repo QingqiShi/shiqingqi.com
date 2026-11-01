@@ -25,16 +25,16 @@ export default function Page() {
     <LegalPage title={t({ en: "Terms of use", zh: "使用条款" })}>
       <Text>
         {t({
-          en: "Mail Assistant (assistant.qingqi.dev) is a personal service run by Qingqi Shi for himself and for the people he invites. By using it you agree to these terms.",
-          zh: "邮件助手（assistant.qingqi.dev）是石清琪为自己和他邀请的人运营的个人服务。使用本服务即表示你同意这些条款。",
+          en: "Mail Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. By using it you agree to these terms.",
+          zh: "邮件助手（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。使用本服务即表示你同意这些条款。",
         })}
       </Text>
 
       <LegalSection heading={t({ en: "Your mailboxes", zh: "你的邮箱" })}>
         <Text>
           {t({
-            en: "Connect only mailboxes and calendars that you are allowed to use. You can disconnect them at any time.",
-            zh: "只连接你有权使用的邮箱和日历。你可以随时断开连接。",
+            en: "Connect only mailboxes that you are allowed to use. You can disconnect them at any time.",
+            zh: "只连接你有权使用的邮箱。你可以随时断开连接。",
           })}
         </Text>
       </LegalSection>
@@ -47,8 +47,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "An AI model sorts your mail and finds dates in it, and it makes mistakes: it can file an important message, miss a deadline, or put an event at the wrong time. Keep checking the mail and dates that matter to you. The assistant never deletes mail, so a message it filed is still in your mailbox.",
-            zh: "AI 模型为你的邮件分类并找出其中的日期，它会出错：可能把重要邮件归档、漏掉截止日期，或把事件放在错误的时间。请继续自己核对重要的邮件和日期。邮件助手从不删除邮件，所以它归档的邮件仍在你的邮箱中。",
+            en: "An AI model files your mail into folders and writes the morning report and the to-dos, and it makes mistakes: it can file an important message where you do not look for it, or leave a deadline out of the report. Keep checking the mail and dates that matter to you. The assistant never deletes mail, so a message it filed is still in one of your folders.",
+            zh: "AI 模型把你的邮件归入文件夹，并撰写晨报和待办，它会出错：可能把重要邮件放到你想不到的文件夹，或在晨报中漏掉截止日期。请继续自己核对重要的邮件和日期。邮件助手从不删除邮件，所以它整理过的邮件仍在你的某个文件夹中。",
           })}
         </Text>
       </LegalSection>

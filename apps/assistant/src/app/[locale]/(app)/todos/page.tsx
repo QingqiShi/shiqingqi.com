@@ -8,7 +8,6 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import { listTodos } from "#src/assistant/report/read-report.ts";
@@ -22,14 +21,11 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/todos");
-  const { todos, settings } = await withUser(
-    getAssistantDb(),
-    session.userId,
-    async (scope) => ({
-      todos: await listTodos(scope),
-      settings: await readReportSettings(scope),
-    }),
-  );
+  const scope = { db: getAssistantDb(), userId: session.userId };
+  const [todos, settings] = await Promise.all([
+    listTodos(scope),
+    readReportSettings(scope),
+  ]);
   const today = localClock(new Date(), settings.timeZone).date;
 
   return (

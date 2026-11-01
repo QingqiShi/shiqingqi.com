@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { USER_LOCALES, userSettings } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -50,16 +49,15 @@ export function makeSettingsHandlers(
     change: Partial<typeof userSettings.$inferInsert>,
   ) {
     const values = { ...change, updatedAt: deps.now() };
-    await withUser(deps.getDb(), userId, ({ db, userId }) =>
-      db
-        .insert(userSettings)
-        .values({ userId, ...values })
-        .onConflictDoUpdate({ target: userSettings.userId, set: values }),
-    );
+    await deps
+      .getDb()
+      .insert(userSettings)
+      .values({ userId, ...values })
+      .onConflictDoUpdate({ target: userSettings.userId, set: values });
   }
 
   return {
-    /** Saves the time zone, the digest hour and the digest language. */
+    /** Saves the time zone, the hour of the morning report and the language. */
     save: async (request: Request): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
@@ -99,7 +97,7 @@ export function makeSettingsHandlers(
       return assistantNoContent();
     },
 
-    /** Saves this device for the digest notification. */
+    /** Saves this device for the morning report notification. */
     subscribe: async (request: Request): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
@@ -110,8 +108,10 @@ export function makeSettingsHandlers(
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
       const userAgent = (request.headers.get("User-Agent") ?? "").slice(0, 300);
-      await withUser(deps.getDb(), session.userId, (scope) =>
-        pushDevices.save(scope, body.data, userAgent),
+      await pushDevices.save(
+        { db: deps.getDb(), userId: session.userId },
+        body.data,
+        userAgent,
       );
       return assistantNoContent();
     },
@@ -125,9 +125,9 @@ export function makeSettingsHandlers(
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      await withUser(deps.getDb(), session.userId, (scope) =>
-        pushDevices.remove(scope, [body.data.endpoint]),
-      );
+      await pushDevices.remove({ db: deps.getDb(), userId: session.userId }, [
+        body.data.endpoint,
+      ]);
       return assistantNoContent();
     },
   };

@@ -5,7 +5,6 @@ import {
   createTestDb,
   type TestDb,
 } from "#src/assistant/db/testing/create-test-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { createFakeMailServer } from "#src/assistant/mail/testing/create-fake-mail-server.ts";
 import {
   insertUser,
@@ -65,7 +64,7 @@ function connect(appPassword: string, provider: "icloud" | "gmail" = "icloud") {
 }
 
 function accounts() {
-  return withUser(db, userId, ({ db }) => db.select().from(mailAccounts));
+  return db.select().from(mailAccounts);
 }
 
 describe("connecting with an app password", () => {

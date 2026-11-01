@@ -10,7 +10,6 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { listAccounts } from "#src/assistant/mail/accounts/list-accounts.ts";
 import type { ConnectErrorCode } from "#src/assistant/mail/oauth/make-connect-handlers.ts";
 import { AccountCard } from "#src/assistant/mailboxes/account-card.tsx";
@@ -96,11 +95,10 @@ export default async function Page({
   const locale = validateLocale((await params).locale);
   const query = await searchParams;
   const session = await requirePageSession(locale, "/accounts");
-  const { accounts, timeZone } = await withUser(
-    getAssistantDb(),
-    session.userId,
-    listAccounts,
-  );
+  const { accounts, timeZone } = await listAccounts({
+    db: getAssistantDb(),
+    userId: session.userId,
+  });
   const formatter = new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",

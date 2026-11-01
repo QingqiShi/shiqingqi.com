@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 
 /**
  * The narrow column a page outside the shell sits in, under the app name:
- * sign-in, invites, and the not-found and error screens.
+ * sign-in, and the not-found and error screens.
  */
 export function AssistantFrame({
   brand,

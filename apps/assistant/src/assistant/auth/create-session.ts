@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, lte } from "drizzle-orm";
 import { sessions } from "#src/assistant/db/schema.ts";
-import type { AssistantAppDb } from "#src/assistant/db/with-user.ts";
+import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { assistantSessionCookie } from "./assistant-session-cookie.ts";
 import { generateToken } from "./generate-token.ts";
 import { hashToken } from "./hash-token.ts";
@@ -14,7 +14,7 @@ interface CreateSessionInput {
 
 /** Returns the raw token. Only its hash is stored. Also deletes the user's expired sessions. */
 export async function createSession(
-  db: AssistantAppDb,
+  db: AssistantDb,
   { userId, userAgent, now }: CreateSessionInput,
 ): Promise<string> {
   const token = generateToken();

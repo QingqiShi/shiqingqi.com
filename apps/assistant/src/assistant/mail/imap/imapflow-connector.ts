@@ -100,20 +100,14 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
   }
 
   const session: MailboxSession = {
-    async listFolders(options) {
-      const listed = await client.list(
-        options?.counts === false
-          ? {}
-          : { statusQuery: { messages: true, unseen: true } },
-      );
+    async listFolders() {
+      const listed = await client.list();
       return listed.map((folder): MailboxFolder => ({
         path: folder.path,
         name: folder.name,
         delimiter: folder.delimiter || null,
         specialUse: folder.specialUse ?? null,
         selectable: !folder.flags.has("\\Noselect"),
-        messages: folder.status?.messages ?? null,
-        unseen: folder.status?.unseen ?? null,
       }));
     },
     async createFolder(path) {
@@ -140,14 +134,6 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
       // `n:*` matches the newest message even when its UID is below n.
       return ascending(found).filter((found) => found > uid);
     },
-    async listUidsBetween(low, high) {
-      if (high < low) return [];
-      const found = await client.search(
-        { uid: `${String(low)}:${String(high)}` },
-        { uid: true },
-      );
-      return ascending(found).filter((uid) => uid >= low && uid <= high);
-    },
     async listUidsSince(since, before) {
       return ascending(
         await client.search(before ? { since, before } : { since }, {
@@ -171,30 +157,10 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
       );
       return fetched.map(toFetchedMessage);
     },
-    async listPresentUids(uids) {
-      if (uids.length === 0) return [];
-      return ascending(
-        await client.search({ uid: uids.join(",") }, { uid: true }),
-      );
-    },
-    async findUidsByMessageId(messageId) {
-      return ascending(
-        await client.search(
-          { header: { "message-id": messageId } },
-          { uid: true },
-        ),
-      );
-    },
     async addFlags(uids, flags) {
       if (uids.length === 0) return;
       if (!(await client.messageFlagsAdd(uids, flags, { uid: true }))) {
         throw new Error("The mail server did not set the flags");
-      }
-    },
-    async removeFlags(uids, flags) {
-      if (uids.length === 0) return;
-      if (!(await client.messageFlagsRemove(uids, flags, { uid: true }))) {
-        throw new Error("The mail server did not clear the flags");
       }
     },
     async moveMessages(uids, destination) {

@@ -35,7 +35,7 @@ export function NotFoundScreen() {
             look="primary"
             icon={<HouseIcon weight="bold" />}
           >
-            {t({ en: "Back to the digest", zh: "返回摘要" })}
+            {t({ en: "Back to the report", zh: "返回晨报" })}
           </AnchorButton>
         </div>
       </div>

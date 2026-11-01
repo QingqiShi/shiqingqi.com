@@ -1,6 +1,6 @@
+import { eq } from "drizzle-orm";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { recordAccountError } from "#src/assistant/mail/accounts/check-account.ts";
 import {
   openMailboxSession,
@@ -109,18 +109,17 @@ export async function readDayMail(
   },
   deps: MailboxDeps,
 ): Promise<DayMailResult> {
-  const accounts: AccountRow[] = await withUser(db, userId, ({ db }) =>
-    db
-      .select({
-        id: mailAccounts.id,
-        provider: mailAccounts.provider,
-        address: mailAccounts.address,
-        credential: mailAccounts.credential,
-        status: mailAccounts.status,
-      })
-      .from(mailAccounts)
-      .orderBy(mailAccounts.createdAt),
-  );
+  const accounts: AccountRow[] = await db
+    .select({
+      id: mailAccounts.id,
+      provider: mailAccounts.provider,
+      address: mailAccounts.address,
+      credential: mailAccounts.credential,
+      status: mailAccounts.status,
+    })
+    .from(mailAccounts)
+    .where(eq(mailAccounts.userId, userId))
+    .orderBy(mailAccounts.createdAt);
   const day = localDayBounds(localDate, timeZone);
   const range = mailSearchRange(localDate);
   const now = deps.auth.now;
@@ -147,7 +146,7 @@ export async function readDayMail(
       session = await openMailboxSession(db, userId, account, deps);
       const folders = reportFolders(
         account.provider,
-        await session.listFolders({ counts: false }),
+        await session.listFolders(),
       );
       for (const path of folders) {
         if (outOfTime()) {

@@ -1,9 +1,7 @@
 import { generateText, Output } from "ai";
-import { eq } from "drizzle-orm";
-import type { AssistantModel } from "#src/assistant/ai/get-classifier-model.ts";
+import type { AssistantModel } from "#src/assistant/ai/get-organise-model.ts";
 import { mailAccounts, type UserLocale } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   recordAccountError,
   recordAccountOk,
@@ -12,6 +10,7 @@ import {
   openMailboxSession,
   type MailboxDeps,
 } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
+import { ownAccount } from "#src/assistant/mail/accounts/own-account.ts";
 import type { StoredAccount } from "#src/assistant/mail/accounts/resolve-mailbox-auth.ts";
 import { MoveUnsupportedError } from "#src/assistant/mail/imap/move-unsupported-error.ts";
 import type {
@@ -62,6 +61,9 @@ export interface OrganiseAccountResult {
 }
 
 type Choice = OrganiseOutput["target"] | null;
+
+/** What `mail_accounts.write_error_code` can hold. */
+export type WriteErrorCode = "move_unsupported";
 
 async function chooseFolder(
   model: AssistantModel,
@@ -148,8 +150,6 @@ class RunFolders {
       delimiter: delimiterOf(this.all),
       specialUse: null,
       selectable: true,
-      messages: null,
-      unseen: null,
     });
     this.candidates.push(name);
     return name;
@@ -163,24 +163,22 @@ async function recordWriteState(
   error: MoveUnsupportedError | null,
   now: Date,
 ) {
-  await withUser(db, userId, ({ db }) =>
-    db
-      .update(mailAccounts)
-      .set(
-        error
-          ? {
-              writeErrorCode: "move_unsupported",
-              writeErrorMessage: error.message,
-              writeErrorAt: now,
-            }
-          : {
-              writeErrorCode: null,
-              writeErrorMessage: null,
-              writeErrorAt: null,
-            },
-      )
-      .where(eq(mailAccounts.id, accountId)),
-  );
+  await db
+    .update(mailAccounts)
+    .set(
+      error
+        ? {
+            writeErrorCode: "move_unsupported" satisfies WriteErrorCode,
+            writeErrorMessage: error.message,
+            writeErrorAt: now,
+          }
+        : {
+            writeErrorCode: null,
+            writeErrorMessage: null,
+            writeErrorAt: null,
+          },
+    )
+    .where(ownAccount(userId, accountId));
 }
 
 /**
@@ -218,7 +216,7 @@ export async function organiseAccount(
   try {
     session = await openMailboxSession(db, userId, account, deps);
     if (!session.supportsMove()) throw new MoveUnsupportedError();
-    const listed = await session.listFolders({ counts: false });
+    const listed = await session.listFolders();
     const inbox = listed.find(isInbox);
     if (inbox) {
       const folders = new RunFolders(listed, session);

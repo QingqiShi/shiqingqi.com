@@ -1,13 +1,12 @@
-import { asc, desc, isNull } from "drizzle-orm";
-import type { AssistantModel } from "#src/assistant/ai/get-classifier-model.ts";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import type { AssistantModel } from "#src/assistant/ai/get-organise-model.ts";
 import {
   mailAccounts,
   morningReports,
   todos,
   type UserLocale,
 } from "#src/assistant/db/schema.ts";
-import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
+import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
 import { dueReportDate, localClock } from "./due-report-date.ts";
 import { addDays } from "./local-day-bounds.ts";
@@ -38,6 +37,35 @@ export interface BuiltReport {
   newTodos: number;
 }
 
+/** The report that is due now, or null when none is. */
+async function readPlan({ db, userId }: UserScope, builtAt: Date) {
+  if ((await db.$count(mailAccounts, eq(mailAccounts.userId, userId))) === 0) {
+    return null;
+  }
+  const settings = await readReportSettings({ db, userId });
+  const latest = (
+    await db
+      .select({ localDate: morningReports.localDate })
+      .from(morningReports)
+      .where(eq(morningReports.userId, userId))
+      .orderBy(desc(morningReports.localDate))
+      .limit(1)
+  ).at(0);
+  const localDate = dueReportDate({
+    now: builtAt,
+    timeZone: settings.timeZone,
+    reportHour: settings.digestHour,
+    latestReportDate: latest?.localDate ?? null,
+  });
+  if (!localDate) return null;
+  const openTodos = await db
+    .select({ id: todos.id, title: todos.title, detail: todos.detail })
+    .from(todos)
+    .where(and(eq(todos.userId, userId), isNull(todos.doneAt)))
+    .orderBy(asc(todos.createdAt));
+  return { settings, localDate, openTodos };
+}
+
 /**
  * Builds the user's morning report when one is due (see `dueReportDate`):
  * reads the mail of the day before from every mailbox, has the model write
@@ -61,30 +89,7 @@ export async function buildMorningReport(
   deps: ReportBuildDeps,
 ): Promise<BuiltReport | "retry" | null> {
   const builtAt = deps.now();
-  const plan = await withUser(db, userId, async (scope) => {
-    if ((await scope.db.$count(mailAccounts)) === 0) return null;
-    const settings = await readReportSettings(scope);
-    const latest = (
-      await scope.db
-        .select({ localDate: morningReports.localDate })
-        .from(morningReports)
-        .orderBy(desc(morningReports.localDate))
-        .limit(1)
-    ).at(0);
-    const localDate = dueReportDate({
-      now: builtAt,
-      timeZone: settings.timeZone,
-      reportHour: settings.digestHour,
-      latestReportDate: latest?.localDate ?? null,
-    });
-    if (!localDate) return null;
-    const openTodos = await scope.db
-      .select({ id: todos.id, title: todos.title, detail: todos.detail })
-      .from(todos)
-      .where(isNull(todos.doneAt))
-      .orderBy(asc(todos.createdAt));
-    return { settings, localDate, openTodos };
-  });
+  const plan = await readPlan({ db, userId }, builtAt);
   if (!plan) return null;
 
   const { settings, localDate } = plan;
@@ -135,9 +140,9 @@ export async function buildMorningReport(
     unreadMailboxes: day.unreadMailboxes,
   };
 
-  const stored = await withUser(db, userId, async ({ db }) => {
+  const stored = await db.transaction(async (tx) => {
     const report = (
-      await db
+      await tx
         .insert(morningReports)
         .values({
           userId,
@@ -153,7 +158,7 @@ export async function buildMorningReport(
     ).at(0);
     if (!report) return null;
     if (written.todos.length > 0) {
-      await db.insert(todos).values(
+      await tx.insert(todos).values(
         written.todos.map((todo) => ({
           userId,
           title: todo.title,

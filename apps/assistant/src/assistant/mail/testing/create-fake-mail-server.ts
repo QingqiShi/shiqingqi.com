@@ -27,7 +27,7 @@ interface FakeFolder {
 
 /** A command that changed the mailbox. */
 export type FakeMailWrite =
-  | { command: "add" | "remove"; path: string; uids: number[]; flags: string[] }
+  | { command: "add"; path: string; uids: number[]; flags: string[] }
   | { command: "move"; path: string; uids: number[]; destination: string };
 
 /** What a fake mail server saw, for tests that check what the app did to the mailbox. */
@@ -172,8 +172,7 @@ export function createFakeMailServer({
       return folder;
     };
     const session: MailboxSession = {
-      listFolders: (options) => {
-        const counts = options?.counts !== false;
+      listFolders: () => {
         return Promise.resolve(
           [...folders.values()].map((folder) => ({
             path: folder.path,
@@ -181,12 +180,6 @@ export function createFakeMailServer({
             delimiter: "/",
             specialUse: folder.specialUse,
             selectable: folder.selectable,
-            messages:
-              counts && folder.selectable ? folder.messages.length : null,
-            unseen:
-              counts && folder.selectable
-                ? folder.messages.filter((m) => !m.flags.has("\\Seen")).length
-                : null,
           })),
         );
       },
@@ -214,12 +207,6 @@ export function createFakeMailServer({
             .messages.map((m) => m.uid)
             .filter((found) => found > uid),
         ),
-      listUidsBetween: (low, high) =>
-        Promise.resolve(
-          openFolder()
-            .messages.map((m) => m.uid)
-            .filter((uid) => uid >= low && uid <= high),
-        ),
       listUidsSince: (since, before) =>
         Promise.resolve(
           openFolder()
@@ -236,20 +223,6 @@ export function createFakeMailServer({
         log.fetchedUids.push(...found.map((m) => m.uid));
         return Promise.all(found.map((m) => toFetched(m, maxBytes)));
       },
-      listPresentUids: (uids) => {
-        const wanted = new Set(uids);
-        return Promise.resolve(
-          openFolder()
-            .messages.map((m) => m.uid)
-            .filter((uid) => wanted.has(uid)),
-        );
-      },
-      findUidsByMessageId: (messageId) =>
-        Promise.resolve(
-          openFolder()
-            .messages.filter((m) => messageIdOf(m).includes(messageId))
-            .map((m) => m.uid),
-        ),
       addFlags: (uids, flags) => {
         const folder = writableFolder({
           command: "add",
@@ -260,19 +233,6 @@ export function createFakeMailServer({
         for (const message of folder.messages) {
           if (!uids.includes(message.uid)) continue;
           for (const flag of flags) message.flags.add(flag);
-        }
-        return Promise.resolve();
-      },
-      removeFlags: (uids, flags) => {
-        const folder = writableFolder({
-          command: "remove",
-          path: openFolder().path,
-          uids,
-          flags,
-        });
-        for (const message of folder.messages) {
-          if (!uids.includes(message.uid)) continue;
-          for (const flag of flags) message.flags.delete(flag);
         }
         return Promise.resolve();
       },

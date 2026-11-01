@@ -7,10 +7,9 @@ import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import { PROVIDER_NAMES } from "#src/assistant/mailboxes/provider-names.ts";
-import type { CalendarErrorCode } from "../calendar/write-calendar-events.ts";
+import type { SyncErrorCode } from "../mail/accounts/describe-sync-error.ts";
 import type { AccountSummary } from "../mail/accounts/list-accounts.ts";
-import type { SyncErrorCode } from "../mail/sync/describe-sync-error.ts";
-import type { WriteErrorCode } from "../mail/tidy/write-mailboxes.ts";
+import type { WriteErrorCode } from "../organise/organise-account.ts";
 import { AccountActions } from "./account-actions.tsx";
 
 function StatusBadge({ status }: { status: AccountSummary["status"] }) {
@@ -76,39 +75,19 @@ function WriteErrorText({ code }: { code: string }) {
       en: "This mail server cannot move mail safely, so the assistant leaves all mail in the inbox, unchanged.",
       zh: "这个邮件服务器无法安全地移动邮件，所以助手会把所有邮件原样留在收件箱。",
     }),
-    write_failed: t({
-      en: "The assistant could not change some mail in this mailbox. The next run tries again.",
-      zh: "助手没能改动这个邮箱里的部分邮件，下次运行会再试。",
-    }),
   };
   return (
     <Text as="p" look="bodySmall">
       {new Map<string, string>(Object.entries(messages)).get(code) ??
-        messages.write_failed}
+        t({
+          en: "The assistant could not change some mail in this mailbox. The next run tries again.",
+          zh: "助手没能改动这个邮箱里的部分邮件，下次运行会再试。",
+        })}
     </Text>
   );
 }
 
-function CalendarErrorText({ code }: { code: string }) {
-  const messages: Record<CalendarErrorCode, string> = {
-    calendar_login_refused: t({
-      en: "iCloud Calendar refused the login, so no events were written. Make a new app-specific password and connect this mailbox again.",
-      zh: "iCloud 日历拒绝了登录，所以没有写入任何安排。请生成新的 App 专用密码并重新连接这个邮箱。",
-    }),
-    calendar_failed: t({
-      en: "The assistant could not write some events to iCloud Calendar. The next sync tries again.",
-      zh: "助手没能把部分安排写入 iCloud 日历，下次同步会再试。",
-    }),
-  };
-  return (
-    <Text as="p" look="bodySmall">
-      {new Map<string, string>(Object.entries(messages)).get(code) ??
-        messages.calendar_failed}
-    </Text>
-  );
-}
-
-/** One connected mailbox: its sync state, the last error, and what to do about it. */
+/** One connected mailbox: its last check, the last error, and what to do about it. */
 export function AccountCard({
   account,
   formatDate,
@@ -136,11 +115,6 @@ export function AccountCard({
                   formatDate(account.lastSyncedAt),
                 )
               : t({ en: "Not checked yet", zh: "尚未检查" })}
-            {" · "}
-            {t({ en: "{count} folders", zh: "{count} 个文件夹" }).replace(
-              "{count}",
-              String(account.folders),
-            )}
           </Text>
         </div>
         {account.lastErrorCode ? (
@@ -165,19 +139,6 @@ export function AccountCard({
                   ? `${formatDate(account.writeErrorAt)} · `
                   : null}
                 {account.writeErrorMessage}
-              </Text>
-            ) : null}
-          </div>
-        ) : null}
-        {account.calendarErrorCode ? (
-          <div css={stack.text}>
-            <CalendarErrorText code={account.calendarErrorCode} />
-            {account.calendarErrorMessage ? (
-              <Text look="caption" tone="muted">
-                {account.calendarErrorAt
-                  ? `${formatDate(account.calendarErrorAt)} · `
-                  : null}
-                {account.calendarErrorMessage}
               </Text>
             ) : null}
           </div>

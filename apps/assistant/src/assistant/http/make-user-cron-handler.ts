@@ -18,7 +18,7 @@ interface UserCronJob<Totals> {
   start: (userIds: readonly string[]) => Totals;
   /**
    * The work for one user. It runs outside a transaction, so that it can
-   * wait on the network; it opens `withUser(db, userId, …)` for each write.
+   * wait on the network.
    * `endsAt` is the epoch milliseconds after which it starts no new work:
    * an equal share of the time that is left for the users not done yet.
    */

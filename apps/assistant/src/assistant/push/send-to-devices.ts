@@ -1,5 +1,4 @@
-import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser, type UserScope } from "#src/assistant/db/with-user.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import type { PushMessage, PushSender } from "./get-push-sender.ts";
 import { pushDevices } from "./push-devices.ts";
 
@@ -9,7 +8,7 @@ import { pushDevices } from "./push-devices.ts";
  * `onSent` runs in the same transaction when at least one device got it.
  */
 export async function sendToDevices(
-  { db, userId }: { db: AssistantDb; userId: string },
+  { db, userId }: UserScope,
   message: PushMessage,
   {
     send,
@@ -21,7 +20,7 @@ export async function sendToDevices(
     onSent?: (scope: UserScope) => Promise<unknown>;
   },
 ): Promise<{ sent: number; removed: number }> {
-  const devices = await withUser(db, userId, pushDevices.list);
+  const devices = await pushDevices.list({ db, userId });
   if (devices.length === 0) return { sent: 0, removed: 0 };
   const outcomes = await Promise.all(
     devices.map(async (device) => ({
@@ -35,7 +34,8 @@ export async function sendToDevices(
     );
   const sent = endpointsOf("sent");
   const gone = endpointsOf("gone");
-  await withUser(db, userId, async (scope) => {
+  await db.transaction(async (tx) => {
+    const scope = { db: tx, userId };
     await pushDevices.remove(scope, gone);
     await pushDevices.markSent(scope, sent, now());
     if (sent.length > 0) await onSent?.(scope);

@@ -6,19 +6,14 @@ import {
   customType,
   date,
   index,
-  integer,
   jsonb,
   pgTable,
-  primaryKey,
   smallint,
   text,
   timestamp,
   unique,
-  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import type { MailEvent, MailFacts } from "../classify/types.ts";
-import type { DigestContent } from "../digest/types.ts";
 import type { MorningReportContent } from "../report/types.ts";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
@@ -38,9 +33,6 @@ function createdAt() {
 function updatedAt() {
   return timestamp("updated_at", { withTimezone: true }).notNull().defaultNow();
 }
-
-// Global tables: reachable without a user scope, because sign-in reads them
-// before the user is known.
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey(),
@@ -88,25 +80,6 @@ export const sessions = pgTable(
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
 
-/** One-use links made with `assistant:invite-link`. Only the token's hash is stored. */
-export const invites = pgTable("invites", {
-  id: uuid("id").primaryKey(),
-  tokenHash: bytea("token_hash").notNull().unique(),
-  /** The name of the new user; for a recovery invite, the user's name when it was made. */
-  displayName: text("display_name").notNull(),
-  /** Set when the invite lets a user who lost every passkey back in. */
-  recoveryUserId: uuid("recovery_user_id").references(() => users.id, {
-    onDelete: "cascade",
-  }),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  usedAt: timestamp("used_at", { withTimezone: true }),
-  createdAt: createdAt(),
-});
-
-// User tables: each row belongs to one user, and row level security limits
-// every statement to the user in `app.user_id` (see `with-user.ts`). The
-// migration of each new user table calls `isolate_user_table`.
-
 function userId() {
   return uuid("user_id")
     .notNull()
@@ -118,24 +91,10 @@ export const userSettings = pgTable(
   {
     userId: userId().primaryKey(),
     timeZone: text("time_zone").notNull().default(DEFAULT_TIME_ZONE),
-    /** The local hour of the morning digest. */
+    /** The local hour of the morning report. */
     digestHour: smallint("digest_hour").notNull().default(DEFAULT_DIGEST_HOUR),
-    /** The language of the digest and of the summaries the model writes. */
+    /** The language of the pages and of the reports the model writes. */
     locale: text("locale", { enum: USER_LOCALES }).notNull().default("en"),
-    /** Off until the user has reviewed the classification: then the app may mark, flag and move mail. */
-    mailboxWrites: boolean("mailbox_writes").notNull().default(false),
-    /** When `mailbox_writes` was last turned on: mail classified before it is left as it is. */
-    mailboxWritesSince: timestamp("mailbox_writes_since", {
-      withTimezone: true,
-    }),
-    /** On by default: with an iCloud account, the app writes the events it is sure about to the user's calendar. */
-    calendarEvents: boolean("calendar_events").notNull().default(true),
-    /** When `calendar_events` was last turned on: mail classified before it gets no event. */
-    calendarEventsSince: timestamp("calendar_events_since", {
-      withTimezone: true,
-    }),
-    /** Off until the user starts it: then a cron stores and classifies the mail older than each account's connection. */
-    historyImport: boolean("history_import").notNull().default(false),
     /** Off until the user turns it on: then a cron files every inbox mail into a folder and marks it read. */
     organiseEnabled: boolean("organise_enabled").notNull().default(false),
     /** The user's own words on where mail goes, for the model that picks a folder. */
@@ -179,480 +138,12 @@ export const mailAccounts = pgTable(
     writeErrorCode: text("write_error_code"),
     writeErrorMessage: text("write_error_message"),
     writeErrorAt: timestamp("write_error_at", { withTimezone: true }),
-    /** iCloud only: the app's own calendar, which it found or made. */
-    calendarUrl: text("calendar_url"),
-    /** The last failed calendar write; cleared by a calendar run without failures. */
-    calendarErrorCode: text("calendar_error_code"),
-    calendarErrorMessage: text("calendar_error_message"),
-    calendarErrorAt: timestamp("calendar_error_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
   (t) => [
     unique("mail_accounts_address_key").on(t.userId, t.provider, t.address),
   ],
-);
-
-/** The user's own name for a kind of mail. Each account files it into one folder. */
-export const mailCategories = pgTable(
-  "mail_categories",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    name: text("name").notNull(),
-    createdAt: createdAt(),
-  },
-  (t) => [unique("mail_categories_name_key").on(t.userId, t.name)],
-);
-
-/**
- * A folder of an account as the last sync saw it, with its counts and the
- * sync cursor. The cursor is valid only while `cursorUidValidity` matches
- * the folder's UIDVALIDITY on the server.
- */
-export const mailFolders = pgTable(
-  "mail_folders",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => mailAccounts.id, { onDelete: "cascade" }),
-    path: text("path").notNull(),
-    name: text("name").notNull(),
-    delimiter: text("delimiter"),
-    /** The IMAP special-use flag, such as `\Sent`, or null. */
-    specialUse: text("special_use"),
-    messageCount: integer("message_count"),
-    unseenCount: integer("unseen_count"),
-    countedAt: timestamp("counted_at", { withTimezone: true }),
-    categoryId: uuid("category_id").references(() => mailCategories.id, {
-      onDelete: "set null",
-    }),
-    cursorUidValidity: bigint("cursor_uid_validity", { mode: "number" }),
-    /** The highest UID that sync has fetched or skipped. */
-    cursorLastUid: bigint("cursor_last_uid", { mode: "number" }),
-    /** The highest UID when sync first saw the folder: mail at or below it is history. */
-    cursorBaselineUid: bigint("cursor_baseline_uid", { mode: "number" }),
-    syncedAt: timestamp("synced_at", { withTimezone: true }),
-    /** The UIDVALIDITY of the history walk; the walk starts again when it changes. */
-    historyUidValidity: bigint("history_uid_validity", { mode: "number" }),
-    /** History import has stored every UID above this one and goes on downward; 0 when it reached the oldest mail. */
-    historyNextUid: bigint("history_next_uid", { mode: "number" }),
-    historyDoneAt: timestamp("history_done_at", { withTimezone: true }),
-    createdAt: createdAt(),
-  },
-  (t) => [
-    unique("mail_folders_path_key").on(t.accountId, t.path),
-    uniqueIndex("mail_folders_category_key")
-      .on(t.accountId, t.categoryId)
-      .where(sql`${t.categoryId} is not null`),
-    index("mail_folders_user_idx").on(t.userId),
-  ],
-);
-
-export const MAIL_MESSAGE_ORIGINS = ["live", "history"] as const;
-export type MailMessageOrigin = (typeof MAIL_MESSAGE_ORIGINS)[number];
-
-/**
- * One mail, stored once per user by its Message-ID. Sync stores mail that
- * arrives after the account connected as `live`; history import stores the
- * rest. `snippet` is cleaned text from the first part of the message.
- */
-export const mailMessages = pgTable(
-  "mail_messages",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => mailAccounts.id, { onDelete: "cascade" }),
-    /** Where the mail is now: sync stores the inbox, and a move by the app updates all three. */
-    folderId: uuid("folder_id").references(() => mailFolders.id, {
-      onDelete: "set null",
-    }),
-    /** 0 when the app moved the mail and the server did not say its new UID: find it by Message-ID. */
-    uidValidity: bigint("uid_validity", { mode: "number" }).notNull(),
-    uid: bigint("uid", { mode: "number" }).notNull(),
-    messageId: text("message_id").notNull(),
-    inReplyTo: text("in_reply_to"),
-    references: text("references")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
-    fromAddress: text("from_address"),
-    fromName: text("from_name"),
-    replyTo: text("reply_to"),
-    toAddresses: text("to_addresses")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
-    ccAddresses: text("cc_addresses")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
-    subject: text("subject").notNull().default(""),
-    /** The Date header. */
-    sentAt: timestamp("sent_at", { withTimezone: true }),
-    /** The server's INTERNALDATE. */
-    receivedAt: timestamp("received_at", { withTimezone: true }).notNull(),
-    /** The IMAP flags when sync fetched the mail. */
-    flags: text("flags")
-      .array()
-      .notNull()
-      .default(sql`'{}'::text[]`),
-    listId: text("list_id"),
-    listUnsubscribe: text("list_unsubscribe"),
-    autoSubmitted: text("auto_submitted"),
-    precedence: text("precedence"),
-    size: integer("size"),
-    snippet: text("snippet").notNull().default(""),
-    origin: text("origin", { enum: MAIL_MESSAGE_ORIGINS })
-      .notNull()
-      .default("live"),
-    createdAt: createdAt(),
-  },
-  (t) => [
-    unique("mail_messages_message_id_key").on(t.userId, t.messageId),
-    index("mail_messages_received_idx").on(t.userId, t.receivedAt),
-    index("mail_messages_folder_uid_idx").on(t.folderId, t.uid),
-    index("mail_messages_account_idx").on(t.accountId),
-    index("mail_messages_from_idx").on(t.userId, t.fromAddress),
-  ],
-);
-
-export const MAIL_BUCKETS = ["act", "fyi", "filed", "unsure"] as const;
-export type MailBucket = (typeof MAIL_BUCKETS)[number];
-
-/** The buckets a sender rule can choose: a rule is never unsure. */
-export const SENDER_RULE_BUCKETS = ["act", "fyi", "filed"] as const;
-export type SenderRuleBucket = (typeof SENDER_RULE_BUCKETS)[number];
-
-export const SENDER_RULE_MATCHES = ["address", "domain"] as const;
-export type SenderRuleMatch = (typeof SENDER_RULE_MATCHES)[number];
-
-export const SENDER_RULE_STATUSES = ["draft", "confirmed"] as const;
-export type SenderRuleStatus = (typeof SENDER_RULE_STATUSES)[number];
-
-/**
- * "Mail from X goes to bucket Y and category Z". A correction drafts one;
- * only a rule the user confirmed takes part in classification.
- */
-export const mailSenderRules = pgTable(
-  "mail_sender_rules",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    match: text("match", { enum: SENDER_RULE_MATCHES }).notNull(),
-    /** Lower case: a whole address, or a domain that also matches its subdomains. */
-    pattern: text("pattern").notNull(),
-    bucket: text("bucket", { enum: SENDER_RULE_BUCKETS }).notNull(),
-    categoryId: uuid("category_id").references(() => mailCategories.id, {
-      onDelete: "set null",
-    }),
-    status: text("status", { enum: SENDER_RULE_STATUSES })
-      .notNull()
-      .default("draft"),
-    /** The mail whose correction drafted the rule. */
-    sourceMessageId: uuid("source_message_id").references(
-      () => mailMessages.id,
-      { onDelete: "set null" },
-    ),
-    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
-    createdAt: createdAt(),
-  },
-  (t) => [
-    unique("mail_sender_rules_pattern_key").on(t.userId, t.match, t.pattern),
-  ],
-);
-
-export const MAIL_DECIDERS = [
-  "rule",
-  "sender_rule",
-  "model",
-  /** History mail that the user had filed already: its folder's category, and no model. */
-  "folder",
-  "failed",
-] as const;
-export type MailDecider = (typeof MAIL_DECIDERS)[number];
-
-/**
- * What the classifier decided for one mail. `decided_by` is `failed`
- * while the model call fails; the classifier tries again until `attempts`
- * reaches its limit, and the bucket stays `unsure`.
- */
-export const mailClassifications = pgTable(
-  "mail_classifications",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    messageId: uuid("message_id")
-      .notNull()
-      .references(() => mailMessages.id, { onDelete: "cascade" })
-      .unique(),
-    bucket: text("bucket", { enum: MAIL_BUCKETS }).notNull(),
-    categoryId: uuid("category_id").references(() => mailCategories.id, {
-      onDelete: "set null",
-    }),
-    decidedBy: text("decided_by", { enum: MAIL_DECIDERS }).notNull(),
-    /** The header rule or the truth-table row that chose the bucket. */
-    reason: text("reason").notNull(),
-    senderRuleId: uuid("sender_rule_id").references(() => mailSenderRules.id, {
-      onDelete: "set null",
-    }),
-    /** The model's answers, when the model ran. */
-    facts: jsonb("facts").$type<MailFacts>(),
-    /** One line in the user's language, written by the model. */
-    summary: text("summary"),
-    event: jsonb("event").$type<MailEvent>(),
-    modelId: text("model_id"),
-    promptVersion: integer("prompt_version"),
-    attempts: smallint("attempts").notNull().default(1),
-    classifiedAt: timestamp("classified_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    /** Set when the user marks an `act` item done. Until then it stays in every digest. */
-    doneAt: timestamp("done_at", { withTimezone: true }),
-    createdAt: createdAt(),
-  },
-  (t) => [
-    index("mail_classifications_open_idx")
-      .on(t.userId, t.bucket)
-      .where(sql`${t.doneAt} is null`),
-  ],
-);
-
-export const DIGEST_ARRANGERS = ["model", "fallback"] as const;
-export type DigestArranger = (typeof DIGEST_ARRANGERS)[number];
-
-/**
- * The morning digest of one local day. `content` keeps the order and the
- * lines as they were built; the state of each item (done, corrected) is
- * read live from its classification.
- */
-export const mailDigests = pgTable(
-  "mail_digests",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    /** The day in the user's time zone, `YYYY-MM-DD`. */
-    localDate: date("local_date", { mode: "string" }).notNull(),
-    /** Mail classified after this and up to `builtAt` is new in this digest. */
-    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
-    builtAt: timestamp("built_at", { withTimezone: true }).notNull(),
-    /** One sentence by the model; null when the code arranged the digest. */
-    headline: text("headline"),
-    arrangedBy: text("arranged_by", { enum: DIGEST_ARRANGERS }).notNull(),
-    modelId: text("model_id"),
-    promptVersion: integer("prompt_version"),
-    content: jsonb("content").$type<DigestContent>().notNull(),
-    notifiedAt: timestamp("notified_at", { withTimezone: true }),
-    createdAt: createdAt(),
-  },
-  (t) => [unique("mail_digests_date_key").on(t.userId, t.localDate)],
-);
-
-export const CORRECTION_KINDS = ["not_important", "should_show"] as const;
-export type CorrectionKind = (typeof CORRECTION_KINDS)[number];
-
-/**
- * The user said that the classifier was wrong about a mail: "not important"
- * on a mail it showed, or "should show" on a mail it filed. Each drafts a
- * sender rule for the user to confirm.
- */
-export const mailCorrections = pgTable(
-  "mail_corrections",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    messageId: uuid("message_id")
-      .notNull()
-      .references(() => mailMessages.id, { onDelete: "cascade" }),
-    kind: text("kind", { enum: CORRECTION_KINDS }).notNull(),
-    senderRuleId: uuid("sender_rule_id").references(() => mailSenderRules.id, {
-      onDelete: "set null",
-    }),
-    createdAt: createdAt(),
-  },
-  (t) => [unique("mail_corrections_message_key").on(t.messageId, t.kind)],
-);
-
-/**
- * What the app did to one mail in its mailbox, so that a write run can stop
- * at any point and the next one does only what is left. A row exists only
- * for mail the app has written to.
- */
-export const mailWriteStates = pgTable(
-  "mail_write_states",
-  {
-    messageId: uuid("message_id")
-      .primaryKey()
-      .references(() => mailMessages.id, { onDelete: "cascade" }),
-    userId: userId(),
-    seenAt: timestamp("seen_at", { withTimezone: true }),
-    /** Set while the app's `\Flagged` flag is on the mail. */
-    flaggedAt: timestamp("flagged_at", { withTimezone: true }),
-    movedAt: timestamp("moved_at", { withTimezone: true }),
-    /** Nothing is left to do for the mail. */
-    finishedAt: timestamp("finished_at", { withTimezone: true }),
-    /** The mail is no longer where the app left it: the user moved or deleted it, and the app stops. */
-    lostAt: timestamp("lost_at", { withTimezone: true }),
-    /** Failed write commands; at the limit the app stops trying. */
-    failures: smallint("failures").notNull().default(0),
-    lastError: text("last_error"),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [
-    index("mail_write_states_open_idx")
-      .on(t.userId)
-      .where(sql`${t.finishedAt} is null`),
-  ],
-);
-
-/**
- * An event that the app wrote to its own calendar. `thread_ids` holds the
- * Message-IDs of the thread, so that later mail in the thread finds the
- * event to change or delete.
- */
-export const calendarEvents = pgTable(
-  "calendar_events",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    /** The iCloud account whose calendar holds the event. */
-    accountId: uuid("account_id")
-      .notNull()
-      .references(() => mailAccounts.id, { onDelete: "cascade" }),
-    /** The iCalendar UID. */
-    uid: text("uid").notNull(),
-    /** The CalDAV resource, inside `mail_accounts.calendar_url`. */
-    url: text("url").notNull(),
-    threadIds: text("thread_ids").array().notNull(),
-    /** The event as the app last wrote it. */
-    event: jsonb("event").$type<MailEvent>().notNull(),
-    sequence: integer("sequence").notNull().default(0),
-    /** Set when a later mail cancelled the event and the app deleted it. */
-    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [
-    unique("calendar_events_uid_key").on(t.userId, t.uid),
-    index("calendar_events_thread_idx").using("gin", t.threadIds),
-  ],
-);
-
-export const CALENDAR_WRITE_RESULTS = [
-  "created",
-  "updated",
-  "cancelled",
-  /** The user's calendars have the event already. */
-  "duplicate",
-  /** A change or cancel found no event of the app in the thread. */
-  "unmatched",
-  /** The event was over when the app came to it. */
-  "past",
-] as const;
-export type CalendarWriteResult = (typeof CALENDAR_WRITE_RESULTS)[number];
-
-/**
- * What the app did with the event of one classified mail. A row without
- * `result` holds failed attempts; at the limit the app stops trying.
- */
-export const calendarWrites = pgTable("calendar_writes", {
-  classificationId: uuid("classification_id")
-    .primaryKey()
-    .references(() => mailClassifications.id, { onDelete: "cascade" }),
-  userId: userId(),
-  result: text("result", { enum: CALENDAR_WRITE_RESULTS }),
-  eventId: uuid("event_id").references(() => calendarEvents.id, {
-    onDelete: "set null",
-  }),
-  failures: smallint("failures").notNull().default(0),
-  lastError: text("last_error"),
-  writtenAt: timestamp("written_at", { withTimezone: true }),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-});
-
-/**
- * A request to the Anthropic Message Batches API that classifies history
- * mail. The row exists before the API call, so a run that stops after it
- * finds the batch again; `anthropic_batch_id` is null until the API took it.
- */
-export const mailHistoryBatches = pgTable(
-  "mail_history_batches",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: userId(),
-    anthropicBatchId: text("anthropic_batch_id").unique(),
-    modelId: text("model_id").notNull(),
-    promptVersion: integer("prompt_version").notNull(),
-    /** The category names that the request schema allowed, to read the answers with. */
-    categoryNames: text("category_names").array().notNull(),
-    requestCount: integer("request_count").notNull(),
-    submittedAt: timestamp("submitted_at", { withTimezone: true }),
-    /** The results are stored: the batch is finished. */
-    storedAt: timestamp("stored_at", { withTimezone: true }),
-    inputTokens: bigint("input_tokens", { mode: "number" })
-      .notNull()
-      .default(0),
-    outputTokens: bigint("output_tokens", { mode: "number" })
-      .notNull()
-      .default(0),
-    cacheReadTokens: bigint("cache_read_tokens", { mode: "number" })
-      .notNull()
-      .default(0),
-    cacheWriteTokens: bigint("cache_write_tokens", { mode: "number" })
-      .notNull()
-      .default(0),
-    createdAt: createdAt(),
-  },
-  (t) => [
-    index("mail_history_batches_open_idx")
-      .on(t.userId)
-      .where(sql`${t.storedAt} is null`),
-  ],
-);
-
-/**
- * One history mail that waits for the model: queued while `batch_id` is
- * null, in a batch while it is set. A stored answer deletes the row; a
- * failed one puts it back in the queue until `failures` reaches the limit.
- */
-export const mailHistoryJobs = pgTable(
-  "mail_history_jobs",
-  {
-    messageId: uuid("message_id")
-      .primaryKey()
-      .references(() => mailMessages.id, { onDelete: "cascade" }),
-    userId: userId(),
-    batchId: uuid("batch_id").references(() => mailHistoryBatches.id, {
-      onDelete: "set null",
-    }),
-    failures: smallint("failures").notNull().default(0),
-    lastError: text("last_error"),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [
-    index("mail_history_jobs_queue_idx").on(t.userId, t.batchId),
-    index("mail_history_jobs_batch_idx").on(t.batchId),
-  ],
-);
-
-/** An address that the user sent mail to, read from the sent folders by history import. */
-export const mailSentRecipients = pgTable(
-  "mail_sent_recipients",
-  {
-    userId: userId(),
-    /** Lower case. */
-    address: text("address").notNull(),
-    lastSentAt: timestamp("last_sent_at", { withTimezone: true }).notNull(),
-    createdAt: createdAt(),
-  },
-  (t) => [primaryKey({ columns: [t.userId, t.address] })],
 );
 
 /**
@@ -730,22 +221,8 @@ export const schema = {
   users,
   passkeys,
   sessions,
-  invites,
   userSettings,
   mailAccounts,
-  mailCategories,
-  mailFolders,
-  mailMessages,
-  mailSenderRules,
-  mailClassifications,
-  mailDigests,
-  mailCorrections,
-  mailWriteStates,
-  calendarEvents,
-  calendarWrites,
-  mailHistoryBatches,
-  mailHistoryJobs,
-  mailSentRecipients,
   pushSubscriptions,
   morningReports,
   todos,

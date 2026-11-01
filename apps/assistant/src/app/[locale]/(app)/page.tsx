@@ -5,11 +5,11 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import {
@@ -27,16 +27,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/");
-  const { accounts, report, settings, openTodos } = await withUser(
-    getAssistantDb(),
-    session.userId,
-    async (scope) => ({
-      accounts: await scope.db.$count(mailAccounts),
-      report: await readReport(scope, null),
-      settings: await readReportSettings(scope),
-      openTodos: await countOpenTodos(scope),
-    }),
-  );
+  const scope = { db: getAssistantDb(), userId: session.userId };
+  const [accounts, report, settings, openTodos] = await Promise.all([
+    scope.db.$count(mailAccounts, eq(mailAccounts.userId, scope.userId)),
+    readReport(scope, null),
+    readReportSettings(scope),
+    countOpenTodos(scope),
+  ]);
   const clock = localClock(new Date(), settings.timeZone);
   if (report) {
     return (
