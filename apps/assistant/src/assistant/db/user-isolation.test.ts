@@ -20,10 +20,13 @@ import {
   mailAccounts,
   mailCategories,
   mailClassifications,
+  mailCorrections,
+  mailDigests,
   mailFolders,
   mailMessages,
   mailSenderRules,
   passkeys,
+  pushSubscriptions,
   schema,
   sessions,
   users,
@@ -111,6 +114,32 @@ async function seedEveryUserTable(db: AssistantDb, userId: string) {
     decidedBy: "sender_rule",
     reason: "sender-rule",
     senderRuleId: rule.id,
+  });
+  await db.insert(mailCorrections).values({
+    userId,
+    messageId: message.id,
+    kind: "not_important",
+    senderRuleId: rule.id,
+  });
+  await db.insert(mailDigests).values({
+    userId,
+    localDate: "2026-11-01",
+    windowStart: new Date(),
+    builtAt: new Date(),
+    arrangedBy: "fallback",
+    content: {
+      version: 1,
+      sections: { act: [], unsure: [], fyi: [] },
+      calendar: [],
+      filed: [],
+      sample: [],
+    },
+  });
+  await db.insert(pushSubscriptions).values({
+    userId,
+    endpoint: `https://push.example.com/${userId}`,
+    p256dh: "key",
+    auth: "secret",
   });
 }
 

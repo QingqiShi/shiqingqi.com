@@ -10,6 +10,11 @@ import { requirePageSession } from "#src/assistant/auth/require-page-session.ts"
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
+import {
+  listDraftRules,
+  readDigest,
+} from "#src/assistant/digest/read-digest.ts";
+import { DigestView } from "#src/assistant/digest-page/digest-view.tsx";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -20,9 +25,18 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/");
-  const accounts = await withUser(getAssistantDb(), session.userId, ({ db }) =>
-    db.$count(mailAccounts),
+  const { accounts, digest, rules } = await withUser(
+    getAssistantDb(),
+    session.userId,
+    async (scope) => ({
+      accounts: await scope.db.$count(mailAccounts),
+      digest: await readDigest(scope, null),
+      rules: await listDraftRules(scope),
+    }),
   );
+  if (digest) {
+    return <DigestView digest={digest} rules={rules} locale={locale} />;
+  }
 
   return (
     <div css={stack.group}>
@@ -37,8 +51,8 @@ export default async function Page({ params }: PageProps) {
                 zh: "连接邮箱后，每天早上的摘要会显示在这里。",
               })
             : t({
-                en: "Your mailboxes are connected. Choose your categories so that mail can be filed.",
-                zh: "邮箱已连接。请选择分类，以便归档邮件。",
+                en: "Your mailboxes are connected. The first digest comes at your digest hour; until then, choose your categories so that mail can be filed.",
+                zh: "邮箱已连接。第一份摘要会在你设定的时间送到；在此之前，请选择分类，以便归档邮件。",
               })}
         </Text>
       </div>

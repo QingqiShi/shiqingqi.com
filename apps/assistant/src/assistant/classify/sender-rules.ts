@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import {
   mailSenderRules,
   type SenderRuleBucket,
@@ -70,5 +70,37 @@ function listConfirmed({ db }: UserScope): Promise<SenderRule[]> {
     .where(eq(mailSenderRules.status, "confirmed"));
 }
 
+/** Deletes a draft the user does not want. A confirmed rule is kept. False when there is no such draft. */
+async function dismiss({ db }: UserScope, ruleId: string): Promise<boolean> {
+  const deleted = await db
+    .delete(mailSenderRules)
+    .where(
+      and(eq(mailSenderRules.id, ruleId), eq(mailSenderRules.status, "draft")),
+    )
+    .returning({ id: mailSenderRules.id });
+  return deleted.length > 0;
+}
+
+/** The drafts that wait for the user, oldest first. */
+function listDrafts({ db }: UserScope): Promise<SenderRule[]> {
+  return db
+    .select({
+      id: mailSenderRules.id,
+      match: mailSenderRules.match,
+      pattern: mailSenderRules.pattern,
+      bucket: mailSenderRules.bucket,
+      categoryId: mailSenderRules.categoryId,
+    })
+    .from(mailSenderRules)
+    .where(eq(mailSenderRules.status, "draft"))
+    .orderBy(asc(mailSenderRules.createdAt));
+}
+
 /** The storage of sender rules. A correction drafts one; the user confirms it. */
-export const senderRules = { saveDraft, confirm, listConfirmed };
+export const senderRules = {
+  saveDraft,
+  confirm,
+  dismiss,
+  listConfirmed,
+  listDrafts,
+};

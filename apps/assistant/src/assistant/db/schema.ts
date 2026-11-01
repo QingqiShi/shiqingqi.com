@@ -4,6 +4,7 @@ import {
   boolean,
   check,
   customType,
+  date,
   index,
   integer,
   jsonb,
@@ -16,6 +17,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import type { MailEvent, MailFacts } from "../classify/types.ts";
+import type { DigestContent } from "../digest/types.ts";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
   dataType: () => "bytea",
@@ -383,6 +385,77 @@ export const mailClassifications = pgTable(
   ],
 );
 
+export const DIGEST_ARRANGERS = ["model", "fallback"] as const;
+export type DigestArranger = (typeof DIGEST_ARRANGERS)[number];
+
+/**
+ * The morning digest of one local day. `content` keeps the order and the
+ * lines as they were built; the state of each item (done, corrected) is
+ * read live from its classification.
+ */
+export const mailDigests = pgTable(
+  "mail_digests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    /** The day in the user's time zone, `YYYY-MM-DD`. */
+    localDate: date("local_date", { mode: "string" }).notNull(),
+    /** Mail classified after this and up to `builtAt` is new in this digest. */
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    builtAt: timestamp("built_at", { withTimezone: true }).notNull(),
+    /** One sentence by the model; null when the code arranged the digest. */
+    headline: text("headline"),
+    arrangedBy: text("arranged_by", { enum: DIGEST_ARRANGERS }).notNull(),
+    modelId: text("model_id"),
+    promptVersion: integer("prompt_version"),
+    content: jsonb("content").$type<DigestContent>().notNull(),
+    notifiedAt: timestamp("notified_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [unique("mail_digests_date_key").on(t.userId, t.localDate)],
+);
+
+export const CORRECTION_KINDS = ["not_important", "should_show"] as const;
+export type CorrectionKind = (typeof CORRECTION_KINDS)[number];
+
+/**
+ * The user said that the classifier was wrong about a mail: "not important"
+ * on a mail it showed, or "should show" on a mail it filed. Each drafts a
+ * sender rule for the user to confirm.
+ */
+export const mailCorrections = pgTable(
+  "mail_corrections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    messageId: uuid("message_id")
+      .notNull()
+      .references(() => mailMessages.id, { onDelete: "cascade" }),
+    kind: text("kind", { enum: CORRECTION_KINDS }).notNull(),
+    senderRuleId: uuid("sender_rule_id").references(() => mailSenderRules.id, {
+      onDelete: "set null",
+    }),
+    createdAt: createdAt(),
+  },
+  (t) => [unique("mail_corrections_message_key").on(t.messageId, t.kind)],
+);
+
+/** One device that gets the digest notification. */
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    endpoint: text("endpoint").notNull(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    userAgent: text("user_agent").notNull().default(""),
+    lastSentAt: timestamp("last_sent_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [unique("push_subscriptions_endpoint_key").on(t.userId, t.endpoint)],
+);
+
 export const schema = {
   users,
   passkeys,
@@ -395,4 +468,7 @@ export const schema = {
   mailMessages,
   mailSenderRules,
   mailClassifications,
+  mailDigests,
+  mailCorrections,
+  pushSubscriptions,
 };
