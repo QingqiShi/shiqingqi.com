@@ -71,7 +71,7 @@ function labelFor(
 }
 
 /** Tests run in jsdom, which the client thinks is a browser. The key is not a real key. */
-const TEST_CLIENT = {
+export const TEST_CLIENT = {
   apiKey: "test",
   compression: false,
   logLevel: "off",

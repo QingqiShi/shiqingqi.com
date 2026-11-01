@@ -94,9 +94,16 @@ function normalCase(word: string) {
   return word.charAt(0) + word.slice(1).toLowerCase();
 }
 
+/** A character that always ends a name. */
+export const NAME_BREAK = "|";
+
+/** Separators that end a name, among them Chinese punctuation such as "。", "、" and "【", which separates words in text without spaces. */
+const NAME_BREAKS =
+  /[*|/\\,;:()[\]]+|(?=\p{Script_Extensions=Han})\p{P}|\s-\s|\.(?=\s|$)/u;
+
 function runsOf(text: string): string[][] {
   const runs: string[][] = [];
-  for (const segment of text.split(/[*|/\\,;:()[\]]+|\s-\s|\.(?=\s|$)/)) {
+  for (const segment of text.split(NAME_BREAKS)) {
     let run: string[] = [];
     for (const word of segment.split(/\s+/).filter(Boolean)) {
       if (isNameWord(word) && !word.includes(".")) {

@@ -12,12 +12,20 @@ export type SearchTransactions = (
 const MAX_PAST = 8;
 const MAX_WORDS = 3;
 
+type SearchText = Pick<RowToLabel, "merchant" | "description">;
+
+/** A word of two Chinese characters is as distinctive as a Latin word of three letters. */
+function isDistinctive(word: string) {
+  const minLength = /\p{Script=Han}/u.test(word) ? 2 : 3;
+  return word.length >= minLength && !BANK_TEXT_NOISE.has(word);
+}
+
 /** The distinctive words of a bank row, in the order the bank wrote them. */
-function searchWordsOf(row: Pick<RowToLabel, "merchant" | "description">) {
+function searchWordsOf(row: SearchText) {
   const words = `${row.merchant} ${row.description}`
     .toLowerCase()
     .split(/[^\p{L}]+/u)
-    .filter((word) => word.length >= 3 && !BANK_TEXT_NOISE.has(word));
+    .filter(isDistinctive);
   return [...new Set(words)].slice(0, MAX_WORDS);
 }
 
@@ -41,7 +49,7 @@ function repeatKeyOf(transaction: FoundTransaction) {
  */
 export async function findPastTransactions(
   search: SearchTransactions,
-  row: RowToLabel,
+  row: SearchText,
 ): Promise<FoundTransaction[]> {
   const words = searchWordsOf(row);
   if (words.length === 0) return [];

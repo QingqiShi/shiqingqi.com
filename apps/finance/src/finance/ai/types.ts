@@ -80,6 +80,48 @@ export interface SuggestResponse {
   reason: string;
 }
 
+/** `POST /api/ai/quick-add`: a line a Member typed or pasted. */
+export interface QuickAddRequest {
+  text: string;
+}
+
+/** One field of a quick-add line as Jev reads it. */
+export interface QuickAddGuess<Value> {
+  value: Value;
+  /** The probability that `value` is right; 1 when code found the value and Jev was not asked. */
+  probability: number;
+  /** The strongest answer that leads elsewhere, when there is one. */
+  runnerUp?: Value;
+}
+
+/**
+ * What the AI reads in a quick-add line. Jev answers the questions of every
+ * kind together, so the fields of each kind are here whatever `kind` says:
+ * read those of the kind in force. A field is null when the Household gives
+ * nothing to choose from, or, for the amount, when the text has no number.
+ */
+export interface QuickAddResponse {
+  /** The request's text, as it was sent. */
+  text: string;
+  kind: QuickAddGuess<"expense" | "income" | "transfer">;
+  /** Positive, in minor units of the Household's base currency. */
+  amountMinor: QuickAddGuess<number> | null;
+  date: QuickAddGuess<string>;
+  /** The account of an expense or an income. */
+  accountId: QuickAddGuess<string> | null;
+  expenseCategoryId: QuickAddGuess<string> | null;
+  incomeCategoryId: QuickAddGuess<string> | null;
+  /** A known Payee by id, a new one by name, or none. */
+  payee: QuickAddGuess<{ id: string } | { name: string } | null>;
+  paysDownAccountId: QuickAddGuess<string | null> | null;
+  /** The account a transfer leaves. */
+  fromAccountId: QuickAddGuess<string> | null;
+  /** The account a transfer arrives in. */
+  toAccountId: QuickAddGuess<string> | null;
+  memberId: QuickAddGuess<string | null> | null;
+  tagIds: string[];
+}
+
 /** A Transaction's labels by name, as a Member sees them. */
 export interface NamedLabels {
   kind: "expense" | "income" | "transfer";

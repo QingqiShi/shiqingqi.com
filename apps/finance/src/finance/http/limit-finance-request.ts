@@ -18,6 +18,7 @@ const LIMITS: Record<
   "sign-up-address": { tokens: 3, window: "1 h" },
   "bank-sync": { tokens: 6, window: "1 h" },
   "ai-suggest": { tokens: 30, window: "60 s" },
+  "ai-quick-add": { tokens: 60, window: "60 s" },
   "ai-teach": { tokens: 10, window: "60 s" },
   "report-regenerate": { tokens: 10, window: "60 s" },
 };

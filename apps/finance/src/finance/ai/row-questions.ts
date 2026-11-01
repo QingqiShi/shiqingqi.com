@@ -2,6 +2,7 @@ import {
   choice,
   noul,
   type ChoiceQuestion,
+  type ChoiceResponse,
   type ContentValue,
   type EntryType,
   type NoulQuestion,
@@ -42,9 +43,23 @@ export function pairLabel(accountName: string, date: string) {
   return `bank row on ${accountName}, ${date}`;
 }
 
+/** What the questions call the thing they ask about, its text, and the past Transactions like it. */
+export interface Subject {
+  /** Its path in the state, in backticks. */
+  name: string;
+  text: string;
+  past: string;
+}
+
+export const BANK_ROW: Subject = {
+  name: "`bank_row`",
+  text: "the bank text",
+  past: "past_transactions_with_similar_bank_text",
+};
+
 /** The question whether a Tag applies. */
-export function tagInstructions(tagName: string) {
-  return `Does the tag "${tagName}" apply to \`bank_row\`? Yes only when the household's instructions or past transactions like it say so.`;
+export function tagInstructions(tagName: string, subject = BANK_ROW) {
+  return `Does the tag "${tagName}" apply to ${subject.name}? Yes only when the household's instructions or past transactions like it say so.`;
 }
 
 export type Kind = "expense" | "income" | "transfer";
@@ -64,7 +79,7 @@ export interface Options<Value> {
   outcomes: ReadonlyMap<string, string>;
 }
 
-interface Option<Value> {
+export interface Option<Value> {
   label: string;
   description: EntryType;
   value: Value;
@@ -91,6 +106,7 @@ export interface TagQuestion {
 /** What the questions of every bank row of one Household share. */
 export interface HouseholdQuestions {
   context: LabellingContext;
+  subject: Subject;
   pathOf: (categoryId: string) => string;
   accounts: ReadonlyMap<string, LabellingAccount>;
   described: ReadonlyMap<string, Record<string, ContentValue>>;
@@ -102,7 +118,20 @@ export interface HouseholdQuestions {
   tags: readonly TagQuestion[];
 }
 
-function optionsOf<Value>(
+/** The probability of every label that leads to the same outcome as the chosen one. */
+export function outcomeProbability(
+  options: Options<unknown>,
+  answer: ChoiceResponse,
+) {
+  const outcome = options.outcomes.get(answer.choice);
+  let probability = 0;
+  for (const [label, each] of options.outcomes) {
+    if (each === outcome) probability += answer.probabilities[label] ?? 0;
+  }
+  return probability;
+}
+
+export function optionsOf<Value>(
   instructions: string,
   options: readonly Option<Value>[],
 ): Options<Value> {
@@ -121,6 +150,10 @@ function optionsOf<Value>(
   return { question: choice(instructions, criteria), values, outcomes };
 }
 
+function capitalise(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 const WEEKDAYS = [
   "Monday",
   "Tuesday",
@@ -132,7 +165,7 @@ const WEEKDAYS = [
 ];
 
 /** "2026-03-12 (Thursday)". */
-function dayOf(date: string) {
+export function dayOf(date: string) {
   return `${date} (${WEEKDAYS[weekdayOf(date) - 1]})`;
 }
 
@@ -185,7 +218,7 @@ function listAccounts(
     }));
 }
 
-function describePast(
+export function describePast(
   found: FoundTransaction,
   pathOf: (id: string) => string,
 ): Record<string, ContentValue> {
@@ -209,11 +242,13 @@ function describePast(
   };
 }
 
-const EVIDENCE =
-  "`household_instructions` override everything. Next, copy `past_transactions_with_similar_bank_text`: a member's label beats the AI's, and a recent label beats an old one. Use common knowledge only when neither decides.";
+export function evidenceOf(subject: Subject) {
+  return `\`household_instructions\` override everything. Next, copy \`${subject.past}\`: a member's label beats the AI's, and a recent label beats an old one. Use common knowledge only when neither decides.`;
+}
 
 function categoryOptions(
   context: LabellingContext,
+  subject: Subject,
   pathOf: (categoryId: string) => string,
   kind: "expense" | "income",
 ) {
@@ -225,10 +260,10 @@ function categoryOptions(
   if (categories.length === 0) return undefined;
   const premise =
     kind === "expense"
-      ? "Suppose `bank_row` is an expense, or the refund of one."
-      : "Suppose `bank_row` is an income.";
+      ? `Suppose ${subject.name} is an expense, or the refund of one.`
+      : `Suppose ${subject.name} is an income.`;
   return optionsOf(
-    `${premise} Which of the household's ${kind} categories does it belong to? ${EVIDENCE}`,
+    `${premise} Which of the household's ${kind} categories does it belong to? ${evidenceOf(subject)}`,
     categories.map((category) => ({
       label: pathOf(category.id),
       description:
@@ -240,10 +275,10 @@ function categoryOptions(
   );
 }
 
-function memberOptions(context: LabellingContext) {
+function memberOptions(context: LabellingContext, subject: Subject) {
   if (context.members.length < 2) return undefined;
   return optionsOf(
-    "Whose transaction is `bank_row`? Choose a member only when the household's instructions or past transactions like it show it.",
+    `Whose transaction is ${subject.name}? Choose a member only when the household's instructions or past transactions like it show it.`,
     [
       ...context.members.map((member) => ({
         label: member.name,
@@ -262,6 +297,7 @@ function memberOptions(context: LabellingContext) {
 /** Builds once per Household what the questions of each of its bank rows share. */
 export function householdQuestions(
   context: LabellingContext,
+  subject = BANK_ROW,
 ): HouseholdQuestions {
   const categories = new Map(
     context.categories.map((category) => [category.id, category]),
@@ -280,6 +316,7 @@ export function householdQuestions(
   );
   return {
     context,
+    subject,
     pathOf,
     accounts: new Map(context.accounts.map((each) => [each.id, each])),
     described: describeAccounts(context, accountNames),
@@ -287,12 +324,12 @@ export function householdQuestions(
     payeeKeys: new Map(
       context.payees.map((payee) => [payee.id, payeeNameKey(payee.name)]),
     ),
-    expenseCategory: categoryOptions(context, pathOf, "expense"),
-    incomeCategory: categoryOptions(context, pathOf, "income"),
-    member: memberOptions(context),
+    expenseCategory: categoryOptions(context, subject, pathOf, "expense"),
+    incomeCategory: categoryOptions(context, subject, pathOf, "income"),
+    member: memberOptions(context, subject),
     tags: context.tags.slice(0, MAX_TAGS).map((tag) => ({
       tagId: tag.id,
-      question: noul(tagInstructions(tag.name)),
+      question: noul(tagInstructions(tag.name, subject)),
     })),
   };
 }
@@ -325,7 +362,11 @@ export function rowState(
   };
 }
 
-function kindOptions(row: RowToLabel) {
+/** Who is on the other side of the money; `withIncome` is false when the money left the household. */
+export function kindOptions(
+  household: HouseholdQuestions,
+  withIncome: boolean,
+) {
   const options: Option<Kind>[] = [
     {
       label: "expense",
@@ -334,7 +375,7 @@ function kindOptions(row: RowToLabel) {
       value: "expense",
     },
   ];
-  if (row.amountMinor > 0) {
+  if (withIncome) {
     options.push({
       label: "income",
       description:
@@ -348,20 +389,21 @@ function kindOptions(row: RowToLabel) {
     value: "transfer",
   });
   return optionsOf(
-    `Who is on the other side of the money in \`bank_row\`? ${EVIDENCE}`,
+    `Who is on the other side of the money in ${household.subject.name}? ${evidenceOf(household.subject)}`,
     options,
   );
 }
 
-function payeeOptions(
+/** Known Payees, those that `text` or its past Transactions name first, then the new names cut from `text`. */
+export function payeeOptions(
   household: HouseholdQuestions,
-  row: RowToLabel,
+  text: string,
+  newNames: readonly string[],
   past: readonly FoundTransaction[],
 ) {
-  const { context, pathOf, payeeKeys } = household;
-  const newNames = payeeNameCandidates(row.merchant, row.description);
+  const { context, subject, pathOf, payeeKeys } = household;
   const newKeys = new Set(newNames.map(payeeNameKey));
-  const bankKey = payeeNameKey(`${row.merchant} ${row.description}`);
+  const bankKey = payeeNameKey(text);
   const pastIds = new Set(past.flatMap((found) => found.payeeId ?? []));
   const named = (payee: { id: string }) => {
     const key = payeeKeys.get(payee.id) ?? "";
@@ -397,18 +439,18 @@ function payeeOptions(
     if (isKnown(name)) continue;
     options.push({
       label: newPayeeLabel(name),
-      description: "A new payee, named from the bank text",
+      description: `A new payee, named from ${subject.text}`,
       value: { name },
       outcome: "new payee",
     });
   }
   options.push({
     label: NO_PAYEE,
-    description: "The bank text names no merchant or person",
+    description: `${capitalise(subject.text)} names no merchant or person`,
     value: null,
   });
   return optionsOf(
-    `Who is the payee of \`bank_row\`: the merchant or person on the other side of the money? When the household already has that payee, choose it, however the bank text writes its name. Else choose the new payee with the shortest full name of that merchant or person. When a platform takes the payment for a seller, the payee is the platform. ${EVIDENCE}`,
+    `Who is the payee of ${subject.name}: the merchant or person on the other side of the money? When the household already has that payee, choose it, however ${subject.text} writes its name. Else choose the new payee with the shortest full name of that merchant or person. When a platform takes the payment for a seller, the payee is the platform. ${evidenceOf(subject)}`,
     options,
   );
 }
@@ -482,23 +524,27 @@ function transferOptions(
     value: { type: "unknown" },
   });
   return optionsOf(
-    `Suppose \`bank_row\` is a transfer between two of the household's own accounts. Which is the other side? When a bank row that arrived with it is the other side, choose that bank row. ${EVIDENCE}`,
+    `Suppose \`bank_row\` is a transfer between two of the household's own accounts. Which is the other side? When a bank row that arrived with it is the other side, choose that bank row. ${evidenceOf(BANK_ROW)}`,
     options,
   );
 }
 
-function paysDownOptions(household: HouseholdQuestions, row: RowToLabel) {
-  const own = household.accounts.get(row.accountId);
+/** Loan and receivable accounts in `currency` that an expense or income on `accountId` can also change. */
+export function paysDownOptions(
+  household: HouseholdQuestions,
+  accountId: string | null,
+  currency: string | undefined,
+) {
   const accounts = household.context.accounts.filter(
     (account) =>
       !account.isSystem &&
-      account.id !== row.accountId &&
+      account.id !== accountId &&
       (account.kind === "loan" || account.kind === "receivable") &&
-      account.currency === own?.currency,
+      account.currency === currency,
   );
   if (accounts.length === 0) return undefined;
   return optionsOf(
-    "Suppose `bank_row` is an expense or an income. Does it also change the balance of one of these loan or receivable accounts? Choose an account only when the household's instructions say so or past transactions like it have an entry on it.",
+    `Suppose ${household.subject.name} is an expense or an income. Does it also change the balance of one of these loan or receivable accounts? Choose an account only when the household's instructions say so or past transactions like it have an entry on it.`,
     [
       ...accounts.map((account) => ({
         label: account.name,
@@ -526,19 +572,28 @@ export function rowQuestions(
   past: readonly FoundTransaction[],
 ): RowChoices {
   return {
-    kind: kindOptions(row),
+    kind: kindOptions(household, row.amountMinor > 0),
     expenseCategory: household.expenseCategory,
     incomeCategory: row.amountMinor > 0 ? household.incomeCategory : undefined,
-    payee: payeeOptions(household, row, past),
+    payee: payeeOptions(
+      household,
+      `${row.merchant} ${row.description}`,
+      payeeNameCandidates(row.merchant, row.description),
+      past,
+    ),
     transfer: transferOptions(household, row, batch),
-    paysDown: paysDownOptions(household, row),
+    paysDown: paysDownOptions(
+      household,
+      row.accountId,
+      household.accounts.get(row.accountId)?.currency,
+    ),
     member: household.member,
   };
 }
 
 /** The questions as the request sends them, by name. A Tag's question is named by the Tag's id. */
 export function requestQuestions(
-  choices: RowChoices,
+  choices: Readonly<Record<string, Options<unknown> | undefined>>,
   tags: readonly TagQuestion[],
 ): Questions {
   const questions: Questions = {};
