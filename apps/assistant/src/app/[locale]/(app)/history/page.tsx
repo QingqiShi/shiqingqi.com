@@ -12,13 +12,13 @@ import { requirePageSession } from "#src/assistant/auth/require-page-session.ts"
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { mailCategories } from "#src/assistant/db/schema.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
-import { readDigestSettings } from "#src/assistant/digest/build-digest.ts";
 import { readHistoryProgress } from "#src/assistant/history/read-history-progress.ts";
 import { searchMail } from "#src/assistant/history/search-mail.ts";
 import { FolderTable } from "#src/assistant/history-page/folder-table.tsx";
 import { HistoryToggle } from "#src/assistant/history-page/history-toggle.tsx";
 import { MailSearch } from "#src/assistant/history-page/mail-search.tsx";
 import { PROVIDER_NAMES } from "#src/assistant/mailboxes/provider-names.ts";
+import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import { Anchor } from "#src/links/anchor.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -50,7 +50,7 @@ export default async function Page({
     session.userId,
     async (scope) => ({
       progress: await readHistoryProgress(scope),
-      settings: await readDigestSettings(scope),
+      settings: await readReportSettings(scope),
       categories: await scope.db
         .select({ id: mailCategories.id, name: mailCategories.name })
         .from(mailCategories)

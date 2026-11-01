@@ -148,8 +148,12 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
       );
       return ascending(found).filter((uid) => uid >= low && uid <= high);
     },
-    async listUidsSince(since) {
-      return ascending(await client.search({ since }, { uid: true }));
+    async listUidsSince(since, before) {
+      return ascending(
+        await client.search(before ? { since, before } : { since }, {
+          uid: true,
+        }),
+      );
     },
     async fetchMessages(uids, maxBytes) {
       if (uids.length === 0) return [];

@@ -4,76 +4,85 @@ import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
+import { localClock } from "#src/assistant/report/due-report-date.ts";
+import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import {
-  listDraftRules,
-  readDigest,
-} from "#src/assistant/digest/read-digest.ts";
-import { DigestView } from "#src/assistant/digest-page/digest-view.tsx";
+  countOpenTodos,
+  readReport,
+} from "#src/assistant/report/read-report.ts";
+import { ReportView } from "#src/assistant/report-page/report-view.tsx";
 import { AnchorButton } from "#src/links/anchor-button.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
-  return { title: t({ en: "Digest", zh: "摘要" }) };
+  return { title: t({ en: "Morning report", zh: "晨报" }) };
 }
 
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/");
-  const { accounts, digest, rules } = await withUser(
+  const { accounts, report, settings, openTodos } = await withUser(
     getAssistantDb(),
     session.userId,
     async (scope) => ({
       accounts: await scope.db.$count(mailAccounts),
-      digest: await readDigest(scope, null),
-      rules: await listDraftRules(scope),
+      report: await readReport(scope, null),
+      settings: await readReportSettings(scope),
+      openTodos: await countOpenTodos(scope),
     }),
   );
-  if (digest) {
-    return <DigestView digest={digest} rules={rules} locale={locale} />;
+  const clock = localClock(new Date(), settings.timeZone);
+  if (report) {
+    return (
+      <ReportView
+        report={report}
+        today={clock.date}
+        openTodos={openTodos}
+        locale={locale}
+      />
+    );
   }
 
+  const hour = `${String(settings.digestHour).padStart(2, "0")}:00`;
   return (
     <div css={stack.group}>
       <div css={stack.tight}>
         <Heading level={1} look="h1">
-          {t({ en: "Nothing to read yet", zh: "暂时没有需要看的" })}
+          {t({ en: "No report yet", zh: "还没有晨报" })}
         </Heading>
         <Text as="p" tone="muted">
           {accounts === 0
             ? t({
-                en: "Your morning digest shows on this page once you connect a mailbox.",
-                zh: "连接邮箱后，每天早上的摘要会显示在这里。",
-              })
-            : t({
-                en: "Your mailboxes are connected. The first digest comes at your digest hour; until then, choose your categories so that mail can be filed.",
-                zh: "邮箱已连接。第一份摘要会在你设定的时间送到；在此之前，请选择分类，以便归档邮件。",
-              })}
+                en: "Connect a mailbox. Each morning at {hour}, the assistant reads the mail of the day before and writes down what needs you.",
+                zh: "请先连接邮箱。每天早上 {hour}，助手会读取前一天的邮件，告诉你需要处理什么。",
+              }).replace("{hour}", hour)
+            : clock.hour >= settings.digestHour
+              ? t({
+                  en: "Your first morning report comes within the hour.",
+                  zh: "第一份晨报会在一小时内送到。",
+                })
+              : t({
+                  en: "Your first morning report comes today at {hour}.",
+                  zh: "第一份晨报会在今天 {hour} 送到。",
+                }).replace("{hour}", hour)}
         </Text>
       </div>
-      <div css={cluster.tight}>
-        <AnchorButton
-          href={getLocalePath("/accounts", locale)}
-          look={accounts === 0 ? "primary" : "outline"}
-        >
-          {accounts === 0
-            ? t({ en: "Connect a mailbox", zh: "连接邮箱" })
-            : t({ en: "Mailboxes", zh: "邮箱" })}
-        </AnchorButton>
-        {accounts > 0 ? (
+      {accounts === 0 ? (
+        <div>
           <AnchorButton
-            href={getLocalePath("/categories", locale)}
-            look="outline"
+            href={getLocalePath("/accounts", locale)}
+            look="primary"
           >
-            {t({ en: "Categories", zh: "分类" })}
+            {t({ en: "Connect a mailbox", zh: "连接邮箱" })}
           </AnchorButton>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

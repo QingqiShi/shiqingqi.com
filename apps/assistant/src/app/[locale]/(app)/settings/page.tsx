@@ -10,7 +10,7 @@ import { requirePageSession } from "#src/assistant/auth/require-page-session.ts"
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
 import { userSettings } from "#src/assistant/db/schema.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
-import { readDigestSettings } from "#src/assistant/digest/build-digest.ts";
+import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import { OrganiseNotesForm } from "#src/assistant/settings/organise-notes-form.tsx";
 import { OrganiseToggle } from "#src/assistant/settings/organise-toggle.tsx";
 import { PushToggle } from "#src/assistant/settings/push-toggle.tsx";
@@ -31,7 +31,7 @@ export default async function Page({ params }: PageProps) {
     db,
     session.userId,
     async (scope) => ({
-      settings: await readDigestSettings(scope),
+      settings: await readReportSettings(scope),
       organise: (
         await scope.db
           .select({
@@ -53,7 +53,7 @@ export default async function Page({ params }: PageProps) {
       <Section
         level={2}
         divider
-        title={t({ en: "Morning digest", zh: "每日摘要" })}
+        title={t({ en: "Morning report", zh: "晨报" })}
       >
         <SettingsForm initial={settings} timeZones={timeZones} />
       </Section>
@@ -73,15 +73,6 @@ export default async function Page({ params }: PageProps) {
             look="outline"
           >
             {t({ en: "Mailboxes", zh: "邮箱" })}
-          </AnchorButton>
-          <AnchorButton
-            href={getLocalePath("/categories", locale)}
-            look="outline"
-          >
-            {t({ en: "Categories", zh: "分类" })}
-          </AnchorButton>
-          <AnchorButton href={getLocalePath("/history", locale)} look="outline">
-            {t({ en: "Old mail", zh: "旧邮件" })}
           </AnchorButton>
         </div>
       </Section>

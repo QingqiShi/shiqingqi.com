@@ -8,7 +8,7 @@
       "schedule": "*/15 * * * *"
     },
     {
-      "path": "/api/cron/build-digests",
+      "path": "/api/cron/morning-report",
       "schedule": "5 * * * *"
     },
     {

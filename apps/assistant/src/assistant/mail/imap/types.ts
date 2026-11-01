@@ -78,8 +78,12 @@ export interface MailboxSession {
   listUidsAfter(uid: number): Promise<number[]>;
   /** The UIDs from `low` to `high`, both included, in the open folder, ascending. */
   listUidsBetween(low: number, high: number): Promise<number[]>;
-  /** The UIDs of mail the open folder received on or after `since`, ascending. */
-  listUidsSince(since: Date): Promise<number[]>;
+  /**
+   * The UIDs of mail the open folder received on or after the date of
+   * `since`, and before the date of `before` when it is set, ascending.
+   * IMAP compares dates only, in the server's time zone.
+   */
+  listUidsSince(since: Date, before?: Date): Promise<number[]>;
   fetchMessages(uids: number[], maxBytes: number): Promise<FetchedMessage[]>;
   /** Of `uids`, the ones that the open folder still holds, ascending. */
   listPresentUids(uids: number[]): Promise<number[]>;

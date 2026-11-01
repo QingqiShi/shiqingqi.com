@@ -13,6 +13,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
+import { setTodoDone } from "../report/read-report.ts";
 import { ASSISTANT_MIGRATIONS_FOLDER } from "./assistant-migrations-folder.ts";
 import { listUserIds } from "./list-user-ids.ts";
 import {
@@ -31,10 +32,12 @@ import {
   mailSenderRules,
   mailSentRecipients,
   mailWriteStates,
+  morningReports,
   passkeys,
   pushSubscriptions,
   schema,
   sessions,
+  todos,
   users,
   userSettings,
 } from "./schema.ts";
@@ -204,6 +207,36 @@ async function seedEveryUserTable(db: AssistantDb, userId: string) {
     p256dh: "key",
     auth: "secret",
   });
+  const [report] = await db
+    .insert(morningReports)
+    .values({
+      userId,
+      localDate: "2026-11-01",
+      builtAt: new Date(),
+      content: {
+        version: 1,
+        mailDate: "2026-10-31",
+        status: "no-mail",
+        promptVersion: null,
+        headline: null,
+        needsAction: [],
+        worthKnowing: [],
+        rest: null,
+        mailCount: 0,
+        leftOut: 0,
+        notRead: 0,
+        ranOutOfTime: false,
+        unreadMailboxes: [],
+      },
+    })
+    .returning();
+  await db.insert(todos).values({
+    userId,
+    title: "Pay the invoice",
+    sourceAccountId: account.id,
+    sourceMessageId: message.messageId,
+    createdReportId: report.id,
+  });
 }
 
 const countSchema = z.object({
@@ -359,6 +392,20 @@ describe("a user scope", () => {
       ).toMatch(/row-level security/);
     },
   );
+
+  it("cannot tick off a to-do of another user", async () => {
+    const [ofOther] = await db.select().from(todos).where(eq(todos.userId, b));
+    expect(
+      await withUser(db, a, (scope) =>
+        setTodoDone(scope, ofOther.id, true, new Date()),
+      ),
+    ).toBe(false);
+    const [after] = await db
+      .select({ doneAt: todos.doneAt })
+      .from(todos)
+      .where(eq(todos.id, ofOther.id));
+    expect(after.doneAt).toBeNull();
+  });
 
   it("sees no user rows without a user, and inserts none", async () => {
     const counts = await asAssistantApp(db, async (tx) => {

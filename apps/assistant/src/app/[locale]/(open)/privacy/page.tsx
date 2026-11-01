@@ -85,8 +85,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "Anthropic: to classify a message and find dates in it, the assistant sends its sender, subject and up to about 4,000 characters of its text to Anthropic's Claude API. Each morning it also sends the summaries of the day's messages to arrange the digest. Anthropic's commercial terms say that it does not train its models on this data.",
-            zh: "Anthropic：为了给邮件分类并找出其中的日期，邮件助手会把邮件的发件人、主题和最多约 4,000 个字符的正文发送到 Anthropic 的 Claude API。每天早上，它还会发送当天邮件的摘要来编排摘要页。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
+            en: "Anthropic: to classify a message and find dates in it, the assistant sends its sender, subject and up to about 4,000 characters of its text to Anthropic's Claude API. Each morning it also reads the previous day's messages from your mailboxes and sends their senders, recipients, subjects and up to about 4,000 characters of each text, with your open to-dos, to write the morning report; it stores only the report and the to-dos, never the messages. Anthropic's commercial terms say that it does not train its models on this data.",
+            zh: "Anthropic：为了给邮件分类并找出其中的日期，邮件助手会把邮件的发件人、主题和最多约 4,000 个字符的正文发送到 Anthropic 的 Claude API。每天早上，它还会从你的邮箱读取前一天的邮件，把发件人、收件人、主题和每封最多约 4,000 个字符的正文连同你未完成的待办一起发送过去，用来撰写晨报；它只保存晨报和待办，从不保存这些邮件。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
           })}
         </Text>
         <Text>
