@@ -40,7 +40,7 @@ jobs:
         if: matrix.task == 'format'
       - run: pnpm codegen
         if: matrix.task == 'lint'
-      - run: pnpm --filter web --filter finance exec next typegen
+      - run: pnpm --filter web --filter finance --filter assistant exec next typegen
         if: matrix.task == 'lint'
       - run: pnpm lint
         if: matrix.task == 'lint'

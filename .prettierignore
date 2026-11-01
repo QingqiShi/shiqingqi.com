@@ -11,6 +11,7 @@ dist/
 public/sw.js
 public/sw.js.map
 apps/finance/drizzle/meta/
+apps/assistant/drizzle/meta/
 
 # Vendored third-party code (preserve upstream formatting)
 packages/system-palette-codegen/src/vendor/

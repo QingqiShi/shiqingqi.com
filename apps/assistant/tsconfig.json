@@ -1,0 +1,16 @@
+{
+  "extends": "@tuja/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.mts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "serwist.config.mjs"
+  ],
+  "exclude": ["node_modules", "public/*", ".next/**"]
+}
