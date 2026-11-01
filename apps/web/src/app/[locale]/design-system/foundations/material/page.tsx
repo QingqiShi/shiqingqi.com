@@ -4,7 +4,6 @@ import { validateLocale } from "@tuja/i18n/validate-locale";
 import type { Metadata } from "next";
 import { DocPage } from "#src/design-system/doc-page.tsx";
 import { GlassShowcase } from "#src/design-system/sections/foundations/glass-showcase.tsx";
-import { MaterialGuide } from "#src/design-system/sections/foundations/material-guide.tsx";
 import { TextureShowcase } from "#src/design-system/sections/foundations/texture-showcase.tsx";
 import { WashShowcase } from "#src/design-system/sections/foundations/wash-showcase.tsx";
 import { designSystemMetadata } from "../../design-system-metadata.ts";
@@ -22,14 +21,13 @@ export default function MaterialPage() {
     <DocPage
       path="/design-system/foundations/material"
       description={t({
-        en: "Three treatments you can add to a surface on top of its colour and border: a texture of faint dots, a wash that fades one tone across it, and glass that blurs what is behind it. Each is a style object with Tokens you set per surface.",
-        zh: "三种可以在颜色与边框之上加给表面的处理：淡点组成的纹理、让一种色调在表面上渐隐的淡彩，以及虚化背后内容的玻璃。每一种都是一个样式对象，带有可按表面设定的令牌。",
+        en: "Three finishes a surface can take on top of its colour. Glass is for a surface that floats; Wash and Texture give your own still surfaces tone and grain.",
+        zh: "表面在颜色之上可以加的三种质感。玻璃用于浮动的表面；淡彩与纹理为你自己的静止表面添上明暗与颗粒。",
       })}
     >
-      <MaterialGuide />
-      <TextureShowcase />
-      <WashShowcase />
       <GlassShowcase />
+      <WashShowcase />
+      <TextureShowcase />
     </DocPage>
   );
 }
