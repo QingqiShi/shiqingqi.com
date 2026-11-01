@@ -3,7 +3,7 @@ import { z } from "zod";
 import { serializeCookie } from "./serialize-cookie.ts";
 
 /**
- * An HttpOnly cookie on the auth routes that holds a signed, expiring
+ * An HttpOnly cookie on one route prefix that holds a signed, expiring
  * payload. The cookie's name is part of what is signed, so that a value of
  * one sealed cookie does not open as another.
  */
@@ -11,12 +11,16 @@ export function makeSealedCookie<T>({
   name,
   maxAgeSeconds,
   schema,
+  path = "/api/auth",
+  sameSite = "Strict",
 }: {
   name: string;
   maxAgeSeconds: number;
   schema: z.ZodType<T>;
+  path?: string;
+  /** `Lax` for a cookie that must come back on a redirect from another site. */
+  sameSite?: "Lax" | "Strict";
 }) {
-  const path = "/api/auth";
   const signedSchema = z.object({ payload: schema, exp: z.number() });
 
   function sign(body: string, secret: string): Buffer {
@@ -57,7 +61,7 @@ export function makeSealedCookie<T>({
         maxAgeSeconds,
         path,
         secure,
-        sameSite: "Strict",
+        sameSite,
       });
     },
     clear(secure: boolean): string {
@@ -65,7 +69,7 @@ export function makeSealedCookie<T>({
         maxAgeSeconds: 0,
         path,
         secure,
-        sameSite: "Strict",
+        sameSite,
       });
     },
   };

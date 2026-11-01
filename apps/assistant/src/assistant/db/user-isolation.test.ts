@@ -17,6 +17,10 @@ import { ASSISTANT_MIGRATIONS_FOLDER } from "./assistant-migrations-folder.ts";
 import { listUserIds } from "./list-user-ids.ts";
 import {
   invites,
+  mailAccounts,
+  mailCategories,
+  mailFolders,
+  mailMessages,
   passkeys,
   schema,
   sessions,
@@ -51,6 +55,38 @@ const userTables = tables
 async function seedEveryUserTable(db: AssistantDb, userId: string) {
   await db.insert(users).values({ id: userId, displayName: userId });
   await db.insert(userSettings).values({ userId });
+  const [account] = await db
+    .insert(mailAccounts)
+    .values({
+      userId,
+      provider: "icloud",
+      address: `${userId}@icloud.com`,
+      credential: new Uint8Array([1]),
+    })
+    .returning();
+  const [category] = await db
+    .insert(mailCategories)
+    .values({ userId, name: "Bills" })
+    .returning();
+  const [folder] = await db
+    .insert(mailFolders)
+    .values({
+      userId,
+      accountId: account.id,
+      path: "Bills",
+      name: "Bills",
+      categoryId: category.id,
+    })
+    .returning();
+  await db.insert(mailMessages).values({
+    userId,
+    accountId: account.id,
+    folderId: folder.id,
+    uidValidity: 1,
+    uid: 1,
+    messageId: `<${userId}@example.com>`,
+    receivedAt: new Date(),
+  });
 }
 
 const countSchema = z.object({

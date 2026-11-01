@@ -15,6 +15,20 @@
       "when": 1793498374671,
       "tag": "0001_user_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793499824441,
+      "tag": "0002_mail",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793499824922,
+      "tag": "0003_mail_isolation",
+      "breakpoints": true
     }
   ]
 }
