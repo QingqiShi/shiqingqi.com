@@ -31,42 +31,6 @@ const DRAG_SLOP = 4;
 const PROJECTION = 0.2;
 /** The drag speed is read over this last stretch of time, in ms. */
 const VELOCITY_WINDOW = 80;
-/** The trace shows this much time, in ms. */
-const TRACE_WINDOW = 1600;
-/** A pause longer than this, in ms, starts a new trace. */
-const TRACE_GAP = 250;
-/** The trace has room for this much overshoot past each end. */
-const TRACE_HEADROOM = 0.25;
-const TRACE_WIDTH = 200;
-const TRACE_HEIGHT = 60;
-
-interface Sample {
-  readonly time: number;
-  readonly value: number;
-}
-
-/** The y of `value` on the trace, as a share of its height from the top. */
-function heightShare(value: number) {
-  return 1 - (value + TRACE_HEADROOM) / (1 + 2 * TRACE_HEADROOM);
-}
-
-function tracePath(samples: readonly Sample[], fallback: number) {
-  const yOf = (value: number) => (TRACE_HEIGHT * heightShare(value)).toFixed(1);
-  const last = samples.at(-1);
-  if (last === undefined) {
-    const y = yOf(fallback);
-    return `M0,${y} L${TRACE_WIDTH.toString()},${y}`;
-  }
-  const points = samples.map(({ time, value }) => {
-    const x = TRACE_WIDTH * (1 - (last.time - time) / TRACE_WINDOW);
-    return `${x.toFixed(1)},${yOf(value)}`;
-  });
-  return `M${points.join(" L")}`;
-}
-
-function guideY(value: number) {
-  return `${(100 * heightShare(value)).toFixed(1)}%`;
-}
 
 /**
  * A puck on a track, on the public motion API only. A tap sends it to the
@@ -75,12 +39,11 @@ function guideY(value: number) {
  */
 export function MotionEngineSpecimen() {
   const reduced = useReducedMotion();
-  const [role, setRole] = useState<"surface" | "stackPush" | "move">("move");
+  const [role, setRole] = useState<"surface" | "move" | "aim">("move");
   const engine = useMotionEngine();
   const progress = useMotionValue(engine, 0);
   const laneRef = useRef<HTMLSpanElement>(null);
   const puckRef = useRef<HTMLSpanElement>(null);
-  const traceRef = useRef<SVGPathElement>(null);
   const positionRef = useRef<HTMLSpanElement>(null);
   const velocityRef = useRef<HTMLSpanElement>(null);
   const draggedRef = useRef(false);
@@ -100,7 +63,6 @@ export function MotionEngineSpecimen() {
   });
 
   useEffect(() => {
-    const samples: Sample[] = [];
     let travel = 0;
     const show = (value: number) => {
       if (positionRef.current !== null) {
@@ -110,7 +72,6 @@ export function MotionEngineSpecimen() {
         const speed = Math.round(progress.getVelocity() * travel);
         velocityRef.current.textContent = `${speed.toString()} px/s`;
       }
-      traceRef.current?.setAttribute("d", tracePath(samples, value));
     };
     const resize = new ResizeObserver(() => {
       const lane = laneRef.current;
@@ -122,18 +83,7 @@ export function MotionEngineSpecimen() {
       show(progress.get());
     });
     if (laneRef.current !== null) resize.observe(laneRef.current);
-    const unsubscribe = progress.subscribe((value) => {
-      const time = performance.now();
-      const last = samples.at(-1);
-      if (last !== undefined && time - last.time > TRACE_GAP) {
-        samples.length = 0;
-      }
-      samples.push({ time, value });
-      while (samples.length > 0 && time - samples[0].time > TRACE_WINDOW) {
-        samples.shift();
-      }
-      show(value);
-    });
+    const unsubscribe = progress.subscribe(show);
     return () => {
       resize.disconnect();
       unsubscribe();
@@ -195,7 +145,7 @@ export function MotionEngineSpecimen() {
   }
 
   return (
-    <div data-prose css={[stack.item, corner.radius_2, styles.panel]}>
+    <div css={stack.item}>
       <button
         type="button"
         aria-label={t({
@@ -212,6 +162,7 @@ export function MotionEngineSpecimen() {
         }}
       >
         <span ref={laneRef} css={styles.lane}>
+          <span css={[corner.radius_round, styles.ring]} aria-hidden />
           <span
             ref={puckRef}
             css={[corner.radius_round, styles.puck]}
@@ -222,28 +173,6 @@ export function MotionEngineSpecimen() {
           />
         </span>
       </button>
-      <svg
-        viewBox={`0 0 ${TRACE_WIDTH.toString()} ${TRACE_HEIGHT.toString()}`}
-        preserveAspectRatio="none"
-        css={styles.trace}
-        aria-hidden="true"
-      >
-        <line
-          x1="0"
-          x2="100%"
-          y1={guideY(0)}
-          y2={guideY(0)}
-          css={styles.traceGuide}
-        />
-        <line
-          x1="0"
-          x2="100%"
-          y1={guideY(1)}
-          y2={guideY(1)}
-          css={styles.traceGuide}
-        />
-        <path ref={traceRef} css={styles.tracePath} />
-      </svg>
       <div css={[cluster.item, styles.controls]}>
         <SegmentedControl
           aria-label={t({ en: "Role", zh: "角色" })}
@@ -252,8 +181,8 @@ export function MotionEngineSpecimen() {
           onChange={setRole}
           options={[
             { value: "surface", label: "surface" },
-            { value: "stackPush", label: "stackPush" },
             { value: "move", label: "move" },
+            { value: "aim", label: "aim" },
           ]}
         />
         <dl css={[cluster.item, styles.readouts]}>
@@ -271,35 +200,25 @@ export function MotionEngineSpecimen() {
           </div>
         </dl>
       </div>
-      <p css={[typeRole.bodySmall, styles.note]}>
-        {reduced
-          ? t({
-              en: "Reduced motion is on, so the puck snaps to its end. A drag still follows your finger.",
-              zh: "已开启减弱动效，因此圆块直接跳到终点。拖动时它仍会跟随手指。",
-            })
-          : t({
-              en: "Tap the track to send the puck across, and tap again while it moves: it turns from where it is, at its speed. Drag it and let go to fling it. A heavier role moves slower, with the same bounce.",
-              zh: "点按轨道，让圆块移到另一端；在它移动时再点按一次，它会从当前位置以当前速度掉头。拖动它再松手，它会带着松手时的速度甩出去。角色越重，移动越慢，回弹却不变。",
-            })}
-      </p>
+      {reduced ? (
+        <p css={[typeRole.bodySmall, styles.note]}>
+          {t({
+            en: "Reduced motion is on, so the puck snaps to its end. A drag still follows your finger.",
+            zh: "已开启减弱动效，因此圆块直接跳到终点。拖动时它仍会跟随手指。",
+          })}
+        </p>
+      ) : null}
     </div>
   );
 }
 
 const styles = stylex.create({
-  panel: {
-    paddingBlock: space._5,
-    paddingInline: space._5,
-    backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
-  },
   track: {
     position: "relative",
     display: "block",
     inlineSize: "100%",
     blockSize: space._8,
-    backgroundColor: color.bgCanvas,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
+    backgroundColor: color.bgControlSunken,
     cursor: "pointer",
   },
   // The puck reads the width of the lane through `cqi`, so a resize needs no new pose.
@@ -311,34 +230,22 @@ const styles = stylex.create({
     alignItems: "center",
     containerType: "inline-size",
   },
+  ring: {
+    position: "absolute",
+    insetInlineEnd: 0,
+    inlineSize: PUCK,
+    blockSize: PUCK,
+    boxShadow: `inset 0 0 0 1.5px ${color.borderControl}`,
+  },
   puck: {
+    position: "relative",
     display: "block",
     flexShrink: 0,
     inlineSize: PUCK,
     blockSize: PUCK,
-    backgroundColor: color.bgAccent,
+    backgroundColor: color.fg,
     cursor: "grab",
     touchAction: "pan-y",
-  },
-  trace: {
-    display: "block",
-    inlineSize: "100%",
-    blockSize: "72px",
-    overflow: "visible",
-  },
-  traceGuide: {
-    stroke: color.border,
-    strokeWidth: 1,
-    strokeDasharray: "3 4",
-    vectorEffect: "non-scaling-stroke",
-  },
-  tracePath: {
-    fill: "none",
-    stroke: color.bgAccent,
-    strokeWidth: 2,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    vectorEffect: "non-scaling-stroke",
   },
   controls: {
     alignItems: "center",

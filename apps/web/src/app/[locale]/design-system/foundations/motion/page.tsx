@@ -12,8 +12,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     locale: validateLocale(locale),
     path: "/design-system/foundations/motion",
     description: t({
-      en: "Animate your own elements to match the components: the motion presets, the duration and easing constants, the motion engine and its spring roles, reduced motion, and pausing loops.",
-      zh: "让你自己的元素与组件动得一致：动效预设、时长与缓动常量、动效引擎及其弹簧角色、减弱动效，以及暂停循环。",
+      en: "Animate your own elements to match the components: one spring with a mass for each role, the CSS presets and easing.spring, the motion engine, and reduced motion.",
+      zh: "让你自己的元素与组件动得一致：一个弹簧与各角色的质量、CSS 预设与 easing.spring、动效引擎，以及减弱动效。",
     }),
   });
 }
@@ -23,8 +23,8 @@ export default function MotionPage() {
     <DocPage
       path="/design-system/foundations/motion"
       description={t({
-        en: "The components animate themselves and handle reduced motion. This page is for the motion you write yourself: in CSS with the presets and constants from @tuja/ui/primitives/motion.stylex, and on the motion engine from @tuja/ui/motion.",
-        zh: "组件会自行处理动效与减弱动效。本页讲的是你自己编写的动效：在 CSS 中使用 @tuja/ui/primitives/motion.stylex 的预设与常量，在动效引擎上使用 @tuja/ui/motion。",
+        en: "The components animate themselves. Move your own element on the same spring, and it keeps pace with them.",
+        zh: "组件会自行处理动效。让你自己的元素基于同一个弹簧移动，它就能与组件保持同样的节奏。",
       })}
     >
       <MotionShowcase />
