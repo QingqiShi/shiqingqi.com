@@ -8,8 +8,10 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { userSettings } from "#src/assistant/db/schema.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
 import { readDigestSettings } from "#src/assistant/digest/build-digest.ts";
+import { MailboxWritesToggle } from "#src/assistant/settings/mailbox-writes-toggle.tsx";
 import { PushToggle } from "#src/assistant/settings/push-toggle.tsx";
 import { SettingsForm } from "#src/assistant/settings/settings-form.tsx";
 import { SignOutButton } from "#src/assistant/shell/sign-out-button.tsx";
@@ -23,10 +25,18 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/settings");
-  const settings = await withUser(
+  const { settings, mailboxWrites } = await withUser(
     getAssistantDb(),
     session.userId,
-    readDigestSettings,
+    async (scope) => ({
+      settings: await readDigestSettings(scope),
+      mailboxWrites:
+        (
+          await scope.db
+            .select({ on: userSettings.mailboxWrites })
+            .from(userSettings)
+        ).at(0)?.on ?? false,
+    }),
   );
   const timeZones = Intl.supportedValuesOf("timeZone");
   if (!timeZones.includes(settings.timeZone)) timeZones.push(settings.timeZone);
@@ -49,6 +59,7 @@ export default async function Page({ params }: PageProps) {
         />
       </Section>
       <Section level={2} divider title={t({ en: "Mail", zh: "邮件" })}>
+        <MailboxWritesToggle initial={mailboxWrites} />
         <div css={cluster.tight}>
           <AnchorButton
             href={getLocalePath("/accounts", locale)}

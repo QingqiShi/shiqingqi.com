@@ -16,9 +16,8 @@ import { draftSenderRule, type DraftedRule } from "./draft-sender-rule.ts";
 export type CloseReason = "done" | "not_important";
 
 /**
- * Runs after the response, once the user has closed digest items. The
- * mailbox writes hook in here (PR 5: clear the `\Flagged` flag when the
- * user's `mailbox_writes` setting allows it).
+ * Runs after the response, once the user has closed digest items: the
+ * mailbox writes clear the flag and move the mail (`writeMailboxes`).
  */
 export type ItemsClosedHandler = (input: {
   db: AssistantDb;

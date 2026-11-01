@@ -80,6 +80,11 @@ function syntheticMessageId(message: FetchedMessage, headerBlock: string) {
   return `<${digest.slice(0, 32)}.${String(message.size ?? 0)}${SYNTHETIC_DOMAIN}`;
 }
 
+/** True for an id the app made, for a mail without a usable Message-ID: no search on the server finds it. */
+export function isSyntheticMessageId(messageId: string) {
+  return messageId.endsWith(SYNTHETIC_DOMAIN);
+}
+
 function headerBlockOf(source: Uint8Array): string {
   const text = new TextDecoder().decode(source);
   const end = text.search(/\r?\n\r?\n/);

@@ -4,13 +4,15 @@ import { classifyQueuedMail } from "#src/assistant/classify/classify-queued-mail
 import { readCredentialKey } from "./accounts/credential-cipher.ts";
 import { imapflowConnector } from "./imap/imapflow-connector.ts";
 import { readOAuthClient } from "./oauth/oauth-providers.ts";
+import type { SyncDeps } from "./sync/sync-account.ts";
 import type { SyncUserMailDeps } from "./sync/sync-user-mail.ts";
+import { writeMailboxes } from "./tidy/write-mailboxes.ts";
 
 /** The mail dependencies of the running app, or null when `ASSISTANT_CREDENTIAL_KEY` is missing. */
 export function getMailDeps(): SyncUserMailDeps | null {
   const credentialKey = readCredentialKey(process.env.ASSISTANT_CREDENTIAL_KEY);
   if (!credentialKey) return null;
-  return {
+  const deps: SyncDeps = {
     connector: imapflowConnector,
     auth: {
       credentialKey,
@@ -18,11 +20,15 @@ export function getMailDeps(): SyncUserMailDeps | null {
       fetch: (input, init) => fetch(input, init),
       now: () => new Date(),
     },
+  };
+  return {
+    ...deps,
     onNewMail: async ({ db, userId, endsAt }) => {
       await classifyQueuedMail(
         { db, userId, endsAt },
         { model: getClassifierModel(), now: () => new Date() },
       );
+      await writeMailboxes({ db, userId, endsAt }, deps);
     },
   };
 }

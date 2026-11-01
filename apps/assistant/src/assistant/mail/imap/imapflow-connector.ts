@@ -4,6 +4,7 @@ import {
   type MessageAddressObject,
 } from "imapflow";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
+import { MoveUnsupportedError } from "#src/assistant/mail/imap/move-unsupported-error.ts";
 import type {
   FetchedMessage,
   MailAddress,
@@ -96,8 +97,10 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
         unseen: folder.status?.unseen ?? null,
       }));
     },
-    async openFolder(path) {
-      const opened = await client.mailboxOpen(path, { readOnly: true });
+    async openFolder(path, options) {
+      const opened = await client.mailboxOpen(path, {
+        readOnly: options?.write !== true,
+      });
       return {
         uidValidity: Number(opened.uidValidity),
         uidNext: opened.uidNext,
@@ -129,6 +132,41 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
         { uid: true },
       );
       return fetched.map(toFetchedMessage);
+    },
+    async listPresentUids(uids) {
+      if (uids.length === 0) return [];
+      return ascending(
+        await client.search({ uid: uids.join(",") }, { uid: true }),
+      );
+    },
+    async findUidsByMessageId(messageId) {
+      return ascending(
+        await client.search(
+          { header: { "message-id": messageId } },
+          { uid: true },
+        ),
+      );
+    },
+    async addFlags(uids, flags) {
+      if (uids.length === 0) return;
+      if (!(await client.messageFlagsAdd(uids, flags, { uid: true }))) {
+        throw new Error("The mail server did not set the flags");
+      }
+    },
+    async removeFlags(uids, flags) {
+      if (uids.length === 0) return;
+      if (!(await client.messageFlagsRemove(uids, flags, { uid: true }))) {
+        throw new Error("The mail server did not clear the flags");
+      }
+    },
+    async moveMessages(uids, destination) {
+      if (uids.length === 0) return null;
+      if (!client.capabilities.has("MOVE")) throw new MoveUnsupportedError();
+      const moved = await client.messageMove(uids, destination, { uid: true });
+      if (!moved) throw new Error("The mail server did not move the mail");
+      return moved.uidMap && moved.uidValidity !== undefined
+        ? { uidValidity: Number(moved.uidValidity), uidMap: moved.uidMap }
+        : null;
     },
     async close() {
       await client.logout().catch(() => {

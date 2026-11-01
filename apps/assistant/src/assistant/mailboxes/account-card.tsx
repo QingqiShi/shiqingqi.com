@@ -9,6 +9,7 @@ import { rhythm } from "@tuja/ui/tokens.stylex";
 import { PROVIDER_NAMES } from "#src/assistant/mailboxes/provider-names.ts";
 import type { AccountSummary } from "../mail/accounts/list-accounts.ts";
 import type { SyncErrorCode } from "../mail/sync/describe-sync-error.ts";
+import type { WriteErrorCode } from "../mail/tidy/write-mailboxes.ts";
 import { AccountActions } from "./account-actions.tsx";
 
 function StatusBadge({ status }: { status: AccountSummary["status"] }) {
@@ -68,6 +69,25 @@ function ErrorText({ code }: { code: string }) {
   );
 }
 
+function WriteErrorText({ code }: { code: string }) {
+  const messages: Record<WriteErrorCode, string> = {
+    move_unsupported: t({
+      en: "This mail server cannot move mail safely, so the assistant leaves mail in the inbox. It still marks and flags mail.",
+      zh: "这个邮件服务器无法安全地移动邮件，所以助手会把邮件留在收件箱，但仍会标记已读和加旗标。",
+    }),
+    write_failed: t({
+      en: "The assistant could not change some mail in this mailbox. The next sync tries again.",
+      zh: "助手没能改动这个邮箱里的部分邮件，下次同步会再试。",
+    }),
+  };
+  return (
+    <Text as="p" look="bodySmall">
+      {new Map<string, string>(Object.entries(messages)).get(code) ??
+        messages.write_failed}
+    </Text>
+  );
+}
+
 /** One connected mailbox: its sync state, the last error, and what to do about it. */
 export function AccountCard({
   account,
@@ -112,6 +132,19 @@ export function AccountCard({
                   ? `${formatDate(account.lastErrorAt)} · `
                   : null}
                 {account.lastErrorMessage}
+              </Text>
+            ) : null}
+          </div>
+        ) : null}
+        {account.writeErrorCode ? (
+          <div css={stack.text}>
+            <WriteErrorText code={account.writeErrorCode} />
+            {account.writeErrorMessage ? (
+              <Text look="caption" tone="muted">
+                {account.writeErrorAt
+                  ? `${formatDate(account.writeErrorAt)} · `
+                  : null}
+                {account.writeErrorMessage}
               </Text>
             ) : null}
           </div>

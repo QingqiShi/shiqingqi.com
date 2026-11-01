@@ -25,6 +25,7 @@ import {
   mailFolders,
   mailMessages,
   mailSenderRules,
+  mailWriteStates,
   passkeys,
   pushSubscriptions,
   schema,
@@ -120,6 +121,11 @@ async function seedEveryUserTable(db: AssistantDb, userId: string) {
     messageId: message.id,
     kind: "not_important",
     senderRuleId: rule.id,
+  });
+  await db.insert(mailWriteStates).values({
+    userId,
+    messageId: message.id,
+    seenAt: new Date(),
   });
   await db.insert(mailDigests).values({
     userId,
