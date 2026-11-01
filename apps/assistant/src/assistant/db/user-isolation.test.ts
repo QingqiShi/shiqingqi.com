@@ -19,8 +19,10 @@ import {
   invites,
   mailAccounts,
   mailCategories,
+  mailClassifications,
   mailFolders,
   mailMessages,
+  mailSenderRules,
   passkeys,
   schema,
   sessions,
@@ -78,14 +80,37 @@ async function seedEveryUserTable(db: AssistantDb, userId: string) {
       categoryId: category.id,
     })
     .returning();
-  await db.insert(mailMessages).values({
+  const [message] = await db
+    .insert(mailMessages)
+    .values({
+      userId,
+      accountId: account.id,
+      folderId: folder.id,
+      uidValidity: 1,
+      uid: 1,
+      messageId: `<${userId}@example.com>`,
+      receivedAt: new Date(),
+    })
+    .returning();
+  const [rule] = await db
+    .insert(mailSenderRules)
+    .values({
+      userId,
+      match: "domain",
+      pattern: "example.com",
+      bucket: "filed",
+      categoryId: category.id,
+      sourceMessageId: message.id,
+    })
+    .returning();
+  await db.insert(mailClassifications).values({
     userId,
-    accountId: account.id,
-    folderId: folder.id,
-    uidValidity: 1,
-    uid: 1,
-    messageId: `<${userId}@example.com>`,
-    receivedAt: new Date(),
+    messageId: message.id,
+    bucket: "filed",
+    categoryId: category.id,
+    decidedBy: "sender_rule",
+    reason: "sender-rule",
+    senderRuleId: rule.id,
   });
 }
 

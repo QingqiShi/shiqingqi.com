@@ -29,6 +29,20 @@
       "when": 1793499824922,
       "tag": "0003_mail_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793501851459,
+      "tag": "0004_classify",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793501851882,
+      "tag": "0005_classify_isolation",
+      "breakpoints": true
     }
   ]
 }

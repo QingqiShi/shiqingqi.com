@@ -1,4 +1,6 @@
 import "server-only";
+import { getClassifierModel } from "#src/assistant/ai/get-classifier-model.ts";
+import { classifyQueuedMail } from "#src/assistant/classify/classify-queued-mail.ts";
 import { readCredentialKey } from "./accounts/credential-cipher.ts";
 import { imapflowConnector } from "./imap/imapflow-connector.ts";
 import { readOAuthClient } from "./oauth/oauth-providers.ts";
@@ -15,6 +17,12 @@ export function getMailDeps(): SyncUserMailDeps | null {
       oauthClient: (provider) => readOAuthClient(provider),
       fetch: (input, init) => fetch(input, init),
       now: () => new Date(),
+    },
+    onNewMail: async ({ db, userId, endsAt }) => {
+      await classifyQueuedMail(
+        { db, userId, endsAt },
+        { model: getClassifierModel(), now: () => new Date() },
+      );
     },
   };
 }

@@ -4,7 +4,11 @@ import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
 import { syncAccount, type SyncDeps } from "./sync-account.ts";
 
-/** Gets the `live` mail that one sync stored. The classifier hooks in here. */
+/**
+ * Runs once after each sync of a user's accounts, with the `live` mail that
+ * the sync stored. The classifier hooks in here, and it also takes the older
+ * `live` mail that is still unclassified.
+ */
 export type NewMailHandler = (input: {
   db: AssistantDb;
   userId: string;
@@ -59,6 +63,7 @@ export async function syncUserMail(
       .orderBy(sql`${mailAccounts.lastSyncedAt} asc nulls first`),
   );
   const result: SyncUserMailResult = { accounts: 0, failed: 0, newMessages: 0 };
+  const newMessageIds: string[] = [];
   for (const account of accounts) {
     if (now().getTime() >= endsAt) break;
     const synced = await syncAccount({ db, userId, account, endsAt }, deps);
@@ -68,14 +73,10 @@ export async function syncUserMail(
       continue;
     }
     result.newMessages += synced.newMessageIds.length;
-    if (synced.newMessageIds.length > 0 && deps.onNewMail) {
-      await deps.onNewMail({
-        db,
-        userId,
-        messageIds: synced.newMessageIds,
-        endsAt,
-      });
-    }
+    newMessageIds.push(...synced.newMessageIds);
+  }
+  if (deps.onNewMail && now().getTime() < endsAt) {
+    await deps.onNewMail({ db, userId, messageIds: newMessageIds, endsAt });
   }
   return result;
 }

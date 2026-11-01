@@ -14,6 +14,7 @@ import {
   invites,
   passkeys,
   sessions,
+  USER_LOCALES,
   users,
   userSettings,
 } from "#src/assistant/db/schema.ts";
@@ -109,6 +110,8 @@ const inviteVerifyBody = tokenBody.extend({
   response: registrationResponseSchema,
   /** The browser's time zone. A new user takes the default zone when it is not one Node knows. */
   timeZone: z.string().max(100).optional(),
+  /** The language of the page the user joined from: the digest and the summaries use it. */
+  locale: z.enum(USER_LOCALES).optional(),
 });
 const authenticationVerifyBody = z.object({
   response: authenticationResponseSchema,
@@ -403,7 +406,9 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
           await db
             .insert(users)
             .values({ id: userId, displayName: invite.displayName });
-          await db.insert(userSettings).values({ userId, timeZone });
+          await db
+            .insert(userSettings)
+            .values({ userId, timeZone, locale: body.locale ?? "en" });
         } else {
           // The user lost every passkey. A lost device must not keep
           // access, so its passkeys and sessions stop here.

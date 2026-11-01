@@ -44,7 +44,7 @@ export function InvitePanel({
         setBusy(true);
         setError(null);
         passkeyClient
-          .acceptInvite(token)
+          .acceptInvite(token, locale)
           .then(() => {
             window.location.assign(getLocalePath("/", locale));
           })

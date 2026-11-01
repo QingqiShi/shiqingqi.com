@@ -6,6 +6,7 @@ import {
   customType,
   index,
   integer,
+  jsonb,
   pgTable,
   smallint,
   text,
@@ -14,6 +15,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { MailEvent, MailFacts } from "../classify/types.ts";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
   dataType: () => "bytea",
@@ -21,6 +23,9 @@ const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
 
 export const DEFAULT_TIME_ZONE = "Europe/London";
 export const DEFAULT_DIGEST_HOUR = 8;
+
+export const USER_LOCALES = ["en", "zh"] as const;
+export type UserLocale = (typeof USER_LOCALES)[number];
 
 function createdAt() {
   return timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
@@ -111,6 +116,8 @@ export const userSettings = pgTable(
     timeZone: text("time_zone").notNull().default(DEFAULT_TIME_ZONE),
     /** The local hour of the morning digest. */
     digestHour: smallint("digest_hour").notNull().default(DEFAULT_DIGEST_HOUR),
+    /** The language of the digest and of the summaries the model writes. */
+    locale: text("locale", { enum: USER_LOCALES }).notNull().default("en"),
     /** Off until the user has reviewed the classification: then the app may mark, flag and move mail. */
     mailboxWrites: boolean("mailbox_writes").notNull().default(false),
     createdAt: createdAt(),
@@ -273,6 +280,106 @@ export const mailMessages = pgTable(
     index("mail_messages_received_idx").on(t.userId, t.receivedAt),
     index("mail_messages_folder_uid_idx").on(t.folderId, t.uid),
     index("mail_messages_account_idx").on(t.accountId),
+    index("mail_messages_from_idx").on(t.userId, t.fromAddress),
+  ],
+);
+
+export const MAIL_BUCKETS = ["act", "fyi", "filed", "unsure"] as const;
+export type MailBucket = (typeof MAIL_BUCKETS)[number];
+
+/** The buckets a sender rule can choose: a rule is never unsure. */
+export const SENDER_RULE_BUCKETS = ["act", "fyi", "filed"] as const;
+export type SenderRuleBucket = (typeof SENDER_RULE_BUCKETS)[number];
+
+export const SENDER_RULE_MATCHES = ["address", "domain"] as const;
+export type SenderRuleMatch = (typeof SENDER_RULE_MATCHES)[number];
+
+export const SENDER_RULE_STATUSES = ["draft", "confirmed"] as const;
+export type SenderRuleStatus = (typeof SENDER_RULE_STATUSES)[number];
+
+/**
+ * "Mail from X goes to bucket Y and category Z". A correction drafts one;
+ * only a rule the user confirmed takes part in classification.
+ */
+export const mailSenderRules = pgTable(
+  "mail_sender_rules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    match: text("match", { enum: SENDER_RULE_MATCHES }).notNull(),
+    /** Lower case: a whole address, or a domain that also matches its subdomains. */
+    pattern: text("pattern").notNull(),
+    bucket: text("bucket", { enum: SENDER_RULE_BUCKETS }).notNull(),
+    categoryId: uuid("category_id").references(() => mailCategories.id, {
+      onDelete: "set null",
+    }),
+    status: text("status", { enum: SENDER_RULE_STATUSES })
+      .notNull()
+      .default("draft"),
+    /** The mail whose correction drafted the rule. */
+    sourceMessageId: uuid("source_message_id").references(
+      () => mailMessages.id,
+      { onDelete: "set null" },
+    ),
+    confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    unique("mail_sender_rules_pattern_key").on(t.userId, t.match, t.pattern),
+  ],
+);
+
+export const MAIL_DECIDERS = [
+  "rule",
+  "sender_rule",
+  "model",
+  "failed",
+] as const;
+export type MailDecider = (typeof MAIL_DECIDERS)[number];
+
+/**
+ * What the classifier decided for one `live` mail. `decided_by` is `failed`
+ * while the model call fails; the classifier tries again until `attempts`
+ * reaches its limit, and the bucket stays `unsure`.
+ */
+export const mailClassifications = pgTable(
+  "mail_classifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    messageId: uuid("message_id")
+      .notNull()
+      .references(() => mailMessages.id, { onDelete: "cascade" })
+      .unique(),
+    bucket: text("bucket", { enum: MAIL_BUCKETS }).notNull(),
+    categoryId: uuid("category_id").references(() => mailCategories.id, {
+      onDelete: "set null",
+    }),
+    decidedBy: text("decided_by", { enum: MAIL_DECIDERS }).notNull(),
+    /** The header rule or the truth-table row that chose the bucket. */
+    reason: text("reason").notNull(),
+    senderRuleId: uuid("sender_rule_id").references(() => mailSenderRules.id, {
+      onDelete: "set null",
+    }),
+    /** The model's answers, when the model ran. */
+    facts: jsonb("facts").$type<MailFacts>(),
+    /** One line in the user's language, written by the model. */
+    summary: text("summary"),
+    event: jsonb("event").$type<MailEvent>(),
+    modelId: text("model_id"),
+    promptVersion: integer("prompt_version"),
+    attempts: smallint("attempts").notNull().default(1),
+    classifiedAt: timestamp("classified_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    /** Set when the user marks an `act` item done. Until then it stays in every digest. */
+    doneAt: timestamp("done_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("mail_classifications_open_idx")
+      .on(t.userId, t.bucket)
+      .where(sql`${t.doneAt} is null`),
   ],
 );
 
@@ -286,4 +393,6 @@ export const schema = {
   mailCategories,
   mailFolders,
   mailMessages,
+  mailSenderRules,
+  mailClassifications,
 };
