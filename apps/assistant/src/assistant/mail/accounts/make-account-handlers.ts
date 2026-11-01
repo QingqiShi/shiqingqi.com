@@ -1,7 +1,5 @@
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -11,6 +9,7 @@ import { MAIL_SERVERS } from "#src/assistant/mail/imap/mail-servers.ts";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
 import type { MailHandlerDeps } from "#src/assistant/mail/types.ts";
 import { checkAccount } from "./check-account.ts";
+import { ownAccount } from "./own-account.ts";
 import { saveAccount } from "./save-account.ts";
 
 const passwordBody = z.object({
@@ -61,14 +60,15 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
       }
       const db = deps.getDb();
       const { userId } = session;
-      const { accountId } = await withUser(db, userId, (scope) =>
-        saveAccount(scope, {
+      const { accountId } = await saveAccount(
+        { db, userId },
+        {
           provider,
           address,
           credential: { type: "password", password },
           credentialKey: mail.auth.credentialKey,
           now: deps.now(),
-        }),
+        },
       );
       deps.runAfter(() => checkAccount(db, userId, accountId, mail));
       return assistantJson({ accountId }, { status: 201 });
@@ -80,19 +80,18 @@ export function makeAccountHandlers(deps: MailHandlerDeps) {
     /** Gmail without OAuth, for when Google ends the OAuth access of an unverified app. */
     connectGmail: connectWithPassword("gmail"),
 
-    /** Forgets an account with its login, folders and stored mail. The mailbox itself is not touched. */
+    /** Forgets an account and its login. The mailbox itself is not touched. */
     remove: async (request: Request, accountId: string): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
       if (!z.uuid().safeParse(accountId).success) {
         return assistantJson({ error: "not-found" }, { status: 404 });
       }
-      const removed = await withUser(deps.getDb(), session.userId, ({ db }) =>
-        db
-          .delete(mailAccounts)
-          .where(eq(mailAccounts.id, accountId))
-          .returning({ id: mailAccounts.id }),
-      );
+      const removed = await deps
+        .getDb()
+        .delete(mailAccounts)
+        .where(ownAccount(session.userId, accountId))
+        .returning({ id: mailAccounts.id });
       return removed.length > 0
         ? assistantNoContent()
         : assistantJson({ error: "not-found" }, { status: 404 });

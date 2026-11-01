@@ -1,14 +1,13 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import {
   DEFAULT_TIME_ZONE,
   mailAccounts,
-  mailFolders,
   userSettings,
 } from "#src/assistant/db/schema.ts";
-import type { UserScope } from "#src/assistant/db/with-user.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 
-/** The accounts page: each account with its sync state and folder counts, and the user's time zone. */
-export async function listAccounts({ db }: UserScope) {
+/** The accounts page: each account with its last check and errors, and the user's time zone. */
+export async function listAccounts({ db, userId }: UserScope) {
   const accounts = await db
     .select({
       id: mailAccounts.id,
@@ -22,20 +21,15 @@ export async function listAccounts({ db }: UserScope) {
       writeErrorCode: mailAccounts.writeErrorCode,
       writeErrorMessage: mailAccounts.writeErrorMessage,
       writeErrorAt: mailAccounts.writeErrorAt,
-      calendarErrorCode: mailAccounts.calendarErrorCode,
-      calendarErrorMessage: mailAccounts.calendarErrorMessage,
-      calendarErrorAt: mailAccounts.calendarErrorAt,
-      folders: sql<number>`count(${mailFolders.id})::int`,
-      inboxUnseen: sql<
-        number | null
-      >`max(${mailFolders.unseenCount}) filter (where upper(${mailFolders.path}) = 'INBOX')`,
     })
     .from(mailAccounts)
-    .leftJoin(mailFolders, eq(mailFolders.accountId, mailAccounts.id))
-    .groupBy(mailAccounts.id)
+    .where(eq(mailAccounts.userId, userId))
     .orderBy(asc(mailAccounts.createdAt));
   const settings = (
-    await db.select({ timeZone: userSettings.timeZone }).from(userSettings)
+    await db
+      .select({ timeZone: userSettings.timeZone })
+      .from(userSettings)
+      .where(eq(userSettings.userId, userId))
   ).at(0);
   return { accounts, timeZone: settings?.timeZone ?? DEFAULT_TIME_ZONE };
 }

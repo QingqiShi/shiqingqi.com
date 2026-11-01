@@ -9,12 +9,13 @@ const COPY = {
   en: {
     name: "Mail Assistant",
     shortName: "Assistant",
-    description: "Your mail, read and sorted for you, in one morning digest.",
+    description:
+      "Your inbox filed into folders, and a morning report of what needs you.",
   },
   zh: {
     name: "邮件助手",
     shortName: "邮件助手",
-    description: "替你读信、分类，每天早上一份摘要。",
+    description: "替你把收件箱归入文件夹，每天早上一份晨报，告诉你要处理什么。",
   },
 } satisfies Record<SupportedLocale, Record<string, string>>;
 

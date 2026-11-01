@@ -22,15 +22,12 @@
     "lint": "eslint --max-warnings 0 .",
     "pretest": "npm-run-all codegen:i18n codegen:wgsl",
     "test": "vitest run",
-    "eval": "vitest run --config vitest.eval.config.mts",
     "assistant:generate": "drizzle-kit generate",
     "assistant:migrate": "tsx src/assistant/db/migrate-cli.ts",
-    "assistant:invite-link": "tsx src/assistant/auth/invite-link-cli.ts",
     "assistant:session": "tsx src/assistant/dev/session/cli.ts --db-port $(node ../../scripts/get-worktree-port.mjs 2533) --app-port ${ASSISTANT_PORT:-$(node ../../scripts/get-worktree-port.mjs 300)}"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.89",
-    "@anthropic-ai/sdk": "1.3.0",
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@simplewebauthn/browser": "^14.0.0",
@@ -49,7 +46,6 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "serwist": "catalog:",
-    "tsdav": "2.5.0",
     "web-push": "3.6.7",
     "zod": "catalog:"
   },

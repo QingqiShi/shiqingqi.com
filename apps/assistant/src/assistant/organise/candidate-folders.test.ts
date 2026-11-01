@@ -16,8 +16,6 @@ function folder(
     delimiter: "/",
     specialUse: options.specialUse ?? null,
     selectable: options.selectable ?? true,
-    messages: null,
-    unseen: null,
   };
 }
 

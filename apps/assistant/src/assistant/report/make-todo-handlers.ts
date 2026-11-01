@@ -1,6 +1,5 @@
 import { z } from "zod";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -31,8 +30,11 @@ export function makeTodoHandlers(
       if (!z.uuid().safeParse(todoId).success) {
         return assistantJson({ error: "not-found" }, { status: 404 });
       }
-      const found = await withUser(deps.getDb(), session.userId, (scope) =>
-        setTodoDone(scope, todoId, body.data.done, deps.now()),
+      const found = await setTodoDone(
+        { db: deps.getDb(), userId: session.userId },
+        todoId,
+        body.data.done,
+        deps.now(),
       );
       return found
         ? assistantNoContent()

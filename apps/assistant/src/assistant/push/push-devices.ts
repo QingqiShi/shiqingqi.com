@@ -1,6 +1,6 @@
-import { inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { pushSubscriptions } from "#src/assistant/db/schema.ts";
-import type { UserScope } from "#src/assistant/db/with-user.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 
 /** What a browser's `PushSubscription.toJSON()` gives, and what a push needs. */
 export interface DevicePushSubscription {
@@ -28,21 +28,30 @@ async function save(
     });
 }
 
-async function remove({ db }: UserScope, endpoints: readonly string[]) {
-  if (endpoints.length === 0) return;
-  await db
-    .delete(pushSubscriptions)
-    .where(inArray(pushSubscriptions.endpoint, [...endpoints]));
+function ownEndpoints(userId: string, endpoints: readonly string[]) {
+  return and(
+    eq(pushSubscriptions.userId, userId),
+    inArray(pushSubscriptions.endpoint, [...endpoints]),
+  );
 }
 
-async function list({ db }: UserScope): Promise<DevicePushSubscription[]> {
+async function remove({ db, userId }: UserScope, endpoints: readonly string[]) {
+  if (endpoints.length === 0) return;
+  await db.delete(pushSubscriptions).where(ownEndpoints(userId, endpoints));
+}
+
+async function list({
+  db,
+  userId,
+}: UserScope): Promise<DevicePushSubscription[]> {
   const rows = await db
     .select({
       endpoint: pushSubscriptions.endpoint,
       p256dh: pushSubscriptions.p256dh,
       auth: pushSubscriptions.auth,
     })
-    .from(pushSubscriptions);
+    .from(pushSubscriptions)
+    .where(eq(pushSubscriptions.userId, userId));
   return rows.map((row) => ({
     endpoint: row.endpoint,
     keys: { p256dh: row.p256dh, auth: row.auth },
@@ -50,7 +59,7 @@ async function list({ db }: UserScope): Promise<DevicePushSubscription[]> {
 }
 
 async function markSent(
-  { db }: UserScope,
+  { db, userId }: UserScope,
   endpoints: readonly string[],
   now: Date,
 ) {
@@ -58,8 +67,8 @@ async function markSent(
   await db
     .update(pushSubscriptions)
     .set({ lastSentAt: now })
-    .where(inArray(pushSubscriptions.endpoint, [...endpoints]));
+    .where(ownEndpoints(userId, endpoints));
 }
 
-/** The devices of a user that get the digest notification. */
+/** The devices of a user that get the morning report notification. */
 export const pushDevices = { save, remove, list, markSent };

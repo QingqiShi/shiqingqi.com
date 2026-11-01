@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { sessions } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { asAssistantApp } from "#src/assistant/db/with-user.ts";
 import { assistantSessionCookie } from "./assistant-session-cookie.ts";
 import { hashToken } from "./hash-token.ts";
 import type { AssistantSession } from "./types.ts";
@@ -27,7 +26,7 @@ export function resolveSession(
   token: string,
   { now, allowRefresh }: ResolveSessionOptions,
 ): Promise<ResolvedSession | null> {
-  return asAssistantApp(db, async (tx) => {
+  return db.transaction(async (tx) => {
     const row = (
       await tx
         .select({

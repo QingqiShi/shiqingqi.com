@@ -13,8 +13,6 @@ function folder(
     delimiter: "/",
     specialUse,
     selectable,
-    messages: null,
-    unseen: null,
   };
 }
 

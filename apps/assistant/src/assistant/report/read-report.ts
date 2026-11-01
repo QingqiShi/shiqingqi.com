@@ -4,7 +4,7 @@ import {
   morningReports,
   todos,
 } from "#src/assistant/db/schema.ts";
-import type { UserScope } from "#src/assistant/db/with-user.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import { openMailHref } from "./open-mail-href.ts";
 import type { MailSource, MorningReportContent } from "./types.ts";
 
@@ -36,7 +36,7 @@ export interface ReportView {
   todos: TodoView[];
 }
 
-async function hrefMaker({ db }: UserScope) {
+async function hrefMaker({ db, userId }: UserScope) {
   const accounts = new Map(
     (
       await db
@@ -46,6 +46,7 @@ async function hrefMaker({ db }: UserScope) {
           address: mailAccounts.address,
         })
         .from(mailAccounts)
+        .where(eq(mailAccounts.userId, userId))
     ).map((account) => [account.id, account]),
   );
   return (source: MailSource | null) => {
@@ -106,9 +107,12 @@ export async function readReport(
       })
       .from(morningReports)
       .where(
-        localDate === null
-          ? undefined
-          : eq(morningReports.localDate, localDate),
+        and(
+          eq(morningReports.userId, scope.userId),
+          localDate === null
+            ? undefined
+            : eq(morningReports.localDate, localDate),
+        ),
       )
       .orderBy(desc(morningReports.localDate))
       .limit(1)
@@ -118,7 +122,9 @@ export async function readReport(
   const rows = await scope.db
     .select(todoColumns)
     .from(todos)
-    .where(eq(todos.createdReportId, report.id))
+    .where(
+      and(eq(todos.userId, scope.userId), eq(todos.createdReportId, report.id)),
+    )
     .orderBy(desc(todos.createdAt), todos.title);
   const items = (list: MorningReportContent["needsAction"]) =>
     list.map((item) => ({ text: item.text, openHref: hrefOf(item.source) }));
@@ -138,12 +144,12 @@ export async function listTodos(scope: UserScope) {
   const open = await scope.db
     .select(todoColumns)
     .from(todos)
-    .where(isNull(todos.doneAt))
+    .where(and(eq(todos.userId, scope.userId), isNull(todos.doneAt)))
     .orderBy(desc(todos.createdAt), todos.title);
   const done = await scope.db
     .select(todoColumns)
     .from(todos)
-    .where(isNotNull(todos.doneAt))
+    .where(and(eq(todos.userId, scope.userId), isNotNull(todos.doneAt)))
     .orderBy(desc(todos.doneAt))
     .limit(DONE_LIMIT);
   return {
@@ -153,13 +159,14 @@ export async function listTodos(scope: UserScope) {
 }
 
 /** The past reports, newest first: their date and headline. */
-export async function listReports({ db }: UserScope) {
+export async function listReports({ db, userId }: UserScope) {
   const rows = await db
     .select({
       localDate: morningReports.localDate,
       content: morningReports.content,
     })
     .from(morningReports)
+    .where(eq(morningReports.userId, userId))
     .orderBy(desc(morningReports.localDate));
   return rows.map((row) => ({
     localDate: row.localDate,
@@ -169,13 +176,13 @@ export async function listReports({ db }: UserScope) {
   }));
 }
 
-export async function countOpenTodos({ db }: UserScope) {
-  return db.$count(todos, isNull(todos.doneAt));
+export async function countOpenTodos({ db, userId }: UserScope) {
+  return db.$count(todos, and(eq(todos.userId, userId), isNull(todos.doneAt)));
 }
 
 /** Marks a to-do done or open again. False when the user has no such to-do. */
 export async function setTodoDone(
-  { db }: UserScope,
+  { db, userId }: UserScope,
   todoId: string,
   done: boolean,
   now: Date,
@@ -185,11 +192,17 @@ export async function setTodoDone(
     .set({ doneAt: done ? now : null })
     .where(
       and(
+        eq(todos.userId, userId),
         eq(todos.id, todoId),
         done ? isNull(todos.doneAt) : isNotNull(todos.doneAt),
       ),
     )
     .returning({ id: todos.id });
   if (updated.length > 0) return true;
-  return (await db.$count(todos, eq(todos.id, todoId))) > 0;
+  return (
+    (await db.$count(
+      todos,
+      and(eq(todos.userId, userId), eq(todos.id, todoId)),
+    )) > 0
+  );
 }

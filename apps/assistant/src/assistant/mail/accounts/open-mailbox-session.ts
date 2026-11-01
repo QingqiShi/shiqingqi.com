@@ -1,13 +1,12 @@
-import { eq } from "drizzle-orm";
 import { mailAccounts } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { MAIL_SERVERS } from "#src/assistant/mail/imap/mail-servers.ts";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
 import type {
   MailboxConnector,
   MailboxSession,
 } from "#src/assistant/mail/imap/types.ts";
+import { ownAccount } from "./own-account.ts";
 import {
   CredentialUnreadableError,
   resolveMailboxAuth,
@@ -26,12 +25,10 @@ async function storedCredential(
   accountId: string,
 ) {
   const row = (
-    await withUser(db, userId, ({ db }) =>
-      db
-        .select({ credential: mailAccounts.credential })
-        .from(mailAccounts)
-        .where(eq(mailAccounts.id, accountId)),
-    )
+    await db
+      .select({ credential: mailAccounts.credential })
+      .from(mailAccounts)
+      .where(ownAccount(userId, accountId))
   ).at(0);
   if (!row) throw new CredentialUnreadableError();
   return row.credential;

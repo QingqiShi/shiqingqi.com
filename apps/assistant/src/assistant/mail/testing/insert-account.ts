@@ -2,15 +2,14 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { mailAccounts, users } from "#src/assistant/db/schema.ts";
 import type { TestDb } from "#src/assistant/db/testing/create-test-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   accountCredential,
   type AccountCredential,
 } from "#src/assistant/mail/accounts/account-credential.ts";
 import type { MailboxConnector } from "#src/assistant/mail/imap/types.ts";
 import type { Fetch } from "#src/assistant/mail/oauth/types.ts";
+import type { MailboxDeps } from "../accounts/open-mailbox-session.ts";
 import { saveAccount } from "../accounts/save-account.ts";
-import type { SyncUserMailDeps } from "../sync/sync-user-mail.ts";
 
 export const TEST_CREDENTIAL_KEY = new Uint8Array(randomBytes(32));
 
@@ -33,14 +32,15 @@ export async function insertAccount(
     credential?: AccountCredential;
   } = {},
 ) {
-  const { accountId } = await withUser(db, userId, (scope) =>
-    saveAccount(scope, {
+  const { accountId } = await saveAccount(
+    { db, userId },
+    {
       provider,
       address,
       credential,
       credentialKey: TEST_CREDENTIAL_KEY,
       now: new Date(),
-    }),
+    },
   );
   return accountId;
 }
@@ -50,9 +50,10 @@ export async function storedAccount(
   userId: string,
   accountId: string,
 ) {
-  const [account] = await withUser(db, userId, ({ db }) =>
-    db.select().from(mailAccounts).where(eq(mailAccounts.id, accountId)),
-  );
+  const [account] = await db
+    .select()
+    .from(mailAccounts)
+    .where(eq(mailAccounts.id, accountId));
   return {
     ...account,
     opened: accountCredential.open(account.credential, TEST_CREDENTIAL_KEY, {
@@ -70,7 +71,7 @@ export function mailDeps({
   connector: MailboxConnector;
   fetch?: Fetch;
   now?: () => Date;
-}): SyncUserMailDeps {
+}): MailboxDeps {
   return {
     connector,
     auth: {

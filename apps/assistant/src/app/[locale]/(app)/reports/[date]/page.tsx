@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { localClock } from "#src/assistant/report/due-report-date.ts";
 import { readReportSettings } from "#src/assistant/report/read-report-settings.ts";
 import {
@@ -35,15 +34,12 @@ export default async function Page({ params }: Props) {
   const locale = validateLocale(rawLocale);
   if (!LOCAL_DATE.test(date)) notFound();
   const session = await requirePageSession(locale, `/reports/${date}`);
-  const { report, settings, openTodos } = await withUser(
-    getAssistantDb(),
-    session.userId,
-    async (scope) => ({
-      report: await readReport(scope, date),
-      settings: await readReportSettings(scope),
-      openTodos: await countOpenTodos(scope),
-    }),
-  );
+  const scope = { db: getAssistantDb(), userId: session.userId };
+  const [report, settings, openTodos] = await Promise.all([
+    readReport(scope, date),
+    readReportSettings(scope),
+    countOpenTodos(scope),
+  ]);
   if (!report) notFound();
   return (
     <ReportView

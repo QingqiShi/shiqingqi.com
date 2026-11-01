@@ -4,7 +4,6 @@ import { Pool } from "pg";
 import { assistantSessionCookie } from "../../auth/assistant-session-cookie.ts";
 import { createSession } from "../../auth/create-session.ts";
 import { schema, users } from "../../db/schema.ts";
-import { asAssistantApp } from "../../db/with-user.ts";
 import { assertLocalDatabaseUrl } from "../assert-local-database-url.ts";
 import { readCliOptions, readPortOption } from "../read-cli-options.ts";
 import { readDevAssistantEnv } from "../read-dev-assistant-env.ts";
@@ -42,7 +41,7 @@ async function main() {
         { cause: error },
       );
     });
-    const { user, token } = await asAssistantApp(db, async (tx) => {
+    const { user, token } = await db.transaction(async (tx) => {
       const [user] = await tx
         .select({ id: users.id, displayName: users.displayName })
         .from(users)

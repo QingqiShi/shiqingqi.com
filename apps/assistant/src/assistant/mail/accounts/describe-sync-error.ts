@@ -4,7 +4,7 @@ import { OAuthTokenError } from "#src/assistant/mail/oauth/oauth-token-error.ts"
 import {
   CredentialUnreadableError,
   OAuthNotConfiguredError,
-} from "../accounts/resolve-mailbox-auth.ts";
+} from "./resolve-mailbox-auth.ts";
 
 export const SYNC_ERROR_CODES = [
   "login_refused",
@@ -19,7 +19,7 @@ export type SyncErrorCode = (typeof SYNC_ERROR_CODES)[number];
 const MAX_MESSAGE_CHARS = 300;
 
 /**
- * How an account shows a failed sync. `reconnect` stops the cron from
+ * How an account shows a failed login or run. `reconnect` stops the crons from
  * trying again: the stored login cannot work until the user connects anew.
  * The message never holds a secret: no error here carries one.
  */

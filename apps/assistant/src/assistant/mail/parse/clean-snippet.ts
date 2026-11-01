@@ -1,4 +1,4 @@
-/** The longest snippet kept. Classification sends at most the first ~4,000 characters. */
+/** The longest text kept of one mail. */
 export const SNIPPET_MAX_CHARS = 16_000;
 
 // Zero-width and other invisible characters that marketing mail pads its preview text with.
@@ -11,7 +11,7 @@ function isQuoteHeader(line: string) {
 }
 
 /**
- * The text of a mail as the classifier reads it: invisible characters gone,
+ * The text of a mail as the models read it: invisible characters gone,
  * the quoted earlier mail of a reply cut off, blank lines and runs of spaces
  * collapsed, at most `SNIPPET_MAX_CHARS` characters.
  */

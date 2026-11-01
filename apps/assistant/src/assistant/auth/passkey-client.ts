@@ -1,7 +1,5 @@
 import {
   startAuthentication,
-  startRegistration,
-  type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
 } from "@simplewebauthn/browser";
 import { AssistantApiError } from "../http/assistant-api-error.ts";
@@ -39,22 +37,6 @@ export const passkeyClient = {
       startAuthentication({ optionsJSON: options }),
     );
     await post("/sign-in/verify", { response });
-  },
-
-  /** Saves a passkey on this device for the invite's user, and signs in. */
-  async acceptInvite(token: string, locale: string): Promise<void> {
-    const { options } = await post<{
-      options: PublicKeyCredentialCreationOptionsJSON;
-    }>("/invite/options", { token });
-    const response = await runCeremony(() =>
-      startRegistration({ optionsJSON: options }),
-    );
-    await post("/invite/verify", {
-      token,
-      response,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      locale,
-    });
   },
 
   async signOut(): Promise<void> {

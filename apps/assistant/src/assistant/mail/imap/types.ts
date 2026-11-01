@@ -15,8 +15,6 @@ export interface MailboxFolder {
   specialUse: string | null;
   /** False for a folder that only holds other folders. */
   selectable: boolean;
-  messages: number | null;
-  unseen: number | null;
 }
 
 export interface OpenedFolder {
@@ -60,12 +58,8 @@ export interface MovedMessages {
  * never marks mail read. A folder opens read-only unless `write` is set.
  */
 export interface MailboxSession {
-  /**
-   * Every folder. With `counts`, the default, it also asks the server for the
-   * message and unseen counts of each selectable folder, one STATUS each;
-   * without them the counts are null.
-   */
-  listFolders(options?: { counts?: boolean }): Promise<MailboxFolder[]>;
+  /** Every folder. */
+  listFolders(): Promise<MailboxFolder[]>;
   /** Makes a folder and subscribes to it; a folder that is already there is kept as it is. */
   createFolder(path: string): Promise<void>;
   /** Whether the server has the MOVE command, which `moveMessages` needs. */
@@ -76,8 +70,6 @@ export interface MailboxSession {
   ): Promise<OpenedFolder>;
   /** The UIDs above `uid` in the open folder, in ascending order. */
   listUidsAfter(uid: number): Promise<number[]>;
-  /** The UIDs from `low` to `high`, both included, in the open folder, ascending. */
-  listUidsBetween(low: number, high: number): Promise<number[]>;
   /**
    * The UIDs of mail the open folder received on or after the date of
    * `since`, and before the date of `before` when it is set, ascending.
@@ -85,12 +77,7 @@ export interface MailboxSession {
    */
   listUidsSince(since: Date, before?: Date): Promise<number[]>;
   fetchMessages(uids: number[], maxBytes: number): Promise<FetchedMessage[]>;
-  /** Of `uids`, the ones that the open folder still holds, ascending. */
-  listPresentUids(uids: number[]): Promise<number[]>;
-  /** The UIDs of mail in the open folder whose Message-ID header holds `messageId`. */
-  findUidsByMessageId(messageId: string): Promise<number[]>;
   addFlags(uids: number[], flags: string[]): Promise<void>;
-  removeFlags(uids: number[], flags: string[]): Promise<void>;
   /**
    * Moves mail of the open folder with the MOVE command. It never copies and
    * deletes: without MOVE it throws `MoveUnsupportedError`. Null when the

@@ -1,29 +1,12 @@
-import { randomUUID } from "node:crypto";
 import {
   generateAuthenticationOptions,
-  generateRegistrationOptions,
   verifyAuthenticationResponse,
-  verifyRegistrationResponse,
   type AuthenticationResponseJSON,
-  type RegistrationResponseJSON,
 } from "@simplewebauthn/server";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
-import {
-  DEFAULT_TIME_ZONE,
-  invites,
-  passkeys,
-  sessions,
-  USER_LOCALES,
-  users,
-  userSettings,
-} from "#src/assistant/db/schema.ts";
+import { passkeys } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import {
-  asAssistantApp,
-  withUser,
-  type AssistantAppDb,
-} from "#src/assistant/db/with-user.ts";
 import { isSameOrigin } from "../http/is-same-origin.ts";
 import {
   assistantChallengeCookie,
@@ -33,7 +16,6 @@ import { assistantSessionCookie } from "./assistant-session-cookie.ts";
 import { createSession } from "./create-session.ts";
 import { deleteSession } from "./delete-session.ts";
 import { getRequestOrigin } from "./get-request-origin.ts";
-import { lookupInvite } from "./lookup-invite.ts";
 import { needsSecureCookie } from "./needs-secure-cookie.ts";
 import { passkeyRpId } from "./passkey-rp-id.ts";
 import { readRequestCookie } from "./read-request-cookie.ts";
@@ -53,13 +35,9 @@ type Handler = (request: Request) => Promise<Response>;
 export interface AuthHandlers {
   signInOptions: Handler;
   signInVerify: Handler;
-  inviteOptions: Handler;
-  inviteVerify: Handler;
   signOut: Handler;
   session: Handler;
 }
-
-const RP_NAME = "Mail Assistant";
 
 interface Context {
   db: AssistantDb;
@@ -91,28 +69,9 @@ function isObjectWithId(value: unknown): boolean {
   );
 }
 
-function isTimeZone(timeZone: string): boolean {
-  try {
-    new Intl.DateTimeFormat("en", { timeZone });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-const registrationResponseSchema =
-  z.custom<RegistrationResponseJSON>(isObjectWithId);
 const authenticationResponseSchema =
   z.custom<AuthenticationResponseJSON>(isObjectWithId);
 
-const tokenBody = z.object({ token: z.string().min(1) });
-const inviteVerifyBody = tokenBody.extend({
-  response: registrationResponseSchema,
-  /** The browser's time zone. A new user takes the default zone when it is not one Node knows. */
-  timeZone: z.string().max(100).optional(),
-  /** The language of the page the user joined from: the digest and the summaries use it. */
-  locale: z.enum(USER_LOCALES).optional(),
-});
 const authenticationVerifyBody = z.object({
   response: authenticationResponseSchema,
 });
@@ -139,17 +98,10 @@ async function readBody<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
   return parsed.data;
 }
 
-function hasPurpose<P extends ChallengePayload["purpose"]>(
-  payload: ChallengePayload,
-  purpose: P,
-): payload is Extract<ChallengePayload, { purpose: P }> {
-  return payload.purpose === purpose;
-}
-
 /**
- * The passkey routes: sign-in with a saved passkey, and an invite from
- * `assistant:invite-link` that makes a user (or lets one back in) with a new
- * passkey on this device.
+ * The passkey routes: sign-in with a saved passkey, sign-out, and the
+ * session check. The app has one user, whose passkeys exist already: there
+ * is no sign-up.
  */
 export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
   function prepareContext(request: Request): Context {
@@ -205,24 +157,20 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     );
   }
 
-  function takeChallenge<P extends ChallengePayload["purpose"]>(
-    request: Request,
-    context: Context,
-    purpose: P,
-  ): Extract<ChallengePayload, { purpose: P }> {
+  function takeChallenge(request: Request, context: Context): ChallengePayload {
     context.setCookies.push(assistantChallengeCookie.clear(context.secure));
     const value = readRequestCookie(request, assistantChallengeCookie.name);
     const payload = value
       ? assistantChallengeCookie.open(value, context.secret, context.now)
       : null;
-    if (!payload || !hasPurpose(payload, purpose)) {
+    if (!payload) {
       throw new HttpError(400, "challenge_invalid");
     }
     return payload;
   }
 
   async function openSession(
-    db: AssistantAppDb,
+    db: AssistantDb,
     request: Request,
     context: Context,
     userId: string,
@@ -235,29 +183,6 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
     context.setCookies.push(
       assistantSessionCookie.serialize(token, context.secure),
     );
-  }
-
-  async function verifyRegistration(
-    context: Context,
-    response: RegistrationResponseJSON,
-    expectedChallenge: string,
-  ) {
-    try {
-      const verification = await verifyRegistrationResponse({
-        response,
-        expectedChallenge,
-        expectedOrigin: context.origin,
-        expectedRPID: context.rpID,
-        requireUserVerification: false,
-      });
-      if (verification.verified) return verification.registrationInfo;
-    } catch (error) {
-      console.warn(
-        "Assistant passkey registration failed:",
-        error instanceof Error ? error.message : error,
-      );
-    }
-    throw new HttpError(400, "passkey_invalid");
   }
 
   return {
@@ -275,16 +200,14 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
 
     signInVerify: handle(async (request, context) => {
       const { response } = await readBody(request, authenticationVerifyBody);
-      const { challenge } = takeChallenge(request, context, "sign-in");
+      const { challenge } = takeChallenge(request, context);
 
       const passkey = (
-        await asAssistantApp(context.db, (db) =>
-          db
-            .select()
-            .from(passkeys)
-            .where(eq(passkeys.id, response.id))
-            .limit(1),
-        )
+        await context.db
+          .select()
+          .from(passkeys)
+          .where(eq(passkeys.id, response.id))
+          .limit(1)
       ).at(0);
       if (!passkey) throw new HttpError(401, "passkey_unknown");
       const userHandle = response.response.userHandle;
@@ -321,7 +244,7 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
         throw new HttpError(401, "passkey_invalid");
       }
 
-      await asAssistantApp(context.db, async (db) => {
+      await context.db.transaction(async (db) => {
         await db
           .update(passkeys)
           .set({ counter: newCounter, lastUsedAt: context.now })
@@ -331,112 +254,10 @@ export function makeAuthHandlers(deps: AuthHandlerDeps): AuthHandlers {
       return json(context, { ok: true });
     }),
 
-    inviteOptions: handle(async (request, context) => {
-      const { token } = await readBody(request, tokenBody);
-      const invite = await lookupInvite(context.db, token, context.now);
-      if (!invite) throw new HttpError(410, "invite_invalid");
-
-      const userId = invite.recoveryUserId ?? randomUUID();
-      const options = await generateRegistrationOptions({
-        rpName: RP_NAME,
-        rpID: context.rpID,
-        userID: uuidToBytes(userId),
-        userName: invite.displayName,
-        userDisplayName: invite.displayName,
-        attestationType: "none",
-        authenticatorSelection: {
-          residentKey: "required",
-          userVerification: "preferred",
-        },
-      });
-      issueChallenge(context, {
-        purpose: "invite",
-        challenge: options.challenge,
-        userId,
-        inviteId: invite.inviteId,
-      });
-      return json(context, {
-        options,
-        displayName: invite.displayName,
-        recovery: invite.recoveryUserId !== null,
-      });
-    }),
-
-    inviteVerify: handle(async (request, context) => {
-      const body = await readBody(request, inviteVerifyBody);
-      const { challenge, userId, inviteId } = takeChallenge(
-        request,
-        context,
-        "invite",
-      );
-      const { now } = context;
-      const invite = await lookupInvite(context.db, body.token, now);
-      if (
-        !invite ||
-        invite.inviteId !== inviteId ||
-        (invite.recoveryUserId !== null && invite.recoveryUserId !== userId)
-      ) {
-        throw new HttpError(410, "invite_invalid");
-      }
-      const { credential } = await verifyRegistration(
-        context,
-        body.response,
-        challenge,
-      );
-      const timeZone =
-        body.timeZone !== undefined && isTimeZone(body.timeZone)
-          ? body.timeZone
-          : DEFAULT_TIME_ZONE;
-
-      await withUser(context.db, userId, async ({ db }) => {
-        const used = await db
-          .update(invites)
-          .set({ usedAt: now })
-          .where(
-            and(
-              eq(invites.id, inviteId),
-              isNull(invites.usedAt),
-              gt(invites.expiresAt, now),
-            ),
-          )
-          .returning({ id: invites.id });
-        if (used.length === 0) throw new HttpError(410, "invite_invalid");
-
-        if (invite.recoveryUserId === null) {
-          await db
-            .insert(users)
-            .values({ id: userId, displayName: invite.displayName });
-          await db
-            .insert(userSettings)
-            .values({ userId, timeZone, locale: body.locale ?? "en" });
-        } else {
-          // The user lost every passkey. A lost device must not keep
-          // access, so its passkeys and sessions stop here.
-          await db.delete(passkeys).where(eq(passkeys.userId, userId));
-          await db.delete(sessions).where(eq(sessions.userId, userId));
-        }
-        const inserted = await db
-          .insert(passkeys)
-          .values({
-            id: credential.id,
-            userId,
-            publicKey: credential.publicKey,
-            counter: credential.counter,
-            transports: credential.transports ?? [],
-            createdAt: now,
-          })
-          .onConflictDoNothing()
-          .returning({ id: passkeys.id });
-        if (inserted.length === 0) throw new HttpError(409, "passkey_exists");
-        await openSession(db, request, context, userId);
-      });
-      return json(context, { ok: true });
-    }),
-
     signOut: handle(async (request, context) => {
       const token = readRequestCookie(request, assistantSessionCookie.name);
       if (token) {
-        await asAssistantApp(context.db, (db) => deleteSession(db, token));
+        await deleteSession(context.db, token);
       }
       context.setCookies.push(assistantSessionCookie.clear(context.secure));
       return json(context, { ok: true });

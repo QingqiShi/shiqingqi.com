@@ -1,10 +1,11 @@
+import { eq } from "drizzle-orm";
 import {
   DEFAULT_DIGEST_HOUR,
   DEFAULT_TIME_ZONE,
   userSettings,
   type UserLocale,
 } from "#src/assistant/db/schema.ts";
-import type { UserScope } from "#src/assistant/db/with-user.ts";
+import type { UserScope } from "#src/assistant/db/types.ts";
 import { isTimeZone } from "./due-report-date.ts";
 
 export interface ReportSettings {
@@ -16,6 +17,7 @@ export interface ReportSettings {
 
 export async function readReportSettings({
   db,
+  userId,
 }: UserScope): Promise<ReportSettings> {
   const row = (
     await db
@@ -25,6 +27,7 @@ export async function readReportSettings({
         locale: userSettings.locale,
       })
       .from(userSettings)
+      .where(eq(userSettings.userId, userId))
   ).at(0);
   return {
     timeZone:

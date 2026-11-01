@@ -1,5 +1,5 @@
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { morningReports, type UserLocale } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import type {
@@ -55,10 +55,15 @@ export function notifyReport(
   return sendToDevices({ db, userId }, reportMessage(report), {
     send,
     now,
-    onSent: ({ db }) =>
+    onSent: ({ db, userId }) =>
       db
         .update(morningReports)
         .set({ notifiedAt: now() })
-        .where(eq(morningReports.id, report.id)),
+        .where(
+          and(
+            eq(morningReports.userId, userId),
+            eq(morningReports.id, report.id),
+          ),
+        ),
   });
 }

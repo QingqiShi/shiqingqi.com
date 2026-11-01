@@ -12,7 +12,6 @@ import { border, color, space } from "@tuja/ui/tokens.stylex";
 import type { Metadata } from "next";
 import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { listReports } from "#src/assistant/report/read-report.ts";
 import { formatDay } from "#src/assistant/report-page/format-day.ts";
 import { Link } from "#src/links/link.tsx";
@@ -25,7 +24,10 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 export default async function Page({ params }: PageProps) {
   const locale = validateLocale((await params).locale);
   const session = await requirePageSession(locale, "/reports");
-  const reports = await withUser(getAssistantDb(), session.userId, listReports);
+  const reports = await listReports({
+    db: getAssistantDb(),
+    userId: session.userId,
+  });
   const noMail = t({ en: "No new mail", zh: "没有新邮件" });
   const notWritten = t({ en: "Not written", zh: "没能写成" });
 

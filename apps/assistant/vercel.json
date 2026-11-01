@@ -10,10 +10,6 @@
     {
       "path": "/api/cron/morning-report",
       "schedule": "5 * * * *"
-    },
-    {
-      "path": "/api/cron/import-history",
-      "schedule": "7,22,37,52 * * * *"
     }
   ]
 }

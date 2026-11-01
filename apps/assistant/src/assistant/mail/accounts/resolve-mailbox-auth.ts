@@ -1,12 +1,11 @@
-import { eq } from "drizzle-orm";
 import { mailAccounts, type MailProvider } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import { accountCredential } from "#src/assistant/mail/accounts/account-credential.ts";
 import type { MailboxAuth } from "#src/assistant/mail/imap/types.ts";
 import { refreshTokens } from "#src/assistant/mail/oauth/refresh-tokens.ts";
 import type { Fetch } from "#src/assistant/mail/oauth/types.ts";
 import type { OAuthClient, OAuthProvider } from "../oauth/oauth-providers.ts";
+import { ownAccount } from "./own-account.ts";
 
 /** An access token this close to its expiry is refreshed first. */
 const REFRESH_MARGIN_MS = 5 * 60 * 1000;
@@ -88,11 +87,9 @@ export async function resolveMailboxAuth(
     deps.credentialKey,
     owner,
   );
-  await withUser(db, userId, ({ db }) =>
-    db
-      .update(mailAccounts)
-      .set({ credential: sealed, updatedAt: now })
-      .where(eq(mailAccounts.id, account.id)),
-  );
+  await db
+    .update(mailAccounts)
+    .set({ credential: sealed, updatedAt: now })
+    .where(ownAccount(userId, account.id));
   return { user: account.address, accessToken: tokens.accessToken };
 }

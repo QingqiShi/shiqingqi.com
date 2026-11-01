@@ -1,11 +1,9 @@
 import { MockLanguageModelV3 } from "ai/test";
 import { asc, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { AssistantModel } from "#src/assistant/ai/get-classifier-model.ts";
+import type { AssistantModel } from "#src/assistant/ai/get-organise-model.ts";
 import {
   mailAccounts,
-  mailFolders,
-  mailMessages,
   morningReports,
   todos,
 } from "#src/assistant/db/schema.ts";
@@ -13,7 +11,6 @@ import {
   createTestDb,
   type TestDb,
 } from "#src/assistant/db/testing/create-test-db.ts";
-import { withUser } from "#src/assistant/db/with-user.ts";
 import {
   createFakeMailServer,
   rawMail,
@@ -123,15 +120,13 @@ beforeEach(async () => {
   });
   server.addFolder("Archive", { specialUse: "\\Archive" });
   server.addFolder("Sent Messages", { specialUse: "\\Sent" });
-  await withUser(db, userId, (scope) =>
-    pushDevices.save(
-      scope,
-      {
-        endpoint: "https://push.example.com/device",
-        keys: { p256dh: "key", auth: "secret" },
-      },
-      "",
-    ),
+  await pushDevices.save(
+    { db, userId },
+    {
+      endpoint: "https://push.example.com/device",
+      keys: { p256dh: "key", auth: "secret" },
+    },
+    "",
   );
 });
 
@@ -170,15 +165,13 @@ describe("the morning report cron", () => {
     deliver("Sent Messages", "<mine@icloud.com>", "2026-10-31T12:00:00Z", {
       subject: "A mail I wrote",
     });
-    const [passport, done] = await withUser(db, userId, ({ db }) =>
-      db
-        .insert(todos)
-        .values([
-          { userId, title: "Renew the passport", detail: "It runs out in May" },
-          { userId, title: "Book the dentist", doneAt: NOW },
-        ])
-        .returning(),
-    );
+    const [passport, done] = await db
+      .insert(todos)
+      .values([
+        { userId, title: "Renew the passport", detail: "It runs out in May" },
+        { userId, title: "Book the dentist", doneAt: NOW },
+      ])
+      .returning();
 
     const totals = await runCron(
       stubModel({
@@ -215,9 +208,7 @@ describe("the morning report cron", () => {
       expect(prompt).not.toContain(left);
     }
 
-    const [report] = await withUser(db, userId, ({ db }) =>
-      db.select().from(morningReports),
-    );
+    const [report] = await db.select().from(morningReports);
     expect(report).toMatchObject({
       localDate: "2026-11-01",
       modelId: "test-model",
@@ -245,9 +236,10 @@ describe("the morning report cron", () => {
       },
     ]);
 
-    const stored = await withUser(db, userId, ({ db }) =>
-      db.select().from(todos).orderBy(asc(todos.createdAt), asc(todos.title)),
-    );
+    const stored = await db
+      .select()
+      .from(todos)
+      .orderBy(asc(todos.createdAt), asc(todos.title));
     expect(stored.filter((todo) => todo.createdReportId === report.id)).toEqual(
       [
         expect.objectContaining({
@@ -276,12 +268,6 @@ describe("the morning report cron", () => {
     ]) {
       expect(kept).not.toContain(secret);
     }
-    const counts = await withUser(db, userId, async ({ db }) => ({
-      messages: await db.$count(mailMessages),
-      folders: await db.$count(mailFolders),
-    }));
-    expect(counts).toEqual({ messages: 0, folders: 0 });
-
     expect(server.log.writes).toEqual([]);
     expect(server.log.opened.every((entry) => !entry.write)).toBe(true);
     expect(server.log.opened.map((entry) => entry.path)).toEqual([
@@ -309,15 +295,15 @@ describe("the morning report cron", () => {
       await runCron(stubModel(new Error("The provider is down"))),
     ).toMatchObject({ built: 0, retrying: 1 });
     const counts = () =>
-      withUser(db, userId, async ({ db }) => ({
-        reports: await db.$count(morningReports),
-        todos: await db.$count(todos),
-      }));
+      Promise.all([db.$count(morningReports), db.$count(todos)]).then(
+        ([reports, todos]) => ({ reports, todos }),
+      );
     expect(await counts()).toEqual({ reports: 0, todos: 0 });
     expect(pushed).toEqual([]);
-    const [gmail] = await withUser(db, userId, ({ db }) =>
-      db.select().from(mailAccounts).where(eq(mailAccounts.id, gmailId)),
-    );
+    const [gmail] = await db
+      .select()
+      .from(mailAccounts)
+      .where(eq(mailAccounts.id, gmailId));
     expect(gmail).toMatchObject({
       status: "reconnect",
       lastErrorCode: "login_refused",
@@ -346,9 +332,7 @@ describe("the morning report cron", () => {
     });
 
     expect(await counts()).toEqual({ reports: 1, todos: 1 });
-    const [report] = await withUser(db, userId, ({ db }) =>
-      db.select().from(morningReports),
-    );
+    const [report] = await db.select().from(morningReports);
     expect(report.content).toMatchObject({
       status: "written",
       unreadMailboxes: [{ accountId: gmailId, address: "me@gmail.com" }],
@@ -357,24 +341,18 @@ describe("the morning report cron", () => {
   });
 
   it("retries while no mailbox can be read, and at the last try of the day stores a report that says so", async () => {
-    await withUser(db, userId, ({ db }) =>
-      db.update(mailAccounts).set({ status: "reconnect" }),
-    );
+    await db.update(mailAccounts).set({ status: "reconnect" });
     deliver("INBOX", "<hello@example.com>", "2026-10-31T10:00:00Z", {
       subject: "Hello",
     });
     const model = stubModel(new Error("The model is not called"));
 
     expect(await runCron(model)).toMatchObject({ built: 0, retrying: 1 });
-    expect(
-      await withUser(db, userId, ({ db }) => db.$count(morningReports)),
-    ).toBe(0);
+    expect(await db.$count(morningReports)).toBe(0);
 
     clock = new Date("2026-11-01T23:05:00Z");
     expect(await runCron(model)).toMatchObject({ built: 1, notWritten: 1 });
-    const [report] = await withUser(db, userId, ({ db }) =>
-      db.select().from(morningReports),
-    );
+    const [report] = await db.select().from(morningReports);
     expect(report.content).toMatchObject({
       status: "failed",
       mailCount: 0,

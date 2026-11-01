@@ -18,16 +18,16 @@ const copy = {
   en: {
     brand: "Mail Assistant",
     heading: "Something went wrong",
-    text: "An unexpected error stopped this page. Try again, or go back to the digest.",
+    text: "An unexpected error stopped this page. Try again, or go back to the report.",
     retry: "Try again",
-    home: "Back to the digest",
+    home: "Back to the report",
   },
   zh: {
     brand: "邮件助手",
     heading: "出了点问题",
-    text: "页面因意外错误中断。请重试，或返回摘要。",
+    text: "页面因意外错误中断。请重试，或返回晨报。",
     retry: "重试",
-    home: "返回摘要",
+    home: "返回晨报",
   },
 };
 

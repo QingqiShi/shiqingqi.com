@@ -16,8 +16,8 @@ function setRequestHeader(response: NextResponse, name: string, value: string) {
   response.headers.set(`x-middleware-request-${name}`, value);
 }
 
-/** The pages anyone may open: sign-in, invites, and the legal pages that the OAuth consent screens link to. */
-const OPEN_PATH = /^(?:\/zh)?\/(?:sign-in|invite|privacy|terms)(?:\/|$)/;
+/** The pages anyone may open: sign-in, and the legal pages that the OAuth consent screens link to. */
+const OPEN_PATH = /^(?:\/zh)?\/(?:sign-in|privacy|terms)(?:\/|$)/;
 
 /** `pathname` without its locale prefix: `/zh/settings` is `/settings`, and `/zh` is `/`. */
 function withoutLocale(pathname: string) {
