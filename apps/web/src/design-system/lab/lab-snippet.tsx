@@ -9,7 +9,7 @@ import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { ViewTransition } from "react";
 import { labLive } from "#src/view-transition-classes.stylex.ts";
 import type { LabSnippet as LabSnippetModel } from "./build-lab-snippet.ts";
@@ -50,7 +50,8 @@ export function LabSnippet({ snippet }: LabSnippetProps) {
         <CodeBlock
           parts={snippet.parts}
           label={t({ en: "Code", zh: "代码" })}
-          css={styles.scroller}
+          css={styles.code}
+          contentCss={styles.codeInset}
         />
       </div>
     </ViewTransition>
@@ -62,17 +63,27 @@ const styles = stylex.create({
     display: "flex",
     flexDirection: "column",
     gap: rhythm.tight,
-    paddingBlock: space._2,
-    paddingInline: space._3,
+    paddingBlockStart: `calc(${space._2} - ${border.size_1})`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
     inlineSize: "100%",
   },
   head: {
     justifyContent: "space-between",
+    paddingInline: `calc(${space._3} - ${border.size_1})`,
   },
-  scroller: {
-    paddingBlockEnd: space._1,
+  code: {
+    borderStartStartRadius: 0,
+    borderStartEndRadius: 0,
+    borderEndStartRadius: `calc(${border.radius_2} - ${border.size_1})`,
+    borderEndEndRadius: `calc(${border.radius_2} - ${border.size_1})`,
+    cornerShape: "squircle",
+  },
+  codeInset: {
+    paddingInline: `calc(${space._3} - ${border.size_1})`,
+    paddingBlockEnd: `calc(${space._2} + ${space._1} - ${border.size_1})`,
   },
 });

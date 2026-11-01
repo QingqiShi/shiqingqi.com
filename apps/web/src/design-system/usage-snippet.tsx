@@ -6,7 +6,7 @@ import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { Text } from "@tuja/ui/components/text";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { border, color, space } from "@tuja/ui/tokens.stylex";
 
 interface UsageSnippetProps {
   /**
@@ -33,10 +33,20 @@ export function UsageSnippet({ code, label, source }: UsageSnippetProps) {
   const runs: readonly CodeToken[] = source ?? [["plain", code]];
   return (
     <div css={[corner.radius_2, styles.card]}>
-      <Text as="span" look="caption" tone="muted" css={typeRole.overline}>
+      <Text
+        as="span"
+        look="caption"
+        tone="muted"
+        css={[typeRole.overline, styles.label]}
+      >
         {resolvedLabel}
       </Text>
-      <CodeBlock source={runs} label={t({ en: "Code", zh: "代码" })} />
+      <CodeBlock
+        source={runs}
+        label={t({ en: "Code", zh: "代码" })}
+        css={styles.code}
+        contentCss={styles.codeInset}
+      />
     </div>
   );
 }
@@ -45,10 +55,25 @@ const styles = stylex.create({
   card: {
     display: "flex",
     flexDirection: "column",
-    paddingBlock: space._3,
-    paddingInline: space._3,
+    paddingBlockStart: `calc(${space._3} - ${border.size_1})`,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
+  },
+  label: {
+    paddingInline: `calc(${space._3} - ${border.size_1})`,
+  },
+  code: {
+    borderStartStartRadius: 0,
+    borderStartEndRadius: 0,
+    borderEndStartRadius: `calc(${border.radius_2} - ${border.size_1})`,
+    borderEndEndRadius: `calc(${border.radius_2} - ${border.size_1})`,
+    cornerShape: "squircle",
+  },
+  codeInset: {
+    paddingInline: `calc(${space._3} - ${border.size_1})`,
+    paddingBlockEnd: `calc(${space._3} - ${border.size_1})`,
   },
 });

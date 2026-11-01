@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "./helpers/test.ts";
 
 test.describe("Homepage Portfolio", () => {
   test.beforeEach(async ({ page }) => {

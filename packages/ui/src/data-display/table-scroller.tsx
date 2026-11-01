@@ -16,6 +16,7 @@ interface TableScrollerProps {
   /** The rows also scroll on the block axis, under a sticky head. */
   scrollsBlock: boolean;
   containerCss?: StyleProp;
+  contentCss?: StyleProp;
   children: ReactNode;
 }
 
@@ -30,6 +31,7 @@ export function TableScroller({
   labelledBy,
   scrollsBlock,
   containerCss,
+  contentCss,
   children,
 }: TableScrollerProps) {
   const region = useScrollRegion();
@@ -48,6 +50,7 @@ export function TableScroller({
         transition.scrollbarColor,
         styles.scroller,
         scrollsBlock && styles.scrollBlock,
+        contentCss,
       ]}
     >
       {scrollsBlock ? (

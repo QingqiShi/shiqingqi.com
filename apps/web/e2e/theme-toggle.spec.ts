@@ -1,4 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "./helpers/test.ts";
 
 function canvasColour(page: Page) {
   return page.evaluate(

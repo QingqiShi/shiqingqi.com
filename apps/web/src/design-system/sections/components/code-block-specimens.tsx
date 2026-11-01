@@ -14,6 +14,7 @@ import {
   importLine,
   textOf,
 } from "#src/design-system/lab/build-lab-snippet.ts";
+import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";
 
 const IMPORT: CodePart = {
   id: "import",
@@ -120,6 +121,8 @@ export function CodeBlockPartsControl() {
       <CodeBlock
         parts={STATES[stateId]}
         label={t({ en: "Code", zh: "代码" })}
+        css={showcaseBleed.region}
+        contentCss={showcaseBleed.content}
       />
     </div>
   );

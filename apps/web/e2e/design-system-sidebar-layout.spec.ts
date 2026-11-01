@@ -1,5 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { waitForMotionToSettle } from "./helpers/motion.ts";
+import { expect, test } from "./helpers/test.ts";
 
 /**
  * The sidebar takes every space and edge from its structure, so the rules

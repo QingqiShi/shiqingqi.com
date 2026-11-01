@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./helpers/test.ts";
 
 /**
  * A route with a Lab renders its doc header from its own `layout.tsx`. Next
