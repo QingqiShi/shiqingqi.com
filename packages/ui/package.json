@@ -79,6 +79,7 @@
     "./utils/copy-text-to-clipboard": "./src/browser/copy-text-to-clipboard.ts",
     "./utils/download-blob": "./src/browser/download-blob.ts",
     "./utils/find-twin-element": "./src/focus/find-twin-element.ts",
+    "./utils/is-typing": "./src/focus/is-typing.ts",
     "./utils/get-scroll-behavior": "./src/get-scroll-behavior.ts",
     "./utils/merge-refs": "./src/merge-refs.ts",
     "./motion/bind": "./src/motion/bind.ts",

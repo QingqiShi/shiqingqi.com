@@ -12,10 +12,12 @@ import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { useSelectedLayoutSegment } from "next/navigation";
 import type { ReactNode } from "react";
 import { Link } from "#src/links/link.tsx";
+import { FinanceAddButton } from "../shell/finance-add-button.tsx";
 import {
   FinanceIsland,
   FinanceIslands,
 } from "../shell/finance-page-column.tsx";
+import { NewTransactionSheet } from "../shell/new-transaction-sheet.tsx";
 import { SettingsFinanceLogo } from "./settings-finance-logo.tsx";
 import { SettingsMenu } from "./settings-menu.tsx";
 import {
@@ -28,7 +30,8 @@ import { SettingsSignedInMember } from "./settings-signed-in-member.tsx";
  * Settings: the section menu beside the open section at `lg` and wider,
  * each in its own island. Below `lg` the menu is its own page and each
  * section opens on its own with a way back. Below `md` the menu page also
- * shows the signed-in Member and the Finance mark.
+ * shows the signed-in Member and the Finance mark. A new Transaction opens
+ * in a sheet over Settings.
  */
 export function SettingsFrame({ children }: { children: ReactNode }) {
   const locale = useLocale();
@@ -38,48 +41,56 @@ export function SettingsFrame({ children }: { children: ReactNode }) {
     : null;
 
   return (
-    <FinanceIslands>
-      <FinanceIsland
-        css={[styles.menu, current !== null && styles.menuOnSection]}
-      >
-        <div css={[stack.group, styles.width]}>
-          <nav aria-label={t({ en: "Settings", zh: "设置" })} css={stack.group}>
-            <Heading level={1} look="h3">
-              {t({ en: "Settings", zh: "设置" })}
-            </Heading>
-            <SettingsMenu current={current} />
-          </nav>
-          {current === null ? (
-            <>
-              <SettingsSignedInMember />
-              <SettingsFinanceLogo />
-            </>
-          ) : null}
-        </div>
-      </FinanceIsland>
-      {/* A new key opens each section at the top of its island. */}
-      <FinanceIsland
-        key={current ?? "household"}
-        css={current === null && styles.sectionOnIndex}
-      >
-        <div css={[stack.item, styles.width, styles.content]}>
-          {current === null ? null : (
-            <div css={styles.back}>
-              <AnchorButton
-                href={getLocalePath("/settings", locale)}
-                linkComponent={Link}
-                look="ghost"
-                size="sm"
-                icon={<ArrowLeftIcon weight="bold" />}
-              >
+    <>
+      <FinanceIslands>
+        <FinanceIsland
+          accessory={current === null ? <FinanceAddButton /> : null}
+          css={[styles.menu, current !== null && styles.menuOnSection]}
+        >
+          <div css={[stack.group, styles.width]}>
+            <nav
+              aria-label={t({ en: "Settings", zh: "设置" })}
+              css={stack.group}
+            >
+              <Heading level={1} look="h3">
                 {t({ en: "Settings", zh: "设置" })}
-              </AnchorButton>
-            </div>
-          )}
-          {children}
-        </div>
-      </FinanceIsland>
-    </FinanceIslands>
+              </Heading>
+              <SettingsMenu current={current} />
+            </nav>
+            {current === null ? (
+              <>
+                <SettingsSignedInMember />
+                <SettingsFinanceLogo />
+              </>
+            ) : null}
+          </div>
+        </FinanceIsland>
+        {/* A new key opens each section at the top of its island. */}
+        <FinanceIsland
+          key={current ?? "household"}
+          accessory={current === null ? null : <FinanceAddButton />}
+          css={current === null && styles.sectionOnIndex}
+        >
+          <div css={[stack.item, styles.width, styles.content]}>
+            {current === null ? null : (
+              <div css={styles.back}>
+                <AnchorButton
+                  href={getLocalePath("/settings", locale)}
+                  linkComponent={Link}
+                  look="ghost"
+                  size="sm"
+                  icon={<ArrowLeftIcon weight="bold" />}
+                >
+                  {t({ en: "Settings", zh: "设置" })}
+                </AnchorButton>
+              </div>
+            )}
+            {children}
+          </div>
+        </FinanceIsland>
+      </FinanceIslands>
+      <NewTransactionSheet />
+    </>
   );
 }
 

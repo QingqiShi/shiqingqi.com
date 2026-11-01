@@ -29,7 +29,7 @@ export function FinanceScreenSkeleton({ path }: { path: string }) {
       );
     case "/settings":
       return (
-        <FinancePageColumn>
+        <FinancePageColumn accessory={<FinanceAddButton />}>
           <SettingsSkeleton />
         </FinancePageColumn>
       );

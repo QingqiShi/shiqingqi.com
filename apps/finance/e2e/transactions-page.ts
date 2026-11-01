@@ -70,14 +70,9 @@ export async function openTransactions(page: Page, path = "/transactions") {
   ).toBeVisible();
 }
 
-/** The `+ Add` action: the header button at `lg` and wider, the floating link below. */
+/** The `+ Add` action: in the rail at `md` and wider, floating below. */
 export async function openNewExpense(page: Page) {
-  const wide = (page.viewportSize()?.width ?? 0) >= 1080;
-  await (
-    wide
-      ? page.getByRole("button", { name: "Add", exact: true })
-      : page.getByRole("link", { name: "Add", exact: true })
-  ).click();
+  await page.getByRole("link", { name: "Add", exact: true }).click();
   const editor = page.getByRole("form", { name: "New expense" });
   await expect(editor).toBeVisible();
   await waitForMotionToSettle(page);

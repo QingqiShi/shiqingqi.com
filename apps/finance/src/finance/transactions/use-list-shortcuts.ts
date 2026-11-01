@@ -1,7 +1,7 @@
-import { useEffect, useEffectEvent } from "react";
+import { isShortcutKey } from "../shell/is-shortcut-key.ts";
+import { useWindowKeydown } from "../shell/use-window-keydown.ts";
 
 interface ListShortcuts {
-  onNew: () => void;
   onSearch: () => void;
   /** `j` is +1, `k` is −1. */
   onMove: (step: 1 | -1) => void;
@@ -9,13 +9,6 @@ interface ListShortcuts {
   onCategory: () => void;
   onDelete: () => void;
   onClose: () => void;
-}
-
-/** True when a key press belongs to what has focus: a field, or a control that Enter or Space activates. */
-function isTyping(target: EventTarget | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
-  return target.closest("input, textarea, select, [role=combobox]") !== null;
 }
 
 function isControl(target: EventTarget | null) {
@@ -26,23 +19,15 @@ function isControl(target: EventTarget | null) {
 }
 
 /**
- * The desktop keys of the Transactions screen: `n` new, `/` search, `j`/`k`
- * move, Enter open, `e` edit, `c` Category, `d` delete, Esc close. None of
- * them fires while the person types in a field or holds a modifier.
+ * The desktop keys of the Transactions screen: `/` search, `j`/`k` move,
+ * Enter open, `e` edit, `c` Category, `d` delete, Esc close. None of them
+ * fires while the person types in a field or holds a modifier. The shell
+ * holds `n`, which opens a new Transaction on every screen.
  */
 export function useListShortcuts(shortcuts: ListShortcuts) {
-  const handle = useEffectEvent((event: KeyboardEvent) => {
-    if (event.defaultPrevented || event.isComposing) return;
-    if (event.metaKey || event.ctrlKey || event.altKey) return;
-    if (isTyping(event.target)) return;
-    if (
-      event.target instanceof HTMLElement &&
-      event.target.closest("[role=dialog]")
-    ) {
-      return;
-    }
+  useWindowKeydown((event) => {
+    if (!isShortcutKey(event)) return;
     const actions: Record<string, (() => void) | undefined> = {
-      n: shortcuts.onNew,
       "/": shortcuts.onSearch,
       j: () => {
         shortcuts.onMove(1);
@@ -61,14 +46,4 @@ export function useListShortcuts(shortcuts: ListShortcuts) {
     event.preventDefault();
     action();
   });
-
-  useEffect(() => {
-    const listener = (event: KeyboardEvent) => {
-      handle(event);
-    };
-    window.addEventListener("keydown", listener);
-    return () => {
-      window.removeEventListener("keydown", listener);
-    };
-  }, []);
 }
