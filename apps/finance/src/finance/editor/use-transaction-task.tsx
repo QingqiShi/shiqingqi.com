@@ -18,6 +18,7 @@ import { useReplica } from "../replica/use-replica.ts";
 import { DrawnAfterRest } from "../shell/drawn-after-rest.tsx";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { focusRow } from "../transactions/focus-row.ts";
+import { QuickAdd } from "../transactions/quick-add.tsx";
 import { transactionFilters } from "../transactions/transaction-filters.ts";
 import { useTeachAi } from "../transactions/use-teach-ai.tsx";
 import type { EditorDraft } from "./editor-draft.ts";
@@ -102,7 +103,10 @@ function inDetail(
  * to the Transaction. On Transactions the open Transaction and a new one
  * take one place, so a new one replaces what is open, and one close leaves
  * it. Quick add gives its draft through `openNew`, and the editor then
- * moves focus to the first field the draft leaves empty.
+ * moves focus to the first field the draft leaves empty. In the sheet, a
+ * new Transaction that is not a refund has its own quick add line under the
+ * heading, which has focus while the form is blank. A line that saves
+ * closes the sheet; a line that is not enough fills the form in place.
  */
 export function useTransactionTask(
   context: TransactionTaskContext,
@@ -144,6 +148,13 @@ export function useTransactionTask(
     setSeed(null);
     navigator.close({ screen: "current" });
   };
+  const fillSheet = (draft: EditorDraft) => {
+    setSeed({ draft, nonce: Date.now() });
+    setFocusRequest(undefined);
+  };
+  const hasQuickAdd = newTransaction?.refundOf == null;
+  const isQuickAddFocused =
+    hasQuickAdd && seed === null && focusRequest === undefined;
   const sheetHost: EditorHost = {
     focusRequest:
       focusRequest ??
@@ -152,7 +163,9 @@ export function useTransactionTask(
             target: seed.draft.amountText === "" ? "amount" : "category",
             nonce: seed.nonce,
           }
-        : undefined),
+        : isQuickAddFocused
+          ? null
+          : undefined),
     focusTargetRef,
     close: closeSheet,
     afterSave: (_, andNew) => {
@@ -220,6 +233,17 @@ export function useTransactionTask(
               refundOfId={newTransaction.refundOf}
               initialAccountId={accountId}
               seedDraft={seed?.draft}
+              lead={
+                hasQuickAdd ? (
+                  <QuickAdd
+                    focusTargetRef={
+                      isQuickAddFocused ? focusTargetRef : undefined
+                    }
+                    onNeedsEditor={fillSheet}
+                    onSaved={closeSheet}
+                  />
+                ) : null
+              }
               host={sheetHost}
             />
           ) : null}
