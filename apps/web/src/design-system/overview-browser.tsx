@@ -5,6 +5,7 @@ import { XIcon } from "@phosphor-icons/react/dist/ssr/X";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
+import { headerControlsTokens } from "@tuja/ui/components/header-controls.stylex";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
 import { TextField } from "@tuja/ui/components/text-field";
 import { justify } from "@tuja/ui/primitives/flex.stylex";
@@ -90,27 +91,27 @@ function buildBlocks({
     ];
   }
 
-  return getDesignSystemRouteSections()
-    .filter((section) => section.section !== "overview")
-    .map((section) => ({
-      key: section.section,
-      heading: groupLabels.sections[section.section],
-      entries: inOrder(
-        section.groups.find((group) => group.category === undefined)?.paths ??
-          [],
-      ),
-      children: section.groups.flatMap((group) =>
-        group.category === undefined
-          ? []
-          : [
-              {
-                key: group.category,
-                heading: groupLabels.categories[group.category],
-                entries: inOrder(group.paths),
-              },
-            ],
-      ),
-    }));
+  // The overview section stays in: the entries already leave out the overview
+  // itself, so what remains of the section is Get started, as an unheaded
+  // first tile.
+  return getDesignSystemRouteSections().map((section) => ({
+    key: section.section,
+    heading: groupLabels.sections[section.section],
+    entries: inOrder(
+      section.groups.find((group) => group.category === undefined)?.paths ?? [],
+    ),
+    children: section.groups.flatMap((group) =>
+      group.category === undefined
+        ? []
+        : [
+            {
+              key: group.category,
+              heading: groupLabels.categories[group.category],
+              entries: inOrder(group.paths),
+            },
+          ],
+    ),
+  }));
 }
 
 /**
@@ -224,7 +225,12 @@ export function OverviewBrowser({
         visible.map((block) => (
           // The h2 stands an item above its content, not tight: an h3 can
           // follow it, and that h3 must bind to its grid, not to the h2.
-          <section key={block.key} css={stack.item}>
+          <section
+            key={block.key}
+            // Get started links each layer to its heading here.
+            id={block.heading === null ? undefined : block.key}
+            css={[stack.item, styles.section]}
+          >
             {block.heading !== null && (
               <h2 css={[typeRole.h1, styles.sectionTitle]}>{block.heading}</h2>
             )}
@@ -291,6 +297,10 @@ const styles = stylex.create({
     margin: 0,
     minBlockSize: "1lh",
     color: color.fgMuted,
+  },
+  // Below `md`, the menu button floats over the top of the page.
+  section: {
+    scrollMarginBlockStart: `calc(${headerControlsTokens.clearance} + ${rhythm.item})`,
   },
   sectionTitle: {
     margin: 0,

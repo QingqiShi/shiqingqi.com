@@ -10,7 +10,6 @@ import {
   FoundationIllustration,
   type FoundationIllustrationArt,
 } from "./foundation-illustration.tsx";
-import getStarted from "./get-started.png";
 import iconography from "./iconography.png";
 import layout from "./layout.png";
 import material from "./material.png";
@@ -30,10 +29,6 @@ const FOUNDATION_ILLUSTRATIONS: Record<
 > = {
   "/design-system/foundations/principles": {
     src: principles,
-    bleeds: "inline-end",
-  },
-  "/design-system/foundations/get-started": {
-    src: getStarted,
     bleeds: "inline-end",
   },
   "/design-system/foundations/customization": { src: customization },

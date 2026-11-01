@@ -1,5 +1,5 @@
 import * as stylex from "@stylexjs/stylex";
-import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
+import type { CodeToken } from "@tuja/ui/components/code-block";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactElement, ReactNode } from "react";
@@ -21,9 +21,7 @@ type SpecimenProps = SpecimenIdentity & {
 /**
  * One instance of a component, its caption, and the source that makes it. It
  * renders as two siblings — the cell, then the panel — so an open snippet
- * spans the whole grid row. The `CodeBlock` renders where the `Specimen`
- * renders, so a server page keeps the colouring on the server. Without a
- * `source` the control does not appear.
+ * spans the whole grid row. Without a `source` the control does not appear.
  */
 export function Specimen({
   caption,
@@ -33,12 +31,7 @@ export function Specimen({
   children,
 }: SpecimenProps) {
   return (
-    <SpecimenReveal
-      caption={caption}
-      token={token}
-      code={source ? <CodeBlock source={source} /> : null}
-      css={css}
-    >
+    <SpecimenReveal caption={caption} token={token} source={source} css={css}>
       {children}
     </SpecimenReveal>
   );

@@ -25,10 +25,13 @@ function measure(page: Page) {
   return page.evaluate(() => {
     const nav = document.querySelector('nav[aria-label="Design system"]');
     let scroller = nav?.parentElement;
-    while (scroller && scroller.scrollHeight <= scroller.clientHeight) {
+    while (
+      scroller &&
+      !["auto", "scroll"].includes(getComputedStyle(scroller).overflowY)
+    ) {
       scroller = scroller.parentElement;
     }
-    if (!nav || !scroller) throw new Error("No scrolling design-system nav");
+    if (!nav || !scroller) throw new Error("No scroller for the nav");
     scroller.scrollTo({ top: 0, behavior: "instant" });
 
     const box = (el: Element): Box => el.getBoundingClientRect();
@@ -126,7 +129,7 @@ async function expectSidebarRules(page: Page) {
   if (close) expectEqual([outerRows[0].box.right, close.right]);
 }
 
-const PATH = "/design-system/foundations/get-started";
+const PATH = "/design-system/foundations/principles";
 
 test("the design-system rail spaces its nav by structure", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -147,7 +150,7 @@ test("a category in the rail opens and closes, and the current one starts open",
   const nav = page.getByRole("navigation", { name: "Design system" });
   const basics = nav.getByRole("button", { name: "Basics" });
   const visual = nav.getByRole("button", { name: "Visual" });
-  const current = nav.getByRole("link", { name: "Get started" });
+  const current = nav.getByRole("link", { name: "Principles" });
   const colour = nav.getByRole("link", { name: "Colour" });
 
   await expect(basics).toHaveAttribute("aria-expanded", "true");

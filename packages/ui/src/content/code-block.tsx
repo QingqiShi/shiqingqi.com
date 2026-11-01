@@ -1,7 +1,7 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { Fragment, useLayoutEffect, useRef } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { bind } from "../motion/bind.ts";
 import type { MotionEngine } from "../motion/create-motion-engine.ts";
 import { createMotionValue } from "../motion/create-motion-value.ts";
@@ -14,8 +14,9 @@ import { corner } from "../primitives/corner.stylex.ts";
 import { scrollbar, scrollX } from "../primitives/layout.stylex.ts";
 import { duration, easing, transition } from "../primitives/motion.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
+import { observeChildren } from "../surfaces/observe-children.ts";
 import { ScrollMask } from "../surfaces/scroll-mask.tsx";
-import { font } from "../tokens.stylex.ts";
+import { border, color, font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
 import { codeRun } from "./code-run.stylex.ts";
 import { syntax } from "./syntax.stylex.ts";
@@ -47,12 +48,29 @@ export interface CodePart {
 
 interface CodeBlockBaseProps {
   /**
+   * The accessible name of the block, such as "Code". When a line is wider
+   * than the block, the block becomes a region with this name that the
+   * keyboard can focus and scroll. The package ships no i18n, so the name
+   * comes in as a prop.
+   *
+   * @zh 代码块的无障碍名称，例如“代码”。当某一行比代码块更宽时，代码块会成为带有此名称的区域，可以用键盘聚焦并滚动。本包不含 i18n，因此名称由调用方传入。
+   */
+  label: string;
+  /**
    * StyleX overrides merged last, on the block's root — how it sits in the
    * layout around it.
    *
    * @zh 最后合并的 StyleX 覆盖样式，作用于代码块的根元素——控制它在周围布局中的位置。
    */
   css?: StyleProp;
+  /**
+   * StyleX styles merged last, on the scroller inside the block. Put the
+   * padding that sets the code in from the edge here, because the code
+   * scrolls under this padding to the edge.
+   *
+   * @zh 最后合并的 StyleX 样式，作用于代码块内部的滚动元素。让代码与边缘保持距离的内边距应写在这里，因为代码会在这段内边距下一直滚动到边缘。
+   */
+  contentCss?: StyleProp;
 }
 
 type CodeBlockProps = CodeBlockBaseProps &
@@ -283,16 +301,66 @@ function PartsCode({ parts }: PartsCodeProps) {
  * wide line never widens the page, and a Scroll mask marks each edge it can
  * still scroll to.
  *
+ * Put the block against the edges of its container, with no padding around
+ * it. The Scroll mask blurs the code at the edges of the block, so padding
+ * around the block puts a gap between the blur and the container edge. To
+ * set the code in from the edge, give the padding in `contentCss`. The focus
+ * ring is inside the block, so it stays in the container too.
+ *
  * The boxes animate on the page's own DOM rather than as view-transition
  * snapshots, because a snapshot escapes the scroller's clip.
  */
-export function CodeBlock({ source, parts, css }: CodeBlockProps) {
+export function CodeBlock({
+  source,
+  parts,
+  label,
+  css,
+  contentCss,
+}: CodeBlockProps) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isFocusVisible, setIsFocusVisible] = useState(false);
+
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (scroller === null) return;
+    return observeChildren(
+      scroller,
+      () => {
+        setIsOverflowing(scroller.scrollWidth > scroller.clientWidth);
+      },
+      { includeContainer: true },
+    );
+  }, []);
+
   return (
     <ScrollMask
+      ref={scrollerRef}
       orientation="horizontal"
-      tabIndex={0}
-      css={[corner.radius_2, css]}
-      contentCss={[scrollX.base, scrollbar.autoHide, transition.scrollbarColor]}
+      {...(isOverflowing && {
+        tabIndex: 0,
+        role: "region",
+        "aria-label": label,
+      })}
+      onFocus={(event) => {
+        setIsFocusVisible(event.target.matches(":focus-visible"));
+      }}
+      onBlur={() => {
+        setIsFocusVisible(false);
+      }}
+      css={[
+        corner.radius_2,
+        styles.ring,
+        isFocusVisible && styles.ringShown,
+        css,
+      ]}
+      contentCss={[
+        styles.scroller,
+        scrollX.base,
+        scrollbar.autoHide,
+        transition.scrollbarColor,
+        contentCss,
+      ]}
     >
       <pre css={styles.pre}>
         {source !== undefined ? (
@@ -306,7 +374,37 @@ export function CodeBlock({ source, parts, css }: CodeBlockProps) {
 }
 
 const styles = stylex.create({
+  // The Scroll mask's bands blur what is below them, so a ring on the
+  // scroller shows as a blur at the edges. Thus the ring is on a layer above
+  // the bands, inside the block, so it stays in a container that has the
+  // block on its edges.
+  scroller: {
+    outlineColor: "transparent",
+  },
+  ring: {
+    "::after": {
+      content: '""',
+      position: "absolute",
+      inset: 0,
+      borderRadius: "inherit",
+      cornerShape: "inherit",
+      outlineWidth: border.size_2,
+      outlineStyle: "solid",
+      outlineOffset: `calc(-1 * ${border.size_2})`,
+      outlineColor: "transparent",
+      pointerEvents: "none",
+    },
+  },
+  ringShown: {
+    "::after": {
+      outlineColor: color.borderAccent,
+    },
+  },
+  // The box takes the width of its longest line, so the scroller's
+  // inline-end padding comes after the code when it is scrolled to the end.
   pre: {
+    inlineSize: "max-content",
+    minInlineSize: "100%",
     margin: 0,
   },
   code: {

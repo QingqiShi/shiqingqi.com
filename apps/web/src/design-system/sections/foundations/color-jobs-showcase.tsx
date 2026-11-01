@@ -110,7 +110,7 @@ const styles = stylex.create({
           en: "The same code paints both frames. Every colour token is one light-dark() value, so the colour-scheme on the element picks the value and there is no dark stylesheet to write. How to set the scheme on the root, or pin it on one subtree, is on ",
           zh: "两个画框出自同一段代码。每个颜色令牌都是一个 light-dark() 值，由元素上的 color-scheme 决定取哪一个，因此无需另写深色样式表。如何在根元素上设置配色方案、或在某个子树上固定它，见",
         })}
-        <DocLink path="/design-system/foundations/get-started" />
+        <DocLink path="/design-system/get-started" />
         {t({ en: ".", zh: "。" })}
       </GuideNote>
     </GuideSection>

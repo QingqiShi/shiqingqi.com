@@ -47,7 +47,11 @@ export function LabSnippet({ snippet }: LabSnippetProps) {
             }}
           />
         </div>
-        <CodeBlock parts={snippet.parts} css={styles.scroller} />
+        <CodeBlock
+          parts={snippet.parts}
+          label={t({ en: "Code", zh: "代码" })}
+          css={styles.scroller}
+        />
       </div>
     </ViewTransition>
   );

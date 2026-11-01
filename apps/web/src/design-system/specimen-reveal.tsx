@@ -4,6 +4,7 @@ import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { CodeBlock, type CodeToken } from "@tuja/ui/components/code-block";
 import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
@@ -21,8 +22,8 @@ interface SpecimenRevealProps {
   caption?: string;
   /** The token or primitive name the specimen shows, rendered as an `Identifier`. */
   token?: string;
-  /** The drawn source. Pass `null` to leave the control out. */
-  code: ReactNode;
+  /** The source of the instance. Leave it out to leave the control out. */
+  source?: readonly CodeToken[];
   /** StyleX overrides for the cell, merged last. */
   css?: StyleProp;
   /** The instance itself. */
@@ -32,13 +33,12 @@ interface SpecimenRevealProps {
 /**
  * The specimen cell, and the panel that opens under it. The two are siblings,
  * so in a `SpecimenGrid` the panel spans every track instead of squeezing into
- * one 220px cell. This is the only part of a specimen that runs in the browser
- * — the code arrives already drawn.
+ * one 220px cell. This is the only part of a specimen that runs in the browser.
  */
 export function SpecimenReveal({
   caption,
   token,
-  code,
+  source,
   css,
   children,
 }: SpecimenRevealProps) {
@@ -60,7 +60,7 @@ export function SpecimenReveal({
               </span>
             ) : null}
           </Text>
-          {code ? (
+          {source ? (
             <button
               {...triggerProps}
               css={[
@@ -89,9 +89,9 @@ export function SpecimenReveal({
       </div>
       {/* No `display` here: the panel collapses through the `hidden` attribute,
           which any `display` declaration would override. */}
-      {code ? (
+      {source ? (
         <div {...panelProps} css={[corner.radius_2, styles.panel]}>
-          {code}
+          <CodeBlock source={source} label={t({ en: "Code", zh: "代码" })} />
         </div>
       ) : null}
     </>

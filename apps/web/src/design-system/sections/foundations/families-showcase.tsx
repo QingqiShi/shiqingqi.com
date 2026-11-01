@@ -61,7 +61,7 @@ export function FamiliesShowcase() {
           en: "The package ships no font file. Each name in a stack works only once your app declares that face; until then the browser moves on to the next name. Neither family has Chinese glyphs, so Chinese text takes the platform's own sans-serif or monospace. How to serve Haffer and declare Haffer-fallback is on ",
           zh: "这个包不附带任何字体文件。字体栈中的每个名称，只有在你的应用声明了对应字体后才会生效；在此之前，浏览器会转向下一个名称。两种字体族都不含中文字形，因此中文文字使用平台自带的无衬线或等宽字体。如何提供 Haffer 并声明 Haffer-fallback，见",
         })}
-        <DocLink path="/design-system/foundations/get-started" />
+        <DocLink path="/design-system/get-started" />
         {t({ en: ".", zh: "。" })}
       </GuideNote>
     </GuideSection>
