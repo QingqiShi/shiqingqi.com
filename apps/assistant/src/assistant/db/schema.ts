@@ -122,6 +122,10 @@ export const userSettings = pgTable(
     locale: text("locale", { enum: USER_LOCALES }).notNull().default("en"),
     /** Off until the user has reviewed the classification: then the app may mark, flag and move mail. */
     mailboxWrites: boolean("mailbox_writes").notNull().default(false),
+    /** When `mailbox_writes` was last turned on: mail classified before it is left as it is. */
+    mailboxWritesSince: timestamp("mailbox_writes_since", {
+      withTimezone: true,
+    }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -157,6 +161,10 @@ export const mailAccounts = pgTable(
     lastErrorCode: text("last_error_code"),
     lastErrorMessage: text("last_error_message"),
     lastErrorAt: timestamp("last_error_at", { withTimezone: true }),
+    /** The last failed mailbox write; cleared by a write run without failures. */
+    writeErrorCode: text("write_error_code"),
+    writeErrorMessage: text("write_error_message"),
+    writeErrorAt: timestamp("write_error_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -234,9 +242,11 @@ export const mailMessages = pgTable(
     accountId: uuid("account_id")
       .notNull()
       .references(() => mailAccounts.id, { onDelete: "cascade" }),
+    /** Where the mail is now: sync stores the inbox, and a move by the app updates all three. */
     folderId: uuid("folder_id").references(() => mailFolders.id, {
       onDelete: "set null",
     }),
+    /** 0 when the app moved the mail and the server did not say its new UID: find it by Message-ID. */
     uidValidity: bigint("uid_validity", { mode: "number" }).notNull(),
     uid: bigint("uid", { mode: "number" }).notNull(),
     messageId: text("message_id").notNull(),
@@ -440,6 +450,39 @@ export const mailCorrections = pgTable(
   (t) => [unique("mail_corrections_message_key").on(t.messageId, t.kind)],
 );
 
+/**
+ * What the app did to one mail in its mailbox, so that a write run can stop
+ * at any point and the next one does only what is left. A row exists only
+ * for mail the app has written to.
+ */
+export const mailWriteStates = pgTable(
+  "mail_write_states",
+  {
+    messageId: uuid("message_id")
+      .primaryKey()
+      .references(() => mailMessages.id, { onDelete: "cascade" }),
+    userId: userId(),
+    seenAt: timestamp("seen_at", { withTimezone: true }),
+    /** Set while the app's `\Flagged` flag is on the mail. */
+    flaggedAt: timestamp("flagged_at", { withTimezone: true }),
+    movedAt: timestamp("moved_at", { withTimezone: true }),
+    /** Nothing is left to do for the mail. */
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    /** The mail is no longer where the app left it: the user moved or deleted it, and the app stops. */
+    lostAt: timestamp("lost_at", { withTimezone: true }),
+    /** Failed write commands; at the limit the app stops trying. */
+    failures: smallint("failures").notNull().default(0),
+    lastError: text("last_error"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("mail_write_states_open_idx")
+      .on(t.userId)
+      .where(sql`${t.finishedAt} is null`),
+  ],
+);
+
 /** One device that gets the digest notification. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
@@ -470,5 +513,6 @@ export const schema = {
   mailClassifications,
   mailDigests,
   mailCorrections,
+  mailWriteStates,
   pushSubscriptions,
 };

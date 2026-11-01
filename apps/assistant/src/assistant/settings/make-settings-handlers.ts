@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { USER_LOCALES, userSettings } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
@@ -19,6 +20,8 @@ const settingsBody = z.object({
   digestHour: z.int().min(0).max(23),
   locale: z.enum(USER_LOCALES),
 });
+
+const mailboxWritesBody = z.object({ enabled: z.boolean() });
 
 const PUSH_ENDPOINT = z.string().max(2048).refine(isPushServiceEndpoint);
 
@@ -55,6 +58,44 @@ export function makeSettingsHandlers(
           .insert(userSettings)
           .values({ userId, ...values })
           .onConflictDoUpdate({ target: userSettings.userId, set: values }),
+      );
+      return assistantNoContent();
+    },
+
+    /**
+     * Allows or stops the mailbox writes. Turning them on starts a new
+     * period: mail classified before it is left as it is.
+     */
+    saveMailboxWrites: async (request: Request): Promise<Response> => {
+      const session = await guardRequest(deps, request, { write: true });
+      if (session instanceof Response) return session;
+      const body = mailboxWritesBody.safeParse(
+        await request.json().catch(() => null),
+      );
+      if (!body.success) {
+        return assistantJson({ error: "invalid-body" }, { status: 400 });
+      }
+      const { enabled } = body.data;
+      const now = deps.now();
+      await withUser(deps.getDb(), session.userId, ({ db, userId }) =>
+        db
+          .insert(userSettings)
+          .values({
+            userId,
+            mailboxWrites: enabled,
+            mailboxWritesSince: enabled ? now : null,
+            updatedAt: now,
+          })
+          .onConflictDoUpdate({
+            target: userSettings.userId,
+            set: {
+              mailboxWrites: enabled,
+              mailboxWritesSince: enabled
+                ? sql`case when ${userSettings.mailboxWrites} then ${userSettings.mailboxWritesSince} else ${now.toISOString()}::timestamptz end`
+                : null,
+              updatedAt: now,
+            },
+          }),
       );
       return assistantNoContent();
     },

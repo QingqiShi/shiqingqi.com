@@ -19,6 +19,9 @@ export async function listAccounts({ db }: UserScope) {
       lastErrorCode: mailAccounts.lastErrorCode,
       lastErrorMessage: mailAccounts.lastErrorMessage,
       lastErrorAt: mailAccounts.lastErrorAt,
+      writeErrorCode: mailAccounts.writeErrorCode,
+      writeErrorMessage: mailAccounts.writeErrorMessage,
+      writeErrorAt: mailAccounts.writeErrorAt,
       folders: sql<number>`count(${mailFolders.id})::int`,
       inboxUnseen: sql<
         number | null

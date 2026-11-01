@@ -48,19 +48,45 @@ export interface FetchedMessage {
   source: Uint8Array;
 }
 
+/** Where a MOVE put the mail, when the server says it (UIDPLUS COPYUID). */
+export interface MovedMessages {
+  uidValidity: number;
+  /** Source UID to destination UID. */
+  uidMap: Map<number, number>;
+}
+
 /**
- * One logged-in IMAP connection. It only reads: a folder opens read-only and
- * a fetch uses BODY.PEEK, so sync never marks mail read.
+ * One logged-in IMAP connection. A fetch always uses BODY.PEEK, so reading
+ * never marks mail read. A folder opens read-only unless `write` is set;
+ * only the mailbox writes (`mail/tidy/`) set it.
  */
 export interface MailboxSession {
   /** Every folder, with message and unseen counts for each selectable one. */
   listFolders(): Promise<MailboxFolder[]>;
-  openFolder(path: string): Promise<OpenedFolder>;
+  openFolder(
+    path: string,
+    options?: { write?: boolean },
+  ): Promise<OpenedFolder>;
   /** The UIDs above `uid` in the open folder, in ascending order. */
   listUidsAfter(uid: number): Promise<number[]>;
   /** The UIDs of mail the open folder received on or after `since`, ascending. */
   listUidsSince(since: Date): Promise<number[]>;
   fetchMessages(uids: number[], maxBytes: number): Promise<FetchedMessage[]>;
+  /** Of `uids`, the ones that the open folder still holds, ascending. */
+  listPresentUids(uids: number[]): Promise<number[]>;
+  /** The UIDs of mail in the open folder whose Message-ID header holds `messageId`. */
+  findUidsByMessageId(messageId: string): Promise<number[]>;
+  addFlags(uids: number[], flags: string[]): Promise<void>;
+  removeFlags(uids: number[], flags: string[]): Promise<void>;
+  /**
+   * Moves mail of the open folder with the MOVE command. It never copies and
+   * deletes: without MOVE it throws `MoveUnsupportedError`. Null when the
+   * server does not say the new UIDs.
+   */
+  moveMessages(
+    uids: number[],
+    destination: string,
+  ): Promise<MovedMessages | null>;
   close(): Promise<void>;
 }
 

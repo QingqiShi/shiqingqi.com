@@ -1,5 +1,6 @@
 import PostalMime from "postal-mime";
 import { MailboxAuthError } from "#src/assistant/mail/imap/mailbox-auth-error.ts";
+import { MoveUnsupportedError } from "#src/assistant/mail/imap/move-unsupported-error.ts";
 import type {
   FetchedMessage,
   MailboxAuth,
@@ -24,27 +25,42 @@ interface FakeFolder {
   messages: FakeMessage[];
 }
 
-/** What a fake mail server saw, for tests that check what sync did to the mailbox. */
+/** A command that changed the mailbox. */
+export type FakeMailWrite =
+  | { command: "add" | "remove"; path: string; uids: number[]; flags: string[] }
+  | { command: "move"; path: string; uids: number[]; destination: string };
+
+/** What a fake mail server saw, for tests that check what the app did to the mailbox. */
 export interface FakeMailServerLog {
   logins: number;
   fetchedUids: number[];
+  writes: FakeMailWrite[];
 }
+
+const MESSAGE_ID_HEADER = /^message-id:[ \t]*(.*)$/im;
 
 /**
  * An in-memory IMAP server for one mailbox. `connector` logs in with
- * `password` or `accessToken`, and fails with `failWith` when it is set.
+ * `password` or `accessToken`, and fails with `failNextConnects` when it is
+ * set. `uidPlus: false` makes MOVE say no new UIDs; `move: false` makes a
+ * server without MOVE.
  */
 export function createFakeMailServer({
   user,
   password,
   accessToken,
+  uidPlus = true,
+  move = true,
 }: {
   user: string;
   password?: string;
   accessToken?: string;
+  uidPlus?: boolean;
+  move?: boolean;
 }) {
   const folders = new Map<string, FakeFolder>();
-  const log: FakeMailServerLog = { logins: 0, fetchedUids: [] };
+  const log: FakeMailServerLog = { logins: 0, fetchedUids: [], writes: [] };
+  let failingCommand: FakeMailWrite["command"] | null = null;
   let failure: Error | null = null;
   let validToken = accessToken;
 
@@ -73,6 +89,27 @@ export function createFakeMailServer({
   }
 
   addFolder("INBOX");
+
+  function append(folder: FakeFolder, message: Omit<FakeMessage, "uid">) {
+    const uid = folder.uidNext;
+    folder.uidNext += 1;
+    folder.messages.push({ ...message, uid });
+    return uid;
+  }
+
+  function moveOut(from: FakeFolder, uids: readonly number[], to: FakeFolder) {
+    const wanted = new Set(uids);
+    const uidMap = new Map<number, number>();
+    for (const message of from.messages.filter((m) => wanted.has(m.uid))) {
+      uidMap.set(message.uid, append(to, message));
+    }
+    from.messages = from.messages.filter((m) => !wanted.has(m.uid));
+    return uidMap;
+  }
+
+  function messageIdOf(message: FakeMessage) {
+    return MESSAGE_ID_HEADER.exec(message.raw)?.[1]?.trim() ?? "";
+  }
 
   async function toFetched(
     message: FakeMessage,
@@ -109,9 +146,19 @@ export function createFakeMailServer({
     if (!accepted) return Promise.reject(new MailboxAuthError());
     log.logins += 1;
     let open: FakeFolder | null = null;
+    let writable = false;
     const openFolder = () => {
       if (!open) throw new Error("No folder is open");
       return open;
+    };
+    const writableFolder = (write: FakeMailWrite) => {
+      const folder = openFolder();
+      if (!writable) throw new Error("The folder is open read-only");
+      if (failingCommand === write.command) {
+        throw new Error(`The server refused ${write.command}`);
+      }
+      log.writes.push(write);
+      return folder;
     };
     const session: MailboxSession = {
       listFolders: () =>
@@ -128,8 +175,9 @@ export function createFakeMailServer({
               : null,
           })),
         ),
-      openFolder: (path) => {
+      openFolder: (path, options) => {
         open = folderOf(path);
+        writable = options?.write === true;
         return Promise.resolve({
           uidValidity: open.uidValidity,
           uidNext: open.uidNext,
@@ -153,6 +201,60 @@ export function createFakeMailServer({
         log.fetchedUids.push(...found.map((m) => m.uid));
         return Promise.all(found.map((m) => toFetched(m, maxBytes)));
       },
+      listPresentUids: (uids) => {
+        const wanted = new Set(uids);
+        return Promise.resolve(
+          openFolder()
+            .messages.map((m) => m.uid)
+            .filter((uid) => wanted.has(uid)),
+        );
+      },
+      findUidsByMessageId: (messageId) =>
+        Promise.resolve(
+          openFolder()
+            .messages.filter((m) => messageIdOf(m).includes(messageId))
+            .map((m) => m.uid),
+        ),
+      addFlags: (uids, flags) => {
+        const folder = writableFolder({
+          command: "add",
+          path: openFolder().path,
+          uids,
+          flags,
+        });
+        for (const message of folder.messages) {
+          if (!uids.includes(message.uid)) continue;
+          for (const flag of flags) message.flags.add(flag);
+        }
+        return Promise.resolve();
+      },
+      removeFlags: (uids, flags) => {
+        const folder = writableFolder({
+          command: "remove",
+          path: openFolder().path,
+          uids,
+          flags,
+        });
+        for (const message of folder.messages) {
+          if (!uids.includes(message.uid)) continue;
+          for (const flag of flags) message.flags.delete(flag);
+        }
+        return Promise.resolve();
+      },
+      moveMessages: (uids, destination) => {
+        if (!move) return Promise.reject(new MoveUnsupportedError());
+        const from = writableFolder({
+          command: "move",
+          path: openFolder().path,
+          uids,
+          destination,
+        });
+        const to = folderOf(destination);
+        const uidMap = moveOut(from, uids, to);
+        return Promise.resolve(
+          uidPlus ? { uidValidity: to.uidValidity, uidMap } : null,
+        );
+      },
       close: () => Promise.resolve(),
     };
     return Promise.resolve(session);
@@ -168,16 +270,31 @@ export function createFakeMailServer({
       raw: string,
       options: { flags?: string[]; internalDate?: Date } = {},
     ) {
-      const folder = folderOf(path);
-      const uid = folder.uidNext;
-      folder.uidNext += 1;
-      folder.messages.push({
-        uid,
+      return append(folderOf(path), {
         raw,
         flags: new Set(options.flags ?? []),
         internalDate: options.internalDate ?? new Date(),
       });
-      return uid;
+    },
+    /** Moves a mail as the user does in a mail client; returns its new UID. */
+    moveAsUser(path: string, uid: number, destination: string) {
+      return moveOut(folderOf(path), [uid], folderOf(destination)).get(uid);
+    },
+    /** The folder, UID and flags of each copy of a mail. */
+    locate(messageId: string) {
+      return [...folders.values()].flatMap((folder) =>
+        folder.messages
+          .filter((m) => messageIdOf(m) === messageId)
+          .map((m) => ({
+            path: folder.path,
+            uid: m.uid,
+            flags: [...m.flags].sort(),
+          })),
+      );
+    },
+    /** Makes every later write command of this kind fail; null stops it. */
+    failCommand(command: FakeMailWrite["command"] | null) {
+      failingCommand = command;
     },
     /** Gives every message new UIDs under a new UIDVALIDITY, as a rebuilt server does. */
     renumber(path: string) {
