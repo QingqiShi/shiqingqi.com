@@ -1,4 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "npx turbo-ignore trip-planner"
+  "ignoreCommand": "sh ../../scripts/vercel-ignore-build.sh"
 }
