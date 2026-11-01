@@ -9,6 +9,7 @@ import {
   findPastTransactions,
   type SearchTransactions,
 } from "./find-past-transactions.ts";
+import { REVIEW_BELOW } from "./review-below.ts";
 import {
   householdQuestions,
   outcomeProbability,
@@ -31,8 +32,6 @@ export type LabellingModel = Pick<TypeSafeClient, "systemOne">;
 export const LABEL_BATCH_SIZE = 20;
 /** The most rows the labeller asks about at the same time. */
 const CONCURRENCY = 5;
-/** An answer that Jev gives less probability than this puts the row in Review. */
-const REVIEW_BELOW = 0.6;
 /** A Tag applies when Jev gives it at least this probability. */
 export const TAG_AT = 0.5;
 const MAX_REASON_LENGTH = 500;

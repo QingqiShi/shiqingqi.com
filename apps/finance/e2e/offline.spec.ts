@@ -7,6 +7,7 @@ import {
   DESKTOP,
   dayListPath,
   openTransactions,
+  quickAddLine,
   rowsWith,
   SYNC_TIMEOUT,
   syncStatus,
@@ -120,9 +121,7 @@ test("a transaction added just before a reload stays on the device and syncs aft
   const blockPush = (route: Route) =>
     route.request().method() === "POST" ? route.abort() : route.fallback();
   await page.context().route("**/api/sync**", blockPush);
-  const quickAdd = page.getByRole("textbox", { name: "Quick add" });
-  await quickAdd.fill("6.43 tesco");
-  await quickAdd.press("Enter");
+  await quickAddLine(page, "6.43 tesco");
   await page.reload();
 
   const row = rowsWith(page, "Tesco", "6.43");

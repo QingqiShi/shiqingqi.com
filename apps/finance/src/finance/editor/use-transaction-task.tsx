@@ -3,7 +3,7 @@
 import { t } from "@tuja/i18n";
 import { useSplitViewColumn } from "@tuja/ui/components/navigation-split-view";
 import { useSearchParams } from "next/navigation";
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode, type RefObject } from "react";
 import { UnbackedTransactionNotice } from "../accounts/bank-balance-notice.tsx";
 import {
   readNewTransaction,
@@ -18,15 +18,19 @@ import { useReplica } from "../replica/use-replica.ts";
 import { DrawnAfterRest } from "../shell/drawn-after-rest.tsx";
 import { PaneSheet } from "../shell/pane-sheet.tsx";
 import { focusRow } from "../transactions/focus-row.ts";
-import { QuickAdd } from "../transactions/quick-add.tsx";
-import { transactionFilters } from "../transactions/transaction-filters.ts";
+import { QuickAddField, useReaderNote } from "../transactions/quick-add.tsx";
+import {
+  transactionFilters,
+  type TransactionKind,
+} from "../transactions/transaction-filters.ts";
+import { useQuickAddInterpretation } from "../transactions/use-quick-add-interpretation.ts";
 import { useTeachAi } from "../transactions/use-teach-ai.tsx";
-import type { EditorDraft } from "./editor-draft.ts";
 import { TransactionEditorSkeleton } from "./transaction-editor-skeleton.tsx";
 import {
   TransactionEditor,
   type EditorFocusTarget,
   type EditorHost,
+  type EditorSeed,
 } from "./transaction-editor.tsx";
 
 /** The screen that a Transaction task opens over. */
@@ -43,8 +47,8 @@ export interface TransactionTask {
   detail: (transactionId: string) => ReactNode;
   /** The new Transaction of the URL (`?new=`) in a sheet. Put it outside the `NavigationSplitView`. */
   sheet: ReactNode;
-  /** Opens a new Transaction, filled in with `draft` when it is given, such as from quick add. */
-  openNew: (draft?: EditorDraft) => void;
+  /** Opens a new Transaction, filled in with `seed` when it is given, such as from quick add. */
+  openNew: (seed?: EditorSeed) => void;
   /** Opens `transactionId` in the detail column, with focus on `focus` in its editor when it is given. */
   open: (transactionId: string, focus?: EditorFocusTarget) => void;
   /** Closes what is open, and gives focus back to the row of the Transaction that was open. */
@@ -103,10 +107,11 @@ function inDetail(
  * to the Transaction. On Transactions the open Transaction and a new one
  * take one place, so a new one replaces what is open, and one close leaves
  * it. Quick add gives its draft through `openNew`, and the editor then
- * moves focus to the first field the draft leaves empty. In the sheet, a
- * new Transaction that is not a refund has its own quick add line under the
- * heading, which has focus while the form is blank. A line that saves
- * closes the sheet; a line that is not enough fills the form in place.
+ * moves focus to the seed's field, or the first field the draft leaves
+ * empty. In the sheet, a new Transaction that is not a refund has its own
+ * quick add line under the heading, which has focus while the form is
+ * blank. Each reading of the line fills the fields the Member has not
+ * touched, and Enter in the line saves the form.
  */
 export function useTransactionTask(
   context: TransactionTaskContext,
@@ -117,7 +122,7 @@ export function useTransactionTask(
   const bootstrapped = useReplica((snapshot) => snapshot.bootstrapped);
   const teach = useTeachAi();
   const [seed, setSeed] = useState<{
-    draft: EditorDraft;
+    seed: EditorSeed;
     nonce: number;
   } | null>(null);
   const [focusRequest, setFocusRequest] =
@@ -131,8 +136,8 @@ export function useTransactionTask(
   const openOver = isOneOpen ? navigator.replace : navigator.open;
   const accountId = context.screen === "netWorth" ? context.account : null;
 
-  const startNew = (next: NewTransaction, draft?: EditorDraft) => {
-    setSeed(draft ? { draft, nonce: Date.now() } : null);
+  const startNew = (next: NewTransaction, given?: EditorSeed) => {
+    setSeed(given ? { seed: given, nonce: Date.now() } : null);
     setFocusRequest(undefined);
     openOver({ ...screenOf(context), newTransaction: next });
   };
@@ -148,10 +153,6 @@ export function useTransactionTask(
     setSeed(null);
     navigator.close({ screen: "current" });
   };
-  const fillSheet = (draft: EditorDraft) => {
-    setSeed({ draft, nonce: Date.now() });
-    setFocusRequest(undefined);
-  };
   const hasQuickAdd = newTransaction?.refundOf == null;
   const isQuickAddFocused =
     hasQuickAdd && seed === null && focusRequest === undefined;
@@ -160,7 +161,9 @@ export function useTransactionTask(
       focusRequest ??
       (seed
         ? {
-            target: seed.draft.amountText === "" ? "amount" : "category",
+            target:
+              seed.seed.focus ??
+              (seed.seed.draft.amountText === "" ? "amount" : "category"),
             nonce: seed.nonce,
           }
         : isQuickAddFocused
@@ -226,24 +229,14 @@ export function useTransactionTask(
           initialFocusRef={focusTargetRef}
         >
           {newTransaction !== null && bootstrapped ? (
-            <TransactionEditor
+            <NewTransactionEditor
               key={`${newTransaction.kind}-${newTransaction.refundOf ?? ""}-${accountId ?? ""}-${String(seed?.nonce ?? 0)}`}
-              transactionId={null}
-              initialKind={newTransaction.kind}
+              kind={newTransaction.kind}
               refundOfId={newTransaction.refundOf}
-              initialAccountId={accountId}
-              seedDraft={seed?.draft}
-              lead={
-                hasQuickAdd ? (
-                  <QuickAdd
-                    focusTargetRef={
-                      isQuickAddFocused ? focusTargetRef : undefined
-                    }
-                    onNeedsEditor={fillSheet}
-                    onSaved={closeSheet}
-                  />
-                ) : null
-              }
+              accountId={accountId}
+              seed={seed?.seed}
+              hasQuickAdd={hasQuickAdd}
+              quickAddFocusRef={isQuickAddFocused ? focusTargetRef : undefined}
               host={sheetHost}
             />
           ) : null}
@@ -251,8 +244,8 @@ export function useTransactionTask(
         {teach.sheet}
       </>
     ),
-    openNew: (draft) => {
-      startNew({ kind: draft?.kind ?? "expense" }, draft);
+    openNew: (given) => {
+      startNew({ kind: given?.draft.kind ?? "expense" }, given);
     },
     open: (transactionId, focus) => {
       setFocusRequest((previous) =>
@@ -268,6 +261,68 @@ export function useTransactionTask(
       if (openId !== null) focusRow(openId);
     },
   };
+}
+
+interface NewTransactionEditorProps {
+  kind: TransactionKind;
+  refundOfId: string | null | undefined;
+  accountId: string | null;
+  seed: EditorSeed | undefined;
+  hasQuickAdd: boolean;
+  /** Gives the quick add line focus when it mounts. */
+  quickAddFocusRef: RefObject<HTMLElement | null> | undefined;
+  host: EditorHost;
+}
+
+/** The editor of a new Transaction, with the quick add line whose readings fill it. */
+function NewTransactionEditor({
+  kind,
+  refundOfId,
+  accountId,
+  seed,
+  hasQuickAdd,
+  quickAddFocusRef,
+  host,
+}: NewTransactionEditorProps) {
+  const [text, setText] = useState("");
+  const reading = useQuickAddInterpretation(text);
+  const note = useReaderNote(reading.interpretation);
+  const reads = t({ en: "Reading…", zh: "识别中…" });
+  return (
+    <TransactionEditor
+      transactionId={null}
+      initialKind={kind}
+      refundOfId={refundOfId}
+      initialAccountId={accountId}
+      seed={seed}
+      interpretation={hasQuickAdd ? reading.interpretation : null}
+      lead={
+        hasQuickAdd ? (
+          <QuickAddField
+            text={text}
+            onTextChange={setText}
+            reading={reading}
+            status={
+              reading.isCurrent
+                ? note
+                : [note, reads].filter((part) => part !== "").join(" · ")
+            }
+            focusTargetRef={quickAddFocusRef}
+            onEnter={(input) => {
+              input.form?.requestSubmit();
+            }}
+          />
+        ) : null
+      }
+      host={{
+        ...host,
+        afterSave: (transactionId, andNew) => {
+          setText("");
+          host.afterSave(transactionId, andNew);
+        },
+      }}
+    />
+  );
 }
 
 /** The new Transaction sheet of a screen with no Transaction of its own, such as Analytics. */

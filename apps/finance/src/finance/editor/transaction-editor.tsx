@@ -56,6 +56,8 @@ import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
 import type { EntryRow, TransactionRow } from "../sync/row-schemas.ts";
 import { detectRecurring } from "../transactions/detect-recurring.ts";
+import { fillFromInterpretation } from "../transactions/fill-from-interpretation.ts";
+import type { QuickAddInterpretation } from "../transactions/interpret-quick-add.ts";
 import { isInReview } from "../transactions/is-in-review.ts";
 import { reviewReason } from "../transactions/review-reason.ts";
 import { ruleFromTransaction } from "../transactions/rule-from-transaction.ts";
@@ -74,17 +76,35 @@ import {
   usualTransferSource,
 } from "./draft-of-transaction.ts";
 import type { EditorDraft, EditorError, EditorField } from "./editor-draft.ts";
-import { FieldLabel } from "./field-label.tsx";
+import { FieldLabel, MarkBadge, type LabelMark } from "./field-label.tsx";
 import { findDuplicate, latestValuationFrom } from "./find-duplicate.ts";
 import { InstalmentPanel } from "./instalment-panel.tsx";
-import { prefillFromPayee, type PrefillField } from "./prefill-from-payee.ts";
+import {
+  MARKED_FIELDS,
+  missingFields,
+  type FieldMarks,
+  type MarkedField,
+  type RequiredField,
+} from "./marked-fields.ts";
+import { prefillFromPayee } from "./prefill-from-payee.ts";
 import { rankPayees } from "./rank-payees.ts";
 import { ruleDeclines } from "./rule-declines.ts";
 import { TagPicker } from "./tag-picker.tsx";
 import { topCategories } from "./top-categories.ts";
 import { useEditorData, type EditorData } from "./use-editor-data.ts";
 
-export type EditorFocusTarget = "amount" | "category";
+export type EditorFocusTarget = RequiredField;
+
+/** A new Transaction filled in already, such as from quick add. */
+export interface EditorSeed {
+  draft: EditorDraft;
+  /** Where the filled fields came from. */
+  marks?: FieldMarks;
+  /** Fields the Member set, which a later reading of quick add keeps. */
+  touched?: readonly MarkedField[];
+  /** The field that takes focus; without it, the first field the draft leaves empty. */
+  focus?: EditorFocusTarget;
+}
 
 /**
  * What the host of the editor does for it. `useTransactionTask` gives each
@@ -125,8 +145,13 @@ interface TransactionEditorProps {
    * open. A Payee's last account does not replace it.
    */
   initialAccountId?: string | null;
-  /** The fields of a new Transaction filled in already, such as from quick add. */
-  seedDraft?: EditorDraft | null;
+  /** A new Transaction filled in already, such as from quick add. */
+  seed?: EditorSeed | null;
+  /**
+   * What the quick add line in `lead` means now. Each new reading fills the
+   * fields the Member has not touched.
+   */
+  interpretation?: QuickAddInterpretation | null;
   /** A notice under the headline, such as one about the bank's records. */
   notice?: ReactNode;
   /** What the form starts with under its heading, such as a quick add line. */
@@ -152,11 +177,11 @@ function initialDraft(
   transactionId: string | null,
   kind: TransactionKind,
   refundOfId: string | null,
-  seedDraft: EditorDraft | null,
+  seed: EditorSeed | null,
   accountId: string | null,
 ) {
   if (transactionId !== null) return draftOfTransaction(data, transactionId);
-  if (seedDraft) return seedDraft;
+  if (seed) return seed.draft;
   if (refundOfId) {
     const refund = draftOfRefund(data, refundOfId);
     if (refund) return refund;
@@ -173,13 +198,13 @@ function initialDraft(
  */
 export function TransactionEditor(props: TransactionEditorProps) {
   const data = useEditorData();
-  const [draft, setDraft] = useState<EditorDraft | null>(() =>
+  const [draft] = useState<EditorDraft | null>(() =>
     initialDraft(
       data,
       props.transactionId,
       props.initialKind ?? "expense",
       props.refundOfId ?? null,
-      props.seedDraft ?? null,
+      props.seed ?? null,
       props.initialAccountId ?? null,
     ),
   );
@@ -208,27 +233,26 @@ export function TransactionEditor(props: TransactionEditorProps) {
       </div>
     );
   }
-  return (
-    <EditorForm {...props} data={data} draft={draft} setDraft={setDraft} />
-  );
+  return <EditorForm {...props} data={data} initialDraft={draft} />;
 }
 
 interface EditorFormProps extends TransactionEditorProps {
   data: EditorData;
-  draft: EditorDraft;
-  setDraft: (draft: EditorDraft) => void;
+  initialDraft: EditorDraft;
 }
 
 function EditorForm({
   data,
-  draft,
-  setDraft,
+  initialDraft,
   transactionId,
   initialAccountId,
+  seed,
+  interpretation,
   notice,
   lead,
   host,
 }: EditorFormProps) {
+  const [draft, setDraft] = useState(initialDraft);
   const locale = useLocale();
   const store = useReplicaStore();
   const undoable = useUndoToast();
@@ -240,10 +264,23 @@ function EditorForm({
         ? ["account"]
         : [],
     );
-  const [touched, setTouched] = useState(presetTouched);
-  const [fromLast, setFromLast] = useState<ReadonlySet<PrefillField>>(
-    () => new Set(),
+  const [touched, setTouched] = useState<ReadonlySet<string>>(
+    () => new Set([...presetTouched(), ...(seed?.touched ?? [])]),
   );
+  const [marks, setMarks] = useState<FieldMarks>(() => seed?.marks ?? {});
+  const [appliedId, setAppliedId] = useState<number | null>(null);
+  if (interpretation && interpretation.id !== appliedId) {
+    setAppliedId(interpretation.id);
+    const filled = fillFromInterpretation(
+      data,
+      draft,
+      marks,
+      touched,
+      interpretation,
+    );
+    setDraft(filled.draft);
+    setMarks(filled.marks);
+  }
   const [errors, setErrors] = useState<
     Partial<Record<EditorField, EditorError>>
   >({});
@@ -289,8 +326,12 @@ function EditorForm({
       return;
     }
     const target = focusRequest?.target ?? "amount";
-    const element =
-      target === "amount" ? amountRef.current : categoryRef.current;
+    const element = {
+      amount: amountRef.current,
+      category: categoryRef.current,
+      account: accountRef.current,
+      toAccount: toAccountRef.current,
+    }[target];
     if (focusTargetRef) focusTargetRef.current = element;
     // In a sheet, the card can still be below the screen. A focus that
     // scrolls would then move the page behind it.
@@ -359,7 +400,14 @@ function EditorForm({
 
   const update = (fields: Partial<EditorDraft>, mark: string[] = []) => {
     setDraft({ ...draft, ...fields });
-    if (mark.length > 0) setTouched(new Set([...touched, ...mark]));
+    if (mark.length > 0) {
+      setTouched(new Set([...touched, ...mark]));
+      setMarks(
+        Object.fromEntries(
+          Object.entries(marks).filter(([field]) => !mark.includes(field)),
+        ),
+      );
+    }
     if (Object.keys(errors).length > 0) setErrors({});
     if (duplicate) setDuplicate(null);
     setFailure(null);
@@ -405,7 +453,7 @@ function EditorForm({
       ruleTemplate: data.rules.find((rule) => rule.template.payeeId === payeeId)
         ?.template,
     });
-    const applied = new Set<PrefillField>();
+    const applied = new Set<MarkedField>();
     if (prefill.categoryId !== null && !touched.has("category")) {
       next.categoryId = prefill.categoryId;
       if (prefill.fromLastTime.has("category")) applied.add("category");
@@ -439,8 +487,15 @@ function EditorForm({
       );
       if (prefill.fromLastTime.has("paysDown")) applied.add("paysDown");
     }
-    setFromLast(applied);
+    const nextMarks: FieldMarks = { ...marks, payee: undefined };
+    for (const field of MARKED_FIELDS) {
+      if (nextMarks[field]?.source === "lastTime") nextMarks[field] = undefined;
+    }
+    for (const field of applied) {
+      nextMarks[field] = { source: "lastTime", unsure: false };
+    }
     update(next, ["payee"]);
+    setMarks(nextMarks);
   };
 
   const payeeOptions: ComboboxOption[] = rankPayees(
@@ -624,9 +679,9 @@ function EditorForm({
     if (!result.ok) {
       setErrors(result.errors);
       if (result.errors.amount) amountRef.current?.focus();
+      else if (result.errors.category) categoryRef.current?.focus();
       else if (result.errors.account) accountRef.current?.focus();
       else if (result.errors.toAccount) toAccountRef.current?.focus();
-      else if (result.errors.category) categoryRef.current?.focus();
       else if (result.errors.paysDown) paysDownRef.current?.focus();
       else if (result.errors.paysDownAmount) {
         paysDownAmountRef.current?.focus();
@@ -675,7 +730,7 @@ function EditorForm({
         memberId: draft.memberId,
       });
       setTouched(presetTouched());
-      setFromLast(new Set());
+      setMarks({});
       setDuplicate(null);
       amountRef.current?.focus();
     }
@@ -860,6 +915,49 @@ function EditorForm({
       : draft.payeeName.trim() ||
         draft.note.trim() ||
         (draftCategory ? categoryName(draftCategory) : kindNames[draft.kind]);
+  const missing = interpretation || seed?.marks ? missingFields(draft) : [];
+  const runnerUpLabel = (field: MarkedField, value: string) => {
+    switch (field) {
+      case "kind":
+        return value === "expense" || value === "income" || value === "transfer"
+          ? kindNames[value]
+          : undefined;
+      case "category": {
+        const category = data.lookups.categoryById.get(value);
+        return category ? categoryName(category) : undefined;
+      }
+      case "account":
+      case "toAccount":
+      case "paysDown":
+        return data.lookups.accountLabelById.get(value);
+      case "member":
+        return data.lookups.memberById.get(value)?.name;
+      case "date":
+        return displayDay(value, locale, "weekday");
+      case "amount":
+      case "payee":
+      case "tags":
+        return value;
+    }
+  };
+  const labelMark = (field: MarkedField): LabelMark | undefined => {
+    if (missing.some((required) => required === field)) {
+      return { type: "missing" };
+    }
+    const mark = marks[field];
+    if (!mark) return undefined;
+    if (mark.unsure) {
+      const runnerUp =
+        mark.runnerUp === undefined
+          ? undefined
+          : runnerUpLabel(field, mark.runnerUp);
+      return runnerUp === undefined
+        ? { type: "unsure" }
+        : { type: "unsure", runnerUp };
+    }
+    return mark.source === "rules" ? undefined : { type: mark.source };
+  };
+  const kindMark = labelMark("kind");
   const saveLabel = paidToday
     ? t({ en: "Paid today", zh: "今天已付" })
     : isExpected
@@ -921,13 +1019,16 @@ function EditorForm({
           </span>
         </h2>
       ) : (
-        <h2
-          id="finance-editor-heading"
-          tabIndex={-1}
-          css={[typeRole.h4, a11y.focusRing]}
-        >
-          {heading}
-        </h2>
+        <div css={cluster.tight}>
+          <h2
+            id="finance-editor-heading"
+            tabIndex={-1}
+            css={[typeRole.h4, a11y.focusRing]}
+          >
+            {heading}
+          </h2>
+          {kindMark ? <MarkBadge mark={kindMark} /> : null}
+        </div>
       )}
 
       {lead}
@@ -1013,32 +1114,37 @@ function EditorForm({
           }}
         />
 
-        <TextField
-          ref={amountRef}
-          label={amountLabel}
-          size="lg"
-          inputMode="decimal"
-          autoComplete="off"
-          enterKeyHint="done"
-          leading={currencySymbol(currency, locale)}
-          value={draft.amountText}
-          error={errorOf("amount")}
-          css={[typeModifier.numeric, styles.amount]}
-          onChange={(event) => {
-            const amountText = event.target.value;
-            update(
-              needsToAmount && !touched.has("toAmount")
-                ? {
-                    amountText,
-                    toAmountText: convertedToAmount(
+        <div css={stack.tight}>
+          <FieldLabel mark={labelMark("amount")}>{amountLabel}</FieldLabel>
+          <TextField
+            ref={amountRef}
+            label={amountLabel}
+            labelHidden
+            size="lg"
+            inputMode="decimal"
+            autoComplete="off"
+            enterKeyHint="done"
+            leading={currencySymbol(currency, locale)}
+            value={draft.amountText}
+            error={errorOf("amount")}
+            css={[typeModifier.numeric, styles.amount]}
+            onChange={(event) => {
+              const amountText = event.target.value;
+              update(
+                needsToAmount && !touched.has("toAmount")
+                  ? {
                       amountText,
-                      draft.toAccountId,
-                    ),
-                  }
-                : { amountText },
-            );
-          }}
-        />
+                      toAmountText: convertedToAmount(
+                        amountText,
+                        draft.toAccountId,
+                      ),
+                    }
+                  : { amountText },
+                ["amount"],
+              );
+            }}
+          />
+        </div>
 
         {draft.kind === "expense" ? (
           <div css={stack.tight}>
@@ -1091,42 +1197,54 @@ function EditorForm({
 
       {draft.kind === "transfer" ? (
         <div css={stack.item}>
-          <Select
-            ref={accountRef}
-            label={t({ en: "From", zh: "转出账户" })}
-            value={draft.accountId ?? ""}
-            placeholder={t({ en: "Choose an account", zh: "选择账户" })}
-            error={errorOf("account")}
-            onChange={(event) => {
-              update({ accountId: event.target.value || null }, ["account"]);
-            }}
-          >
-            {accountSelectChildren}
-          </Select>
-          <Select
-            ref={toAccountRef}
-            label={t({ en: "To", zh: "转入账户" })}
-            value={draft.toAccountId ?? ""}
-            placeholder={t({ en: "Choose an account", zh: "选择账户" })}
-            error={errorOf("toAccount")}
-            onChange={(event) => {
-              const toAccountId = event.target.value || null;
-              update(
-                touched.has("toAmount")
-                  ? { toAccountId }
-                  : {
-                      toAccountId,
-                      toAmountText: convertedToAmount(
-                        draft.amountText,
+          <div css={stack.tight}>
+            <FieldLabel mark={labelMark("account")}>
+              {t({ en: "From", zh: "转出账户" })}
+            </FieldLabel>
+            <Select
+              ref={accountRef}
+              label={t({ en: "From", zh: "转出账户" })}
+              labelHidden
+              value={draft.accountId ?? ""}
+              placeholder={t({ en: "Choose an account", zh: "选择账户" })}
+              error={errorOf("account")}
+              onChange={(event) => {
+                update({ accountId: event.target.value || null }, ["account"]);
+              }}
+            >
+              {accountSelectChildren}
+            </Select>
+          </div>
+          <div css={stack.tight}>
+            <FieldLabel mark={labelMark("toAccount")}>
+              {t({ en: "To", zh: "转入账户" })}
+            </FieldLabel>
+            <Select
+              ref={toAccountRef}
+              label={t({ en: "To", zh: "转入账户" })}
+              labelHidden
+              value={draft.toAccountId ?? ""}
+              placeholder={t({ en: "Choose an account", zh: "选择账户" })}
+              error={errorOf("toAccount")}
+              onChange={(event) => {
+                const toAccountId = event.target.value || null;
+                update(
+                  touched.has("toAmount")
+                    ? { toAccountId }
+                    : {
                         toAccountId,
-                      ),
-                    },
-                ["toAccount"],
-              );
-            }}
-          >
-            {toAccountSelectChildren}
-          </Select>
+                        toAmountText: convertedToAmount(
+                          draft.amountText,
+                          toAccountId,
+                        ),
+                      },
+                  ["toAccount"],
+                );
+              }}
+            >
+              {toAccountSelectChildren}
+            </Select>
+          </div>
           {needsToAmount ? (
             <TextField
               label={t({ en: "Amount received", zh: "转入金额" })}
@@ -1149,8 +1267,12 @@ function EditorForm({
       ) : (
         <div css={stack.item}>
           <div css={stack.tight}>
+            <FieldLabel mark={labelMark("payee")}>
+              {t({ en: "Payee", zh: "商家" })}
+            </FieldLabel>
             <Combobox
               label={t({ en: "Payee", zh: "商家" })}
+              labelHidden
               value={draft.payeeName}
               options={payeeOptions}
               placeholder={t({
@@ -1162,10 +1284,13 @@ function EditorForm({
                 const chosen = data.payees.find(
                   (payee) => payee.id === draft.payeeId,
                 );
-                update({
-                  payeeName,
-                  payeeId: chosen?.name === payeeName ? chosen.id : null,
-                });
+                update(
+                  {
+                    payeeName,
+                    payeeId: chosen?.name === payeeName ? chosen.id : null,
+                  },
+                  ["payee"],
+                );
                 if (suggestState !== "idle") setSuggestState("idle");
               }}
               onSelect={(option) => {
@@ -1204,19 +1329,16 @@ function EditorForm({
             emojiById={data.lookups.categoryEmojiById}
             topIds={topIds}
             value={draft.categoryId}
-            fromLastTime={fromLast.has("category")}
+            mark={labelMark("category")}
             error={errorOf("category")}
             firstChipRef={categoryRef}
             onChange={(categoryId) => {
               update({ categoryId }, ["category"]);
-              setFromLast(
-                new Set([...fromLast].filter((field) => field !== "category")),
-              );
             }}
           />
 
           <div css={stack.tight}>
-            <FieldLabel fromLastTime={fromLast.has("account")}>
+            <FieldLabel mark={labelMark("account")}>
               {t({ en: "Account", zh: "账户" })}
             </FieldLabel>
             <Select
@@ -1235,9 +1357,6 @@ function EditorForm({
                   fields.memberId = owner;
                 }
                 update(fields, ["account"]);
-                setFromLast(
-                  new Set([...fromLast].filter((field) => field !== "account")),
-                );
               }}
             >
               {accountSelectChildren}
@@ -1253,7 +1372,7 @@ function EditorForm({
               <span css={[flex.between, styles.paysDownHeader]}>
                 <FieldLabel
                   id="finance-editor-pays-down"
-                  fromLastTime={fromLast.has("paysDown")}
+                  mark={labelMark("paysDown")}
                 >
                   {paysDownAccount?.kind === "receivable"
                     ? t({ en: "Also adds to", zh: "同时计入" })
@@ -1353,6 +1472,7 @@ function EditorForm({
         <DateChips
           value={draft.date}
           today={data.today}
+          mark={labelMark("date")}
           onChange={(date) => {
             update({ date }, ["date"]);
           }}
@@ -1375,10 +1495,7 @@ function EditorForm({
             aria-labelledby="finance-editor-member"
             css={stack.tight}
           >
-            <FieldLabel
-              id="finance-editor-member"
-              fromLastTime={fromLast.has("member")}
-            >
+            <FieldLabel id="finance-editor-member" mark={labelMark("member")}>
               {t({ en: "Member", zh: "成员" })}
             </FieldLabel>
             <div css={cluster.tight}>
@@ -1389,11 +1506,6 @@ function EditorForm({
                   isActive={draft.memberId === member.id}
                   onClick={() => {
                     update({ memberId: member.id }, ["member"]);
-                    setFromLast(
-                      new Set(
-                        [...fromLast].filter((field) => field !== "member"),
-                      ),
-                    );
                   }}
                 >
                   {member.name}
@@ -1406,12 +1518,9 @@ function EditorForm({
         <TagPickerSlot
           data={data}
           value={draft.tagIds}
-          fromLastTime={fromLast.has("tags")}
+          mark={labelMark("tags")}
           onChange={(tagIds) => {
             update({ tagIds }, ["tags"]);
-            setFromLast(
-              new Set([...fromLast].filter((field) => field !== "tags")),
-            );
           }}
         />
 
@@ -1619,12 +1728,12 @@ function EditorForm({
 function TagPickerSlot({
   data,
   value,
-  fromLastTime,
+  mark,
   onChange,
 }: {
   data: EditorData;
   value: readonly string[];
-  fromLastTime: boolean;
+  mark?: LabelMark;
   onChange: (tagIds: string[]) => void;
 }) {
   const store = useReplicaStore();
@@ -1632,7 +1741,7 @@ function TagPickerSlot({
     <TagPicker
       tags={data.tags}
       value={value}
-      fromLastTime={fromLastTime}
+      mark={mark}
       onChange={onChange}
       onCreate={(name) => {
         const id = crypto.randomUUID();

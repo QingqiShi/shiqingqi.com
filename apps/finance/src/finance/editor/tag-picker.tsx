@@ -7,7 +7,7 @@ import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { useId, useState } from "react";
 import type { TagRow } from "../sync/row-schemas.ts";
 import { Combobox } from "./combobox.tsx";
-import { FieldLabel } from "./field-label.tsx";
+import { FieldLabel, type LabelMark } from "./field-label.tsx";
 import { normalisePayeeText } from "./rank-payees.ts";
 
 interface TagPickerProps {
@@ -16,7 +16,7 @@ interface TagPickerProps {
   onChange: (tagIds: string[]) => void;
   /** Makes a new Tag and returns its id. */
   onCreate: (name: string) => string;
-  fromLastTime: boolean;
+  mark?: LabelMark;
 }
 
 /** Tags as removable chips, and a field with typeahead to add one or make a new one. */
@@ -25,7 +25,7 @@ export function TagPicker({
   value,
   onChange,
   onCreate,
-  fromLastTime,
+  mark,
 }: TagPickerProps) {
   const labelId = useId();
   const [text, setText] = useState("");
@@ -50,7 +50,7 @@ export function TagPicker({
 
   return (
     <div role="group" aria-labelledby={labelId} css={stack.tight}>
-      <FieldLabel id={labelId} fromLastTime={fromLastTime}>
+      <FieldLabel id={labelId} mark={mark}>
         {t({ en: "Tags", zh: "标签" })}
       </FieldLabel>
       {value.length > 0 ? (

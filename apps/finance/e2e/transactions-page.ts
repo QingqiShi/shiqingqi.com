@@ -70,6 +70,18 @@ export async function openTransactions(page: Page, path = "/transactions") {
   ).toBeVisible();
 }
 
+/**
+ * Types `line` into quick add and presses Enter once quick add shows what
+ * the line means: an Enter before that only asks for the reading. E2E has
+ * no AI model, so the rules read the line after the endpoint refuses.
+ */
+export async function quickAddLine(page: Page, line: string) {
+  const quickAdd = page.getByRole("textbox", { name: "Quick add" });
+  await quickAdd.fill(line);
+  await expect(quickAdd).toHaveAttribute("aria-busy", "false");
+  await quickAdd.press("Enter");
+}
+
 /** The `+ Add` action: in the rail at `md` and wider, floating below. */
 export async function openNewExpense(page: Page) {
   await page.getByRole("link", { name: "Add", exact: true }).click();
