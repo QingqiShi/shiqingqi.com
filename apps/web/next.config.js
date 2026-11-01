@@ -41,6 +41,14 @@ module.exports = async (phase) => {
       // production this way). Build cold until the cache can track those
       // hidden inputs.
       turbopackFileSystemCacheForBuild: false,
+      // Lightning CSS changes `light-dark()` into `var()` fallbacks that
+      // resolve where each token is declared, on the root. Then a
+      // `color-scheme` on a subtree, such as a ThemeFrame, does not change
+      // the tokens in it. Keep `light-dark()` native, so that each token
+      // resolves on the element that uses it. `serwist build` loads this
+      // file without Turbopack and warns that the option needs
+      // `useLightningcss`. Turbopack does not need it, so ignore the warning.
+      lightningCssFeatures: { exclude: ["light-dark"] },
     },
     transpilePackages: ["@tuja/i18n", "@tuja/ui"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),

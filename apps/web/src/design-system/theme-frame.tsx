@@ -87,6 +87,9 @@ const styles = stylex.create({
     paddingBlock: space._4,
     paddingInline: space._4,
     backgroundColor: color.bgCanvas,
+    // Text inherits `color` from the body with the page's scheme already
+    // applied. Set it again here, so that it resolves in the frame's scheme.
+    color: color.fg,
     boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
   },
