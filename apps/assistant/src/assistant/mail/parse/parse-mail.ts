@@ -141,3 +141,14 @@ export async function parseMail(message: FetchedMessage): Promise<ParsedMail> {
     snippet: storable(cleanSnippet(body)),
   };
 }
+
+/** `parseMail`, but a source that does not parse keeps the envelope, so that it never stops a cursor. */
+export async function parseMailSafely(
+  message: FetchedMessage,
+): Promise<ParsedMail> {
+  try {
+    return await parseMail(message);
+  } catch {
+    return parseMail({ ...message, source: new Uint8Array() });
+  }
+}

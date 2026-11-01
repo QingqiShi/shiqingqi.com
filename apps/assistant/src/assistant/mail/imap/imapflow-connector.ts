@@ -114,6 +114,14 @@ export const imapflowConnector: MailboxConnector = async (server, auth) => {
       // `n:*` matches the newest message even when its UID is below n.
       return ascending(found).filter((found) => found > uid);
     },
+    async listUidsBetween(low, high) {
+      if (high < low) return [];
+      const found = await client.search(
+        { uid: `${String(low)}:${String(high)}` },
+        { uid: true },
+      );
+      return ascending(found).filter((uid) => uid >= low && uid <= high);
+    },
     async listUidsSince(since) {
       return ascending(await client.search({ since }, { uid: true }));
     },

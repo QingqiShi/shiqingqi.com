@@ -69,42 +69,37 @@ export async function askClassifier(
   return result.output;
 }
 
-/**
- * Classifies one mail: the header rules first, then the model, then the
- * truth table. It is null when the mail needs the model and there is none.
- * A failing model call throws.
- */
-export async function classifyMail(
-  mail: MailToClassify,
-  context: ClassifyContext,
-  model: AssistantModel | null,
-): Promise<Classification | null> {
-  const { signals, rule } = readHeaderRules(mail);
-  if (rule) {
-    return {
-      bucket: "fyi",
-      categoryId: null,
-      decidedBy: "rule",
-      reason: `rule:${rule}`,
-      senderRuleId: null,
-      facts: null,
-      summary: null,
-      event: null,
-      modelId: null,
-      promptVersion: null,
-    };
-  }
-  if (!model) return null;
+/** The classification of a mail that a header rule decides, so that the model need not read it; else null. */
+export function classifyByHeaders(mail: MailForRules): Classification | null {
+  const { rule } = readHeaderRules(mail);
+  if (!rule) return null;
+  return {
+    bucket: "fyi",
+    categoryId: null,
+    decidedBy: "rule",
+    reason: `rule:${rule}`,
+    senderRuleId: null,
+    facts: null,
+    summary: null,
+    event: null,
+    modelId: null,
+    promptVersion: null,
+  };
+}
 
-  const { summary, event, ...answers } = await askClassifier(
-    model,
-    mail,
-    context,
-  );
+/** Turns the model's answer about a mail into a classification with the truth table. */
+export function classificationOf(
+  mail: MailToClassify,
+  output: ClassifyOutput,
+  context: ClassifyContext,
+  model: { id: string; promptVersion: number },
+): Classification {
+  const { summary, event, ...answers } = output;
   const facts: MailFacts = {
     ...answers,
     dueDate: readDueDate(answers.dueDate),
   };
+  const { signals } = readHeaderRules(mail);
   const senderRule = matchSenderRule(mail.fromAddress, context.senderRules);
   const decision = decideBucket({
     facts,
@@ -126,6 +121,26 @@ export async function classifyMail(
     summary: line === "" ? null : line.slice(0, MAX_SUMMARY_LENGTH),
     event: readEvent(event, context.timeZone),
     modelId: model.id,
-    promptVersion: classifyPrompt.version,
+    promptVersion: model.promptVersion,
   };
+}
+
+/**
+ * Classifies one mail: the header rules first, then the model, then the
+ * truth table. It is null when the mail needs the model and there is none.
+ * A failing model call throws.
+ */
+export async function classifyMail(
+  mail: MailToClassify,
+  context: ClassifyContext,
+  model: AssistantModel | null,
+): Promise<Classification | null> {
+  const byHeaders = classifyByHeaders(mail);
+  if (byHeaders) return byHeaders;
+  if (!model) return null;
+  const output = await askClassifier(model, mail, context);
+  return classificationOf(mail, output, context, {
+    id: model.id,
+    promptVersion: classifyPrompt.version,
+  });
 }

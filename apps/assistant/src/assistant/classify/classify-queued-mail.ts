@@ -5,6 +5,7 @@ import {
   mailCategories,
   mailClassifications,
   mailMessages,
+  mailSentRecipients,
   userSettings,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
@@ -115,14 +116,21 @@ export async function readClassifyContext(
 }
 
 /**
- * True when the user has answered mail from `address`: some stored mail
- * from it has the `\Answered` flag.
+ * True when the user has written to `address`: history import found it
+ * among the recipients of the sent folders, or some stored mail from it
+ * has the `\Answered` flag.
  */
 export async function isKnownCorrespondent(
   { db }: UserScope,
   address: string | null,
 ): Promise<boolean> {
   if (!address) return false;
+  const sentTo = await db
+    .select({ address: mailSentRecipients.address })
+    .from(mailSentRecipients)
+    .where(eq(mailSentRecipients.address, address))
+    .limit(1);
+  if (sentTo.length > 0) return true;
   const rows = await db
     .select({ id: mailMessages.id })
     .from(mailMessages)

@@ -69,6 +69,8 @@ export interface MailboxSession {
   ): Promise<OpenedFolder>;
   /** The UIDs above `uid` in the open folder, in ascending order. */
   listUidsAfter(uid: number): Promise<number[]>;
+  /** The UIDs from `low` to `high`, both included, in the open folder, ascending. */
+  listUidsBetween(low: number, high: number): Promise<number[]>;
   /** The UIDs of mail the open folder received on or after `since`, ascending. */
   listUidsSince(since: Date): Promise<number[]>;
   fetchMessages(uids: number[], maxBytes: number): Promise<FetchedMessage[]>;

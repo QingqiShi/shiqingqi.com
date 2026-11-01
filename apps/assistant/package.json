@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.89",
+    "@anthropic-ai/sdk": "1.3.0",
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@simplewebauthn/browser": "^14.0.0",

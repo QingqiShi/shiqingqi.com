@@ -9,6 +9,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   smallint,
   text,
   timestamp,
@@ -132,6 +133,8 @@ export const userSettings = pgTable(
     calendarEventsSince: timestamp("calendar_events_since", {
       withTimezone: true,
     }),
+    /** Off until the user starts it: then a cron stores and classifies the mail older than each account's connection. */
+    historyImport: boolean("history_import").notNull().default(false),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -227,6 +230,11 @@ export const mailFolders = pgTable(
     /** The highest UID when sync first saw the folder: mail at or below it is history. */
     cursorBaselineUid: bigint("cursor_baseline_uid", { mode: "number" }),
     syncedAt: timestamp("synced_at", { withTimezone: true }),
+    /** The UIDVALIDITY of the history walk; the walk starts again when it changes. */
+    historyUidValidity: bigint("history_uid_validity", { mode: "number" }),
+    /** History import has stored every UID above this one and goes on downward; 0 when it reached the oldest mail. */
+    historyNextUid: bigint("history_next_uid", { mode: "number" }),
+    historyDoneAt: timestamp("history_done_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [
@@ -357,12 +365,14 @@ export const MAIL_DECIDERS = [
   "rule",
   "sender_rule",
   "model",
+  /** History mail that the user had filed already: its folder's category, and no model. */
+  "folder",
   "failed",
 ] as const;
 export type MailDecider = (typeof MAIL_DECIDERS)[number];
 
 /**
- * What the classifier decided for one `live` mail. `decided_by` is `failed`
+ * What the classifier decided for one mail. `decided_by` is `failed`
  * while the model call fails; the classifier tries again until `attempts`
  * reaches its limit, and the bucket stays `unsure`.
  */
@@ -561,6 +571,85 @@ export const calendarWrites = pgTable("calendar_writes", {
   updatedAt: updatedAt(),
 });
 
+/**
+ * A request to the Anthropic Message Batches API that classifies history
+ * mail. The row exists before the API call, so a run that stops after it
+ * finds the batch again; `anthropic_batch_id` is null until the API took it.
+ */
+export const mailHistoryBatches = pgTable(
+  "mail_history_batches",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    anthropicBatchId: text("anthropic_batch_id").unique(),
+    modelId: text("model_id").notNull(),
+    promptVersion: integer("prompt_version").notNull(),
+    /** The category names that the request schema allowed, to read the answers with. */
+    categoryNames: text("category_names").array().notNull(),
+    requestCount: integer("request_count").notNull(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    /** The results are stored: the batch is finished. */
+    storedAt: timestamp("stored_at", { withTimezone: true }),
+    inputTokens: bigint("input_tokens", { mode: "number" })
+      .notNull()
+      .default(0),
+    outputTokens: bigint("output_tokens", { mode: "number" })
+      .notNull()
+      .default(0),
+    cacheReadTokens: bigint("cache_read_tokens", { mode: "number" })
+      .notNull()
+      .default(0),
+    cacheWriteTokens: bigint("cache_write_tokens", { mode: "number" })
+      .notNull()
+      .default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("mail_history_batches_open_idx")
+      .on(t.userId)
+      .where(sql`${t.storedAt} is null`),
+  ],
+);
+
+/**
+ * One history mail that waits for the model: queued while `batch_id` is
+ * null, in a batch while it is set. A stored answer deletes the row; a
+ * failed one puts it back in the queue until `failures` reaches the limit.
+ */
+export const mailHistoryJobs = pgTable(
+  "mail_history_jobs",
+  {
+    messageId: uuid("message_id")
+      .primaryKey()
+      .references(() => mailMessages.id, { onDelete: "cascade" }),
+    userId: userId(),
+    batchId: uuid("batch_id").references(() => mailHistoryBatches.id, {
+      onDelete: "set null",
+    }),
+    failures: smallint("failures").notNull().default(0),
+    lastError: text("last_error"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("mail_history_jobs_queue_idx").on(t.userId, t.batchId),
+    index("mail_history_jobs_batch_idx").on(t.batchId),
+  ],
+);
+
+/** An address that the user sent mail to, read from the sent folders by history import. */
+export const mailSentRecipients = pgTable(
+  "mail_sent_recipients",
+  {
+    userId: userId(),
+    /** Lower case. */
+    address: text("address").notNull(),
+    lastSentAt: timestamp("last_sent_at", { withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.address] })],
+);
+
 /** One device that gets the digest notification. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
@@ -594,5 +683,8 @@ export const schema = {
   mailWriteStates,
   calendarEvents,
   calendarWrites,
+  mailHistoryBatches,
+  mailHistoryJobs,
+  mailSentRecipients,
   pushSubscriptions,
 };
