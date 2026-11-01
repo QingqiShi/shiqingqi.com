@@ -1,19 +1,17 @@
 import { and, desc, eq, gt, isNull, lte, or, sql } from "drizzle-orm";
 import type { AssistantModel } from "#src/assistant/ai/get-classifier-model.ts";
 import {
-  DEFAULT_DIGEST_HOUR,
-  DEFAULT_TIME_ZONE,
   mailClassifications,
   mailDigests,
   mailMessages,
-  userSettings,
   type DigestArranger,
   type UserLocale,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { withUser, type UserScope } from "#src/assistant/db/with-user.ts";
+import { dueReportDate, localClock } from "../report/due-report-date.ts";
+import { readReportSettings } from "../report/read-report-settings.ts";
 import { arrangeDigest } from "./arrange-digest.ts";
-import { dueDigestDate, isTimeZone, localClock } from "./due-digest-date.ts";
 import type { DigestMail } from "./group-by-thread.ts";
 import type { DigestContent, DigestSection } from "./types.ts";
 
@@ -36,32 +34,6 @@ export interface BuiltDigest {
   arrangedBy: DigestArranger;
   locale: UserLocale;
   counts: Record<DigestSection, number>;
-}
-
-export interface DigestUserSettings {
-  timeZone: string;
-  digestHour: number;
-  locale: UserLocale;
-}
-
-export async function readDigestSettings({
-  db,
-}: UserScope): Promise<DigestUserSettings> {
-  const row = (
-    await db
-      .select({
-        timeZone: userSettings.timeZone,
-        digestHour: userSettings.digestHour,
-        locale: userSettings.locale,
-      })
-      .from(userSettings)
-  ).at(0);
-  return {
-    timeZone:
-      row && isTimeZone(row.timeZone) ? row.timeZone : DEFAULT_TIME_ZONE,
-    digestHour: row?.digestHour ?? DEFAULT_DIGEST_HOUR,
-    locale: row?.locale ?? "en",
-  };
 }
 
 const classified = {
@@ -176,7 +148,7 @@ export async function buildDigest(
 ): Promise<BuiltDigest | null> {
   const builtAt = deps.now();
   const plan = await withUser(db, userId, async (scope) => {
-    const settings = await readDigestSettings(scope);
+    const settings = await readReportSettings(scope);
     const latest = (
       await scope.db
         .select({
@@ -187,11 +159,11 @@ export async function buildDigest(
         .orderBy(desc(mailDigests.localDate))
         .limit(1)
     ).at(0);
-    const localDate = dueDigestDate({
+    const localDate = dueReportDate({
       now: builtAt,
       timeZone: settings.timeZone,
-      digestHour: settings.digestHour,
-      latestDigestDate: latest?.localDate ?? null,
+      reportHour: settings.digestHour,
+      latestReportDate: latest?.localDate ?? null,
     });
     if (!localDate) return null;
     const windowStart =

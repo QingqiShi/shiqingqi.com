@@ -33,6 +33,8 @@ export type FakeMailWrite =
 /** What a fake mail server saw, for tests that check what the app did to the mailbox. */
 export interface FakeMailServerLog {
   logins: number;
+  /** Each folder a session opened, and whether it opened it for writes. */
+  opened: { path: string; write: boolean }[];
   fetchedUids: number[];
   writes: FakeMailWrite[];
   createdFolders: string[];
@@ -64,6 +66,7 @@ export function createFakeMailServer({
   const folders = new Map<string, FakeFolder>();
   const log: FakeMailServerLog = {
     logins: 0,
+    opened: [],
     fetchedUids: [],
     writes: [],
     createdFolders: [],
@@ -199,6 +202,7 @@ export function createFakeMailServer({
       openFolder: (path, options) => {
         open = folderOf(path);
         writable = options?.write === true;
+        log.opened.push({ path, write: writable });
         return Promise.resolve({
           uidValidity: open.uidValidity,
           uidNext: open.uidNext,
@@ -216,10 +220,14 @@ export function createFakeMailServer({
             .messages.map((m) => m.uid)
             .filter((uid) => uid >= low && uid <= high),
         ),
-      listUidsSince: (since) =>
+      listUidsSince: (since, before) =>
         Promise.resolve(
           openFolder()
-            .messages.filter((m) => m.internalDate >= since)
+            .messages.filter(
+              (m) =>
+                m.internalDate >= since &&
+                (before === undefined || m.internalDate < before),
+            )
             .map((m) => m.uid),
         ),
       fetchMessages: async (uids, maxBytes) => {

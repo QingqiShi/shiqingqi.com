@@ -2,7 +2,6 @@ import { z } from "zod";
 import { USER_LOCALES, userSettings } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { withUser } from "#src/assistant/db/with-user.ts";
-import { isTimeZone } from "#src/assistant/digest/due-digest-date.ts";
 import {
   assistantJson,
   assistantNoContent,
@@ -14,6 +13,7 @@ import {
 import { ORGANISE_NOTES_MAX_CHARS } from "#src/assistant/organise/organise-notes-max-chars.ts";
 import { isPushServiceEndpoint } from "#src/assistant/push/is-push-service-endpoint.ts";
 import { pushDevices } from "#src/assistant/push/push-devices.ts";
+import { isTimeZone } from "#src/assistant/report/due-report-date.ts";
 
 const settingsBody = z.object({
   timeZone: z.string().max(64).refine(isTimeZone),

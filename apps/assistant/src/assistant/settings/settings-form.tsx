@@ -21,7 +21,7 @@ const HOURS = Array.from({ length: 24 }, (_, hour) => ({
   label: `${String(hour).padStart(2, "0")}:00`,
 }));
 
-/** The time zone, the digest hour and the digest's language. */
+/** The time zone, the hour and the language of the morning report. */
 export function SettingsForm({
   initial,
   timeZones,
@@ -65,8 +65,8 @@ export function SettingsForm({
       <Select
         label={t({ en: "Time zone", zh: "时区" })}
         description={t({
-          en: "The digest follows the clock of this zone, summer time included.",
-          zh: "摘要按这个时区的时间送达，包括夏令时。",
+          en: "The report follows the clock of this zone, summer time included. It covers the mail of the day before in this zone.",
+          zh: "晨报按这个时区的时间送达，包括夏令时，并以这个时区的“前一天”来读取邮件。",
         })}
         value={values.timeZone}
         options={timeZones.map((zone) => ({
@@ -78,10 +78,10 @@ export function SettingsForm({
         }}
       />
       <Select
-        label={t({ en: "Digest time", zh: "摘要时间" })}
+        label={t({ en: "Report time", zh: "晨报时间" })}
         description={t({
-          en: "The digest is ready within the hour.",
-          zh: "摘要会在这个整点后的一小时内生成。",
+          en: "The report is ready within the hour.",
+          zh: "晨报会在这个整点后的一小时内写好。",
         })}
         value={String(values.digestHour)}
         options={HOURS}
@@ -90,10 +90,10 @@ export function SettingsForm({
         }}
       />
       <Select
-        label={t({ en: "Language of the digest", zh: "摘要语言" })}
+        label={t({ en: "Language of the report", zh: "晨报语言" })}
         description={t({
-          en: "The assistant writes summaries and the digest in this language.",
-          zh: "助手用这种语言撰写摘要和每日简报。",
+          en: "The assistant writes the report and the to-dos in this language.",
+          zh: "助手用这种语言撰写晨报和待办。",
         })}
         value={values.locale}
         options={[

@@ -51,25 +51,25 @@ export function localClock(now: Date, timeZone: string): LocalClock {
 }
 
 /**
- * The local date of the digest to build now, or null when none is due. A
- * digest is due from the digest hour on, until there is one for the day: so
+ * The local date of the report to build now, or null when none is due. A
+ * report is due from the report hour on, until there is one for the day: so
  * a cron run that fails or a skipped hour on a daylight saving day only
- * makes the digest later, never skips it.
+ * makes the report later, never skips it.
  */
-export function dueDigestDate({
+export function dueReportDate({
   now,
   timeZone,
-  digestHour,
-  latestDigestDate,
+  reportHour,
+  latestReportDate,
 }: {
   now: Date;
   timeZone: string;
-  digestHour: number;
-  /** The local date of the user's newest digest. */
-  latestDigestDate: string | null;
+  reportHour: number;
+  /** The local date of the user's newest report. */
+  latestReportDate: string | null;
 }): string | null {
   const clock = localClock(now, timeZone);
-  if (clock.hour < digestHour) return null;
-  if (latestDigestDate !== null && latestDigestDate >= clock.date) return null;
+  if (clock.hour < reportHour) return null;
+  if (latestReportDate !== null && latestReportDate >= clock.date) return null;
   return clock.date;
 }

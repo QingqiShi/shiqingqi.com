@@ -11,9 +11,14 @@ import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Link } from "#src/links/link.tsx";
 
-/** The column every signed-in page sits in, under a bar with the app name, past digests and settings. */
+/** The column every signed-in page sits in, under a bar with the app name, the report, the to-dos and settings. */
 export function AppFrame({ children }: { children: ReactNode }) {
   const locale = getLocale();
+  const links = [
+    { path: "/", label: t({ en: "Report", zh: "晨报" }) },
+    { path: "/todos", label: t({ en: "To-dos", zh: "待办" }) },
+    { path: "/settings", label: t({ en: "Settings", zh: "设置" }) },
+  ];
   return (
     <div css={[pageColumn.base, styles.page]}>
       <header css={styles.bar}>
@@ -25,30 +30,21 @@ export function AppFrame({ children }: { children: ReactNode }) {
           {t({ en: "Mail Assistant", zh: "邮件助手" })}
         </Link>
         <nav css={styles.nav}>
-          <Link
-            href={getLocalePath("/digests", locale)}
-            prefetchOnIntent
-            {...stylex.props(
-              typeRole.label,
-              a11y.focusRing,
-              a11y.touchTarget,
-              styles.navLink,
-            )}
-          >
-            {t({ en: "Past", zh: "往期" })}
-          </Link>
-          <Link
-            href={getLocalePath("/settings", locale)}
-            prefetchOnIntent
-            {...stylex.props(
-              typeRole.label,
-              a11y.focusRing,
-              a11y.touchTarget,
-              styles.navLink,
-            )}
-          >
-            {t({ en: "Settings", zh: "设置" })}
-          </Link>
+          {links.map(({ path, label }) => (
+            <Link
+              key={path}
+              href={getLocalePath(path, locale)}
+              prefetchOnIntent
+              {...stylex.props(
+                typeRole.label,
+                a11y.focusRing,
+                a11y.touchTarget,
+                styles.navLink,
+              )}
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
       </header>
       <main css={[stack.section, styles.column]}>{children}</main>

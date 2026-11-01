@@ -19,6 +19,7 @@ import {
 } from "drizzle-orm/pg-core";
 import type { MailEvent, MailFacts } from "../classify/types.ts";
 import type { DigestContent } from "../digest/types.ts";
+import type { MorningReportContent } from "../report/types.ts";
 
 const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
   dataType: () => "bytea",
@@ -654,7 +655,62 @@ export const mailSentRecipients = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.address] })],
 );
 
-/** One device that gets the digest notification. */
+/**
+ * The morning report of one local day: what the model wrote about the mail
+ * of the day before. It holds no mail, only the model's words, counts and
+ * the Message-IDs that its lines link to.
+ */
+export const morningReports = pgTable(
+  "morning_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    /** The day of the report in the user's time zone, `YYYY-MM-DD`. */
+    localDate: date("local_date", { mode: "string" }).notNull(),
+    content: jsonb("content").$type<MorningReportContent>().notNull(),
+    /** Null when no model wrote the report. */
+    modelId: text("model_id"),
+    builtAt: timestamp("built_at", { withTimezone: true }).notNull(),
+    notifiedAt: timestamp("notified_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [unique("morning_reports_date_key").on(t.userId, t.localDate)],
+);
+
+/**
+ * A to-do that a morning report found in the mail. Of the mail it keeps
+ * only the account and the Message-ID, so that the page can open it.
+ */
+export const todos = pgTable(
+  "todos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userId(),
+    title: text("title").notNull(),
+    detail: text("detail"),
+    dueDate: date("due_date", { mode: "string" }),
+    sourceAccountId: uuid("source_account_id").references(
+      () => mailAccounts.id,
+      { onDelete: "set null" },
+    ),
+    /** The Message-ID header of the mail, in angle brackets. */
+    sourceMessageId: text("source_message_id"),
+    createdReportId: uuid("created_report_id").references(
+      () => morningReports.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: createdAt(),
+    doneAt: timestamp("done_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("todos_open_idx")
+      .on(t.userId, t.createdAt)
+      .where(sql`${t.doneAt} is null`),
+    index("todos_report_idx").on(t.createdReportId),
+  ],
+);
+
+/** One device that gets the morning report notification. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
   {
@@ -691,4 +747,6 @@ export const schema = {
   mailHistoryJobs,
   mailSentRecipients,
   pushSubscriptions,
+  morningReports,
+  todos,
 };

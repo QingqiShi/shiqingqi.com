@@ -1,5 +1,4 @@
 import { t } from "@tuja/i18n";
-import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { AnchorButton } from "@tuja/ui/components/anchor-button";
@@ -16,7 +15,6 @@ import { listAccounts } from "#src/assistant/mail/accounts/list-accounts.ts";
 import type { ConnectErrorCode } from "#src/assistant/mail/oauth/make-connect-handlers.ts";
 import { AccountCard } from "#src/assistant/mailboxes/account-card.tsx";
 import { PasswordConnectForm } from "#src/assistant/mailboxes/password-connect-form.tsx";
-import { Anchor } from "#src/links/anchor.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
@@ -143,14 +141,6 @@ export default async function Page({
               }
             />
           ))}
-          <Text as="p" look="bodySmall" tone="muted">
-            <Anchor href={getLocalePath("/categories", locale)}>
-              {t({
-                en: "Choose which folders are categories",
-                zh: "选择哪些文件夹作为分类",
-              })}
-            </Anchor>
-          </Text>
         </div>
       ) : null}
       <Section

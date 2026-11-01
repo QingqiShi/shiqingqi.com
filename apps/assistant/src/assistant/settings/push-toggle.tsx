@@ -75,7 +75,7 @@ async function turnOff() {
 }
 
 /**
- * Turns the digest notification on or off for this device. Each device
+ * Turns the morning report notification on or off for this device. Each device
  * subscribes on its own; iOS allows it only in the app added to the Home
  * Screen.
  */
@@ -120,8 +120,8 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
           <Text weight="medium">{label}</Text>
           <Text look="bodySmall" tone="muted">
             {t({
-              en: "When the digest is ready, this device gets a notification.",
-              zh: "摘要生成后，这台设备会收到一条通知。",
+              en: "When the morning report is ready, this device gets a notification.",
+              zh: "晨报写好后，这台设备会收到一条通知。",
             })}
           </Text>
         </div>
