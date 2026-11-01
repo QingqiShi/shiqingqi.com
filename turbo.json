@@ -52,7 +52,7 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "env": ["LICENSED_FONTS_READ_WRITE_TOKEN"],
+      "env": ["LICENSED_FONTS_READ_WRITE_TOKEN", "NEXT_PUBLIC_UI_DEV_CHECKS"],
       "outputs": [
         ".next/**",
         "!.next/cache/**",

@@ -82,6 +82,7 @@ jobs:
           # The host is deliberately unresolvable so init sends nothing.
           NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder"
           NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid"
+          NEXT_PUBLIC_UI_DEV_CHECKS: "1"
       # `.next/node_modules` holds relative symlinks to externalised packages
       # such as sharp. upload-artifact copies a symlink as a bare directory, so
       # sharp would lose its own dependencies; a tar file keeps the links.
@@ -266,6 +267,7 @@ jobs:
         env:
           NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder"
           NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid"
+          NEXT_PUBLIC_UI_DEV_CHECKS: "1"
       - name: Pack build output
         run: tar --exclude=apps/finance/.next/cache -cf finance-build.tar apps/finance/.next apps/finance/public
       - name: Upload build output

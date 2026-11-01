@@ -1,4 +1,5 @@
-import { test, expect, type Request } from "@playwright/test";
+import type { Request } from "@playwright/test";
+import { expect, test } from "./helpers/test.ts";
 
 const REPLY = "Try Arrival for a quiet, cerebral night in.";
 

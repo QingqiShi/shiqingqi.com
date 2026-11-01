@@ -12,7 +12,7 @@ import { transition } from "@tuja/ui/primitives/motion.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { StyleProp } from "@tuja/ui/types";
 import type { ReactNode } from "react";
 import { Identifier } from "./identifier.tsx";
@@ -91,7 +91,12 @@ export function SpecimenReveal({
           which any `display` declaration would override. */}
       {source ? (
         <div {...panelProps} css={[corner.radius_2, styles.panel]}>
-          <CodeBlock source={source} label={t({ en: "Code", zh: "代码" })} />
+          <CodeBlock
+            source={source}
+            label={t({ en: "Code", zh: "代码" })}
+            css={styles.code}
+            contentCss={styles.codeInset}
+          />
         </div>
       ) : null}
     </>
@@ -163,10 +168,18 @@ const styles = stylex.create({
   // inert outside a grid, where the panel simply stacks under the cell.
   panel: {
     gridColumn: "1 / -1",
-    paddingBlock: space._2,
-    paddingInline: space._2,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
     backgroundColor: color.bgSurfaceRaised,
-    boxShadow: `inset 0 0 0 1px ${color.border}`,
     minInlineSize: 0,
+  },
+  code: {
+    borderRadius: `calc(${border.radius_2} - ${border.size_1})`,
+    cornerShape: "squircle",
+  },
+  codeInset: {
+    paddingBlock: `calc(${space._2} - ${border.size_1})`,
+    paddingInline: `calc(${space._2} - ${border.size_1})`,
   },
 });

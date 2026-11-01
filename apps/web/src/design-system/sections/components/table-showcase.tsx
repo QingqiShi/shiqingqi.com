@@ -11,9 +11,10 @@ import {
   TableRow,
 } from "@tuja/ui/components/table";
 import { Text } from "@tuja/ui/components/text";
-import { space } from "@tuja/ui/tokens.stylex";
+import { border, color, space } from "@tuja/ui/tokens.stylex";
 import { DoDont } from "#src/design-system/do-dont.tsx";
 import { PropsTable } from "#src/design-system/props-table.tsx";
+import { showcaseBleed } from "#src/design-system/showcase-bleed.stylex.ts";
 import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen, SpecimenGrid } from "#src/design-system/specimen.tsx";
 
@@ -163,7 +164,8 @@ function PlanTable({
       caption={caption}
       captionVisible={captionVisible}
       css={constrained && styles.wideTable}
-      containerCss={constrained && styles.narrowRegion}
+      containerCss={constrained ? styles.narrowRegion : showcaseBleed.region}
+      contentCss={!constrained && showcaseBleed.content}
     >
       <TableHead>
         <TableRow>
@@ -518,8 +520,13 @@ const styles = stylex.create({
   stickyRegion: {
     blockSize: space._13,
   },
+  // The capped region stops inside the card, so it has a border to show its
+  // edge. The rows blur out at that edge.
   narrowRegion: {
     maxInlineSize: space._14,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.border,
   },
   wideTable: {
     minInlineSize: space._15,

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "./helpers/test.ts";
 
 test("the calculator respects operator precedence", async ({ page }) => {
   await page.goto("/en/calculator");

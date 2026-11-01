@@ -1,10 +1,10 @@
 import { promises as fs } from "node:fs";
-import { expect, test } from "@playwright/test";
 import {
   DEFAULT_CREATURE,
   type CreatureDef,
 } from "../src/pixel-creature-creator/creature/creature-def-schema";
 import { encodeCreature } from "../src/pixel-creature-creator/creature/encode-creature";
+import { expect, test } from "./helpers/test.ts";
 
 // PNG file signature: 0x89 "P" "N" "G" CR LF SUB LF.
 const PNG_MAGIC = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];

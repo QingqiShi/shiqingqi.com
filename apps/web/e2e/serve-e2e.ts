@@ -11,6 +11,9 @@ const env = {
   // placeholders from playwright.yml's build step.
   NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN: "phc_e2e_placeholder",
   NEXT_PUBLIC_POSTHOG_HOST: "https://posthog.invalid",
+  // Turns on the development checks of `@tuja/ui` in this production build,
+  // so that a check that warns fails the test.
+  NEXT_PUBLIC_UI_DEV_CHECKS: "1",
 };
 
 /**

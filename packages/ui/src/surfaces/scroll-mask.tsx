@@ -14,6 +14,7 @@ import { OptionalEffectCarrier } from "../effect-layer/effect-carrier.tsx";
 import { useEffectSticky } from "../effect-layer/use-effect-sticky.ts";
 import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { getScrollBehavior } from "../get-scroll-behavior.ts";
+import { useScrollMaskFlushCheck } from "../hooks/use-scroll-mask-flush-check.ts";
 import {
   useScrollMask,
   type ScrollMaskOrientation,
@@ -152,6 +153,11 @@ interface ScrollMaskProps extends Omit<
  * and background reach the scroller and bands by inheritance, so nothing
  * above the bands may clip either (see `MaskBand`).
  *
+ * Render the region flush against its container's visible edge on the axis
+ * it scrolls, and inset the content inside the region instead. Otherwise the
+ * content blurs out short of that edge. In development, a region that is not
+ * flush warns in the console.
+ *
  * A vertical region is a Scroll region of the effect layer: the effects of
  * the controls in it move with its scroll. A box in the scroller holds the
  * content and takes the scroller's layout of the children, so `contentCss`
@@ -172,8 +178,10 @@ export function ScrollMask({
   ref: forwardedRef,
   ...rest
 }: ScrollMaskProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { showStartMask, showEndMask } = useScrollMask(scrollRef, orientation);
+  useScrollMaskFlushCheck(rootRef, orientation, showStartMask || showEndMask);
 
   const isHorizontal = orientation === "horizontal";
   // The effect layer has bands only on the block axis, so only a vertical
@@ -301,6 +309,7 @@ export function ScrollMask({
 
   return (
     <div
+      ref={rootRef}
       css={[
         styles.root,
         isHorizontal ? styles.rootHorizontal : styles.rootVertical,

@@ -63,6 +63,8 @@ interface TestFixtures {
   cookieSession: undefined;
   /** The demo Household, seeded when the database has none yet. */
   demo: undefined;
+  /** Fails the test when a page warns that a Scroll mask stops short of its container's edge. The e2e build turns that check on with `NEXT_PUBLIC_UI_DEV_CHECKS`. */
+  scrollMaskFlush: undefined;
 }
 
 /**
@@ -287,6 +289,25 @@ export async function readSession(page: Page): Promise<FinanceSession> {
 }
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
+  scrollMaskFlush: [
+    async ({ context }, provide) => {
+      const warnings: string[] = [];
+      context.on("console", (message) => {
+        if (
+          message.type() === "warning" &&
+          message.text().startsWith("[scroll mask]")
+        ) {
+          warnings.push(message.text());
+        }
+      });
+      await provide(undefined);
+      expect(warnings, "No Scroll mask stops short of its container").toEqual(
+        [],
+      );
+    },
+    { auto: true },
+  ],
+
   financeServer: [
     async ({ playwright, financeDb }, provide, workerInfo) => {
       const { baseURL } = workerInfo.project.use;

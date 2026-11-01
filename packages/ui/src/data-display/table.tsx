@@ -40,6 +40,14 @@ interface TableProps extends Omit<
    */
   containerCss?: StyleProp;
   /**
+   * StyleX styles merged over the scroller in the scroll region — inline
+   * padding that keeps the table off the region's edges, for a region that
+   * sits flush against its container's edge so the rows blur out there.
+   *
+   * @zh 合并在滚动区域内滚动元素上的 StyleX 样式——用行向内边距让表格离开区域的边缘。适用于紧贴容器边缘放置的区域，这样各行会在容器边缘处虚化淡出。
+   */
+  contentCss?: StyleProp;
+  /**
    * The table's groups — `TableHead`, `TableBody`, `TableFoot`.
    *
    * @zh 表格的各个分组——`TableHead`、`TableBody`、`TableFoot`。
@@ -65,6 +73,7 @@ export function Table({
   captionVisible = false,
   stickyHeader = false,
   containerCss,
+  contentCss,
   css,
   ref,
   children,
@@ -77,6 +86,7 @@ export function Table({
       labelledBy={captionId}
       scrollsBlock={stickyHeader}
       containerCss={containerCss}
+      contentCss={contentCss}
     >
       <table
         {...restProps}
