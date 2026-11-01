@@ -1,5 +1,7 @@
 import type {
   InstructionChange,
+  QuickAddRequest,
+  QuickAddResponse,
   SuggestRequest,
   SuggestResponse,
   TeachRequest,
@@ -19,7 +21,7 @@ async function sendJson<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-/** Fetch wrappers for the Connections settings, Review, the editor's Suggest button and "Teach the AI". */
+/** Fetch wrappers for the Connections settings, Review, quick add, the editor's Suggest button and "Teach the AI". */
 export const bankApiClient = {
   /** The provider accounts with their link state, or `not_connected`. */
   listProviderAccounts() {
@@ -90,6 +92,15 @@ export const bankApiClient = {
     return sendJson<SuggestResponse>("/api/ai/suggest", {
       method: "POST",
       body: JSON.stringify(input),
+    });
+  },
+
+  /** What the AI reads in a quick-add line. Nothing is saved. */
+  quickAdd(input: QuickAddRequest, signal?: AbortSignal) {
+    return sendJson<QuickAddResponse>("/api/ai/quick-add", {
+      method: "POST",
+      body: JSON.stringify(input),
+      signal,
     });
   },
 

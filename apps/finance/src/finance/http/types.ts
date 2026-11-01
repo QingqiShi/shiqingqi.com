@@ -8,6 +8,7 @@ export type FinanceRateLimitBucket =
   | "sign-up-address"
   | "bank-sync"
   | "ai-suggest"
+  | "ai-quick-add"
   | "ai-teach"
   | "report-regenerate";
 

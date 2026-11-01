@@ -11,6 +11,7 @@ import {
 } from "./find-past-transactions.ts";
 import {
   householdQuestions,
+  outcomeProbability,
   requestQuestions,
   rowQuestions,
   rowState,
@@ -32,7 +33,8 @@ export const LABEL_BATCH_SIZE = 20;
 const CONCURRENCY = 5;
 /** An answer that Jev gives less probability than this puts the row in Review. */
 const REVIEW_BELOW = 0.6;
-const TAG_AT = 0.5;
+/** A Tag applies when Jev gives it at least this probability. */
+export const TAG_AT = 0.5;
 const MAX_REASON_LENGTH = 500;
 
 /** The labels the model chose for one bank row, with ids it knows. */
@@ -81,12 +83,7 @@ function pick<Value>(
   check(options && answer?.type === "choice", `No ${id} answer`);
   const value = options.values.get(answer.choice);
   check(value !== undefined, `Unknown ${id} answer`);
-  const outcome = options.outcomes.get(answer.choice);
-  let probability = 0;
-  for (const [label, each] of options.outcomes) {
-    if (each === outcome) probability += answer.probabilities[label] ?? 0;
-  }
-  return { value, probability, answer };
+  return { value, probability: outcomeProbability(options, answer), answer };
 }
 
 /** "Unsure of the category: Food > Groceries 48%, Food > Eating out 31%": the answer, then the strongest other answer. */
