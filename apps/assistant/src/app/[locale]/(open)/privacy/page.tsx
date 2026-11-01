@@ -45,6 +45,12 @@ export default function Page() {
             zh: "当邮件提到预约、行程或截止日期时，邮件助手可以在它于你的 iCloud 日历中创建的日历里添加带提醒的事件。它读取你的其他日历只是为了避免重复，从不修改你自己的事件。",
           })}
         </Text>
+        <Text>
+          {t({
+            en: "Older mail is read only when you start the import of old mail. Then the assistant stores the headers of mail you already filed into a category folder, sends the rest of your old inbox and folder mail to Anthropic in batches to classify it, and reads the recipients of your sent mail to learn who you write to. Old mail never appears in a digest, is never marked, flagged or moved, and never becomes a calendar event. Its text excerpt is deleted once it is classified.",
+            zh: "只有在你开始导入旧邮件后，助手才会读取更早的邮件。届时，它会保存你已归入分类文件夹的邮件的邮件头，把收件箱和其他文件夹里的其余旧邮件分批发送给 Anthropic 分类，并读取已发送邮件的收件人，以了解你和谁通信。旧邮件不会出现在摘要里，不会被标记、加旗标或移动，也不会生成日历事件。分类完成后，它的正文摘录会被删除。",
+          })}
+        </Text>
       </LegalSection>
 
       <LegalSection heading={t({ en: "What it stores", zh: "保存哪些数据" })}>

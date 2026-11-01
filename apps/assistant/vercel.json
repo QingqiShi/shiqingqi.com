@@ -10,6 +10,10 @@
     {
       "path": "/api/cron/build-digests",
       "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/cron/import-history",
+      "schedule": "7,22,37,52 * * * *"
     }
   ]
 }

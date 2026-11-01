@@ -189,6 +189,12 @@ export function createFakeMailServer({
             .messages.map((m) => m.uid)
             .filter((found) => found > uid),
         ),
+      listUidsBetween: (low, high) =>
+        Promise.resolve(
+          openFolder()
+            .messages.map((m) => m.uid)
+            .filter((uid) => uid >= low && uid <= high),
+        ),
       listUidsSince: (since) =>
         Promise.resolve(
           openFolder()

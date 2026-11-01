@@ -80,6 +80,9 @@ export default async function Page({ params }: PageProps) {
           >
             {t({ en: "Categories", zh: "分类" })}
           </AnchorButton>
+          <AnchorButton href={getLocalePath("/history", locale)} look="outline">
+            {t({ en: "Old mail", zh: "旧邮件" })}
+          </AnchorButton>
         </div>
       </Section>
       <Section level={2} divider title={t({ en: "Calendar", zh: "日历" })}>

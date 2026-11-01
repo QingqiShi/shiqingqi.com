@@ -1,14 +1,15 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   mailAccounts,
+  mailClassifications,
   mailFolders,
+  mailHistoryJobs,
   mailMessages,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
 import { withUser, type UserDb } from "#src/assistant/db/with-user.ts";
 import { MAIL_SERVERS } from "#src/assistant/mail/imap/mail-servers.ts";
 import type {
-  FetchedMessage,
   MailboxConnector,
   MailboxSession,
 } from "#src/assistant/mail/imap/types.ts";
@@ -21,11 +22,7 @@ import {
   type MailboxAuthDeps,
   type StoredAccount,
 } from "../accounts/resolve-mailbox-auth.ts";
-import {
-  hashedMessageId,
-  parseMail,
-  type ParsedMail,
-} from "../parse/parse-mail.ts";
+import { hashedMessageId, parseMailSafely } from "../parse/parse-mail.ts";
 import {
   describeSyncError,
   type SyncErrorCode,
@@ -64,14 +61,38 @@ interface FolderContext {
 
 type LiveRow = typeof mailMessages.$inferInsert;
 
-function insertLive(db: UserDb, rows: readonly LiveRow[]) {
-  return db
+/**
+ * Stores new inbox mail. History import may have stored the same mail
+ * already, from a Gmail label that it walked first: that mail becomes
+ * `live`, loses what history import decided, and goes to the classifier.
+ */
+async function insertLive(db: UserDb, rows: readonly LiveRow[]) {
+  const stored = await db
     .insert(mailMessages)
     .values([...rows])
-    .onConflictDoNothing({
+    .onConflictDoUpdate({
       target: [mailMessages.userId, mailMessages.messageId],
+      set: {
+        origin: "live",
+        folderId: sql`excluded.folder_id`,
+        uid: sql`excluded.uid`,
+        uidValidity: sql`excluded.uid_validity`,
+        flags: sql`excluded.flags`,
+        snippet: sql`excluded.snippet`,
+      },
+      setWhere: eq(mailMessages.origin, "history"),
     })
     .returning({ id: mailMessages.id });
+  const ids = stored.map((row) => row.id);
+  if (ids.length > 0) {
+    await db
+      .delete(mailClassifications)
+      .where(inArray(mailClassifications.messageId, ids));
+    await db
+      .delete(mailHistoryJobs)
+      .where(inArray(mailHistoryJobs.messageId, ids));
+  }
+  return stored;
 }
 
 /** What is kept of a mail that does not store: where it is and when it came, so that the user still sees it. */
@@ -86,15 +107,6 @@ function bareMail(row: LiveRow): LiveRow {
     receivedAt: row.receivedAt,
     origin: row.origin,
   };
-}
-
-async function parseSafely(message: FetchedMessage): Promise<ParsedMail> {
-  try {
-    return await parseMail(message);
-  } catch {
-    // A source that does not parse must not stop the cursor: keep the envelope.
-    return parseMail({ ...message, source: new Uint8Array() });
-  }
 }
 
 /**
@@ -117,7 +129,7 @@ async function fetchAndStore(
     }
     const batch = uids.slice(start, start + BATCH_SIZE);
     const fetched = await context.session.fetchMessages(batch, FETCH_MAX_BYTES);
-    const parsed = await Promise.all(fetched.map(parseSafely));
+    const parsed = await Promise.all(fetched.map(parseMailSafely));
     const inserted = await withUser(
       context.db,
       context.userId,

@@ -85,6 +85,20 @@
       "when": 1793505940856,
       "tag": "0011_calendar_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793507624960,
+      "tag": "0012_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793507625379,
+      "tag": "0013_history_isolation",
+      "breakpoints": true
     }
   ]
 }

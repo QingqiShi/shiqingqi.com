@@ -25,8 +25,11 @@ import {
   mailCorrections,
   mailDigests,
   mailFolders,
+  mailHistoryBatches,
+  mailHistoryJobs,
   mailMessages,
   mailSenderRules,
+  mailSentRecipients,
   mailWriteStates,
   passkeys,
   pushSubscriptions,
@@ -173,6 +176,27 @@ async function seedEveryUserTable(db: AssistantDb, userId: string) {
       filed: [],
       sample: [],
     },
+  });
+  const [batch] = await db
+    .insert(mailHistoryBatches)
+    .values({
+      userId,
+      anthropicBatchId: `msgbatch_${userId}`,
+      modelId: "claude-haiku-5-5",
+      promptVersion: 1,
+      categoryNames: ["Bills"],
+      requestCount: 1,
+    })
+    .returning();
+  await db.insert(mailHistoryJobs).values({
+    userId,
+    messageId: message.id,
+    batchId: batch.id,
+  });
+  await db.insert(mailSentRecipients).values({
+    userId,
+    address: `friend-of-${userId}@example.com`,
+    lastSentAt: new Date(),
   });
   await db.insert(pushSubscriptions).values({
     userId,
