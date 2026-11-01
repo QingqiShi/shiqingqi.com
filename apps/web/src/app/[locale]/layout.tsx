@@ -12,7 +12,6 @@ import { htmlLang } from "#src/i18n/i18n-config.ts";
 import { SerwistProvider } from "#src/pwa/serwist-provider.tsx";
 import { BackOverrideProvider } from "#src/site-shell/back-override-provider.tsx";
 import { InlineScript } from "#src/site-shell/inline-script.tsx";
-import { ReactGrab } from "#src/site-shell/react-grab.tsx";
 import { chineseType, globalStyles } from "#src/theme/global-styles.ts";
 import { ThemeApplier } from "#src/theme/theme-applier.tsx";
 import { themeHack } from "#src/theme/theme-hack.ts";
@@ -88,7 +87,6 @@ export default async function RootLayout({
                 </BackOverrideProvider>
               </PortalTargetProvider>
             </EffectLayerProvider>
-            <ReactGrab />
             <PostHogInit />
           </SerwistProvider>
         </I18nProvider>
