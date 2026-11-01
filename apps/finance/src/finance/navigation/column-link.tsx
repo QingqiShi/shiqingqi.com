@@ -42,3 +42,13 @@ export function useColumnReplace() {
     }
   };
 }
+
+/** The `open` of a `NavigationSplitView`, with no scroll. It adds an entry that a close goes back from. */
+export function useColumnOpen() {
+  const router = useRouter();
+  return (href: string) => {
+    if (!writeInBrowser(href, "open")) {
+      router.push(href, { scroll: false });
+    }
+  };
+}

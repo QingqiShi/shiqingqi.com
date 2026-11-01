@@ -70,10 +70,11 @@ interface TabViewProps {
    */
   linkComponent?: ComponentType<TabBarLinkProps>;
   /**
-   * The top of the rail, such as the app's mark. It shows at `md` and wider
+   * The top of the rail, such as the app's mark. It is as wide as the
+   * destinations, and centres what it holds. It shows at `md` and wider
    * only; below `md`, give its content another place.
    *
-   * @zh 侧轨顶部，例如应用标志。只在 `md` 及以上显示；在 `md` 以下，请为其内容另找位置。
+   * @zh 侧轨顶部，例如应用标志。它与目标页同宽，并让其内容居中。只在 `md` 及以上显示；在 `md` 以下，请为其内容另找位置。
    */
   header?: ReactNode;
   /**
@@ -399,6 +400,7 @@ const styles = stylex.create({
   slot: {
     display: "flex",
     justifyContent: "center",
+    alignSelf: "stretch",
     minInlineSize: 0,
   },
   footer: {

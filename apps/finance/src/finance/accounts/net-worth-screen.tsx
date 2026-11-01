@@ -10,7 +10,7 @@ import { Text } from "@tuja/ui/components/text";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { rhythm } from "@tuja/ui/tokens.stylex";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { Link } from "#src/links/link.tsx";
 import {
   useTransactionTask,
@@ -57,24 +57,29 @@ export function NetWorthScreen() {
   });
 
   if (!bootstrapped) return <NetWorthSkeleton />;
+  let body: ReactNode;
   if (url.mode === "update") {
-    return (
+    body = (
       <FinancePageColumn>
         <UpdateValuesForm />
       </FinancePageColumn>
     );
+  } else if (isReorder) {
+    body = (
+      <FinancePageColumn accessory={<FinanceAddButton />}>
+        <ReorderScreen url={url} />
+      </FinancePageColumn>
+    );
+  } else {
+    body = (
+      <NetWorthPickProvider>
+        <NetWorthColumns url={url} task={task} />
+      </NetWorthPickProvider>
+    );
   }
   return (
     <>
-      {isReorder ? (
-        <FinancePageColumn accessory={<FinanceAddButton />}>
-          <ReorderScreen url={url} />
-        </FinancePageColumn>
-      ) : (
-        <NetWorthPickProvider>
-          <NetWorthColumns url={url} task={task} />
-        </NetWorthPickProvider>
-      )}
+      {body}
       {task.sheet}
     </>
   );

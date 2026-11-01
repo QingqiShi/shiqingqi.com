@@ -3,9 +3,10 @@
 import dynamic from "next/dynamic";
 
 /**
- * The new Transaction that `FinanceAddButton` opens (`?new=`), in a sheet
- * over a screen with no Transaction of its own, such as Analytics. The
- * editor loads after the screen. Put it outside a `NavigationSplitView`.
+ * The new Transaction that the Add action and the `n` key open (`?new=`),
+ * in a sheet over a screen with no Transaction of its own, such as
+ * Analytics. The editor loads after the screen. Put it outside a
+ * `NavigationSplitView`.
  */
 export const NewTransactionSheet = dynamic(
   () =>

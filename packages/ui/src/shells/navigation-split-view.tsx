@@ -29,6 +29,7 @@ import { useExtractorFan } from "../effect-layer/use-extractor-fan.ts";
 import { useScrollRegion } from "../effect-layer/use-scroll-region.ts";
 import { findTwinElement } from "../focus/find-twin-element.ts";
 import { isRendered } from "../focus/is-rendered.ts";
+import { isTyping } from "../focus/is-typing.ts";
 import { mergeRefs } from "../merge-refs.ts";
 import {
   createPendingSnapshot,
@@ -936,13 +937,6 @@ function sidebarShownStyle(form: "full" | "collapsed", hasDetail: boolean) {
 
 function isShown(element: Element) {
   return isRendered(element, { visibilityProperty: true });
-}
-
-/** True where a key press belongs to a field. */
-function isTyping(target: Element | null) {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
-  return target.closest("input, textarea, select, [role=combobox]") !== null;
 }
 
 /** True where an arrow key moves inside a control, such as a radio group. */

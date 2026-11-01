@@ -1,12 +1,9 @@
 "use client";
 
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { breakpoints } from "@tuja/ui/breakpoints.stylex";
-import { Button } from "@tuja/ui/components/button";
 import { Heading } from "@tuja/ui/components/heading";
 import { NavigationSplitView } from "@tuja/ui/components/navigation-split-view";
 import { Skeleton } from "@tuja/ui/components/skeleton";
@@ -216,10 +213,6 @@ export function TransactionsScreen() {
     },
   };
 
-  const openNew = () => {
-    task.openNew();
-  };
-
   const cursorIndex = () => {
     const id = cursorId ?? url.selectedId;
     if (id === null) return -1;
@@ -258,7 +251,6 @@ export function TransactionsScreen() {
   };
 
   useListShortcuts({
-    onNew: openNew,
     onSearch: () => {
       searchRef.current?.focus();
       searchRef.current?.select();
@@ -304,32 +296,20 @@ export function TransactionsScreen() {
   const master = (
     <div css={[stack.group, styles.master]}>
       <header css={stack.item}>
-        <div css={[flex.between, styles.titleRow]}>
-          <div css={stack.text}>
-            <Heading level={1} look="h3">
-              {t({ en: "Transactions", zh: "交易" })}
-            </Heading>
-            {bootstrapped ? (
-              <Text look="bodySmall" tone="muted" css={typeModifier.numeric}>
-                {`${new Intl.NumberFormat(locale).format(summary.count)} ${t({
-                  en: "transactions",
-                  zh: "笔交易",
-                })} · ${formatMoney(Math.abs(summary.spent), baseCurrency, locale)} ${t(
-                  { en: "spent", zh: "支出" },
-                )}`}
-              </Text>
-            ) : null}
-          </div>
-          <div css={styles.wideOnly}>
-            <Button
-              look="primary"
-              icon={<PlusIcon weight="bold" />}
-              onClick={openNew}
-              aria-keyshortcuts="n"
-            >
-              {t({ en: "Add", zh: "记一笔" })}
-            </Button>
-          </div>
+        <div css={stack.text}>
+          <Heading level={1} look="h3">
+            {t({ en: "Transactions", zh: "交易" })}
+          </Heading>
+          {bootstrapped ? (
+            <Text look="bodySmall" tone="muted" css={typeModifier.numeric}>
+              {`${new Intl.NumberFormat(locale).format(summary.count)} ${t({
+                en: "transactions",
+                zh: "笔交易",
+              })} · ${formatMoney(Math.abs(summary.spent), baseCurrency, locale)} ${t(
+                { en: "spent", zh: "支出" },
+              )}`}
+            </Text>
+          ) : null}
         </div>
         {bootstrapped ? <QuickAdd onNeedsEditor={task.openNew} /> : null}
         <search css={stack.tight}>
@@ -469,13 +449,6 @@ const styles = stylex.create({
     inlineSize: "100%",
     maxInlineSize: "52rem",
     marginInline: "auto",
-  },
-  titleRow: {
-    gap: rhythm.item,
-    alignItems: "flex-end",
-  },
-  wideOnly: {
-    display: { default: "none", [breakpoints.lg]: "block" },
   },
   skeletonRow: {
     gap: rhythm.item,
