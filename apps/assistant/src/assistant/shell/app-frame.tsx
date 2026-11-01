@@ -3,26 +3,53 @@ import { t } from "@tuja/i18n";
 import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import { getLocale } from "@tuja/i18n/server-locale";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { pageColumn } from "@tuja/ui/primitives/page-column.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
 import { Link } from "#src/links/link.tsx";
-import { SignOutButton } from "./sign-out-button.tsx";
 
-/** The column every signed-in page sits in, under a bar with the app name and sign-out. */
+/** The column every signed-in page sits in, under a bar with the app name, past digests and settings. */
 export function AppFrame({ children }: { children: ReactNode }) {
+  const locale = getLocale();
   return (
     <div css={[pageColumn.base, styles.page]}>
       <header css={styles.bar}>
         <Link
-          href={getLocalePath("/", getLocale())}
-          {...stylex.props(typeRole.label, styles.brand)}
+          href={getLocalePath("/", locale)}
+          prefetchOnIntent
+          {...stylex.props(typeRole.label, a11y.focusRing, styles.brand)}
         >
           {t({ en: "Mail Assistant", zh: "邮件助手" })}
         </Link>
-        <SignOutButton />
+        <nav css={styles.nav}>
+          <Link
+            href={getLocalePath("/digests", locale)}
+            prefetchOnIntent
+            {...stylex.props(
+              typeRole.label,
+              a11y.focusRing,
+              a11y.touchTarget,
+              styles.navLink,
+            )}
+          >
+            {t({ en: "Past", zh: "往期" })}
+          </Link>
+          <Link
+            href={getLocalePath("/settings", locale)}
+            prefetchOnIntent
+            {...stylex.props(
+              typeRole.label,
+              a11y.focusRing,
+              a11y.touchTarget,
+              styles.navLink,
+            )}
+          >
+            {t({ en: "Settings", zh: "设置" })}
+          </Link>
+        </nav>
       </header>
       <main css={[stack.section, styles.column]}>{children}</main>
     </div>
@@ -47,6 +74,15 @@ const styles = stylex.create({
     },
   },
   brand: {
+    color: color.fgMuted,
+    textDecoration: "none",
+  },
+  nav: {
+    display: "flex",
+    alignItems: "center",
+    gap: rhythm.item,
+  },
+  navLink: {
     color: color.fgMuted,
     textDecoration: "none",
   },

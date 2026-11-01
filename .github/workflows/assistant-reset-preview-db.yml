@@ -26,11 +26,12 @@ jobs:
           api_key: ${{ secrets.NEON_API_KEY }}
           cs_role_name: neondb_owner
           cs_database: neondb
-      # Production and previews use the same ASSISTANT_CREDENTIAL_KEY. Thus a
-      # preview can open the real mailboxes with the copied logins.
-      - name: Delete production sign-in sessions and mailbox logins
+      # Production and previews use the same ASSISTANT_CREDENTIAL_KEY and VAPID
+      # keys. Thus a preview can open the real mailboxes with the copied logins
+      # and push to the real devices.
+      - name: Delete production sign-in sessions, mailbox logins and push subscriptions
         env:
           DATABASE_URL: ${{ steps.reset.outputs.db_url }}
         run: |
           echo "::add-mask::$DATABASE_URL"
-          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'delete from sessions; delete from mail_accounts;'
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'delete from sessions; delete from mail_accounts; delete from push_subscriptions;'

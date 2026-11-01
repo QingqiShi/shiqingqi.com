@@ -6,6 +6,10 @@
     {
       "path": "/api/cron/sync-mail",
       "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/build-digests",
+      "schedule": "5 * * * *"
     }
   ]
 }

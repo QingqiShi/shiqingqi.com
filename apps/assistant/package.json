@@ -48,6 +48,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "serwist": "catalog:",
+    "web-push": "3.6.7",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -68,6 +69,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@types/web-push": "3.6.4",
     "@vitejs/plugin-react": "catalog:",
     "babel-plugin-module-resolver": "^5.0.3",
     "babel-plugin-react-compiler": "catalog:",
