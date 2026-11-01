@@ -1,5 +1,7 @@
 import "server-only";
 import { getClassifierModel } from "#src/assistant/ai/get-classifier-model.ts";
+import { tsdavConnector } from "#src/assistant/calendar/caldav/tsdav-connector.ts";
+import { writeCalendarEvents } from "#src/assistant/calendar/write-calendar-events.ts";
 import { classifyQueuedMail } from "#src/assistant/classify/classify-queued-mail.ts";
 import { readCredentialKey } from "./accounts/credential-cipher.ts";
 import { imapflowConnector } from "./imap/imapflow-connector.ts";
@@ -27,6 +29,10 @@ export function getMailDeps(): SyncUserMailDeps | null {
       await classifyQueuedMail(
         { db, userId, endsAt },
         { model: getClassifierModel(), now: () => new Date() },
+      );
+      await writeCalendarEvents(
+        { db, userId, endsAt },
+        { connector: tsdavConnector, auth: deps.auth },
       );
       await writeMailboxes({ db, userId, endsAt }, deps);
     },

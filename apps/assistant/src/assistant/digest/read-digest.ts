@@ -1,13 +1,15 @@
-import { desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, ne, sql } from "drizzle-orm";
 import { senderRules } from "#src/assistant/classify/sender-rules.ts";
 import type { MailEvent } from "#src/assistant/classify/types.ts";
 import {
+  calendarWrites,
   mailAccounts,
   mailCategories,
   mailClassifications,
   mailCorrections,
   mailDigests,
   mailMessages,
+  type CalendarWriteResult,
   type CorrectionKind,
   type MailBucket,
   type SenderRuleBucket,
@@ -30,6 +32,8 @@ export interface DigestMailView {
   receivedAt: Date;
   categoryName: string | null;
   event: MailEvent | null;
+  /** What the app did with the event in the calendar; null while it did nothing. */
+  calendarResult: CalendarWriteResult | null;
   doneAt: Date | null;
   corrections: CorrectionKind[];
   openHref: string;
@@ -68,6 +72,8 @@ export interface DigestView {
   filed: { categoryName: string | null; count: number }[];
   sample: DigestMailView[];
   timeZone: string;
+  /** The user has an iCloud account whose calendar the app can write to. */
+  calendarAvailable: boolean;
 }
 
 function idsOf(content: DigestContent) {
@@ -91,6 +97,7 @@ async function readMails(
       bucket: mailClassifications.bucket,
       summary: mailClassifications.summary,
       event: mailClassifications.event,
+      calendarResult: calendarWrites.result,
       facts: mailClassifications.facts,
       doneAt: mailClassifications.doneAt,
       categoryName: mailCategories.name,
@@ -109,6 +116,10 @@ async function readMails(
     .innerJoin(mailMessages, eq(mailMessages.id, mailClassifications.messageId))
     .innerJoin(mailAccounts, eq(mailAccounts.id, mailMessages.accountId))
     .leftJoin(
+      calendarWrites,
+      eq(calendarWrites.classificationId, mailClassifications.id),
+    )
+    .leftJoin(
       mailCategories,
       eq(mailCategories.id, mailClassifications.categoryId),
     )
@@ -126,6 +137,7 @@ async function readMails(
         receivedAt: row.receivedAt,
         categoryName: row.categoryName,
         event: row.event,
+        calendarResult: row.calendarResult,
         doneAt: row.doneAt,
         corrections: row.corrections,
         dueDate: row.facts?.dueDate ?? null,
@@ -219,6 +231,19 @@ export async function readDigest(
     })),
     sample: pick(content.sample),
     timeZone: settings.timeZone,
+    calendarAvailable:
+      (
+        await scope.db
+          .select({ id: mailAccounts.id })
+          .from(mailAccounts)
+          .where(
+            and(
+              eq(mailAccounts.provider, "icloud"),
+              ne(mailAccounts.status, "reconnect"),
+            ),
+          )
+          .limit(1)
+      ).length > 0,
   };
 }
 

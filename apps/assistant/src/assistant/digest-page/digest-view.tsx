@@ -16,6 +16,7 @@ import type {
   DraftRuleView,
 } from "../digest/read-digest.ts";
 import type { DigestSection } from "../digest/types.ts";
+import { AddToCalendar } from "./add-to-calendar.tsx";
 import {
   daysBetween,
   formatDigestDay,
@@ -183,17 +184,54 @@ function eventParts(value: string) {
     : { date: value.slice(0, index), time: value.slice(index + 1) };
 }
 
+type CalendarState =
+  "added" | "updated" | "cancelled" | "duplicate" | "suggested" | "none";
+
+/** The badge of a calendar item: what the app did with its event. */
+function calendarStateOf(mail: DigestMailView): CalendarState {
+  switch (mail.calendarResult) {
+    case "created":
+      return "added";
+    case "updated":
+      return "updated";
+    case "cancelled":
+      return "cancelled";
+    case "duplicate":
+      return "duplicate";
+    case "unmatched":
+      return mail.event?.change === "cancel" ? "cancelled" : "none";
+    case "past":
+      return "none";
+    case null:
+      return "suggested";
+  }
+}
+
 function CalendarSection({
   mails,
   context,
+  available,
 }: {
   mails: readonly DigestMailView[];
   context: ViewContext;
+  /** An iCloud account is connected, so events can be added. */
+  available: boolean;
 }) {
   const allDay = t({ en: "All day", zh: "全天" });
-  const suggested = t({ en: "Suggested", zh: "建议" });
-  const cancelled = t({ en: "Cancelled", zh: "已取消" });
-  const changed = t({ en: "Changed", zh: "有变更" });
+  const labels: Record<Exclude<CalendarState, "none">, string> = {
+    added: t({ en: "In your calendar", zh: "已加入日历" }),
+    updated: t({ en: "Updated", zh: "已更新" }),
+    cancelled: t({ en: "Cancelled", zh: "已取消" }),
+    duplicate: t({ en: "Already in your calendar", zh: "已在日历中" }),
+    suggested: t({ en: "Suggested", zh: "建议" }),
+  };
+  const intents = {
+    added: "success",
+    updated: "success",
+    cancelled: "danger",
+    duplicate: "neutral",
+    suggested: "neutral",
+  } as const;
   const month = new Intl.DateTimeFormat(context.locale, {
     month: "short",
     timeZone: "UTC",
@@ -206,10 +244,17 @@ function CalendarSection({
     <Section
       level={2}
       title={t({ en: "For your calendar", zh: "日历" })}
-      description={t({
-        en: "Found in your mail. They are not in your calendar yet.",
-        zh: "从邮件里找到的安排，还没有写入你的日历。",
-      })}
+      description={
+        available
+          ? t({
+              en: "Found in your mail. The assistant adds the events it is sure about to your Mail Assistant calendar; add the others yourself.",
+              zh: "从邮件里找到的安排。助手会把有把握的安排写入“邮件助手”日历，其余的由你决定是否加入。",
+            })
+          : t({
+              en: "Found in your mail. Connect an iCloud mailbox to have them added to your calendar.",
+              zh: "从邮件里找到的安排。连接 iCloud 邮箱后，助手可以把它们写入你的日历。",
+            })
+      }
     >
       <List>
         {mails.flatMap((mail) => {
@@ -227,6 +272,7 @@ function CalendarSection({
             event.timeZone === context.timeZone ? null : event.timeZone,
             event.location,
           ].filter(Boolean);
+          const state = calendarStateOf(mail);
           return [
             <li key={mail.classificationId} css={[styles.item, styles.event]}>
               <div css={styles.dateTile} aria-hidden>
@@ -237,32 +283,35 @@ function CalendarSection({
                   {String(day.getUTCDate())}
                 </span>
               </div>
-              <div css={[stack.text, styles.eventText]}>
-                <Text
-                  weight="medium"
-                  css={event.change === "cancel" && styles.closed}
-                >
-                  {event.title}
-                </Text>
-                <Text look="caption" tone="muted">
-                  {[
-                    formatShortDate(date, context.locale),
-                    weekday.format(day),
-                  ].join(" ")}
-                  {" · "}
-                  {details.join(" · ")}
-                </Text>
+              <div css={[stack.tight, styles.eventText]}>
+                <div css={stack.text}>
+                  <Text
+                    weight="medium"
+                    css={event.change === "cancel" && styles.closed}
+                  >
+                    {event.title}
+                  </Text>
+                  <Text look="caption" tone="muted">
+                    {[
+                      formatShortDate(date, context.locale),
+                      weekday.format(day),
+                    ].join(" ")}
+                    {" · "}
+                    {details.join(" · ")}
+                  </Text>
+                </div>
+                {state === "suggested" && available ? (
+                  <AddToCalendar
+                    classificationId={mail.classificationId}
+                    cancel={event.change === "cancel"}
+                  />
+                ) : null}
               </div>
-              <Badge
-                size="sm"
-                intent={event.change === "cancel" ? "danger" : "neutral"}
-              >
-                {event.change === "cancel"
-                  ? cancelled
-                  : event.change === "update"
-                    ? changed
-                    : suggested}
-              </Badge>
+              {state === "none" ? null : (
+                <Badge size="sm" intent={intents[state]}>
+                  {labels[state]}
+                </Badge>
+              )}
             </li>,
           ];
         })}
@@ -460,7 +509,11 @@ export function DigestView({
         ) : null,
       )}
       {digest.calendar.length > 0 ? (
-        <CalendarSection mails={digest.calendar} context={context} />
+        <CalendarSection
+          mails={digest.calendar}
+          context={context}
+          available={digest.calendarAvailable}
+        />
       ) : null}
       {digest.filed.length > 0 ? <FiledSection filed={digest.filed} /> : null}
       {digest.sample.length > 0 ? (
@@ -499,7 +552,7 @@ const styles = stylex.create({
   },
   event: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: rhythm.item,
   },
   dateTile: {

@@ -71,6 +71,20 @@
       "when": 1793504791106,
       "tag": "0009_tidy_isolation",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793505940441,
+      "tag": "0010_calendar",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793505940856,
+      "tag": "0011_calendar_isolation",
+      "breakpoints": true
     }
   ]
 }

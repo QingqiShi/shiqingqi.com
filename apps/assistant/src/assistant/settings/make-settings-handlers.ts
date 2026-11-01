@@ -21,7 +21,7 @@ const settingsBody = z.object({
   locale: z.enum(USER_LOCALES),
 });
 
-const mailboxWritesBody = z.object({ enabled: z.boolean() });
+const switchBody = z.object({ enabled: z.boolean() });
 
 const PUSH_ENDPOINT = z.string().max(2048).refine(isPushServiceEndpoint);
 
@@ -69,9 +69,7 @@ export function makeSettingsHandlers(
     saveMailboxWrites: async (request: Request): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
-      const body = mailboxWritesBody.safeParse(
-        await request.json().catch(() => null),
-      );
+      const body = switchBody.safeParse(await request.json().catch(() => null));
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
@@ -92,6 +90,42 @@ export function makeSettingsHandlers(
               mailboxWrites: enabled,
               mailboxWritesSince: enabled
                 ? sql`case when ${userSettings.mailboxWrites} then ${userSettings.mailboxWritesSince} else ${now.toISOString()}::timestamptz end`
+                : null,
+              updatedAt: now,
+            },
+          }),
+      );
+      return assistantNoContent();
+    },
+
+    /**
+     * Turns the calendar events on or off. Turning them on starts a new
+     * period: mail classified before it gets no event on its own.
+     */
+    saveCalendarEvents: async (request: Request): Promise<Response> => {
+      const session = await guardRequest(deps, request, { write: true });
+      if (session instanceof Response) return session;
+      const body = switchBody.safeParse(await request.json().catch(() => null));
+      if (!body.success) {
+        return assistantJson({ error: "invalid-body" }, { status: 400 });
+      }
+      const { enabled } = body.data;
+      const now = deps.now();
+      await withUser(deps.getDb(), session.userId, ({ db, userId }) =>
+        db
+          .insert(userSettings)
+          .values({
+            userId,
+            calendarEvents: enabled,
+            calendarEventsSince: enabled ? now : null,
+            updatedAt: now,
+          })
+          .onConflictDoUpdate({
+            target: userSettings.userId,
+            set: {
+              calendarEvents: enabled,
+              calendarEventsSince: enabled
+                ? sql`case when ${userSettings.calendarEvents} then ${userSettings.calendarEventsSince} else ${now.toISOString()}::timestamptz end`
                 : null,
               updatedAt: now,
             },
