@@ -58,6 +58,7 @@ async function acceptInvite(
     token,
     response,
     timeZone: "Asia/Shanghai",
+    locale: "zh",
   });
 }
 
@@ -98,10 +99,13 @@ describe("an invite", () => {
     ).toEqual([{ displayName: "Qingqi" }]);
     expect(
       await db
-        .select({ timeZone: userSettings.timeZone })
+        .select({
+          timeZone: userSettings.timeZone,
+          locale: userSettings.locale,
+        })
         .from(userSettings)
         .where(eq(userSettings.userId, userId)),
-    ).toEqual([{ timeZone: "Asia/Shanghai" }]);
+    ).toEqual([{ timeZone: "Asia/Shanghai", locale: "zh" }]);
 
     expect(await newBrowser().post("inviteOptions", { token })).toMatchObject({
       status: 410,

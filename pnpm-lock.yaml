@@ -211,6 +211,9 @@ importers:
 
   apps/assistant:
     dependencies:
+      '@ai-sdk/anthropic':
+        specifier: ^4.0.89
+        version: 4.0.89(zod@4.6.7)
       '@phosphor-icons/react':
         specifier: 'catalog:'
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -235,6 +238,9 @@ importers:
       '@vercel/functions':
         specifier: ^3.10.3
         version: 3.10.3
+      ai:
+        specifier: ^7.0.154
+        version: 7.0.154(zod@4.6.7)
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4(@electric-sql/pglite@0.5.12)(@opentelemetry/api@1.9.1)(@types/pg@8.23.1)(@upstash/redis@1.40.0)(pg@8.23.1)

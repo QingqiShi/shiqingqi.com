@@ -22,12 +22,14 @@
     "lint": "eslint --max-warnings 0 .",
     "pretest": "npm-run-all codegen:i18n codegen:wgsl",
     "test": "vitest run",
+    "eval": "vitest run --config vitest.eval.config.mts",
     "assistant:generate": "drizzle-kit generate",
     "assistant:migrate": "tsx src/assistant/db/migrate-cli.ts",
     "assistant:invite-link": "tsx src/assistant/auth/invite-link-cli.ts",
     "assistant:session": "tsx src/assistant/dev/session/cli.ts --db-port $(node ../../scripts/get-worktree-port.mjs 2533) --app-port ${ASSISTANT_PORT:-$(node ../../scripts/get-worktree-port.mjs 300)}"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.89",
     "@phosphor-icons/react": "catalog:",
     "@serwist/next": "catalog:",
     "@simplewebauthn/browser": "^14.0.0",
@@ -36,6 +38,7 @@
     "@tuja/i18n": "workspace:*",
     "@tuja/ui": "workspace:*",
     "@vercel/functions": "^3.10.3",
+    "ai": "^7.0.154",
     "drizzle-orm": "^0.45.4",
     "htmlparser2": "^12.0.0",
     "imapflow": "^2.10.0",

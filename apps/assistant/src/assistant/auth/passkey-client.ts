@@ -42,7 +42,7 @@ export const passkeyClient = {
   },
 
   /** Saves a passkey on this device for the invite's user, and signs in. */
-  async acceptInvite(token: string): Promise<void> {
+  async acceptInvite(token: string, locale: string): Promise<void> {
     const { options } = await post<{
       options: PublicKeyCredentialCreationOptionsJSON;
     }>("/invite/options", { token });
@@ -53,6 +53,7 @@ export const passkeyClient = {
       token,
       response,
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      locale,
     });
   },
 
