@@ -17,7 +17,7 @@ function StatusBadge({ status }: { status: AccountSummary["status"] }) {
   if (status === "ok") {
     return (
       <Badge intent="success" size="sm">
-        {t({ en: "Syncing", zh: "同步中" })}
+        {t({ en: "Connected", zh: "已连接" })}
       </Badge>
     );
   }
@@ -30,7 +30,7 @@ function StatusBadge({ status }: { status: AccountSummary["status"] }) {
   }
   return (
     <Badge intent="danger" size="sm">
-      {t({ en: "Last sync failed", zh: "上次同步失败" })}
+      {t({ en: "Last run failed", zh: "上次运行失败" })}
     </Badge>
   );
 }
@@ -46,8 +46,8 @@ function ErrorText({ code }: { code: string }) {
       zh: "授权已撤销或过期，请重新连接邮箱。",
     }),
     token_refresh_failed: t({
-      en: "The provider did not renew access. The next sync tries again.",
-      zh: "服务商没有续期授权，下次同步会再试。",
+      en: "The provider did not renew access. The next run tries again.",
+      zh: "服务商没有续期授权，下次运行会再试。",
     }),
     credential_unreadable: t({
       en: "The saved login can no longer be read. Connect the mailbox again.",
@@ -58,8 +58,8 @@ function ErrorText({ code }: { code: string }) {
       zh: "服务器还没有配置这类邮箱。",
     }),
     sync_failed: t({
-      en: "The sync stopped with an error. The next sync tries again.",
-      zh: "同步出错中断，下次同步会再试。",
+      en: "The run stopped with an error. The next run tries again.",
+      zh: "运行出错中断，下次运行会再试。",
     }),
   };
   return (
@@ -73,12 +73,12 @@ function ErrorText({ code }: { code: string }) {
 function WriteErrorText({ code }: { code: string }) {
   const messages: Record<WriteErrorCode, string> = {
     move_unsupported: t({
-      en: "This mail server cannot move mail safely, so the assistant leaves mail in the inbox. It still marks and flags mail.",
-      zh: "这个邮件服务器无法安全地移动邮件，所以助手会把邮件留在收件箱，但仍会标记已读和加旗标。",
+      en: "This mail server cannot move mail safely, so the assistant leaves all mail in the inbox, unchanged.",
+      zh: "这个邮件服务器无法安全地移动邮件，所以助手会把所有邮件原样留在收件箱。",
     }),
     write_failed: t({
-      en: "The assistant could not change some mail in this mailbox. The next sync tries again.",
-      zh: "助手没能改动这个邮箱里的部分邮件，下次同步会再试。",
+      en: "The assistant could not change some mail in this mailbox. The next run tries again.",
+      zh: "助手没能改动这个邮箱里的部分邮件，下次运行会再试。",
     }),
   };
   return (
@@ -131,11 +131,11 @@ export function AccountCard({
             {PROVIDER_NAMES[account.provider]}
             {" · "}
             {account.lastSyncedAt
-              ? t({ en: "Last synced {date}", zh: "上次同步 {date}" }).replace(
+              ? t({ en: "Last checked {date}", zh: "上次检查 {date}" }).replace(
                   "{date}",
                   formatDate(account.lastSyncedAt),
                 )
-              : t({ en: "Not synced yet", zh: "尚未同步" })}
+              : t({ en: "Not checked yet", zh: "尚未检查" })}
             {" · "}
             {t({ en: "{count} folders", zh: "{count} 个文件夹" }).replace(
               "{count}",

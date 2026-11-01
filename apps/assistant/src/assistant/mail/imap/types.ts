@@ -57,12 +57,19 @@ export interface MovedMessages {
 
 /**
  * One logged-in IMAP connection. A fetch always uses BODY.PEEK, so reading
- * never marks mail read. A folder opens read-only unless `write` is set;
- * only the mailbox writes (`mail/tidy/`) set it.
+ * never marks mail read. A folder opens read-only unless `write` is set.
  */
 export interface MailboxSession {
-  /** Every folder, with message and unseen counts for each selectable one. */
-  listFolders(): Promise<MailboxFolder[]>;
+  /**
+   * Every folder. With `counts`, the default, it also asks the server for the
+   * message and unseen counts of each selectable folder, one STATUS each;
+   * without them the counts are null.
+   */
+  listFolders(options?: { counts?: boolean }): Promise<MailboxFolder[]>;
+  /** Makes a folder and subscribes to it; a folder that is already there is kept as it is. */
+  createFolder(path: string): Promise<void>;
+  /** Whether the server has the MOVE command, which `moveMessages` needs. */
+  supportsMove(): boolean;
   openFolder(
     path: string,
     options?: { write?: boolean },

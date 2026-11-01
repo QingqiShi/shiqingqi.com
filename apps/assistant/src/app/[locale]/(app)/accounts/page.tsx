@@ -80,8 +80,8 @@ function ConnectNotice({
     return (
       <Callout intent="success" role="status">
         {t({
-          en: "Connected. The first sync reads the folders; mail that arrives from now on goes into your digest.",
-          zh: "已连接。首次同步会读取文件夹，此后收到的邮件都会进入你的摘要。",
+          en: "Connected. The assistant starts filing this inbox once organising is on in the settings.",
+          zh: "已连接。在设置中开启整理后，助手就会开始整理这个收件箱。",
         })}
       </Callout>
     );
@@ -118,8 +118,8 @@ export default async function Page({
         </Heading>
         <Text as="p" tone="muted">
           {t({
-            en: "The assistant reads these mailboxes every 15 minutes. It never deletes mail, and it changes nothing until you allow it in the settings.",
-            zh: "助手每 15 分钟读取一次这些邮箱。它从不删除邮件，在你于设置中允许之前也不会改动任何邮件。",
+            en: "Once you turn on organising in the settings, the assistant files every inbox mail into a folder every 15 minutes and marks it read. Until then it changes nothing. It never deletes mail.",
+            zh: "在设置中开启整理后，助手每 15 分钟把收件箱里的每封邮件归入一个文件夹并标为已读。开启之前它不会改动任何邮件。它从不删除邮件。",
           })}
         </Text>
       </div>

@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { USER_LOCALES, userSettings } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
@@ -12,6 +11,7 @@ import {
   guardRequest,
   type RequestGuardDependencies,
 } from "#src/assistant/http/guard-request.ts";
+import { ORGANISE_NOTES_MAX_CHARS } from "#src/assistant/organise/organise-notes-max-chars.ts";
 import { isPushServiceEndpoint } from "#src/assistant/push/is-push-service-endpoint.ts";
 import { pushDevices } from "#src/assistant/push/push-devices.ts";
 
@@ -22,6 +22,10 @@ const settingsBody = z.object({
 });
 
 const switchBody = z.object({ enabled: z.boolean() });
+
+const notesBody = z.object({
+  notes: z.string().trim().max(ORGANISE_NOTES_MAX_CHARS),
+});
 
 const PUSH_ENDPOINT = z.string().max(2048).refine(isPushServiceEndpoint);
 
@@ -41,6 +45,19 @@ export function makeSettingsHandlers(
     now: () => Date;
   },
 ) {
+  async function saveSettings(
+    userId: string,
+    change: Partial<typeof userSettings.$inferInsert>,
+  ) {
+    const values = { ...change, updatedAt: deps.now() };
+    await withUser(deps.getDb(), userId, ({ db, userId }) =>
+      db
+        .insert(userSettings)
+        .values({ userId, ...values })
+        .onConflictDoUpdate({ target: userSettings.userId, set: values }),
+    );
+  }
+
   return {
     /** Saves the time zone, the digest hour and the digest language. */
     save: async (request: Request): Promise<Response> => {
@@ -52,85 +69,33 @@ export function makeSettingsHandlers(
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      const values = { ...body.data, updatedAt: deps.now() };
-      await withUser(deps.getDb(), session.userId, ({ db, userId }) =>
-        db
-          .insert(userSettings)
-          .values({ userId, ...values })
-          .onConflictDoUpdate({ target: userSettings.userId, set: values }),
-      );
+      await saveSettings(session.userId, body.data);
       return assistantNoContent();
     },
 
-    /**
-     * Allows or stops the mailbox writes. Turning them on starts a new
-     * period: mail classified before it is left as it is.
-     */
-    saveMailboxWrites: async (request: Request): Promise<Response> => {
+    /** Turns organising on or off: while it is on, a cron files every inbox mail into a folder. */
+    saveOrganise: async (request: Request): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
       const body = switchBody.safeParse(await request.json().catch(() => null));
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      const { enabled } = body.data;
-      const now = deps.now();
-      await withUser(deps.getDb(), session.userId, ({ db, userId }) =>
-        db
-          .insert(userSettings)
-          .values({
-            userId,
-            mailboxWrites: enabled,
-            mailboxWritesSince: enabled ? now : null,
-            updatedAt: now,
-          })
-          .onConflictDoUpdate({
-            target: userSettings.userId,
-            set: {
-              mailboxWrites: enabled,
-              mailboxWritesSince: enabled
-                ? sql`case when ${userSettings.mailboxWrites} then ${userSettings.mailboxWritesSince} else ${now.toISOString()}::timestamptz end`
-                : null,
-              updatedAt: now,
-            },
-          }),
-      );
+      await saveSettings(session.userId, {
+        organiseEnabled: body.data.enabled,
+      });
       return assistantNoContent();
     },
 
-    /**
-     * Turns the calendar events on or off. Turning them on starts a new
-     * period: mail classified before it gets no event on its own.
-     */
-    saveCalendarEvents: async (request: Request): Promise<Response> => {
+    /** Saves the user's notes on where mail goes, which the organise model reads. */
+    saveOrganiseNotes: async (request: Request): Promise<Response> => {
       const session = await guardRequest(deps, request, { write: true });
       if (session instanceof Response) return session;
-      const body = switchBody.safeParse(await request.json().catch(() => null));
+      const body = notesBody.safeParse(await request.json().catch(() => null));
       if (!body.success) {
         return assistantJson({ error: "invalid-body" }, { status: 400 });
       }
-      const { enabled } = body.data;
-      const now = deps.now();
-      await withUser(deps.getDb(), session.userId, ({ db, userId }) =>
-        db
-          .insert(userSettings)
-          .values({
-            userId,
-            calendarEvents: enabled,
-            calendarEventsSince: enabled ? now : null,
-            updatedAt: now,
-          })
-          .onConflictDoUpdate({
-            target: userSettings.userId,
-            set: {
-              calendarEvents: enabled,
-              calendarEventsSince: enabled
-                ? sql`case when ${userSettings.calendarEvents} then ${userSettings.calendarEventsSince} else ${now.toISOString()}::timestamptz end`
-                : null,
-              updatedAt: now,
-            },
-          }),
-      );
+      await saveSettings(session.userId, { organiseNotes: body.data.notes });
       return assistantNoContent();
     },
 

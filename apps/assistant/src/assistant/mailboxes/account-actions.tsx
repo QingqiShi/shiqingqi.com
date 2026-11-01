@@ -7,13 +7,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 
-/** Sync now, and remove with a second press to confirm. */
+/** Check now, and remove with a second press to confirm. */
 export function AccountActions({ accountId }: { accountId: string }) {
   const router = useRouter();
-  const [busy, setBusy] = useState<"sync" | "remove" | null>(null);
+  const [busy, setBusy] = useState<"check" | "remove" | null>(null);
   const [confirming, setConfirming] = useState(false);
 
-  function run(kind: "sync" | "remove", path: string, method: string) {
+  function run(kind: "check" | "remove", path: string, method: string) {
     setBusy(kind);
     assistantFetch(path, { method })
       .catch(() => undefined)
@@ -29,13 +29,13 @@ export function AccountActions({ accountId }: { accountId: string }) {
       <Button
         size="sm"
         look="outline"
-        loading={busy === "sync"}
+        loading={busy === "check"}
         disabled={busy !== null}
         onClick={() => {
-          run("sync", `/api/accounts/${accountId}/sync`, "POST");
+          run("check", `/api/accounts/${accountId}/check`, "POST");
         }}
       >
-        {t({ en: "Sync now", zh: "立即同步" })}
+        {t({ en: "Check now", zh: "立即检查" })}
       </Button>
       <Button
         size="sm"

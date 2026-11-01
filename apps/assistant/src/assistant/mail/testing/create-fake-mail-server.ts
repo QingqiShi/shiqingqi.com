@@ -35,6 +35,7 @@ export interface FakeMailServerLog {
   logins: number;
   fetchedUids: number[];
   writes: FakeMailWrite[];
+  createdFolders: string[];
 }
 
 const MESSAGE_ID_HEADER = /^message-id:[ \t]*(.*)$/im;
@@ -43,7 +44,7 @@ const MESSAGE_ID_HEADER = /^message-id:[ \t]*(.*)$/im;
  * An in-memory IMAP server for one mailbox. `connector` logs in with
  * `password` or `accessToken`, and fails with `failNextConnects` when it is
  * set. `uidPlus: false` makes MOVE say no new UIDs; `move: false` makes a
- * server without MOVE.
+ * server without MOVE. `refusal` is the error message of a refused login.
  */
 export function createFakeMailServer({
   user,
@@ -51,16 +52,23 @@ export function createFakeMailServer({
   accessToken,
   uidPlus = true,
   move = true,
+  refusal,
 }: {
   user: string;
   password?: string;
   accessToken?: string;
   uidPlus?: boolean;
   move?: boolean;
+  refusal?: string;
 }) {
   const folders = new Map<string, FakeFolder>();
-  const log: FakeMailServerLog = { logins: 0, fetchedUids: [], writes: [] };
-  let failingCommand: FakeMailWrite["command"] | null = null;
+  const log: FakeMailServerLog = {
+    logins: 0,
+    fetchedUids: [],
+    writes: [],
+    createdFolders: [],
+  };
+  let failingCommand: FakeMailWrite["command"] | "create" | null = null;
   let failure: Error | null = null;
   let validToken = accessToken;
 
@@ -143,7 +151,7 @@ export function createFakeMailServer({
       ("pass" in auth
         ? password !== undefined && auth.pass === password
         : validToken !== undefined && auth.accessToken === validToken);
-    if (!accepted) return Promise.reject(new MailboxAuthError());
+    if (!accepted) return Promise.reject(new MailboxAuthError(refusal));
     log.logins += 1;
     let open: FakeFolder | null = null;
     let writable = false;
@@ -161,20 +169,33 @@ export function createFakeMailServer({
       return folder;
     };
     const session: MailboxSession = {
-      listFolders: () =>
-        Promise.resolve(
+      listFolders: (options) => {
+        const counts = options?.counts !== false;
+        return Promise.resolve(
           [...folders.values()].map((folder) => ({
             path: folder.path,
             name: folder.path.split("/").at(-1) ?? folder.path,
             delimiter: "/",
             specialUse: folder.specialUse,
             selectable: folder.selectable,
-            messages: folder.selectable ? folder.messages.length : null,
-            unseen: folder.selectable
-              ? folder.messages.filter((m) => !m.flags.has("\\Seen")).length
-              : null,
+            messages:
+              counts && folder.selectable ? folder.messages.length : null,
+            unseen:
+              counts && folder.selectable
+                ? folder.messages.filter((m) => !m.flags.has("\\Seen")).length
+                : null,
           })),
-        ),
+        );
+      },
+      createFolder: (path) => {
+        if (failingCommand === "create") {
+          return Promise.reject(new Error("The server refused create"));
+        }
+        log.createdFolders.push(path);
+        if (!folders.has(path)) addFolder(path);
+        return Promise.resolve();
+      },
+      supportsMove: () => move,
       openFolder: (path, options) => {
         open = folderOf(path);
         writable = options?.write === true;
@@ -299,7 +320,7 @@ export function createFakeMailServer({
       );
     },
     /** Makes every later write command of this kind fail; null stops it. */
-    failCommand(command: FakeMailWrite["command"] | null) {
+    failCommand(command: FakeMailWrite["command"] | "create" | null) {
       failingCommand = command;
     },
     /** Gives every message new UIDs under a new UIDVALIDITY, as a rebuilt server does. */

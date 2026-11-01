@@ -135,6 +135,10 @@ export const userSettings = pgTable(
     }),
     /** Off until the user starts it: then a cron stores and classifies the mail older than each account's connection. */
     historyImport: boolean("history_import").notNull().default(false),
+    /** Off until the user turns it on: then a cron files every inbox mail into a folder and marks it read. */
+    organiseEnabled: boolean("organise_enabled").notNull().default(false),
+    /** The user's own words on where mail goes, for the model that picks a folder. */
+    organiseNotes: text("organise_notes").notNull().default(""),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

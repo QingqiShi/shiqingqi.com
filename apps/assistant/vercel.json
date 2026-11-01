@@ -4,7 +4,7 @@
   "ignoreCommand": "npx turbo-ignore assistant",
   "crons": [
     {
-      "path": "/api/cron/sync-mail",
+      "path": "/api/cron/organise",
       "schedule": "*/15 * * * *"
     },
     {
