@@ -331,11 +331,17 @@ export default defineConfig([
     },
   },
   {
-    files: ["apps/web/src/**", "apps/finance/src/**", "packages/ui/src/**"],
+    files: [
+      "apps/web/src/**",
+      "apps/finance/src/**",
+      "apps/assistant/src/**",
+      "packages/ui/src/**",
+    ],
     ignores: [
       "**/*.{test,spec}.{ts,tsx}",
       "apps/web/src/testing/**",
       "apps/finance/src/testing/**",
+      "apps/assistant/src/testing/**",
       "packages/ui/src/test-setup.ts",
       "packages/ui/src/test-support/**",
     ],
@@ -371,6 +377,7 @@ export default defineConfig([
       "packages/ui/src/**/*.{ts,tsx}",
       "apps/web/src/**/*.{ts,tsx}",
       "apps/finance/src/**/*.{ts,tsx}",
+      "apps/assistant/src/**/*.{ts,tsx}",
     ],
     ignores: ["**/*.test.{ts,tsx}", "**/test-setup.ts"],
     rules: {
@@ -509,6 +516,7 @@ export default defineConfig([
       "packages/ui/src/**/*.stylex.ts",
       "apps/web/src/**/*.stylex.ts",
       "apps/finance/src/**/*.stylex.ts",
+      "apps/assistant/src/**/*.stylex.ts",
     ],
     rules: {
       "@tuja/only-stylex-exports": "error",
@@ -569,6 +577,7 @@ export default defineConfig([
       "apps/*/src/link.tsx",
       "apps/web/src/links/link.tsx",
       "apps/finance/src/links/link.tsx",
+      "apps/assistant/src/links/link.tsx",
     ],
     rules: {
       "no-restricted-imports": [
