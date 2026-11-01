@@ -1,8 +1,7 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
-import { color, font, rhythm } from "@tuja/ui/tokens.stylex";
+import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
   GuideNote,
   GuideSection,
@@ -12,88 +11,90 @@ export function ColorNamesShowcase() {
   const parts = [
     {
       part: "bg",
-      slot: t({ en: "What it paints", zh: "绘制什么" }),
-      options: t({
-        en: "bg, fg, fgOn or border",
-        zh: "bg、fg、fgOn 或 border",
-      }),
+      span: placement.bg,
+      slot: t({ en: "Paints", zh: "绘制" }),
+      others: t({ en: "or fg, border", zh: "或 fg、border" }),
     },
     {
       part: "Control",
-      slot: t({ en: "What the box is", zh: "盒子是什么" }),
-      options: t({
-        en: "Such as Canvas, Surface, Control or an Intent",
-        zh: "例如 Canvas、Surface、Control 或意图色",
+      span: placement.control,
+      slot: t({ en: "Element", zh: "元素" }),
+      others: t({
+        en: "or Canvas, Surface, an Intent",
+        zh: "或 Canvas、Surface、意图色",
       }),
     },
     {
       part: "Strong",
-      slot: t({ en: "Variant", zh: "变体" }),
-      options: t({
-        en: "Such as Strong, Bright, Sunken or Subtle",
-        zh: "例如 Strong、Bright、Sunken 或 Subtle",
-      }),
+      span: placement.strong,
+      slot: t({ en: "Variant, if any", zh: "变体，可省" }),
+      others: t({ en: "or Subtle, Sunken", zh: "或 Subtle、Sunken" }),
     },
     {
       part: "Selected",
-      slot: t({ en: "State", zh: "状态" }),
-      options: t({
-        en: "Hover, Pressed, Selected or Disabled",
-        zh: "Hover、Pressed、Selected 或 Disabled",
+      span: placement.selected,
+      slot: t({ en: "State, if any", zh: "状态，可省" }),
+      others: t({
+        en: "or Hover, Pressed, Disabled",
+        zh: "或 Hover、Pressed、Disabled",
       }),
     },
   ];
-  const name = parts.map(({ part }) => part).join("");
 
   return (
     <GuideSection
       title={t({
-        en: "Name the box, and the token follows.",
-        zh: "先认清盒子，令牌随之而定。",
+        en: "Name the element, and the token follows.",
+        zh: "说出元素，令牌随之而定。",
       })}
       lead={t({
-        en: "Every colour token in @tuja/ui/tokens.stylex reads in one order: what it paints, what the box is, then any variant and state. Each is a light-dark() value, so one style paints both themes.",
-        zh: "@tuja/ui/tokens.stylex 中的每个颜色令牌都按同一顺序命名：绘制什么、盒子是什么，再加上变体与状态。每个令牌都是一个 light-dark() 值，因此一份样式即可绘制两种主题。",
+        en: "Every colour token in @tuja/ui/tokens.stylex reads in one order: what it paints, the element, then any variant and state. Each holds a light and a dark value, so one style paints both themes.",
+        zh: "@tuja/ui/tokens.stylex 中的每个颜色令牌都按同一顺序命名：绘制什么、什么元素，再加上变体与状态。每个令牌都同时含有浅色与深色值，因此一份样式即可绘制两种主题。",
       })}
     >
-      <div css={[stack.item, styles.container]}>
-        <p css={[typeRole.h2, styles.mono, styles.name]}>{name}</p>
+      <div css={styles.container}>
         <ol
-          css={[stack.tight, styles.parts]}
-          aria-label={t({
-            en: "The parts of bgControlStrongSelected",
-            zh: "bgControlStrongSelected 的组成部分",
-          })}
+          css={styles.parts}
+          aria-label={parts.map(({ part }) => part).join("")}
         >
-          {parts.map(({ part, slot, options }, index) => (
-            <li key={part} css={styles.row}>
-              <span css={[typeRole.h2, styles.mono, styles.part]}>
-                {/* The parts before this one hold its place under the name. */}
-                <span aria-hidden css={styles.spacer}>
-                  {parts
-                    .slice(0, index)
-                    .map((before) => before.part)
-                    .join("")}
+          {parts.map(({ part, span, slot, others }, index) => {
+            const isAbove = index % 2 === 0;
+            return (
+              <li key={part} css={[styles.part, span]}>
+                <span css={[typeRole.fluidH1, styles.word]}>{part}</span>
+                <span
+                  aria-hidden
+                  css={[
+                    styles.bracket,
+                    isAbove ? styles.bracketAbove : styles.bracketBelow,
+                  ]}
+                />
+                <span
+                  css={[
+                    styles.label,
+                    isAbove ? styles.labelAbove : styles.labelBelow,
+                  ]}
+                >
+                  <span css={[typeRole.bodySmall, styles.slot]}>{slot}</span>
+                  <span css={[typeRole.bodySmall, styles.others]}>
+                    {others}
+                  </span>
                 </span>
-                {part}
-              </span>
-              <span css={[typeRole.bodySmall, styles.label]}>
-                <span css={styles.slot}>{slot}</span> {options}
-              </span>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
       </div>
       <GuideNote>
         {t({
-          en: "root.html paints bgCanvas and root.body sets fg, so most text needs no token.",
-          zh: "root.html 绘制 bgCanvas，root.body 设置 fg，因此大多数文字无需令牌。",
+          en: "Text on a filled element takes fgOn and that element, such as fgOnControlStrong, not fg.",
+          zh: "填充元素上的文字用 fgOn 加上该元素，例如 fgOnControlStrong，不用 fg。",
         })}
       </GuideNote>
       <GuideNote>
         {t({
-          en: "Text on a Strong or Bright control takes its fgOn token, not fg.",
-          zh: "Strong 或 Bright 控件上的文字用它的 fgOn 令牌，不用 fg。",
+          en: "The page already paints bgCanvas and sets fg, so plain text needs no token.",
+          zh: "页面已绘制 bgCanvas 并设置 fg，因此普通文字无需令牌。",
         })}
       </GuideNote>
     </GuideSection>
@@ -104,40 +105,74 @@ const styles = stylex.create({
   container: {
     containerType: "inline-size",
   },
-  mono: {
-    fontFamily: font.familyMono,
-  },
-  name: {
-    margin: 0,
-    color: color.fg,
-  },
   parts: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, max-content) minmax(0, 1fr)",
+    gridTemplateRows: "repeat(5, auto)",
     margin: 0,
     padding: 0,
     listStyle: "none",
   },
-  row: {
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "baseline",
-    columnGap: rhythm.item,
-  },
   part: {
+    display: "grid",
+    gridTemplateColumns: "subgrid",
+    gridTemplateRows: "subgrid",
+    gridRow: "1 / -1",
+  },
+  word: {
+    gridColumn: "1",
+    gridRow: "3",
+    fontFamily: font.familyMono,
+    fontSize: "min(2.5rem, 7cqi)",
     color: color.fg,
     whiteSpace: "nowrap",
   },
-  spacer: {
-    visibility: "hidden",
+  bracket: {
+    gridColumn: "1",
+    blockSize: space._1,
+    borderWidth: border.size_1,
+    borderStyle: "solid",
+    borderColor: color.fgMuted,
+  },
+  bracketAbove: {
+    gridRow: "2",
+    marginBlockEnd: rhythm.tight,
+    borderBlockEndWidth: 0,
+  },
+  bracketBelow: {
+    gridRow: "4",
+    marginBlockStart: rhythm.tight,
+    borderBlockStartWidth: 0,
   },
   label: {
-    flex: {
-      default: "1 1 100%",
-      "@container (min-width: 38rem)": "1 1 14rem",
-    },
-    color: color.fgMuted,
+    display: "flex",
+    flexDirection: "column",
+    gridColumn: "1 / -1",
+    contain: "inline-size",
+    paddingInlineEnd: rhythm.item,
+  },
+  labelAbove: {
+    gridRow: "1",
+    alignSelf: "end",
+    paddingBlockEnd: rhythm.tight,
+  },
+  labelBelow: {
+    gridRow: "5",
+    paddingBlockStart: rhythm.tight,
   },
   slot: {
     fontWeight: font.weight_6,
     color: color.fg,
   },
+  others: {
+    wordBreak: "keep-all",
+    color: color.fgMuted,
+  },
+});
+
+const placement = stylex.create({
+  bg: { gridColumn: "1 / 3" },
+  control: { gridColumn: "2 / 4" },
+  strong: { gridColumn: "3 / -1" },
+  selected: { gridColumn: "4 / -1" },
 });
