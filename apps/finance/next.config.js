@@ -29,6 +29,9 @@ module.exports = async (phase) => {
       // `.stylex` imports across packages. It can restore a module with old
       // var hashes, which breaks the styles in production (#2761).
       turbopackFileSystemCacheForBuild: false,
+      // Keep `light-dark()` native, so that a `color-scheme` on a subtree
+      // changes the colour tokens in it (see apps/web/next.config.js).
+      lightningCssFeatures: { exclude: ["light-dark"] },
     },
     transpilePackages: ["@tuja/i18n", "@tuja/ui"],
     outputFileTracingRoot: path.resolve(__dirname, "../.."),
