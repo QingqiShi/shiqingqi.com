@@ -2,5 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "if [ \"$VERCEL_ENV\" = preview ] || [ \"$VERCEL_ENV\" = production ]; then pnpm assistant:migrate; fi && turbo run build",
   "ignoreCommand": "npx turbo-ignore assistant",
-  "crons": []
+  "crons": [
+    {
+      "path": "/api/cron/sync-mail",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }

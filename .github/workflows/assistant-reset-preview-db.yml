@@ -1,0 +1,36 @@
+name: Assistant Reset Preview DB
+
+on:
+  schedule:
+    - cron: '10 4 * * *'   # Daily at 04:10 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: assistant-preview-db
+
+jobs:
+  reset:
+    if: ${{ vars.ASSISTANT_NEON_PROJECT_ID != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: neondatabase/reset-branch-action@v1.3.2
+        id: reset
+        with:
+          project_id: ${{ vars.ASSISTANT_NEON_PROJECT_ID }}
+          branch: preview
+          parent: true
+          api_key: ${{ secrets.NEON_API_KEY }}
+          cs_role_name: neondb_owner
+          cs_database: neondb
+      # Production and previews use the same ASSISTANT_CREDENTIAL_KEY. Thus a
+      # preview can open the real mailboxes with the copied logins.
+      - name: Delete production sign-in sessions and mailbox logins
+        env:
+          DATABASE_URL: ${{ steps.reset.outputs.db_url }}
+        run: |
+          echo "::add-mask::$DATABASE_URL"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c 'delete from sessions; delete from mail_accounts;'

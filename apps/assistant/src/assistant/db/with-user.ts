@@ -58,3 +58,21 @@ export function withUser<T>(
     return run({ db: scoped, userId });
   }, config);
 }
+
+/**
+ * Runs `run` in a savepoint of a user's transaction: when it fails, only its
+ * own writes roll back, and the transaction can go on.
+ */
+export function inSavepoint<T>(
+  db: UserDb,
+  run: (db: UserDb) => Promise<T>,
+): Promise<T> {
+  return db.transaction((tx) =>
+    run(
+      Object.assign(tx, {
+        [assistantApp]: true as const,
+        [user]: true as const,
+      }),
+    ),
+  );
+}

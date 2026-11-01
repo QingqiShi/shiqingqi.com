@@ -1,28 +1,65 @@
 import { t } from "@tuja/i18n";
+import { getLocalePath } from "@tuja/i18n/get-locale-path";
 import type { PageProps } from "@tuja/i18n/types";
 import { validateLocale } from "@tuja/i18n/validate-locale";
 import { Heading } from "@tuja/ui/components/heading";
 import { Text } from "@tuja/ui/components/text";
-import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import type { Metadata } from "next";
+import { requirePageSession } from "#src/assistant/auth/require-page-session.ts";
+import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
+import { mailAccounts } from "#src/assistant/db/schema.ts";
+import { withUser } from "#src/assistant/db/with-user.ts";
+import { AnchorButton } from "#src/links/anchor-button.tsx";
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   validateLocale((await props.params).locale);
   return { title: t({ en: "Digest", zh: "摘要" }) };
 }
 
-export default function Page() {
+export default async function Page({ params }: PageProps) {
+  const locale = validateLocale((await params).locale);
+  const session = await requirePageSession(locale, "/");
+  const accounts = await withUser(getAssistantDb(), session.userId, ({ db }) =>
+    db.$count(mailAccounts),
+  );
+
   return (
-    <div css={stack.tight}>
-      <Heading level={1} look="h1">
-        {t({ en: "Nothing to read yet", zh: "暂时没有需要看的" })}
-      </Heading>
-      <Text tone="muted">
-        {t({
-          en: "Your morning digest shows on this page once you connect a mailbox.",
-          zh: "连接邮箱后，每天早上的摘要会显示在这里。",
-        })}
-      </Text>
+    <div css={stack.group}>
+      <div css={stack.tight}>
+        <Heading level={1} look="h1">
+          {t({ en: "Nothing to read yet", zh: "暂时没有需要看的" })}
+        </Heading>
+        <Text as="p" tone="muted">
+          {accounts === 0
+            ? t({
+                en: "Your morning digest shows on this page once you connect a mailbox.",
+                zh: "连接邮箱后，每天早上的摘要会显示在这里。",
+              })
+            : t({
+                en: "Your mailboxes are connected. Choose your categories so that mail can be filed.",
+                zh: "邮箱已连接。请选择分类，以便归档邮件。",
+              })}
+        </Text>
+      </div>
+      <div css={cluster.tight}>
+        <AnchorButton
+          href={getLocalePath("/accounts", locale)}
+          look={accounts === 0 ? "primary" : "outline"}
+        >
+          {accounts === 0
+            ? t({ en: "Connect a mailbox", zh: "连接邮箱" })
+            : t({ en: "Mailboxes", zh: "邮箱" })}
+        </AnchorButton>
+        {accounts > 0 ? (
+          <AnchorButton
+            href={getLocalePath("/categories", locale)}
+            look="outline"
+          >
+            {t({ en: "Categories", zh: "分类" })}
+          </AnchorButton>
+        ) : null}
+      </div>
     </div>
   );
 }

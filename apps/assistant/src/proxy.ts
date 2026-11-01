@@ -78,9 +78,17 @@ function isDocumentRequest(request: NextRequest): boolean {
 // `CRON_SECRET` bearer token instead.
 const CRON_PATH_PREFIX = "/api/cron/";
 
+// The browser comes back to an OAuth callback from the provider's site, with
+// its Referer or none. The handler checks the state in the sealed connect
+// cookie instead.
+const OAUTH_CALLBACK_PATH = /^\/api\/connect\/[a-z]+\/callback$/;
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith(CRON_PATH_PREFIX)) {
+  if (
+    pathname.startsWith(CRON_PATH_PREFIX) ||
+    OAUTH_CALLBACK_PATH.test(pathname)
+  ) {
     return NextResponse.next();
   }
   if (pathname.startsWith("/api/")) {
