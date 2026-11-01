@@ -1,19 +1,22 @@
 "use client";
 
 import { LightningIcon } from "@phosphor-icons/react/dist/ssr/Lightning";
+import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { TextField } from "@tuja/ui/components/text-field";
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { flex } from "@tuja/ui/primitives/flex.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
+import { typeRole } from "@tuja/ui/primitives/type.stylex";
+import { color, rhythm } from "@tuja/ui/tokens.stylex";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { isPickableAccount } from "../domain/accounts/is-pickable-account.ts";
 import { formatMoney } from "../domain/money/format-money.ts";
 import { parseMoney } from "../domain/money/parse-money.ts";
 import { buildTransactionMutations } from "../editor/build-transaction-mutations.ts";
-import {
-  fieldStatus,
-  missingFields,
-  type MarkedField,
-} from "../editor/marked-fields.ts";
+import type { EditorDraft } from "../editor/editor-draft.ts";
+import { missingFields, type RequiredField } from "../editor/marked-fields.ts";
 import type { EditorSeed } from "../editor/transaction-editor.tsx";
 import { useEditorData, type EditorData } from "../editor/use-editor-data.ts";
 import { applyAll } from "../replica/apply-with-undo.ts";
@@ -21,12 +24,13 @@ import { useReplicaStore } from "../replica/use-replica-store.ts";
 import { useIsWideLayout } from "../shell/use-is-wide-layout.ts";
 import { useUndoToast } from "../shell/use-undo-toast.ts";
 import { useCategoryDisplayName } from "../store/use-category-display-name.ts";
+import { QuickAddChips } from "./quick-add-chips.tsx";
 import { currencyOfAccount } from "./quick-add-draft.ts";
+import { useQuickAddDraft } from "./use-quick-add-draft.ts";
 import {
   useQuickAddInterpretation,
   type QuickAddInterpretationState,
 } from "./use-quick-add-interpretation.ts";
-import { useTransactionKindLabels } from "./use-transaction-kind-labels.ts";
 
 /** Words from the Household's own data, so each placeholder example reads as its own. */
 function placeholderWords({
@@ -79,7 +83,9 @@ interface QuickAddFieldProps {
   onTextChange: (text: string) => void;
   reading: QuickAddInterpretationState;
   /** The live line under the field. */
-  status: string;
+  status?: string;
+  /** The id of a line elsewhere that describes the field. */
+  describedBy?: string;
   /** Enter, once the reading is of the text as it is now. */
   onEnter: (input: HTMLInputElement) => void;
   /**
@@ -101,6 +107,7 @@ export function QuickAddField({
   onTextChange,
   reading,
   status,
+  describedBy,
   onEnter,
   focusTargetRef,
 }: QuickAddFieldProps) {
@@ -137,6 +144,7 @@ export function QuickAddField({
       enterKeyHint="done"
       aria-busy={!reading.isCurrent}
       status={status}
+      aria-describedby={describedBy}
       value={text}
       onChange={(event) => {
         onTextChange(event.target.value);
@@ -162,124 +170,80 @@ interface QuickAddProps {
 }
 
 /**
- * Quick add over the Transactions list (design §9.1). The line under the
- * field says what Enter saves: each field the reading is not sure of ends in
- * "?", and a field a save needs says that it is missing. Enter saves when
- * nothing is missing; otherwise the full editor opens with what the line
- * gave, at the first missing field.
+ * Quick add over the Transactions list (design §9.1). Under the field, one
+ * chip for each field of the reading, which opens that field's picker; a
+ * field changed there keeps its value through later readings. The line
+ * under the chips says who read the line and what Enter does: save when
+ * nothing is missing, or else open the full editor with what the line gave,
+ * at the first missing field.
  */
 export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
   const locale = useLocale();
   const data = useEditorData();
   const store = useReplicaStore();
   const showUndoToast = useUndoToast();
+  const footerId = useId();
   const [text, setText] = useState("");
   const reading = useQuickAddInterpretation(text);
-  const { interpretation } = reading;
-  const current = interpretation?.readings[interpretation.kind];
-  const note = useReaderNote(interpretation);
+  const { current, change } = useQuickAddDraft(reading.interpretation);
+  const note = useReaderNote(reading.interpretation);
 
-  const kindLabels = useTransactionKindLabels();
   const addedLabel = t({ en: "Added", zh: "已记录" });
   const categoryName = useCategoryDisplayName();
-  const paysDownLabel = t({ en: "pays down", zh: "还款到" });
-  const missingLabels: Partial<Record<MarkedField, string>> = {
-    amount: t({ en: "Missing amount", zh: "缺少金额" }),
-    category: t({ en: "Missing category", zh: "缺少分类" }),
-    account: t({ en: "Missing account", zh: "缺少账户" }),
-    toAccount: t({ en: "Missing target account", zh: "缺少转入账户" }),
-  };
+  const enterKey = t({ en: "Enter: ", zh: "按 Enter " });
   const reads = t({ en: "Reading…", zh: "识别中…" });
-  const opensEditor = t({
-    en: "Enter opens the form",
-    zh: "按 Enter 打开表单",
-  });
-  const savesNow = t({ en: "Enter saves", zh: "按 Enter 保存" });
+  const saves = t({ en: "Save", zh: "保存" });
+  const fillsIn: Record<RequiredField, string> = {
+    amount: t({ en: "Fill in amount", zh: "补上金额" }),
+    category: t({ en: "Fill in category", zh: "补上分类" }),
+    account: t({ en: "Fill in account", zh: "补上账户" }),
+    toAccount: t({ en: "Fill in target account", zh: "补上转入账户" }),
+  };
 
-  const accountLabel = (accountId: string | null) =>
-    accountId === null
-      ? undefined
-      : data.lookups.accountLabelById.get(accountId);
+  const missing = current ? missingFields(current.draft) : [];
+  const firstMissing = missing.at(0);
+  const enterDoes = !reading.isCurrent
+    ? undefined
+    : current === null
+      ? null
+      : firstMissing === undefined
+        ? saves
+        : fillsIn[firstMissing];
 
-  /** The amount and the Payee, Category or accounts, for the hint and the toast. */
-  const summary = () => {
-    if (!current) return { amount: undefined, name: undefined };
-    const { draft } = current;
+  /** The amount and the Payee or Category, for the toast. */
+  const summary = (draft: EditorDraft) => {
     const currency = currencyOfAccount(data, draft.accountId);
     const minor = parseMoney(draft.amountText, currency);
     const category =
       draft.categoryId === null
         ? undefined
         : data.lookups.categoryById.get(draft.categoryId);
-    return {
-      amount: minor === null ? undefined : formatMoney(minor, currency, locale),
-      name:
-        draft.kind === "transfer"
-          ? undefined
-          : draft.payeeName.trim() ||
-            (category ? categoryName(category) : undefined),
-    };
-  };
-
-  const describe = () => {
-    if (!interpretation || !current) return reading.isCurrent ? "" : reads;
-    const { draft, marks } = current;
-    const shown = (field: MarkedField, text: string | undefined) => {
-      const status = fieldStatus(draft, marks, field);
-      if (status === "missing") return missingLabels[field];
-      return text !== undefined && status === "unsure" ? `${text}?` : text;
-    };
-    const category =
-      draft.categoryId === null
+    return [
+      minor === null ? undefined : formatMoney(minor, currency, locale),
+      draft.kind === "transfer"
         ? undefined
-        : data.lookups.categoryById.get(draft.categoryId);
-    const parts = [
-      note,
-      shown("kind", kindLabels[draft.kind]),
-      shown("amount", summary().amount),
-      ...(draft.kind === "transfer"
-        ? [
-            `${shown("account", accountLabel(draft.accountId)) ?? ""} → ${shown("toAccount", accountLabel(draft.toAccountId)) ?? ""}`,
-          ]
-        : [
-            shown("payee", draft.payeeName.trim() || undefined),
-            shown("category", category ? categoryName(category) : undefined),
-            shown("account", accountLabel(draft.accountId)),
-            draft.paysDownAccountId === null
-              ? undefined
-              : shown(
-                  "paysDown",
-                  `${paysDownLabel} ${accountLabel(draft.paysDownAccountId) ?? ""}`,
-                ),
-          ]),
-      !reading.isCurrent
-        ? reads
-        : missingFields(draft).length > 0
-          ? opensEditor
-          : savesNow,
-    ];
-    return parts
-      .filter((part): part is string => part !== undefined && part !== "")
-      .join(" · ");
+        : draft.payeeName.trim() ||
+          (category ? categoryName(category) : undefined),
+    ].filter((part) => part !== undefined);
   };
 
   const submit = () => {
     if (!current) return;
-    const missing = missingFields(current.draft);
-    const seed: EditorSeed = {
-      draft: current.draft,
-      marks: current.marks,
-      focus: missing.at(0),
-    };
+    const { draft, marks, touched } = current;
     const openEditor = () => {
-      onNeedsEditor(seed);
+      onNeedsEditor({
+        draft,
+        marks,
+        touched: [...touched],
+        focus: firstMissing,
+      });
       setText("");
     };
-    if (missing.length > 0) {
+    if (firstMissing !== undefined) {
       openEditor();
       return;
     }
-    const result = buildTransactionMutations(current.draft, {
+    const result = buildTransactionMutations(draft, {
       target: { type: "create", id: crypto.randomUUID() },
       accountById: data.lookups.accountById,
       payees: data.payees,
@@ -296,23 +260,62 @@ export function QuickAdd({ onNeedsEditor }: QuickAddProps) {
       openEditor();
       return;
     }
-    const { amount, name } = summary();
-    showUndoToast(
-      [addedLabel, amount, name]
-        .filter((part) => part !== undefined)
-        .join(" · "),
-      result.undo,
-    );
+    showUndoToast([addedLabel, ...summary(draft)].join(" · "), result.undo);
     setText("");
   };
 
   return (
-    <QuickAddField
-      text={text}
-      onTextChange={setText}
-      reading={reading}
-      status={describe()}
-      onEnter={submit}
-    />
+    <div css={stack.tight}>
+      <QuickAddField
+        text={text}
+        onTextChange={setText}
+        reading={reading}
+        describedBy={text.trim() === "" ? undefined : footerId}
+        onEnter={submit}
+      />
+      {current ? (
+        <QuickAddChips
+          draft={current.draft}
+          marks={current.marks}
+          touched={current.touched}
+          muted={!reading.isCurrent}
+          onChange={change}
+        />
+      ) : null}
+      {text.trim() === "" ? null : (
+        <div
+          id={footerId}
+          role="status"
+          css={[flex.between, typeRole.caption, styles.footer]}
+        >
+          <span>{note}</span>
+          {enterDoes === null ? null : (
+            <span>
+              {enterDoes === undefined ? (
+                reads
+              ) : (
+                <>
+                  <kbd aria-hidden css={styles.key}>
+                    {"↵ "}
+                  </kbd>
+                  <span css={a11y.srOnly}>{enterKey}</span>
+                  {enterDoes}
+                </>
+              )}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
+
+const styles = stylex.create({
+  footer: {
+    gap: rhythm.inline,
+    color: color.fgMuted,
+  },
+  key: {
+    fontFamily: "inherit",
+  },
+});
