@@ -78,58 +78,58 @@ const styles = stylex.create({
 const bandLit = stylex.create({
   base: {
     backgroundColor: {
-      default: color.bgAccentSubtle,
+      default: color.bgNeutralSubtle,
       [breakpoints.sm]: color.bgSurface,
     },
     boxShadow: {
-      default: `inset 0 -2px 0 0 ${color.bgAccent}`,
+      default: `inset 0 -2px 0 0 ${color.fg}`,
       [breakpoints.sm]: "inset 0 -2px 0 0 transparent",
     },
   },
   sm: {
     backgroundColor: {
       default: color.bgSurface,
-      [breakpoints.sm]: color.bgAccentSubtle,
+      [breakpoints.sm]: color.bgNeutralSubtle,
       [breakpoints.md]: color.bgSurface,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.sm]: `inset 0 -2px 0 0 ${color.bgAccent}`,
+      [breakpoints.sm]: `inset 0 -2px 0 0 ${color.fg}`,
       [breakpoints.md]: "inset 0 -2px 0 0 transparent",
     },
   },
   md: {
     backgroundColor: {
       default: color.bgSurface,
-      [breakpoints.md]: color.bgAccentSubtle,
+      [breakpoints.md]: color.bgNeutralSubtle,
       [breakpoints.lg]: color.bgSurface,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.md]: `inset 0 -2px 0 0 ${color.bgAccent}`,
+      [breakpoints.md]: `inset 0 -2px 0 0 ${color.fg}`,
       [breakpoints.lg]: "inset 0 -2px 0 0 transparent",
     },
   },
   lg: {
     backgroundColor: {
       default: color.bgSurface,
-      [breakpoints.lg]: color.bgAccentSubtle,
+      [breakpoints.lg]: color.bgNeutralSubtle,
       [breakpoints.xl]: color.bgSurface,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.lg]: `inset 0 -2px 0 0 ${color.bgAccent}`,
+      [breakpoints.lg]: `inset 0 -2px 0 0 ${color.fg}`,
       [breakpoints.xl]: "inset 0 -2px 0 0 transparent",
     },
   },
   xl: {
     backgroundColor: {
       default: color.bgSurface,
-      [breakpoints.xl]: color.bgAccentSubtle,
+      [breakpoints.xl]: color.bgNeutralSubtle,
     },
     boxShadow: {
       default: "inset 0 -2px 0 0 transparent",
-      [breakpoints.xl]: `inset 0 -2px 0 0 ${color.bgAccent}`,
+      [breakpoints.xl]: `inset 0 -2px 0 0 ${color.fg}`,
     },
   },
 });
@@ -137,35 +137,35 @@ const bandLit = stylex.create({
 const labelLit = stylex.create({
   base: {
     color: {
-      default: color.fgAccent,
+      default: color.fg,
       [breakpoints.sm]: color.fgMuted,
     },
   },
   sm: {
     color: {
       default: color.fgMuted,
-      [breakpoints.sm]: color.fgAccent,
+      [breakpoints.sm]: color.fg,
       [breakpoints.md]: color.fgMuted,
     },
   },
   md: {
     color: {
       default: color.fgMuted,
-      [breakpoints.md]: color.fgAccent,
+      [breakpoints.md]: color.fg,
       [breakpoints.lg]: color.fgMuted,
     },
   },
   lg: {
     color: {
       default: color.fgMuted,
-      [breakpoints.lg]: color.fgAccent,
+      [breakpoints.lg]: color.fg,
       [breakpoints.xl]: color.fgMuted,
     },
   },
   xl: {
     color: {
       default: color.fgMuted,
-      [breakpoints.xl]: color.fgAccent,
+      [breakpoints.xl]: color.fg,
     },
   },
 });
