@@ -86,6 +86,7 @@ import {
   type MarkedField,
   type RequiredField,
 } from "./marked-fields.ts";
+import { ownerOfAccount } from "./owner-of-account.ts";
 import { prefillFromPayee } from "./prefill-from-payee.ts";
 import { rankPayees } from "./rank-payees.ts";
 import { ruleDeclines } from "./rule-declines.ts";
@@ -166,7 +167,7 @@ const NO_ENTRIES: readonly EntryRow[] = [];
  * stops at the scroller's padding edge.
  */
 const PANE_END_GAP = space._7;
-const PAYS_DOWN_KINDS: ReadonlySet<string> = new Set([
+export const PAYS_DOWN_KINDS: ReadonlySet<string> = new Set([
   "loan",
   "credit",
   "receivable",
@@ -419,13 +420,7 @@ function EditorForm({
   const isActiveMember = (memberId: string) =>
     data.members.some((member) => member.id === memberId);
 
-  const ownerOf = (accountId: string | null) => {
-    const owner =
-      accountId === null
-        ? null
-        : (data.lookups.accountById.get(accountId)?.ownerMemberId ?? null);
-    return owner !== null && isActiveMember(owner) ? owner : null;
-  };
+  const ownerOf = (accountId: string | null) => ownerOfAccount(data, accountId);
 
   const removedMember =
     draft.memberId === null || isActiveMember(draft.memberId)
@@ -1725,7 +1720,7 @@ function EditorForm({
   );
 }
 
-function TagPickerSlot({
+export function TagPickerSlot({
   data,
   value,
   mark,

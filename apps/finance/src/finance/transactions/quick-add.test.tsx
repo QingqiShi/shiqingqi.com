@@ -1,5 +1,10 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { screen, userEvent, waitFor } from "#src/testing/test-utils.tsx";
+import {
+  screen,
+  userEvent,
+  waitFor,
+  within,
+} from "#src/testing/test-utils.tsx";
 import type { QuickAddResponse } from "../ai/types.ts";
 import type { EditorSeed } from "../editor/transaction-editor.tsx";
 import { QuickAdd } from "./quick-add.tsx";
@@ -126,5 +131,28 @@ describe("QuickAdd", () => {
       focus: "category",
       draft: { payeeName: "Pizza Place", accountId: ids.current },
     });
+  });
+
+  it("keeps a field changed with its chip when a later reading arrives", async () => {
+    stubQuickAdd(200, (text) => aiReply(text));
+    const { runtime, field, settled } = await setup();
+    await userEvent.type(field, "pizza 12.5");
+    await settled();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Category: Dining, not sure" }),
+    );
+    const picker = screen.getByRole("dialog", { name: "Category" });
+    const [runnerUp] = within(picker).getAllByRole("button", {
+      name: "Groceries",
+    });
+    await userEvent.click(runnerUp);
+
+    await userEvent.type(field, " tonight");
+    await settled();
+    await userEvent.keyboard("{Enter}");
+    const created = runtime.store
+      .takeOutbox()
+      .find((mutation) => mutation.name === "createTransaction");
+    expect(created?.args).toMatchObject({ categoryId: ids.groceries });
   });
 });
