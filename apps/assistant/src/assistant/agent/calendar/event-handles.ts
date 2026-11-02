@@ -7,6 +7,14 @@ export interface EventRef {
   /** The version the run saw; a write sends it, so a change since then is refused. */
   etag: string | null;
   title: string;
+  /** The start of one occurrence of a repeating event, which gets an id of its own. */
+  occurrence?: number;
+}
+
+function keyOf(ref: EventRef) {
+  return ref.occurrence === undefined
+    ? ref.url
+    : `${ref.url}#${String(ref.occurrence)}`;
 }
 
 const HANDLE = /^e[1-9]\d*$/;
@@ -19,14 +27,14 @@ const HANDLE = /^e[1-9]\d*$/;
  */
 export class EventHandles {
   readonly #refs = new Map<string, EventRef>();
-  readonly #idOfUrl = new Map<string, string>();
+  readonly #idOfKey = new Map<string, string>();
   /** Why an id stopped working. */
   readonly #gone = new Map<string, string>();
   #next = 1;
 
-  /** The id of the event at this URL; the same event listed twice keeps its id and gets the newer version. */
+  /** The id of the event at this URL, or of one occurrence of it; the same event listed twice keeps its id and gets the newer version. */
   register(ref: EventRef): string {
-    const known = this.#idOfUrl.get(ref.url);
+    const known = this.#idOfKey.get(keyOf(ref));
     if (known) {
       this.#refs.set(known, ref);
       this.#gone.delete(known);
@@ -35,7 +43,7 @@ export class EventHandles {
     const id = `e${String(this.#next)}`;
     this.#next += 1;
     this.#refs.set(id, ref);
-    this.#idOfUrl.set(ref.url, id);
+    this.#idOfKey.set(keyOf(ref), id);
     return id;
   }
 

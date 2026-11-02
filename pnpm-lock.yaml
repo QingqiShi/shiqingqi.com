@@ -247,6 +247,9 @@ importers:
       htmlparser2:
         specifier: ^12.0.0
         version: 12.0.0
+      ical.js:
+        specifier: ^2.2.1
+        version: 2.2.1
       imapflow:
         specifier: ^2.10.0
         version: 2.10.0
@@ -270,7 +273,7 @@ importers:
         version: 9.5.13(@typescript/typescript6@6.0.2)(browserslist@4.29.4)
       tsdav:
         specifier: 2.5.0
-        version: 2.5.0
+        version: 2.5.0(supports-color@10.2.2)
       web-push:
         specifier: 3.6.7
         version: 3.6.7(supports-color@10.2.2)
@@ -5678,6 +5681,9 @@ packages:
   human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
+
+  ical.js@2.2.1:
+    resolution: {integrity: sha512-yK/UlPbEs316igb/tjRgbFA8ZV75rCsBJp/hWOatpyaPNlgw0dGDmU+FoicOcwX4xXkeXOkYiOmCqNPFpNPkQg==}
 
   iconv-lite@0.7.2:
     resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
@@ -12890,6 +12896,8 @@ snapshots:
 
   human-signals@2.1.0: {}
 
+  ical.js@2.2.1: {}
+
   iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
@@ -15186,7 +15194,7 @@ snapshots:
 
   ts-pattern@5.9.2: {}
 
-  tsdav@2.5.0:
+  tsdav@2.5.0(supports-color@10.2.2):
     dependencies:
       debug: 4.4.3(supports-color@10.2.2)
       xml-js: 1.6.11

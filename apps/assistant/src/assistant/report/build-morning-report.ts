@@ -1,19 +1,24 @@
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
-import type { AssistantModel } from "#src/assistant/ai/types.ts";
+import { desc, eq } from "drizzle-orm";
+import { RunCalendars } from "#src/assistant/agent/calendar/run-calendars.ts";
+import { RunMailboxes } from "#src/assistant/agent/mail/run-mailboxes.ts";
+import {
+  applyTodoChanges,
+  readOpenTodos,
+} from "#src/assistant/agent/todos/create-todo-tools.ts";
+import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
+import type { CalendarConnector } from "#src/assistant/calendar/caldav/types.ts";
 import {
   mailAccounts,
   morningReports,
-  todos,
   type UserLocale,
 } from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
 import { dueReportDate, localClock } from "./due-report-date.ts";
 import { addDays } from "./local-day-bounds.ts";
-import { readDayMail } from "./read-day-mail.ts";
 import { readReportSettings } from "./read-report-settings.ts";
-import type { MorningReportContent, ReportStatus } from "./types.ts";
-import { pickMailForModel, writeReport } from "./write-report.ts";
+import { runReportAgent, type ReportAgentResult } from "./run-report-agent.ts";
+import type { MorningReportContentV2 } from "./types.ts";
 
 /**
  * From this local hour on, a run that cannot write the report stores one
@@ -23,8 +28,9 @@ const LAST_TRY_HOUR = 23;
 
 export interface ReportBuildDeps {
   /** Null when no API key is set: then the runs try again until the last try of the day. */
-  model: AssistantModel | null;
+  models: AgentModels | null;
   mail: MailboxDeps;
+  calendarConnector: CalendarConnector;
   now: () => Date;
 }
 
@@ -32,16 +38,20 @@ export interface BuiltReport {
   id: string;
   localDate: string;
   locale: UserLocale;
-  status: ReportStatus;
+  status: MorningReportContentV2["status"];
   headline: string | null;
   newTodos: number;
+  /** The mails of the day marked read once the report was stored. */
+  markedRead: number;
 }
 
 /** The report that is due now, or null when none is. */
 async function readPlan({ db, userId }: UserScope, builtAt: Date) {
-  if ((await db.$count(mailAccounts, eq(mailAccounts.userId, userId))) === 0) {
-    return null;
-  }
+  const accounts = await db
+    .select({ id: mailAccounts.id, address: mailAccounts.address })
+    .from(mailAccounts)
+    .where(eq(mailAccounts.userId, userId));
+  if (accounts.length === 0) return null;
   const settings = await readReportSettings({ db, userId });
   const latest = (
     await db
@@ -58,22 +68,18 @@ async function readPlan({ db, userId }: UserScope, builtAt: Date) {
     latestReportDate: latest?.localDate ?? null,
   });
   if (!localDate) return null;
-  const openTodos = await db
-    .select({ id: todos.id, title: todos.title, detail: todos.detail })
-    .from(todos)
-    .where(and(eq(todos.userId, userId), isNull(todos.doneAt)))
-    .orderBy(asc(todos.createdAt));
-  return { settings, localDate, openTodos };
+  return { accounts, settings, localDate };
 }
 
 /**
  * Builds the user's morning report when one is due (see `dueReportDate`):
- * reads the mail of the day before from every mailbox, has the model write
- * the report and the new to-dos, and stores both in one transaction.
- * Returns null when none is due, the user has no mailbox, or another run
- * stored the day first. Returns "retry" and stores nothing when no mailbox
- * could be read or the model wrote no report, until the last try of the
- * day. The mail is never stored.
+ * the report agent reads the mail of the day before and today's calendar,
+ * and submits the report; the report and the agent's to-do changes are
+ * stored in one transaction. Only then is the day's mail that the agent
+ * listed marked read. Returns null when none is due, the user has no
+ * mailbox, or another run stored the day first. Returns "retry" and stores
+ * nothing when no mailbox can be read or the agent submits no report,
+ * until the last try of the day. The mail is never stored.
  */
 export async function buildMorningReport(
   {
@@ -83,7 +89,7 @@ export async function buildMorningReport(
   }: {
     db: AssistantDb;
     userId: string;
-    /** No new mail is fetched after this; the model call and the writes come after it. */
+    /** The agent must submit by this time; the writes come after it. */
     endsAt: number;
   },
   deps: ReportBuildDeps,
@@ -94,92 +100,101 @@ export async function buildMorningReport(
 
   const { settings, localDate } = plan;
   const lastTry = localClock(builtAt, settings.timeZone).hour >= LAST_TRY_HOUR;
-  if (!deps.model && !lastTry) return "retry";
+  if (!deps.models && !lastTry) return "retry";
   const mailDate = addDays(localDate, -1);
-  const day = await readDayMail(
-    {
-      db,
-      userId,
-      localDate: mailDate,
-      timeZone: settings.timeZone,
-      endsAt,
-    },
-    deps.mail,
-  );
-  const { picked, leftOut } = pickMailForModel(day.mails, settings.timeZone);
-  const written = await writeReport({
-    mails: picked,
-    leftOut,
-    openTodos: plan.openTodos,
-    model: deps.model,
-    locale: settings.locale,
-    mailDate,
-    today: localDate,
-    timeZone: settings.timeZone,
-  });
-  const status: ReportStatus =
-    day.readMailboxes === 0 && day.mails.length === 0
-      ? "failed"
-      : written.status;
-  if ((status === "failed" || status === "no-model") && !lastTry) {
-    return "retry";
-  }
-  const content: MorningReportContent = {
-    version: 1,
-    mailDate,
-    status,
-    promptVersion: written.promptVersion,
-    headline: written.headline,
-    needsAction: written.needsAction,
-    worthKnowing: written.worthKnowing,
-    rest: written.rest,
-    mailCount: day.mails.length,
-    leftOut,
-    notRead: day.notRead,
-    ranOutOfTime: day.ranOutOfTime,
-    unreadMailboxes: day.unreadMailboxes,
-  };
-
-  const stored = await db.transaction(async (tx) => {
-    const report = (
-      await tx
-        .insert(morningReports)
-        .values({
-          userId,
-          localDate,
-          content,
-          modelId: written.modelId,
-          builtAt,
-        })
-        .onConflictDoNothing({
-          target: [morningReports.userId, morningReports.localDate],
-        })
-        .returning({ id: morningReports.id })
-    ).at(0);
-    if (!report) return null;
-    if (written.todos.length > 0) {
-      await tx.insert(todos).values(
-        written.todos.map((todo) => ({
-          userId,
-          title: todo.title,
-          detail: todo.detail,
-          dueDate: todo.dueDate,
-          sourceAccountId: todo.source?.accountId ?? null,
-          sourceMessageId: todo.source?.messageId ?? null,
-          createdReportId: report.id,
-          createdAt: builtAt,
-        })),
+  const mailboxes = await RunMailboxes.open(db, userId, deps.mail);
+  try {
+    let agent: ReportAgentResult | null = null;
+    if (deps.models && mailboxes.accounts.length > 0) {
+      agent = await runReportAgent(
+        { db, userId, endsAt, now: deps.now },
+        {
+          models: deps.models,
+          mailboxes,
+          calendars: await RunCalendars.open(db, userId, {
+            calendarConnector: deps.calendarConnector,
+            auth: deps.mail.auth,
+          }),
+          openTodos: await readOpenTodos({ db, userId }),
+          locale: settings.locale,
+          timeZone: settings.timeZone,
+          today: localDate,
+          mailDate,
+        },
       );
     }
-    return report;
-  });
-  if (!stored) return null;
-  return {
-    id: stored.id,
-    localDate,
-    locale: settings.locale,
-    status,
-    headline: written.headline,
-    newTodos: written.todos.length,
-  };
+    const report = agent?.report ?? null;
+    const status: MorningReportContentV2["status"] = report
+      ? "written"
+      : deps.models
+        ? "failed"
+        : "no-model";
+    if (status !== "written" && !lastTry) return "retry";
+
+    const opened = new Set(mailboxes.accounts.map((account) => account.id));
+    const changes = report ? agent?.todoChanges : undefined;
+    const content: MorningReportContentV2 = {
+      version: 2,
+      mailDate,
+      status,
+      headline: report?.headline ?? null,
+      needsAction: report?.needsAction ?? [],
+      worthKnowing: report?.worthKnowing ?? [],
+      rest: report?.rest ?? null,
+      agenda: report?.agenda ?? null,
+      mailCount: agent?.mailCount ?? 0,
+      ranOutOfTime: agent?.run.forcedFinish ?? false,
+      unreadMailboxes: plan.accounts
+        .filter((account) => !opened.has(account.id))
+        .map((account) => ({
+          accountId: account.id,
+          address: account.address,
+        })),
+      doneTodos: changes?.done ?? [],
+    };
+
+    const stored = await db.transaction(async (tx) => {
+      const row = (
+        await tx
+          .insert(morningReports)
+          .values({
+            userId,
+            localDate,
+            content,
+            modelId: report ? (deps.models?.agent.id ?? null) : null,
+            builtAt,
+          })
+          .onConflictDoNothing({
+            target: [morningReports.userId, morningReports.localDate],
+          })
+          .returning({ id: morningReports.id })
+      ).at(0);
+      if (!row) return null;
+      if (changes) {
+        await applyTodoChanges(tx, {
+          userId,
+          reportId: row.id,
+          now: builtAt,
+          changes,
+        });
+      }
+      return row;
+    });
+    if (!stored) return null;
+    const markedRead =
+      report && agent
+        ? await agent.markDayMailRead(`In the morning report of ${localDate}`)
+        : 0;
+    return {
+      id: stored.id,
+      localDate,
+      locale: settings.locale,
+      status,
+      headline: content.headline,
+      newTodos: changes?.added.length ?? 0,
+      markedRead,
+    };
+  } finally {
+    await mailboxes.finish();
+  }
 }
