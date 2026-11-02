@@ -22,9 +22,9 @@ import {
 } from "../motion/use-motion-engine.ts";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { duration, easing, transition } from "../primitives/motion.stylex.ts";
+import { duration, easing } from "../primitives/motion.stylex.ts";
+import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import { selected } from "../primitives/selected.stylex.ts";
 import { stack } from "../primitives/stack.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { border, color, controlSize, font, rhythm } from "../tokens.stylex.ts";
@@ -217,13 +217,11 @@ function OpeningGroup({
           typeRole.label,
           buttonReset.base,
           a11y.touchRow,
-          transition.colors,
           corner.radius_2,
+          quietSurface.interactive,
           navListStyles.rowInset,
           navListStyles.rowControl,
           styles.toggle,
-          selected.quiet,
-          a11y.focusRingInset,
         ]}
       >
         {icon === undefined ? null : (

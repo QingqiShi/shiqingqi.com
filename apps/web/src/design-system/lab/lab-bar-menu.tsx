@@ -3,10 +3,10 @@
 import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Text } from "@tuja/ui/components/text";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -88,7 +88,8 @@ export function LabBarMenu({
               css={[
                 buttonReset.base,
                 corner.radius_2,
-                transition.colors,
+                a11y.touchRow,
+                quietSurface.interactive,
                 styles.row,
               ]}
               onClick={() => {
@@ -124,13 +125,6 @@ const styles = stylex.create({
     gap: controlSize._2,
     paddingBlock: controlSize._2,
     paddingInline: controlSize._3,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgSurfaceSunken,
-      },
-    },
     textAlign: "start",
     minInlineSize: 0,
   },

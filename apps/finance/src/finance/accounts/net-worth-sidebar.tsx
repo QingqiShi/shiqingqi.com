@@ -12,12 +12,10 @@ import {
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
 import { Text } from "@tuja/ui/components/text";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
-import { color, space } from "@tuja/ui/tokens.stylex";
+import { space } from "@tuja/ui/tokens.stylex";
 import { useEffect, useState } from "react";
 import { Link } from "#src/links/link.tsx";
 import { AccountGroupList } from "./account-group-list.tsx";
@@ -81,9 +79,7 @@ export function NetWorthSidebar({
           aria-current={url.account === null ? "page" : undefined}
           {...stylex.props(
             corner.radius_3,
-            transition.colors,
-            selected.quiet,
-            a11y.focusRingInset,
+            quietSurface.interactive,
             styles.household,
           )}
         >
@@ -274,8 +270,6 @@ const styles = stylex.create({
   household: {
     display: "block",
     padding: space._2,
-    color: color.fg,
-    textDecoration: "none",
   },
   // The trend and the actions line up with the text of the headline.
   trend: {

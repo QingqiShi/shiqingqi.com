@@ -3,10 +3,11 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
+import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
@@ -64,9 +65,9 @@ export function EmotionToggle({ active, onChange }: EmotionToggleProps) {
             buttonReset.base,
             typeRole.label,
             corner.radius_round,
+            quietSurface.interactive,
+            a11y.focusRing,
             styles.button,
-            selected.quiet,
-            transition.colors,
           ]}
         >
           {emotionLabels[emotion]}

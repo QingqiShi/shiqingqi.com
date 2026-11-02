@@ -1,12 +1,10 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { plainList } from "@tuja/ui/primitives/layout.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
 import type { ReactNode } from "react";
@@ -86,8 +84,7 @@ export function RankedRow({
   );
   const interactive = [
     corner.radius_2,
-    transition.colors,
-    selected.quiet,
+    quietSurface.interactive,
     plainList.row,
     styles.row,
   ];
@@ -95,10 +92,7 @@ export function RankedRow({
   return (
     <li>
       {href !== undefined ? (
-        <Link
-          href={href}
-          {...stylex.props(interactive, a11y.focusRing, styles.link)}
-        >
+        <Link href={href} {...stylex.props(interactive)}>
           {body}
         </Link>
       ) : onSelect ? (
@@ -126,11 +120,7 @@ const styles = stylex.create({
     rowGap: rhythm.inline,
     inlineSize: "100%",
     paddingBlock: space._1,
-    color: color.fg,
     textAlign: "start",
-  },
-  link: {
-    textDecoration: "none",
   },
   name: {
     display: "flex",

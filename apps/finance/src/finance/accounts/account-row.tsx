@@ -10,10 +10,8 @@ import {
   SplitViewLink,
   useSplitViewShared,
 } from "@tuja/ui/components/navigation-split-view";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
 import { typeModifier, typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -151,13 +149,7 @@ export function AccountRow({
       <SplitViewLink
         href={href}
         aria-current={isSelected ? "true" : undefined}
-        {...stylex.props(
-          corner.radius_3,
-          transition.colors,
-          selected.quiet,
-          a11y.focusRingInset,
-          styles.row,
-        )}
+        {...stylex.props(corner.radius_3, quietSurface.interactive, styles.row)}
       >
         {avatar}
         <span css={styles.main}>
@@ -182,8 +174,6 @@ const styles = stylex.create({
     minInlineSize: 0,
     paddingBlock: space._1,
     paddingInline: space._2,
-    color: color.fg,
-    textDecoration: "none",
   },
   avatar: {
     display: "flex",

@@ -5,7 +5,7 @@ import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
+import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Card } from "@tuja/ui/components/card";
 import { Heading } from "@tuja/ui/components/heading";
 import {
@@ -18,7 +18,7 @@ import {
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { border, color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -312,8 +312,8 @@ function WhatMoved({
                   href={url.hrefOf({ account: mover.account.id })}
                   {...stylex.props(
                     corner.radius_2,
-                    transition.colors,
-                    a11y.focusRingInset,
+                    a11y.touchRow,
+                    quietSurface.interactive,
                     styles.moverLink,
                   )}
                 >
@@ -465,8 +465,8 @@ function CheckLink({ href, children }: { href: string; children: string }) {
         flex.between,
         typeRole.bodySmall,
         corner.radius_3,
-        transition.colors,
-        a11y.focusRing,
+        a11y.touchRow,
+        quietSurface.interactive,
         styles.check,
       )}
     >
@@ -583,12 +583,6 @@ const styles = stylex.create({
     paddingBlock: space._0,
     paddingInline: space._1,
     marginInline: `calc(-1 * ${space._1})`,
-    color: color.fg,
-    textDecoration: "none",
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
-    },
   },
   moverName: {
     maxInlineSize: "10rem",
@@ -635,12 +629,6 @@ const styles = stylex.create({
     borderWidth: border.size_1,
     borderStyle: "solid",
     borderColor: color.border,
-    color: color.fg,
-    textDecoration: "none",
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
-    },
     fontWeight: font.weight_4,
   },
 });

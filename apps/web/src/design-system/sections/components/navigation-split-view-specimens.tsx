@@ -18,8 +18,7 @@ import {
 import { Text } from "@tuja/ui/components/text";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, controlSize, space } from "@tuja/ui/tokens.stylex";
@@ -419,10 +418,8 @@ function StripLink({
         aria-current={current ? "page" : undefined}
         {...stylex.props(
           corner.radius_3,
-          transition.colors,
-          selected.quiet,
+          quietSurface.interactive,
           a11y.touchTarget,
-          a11y.focusRingInset,
           styles.stripLink,
         )}
       >

@@ -14,6 +14,7 @@ Multi-property composable styles in `packages/ui/src/primitives/`. Each primitiv
 - [Motion](#motion)
 - [Accessibility](#accessibility)
 - [Selected](#selected)
+- [Quiet Surface](#quiet-surface)
 - [Material (Texture, Wash)](#material-texture-wash)
 
 ---
@@ -411,21 +412,51 @@ A control that abuts its neighbours, such as a nav link in a list of rows, takes
 
 | Export                | Properties                                                                                               |
 | --------------------- | -------------------------------------------------------------------------------------------------------- |
-| `selected.quiet`      | `bgControlSelected` while selected, `bgControlHover` on hover — the default strength                     |
 | `selected.marked`     | `borderAccent` border and `bgAccentSubtle` tint while selected — for a choice that decides the next step |
 | `selectedTokens.rest` | The background while not selected; defaults to `transparent`                                             |
 
-Both strengths read the ARIA state already on the element: `aria-pressed`, `aria-checked` or `aria-selected` set to `true`, or any `aria-current` but `false`. Never write a `selected && styles.selected` style of your own — set the attribute and compose the strength. Each strength owns `backgroundColor` (and `marked` owns `borderColor`), so set a rest background through `selectedTokens.rest`, and give a `marked` element a border width. `quiet` is for an item that only has to stand out from its siblings (a menu row, a nav link, a tab, a segmented choice); `marked` is for a choice the visitor submits, such as a picked option card. Where the item's content covers its background (a colour swatch, an image thumbnail), neither strength shows; keep a ring there.
+Every selected state reads the ARIA state already on the element: `aria-pressed`, `aria-checked` or `aria-selected` set to `true`, or any `aria-current` but `false`. Never write a `selected && styles.selected` style of your own — set the attribute and compose the look. An item that only has to stand out from its siblings (a menu row, a nav link, a segmented choice) takes `quietSurface.interactive`, below. `selected.marked` is for a choice the visitor submits, such as a picked option card. It owns `backgroundColor` and `borderColor`, so set a rest background through `selectedTokens.rest`, and give the element a border width. Where the item's content covers its background (a colour swatch, an image thumbnail), neither look shows; keep a ring there.
 
 ```tsx
 import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
-
-<a aria-current={isCurrent ? "page" : undefined} css={[styles.link, selected.quiet]}>
 
 const styles = stylex.create({
   option: { borderWidth: border.size_2, borderStyle: "solid", [selectedTokens.rest]: color.bgSurface },
 });
 <button {...getOptionProps(value)} css={[styles.option, selected.marked]}>
+```
+
+---
+
+## Quiet Surface
+
+**Import**: `@tuja/ui/primitives/quiet-surface.stylex`
+
+| Export                     | Properties                                                                                                                                                                                                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `quietSurface.interactive` | `selectedTokens.rest` at rest + `bgControlHover` on hover + `bgControlPressed` on press + `bgControlSelected` while selected + the inset focus ring + `transition.colors` + no tap flash + `touch-action: manipulation` + cursor + no decoration + inherited colour |
+
+A link or button with no fill of its own that fills under the pointer: a row of a list, a menu item, a segmented choice, a bare icon button. The `@tuja/require-quiet-surface` ESLint rule reports a hand-written hover fill of `color.bgControlHover` on an element that is transparent at rest, in `apps/*`. A control with a surface at rest is a different look and is not in its scope. A card that also moves on hover composes it, and keeps its own transform and shadow.
+
+- **The caller sets the shape.** Radius and padding differ from row to row (`corner.radius_1` to `radius_3`, or `radius_round` on an icon button), so compose a `corner.*` and set the padding. A button without a fill at rest takes `buttonReset.base` first, because it sets the same properties.
+- **The caller's own styles come after it.** It sets `color: inherit`, `cursor`, no text decoration, the `transition.colors` transition and the ring. A style that changes one of them, such as a muted `color` or a transition with a transform, must come later in `css`. An element whose fill must change at once, such as a combobox option, sets `transition: null`.
+- **The ring is inset**, because a row abuts its neighbours and often sits in an ancestor that clips overflow. Compose `a11y.focusRing` after it for an element that stands alone and must keep an outward ring, such as a chip or a standalone button.
+- **It reads the selected state itself.** Set `aria-current`, `aria-pressed`, `aria-checked` or `aria-selected`. A selected element keeps its fill under the pointer and on press. Set a rest background through `selectedTokens.rest`.
+- **It sets no size.** A row under 44px composes `a11y.touchRow` before it for a touch screen. `buttonReset.base` already carries the hit area of a button.
+
+```tsx
+import { corner } from "@tuja/ui/primitives/corner.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
+
+const styles = stylex.create({
+  row: { paddingBlock: space._1, paddingInline: space._2 },
+});
+
+<Link
+  href={href}
+  aria-current={isCurrent ? "page" : undefined}
+  {...stylex.props(corner.radius_3, quietSurface.interactive, styles.row)}
+>
 ```
 
 ---

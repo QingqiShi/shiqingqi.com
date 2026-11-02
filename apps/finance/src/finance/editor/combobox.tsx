@@ -7,7 +7,7 @@ import { useEffectCover } from "@tuja/ui/hooks/use-effect-cover";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { truncate } from "@tuja/ui/primitives/layout.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, layer, rhythm, space } from "@tuja/ui/tokens.stylex";
 import {
@@ -193,7 +193,12 @@ export function Combobox({
             id={optionId(index)}
             role="option"
             aria-selected={index === activeIndex}
-            css={[flex.row, selected.quiet, corner.radius_1, styles.option]}
+            css={[
+              flex.row,
+              corner.radius_1,
+              quietSurface.interactive,
+              styles.option,
+            ]}
             onMouseDown={(event) => {
               event.preventDefault();
             }}
@@ -226,7 +231,12 @@ export function Combobox({
             id={optionId(options.length)}
             role="option"
             aria-selected={activeIndex === options.length}
-            css={[flex.row, selected.quiet, corner.radius_1, styles.option]}
+            css={[
+              flex.row,
+              corner.radius_1,
+              quietSurface.interactive,
+              styles.option,
+            ]}
             onMouseDown={(event) => {
               event.preventDefault();
             }}
@@ -261,12 +271,13 @@ const styles = stylex.create({
     overflowY: "auto",
     overscrollBehavior: "contain",
   },
+  // The fill follows the pointer and the arrow keys, so it changes at once.
   option: {
     gap: rhythm.tight,
     paddingBlock: space._1,
     paddingInline: space._2,
-    cursor: "pointer",
     minInlineSize: 0,
+    transition: null,
   },
   leading: {
     flexShrink: 0,

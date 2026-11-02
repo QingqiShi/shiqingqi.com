@@ -30,16 +30,17 @@ function sameRows(a: MoverRows, b: MoverRows) {
   );
 }
 
-/** The block size of a row of movers without its growth: its name and the padding of its link. */
+/** The block size of a row of movers without its growth: its name and the padding of its link, or the least block size of the link where that is more. */
 function contentHeight(row: Element) {
   const link = row.firstElementChild;
   const name = link?.firstElementChild;
   if (link == null || name == null) return 0;
-  const { paddingTop, paddingBottom } = getComputedStyle(link);
-  return (
+  const { paddingTop, paddingBottom, minBlockSize } = getComputedStyle(link);
+  return Math.max(
     name.getBoundingClientRect().height +
-    parseFloat(paddingTop) +
-    parseFloat(paddingBottom)
+      parseFloat(paddingTop) +
+      parseFloat(paddingBottom),
+    parseFloat(minBlockSize) || 0,
   );
 }
 

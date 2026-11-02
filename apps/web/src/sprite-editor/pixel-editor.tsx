@@ -28,8 +28,9 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
+import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { typeRole, typeModifier } from "@tuja/ui/primitives/type.stylex";
 import {
   border,
@@ -1205,8 +1206,9 @@ function ToolButton({
       css={[
         buttonReset.base,
         corner.radius_2,
+        quietSurface.interactive,
+        a11y.focusRing,
         styles.toolButton,
-        selected.quiet,
       ]}
       title={label}
       aria-label={label}
@@ -1242,6 +1244,7 @@ function SelectionButton({
         buttonReset.base,
         typeRole.label,
         corner.radius_1,
+        quietSurface.interactive,
         styles.selectionButton,
         variant === "primary" && styles.selectionButtonPrimary,
       ]}
@@ -1397,13 +1400,6 @@ const styles = stylex.create({
     gap: controlSize._1,
     paddingBlock: "4px",
     paddingInline: space._1,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
     color: color.fg,
     fontFamily: "inherit",
     fontWeight: font.weight_6,

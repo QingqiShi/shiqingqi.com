@@ -18,6 +18,7 @@ The import paths below are the `@tuja/ui` package exports that `apps/web` uses. 
 | Text size, line height, weight, tracking            | `Text`/`Heading`, or `typeRole`                    | `css={[typeRole.label, styles.navItem]}`                            |
 | A small line above a title (eyebrow)                | `stack.tight`                                      | `css={stack.tight}` on the eyebrow and title                        |
 | A link or button with more than one line            | `Pager`, `AnchorButton`, `cardSurface.interactive` | hover responds across the whole target, never underlines part of it |
+| A link or button that fills only on hover (a row)   | `quietSurface.interactive`                         | `css={[corner.radius_3, quietSurface.interactive, styles.row]}`     |
 | Cap a line of prose                                 | `measure` tokens                                   | `maxInlineSize: measure.prose`                                      |
 | Set a page's content in the centred column          | `pageColumn` primitive                             | `css={[pageColumn.base, styles.hero]}`                              |
 | Rounded corners                                     | Design primitives (`corner.*`)                     | `css={corner.radius_3}`                                             |
@@ -108,10 +109,13 @@ A hover that reveals something is one of two kinds, and the kind decides what to
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 
 const styles = stylex.create({
-  // Feedback: wrap the hover value. Touch keeps the rest state.
+  // Feedback: wrap the hover value. Touch keeps the rest state. An element that
+  // is transparent at rest does not write this: it takes
+  // `quietSurface.interactive`, and `@tuja/require-quiet-surface` reports the
+  // hand-written fill.
   row: {
     backgroundColor: {
-      default: "transparent",
+      default: color.bgSurface,
       ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
     },
   },
@@ -254,7 +258,8 @@ Never write `fontSize` in a style — not a `font.ui*` token, not a raw length. 
 - **Reset** — `buttonReset.base` strips browser button chrome and carries the focus ring and the touch target
 - **Root** — `root.html` / `root.body`, the document defaults: colour scheme, canvas, and the text everything inherits (colour, typeface, `font.lineHeightBody`, `text-wrap: pretty`, `overflow-wrap: break-word`). Text needs no `lineHeight`, `textWrap: "pretty"` or `overflowWrap: "break-word"` unless it differs, and nothing sets a `fontSize` on the root
 - **Motion** — transition/animation presets with reduced-motion handling
-- **Selected** — `selected.quiet` / `selected.marked` paint the selected state from the element's own `aria-pressed`, `aria-checked`, `aria-selected` or `aria-current`. Set the attribute and compose a strength; never a hand-built `isActive && styles.active`. `quiet` (a background) is the default; `marked` (accent border and tint) is only for a choice the visitor submits
+- **Selected** — every selected state reads the element's own `aria-pressed`, `aria-checked`, `aria-selected` or `aria-current`: set the attribute, never a hand-built `isActive && styles.active`. `quietSurface.interactive` (a background) is the default. `selected.marked` (accent border and tint) is only for a choice the visitor submits
+- **Quiet surface** — `quietSurface.interactive` is a link or button with no fill of its own that fills under the pointer, such as a row of a list, a menu item, a segmented choice or a bare icon button. It carries the hover, the press, the selected state, the inset focus ring, the transition, the touch feel, `cursor: pointer`, no text decoration and the inherited colour. The caller sets the radius and the padding. Compose it after `buttonReset.base`, and put the caller's own styles after it. A control that stands alone composes `a11y.focusRing` after it to keep an outward ring
 - **Page column** — `pageColumn.base` / `pageColumn.scroller` set a page's content in the centred column with the page gutter; `pageColumn.wide` with either widens the column to the screen for a gallery of cards; `pageGutter` is one gutter
 - **A11y** — `srOnly` visually hides text while keeping it announced; `focusRing`/`focusRingInset`/`focusRingWithin` paint the keyboard focus ring. Every element that takes focus draws it: start a hand-built `<button>` from `buttonReset.base`, which already carries it, and compose `a11y.focusRing` on any other focusable element (a link, a native input, a scroller). Never remove the outline. `touchTarget` gives a control a hit area of at least 44px under a coarse pointer, no tap flash and `touch-action: manipulation`; `buttonReset.base`, `chipSurface.interactive` and `Button` carry it, and `cardSurface.interactive` carries all of it except the hit area, which a card does not need; `touchRow` gives a control that abuts its neighbours, such as a row of a list, the same touch feel and a min block size of 44px instead of a hit area that would cover the next row
 

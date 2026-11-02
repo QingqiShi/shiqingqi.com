@@ -3,10 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import type { SupportedLocale } from "@tuja/i18n/types";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -90,7 +88,7 @@ export function YourCreations({ locale }: YourCreationsProps) {
               >
                 <a
                   href={href}
-                  css={[a11y.focusRing, styles.thumbLink]}
+                  css={[quietSurface.interactive, styles.thumbLink]}
                   aria-label={displayName}
                 >
                   <span css={styles.thumb} aria-hidden="true">
@@ -102,7 +100,12 @@ export function YourCreations({ locale }: YourCreationsProps) {
                 </a>
                 <button
                   type="button"
-                  css={[buttonReset.base, typeRole.label, styles.deleteButton]}
+                  css={[
+                    buttonReset.base,
+                    typeRole.label,
+                    quietSurface.interactive,
+                    styles.deleteButton,
+                  ]}
                   onClick={() => {
                     handleDelete(entry);
                   }}
@@ -168,20 +171,9 @@ const styles = stylex.create({
     flexDirection: "column",
     alignItems: "center",
     gap: rhythm.tight,
-    color: color.fg,
-    textDecoration: "none",
     borderRadius: "8px",
     cornerShape: "squircle",
     paddingBlock: space._1,
-    transition: `background-color ${duration._100} ${easing.ease}`,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-      ":focus-visible": color.bgControlHover,
-    },
   },
   thumb: {
     display: "inline-flex",
@@ -201,14 +193,6 @@ const styles = stylex.create({
   deleteButton: {
     paddingBlock: space._0,
     paddingInline: space._2,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-      ":focus-visible": color.bgControlHover,
-    },
     color: color.fgMuted,
     borderWidth: "1px",
     borderStyle: "solid",

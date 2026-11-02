@@ -12,6 +12,7 @@ const requireIconSizing = require("./design-system/require-icon-sizing");
 const requireMeasure = require("./design-system/require-measure");
 const requirePackageExport = require("./design-system/require-package-export");
 const requirePageColumn = require("./design-system/require-page-column");
+const requireQuietSurface = require("./design-system/require-quiet-surface");
 const requireRhythmSpacing = require("./design-system/require-rhythm-spacing");
 const requireTextStack = require("./design-system/require-text-stack");
 const requireTypeRole = require("./design-system/require-type-role");
@@ -32,6 +33,7 @@ module.exports = {
     "only-stylex-exports": onlyStylexExports,
     "require-corner-shape": requireCornerShape,
     "require-hover-media": requireHoverMedia,
+    "require-quiet-surface": requireQuietSurface,
     "require-icon-sizing": requireIconSizing,
     "require-measure": requireMeasure,
     "require-page-column": requirePageColumn,

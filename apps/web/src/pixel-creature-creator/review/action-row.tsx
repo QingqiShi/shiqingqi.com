@@ -5,8 +5,10 @@ import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Textarea } from "@tuja/ui/components/textarea";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -405,6 +407,8 @@ export function ActionRow({
                   buttonReset.base,
                   typeRole.label,
                   corner.radius_2,
+                  a11y.touchRow,
+                  quietSurface.interactive,
                   styles.menuItem,
                 ]}
                 onClick={() => {
@@ -421,6 +425,8 @@ export function ActionRow({
                   buttonReset.base,
                   typeRole.label,
                   corner.radius_2,
+                  a11y.touchRow,
+                  quietSurface.interactive,
                   styles.menuItem,
                 ]}
                 onClick={() => {
@@ -629,15 +635,6 @@ const styles = stylex.create({
   menuItem: {
     paddingBlock: space._2,
     paddingInline: space._3,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-      ":focus-visible": color.bgControlHover,
-    },
-    color: color.fg,
     textAlign: "left",
   },
   ephemeral: {

@@ -5,7 +5,9 @@ import { t } from "@tuja/i18n";
 import { breakpoints } from "@tuja/ui/breakpoints.stylex";
 import { Chip } from "@tuja/ui/components/chip";
 import { SegmentedControl } from "@tuja/ui/components/segmented-control";
-import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
+import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { cluster, stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
 import { DayInput } from "../transactions/day-input.tsx";
@@ -64,7 +66,7 @@ export function AnalyticsControls({
             key={range.value}
             size="xs"
             aria-pressed={state.range === range.value}
-            css={[selected.quiet, styles.rangeChip]}
+            css={[quietSurface.interactive, a11y.focusRing, styles.rangeChip]}
             onClick={() => {
               onChange(
                 range.value === "custom"
@@ -154,6 +156,7 @@ const styles = stylex.create({
   },
   rangeChip: {
     [selectedTokens.rest]: color.bgSurface,
+    color: color.fg,
   },
   segments: {
     display: "grid",

@@ -7,7 +7,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { cluster } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -165,12 +165,7 @@ export function TransactionListRow({
           event.preventDefault();
           actions.onOpen(row.id);
         }}
-        css={[
-          selected.quiet,
-          corner.radius_3,
-          a11y.focusRingInset,
-          styles.link,
-        ]}
+        css={[quietSurface.interactive, corner.radius_3, styles.link]}
       >
         <TransactionFace
           icon={icon}
@@ -256,8 +251,6 @@ const styles = stylex.create({
   },
   link: {
     display: "block",
-    color: "inherit",
-    textDecoration: "none",
   },
   muted: {
     color: color.fgMuted,

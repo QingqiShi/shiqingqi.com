@@ -5,7 +5,13 @@ import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { Button } from "@tuja/ui/components/button";
 import { MenuButton } from "@tuja/ui/components/menu-button";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
+import {
+  duration,
+  easing,
+  motionConstants,
+} from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import { useState } from "react";
@@ -37,7 +43,7 @@ export function SurfacesFloatingMenu() {
                 role="menuitem"
                 look="ghost"
                 aria-current={index === sortBy}
-                css={[styles.item, selected.quiet]}
+                css={[quietSurface.interactive, a11y.focusRing, styles.item]}
                 onClick={() => {
                   setSortBy(index);
                 }}
@@ -59,8 +65,14 @@ const styles = stylex.create({
     inlineSize: space._12,
     padding: space._0,
   },
+  // A Button animates its press, and `quietSurface.interactive` replaces that
+  // transition. So this is a copy of the transition of a Button.
   item: {
     justifyContent: "flex-start",
     color: color.fg,
+    transition: {
+      default: `background ${duration._200} ${easing.ease}, transform ${duration._500} ${easing.spring}, filter ${duration._150} ${easing.easeOut}`,
+      [motionConstants.REDUCED_MOTION]: `background ${duration._200} ${easing.ease}`,
+    },
   },
 });
