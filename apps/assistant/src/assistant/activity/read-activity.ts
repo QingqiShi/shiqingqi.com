@@ -13,8 +13,8 @@ import { localClock } from "#src/assistant/report/due-report-date.ts";
 /** How many runs one page of the activity reads: about two days of runs every 15 minutes. */
 export const ACTIVITY_PAGE_RUNS = 200;
 
-/** A run still `running` after this has outlived its function: it was cut off. */
-const INTERRUPTED_AFTER_MS = 10 * 60_000;
+/** A run still `running` after this has outlived its function (at most 800 s): it was cut off. */
+const INTERRUPTED_AFTER_MS = 15 * 60_000;
 
 export type ActivityRunStatus =
   "done" | "stopped" | "failed" | "running" | "interrupted";
