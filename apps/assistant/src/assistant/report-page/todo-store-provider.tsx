@@ -18,13 +18,15 @@ import {
 } from "react";
 import { assistantFetch } from "../http/assistant-fetch.ts";
 import { datesInOrder } from "../report/dates-in-order.ts";
+import { nextOccurrenceDates } from "../report/next-occurrence.ts";
 import type { DueDateChange, OwnerTodoChange } from "../report/owner-todos.ts";
 import { rearrange } from "../report/rearrange.ts";
 import { todoLimits } from "../report/todo-limits.ts";
 import { refreshAfterSave } from "../shell/refresh-after-save.ts";
+import { formatListDay } from "./format-day.ts";
 import { isOpen, type TodoItemData } from "./to-todo-item-data.ts";
 
-export type TodoEdit = Omit<OwnerTodoChange, "done">;
+export type TodoEdit = Omit<OwnerTodoChange, "done" | "nextId">;
 
 type TodoRows = readonly TodoItemData[];
 
@@ -46,6 +48,8 @@ interface TodoStore {
   add: (todo: { title: string; dueDate: string | null }) => void;
   edit: (id: string, edit: TodoEdit) => void;
   setDone: (id: string, done: boolean) => void;
+  /** Moves a repeating to-do on to its next occurrence, and this one counts as neither done nor deleted. */
+  skipOccurrence: (id: string) => void;
   remove: (id: string) => void;
   moveOverdueToToday: () => void;
   /** Puts these to-dos in this order, in the places that they hold. */
@@ -67,6 +71,45 @@ function isOverdue(row: TodoItemData, today: string) {
 function patchRow(id: string, patch: Partial<TodoItemData>): TodoOp {
   return (rows) =>
     rows.map((row) => (row.id === id ? { ...row, ...patch } : row));
+}
+
+/** Closes a to-do, and adds its next occurrence where the row was, as the server does. */
+function closeRow(
+  id: string,
+  next: TodoItemData | null,
+  doneAt: string,
+): TodoOp {
+  return (rows) => {
+    const shown = rows.some((row) => row.id === next?.id);
+    return rows.flatMap((row) => {
+      if (row.id !== id) return [row];
+      const closed = { ...row, doneAt, nextId: next?.id ?? row.nextId };
+      return next && !shown ? [next, closed] : [closed];
+    });
+  };
+}
+
+/**
+ * Opens a to-do again, as the server does: it takes the place of its next
+ * occurrence that is still open, and it does not repeat when that one is done.
+ * A next occurrence that this page does not hold says nothing.
+ */
+function reopenRow(id: string): TodoOp {
+  return (rows) => {
+    const row = rows.find((entry) => entry.id === id);
+    if (!row) return rows;
+    const next = rows.find((entry) => entry.id === row.nextId);
+    const reopened = { ...row, doneAt: null, doneReason: null, nextId: null };
+    return next && isOpen(next)
+      ? rows
+          .filter((entry) => entry.id !== id)
+          .map((entry) => (entry.id === next.id ? reopened : entry))
+      : rows.map((entry) =>
+          entry.id === id
+            ? { ...reopened, repeat: next ? null : row.repeat }
+            : entry,
+        );
+  };
 }
 
 /** Taking the due date before the start date also takes the start date away. */
@@ -218,7 +261,19 @@ function Store({
     retry: t({ en: "Try again", zh: "重试" }),
     undo: t({ en: "Undo", zh: "撤销" }),
     done: t({ en: "Done", zh: "已完成" }),
+    doneNext: t({
+      en: "Done. Next one on {date}",
+      zh: "已完成。下一次在 {date}",
+    }),
+    skipped: t({
+      en: "Skipped. Next one on {date}",
+      zh: "已跳过。下一次在 {date}",
+    }),
     deleted: t({ en: "Deleted", zh: "已删除" }),
+    deletedSeries: t({
+      en: "Deleted, and it will not repeat",
+      zh: "已删除，不会再重复",
+    }),
     moved: t({ en: "Moved {count} to today", zh: "已把 {count} 项移到今天" }),
   };
 
@@ -233,19 +288,28 @@ function Store({
 
   const rows = pending.reduce<TodoRows>((list, { op }) => op(list), confirmed);
 
-  function sendDone(id: string, done: boolean) {
-    run(
-      patchRow(
-        id,
-        done
-          ? { doneAt: new Date().toISOString() }
-          : { doneAt: null, doneReason: null },
-      ),
-      () =>
-        assistantFetch(`/api/todos/${id}`, {
-          method: "PATCH",
-          body: JSON.stringify({ done }),
-        }),
+  function sendTodoChange(id: string, op: TodoOp, change: OwnerTodoChange) {
+    run(op, () =>
+      assistantFetch(`/api/todos/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(change),
+      }),
+    );
+  }
+
+  function reopen(id: string) {
+    sendTodoChange(id, reopenRow(id), { done: false });
+  }
+
+  function sendOccurrence(
+    id: string,
+    dates: Pick<TodoItemData, "dueDate" | "startDate">,
+  ) {
+    run(patchRow(id, dates), () =>
+      assistantFetch(`/api/todos/${id}/occurrence`, {
+        method: "PUT",
+        body: JSON.stringify(dates),
+      }),
     );
   }
 
@@ -263,6 +327,8 @@ function Store({
         detail: null,
         dueDate,
         startDate: null,
+        repeat: null,
+        nextId: null,
         createdBy: "owner",
         doneAt: null,
         doneReason: null,
@@ -284,26 +350,61 @@ function Store({
         rows.find((row) => row.id === id),
         edit,
       );
-      run(patchRow(id, change), () =>
-        assistantFetch(`/api/todos/${id}`, {
-          method: "PATCH",
-          body: JSON.stringify(change),
-        }),
-      );
+      sendTodoChange(id, patchRow(id, change), change);
     },
     setDone: (id, done) => {
-      sendDone(id, done);
-      if (done) {
-        showToast({
-          message: copy.done,
-          action: {
-            label: copy.undo,
-            onAction: () => {
-              sendDone(id, false);
-            },
-          },
-        });
+      if (!done) {
+        reopen(id);
+        return;
       }
+      const row = rows.find((entry) => entry.id === id);
+      const next =
+        row?.repeat && isOpen(row)
+          ? {
+              ...row,
+              ...nextOccurrenceDates(row.repeat, row, today),
+              id: crypto.randomUUID(),
+              createdBy: "owner" as const,
+              reAdded: false,
+              openHref: null,
+            }
+          : null;
+      sendTodoChange(id, closeRow(id, next, new Date().toISOString()), {
+        done: true,
+        nextId: next?.id,
+      });
+      showToast({
+        message: next
+          ? copy.doneNext.replace("{date}", formatListDay(next.dueDate, locale))
+          : copy.done,
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            reopen(id);
+          },
+        },
+      });
+    },
+    skipOccurrence: (id) => {
+      const row = rows.find((entry) => entry.id === id);
+      if (!row?.repeat) return;
+      const moved = nextOccurrenceDates(row.repeat, row, today);
+      sendOccurrence(id, moved);
+      showToast({
+        message: copy.skipped.replace(
+          "{date}",
+          formatListDay(moved.dueDate, locale),
+        ),
+        action: {
+          label: copy.undo,
+          onAction: () => {
+            sendOccurrence(id, {
+              dueDate: row.dueDate,
+              startDate: row.startDate,
+            });
+          },
+        },
+      });
     },
     remove: (id) => {
       const row = rows.find((entry) => entry.id === id);
@@ -314,7 +415,7 @@ function Store({
         () => assistantFetch(`/api/todos/${id}`, { method: "DELETE" }),
       );
       showToast({
-        message: copy.deleted,
+        message: row.repeat && isOpen(row) ? copy.deletedSeries : copy.deleted,
         action: {
           label: copy.undo,
           onAction: () => {

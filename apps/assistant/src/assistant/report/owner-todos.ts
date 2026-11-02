@@ -1,12 +1,17 @@
-import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
+import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import {
   TODO_EDITABLE_FIELDS,
   todos,
   type TodoEditableField,
 } from "#src/assistant/db/schema.ts";
-import type { UserScope } from "#src/assistant/db/types.ts";
+import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
+import { addNextOccurrence, occurrenceColumns } from "./add-next-occurrence.ts";
 import { datesInOrder } from "./dates-in-order.ts";
+import { localClock } from "./due-report-date.ts";
+import type { RepeatRule } from "./next-occurrence.ts";
 import { ownTodo } from "./own-todo.ts";
+import { readReportSettings } from "./read-report-settings.ts";
 import { rearrange } from "./rearrange.ts";
 
 interface NewOwnerTodo {
@@ -24,10 +29,13 @@ export interface OwnerTodoChange {
   detail?: string | null;
   dueDate?: string | null;
   startDate?: string | null;
+  repeat?: RepeatRule | null;
+  /** The id of the next occurrence when this closes a repeating to-do. The page makes it, as it does for a new to-do. */
+  nextId?: string;
 }
 
 /** Why a change of an existing to-do did not happen. */
-export type TodoRefusal = "not-found" | "start-after-due";
+export type TodoRefusal = "not-found" | "start-after-due" | "id-taken";
 
 /** The date of one to-do, for a change of many in one request. */
 export interface DueDateChange {
@@ -75,6 +83,43 @@ async function addTodo(
   return added.length > 0;
 }
 
+/**
+ * Opens a closed occurrence again. When its next occurrence is still open, the
+ * row goes, with no trace for the agent, because the owner did not delete it, and
+ * this one takes its place. When the series has moved on or ended, this one stays
+ * as a to-do that does not repeat, so that the series does not run twice.
+ */
+async function takeBackNextOccurrence(
+  tx: Pick<AssistantDb, "select" | "delete">,
+  scope: UserScope,
+  nextId: string,
+) {
+  const next = (
+    await tx
+      .select({
+        position: todos.position,
+        doneAt: todos.doneAt,
+        deletedAt: todos.deletedAt,
+      })
+      .from(todos)
+      .where(and(eq(todos.userId, scope.userId), eq(todos.id, nextId)))
+      .for("update")
+  ).at(0);
+  if (!next || next.doneAt || next.deletedAt) return { repeat: null };
+  await tx
+    .delete(todos)
+    .where(and(eq(todos.userId, scope.userId), eq(todos.id, nextId)));
+  return { position: next.position };
+}
+
+/** The fields that a change makes the owner's. A rule decides the dates, so it makes the due date the owner's. */
+function fieldsOwnerSets(change: OwnerTodoChange) {
+  return TODO_EDITABLE_FIELDS.filter(
+    (field) =>
+      change[field] !== undefined || (field === "dueDate" && change.repeat),
+  );
+}
+
 /** Changes a to-do of the owner's, or says why it did not. */
 async function changeTodo(
   scope: UserScope,
@@ -82,14 +127,20 @@ async function changeTodo(
   change: OwnerTodoChange,
   now: Date,
 ): Promise<TodoRefusal | null> {
-  const { done, ...edit } = change;
-  const fields = TODO_EDITABLE_FIELDS.filter(
-    (field) => change[field] !== undefined,
-  );
+  const { done, nextId, ...edit } = change;
+  const fields = fieldsOwnerSets(change);
+  const doneOn =
+    done === true
+      ? localClock(now, (await readReportSettings(scope)).timeZone).date
+      : null;
   return scope.db.transaction(async (tx) => {
     const row = (
       await tx
-        .select({ startDate: todos.startDate, dueDate: todos.dueDate })
+        .select({
+          ...occurrenceColumns,
+          doneAt: todos.doneAt,
+          nextTodoId: todos.nextTodoId,
+        })
         .from(todos)
         .where(liveTodo(scope, todoId))
         .for("update")
@@ -97,10 +148,28 @@ async function changeTodo(
     if (!row) return "not-found";
     const { startDate = row.startDate, dueDate = row.dueDate } = edit;
     if (!datesInOrder({ startDate, dueDate })) return "start-after-due";
+    if (doneOn !== null && row.doneAt === null) {
+      const added = await addNextOccurrence(tx, {
+        userId: scope.userId,
+        closed: { ...row, ...edit },
+        nextId: nextId ?? randomUUID(),
+        doneOn,
+        now,
+      });
+      if (!added) return "id-taken";
+    }
+    const series =
+      done === false && row.doneAt !== null && row.nextTodoId !== null
+        ? {
+            ...(await takeBackNextOccurrence(tx, scope, row.nextTodoId)),
+            nextTodoId: null,
+          }
+        : {};
     await tx
       .update(todos)
       .set({
         ...edit,
+        ...series,
         ...(fields.length > 0
           ? { ownerEditedFields: withOwnerFields(fields) }
           : {}),
@@ -115,6 +184,31 @@ async function changeTodo(
       .where(liveTodo(scope, todoId));
     return null;
   });
+}
+
+/**
+ * Moves an open repeating to-do to other dates of its series, to skip an
+ * occurrence or to undo that. The rule moved the dates, not the owner, so
+ * `owner_edited_fields` stays as it is.
+ */
+async function moveOccurrence(
+  scope: UserScope,
+  todoId: string,
+  dates: { dueDate: string | null; startDate: string | null },
+  now: Date,
+): Promise<boolean> {
+  const moved = await scope.db
+    .update(todos)
+    .set({ ...dates, updatedAt: now })
+    .where(
+      and(
+        liveTodo(scope, todoId),
+        isNull(todos.doneAt),
+        isNotNull(todos.repeat),
+      ),
+    )
+    .returning({ id: todos.id });
+  return moved.length > 0;
 }
 
 /** Hides a to-do of the owner's. False when the user has no such to-do. */
@@ -243,6 +337,7 @@ async function reorderTodos(
 export const ownerTodos = {
   add: addTodo,
   change: changeTodo,
+  moveOccurrence,
   delete: deleteTodo,
   restore: restoreTodo,
   changeDueDates,

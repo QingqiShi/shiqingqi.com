@@ -49,6 +49,14 @@ export function formatWeekday(localDate: string, locale: string): string {
   }).format(dateOfLocalDate(localDate));
 }
 
+/** A weekday from 1 for Monday to 7 for Sunday, such as "Mon". */
+export function formatShortWeekday(weekday: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    weekday: "short",
+    timeZone: "UTC",
+  }).format(dateOfLocalDate(`2024-01-0${String(weekday)}`));
+}
+
 /** Whole days from one `YYYY-MM-DD` to another. */
 export function daysBetween(from: string, to: string): number {
   return Math.round(

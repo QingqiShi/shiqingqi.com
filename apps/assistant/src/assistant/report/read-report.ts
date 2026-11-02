@@ -7,6 +7,7 @@ import {
 } from "#src/assistant/db/schema.ts";
 import type { UserScope } from "#src/assistant/db/types.ts";
 import { startsAfter } from "./dates-in-order.ts";
+import type { RepeatRule } from "./next-occurrence.ts";
 import { openMailHref } from "./open-mail-href.ts";
 import { ownTodo, todoSource } from "./own-todo.ts";
 import type {
@@ -25,6 +26,9 @@ export interface TodoView {
   detail: string | null;
   dueDate: string | null;
   startDate: string | null;
+  repeat: RepeatRule | null;
+  /** The occurrence that closing this one made. */
+  nextId: string | null;
   createdAt: Date;
   createdBy: TodoCreator;
   doneAt: Date | null;
@@ -87,6 +91,8 @@ const todoColumns = {
   detail: todos.detail,
   dueDate: todos.dueDate,
   startDate: todos.startDate,
+  repeat: todos.repeat,
+  nextTodoId: todos.nextTodoId,
   createdAt: todos.createdAt,
   createdBy: todos.createdBy,
   doneAt: todos.doneAt,
@@ -108,6 +114,8 @@ function toTodoView(
     detail: row.detail,
     dueDate: row.dueDate,
     startDate: row.startDate,
+    repeat: row.repeat,
+    nextId: row.nextTodoId,
     createdAt: row.createdAt,
     createdBy: row.createdBy,
     doneAt: row.doneAt,

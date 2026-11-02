@@ -1,4 +1,5 @@
 import type { TodoCreator } from "#src/assistant/db/schema.ts";
+import type { RepeatRule } from "../report/next-occurrence.ts";
 import type { TodoView } from "../report/read-report.ts";
 
 /** What the page knows of a to-do. It changes on the page at once, before the server says yes. */
@@ -8,6 +9,9 @@ export interface TodoItemData {
   detail: string | null;
   dueDate: string | null;
   startDate: string | null;
+  repeat: RepeatRule | null;
+  /** The occurrence that closing this one made. */
+  nextId: string | null;
   createdBy: TodoCreator;
   /** ISO time; null while open. */
   doneAt: string | null;
@@ -31,6 +35,8 @@ export function toTodoItemData(
     detail: todo.detail,
     dueDate: todo.dueDate,
     startDate: todo.startDate,
+    repeat: todo.repeat,
+    nextId: todo.nextId,
     createdBy: todo.createdBy,
     doneAt: todo.doneAt?.toISOString() ?? null,
     doneReason: todo.doneReason,

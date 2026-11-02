@@ -12,7 +12,15 @@ import {
 import { z } from "zod";
 import { todos, type TodoEditableField } from "#src/assistant/db/schema.ts";
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
+import {
+  addNextOccurrence,
+  occurrenceColumns,
+} from "#src/assistant/report/add-next-occurrence.ts";
 import { datesInOrder } from "#src/assistant/report/dates-in-order.ts";
+import {
+  repeatRuleText,
+  type RepeatRule,
+} from "#src/assistant/report/next-occurrence.ts";
 import { ownTodo, todoSource } from "#src/assistant/report/own-todo.ts";
 import type { MailSource } from "#src/assistant/report/types.ts";
 import { agentTool, ToolRefusal, type AgentTools } from "../agent-tool.ts";
@@ -31,6 +39,8 @@ export interface StoredTodo {
   detail: string | null;
   dueDate: string | null;
   startDate: string | null;
+  /** How it comes back, which only the owner decides. */
+  repeat: RepeatRule | null;
   /** The fields that the owner set, which the agent may not change. */
   ownerEditedFields: readonly TodoEditableField[];
 }
@@ -62,7 +72,7 @@ export type TodoEdit = Partial<
 /** What a run wants to change in the to-do list: nothing is written until the report is stored. */
 export interface TodoChanges {
   added: NewTodo[];
-  done: { id: string; title: string; reason: string }[];
+  done: { id: string; title: string; reason: string; repeats: boolean }[];
   updated: { id: string; edit: TodoEdit }[];
 }
 
@@ -75,6 +85,7 @@ export function readOpenTodos(scope: UserScope): Promise<StoredTodo[]> {
       detail: todos.detail,
       dueDate: todos.dueDate,
       startDate: todos.startDate,
+      repeat: todos.repeat,
       ownerEditedFields: todos.ownerEditedFields,
     })
     .from(todos)
@@ -250,13 +261,19 @@ export function createTodoTools({
     return entry.kind === "stored" ? entry.todo.ownerEditedFields : [];
   }
 
+  function repeatOf(entry: Entry) {
+    return entry.kind === "stored" ? entry.todo.repeat : null;
+  }
+
   function view(key: string, entry: Entry) {
+    const repeat = repeatOf(entry);
     return {
       todo: key,
       title: entry.todo.title,
       detail: entry.todo.detail,
       dueDate: entry.todo.dueDate,
       startDate: entry.todo.startDate,
+      repeats: repeat && repeatRuleText(repeat),
       ownerSet: ownerSet(entry),
     };
   }
@@ -264,7 +281,7 @@ export function createTodoTools({
   const tools: AgentTools = {
     list_todos: agentTool({
       description:
-        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change.",
+        "The owner's open to-dos. ownerSet names the fields the owner set, which you cannot change. repeats says how a to-do comes back when it is closed, which only the owner decides.",
       inputSchema: z.object({}),
       describe: () => ({ kind: "list_todos" }),
       execute: () =>
@@ -312,11 +329,14 @@ export function createTodoTools({
         }
         const same = [...entries].find(
           ([, entry]) =>
-            !entry.done && normal(entry.todo.title) === normal(input.title),
+            (!entry.done || repeatOf(entry)) &&
+            normal(entry.todo.title) === normal(input.title),
         );
         if (same) {
           throw new ToolRefusal(
-            `To-do ${same[0]} has that title already. Update it instead.`,
+            same[1].done
+              ? `To-do ${same[0]} has that title and repeats, so its next occurrence comes by itself.`
+              : `To-do ${same[0]} has that title already. Update it instead.`,
           );
         }
         const mail =
@@ -345,7 +365,7 @@ export function createTodoTools({
 
     complete_todo: agentTool({
       description:
-        "Marks an open to-do done, when mail shows that it is done or no longer needed. The report shows the owner the to-do with the reason, so it needs no other line on it.",
+        "Marks an open to-do done, when mail shows that it is done or no longer needed. The report shows the owner the to-do with the reason, so it needs no other line on it. On a repeating to-do it closes this occurrence only: the next comes by itself, and only the owner can end the series.",
       inputSchema: z.object({
         todo: todoKey,
         reason: z
@@ -376,6 +396,7 @@ export function createTodoTools({
             id: entry.todo.id,
             title: entry.todo.title,
             reason,
+            repeats: entry.todo.repeat !== null,
           });
         }
         return Promise.resolve({ done: key });
@@ -443,7 +464,8 @@ export function createTodoTools({
  * open and not deleted, so one the owner closed or deleted during the run stays
  * as it is. The row is read again under a lock, so a field that the owner set
  * during the run stays as the owner set it, and dates that no longer fit the
- * owner's stay as they are.
+ * owner's stay as they are. Closing a repeating to-do also makes its next
+ * occurrence, from the day of the report.
  */
 export async function applyTodoChanges(
   tx: Pick<AssistantDb, "insert" | "select" | "update">,
@@ -451,8 +473,16 @@ export async function applyTodoChanges(
     userId,
     reportId,
     now,
+    today,
     changes,
-  }: { userId: string; reportId: string; now: Date; changes: TodoChanges },
+  }: {
+    userId: string;
+    reportId: string;
+    now: Date;
+    /** The owner's local date, `YYYY-MM-DD`. */
+    today: string;
+    changes: TodoChanges;
+  },
 ) {
   if (changes.added.length > 0) {
     await tx.insert(todos).values(
@@ -524,9 +554,19 @@ export async function applyTodoChanges(
       .where(and(stillOpen, eq(todos.id, id)));
   }
   for (const { id, reason } of changes.done) {
-    await tx
+    const closed = await tx
       .update(todos)
       .set({ doneAt: now, doneReason: reason, updatedAt: now })
-      .where(and(stillOpen, eq(todos.id, id)));
+      .where(and(stillOpen, eq(todos.id, id)))
+      .returning(occurrenceColumns);
+    for (const row of closed) {
+      await addNextOccurrence(tx, {
+        userId,
+        closed: row,
+        nextId: randomUUID(),
+        doneOn: today,
+        now,
+      });
+    }
   }
 }

@@ -19,6 +19,7 @@ import {
 import type { AgentRunProgress } from "../agent/agent-activity.ts";
 import type { TodoChanges } from "../agent/todos/create-todo-tools.ts";
 import type { AgentStepRecord, AgentUsage } from "../agent/types.ts";
+import type { RepeatRule } from "../report/next-occurrence.ts";
 import type {
   MorningReportContent,
   MorningReportContentV2,
@@ -206,6 +207,12 @@ export const todos = pgTable(
     startDate: date("start_date", { mode: "string" }),
     /** Where the owner put it in the list. A new row takes the next value, so it goes last. */
     position: integer("position").notNull().generatedByDefaultAsIdentity(),
+    /** How it comes back when it is done. Only the owner sets this. */
+    repeat: jsonb("repeat").$type<RepeatRule>(),
+    /** The occurrence that closing this one made. */
+    nextTodoId: uuid("next_todo_id").references((): AnyPgColumn => todos.id, {
+      onDelete: "set null",
+    }),
     sourceAccountId: uuid("source_account_id").references(
       () => mailAccounts.id,
       { onDelete: "set null" },
