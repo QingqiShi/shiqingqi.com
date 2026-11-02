@@ -4,8 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { createElement, use, useLayoutEffect, type ReactNode } from "react";
 import { a11y } from "../primitives/a11y.stylex.ts";
 import { corner } from "../primitives/corner.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
-import { selected } from "../primitives/selected.stylex.ts";
+import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { font } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -81,13 +80,11 @@ export function NavLink({
           ...stylex.props(
             typeRole.label,
             a11y.touchRow,
-            transition.colors,
             corner.radius_2,
+            quietSurface.interactive,
             navListStyles.rowInset,
             navListStyles.rowControl,
             styles.link,
-            selected.quiet,
-            a11y.focusRingInset,
             css,
           ),
         },

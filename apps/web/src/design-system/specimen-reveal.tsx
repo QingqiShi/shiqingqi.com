@@ -9,6 +9,7 @@ import { Text } from "@tuja/ui/components/text";
 import { useDisclosure } from "@tuja/ui/hooks/use-disclosure";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -65,7 +66,7 @@ export function SpecimenReveal({
               {...triggerProps}
               css={[
                 buttonReset.base,
-                transition.colors,
+                quietSurface.interactive,
                 corner.radius_1,
                 typeRole.caption,
                 styles.control,
@@ -147,13 +148,6 @@ const styles = stylex.create({
     color: {
       default: color.fgMuted,
       ":hover": { default: null, [pointer.canHover]: color.fg },
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
     },
   },
   caret: {

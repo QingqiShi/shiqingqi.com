@@ -4,6 +4,7 @@ import * as stylex from "@stylexjs/stylex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { t } from "@tuja/i18n";
 import { pointer } from "@tuja/ui/breakpoints.stylex";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import {
@@ -11,6 +12,7 @@ import {
   duration,
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -126,6 +128,8 @@ export function CompactPersonCard({ person, onClick }: CompactPersonCardProps) {
         css={[
           buttonReset.base,
           corner.radius_2,
+          quietSurface.interactive,
+          a11y.focusRing,
           styles.card,
           styles.interactive,
         ]}
@@ -155,13 +159,6 @@ const styles = stylex.create({
     transition: {
       default: `transform ${duration._400} ${easing.spring}, background-color ${duration._150} ${easing.ease}`,
       [motionConstants.REDUCED_MOTION]: `background-color ${duration._150} ${easing.ease}`,
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
     },
     transform: {
       default: null,

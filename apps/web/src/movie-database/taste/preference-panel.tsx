@@ -14,6 +14,7 @@ import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { cluster, row, stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
@@ -89,6 +90,7 @@ export function PreferenceTrigger({
         buttonReset.base,
         flex.inlineCenter,
         corner.radius_round,
+        quietSurface.interactive,
         triggerStyles.button,
       ]}
       onClick={onOpen}
@@ -112,15 +114,6 @@ const triggerStyles = stylex.create({
     height: "1.75rem",
     fontSize: controlSize._4,
     color: color.fgMuted,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
-    cursor: "pointer",
-    transition: `background-color ${duration._150} ${easing.ease}, color ${duration._150} ${easing.ease}`,
   },
   dot: {
     position: "absolute",
@@ -207,6 +200,7 @@ export function PreferencePanel({
             buttonReset.base,
             flex.inlineCenter,
             corner.radius_round,
+            quietSurface.interactive,
             styles.closeButton,
           ]}
           onClick={onClose}
@@ -281,6 +275,7 @@ export function PreferencePanel({
                   typeRole.label,
                   buttonReset.base,
                   corner.radius_round,
+                  quietSurface.interactive,
                   styles.cancelButton,
                 ]}
                 onClick={() => {
@@ -424,15 +419,6 @@ const styles = stylex.create({
     height: "2rem",
     fontSize: controlSize._4,
     color: color.fgMuted,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
-    transition: `background-color ${duration._150} ${easing.ease}`,
-    cursor: "pointer",
   },
   infoBanner: {
     gap: rhythm.tight,
@@ -570,15 +556,6 @@ const styles = stylex.create({
   cancelButton: {
     paddingBlock: space._0,
     paddingInline: space._3,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
     color: color.fgMuted,
-    cursor: "pointer",
-    transition: `background-color ${duration._150} ${easing.ease}`,
   },
 });

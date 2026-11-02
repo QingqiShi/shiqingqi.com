@@ -19,7 +19,9 @@ import {
   motionConstants,
   transition,
 } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
+import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { texture, textureTokens } from "@tuja/ui/primitives/texture.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { wash, washTokens } from "@tuja/ui/primitives/wash.stylex";
@@ -1006,27 +1008,19 @@ import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 function SelectedSection() {
   const api: ApiEntry[] = [
     {
-      token: "selected.quiet",
-      meta: "bgControlSelected · hover",
-      description: t({
-        en: "A background only, for an item that only has to stand out from its siblings: a menu row, a nav link, a tab, a segmented choice. Use it by default.",
-        zh: "只有背景，用于只需在同级中突出的条目：菜单行、导航链接、标签页、分段选项。默认使用它。",
-      }),
-    },
-    {
       token: "selected.marked",
       meta: "borderAccent · bgAccentSubtle · hover",
       description: t({
-        en: "Adds the accent border and tint, for a choice that decides what the visitor does next, such as a picked option card. Give the element a border width.",
-        zh: "加上强调色边框与浅色底，用于决定访客下一步的选择，例如选中的选项卡片。请为元素设置边框宽度。",
+        en: "The accent border and tint, for a choice that decides what the visitor does next, such as a picked option card. Give the element a border width.",
+        zh: "强调色边框与浅色底，用于决定访客下一步的选择，例如选中的选项卡片。请为元素设置边框宽度。",
       }),
     },
     {
       token: "selectedTokens.rest",
       meta: "default: transparent",
       description: t({
-        en: "The background while the item is not selected. Each strength sets backgroundColor, so set the rest colour through this token, not on the element.",
-        zh: "条目未选中时的背景。每种强度都会设置 backgroundColor，因此请通过这个令牌设置静态颜色，而不是在元素上设置。",
+        en: "The background while the item is not selected. selected.marked and quietSurface.interactive set backgroundColor, so set the rest colour through this token, not on the element.",
+        zh: "条目未选中时的背景。selected.marked 和 quietSurface.interactive 都会设置 backgroundColor，因此请通过这个令牌设置静态颜色，而不是在元素上设置。",
       }),
     },
   ];
@@ -1035,26 +1029,26 @@ function SelectedSection() {
     <Showcase label={t({ en: "Selected", zh: "选中态" })}>
       <ShowcaseHelper>
         {t({
-          en: "One selected state, read from the ARIA state the item already carries: aria-pressed, aria-checked or aria-selected set to true, or any aria-current. Set the attribute and the look follows, so what a screen reader announces is what everyone sees.",
-          zh: "统一的选中态，读取条目本身已有的 ARIA 状态：值为 true 的 aria-pressed、aria-checked 或 aria-selected，或任何 aria-current。设置属性，外观随之改变，因此屏幕阅读器读出的状态，就是所有人看到的状态。",
+          en: "One selected state, read from the ARIA state the item already carries: aria-pressed, aria-checked or aria-selected set to true, or any aria-current. Set the attribute and the look follows, so what a screen reader announces is what everyone sees. An item that only has to stand out from its siblings takes quietSurface.interactive; a choice the visitor submits takes selected.marked.",
+          zh: "统一的选中态，读取条目本身已有的 ARIA 状态：值为 true 的 aria-pressed、aria-checked 或 aria-selected，或任何 aria-current。设置属性，外观随之改变，因此屏幕阅读器读出的状态，就是所有人看到的状态。只需在同级中突出的条目使用 quietSurface.interactive；访客要提交的选择使用 selected.marked。",
         })}
       </ShowcaseHelper>
       <SpecimenGrid css={styles.specimenTracks}>
         <Specimen
           caption={t({
-            en: "quiet — a segmented choice",
-            zh: "quiet —— 分段选项",
+            en: "A background, for a segmented choice",
+            zh: "背景，用于分段选项",
           })}
-          token="aria-checked"
+          token="quietSurface.interactive"
         >
           <QuietSelectedSpecimen />
         </Specimen>
         <Specimen
           caption={t({
-            en: "marked — a picked plan",
-            zh: "marked —— 选中的方案",
+            en: "A border and a tint, for a picked plan",
+            zh: "边框与浅色底，用于选中的方案",
           })}
-          token="aria-checked"
+          token="selected.marked"
         >
           <MarkedSelectedSpecimen />
         </Specimen>
@@ -1063,11 +1057,84 @@ function SelectedSection() {
       <UsageSnippet
         code={`import { selected } from "@tuja/ui/primitives/selected.stylex";
 
-<a
-  href={href}
-  aria-current={isCurrent ? "page" : undefined}
-  css={[styles.link, selected.quiet]}
+<button
+  role="radio"
+  aria-checked={isPicked}
+  css={[styles.option, selected.marked]}
 >
+  {label}
+</button>`}
+      />
+    </Showcase>
+  );
+}
+
+function QuietSurfaceSection() {
+  const api: ApiEntry[] = [
+    {
+      token: "quietSurface.interactive",
+      meta: "hover · press · selected · focus",
+      description: t({
+        en: "Every state of a link or button with no fill of its own, with the selected state read from its ARIA state. Compose it after buttonReset.base, and put your own styles after it.",
+        zh: "没有自身底色的链接或按钮的全部状态，选中态读取自它的 ARIA 状态。请放在 buttonReset.base 之后，并把你自己的样式放在它之后。",
+      }),
+    },
+  ];
+
+  return (
+    <Showcase label={t({ en: "Quiet surface", zh: "安静表面" })}>
+      <ShowcaseHelper>
+        {t({
+          en: "A link or button that fills only under the pointer, such as a row of a list, a menu item or a bare icon button. The radius and the padding stay with you, because rows differ.",
+          zh: "只在指针之下才填充的链接或按钮，例如列表的一行、菜单项或无底色的图标按钮。圆角和内边距由你决定，因为每种行都不一样。",
+        })}
+      </ShowcaseHelper>
+      <SpecimenGrid css={styles.specimenTracks}>
+        <Specimen
+          caption={t({
+            en: "Hover and press a row; the current one stays filled",
+            zh: "悬停或按住某一行；当前行保持填充",
+          })}
+          token="quietSurface.interactive"
+        >
+          <ul css={[stack.rows, styles.quietRows]}>
+            <li>
+              <a
+                href="#"
+                css={[
+                  typeRole.label,
+                  a11y.touchRow,
+                  corner.radius_2,
+                  quietSurface.interactive,
+                  styles.quietRow,
+                ]}
+              >
+                {t({ en: "Overview", zh: "概览" })}
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                aria-current="page"
+                css={[
+                  typeRole.label,
+                  a11y.touchRow,
+                  corner.radius_2,
+                  quietSurface.interactive,
+                  styles.quietRow,
+                ]}
+              >
+                {t({ en: "Activity", zh: "动态" })}
+              </a>
+            </li>
+          </ul>
+        </Specimen>
+      </SpecimenGrid>
+      <ApiGrid entries={api} />
+      <UsageSnippet
+        code={`import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
+
+<a href={href} css={[corner.radius_2, quietSurface.interactive, styles.row]}>
   {label}
 </a>`}
       />
@@ -1088,6 +1155,7 @@ export function PrimitivesShowcase() {
       <WashSection />
       <A11ySection />
       <SelectedSection />
+      <QuietSurfaceSection />
       <StackSection />
       <TypeRoleSection />
     </>
@@ -1095,6 +1163,16 @@ export function PrimitivesShowcase() {
 }
 
 const styles = stylex.create({
+  quietRows: {
+    inlineSize: "100%",
+    maxInlineSize: "16rem",
+  },
+  quietRow: {
+    display: "flex",
+    alignItems: "center",
+    paddingBlock: space._1,
+    paddingInline: space._2,
+  },
   // Wider tracks than the default: a toolbar, a scroller and a pair of image
   // frames all need more room than a button does.
   specimenTracks: {

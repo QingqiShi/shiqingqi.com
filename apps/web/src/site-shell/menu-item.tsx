@@ -3,8 +3,7 @@ import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { color, font, controlSize } from "@tuja/ui/tokens.stylex";
 import type { MouseEventHandler, PropsWithChildren } from "react";
 
@@ -47,9 +46,9 @@ export function MenuItem({
       css={[
         flex.between,
         corner.radius_1,
+        a11y.touchRow,
+        quietSurface.interactive,
         styles.item,
-        selected.quiet,
-        a11y.focusRing,
         isActive && styles.itemCurrent,
       ]}
       data-menu-autofocus={autoFocus ? "true" : undefined}
@@ -72,8 +71,6 @@ const styles = stylex.create({
     gap: controlSize._5,
     height: controlSize._9,
     padding: controlSize._3,
-    textDecoration: "none",
-    transition: `background-color ${duration._200} ${easing.ease}`,
   },
   itemCurrent: {
     pointerEvents: "none",

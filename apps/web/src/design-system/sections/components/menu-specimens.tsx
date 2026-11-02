@@ -6,11 +6,11 @@ import { t } from "@tuja/i18n";
 import { breakpoints, pointer } from "@tuja/ui/breakpoints.stylex";
 import { MenuButton } from "@tuja/ui/components/menu-button";
 import { Text } from "@tuja/ui/components/text";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { align, flex } from "@tuja/ui/primitives/flex.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
@@ -27,7 +27,7 @@ import { Showcase } from "#src/design-system/showcase.tsx";
 import { Specimen } from "#src/design-system/specimen.tsx";
 
 interface DemoMenuItemProps {
-  /** Sets `aria-current` on the chosen item, which `selected.quiet` paints. */
+  /** Sets `aria-current` on the chosen item, which `quietSurface.interactive` paints. */
   isCurrent: boolean;
   label: string;
   onSelect: () => void;
@@ -52,11 +52,11 @@ function DemoMenuItem({ isCurrent, label, onSelect }: DemoMenuItemProps) {
       data-menu-autofocus={isCurrent ? "true" : undefined}
       css={[
         buttonReset.base,
-        transition.colors,
         corner.radius_1,
         typeRole.control,
+        quietSurface.interactive,
+        a11y.focusRing,
         styles.item,
-        selected.quiet,
       ]}
       onClick={onSelect}
     >

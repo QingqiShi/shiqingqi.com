@@ -9,6 +9,7 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
+import { pointer } from "../breakpoints.stylex.ts";
 import { EffectContainer } from "../effect-layer/effect-container.tsx";
 import { useDust } from "../effect-layer/use-dust.ts";
 import { useEffectContainer } from "../effect-layer/use-effect-container.ts";
@@ -237,5 +238,11 @@ const styles = stylex.create({
   drawnByFills: {
     [color.bgControlHover]: "transparent",
     [color.bgControlSelected]: "transparent",
+    // Under a mouse the hover fill shows the press. A touch has no hover fill,
+    // so its row paints the press.
+    [color.bgControlPressed]: {
+      default: null,
+      [pointer.canHover]: "transparent",
+    },
   },
 });

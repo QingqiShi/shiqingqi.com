@@ -431,6 +431,15 @@ export default defineConfig([
       "@tuja/no-partial-hover-underline": "error",
     },
   },
+  // A link or button that fills only on hover takes the one primitive, which
+  // also carries its press, selected state, focus ring and touch feel.
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "@tuja/require-quiet-surface": "error",
+    },
+  },
   // A gap between siblings names its relationship. The primitives and the
   // tokens define the steps, so they are not in scope.
   {

@@ -1,7 +1,6 @@
 "use client";
 
 import * as stylex from "@stylexjs/stylex";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { cardSurface } from "@tuja/ui/components/card.stylex";
 import { useDust } from "@tuja/ui/hooks/use-dust";
 import { useExtractorFan } from "@tuja/ui/hooks/use-extractor-fan";
@@ -13,6 +12,8 @@ import {
   easing,
   motionConstants,
 } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
+import { selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { color, space } from "@tuja/ui/tokens.stylex";
 import {
@@ -162,7 +163,13 @@ export function PrincipleLink({
       ref={dustRef}
       href={`#${id}`}
       onClick={onClick}
-      css={[stack.item, cardSurface.base, cardSurface.interactive, styles.card]}
+      css={[
+        stack.item,
+        cardSurface.base,
+        cardSurface.interactive,
+        quietSurface.interactive,
+        styles.card,
+      ]}
     >
       {children}
     </a>
@@ -210,16 +217,7 @@ const styles = stylex.create({
     boxSizing: "border-box",
     blockSize: "100%",
     padding: space._5,
-    color: "inherit",
-    textDecoration: "none",
-    backgroundColor: {
-      default: color.bgSurface,
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
-      ":active": {
-        default: color.bgControlHover,
-        [pointer.canHover]: color.bgControlHover,
-      },
-    },
+    [selectedTokens.rest]: color.bgSurface,
     transform: {
       default: null,
       ":active": {

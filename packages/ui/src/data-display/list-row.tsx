@@ -8,10 +8,8 @@ import type {
   Ref,
 } from "react";
 import { mergeRefs } from "../merge-refs.ts";
-import { a11y } from "../primitives/a11y.stylex.ts";
-import { transition } from "../primitives/motion.stylex.ts";
+import { quietSurface } from "../primitives/quiet-surface.stylex.ts";
 import { buttonReset } from "../primitives/reset.stylex.ts";
-import { selected, selectedTokens } from "../primitives/selected.stylex.ts";
 import { typeRole } from "../primitives/type.stylex.ts";
 import { color, font, rhythm, space } from "../tokens.stylex.ts";
 import type { StyleProp } from "../types.ts";
@@ -155,14 +153,7 @@ export function ListRow({
     </>
   );
   const setRef = mergeRefs(ref);
-  const look = [
-    transition.colors,
-    selected.quiet,
-    a11y.focusRingInset,
-    listSurface.row,
-    styles.row,
-    css,
-  ];
+  const look = [quietSurface.interactive, listSurface.row, styles.row, css];
 
   return (
     <li css={listSurface.item}>
@@ -200,22 +191,13 @@ function LinkSlot({
   component: ComponentType<ListRowLinkProps> | undefined;
   look: StyleProp;
 }) {
-  return <LinkComponent {...props} {...stylex.props(look, styles.link)} />;
+  return <LinkComponent {...props} {...stylex.props(look)} />;
 }
 
 const styles = stylex.create({
   row: {
-    [selectedTokens.rest]: {
-      default: "transparent",
-      ":active": color.bgControlPressed,
-    },
     color: color.fg,
     textAlign: "start",
-    WebkitTapHighlightColor: "transparent",
-    touchAction: "manipulation",
-  },
-  link: {
-    textDecoration: "none",
   },
   main: {
     display: "flex",

@@ -12,6 +12,7 @@ import {
   duration,
   easing,
 } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import {
   color,
@@ -36,8 +37,8 @@ export function Card({ children, css, ...rest }: CardProps) {
       css={[
         typeRole.body,
         corner.radius_2,
+        quietSurface.interactive,
         styles.card,
-        a11y.focusRingInset,
         css,
       ]}
     >
@@ -89,13 +90,6 @@ const styles = stylex.create({
     },
     zIndex: {
       ":hover": { default: null, [pointer.canHover]: layer.content },
-    },
-    backgroundColor: {
-      default: "transparent",
-      ":hover": {
-        default: null,
-        [pointer.canHover]: color.bgControlHover,
-      },
     },
     transform: {
       default: null,

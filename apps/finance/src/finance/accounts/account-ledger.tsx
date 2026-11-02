@@ -6,13 +6,12 @@ import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { Button } from "@tuja/ui/components/button";
 import { buttonTokens } from "@tuja/ui/components/button.stylex";
 import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { stack } from "@tuja/ui/primitives/stack.stylex";
 import { typeRole } from "@tuja/ui/primitives/type.stylex";
 import { color, font, rhythm, space } from "@tuja/ui/tokens.stylex";
@@ -212,8 +211,7 @@ export function AccountLedger({ account, today }: AccountLedgerProps) {
             flex.between,
             typeRole.bodySmall,
             corner.radius_3,
-            transition.colors,
-            a11y.focusRingInset,
+            quietSurface.interactive,
             styles.all,
           )}
         >
@@ -254,10 +252,5 @@ const styles = stylex.create({
     paddingBlock: space._2,
     paddingInline: space._2,
     color: color.fgMuted,
-    textDecoration: "none",
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
-    },
   },
 });

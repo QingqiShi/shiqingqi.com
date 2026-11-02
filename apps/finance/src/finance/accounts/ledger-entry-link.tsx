@@ -3,11 +3,8 @@
 import * as stylex from "@stylexjs/stylex";
 import { useLocale } from "@tuja/i18n/use-locale";
 import { SplitViewLink } from "@tuja/ui/components/navigation-split-view";
-import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
-import { transition } from "@tuja/ui/primitives/motion.stylex";
-import { selected } from "@tuja/ui/primitives/selected.stylex";
-import { color } from "@tuja/ui/tokens.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import type { ReactNode } from "react";
 import { formatMoney } from "../domain/money/format-money.ts";
 import type { TransactionRow } from "../sync/row-schemas.ts";
@@ -44,13 +41,7 @@ export function LedgerEntryLink({
     <SplitViewLink
       href={href}
       aria-current={isSelected ? "true" : undefined}
-      {...stylex.props(
-        corner.radius_3,
-        transition.colors,
-        selected.quiet,
-        a11y.focusRingInset,
-        styles.link,
-      )}
+      {...stylex.props(corner.radius_3, quietSurface.interactive, styles.link)}
     >
       <TransactionFace
         icon={description.icon}
@@ -71,7 +62,5 @@ export function LedgerEntryLink({
 const styles = stylex.create({
   link: {
     display: "block",
-    color: color.fg,
-    textDecoration: "none",
   },
 });

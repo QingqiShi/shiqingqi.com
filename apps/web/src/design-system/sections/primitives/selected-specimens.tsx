@@ -3,8 +3,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useRadioGroup } from "@tuja/ui/hooks/use-radio-group";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { transition } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { selected, selectedTokens } from "@tuja/ui/primitives/selected.stylex";
 import { row, stack } from "@tuja/ui/primitives/stack.stylex";
@@ -47,9 +49,9 @@ export function QuietSelectedSpecimen() {
             typeRole.label,
             buttonReset.base,
             corner.radius_round,
+            quietSurface.interactive,
+            a11y.focusRing,
             styles.segment,
-            selected.quiet,
-            transition.colors,
           ]}
         >
           {labels[option]}

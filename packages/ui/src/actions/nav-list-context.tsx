@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { createContext, type ComponentProps, type ComponentType } from "react";
 import { pointer } from "../breakpoints.stylex.ts";
-import { selectedTokens } from "../primitives/selected.stylex.ts";
 import {
   color,
   controlHeight,
@@ -59,10 +58,6 @@ export const navListStyles = stylex.create({
     gap: rhythm.tight,
     minBlockSize: { default: controlHeight.sm, [pointer.coarse]: "44px" },
     paddingBlock: space._0,
-    [selectedTokens.rest]: {
-      default: "transparent",
-      ":active": color.bgControlPressed,
-    },
     color: color.fg,
     fontWeight: font.weight_4,
     textAlign: "start",

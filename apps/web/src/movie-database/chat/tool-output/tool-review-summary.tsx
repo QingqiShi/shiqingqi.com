@@ -9,9 +9,11 @@ import { SmileyWinkIcon } from "@phosphor-icons/react/dist/ssr/SmileyWink";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
 import { useLocale } from "@tuja/i18n/use-locale";
+import { a11y } from "@tuja/ui/primitives/a11y.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import { flex } from "@tuja/ui/primitives/flex.stylex";
 import { duration, easing } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import { selected } from "@tuja/ui/primitives/selected.stylex";
 import { row } from "@tuja/ui/primitives/stack.stylex";
@@ -170,8 +172,9 @@ export function ToolReviewSummary({
                   css={[
                     buttonReset.base,
                     corner.radius_2,
+                    !isSelected && [quietSurface.interactive, a11y.focusRing],
                     styles.levelButton,
-                    isSelected ? selected.marked : selected.quiet,
+                    isSelected && selected.marked,
                   ]}
                   onClick={() => {
                     handleTap(level);

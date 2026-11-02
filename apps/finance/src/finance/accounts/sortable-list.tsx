@@ -22,14 +22,13 @@ import { CSS } from "@dnd-kit/utilities";
 import { DotsSixVerticalIcon } from "@phosphor-icons/react/dist/ssr/DotsSixVertical";
 import * as stylex from "@stylexjs/stylex";
 import { t } from "@tuja/i18n";
-import { pointer } from "@tuja/ui/breakpoints.stylex";
 import { corner } from "@tuja/ui/primitives/corner.stylex";
 import {
   duration,
   easing,
   motionConstants,
-  transition,
 } from "@tuja/ui/primitives/motion.stylex";
+import { quietSurface } from "@tuja/ui/primitives/quiet-surface.stylex";
 import { buttonReset } from "@tuja/ui/primitives/reset.stylex";
 import {
   border,
@@ -99,7 +98,7 @@ export function DragHandle({
       css={[
         buttonReset.base,
         corner.squircle_round,
-        transition.colors,
+        quietSurface.interactive,
         styles.handle,
       ]}
     >
@@ -280,10 +279,6 @@ const styles = stylex.create({
     blockSize: controlSize._8,
     fontSize: controlSize._5,
     color: color.fgMuted,
-    backgroundColor: {
-      default: "transparent",
-      ":hover": { default: null, [pointer.canHover]: color.bgControlHover },
-    },
     cursor: "grab",
     touchAction: "none",
   },
