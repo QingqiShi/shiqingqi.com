@@ -2,6 +2,11 @@ import { MockLanguageModelV3 } from "ai/test";
 import { asc, eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { z } from "zod";
+import type { AssistantModel } from "#src/assistant/ai/types.ts";
+import {
+  createFakeCalendarServer,
+  type FakeCalendarServer,
+} from "#src/assistant/calendar/testing/create-fake-calendar-server.ts";
 import {
   agentActions,
   agentRuns,
@@ -190,8 +195,10 @@ function scriptedAgent() {
   return { model: { id: "agent-model", model }, prompts, toolNames };
 }
 
-/** A reader that calls each mail it gets phishing. */
-function scriptedReader() {
+/** A reader that gives the events of the mail with these subjects, and calls every other mail phishing. */
+function scriptedReader(
+  eventsBySubject: Partial<Record<string, unknown[]>> = {},
+) {
   const texts: string[] = [];
   const model = new MockLanguageModelV3({
     doGenerate: ({ prompt }) => {
@@ -205,19 +212,36 @@ function scriptedReader() {
         )
         .join("\n");
       texts.push(text);
-      const ids = [...text.matchAll(/^Id: (m\d+)$/gm)].map((match) => match[1]);
+      const mails = [
+        ...text.matchAll(/^Id: (m\d+)$[\s\S]*?^Subject: (.*)$/gm),
+      ].map((match) => ({ id: match[1], subject: match[2] }));
       return reply(
         [
           {
             type: "text",
             text: JSON.stringify({
-              mails: [...ids, "m999"].map((id) => ({
-                id,
-                kind: "phishing",
-                summary: "Asks for a bank login on a look-alike site.",
-                needsOwner: false,
-                warning: "The link goes to a different domain.",
-              })),
+              mails: [...mails, { id: "m999", subject: "" }].map(
+                ({ id, subject }) => {
+                  const events = eventsBySubject[subject];
+                  return events
+                    ? {
+                        id,
+                        kind: "transaction",
+                        summary: "A booking.",
+                        needsOwner: false,
+                        warning: null,
+                        events,
+                      }
+                    : {
+                        id,
+                        kind: "phishing",
+                        summary: "Asks for a bank login on a look-alike site.",
+                        needsOwner: false,
+                        warning: "The link goes to a different domain.",
+                        events: [],
+                      };
+                },
+              ),
             }),
           },
         ],
@@ -228,9 +252,139 @@ function scriptedReader() {
   return { model: { id: "reader-model", model }, texts };
 }
 
+const readSchema = z.object({
+  mails: z.array(
+    z.object({
+      id: z.string(),
+      events: z.array(
+        z.object({
+          title: z.string(),
+          start: z.string(),
+          end: z.string().nullable(),
+          allDay: z.boolean(),
+          timeZone: z.string().nullable(),
+          endTimeZone: z.string().nullable(),
+          reference: z.string().nullable(),
+        }),
+      ),
+    }),
+  ),
+});
+const foundSchema = z.object({
+  events: z.array(z.object({ id: z.string() })),
+});
+
+/**
+ * An agent model that reads a flight booking and its change, looks for the
+ * flight in the calendar, makes it, finds it again by its reference, and
+ * moves it to the new time.
+ */
+function calendarAgent() {
+  const prompts: string[] = [];
+  const model = new MockLanguageModelV3({
+    doGenerate: ({ prompt }) => {
+      prompts.push(JSON.stringify(prompt));
+      const outputs = toolOutputs(prompt);
+      const listed = listedSchema.safeParse(outputs.get("list")).data;
+      if (!listed) {
+        return reply(
+          [call("list_mail", { account: "a1", folder: "INBOX" }, "list")],
+          true,
+        );
+      }
+      const id = (subject: string) =>
+        listed.mails.find((mail) => mail.subject === subject)?.id ?? "";
+      const read = readSchema.safeParse(outputs.get("read")).data;
+      if (!read) {
+        return reply(
+          [
+            call(
+              "read_mail",
+              { ids: [id("Flight booking"), id("Flight change")] },
+              "read",
+            ),
+          ],
+          true,
+        );
+      }
+      const eventOf = (subject: string) => {
+        const event = read.mails.find((mail) => mail.id === id(subject))
+          ?.events[0];
+        if (!event) throw new Error(`No event in "${subject}"`);
+        return event;
+      };
+      const booked = eventOf("Flight booking");
+      const search = (callId: string) =>
+        call(
+          "list_events",
+          { from: "2026-11-02", to: "2027-11-01", text: booked.reference },
+          callId,
+        );
+      if (!outputs.has("find")) return reply([search("find")], true);
+      if (!outputs.has("create")) {
+        return reply(
+          [
+            call(
+              "create_event",
+              {
+                calendar: "c1",
+                title: booked.title,
+                start: booked.start,
+                end: booked.end,
+                allDay: booked.allDay,
+                timeZone: booked.timeZone,
+                endTimeZone: booked.endTimeZone,
+                notes: `Booking ${booked.reference ?? ""}`,
+                alarmMinutes: [180, 60, 30],
+                fromMail: id("Flight booking"),
+                reason: "Flight booking",
+              },
+              "create",
+            ),
+          ],
+          true,
+        );
+      }
+      const found = foundSchema.safeParse(outputs.get("find-again")).data;
+      if (!found) return reply([search("find-again")], true);
+      if (!outputs.has("update")) {
+        const changed = eventOf("Flight change");
+        return reply(
+          [
+            call(
+              "update_event",
+              {
+                id: found.events[0].id,
+                start: changed.start,
+                end: changed.end,
+                allDay: changed.allDay,
+                timeZone: changed.timeZone,
+                endTimeZone: changed.endTimeZone,
+                fromMail: id("Flight change"),
+                reason: "The airline moved the flight",
+              },
+              "update",
+            ),
+          ],
+          true,
+        );
+      }
+      return reply(
+        [{ type: "text", text: "Put one flight in the calendar." }],
+        false,
+      );
+    },
+  });
+  return { model: { id: "agent-model", model }, prompts };
+}
+
+const NOW = new Date("2026-11-02T10:00:00Z");
+
 let db: TestDb;
 let userId: string;
 let server: FakeMailServer;
+let calendar: FakeCalendarServer;
+let calendarUrl: string;
 
 beforeEach(async () => {
   db = await createTestDb();
@@ -243,6 +397,11 @@ beforeEach(async () => {
   server.addFolder("Finance");
   server.addFolder("Junk", { specialUse: "\\Junk" });
   server.addFolder("Deleted Messages", { specialUse: "\\Trash" });
+  calendar = createFakeCalendarServer({
+    user: "me@icloud.com",
+    password: "app-password",
+  });
+  calendarUrl = calendar.addCalendar("Calendar");
 });
 
 afterEach(async () => {
@@ -266,13 +425,14 @@ function deliver(subject: string, body = "Hi there.") {
 }
 
 function organise(
-  agent: ReturnType<typeof scriptedAgent>,
+  agent: { model: AssistantModel },
   reader: ReturnType<typeof scriptedReader>,
 ) {
   return organiseUserMail(
     { db, userId, endsAt: Infinity },
     {
-      ...mailDeps({ connector: server.connector }),
+      ...mailDeps({ connector: server.connector, now: () => NOW }),
+      calendarConnector: calendar.connector,
       agent: agent.model,
       reader: reader.model,
     },
@@ -371,5 +531,77 @@ describe("organising the inbox", () => {
     );
     expect(actions).toHaveLength(5);
     expect(actions.every((action) => action.userId === userId)).toBe(true);
+    expect(calendar.state.loginUsers).toEqual([]);
+  });
+
+  it("puts a flight from the mail into the calendar and moves it when a later mail changes it", async () => {
+    await setOrganise(true);
+    const booking = deliver(
+      "Flight booking",
+      "Booking ABC123. Your seat is 12A.",
+    );
+    const change = deliver("Flight change", "BA117 now leaves at 11:15.");
+    const flight = {
+      kind: "flight",
+      title: "Flight BA117 London → New York",
+      allDay: false,
+      timeZone: "Europe/London",
+      endTimeZone: "America/New_York",
+      location: "Heathrow T5",
+      reference: "ABC123",
+    };
+    const agent = calendarAgent();
+    const reader = scriptedReader({
+      "Flight booking": [
+        {
+          ...flight,
+          change: "new",
+          start: "2026-12-20T09:15",
+          end: "2026-12-20T12:05",
+          previousStart: null,
+        },
+      ],
+      "Flight change": [
+        {
+          ...flight,
+          change: "changed",
+          start: "2026-12-20T11:15",
+          end: "2026-12-20T14:05",
+          previousStart: "2026-12-20T09:15",
+        },
+      ],
+    });
+
+    expect(await organise(agent, reader)).toMatchObject({
+      run: { status: "done" },
+      createdEvents: 1,
+      updatedEvents: 1,
+      deletedEvents: 0,
+    });
+
+    expect(reader.texts.join("\n")).toContain("Your seat is 12A.");
+    expect(agent.prompts.join("\n")).not.toContain("seat is 12A");
+    const [event] = calendar.events(calendarUrl);
+    expect(event.data).toContain("DTSTART;TZID=Europe/London:20261220T111500");
+    expect(event.data).toContain("DTEND;TZID=America/New_York:20261220T140500");
+    expect(event.data).toContain("SEQUENCE:1");
+    expect(calendar.events(calendarUrl)).toHaveLength(1);
+
+    const actions = await db
+      .select()
+      .from(agentActions)
+      .where(eq(agentActions.userId, userId))
+      .orderBy(asc(agentActions.createdAt));
+    expect(actions.map((action) => [action.kind, action.messageId])).toEqual([
+      ["create_event", booking],
+      ["update_event", change],
+    ]);
+    const previous = z
+      .object({ href: z.string(), previous: z.object({ ics: z.string() }) })
+      .parse(actions[1].detail);
+    expect(previous.href).toBe(event.url);
+    expect(previous.previous.ics).toContain(
+      "DTSTART;TZID=Europe/London:20261220T091500",
+    );
   });
 });
