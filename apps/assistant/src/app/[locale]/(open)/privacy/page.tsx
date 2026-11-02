@@ -22,8 +22,8 @@ export default function Page() {
     <LegalPage title={t({ en: "Privacy policy", zh: "隐私政策" })}>
       <Text>
         {t({
-          en: "Mail Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the previous day's mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
-          zh: "邮件助手（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。它把你连接的邮箱收件箱里的邮件归入文件夹，并在每天早上就前一天的邮件写一份晨报，列出其中的待办。本页说明它保存什么、你的数据去往哪里，以及你可以做什么。",
+          en: "Mail Assistant (assistant.qingqi.dev) is a personal service that Qingqi Shi runs for his own use. It files the mail in the inboxes you connect into folders, and each morning it writes a report of the last 24 hours' mail with the to-dos it finds. This page says what it stores, where your data goes, and what you can do about it.",
+          zh: "邮件助手（assistant.qingqi.dev）是石清琪为自己使用而运营的个人服务。它把你连接的邮箱收件箱里的邮件归入文件夹，并在每天早上就过去 24 小时的邮件写一份晨报，列出其中的待办。本页说明它保存什么、你的数据去往哪里，以及你可以做什么。",
         })}
       </Text>
 
@@ -47,8 +47,8 @@ export default function Page() {
         </Text>
         <Text>
           {t({
-            en: "Each morning it reads the previous day's messages from your folders, without changing them, and writes a short report and a list of to-dos. It never deletes mail and never sends mail for you.",
-            zh: "每天早上，它会读取你各个文件夹里前一天的邮件（不做任何改动），写一份简短的晨报和一份待办清单。它从不删除邮件，也从不替你发送邮件。",
+            en: "Each morning it reads the last 24 hours' messages from your folders, without changing them, and writes a short report and a list of to-dos. It never deletes mail and never sends mail for you.",
+            zh: "每天早上，它会读取你各个文件夹里过去 24 小时的邮件（不做任何改动），写一份简短的晨报和一份待办清单。它从不删除邮件，也从不替你发送邮件。",
           })}
         </Text>
       </LegalSection>
@@ -91,8 +91,8 @@ export default function Page() {
       >
         <Text>
           {t({
-            en: "Anthropic: to organise your inbox, the assistant sends the sender, recipients, subject and date of its messages, with your folder names and your notes, to Anthropic's Claude API, and for the messages the agent needs to understand, up to about 6,000 characters of their text. To write the morning report, it sends the sender, recipients, subject, date and the start of the text of the previous day's messages with your open to-dos. Anthropic's commercial terms say that it does not train its models on this data.",
-            zh: "Anthropic：为了整理收件箱，邮件助手会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类说明，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把前一天邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
+            en: "Anthropic: to organise your inbox, the assistant sends the sender, recipients, subject and date of its messages, with your folder names and your notes, to Anthropic's Claude API, and for the messages the agent needs to understand, up to about 6,000 characters of their text. To write the morning report, it sends the sender, recipients, subject, date and the start of the text of the last 24 hours' messages with your open to-dos. Anthropic's commercial terms say that it does not train its models on this data.",
+            zh: "Anthropic：为了整理收件箱，邮件助手会把邮件的发件人、收件人、主题和日期，连同你的文件夹名称和归类说明，发送到 Anthropic 的 Claude API；对智能体需要了解内容的邮件，还会发送最多约 6,000 个字符的正文。为了撰写晨报，它会把过去 24 小时邮件的发件人、收件人、主题、日期和正文开头，连同你未完成的待办一起发送过去。Anthropic 的商业条款规定，它不会用这些数据训练模型。",
           })}
         </Text>
         <Text>

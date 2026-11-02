@@ -59,8 +59,8 @@ export async function LatestReport({
         <Text as="p" look="bodySmall" tone="muted">
           {accounts === 0
             ? t({
-                en: "Connect a mailbox. Each morning at {hour}, the assistant reads the mail of the day before and writes down what needs you.",
-                zh: "请先连接邮箱。每天早上 {hour}，助手会读取前一天的邮件，告诉你需要处理什么。",
+                en: "Connect a mailbox. Each morning at {hour}, the assistant reads the mail of the last 24 hours and writes down what needs you.",
+                zh: "请先连接邮箱。每天早上 {hour}，助手会读取过去 24 小时的邮件，告诉你需要处理什么。",
               }).replace("{hour}", hour)
             : clock.hour >= settings.digestHour
               ? t({

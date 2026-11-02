@@ -88,6 +88,7 @@ export interface MailToolsInput {
   timeZone?: string;
 }
 
+const listBound = z.union([z.iso.date(), z.iso.datetime({ offset: true })]);
 const accountKey = z
   .string()
   .describe('An account key from list_accounts, such as "a1".');
@@ -251,6 +252,20 @@ export interface ListMailInput {
   cursor?: string;
 }
 
+/** A `since` or `before` of `ListMailInput`: an exact time as it is, a day from its start in `timeZone`. */
+function instantOf(bound: string, timeZone: string) {
+  return bound.includes("T")
+    ? new Date(bound)
+    : localDayBounds(bound, timeZone).start;
+}
+
+/** The UTC date of `instant`, moved by `days`, for an IMAP search. */
+function searchDate(instant: Date, days: number) {
+  return new Date(
+    `${addDays(instant.toISOString().slice(0, 10), days)}T00:00:00Z`,
+  );
+}
+
 /**
  * One page of the mail of a folder, by its headers; gives each mail an id
  * in `handles`. What `list_mail` returns, and what code that lists mail
@@ -281,19 +296,13 @@ export function listMail(
       after = uid;
     }
     const newest = input.order === "newest";
-    const from = input.since
-      ? localDayBounds(input.since, timeZone).start
-      : null;
-    const until = input.before
-      ? localDayBounds(input.before, timeZone).start
-      : null;
+    const from = input.since ? instantOf(input.since, timeZone) : null;
+    const until = input.before ? instantOf(input.before, timeZone) : null;
     const all = await mailbox.session.searchUids({
-      since: input.since
-        ? new Date(`${addDays(input.since, -1)}T00:00:00Z`)
-        : undefined,
-      before: input.before
-        ? new Date(`${addDays(input.before, 1)}T00:00:00Z`)
-        : undefined,
+      // IMAP compares dates only, in the server's zone, which can show a date
+      // one day from the UTC date. BEFORE leaves out its own date.
+      since: from ? searchDate(from, -1) : undefined,
+      before: until ? searchDate(until, 2) : undefined,
       seen: input.unreadOnly ? false : undefined,
     });
     const inRange = (mail: ParsedMail) =>
@@ -337,8 +346,8 @@ export function listMail(
     });
     const last = page.at(-1);
     return {
-      // IMAP searches by date in the server's zone, so with days the
-      // search holds a day more at each end and the count is not exact.
+      // The search holds more than the bounds at each end, so with bounds
+      // the count is not exact.
       total: from === null && until === null ? all.length : undefined,
       mails: listed,
       nextCursor:
@@ -546,17 +555,15 @@ export function createMailTools({
         account: accountKey,
         folder: z.string().describe("A folder path from list_folders."),
         unreadOnly: z.boolean().optional(),
-        since: z.iso
-          .date()
+        since: listBound
           .optional()
           .describe(
-            "Only mail received on or after this day in the owner's time zone, YYYY-MM-DD.",
+            "Only mail received at or after this: a day in the owner's time zone, YYYY-MM-DD, or an exact time, such as 2026-10-31T08:00:00Z.",
           ),
-        before: z.iso
-          .date()
+        before: listBound
           .optional()
           .describe(
-            "Only mail received before this day in the owner's time zone, YYYY-MM-DD.",
+            "Only mail received before this: a day in the owner's time zone, YYYY-MM-DD, or an exact time, such as 2026-11-01T08:00:00Z.",
           ),
         order: z
           .enum(["oldest", "newest"])

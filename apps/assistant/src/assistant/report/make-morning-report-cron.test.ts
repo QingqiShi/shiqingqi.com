@@ -44,7 +44,7 @@ type CallOptions = Parameters<DoGenerate>[0];
 type Content = Awaited<ReturnType<DoGenerate>>["content"][number];
 
 const SECRET = "test-cron-secret";
-/** 09:00 in London: the report of 1 November, about the mail of 31 October (GMT). */
+/** 09:00 in London (GMT): the report of 1 November, set for 08:00, about the mail from 08:00 the day before up to 08:00. */
 const NOW = new Date("2026-11-01T09:00:00Z");
 const SEEN = "\\Seen";
 let clock: Date;
@@ -166,7 +166,10 @@ function reportAgent() {
       if (!inbox || !archive || !events) {
         seen.instructions = textOf(prompt, "system");
         seen.prompt = textOf(prompt, "user");
-        const day = { since: "2026-10-31", before: "2026-11-01" };
+        const day = {
+          since: "2026-10-31T08:00:00.000Z",
+          before: "2026-11-01T08:00:00.000Z",
+        };
         return reply(
           [
             call(
@@ -289,7 +292,7 @@ function deliver(
   });
 }
 
-/** Yesterday's three mails, one before and one after that day, and one the owner sent. */
+/** The four mails of the window, one on each side of it, and one the owner sent. */
 function deliverDay() {
   return {
     invoice: deliver("INBOX", "<invoice@example.com>", "2026-10-31T10:00:00Z", {
@@ -303,11 +306,14 @@ function deliverDay() {
       "2026-10-31T23:30:00Z",
       { subject: "Your new passport is on its way" },
     ),
-    late: deliver("INBOX", "<too-late@example.com>", "2026-11-01T00:30:00Z", {
-      subject: "Sent after midnight",
+    lastIn: deliver("INBOX", "<last-in@example.com>", "2026-11-01T07:59:59Z", {
+      subject: "Sent just before the report time",
     }),
-    early: deliver("INBOX", "<too-early@example.com>", "2026-10-30T23:59:00Z", {
-      subject: "Sent the day before",
+    late: deliver("INBOX", "<too-late@example.com>", "2026-11-01T08:00:00Z", {
+      subject: "Sent at the report time",
+    }),
+    early: deliver("INBOX", "<too-early@example.com>", "2026-10-31T07:59:59Z", {
+      subject: "Sent before the window",
     }),
     newsletter: deliver(
       "Newsletters",
@@ -401,7 +407,7 @@ async function insertTodos() {
 }
 
 describe("the morning report cron", () => {
-  it("runs the report agent over yesterday's mail and today's calendar, stores the report and the to-do changes, and then marks that day's mail read", async () => {
+  it("runs the report agent over the mail of the 24 hours before the report time and today's calendar, stores the report and the to-do changes, and then marks exactly that mail read", async () => {
     const uids = deliverDay();
     const { invoiceTodo, passportTodo } = await insertTodos();
     const agent = reportAgent();
@@ -413,7 +419,7 @@ describe("the morning report cron", () => {
     });
 
     expect(agent.seen.prompt).toContain(
-      '"INBOX" holds 1, 1 unread; "Archive" holds 1, 1 unread; "Newsletters" holds 1, 1 unread',
+      '"INBOX" holds 2, 2 unread; "Archive" holds 1, 1 unread; "Newsletters" holds 1, 1 unread',
     );
     expect(agent.seen.prompt).not.toContain("Sent Messages");
     expect(agent.seen.prompt).toContain("t1: Pay the Example invoice");
@@ -421,8 +427,9 @@ describe("the morning report cron", () => {
     expect(agent.seen.prompt).not.toContain("Book the dentist");
     const listed = JSON.stringify(agent.seen.listings);
     expect(listed).toContain("Invoice 42 from Example Ltd");
-    expect(listed).not.toContain("Sent after midnight");
-    expect(listed).not.toContain("Sent the day before");
+    expect(listed).toContain("Sent just before the report time");
+    expect(listed).not.toContain("Sent at the report time");
+    expect(listed).not.toContain("Sent before the window");
     expect(readerTexts.join("\n")).toContain("Please pay 120 GBP");
 
     const [report] = await db.select().from(morningReports);
@@ -462,7 +469,7 @@ describe("the morning report cron", () => {
           note: "Bring the referral form.",
         },
       ],
-      mailCount: 3,
+      mailCount: 4,
       ranOutOfTime: false,
       unreadMailboxes: [],
       doneTodos: [
@@ -502,6 +509,7 @@ describe("the morning report cron", () => {
     expect(seenOf("INBOX", uids.invoice)).toBe(true);
     expect(seenOf("Archive", uids.passport)).toBe(true);
     expect(seenOf("Newsletters", uids.newsletter)).toBe(true);
+    expect(seenOf("INBOX", uids.lastIn)).toBe(true);
     expect(seenOf("INBOX", uids.late)).toBe(false);
     expect(seenOf("INBOX", uids.early)).toBe(false);
     expect(seenOf("Sent Messages", uids.mine)).toBe(false);
@@ -510,6 +518,7 @@ describe("the morning report cron", () => {
       actions.map((action) => [action.kind, action.messageId]).sort(),
     ).toEqual([
       ["mark_read", "<invoice@example.com>"],
+      ["mark_read", "<last-in@example.com>"],
       ["mark_read", "<passport@example.com>"],
       ["mark_read", "<weekly@example.com>"],
     ]);
@@ -566,8 +575,17 @@ describe("the morning report cron", () => {
     expect(server.log.writes).toEqual([]);
     expect(pushed).toEqual([]);
 
+    const afterEnd = deliver(
+      "INBOX",
+      "<after-end@example.com>",
+      "2026-11-01T09:30:00Z",
+      { subject: "Came before the late build" },
+    );
     clock = new Date("2026-11-01T10:00:00Z");
     expect(await runCron(reportAgent().model)).toMatchObject({ built: 1 });
+    expect(seenOf("INBOX", afterEnd)).toBe(false);
+    const [built] = await db.select().from(morningReports);
+    expect(built.content).toMatchObject({ mailCount: 4 });
     clock = new Date("2026-11-01T11:00:00Z");
     expect(await runCron(reportAgent().model)).toMatchObject({
       built: 0,
@@ -581,8 +599,8 @@ describe("the morning report cron", () => {
     ]);
   });
 
-  it("makes an agent that runs out of time submit what it has", async () => {
-    deliverDay();
+  it("makes an agent that runs out of time submit what it has, and marks read only the window's mail of what it listed", async () => {
+    const uids = deliverDay();
     const offered: string[][] = [];
     const choices: unknown[] = [];
     let lastAsk = "";
@@ -631,6 +649,8 @@ describe("the morning report cron", () => {
       headline: "A first look at yesterday's mail.",
       ranOutOfTime: true,
     });
+    expect(seenOf("INBOX", uids.invoice)).toBe(true);
+    expect(seenOf("INBOX", uids.late)).toBe(false);
   });
 
   it("retries while no mailbox can be read, and at the last try of the day stores a report that says so", async () => {

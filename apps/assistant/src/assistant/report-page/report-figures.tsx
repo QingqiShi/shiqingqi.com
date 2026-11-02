@@ -55,8 +55,8 @@ export function ReportFigures({
       key: "mail",
       count: mailCount,
       label: (mailCount === 1
-        ? t({ en: "mail on {day}", zh: "封{day}的邮件" })
-        : t({ en: "mails on {day}", zh: "封{day}的邮件" })
+        ? t({ en: "mail since {day}", zh: "封{day}以来的邮件" })
+        : t({ en: "mails since {day}", zh: "封{day}以来的邮件" })
       ).replace("{day}", mailDay),
     },
   ].filter((figure) => figure.count > 0);

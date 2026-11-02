@@ -29,7 +29,7 @@ import {
 import type { AgentModels } from "#src/assistant/ai/get-agent-models.ts";
 import type { UserLocale } from "#src/assistant/db/schema.ts";
 import type { AssistantDb } from "#src/assistant/db/types.ts";
-import { isInDay, localDayBounds } from "./local-day-bounds.ts";
+import { isInBounds, type TimeBounds } from "./local-day-bounds.ts";
 import { reportFolders } from "./report-folders.ts";
 import {
   reportTask,
@@ -60,10 +60,10 @@ export interface ReportAgentResult {
   /** Null when the agent did not submit a report. */
   report: SubmittedReport | null;
   todoChanges: TodoChanges;
-  /** The mails of the day in the folders the report covers, each Message-ID once. */
+  /** The mails of the window in the folders the report covers, each Message-ID once. */
   mailCount: number;
-  /** Marks read the mail of the day in the folders the report covers. Call it only once the report is stored. */
-  markDayMailRead: (reason: string) => Promise<number>;
+  /** Marks read the mail of the window in the folders the report covers, and no other mail. Call it only once the report is stored. */
+  markWindowMailRead: (reason: string) => Promise<number>;
 }
 
 const line = z.string().trim().min(1).max(MAX_LINE_CHARS);
@@ -101,11 +101,11 @@ const eventsOutput = z.object({
 type ListedEvent = z.output<typeof eventsOutput>["events"][number];
 
 /**
- * Lists the day's mail of one folder, which gives each mail its id, so
- * that `markDayMailRead` reaches it whether or not the agent lists it.
+ * Lists the window's mail of one folder, which gives each mail its id, so
+ * that `markWindowMailRead` reaches it whether or not the agent lists it.
  * Null when the folder cannot be listed.
  */
-async function countDayMail(
+async function countWindowMail(
   list: (input: ListMailInput) => ReturnType<typeof listMail>,
   input: ListMailInput,
 ): Promise<ReportFolder["count"]> {
@@ -136,11 +136,11 @@ function timeOfDay(event: Pick<AgendaItem, "allDay" | "start">) {
 
 /**
  * Runs the report agent over mailboxes and calendars that are open: it
- * lists and reads the day's mail, looks at today's calendar, changes the
+ * lists and reads the window's mail, looks at today's calendar, changes the
  * to-dos in memory and submits the report. Before the run, code lists the
- * day's mail of every folder the report covers, so the prompt can say how
- * much each holds and `markDayMailRead` reaches all of it. Nothing is
- * stored here, and no mail changes until `markDayMailRead`.
+ * window's mail of every folder the report covers, so the prompt can say how
+ * much each holds and `markWindowMailRead` reaches all of it. Nothing is
+ * stored here, and no mail changes until `markWindowMailRead`.
  */
 export async function runReportAgent(
   {
@@ -157,7 +157,8 @@ export async function runReportAgent(
     locale,
     timeZone,
     today,
-    mailDate,
+    reportHour,
+    mailWindow,
   }: {
     models: AgentModels;
     mailboxes: RunMailboxes;
@@ -166,11 +167,11 @@ export async function runReportAgent(
     locale: UserLocale;
     timeZone: string;
     today: string;
-    mailDate: string;
+    reportHour: number;
+    mailWindow: TimeBounds;
   },
 ): Promise<ReportAgentResult> {
   const handles = new MailHandles();
-  const day = localDayBounds(mailDate, timeZone);
   const events = new Map<string, ListedEvent>();
   let submitted: SubmittedReport | null = null;
   let markRead: AgentTool | null = null;
@@ -205,11 +206,11 @@ export async function runReportAgent(
     for (const path of paths) {
       folders.push({
         path,
-        count: await countDayMail(list, {
+        count: await countWindowMail(list, {
           account: account.key,
           folder: path,
-          since: mailDate,
-          before: today,
+          since: mailWindow.start.toISOString(),
+          before: mailWindow.end.toISOString(),
         }),
       });
     }
@@ -325,7 +326,8 @@ export async function runReportAgent(
       }),
       prompt: reportTask.prompt({
         today,
-        mailDate,
+        reportHour,
+        mailWindow,
         mailboxes: mailboxList,
         openTodos,
         minutes: Math.max(1, Math.floor((endsAt - now().getTime()) / 60_000)),
@@ -379,17 +381,17 @@ export async function runReportAgent(
     },
   );
 
-  const dayMail = handles
+  const windowMail = handles
     .listed()
-    .filter(([, ref]) => isInDay(ref.receivedAt, day));
+    .filter(([, ref]) => isInBounds(ref.receivedAt, mailWindow));
   return {
     run,
     report: submitted,
     todoChanges: todo.changes,
-    mailCount: new Set(dayMail.map(([, ref]) => ref.messageId)).size,
-    markDayMailRead: async (reason) => {
+    mailCount: new Set(windowMail.map(([, ref]) => ref.messageId)).size,
+    markWindowMailRead: async (reason) => {
       if (!markRead) return 0;
-      const ids = dayMail.map(([id]) => id);
+      const ids = windowMail.map(([id]) => id);
       let changed = 0;
       for (let start = 0; start < ids.length; start += MARK_READ_BATCH) {
         const result = await callAgentTool(markRead, {

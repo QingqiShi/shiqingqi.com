@@ -63,6 +63,12 @@ export interface AgendaItem {
 /** What a morning report of version 2 stores: the report the agent submitted, and counts. */
 export interface MorningReportContentV2 {
   version: 2;
+  /**
+   * The local day the report's mail starts on, `YYYY-MM-DD`: the day before
+   * the report's own date. The mail runs from the report time on that day to
+   * the report time on the report's date. Older reports of this version
+   * covered this whole local day.
+   */
   mailDate: string;
   status: Exclude<ReportStatus, "no-mail">;
   headline: string | null;
@@ -72,7 +78,7 @@ export interface MorningReportContentV2 {
   rest: string | null;
   /** Today's events; null when the assistant has no calendar of the owner. */
   agenda: AgendaItem[] | null;
-  /** The mails of the day that the agent listed. */
+  /** The mails of the report's window that the agent listed. */
   mailCount: number;
   /** True when the time or the step limit made the agent submit early. */
   ranOutOfTime: boolean;

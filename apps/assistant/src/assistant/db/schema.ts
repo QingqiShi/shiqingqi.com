@@ -149,7 +149,7 @@ export const mailAccounts = pgTable(
 
 /**
  * The morning report of one local day: what the model wrote about the mail
- * of the day before. It holds no mail, only the model's words, counts and
+ * of the 24 hours before the report time. It holds no mail, only the model's words, counts and
  * the Message-IDs that its lines link to.
  */
 export const morningReports = pgTable(

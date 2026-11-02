@@ -1,7 +1,8 @@
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
-/** An instant in a day, from start (included) to end (not included). */
-export interface DayBounds {
+/** A stretch of time, from start (included) to end (not included). */
+export interface TimeBounds {
   start: Date;
   end: Date;
 }
@@ -58,22 +59,52 @@ export function addDays(localDate: string, days: number): string {
   return isoDate(utcMidnight(localDate) + days * DAY_MS);
 }
 
-/** The instant the wall clock of `timeZone` shows midnight at the start of `localDate`. */
-function zonedMidnight(localDate: string, timeZone: string): number {
-  const wall = utcMidnight(localDate);
-  let instant = wall - offsetMs(wall, timeZone);
-  instant = wall - offsetMs(instant, timeZone);
-  return instant;
+/**
+ * The first instant the wall clock of `timeZone` shows `hour` on `localDate`.
+ * When the clocks go back over that hour, this is the first of the two times.
+ * When the clocks skip it, this is the instant they jump.
+ */
+function zonedHour(localDate: string, hour: number, timeZone: string): number {
+  const wall = utcMidnight(localDate) + hour * HOUR_MS;
+  const [earlier, later] = [wall - DAY_MS, wall + DAY_MS]
+    .map((around) => wall - offsetMs(around, timeZone))
+    .sort((a, b) => a - b);
+  return (
+    [earlier, later].find(
+      (instant) => instant + offsetMs(instant, timeZone) === wall,
+    ) ?? later
+  );
 }
 
 /** The instants of one local day in `timeZone`: 23, 24 or 25 hours long. */
-export function localDayBounds(localDate: string, timeZone: string): DayBounds {
+export function localDayBounds(
+  localDate: string,
+  timeZone: string,
+): TimeBounds {
   return {
-    start: new Date(zonedMidnight(localDate, timeZone)),
-    end: new Date(zonedMidnight(addDays(localDate, 1), timeZone)),
+    start: new Date(zonedHour(localDate, 0, timeZone)),
+    end: new Date(zonedHour(addDays(localDate, 1), 0, timeZone)),
   };
 }
 
-export function isInDay(instant: Date, { start, end }: DayBounds): boolean {
+/**
+ * The mail that the report of `localDate` covers: from `reportHour` on the
+ * day before up to `reportHour` on `localDate`, on the wall clock of
+ * `timeZone`. It never depends on when the report is built, so the reports
+ * of two days in a row meet exactly. A report is never due before its end
+ * (see `dueReportDate`).
+ */
+export function reportMailWindow(
+  localDate: string,
+  reportHour: number,
+  timeZone: string,
+): TimeBounds {
+  return {
+    start: new Date(zonedHour(addDays(localDate, -1), reportHour, timeZone)),
+    end: new Date(zonedHour(localDate, reportHour, timeZone)),
+  };
+}
+
+export function isInBounds(instant: Date, { start, end }: TimeBounds): boolean {
   return instant >= start && instant < end;
 }

@@ -15,7 +15,7 @@ import {
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
 import { dueReportDate, localClock } from "./due-report-date.ts";
-import { addDays } from "./local-day-bounds.ts";
+import { addDays, reportMailWindow } from "./local-day-bounds.ts";
 import { readReportSettings } from "./read-report-settings.ts";
 import { runReportAgent, type ReportAgentResult } from "./run-report-agent.ts";
 import type { MorningReportContentV2 } from "./types.ts";
@@ -41,7 +41,7 @@ export interface BuiltReport {
   status: MorningReportContentV2["status"];
   headline: string | null;
   newTodos: number;
-  /** The mails of the day marked read once the report was stored. */
+  /** The mails of the report's window marked read once the report was stored. */
   markedRead: number;
 }
 
@@ -73,10 +73,10 @@ async function readPlan({ db, userId }: UserScope, builtAt: Date) {
 
 /**
  * Builds the user's morning report when one is due (see `dueReportDate`):
- * the report agent reads the mail of the day before and today's calendar,
- * and submits the report; the report and the agent's to-do changes are
- * stored in one transaction. Only then is the day's mail that the agent
- * listed marked read. Returns null when none is due, the user has no
+ * the report agent reads the mail of the report's window and today's
+ * calendar, and submits the report; the report and the agent's to-do changes
+ * are stored in one transaction. Only then is the mail of that window marked
+ * read. Returns null when none is due, the user has no
  * mailbox, or another run stored the day first. Returns "retry" and stores
  * nothing when no mailbox can be read or the agent submits no report,
  * until the last try of the day. The mail is never stored.
@@ -101,7 +101,6 @@ export async function buildMorningReport(
   const { settings, localDate } = plan;
   const lastTry = localClock(builtAt, settings.timeZone).hour >= LAST_TRY_HOUR;
   if (!deps.models && !lastTry) return "retry";
-  const mailDate = addDays(localDate, -1);
   const mailboxes = await RunMailboxes.open(db, userId, deps.mail);
   try {
     let agent: ReportAgentResult | null = null;
@@ -119,7 +118,12 @@ export async function buildMorningReport(
           locale: settings.locale,
           timeZone: settings.timeZone,
           today: localDate,
-          mailDate,
+          reportHour: settings.digestHour,
+          mailWindow: reportMailWindow(
+            localDate,
+            settings.digestHour,
+            settings.timeZone,
+          ),
         },
       );
     }
@@ -135,7 +139,7 @@ export async function buildMorningReport(
     const changes = report ? agent?.todoChanges : undefined;
     const content: MorningReportContentV2 = {
       version: 2,
-      mailDate,
+      mailDate: addDays(localDate, -1),
       status,
       headline: report?.headline ?? null,
       needsAction: report?.needsAction ?? [],
@@ -183,7 +187,9 @@ export async function buildMorningReport(
     if (!stored) return null;
     const markedRead =
       report && agent
-        ? await agent.markDayMailRead(`In the morning report of ${localDate}`)
+        ? await agent.markWindowMailRead(
+            `In the morning report of ${localDate}`,
+          )
         : 0;
     return {
       id: stored.id,

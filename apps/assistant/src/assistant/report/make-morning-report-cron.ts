@@ -11,7 +11,7 @@ import { notifyReport } from "./notify-report.ts";
 
 /**
  * The report agent submits by this time. Its last step can take 45 s more,
- * then the report is stored, the day's mail marked read and the headline
+ * then the report is stored, its mail marked read and the headline
  * pushed; the function may run 800 s.
  */
 export const MORNING_REPORT_BUDGET_MS = 600_000;
