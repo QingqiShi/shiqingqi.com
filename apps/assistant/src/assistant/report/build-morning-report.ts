@@ -15,10 +15,14 @@ import {
 import type { AssistantDb, UserScope } from "#src/assistant/db/types.ts";
 import type { MailboxDeps } from "#src/assistant/mail/accounts/open-mailbox-session.ts";
 import { dueReportDate, localClock } from "./due-report-date.ts";
-import { addDays, reportMailWindow } from "./local-day-bounds.ts";
+import {
+  addDays,
+  localDayBounds,
+  reportMailWindow,
+} from "./local-day-bounds.ts";
 import { readReportSettings } from "./read-report-settings.ts";
 import { runReportAgent, type ReportAgentResult } from "./run-report-agent.ts";
-import type { MorningReportContentV2 } from "./types.ts";
+import type { MorningReportContent, MorningReportContentV2 } from "./types.ts";
 
 /**
  * From this local hour on, a run that cannot write the report stores one
@@ -26,12 +30,20 @@ import type { MorningReportContentV2 } from "./types.ts";
  */
 const LAST_TRY_HOUR = 23;
 
+/** A mailbox that fails to open gets this many more tries in the run, this long apart. */
+const LOGIN_RETRIES = 2;
+const LOGIN_RETRY_WAIT_MS = 60_000;
+
+/** A report looks back over at most this many stored reports for the mail a mailbox missed. */
+const MAX_REPORTS_BACK = 7;
+
 export interface ReportBuildDeps {
   /** Null when no API key is set: then the runs try again until the last try of the day. */
   models: AgentModels | null;
   mail: MailboxDeps;
   calendarConnector: CalendarConnector;
   now: () => Date;
+  sleep: (ms: number) => Promise<void>;
 }
 
 export interface BuiltReport {
@@ -41,7 +53,7 @@ export interface BuiltReport {
   status: MorningReportContentV2["status"];
   headline: string | null;
   newTodos: number;
-  /** The mails of the report's window marked read once the report was stored. */
+  /** The mails marked read once the report was stored. */
   markedRead: number;
 }
 
@@ -53,22 +65,42 @@ async function readPlan({ db, userId }: UserScope, builtAt: Date) {
     .where(eq(mailAccounts.userId, userId));
   if (accounts.length === 0) return null;
   const settings = await readReportSettings({ db, userId });
-  const latest = (
-    await db
-      .select({ localDate: morningReports.localDate })
-      .from(morningReports)
-      .where(eq(morningReports.userId, userId))
-      .orderBy(desc(morningReports.localDate))
-      .limit(1)
-  ).at(0);
+  const recentReports = await db
+    .select({
+      localDate: morningReports.localDate,
+      content: morningReports.content,
+    })
+    .from(morningReports)
+    .where(eq(morningReports.userId, userId))
+    .orderBy(desc(morningReports.localDate))
+    .limit(MAX_REPORTS_BACK);
   const localDate = dueReportDate({
     now: builtAt,
     timeZone: settings.timeZone,
     reportHour: settings.digestHour,
-    latestReportDate: latest?.localDate ?? null,
+    latestReportDate: recentReports.at(0)?.localDate ?? null,
   });
   if (!localDate) return null;
-  return { accounts, settings, localDate };
+  return { accounts, settings, localDate, recentReports };
+}
+
+/**
+ * The `mailDate` of the oldest report in the unbroken run of newest reports
+ * that could not read the account; null when the newest report read it.
+ */
+function firstMailDay(
+  accountId: string,
+  recentReports: readonly { content: MorningReportContent }[],
+) {
+  let since: string | null = null;
+  for (const { content } of recentReports) {
+    const missed = content.unreadMailboxes.some(
+      (box) => box.accountId === accountId,
+    );
+    if (!missed) break;
+    since = content.mailDate;
+  }
+  return since;
 }
 
 /**
@@ -76,9 +108,11 @@ async function readPlan({ db, userId }: UserScope, builtAt: Date) {
  * the report agent reads the mail of the report's window and today's
  * calendar, and submits the report; the report and the agent's to-do changes
  * are stored in one transaction. Only then is the mail of that window marked
- * read. Returns null when none is due, the user has no
- * mailbox, or another run stored the day first. Returns "retry" and stores
- * nothing when no mailbox can be read or the agent submits no report,
+ * read. A mailbox that cannot be read does not delay the report: the report
+ * says so, and the next report that can read the mailbox also covers the mail
+ * it missed. Returns null when none is due, the user has no mailbox, or
+ * another run stored the day first. Returns "retry" and stores nothing when
+ * no mailbox can be read or the agent submits no report,
  * until the last try of the day. The mail is never stored.
  */
 export async function buildMorningReport(
@@ -98,10 +132,20 @@ export async function buildMorningReport(
   const plan = await readPlan({ db, userId }, builtAt);
   if (!plan) return null;
 
-  const { settings, localDate } = plan;
+  const { settings, localDate, recentReports } = plan;
   const lastTry = localClock(builtAt, settings.timeZone).hour >= LAST_TRY_HOUR;
   if (!deps.models && !lastTry) return "retry";
-  const mailboxes = await RunMailboxes.open(db, userId, deps.mail);
+  const mailWindow = reportMailWindow(
+    localDate,
+    settings.digestHour,
+    settings.timeZone,
+  );
+  const mailboxes = await RunMailboxes.open(db, userId, deps.mail, {
+    loginRetries: {
+      times: LOGIN_RETRIES,
+      wait: () => deps.sleep(LOGIN_RETRY_WAIT_MS),
+    },
+  });
   try {
     let agent: ReportAgentResult | null = null;
     if (deps.models && mailboxes.accounts.length > 0) {
@@ -119,11 +163,16 @@ export async function buildMorningReport(
           timeZone: settings.timeZone,
           today: localDate,
           reportHour: settings.digestHour,
-          mailWindow: reportMailWindow(
-            localDate,
-            settings.digestHour,
-            settings.timeZone,
-          ),
+          mailWindow,
+          mailStart: (accountId) => {
+            const missedDay = firstMailDay(accountId, recentReports);
+            // An old report covers all of its local day, and the stored
+            // content does not show the type of report. Thus, start at local
+            // midnight. A few hours of mail can show again, but no mail is lost.
+            return missedDay
+              ? localDayBounds(missedDay, settings.timeZone).start
+              : mailWindow.start;
+          },
         },
       );
     }

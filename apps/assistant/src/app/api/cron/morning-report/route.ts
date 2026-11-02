@@ -1,3 +1,4 @@
+import { setTimeout as sleep } from "node:timers/promises";
 import { getAgentModels } from "#src/assistant/ai/get-agent-models.ts";
 import { tsdavConnector } from "#src/assistant/calendar/caldav/tsdav-connector.ts";
 import { getAssistantDb } from "#src/assistant/db/get-assistant-db.ts";
@@ -20,6 +21,7 @@ export const GET = makeMorningReportCron({
           mail,
           calendarConnector: tsdavConnector,
           now: () => new Date(),
+          sleep: (ms) => sleep(ms),
         }
       : null;
   },

@@ -78,7 +78,7 @@ export interface MorningReportContentV2 {
   rest: string | null;
   /** Today's events; null when the assistant has no calendar of the owner. */
   agenda: AgendaItem[] | null;
-  /** The mails of the report's window that the agent listed. */
+  /** The mails of the report's window that the agent listed; no earlier mail that the report also covers. */
   mailCount: number;
   /** True when the time or the step limit made the agent submit early. */
   ranOutOfTime: boolean;

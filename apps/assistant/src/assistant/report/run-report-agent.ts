@@ -60,9 +60,9 @@ export interface ReportAgentResult {
   /** Null when the agent did not submit a report. */
   report: SubmittedReport | null;
   todoChanges: TodoChanges;
-  /** The mails of the window in the folders the report covers, each Message-ID once. */
+  /** The mails of the window in the folders the report covers, each Message-ID once; no earlier mail that the report also covers. */
   mailCount: number;
-  /** Marks read the mail of the window in the folders the report covers, and no other mail. Call it only once the report is stored. */
+  /** Marks read, per account, the listed mail from its `mailStart` up to the window's end, in the folders the report covers, and no other mail. Call it only once the report is stored. */
   markWindowMailRead: (reason: string) => Promise<number>;
 }
 
@@ -101,8 +101,8 @@ const eventsOutput = z.object({
 type ListedEvent = z.output<typeof eventsOutput>["events"][number];
 
 /**
- * Lists the window's mail of one folder, which gives each mail its id, so
- * that `markWindowMailRead` reaches it whether or not the agent lists it.
+ * Lists the mail the report covers in one folder, which gives each mail its
+ * id, so that `markWindowMailRead` reaches it whether or not the agent lists it.
  * Null when the folder cannot be listed.
  */
 async function countWindowMail(
@@ -138,9 +138,10 @@ function timeOfDay(event: Pick<AgendaItem, "allDay" | "start">) {
  * Runs the report agent over mailboxes and calendars that are open: it
  * lists and reads the window's mail, looks at today's calendar, changes the
  * to-dos in memory and submits the report. Before the run, code lists the
- * window's mail of every folder the report covers, so the prompt can say how
- * much each holds and `markWindowMailRead` reaches all of it. Nothing is
- * stored here, and no mail changes until `markWindowMailRead`.
+ * mail from each account's `mailStart` up to the window's end in every folder
+ * the report covers, so the prompt can say how much each holds and
+ * `markWindowMailRead` reaches all of it. Nothing is stored here, and no mail
+ * changes until `markWindowMailRead`.
  */
 export async function runReportAgent(
   {
@@ -159,6 +160,7 @@ export async function runReportAgent(
     today,
     reportHour,
     mailWindow,
+    mailStart,
   }: {
     models: AgentModels;
     mailboxes: RunMailboxes;
@@ -169,6 +171,8 @@ export async function runReportAgent(
     today: string;
     reportHour: number;
     mailWindow: TimeBounds;
+    /** Where the account's mail starts: `mailWindow.start`, or earlier when an earlier report missed it. */
+    mailStart: (accountId: string) => Date;
   },
 ): Promise<ReportAgentResult> {
   const handles = new MailHandles();
@@ -198,7 +202,10 @@ export async function runReportAgent(
   const list = (input: ListMailInput) =>
     listMail({ mailboxes, handles, timeZone }, input);
   const mailboxList: ReportMailbox[] = [];
+  const covered = new Map<string, TimeBounds>();
   for (const account of mailboxes.accounts) {
+    const start = mailStart(account.id);
+    covered.set(account.key, { start, end: mailWindow.end });
     const paths = await mailboxes.use(account.key, (mailbox) =>
       Promise.resolve(reportFolders(account.provider, mailbox.folders)),
     );
@@ -209,7 +216,7 @@ export async function runReportAgent(
         count: await countWindowMail(list, {
           account: account.key,
           folder: path,
-          since: mailWindow.start.toISOString(),
+          since: start.toISOString(),
           before: mailWindow.end.toISOString(),
         }),
       });
@@ -217,6 +224,7 @@ export async function runReportAgent(
     mailboxList.push({
       account: account.key,
       address: account.address,
+      since: start < mailWindow.start ? start.toISOString() : null,
       folders,
     });
   }
@@ -381,9 +389,14 @@ export async function runReportAgent(
     },
   );
 
-  const windowMail = handles
-    .listed()
-    .filter(([, ref]) => isInBounds(ref.receivedAt, mailWindow));
+  const listed = handles.listed();
+  const windowMail = listed.filter(([, ref]) =>
+    isInBounds(ref.receivedAt, mailWindow),
+  );
+  const coveredMail = listed.filter(([, ref]) => {
+    const bounds = covered.get(ref.accountKey);
+    return bounds !== undefined && isInBounds(ref.receivedAt, bounds);
+  });
   return {
     run,
     report: submitted,
@@ -391,7 +404,7 @@ export async function runReportAgent(
     mailCount: new Set(windowMail.map(([, ref]) => ref.messageId)).size,
     markWindowMailRead: async (reason) => {
       if (!markRead) return 0;
-      const ids = windowMail.map(([id]) => id);
+      const ids = coveredMail.map(([id]) => id);
       let changed = 0;
       for (let start = 0; start < ids.length; start += MARK_READ_BATCH) {
         const result = await callAgentTool(markRead, {

@@ -128,8 +128,8 @@ function Notes({
           })}
         >
           {t({
-            en: "These mailboxes could not be read: {addresses}.",
-            zh: "这些邮箱无法读取：{addresses}。",
+            en: "These mailboxes could not be read: {addresses}. The first report that can read them will include their mail.",
+            zh: "这些邮箱无法读取：{addresses}。下一份能读取它们的报告会补上这些邮件。",
           }).replace(
             "{addresses}",
             content.unreadMailboxes.map((box) => box.address).join(", "),
