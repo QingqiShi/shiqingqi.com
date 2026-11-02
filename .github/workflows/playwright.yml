@@ -32,6 +32,9 @@ jobs:
         # uses changes. turbo does not mark the apps for most files outside
         # apps and packages, such as this workflow or the scripts that the
         # Playwright configs use. Thus a change to such a file tests all apps.
+        # pnpm-lock.yaml is an exception: turbo compares the lockfile for each
+        # package, and marks only the packages whose dependencies changed. A
+        # change to the dependencies of the root package marks all packages.
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" != pull_request ]; then
@@ -43,8 +46,8 @@ jobs:
           affected=$(TURBO_SCM_BASE=HEAD^1 TURBO_SCM_HEAD=HEAD pnpm dlx "turbo@$turbo" ls --affected --output=json \
             | node -e 'const d=JSON.parse(require("fs").readFileSync(0,"utf8"));console.log(d.packages.items.map((p)=>p.name).join(" "))')
           echo "turbo affected: $affected"
-          outside=$(git diff --name-only HEAD^1 HEAD -- . ':!apps' ':!packages')
-          echo "Changed outside apps and packages: ${outside:-none}"
+          outside=$(git diff --name-only HEAD^1 HEAD -- . ':!apps' ':!packages' ':!pnpm-lock.yaml')
+          echo "Changed outside apps, packages and the lockfile: ${outside:-none}"
           for app in web finance; do
             if [ -n "$outside" ] || [[ " $affected " == *" $app "* ]]; then
               echo "$app=true" | tee -a "$GITHUB_OUTPUT"
